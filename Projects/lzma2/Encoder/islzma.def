@@ -1,0 +1,7 @@
+LIBRARY islzma
+
+EXPORTS
+  LZMA_Init3 = LZMA_Init
+  LZMA_SetProps3 = LZMA_SetProps
+  LZMA_Encode3 = LZMA_Encode
+  LZMA_End3 = LZMA_End

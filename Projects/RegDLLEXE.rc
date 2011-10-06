@@ -1,0 +1,5 @@
+// $jrsoftware: issrc/Projects/RegDLLEXE.rc,v 1.1 2005/10/25 22:04:27 jr Exp $
+//
+// Contains the RegDLL EXE used by the RegDLL unit
+
+REGDLL_EXE RCDATA RegDLL\Release\RegDLL.exe

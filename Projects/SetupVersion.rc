@@ -1,0 +1,33 @@
+// $jrsoftware: issrc/Projects/SetupVersion.rc,v 1.4 2010/04/06 16:56:46 mlaan Exp $
+//
+// Setup version resource
+// Compiled with RC.EXE from the Platform SDK (5.2.3690.0)
+//
+// Note: The \0's in the values are to make this resource script compatible
+// with Borland's BRCC32 as well. BRCC32 does not automatically null-terminate
+// string values like Microsoft's RC does, resulting in garbage characters on
+// Explorer's Version tab (on Windows 2000) if \0's aren't included.
+
+1 VERSIONINFO
+ FILEVERSION 51,52,0,0
+ PRODUCTVERSION 0,0,0,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "FileDescription", "Setup/Uninstall\0"
+            VALUE "FileVersion", "51.52.0.0\0"
+                  // NOTE: Be sure to keep FILEVERSION in sync!
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END

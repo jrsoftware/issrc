@@ -1,0 +1,5 @@
+*.dcu
+*.dll
+*.exe
+buildtag.inc
+setup-*.bin

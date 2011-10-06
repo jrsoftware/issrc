@@ -1,0 +1,7 @@
+// $jrsoftware: issrc/Projects/_shfoldr.rc,v 1.3 2002/11/09 19:45:41 jr Exp $
+// _shfoldr.res contains the shfolder.dll file used by Setup
+//
+// shfolder.dll is from a fresh install of IE 5.5 SP2 on NT 4.0
+// It is version 5.50.4807.2300, dated 2001-07-23 00:00
+
+SHFOLDERDLL RCDATA _shfoldr.dll

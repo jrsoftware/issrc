@@ -1,0 +1,18 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=MyProg.chm
+Contents file=hh_contents.hhc
+Default Window=main
+Default topic=topic_myprog.htm
+Display compile progress=Yes
+Full-text search=Yes
+Index file=hh_index.hhk
+Language=0x409 English (United States)
+Title=My Program Help
+
+[WINDOWS]
+main=,"hh_contents.hhc","hh_index.hhk",,,,,,,0x2520,,0x300e,,,,,,,,0
+
+
+[INFOTYPES]
+

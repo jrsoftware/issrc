@@ -1,0 +1,48 @@
+This patch to Delphi 2.01-5.01's Controls.pas fixes an AV issue with
+combo boxes and Outlook Express; see:
+
+http://groups.google.com/group/borland.public.delphi.vcl.components.using/browse_thread/thread/e012cea3ea1d258b
+
+Delphi 6 has the same problem, but needs a slightly different patch --
+see VCL-Controls-D6-patch.txt.
+Delphi 7 and later already incorporate an equivalent fix.
+
+After applying the changes, recompile Controls.pas from the command
+line as follows:
+
+> c:\delphi\bin\dcc32 -$D- -$L- Controls.pas
+> move Controls.dcu c:\delphi\lib
+
+
+--- Controls.pas.orig	Sun Jun 09 03:01:00 1996
++++ Controls.pas	Tue Mar 19 20:45:04 2002
+@@ -967,11 +967,15 @@
+ { Find a TWinControl given a window handle }
+ 
+ function FindControl(Handle: HWnd): TWinControl;
++var
++  PID: DWORD;
+ begin
+   Result := nil;
+   if Handle <> 0 then
+   begin
+-    Result := Pointer(GetProp(Handle, MakeIntAtom(ControlAtom)));
++    if (GetWindowThreadProcessId(Handle, @PID) <> 0) and
++       (PID = GetCurrentProcessId) then
++      Result := Pointer(GetProp(Handle, MakeIntAtom(ControlAtom)));
+   end;
+ end;
+ 
+@@ -1271,8 +1275,12 @@
+ end;
+ 
+ function IsDelphiHandle(Handle: HWND): Boolean;
++var
++  PID: DWORD;
+ begin
+   Result := (Handle <> 0) and
++    (GetWindowThreadProcessId(Handle, @PID) <> 0) and
++    (PID = GetCurrentProcessId) and
+     (GetProp(Handle, MakeIntAtom(WindowAtom)) <> 0);
+ end;
+ 
