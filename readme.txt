@@ -65,6 +65,9 @@ Remarks:
   For example:
   > set CVSROOT=:pserver:jrsoftware@cvs.jrsoftware.org:/data/cvs
   > cvs -z3 checkout -P ispp  
+	
+	Alternative you can download the ispp module from GitHub:
+	https://github.com/jrsoftware/ispp/zipball/master
 
 2. Delphi 2.0x users ONLY
 =========================
