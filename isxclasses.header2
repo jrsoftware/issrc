@@ -1,0 +1,6 @@
+<body>
+
+<p>Below is the list of support classes that can be used from within the Pascal script. There are also three support objects available: <tt>MainForm</tt> of type <tt>TMainForm</tt>, <tt>WizardForm</tt> of type <tt>TWizardForm</tt> and <tt>UninstallProgressForm</tt> of type <tt>TUninstallProgressForm</tt> and one special constant: <tt>crHand</tt> of type <tt>TControl.Cursor</tt>. Note: <tt>MainForm</tt> is only visible if <link topic="setup_windowvisible">WindowVisible</link> is set to <tt>yes</tt>.</p>
+
+<p>Note: you may find it useful to also refer to the Delphi Visual Component Library (VCL) Help files by Embarcadero Technologies, since the classes below are mostly simple wrappers around the VCL classes Inno Setup uses internally. See <extlink href="http://docs.embarcadero.com/products/rad_studio/">http://docs.embarcadero.com/products/rad_studio/</extlink>.</p>
+

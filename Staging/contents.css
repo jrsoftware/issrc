@@ -1,0 +1,191 @@
+/*
+  Inno Setup
+  Copyright (C) 1997-2010 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+
+  $jrsoftware: ishelp/Staging/contents.css,v 1.12 2010/09/17 03:48:14 jr Exp $
+
+  Style sheet used by contents.htm
+*/
+
+BODY {
+	font-family: Tahoma, "Microsoft Sans Serif", "MS Sans Serif", sans-serif;
+	font-size: 66.667%;   /* 8pt (8/12) */
+	margin: 0;
+	color: WindowText;
+	background-color: Window;
+}
+INPUT {
+	font: inherit;
+}
+
+
+#tabbar {
+	background-color: ButtonFace;
+	color: WindowText;
+	padding-top: 4px;
+	cursor: default;
+	-moz-user-select: none;
+}
+#tabbar TD {
+	padding: 0;
+	border-bottom: 1px solid ThreeDDarkShadow;
+	font-weight: bold;
+	     border-radius: 3px 3px 0 0;
+	-moz-border-radius: 3px 3px 0 0;	/* for Firefox 3.6 */
+}
+#tabbar TD.selectedtab {
+	background-color: Window;
+	padding: 2px 6px 3px 6px;
+	border: 1px solid ThreeDDarkShadow;
+	border-bottom: none;
+}
+#tabbar TD.unselectedtab {
+	padding: 3px 7px 2px 7px;
+	cursor: pointer;
+}
+#tabbar A {
+	background-color: transparent;
+	color: WindowText;
+	text-decoration: none;
+	outline: none;
+}
+#tabbar TD.selectedtab A {
+	cursor: default;
+}
+#tabbar TD.unselectedtab:hover A {
+	color: blue;
+	text-decoration: underline;
+}
+
+
+#tabbody-contents A {
+	/* Using inline-block because otherwise, second line of wrapped text
+	   doesn't line up with first, and on IE6, the focus rect doesn't extend
+	   all the way to the edges of Highlight area */
+	display: inline-block;
+	padding: 1px 2px;
+}
+#tabbody-contents A:link,
+#tabbody-contents A:visited,
+#tabbody-contents A:active {
+	color: WindowText;
+	background-color: transparent;
+	text-decoration: none;
+}
+#tabbody-contents A:hover {
+	color: blue;
+	background-color: transparent;
+	text-decoration: underline;
+}
+#tabbody-contents A.selectedlink:link,
+#tabbody-contents A.selectedlink:visited {
+	color: WindowText;
+	background-color: ButtonFace;
+}
+/* It would be cleaner to use :focus, but IE<8 doesn't support it */
+#tabbody-contents A.focusedlink:link,
+#tabbody-contents A.focusedlink:visited {
+	color: HighlightText;
+	background-color: Highlight;
+	outline-color: WindowText;   /* needed for focus rect to appear on Firefox (3.5) */
+}
+#tabbody-contents TABLE {
+	border-collapse: collapse;
+}
+#tabbody-contents TD {
+	padding: 0 0 1px 0;
+}
+#tabbody-contents IMG {
+	width: 16px;
+	height: 16px;
+	border-style: none;
+	padding-right: 2px;
+}
+
+
+#tabbody-index {
+	padding: 4px 2px;
+	white-space: nowrap;
+	-moz-user-select: none;
+}
+#tabbody-index A {
+	display: inline-block;
+	min-width: 100%;
+	overflow: visible;
+}
+#tabbody-index A:link,
+#tabbody-index A:visited,
+#tabbody-index A:active {
+	color: WindowText;
+	background-color: transparent;
+	text-decoration: none;
+}
+#tabbody-index A:hover {
+	color: blue;
+	background-color: transparent;
+	text-decoration: underline;
+}
+#tabbody-index A:focus {
+	color: HighlightText;
+	background-color: Highlight;
+	outline-color: WindowText;   /* needed for focus rect to appear on Firefox (3.5) */
+}
+
+
+#searchcont .gsc-control {
+	font: small Arial, sans-serif;   /* 10pt */
+	width: 100%;
+}
+#searchcont .gsc-tabHeader {
+	display: none;
+}
+#searchcont .gsc-resultsHeader {
+	border: none;
+}
+#searchcont .gs-webResult DIV.gs-visibleUrl-short {
+	display: none;
+}
+#searchcont .gsc-result .gs-title {
+	height: auto;   /* otherwise it clips to one line */
+	overflow: visible;   /* otherwise focus rectangle is chopped off */
+}
+#searchcont .gs-result .gs-title,
+#searchcont .gs-result .gs-title * {
+	color: #008000;
+}
+#searchcont .gs-result .gs-snippet {
+	font-size: 90%;   /* 9pt (9/10) */
+}
+#searchcont .gsc-results .gsc-cursor-box {
+	padding-top: 0.5em;
+	text-align: center;
+}
+#searchcont .gsc-results .gsc-cursor-box .gsc-cursor-page {
+	padding: 1px 5px;
+	border: 1px solid #008000;
+	color: #008000;
+	font-size: 90%;   /* 9pt (9/10) */
+	text-decoration: none;
+	     border-radius: 3px;
+	-moz-border-radius: 3px;			/* for Firefox 3.6 */
+	        box-shadow: #c0c0c0 1px 1px 2px;
+	   -moz-box-shadow: #c0c0c0 1px 1px 2px;	/* for Firefox 3.6 */
+	-webkit-box-shadow: #c0c0c0 1px 1px 2px;	/* for Chrome 6.0 */
+	-moz-user-select: none;
+}
+#searchcont .gsc-results .gsc-cursor-box .gsc-cursor-page:hover {
+	background-color: #008000;
+	color: white;
+	        box-shadow: #008000 0 0 5px, #c0c0c0 1px 1px 2px;
+	   -moz-box-shadow: #008000 0 0 5px, #c0c0c0 1px 1px 2px;	/* for Firefox 3.6 */
+	-webkit-box-shadow: #008000 0 0 5px, #c0c0c0 1px 1px 2px;	/* for Chrome 6.0 */
+}
+#searchcont .gsc-results .gsc-cursor-box .gsc-cursor-current-page {
+	background-color: #008000;
+	color: white;
+}
+#searchcont .gsc-results .gsc-cursor-box .gsc-trailing-more-results {
+	display: none;
+}
