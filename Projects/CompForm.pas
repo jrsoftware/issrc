@@ -11,7 +11,7 @@ unit CompForm;
   $jrsoftware: issrc/Projects/CompForm.pas,v 1.251 2011/03/16 08:51:46 mlaan Exp $
 }
 
-{$DEFINE STATICCOMPILER}
+{x$DEFINE STATICCOMPILER}
 { For debugging purposes, remove the 'x' to have it link the compiler code
   into this program and not depend on ISCmplr.dll. }
 
