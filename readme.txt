@@ -126,7 +126,7 @@ be found.
 
 Inno Setup consists of five projects:
 
-Compil32.dpr - This is the GUI front-end for the compiler. Compil32 does not
+Compil32 - This is the GUI front-end for the compiler. Compil32 does not
 do the actual compilation itself; it relegates it to ISCmplr.dll. If the
 ISCmplr project is changed, you normally don't need to recompile Compil32
 since it's essentially a text editor, and is not affected by internal
@@ -135,17 +135,17 @@ Non Unicode Inno Setup note: This is the only project that I compile under
 Delphi 3 (3.02 to be exact). The rest of the projects are compiled under
 Delphi 2.01.
 
-ISCC.dpr - This is the command-line front-end to the compiler. Like
+ISCC - This is the command-line front-end to the compiler. Like
 Compil32, it depends on ISCmplr.dll to do the actual compiling.
 
-ISCmplr.dpr - This is a DLL which is loaded by Compil32 and ISCC to compile
+ISCmplr - This is a DLL which is loaded by Compil32 and ISCC to compile
 scripts. The actual compiler code is in Compile.pas. See CompInt.pas for the
 various structures and function declarations used to interface to the DLL.
 
-Setup.dpr - This is the actual "Setup" program. It displays the wizard, and
+Setup - This is the actual "Setup" program. It displays the wizard, and
 performs all (un)installation-related tasks.
 
-SetupLdr.dpr - This is the "setup loader." It self-extracts a compressed
+SetupLdr - This is the "setup loader." It self-extracts a compressed
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." message box.
 
