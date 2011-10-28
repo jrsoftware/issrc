@@ -5,7 +5,7 @@
 ;
 ; Setup script
 ;
-; $jrsoftware: issrc/setup.iss,v 1.181 2011/03/16 08:31:57 mlaan Exp $
+; $jrsoftware: issrc/setup.iss,v 1.182 2011/10/28 07:23:01 mlaan Exp $
 
 [Setup]
 AppName=Inno Setup
@@ -52,9 +52,12 @@ Name: no; MessagesFile: "files\Languages\Norwegian.isl"
 Name: pl; MessagesFile: "files\Languages\Polish.isl"
 Name: pt; MessagesFile: "files\Languages\Portuguese.isl"
 Name: ru; MessagesFile: "files\Languages\Russian.isl"
+Name: se; MessagesFile: "files\Languages\SerbianLatin.isl"
+Name: se2; MessagesFile: "files\Languages\SerbianCyrillic.isl"
 Name: sl; MessagesFile: "files\Languages\Slovak.isl"
 Name: sl2; MessagesFile: "files\Languages\Slovenian.isl"
 Name: sp; MessagesFile: "files\Languages\Spanish.isl"
+Name: uk; MessagesFile: "files\Languages\Ukrainian.isl"
 
 [Messages]
 ; two "Setup" on the same line looks weird to me, so put a line break in between
@@ -104,9 +107,12 @@ Source: "files\Languages\Norwegian.isl"; DestDir: "{app}\Languages"; Flags: igno
 Source: "files\Languages\Polish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Portuguese.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Russian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+Source: "files\Languages\SerbianCyrillic.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+Source: "files\Languages\SerbianLatin.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Slovak.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Slovenian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Spanish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+Source: "files\Languages\Ukrainian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\WizModernImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
