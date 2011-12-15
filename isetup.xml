@@ -7,7 +7,7 @@
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  $jrsoftware: ishelp/isetup.xml,v 1.191 2011/09/14 14:09:40 mlaan Exp $
+  $jrsoftware: ishelp/isetup.xml,v 1.192 2011/12/15 14:16:47 mlaan Exp $
 -->
 
 <ishelp version="1">
@@ -87,7 +87,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 5.4.2</b><br/>
+<b>Inno Setup version 5.4.3</b><br/>
 <b>Copyright &copy; 1997-2011 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2011 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
