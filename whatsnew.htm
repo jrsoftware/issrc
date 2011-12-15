@@ -32,9 +32,16 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
 <li>QuickStart Pack: Now offers to download and install <a href="https://www.kymoto.org/inno-script-studio" target="_blank">Inno Script Studio</a> besides <a href="http://www.innoide.org/" target="_blank">InnoIDE</a>.</li>
 <li>Setup now only allows the "Don't create a Start Menu folder" check box to suppress the creation of shortcuts under <tt>{group}</tt>. Previously, it would also suppress the creation of shortcuts in other locations, such as <tt>{userstartup}</tt>, on entries that lacked a Tasks parameter.</li>
+<li>Setup now doesn't count files with <tt>Tasks</tt>/<tt>Check</tt> parameters when calculating the disk space shown at the bottom of the <i>Select Components</i> page.
 <li>Improved throughput of external file copying on some devices.</li>
 <li>On Unicode, Setup now supports Rich Edit 4.1 when available.</li>
-<li>ISPP documentation improvements: added the functions available from <i>ISPPBuiltins.iss</i> to the help file.</li>
+<li>Inno Setup Preprocessor (ISPP) changes:
+  <ul>
+  <li>Documentation improvements: Added the functions available from <i>ISPPBuiltins.iss</i> to the help file.</li>
+  <li><tt>#ifexist</tt>/<tt>#ifnexist</tt>: For consistency with ISPP functions, prepend SourcePath if the filename is relative, and also support prefix expansion.</li>
+  <li><tt>ReadReg</tt>: Now only requests KEY_QUERY_VALUE access on the key. Previously, it requested KEY_ALL_ACCESS.</li>
+  </ul>
+</li>
 <li>The Inno Setup source code is now also available as a Git repository at <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>. This should make it easier to contribute to Inno Setup, see <a href="http://help.github.com/fork-a-repo/">GitHub Help - Fork A Repo</a> for more info.</li> 
 <li>Added official Serbian (both Latin and Cyrillic) and Ukrainian translations.</li>
 <li>Minor tweaks.</li>

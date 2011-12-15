@@ -19,8 +19,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '5.4.2 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
-  SetupBinVersion = (5 shl 24) + (4 shl 16) + (2 shl 8) + 0;
+  SetupVersion = '5.4.3 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
+  SetupBinVersion = (5 shl 24) + (4 shl 16) + (3 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
