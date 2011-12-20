@@ -8,7 +8,7 @@ unit CompMsgs;
 
   Compiler Messages
 
-  $jrsoftware: issrc/Projects/CompMsgs.pas,v 1.119 2010/12/27 12:25:42 mlaan Exp $
+  $jrsoftware: issrc/Projects/CompMsgs.pas,v 1.120 2011/12/20 16:26:07 mlaan Exp $
 
   All language-specific text used by the compiler is in here. If you want to
   translate it into another language, all you need to change is this unit.
@@ -209,7 +209,7 @@ const
   SCompilerTextNotInSection = 'Text is not inside a section';
   SCompilerInvalidDirective = 'Invalid compiler directive' +
     SNewLine2 + 'To be able to use compiler directives other than ''#include'', you need Inno Setup Preprocessor (ISPP) which is currently not installed.' +
-    SNewLine2 + 'To download and install ISPP, reinstall Inno Setup and enable the ISPP option.';
+    SNewLine2 + 'To install ISPP, reinstall Inno Setup and enable the ISPP option.';
   SCompilerErrorOpeningIncludeFile = 'Couldn''t open include file "%s": %s';
   SCompilerRecursiveInclude = 'Recursive include of "%s"';
   SCompilerIllegalNullChar = 'Illegal null character on line %d';
