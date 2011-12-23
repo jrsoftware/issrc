@@ -45,7 +45,7 @@ Remarks:
   > svn checkout -r 1000 http://code.remobjects.com/svn/pascalscript UniPs
 
   If you don't have the Subversion client (svn), get it from:
-  http://subversion.tigris.org/
+  http://subversion.apache.org/
 
   The ROPS changelog can be found at:
   http://code.remobjects.com/p/pascalscript/source/changes/HEAD/
