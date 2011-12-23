@@ -1728,7 +1728,8 @@ var
       WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
       const NeverUninstall: Boolean; const CloseOnExit: TSetupIconCloseOnExit;
       const HotKey: Word; FolderShortcut: Boolean;
-      const AppUserModelID: String; const ExcludeFromShowInNewInstall: Boolean);
+      const AppUserModelID: String; const ExcludeFromShowInNewInstall: Boolean;
+      const PreventPinning: Boolean);
     var
       BeginsWithGroup: Boolean;
       LinkFilename, PifFilename, UrlFilename, DirFilename, ProbableFilename,
@@ -1782,7 +1783,8 @@ var
           environment-variable strings (e.g. %SystemRoot%\...) }
         ResultingFilename := CreateShellLink(LinkFilename, Description, Path,
           Parameters, WorkingDir, IconFilename, IconIndex, ShowCmd, HotKey,
-          FolderShortcut, AppUserModelID, ExcludeFromShowInNewInstall);
+          FolderShortcut, AppUserModelID, ExcludeFromShowInNewInstall,
+          PreventPinning);
         FolderShortcutCreated := FolderShortcut and DirExists(ResultingFilename);
 
         { If a .pif file was created, apply the "Close on exit" setting }
@@ -1876,7 +1878,8 @@ var
                 ExpandConst(IconFilename), IconIndex, ShowCmd,
                 ioUninsNeverUninstall in Options, CloseOnExit, HotKey,
                 ioFolderShortcut in Options, ExpandConst(AppUserModelID),
-                ioExcludeFromShowInNewInstall in Options);
+                ioExcludeFromShowInNewInstall in Options,
+                ioPreventPinning in Options);
             NotifyAfterInstallEntry(AfterInstall);
           end;
         end;

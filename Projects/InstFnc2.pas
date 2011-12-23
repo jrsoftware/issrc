@@ -18,7 +18,7 @@ interface
 function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
   WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
   const HotKey: Word; FolderShortcut: Boolean; const AppUserModelID: String;
-  const ExcludeFromShowInNewInstall: Boolean): String;
+  const ExcludeFromShowInNewInstall: Boolean, const PreventPinning: Boolean): String;
 procedure RegisterTypeLibrary(const Filename: String);
 procedure UnregisterTypeLibrary(const Filename: String);
 function UnpinShellLink(const Filename: String): Boolean;
@@ -149,7 +149,7 @@ type
 function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
   WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
   const HotKey: Word; FolderShortcut: Boolean; const AppUserModelID: String;
-  const ExcludeFromShowInNewInstall: Boolean): String;
+  const ExcludeFromShowInNewInstall: Boolean, const PreventPinning: Boolean): String;
 { Creates a lnk file named Filename, with a description of Description, with a
   HotKey hotkey, which points to ShortcutTo.
   NOTE! If you want to copy this procedure for use in your own application
@@ -166,6 +166,9 @@ const
   PKEY_AppUserModel_ExcludeFromShowInNewInstall: TPropertyKey = (
     fmtid: (D1:$9F4C2855; D2:$9F79; D3:$4B39; D4:($A8,$D0,$E1,$D4,$2D,$E1,$D5,$F3));
     pid: 8);
+  PKEY_AppUserModel_PreventPinning: TPropertyKey = (
+    fmtid: (D1:$9F4C2855; D2:$9F79; D3:$4B39; D4:($A8,$D0,$E1,$D4,$2D,$E1,$D5,$F3));
+    pid: 9);
 
 {$IFNDEF Delphi3OrHigher}
 var
@@ -209,7 +212,7 @@ begin
 
     { Note: Vista and newer support IPropertyStore but Vista errors if you try to
       commit a PKEY_AppUserModel_ID, so avoid setting the property on Vista. }
-    if IsWindows7 and ((AppUserModelID <> '') or ExcludeFromShowInNewInstall) then begin
+    if IsWindows7 and ((AppUserModelID <> '') or ExcludeFromShowInNewInstall or PreventPinning) then begin
       OleResult := SL.QueryInterface(IID_IPropertyStore, PS);
       if OleResult <> S_OK then
         RaiseOleError('IShellLink::QueryInterface(IID_IPropertyStore)', OleResult);
@@ -232,6 +235,13 @@ begin
         OleResult := PS.SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall, PV);
         if OleResult <> S_OK then
           RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall)', OleResult);
+      end;
+      if PreventPinning then begin
+        PV.vt := VT_BOOL;
+        PV.vbool := True;
+        OleResult := PS.SetValue(PKEY_AppUserModel_PreventPinning, PV);
+        if OleResult <> S_OK then
+          RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_PreventPinning)', OleResult);
       end;
       OleResult := PS.Commit;
       if OleResult <> S_OK then
@@ -303,7 +313,7 @@ begin
 
   { Note: Vista and newer support IPropertyStore but Vista errors if you try to
     commit a PKEY_AppUserModel_ID, so avoid setting the property on Vista. }
-  if IsWindows7 and ((AppUserModelID <> '') or ExcludeFromShowInNewInstall) then begin
+  if IsWindows7 and ((AppUserModelID <> '') or ExcludeFromShowInNewInstall or PreventPinning) then begin
     PS := Obj as IPropertyStore;
     if AppUserModelID <> '' then begin
       WideAppUserModelID := AppUserModelID;
@@ -319,7 +329,14 @@ begin
       OleResult := PS.SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall, PV);
       if OleResult <> S_OK then
         RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall)', OleResult);
-    end;    
+    end;
+    if PreventPinning then begin
+      PV.vt := VT_BOOL;
+      PV.boolVal := True;
+      OleResult := PS.SetValue(PKEY_AppUserModel_PreventPinning, PV);
+      if OleResult <> S_OK then
+        RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_PreventPinning)', OleResult);
+    end;
     OleResult := PS.Commit;
     if OleResult <> S_OK then
       RaiseOleError('IPropertyStore::Commit', OleResult);
