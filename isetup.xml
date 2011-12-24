@@ -1842,7 +1842,7 @@ Filename: "http://www.example.com/"
 <p>Prevents a Start menu entry for a newly installed application shortcut from receiving a highlight on Windows 7 (or later). Ignored on earlier Windows versions.</p>
 </flag>
 <flag name="preventpinning">
-<p>Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). Ignored on earlier Windows versions.</p>
+<p>Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions.</p>
 </flag>
 <flag name="foldershortcut">
 <p>Creates a special type of shortcut known as a "Folder Shortcut". Normally, when a shortcut to a folder is present on the Start Menu, clicking the item causes a separate Explorer window to open showing the target folder's contents. In contrast, a "folder shortcut" will show the contents of the target folder as a submenu instead of opening a separate window.</p>
