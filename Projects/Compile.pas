@@ -5040,10 +5040,10 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..8] of PChar = (
+  Flags: array[0..9] of PChar = (
     'uninsneveruninstall', 'runminimized', 'createonlyiffileexists',
     'useapppaths', 'closeonexit', 'dontcloseonexit', 'runmaximized',
-    'foldershortcut', 'excludefromshowinnewinstall');
+    'foldershortcut', 'excludefromshowinnewinstall', 'preventpinning');
 var
   Values: array[TParam] of TParamValue;
   NewIconEntry: PSetupIconEntry;
@@ -5075,6 +5075,7 @@ begin
           6: ShowCmd := SW_SHOWMAXIMIZED;
           7: Include(Options, ioFolderShortcut);
           8: Include(Options, ioExcludeFromShowInNewInstall);
+          9: Include(Options, ioPreventPinning);
         end;
 
       { Name }

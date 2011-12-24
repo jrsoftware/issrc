@@ -268,7 +268,8 @@ type
     CloseOnExit: TSetupIconCloseOnExit;
     HotKey: Word;
     Options: set of (ioUninsNeverUninstall, ioCreateOnlyIfFileExists,
-      ioUseAppPaths, ioFolderShortcut, ioExcludeFromShowInNewInstall);
+      ioUseAppPaths, ioFolderShortcut, ioExcludeFromShowInNewInstall,
+      ioPreventPinning);
   end;
 const
   SetupIniEntryStrings = 10;
