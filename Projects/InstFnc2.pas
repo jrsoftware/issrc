@@ -8,7 +8,7 @@ unit InstFnc2;
 
   OLE-related installation functions
 
-  $jrsoftware: issrc/Projects/InstFnc2.pas,v 1.32 2011/06/06 04:11:54 jr Exp $
+  $jrsoftware: issrc/Projects/InstFnc2.pas,v 1.33 2011/12/24 16:14:09 mlaan Exp $
 }
 
 interface

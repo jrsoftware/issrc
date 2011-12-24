@@ -8,7 +8,7 @@ unit ScriptFunc_R;
 
   Script support functions (run time)
 
-  $jrsoftware: issrc/Projects/ScriptFunc_R.pas,v 1.171 2011/02/15 14:35:43 mlaan Exp $
+  $jrsoftware: issrc/Projects/ScriptFunc_R.pas,v 1.172 2011/12/24 16:14:09 mlaan Exp $
 }
 
 interface

@@ -8,7 +8,7 @@ unit Compile;
 
   Compiler
 
-  $jrsoftware: issrc/Projects/Compile.pas,v 1.521 2011/04/08 05:46:16 jr Exp $
+  $jrsoftware: issrc/Projects/Compile.pas,v 1.522 2011/12/24 16:14:08 mlaan Exp $
 }
 
 {x$DEFINE STATICPREPROC}
