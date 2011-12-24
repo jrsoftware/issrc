@@ -18,7 +18,7 @@ interface
 function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
   WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
   const HotKey: Word; FolderShortcut: Boolean; const AppUserModelID: String;
-  const ExcludeFromShowInNewInstall: Boolean, const PreventPinning: Boolean): String;
+  const ExcludeFromShowInNewInstall, PreventPinning: Boolean): String;
 procedure RegisterTypeLibrary(const Filename: String);
 procedure UnregisterTypeLibrary(const Filename: String);
 function UnpinShellLink(const Filename: String): Boolean;
@@ -149,7 +149,7 @@ type
 function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
   WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
   const HotKey: Word; FolderShortcut: Boolean; const AppUserModelID: String;
-  const ExcludeFromShowInNewInstall: Boolean, const PreventPinning: Boolean): String;
+  const ExcludeFromShowInNewInstall, PreventPinning: Boolean): String;
 { Creates a lnk file named Filename, with a description of Description, with a
   HotKey hotkey, which points to ShortcutTo.
   NOTE! If you want to copy this procedure for use in your own application
@@ -216,6 +216,15 @@ begin
       OleResult := SL.QueryInterface(IID_IPropertyStore, PS);
       if OleResult <> S_OK then
         RaiseOleError('IShellLink::QueryInterface(IID_IPropertyStore)', OleResult);
+      { According to MSDN the PreventPinning property should be set before the ID property. In practice
+        this doesn't seem to matter - at least not for shortcuts - but do it first anyway. }
+      if PreventPinning then begin
+        PV.vt := VT_BOOL;
+        PV.vbool := True;
+        OleResult := PS.SetValue(PKEY_AppUserModel_PreventPinning, PV);
+        if OleResult <> S_OK then
+          RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_PreventPinning)', OleResult);
+      end;
       if (AppUserModelID <> '') then begin
         PV.vt := VT_BSTR;
         PV.bstrVal := StringToOleStr(AppUserModelID);
@@ -235,13 +244,6 @@ begin
         OleResult := PS.SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall, PV);
         if OleResult <> S_OK then
           RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall)', OleResult);
-      end;
-      if PreventPinning then begin
-        PV.vt := VT_BOOL;
-        PV.vbool := True;
-        OleResult := PS.SetValue(PKEY_AppUserModel_PreventPinning, PV);
-        if OleResult <> S_OK then
-          RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_PreventPinning)', OleResult);
       end;
       OleResult := PS.Commit;
       if OleResult <> S_OK then
