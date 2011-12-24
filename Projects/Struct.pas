@@ -9,7 +9,7 @@ unit Struct;
   Various records and other types that are shared by the ISCmplr, Setup,
   SetupLdr, and Uninst projects
 
-  $jrsoftware: issrc/Projects/Struct.pas,v 1.263 2011/12/24 16:14:09 mlaan Exp $
+  $jrsoftware: issrc/Projects/Struct.pas,v 1.264 2011/12/24 17:51:04 mlaan Exp $
 }
 
 interface
@@ -35,7 +35,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (5.4.2)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  SetupID: TSetupID = 'Inno Setup Setup Data (5.4.4)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (5.1.11)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
