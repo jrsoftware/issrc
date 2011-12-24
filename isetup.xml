@@ -1841,6 +1841,9 @@ Filename: "http://www.example.com/"
 <flag name="excludefromshowinnewinstall">
 <p>Prevents a Start menu entry for a newly installed application shortcut from receiving a highlight on Windows 7 (or later). Ignored on earlier Windows versions.</p>
 </flag>
+<flag name="preventpinning">
+<p>Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). Ignored on earlier Windows versions.</p>
+</flag>
 <flag name="foldershortcut">
 <p>Creates a special type of shortcut known as a "Folder Shortcut". Normally, when a shortcut to a folder is present on the Start Menu, clicking the item causes a separate Explorer window to open showing the target folder's contents. In contrast, a "folder shortcut" will show the contents of the target folder as a submenu instead of opening a separate window.</p>
 <p>Folder shortcuts are only supported by Windows 2000, Me, and later. On earlier versions of Windows, Setup will fall back to creating a normal shortcut when this flag is used.</p>
