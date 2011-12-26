@@ -7,7 +7,7 @@
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  $jrsoftware: ishelp/isetup.xml,v 1.192 2011/12/15 14:16:47 mlaan Exp $
+  $jrsoftware: ishelp/isetup.xml,v 1.194 2011/12/26 12:05:58 mlaan Exp $
 -->
 
 <ishelp version="1">
@@ -1841,14 +1841,14 @@ Filename: "http://www.example.com/"
 <flag name="excludefromshowinnewinstall">
 <p>Prevents a Start menu entry for a newly installed application shortcut from receiving a highlight on Windows 7 (or later). Ignored on earlier Windows versions.</p>
 </flag>
-<flag name="preventpinning">
-<p>Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions.</p>
-</flag>
 <flag name="foldershortcut">
 <p>Creates a special type of shortcut known as a "Folder Shortcut". Normally, when a shortcut to a folder is present on the Start Menu, clicking the item causes a separate Explorer window to open showing the target folder's contents. In contrast, a "folder shortcut" will show the contents of the target folder as a submenu instead of opening a separate window.</p>
 <p>Folder shortcuts are only supported by Windows 2000, Me, and later. On earlier versions of Windows, Setup will fall back to creating a normal shortcut when this flag is used.</p>
 <p>This flag is currently ignored when running on Windows 7 (or later), as folder shortcuts do not expand properly on the Start Menu anymore. It is not known whether this is a bug in Windows 7 or a removed feature.</p>
 <p>When this flag is used, a folder name must be specified in the <tt>Filename</tt> parameter. Specifying the name of a file will result in a non-working shortcut.</p>
+</flag>
+<flag name="preventpinning">
+<p>Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions.</p>
 </flag>
 <flag name="runmaximized">
 <p>When this flag is set, Setup sets the "Run" setting of the icon to "Maximized" so that the program will be initially maximized when it is started.</p>
