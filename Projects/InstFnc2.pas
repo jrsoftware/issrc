@@ -8,7 +8,7 @@ unit InstFnc2;
 
   OLE-related installation functions
 
-  $jrsoftware: issrc/Projects/InstFnc2.pas,v 1.33 2011/12/24 16:14:09 mlaan Exp $
+  $jrsoftware: issrc/Projects/InstFnc2.pas,v 1.34 2011/12/26 12:07:08 mlaan Exp $
 }
 
 interface
@@ -220,7 +220,7 @@ begin
         this doesn't seem to matter - at least not for shortcuts - but do it first anyway. }
       if PreventPinning then begin
         PV.vt := VT_BOOL;
-        PV.vbool := True;
+        Smallint(PV.vbool) := -1;
         OleResult := PS.SetValue(PKEY_AppUserModel_PreventPinning, PV);
         if OleResult <> S_OK then
           RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_PreventPinning)', OleResult);
@@ -317,6 +317,15 @@ begin
     commit a PKEY_AppUserModel_ID, so avoid setting the property on Vista. }
   if IsWindows7 and ((AppUserModelID <> '') or ExcludeFromShowInNewInstall or PreventPinning) then begin
     PS := Obj as IPropertyStore;
+    { According to MSDN the PreventPinning property should be set before the ID property. In practice
+      this doesn't seem to matter - at least not for shortcuts - but do it first anyway. }
+    if PreventPinning then begin
+      PV.vt := VT_BOOL;
+      PV.boolVal := True;
+      OleResult := PS.SetValue(PKEY_AppUserModel_PreventPinning, PV);
+      if OleResult <> S_OK then
+        RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_PreventPinning)', OleResult);
+    end;
     if AppUserModelID <> '' then begin
       WideAppUserModelID := AppUserModelID;
       PV.vt := VT_BSTR;
@@ -331,13 +340,6 @@ begin
       OleResult := PS.SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall, PV);
       if OleResult <> S_OK then
         RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall)', OleResult);
-    end;
-    if PreventPinning then begin
-      PV.vt := VT_BOOL;
-      PV.boolVal := True;
-      OleResult := PS.SetValue(PKEY_AppUserModel_PreventPinning, PV);
-      if OleResult <> S_OK then
-        RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_PreventPinning)', OleResult);
     end;
     OleResult := PS.Commit;
     if OleResult <> S_OK then
