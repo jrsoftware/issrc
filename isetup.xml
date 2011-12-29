@@ -3437,7 +3437,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Creators of <extlink href="http://www.scintilla.org/">Scintilla</extlink>: The syntax-highlighting editor used in the Compiler (5.4.0).</li>
 
-<li><extlink href="http://www.glyfx.com/">glyFX</extlink>: The Inno Setup logo, the compiler icon, the document icon, the Inno Setup installer wizard images and the images for the IDE's toolbar.</li>
+<li><extlink href="http://www.glyfx.com/">glyFX</extlink>: The Inno Setup logo, the compiler icon, the document icon, the Inno Setup installer wizard images and the images for the IDE's toolbar. 128x128 and 256x256 icon sizes by Motaz.</li>
 
 <li>Zaher Dirkey: Initial work on improved right-to-left languages support.</li>
 
