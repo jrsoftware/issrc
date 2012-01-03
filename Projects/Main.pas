@@ -18,7 +18,7 @@ interface
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
   SetupForm, StdCtrls, Struct, DebugStruct, Int64Em, CmnFunc, CmnFunc2,
-  SetupTypes, ScriptRunner, BidiUtils;
+  SetupTypes, ScriptRunner, BidiUtils, RestartManager;
 
 type
   TMainForm = class(TSetupForm)
@@ -169,6 +169,8 @@ var
 {$IFDEF IS_D12}
   TaskbarButtonHidden: Boolean;
 {$ENDIF}
+  RmSessionHandle: DWORD;
+  RmSessionKey: array[0..CCH_RM_SESSION_KEY] of WideChar;
 
   CodeRunner: TScriptRunner;
 
@@ -2637,6 +2639,9 @@ var
     end;
   end;
 
+type
+  TArrayOfPWideChar = array[0..(MaxInt div SizeOf(PWideChar))-1] of PWideChar;
+  PArrayOfPWideChar = ^TArrayOfPWideChar;
 var
   ParamName, ParamValue: String;
   StartParam: Integer;
@@ -2652,6 +2657,10 @@ var
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
   MinimumTypeSpace: Integer64;
   SourceWildcard: String;
+  A: PArrayOfPWideChar;
+  S: String;
+  SLen, BLen, BLenNeeded, RebootReasons: Integer;
+  B: array[0..99] of RM_PROCESS_INFO;
 begin
   InitializeCommonVars;
 
@@ -3013,6 +3022,52 @@ begin
   { Extract "_iscrypt.dll" to TempInstallDir, and load it }
   if shEncryptionUsed in SetupHeader.Options then
     LoadDecryptDLL;
+
+  { Start RestartManagerSession }
+  InitRestartManagerLibrary;
+  if UseRestartManager then begin
+    if RmStartSession(@RmSessionHandle, 0, RmSessionKey) <> ERROR_SUCCESS then
+      FreeRestartManagerLibrary;
+  end;
+
+  if UseRestartManager then begin
+    GetMem(A, 2 * SizeOf(PWideChar));
+    for I := 0 to 1 do begin
+      if I = 0 then
+        S := 'c:\windows\explorer.exe'
+      else
+        S := 'c:\windows\notepad.exe';
+    {$IFNDEF UNICODE}
+      SLen := Length(S);
+      GetMem(A[I], (SLen + 1) * SizeOf(WideChar));
+      A[I][MultiByteToWideChar(CP_ACP, 0, PChar(S), SLen, A[I], SLen)] := #0;
+    {$ELSE}
+      A[I] := PWideChar(S);
+    {$ENDIF}
+  end;
+    if RmRegisterResources(RmSessionHandle, 2, A, 0, nil, 0, nil) <> ERROR_SUCCESS then begin
+      RmEndSession(RmSessionHandle);
+      FreeRestartManagerLibrary;
+    end;
+{$IFNDEF UNICODE}
+    FreeMem(A[0]);
+    FreeMem(A[1]);
+    FreeMem(A);
+{$ENDIF}
+  end;
+
+  if UseRestartManager then begin
+    BLen := High(B);
+    if RmGetList(RmSessionHandle, @BLenNeeded, @BLen, Addr(B), @RebootReasons) <> ERROR_SUCCESS then begin
+      RmEndSession(RmSessionHandle);
+      FreeRestartManagerLibrary;
+    end;
+  end;
+
+  if UseRestartManager then begin
+    if RmEndSession(RmSessionHandle) <> ERROR_SUCCESS then
+      FreeRestartManagerLibrary;
+  end;
 
   { Set install mode }
   SetupInstallMode;
