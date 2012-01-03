@@ -158,6 +158,7 @@ type
     SelectStartMenuFolderBrowseLabel: TNewStaticText;
     PreparingYesRadio: TNewRadioButton;
     PreparingNoRadio: TNewRadioButton;
+    PreparingMemo: TNewMemo;
     procedure NextButtonClick(Sender: TObject);
     procedure BackButtonClick(Sender: TObject);
     procedure CancelButtonClick(Sender: TObject);
@@ -193,6 +194,7 @@ type
     procedure FindPreviousData;
     function GetPreviousPageID: Integer;
     function PrepareToInstall: String;
+    function QueryRestartManager: String;
     procedure RegisterExistingPage(const ID: Integer;
      const AOuterNotebookPage, AInnerNotebookPage: TNewNotebookPage;
      const ACaption, ADescription: String);
@@ -903,8 +905,6 @@ begin
   { Initialize wpPreparing page }
   RegisterExistingPage(wpPreparing, InnerPage, PreparingPage,
     SetupMessages[msgWizardPreparing], ExpandSetupMessage(msgPreparingDesc));
-  PreparingYesRadio.Caption := SetupMessages[msgYesRadio];
-  PreparingNoRadio.Caption := SetupMessages[msgNoRadio];
 
   { Initialize wpInstalling page }
   RegisterExistingPage(wpInstalling, InnerPage, InstallingPage,
@@ -1616,6 +1616,7 @@ begin
   PreparingLabel.Visible := False;
   PreparingYesRadio.Visible := False;
   PreparingNoRadio.Visible := False;
+  PreparingMemo.Visible := False;
   if PreviousInstallNotCompleted then begin
     Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
     PrepareToInstallNeedsRestart := True;
@@ -1644,10 +1645,40 @@ begin
     if PrepareToInstallNeedsRestart then begin
       Y := PreparingLabel.Top + PreparingLabel.Height;
       PreparingYesRadio.Top := Y;
+      PreparingYesRadio.Caption := SetupMessages[msgYesRadio];
       PreparingYesRadio.Visible := True;
       PreparingNoRadio.Top := Y + ScalePixelsY(22);
+      PreparingNoRadio.Caption := SetupMessages[msgNoRadio];
       PreparingNoRadio.Visible := True;
     end;
+  end;
+end;
+
+function TWizardForm.QueryRestartManager: String;
+var
+  Y: Integer;
+begin
+  Result := 'Windows Verkenner'#13#10'Notepad';
+
+  if Result <> '' then begin
+    PreparingLabel.Caption := 'The following applications are using files that need to be updated by this setup. You can let Setup Wizard close them and attempt to restart them or reboot the machine later.';
+    Y := PreparingLabel.Top + PreparingLabel.Height + ScalePixelsY(12);
+    PreparingMemo.Top := Y;
+    IncTopDecHeight(PreparingMemo, AdjustLabelHeight(PreparingLabel));
+    AdjustLabelHeight(PreparingLabel);
+    PreparingErrorBitmapImage.Visible := True;
+    PreparingLabel.Visible := True;
+    PreparingMemo.Text := Result;
+    PreparingMemo.Visible := True;
+    Y := PreparingMemo.Top + PreparingMemo.Height + ScalePixelsY(12);
+    PreparingYesRadio.Top := Y;
+    PreparingYesRadio.Caption := 'Close the applications and attempt to restart them.';
+    PreparingYesRadio.Visible := True;
+    PreparingNoRadio.Top := Y + ScalePixelsY(22);
+    PreparingNoRadio.Caption := 'Do not close the applications. A reboot will be required.';
+    PreparingNoRadio.Visible := True;
+
+    StringChange(Result, #13#10, ', ');
   end;
 end;
 
@@ -1771,7 +1802,7 @@ var
 begin
   if CurPageID = wpReady then
     NewActiveControl := NextButton
-  else if (CurPageID = wpPreparing) and not PrepareToInstallNeedsRestart then
+  else if (CurPageID = wpPreparing) and (PrepareToInstallFailureMessage <> '') and not PrepareToInstallNeedsRestart then
     NewActiveControl := CancelButton
   else
     NewActiveControl := FindNextControl(nil, True, True, False);
@@ -1826,7 +1857,7 @@ begin
     NextButton.Visible := CurPageID <> wpInstalling;
     case CurPageID of
       wpLicense: NextButton.Enabled := LicenseAcceptedRadio.Checked;
-      wpPreparing: NextButton.Enabled := PrepareToInstallNeedsRestart;
+      wpPreparing: NextButton.Enabled := (PrepareToInstallFailureMessage = '') or PrepareToInstallNeedsRestart;
     else
       NextButton.Enabled := True;
     end;
@@ -2085,6 +2116,7 @@ var
   PageIndex: Integer;
   Continue: Boolean;
   NewPageID: Integer;
+  RestartManagerResult: String;
 label Again;
 begin
   if CurPageID = wpInstalling then
@@ -2146,6 +2178,12 @@ begin
             LogFmt('PrepareToInstall failed: %s', [PrepareToInstallFailureMessage]);
             LogFmt('Need to restart Windows? %s', [SYesNo[PrepareToInstallNeedsRestart]]);
             Break;  { stop on the page }
+          end else begin
+            RestartManagerResult := QueryRestartManager;
+            if RestartManagerResult <> '' then begin
+              LogFmt('RestartManager returned items: %s', [RestartManagerResult]);
+              Break;  { stop on the page }
+            end;
           end;
         end;
       wpInstalling: begin
@@ -2565,7 +2603,7 @@ var
   BeforeID: Integer;
 begin
   while True do begin
-    if (CurPageID = wpPreparing) and not (PrepareToInstallNeedsRestart and not InitNoRestart) then begin
+    if (CurPageID = wpPreparing) and (PrepareToInstallFailureMessage <> '') and not (PrepareToInstallNeedsRestart and not InitNoRestart) then begin
       { Special handling needed for wpPreparing since it displays its error
         message inline on the wizard. Since the wizard isn't currently visible,
         we have to display the messsage in a message box if it won't be displayed

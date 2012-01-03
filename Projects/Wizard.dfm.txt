@@ -500,7 +500,7 @@ object WizardForm: TWizardForm
             Height = 17
             Caption = '*'
             Checked = True
-            TabOrder = 1
+            TabOrder = 2
             TabStop = True
             Visible = False
           end
@@ -510,8 +510,22 @@ object WizardForm: TWizardForm
             Width = 301
             Height = 17
             Caption = '*'
-            TabOrder = 2
+            TabOrder = 3
             Visible = False
+          end
+          object PreparingMemo: TNewMemo
+            Left = 24
+            Top = 88
+            Width = 393
+            Height = 145
+            Color = clBtnFace
+            Lines.Strings = (
+              'PreparingMemo')
+            ReadOnly = True
+            ScrollBars = ssBoth
+            TabOrder = 1
+            WantReturns = False
+            WordWrap = False
           end
         end
         object InstallingPage: TNewNotebookPage

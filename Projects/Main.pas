@@ -3982,7 +3982,7 @@ begin
      WizardForm.CancelButton.CanFocus then begin
     case CurStep of
       ssPreInstall:
-        if ConfirmCancel(WizardForm.CurPageID <> wpPreparing) then begin
+        if ConfirmCancel((WizardForm.CurPageID <> wpPreparing) or (WizardForm.PrepareToInstallFailureMessage = '')) then begin
           if WizardForm.CurPageID = wpPreparing then
             SetupExitCode := ecPrepareToInstallFailed
           else
