@@ -380,6 +380,7 @@ begin
     RegisterProperty('SelectStartMenuFolderBrowseLabel', 'TNewStaticText', iptr);
     RegisterProperty('PreparingYesRadio', 'TNewRadioButton', iptr);
     RegisterProperty('PreparingNoRadio', 'TNewRadioButton', iptr);
+    RegisterProperty('PreparingMemo', 'TNewMemo', iptr);
     RegisterProperty('CurPageID', 'Integer', iptr);
     RegisterMethod('function AdjustLabelHeight(ALabel:TNewStaticText):Integer');
     RegisterMethod('procedure IncTopDecHeight(AControl:TControl;Amount:Integer)');
