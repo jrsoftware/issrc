@@ -1665,7 +1665,9 @@ var
   SLen, BLen, BLenNeeded, RebootReasons: Integer;
   B: array[0..99] of RM_PROCESS_INFO;
 begin
-  //rm: todo: register actual resources
+  //rm: todo: register actual resources (skip the ones that return True for ShouldDisableFsRedirForFileEntry)
+  //{ From MSDN: Installers should not disable file system redirection before calling the Restart Manager API. This means
+  //  that a 32-bit installer run on 64-bit Windows is unable register a file in the %windir%\system32 directory. }
   if RmSessionStarted then begin
     GetMem(A, 2 * SizeOf(PWideChar));
     for I := 0 to 1 do begin
@@ -1680,7 +1682,10 @@ begin
     {$ELSE}
       A[I] := PWideChar(S);
     {$ENDIF}
-  end;
+    end;
+    
+    //rm: todo: MSDN says we shouldn't call RmRegisterResources for each file because of speed, but calling
+    //it once for all files adds extra memory usage, so find a compromise, like calling once per every 100 files
     if RmRegisterResources(RmSessionHandle, 2, A, 0, nil, 0, nil) <> ERROR_SUCCESS then begin
       RmEndSession(RmSessionHandle);
       RmSessionStarted := False;
@@ -1693,6 +1698,7 @@ begin
   end;
 
   //rm: todo: realloc getlist param
+  //rm: todo: pay attention to RebootReasons
   if RmSessionStarted then begin
     BLen := High(B);
     if RmGetList(RmSessionHandle, @BLenNeeded, @BLen, Addr(B), @RebootReasons) <> ERROR_SUCCESS then begin
@@ -1707,6 +1713,7 @@ begin
     end;
   end;
 
+  //rm: todo: add proper messages
   if Result <> '' then begin
     PreparingLabel.Caption := 'The following applications are using files that need to be updated by this setup. You can let Setup Wizard close them and attempt to restart them or reboot the machine later.';
     Y := PreparingLabel.Top + PreparingLabel.Height + ScalePixelsY(12);
@@ -1727,6 +1734,8 @@ begin
 
     StringChange(Result, #13#10, ', ');
   end;
+
+  //rm: todo: actually stop and restart applications (restart only if needsrestart is false?)
 end;
 
 procedure TWizardForm.UpdatePage(const PageID: Integer);

@@ -3018,6 +3018,7 @@ begin
     LoadDecryptDLL;
 
   { Start RestartManager session }
+  //rm: todo: add directive to disable Restart Manager support
   InitRestartManagerLibrary;
   if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then
     RmSessionStarted := True;
@@ -3076,6 +3077,7 @@ begin
   ShutdownBlockReasonCreate(Application.Handle, ExpandSetupMessage(msgInstallingLabel));
 
   { Check if app is running }
+  //rm: todo: add directive to disable mutex check if Restart Manager is available
   while CheckForMutexes(ExpandedAppMutex) do
     if LoggedMsgBox(FmtSetupMessage1(msgSetupAppRunningError, ExpandedAppName),
        SetupMessages[msgSetupAppTitle], mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
