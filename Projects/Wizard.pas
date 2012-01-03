@@ -250,7 +250,7 @@ implementation
 
 uses
   ShellApi, ShlObj, Msgs, Main, PathFunc, CmnFunc, CmnFunc2,
-  MD5, InstFunc, SelFolderForm, Extract, Logging;
+  MD5, InstFunc, SelFolderForm, Extract, Logging, RestartManager;
 
 {$R *.DFM}
 
@@ -1655,10 +1655,57 @@ begin
 end;
 
 function TWizardForm.QueryRestartManager: String;
+type
+  TArrayOfPWideChar = array[0..(MaxInt div SizeOf(PWideChar))-1] of PWideChar;
+  PArrayOfPWideChar = ^TArrayOfPWideChar;
 var
-  Y: Integer;
+  Y, I: Integer;
+  A: PArrayOfPWideChar;
+  S: String;
+  SLen, BLen, BLenNeeded, RebootReasons: Integer;
+  B: array[0..99] of RM_PROCESS_INFO;
 begin
-  Result := 'Windows Verkenner'#13#10'Notepad';
+  //rm: todo: register actual resources
+  if RmSessionStarted then begin
+    GetMem(A, 2 * SizeOf(PWideChar));
+    for I := 0 to 1 do begin
+      if I = 0 then
+        S := 'c:\windows\explorer.exe'
+      else
+        S := Application.ExeName;
+    {$IFNDEF UNICODE}
+      SLen := Length(S);
+      GetMem(A[I], (SLen + 1) * SizeOf(WideChar));
+      A[I][MultiByteToWideChar(CP_ACP, 0, PChar(S), SLen, A[I], SLen)] := #0;
+    {$ELSE}
+      A[I] := PWideChar(S);
+    {$ENDIF}
+  end;
+    if RmRegisterResources(RmSessionHandle, 2, A, 0, nil, 0, nil) <> ERROR_SUCCESS then begin
+      RmEndSession(RmSessionHandle);
+      RmSessionStarted := False;
+    end;
+{$IFNDEF UNICODE}
+    FreeMem(A[0]);
+    FreeMem(A[1]);
+    FreeMem(A);
+{$ENDIF}
+  end;
+
+  //rm: todo: realloc getlist param
+  if RmSessionStarted then begin
+    BLen := High(B);
+    if RmGetList(RmSessionHandle, @BLenNeeded, @BLen, Addr(B), @RebootReasons) <> ERROR_SUCCESS then begin
+      RmEndSession(RmSessionHandle);
+      RmSessionStarted := False;
+    end else begin
+      for I := 0 to BLen do begin
+        if Result <> '' then
+          Result := Result + #13#10;
+        Result := Result + WideCharToString(B[I].strAppName);
+      end;
+    end;
+  end;
 
   if Result <> '' then begin
     PreparingLabel.Caption := 'The following applications are using files that need to be updated by this setup. You can let Setup Wizard close them and attempt to restart them or reboot the machine later.';
