@@ -1695,13 +1695,13 @@ begin
 {$IFNDEF UNICODE}
     FreeMem(A[0]);
     FreeMem(A[1]);
-    FreeMem(A);
 {$ENDIF}
+    FreeMem(A);
   end;
 
   if RmSessionStarted then begin
     ProcessInfosCount := 0;
-    ProcessInfosCountNeeded := 5; //start with 5 to hopefully avoid a realloc
+    ProcessInfosCountNeeded := 5; { Start with 5 to hopefully avoid a realloc }
     ProcessInfos := nil;
     try
       while ProcessInfosCount < ProcessInfosCountNeeded do begin
@@ -1717,12 +1717,17 @@ begin
         end;
       end;
 
-      if RmSessionStarted and (ProcessInfos <> nil) and (RebootReasons = RmRebootReasonNone) then begin
+      if RmSessionStarted and (ProcessInfosCount > 0) then begin
         for I := 0 to ProcessInfosCount-1 do begin
-          if Result <> '' then
-            Result := Result + #13#10;
-          Result := Result + WideCharToString(ProcessInfos[I].strAppName);
+          S := WideCharToString(ProcessInfos[I].strAppName);
+          LogFmt('RestartManager found an application using one of our files: %s', [S]);
+          if RebootReasons = RmRebootReasonNone then begin
+            if Result <> '' then
+              Result := Result + #13#10;
+            Result := Result + S;
+          end;
         end;
+        LogFmt('Can use RestartManager to avoid reboot? %s', [SYesNo[RebootReasons = RmRebootReasonNone]]);
       end;
     finally
       if ProcessInfos <> nil then
@@ -1876,6 +1881,8 @@ begin
     NewActiveControl := NextButton
   else if (CurPageID = wpPreparing) and (PrepareToInstallFailureMessage <> '') and not PrepareToInstallNeedsRestart then
     NewActiveControl := CancelButton
+  else if (CurPageID = wpPreparing) and (PrepareToInstallFailureMessage = '') then
+    NewActiveControl := PreparingYesRadio
   else
     NewActiveControl := FindNextControl(nil, True, True, False);
   if (NewActiveControl = BackButton) and NextButton.CanFocus then
@@ -2188,7 +2195,6 @@ var
   PageIndex: Integer;
   Continue: Boolean;
   NewPageID: Integer;
-  RestartManagerResult: String;
 label Again;
 begin
   if CurPageID = wpInstalling then
@@ -2251,11 +2257,8 @@ begin
             LogFmt('Need to restart Windows? %s', [SYesNo[PrepareToInstallNeedsRestart]]);
             Break;  { stop on the page }
           end else begin
-            RestartManagerResult := QueryRestartManager;
-            if RestartManagerResult <> '' then begin
-              LogFmt('RestartManager returned items: %s', [RestartManagerResult]);
+            if QueryRestartManager <> '' then
               Break;  { stop on the page }
-            end;
           end;
         end;
       wpInstalling: begin
