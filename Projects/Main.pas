@@ -171,7 +171,6 @@ var
 {$ENDIF}
   RmSessionStarted, RmFoundApplications, RmDoRestart: Boolean;
   RmSessionHandle: DWORD;
-  RmSessionKey: array[0..CCH_RM_SESSION_KEY] of WideChar;
 
   CodeRunner: TScriptRunner;
 
@@ -2655,6 +2654,7 @@ var
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
   MinimumTypeSpace: Integer64;
   SourceWildcard: String;
+  RmSessionKey: array[0..CCH_RM_SESSION_KEY] of WideChar;
 begin
   InitializeCommonVars;
 
