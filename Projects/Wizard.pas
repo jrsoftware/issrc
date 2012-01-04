@@ -1757,8 +1757,6 @@ begin
     PreparingNoRadio.Caption := SetupMessages[msgDontCloseApplications];
     PreparingNoRadio.Visible := True;
   end;
-  
-  //rm: todo: actually stop and restart applications (restart only if needsrestart is false?)
 end;
 
 procedure TWizardForm.UpdatePage(const PageID: Integer);
