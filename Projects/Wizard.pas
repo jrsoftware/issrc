@@ -1658,18 +1658,20 @@ function TWizardForm.QueryRestartManager: String;
 type
   TArrayOfPWideChar = array[0..(MaxInt div SizeOf(PWideChar))-1] of PWideChar;
   PArrayOfPWideChar = ^TArrayOfPWideChar;
+  TArrayOfProcessInfo = array[0..(MaxInt div SizeOf(RM_PROCESS_INFO))-1] of RM_PROCESS_INFO;
+  PArrayOfProcessInfo = ^TArrayOfProcessInfo;
 var
   Y, I: Integer;
   A: PArrayOfPWideChar;
   S: String;
-  SLen, BLen, BLenNeeded, RebootReasons: Integer;
-  B: array[0..99] of RM_PROCESS_INFO;
+  SLen, ProcessInfosCount, ProcessInfosCountNeeded, RebootReasons: Integer;
+  ProcessInfos: PArrayofProcessInfo;
 begin
   //rm: todo: register actual resources (skip the ones that return True for ShouldDisableFsRedirForFileEntry)
   //{ From MSDN: Installers should not disable file system redirection before calling the Restart Manager API. This means
   //  that a 32-bit installer run on 64-bit Windows is unable register a file in the %windir%\system32 directory. }
   if RmSessionStarted then begin
-    GetMem(A, 2 * SizeOf(PWideChar));
+    GetMem(A, 2 * SizeOf(A[0]));
     for I := 0 to 1 do begin
       if I = 0 then
         S := 'c:\windows\explorer.exe'
@@ -1677,13 +1679,13 @@ begin
         S := 'c:\windows\notepad.exe';
     {$IFNDEF UNICODE}
       SLen := Length(S);
-      GetMem(A[I], (SLen + 1) * SizeOf(WideChar));
+      GetMem(A[I], (SLen + 1) * SizeOf(A[I][0]));
       A[I][MultiByteToWideChar(CP_ACP, 0, PChar(S), SLen, A[I], SLen)] := #0;
     {$ELSE}
       A[I] := PWideChar(S);
     {$ENDIF}
     end;
-    
+
     //rm: todo: MSDN says we shouldn't call RmRegisterResources for each file because of speed, but calling
     //it once for all files adds extra memory usage, so find a compromise, like calling once per every 100 files
     if RmRegisterResources(RmSessionHandle, 2, A, 0, nil, 0, nil) <> ERROR_SUCCESS then begin
@@ -1697,18 +1699,34 @@ begin
 {$ENDIF}
   end;
 
-  //rm: todo: realloc getlist param
   if RmSessionStarted then begin
-    BLen := High(B);
-    if RmGetList(RmSessionHandle, @BLenNeeded, @BLen, Addr(B), @RebootReasons) <> ERROR_SUCCESS then begin
-      RmEndSession(RmSessionHandle);
-      RmSessionStarted := False;
-    end else if RebootReasons = RmRebootReasonNone then begin
-      for I := 0 to BLen do begin
-        if Result <> '' then
-          Result := Result + #13#10;
-        Result := Result + WideCharToString(B[I].strAppName);
+    ProcessInfosCount := 0;
+    ProcessInfosCountNeeded := 5; //start with 5 to hopefully avoid a realloc
+    ProcessInfos := nil;
+    try
+      while ProcessInfosCount < ProcessInfosCountNeeded do begin
+        if ProcessInfos <> nil then
+          FreeMem(ProcessInfos);
+        GetMem(ProcessInfos, ProcessInfosCountNeeded * SizeOf(ProcessInfos[0]));
+        ProcessInfosCount := ProcessInfosCountNeeded;
+
+        if not RmGetList(RmSessionHandle, @ProcessInfosCountNeeded, @ProcessInfosCount, ProcessInfos, @RebootReasons) in [ERROR_SUCCESS, ERROR_MORE_DATA] then begin
+          RmEndSession(RmSessionHandle);
+          RmSessionStarted := False;
+          Break;
+        end;
       end;
+
+      if RmSessionStarted and (ProcessInfos <> nil) and (RebootReasons = RmRebootReasonNone) then begin
+        for I := 0 to ProcessInfosCount-1 do begin
+          if Result <> '' then
+            Result := Result + #13#10;
+          Result := Result + WideCharToString(ProcessInfos[I].strAppName);
+        end;
+      end;
+    finally
+      if ProcessInfos <> nil then
+        FreeMem(ProcessInfos);
     end;
   end;
 
@@ -1733,7 +1751,7 @@ begin
 
     StringChange(Result, #13#10, ', ');
   end;
-
+  
   //rm: todo: actually stop and restart applications (restart only if needsrestart is false?)
 end;
 
