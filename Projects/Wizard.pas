@@ -1674,7 +1674,7 @@ begin
       if I = 0 then
         S := 'c:\windows\explorer.exe'
       else
-        S := Application.ExeName;
+        S := 'c:\windows\notepad.exe';
     {$IFNDEF UNICODE}
       SLen := Length(S);
       GetMem(A[I], (SLen + 1) * SizeOf(WideChar));
@@ -1698,13 +1698,12 @@ begin
   end;
 
   //rm: todo: realloc getlist param
-  //rm: todo: pay attention to RebootReasons
   if RmSessionStarted then begin
     BLen := High(B);
     if RmGetList(RmSessionHandle, @BLenNeeded, @BLen, Addr(B), @RebootReasons) <> ERROR_SUCCESS then begin
       RmEndSession(RmSessionHandle);
       RmSessionStarted := False;
-    end else begin
+    end else if RebootReasons = RmRebootReasonNone then begin
       for I := 0 to BLen do begin
         if Result <> '' then
           Result := Result + #13#10;

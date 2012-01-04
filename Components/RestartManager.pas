@@ -4,7 +4,7 @@ unit RestartManager;
   Basic RestartManager API interface Unit for Delphi 2 and higher
   by Martijn Laan
 
-  $jrsoftware: issrc/Components/ScintInt.pas,v 1.3 2011/01/21 05:47:57 jr Exp $
+  $jrsoftware$
 }
 
 {$IFNDEF VER90}
@@ -57,7 +57,16 @@ const
 
   //RM_APP_STATUS
 
-  //RM_REBOOT_REASON
+type
+  RM_REBOOT_REASON = DWORD;
+
+const
+  RmRebootReasonNone = $0;
+  RmRebootReasonPermissionDenied = $1;
+  RmRebootReasonSessionMismatch = $2;
+  RmRebootReasonCriticalProcess = $4;
+  RmRebootReasonCriticalService = $8;
+  RmRebootReasonDetectedSelf = $10;
 
 type
   RM_UNIQUE_PROCESS = record
