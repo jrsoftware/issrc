@@ -26,7 +26,7 @@ uses
   InstFunc, InstFnc2, SecurityFunc, Msgs, Main, Logging, Extract, FileClass,
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
-  ResUpdate, LibFusion, TaskbarProgressFunc, NewProgressBar;
+  ResUpdate, LibFusion, TaskbarProgressFunc, NewProgressBar, RestartManager;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -2729,6 +2729,27 @@ var
     end;
   end;
 
+  procedure ShutdownApplications;
+  const
+    ERROR_FAIL_SHUTDOWN = 351;
+  var
+    Error: DWORD;
+  begin
+    Log('Shutting down applications using our files.');
+
+    RmDoRestart := True;
+
+    Error := RmShutdown(RmSessionHandle, 0, nil);
+    if Error = ERROR_FAIL_SHUTDOWN then begin
+      { Not closing the session, still should call RmRestart in this case. }
+      Log('Some applications could not be shut down.');
+    end else if Error <> ERROR_SUCCESS then begin
+      RmEndSession(RmSessionHandle);
+      LogFmt('RmShutdown returned an error: %d', [Error]);
+      RmDoRestart := False;
+    end;
+  end;
+
 var
   Uninstallable, UninstLogCleared: Boolean;
   I: Integer;
@@ -2801,6 +2822,16 @@ begin
       { Record UninstallDelete entries, if any }
       RecordUninstallDeleteEntries;
       ProcessEvents;
+
+      { Shutdown applications, if any }
+      if RmSessionStarted and RmFoundApplications then begin
+        if WizardPreparingYesRadio then begin
+          SetStatusLabelText(SetupMessages[msgStatusClosingApplications]);
+          ShutdownApplications;
+          ProcessEvents;
+        end else
+          Log('User chose not to shutdown applications using our files.');
+      end;
 
       { Create the application directory and extra dirs }
       SetStatusLabelText(SetupMessages[msgStatusCreateDirs]);

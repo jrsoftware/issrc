@@ -137,7 +137,7 @@ var
   ActiveLanguage: Integer = -1;
   ActiveLicenseText, ActiveInfoBeforeText, ActiveInfoAfterText: AnsiString;
   WizardUserInfoName, WizardUserInfoOrg, WizardUserInfoSerial, WizardDirValue, WizardGroupValue: String;
-  WizardNoIcons: Boolean;
+  WizardNoIcons, WizardPreparingYesRadio: Boolean;
   WizardSetupType: PSetupTypeEntry;
   WizardComponents, WizardDeselectedComponents, WizardTasks, WizardDeselectedTasks: TStringList;
   NeedToAbortInstall: Boolean;
@@ -169,7 +169,7 @@ var
 {$IFDEF IS_D12}
   TaskbarButtonHidden: Boolean;
 {$ENDIF}
-  RmSessionStarted: Boolean;
+  RmSessionStarted, RmFoundApplications, RmDoRestart: Boolean;
   RmSessionHandle: DWORD;
   RmSessionKey: array[0..CCH_RM_SESSION_KEY] of WideChar;
 
@@ -3017,11 +3017,13 @@ begin
   if shEncryptionUsed in SetupHeader.Options then
     LoadDecryptDLL;
 
-  { Start RestartManager session }
+  { Start RestartManager session unless we will always restart }
   //rm: todo: add directive to disable Restart Manager support
-  InitRestartManagerLibrary;
-  if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then
-    RmSessionStarted := True;
+  if not NeedsRestart then begin
+    InitRestartManagerLibrary;
+    if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then
+      RmSessionStarted := True;
+  end;
 
   { Set install mode }
   SetupInstallMode;
@@ -3713,6 +3715,40 @@ function TMainForm.Install: Boolean;
     end;
   end;
 
+  procedure RestartApplications;
+  const
+    ERROR_FAIL_RESTART = 353;
+  var
+    Error: DWORD;
+    WindowDisabler: TWindowDisabler;
+  begin
+    if not NeedsRestart then begin
+      WizardForm.StatusLabel.Caption := SetupMessages[msgStatusRestartingApplications];
+      WizardForm.StatusLabel.Update;
+
+      Log('Attempting to restart applications.');
+
+      { Disable windows during application restart so that a nice
+        "beep" is produced if the user tries clicking on WizardForm }
+      WindowDisabler := TWindowDisabler.Create;
+      try
+        Error := RmRestart(RmSessionHandle, 0, nil);
+      finally
+        WindowDisabler.Free;
+      end;
+      Application.BringToFront;
+
+      if Error = ERROR_FAIL_RESTART then
+        Log('One or more applications could not be restarted.')
+      else if Error <> ERROR_SUCCESS then begin
+        RmEndSession(RmSessionHandle);
+        RmSessionStarted := False;
+        LogFmt('RmRestart returned an error: %d', [Error]);
+      end;
+    end else
+      Log('Need to restart Windows, not attempting to restart applications');
+  end;
+
 var
   Succeeded: Boolean;
   S: String;
@@ -3729,6 +3765,7 @@ begin
     WizardSetupType := WizardForm.GetSetupType();
     WizardForm.GetComponents(WizardComponents, WizardDeselectedComponents);
     WizardForm.GetTasks(WizardTasks, WizardDeselectedTasks);
+    WizardPreparingYesRadio := WizardForm.PreparingYesRadio.Checked;
     if InitSaveInf <> '' then
       SaveInf(InitSaveInf);
 
@@ -3748,10 +3785,13 @@ begin
       TerminateApp;
       Exit;
     end;
-    { Can't cancel at any point after PerformInstall, so disable the button } 
+    { Can't cancel at any point after PerformInstall, so disable the button }
     WizardForm.CancelButton.Enabled := False;
 
     ProcessRunEntries;
+
+    if RmDoRestart then
+      RestartApplications;
 
     SetStep(ssPostInstall, True);
 
