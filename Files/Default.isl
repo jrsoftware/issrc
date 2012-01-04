@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.1.11+ English messages ***
+; *** Inno Setup version 5.5.0+ English messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -198,6 +198,9 @@ WizardPreparing=Preparing to Install
 PreparingDesc=Setup is preparing to install [name] on your computer.
 PreviousInstallNotCompleted=The installation/removal of a previous program was not completed. You will need to restart your computer to complete that installation.%n%nAfter restarting your computer, run Setup again to complete the installation of [name].
 CannotContinue=Setup cannot continue. Please click Cancel to exit.
+ApplicationsFound=The following applications are using files that need to be updated by Setup.
+CloseApplications=Automatically close the applications and attempt to restart them.
+DontCloseApplications=Do not close the applications. A reboot will be required.
 
 ; *** "Installing" wizard page
 WizardInstalling=Installing

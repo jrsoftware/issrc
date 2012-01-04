@@ -1730,9 +1730,8 @@ begin
     end;
   end;
 
-  //rm: todo: add proper messages
   if Result <> '' then begin
-    PreparingLabel.Caption := 'The following applications are using files that need to be updated by this setup. You can let Setup Wizard close them and attempt to restart them or reboot the machine later.';
+    PreparingLabel.Caption := SetupMessages[msgApplicationsFound];
     Y := PreparingLabel.Top + PreparingLabel.Height + ScalePixelsY(12);
     PreparingMemo.Top := Y;
     IncTopDecHeight(PreparingMemo, AdjustLabelHeight(PreparingLabel));
@@ -1743,10 +1742,10 @@ begin
     PreparingMemo.Visible := True;
     Y := PreparingMemo.Top + PreparingMemo.Height + ScalePixelsY(12);
     PreparingYesRadio.Top := Y;
-    PreparingYesRadio.Caption := 'Close the applications and attempt to restart them.';
+    PreparingYesRadio.Caption := SetupMessages[msgCloseApplications];
     PreparingYesRadio.Visible := True;
     PreparingNoRadio.Top := Y + ScalePixelsY(22);
-    PreparingNoRadio.Caption := 'Do not close the applications. A reboot will be required.';
+    PreparingNoRadio.Caption := SetupMessages[msgDontCloseApplications];
     PreparingNoRadio.Visible := True;
 
     StringChange(Result, #13#10, ', ');

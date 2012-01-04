@@ -496,7 +496,7 @@ object WizardForm: TWizardForm
           object PreparingYesRadio: TNewRadioButton
             Left = 24
             Top = 28
-            Width = 301
+            Width = 393
             Height = 17
             Caption = '*'
             Checked = True
@@ -507,7 +507,7 @@ object WizardForm: TWizardForm
           object PreparingNoRadio: TNewRadioButton
             Left = 24
             Top = 56
-            Width = 301
+            Width = 393
             Height = 17
             Caption = '*'
             TabOrder = 3
