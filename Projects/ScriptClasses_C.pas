@@ -8,7 +8,7 @@ unit ScriptClasses_C;
 
   Script support classes (compile time)
 
-  $Id: ScriptClasses_C.pas,v 1.68 2011/05/19 04:15:34 jr Exp $
+  $Id: ScriptClasses_C.pas,v 1.68.2.1 2012/01/04 16:35:20 mlaan Exp $
 }
 
 interface
