@@ -99,6 +99,10 @@ var
 
   RmGetList: function (dwSessionHandle: DWORD; pnProcInfoNeeded, pnProcInfo: PUINT; rgAffectedApps: Pointer; lpdwRebootReasons: LPDWORD): DWORD; stdcall;
 
+  RmShutdown: function (dwSessionHandle: DWORD; lActionFlags: ULONG; fnStatus: Pointer): DWORD; stdcall;
+  
+  RmRestart: function (dwSessionHandle: DWORD; dwRestartFlags: DWORD; fnStatus: Pointer): DWORD; stdcall;
+
   RmEndSession: function (dwSessionHandle: DWORD): DWORD; stdcall;
 
 implementation
@@ -125,6 +129,8 @@ begin
     RmStartSession := nil;
     RmRegisterResources := nil;
     RmGetList := nil;
+    RmShutdown := nil;
+    RmRestart := nil;
     RmEndSession := nil;
   end;
 end;
@@ -144,6 +150,8 @@ begin
       RmStartSession := GetProcAddress(RestartManagerLibrary, 'RmStartSession');
       RmRegisterResources := GetProcAddress(RestartManagerLibrary, 'RmRegisterResources');
       RmGetList := GetProcAddress(RestartManagerLibrary, 'RmGetList');
+      RmShutdown := GetProcAddress(RestartManagerLibrary, 'RmShutdown');
+      RmRestart := GetProcAddress(RestartManagerLibrary, 'RmRestart');
       RmEndSession := GetProcAddress(RestartManagerLibrary, 'RmEndSession');
     end;
   end;
