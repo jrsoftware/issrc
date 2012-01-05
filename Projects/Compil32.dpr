@@ -8,7 +8,7 @@ program Compil32;
 
   Compiler
 
-  $jrsoftware: issrc/Projects/Compil32.dpr,v 1.32 2011/01/07 03:34:00 jr Exp $
+  $jrsoftware: issrc/Projects/Compil32.dpr,v 1.32.2.1 2012/01/05 16:14:02 mlaan Exp $
 }
 
 uses
@@ -51,6 +51,23 @@ begin
     'SetCurrentProcessExplicitAppUserModelID');
   if Assigned(Func) then
     Func('JR.InnoSetup.IDE.5');
+end;
+
+procedure RegisterApplicationRestart;
+const
+  RESTART_NO_CRASH = $1;
+  RESTART_NO_HANG = $2;
+  RESTART_NO_PATCH = $4;
+  RESTART_NO_REBOOT = $8;
+var
+  Func: function(pwzCommandLine: PWideChar; dwFlags: DWORD): HRESULT; stdcall;
+begin
+  { Allow Restart Manager to restart us. }
+  //rm: todo: register command line
+  Func := GetProcAddress(GetModuleHandle('kernel32.dll'),
+    'RegisterApplicationRestart');
+  if Assigned(Func) then
+    Func(nil, RESTART_NO_CRASH or RESTART_NO_HANG or RESTART_NO_REBOOT);
 end;
 
 procedure CreateMutexes;
@@ -144,6 +161,7 @@ begin
     SetCurrentDir(GetSystemDir);
 
   SetAppUserModelID;
+  RegisterApplicationRestart;
   CreateMutexes;
   Application.Initialize;
   CheckParams;
