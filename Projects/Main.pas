@@ -145,6 +145,12 @@ var
   { Check/BeforeInstall/AfterInstall 'contants' }
   CheckOrInstallCurrentFileName: String;
 
+  { RestartManager API state.
+    Note: the handle and key might change while running, see TWizardForm.QueryRestartManager. }
+  RmSessionStarted, RmFoundApplications, RmDoRestart: Boolean;
+  RmSessionHandle: DWORD;
+  RmSessionKey: array[0..CCH_RM_SESSION_KEY] of WideChar;
+
   { Other }
   ShowLanguageDialog: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
@@ -169,8 +175,6 @@ var
 {$IFDEF IS_D12}
   TaskbarButtonHidden: Boolean;
 {$ENDIF}
-  RmSessionStarted, RmFoundApplications, RmDoRestart: Boolean;
-  RmSessionHandle: DWORD;
 
   CodeRunner: TScriptRunner;
 
@@ -213,6 +217,7 @@ procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure NotifyBeforeInstallEntry(const BeforeInstall: String);
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
 function PreviousInstallNotCompleted: Boolean;
+procedure RegisterResourcesWithRestartManager;
 procedure RemoveTempInstallDir;
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
@@ -1776,35 +1781,12 @@ begin
     (StrComp(FindData.cFileName, '..') <> 0);
 end;
 
-procedure EnumProc(const Filename: String; Param: Pointer);
-begin
-  TStringList(Param).Add(PathLowercase(Filename));
-end;
+type
+  TEnumFilesProc = function(const DisableFsRedir: Boolean; Filename: String): Boolean;
 
-function PreviousInstallNotCompleted: Boolean;
-var
-  SL: TStringList;
-
-  function CheckForFile(const DisableFsRedir: Boolean; Filename: String): Boolean;
-  var
-    J: Integer;
-  begin
-    if IsNT then begin
-      if not DisableFsRedir then
-        Filename := ReplaceSystemDirWithSysWow64(Filename);
-    end
-    else
-      Filename := GetShortName(Filename);
-    Filename := PathLowercase(Filename);
-    for J := 0 to SL.Count-1 do begin
-      if SL[J] = Filename then begin
-        LogFmt('Found pending rename or delete that matches one of our files: %s', [Filename]);
-        Result := True;
-        Exit;
-      end;
-    end;
-    Result := False;
-  end;
+{ Enum the files we're going to install. EnumFilesProc should return True
+  to break the enum and to cause EnumFiles to return True instead of False. }
+function EnumFiles(EnumFilesProc: TEnumFilesProc): Boolean;
 
   function RecurseExternalCheckForFile(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
@@ -1832,7 +1814,7 @@ var
               DestName := DestName + SearchSubDir + FindData.cFileName
             else if SearchSubDir <> '' then
               DestName := PathExtractPath(DestName) + SearchSubDir + PathExtractName(DestName);
-            if CheckForFile(DisableFsRedir, DestName) then begin
+            if EnumFilesProc(DisableFsRedir, DestName) then begin
               Result := True;
               Exit;
             end;
@@ -1870,38 +1852,152 @@ var
   SourceWildcard: String;
 begin
   Result := False;
-  if Entries[seFile].Count = 0 then
-    Exit;
-  SL := TStringList.Create;
-  try
-    EnumFileReplaceOperationsFilenames(EnumProc, SL);
-    if SL.Count = 0 then
-      Exit;
-    for I := 0 to Entries[seFile].Count-1 do begin
-      CurFile := PSetupFileEntry(Entries[seFile][I]);
-      if (CurFile^.FileType = ftUserFile) and
-         ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
-        DisableFsRedir := ShouldDisableFsRedirForFileEntry(CurFile);
-        if CurFile^.LocationEntry <> -1 then begin
-          { Non-external file }
-          if CheckForFile(DisableFsRedir, ExpandConst(CurFile^.DestName)) then begin
-            Result := True;
-            Exit;
-          end;
-        end
-        else begin
-          { External file }
-          SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-          if RecurseExternalCheckForFile(DisableFsRedir, PathExtractPath(SourceWildcard), '',
-             PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), CurFile) then begin
-            Result := True;
-            Exit;
-          end;
+
+  for I := 0 to Entries[seFile].Count-1 do begin
+    CurFile := PSetupFileEntry(Entries[seFile][I]);
+    if (CurFile^.FileType = ftUserFile) and
+       ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
+      DisableFsRedir := ShouldDisableFsRedirForFileEntry(CurFile);
+      if CurFile^.LocationEntry <> -1 then begin
+        { Non-external file }
+        if EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName)) then begin
+          Result := True;
+          Exit;
+        end;
+      end
+      else begin
+        { External file }
+        SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+        if RecurseExternalCheckForFile(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+           PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), CurFile) then begin
+          Result := True;
+          Exit;
         end;
       end;
     end;
+  end;
+end;
+
+procedure EnumProc(const Filename: String; Param: Pointer);
+begin
+  TStringList(Param).Add(PathLowercase(Filename));
+end;
+
+var
+  CheckForFileSL: TStringList;
+
+function CheckForFile(const DisableFsRedir: Boolean; Filename: String): Boolean;
+var
+  J: Integer;
+begin
+  if IsNT then begin
+    if not DisableFsRedir then
+      Filename := ReplaceSystemDirWithSysWow64(Filename);
+  end
+  else
+    Filename := GetShortName(Filename);
+  Filename := PathLowercase(Filename);
+  for J := 0 to CheckForFileSL.Count-1 do begin
+    if CheckForFileSL[J] = Filename then begin
+      LogFmt('Found pending rename or delete that matches one of our files: %s', [Filename]);
+      Result := True; { Break the enum, just need to know if any matches }
+      Exit;
+    end;
+  end;
+  Result := False;
+end;
+
+{ Checks if any file we're going to install has a pending rename or delete. }
+function PreviousInstallNotCompleted: Boolean;
+begin
+  Result := False;
+  if Entries[seFile].Count = 0 then
+    Exit;
+  CheckForFileSL := TStringList.Create;
+  try
+    EnumFileReplaceOperationsFilenames(EnumProc, CheckForFileSL);
+    if CheckForFileSL.Count = 0 then
+      Exit;
+    Result := EnumFiles(CheckForFile);
   finally
-    SL.Free;
+    CheckForFileSL.Free;
+  end;
+end;
+
+type
+  TArrayOfPWideChar = array[0..(MaxInt div SizeOf(PWideChar))-1] of PWideChar;
+  PArrayOfPWideChar = ^TArrayOfPWideChar;
+
+var
+  RegisterFileFilenames: PArrayOfPWideChar;
+  RegisterFileFilenamesMax, RegisterFileFilenamesCount: Integer;
+
+function RegisterFile(const DisableFsRedir: Boolean; Filename: String): Boolean;
+{$IFNDEF UNICODE}
+var
+  I, Len: Integer;
+{$ENDIF}
+begin
+  { From MSDN: "Installers should not disable file system redirection before calling
+    the Restart Manager API. This means that a 32-bit installer run on 64-bit Windows
+    is unable register a file in the %windir%\system32 directory."
+
+    For now we just ignore DisableFsRedir. We can't just skip all files which have
+    DisableFsRedir set because it's also set for files where FsRedir has no effect.
+
+  { First: check if we need to register this batch, either because the batch is full
+    or because we're done scanning and have leftovers. }
+  if ((Filename <> '') and (RegisterFileFilenamesCount = RegisterFileFilenamesMax)) or
+     ((Filename = '') and (RegisterFileFilenamesCount > 0)) then begin
+    if RmRegisterResources(RmSessionHandle, RegisterFileFilenamesCount, RegisterFileFilenames, 0, nil, 0, nil) = ERROR_SUCCESS then begin
+      {$IFNDEF UNICODE}
+      for I := 0 to RegisterFileFilenamesCount-1 do
+        FreeMem(RegisterFileFilenames[I]);
+      {$ENDIF}
+      RegisterFileFilenamesCount := 0;
+    end else begin
+      RmEndSession(RmSessionHandle);
+      RmSessionStarted := False;
+    end;
+  end;
+
+  if RmSessionStarted and (FileName <> '') then begin
+    { Secondly: add this file to the batch. }
+    {$IFNDEF UNICODE}
+      Len := Length(Filename);
+      GetMem(RegisterFileFilenames[RegisterFileFilenamesCount], (Len + 1) * SizeOf(RegisterFileFilenames[RegisterFileFilenamesCount][0]));
+      RegisterFileFilenames[RegisterFileFilenamesCount][MultiByteToWideChar(CP_ACP, 0, PChar(Filename), Len, RegisterFileFilenames[RegisterFileFilenamesCount], Len)] := #0;
+    {$ELSE}
+      RegisterFileFilenames[RegisterFileFilenamesCount] := PWideChar(Filename); { Not entirely sure this doesn't cause some reference problem. }
+    {$ENDIF}
+    Inc(RegisterFileFilenamesCount);
+  end;
+
+  Result := not RmSessionStarted; { Break the enum if there was an error, else continue. }
+end;
+
+{ Register all files we're going to install. Ends RmSession on errors. }
+procedure RegisterResourcesWithRestartManager;
+{$IFNDEF UNICODE}
+var
+  I: Integer;
+{$ENDIF}
+begin
+  { Note: MSDN says we shouldn't call RmRegisterResources for each file because of speed, but calling
+    it once for all files adds extra memory usage, so calling it in batches (of 100). }
+  RegisterFileFilenamesMax := 100;
+  GetMem(RegisterFileFilenames, RegisterFileFilenamesMax * SizeOf(RegisterFileFilenames[0]));
+  try
+    EnumFiles(RegisterFile);
+    { Don't forget to register leftovers. }
+    if RmSessionStarted then
+      RegisterFile(False, '');
+  finally
+    {$IFNDEF UNICODE}
+    for I := 0 to RegisterFileFilenamesCount-1 do
+      FreeMem(RegisterFileFilenames[I]);
+    {$ENDIF}
+    FreeMem(RegisterFileFilenames);
   end;
 end;
 
@@ -2654,7 +2750,6 @@ var
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
   MinimumTypeSpace: Integer64;
   SourceWildcard: String;
-  RmSessionKey: array[0..CCH_RM_SESSION_KEY] of WideChar;
 begin
   InitializeCommonVars;
 

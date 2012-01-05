@@ -1654,53 +1654,30 @@ begin
   end;
 end;
 
+var
+  DidRegisterResources: Boolean;
+
 function TWizardForm.QueryRestartManager: String;
 type
-  TArrayOfPWideChar = array[0..(MaxInt div SizeOf(PWideChar))-1] of PWideChar;
-  PArrayOfPWideChar = ^TArrayOfPWideChar;
   TArrayOfProcessInfo = array[0..(MaxInt div SizeOf(RM_PROCESS_INFO))-1] of RM_PROCESS_INFO;
   PArrayOfProcessInfo = ^TArrayOfProcessInfo;
 var
   Y, I: Integer;
-  Filenames: PArrayOfPWideChar;
-  S: String;
-  SLen, ProcessInfosCount, ProcessInfosCountNeeded, RebootReasons: Integer;
+  ProcessInfosCount, ProcessInfosCountNeeded, RebootReasons: Integer;
   ProcessInfos: PArrayofProcessInfo;
+  AppName: String;
 begin
-  //rm: todo clear existing register list if we get here a 2nd time, there doesnt seem to be a function to do
-  //this so looks like it will be needed to restart the session. we cant do this anymore if the session key
-  //gets shared, so in that case we would have to disable the back button or announce the new session key
-
-    //rm: todo: register actual resources
-  //{ From MSDN: Installers should not disable file system redirection before calling the Restart Manager API. This means
-  //  that a 32-bit installer run on 64-bit Windows is unable register a file in the %windir%\system32 directory. }
-  if RmSessionStarted then begin
-    GetMem(Filenames, 2 * SizeOf(Filenames[0]));
-    for I := 0 to 1 do begin
-      if I = 0 then
-        S := 'c:\windows\explorer.exe'
-      else
-        S := 'c:\windows\notepad.exe';
-    {$IFNDEF UNICODE}
-      SLen := Length(S);
-      GetMem(Filenames[I], (SLen + 1) * SizeOf(Filenames[I][0]));
-      Filenames[I][MultiByteToWideChar(CP_ACP, 0, PChar(S), SLen, Filenames[I], SLen)] := #0;
-    {$ELSE}
-      Filenames[I] := PWideChar(S);
-    {$ENDIF}
-    end;
-
-    //rm: todo: MSDN says we shouldn't call RmRegisterResources for each file because of speed, but calling
-    //it once for all files adds extra memory usage, so find a compromise, like calling once per every 100 files
-    if RmRegisterResources(RmSessionHandle, 2, Filenames, 0, nil, 0, nil) <> ERROR_SUCCESS then begin
-      RmEndSession(RmSessionHandle);
+  { Clear existing registered resources if we get here a second time (user clicked Back after first time). There
+    doesn't seem to be function to do this directly, so restart the session instead. }
+  if DidRegisterResources then begin
+    RmEndSession(RmSessionHandle);
+    if RmStartSession(@RmSessionHandle, 0, RmSessionKey) <> ERROR_SUCCESS then
       RmSessionStarted := False;
-    end;
-{$IFNDEF UNICODE}
-    FreeMem(Filenames[0]);
-    FreeMem(Filenames[1]);
-{$ENDIF}
-    FreeMem(Filenames);
+  end;
+
+  if RmSessionStarted then begin
+    RegisterResourcesWithRestartManager;
+    DidRegisterResources := True;
   end;
 
   if RmSessionStarted then begin
@@ -1723,15 +1700,15 @@ begin
 
       if RmSessionStarted and (ProcessInfosCount > 0) then begin
         for I := 0 to ProcessInfosCount-1 do begin
-          S := WideCharToString(ProcessInfos[I].strAppName);
-          LogFmt('RestartManager found an application using one of our files: %s', [S]);
+          AppName := WideCharToString(ProcessInfos[I].strAppName);
+          LogFmt('RestartManager found an application using one of our files: %s', [AppName]);
           if RebootReasons = RmRebootReasonNone then begin
             if Result <> '' then
               Result := Result + #13#10;
-            Result := Result + S;
+            Result := Result + AppName;
           end;
         end;
-        LogFmt('Can use RestartManager to avoid reboot? %s', [SYesNo[RebootReasons = RmRebootReasonNone]]);
+        LogFmt('Can use RestartManager to avoid reboot? %s (%d)', [SYesNo[RebootReasons = RmRebootReasonNone], RebootReasons]);
       end;
     finally
       if ProcessInfos <> nil then
@@ -2257,7 +2234,7 @@ begin
             LogFmt('Need to restart Windows? %s', [SYesNo[PrepareToInstallNeedsRestart]]);
             Break;  { stop on the page }
           end else begin
-            RmFoundApplications := QueryRestartManager <> '';
+            RmFoundApplications := RmSessionStarted and (QueryRestartManager <> '');
             if RmFoundApplications then
               Break;  { stop on the page }
           end;
