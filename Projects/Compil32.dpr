@@ -55,19 +55,55 @@ end;
 
 procedure RegisterApplicationRestart;
 const
+  RESTART_MAX_CMD_LINE = 1024;
   RESTART_NO_CRASH = $1;
   RESTART_NO_HANG = $2;
   RESTART_NO_PATCH = $4;
   RESTART_NO_REBOOT = $8;
 var
   Func: function(pwzCommandLine: PWideChar; dwFlags: DWORD): HRESULT; stdcall;
+  CommandLine: String;
+  Len: Integer;
+  P: PWideChar;
 begin
   { Allow Restart Manager to restart us after updates. }
-  //rm: todo: register command line
+
   Func := GetProcAddress(GetModuleHandle('kernel32.dll'),
     'RegisterApplicationRestart');
-  if Assigned(Func) then
-    Func(nil, RESTART_NO_CRASH or RESTART_NO_HANG or RESTART_NO_REBOOT);
+  if Assigned(Func) then begin
+    { Rebuild the command line, can't just use an exact copy since it might contain
+      relative path names but Restart Manager doesn't restore the working
+      directory. }
+    if CommandLineWizard then
+      CommandLine := '/WIZARD'
+    else begin
+      CommandLine := CommandLineFilename;
+      if CommandLine <> '' then
+        CommandLine := '"' + CommandLine + '"';
+      if CommandLineCompile then
+        CommandLine := '/CC ' + CommandLine;
+    end;
+
+    { Check length, convert to Unicode if needed, and register. }
+    P := nil;
+    try
+      Len := Length(CommandLine);
+      if (Len > 0) and (Len <= RESTART_MAX_CMD_LINE) then begin
+        {$IFNDEF UNICODE}
+        GetMem(P, Len * SizeOf(P[0]));
+        P[MultiByteToWideChar(CP_ACP, 0, PChar(CommandLine), Len, P, Len)] := #0;
+        {$ELSE}
+        P := PWideChar(CommandLine);
+        {$ENDIF}
+      end;
+      Func(P, RESTART_NO_CRASH or RESTART_NO_HANG or RESTART_NO_REBOOT);
+    finally
+      {$IFNDEF UNICODE}
+      if P <> nil then
+        FreeMem(P);
+      {$ENDIF}
+    end;
+  end;
 end;
 
 procedure CreateMutexes;
@@ -161,10 +197,10 @@ begin
     SetCurrentDir(GetSystemDir);
 
   SetAppUserModelID;
-  RegisterApplicationRestart;
   CreateMutexes;
   Application.Initialize;
   CheckParams;
+  RegisterApplicationRestart;
 
   { The 'with' is so that the Delphi IDE doesn't mess with these }
   with Application do begin
