@@ -174,6 +174,7 @@ type
     ssUsePreviousSetupType,
     ssUsePreviousTasks,
     ssUsePreviousUserInfo,
+    ssUseRestartManager,
     ssUseSetupLdr,
     ssUserInfoPage,
     ssVersionInfoCompany,
@@ -4206,6 +4207,9 @@ begin
       end;
     ssUsePreviousUserInfo: begin
         SetSetupHeaderOption(shUsePreviousUserInfo);
+      end;
+    ssUseRestartManager: begin
+        SetSetupHeaderOption(shUseRestartManager);
       end;
     ssUseSetupLdr: begin
         UseSetupLdr := StrToBool(Value);
@@ -8327,7 +8331,7 @@ begin
       shShowComponentSizes, shUsePreviousTasks, shUpdateUninstallLogAppName,
       shAllowUNCPath, shUsePreviousUserInfo, shRestartIfNeededByRun,
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
-      shAppendDefaultGroupName, shUsePreviousLanguage];
+      shAppendDefaultGroupName, shUsePreviousLanguage, shUseRestartManager];
     SetupHeader.PrivilegesRequired := prAdmin;
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';

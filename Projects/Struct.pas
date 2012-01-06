@@ -66,7 +66,8 @@ type
     shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
     shAppendDefaultGroupName, shEncryptionUsed, shChangesEnvironment,
     {$IFNDEF UNICODE}shShowUndisplayableLanguages, {$ENDIF}shSetupLogging,
-    shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage);
+    shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
+    shUseRestartManager);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;

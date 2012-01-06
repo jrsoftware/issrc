@@ -215,6 +215,7 @@ type
     ssUsePreviousSetupType,
     ssUsePreviousTasks,
     ssUsePreviousUserInfo,
+    ssUseRestartManager,
     ssUseSetupLdr,
     ssUserInfoPage,
     ssVersionInfoCompany,
