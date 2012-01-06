@@ -1933,10 +1933,8 @@ var
   RegisterFileFilenamesMax, RegisterFileFilenamesCount: Integer;
 
 function RegisterFile(const DisableFsRedir: Boolean; Filename: String): Boolean;
-{$IFNDEF UNICODE}
 var
   I, Len: Integer;
-{$ENDIF}
 begin
   { From MSDN: "Installers should not disable file system redirection before calling
     the Restart Manager API. This means that a 32-bit installer run on 64-bit Windows
@@ -1950,10 +1948,8 @@ begin
   if ((Filename <> '') and (RegisterFileFilenamesCount = RegisterFileFilenamesMax)) or
      ((Filename = '') and (RegisterFileFilenamesCount > 0)) then begin
     if RmRegisterResources(RmSessionHandle, RegisterFileFilenamesCount, RegisterFileFilenames, 0, nil, 0, nil) = ERROR_SUCCESS then begin
-      {$IFNDEF UNICODE}
       for I := 0 to RegisterFileFilenamesCount-1 do
         FreeMem(RegisterFileFilenames[I]);
-      {$ENDIF}
       RegisterFileFilenamesCount := 0;
     end else begin
       RmEndSession(RmSessionHandle);
@@ -1963,12 +1959,12 @@ begin
 
   if RmSessionStarted and (FileName <> '') then begin
     { Secondly: add this file to the batch. }
+    Len := Length(Filename);
+    GetMem(RegisterFileFilenames[RegisterFileFilenamesCount], (Len + 1) * SizeOf(RegisterFileFilenames[RegisterFileFilenamesCount][0]));
     {$IFNDEF UNICODE}
-      Len := Length(Filename);
-      GetMem(RegisterFileFilenames[RegisterFileFilenamesCount], (Len + 1) * SizeOf(RegisterFileFilenames[RegisterFileFilenamesCount][0]));
       RegisterFileFilenames[RegisterFileFilenamesCount][MultiByteToWideChar(CP_ACP, 0, PChar(Filename), Len, RegisterFileFilenames[RegisterFileFilenamesCount], Len)] := #0;
     {$ELSE}
-      RegisterFileFilenames[RegisterFileFilenamesCount] := PWideChar(Filename); { Not entirely sure this doesn't cause some reference problem. }
+      StrPCopy(RegisterFileFilenames[RegisterFileFilenamesCount], Filename);
     {$ENDIF}
     Inc(RegisterFileFilenamesCount);
   end;
@@ -1978,10 +1974,8 @@ end;
 
 { Register all files we're going to install. Ends RmSession on errors. }
 procedure RegisterResourcesWithRestartManager;
-{$IFNDEF UNICODE}
 var
   I: Integer;
-{$ENDIF}
 begin
   { Note: MSDN says we shouldn't call RmRegisterResources for each file because of speed, but calling
     it once for all files adds extra memory usage, so calling it in batches (of 100). }
@@ -1993,10 +1987,8 @@ begin
     if RmSessionStarted then
       RegisterFile(False, '');
   finally
-    {$IFNDEF UNICODE}
     for I := 0 to RegisterFileFilenamesCount-1 do
       FreeMem(RegisterFileFilenames[I]);
-    {$ENDIF}
     FreeMem(RegisterFileFilenames);
   end;
 end;
