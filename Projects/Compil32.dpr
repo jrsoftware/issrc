@@ -62,7 +62,7 @@ const
 var
   Func: function(pwzCommandLine: PWideChar; dwFlags: DWORD): HRESULT; stdcall;
 begin
-  { Allow Restart Manager to restart us. }
+  { Allow Restart Manager to restart us after updates. }
   //rm: todo: register command line
   Func := GetProcAddress(GetModuleHandle('kernel32.dll'),
     'RegisterApplicationRestart');
