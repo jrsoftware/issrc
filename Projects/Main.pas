@@ -3105,7 +3105,7 @@ begin
     LoadDecryptDLL;
 
   { Start RestartManager session unless we will always restart }
-  if (shUseRestartManager in SetupHeader.Options) and not NeedsRestart then begin
+  if shUseRestartManager in SetupHeader.Options then begin
     InitRestartManagerLibrary;
     if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then
       RmSessionStarted := True;
