@@ -1858,7 +1858,7 @@ begin
     NewActiveControl := NextButton
   else if (CurPageID = wpPreparing) and (PrepareToInstallFailureMessage <> '') and not PrepareToInstallNeedsRestart then
     NewActiveControl := CancelButton
-  else if (CurPageID = wpPreparing) and (PrepareToInstallFailureMessage = '') then
+  else if (CurPageID = wpPreparing) and (PrepareToInstallFailureMessage = '') and PreparingYesRadio.CanFocus then
     NewActiveControl := PreparingYesRadio
   else
     NewActiveControl := FindNextControl(nil, True, True, False);
@@ -2172,6 +2172,7 @@ var
   PageIndex: Integer;
   Continue: Boolean;
   NewPageID: Integer;
+  WindowDisabler: TWindowDisabler;
 label Again;
 begin
   if CurPageID = wpInstalling then
@@ -2233,10 +2234,16 @@ begin
             LogFmt('PrepareToInstall failed: %s', [PrepareToInstallFailureMessage]);
             LogFmt('Need to restart Windows? %s', [SYesNo[PrepareToInstallNeedsRestart]]);
             Break;  { stop on the page }
-          end else begin
-            RmFoundApplications := RmSessionStarted and (QueryRestartManager <> '');
-            if RmFoundApplications then
-              Break;  { stop on the page }
+          end else if RmSessionStarted then begin
+            SetCurPage(wpPreparing); { controls are already hidden by PrepareToInstall }
+            WindowDisabler := TWindowDisabler.Create;
+            try
+              RmFoundApplications := QueryRestartManager <> '';
+              if RmFoundApplications then
+                Break;  { stop on the page }
+            finally
+              WindowDisabler.Free;
+            end;
           end;
         end;
       wpInstalling: begin
