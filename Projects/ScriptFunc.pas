@@ -161,7 +161,7 @@ const
   );
 
   { Main }
-  MainTable: array [0..18] of AnsiString =
+  MainTable: array [0..19] of AnsiString =
   (
     'function WizardForm: TWizardForm;',
     'function MainForm: TMainForm;',
@@ -181,7 +181,8 @@ const
     'function IsWin64: Boolean;',
     'function Is64BitInstallMode: Boolean;',
     'function ProcessorArchitecture: TSetupProcessorArchitecture;',
-    'function CustomMessage(const MsgName: String): String;'
+    'function CustomMessage(const MsgName: String): String;',
+    'function RmSessionStarted: Boolean;'
   );
 
   { Msgs }

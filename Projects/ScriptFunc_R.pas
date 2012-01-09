@@ -1080,6 +1080,8 @@ begin
     Stack.SetInt(PStart, Integer(ProcessorArchitecture));
   end else if Proc.Name = 'CUSTOMMESSAGE' then begin
     Stack.SetString(PStart, CustomMessage(Stack.GetString(PStart-1)));
+  end else if Proc.Name = 'RMSESSIONSTARTED' then begin
+    Stack.SetBool(PStart, RmSessionStarted);
   end else
     Result := False;
 end;
