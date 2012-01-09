@@ -200,7 +200,7 @@ PreviousInstallNotCompleted=The installation/removal of a previous program was n
 CannotContinue=Setup cannot continue. Please click Cancel to exit.
 ApplicationsFound=The following applications are using files that need to be updated by Setup.
 CloseApplications=Automatically close the applications and attempt to restart them.
-DontCloseApplications=Do not close the applications. A reboot will be required.
+DontCloseApplications=Do not close the applications.
 
 ; *** "Installing" wizard page
 WizardInstalling=Installing
