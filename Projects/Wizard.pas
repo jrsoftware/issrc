@@ -1621,6 +1621,11 @@ begin
     PrepareToInstallNeedsRestart := True;
   end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall') then begin
     SetCurPage(wpPreparing);
+    if InstallMode = imSilent then begin
+      SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
+      WizardForm.Show;
+    end;
+    WizardForm.Update;
     WindowDisabler := TWindowDisabler.Create;
     try
       CodeNeedsRestart := False;
