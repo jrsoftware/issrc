@@ -2236,6 +2236,7 @@ begin
             Break;  { stop on the page }
           end else if RmSessionStarted then begin
             SetCurPage(wpPreparing); { controls are already hidden by PrepareToInstall }
+            WizardForm.Update;
             WindowDisabler := TWindowDisabler.Create;
             try
               RmFoundApplications := QueryRestartManager <> '';
