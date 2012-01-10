@@ -8,7 +8,7 @@ unit Main;
 
   Background form
 
-  $jrsoftware: issrc/Projects/Main.pas,v 1.412.2.1 2012/01/04 16:35:20 mlaan Exp $
+  $jrsoftware: issrc/Projects/Main.pas,v 1.412.2.3 2012/01/09 08:58:14 mlaan Exp $
 }
 
 interface
@@ -3105,7 +3105,7 @@ begin
     LoadDecryptDLL;
 
   { Start RestartManager session unless we will always restart }
-  if shUseRestartManager in SetupHeader.Options then begin
+  if (shUseRestartManager in SetupHeader.Options) and not NeedsRestart then begin
     InitRestartManagerLibrary;
     if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then
       RmSessionStarted := True;

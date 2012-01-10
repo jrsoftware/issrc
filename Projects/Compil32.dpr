@@ -8,7 +8,7 @@ program Compil32;
 
   Compiler
 
-  $jrsoftware: issrc/Projects/Compil32.dpr,v 1.32.2.1 2012/01/05 16:14:02 mlaan Exp $
+  $jrsoftware: issrc/Projects/Compil32.dpr,v 1.32.2.2 2012/01/09 08:58:13 mlaan Exp $
 }
 
 uses
