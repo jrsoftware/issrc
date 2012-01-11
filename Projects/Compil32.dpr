@@ -62,9 +62,7 @@ const
   RESTART_NO_REBOOT = $8;
 var
   Func: function(pwzCommandLine: PWideChar; dwFlags: DWORD): HRESULT; stdcall;
-  CommandLine: String;
-  Len: Integer;
-  P: PWideChar;
+  CommandLine: WideString;
 begin
   { Allow Restart Manager to restart us after updates. }
 
@@ -83,26 +81,11 @@ begin
       if CommandLineCompile then
         CommandLine := '/CC ' + CommandLine;
     end;
+    
+    if Length(CommandLine) > RESTART_MAX_CMD_LINE then
+      CommandLine := '';
 
-    { Check length, convert to Unicode if needed, and register. }
-    P := nil;
-    try
-      Len := Length(CommandLine);
-      if (Len > 0) and (Len <= RESTART_MAX_CMD_LINE) then begin
-        {$IFNDEF UNICODE}
-        GetMem(P, Len * SizeOf(P[0]));
-        P[MultiByteToWideChar(CP_ACP, 0, PChar(CommandLine), Len, P, Len)] := #0;
-        {$ELSE}
-        P := PWideChar(CommandLine);
-        {$ENDIF}
-      end;
-      Func(P, RESTART_NO_CRASH or RESTART_NO_HANG or RESTART_NO_REBOOT);
-    finally
-      {$IFNDEF UNICODE}
-      if P <> nil then
-        FreeMem(P);
-      {$ENDIF}
-    end;
+    Func(PWideChar(CommandLine), RESTART_NO_CRASH or RESTART_NO_HANG or RESTART_NO_REBOOT);
   end;
 end;
 
