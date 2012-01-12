@@ -1979,8 +1979,8 @@ var
   I: Integer;
 begin
   { Note: MSDN says we shouldn't call RmRegisterResources for each file because of speed, but calling
-    it once for all files adds extra memory usage, so calling it in batches (of 100). }
-  RegisterFileFilenamesMax := 100;
+    it once for all files adds extra memory usage, so calling it in batches. }
+  RegisterFileFilenamesMax := 1000;
   GetMem(RegisterFileFilenames, RegisterFileFilenamesMax * SizeOf(RegisterFileFilenames[0]));
   try
     EnumFiles(RegisterFile);
