@@ -1936,13 +1936,6 @@ function RegisterFile(const DisableFsRedir: Boolean; Filename: String): Boolean;
 var
   I, Len: Integer;
 begin
-  { From MSDN: "Installers should not disable file system redirection before calling
-    the Restart Manager API. This means that a 32-bit installer run on 64-bit Windows
-    is unable register a file in the %windir%\system32 directory."
-
-    For now we just ignore DisableFsRedir. We can't just skip all files which have
-    DisableFsRedir set because it's also set for files where FsRedir has no effect.
-
   { First: check if we need to register this batch, either because the batch is full
     or because we're done scanning and have leftovers. }
   if ((Filename <> '') and (RegisterFileFilenamesCount = RegisterFileFilenamesMax)) or
@@ -1958,6 +1951,14 @@ begin
   end;
 
   if RmSessionStarted and (FileName <> '') then begin
+    { From MSDN: "Installers should not disable file system redirection before calling
+      the Restart Manager API. This means that a 32-bit installer run on 64-bit Windows
+      is unable register a file in the %windir%\system32 directory." This is incorrect,
+      we can register such files by using the Sysnative alias. Note: the Sysnative alias
+      is only available on Windows Vista and newer, but so is Restart Manager. }
+    if DisableFsRedir then
+      Filename := ReplaceSystemDirWithSysNative(Filename, IsWin64);
+
     { Secondly: add this file to the batch. }
     Len := Length(Filename);
     GetMem(RegisterFileFilenames[RegisterFileFilenamesCount], (Len + 1) * SizeOf(RegisterFileFilenames[RegisterFileFilenamesCount][0]));
