@@ -106,6 +106,7 @@ procedure RaiseFunctionFailedError(const FunctionName: String);
 procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 procedure RefreshEnvironment;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
+function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
 procedure UnregisterFont(const FontName, FontFilename: String);
 function RestartComputer: Boolean;
 procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
@@ -279,6 +280,41 @@ begin
       if PathCompare(Copy(Path, 1, L), SysDir) = 0 then begin
         Result := SysWow64Dir + Copy(Path, L+1, Maxint);
         Exit;
+      end;
+    end;
+  end;
+  Result := Path;
+end;
+
+function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
+{ If the user is running 64-bit Windows Vista or newer and Path
+  begins with 'x:\windows\system32\' it replaces it with
+  'x:\windows\sysnative\' and if Path equals 'x:\windows\system32'
+  it replaces it with 'x:\windows\sysnative'. Otherwise, Path is
+  returned unchanged. }
+var
+  SysNativeDir, SysDir: String;
+  L: Integer;
+begin
+  SysNativeDir := GetSysNativeDir(IsWin64);
+  if SysNativeDir <> '' then begin
+    SysDir := GetSystemDir;
+    if PathCompare(Path, SysDir) = 0 then begin
+    { x:\windows\system32 -> x:\windows\sysnative }
+      Result := SysNativeDir;
+      Exit;
+    end else begin
+    { x:\windows\system32\ -> x:\windows\sysnative\
+      x:\windows\system32\filename -> x:\windows\sysnative\filename }
+      SysDir := AddBackslash(SysDir);
+      L := Length(SysDir);
+      if (Length(Path) = L) or
+         ((Length(Path) > L) and not PathCharIsTrailByte(Path, L+1)) then begin
+                                 { ^ avoid splitting a double-byte character }
+        if PathCompare(Copy(Path, 1, L), SysDir) = 0 then begin
+          Result := SysNativeDir + Copy(Path, L, Maxint);
+          Exit;
+        end;
       end;
     end;
   end;
