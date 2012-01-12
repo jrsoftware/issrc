@@ -49,7 +49,7 @@ const
   );
 
    { CmnFunc2 }
-  CmnFunc2Table: array [0..54] of AnsiString =
+  CmnFunc2Table: array [0..55] of AnsiString =
   (
     'function FileExists(const Name: String): Boolean;',
     'function DirExists(const Name: String): Boolean;',
@@ -77,6 +77,7 @@ const
     'function GetWinDir: String;',
     'function GetSystemDir: String;',
     'function GetSysWow64Dir: String;',
+    'function GetSysNativeDir: String;',
     'function GetTempDir: String;',
     'function StringChange(var S: String; const FromStr, ToStr: String): Integer;',
     'function StringChangeEx(var S: String; const FromStr, ToStr: String; const SupportDBCS: Boolean): Integer;',

@@ -504,6 +504,8 @@ begin
     Stack.SetString(PStart, GetSystemDir());
   end else if Proc.Name = 'GETSYSWOW64DIR' then begin
     Stack.SetString(PStart, GetSysWow64Dir());
+  end else if Proc.Name = 'GETSYSNATIVEDIR' then begin
+    Stack.SetString(PStart, GetSysNativeDir(IsWin64));
   end else if Proc.Name = 'GETTEMPDIR' then begin
     Stack.SetString(PStart, GetTempDir());
   end else if Proc.Name = 'STRINGCHANGE' then begin
