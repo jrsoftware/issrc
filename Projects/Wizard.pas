@@ -231,6 +231,7 @@ type
     procedure IncTopDecHeight(const AControl: TControl; const Amount: Integer);
     function PageFromID(const ID: Integer): TWizardPage;
     function PageIndexFromID(const ID: Integer): Integer;
+    procedure UpdateCurPageButtonVisibility;
     procedure SetCurPage(const NewPageID: Integer);
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
@@ -1622,6 +1623,8 @@ begin
     PrepareToInstallNeedsRestart := True;
   end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall') then begin
     SetCurPage(wpPreparing);
+    BackButton.Visible := False;
+    NextButton.Visible := False;
     WindowDisabler := TWindowDisabler.Create;
     try
       CodeNeedsRestart := False;
@@ -1629,6 +1632,7 @@ begin
       PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
     finally
       WindowDisabler.Free;
+      UpdateCurPageButtonVisibility;
     end;
     Application.BringToFront;
   end;
@@ -1885,29 +1889,15 @@ begin
   Result := -1;
 end;
 
-procedure TWizardForm.SetCurPage(const NewPageID: Integer);
-{ Changes which page is currently visible }
+procedure TWizardForm.UpdateCurPageButtonVisibility;
 var
   PageIndex: Integer;
   Page: TWizardPage;
   Flags: UINT;
 begin
-  PageIndex := PageIndexFromID(NewPageID);
+  PageIndex := PageIndexFromID(CurPageID);
   Page := FPageList[PageIndex];
-  CurPageID := NewPageID;
 
-  { Select the page in the notebooks }
-  if Assigned(Page.InnerNotebookPage) then
-    InnerNotebook.ActivePage := Page.InnerNotebookPage;
-  OuterNotebook.ActivePage := Page.OuterNotebookPage;
-
-  { Set the page description }
-  Page.SyncCaptionAndDescription;
-
-  BeveledLabel.Visible := (SetupMessages[msgBeveledLabel] <> '') and
-    not(CurPageID in [wpWelcome, wpFinished]);
-
-  { Set button visibility and captions }
   if not(psNoButtons in Page.Style) then begin
     BackButton.Visible := (CurPageID <> wpInstalling) and (GetPreviousPageID <> -1);
     NextButton.Visible := CurPageID <> wpInstalling;
@@ -1933,6 +1923,29 @@ begin
   else
     Flags := MF_GRAYED;
   EnableMenuItem(GetSystemMenu(Handle, False), SC_CLOSE, MF_BYCOMMAND or Flags);
+end;
+
+procedure TWizardForm.SetCurPage(const NewPageID: Integer);
+{ Changes which page is currently visible }
+var
+  Page: TWizardPage;
+begin
+  Page := PageFromID(NewPageID);
+  CurPageID := NewPageID;
+
+  { Select the page in the notebooks }
+  if Assigned(Page.InnerNotebookPage) then
+    InnerNotebook.ActivePage := Page.InnerNotebookPage;
+  OuterNotebook.ActivePage := Page.OuterNotebookPage;
+
+  { Set the page description }
+  Page.SyncCaptionAndDescription;
+
+  BeveledLabel.Visible := (SetupMessages[msgBeveledLabel] <> '') and
+    not(CurPageID in [wpWelcome, wpFinished]);
+
+  { Set button visibility and captions }
+  UpdateCurPageButtonVisibility;
 
   BackButton.Caption := SetupMessages[msgButtonBack];
   if CurPageID = wpReady then begin
@@ -2172,7 +2185,6 @@ var
   PageIndex: Integer;
   Continue: Boolean;
   NewPageID: Integer;
-  WindowDisabler: TWindowDisabler;
 label Again;
 begin
   if CurPageID = wpInstalling then
@@ -2236,14 +2248,15 @@ begin
             Break;  { stop on the page }
           end else if RmSessionStarted then begin
             SetCurPage(wpPreparing); { controls are already hidden by PrepareToInstall }
-            WizardForm.Update;
-            WindowDisabler := TWindowDisabler.Create;
+            BackButton.Visible := False;
+            NextButton.Visible := False;
             try
+              WizardForm.Update;
               RmFoundApplications := QueryRestartManager <> '';
               if RmFoundApplications then
                 Break;  { stop on the page }
             finally
-              WindowDisabler.Free;
+              UpdateCurPageButtonVisibility;
             end;
           end;
         end;
