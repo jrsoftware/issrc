@@ -2737,7 +2737,7 @@ Shown by default, but can be disabled via <link topic="setup_disablereadypage">D
 
 <li>
 <b>Preparing to Install</b><br/>
-Normally, Setup will never stop on this page. The only time it will is if Setup determines it can't continue. This can happen if the <tt>PrepareToInstall</tt> event function returned an error or if one or more files specified in the [Files] section were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.
+Normally, Setup will never stop on this page. The only time it will is if Setup determines it can't continue. This can happen if the <tt>PrepareToInstall</tt> event function returned an error or if one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.
 </li>
 
 <li>
