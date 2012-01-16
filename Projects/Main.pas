@@ -1792,7 +1792,7 @@ begin
   Result := True;
 end;
 
-{ Enum the files we're going to install and delete. Returns True on success.
+{ Enumerates the files we're going to install and delete. Returns True on success.
   Likewise EnumFilesProc should return True on success and return False
   to break the enum and to cause EnumFiles to return False instead of True. }
 function EnumFiles(const EnumFilesProc: TEnumFilesProc; const Param: Pointer): Boolean;
@@ -1940,7 +1940,7 @@ begin
   Result := True; { Success! }
 end;
 
-{ Checks if any file we're going to install or delete has a pending rename or delete. }
+{ Checks if no file we're going to install or delete has a pending rename or delete. }
 function PreviousInstallCompleted: Boolean;
 begin
   Result := True;
@@ -2010,7 +2010,7 @@ begin
   Result := RmSessionStarted; { Break the enum if there was an error, else continue. }
 end;
 
-{ Register all files we're going to install. Ends RmSession on errors. }
+{ Register all files we're going to install or delete. Ends RmSession on errors. }
 procedure RegisterResourcesWithRestartManager;
 var
   I: Integer;
