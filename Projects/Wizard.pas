@@ -2689,6 +2689,10 @@ begin
       else
         SetupExitCode := ecPrepareToInstallFailed;
       Abort;
+
+      { Note: no special handling if it stops on wpPreparing because of in-use
+        files ((CurPageID = wpPreparing) and (PrepareToInstallFailureMessage = '')),
+        instead it will always choose to close applications when running silently. }
     end;
 
     BeforeID := CurPageID;
