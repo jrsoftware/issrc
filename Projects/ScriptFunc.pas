@@ -8,7 +8,7 @@ unit ScriptFunc;
 
   Script support functions
 
-  $jrsoftware: issrc/Projects/ScriptFunc.pas,v 1.90.6.1 2012/01/10 09:55:00 mlaan Exp $
+  $jrsoftware: issrc/Projects/ScriptFunc.pas,v 1.90.6.2 2012/01/16 21:27:04 mlaan Exp $
 }
 
 interface

@@ -8,7 +8,7 @@ unit InstFunc;
 
   Misc. installation functions
 
-  $jrsoftware: issrc/Projects/InstFunc.pas,v 1.117 2010/09/21 18:21:01 jr Exp $
+  $jrsoftware: issrc/Projects/InstFunc.pas,v 1.117.4.1 2012/01/16 21:27:04 mlaan Exp $
 }
 
 interface

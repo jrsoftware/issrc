@@ -8,7 +8,7 @@ unit CmnFunc2;
 
   Common non-VCL functions
 
-  $jrsoftware: issrc/Projects/CmnFunc2.pas,v 1.111 2010/10/22 10:33:26 mlaan Exp $
+  $jrsoftware: issrc/Projects/CmnFunc2.pas,v 1.111.2.1 2012/01/16 21:27:03 mlaan Exp $
 }
 
 {$B-,R-}
