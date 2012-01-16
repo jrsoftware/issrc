@@ -2810,6 +2810,16 @@ begin
       ProcessTasksEntries;
       ProcessEvents;
 
+      { Shutdown applications, if any }
+      if RmSessionStarted and RmFoundApplications then begin
+        if WizardPreparingYesRadio then begin
+          SetStatusLabelText(SetupMessages[msgStatusClosingApplications]);
+          ShutdownApplications;
+          ProcessEvents;
+        end else
+          Log('User chose not to shutdown applications using our files.');
+      end;
+
       { Process InstallDelete entries, if any }
       ProcessInstallDeleteEntries;
       ProcessEvents;

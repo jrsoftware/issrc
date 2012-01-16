@@ -1618,7 +1618,7 @@ begin
   PreparingYesRadio.Visible := False;
   PreparingNoRadio.Visible := False;
   PreparingMemo.Visible := False;
-  if PreviousInstallNotCompleted then begin
+  if not PreviousInstallCompleted then begin
     Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
     PrepareToInstallNeedsRestart := True;
   end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall') then begin

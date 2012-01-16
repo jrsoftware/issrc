@@ -216,7 +216,7 @@ procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure NotifyBeforeInstallEntry(const BeforeInstall: String);
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
-function PreviousInstallNotCompleted: Boolean;
+function PreviousInstallCompleted: Boolean;
 procedure RegisterResourcesWithRestartManager;
 procedure RemoveTempInstallDir;
 procedure SaveResourceToTempFile(const ResName, Filename: String);
@@ -1782,13 +1782,22 @@ begin
 end;
 
 type
-  TEnumFilesProc = function(const DisableFsRedir: Boolean; Filename: String): Boolean;
+  TEnumFilesProc = function(const DisableFsRedir: Boolean; const Filename: String;
+    const Param: Pointer): Boolean;
 
-{ Enum the files we're going to install. EnumFilesProc should return True
-  to break the enum and to cause EnumFiles to return True instead of False. }
-function EnumFiles(EnumFilesProc: TEnumFilesProc): Boolean;
+function DummyDeleteDirProc(const DisableFsRedir: Boolean; const Filename: String;
+    const Param: Pointer): Boolean;
+begin
+  { We don't actually want to delete the dir, so just return success. }
+  Result := True;
+end;
 
-  function RecurseExternalCheckForFile(const DisableFsRedir: Boolean;
+{ Enum the files we're going to install and delete. Returns True on success.
+  Likewise EnumFilesProc should return True on success and return False
+  to break the enum and to cause EnumFiles to return False instead of True. }
+function EnumFiles(const EnumFilesProc: TEnumFilesProc; const Param: Pointer): Boolean;
+
+  function RecurseExternalFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const CurFile: PSetupFileEntry): Boolean;
   var
@@ -1797,7 +1806,7 @@ function EnumFiles(EnumFilesProc: TEnumFilesProc): Boolean;
     FindData: TWin32FindData;
   begin
     SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
-    Result := False;
+    Result := True;
 
     H := FindFirstFileRedir(DisableFsRedir, SearchFullPath, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
@@ -1814,8 +1823,8 @@ function EnumFiles(EnumFilesProc: TEnumFilesProc): Boolean;
               DestName := DestName + SearchSubDir + FindData.cFileName
             else if SearchSubDir <> '' then
               DestName := PathExtractPath(DestName) + SearchSubDir + PathExtractName(DestName);
-            if EnumFilesProc(DisableFsRedir, DestName) then begin
-              Result := True;
+            if not EnumFilesProc(DisableFsRedir, DestName, Param) then begin
+              Result := False;
               Exit;
             end;
           end;
@@ -1831,10 +1840,10 @@ function EnumFiles(EnumFilesProc: TEnumFilesProc): Boolean;
         try
           repeat
             if IsRecurseableDirectory(FindData) then
-              if RecurseExternalCheckForFile(DisableFsRedir, SearchBaseDir,
+              if not RecurseExternalFiles(DisableFsRedir, SearchBaseDir,
                  SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                  SourceIsWildcard, CurFile) then begin
-                Result := True;
+                Result := False;
                 Exit;
               end;
           until not FindNextFile(H, FindData);
@@ -1851,8 +1860,9 @@ var
   DisableFsRedir: Boolean;
   SourceWildcard: String;
 begin
-  Result := False;
+  Result := True;
 
+  { [Files] }
   for I := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][I]);
     if (CurFile^.FileType = ftUserFile) and
@@ -1860,22 +1870,42 @@ begin
       DisableFsRedir := ShouldDisableFsRedirForFileEntry(CurFile);
       if CurFile^.LocationEntry <> -1 then begin
         { Non-external file }
-        if EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName)) then begin
-          Result := True;
+        if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then begin
+          Result := False;
           Exit;
         end;
       end
       else begin
         { External file }
         SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-        if RecurseExternalCheckForFile(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+        if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
            PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), CurFile) then begin
-          Result := True;
+          Result := False;
           Exit;
         end;
       end;
     end;
   end;
+
+  { [InstallDelete] }
+    for I := 0 to Entries[seInstallDelete].Count-1 do
+      with PSetupDeleteEntry(Entries[seInstallDelete][I])^ do
+        if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
+          case DeleteType of
+            dfFiles, dfFilesAndOrSubdirs:
+              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, True,
+                 DummyDeleteDirProc, EnumFilesProc, nil) then begin
+                Result := False;
+                Exit;
+              end;
+            dfDirIfEmpty:
+              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, True,
+                 DummyDeleteDirProc, EnumFilesProc, nil) then begin
+                Result := False;
+                Exit;
+              end;
+          end;
+        end;
 end;
 
 procedure EnumProc(const Filename: String; Param: Pointer);
@@ -1886,10 +1916,13 @@ end;
 var
   CheckForFileSL: TStringList;
 
-function CheckForFile(const DisableFsRedir: Boolean; Filename: String): Boolean;
+function CheckForFile(const DisableFsRedir: Boolean; const AFilename: String;
+  const Param: Pointer): Boolean;
 var
+  Filename: String;
   J: Integer;
 begin
+  Filename := AFilename;
   if IsNT then begin
     if not DisableFsRedir then
       Filename := ReplaceSystemDirWithSysWow64(Filename);
@@ -1900,17 +1933,17 @@ begin
   for J := 0 to CheckForFileSL.Count-1 do begin
     if CheckForFileSL[J] = Filename then begin
       LogFmt('Found pending rename or delete that matches one of our files: %s', [Filename]);
-      Result := True; { Break the enum, just need to know if any matches }
+      Result := False; { Break the enum, just need to know if any matches }
       Exit;
     end;
   end;
-  Result := False;
+  Result := True; { Success! }
 end;
 
-{ Checks if any file we're going to install has a pending rename or delete. }
-function PreviousInstallNotCompleted: Boolean;
+{ Checks if any file we're going to install or delete has a pending rename or delete. }
+function PreviousInstallCompleted: Boolean;
 begin
-  Result := False;
+  Result := True;
   if Entries[seFile].Count = 0 then
     Exit;
   CheckForFileSL := TStringList.Create;
@@ -1918,7 +1951,7 @@ begin
     EnumFileReplaceOperationsFilenames(EnumProc, CheckForFileSL);
     if CheckForFileSL.Count = 0 then
       Exit;
-    Result := EnumFiles(CheckForFile);
+    Result := EnumFiles(CheckForFile, nil);
   finally
     CheckForFileSL.Free;
   end;
@@ -1932,10 +1965,14 @@ var
   RegisterFileFilenames: PArrayOfPWideChar;
   RegisterFileFilenamesMax, RegisterFileFilenamesCount: Integer;
 
-function RegisterFile(const DisableFsRedir: Boolean; Filename: String): Boolean;
+function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
+  const Param: Pointer): Boolean;
 var
+  Filename: String;
   I, Len: Integer;
 begin
+  Filename := AFilename;
+
   { First: check if we need to register this batch, either because the batch is full
     or because we're done scanning and have leftovers. }
   if ((Filename <> '') and (RegisterFileFilenamesCount = RegisterFileFilenamesMax)) or
@@ -1970,7 +2007,7 @@ begin
     Inc(RegisterFileFilenamesCount);
   end;
 
-  Result := not RmSessionStarted; { Break the enum if there was an error, else continue. }
+  Result := RmSessionStarted; { Break the enum if there was an error, else continue. }
 end;
 
 { Register all files we're going to install. Ends RmSession on errors. }
@@ -1983,10 +2020,10 @@ begin
   RegisterFileFilenamesMax := 1000;
   GetMem(RegisterFileFilenames, RegisterFileFilenamesMax * SizeOf(RegisterFileFilenames[0]));
   try
-    EnumFiles(RegisterFile);
+    EnumFiles(RegisterFile, nil);
     { Don't forget to register leftovers. }
     if RmSessionStarted then
-      RegisterFile(False, '');
+      RegisterFile(False, '', nil);
   finally
     for I := 0 to RegisterFileFilenamesCount-1 do
       FreeMem(RegisterFileFilenames[I]);
