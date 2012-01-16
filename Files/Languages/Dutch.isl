@@ -180,7 +180,7 @@ ReadyMemoTasks=Extra taken:
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Bezig met het voorbereiden van de installatie
-PreparingDesc=Bezig met het voorbereiden van [name] installatie.
+PreparingDesc=Setup is bezig met het voorbereiden van de installatie van [name].
 PreviousInstallNotCompleted=De installatie/verwijdering van een vorig programma is niet voltooid. U moet uw computer opnieuw opstarten om die installatie te voltooien.%n%nStart [name] Setup nogmaals als uw computer opnieuw is opgestart.
 CannotContinue=Setup kan niet doorgaan. Klik op annuleren om af te sluiten.
 
