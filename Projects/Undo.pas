@@ -985,7 +985,7 @@ begin
                  CurRecData[0], CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteFiles <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteSubdirsAlso <> 0,
-                 DeleteDirProc, DeleteFileProc, @DeleteDirData) then begin
+                 False, DeleteDirProc, DeleteFileProc, @DeleteDirData) then begin
                 if (CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0) and
                    (CurRec^.ExtraData and utDeleteDirOrFiles_CallChangeNotify <> 0) then begin
                   SHChangeNotify(SHCNE_RMDIR, SHCNF_PATH, CurRecDataPChar[0], nil);

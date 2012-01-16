@@ -1519,7 +1519,7 @@ begin
   if TempInstallDir <> '' then begin
     if Debugging then
       DebugNotifyTempDir('');
-    if not DelTree(False, TempInstallDir, True, True, True, nil,
+    if not DelTree(False, TempInstallDir, True, True, True, False, nil,
        TempDeleteFileProc, Pointer(GetTickCount())) then
       Log('Failed to remove temporary directory: ' + TempInstallDir);
   end;

@@ -767,7 +767,7 @@ begin
   end else if Proc.Name = 'DELAYDELETEFILE' then begin
     DelayDeleteFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetInt(PStart-1), 250, 250);
   end else if Proc.Name = 'DELTREE' then begin
-    Stack.SetBool(PStart, DelTree(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetBool(PStart-2), Stack.GetBool(PStart-3), Stack.GetBool(PStart-4), nil, nil, nil));
+    Stack.SetBool(PStart, DelTree(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetBool(PStart-2), Stack.GetBool(PStart-3), Stack.GetBool(PStart-4), False, nil, nil, nil));
   end else if Proc.Name = 'GENERATEUNIQUENAME' then begin
     Stack.SetString(PStart, GenerateUniqueName(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
   end else if Proc.Name = 'GETCOMPUTERNAMESTRING' then begin
