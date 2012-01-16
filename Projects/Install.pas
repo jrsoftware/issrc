@@ -8,7 +8,7 @@ unit Install;
 
   Installation procedures
 
-  $jrsoftware: issrc/Projects/Install.pas,v 1.327 2011/12/24 16:14:09 mlaan Exp $
+  $jrsoftware: issrc/Projects/Install.pas,v 1.328 2012/01/16 22:27:53 mlaan Exp $
 }
 
 interface
