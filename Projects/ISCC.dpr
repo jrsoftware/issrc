@@ -164,8 +164,8 @@ procedure ProcessCommandLine;
   procedure ShowBanner;
   begin
     WriteStdOut('Inno Setup 5 Command-Line Compiler');
-    WriteStdOut('Copyright (C) 1997-2011 Jordan Russell. All rights reserved.');
-    WriteStdOut('Portions Copyright (C) 2000-2011 Martijn Laan');
+    WriteStdOut('Copyright (C) 1997-2012 Jordan Russell. All rights reserved.');
+    WriteStdOut('Portions Copyright (C) 2000-2012 Martijn Laan');
     WriteStdOut('');
   end;
 

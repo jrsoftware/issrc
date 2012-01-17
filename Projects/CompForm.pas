@@ -2241,8 +2241,8 @@ begin
     String(FCompilerVersion.Version) + SNewLine;
   if FCompilerVersion.Title <> 'Inno Setup' then
     S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
-  S := S + ('Copyright (C) 1997-2011 Jordan Russell' + SNewLine +
-    'Portions Copyright (C) 2000-2011 Martijn Laan' + SNewLine +
+  S := S + ('Copyright (C) 1997-2012 Jordan Russell' + SNewLine +
+    'Portions Copyright (C) 2000-2012 Martijn Laan' + SNewLine +
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
     'http://www.innosetup.com/' + SNewLine2 +
