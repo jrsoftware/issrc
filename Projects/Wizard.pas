@@ -2697,7 +2697,8 @@ begin
 
       { Note: no special handling if it stops on wpPreparing because of in-use
         files ((CurPageID = wpPreparing) and (PrepareToInstallFailureMessage = '')),
-        instead it will always choose to close applications when running silently. }
+        instead it will always choose to close applications when running silently
+        unless RestartManager was disabled as well via /NORESTARTMANAGER. }
     end;
 
     BeforeID := CurPageID;

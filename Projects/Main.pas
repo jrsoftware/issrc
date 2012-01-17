@@ -103,7 +103,7 @@ var
   InitLang: String;
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
-  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitNoCancel: Boolean;
+  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitNoRestartManager, InitNoCancel: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -757,6 +757,7 @@ begin
   InitSilent := GetIniBool(Section, 'Silent', InitSilent, FileName);
   InitVerySilent := GetIniBool(Section, 'VerySilent', InitVerySilent, FileName);
   InitNoRestart := GetIniBool(Section, 'NoRestart', InitNoRestart, FileName);
+  InitNoRestartManager := GetIniBool(Section, 'NoRestartManager', InitNoRestartManager, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
   InitSaveInf := GetIniString(Section, 'SaveInf', InitSaveInf, FileName);
@@ -2829,6 +2830,9 @@ begin
     if CompareText(ParamName, '/NoRestart') = 0 then
       InitNoRestart := True
     else
+    if CompareText(ParamName, '/NoRestartManager') = 0 then
+      InitNoRestartManager := True
+    else
     if CompareText(ParamName, '/NoIcons') = 0 then
       InitNoIcons := True
     else
@@ -3142,8 +3146,8 @@ begin
   if shEncryptionUsed in SetupHeader.Options then
     LoadDecryptDLL;
 
-  { Start RestartManager session unless we will always restart }
-  if (shUseRestartManager in SetupHeader.Options) and not NeedsRestart then begin
+  { Start RestartManager session }
+  if (shUseRestartManager in SetupHeader.Options) and not InitNoRestartManager then begin
     InitRestartManagerLibrary;
     if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then
       RmSessionStarted := True;
