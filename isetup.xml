@@ -1715,7 +1715,7 @@ Instructs Setup to proceed to comparing time stamps if the file being installed 
 </ol>
 <p>Certain flags such as <tt>onlyifdoesntexist</tt>, <tt>ignoreversion</tt>, and <tt>promptifolder</tt> alter the aforementioned rules.</p>
 
-<p>If the <tt>restartreplace</tt> flag is not used and Setup is unable to replace an existing file because it is in use by another process, it will make up to 4 additional attempts to replace the file, delaying one second before each attempt. If all attempts fail, an error message will be displayed.</p>
+<p>If Setup is unable to replace an existing file because it is in use by another process, it will make up to 4 additional attempts to replace the file, delaying one second before each attempt. If all attempts fail, an error message will be displayed.</p>
 
 <p>Setup registers all files with the <tt>regserver</tt> or <tt>regtypelib</tt> flags as the last step of installation. However, if the <tt>[Setup]</tt> section directive <tt>AlwaysRestart</tt> is <tt>yes</tt>, or if there are files with the <tt>restartreplace</tt> flag, all files get registered on the next reboot (by creating an entry in Windows' <i>RunOnce</i> registry key).</p>
 
