@@ -37,6 +37,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 </li>
 <li>The <i>Preparing to Install</i> wizard page now also checks if one or more files specified in the [InstallDelete] section were queued (by some other installation) to be replaced or deleted on the next restart, making Setup stop on the page if it does. Previously it only checked files specified in the [Files] section.</li>
 <li>Setup now hides the <i>Back</i> and <i>Next</i> buttons while the <tt>PrepareToInstall</tt> [Code] event function is running.</li>
+<li>Improved the "auto-retry" feature of the [Files] section: it now automatically retries even if the <tt>restartreplace</tt> [Files] section flag is used.</li>
 <li>Added 128x128 and 256x256 sizes to the compiler and document icons, created by Motaz.</li>
 </ul>
 

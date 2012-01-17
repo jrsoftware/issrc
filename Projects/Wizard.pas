@@ -1625,6 +1625,11 @@ begin
     SetCurPage(wpPreparing);
     BackButton.Visible := False;
     NextButton.Visible := False;
+    if InstallMode = imSilent then begin
+      SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
+      WizardForm.Show;
+    end;
+    WizardForm.Update;
     WindowDisabler := TWindowDisabler.Create;
     try
       CodeNeedsRestart := False;

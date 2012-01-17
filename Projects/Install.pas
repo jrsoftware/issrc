@@ -1285,7 +1285,10 @@ var
             { Does the error code indicate that it is possibly in use? }
             if (LastError = ERROR_ACCESS_DENIED) or
                (LastError = ERROR_SHARING_VIOLATION) then begin
-              if (foRestartReplace in CurFile^.Options) and IsAdmin then begin
+              { Automatically retry. Wait with replace on restart until no
+                retries left or until we already know we're going to restart. }
+              if ((RetriesLeft = 0) or NeedsRestart) and
+                 (foRestartReplace in CurFile^.Options) and IsAdmin then begin
                 LogFmt('The existing file appears to be in use (%d). ' +
                   'Will replace on restart.', [LastError]);
                 LastOperation := SetupMessages[msgErrorRestartReplace];
@@ -1293,9 +1296,7 @@ var
                 RestartReplace(DisableFsRedir, TempFile, DestFile);
                 ReplaceOnRestart := True;
                 Break;
-              end;
-              { Automatically retry }
-              if RetriesLeft > 0 then begin
+              end else if RetriesLeft > 0 then begin
                 LogFmt('The existing file appears to be in use (%d). ' +
                   'Retrying.', [LastError]);
                 Dec(RetriesLeft);
