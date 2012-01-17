@@ -2255,6 +2255,10 @@ begin
             SetCurPage(wpPreparing); { controls are already hidden by PrepareToInstall }
             BackButton.Visible := False;
             NextButton.Visible := False;
+            if InstallMode = imSilent then begin
+              SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
+              WizardForm.Show;
+            end;
             try
               WizardForm.Update;
               RmFoundApplications := QueryRestartManager <> '';
