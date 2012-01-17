@@ -3011,6 +3011,7 @@ Also, there is one limitation of the compiler:</p>
 <keyword value="/SILENT" anchor="SILENT" />
 <keyword value="/VERYSILENT" anchor="VERYSILENT" />
 <keyword value="/NORESTART" anchor="NORESTART" />
+<keyword value="/NORESTARTMANAGER" anchor="NORESTARTMANAGER" />
 <keyword value="/LOADINF=" anchor="LOADINF" />
 <keyword value="/SAVEINF=" anchor="SAVEINF" />
 <keyword value="/LANG=" anchor="LANG" />
@@ -3088,6 +3089,11 @@ Also, there is one limitation of the compiler:</p>
 <dt><b><a name="NORESTART">/NORESTART</a></b></dt>
 <dd>
 <p>Prevents Setup from restarting the system following a successful installation, or after a <i>Preparing to Install</i> failure that requests a restart. Typically used along with /SILENT or /VERYSILENT.</p>
+</dd>
+
+<dt><b><a name="NORESTARTMANAGER">/NORESTARTMANAGER</a></b></dt>
+<dd>
+<p>Prevents Setup from using Restart Manager to close and restart applications using files that need to be updated by Setup. Typically used along with /SILENT or /VERYSILENT.</p>
 </dd>
 
 <dt><b><a name="RESTARTEXITCODE">/RESTARTEXITCODE=</a><i>exit code</i></b></dt>
