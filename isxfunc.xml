@@ -1017,11 +1017,25 @@ end;
         <name>GetSHA1OfString</name>
         <prototype>function GetSHA1OfString(const S: AnsiString): String;</prototype>
         <description><p>Gets the SHA-1 hash of the specified string, as a string.</p></description>
+        <example><pre>var
+  SHA1: String;
+begin
+  SHA1 := GetSHA1OfString('Test');
+  // SHA1 = '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa'
+end;
+</pre></example>
       </function>
       <function>
         <name>GetSHA1OfUnicodeString</name>
         <prototype>function GetSHA1OfUnicodeString(const S: String): String;</prototype>
         <description><p>Gets the SHA-1 hash of the specified string, as a string.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <example><pre>var
+  SHA1: String;
+begin
+  SHA1 := GetSHA1OfUnicodeString('Test');
+  // SHA1 = '9ab696a37604d665dc97134dbee44cfe70451b1a'
+end;
+</pre></example>
       </function>
     </subcategory>
     <subcategory>
