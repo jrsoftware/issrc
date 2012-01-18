@@ -41,7 +41,7 @@ var
 procedure InitializeWizard;
 begin
   { Create the pages }
-
+  
   UserPage := CreateInputQueryPage(wpWelcome,
     'Personal Information', 'Who are you?',
     'Please specify your name and the company for whom you work, then click Next.');
@@ -150,7 +150,7 @@ begin
     finally
       ProgressPage.Hide;
     end;
-    if KeyPage.Values[0] = 'inno' then
+    if GetSHA1OfString('codedlg' + KeyPage.Values[0]) = '8013f310d340dab18a0d0cda2b5b115d2dcd97e4' then
       Result := True
     else begin
       MsgBox('You must enter a valid registration key. (Hint: The key is "inno".)', mbError, MB_OK);
