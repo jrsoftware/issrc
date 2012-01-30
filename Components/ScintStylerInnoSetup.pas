@@ -8,7 +8,7 @@ unit ScintStylerInnoSetup;
 
   TInnoSetupStyler: styler for Inno Setup scripts
 
-  $jrsoftware: issrc/Components/ScintStylerInnoSetup.pas,v 1.13.2.1 2012/01/09 08:58:13 mlaan Exp $
+  $jrsoftware: issrc/Components/ScintStylerInnoSetup.pas,v 1.13.2.2 2012/01/30 14:44:25 mlaan Exp $
 }
 
 interface

@@ -9,7 +9,7 @@ unit Struct;
   Various records and other types that are shared by the ISCmplr, Setup,
   SetupLdr, and Uninst projects
 
-  $jrsoftware: issrc/Projects/Struct.pas,v 1.264.2.2 2012/01/09 08:58:14 mlaan Exp $
+  $jrsoftware: issrc/Projects/Struct.pas,v 1.264.2.3 2012/01/30 14:44:29 mlaan Exp $
 }
 
 interface
