@@ -103,7 +103,8 @@ var
   InitLang: String;
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
-  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitNoRestartManager, InitNoCancel: Boolean;
+  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitNoCloseApplications,
+    InitNoRestartApplications, InitNoCancel: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -132,7 +133,7 @@ var
   Entries: array[TEntryType] of TList;
   WizardImage: TBitmap;
   WizardSmallImage: TBitmap;
-  RestartManagerIncludes: TStringList;
+  CloseApplicationsFilterList: TStringList;
 
   { User options }
   ActiveLanguage: Integer = -1;
@@ -628,7 +629,8 @@ begin
   InitSilent := GetIniBool(Section, 'Silent', InitSilent, FileName);
   InitVerySilent := GetIniBool(Section, 'VerySilent', InitVerySilent, FileName);
   InitNoRestart := GetIniBool(Section, 'NoRestart', InitNoRestart, FileName);
-  InitNoRestartManager := GetIniBool(Section, 'NoRestartManager', InitNoRestartManager, FileName);
+  InitNoCloseApplications := GetIniBool(Section, 'NoCloseApplications', InitNoCloseApplications, FileName);
+  InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
   InitSaveInf := GetIniString(Section, 'SaveInf', InitSaveInf, FileName);
@@ -1849,8 +1851,8 @@ begin
   { First: check filter. }
   if Filename <> '' then begin
     Match := False;
-    for I := 0 to RestartManagerIncludes.Count-1 do begin
-      if WildcardMatch(PChar(PathExtractName(Filename)), PChar(RestartManagerIncludes[I])) then begin
+    for I := 0 to CloseApplicationsFilterList.Count-1 do begin
+      if WildcardMatch(PChar(PathExtractName(Filename)), PChar(CloseApplicationsFilterList[I])) then begin
         Match := True;
         Break;
       end;
@@ -2717,8 +2719,11 @@ begin
     if CompareText(ParamName, '/NoRestart') = 0 then
       InitNoRestart := True
     else
-    if CompareText(ParamName, '/NoRestartManager') = 0 then
-      InitNoRestartManager := True
+    if CompareText(ParamName, '/NoCloseApplications') = 0 then
+      InitNoCloseApplications := True
+    else
+    if CompareText(ParamName, '/NoRestartApplications') = 0 then
+      InitNoRestartApplications := True
     else
     if CompareText(ParamName, '/NoIcons') = 0 then
       InitNoIcons := True
@@ -3034,11 +3039,11 @@ begin
     LoadDecryptDLL;
 
   { Start RestartManager session }
-  if (shUseRestartManager in SetupHeader.Options) and not InitNoRestartManager then begin
+  if (shCloseApplications in SetupHeader.Options) and not InitNoCloseApplications then begin
     InitRestartManagerLibrary;
     if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then begin
       RmSessionStarted := True;
-      SetStringsFromCommaString(RestartManagerIncludes, SetupHeader.RestartManagerIncludes);
+      SetStringsFromCommaString(CloseApplicationsFilterList, SetupHeader.CloseApplicationsFilter);
     end;
   end;
 
@@ -3806,7 +3811,7 @@ begin
 
     ProcessRunEntries;
 
-    if RmDoRestart then
+    if RmDoRestart and (shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications then
       RestartApplications;
 
     SetStep(ssPostInstall, True);
@@ -4273,12 +4278,12 @@ initialization
   CreateEntryLists;
   DeleteFilesAfterInstallList := TStringList.Create;
   DeleteDirsAfterInstallList := TStringList.Create;
-  RestartManagerIncludes := TStringList.Create;
+  CloseApplicationsFilterList := TStringList.Create;
 
 finalization
   FreeAndNil(WizardImage);
   FreeAndNil(WizardSmallImage);
-  FreeAndNil(RestartManagerIncludes);
+  FreeAndNil(CloseApplicationsFilterList);
   FreeAndNil(DeleteDirsAfterInstallList);
   FreeAndNil(DeleteFilesAfterInstallList);
   FreeEntryLists;

@@ -92,6 +92,8 @@ type
     ssBackSolid,
     ssChangesAssociations,
     ssChangesEnvironment,
+    ssCloseApplications,
+    ssCloseApplicationsFilter,
     ssCompression,
     ssCompressionThreads,
     ssCreateAppDir,
@@ -140,8 +142,8 @@ type
     ssPassword,
     ssPrivilegesRequired,
     ssReserveBytes,
+    ssRestartApplications,
     ssRestartIfNeededByRun,
-    ssRestartManagerIncludes,
     ssSetupIconFile,
     ssSetupLogging,
     ssShowComponentSizes,
@@ -175,7 +177,6 @@ type
     ssUsePreviousSetupType,
     ssUsePreviousTasks,
     ssUsePreviousUserInfo,
-    ssUseRestartManager,
     ssUseSetupLdr,
     ssUserInfoPage,
     ssVersionInfoCompany,
@@ -3791,6 +3792,21 @@ begin
     ssChangesEnvironment: begin
         SetSetupHeaderOption(shChangesEnvironment);
       end;
+    ssCloseApplications: begin
+        SetSetupHeaderOption(shCloseApplications);
+      end;
+    ssCloseApplicationsFilter: begin
+        if Value = '' then
+          Invalid;
+        AIncludes := TStringList.Create;
+        try
+          ProcessWildcardsParameter(Value, AIncludes,
+            SCompilerDirectiveCloseApplicationsFilterTooLong);
+          SetupHeader.CloseApplicationsFilter := StringsToCommaString(AIncludes);
+        finally
+          AIncludes.Free;
+        end;
+      end;
     ssCompression: begin
         Value := Lowercase(Trim(Value));
         if Value = 'none' then begin
@@ -4085,20 +4101,11 @@ begin
         if (I <> 0) or (ReserveBytes < 0) then
           Invalid;
       end;
+    ssRestartApplications: begin
+        SetSetupHeaderOption(shRestartApplications);
+      end;
     ssRestartIfNeededByRun: begin
         SetSetupHeaderOption(shRestartIfNeededByRun);
-      end;
-    ssRestartManagerIncludes: begin
-        if Value = '' then
-          Invalid;
-        AIncludes := TStringList.Create;
-        try
-          ProcessWildcardsParameter(Value, AIncludes,
-            SCompilerDirectiveRestartManagerIncludesTooLong);
-          SetupHeader.RestartManagerIncludes := StringsToCommaString(AIncludes);
-        finally
-          AIncludes.Free;
-        end;
       end;
     ssSetupIconFile: begin
         if (Value <> '') and (Win32Platform <> VER_PLATFORM_WIN32_NT) then
@@ -4241,9 +4248,6 @@ begin
       end;
     ssUsePreviousUserInfo: begin
         SetSetupHeaderOption(shUsePreviousUserInfo);
-      end;
-    ssUseRestartManager: begin
-        SetSetupHeaderOption(shUseRestartManager);
       end;
     ssUseSetupLdr: begin
         UseSetupLdr := StrToBool(Value);
@@ -8354,7 +8358,8 @@ begin
       shShowComponentSizes, shUsePreviousTasks, shUpdateUninstallLogAppName,
       shAllowUNCPath, shUsePreviousUserInfo, shRestartIfNeededByRun,
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
-      shAppendDefaultGroupName, shUsePreviousLanguage, shUseRestartManager];
+      shAppendDefaultGroupName, shUsePreviousLanguage, shCloseApplications,
+      shRestartApplications];
     SetupHeader.PrivilegesRequired := prAdmin;
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';
@@ -8371,7 +8376,7 @@ begin
     WizardSmallImageFile := 'compiler:WIZMODERNSMALLIMAGE.BMP';
     DefaultDialogFontName := 'Tahoma';
     SignTool := '';
-    SetupHeader.RestartManagerIncludes := '*.exe,*.dll,*.chm';
+    SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
 
     { Read [Setup] section }
     EnumIniSection(EnumSetup, 'Setup', 0, True, True, '', False, False);

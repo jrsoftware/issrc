@@ -180,7 +180,7 @@ const
   SCompilerMustNotUsePreviousLanguage = 'UsePreviousLanguage must be set to "no" when AppId includes constants';
   SCompilerDirectiveNotUsingDefault = 'The [Setup] section directive "%s" is not assuming a default value because %s includes constants.';
   SCompilerDirectiveNotUsingPreferredDefault = 'The [Setup] section directive "%s" is defaulting to %s because %s includes constants.';
-  SCompilerDirectiveRestartManagerIncludesTooLong = 'The [Setup] section directive "RestartManagerIncludes" contains a pattern that is too long';
+  SCompilerDirectiveCloseApplicationsFilterTooLong = 'The [Setup] section directive "CloseApplicationsFilter" contains a pattern that is too long';
 
   { Signing }
   SCompilerSignatureNeeded = 'Signed uninstaller mode is enabled. Using ' +
