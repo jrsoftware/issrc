@@ -3011,7 +3011,8 @@ Also, there is one limitation of the compiler:</p>
 <keyword value="/SILENT" anchor="SILENT" />
 <keyword value="/VERYSILENT" anchor="VERYSILENT" />
 <keyword value="/NORESTART" anchor="NORESTART" />
-<keyword value="/NORESTARTMANAGER" anchor="NORESTARTMANAGER" />
+<keyword value="/NOCLOSEAPPLICATIONS" anchor="NOCLOSEAPPLICATIONS" />
+<keyword value="/NORESTARTAPPLICATIONS" anchor="NORESTARTAPPLICATIONS" />
 <keyword value="/LOADINF=" anchor="LOADINF" />
 <keyword value="/SAVEINF=" anchor="SAVEINF" />
 <keyword value="/LANG=" anchor="LANG" />
@@ -3091,14 +3092,19 @@ Also, there is one limitation of the compiler:</p>
 <p>Prevents Setup from restarting the system following a successful installation, or after a <i>Preparing to Install</i> failure that requests a restart. Typically used along with /SILENT or /VERYSILENT.</p>
 </dd>
 
-<dt><b><a name="NORESTARTMANAGER">/NORESTARTMANAGER</a></b></dt>
-<dd>
-<p>Prevents Setup from using Restart Manager to close and restart applications using files that need to be updated by Setup. Typically used along with /SILENT or /VERYSILENT.</p>
-</dd>
-
 <dt><b><a name="RESTARTEXITCODE">/RESTARTEXITCODE=</a><i>exit code</i></b></dt>
 <dd>
 <p>Specifies a custom exit code that Setup is to return when the system needs to be restarted following a successful installation. (By default, 0 is returned in this case.) Typically used along with /NORESTART. See also: <link topic="setupexitcodes">Setup Exit Codes</link></p>
+</dd>
+
+<dt><b><a name="NOCLOSEAPPLICATIONS">/NOCLOSEAPPLICATIONS</a></b></dt>
+<dd>
+<p>Prevents Setup from using Restart Manager to close applications using files that need to be updated by Setup.</p>
+</dd>
+
+<dt><b><a name="NORESTARTAPPLICATIONS">/NORESTARTAPPLICATIONS</a></b></dt>
+<dd>
+<p>Prevents Setup from using Restart Manager to restart applications. If Setup didn't close these applications (for example because /NOCLOSEAPPLICATIONS was used), this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="LOADINF">/LOADINF=</a>"<i>filename</i>"</b></dt>
