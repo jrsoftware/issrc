@@ -24,6 +24,7 @@ type
     msgAboutSetupTitle,
     msgAdminPrivilegesRequired,
     msgApplicationsFound,
+    msgApplicationsFound2,
     msgBadDirName32,
     msgBadGroupName,
     msgBeveledLabel,

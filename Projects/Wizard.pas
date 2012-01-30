@@ -1726,7 +1726,10 @@ begin
   end;
 
   if Result <> '' then begin
-    PreparingLabel.Caption := SetupMessages[msgApplicationsFound];
+    if (shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications then
+      PreparingLabel.Caption := SetupMessages[msgApplicationsFound2]
+    else
+      PreparingLabel.Caption := SetupMessages[msgApplicationsFound];
     Y := PreparingLabel.Top + PreparingLabel.Height + ScalePixelsY(12);
     PreparingMemo.Top := Y;
     IncTopDecHeight(PreparingMemo, AdjustLabelHeight(PreparingLabel));
