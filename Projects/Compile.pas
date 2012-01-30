@@ -37,7 +37,7 @@ implementation
 
 uses
   CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo,
-  PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
+  PathFunc, CmnFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, DebugStruct, VerInfo, ResUpdate, CompResUpdate,
 {$IFDEF STATICPREPROC}
@@ -141,6 +141,7 @@ type
     ssPrivilegesRequired,
     ssReserveBytes,
     ssRestartIfNeededByRun,
+    ssRestartManagerIncludes,
     ssSetupIconFile,
     ssSetupLogging,
     ssShowComponentSizes,
@@ -464,6 +465,8 @@ type
     procedure ProcessExpressionParameter(const ParamName,
       ParamData: String; OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier;
       SlashConvert: Boolean; var ProcessedParamData: String);
+    procedure ProcessWildcardsParameter(const ParamData: String;
+      const AWildcards: TStringList; const TooLongMsg: String);
     procedure ReadDefaultMessages;
 {$IFDEF UNICODE}
     procedure ReadMessagesFromFilesPre(const AFiles: String; const ALangIndex: Integer);
@@ -3136,6 +3139,24 @@ begin
   end;
 end;
 
+procedure TSetupCompiler.ProcessWildcardsParameter(const ParamData: String;
+  const AWildcards: TStringList; const TooLongMsg: String);
+var
+  S, AWildcard: String;
+begin
+  S := PathLowercase(ParamData);
+  while True do begin
+    AWildcard := ExtractStr(S, ',');
+    if AWildcard = '' then
+      Break;
+    { Impose a reasonable limit on the length of the string so
+      that WildcardMatch can't overflow the stack }
+    if Length(AWildcard) >= MAX_PATH then
+      AbortCompileOnLine(TooLongMsg);
+    AWildcards.Add(AWildcard);
+  end;
+end;
+
 { Also present in ScriptFunc_R.pas ! }
 function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData;
   const AllowEmpty: Boolean): Boolean;
@@ -3635,6 +3656,7 @@ var
 
 var
   P: Integer;
+  AIncludes: TStringList;
 begin
   SeparateDirective(Line, KeyName, Value);
 
@@ -4065,6 +4087,18 @@ begin
       end;
     ssRestartIfNeededByRun: begin
         SetSetupHeaderOption(shRestartIfNeededByRun);
+      end;
+    ssRestartManagerIncludes: begin
+        if Value = '' then
+          Invalid;
+        AIncludes := TStringList.Create;
+        try
+          ProcessWildcardsParameter(Value, AIncludes,
+            SCompilerDirectiveRestartManagerIncludesTooLong);
+          SetupHeader.RestartManagerIncludes := StringsToCommaString(AIncludes);
+        finally
+          AIncludes.Free;
+        end;
       end;
     ssSetupIconFile: begin
         if (Value <> '') and (Win32Platform <> VER_PLATFORM_WIN32_NT) then
@@ -6203,7 +6237,6 @@ type
   end;
 
 var
-  S, AExclude: String;
   FileList, DirList: TList;
   SortFilesByExtension, SortFilesByName: Boolean;
   I: Integer;
@@ -6357,17 +6390,7 @@ begin
                AStrongAssemblyName := Values[paStrongAssemblyName].Data;
 
                { Excludes }
-               S := PathLowercase(Values[paExcludes].Data);
-               while True do begin
-                 AExclude := ExtractStr(S, ',');
-                 if AExclude = '' then
-                   Break;
-                 { Impose a reasonable limit on the length of the string so
-                   that WildcardMatch can't overflow the stack }
-                 if Length(AExclude) >= MAX_PATH then
-                   AbortCompileOnLine(SCompilerFilesExcludeTooLong);
-                 AExcludes.Add(AExclude);
-               end;
+               ProcessWildcardsParameter(Values[paExcludes].Data, AExcludes, SCompilerFilesExcludeTooLong);
 
                { ExternalSize }
                if Values[paExternalSize].Found then begin
@@ -8348,6 +8371,7 @@ begin
     WizardSmallImageFile := 'compiler:WIZMODERNSMALLIMAGE.BMP';
     DefaultDialogFontName := 'Tahoma';
     SignTool := '';
+    SetupHeader.RestartManagerIncludes := '*.exe,*.dll,*.chm';
 
     { Read [Setup] section }
     EnumIniSection(EnumSetup, 'Setup', 0, True, True, '', False, False);

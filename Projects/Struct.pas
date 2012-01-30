@@ -79,7 +79,7 @@ const
     ('Unknown', 'x86', 'x64', 'Itanium');
 
 const
-  SetupHeaderStrings = 26;
+  SetupHeaderStrings = 27;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
@@ -88,7 +88,8 @@ type
       DefaultGroupName, BaseFilename, UninstallFilesDir, UninstallDisplayName,
       UninstallDisplayIcon, AppMutex, DefaultUserInfoName, DefaultUserInfoOrg,
       DefaultUserInfoSerial, AppReadmeFile, AppContact, AppComments,
-      AppModifyPath, CreateUninstallRegKey, Uninstallable: String;
+      AppModifyPath, CreateUninstallRegKey, Uninstallable,
+      RestartManagerIncludes: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
 {$IFNDEF UNICODE}
     LeadBytes: set of AnsiChar;

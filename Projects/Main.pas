@@ -132,6 +132,7 @@ var
   Entries: array[TEntryType] of TList;
   WizardImage: TBitmap;
   WizardSmallImage: TBitmap;
+  RestartManagerIncludes: TStringList;
 
   { User options }
   ActiveLanguage: Integer = -1;
@@ -221,7 +222,6 @@ procedure RegisterResourcesWithRestartManager;
 procedure RemoveTempInstallDir;
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
-procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
 procedure SetTaskbarButtonVisibility(const AVisible: Boolean);
 function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
 function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
@@ -234,7 +234,6 @@ function ShouldProcessIconEntry(const WizardComponents, WizardTasks: TStringList
   const WizardNoIcons: Boolean; const IconEntry: PSetupIconEntry): Boolean;
 function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
   const RunEntry: PSetupRunEntry): Boolean;
-function StringsToCommaString(const Strings: TStrings): String;
 function TestPassword(const Password: String): Boolean;
 procedure UnloadSHFolderDLL;
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte): Boolean;
@@ -601,134 +600,6 @@ begin
   for I := 1 to Length(Result) do
     if Result[I] = '/' then
       Result[I] := '\';
-end;
-
-function QuoteStringIfNeeded(const S: String): String;
-{ Used internally by StringsToCommaString. Adds quotes around the string if
-  needed, and doubles any embedded quote characters.
-  Note: No lead byte checking is done since spaces/commas/quotes aren't used
-  as trail bytes in any of the Far East code pages (CJK). }
-var
-  Len, QuoteCount, I: Integer;
-  HasSpecialChars: Boolean;
-  P: PChar;
-begin
-  Len := Length(S);
-  HasSpecialChars := False;
-  QuoteCount := 0;
-  for I := 1 to Len do begin
-    case S[I] of
-      #0..' ', ',': HasSpecialChars := True;
-      '"': Inc(QuoteCount);
-    end;
-  end;
-  if not HasSpecialChars and (QuoteCount = 0) then begin
-    Result := S;
-    Exit;
-  end;
-
-  SetString(Result, nil, Len + QuoteCount + 2);
-  P := Pointer(Result);
-  P^ := '"';
-  Inc(P);
-  for I := 1 to Len do begin
-    if S[I] = '"' then begin
-      P^ := '"';
-      Inc(P);
-    end;
-    P^ := S[I];
-    Inc(P);
-  end;
-  P^ := '"';
-end;
-
-function StringsToCommaString(const Strings: TStrings): String;
-{ Creates a comma-delimited string from Strings.
-  Note: Unlike Delphi 2's TStringList.CommaText property, this function can
-  handle an unlimited number of characters. }
-var
-  I: Integer;
-  S: String;
-begin
-  if (Strings.Count = 1) and (Strings[0] = '') then
-    Result := '""'
-  else begin
-    Result := '';
-    for I := 0 to Strings.Count-1 do begin
-      S := QuoteStringIfNeeded(Strings[I]);
-      if I = 0 then
-        Result := S
-      else
-        Result := Result + ',' + S;
-    end;
-  end;
-end;
-
-procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
-{ Replaces Strings with strings from the comma- or space-delimited Value.
-  Note: No lead byte checking is done since spaces/commas/quotes aren't used
-  as trail bytes in any of the Far East code pages (CJK).
-  Also, this isn't bugged like Delphi 3+'s TStringList.CommaText property --
-  SetStringsFromCommaString(..., 'a,') will add two items, not one. }
-var
-  P, PStart, PDest: PChar;
-  CharCount: Integer;
-  S: String;
-begin
-  Strings.BeginUpdate;
-  try
-    Strings.Clear;
-    P := PChar(Value);
-    while CharInSet(P^, [#1..' ']) do
-      Inc(P);
-    if P^ <> #0 then begin
-      while True do begin
-        if P^ = '"' then begin
-          Inc(P);
-          PStart := P;
-          CharCount := 0;
-          while P^ <> #0 do begin
-            if P^ = '"' then begin
-              Inc(P);
-              if P^ <> '"' then Break;
-            end;
-            Inc(CharCount);
-            Inc(P);
-          end;
-          P := PStart;
-          SetString(S, nil, CharCount);
-          PDest := Pointer(S);
-          while P^ <> #0 do begin
-            if P^ = '"' then begin
-              Inc(P);
-              if P^ <> '"' then Break;
-            end;
-            PDest^ := P^;
-            Inc(P);
-            Inc(PDest);
-          end;
-        end
-        else begin
-          PStart := P;
-          while (P^ > ' ') and (P^ <> ',') do
-            Inc(P);
-          SetString(S, PStart, P - PStart);
-        end;
-        Strings.Add(S);
-        while CharInSet(P^, [#1..' ']) do
-          Inc(P);
-        if P^ = #0 then
-          Break;
-        if P^ = ',' then begin
-          repeat
-            Inc(P);
-          until not CharInSet(P^, [#1..' ']);
-        end;
-      end;
-    end;
-  finally
-    Strings.EndUpdate;
-  end;
 end;
 
 procedure LoadInf(const FileName: String);
@@ -1971,10 +1842,26 @@ function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
 var
   Filename: String;
   I, Len: Integer;
+  Match: Boolean;
 begin
   Filename := AFilename;
 
-  { First: check if we need to register this batch, either because the batch is full
+  { First: check filter. }
+  if Filename <> '' then begin
+    Match := False;
+    for I := 0 to RestartManagerIncludes.Count-1 do begin
+      if WildcardMatch(PChar(PathExtractName(Filename)), PChar(RestartManagerIncludes[I])) then begin
+        Match := True;
+        Break;
+      end;
+    end;
+    if not Match then begin
+      Result := True;
+      Exit;
+    end;
+  end;
+
+  { Secondly: check if we need to register this batch, either because the batch is full
     or because we're done scanning and have leftovers. }
   if ((Filename <> '') and (RegisterFileFilenamesCount = RegisterFileFilenamesMax)) or
      ((Filename = '') and (RegisterFileFilenamesCount > 0)) then begin
@@ -1988,6 +1875,7 @@ begin
     end;
   end;
 
+  { Finally: add this file to the batch. }
   if RmSessionStarted and (FileName <> '') then begin
     { From MSDN: "Installers should not disable file system redirection before calling
       the Restart Manager API. This means that a 32-bit installer run on 64-bit Windows
@@ -1997,7 +1885,6 @@ begin
     if DisableFsRedir then
       Filename := ReplaceSystemDirWithSysNative(Filename, IsWin64);
 
-    { Secondly: add this file to the batch. }
     Len := Length(Filename);
     GetMem(RegisterFileFilenames[RegisterFileFilenamesCount], (Len + 1) * SizeOf(RegisterFileFilenames[RegisterFileFilenamesCount][0]));
     {$IFNDEF UNICODE}
@@ -3149,8 +3036,10 @@ begin
   { Start RestartManager session }
   if (shUseRestartManager in SetupHeader.Options) and not InitNoRestartManager then begin
     InitRestartManagerLibrary;
-    if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then
+    if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then begin
       RmSessionStarted := True;
+      SetStringsFromCommaString(RestartManagerIncludes, SetupHeader.RestartManagerIncludes);
+    end;
   end;
 
   { Set install mode }
@@ -4384,10 +4273,12 @@ initialization
   CreateEntryLists;
   DeleteFilesAfterInstallList := TStringList.Create;
   DeleteDirsAfterInstallList := TStringList.Create;
+  RestartManagerIncludes := TStringList.Create;
 
 finalization
   FreeAndNil(WizardImage);
   FreeAndNil(WizardSmallImage);
+  FreeAndNil(RestartManagerIncludes);
   FreeAndNil(DeleteDirsAfterInstallList);
   FreeAndNil(DeleteFilesAfterInstallList);
   FreeEntryLists;

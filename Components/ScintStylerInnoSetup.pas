@@ -182,6 +182,7 @@ type
     ssPrivilegesRequired,
     ssReserveBytes,
     ssRestartIfNeededByRun,
+    ssRestartManagerIncludes,
     ssSetupIconFile,
     ssSetupLogging,
     ssShowComponentSizes,
