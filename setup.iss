@@ -10,7 +10,7 @@
 [Setup]
 AppName=Inno Setup
 AppId=Inno Setup 5
-AppVersion=5.4.3
+AppVersion=5.5.0
 AppPublisher=Jordan Russell
 AppPublisherURL=http://www.innosetup.com/
 AppSupportURL=http://www.innosetup.com/
