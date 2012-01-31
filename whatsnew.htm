@@ -28,17 +28,34 @@ Portions Copyright &copy; 2000-2011 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
-<p><a name="5.4.4"></a><span class="ver">5.4.4-dev </span><span class="date">(?)</span></p>
+<p><a name="5.5.0"></a><span class="ver">5.5.0-dev </span><span class="date">(?)</span></p>
 <ul>
+<li>On Windows Vista and newer, Setup now supports the Windows Restart Manager API to close and restart applications using files that need to be updated by the [Files] or [InstallDelete] section:
+  <ul>
+  <li>Added new [Setup] section directive: <tt>CloseApplications</tt>, which defaults to <tt>yes</tt>.</li>
+  <li>Added new [Setup] section directive: <tt>CloseApplicationsFilter</tt>, which defaults to <tt>*.exe,*.dll,*.chm</tt>.</li>
+  <li>Added new [Setup] section directive: <tt>RestartApplications</tt>, which defaults to <tt>yes</tt></tt>.</li>
+  <li>Added new command line parameters supported by Setup: /NOCLOSEAPPLICATIONS and /NORESTARTAPPLICATIONS. These can be used to overide the new <tt>CloseApplications</tt> and <tt>RestartApplications</tt> directives.</li>
+  <li>Added new [Code] support function: <tt>RmSessionStarted</tt>.</li>
+  <li>TWizardForm: Added new <tt>PreparingMemo</tt> property.</li>
+  </ul>
+</li>
+<li>The <i>Preparing to Install</i> wizard page now also checks if one or more files specified in the [InstallDelete] section were queued (by some other installation) to be replaced or deleted on the next restart, making Setup stop on the page if it does. Previously it only checked files specified in the [Files] section.</li>
+<li>Setup now hides the <i>Back</i> and <i>Next</i> buttons while the <tt>PrepareToInstall</tt> [Code] event function is running.</li>
 <li>Windows 7 change:
   <ul>
   <li>Added new [Icons] section flag: <tt>preventpinning</tt>. Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions. Contributed by <a href="https://github.com/miniak" target="_blank">Milan Burda</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
   </ul>
 </li>
-<li>The <i>Preparing to Install</i> wizard page now also checks if one or more files specified in the [InstallDelete] section were queued (by some other installation) to be replaced or deleted on the next restart, making Setup stop on the page if it does. Previously it only checked files specified in the [Files] section.</li>
-<li>Setup now hides the <i>Back</i> and <i>Next</i> buttons while the <tt>PrepareToInstall</tt> [Code] event function is running.</li>
 <li>Improved the "auto-retry" feature of the [Files] section: it now automatically retries even if the <tt>restartreplace</tt> [Files] section flag is used.</li>
 <li>Added 128x128 and 256x256 sizes to the compiler and document icons, created by Motaz.</li>
+<li>Some messages have been added in this version.
+<!--  (<a href="http://cvs.jrsoftware.org/view/issrc/Files/Default.isl?r1=1.68&amp;r2=1.69">View differences in Default.isl</a>) -->
+  <ul>
+    <li><b>New messages:</b> ApplicationsFound, ApplicationsFound2, CloseApplications, DontCloseApplications, StatusClosingApplications, StatusRestartingApplications.</li>
+  </ul>
+</li>
+<li>Minor tweaks.</li>
 </ul>
 
 <p><a name="5.4.3"></a><span class="ver">5.4.3 </span><span class="date">(2011-12-20)</span></p>
