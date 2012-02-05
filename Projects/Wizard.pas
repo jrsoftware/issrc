@@ -8,7 +8,7 @@ unit Wizard;
 
   Wizard form
 
-  $jrsoftware: issrc/Projects/Wizard.pas,v 1.224.2.5 2012/01/30 14:44:29 mlaan Exp $
+  $jrsoftware: issrc/Projects/Wizard.pas,v 1.224.2.6 2012/02/05 18:43:13 mlaan Exp $
 }
 
 interface
