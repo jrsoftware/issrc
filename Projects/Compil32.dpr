@@ -8,7 +8,7 @@ program Compil32;
 
   Compiler
 
-  $jrsoftware: issrc/Projects/Compil32.dpr,v 1.32 2011/01/07 03:34:00 jr Exp $
+  $jrsoftware: issrc/Projects/Compil32.dpr,v 1.32.2.3 2012/01/16 21:27:03 mlaan Exp $
 }
 
 uses
@@ -51,6 +51,42 @@ begin
     'SetCurrentProcessExplicitAppUserModelID');
   if Assigned(Func) then
     Func('JR.InnoSetup.IDE.5');
+end;
+
+procedure RegisterApplicationRestart;
+const
+  RESTART_MAX_CMD_LINE = 1024;
+  RESTART_NO_CRASH = $1;
+  RESTART_NO_HANG = $2;
+  RESTART_NO_PATCH = $4;
+  RESTART_NO_REBOOT = $8;
+var
+  Func: function(pwzCommandLine: PWideChar; dwFlags: DWORD): HRESULT; stdcall;
+  CommandLine: WideString;
+begin
+  { Allow Restart Manager to restart us after updates. }
+
+  Func := GetProcAddress(GetModuleHandle('kernel32.dll'),
+    'RegisterApplicationRestart');
+  if Assigned(Func) then begin
+    { Rebuild the command line, can't just use an exact copy since it might contain
+      relative path names but Restart Manager doesn't restore the working
+      directory. }
+    if CommandLineWizard then
+      CommandLine := '/WIZARD'
+    else begin
+      CommandLine := CommandLineFilename;
+      if CommandLine <> '' then
+        CommandLine := '"' + CommandLine + '"';
+      if CommandLineCompile then
+        CommandLine := '/CC ' + CommandLine;
+    end;
+    
+    if Length(CommandLine) > RESTART_MAX_CMD_LINE then
+      CommandLine := '';
+
+    Func(PWideChar(CommandLine), RESTART_NO_CRASH or RESTART_NO_HANG or RESTART_NO_REBOOT);
+  end;
 end;
 
 procedure CreateMutexes;
@@ -147,6 +183,7 @@ begin
   CreateMutexes;
   Application.Initialize;
   CheckParams;
+  RegisterApplicationRestart;
 
   { The 'with' is so that the Delphi IDE doesn't mess with these }
   with Application do begin

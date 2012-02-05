@@ -8,7 +8,7 @@ unit ScriptFunc_R;
 
   Script support functions (run time)
 
-  $jrsoftware: issrc/Projects/ScriptFunc_R.pas,v 1.172 2011/12/24 16:14:09 mlaan Exp $
+  $jrsoftware: issrc/Projects/ScriptFunc_R.pas,v 1.172.2.2 2012/01/16 21:27:04 mlaan Exp $
 }
 
 interface
@@ -504,6 +504,8 @@ begin
     Stack.SetString(PStart, GetSystemDir());
   end else if Proc.Name = 'GETSYSWOW64DIR' then begin
     Stack.SetString(PStart, GetSysWow64Dir());
+  end else if Proc.Name = 'GETSYSNATIVEDIR' then begin
+    Stack.SetString(PStart, GetSysNativeDir(IsWin64));
   end else if Proc.Name = 'GETTEMPDIR' then begin
     Stack.SetString(PStart, GetTempDir());
   end else if Proc.Name = 'STRINGCHANGE' then begin
@@ -765,7 +767,7 @@ begin
   end else if Proc.Name = 'DELAYDELETEFILE' then begin
     DelayDeleteFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetInt(PStart-1), 250, 250);
   end else if Proc.Name = 'DELTREE' then begin
-    Stack.SetBool(PStart, DelTree(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetBool(PStart-2), Stack.GetBool(PStart-3), Stack.GetBool(PStart-4), nil, nil, nil));
+    Stack.SetBool(PStart, DelTree(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetBool(PStart-2), Stack.GetBool(PStart-3), Stack.GetBool(PStart-4), False, nil, nil, nil));
   end else if Proc.Name = 'GENERATEUNIQUENAME' then begin
     Stack.SetString(PStart, GenerateUniqueName(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
   end else if Proc.Name = 'GETCOMPUTERNAMESTRING' then begin
@@ -1080,6 +1082,8 @@ begin
     Stack.SetInt(PStart, Integer(ProcessorArchitecture));
   end else if Proc.Name = 'CUSTOMMESSAGE' then begin
     Stack.SetString(PStart, CustomMessage(Stack.GetString(PStart-1)));
+  end else if Proc.Name = 'RMSESSIONSTARTED' then begin
+    Stack.SetBool(PStart, RmSessionStarted);
   end else
     Result := False;
 end;

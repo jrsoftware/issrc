@@ -8,7 +8,7 @@ unit MsgIDs;
 
   Message identifiers
 
-  $jrsoftware: issrc/Projects/MsgIDs.pas,v 1.34 2007/02/22 20:45:40 jr Exp $
+  $jrsoftware: issrc/Projects/MsgIDs.pas,v 1.34.12.2 2012/01/30 14:44:29 mlaan Exp $
 }
 
 interface
@@ -23,6 +23,8 @@ type
     msgAboutSetupNote,
     msgAboutSetupTitle,
     msgAdminPrivilegesRequired,
+    msgApplicationsFound,
+    msgApplicationsFound2,
     msgBadDirName32,
     msgBadGroupName,
     msgBeveledLabel,
@@ -45,6 +47,7 @@ type
     msgChangeDiskTitle,
     msgClickFinish,
     msgClickNext,
+    msgCloseApplications,
     msgCompactInstallation,
     msgComponentSize1,
     msgComponentSize2,
@@ -62,6 +65,7 @@ type
     msgDiskSpaceMBLabel,
     msgDiskSpaceWarning,
     msgDiskSpaceWarningTitle,
+    msgDontCloseApplications,
     msgEntryAbortRetryIgnore,
     msgErrorChangingAttr,
     msgErrorCopying,
@@ -177,12 +181,14 @@ type
     msgShowReadmeCheck,
     msgSourceDoesntExist,
     msgSourceIsCorrupted,
+    msgStatusClosingApplications,
     msgStatusCreateDirs,
     msgStatusCreateIcons,
     msgStatusCreateIniEntries,
     msgStatusCreateRegistryEntries,
     msgStatusExtractFiles,
     msgStatusRegisterFiles,
+    msgStatusRestartingApplications,
     msgStatusRollback,
     msgStatusSavingUninstall,
     msgStatusRunProgram,

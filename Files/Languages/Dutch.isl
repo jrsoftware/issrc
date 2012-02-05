@@ -4,7 +4,7 @@
 ;
 ; Maintained by Martijn Laan (mlaan@jrsoftware.org)
 ;
-; $jrsoftware: issrc/Files/Languages/Dutch.isl,v 1.28 2012/02/05 18:52:19 mlaan Exp $
+; $jrsoftware: issrc/Files/Languages/Dutch.isl,v 1.27.4.1 2012/01/30 14:44:27 mlaan Exp $
                                      
 [LangOptions]                
 LanguageName=Nederlands      
@@ -183,6 +183,10 @@ WizardPreparing=Bezig met het voorbereiden van de installatie
 PreparingDesc=Setup is bezig met het voorbereiden van de installatie van [name].
 PreviousInstallNotCompleted=De installatie/verwijdering van een vorig programma is niet voltooid. U moet uw computer opnieuw opstarten om die installatie te voltooien.%n%nStart [name] Setup nogmaals als uw computer opnieuw is opgestart.
 CannotContinue=Setup kan niet doorgaan. Klik op annuleren om af te sluiten.
+ApplicationsFound=De volgende programma's gebruiken bestanden die moeten worden bijgewerkt door Setup. U wordt aanbevolen Setup toe te staan om automatisch deze programma's af te sluiten.
+ApplicationsFound2=De volgende programma's gebruiken bestanden die moeten worden bijgewerkt door Setup. U wordt aanbevolen Setup toe te staan om automatisch deze programma's af te sluiten. Nadat de installatie is voltooid zal Setup proberen de applicaties opnieuw op te starten.
+CloseApplications=&Programma's automatisch afsluiten
+DontCloseApplications=Programma's &niet afsluiten
 
 ; *** "Installing" wizard page
 WizardInstalling=Bezig met installeren
@@ -213,6 +217,7 @@ SetupAborted=Setup is niet voltooid.%n%nCorrigeer het probleem en voer Setup opn
 EntryAbortRetryIgnore=Klik op Opnieuw om het opnieuw te proberen, op Negeren om toch door te gaan, of op Afbreken om de installatie af te breken.
 
 ; *** Installation status messages
+StatusClosingApplications=Programma's afsluiten...
 StatusCreateDirs=Mappen maken...
 StatusExtractFiles=Bestanden uitpakken...
 StatusCreateIcons=Snelkoppelingen maken...
@@ -221,6 +226,7 @@ StatusCreateRegistryEntries=Registergegevens instellen...
 StatusRegisterFiles=Bestanden registreren...
 StatusSavingUninstall=Verwijderingsinformatie opslaan...
 StatusRunProgram=Installatie voltooien...
+StatusRestartingApplications=Programma's opnieuw starten...
 StatusRollback=Veranderingen ongedaan maken...
 
 ; *** Misc. errors

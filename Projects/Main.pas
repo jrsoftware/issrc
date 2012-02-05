@@ -8,7 +8,7 @@ unit Main;
 
   Background form
 
-  $jrsoftware: issrc/Projects/Main.pas,v 1.413 2012/02/05 18:52:20 mlaan Exp $
+  $jrsoftware: issrc/Projects/Main.pas,v 1.412.2.5 2012/01/30 14:44:29 mlaan Exp $
 }
 
 interface
@@ -18,7 +18,7 @@ interface
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
   SetupForm, StdCtrls, Struct, DebugStruct, Int64Em, CmnFunc, CmnFunc2,
-  SetupTypes, ScriptRunner, BidiUtils;
+  SetupTypes, ScriptRunner, BidiUtils, RestartManager;
 
 type
   TMainForm = class(TSetupForm)
@@ -103,7 +103,8 @@ var
   InitLang: String;
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
-  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitNoCancel: Boolean;
+  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitNoCloseApplications,
+    InitNoRestartApplications, InitNoCancel: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -132,18 +133,25 @@ var
   Entries: array[TEntryType] of TList;
   WizardImage: TBitmap;
   WizardSmallImage: TBitmap;
+  CloseApplicationsFilterList: TStringList;
 
   { User options }
   ActiveLanguage: Integer = -1;
   ActiveLicenseText, ActiveInfoBeforeText, ActiveInfoAfterText: AnsiString;
   WizardUserInfoName, WizardUserInfoOrg, WizardUserInfoSerial, WizardDirValue, WizardGroupValue: String;
-  WizardNoIcons: Boolean;
+  WizardNoIcons, WizardPreparingYesRadio: Boolean;
   WizardSetupType: PSetupTypeEntry;
   WizardComponents, WizardDeselectedComponents, WizardTasks, WizardDeselectedTasks: TStringList;
   NeedToAbortInstall: Boolean;
 
   { Check/BeforeInstall/AfterInstall 'contants' }
   CheckOrInstallCurrentFileName: String;
+
+  { RestartManager API state.
+    Note: the handle and key might change while running, see TWizardForm.QueryRestartManager. }
+  RmSessionStarted, RmFoundApplications, RmDoRestart: Boolean;
+  RmSessionHandle: DWORD;
+  RmSessionKey: array[0..CCH_RM_SESSION_KEY] of WideChar;
 
   { Other }
   ShowLanguageDialog: Boolean;
@@ -210,11 +218,11 @@ procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure NotifyBeforeInstallEntry(const BeforeInstall: String);
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
-function PreviousInstallNotCompleted: Boolean;
+function PreviousInstallCompleted: Boolean;
+procedure RegisterResourcesWithRestartManager;
 procedure RemoveTempInstallDir;
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
-procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
 procedure SetTaskbarButtonVisibility(const AVisible: Boolean);
 function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
 function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
@@ -227,7 +235,6 @@ function ShouldProcessIconEntry(const WizardComponents, WizardTasks: TStringList
   const WizardNoIcons: Boolean; const IconEntry: PSetupIconEntry): Boolean;
 function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
   const RunEntry: PSetupRunEntry): Boolean;
-function StringsToCommaString(const Strings: TStrings): String;
 function TestPassword(const Password: String): Boolean;
 procedure UnloadSHFolderDLL;
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte): Boolean;
@@ -596,134 +603,6 @@ begin
       Result[I] := '\';
 end;
 
-function QuoteStringIfNeeded(const S: String): String;
-{ Used internally by StringsToCommaString. Adds quotes around the string if
-  needed, and doubles any embedded quote characters.
-  Note: No lead byte checking is done since spaces/commas/quotes aren't used
-  as trail bytes in any of the Far East code pages (CJK). }
-var
-  Len, QuoteCount, I: Integer;
-  HasSpecialChars: Boolean;
-  P: PChar;
-begin
-  Len := Length(S);
-  HasSpecialChars := False;
-  QuoteCount := 0;
-  for I := 1 to Len do begin
-    case S[I] of
-      #0..' ', ',': HasSpecialChars := True;
-      '"': Inc(QuoteCount);
-    end;
-  end;
-  if not HasSpecialChars and (QuoteCount = 0) then begin
-    Result := S;
-    Exit;
-  end;
-
-  SetString(Result, nil, Len + QuoteCount + 2);
-  P := Pointer(Result);
-  P^ := '"';
-  Inc(P);
-  for I := 1 to Len do begin
-    if S[I] = '"' then begin
-      P^ := '"';
-      Inc(P);
-    end;
-    P^ := S[I];
-    Inc(P);
-  end;
-  P^ := '"';
-end;
-
-function StringsToCommaString(const Strings: TStrings): String;
-{ Creates a comma-delimited string from Strings.
-  Note: Unlike Delphi 2's TStringList.CommaText property, this function can
-  handle an unlimited number of characters. }
-var
-  I: Integer;
-  S: String;
-begin
-  if (Strings.Count = 1) and (Strings[0] = '') then
-    Result := '""'
-  else begin
-    Result := '';
-    for I := 0 to Strings.Count-1 do begin
-      S := QuoteStringIfNeeded(Strings[I]);
-      if I = 0 then
-        Result := S
-      else
-        Result := Result + ',' + S;
-    end;
-  end;
-end;
-
-procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
-{ Replaces Strings with strings from the comma- or space-delimited Value.
-  Note: No lead byte checking is done since spaces/commas/quotes aren't used
-  as trail bytes in any of the Far East code pages (CJK).
-  Also, this isn't bugged like Delphi 3+'s TStringList.CommaText property --
-  SetStringsFromCommaString(..., 'a,') will add two items, not one. }
-var
-  P, PStart, PDest: PChar;
-  CharCount: Integer;
-  S: String;
-begin
-  Strings.BeginUpdate;
-  try
-    Strings.Clear;
-    P := PChar(Value);
-    while CharInSet(P^, [#1..' ']) do
-      Inc(P);
-    if P^ <> #0 then begin
-      while True do begin
-        if P^ = '"' then begin
-          Inc(P);
-          PStart := P;
-          CharCount := 0;
-          while P^ <> #0 do begin
-            if P^ = '"' then begin
-              Inc(P);
-              if P^ <> '"' then Break;
-            end;
-            Inc(CharCount);
-            Inc(P);
-          end;
-          P := PStart;
-          SetString(S, nil, CharCount);
-          PDest := Pointer(S);
-          while P^ <> #0 do begin
-            if P^ = '"' then begin
-              Inc(P);
-              if P^ <> '"' then Break;
-            end;
-            PDest^ := P^;
-            Inc(P);
-            Inc(PDest);
-          end;
-        end
-        else begin
-          PStart := P;
-          while (P^ > ' ') and (P^ <> ',') do
-            Inc(P);
-          SetString(S, PStart, P - PStart);
-        end;
-        Strings.Add(S);
-        while CharInSet(P^, [#1..' ']) do
-          Inc(P);
-        if P^ = #0 then
-          Break;
-        if P^ = ',' then begin
-          repeat
-            Inc(P);
-          until not CharInSet(P^, [#1..' ']);
-        end;
-      end;
-    end;
-  finally
-    Strings.EndUpdate;
-  end;
-end;
-
 procedure LoadInf(const FileName: String);
 const
   Section = 'Setup';
@@ -750,6 +629,8 @@ begin
   InitSilent := GetIniBool(Section, 'Silent', InitSilent, FileName);
   InitVerySilent := GetIniBool(Section, 'VerySilent', InitVerySilent, FileName);
   InitNoRestart := GetIniBool(Section, 'NoRestart', InitNoRestart, FileName);
+  InitNoCloseApplications := GetIniBool(Section, 'NoCloseApplications', InitNoCloseApplications, FileName);
+  InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
   InitSaveInf := GetIniString(Section, 'SaveInf', InitSaveInf, FileName);
@@ -1512,7 +1393,7 @@ begin
   if TempInstallDir <> '' then begin
     if Debugging then
       DebugNotifyTempDir('');
-    if not DelTree(False, TempInstallDir, True, True, True, nil,
+    if not DelTree(False, TempInstallDir, True, True, True, False, nil,
        TempDeleteFileProc, Pointer(GetTickCount())) then
       Log('Failed to remove temporary directory: ' + TempInstallDir);
   end;
@@ -1774,37 +1655,23 @@ begin
     (StrComp(FindData.cFileName, '..') <> 0);
 end;
 
-procedure EnumProc(const Filename: String; Param: Pointer);
+type
+  TEnumFilesProc = function(const DisableFsRedir: Boolean; const Filename: String;
+    const Param: Pointer): Boolean;
+
+function DummyDeleteDirProc(const DisableFsRedir: Boolean; const Filename: String;
+    const Param: Pointer): Boolean;
 begin
-  TStringList(Param).Add(PathLowercase(Filename));
+  { We don't actually want to delete the dir, so just return success. }
+  Result := True;
 end;
 
-function PreviousInstallNotCompleted: Boolean;
-var
-  SL: TStringList;
+{ Enumerates the files we're going to install and delete. Returns True on success.
+  Likewise EnumFilesProc should return True on success and return False
+  to break the enum and to cause EnumFiles to return False instead of True. }
+function EnumFiles(const EnumFilesProc: TEnumFilesProc; const Param: Pointer): Boolean;
 
-  function CheckForFile(const DisableFsRedir: Boolean; Filename: String): Boolean;
-  var
-    J: Integer;
-  begin
-    if IsNT then begin
-      if not DisableFsRedir then
-        Filename := ReplaceSystemDirWithSysWow64(Filename);
-    end
-    else
-      Filename := GetShortName(Filename);
-    Filename := PathLowercase(Filename);
-    for J := 0 to SL.Count-1 do begin
-      if SL[J] = Filename then begin
-        LogFmt('Found pending rename or delete that matches one of our files: %s', [Filename]);
-        Result := True;
-        Exit;
-      end;
-    end;
-    Result := False;
-  end;
-
-  function RecurseExternalCheckForFile(const DisableFsRedir: Boolean;
+  function RecurseExternalFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const CurFile: PSetupFileEntry): Boolean;
   var
@@ -1813,7 +1680,7 @@ var
     FindData: TWin32FindData;
   begin
     SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
-    Result := False;
+    Result := True;
 
     H := FindFirstFileRedir(DisableFsRedir, SearchFullPath, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
@@ -1830,8 +1697,8 @@ var
               DestName := DestName + SearchSubDir + FindData.cFileName
             else if SearchSubDir <> '' then
               DestName := PathExtractPath(DestName) + SearchSubDir + PathExtractName(DestName);
-            if CheckForFile(DisableFsRedir, DestName) then begin
-              Result := True;
+            if not EnumFilesProc(DisableFsRedir, DestName, Param) then begin
+              Result := False;
               Exit;
             end;
           end;
@@ -1847,10 +1714,10 @@ var
         try
           repeat
             if IsRecurseableDirectory(FindData) then
-              if RecurseExternalCheckForFile(DisableFsRedir, SearchBaseDir,
+              if not RecurseExternalFiles(DisableFsRedir, SearchBaseDir,
                  SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                  SourceIsWildcard, CurFile) then begin
-                Result := True;
+                Result := False;
                 Exit;
               end;
           until not FindNextFile(H, FindData);
@@ -1867,39 +1734,190 @@ var
   DisableFsRedir: Boolean;
   SourceWildcard: String;
 begin
-  Result := False;
-  if Entries[seFile].Count = 0 then
-    Exit;
-  SL := TStringList.Create;
-  try
-    EnumFileReplaceOperationsFilenames(EnumProc, SL);
-    if SL.Count = 0 then
-      Exit;
-    for I := 0 to Entries[seFile].Count-1 do begin
-      CurFile := PSetupFileEntry(Entries[seFile][I]);
-      if (CurFile^.FileType = ftUserFile) and
-         ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
-        DisableFsRedir := ShouldDisableFsRedirForFileEntry(CurFile);
-        if CurFile^.LocationEntry <> -1 then begin
-          { Non-external file }
-          if CheckForFile(DisableFsRedir, ExpandConst(CurFile^.DestName)) then begin
-            Result := True;
-            Exit;
-          end;
-        end
-        else begin
-          { External file }
-          SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-          if RecurseExternalCheckForFile(DisableFsRedir, PathExtractPath(SourceWildcard), '',
-             PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), CurFile) then begin
-            Result := True;
-            Exit;
-          end;
+  Result := True;
+
+  { [Files] }
+  for I := 0 to Entries[seFile].Count-1 do begin
+    CurFile := PSetupFileEntry(Entries[seFile][I]);
+    if (CurFile^.FileType = ftUserFile) and
+       ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
+      DisableFsRedir := ShouldDisableFsRedirForFileEntry(CurFile);
+      if CurFile^.LocationEntry <> -1 then begin
+        { Non-external file }
+        if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then begin
+          Result := False;
+          Exit;
+        end;
+      end
+      else begin
+        { External file }
+        SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+        if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+           PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), CurFile) then begin
+          Result := False;
+          Exit;
         end;
       end;
     end;
+  end;
+
+  { [InstallDelete] }
+    for I := 0 to Entries[seInstallDelete].Count-1 do
+      with PSetupDeleteEntry(Entries[seInstallDelete][I])^ do
+        if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
+          case DeleteType of
+            dfFiles, dfFilesAndOrSubdirs:
+              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, True,
+                 DummyDeleteDirProc, EnumFilesProc, nil) then begin
+                Result := False;
+                Exit;
+              end;
+            dfDirIfEmpty:
+              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, True,
+                 DummyDeleteDirProc, EnumFilesProc, nil) then begin
+                Result := False;
+                Exit;
+              end;
+          end;
+        end;
+end;
+
+procedure EnumProc(const Filename: String; Param: Pointer);
+begin
+  TStringList(Param).Add(PathLowercase(Filename));
+end;
+
+var
+  CheckForFileSL: TStringList;
+
+function CheckForFile(const DisableFsRedir: Boolean; const AFilename: String;
+  const Param: Pointer): Boolean;
+var
+  Filename: String;
+  J: Integer;
+begin
+  Filename := AFilename;
+  if IsNT then begin
+    if not DisableFsRedir then
+      Filename := ReplaceSystemDirWithSysWow64(Filename);
+  end
+  else
+    Filename := GetShortName(Filename);
+  Filename := PathLowercase(Filename);
+  for J := 0 to CheckForFileSL.Count-1 do begin
+    if CheckForFileSL[J] = Filename then begin
+      LogFmt('Found pending rename or delete that matches one of our files: %s', [Filename]);
+      Result := False; { Break the enum, just need to know if any matches }
+      Exit;
+    end;
+  end;
+  Result := True; { Success! }
+end;
+
+{ Checks if no file we're going to install or delete has a pending rename or delete. }
+function PreviousInstallCompleted: Boolean;
+begin
+  Result := True;
+  if Entries[seFile].Count = 0 then
+    Exit;
+  CheckForFileSL := TStringList.Create;
+  try
+    EnumFileReplaceOperationsFilenames(EnumProc, CheckForFileSL);
+    if CheckForFileSL.Count = 0 then
+      Exit;
+    Result := EnumFiles(CheckForFile, nil);
   finally
-    SL.Free;
+    CheckForFileSL.Free;
+  end;
+end;
+
+type
+  TArrayOfPWideChar = array[0..(MaxInt div SizeOf(PWideChar))-1] of PWideChar;
+  PArrayOfPWideChar = ^TArrayOfPWideChar;
+
+var
+  RegisterFileFilenames: PArrayOfPWideChar;
+  RegisterFileFilenamesMax, RegisterFileFilenamesCount: Integer;
+
+function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
+  const Param: Pointer): Boolean;
+var
+  Filename: String;
+  I, Len: Integer;
+  Match: Boolean;
+begin
+  Filename := AFilename;
+
+  { First: check filter. }
+  if Filename <> '' then begin
+    Match := False;
+    for I := 0 to CloseApplicationsFilterList.Count-1 do begin
+      if WildcardMatch(PChar(PathExtractName(Filename)), PChar(CloseApplicationsFilterList[I])) then begin
+        Match := True;
+        Break;
+      end;
+    end;
+    if not Match then begin
+      Result := True;
+      Exit;
+    end;
+  end;
+
+  { Secondly: check if we need to register this batch, either because the batch is full
+    or because we're done scanning and have leftovers. }
+  if ((Filename <> '') and (RegisterFileFilenamesCount = RegisterFileFilenamesMax)) or
+     ((Filename = '') and (RegisterFileFilenamesCount > 0)) then begin
+    if RmRegisterResources(RmSessionHandle, RegisterFileFilenamesCount, RegisterFileFilenames, 0, nil, 0, nil) = ERROR_SUCCESS then begin
+      for I := 0 to RegisterFileFilenamesCount-1 do
+        FreeMem(RegisterFileFilenames[I]);
+      RegisterFileFilenamesCount := 0;
+    end else begin
+      RmEndSession(RmSessionHandle);
+      RmSessionStarted := False;
+    end;
+  end;
+
+  { Finally: add this file to the batch. }
+  if RmSessionStarted and (FileName <> '') then begin
+    { From MSDN: "Installers should not disable file system redirection before calling
+      the Restart Manager API. This means that a 32-bit installer run on 64-bit Windows
+      is unable register a file in the %windir%\system32 directory." This is incorrect,
+      we can register such files by using the Sysnative alias. Note: the Sysnative alias
+      is only available on Windows Vista and newer, but so is Restart Manager. }
+    if DisableFsRedir then
+      Filename := ReplaceSystemDirWithSysNative(Filename, IsWin64);
+
+    Len := Length(Filename);
+    GetMem(RegisterFileFilenames[RegisterFileFilenamesCount], (Len + 1) * SizeOf(RegisterFileFilenames[RegisterFileFilenamesCount][0]));
+    {$IFNDEF UNICODE}
+      RegisterFileFilenames[RegisterFileFilenamesCount][MultiByteToWideChar(CP_ACP, 0, PChar(Filename), Len, RegisterFileFilenames[RegisterFileFilenamesCount], Len)] := #0;
+    {$ELSE}
+      StrPCopy(RegisterFileFilenames[RegisterFileFilenamesCount], Filename);
+    {$ENDIF}
+    Inc(RegisterFileFilenamesCount);
+  end;
+
+  Result := RmSessionStarted; { Break the enum if there was an error, else continue. }
+end;
+
+{ Register all files we're going to install or delete. Ends RmSession on errors. }
+procedure RegisterResourcesWithRestartManager;
+var
+  I: Integer;
+begin
+  { Note: MSDN says we shouldn't call RmRegisterResources for each file because of speed, but calling
+    it once for all files adds extra memory usage, so calling it in batches. }
+  RegisterFileFilenamesMax := 1000;
+  GetMem(RegisterFileFilenames, RegisterFileFilenamesMax * SizeOf(RegisterFileFilenames[0]));
+  try
+    EnumFiles(RegisterFile, nil);
+    { Don't forget to register leftovers. }
+    if RmSessionStarted then
+      RegisterFile(False, '', nil);
+  finally
+    for I := 0 to RegisterFileFilenamesCount-1 do
+      FreeMem(RegisterFileFilenames[I]);
+    FreeMem(RegisterFileFilenames);
   end;
 end;
 
@@ -2701,6 +2719,12 @@ begin
     if CompareText(ParamName, '/NoRestart') = 0 then
       InitNoRestart := True
     else
+    if CompareText(ParamName, '/NoCloseApplications') = 0 then
+      InitNoCloseApplications := True
+    else
+    if CompareText(ParamName, '/NoRestartApplications') = 0 then
+      InitNoRestartApplications := True
+    else
     if CompareText(ParamName, '/NoIcons') = 0 then
       InitNoIcons := True
     else
@@ -3014,6 +3038,15 @@ begin
   if shEncryptionUsed in SetupHeader.Options then
     LoadDecryptDLL;
 
+  { Start RestartManager session }
+  if (shCloseApplications in SetupHeader.Options) and not InitNoCloseApplications then begin
+    InitRestartManagerLibrary;
+    if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then begin
+      RmSessionStarted := True;
+      SetStringsFromCommaString(CloseApplicationsFilterList, SetupHeader.CloseApplicationsFilter);
+    end;
+  end;
+
   { Set install mode }
   SetupInstallMode;
 
@@ -3230,6 +3263,10 @@ begin
   DeleteDirsAfterInstallList.Clear;
 
   FreeFileExtractor;
+
+  { End RestartManager session }
+  if RmSessionStarted then
+    RmEndSession(RmSessionHandle);
 
   { Free the _iscrypt.dll handle }
   if DecryptDLLHandle <> 0 then
@@ -3699,6 +3736,40 @@ function TMainForm.Install: Boolean;
     end;
   end;
 
+  procedure RestartApplications;
+  const
+    ERROR_FAIL_RESTART = 353;
+  var
+    Error: DWORD;
+    WindowDisabler: TWindowDisabler;
+  begin
+    if not NeedsRestart then begin
+      WizardForm.StatusLabel.Caption := SetupMessages[msgStatusRestartingApplications];
+      WizardForm.StatusLabel.Update;
+
+      Log('Attempting to restart applications.');
+
+      { Disable windows during application restart so that a nice
+        "beep" is produced if the user tries clicking on WizardForm }
+      WindowDisabler := TWindowDisabler.Create;
+      try
+        Error := RmRestart(RmSessionHandle, 0, nil);
+      finally
+        WindowDisabler.Free;
+      end;
+      Application.BringToFront;
+
+      if Error = ERROR_FAIL_RESTART then
+        Log('One or more applications could not be restarted.')
+      else if Error <> ERROR_SUCCESS then begin
+        RmEndSession(RmSessionHandle);
+        RmSessionStarted := False;
+        LogFmt('RmRestart returned an error: %d', [Error]);
+      end;
+    end else
+      Log('Need to restart Windows, not attempting to restart applications');
+  end;
+
 var
   Succeeded: Boolean;
   S: String;
@@ -3715,6 +3786,7 @@ begin
     WizardSetupType := WizardForm.GetSetupType();
     WizardForm.GetComponents(WizardComponents, WizardDeselectedComponents);
     WizardForm.GetTasks(WizardTasks, WizardDeselectedTasks);
+    WizardPreparingYesRadio := WizardForm.PreparingYesRadio.Checked;
     if InitSaveInf <> '' then
       SaveInf(InitSaveInf);
 
@@ -3734,10 +3806,13 @@ begin
       TerminateApp;
       Exit;
     end;
-    { Can't cancel at any point after PerformInstall, so disable the button } 
+    { Can't cancel at any point after PerformInstall, so disable the button }
     WizardForm.CancelButton.Enabled := False;
 
     ProcessRunEntries;
+
+    if RmDoRestart and (shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications then
+      RestartApplications;
 
     SetStep(ssPostInstall, True);
 
@@ -3927,7 +4002,7 @@ begin
      WizardForm.CancelButton.CanFocus then begin
     case CurStep of
       ssPreInstall:
-        if ConfirmCancel(WizardForm.CurPageID <> wpPreparing) then begin
+        if ConfirmCancel((WizardForm.CurPageID <> wpPreparing) or (WizardForm.PrepareToInstallFailureMessage = '')) then begin
           if WizardForm.CurPageID = wpPreparing then
             SetupExitCode := ecPrepareToInstallFailed
           else
@@ -4203,10 +4278,12 @@ initialization
   CreateEntryLists;
   DeleteFilesAfterInstallList := TStringList.Create;
   DeleteDirsAfterInstallList := TStringList.Create;
+  CloseApplicationsFilterList := TStringList.Create;
 
 finalization
   FreeAndNil(WizardImage);
   FreeAndNil(WizardSmallImage);
+  FreeAndNil(CloseApplicationsFilterList);
   FreeAndNil(DeleteDirsAfterInstallList);
   FreeAndNil(DeleteFilesAfterInstallList);
   FreeEntryLists;

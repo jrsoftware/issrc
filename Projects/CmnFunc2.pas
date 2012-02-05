@@ -8,7 +8,7 @@ unit CmnFunc2;
 
   Common non-VCL functions
 
-  $jrsoftware: issrc/Projects/CmnFunc2.pas,v 1.111 2010/10/22 10:33:26 mlaan Exp $
+  $jrsoftware: issrc/Projects/CmnFunc2.pas,v 1.111.2.1 2012/01/16 21:27:03 mlaan Exp $
 }
 
 {$B-,R-}
@@ -83,6 +83,7 @@ function GetShortName(const LongName: String): String;
 function GetWinDir: String;
 function GetSystemDir: String;
 function GetSysWow64Dir: String;
+function GetSysNativeDir(const IsWin64: Boolean): String;
 function GetTempDir: String;
 function StringChange(var S: String; const FromStr, ToStr: String): Integer;
 function StringChangeEx(var S: String; const FromStr, ToStr: String;
@@ -696,6 +697,21 @@ begin
     if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then
       Result := Buf;
   end;
+end;
+
+function GetSysNativeDir(const IsWin64: Boolean): String;
+{ Returns the special Sysnative alias, without trailing backslash.
+  Returns '' if there is no Sysnative alias. }
+begin
+  { From MSDN: 32-bit applications can access the native system directory by
+    substituting %windir%\Sysnative for %windir%\System32. WOW64 recognizes
+    Sysnative as a special alias used to indicate that the file system should
+    not redirect the access. The Sysnative alias was added starting
+    with Windows Vista. }
+  if IsWin64 and (Lo(GetVersion) >= 6) then
+    Result := AddBackslash(GetWinDir) + 'Sysnative' { Do not localize }
+  else
+    Result := '';
 end;
 
 function GetTempDir: String;

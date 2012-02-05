@@ -8,7 +8,7 @@ unit CmnFunc;
 
   Common VCL functions
 
-  $jrsoftware: issrc/Projects/CmnFunc.pas,v 1.24 2010/05/24 19:17:21 jr Exp $
+  $jrsoftware: issrc/Projects/CmnFunc.pas,v 1.24.4.1 2012/01/30 14:44:28 mlaan Exp $
 }
 
 {$B-}
@@ -55,6 +55,8 @@ procedure ReactivateTopWindow;
 procedure SetMessageBoxCaption(const Typ: TMsgBoxType; const NewCaption: PChar);
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: LongInt);
+function StringsToCommaString(const Strings: TStrings): String;
+procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
 
 implementation
 
@@ -374,6 +376,134 @@ begin
   for T := Low(T) to High(T) do begin
     StrDispose(MessageBoxCaptions[T]);
     MessageBoxCaptions[T] := nil;
+  end;
+end;
+
+function QuoteStringIfNeeded(const S: String): String;
+{ Used internally by StringsToCommaString. Adds quotes around the string if
+  needed, and doubles any embedded quote characters.
+  Note: No lead byte checking is done since spaces/commas/quotes aren't used
+  as trail bytes in any of the Far East code pages (CJK). }
+var
+  Len, QuoteCount, I: Integer;
+  HasSpecialChars: Boolean;
+  P: PChar;
+begin
+  Len := Length(S);
+  HasSpecialChars := False;
+  QuoteCount := 0;
+  for I := 1 to Len do begin
+    case S[I] of
+      #0..' ', ',': HasSpecialChars := True;
+      '"': Inc(QuoteCount);
+    end;
+  end;
+  if not HasSpecialChars and (QuoteCount = 0) then begin
+    Result := S;
+    Exit;
+  end;
+
+  SetString(Result, nil, Len + QuoteCount + 2);
+  P := Pointer(Result);
+  P^ := '"';
+  Inc(P);
+  for I := 1 to Len do begin
+    if S[I] = '"' then begin
+      P^ := '"';
+      Inc(P);
+    end;
+    P^ := S[I];
+    Inc(P);
+  end;
+  P^ := '"';
+end;
+
+function StringsToCommaString(const Strings: TStrings): String;
+{ Creates a comma-delimited string from Strings.
+  Note: Unlike Delphi 2's TStringList.CommaText property, this function can
+  handle an unlimited number of characters. }
+var
+  I: Integer;
+  S: String;
+begin
+  if (Strings.Count = 1) and (Strings[0] = '') then
+    Result := '""'
+  else begin
+    Result := '';
+    for I := 0 to Strings.Count-1 do begin
+      S := QuoteStringIfNeeded(Strings[I]);
+      if I = 0 then
+        Result := S
+      else
+        Result := Result + ',' + S;
+    end;
+  end;
+end;
+
+procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
+{ Replaces Strings with strings from the comma- or space-delimited Value.
+  Note: No lead byte checking is done since spaces/commas/quotes aren't used
+  as trail bytes in any of the Far East code pages (CJK).
+  Also, this isn't bugged like Delphi 3+'s TStringList.CommaText property --
+  SetStringsFromCommaString(..., 'a,') will add two items, not one. }
+var
+  P, PStart, PDest: PChar;
+  CharCount: Integer;
+  S: String;
+begin
+  Strings.BeginUpdate;
+  try
+    Strings.Clear;
+    P := PChar(Value);
+    while CharInSet(P^, [#1..' ']) do
+      Inc(P);
+    if P^ <> #0 then begin
+      while True do begin
+        if P^ = '"' then begin
+          Inc(P);
+          PStart := P;
+          CharCount := 0;
+          while P^ <> #0 do begin
+            if P^ = '"' then begin
+              Inc(P);
+              if P^ <> '"' then Break;
+            end;
+            Inc(CharCount);
+            Inc(P);
+          end;
+          P := PStart;
+          SetString(S, nil, CharCount);
+          PDest := Pointer(S);
+          while P^ <> #0 do begin
+            if P^ = '"' then begin
+              Inc(P);
+              if P^ <> '"' then Break;
+            end;
+            PDest^ := P^;
+            Inc(P);
+            Inc(PDest);
+          end;
+        end
+        else begin
+          PStart := P;
+          while (P^ > ' ') and (P^ <> ',') do
+            Inc(P);
+          SetString(S, PStart, P - PStart);
+        end;
+        Strings.Add(S);
+        while CharInSet(P^, [#1..' ']) do
+          Inc(P);
+        if P^ = #0 then
+          Break;
+        if P^ = ',' then begin
+          repeat
+            Inc(P);
+          until not CharInSet(P^, [#1..' ']);
+        end;
+      end;
+    end;
+  finally
+    Strings.EndUpdate;
   end;
 end;
 

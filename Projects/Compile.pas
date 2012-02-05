@@ -8,7 +8,7 @@ unit Compile;
 
   Compiler
 
-  $jrsoftware: issrc/Projects/Compile.pas,v 1.522 2011/12/24 16:14:08 mlaan Exp $
+  $jrsoftware: issrc/Projects/Compile.pas,v 1.522.2.2 2012/01/30 14:44:28 mlaan Exp $
 }
 
 {x$DEFINE STATICPREPROC}
@@ -37,7 +37,7 @@ implementation
 
 uses
   CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo,
-  PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
+  PathFunc, CmnFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, DebugStruct, VerInfo, ResUpdate, CompResUpdate,
 {$IFDEF STATICPREPROC}
@@ -92,6 +92,8 @@ type
     ssBackSolid,
     ssChangesAssociations,
     ssChangesEnvironment,
+    ssCloseApplications,
+    ssCloseApplicationsFilter,
     ssCompression,
     ssCompressionThreads,
     ssCreateAppDir,
@@ -140,6 +142,7 @@ type
     ssPassword,
     ssPrivilegesRequired,
     ssReserveBytes,
+    ssRestartApplications,
     ssRestartIfNeededByRun,
     ssSetupIconFile,
     ssSetupLogging,
@@ -463,6 +466,8 @@ type
     procedure ProcessExpressionParameter(const ParamName,
       ParamData: String; OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier;
       SlashConvert: Boolean; var ProcessedParamData: String);
+    procedure ProcessWildcardsParameter(const ParamData: String;
+      const AWildcards: TStringList; const TooLongMsg: String);
     procedure ReadDefaultMessages;
 {$IFDEF UNICODE}
     procedure ReadMessagesFromFilesPre(const AFiles: String; const ALangIndex: Integer);
@@ -3135,6 +3140,24 @@ begin
   end;
 end;
 
+procedure TSetupCompiler.ProcessWildcardsParameter(const ParamData: String;
+  const AWildcards: TStringList; const TooLongMsg: String);
+var
+  S, AWildcard: String;
+begin
+  S := PathLowercase(ParamData);
+  while True do begin
+    AWildcard := ExtractStr(S, ',');
+    if AWildcard = '' then
+      Break;
+    { Impose a reasonable limit on the length of the string so
+      that WildcardMatch can't overflow the stack }
+    if Length(AWildcard) >= MAX_PATH then
+      AbortCompileOnLine(TooLongMsg);
+    AWildcards.Add(AWildcard);
+  end;
+end;
+
 { Also present in ScriptFunc_R.pas ! }
 function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData;
   const AllowEmpty: Boolean): Boolean;
@@ -3634,6 +3657,7 @@ var
 
 var
   P: Integer;
+  AIncludes: TStringList;
 begin
   SeparateDirective(Line, KeyName, Value);
 
@@ -3767,6 +3791,21 @@ begin
       end;
     ssChangesEnvironment: begin
         SetSetupHeaderOption(shChangesEnvironment);
+      end;
+    ssCloseApplications: begin
+        SetSetupHeaderOption(shCloseApplications);
+      end;
+    ssCloseApplicationsFilter: begin
+        if Value = '' then
+          Invalid;
+        AIncludes := TStringList.Create;
+        try
+          ProcessWildcardsParameter(Value, AIncludes,
+            SCompilerDirectiveCloseApplicationsFilterTooLong);
+          SetupHeader.CloseApplicationsFilter := StringsToCommaString(AIncludes);
+        finally
+          AIncludes.Free;
+        end;
       end;
     ssCompression: begin
         Value := Lowercase(Trim(Value));
@@ -4061,6 +4100,9 @@ begin
         Val(Value, ReserveBytes, I);
         if (I <> 0) or (ReserveBytes < 0) then
           Invalid;
+      end;
+    ssRestartApplications: begin
+        SetSetupHeaderOption(shRestartApplications);
       end;
     ssRestartIfNeededByRun: begin
         SetSetupHeaderOption(shRestartIfNeededByRun);
@@ -6199,7 +6241,6 @@ type
   end;
 
 var
-  S, AExclude: String;
   FileList, DirList: TList;
   SortFilesByExtension, SortFilesByName: Boolean;
   I: Integer;
@@ -6353,17 +6394,7 @@ begin
                AStrongAssemblyName := Values[paStrongAssemblyName].Data;
 
                { Excludes }
-               S := PathLowercase(Values[paExcludes].Data);
-               while True do begin
-                 AExclude := ExtractStr(S, ',');
-                 if AExclude = '' then
-                   Break;
-                 { Impose a reasonable limit on the length of the string so
-                   that WildcardMatch can't overflow the stack }
-                 if Length(AExclude) >= MAX_PATH then
-                   AbortCompileOnLine(SCompilerFilesExcludeTooLong);
-                 AExcludes.Add(AExclude);
-               end;
+               ProcessWildcardsParameter(Values[paExcludes].Data, AExcludes, SCompilerFilesExcludeTooLong);
 
                { ExternalSize }
                if Values[paExternalSize].Found then begin
@@ -8327,7 +8358,8 @@ begin
       shShowComponentSizes, shUsePreviousTasks, shUpdateUninstallLogAppName,
       shAllowUNCPath, shUsePreviousUserInfo, shRestartIfNeededByRun,
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
-      shAppendDefaultGroupName, shUsePreviousLanguage];
+      shAppendDefaultGroupName, shUsePreviousLanguage, shCloseApplications,
+      shRestartApplications];
     SetupHeader.PrivilegesRequired := prAdmin;
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';
@@ -8344,6 +8376,7 @@ begin
     WizardSmallImageFile := 'compiler:WIZMODERNSMALLIMAGE.BMP';
     DefaultDialogFontName := 'Tahoma';
     SignTool := '';
+    SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
 
     { Read [Setup] section }
     EnumIniSection(EnumSetup, 'Setup', 0, True, True, '', False, False);

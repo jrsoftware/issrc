@@ -8,7 +8,7 @@ unit Wizard;
 
   Wizard form
 
-  $jrsoftware: issrc/Projects/Wizard.pas,v 1.225 2012/01/10 09:44:37 mlaan Exp $
+  $jrsoftware: issrc/Projects/Wizard.pas,v 1.224.2.6 2012/02/05 18:43:13 mlaan Exp $
 }
 
 interface
@@ -158,6 +158,7 @@ type
     SelectStartMenuFolderBrowseLabel: TNewStaticText;
     PreparingYesRadio: TNewRadioButton;
     PreparingNoRadio: TNewRadioButton;
+    PreparingMemo: TNewMemo;
     procedure NextButtonClick(Sender: TObject);
     procedure BackButtonClick(Sender: TObject);
     procedure CancelButtonClick(Sender: TObject);
@@ -193,6 +194,7 @@ type
     procedure FindPreviousData;
     function GetPreviousPageID: Integer;
     function PrepareToInstall: String;
+    function QueryRestartManager: String;
     procedure RegisterExistingPage(const ID: Integer;
      const AOuterNotebookPage, AInnerNotebookPage: TNewNotebookPage;
      const ACaption, ADescription: String);
@@ -229,6 +231,7 @@ type
     procedure IncTopDecHeight(const AControl: TControl; const Amount: Integer);
     function PageFromID(const ID: Integer): TWizardPage;
     function PageIndexFromID(const ID: Integer): Integer;
+    procedure UpdateCurPageButtonVisibility;
     procedure SetCurPage(const NewPageID: Integer);
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
@@ -248,7 +251,7 @@ implementation
 
 uses
   ShellApi, ShlObj, Msgs, Main, PathFunc, CmnFunc, CmnFunc2,
-  MD5, InstFunc, SelFolderForm, Extract, Logging;
+  MD5, InstFunc, SelFolderForm, Extract, Logging, RestartManager;
 
 {$R *.DFM}
 
@@ -903,8 +906,6 @@ begin
   { Initialize wpPreparing page }
   RegisterExistingPage(wpPreparing, InnerPage, PreparingPage,
     SetupMessages[msgWizardPreparing], ExpandSetupMessage(msgPreparingDesc));
-  PreparingYesRadio.Caption := SetupMessages[msgYesRadio];
-  PreparingNoRadio.Caption := SetupMessages[msgNoRadio];
 
   { Initialize wpInstalling page }
   RegisterExistingPage(wpInstalling, InnerPage, InstallingPage,
@@ -1616,11 +1617,14 @@ begin
   PreparingLabel.Visible := False;
   PreparingYesRadio.Visible := False;
   PreparingNoRadio.Visible := False;
-  if PreviousInstallNotCompleted then begin
+  PreparingMemo.Visible := False;
+  if not PreviousInstallCompleted then begin
     Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
     PrepareToInstallNeedsRestart := True;
   end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall') then begin
     SetCurPage(wpPreparing);
+    BackButton.Visible := False;
+    NextButton.Visible := False;
     if InstallMode = imSilent then begin
       SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
       WizardForm.Show;
@@ -1633,6 +1637,7 @@ begin
       PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
     finally
       WindowDisabler.Free;
+      UpdateCurPageButtonVisibility;
     end;
     Application.BringToFront;
   end;
@@ -1649,10 +1654,97 @@ begin
     if PrepareToInstallNeedsRestart then begin
       Y := PreparingLabel.Top + PreparingLabel.Height;
       PreparingYesRadio.Top := Y;
+      PreparingYesRadio.Caption := SetupMessages[msgYesRadio];
       PreparingYesRadio.Visible := True;
       PreparingNoRadio.Top := Y + ScalePixelsY(22);
+      PreparingNoRadio.Caption := SetupMessages[msgNoRadio];
       PreparingNoRadio.Visible := True;
     end;
+  end;
+end;
+
+var
+  DidRegisterResources: Boolean;
+
+function TWizardForm.QueryRestartManager: String;
+type
+  TArrayOfProcessInfo = array[0..(MaxInt div SizeOf(RM_PROCESS_INFO))-1] of RM_PROCESS_INFO;
+  PArrayOfProcessInfo = ^TArrayOfProcessInfo;
+var
+  Y, I: Integer;
+  ProcessInfosCount, ProcessInfosCountNeeded, RebootReasons: Integer;
+  ProcessInfos: PArrayofProcessInfo;
+  AppName: String;
+begin
+  { Clear existing registered resources if we get here a second time (user clicked Back after first time). There
+    doesn't seem to be function to do this directly, so restart the session instead. }
+  if DidRegisterResources then begin
+    RmEndSession(RmSessionHandle);
+    if RmStartSession(@RmSessionHandle, 0, RmSessionKey) <> ERROR_SUCCESS then
+      RmSessionStarted := False;
+  end;
+
+  if RmSessionStarted then begin
+    RegisterResourcesWithRestartManager;
+    DidRegisterResources := True;
+  end;
+
+  if RmSessionStarted then begin
+    ProcessInfosCount := 0;
+    ProcessInfosCountNeeded := 5; { Start with 5 to hopefully avoid a realloc }
+    ProcessInfos := nil;
+    try
+      while ProcessInfosCount < ProcessInfosCountNeeded do begin
+        if ProcessInfos <> nil then
+          FreeMem(ProcessInfos);
+        GetMem(ProcessInfos, ProcessInfosCountNeeded * SizeOf(ProcessInfos[0]));
+        ProcessInfosCount := ProcessInfosCountNeeded;
+
+        if not RmGetList(RmSessionHandle, @ProcessInfosCountNeeded, @ProcessInfosCount, ProcessInfos, @RebootReasons) in [ERROR_SUCCESS, ERROR_MORE_DATA] then begin
+          RmEndSession(RmSessionHandle);
+          RmSessionStarted := False;
+          Break;
+        end;
+      end;
+
+      if RmSessionStarted and (ProcessInfosCount > 0) then begin
+        for I := 0 to ProcessInfosCount-1 do begin
+          AppName := WideCharToString(ProcessInfos[I].strAppName);
+          LogFmt('RestartManager found an application using one of our files: %s', [AppName]);
+          if RebootReasons = RmRebootReasonNone then begin
+            if Result <> '' then
+              Result := Result + #13#10;
+            Result := Result + AppName;
+          end;
+        end;
+        LogFmt('Can use RestartManager to avoid reboot? %s (%d)', [SYesNo[RebootReasons = RmRebootReasonNone], RebootReasons]);
+      end;
+    finally
+      if ProcessInfos <> nil then
+        FreeMem(ProcessInfos);
+    end;
+  end;
+
+  if Result <> '' then begin
+    if (shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications then
+      PreparingLabel.Caption := SetupMessages[msgApplicationsFound2]
+    else
+      PreparingLabel.Caption := SetupMessages[msgApplicationsFound];
+    Y := PreparingLabel.Top + PreparingLabel.Height + ScalePixelsY(12);
+    PreparingMemo.Top := Y;
+    IncTopDecHeight(PreparingMemo, AdjustLabelHeight(PreparingLabel));
+    AdjustLabelHeight(PreparingLabel);
+    PreparingErrorBitmapImage.Visible := True;
+    PreparingLabel.Visible := True;
+    PreparingMemo.Text := Result;
+    PreparingMemo.Visible := True;
+    Y := PreparingMemo.Top + PreparingMemo.Height + ScalePixelsY(12);
+    PreparingYesRadio.Top := Y;
+    PreparingYesRadio.Caption := SetupMessages[msgCloseApplications];
+    PreparingYesRadio.Visible := True;
+    PreparingNoRadio.Top := Y + ScalePixelsY(22);
+    PreparingNoRadio.Caption := SetupMessages[msgDontCloseApplications];
+    PreparingNoRadio.Visible := True;
   end;
 end;
 
@@ -1776,8 +1868,10 @@ var
 begin
   if CurPageID = wpReady then
     NewActiveControl := NextButton
-  else if (CurPageID = wpPreparing) and not PrepareToInstallNeedsRestart then
+  else if (CurPageID = wpPreparing) and (PrepareToInstallFailureMessage <> '') and not PrepareToInstallNeedsRestart then
     NewActiveControl := CancelButton
+  else if (CurPageID = wpPreparing) and (PrepareToInstallFailureMessage = '') and PreparingYesRadio.CanFocus then
+    NewActiveControl := PreparingYesRadio
   else
     NewActiveControl := FindNextControl(nil, True, True, False);
   if (NewActiveControl = BackButton) and NextButton.CanFocus then
@@ -1803,35 +1897,21 @@ begin
   Result := -1;
 end;
 
-procedure TWizardForm.SetCurPage(const NewPageID: Integer);
-{ Changes which page is currently visible }
+procedure TWizardForm.UpdateCurPageButtonVisibility;
 var
   PageIndex: Integer;
   Page: TWizardPage;
   Flags: UINT;
 begin
-  PageIndex := PageIndexFromID(NewPageID);
+  PageIndex := PageIndexFromID(CurPageID);
   Page := FPageList[PageIndex];
-  CurPageID := NewPageID;
 
-  { Select the page in the notebooks }
-  if Assigned(Page.InnerNotebookPage) then
-    InnerNotebook.ActivePage := Page.InnerNotebookPage;
-  OuterNotebook.ActivePage := Page.OuterNotebookPage;
-
-  { Set the page description }
-  Page.SyncCaptionAndDescription;
-
-  BeveledLabel.Visible := (SetupMessages[msgBeveledLabel] <> '') and
-    not(CurPageID in [wpWelcome, wpFinished]);
-
-  { Set button visibility and captions }
   if not(psNoButtons in Page.Style) then begin
     BackButton.Visible := (CurPageID <> wpInstalling) and (GetPreviousPageID <> -1);
     NextButton.Visible := CurPageID <> wpInstalling;
     case CurPageID of
       wpLicense: NextButton.Enabled := LicenseAcceptedRadio.Checked;
-      wpPreparing: NextButton.Enabled := PrepareToInstallNeedsRestart;
+      wpPreparing: NextButton.Enabled := (PrepareToInstallFailureMessage = '') or PrepareToInstallNeedsRestart;
     else
       NextButton.Enabled := True;
     end;
@@ -1851,6 +1931,29 @@ begin
   else
     Flags := MF_GRAYED;
   EnableMenuItem(GetSystemMenu(Handle, False), SC_CLOSE, MF_BYCOMMAND or Flags);
+end;
+
+procedure TWizardForm.SetCurPage(const NewPageID: Integer);
+{ Changes which page is currently visible }
+var
+  Page: TWizardPage;
+begin
+  Page := PageFromID(NewPageID);
+  CurPageID := NewPageID;
+
+  { Select the page in the notebooks }
+  if Assigned(Page.InnerNotebookPage) then
+    InnerNotebook.ActivePage := Page.InnerNotebookPage;
+  OuterNotebook.ActivePage := Page.OuterNotebookPage;
+
+  { Set the page description }
+  Page.SyncCaptionAndDescription;
+
+  BeveledLabel.Visible := (SetupMessages[msgBeveledLabel] <> '') and
+    not(CurPageID in [wpWelcome, wpFinished]);
+
+  { Set button visibility and captions }
+  UpdateCurPageButtonVisibility;
 
   BackButton.Caption := SetupMessages[msgButtonBack];
   if CurPageID = wpReady then begin
@@ -2151,6 +2254,22 @@ begin
             LogFmt('PrepareToInstall failed: %s', [PrepareToInstallFailureMessage]);
             LogFmt('Need to restart Windows? %s', [SYesNo[PrepareToInstallNeedsRestart]]);
             Break;  { stop on the page }
+          end else if RmSessionStarted then begin
+            SetCurPage(wpPreparing); { controls are already hidden by PrepareToInstall }
+            BackButton.Visible := False;
+            NextButton.Visible := False;
+            if InstallMode = imSilent then begin
+              SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
+              WizardForm.Show;
+            end;
+            try
+              WizardForm.Update;
+              RmFoundApplications := QueryRestartManager <> '';
+              if RmFoundApplications then
+                Break;  { stop on the page }
+            finally
+              UpdateCurPageButtonVisibility;
+            end;
           end;
         end;
       wpInstalling: begin
@@ -2570,7 +2689,7 @@ var
   BeforeID: Integer;
 begin
   while True do begin
-    if (CurPageID = wpPreparing) and not (PrepareToInstallNeedsRestart and not InitNoRestart) then begin
+    if (CurPageID = wpPreparing) and (PrepareToInstallFailureMessage <> '') and not (PrepareToInstallNeedsRestart and not InitNoRestart) then begin
       { Special handling needed for wpPreparing since it displays its error
         message inline on the wizard. Since the wizard isn't currently visible,
         we have to display the messsage in a message box if it won't be displayed
@@ -2582,6 +2701,11 @@ begin
       else
         SetupExitCode := ecPrepareToInstallFailed;
       Abort;
+
+      { Note: no special handling if it stops on wpPreparing because of in-use
+        files ((CurPageID = wpPreparing) and (PrepareToInstallFailureMessage = '')),
+        instead it will always choose to close applications when running silently
+        unless /NOCLOSEAPPLICATIONS was used. }
     end;
 
     BeforeID := CurPageID;

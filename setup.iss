@@ -5,12 +5,12 @@
 ;
 ; Setup script
 ;
-; $jrsoftware: issrc/setup.iss,v 1.183 2011/12/15 14:16:46 mlaan Exp $
+; $jrsoftware: issrc/setup.iss,v 1.183.2.1 2012/02/05 18:43:12 mlaan Exp $
 
 [Setup]
 AppName=Inno Setup
 AppId=Inno Setup 5
-AppVersion=5.4.3
+AppVersion=5.5.0
 AppPublisher=Jordan Russell
 AppPublisherURL=http://www.innosetup.com/
 AppSupportURL=http://www.innosetup.com/

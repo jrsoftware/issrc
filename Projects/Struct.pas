@@ -9,7 +9,7 @@ unit Struct;
   Various records and other types that are shared by the ISCmplr, Setup,
   SetupLdr, and Uninst projects
 
-  $jrsoftware: issrc/Projects/Struct.pas,v 1.264 2011/12/24 17:51:04 mlaan Exp $
+  $jrsoftware: issrc/Projects/Struct.pas,v 1.264.2.4 2012/02/05 18:43:13 mlaan Exp $
 }
 
 interface
@@ -19,8 +19,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '5.4.3 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
-  SetupBinVersion = (5 shl 24) + (4 shl 16) + (3 shl 8) + 0;
+  SetupVersion = '5.5.0 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
+  SetupBinVersion = (5 shl 24) + (5 shl 16) + (0 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -35,10 +35,10 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (5.4.4)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  SetupID: TSetupID = 'Inno Setup Setup Data (5.5.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
-  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (5.1.11)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (5.5.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!001';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idska32'#26;
@@ -66,7 +66,8 @@ type
     shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
     shAppendDefaultGroupName, shEncryptionUsed, shChangesEnvironment,
     {$IFNDEF UNICODE}shShowUndisplayableLanguages, {$ENDIF}shSetupLogging,
-    shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage);
+    shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
+    shCloseApplications, shRestartApplications);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;
@@ -78,7 +79,7 @@ const
     ('Unknown', 'x86', 'x64', 'Itanium');
 
 const
-  SetupHeaderStrings = 26;
+  SetupHeaderStrings = 27;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
@@ -87,7 +88,8 @@ type
       DefaultGroupName, BaseFilename, UninstallFilesDir, UninstallDisplayName,
       UninstallDisplayIcon, AppMutex, DefaultUserInfoName, DefaultUserInfoOrg,
       DefaultUserInfoSerial, AppReadmeFile, AppContact, AppComments,
-      AppModifyPath, CreateUninstallRegKey, Uninstallable: String;
+      AppModifyPath, CreateUninstallRegKey, Uninstallable,
+      CloseApplicationsFilter: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
 {$IFNDEF UNICODE}
     LeadBytes: set of AnsiChar;

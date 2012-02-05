@@ -8,7 +8,7 @@ unit ScriptFunc;
 
   Script support functions
 
-  $jrsoftware: issrc/Projects/ScriptFunc.pas,v 1.90 2010/02/25 06:16:41 jr Exp $
+  $jrsoftware: issrc/Projects/ScriptFunc.pas,v 1.90.6.2 2012/01/16 21:27:04 mlaan Exp $
 }
 
 interface
@@ -49,7 +49,7 @@ const
   );
 
    { CmnFunc2 }
-  CmnFunc2Table: array [0..54] of AnsiString =
+  CmnFunc2Table: array [0..55] of AnsiString =
   (
     'function FileExists(const Name: String): Boolean;',
     'function DirExists(const Name: String): Boolean;',
@@ -77,6 +77,7 @@ const
     'function GetWinDir: String;',
     'function GetSystemDir: String;',
     'function GetSysWow64Dir: String;',
+    'function GetSysNativeDir: String;',
     'function GetTempDir: String;',
     'function StringChange(var S: String; const FromStr, ToStr: String): Integer;',
     'function StringChangeEx(var S: String; const FromStr, ToStr: String; const SupportDBCS: Boolean): Integer;',
@@ -161,7 +162,7 @@ const
   );
 
   { Main }
-  MainTable: array [0..18] of AnsiString =
+  MainTable: array [0..19] of AnsiString =
   (
     'function WizardForm: TWizardForm;',
     'function MainForm: TMainForm;',
@@ -181,7 +182,8 @@ const
     'function IsWin64: Boolean;',
     'function Is64BitInstallMode: Boolean;',
     'function ProcessorArchitecture: TSetupProcessorArchitecture;',
-    'function CustomMessage(const MsgName: String): String;'
+    'function CustomMessage(const MsgName: String): String;',
+    'function RmSessionStarted: Boolean;'
   );
 
   { Msgs }

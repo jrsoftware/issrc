@@ -8,7 +8,7 @@ unit ScintStylerInnoSetup;
 
   TInnoSetupStyler: styler for Inno Setup scripts
 
-  $jrsoftware: issrc/Components/ScintStylerInnoSetup.pas,v 1.13 2010/12/30 13:00:11 mlaan Exp $
+  $jrsoftware: issrc/Components/ScintStylerInnoSetup.pas,v 1.13.2.2 2012/01/30 14:44:25 mlaan Exp $
 }
 
 interface
@@ -133,6 +133,8 @@ type
     ssBackSolid,
     ssChangesAssociations,
     ssChangesEnvironment,
+    ssCloseApplications,
+    ssCloseApplicationsFilter,
     ssCompression,
     ssCompressionThreads,
     ssCreateAppDir,
@@ -181,6 +183,7 @@ type
     ssPassword,
     ssPrivilegesRequired,
     ssReserveBytes,
+    ssRestartApplications,
     ssRestartIfNeededByRun,
     ssSetupIconFile,
     ssSetupLogging,

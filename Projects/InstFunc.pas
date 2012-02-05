@@ -8,7 +8,7 @@ unit InstFunc;
 
   Misc. installation functions
 
-  $jrsoftware: issrc/Projects/InstFunc.pas,v 1.117 2010/09/21 18:21:01 jr Exp $
+  $jrsoftware: issrc/Projects/InstFunc.pas,v 1.117.4.1 2012/01/16 21:27:04 mlaan Exp $
 }
 
 interface
@@ -57,7 +57,7 @@ function DecrementSharedCount(const RegView: TRegView; const Filename: String): 
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Integer);
 function DelTree(const DisableFsRedir: Boolean; const Path: String;
-  const IsDir, DeleteFiles, DeleteSubdirsAlso: Boolean;
+  const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
 function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryProc;
@@ -106,6 +106,7 @@ procedure RaiseFunctionFailedError(const FunctionName: String);
 procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 procedure RefreshEnvironment;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
+function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
 procedure UnregisterFont(const FontName, FontFilename: String);
 function RestartComputer: Boolean;
 procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
@@ -285,6 +286,41 @@ begin
   Result := Path;
 end;
 
+function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
+{ If the user is running 64-bit Windows Vista or newer and Path
+  begins with 'x:\windows\system32\' it replaces it with
+  'x:\windows\sysnative\' and if Path equals 'x:\windows\system32'
+  it replaces it with 'x:\windows\sysnative'. Otherwise, Path is
+  returned unchanged. }
+var
+  SysNativeDir, SysDir: String;
+  L: Integer;
+begin
+  SysNativeDir := GetSysNativeDir(IsWin64);
+  if SysNativeDir <> '' then begin
+    SysDir := GetSystemDir;
+    if PathCompare(Path, SysDir) = 0 then begin
+    { x:\windows\system32 -> x:\windows\sysnative }
+      Result := SysNativeDir;
+      Exit;
+    end else begin
+    { x:\windows\system32\ -> x:\windows\sysnative\
+      x:\windows\system32\filename -> x:\windows\sysnative\filename }
+      SysDir := AddBackslash(SysDir);
+      L := Length(SysDir);
+      if (Length(Path) = L) or
+         ((Length(Path) > L) and not PathCharIsTrailByte(Path, L+1)) then begin
+                                 { ^ avoid splitting a double-byte character }
+        if PathCompare(Copy(Path, 1, L), SysDir) = 0 then begin
+          Result := SysNativeDir + Copy(Path, L, Maxint);
+          Exit;
+        end;
+      end;
+    end;
+  end;
+  Result := Path;
+end;
+
 procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
 { Renames TempFile to DestFile the next time Windows is started. If DestFile
   already existed, it will be overwritten. If DestFile is '' then TempFile
@@ -378,12 +414,14 @@ begin
 end;
 
 function DelTree(const DisableFsRedir: Boolean; const Path: String;
-  const IsDir, DeleteFiles, DeleteSubdirsAlso: Boolean;
+  const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
 { Deletes the specified directory including all files and subdirectories in
   it (including those with hidden, system, and read-only attributes). Returns
-  True if it was able to successfully remove everything. }
+  True if it was able to successfully remove everything. If BreakOnError is
+  set to True it will stop and return False the first time a delete failed or
+  DeleteDirProc/DeleteFileProc returned False.  }
 var
   BasePath, FindSpec: String;
   H: THandle;
@@ -426,18 +464,18 @@ begin
             end
             else begin
               if DeleteSubdirsAlso then
-                if not DelTree(DisableFsRedir, BasePath + S, True, True, True,
+                if not DelTree(DisableFsRedir, BasePath + S, True, True, True, BreakOnError,
                    DeleteDirProc, DeleteFileProc, Param) then
                   Result := False;
             end;
           end;
-        until not FindNextFile(H, FindData);
+        until (BreakOnError and not Result) or not FindNextFile(H, FindData);
       finally
         Windows.FindClose(H);
       end;
     end;
   end;
-  if IsDir then begin
+  if (not BreakOnError or Result) and IsDir then begin
     if Assigned(DeleteDirProc) then begin
       if not DeleteDirProc(DisableFsRedir, Path, Param) then
         Result := False;

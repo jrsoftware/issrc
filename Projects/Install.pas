@@ -8,7 +8,7 @@ unit Install;
 
   Installation procedures
 
-  $jrsoftware: issrc/Projects/Install.pas,v 1.328 2012/01/16 22:27:53 mlaan Exp $
+  $jrsoftware: issrc/Projects/Install.pas,v 1.327.2.3 2012/01/30 14:44:29 mlaan Exp $
 }
 
 interface
@@ -26,7 +26,7 @@ uses
   InstFunc, InstFnc2, SecurityFunc, Msgs, Main, Logging, Extract, FileClass,
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
-  ResUpdate, LibFusion, TaskbarProgressFunc, NewProgressBar;
+  ResUpdate, LibFusion, TaskbarProgressFunc, NewProgressBar, RestartManager;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -2443,10 +2443,10 @@ var
           NotifyBeforeInstallEntry(BeforeInstall);
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
-              DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs,
+              DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, False,
                 nil, nil, nil);
             dfDirIfEmpty:
-              DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, nil, nil, nil);
+              DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, False, nil, nil, nil);
           end;
           NotifyAfterInstallEntry(AfterInstall);
         end;
@@ -2730,6 +2730,27 @@ var
     end;
   end;
 
+  procedure ShutdownApplications;
+  const
+    ERROR_FAIL_SHUTDOWN = 351;
+  var
+    Error: DWORD;
+  begin
+    Log('Shutting down applications using our files.');
+
+    RmDoRestart := True;
+
+    Error := RmShutdown(RmSessionHandle, 0, nil);
+    if Error = ERROR_FAIL_SHUTDOWN then begin
+      { Not closing the session, still should call RmRestart in this case. }
+      Log('Some applications could not be shut down.');
+    end else if Error <> ERROR_SUCCESS then begin
+      RmEndSession(RmSessionHandle);
+      LogFmt('RmShutdown returned an error: %d', [Error]);
+      RmDoRestart := False;
+    end;
+  end;
+
 var
   Uninstallable, UninstLogCleared: Boolean;
   I: Integer;
@@ -2789,6 +2810,16 @@ begin
       { Process Tasks entries, if any }
       ProcessTasksEntries;
       ProcessEvents;
+
+      { Shutdown applications, if any }
+      if RmSessionStarted and RmFoundApplications then begin
+        if WizardPreparingYesRadio then begin
+          SetStatusLabelText(SetupMessages[msgStatusClosingApplications]);
+          ShutdownApplications;
+          ProcessEvents;
+        end else
+          Log('User chose not to shutdown applications using our files.');
+      end;
 
       { Process InstallDelete entries, if any }
       ProcessInstallDeleteEntries;

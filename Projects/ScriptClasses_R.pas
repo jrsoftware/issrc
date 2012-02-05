@@ -8,7 +8,7 @@ unit ScriptClasses_R;
 
   Script support classes (run time)
 
-  $Id: ScriptClasses_R.pas,v 1.60 2010/02/10 13:10:34 mlaan Exp $
+  $Id: ScriptClasses_R.pas,v 1.60.6.1 2012/01/04 16:35:20 mlaan Exp $
 }
 
 interface
@@ -287,6 +287,7 @@ procedure TWizardFormSelectDirBrowseLabel(Self: TWizardForm; var T: TNewStaticTe
 procedure TWizardFormSelectStartMenuFolderBrowseLabel(Self: TWizardForm; var T: TNewStaticText); begin T := Self.SelectStartMenuFolderBrowseLabel; end;
 procedure TWizardFormPreparingYesRadio_R(Self: TWizardForm; var T: TNewRadioButton); begin T := Self.PreparingYesRadio; end;
 procedure TWizardFormPreparingNoRadio_R(Self: TWizardForm; var T: TNewRadioButton); begin T := Self.PreparingNoRadio; end;
+procedure TWizardFormPreparingMemo_R(Self: TWizardForm; var T: TNewMemo); begin T := Self.PreparingMemo; end;
 procedure TWizardFormPrevAppDir_R(Self: TWizardForm; var T: String); begin T := Self.PrevAppDir; end;
 
 procedure RegisterWizardForm_R(Cl: TPSRuntimeClassImporter);
@@ -373,6 +374,7 @@ begin
     RegisterPropertyHelper(@TWizardFormSelectStartMenuFolderBrowseLabel, nil,'SelectStartMenuFolderBrowseLabel');
     RegisterPropertyHelper(@TWizardFormPreparingYesRadio_R, nil, 'PreparingYesRadio');
     RegisterPropertyHelper(@TWizardFormPreparingNoRadio_R, nil, 'PreparingNoRadio');
+    RegisterPropertyHelper(@TWizardFormPreparingMemo_R, nil, 'PreparingMemo');
     RegisterPropertyHelper(@TWizardFormCurPageID_R, nil, 'CurPageID');
     RegisterMethod(@TWizardForm.AdjustLabelHeight, 'AdjustLabelHeight');
     RegisterMethod(@TWizardForm.IncTopDecHeight, 'IncTopDecHeight');
