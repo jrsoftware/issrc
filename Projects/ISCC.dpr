@@ -9,7 +9,7 @@ program ISCC;
 
   Command-line compiler
 
-  $jrsoftware: issrc/Projects/ISCC.dpr,v 1.45 2011/03/16 08:51:46 mlaan Exp $
+  $jrsoftware: issrc/Projects/ISCC.dpr,v 1.46 2012/02/05 18:52:20 mlaan Exp $
 }
 
 {x$DEFINE STATICCOMPILER}

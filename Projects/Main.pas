@@ -8,7 +8,7 @@ unit Main;
 
   Background form
 
-  $jrsoftware: issrc/Projects/Main.pas,v 1.412 2011/05/05 04:03:54 jr Exp $
+  $jrsoftware: issrc/Projects/Main.pas,v 1.413 2012/02/05 18:52:20 mlaan Exp $
 }
 
 interface
