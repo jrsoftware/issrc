@@ -5,7 +5,7 @@
 ;
 ; Setup script
 ;
-; $jrsoftware: issrc/setup.iss,v 1.183.2.1 2012/02/05 18:43:12 mlaan Exp $
+; $jrsoftware: issrc/setup.iss,v 1.184 2012/02/05 18:59:20 mlaan Exp $
 
 [Setup]
 AppName=Inno Setup

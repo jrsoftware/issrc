@@ -8,7 +8,7 @@ unit ScriptClasses_R;
 
   Script support classes (run time)
 
-  $Id: ScriptClasses_R.pas,v 1.60.6.1 2012/01/04 16:35:20 mlaan Exp $
+  $Id: ScriptClasses_R.pas,v 1.61 2012/02/05 18:59:23 mlaan Exp $
 }
 
 interface

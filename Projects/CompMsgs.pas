@@ -8,7 +8,7 @@ unit CompMsgs;
 
   Compiler Messages
 
-  $jrsoftware: issrc/Projects/CompMsgs.pas,v 1.120.2.1 2012/01/30 14:44:29 mlaan Exp $
+  $jrsoftware: issrc/Projects/CompMsgs.pas,v 1.121 2012/02/05 18:59:23 mlaan Exp $
 
   All language-specific text used by the compiler is in here. If you want to
   translate it into another language, all you need to change is this unit.

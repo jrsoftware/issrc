@@ -8,7 +8,7 @@ unit CmnFunc;
 
   Common VCL functions
 
-  $jrsoftware: issrc/Projects/CmnFunc.pas,v 1.24.4.1 2012/01/30 14:44:28 mlaan Exp $
+  $jrsoftware: issrc/Projects/CmnFunc.pas,v 1.25 2012/02/05 18:59:23 mlaan Exp $
 }
 
 {$B-}

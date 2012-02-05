@@ -8,7 +8,7 @@ unit MsgIDs;
 
   Message identifiers
 
-  $jrsoftware: issrc/Projects/MsgIDs.pas,v 1.34.12.2 2012/01/30 14:44:29 mlaan Exp $
+  $jrsoftware: issrc/Projects/MsgIDs.pas,v 1.35 2012/02/05 18:59:23 mlaan Exp $
 }
 
 interface
