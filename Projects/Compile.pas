@@ -37,7 +37,7 @@ implementation
 
 uses
   CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo,
-  PathFunc, CmnFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
+  PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, DebugStruct, VerInfo, ResUpdate, CompResUpdate,
 {$IFDEF STATICPREPROC}
