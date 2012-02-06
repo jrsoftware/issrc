@@ -957,6 +957,8 @@ DefaultGroupName=My Program
 <li><link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link></li>
 <li><link topic="setup_changesassociations">ChangesAssociations</link></li>
 <li><link topic="setup_changesenvironment">ChangesEnvironment</link></li>
+<li><link topic="setup_closeapplications">CloseApplications</link></li>
+<li><link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link></li>
 <li><link topic="setup_createappdir">CreateAppDir</link></li>
 <li><link topic="setup_createuninstallregkey">CreateUninstallRegKey</link></li>
 <li><link topic="setup_defaultdialogfontname">DefaultDialogFontName</link></li>
@@ -983,6 +985,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_onlybelowversion">OnlyBelowVersion</link></li>
 <li><link topic="setup_password">Password</link></li>
 <li><link topic="setup_privilegesrequired">PrivilegesRequired</link></li>
+<li><link topic="setup_restartapplications">RestartApplications</link></li>
 <li><link topic="setup_restartifneededbyrun">RestartIfNeededByRun</link></li>
 <li><link topic="setup_setuplogging">SetupLogging</link></li>
 <li><link topic="setup_showlanguagedialog">ShowLanguageDialog</link></li>
@@ -2737,7 +2740,9 @@ Shown by default, but can be disabled via <link topic="setup_disablereadypage">D
 
 <li>
 <b>Preparing to Install</b><br/>
-Normally, Setup will never stop on this page. The only time it will is if Setup determines it can't continue. This can happen if the <tt>PrepareToInstall</tt> event function returned an error or if one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.
+Normally, Setup will never stop or pause on this page. The only time it will is if Setup determines it can't continue or if it detects applications using files that need to be updated.<br/><br/>
+The former can happen if the <tt>PrepareToInstall</tt> event function returned an error or if one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.<br/><br/>
+The latter can happen if <link topic="setup_closeapplications">CloseApplications</link> is set to <tt>yes</tt>.
 </li>
 
 <li>
@@ -3099,12 +3104,12 @@ Also, there is one limitation of the compiler:</p>
 
 <dt><b><a name="NOCLOSEAPPLICATIONS">/NOCLOSEAPPLICATIONS</a></b></dt>
 <dd>
-<p>Prevents Setup from using Restart Manager to close applications using files that need to be updated by Setup.</p>
+<p>Prevents Setup from closing applications using files that need to be updated by Setup.</p>
 </dd>
 
 <dt><b><a name="NORESTARTAPPLICATIONS">/NORESTARTAPPLICATIONS</a></b></dt>
 <dd>
-<p>Prevents Setup from using Restart Manager to restart applications. If Setup didn't close these applications (for example because /NOCLOSEAPPLICATIONS was used), this command line parameter is ignored.</p>
+<p>Prevents Setup from restarting applications. If Setup didn't close these applications (for example because /NOCLOSEAPPLICATIONS was used), this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="LOADINF">/LOADINF=</a>"<i>filename</i>"</b></dt>
@@ -4935,6 +4940,43 @@ SignTool=byparam format c:
 <tt>32</tt> otherwise</setupdefault>
 <body>
 <p>Controls number of fast bytes used by the LZMA and LZMA2 compressors. A larger number of fast bytes can provide a better compression ratio at the expense of compression speed.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="CloseApplications">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>If set to <tt>yes</tt> and Setup is not running silently, Setup will pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the [Files] or [InstallDelete] section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed.</p>
+<p>If set to <tt>yes</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line.</p>
+<p>Note: Setup uses the Windows <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa373524.aspx">Restart Manager</extlink> API to close and restart applications, which is available only on Windows Vista and newer.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
+<link topic="setup_restartapplications">RestartApplications</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="CloseApplicationsFilter">
+<setupvalid>A list of file name wildcards, separated by commas</setupvalid>
+<setupdefault><tt>*.exe,*.dll,*.chm</tt></setupdefault>
+<body>
+<p>Controls which files Setup will check for being in use.</p>
+<p>Setting this to <tt>*.*</tt> can provide better checking at the expense of speed.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_closeapplications">CloseApplications</link><br/>
+<link topic="setup_restartapplications">RestartApplications</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="RestartApplications">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>When set to <tt>yes</tt> and <link topic="setup_closeapplications">CloseApplications</link> is also set to <tt>yes</tt>, Setup restarts the closed applications after the installation has completed.</p>
+<p>Note: For Setup to be able to restart an application after the installation has completed, the application needs to be using the Windows <tt>RegisterApplicationRestart</tt> API function.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_closeapplications">CloseApplications</link><br/>
+<link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link></p>
 </body>
 </setuptopic>
 

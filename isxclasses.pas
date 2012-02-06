@@ -780,6 +780,7 @@ TWizardForm = class(TSetupForm)
   property SelectStartMenuFolderBrowseLabel: TNewStaticText; read;
   property PreparingYesRadio: TNewRadioButton; read;
   property PreparingNoRadio: TNewRadioButton; read;
+  property PreparingMemo: TNewMemo; read;
   property CurPageID: Integer; read;
   function AdjustLabelHeight(ALabel: TNewStaticText): Integer;
   procedure IncTopDecHeight(AControl: TControl; Amount: Integer);

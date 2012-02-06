@@ -217,6 +217,14 @@ end;</pre></example>
         <description><p>Returns True if Setup or Uninstall is terminating, False otherwise.</p></description>
       </function>
     </subcategory>
+    <subcategory>
+      <function>
+        <name>RmSessionStarted</name>
+        <prototype>function RmSessionStarted: Boolean;</prototype>
+        <description><p>Returns True if a Restart Manager session was started, False otherwise.</p></description>
+        <seealso><p><link topic="setup_closeapplications">CloseApplications</link></p></seealso>
+      </function>
+    </subcategory>
   </category>
   <category>
     <description>Exception</description>
