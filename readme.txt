@@ -201,3 +201,32 @@ How do the projects link together?
 
   To download StripReloc, go to:
   http://www.jrsoftware.org/striprlc.php
+
+
+6. Pre-compiled executables and libraries
+=========================================
+
+The source code contains several pre-compiled executables and libaries:
+
+Files\isbunzip.dll, Files\isbzip.dll - Compiled by Visual Studio 2005 from
+the bzlib directory in the Iscompress repository.
+
+Files\isunzlib.dll, Files\iszlib.dll - Compiled by Visual Studio 2005 from
+the zlib-dll directory in the Iscompress repository.
+
+Files\islzma.dll, Files\islzma32.exe, Files\islzma64.exe - Compiled by Visual
+Studio 2005 from the Projects\lzma2\Encoder directory.
+
+Files\isscint.dll - Compiled by Visual Studio 2005 from Scintila 2.22 source
+code with scintilla-2.22-patch.txt applied.
+
+Projects\HelperEXEs.res - Compiled by Visual Studio 2005 from the
+Projects\Helper directory.
+
+Projects\RegDLLEXE.res - Compiled by Visual Studio 2005 from the Projects\RegDLL
+directory.
+
+Projects\LzmaDecode\LzmaDecodeInno.obj - See Projects\LzmaDecode\compiling.txt.
+
+Projects\lzma2\Decoder\ISLzmaDec.obj, Projects\lzma2\Decoder\ISLzma2Dec.obj -
+See Projects\lzma2\Decoder\compiling.txt.
