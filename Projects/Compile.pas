@@ -7,8 +7,6 @@ unit Compile;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler
-
-  $jrsoftware: issrc/Projects/Compile.pas,v 1.523 2012/02/05 18:59:23 mlaan Exp $
 }
 
 {x$DEFINE STATICPREPROC}
@@ -43,7 +41,7 @@ uses
 {$IFDEF STATICPREPROC}
   IsppPreprocess,
 {$ENDIF}
-  ScriptCompiler, SimpleExpression;
+  ScriptCompiler, SimpleExpression, SetupTypes;
 
 type
   TParamInfo = record
