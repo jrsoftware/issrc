@@ -7,8 +7,6 @@ unit InstFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Misc. installation functions
-
-  $jrsoftware: issrc/Projects/InstFunc.pas,v 1.118 2012/02/05 18:59:23 mlaan Exp $
 }
 
 interface

@@ -7,8 +7,6 @@ unit Wizard;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Wizard form
-
-  $jrsoftware: issrc/Projects/Wizard.pas,v 1.226 2012/02/05 18:59:23 mlaan Exp $
 }
 
 interface

@@ -7,8 +7,6 @@ unit ScriptFunc_R;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script support functions (run time)
-
-  $jrsoftware: issrc/Projects/ScriptFunc_R.pas,v 1.173 2012/02/05 18:59:23 mlaan Exp $
 }
 
 interface

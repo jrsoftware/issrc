@@ -7,8 +7,6 @@ unit ScriptFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script support functions
-
-  $jrsoftware: issrc/Projects/ScriptFunc.pas,v 1.91 2012/02/05 18:59:23 mlaan Exp $
 }
 
 interface

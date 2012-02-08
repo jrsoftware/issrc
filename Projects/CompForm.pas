@@ -7,8 +7,6 @@ unit CompForm;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler form
-
-  $jrsoftware: issrc/Projects/CompForm.pas,v 1.252 2012/02/05 18:52:20 mlaan Exp $
 }
 
 {x$DEFINE STATICCOMPILER}

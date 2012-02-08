@@ -7,8 +7,6 @@ unit Install;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Installation procedures
-
-  $jrsoftware: issrc/Projects/Install.pas,v 1.329 2012/02/05 18:59:23 mlaan Exp $
 }
 
 interface

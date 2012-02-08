@@ -7,8 +7,6 @@ unit Undo;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Uninstallation Procedures
-
-  $jrsoftware: issrc/Projects/Undo.pas,v 1.128 2012/02/05 18:59:23 mlaan Exp $
 }
 
 { Note: This unit is shared by both the 'Setup' and 'Uninst' projects }

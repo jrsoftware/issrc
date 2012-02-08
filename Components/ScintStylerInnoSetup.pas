@@ -7,8 +7,6 @@ unit ScintStylerInnoSetup;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TInnoSetupStyler: styler for Inno Setup scripts
-
-  $jrsoftware: issrc/Components/ScintStylerInnoSetup.pas,v 1.14 2012/02/05 18:59:21 mlaan Exp $
 }
 
 interface

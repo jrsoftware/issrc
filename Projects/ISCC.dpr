@@ -8,8 +8,6 @@ program ISCC;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Command-line compiler
-
-  $jrsoftware: issrc/Projects/ISCC.dpr,v 1.46 2012/02/05 18:52:20 mlaan Exp $
 }
 
 {x$DEFINE STATICCOMPILER}

@@ -3,8 +3,6 @@ unit RestartManager;
 {
   Basic RestartManager API interface Unit for Delphi 2 and higher
   by Martijn Laan
-
-  $jrsoftware: issrc/Components/RestartManager.pas,v 1.2 2012/02/05 18:59:21 mlaan Exp $
 }
 
 {$IFNDEF VER90}

@@ -7,8 +7,6 @@ unit Main;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Background form
-
-  $jrsoftware: issrc/Projects/Main.pas,v 1.414 2012/02/05 18:59:23 mlaan Exp $
 }
 
 interface

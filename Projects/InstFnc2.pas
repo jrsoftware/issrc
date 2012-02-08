@@ -7,8 +7,6 @@ unit InstFnc2;
   For conditions of distribution and use, see LICENSE.TXT.
 
   OLE-related installation functions
-
-  $jrsoftware: issrc/Projects/InstFnc2.pas,v 1.34 2011/12/26 12:07:08 mlaan Exp $
 }
 
 interface
