@@ -7,8 +7,6 @@ unit CmnFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Common VCL functions
-
-  $jrsoftware: issrc/Projects/CmnFunc.pas,v 1.25 2012/02/05 18:59:23 mlaan Exp $
 }
 
 {$B-}
