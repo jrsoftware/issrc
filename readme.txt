@@ -1,6 +1,6 @@
 Inno Setup
-Copyright (C) 1997-2010 Jordan Russell. All rights reserved.
-Portions Copyright (C) 2000-2010 Martijn Laan. All rights reserved.
+Copyright (C) 1997-2012 Jordan Russell. All rights reserved.
+Portions Copyright (C) 2000-2012 Martijn Laan. All rights reserved.
 For conditions of distribution and use, see LICENSE.TXT.
 
 Source code README
@@ -203,10 +203,10 @@ How do the projects link together?
   http://www.jrsoftware.org/striprlc.php
 
 
-6. Pre-compiled executables and libraries
-=========================================
+6. Precompiled executables and libraries
+========================================
 
-The source code contains several pre-compiled executables and libaries:
+The source code contains several precompiled executables and libaries:
 
 Files\isbunzip.dll, Files\isbzip.dll - Compiled by Visual Studio 2005 from
 the bzlib directory in the Iscompress repository.
