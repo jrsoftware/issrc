@@ -3039,6 +3039,10 @@ begin
   { Start RestartManager session }
   if (shCloseApplications in SetupHeader.Options) and not InitNoCloseApplications then begin
     InitRestartManagerLibrary;
+    { Note from Old New Thing: "The RmStartSession function doesn't properly
+      null-terminate the session key <...>. To work around this bug, we pre-fill
+      the buffer with null characters <...>." Our key is pre-filled too since
+      it's global. }
     if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then begin
       RmSessionStarted := True;
       SetStringsFromCommaString(CloseApplicationsFilterList, SetupHeader.CloseApplicationsFilter);
