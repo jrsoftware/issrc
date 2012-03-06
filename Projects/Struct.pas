@@ -111,7 +111,7 @@ type
     CompressMethod: TSetupCompressMethod;
     ArchitecturesAllowed, ArchitecturesInstallIn64BitMode: TSetupProcessorArchitectures;
     DisableDirPage, DisableProgramGroupPage: TSetupDisablePage;
-    UninstallDisplaySize: Cardinal;
+    UninstallDisplaySize: Integer64;
     Options: set of TSetupHeaderOption;
   end;
 const

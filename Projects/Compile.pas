@@ -4201,8 +4201,8 @@ begin
         SetupHeader.UninstallDisplayName := Value;
       end;
     ssUninstallDisplaySize: begin
-        Val(Value, SetupHeader.UninstallDisplaySize, I);
-        if (I <> 0) or (SetupHeader.UninstallDisplaySize = 0) then
+        if not StrToInteger64(Value, SetupHeader.UninstallDisplaySize) or
+           ((SetupHeader.UninstallDisplaySize.Lo = 0) and (SetupHeader.UninstallDisplaySize.Hi = 0)) then
           Invalid;
       end;
     ssUninstallFilesDir: begin

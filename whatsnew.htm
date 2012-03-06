@@ -40,9 +40,10 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 </li>
 <li>The <i>Preparing to Install</i> wizard page now also checks if one or more files specified in the [InstallDelete] section were queued (by some other installation) to be replaced or deleted on the next restart, making Setup stop on the page if it does. Previously it only checked files specified in the [Files] section.</li>
 <li>Setup now additionally hides the <i>Back</i> and <i>Next</i> buttons while the <tt>PrepareToInstall</tt> [Code] event function is running. Previously it only disabled itself.</li>
-<li>Windows 7 change:
+<li>Windows 7 changes:
   <ul>
   <li>Added new [Icons] section flag: <tt>preventpinning</tt>. Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions. Contributed by <a href="https://github.com/miniak" target="_blank">Milan Burda</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
+  <li>Windows 7 SP1 fixed the issue with <tt>EstimatedSize</tt> values in the Uninstall registry key and on Windows 7 SP1 or newer Setup now sets <tt>EstimatedSize</tt> even for sizes of 4GB or more.
   </ul>
 </li>
 <li>Improved the "auto-retry" feature of the [Files] section: it now automatically retries even if the <tt>restartreplace</tt> [Files] section flag is used.</li>

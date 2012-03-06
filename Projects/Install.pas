@@ -575,8 +575,8 @@ var
       { Note: Windows 7 doesn't automatically calculate sizes so set EstimatedSize ourselves. Do not set it
         on earlier Windows versions since calculated sizes are cached and clearing the cache would require
         updating an undocumented key at HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Management\ARPCache\<id>. }
-      if WindowsVersion >= Cardinal($06010000) then begin
-        if SetupHeader.UninstallDisplaySize = 0 then begin
+      if WindowsVersion shr 16 >= $0601 then begin
+        if (SetupHeader.UninstallDisplaySize.Hi = 0) and (SetupHeader.UninstallDisplaySize.Lo = 0) then begin
           { Estimate the size by taking the size of all files and adding any ExtraDiskSpaceRequired. }
           EstimatedSize := FilesSize;
           Inc6464(EstimatedSize, SetupHeader.ExtraDiskSpaceRequired);
@@ -586,14 +586,12 @@ var
                 Inc6464(EstimatedSize, ExtraDiskSpaceRequired);
             end;
           end;
-        end else begin
-          EstimatedSize.Lo := SetupHeader.UninstallDisplaySize;
-          EstimatedSize.Hi := 0;
-        end;
-        { ARP wants the size in kilobytes in a REG_DWORD, so more than 4 GB could fit inside but actually it
-          only pays attention to the lower 6 bytes and throws away the rest. For example putting in $4000001
-          (=4GB + 1KB) displays as 1 KB. Short version: we can't set EstimatedSize if its 4 GB or more. }
-        if EstimatedSize.Hi = 0 then begin
+        end else
+          EstimatedSize := SetupHeader.UninstallDisplaySize;
+        { ARP on Windows 7 without SP1 only pays attention to the lower 6 bytes of EstimatedSize and
+          throws away the rest. For example putting in $4000001 (=4GB + 1KB) displays as 1 KB.
+          So we need to check for this. Already checked this is Windows 7 or newer above. }
+        if (Hi(NTServicePackLevel) > 0) or (WindowsVersion shr 16 > $0601) or (EstimatedSize.Hi = 0) then begin
           Div64(EstimatedSize, 1024);
           SetDWordValue(H2, 'EstimatedSize', EstimatedSize.Lo)
         end;
