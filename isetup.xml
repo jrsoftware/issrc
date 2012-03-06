@@ -4069,9 +4069,8 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 </setuptopic>
 
 <setuptopic directive="UninstallDisplaySize">
-<setupvalid><tt>1</tt> through <tt>4294967295</tt></setupvalid>
 <body>
-<p>On Windows 7 and newer, Setup uses this directive to set the <tt>EstimatedSize</tt> value in the Uninstall registry key when possible since the Windows 7 <i>Add/Remove Programs</i> Control Panel (called <i>Program and Features</i>) no longer automatically calculates it. If an <tt>UninstallDisplaySize</tt> is not set, Setup estimates the size itself by taking the size of all files installed and adding any <tt>ExtraDiskSpaceRequired</tt> values set. Note: Windows 7 only supports the display of values smaller than 4 GB.</p>
+<p>On Windows 7 and newer, Setup uses this directive to set the <tt>EstimatedSize</tt> value in the Uninstall registry key when possible since the Windows 7 <i>Add/Remove Programs</i> Control Panel (called <i>Program and Features</i>) no longer automatically calculates it. If an <tt>UninstallDisplaySize</tt> is not set, Setup estimates the size itself by taking the size of all files installed and adding any <tt>ExtraDiskSpaceRequired</tt> values set. Note: Windows 7 without any service pack only supports the display of values smaller than 4 GB.</p>
 <p>Set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example><pre>UninstallDisplaySize=1073741824</pre></example>
 </body>
