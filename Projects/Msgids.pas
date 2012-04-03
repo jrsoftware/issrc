@@ -2,7 +2,7 @@ unit MsgIDs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -42,6 +42,8 @@ type
     msgButtonYes,
     msgButtonYesToAll,
     msgCannotContinue,
+    msgCannotInstallToNetworkDrive,
+    msgCannotInstallToUNCPath,
     msgChangeDiskTitle,
     msgClickFinish,
     msgClickNext,
@@ -191,7 +193,6 @@ type
     msgStatusSavingUninstall,
     msgStatusRunProgram,
     msgStatusUninstalling,
-    msgToUNCPathname,
     msgTranslatorNote,
     msgUninstallAppFullTitle,
     msgUninstallAppTitle,

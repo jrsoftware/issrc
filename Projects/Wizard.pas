@@ -2509,7 +2509,7 @@ begin
   { Check for UNC pathname }
   IsUNCPath := (Length(T) >= 2) and (T[1] = '\') and (T[2] = '\');
   if IsUNCPath and not AllowUNCPath then begin
-    LoggedMsgBox(SetupMessages[msgToUNCPathname], '', mbError, MB_OK, True, IDOK);
+    LoggedMsgBox(SetupMessages[msgCannotInstallToUNCPath], '', mbError, MB_OK, True, IDOK);
     Exit;
   end;
 
