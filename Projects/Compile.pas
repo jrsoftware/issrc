@@ -2,7 +2,7 @@ unit Compile;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -4044,12 +4044,10 @@ begin
     ssMinVersion: begin
         if not StrToVersionNumbers(Value, SetupHeader.MinVersion, True) then
           Invalid;
-        if (SetupHeader.MinVersion.WinVersion <> 0) and
-           (SetupHeader.MinVersion.WinVersion < $04000000{4.0}) then
-          AbortCompileOnLineFmt(SCompilerMinVersionWinTooLow, ['4.0']);
-        if (SetupHeader.MinVersion.NTVersion <> 0) and
-           (SetupHeader.MinVersion.NTVersion < {$IFDEF UNICODE}$05000000{5.0}{$ELSE}$04000000{4.0}{$ENDIF}) then
-          AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, [{$IFDEF UNICODE}'5.0'{$ELSE}'4.0'{$ENDIF}]);
+        if SetupHeader.MinVersion.WinVersion <> 0 then
+          AbortCompileOnLine(SCompilerMinVersionWinMustBeZero);
+        if SetupHeader.MinVersion.NTVersion < $05000000 then
+          AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, ['5.0']);
       end;
     ssOnlyBelowVersion: begin
         if not StrToVersionNumbers(Value, SetupHeader.OnlyBelowVersion, False) then
@@ -8347,8 +8345,8 @@ begin
     SlicesPerDisk := 1;
     ReserveBytes := 0;
     TimeStampRounding := 2;
-    SetupHeader.MinVersion.WinVersion := {$IFDEF UNICODE}0{$ELSE}$04000000{$ENDIF};
-    SetupHeader.MinVersion.NTVersion := {$IFDEF UNICODE}$05000000{$ELSE}$04000000{$ENDIF};
+    SetupHeader.MinVersion.WinVersion := 0;
+    SetupHeader.MinVersion.NTVersion := $05000000;
     SetupHeader.Options := [shDisableStartupPrompt, shCreateAppDir,
       shWindowStartMaximized, shWindowShowCaption, shWindowResizable,
       shUsePreviousAppDir, shUsePreviousGroup,
