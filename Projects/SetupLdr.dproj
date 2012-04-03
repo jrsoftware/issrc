@@ -47,9 +47,10 @@
 			<DelphiCompile Include="SetupLdr.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
+			<DCCReference Include="SafeDLLPath.pas"/>
 			<DCCReference Include="XPTheme.pas"/>
 			<DCCReference Include="Compress.pas"/>
-			<DCCReference Include="LZMA.pas"/>
+			<DCCReference Include="LZMADecompSmall.pas"/>
 			<DCCReference Include="SetupEnt.pas"/>
 			<DCCReference Include="CmnFunc2.pas"/>
 			<DCCReference Include="Msgs.pas"/>
@@ -95,7 +96,7 @@
 						<VersionInfo Name="Special">False</VersionInfo>
 						<VersionInfo Name="Private">False</VersionInfo>
 						<VersionInfo Name="DLL">False</VersionInfo>
-						<VersionInfo Name="Locale">1043</VersionInfo>
+						<VersionInfo Name="Locale">1033</VersionInfo>
 						<VersionInfo Name="CodePage">1252</VersionInfo>
 					</VersionInfo>
 					<VersionInfoKeys>
