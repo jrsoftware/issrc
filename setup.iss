@@ -1,5 +1,5 @@
 ; Inno Setup
-; Copyright (C) 1997-2010 Jordan Russell. All rights reserved.
+; Copyright (C) 1997-2012 Jordan Russell. All rights reserved.
 ; Portions by Martijn Laan
 ; For conditions of distribution and use, see LICENSE.TXT.
 ;
@@ -9,11 +9,11 @@
 AppName=Inno Setup
 AppId=Inno Setup 5
 AppVersion=5.5.0
-AppPublisher=Jordan Russell
+AppPublisher=jrsoftware.org
 AppPublisherURL=http://www.innosetup.com/
 AppSupportURL=http://www.innosetup.com/
 AppUpdatesURL=http://www.innosetup.com/
-VersionInfoCopyright=Copyright (C) 1997-2011 Jordan Russell. Portions Copyright (C) 2000-2011 Martijn Laan.
+VersionInfoCopyright=Copyright (C) 1997-2012 Jordan Russell. Portions Copyright (C) 2000-2012 Martijn Laan.
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 MinVersion=0,5.0
 DefaultDirName={pf}\Inno Setup 5
