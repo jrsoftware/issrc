@@ -7,8 +7,6 @@ unit ScriptFunc_C;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script support functions (compile time)
-
-  $jrsoftware: issrc/Projects/ScriptFunc_C.pas,v 1.44 2010/01/06 19:41:26 mlaan Exp $
 }
 
 interface
@@ -163,7 +161,7 @@ begin
 
   RegisterConst('MaxInt', MaxInt);
 
-  RegisterEnum(TypeInfo(TInstallOnThisVersionResult), Ord(Low(TInstallOnThisVersionResult)), Ord(High(TInstallOnThisVersionResult)));
+  ScriptCompiler.AddConstantN('irInstall', 'Boolean').SetUInt(1);
 
   RegisterConst('wpWelcome', wpWelcome);
   RegisterConst('wpLicense', wpLicense);

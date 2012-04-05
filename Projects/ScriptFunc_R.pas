@@ -1064,7 +1064,7 @@ begin
     else if not StrToVersionNumbers(Stack.GetString(PStart-2), OnlyBelowVersion, False) then
       InternalError('InstallOnThisVersion: Invalid OnlyBelowVersion string')
     else
-      Stack.SetInt(PStart, Integer(InstallOnThisVersion(MinVersion, OnlyBelowVersion)));
+      Stack.SetBool(PStart, (InstallOnThisVersion(MinVersion, OnlyBelowVersion) = irInstall));
   end else if Proc.Name = 'GETWINDOWSVERSION' then begin
     Stack.SetUInt(PStart, WindowsVersion);
   end else if Proc.Name = 'GETWINDOWSVERSIONSTRING' then begin

@@ -2,7 +2,7 @@ unit ScriptFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -172,7 +172,7 @@ const
     'function ExitSetupMsgBox: Boolean;',
     'function GetShellFolder(Common: Boolean; const ID: TShellFolderID): String;',
     'function GetShellFolderByCSIDL(const Folder: Integer; const Create: Boolean): String;',
-    'function InstallOnThisVersion(const MinVersion, OnlyBelowVersion: String): Integer;',
+    'function InstallOnThisVersion(const MinVersion, OnlyBelowVersion: String): Boolean;',
     'function GetWindowsVersion: Cardinal;',
     'procedure GetWindowsVersionEx(var Version: TWindowsVersion);',
     'function GetWindowsVersionString: String;',
