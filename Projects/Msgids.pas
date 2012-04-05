@@ -214,6 +214,8 @@ type
     msgUserInfoSerial,
     msgWelcomeLabel1,
     msgWelcomeLabel2,
+    msgWindowsServicePackRequired,
+    msgWindowsVersionNotSupported,
     msgWinVersionTooHighError,
     msgWinVersionTooLowError,
     msgWizardInfoAfter,
