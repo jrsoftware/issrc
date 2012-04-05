@@ -2,7 +2,7 @@ unit SetupTypes;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -44,7 +44,6 @@ type
     irVerTooLow, irVerTooHigh);
 
 const
-  irInvalid = Ord(High(TInstallOnThisVersionResult))+1;
   crHand = 1;
 
   CodeRootKeyFlagMask  = $7F000000;

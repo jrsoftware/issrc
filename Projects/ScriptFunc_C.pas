@@ -2,7 +2,7 @@ unit ScriptFunc_C;
 
 {
   Inno Setup
-  Copyright (C) 1997-2005 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -164,7 +164,6 @@ begin
   RegisterConst('MaxInt', MaxInt);
 
   RegisterEnum(TypeInfo(TInstallOnThisVersionResult), Ord(Low(TInstallOnThisVersionResult)), Ord(High(TInstallOnThisVersionResult)));
-  RegisterConst('irInvalid', irInvalid);
 
   RegisterConst('wpWelcome', wpWelcome);
   RegisterConst('wpLicense', wpLicense);

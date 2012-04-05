@@ -1060,9 +1060,9 @@ begin
     Stack.SetString(PStart, GetShellFolderByCSIDL(Stack.GetInt(PStart-1), Stack.GetBool(PStart-2)));
   end else if Proc.Name = 'INSTALLONTHISVERSION' then begin
     if not StrToVersionNumbers(Stack.GetString(PStart-1), MinVersion, False) then
-      Stack.SetInt(PStart, irInvalid)
+      InternalError('InstallOnThisVersion: Invalid MinVersion string')
     else if not StrToVersionNumbers(Stack.GetString(PStart-2), OnlyBelowVersion, False) then
-      Stack.SetInt(PStart, irInvalid)
+      InternalError('InstallOnThisVersion: Invalid OnlyBelowVersion string')
     else
       Stack.SetInt(PStart, Integer(InstallOnThisVersion(MinVersion, OnlyBelowVersion)));
   end else if Proc.Name = 'GETWINDOWSVERSION' then begin
