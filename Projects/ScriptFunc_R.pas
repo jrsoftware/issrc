@@ -2,7 +2,7 @@ unit ScriptFunc_R;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -922,14 +922,18 @@ end;
 function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
   { Also present in Compile.pas ! }
-  function StrToVersionNumbers (const S: String; var VerData: TSetupVersionData): Boolean;
-    procedure Split (const Str: String; var Ver: TSetupVersionDataVersion;
+  function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData;
+    const AllowEmpty: Boolean): Boolean;
+
+    procedure Split(const Str: String; var Ver: TSetupVersionDataVersion;
       var ServicePack: Word);
     var
       I, J: Integer;
       Z, B: String;
       HasBuild: Boolean;
     begin
+      if (Str = '') and AllowEmpty then
+        Exit;
       Cardinal(Ver) := 0;
       ServicePack := 0;
       Z := Lowercase(Str);
@@ -942,7 +946,7 @@ function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSS
         { ^ Shift left 8 bits because we're setting the "major" service pack
           version number. This parser doesn't currently accept "minor" service
           pack version numbers. }
-        SetLength (Z, I-1);
+        SetLength(Z, I-1);
       end;
       I := Pos('.', Z);
       if I = Length(Z) then Abort;
@@ -984,10 +988,10 @@ function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSS
     try
       I := Pos(',', S);
       if I = 0 then Abort;
-      Split (Trim(Copy(S, 1, I-1)),
+      Split(Trim(Copy(S, 1, I-1)),
         TSetupVersionDataVersion(VerData.WinVersion), SP);
       if SP <> 0 then Abort;  { only NT has service packs }
-      Split (Trim(Copy(S, I+1, Maxint)),
+      Split(Trim(Copy(S, I+1, Maxint)),
         TSetupVersionDataVersion(VerData.NTVersion), VerData.NTServicePack);
       Result := True;
     except
@@ -1055,9 +1059,9 @@ begin
   end else if Proc.Name = 'GETSHELLFOLDERBYCSIDL' then begin
     Stack.SetString(PStart, GetShellFolderByCSIDL(Stack.GetInt(PStart-1), Stack.GetBool(PStart-2)));
   end else if Proc.Name = 'INSTALLONTHISVERSION' then begin
-    if not StrToVersionNumbers(Stack.GetString(PStart-1), MinVersion) then
+    if not StrToVersionNumbers(Stack.GetString(PStart-1), MinVersion, False) then
       Stack.SetInt(PStart, irInvalid)
-    else if not StrToVersionNumbers(Stack.GetString(PStart-2), OnlyBelowVersion) then
+    else if not StrToVersionNumbers(Stack.GetString(PStart-2), OnlyBelowVersion, False) then
       Stack.SetInt(PStart, irInvalid)
     else
       Stack.SetInt(PStart, Integer(InstallOnThisVersion(MinVersion, OnlyBelowVersion)));
