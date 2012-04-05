@@ -2,7 +2,7 @@
 <isxhelp version="1.0">
 <copyright>
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 </copyright>
@@ -316,6 +316,10 @@ end;</pre></example>
         <prototype>function GetWindowsVersion: Cardinal;</prototype>
         <description><p>Returns the version number of Windows packed into a single integer. The upper 8 bits specify the major version; the following 8 bits specify the minor version; the lower 16 bits specify the build number. For example, this function will return $05000893 on Windows 2000, which is version 5.0.2195.</p>
 <p>To retrieve just the major version number, use: "GetWindowsVersion shr 24". To retrieve just the minor version number, use: "(GetWindowsVersion shr 16) and $FF". To retrieve just the build number, use: "GetWindowsVersion and $FFFF".</p></description>
+        <example><pre>function IsWindowsXPOrLater: Boolean;
+begin
+  Result := (GetWindowsVersion &gt;= $05010000);
+end;</pre></example>
         <seealso><p><link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link><br />
 <link topic="isxfunc_UsingWinNT">UsingWinNT</link></p></seealso>
       </function>
@@ -496,8 +500,23 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>InstallOnThisVersion</name>
-        <prototype>function InstallOnThisVersion(const MinVersion, OnlyBelowVersion: String): Integer;</prototype>
-        <description><p>Returns irInstall if an entry with the specified MinVersion and OnlyBelowVersion parameters should be installed.</p></description>
+        <prototype>function InstallOnThisVersion(const MinVersion, OnlyBelowVersion: String): Boolean;</prototype>
+        <description><p>This function is deprecated. Returns True if an entry with the specified MinVersion and OnlyBelowVersion parameters should be installed. If an invalid version string is passed, an exception will be raised.</p>
+<p>This function is provided for backward compatibility only, and may be removed in a future release. New scripts should use <link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link> or <link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link> instead.</p></description>
+        <remarks><p>Prior to Inno Setup 5.5.0, this function returned <tt>irInstall</tt> rather than a Boolean True value. <tt>irInstall</tt> is now defined as an alias for True.</p></remarks>
+        <example><pre>// Old method, deprecated
+function IsWindowsXPOrLater: Boolean;
+begin
+  Result := InstallOnThisVersion('0,5.1', '0,0');
+end;
+
+// New method
+function IsWindowsXPOrLater: Boolean;
+begin
+  Result := (GetWindowsVersion &gt;= $05010000);
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link><br />
+<link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -2372,10 +2391,6 @@ end;</pre></example>
   <enum>
      <description>TShouldProcessEntryResult</description>
      <values>srNo, srYes, srUnknown</values>
-  </enum>
-  <enum>
-     <description>InstallOnThisVersion - return values</description>
-     <values>irInstall, irNotOnThisPlatform, irVerTooLow, irVerTooHigh, irInvalid</values>
   </enum>
   <enum>
      <description>TSetupMessageID</description>
