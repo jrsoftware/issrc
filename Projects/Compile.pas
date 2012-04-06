@@ -3184,7 +3184,7 @@ function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): B
     if I = Length(Z) then Abort;
     if I <> 0 then begin
       J := StrToInt(Copy(Z, 1, I-1));
-      if (J < Low(Ver.Major)) or (J > High(Ver.Major)) then
+      if (J < 0) or (J > 127) then
         Abort;
       Ver.Major := J;
       Z := Copy(Z, I+1, Maxint);
@@ -3196,8 +3196,6 @@ function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): B
       Z := Copy(Z, 1, I-1);
       J := StrToInt(Z);
       if (J < 0) or (J > 99) then Abort;
-      if (Ver.Major < 5) and (J < 10) and (Z[1] <> '0') then
-        J := J * 10;
       Ver.Minor := J;
       if HasBuild then begin
         J := StrToInt(B);
@@ -3208,7 +3206,7 @@ function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): B
     end
     else begin  { no minor version specified }
       J := StrToInt(Str);
-      if (J < Low(Ver.Major)) or (J > High(Ver.Major)) then
+      if (J < 0) or (J > 127) then
         Abort;
       Ver.Major := J;
     end;
