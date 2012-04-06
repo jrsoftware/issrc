@@ -3205,7 +3205,7 @@ function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): B
       end;
     end
     else begin  { no minor version specified }
-      J := StrToInt(Str);
+      J := StrToInt(Z);
       if (J < 0) or (J > 127) then
         Abort;
       Ver.Major := J;
