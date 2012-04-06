@@ -3731,20 +3731,22 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </setuptopic>
 
 <setuptopic directive="MinVersion">
-<setupformat><tt><i>a</i>.<i>bb</i>,<i>c</i>.<i>dd</i></tt>, where <tt><i>a</i>.<i>bb</i></tt> is the Windows version, and <tt><i>c</i>.<i>dd</i></tt> is the Windows NT version.</setupformat>
-<setupdefault><tt>0,5.0</tt> if <link topic="unicode">Unicode Inno Setup</link>, else <tt>4.0,4.0</tt></setupdefault>
+<setupformat><tt><i>major</i>.<i>minor</i></tt></setupformat>
+<setupdefault><tt>5.0</tt></setupdefault>
 <body>
-<p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows or Windows NT</link> that your software runs on. To prevent your program from running on Windows or Windows NT, specify "0" for one the minimum versions. To use the default <tt>MinVersion</tt> on Windows or Windows NT, leave one of the minimum versions empty. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included in the version numbers.</p>
+<p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software runs on. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>If the user's system does not meet the minimum version requirement, Setup will give an error message and exit.</p>
+<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>MinVersion=0,5.0</tt>. The Windows 95/98/Me version number (the first number) must be <tt>0</tt>, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="OnlyBelowVersion">
-<setupformat><tt><i>a</i>.<i>bb</i>,<i>c</i>.<i>dd</i></tt>, where <tt><i>a</i>.<i>bb</i></tt> is the Windows version, and <tt><i>c</i>.<i>dd</i></tt> is the Windows NT version.</setupformat>
-<setupdefault><tt>0,0</tt></setupdefault>
+<setupformat><tt><i>major</i>.<i>minor</i></tt></setupformat>
+<setupdefault><tt>0</tt></setupdefault>
 <body>
-<p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows or Windows NT</link> that your software <i>will not</i> run on. Specifying "0" for one of the versions means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included in the version numbers.</p>
+<p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software <i>will not</i> run on. Specifying "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>This directive is essentially the opposite of <link topic="setup_minversion">MinVersion</link>.</p>
+<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>OnlyBelowVersion=0,6.0</tt>. The Windows 95/98/Me version number (the first number) isn't used, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
 </body>
 </setuptopic>
 
