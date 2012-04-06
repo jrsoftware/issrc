@@ -3218,11 +3218,13 @@ var
   SP: Word;
 begin
   try
+    VerData.WinVersion := 0;
     I := Pos(',', S);
-    if I = 0 then Abort;
-    Split(Trim(Copy(S, 1, I-1)),
-      TSetupVersionDataVersion(VerData.WinVersion), SP);
-    if SP <> 0 then Abort;  { only NT has service packs }
+    if I <> 0 then begin
+      Split(Trim(Copy(S, 1, I-1)),
+        TSetupVersionDataVersion(VerData.WinVersion), SP);
+      if SP <> 0 then Abort;  { only NT has service packs }
+    end;
     Split(Trim(Copy(S, I+1, Maxint)),
       TSetupVersionDataVersion(VerData.NTVersion), VerData.NTServicePack);
     Result := True;
