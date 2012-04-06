@@ -3157,8 +3157,7 @@ begin
 end;
 
 { Also present in ScriptFunc_R.pas ! }
-function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData;
-  const AllowEmpty: Boolean): Boolean;
+function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): Boolean;
 
   procedure Split(const Str: String; var Ver: TSetupVersionDataVersion;
     var ServicePack: Word);
@@ -3167,8 +3166,6 @@ function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData;
     Z, B: String;
     HasBuild: Boolean;
   begin
-    if (Str = '') and AllowEmpty then
-      Exit;
     Cardinal(Ver) := 0;
     ServicePack := 0;
     Z := Lowercase(Str);
@@ -3276,7 +3273,7 @@ procedure TSetupCompiler.ProcessMinVersionParameter(const ParamValue: TParamValu
   var AMinVersion: TSetupVersionData);
 begin
   if ParamValue.Found then
-    if not StrToVersionNumbers(ParamValue.Data, AMinVersion, True) then
+    if not StrToVersionNumbers(ParamValue.Data, AMinVersion) then
       AbortCompileParamError(SCompilerParamInvalid2, ParamCommonMinVersion);
 end;
 
@@ -3284,7 +3281,7 @@ procedure TSetupCompiler.ProcessOnlyBelowVersionParameter(const ParamValue: TPar
   var AOnlyBelowVersion: TSetupVersionData);
 begin
   if ParamValue.Found then
-    if not StrToVersionNumbers(ParamValue.Data, AOnlyBelowVersion, False) then
+    if not StrToVersionNumbers(ParamValue.Data, AOnlyBelowVersion) then
       AbortCompileParamError(SCompilerParamInvalid2, ParamCommonOnlyBelowVersion);
 end;
 
@@ -4042,7 +4039,7 @@ begin
         AbortCompileOnLine(SCompilerMessagesFileObsolete);
       end;
     ssMinVersion: begin
-        if not StrToVersionNumbers(Value, SetupHeader.MinVersion, True) then
+        if not StrToVersionNumbers(Value, SetupHeader.MinVersion) then
           Invalid;
         if SetupHeader.MinVersion.WinVersion <> 0 then
           AbortCompileOnLine(SCompilerMinVersionWinMustBeZero);
@@ -4050,7 +4047,7 @@ begin
           AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, ['5.0']);
       end;
     ssOnlyBelowVersion: begin
-        if not StrToVersionNumbers(Value, SetupHeader.OnlyBelowVersion, False) then
+        if not StrToVersionNumbers(Value, SetupHeader.OnlyBelowVersion) then
           Invalid;
       end;
     ssOutputBaseFilename: begin
