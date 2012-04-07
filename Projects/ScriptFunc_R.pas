@@ -922,8 +922,7 @@ end;
 function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
   { Also present in Compile.pas ! }
-  function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData;
-    const AllowEmpty: Boolean): Boolean;
+  function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): Boolean;
 
     procedure Split(const Str: String; var Ver: TSetupVersionDataVersion;
       var ServicePack: Word);
@@ -932,8 +931,6 @@ function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSS
       Z, B: String;
       HasBuild: Boolean;
     begin
-      if (Str = '') and AllowEmpty then
-        Exit;
       Cardinal(Ver) := 0;
       ServicePack := 0;
       Z := Lowercase(Str);
@@ -952,7 +949,7 @@ function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSS
       if I = Length(Z) then Abort;
       if I <> 0 then begin
         J := StrToInt(Copy(Z, 1, I-1));
-        if (J < Low(Ver.Major)) or (J > High(Ver.Major)) then
+        if (J < 0) or (J > 127) then
           Abort;
         Ver.Major := J;
         Z := Copy(Z, I+1, Maxint);
@@ -964,8 +961,6 @@ function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSS
         Z := Copy(Z, 1, I-1);
         J := StrToInt(Z);
         if (J < 0) or (J > 99) then Abort;
-        if (Ver.Major < 5) and (J < 10) and (Z[1] <> '0') then
-          J := J * 10;
         Ver.Minor := J;
         if HasBuild then begin
           J := StrToInt(B);
@@ -975,8 +970,8 @@ function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSS
         end;
       end
       else begin  { no minor version specified }
-        J := StrToInt(Str);
-        if (J < Low(Ver.Major)) or (J > High(Ver.Major)) then
+        J := StrToInt(Z);
+        if (J < 0) or (J > 127) then
           Abort;
         Ver.Major := J;
       end;
@@ -986,11 +981,13 @@ function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSS
     SP: Word;
   begin
     try
+      VerData.WinVersion := 0;
       I := Pos(',', S);
-      if I = 0 then Abort;
-      Split(Trim(Copy(S, 1, I-1)),
-        TSetupVersionDataVersion(VerData.WinVersion), SP);
-      if SP <> 0 then Abort;  { only NT has service packs }
+      if I <> 0 then begin
+        Split(Trim(Copy(S, 1, I-1)),
+          TSetupVersionDataVersion(VerData.WinVersion), SP);
+        if SP <> 0 then Abort;  { only NT has service packs }
+      end;
       Split(Trim(Copy(S, I+1, Maxint)),
         TSetupVersionDataVersion(VerData.NTVersion), VerData.NTServicePack);
       Result := True;
@@ -1059,9 +1056,9 @@ begin
   end else if Proc.Name = 'GETSHELLFOLDERBYCSIDL' then begin
     Stack.SetString(PStart, GetShellFolderByCSIDL(Stack.GetInt(PStart-1), Stack.GetBool(PStart-2)));
   end else if Proc.Name = 'INSTALLONTHISVERSION' then begin
-    if not StrToVersionNumbers(Stack.GetString(PStart-1), MinVersion, False) then
+    if not StrToVersionNumbers(Stack.GetString(PStart-1), MinVersion) then
       InternalError('InstallOnThisVersion: Invalid MinVersion string')
-    else if not StrToVersionNumbers(Stack.GetString(PStart-2), OnlyBelowVersion, False) then
+    else if not StrToVersionNumbers(Stack.GetString(PStart-2), OnlyBelowVersion) then
       InternalError('InstallOnThisVersion: Invalid OnlyBelowVersion string')
     else
       Stack.SetBool(PStart, (InstallOnThisVersion(MinVersion, OnlyBelowVersion) = irInstall));
