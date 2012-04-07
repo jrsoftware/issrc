@@ -41,7 +41,7 @@ type
     sfFonts, sfAppData, sfDocs, sfTemplates, sfFavorites, sfLocalAppData);
 
   TInstallOnThisVersionResult = (irInstall, irNotOnThisPlatform,
-    irVerTooLow, irVerTooHigh);
+    irVersionTooLow, irServicePackTooLow, irVerTooHigh);
 
 const
   crHand = 1;

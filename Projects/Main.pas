@@ -1554,10 +1554,11 @@ begin
   if MinVer = 0 then
     Result := irNotOnThisPlatform
   else begin
-    if (Ver < MinVer) or
-       (IsNT and (LongRec(Ver).Hi = LongRec(MinVer).Hi) and
+    if Ver < MinVer then
+      Result := irVersionTooLow
+    else if (IsNT and (LongRec(Ver).Hi = LongRec(MinVer).Hi) and
         (NTServicePackLevel < MinVersion.NTServicePack)) then
-      Result := irVerTooLow
+      Result := irServicePackTooLow
     else begin
       if OnlyBelowVer <> 0 then begin
         Ver2 := Ver;
@@ -2411,20 +2412,6 @@ var
         AppendLine(Result, SetupProcessorArchitectureNames[I]);
   end;
 
-  function VerToStr(Ver: Cardinal; ServicePack: Word): String;
-  begin
-    with TSetupVersionDataVersion(Ver) do begin
-      FmtStr(Result, '%d.%d', [Major, Minor]);
-      if Build <> 0 then
-        Result := Result + Format('.%d', [Build]);
-      if ServicePack <> 0 then begin
-        Result := Result + ' Service Pack ' + IntToStr(Hi(ServicePack));
-        if Lo(ServicePack) <> 0 then
-          Result := Result + Format('.%d', [Lo(ServicePack)]);
-      end;
-    end;
-  end;
-
   procedure AbortInit(const Msg: TSetupMessageID);
   begin
     LoggedMsgBox(SetupMessages[Msg], '', mbCriticalError, MB_OK, True, IDOK);
@@ -2437,11 +2424,10 @@ var
     Abort;
   end;
 
-  procedure AbortInitVerError(const Msg: TSetupMessageID; const Platform: String;
-    const Ver: Cardinal; const ServicePack: Word);
+  procedure AbortInitServicePackRequired(const ServicePack: Word);
   begin
-    LoggedMsgBox(FmtSetupMessage(Msg, [Platform, VerToStr(Ver, ServicePack)]), '',
-      mbCriticalError, MB_OK, True, IDOK);
+    LoggedMsgBox(FmtSetupMessage(msgWindowsServicePackRequired, ['Windows',
+      IntToStr(Hi(ServicePack))]), '', mbCriticalError, MB_OK, True, IDOK);
     Abort;
   end;
 
@@ -2973,29 +2959,10 @@ begin
   { Check Windows version }
   case InstallOnThisVersion(SetupHeader.MinVersion, SetupHeader.OnlyBelowVersion) of
     irInstall: ;
-    irNotOnThisPlatform:
-      if IsNT then
-        AbortInitFmt1(msgNotOnThisPlatform, 'Windows NT')
-      else
-        AbortInitVerError(msgWinVersionTooLowError, 'Windows NT',
-          SetupHeader.MinVersion.NTVersion,
-          SetupHeader.MinVersion.NTServicePack);
-    irVerTooLow:
-      if IsNT then
-        AbortInitVerError(msgWinVersionTooLowError, 'Windows NT',
-          SetupHeader.MinVersion.NTVersion,
-          SetupHeader.MinVersion.NTServicePack)
-      else
-        AbortInitVerError(msgWinVersionTooLowError, 'Windows',
-          SetupHeader.MinVersion.WinVersion, 0);
-    irVerTooHigh:
-      if IsNT then
-        AbortInitVerError(msgWinVersionTooHighError, 'Windows NT',
-          SetupHeader.OnlyBelowVersion.NTVersion,
-          SetupHeader.OnlyBelowVersion.NTServicePack)
-      else
-        AbortInitVerError(msgWinVersionTooHighError, 'Windows',
-          SetupHeader.OnlyBelowVersion.WinVersion, 0);
+    irServicePackTooLow:
+      AbortInitServicePackRequired(SetupHeader.MinVersion.NTServicePack);
+  else
+    AbortInit(msgWindowsVersionNotSupported);
   end;
 
   { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
