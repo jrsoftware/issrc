@@ -1547,8 +1547,8 @@ begin
     OnlyBelowVer := OnlyBelowVersion.NTVersion;
   end
   else begin
-    MinVer := MinVersion.WinVersion;
-    OnlyBelowVer := OnlyBelowVersion.WinVersion;
+    MinVer := 0;
+    OnlyBelowVer := 0;
   end;
   Result := irInstall;
   if MinVer = 0 then
