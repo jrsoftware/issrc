@@ -126,7 +126,7 @@ var
 begin
   NewPosition := CurProgress;
   Shr64(NewPosition, ProgressShiftCount);
-  if WizardForm.ProgressGauge.Position <> NewPosition.Lo then begin
+  if WizardForm.ProgressGauge.Position <> Longint(NewPosition.Lo) then begin
     WizardForm.ProgressGauge.Position := NewPosition.Lo;
     WizardForm.ProgressGauge.Update;
   end;
