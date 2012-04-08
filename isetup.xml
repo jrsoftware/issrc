@@ -99,7 +99,7 @@ Inno Setup is a <i>free</i> installer for Windows programs. First introduced in 
 
 <ul>
 
-<li>Support for all versions of Windows in use today: 7, 2008 R2, Vista, XP, 2008, 2003, 2000, Me, 98, 95, and NT 4.0. (No service packs are required.)</li>
+<li>Support for every Windows release since 2000, including: Windows 7, 2008 R2, Vista, XP, 2008, 2003, and 2000. (No service packs are required.)</li>
 
 <li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. Both the x64 and Itanium architectures are supported. (On the Itanium architecture, Service Pack 1 or later is required on Windows Server 2003 to install in 64-bit mode.)</li>
 
@@ -128,7 +128,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li><link topic="setupcmdline" anchor="SILENT">Silent install</link> and <link topic="uninstcmdline" anchor="SILENT">silent uninstall</link>.</li>
 
-<li><link topic="unicode">Unicode installs</link>. (Windows 2000/XP or later)</li>
+<li><link topic="unicode">Unicode installs</link>.</li>
 
 <li>Integrated preprocessor option for advanced compile-time customization.</li>
 
@@ -5047,18 +5047,7 @@ SignTool=byparam format c:
 <topic name="winvernotes" title="Windows Versions">
 <keyword value="Windows Versions" />
 <body>
-<p>Windows versions:</p>
 <table>
-<tr><td>4.0.950</td><td>Windows 95</td></tr>
-<tr><td>4.0.1111</td><td>Windows 95 OSR 2 &amp; OSR 2.1</td></tr>
-<tr><td>4.0.1212</td><td>Windows 95 OSR 2.5</td></tr>
-<tr><td>4.10.1998</td><td>Windows 98</td></tr>
-<tr><td>4.10.2222</td><td>Windows 98 Second Edition</td></tr>
-<tr><td>4.90.3000</td><td>Windows Me</td></tr>
-</table>
-<p>Windows NT versions:</p>
-<table>
-<tr><td>4.0.1381</td><td>Windows NT 4.0</td></tr>
 <tr><td>5.0.2195</td><td>Windows 2000</td></tr>
 <tr><td>5.1.2600</td><td>Windows XP<br/>or Windows XP 64-Bit Edition Version 2002 (Itanium)</td></tr>
 <tr><td>5.2.3790</td><td>Windows Server 2003<br/>or Windows XP x64 Edition (AMD64/EM64T)<br/>or Windows XP 64-Bit Edition Version 2003 (Itanium)</td></tr>
@@ -5069,7 +5058,6 @@ SignTool=byparam format c:
 <tr><td>6.2.8102</td><td>Windows 8 Developer Preview</td></tr>
 </table>
 <p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "5.1" for Windows XP).</p>
-<p>If a major version number less than 5 is specified in combination with a one-digit minor version number, the minor version number will be multiplied by 10. Therefore, <tt>4.1</tt> (Windows 98) is equivalent to <tt>4.10</tt>.</p>
 </body>
 </topic>
 
