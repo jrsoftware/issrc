@@ -777,21 +777,18 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 </param>
 
 <param name="MinVersion">
-<p>A minimum <link topic="winvernotes">Windows version and Windows NT version</link> respectively for the entry to be processed. If you use "0" for one of the versions then the entry will never be processed on that platform. If you leave one of the versions empty then the entry will use the default <tt>MinVersion</tt> for that platform. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included in the version numbers. This overrides any <tt>MinVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use "0" then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>MinVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without a <tt>MinVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
-<pre>
-MinVersion: 4.0,4.0
-MinVersion: 4.1,
-</pre>
+<pre>MinVersion: 5.1</pre>
 </example>
 </param>
 
 <param name="OnlyBelowVersion">
-<p>Basically the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows and Windows NT version</link> for the entry <i>not</i> to be processed. For example, if you put <tt>4.1,5.0</tt> and the user is running Windows 95 or NT 4.0 the entry <i>will</i> be processed, but if the user is running Windows 98 (which reports its version as 4.1) or Windows 2000 (which reports its version as NT 5.0), it will <i>not</i> be processed. Putting "0" for one of the versions means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included in the version numbers. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you put <tt>6.0</tt> and the user is running Windows 2000 or XP, the entry <i>will</i> be processed, but if the user is running Windows Vista (which reports its version as 6.0) or later, it will <i>not</i> be processed. Putting "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without an <tt>OnlyBelowVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
-<pre>OnlyBelowVersion: 4.1,5.0</pre>
+<pre>OnlyBelowVersion: 6.0</pre>
 </example>
 </param>
 
