@@ -39,7 +39,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>TWizardForm: Added new <tt>PreparingMemo</tt> property.</li>
   </ul>
 </li>
-<li>The <tt>MinVersion</tt> and <tt>OnlyBelowVersion</tt> directives and parameters now require only a single version number. For example: <tt>MinVersion=5.1</tt></li>
+<li>The <tt>MinVersion</tt> and <tt>OnlyBelowVersion</tt> directives and parameters now require only a single version number. For example: <tt>MinVersion=5.1</tt>. For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may still be specified, but these aren't used anymore.</li>
 <li>The <i>Preparing to Install</i> wizard page now also checks if one or more files specified in the [InstallDelete] section were queued (by some other installation) to be replaced or deleted on the next restart, making Setup stop on the page if it does. Previously it only checked files specified in the [Files] section.</li>
 <li>Setup now additionally hides the <i>Back</i> and <i>Next</i> buttons while the <tt>PrepareToInstall</tt> [Code] event function is running. Previously it only disabled itself.</li>
 <li>Windows 7 changes:
@@ -49,7 +49,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   </ul>
 </li>
 <li>Improved the "auto-retry" feature of the [Files] section: it now automatically retries even if the <tt>restartreplace</tt> [Files] section flag is used.</li>
-<li>Pascal Scripting: Changed the <tt>InstallOnThisVersion</tt> support function to return a Boolean value.</li>
+<li>Pascal Scripting: Changed the <tt>InstallOnThisVersion</tt> support function to return a Boolean value. If an invalid version string is passed, an exception will be raised.</li>
 <li>Added 128x128 and 256x256 sizes to the compiler and document icons, created by Motaz.</li>
 <li>Some messages have been added and removed in this version.
 <!--  (<a href="http://cvs.jrsoftware.org/view/issrc/Files/Default.isl?r1=1.68&amp;r2=1.69">View differences in Default.isl</a>) -->
