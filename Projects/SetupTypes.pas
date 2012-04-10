@@ -12,7 +12,7 @@ unit SetupTypes;
 interface
 
 uses
-  Classes;
+  SysUtils, Classes, Struct;
 
 type
   TSetupStep = (ssPreInstall, ssInstall, ssPostInstall, ssDone);
@@ -53,11 +53,12 @@ const
 
 function StringsToCommaString(const Strings: TStrings): String;
 procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
+function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): Boolean;
 
 implementation
 
 uses
-  SysUtils, CmnFunc2;
+  CmnFunc2;
 
 function QuoteStringIfNeeded(const S: String): String;
 { Used internally by StringsToCommaString. Adds quotes around the string if
@@ -184,6 +185,83 @@ begin
     end;
   finally
     Strings.EndUpdate;
+  end;
+end;
+
+function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): Boolean;
+
+  procedure Split(const Str: String; var Ver: TSetupVersionDataVersion;
+    var ServicePack: Word);
+  var
+    I, J: Integer;
+    Z, B: String;
+    HasBuild: Boolean;
+  begin
+    Cardinal(Ver) := 0;
+    ServicePack := 0;
+    Z := Lowercase(Str);
+    I := Pos('sp', Z);
+    if I <> 0 then begin
+      J := StrToInt(Copy(Z, I+2, Maxint));
+      if (J < Low(Byte)) or (J > High(Byte)) then
+        Abort;
+      ServicePack := J shl 8;
+      { ^ Shift left 8 bits because we're setting the "major" service pack
+        version number. This parser doesn't currently accept "minor" service
+        pack version numbers. }
+      SetLength(Z, I-1);
+    end;
+    I := Pos('.', Z);
+    if I = Length(Z) then Abort;
+    if I <> 0 then begin
+      J := StrToInt(Copy(Z, 1, I-1));
+      if (J < 0) or (J > 127) then
+        Abort;
+      Ver.Major := J;
+      Z := Copy(Z, I+1, Maxint);
+      I := Pos('.', Z);
+      HasBuild := I <> 0;
+      if not HasBuild then
+        I := Length(Z)+1;
+      B := Copy(Z, I+1, Maxint);
+      Z := Copy(Z, 1, I-1);
+      J := StrToInt(Z);
+      if (J < 0) or (J > 99) then Abort;
+      Ver.Minor := J;
+      if HasBuild then begin
+        J := StrToInt(B);
+        if (J < Low(Ver.Build)) or (J > High(Ver.Build)) then
+          Abort;
+        Ver.Build := J;
+      end;
+    end
+    else begin  { no minor version specified }
+      J := StrToInt(Z);
+      if (J < 0) or (J > 127) then
+        Abort;
+      Ver.Major := J;
+    end;
+  end;
+var
+  I: Integer;
+  SP: Word;
+begin
+  try
+    VerData.WinVersion := 0;
+    I := Pos(',', S);
+    if I <> 0 then begin
+      Split(Trim(Copy(S, 1, I-1)),
+        TSetupVersionDataVersion(VerData.WinVersion), SP);
+      if SP <> 0 then Abort;  { only NT has service packs }
+    end;
+    Split(Trim(Copy(S, I+1, Maxint)),
+      TSetupVersionDataVersion(VerData.NTVersion), VerData.NTServicePack);
+    Result := True;
+  except
+    if (ExceptObject is EAbort) or (ExceptObject is EConvertError) then
+      Result := False
+    else
+      raise;
   end;
 end;
 
