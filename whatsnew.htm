@@ -28,6 +28,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 
 <p><a name="5.5.0"></a><span class="ver">5.5.0-dev </span><span class="date">(?)</span></p>
 <ul>
+<li>Non-Unicode Inno Setup <b>OS requirements change</b>: Windows 95, 98, Me, and NT 4.0 are no longer supported. Like the Unicode version, Windows 2000 is now the minimum supported operating system.</li>
 <li>On Windows Vista and newer, Setup now supports the Windows <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa373524.aspx" target="_blank">Restart Manager</a> API to close and restart applications using files that need to be updated:
   <ul>
   <li>Added new [Setup] section directive: <tt>CloseApplications</tt>, which defaults to <tt>yes</tt>. If set to <tt>yes</tt> and Setup is not running silently, Setup will now pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the [Files] or [InstallDelete] section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed. If set to <tt>yes</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line (see below).</li>
@@ -38,6 +39,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>TWizardForm: Added new <tt>PreparingMemo</tt> property.</li>
   </ul>
 </li>
+<li>The <tt>MinVersion</tt> and <tt>OnlyBelowVersion</tt> directives and parameters now require only a single version number. For example: <tt>MinVersion=5.1</tt></li>
 <li>The <i>Preparing to Install</i> wizard page now also checks if one or more files specified in the [InstallDelete] section were queued (by some other installation) to be replaced or deleted on the next restart, making Setup stop on the page if it does. Previously it only checked files specified in the [Files] section.</li>
 <li>Setup now additionally hides the <i>Back</i> and <i>Next</i> buttons while the <tt>PrepareToInstall</tt> [Code] event function is running. Previously it only disabled itself.</li>
 <li>Windows 7 changes:
@@ -47,6 +49,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   </ul>
 </li>
 <li>Improved the "auto-retry" feature of the [Files] section: it now automatically retries even if the <tt>restartreplace</tt> [Files] section flag is used.</li>
+<li>Pascal Scripting: Changed the <tt>InstallOnThisVersion</tt> support function to return a Boolean value.</li>
 <li>Added 128x128 and 256x256 sizes to the compiler and document icons, created by Motaz.</li>
 <li>Some messages have been added and removed in this version.
 <!--  (<a href="http://cvs.jrsoftware.org/view/issrc/Files/Default.isl?r1=1.68&amp;r2=1.69">View differences in Default.isl</a>) -->
