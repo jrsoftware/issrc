@@ -926,6 +926,7 @@ DefaultGroupName=My Program
 
 <ul appearance="compact">
 <li><link topic="setup_allowcancelduringinstall">AllowCancelDuringInstall</link></li>
+<li><link topic="setup_allownetworkdrive">AllowNetworkDrive</link></li>
 <li><link topic="setup_allownoicons">AllowNoIcons</link></li>
 <li><link topic="setup_allowrootdirectory">AllowRootDirectory</link></li>
 <li><link topic="setup_allowuncpath">AllowUNCPath</link></li>
@@ -4239,6 +4240,16 @@ DiskSliceSize=1457664
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>If set to <tt>no</tt>, the user will not be allowed to enter a UNC path (such as "\\server\share") on the <i>Select Destination Location</i> page of the wizard. This was the default behavior in Inno Setup 2.0.17 and earlier.</p>
+<p>To fully disallow installation to network locations, you must also set <link topic="setup_allownetworkdrive">AllowNetworkDrive</link> to <tt>no</tt>.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="AllowNetworkDrive">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>If set to <tt>no</tt>, the user will not be allowed to enter a network drive on the <i>Select Destination Location</i> page of the wizard.</p>
+<p>To fully disallow installation to network locations, you must also set <link topic="setup_allowuncpath">AllowUNCPath</link> to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
