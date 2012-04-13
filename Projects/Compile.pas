@@ -57,6 +57,7 @@ type
 
   TSetupSectionDirectives = (
     ssAllowCancelDuringInstall,
+    ssAllowNetworkDrive,
     ssAllowNoIcons,
     ssAllowRootDirectory,
     ssAllowUNCPath,
@@ -3590,6 +3591,9 @@ begin
   case Directive of
     ssAllowCancelDuringInstall: begin
         SetSetupHeaderOption(shAllowCancelDuringInstall);
+      end;
+    ssAllowNetworkDrive: begin
+        SetSetupHeaderOption(shAllowNetworkDrive);
       end;
     ssAllowNoIcons: begin
         SetSetupHeaderOption(shAllowNoIcons);
@@ -8274,7 +8278,7 @@ begin
       shAllowUNCPath, shUsePreviousUserInfo, shRestartIfNeededByRun,
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
       shAppendDefaultGroupName, shUsePreviousLanguage, shCloseApplications,
-      shRestartApplications];
+      shRestartApplications, shAllowNetworkDrive];
     SetupHeader.PrivilegesRequired := prAdmin;
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';

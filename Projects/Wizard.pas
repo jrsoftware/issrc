@@ -243,7 +243,8 @@ function ExpandSetupMessage(const ID: TSetupMessageID): String;
 function ListContains(const List: TStringList; const S: String): Boolean;
 procedure TidyUpDirName(var Path: String);
 procedure TidyUpGroupName(var Path: String);
-function ValidateCustomDirEdit(const AEdit: TEdit; const AllowUNCPath, AllowRootDirectory: Boolean): Boolean;
+function ValidateCustomDirEdit(const AEdit: TEdit;
+  const AllowUNCPath, AllowRootDirectory, AllowNetworkDrive: Boolean): Boolean;
 
 implementation
 
@@ -2441,7 +2442,8 @@ end;
 function TWizardForm.ValidateDirEdit: Boolean;
 begin
   Result := ValidateCustomDirEdit(DirEdit, shAllowUNCPath in SetupHeader.Options,
-    shAllowRootDirectory in SetupHeader.Options);
+    shAllowRootDirectory in SetupHeader.Options,
+    shAllowNetworkDrive in SetupHeader.Options);
 end;
 
 const
@@ -2481,7 +2483,7 @@ begin
 end;
 
 function ValidateCustomDirEdit(const AEdit: TEdit;
-  const AllowUNCPath, AllowRootDirectory: Boolean): Boolean;
+  const AllowUNCPath, AllowRootDirectory, AllowNetworkDrive: Boolean): Boolean;
 { Checks if AEdit.Text contains a valid-looking pathname, and returns True
   if so. May alter AEdit.Text to remove redundant spaces and backslashes. }
 var
@@ -2557,6 +2559,13 @@ begin
   ReconnectPath(RootPath);
   if not DirExists(RootPath) then begin
     LoggedMsgBox(SetupMessages[msgInvalidDrive], '', mbError, MB_OK, True, IDOK);
+    Exit;
+  end;
+
+  { After reconnecting, check if it's a disallowed network drive }
+  if not IsUNCPath and not AllowNetworkDrive and
+     (GetDriveType(PChar(RootPath)) = DRIVE_REMOTE) then begin
+    LoggedMsgBox(SetupMessages[msgCannotInstallToNetworkDrive], '', mbError, MB_OK, True, IDOK);
     Exit;
   end;
 

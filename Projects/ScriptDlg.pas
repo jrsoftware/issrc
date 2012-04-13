@@ -2,13 +2,11 @@ unit ScriptDlg;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Custom wizard pages
-
-  $jrsoftware: issrc/Projects/ScriptDlg.pas,v 1.62 2010/10/30 20:31:04 jr Exp $
 }
 
 interface
@@ -396,7 +394,7 @@ var
 begin
   for I := 0 to FEdits.Count-1 do begin
     Edit := FEdits[I];
-    if not ValidateCustomDirEdit(Edit, True, True) then begin
+    if not ValidateCustomDirEdit(Edit, True, True, True) then begin
       if WizardForm.Visible then
         Edit.SetFocus;
       Continue := False;

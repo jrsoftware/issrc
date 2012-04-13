@@ -98,6 +98,7 @@ type
 
   TSetupSectionDirective = (
     ssAllowCancelDuringInstall,
+    ssAllowNetworkDrive,
     ssAllowNoIcons,
     ssAllowRootDirectory,
     ssAllowUNCPath,
