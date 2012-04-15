@@ -707,7 +707,9 @@ begin
     not redirect the access. The Sysnative alias was added starting
     with Windows Vista. }
   if IsWin64 and (Lo(GetVersion) >= 6) then
-    Result := AddBackslash(GetWinDir) + 'Sysnative' { Do not localize }
+    { Note: Avoiding GetWinDir here as that might not return the real Windows
+      directory under Terminal Services }
+    Result := PathExpand(AddBackslash(GetSystemDir) + '..\Sysnative') { Do not localize }
   else
     Result := '';
 end;
