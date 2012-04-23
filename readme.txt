@@ -37,18 +37,19 @@ Remarks:
 
   Unicode Inno Setup:
 
-  You'll need to obtain the exact revision specified in ROPS-revision.txt
-  from the ROPS Subversion repository. For example, if the revision number
-  were 1000:
+  You'll need to obtain the exact commit specified in ROPS-revision.txt
+  from the ROPS Git repository. For example, if the commit were e5a93a963f:
 
   > cd is\Components
-  > svn checkout -r 1000 http://code.remobjects.com/svn/pascalscript UniPs
+  > git clone git://github.com/remobjects/pascalscript.git UniPs
+  > cd UniPs
+  > git checkout e5a93a963f
 
-  If you don't have the Subversion client (svn), get it from:
-  http://subversion.apache.org/
+  If you don't have the Git client (git), get it from:
+  http://git-scm.com/
 
   The ROPS changelog can be found at:
-  http://code.remobjects.com/p/pascalscript/source/changes/HEAD/
+  https://github.com/remobjects/pascalscript/commits/master
 
   Non Unicode Inno Setup:
 
