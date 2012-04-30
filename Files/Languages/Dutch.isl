@@ -23,7 +23,7 @@ ConfirmTitle=Bevestigen
 ErrorTitle=Fout
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Hiermee wordt %1 geïnstalleerd. Wilt u doorgaan?
+SetupLdrStartupMessage=Hiermee wordt %1 geï¿½nstalleerd. Wilt u doorgaan?
 LdrCannotCreateTemp=Kan geen tijdelijk bestand maken. Setup wordt afgesloten
 LdrCannotExecTemp=Kan een bestand in de tijdelijke map niet uitvoeren. Setup wordt afgesloten
 
@@ -36,10 +36,10 @@ WindowsVersionNotSupported=Dit programma ondersteunt de versie van Windows die u
 WindowsServicePackRequired=Dit programma vereist %1 Service Pack %2 of hoger.
 NotOnThisPlatform=Dit programma kan niet worden uitgevoerd onder %1.
 OnlyOnThisPlatform=Dit programma moet worden uitgevoerd onder %1.
-OnlyOnTheseArchitectures=Dit programma kan alleen geïnstalleerd worden onder versies van Windows ontworpen voor de volgende processor architecturen:%n%n%1
+OnlyOnTheseArchitectures=Dit programma kan alleen geï¿½nstalleerd worden onder versies van Windows ontworpen voor de volgende processor architecturen:%n%n%1
 MissingWOW64APIs=De versie van Windows die u gebruikt bevat niet de door Setup benodige functionaliteit om een 64-bit installatie uit te voeren. Installeer Service Pack %1 om dit probleem te corrigeren.
 WinVersionTooLowError=Dit programma vereist %1 versie %2 of hoger.
-WinVersionTooHighError=Dit programma kan niet worden geïnstalleerd onder %1 versie %2 of hoger.
+WinVersionTooHighError=Dit programma kan niet worden geï¿½nstalleerd onder %1 versie %2 of hoger.
 AdminPrivilegesRequired=U moet aangemeld zijn als een systeembeheerder om dit programma te kunnen installeren.
 PowerUserPrivilegesRequired=U moet ingelogd zijn als systeembeheerder of als gebruiker met systeembeheerders rechten om dit programma te kunnen installeren.
 SetupAppRunningError=Setup heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle vensters van dit programma, en klik daarna op OK om verder te gaan, of op Annuleren om Setup af te sluiten.
@@ -51,7 +51,7 @@ ErrorTooManyFilesInDir=Kan geen bestand maken in de map "%1" omdat deze te veel 
 
 ; *** Setup common messages
 ExitSetupTitle=Setup afsluiten
-ExitSetupMessage=Setup is niet voltooid. Als u nu afsluit, wordt het programma niet geïnstalleerd.%n%nU kunt Setup later opnieuw uitvoeren om de installatie te voltooien.%n%nSetup afsluiten?
+ExitSetupMessage=Setup is niet voltooid. Als u nu afsluit, wordt het programma niet geï¿½nstalleerd.%n%nU kunt Setup later opnieuw uitvoeren om de installatie te voltooien.%n%nSetup afsluiten?
 AboutSetupMenuItem=&Over Setup...
 AboutSetupTitle=Over Setup
 AboutSetupMessage=%1 versie %2%n%3%n%n%1-homepage:%n%4
@@ -86,7 +86,7 @@ NewFolderName=Nieuwe map
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Welkom bij het installatieprogramma van [name].
-WelcomeLabel2=Hiermee wordt [name/ver] geïnstalleerd op deze computer.%n%nU wordt aanbevolen alle actieve programma's af te sluiten voordat u verder gaat.
+WelcomeLabel2=Hiermee wordt [name/ver] geï¿½nstalleerd op deze computer.%n%nU wordt aanbevolen alle actieve programma's af te sluiten voordat u verder gaat.
 
 ; *** "Password" wizard page
 WizardPassword=Wachtwoord
@@ -120,7 +120,7 @@ UserInfoNameRequired=U moet een naam invullen.
 
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Kies de doelmap
-SelectDirDesc=Waar moet [name] geïnstalleerd worden?
+SelectDirDesc=Waar moet [name] geï¿½nstalleerd worden?
 SelectDirLabel3=Setup zal [name] in de volgende map installeren.
 SelectDirBrowseLabel=Klik op Volgende om door te gaan. Klik op Bladeren om een andere map te kiezen.
 DiskSpaceMBLabel=Er is ten minste [mb] MB vrije schijfruimte vereist.
@@ -140,13 +140,13 @@ DirDoesntExist=De map:%n%n%1%n%nbestaat niet. Wilt u de map aanmaken?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=Selecteer componenten
-SelectComponentsDesc=Welke componenten moeten geïnstalleerd worden?
+SelectComponentsDesc=Welke componenten moeten geï¿½nstalleerd worden?
 SelectComponentsLabel2=Selecteer de componenten die u wilt installeren. Klik op Volgende als u klaar bent om verder te gaan.
 FullInstallation=Volledige installatie
 CompactInstallation=Compacte installatie
 CustomInstallation=Aangepaste installatie
 NoUninstallWarningTitle=Component bestaat
-NoUninstallWarning=Setup heeft gedetecteerd dat de volgende componenten al geïnstalleerd zijn op uw computer:%n%n%1%n%nAls u de selectie van deze componenten ongedaan maakt, worden ze niet verwijderd.%n%nWilt u toch doorgaan?
+NoUninstallWarning=Setup heeft gedetecteerd dat de volgende componenten al geï¿½nstalleerd zijn op uw computer:%n%n%1%n%nAls u de selectie van deze componenten ongedaan maakt, worden ze niet verwijderd.%n%nWilt u toch doorgaan?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceMBLabel=De huidige selectie vereist ten minste [mb] MB vrije schijfruimte.
@@ -196,8 +196,8 @@ InstallingLabel=Setup installeert [name] op uw computer. Een ogenblik geduld...
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Setup heeft het installeren van [name] op deze computer voltooid.
 FinishedLabelNoIcons=Setup heeft het installeren van [name] op deze computer voltooid.
-FinishedLabel=Setup heeft het installeren van [name] op deze computer voltooid. U kunt het programma uitvoeren met de geïnstalleerde snelkoppelingen.
-ClickFinish=Klik op Voltooien om Setup te beëindigen.
+FinishedLabel=Setup heeft het installeren van [name] op deze computer voltooid. U kunt het programma uitvoeren met de geï¿½nstalleerde snelkoppelingen.
+ClickFinish=Klik op Voltooien om Setup te beï¿½indigen.
 FinishedRestartLabel=Setup moet de computer opnieuw opstarten om de installatie van [name] te voltooien. Wilt u nu opnieuw opstarten?
 FinishedRestartMessage=Setup moet uw computer opnieuw opstarten om de installatie van [name] te voltooien.%n%nWilt u nu opnieuw opstarten?
 ShowReadmeCheck=Ja, ik wil het bestand Leesmij zien
@@ -257,7 +257,7 @@ ExistingFileNewer=Het bestaande bestand is nieuwer dan het bestand dat Setup pro
 ErrorChangingAttr=Er is een fout opgetreden bij het wijzigen van de kenmerken van het bestaande bestand:
 ErrorCreatingTemp=Er is een fout opgetreden bij het maken van een bestand in de doelmap:
 ErrorReadingSource=Er is een fout opgetreden bij het lezen van het bronbestand:
-ErrorCopying=Er is een fout opgetreden bij het kopiëren van een bestand:
+ErrorCopying=Er is een fout opgetreden bij het kopiï¿½ren van een bestand:
 ErrorReplacingExistingFile=Er is een fout opgetreden bij het vervangen van het bestaande bestand:
 ErrorRestartReplace=Vervangen na opnieuw starten is mislukt:
 ErrorRenamingTemp=Er is een fout opgetreden bij het hernoemen van een bestand in de doelmap:
