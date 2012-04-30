@@ -117,6 +117,7 @@ type
     msgInvalidDirName,
     msgInvalidDrive,
     msgInvalidGroupName,
+    msgInvalidParameter,
     msgInvalidPath,
     msgLastErrorMessage,
     msgLdrCannotCreateTemp,
