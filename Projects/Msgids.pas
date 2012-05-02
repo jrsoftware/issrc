@@ -170,6 +170,7 @@ type
     msgSelectTasksDesc,
     msgSelectTasksLabel2,
     msgSetupAborted,
+    msgSetupAlreadyRunning,
     msgSetupAppRunningError,
     msgSetupAppTitle,
     msgSetupFileCorrupt,
