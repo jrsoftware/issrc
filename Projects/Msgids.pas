@@ -181,6 +181,8 @@ type
     msgSharedFileNameLabel,
     msgSharedFileLocationLabel,
     msgShowReadmeCheck,
+    msgShutdownBlockReasonInstallingApp,
+    msgShutdownBlockReasonUninstallingApp,
     msgSourceDoesntExist,
     msgSourceIsCorrupted,
     msgStatusClosingApplications,
