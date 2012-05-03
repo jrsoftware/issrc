@@ -634,7 +634,8 @@ begin
 
         { Disable Uninstall shutdown }
         AllowUninstallerShutdown := False;
-        ShutdownBlockReasonCreate(Application.Handle, FmtSetupMessage1(msgUninstallStatusLabel, UninstLog.AppName));
+        ShutdownBlockReasonCreate(Application.Handle,
+          FmtSetupMessage1(msgShutdownBlockReasonUninstallingApp, UninstLog.AppName));
 
         { Create and show the progress form }
         InitializeUninstallProgressForm;

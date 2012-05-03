@@ -3067,7 +3067,8 @@ begin
   ExpandedAppMutex := ExpandConst(SetupHeader.AppMutex);
 
   { Update the shutdown block reason now that we have ExpandedAppName. }
-  ShutdownBlockReasonCreate(Application.Handle, ExpandSetupMessage(msgInstallingLabel));
+  ShutdownBlockReasonCreate(Application.Handle,
+    FmtSetupMessage1(msgShutdownBlockReasonInstallingApp, ExpandedAppName));
 
   { Check if app is running }
   while CheckForMutexes(ExpandedAppMutex) do
