@@ -61,15 +61,12 @@ Remarks:
     
 - Inno Setup Preprocessor
 
-  You'll need to obtain the ispp module from the Inno Setup CVS repository:
-  http://www.jrsoftware.org/iscvs.htm
-  
-  For example:
-  > set CVSROOT=:pserver:jrsoftware@cvs.jrsoftware.org:/data/cvs
-  > cvs -z3 checkout -P ispp  
-	
-  Alternatively you can download the ispp module from GitHub:
+  You'll need to download the ispp module from GitHub. The latest version
+  can be found at:
   https://github.com/jrsoftware/ispp/zipball/master
+  
+  Specific versions can be found at:
+  https://github.com/jrsoftware/ispp/tags
 
 2. Delphi 2.0x users ONLY
 =========================
