@@ -32,6 +32,8 @@ LastErrorMessage=%1.%n%nFout %2: %3
 SetupFileMissing=Het bestand %1 ontbreekt in de installatiemap. Corrigeer dit probleem of gebruik een andere kopie van het programma.
 SetupFileCorrupt=De installatiebestanden zijn beschadigd. Gebruik een andere kopie van het programma.
 SetupFileCorruptOrWrongVer=De installatiebestanden zijn beschadigd, of zijn niet compatibel met deze versie van Setup. Corrigeer dit probleem of gebruik een andere kopie van het programma.
+InvalidParameter=Er werd een ongeldige schakeloptie opgegeven op de opdrachtregel:%n%n%1
+SetupAlreadyRunning=Setup is al gestart.
 WindowsVersionNotSupported=Dit programma ondersteunt de versie van Windows die u gebruikt niet.
 WindowsServicePackRequired=Dit programma vereist %1 Service Pack %2 of hoger.
 NotOnThisPlatform=Dit programma kan niet worden uitgevoerd onder %1.
@@ -290,6 +292,10 @@ SharedFileNameLabel=Bestandsnaam:
 SharedFileLocationLabel=Locatie:
 WizardUninstalling=Verwijderingsstatus
 StatusUninstalling=Verwijderen van %1...
+
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Installeren van %1.
+ShutdownBlockReasonUninstallingApp=Verwijderen van %1.
 
 [CustomMessages]
 
