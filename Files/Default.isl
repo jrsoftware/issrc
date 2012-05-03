@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.1.11+ English messages ***
+; *** Inno Setup version 5.5.0+ English messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -48,6 +48,10 @@ LastErrorMessage=%1.%n%nError %2: %3
 SetupFileMissing=The file %1 is missing from the installation directory. Please correct the problem or obtain a new copy of the program.
 SetupFileCorrupt=The setup files are corrupted. Please obtain a new copy of the program.
 SetupFileCorruptOrWrongVer=The setup files are corrupted, or are incompatible with this version of Setup. Please correct the problem or obtain a new copy of the program.
+InvalidParameter=An invalid parameter was passed on the command line:%n%n%1
+SetupAlreadyRunning=Setup is already running.
+WindowsVersionNotSupported=This program does not support the version of Windows your computer is running.
+WindowsServicePackRequired=This program requires %1 Service Pack %2 or later.
 NotOnThisPlatform=This program will not run on %1.
 OnlyOnThisPlatform=This program must be run on %1.
 OnlyOnTheseArchitectures=This program can only be installed on versions of Windows designed for the following processor architectures:%n%n%1
@@ -138,7 +142,8 @@ SelectDirDesc=Where should [name] be installed?
 SelectDirLabel3=Setup will install [name] into the following folder.
 SelectDirBrowseLabel=To continue, click Next. If you would like to select a different folder, click Browse.
 DiskSpaceMBLabel=At least [mb] MB of free disk space is required.
-ToUNCPathname=Setup cannot install to a UNC pathname. If you are trying to install to a network, you will need to map a network drive.
+CannotInstallToNetworkDrive=Setup cannot install to a network drive.
+CannotInstallToUNCPath=Setup cannot install to a UNC path.
 InvalidPath=You must enter a full path with drive letter; for example:%n%nC:\APP%n%nor a UNC path in the form:%n%n\\server\share
 InvalidDrive=The drive or UNC share you selected does not exist or is not accessible. Please select another.
 DiskSpaceWarningTitle=Not Enough Disk Space
@@ -198,6 +203,10 @@ WizardPreparing=Preparing to Install
 PreparingDesc=Setup is preparing to install [name] on your computer.
 PreviousInstallNotCompleted=The installation/removal of a previous program was not completed. You will need to restart your computer to complete that installation.%n%nAfter restarting your computer, run Setup again to complete the installation of [name].
 CannotContinue=Setup cannot continue. Please click Cancel to exit.
+ApplicationsFound=The following applications are using files that need to be updated by Setup. It is recommended that you allow Setup to automatically close these applications.
+ApplicationsFound2=The following applications are using files that need to be updated by Setup. It is recommended that you allow Setup to automatically close these applications. After the installation has completed, Setup will attempt to restart the applications.
+CloseApplications=&Automatically close the applications
+DontCloseApplications=&Do not close the applications
 
 ; *** "Installing" wizard page
 WizardInstalling=Installing
@@ -230,6 +239,7 @@ SetupAborted=Setup was not completed.%n%nPlease correct the problem and run Setu
 EntryAbortRetryIgnore=Click Retry to try again, Ignore to proceed anyway, or Abort to cancel installation.
 
 ; *** Installation status messages
+StatusClosingApplications=Closing applications...
 StatusCreateDirs=Creating directories...
 StatusExtractFiles=Extracting files...
 StatusCreateIcons=Creating shortcuts...
@@ -238,6 +248,7 @@ StatusCreateRegistryEntries=Creating registry entries...
 StatusRegisterFiles=Registering files...
 StatusSavingUninstall=Saving uninstall information...
 StatusRunProgram=Finishing installation...
+StatusRestartingApplications=Restarting applications...
 StatusRollback=Rolling back changes...
 
 ; *** Misc. errors
@@ -301,6 +312,10 @@ SharedFileLocationLabel=Location:
 WizardUninstalling=Uninstall Status
 StatusUninstalling=Uninstalling %1...
 
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Installing %1.
+ShutdownBlockReasonUninstallingApp=Uninstalling %1.
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 
@@ -315,3 +330,6 @@ UninstallProgram=Uninstall %1
 LaunchProgram=Launch %1
 AssocFileExtension=&Associate %1 with the %2 file extension
 AssocingFileExtension=Associating %1 with the %2 file extension...
+AutoStartProgramGroupDescription=Startup:
+AutoStartProgram=Automatically start %1
+AddonHostProgramNotFound=%1 could not be located in the folder you selected.%n%nDo you want to continue anyway?
