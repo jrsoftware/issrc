@@ -2,13 +2,11 @@ unit Uninstall;
 
 {
   Inno Setup
-  Copyright (C) 1997-2008 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Uninstaller
-
-  $jrsoftware: issrc/Projects/Uninstall.pas,v 1.85 2010/01/21 11:14:26 mlaan Exp $
 
   NOTE: This unit was derived from Uninst.dpr rev 1.38.
 }
@@ -629,9 +627,10 @@ begin
             Abort;
    
         { Check for active WM_QUERYENDSESSION/WM_ENDSESSION }
-        while AcceptedQueryEndSessionInProgress do
-          LoggedAppMessageBox('Setup cannot continue at this time, shutdown negotiation is in progress. Click OK to retry.',
-            PChar(Title), MB_OK or MB_ICONSTOP, False, 0);
+        while AcceptedQueryEndSessionInProgress do begin
+          Sleep(10);
+          Application.ProcessMessages;
+        end;
 
         { Disable Uninstall shutdown }
         AllowUninstallerShutdown := False;
