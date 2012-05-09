@@ -7,7 +7,7 @@
 library ISPP;
 
 {$IMAGEBASE $01800000}
-{$I Version.inc}
+{$I ..\Version.inc}
 {$R *.RES}
 
 uses
@@ -15,7 +15,7 @@ uses
   //IsppDebug in 'IsppDebug.pas',
   Windows,
   Classes,
-  CompPreprocInt in 'CompPreprocInt.pas',
+  CompPreprocInt in '..\CompPreprocInt.pas',
   IsppPreprocess in 'IsppPreprocess.pas',
   IsppTranslate in 'IsppTranslate.pas',
   IsppFuncs in 'IsppFuncs.pas',
@@ -28,8 +28,12 @@ uses
   IsppSessions in 'IsppSessions.pas',
   CParser in 'CParser.pas',
   IsppBase in 'IsppBase.pas',
-  PathFunc in 'PathFunc.pas',
-  CmnFunc2 in 'CmnFunc2.pas';
+  PathFunc in '..\..\Components\PathFunc.pas',
+  CmnFunc2 in '..\CmnFunc2.pas',
+  FileClass in '..\FileClass.pas',
+  Int64Em in '..\Int64Em.pas',
+  MD5 in '..\MD5.pas',
+  SHA1 in '..\SHA1.pas';
   //IsppExceptWindow in 'IsppExceptWindow.pas' {IsppExceptWnd};
 
 const

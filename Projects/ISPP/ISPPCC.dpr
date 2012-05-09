@@ -19,20 +19,21 @@ program ISPPCC;
 }
 
 uses
-  SafeDLLPath in 'SafeDLLPath.pas',
+  SafeDLLPath in '..\SafeDLLPath.pas',
   Windows,
   SysUtils,
-  PathFunc in 'PathFunc.pas',
-  CmnFunc2 in 'CmnFunc2.pas',
-  FileClass in 'FileClass.pas',
+  PathFunc in '..\..\Components\PathFunc.pas',
+  CmnFunc2 in '..\CmnFunc2.pas',
+  FileClass in '..\FileClass.pas',
   IsppIntf in 'IsppIntf.pas',
   IsppBase in 'IsppBase.pas',
-  CompInt in 'CompInt.pas';
+  CompInt in '..\CompInt.pas',
+  Int64Em in '..\Int64Em.pas';
 
 {$R *.res}
 {$R ISPPCC.manifest.res}
 
-{$I VERSION.INC}
+{$I ..\VERSION.INC}
 
 type
   PScriptLine = ^TScriptLine;

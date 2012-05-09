@@ -11,7 +11,7 @@ interface
 uses Windows, SysUtils, Classes, CompPreprocInt, IniFiles, Registry, IsppIntf,
   IsppBase, IsppStacks, IsppIdentMan, IsppParser;
 
-{$I Version.inc}
+{$I ..\Version.inc}
 {$I ISPPVERSION.INC}
 
 function GetTempFileName(const Original: string): string;
