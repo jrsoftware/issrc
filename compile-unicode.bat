@@ -18,17 +18,14 @@ echo with the following lines, adjusted for your system:
 echo.
 echo   set DELPHI2009ROOT=C:\Program Files\CodeGear\RAD Studio\6.0   [Path to Delphi 2009 (or later)]
 echo   set UNIROPSPATH=c:\rops\source                                [Path to ROPS]
-echo   set ISPPPATH=c:\ispp                                          [Path to ISPP]
 goto failed2
 
 :compilesettingsfound
 set DELPHI2009ROOT=
 set UNIROPSPATH=
-set ISPPPATH=
 call .\compilesettings.bat
 if "%DELPHI2009ROOT%"=="" goto compilesettingserror
 if "%UNIROPSPATH%"=="" goto compilesettingserror
-if "%ISPPPATH%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
@@ -36,18 +33,21 @@ rem  Compile each project separately because it seems Delphi
 rem  carries some settings (e.g. $APPTYPE) between projects
 rem  if multiple projects are specified on the command line.
 
-pushd "%ISPPPATH%"
-call .\compile-unicode.bat
-popd
-if errorlevel 1 goto failed
-echo - Copying files
-copy "%ISPPPATH%\Files\ISPP.dll" Files
-if errorlevel 1 goto failed
-copy "%ISPPPATH%\Files\ISPPCC.exe" Files
-if errorlevel 1 goto failed
-
 cd Projects
 if errorlevel 1 goto exit
+
+cd ISPP
+if errorlevel 1 goto failed
+
+echo - ISPPCC.dpr
+"%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --peflags:1 --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib" -E..\..\Files ISPPCC.dpr
+if errorlevel 1 goto failed
+
+echo - ISPP.dpr
+"%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib" -E..\..\Files ISPP.dpr
+if errorlevel 1 goto failed
+
+cd ..
 
 echo - Compil32.dpr
 "%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --peflags:1 --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib;..\Components;%UNIROPSPATH%" -E..\Files -DPS_MINIVCL;PS_NOINT64;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Compil32.dpr

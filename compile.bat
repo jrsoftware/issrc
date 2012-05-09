@@ -18,20 +18,20 @@ echo with the following lines, adjusted for your system:
 echo.
 echo   set DELPHIROOT=c:\delphi2              [Path to Delphi 2 (or later)]
 echo   set DELPHI3ROOT=c:\delphi3             [Path to Delphi 3 (or later)]
+echo   set DELPHI7ROOT=c:\delphi7             [Path to Delphi 7 (or later)]
 echo   set ROPSPATH=c:\rops\source            [Path to ROPS]
-echo   set ISPPPATH=c:\ispp                   [Path to ISPP]
 goto failed2
 
 :compilesettingsfound
 set DELPHIROOT=
 set DELPHI3ROOT=
+set DELPHI7ROOT=
 set ROPSPATH=
-set ISPPPATH=
 call .\compilesettings.bat
 if "%DELPHIROOT%"=="" goto compilesettingserror
 if "%DELPHI3ROOT%"=="" goto compilesettingserror
+if "%DELPHI7ROOT%"=="" goto compilesettingserror
 if "%ROPSPATH%"=="" goto compilesettingserror
-if "%ISPPPATH%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
@@ -39,18 +39,21 @@ rem  Compile each project separately because it seems Delphi
 rem  carries some settings (e.g. $APPTYPE) between projects
 rem  if multiple projects are specified on the command line.
 
-pushd "%ISPPPATH%"
-call .\compile.bat
-popd
-if errorlevel 1 goto failed
-echo - Copying files
-copy "%ISPPPATH%\Files\ISPP.dll" Files
-if errorlevel 1 goto failed
-copy "%ISPPPATH%\Files\ISPPCC.exe" Files
-if errorlevel 1 goto failed
-
 cd Projects
 if errorlevel 1 goto exit
+
+cd ISPP
+if errorlevel 1 goto failed
+
+echo - ISPPCC.dpr
+"%DELPHI7ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI7ROOT%\lib" -E..\..\Files ISPPCC.dpr -DIS_ALLOWD7
+if errorlevel 1 goto failed
+
+echo - ISPP.dpr
+"%DELPHI7ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI7ROOT%\lib" -E..\..\Files ISPP.dpr -DIS_ALLOWD7
+if errorlevel 1 goto failed
+
+cd ..
 
 echo - Compil32.dpr
 "%DELPHI3ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI3ROOT%\lib;..\Components;%ROPSPATH%" -E..\Files -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST Compil32.dpr
@@ -81,7 +84,7 @@ move Setup.exe Setup.e32
 if errorlevel 1 goto failed
 
 echo - StripReloc'ing
-stripreloc /b- Compil32.exe ISCC.exe SetupLdr.e32 Setup.e32
+stripreloc /b- Compil32.exe ISCC.exe SetupLdr.e32 Setup.e32 ISPPCC.exe
 if errorlevel 1 goto failed
 
 echo Success!
