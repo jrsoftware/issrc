@@ -155,7 +155,7 @@ Source: "Examples\MyDll\Delphi\MyDll.dpr"; DestDir: "{app}\Examples\MyDll\Delphi
 Source: "Examples\ISPPExample1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\ISPPExample1License.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 ; ISPP files
-Source: "ispp\Help\Staging\ISPP.chm"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "Projects\ISPP\Help\Staging\ISPP.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISPPCC.exe"; DestDir: "{app}"; DestName: "ISCC.exe"; Flags: ignoreversion touch; Check: ISPPCheck
 Source: "files\ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion touch; Check: ISPPCheck
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch; Check: ISPPCheck
