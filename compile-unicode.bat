@@ -1,13 +1,11 @@
 @echo off
 
 rem  Inno Setup
-rem  Copyright (C) 1997-2010 Jordan Russell
+rem  Copyright (C) 1997-2012 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
 rem  Batch file to compile all projects with Unicode support
-rem
-rem  $jrsoftware: issrc/compile-unicode.bat,v 1.8 2010/12/27 12:15:57 mlaan Exp $
 
 setlocal
 

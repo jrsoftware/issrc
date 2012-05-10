@@ -1,12 +1,10 @@
 @echo off
 
-rem  Inno Setup Preprocesso
+rem  Inno Setup Preprocessor
 rem  Copyright (C) 2001-2004 Alex Yackimoff
 rem  Portions by Martijn Laan
 rem
 rem  Batch file to compile the help file
-rem
-rem  $jrsoftware: ispp/Help/compile.bat,v 1.2 2006/09/28 09:55:27 mlaan Exp $
 
 setlocal
 
