@@ -59,15 +59,6 @@ Remarks:
   http://files.jrsoftware.org/is/rops/rops-svn-rev-1045a.zip
     (md5sum: d9a646601ea9d7151b43b27cbf1c8ac5)
     
-- Inno Setup Preprocessor
-
-  You'll need to download the ispp module from GitHub. The latest version
-  can be found at:
-  https://github.com/jrsoftware/ispp/zipball/master
-  
-  Specific versions can be found at:
-  https://github.com/jrsoftware/ispp/tags
-
 2. Delphi 2.0x users ONLY
 =========================
 
@@ -123,7 +114,7 @@ be found.
 4. Overview
 ===========
 
-Inno Setup consists of five projects:
+Inno Setup consists of seven projects:
 
 Compil32 - This is the GUI front-end for the compiler. Compil32 does not
 do the actual compilation itself; it relegates it to ISCmplr.dll. If the
@@ -147,6 +138,8 @@ performs all (un)installation-related tasks.
 SetupLdr - This is the "setup loader." It self-extracts a compressed
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." message box.
+
+ISPP & ISPPCC - See Projects\ISPP\readme.txt for more information.
 
 How do the projects link together?
 
