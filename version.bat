@@ -7,7 +7,7 @@ rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
 rem  Batch file to prepare a release
 rem
-rem  Edit the desired the version tag and number below before running
+rem  Edit the desired version tag and number below before running
 rem
 rem  Calls setup-sign.bat if it exists, else creates setup.exe without signing
 rem
