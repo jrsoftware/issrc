@@ -12,7 +12,6 @@ uses Windows, SysUtils, Classes, CompPreprocInt, IniFiles, Registry, IsppIntf,
   IsppBase, IsppStacks, IsppIdentMan, IsppParser;
 
 {$I ..\Version.inc}
-{$I ISPPVERSION.INC}
 
 function GetTempFileName(const Original: string): string;
 
@@ -152,7 +151,7 @@ function GetEnv (const EnvVar: string): string;
 implementation
 
 uses IsppConsts, IsppFuncs, IsppVarUtils, IsppSessions, CParser, PathFunc,
-  CmnFunc2, FileClass;
+  CmnFunc2, FileClass, Struct;
 
 const
   PreprocCommands: array[TPreprocessorCommand] of String =
@@ -1474,7 +1473,7 @@ begin
   end
   else if Name = 'PREPROCVER' then
   begin
-    if Value <> nil then MakeInt(Value^, Version)
+    if Value <> nil then MakeInt(Value^, SetupBinVersion)
   end
   else if Name = '__INCLUDE__' then
   begin

@@ -33,7 +33,8 @@ uses
   FileClass in '..\FileClass.pas',
   Int64Em in '..\Int64Em.pas',
   MD5 in '..\MD5.pas',
-  SHA1 in '..\SHA1.pas';
+  SHA1 in '..\SHA1.pas',
+  Struct in '..\Struct.pas';
   //IsppExceptWindow in 'IsppExceptWindow.pas' {IsppExceptWnd};
 
 const
