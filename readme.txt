@@ -143,10 +143,10 @@ ISPP & ISPPCC - See Projects\ISPP\readme.txt for more information.
 
 How do the projects link together?
 
-- ISCmplr, Setup, and SetupLdr share the unit Struct.pas. This unit
+- ISCmplr, ISPP, Setup, and SetupLdr share the unit Struct.pas. This unit
   contains various data structures and constants shared by the projects. If
-  Struct.pas is changed, you usually will need to recompile ISCmplr, Setup,
-  and SetupLdr so that everything is in synch.
+  Struct.pas is changed, you usually will need to recompile ISCmplr, ISPP,
+  Setup, and SetupLdr so that everything is in synch.
 
 - There are more units which are shared between projects. Search the 'uses'
   clauses of the projects and units if you aren't sure if a project uses a
