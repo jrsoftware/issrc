@@ -28,8 +28,10 @@ TouchDate=none
 TouchTime=00:00
 WizardImageFile=compiler:WizModernImage-IS.bmp
 WizardSmallImageFile=compiler:WizModernSmallImage-IS.bmp
+#ifndef NOSIGNTOOL
 SignTool=issigntool
 SignedUninstaller=yes
+#endif
 
 [Languages]
 Name: en; MessagesFile: "files\Default.isl"
