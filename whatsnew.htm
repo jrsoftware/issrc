@@ -26,7 +26,7 @@ Portions Copyright &copy; 2000-2012 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
-<p><a name="5.5.0"></a><span class="ver">5.5.0-dev </span><span class="date">(?)</span></p>
+<p><a name="5.5.0"></a><span class="ver">5.5.0 </span><span class="date">(2012-05-29)</span></p>
 <ul>
 <li>Non-Unicode Inno Setup <b>OS requirements change</b>: Windows 95, 98, Me, and NT 4.0 are no longer supported. Like the Unicode version, Windows 2000 is now the minimum supported operating system.</li>
 <li>The <tt>MinVersion</tt> and <tt>OnlyBelowVersion</tt> directives and parameters now require only a single version number. For example: <tt>MinVersion=5.1</tt>. For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may still be specified, but these aren't used anymore.</li>
@@ -59,8 +59,14 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
     <li><b>New custom messages:</b> AutoStartProgramGroupDescription, AutoStartProgram, AddonHostProgramNotFound.</li>
     <li><b>Removed messages:</b> ToUNCPathname.</li>
   </ul>
+  Note: only the official English and Dutch translations have been updated for these changes at this moment. See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.<br />
 </li>
-<li>Inno Setup Preprocessor (ISPP) change: added function <tt>DirExists</tt>.</li>
+<li>Inno Setup Preprocessor (ISPP) changes:
+  <ul>
+  <li>Added function <tt>DirExists</tt>.</li>
+  <li>The ISPP source code has been moved into the main Inno Setup source code repository.</li>
+  </ul>
+</li>
 <li>Minor tweaks.</li>
 </ul>
 
