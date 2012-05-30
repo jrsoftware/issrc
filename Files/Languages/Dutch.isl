@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.1.11+ Dutch messages ***
+; *** Inno Setup version 5.5.0+ Dutch messages ***
 ;
 ; This file is based on user-contributed translations by various authors
 ;
