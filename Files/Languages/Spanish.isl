@@ -1,8 +1,8 @@
-; *** Inno Setup version 5.1.11+ Spanish messages ***
+; *** Inno Setup version 5.5.0+ Spanish messages ***
 ;
 ; Maintained by Jorge Andres Brugger (jbrugger@gmx.net)
-; Spanish.isl version 0.9 (20100922)
-; Default.isl version 1.72
+; Spanish.isl version 1.0 (20120530)
+; Default.isl version 5.5.0
 ; 
 ; Thanks to Germán Giraldo, Jordi Latorre, Ximo Tamarit, Emiliano Llano, 
 ; Ramón Verduzco, Graciela García and Carles Millan
@@ -47,6 +47,10 @@ LastErrorMessage=%1.%n%nError %2: %3
 SetupFileMissing=El archivo %1 no se encuentra en la carpeta de instalación. Por favor, solucione el problema u obtenga una copia nueva del programa.
 SetupFileCorrupt=Los archivos de instalación están dañados. Por favor, obtenga una copia nueva del programa.
 SetupFileCorruptOrWrongVer=Los archivos de instalación están dañados, o son incompatibles con esta versión del programa de instalación. Por favor, solucione el problema u obtenga una copia nueva del programa.
+InvalidParameter=Un parámetro no válido fue incluido en la línea de comando:%n%n%1
+SetupAlreadyRunning=El programa de instalación aún está ejecutándose.
+WindowsVersionNotSupported=Este programa no es compatible con la versión de Windows que su equipo utiliza.
+WindowsServicePackRequired=Este programa requiere %1 Service Pack %2 o posterior.
 NotOnThisPlatform=Este programa no se ejecutará en %1.
 OnlyOnThisPlatform=Este programa debe ejecutarse en %1.
 OnlyOnTheseArchitectures=Este programa sólo puede instalarse en versiones de Windows diseñadas para las siguientes arquitecturas de procesadores:%n%n%1
@@ -137,7 +141,8 @@ SelectDirDesc=¿Dónde debe instalarse [name]?
 SelectDirLabel3=El programa instalará [name] en la siguiente carpeta.
 SelectDirBrowseLabel=Para continuar, haga clic en Siguiente. Si desea seleccionar una carpeta diferente, haga clic en Examinar.
 DiskSpaceMBLabel=Se requieren al menos [mb] MB de espacio libre en el disco.
-ToUNCPathname=No es posible realizar la instalación en una ruta de acceso UNC. Si está intentando instalar en una red, necesitará mapear una unidad de la red.
+CannotInstallToNetworkDrive=El programa de instalación no puede realizar la instalación en una unidad de red.
+CannotInstallToUNCPath=El programa de instalación no puede realizar la instalación en una ruta de acceso UNC.
 InvalidPath=Debe ingresar una ruta completa con la letra de la unidad; por ejemplo:%n%nC:\APP%n%no una ruta de acceso UNC de la siguiente forma:%n%n\\servidor\compartido
 InvalidDrive=La unidad o ruta de acceso UNC que seleccionó no existe o no es accesible. Por favor, seleccione otra.
 DiskSpaceWarningTitle=Espacio Insuficiente en Disco
@@ -197,6 +202,10 @@ WizardPreparing=Preparándose para Instalar
 PreparingDesc=El programa de instalación está preparándose para instalar [name] en su sistema.
 PreviousInstallNotCompleted=La instalación/desinstalación previa de un programa no se completó. Deberá reiniciar el sistema para completar esa instalación.%n%nUna vez reiniciado el sistema, ejecute el programa de instalación nuevamente para completar la instalación de [name].
 CannotContinue=El programa de instalación no puede continuar. Por favor, presione Cancelar para salir.
+ApplicationsFound=Las siguientes aplicaciones están usando archivos que necesitan ser actualizados por el programa de instalación. Se recomienda que permita al programa de instalación cerrar automáticamente estas aplicaciones.
+ApplicationsFound2=Las siguientes aplicaciones están usando archivos que necesitan ser actualizados por el programa de instalación. Se recomienda que permita al programa de instalación cerrar automáticamente estas aplicaciones. Al completarse la instalación, el programa de instalación intentará reiniciar las aplicaciones.
+CloseApplications=&Cerrar automáticamente las aplicaciones
+DontCloseApplications=&No cerrar las aplicaciones
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalando
@@ -229,6 +238,7 @@ SetupAborted=La instalación no se ha completado.%n%nPor favor solucione el probl
 EntryAbortRetryIgnore=Haga clic en Reintentar para intentarlo de nuevo, en Omitir para continuar de todas formas, o en Anular para cancelar la instalación.
 
 ; *** Installation status messages
+StatusClosingApplications=Cerrando aplicaciones...
 StatusCreateDirs=Creando carpetas...
 StatusExtractFiles=Extrayendo archivos...
 StatusCreateIcons=Creando accesos directos...
@@ -237,6 +247,7 @@ StatusCreateRegistryEntries=Creando entradas de registro...
 StatusRegisterFiles=Registrando archivos...
 StatusSavingUninstall=Guardando información para desinstalar...
 StatusRunProgram=Terminando la instalación...
+StatusRestartingApplications=Reiniciando aplicaciones...
 StatusRollback=Deshaciendo cambios...
 
 ; *** Misc. errors
@@ -300,6 +311,10 @@ SharedFileLocationLabel=Ubicación:
 WizardUninstalling=Estado de la Desinstalación
 StatusUninstalling=Desinstalando %1...
 
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Instalando %1.
+ShutdownBlockReasonUninstallingApp=Desinstalando %1.
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 
@@ -314,3 +329,6 @@ UninstallProgram=Desinstalar %1
 LaunchProgram=Ejecutar %1
 AssocFileExtension=&Asociar %1 con la extensión de archivo %2
 AssocingFileExtension=Asociando %1 con la extensión de archivo %2...
+AutoStartProgramGroupDescription=Inicio:
+AutoStartProgram=Iniciar automáticamente %1
+AddonHostProgramNotFound=%1 no pudo ser localizado en la carpeta que seleccionó.%n%n¿Desea continuar de todas formas?

@@ -1,8 +1,6 @@
-; *** Inno Setup 5.1.11+ Catalan messages ***
+; *** Inno Setup version 5.5.0+ Catalan messages ***
 ;
-; Translated by Carles Millan (email: carles at carlesmillan dot cat)
-;
-; $jrsoftware: issrc/Files/Languages/Catalan.isl,v 1.15 2007/10/22 11:52:47 mlaan Exp $
+; Translated by Carles Millan (email: carles@carlesmillan.cat)
 
 [LangOptions]
 
@@ -30,19 +28,23 @@ LdrCannotExecTemp=No s'ha pogut executar el fitxer a la carpeta temporal. Instal
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nError %2: %3
-SetupFileMissing=El fitxer %1 no es troba a la carpeta d'instal·lació. Si us plau, resoleu el problema o obteniu una nova còpia del programa.
-SetupFileCorrupt=Els fitxers d'instal·lació estan corromputs. Si us plau, obteniu una nova còpia del programa.
-SetupFileCorruptOrWrongVer=Els fitxers d'instal·lació estan espatllats, o són incompatibles amb aquesta versió del programa. Si us plau, resoleu el problema o obteniu una nova còpia del programa.
+SetupFileMissing=El fitxer %1 no es troba a la carpeta d'instal·lació. Resoleu el problema o obteniu una nova còpia del programa.
+SetupFileCorrupt=Els fitxers d'instal·lació estan corromputs. Obteniu una nova còpia del programa.
+SetupFileCorruptOrWrongVer=Els fitxers d'instal·lació estan espatllats, o són incompatibles amb aquesta versió del programa. Resoleu el problema o obteniu una nova còpia del programa.
+InvalidParameter=Un paràmetre invàlid ha estat passat a la línia de comanda:%n%n%1
+SetupAlreadyRunning=La instal·lació ja està en curs.
+WindowsVersionNotSupported=Aquest programa no suporta la versió de Windows instal·lada al vostre ordinador.
+WindowsServicePackRequired=Aquest programa necessita %1 Service Pack %2 o posterior.
 NotOnThisPlatform=Aquest programa no funcionarà sota %1.
 OnlyOnThisPlatform=Aquest programa només pot ser executat sota %1.
 OnlyOnTheseArchitectures=Aquest programa només pot ser instal·lat en versions de Windows dissenyades per a les següents arquitectures de processador:%n%n%1
-MissingWOW64APIs=Aquesta versió de Windows no conté la funcionalitat necessària per a realitzar una instal·lació de 64 bits. Per tal de corregir aquest problema, si us plau, instal·leu el Service Pack %1.
+MissingWOW64APIs=Aquesta versió de Windows no conté la funcionalitat necessària per a realitzar una instal·lació de 64 bits. Per tal de corregir aquest problema instal·leu el Service Pack %1.
 WinVersionTooLowError=Aquest programa requereix %1 versió %2 o posterior.
 WinVersionTooHighError=Aquest programa no pot ser instal·lat sota %1 versió %2 o posterior.
 AdminPrivilegesRequired=Cal que tingueu privilegis d'administrador per poder instal·lar aquest programa.
 PowerUserPrivilegesRequired=Cal que accediu com a administrador o com a membre del grup Power Users en instal·lar aquest programa.
-SetupAppRunningError=El programa d'instal·lació ha detectat que %1 s'està executant actualment.%n%nSi us plau, tanqueu el programa i premeu Accepta per a continuar o Cancel·la per a sortir.
-UninstallAppRunningError=El programa de desinstal·lació ha detectat que %1 s'està executant en aquest moment.%n%nSi us plau, tanqueu el programa i premeu Accepta per a continuar o Cancel·la per a sortir.
+SetupAppRunningError=El programa d'instal·lació ha detectat que %1 s'està executant actualment.%n%nTanqueu el programa i premeu Accepta per a continuar o Cancel·la per a sortir.
+UninstallAppRunningError=El programa de desinstal·lació ha detectat que %1 s'està executant en aquest moment.%n%nTanqueu el programa i premeu Accepta per a continuar o Cancel·la per a sortir.
 
 ; *** Misc. errors
 ErrorCreatingDir=El programa d'instal·lació no ha pogut crear la carpeta "%1"
@@ -79,11 +81,11 @@ SelectLanguageLabel=Trieu idioma a emprar durant la instal·lació:
 ; *** Common wizard text
 ClickNext=Premeu Següent per a continuar o Cancel·la per a abandonar la instal·lació.
 BeveledLabel=
-
-; *** "Welcome" wizard page
 BrowseDialogTitle=Trieu una carpeta
 BrowseDialogLabel=Trieu la carpeta de destinació i premeu Accepta.
 NewFolderName=Nova carpeta
+
+; *** "Welcome" wizard page
 WelcomeLabel1=Benvingut a l'assistent d'instal·lació de [name]
 WelcomeLabel2=Aquest programa instal·larà [name/ver] al vostre ordinador.%n%nÉs molt recomanable que abans de continuar tanqueu tots els altres programes oberts, per tal d'evitar conflictes durant el procés d'instal·lació.
 
@@ -97,25 +99,25 @@ IncorrectPassword=La contrasenya introduïda no és correcta. Torneu-ho a intentar
 ; *** "License Agreement" wizard page
 WizardLicense=Acord de Llicència
 LicenseLabel=Cal que llegiu aquesta informació abans de continuar.
-LicenseLabel3=Si us plau, llegiu l'Acord de Llicència següent. Cal que n'accepteu els termes abans de continuar amb la instal·lació.
+LicenseLabel3=Cal que llegiu l'Acord de Llicència següent. Cal que n'accepteu els termes abans de continuar amb la instal·lació.
 LicenseAccepted=&Accepto l'acord
 LicenseNotAccepted=&No accepto l'acord
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Informació
-InfoBeforeLabel=Si us plau, llegiu la informació següent abans de continuar.
-InfoBeforeClickLabel=Quan estigueu preparat per a continuar, premeu Següent
+InfoBeforeLabel=Llegiu la informació següent abans de continuar.
+InfoBeforeClickLabel=Quan estigueu preparat per a continuar, premeu Següent.
 WizardInfoAfter=Informació
-InfoAfterLabel=Si us plau, llegiu la informació següent abans de continuar.
+InfoAfterLabel=Llegiu la informació següent abans de continuar.
 InfoAfterClickLabel=Quan estigueu preparat per a continuar, premeu Següent
 
 ; *** "User Information" wizard page
 WizardUserInfo=Informació sobre l'usuari
-UserInfoDesc=Si us plau, entreu la vostra informació.
+UserInfoDesc=Introduïu la vostra informació.
 UserInfoName=&Nom de l'usuari:
 UserInfoOrg=&Organització
 UserInfoSerial=&Número de sèrie:
-UserInfoNameRequired=Cal que hi entreu un nom
+UserInfoNameRequired=Cal que hi introduïu un nom
 
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Trieu Carpeta de Destinació
@@ -123,9 +125,10 @@ SelectDirDesc=On s'ha d'instal·lar [name]?
 SelectDirLabel3=El programa d'instal·lació instal·larà [name] a la carpeta següent.
 SelectDirBrowseLabel=Per a continuar, premeu Següent. Si desitgeu triar una altra capeta, premeu Cerca.
 DiskSpaceMBLabel=Aquest programa necessita un mínim de [mb] MB d'espai a disc.
-ToUNCPathname=La instal·lació no pot instal·lar el programa en una carpeta UNC. Si esteu  provant d'instal·lar-lo en xarxa, haureu d'assignar una lletra (D:, E:, etc...) al disc de destinació.
+CannotInstallToNetworkDrive=La instal·lació no es pot fer en un disc de xarxa.
+CannotInstallToUNCPath=La instal·lació no es pot fer a una ruta UNC.
 InvalidPath=Cal donar una ruta completa amb lletra d'unitat, per exemple:%n%nC:\Aplicació%n%no bé una ruta UNC en la forma:%n%n\\servidor\compartit
-InvalidDrive=El disc o ruta de xarxa seleccionat no existeix, si us plau trieu-ne un altre.
+InvalidDrive=El disc o ruta de xarxa seleccionat no existeix, trieu-ne un altre.
 DiskSpaceWarningTitle=No hi ha prou espai al disc
 DiskSpaceWarning=El programa d'instal·lació necessita com a mínim %1 KB d'espai lliure, però el disc seleccionat només té %2 KB disponibles.%n%nTot i amb això, desitgeu continuar?
 DirNameTooLong=El nom de la carpeta o de la ruta és massa llarg.
@@ -160,7 +163,7 @@ WizardSelectProgramGroup=Trieu la carpeta del Menú Inici
 SelectStartMenuFolderDesc=On cal situar els enllaços del programa?
 SelectStartMenuFolderLabel3=El programa d'instal·lació crearà l'accés directe al programa a la següent carpeta del menú d'Inici.
 SelectStartMenuFolderBrowseLabel=Per a continuar, premeu Següent. Si desitgeu triar una altra carpeta, premeu Cerca.
-MustEnterGroupName=Cal que hi entreu un nom de carpeta.
+MustEnterGroupName=Cal que hi introduïu un nom de carpeta.
 GroupNameTooLong=El nom de la carpeta o de la ruta és massa llarg.
 InvalidGroupName=El nom de la carpeta no és vàlid.
 BadGroupName=El nom del grup no pot contenir cap dels caràcters següents:%n%n%1
@@ -182,11 +185,15 @@ ReadyMemoTasks=Tasques addicionals:
 WizardPreparing=Preparant la instal·lació
 PreparingDesc=Preparant la instal·lació de [name] al vostre ordinador.
 PreviousInstallNotCompleted=La instal·lació o desinstal·lació anterior no s'ha dut a terme. Caldrà que reinicieu l'ordinador per a finalitzar aquesta instal·lació.%n%nDesprés de reiniciar l'ordinador, executeu aquest programa de nou per completar la instal·lació de [name].
-CannotContinue=La instal·lació no pot continuar. Si us plau, premeu Cancel·la per a sortir.
+CannotContinue=La instal·lació no pot continuar. Premeu Cancel·la per a sortir.
+ApplicationsFound=Les següents aplicacions estan fent servir fitxers que necessiten ser actualitzats per la instal·lació. Es recomana que permeteu a la instal·lació tancar automàticament aquestes aplicacions.
+ApplicationsFound2=Les següents aplicacions estan fent servir fitxers que necessiten ser actualitzats per la instal·lació. Es recomana que permeteu a la instal·lació tancar automàticament aquestes aplicacions. Després de completar la instal·lació s'intentarà reiniciar les aplicacions.
+CloseApplications=&Tanca automàticament les aplicacions
+DontCloseApplications=&No tanquis les aplicacions
 
 ; *** "Installing" wizard page
 WizardInstalling=Instal·lant
-InstallingLabel=Si us plau, espereu mentre s'instal·la [name] al vostre ordinador.
+InstallingLabel=Espereu mentre s'instal·la [name] al vostre ordinador.
 
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Completant l'assistent d'instal·lació de [name]
@@ -205,16 +212,17 @@ RunEntryShellExec=Visualitza %1
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=El programa d'instal·lació necessita el disc següent
-SelectDiskLabel2=Si us plau, introduiu el disc %1 i premeu Continua.%n%nSi els fitxers d'aquest disc es poden trobar en una carpeta diferent de la indicada tot seguit, entreu-ne la ruta correcta o bé premeu Explora.
+SelectDiskLabel2=Introduiu el disc %1 i premeu Continua.%n%nSi els fitxers d'aquest disc es poden trobar en una carpeta diferent de la indicada tot seguit, introduïu-ne la ruta correcta o bé premeu Explora.
 PathLabel=&Ruta:
-FileNotInDir2=El fitxer "%1" no s'ha pogut trobar a "%2". Si us plau, introduïu el disc correcte o trieu una altra carpeta.
-SelectDirectoryLabel=Si us plau, indiqueu on es troba el disc següent.
+FileNotInDir2=El fitxer "%1" no s'ha pogut trobar a "%2". Introduïu el disc correcte o trieu una altra carpeta.
+SelectDirectoryLabel=Indiqueu on es troba el disc següent.
 
 ; *** Installation phase messages
-SetupAborted=La instal·lació no s'ha completat.%n%n%Si us plau, resoleu el problema i executeu de nou el programa d'instal·lació.
+SetupAborted=La instal·lació no s'ha completat.%n%n%Resoleu el problema i executeu de nou el programa d'instal·lació.
 EntryAbortRetryIgnore=Premeu Reintenta per a intentar-ho de nou, Ignora per a continuar igualment, o Abandona per a abandonar la instal·lació.
 
 ; *** Installation status messages
+StatusClosingApplications=Tancant aplicacions...
 StatusCreateDirs=Creant carpetes...
 StatusExtractFiles=Extraient fitxers...
 StatusCreateIcons=Creant enllaços del programa...
@@ -223,6 +231,7 @@ StatusCreateRegistryEntries=Creant entrades de registre...
 StatusRegisterFiles=Registrant fitxers...
 StatusSavingUninstall=Desant informació de desinstal·lació...
 StatusRunProgram=Finalitzant la instal·lació...
+StatusRestartingApplications=Reiniciant aplicacions...
 StatusRollback=Desfent els canvis...
 
 ; *** Misc. errors
@@ -262,17 +271,17 @@ ErrorRegisterTypeLib=No s'ha pogut registrar la biblioteca de tipus: %1
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Hi ha hagut un error en obrir el fitxer LLEGIUME.TXT.
-ErrorRestartingComputer=El programa d'instal·lació no ha pogut reiniciar l'ordinador. Si us plau, feu-ho manualment.
+ErrorRestartingComputer=El programa d'instal·lació no ha pogut reiniciar l'ordinador. Cal que ho feu manualment.
 
 ; *** Uninstaller messages
 UninstallNotFound=El fitxer "%1" no existeix. No es pot desinstal·lar.
-UninstallOpenError=El fitxer "%1" no pot ser obert. No es pot desinstal·lar.
+UninstallOpenError=El fitxer "%1" no pot ser obert. No es pot desinstal·lar
 UninstallUnsupportedVer=El fitxer de desinstal·lació "%1" està en un format no reconegut per aquesta versió del desinstal·lador. No es pot desinstal·lar
 UninstallUnknownEntry=S'ha trobat una entrada desconeguda (%1) al fitxer de desinstal·lació.
 ConfirmUninstall=Esteu segur de voler eliminar completament %1 i tots els seus components?
 UninstallOnlyOnWin64=Aquest programa només pot ser desinstal·lat en Windows de 64 bits.
 OnlyAdminCanUninstall=Aquest programa només pot ser desinstal·lat per un usuari amb privilegis d'administrador.
-UninstallStatusLabel=Si us plau, espereu mentre s'elimina %1 del vostre ordinador.
+UninstallStatusLabel=Espereu mentre s'elimina %1 del vostre ordinador.
 UninstalledAll=%1 ha estat desinstal·lat correctament del vostre ordinador.
 UninstalledMost=Desinstal·lació de %1 completada.%n%nAlguns elements no s'han pogut eliminar. Poden ser eliminats manualment.
 UninstalledAndNeedsRestart=Per completar la instal·lació de %1, cal reiniciar el vostre ordinador.%n%nVoleu fer-ho ara?
@@ -285,6 +294,10 @@ SharedFileNameLabel=Nom del fitxer:
 SharedFileLocationLabel=Localització:
 WizardUninstalling=Estat de la desinstal·lació
 StatusUninstalling=Desinstal·lant %1...
+
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Instal·lant %1.
+ShutdownBlockReasonUninstallingApp=Desinstal·lant %1.
 
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
@@ -300,3 +313,6 @@ UninstallProgram=Desinstal·la %1
 LaunchProgram=Obre %1
 AssocFileExtension=&Associa %1 amb l'extensió de fitxer %2
 AssocingFileExtension=Associant %1 amb l'extensió de fitxer %2...
+AutoStartProgramGroupDescription=Inici:
+AutoStartProgram=Inicia automàticament %1
+AddonHostProgramNotFound=%1 no ha pogut ser trobat a la carpeta seleccionada.%n%nVoleu continuar igualment?

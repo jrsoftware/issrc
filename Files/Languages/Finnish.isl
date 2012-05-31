@@ -1,9 +1,8 @@
-; *** Inno Setup version 5.1.11+ Finnish messages ***
+; *** Inno Setup version 5.5.0+ Finnish messages ***
 ;
 ; Finnish translation by Antti Karttunen
-; E-mail: antti.karttunen@joensuu.fi
-; Translation home page: http://cc.joensuu.fi/~ankarttu/innosetup/
-; Last modification date: 2008-04-23
+; E-mail: antti.j.karttunen@iki.fi
+; Last modification date: 2012-05-30
 
 [LangOptions]
 LanguageName=Suomi
@@ -33,6 +32,10 @@ LastErrorMessage=%1.%n%nVirhe %2: %3
 SetupFileMissing=Tiedostoa %1 ei lˆydy asennushakemistosta. Korjaa ongelma tai hanki uusi kopio ohjelmasta.
 SetupFileCorrupt=Asennustiedostot ovat vaurioituneet. Hanki uusi kopio ohjelmasta.
 SetupFileCorruptOrWrongVer=Asennustiedostot ovat vaurioituneet tai ovat ep‰yhteensopivia t‰m‰n Asennuksen version kanssa. Korjaa ongelma tai hanki uusi kopio ohjelmasta.
+InvalidParameter=Virheellinen komentoriviparametri:%n%n%1
+SetupAlreadyRunning=Asennus on jo k‰ynniss‰.
+WindowsVersionNotSupported=T‰m‰ ohjelma ei tue k‰ytˆss‰ olevaa Windowsin versiota.
+WindowsServicePackRequired=T‰m‰ ohjelma vaatii %1 Service Pack %2 -p‰ivityksen tai myˆhemm‰n.
 NotOnThisPlatform=T‰m‰ ohjelma ei toimi %1-k‰yttˆj‰rjestelm‰ss‰.
 OnlyOnThisPlatform=T‰m‰ ohjelma toimii vain %1-k‰yttˆj‰rjestelm‰ss‰.
 OnlyOnTheseArchitectures=T‰m‰ ohjelma voidaan asentaa vain niihin Windowsin versioihin, jotka on suunniteltu seuraaville prosessorityypeille:%n%n%1
@@ -123,7 +126,8 @@ SelectDirDesc=Mihin [name] asennetaan?
 SelectDirLabel3=[name] asennetaan t‰h‰n kansioon.
 SelectDirBrowseLabel=Valitse Seuraava jatkaaksesi. Jos haluat vaihtaa kansiota, valitse Selaa.
 DiskSpaceMBLabel=Vapaata levytilaa tarvitaan v‰hint‰‰n [mb] Mt.
-ToUNCPathname=Asennus ei osaa k‰ytt‰‰ UNC-polunnimi‰. Jos haluat asentaa ohjelman verkkolevylle, yhdist‰ verkkoasema ensin levyasematunnukseen.
+CannotInstallToNetworkDrive=Asennus ei voi asentaa ohjelmaa verkkoasemalle.
+CannotInstallToUNCPath=Asennus ei voi asentaa ohjelmaa UNC-polun alle.
 InvalidPath=Anna t‰ydellinen polku levyaseman kirjaimen kanssa. Esimerkiksi %nC:\OHJELMA%n%ntai UNC-polku muodossa %n%n\\palvelin\resurssi
 InvalidDrive=Valitsemaasi asemaa tai UNC-polkua ei ole olemassa tai sit‰ ei voi k‰ytt‰‰. Valitse toinen asema tai UNC-polku.
 DiskSpaceWarningTitle=Ei tarpeeksi vapaata levytilaa
@@ -182,6 +186,10 @@ WizardPreparing=Valmistellaan asennusta
 PreparingDesc=Valmistaudutaan asentamaan [name] koneellesi.
 PreviousInstallNotCompleted=Edellisen ohjelman asennus tai asennuksen poisto ei ole valmis. Sinun t‰ytyy k‰ynnist‰‰ kone uudelleen viimeistell‰ksesi edellisen asennuksen.%n%nAja [name] -asennusohjelma uudestaan, kun olet k‰ynnist‰nyt koneen uudelleen.
 CannotContinue=Asennusta ei voida jatkaa. Valitse Peruuta poistuaksesi.
+ApplicationsFound=Seuraavat sovellukset k‰ytt‰v‰t tiedostoja, joita Asennuksen pit‰‰ p‰ivitt‰‰. On suositeltavaa, ett‰ annat Asennuksen sulkea n‰m‰ sovellukset automaattisesti.
+ApplicationsFound2=Seuraavat sovellukset k‰ytt‰v‰t tiedostoja, joita Asennuksen pit‰‰ p‰ivitt‰‰. On suositeltavaa, ett‰ annat Asennuksen sulkea n‰m‰ sovellukset automaattisesti. Valmistumisen j‰lkeen Asennus yritt‰‰ uudelleenk‰ynnist‰‰ sovellukset.
+CloseApplications=&Sulje sovellukset automaattisesti
+DontCloseApplications=&ƒl‰ sulje sovelluksia
 
 ; *** "Installing" wizard page
 WizardInstalling=Asennus k‰ynniss‰
@@ -212,6 +220,7 @@ SetupAborted=Asennusta ei suoritettu loppuun.%n%nKorjaa ongelma ja suorita Asenn
 EntryAbortRetryIgnore=Valitse Uudelleen yritt‰‰ksesi uudelleen, Ohita jatkaaksesi kaikesta huolimatta tai Hylk‰‰ peruuttaaksesi asennuksen.
 
 ; *** Installation status messages
+StatusClosingApplications=Suljetaan sovellukset...
 StatusCreateDirs=Luodaan hakemistoja...
 StatusExtractFiles=Puretaan tiedostoja...
 StatusCreateIcons=Luodaan pikakuvakkeita...
@@ -220,6 +229,7 @@ StatusCreateRegistryEntries=Luodaan rekisterimerkintˆj‰...
 StatusRegisterFiles=Rekisterˆid‰‰n tiedostoja...
 StatusSavingUninstall=Tallennetaan Asennuksen poiston tietoja...
 StatusRunProgram=Viimeistell‰‰n asennusta...
+StatusRestartingApplications=Uudelleenk‰ynnistet‰‰n sovellukset...
 StatusRollback=Peruutetaan tehdyt muutokset...
 
 ; *** Misc. errors
@@ -228,6 +238,10 @@ ErrorFunctionFailedNoCode=%1 ep‰onnistui
 ErrorFunctionFailed=%1 ep‰onnistui; virhekoodi %2
 ErrorFunctionFailedWithMessage=%1 ep‰onnistui; virhekoodi %2.%n%3
 ErrorExecutingProgram=Virhe suoritettaessa tiedostoa%n%1
+
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Asennetaan %1.
+ShutdownBlockReasonUninstallingApp=Poistetaan %1.
 
 ; *** Registry errors
 ErrorRegOpenKey=Virhe avattaessa rekisteriavainta%n%1\%2
@@ -294,3 +308,6 @@ UninstallProgram=Poista %1
 LaunchProgram=&K‰ynnist‰ %1
 AssocFileExtension=&Yhdist‰ %1 tiedostop‰‰tteeseen %2
 AssocingFileExtension=Yhdistet‰‰n %1 tiedostop‰‰tteeseen %2 ...
+AutoStartProgramGroupDescription=K‰ynnistys:
+AutoStartProgram=K‰ynnist‰ %1 automaattisesti
+AddonHostProgramNotFound=%1 ei ole valitsemassasi kansiossa.%n%nHaluatko jatkaa t‰st‰ huolimatta?
