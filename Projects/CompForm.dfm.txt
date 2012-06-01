@@ -1086,6 +1086,10 @@ object CompileForm: TCompileForm
         Caption = '&Support Inno Setup'
         OnClick = HDonateClick
       end
+      object HReportIssue: TMenuItem
+        Caption = '&Report Issue'
+        OnClick = HReportIssueClick
+      end
       object N14: TMenuItem
         Caption = '-'
       end
