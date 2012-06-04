@@ -1,16 +1,16 @@
-; *** Inno Setup version 5.1.11+ Ukrainian messages ***
+; *** Inno Setup version 5.5.0+ Ukrainian messages ***
 ; Author: Dmitry Onischuk
 ; E-Mail: mr.lols@yandex.ua
 ; Web: http://counter-strike.com.ua/
 ; Please report all spelling/grammar errors, and observations.
-; Version 2012.01.29
+; Version 2012.06.01
 
 ; *** Український переклад Inno Setup для версії 5.1.11 та вище***
 ; Автор перекладу: Дмитро Онищук
 ; E-Mail: mr.lols@yandex.ua
 ; Сайт: http://counter-strike.com.ua/
 ; Будь ласка, повідомляйте про всі знайдені помилки та зауваження.
-; Версія перекладу 2012.01.29
+; Версія перекладу 2012.06.01
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -52,12 +52,16 @@ LastErrorMessage=%1.%n%nПомилка %2: %3
 SetupFileMissing=Файл %1 відсутній в папці встановлення. Будь ласка, виправте цю помилку або отримайте нову копію програми.
 SetupFileCorrupt=Файли встановлення пошкоджені. Будь ласка, отримайте нову копію програми.
 SetupFileCorruptOrWrongVer=Файли встановлення пошкоджені або несумісні з цією версією програми встановлення. Будь ласка, виправте цю помилку або отримайте нову копію програми.
+InvalidParameter=Командний рядок містить недопустимий параметр:%n%n%1
+SetupAlreadyRunning=Програма встановлення вже запущена.
+WindowsVersionNotSupported=Ця програма не підтримує версію Windows, встановлену на цьому комп'ютері.
+WindowsServicePackRequired=Ця програма вимагає %1 Service Pack %2 або більш пізню версію.
 NotOnThisPlatform=Ця програма не буде працювати під %1.
 OnlyOnThisPlatform=Ця програма повинна бути відкрита під %1.
 OnlyOnTheseArchitectures=Ця програма може бути встановлена лише на комп'ютерах під управлінням Windows для наступних архітектур процесорів:%n%n%1
 MissingWOW64APIs=В вашій версії Windows відсутні функції для виконання 64-бітного встановлення. Щоб усунути цю проблему встановіть пакет оновлень Service Pack %1.
-WinVersionTooLowError=Ця програма вимагає %1 версію %2 або вище.
-WinVersionTooHighError=Ця програма не може бути встановлена на %1 версію %2 або вищу.
+WinVersionTooLowError=Ця програма вимагає %1 версії %2 або більш пізню версію.
+WinVersionTooHighError=Ця програма не може бути встановлена на %1 версії %2 або більш пізню версію.
 AdminPrivilegesRequired=Щоб встановити цю програму ви повинні увійти до системи як адміністратор.
 PowerUserPrivilegesRequired=Щоб встановити цю програму ви повинні увійти до системи як адміністратор або як член групи «Досвідчені користувачі».
 SetupAppRunningError=Виявлено, що %1 вже відкрита.%n%nБудь ласка, закрийте всі копії програми та натисніть «OK» для продовження, або «Скасувати» для виходу.
@@ -142,7 +146,8 @@ SelectDirDesc=Куди ви бажаєте встановити [name]?
 SelectDirLabel3=Програма встановить [name] у наступну папку.
 SelectDirBrowseLabel=Натисніть «Далі», щоб продовжити. Якщо ви бажаєте вибрати іншу папку, натисніть «Огляд».
 DiskSpaceMBLabel=Необхідно як мінімум [mb] Mб вільного дискового простору.
-ToUNCPathname=Програма не може виконати встановлення у папку за її мережевим ім'ям. Якщо ви встановлюєте в мережеву папку, ви повинні під'єднати її у вигляді мережевого диску.
+CannotInstallToNetworkDrive=Встановлення не може проводитися на мережевий диск.
+CannotInstallToUNCPath=Встановлення не може проводитися по мережевому шляху.
 InvalidPath=Ви повинні вказати повний шлях з буквою диску, наприклад:%n%nC:\APP%n%nабо в форматі UNC:%n%n\\сервер\ресурс
 InvalidDrive=Обраний Вами диск чи мережевий шлях не існує, або не доступний. Будь ласка, виберіть інший.
 DiskSpaceWarningTitle=Недостатньо дискового простору
@@ -202,6 +207,10 @@ WizardPreparing=Підготовка до встановлення
 PreparingDesc=Програма встановлення готується до встановлення [name] на ваш комп’ютер.
 PreviousInstallNotCompleted=Встановлення або видалення попередньої програми не було закінчено. Вам потрібно перезавантажити ваш комп’ютер для завершення минулого встановлення.%n%nПісля перезавантаження відкрийте програму встановлення знову, щоб завершити встановлення [name].
 CannotContinue=Встановлення неможливо продовжити. Будь ласка, натисніть «Скасувати» для виходу.
+ApplicationsFound=Наступні програми використовують файли, які повинні бути оновлені програмою встановлення. Рекомендується дозволили програмі встановлення автоматично закрити ці програми.
+ApplicationsFound2=Наступні програми використовують файли, які повинні бути оновлені програмою встановлення. Рекомендується дозволили програмі встановлення автоматично закрити ці програми. Після завершення встановлення, програма встановлення спробує знову запустити їх.
+CloseApplications=&Автоматично закрити програми
+DontCloseApplications=&Не закривати програми
 
 ; *** Сторінка "Встановлення"
 WizardInstalling=Встановлення
@@ -233,7 +242,8 @@ SelectDirectoryLabel=Будь ласка, вкажіть шлях до наступного диску.
 SetupAborted=Встановлення не завершено.%n%nБудь ласка, усуньте проблему і відкрийте програму встановлення знову.
 EntryAbortRetryIgnore=Натисніть «Повторити спробу» щоб спробувати ще раз, «Пропустити» щоб пропустити, або «Скасувати» для скасування встановлення.
 
-; *** Installation status messages
+; *** Повідомлення стану встановлення
+StatusClosingApplications=Закриття програм...
 StatusCreateDirs=Створення папок...
 StatusExtractFiles=Розпакування файлів...
 StatusCreateIcons=Створення ярликів...
@@ -242,24 +252,25 @@ StatusCreateRegistryEntries=Створення записів реєстру...
 StatusRegisterFiles=Реєстрація файлів...
 StatusSavingUninstall=Збереження інформації для видалення...
 StatusRunProgram=Завершення встановлення...
+StatusRestartingApplications=Перезапуск програм...
 StatusRollback=Скасування змін...
 
-; *** Misc. errors
+; *** Різні помилки
 ErrorInternal2=Внутрішня помилка: %1
 ErrorFunctionFailedNoCode=%1 збій
 ErrorFunctionFailed=%1 збій; код %2
 ErrorFunctionFailedWithMessage=%1 збій; код %2.%n%3
 ErrorExecutingProgram=Неможливо виконати файл:%n%1
 
-; *** Registry errors
+; *** Помилки реєстру
 ErrorRegOpenKey=Помилка відкриття ключа реєстру:%n%1\%2
 ErrorRegCreateKey=Помилка створення ключа реєстру:%n%1\%2
 ErrorRegWriteKey=Помилка запису в ключ реєстру:%n%1\%2
 
-; *** INI errors
+; *** Помилки INI
 ErrorIniEntry=Помилка при створенні запису в INI-файлі "%1".
 
-; *** File copying errors
+; *** Помилки копіювання файлів
 FileAbortRetryIgnore=Натисніть «Повторити спробу» щоб спробувати ще раз, «Пропустити» щоб пропустити файл (не рекомендується) або «Скасувати» для скасування встановлення.
 FileAbortRetryIgnore2=Натисніть «Повторити спробу» щоб спробувати ще раз, «Пропустити» щоб ігнорувати помилку (не рекомендується) або «Скасувати» для скасування встановлення.
 SourceIsCorrupted=Вихідний файл пошкоджений
@@ -283,7 +294,7 @@ ErrorRegisterTypeLib=Неможливо зареєструвати бібліотеку типів: %1
 ErrorOpeningReadme=Виникла помилка при спробі відкриття файлу README.
 ErrorRestartingComputer=Програмі встановлення не вдалося перезавантажити комп'ютер. Будь ласка, виконайте це самостійно.
 
-; *** Uninstaller messages
+; *** Повідомлення видалення
 UninstallNotFound=Файл "%1" не існує, видалення неможливе.
 UninstallOpenError=Неможливо відкрити файл "%1". Видалення неможливе
 UninstallUnsupportedVer=Файл протоколу для видалення "%1" не розпізнаний даною версією програми видалення. Видалення неможливе
@@ -305,6 +316,10 @@ SharedFileLocationLabel=Розміщення:
 WizardUninstalling=Стан видалення
 StatusUninstalling=Видалення %1...
 
+; *** Причини блокування вимкнення
+ShutdownBlockReasonInstallingApp=Встановлення %1.
+ShutdownBlockReasonUninstallingApp=Видалення %1.
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 
@@ -319,3 +334,6 @@ UninstallProgram=Видалити %1
 LaunchProgram=Відкрити %1
 AssocFileExtension=&Асоціювати %1 з розширенням файлу %2
 AssocingFileExtension=Асоціювання %1 з розширенням файлу %2...
+AutoStartProgramGroupDescription=Автозапуск:
+AutoStartProgram=Автоматично запускати %1
+AddonHostProgramNotFound=%1 не знайдений у вказаній вами папці%n%nВи все одно бажаєте продовжити?
