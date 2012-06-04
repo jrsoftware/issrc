@@ -5065,7 +5065,7 @@ SignTool=byparam format c:
 <tr><td>6.0.6001</td><td>Windows Vista with Service Pack 1<br/>or Windows Server 2008</td></tr>
 <tr><td>6.1.7600</td><td>Windows 7<br/>or Windows Server 2008 R2</td></tr>
 <tr><td>6.1.7601</td><td>Windows 7 with Service Pack 1<br/>or Windows Server 2008 R2 with Service Pack 1</td></tr>
-<tr><td>6.2.8102</td><td>Windows 8 Developer Preview</td></tr>
+<tr><td>6.2.8400</td><td>Windows 8 Release Preview</td></tr>
 </table>
 <p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "5.1" for Windows XP).</p>
 </body>
