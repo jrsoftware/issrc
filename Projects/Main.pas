@@ -216,8 +216,8 @@ procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure NotifyBeforeInstallEntry(const BeforeInstall: String);
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
-function PreviousInstallCompleted: Boolean;
-procedure RegisterResourcesWithRestartManager;
+function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
+procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 procedure RemoveTempInstallDir;
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
@@ -1668,7 +1668,8 @@ end;
 { Enumerates the files we're going to install and delete. Returns True on success.
   Likewise EnumFilesProc should return True on success and return False
   to break the enum and to cause EnumFiles to return False instead of True. }
-function EnumFiles(const EnumFilesProc: TEnumFilesProc; const Param: Pointer): Boolean;
+function EnumFiles(const EnumFilesProc: TEnumFilesProc;
+  const WizardComponents, WizardTasks: TStringList; const Param: Pointer): Boolean;
 
   function RecurseExternalFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
@@ -1814,7 +1815,7 @@ begin
 end;
 
 { Checks if no file we're going to install or delete has a pending rename or delete. }
-function PreviousInstallCompleted: Boolean;
+function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
 begin
   Result := True;
   if Entries[seFile].Count = 0 then
@@ -1824,7 +1825,7 @@ begin
     EnumFileReplaceOperationsFilenames(EnumProc, CheckForFileSL);
     if CheckForFileSL.Count = 0 then
       Exit;
-    Result := EnumFiles(CheckForFile, nil);
+    Result := EnumFiles(CheckForFile, WizardComponents, WizardTasks, nil);
   finally
     CheckForFileSL.Free;
   end;
@@ -1900,7 +1901,7 @@ begin
 end;
 
 { Register all files we're going to install or delete. Ends RmSession on errors. }
-procedure RegisterResourcesWithRestartManager;
+procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 var
   I: Integer;
 begin
@@ -1909,7 +1910,7 @@ begin
   RegisterFileFilenamesMax := 1000;
   GetMem(RegisterFileFilenames, RegisterFileFilenamesMax * SizeOf(RegisterFileFilenames[0]));
   try
-    EnumFiles(RegisterFile, nil);
+    EnumFiles(RegisterFile, WizardComponents, WizardTasks, nil);
     { Don't forget to register leftovers. }
     if RmSessionStarted then
       RegisterFile(False, '', nil);
