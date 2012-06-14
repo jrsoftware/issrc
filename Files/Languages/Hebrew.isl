@@ -1,8 +1,7 @@
-; *** Inno Setup version 5.1.11+ Hebrew messages (stilgar(at)divrei-tora.com) ***
+; *** Inno Setup version 5.5.0+ Hebrew messages (stilgar(at)divrei-tora.com) ***
 ;
 ;
-;	Translated by Stilgar (stilgar(at)divrei-tora.com) (c) 2005
-;		( AntiSpam: replace (at) with @ )
+;	Translated by s_h (s_h(at)enativ.com) (c) 2005
 ;
 
 
@@ -45,6 +44,10 @@ LastErrorMessage=%1.%n%nשגיאה %2: %3
 SetupFileMissing=לא ניתן לאתר את הקובץ %1 בתיקיית ההתקנה. אנא תקן את הבעיה או נסה שוב עם עותק חדש של התוכנה.
 SetupFileCorrupt=קבצי ההתקנה קטועים. אנא נסה להתקין עם עותק חדש של התוכנה.
 SetupFileCorruptOrWrongVer=קבצי ההתקנה קטועים, או שאינם תואמים לגירסה זו של תוכנת ההתקנה. אנא תקן את הבעיה או התקן את התוכנה מהתקנה חדשה.
+InvalidParameter=הוכנס פרמט לא חוקי לשורת הפקודה:%n%n%1
+SetupAlreadyRunning=התקנה אחרת כבר עובדת.
+WindowsVersionNotSupported=תוכנה זו אינה נתמכת במערכת ההפעלה שלך.
+WindowsServicePackRequired=התוכנה דורשת שיהיה מותקן %1 חבילת עדכונים %2 או יותר.
 NotOnThisPlatform=תוכנה זו לא תפעל על %1.
 OnlyOnThisPlatform=תוכנה זו חייבת לפעול על %1.
 OnlyOnTheseArchitectures=ניתן להתקין תוכנה זו רק על גירסאות של 'חלונות' שתוכננות לארכיטקטורות מעבד אלו:%n%n%1
@@ -135,7 +138,8 @@ SelectDirDesc=היכן להתקין את [name]?
 SelectDirLabel3=תוכנת ההתקנה תתקין את [name] לתוך התיקייה הבאה.
 SelectDirBrowseLabel=להמשך, לחץ על 'הבא'. אם ברצונך לבחור תיקיה אחרת להתקנה, לחץ על 'עיון'.
 DiskSpaceMBLabel=דרושים להתקנה לפחות [mb] MB של שטח דיסק פנוי.
-ToUNCPathname=תוכנת ההתקנה לא יכולה להתקין לנתיב UNC. אם אתה מנסה להתקין לרשת, תצטרך למפות כונן רשת.
+CannotInstallToNetworkDrive=לא ניתן להתקין את התוכנה על כונן רשת.
+CannotInstallToUNCPath=לא ניתן להתקין את התוכנה בנתיב UNC.
 InvalidPath=עליך לספק נתיב מלא עם אות הכונן; לדוגמה:%n%nC:\APP%n%nאו נתיב UNC בתצורה:%n%n\\server\share
 InvalidDrive=הכונן או שיתופית ה-UNC שבחרת לא קיימים או שאינם נגישים. אנא בחר כונן או שיתופית אחרים.
 DiskSpaceWarningTitle=שטח פנוי אינו מספיק
@@ -195,6 +199,10 @@ WizardPreparing=מתכונן להתקנה
 PreparingDesc=תוכנת ההתקנה מתכוננת להתקנת [name] על מחשבך.
 PreviousInstallNotCompleted=התקנת/הסרת יישום קודם לא הושלמה. עליך להפעיל את מחשבך מחדש כדי להשלימה.%n%nלאחר הפעלת המחשב מחדש, הפעל את תוכנת ההתקנה שוב כדי להתקין את [name].
 CannotContinue=אין באפשרות תוכנת ההתקנה להמשיך בתהליך ההתקנה. נא לחץ 'ביטול' ליציאה.
+ApplicationsFound=היישומים הבאים עושים שימוש בקבצים שצריכים להתעדכן על ידי תוכנת ההתקנה. מומלץ שתאפשר לתוכנת ההתקנה לסגור יישומים אלו אוטומטית.
+ApplicationsFound2=היישומים הבאים עושים שימוש בקבצים שצריכים להתעדכן על ידי תוכנת ההתקנה. מומלץ שתאפשר לתוכנת ההתקנה לסגור יישומים אלו אוטומטית. לאחר שההתקנה תסתיים, תוכנית ההתקנה תנסה לפתוח מחדש את אותם יישומים.
+CloseApplications=&סגור יישומים אוטומטית
+DontCloseApplications=&אל תסגור יישומים אלו
 
 ; *** "Installing" wizard page
 WizardInstalling=מתקין
@@ -227,6 +235,7 @@ SetupAborted=תהליך ההתקנה לא הושלם.%n%nאנא תקן את הבעיה והפעל את תהליך ההתקנה שו
 EntryAbortRetryIgnore=לחץ על 'נסה שוב' לנסות שוב, 'התעלם' כדי להמשיך בכל מקרה או 'ביטול' כדי לבטל את ההתקנה.
 
 ; *** Installation status messages
+StatusClosingApplications=סוגר יישומים...
 StatusCreateDirs=יוצר תיקיות...
 StatusExtractFiles=מעתיק קבצים...
 StatusCreateIcons=יוצר קיצורי דרך...
@@ -235,6 +244,7 @@ StatusCreateRegistryEntries=יוצר רשומות בקובץ הרישום...
 StatusRegisterFiles=רושם קבצים...
 StatusSavingUninstall=שומר מידע החיוני להסרת התוכנה...
 StatusRunProgram=מסיים התקנה...
+StatusRestartingApplications=מפעיל יישומים מחדש...
 StatusRollback=מבטל שינויים...
 
 ; *** Misc. errors
@@ -298,6 +308,10 @@ SharedFileLocationLabel=מיקום:
 WizardUninstalling=מצב תהליך ההסרה
 StatusUninstalling=מסיר את %1...
 
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=מתקין %1.
+ShutdownBlockReasonUninstallingApp=מסיר %1.
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 
@@ -312,3 +326,6 @@ UninstallProgram=הסר את %1
 LaunchProgram=הפעל %1
 AssocFileExtension=&קשר את %1 עם סיומת הקובץ %2
 AssocingFileExtension=מקשר את %1 עם סיומת הקובץ %2
+AutoStartProgramGroupDescription=הפעלה אוטומטית:
+AutoStartProgram=הפעל אוטומטית %1
+AddonHostProgramNotFound=%1 לא נמצא בתיקיה שבחרת.%n%nאתה רוצה להמשיך בכל זאת?
