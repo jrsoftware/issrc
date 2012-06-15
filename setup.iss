@@ -44,6 +44,7 @@ Name: nl; MessagesFile: "files\Languages\Dutch.isl"
 Name: fi; MessagesFile: "files\Languages\Finnish.isl"
 Name: fr; MessagesFile: "files\Languages\French.isl"
 Name: de; MessagesFile: "files\Languages\German.isl"
+Name: gr; MessagesFile: "files\Languages\Greek.isl"
 Name: he; MessagesFile: "files\Languages\Hebrew.isl"
 Name: hu; MessagesFile: "files\Languages\Hungarian.isl"
 Name: it; MessagesFile: "files\Languages\Italian.isl"
@@ -99,6 +100,7 @@ Source: "files\Languages\Dutch.isl"; DestDir: "{app}\Languages"; Flags: ignoreve
 Source: "files\Languages\French.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Finnish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\German.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+Source: "files\Languages\Greek.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Hebrew.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Hungarian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Italian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
