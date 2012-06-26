@@ -7,8 +7,6 @@ unit ScriptCompiler;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script compiler
-
-  $jrsoftware: issrc/Projects/ScriptCompiler.pas,v 1.22 2010/11/13 06:02:48 jr Exp $
 }
 
 interface

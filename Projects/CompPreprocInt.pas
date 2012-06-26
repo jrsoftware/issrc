@@ -7,8 +7,6 @@ unit CompPreprocInt;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler preprocessor interface
-
-  $jrsoftware: issrc/Projects/CompPreprocInt.pas,v 1.4 2010/12/10 05:14:33 jr Exp $
 }
 
 interface

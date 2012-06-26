@@ -13,8 +13,6 @@ unit NewProgressBar;
   This applies both to Position and State. For example if you set State while the
   progress bar is still moving towards a new Position, the new State doesnt show until
   the moving animation has finished.
-
-  $jrsoftware: issrc/Components/NewProgressBar.pas,v 1.10 2010/10/27 09:45:06 mlaan Exp $
 }
 
 interface

@@ -7,8 +7,6 @@ unit NewNotebook;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TNewNotebook component
-
-  $jrsoftware: issrc/Components/NewNotebook.pas,v 1.4 2008/10/08 23:23:02 jr Exp $
 }
 
 {$IFDEF VER90}

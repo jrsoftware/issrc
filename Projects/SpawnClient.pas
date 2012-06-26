@@ -10,8 +10,6 @@ unit SpawnClient;
 
   NOTE: These functions are NOT thread-safe. Do not call them from multiple
   threads simultaneously.
-
-  $jrsoftware: issrc/Projects/SpawnClient.pas,v 1.5 2007/09/05 02:07:35 jr Exp $
 }
 
 interface

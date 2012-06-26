@@ -8,8 +8,6 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl revisione 30b - 2007/02/28 (Basato su Default.isl 1.69)
-;
 ; Tradotto da ale5000
 ; E-mail: ale5000 AT tiscali DOT it
 ; Segnalatemi via e-mail eventuali errori o suggerimenti.

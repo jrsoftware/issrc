@@ -7,8 +7,6 @@ unit VerInfo;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Version info functions
-
-  $jrsoftware: issrc/Projects/VerInfo.pas,v 1.10 2007/02/03 20:06:44 jr Exp $
 }
 
 interface

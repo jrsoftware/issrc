@@ -1,7 +1,6 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: ISPPCC.dpr,v 1.29 2011/03/16 08:43:35 mlaan Exp $
 }
 
 program ISPPCC;

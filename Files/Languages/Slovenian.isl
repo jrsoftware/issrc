@@ -9,8 +9,6 @@
 ; two periods being displayed).
 ;
 ; Maintained by Jernej Simoncic (jernej|s-innosetup@eternallybored.org)
-;
-; $jrsoftware: issrc/Files/Languages/Slovenian.isl,v 1.14 2007/02/27 18:22:41 jr Exp $
 
 [LangOptions]
 LanguageName=Slovenski

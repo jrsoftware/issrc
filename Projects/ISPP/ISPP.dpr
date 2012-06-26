@@ -1,7 +1,6 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: ISPP.dpr,v 1.7 2010/12/30 14:58:38 mlaan Exp $
 }
 
 library ISPP;

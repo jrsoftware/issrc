@@ -7,8 +7,6 @@ unit LZMADecomp;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Interface to the "new" LZMA/LZMA2 SDK decompression OBJs in lzma2\Decoder
-
-  $jrsoftware: issrc/Projects/LZMADecomp.pas,v 1.3 2010/03/24 20:10:15 jr Exp $
 }
 
 interface

@@ -7,8 +7,6 @@ unit UninstProgressForm;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Uninstaller progress form
-
-  $jrsoftware: issrc/Projects/UninstProgressForm.pas,v 1.16 2010/10/30 20:26:25 jr Exp $
 }
 
 interface

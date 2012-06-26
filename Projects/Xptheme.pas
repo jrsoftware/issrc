@@ -11,8 +11,6 @@ unit XPTheme;
 
   Note: XPTheme must be included as the first unit in the program's "uses"
   clause so that its code runs before any VCL initialization code.
-
-  $jrsoftware: issrc/Projects/XPTheme.pas,v 1.5 2007/03/26 19:27:39 jr Exp $
 }
 
 interface

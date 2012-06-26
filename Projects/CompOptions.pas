@@ -7,8 +7,6 @@ unit CompOptions;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler Options form
-
-  $jrsoftware: issrc/Projects/CompOptions.pas,v 1.26 2010/10/30 04:29:19 jr Exp $
 }
 
 interface

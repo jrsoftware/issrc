@@ -7,8 +7,6 @@ unit NewDisk;
   For conditions of distribution and use, see LICENSE.TXT.
 
   New Disk form
-
-  $jrsoftware: issrc/Projects/NewDisk.pas,v 1.34 2010/10/22 10:33:26 mlaan Exp $
 }
 
 interface

@@ -7,8 +7,6 @@ unit PasswordEdit;
   For conditions of distribution and use, see LICENSE.TXT.
 
   This unit provides a true password edit for Delphi 2.
-
-  $jrsoftware: issrc/Components/PasswordEdit.pas,v 1.3 2007/12/10 18:28:53 jr Exp $
 }
 
 interface

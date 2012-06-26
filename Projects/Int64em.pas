@@ -10,8 +10,6 @@ unit Int64Em;
   integer value - and functions for manipulating Integer64's.
   (We can't use the Int64 type since it's only available in Delphi 4 and
   later.)
-
-  $jrsoftware: issrc/Projects/Int64Em.pas,v 1.14 2008/10/03 19:53:57 jr Exp $
 }
 
 interface

@@ -24,8 +24,6 @@ unit SafeDLLPath;
   ensure that it runs prior to any LoadLibrary calls that other units might
   make during their initialization. (The System unit will always initialize
   first, though.)
-
-  $jrsoftware: issrc/Projects/SafeDLLPath.pas,v 1.3 2010/09/21 03:32:28 jr Exp $
 }
 
 interface

@@ -20,8 +20,6 @@ unit SimpleExpression;
 
   Function calls withing parameter lists are currently not supported, expect for calls
   to the special ExpandConstant function.
-
-  $jrsoftware: issrc/Projects/SimpleExpression.pas,v 1.13 2011/03/13 04:37:56 jr Exp $
 }
 
 interface

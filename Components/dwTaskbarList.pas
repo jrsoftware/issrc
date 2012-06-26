@@ -11,8 +11,6 @@
   For conditions of distribution and use, see LICENSE.TXT.
 
   This unit provides the ITaskbarList3 interface for Windows 7 taskbar progress indicators.
-
-  $jrsoftware: issrc/Components/dwTaskbarList.pas,v 1.5 2010/10/21 02:14:14 jr Exp $
 }
 
 {$IFDEF VER90}

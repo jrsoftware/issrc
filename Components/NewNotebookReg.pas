@@ -7,8 +7,6 @@ unit NewNotebookReg;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TNewNotebook design-time registration
-
-  $jrsoftware: issrc/Components/NewNotebookReg.pas,v 1.3 2005/10/11 18:23:37 jr Exp $
 }
 
 interface

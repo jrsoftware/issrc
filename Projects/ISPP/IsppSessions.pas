@@ -1,7 +1,6 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppSessions.pas,v 1.3 2010/11/27 07:10:49 jr Exp $
 }
 
 unit IsppSessions;

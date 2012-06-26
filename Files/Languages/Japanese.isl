@@ -3,8 +3,6 @@
 ; Maintained by Koichi Shirasuka (shirasuka@eugrid.co.jp)
 ;
 ; Translation based on Ryou Minakami (ryou32jp@yahoo.co.jp)
-;
-; $jrsoftware: issrc/Files/Languages/Japanese.isl,v 1.6 2010/03/08 07:50:01 mlaan Exp $
 
 [LangOptions]
 LanguageName=<65E5><672C><8A9E>

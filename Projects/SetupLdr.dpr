@@ -7,8 +7,6 @@ program SetupLdr;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Setup Loader
-
-  $jrsoftware: issrc/Projects/SetupLdr.dpr,v 1.46 2010/09/02 23:51:56 jr Exp $
 }
 
 uses

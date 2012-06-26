@@ -7,8 +7,6 @@ unit CompSignTools;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler SignTools form
-
-  $jrsoftware: issrc/Projects/CompSignTools.pas,v 1.3 2010/03/24 18:34:14 mlaan Exp $
 }
 
 interface

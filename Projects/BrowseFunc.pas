@@ -7,8 +7,6 @@ unit BrowseFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Functions for browsing for folders/files
-
-  $jrsoftware: issrc/Projects/BrowseFunc.pas,v 1.9 2010/09/10 01:08:44 jr Exp $
 }
 
 interface

@@ -7,8 +7,6 @@ unit BidiUtils;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Bidi utility functions
-
-  $jrsoftware: issrc/Components/BidiUtils.pas,v 1.2 2007/11/27 04:52:53 jr Exp $
 }
 
 interface

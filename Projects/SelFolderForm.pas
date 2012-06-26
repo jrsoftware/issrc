@@ -7,8 +7,6 @@ unit SelFolderForm;
   For conditions of distribution and use, see LICENSE.TXT.
 
   "Select Folder" form
-
-  $jrsoftware: issrc/Projects/SelFolderForm.pas,v 1.15 2010/10/22 10:33:26 mlaan Exp $
 }
 
 interface

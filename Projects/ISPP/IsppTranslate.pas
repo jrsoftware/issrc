@@ -1,7 +1,6 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppTranslate.pas,v 1.17 2011/04/08 04:54:45 jr Exp $
 }
 
 unit IsppTranslate;

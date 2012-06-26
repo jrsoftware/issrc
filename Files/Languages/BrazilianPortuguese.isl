@@ -25,9 +25,6 @@
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
-;
-; $jrsoftware: issrc/Files/Languages/BrazilianPortuguese.isl,v 1.7 2008/05/21 12:37:37 mlaan Exp $
-;
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 

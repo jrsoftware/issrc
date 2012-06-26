@@ -7,8 +7,6 @@ unit Msgs;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Message file handling functions
-
-  $jrsoftware: issrc/Projects/Msgs.pas,v 1.20 2009/03/23 13:31:17 mlaan Exp $
 }
 
 interface

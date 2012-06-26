@@ -7,8 +7,6 @@ unit HtmlHelpFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Functions for HTML Help
-
-  $jrsoftware: issrc/Projects/HtmlHelpFunc.pas,v 1.6 2009/03/23 23:16:44 mlaan Exp $
 }
 
 interface

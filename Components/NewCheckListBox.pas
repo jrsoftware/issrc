@@ -10,8 +10,6 @@ unit NewCheckListBox;
 
   Note: TNewCheckListBox uses Items.Objects to store the item state. Don't use
   Item.Objects yourself, use ItemObject instead.
-
-  $jrsoftware: issrc/Components/NewCheckListBox.pas,v 1.57 2009/03/25 11:47:32 mlaan Exp $
 }
 
 {$IFDEF VER90}

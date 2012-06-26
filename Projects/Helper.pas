@@ -10,8 +10,6 @@ unit Helper;
 
   NOTE: These functions are NOT thread-safe. Do not call them from multiple
   threads simultaneously.
-
-  $jrsoftware: issrc/Projects/Helper.pas,v 1.14 2010/10/20 02:43:26 jr Exp $
 }
 
 interface

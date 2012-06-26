@@ -7,8 +7,6 @@ unit SelLangForm;
   For conditions of distribution and use, see LICENSE.TXT.
 
   "Select Language" form
-
-  $jrsoftware: issrc/Projects/SelLangForm.pas,v 1.18 2010/01/13 17:48:52 mlaan Exp $
 }
 
 interface

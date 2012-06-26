@@ -7,8 +7,6 @@ unit Logging;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Logging functions
-
-  $jrsoftware: issrc/Projects/Logging.pas,v 1.12 2009/03/23 23:27:14 mlaan Exp $
 }
 
 interface

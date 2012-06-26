@@ -7,8 +7,6 @@ unit CompInt;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler interface
-
-  $jrsoftware: issrc/Projects/CompInt.pas,v 1.16 2011/06/15 14:37:46 mlaan Exp $
 }
 
 interface

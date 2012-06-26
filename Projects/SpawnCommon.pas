@@ -7,8 +7,6 @@ unit SpawnCommon;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Constants and types shared by the SpawnServer and SpawnClient units
-
-  $jrsoftware: issrc/Projects/SpawnCommon.pas,v 1.2 2007/09/04 00:51:58 jr Exp $
 }
 
 interface

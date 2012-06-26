@@ -7,8 +7,6 @@ unit CompResUpdate;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Resource update functions used by the compiler only
-
-  $jrsoftware: issrc/Projects/CompResUpdate.pas,v 1.25 2010/04/05 20:53:41 jr Exp $
 }
 
 interface

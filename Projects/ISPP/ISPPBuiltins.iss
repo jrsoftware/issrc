@@ -9,8 +9,6 @@
 // Inno Setup (C) 1997-2009 Jordan Russell. All Rights Reserved.
 // Portions by Martijn Laan.
 //
-// $Id: ISPPBuiltins.iss,v 1.3 2010/12/29 15:20:26 mlaan Exp $
-//
 #if defined(ISPP_INVOKED) && !defined(_BUILTINS_ISS_)
 //
 #if PREPROCVER < 0x01000000
