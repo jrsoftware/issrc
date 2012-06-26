@@ -42,9 +42,6 @@ typedef struct {
 #define ecMutexWaitUnexpectedResult 3
 #define ecWrongVersionOrSize 4
 
-#undef ARRAYSIZE   // already defined in later versions of WinNT.h
-#define ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
-
 LPTSTR GetCommandTail(void)
 {
 	LPTSTR CmdLine = GetCommandLine();
