@@ -10,8 +10,6 @@ unit Helper;
 
   NOTE: These functions are NOT thread-safe. Do not call them from multiple
   threads simultaneously.
-
-  $jrsoftware: issrc/Projects/Helper.pas,v 1.14 2010/10/20 02:43:26 jr Exp $
 }
 
 interface
@@ -252,7 +250,7 @@ begin
       FProcessHandle := ProcessInfo.hProcess;
       FProcessID := ProcessInfo.dwProcessId;
       FPipe := Pipe;
-      Pipe := 0;  { ensure the 'except' section can't close it now } 
+      Pipe := 0;  { ensure the 'except' section can't close it now }
       CloseHandle(ProcessInfo.hThread);
       LogFmt('Helper process PID: %u', [FProcessID]);
     finally
@@ -337,7 +335,7 @@ begin
     {$ENDIF}
     { Create event object to use in our Overlapped structure. (Technically,
       I'm not sure we need the event object -- we could just wait on the pipe
-      object instead, however the SDK docs discourage this.) } 
+      object instead, however the SDK docs discourage this.) }
     OverlappedEvent := CreateEvent(nil, True, False, nil);
     if OverlappedEvent = 0 then
       Win32ErrorMsg('CreateEvent');

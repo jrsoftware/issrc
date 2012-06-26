@@ -3,3 +3,5 @@ compilesettings.bat
 C[Vv][Ss]
 .cvsignore
 Output
+
+/Projects/RegDLL/Release

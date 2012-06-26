@@ -7,8 +7,6 @@ unit CompResUpdate;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Resource update functions used by the compiler only
-
-  $jrsoftware: issrc/Projects/CompResUpdate.pas,v 1.25 2010/04/05 20:53:41 jr Exp $
 }
 
 interface
@@ -309,7 +307,7 @@ begin
       if M = 0 then
         ErrorWithLastError('LoadLibraryEx failed (1)');
       try
-      	{ Load the 'MAINICON' group icon resource }
+        { Load the 'MAINICON' group icon resource }
         R := FindResource(M, 'MAINICON', RT_GROUP_ICON);
         if R = 0 then
           ErrorWithLastError('FindResource failed (1)');

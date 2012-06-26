@@ -1,7 +1,6 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppIdentMan.pas,v 1.1 2004/02/26 22:24:19 mlaan Exp $
 }
 
 unit IsppIdentMan;

@@ -7,8 +7,6 @@ unit RegSvr;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Registers OLE servers & type libraries after a reboot
-
-  $jrsoftware: issrc/Projects/RegSvr.pas,v 1.14 2007/12/08 00:33:47 jr Exp $
 }
 
 interface

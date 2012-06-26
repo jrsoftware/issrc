@@ -7,8 +7,6 @@ program Setup;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Setup program
-
-  $jrsoftware: issrc/Projects/Setup.dpr,v 1.76 2010/08/28 20:41:24 jr Exp $
 }
 
 uses

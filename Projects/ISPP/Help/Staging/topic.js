@@ -4,8 +4,6 @@
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  $jrsoftware: ishelp/Staging/topic.js,v 1.7 2010/04/25 02:48:24 jr Exp $
-
   JavaScript code used by topic_*.htm
 */
 

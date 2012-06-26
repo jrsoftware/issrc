@@ -7,8 +7,6 @@ unit DebugClient;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Debug info stuff
-
-  $jrsoftware: issrc/Projects/DebugClient.pas,v 1.29 2010/10/30 19:50:37 jr Exp $
 }
 
 interface

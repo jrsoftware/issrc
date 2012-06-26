@@ -7,8 +7,6 @@ unit Extract;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TFileExtractor class
-
-  $jrsoftware: issrc/Projects/Extract.pas,v 1.30 2010/03/13 18:51:37 jr Exp $
 }
 
 interface
@@ -129,7 +127,7 @@ begin
   Result := PathExpand(AddBackslash(SourceDir) + F2);
   if NewFileExists(Result) then Exit;
   Path := SourceDir;
-  LogFmt('Asking user for new disk containing "%s".', [F1]);  
+  LogFmt('Asking user for new disk containing "%s".', [F1]);
   if SelectDisk(Major, F1, Path) then begin
     LastSourceDir := Path;
     Result := AddBackslash(Path) + F1;

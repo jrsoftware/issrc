@@ -195,7 +195,7 @@ const
     'file';
   SCompilerNoSetupLdrSignError = 'The SignTool and SignedUninstaller directives may not be set when UseSetupLdr is set to "no"';
   SCompilerSignToolCreateProcessFailed = 'Failed to execute Sign Tool.' +
-    SNewLine2 + 'Error %d: %s'; 
+    SNewLine2 + 'Error %d: %s';
   SCompilerSignToolNonZeroExitCode = 'Sign Tool failed with exit code 0x%x';
   SCompilerSignToolSucceededButNoSignature = 'The Sign Tool returned an ' +
     'exit code of 0, but the file does not have a digital signature';
@@ -293,7 +293,7 @@ const
   SCompilerComponentsOrTasksBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 +
     'It may only include alphanumeric characters, underscores, slashes (/), and/or backslashes (\), may not start with a number and may not start or end with a slash or a backslash. Names ''not'', ''and'' and ''or'' are reserved';
   SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component';
-  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task'; 
+  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task';
   SCompilerLanguagesBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
 
   { [Languages] }

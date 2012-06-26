@@ -7,8 +7,6 @@ unit BidiCtrls;
   For conditions of distribution and use, see LICENSE.TXT.
 
   RTL-capable versions of standard controls
-
-  $jrsoftware: issrc/Components/BidiCtrls.pas,v 1.2 2007/11/27 04:52:53 jr Exp $
 }
 
 interface
@@ -54,7 +52,7 @@ type
   end;
 
 procedure Register;
-  
+
 implementation
 
 uses
@@ -100,7 +98,7 @@ end;
 
 { TNewButton }
 
-procedure TNewButton.CreateParams(var Params: TCreateParams); 
+procedure TNewButton.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   SetBiDiStyles(Self, Params);

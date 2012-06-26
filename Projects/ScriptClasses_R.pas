@@ -7,8 +7,6 @@ unit ScriptClasses_R;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script support classes (run time)
-
-  $Id: ScriptClasses_R.pas,v 1.61 2012/02/05 18:59:23 mlaan Exp $
 }
 
 interface

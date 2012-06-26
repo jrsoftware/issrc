@@ -4,7 +4,6 @@ unit MD5;
   MD5.pas: Translated from C to Delphi by Jordan Russell on 2004-03-16.
   Still in the public domain. The original C code was taken from dpkg.
 
-  $jrsoftware: issrc/Projects/MD5.pas,v 1.2 2004/03/16 17:58:14 jr Exp $
   (based on revision 1.15 from local 'md5' repository)
 }
 

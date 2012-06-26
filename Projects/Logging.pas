@@ -7,8 +7,6 @@ unit Logging;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Logging functions
-
-  $jrsoftware: issrc/Projects/Logging.pas,v 1.12 2009/03/23 23:27:14 mlaan Exp $
 }
 
 interface
@@ -45,7 +43,7 @@ end;
 
 procedure GetFixedLocalTime(var ST: TSystemTime);
 { Like GetLocalTime, but uses our LocalTimeBias as the offset, which cannot
-  change while the program is running } 
+  change while the program is running }
 var
   FT: Integer64;
 begin

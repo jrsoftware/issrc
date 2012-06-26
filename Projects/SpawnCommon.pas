@@ -7,8 +7,6 @@ unit SpawnCommon;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Constants and types shared by the SpawnServer and SpawnClient units
-
-  $jrsoftware: issrc/Projects/SpawnCommon.pas,v 1.2 2007/09/04 00:51:58 jr Exp $
 }
 
 interface
@@ -24,7 +22,7 @@ const
   CD_SpawnServer_Exec      = $4A73E9C0;
   CD_SpawnServer_ShellExec = $4A73E9C1;
 
-  { Possible wParam values in a WM_SpawnServer_Query message } 
+  { Possible wParam values in a WM_SpawnServer_Query message }
   SPAWN_QUERY_STATUS        = 1;
   SPAWN_QUERY_RESULTCODE_LO = 2;
   SPAWN_QUERY_RESULTCODE_HI = 3;

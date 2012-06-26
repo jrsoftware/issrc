@@ -7,8 +7,6 @@ unit DropListBox;
   For conditions of distribution and use, see LICENSE.TXT.
 
   This unit provides a listbox with drop files support.
-
-  $jrsoftware: issrc/Components/DropListBox.pas,v 1.1 2004/06/05 16:07:10 mlaan Exp $
 }
 
 interface

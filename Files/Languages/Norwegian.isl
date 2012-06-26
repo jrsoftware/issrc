@@ -12,8 +12,6 @@
 ;
 ; Harald Habberstad, Frode Weum, Eivind Bakkestuen, Morten Johnsen,
 ; Tore Ottinsen, Kristian Hyllestad, Thomas Kelso
-;
-; $jrsoftware: issrc/Files/Languages/Norwegian.isl,v 1.15 2007/04/24 09:15:31 mlaan Exp $
 
 [LangOptions]
 LanguageName=Norsk

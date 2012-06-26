@@ -4,8 +4,6 @@ unit SHA1;
   SHA1.pas: SHA-1 hash implementation, based on RFC 3174 and MD5.pas
   Author: Jordan Russell, 2010-02-24
   License for SHA1.pas: Public domain, no copyright claimed
-
-  $jrsoftware: issrc/Projects/SHA1.pas,v 1.1 2010/02/25 04:57:34 jr Exp $
 }
 
 interface

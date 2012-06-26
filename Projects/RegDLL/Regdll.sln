@@ -1,7 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RegDLL", "RegDLL.vcproj", "{89E109D1-69EC-4519-BD7A-5FA090A59273}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RegDLL", "RegDLL.vcxproj", "{89E109D1-69EC-4519-BD7A-5FA090A59273}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

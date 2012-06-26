@@ -7,8 +7,6 @@ unit TaskbarProgressFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Wrappers for ITaskbarList3.SetProgressState & SetProgressValue
-
-  $jrsoftware: issrc/Projects/TaskbarProgressFunc.pas,v 1.1 2010/10/29 01:48:45 jr Exp $
 }
 
 interface

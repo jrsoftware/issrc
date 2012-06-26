@@ -7,8 +7,6 @@ unit SpawnServer;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Spawn server
-
-  $jrsoftware: issrc/Projects/SpawnServer.pas,v 1.13 2010/04/17 19:30:25 jr Exp $
 }
 
 interface

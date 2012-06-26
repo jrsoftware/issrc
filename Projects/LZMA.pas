@@ -10,8 +10,6 @@ unit LZMA;
 
   Source code for the compression DLL can found in the lzma2/Encoder
   subdirectory.
-
-  $jrsoftware: issrc/Projects/LZMA.pas,v 1.55 2010/09/07 03:09:36 jr Exp $
 }
 
 interface

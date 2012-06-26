@@ -3,8 +3,6 @@ unit NewStaticText;
 {
   TNewStaticText - similar to TStaticText on D3+ but with multi-line AutoSize
   support and a WordWrap property
-
-  $jrsoftware: issrc/Components/NewStaticText.pas,v 1.7 2009/03/20 22:48:54 mlaan Exp $
 }
 
 interface

@@ -7,8 +7,6 @@ unit NewTabSet;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TNewTabSet - modern VS.NET-style tabs
-
-  $jrsoftware: issrc/Components/NewTabSet.pas,v 1.3 2010/08/18 03:36:36 jr Exp $
 }
 
 interface

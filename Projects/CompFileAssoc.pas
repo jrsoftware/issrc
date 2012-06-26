@@ -7,8 +7,6 @@ unit CompFileAssoc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Functions for registering/unregistering the .iss file association
-
-  $jrsoftware: issrc/Projects/CompFileAssoc.pas,v 1.13 2009/04/21 13:46:04 mlaan Exp $
 }
 
 interface

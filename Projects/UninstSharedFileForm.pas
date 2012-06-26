@@ -7,8 +7,6 @@ unit UninstSharedFileForm;
   For conditions of distribution and use, see LICENSE.TXT.
 
   "Remove Shared File" form
-
-  $jrsoftware: issrc/Projects/UninstSharedFileForm.pas,v 1.5 2007/12/04 04:34:30 jr Exp $
 }
 
 interface

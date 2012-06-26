@@ -1,5 +1,4 @@
-{ $jrsoftware: issrc/Projects/Version.inc,v 1.11 2010/12/29 13:22:17 mlaan Exp $ }
-
+{ Determine Delphi/C++Builder version }
 { Determine Delphi/C++Builder version }
 {$IFNDEF VER90}  { if it's not Delphi 2.0 }
   {$IFNDEF VER93}  { and it's not C++Builder 1.0 }

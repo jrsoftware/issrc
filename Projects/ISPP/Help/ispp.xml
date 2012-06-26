@@ -1660,7 +1660,7 @@ The list of options is provided at the end of this topic.</para>
     <description header="no">
       <para>ISPP allows you to call macro recursevely, i. e. call it from itself. This feature can be used to emulate loop.</para>
       <para>For example, you wish to constuct a "for"-like loop. To achieve this, you'll need to declare a macro that takes one integer argument and which makes the loop "body." After that you declare "outer" loop, which used for iterating:</para>
-      <pre> 
+      <pre>
         <line>#define LoopBody(int I) Str(I) + "th iteration&bs;n"</line>
         <line></line>
         <line>#define Loop(int LoopRoof = 10) &bs; </line>

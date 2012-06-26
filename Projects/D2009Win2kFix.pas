@@ -12,8 +12,6 @@ unit D2009Win2kFix;
 
   This should be at the top of the .dpr's "uses" clause to ensure it runs
   before any VCL code.
-
-  $jrsoftware: issrc/Projects/D2009Win2kFix.pas,v 1.2 2010/03/05 08:42:04 mlaan Exp $
 }
 
 interface

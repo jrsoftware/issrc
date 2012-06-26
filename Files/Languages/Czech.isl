@@ -18,8 +18,6 @@
 ;
 ; The contents of this file are subject to the Inno Setup License (the "License").
 ; You may obtain a copy of the License at http://www.jrsoftware.org/files/is/license.txt
-;
-; $jrsoftware: issrc/Files/Languages/Czech.isl,v 1.18 2007/02/27 18:22:41 jr Exp $
 
 [LangOptions]
 LanguageName=<010C>e<0161>tina

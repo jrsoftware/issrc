@@ -8,5 +8,4 @@ copy ..\..\ishelp\staging\images\contentsheadopen.gif help\staging\images
 copy ..\..\ishelp\staging\images\contentstopic.gif help\staging\images
 copy ..\..\ishelp\staging\images\extlink.gif help\staging\images
 
-
 pause

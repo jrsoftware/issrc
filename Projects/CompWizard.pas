@@ -7,8 +7,6 @@ unit CompWizard;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler Script Wizard form
-
-  $jrsoftware: issrc/Projects/CompWizard.pas,v 1.68 2011/04/16 05:51:19 jr Exp $
 }
 
 interface

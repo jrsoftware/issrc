@@ -7,8 +7,6 @@ unit SetupForm;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TSetupForm
-
-  $jrsoftware: issrc/Projects/SetupForm.pas,v 1.16 2010/02/02 06:59:38 jr Exp $
 }
 
 interface

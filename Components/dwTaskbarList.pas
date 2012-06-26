@@ -1,6 +1,6 @@
 { Original file taken from "Windows 7 Controls for Delphi" by Daniel Wischnewski
   http://www.gumpi.com/Blog/2009/01/20/Alpha1OfWindows7ControlsForDelphi.aspx
-  MPL licensed } 
+  MPL licensed }
 
 { D2/D3 support and correct IID consts added by Martijn Laan for Inno Setup }
 
@@ -11,8 +11,6 @@
   For conditions of distribution and use, see LICENSE.TXT.
 
   This unit provides the ITaskbarList3 interface for Windows 7 taskbar progress indicators.
-
-  $jrsoftware: issrc/Components/dwTaskbarList.pas,v 1.5 2010/10/21 02:14:14 jr Exp $
 }
 
 {$IFDEF VER90}

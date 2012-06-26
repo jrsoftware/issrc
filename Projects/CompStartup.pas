@@ -7,8 +7,6 @@ unit CompStartup;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler Startup form
-
-  $jrsoftware: issrc/Projects/CompStartup.pas,v 1.11 2004/07/22 19:49:39 jr Exp $
 }
 
 interface

@@ -7,8 +7,6 @@ unit ResUpdate;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Resource update functions used by both Setup and the compiler
-
-  $jrsoftware: issrc/Projects/ResUpdate.pas,v 1.4 2009/03/20 13:49:17 mlaan Exp $
 }
 
 interface

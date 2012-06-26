@@ -3,8 +3,6 @@ unit ScintInt;
 {
   Delphi translation of Scintilla.h from Scintilla 2.21
   by Jordan Russell
-
-  $jrsoftware: issrc/Components/ScintInt.pas,v 1.3 2011/01/21 05:47:57 jr Exp $
 }
 
 interface

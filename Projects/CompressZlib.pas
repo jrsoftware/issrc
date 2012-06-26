@@ -7,8 +7,6 @@ unit CompressZlib;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Declarations for zlib functions & structures
-
-  $jrsoftware: issrc/Projects/CompressZlib.pas,v 1.5 2010/09/07 03:09:36 jr Exp $
 }
 
 interface

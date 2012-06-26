@@ -11,8 +11,6 @@ unit LibFusion;
   Also see http://msdn.microsoft.com/en-us/library/ms404523.aspx
            http://msdn.microsoft.com/en-us/library/aa376204(VS.85).aspx
 
-  $jrsoftware: issrc/Projects/LibFusion.pas,v 1.6 2010/04/15 08:35:26 mlaan Exp $
-
   Based on LibFusion.pas by RemObject Software updated for D2 compatibility, for
   Inno Setup support functions usage and some other improvements.
 

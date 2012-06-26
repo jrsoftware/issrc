@@ -11,8 +11,6 @@ unit PathFunc;
   These functions should always be used in lieu of their SysUtils counterparts
   since they aren't MBCS-aware on Delphi 2, and sometimes not MBCS-aware on
   Delphi 6 and 7 either (see QC#5096).
-
-  $jrsoftware: issrc/Components/PathFunc.pas,v 1.43 2010/04/19 21:43:01 jr Exp $
 }
 
 interface

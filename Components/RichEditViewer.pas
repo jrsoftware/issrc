@@ -7,8 +7,6 @@ unit RichEditViewer;
   a property that causes the component's handle to be recreated, all text
   formatting will be lost. In the interests of code size, I do not intend
   to work around this.
-
-  $jrsoftware: issrc/Components/RichEditViewer.pas,v 1.12 2011/06/08 10:44:25 mlaan Exp $
 }
 
 {$IFDEF VER90}

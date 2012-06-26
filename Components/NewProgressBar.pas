@@ -13,8 +13,6 @@ unit NewProgressBar;
   This applies both to Position and State. For example if you set State while the
   progress bar is still moving towards a new Position, the new State doesnt show until
   the moving animation has finished.
-
-  $jrsoftware: issrc/Components/NewProgressBar.pas,v 1.10 2010/10/27 09:45:06 mlaan Exp $
 }
 
 interface
@@ -49,7 +47,7 @@ type
     property Min: LongInt read FMin write SetMin;
     property Max: LongInt read FMax write SetMax;
     property Position: LongInt read FPosition write SetPosition default 0;
-    property State: TNewProgressBarState read FState write SetState default npbsNormal;   
+    property State: TNewProgressBarState read FState write SetState default npbsNormal;
     property Style: TNewProgressBarStyle read FStyle write SetStyle default npbstMarquee;
   end;
 

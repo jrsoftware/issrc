@@ -7,8 +7,6 @@ unit ScriptRunner;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script runner
-
-  $jrsoftware: issrc/Projects/ScriptRunner.pas,v 1.34 2011/01/11 05:30:39 jr Exp $
 }
 
 interface

@@ -4,8 +4,6 @@
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  $jrsoftware: ishelp/Staging/contents.js,v 1.12 2010/04/26 19:37:55 jr Exp $
-
   JavaScript code used by contents.htm
 */
 

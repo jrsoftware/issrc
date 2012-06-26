@@ -7,8 +7,6 @@ unit DebugStruct;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Debug info stuff
-
-  $jrsoftware: issrc/Projects/DebugStruct.pas,v 1.20 2009/04/21 13:46:04 mlaan Exp $
 }
 
 interface

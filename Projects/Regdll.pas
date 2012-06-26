@@ -8,8 +8,6 @@ unit RegDLL;
 
   Registers 32-bit/64-bit DLL-based OLE servers in a child process (either
   regsvr32.exe or our own _RegDLL.tmp, depending on the Windows version)
-
-  $jrsoftware: issrc/Projects/RegDLL.pas,v 1.7 2008/10/11 20:30:45 jr Exp $
 }
 
 interface

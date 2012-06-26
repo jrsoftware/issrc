@@ -7,8 +7,6 @@ unit BitmapImage;
   For conditions of distribution and use, see LICENSE.TXT.
 
   A TImage-like component for bitmaps without the TPicture bloat
-
-  $jrsoftware: issrc/Components/BitmapImage.pas,v 1.6 2009/03/23 14:57:40 mlaan Exp $
 }
 
 interface

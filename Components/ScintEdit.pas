@@ -7,8 +7,6 @@ unit ScintEdit;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TScintEdit component: a VCL wrapper for Scintilla
-
-  $jrsoftware: issrc/Components/ScintEdit.pas,v 1.22 2010/12/28 06:52:20 jr Exp $
 }
 
 interface
@@ -1561,7 +1559,7 @@ end;
 
 procedure TScintEdit.UpdateStyleAttributes;
 var
-  DefaultAttr: TScintStyleAttributes; 
+  DefaultAttr: TScintStyleAttributes;
 
   procedure SetStyleAttr(const StyleNumber: Integer;
     const Attr: TScintStyleAttributes; const Force: Boolean);

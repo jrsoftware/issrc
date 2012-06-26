@@ -7,8 +7,6 @@ unit FolderTreeView;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TFolderTreeView component
-
-  $jrsoftware: issrc/Components/FolderTreeView.pas,v 1.42 2009/03/25 11:47:32 mlaan Exp $
 }
 
 interface

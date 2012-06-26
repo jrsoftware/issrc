@@ -7,8 +7,6 @@ unit LZMADecomp;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Interface to the "new" LZMA/LZMA2 SDK decompression OBJs in lzma2\Decoder
-
-  $jrsoftware: issrc/Projects/LZMADecomp.pas,v 1.3 2010/03/24 20:10:15 jr Exp $
 }
 
 interface
@@ -202,7 +200,7 @@ begin
     { This is how LzmaUtil.c checks for premature end-of-input: }
     if (InBytes = 0) and (OutBytes = 0) and
        (DecodeStatus <> LZMA_STATUS_FINISHED_WITH_MARK) then
-      LZMADecompDataError(4); 
+      LZMADecompDataError(4);
     Dec(AvailOut, OutBytes);
     Inc(NextOut, OutBytes);
     Dec(FAvailIn, InBytes);
@@ -227,7 +225,7 @@ procedure TLZMA1Decompressor.ProcessHeader;
 var
   Props: packed record  { size = LZMA_PROPS_SIZE (5) }
     Misc: Byte;
-    DictionarySize: LongWord;  { little endian, unaligned }  
+    DictionarySize: LongWord;  { little endian, unaligned }
   end;
 begin
   { Read header fields }

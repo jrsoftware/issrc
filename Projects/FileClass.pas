@@ -11,8 +11,6 @@ unit FileClass;
   and uses descriptive, localized system error messages.
 
   TTextFileReader and TTextFileWriter support ANSI and UTF8 textfiles only.
-
-  $jrsoftware: issrc/Projects/FileClass.pas,v 1.31 2010/01/26 06:26:18 jr Exp $
 }
 
 {$I VERSION.INC}

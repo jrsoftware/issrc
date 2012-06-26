@@ -7,8 +7,6 @@ unit SecurityFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Functions for altering ACLs on files & registry keys
-
-  $jrsoftware: issrc/Projects/SecurityFunc.pas,v 1.6 2008/10/17 22:18:14 jr Exp $
 }
 
 interface
@@ -30,7 +28,7 @@ uses
 {$IFNDEF UNICODE}
 function AllocWideCharStr(const S: String): PWideChar;
 { Allocates a null-terminated Unicode copy of S on the heap. Use FreeMem to
-  free the returned pointer. } 
+  free the returned pointer. }
 var
   SourceLen, DestLen: Integer;
 begin
