@@ -7,8 +7,6 @@
   RegDLL process, called by RegDLL unit
 
   Compiled on Visual Studio 2005
-
-  $jrsoftware: issrc/Projects/RegDLL/RegDLL.c,v 1.5 2006/10/06 01:11:59 jr Exp $
 */
 
 #include <windows.h>
@@ -19,28 +17,28 @@ typedef struct {
 	DWORD Size;
 	DWORD Result;
 	DWORD ResultCode;
-	BOOL Unregister;
-	BOOL FailCriticalErrors;
-	CHAR Filename[4096];
-	CHAR Directory[4096];
+	BOOL  Unregister;
+	BOOL  FailCriticalErrors;
+	CHAR  Filename[4096];
+	CHAR  Directory[4096];
 } REG_PROCESS_DATA;
 
 #define REG_PROCESS_DATA_VERSION 3
 
 // REG_PROCESS_DATA Result values
-#define rrOleInitializeFailed 1
-#define rrLoadLibraryFailed 2
+#define rrOleInitializeFailed  1
+#define rrLoadLibraryFailed    2
 #define rrGetProcAddressFailed 3
-#define rrDllFunctionCalled 4
+#define rrDllFunctionCalled    4
 
 // Process exit codes, full DWORD
 #define ecSuccess 0x1C9B28DA
 
 // Process exit codes, high word
-#define ecMapFailed 1
-#define ecMutexWaitFailed 2
+#define ecMapFailed                 1
+#define ecMutexWaitFailed           2
 #define ecMutexWaitUnexpectedResult 3
-#define ecWrongVersionOrSize 4
+#define ecWrongVersionOrSize        4
 
 LPTSTR GetCommandTail(void)
 {
