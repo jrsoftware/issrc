@@ -24,7 +24,7 @@ BEGIN
             VALUE "InternalName", "RegDLL"
             VALUE "LegalCopyright", "Copyright (C) 1997-2006 Jordan Russell, portions by Martijn Laan"
             //VALUE "LegalTrademarks", ""
-            VALUE "OriginalFilename", "RegDLL.dll"
+            VALUE "OriginalFilename", "RegDLL.exe"
             //VALUE "PrivateBuild", ""
             VALUE "ProductName", "RegDLL"
             VALUE "ProductVersion", "1, 0, 0, 0"
