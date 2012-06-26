@@ -2546,7 +2546,7 @@ begin
   else begin
     { Check if there's at least one backslash at least one character past the
       initial '\\' }
-    P := @PChar(Pointer(T))[2];  { the casts avoid a UniqueString call... }  
+    P := @PChar(Pointer(T))[2];  { the casts avoid a UniqueString call... }
     if PathStrScan(P, '\') <= P then begin
       LoggedMsgBox(SetupMessages[msgInvalidPath], '', mbError, MB_OK, True, IDOK);
       Exit;

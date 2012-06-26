@@ -556,7 +556,7 @@ begin
 end;
 
 procedure TCTokenizer.IllegalChar(C: Char);
-begin                                             
+begin
   raise EParsingError.CreateFmt(SIllegalChar, [C, Ord(C)]);
 end;
 

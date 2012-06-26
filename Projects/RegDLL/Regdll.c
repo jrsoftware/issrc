@@ -163,7 +163,7 @@ LONG Main(void)
 
 	// Release the mutex after all changes have been made to the record. This
 	// should impose a "release" memory barrier on architectures that require
-	// it.	
+	// it.
 	ReleaseMutex(MutexHandle);
 
 	return ecSuccess;

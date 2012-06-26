@@ -18,19 +18,19 @@ var bodyFrameLoaded = false;
 
 function trigger_sync_contents()
 {
-	window.frames["contentsframe"].sync_contents();
+    window.frames["contentsframe"].sync_contents();
 }
 
 function bodyframe_loaded()
 {
-	bodyFrameLoaded = true;
-	if (contentsFrameLoaded) trigger_sync_contents();
+    bodyFrameLoaded = true;
+    if (contentsFrameLoaded) trigger_sync_contents();
 }
 
 function contentsframe_loaded()
 {
-	contentsFrameLoaded = true;
-	if (bodyFrameLoaded) trigger_sync_contents();
+    contentsFrameLoaded = true;
+    if (bodyFrameLoaded) trigger_sync_contents();
 }
 
 --></script>

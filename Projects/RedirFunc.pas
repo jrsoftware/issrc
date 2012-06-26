@@ -484,7 +484,7 @@ constructor TFileRedir.Create(const DisableFsRedir: Boolean; const AFilename: St
   ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
   ASharing: TFileSharing);
 begin
-  FDisableFsRedir := DisableFsRedir; 
+  FDisableFsRedir := DisableFsRedir;
   inherited Create(AFilename, ACreateDisposition, AAccess, ASharing);
 end;
 
@@ -515,7 +515,7 @@ constructor TTextFileReaderRedir.Create(const DisableFsRedir: Boolean; const AFi
   ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
   ASharing: TFileSharing);
 begin
-  FDisableFsRedir := DisableFsRedir; 
+  FDisableFsRedir := DisableFsRedir;
   inherited Create(AFilename, ACreateDisposition, AAccess, ASharing);
 end;
 
@@ -546,7 +546,7 @@ constructor TTextFileWriterRedir.Create(const DisableFsRedir: Boolean; const AFi
   ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
   ASharing: TFileSharing);
 begin
-  FDisableFsRedir := DisableFsRedir; 
+  FDisableFsRedir := DisableFsRedir;
   inherited Create(AFilename, ACreateDisposition, AAccess, ASharing);
 end;
 

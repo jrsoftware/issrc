@@ -90,7 +90,7 @@ begin
   (*** Place any custom user selection you want to remember below. ***)
 
   //<your code here>
-  
+
   RegWriteStringValue(HKLM, 'Software\Microsoft\Windows\CurrentVersion\RunOnce', RunOnceName, RunOnceData);
 end;
 

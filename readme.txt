@@ -58,11 +58,11 @@ Remarks:
   1045a sources here:
   http://files.jrsoftware.org/is/rops/rops-svn-rev-1045a.zip
     (md5sum: d9a646601ea9d7151b43b27cbf1c8ac5)
-    
+
 2. Delphi 2.0x users ONLY
 =========================
 
-Before you can successfully compile the projects in Delphi 2.0, you must 
+Before you can successfully compile the projects in Delphi 2.0, you must
 do two things:
 
 - Install the latest version of SYSTEM.DCU if you haven't already done so.

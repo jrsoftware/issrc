@@ -14,7 +14,7 @@
 #if defined(ISPP_INVOKED) && !defined(_BUILTINS_ISS_)
 //
 #if PREPROCVER < 0x01000000
-# error Inno Setup Preprocessor version is outdated
+#  error Inno Setup Preprocessor version is outdated
 #endif
 //
 #define _BUILTINS_ISS_
@@ -58,7 +58,7 @@
 #define True               1
 #define False              0
 #define Yes                True
-#define No								 False
+#define No                 False
 //
 #define MaxInt             0x7FFFFFFFL
 #define MinInt             0x80000000L
@@ -117,7 +117,7 @@
 #define FIND_BEGINS        0x01
 #define FIND_ENDS          0x02
 #define FIND_CONTAINS      0x03
-#define FIND_CASESENSITIVE 0x04 
+#define FIND_CASESENSITIVE 0x04
 #define FIND_SENSITIVE     FIND_CASESENSITIVE
 #define FIND_AND           0x00
 #define FIND_OR            0x08
@@ -148,11 +148,11 @@
 //
 // GetStringFileInfo helpers
 //
-#define GetFileCompany(str FileName) GetStringFileInfo(FileName, COMPANY_NAME)
-#define GetFileCopyright(str FileName) GetStringFileInfo(FileName, LEGAL_COPYRIGHT)
-#define GetFileDescription(str FileName) GetStringFileInfo(FileName, FILE_DESCRIPTION)
+#define GetFileCompany(str FileName)        GetStringFileInfo(FileName, COMPANY_NAME)
+#define GetFileCopyright(str FileName)      GetStringFileInfo(FileName, LEGAL_COPYRIGHT)
+#define GetFileDescription(str FileName)    GetStringFileInfo(FileName, FILE_DESCRIPTION)
 #define GetFileProductVersion(str FileName) GetStringFileInfo(FileName, PRODUCT_VERSION)
-#define GetFileVersionString(str FileName) GetStringFileInfo(FileName, FILE_VERSION)
+#define GetFileVersionString(str FileName)  GetStringFileInfo(FileName, FILE_VERSION)
 //
 // ParseVersion
 //

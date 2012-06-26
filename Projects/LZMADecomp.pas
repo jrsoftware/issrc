@@ -202,7 +202,7 @@ begin
     { This is how LzmaUtil.c checks for premature end-of-input: }
     if (InBytes = 0) and (OutBytes = 0) and
        (DecodeStatus <> LZMA_STATUS_FINISHED_WITH_MARK) then
-      LZMADecompDataError(4); 
+      LZMADecompDataError(4);
     Dec(AvailOut, OutBytes);
     Inc(NextOut, OutBytes);
     Dec(FAvailIn, InBytes);
@@ -227,7 +227,7 @@ procedure TLZMA1Decompressor.ProcessHeader;
 var
   Props: packed record  { size = LZMA_PROPS_SIZE (5) }
     Misc: Byte;
-    DictionarySize: LongWord;  { little endian, unaligned }  
+    DictionarySize: LongWord;  { little endian, unaligned }
   end;
 begin
   { Read header fields }

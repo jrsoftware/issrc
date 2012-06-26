@@ -114,7 +114,7 @@ begin
   RegisterRealEnum('TSetupProcessorArchitecture', TypeInfo(TSetupProcessorArchitecture));
 
   RegisterType('TExecWait', '(ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle)');
-  
+
   ScriptCompiler.AddTypeS('TFindRec',
     'record' +
     '  Name: String;' +

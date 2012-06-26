@@ -129,7 +129,7 @@ begin
   Result := PathExpand(AddBackslash(SourceDir) + F2);
   if NewFileExists(Result) then Exit;
   Path := SourceDir;
-  LogFmt('Asking user for new disk containing "%s".', [F1]);  
+  LogFmt('Asking user for new disk containing "%s".', [F1]);
   if SelectDisk(Major, F1, Path) then begin
     LastSourceDir := Path;
     Result := AddBackslash(Path) + F1;

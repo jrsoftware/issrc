@@ -2953,7 +2953,7 @@ begin
   end
   else begin
     if Kind = cikDirectiveCheck then
-      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', ParamName]); 
+      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', ParamName]);
   end;
 end;
 
@@ -3636,7 +3636,7 @@ begin
       end;
     ssAppId: begin
         if Value = '' then
-          Invalid; 
+          Invalid;
         SetupHeader.AppId := Value;
       end;
     ssAppModifyPath: begin
@@ -6457,7 +6457,7 @@ begin
       end;
     finally
       { If NewFileEntry is still assigned at this point, either an exception
-        occurred or no files were matched } 
+        occurred or no files were matched }
       SEFreeRec(NewFileEntry, SetupFileEntryStrings, SetupFileEntryAnsiStrings);
     end;
   finally
@@ -7983,7 +7983,7 @@ var
       try
         { Carry checksum over from UnsignedFile to TestFile. We used to just
           zero it in TestFile, but that didn't work if the user modified
-          Setup.e32 with a res-editing tool that sets a non-zero checksum. }  
+          Setup.e32 with a res-editing tool that sets a non-zero checksum. }
         if not ReadSignatureAndChecksumFields(UnsignedFile, DWORD(SignatureAddress),
            DWORD(SignatureSize), HdrChecksum) then
           AbortCompile('ReadSignatureAndChecksumFields failed (2)');
@@ -8507,7 +8507,7 @@ begin
     { Read languages:
 
       Non Unicode:
-      
+
       1. Read Default.isl messages:
 
       ReadDefaultMessages calls EnumMessages for Default.isl's [Messages], with Ext set to -2.
@@ -8530,7 +8530,7 @@ begin
       directives or messages overwrite each other. This means if that for example the first
       messages file does not specify a code page, but the second does, the language will
       automatically use the code page of the second file. And vice versa.
-      
+
       The [CustomMessages] data is stored in a single list for all languages, with each
       entry having a LangIndex property saying to which language it belongs. If a 'double'
       custom message is found, the existing one is removed from the list.

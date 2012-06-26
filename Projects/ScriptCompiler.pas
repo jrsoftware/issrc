@@ -69,7 +69,7 @@ type
 
 {---}
 
-function PSPascalCompilerOnExternalProc(Sender: TPSPascalCompiler; Decl: TPSParametersDecl; const Name, FExternal: tbtstring): TPSRegProc; 
+function PSPascalCompilerOnExternalProc(Sender: TPSPascalCompiler; Decl: TPSParametersDecl; const Name, FExternal: tbtstring): TPSRegProc;
 var
   S: String;
   P: Integer;
@@ -95,7 +95,7 @@ begin
   Result := DllExternalProc(Sender, Decl, Name, tbtstring(TrimRight(S)));
 end;
 
-function PSPascalCompilerOnUses(Sender: TPSPascalCompiler; const Name: tbtstring): Boolean; 
+function PSPascalCompilerOnUses(Sender: TPSPascalCompiler; const Name: tbtstring): Boolean;
 begin
   if Name = 'SYSTEM' then begin
     RegisterDll_Compiletime(Sender);
@@ -109,7 +109,7 @@ begin
   end;
 end;
 
-function PSPascalCompilerOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: tbtstring): Boolean; 
+function PSPascalCompilerOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: tbtstring): Boolean;
 var
   ScriptExports: TList;
   ScriptExport: TScriptExport;
@@ -200,7 +200,7 @@ begin
     Result := True;
 end;
 
-procedure PSPascalCompilerOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtstring); 
+procedure PSPascalCompilerOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtstring);
 var
   ScriptCompiler: TScriptCompiler;
   Filename: String;
