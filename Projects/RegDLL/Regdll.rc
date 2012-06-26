@@ -1,1 +1,38 @@
 1 24 RegDLL.manifest.txt
+
+1 VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "RegDLL"
+            VALUE "CompanyName", "Jordan Russell"
+            VALUE "FileDescription", "RegDLL"
+            VALUE "FileVersion", "1, 0, 0, 0"
+            VALUE "InternalName", "RegDLL"
+            VALUE "LegalCopyright", "Copyright (C) 1997-2006 Jordan Russell, portions by Martijn Laan"
+            //VALUE "LegalTrademarks", ""
+            VALUE "OriginalFilename", "RegDLL.dll"
+            //VALUE "PrivateBuild", ""
+            VALUE "ProductName", "RegDLL"
+            VALUE "ProductVersion", "1, 0, 0, 0"
+            //VALUE "SpecialBuild", ""
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
