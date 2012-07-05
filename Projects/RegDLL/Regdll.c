@@ -1,14 +1,12 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2006 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   RegDLL process, called by RegDLL unit
 
   Compiled on Visual Studio 2005
-
-  $jrsoftware: issrc/Projects/RegDLL/RegDLL.c,v 1.5 2006/10/06 01:11:59 jr Exp $
 */
 
 #include <windows.h>
@@ -41,9 +39,6 @@ typedef struct {
 #define ecMutexWaitFailed 2
 #define ecMutexWaitUnexpectedResult 3
 #define ecWrongVersionOrSize 4
-
-#undef ARRAYSIZE   // already defined in later versions of WinNT.h
-#define ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 LPTSTR GetCommandTail(void)
 {
