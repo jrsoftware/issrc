@@ -213,10 +213,10 @@ Files\isscint.dll - Compiled by Visual Studio 2005 from Scintila 2.22 source
 code with scintilla-2.22-patch.txt applied.
 
 Projects\HelperEXEs.res - Compiled by Visual Studio 2005 from the
-Projects\Helper directory.
+Projects\Helper directory and then stored in a compiled resource file.
 
 Projects\RegDLLEXE.res - Compiled by Visual Studio 2005 from the Projects\RegDLL
-directory.
+directory and then stored in a compiled resource file.
 
 Projects\LzmaDecode\LzmaDecodeInno.obj - See Projects\LzmaDecode\compiling.txt.
 
