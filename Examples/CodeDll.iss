@@ -22,18 +22,26 @@ Source: "MyDll.dll"; DestDir: "{app}"
 const
   MB_ICONINFORMATION = $40;
 
-//importing a Windows API function
+//importing an ANSI Windows API function
 function MessageBox(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal): Integer;
 external 'MessageBoxA@user32.dll stdcall';
 
-//importing a custom DLL function, first for Setup, then for uninstall
+//importing a Windows API function, automatically choosing ANSI or Unicode (requires ISPP)
+//function MessageBox(hWnd: Integer; lpText, lpCaption: String; uType: Cardinal): Integer;
+//#ifdef UNICODE
+//external 'MessageBoxW@user32.dll stdcall';
+//#else
+//external 'MessageBoxA@user32.dll stdcall';
+//#endif
+
+//importing an ANSI custom DLL function, first for Setup, then for uninstall
 procedure MyDllFuncSetup(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
 external 'MyDllFunc@files:MyDll.dll stdcall setuponly';
 
 procedure MyDllFuncUninstall(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
 external 'MyDllFunc@{app}\MyDll.dll stdcall uninstallonly';
 
-//importing a function for a DLL which might not exist at runtime
+//importing an ANSI function for a DLL which might not exist at runtime
 procedure DelayLoadedFunc(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
 external 'DllFunc@DllWhichMightNotExist.dll stdcall delayload';
 
