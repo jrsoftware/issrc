@@ -1,6 +1,6 @@
 ; ***************************************************************
 ; ***                                                         ***
-; *** Inno Setup version 5.1.11+ Portuguese (Brazil) messages ***
+; *** Inno Setup version 5.5.0+ Portuguese (Brazil) messages ***
 ; ***                                                         ***
 ; *** Original Author:                                        ***
 ; ***                                                         ***
@@ -8,15 +8,16 @@
 ; ***                                                         ***
 ; *** Maintainer:                                             ***
 ; ***                                                         ***
-; ***   Jeferson Oliveira (jefersonfoliveira@gmail.com)       ***
+; ***   Eduardo Mauro (emauro@acabit.com.br)                  ***
 ; ***                                                         ***
 ; *** Contributors:                                           ***
 ; ***                                                         ***
 ; ***   Felipe (felipefpl@ig.com.br)                          ***
+; ***   Jeferson Oliveira (jefersonfoliveira@gmail.com)       ***
 ; ***                                                         ***
 ; ***************************************************************
 
-; Default.isl version 1.69
+; Default.isl version 100644 
 
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/is3rdparty.php
@@ -61,7 +62,7 @@ ConfirmTitle=Confirmação
 ErrorTitle=Erro
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Este programa irá instalar %1. Você quer continuar?
+SetupLdrStartupMessage=Este programa instalará %1. Você quer continuar?
 LdrCannotCreateTemp=Não foi possível criar um arquivo temporário. Instalação cancelada
 LdrCannotExecTemp=Não foi possível executar um arquivo na pasta de arquivos temporários. Instalação cancelada
 
@@ -70,6 +71,10 @@ LastErrorMessage=%1.%n%nErro %2: %3
 SetupFileMissing=O arquivo %1 não se encontra no diretório de instalação. Por favor, corrija o problema ou obtenha uma nova cópia do programa.
 SetupFileCorrupt=Os arquivos de instalação estão corrompidos. Por favor, obtenha uma nova cópia do programa.
 SetupFileCorruptOrWrongVer=Os arquivos de instalação estão corrompidos ou são incompatíveis com esta versão do Instalador. Por favor, corrija o problema ou obtenha uma nova cópia do programa.
+InvalidParameter=Um parâmetro inválido foi passado na linha de comando:%n%n%1
+SetupAlreadyRunning=O programa de instalação já está sendo executado.
+WindowsVersionNotSupported=Este programa não suporta a versão do Windows instalada em seu computador.
+WindowsServicePackRequired=Este programa necessita %1 Service Pack %2 ou posterior.
 NotOnThisPlatform=Este programa não executará no %1.
 OnlyOnThisPlatform=Este programa deve ser executado no %1.
 OnlyOnTheseArchitectures=Este programa só pode ser instalado em versões do Windows projetadas para as seguintes arquiteturas de processador:%n%n%1
@@ -122,7 +127,7 @@ NewFolderName=Nova Pasta
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Bem-vindo ao Assistente de Instalação de [name]
-WelcomeLabel2=Este Assistente irá instalar [name/ver] no seu computador.%n%nÉ recomendado que você feche todos os outros aplicativos antes de continuar.
+WelcomeLabel2=Este Assistente instalará [name/ver] no seu computador.%n%nÉ recomendado que você feche todos os outros aplicativos antes de continuar.
 
 ; *** "Password" wizard page
 WizardPassword=Senha
@@ -157,10 +162,11 @@ UserInfoNameRequired=Você deve informar um nome.
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Selecione o Local de Destino
 SelectDirDesc=Onde [name] deve ser instalado?
-SelectDirLabel3=O Programa de Instalação irá instalar [name] na seguinte pasta.
+SelectDirLabel3=O Programa de Instalação instalará [name] na seguinte pasta.
 SelectDirBrowseLabel=Para continuar, clique em Avançar. Se você deseja escolher uma pasta diferente, clique em Procurar.
 DiskSpaceMBLabel=São necessários pelo menos [mb] MB de espaço livre em disco.
-ToUNCPathname=O Programa de Instalação não pode fazer a instalação num caminho de rede UNC. Se você estiver tentando instalar num local de rede, deverá mapear uma unidade de rede.
+CannotInstallToNetworkDrive=O programa de instalação não pode fazer a instalação em uma unidade de rede.
+CannotInstallToUNCPath=O programa de instalação não fazer a instalação num caminhho de rede UNC.
 InvalidPath=Você deve informar um caminho completo, incluindo a letra da unidade de disco; por exemplo:%n%nC:\APP%n%e não um caminho de rede UNC na forma:%n%n\\servidor\compartilhamento
 InvalidDrive=A unidade de disco ou compartilhamento de rede UNC que você selecionou não existe ou não está acessível. Por favor, selecione outro local.
 DiskSpaceWarningTitle=Espaço em Disco Insuficiente
@@ -220,6 +226,10 @@ WizardPreparing=Preparando para Instalar
 PreparingDesc=O Programa de Instalação está se preparando para instalar [name] no seu computador.
 PreviousInstallNotCompleted=A instalação/remoção de um programa anterior não foi concluída. Você precisará reiniciar seu computador para finalizá-la.%n%nApós reiniciar o computador, execute novamente o Programa de Instalação para concluir a instalação de [name].
 CannotContinue=O Programa de Instalação não pode continuar. Por favor, clique em Cancelar para sair.
+ApplicationsFound=As seguintes aplicações estap usando arquivos que necessitam ser atualizados pelo programa de instalação. É recomendável que você permita que o programa da instalação encerre automaticamente estas aplicações.
+ApplicationsFound2=As seguintes aplicações estão usandos arquivos que necessitam ser atualizados pelo programa de instalação. É recomendável que você permita que o programa da instalação encerre automaticamente estas aplicações. Após a instalação estar completa, o programa de instalação tentará iniciar novamente as aplicações.
+CloseApplications=&Automaticamente encerre as aplicações
+DontCloseApplications=&Não encerre as aplicações
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalando
@@ -252,6 +262,7 @@ SetupAborted=A instalação não foi concluída.%n%nPor favor, corrija o problema e 
 EntryAbortRetryIgnore=Clique Repetir para tentar novamente, Ignorar para continuar assim mesmo, or Cancelar para cancelar a instalação.
 
 ; *** Installation status messages
+StatusClosingApplications=Encerrando aplicações...
 StatusCreateDirs=Criando diretórios...
 StatusExtractFiles=Extraindo arquivos...
 StatusCreateIcons=Criando atalhos...
@@ -260,6 +271,7 @@ StatusCreateRegistryEntries=Criando entradas no Registro...
 StatusRegisterFiles=Registrando arquivos...
 StatusSavingUninstall=Salvando informações de desinstalação...
 StatusRunProgram=Finalizando a instalação...
+StatusRestartingApplications=Reiniciando applicações...
 StatusRollback=Desfazendo as alterações efetuadas...
 
 ; *** Misc. errors
@@ -317,13 +329,15 @@ UninstallDataCorrupted=O arquivo "%1" está corrompido. Não é possível desinstala
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Remover Arquivo Compartilhado?
-
 ConfirmDeleteSharedFile2=O sistema indica que o seguinte arquivo compartilhado não está mais em uso por nenhum outro programa. Você quer que a desinstalação remova este arquivo compartilhado?%n%nSe ainda houver programas utilizando este arquivo e ele for removido, esses programas poderão não funcionar corretamente. Se você não tem certeza, escolha Não. Manter o arquivo no seu computador não trará prejuízo algum.
-
 SharedFileNameLabel=Nome do arquivo:
 SharedFileLocationLabel=Local:
 WizardUninstalling=Status da Desinstalação
 StatusUninstalling=Desinstalando %1...
+
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Instalando %1.
+ShutdownBlockReasonUninstallingApp=Removendo %1.
 
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
@@ -339,3 +353,6 @@ UninstallProgram=Desinstalar %1
 LaunchProgram=Executar %1
 AssocFileExtension=Associar %1 com a e&xtensão de arquivo %2
 AssocingFileExtension=Associando %1 com a extensão de arquivo...
+AutoStartProgramGroupDescription=Startup:
+AutoStartProgram=Iniciar automaticamente %1
+AddonHostProgramNotFound=%1 não pôde ser localizado na pasta que você selecionou.%n%nVocê deseja continuar assim mesmo?

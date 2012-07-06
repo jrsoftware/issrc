@@ -35,7 +35,6 @@ SignedUninstaller=yes
 
 [Languages]
 Name: en; MessagesFile: "files\Default.isl"
-Name: ba; MessagesFile: "files\Languages\Basque.isl"
 Name: br; MessagesFile: "files\Languages\BrazilianPortuguese.isl"
 Name: ca; MessagesFile: "files\Languages\Catalan.isl"
 Name: cz; MessagesFile: "files\Languages\Czech.isl"
@@ -55,7 +54,6 @@ Name: pt; MessagesFile: "files\Languages\Portuguese.isl"
 Name: ru; MessagesFile: "files\Languages\Russian.isl"
 Name: se; MessagesFile: "files\Languages\SerbianLatin.isl"
 Name: se2; MessagesFile: "files\Languages\SerbianCyrillic.isl"
-Name: sl; MessagesFile: "files\Languages\Slovak.isl"
 Name: sl2; MessagesFile: "files\Languages\Slovenian.isl"
 Name: sp; MessagesFile: "files\Languages\Spanish.isl"
 Name: uk; MessagesFile: "files\Languages\Ukrainian.isl"
@@ -91,7 +89,6 @@ Source: "files\ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\Languages\Basque.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\BrazilianPortuguese.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Catalan.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Czech.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
@@ -111,7 +108,6 @@ Source: "files\Languages\Portuguese.isl"; DestDir: "{app}\Languages"; Flags: ign
 Source: "files\Languages\Russian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\SerbianCyrillic.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\SerbianLatin.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Slovak.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Slovenian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Spanish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Ukrainian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
