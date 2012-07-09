@@ -1555,6 +1555,7 @@ end;</pre></example>
         <name>SaveStringsToFile</name>
         <prototype>function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string array to the specified file with ASCII encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>Also see <tt>SaveStringsToUTF8File</tt>.</p></remarks>
       </function>
       <function>
         <name>SaveStringsToUTF8File</name>
