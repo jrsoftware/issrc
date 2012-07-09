@@ -2,7 +2,7 @@ unit Main;
 
 {
   Inno Setup
-  Copyright (C) 1997-2011 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -1334,13 +1334,6 @@ begin
       [FmtSetupMessage1(msgErrorCreatingDir, Subdir), IntToStr(ErrorCode),
        Win32ErrorString(ErrorCode)]));
   end;
-
-  { Extract RegDLL EXE }
-  {$IFNDEF UNICODE}
-  {$R RegDLLEXE.res}
-  Filename := Subdir + '\_RegDLL.tmp';
-  SaveResourceToTempFile('REGDLL_EXE', Filename);
-  {$ENDIF}
 
   { Extract 64-bit helper EXE, if one is available for the current processor
     architecture }

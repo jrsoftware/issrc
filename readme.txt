@@ -215,9 +215,6 @@ code with scintilla-2.22-patch.txt applied.
 Projects\HelperEXEs.res - Compiled by Visual Studio 2005 from the
 Projects\Helper directory and then stored in a compiled resource file.
 
-Projects\RegDLLEXE.res - Compiled by Visual Studio 2005 from the Projects\RegDLL
-directory and then stored in a compiled resource file.
-
 Projects\LzmaDecode\LzmaDecodeInno.obj - See Projects\LzmaDecode\compiling.txt.
 
 Projects\lzma2\Decoder\ISLzmaDec.obj, Projects\lzma2\Decoder\ISLzma2Dec.obj -
