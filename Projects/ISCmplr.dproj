@@ -20,7 +20,9 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_DependencyCheckOutputName>ISCmplr.dll</DCC_DependencyCheckOutputName>
+			<DCC_ExeOutput>..\files</DCC_ExeOutput>
+			<DCC_DcuOutput>..\lib</DCC_DcuOutput>
+			<DCC_DependencyCheckOutputName>..\files\ISCmplr.dll</DCC_DependencyCheckOutputName>
 			<DCC_UnitSearchPath>..\components;..\components\unips\source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_UsePackage>VCL30;vclx30;VclSmp30;vcldb30;vcldbx30</DCC_UsePackage>
 			<DCC_ImageBase>00800000</DCC_ImageBase>
@@ -51,7 +53,9 @@
 			<DelphiCompile Include="ISCmplr.dpr">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
+			<DCCReference Include="SafeDLLPath.pas"/>
 			<DCCReference Include="CompInt.pas"/>
+			<DCCReference Include="CompPreprocInt.pas"/>
 			<DCCReference Include="Compile.pas"/>
 			<DCCReference Include="CompMsgs.pas"/>
 			<DCCReference Include="Struct.pas"/>

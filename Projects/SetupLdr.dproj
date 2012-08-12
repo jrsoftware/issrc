@@ -20,7 +20,10 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_DependencyCheckOutputName>SetupLdr.exe</DCC_DependencyCheckOutputName>
+			<DCC_StringChecks>off</DCC_StringChecks>
+			<DCC_DcuOutput>..\lib</DCC_DcuOutput>
+			<DCC_ExeOutput>..\files</DCC_ExeOutput>
+			<DCC_DependencyCheckOutputName>..\files\SetupLdr.exe</DCC_DependencyCheckOutputName>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_WriteableConstants>true</DCC_WriteableConstants>
 			<DCC_UnitSearchPath>..\components;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
@@ -31,7 +34,6 @@
 			<DCC_N>true</DCC_N>
 			<DCC_S>false</DCC_S>
 			<DCC_F>false</DCC_F>
-			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
 			<DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
 			<DCC_E>false</DCC_E>
 		</PropertyGroup>

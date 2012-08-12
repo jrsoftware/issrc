@@ -20,7 +20,10 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_DependencyCheckOutputName>Compil32.exe</DCC_DependencyCheckOutputName>
+			<DCC_StringChecks>off</DCC_StringChecks>
+			<DCC_DcuOutput>..\lib</DCC_DcuOutput>
+			<DCC_ExeOutput>..\files</DCC_ExeOutput>
+			<DCC_DependencyCheckOutputName>..\files\Compil32.exe</DCC_DependencyCheckOutputName>
 			<DCC_UnitSearchPath>..\components;..\components\unips\source;ispp;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_UsePackage>VCL30;vclx30;VclSmp30;vcldb30;vcldbx30</DCC_UsePackage>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
@@ -32,7 +35,6 @@
 			<DCC_F>false</DCC_F>
 			<DCC_S>false</DCC_S>
 			<DCC_N>true</DCC_N>
-			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
 			<DCC_WriteableConstants>true</DCC_WriteableConstants>
 			<DCC_E>false</DCC_E>
 			<DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>

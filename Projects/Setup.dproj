@@ -20,10 +20,13 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_UnitSearchPath>..\components;..\components\rops\source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-			<DCC_DependencyCheckOutputName>Setup.exe</DCC_DependencyCheckOutputName>
+			<DCC_StringChecks>off</DCC_StringChecks>
+			<DCC_DcuOutput>..\lib</DCC_DcuOutput>
+			<DCC_ExeOutput>..\files</DCC_ExeOutput>
+			<DCC_UnitSearchPath>..\components;..\components\rops\source;..\components\unips\source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_DependencyCheckOutputName>..\files\Setup.exe</DCC_DependencyCheckOutputName>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
-			<DCC_Define>PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
+			<DCC_Define>PS_MINIVCL;PS_NOINT64;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
 			<DCC_Alignment>1</DCC_Alignment>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
 			<DCC_Platform>x86</DCC_Platform>
@@ -32,7 +35,6 @@
 			<DCC_N>true</DCC_N>
 			<DCC_S>false</DCC_S>
 			<DCC_F>false</DCC_F>
-			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
 			<DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
 			<DCC_E>false</DCC_E>
 		</PropertyGroup>

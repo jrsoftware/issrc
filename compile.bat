@@ -9,6 +9,8 @@ rem  Batch file to compile all projects without Unicode support
 
 setlocal
 
+cd /d "%~dp0"
+
 if exist compilesettings.bat goto compilesettingsfound
 :compilesettingserror
 echo compilesettings.bat is missing or incomplete. It needs to be created
@@ -37,6 +39,9 @@ rem  Compile each project separately because it seems Delphi
 rem  carries some settings (e.g. $APPTYPE) between projects
 rem  if multiple projects are specified on the command line.
 
+mkdir lib >NUL 2>NUL
+mkdir lib\ISPP >NUL 2>NUL
+
 cd Projects
 if errorlevel 1 goto exit
 
@@ -44,34 +49,41 @@ cd ISPP
 if errorlevel 1 goto failed
 
 echo - ISPPCC.dpr
-"%DELPHI7ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI7ROOT%\lib" -E..\..\Files ISPPCC.dpr -DIS_ALLOWD7
+"%DELPHI7ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI7ROOT%\lib" -E..\..\Files -N..\..\lib\ISPP ISPPCC.dpr -DIS_ALLOWD7
 if errorlevel 1 goto failed
+echo.
 
 echo - ISPP.dpr
-"%DELPHI7ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI7ROOT%\lib" -E..\..\Files ISPP.dpr -DIS_ALLOWD7
+"%DELPHI7ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI7ROOT%\lib" -E..\..\Files -N..\..\lib\ISPP ISPP.dpr -DIS_ALLOWD7
 if errorlevel 1 goto failed
+echo.
 
 cd ..
 
 echo - Compil32.dpr
-"%DELPHI3ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI3ROOT%\lib;..\Components;%ROPSPATH%" -E..\Files -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST Compil32.dpr
+"%DELPHI3ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI3ROOT%\lib;..\Components;%ROPSPATH%" -E..\Files -N..\lib -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST Compil32.dpr
 if errorlevel 1 goto failed
+echo.
 
 echo - ISCC.dpr
-"%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components;%ROPSPATH%" -E..\Files -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST ISCC.dpr
+"%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components;%ROPSPATH%" -E..\Files -N..\lib -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST ISCC.dpr
 if errorlevel 1 goto failed
+echo.
 
 echo - ISCmplr.dpr
-"%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components;%ROPSPATH%" -E..\Files -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST ISCmplr.dpr
+"%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components;%ROPSPATH%" -E..\Files -N..\lib -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST ISCmplr.dpr
 if errorlevel 1 goto failed
+echo.
 
 echo - SetupLdr.dpr
-"%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components" -E..\Files SetupLdr.dpr
+"%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components" -E..\Files -N..\lib SetupLdr.dpr
 if errorlevel 1 goto failed
+echo.
 
 echo - Setup.dpr
-"%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components;%ROPSPATH%" -E..\Files -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST Setup.dpr
+"%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components;%ROPSPATH%" -E..\Files -N..\lib -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST Setup.dpr
 if errorlevel 1 goto failed
+echo.
 
 echo - Renaming files
 cd ..\Files
