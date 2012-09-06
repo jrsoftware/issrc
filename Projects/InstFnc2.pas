@@ -149,7 +149,7 @@ function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
   const HotKey: Word; FolderShortcut: Boolean; const AppUserModelID: String;
   const ExcludeFromShowInNewInstall, PreventPinning: Boolean): String;
 { Creates a lnk file named Filename, with a description of Description, with a
-  HotKey hotkey, which points to ShortcutTo.
+  HotKey hotkey, which points to ShortcutTo. Filename should be a full path.
   NOTE! If you want to copy this procedure for use in your own application
   be sure to call CoInitialize at application startup and CoUninitialize at
   application shutdown. See the bottom of this unit for an example. But this
