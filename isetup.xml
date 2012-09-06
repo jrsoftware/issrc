@@ -2643,7 +2643,7 @@ Type: files; Name: "{win}\MYPROG.INI"
     <ul>
     <li>The Unicode compiler sees type 'String' as a Unicode string, and 'Char' as a Unicode character. Its 'AnsiString' type hasn't changed and still is an ANSI string. Its 'PChar' type has been renamed to 'PAnsiChar'.</li>
     <li>The Unicode compiler is more strict about correct ';' usage: it no longer accepts certain missing ';' characters.</li>
-    <li>The new RemObjects PascalScript version used by the Unicode compiler supports Unicode, but not for its input source. This means it does use Unicode string types as said, but any literal Unicode characters in the script will be converted to ANSI. This doesn't mean you can't display Unicode strings: you can for example instead use encoded Unicode characters to build Unicode strings (like <tt>S := #$0100 + #$0101 + 'Aa';</tt>), or load the string from a file using <tt>LoadStringsFromFile</tt>.</li>
+    <li>The new RemObjects PascalScript version used by the Unicode compiler supports Unicode, but not for its input source. This means it does use Unicode string types as said, but any literal Unicode characters in the script will be converted to ANSI. This doesn't mean you can't display Unicode strings: you can for example instead use encoded Unicode characters to build Unicode strings (like <tt>S := #$0100 + #$0101 + 'Aa';</tt>), or load the string from a file using <tt>LoadStringsFromFile</tt>, or use a <tt>{cm:...}</tt> constant.</li>
     <li>Some support functions had their prototype changed: some parameters of <tt>CreateOutputMsgMemoPage</tt>, <tt>RegQueryBinaryValue</tt>, <tt>RegWriteBinaryValue</tt>, <tt>OemToCharBuff</tt>, <tt>CharToOemBuff</tt>, <tt>LoadStringFromfile</tt>, <tt>SaveStringToFile</tt>, and <tt>GetMD5OfString</tt> are of type AnsiString now instead of String.</li>
     <li>Added new <tt>SaveStringsToUTF8File</tt>, and <tt>GetMD5OfUnicodeString</tt> support functions.</li>
     <li>If you want to compile an existing script that imports ANSI Windows API calls with the Unicode compiler, either upgrade to the 'W' Unicode API call or change the parameters from 'String' or 'PChar' to 'AnsiString'. The 'AnsiString' approach will make your [Code] compatible with both the Unicode and the non Unicode version.</li>
@@ -5064,7 +5064,7 @@ SignTool=byparam format c:
 <tr><td>6.0.6001</td><td>Windows Vista with Service Pack 1<br/>or Windows Server 2008</td></tr>
 <tr><td>6.1.7600</td><td>Windows 7<br/>or Windows Server 2008 R2</td></tr>
 <tr><td>6.1.7601</td><td>Windows 7 with Service Pack 1<br/>or Windows Server 2008 R2 with Service Pack 1</td></tr>
-<tr><td>6.2.8400</td><td>Windows 8 Release Preview</td></tr>
+<tr><td>6.2.9200</td><td>Windows 8<br/>or Windows Server 2012</td></tr>
 </table>
 <p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "5.1" for Windows XP).</p>
 </body>
