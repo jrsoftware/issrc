@@ -897,6 +897,7 @@ var
     RetriesLeft: Integer;
     LastError: DWORD;
     DestF, SourceF: TFile;
+    Flags: TMakeDirFlags;
   label Retry, Skip;
   begin
     Log('-- File entry --');
@@ -1206,7 +1207,10 @@ var
           file's directory if it didn't already exist. }
         LastOperation := SetupMessages[msgErrorCreatingTemp];
         TempFile := GenerateUniqueName(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
-        MakeDir(DisableFsRedir, PathExtractDir(TempFile), []);
+        Flags := [];
+        if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
+        if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
+        MakeDir(DisableFsRedir, PathExtractDir(TempFile), Flags);
         DestF := TFileRedir.Create(DisableFsRedir, TempFile, fdCreateAlways, faReadWrite, fsNone);
         try
           TempFileLeftOver := True;
@@ -1505,6 +1509,7 @@ var
       H: THandle;
       FindData: TWin32FindData;
       Size: Integer64;
+      Flags: TMakeDirFlags;
     begin
       SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
       Result := False;
@@ -1573,7 +1578,10 @@ var
             DestName := DestName + SearchSubDir
           else
             DestName := PathExtractPath(DestName) + SearchSubDir;
-          MakeDir(DisableFsRedir, DestName, []);
+          Flags := [];
+          if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
+          if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
+          MakeDir(DisableFsRedir, DestName, Flags);
           Result := True;
         end;
       end;
