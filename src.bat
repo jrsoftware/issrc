@@ -11,20 +11,22 @@ rem  First parameter should be the version tag, second parameter the version num
 rem
 rem  Example usage: src.bat 5_4_3 5.4.3
 
+cd output
+
 if "%1%"=="" goto failed
 if "%2%"=="" goto failed
 
-cd output
 del issrc-%2%.zip
 if errorlevel 1 goto failed
 rd /s /q issrc
 if errorlevel 1 goto failed
 rem note: github doesn't allow git archive at this moment
-call git clone git@github.com:jrsoftware/issrc.git issrc
+call git clone git://github.com/jrsoftware/issrc.git issrc
 if errorlevel 1 goto failed
 cd issrc
 if errorlevel 1 goto failed
 call git checkout is-%1%
+if errorlevel 1 goto failed
 zip -9RDX "..\issrc-%2%.zip" *
 if errorlevel 1 goto failed
 cd ..
