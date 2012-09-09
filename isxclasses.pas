@@ -536,8 +536,9 @@ TNewProgressBar = class(TWinControl)
   property Min: Longint; read write;
   property Max: Longint; read write;
   property Position: Longint; read write;
-  property State: TNewProgressBarState read write;
-  property Style: TNewProgressBarStyle read write;
+  property State: TNewProgressBarState; read write;
+  property Style: TNewProgressBarStyle; read write;
+  property Visible: Boolean; read write;
 end;
 
 TRichEditViewer = class(TMemo)
