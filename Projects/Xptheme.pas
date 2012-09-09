@@ -22,7 +22,9 @@ implementation
 {$R XPTheme.res}
 
 uses
-  Windows, CommCtrl;
+  Windows{, CommCtrl}; // CommCtrl uses Active which adds Variants to the project
+
+procedure InitCommonControls; external comctl32 name 'InitCommonControls';
 
 initialization
   { Work around bug in Windows XP Gold & SP1: If the application manifest
