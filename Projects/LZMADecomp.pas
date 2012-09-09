@@ -199,10 +199,14 @@ begin
     else
       LZMADecompInternalError(Format('DecodeToBuf failed (%d)', [Code]));
     end;
-    { This is how LzmaUtil.c checks for premature end-of-input: }
-    if (InBytes = 0) and (OutBytes = 0) and
-       (DecodeStatus <> LZMA_STATUS_FINISHED_WITH_MARK) then
-      LZMADecompDataError(4); 
+    { This is how LzmaUtil.c checks for premature end-of-input:  }
+    if (InBytes = 0) and (OutBytes = 0) then begin
+       if (DecodeStatus <> LZMA_STATUS_FINISHED_WITH_MARK) then
+         LZMADecompDataError(4)
+       else
+       if (AvailOut > 0) and (FAvailIn = 0) and FReachedEnd then { no change and no new data => corrupted file }
+         LZMADecompDataError(6);
+    end;
     Dec(AvailOut, OutBytes);
     Inc(NextOut, OutBytes);
     Dec(FAvailIn, InBytes);
