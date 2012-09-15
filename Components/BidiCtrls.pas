@@ -54,7 +54,7 @@ type
   end;
 
 procedure Register;
-  
+
 implementation
 
 uses
@@ -100,7 +100,7 @@ end;
 
 { TNewButton }
 
-procedure TNewButton.CreateParams(var Params: TCreateParams); 
+procedure TNewButton.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   SetBiDiStyles(Self, Params);

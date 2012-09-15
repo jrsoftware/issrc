@@ -720,7 +720,7 @@ function ExpandIndividualConst(const Cnst: String;
   var
     Z, Subkey, Value, Default: String;
     I, J, L: Integer;
-    RegView: TRegView; 
+    RegView: TRegView;
     RootKey: HKEY;
     K: HKEY;
   begin
@@ -2270,7 +2270,7 @@ begin
   { Note: Depending on the OS, RestartComputer may not return if successful }
   if not RestartComputer then begin
     { Hack for when called from RespawnSetupElevated: re-show the
-      application's taskbar button } 
+      application's taskbar button }
     ShowWindow(Application.Handle, SW_SHOW);
     { If another app denied the shutdown, we probably lost the foreground;
       try to take it back. (Note: Application.BringToFront can't be used
@@ -4137,7 +4137,7 @@ procedure InitWindowsVersion;
   begin
     if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, 'System\CurrentControlSet\Control\ProductOptions',
        0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-      { See MS KB article 152078 for details on this key } 
+      { See MS KB article 152078 for details on this key }
       if RegQueryStringValue(K, 'ProductType', S) then begin
         if CompareText(S, 'WinNT') = 0 then
           WindowsProductType := VER_NT_WORKSTATION

@@ -79,7 +79,7 @@ begin
       if CommandLineCompile then
         CommandLine := '/CC ' + CommandLine;
     end;
-    
+
     if Length(CommandLine) > RESTART_MAX_CMD_LINE then
       CommandLine := '';
 

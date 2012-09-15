@@ -61,7 +61,7 @@ function UseThemes: Boolean;
 
 const
   WM_THEMECHANGED = $031A;
-  
+
 type
   HIMAGELIST = THANDLE; // TODO TEMPORARY
   HTHEME = THANDLE;     // handle to a section of theme data for class

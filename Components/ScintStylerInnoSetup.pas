@@ -815,7 +815,7 @@ begin
           end;
       else
         { Illegal character }
-        CommitStyleSq(stSymbol, True); 
+        CommitStyleSq(stSymbol, True);
       end;
     end;
     SkipWhitespace;
@@ -1073,7 +1073,7 @@ var
   IsWhitespace: Boolean;
 begin
   { Consume and squigglify all non-whitespace characters until one of Chars
-    is encountered } 
+    is encountered }
   while not EndOfLine and not CurCharIn(Chars) do begin
     IsWhitespace := CurCharIn(WhitespaceChars);
     ConsumeChar(CurChar);

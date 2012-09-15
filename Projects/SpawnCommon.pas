@@ -24,7 +24,7 @@ const
   CD_SpawnServer_Exec      = $4A73E9C0;
   CD_SpawnServer_ShellExec = $4A73E9C1;
 
-  { Possible wParam values in a WM_SpawnServer_Query message } 
+  { Possible wParam values in a WM_SpawnServer_Query message }
   SPAWN_QUERY_STATUS        = 1;
   SPAWN_QUERY_RESULTCODE_LO = 2;
   SPAWN_QUERY_RESULTCODE_HI = 3;

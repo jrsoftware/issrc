@@ -44,7 +44,7 @@ typedef struct {
 } TGrantPermissionSid;
 typedef struct {
 	TGrantPermissionSid Sid;
-    DWORD AccessMask;
+	DWORD AccessMask;
 } TGrantPermissionEntry;
 
 // This value must be kept in synch with Struct.pas:
@@ -168,7 +168,7 @@ static DWORD RegisterServer(const BOOL Unregister, const LPWSTR Filename,
 		*ErrorCode = OleInitResult;
 		return 4;
 	}
-	
+
 	SaveErrorMode = SetErrorMode(FailCriticalErrors ?
 		SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS :
 		SEM_NOOPENFILEERRORBOX);
@@ -224,7 +224,7 @@ static DWORD RegisterTypeLibrary(const BOOL Unregister,
 	if (hr == S_OK) {
 		if (!Unregister) {
 			retval = 2;
-			hr = RegisterTypeLib(TypeLib, Filename, NULL);			
+			hr = RegisterTypeLib(TypeLib, Filename, NULL);
 		} else {
 			retval = 3;
 			hr = TypeLib->lpVtbl->GetLibAttr(TypeLib, &LibAttr);
@@ -258,7 +258,7 @@ static void ProcessRequest(REQUEST_DATA *request, RESPONSE_DATA *response)
 				// response:
 				//   StatusCode    1 if request was valid
 				//   ErrorCode     Error code from GrantPermission()
-				
+
 				REQUEST_GRANT_PERMISSION_DATA *data = &request->GrantPermissionData;
 
 				if (request->DataSize == sizeof(*data) &&
@@ -439,7 +439,7 @@ int mainCRTStartup(void)
 	int retval;
 
 	retval = Main();
-	
+
 	// Good idea to call ExitProcess because it'll terminate any other
 	// threads the system might've created. A simple "return" won't.
 	ExitProcess(retval);

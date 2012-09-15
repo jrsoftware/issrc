@@ -1561,7 +1561,7 @@ end;
 
 procedure TScintEdit.UpdateStyleAttributes;
 var
-  DefaultAttr: TScintStyleAttributes; 
+  DefaultAttr: TScintStyleAttributes;
 
   procedure SetStyleAttr(const StyleNumber: Integer;
     const Attr: TScintStyleAttributes; const Force: Boolean);

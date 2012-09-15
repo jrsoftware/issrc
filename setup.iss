@@ -186,7 +186,7 @@ ISPPCheck=&Install Inno Setup Preprocessor
 var
   ISPPPage: TWizardPage;
   ISPPCheckBox: TCheckBox;
-  
+
 function GetModuleHandle(lpModuleName: LongInt): LongInt;
 external 'GetModuleHandleA@kernel32.dll stdcall';
 function ExtractIcon(hInst: LongInt; lpszExeFileName: AnsiString; nIconIndex: LongInt): LongInt;
@@ -198,7 +198,7 @@ external 'DestroyIcon@user32.dll stdcall';
 
 const
   DI_NORMAL = 3;
-  
+
 function CreateCustomOptionPage(AAfterId: Integer; ACaption, ASubCaption, AIconFileName, ALabel1Caption, ALabel2Caption,
   ACheckCaption: String; var CheckBox: TCheckBox): TWizardPage;
 var
@@ -208,7 +208,7 @@ var
   Label1, Label2: TNewStaticText;
 begin
   Page := CreateCustomPage(AAfterID, ACaption, ASubCaption);
-  
+
   try
     AIconFileName := ExpandConstant('{tmp}\' + AIconFileName);
     if not FileExists(AIconFileName) then
@@ -263,7 +263,7 @@ begin
     Caption := ACheckCaption;
     Parent := Page.Surface;
   end;
-  
+
   Result := Page;
 end;
 
@@ -284,7 +284,7 @@ end;
 procedure InitializeWizard;
 begin
   CreateCustomPages;
-  
+
   ISPPCheckBox.Checked := GetPreviousData('ISPP', '1') = '1';
 end;
 

@@ -98,7 +98,7 @@ var
   RmGetList: function (dwSessionHandle: DWORD; pnProcInfoNeeded, pnProcInfo: PUINT; rgAffectedApps: Pointer; lpdwRebootReasons: LPDWORD): DWORD; stdcall;
 
   RmShutdown: function (dwSessionHandle: DWORD; lActionFlags: ULONG; fnStatus: Pointer): DWORD; stdcall;
-  
+
   RmRestart: function (dwSessionHandle: DWORD; dwRestartFlags: DWORD; fnStatus: Pointer): DWORD; stdcall;
 
   RmEndSession: function (dwSessionHandle: DWORD): DWORD; stdcall;
