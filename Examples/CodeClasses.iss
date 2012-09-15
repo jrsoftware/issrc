@@ -209,7 +209,7 @@ begin
   ProgressBar3.Parent := Page.Surface;
   { Note: TNewProgressBar.Style property only has an effect on Windows XP and newer }
   ProgressBar3.Style := npbstMarquee;
-  
+
   { TNewCheckListBox }
 
   Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TNewCheckListBox');
@@ -346,7 +346,7 @@ begin
   { Custom wizard pages }
 
   CreateTheWizardPages;
-  
+
   { Custom controls }
 
   CreateAboutButtonAndURLLabel(WizardForm, WizardForm.CancelButton);
@@ -357,7 +357,7 @@ begin
   BackgroundBitmapImage.AutoSize := True;
   BackgroundBitmapImage.Bitmap := WizardForm.WizardBitmapImage.Bitmap;
   BackgroundBitmapImage.Parent := MainForm;
-  
+
   BackgroundBitmapText := TNewStaticText.Create(MainForm);
   BackgroundBitmapText.Left := BackgroundBitmapImage.Left;
   BackgroundBitmapText.Top := BackgroundBitmapImage.Top + BackgroundBitmapImage.Height + ScaleY(8);

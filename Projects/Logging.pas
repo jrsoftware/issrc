@@ -45,7 +45,7 @@ end;
 
 procedure GetFixedLocalTime(var ST: TSystemTime);
 { Like GetLocalTime, but uses our LocalTimeBias as the offset, which cannot
-  change while the program is running } 
+  change while the program is running }
 var
   FT: Integer64;
 begin

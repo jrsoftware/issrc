@@ -88,7 +88,7 @@ begin
     try
       L.LineText := F.ReadLine;
       if Pos(#0, L.LineText) <> 0 then
-        raise Exception.CreateFmt('Illegal null character on line %d', [LineNumber]); 
+        raise Exception.CreateFmt('Illegal null character on line %d', [LineNumber]);
       L.Next := nil;
     except
       Dispose(L);

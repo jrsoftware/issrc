@@ -303,7 +303,7 @@ begin
       OffsetTable := GetSetupLdrOffsetTable;
       { Note: We don't check the OffsetTable.ID here because it would put a
         copy of the ID in the data section, and that would confuse external
-        programs that search for the offset table by ID. } 
+        programs that search for the offset table by ID. }
       if (OffsetTable.Version <> SetupLdrOffsetTableVersion) or
          (GetCRC32(OffsetTable^, SizeOf(OffsetTable^) - SizeOf(OffsetTable.TableCRC)) <> OffsetTable.TableCRC) or
          ((SourceF.Size.Hi = 0) and (SourceF.Size.Lo < OffsetTable.TotalSize)) then
@@ -404,7 +404,7 @@ begin
         SelfFilename + '" ' + GetCmdTail, SetupLdrExitCode);
 
       { Synchronize our active language with Setup's, in case we need to
-        display any messages below } 
+        display any messages below }
       if PendingNewLanguage <> -1 then
         SetActiveLanguage(PendingNewLanguage);
     finally

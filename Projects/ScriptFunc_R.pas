@@ -84,21 +84,21 @@ function GetMainForm: TMainForm;
 begin
   Result := MainForm;
   if Result = nil then
-    InternalError('An attempt was made to access MainForm before it has been created'); 
+    InternalError('An attempt was made to access MainForm before it has been created');
 end;
 
 function GetWizardForm: TWizardForm;
 begin
   Result := WizardForm;
   if Result = nil then
-    InternalError('An attempt was made to access WizardForm before it has been created'); 
+    InternalError('An attempt was made to access WizardForm before it has been created');
 end;
 
 function GetUninstallProgressForm: TUninstallProgressForm;
 begin
   Result := UninstallProgressForm;
   if Result = nil then
-    InternalError('An attempt was made to access UninstallProgressForm before it has been created'); 
+    InternalError('An attempt was made to access UninstallProgressForm before it has been created');
 end;
 
 procedure InitializeScaleBaseUnits;
@@ -1830,7 +1830,7 @@ begin
   ScriptInterpreter.RegisterDelphiFunction(@_FindClose, 'FindClose', cdRegister);
   ScriptInterpreter.RegisterDelphiFunction(@_FmtMessage, 'FmtMessage', cdRegister);
   ScriptInterpreter.RegisterDelphiFunction({$IFNDEF IS_D7} @_Format {$ELSE} @Format {$ENDIF}, 'Format', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx', cdRegister); 
+  ScriptInterpreter.RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx', cdRegister);
 end;
 
 end.
