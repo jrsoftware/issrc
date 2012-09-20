@@ -39,12 +39,12 @@ Remarks:
 
   You'll need to obtain the exact commit specified in ROPS-revision.txt
   from the ROPS Git repository. For example, if the commit were
-  e5a93a963f785e89810e61e3eb5e2b6ee3efd3e7:
+  52291ffbfc14f3cf1a445f3e88c6902e13fbdf78:
 
   > cd is\Components
   > git clone git://github.com/remobjects/pascalscript.git UniPs
   > cd UniPs
-  > git checkout e5a93a963f785e89810e61e3eb5e2b6ee3efd3e7
+  > git checkout 52291ffbfc14f3cf1a445f3e88c6902e13fbdf78
 
   If you don't have the Git client (git), get it from:
   http://git-scm.com/
