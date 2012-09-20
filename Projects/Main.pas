@@ -118,7 +118,8 @@ var
   { 'Constants' }
   SourceDir, TempInstallDir, WinDir, WinSystemDir, WinSysWow64Dir, SystemDrive,
     ProgramFiles32Dir, CommonFiles32Dir, ProgramFiles64Dir, CommonFiles64Dir,
-    CmdFilename, SysUserInfoName, SysUserInfoOrg, UninstallExeFilename: String;
+    ProgramFilesUserDir, CommonFilesUserDir, CmdFilename, SysUserInfoName,
+    SysUserInfoOrg, UninstallExeFilename: String;
 
   { Uninstall 'constants' }
   UninstallExpandedAppId, UninstallExpandedApp, UninstallExpandedGroup,
@@ -244,6 +245,7 @@ uses
   Msgs, MsgIDs, Install, InstFunc, InstFnc2, RedirFunc, PathFunc,
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
   Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
+  {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
   SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion;
 
 {$R *.DFM}
@@ -254,6 +256,8 @@ var
   SHFolderDLLHandle: HMODULE;
   SHGetFolderPathFunc: function(hwndOwner: HWND; nFolder: Integer;
     hToken: THandle; dwFlags: DWORD; pszPath: PChar): HRESULT; stdcall;
+  SHGetKnownFolderPathFunc: function(const rfid: TGUID; dwFlags: DWORD; hToken: THandle;
+    var ppszPath: PWideChar): HRESULT; stdcall;
 
   DecompressorDLLHandle: HMODULE;
   DecryptDLLHandle: HMODULE;
@@ -998,11 +1002,23 @@ begin
   else if Cnst = 'srcexe' then Result := SetupLdrOriginalFilename
   else if Cnst = 'tmp' then Result := TempInstallDir
   else if Cnst = 'sd' then Result := SystemDrive
+  else if Cnst = 'userpf' then begin
+    if ProgramFilesUserDir = '' then
+      Result := ProgramFilesUserDir
+    else
+      Result := ExpandConst('{localappdata}\Programs'); { supply default, same as Window 7 and newer }
+  end
   else if Cnst = 'pf' then begin
     if Is64BitInstallMode then
       Result := ProgramFiles64Dir
     else
       Result := ProgramFiles32Dir;
+  end
+  else if Cnst = 'usercf' then begin
+    if CommonFilesUserDir <> '' then
+      Result := CommonFilesUserDir
+    else
+      Result := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Window 7 and newer }
   end
   else if Cnst = 'cf' then begin
     if Is64BitInstallMode then
@@ -1236,6 +1252,12 @@ procedure InitMainNonSHFolderConsts;
     end;
   end;
 
+const
+  FOLDERID_UserProgramFiles: TGUID = (D1:$5CD7AEE2; D2:$2219; D3:$4A67; D4:($B8,$5D,$6C,$9C,$E1,$56,$60,$CB));
+  FOLDERID_UserProgramFilesCommon: TGUID = (D1:$BCBD3057; D2:$CA5C; D3:$4622; D4:($B4,$2D,$BC,$56,$DB,$0A,$E5,$16));
+  KF_FLAG_CREATE = $00008000;
+var
+  Path: PWideChar;
 begin
   { Read Windows and Windows System dirs }
   WinDir := GetWinDir;
@@ -1270,6 +1292,24 @@ begin
     CommonFiles64Dir := GetPath(rv64Bit, 'CommonFilesDir');
     if CommonFiles64Dir = '' then
       InternalError('Failed to get path of 64-bit Common Files directory');
+  end;
+
+  { Get per-user Program Files and Common Files dirs (requires Windows 7 or newer) }
+  if Assigned(SHGetKnownFolderPathFunc) and (WindowsVersion shr 16 >= $0601) then begin
+    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFiles, KF_FLAG_CREATE, 0, Path) = S_OK then begin
+      try
+        ProgramFilesUserDir := WideCharToString(Path);
+      finally
+        CoTaskMemFree(Path);
+      end;
+    end;
+    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFilesCommon, KF_FLAG_CREATE, 0, Path) = S_OK then begin
+      try
+        CommonFilesUserDir := WideCharToString(Path);
+      finally
+        CoTaskMemFree(Path);
+      end;
+    end;
   end;
 
   { Get path of command interpreter }
@@ -4243,6 +4283,8 @@ initialization
   DeleteFilesAfterInstallList := TStringList.Create;
   DeleteDirsAfterInstallList := TStringList.Create;
   CloseApplicationsFilterList := TStringList.Create;
+  SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(shell32,
+    SEM_NOOPENFILEERRORBOX), 'SHGetKnownFolderPath');
 
 finalization
   FreeAndNil(WizardImage);

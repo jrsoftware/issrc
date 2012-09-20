@@ -2773,13 +2773,13 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
 const
-  Consts: array[0..36] of String = (
+  Consts: array[0..38] of String = (
     'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts',
     'hwnd', 'pf', 'pf32', 'pf64', 'cf', 'cf32', 'cf64', 'computername', 'dao',
     'cmd', 'username', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
     'language', 'syswow64', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
-    'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064');
+    'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064', 'userpf', 'usercf');
   ShellFolderConsts: array[0..16] of String = (
     'group', 'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
     'commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
