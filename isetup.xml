@@ -99,7 +99,7 @@ Inno Setup is a <i>free</i> installer for Windows programs. First introduced in 
 
 <ul>
 
-<li>Support for every Windows release since 2000, including: Windows 7, 2008 R2, Vista, XP, 2008, 2003, and 2000. (No service packs are required.)</li>
+<li>Support for every Windows release since 2000, including: Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Vista, Windows Server 2008, Windows XP, Windows Server 2003, and Windows 2000. (No service packs are required.)</li>
 
 <li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. Both the x64 and Itanium architectures are supported. (On the Itanium architecture, Service Pack 1 or later is required on Windows Server 2003 to install in 64-bit mode.)</li>
 
@@ -360,6 +360,7 @@ This " contains " embedded " quotes
 <keyword value="{tmp}" anchor="tmp" />
 <keyword value="{uninstallexe}" anchor="uninstallexe" />
 <keyword value="{userappdata}" anchor="userappdata" />
+<keyword value="{usercf}" anchor="usercf" />
 <keyword value="{userdesktop}" anchor="userdesktop" />
 <keyword value="{userdocs}" anchor="userdocs" />
 <keyword value="{userfavorites}" anchor="userfavorites" />
@@ -367,6 +368,7 @@ This " contains " embedded " quotes
 <keyword value="{userinfoorg}" anchor="userinfoorg" />
 <keyword value="{userinfoserial}" anchor="userinfoserial" />
 <keyword value="{username}" anchor="username" />
+<keyword value="{userpf}" anchor="userpf" />
 <keyword value="{userprograms}" anchor="userprograms" />
 <keyword value="{userstartmenu}" anchor="userstartmenu" />
 <keyword value="{userstartup}" anchor="userstartup" />
@@ -546,6 +548,11 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>The path to the Application Data folder.</p>
 </dd>
 
+<dt><b><a name="usercf">{usercf}</a></b></dt>
+<dd>
+<p>The path to the current user's Common Files directory. Only Windows 7 and later supports <tt>{usercf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs\Common</tt>.</p>
+</dd>
+
 <dt><b><a name="userdesktop">{userdesktop}</a></b> &amp; <b><a name="commondesktop">{commondesktop}</a></b> *</dt>
 <dd>
 <p>The path to the desktop folder.</p>
@@ -559,6 +566,11 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <dt><b><a name="userfavorites">{userfavorites}</a></b> &amp; <b><a name="commonfavorites">{commonfavorites}</a></b> *</dt>
 <dd>
 <p>The path to the Favorites folder. Usage of these constants requires a MinVersion setting of at least "<tt>4.1, 4</tt>". Only Windows 2000 and later supports <tt>{commonfavorites}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{userfavorites}</tt>.</p>
+</dd>
+
+<dt><b><a name="userpf">{userpf}</a></b></dt>
+<dd>
+<p>The path to the current user's Program Files directory. Only Windows 7 and later supports <tt>{userpf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs</tt>.</p>
 </dd>
 
 <dt><b><a name="userprograms">{userprograms}</a></b> &amp; <b><a name="commonprograms">{commonprograms}</a></b> *</dt>
