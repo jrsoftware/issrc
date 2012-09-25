@@ -5688,12 +5688,6 @@ type
          (CompareText(PathExtractExt(Filename), '.DLL') = 0) and
          (PathCompare(PathExpand(PathExtractDir(SourceFile)), GetSystemDir) = 0) then
         AbortCompileOnLine(SCompilerFilesSystemDirUsed);
-      { COMCAT.DLL 5.0 }
-      if not ExternalFile and
-         (CompareText(Filename, 'COMCAT.DLL') = 0) and
-         (foVersionInfoValid in NewFileLocationEntry^.Flags) and
-         (NewFileLocationEntry^.FileVersionMS >= $50000) then
-        AbortCompileOnLineFmt(SCompilerFilesUnsafeFile, ['COMCAT.DLL version 5.0']);
       { CTL3D32.DLL }
       if not ExternalFile and
          (CompareText(Filename, 'CTL3D32.DLL') = 0) and
