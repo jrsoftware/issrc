@@ -156,14 +156,6 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <table>
 <tr>
-  <td>"Windows NT platforms"</td>
-  <td><p>This means "all versions of Windows except for 95, 98, and Me", unless otherwise indicated.</p></td>
-</tr>
-<tr>
-  <td>"Windows 2000 and later"</td>
-  <td><p>This means "all versions of Windows except for 95, 98, Me, and NT 4.0", unless otherwise indicated.</p></td>
-</tr>
-<tr>
   <td><tt>monospaced text</tt></td>
   <td><p>When you see monospaced text in the documentation, it refers to text you would type in a <link topic="creatinginstallations">script</link> file.</p></td>
 </tr>
@@ -403,7 +395,7 @@ For example: If you used <tt>{win}\MYPROG.INI</tt> on an entry and the system's 
 
 <dt><b><a name="sys">{sys}</a></b></dt>
 <dd>
-<p>The system's System32 directory (System on Windows 95/98/Me).<br/>
+<p>The system's System32 directory.<br/>
 For example: If you used <tt>{sys}\CTL3D32.DLL</tt> on an entry and the system's Windows System directory is "C:\WINDOWS\SYSTEM", Setup or Uninstall will translate it to "C:\WINDOWS\SYSTEM\CTL3D32.DLL".</p>
 <p>On 64-bit Windows, by default, the System32 path returned by this constant maps to the directory containing 32-bit system files, just like on 32-bit Windows. (This can be overridden by enabling <link topic="32vs64bitinstalls">64-bit mode</link>.)</p>
 </dd>
@@ -422,7 +414,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="sd">{sd}</a></b></dt>
 <dd>
-<p>System Drive. The drive Windows is installed on, typically "C:". On Windows NT platforms, this directory constant is equivalent to the <i>SystemDrive</i> environment variable.</p>
+<p>System Drive. The drive Windows is installed on, typically "C:". This directory constant is equivalent to the <i>SystemDrive</i> environment variable.</p>
 </dd>
 
 <dt><b><a name="pf">{pf}</a></b></dt>
@@ -522,15 +514,15 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <p>The "user" constants refer to the profile of the user running Setup. This user is often not the same as the currently logged-in user, so use the "user" constants with caution.</p>
 
-<p>Except where otherwise noted, shell folder constants work on all versions of Windows that Inno Setup supports, including Windows 95 and NT 4.0.</p>
+<p>Except where otherwise noted, shell folder constants work on all versions of Windows that Inno Setup supports.</p>
 
-<p>* = The "common" form of this constant is mapped to the "user" form if the logged-in user lacks administrative privileges, or if <tt>PrivilegesRequired</tt> is set to <tt>lowest</tt>, or if the operating system is Windows 95/98/Me.</p>
+<p>* = The "common" form of this constant is mapped to the "user" form if the logged-in user lacks administrative privileges, or if <tt>PrivilegesRequired</tt> is set to <tt>lowest</tt>.</p>
 
 <dl>
 
 <dt><b><a name="group">{group}</a></b></dt>
 <dd>
-<p>The path to the Start Menu folder, as selected by the user on Setup's <i>Select Start Menu Folder</i> wizard page. On Windows NT platforms, this folder is created under the <i>All Users</i> profile unless the user installing the application does not have administrative privileges, in which case it is created in the user's profile.</p>
+<p>The path to the Start Menu folder, as selected by the user on Setup's <i>Select Start Menu Folder</i> wizard page. This folder is created under the <i>All Users</i> profile unless the user installing the application does not have administrative privileges, in which case it is created in the user's profile.</p>
 </dd>
 
 <dt><b><a name="localappdata">{localappdata}</a></b></dt>
@@ -560,12 +552,12 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="userdocs">{userdocs}</a></b> &amp; <b><a name="commondocs">{commondocs}</a></b></dt>
 <dd>
-<p>The path to the My Documents folder (or on NT 4.0, the Personal folder).</p>
+<p>The path to the My Documents folder.</p>
 </dd>
 
 <dt><b><a name="userfavorites">{userfavorites}</a></b> &amp; <b><a name="commonfavorites">{commonfavorites}</a></b> *</dt>
 <dd>
-<p>The path to the Favorites folder. Usage of these constants requires a MinVersion setting of at least "<tt>4.1, 4</tt>". Only Windows 2000 and later supports <tt>{commonfavorites}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{userfavorites}</tt>.</p>
+<p>The path to the Favorites folder.</p>
 </dd>
 
 <dt><b><a name="userpf">{userpf}</a></b></dt>
@@ -590,7 +582,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="usertemplates">{usertemplates}</a></b> &amp; <b><a name="commontemplates">{commontemplates}</a></b> *</dt>
 <dd>
-<p>The path to the Templates folder. Only Windows 2000 and later supports <tt>{commontemplates}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{usertemplates}</tt>.</p>
+<p>The path to the Templates folder.</p>
 </dd>
 
 </dl>
@@ -623,7 +615,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="cmd">{cmd}</a></b></dt>
 <dd>
-<p>The full pathname of the system's standard command interpreter. On Windows NT platforms, this is <i>Windows\System32\</i>cmd.exe. On Windows 95/98/Me, this is <i>Windows\</i>COMMAND.COM. Note that the COMSPEC environment variable is not used when expanding this constant.</p>
+<p>The full pathname of the system's standard command interpreter, <i>Windows\System32\</i>cmd.exe. Note that the COMSPEC environment variable is not used when expanding this constant.</p>
 </dd>
 
 <dt><b><a name="computername">{computername}</a></b></dt>
@@ -1355,7 +1347,7 @@ Name: "{app}\bin"
 
 <param name="Permissions">
 <p>Specifies additional permissions to grant in the directory's ACL (access control list). It is not recommended that you use this parameter if you aren't familiar with ACLs or why you would need to change them, because misusing it could negatively impact system security.</p>
-<p>For this parameter to have an effect the user must be running Windows 2000 or later (NT 4.0 is not supported due to API bugs), the directory must be located on a partition that supports ACLs (such as NTFS), and the current user must be able to change the permissions on the directory. In the event these conditions are not met, no error message will be displayed, and the permissions will not be set.</p>
+<p>For this parameter to have an effect the directory must be located on a partition that supports ACLs (such as NTFS), and the current user must be able to change the permissions on the directory. In the event these conditions are not met, no error message will be displayed, and the permissions will not be set.</p>
 <p>This parameter should <i>only</i> be used on directories private to your application. Never change the ACLs on top-level directories like <tt>{sys}</tt> or <tt>{pf}</tt>, otherwise you can open up security holes on your users' systems.</p>
 <p>In addition, it is recommended that you avoid using this parameter to grant write access on directories containing program files. Granting, for example, <tt>everyone-modify</tt> permission on the <tt>{app}</tt> directory will allow unprivileged users to tamper with your application's program files; this creates the potential for a privilege escalation vulnerability. (However, it is safe to change the permissions on a subdirectory of your application's directory which does not contain program files, e.g. <tt>{app}\data</tt>.)</p>
 <p>The specified permissions are set regardless of whether the directory existed prior to installation.</p>
@@ -1515,7 +1507,7 @@ ExternalSize: 1048576; Flags: external
 
 <param name="Permissions">
 <p>Specifies additional permissions to grant in the file's ACL (access control list). It is not recommended that you use this parameter if you aren't familiar with ACLs or why you would need to change them, because misusing it could negatively impact system security.</p>
-<p>For this parameter to have an effect the user must be running Windows 2000 or later (NT 4.0 is not supported due to API bugs), the file must be located on a partition that supports ACLs (such as NTFS), and the current user must be able to change the permissions on the file. In the event these conditions are not met, no error message will be displayed, and the permissions will not be set.</p>
+<p>For this parameter to have an effect the file must be located on a partition that supports ACLs (such as NTFS), and the current user must be able to change the permissions on the file. In the event these conditions are not met, no error message will be displayed, and the permissions will not be set.</p>
 <p>This parameter should <i>only</i> be used on files private to your application. Never change the ACLs on shared system files, otherwise you can open up security holes on your users' systems.</p>
 <p>The specified permissions are set regardless of whether the file existed prior to installation.</p>
 <p>This parameter can include one or more space separated values in the format:</p>
@@ -1541,7 +1533,7 @@ ExternalSize: 1048576; Flags: external
 <p>Tells Setup the file is a font that needs to be installed. The value of this parameter is the name of the font as stored in the registry or WIN.INI. This must be exactly the same name as you see when you double-click the font file in Explorer. Note that Setup will automatically append " (TrueType)" to the end of the name.</p>
 <p>If the file is not a TrueType font, you must specify the flag <tt>fontisnttruetype</tt> in the Flags parameter.</p>
 <p>It's recommended that you use the flags <tt>onlyifdoesntexist</tt> and <tt>uninsneveruninstall</tt> when installing fonts to the {fonts} directory.</p>
-<p>To successfully install a font on Windows 2000 and later, the user must be a member of the Power Users or Administrators groups. On Windows NT 4.0 and earlier, anyone can install a font.</p>
+<p>To successfully install a font, the user must be a member of the Power Users or Administrators groups.</p>
 <p>For compatibility with 64-bit Windows, fonts should not be installed to the <tt>{sys}</tt> directory. Use <tt>{fonts}</tt> as the destination directory instead.</p>
 <example>
 <pre>Source: "OZHANDIN.TTF"; DestDir: "{fonts}"; FontInstall: "Oz Handicraft BT"; Flags: onlyifdoesntexist uninsneveruninstall</pre>
@@ -1659,8 +1651,7 @@ Instructs Setup to proceed to comparing time stamps if the file being installed 
 </flag>
 <flag name="restartreplace">
 <p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling MoveFileEx or by creating an entry in WININIT.INI). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
-<p>To maintain compatibility with Windows 95/98/Me, long filenames should not be used on entries with this flag. Only "8.3" filenames are supported. (Windows NT platforms do not have this limitation.)</p>
-<p><b>NOTE:</b> This flag has no effect on Windows NT platforms if the user does not have administrative privileges. Therefore, when using this flag, it is recommended that you leave the <link topic="setup_privilegesrequired">PrivilegesRequired</link> [Setup] section directive at the default setting of <tt>admin</tt>.</p>
+<p><b>NOTE:</b> This flag has no effect if the user does not have administrative privileges. Therefore, when using this flag, it is recommended that you leave the <link topic="setup_privilegesrequired">PrivilegesRequired</link> [Setup] section directive at the default setting of <tt>admin</tt>.</p>
 </flag>
 <flag name="setntfscompression">
 <p>Instructs Setup to enable NTFS compression on the file (even if it didn't replace the file). If it fails to set the compression state for any reason (for example, if compression is not supported by the file system), no error message will be displayed.</p>
@@ -1694,7 +1685,7 @@ Instructs Setup to proceed to comparing time stamps if the file being installed 
 <p>When uninstalling the file, remove any read-only attribute from the file before attempting to delete it.</p>
 </flag>
 <flag name="uninsrestartdelete">
-<p>When this flag is used and the file is in use at uninstall time, the uninstaller will queue the file to be deleted when the system is restarted, and at the end of the uninstallation process ask the user if he/she wants to restart. This flag can be useful when uninstalling things like shell extensions which cannot be programmatically stopped. Note that administrative privileges are required on Windows NT platforms for this flag to have an effect.</p>
+<p>When this flag is used and the file is in use at uninstall time, the uninstaller will queue the file to be deleted when the system is restarted, and at the end of the uninstallation process ask the user if he/she wants to restart. This flag can be useful when uninstalling things like shell extensions which cannot be programmatically stopped. Note that administrative privileges are required for this flag to have an effect.</p>
 </flag>
 <flag name="uninsneveruninstall">
 <p>Never remove the file. This flag can be useful when installing very common shared files that shouldn't be deleted under any circumstances, such as MFC DLLs.</p>
@@ -1810,7 +1801,7 @@ Filename: "http://www.example.com/"
 </param>
 
 <param name="Comment">
-<p>Specifies the <i>Comment</i> (or "description") field of the shortcut, which determines the popup hint for it in Windows 2000, Me, and later. Earlier Windows versions ignore the comment. This parameter can include constants.</p>
+<p>Specifies the <i>Comment</i> (or "description") field of the shortcut, which determines the popup hint for it. This parameter can include constants.</p>
 <example>
 <pre>Comment: "This is my program"</pre>
 </example>
@@ -1856,7 +1847,6 @@ Filename: "http://www.example.com/"
 </flag>
 <flag name="foldershortcut">
 <p>Creates a special type of shortcut known as a "Folder Shortcut". Normally, when a shortcut to a folder is present on the Start Menu, clicking the item causes a separate Explorer window to open showing the target folder's contents. In contrast, a "folder shortcut" will show the contents of the target folder as a submenu instead of opening a separate window.</p>
-<p>Folder shortcuts are only supported by Windows 2000, Me, and later. On earlier versions of Windows, Setup will fall back to creating a normal shortcut when this flag is used.</p>
 <p>This flag is currently ignored when running on Windows 7 (or later), as folder shortcuts do not expand properly on the Start Menu anymore. It is not known whether this is a bug in Windows 7 or a removed feature.</p>
 <p>When this flag is used, a folder name must be specified in the <tt>Filename</tt> parameter. Specifying the name of a file will result in a non-working shortcut.</p>
 </flag>
@@ -2203,7 +2193,7 @@ CopyrightFontSize=8
 RightToLeft=no
 </precode>
 
-<p><b><a name="LanguageName">LanguageName</a></b> is the native name of the language (so not the English name). It is displayed in the list of available languages on the <i>Select Language</i> dialog in a multilingual installation. It is internally stored as a Unicode string (and on NT-based platforms, displayed as such). To embed Unicode characters, use "&lt;nnnn&gt;", where "nnnn" is the 4-digit hexadecimal Unicode character code. You can find Unicode character codes of characters using the Character Map accessory included with Windows 2000 and later.</p>
+<p><b><a name="LanguageName">LanguageName</a></b> is the native name of the language (so not the English name). It is displayed in the list of available languages on the <i>Select Language</i> dialog in a multilingual installation. It is internally stored as a Unicode string and displayed as such. To embed Unicode characters, use "&lt;nnnn&gt;", where "nnnn" is the 4-digit hexadecimal Unicode character code. You can find Unicode character codes of characters using the Character Map accessory included with Windows 2000 and later.</p>
 
 <p><b><a name="LanguageID">LanguageID</a></b> is the numeric "language identifier" of the language. Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>. This, along with <tt>LanguageCodePage</tt>, is used for the purpose of auto-detecting the most appropriate language to use by default, so be sure it is set correctly. It should always begin with a "$" sign, since language identifiers are in hexadecimal. If no language identifier currently exists for the language, set this to zero.</p>
 
@@ -2328,7 +2318,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 
 <param name="Permissions">
 <p>Specifies additional permissions to grant in the registry key's ACL (access control list). It is not recommended that you use this parameter if you aren't familiar with ACLs or why you would need to change them, because misusing it could negatively impact system security.</p>
-<p>For this parameter to have an effect the user must be running Windows 2000 or later (NT 4.0 is not supported due to API bugs) and the current user must be able to change the permissions on the registry key. In the event these conditions are not met, no error message will be displayed, and the permissions will not be set.</p>
+<p>For this parameter to have an effect the current user must be able to change the permissions on the registry key. In the event these conditions are not met, no error message will be displayed, and the permissions will not be set.</p>
 <p>This parameter should <i>only</i> be used on registry keys private to your application. Never change the ACLs on a top-level key like HKEY_LOCAL_MACHINE\SOFTWARE, otherwise you can open up security holes on your users' systems.</p>
 <p>The specified permissions are set regardless of whether the registry key existed prior to installation. The permissions are not set if <tt>ValueType</tt> is <tt>none</tt> and the <tt>deletekey</tt> flag or <tt>deletevalue</tt> flag is used.</p>
 <p>On Itanium editions of Windows, this parameter is only effectual on 32-bit registry keys. (There is no such limitation on x64 editions of Windows.)</p>
@@ -2642,7 +2632,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 <body>
 
 <p>Beginning with Inno Setup 5.3.0, there are two versions of Inno Setup available: Non Unicode Inno Setup and Unicode Inno Setup.</p>
-<p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames. One could consider Unicode Inno Setup as the new standard Inno Setup and Non Unicode Inno Setup as an old special Inno Setup for those who still need to support NT/9x or who want the very smallest size possible.</p>
+<p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames. One could consider Unicode Inno Setup as the new standard Inno Setup and Non Unicode Inno Setup as an old special Inno Setup for those who want the very smallest size possible.</p>
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. If it says "(u)" you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
   <ul>
@@ -2916,13 +2906,6 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <li>You cannot load/use 64-bit DLLs in the [Code] section, because Windows does not allow 32-bit processes to load 64-bit DLLs (and vice versa). A 32-bit process can, however, launch 64-bit EXEs. Use the <tt>Exec</tt> function or the [Run] section to do that.</li>
 
-</ul>
-
-<p><br/>
-Also, there is one limitation of the compiler:</p>
-
-<ul>
-<li>You cannot compile a script that includes 64-bit binaries on Windows 95, 98, Me, or NT 4.0, because those versions of Windows do not support reading version info on 64-bit images.</li>
 </ul>
 
 </body>
@@ -3397,19 +3380,9 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>If <tt>DestDir</tt> is set to a location <i>other</i> than <tt>{sys}</tt> and the <tt>regserver</tt> or <tt>regtypelib</tt> flag is used, then the above files will be considered "unsafe". These files must never be deployed to and registered in a directory other than <tt>{sys}</tt> because doing so can potentially cause <i>all</i> programs on the system to use them in favor of the files in <tt>{sys}</tt>. Problems would result if your copies of the files are older than the ones in <tt>{sys}</tt>. Also, if your copies of the files were removed, other applications would break.</p>
 </dd>
 
-<dt><b>COMCAT.DLL version 5.0</b></dt>
-<dd>
-<p>Version 5.0 of COMCAT.DLL must not be redistributed because it <extlink href="http://support.microsoft.com/kb/201364/">does not work on Windows 95 or NT 4.0</extlink>. If you need to install COMCAT.DLL, use version 4.71 instead.</p>
-</dd>
-
 <dt><b>COMCTL32.DLL</b></dt>
 <dd>
 <p>Microsoft does not allow separate redistribution of COMCTL32.DLL (and for good reason - the file differs between platforms), so you should never place COMCTL32.DLL in a script's [Files] section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
-</dd>
-
-<dt><b>CTL3D32.DLL, Windows NT-specific version</b></dt>
-<dd>
-<p>Previously, on the "Installing Visual Basic 5.0 &amp; 6.0 Applications" How-To page there was a version of CTL3D32.DLL included in the zip files. At the time I included it, I was not aware that it only was compatible with Windows NT. Now if you try to install that particular version of CTL3D32.DLL you must use a <tt>MinVersion</tt> setting that limits it to Windows NT platforms only. (You shouldn't need to install CTL3D32.DLL on Windows 95/98/Me anyway, since all versions have a 3D look already.)</p>
 </dd>
 
 <dt><b>SHDOCVW.DLL, SHLWAPI.DLL, URLMON.DLL, WININET.DLL</b></dt>
@@ -3618,7 +3591,7 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 
 <setuptopic directive="AppComments">
 <body>
-<p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet in Windows 2000/XP and later. The value may include constants.</p>
+<p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
 AppComments=Hello.
@@ -3629,7 +3602,7 @@ AppComments=Hello.
 
 <setuptopic directive="AppContact">
 <body>
-<p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet in Windows 2000/XP and later. The value may include constants.</p>
+<p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
 AppContact=My Company Customer Support
@@ -3640,7 +3613,7 @@ AppContact=My Company Customer Support
 
 <setuptopic directive="AppPublisher">
 <body>
-<p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet in Windows 2000/XP and later. The value may include constants.</p>
+<p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <p>The value of this directive is also used as the default value for the <link topic="setup_versioninfocompany">VersionInfoCompany</link> directive if it is not specified.</p>
 <example>
 <pre>
@@ -3653,7 +3626,7 @@ AppPublisherURL=http://www.example.com/
 
 <setuptopic directive="AppPublisherURL">
 <body>
-<p>A link to the specified URL is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet in Windows 2000/XP and later. The value may include constants.</p>
+<p>A link to the specified URL is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
 AppPublisher=My Company, Inc.
@@ -3665,7 +3638,7 @@ AppPublisherURL=http://www.example.com/
 
 <setuptopic directive="AppReadmeFile">
 <body>
-<p>This string, which may be a URL, is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet in Windows 2000/XP and later. The value may include constants.</p>
+<p>This string, which may be a URL, is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
 AppReadmeFile=http://www.example.com/readme.html
@@ -3676,7 +3649,7 @@ AppReadmeFile=http://www.example.com/readme.html
 
 <setuptopic directive="AppSupportPhone">
 <body>
-<p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet in Windows 2000/XP and later. The value may include constants.</p>
+<p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
 AppSupportPhone=1-800-555-1212
@@ -3687,7 +3660,7 @@ AppSupportPhone=1-800-555-1212
 
 <setuptopic directive="AppSupportURL">
 <body>
-<p>A link to the specified URL is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet in Windows 2000/XP and later. The value may include constants.</p>
+<p>A link to the specified URL is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
 AppSupportURL=http://www.example.com/support.html
@@ -3698,7 +3671,7 @@ AppSupportURL=http://www.example.com/support.html
 
 <setuptopic directive="AppUpdatesURL">
 <body>
-<p>A link to the specified URL is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet in Windows 2000/XP and later. The value may include constants.</p>
+<p>A link to the specified URL is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
 AppUpdatesURL=http://www.example.com/updates.html
@@ -3771,14 +3744,12 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p>When set to <tt>admin</tt> (the default) or <tt>poweruser</tt>, Setup will always run with administrative privileges. If Setup was started by an unprivileged user, Windows will ask for the password to an account that has administrative privileges, and Setup will then run under that account.</p>
 <p>When set to <tt>none</tt>, Setup will only run with administrative privileges if it was started by a member of the Administrators group. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
 <p>When set to <tt>lowest</tt>, Setup will not request to be run administrative privileges even if it was started by a member of the Administrators group. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "common" forms of the Shell Folder constants are mapped to the "user" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
-<p><b>On Windows NT/2000/XP/2003:</b></p>
+<p><b>On earlier versions of Windows:</b></p>
 <p>This directive specifies the minimum user privileges required to run the installation.</p>
 <p>When set to <tt>admin</tt> (the default), Setup will only run if the user is a member of the Administrators group. Otherwise, it will display the following message and exit: "You must be logged in as an administrator when installing this program."</p>
 <p>When set to <tt>poweruser</tt>, Setup will only run if the user is a member of the Administrators or Power Users groups. Otherwise, it will display the following message and exit: "You must be logged in as an administrator or as a member of the Power Users group when installing this program."</p>
 <p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
 <p>When set to <tt>lowest</tt> Setup will not check the user's group membership. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "common" forms of the Shell Folder constants are mapped to the "user" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
-<p><b>On Windows 95/98/Me:</b></p>
-<p>This directive has no effect on these versions of Windows.</p>
 </body>
 </setuptopic>
 
@@ -4038,7 +4009,7 @@ end;</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>Normally on Windows NT platforms, Inno Setup's <tt>{group}</tt> constant points to the All Users start menu if the user has administrative privileges. If this directive is set to <tt>yes</tt>, it always uses current user's profile.</p>
+<p>Normally, Inno Setup's <tt>{group}</tt> constant points to the All Users start menu if the user has administrative privileges. If this directive is set to <tt>yes</tt>, it always uses current user's profile.</p>
 </body>
 </setuptopic>
 
@@ -4061,7 +4032,7 @@ end;</pre></example>
 
 <setuptopic directive="UninstallDisplayIcon">
 <body>
-<p>This lets you specify a particular icon file (either an executable or an .ico file) to display for the Uninstall entry in the <i>Add/Remove Programs</i> Control Panel applet on Windows 2000 and later. The filename will normally begin with a directory constant.</p>
+<p>This lets you specify a particular icon file (either an executable or an .ico file) to display for the Uninstall entry in the <i>Add/Remove Programs</i> Control Panel applet. The filename will normally begin with a directory constant.</p>
 <p>If the file you specify contains multiple icons, you may append the suffix ",<i>n</i>" to specify an icon index, where <i>n</i> is the zero-based numeric index.</p>
 <p>If this directive is not specified or is blank, Windows will select an icon itself, which may not be the one you prefer.</p>
 <examples>
@@ -4329,7 +4300,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>When set to <tt>yes</tt>, at the end of the installation Setup will notify other running applications (notably Windows Explorer) that they should reload their environment variables from the registry.</p>
-<p>On Windows NT platforms, if your installation creates or changes an environment variable but doesn't have <tt>ChangesEnvironment</tt> set to <tt>yes</tt>, the new/changed environment variable will not be seen by applications launched from Explorer until the user logs off or restarts the computer.</p>
+<p>If your installation creates or changes an environment variable but doesn't have <tt>ChangesEnvironment</tt> set to <tt>yes</tt>, the new/changed environment variable will not be seen by applications launched from Explorer until the user logs off or restarts the computer.</p>
 </body>
 </setuptopic>
 
@@ -4592,7 +4563,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>uilanguage</tt></setupdefault>
 <body>
 <p>When set to <tt>uilanguage</tt>, Setup will determine the default language to use by checking the user's "UI language" (by calling GetUserDefaultUILanguage(), or on Windows versions where that function is unsupported, by reading the registry). This is the method that Microsoft recommends. The "UI language" is the language used in Windows' own dialogs. Thus, on an English edition of Windows, English will be the default, while on a Dutch edition of Windows, Dutch will be the default. On the MUI edition of Windows, the default will be the currently selected UI language.</p>
-<p>When set to <tt>locale</tt>, Setup will determine the default language to use by calling GetUserDefaultLangID(). This function returns the setting of "Your locale" in Control Panel's Regional Options. It should however be noted that since Windows 2000 the "Your locale" option is not intended to affect languages; it is only documented to affect "numbers, currencies, times, and dates".</p>
+<p>When set to <tt>locale</tt>, Setup will determine the default language to use by calling GetUserDefaultLangID(). This function returns the setting of "Your locale" in Control Panel's Regional Options. It should however be noted that the "Your locale" option is not intended to affect languages; it is only documented to affect "numbers, currencies, times, and dates".</p>
 <p>When set to <tt>none</tt>, Setup will use the first language specified in the [Languages] section as the default language.</p>
 </body>
 </setuptopic>
@@ -4618,7 +4589,6 @@ DiskSliceSize=1457664
 <setuptopic directive="SetupIconFile">
 <body>
 <p>Specifies a custom program icon to use for Setup/Uninstall. The file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
-<p>This directive is not supported if you're compiling under Windows 95/98/Me.</p>
 <example><pre>SetupIconFile=MyProgSetup.ico</pre></example>
 </body>
 </setuptopic>
@@ -4678,7 +4648,7 @@ DiskSliceSize=1457664
 <setupdefault><link topic="setup_versioninfoversion">VersionInfoVersion</link></setupdefault>
 <body>
 <p>Specifies the textual file version value for the Setup version info.</p>
-<p>Note that this value is only displayed on Explorer's Version tab on Windows 98 and earlier. Later versions display the binary version value (<link topic="setup_versioninfoversion">VersionInfoVersion</link>) instead.</p>
+<p>Note that this value was only displayed on Explorer's Version tab on Windows 98 and earlier. Later versions display the binary version value (<link topic="setup_versioninfoversion">VersionInfoVersion</link>) instead.</p>
 <p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
@@ -4750,7 +4720,7 @@ DiskSliceSize=1457664
 
 <setuptopic directive="AppModifyPath">
 <body>
-<p>When this directive is set, a separate "Modify" button in the Add/Remove Programs Control Panel applet on Windows 2000 and later will be displayed. Setting it is optional, and will have no effect on earlier Windows versions. The value may include constants.</p>
+<p>When this directive is set, a separate "Modify" button in the Add/Remove Programs Control Panel applet will be displayed. Setting it is optional. The value may include constants.</p>
 <example><pre>AppModifyPath="{app}\Setup.exe" /modify=1</pre></example>
 </body>
 </setuptopic>
@@ -4810,7 +4780,6 @@ DiskSliceSize=1457664
 <p>When the flag is set, {win} will consistently return the system's real Windows directory, typically "C:\WINDOWS", just as on systems that do not have Terminal Services installed.</p>
 <p>When the flag is not set, Windows runs the program in compatibility mode, where {win} may return either the real Windows directory or a user-specific Windows directory, such as "C:\Documents and Settings\&lt;user name&gt;\WINDOWS". Which one you get depends on the name of the program's EXE file and how it is launched. If the program is named setup.exe or install.exe, or if it is launched from the <i>Add/Remove Programs</i> Control Panel applet, then Windows will put the system in "install mode", which effectively makes the program (and all other programs running in the session) behave as if the "Terminal Services aware" flag were set. Otherwise, the program is treated as a legacy application and is given a private Windows directory. (This is true even if the user running the program has full administrative privileges.)</p>
 <p>Because the behavior that results from setting <tt>TerminalServicesAware</tt> to <tt>no</tt> is inconsistent and hard to predict, it is recommended that you use the default setting of <tt>yes</tt>. Only use <tt>no</tt> as a temporary fix if you encounter troubles on systems with Terminal Services after upgrading from a previous Inno Setup version.</p>
-<p><i>Note:</i> This setting only has an effect on Windows 2000 and later. On Windows NT 4.0 Terminal Server Edition, {win} will always return a private Windows directory unless the program is launched from the <i>Add/Remove Programs</i> Control Panel applet, which puts the system in "install mode".</p>
 </body>
 </setuptopic>
 
