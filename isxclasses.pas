@@ -510,7 +510,6 @@ TNewCheckListBox = class(TCustomListBox)
   property ItemLevel[Index: Integer]: Byte; read;
   property ItemObject[Index: Integer]: TObject; read write;
   property ItemSubItem[Index: Integer]: String; read write;
-  property AllowGrayed: Boolean; read write;
   property Flat: Boolean; read write;
   property MinItemHeight: Integer; read write;
   property Offset: Integer; read write;
