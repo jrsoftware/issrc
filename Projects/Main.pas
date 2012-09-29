@@ -1003,7 +1003,7 @@ begin
   else if Cnst = 'tmp' then Result := TempInstallDir
   else if Cnst = 'sd' then Result := SystemDrive
   else if Cnst = 'userpf' then begin
-    if ProgramFilesUserDir = '' then
+    if ProgramFilesUserDir <> '' then
       Result := ProgramFilesUserDir
     else
       Result := ExpandConst('{localappdata}\Programs'); { supply default, same as Window 7 and newer }
