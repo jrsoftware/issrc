@@ -1294,8 +1294,10 @@ begin
       InternalError('Failed to get path of 64-bit Common Files directory');
   end;
 
-  { Get per-user Program Files and Common Files dirs (requires Windows 7 or newer) }
-  if Assigned(SHGetKnownFolderPathFunc) and (WindowsVersion shr 16 >= $0601) then begin
+  { Get per-user Program Files and Common Files dirs. Requires Windows 7 or
+    later but trying it on Vista too in case some update adds support for the
+    folders later (like we saw with CSIDLs in the old days). }
+  if Assigned(SHGetKnownFolderPathFunc) and (WindowsVersion shr 16 >= $0600) then begin
     if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFiles, KF_FLAG_CREATE, 0, Path) = S_OK then begin
       try
         ProgramFilesUserDir := WideCharToString(Path);
