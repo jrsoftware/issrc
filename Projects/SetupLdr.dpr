@@ -7,17 +7,15 @@ program SetupLdr;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Setup Loader
-
-  $jrsoftware: issrc/Projects/SetupLdr.dpr,v 1.46 2010/09/02 23:51:56 jr Exp $
 }
 
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
-  Xptheme in 'Xptheme.pas',
+  XPTheme in 'XPTheme.pas',
   Windows,
   Messages,
   SysUtils,
-  Character in 'D2009Units\Character.pas',
+  Character in 'Character.pas',
   Compress in 'Compress.pas',
   LZMADecompSmall in 'LZMADecompSmall.pas',
   SetupEnt in 'SetupEnt.pas',

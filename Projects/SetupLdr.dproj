@@ -48,8 +48,8 @@
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="SafeDLLPath.pas"/>
-			<DCCReference Include="Xptheme.pas"/>
-			<DCCReference Include="D2009Units\Character.pas"/>
+			<DCCReference Include="XPTheme.pas"/>
+			<DCCReference Include="Character.pas"/>
 			<DCCReference Include="Compress.pas"/>
 			<DCCReference Include="LZMADecompSmall.pas"/>
 			<DCCReference Include="SetupEnt.pas"/>
