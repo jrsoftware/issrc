@@ -12,6 +12,9 @@ unit Character;
   does not need to be recompiled.
 }
 
+{$IFNDEF VER200}
+  {$MESSAGE ERROR 'Only Delphi 2009 is supported by this unit.'}
+{$ENDIF}
 
 interface
 
