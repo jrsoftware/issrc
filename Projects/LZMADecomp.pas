@@ -203,8 +203,7 @@ begin
     if (InBytes = 0) and (OutBytes = 0) then begin
        if (DecodeStatus <> LZMA_STATUS_FINISHED_WITH_MARK) then
          LZMADecompDataError(4)
-       else
-       if (AvailOut > 0) and (FAvailIn = 0) and FReachedEnd then { no change and no new data => corrupted file }
+       else if (AvailOut > 0) and (FAvailIn = 0) and FReachedEnd then { no change and no new data => corrupted file }
          LZMADecompDataError(6);
     end;
     Dec(AvailOut, OutBytes);
