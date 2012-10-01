@@ -11,8 +11,6 @@ unit XPTheme;
 
   Note: XPTheme must be included as the first unit in the program's "uses"
   clause so that its code runs before any VCL initialization code.
-
-  $jrsoftware: issrc/Projects/XPTheme.pas,v 1.5 2007/03/26 19:27:39 jr Exp $
 }
 
 interface
@@ -22,7 +20,10 @@ implementation
 {$R XPTheme.res}
 
 uses
-  Windows, CommCtrl;
+  Windows;
+
+{ Avoid including Variants (via CommCtrl) in SetupLdr (SetupLdr uses XPTheme), saving 26 KB. }
+procedure InitCommonControls; external comctl32 name 'InitCommonControls';
 
 initialization
   { Work around bug in Windows XP Gold & SP1: If the application manifest
