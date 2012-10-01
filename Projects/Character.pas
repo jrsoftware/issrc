@@ -6,7 +6,7 @@ unit Character;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Allows Delphi 2009 to to not include the Characters.res.
+  Allows Delphi 2009 to not include the Characters.res.
 
   Note: The interface section must match the original RTL Characters.pas unit, so that SysUtils
   does not need to be recompiled.
