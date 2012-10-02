@@ -14,12 +14,14 @@ The Initial Developer of the Original Code is Andreas Hausladen
 Portions created by Olivier Sannier are Copyright (C) 2003 Olivier Sannier.
 All Rights Reserved.
 ----------------------------------------------------------------------------}
+// $Id$
+
 unit WebDownloader;
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Forms, Classes, WinInet;
+  Windows, Messages, SysUtils, Forms, Classes;
 
 const
   WM_PROGRESS = WM_USER + 1;
@@ -132,9 +134,6 @@ type
 
 implementation
 
-uses
-  ComObj;
-
 { Copied from WinInet.pas }
 const
   wininetdll = 'wininet.dll';
@@ -149,15 +148,20 @@ const
   INTERNET_SERVICE_GOPHER = 2;
   INTERNET_SERVICE_HTTP = 3;
 
+  INTERNET_DEFAULT_HTTPS_PORT = 443;
+
   INTERNET_FLAG_RELOAD            = $80000000;  { retrieve the original item }
   INTERNET_FLAG_PRAGMA_NOCACHE    = $00000100;  { asking wininet to add "pragma: no-cache" }
   INTERNET_FLAG_NO_CACHE_WRITE    = $04000000;  { don't write this item to the cache }
   INTERNET_FLAG_DONT_CACHE        = INTERNET_FLAG_NO_CACHE_WRITE;
+  INTERNET_FLAG_SECURE            = $00800000;  { use PCT/SSL if applicable (HTTP) }
 
-  INTERNET_OPTION_PROXY_USERNAME              = 43;
-  INTERNET_OPTION_PROXY_PASSWORD              = 44;
+  INTERNET_OPTION_CONNECT_TIMEOUT = 2;
+  INTERNET_OPTION_PROXY_USERNAME  = 43;
+  INTERNET_OPTION_PROXY_PASSWORD  = 44;
 
-  HTTP_QUERY_CONTENT_LENGTH                   = 5;
+  HTTP_QUERY_CONTENT_LENGTH = 5;
+  HTTP_QUERY_STATUS_CODE    = 19; { special: part of status line }
 
   INTERNET_FLAG_PASSIVE = $08000000;                { used for FTP connections }
 
@@ -166,6 +170,12 @@ const
   FTP_TRANSFER_TYPE_ASCII     = $00000001;
   FTP_TRANSFER_TYPE_BINARY    = $00000002;
 
+{$IFDEF UNICODE}
+  ExternalEncoding = 'W';
+{$ELSE}
+  ExternalEncoding = 'A';
+{$ENDIF UNICODE}
+
 type
   HINTERNET = Pointer;
 
@@ -173,15 +183,15 @@ type
   TFNInternetStatusCallback = INTERNET_STATUS_CALLBACK;
   PFNInternetStatusCallback = ^TFNInternetStatusCallback;
 
-  INTERNET_PORT = Word; 
-  
+  INTERNET_PORT = Word;
+
 function InternetGetLastResponseInfo(var lpdwError: DWORD; lpszBuffer: PChar;
   var lpdwBufferLength: DWORD): BOOL; stdcall;
-  external wininetdll name 'InternetGetLastResponseInfoA';
+  external wininetdll name 'InternetGetLastResponseInfo' + ExternalEncoding;
 
 function InternetOpen(lpszAgent: PChar; dwAccessType: DWORD;
   lpszProxy, lpszProxyBypass: PChar; dwFlags: DWORD): HINTERNET; stdcall;
-  external wininetdll name 'InternetOpenA';
+  external wininetdll name 'InternetOpen' + ExternalEncoding;
 
 function InternetSetStatusCallback(hInet: HINTERNET;
   lpfnInternetCallback: PFNInternetStatusCallback): PFNInternetStatusCallback; stdcall;
@@ -190,27 +200,27 @@ function InternetSetStatusCallback(hInet: HINTERNET;
 function InternetConnect(hInet: HINTERNET; lpszServerName: PChar;
   nServerPort: INTERNET_PORT; lpszUsername: PChar; lpszPassword: PChar;
   dwService: DWORD; dwFlags: DWORD; dwContext: DWORD): HINTERNET; stdcall;
-  external wininetdll name 'InternetConnectA';
+  external wininetdll name 'InternetConnect' + ExternalEncoding;
 
 function HttpOpenRequest(hConnect: HINTERNET; lpszVerb: PChar;
   lpszObjectName: PChar; lpszVersion: PChar; lpszReferrer: PChar;
   lplpszAcceptTypes: PLPSTR; dwFlags: DWORD;
   dwContext: DWORD): HINTERNET; stdcall;
-  external wininetdll name 'HttpOpenRequestA';
+  external wininetdll name 'HttpOpenRequest' + ExternalEncoding;
 
 function InternetSetOption(hInet: HINTERNET; dwOption: DWORD;
   lpBuffer: Pointer; dwBufferLength: DWORD): BOOL; stdcall;
-  external wininetdll name 'InternetSetOptionA';
+  external wininetdll name 'InternetSetOption' + ExternalEncoding;
 
-function HttpSendRequest(hRequest: HINTERNET; lpszHeaders: PChar; 
+function HttpSendRequest(hRequest: HINTERNET; lpszHeaders: PChar;
   dwHeadersLength: DWORD; lpOptional: Pointer;
   dwOptionalLength: DWORD): BOOL; stdcall;
-  external wininetdll name 'HttpSendRequestA';
+  external wininetdll name 'HttpSendRequest' + ExternalEncoding;
 
 function HttpQueryInfo(hRequest: HINTERNET; dwInfoLevel: DWORD;
   lpvBuffer: Pointer; var lpdwBufferLength: DWORD;
   var lpdwReserved: DWORD): BOOL; stdcall;
-  external wininetdll name 'HttpQueryInfoA';
+  external wininetdll name 'HttpQueryInfo' + ExternalEncoding;
 
 function InternetReadFile(hFile: HINTERNET; lpBuffer: Pointer;
   dwNumberOfBytesToRead: DWORD; var lpdwNumberOfBytesRead: DWORD): BOOL; stdcall;
@@ -221,7 +231,7 @@ function InternetCloseHandle(hInet: HINTERNET): BOOL; stdcall;
 
 function FtpOpenFile(hConnect: HINTERNET; lpszFileName: PChar;
   dwAccess: DWORD; dwFlags: DWORD; dwContext: DWORD): HINTERNET; stdcall;
-  external wininetdll name 'FtpOpenFileA';
+  external wininetdll name 'FtpOpenFile' + ExternalEncoding;
 
 function FtpGetFileSize(hFile: HINTERNET; lpdwFileSizeHigh: LPDWORD): DWORD; stdcall;
   external wininetdll name 'FtpGetFileSize';
@@ -267,7 +277,7 @@ procedure TBufferedStream.Write(const Buf; BufSize: Integer);
 begin
   if BufSize < 0 then
     Exit;
-    
+
   if BufSize >= SizeOf(FBuffer) then
   begin
     Flush;
@@ -307,7 +317,7 @@ var
 begin
   dwIndex := 0;
   dwBufLen := 1024;
-  GetMem(Buffer, dwBufLen);
+  GetMem(Buffer, dwBufLen * SizeOf(Char));
   try
     InternetGetLastResponseInfo(dwIndex, Buffer, dwBufLen);
     Result := StrPas(Buffer);
@@ -557,20 +567,21 @@ end;
 
 procedure TWebDownloader.GrabHttp;
 var
-  hSession, hDownload: HINTERNET;
+  hSession, hHostConnection, hDownload: HINTERNET;
   HostName, FileName, strUserName, strPassword: string;
   UserName, Password: PChar;
   Port: Cardinal;
-  Buffer: PAnsiChar;
+  Buffer: PChar;
   dwBufLen, dwIndex, dwBytesRead, dwTotalBytes: DWORD;
   HasSize: Boolean;
   BufferedStream: TBufferedStream;
-  Buf: array [0..32*1024-1] of Byte;
+  Buf: array [0..32*1024 - 1] of Byte;
   Flags: DWORD;
 begin
   Buffer := nil;
 
   hSession := nil;
+  hHostConnection := nil;
   hDownload := nil;
   BufferedStream := nil;
   try
@@ -582,6 +593,8 @@ begin
         strPassword := Self.Password;
       if Port = 0 then
         Port := Self.Port;
+      if (Port = 0) and (CompareText(FProtocol, 'https') = 0) then
+        Port := INTERNET_DEFAULT_HTTPS_PORT;
 
       // Setup the PChars for the call to InternetConnect
       if strUserName = '' then
@@ -613,42 +626,28 @@ begin
       end;
       InternetSetStatusCallback(hSession, PFNInternetStatusCallback(@DownloadCallBack));
 
+      // Connect to the host
+      hHostConnection := InternetConnect(hSession, PChar(HostName), Port,
+        UserName, Password, INTERNET_SERVICE_HTTP, 0, DWORD(Self));
+
       if Thread.Terminated then
         Exit;
 
-      if ProxyMode in [pmManual, pmSysConfig] then
+      if hHostConnection = nil then
       begin
-        // if manual mode and valid session, we set proxy user name and password
-        InternetSetOption(hSession,
-                          INTERNET_OPTION_PROXY_USERNAME,
-                          PChar(ProxyUserName),
-                          Length(ProxyUserName) + 1);
-        InternetSetOption(hSession,
-                          INTERNET_OPTION_PROXY_PASSWORD,
-                          PChar(ProxyPassword),
-                          Length(ProxyPassword) + 1);
+        FErrorText := GetLastInternetError;
+        Buffer := nil;
+        Synchronize(TriggerError);
+        Exit;
       end;
-      if FTimeout > 0 then
-        InternetSetOption(hSession,
-                          INTERNET_OPTION_CONNECT_TIMEOUT,
-                          @FTimeout,
-                          SizeOf(FTimeout));
 
-      if UserName <> nil then
-        InternetSetOption(hSession,
-                          INTERNET_OPTION_USERNAME,
-                          UserName,
-                          StrLen(UserName) + 1);
-      if Password <> nil then
-        InternetSetOption(hSession,
-                          INTERNET_OPTION_PASSWORD,
-                          Password,
-                          StrLen(Password) + 1);
-
+      //Request the file
       Flags := INTERNET_FLAG_RELOAD or INTERNET_FLAG_PRAGMA_NOCACHE;
       if CompareText(FProtocol, 'https') = 0 then
         Flags := Flags or INTERNET_FLAG_SECURE;
-      hDownload := InternetOpenUrl(hSession, PChar(FUrl), nil, 0, Flags, DWORD_PTR(Self));
+      hDownload := HttpOpenRequest(hHostConnection, 'GET', PChar(FileName), 'HTTP/1.0',
+        PChar(Referer), nil, Flags, 0);
+
       if hDownload = nil then
       begin
         FErrorText := GetLastInternetError;
@@ -656,14 +655,35 @@ begin
         Exit;
       end;
 
+      if ProxyMode in [pmManual, pmSysConfig] then
+      begin
+        // if manual mode and valid session, we set proxy user name and password
+        InternetSetOption(hDownload,
+                          INTERNET_OPTION_PROXY_USERNAME,
+                          PChar(ProxyUserName),
+                          Length(ProxyUserName) + 1);
+        InternetSetOption(hDownload,
+                          INTERNET_OPTION_PROXY_PASSWORD,
+                          PChar(ProxyPassword),
+                          Length(ProxyPassword) + 1);
+      end;
+      if FTimeout > 0 then
+        InternetSetOption(hDownload,
+                          INTERNET_OPTION_CONNECT_TIMEOUT,
+                          @FTimeout,
+                          SizeOf(FTimeout));
+
+      //Send the request
+      HttpSendRequest(hDownload, nil, 0, nil, 0);
+
       if Thread.Terminated then
         Exit;
 
       dwIndex := 0;
       dwBufLen := 1024;
-      GetMem(Buffer, dwBufLen);
+      GetMem(Buffer, dwBufLen * SizeOf(Char));
 
-      if not HttpQueryInfo(hDownload, HTTP_QUERY_STATUS_CODE, Buffer, dwBufLen, dwIndex) or (StrComp(Buffer, '200') <> 0) then
+      if not HttpQueryInfo(hDownload, HTTP_QUERY_STATUS_CODE, Buffer, dwBufLen, dwIndex) or (StrPas(Buffer) <> '200') then
       begin
         FErrorText := GetLastInternetError;
         Synchronize(TriggerError);
@@ -677,7 +697,7 @@ begin
         Exit;
 
       if HasSize then
-        FTotalSize := StrToInt(string(StrPas(Buffer)))
+        FTotalSize := StrToInt(StrPas(Buffer))
       else
         FTotalSize := 0;
       FStream.Size := TotalSize; // allocate memory/disk space
@@ -747,11 +767,11 @@ begin
       FErrorText := GetLastInternetError;
       Synchronize(TriggerError);
     end;
-    {if (hHostConnection <> nil) and not InternetCloseHandle(hHostConnection) then
+    if (hHostConnection <> nil) and not InternetCloseHandle(hHostConnection) then
     begin
       FErrorText := GetLastInternetError;
       Synchronize(TriggerError);
-    end;}
+    end;
     if (hSession <> nil) and not InternetCloseHandle(hSession) then
     begin
       FErrorText := GetLastInternetError;
@@ -770,7 +790,7 @@ var
   UserName, Password: PChar;
   Port: Cardinal;
   LocalBytesRead, TotalBytes: DWORD;
-  Buf: array [0..32*1024-1] of Byte;
+  Buf: array [0..32*1024 - 1] of Byte;
   dwFileSizeHigh: DWORD;
   BufferedStream: TBufferedStream;
 begin
@@ -912,3 +932,4 @@ begin
 end;
 
 end.
+
