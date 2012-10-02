@@ -43,6 +43,9 @@ uses
 {$ENDIF}
   ScriptCompiler, SimpleExpression, SetupTypes;
 
+function CoCreateGuid(out guid: TGUID): HResult; stdcall;
+  external 'ole32.dll' name 'CoCreateGuid';
+
 type
   TParamInfo = record
     Name: String;
@@ -186,6 +189,7 @@ type
     ssVersionInfoProductTextVersion,
     ssVersionInfoTextVersion,
     ssVersionInfoVersion,
+    ssWebSetupUpdateURL,
     ssWindowResizable,
     ssWindowShowCaption,
     ssWindowStartMaximized,
@@ -279,10 +283,27 @@ type
     destructor Destroy; override;
     function Add(const S: String): Integer;
     function CaseInsensitiveIndexOf(const S: String): Integer;
+    procedure Exchange(Index1, Index2: Integer);
     procedure Clear;
     function Get(Index: Integer): String;
     property Count: Integer read FCount;
     property Strings[Index: Integer]: String read Get; default;
+  end;
+
+  PFileEntryLocationFixupRec =  ^TFileEntryLocationFixupRec;
+  TFileEntryLocationFixupRec = record
+    FileEntry: PSetupFileEntry;
+    LocationEntry: PSetupFileLocationEntry;
+  end;
+
+  TFileEntryLocationFixups = class(TLowFragList)
+  protected
+    procedure Notify(Ptr: Pointer; Action: TListNotification); override;
+    function GetItem(Index: Integer): PFileEntryLocationFixupRec;
+  public
+    function Add(AFileEntry: PSetupFileEntry; AFileLocation: PSetupFileLocationEntry): Integer;
+    procedure FixupLocations(FileLocationEntries: TList);
+    property Items[Index: Integer]: PFileEntryLocationFixupRec read GetItem; default;
   end;
 
   PScriptFileLine = ^TScriptFileLine;
@@ -321,6 +342,7 @@ type
     TypeEntries,
     ComponentEntries,
     TaskEntries,
+    PackageEntries,
     DirEntries,
     FileEntries,
     FileLocationEntries,
@@ -332,6 +354,7 @@ type
     RunEntries,
     UninstallRunEntries: TList;
 
+    FileEntryLocationFixups: TFileEntryLocationFixups;
     FileLocationEntryFilenames: THashStringList;
     WarningsList: TLowFragStringList;
     ExpectedCustomMessageNames: TStringList;
@@ -416,6 +439,7 @@ type
     procedure EnumTypes(const Line: PChar; const Ext: Integer);
     procedure EnumComponents(const Line: PChar; const Ext: Integer);
     procedure EnumTasks(const Line: PChar; const Ext: Integer);
+    procedure EnumPackages(const Line: PChar; const Ext: Integer);
     procedure EnumDirs(const Line: PChar; const Ext: Integer);
     procedure EnumIcons(const Line: PChar; const Ext: Integer);
     procedure EnumINI(const Line: PChar; const Ext: Integer);
@@ -1096,6 +1120,21 @@ begin
   Result := FList[Index].Str;
 end;
 
+procedure THashStringList.Exchange(Index1, Index2: Integer);
+var
+  Temp: THashStringItem;
+begin
+  if Index1 <> Index2 then begin
+    if (Index1 < 0) or (Index1 >= FCount) or (Index2 < 0) or (Index2 >= FCount) then
+      raise EStringListError.CreateFmt('THashStringList: Index (%d, %d) is out of bounds',
+        [Index1, Index2]);
+
+    Temp := FList[Index1];
+    FList[Index1] := FList[Index2];
+    FList[Index2] := Temp;
+  end;
+end;
+
 procedure THashStringList.Grow;
 var
   Delta, NewCapacity: Integer;
@@ -1300,6 +1339,43 @@ begin
   end;
 end;
 
+{ TFileEntryLocationFixups }
+
+procedure TFileEntryLocationFixups.Notify(Ptr: Pointer; Action: TListNotification);
+begin
+  if Action = lnDeleted then
+    Dispose(PFileEntryLocationFixupRec(Ptr));
+end;
+
+function TFileEntryLocationFixups.GetItem(Index: Integer): PFileEntryLocationFixupRec;
+begin
+  Result := PFileEntryLocationFixupRec(inherited Items[Index]);
+end;
+
+function TFileEntryLocationFixups.Add(AFileEntry: PSetupFileEntry; AFileLocation: PSetupFileLocationEntry): Integer;
+var
+  P: PFileEntryLocationFixupRec;
+begin
+  New(P);
+  Result := inherited Add(P);
+  P.FileEntry := AFileEntry;
+  P.LocationEntry := AFileLocation;
+end;
+
+procedure TFileEntryLocationFixups.FixupLocations(FileLocationEntries: TList);
+var
+  I, Index: Integer;
+  P: PFileEntryLocationFixupRec;
+begin
+  for I := 0 to Count - 1 do begin
+    P := Items[I];
+    Index := FileLocationEntries.IndexOf(P.LocationEntry);
+    Assert( Index <> -1 );
+    P.FileEntry.LocationEntry := Index;
+  end;
+  Clear; // release memory
+end;
+
 { TCompressionHandler }
 
 type
@@ -1318,13 +1394,16 @@ type
     FCurSlice: Integer;
     FDestFile: TFile;
     FDestFileIsDiskSlice: Boolean;
+    FPackageFilename: String;
+    FPackageEntry: PSetupPackageEntry;
     FInitialBytesCompressedSoFar: Integer64;
     FSliceBaseOffset: Cardinal;
     FSliceBytesLeft: Cardinal;
     procedure EndSlice;
     procedure NewSlice(const Filename: String);
   public
-    constructor Create(ACompiler: TSetupCompiler; const InitialSliceFilename: String);
+    constructor Create(ACompiler: TSetupCompiler; const InitialSliceFilename: String;
+      APackageEntry: PSetupPackageEntry);
     destructor Destroy; override;
     procedure CompressFile(const SourceFile: TFile; Bytes: Integer64;
       const CallOptimize: Boolean; var SHA1Sum: TSHA1Digest);
@@ -1346,11 +1425,14 @@ type
   end;
 
 constructor TCompressionHandler.Create(ACompiler: TSetupCompiler;
-  const InitialSliceFilename: String);
+  const InitialSliceFilename: String; APackageEntry: PSetupPackageEntry);
 begin
   inherited Create;
   FCompiler := ACompiler;
   FCurSlice := -1;
+  FPackageEntry := APackageEntry;
+  if FPackageEntry <> nil then
+    FPackageFilename := InitialSliceFilename;
   FCachedCompressors := TLowFragList.Create;
   NewSlice(InitialSliceFilename);
 end;
@@ -1377,12 +1459,30 @@ end;
 procedure TCompressionHandler.EndSlice;
 var
   DiskSliceHeader: TDiskSliceHeader;
+  PackageHeader: TSetupPackageHeader;
 begin
   if Assigned(FDestFile) then begin
     if FDestFileIsDiskSlice then begin
-      DiskSliceHeader.TotalSize := FDestFile.Size.Lo;
-      FDestFile.Seek(SizeOf(DiskSliceID));
-      FDestFile.WriteBuffer(DiskSliceHeader, SizeOf(DiskSliceHeader));
+      if FPackageEntry <> nil then begin
+        { Update the package disk slice header }
+        PackageHeader.PackageGuid := FCompiler.SetupHeader.SetupGuid;
+        PackageHeader.TotalSize := FDestFile.Size.Lo;
+        FDestFile.Seek(SizeOf(DiskSliceID) + SizeOf(SetupPackageID));
+        FDestFile.WriteBuffer(PackageHeader, SizeOf(PackageHeader));
+      end
+      else begin
+        { Update setup the disk slice header }
+        DiskSliceHeader.TotalSize := FDestFile.Size.Lo;
+        FDestFile.Seek(SizeOf(DiskSliceID));
+        FDestFile.WriteBuffer(DiskSliceHeader, SizeOf(DiskSliceHeader));
+      end;
+    end
+    else if FPackageEntry <> nil then begin
+      { Update the package header }
+      PackageHeader.PackageGuid := FCompiler.SetupHeader.SetupGuid;
+      PackageHeader.TotalSize := FDestFile.Size.Lo;
+      FDestFile.Seek(SizeOf(SetupPackageID));
+      FDestFile.WriteBuffer(PackageHeader, SizeOf(PackageHeader));
     end;
     FreeAndNil(FDestFile);
   end;
@@ -1394,18 +1494,27 @@ procedure TCompressionHandler.NewSlice(const Filename: String);
     const ASlice: Integer): String;
   var
     Major, Minor: Integer;
+    BaseFilename, Suffix: String;
   begin
     Major := ASlice div Compiler.SlicesPerDisk + 1;
     Minor := ASlice mod Compiler.SlicesPerDisk;
+    BaseFilename := FCompiler.OutputDir + Compiler.OutputBaseFilename;
+    Suffix := '.bin';
+    if FPackageEntry <> nil then begin { Use the Package name and suffix }
+      BaseFilename := ChangeFileExt(FPackageFilename, '');
+      Suffix := ExtractFileExt(FPackageFilename);
+    end;
+
     if Compiler.SlicesPerDisk = 1 then
-      Result := Format('%s-%d.bin', [Compiler.OutputBaseFilename, Major])
+      Result := Format('%s-%d%s', [BaseFilename, Major, Suffix])
     else
-      Result := Format('%s-%d%s.bin', [Compiler.OutputBaseFilename, Major,
-        Chr(Ord('a') + Minor)]);
+      Result := Format('%s-%d%s%s', [BaseFilename, Major,
+        Chr(Ord('a') + Minor), Suffix]);
   end;
 
 var
   DiskHeader: TDiskSliceHeader;
+  PackageHeader: TSetupPackageHeader;
 begin
   EndSlice;
   Inc(FCurSlice);
@@ -1414,18 +1523,42 @@ begin
       [FCompiler.DiskSliceSize]);
   if Filename = '' then begin
     FDestFileIsDiskSlice := True;
-    FDestFile := TFile.Create(FCompiler.OutputDir +
-      GenerateSliceFilename(FCompiler, FCurSlice), fdCreateAlways, faReadWrite, fsNone);
-    FDestFile.WriteBuffer(DiskSliceID, SizeOf(DiskSliceID));
-    DiskHeader.TotalSize := 0;
-    FDestFile.WriteBuffer(DiskHeader, SizeOf(DiskHeader));
+    FDestFile := TFile.Create(GenerateSliceFilename(FCompiler, FCurSlice), fdCreateAlways, faReadWrite, fsNone);
+    if FPackageEntry <> nil then begin
+      { Write the package disk slice header }
+      PackageHeader.PackageGuid := FCompiler.SetupHeader.SetupGuid;
+      PackageHeader.TotalSize := 0;
+      FDestFile.WriteBuffer(DiskSliceID, SizeOf(DiskSliceID));
+      FDestFile.WriteBuffer(SetupPackageID, SizeOf(SetupPackageID));
+      FDestFile.WriteBuffer(PackageHeader, SizeOf(PackageHeader));
+      FSliceBytesLeft := FCompiler.DiskSliceSize - (SizeOf(DiskSliceID) + SizeOf(SetupPackageID) + SizeOf(PackageHeader));
+    end
+    else begin
+      { Write the setup disk slice header }
+      FDestFile.WriteBuffer(DiskSliceID, SizeOf(DiskSliceID));
+      DiskHeader.TotalSize := 0;
+      FDestFile.WriteBuffer(DiskHeader, SizeOf(DiskHeader));
+      FSliceBytesLeft := FCompiler.DiskSliceSize - (SizeOf(DiskSliceID) + SizeOf(DiskHeader));
+    end;
     FSliceBaseOffset := 0;
-    FSliceBytesLeft := FCompiler.DiskSliceSize - (SizeOf(DiskSliceID) + SizeOf(DiskHeader));
   end
   else begin
     FDestFileIsDiskSlice := False;
-    FDestFile := TFile.Create(Filename, fdOpenExisting, faReadWrite, fsNone);
-    FDestFile.SeekToEnd;
+    if FPackageEntry <> nil then begin
+      { Create a new package file }
+      FDestFile := TFile.Create(Filename, fdCreateAlways, faReadWrite, fsNone);
+      { Write the package header }
+      PackageHeader.PackageGuid := FCompiler.SetupHeader.SetupGuid;
+      PackageHeader.TotalSize := 0;
+      FDestFile.WriteBuffer(SetupPackageID, SizeOf(SetupPackageID));
+      FDestFile.WriteBuffer(PackageHeader, SizeOf(PackageHeader));
+    end
+    else begin
+      { Append to the Setup }
+      FDestFile := TFile.Create(Filename, fdOpenExisting, faReadWrite, fsNone);
+      FDestFile.SeekToEnd;
+    end;
+
     FSliceBaseOffset := FDestFile.Position.Lo;
     FSliceBytesLeft := Cardinal(FCompiler.DiskSliceSize) - FSliceBaseOffset;
   end;
@@ -1625,6 +1758,7 @@ begin
   TypeEntries := TLowFragList.Create;
   ComponentEntries := TLowFragList.Create;
   TaskEntries := TLowFragList.Create;
+  PackageEntries := TLowFragList.Create;
   DirEntries := TLowFragList.Create;
   FileEntries := TLowFragList.Create;
   FileLocationEntries := TLowFragList.Create;
@@ -1635,6 +1769,7 @@ begin
   UninstallDeleteEntries := TLowFragList.Create;
   RunEntries := TLowFragList.Create;
   UninstallRunEntries := TLowFragList.Create;
+  FileEntryLocationFixups := TFileEntryLocationFixups.Create;
   FileLocationEntryFilenames := THashStringList.Create;
   WarningsList := TLowFragStringList.Create;
   ExpectedCustomMessageNames := TStringList.Create;
@@ -1670,6 +1805,7 @@ begin
   DefaultLangData.Free;
   ExpectedCustomMessageNames.Free;
   WarningsList.Free;
+  FileEntryLocationFixups.Free;
   FileLocationEntryFilenames.Free;
   UninstallRunEntries.Free;
   RunEntries.Free;
@@ -1681,6 +1817,7 @@ begin
   FileLocationEntries.Free;
   FileEntries.Free;
   DirEntries.Free;
+  PackageEntries.Free;
   TaskEntries.Free;
   ComponentEntries.Free;
   TypeEntries.Free;
@@ -4202,6 +4339,9 @@ begin
         if not StrToVersionInfoVersionNumber(Value, VersionInfoVersion) then
           Invalid;
       end;
+    ssWebSetupUpdateURL: begin
+        SetupHeader.WebSetupUpdateURL := Value;
+      end;
     ssWindowResizable: begin
         SetSetupHeaderOption(shWindowResizable);
       end;
@@ -4733,6 +4873,78 @@ begin
     raise;
   end;
   TaskEntries.Add(NewTaskEntry);
+end;
+
+procedure TSetupCompiler.EnumPackages(const Line: PChar; const Ext: Integer);
+type
+  TParam = (paFlags, paName, paDescription, paSource);
+const
+  ParamPackageName = 'Name';
+  ParamPackageDescription = 'Description';
+  ParamPackageSource = 'Source';
+  ParamInfo: array[TParam] of TParamInfo = (
+    (Name: ParamCommonFlags; Flags: []),
+    (Name: ParamPackageName; Flags: [piRequired, piNoEmpty, piNoQuotes]),
+    (Name: ParamPackageDescription; Flags: [piRequired, piNoEmpty]),
+    (Name: ParamPackageSource; Flags: [piRequired, piNoEmpty, piNoQuotes]));
+  Flags: array[0..0] of PChar = (
+    'localcopy');
+
+  procedure CheckValidPackage(const Name, SourceFilename: string);
+  var
+    I: Integer;
+    S1, S2: string;
+  begin
+    for I := 0 to PackageEntries.Count - 1 do begin
+      if CompareText(PSetupPackageEntry(PackageEntries[I]).Name, Name) = 0 then
+        AbortCompileFmt(SCompilerPackageNameAlreadyExists, [Name]);
+
+      S1 := ExtractWebFileName(PSetupPackageEntry(PackageEntries[I]).SourceFilename);
+      S2 := ExtractWebFileName(SourceFilename);
+      if CompareText(S1, S2) = 0 then
+        AbortCompileFmt(SCompilerPackageSourceAlreadyExists, [S2]);
+    end;
+  end;
+
+var
+  Values: array[TParam] of TParamValue;
+  NewPackageEntry: PSetupPackageEntry;
+begin
+  ExtractParameters(Line, ParamInfo, Values);
+
+  NewPackageEntry := AllocMem(SizeOf(TSetupPackageEntry));
+  try
+    with NewPackageEntry^ do begin
+      { Flags }
+      while True do
+        case ExtractFlag(Values[paFlags].Data, Flags) of
+          -2: Break;
+          -1: AbortCompileParamError(SCompilerParamUnknownFlag2, ParamCommonFlags);
+          0: Include(Options, poLocalCopy);
+        end;
+
+      { Name }
+      Name := Values[paName].Data;
+      StringChange(Name, '/', '\');
+      if not IsValidIdentString(Name, True, False) then
+        AbortCompileOnLine(SCompilerComponentsOrTasksBadName);
+
+      { Description }
+      Description := Values[paDescription].Data;
+
+      { Source }
+      SourceFilename := Values[paSource].Data;
+
+      if not IsWebPackage(SourceFilename) then
+        Include(Options, poLocalCopy);
+
+      CheckValidPackage(Name, SourceFilename);
+    end;
+  except
+    SEFreeRec(NewPackageEntry, SetupPackageEntryStrings, SetupPackageEntryAnsiStrings);
+    raise;
+  end;
+  PackageEntries.Add(NewPackageEntry);
 end;
 
 procedure TSetupCompiler.EnumDirs(const Line: PChar; const Ext: Integer);
@@ -5592,7 +5804,7 @@ procedure TSetupCompiler.EnumFiles(const Line: PChar; const Ext: Integer);
 
 type
   TParam = (paFlags, paSource, paDestDir, paDestName, paCopyMode, paAttribs,
-    paPermissions, paFontInstall, paExcludes, paExternalSize, paStrongAssemblyName,
+    paPermissions, paFontInstall, paExcludes, paPackage, paExternalSize, paStrongAssemblyName,
     paComponents, paTasks, paLanguages, paCheck, paBeforeInstall, paAfterInstall,
     paMinVersion, paOnlyBelowVersion);
 const
@@ -5604,6 +5816,7 @@ const
   ParamFilesPermissions = 'Permissions';
   ParamFilesFontInstall = 'FontInstall';
   ParamFilesExcludes = 'Excludes';
+  ParamFilesPackage = 'Package';
   ParamFilesExternalSize = 'ExternalSize';
   ParamFilesStrongAssemblyName = 'StrongAssemblyName';
   ParamInfo: array[TParam] of TParamInfo = (
@@ -5616,6 +5829,7 @@ const
     (Name: ParamFilesPermissions; Flags: []),
     (Name: ParamFilesFontInstall; Flags: [piNoEmpty]),
     (Name: ParamFilesExcludes; Flags: []),
+    (Name: ParamFilesPackage; Flags: []),
     (Name: ParamFilesExternalSize; Flags: []),
     (Name: ParamFilesStrongAssemblyName; Flags: [piNoEmpty]),
     (Name: ParamCommonComponents; Flags: []),
@@ -5925,7 +6139,7 @@ type
           J := FileLocationEntryFilenames.CaseInsensitiveIndexOf(SourceFile);
           if J <> -1 then begin
             NewFileLocationEntry := FileLocationEntries[J];
-            NewFileEntry^.LocationEntry := J;
+            FileEntryLocationFixups.Add(NewFileEntry, NewFileLocationEntry);
           end;
         end;
         if NewFileLocationEntry = nil then begin
@@ -5933,7 +6147,8 @@ type
           SetupHeader.CompressMethod := CompressMethod;
           FileLocationEntries.Add(NewFileLocationEntry);
           FileLocationEntryFilenames.Add(SourceFile);
-          NewFileEntry^.LocationEntry := FileLocationEntries.Count-1;
+          FileEntryLocationFixups.Add(NewFileEntry, NewFileLocationEntry);
+          NewFileLocationEntry.PackageIndex := NewFileEntry.PackageIndex;
           if NewFileEntry^.FileType = ftUninstExe then
             Include(NewFileLocationEntry^.Flags, foIsUninstExe);
           Inc6464(TotalBytesToCompress, FileListRec.Size);
@@ -6105,7 +6320,8 @@ type
         while Compare(FileList[J], P) > 0 do
           Dec(J);
         if I <= J then begin
-          FileList.Exchange(I, J);
+          if I <> J then
+            FileList.Exchange(I, J);
           Inc(I);
           Dec(J);
         end;
@@ -6151,6 +6367,18 @@ type
         DirEntries.Add(NewDirEntry);
       end;
     end;
+  end;
+
+  function FindPackageIndex(const Package: string): Integer;
+  begin
+    for Result := 0 to PackageEntries.Count - 1 do
+      if CompareText(PSetupPackageEntry(PackageEntries[Result]).Name, Package) = 0 then
+      begin
+        Include(PSetupPackageEntry(PackageEntries[Result]).Options, poUsed);
+        Exit;
+      end;
+    AbortCompileOnLineFmt(SCompilerParamUnknownPackage, [ParamFilesPackage]);
+    Result := -1; // make compiler happy
   end;
 
 var
@@ -6308,6 +6536,11 @@ begin
 
                { Excludes }
                ProcessWildcardsParameter(Values[paExcludes].Data, AExcludes, SCompilerFilesExcludeTooLong);
+
+               { Package }
+               PackageIndex := 0;
+               if Values[paPackage].Found then
+                 PackageIndex := FindPackageIndex(Values[paPackage].Data) + 1;
 
                { ExternalSize }
                if Values[paExternalSize].Found then begin
@@ -7303,6 +7536,7 @@ begin
     CodeCompiler.AddExport('InitializeWizard', '0', False, '', 0);
     CodeCompiler.AddExport('GetCustomSetupExitCode', 'LongInt', False, '', 0);
     CodeCompiler.AddExport('PrepareToInstall', 'String !Boolean', False, '', 0);
+    CodeCompiler.AddExport('WebFileDownloadHandler', '0 @String @String @String', False, '', 0);
 
     CodeCompiler.AddExport('InitializeUninstall', 'Boolean', False, '', 0);
     CodeCompiler.AddExport('DeinitializeUninstall', '0', False, '', 0);
@@ -7464,47 +7698,72 @@ procedure TSetupCompiler.Compile;
 
     procedure DelFile(const Filename: String);
     begin
-      if DeleteFile(OutputDir + Filename) and Log then
-        AddStatus(Format(SCompilerStatusDeletingPrevious, [Filename]));
+      if DeleteFile(Filename) and Log then
+        AddStatus(Format(SCompilerStatusDeletingPrevious, [PathExtractName(Filename)]));
     end;
 
-  var
-    H: THandle;
-    FindData: TWin32FindData;
-    N: String;
-    I: Integer;
-    HasNumbers: Boolean;
-  begin
-    { Delete SETUP.* and SETUP-*.BIN if they existed in the output directory }
-    DelFile(OutputBaseFilename + '.exe');
-    H := FindFirstFile(PChar(OutputDir + OutputBaseFilename + '-*.bin'), FindData);
-    if H <> INVALID_HANDLE_VALUE then begin
-      try
-        repeat
-          if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
-            N := FindData.cFileName;
-            if PathStartsWith(N, OutputBaseFilename) then begin
-              I := Length(OutputBaseFilename) + 1;
-              if (I <= Length(N)) and (N[I] = '-') then begin
-                Inc(I);
-                HasNumbers := False;
-                while (I <= Length(N)) and CharInSet(N[I], ['0'..'9']) do begin
-                  HasNumbers := True;
+    procedure DeleteSlices(const Path, Suffix: String);
+    var
+      H: THandle;
+      FindData: TWin32FindData;
+      N, BaseFilename: String;
+      I: Integer;
+      HasNumbers: Boolean;
+      OutDir: String;
+    begin
+      OutDir := PathExtractPath(Path);
+      H := FindFirstFile(PChar(Path + '-*' + Suffix), FindData);
+      if H <> INVALID_HANDLE_VALUE then begin
+        try
+          BaseFilename := PathExtractName(Path);
+          repeat
+            if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+              N := FindData.cFileName;
+              if PathStartsWith(N, BaseFilename) then begin
+                I := Length(BaseFilename) + 1;
+                if (I <= Length(N)) and (N[I] = '-') then begin
                   Inc(I);
-                end;
-                if HasNumbers then begin
-                  if (I <= Length(N)) and CharInSet(UpCase(N[I]), ['A'..'Z']) then
+                  HasNumbers := False;
+                  while (I <= Length(N)) and CharInSet(N[I], ['0'..'9']) do begin
+                    HasNumbers := True;
                     Inc(I);
-                  if CompareText(Copy(N, I, Maxint), '.bin') = 0 then
-                    DelFile(N);
+                  end;
+                  if HasNumbers then begin
+                    if (I <= Length(N)) and CharInSet(UpCase(N[I]), ['A'..'Z']) then
+                      Inc(I);
+                    if CompareText(Copy(N, I, Maxint), '.bin') = 0 then
+                      DelFile(OutDir + N);
+                  end;
                 end;
               end;
             end;
-          end;
-        until not FindNextFile(H, FindData);
-      finally
-        Windows.FindClose(H);
+          until not FindNextFile(H, FindData);
+        finally
+          Windows.FindClose(H);
+        end;
       end;
+    end;
+
+  var
+    PackageFilename: String;
+    PackageEntry: PSetupPackageEntry;
+    I: Integer;
+  begin
+    { Delete SETUP.* and SETUP-*.BIN if they existed in the output directory }
+    DelFile(OutputDir + OutputBaseFilename + '.exe');
+    DelFile(OutputDir + WebSetupFilename);
+    DeleteSlices(OutputDir + OutputBaseFilename, '.bin');
+
+    { Delete all packages and their slice files if they exist in the output directroy }
+    for I := 0 to PackageEntries.Count - 1 do begin
+      PackageEntry := PackageEntries[I];
+      if IsWebPackage(PackageEntry.SourceFilename) then
+        PackageFilename := OutputDir + ExtractWebFilename(PackageEntry.SourceFilename)
+      else
+        PackageFilename := PathExpand(OutputDir + PackageEntry.SourceFilename);
+      DelFile(PackageFilename);
+
+      DeleteSlices(PathChangeExt(PackageFilename, ''), PathExtractExt(PackageFilename));
     end;
   end;
 
@@ -7564,6 +7823,79 @@ procedure TSetupCompiler.Compile;
     end;
   end;
 
+  { sorting routines }
+  procedure SortLocationsByPackageIndex(L, R: Integer);
+  type
+    PEntry = PSetupFileLocationEntry;
+  var
+    I, J: Integer;
+    P: PSetupFileLocationEntry;
+    PackageIndex: Integer;
+    LocList: TList;
+    FilenameList: THashStringList;
+  begin
+    LocList := FileLocationEntries;
+    FilenameList := FileLocationEntryFilenames;
+    repeat
+      I := L;
+      J := R;
+      P := LocList[(L + R) shr 1];
+      PackageIndex := P.PackageIndex;
+      repeat
+        while PEntry(LocList[I]).PackageIndex < PackageIndex do
+          Inc(I);
+        while PEntry(LocList[J]).PackageIndex > PackageIndex do
+          Dec(J);
+        if I <= J then
+        begin
+          if I <> J then begin
+            if PEntry(LocList[I]).PackageIndex <> PEntry(LocList[J]).PackageIndex then begin
+              LocList.Exchange(I, J);
+              FilenameList.Exchange(I, J);
+            end;
+          end;
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then
+        SortLocationsByPackageIndex(L, J);
+      L := I;
+    until I >= R;
+  end;
+
+  procedure SortEntriesByLocationEntry(L, R: Integer);
+  type
+    PEntry = PSetupFileEntry;
+  var
+    I, J: Integer;
+    P: PSetupFileEntry;
+    LocationEntry: Integer;
+  begin
+    repeat
+      I := L;
+      J := R;
+      P := FileEntries[(L + R) shr 1];
+      LocationEntry := P.LocationEntry;
+      repeat
+        while PEntry(FileEntries[I]).LocationEntry < LocationEntry do
+          Inc(I);
+        while PEntry(FileEntries[J]).LocationEntry > LocationEntry do
+          Dec(J);
+        if I <= J then
+        begin
+          if I <> J then
+            FileEntries.Exchange(I, J);
+          Inc(I);
+          Dec(J);
+        end;
+      until I > J;
+      if L < J then
+        SortEntriesByLocationEntry(L, J);
+      L := I;
+    until I >= R;
+  end;
+
 type
   PCopyBuffer = ^TCopyBuffer;
   TCopyBuffer = array[0..32767] of Char;
@@ -7607,6 +7939,7 @@ var
     SetupHeader.NumTypeEntries := TypeEntries.Count;
     SetupHeader.NumComponentEntries := ComponentEntries.Count;
     SetupHeader.NumTaskEntries := TaskEntries.Count;
+    SetupHeader.NumPackageEntries := PackageEntries.Count;
     SetupHeader.NumDirEntries := DirEntries.Count;
     SetupHeader.NumFileEntries := FileEntries.Count;
     SetupHeader.NumFileLocationEntries := FileLocationEntries.Count;
@@ -7621,6 +7954,8 @@ var
     SetupHeader.InfoBeforeText := InfoBeforeText;
     SetupHeader.InfoAfterText := InfoAfterText;
     SetupHeader.CompiledCodeText := CompiledCodeText;
+    { Create GUID for the setup }
+    CoCreateGUID(SetupHeader.SetupGuid);
 
     W := TCompressedBlockWriter.Create(F, TLZMACompressor, InternalCompressLevel,
       InternalCompressProps);
@@ -7646,6 +7981,9 @@ var
       for J := 0 to TaskEntries.Count-1 do
         SECompressedBlockWrite(W, TaskEntries[J]^, SizeOf(TSetupTaskEntry),
           SetupTaskEntryStrings, SetupTaskEntryAnsiStrings);
+      for J := 0 to PackageEntries.Count-1 do
+        SECompressedBlockWrite(W, PackageEntries[J]^, SizeOf(TSetupPackageEntry),
+          SetupPackageEntryStrings, SetupPackageEntryAnsiStrings);
       for J := 0 to DirEntries.Count-1 do
         SECompressedBlockWrite(W, DirEntries[J]^, SizeOf(TSetupDirEntry),
           SetupDirEntryStrings, SetupDirEntryAnsiStrings);
@@ -7717,6 +8055,92 @@ var
     end;
   end;
 
+  procedure CreateWebSetupInformationFile;
+
+    function GetFileSize(const Filename: string; var Size: Cardinal): Boolean;
+    var
+      Data: TWin32FindData;
+      h: THandle;
+    begin
+      Size := 0;
+      h := FindFirstFile(PChar(Filename), Data);
+      if h <> INVALID_HANDLE_VALUE then begin
+        Size := Data.nFileSizeLow;
+        Windows.FindClose(h);
+        Result := True;
+      end
+      else
+        Result := False;
+    end;
+
+    function MakeGUIDStr(const GUID: TGUID): string;
+    begin
+      Result := Format('%.8x-%.4x-%.4x-%.2x%.2x-%.2x%.2x%.2x%.2x%.2x',
+        [GUID.D1, GUID.D2, GUID.D3, GUID.D4[0], GUID.D4[1],
+         GUID.D4[2], GUID.D4[3], GUID.D4[4], GUID.D4[5], GUID.D4[6]]);
+    end;
+
+  var
+    F: TTextFileWriter;
+    I: Integer;
+    Size: Cardinal;
+    Filename: string;
+    URL: string;
+  begin
+    URL := SetupHeader.WebSetupUpdateURL;
+    if (URL <> '') and (URL[Length(URL)] <> '/') then
+      URL := URL + '/';
+
+    F := TTextFileWriter.Create(OutputDir + WebSetupFilename, fdCreateAlways, faWrite, fsNone);
+    try
+      F.WriteLine(WebSetupInfoID);
+      F.WriteLine(MakeGUIDStr(SetupHeader.SetupGuid));
+      F.WriteLine(SetupHeader.WebSetupUpdateURL);
+
+      { GUI related stuff }
+      if SetupHeader.AppVerName <> '' then
+        F.WriteLine(SetupHeader.AppVerName)
+      else
+        F.WriteLine(SetupHeader.AppId + ' ' + SetupHeader.AppVersion);
+
+      { Setup.exe }
+      Filename := OutputBaseFilename + '.exe';
+      if GetFileSize(PathExpand(OutputDir + Filename), Size) and (Size > 0) then
+        F.WriteLine(Format('%x', [Size]) + ';' + Filename + ';' + Filename);
+
+      if not UseSetupLdr then begin
+        { Setup-0.bin }
+        Filename := OutputBaseFilename + '-0.bin';
+        if GetFileSize(PathExpand(OutputDir + Filename), Size) and (Size > 0) then
+          F.WriteLine(Format('%x', [Size]) + ';' + Filename + ';' + Filename);
+        { Setup-1.bin }
+        Filename := OutputBaseFilename + '-1.bin';
+        if GetFileSize(PathExpand(OutputDir + Filename), Size) and (Size > 0) then
+          F.WriteLine(Format('%x', [Size]) + ';' + Filename + ';' + Filename);
+      end;
+
+      { Local packages }
+      for I := 0 to PackageEntries.Count - 1 do begin
+        if poUsed in PSetupPackageEntry(PackageEntries[I]).Options then begin
+          Filename := PSetupPackageEntry(PackageEntries[I]).SourceFilename;
+          if not IsWebPackage(Filename) then
+            if GetFileSize(PathExpand(OutputDir + Filename), Size) and (Size > 0) then
+              F.WriteLine(Format('%x', [Size]) + ';' + Filename + ';' + Filename);
+        end;
+      end;
+      { Local packages }
+      for I := 0 to PackageEntries.Count - 1 do begin
+        if poUsed in PSetupPackageEntry(PackageEntries[I]).Options then begin
+          Filename := PSetupPackageEntry(PackageEntries[I]).SourceFilename;
+          if IsWebPackage(Filename) then
+            F.WriteLine('web:' + PSetupPackageEntry(PackageEntries[I]).Name + ';' + Filename);
+        end;
+      end;
+    finally
+      F.Free;
+    end;
+  end;
+
   function RoundToNearestClusterSize(const L: Longint): Longint;
   begin
     Result := (L div DiskClusterSize) * DiskClusterSize;
@@ -7724,10 +8148,20 @@ var
       Inc(Result, DiskClusterSize);
   end;
 
+  procedure MkDirs(Dir: string);
+  begin
+    Dir := RemoveBackslashUnlessRoot(Dir);
+    if (PathExtractPath(Dir) = Dir) or DirExists(Dir) then
+      Exit;
+    MkDirs(PathExtractPath(Dir));
+    MkDir(Dir);
+  end;
+
   procedure CompressFiles(const FirstDestFile: String;
     const BytesToReserveOnFirstDisk: Longint);
   var
     CurrentTime: TSystemTime;
+    PackageIndex: Integer;
 
     procedure ApplyTouch(var FT: TFileTime);
     var
@@ -7809,7 +8243,9 @@ var
           entries that are part of the chunk }
         for I := 0 to LastFileLocationEntry do begin
           FL := FileLocationEntries[I];
-          if (FL.StartOffset = CH.ChunkStartOffset) and (FL.FirstSlice = CH.ChunkFirstSlice) then begin
+          if (FL.PackageIndex = PackageIndex) and
+             (FL.StartOffset = CH.ChunkStartOffset) and
+             (FL.FirstSlice = CH.ChunkFirstSlice) then begin
             FL.LastSlice := CH.CurSlice;
             FL.ChunkCompressedSize := CH.ChunkBytesWritten;
           end;
@@ -7817,11 +8253,23 @@ var
       end;
     end;
 
+    function GetPackageFilename(PackageEntry: PSetupPackageEntry): string;
+    begin
+      if IsWebPackage(PackageEntry.SourceFilename) then
+        Result := AddBackslash(OutputDir) + ExtractWebFilename(PackageEntry.SourceFilename)
+      else
+        Result := PathExpand(AddBackslash(OutputDir) + PackageEntry.SourceFilename);
+
+      if PathExtractPath(Result) <> AddBackslash(OutputDir) then
+        MkDirs(PathExtractPath(Result));
+    end;
+
   var
     CH: TCompressionHandler;
     ChunkCompressed: Boolean;
     I: Integer;
     FL: PSetupFileLocationEntry;
+    PackageEntry: PSetupPackageEntry;
     FT: TFileTime;
     SourceFile: TFile;
   begin
@@ -7836,7 +8284,8 @@ var
       GetLocalTime(CurrentTime);
 
     ChunkCompressed := False;  { avoid warning }
-    CH := TCompressionHandler.Create(Self, FirstDestFile);
+    PackageIndex := 0; { start with internal package (file list is sorted by package index) }
+    CH := TCompressionHandler.Create(Self, FirstDestFile, nil);
     try
       { If encryption is used, load the encryption DLL }
       if shEncryptionUsed in SetupHeader.Options then begin
@@ -7872,15 +8321,29 @@ var
               - we're not using solid compression
               - the "solidbreak" flag was specified on this file
               - the compression or encryption status of this file is
-                different from the previous file(s) in the chunk }
+                different from the previous file(s) in the chunk
+              - the package-index is different from the previous file(s) }
             if not UseSolidCompression or
                (foSolidBreak in FL.Flags) or
+               (PackageIndex <> FL.PackageIndex) or
                (ChunkCompressed <> (foChunkCompressed in FL.Flags)) or
                (CH.ChunkEncrypted <> (foChunkEncrypted in FL.Flags)) then
               FinalizeChunk(CH, I-1);
           end;
+
           { Start a new chunk if needed }
           if not CH.ChunkStarted then begin
+
+            { Switch to next package }
+            if PackageIndex <> FL.PackageIndex then begin
+              Assert( PackageIndex < FL.PackageIndex ); // file list sorting failed?
+              CH.Finish;
+              FreeAndNil(CH);
+              PackageIndex := FL.PackageIndex; // must be set after CH.Finish()
+              PackageEntry := PackageEntries[PackageIndex - 1];
+              CH := TCompressionHandler.Create(Self, GetPackageFilename(PackageEntry), PackageEntry);
+            end;
+
             ChunkCompressed := (foChunkCompressed in FL.Flags);
             CH.NewChunk(GetCompressorClass(ChunkCompressed), CompressLevel,
               CompressProps, foChunkEncrypted in FL.Flags, CryptKey);
@@ -8131,15 +8594,6 @@ var
     TypeEntries.Add(NewTypeEntry);
   end;
 
-  procedure MkDirs(Dir: string);
-  begin
-    Dir := RemoveBackslashUnlessRoot(Dir);
-    if (PathExtractPath(Dir) = Dir) or DirExists(Dir) then
-      Exit;
-    MkDirs(PathExtractPath(Dir));
-    MkDir(Dir);
-  end;
-
   procedure CreateManifestFile;
 
     function FileTimeToString(const FileTime: TFileTime; const UTC: Boolean): String;
@@ -8374,6 +8828,10 @@ begin
       DiskClusterSize := 1;
       SlicesPerDisk := 1;
       ReserveBytes := 0;
+    end
+    else begin
+      if SetupHeader.WebSetupUpdateURL <> '' then
+        AbortCompileFmt(SCompilerMustDisableDiskSpanning, ['WebSetupUpdateURL']);
     end;
     SetupHeader.SlicesPerDisk := SlicesPerDisk;
     if SetupDirectiveLines[ssVersionInfoDescription] = 0 then begin
@@ -8628,6 +9086,10 @@ begin
     EnumIniSection(EnumTasks, 'Tasks', 0, True, True, '', False, False);
     CallIdleProc;
 
+    { Read [Packages] section }
+    EnumIniSection(EnumPackages, 'Packages', 0, True, True, '', False, False);
+    CallIdleProc;
+
     { Read [Dirs] section }
     EnumIniSection(EnumDirs, 'Dirs', 0, True, True, '', False, False);
     CallIdleProc;
@@ -8664,6 +9126,14 @@ begin
     if not TryStrToBoolean(SetupHeader.Uninstallable, Uninstallable) or Uninstallable then
       EnumFiles('', 1);
     EnumIniSection(EnumFiles, 'Files', 0, True, True, '', False, False);
+
+    { Sort files by package-index }
+    if (PackageEntries.Count > 0) and (FileLocationEntries.Count > 1) then
+      SortLocationsByPackageIndex(0, FileLocationEntries.Count - 1);
+    FileEntryLocationFixups.FixupLocations(FileLocationEntries);
+    if FileEntries.Count > 1 then
+      SortEntriesByLocationEntry(0, FileEntries.Count - 1);
+
     CallIdleProc;
 
     { Read decompressor DLL. Must be done after [Files] is parsed, since
@@ -8825,6 +9295,10 @@ begin
         AddStatus(SCompilerStatusSigningSetup);
         Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolParams, ExeFilename);
       end;
+
+      { Create a setup.web file for the web setup }
+      if SetupHeader.WebSetupUpdateURL <> '' then
+        CreateWebSetupInformationFile;
     except
       EmptyOutputDir(False);
       raise;
@@ -8864,6 +9338,7 @@ begin
     FreeListItems(TypeEntries, SetupTypeEntryStrings, SetupTypeEntryAnsiStrings);
     FreeListItems(ComponentEntries, SetupComponentEntryStrings, SetupComponentEntryAnsiStrings);
     FreeListItems(TaskEntries, SetupTaskEntryStrings, SetupTaskEntryAnsiStrings);
+    FreeListItems(PackageEntries, SetupPackageEntryStrings, SetupPackageEntryAnsiStrings);
     FreeListItems(DirEntries, SetupDirEntryStrings, SetupDirEntryAnsiStrings);
     FreeListItems(FileEntries, SetupFileEntryStrings, SetupFileEntryAnsiStrings);
     FreeListItems(FileLocationEntries, SetupFileLocationEntryStrings, SetupFileLocationEntryAnsiStrings);

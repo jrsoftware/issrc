@@ -1765,6 +1765,11 @@ begin
         InternalError('Cannot disable FS redirection on this version of Windows');
       ScriptFuncDisableFsRedir := True;
     end;
+  end else if Proc.Name = 'DOWNLOADWEBFILE' then begin
+    DownloadWebFile(Stack.GetString(PStart), Stack.GetString(PStart - 1),
+      Stack.GetString(PStart - 2), Stack.GetString(PStart - 3),
+      Stack.GetString(PStart - 4), Stack.GetString(PStart - 5),
+      Stack.GetBool(PStart - 6), Stack.GetBool(PStart - 7), False);
   end else if Proc.Name = 'UNINSTALLPROGRESSFORM' then begin
     Stack.SetClass(PStart, GetUninstallProgressForm);
   end else

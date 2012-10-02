@@ -261,6 +261,9 @@ procedure TWizardFormBeveledLabel_R(Self: TWizardForm; var T: TNewStaticText); b
 procedure TWizardFormStatusLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.StatusLabel; end;
 procedure TWizardFormFilenameLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.FilenameLabel; end;
 procedure TWizardFormProgressGauge_R(Self: TWizardForm; var T: TNewProgressBar); begin T := Self.ProgressGauge; end;
+procedure TWizardFormWebDownloadStatusLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.WebDownloadStatusLabel; end;
+procedure TWizardFormWebDownloadFileNameLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.WebDownloadFileNameLabel; end;
+procedure TWizardFormWebDownloadProgressGauge_R(Self: TWizardForm; var T: TNewProgressBar); begin T := Self.WebDownloadProgressGauge; end;
 procedure TWizardFormSelectDirLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.SelectDirLabel; end;
 procedure TWizardFormSelectStartMenuFolderLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.SelectStartMenuFolderLabel; end;
 procedure TWizardFormSelectComponentsLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.SelectComponentsLabel; end;
@@ -349,6 +352,9 @@ begin
     RegisterPropertyHelper(@TWizardFormStatusLabel_R, nil, 'StatusLabel');
     RegisterPropertyHelper(@TWizardFormFilenameLabel_R, nil, 'FilenameLabel');
     RegisterPropertyHelper(@TWizardFormProgressGauge_R, nil, 'ProgressGauge');
+    RegisterPropertyHelper(@TWizardFormWebDownloadStatusLabel_R, nil, 'WebDownloadStatusLabel');
+    RegisterPropertyHelper(@TWizardFormWebDownloadFilenameLabel_R, nil, 'WebDownloadFilenameLabel');
+    RegisterPropertyHelper(@TWizardFormWebDownloadProgressGauge_R, nil, 'WebDownloadProgressGauge');
     RegisterPropertyHelper(@TWizardFormSelectDirLabel_R, nil, 'SelectDirLabel');
     RegisterPropertyHelper(@TWizardFormSelectStartMenuFolderLabel_R, nil, 'SelectStartMenuFolderLabel');
     RegisterPropertyHelper(@TWizardFormSelectComponentsLabel_R, nil, 'SelectComponentsLabel');

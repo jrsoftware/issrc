@@ -144,6 +144,13 @@ procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
 
+{ LastDelimiter() returns the String-Index of the last @Delim char }
+function LastDelimiter(Delim: Char; const S: String): Integer;
+{ IsWebPackage() returns True if the @PackageSource is a web package. }
+function IsWebPackage(const PackageSource: String): Boolean;
+{ ExtractWebFileName() returns the filename for the specified web package. }
+function ExtractWebFileName(const PackageSource: String): String;
+
 {$IFNDEF UNICODE}
 var
   ConstLeadBytes: PLeadByteSet = nil;
@@ -1515,6 +1522,36 @@ begin
     end;
   end;
   Result := RemoveDirectory(PChar(Dir));
+end;
+
+function IsWebPackage(const PackageSource: String): Boolean;
+var
+  I: Integer;
+begin
+  I := Pos(':', PackageSource);
+  if I <= 2 then
+    Result := False
+  else
+    Result := True; // check for HTTP or FTP ?
+end;
+
+function LastDelimiter(Delim: Char; const S: String): Integer;
+begin
+  for Result := Length(S) downto 1 do
+    if S[Result] = Delim then
+      Exit;
+  Result := 0;
+end;
+
+function ExtractWebFileName(const PackageSource: String): String;
+var
+  I: Integer;
+begin
+  I := LastDelimiter('/', PackageSource);
+  if I > 0 then
+    Result := Copy(PackageSource, I + 1, Length(PackageSource))
+  else
+    Result := PathExtractName(PackageSource);
 end;
 
 function SetNTFSCompression(const FileOrDir: String; Compress: Boolean): Boolean;

@@ -154,6 +154,7 @@ const
   SCompilerNotEnoughSpaceOnFirstDisk = 'There is not enough space on the first disk to copy all of the required files';
   SCompilerSetup0Mismatch = 'Internal error SC1';
   SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled in order to create an installation larger than %d bytes in size';
+  SCompilerMustDisableDiskSpanning = 'Disk spanning must be disabled in order to use the %s option';
   SCompilerCompileCodeError = 'An error occurred while trying to compile the [Code] section:' + SNewLine2 + '%s';
   SCompilerISCryptMissing = 'Cannot use encryption because ISCrypt.dll is missing.' + SNewLine2 +
     'Note: This file is not installed with Inno Setup. A link to obtain it can be found on the Inno Setup web site';
@@ -269,10 +270,11 @@ const
   SCompilerParamFlagMissing = 'Flag "%s" must be used if flag "%s" is used';
   SCompilerParamFlagMissing2 = 'Flag "%s" must be used if parameter "%s" is used';
 
-  { Types, components, tasks, check, beforeinstall, afterinstall }
+  { Types, components, tasks, package, check, beforeinstall, afterinstall }
   SCompilerParamUnknownType = 'Parameter "%s" includes an unknown type';
   SCompilerParamUnknownComponent = 'Parameter "%s" includes an unknown component';
   SCompilerParamUnknownTask = 'Parameter "%s" includes an unknown task';
+  SCompilerParamUnknownPackage = 'Parameter "%s" includes an unknown package';
   SCompilerExpressionError = 'Directive or parameter "%s" expression error: %s';
   SCompilerBadCheckOrInstall = 'Invalid Check, BeforeInstall or AfterInstall parameter "%s"';
 
@@ -289,12 +291,14 @@ const
   { [Types] }
   SCompilerTypesCustomTypeAlreadyDefined = 'A custom type has already been defined';
 
-  { [Components], [Tasks], [Languages] }
+  { [Components], [Tasks], [Packages], [Languages] }
   SCompilerComponentsOrTasksBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 +
     'It may only include alphanumeric characters, underscores, slashes (/), and/or backslashes (\), may not start with a number and may not start or end with a slash or a backslash. Names ''not'', ''and'' and ''or'' are reserved';
   SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component';
   SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task'; 
   SCompilerLanguagesBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
+  SCompilerPackageNameAlreadyExists = 'The package "%s" already exists';
+  SCompilerPackageSourceAlreadyExists = 'A package with the Source "%s" already exists';
 
   { [Languages] }
   SCompilerParamUnknownLanguage = 'Parameter "%s" includes an unknown language';

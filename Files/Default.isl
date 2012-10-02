@@ -316,6 +316,15 @@ StatusUninstalling=Uninstalling %1...
 ShutdownBlockReasonInstallingApp=Installing %1.
 ShutdownBlockReasonUninstallingApp=Uninstalling %1.
 
+; *** WebDownload messages
+WebDownloadConnecting=Connecting...
+WebDownloadDisconnecting=Disconnecting...
+WebDownloadDownloading=Downloading...
+WebDownloadElapsed=[%1 KB] (%2 elapsed)
+WebDownloadRemaining=(%1 remaining)
+WebDownloadFailed=Downloading from "%1" failed
+WebDownloadUnknownProtocol=Protocol "%1" is not supported
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 

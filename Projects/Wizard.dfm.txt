@@ -556,6 +556,35 @@ object WizardForm: TWizardForm
             Min = 0
             Max = 100
           end
+          object WebDownloadFilenameLabel: TNewStaticText
+            Left = 0
+            Top = 96
+            Width = 417
+            Height = 16
+            AutoSize = False
+            ShowAccelChar = False
+            TabOrder = 3
+            Visible = False
+          end
+          object WebDownloadStatusLabel: TNewStaticText
+            Left = 0
+            Top = 80
+            Width = 417
+            Height = 16
+            AutoSize = False
+            ShowAccelChar = False
+            TabOrder = 2
+            Visible = False
+          end
+          object WebDownloadProgressGauge: TNewProgressBar
+            Left = 0
+            Top = 122
+            Width = 417
+            Height = 21
+            Min = 0
+            Max = 100
+            Visible = False
+          end
         end
         object InfoAfterPage: TNewNotebookPage
           object InfoAfterMemo: TRichEditViewer

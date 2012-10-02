@@ -18,12 +18,14 @@ uses
 
 type
   TExtractorProgressProc = procedure(Bytes: Cardinal);
+  TExtractorDownloadWebFileProc = procedure(const WebFilename, Description, DestFilename: String);
 
   TFileExtractor = class
   private
     FDecompressor: array[Boolean] of TCustomDecompressor;
     FSourceF: TFile;
     FOpenedSlice, FChunkFirstSlice, FChunkLastSlice: Integer;
+    FPackageIndex: Smallint;
     FChunkStartOffset: Longint;
     FChunkBytesLeft, FChunkDecompressedBytesRead: Integer64;
     FNeedReset: Boolean;
@@ -31,17 +33,24 @@ type
     FCryptContext: TArcFourContext;
     FCryptKey: String;
     FEntered: Integer;
+    FSetupPackageOffset: Longint;
+    FDownloadWebFileProc: TExtractorDownloadWebFileProc;
     procedure DecompressBytes(var Buffer; Count: Cardinal);
-    class function FindSliceFilename(const ASlice: Integer): String;
-    procedure OpenSlice(const ASlice: Integer);
+    class function FindSliceFilename(const PackageFilename: String; const ASlice: Integer): String;
+    procedure OpenSlice(const APackageIndex: Smallint; const ASlice: Integer);
     function ReadProc(var Buf; Count: Longint): Longint;
+    function TestOpenPackageFile(const Filename: String; PackageEntry: PSetupPackageEntry;
+      IsSlice: Boolean): TFile;
   public
     constructor Create(ADecompressorClass: TCustomDecompressorClass);
     destructor Destroy; override;
     procedure DecompressFile(const FL: TSetupFileLocationEntry; const DestF: TFile;
       const ProgressProc: TExtractorProgressProc; const VerifyChecksum: Boolean);
     procedure SeekTo(const FL: TSetupFileLocationEntry;
-      const ProgressProc: TExtractorProgressProc);
+      const ProgressProc: TExtractorProgressProc;
+      const DownloadWebFileProc: TExtractorDownloadWebFileProc);
+    class function ReadPackageHeader(PackageEntry: PSetupPackageEntry; F: TFile;
+      IsSlice, RaiseExceptions: Boolean): Boolean;
     property CryptKey: String write FCryptKey;
   end;
 
@@ -51,7 +60,7 @@ procedure FreeFileExtractor;
 implementation
 
 uses
-  PathFunc, CmnFunc2, Main, Msgs, MsgIDs, InstFunc, CompressZlib, bzlib,
+  PathFunc, CmnFunc, CmnFunc2, Main, Msgs, MsgIDs, InstFunc, CompressZlib, bzlib,
   LZMADecomp, SHA1, Logging, NewDisk;
 
 var
@@ -103,18 +112,33 @@ end;
 var
   LastSourceDir: String;
 
-class function TFileExtractor.FindSliceFilename(const ASlice: Integer): String;
+class function TFileExtractor.FindSliceFilename(const PackageFilename: String;
+  const ASlice: Integer): String;
 var
   Major, Minor: Integer;
-  Prefix, F1, F2, Path: String;
+  Prefix, F1, F2, Path, Suffix: String;
 begin
-  Prefix := PathChangeExt(PathExtractName(SetupLdrOriginalFilename), '');
+  if PackageFilename = '' then begin
+    Prefix := PathChangeExt(PathExtractName(SetupLdrOriginalFilename), '');
+    Suffix := '.bin';
+  end
+  else begin
+    Prefix := PathChangeExt(PackageFilename, '');
+    Suffix := PathExtractExt(PackageFilename);
+  end;
   Major := ASlice div SetupHeader.SlicesPerDisk + 1;
   Minor := ASlice mod SetupHeader.SlicesPerDisk;
   if SetupHeader.SlicesPerDisk = 1 then
-    F1 := Format('%s-%d.bin', [Prefix, Major])
+    F1 := Format('%s-%d%s', [Prefix, Major, Suffix])
   else
-    F1 := Format('%s-%d%s.bin', [Prefix, Major, Chr(Ord('a') + Minor)]);
+    F1 := Format('%s-%d%s%s', [Prefix, Major, Chr(Ord('a') + Minor), Suffix]);
+
+  if (PackageFilename <> '') and IsWebPackage(PackageFilename) then begin
+    { A web package must not exist at this time }
+    Result := F1;
+    Exit;
+  end;
+
   F2 := Format('..\DISK%d\', [Major]) + F1;
   if LastSourceDir <> '' then begin
     Result := AddBackslash(LastSourceDir) + F1;
@@ -129,7 +153,7 @@ begin
   Result := PathExpand(AddBackslash(SourceDir) + F2);
   if NewFileExists(Result) then Exit;
   Path := SourceDir;
-  LogFmt('Asking user for new disk containing "%s".', [F1]);  
+  LogFmt('Asking user for new disk containing "%s".', [F1]);
   if SelectDisk(Major, F1, Path) then begin
     LastSourceDir := Path;
     Result := AddBackslash(Path) + F1;
@@ -138,32 +162,145 @@ begin
     Abort;
 end;
 
-procedure TFileExtractor.OpenSlice(const ASlice: Integer);
+{ ReadPackageHeader reads and validates the header of a local/web package. If it
+  can read the header successfully, it returns the StartOffset of the compressed
+  data. }
+class function TFileExtractor.ReadPackageHeader(PackageEntry: PSetupPackageEntry; F: TFile;
+  IsSlice, RaiseExceptions: Boolean): Boolean;
+
+  procedure AbortPackageInit(const Msg: TSetupMessageID);
+  begin
+    if RaiseExceptions then
+      LoggedMsgBox(SetupMessages[Msg], '', mbCriticalError, MB_OK, True, IDOK);
+    Abort;
+  end;
+
+ var
+  PackageHeader: TSetupPackageHeader;
+  TestID: TSetupID;
+  SliceID: TDiskSliceID;
+begin
+  Result := True;
+  try
+    if IsSlice then begin
+      if F.Read(SliceID, SizeOf(SliceID)) <> SizeOf(SliceID) then
+        AbortPackageInit(msgSetupFileCorruptOrWrongVer);
+      if SliceID <> DiskSliceID then
+        AbortPackageInit(msgSetupFileCorruptOrWrongVer);
+    end;
+    if F.Read(TestID, SizeOf(TestID)) <> SizeOf(TestID) then
+      AbortPackageInit(msgSetupFileCorruptOrWrongVer);
+    if TestID <> SetupPackageID then
+      AbortPackageInit(msgSetupFileCorruptOrWrongVer);
+    if F.Read(PackageHeader, SizeOf(PackageHeader)) <> SizeOf(PackageHeader) then
+      AbortPackageInit(msgSetupFileCorrupt);;
+    if not CompareMem(@PackageHeader.PackageGuid, @PackageEntry.PackageGuid, SizeOf(TGUID)) then
+      AbortPackageInit(msgSetupFileCorruptOrWrongVer);
+    if PackageHeader.TotalSize <> F.Size.Lo then
+      AbortPackageInit(msgSetupFileCorrupt);;
+  except
+    if RaiseExceptions then
+      raise;
+    Result := False;
+  end;
+end;
+
+function TFileExtractor.TestOpenPackageFile(const Filename: String;
+  PackageEntry: PSetupPackageEntry; IsSlice: Boolean): TFile;
+begin
+  Result := nil;
+  if NewFileExists(Filename) then begin
+    try
+      Result := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
+      if not ReadPackageHeader(PackageEntry, Result, IsSlice, False) then
+        FreeAndNil(Result);
+    except
+      Result.Free;
+      Result := nil;
+    end;
+  end;
+end;
+
+procedure TFileExtractor.OpenSlice(const APackageIndex: Smallint; const ASlice: Integer);
 var
-  Filename: String;
+  Filename, PkgFileName: String;
+  IsSlice: Boolean;
   TestDiskSliceID: TDiskSliceID;
   DiskSliceHeader: TDiskSliceHeader;
+  PackageEntry: PSetupPackageEntry;
 begin
-  if FOpenedSlice = ASlice then
+  if (FPackageIndex = APackageIndex) and (FOpenedSlice = ASlice) then
     Exit;
 
   FOpenedSlice := -1;
   FreeAndNil(FSourceF);
 
-  if SetupLdrOffset1 = 0 then
-    Filename := FindSliceFilename(ASlice)
-  else
-    Filename := SetupLdrOriginalFilename;
-  FSourceF := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
-  if SetupLdrOffset1 = 0 then begin
-    if FSourceF.Read(TestDiskSliceID, SizeOf(TestDiskSliceID)) <> SizeOf(TestDiskSliceID) then
-      SourceIsCorrupted('Invalid slice header (1)');
-    if TestDiskSliceID <> DiskSliceID then
-      SourceIsCorrupted('Invalid slice header (2)');
-    if FSourceF.Read(DiskSliceHeader, SizeOf(DiskSliceHeader)) <> SizeOf(DiskSliceHeader) then
-      SourceIsCorrupted('Invalid slice header (3)');
-    if FSourceF.Size.Lo <> DiskSliceHeader.TotalSize then
-      SourceIsCorrupted('Invalid slice header (4)');
+  if APackageIndex > 0 then begin
+    FSetupPackageOffset := -1; // for sanity
+    IsSlice := ASlice > 0;
+    { Get package filename and adjust to installer directory }
+    PackageEntry := PSetupPackageEntry(Entries[sePackage][APackageIndex - 1]);
+    Filename := PackageEntry.SourceFilename;
+
+    if IsSlice then
+      Filename := FindSliceFilename(Filename, ASlice);
+
+    if not IsWebPackage(Filename) then begin
+      if not IsSlice then
+        Filename := PathExpand(AddBackslash(SourceDir) + Filename);
+    end
+    else begin
+      { The web package may have a local copy, so test for it }
+      PkgFilename := Filename;
+
+      Filename := PathExpand(AddBackslash(SourceDir) + ExtractWebFilename(PkgFilename));
+      FSourceF := TestOpenPackageFile(Filename, PackageEntry, IsSlice);
+      if FSourceF = nil then begin
+        { The web package may have been already downloaded to <tmp> }
+        Filename := PathExpand(AddBackslash(TempInstallDir) + ExtractWebFilename(PkgFilename));
+        FSourceF := TestOpenPackageFile(Filename, PackageEntry, IsSlice);
+
+        if (FSourceF = nil) and Assigned(FDownloadWebFileProc) then begin
+          PkgFilename := PathExpand(AddBackslash(SourceDir) + ExtractWebFilename(PkgFilename)); // prefered directory is {src}
+          { (Always) download to <tmp> }
+          FDownloadWebFileProc(PackageEntry.SourceFilename, PackageEntry.Description, Filename);
+
+          if poLocalCopy in PackageEntry.Options then begin
+            { The file should be used as a local copy, so move it from <tmp> to <src> if possible }
+            if MoveFile(PChar(Filename), PChar(PkgFilename)) then
+              Filename := PkgFilename;
+          end;
+        end;
+      end;
+    end;
+
+    if (FSourceF = nil) and not NewFileExists(Filename) then
+      raise Exception.Create(FmtSetupMessage1(msgSetupFileMissing, ExtractWebFileName(PackageEntry.SourceFilename)));
+
+    if FSourceF = nil then begin
+      { Open the file and validate the header }
+      FSourceF := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
+      ReadPackageHeader(PackageEntry, FSourceF, IsSlice, True);
+    end;
+    FSetupPackageOffset := FSourceF.Position.Lo;
+  end
+  else begin
+    if SetupLdrOffset1 = 0 then
+      Filename := FindSliceFilename('', ASlice)
+    else begin
+      Filename := SetupLdrOriginalFilename;
+    end;
+    FSourceF := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
+    if SetupLdrOffset1 = 0 then begin
+      if FSourceF.Read(TestDiskSliceID, SizeOf(TestDiskSliceID)) <> SizeOf(TestDiskSliceID) then
+        SourceIsCorrupted('Invalid slice header (1)');
+      if TestDiskSliceID <> DiskSliceID then
+        SourceIsCorrupted('Invalid slice header (2)');
+      if FSourceF.Read(DiskSliceHeader, SizeOf(DiskSliceHeader)) <> SizeOf(DiskSliceHeader) then
+        SourceIsCorrupted('Invalid slice header (3)');
+      if FSourceF.Size.Lo <> DiskSliceHeader.TotalSize then
+        SourceIsCorrupted('Invalid slice header (4)');
+    end;
   end;
   FOpenedSlice := ASlice;
 end;
@@ -186,7 +323,8 @@ begin
 end;
 
 procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
-  const ProgressProc: TExtractorProgressProc);
+  const ProgressProc: TExtractorProgressProc;
+  const DownloadWebFileProc: TExtractorDownloadWebFileProc);
 
   procedure InitDecryption;
   var
@@ -243,21 +381,27 @@ begin
   try
     if (foChunkEncrypted in FL.Flags) and (FCryptKey = '') then
       InternalError('Cannot read an encrypted file before the key has been set');
+    FDownloadWebFileProc := DownloadWebFileProc;
 
     { Is the file in a different chunk than the current one?
       Or, is the file in a part of the current chunk that we've already passed?
       Or, did a previous decompression operation fail, necessitating a reset? }
     if (FChunkFirstSlice <> FL.FirstSlice) or
        (FChunkStartOffset <> FL.StartOffset) or
+       (FPackageIndex <> FL.PackageIndex) or
        (Compare64(FL.ChunkSuboffset, FChunkDecompressedBytesRead) < 0) or
        FNeedReset then begin
       FChunkFirstSlice := -1;
       FDecompressor[foChunkCompressed in FL.Flags].Reset;
       FNeedReset := False;
 
-      OpenSlice(FL.FirstSlice);
+      OpenSlice(FL.PackageIndex, FL.FirstSlice);
 
-      FSourceF.Seek(SetupLdrOffset1 + FL.StartOffset);
+      if FL.PackageIndex = 0 then
+        FSourceF.Seek(SetupLdrOffset1 + FL.StartOffset)
+      else
+        FSourceF.Seek(FSetupPackageOffset + FL.StartOffset);
+
       if FSourceF.Read(TestCompID, SizeOf(TestCompID)) <> SizeOf(TestCompID) then
         SourceIsCorrupted('Failed to read CompID');
       if Longint(TestCompID) <> Longint(ZLIBID) then
@@ -273,6 +417,7 @@ begin
       FChunkDecompressedBytesRead.Lo := 0;
       FChunkCompressed := foChunkCompressed in FL.Flags;
       FChunkEncrypted := foChunkEncrypted in FL.Flags;
+      FPackageIndex := FL.PackageIndex;
     end;
 
     { Need to seek forward in the chunk? }
@@ -313,7 +458,7 @@ begin
       if FOpenedSlice >= FChunkLastSlice then
         { Already on the last slice, so the file must be corrupted... }
         SourceIsCorrupted('Already on last slice');
-      OpenSlice(FOpenedSlice + 1);
+      OpenSlice(FPackageIndex, FOpenedSlice + 1);
     end;
   end;
 end;

@@ -28,6 +28,7 @@ type
     scCode,
     scComponents,
     scCustomMessages,
+    scPackages,
     scDirs,
     scFiles,
     scIcons,
@@ -227,6 +228,7 @@ type
     ssVersionInfoProductTextVersion,
     ssVersionInfoTextVersion,
     ssVersionInfoVersion,
+    ssWebSetupUpdateURL,
     ssWindowResizable,
     ssWindowShowCaption,
     ssWindowStartMaximized,
@@ -277,6 +279,12 @@ const
     (Name: 'Tasks'),
     (Name: 'Type'));
 
+  PackagesSectionParameters: array[0..3] of TInnoSetupStylerParamInfo = (
+    (Name: 'Name'),
+    (Name: 'Description'),
+    (Name: 'Source'),
+    (Name: 'Flags'));
+
   DirsSectionParameters: array[0..11] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'Attribs'),
@@ -291,7 +299,7 @@ const
     (Name: 'Permissions'),
     (Name: 'Tasks'));
 
-  FilesSectionParameters: array[0..18] of TInnoSetupStylerParamInfo = (
+  FilesSectionParameters: array[0..19] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'Attribs'),
     (Name: 'BeforeInstall'),
@@ -310,7 +318,8 @@ const
     (Name: 'Permissions'),
     (Name: 'Source'),
     (Name: 'StrongAssemblyName'),
-    (Name: 'Tasks'));
+    (Name: 'Tasks'),
+    (Name: 'Package'));
 
   IconsSectionParameters: array[0..17] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
@@ -483,10 +492,11 @@ type
     Value: TInnoSetupStylerSection;
   end;
 const
-  SectionMap: array[0..17] of TSectionMapEntry = (
+  SectionMap: array[0..18] of TSectionMapEntry = (
     (Name: 'Code'; Value: scCode),
     (Name: 'Components'; Value: scComponents),
     (Name: 'CustomMessages'; Value: scCustomMessages),
+    (Name: 'Packages'; Value: scPackages),
     (Name: 'Dirs'; Value: scDirs),
     (Name: 'Files'; Value: scFiles),
     (Name: 'Icons'; Value: scIcons),
@@ -523,6 +533,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
 begin
   inherited;
   BuildKeywordListFromParameters(scComponents, ComponentsSectionParameters);
+  BuildKeywordListFromParameters(scPackages, PackagesSectionParameters);
   BuildKeywordListFromParameters(scDirs, DirsSectionParameters);
   BuildKeywordListFromParameters(scFiles, FilesSectionParameters);
   BuildKeywordListFromParameters(scIcons, IconsSectionParameters);
@@ -1156,6 +1167,7 @@ begin
       scCode: HandleCodeSection(NewLineState.SpanState);
       scComponents: HandleParameterSection(ComponentsSectionParameters);
       scCustomMessages: HandleKeyValueSection(Section);
+      scPackages: HandleParameterSection(PackagesSectionParameters);
       scDirs: HandleParameterSection(DirsSectionParameters);
       scFiles: HandleParameterSection(FilesSectionParameters);
       scIcons: HandleParameterSection(IconsSectionParameters);
