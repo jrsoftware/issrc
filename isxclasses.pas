@@ -755,6 +755,9 @@ TWizardForm = class(TSetupForm)
   property StatusLabel: TNewStaticText; read;
   property FilenameLabel: TNewStaticText; read;
   property ProgressGauge: TNewProgressBar; read;
+  property WebDownloadStatusLabel: TNewStaticText; read;
+  property WebDownloadFilenameLabel: TNewStaticText; read;
+  property WebDownloadProgressGauge: TNewProgressBar; read;
   property SelectDirLabel: TNewStaticText; read;
   property SelectStartMenuFolderLabel: TNewStaticText; read;
   property SelectComponentsLabel: TNewStaticText; read;
