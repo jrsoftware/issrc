@@ -7,9 +7,9 @@ unit Extract;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TFileExtractor class
-
-  $jrsoftware: issrc/Projects/Extract.pas,v 1.30 2010/03/13 18:51:37 jr Exp $
 }
+
+{$I VERSION.INC}
 
 interface
 
@@ -61,6 +61,7 @@ implementation
 
 uses
   PathFunc, CmnFunc, CmnFunc2, Main, Msgs, MsgIDs, InstFunc, CompressZlib, bzlib,
+  {$IFNDEF Delphi3OrHigher} OLE2, {$ENDIF}
   LZMADecomp, SHA1, Logging, NewDisk;
 
 var

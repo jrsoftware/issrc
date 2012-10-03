@@ -10,10 +10,12 @@ unit Struct;
   SetupLdr, and Uninst projects
 }
 
+{$I VERSION.INC}
+
 interface
 
 uses
-  Windows, Int64Em, SHA1;
+  Windows, {$IFNDEF Delphi3orHigher} OLE2, {$ENDIF} Int64Em, SHA1;
 
 const
   SetupTitle = 'Inno Setup';

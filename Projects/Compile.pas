@@ -35,6 +35,7 @@ implementation
 
 uses
   CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo,
+  {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, DebugStruct, VerInfo, ResUpdate, CompResUpdate,
@@ -42,9 +43,6 @@ uses
   IsppPreprocess,
 {$ENDIF}
   ScriptCompiler, SimpleExpression, SetupTypes;
-
-function CoCreateGuid(out guid: TGUID): HResult; stdcall;
-  external 'ole32.dll' name 'CoCreateGuid';
 
 type
   TParamInfo = record
@@ -298,7 +296,6 @@ type
 
   TFileEntryLocationFixups = class(TLowFragList)
   protected
-    procedure Notify(Ptr: Pointer; Action: TListNotification); override;
     function GetItem(Index: Integer): PFileEntryLocationFixupRec;
   public
     function Add(AFileEntry: PSetupFileEntry; AFileLocation: PSetupFileLocationEntry): Integer;
@@ -1341,12 +1338,6 @@ end;
 
 { TFileEntryLocationFixups }
 
-procedure TFileEntryLocationFixups.Notify(Ptr: Pointer; Action: TListNotification);
-begin
-  if Action = lnDeleted then
-    Dispose(PFileEntryLocationFixupRec(Ptr));
-end;
-
 function TFileEntryLocationFixups.GetItem(Index: Integer): PFileEntryLocationFixupRec;
 begin
   Result := PFileEntryLocationFixupRec(inherited Items[Index]);
@@ -1370,8 +1361,10 @@ begin
   for I := 0 to Count - 1 do begin
     P := Items[I];
     Index := FileLocationEntries.IndexOf(P.LocationEntry);
-    Assert( Index <> -1 );
+    if Index = -1 then
+      raise EListError.Create('TFileEntryLocationFixups: Index = -1');
     P.FileEntry.LocationEntry := Index;
+    Dispose(P);
   end;
   Clear; // release memory
 end;
@@ -1805,6 +1798,8 @@ begin
   DefaultLangData.Free;
   ExpectedCustomMessageNames.Free;
   WarningsList.Free;
+  for I := 0 to FileEntryLocationFixups.Count-1 do
+    Dispose(FileEntryLocationFixups[I]);
   FileEntryLocationFixups.Free;
   FileLocationEntryFilenames.Free;
   UninstallRunEntries.Free;
@@ -8336,7 +8331,8 @@ var
 
             { Switch to next package }
             if PackageIndex <> FL.PackageIndex then begin
-              Assert( PackageIndex < FL.PackageIndex ); // file list sorting failed?
+              if PackageIndex >= FL.PackageIndex then
+                AbortCompile('PackageIndex >= FL.PackageIndex'); // file list sorting failed?
               CH.Finish;
               FreeAndNil(CH);
               PackageIndex := FL.PackageIndex; // must be set after CH.Finish()

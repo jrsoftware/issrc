@@ -14,7 +14,10 @@ The Initial Developer of the Original Code is Andreas Hausladen
 Portions created by Olivier Sannier are Copyright (C) 2003 Olivier Sannier.
 All Rights Reserved.
 ----------------------------------------------------------------------------}
-// $Id$
+
+{$IFDEF VER90}
+  {$DEFINE DELPHI2}
+{$ENDIF}
 
 unit WebDownloader;
 
@@ -184,6 +187,10 @@ type
   PFNInternetStatusCallback = ^TFNInternetStatusCallback;
 
   INTERNET_PORT = Word;
+  
+{$IFDEF DELPHI2}
+  PLPSTR = ^LPSTR;
+{$ENDIF}
 
 function InternetGetLastResponseInfo(var lpdwError: DWORD; lpszBuffer: PChar;
   var lpdwBufferLength: DWORD): BOOL; stdcall;
@@ -368,7 +375,8 @@ var
   I: Integer;
   GrabberProc: TWebDownloaderGrabberProc;
 begin
-  Assert( FThread = nil );
+  if FThread <> nil then
+    raise Exception.Create('FThread <> nil');
   FStream := AStream;
   FStatus := wdsInactive;
   FUrl := AUrl;
@@ -700,7 +708,9 @@ begin
         FTotalSize := StrToInt(StrPas(Buffer))
       else
         FTotalSize := 0;
+{$IFNDEF DELPHI2}
       FStream.Size := TotalSize; // allocate memory/disk space
+{$ENDIF}
       FStream.Position := 0;
 
       BufferedStream := TBufferedStream.Create(FStream);
@@ -729,7 +739,9 @@ begin
           if FDownloadStartTime = 0.0 then
             FDownloadStartTime := Now;
         end;
+{$IFNDEF DELPHI2}
         FStream.Size := FStream.Position; // truncate if the file we got is smaller than what was reported in the header
+{$ENDIF}
       end
       else
       begin
@@ -874,7 +886,9 @@ begin
         Exit;
       end;
       FTotalSize := FtpGetFileSize(hDownload, @dwFileSizeHigh);
+{$IFNDEF DELPHI2}
       FStream.Size := TotalSize; // allocate memory / disk space
+{$ENDIF}
       FStream.Position := 0;
 
       if Thread.Terminated then

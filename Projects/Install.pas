@@ -351,7 +351,8 @@ begin
       URL := Trim(Copy(URL, I + 4, Length(URL)));
       I := Pos(' ', URL);
     end;
-    Assert(UrlList.Count > 0);
+    if UrlList.Count = 0 then
+      raise Exception.Create('UrlList.Count = 0');
 
     Success := False;
     repeat
