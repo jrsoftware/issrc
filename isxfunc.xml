@@ -320,8 +320,7 @@ end;</pre></example>
 begin
   Result := (GetWindowsVersion &gt;= $05010000);
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link><br />
-<link topic="isxfunc_UsingWinNT">UsingWinNT</link></p></seealso>
+        <seealso><p><link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
       </function>
       <function>
         <name>GetWindowsVersionEx</name>
