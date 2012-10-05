@@ -10,6 +10,8 @@ unit Character;
 
   Note: The interface section must match the original RTL Character.pas unit, so that SysUtils
   does not need to be recompiled.
+
+  Only the methods that are called from SysUtils.IsValidIdent are implemented.
 }
 
 {$IFNDEF VER200}
@@ -199,7 +201,13 @@ end;
 
 class function TCharacter.IsLetter(C: Char): Boolean;
 begin
-  raise ENotImplemented.Create('');
+  // We don't support non-unicode letters here (as component name)
+  case C of
+    'A'..'Z', 'a'..'z':
+      Result := True;
+  else
+    Result := False;
+  end;
 end;
 
 class function TCharacter.IsLetter(const S: string; Index: Integer): Boolean;
@@ -214,12 +222,18 @@ end;
 
 class function TCharacter.IsLetterOrDigit(C: Char): Boolean;
 begin
-  raise ENotImplemented.Create('');
+  // We don't support non-unicode letters here (as component name)
+  case C of
+    'A'..'Z', 'a'..'z', '0'..'9':
+      Result := True;
+  else
+    Result := False;
+  end;
 end;
 
 class function TCharacter.IsAscii(C: Char): Boolean;
 begin
-  raise ENotImplemented.Create('');
+  Result := C <= #127;
 end;
 
 class function TCharacter.IsControl(const S: string; Index: Integer): Boolean;
@@ -234,7 +248,12 @@ end;
 
 class function TCharacter.IsDigit(C: Char): Boolean;
 begin
-  raise ENotImplemented.Create('');
+  case C of
+    '0'..'9':
+      Result := True;
+  else
+    Result := False;
+  end;
 end;
 
 class function TCharacter.IsDigit(const S: string; Index: Integer): Boolean;

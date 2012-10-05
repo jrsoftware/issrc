@@ -1005,6 +1005,8 @@ begin
     Stack.SetString(PStart, CustomMessage(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'RMSESSIONSTARTED' then begin
     Stack.SetBool(PStart, RmSessionStarted);
+  end else if Proc.Name = 'REGISTEREXTRACLOSEAPPLICATIONSRESOURCE' then begin
+    Stack.SetBool(PStart, CodeRegisterExtraCloseApplicationsResource(Stack.GetBool(PStart-1), Stack.GetString(PStart-2)));
   end else
     Result := False;
 end;

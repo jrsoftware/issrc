@@ -1730,7 +1730,8 @@ begin
   end;
 
   if Result <> '' then begin
-    if (shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications then
+    if InitRestartApplications or
+       ((shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications) then
       PreparingLabel.Caption := SetupMessages[msgApplicationsFound2]
     else
       PreparingLabel.Caption := SetupMessages[msgApplicationsFound];

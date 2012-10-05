@@ -101,8 +101,9 @@ var
   InitLang: String;
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
-  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitNoCloseApplications,
-    InitNoRestartApplications, InitNoCancel, InitLocalSetup: Boolean;
+  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
+    InitNoCloseApplications, InitRestartApplications, InitNoRestartApplications,
+    InitNoCancel, InitLocalSetup: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -219,6 +220,7 @@ procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure NotifyBeforeInstallEntry(const BeforeInstall: String);
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
 function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
+function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
 procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 procedure RemoveTempInstallDir;
 procedure SaveResourceToTempFile(const ResName, Filename: String);
@@ -633,7 +635,9 @@ begin
   InitSilent := GetIniBool(Section, 'Silent', InitSilent, FileName);
   InitVerySilent := GetIniBool(Section, 'VerySilent', InitVerySilent, FileName);
   InitNoRestart := GetIniBool(Section, 'NoRestart', InitNoRestart, FileName);
+  InitCloseApplications := GetIniBool(Section, 'CloseApplications', InitCloseApplications, FileName);
   InitNoCloseApplications := GetIniBool(Section, 'NoCloseApplications', InitNoCloseApplications, FileName);
+  InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
@@ -1881,22 +1885,25 @@ function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
 var
   Filename: String;
   I, Len: Integer;
-  Match: Boolean;
+  CheckFilter, Match: Boolean;
 begin
   Filename := AFilename;
 
   { First: check filter. }
   if Filename <> '' then begin
-    Match := False;
-    for I := 0 to CloseApplicationsFilterList.Count-1 do begin
-      if WildcardMatch(PChar(PathExtractName(Filename)), PChar(CloseApplicationsFilterList[I])) then begin
-        Match := True;
-        Break;
+    CheckFilter := Boolean(Param);
+    if CheckFilter then begin
+      Match := False;
+      for I := 0 to CloseApplicationsFilterList.Count-1 do begin
+        if WildcardMatch(PChar(PathExtractName(Filename)), PChar(CloseApplicationsFilterList[I])) then begin
+          Match := True;
+          Break;
+        end;
       end;
-    end;
-    if not Match then begin
-      Result := True;
-      Exit;
+      if not Match then begin
+        Result := True;
+        Exit;
+      end;
     end;
   end;
 
@@ -1937,6 +1944,20 @@ begin
   Result := RmSessionStarted; { Break the enum if there was an error, else continue. }
 end;
 
+{ Helper function for [Code] to register extra files. }
+var
+  AllowCodeRegisterExtraCloseApplicationsResource: Boolean;
+
+function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
+begin
+  if AllowCodeRegisterExtraCloseApplicationsResource then
+    Result := RegisterFile(DisableFsRedir, AFilename, Pointer(False))
+  else begin
+    InternalError('Cannot call "RegisterExtraCloseApplicationsResource" function at this time');
+    Result := False;
+  end;
+end;
+
 { Register all files we're going to install or delete. Ends RmSession on errors. }
 procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 var
@@ -1947,7 +1968,22 @@ begin
   RegisterFileFilenamesMax := 1000;
   GetMem(RegisterFileFilenames, RegisterFileFilenamesMax * SizeOf(RegisterFileFilenames[0]));
   try
-    EnumFiles(RegisterFile, WizardComponents, WizardTasks, nil);
+    { Register our files. }
+    EnumFiles(RegisterFile, WizardComponents, WizardTasks, Pointer(True));
+    { Ask [Code] for more files. }
+    if CodeRunner <> nil then begin
+      AllowCodeRegisterExtraCloseApplicationsResource := True;
+      try
+        try
+          CodeRunner.RunProcedure('RegisterExtraCloseApplicationsResources', [''], False);
+        except
+          Log('RegisterExtraCloseApplicationsResources raised an exception.');
+          Application.HandleException(nil);
+        end;
+      finally
+        AllowCodeRegisterExtraCloseApplicationsResource := False;
+      end;
+    end;
     { Don't forget to register leftovers. }
     if RmSessionStarted then
       RegisterFile(False, '', nil);
@@ -3044,8 +3080,14 @@ begin
     if CompareText(ParamName, '/NoRestart') = 0 then
       InitNoRestart := True
     else
+    if CompareText(ParamName, '/CloseApplications') = 0 then
+      InitCloseApplications := True
+    else
     if CompareText(ParamName, '/NoCloseApplications') = 0 then
       InitNoCloseApplications := True
+    else
+    if CompareText(ParamName, '/RestartApplications') = 0 then
+      InitRestartApplications := True
     else
     if CompareText(ParamName, '/NoRestartApplications') = 0 then
       InitNoRestartApplications := True
@@ -3354,7 +3396,8 @@ begin
     LoadDecryptDLL;
 
   { Start RestartManager session }
-  if (shCloseApplications in SetupHeader.Options) and not InitNoCloseApplications then begin
+  if InitCloseApplications or
+     ((shCloseApplications in SetupHeader.Options) and not InitNoCloseApplications) then begin
     InitRestartManagerLibrary;
     { Note from Old New Thing: "The RmStartSession function doesn't properly
       null-terminate the session key <...>. To work around this bug, we pre-fill
@@ -4136,7 +4179,9 @@ begin
 
     ProcessRunEntries;
 
-    if RmDoRestart and (shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications then
+    if RmDoRestart and
+       (InitRestartApplications or
+        ((shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications)) then
       RestartApplications;
 
     SetStep(ssPostInstall, True);
