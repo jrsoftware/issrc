@@ -68,7 +68,9 @@ uses
   ResUpdate in 'ResUpdate.pas',
   SpawnCommon in 'SpawnCommon.pas',
   SpawnServer in 'SpawnServer.pas',
-  SpawnClient in 'SpawnClient.pas';
+  SpawnClient in 'SpawnClient.pas',
+  Download in 'Download.pas',
+  DownloadForm in 'DownloadForm.pas';
 
 {$R *.RES}
 {$IFDEF UNICODE}
@@ -290,7 +292,7 @@ begin
     Application.Initialize;
     InitializeSetup;
     Application.CreateForm(TMainForm, MainForm);
-    MainForm.InitializeWizard;
+  MainForm.InitializeWizard;
   except
     { Halt on any exception }
     ShowExceptionMsg;

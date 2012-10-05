@@ -283,8 +283,14 @@ const
     'procedure Log(const S: String);'
   );
 
+  { Download }
+  DownloadTable: array [0..0] of AnsiString =
+  (
+    'procedure DownloadWebFile(const WebFilename, Description, DestFilename, Referer, ProxyUserName, ProxyPassword: String; FtpTextMode, FtpPassive: Boolean);'
+  );
+
   { Other }
-  OtherTable: array [0..27] of AnsiString =
+  OtherTable: array [0..26] of AnsiString =
   (
     'procedure BringToFrontAndRestore;',
     'function WizardDirValue: String;',
@@ -312,7 +318,6 @@ const
     'function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function EnableFsRedirection(const Enable: Boolean): Boolean;',
-    'procedure DownloadWebFile(const WebFilename, Description, DestFilename, Referer, ProxyUserName, ProxyPassword: String; FtpTextMode, FtpPassive: Boolean);',
     'function UninstallProgressForm: TUninstallProgressForm;'
   );
 

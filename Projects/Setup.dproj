@@ -115,6 +115,8 @@
 			<DCCReference Include="SpawnCommon.pas"/>
 			<DCCReference Include="SpawnServer.pas"/>
 			<DCCReference Include="SpawnClient.pas"/>
+			<DCCReference Include="Download.pas"/>
+			<DCCReference Include="DownloadForm.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

@@ -27,7 +27,7 @@ uses
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
   Install, InstFunc, InstFnc2, Msgs, MsgIDs, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
-  SpawnClient, UninstProgressForm;
+  SpawnClient, UninstProgressForm, Download;
 
 var
   ScaleBaseUnitsInitialized: Boolean;
@@ -1501,6 +1501,23 @@ begin
     Result := False;
 end;
 
+{ Download }
+function DownloadProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+var
+  PStart: Cardinal;
+begin
+  PStart := Stack.Count-1;
+  Result := True;
+
+  if Proc.Name = 'DOWNLOADWEBFILE' then begin
+    DownloadWebFile(Stack.GetString(PStart), Stack.GetString(PStart - 1),
+      Stack.GetString(PStart - 2), Stack.GetString(PStart - 3),
+      Stack.GetString(PStart - 4), Stack.GetString(PStart - 5),
+      Stack.GetBool(PStart - 6), Stack.GetBool(PStart - 7), False);
+  end else
+    Result := False;
+end;
+
 { Other }
 function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
@@ -1765,11 +1782,6 @@ begin
         InternalError('Cannot disable FS redirection on this version of Windows');
       ScriptFuncDisableFsRedir := True;
     end;
-  end else if Proc.Name = 'DOWNLOADWEBFILE' then begin
-    DownloadWebFile(Stack.GetString(PStart), Stack.GetString(PStart - 1),
-      Stack.GetString(PStart - 2), Stack.GetString(PStart - 3),
-      Stack.GetString(PStart - 4), Stack.GetString(PStart - 5),
-      Stack.GetBool(PStart - 6), Stack.GetBool(PStart - 7), False);
   end else if Proc.Name = 'UNINSTALLPROGRESSFORM' then begin
     Stack.SetClass(PStart, GetUninstallProgressForm);
   end else
@@ -1828,6 +1840,7 @@ begin
   RegisterFunctionTable(WindowsTable, @WindowsProc);
   RegisterFunctionTable(Ole2Table, @Ole2Proc);
   RegisterFunctionTable(LoggingTable, @LoggingProc);
+  RegisterFunctionTable(DownloadTable, @DownloadProc);
   RegisterFunctionTable(OtherTable, @OtherProc);
 
   ScriptInterpreter.RegisterDelphiFunction(@_FindFirst, 'FindFirst', cdRegister);

@@ -555,6 +555,7 @@ object WizardForm: TWizardForm
             Height = 21
             Min = 0
             Max = 100
+            Style = npbstNormal
           end
           object WebDownloadFilenameLabel: TNewStaticText
             Left = 0
@@ -562,6 +563,7 @@ object WizardForm: TWizardForm
             Width = 417
             Height = 16
             AutoSize = False
+            ForceLTRReading = True
             ShowAccelChar = False
             TabOrder = 3
             Visible = False
@@ -583,6 +585,7 @@ object WizardForm: TWizardForm
             Height = 21
             Min = 0
             Max = 100
+            Style = npbstNormal
             Visible = False
           end
         end
