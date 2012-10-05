@@ -218,6 +218,7 @@ procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure NotifyBeforeInstallEntry(const BeforeInstall: String);
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
 function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
+function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
 procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 procedure RemoveTempInstallDir;
 procedure SaveResourceToTempFile(const ResName, Filename: String);
@@ -1879,22 +1880,25 @@ function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
 var
   Filename: String;
   I, Len: Integer;
-  Match: Boolean;
+  CheckFilter, Match: Boolean;
 begin
   Filename := AFilename;
 
   { First: check filter. }
   if Filename <> '' then begin
-    Match := False;
-    for I := 0 to CloseApplicationsFilterList.Count-1 do begin
-      if WildcardMatch(PChar(PathExtractName(Filename)), PChar(CloseApplicationsFilterList[I])) then begin
-        Match := True;
-        Break;
+    CheckFilter := Boolean(Param);
+    if CheckFilter then begin
+      Match := False;
+      for I := 0 to CloseApplicationsFilterList.Count-1 do begin
+        if WildcardMatch(PChar(PathExtractName(Filename)), PChar(CloseApplicationsFilterList[I])) then begin
+          Match := True;
+          Break;
+        end;
       end;
-    end;
-    if not Match then begin
-      Result := True;
-      Exit;
+      if not Match then begin
+        Result := True;
+        Exit;
+      end;
     end;
   end;
 
@@ -1935,6 +1939,20 @@ begin
   Result := RmSessionStarted; { Break the enum if there was an error, else continue. }
 end;
 
+{ Helper function for [Code] to register extra files. }
+var
+  AllowCodeRegisterExtraCloseApplicationsResource: Boolean;
+
+function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
+begin
+  if AllowCodeRegisterExtraCloseApplicationsResource then
+    Result := RegisterFile(DisableFsRedir, AFilename, Pointer(False))
+  else begin
+    InternalError('Cannot call "RegisterExtraCloseApplicationsResource" function at this time');
+    Result := False;
+  end;
+end;
+
 { Register all files we're going to install or delete. Ends RmSession on errors. }
 procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 var
@@ -1945,7 +1963,22 @@ begin
   RegisterFileFilenamesMax := 1000;
   GetMem(RegisterFileFilenames, RegisterFileFilenamesMax * SizeOf(RegisterFileFilenames[0]));
   try
-    EnumFiles(RegisterFile, WizardComponents, WizardTasks, nil);
+    { Register our files. }
+    EnumFiles(RegisterFile, WizardComponents, WizardTasks, Pointer(True));
+    { Ask [Code] for more files. }
+    if CodeRunner <> nil then begin
+      AllowCodeRegisterExtraCloseApplicationsResource := True;
+      try
+        try
+          CodeRunner.RunProcedure('RegisterExtraCloseApplicationsResources', [''], False);
+        except
+          Log('RegisterExtraCloseApplicationsResources raised an exception.');
+          Application.HandleException(nil);
+        end;
+      finally
+        AllowCodeRegisterExtraCloseApplicationsResource := False;
+      end;
+    end;
     { Don't forget to register leftovers. }
     if RmSessionStarted then
       RegisterFile(False, '', nil);
