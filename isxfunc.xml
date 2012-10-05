@@ -205,7 +205,7 @@ end;</pre></example>
       <function>
         <name>SetPreviousData</name>
         <prototype>function SetPreviousData(const PreviousDataKey: Integer; const ValueName, ValueData: String): Boolean;</prototype>
-        <description><p>Sets a value that can be restored later using GetPreviousData. Call SetPreviousData inside a RegisterPreviousData event function.</p></description>
+        <description><p>Sets a value that can be restored later using GetPreviousData. Call SetPreviousData inside a RegisterPreviousData event function, once per setting.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -219,7 +219,7 @@ end;</pre></example>
       <function>
         <name>RegisterExtraCloseApplicationsResource</name>
         <prototype>function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;</prototype>
-        <description><p>Register an extra file which Setup should check for being in-use. Call RegisterExtraCloseApplicationsResource inside a RegisterExtraCloseApplicationsResources event function. Returns True if successful.</p></description>
+        <description><p>Register an extra file which Setup should check for being in-use. Call RegisterExtraCloseApplicationsResource inside a RegisterExtraCloseApplicationsResources event function, once per file. Returns True if successful.</p></description>
       </function>
       <function>
         <name>RmSessionStarted</name>
