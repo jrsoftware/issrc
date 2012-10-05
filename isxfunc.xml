@@ -217,6 +217,11 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
+        <name>RegisterExtraCloseApplicationsResource</name>
+        <prototype>function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;</prototype>
+        <description><p>Register an extra file which Setup should check for being in-use. Call RegisterExtraCloseApplicationsResource inside a RegisterExtraCloseApplicationsResources event function. Returns True if successful.</p></description>
+      </function>
+      <function>
         <name>RmSessionStarted</name>
         <prototype>function RmSessionStarted: Boolean;</prototype>
         <description><p>Returns True if a Restart Manager session was started, False otherwise.</p></description>
