@@ -98,6 +98,7 @@
 <keyword value="CheckSerial" anchor="CheckSerial" />
 <keyword value="GetCustomSetupExitCode" anchor="GetCustomSetupExitCode" />
 <keyword value="PrepareToInstall" anchor="PrepareToInstall" />
+<keyword value="RegisterExtraCloseApplicationsResources" anchor="RegisterExtraCloseApplicationsResources" />
 <keyword value="WebFileDownloadHandler" anchor="WebFileDownloadHandler" />
 <keyword value="InitializeUninstall" anchor="InitializeUninstall" />
 <keyword value="DeinitializeUninstall" anchor="DeinitializeUninstall" />
@@ -202,7 +203,7 @@
 
 <dt><tt>procedure <a name="RegisterPreviousData">RegisterPreviousData</a>(PreviousDataKey: Integer);</tt></dt>
 <dd>
-<p>To store user settings entered on custom wizard pages, place a <tt>RegisterPreviousData</tt> event function in the Pascal script and call <tt>SetPreviousData(PreviousDataKey, ...)</tt> inside it, once per setting.</p>
+<p>To store user settings entered on custom wizard pages, place a <tt>RegisterPreviousData</tt> event function in the Pascal script and call <link topic="isxfunc_SetPreviousData">SetPreviousData(PreviousDataKey, ...)</link> inside it, once per setting.</p>
 </dd>
 
 <dt><tt>function <a name="CheckSerial">CheckSerial</a>(Serial: String): Boolean;</tt></dt>
@@ -219,6 +220,12 @@
 <dd>
 <p>Return a non empty string to instruct Setup to stop at the <link topic="wizardpages">Preparing to Install</link> wizard page, showing the returned string as the error message. Set <tt>NeedsRestart</tt> to True if a restart is needed. This function is only called if Setup didn't already determine it can't continue.</p>
 </dd>
+
+<dt><tt>procedure <a name="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</a>;</tt></dt>
+<dd>
+<p>To register extra files which Setup should check for being in-use, place a <tt>RegisterExtraCloseApplicationsResources</tt> event function in the Pascal script and call <link topic="isxfunc_RegisterExtraCloseApplicationsResource">RegisterExtraCloseApplicationsResource</link> inside it, once per file.</p>
+<p>See also:<br/>
+<link topic="setup_closeapplications">CloseApplications</link></p>
 
 <dt><tt>procedure <a name="WebFileDownloadHandler">WebFileDownloadHandler</a>(const Location, Description, DestFilename: String);</tt></dt>
 <dd>

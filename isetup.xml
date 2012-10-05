@@ -3090,7 +3090,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="/SILENT" anchor="SILENT" />
 <keyword value="/VERYSILENT" anchor="VERYSILENT" />
 <keyword value="/NORESTART" anchor="NORESTART" />
+<keyword value="/CLOSEAPPLICATIONS" anchor="CLOSEAPPLICATIONS" />
 <keyword value="/NOCLOSEAPPLICATIONS" anchor="NOCLOSEAPPLICATIONS" />
+<keyword value="/RESTARTAPPLICATIONS" anchor="RESTARTAPPLICATIONS" />
 <keyword value="/NORESTARTAPPLICATIONS" anchor="NORESTARTAPPLICATIONS" />
 <keyword value="/LOADINF=" anchor="LOADINF" />
 <keyword value="/SAVEINF=" anchor="SAVEINF" />
@@ -3176,14 +3178,24 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Specifies a custom exit code that Setup is to return when the system needs to be restarted following a successful installation. (By default, 0 is returned in this case.) Typically used along with /NORESTART. See also: <link topic="setupexitcodes">Setup Exit Codes</link></p>
 </dd>
 
+<dt><b><a name="CLOSEAPPLICATIONS">/CLOSEAPPLICATIONS</a></b></dt>
+<dd>
+<p>Instructs Setup to close applications using files that need to be updated by Setup if possible.</p>
+</dd>
+
 <dt><b><a name="NOCLOSEAPPLICATIONS">/NOCLOSEAPPLICATIONS</a></b></dt>
 <dd>
-<p>Prevents Setup from closing applications using files that need to be updated by Setup.</p>
+<p>Prevents Setup from closing applications using files that need to be updated by Setup. If /CLOSEAPPLICATIONS was also used, this command line parameter is ignored.</p>
+</dd>
+
+<dt><b><a name="RESTARTAPPLICATIONS">/RESTARTAPPLICATIONS</a></b></dt>
+<dd>
+<p>Instructs Setup to restart applications if possible. If Setup didn't close these applications (for example because /NOCLOSEAPPLICATIONS was used), this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="NORESTARTAPPLICATIONS">/NORESTARTAPPLICATIONS</a></b></dt>
 <dd>
-<p>Prevents Setup from restarting applications. If Setup didn't close these applications (for example because /NOCLOSEAPPLICATIONS was used), this command line parameter is ignored.</p>
+<p>Prevents Setup from restarting applications. If /RESTARTAPPLICATIONS was also used, this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="LOADINF">/LOADINF=</a>"<i>filename</i>"</b></dt>
@@ -5033,6 +5045,7 @@ SignTool=byparam format c:
 <p>Note: Setup uses the Windows <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa373524.aspx">Restart Manager</extlink> API to close and restart applications, which is available only on Windows Vista and newer.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
+<link topic="scriptevents" anchor="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</link><br/>
 <link topic="setup_restartapplications">RestartApplications</link></p>
 </body>
 </setuptopic>

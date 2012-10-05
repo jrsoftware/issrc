@@ -205,7 +205,7 @@ end;</pre></example>
       <function>
         <name>SetPreviousData</name>
         <prototype>function SetPreviousData(const PreviousDataKey: Integer; const ValueName, ValueData: String): Boolean;</prototype>
-        <description><p>Sets a value that can be restored later using GetPreviousData. Call SetPreviousData inside a RegisterPreviousData event function.</p></description>
+        <description><p>Sets a value that can be restored later using GetPreviousData. Call SetPreviousData inside a RegisterPreviousData event function, once per setting.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -216,6 +216,11 @@ end;</pre></example>
       </function>
     </subcategory>
     <subcategory>
+      <function>
+        <name>RegisterExtraCloseApplicationsResource</name>
+        <prototype>function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;</prototype>
+        <description><p>Register an extra file which Setup should check for being in-use. Call RegisterExtraCloseApplicationsResource inside a RegisterExtraCloseApplicationsResources event function, once per file. Returns True if successful.</p></description>
+      </function>
       <function>
         <name>RmSessionStarted</name>
         <prototype>function RmSessionStarted: Boolean;</prototype>
@@ -299,17 +304,12 @@ end;</pre></example>
       <function>
         <name>IsAdminLoggedOn</name>
         <prototype>function IsAdminLoggedOn: Boolean;</prototype>
-        <description><p>Returns True if the user account that Setup/Uninstall is running under is a member of the local Administrators group. Always returns True on Windows 95/98/Me.</p></description>
+        <description><p>Returns True if the user account that Setup/Uninstall is running under is a member of the local Administrators group.</p></description>
       </function>
       <function>
         <name>IsPowerUserLoggedOn</name>
         <prototype>function IsPowerUserLoggedOn: Boolean;</prototype>
-        <description><p>Returns True if the user account that Setup/Uninstall is running under is a member of the Power Users group. Always returns True on Windows 95/98/Me.</p></description>
-      </function>
-      <function>
-        <name>UsingWinNT</name>
-        <prototype>function UsingWinNT: Boolean;</prototype>
-        <description><p>Returns True if the system is running a version of Windows that has an NT-based kernel (e.g. Windows NT 4.0, 2000, XP, 2003, Vista). Returns False on Windows 95, 98, and Me.</p></description>
+        <description><p>Returns True if the user account that Setup/Uninstall is running under is a member of the Power Users group.</p></description>
       </function>
       <function>
         <name>GetWindowsVersion</name>
@@ -320,8 +320,7 @@ end;</pre></example>
 begin
   Result := (GetWindowsVersion &gt;= $05010000);
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link><br />
-<link topic="isxfunc_UsingWinNT">UsingWinNT</link></p></seealso>
+        <seealso><p><link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
       </function>
       <function>
         <name>GetWindowsVersionEx</name>
@@ -346,7 +345,7 @@ end;</pre></example>
   VER_NT_DOMAIN_CONTROLLER
   VER_NT_SERVER
 </pre>
-<p>It can also be zero if the user is running Windows 95/98/Me, or if the product type could not be determined (unlikely). VER_NT_WORKSTATION indicates a non-server edition of Windows (e.g. Workstation, Professional, or Home).</p>
+<p>It can also be zero if the product type could not be determined (unlikely). VER_NT_WORKSTATION indicates a non-server edition of Windows (e.g. Workstation, Professional, or Home).</p>
 <p>The SuiteMask field can be a combination of the following values:</p>
 <pre>
   VER_SUITE_BACKOFFICE
@@ -360,7 +359,7 @@ end;</pre></example>
   VER_SUITE_SMALLBUSINESS_RESTRICTED
   VER_SUITE_TERMINAL
 </pre>
-<p>VER_SUITE_PERSONAL, for example, is set on Home edition of Windows XP, and VER_SUITE_BLADE is set on the Web edition of Windows Server 2003. On Windows 95/98/Me and NT 4.0, SuiteMask is always zero.</p></description>
+<p>VER_SUITE_PERSONAL, for example, is set on Home edition of Windows XP, and VER_SUITE_BLADE is set on the Web edition of Windows Server 2003.</p></description>
         <example><p>The following example demonstrates how you can disallow installation on certain editions of Windows, and check service pack levels on multiple operating system versions. (Neither of these things are possible with the <tt>MinVersion</tt> [Setup] section directive.)</p>
 <pre>function InitializeSetup: Boolean;
 var
@@ -625,7 +624,7 @@ end;</pre></example>
       <function>
         <name>MakePendingFileRenameOperationsChecksum</name>
         <prototype>procedure MakePendingFileRenameOperationsChecksum: String;</prototype>
-        <description><p>Calculates a checksum of the current PendingFileRenameOperations registry value (on NT 4+ platforms) or of the current WININIT.INI file (on non-NT platforms). The caller can use this checksum to determine if PendingFileRenameOperations or WININIT.INI was changed (perhaps by another program).</p></description>
+        <description><p>Calculates a checksum of the current PendingFileRenameOperations registry value. The caller can use this checksum to determine if PendingFileRenameOperations or WININIT.INI was changed (perhaps by another program).</p></description>
         <example><pre>var
   ChecksumBefore, ChecksumAfter: String;
 begin
