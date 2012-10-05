@@ -640,6 +640,7 @@ begin
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
+  InitLocalSetup := GetIniBool(Section, 'LocalSetup', InitLocalSetup, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
   WantToSuppressMsgBoxes := GetIniBool(Section, 'SuppressMsgBoxes', InitSuppressMsgBoxes, FileName);
