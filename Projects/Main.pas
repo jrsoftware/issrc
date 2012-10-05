@@ -101,8 +101,9 @@ var
   InitLang: String;
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
-  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitNoCloseApplications,
-    InitNoRestartApplications, InitNoCancel: Boolean;
+  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
+    InitNoCloseApplications, InitRestartApplications, InitNoRestartApplications,
+    InitNoCancel: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -632,7 +633,9 @@ begin
   InitSilent := GetIniBool(Section, 'Silent', InitSilent, FileName);
   InitVerySilent := GetIniBool(Section, 'VerySilent', InitVerySilent, FileName);
   InitNoRestart := GetIniBool(Section, 'NoRestart', InitNoRestart, FileName);
+  InitCloseApplications := GetIniBool(Section, 'CloseApplications', InitCloseApplications, FileName);
   InitNoCloseApplications := GetIniBool(Section, 'NoCloseApplications', InitNoCloseApplications, FileName);
+  InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
@@ -2772,8 +2775,14 @@ begin
     if CompareText(ParamName, '/NoRestart') = 0 then
       InitNoRestart := True
     else
+    if CompareText(ParamName, '/CloseApplications') = 0 then
+      InitCloseApplications := True
+    else
     if CompareText(ParamName, '/NoCloseApplications') = 0 then
       InitNoCloseApplications := True
+    else
+    if CompareText(ParamName, '/RestartApplications') = 0 then
+      InitRestartApplications := True
     else
     if CompareText(ParamName, '/NoRestartApplications') = 0 then
       InitNoRestartApplications := True
@@ -3073,7 +3082,8 @@ begin
     LoadDecryptDLL;
 
   { Start RestartManager session }
-  if (shCloseApplications in SetupHeader.Options) and not InitNoCloseApplications then begin
+  if InitCloseApplications or
+     ((shCloseApplications in SetupHeader.Options) and not InitNoCloseApplications) then begin
     InitRestartManagerLibrary;
     { Note from Old New Thing: "The RmStartSession function doesn't properly
       null-terminate the session key <...>. To work around this bug, we pre-fill
@@ -3850,7 +3860,9 @@ begin
 
     ProcessRunEntries;
 
-    if RmDoRestart and (shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications then
+    if RmDoRestart and
+       (InitRestartApplications or
+        ((shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications)) then
       RestartApplications;
 
     SetStep(ssPostInstall, True);
