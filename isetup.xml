@@ -3536,6 +3536,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support.</li>
 
+<li>Andreas Hausladen: Download functions (5.6.0).</li>
+
 </ul>
 
 <p>If I have left anyone out, please don't hesitate to let me know.</p>
