@@ -609,7 +609,7 @@ begin
       Result[I] := '\';
 end;
 
-procedure LoadInf(const FileName: String);
+procedure LoadInf(const FileName: String; var WantToSuppressMsgBoxes: Boolean);
 const
   Section = 'Setup';
 var
@@ -639,8 +639,10 @@ begin
   InitNoCloseApplications := GetIniBool(Section, 'NoCloseApplications', InitNoCloseApplications, FileName);
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
+  InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
+  WantToSuppressMsgBoxes := GetIniBool(Section, 'SuppressMsgBoxes', InitSuppressMsgBoxes, FileName);
   InitSaveInf := GetIniString(Section, 'SaveInf', InitSaveInf, FileName);
 end;
 
@@ -3165,7 +3167,7 @@ begin
   end;
 
   if InitLoadInf <> '' then
-    LoadInf(InitLoadInf);
+    LoadInf(InitLoadInf, WantToSuppressMsgBoxes);
 
   if WantToSuppressMsgBoxes and (InitSilent or InitVerySilent) then
     InitSuppressMsgBoxes := True;
