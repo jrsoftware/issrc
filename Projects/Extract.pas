@@ -194,11 +194,11 @@ begin
     if TestID <> SetupPackageID then
       AbortPackageInit(msgSetupFileCorruptOrWrongVer);
     if F.Read(PackageHeader, SizeOf(PackageHeader)) <> SizeOf(PackageHeader) then
-      AbortPackageInit(msgSetupFileCorrupt);;
+      AbortPackageInit(msgSetupFileCorrupt);
     if not CompareMem(@PackageHeader.PackageGuid, @PackageEntry.PackageGuid, SizeOf(TGUID)) then
       AbortPackageInit(msgSetupFileCorruptOrWrongVer);
     if PackageHeader.TotalSize <> F.Size.Lo then
-      AbortPackageInit(msgSetupFileCorrupt);;
+      AbortPackageInit(msgSetupFileCorrupt);
   except
     if RaiseExceptions then
       raise;
