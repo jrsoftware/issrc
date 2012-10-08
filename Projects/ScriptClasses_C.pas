@@ -355,6 +355,9 @@ begin
     RegisterProperty('StatusLabel', 'TNewStaticText', iptr);
     RegisterProperty('FilenameLabel', 'TNewStaticText', iptr);
     RegisterProperty('ProgressGauge', 'TNewProgressBar', iptr);
+    RegisterProperty('DownloadStatusLabel', 'TNewStaticText', iptr);
+    RegisterProperty('DownloadFilenameLabel', 'TNewStaticText', iptr);
+    RegisterProperty('DownloadProgressGauge', 'TNewProgressBar', iptr);
     RegisterProperty('SelectDirLabel', 'TNewStaticText', iptr);
     RegisterProperty('SelectStartMenuFolderLabel', 'TNewStaticText', iptr);
     RegisterProperty('SelectComponentsLabel', 'TNewStaticText', iptr);

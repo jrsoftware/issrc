@@ -555,6 +555,38 @@ object WizardForm: TWizardForm
             Height = 21
             Min = 0
             Max = 100
+            Style = npbstNormal
+          end
+          object DownloadFilenameLabel: TNewStaticText
+            Left = 0
+            Top = 96
+            Width = 417
+            Height = 16
+            AutoSize = False
+            ForceLTRReading = True
+            ShowAccelChar = False
+            TabOrder = 3
+            Visible = False
+          end
+          object DownloadStatusLabel: TNewStaticText
+            Left = 0
+            Top = 80
+            Width = 417
+            Height = 16
+            AutoSize = False
+            ShowAccelChar = False
+            TabOrder = 2
+            Visible = False
+          end
+          object DownloadProgressGauge: TNewProgressBar
+            Left = 0
+            Top = 122
+            Width = 417
+            Height = 21
+            Min = 0
+            Max = 100
+            Style = npbstNormal
+            Visible = False
           end
         end
         object InfoAfterPage: TNewNotebookPage

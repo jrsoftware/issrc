@@ -36,6 +36,7 @@ type
     scLangOptions,
     scLanguages,
     scMessages,
+    scPackages,
     scRegistry,
     scRun,
     scSetup,
@@ -227,6 +228,7 @@ type
     ssVersionInfoProductTextVersion,
     ssVersionInfoTextVersion,
     ssVersionInfoVersion,
+    ssWebSetupUpdateURL,
     ssWindowResizable,
     ssWindowShowCaption,
     ssWindowStartMaximized,
@@ -277,6 +279,12 @@ const
     (Name: 'Tasks'),
     (Name: 'Type'));
 
+  PackagesSectionParameters: array[0..3] of TInnoSetupStylerParamInfo = (
+    (Name: 'Name'),
+    (Name: 'Description'),
+    (Name: 'Source'),
+    (Name: 'Flags'));
+
   DirsSectionParameters: array[0..11] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'Attribs'),
@@ -291,7 +299,7 @@ const
     (Name: 'Permissions'),
     (Name: 'Tasks'));
 
-  FilesSectionParameters: array[0..18] of TInnoSetupStylerParamInfo = (
+  FilesSectionParameters: array[0..19] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'Attribs'),
     (Name: 'BeforeInstall'),
@@ -307,6 +315,7 @@ const
     (Name: 'Languages'),
     (Name: 'MinVersion'),
     (Name: 'OnlyBelowVersion'),
+    (Name: 'Package'),
     (Name: 'Permissions'),
     (Name: 'Source'),
     (Name: 'StrongAssemblyName'),
@@ -483,7 +492,7 @@ type
     Value: TInnoSetupStylerSection;
   end;
 const
-  SectionMap: array[0..17] of TSectionMapEntry = (
+  SectionMap: array[0..18] of TSectionMapEntry = (
     (Name: 'Code'; Value: scCode),
     (Name: 'Components'; Value: scComponents),
     (Name: 'CustomMessages'; Value: scCustomMessages),
@@ -495,6 +504,7 @@ const
     (Name: 'LangOptions'; Value: scLangOptions),
     (Name: 'Languages'; Value: scLanguages),
     (Name: 'Messages'; Value: scMessages),
+    (Name: 'Packages'; Value: scPackages),
     (Name: 'Registry'; Value: scRegistry),
     (Name: 'Run'; Value: scRun),
     (Name: 'Setup'; Value: scSetup),
@@ -530,6 +540,7 @@ begin
   BuildKeywordListFromParameters(scInstallDelete, DeleteSectionParameters);
   BuildKeywordListFromEnumType(scLangOptions, TypeInfo(TLangOptionsSectionDirective));
   BuildKeywordListFromParameters(scLanguages, LanguagesSectionParameters);
+  BuildKeywordListFromParameters(scPackages, PackagesSectionParameters);
   BuildKeywordListFromParameters(scRegistry, RegistrySectionParameters);
   BuildKeywordListFromParameters(scRun, RunSectionParameters);
   BuildKeywordListFromEnumType(scSetup, TypeInfo(TSetupSectionDirective));
@@ -1164,6 +1175,7 @@ begin
       scLangOptions: HandleKeyValueSection(Section);
       scLanguages: HandleParameterSection(LanguagesSectionParameters);
       scMessages: HandleKeyValueSection(Section);
+      scPackages: HandleParameterSection(PackagesSectionParameters);
       scRegistry: HandleParameterSection(RegistrySectionParameters);
       scRun: HandleParameterSection(RunSectionParameters);
       scSetup: HandleKeyValueSection(Section);

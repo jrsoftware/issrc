@@ -261,6 +261,9 @@ procedure TWizardFormBeveledLabel_R(Self: TWizardForm; var T: TNewStaticText); b
 procedure TWizardFormStatusLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.StatusLabel; end;
 procedure TWizardFormFilenameLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.FilenameLabel; end;
 procedure TWizardFormProgressGauge_R(Self: TWizardForm; var T: TNewProgressBar); begin T := Self.ProgressGauge; end;
+procedure TWizardFormDownloadStatusLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.DownloadStatusLabel; end;
+procedure TWizardFormDownloadFileNameLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.DownloadFileNameLabel; end;
+procedure TWizardFormDownloadProgressGauge_R(Self: TWizardForm; var T: TNewProgressBar); begin T := Self.DownloadProgressGauge; end;
 procedure TWizardFormSelectDirLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.SelectDirLabel; end;
 procedure TWizardFormSelectStartMenuFolderLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.SelectStartMenuFolderLabel; end;
 procedure TWizardFormSelectComponentsLabel_R(Self: TWizardForm; var T: TNewStaticText); begin T := Self.SelectComponentsLabel; end;
@@ -349,6 +352,9 @@ begin
     RegisterPropertyHelper(@TWizardFormStatusLabel_R, nil, 'StatusLabel');
     RegisterPropertyHelper(@TWizardFormFilenameLabel_R, nil, 'FilenameLabel');
     RegisterPropertyHelper(@TWizardFormProgressGauge_R, nil, 'ProgressGauge');
+    RegisterPropertyHelper(@TWizardFormDownloadStatusLabel_R, nil, 'DownloadStatusLabel');
+    RegisterPropertyHelper(@TWizardFormDownloadFilenameLabel_R, nil, 'DownloadFilenameLabel');
+    RegisterPropertyHelper(@TWizardFormDownloadProgressGauge_R, nil, 'DownloadProgressGauge');
     RegisterPropertyHelper(@TWizardFormSelectDirLabel_R, nil, 'SelectDirLabel');
     RegisterPropertyHelper(@TWizardFormSelectStartMenuFolderLabel_R, nil, 'SelectStartMenuFolderLabel');
     RegisterPropertyHelper(@TWizardFormSelectComponentsLabel_R, nil, 'SelectComponentsLabel');

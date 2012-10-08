@@ -325,6 +325,15 @@ StatusUninstalling=Entferne %1 ...
 ShutdownBlockReasonInstallingApp=Installation von %1.
 ShutdownBlockReasonUninstallingApp=Deinstallation von %1.
 
+; *** Download messages
+DownloadConnecting=Verbindung aufbauen...
+DownloadDisconnecting=Verbindung trennen...
+DownloadDownloading=Herunterladen...
+DownloadElapsed=%1 [%2 KB] (%3 verstrichen)
+DownloadRemaining=%1 (%2 verbleibend)
+DownloadFailed=Herunterladen von "%1" schlug fehl
+DownloadUnknownProtocol=Protokoll "%1" wird nicht unterstützt
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 

@@ -13,6 +13,8 @@ interface
 
 {$I VERSION.INC}
 
+procedure ProcessEvents;
+
 procedure PerformInstall(var Succeeded: Boolean);
 
 procedure ExtractTemporaryFile(const BaseName: String);
@@ -24,7 +26,8 @@ uses
   InstFunc, InstFnc2, SecurityFunc, Msgs, Main, Logging, Extract, FileClass,
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
-  ResUpdate, LibFusion, TaskbarProgressFunc, NewProgressBar, RestartManager;
+  ResUpdate, LibFusion, TaskbarProgressFunc, NewProgressBar, RestartManager,
+  Download;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -176,6 +179,11 @@ procedure ExtractorProgressProc(Bytes: Cardinal);
 begin
   IncProgress(Bytes);
   ProcessEvents;
+end;
+
+procedure ExtractorDownloadWebFile(const WebFilename, Description, DestFilename: String);
+begin
+  DownloadWebFile(WebFilename, Description, DestFilename, '', '', '', False, False, False, False);
 end;
 
 function AbortRetryIgnoreMsgBox(const Text1, Text2: String): Boolean;
@@ -1219,7 +1227,7 @@ var
             LastOperation := SetupMessages[msgErrorReadingSource];
             if SourceFile = '' then begin
               { Decompress a file }
-              FileExtractor.SeekTo(CurFileLocation^, ExtractorProgressProc);
+              FileExtractor.SeekTo(CurFileLocation^, ExtractorProgressProc, ExtractorDownloadWebFile);
               LastOperation := SetupMessages[msgErrorCopying];
               FileExtractor.DecompressFile(CurFileLocation^, DestF, ExtractorProgressProc,
                 not (foDontVerifyChecksum in CurFile^.Options));
@@ -3015,7 +3023,7 @@ procedure ExtractTemporaryFile(const BaseName: String);
     DestF := TFileRedir.Create(DisableFsRedir, DestFile, fdCreateAlways, faWrite, fsNone);
     try
       try
-        FileExtractor.SeekTo(CurFileLocation^, nil);
+        FileExtractor.SeekTo(CurFileLocation^, nil, ExtractorDownloadWebFile);
         FileExtractor.DecompressFile(CurFileLocation^, DestF, nil,
           not (foDontVerifyChecksum in CurFile^.Options));
 

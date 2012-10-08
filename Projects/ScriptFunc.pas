@@ -284,6 +284,12 @@ const
     'procedure Log(const S: String);'
   );
 
+  { Download }
+  DownloadTable: array [0..0] of AnsiString =
+  (
+    'procedure DownloadWebFile(const WebFilename, Description, DestFilename, Referer, ProxyUserName, ProxyPassword: String; IgnoreUnknownCA, FtpTextMode, FtpPassive: Boolean);'
+  );
+
   { Other }
   OtherTable: array [0..26] of AnsiString =
   (
