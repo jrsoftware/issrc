@@ -145,6 +145,7 @@ function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
 function IsWebPackage(const PackageSource: String): Boolean;
 function ExtractWebFileName(const PackageSource: String): String;
+function ExtractStr(var S: String; const Separator: Char): String;
 
 {$IFNDEF UNICODE}
 var
@@ -1704,6 +1705,18 @@ begin
     Result := Copy(PackageSource, I + 1, Length(PackageSource))
   else
     Result := PathExtractName(PackageSource);
+end;
+
+function ExtractStr(var S: String; const Separator: Char): String;
+var
+  I: Integer;
+begin
+  repeat
+    I := PathPos(Separator, S);
+    if I = 0 then I := Length(S)+1;
+    Result := Trim(Copy(S, 1, I-1));
+    S := Trim(Copy(S, I+1, Maxint));
+  until (Result <> '') or (S = '');
 end;
 
 { TOneShotTimer }

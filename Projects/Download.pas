@@ -17,9 +17,9 @@ uses
 var
   WebDownloadForm: TWebDownloadForm;
 
-procedure DownloadWebFile(const WebFilename, Description, DestFilename, Referer,
+procedure DownloadWebFile(URLs: String; const Description, DestFilename, Referer,
   ProxyUserName, ProxyPassword: String; IgnoreUnknownCA: Boolean;
-  FtpTextMode, FtpPassive: Boolean; WebSetupDownload: Boolean);
+  FtpTextMode, FtpPassive: Boolean);
 
 implementation
 
@@ -70,7 +70,7 @@ end;
 
 procedure URLDownloadWebFile(const URL, Description, DestFilename, Referer,
   ProxyUserName, ProxyPassword: String; IgnoreUnknownCA: Boolean;
-  FtpTextMode, FtpPassive: Boolean; WebSetupDownload: Boolean);
+  FtpTextMode, FtpPassive: Boolean);
 var
   Downloader: TWebDownloader;
   Stream: TFileStream;
@@ -92,11 +92,9 @@ begin
     try
       Stream := TFileStream.Create(DestFilename, fmCreate);
       try
-        { Initialize WebDownload-Progress }
-        if not WebSetupDownload and (WizardForm.CurPageID <> wpInstalling) then begin
-          { No WebSetupDownload means no download dialog unless the current page is the installation
+        if (WebDownloadForm = nil) and (WizardForm.CurPageID <> wpInstalling) then begin
+          { Download form not already created by caller and the current page isn't the installation
             page. So create an own download dialog. }
-          WebSetupDownload := True;
           OwnDownloadDlg := True;
           WebDownloadForm := TWebDownloadForm.Create(nil);
           WebDownloadForm.AllSize := High(Smallint);
@@ -104,13 +102,12 @@ begin
             WebDownloadForm.Show;
         end;
 
-        if WebSetupDownload then begin
+        if WebDownloadForm <> nil then begin
           if Description <> '' then
             WebDownloadForm.FilenameLabel.Caption := Description
           else
             WebDownloadForm.FilenameLabel.Caption := ProtDomain + '   ' + PathExtractName(DestFilename);
-        end
-        else begin
+        end else begin
           WizardForm.DownloadProgressGauge.Position := 0;
           WizardForm.DownloadProgressGauge.Min := 0;
           WizardForm.DownloadProgressGauge.Max := 100;
@@ -125,8 +122,7 @@ begin
           Downloader.Agent := 'Inno Setup - ' + SetupHeader.AppVerName
         else
           Downloader.Agent := 'Inno Setup';
-        if WebSetupDownload or (WizardForm.InstallingPage.Notebook.ActivePage = WizardForm.InstallingPage) then
-          Downloader.OnProcessEvents := ProcessEvents;
+        Downloader.OnProcessEvents := ProcessEvents;
         Downloader.OnStatus := UpdateWebDownloadStatus;
         Downloader.OnProgress := UpdateWebDownloadStatus;
         Downloader.Referer := Referer;
@@ -134,11 +130,10 @@ begin
         Downloader.FtpPassive := FtpPassive;
         Downloader.ProxyUserName := ProxyUserName;
         Downloader.ProxyPassword := ProxyPassword;
-        if WebSetupDownload then
-          Downloader.Timeout := 10000;
+        Downloader.Timeout := 10000;
         Downloader.IgnoreUnknownCA := IgnoreUnknownCA;
 
-        if not Assigned(Downloader.OnProcessEvents) then
+        if WebDownloadForm <> nil then
           WizardForm.Enabled := False;
         try
           { Download file }
@@ -150,12 +145,12 @@ begin
               raise Exception.Create(Downloader.ErrorText);
           end;
         finally
-          if not Assigned(Downloader.OnProcessEvents) then
+          if WebDownloadForm <> nil then
             WizardForm.Enabled := True;
         end;
       finally
-        if not WebSetupDownload then begin
-          { Clean up GUI }
+        if WebDownloadForm = nil then begin
+          { Clean up wizard }
           WizardForm.DownloadStatusLabel.Visible := False;
           WizardForm.DownloadStatusLabel.Caption := '';
           WizardForm.DownloadFilenameLabel.Visible := False;
@@ -176,9 +171,9 @@ begin
   end;
 end;
 
-procedure DownloadWebFile(const WebFilename, Description, DestFilename, Referer,
+procedure DownloadWebFile(URLs: String; const Description, DestFilename, Referer,
   ProxyUserName, ProxyPassword: String; IgnoreUnknownCA: Boolean;
-  FtpTextMode, FtpPassive: Boolean; WebSetupDownload: Boolean);
+  FtpTextMode, FtpPassive: Boolean);
 var
   I: Integer;
   Protocol, Location: String;
@@ -190,13 +185,11 @@ begin
   UrlList := TStringList.Create;
   try
     { Split multiple URLs }
-    URL := WebFilename + ' ';
-    I := Pos(' ', URL);
-    while I <> 0 do begin
-      if I > 1 then
-        UrlList.Add(Trim(Copy(URL, 1, I - 1)));
-      URL := Trim(Copy(URL, I + 4, Length(URL)));
-      I := Pos(' ', URL);
+    while True do begin
+      URL := ExtractStr(URLs, ' ');
+      if URL = '' then
+        Break;
+      UrlList.Add(URL);
     end;
     if UrlList.Count = 0 then
       raise Exception.Create('UrlList.Count = 0');
@@ -209,7 +202,7 @@ begin
 
       I := Pos('://', URL);
       Protocol := Copy(URL, 1, I - 1);
-      Location := Copy(URL, I + 3, Length(WebFilename));
+      Location := Copy(URL, I + 3, MaxInt);
       try
         { User defined download function }
         if CompareText(Protocol, 'download') = 0 then begin
@@ -223,7 +216,7 @@ begin
           { HTTP / HTTPS / FTP }
           URLDownloadWebFile(URL, Description, DestFilename, Referer,
             ProxyUserName, ProxyPassword, IgnoreUnknownCA,
-            FtpTextMode, FtpPassive, WebSetupDownload);
+            FtpTextMode, FtpPassive);
         end
         else
           raise Exception.Create(FmtSetupMessage1(msgDownloadUnknownProtocol, Protocol));

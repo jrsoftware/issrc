@@ -1516,7 +1516,7 @@ begin
       Stack.GetString(PStart - 2), Stack.GetString(PStart - 3),
       Stack.GetString(PStart - 4), Stack.GetString(PStart - 5),
       Stack.GetBool(PStart - 6), Stack.GetBool(PStart - 7),
-      Stack.GetBool(PStart - 8), False);
+      Stack.GetBool(PStart - 8));
   end else
     Result := False;
 end;

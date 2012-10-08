@@ -2488,7 +2488,7 @@ begin
       if InstallMode = imNormal then
         WebDownloadForm.Show;
       DownloadWebFile(Url + PathExtractName(Filename), '',
-        Filename, '', '', '', False, False, False, True);
+        Filename, '', '', '', False, False, False);
     except
       { There is no such file or no open internet connection }
       Exit;
@@ -2513,7 +2513,7 @@ begin
         WebDownloadForm.NextFile(Cardinal(DownloadList.Objects[I]));
         Filename := AddBackslash(TempInstallDir) + DownloadList[I];
         DownloadWebFile(DownloadURLs[I], Format('%s [%s]', [NewAppVersion, DownloadList[I]]),
-                        Filename, '', '', '', False, False, False, True);
+                        Filename, '', '', '', False, False, False);
       end;
 
       FreeAndNil(WebDownloadForm);
