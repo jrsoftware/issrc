@@ -35,23 +35,23 @@ var
 begin
   Status := '';
   case Downloader.Status of
-    wdsConnecting: Status := SetupMessages[msgWebDownloadConnecting];
-    wdsDisconnecting: Status := SetupMessages[msgWebDownloadDisconnecting];
-    wdsDownloading: Status := SetupMessages[msgWebDownloadDownloading];
+    wdsConnecting: Status := SetupMessages[msgDownloadConnecting];
+    wdsDisconnecting: Status := SetupMessages[msgDownloadDisconnecting];
+    wdsDownloading: Status := SetupMessages[msgDownloadDownloading];
   end;
   if Downloader.Status = wdsDownloading then begin
     if WebDownloadForm = nil then begin
       if Downloader.TotalSize = 0 then begin
-        Status := Status + ' ' + FmtSetupMessage(msgWebDownloadElapsed,
-          [IntToStr(Downloader.BytesRead div 1024), Downloader.GetElapsedTimeStr]);
+        Status := FmtSetupMessage(msgDownloadElapsed, [Status,
+          IntToStr(Downloader.BytesRead div 1024), Downloader.GetElapsedTimeStr]);
       end
       else begin
         RemainingTime := Downloader.GetRemainingTimeStr;
         if RemainingTime <> '' then
-          Status := Status + ' ' + FmtSetupMessage(msgWebDownloadRemaining, [RemainingTime]);
+          Status := FmtSetupMessage(msgDownloadRemaining, [Status, RemainingTime]);
         NewPercentage := (Downloader.BytesRead * 100 div Downloader.TotalSize);
-        if NewPercentage <> WizardForm.WebDownloadProgressGauge.Position then
-          WizardForm.WebDownloadProgressGauge.Position := NewPercentage;
+        if NewPercentage <> WizardForm.DownloadProgressGauge.Position then
+          WizardForm.DownloadProgressGauge.Position := NewPercentage;
       end;
     end
     else
@@ -59,10 +59,10 @@ begin
   end;
 
   if WebDownloadForm = nil then begin
-    WizardForm.WebDownloadStatusLabel.Caption := Status;
-    WizardForm.WebDownloadStatusLabel.Visible := True;
-    WizardForm.WebDownloadFilenameLabel.Visible := True;
-    WizardForm.WebDownloadProgressGauge.Visible := True;
+    WizardForm.DownloadStatusLabel.Caption := Status;
+    WizardForm.DownloadStatusLabel.Visible := True;
+    WizardForm.DownloadFilenameLabel.Visible := True;
+    WizardForm.DownloadProgressGauge.Visible := True;
   end
   else
     WebDownloadForm.StatusLabel.Caption := Status;
@@ -111,13 +111,13 @@ begin
             WebDownloadForm.FilenameLabel.Caption := ProtDomain + '   ' + PathExtractName(DestFilename);
         end
         else begin
-          WizardForm.WebDownloadProgressGauge.Position := 0;
-          WizardForm.WebDownloadProgressGauge.Min := 0;
-          WizardForm.WebDownloadProgressGauge.Max := 100;
+          WizardForm.DownloadProgressGauge.Position := 0;
+          WizardForm.DownloadProgressGauge.Min := 0;
+          WizardForm.DownloadProgressGauge.Max := 100;
           if Description <> '' then
-            WizardForm.WebDownloadFilenameLabel.Caption := Description
+            WizardForm.DownloadFilenameLabel.Caption := Description
           else
-            WizardForm.WebDownloadFilenameLabel.Caption := ProtDomain + '   ' + PathExtractName(DestFilename);
+            WizardForm.DownloadFilenameLabel.Caption := ProtDomain + '   ' + PathExtractName(DestFilename);
         end;
 
         { Initialize Downloader }
@@ -145,7 +145,7 @@ begin
           Downloader.DownloadFile(URL, Stream);
           if Downloader.Status = wdsError then begin
             if Downloader.ErrorText = '' then
-              raise Exception.Create(FmtSetupMessage1(msgWebDownloadFailed, URL))
+              raise Exception.Create(FmtSetupMessage1(msgDownloadFailed, URL))
             else
               raise Exception.Create(Downloader.ErrorText);
           end;
@@ -156,11 +156,11 @@ begin
       finally
         if not WebSetupDownload then begin
           { Clean up GUI }
-          WizardForm.WebDownloadStatusLabel.Visible := False;
-          WizardForm.WebDownloadStatusLabel.Caption := '';
-          WizardForm.WebDownloadFilenameLabel.Visible := False;
-          WizardForm.WebDownloadFilenameLabel.Caption := '';
-          WizardForm.WebDownloadProgressGauge.Visible := False;
+          WizardForm.DownloadStatusLabel.Visible := False;
+          WizardForm.DownloadStatusLabel.Caption := '';
+          WizardForm.DownloadFilenameLabel.Visible := False;
+          WizardForm.DownloadFilenameLabel.Caption := '';
+          WizardForm.DownloadProgressGauge.Visible := False;
         end;
         Stream.Free;
       end;
@@ -226,7 +226,7 @@ begin
             FtpTextMode, FtpPassive, WebSetupDownload);
         end
         else
-          raise Exception.Create(FmtSetupMessage1(msgWebDownloadUnknownProtocol, Protocol));
+          raise Exception.Create(FmtSetupMessage1(msgDownloadUnknownProtocol, Protocol));
 
         if NeedToAbortInstall then
           Abort;

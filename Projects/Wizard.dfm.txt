@@ -557,7 +557,7 @@ object WizardForm: TWizardForm
             Max = 100
             Style = npbstNormal
           end
-          object WebDownloadFilenameLabel: TNewStaticText
+          object DownloadFilenameLabel: TNewStaticText
             Left = 0
             Top = 96
             Width = 417
@@ -568,7 +568,7 @@ object WizardForm: TWizardForm
             TabOrder = 3
             Visible = False
           end
-          object WebDownloadStatusLabel: TNewStaticText
+          object DownloadStatusLabel: TNewStaticText
             Left = 0
             Top = 80
             Width = 417
@@ -578,7 +578,7 @@ object WizardForm: TWizardForm
             TabOrder = 2
             Visible = False
           end
-          object WebDownloadProgressGauge: TNewProgressBar
+          object DownloadProgressGauge: TNewProgressBar
             Left = 0
             Top = 122
             Width = 417

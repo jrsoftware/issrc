@@ -131,9 +131,9 @@ type
     StatusLabel: TNewStaticText;
     FilenameLabel: TNewStaticText;
     ProgressGauge: TNewProgressBar;
-    WebDownloadStatusLabel: TNewStaticText;
-    WebDownloadFilenameLabel: TNewStaticText;
-    WebDownloadProgressGauge: TNewProgressBar;
+    DownloadStatusLabel: TNewStaticText;
+    DownloadFilenameLabel: TNewStaticText;
+    DownloadProgressGauge: TNewProgressBar;
     SelectDirLabel: TNewStaticText;
     SelectStartMenuFolderLabel: TNewStaticText;
     SelectComponentsLabel: TNewStaticText;

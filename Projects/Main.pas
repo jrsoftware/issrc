@@ -2347,7 +2347,7 @@ begin
   end;
 end;
 
-procedure ProcessMessagesProc;
+procedure ProcessMessagesProc; far;
 begin
   Application.ProcessMessages;
 end;

@@ -288,7 +288,7 @@ type
     property Strings[Index: Integer]: String read Get; default;
   end;
 
-  PFileEntryLocationFixupRec =  ^TFileEntryLocationFixupRec;
+  PFileEntryLocationFixupRec = ^TFileEntryLocationFixupRec;
   TFileEntryLocationFixupRec = record
     FileEntry: PSetupFileEntry;
     LocationEntry: PSetupFileLocationEntry;
@@ -6372,7 +6372,7 @@ type
         Include(PSetupPackageEntry(PackageEntries[Result]).Options, poUsed);
         Exit;
       end;
-    AbortCompileOnLineFmt(SCompilerParamUnknownPackage, [ParamFilesPackage]);
+    AbortCompileOnLineFmt(SCompilerFilesUnknownPackage, [ParamFilesPackage]);
     Result := -1; // make compiler happy
   end;
 
