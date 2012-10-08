@@ -18,8 +18,8 @@ var
   WebDownloadForm: TWebDownloadForm;
 
 procedure DownloadWebFile(const WebFilename, Description, DestFilename, Referer,
-  ProxyUserName, ProxyPassword: String; FtpTextMode, FtpPassive: Boolean;
-  WebSetupDownload: Boolean);
+  ProxyUserName, ProxyPassword: String; IgnoreUnknownCA: Boolean;
+  FtpTextMode, FtpPassive: Boolean; WebSetupDownload: Boolean);
 
 implementation
 
@@ -69,8 +69,8 @@ begin
 end;
 
 procedure URLDownloadWebFile(const URL, Description, DestFilename, Referer,
-  ProxyUserName, ProxyPassword: String; FtpTextMode, FtpPassive: Boolean;
-  WebSetupDownload: Boolean);
+  ProxyUserName, ProxyPassword: String; IgnoreUnknownCA: Boolean;
+  FtpTextMode, FtpPassive: Boolean; WebSetupDownload: Boolean);
 var
   Downloader: TWebDownloader;
   Stream: TFileStream;
@@ -136,6 +136,7 @@ begin
         Downloader.ProxyPassword := ProxyPassword;
         if WebSetupDownload then
           Downloader.Timeout := 10000;
+        Downloader.IgnoreUnknownCA := IgnoreUnknownCA;
 
         if not Assigned(Downloader.OnProcessEvents) then
           WizardForm.Enabled := False;
@@ -176,8 +177,8 @@ begin
 end;
 
 procedure DownloadWebFile(const WebFilename, Description, DestFilename, Referer,
-  ProxyUserName, ProxyPassword: String; FtpTextMode, FtpPassive: Boolean;
-  WebSetupDownload: Boolean);
+  ProxyUserName, ProxyPassword: String; IgnoreUnknownCA: Boolean;
+  FtpTextMode, FtpPassive: Boolean; WebSetupDownload: Boolean);
 var
   I: Integer;
   Protocol, Location: String;
@@ -221,7 +222,8 @@ begin
            (CompareText(Protocol, 'ftp') = 0) then begin
           { HTTP / HTTPS / FTP }
           URLDownloadWebFile(URL, Description, DestFilename, Referer,
-            ProxyUserName, ProxyPassword, FtpTextMode, FtpPassive, WebSetupDownload);
+            ProxyUserName, ProxyPassword, IgnoreUnknownCA,
+            FtpTextMode, FtpPassive, WebSetupDownload);
         end
         else
           raise Exception.Create(FmtSetupMessage1(msgWebDownloadUnknownProtocol, Protocol));

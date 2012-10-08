@@ -183,7 +183,7 @@ end;
 
 procedure ExtractorDownloadWebFile(const WebFilename, Description, DestFilename: String);
 begin
-  DownloadWebFile(WebFilename, Description, DestFilename, '', '', '', False, False, False);
+  DownloadWebFile(WebFilename, Description, DestFilename, '', '', '', False, False, False, False);
 end;
 
 function AbortRetryIgnoreMsgBox(const Text1, Text2: String): Boolean;

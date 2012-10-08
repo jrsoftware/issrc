@@ -287,7 +287,7 @@ const
   { Download }
   DownloadTable: array [0..0] of AnsiString =
   (
-    'procedure DownloadWebFile(const WebFilename, Description, DestFilename, Referer, ProxyUserName, ProxyPassword: String; FtpTextMode, FtpPassive: Boolean);'
+    'procedure DownloadWebFile(const WebFilename, Description, DestFilename, Referer, ProxyUserName, ProxyPassword: String; IgnoreUnknownCA, FtpTextMode, FtpPassive: Boolean);'
   );
 
   { Other }

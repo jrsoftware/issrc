@@ -79,6 +79,7 @@ type
     FInProgress: Boolean;
     FTimeout: Cardinal;
     FProtocol: string;
+    FIgnoreUnknownCA: Boolean;
   protected
     procedure ParseUrl(URL: string; Protocol: string;
       var Host: string; var FileName: string; var UserName: string;
@@ -117,6 +118,8 @@ type
     property Password: string read FPassword write FPassword;
     property Port: Integer read FPort write FPort;
     property Timeout: Cardinal read FTimeout write FTimeout;
+
+    property IgnoreUnknownCA: Boolean read FIgnoreUnknownCA write FIgnoreUnknownCA;
 
     property Agent: string read FAgent write FAgent;
     property Referer: string read FReferer write FReferer;
@@ -160,8 +163,11 @@ const
   INTERNET_FLAG_SECURE            = $00800000;  { use PCT/SSL if applicable (HTTP) }
 
   INTERNET_OPTION_CONNECT_TIMEOUT = 2;
+  INTERNET_OPTION_SECURITY_FLAGS  = 31;
   INTERNET_OPTION_PROXY_USERNAME  = 43;
   INTERNET_OPTION_PROXY_PASSWORD  = 44;
+
+  SECURITY_FLAG_IGNORE_UNKNOWN_CA = $00000100;
 
   HTTP_QUERY_CONTENT_LENGTH = 5;
   HTTP_QUERY_STATUS_CODE    = 19; { special: part of status line }
@@ -680,6 +686,11 @@ begin
                           INTERNET_OPTION_CONNECT_TIMEOUT,
                           @FTimeout,
                           SizeOf(FTimeout));
+
+      if FIgnoreUnknownCA then begin
+        Flags := SECURITY_FLAG_IGNORE_UNKNOWN_CA;
+        InternetSetOption(hDownload, INTERNET_OPTION_SECURITY_FLAGS, @Flags, SizeOf(Flags));
+      end;
 
       //Send the request
       HttpSendRequest(hDownload, nil, 0, nil, 0);
