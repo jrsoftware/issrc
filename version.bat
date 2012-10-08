@@ -26,8 +26,8 @@ rem  preparing an ISPack release
 
 setlocal
 
-set VER=5_5_1
-set VER2=5.5.1
+set VER=5_5_2
+set VER2=5.5.2
 
 echo %VER2%?
 pause
