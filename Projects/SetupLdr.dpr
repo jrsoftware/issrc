@@ -15,9 +15,6 @@ uses
   Windows,
   Messages,
   SysUtils,
-{$IFDEF VER170}
-  Character in 'Character.pas',
-{$ENDIF}
   Compress in 'Compress.pas',
   LZMADecompSmall in 'LZMADecompSmall.pas',
   SetupEnt in 'SetupEnt.pas',
