@@ -195,9 +195,9 @@ How do the projects link together?
   
 - Delphi versions prior to 5 store .dfm files in a binary format. To be able to
   track changes to the forms using ordinary "diff" commands, .dfm.txt "mirrors"
-  of the binary .dfm files have been created. Each time .dfm file is modified,
-  dfm2text is ran and both the .dfm file and the updated .dfm.txt file are
-  commited.
+  of the binary .dfm files have been created. Each time a .dfm file is
+  modified, dfm2text is ran and both the .dfm file and the updated .dfm.txt
+  file are commited.
 
   To download dfm2text, go to:
   http://www.jrsoftware.org/files/misc/dfm2text.zip
