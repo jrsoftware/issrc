@@ -15,11 +15,11 @@ rem  This batch files does the following things:
 rem  -Compile ISPP.chm
 rem  -Compile ISetup.chm
 rem  -Compile ANSI Inno Setup
-rem  -Create ANSI Inno Setup setup.exe
+rem  -Create ANSI Inno Setup installer
 rem  -Compile Unicode Inno Setup
-rem  -Create Unicode Inno Setup setup.exe
+rem  -Create Unicode Inno Setup installer
 rem
-rem  Once done the 2 setup files can be found in Output and additionally 2 ISCC
+rem  Once done the 2 installers can be found in Output and additionally 2 ISCC
 rem  files are stored there for later use while preparing an ISPack release
 
 setlocal
