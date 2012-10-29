@@ -13,7 +13,7 @@ setlocal
 
 if exist compilesettings.bat goto compilesettingsfound
 :compilesettingserror
-echo compilesettings.bat is missing or incomplete. It needs to be created
+echo ishelp\compilesettings.bat is missing or incomplete. It needs to be created
 echo with the following lines, adjusted for your system:
 echo.
 echo   set DELPHI7ROOT=%%ProgramFiles%%\delphi 7                [Path to Delphi 7 (or later)]

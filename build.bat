@@ -7,8 +7,6 @@ rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
 rem  Batch file to prepare a release
 rem
-rem  Edit the desired version number below before running
-rem
 rem  Calls setup-sign.bat if it exists, else creates setup.exe without signing
 rem
 rem  This batch files does the following things:
@@ -26,8 +24,10 @@ setlocal
 
 set VER=5.5.2
 
-echo %VER%?
-pause
+echo Building Inno Setup %VER%...
+echo.
+
+cd /d %~dp0
 
 cd projects\ispp\help
 if errorlevel 1 goto failed
