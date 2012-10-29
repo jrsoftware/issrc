@@ -1,0 +1,2404 @@
+<?xml version="1.0" standalone="yes" ?>
+<isxhelp version="1.0">
+<copyright>
+  Inno Setup
+  Copyright (C) 1997-2012 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+</copyright>
+<isxfunc>
+  <category>
+    <description>Setup or Uninstall Info</description>
+    <subcategory>
+      <function>
+        <name>GetCmdTail</name>
+        <prototype>function GetCmdTail: String;</prototype>
+        <description><p>Returns all command line parameters passed to Setup or Uninstall as a single string.</p></description>
+      </function>
+      <function>
+        <name>ParamCount</name>
+        <prototype>function ParamCount: Integer;</prototype>
+        <description><p>Returns the number of command line parameters passed to Setup or Uninstall.</p></description>
+      </function>
+      <function>
+        <name>ParamStr</name>
+        <prototype>function ParamStr(Index: Integer): String;</prototype>
+        <description><p>Returns the Index-th command line parameter passed to Setup or Uninstall.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>ActiveLanguage</name>
+        <prototype>function ActiveLanguage: String;</prototype>
+        <description><p>Returns the name of the active language.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>CustomMessage</name>
+        <prototype>function CustomMessage(const MsgName: String): String;</prototype>
+        <description><p>Returns the value of the [CustomMessages] entry with the specified name. If an entry with the specified name does not exist, an exception will be raised.</p></description>
+        <example><pre>var
+  S: String;
+begin
+  S := CustomMessage('CreateDesktopIcon');
+  // S = 'Create a &amp;desktop icon'
+
+  S := FmtMessage(CustomMessage('NameAndVersion'), ['My Program', '1.0']);
+  // S = 'My Program version 1.0'
+end;</pre></example>
+      </function>
+      <function>
+        <name>FmtMessage</name>
+        <prototype>function FmtMessage(const S: String; const Args: array of String): String;</prototype>
+        <description><p>Formats the string S using the specified string arguments. A <tt>%1</tt> in the format string will be replaced with the first value in the Args array; a <tt>%2</tt> will be replaced with the second value; and so on. <tt>%%</tt> will be replaced with <tt>%</tt>.</p></description>
+        <remarks><p>If a <tt>%</tt>-specifier references a non-existant argument, it will be returned untouched. No exception will be raised.</p></remarks>
+        <example><pre>var
+  S: String;
+begin
+  S := FmtMessage('%1 version %2 will be installed.', ['My Program', '1.0']);
+  // S = 'My Program version 1.0 will be installed.'
+
+  S := FmtMessage(SetupMessage(msgNotOnThisPlatform), ['Windows 2000']);
+  // S = 'This program will not run on Windows 2000.'
+end;</pre></example>
+      </function>
+      <function>
+        <name>SetupMessage</name>
+        <prototype>function SetupMessage(const ID: TSetupMessageID): String;</prototype>
+        <description><p>Returns the value of the specified message.</p></description>
+        <example><pre>var
+  S: String;
+begin
+  S := SetupMessage(msgButtonNext);
+  // S now equals '&amp;Next &gt;'
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>WizardDirValue</name>
+        <prototype>function WizardDirValue: String;</prototype>
+        <description><p>Returns the current contents of the edit control on the <i>Select Destination Location</i> page of the wizard.</p>
+<p>Unlike <tt>ExpandConstant('{app}')</tt>, this function will not fail if called after the wizard is shown but prior to the user selecting a directory. Rather, it will return the default directory name.</p></description>
+      </function>
+      <function>
+        <name>WizardGroupValue</name>
+        <prototype>function WizardGroupValue: String;</prototype>
+        <description><p>Returns the current contents of the edit control on the <i>Select Start Menu Folder</i> page of the wizard.</p>
+<p>Unlike <tt>ExpandConstant('{group}')</tt>, this function will not fail if called after the wizard is shown but prior to the user selecting a folder. Rather, it will return the default folder name.</p></description>
+      </function>
+      <function>
+        <name>WizardNoIcons</name>
+        <prototype>function WizardNoIcons: Boolean;</prototype>
+        <description><p>Returns the current setting of the <i>Don't create a Start Menu folder</i> check box on the <i>Select Start Menu Folder</i> page of the wizard.</p></description>
+      </function>
+      <function>
+        <name>WizardSetupType</name>
+        <prototype>function WizardSetupType(const Description: Boolean): String;</prototype>
+        <description><p>Returns the name or description of the setup type selected by the user.</p></description>
+      </function>
+      <function>
+        <name>WizardSelectedComponents</name>
+        <prototype>function WizardSelectedComponents(const Descriptions: Boolean): String;</prototype>
+        <description><p>Returns a comma-separated list of names or descriptions of the components selected by the user.</p></description>
+      </function>
+      <function>
+        <name>WizardSelectedTasks</name>
+        <prototype>function WizardSelectedTasks(const Descriptions: Boolean): String;</prototype>
+        <description><p>Returns a comma-separated list of names or descriptions of the tasks selected by the user.</p></description>
+      </function>
+      <function>
+        <name>WizardSilent</name>
+        <prototype>function WizardSilent: Boolean;</prototype>
+        <description><p>Returns True if Setup is running silently, False otherwise.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>IsUninstaller</name>
+        <prototype>function IsUninstaller: Boolean;</prototype>
+        <description><p>Returns True if Uninstall is running as opposed to Setup, False otherwise.</p></description>
+      </function>
+      <function>
+        <name>UninstallSilent</name>
+        <prototype>function UninstallSilent: Boolean;</prototype>
+        <description><p>Returns True if Uninstall is running silently, False otherwise.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>CurrentFileName</name>
+        <prototype>function CurrentFileName: String;</prototype>
+        <description><p>Returns the destination name of the [Files] entry that is currently being processed. The returned name may include constants.</p>
+<p>Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a [Files] entry.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>ExpandConstant</name>
+        <prototype>function ExpandConstant(const S: String): String;</prototype>
+        <description><p>Changes all constants in S to their values. For example, ExpandConstant('{srcexe}') is changed to the filename of Setup.</p>
+<p>An exception will be raised if there was an error expanding the constants.</p></description>
+      </function>
+      <function>
+        <name>ExpandConstantEx</name>
+        <prototype>function ExpandConstantEx(const S: String; const CustomConst, CustomValue: String): String;</prototype>
+        <description><p>Changes all constants in S to their values. Additionally, any constant equal to CustomConst will be changed to CustomValue.</p>
+<p>An exception will be raised if there was an error expanding the constants.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>IsComponentSelected</name>
+        <prototype>function IsComponentSelected(const Components: String): Boolean;</prototype>
+        <description><p>Returns True if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Components parameter</link>.</p></description>
+        <example><pre>begin
+  if IsComponentSelected('helpfiles') then
+    // the 'helpfiles' component is selected
+end;</pre></example>
+      </function>
+      <function>
+        <name>IsTaskSelected</name>
+        <prototype>function IsTaskSelected(const Tasks: String): Boolean;</prototype>
+        <description><p>Returns True if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Tasks parameter</link>.</p></description>
+        <example><pre>begin
+  if IsTaskSelected('desktopicon') then
+    // the 'desktopicon' task is selected
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>ExtractTemporaryFile</name>
+        <prototype>procedure ExtractTemporaryFile(const FileName: String);</prototype>
+        <description><p>Extracts the specified file from the [Files] section to a temporary directory. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+<p>The extracted files are automatically deleted when Setup exits.</p>
+<p>An exception will be raised if the file wasn't extracted successfully, if the file wasn't found, or if the file was found but couldn't be processed because of its MinVersion and/or OnlyBelowVersion parameters.</p></description>
+        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
+<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
+        <example><pre>[Files]
+Source: "Readme.txt"; Flags: dontcopy
+
+[Code]
+function InitializeSetup: Boolean;
+var
+  S: AnsiString;
+begin
+  // Show the contents of Readme.txt (non Unicode) in a message box
+  ExtractTemporaryFile('Readme.txt');
+  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
+  begin
+    MsgBox(S, mbInformation, MB_OK);
+  end;
+
+  Result := True;
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetPreviousData</name>
+        <prototype>function GetPreviousData(const ValueName, DefaultValueData: String): String;</prototype>
+        <description><p>Gets a value that was previously stored using SetPreviousData.</p></description>
+      </function>
+      <function>
+        <name>SetPreviousData</name>
+        <prototype>function SetPreviousData(const PreviousDataKey: Integer; const ValueName, ValueData: String): Boolean;</prototype>
+        <description><p>Sets a value that can be restored later using GetPreviousData. Call SetPreviousData inside a RegisterPreviousData event function, once per setting.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>Terminated</name>
+        <prototype>function Terminated: Boolean;</prototype>
+        <description><p>Returns True if Setup or Uninstall is terminating, False otherwise.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>RegisterExtraCloseApplicationsResource</name>
+        <prototype>function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;</prototype>
+        <description><p>Register an extra file which Setup should check for being in-use. Call RegisterExtraCloseApplicationsResource inside a RegisterExtraCloseApplicationsResources event function, once per file. Returns True if successful.</p></description>
+      </function>
+      <function>
+        <name>RmSessionStarted</name>
+        <prototype>function RmSessionStarted: Boolean;</prototype>
+        <description><p>Returns True if a Restart Manager session was started, False otherwise.</p></description>
+        <seealso><p><link topic="setup_closeapplications">CloseApplications</link></p></seealso>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description>Exception</description>
+    <subcategory>
+      <function>
+        <name>Abort</name>
+        <prototype>procedure Abort;</prototype>
+        <description><p>Escapes from the current execution path without reporting an error.</p>
+<p>Abort raises a special "silent exception" which operates like any other exception, but does not display an error message to the end user.</p></description>
+        <remarks><p>Abort does not cause Setup or Uninstall to exit unless it's called from one of these event functions (or another function invoked by them):</p>
+<p><tt>InitializeSetup<br />
+InitializeWizard<br />
+CurStepChanged(ssInstall)</tt></p>
+<p><tt>InitializeUninstall<br />
+CurUninstallStepChanged(usAppMutexCheck)<br />
+CurUninstallStepChanged(usUninstall)</tt></p></remarks>
+        <seealso><p><link topic="scriptevents" anchor="PrepareToInstall">PrepareToInstall</link></p></seealso>
+      </function>
+      <function>
+        <name>RaiseException</name>
+        <prototype>procedure RaiseException(const Msg: String);</prototype>
+        <description><p>Raises an exception with the specified message.</p></description>
+        <example><pre>begin
+  RaiseException('Your message goes here');
+
+  // The following line will not be executed because of the exception
+  MsgBox('You will not see this.', mbInformation, MB_OK);
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetExceptionMessage</name>
+        <prototype>function GetExceptionMessage: String;</prototype>
+        <description><p>Returns the message associated with the current exception. This function should only be called from within an <tt>except</tt> section, or a function called from an <tt>except</tt> section.</p></description>
+        <remarks><p>Exception messages generally do not end in a period. Pass the result of this function to AddPeriod to add one.</p></remarks>
+        <example><pre>var
+  I: Integer;
+begin
+  I := 1;
+  try
+    // The following line will raise a "Division by zero" exception
+    I := I div 0;
+  except
+    // Catch the exception, deal with it, and continue
+    MsgBox('We caught this exception: ' + AddPeriod(GetExceptionMessage),
+      mbError, MB_OK);
+  end;
+end;</pre></example>
+      </function>
+      <function>
+        <name>ShowExceptionMessage</name>
+        <prototype>procedure ShowExceptionMessage;</prototype>
+        <description><p>Shows the message associated with the current exception in a message box. This function should only be called from within an <tt>except</tt> section, or a function called from an <tt>except</tt> section.</p></description>
+        <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive) the message will recorded in the log in addition to being shown.</p></remarks>
+        <example><pre>var
+  I: Integer;
+begin
+  I := 1;
+  try
+    // The following line will raise a "Division by zero" exception
+    I := I div 0;
+  except
+    // Catch the exception, show it, and continue
+    ShowExceptionMessage;
+  end;
+end;</pre></example>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>System</p></description>
+    <subcategory>
+      <function>
+        <name>IsAdminLoggedOn</name>
+        <prototype>function IsAdminLoggedOn: Boolean;</prototype>
+        <description><p>Returns True if the user account that Setup/Uninstall is running under is a member of the local Administrators group.</p></description>
+      </function>
+      <function>
+        <name>IsPowerUserLoggedOn</name>
+        <prototype>function IsPowerUserLoggedOn: Boolean;</prototype>
+        <description><p>Returns True if the user account that Setup/Uninstall is running under is a member of the Power Users group.</p></description>
+      </function>
+      <function>
+        <name>GetWindowsVersion</name>
+        <prototype>function GetWindowsVersion: Cardinal;</prototype>
+        <description><p>Returns the version number of Windows packed into a single integer. The upper 8 bits specify the major version; the following 8 bits specify the minor version; the lower 16 bits specify the build number. For example, this function will return $05000893 on Windows 2000, which is version 5.0.2195.</p>
+<p>To retrieve just the major version number, use: "GetWindowsVersion shr 24". To retrieve just the minor version number, use: "(GetWindowsVersion shr 16) and $FF". To retrieve just the build number, use: "GetWindowsVersion and $FFFF".</p></description>
+        <example><pre>function IsWindowsXPOrLater: Boolean;
+begin
+  Result := (GetWindowsVersion &gt;= $05010000);
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
+      </function>
+      <function>
+        <name>GetWindowsVersionEx</name>
+        <prototype>procedure GetWindowsVersionEx(var Version: TWindowsVersion);</prototype>
+        <description><p>Returns extended information about the version of Windows in a record.</p>
+<p>TWindowsVersion is defined as:</p>
+<pre>
+  TWindowsVersion = record
+    Major: Cardinal;             // Major version number
+    Minor: Cardinal;             // Minor version number
+    Build: Cardinal;             // Build number
+    ServicePackMajor: Cardinal;  // Major version number of service pack
+    ServicePackMinor: Cardinal;  // Minor version number of service pack
+    NTPlatform: Boolean;         // True if an NT-based platform
+    ProductType: Byte;           // Product type (see below)
+    SuiteMask: Word;             // Product suites installed (see below)
+  end;
+</pre>
+<p>The ProductType field can be one of the following values:</p>
+<pre>
+  VER_NT_WORKSTATION
+  VER_NT_DOMAIN_CONTROLLER
+  VER_NT_SERVER
+</pre>
+<p>It can also be zero if the product type could not be determined (unlikely). VER_NT_WORKSTATION indicates a non-server edition of Windows (e.g. Workstation, Professional, or Home).</p>
+<p>The SuiteMask field can be a combination of the following values:</p>
+<pre>
+  VER_SUITE_BACKOFFICE
+  VER_SUITE_BLADE
+  VER_SUITE_DATACENTER
+  VER_SUITE_ENTERPRISE
+  VER_SUITE_EMBEDDEDNT
+  VER_SUITE_PERSONAL
+  VER_SUITE_SINGLEUSERTS
+  VER_SUITE_SMALLBUSINESS
+  VER_SUITE_SMALLBUSINESS_RESTRICTED
+  VER_SUITE_TERMINAL
+</pre>
+<p>VER_SUITE_PERSONAL, for example, is set on Home edition of Windows XP, and VER_SUITE_BLADE is set on the Web edition of Windows Server 2003.</p></description>
+        <example><p>The following example demonstrates how you can disallow installation on certain editions of Windows, and check service pack levels on multiple operating system versions. (Neither of these things are possible with the <tt>MinVersion</tt> [Setup] section directive.)</p>
+<pre>function InitializeSetup: Boolean;
+var
+  Version: TWindowsVersion;
+  S: String;
+begin
+  GetWindowsVersionEx(Version);
+
+  // Disallow installation on Home edition of Windows
+  if Version.SuiteMask and VER_SUITE_PERSONAL &lt;&gt; 0 then
+  begin
+    SuppressibleMsgBox('This program cannot be installed on a Home edition of Windows.',
+      mbCriticalError, MB_OK, MB_OK);
+    Result := False;
+    Exit;
+  end;
+
+  // Disallow installation on domain controllers
+  if Version.ProductType = VER_NT_DOMAIN_CONTROLLER then
+  begin
+    SuppressibleMsgBox('This program cannot be installed on domain controllers.',
+      mbCriticalError, MB_OK, MB_OK);
+    Result := False;
+    Exit;
+  end;
+
+  // On Windows 2000, check for SP4
+  if Version.NTPlatform and
+     (Version.Major = 5) and
+     (Version.Minor = 0) and
+     (Version.ServicePackMajor &lt; 4) then
+  begin
+    SuppressibleMsgBox('When running on Windows 2000, Service Pack 4 is required.',
+      mbCriticalError, MB_OK, MB_OK);
+    Result := False;
+    Exit;
+  end;
+
+  // On Windows XP, check for SP2
+  if Version.NTPlatform and
+     (Version.Major = 5) and
+     (Version.Minor = 1) and
+     (Version.ServicePackMajor &lt; 2) then
+  begin
+    SuppressibleMsgBox('When running on Windows XP, Service Pack 2 is required.',
+      mbCriticalError, MB_OK, MB_OK);
+    Result := False;
+    Exit;
+  end;
+
+  Result := True;
+end;</pre></example>
+      </function>
+      <function>
+        <name>GetWindowsVersionString</name>
+        <prototype>function GetWindowsVersionString: String;</prototype>
+        <description><p>Returns the version number of Windows in string form. On Windows 2000, for example, this function will return "5.00.2195".</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>IsWin64</name>
+        <prototype>function IsWin64: Boolean;</prototype>
+        <description><p>Returns True if the system is running a 64-bit version of Windows that provides the API support Inno Setup requires to perform 64-bit installation tasks. If False is returned, you cannot utilize any of Inno Setup's 64-bit-only features.</p></description>
+        <remarks><p>This function will always return True on an x64 edition of Windows.</p>
+<p>For this function to return True on an Itanium edition of Windows, the system must be running Windows Server 2003 SP1 or later. Older versions lack APIs that Inno Setup requires (e.g. RegDeleteKeyEx).</p></remarks>
+        <example><pre>begin
+  // Check IsWin64 before using a 64-bit-only feature to
+  // avoid an exception when running on 32-bit Windows.
+  if IsWin64 then
+  begin
+    MsgBox('64-bit program files reside in: ' +
+      ExpandConstant('{pf64}'), mbInformation, MB_OK);
+  end;
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+      </function>
+      <function>
+        <name>Is64BitInstallMode</name>
+        <prototype>function Is64BitInstallMode: Boolean;</prototype>
+        <description><p>Returns True if Setup or Uninstall is running in <link topic="32vs64bitinstalls">64-bit mode</link>, or False if it is running in <link topic="32vs64bitinstalls">32-bit mode</link>.</p></description>
+        <remarks><p>When True is returned, it is safe to assume that <link topic="isxfunc_IsWin64">IsWin64</link> will also return True.</p></remarks>
+        <example><pre>begin
+  if Is64BitInstallMode then
+    MsgBox('Installing in 64-bit mode', mbInformation, MB_OK)
+  else
+    MsgBox('Installing in 32-bit mode', mbInformation, MB_OK);
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_IsWin64">IsWin64</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+      </function>
+      <function>
+        <name>ProcessorArchitecture</name>
+        <prototype>function ProcessorArchitecture: TSetupProcessorArchitecture;</prototype>
+        <description><p>Returns the native processor architecture of the current system.</p>
+<p>TSetupProcessorArchitecture is defined as:</p>
+<p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64);</tt></p></description>
+        <remarks><p>A 64-bit processor architecture will never be returned on 32-bit versions of Windows. Hence, you cannot use this function to detect a 64-bit AMD CPU on a 32-bit version of Windows; you'll just get back <tt>paX86</tt> if you try.</p>
+<p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the processor architecture. It can be assumed that an "unknown" architecture is at least capable of executing 32-bit code, or Setup/Uninstall wouldn't be running at all.</p>
+<p>If <tt>paIA64</tt> is returned, and <tt>ia64</tt> is <i>not</i> included in the value of the <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> [Setup] section directive, you should not assume that Inno Setup's 64-bit-only features are available -- for example, the <tt>{pf64}</tt> constant. Those features only work when <link topic="isxfunc_IsWin64">IsWin64</link> returns True, and as documented, it may not return True on older Itanium versions of Windows that lack certain APIs Inno Setup requires.</p>
+<p>Therefore, instead of:</p>
+<pre>
+  if ProcessorArchitecture = paIA64 then
+    // perform some Itanium-specific install task that
+    // involves expanding {pf64}
+</pre>
+<p>you should additionally check that IsWin64 returns True:</p>
+<pre>
+  if ProcessorArchitecture = paIA64 then
+  begin
+    if IsWin64 then
+      // perform some Itanium-specific install task that
+      // involves expanding {pf64}
+    else
+      // cannot use 64-bit features; display an error message,
+      // fail silently, try something else, etc.
+  end;
+</pre>
+<p>If <tt>ia64</tt> <i>is</i> included in the value of the <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> [Setup] section directive, then it is not necessary to check IsWin64 because Setup will do so itself at startup, and fail with an error message (<tt>MissingWOW64APIs</tt>) if it is False.</p></remarks>
+        <example><pre>var
+  S: String;
+begin
+  case ProcessorArchitecture of
+    paX86: S := 'x86';
+    paX64: S := 'x64';
+    paIA64: S := 'Itanium';
+  else
+    S := 'Unrecognized';
+  end;
+  MsgBox('Your processor architecture: ' + S, mbInformation, MB_OK);
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_IsWin64">IsWin64</link><br />
+<link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>InstallOnThisVersion</name>
+        <prototype>function InstallOnThisVersion(const MinVersion, OnlyBelowVersion: String): Boolean;</prototype>
+        <description><p>This function is deprecated. Returns True if an entry with the specified MinVersion and OnlyBelowVersion parameters should be installed. If an invalid version string is passed, an exception will be raised.</p>
+<p>This function is provided for backward compatibility only, and may be removed in a future release. New scripts should use <link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link> or <link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link> instead.</p></description>
+        <remarks><p>Prior to Inno Setup 5.5.0, this function returned <tt>irInstall</tt> rather than a Boolean True value. <tt>irInstall</tt> is now defined as an alias for True.</p></remarks>
+        <example><pre>// Old method, deprecated
+function IsWindowsXPOrLater: Boolean;
+begin
+  Result := InstallOnThisVersion('0,5.1', '0,0');
+end;
+
+// New method
+function IsWindowsXPOrLater: Boolean;
+begin
+  Result := (GetWindowsVersion &gt;= $05010000);
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link><br />
+<link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetEnv</name>
+        <prototype>function GetEnv(const EnvVar: String): String;</prototype>
+        <description><p>Gets the value of the specified environment variable.</p></description>
+      </function>
+      <function>
+        <name>GetUserNameString</name>
+        <prototype>function GetUserNameString: String;</prototype>
+        <description><p>Retrieves the name of the user currently logged onto the system.</p></description>
+      </function>
+      <function>
+        <name>GetComputerNameString</name>
+        <prototype>function GetComputerNameString: String;</prototype>
+        <description><p>Retrieves the name of the computer the Setup or Uninstall program is running on (as returned by the Windows <i>GetComputerName</i> function).</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetUILanguage</name>
+        <prototype>function GetUILanguage: Integer;</prototype>
+        <description><p>Returns the language identifier (LANGID) of the current user's UI language, which is either the language of Windows itself, or in the case of a MUI edition of Windows, the user interface language chosen in Control Panel's Regional Options. Returns 0 if the function fails (unlikely).</p></description>
+        <remarks><p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</a>.</p></remarks>
+        <example><pre>begin
+  if GetUILanguage = $0409 then
+  begin
+    // UI language is English (United States)
+  end;
+
+  // You can use "and $3FF" to extract the primary language identifier
+  if GetUILanguage and $3FF = $09 then
+  begin
+    // Matches any variant of English
+  end;
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>FontExists</name>
+        <prototype>function FontExists(const FaceName: String): Boolean;</prototype>
+        <description><p>Returns True if a font with the specified face name is installed on the system.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>FindWindowByClassName</name>
+        <prototype>function FindWindowByClassName(const ClassName: String): HWND;</prototype>
+        <description><p>Retrieves a handle to the top-level window whose class name matches the specified string. This function does not search child windows, and does not perform a case-sensitive search. Returns 0 if no window is found.</p></description>
+      </function>
+      <function>
+        <name>FindWindowByWindowName</name>
+        <prototype>function FindWindowByWindowName(const WindowName: String): HWND;</prototype>
+        <description><p>Retrieves a handle to the top-level window whose window name matches the specified string. This function does not search child windows, and does not perform a case-sensitive search. Returns 0 if no window is found.</p></description>
+      </function>
+      <function>
+        <name>SendMessage</name>
+        <prototype>function SendMessage(const Wnd: HWND; const Msg, WParam, LParam: Longint): Longint;</prototype>
+        <description><p>Sends the specified message to the specified window. Does not return until the window procedure has processed the message.</p></description>
+      </function>
+      <function>
+        <name>PostMessage</name>
+        <prototype>function PostMessage(const Wnd: HWND; const Msg, WParam, LParam: Longint): Boolean;</prototype>
+        <description><p>Posts the specified message to the specified window, returning immediately. Returns True if successful.</p></description>
+      </function>
+      <function>
+        <name>SendNotifyMessage</name>
+        <prototype>function SendNotifyMessage(const Wnd: HWND; const Msg, WParam, LParam: Longint): Boolean;</prototype>
+        <description><p>Sends the specified message to the specified window without waiting for the message to be processed by the destination window procedure. Returns True if successful.</p></description>
+      </function>
+      <function>
+        <name>RegisterWindowMessage</name>
+        <prototype>function RegisterWindowMessage(const Name: String): Longint;</prototype>
+        <description><p>The RegisterWindowMessage function defines a new window message that is guaranteed to be unique throughout the system. The returned message value can be used when calling the SendBroadcastMessage or PostBroadcastMessage function.</p></description>
+      </function>
+      <function>
+        <name>SendBroadcastMessage</name>
+        <prototype>function SendBroadcastMessage(const Msg, WParam, LParam: Longint): Longint;</prototype>
+        <description><p>Sends the specified message to top-level windows in the system. Does not return until all window procedure have processed the message.<br />The specified message must be unique. Use RegisterWindowMessage to get such a message.</p></description>
+      </function>
+      <function>
+        <name>PostBroadcastMessage</name>
+        <prototype>function PostBroadcastMessage(const Msg, WParam, LParam: Longint): Boolean;</prototype>
+        <description><p>Posts the specified message to top-level windows in the system, returning immediately.<br />The specified message must be unique. Use RegisterWindowMessage to get such a message.</p></description>
+      </function>
+      <function>
+        <name>SendBroadcastNotifyMessage</name>
+        <prototype>function SendBroadcastNotifyMessage(const Msg, WParam, LParam: Longint): Boolean;</prototype>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>CreateMutex</name>
+        <prototype>procedure CreateMutex(const Name: String);</prototype>
+        <description><p>Creates a mutex with the specified name.</p></description>
+      </function>
+      <function>
+        <name>CheckForMutexes</name>
+        <prototype>function CheckForMutexes(Mutexes: String): Boolean;</prototype>
+        <description><p>Returns True if any of the mutexes in the comma-separated Mutexes string exist.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>MakePendingFileRenameOperationsChecksum</name>
+        <prototype>procedure MakePendingFileRenameOperationsChecksum: String;</prototype>
+        <description><p>Calculates a checksum of the current PendingFileRenameOperations registry value. The caller can use this checksum to determine if PendingFileRenameOperations or WININIT.INI was changed (perhaps by another program).</p></description>
+        <example><pre>var
+  ChecksumBefore, ChecksumAfter: String;
+begin
+  ChecksumBefore := MakePendingFileRenameOperationsChecksum;
+  // ...run a program...
+  ChecksumAfter := MakePendingFileRenameOperationsChecksum;
+  if ChecksumAfter &lt;&gt; ChecksumBefore then
+    // PendingFileRenameOperations or WININIT.INI changed
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>UnloadDLL</name>
+        <prototype>procedure UnloadDLL(Filename: String);</prototype>
+        <description><p>Unloads the specified DLL that was loaded by the [Code] section using an "external" keyword. This can be useful if you need to delete the DLL.</p>
+<p>The case of the filename and any path name must exactly match that of the function import. You will need to expand any constants in the filename yourself before passing it to UnloadDLL.</p>
+<p>If the function import used a "files:" prefix, prepend the value of the <tt>{tmp}</tt> constant to the filename (e.g. <tt>ExpandConstant('{tmp}\filename.dll')</tt>).</p></description>
+        <remarks><p>It's not recommended that you try this, but if you attempt to call a function in a DLL that has been unloaded, the DLL will be re-loaded.</p></remarks>
+        <example><pre>procedure DllFunc; external 'DllFunc@{app}\MyDll.dll stdcall uninstallonly';
+
+...
+
+begin
+  // Call DllFunc
+  DllFunc;
+
+  // Unload the DLL
+  UnloadDLL(ExpandConstant('{app}\MyDll.dll'));
+
+  // Now we can delete the DLL
+  DeleteFile(ExpandConstant('{app}\MyDll.dll'));
+end;</pre></example>
+      </function>
+      <function>
+        <name>DLLGetLastError</name>
+        <prototype>function DLLGetLastError(): Longint;</prototype>
+        <description><p>Returns value the last error code had right after the most recent DLL function call you made. Useful after calling Windows API functions (if the function sets the last error code).</p></description>
+        <remarks><p>It's recommended to use this function instead of directly calling the GetLastError Windows API function since Setup or Uninstall makes API calls of its own, so the last error code could be overwritten at any time.</p></remarks>
+        <example><pre>function MessageBox(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal): Integer; external 'MessageBoxA@user32.dll stdcall';
+
+...
+
+begin
+  if MessageBox(-1, '', '', -1) = 0 then
+    MsgBox(SysErrorMessage(DLLGetLastError), mbError, mb_Ok);</pre></example>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>String</p></description>
+    <subcategory>
+      <function>
+        <name>Chr</name>
+        <prototype>function Chr(B: Byte): Char;</prototype>
+        <description><p>Returns the character with the specified ordinal value.</p></description>
+      </function>
+      <function>
+        <name>Ord</name>
+        <prototype>function Ord(C: Char): Byte;</prototype>
+        <description><p>Returns the ordinal value of the specified character.</p></description>
+      </function>
+      <function>
+        <name>Copy</name>
+        <prototype>function Copy(S: String; Indx, Count: Integer): String;</prototype>
+        <description><p>Returns a string containing Count characters starting with at S[Index].<br />If Index is larger than the length of S, Copy returns an empty string.<br />If Count specifies more characters than are available, the only the characters from S[Index] to the end of S are returned.</p></description>
+      </function>
+      <function>
+        <name>Length</name>
+        <prototype>function Length(s: String): Longint;</prototype>
+        <description><p>Returns the length of the specified string.</p></description>
+      </function>
+      <function>
+        <name>Lowercase</name>
+        <prototype>function Lowercase(S: String): String;</prototype>
+        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'A' and 'Z' converted to lowercase. To convert 8-bit international characters, use AnsiLowercase instead.</p></description>
+      </function>
+      <function>
+        <name>Uppercase</name>
+        <prototype>function Uppercase(S: String): String;</prototype>
+        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'a' and 'z' converted to uppercase. To convert 8-bit international characters, use AnsiUppercase instead.</p></description>
+      </function>
+      <function>
+        <name>AnsiLowercase</name>
+        <prototype>function AnsiLowercase(S: String): String;</prototype>
+        <description><p>Returns a string that is a copy of the given string converted to lowercase. The conversion uses the current Windows locale. This function supports multi-byte character sets (MBCS).</p></description>
+      </function>
+      <function>
+        <name>AnsiUppercase</name>
+        <prototype>function AnsiUppercase(S: String): String;</prototype>
+        <description><p>Returns a string that is a copy of the given string converted to uppercase. The conversion uses the current Windows locale. This function supports multi-byte character sets (MBCS).</p></description>
+      </function>
+      <function>
+        <name>StringOfChar</name>
+        <prototype>function StringOfChar(c: Char; I : Longint): String;</prototype>
+        <description><p>Returns a string of length I with all characters set to character C.</p></description>
+      </function>
+      <function>
+        <name>Delete</name>
+        <prototype>procedure Delete(var S: String; Indx, Count: Integer);</prototype>
+        <description><p>Removes a substring of Count characters from string S starting at S[Index].<br />If Index is larger than the length of S, no characters are deleted. If Count specifies more characters than remain starting at the S[Index], Delete removes the rest of the string.</p></description>
+      </function>
+      <function>
+        <name>Insert</name>
+        <prototype>procedure Insert(Source: String; var Dest: String; Indx: Integer);</prototype>
+        <description><p>Merges Source into S at the position S[index].</p></description>
+      </function>
+      <function>
+        <name>StringChange</name>
+        <prototype>function StringChange(var S: String; const FromStr, ToStr: String): Integer;</prototype>
+        <description><p>This function is deprecated. It is equivalent to calling <link topic="isxfunc_StringChangeEx">StringChangeEx</link> with the SupportMBCS parameter set to False.</p></description>
+      </function>
+      <function>
+        <name>StringChangeEx</name>
+        <prototype>function StringChangeEx(var S: String; const FromStr, ToStr: String; const SupportDBCS: Boolean): Integer;</prototype>
+        <description><p>Changes all occurrences in S of FromStr to ToStr. If SupportDBCS is True (recommended unless you require binary safety), double-byte character sequences in S are recognized and handled properly. Otherwise, the function behaves in a binary-safe manner. Returns the number of times FromStr was matched and changed.</p></description>
+        <remarks><p>When working with strings containing paths or filenames, be sure to pass True in the SupportDBCS parameter. Otherwise, paths with Chinese, Japanese, or Korean characters may be corrupted.</p></remarks>
+        <example><pre>var
+  S: String;
+begin
+  S := ExpandConstant('{commonappdata}');
+  // S = 'C:\Documents and Settings\All Users\Application Data'
+
+  StringChangeEx(S, '\', '/', True);
+  // S = 'C:/Documents and Settings/All Users/Application Data'
+end;</pre></example>
+      </function>
+      <function>
+        <name>Pos</name>
+        <prototype>function Pos(SubStr, S: String): Integer;</prototype>
+        <description><p>Searches for Substr within S and returns an integer value that is the index of the first character of Substr within S.<br />If Substr is not found, Pos returns zero.</p></description>
+      </function>
+      <function>
+        <name>AddQuotes</name>
+        <prototype>function AddQuotes(const S: String): String;</prototype>
+        <description><p>Adds a quote (") character to the left and right sides of the string if the string contains a space and it didn't have quotes already. This is primarily used when spawning another process with a long filename as one of the parameters.</p></description>
+      </function>
+      <function>
+        <name>RemoveQuotes</name>
+        <prototype>function RemoveQuotes(const S: String): String;</prototype>
+        <description><p>Opposite of AddQuotes; removes any quotes around the string.</p></description>
+      </function>
+      <function>
+        <name>ConvertPercentStr</name>
+        <prototype>function ConvertPercentStr(var S: String): Boolean;</prototype>
+        <description><p>Expands all %-encoded characters in the string (see RFC 2396). Returns True if all were successfully expanded.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>CompareText</name>
+        <prototype>function CompareText(const S1, S2: string): Integer;</prototype>
+        <description><p>Compares the strings S1 and S2 and returns 0 if they are equal. If S1 is greater than S2, CompareText returns an integer greater than 0. If S1 is less than S2, CompareText returns an integer less than 0. The CompareText function is not case sensitive.</p></description>
+      </function>
+      <function>
+        <name>CompareStr</name>
+        <prototype>function CompareStr(const S1, S2: string): Integer;</prototype>
+        <description><p>Compares S1 to S2, with case-sensitivity. The return value is less than 0 if S1 is less than S2, 0 if S1 equals S2, or greater than 0 if S1 is greater than S2.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>Format</name>
+        <prototype>function Format(const Format: string; const Args: array of const): string;</prototype>
+        <description><p>Formats the series of arguments in the open array Args. Formatting is controlled by the format string Format; the results are returned as a string.</p>
+<p>An exception will be raised if an invalid format string is specified, too few arguments are passed, or if any arguments are of the wrong type.</p></description>
+        <example><pre>var
+  S: String;
+  I: Integer;
+begin
+  S := Format('%d files found', [10]);
+  // S = '10 files found'
+
+  S := Format('Filename: %s', ['file.txt']);
+  // S = 'Filename: file.txt'
+
+  I := 64;
+  S := Format('%d in hex, padded to 8 digits: %.8x', [I, I]);
+  // S = '64 in hex, padded to 8 digits: 00000040'
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>Trim</name>
+        <prototype>function Trim(const S: string): String;</prototype>
+        <description><p>Trims leading and trailing spaces and control characters from the given string S.</p></description>
+      </function>
+      <function>
+        <name>TrimLeft</name>
+        <prototype>function TrimLeft(const S: string): String;</prototype>
+        <description><p>Trims leading spaces and control characters from the given string S.</p></description>
+      </function>
+      <function>
+        <name>TrimRight</name>
+        <prototype>function TrimRight(const S: string): String;</prototype>
+        <description><p>Trims trailing spaces and control characters from the given string S.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>StrToIntDef</name>
+        <prototype>function StrToIntDef(s: string; def: Longint): Longint;</prototype>
+        <description><p>The StrToInt function converts the string passed in S into a number. If S does not represent a valid number, StrToInt returns the number passed in Def.</p></description>
+      </function>
+      <function>
+        <name>StrToInt</name>
+        <prototype>function StrToInt(s: string): Longint;</prototype>
+        <description><p>The StrToInt function converts the string passed in S into a number.</p></description>
+        <remarks><p>Use of <link topic="isxfunc_StrToIntDef">StrToIntDef</link> instead of StrToInt is recommended.</p></remarks>
+      </function>
+      <function>
+        <name>IntToStr</name>
+        <prototype>function IntToStr(i: Longint): String;</prototype>
+        <description><p>The IntToStr function converts an integer into a string containing the decimal representation of that number.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>CharLength</name>
+        <prototype>function CharLength(const S: String; const Index: Integer): Integer;</prototype>
+        <description><p>Returns the length in bytes (1 or 2) of the character in the specified string at the specified index.</p></description>
+        <remarks><p>In double-byte character sets (Chinese, Japanese, Korean), most non-ASCII characters occupy two bytes. Note that the second byte of a double-byte character -- known as the "trail byte" -- can be in the same range used by ASCII characters (below 128). Thus, when stepping through a string that may contain double-byte characters, such as a path or filename, care must be taken to not mistake trail bytes for single-byte ASCII characters.</p></remarks>
+        <example><pre>function BackslashToSlash(const S: String): String;
+var
+  I: Integer;
+begin
+  Result := S;
+  I := 1;
+  while I &lt;= Length(Result) do
+  begin
+    if Result[I] = '\' then
+      Result[I] := '/';
+    // Go to the next character. But do not simply increment I by 1.
+    // Increment by CharLength() in case Result[I] is a double-byte character.
+    I := I + CharLength(Result, I);
+  end;
+end;
+
+...
+
+begin
+  // Show path of Common Files with backslashes changed to forward slashes
+  MsgBox(BackslashToSlash(ExpandConstant('{cf}')), mbInformation, MB_OK);
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>AddBackslash</name>
+        <prototype>function AddBackslash(const S: String): String;</prototype>
+        <description><p>Returns the specified string with a trailing backslash added, unless the string is empty or already ends in a slash or backslash.</p></description>
+      </function>
+      <function>
+        <name>RemoveBackslashUnlessRoot</name>
+        <prototype>function RemoveBackslashUnlessRoot(const S: String): String;</prototype>
+        <description><p>Returns the specified string with any trailing slashes/backslashes removed, unless the string specifies the root directory of a drive (e.g. "C:\" or "\"), in which case it leaves 1 slash.</p></description>
+      </function>
+      <function>
+        <name>RemoveBackslash</name>
+        <prototype>function RemoveBackslash(const S: String): String;</prototype>
+        <description><p>Returns the specified string with any trailing slashes/backslashes removed.</p></description>
+        <remarks><p>Use of this function is discouraged; use <link topic="isxfunc_RemoveBackslashUnlessRoot">RemoveBackslashUnlessRoot</link> instead when working with file system paths.</p></remarks>
+      </function>
+      <function>
+        <name>AddPeriod</name>
+        <prototype>function AddPeriod(const S: String): String;</prototype>
+        <description><p>Returns the specified string with a trailing period added, unless the string is empty or already ends in a period or other punctuation mark.</p></description>
+      </function>
+      <function>
+        <name>ChangeFileExt</name>
+        <prototype>function ChangeFileExt(const FileName, Extension: string): String;</prototype>
+        <description><p>Takes the file name passed in FileName and changes the extension of the file name to the extension passed in Extension.</p></description>
+      </function>
+      <function>
+        <name>ExtractFileExt</name>
+        <prototype>function ExtractFileExt(const FileName: string): String;</prototype>
+        <description><p>Extracts the extension part of the given file name. The resulting string includes the period character that separates the name and extension parts. The resulting string is empty if the given filename has no extension.</p></description>
+      </function>
+      <function>
+        <name>ExtractFileDir</name>
+        <prototype>function ExtractFileDir(const FileName: string): String;</prototype>
+        <description><p>Extracts the drive and directory parts of the given file name. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+      </function>
+      <function>
+        <name>ExtractFilePath</name>
+        <prototype>function ExtractFilePath(const FileName: string): String;</prototype>
+        <description><p>Extracts the drive and directory parts of the given file name. The resulting string is the leftmost characters of FileName, up to and including the colon or backslash that separates the path information from the name and extension. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+      </function>
+      <function>
+        <name>ExtractFileName</name>
+        <prototype>function ExtractFileName(const FileName: string): String;</prototype>
+        <description><p>Extracts the name and extension parts of the given file name. The resulting string is the rightmost characters of FileName, starting with the first character after the colon or backslash that separates the path information from the name and extension. The resulting string is equal to FileName if FileName contains no drive and directory parts.</p></description>
+      </function>
+      <function>
+        <name>ExtractFileDrive</name>
+        <prototype>function ExtractFileDrive(const FileName: string): String;</prototype>
+        <description><p>Returns a string containing the 'drive' portion of a fully qualified path name for the file passed in the FileName. For file names with drive letters, the resulting string is in the form '&lt;drive&gt;:'. For file names with a UNC path the resulting string is in the form '\\&lt;servername&gt;\&lt;sharename&gt;'. If the given path contains neither style of path prefix, the result is an empty string.</p></description>
+      </function>
+      <function>
+        <name>ExtractRelativePath</name>
+        <prototype>function ExtractRelativePath(const BaseName, DestName: String): String;</prototype>
+        <description><p>Converts a fully qualified path name into a relative path name. The DestName parameter specifies the file name (including path) to be converted. BaseName is the fully qualified name of the base directory to which the returned path name should be relative. BaseName may or may not include a file name, but it must include the final path delimiter.</p>
+<p>ExtractRelativePath strips out common path directories and inserts '..\' for each level up from the BaseName.</p></description>
+        <example><pre>var
+  S: String;
+begin
+  S := ExtractRelativePath('c:\windows\system32\', 'c:\autoexec.bat');
+  // S = ..\..\autoexec.bat
+end;</pre></example>
+      </function>
+      <function>
+        <name>ExpandFileName</name>
+        <prototype>function ExpandFileName(const FileName: string): String;</prototype>
+        <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive letter and any directory and subdirectories in addition to the file name and extension.</p></description>
+      </function>
+      <function>
+        <name>ExpandUNCFileName</name>
+        <prototype>function ExpandUNCFileName(const FileName: string): String;</prototype>
+        <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive portion of the filename in the UNC format '\\&lt;servername&gt;\&lt;sharename&gt;' if the drive letter is mapped to a network resource instead of a local drive and any directory and subdirectories in addition to the file name and extension.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetDateTimeString</name>
+        <prototype>function GetDateTimeString(const DateTimeFormat: String; const DateSeparator, TimeSeparator: Char): String;</prototype>
+        <description><p>Returns the current date and time as a string using the specified formatting. The following format specifiers are supported:<br />
+<br />
+d	Displays the day as a number without a leading zero (1-31).<br />
+dd	Displays the day as a number with a leading zero (01-31).<br />
+ddd	Displays the day as an abbreviation (Sun-Sat).<br />
+dddd	Displays the day as a full name (Sunday-Saturday).<br />
+ddddd	Displays the date using the system's short date format.<br />
+dddddd	Displays the date using the system's long date format.<br />
+m	Displays the month as a number without a leading zero (1-12).<br />
+	If the m specifier immediately follows an h or hh specifier, the minute rather than the month is displayed.<br />
+mm	Displays the month as a number with a leading zero (01-12).<br />
+	If the mm specifier immediately follows an h or hh specifier, the minute rather than the month is displayed.<br />
+mmm	Displays the month as an abbreviation (Jan-Dec).<br />
+mmmm	Displays the month as a full name (January-December).<br />
+yy	Displays the year as a two-digit number (00-99).<br />
+yyyy	Displays the year as a four-digit number (0000-9999).<br />
+h	Displays the hour without a leading zero (0-23).<br />
+hh	Displays the hour with a leading zero (00-23).<br />
+n	Displays the minute without a leading zero (0-59).<br />
+nn	Displays the minute with a leading zero (00-59).<br />
+s	Displays the second without a leading zero (0-59).<br />
+ss	Displays the second with a leading zero (00-59).<br />
+t	Displays the time using the system's short time format.<br />
+tt	Displays the time using the system's long time format.<br />
+am/pm	Uses the 12-hour clock for the preceding h or hh specifier.<br />
+	Displays 'am' for any hour before noon, and 'pm' for any hour after noon.<br />
+	The am/pm specifier can use lower, upper, or mixed case, and the result is displayed accordingly.<br />
+a/p	Uses the 12-hour clock for the preceding h or hh specifier.<br />
+	Displays 'a' for any hour before noon, and 'p' for any hour after noon.<br />
+	The a/p specifier can use lower, upper, or mixed case, and the result is displayed accordingly.<br />
+/	Displays the date separator character given by the DateSeparator parameter.<br />
+	If DateSeparator is set to #0, the system's date separator character will be used instead.<br />
+:	Displays the time separator character given by the TimeSeparator parameter.<br />
+	If TimeSeparator is set to #0, the system's time separator character will be used instead.<br />
+'xx'/"xx"	Characters enclosed in single or double quotes are displayed as-is, and do not affect formatting.<br />
+<br />
+Format specifiers may be written in upper case as well as in lower case letters--both produce the same result.</p></description>
+        <example><pre>
+GetDateTimeString('ddddd', #0, #0);
+GetDateTimeString('ddddd tt', #0, #0);
+GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':');
+</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>SetLength</name>
+        <prototype>procedure SetLength(var S: String; L: Longint);</prototype>
+        <description><p>Sets the length of a string.</p></description>
+      </function>
+      <function>
+        <name>CharToOemBuff</name>
+        <prototype>procedure CharToOemBuff(var S: AnsiString);</prototype>
+        <description><p>Translates an ANSI string to a string with characters from the OEM-defined character set.</p></description>
+      </function>
+      <function>
+        <name>OemToCharBuff</name>
+        <prototype>procedure OemToCharBuff(var S: AnsiString);</prototype>
+        <description><p>Translates a string with characters from the OEM-defined character set into an ANSI string.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetMD5OfString</name>
+        <prototype>function GetMD5OfString(const S: AnsiString): String;</prototype>
+        <description><p>Gets the MD5 sum of the specified string, as a string.</p></description>
+        <example><pre>var
+  MD5: String;
+begin
+  MD5 := GetMD5OfString('Test');
+  // MD5 = '0cbc6611f5540bd0809a388dc95a615b'
+end;
+</pre></example>
+      </function>
+      <function>
+        <name>GetMD5OfUnicodeString</name>
+        <prototype>function GetMD5OfUnicodeString(const S: String): String;</prototype>
+        <description><p>Gets the MD5 sum of the specified string, as a string.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <example><pre>var
+  MD5: String;
+begin
+  MD5 := GetMD5OfUnicodeString('Test');
+  // MD5 = '8e06915d5f5d4f8754f51892d884c477'
+end;
+</pre></example>
+      </function>
+      <function>
+        <name>GetSHA1OfString</name>
+        <prototype>function GetSHA1OfString(const S: AnsiString): String;</prototype>
+        <description><p>Gets the SHA-1 hash of the specified string, as a string.</p></description>
+        <example><pre>var
+  SHA1: String;
+begin
+  SHA1 := GetSHA1OfString('Test');
+  // SHA1 = '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa'
+end;
+</pre></example>
+      </function>
+      <function>
+        <name>GetSHA1OfUnicodeString</name>
+        <prototype>function GetSHA1OfUnicodeString(const S: String): String;</prototype>
+        <description><p>Gets the SHA-1 hash of the specified string, as a string.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <example><pre>var
+  SHA1: String;
+begin
+  SHA1 := GetSHA1OfUnicodeString('Test');
+  // SHA1 = '9ab696a37604d665dc97134dbee44cfe70451b1a'
+end;
+</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>SysErrorMessage</name>
+        <prototype>function SysErrorMessage(ErrorCode: Integer): String;</prototype>
+        <description><p>Returns a localized error message string that corresponds to the given operating system error code.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>MinimizePathName</name>
+        <prototype>function MinimizePathName(const Filename: String; const Font: TFont; MaxLen: Integer): String;</prototype>
+        <description><p>Returns a minimized filename that will not take more than MaxLen pixels to display with the given font. The minimizing is done by replacing the middle part with '...' as needed.</p></description>
+        <example><pre>MyLabel.Caption := MinimizePathName(MyPathName, MyLabel.Font, MyLabel.Width);</pre></example>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>Array</p></description>
+    <subcategory>
+      <function>
+        <name>GetArrayLength</name>
+        <prototype>function GetArrayLength(var Arr: Array): Longint;</prototype>
+        <description><p>Gets the length of an array.</p></description>
+      </function>
+      <function>
+        <name>SetArrayLength</name>
+        <prototype>procedure SetArrayLength(var Arr: Array; I: Longint);</prototype>
+        <description><p>Sets the length of an array. Always call SetArrayLength before accessing the elements in an array.</p></description>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>Variant</p></description>
+    <subcategory>
+      <function>
+        <name>Null</name>
+        <prototype>function Null: Variant;</prototype>
+        <description><p>Returns a variant with a value of Null.</p></description>
+      </function>
+      <function>
+        <name>Unassigned</name>
+        <prototype>function Unassigned: Variant;</prototype>
+        <description><p>Returns a variant with no value assigned.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>VarIsEmpty</name>
+        <prototype>function VarIsEmpty(const V: Variant): Boolean;</prototype>
+        <description><p>Returns True if the specified variant has no value assigned.</p></description>
+      </function>
+      <function>
+        <name>VarIsNull</name>
+        <prototype>function VarIsNull(const V: Variant): Boolean;</prototype>
+        <description><p>Returns True if the specified variant has a value of Null assigned.</p></description>
+      </function>
+      <function>
+        <name>VarType</name>
+        <prototype>function VarType(const V: Variant): TVarType;</prototype>
+        <description><p>Returns the type code of the specified variant.</p>
+<p>The lower twelve bits of a variant type code (the bits defined by the varTypeMask bit mask) define the type of the variant. The varArray bit is set if the variant is an array of the given type. The varByRef bit is set if the variant is a reference to a value of the given type as opposed to an actual value.</p>
+<p>The following variant type code constants are defined:</p>
+<pre>
+const
+  varEmpty    = $0000;
+  varNull     = $0001;
+  varSmallint = $0002;
+  varInteger  = $0003;
+  varSingle   = $0004;
+  varDouble   = $0005;
+  varCurrency = $0006;
+  varDate     = $0007;
+  varOleStr   = $0008;
+  varDispatch = $0009;
+  varError    = $000A;
+  varBoolean  = $000B;
+  varVariant  = $000C;
+  varUnknown  = $000D;
+  varByte     = $0011;
+  varString   = $0100;
+  varTypeMask = $0FFF;
+  varArray    = $2000;
+  varByRef    = $4000;
+</pre>
+</description>
+      </function>     
+    </subcategory>
+  </category>
+  <category>
+    <description><p>File System</p></description>
+    <subcategory>
+      <function>
+        <name>DirExists</name>
+        <prototype>function DirExists(const Name: String): Boolean;</prototype>
+        <description><p>Returns True if the specified directory name exists. The specified name may include a trailing backslash.</p></description>
+      </function>
+      <function>
+        <name>FileExists</name>
+        <prototype>function FileExists(const Name: String): Boolean;</prototype>
+        <description><p>Returns True if the specified file exists.</p></description>
+      </function>
+      <function>
+        <name>FileOrDirExists</name>
+        <prototype>function FileOrDirExists(const Name: String): Boolean;</prototype>
+        <description><p>Returns True if the specified directory or file name exists. The specified name may include a trailing backslash.</p></description>
+      </function>
+      <function>
+        <name>FileSize</name>
+        <prototype>function FileSize(const Name: String; var Size: Integer): Boolean;</prototype>
+        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise. Only supports file sizes smaller than 2 GB. To get all 64 bits of the file size, use <link topic="isxfunc_FindFirst">FindFirst</link>/<link topic="isxfunc_FindClose">FindClose</link> instead.</p></description>
+      </function>
+      <function>
+        <name>GetSpaceOnDisk</name>
+        <prototype>function GetSpaceOnDisk(const Path: String; const InMegabytes: Boolean; var Free, Total: Cardinal): Boolean;</prototype>
+        <description><p>Returns the number of free and total bytes or megabytes on a drive. Path specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. The setting of the InMegabytes parameter determines whether it returns figures in bytes or in megabytes (2^20), rounded down. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>The figures returned by this function are capped at 2147483647 (2^31-1). Therefore, if InMegaBytes is False, it will return no more than 2147483647 bytes. If InMegaBytes is True, it will return no more than 2147483647 megabytes.</p></remarks>
+        <example><pre>var
+  Path: String;
+  FreeMB, TotalMB: Cardinal;
+begin
+  // Get and display free megabytes on the Program Files drive
+  Path := ExpandConstant('{pf}');
+  if GetSpaceOnDisk(Path, True, FreeMB, TotalMB) then
+  begin
+    MsgBox('There are ' + IntToStr(FreeMB) + ' megabytes free on ' +
+      Path, mbInformation, MB_OK);
+  end
+  else begin
+    // the function failed
+  end;
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>FileSearch</name>
+        <prototype>function FileSearch(const Name, DirList: string): String;</prototype>
+        <description><p>Searches through the directories passed in DirList for a file named Name. DirList should be directory names separated by semicolons. If FileSearch locates a file matching Name, it returns a string containing a fully-qualified path name for that file. If no matching file exists, FileSearch returns an empty string.</p></description>
+      </function>
+      <function>
+        <name>FindFirst</name>
+        <prototype>function FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;</prototype>
+        <description><p>Retrieves information about the first file matching the wildcard specified by FileName. Returns True if successful.</p>
+<p>TFindRec is defined as:</p>
+<pre>
+  TFindRec = record
+    Name: String;               // name of the found file (no path)
+    Attributes: LongWord;       // file attributes
+    SizeHigh: LongWord;         // size of the file, upper 32 bits
+    SizeLow: LongWord;          // size of the file, lower 32 bits
+    CreationTime: TFileTime;    // time file was created
+    LastAccessTime: TFileTime;  // time file was last accessed
+    LastWriteTime: TFileTime;   // time file was last modified
+    AlternateName: String;      // file's short name (empty if none)
+    FindHandle: THandle;        // used internally
+  end;
+</pre>
+<p>TFileTime is defined as:</p>
+<pre>
+  TFileTime = record
+    dwLowDateTime: DWORD;
+    dwHighDateTime: DWORD;
+  end;
+</pre>
+<p>Valid file attributes are:</p>
+<pre>
+  FILE_ATTRIBUTE_READONLY
+  FILE_ATTRIBUTE_HIDDEN
+  FILE_ATTRIBUTE_SYSTEM
+  FILE_ATTRIBUTE_DIRECTORY
+  FILE_ATTRIBUTE_ARCHIVE
+  FILE_ATTRIBUTE_DEVICE
+  FILE_ATTRIBUTE_NORMAL
+  FILE_ATTRIBUTE_TEMPORARY
+  FILE_ATTRIBUTE_SPARSE_FILE
+  FILE_ATTRIBUTE_REPARSE_POINT
+  FILE_ATTRIBUTE_COMPRESSED
+  FILE_ATTRIBUTE_OFFLINE
+  FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
+  FILE_ATTRIBUTE_ENCRYPTED
+</pre></description>
+        <remarks><p>If FindFirst returns True, call FindNext to enumerate the rest of the files, and then FindClose.</p></remarks>
+        <example><p>The following example counts the number of files in the Windows System directory.</p>
+<pre>var
+  FilesFound: Integer;
+  FindRec: TFindRec;
+begin
+  FilesFound := 0;
+  if FindFirst(ExpandConstant('{sys}\*'), FindRec) then begin
+    try
+      repeat
+        // Don't count directories
+        if FindRec.Attributes and FILE_ATTRIBUTE_DIRECTORY = 0 then
+          FilesFound := FilesFound + 1;
+      until not FindNext(FindRec);
+    finally
+      FindClose(FindRec);
+    end;
+  end;
+  MsgBox(IntToStr(FilesFound) + ' files found in the System directory.',
+    mbInformation, MB_OK);
+end;</pre></example>
+      </function>
+      <function>
+        <name>FindNext</name>
+        <prototype>function FindNext(var FindRec: TFindRec): Boolean;</prototype>
+        <description><p>Retrieves information about the next matching file after a call to FindFirst. Returns True if successful.</p></description>
+        <example><p>For an example, see the documentation for FindFirst.</p></example>
+      </function>
+      <function>
+        <name>FindClose</name>
+        <prototype>procedure FindClose(var FindRec: TFindRec);</prototype>
+        <description><p>Ends a find sequence, and frees the resources associated with it. You should always call this when FindFirst returns True.</p></description>
+        <example><p>For an example, see the documentation for FindFirst.</p></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetCurrentDir</name>
+        <prototype>function GetCurrentDir: String;</prototype>
+        <description><p>Returns a string containing the name of the current directory.</p></description>
+      </function>
+      <function>
+        <name>SetCurrentDir</name>
+        <prototype>function SetCurrentDir(const Dir: string): Boolean;</prototype>
+        <description><p>Sets the current directory. The return value is True if the current directory was successfully changed, or False if an error occurred.</p></description>
+      </function>
+      <function>
+        <name>GetWinDir</name>
+        <prototype>function GetWinDir: String;</prototype>
+        <description><p>Returns fully qualified path of the Windows directory. Only includes a trailing backslash if the Windows directory is the root directory.</p></description>
+      </function>
+      <function>
+        <name>GetSystemDir</name>
+        <prototype>function GetSystemDir: String;</prototype>
+        <description><p>Returns fully qualified path of the Windows System directory. Only includes a trailing backslash if the Windows System directory is the root directory.</p></description>
+      </function>
+      <function>
+        <name>GetSysWow64Dir</name>
+        <prototype>function GetSysWow64Dir: String;</prototype>
+        <description><p>64-bit Windows only: returns fully qualified path of the SysWOW64 directory. This is the actual directory in which 32-bit system files reside. An empty string is returned if this function is called on 32-bit Windows, or if for some reason it fails to retrieve the path on 64-bit Windows (unlikely).</p></description>
+        <example><pre>var
+  S: String;
+begin
+  S := GetSysWow64Dir;
+  // Must check the result -- an empty string is returned
+  // if there is no SysWOW64 directory.
+  if S &lt;&gt; '' then
+    MsgBox('SysWOW64 directory: ' + S, mbInformation, MB_OK)
+  else
+    MsgBox('There is no SysWOW64 directory.', mbInformation, MB_OK);
+end;</pre></example>
+      </function>
+      <function>
+        <name>GetTempDir</name>
+        <prototype>function GetTempDir: String;</prototype>
+        <description><p>Returns fully qualified path of the temporary directory, with trailing backslash. This does not use the Win32 function GetTempPath, due to platform differences.<br />Gets the temporary file path as follows:<br />1. The path specified by the TMP environment variable.<br />2. The path specified by the TEMP environment variable, if TMP is not defined or if TMP specifies a directory that does not exist.<br />3. The Windows directory, if both TMP and TEMP are not defined or specify nonexistent directories.</p></description>
+      </function>
+      <function>
+        <name>GetShellFolder</name>
+        <prototype>function GetShellFolder(Common: Boolean; const ID: TShellFolderID): String;</prototype>
+        <description><p>Gets the location of the specified shell folder. Returns the 'common' version of the shell folder location if Common is True and the user has administrative privileges. On failure (unlikely but possible), an empty string is returned.</p></description>
+        <remarks><p>There is little reason to use this function. It is recommended that you use the ExpandConstant function instead to get the paths of shell folders.</p></remarks>
+        <example><pre>var
+  Path: String;
+begin
+  Path := GetShellFolder(False, sfAppData);
+  if Path &lt;&gt; '' then
+  begin
+    MsgBox('Application Data path = ' + Path, mbInformation, MB_OK);
+  end
+  else
+  begin
+    // handle failure
+  end;
+end;</pre></example>
+      </function>
+      <function>
+        <name>GetShellFolderByCSIDL</name>
+        <prototype>function GetShellFolderByCSIDL(const Folder: Integer; const Create: Boolean): String;</prototype>
+        <description><p>Gets the path of the specified shell folder. Folder specifies the value of a CSIDL constant (a complete list of which can be found in ShlObj.h). If Create is True, the folder will be created if it does not exist. On failure, an empty string is returned.</p></description>
+        <remarks><p>It is recommended that you always specify True in the Create parameter. Otherwise, the function may fail if the CSIDL value is valid but the directory does not currently exist. (This is a Windows issue.)</p></remarks>
+        <example><pre>const
+  CSIDL_MYPICTURES = $0027;
+
+...
+
+var
+  Path: String;
+begin
+  Path := GetShellFolderByCSIDL(CSIDL_MYPICTURES, True);
+  if Path &lt;&gt; '' then
+  begin
+    MsgBox('My Pictures path = ' + Path, mbInformation, MB_OK);
+  end
+  else
+  begin
+    // handle failure
+  end;
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetShortName</name>
+        <prototype>function GetShortName(const LongName: String): String;</prototype>
+        <description><p>Returns the short version of the specified long filename. If the short version of the long filename is not found, the long filename is returned.</p></description>
+      </function>
+      <function>
+        <name>GenerateUniqueName</name>
+        <prototype>function GenerateUniqueName(Path: String; const Extension: String): String;</prototype>
+        <description><p>Generates a unique filename for a file in the specified path with the specified extension.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetVersionNumbers</name>
+        <prototype>function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;</prototype>
+        <description><p>Gets the file version numbers of the specified file.</p></description>
+      </function>
+      <function>
+        <name>GetVersionNumbersString</name>
+        <prototype>function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;</prototype>
+        <description><p>Gets the file version numbers of the specified file, as a string.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>IsProtectedSystemFile</name>
+        <prototype>function IsProtectedSystemFile(const Filename: String): Boolean;</prototype>
+        <description><p>Returns True if the specified file is protected by Windows File Protection (and therefore can't be replaced).</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetMD5OfFile</name>
+        <prototype>function GetMD5OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the MD5 sum of the specified file, as a string. An exception will be raised upon failure.</p></description>
+      </function>
+      <function>
+        <name>GetSHA1OfFile</name>
+        <prototype>function GetSHA1OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the SHA-1 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>EnableFsRedirection</name>
+        <prototype>function EnableFsRedirection(const Enable: Boolean): Boolean;</prototype>
+        <description><p>Controls whether built-in support functions that access files disable WOW64 file system redirection (with <link topic="64bitlimitations">some exceptions</link>). Specify True in the Enable parameter to leave redirection enabled when those functions are called; specify False to disable it. Returns the previous redirection state (True if redirection was enabled).</p>
+<p>If False is passed in the Enable parameter and the user isn't running a supported 64-bit version of Windows, an exception will be raised. To avoid the exception, call <link topic="isxfunc_IsWin64">IsWin64</link> first.</p></description>
+        <remarks><p>After you've performed the operation that required changing the redirection state, be sure to restore the previous state. Always use a <tt>try..finally</tt> language construct to ensure that the previous state is restored even if an exception occurs. See below for an example.</p>
+<p>By default, file system redirection is enabled in <link topic="32vs64bitinstalls">32-bit mode</link> installs, and disabled in 64-bit mode installs.</p>
+<p>This function has no effect on calls to functions in external DLLs. When invoking external functions, file system redirection is always left enabled.</p>
+<p>It is legal to call this function with True in the Enable parameter if the user isn't running a 64-bit version of Windows. In such a case, the call has no effect.</p></remarks>
+        <example><p>The following example demonstrates how to launch an executable located in the 64-bit System directory. (Note: In a <link topic="32vs64bitinstalls">64-bit mode</link> install, it isn't necessary to call EnableFsRedirection because file system redirection is already disabled by default.)</p>
+<pre>var
+  OldState: Boolean;
+  ResultCode: Integer;
+begin
+  // First verify that the user is running a supported 64-bit version
+  // of Windows, because calling EnableFsRedirection(False) will
+  // raise an exception otherwise.
+  if IsWin64 then
+  begin
+    // Turn off redirection, so that cmd.exe from the 64-bit System
+    // directory is launched.
+    OldState := EnableFsRedirection(False);
+    try
+      Exec(ExpandConstant('{cmd}'), '', '', SW_SHOW,
+        ewWaitUntilTerminated, ResultCode);
+    finally
+      // Restore the previous redirection state.
+      EnableFsRedirection(OldState);
+    end;
+  end;
+end;</pre></example>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>File</p></description>
+    <subcategory>
+      <function>
+        <name>Exec</name>
+        <prototype>function Exec(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
+        <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The Wait parameter specifies whether the function should return immediately or wait until the launched process has termimated or is idle. Returns True if the specified file was executed successfully, False otherwise. If True is returned and Wait is ewWaitUntilTerminated then ResultCode returns the exit code of the process. If False is returned then ResultCode specifies the error that occurred. Use SysErrorMessage(ResultCode) to get a description of the error.</p></description>
+        <remarks><p>TExecWait is defined as:</p>
+<p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
+<p>Use the <link topic="isxfunc_ShellExec">ShellExec</link> function instead if you need to launch a file that is not an executable or batch file.</p>
+<p>Do not include quotes in the Filename parameter; the function will add them automatically.</p>
+<p>The WorkingDir parameter can be an empty string, in which case it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process. If no pathname was specified in Filename, a default directory will be used.</p>
+<p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the Filename parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
+<p>By default, when Setup/Uninstall is running in <link topic="32vs64bitinstalls">64-bit mode</link>, this function disables WOW64 file system redirection when calling CreateProcess. It is possible to override this by calling <link topic="isxfunc_EnableFsRedirection">EnableFsRedirection</link>.</p></remarks>
+        <example><pre>var
+  ResultCode: Integer;
+begin
+  // Launch Notepad and wait for it to terminate
+  if Exec(ExpandConstant('{win}\notepad.exe'), '', '', SW_SHOW,
+     ewWaitUntilTerminated, ResultCode) then
+  begin
+    // handle success if necessary; ResultCode contains the exit code
+  end
+  else begin
+    // handle failure if necessary; ResultCode contains the error code
+  end;
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_ExecAsOriginalUser">ExecAsOriginalUser</link></p></seealso>
+      </function>
+      <function>
+        <name>ExecAsOriginalUser</name>
+        <prototype>function ExecAsOriginalUser(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
+        <description><p>Executes the specified executable or batch file, using the (normally non-elevated) credentials of the user that started Setup initially. See <link topic="isxfunc_Exec">Exec</link> and the [Run] section flag <tt>runasoriginaluser</tt> for more information.</p></description>
+        <remarks><p>This function is not supported at uninstall time.</p>
+<p>In very unusual failure cases (e.g. if the initial Setup process died unexpectedly), it is possible for this function to raise an exception instead of just returning False.</p></remarks>
+      </function>
+      <function>
+        <name>ShellExec</name>
+        <prototype>function ShellExec(const Verb, Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ErrorCode: Integer): Boolean;</prototype>
+        <description><p>Opens the specified file or performs another action specified by Verb, using the same credentials as Setup/Uninstall. The filename can be an executable file, a document file, a folder, or a URL. Verb may be an empty string, in which case the default verb for the file type is used (usually "open"). The Wait parameter specifies whether the function should return immediately or wait until the launched process has termimated or is idle. Returns True if the specified file was opened successfully, False otherwise. If False is returned then ErrorCode specifies the error that occurred. Use SysErrorMessage(ErrorCode) to get a description of the error.</p></description>
+        <remarks><p>TExecWait is defined as:</p>
+<p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
+<p>Note that passing a Wait value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p></remarks>
+        <example><pre>var
+  ErrorCode: Integer;
+begin
+  if not ShellExec('', ExpandConstant('{app}\filename.rtf'),
+     '', '', SW_SHOW, ewNoWait, ErrorCode) then
+  begin
+    // handle failure if necessary
+  end;
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_ShellExecAsOriginalUser">ShellExecAsOriginalUser</link></p></seealso>
+      </function>
+      <function>
+        <name>ShellExecAsOriginalUser</name>
+        <prototype>function ShellExecAsOriginalUser(const Verb, Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ErrorCode: Integer): Boolean;</prototype>
+        <description><p>Opens the specified file or performs another action specified by Verb, using the (normally non-elevated) credentials of the user that started Setup initially. See <link topic="isxfunc_ShellExec">ShellExec</link> and the [Run] section flag <tt>runasoriginaluser</tt> for more information.</p></description>
+        <remarks><p>This function is not supported at uninstall time.</p>
+<p>In very unusual failure cases (e.g. if the initial Setup process died unexpectedly), it is possible for this function to raise an exception instead of just returning False.</p></remarks>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>RenameFile</name>
+        <prototype>function RenameFile(const OldName, NewName: string): Boolean;</prototype>
+        <description><p>Attempts to change the name of the file or directory specified by OldFile to NewFile. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
+      </function>
+      <function>
+        <name>FileCopy</name>
+        <prototype>function FileCopy(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;</prototype>
+        <description><p>Copies ExistingFile to NewFile, preserving time stamp and file attributes.<br />If FailIfExists is True it will fail if NewFile already exists, otherwise it will overwrite it.<br />Returns True if successful, False otherwise.</p></description>
+      </function>
+      <function>
+        <name>DeleteFile</name>
+        <prototype>function DeleteFile(const FileName: string): Boolean;</prototype>
+        <description><p>Erases the file named by FileName from the disk.<br />If the file cannot be deleted or does not exist, the function returns False.</p></description>
+      </function>
+      <function>
+        <name>DelayDeleteFile</name>
+        <prototype>procedure DelayDeleteFile(const Filename: String; const Tries: Integer);</prototype>
+        <description><p>Attempts to delete Filename, retrying up to Tries times if the file is in use. It delays 250 msec between tries.</p></description>
+      </function>
+      <function>
+        <name>SetNTFSCompression</name>
+        <prototype>function SetNTFSCompression(const FileOrDir: String; Compress: Boolean): Boolean;</prototype>
+        <description><p>Changes the NTFS compression state of a file or directory. Returns True if successful.</p></description>
+        <remarks><p>If a directory is specified, the compression state of any files present in the directory will not be changed.</p></remarks>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>LoadStringFromFile</name>
+        <prototype>function LoadStringFromFile(const FileName: String; var S: AnsiString): Boolean;</prototype>
+        <description><p>Loads the specified binary or non Unicode text file into the specified string. Returns True if successful, False otherwise.</p></description>
+      </function>
+      <function>
+        <name>LoadStringsFromFile</name>
+        <prototype>function LoadStringsFromFile(const FileName: String; var S: TArrayOfString): Boolean;</prototype>
+        <description><p>Loads the specified text file into the specified string array. Returns True if successful, False otherwise.</p></description>
+      </function>
+      <function>
+        <name>SaveStringToFile</name>
+        <prototype>function SaveStringToFile(const FileName: String; const S: AnsiString; const Append: Boolean): Boolean;</prototype>
+        <description><p>Saves the specified string to the specified file. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>This function does not automatically write a line break before or after the string. If Append is True and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters before and after your string:</p>
+<p><tt>SaveStringToFile('c:\filename.txt', #13#10 + 'the string' + #13#10, True);</tt></p></remarks>
+      </function>
+      <function>
+        <name>SaveStringsToFile</name>
+        <prototype>function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
+        <description><p>Saves the specified string array to the specified file with ASCII encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>Also see <tt>SaveStringsToUTF8File</tt>.</p></remarks>
+      </function>
+      <function>
+        <name>SaveStringsToUTF8File</name>
+        <prototype>function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
+        <description><p>Saves the specified string array to the specified file with UTF8 encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>CreateDir</name>
+        <prototype>function CreateDir(const Dir: string): Boolean;</prototype>
+        <description><p>Creates a new directory. The return value is True if a new directory was successfully created, or False if an error occurred.</p></description>
+      </function>
+      <function>
+        <name>ForceDirectories</name>
+        <prototype>function ForceDirectories(Dir: string): Boolean;</prototype>
+        <description><p>Creates all the directories along the specified directory path all at once. If the first directories in the path do exist, but the latter ones don't, ForceDirectories creates just the ones that don't exist. Returns True if successful, False otherwise.</p></description>
+      </function>
+      <function>
+        <name>RemoveDir</name>
+        <prototype>function RemoveDir(const Dir: string): Boolean;</prototype>
+        <description><p>Deletes an existing empty directory. The return value is True if a new directory was successfully deleted, or False if an error occurred.</p></description>
+      </function>
+      <function>
+        <name>DelTree</name>
+        <prototype>function DelTree(const Path: String; const IsDir, DeleteFiles, DeleteSubdirsAlso: Boolean): Boolean;</prototype>
+        <description><p>Deletes the specified directory if IsDir is set to True, or files/directories matching a wildcard if IsDir is set to False. Returns True if it was able to successfully remove everything.</p>
+<p>If DeleteFiles is set to True, files inside the specified directory will be deleted if IsDir is True, or files matching the specified wildcard (including those with hidden, system, and read-only attributes) will be deleted if IsDir is False.</p>
+<p>If DeleteFiles and DeleteSubdirsAlso are both set to True, subdirectories (and their contents) will be deleted in addition to files.</p></description>
+        <remarks><p>This function will remove directories that are reparse points, but it will not recursively delete files/directories inside them.</p></remarks>
+        <example><pre>begin
+  // Delete the directory C:\Test and everything inside it
+  DelTree('C:\Test', True, True, True);
+
+  // Delete files matching C:\Test\*.tmp
+  DelTree('C:\Test\*.tmp', False, True, False);
+
+  // Delete all files and directories inside C:\Test
+  // but leave the directory itself
+  DelTree('C:\Test\*', False, True, True);
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>CreateShellLink</name>
+        <prototype>function CreateShellLink(const Filename, Description, ShortcutTo, Parameters, WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer): String;</prototype>
+        <description><p>Creates a shortcut to a file or folder. Returns the resulting filename of the link, which may differ from <tt>Filename</tt> if it ended up creating a .pif file instead of a .lnk file. On failure, an exception will be raised.</p>
+<p><b>Parameters:</b><br />
+<i>Filename</i><br />Filename of the shortcut file to be created. This should be the full path and must end with ".lnk".<br />
+<i>Description</i><br />Description of the link. This will be displayed on Windows 2000/XP and other supporting OS when the user hovers the mouse over the file or shows the properties.<br />
+<i>ShortcutTo</i><br />Target file for the shortcut. This must be the full path to the file. Double quotation marks to surround the path will be added automatically.<br />
+<i>Parameters</i><br />Parameters to pass to the target file of the shortcut. Parameters which may include spaces should have double quote marks surrounding them. e.g. <tt>ExpandConstant('"{app}\foo"')</tt><br />
+<i>WorkingDir</i><br />Working directory for the target file. This should be set to an absolute directory.<br />
+<i>IconFilename</i><br />Path to file to supply the icon. If this is left as the empty string then the system default icon for the target file will be used.<br />
+<i>IconIndex</i><br />Zero-based index of the icon.<br />
+<i>ShowCmd</i><br />One of the SW_* constants</p></description>
+        <remarks><p>You will most likely want to remove this shortcut on uninstall. Do this by adding an entry to the <tt>UninstallDelete</tt> section.</p></remarks>
+        <example><pre>CreateShellLink(
+  ExpandConstant('{app}\config\Open licence database.lnk'),
+  'Opens the licence database in SQLite',
+  ExpandConstant('{app}\config\sqlite.exe'),
+  ExpandConstant('"{app}\config\licences.db"'),
+  ExpandConstant('{app}\config'),
+  '',
+  0,
+  SW_SHOWNORMAL);</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>RegisterServer</name>
+        <prototype>procedure RegisterServer(const Is64Bit: Boolean; const Filename: String; const FailCriticalErrors: Boolean);</prototype>
+        <description><p>Registers the DLL/OCX with the specified filename. If Is64Bit is True, the DLL/OCX will be loaded as a 64-bit image and registered in a 64-bit process. If FailCriticalErrors is True, the system will not display any critical-error-handler message boxes. Raises an exception if not successful.</p></description>
+        <example><pre>begin
+  // Register hhctrl.ocx located in the System directory.
+  RegisterServer(Is64BitInstallMode, ExpandConstant('{sys}\hhctrl.ocx'), False);
+end;</pre>
+<p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit OCX in the 64-bit System directory when Setup is running in 64-bit mode. Otherwise, it will register the 32-bit OCX in the 32-bit System directory.</p></example>
+      </function>
+      <function>
+        <name>UnregisterServer</name>
+        <prototype>function UnregisterServer(const Is64Bit: Boolean; const Filename: String; const FailCriticalErrors: Boolean): Boolean;</prototype>
+        <description><p>Unregisters the DLL/OCX with the specified filename. If Is64Bit is True, the DLL/OCX will be loaded as a 64-bit image and unregistered in a 64-bit process. If FailCriticalErrors is True, the system will not display any critical-error-handler message boxes. Returns True if successful, False otherwise.</p></description>
+      </function>
+      <function>
+        <name>RegisterTypeLibrary</name>
+        <prototype>procedure RegisterTypeLibrary(const Is64Bit: Boolean; const Filename: String);</prototype>
+        <description><p>Registers the type library with the specified filename. If Is64Bit is True, the type library will be registered in a 64-bit process. Raises an exception if not successful.</p></description>
+        <example><pre>begin
+  // Register stdole2.tlb located in the System directory.
+  RegisterTypeLibrary(Is64BitInstallMode, ExpandConstant('{sys}\stdole2.tlb'));
+end;</pre>
+<p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit type library in the 64-bit System directory when Setup is running in 64-bit mode. Otherwise, it will register the 32-bit type library in the 32-bit System directory.</p></example>
+      </function>
+      <function>
+        <name>UnregisterTypeLibrary</name>
+        <prototype>function UnregisterTypeLibrary(const Is64Bit: Boolean; const Filename: String): Boolean</prototype>
+        <description><p>Unregisters the type library with the specified filename. If Is64Bit is True, the type library will be unregistered in a 64-bit process. Returns True if successful, False otherwise.</p></description>
+      </function>
+      <function>
+        <name>IncrementSharedCount</name>
+        <prototype>procedure IncrementSharedCount(const Is64Bit: Boolean; const Filename: String; const AlreadyExisted: Boolean);</prototype>
+        <description><p>Increments or initializes the reference count for the specified file in the following registry key:</p>
+<p>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs</p>
+<p>64-bit versions of Windows have two separate SharedDLLs keys, one for 64-bit files and one for 32-bit files. If Is64Bit is True, the 64-bit SharedDLLs key will be updated, otherwise the 32-bit SharedDLLs key will be updated. The setting of this parameter should correspond to the bitness of the file; for example, if it is a 32-bit DLL located in the 32-bit System directory, you should specify False. You may also specify <tt>Is64BitInstallMode</tt> in which case it will use the current install mode to determine which key to open.</p>
+<p>Pass True in the AlreadyExisted parameter if the file already exists; in this case the initial reference count for the file will be 2 if the value for the file doesn't already exist in the registry. (This behavior is in line with Microsoft's requirements.)</p>
+<p>An exception will be raised if the registry key cannot be opened for write access.</p></description>
+      </function>
+      <function>
+        <name>DecrementSharedCount</name>
+        <prototype>function DecrementSharedCount(const Is64Bit: Boolean; const Filename: String): Boolean;</prototype>
+        <description><p>Decrements the reference count for the specified file in the following registry key:</p>
+<p>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs</p>
+<p>64-bit versions of Windows have two separate SharedDLLs keys, one for 64-bit files and one for 32-bit files. If Is64Bit is True, the 64-bit SharedDLLs key will be updated, otherwise the 32-bit SharedDLLs key will be updated. The setting of this parameter should correspond to the bitness of the file; for example, if it is a 32-bit DLL located in the 32-bit System directory, you should specify False. You may also specify <tt>Is64BitInstallMode</tt> in which case it will use the current install mode to determine which key to open.</p>
+<p>Returns True if the count reached zero (meaning it's OK to delete the file). Returns False if the new count is greater than zero, or if the value for the file doesn't exist or is in an unrecognizable format.</p>
+<p>An exception will be raised if the registry key cannot be opened for write access.</p></description>
+      </function>
+      <function>
+        <name>RestartReplace</name>
+        <prototype>procedure RestartReplace(const TempFile, DestFile: String);</prototype>
+        <description><p>Renames TempFile to DestFile the next time Windows is started. If DestFile already existed, it will be overwritten. If DestFile is '' then TempFile will be deleted. An exception will be raised upon failure.</p></description>
+      </function>
+      <function>
+        <name>UnregisterFont</name>
+        <prototype>procedure UnregisterFont(const FontName, FontFilename: String);</prototype>
+        <description><p>Unregisters the font with the specified face and filename.</p></description>
+      </function>
+      <function>
+        <name>ModifyPifFile</name>
+        <prototype>function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;</prototype>
+        <description><p>Changes the "Close on exit" setting of a .pif file. Returns True if it was able to make the change.</p></description>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>Registry</p></description>
+    <subcategory>
+      <function>
+        <name>RegKeyExists</name>
+        <prototype>function RegKeyExists(const RootKey: Integer; const SubKeyName: String): Boolean;</prototype>
+        <description><p>Returns True if the specified registry key exists.</p></description>
+        <example><pre>begin
+  if RegKeyExists(HKEY_CURRENT_USER, 'Software\Jordan Russell\Inno Setup') then
+  begin
+    // The key exists
+  end;
+end;</pre></example>
+      </function>
+      <function>
+        <name>RegValueExists</name>
+        <prototype>function RegValueExists(const RootKey: Integer; const SubKeyName, ValueName: String): Boolean;</prototype>
+        <description><p>Returns True if the specified registry key and value exist.</p></description>
+        <example><pre>begin
+  if RegValueExists(HKEY_CURRENT_USER, 'Console', 'WindowSize') then
+  begin
+    // The value exists
+  end;
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>RegGetSubkeyNames</name>
+        <prototype>function RegGetSubkeyNames(const RootKey: Integer; const SubKeyName: String; var Names: TArrayOfString): Boolean;</prototype>
+        <description><p>Opens the specified registry key and reads the names of its subkeys into the specified string array Names. Returns True if successful, False otherwise.</p></description>
+        <example><pre>var
+  Names: TArrayOfString;
+  I: Integer;
+  S: String;
+begin
+  if RegGetSubkeyNames(HKEY_CURRENT_USER, 'Control Panel', Names) then
+  begin
+    S := '';
+    for I := 0 to GetArrayLength(Names)-1 do
+      S := S + Names[I] + #13#10;
+    MsgBox('List of subkeys:'#13#10#13#10 + S, mbInformation, MB_OK);
+  end else
+  begin
+    // add any code to handle failure here
+  end;
+end;</pre></example>
+      </function>
+      <function>
+        <name>RegGetValueNames</name>
+        <prototype>function RegGetValueNames(const RootKey: Integer; const SubKeyName: String; var Names: TArrayOfString): Boolean;</prototype>
+        <description><p>Opens the specified registry key and reads the names of its values into the specified string array Names. Returns True if successful, False otherwise.</p></description>
+        <example><pre>var
+  Names: TArrayOfString;
+  I: Integer;
+  S: String;
+begin
+  if RegGetValueNames(HKEY_CURRENT_USER, 'Control Panel\Mouse', Names) then
+  begin
+    S := '';
+    for I := 0 to GetArrayLength(Names)-1 do
+      S := S + Names[I] + #13#10;
+    MsgBox('List of values:'#13#10#13#10 + S, mbInformation, MB_OK);
+  end else
+  begin
+    // add any code to handle failure here
+  end;
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>RegQueryStringValue</name>
+        <prototype>function RegQueryStringValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;</prototype>
+        <description><p>Queries the specified REG_SZ- or REG_EXPAND_SZ-type value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
+        <example><pre>var
+  Country: String;
+begin
+  if RegQueryStringValue(HKEY_CURRENT_USER, 'Control Panel\International',
+     'sCountry', Country) then
+  begin
+    // Successfully read the value
+    MsgBox('Your country: ' + Country, mbInformation, MB_OK);
+  end;
+end;</pre></example>
+      </function>
+      <function>
+        <name>RegQueryMultiStringValue</name>
+        <prototype>function RegQueryMultiStringValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;</prototype>
+        <description><p>Queries the specified REG_MULTI_SZ-type registry value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
+        <remarks><p>In a REG_MULTI_SZ-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
+      </function>
+      <function>
+        <name>RegQueryDWordValue</name>
+        <prototype>function RegQueryDWordValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultDWord: Cardinal): Boolean;</prototype>
+        <description><p>Queries the specified REG_DWORD-type registry value, and returns the data in ResultDWord. Returns True if successful. When False is returned, ResultDWord is unmodified.</p></description>
+        <example><pre>var
+  HistoryBufferSize: Cardinal;
+begin
+  if RegQueryDWordValue(HKEY_CURRENT_USER, 'Console',
+     'HistoryBufferSize', HistoryBufferSize) then
+  begin
+    // Successfully read the value
+    MsgBox('Console history buffer size: ' + IntToStr(HistoryBufferSize),
+      mbInformation, MB_OK);
+  end;
+end;</pre></example>
+      </function>
+      <function>
+        <name>RegQueryBinaryValue</name>
+        <prototype>function RegQueryBinaryValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultStr: AnsiString): Boolean;</prototype>
+        <description><p>Queries the specified REG_BINARY-type registry value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>RegWriteStringValue</name>
+        <prototype>function RegWriteStringValue(const RootKey: Integer; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
+        <description><p>Writes the specified REG_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>If the value already exists and is of type REG_EXPAND_SZ, the new value will also be of type REG_EXPAND_SZ. Otherwise, a REG_SZ-type value will be created.</p></remarks>
+        <example><pre>begin
+  RegWriteStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+    'UserName', ExpandConstant('{sysuserinfoname}'));
+end;</pre></example>
+      </function>
+      <function>
+        <name>RegWriteExpandStringValue</name>
+        <prototype>function RegWriteExpandStringValue(const RootKey: Integer; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
+        <description><p>Writes the specified REG_EXPAND_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
+        <example><pre>begin
+  RegWriteStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+    'UserName', '%UserName%);
+end;</pre></example>
+      </function>
+      <function>
+        <name>RegWriteMultiStringValue</name>
+        <prototype>function RegWriteMultiStringValue(const RootKey: Integer; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
+        <description><p>Writes the specified REG_MULTI_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>In a REG_MULTI_SZ-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
+        <example><pre>begin
+  RegWriteMultiStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+    'MultiStringTest', 'String1' + #0 + 'String2' + #0 + 'String3');
+end;</pre></example>
+      </function>
+      <function>
+        <name>RegWriteDWordValue</name>
+        <prototype>function RegWriteDWordValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: Cardinal): Boolean;</prototype>
+        <description><p>Writes the specified REG_DWORD-type registry value. Returns True if successful, False otherwise.</p></description>
+        <example><pre>begin
+  RegWriteDWordValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+    'ShowToolbar', 1);
+end;</pre></example>
+      </function>
+      <function>
+        <name>RegWriteBinaryValue</name>
+        <prototype>function RegWriteBinaryValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: AnsiString): Boolean;</prototype>
+        <description><p>Writes the specified REG_BINARY-type registry value. Returns True if successful, False otherwise.</p></description>
+        <example><pre>begin
+  RegWriteBinaryValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+    'BinaryTest', 'Whatever' + #1#2#3#4);
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>RegDeleteKeyIncludingSubkeys</name>
+        <prototype>function RegDeleteKeyIncludingSubkeys(const RootKey: Integer; const SubkeyName: String): Boolean;</prototype>
+        <description><p>Deletes the specified key and all subkeys. Returns True if successful, False otherwise.</p></description>
+      </function>
+      <function>
+        <name>RegDeleteKeyIfEmpty</name>
+        <prototype>function RegDeleteKeyIfEmpty(const RootKey: Integer; const SubkeyName: String): Boolean;</prototype>
+        <description><p>Deletes the specified subkey if it has no subkeys or values. Returns True if successful, False otherwise.</p></description>
+      </function>
+      <function>
+        <name>RegDeleteValue</name>
+        <prototype>function RegDeleteValue(const RootKey: Integer; const SubKeyName, ValueName: String): Boolean;</prototype>
+        <description><p>Deletes the specified value. Returns True if successful, False otherwise.</p></description>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>INI File</p></description>
+    <subcategory>
+      <function>
+        <name>IniKeyExists</name>
+        <prototype>function IniKeyExists(const Section, Key, Filename: String): Boolean;</prototype>
+        <description><p>Returns True if the specified INI key exists.</p></description>
+      </function>
+      <function>
+        <name>IsIniSectionEmpty</name>
+        <prototype>function IsIniSectionEmpty(const Section, Filename: String): Boolean;</prototype>
+        <description><p>Returns True if the specified INI section is empty.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetIniBool</name>
+        <prototype>function GetIniBool(const Section, Key: String; const Default: Boolean; const Filename: String): Boolean</prototype>
+        <description><p>Reads a Boolean from an INI file.</p></description>
+      </function>
+      <function>
+        <name>GetIniInt</name>
+        <prototype>function GetIniInt(const Section, Key: String; const Default, Min, Max: Longint; const Filename: String): Longint;</prototype>
+        <description><p>Reads a Longint from an INI file. If the Longint read is not between Min/Max then it returns Default. If Min=Max then Min/Max are ignored.</p></description>
+      </function>
+      <function>
+        <name>GetIniString</name>
+        <prototype>function GetIniString(const Section, Key, Default, Filename: String): String;</prototype>
+        <description><p>Reads a String from an INI file.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>SetIniBool</name>
+        <prototype>function SetIniBool(const Section, Key: String; const Value: Boolean; const Filename: String): Boolean;</prototype>
+        <description><p>Writes a Boolean to an INI file.</p></description>
+      </function>
+      <function>
+        <name>SetIniInt</name>
+        <prototype>function SetIniInt(const Section, Key: String; const Value: Longint; const Filename: String): Boolean;</prototype>
+        <description><p>Writes a Longint to an INI file.</p></description>
+      </function>
+      <function>
+        <name>SetIniString</name>
+        <prototype>function SetIniString(const Section, Key, Value, Filename: String): Boolean;</prototype>
+        <description><p>Writes a string to an INI file.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>DeleteIniSection</name>
+        <prototype>procedure DeleteIniSection(const Section, Filename: String);</prototype>
+        <description><p>Deletes the specified section from an INI file.</p></description>
+      </function>
+      <function>
+        <name>DeleteIniEntry</name>
+        <prototype>procedure DeleteIniEntry(const Section, Key, Filename: String);</prototype>
+        <description><p>Deletes the specified key from an INI file.</p></description>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>Custom Setup Wizard Page</p></description>
+    <subcategory>
+      <function>
+        <name>CreateInputQueryPage</name>
+        <prototype>function CreateInputQueryPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputQueryWizardPage;</prototype>
+        <description><p>Creates a wizard page containing edit boxes.</p></description>
+        <remarks><p>To create edit boxes on the page, call the Add method. Use the Values property to get/set the text of the edit boxes.</p></remarks>
+        <example><pre>var
+  Page: TInputQueryWizardPage;
+  UserName, UserCompany: String;
+
+...
+
+// Create the page
+Page := CreateInputQueryPage(wpWelcome,
+  'Personal Information', 'Who are you?',
+  'Please specify your name and the company for whom you work, then click Next.');
+
+// Add items (False means it's not a password edit)
+Page.Add('Name:', False);
+Page.Add('Company:', False);
+
+// Set initial values (optional)
+Page.Values[0] := ExpandConstant('{sysuserinfoname}');
+Page.Values[1] := ExpandConstant('{sysuserinfoorg}');
+
+...
+
+// Read values into variables
+UserName := Page.Values[0];
+UserCompany := Page.Values[1];
+</pre></example>
+      </function>
+      <function>
+        <name>CreateInputOptionPage</name>
+        <prototype>function CreateInputOptionPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; Exclusive, ListBox: Boolean): TInputOptionWizardPage;</prototype>
+        <description><p>Creates a wizard page containing check boxes or radio buttons.</p>
+<p>If Exclusive is True, radio buttons are displayed instead of check boxes, and only one item in the list may be selected at a time. If ListBox is True, the check boxes or radio buttons are placed inside a scrollable list box.</p></description>
+        <remarks><p>To create check boxes / radio buttons on the page, call the Add method. Use the Values property to get/set the checked state of items. On pages created with Exclusive=True, you can get/set the index of the one selected item via the SelectedValueIndex property.</p></remarks>
+        <example><pre>var
+  Page: TInputOptionWizardPage;
+  IsRegisteredUser: Boolean;
+
+...
+
+// Create the page
+Page := CreateInputOptionPage(wpWelcome,
+  'License Information', 'Are you a registered user?',
+  'If you are a registered user, please check the box below, then click Next.',
+  False, False);
+
+// Add items
+Page.Add('I am a registered user');
+
+// Set initial values (optional)
+Page.Values[0] := False;
+
+...
+
+// Read values into variables
+IsRegisteredUser := Page.Values[0];
+</pre></example>
+      </function>
+      <function>
+        <name>CreateInputDirPage</name>
+        <prototype>function CreateInputDirPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; AAppendDir: Boolean; ANewFolderName: String): TInputDirWizardPage;</prototype>
+        <description><p>Creates a wizard page that contains edit boxes and Browse buttons for selecting directories. If AAppendDir is True, the value of ANewFolderName will be appended onto any folder name the user clicks. If AAppendDir is False and ANewFolderName is not empty, a Make New Folder button will be shown that creates a new folder with the specified default name.</p></description>
+        <remarks><p>To create directory selection boxes on the page, call the Add method. Use the Values property to get/set the items' values.</p></remarks>
+        <example><pre>var
+  Page: TInputDirWizardPage;
+  DataDir: String;
+
+...
+
+// Create the page
+Page := CreateInputDirPage(wpWelcome,
+  'Select Personal Data Location', 'Where should personal data files be stored?',
+  'Personal data files will be stored in the following folder.'#13#10#13#10 +
+  'To continue, click Next. If you would like to select a different folder, click Browse.',
+  False, 'New Folder');
+
+// Add item (with an empty caption)
+Page.Add('');
+
+// Set initial value (optional)
+Page.Values[0] := ExpandConstant('{userappdata}\My Company\My Program');
+
+...
+
+// Read value into variable
+DataDir := Page.Values[0];
+</pre></example>
+      </function>
+      <function>
+        <name>CreateInputFilePage</name>
+        <prototype>function CreateInputFilePage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputFileWizardPage;</prototype>
+        <description><p>Creates a wizard page that contains edit boxes and Browse buttons for selecting files.</p></description>
+        <remarks><p>To create file selection boxes on the page, call the Add method. Use the Values property to get/set the items' values.</p>
+<p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+        <example><pre>var
+  Page: TInputFileWizardPage;
+  NotepadLocation: String;
+
+...
+
+// Create the page
+Page := CreateInputFilePage(wpWelcome,
+  'Select Notepad Location', 'Where is Notepad located?',
+  'Select where Notepad is located, then click Next.');
+
+// Add item
+Page.Add('Location of notepad.exe:',         // caption
+  'Executable files|*.exe|All files|*.*',    // filters
+  '.exe');                                   // default extension
+
+// Set initial value (optional)
+Page.Values[0] := ExpandConstant('{win}\notepad.exe');
+
+...
+
+// Read value into variable
+NotepadLocation := Page.Values[0];
+</pre></example>
+      </function>
+      <function>
+        <name>CreateOutputMsgPage</name>
+        <prototype>function CreateOutputMsgPage(const AfterID: Integer; const ACaption, ADescription, AMsg: String): TOutputMsgWizardPage;</prototype>
+        <description><p>Creates a wizard page containing only static text. The AMsg parameter specifies the text to display.</p></description>
+        <example><pre>var
+  Page: TOutputMsgWizardPage;
+
+...
+
+// Create the page
+Page := CreateOutputMsgPage(wpWelcome,
+  'Information', 'Please read the following important information before continuing.',
+  'Blah blah blah.');
+</pre></example>
+      </function>
+      <function>
+        <name>CreateOutputMsgMemoPage</name>
+        <prototype>function CreateOutputMsgMemoPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; const AMsg: AnsiString): TOutputMsgMemoWizardPage;</prototype>
+        <description><p>Creates a wizard page containing static text as well as a read-only, multi-line edit control, capable of displaying RTF text. The ASubCaption parameter specifies the static text to display. AMsg specifies the text to assign to the edit control.</p></description>
+        <example><pre>var
+  Page: TOutputMsgMemoWizardPage;
+
+...
+
+// Create the page
+Page := CreateOutputMsgMemoPage(wpWelcome,
+  'Information', 'Please read the following important information before continuing.',
+  'When you are ready to continue with Setup, click Next.',
+  'Blah blah blah.');
+</pre></example>
+      </function>
+      <function>
+        <name>CreateOutputProgressPage</name>
+        <prototype>function CreateOutputProgressPage(const ACaption, ADescription: String): TOutputProgressWizardPage;</prototype>
+        <description><p>Creates a wizard page containing static text as well as a progress bar (which is hidden by default).</p>
+<p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
+        <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
+<p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDlg.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
+<p>To set the text on the page, call the <tt>SetText</tt> method. <tt>SetText</tt> takes two string parameters: use the first to tell the user what you're doing, and the second to display a file or directory name. Either parameter may be blank.</p>
+<p>To display or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.
+</p></remarks>
+        <example><p>See <i>CodeDlg.iss</i> for an example.</p></example>
+      </function>
+      <function>
+        <name>CreateCustomPage</name>
+        <prototype>function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;</prototype>
+        <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their Parent properties to the Surface property of the TWizardPage instance returned by this function).</p></description>
+        <example><p>See <i>CodeClasses.iss</i> for an example.</p></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>CreateCustomForm</name>
+        <prototype>function CreateCustomForm: TSetupForm;</prototype>
+        <description><p>Creates a form. The form is empty by default; you have to create your own controls afterward and place them on the form (by setting their Parent properties to the TSetupForm instance returned by this function).</p></description>
+        <remarks><p>You should call this function instead of creating TForm or TSetupForm instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
+<p>The <tt>[LangOptions]</tt> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p></remarks>
+        <example><p>See <i>CodeClasses.iss</i> for an example.</p></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>PageFromID</name>
+        <prototype>function PageFromID(const ID: Integer): TWizardPage;</prototype>
+        <description><p>Given a page ID, returns a TWizardPage instance. Call this if, for example, you need to get at the surface of a page and only know its ID.</p>
+<p>An exception will be raised if an invalid page ID is specified.</p></description>
+        <example><pre>var
+  Page: TWizardPage;
+begin
+  Page := PageFromID(wpWelcome);
+  Page.Surface.Color := clBlue;
+end;</pre></example>
+      </function>
+      <function>
+        <name>PageIndexFromID</name>
+        <prototype>function PageIndexFromID(const ID: Integer): Integer;</prototype>
+        <description><p>Given a page ID, returns an position index. Call this if, for example, you want to check whether a page is positioned before a certain other page.</p></description>
+        <example><pre>function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  Result := PageIndexFromID(PageID) &lt; PageIndexFromID(wpReady);
+end;</pre></example>
+      </function>
+      <function>
+        <name>ScaleX</name>
+        <prototype>function ScaleX(X: Integer): Integer;</prototype>
+        <description><p>Takes an X coordinate or width and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in Small Fonts (96 dpi), then X is returned unchanged.</p></description>
+      </function>
+      <function>
+        <name>ScaleY</name>
+        <prototype>function ScaleY(Y: Integer): Integer;</prototype>
+        <description><p>Takes a Y coordinate or height and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in Small Fonts (96 dpi), then Y is returned unchanged.</p></description>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>Dialog</p></description>
+    <subcategory>
+      <function>
+        <name>MsgBox</name>
+        <prototype>function MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;</prototype>
+        <description><p>Displays a message box. <tt>Text</tt> specifies the message to display. <tt>Typ</tt> specifies which icon to use in the message box. <tt>Buttons</tt> specifies which buttons to include in the message box. Returns an ID* constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
+        <remarks><p>TMsgBoxType is defined as:</p>
+<p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p></remarks>
+        <example><pre>begin
+  // Display a simple message box with an OK button
+  MsgBox('Hello.', mbInformation, MB_OK);
+
+  // Ask the user a Yes/No question
+  if MsgBox('Are you sure?', mbConfirmation, MB_YESNO) = IDYES then
+  begin
+    // user clicked Yes
+  end;
+
+  // Ask the user a Yes/No question, defaulting to No
+  if MsgBox('Are you sure?', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
+  begin
+    // user clicked Yes
+  end;
+end;</pre></example>
+      </function>
+      <function>
+        <name>SuppressibleMsgBox</name>
+        <prototype>function SuppressibleMsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons, Default: Integer): Integer;</prototype>
+        <description><p>Displays a suppressible message box. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, SuppressibleMsgBox acts the same as the regular <link topic="isxfunc_MsgBox">MsgBox</link>.</p></description>
+      </function>
+      <function>
+        <name>GetOpenFileName</name>
+        <prototype>function GetOpenFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
+        <description><p>Displays a dialog box that enables the user to select an existing file. Returns True if the user selected a file, False otherwise. The name of the selected file is returned in the FileName string.</p></description>
+        <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+        <example><pre>var
+  Filename: String;
+begin
+  // Set the initial filename
+  Filename := '';
+  if GetOpenFileName('', Filename, '',
+     'Text Documents (*.txt)|*.txt|All Files|*.*', 'txt') then
+  begin
+    // Successful; user clicked OK
+    // Filename contains the selected filename
+  end;
+end;</pre></example>
+      </function>
+      <function>
+        <name>GetSaveFileName</name>
+        <prototype>function GetSaveFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
+        <description><p>Displays a dialog box that enables the user to select a new file. Returns True if the user selected a file, False otherwise. The name of the selected file is returned in the FileName string.</p></description>
+        <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+        <example><pre>var
+  Filename: String;
+begin
+  // Set the initial filename
+  Filename := '';
+  if GetSaveFileName('', Filename, '',
+     'Text Documents (*.txt)|*.txt|All Files|*.*', 'txt') then
+  begin
+    // Successful; user clicked OK
+    // Filename contains the selected filename
+  end;
+end;</pre></example>
+      </function>
+      <function>
+        <name>BrowseForFolder</name>
+        <prototype>function BrowseForFolder(const Prompt: String; var Directory: String; const NewFolderButton: Boolean): Boolean;</prototype>
+        <description><p>Displays a dialog box that enables the user to select a directory. The current value of Directory is used as the initially selected directory. If NewFolderButton is True, a <i>New Folder</i> button will be shown, allowing the user to create new folders. Returns True if the user selected a directory and clicked OK, False otherwise. The selected directory is returned in the Directory string.</p></description>
+        <remarks><p>On Windows versions prior to XP, passing False in the NewFolderButton parameter has no effect; the New Folder button will always be shown. This is a Windows limitation.</p></remarks>
+      </function>
+      <function>
+        <name>ExitSetupMsgBox</name>
+        <prototype>function ExitSetupMsgBox: Boolean;</prototype>
+        <description><p>Displays the "Exit Setup?" message box, and returns True if the user selects Yes. Does not terminate Setup or Uninstall.</p></description>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>COM Automation objects support</p></description>
+    <subcategory>
+      <function>
+        <name>CreateOleObject</name>
+        <prototype>function CreateOleObject(const ClassName: string): Variant;</prototype>
+        <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+      </function>
+      <function>
+        <name>GetActiveOleObject</name>
+        <prototype>function GetActiveOleObject(const ClassName: string): Variant;</prototype>
+        <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+      </function>
+      <function>
+        <name>IDispatchInvoke</name>
+        <prototype>function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of variant): variant;</prototype>
+        <description><p>Use <tt>IDispatchInvoke</tt> to access a COM Automation property or method whose name is a reserved word. Also see the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+        <example><pre>var
+  AObject: Variant;
+  AType: String;
+begin
+  AObject := CreateOleObject('MyObject');
+  // Set a property named 'Type'
+  // Cannot use "AObject.Type := 'MyType';" because Type is a reserved word
+  IDispatchInvoke(AObject, True, 'Type', ['MyType']);
+  // Get a property or call a method named 'Type'
+  AType := IDispatchInvoke(AObject, False, 'Type', ['']);
+end;</pre></example>
+      </function>
+      <function>
+        <name>CreateComObject</name>
+        <prototype>function CreateComObject(const ClassID: TGUID): IUnknown;</prototype>
+        <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+      </function>
+      <function>
+        <name>StringToGUID</name>
+        <prototype>function StringToGUID(const S: String): TGUID;</prototype>
+        <description><p>StringToGUID converts the string representation of a GUID into a 'real' GUID. An exception will be raised upon failure. Also see the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+      </function>
+      <function>
+        <name>OleCheck</name>
+        <prototype>procedure OleCheck(Result: HResult);</prototype>
+        <description><p>Use OleCheck to wrap any IUnknown based COM methods you call, so that if that method fails, an exception will be raised. Also see the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+      </function>
+      <function>
+        <name>CoFreeUnusedLibraries</name>
+        <prototype>procedure CoFreeUnusedLibraries;</prototype>
+        <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>Setup Logging</p></description>
+    <subcategory>
+      <function>
+        <name>Log</name>
+        <prototype>procedure Log(const S: String);</prototype>
+        <description><p>Logs the specified string in Setup's log file.</p></description>
+        <remarks><p>Calls to this function are ignored if logging is not enabled via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive.</p></remarks>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>Other</p></description>
+    <subcategory>
+      <function>
+        <name>Sleep</name>
+        <prototype>procedure Sleep(const Milliseconds: LongInt);</prototype>
+        <description><p>Suspends the execution of Setup or Uninstall for a specified interval.</p></description>
+      </function>
+      <function>
+        <name>Random</name>
+        <prototype>function Random(const Range: Integer): Integer;</prototype>
+        <description><p>Returns a random number within the range 0 &lt;= X &lt; Range.</p></description>
+      </function>
+      <function>
+        <name>Beep</name>
+        <prototype>procedure Beep;</prototype>
+        <description><p>Beeps.</p></description>
+        <example><pre>Beep; //Beeps</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>BringToFrontAndRestore</name>
+        <prototype>procedure BringToFrontAndRestore;</prototype>
+        <description><p>Makes sure that Setup or Uninstall is visible and the foreground window.</p></description>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>Deprecated</p></description>
+    <subcategory>
+      <function>
+        <name>LoadDLL</name>
+        <prototype>function LoadDLL(const DLLName: String; var ErrorCode: Integer): Longint;</prototype>
+        <description><p>Loads the specified DLL. Returns the DLL handle if the DLL was loaded successfully, zero otherwise. If zero is returned then ErrorCode specifies the error that occurred. Use SysErrorMessage(ErrorCode) to get a description of the error.</p></description>
+        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
+      </function>
+      <function>
+        <name>CallDLLProc</name>
+        <prototype>function CallDLLProc(const DLLHandle: Longint; const ProcName: String; const Param1, Param2: Longint; var Result: Longint): Boolean;</prototype>
+        <description><p>Calls the specified function in a DLL specified using the DLL handle returned by LoadDLL. Returns True is the procedure was called successfully, False otherwise.<br />The function must use the standard calling convention, accept two 4 byte integer parameters and return a 4 byte integer result.</p></description>
+        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
+      </function>
+      <function>
+        <name>FreeDLL</name>
+        <prototype>function FreeDLL(const DLLHandle: Longint): Boolean;</prototype>
+        <description><p>Unloads a DLL specified using the DLL handle returned by LoadDLL.</p></description>
+        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>CastStringToInteger</name>
+        <prototype>function CastStringToInteger(var S: String): Longint;</prototype>
+        <description><p>Casts a string to an integer so that a string can be passed to a DLL using CallDllProc.</p></description>
+        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
+      </function>
+      <function>
+        <name>CastIntegerToString</name>
+        <prototype>function CastIntegerToString(const L: Longint): String;</prototype>
+        <description><p>Casts an integer to a string so that a string can be received from a DLL using CallDllProc.</p></description>
+        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
+      </function>
+    </subcategory>
+  </category>
+</isxfunc>
+<isxenum>
+  <enum>
+     <description>CurStep values</description>
+     <values>ssInstall, ssPostInstall, ssDone</values>
+  </enum>
+  <enum>
+     <description>CurPage values</description>
+     <values>wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelectComponents, wpSelectProgramGroup, wpSelectTasks, wpReady, wpPreparing, wpInstalling, wpInfoAfter, wpFinished</values>
+  </enum>
+  <enum>
+     <description>TMsgBoxType</description>
+     <values>mbInformation, mbConfirmation, mbError, mbCriticalError</values>
+  </enum>
+  <enum>
+     <description>MsgBox - Buttons flags</description>
+     <values>MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL, MB_DEFBUTTON1, MB_DEFBUTTON2, MB_DEFBUTTON3, MB_SETFOREGROUND</values>
+  </enum>
+  <enum>
+     <description>MsgBox - return values</description>
+     <values>IDOK, IDCANCEL, IDABORT, IDRETRY, IDIGNORE, IDYES, IDNO</values>
+  </enum>
+  <enum>
+     <description>TGetShellFolderID</description>
+     <values>sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo, sfFonts, sfAppData, sfDocs, sfTemplates, sfFavorites, sfLocalAppData</values>
+  </enum>
+  <enum>
+     <description>Reg* - RootKey values (also see the <link topic="registrysection" window="main">[Registry]</link> section documentation)</description>
+     <values>HKEY_CLASSES_ROOT, HKEY_CLASSES_ROOT_32, HKEY_CLASSES_ROOT_64,<br />HKEY_CURRENT_USER, HKEY_CURRENT_USER_32, HKEY_CURRENT_USER_64,<br />HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, HKEY_LOCAL_MACHINE_64,<br />HKEY_USERS, HKEY_USERS_32, HKEY_USERS_64,<br />HKEY_PERFORMANCE_DATA,<br />HKEY_CURRENT_CONFIG, HKEY_CURRENT_CONFIG_32, HKEY_CURRENT_CONFIG_64,<br />HKEY_DYN_DATA,<br />HKCR, HKCR32, HKCR64, HKCU, HKCU32, HKCU64, HKLM, HKLM32, HKLM64, HKU, HKU32, HKU64, HKCC, HKCC32, HKCC64</values>
+  </enum>
+  <enum>
+     <description>TShouldProcessEntryResult</description>
+     <values>srNo, srYes, srUnknown</values>
+  </enum>
+  <enum>
+     <description>TSetupMessageID</description>
+     <values>Use 'msg' + the message name. Example: <i>SetupMessage(msgSetupAppTitle)</i></values>
+  </enum>
+  <enum>
+     <description>Exec and ShellExec - ShowCmd values</description>
+     <values>SW_SHOW, SW_SHOWNORMAL, SW_SHOWMAXIMIZED, SW_SHOWMINIMIZED, SW_SHOWMINNOACTIVE, SW_HIDE</values>
+  </enum>
+</isxenum>
+</isxhelp>
