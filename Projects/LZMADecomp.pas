@@ -2,13 +2,11 @@ unit LZMADecomp;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Interface to the "new" LZMA/LZMA2 SDK decompression OBJs in lzma2\Decoder
-
-  $jrsoftware: issrc/Projects/LZMADecomp.pas,v 1.3 2010/03/24 20:10:15 jr Exp $
 }
 
 interface
@@ -199,13 +197,13 @@ begin
     else
       LZMADecompInternalError(Format('DecodeToBuf failed (%d)', [Code]));
     end;
-    { This is how LzmaUtil.c checks for premature end-of-input:  }
-    if (InBytes = 0) and (OutBytes = 0) then begin
-       if (DecodeStatus <> LZMA_STATUS_FINISHED_WITH_MARK) then
-         LZMADecompDataError(4)
-       else if (AvailOut > 0) and (FAvailIn = 0) and FReachedEnd then { no change and no new data => corrupted file }
-         LZMADecompDataError(6);
-    end;
+    { No bytes in or out indicates corruption somewhere. Possibilities:
+      - The caller is asking for too many bytes.
+      - It needs more input but there isn't any left.
+      - It encountered an "end mark" previously and is now refusing to
+        process any further input. }
+    if (InBytes = 0) and (OutBytes = 0) then
+      LZMADecompDataError(4);
     Dec(AvailOut, OutBytes);
     Inc(NextOut, OutBytes);
     Dec(FAvailIn, InBytes);

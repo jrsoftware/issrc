@@ -1,0 +1,318 @@
+﻿; *** Inno Setup version 5.1.11+ Hindi messages ***
+; Mrunal Patel <mrunal.ru at gmail.com>
+;
+; To download user-contributed translations of this file, go to:
+;   http://www.jrsoftware.org/files/istrans/
+;
+; Note: When translating this text, do not add periods (.) to the end of
+; messages that didn't have them already, because on those messages Inno
+; Setup adds the periods automatically (appending a period would result in
+; two periods being displayed).
+
+[LangOptions]
+; The following three entries are very important. Be sure to read and 
+; understand the '[LangOptions] section' topic in the help file.
+LanguageName=<0939><093F><0902><0926><0940>
+LanguageID=$0439
+LanguageCodePage=0
+; If the language you are translating to requires special font faces or
+; sizes, uncomment any of the following entries and change them accordingly.
+;DialogFontName=
+;DialogFontSize=8
+;WelcomeFontName=Verdana
+;WelcomeFontSize=12
+;TitleFontName=Arial
+;TitleFontSize=29
+;CopyrightFontName=Arial
+;CopyrightFontSize=8
+
+[Messages]
+
+; *** Application titles
+SetupAppTitle=सेटअप
+SetupWindowTitle=सेटअप - %1
+UninstallAppTitle=अन-इनस्टॉल
+UninstallAppFullTitle=%1 अन-इनस्टॉल
+
+; *** Misc. common
+InformationTitle=सुचना
+ConfirmTitle=कन्फर्म
+ErrorTitle=गडबड
+
+; *** SetupLdr messages
+SetupLdrStartupMessage=इस से %1 इनस्टॉल होगा. क्या आप आगे बढ़ना चाहते है?
+LdrCannotCreateTemp=टेम्परेरी फ़ाइल नही बना पा रहा. सेटअप को बिच में ही रोकना पड़ा.
+LdrCannotExecTemp=टेम्परेरी फोल्डर में से फ़ाइल एक्जीक्यूट नही कर पाया. सेटअप को बिच में ही रोकना पड़ा.
+
+; *** Startup error messages
+LastErrorMessage=%1.%n%nError %2: %3
+SetupFileMissing=फ़ाइल %1 इनस्टॉल डिरेक्टरी में नही है. प्लीज़ या तो समस्या का निदान कीजिये या प्रोग्राम की नई कोपी लाइए.
+SetupFileCorrupt=सेटअप फाइल गडबड है. कृपया नई पोग्राम की कोपी लाइए.
+SetupFileCorruptOrWrongVer=सेटअप फाइल गडबड है या तो इन-कम्पेटिबल है. कृपया समस्या-निदान करे या पोग्राम की नई कोपी लाइए.
+NotOnThisPlatform=ये पोग्राम %1 पे नही चलेगा.
+OnlyOnThisPlatform=ये पोग्राम केवल %1 पे ही चलेगा.
+OnlyOnTheseArchitectures=ये प्रोग्राम केवल इन प्रोसेसर :%n%n%1 से अनुरूप विन्डोज़ प्लेटफॉर्म पे ही चलेगा.
+MissingWOW64APIs=आपका विंडो प्लेटफॉर्म 64-bit इनस्टॉल सपोर्ट नही करता. कृपया सर्विस पैक %1 इनस्टॉल करे.
+WinVersionTooLowError=ये प्रोग्राम चलने के लिए %1 वर्जन %2 या उस से लेटेस्ट चाहिए.
+WinVersionTooHighError=ये पोग्राम नही इनस्टॉल किया जा सकता %1 वर्जन %2 या लेटेस्ट पे.
+AdminPrivilegesRequired=आप एडमिनिस्ट्रेटर खाते से लोग-इन करे तो ही ये प्रोग्राम इनस्टॉल कर पाओगे.
+PowerUserPrivilegesRequired=आप एडमिनिस्ट्रेटर खाते या पावर-यूजर ग्रुप के खाते से लोग-इन करे तो ही ये प्रोग्राम इनस्टॉल कर पाओगे.
+SetupAppRunningError=सेटअप ने पकड़ा की %1 हाल चालू है..%n%n कृपया उसे बंध करे अभी, और बाद में आगे बढने वास्ते ओके या निकल जाने वास्ते केंसल पे क्लिक करे.
+UninstallAppRunningError=अन-इनस्टॉल को ये ज्ञात हुआ की %1 अभी चालू है.%n%n कृपया उसे बंध करे और फिर आगे बढने के लिए ओके या एक्जिट करने के लिए केंसल पे क्लिक करे.
+
+; *** Misc. errors
+ErrorCreatingDir=सेटअप "%1" डिरेक्टरी बनाने में विफल रहा
+ErrorTooManyFilesInDir="%1" डिरेक्टरी में फाइल बनाने में सेटअप विफल रहा क्योकि  वहा ढेर सारी फाइल मौजूद है.
+
+; *** Setup common messages
+ExitSetupTitle=सेटअप से बाहर निकले
+ExitSetupMessage=सेटअप पूर्ण नही हुआ, यदि आप अभी एक्जिट करोगे तो प्रोग्राम ढंग से इनस्टॉल नही होगा.%n%nआप किसी ओर वक्त फिर से इनस्टॉल कर सकते हो.%n%nक्या एक्जिट करे?
+AboutSetupMenuItem=सेटअप के बारे में...
+AboutSetupTitle=सेटअप के बारे में
+AboutSetupMessage=%1 आवृति %2%n%3%n%n%1 होमपेज:%n%4
+AboutSetupNote=
+TranslatorNote=
+
+; *** Buttons
+ButtonBack=< बेक
+ButtonNext=नेक्स्ट >
+ButtonInstall=इनस्टॉल
+ButtonOK=ओके
+ButtonCancel=केंसल
+ButtonYes=हाँ
+ButtonYesToAll=सभी के लिए हाँ
+ButtonNo=नही
+ButtonNoToAll=सभी के लिए नही
+ButtonFinish=फिनिश
+ButtonBrowse=ब्राउज़...
+ButtonWizardBrowse=ब्राउज़...
+ButtonNewFolder=नया फोल्डर बनाए
+
+; *** "Select Language" dialog messages
+SelectLanguageTitle=सेटअप की भाषा पसंद करे.
+SelectLanguageLabel=इंस्टॉलेशन के दरम्यान की भाषा पसंद करे:
+
+; *** Common wizard text
+ClickNext=आगे बढने के लिए नेक्स्ट दबाए, या एक्जिट करने वास्ते केंसल दबाए.
+BeveledLabel=
+BrowseDialogTitle=फोल्डर के लिए ब्राउज़ करे
+BrowseDialogLabel=नीचे की लिस्ट में से एक फोल्डर सिलेक्ट करके ओके दबाए.
+NewFolderName=नया फोल्डर
+
+; *** "Welcome" wizard page
+WelcomeLabel1=[name] सेटअप विजार्ड में आपका स्वागत है
+WelcomeLabel2=इस से [name/ver] आपके कम्पयूटर में इनस्टॉल होगा.%n%nये बहेतर होगा आगे बढने से पहेले आप अन्य सभी प्रोग्राम हाल तुरत के लिए बंध कर दे.
+
+; *** "Password" wizard page
+WizardPassword=पासवर्ड
+PasswordLabel1=ये इंस्टॉलेशन पासवर्ड से लोक है.
+PasswordLabel3=कृपया पासवर्ड दे और बाद में नेक्स्ट दबाए. पासवर्ड case-sensitive है.
+PasswordEditLabel=पासवर्ड:
+IncorrectPassword=आपका दिया पासवर्ड गलत है. कृपया फिर से कोशिश करे.
+
+; *** "License Agreement" wizard page
+WizardLicense=लायसन्स करार
+LicenseLabel=आगे बढने से पहेले ये महत्वपूर्ण सूचनाए पढे.
+LicenseLabel3=ये लायसन्स करार पढे. आगे बढने से पहेले आपको इसकी शर्तों को मानना ही होगा.
+LicenseAccepted=हाँ मुझे ये करारनामा कबूल है.
+LicenseNotAccepted=नही मुझे ये करारनामा कबूल नही है.
+
+; *** "Information" wizard pages
+WizardInfoBefore=सुचना
+InfoBeforeLabel=आगे बढने से पहेले ये महत्वपूर्ण सूचनाए पढे.
+InfoBeforeClickLabel=जब आप रेडी हो, नेक्स्ट बटन दबाए.
+WizardInfoAfter=सुचना
+InfoAfterLabel=आगे बढने से पहेले ये महत्वपूर्ण सूचनाए पढे.
+InfoAfterClickLabel=जब आप रेडी हो, नेक्स्ट बटन दबाए.
+
+; *** "User Information" wizard page
+WizardUserInfo=यूजर की जानकारी
+UserInfoDesc=कृपया आपकी जानकारी अंदर डाले.
+UserInfoName=यूजर का नाम:
+UserInfoOrg=संस्था:
+UserInfoSerial=सीरियल नम्बर:
+UserInfoNameRequired=आपको नाम तो डालना ही होगा.
+
+; *** "Select Destination Location" wizard page
+WizardSelectDir=लक्ष्य पथ सिलेक्ट करे
+SelectDirDesc=[name] को किधर इनस्टॉल करना है?
+SelectDirLabel3=सेटअप [name] को निम्नलिखित फोल्डर में डालेगा.
+SelectDirBrowseLabel=आगे बढने वास्ते नेक्स्ट दबाए. यदि अन्य फोल्डर सिलेक्ट करना है तो ब्राउज़ दबाए.
+DiskSpaceMBLabel=कमसेकम [mb] MB जितनी जगह तो चाहिए ही होगी.
+ToUNCPathname=सेटअप एक UNC pathname पे इनस्टॉल नही कर पाएगा. यदि आप एक नेटवर्क में इनस्टॉल करना चाहते हो आपको एक नेटवर्क ड्राइव को मेप करना होगा.
+InvalidPath=आपको ड्राइव लेटर के साथ पूर्ण पथ देना होगा उदाहरण:%n%nC:\APP%n%nor a UNC path in the form:%n%n\\server\share
+InvalidDrive=जो drive या UNC share आपने पसंद की है उसे हम एक्सेस नही कर पा रहे कृपया अन्य सिलेक्ट करे.
+DiskSpaceWarningTitle=जरूरी जगह नही है.
+DiskSpaceWarning=सेटअप कम से कम %1 KB जगह मंगता है, लेकिन चयनित ड्राइव में तो केवल %2 KB ही मौजूद है.%n%nक्या आप फिर भी आगे बढ़ना चाहते हो?
+DirNameTooLong=फोल्डर का नाम या पथ बहोत लंबा है.
+InvalidDirName=फोल्डर का नाम वेलिड नही है.
+BadDirName32=फोल्डर नाम में ये अक्षर नही इस्तेमाल कर सकते:%n%n%1
+DirExistsTitle=फोल्डर मौजूद है
+DirExists=फोल्डर:%n%n%1%n%nपहेले से ही मौजूद है, क्या आप फिर भी उसमे इनस्टॉल करना चाहते है?
+DirDoesntExistTitle=फोल्डर मौजूद नही है
+DirDoesntExist=फोल्डर:%n%n%1%n%nमौजूद नही है. क्या आप ये फोल्डर बनाना चाहते है?
+
+; *** "Select Components" wizard page
+WizardSelectComponents=कोम्पोनंट पसंद करे.
+SelectComponentsDesc=कोनसे कोम्पोनंट इनस्टॉल करने  है?
+SelectComponentsLabel2=जो कोम्पोनंट इनस्टॉल करना है, उन्हें सिलेक्ट करे; जिन्हें नही करना उन्हें क्लियर करे. जब आगे बढने के लिए रेडी हो तो नेक्स्ट दबाए.
+FullInstallation=सम्पूर्ण इंस्टॉलेशन
+; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
+CompactInstallation=कोम्पेक्ट इंस्टॉलेशन
+CustomInstallation=कस्टम इंस्टॉलेशन.
+NoUninstallWarningTitle=कोम्पोनंट मौजूद है.
+NoUninstallWarning=सेटअप को ये ज्ञात हुआ है की निम्नलिखित कोम्पोनंट पहेले से ही मोजूद है.:%n%n%1%n%nइन्हें डी-सिलेक्ट करने से वे अन-इनस्टॉल नही होगे.%n%nक्या आप ऐसे ही आगे बढ़ना चाहते है?
+ComponentSize1=%1 KB
+ComponentSize2=%1 MB
+ComponentsDiskSpaceMBLabel=इस सिलेक्शन के साथ सेटअप वास्ते [mb] MB जगह चाहिए.
+
+; *** "Select Additional Tasks" wizard page
+WizardSelectTasks=एडिशनल काम सिलेक्ट करे.
+SelectTasksDesc=कोन से एडिशनल काम करने है?
+SelectTasksLabel2=[name] को इनस्टॉल करते वक्त जो एडिशनल काम करने है उन्हें सिलेक्ट करे और बाद में नेक्स्ट पे क्लिक करे.
+
+; *** "Select Start Menu Folder" wizard page
+WizardSelectProgramGroup=स्टार्ट मेनू फोल्डर सिलेक्ट करे.
+SelectStartMenuFolderDesc=प्रोग्राम के शोर्टकट किधर रखने है?
+SelectStartMenuFolderLabel3=सेटअप प्रोग्राम के शोर्टकट निम्नलिखित स्टार्ट-मेनू फोल्डर में डालेगा.
+SelectStartMenuFolderBrowseLabel=आगे बढने के लिए नेक्स्ट दबाए. यदि अलग फोल्डर में इनस्टॉल करना है तो Browse दबाए.
+MustEnterGroupName=आपको फोल्डर का नाम तो डालना ही होगा.
+GroupNameTooLong=फोल्डर का नाम या पथ बहुत लंबा है.
+InvalidGroupName=फोल्डर का नाम वेलिड नही है.
+BadGroupName=फोल्डर नाम में ये वाले अक्षर नही डाल सकते:%n%n%1
+NoProgramGroupCheck2=स्टार्ट मेनू फोल्डर नही बनाना है.
+
+; *** "Ready to Install" wizard page
+WizardReady=इनस्टॉल के लिए रेडी
+ReadyLabel1=सेटअप अब [name] को आपके क्म्प्यूटरमें इनस्टॉल करने के लिए रेडी है.
+ReadyLabel2a=आगे बढने के लिए इनस्टॉल दबाए, अगर कोई बदलाव करना है तो बेक दबाए.
+ReadyLabel2b=इनस्टॉल में आगे बढने के लिए इनस्टॉल दबाए.
+ReadyMemoUserInfo=यूजर की सूचनाए:
+ReadyMemoDir=लक्ष्य डिरेक्टरी:
+ReadyMemoType=सेटअप का प्रकार:
+ReadyMemoComponents=सिलेक्ट किये कोम्पोनेंट:
+ReadyMemoGroup=स्टार्ट मेनू फोल्डर:
+ReadyMemoTasks=एडिशनल काम:
+
+; *** "Preparing to Install" wizard page
+WizardPreparing=इनस्टॉल के लिए तैयारी कर रहा है.
+PreparingDesc=सेटअप [name] को आपके कम्पयूटर में डालने की तैयारीकर रहा है.
+PreviousInstallNotCompleted=पिछले प्रोग्राम का रिमूवल / इंस्टॉलेशन ढंग से पूरा नही हुआ था. आपको कम्पयूटर रि-स्टार्ट करना पडेगा.%n%nकम्पयूटर रि-स्टार्ट करने पश्चात आप फिर से [name] का इंस्टॉलेशन शुरू करे.
+CannotContinue=सेटअप आगे नही बढ़ सकता, कृपया केंसल बटन पे क्लिक करे.
+
+; *** "Installing" wizard page
+WizardInstalling=इनस्टॉल हो रहा है.
+InstallingLabel=कृपया प्रतीक्षा करे जब तक  सेटअप आपके कम्पयूटर में [name] इनस्टॉल करता है.
+
+; *** "Setup Completed" wizard page
+FinishedHeadingLabel=[name] सेटअप विजार्ड पूरा हो रहा है.
+FinishedLabelNoIcons=सेटअप ने [name] को आपके कम्पयूटर में सफलतापूर्वक इनस्टॉल कर दिया है.
+FinishedLabel=सेटअप ने [name] आपके कम्प्युटरमें इनस्टॉल कर दिया है. आप उपयुक्त आइकोन पे क्लिक कर के कभी भी ये पोग्राम शुरू कर सकते है.
+ClickFinish=सेटअप से बाहर निकलने वास्ते Finish पे क्लिक करे.
+FinishedRestartLabel=[name] का इंस्टॉलेशन पूरा करने वास्ते कम्प्युटर रिस्टार्ट करना बेहद जरूरी.%n%nक्या आप अभी रिस्टार्ट करना चाहते है?
+FinishedRestartMessage=[name] का इंस्टॉलेशन पूरा करने वास्ते कम्प्युटर रिस्टार्ट करना बेहद जरूरी.%n%nक्या आप अभी रिस्टार्ट करना चाहते है?
+ShowReadmeCheck=हाँ मुझे README file देखनी है.
+YesRadio=&Yes, हाँ मेंरा कम्पयूटर रिस्टार्ट कर दो.
+NoRadio=&No नही मै अपना कम्पयूटर स्वयं बाद में रिस्टार्ट करूँगा.
+; used for example as 'Run MyProg.exe'
+RunEntryExec=रन %1
+; used for example as 'View Readme.txt'
+RunEntryShellExec=देखे %1
+
+; *** "Setup Needs the Next Disk" stuff
+ChangeDiskTitle=सेटअप के लिए अगली डिस्क चाहिए.
+SelectDiskLabel2=कृपया डिस्क %1 डालके ओके दबाए.%n%nयदि इस डिस्क की फाइल नही मिलती तो सही पथ बताए या ब्राउज़ पे क्लिक करे.
+PathLabel=पथ:
+FileNotInDir2=फाइल "%1" को "%2" में लोकेट नही कर पाए. कृपया सही डिस्क डाले या अलग फोल्डर सिलेक्ट करे.
+SelectDirectoryLabel=अगली डिस्क का लोकेशन बताए.
+
+; *** Installation phase messages
+SetupAborted=सेटअप पूरा नही हो पाया.%n%nकृपया गडबड ठीक करे और फिर से प्रयास करे.
+EntryAbortRetryIgnore=फिर से प्रयास करने वास्ते Retry दबाए, यदि ऐसे ही आगे बढ़ना है तो Ignore दबाए, या तो सेटअप केंसल करने वास्ते Abort दबाए.
+
+; *** Installation status messages
+StatusCreateDirs=डिरेक्टरी बना रहा है...
+StatusExtractFiles=फाइल एक्सट्रेक्ट कर रहा है...
+StatusCreateIcons=शोर्टकट बना रहा है...
+StatusCreateIniEntries=INI एंट्री बना रहा है...
+StatusCreateRegistryEntries=रजिस्ट्री एंट्री बना रहा है...
+StatusRegisterFiles=फाइल रजिस्टर कर रहा है...
+StatusSavingUninstall=अन-इनस्टॉल की सुचनाए सेव कर रहा है...
+StatusRunProgram=इंस्टॉलेशन पूरा  कर रहा है...
+StatusRollback=बदलावों को रोल-बेक कर रहा है...
+
+; *** Misc. errors
+ErrorInternal2=आंतरिक गडबड: %1
+ErrorFunctionFailedNoCode=%1 विफल
+ErrorFunctionFailed=%1 विफल; कोड %2
+ErrorFunctionFailedWithMessage=%1 विफल; कोड %2.%n%3
+ErrorExecutingProgram=फाइल को एक्जीक्यूट नही कर पा रहा:%n%1
+
+; *** Registry errors
+ErrorRegOpenKey=रजिस्ट्री की खोलते वक्त गडबड:%n%1\%2
+ErrorRegCreateKey=रजिस्ट्री की बनाते वक्त गडबड:%n%1\%2
+ErrorRegWriteKey=रजिस्ट्री की में लिखते वक्त गडबड:%n%1\%2
+
+; *** INI errors
+ErrorIniEntry=फ़ाइल "%1" में INI एंट्री डालते वक्त गडबड.
+
+; *** File copying errors
+FileAbortRetryIgnore=फिर से प्रयास करने हेतु Retry बटन दबाए, यदि ऐसे ही आगे बढ़ना है तो Ignore  दबाए(हम ऐसा सुजाव नही देते),या तो Abort दबाए इंस्टॉलेशन को केंसल करने हेतु.
+FileAbortRetryIgnore2=फिर से प्रयास करने हेतु Retry बटन दबाए, यदि ऐसे ही आगे बढ़ना है तो Ignore  दबाए(हम ऐसा सुजाव नही देते),या तो Abort दबाए इंस्टॉलेशन को केंसल करने हेतु.
+SourceIsCorrupted=सोर्स फ़ाइल में गडबड है.
+SourceDoesntExist=सोर्स फाइल "%1" मौजूद ही नही है.
+ExistingFileReadOnly=मौजदा फ़ाइल read-only है.%n%n आप Retry पे क्लिक करे, उसका read-only attribute हटाने के लिए और फिर दोबारा प्रयास करे. यदि इस फाइल को छोड़ देना है तो Ignore, और यदि इंस्टॉलेशन केंसल करना है तो Abort बटन दबाए.
+ErrorReadingExistingDest=मौजदा फाइल को पढते वक्त गडबड:
+FileExists=फाइल पहेले से मौजूद है.%n%nक्या आप उसको ओवर-राईट करना चाहते हो?
+ExistingFileNewer=मौजूदा फाइल सेटअप फ़ाइल से नई है. हमारा सुजाव है की आप उसे रहेने ही दे.%n%nक्या आप फ़ाइल को रहेने देना चाहते है?
+ErrorChangingAttr=मौजूदा फाइल के एट्रीब्यूट बदलते वक्त गडबड:
+ErrorCreatingTemp=फ़ाइल क्रिएट करते वक्त गडबड:
+ErrorReadingSource=सोर्स फाइल खोलते वक्त गडबड:
+ErrorCopying=फ़ाइल कोपी करने का प्रयास करते वक्त गडबड:
+ErrorReplacingExistingFile=मौजूद फाइल को रिप्लेस करते वक्त गडबड:
+ErrorRestartReplace=RestartReplace विफल रहा:
+ErrorRenamingTemp=डिरेक्टरी में फाइल का नाम बदलते वक्त गडबड हुई:
+ErrorRegisterServer=इस को रजिस्टर नही कर पा रहा DLL/OCX: %1
+ErrorRegSvr32Failed=RegSvr32 फेल हो गयी, एक्जिट कोड %1 के साथ
+ErrorRegisterTypeLib=इस टाइप लाइब्रेरी को पंजीकृत नही कर पा रहा: %1
+
+; *** Post-installation errors
+ErrorOpeningReadme=README फ़ाइल खोलते वक्त गडबड हुई.
+ErrorRestartingComputer=सेटअप कम्प्यूटर को रि-स्टार्ट करने में असफल रहा. कृपया मेन्युअली आप रि-स्टार्ट करे.
+
+; *** Uninstaller messages
+UninstallNotFound=फाइल "%1" मौजूद ही नही है. अन-इनस्टॉल करना असंभव.
+UninstallOpenError=फ़ाइल "%1" खुल नही रही. अन-इनस्टॉल करना असंभव.
+UninstallUnsupportedVer=अन-इनस्टॉल लोग फ़ाइल "%1" जिस फोर्मेट में है उसे हम पहचान नही पा रहे. आगे बढ़ना नामुमकिन.
+UninstallUnknownEntry=अन-इनस्टॉल लोग में एक अज्ञात एंट्री (%1)मिली.
+ConfirmUninstall=क्या पक्का आप  %1 को अन-इनस्टॉल करना चाहते हो?
+UninstallOnlyOnWin64=केवल 64-bit Windows से ही इसे अन-इनस्टॉल किया जा सकता है.
+OnlyAdminCanUninstall=केवल एडमिनिस्टरेटर एकाउंट से ही इसे अन-इनस्टॉल किया जा सकता है..
+UninstallStatusLabel=जब तक %1 रिमूव नही होता, धैर्य रखे.
+UninstalledAll=%1 सफतलापूर्वक अन-इनस्टॉल हुआ.
+UninstalledMost=%1 अन-इनस्टॉल पूरा हुआ.%n%nकुछ तत्वों को निकाल नही पाए लेकिन आप उन्हें मेन्युअली रिमूव कर सकते हो.
+UninstalledAndNeedsRestart=%1 का अन-इनस्टॉल पूरा करने वास्ते कम्पयूटर को रिस्टार्ट करना जरूरी.%n%nक्या अभी रिस्टार्ट करे?
+UninstallDataCorrupted="%1" फ़ाइल में गडबड. अन-इनस्टॉल नामुमकिन.
+
+; *** Uninstallation phase messages
+ConfirmDeleteSharedFileTitle=क्या शेरेड-फाइल को निकाल देना है?
+ConfirmDeleteSharedFile2=सिस्टम से ये ज्ञात होता है की निम्नलिखिती शेरेड-फ़ाइल अब आगे इस्तेमाल में नही आएगी. क्या आप उन्हें भी अन-इनस्टॉल करना चाहते है?%n%n यदि कोई अन्य प्रोग्राम इन फाइल पे आधारित है तो वो शायद इन्हें निकाल देने पर ढंग से काम ना भी करे. यदि आप फैसला नही कर पा रहे तो 'नही' पे क्लिक करे. इन फाइल को सिस्टम में पड़े रहेने दोगे तो भी कोई नुकसान नही होगा.
+SharedFileNameLabel=फाइल नाम:
+SharedFileLocationLabel=लोकेशन:
+WizardUninstalling=अनइनस्टॉल स्टेटस
+StatusUninstalling=अनइनस्टॉल हो रहा है %1...
+
+; The custom messages below aren't used by Setup itself, but if you make
+; use of them in your scripts, you'll want to translate them.
+
+[CustomMessages]
+
+NameAndVersion=%1 आवृति %2
+AdditionalIcons=एडिशनल आइकोन:
+CreateDesktopIcon=डेस्कटॉप आइकोन बनाए
+CreateQuickLaunchIcon=क्विकलोंच आइकोन बनाए
+ProgramOnTheWeb=%1 इन्टरनेट पे
+UninstallProgram=अनइनस्टॉल करे %1
+LaunchProgram=लोंच करे %1
+AssocFileExtension=%1 को %2 फ़ाइल एक्सटेंशन के साथ एसोसिएट करे
+AssocingFileExtension=%1 को %2 फ़ाइल एक्सटेंशन के साथ एसोसिएट कर रहा है....

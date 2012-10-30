@@ -121,9 +121,9 @@ do the actual compilation itself; it relegates it to ISCmplr.dll. If the
 ISCmplr project is changed, you normally don't need to recompile Compil32
 since it's essentially a text editor, and is not affected by internal
 changes to the compiler.
-Non Unicode Inno Setup note: This is the only project that I compile under
-Delphi 3 (3.02 to be exact). The rest of the projects are compiled under
-Delphi 2.01.
+Non Unicode Inno Setup note: This is the only project that is compiled
+under Delphi 3 (3.02 to be exact). The rest of the projects are compiled
+under Delphi 2.01.
 
 ISCC - This is the command-line front-end to the compiler. Like
 Compil32, it depends on ISCmplr.dll to do the actual compiling.
@@ -187,13 +187,20 @@ How do the projects link together?
   SETUP-1.BIN to the end of the SETUP.EXE, and finally modifying an internal
   data block in SETUP.EXE so it knows it's in "single EXE" form.
 
-- Starting with the 32-bit version of Inno Setup 1.12.7, I am using my own
-  "StripReloc" utility to decrease the size of the Non Unicode .EXE and
-  .E32 files.
+- Starting with the 32-bit version of Inno Setup 1.12.7, the "StripReloc"
+  utility is used to decrease the size of the Non Unicode .EXE and .E32 files.
 
   To download StripReloc, go to:
   http://www.jrsoftware.org/striprlc.php
+  
+- Delphi versions prior to 5 store .dfm files in a binary format. To be able to
+  track changes to the forms using ordinary "diff" commands, .dfm.txt "mirrors"
+  of the binary .dfm files have been created. Each time a .dfm file is
+  modified, dfm2text is ran and both the .dfm file and the updated .dfm.txt
+  file are commited.
 
+  To download dfm2text, go to:
+  http://www.jrsoftware.org/files/misc/dfm2text.zip
 
 6. Precompiled executables and libraries
 ========================================
@@ -225,7 +232,5 @@ See Projects\lzma2\Decoder\compiling.txt.
 
 Examples\MyProg.exe, Examples\MyProg-IA64.exe, Examples\MyProg-x64.exe -
 Compiled by Visual Studio 2005 from the Examples\MyProg directory.
-
-Examples\MyProg.chm
 
 Examples\MyDll.dll

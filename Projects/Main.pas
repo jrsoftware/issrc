@@ -643,7 +643,7 @@ begin
   InitLocalSetup := GetIniBool(Section, 'LocalSetup', InitLocalSetup, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
-  WantToSuppressMsgBoxes := GetIniBool(Section, 'SuppressMsgBoxes', InitSuppressMsgBoxes, FileName);
+  WantToSuppressMsgBoxes := GetIniBool(Section, 'SuppressMsgBoxes', WantToSuppressMsgBoxes, FileName);
   InitSaveInf := GetIniString(Section, 'SaveInf', InitSaveInf, FileName);
 end;
 

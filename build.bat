@@ -7,30 +7,27 @@ rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
 rem  Batch file to prepare a release
 rem
-rem  Edit the desired version tag and number below before running
-rem
 rem  Calls setup-sign.bat if it exists, else creates setup.exe without signing
 rem
 rem  This batch files does the following things:
 rem  -Compile ISPP.chm
 rem  -Compile ISetup.chm
 rem  -Compile ANSI Inno Setup
-rem  -Create ANSI Inno Setup setup.exe
+rem  -Create ANSI Inno Setup installer
 rem  -Compile Unicode Inno Setup
-rem  -Create Unicode Inno Setup setup.exe
-rem  -Zip source code
+rem  -Create Unicode Inno Setup installer
 rem
-rem  Once done the 2 setup files and the source code zip can be found in Output
-rem  and additionally 2 ISCC files are stored there for later use while
-rem  preparing an ISPack release
+rem  Once done the 2 installers can be found in Output and additionally 2 ISCC
+rem  files are stored there for later use while preparing an ISPack release
 
 setlocal
 
-set VER=5_5_2
-set VER2=5.5.2
+set VER=5.5.2
 
-echo %VER2%?
-pause
+echo Building Inno Setup %VER%...
+echo.
+
+cd /d %~dp0
 
 cd projects\ispp\help
 if errorlevel 1 goto failed
@@ -62,12 +59,12 @@ if exist .\setup-sign.bat (
 )
 if errorlevel 1 goto failed
 echo - Copying ISCC for ISPack
-copy files\ISCC.exe output\ISCC-%VER2%.exe
+copy files\ISCC.exe output\ISCC-%VER%.exe
 if errorlevel 1 goto failed
 echo - Renaming files
 cd output
 if errorlevel 1 goto failed
-move /y setup.exe isetup-%VER2%.exe
+move /y setup.exe isetup-%VER%.exe
 cd ..
 if errorlevel 1 goto failed
 echo ANSI setup done
@@ -85,24 +82,16 @@ if exist .\setup-sign.bat (
 )
 if errorlevel 1 goto failed
 echo - Copying ISCC for ISPack
-copy files\ISCC.exe output\ISCC-%VER2%-unicode.exe
+copy files\ISCC.exe output\ISCC-%VER%-unicode.exe
 if errorlevel 1 goto failed
 echo - Renaming files
 cd output
 if errorlevel 1 goto failed
-move /y setup.exe isetup-%VER2%-unicode.exe
+move /y setup.exe isetup-%VER%-unicode.exe
 cd ..
 if errorlevel 1 goto failed
 echo Unicode setup done
-pause
 
-echo Do src.bat?
-pause
-
-call .\src.bat %VER% %VER2%
-if errorlevel 1 goto failed
-
-echo Src done
 echo All done!
 pause
 exit /b 0
