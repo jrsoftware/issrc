@@ -24,7 +24,7 @@ Remarks:
   http://git-scm.com/
   
   To be able to contribute to Inno Setup, clone your own fork instead of
-  cloning the main Inno Setup repository an make pull requests. See:
+  cloning the main Inno Setup repository and make pull requests. See:
 
   https://help.github.com/articles/fork-a-repo
   
