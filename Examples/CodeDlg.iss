@@ -37,11 +37,11 @@ var
   KeyPage: TInputQueryWizardPage;
   ProgressPage: TOutputProgressWizardPage;
   DataDirPage: TInputDirWizardPage;
-  
+
 procedure InitializeWizard;
 begin
   { Create the pages }
-  
+
   UserPage := CreateInputQueryPage(wpWelcome,
     'Personal Information', 'Who are you?',
     'Please specify your name and the company for whom you work, then click Next.');
@@ -172,7 +172,7 @@ begin
   if UserPage.Values[1] <> '' then
     S := S + Space + UserPage.Values[1] + NewLine;
   S := S + NewLine;
-  
+
   S := S + 'Usage Mode:' + NewLine + Space;
   case UsagePage.SelectedValueIndex of
     0: S := S + 'Light mode';
@@ -180,7 +180,7 @@ begin
     2: S := S + 'Paid mode';
   end;
   S := S + NewLine + NewLine;
-  
+
   S := S + MemoDirInfo + NewLine;
   S := S + Space + DataDirPage.Values[0] + ' (personal data files)' + NewLine;
 

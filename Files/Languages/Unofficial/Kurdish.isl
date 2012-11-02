@@ -10,13 +10,13 @@
 ; Wergêr : Hezand Al-Mihrewanî
 ; > Serîkî bidin malpera me
 ;      Web page : http://www.wergerine.com(Navenda Wergerên Kurdî)
-; > Ji bo têkilîyê 
+; > Ji bo têkilîyê
 ;      E-mail : hezand@muslim.com (Hezand Al-Mihrewanî)
 ; > Dema wergerandinê (www.bernamegeh.net)
 ;      Ev wergerandin dema 19/09/2012 hatîye barkirin
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Kurdish
 LanguageID=$0801
@@ -36,7 +36,7 @@ LanguageCodePage=0
 
 ; *** Application titles
 SetupAppTitle=Sazkirin
-SetupWindowTitle=Sazkirina %1 
+SetupWindowTitle=Sazkirina %1
 UninstallAppTitle=Rake
 UninstallAppFullTitle=%1 Rake
 
@@ -66,7 +66,7 @@ MissingWOW64APIs=Guhertoya Windows'ê hûn kar tînin, ji bo ku sazîker barkirina 6
 WinVersionTooLowError=Ji bo kar anîn vê bernamê divê guhertoya %1 %2 anjî guhertoyên pêþ bar bibe.
 WinVersionTooHighError=Ev bername guhertoya %1 %2 anjî  guhertoyên pêþ naxebite.
 AdminPrivilegesRequired=Dema sazkirina vê bernamê divê rêvebîr daniþtin bêyî vekirin.
-PowerUserPrivilegesRequired=Dema sazkirina vê bernamê divê Rêvebîr anjî endamê komaleya Ser Rêvebîr têketin bêyî kirin. 
+PowerUserPrivilegesRequired=Dema sazkirina vê bernamê divê Rêvebîr anjî endamê komaleya Ser Rêvebîr têketin bêyî kirin.
 SetupAppRunningError=Sazîker xebitandina bernameya %1 destnîþan kir.%n%nJi kerema xwe re hemû parçeyên bixebitî vê bernamê niha bigre, Peyre Ji bo berdewamê Temam'ê bitikîne anjî ji bo derketinê Betal'ê bitikîne.
 UninstallAppRunningError=Rakirin xebitandina bernameya %1 destnîþan kir..%n%nJi kerema xwe re hemû parçeyên bixebitî vê bernamê niha bigre, Peyre ji bo berdewamê Temam'ê bitikîne anjî ji bo derketinê Betal'ê bitikîne.
 
@@ -123,7 +123,7 @@ IncorrectPassword=Þîfreya hate nivîs çewtîye. Dîsa biceribîne.
 ; *** "License Agreement" wizard page
 WizardLicense=Peymana Lîsansê
 LicenseLabel=Berîya domandinê girînge ku tu agahîyên jêrê bixwînî
-LicenseLabel3=Ji kerema xwe re Peymana Lîsansê bixwîne. Ji bo sazkirina bernamê divê tu þertên peymanê bipejirînî..  
+LicenseLabel3=Ji kerema xwe re Peymana Lîsansê bixwîne. Ji bo sazkirina bernamê divê tu þertên peymanê bipejirînî..
 LicenseAccepted=Ez Peymanê &Dipejirînim
 LicenseNotAccepted=Ez Peymanê &Napejirînim
 
@@ -131,7 +131,7 @@ LicenseNotAccepted=Ez Peymanê &Napejirînim
 WizardInfoBefore=Agahî
 InfoBeforeLabel=Berîya domandinê girînge ku tu agahîyên jêrê bixwînî
 InfoBeforeClickLabel=Dema tu Sazîkerêva domandinê amadebî Bidomîne'yê bitikîne.
-WizardInfoAfter=Agahî 
+WizardInfoAfter=Agahî
 InfoAfterLabel=Berîya domandinê girînge ku tu agahîyên jêrê bixwînî.
 InfoAfterClickLabel=Dema tu Sazîkerêva domandinê amadebî Bidomîne'yê bitikîne.
 

@@ -3,7 +3,7 @@
 ;Translated by Vicente Adam (email: vjatv@yahoo.es)
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Valenci<00E0>
 LanguageID=33280

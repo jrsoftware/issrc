@@ -1,7 +1,7 @@
 ; mostafa.sedaghat@gmail.com
 ; *** Inno Setup version 5.1.11+ Farsi(Persian) messages ***
-; Farsi(Persian) 
-; Translator: Mostafa Sedaghat joo 
+; Farsi(Persian)
+; Translator: Mostafa Sedaghat joo
 ; mostafa [dot] sedaghat [at] gmail [dot] com
 
 ; To download user-contributed translations of this file, go to:
@@ -281,12 +281,12 @@ ErrorOpeningReadme=í˜ ÎØÇ ÏÑ åäÇã ÊáÇÔ ÈÑÇí ÎæÇäÏä İÇíá «ãÑÇ ÈÎæÇä» ÑÎ ÏÇÏ
 ErrorRestartingComputer=äÕÈ äãíÊæÇäÏ ÑÇíÇäå ÑÇ ÑÇåÇäÏÇÒí ãÌÏÏ ˜äÏ. ÎæÇåÔãäÏ ÇÓÊ Çíä ˜ÇÑ ÑÇ Èå ÕæÑÊ ÏÓÊí ÇäÌÇã ÏåíÏ.
 
 ; *** Uninstaller messages
-UninstallNotFound=İÇíá "%1" æÌæÏ äÏÇÑÏ. ÍĞİ ãã˜ä äíÓÊ 
-UninstallOpenError=İÇíá "%1" äãíÊæÇäÏ ÈÇÒ ÔæÏ. ÍĞİ ãã˜ä äíÓÊ 
+UninstallNotFound=İÇíá "%1" æÌæÏ äÏÇÑÏ. ÍĞİ ãã˜ä äíÓÊ
+UninstallOpenError=İÇíá "%1" äãíÊæÇäÏ ÈÇÒ ÔæÏ. ÍĞİ ãã˜ä äíÓÊ
 UninstallUnsupportedVer=The uninstall log file "%1" is in a format not recognized by this version of the uninstaller. Cannot uninstall
 UninstallUnsupportedVer=İÇíá ÒÇÑÔ ÍĞİ  "%1" ÏÑ Ô˜áí ÇÓÊ ˜å ÈÑÇí Çíä äÓÎå ÇÒ ÈÑäÇãå ŞÇÈá ÊÔÎíÕ äíÓÊ. ÍĞİ ãã˜ä äíÓÊ
 UninstallUnknownEntry=ÈÇ í˜ æÑæÏí äÇãÔÎÕ (%1) ÏÑ ÒÇÑÔ ÍĞİ ãæÇÌå ÔÏå ÇÓÊ
-ConfirmUninstall=ÂíÇ ÇØãíäÇä ÏÇÑíÏ ˜å ãíÎæÇåíÏ %1 æ ÊãÇã ÇÌÒÇí Âä ÑÇ ÍĞİ ˜äíÏ¿  
+ConfirmUninstall=ÂíÇ ÇØãíäÇä ÏÇÑíÏ ˜å ãíÎæÇåíÏ %1 æ ÊãÇã ÇÌÒÇí Âä ÑÇ ÍĞİ ˜äíÏ¿
 UninstallOnlyOnWin64=Çíä äÕÈ ÊäåÇ ãíÊæÇäÏ ÇÒ Ñæí æíäÏæÒåÇí 64-ÈíÊí ÍĞİ ÔæÏ.
 OnlyAdminCanUninstall=Çíä äÕÈ ÊäåÇ ãíÊæÇäÏ Èå æÓíáå ˜ÇÑÈÑí ÈÇ ÇãÊíÇÒÇÊ ãÏíÑíÊí ÍĞİ ÔæÏ.
 UninstallStatusLabel=ÎæÇåÔãäÏ ÇÓÊ ÕÈÑ ˜äíÏ ÊÇ %1 ÇÒ ÑÇíÇäå ÔãÇ ÍĞİ ÔæÏ

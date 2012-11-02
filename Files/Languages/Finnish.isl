@@ -120,7 +120,7 @@ UserInfoOrg=&Yritys:
 UserInfoSerial=&Tunnuskoodi:
 UserInfoNameRequired=Sinun täytyy antaa nimi.
 
-; *** "Select Destination Location" wizard page	
+; *** "Select Destination Location" wizard page
 WizardSelectDir=Valitse kohdekansio
 SelectDirDesc=Mihin [name] asennetaan?
 SelectDirLabel3=[name] asennetaan tähän kansioon.

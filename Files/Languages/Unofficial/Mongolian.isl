@@ -19,9 +19,9 @@ LanguageCodePage=1251
 
 ; *** Application titles
 SetupAppTitle=Суулгах
-SetupWindowTitle=%1 Суулгах 
+SetupWindowTitle=%1 Суулгах
 UninstallAppTitle=Устгах
-UninstallAppFullTitle=%1 Устгах 
+UninstallAppFullTitle=%1 Устгах
 
 ; *** Misc. common
 InformationTitle=Мэдээлэл
@@ -89,7 +89,7 @@ BrowseDialogLabel=Жагсаалтаас хавтасыг сонгоод «ОК» дарна уу.
 NewFolderName=Шинэ хавтас
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=[name] - Танд суулгацын зvгээс мэндчиллэж байна 
+WelcomeLabel1=[name] - Танд суулгацын зvгээс мэндчиллэж байна
 WelcomeLabel2=Энэ програм нь [name/ver]-г таны компьютерт суулгана.%n%nVргэлжлvvлэхийн eмнe ашиглагдаж буй бусад бvх програмуудаа хаахыг зeвлeж байна.
 
 ; *** "Password" wizard page
@@ -194,7 +194,7 @@ WizardInstalling=Суулгац...
 InstallingLabel=[name] - сууж байх хооронд тvр хvлээнэ vv.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=[name] - Суулгацыг тeгсгeх 
+FinishedHeadingLabel=[name] - Суулгацыг тeгсгeх
 FinishedLabelNoIcons=[name] - таны компьютерт суусан болно.
 FinishedLabel=[name] - таны компьютерт суусан болно. та шошгоос ажилуулж болно.
 ClickFinish=«Дуусгах» гэсэн товч дээр дарна уу.

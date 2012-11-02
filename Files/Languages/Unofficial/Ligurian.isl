@@ -13,7 +13,7 @@
 ; - Parlemmo zeneize -
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Zeneize
 LanguageID=0
@@ -117,7 +117,7 @@ IncorrectPassword=A paròlla d'ordine introduta a no l'é coretta, preuvighe torna
 WizardLicense=Contratto de licensa
 LicenseLabel=Leze con atençion e informaçioin che segoan primma de continoâ.
 LicenseLabel3=Leze o segoente contratto de licensa. Bezeugna acetâ tutti i termini do contratto pe poei continoâ con l'instalaçion.
-LicenseAccepted=Acetto i termini do &contratto de licensa 
+LicenseAccepted=Acetto i termini do &contratto de licensa
 LicenseNotAccepted=&No acetto i termini do contratto de licensa
 
 ; *** "Information" wizard pages

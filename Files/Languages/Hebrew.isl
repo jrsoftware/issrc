@@ -1,7 +1,7 @@
 ; *** Inno Setup version 5.5.0+ Hebrew messages (stilgar(at)divrei-tora.com) ***
 ;
 ;
-;	Translated by s_h (s_h(at)enativ.com) (c) 2005
+;   Translated by s_h (s_h(at)enativ.com) (c) 2005
 ;
 
 

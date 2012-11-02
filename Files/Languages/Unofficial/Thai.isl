@@ -2,7 +2,7 @@
 ; $Translator:NL=%n:TB=%t
 ; Suwat Yangfuang
 ; suwat.yang@gmail.com
-; 
+;
 ; *** Inno Setup version 5.1.11+ English messages ***
 ;
 ; To download user-contributed translations of this file, go to:
@@ -14,7 +14,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Thai
 LanguageID=$041E

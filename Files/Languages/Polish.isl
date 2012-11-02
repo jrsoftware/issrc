@@ -303,7 +303,7 @@ SharedFileLocationLabel=Po³o¿enie:
 WizardUninstalling=Stan deinstalacji
 StatusUninstalling=Deinstalacja %1...
 
-; *** Shutdown block reasons	
+; *** Shutdown block reasons
 ShutdownBlockReasonInstallingApp=Intstalacja %1.
 ShutdownBlockReasonUninstallingApp=Dezinstalacja %1.
 

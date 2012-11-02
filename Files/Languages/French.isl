@@ -22,11 +22,11 @@
 ; + Reverted to standard units (Ko, Mo) to follow Windows Explorer Standard
 ;      http://blogs.msdn.com/b/oldnewthing/archive/2009/06/11/9725386.aspx
 ; + Use more standard verbs for click and retry
-;     "click": "Clicker" instead of "Appuyer" 
+;     "click": "Clicker" instead of "Appuyer"
 ;     "retry": "Recommencer" au lieu de "Réessayer"
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Fran<00E7>ais
 LanguageID=$040C
