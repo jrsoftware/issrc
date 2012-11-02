@@ -17,7 +17,7 @@
 ; August 8, 2012 : update to 5.5.0+
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Corsu
 LanguageID=$0483

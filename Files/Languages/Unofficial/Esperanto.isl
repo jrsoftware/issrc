@@ -4,7 +4,7 @@
 ; Email: celsus.software@gmail.com
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Esperanto
 LanguageID=$0

@@ -17,7 +17,7 @@
 ; ***                                                         ***
 ; ***************************************************************
 
-; Default.isl version 100644 
+; Default.isl version 100644
 
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/is3rdparty.php
@@ -31,7 +31,7 @@
 ;
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Portugu<00EA>s (Brasil)
 LanguageID=$0416

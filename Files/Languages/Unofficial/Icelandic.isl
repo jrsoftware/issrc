@@ -92,8 +92,8 @@ SelectLanguageLabel=Veldu tungumál til að nota fyrir þessa uppsetningu
 ClickNext=Smelltu á Næsta til að halda áfram, eða Hætta við til að stöðva uppsetninguna.
 BeveledLabel=
 BrowseDialogTitle=Leita eftir möppu
-BrowseDialogLabel=Veldu möppu í listanum hér fyrir neðan, smelltu síðan á Í lagi. 
-NewFolderName=Ný mappa 
+BrowseDialogLabel=Veldu möppu í listanum hér fyrir neðan, smelltu síðan á Í lagi.
+NewFolderName=Ný mappa
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Velkomin(n) í uppsetningarálfinn fyrir [name]
@@ -132,7 +132,7 @@ UserInfoNameRequired=Þú verður að setja inn nafn.
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Veldu möppu fyrir forritið
 SelectDirDesc=Hvar á að setja [name] upp?
-SelectDirLabel3=Álfurinn mun setja [name] upp í eftirfarandi möppu. 
+SelectDirLabel3=Álfurinn mun setja [name] upp í eftirfarandi möppu.
 SelectDirBrowseLabel=Til að halda áfram, smelltu á Næsta. Ef þú villt velja aðra möppu, smelltu á Finna.
 DiskSpaceMBLabel=Þetta forrit krefst a.m.k. [mb] MB af diskrými.
 ToUNCPathname=Uppsetningarálfurinn getur ekki notað UNC skráaslóða, eins og t.d.\\nafn\mappa. Þú þarft að tengja slóðann sem netdrif.
@@ -170,8 +170,8 @@ SelectTasksLabel2=Veldu þá verkliði til viðbótar sem þú vilt að uppsetningarálfu
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Veldu staðsetningu í ræsivalmyndinni.
 SelectStartMenuFolderDesc=Hvar á uppsetningarálfurinn að setja flýtivísa fyrir forritið?
-SelectStartMenuFolderLabel3=Álfurinn mun stofna flýtivísa fyrir forritið í ræsivalmyndinni undir eftirfarandi möppu. 
-SelectStartMenuFolderBrowseLabel=Til að halda áfram, smelltu á Næsta. Ef þú villt velja aðra möppu, smelltu á Finna. 
+SelectStartMenuFolderLabel3=Álfurinn mun stofna flýtivísa fyrir forritið í ræsivalmyndinni undir eftirfarandi möppu.
+SelectStartMenuFolderBrowseLabel=Til að halda áfram, smelltu á Næsta. Ef þú villt velja aðra möppu, smelltu á Finna.
 MustEnterGroupName=Þú verður að slá inn nafn á möppu.
 GroupNameTooLong=Nafn á möppu eða skráarslóða er of langt.
 InvalidGroupName=Nafnið á möppunni er ekki löglegt.
@@ -298,17 +298,17 @@ SharedFileLocationLabel=Staðsetning:
 WizardUninstalling=Staða:
 StatusUninstalling=Hef fjarlægt %1...
 
-; The custom messages below aren't used by Setup itself, but if you make 
-; use of them in your scripts, you'll want to translate them. 
-    
-[CustomMessages] 
-    
+; The custom messages below aren't used by Setup itself, but if you make
+; use of them in your scripts, you'll want to translate them.
+
+[CustomMessages]
+
 NameAndVersion=%1 útgáfa %2
-AdditionalIcons=Fleiri íkonar: 
-CreateDesktopIcon=Stofna &desktop íkona 
-CreateQuickLaunchIcon=Stofna &Quick Launch íkona 
-ProgramOnTheWeb=%1 á Internetinu 
-UninstallProgram=Fjarlægja %1 
-LaunchProgram=Ræsa %1 
-AssocFileExtension=&Samtengja %1 við eftirfarandi %2 skráarendingu 
-AssocingFileExtension=Er að samtengja %1 við skráarendinguna %2 ... 
+AdditionalIcons=Fleiri íkonar:
+CreateDesktopIcon=Stofna &desktop íkona
+CreateQuickLaunchIcon=Stofna &Quick Launch íkona
+ProgramOnTheWeb=%1 á Internetinu
+UninstallProgram=Fjarlægja %1
+LaunchProgram=Ræsa %1
+AssocFileExtension=&Samtengja %1 við eftirfarandi %2 skráarendingu
+AssocingFileExtension=Er að samtengja %1 við skráarendinguna %2 ...

@@ -9,7 +9,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Arabic
 LanguageID=$0401
@@ -188,7 +188,7 @@ NoProgramGroupCheck2=&áÇ ÊäÔÆ ãÌáÏÇ İí ŞÇÆãÉ ÇÈÏÃ
 
 ; *** "Ready to Install" wizard page
 WizardReady=ÌÇåÒ ááÊËÈíÊ
-ReadyLabel1=Úáì ÌåÇÒß [name] ÈÑäÇãÌ ÇáÊËÈíÊ ÌÇåÒ áÊËÈíÊ ÈÑäÇãÌ 
+ReadyLabel1=Úáì ÌåÇÒß [name] ÈÑäÇãÌ ÇáÊËÈíÊ ÌÇåÒ áÊËÈíÊ ÈÑäÇãÌ
 ReadyLabel2a=ÇÖÛØ ÊËÈíÊ ÅĞÇ ßäÊ ÊÑÛÈ İí ãæÇÕáÉ ÚãáíÉ ÇáÊËÈíÊ ¡ Ãæ ÇáÓÇÈŞ ÅĞÇ ßäÊ ÊÑÛÈ İí ãÑÇÌÚÉ Ãæ ÊÛííÑ Ãí ÅÚÏÇÏÇÊ
 ReadyLabel2b=ÇÖÛØ ÊËÈíÊ ááãæÇÕáÉ
 ReadyMemoUserInfo=ãÚáæãÇÊ ÇáãÓÊÎÏã :
@@ -210,14 +210,14 @@ DontCloseApplications=&ÛÏã ÅÛáÇŞ ÇáÊØÈíŞÇÊ
 
 ; *** "Installing" wizard page
 WizardInstalling=ÊÊã ÚãáíÉ ÇáÊËÈíÊ
-InstallingLabel=Úáì ÌåÇÒß [name] ÇáÑÌÇÁ ÇáÇäÊÙÇÑ ÍÊì ÊËÈíÊ ÈÑäÇãÌ 
+InstallingLabel=Úáì ÌåÇÒß [name] ÇáÑÌÇÁ ÇáÇäÊÙÇÑ ÍÊì ÊËÈíÊ ÈÑäÇãÌ
 
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel= [name] ÅßÊãÇá ãÚÇáÌ ÅÚÏÇÏ
 FinishedLabelNoIcons=Úáì ÌåÇÒß [name] Êã ÊËÈíÊ ÈÑäÇãÌ
 FinishedLabel=íãßä ÊÔÛíáå ãä ÃíŞæäÊå [name] Êã ÊËÈíÊ
 ClickFinish=ÇÖÛØ ÅäåÇÁ ááÎÑæÌ
-FinishedRestartLabel=íÌÈ ÅÚÇÏÉ ÊÔÛíá ÇáßãÈíæÊÑ [name] áÅÊãÇã ÊËÈíÊ%n%nåá ÊÑíÏ ÅÚÇÏÉ ÇáÊÔÛíá ÇáÂä¿ 
+FinishedRestartLabel=íÌÈ ÅÚÇÏÉ ÊÔÛíá ÇáßãÈíæÊÑ [name] áÅÊãÇã ÊËÈíÊ%n%nåá ÊÑíÏ ÅÚÇÏÉ ÇáÊÔÛíá ÇáÂä¿
 FinishedRestartMessage=ÈäÌÇÍ [name] íÌÈ ÅÚÇÏÉ ÊÔÛíá ÇáßãÈíæÊÑ  áÊËÈíÊ%n%nåá ÊÑíÏ ÅÚÇÏÉ ÇáÊÔÛíá ÇáÂä¿
 ShowReadmeCheck=äÚã ÇÑÛÈ İí ŞÑÇÁÉ ãáİ README
 YesRadio=&äÚã ¡ ÅÚÇÏÉ ÊÔÛíá ÇáßãÈíæÊÑ ÇáÂä

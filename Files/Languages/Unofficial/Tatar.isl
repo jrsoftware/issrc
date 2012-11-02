@@ -299,7 +299,7 @@ SharedFileLocationLabel=Урнашуы:
 WizardUninstalling=Бетерү халәте
 StatusUninstalling=%1 бетерүе...
 
-	
+
 ; *** Shutdown block reasons
 ShutdownBlockReasonInstallingApp=Урнаштыру %1.
 ShutdownBlockReasonUninstallingApp=Бетерү %1.

@@ -8,7 +8,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=<7e41><9ad4><4e2d><6587>
 LanguageID=$0404

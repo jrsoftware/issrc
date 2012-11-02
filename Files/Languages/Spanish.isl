@@ -3,12 +3,12 @@
 ; Maintained by Jorge Andres Brugger (jbrugger@ideaworks.com.ar)
 ; Spanish.isl version 1.1 (20120606)
 ; Default.isl version 5.5.0
-; 
-; Thanks to Germán Giraldo, Jordi Latorre, Ximo Tamarit, Emiliano Llano, 
+;
+; Thanks to Germán Giraldo, Jordi Latorre, Ximo Tamarit, Emiliano Llano,
 ; Ramón Verduzco, Graciela García,  Carles Millan and Rafael Barranco-Droege
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Espa<00F1>ol
 LanguageID=$0c0a

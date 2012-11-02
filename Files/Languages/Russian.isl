@@ -299,7 +299,7 @@ SharedFileLocationLabel=Расположение:
 WizardUninstalling=Состояние деинсталляции
 StatusUninstalling=Деинсталляция %1...
 
-	
+
 ; *** Shutdown block reasons
 ShutdownBlockReasonInstallingApp=Установка %1.
 ShutdownBlockReasonUninstallingApp=Деинсталляция %1.

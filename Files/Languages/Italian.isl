@@ -14,7 +14,7 @@
 ; Translator e-mail: dad428(X)hotmail.com   (replace (X) with @ )
 ;
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Italiano
 LanguageID=$0410
@@ -122,7 +122,7 @@ IncorrectPassword=La password inserita non è corretta, riprovare.
 WizardLicense=Contratto di licenza
 LicenseLabel=Leggere con attenzione le informazioni che seguono prima di procedere.
 LicenseLabel3=Leggere il seguente contratto di licenza. È necessario accettare tutti i termini del contratto per procedere con l'installazione.
-LicenseAccepted=Accetto i termini del &contratto di licenza 
+LicenseAccepted=Accetto i termini del &contratto di licenza
 LicenseNotAccepted=&Non accetto i termini del contratto di licenza
 
 ; *** "Information" wizard pages

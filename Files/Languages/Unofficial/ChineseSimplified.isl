@@ -10,7 +10,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=<4E2D><6587><FF08><7B80><4F53><FF09>
 LanguageID=$0804

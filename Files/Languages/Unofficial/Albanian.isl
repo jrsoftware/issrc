@@ -13,7 +13,7 @@
 ; Më kontaktoni me postë-e për ndonjë gabim ose sugjerim rreth përkthimit.
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Albanian
 LanguageID=$041C

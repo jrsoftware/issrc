@@ -1,7 +1,7 @@
 ; *** Inno Setup version 5.5.0++ Turkish messages ***
-; Language	"Turkce"	Turkish
-; Translate by	"Ceviren"	Adil Yildiz		adil@kde.org.tr
-; Updated   by	"Guncelleme"	Taner Dag		tanerdag@gmail.com
+; Language  "Turkce"    Turkish
+; Translate by  "Ceviren"   Adil Yildiz     adil@kde.org.tr
+; Updated   by  "Guncelleme"    Taner Dag       tanerdag@gmail.com
 ;
 
 [LangOptions]
