@@ -5,15 +5,30 @@ For conditions of distribution and use, see LICENSE.TXT.
 
 Source code README
 
-To compile Inno Setup run compile-unicode.bat for Unicode Inno Setup or
-compile.bat for Non Unicode Inno Setup and follow the instructions.
-
 Remarks:
 
-1. Prerequisites
-================
+1. Getting Started
+==================
 
-- Borland Delphi
+- Obtaining sources
+
+  First you need to download the sources from Github. From the command line do:
+
+  > git clone git://github.com/jrsoftware/issrc.git is  
+  > cd is
+  > git submodule init
+  > git submodule update  
+
+  If you don't have the Git client (git), get it from:
+
+  http://git-scm.com/
+  
+  To be able to contribute to Inno Setup, clone your own fork instead of
+  cloning the main Inno Setup repository an make pull requests. See:
+
+  https://help.github.com/articles/fork-a-repo
+  
+- Install Borland Delphi
 
   Unicode Inno Setup:
 
@@ -22,10 +37,12 @@ Remarks:
   Non Unicode Inno Setup:
 
   We compile all of Inno Setup's projects under Delphi 2.01, with the
-  exception of Compil32, which is compiled under Delphi 3.02 (for the better
-  Far East character set support). These older versions of Delphi are used
-  because their VCLs have a significantly smaller code size footprint than
-  the later versions.
+  exception of Compil32 which is compiled under Delphi 3.02 (for the better
+  Far East character set support), and Inno Setup Preprocessor's projects which
+  are compiled under Delphi 7.
+  
+  Delphi 2.01 is used for the main projects because its VCL has a significantly
+  smaller code size footprint than the later versions.
 
   If you do not have access to these old versions of Delphi, you should be
   able to compile the projects on later versions, however complete
@@ -33,32 +50,38 @@ Remarks:
   the later versions when possible, but do not have the resources to test
   every change on every Delphi version.
 
-- RemObjects Pascal Script
+- Install Microsoft MSXML
 
-  Unicode Inno Setup:
+  Install Microsoft MSXML 4.0 SP2 if you haven't already done so.
+  See http://www.microsoft.com/downloads/details.aspx?FamilyID=3144b72b-b4f2-46da-b4b6-c5d7485f2b42&DisplayLang=en
 
-  You'll need to obtain the exact commit specified in ROPS-revision.txt
-  from the ROPS Git repository. For example, if the commit were
-  52291ffbfc14f3cf1a445f3e88c6902e13fbdf78:
+  If you are not sure whether you have MSXML 4.0 SP2 already, check for a
+  file named msxml4.dll in your Windows System directory with a version number
+  of 4.20.9818.0 (or later).
+  
+  Note: Microsoft MSXML is only needed to be able to compile the help files.
 
-  > cd is\Components
-  > git clone git://github.com/remobjects/pascalscript.git UniPs
-  > cd UniPs
-  > git checkout 52291ffbfc14f3cf1a445f3e88c6902e13fbdf78
+- Install Microsoft HTML Help Workshop
 
-  If you don't have the Git client (git), get it from:
-  http://git-scm.com/
+  Install Microsoft HTML Help Workshop if you haven't already done so.
+  See http://www.microsoft.com/downloads/details.aspx?familyid=00535334-c8a6-452f-9aa0-d597d16580cc&displaylang=en
+  
+  Note: Microsoft HTML Help Workshop is only needed to be able to compile the
+  help files.
 
-  The ROPS changelog can be found at:
-  https://github.com/remobjects/pascalscript/commits/master
+- Building
 
-  Non Unicode Inno Setup:
+  To build all files run build.bat and follow the instructions.
 
-  The ROPS Subversion server suffered a disk crash, grab the revision
-  1045a sources here:
-  http://files.jrsoftware.org/is/rops/rops-svn-rev-1045a.zip
-    (md5sum: d9a646601ea9d7151b43b27cbf1c8ac5)
-    
+  To just compile Inno Setup run compile-unicode.bat for Unicode Inno Setup or
+  compile.bat for Non Unicode Inno Setup and follow the instructions.
+  
+  To just compile the Inno Setup help file and its web version run
+  ishelp\compile.bat and follow the instructions.
+
+  To just compile the Inno Setup Preprocessor help file and its web version run
+  Projects\Ispp\Help\compile.bat and follow the instructions.
+  
 2. Delphi 2.0x users ONLY
 =========================
 
@@ -80,7 +103,6 @@ do two things:
 
   http://www.jrsoftware.org/files/delphi200units.zip
     (md5sum: 94530f3c400c728df897d7d740889487)
-
 
 3. Component Installation
 =========================
@@ -109,7 +131,6 @@ itself, these require Delphi 3 or later.)
 If you only want to edit code, then you may skip installation of the
 components, and choose "Cancel" if the Delphi IDE tells you a class can't
 be found.
-
 
 4. Overview
 ===========
@@ -151,7 +172,18 @@ How do the projects link together?
 - There are more units which are shared between projects. Search the 'uses'
   clauses of the projects and units if you aren't sure if a project uses a
   particular unit.
+  
+Inno Setup Preprocessor consists of two projects:
 
+ISPPCC.dpr - This is Inno Setup's ISCC command-line front-end with extra
+preprocessor related parameters added.
+
+ISPP.dpr - This is a DLL implementing Inno Setup's preprocessor interface
+
+How do the projects link together?
+
+- Various copies of Inno Setup files are used. To synch these run
+  synch-isfiles.bat.
 
 5. Source code tips
 ===================
@@ -234,3 +266,10 @@ Examples\MyProg.exe, Examples\MyProg-IA64.exe, Examples\MyProg-x64.exe -
 Compiled by Visual Studio 2005 from the Examples\MyProg directory.
 
 Examples\MyDll.dll
+
+7. Inno Setup-specific editing guidelines for the help files
+============================================================
+
+- When mentioning something the user would type in a script, e.g. "MinVersion",
+  surround it by <tt></tt> so that it's displayed in the Courier New font. This is
+  a convention I've used throughout the help file. Example: <tt>MinVersion</tt>
