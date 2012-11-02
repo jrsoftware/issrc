@@ -4,17 +4,17 @@
 <title>Inno Setup 5 Revision History</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <style type="text/css">
-	body		{ font: small verdana, arial, sans-serif; color: black; background-color: white }
-	a:link		{ color: #264b99; background-color: white }
-	a:visited	{ color: #5e85d7; background-color: white }
-	a:active	{ color: #7799dd; background-color: white }
-	tt		{ font: small "courier new", monospace }
-	li		{ margin-top: 0.15em; margin-bottom: 0.15em }
-	div.bluehead	{ text-align: center; color: white; background-color: #264b99; padding: 5px; font-weight: bold }
-	.head1		{ font-size: xx-large }
-	.head2		{ font-size: large }
-	.ver		{ font-size: large; font-weight: bold }
-	.date		{ font-size: x-small; font-weight: bold }
+    body         { font: small verdana, arial, sans-serif; color: black; background-color: white }
+    a:link       { color: #264b99; background-color: white }
+    a:active     { color: #7799dd; background-color: white }
+    a:visited    { color: #5e85d7; background-color: white }
+    tt           { font: small "courier new", monospace }
+    li           { margin-top: 0.15em; margin-bottom: 0.15em }
+    div.bluehead { text-align: center; color: white; background-color: #264b99; padding: 5px; font-weight: bold }
+    .date        { font-size: x-small; font-weight: bold }
+    .head1       { font-size: xx-large }
+    .head2       { font-size: large }
+    .ver         { font-size: large; font-weight: bold }
 </style>
 </head>
 <body>
@@ -47,8 +47,8 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
 <li>Added official Greek translation.</li>
 <li>Updated the official Catalan, Czech, Danish, Finnish, French (Standard), German, Hebrew, Hungarian, Italian, Japanese, Norwegian (Bokmal), Polish, Portuguese (Brazil), Portuguese (Portugal), Russian, Serbian (Cyrillic), Serbian (Latin), Slovenian, Spanish, and Ukrainian translations for the changes introduced by the previous version.</li>
-<li>Demoted the official <a href="http://jrsoftware.org/files/istrans/Basque-1/Basque-1-5.1.11.isl">Basque</a> and <a href="http://jrsoftware.org/files/istrans/Slovak-6/Slovak-6-5.1.11.isl">Slovak</a> translations to unofficial because of a lack of updates by the maintainers. To send updates yourself, see <a href="http://news.jrsoftware.org/read/article.php?id=2295&group=jrsoftware.innosetup.translations#2295">this post</a> for what needs updating and use <a href="http://www.jrsoftware.org/files/istrans/send2.php">this form</a> to send updates (or use <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>). See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.
-<li><i>Fix:</i> The <i>Preparing to Install</i> wizard page's detection of files that need to be updated but are in use or queued (by some other installation) to be replaced or deleted on the next restart did not work for [Files] and [InstallDelete] entries with a <tt>Components</tt> or <tt>Tasks</tt> parameter.
+<li>Demoted the official <a href="http://jrsoftware.org/files/istrans/Basque-1/Basque-1-5.1.11.isl">Basque</a> and <a href="http://jrsoftware.org/files/istrans/Slovak-6/Slovak-6-5.1.11.isl">Slovak</a> translations to unofficial because of a lack of updates by the maintainers. To send updates yourself, see <a href="http://news.jrsoftware.org/read/article.php?id=2295&amp;group=jrsoftware.innosetup.translations#2295">this post</a> for what needs updating and use <a href="http://www.jrsoftware.org/files/istrans/send2.php">this form</a> to send updates (or use <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>). See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.</li>
+<li><i>Fix:</i> The <i>Preparing to Install</i> wizard page's detection of files that need to be updated but are in use or queued (by some other installation) to be replaced or deleted on the next restart did not work for [Files] and [InstallDelete] entries with a <tt>Components</tt> or <tt>Tasks</tt> parameter.</li>
 <li>Minor tweaks.</li>
 </ul>
 
@@ -72,7 +72,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <li>Windows 7 changes:
   <ul>
   <li>Added new [Icons] section flag: <tt>preventpinning</tt>. Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions. Contributed by <a href="https://github.com/miniak" target="_blank">Milan Burda</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-  <li>Windows 7 SP1 fixed the issue with <tt>EstimatedSize</tt> values in the Uninstall registry key and on Windows 7 SP1 or newer Setup now sets <tt>EstimatedSize</tt> even for sizes of 4GB or more.
+  <li>Windows 7 SP1 fixed the issue with <tt>EstimatedSize</tt> values in the Uninstall registry key and on Windows 7 SP1 or newer Setup now sets <tt>EstimatedSize</tt> even for sizes of 4GB or more.</li>
   </ul>
 </li>
 <li>Improved the "auto-retry" feature of the [Files] section: it now automatically retries even if the <tt>restartreplace</tt> [Files] section flag is used.</li>
@@ -103,7 +103,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
 <li>QuickStart Pack: Now offers to download and install <a href="https://www.kymoto.org/inno-script-studio" target="_blank">Inno Script Studio</a> besides <a href="http://www.innoide.org/" target="_blank">InnoIDE</a>.</li>
 <li>Setup now only allows the "Don't create a Start Menu folder" check box to suppress the creation of shortcuts under <tt>{group}</tt>. Previously, it would also suppress the creation of shortcuts in other locations, such as <tt>{userstartup}</tt>, on entries that lacked a Tasks parameter.</li>
-<li>Setup now doesn't count files with <tt>Tasks</tt>/<tt>Check</tt> parameters when calculating the disk space shown at the bottom of the <i>Select Components</i> page.
+<li>Setup now doesn't count files with <tt>Tasks</tt>/<tt>Check</tt> parameters when calculating the disk space shown at the bottom of the <i>Select Components</i> page.</li>
 <li>Improved throughput of external file copying on some devices.</li>
 <li>On Unicode, Setup now supports Rich Edit 4.1 when available.</li>
 <li>Inno Setup Preprocessor (ISPP) changes:
@@ -113,7 +113,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li><tt>ReadReg</tt>: Now only requests KEY_QUERY_VALUE access on the key. Previously, it requested KEY_ALL_ACCESS.</li>
   </ul>
 </li>
-<li>The Inno Setup source code is now also available as a Git repository at <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>. This should make it easier to contribute to Inno Setup, see <a href="http://help.github.com/fork-a-repo/">GitHub Help - Fork A Repo</a> for more info.</li> 
+<li>The Inno Setup source code is now also available as a Git repository at <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>. This should make it easier to contribute to Inno Setup, see <a href="http://help.github.com/fork-a-repo/">GitHub Help - Fork A Repo</a> for more info.</li>
 <li>Added official Serbian (both Latin and Cyrillic) and Ukrainian translations.</li>
 <li>Minor tweaks.</li>
 </ul>
@@ -184,7 +184,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <ul>
   <li>TNewProgressBar: Added new <tt>Style</tt> and <tt>State</tt> properties. See the <i>CodeClasses.iss</i> example script for an example.</li>
   <li>TBitmapImage: Added new <tt>OnClick</tt> and <tt>OnDblClick</tt> properties. See the <i>CodeClasses.iss</i> example script for an example.</li>
-  </ul>  
+  </ul>
 </li>
 <li>Dropped Itanium-specific 64-bit support for the [Files] section's <tt>regtypelib</tt> flag and the [Registry] section's <tt>Permissions</tt> parameter. These features depended on an Itanium-specific "helper" binary, which we no longer have the ability to test or build. (x64 support for these features is unaffected.)</li>
 <li>Updated bzip2 library to version 1.0.6.</li>
