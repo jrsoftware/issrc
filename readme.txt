@@ -14,20 +14,24 @@ Remarks:
 
   First you need to download the sources from Github. From the command line do:
 
-  > git clone git://github.com/jrsoftware/issrc.git is  
+  > git clone git://github.com/jrsoftware/issrc.git is
   > cd is
   > git submodule init
-  > git submodule update  
+  > git submodule update
 
   If you don't have the Git client (git), get it from:
 
   http://git-scm.com/
-  
+
   To be able to contribute to Inno Setup, clone your own fork instead of
   cloning the main Inno Setup repository and make pull requests. See:
 
   https://help.github.com/articles/fork-a-repo
-  
+
+  To update your sources from the command line do:
+  > git pull
+  > git submodule update
+
 - Install Borland Delphi
 
   Unicode Inno Setup:
@@ -40,7 +44,7 @@ Remarks:
   exception of Compil32 which is compiled under Delphi 3.02 (for the better
   Far East character set support), and Inno Setup Preprocessor's projects which
   are compiled under Delphi 7.
-  
+
   Delphi 2.01 is used for the main projects because its VCL has a significantly
   smaller code size footprint than the later versions.
 
@@ -58,14 +62,14 @@ Remarks:
   If you are not sure whether you have MSXML 4.0 SP2 already, check for a
   file named msxml4.dll in your Windows System directory with a version number
   of 4.20.9818.0 (or later).
-  
+
   Note: Microsoft MSXML is only needed to be able to compile the help files.
 
 - Install Microsoft HTML Help Workshop
 
   Install Microsoft HTML Help Workshop if you haven't already done so.
   See http://www.microsoft.com/downloads/details.aspx?familyid=00535334-c8a6-452f-9aa0-d597d16580cc&displaylang=en
-  
+
   Note: Microsoft HTML Help Workshop is only needed to be able to compile the
   help files.
 
@@ -75,17 +79,17 @@ Remarks:
 
   To just compile Inno Setup run compile-unicode.bat for Unicode Inno Setup or
   compile.bat for Non Unicode Inno Setup and follow the instructions.
-  
+
   To just compile the Inno Setup help file and its web version run
   ishelp\compile.bat and follow the instructions.
 
   To just compile the Inno Setup Preprocessor help file and its web version run
   Projects\Ispp\Help\compile.bat and follow the instructions.
-  
+
 2. Delphi 2.0x users ONLY
 =========================
 
-Before you can successfully compile the projects in Delphi 2.0, you must 
+Before you can successfully compile the projects in Delphi 2.0, you must
 do two things:
 
 - Install the latest version of SYSTEM.DCU if you haven't already done so.
@@ -172,7 +176,7 @@ How do the projects link together?
 - There are more units which are shared between projects. Search the 'uses'
   clauses of the projects and units if you aren't sure if a project uses a
   particular unit.
-  
+
 Inno Setup Preprocessor consists of two projects:
 
 ISPPCC.dpr - This is Inno Setup's ISCC command-line front-end with extra
@@ -224,7 +228,7 @@ How do the projects link together?
 
   To download StripReloc, go to:
   http://www.jrsoftware.org/striprlc.php
-  
+
 - Delphi versions prior to 5 store .dfm files in a binary format. To be able to
   track changes to the forms using ordinary "diff" commands, .dfm.txt "mirrors"
   of the binary .dfm files have been created. Each time a .dfm file is
