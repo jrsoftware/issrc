@@ -50,7 +50,7 @@ A:visited, A:active {
 </table>
 
 
-<p>The <b>Inno Setup Frequently Asked Questions</b> contains supplemental information not found in the <a href="http://www.jrsoftware.org/ishelp/" target="blank">documentation</a> or the <a href="http://www.jrsoftware.org/iskb.php">Knowledge Base</a>.</p>
+<p>The <b>Inno Setup Frequently Asked Questions</b> contains supplemental information not found in the <a href="ishelp/" target="blank">documentation</a> or the <a href="iskb.php">Knowledge Base</a>.</p>
 
 <h3>Functionality</h3>
 <ul>
@@ -59,7 +59,6 @@ A:visited, A:active {
 <li><a href="#msi">Will it support Windows Installer in the future?</a></li>
 <li><a href="#setupicon">How do I change the icon of Setup.exe?</a></li>
 <li><a href="#conditional">Can Inno Setup do a conditional installation - for example, proceed only if a certain registry key or file exists?</a></li>
-<li><a href="#webinstall">Is there a "web install" feature?</a></li>
 <li><a href="#silent">Is it possible to do a silent install without using the /SILENT or /VERYSILENT command-line parameters?</a></li>
 <li><a href="#dirnamereg">Can Setup use the value of a registry entry as the default directory name?</a></li>
 </ul>
@@ -82,7 +81,6 @@ A:visited, A:active {
 <h3>Installation Tasks</h3>
 <ul>
 <li><a href="#urls">Creating Internet (URL) Shortcuts</a></li>
-<li><a href="#quicklaunch">Creating Shortcuts on the Quick Launch Bar</a></li>
 <li><a href="#startin">Setting the "Start In" Field on a Shortcut</a></li>
 <li><a href="#assoc">Creating File Associations</a></li>
 <li><a href="#env">Setting Environment Variables</a></li>
@@ -106,7 +104,7 @@ A:visited, A:active {
 <h3>Compatibility</h3>
 <ul>
 <li><a href="#oscompat">OS Compatibility</a></li>
-<li><a href="#ntsecur">Windows NT/2000/XP/2003 &amp; Administrative Privileges</a></li>
+<li><a href="#ntsecur">Administrative Privileges</a></li>
 </ul>
 
 <h3>Miscellaneous</h3>
@@ -143,7 +141,7 @@ A:visited, A:active {
 
 <h4><a name="msi">Will it support Windows Installer in the future?</a></h4>
 <blockquote>
-<p>At the present time, I do not have plans for a Windows Installer edition of Inno Setup. "Supporting" Windows Installer would likely involve a near-complete rewrite of the program - something I don't have the time or interest to do.</p>
+<p>At the present time, there are no plans for a Windows Installer edition of Inno Setup. "Supporting" Windows Installer would likely involve a near-complete rewrite of the program.</p>
 </blockquote>
 
 <h4><a name="setupicon">How do I change the icon of Setup.exe?</a></h4>
@@ -157,10 +155,6 @@ A:visited, A:active {
 <p>Note: with earlier Inno Setup versions it was already possible to <a href="#difffiles">install different files depending on the Windows version</a>.</p>
 </blockquote>
 
-<h4><a name="webinstall">Is there a "web install" feature?</a></h4>
-<blockquote>
-<p>No, and at the time of this writing I don't have plans to add such a feature.</p>
-</blockquote>
 
 <h4><a name="silent">Is it possible to do a silent install without using the /SILENT or /VERYSILENT command-line parameters?</a></h4>
 <blockquote>
@@ -259,6 +253,7 @@ cls
 
 <h4><a name="missinglanguages">Some languages are missing on the <i>Select Setup Language</i> dialog, or it doesn't show up at all.</a></h4>
 <blockquote>
+<p>You are using Non Unicode Inno Setup:</li>
 <p>Beginning with Inno Setup 4.2.2, languages specified in the [Languages] section that cannot be displayed under the active Windows ANSI code page are not listed in the <i>Select Setup Language</i> dialog. For example, Russian text can only be displayed properly if the active code page is 1251; if the user isn't running code page 1251 they will not see Russian as an option.</p>
 <p>On Windows XP, the active code page may be changed by going to <i>Regional and Language Options</i> in Control Panel, and setting <i>Language for non-Unicode programs</i> on the Advanced tab. On Windows 2000, the active code page may be changed by going to <i>Regional Options</i> in Control Panel, and clicking <i>Set default...</i>.</p>
 <p>If you are sure you're running in the correct code page and a language still isn't being listed, then most likely <tt>LanguageCodePage</tt> is set incorrectly inside the language's .isl file.</p>
@@ -284,13 +279,6 @@ URL=http://web.site.address/
 </tt></p>
 </blockquote>
 
-<h4><a name="quicklaunch">Creating Shortcuts on the Quick Launch Bar</a></h4>
-<blockquote>
-<p>Upgrade to at least Inno Setup 1.3.11, then use:</p>
-<p><tt><b>[Icons]</b><br />
-<font color="blue">Name</font>: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\My Program"; <font color="blue">Filename</font>: "{app}\MyProg.exe"<br />
-</tt></p>
-</blockquote>
 
 <h4><a name="startin">Setting the "Start In" Field on a Shortcut</a></h4>
 <blockquote>
@@ -299,11 +287,11 @@ URL=http://web.site.address/
 
 <h4><a name="assoc">Creating File Associations</a></h4>
 <blockquote>
-<p>First set the [Setup] section directive "ChangesAssociations" to "yes". Then create [Registry] entries as shown below. <!--! <i>Note:</i> The indented lines are continuations of the preceding lines. --></p>
+<p>First set the [Setup] section directive "ChangesAssociations" to "yes". Then create [Registry] entries as shown below. </p>
 
 <p><tt>
 <b>[Registry]</b><br />
-<font color="blue">Root</font>: HKCR; <font color="blue">Subkey</font>: ".myp"; <font color="blue">ValueType</font>: string; <font color="blue">ValueName</font>: ""; ValueData: "MyProgramFile"; <font color="blue">Flags</font>: uninsdeletevalue uninsdeletekeyifempty
+<font color="blue">Root</font>: HKCR; <font color="blue">Subkey</font>: ".myp"; <font color="blue">ValueType</font>: string; <font color="blue">ValueName</font>: ""; ValueData: "MyProgramFile"; <font color="blue">Flags</font>: uninsdeletevalue
 </tt></p>
 <blockquote>
 ".myp" is the extension we're associating. "MyProgramFile" is the internal name for the file type as stored in the registry. Make sure you use a unique name for this so you don't inadvertently overwrite another application's registry key.
@@ -333,11 +321,10 @@ URL=http://web.site.address/
 
 <h4><a name="env">Setting Environment Variables</a></h4>
 <blockquote>
-<p>On Windows NT/2000/XP/2003, environment variables are stored as string values in the registry, so it is possible to manipulate them using the [Registry] section. System-wide environment variables are located at:</p>
+<p>Environment variables are stored as string values in the registry, so it is possible to manipulate them using the [Registry] section. System-wide environment variables are located at:</p>
 <blockquote>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment</blockquote>
 <p>User-specific environment variables are located at:</p>
 <blockquote>HKEY_CURRENT_USER\Environment</blockquote>
-<p>On Windows 95/98/Me, you'll need to modify AUTOEXEC.BAT to set environment variables. Inno Setup does not include any built-in feature for that, however you could write a small program to do that and execute it via the [Run] section (<a href="#custom">more info</a>).</p>
 </blockquote>
 
 <h4><a name="closeonexit">Setting the "Close on Exit" Box on a Shortcut to an MS-DOS Program</a></h4>
@@ -354,12 +341,6 @@ URL=http://web.site.address/
 <h4><a name="difffiles">Installing Different Files Depending on Windows Version</a></h4>
 <blockquote>
 <p>That can be done via MinVersion and/or OnlyBelowVersion parameters on an entry. See the Common Parameters topic in the documentation for details.</p>
-<p>Here is a simple example of how to install one file on NT platforms (Windows NT/2000/XP/2003) and another file on non-NT platforms (Windows 95/98/Me):</p>
-<p><tt><b>[Files]</b><br />
-<font color="blue">Source</font>: "{app}\WinNT2000XP.exe"; <font color="blue">DestDir</font>: "{app}"; <font color="blue">MinVersion</font>: 0, 1<br />
-<font color="blue">Source</font>: "{app}\Win9598Me.exe";   <font color="blue">DestDir</font>: "{app}"; <font color="blue">MinVersion</font>: 1, 0</tt></p>
-<p>"0" means never install; "1" means install on any version (i.e. version 1.0 or later).</p>
-<p>Note: The above technique isn't limited to the [Files] section; MinVersion and OnlyBelowVersion can be used in most sections.</p>
 </blockquote>
 
 <h4><a name="perms">Settings Permissions on Files, Directories, or Registry Keys</a></h4>
@@ -442,22 +423,20 @@ end;<br />
 
 <h4><a name="oscompat">OS Compatibility</a></h4>
 <blockquote>
-<p>Currently supported platforms include Windows 95, 98, 2000, 2003, XP, Me, and NT 4.0. No service packs or other OS updates are required on any of the supported platforms.</p>
-<p>I currently use and develop on Windows 2000 primarily, so Windows 2000 compatibility is foremost.</p>
-<p>When new major features are introduced, I usually test them personally on all supported Windows versions.</p>
-<p>The 16-bit version of Inno Setup was discontinued starting with version 1.3. Support for Windows NT 3.51 was discontinued starting with version 3.0.</p>
+<p>Currently supported platforms include every Windows release since 2000. No service packs or other OS updates are required on any of the supported platforms.</p>
+<p>The 16-bit version of Inno Setup was discontinued starting with version 1.3. Support for Windows NT 3.51 was discontinued starting with version 3.0. Support for Windows 95, 98, Me, and NT 4.0 was discontinued starting with version 5.5.</p>
 </blockquote>
 
-<h4><a name="ntsecur">Windows NT/2000/XP/2003 &amp; Administrative Privileges</a></h4>
+<h4><a name="ntsecur">Administrative Privileges</a></h4>
 <blockquote>
-<p>A typical Inno Setup installation running on Windows NT/2000/XP/2003 does not require administrative or "power user" privileges. However, there are exceptions as noted below.</p>
-<p>Things that require administrative privileges on both Windows NT/2000/XP/2003:</p>
+<p>A typical Inno Setup installation does not require administrative or "power user" privileges. However, there are exceptions as noted below.</p>
+<p>Things that require administrative privileges:</p>
 <ul>
 <li>Using "PrivilegesRequired=admin" in the script's [Setup] section. This causes Setup to abort with an error message if the user lacks administrative privileges.</li>
 <li>Using the "restartreplace" flag in the [Files] section. This flag causes Inno Setup to call the MoveFileEx function, which attempts to write to "HKEY_LOCAL_MACHINE\ SYSTEM\ CurrentControlSet\ Control\ Session Manager". Write access to this key is restricted to Administrators.</li>
 <li>Writing to any key under HKEY_USERS\.DEFAULT using the [Registry] section. Write access to this key is restricted to Administrators.</li>
 </ul>
-<p>Things that require <i>either</i> administrative or "power user" privileges on Windows 2000/XP/2003:</p>
+<p>Things that require <i>either</i> administrative or "power user" privileges:</p>
 <ul>
 <li>Using "PrivilegesRequired=poweruser" in the script's [Setup] section. This causes Setup to abort with an error message if the user lacks either administrative or "power user" privileges.</li>
 <li>Using the "regserver" flag in the [Files] section. In most cases registering a DLL involves writing to HKEY_CLASSES_ROOT, a privilege not granted to ordinary users.</li>
