@@ -16,28 +16,16 @@ if exist compilesettings.bat goto compilesettingsfound
 echo ishelp\compilesettings.bat is missing or incomplete. It needs to be created
 echo with the following lines, adjusted for your system:
 echo.
-echo   set DELPHI7ROOT=%%ProgramFiles%%\delphi 7                [Path to Delphi 7 (or later)]
 echo   set HHCEXE=%%ProgramFiles%%\HTML Help Workshop\hhc.exe   [Path to help compiler]
 goto failed2
 
 :compilesettingsfound
-set DELPHI7ROOT=
 set HHCEXE=
 call .\compilesettings.bat
-if "%DELPHI7ROOT%"=="" goto compilesettingserror
 if "%HHCEXE%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
-echo Compiling ISHelpGen.dpr:
-cd ISHelpGen
-if errorlevel 1 goto failed
-"%DELPHI7ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI7ROOT%\lib" ISHelpGen.dpr
-if errorlevel 1 goto failed
-cd ..
-if errorlevel 1 goto failed
-
-echo.
 echo Generating help files:
 echo.
 ISHelpGen\ISHelpGen.exe .

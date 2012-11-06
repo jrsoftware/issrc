@@ -262,6 +262,8 @@ Projects\LzmaDecode\LzmaDecodeInno.obj - See Projects\LzmaDecode\compiling.txt.
 Projects\lzma2\Decoder\ISLzmaDec.obj, Projects\lzma2\Decoder\ISLzma2Dec.obj -
 See Projects\lzma2\Decoder\compiling.txt.
 
+ishelp\ISHelpGen\ISHelpGen.exe - See ishelp\ISHelpGen\compile.bat
+
 Examples\MyProg.exe, Examples\MyProg-IA64.exe, Examples\MyProg-x64.exe -
 Compiled by Visual Studio 2005 from the Examples\MyProg directory.
 
