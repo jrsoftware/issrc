@@ -1843,7 +1843,7 @@ Filename: "http://www.example.com/"
 <p>Same as <tt>closeonexit</tt>, except it causes Setup to uncheck the "Close on Exit" property.</p>
 </flag>
 <flag name="excludefromshowinnewinstall">
-<p>Prevents a Start menu entry for a newly installed application shortcut from receiving a highlight on Windows 7 (or later). Ignored on earlier Windows versions.</p>
+<p>Prevents the Start menu entry for the new shortcut from receiving a highlight on Windows 7 and additionally prevents the new shortcut from being automatically pinned the Start screen on Windows 8 (or later). Ignored on earlier Windows versions.</p>
 </flag>
 <flag name="foldershortcut">
 <p>Creates a special type of shortcut known as a "Folder Shortcut". Normally, when a shortcut to a folder is present on the Start Menu, clicking the item causes a separate Explorer window to open showing the target folder's contents. In contrast, a "folder shortcut" will show the contents of the target folder as a submenu instead of opening a separate window.</p>
