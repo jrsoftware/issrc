@@ -46,6 +46,12 @@ begin
   Result := (WindowsVersion >= Cardinal($06010000));
 end;
 
+function IsWindows8: Boolean;
+{ Returns True if running Windows 8 or later }
+begin
+  Result := (WindowsVersion >= Cardinal($06020000));
+end;
+
 procedure AssignWorkingDir(const SL: IShellLink; const WorkingDir: String);
 { Assigns the specified working directory to SL. If WorkingDir is empty then
   we select one ourself as best we can. (Leaving the working directory field
@@ -167,6 +173,10 @@ const
   PKEY_AppUserModel_PreventPinning: TPropertyKey = (
     fmtid: (D1:$9F4C2855; D2:$9F79; D3:$4B39; D4:($A8,$D0,$E1,$D4,$2D,$E1,$D5,$F3));
     pid: 9);
+  PKEY_AppUserModel_StartPinOption: TPropertyKey = (
+    fmtid: (D1:$9F4C2855; D2:$9F79; D3:$4B39; D4:($A8,$D0,$E1,$D4,$2D,$E1,$D5,$F3));
+    pid: 12);
+  APPUSERMODEL_STARTPINOPTION_NOPINONINSTALL = 1;
 
 {$IFNDEF Delphi3OrHigher}
 var
@@ -242,6 +252,13 @@ begin
         OleResult := PS.SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall, PV);
         if OleResult <> S_OK then
           RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall)', OleResult);
+        if IsWindows8 then begin
+          PV.vt := VT_I4;
+          PV.lVal := APPUSERMODEL_STARTPINOPTION_NOPINONINSTALL;
+          OleResult := PS.SetValue(PKEY_AppUserModel_StartPinOption, PV);
+          if OleResult <> S_OK then
+            RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_StartPinOption)', OleResult);
+        end;
       end;
       OleResult := PS.Commit;
       if OleResult <> S_OK then
@@ -338,6 +355,13 @@ begin
       OleResult := PS.SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall, PV);
       if OleResult <> S_OK then
         RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall)', OleResult);
+      if IsWindows8 then begin
+        PV.vt := VT_UI4;
+        PV.ulVal := APPUSERMODEL_STARTPINOPTION_NOPINONINSTALL;
+        OleResult := PS.SetValue(PKEY_AppUserModel_StartPinOption, PV);
+        if OleResult <> S_OK then
+          RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_StartPinOption)', OleResult);
+      end;
     end;
     OleResult := PS.Commit;
     if OleResult <> S_OK then
