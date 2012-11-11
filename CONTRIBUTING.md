@@ -8,7 +8,8 @@ For conditions of distribution and use, see LICENSE.TXT.
 Contributing issues
 -------------------
 
-The GitHub issue tracker should only be used for one of the following:
+To contribute issues use the GitHub [issue tracker](https://www.github.com/jrsoftware/issrc/issues).
+Should only be used for one of the following:
 
 - To report bugs.
 
