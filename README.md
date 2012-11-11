@@ -1,25 +1,27 @@
 Inno Setup
-Copyright (C) 1997-2012 Jordan Russell. All rights reserved.
-Portions Copyright (C) 2000-2012 Martijn Laan. All rights reserved.
+==========
+
+Copyright (C) 1997-2012 Jordan Russell. All rights reserved.  
+Portions Copyright (C) 2000-2012 Martijn Laan. All rights reserved.  
 For conditions of distribution and use, see LICENSE.TXT.
 
 Source code README
 
-Remarks:
-
 1. Getting Started
-==================
+------------------
 
 - Obtaining sources
 
   First you need to download the sources from Github. From the command line do:
 
+  ```
   > git clone git://github.com/jrsoftware/issrc.git is
   > cd is
   > git submodule init
   > git submodule update
-
-  If you don't have the Git client (git), get it from:
+  ```
+  
+  If you don't have the Git client (`git`), get it from:
 
   http://git-scm.com/
 
@@ -29,9 +31,11 @@ Remarks:
   https://help.github.com/articles/fork-a-repo
 
   To update your sources from the command line do:
+  ```
   > git pull
   > git submodule update
-
+  ```
+  
 - Install Borland Delphi
 
   Unicode Inno Setup:
@@ -87,7 +91,7 @@ Remarks:
   Projects\Ispp\Help\compile.bat and follow the instructions.
 
 2. Delphi 2.0x users ONLY
-=========================
+-------------------------
 
 Before you can successfully compile the projects in Delphi 2.0, you must
 do two things:
@@ -109,7 +113,7 @@ do two things:
     (md5sum: 94530f3c400c728df897d7d740889487)
 
 3. Component Installation
-=========================
+-------------------------
 
 If you intend to view or modify the Setup project's forms, you must install
 the following component units, which can be found in the Components
@@ -137,34 +141,34 @@ components, and choose "Cancel" if the Delphi IDE tells you a class can't
 be found.
 
 4. Overview
-===========
+-----------
 
 Inno Setup consists of seven projects:
 
-Compil32 - This is the GUI front-end for the compiler. Compil32 does not
+**Compil32** - This is the GUI front-end for the compiler. Compil32 does not
 do the actual compilation itself; it relegates it to ISCmplr.dll. If the
 ISCmplr project is changed, you normally don't need to recompile Compil32
 since it's essentially a text editor, and is not affected by internal
-changes to the compiler.
+changes to the compiler.  
 Non Unicode Inno Setup note: This is the only project that is compiled
 under Delphi 3 (3.02 to be exact). The rest of the projects are compiled
 under Delphi 2.01.
 
-ISCC - This is the command-line front-end to the compiler. Like
+**ISCC** - This is the command-line front-end to the compiler. Like
 Compil32, it depends on ISCmplr.dll to do the actual compiling.
 
-ISCmplr - This is a DLL which is loaded by Compil32 and ISCC to compile
+**ISCmplr** - This is a DLL which is loaded by Compil32 and ISCC to compile
 scripts. The actual compiler code is in Compile.pas. See CompInt.pas for the
 various structures and function declarations used to interface to the DLL.
 
-Setup - This is the actual "Setup" program. It displays the wizard, and
+**Setup** - This is the actual "Setup" program. It displays the wizard, and
 performs all (un)installation-related tasks.
 
-SetupLdr - This is the "setup loader." It self-extracts a compressed
+**SetupLdr** - This is the "setup loader." It self-extracts a compressed
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." message box.
 
-ISPP & ISPPCC - See Projects\ISPP\readme.txt for more information.
+**ISPP** & **ISPPCC** - See Projects\ISPP\readme.txt for more information.
 
 How do the projects link together?
 
@@ -179,10 +183,10 @@ How do the projects link together?
 
 Inno Setup Preprocessor consists of two projects:
 
-ISPPCC.dpr - This is Inno Setup's ISCC command-line front-end with extra
+**ISPPCC.dpr** - This is Inno Setup's ISCC command-line front-end with extra
 preprocessor related parameters added.
 
-ISPP.dpr - This is a DLL implementing Inno Setup's preprocessor interface
+**ISPP.dpr** - This is a DLL implementing Inno Setup's preprocessor interface
 
 How do the projects link together?
 
@@ -190,7 +194,7 @@ How do the projects link together?
   synch-isfiles.bat.
 
 5. Source code tips
-===================
+-------------------
 
 - If you modify the Setup or SetupLdr projects and want to be able to compile
   your installations with the new code, you'll need to copy the new EXE
@@ -239,7 +243,7 @@ How do the projects link together?
   http://www.jrsoftware.org/files/misc/dfm2text.zip
 
 6. Precompiled executables and libraries
-========================================
+----------------------------------------
 
 The source code contains several precompiled executables and libaries:
 
@@ -274,8 +278,8 @@ Compiled by Visual Studio 2005 from the Examples\MyProg directory.
 Examples\MyDll.dll
 
 7. Inno Setup-specific editing guidelines for the help files
-============================================================
+------------------------------------------------------------
 
 - When mentioning something the user would type in a script, e.g. "MinVersion",
-  surround it by <tt></tt> so that it's displayed in the Courier New font. This is
-  a convention I've used throughout the help file. Example: <tt>MinVersion</tt>
+  surround it by `<tt></tt>` so that it's displayed in the Courier New font. This is
+  a convention used throughout the help file. Example: `<tt>MinVersion</tt>`
