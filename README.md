@@ -212,11 +212,13 @@ How do the projects link together?
   why is a Cardinal cast sometimes used around the constant expression?
   For example:
 
+  ```delphi
   var
-    X: Cardinal;
+      X: Cardinal;
   begin
-    if X > Cardinal(1) then
-      ...
+      if X > Cardinal(1) then
+          ...
+  ```
 
   The cast is needed to to work around a bug in Delphi 2 and 3 compilers:
   without it, a *signed* comparison is done.
@@ -246,35 +248,33 @@ How do the projects link together?
 
 The source code contains several precompiled executables and libaries:
 
-Files\isbunzip.dll, Files\isbzip.dll - Compiled by Visual Studio 2005 from
-the bzlib directory in the Iscompress repository.
+**Files\isbunzip.dll**, **Files\isbzip.dll** - Compiled by Visual Studio 2005
+from the bzlib directory in the Iscompress repository.
 
-Files\isunzlib.dll, Files\iszlib.dll - Compiled by Visual Studio 2005 from
-the zlib-dll directory in the Iscompress repository.
+**Files\isunzlib.dll**, **Files\iszlib.dll** - Compiled by Visual Studio 2005
+from the zlib-dll directory in the Iscompress repository.
 
-Files\islzma.dll, Files\islzma32.exe, Files\islzma64.exe - Compiled by Visual
-Studio 2005 from the Projects\lzma2\Encoder directory.
+**Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
+by Visual Studio 2005 from the Projects\lzma2\Encoder directory.
 
-Files\isscint.dll - Compiled by Visual Studio 2005 from Scintila 2.22 source
+**Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintila 2.22 source
 code with scintilla-2.22-patch.txt applied.
 
-Projects\_shfolder.res - shfolder.dll from a fresh install of IE 5.5 SP2 on
+**Projects\_shfolder.res** - shfolder.dll from a fresh install of IE 5.5 SP2 on
 NT 4.0 stored in a compiled resource file.
 
-Projects\HelperEXEs.res - Compiled by Visual Studio 2005 from the
+**Projects\HelperEXEs.res** - Compiled by Visual Studio 2005 from the
 Projects\Helper directory and then stored in a compiled resource file.
 
-Projects\LzmaDecode\LzmaDecodeInno.obj - See Projects\LzmaDecode\compiling.txt.
+**Projects\LzmaDecode\LzmaDecodeInno.obj** - See Projects\LzmaDecode\compiling.txt.
 
-Projects\lzma2\Decoder\ISLzmaDec.obj, Projects\lzma2\Decoder\ISLzma2Dec.obj -
+**Projects\lzma2\Decoder\ISLzmaDec.obj**, **Projects\lzma2\Decoder\ISLzma2Dec.obj** -
 See Projects\lzma2\Decoder\compiling.txt.
 
-ishelp\ISHelpGen\ISHelpGen.exe - See ishelp\ISHelpGen\compile.bat
+**ishelp\ISHelpGen\ISHelpGen.exe** - See ishelp\ISHelpGen\compile.bat
 
-Examples\MyProg.exe, Examples\MyProg-IA64.exe, Examples\MyProg-x64.exe -
+**Examples\MyProg.exe**, **Examples\MyProg-IA64.exe**, **Examples\MyProg-x64.exe** -
 Compiled by Visual Studio 2005 from the Examples\MyProg directory.
-
-Examples\MyDll.dll
 
 7. Inno Setup-specific editing guidelines for the help files
 ------------------------------------------------------------
