@@ -20,22 +20,21 @@ Source code README
   > git submodule init
   > git submodule update
   ```
-  
+
   If you don't have the Git client (`git`), get it from:
 
   http://git-scm.com/
-
-  To be able to contribute to Inno Setup, clone your own fork instead of
-  cloning the main Inno Setup repository and make pull requests. See:
-
-  https://help.github.com/articles/fork-a-repo
 
   To update your sources from the command line do:
   ```
   > git pull
   > git submodule update
   ```
-  
+
+  To be able to contribute to Inno Setup, clone your own fork instead of
+  cloning the main Inno Setup repository, commit your work on topic branches
+  and make pull requests. See [CONTRIBUTING.md](https://www.github.com/jrsoftware/issrc/blob/master/CONTRIBUTING.md).
+
 - Install Borland Delphi
 
   Unicode Inno Setup:
