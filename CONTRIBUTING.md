@@ -56,3 +56,7 @@ topic branches and make pull requests. In detail:
    clear title and description.
 
 10. Bask in the eternal glory of being an Inno Setup contributor :)
+
+If you don't have the Git client (`git`), get it from:
+
+http://git-scm.com/
