@@ -14,7 +14,7 @@ interface
 {$I VERSION.INC}
 
 function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
-  WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
+  WorkingDir: String; IconFilename: String; const IconIndex, ShowCmd: Integer;
   const HotKey: Word; FolderShortcut: Boolean; const AppUserModelID: String;
   const ExcludeFromShowInNewInstall, PreventPinning: Boolean): String;
 procedure RegisterTypeLibrary(const Filename: String);
@@ -151,7 +151,7 @@ type
 {$ENDIF}
 
 function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
-  WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
+  WorkingDir: String; IconFilename: String; const IconIndex, ShowCmd: Integer;
   const HotKey: Word; FolderShortcut: Boolean; const AppUserModelID: String;
   const ExcludeFromShowInNewInstall, PreventPinning: Boolean): String;
 { Creates a lnk file named Filename, with a description of Description, with a
@@ -320,8 +320,16 @@ begin
   SL.SetArguments(PChar(Parameters));
   if not FolderShortcut then
     AssignWorkingDir(SL, WorkingDir);
-  if IconFilename <> '' then
+  if IconFilename <> '' then begin
+    { Work around a 64-bit Windows bug. It replaces pf32 with %ProgramFiles%
+      which is wrong. This causes an error when the user tries to change the
+      icon of the installed shortcut. Note that the icon does actually display
+      fine because it *also* stores the original 'non replaced' path in the
+      shortcut. } 
+    if IsWin64 and not Is64BitInstallMode then
+      StringChange(IconFileName, ExpandConst('{pf32}'), '%ProgramFiles(x86)%');
     SL.SetIconLocation(PChar(IconFilename), IconIndex);
+  end;
   SL.SetShowCmd(ShowCmd);
   if Description <> '' then
     SL.SetDescription(PChar(Description));
