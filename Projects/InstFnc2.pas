@@ -210,8 +210,16 @@ begin
     SL.SetArguments(PChar(Parameters));
     if not FolderShortcut then
       AssignWorkingDir(SL, WorkingDir);
-    if IconFilename <> '' then
+    if IconFilename <> '' then begin
+      { Work around a 64-bit Windows bug. It replaces pf32 with %ProgramFiles%
+      which is wrong. This causes an error when the user tries to change the
+      icon of the installed shortcut. Note that the icon does actually display
+      fine because it *also* stores the original 'non replaced' path in the
+      shortcut. } 
+      if IsWin64 then
+        StringChangeEx(IconFileName, ExpandConst('{pf32}\'), '%ProgramFiles(x86)%\', True);
       SL.SetIconLocation(PChar(IconFilename), IconIndex);
+    end;
     SL.SetShowCmd(ShowCmd);
     if Description <> '' then
       SL.SetDescription(PChar(Description));
@@ -326,7 +334,7 @@ begin
       icon of the installed shortcut. Note that the icon does actually display
       fine because it *also* stores the original 'non replaced' path in the
       shortcut. } 
-    if IsWin64 and not Is64BitInstallMode then
+    if IsWin64 then
       StringChangeEx(IconFileName, ExpandConst('{pf32}\'), '%ProgramFiles(x86)%\', True);
     SL.SetIconLocation(PChar(IconFilename), IconIndex);
   end;
