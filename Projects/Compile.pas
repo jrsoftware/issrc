@@ -2513,27 +2513,6 @@ begin
   Result := PrependDirName(Filename, SourceDir);
 end;
 
-function MinVersionErrorMessage(const Param: Boolean;
-  const WinVersion, NTVersion: Word): String;
-
-  function VerToStr(const Ver: Cardinal): String;
-  begin
-    with TSetupVersionDataVersion(Ver) do
-      FmtStr(Result, '%d.%d', [Major, Minor]);
-  end;
-
-var
-  WinVer, NTVer: String;
-begin
-  WinVer := VerToStr(WinVersion shl 16);
-  NTVer := VerToStr(NTVersion shl 16);
-  if not Param then
-    FmtStr(Result, SCompilerMinVersionError, [WinVer, NTVer, WinVer, NTVer])
-  else
-    FmtStr(Result, SCompilerMinVersionErrorParam, [WinVer, NTVer,
-      WinVer, NTVer, WinVer, NTVer]);
-end;
-
 function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVersionData;
   const AllowedConsts: TAllowedConsts): Boolean;
 { Returns True if S contains constants. Aborts compile if they are invalid. }
@@ -2790,15 +2769,11 @@ const
   AllowedConstsNames: array[TAllowedConst] of String = (
     'olddata', 'break');
 var
-  NotWin98orNT4: Boolean;
   I, Start, K: Integer;
   C: TAllowedConst;
   Cnst: String;
 label 1;
 begin
-  with MinVersion do
-    NotWin98orNT4 := ((WinVersion <> 0) and (WinVersion < $040A0000)) or
-      ((NTVersion <> 0) and (NTVersion < $04000000));
   Result := False;
   I := 1;
   while I <= Length(S) do begin
@@ -2861,13 +2836,6 @@ begin
           for K := Low(ShellFolderConsts) to High(ShellFolderConsts) do
             if Cnst = ShellFolderConsts[K] then
               goto 1;
-          for K := Low(ShellFolderConsts98) to High(ShellFolderConsts98) do
-            if Cnst = ShellFolderConsts98[K] then begin
-              if NotWin98orNT4 then
-                AbortCompileOnLineFmt(SCompilerConstUsed + SNewLine2 +
-                  MinVersionErrorMessage(True, $40A, $400), [Cnst]);
-              goto 1;
-            end;
           for C := Low(C) to High(C) do
             if Cnst = AllowedConstsNames[C] then begin
               if not(C in AllowedConsts) then

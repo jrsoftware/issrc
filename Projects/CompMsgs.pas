@@ -222,19 +222,6 @@ const
   SCompilerUnterminatedConst = 'A "}" is missing at the end of the constant "%s".' +
     SNewLine2 + SCompilerTwoBraces;
   SCompilerConstCannotUse = 'The constant "%s" cannot be used here';
-  SCompilerConstUsed =
-    'The constant "%s" is used.';
-  SCompilerMinVersionError =
-    'This is not permitted unless the minimum Windows and Windows NT ' +
-    'versions for the installation are at least %s and %s respectively. This ' +
-    'can be set by adding a "MinVersion=%s,%s" setting to the [Setup] ' +
-    'section of the script';
-  SCompilerMinVersionErrorParam =
-    'This is not permitted unless the minimum Windows and Windows NT ' +
-    'versions for the entry are at least %s and %s respectively. This can ' +
-    'be set by adding a "MinVersion: %s,%s" parameter to it. Alternatively, ' +
-    'you can set the minimum versions globally by adding a "MinVersion=%s,%s" ' +
-    'setting to the [Setup] section of the script';
   SCompilerBadEnvConst = 'Invalid environment constant "%s"';
   SCompilerBadRegConst = 'Invalid registry constant "%s"';
   SCompilerBadIniConst = 'Invalid INI constant "%s"';
