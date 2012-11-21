@@ -327,7 +327,7 @@ begin
       fine because it *also* stores the original 'non replaced' path in the
       shortcut. } 
     if IsWin64 and not Is64BitInstallMode then
-      StringChange(IconFileName, ExpandConst('{pf32}'), '%ProgramFiles(x86)%');
+      StringChangeEx(IconFileName, ExpandConst('{pf32}\'), '%ProgramFiles(x86)%\', True);
     SL.SetIconLocation(PChar(IconFilename), IconIndex);
   end;
   SL.SetShowCmd(ShowCmd);
