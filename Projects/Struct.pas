@@ -2,7 +2,7 @@ unit Struct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -10,15 +10,17 @@ unit Struct;
   SetupLdr, and Uninst projects
 }
 
+{$I VERSION.INC}
+
 interface
 
 uses
-  Windows, Int64Em, SHA1;
+  Windows, {$IFNDEF Delphi3orHigher} OLE2, {$ENDIF} Int64Em, SHA1;
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '5.5.2 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
-  SetupBinVersion = (5 shl 24) + (5 shl 16) + (2 shl 8) + 0;
+  SetupVersion = '5.6.0 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
+  SetupBinVersion = (5 shl 24) + (6 shl 16) + (0 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -33,13 +35,16 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (5.5.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  SetupID: TSetupID = 'Inno Setup Setup Data (5.6.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  SetupPackageID: TSetupID = 'Inno Setup Package Data (5.6.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
-  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (5.5.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (5.6.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!001';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idska32'#26;
+  WebSetupInfoID = 'isswebinfo';
+  WebSetupFilename = 'setup.webinfo';
 type
   TSetupVersionDataVersion = packed record
     Build: Word;
@@ -77,7 +82,7 @@ const
     ('Unknown', 'x86', 'x64', 'Itanium');
 
 const
-  SetupHeaderStrings = 27;
+  SetupHeaderStrings = 28;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
@@ -87,16 +92,16 @@ type
       UninstallDisplayIcon, AppMutex, DefaultUserInfoName, DefaultUserInfoOrg,
       DefaultUserInfoSerial, AppReadmeFile, AppContact, AppComments,
       AppModifyPath, CreateUninstallRegKey, Uninstallable,
-      CloseApplicationsFilter: String;
+      CloseApplicationsFilter, WebSetupUpdateURL: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
 {$IFNDEF UNICODE}
     LeadBytes: set of AnsiChar;
 {$ENDIF}
     NumLanguageEntries, NumCustomMessageEntries, NumPermissionEntries,
-      NumTypeEntries, NumComponentEntries, NumTaskEntries, NumDirEntries,
-      NumFileEntries, NumFileLocationEntries, NumIconEntries, NumIniEntries,
-      NumRegistryEntries, NumInstallDeleteEntries, NumUninstallDeleteEntries,
-      NumRunEntries, NumUninstallRunEntries: Integer;
+      NumTypeEntries, NumComponentEntries, NumTaskEntries, NumPackageEntries,
+      NumDirEntries, NumFileEntries, NumFileLocationEntries, NumIconEntries,
+      NumIniEntries, NumRegistryEntries, NumInstallDeleteEntries,
+      NumUninstallDeleteEntries, NumRunEntries, NumUninstallRunEntries: Integer;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     BackColor, BackColor2, WizardImageBackColor: Longint;
     PasswordHash: TSHA1Digest;
@@ -112,7 +117,18 @@ type
     ArchitecturesAllowed, ArchitecturesInstallIn64BitMode: TSetupProcessorArchitectures;
     DisableDirPage, DisableProgramGroupPage: TSetupDisablePage;
     UninstallDisplaySize: Integer64;
+    SetupGuid: TGUID; { Identifies the setup and enables a web based installer to verify if the
+                        web packages were built with the exact same setup. }
     Options: set of TSetupHeaderOption;
+  end;
+const
+  SetupPackageHeaderStrings = 0;
+  SetupPackageHeaderAnsiStrings = 0;
+type
+  PSetupPackageHeader = ^TSetupPackageHeader;
+  TSetupPackageHeader = packed record
+    PackageGuid: TGUID;
+    TotalSize: Cardinal; { same limit as TDiskSliceHeader.TotalSize }
   end;
 const
   SetupPermissionEntryStrings = 0;
@@ -196,6 +212,16 @@ type
       toDontInheritCheck);
   end;
 const
+  SetupPackageEntryStrings = 3;
+  SetupPackageEntryAnsiStrings = 0;
+type
+  PSetupPackageEntry = ^TSetupPackageEntry;
+  TSetupPackageEntry = packed record
+    Name, Description, SourceFilename: String;
+    PackageGuid: TGUID;
+    Options: set of (poLocalCopy, poUsed);
+  end;
+const
   SetupDirEntryStrings = 7;
   SetupDirEntryAnsiStrings = 0;
 type
@@ -222,6 +248,7 @@ type
     Attribs: Integer;
     ExternalSize: Integer64;
     PermissionsEntry: Smallint;
+    PackageIndex: Smallint;
     Options: set of (foConfirmOverwrite, foUninsNeverUninstall, foRestartReplace,
       foDeleteAfterInstall, foRegisterServer, foRegisterTypeLib, foSharedFile,
       foCompareTimeStamp, foFontIsntTrueType,
@@ -249,6 +276,7 @@ type
     SHA1Sum: TSHA1Digest;
     TimeStamp: TFileTime;
     FileVersionMS, FileVersionLS: DWORD;
+    PackageIndex: Smallint; // Index: 0 => no package, Index 1: First external package
     Flags: set of (foVersionInfoValid, foVersionInfoNotValid, foTimeStampInUTC,
       foIsUninstExe, foCallInstructionOptimized, foTouch, foChunkEncrypted,
       foChunkCompressed, foSolidBreak);

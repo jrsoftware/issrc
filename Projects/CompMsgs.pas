@@ -154,6 +154,7 @@ const
   SCompilerNotEnoughSpaceOnFirstDisk = 'There is not enough space on the first disk to copy all of the required files';
   SCompilerSetup0Mismatch = 'Internal error SC1';
   SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled in order to create an installation larger than %d bytes in size';
+  SCompilerMustDisableDiskSpanning = 'Disk spanning must be disabled in order to use the %s option';
   SCompilerCompileCodeError = 'An error occurred while trying to compile the [Code] section:' + SNewLine2 + '%s';
   SCompilerISCryptMissing = 'Cannot use encryption because ISCrypt.dll is missing.' + SNewLine2 +
     'Note: This file is not installed with Inno Setup. A link to obtain it can be found on the Inno Setup web site';
@@ -296,6 +297,10 @@ const
   SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task'; 
   SCompilerLanguagesBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
 
+  { [Packages] }
+  SCompilerPackageNameAlreadyExists = 'The package "%s" already exists';
+  SCompilerPackageSourceAlreadyExists = 'A package with source "%s" already exists';
+
   { [Languages] }
   SCompilerParamUnknownLanguage = 'Parameter "%s" includes an unknown language';
 
@@ -352,6 +357,7 @@ const
   SCompilerFilesWarningSharedFileSysWow64 = 'DestDir should not be set to ' +
     '"{syswow64}" when the "sharedfile" flag is used. See the "sharedfile" ' +
     'documentation in the help file for details.';
+  SCompilerFilesUnknownPackage = 'A package named "%s" has not been defined.';
 
   { [Icons] }
   SCompilerIconsNamePathNotSpecified = 'Parameter "Name" must include a path for the icon, ' +

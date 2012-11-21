@@ -2320,6 +2320,28 @@ end;</pre></example>
         <description><p>Makes sure that Setup or Uninstall is visible and the foreground window.</p></description>
       </function>
     </subcategory>
+    <subcategory>
+      <function>
+        <name>DownloadWebFile</name>
+        <prototype>procedure DownloadWebFile(const URL, Description, DestFilename, Referer, ProxyUserName, ProxyPassword: string; FtpTextMode, FtpPassive: Boolean);</prototype>
+        <description><p>Downloads the file from the URL. It shows the WebDownloadProgressGauge if the InstallPage is active. Otherwise it shows a small download form and disables the WizardForm until the download has finished or failed.</p>
+<p>Supported protocols are &quot;http://&quot; and &quot;https://&quot;. With the special &quot;download://&quot; protocol the file must be downloaded from the <link topic="scriptevents" anchor="WebFileDownloadHandler">WebFileDownloadHandler</link> event.</p>
+<p>Examples for URL<br />
+http://www.example.com/myfile.dat<br />
+http://username:password@www.example.com:88/download/myfile.dat<br />
+download://www.example.com/MySpecialProtectdFile.dat</p>
+</description>
+        <remarks><p>The function raises an exception if the download fails.</p></remarks>
+          <example><pre>
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  if CurPageId = wpReady then // uses download dialog
+    DownloadWebFile('http://www.example.com/MyFile.dat', 'Downloading newest MyFile.dat', 'D:\Temp\MyFile.dat', '', '', '', False, False)
+  else if CurPageID = wpInstalling then // uses progress bar from the installing wizard page
+    DownloadWebFile('http://www.example.com/YourFile.dat', 'Downloading YourFile.dat', ExpandConstant('{app}\YourFile.dat'), '', '', '', False, False);
+end;</pre></example>
+      </function>
+    </subcategory>
   </category>
   <category>
     <description><p>Deprecated</p></description>

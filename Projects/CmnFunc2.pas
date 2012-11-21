@@ -143,6 +143,9 @@ function TryStrToBoolean(const S: String; var BoolResult: Boolean): Boolean;
 procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
+function IsWebPackage(const PackageSource: String): Boolean;
+function ExtractWebFileName(const PackageSource: String): String;
+function ExtractStr(var S: String; const Separator: Char): String;
 
 {$IFNDEF UNICODE}
 var
@@ -1677,6 +1680,43 @@ begin
 
   if Assigned(SHAutoCompleteFunc) then
     SHAutoCompleteFunc(Wnd, SHACF_FILESYSTEM);
+end;
+
+function IsWebPackage(const PackageSource: String): Boolean;
+{ Returns True if the PackageSource is a web package. }
+var
+  I: Integer;
+begin
+  I := Pos(':', PackageSource);
+  if I <= 2 then
+    Result := False
+  else
+    Result := True; // check for HTTP or FTP ?
+end;
+
+
+function ExtractWebFileName(const PackageSource: String): String;
+{ Returns the filename for the specified web package. }
+var
+  I: Integer;
+begin
+  I := PathLastDelimiter('/', PackageSource);
+  if I > 0 then
+    Result := Copy(PackageSource, I + 1, Length(PackageSource))
+  else
+    Result := PathExtractName(PackageSource);
+end;
+
+function ExtractStr(var S: String; const Separator: Char): String;
+var
+  I: Integer;
+begin
+  repeat
+    I := PathPos(Separator, S);
+    if I = 0 then I := Length(S)+1;
+    Result := Trim(Copy(S, 1, I-1));
+    S := Trim(Copy(S, I+1, Maxint));
+  until (Result <> '') or (S = '');
 end;
 
 { TOneShotTimer }

@@ -16,7 +16,7 @@ interface
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
   SetupForm, StdCtrls, Struct, DebugStruct, Int64Em, CmnFunc, CmnFunc2,
-  SetupTypes, ScriptRunner, BidiUtils, RestartManager;
+  SetupTypes, ScriptRunner, BidiUtils, RestartManager, NewProgressBar;
 
 type
   TMainForm = class(TSetupForm)
@@ -49,25 +49,25 @@ type
   end;
 
   TEntryType = (seLanguage, seCustomMessage, sePermission, seType, seComponent,
-    seTask, seDir, seFile, seFileLocation, seIcon, seIni, seRegistry,
+    seTask, sePackage, seDir, seFile, seFileLocation, seIcon, seIni, seRegistry,
     seInstallDelete, seUninstallDelete, seRun, seUninstallRun);
 
 const
   EntryStrings: array[TEntryType] of Integer = (SetupLanguageEntryStrings,
     SetupCustomMessageEntryStrings, SetupPermissionEntryStrings,
     SetupTypeEntryStrings, SetupComponentEntryStrings, SetupTaskEntryStrings,
-    SetupDirEntryStrings, SetupFileEntryStrings, SetupFileLocationEntryStrings,
-    SetupIconEntryStrings, SetupIniEntryStrings, SetupRegistryEntryStrings,
-    SetupDeleteEntryStrings, SetupDeleteEntryStrings, SetupRunEntryStrings,
-    SetupRunEntryStrings);
+    SetupPackageEntryStrings, SetupDirEntryStrings, SetupFileEntryStrings,
+    SetupFileLocationEntryStrings, SetupIconEntryStrings, SetupIniEntryStrings,
+    SetupRegistryEntryStrings, SetupDeleteEntryStrings, SetupDeleteEntryStrings,
+    SetupRunEntryStrings, SetupRunEntryStrings);
 
   EntryAnsiStrings: array[TEntryType] of Integer = (SetupLanguageEntryAnsiStrings,
     SetupCustomMessageEntryAnsiStrings, SetupPermissionEntryAnsiStrings,
     SetupTypeEntryAnsiStrings, SetupComponentEntryAnsiStrings, SetupTaskEntryAnsiStrings,
-    SetupDirEntryAnsiStrings, SetupFileEntryAnsiStrings, SetupFileLocationEntryAnsiStrings,
-    SetupIconEntryAnsiStrings, SetupIniEntryAnsiStrings, SetupRegistryEntryAnsiStrings,
-    SetupDeleteEntryAnsiStrings, SetupDeleteEntryAnsiStrings, SetupRunEntryAnsiStrings,
-    SetupRunEntryAnsiStrings);
+    SetupPackageEntryAnsiStrings, SetupDirEntryAnsiStrings, SetupFileEntryAnsiStrings,
+    SetupFileLocationEntryAnsiStrings, SetupIconEntryAnsiStrings, SetupIniEntryAnsiStrings,
+    SetupRegistryEntryAnsiStrings, SetupDeleteEntryAnsiStrings, SetupDeleteEntryAnsiStrings,
+    SetupRunEntryAnsiStrings, SetupRunEntryAnsiStrings);
 
   { Exit codes that are assigned to the SetupExitCode variable.
     Note: SetupLdr also returns exit codes with the same numbers. }
@@ -103,7 +103,7 @@ var
   InitLoadInf, InitSaveInf: String;
   InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
     InitNoCloseApplications, InitRestartApplications, InitNoRestartApplications,
-    InitNoCancel: Boolean;
+    InitNoCancel, InitLocalSetup: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -179,6 +179,7 @@ var
 {$ENDIF}
 
   CodeRunner: TScriptRunner;
+  WebPackagesHaveLocalFiles: Boolean;
 
 function CodeRunnerOnDebug(const Position: LongInt;
   var ContinueStepOver: Boolean): Boolean;
@@ -248,7 +249,8 @@ uses
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
   Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
   {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
-  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion;
+  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion, Download,
+  DownloadForm;
 
 {$R *.DFM}
 
@@ -638,6 +640,7 @@ begin
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
+  InitLocalSetup := GetIniBool(Section, 'LocalSetup', InitLocalSetup, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
   WantToSuppressMsgBoxes := GetIniBool(Section, 'SuppressMsgBoxes', WantToSuppressMsgBoxes, FileName);
@@ -2344,6 +2347,261 @@ begin
   end;
 end;
 
+procedure ProcessMessagesProc; far;
+begin
+  Application.ProcessMessages;
+end;
+
+function ReadSetupWebInfo(const WebInfoFilename: string; DownloadList, DownloadURLs: TStrings;
+  Web: Boolean; var NewAppVersion: string): Boolean;
+
+  procedure AbortInit(const Msg: TSetupMessageID);
+  begin
+    if not Web then
+      LoggedMsgBox(SetupMessages[Msg], '', mbCriticalError, MB_OK, True, IDOK);
+    Abort;
+  end;
+
+  function MakeGUIDStr(const GUID: TGUID): string;
+  begin
+    Result := Format('%.8x-%.4x-%.4x-%.2x%.2x-%.2x%.2x%.2x%.2x%.2x',
+      [GUID.D1, GUID.D2, GUID.D3, GUID.D4[0], GUID.D4[1],
+       GUID.D4[2], GUID.D4[3], GUID.D4[4], GUID.D4[5], GUID.D4[6]]);
+  end;
+
+var
+  Filename: string;
+  GUIDStr, SetupGUIDStr: string;
+  F: TTextFileReader;
+  Size: Cardinal;
+  BaseURL: string;
+  I: Integer;
+  Line: string;
+  WebLine: Boolean;
+begin
+  SetupGUIDStr := MakeGUIDStr(SetupHeader.SetupGuid);
+  Result := True;
+
+  if NewFileExists(WebInfoFilename) then begin
+    F := TTextFileReader.Create(WebInfoFilename, fdOpenExisting, faRead, fsRead);
+    try
+      try
+        if F.ReadLine <> WebSetupInfoID then
+          Exit; // invalid file, ignore the file
+
+        GUIDStr := F.ReadLine;
+        if Length(GUIDStr) <> Length(SetupGUIDStr) then // real compare is done later
+          AbortInit(msgSetupFileCorrupt);
+        BaseUrl := F.ReadLine;
+        if (BaseURL <> '') and (BaseURL[Length(BaseURL)] <> '/') then
+          BaseURL := BaseURL + '/';
+        NewAppVersion := F.ReadLine;
+
+        { Read file download list }
+        while not F.Eof do
+        begin
+          Line := Trim(F.ReadLine);
+          if Line <> '' then
+          begin
+            WebLine := CompareText(Copy(Line, 1, 4), 'web:') = 0;
+            if WebLine xor Web then
+              Continue;
+
+            Size := 0;
+            if not WebLine then begin
+              I := Pos(';', Line);
+              if I = 0 then
+                AbortInit(msgSetupFileCorrupt);
+              Size := StrToInt('$' + Trim(Copy(Line, 1, I - 1)));
+            end
+            else
+              I := 4; // remove "web:" from the string
+
+            Line := Trim(Copy(Line, I + 1, Length(Line)));
+            I := Pos(';', Line);
+            if I = 0 then
+              Filename := Line
+            else
+            begin
+              Filename := Trim(Copy(Line, 1, I - 1));
+              Line := Trim(Copy(Line, I + 1, Length(Line)));
+            end;
+            { If there is no protocol, prepand the BaseURL }
+            if Pos('://', Line) = 0 then
+              Line := BaseURL + Line;
+
+            DownloadList.AddObject(Filename, TObject(Size));
+            DownloadURLs.Add(Line);
+          end;
+        end;
+      except
+        on E: Exception do
+          AbortInit(msgSetupFileCorrupt);
+      end;
+    finally
+      F.Free;
+    end;
+    Result := (GUIDStr = SetupGUIDStr) or (DownloadList.Count = 0);
+  end;
+end;
+
+procedure CheckForNewWebSetup;
+
+  function GetFileSize(const Filename: string; var Size: Cardinal): Boolean;
+  var
+    Data: TWin32FindData;
+    h: THandle;
+  begin
+    Size := 0;
+    h := FindFirstFile(PChar(Filename), Data);
+    if h <> INVALID_HANDLE_VALUE then begin
+      Size := Data.nFileSizeLow;
+      Windows.FindClose(h);
+      Result := True;
+    end
+    else
+      Result := False;
+  end;
+
+var
+  Filename, NewAppVersion: string;
+  DownloadList: TStrings;
+  DownloadURLs: TStrings;
+  AllSize: Double;
+  I, Len: Integer;
+  Url: string;
+  ResultCode: Integer;
+  CmdLine: string;
+  EndChar: Char;
+begin
+  Url := SetupHeader.WebSetupUpdateURL;
+  if Url[Length(Url)] <> '/' then
+    Url := Url + '/';
+
+  Filename := AddBackslash(TempInstallDir) + WebSetupFilename;
+  DeleteFile(Filename);
+  WebDownloadForm := nil;
+  try
+    try
+      WebDownloadForm := TWebDownloadForm.Create(Application);
+      WebDownloadForm.AllSize := High(Smallint);
+      if InstallMode = imNormal then
+        WebDownloadForm.Show;
+      DownloadWebFile(Url + PathExtractName(Filename), '',
+        Filename, '', '', '', False, False, False);
+    except
+      { There is no such file or no open internet connection }
+      Exit;
+    end;
+    WebDownloadForm.Reset;
+
+    DownloadList := TStringList.Create;
+    DownloadURLs := TStringList.Create;
+    try
+      if ReadSetupWebInfo(Filename, DownloadList, DownloadURLs, False, NewAppVersion) then
+        Exit; // file contains same GUID
+      if DownloadList.Count = 0 then
+        Exit; // nothing to do, continue with setup
+
+      AllSize := 0;
+      for I := 0 to DownloadList.Count - 1 do
+        AllSize := AllSize + Cardinal(DownloadList.Objects[I]);
+
+      { Download the new files }
+      WebDownloadForm.AllSize := AllSize;
+      for I := 0 to DownloadList.Count - 1 do begin
+        WebDownloadForm.NextFile(Cardinal(DownloadList.Objects[I]));
+        Filename := AddBackslash(TempInstallDir) + DownloadList[I];
+        DownloadWebFile(DownloadURLs[I], Format('%s [%s]', [NewAppVersion, DownloadList[I]]),
+                        Filename, '', '', '', False, False, False);
+      end;
+
+      FreeAndNil(WebDownloadForm);
+      if NeedToAbortInstall then
+        Abort;
+
+      Filename := '"' + AddBackslash(TempInstallDir) + DownloadList[0] + '"';
+    finally
+      DownloadURLs.Free;
+      DownloadList.Free;
+    end;
+
+    { Start new setup }
+    LogFmt('Starting downloaded WebSetup: %s', [Filename]);
+
+    { Build new command line with exchanged executable and an additional parameter }
+    CmdLine := GetCommandLine;
+    if CmdLine = '' then
+      CmdLine := Filename
+    else begin
+      if CmdLine[1] = '"' then EndChar := '"' else EndChar := ' ';
+      Len := Length(CmdLine);
+      I := 2;
+      while (I <= Len) and (CmdLine[I] <> EndChar) do
+        Inc(I);
+      if EndChar = '"' then
+        Inc(I);
+      CmdLine := Filename + ' /LOCALSETUP' + Copy(CmdLine, I, Length(CmdLine));
+    end;
+
+    ShowWindow(Application.Handle, SW_HIDE);
+    if not InstExec(False, '>', CmdLine, '', ewWaitUntilTerminated, SW_SHOW,
+                    ProcessMessagesProc, ResultCode) then
+      raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, CmdLine))
+    else if ResultCode <> 0 then
+      Abort
+    else begin
+      Application.ShowMainForm := False;
+      MainForm.ModalResult := mrCancel;
+      Application.Terminate;
+    end;
+  finally
+    FreeAndNil(WebDownloadForm);
+  end;
+end;
+
+procedure UpdatePackageSources;
+var
+  NewAppVersion: string;
+  DownloadList, DownloadURLs: TStrings;
+  I, PackageIndex: Integer;
+  PackageEntry: PSetupPackageEntry;
+  WebInfoFilename: string;
+begin
+  WebInfoFilename := AddBackslash(TempInstallDir) + WebSetupFilename;
+  if not NewFileExists(WebInfoFilename) then
+    WebInfoFilename := AddBackslash(SourceDir) + WebSetupFilename;
+
+  DownloadList := TStringList.Create;
+  DownloadURLs := TStringList.Create;
+  try
+    try
+      if not ReadSetupWebInfo(WebInfoFilename, DownloadList, DownloadURLs, True, NewAppVersion) then
+        DownloadList.Clear; // GUIDs do not match
+    except
+      ; // ignore all exceptions
+      DownloadList.Clear;
+    end;
+
+    { Update package SourceFilename }
+    for I := 0 to DownloadList.Count - 1 do begin
+      for PackageIndex := 0 to Entries[sePackage].Count - 1 do begin
+        PackageEntry := Entries[sePackage][PackageIndex];
+        if CompareText(PackageEntry.Name, DownloadList[I]) = 0 then begin
+          if DownloadURLs[I] <> '' then begin
+            PackageEntry.SourceFilename := DownloadURLs[I];
+            LogFmt('New source URL for %s is %s', [PackageEntry.Name, PackageEntry.SourceFilename]);
+          end;
+          Break;
+        end;
+      end;
+    end;
+  finally
+    DownloadList.Free;
+    DownloadURLs.Free;
+  end;
+end;
+
 procedure RestartComputerFromThisProcess;
 begin
   RestartInitiatedByThisProcess := True;
@@ -2713,6 +2971,54 @@ var
     end;
   end;
 
+  { CheckLocalPackages validates the header of all local packages and all
+    web packages that have an existing local copy. It raises an exception if the
+    header is invalid or a local package does not exist. }
+  function CheckLocalPackages: Boolean;
+  var
+    I: Integer;
+    PackageEntry: PSetupPackageEntry;
+    Filename: string;
+    F: TFile;
+  begin
+    Result := True;
+    for I := 0 to Entries[sePackage].Count - 1 do begin
+      PackageEntry := Entries[sePackage][I];
+      if poUsed in PackageEntry.Options then begin
+        { Web packages could have a local copy }
+        if IsWebPackage(PackageEntry.SourceFilename) then begin
+          Filename := AddBackslash(SourceDir) + ExtractWebFileName(PackageEntry.SourceFilename);
+        end else begin
+          { Local packages must exist. }
+          Filename := PathExpand(AddBackslash(SourceDir) + PackageEntry.SourceFilename);
+          if not NewFileExists(Filename) then begin
+            LoggedMsgBox(FmtSetupMessage1(msgSetupFileMissing, ExtractFileName(Filename)),
+                         '', mbCriticalError, MB_OK, True, IDOK);
+            Abort;
+          end;
+        end;
+
+        { Validate the package header }
+        if (Filename <> '') and NewFileExists(Filename) then begin
+          F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
+          try
+            try
+              TFileExtractor.ReadPackageHeader(PackageEntry, F, False, True);
+            except
+              if not IsWebPackage(PackageEntry.SourceFilename) then
+                raise;
+              Result := False;
+            end;
+          finally
+            F.Free;
+          end;
+        end
+        else
+          Result := False;
+      end;
+    end;
+  end;
+
 var
   ParamName, ParamValue: String;
   StartParam: Integer;
@@ -2794,6 +3100,9 @@ begin
     else
     if CompareText(ParamName, '/NoCancel') = 0 then
       InitNoCancel := True
+    else
+    if CompareText(ParamName, '/LocalSetup') = 0 then
+      InitLocalSetup := True
     else
     if CompareText(ParamName, '/Lang=') = 0 then
       InitLang := ParamValue
@@ -2953,6 +3262,9 @@ begin
         { Task entries }
         ReadEntries(seTask, SetupHeader.NumTaskEntries, SizeOf(TSetupTaskEntry),
           -1, -1);
+        { Package entries }
+        ReadEntries(sePackage, SetupHeader.NumPackageEntries, SizeOf(TSetupPackageEntry),
+          -1, -1);
         { Dir entries }
         ReadEntries(seDir, SetupHeader.NumDirEntries, SizeOf(TSetupDirEntry),
           Integer(@PSetupDirEntry(nil).MinVersion),
@@ -3023,6 +3335,9 @@ begin
   finally
     SetupFile.Free;
   end;
+
+  { Check local packages }
+  WebPackagesHaveLocalFiles := CheckLocalPackages;
 
   { Show "Select Language" dialog if necessary }
   if ShowLanguageDialog and (Entries[seLanguage].Count > 1) and
@@ -3400,7 +3715,6 @@ begin
   PostMessage(0, WM_QUIT, 0, 0);
 end;
 
-
 { TMainForm }
 
 constructor TMainForm.Create(AOwner: TComponent);
@@ -3592,11 +3906,6 @@ begin
   ShowExceptionMsg(AddPeriod(E.Message));
 end;
 
-procedure ProcessMessagesProc; far;
-begin
-  Application.ProcessMessages;
-end;
-
 procedure TMainForm.SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);
 begin
   CurStep := AStep;
@@ -3627,6 +3936,17 @@ begin
       raise;
     end;
   end;
+
+  { Check for newer web setup }
+  if (SetupHeader.WebSetupUpdateURL <> '') and not WebPackagesHaveLocalFiles then begin
+    if not InitLocalSetup then begin
+      CheckForNewWebSetup; // start downloaded setup if necessary and then aborts the current installer
+      if MainForm.ModalResult = mrCancel then
+        Exit;
+    end;
+    UpdatePackageSources;
+  end;
+
   WizardForm.FlipControlsIfNeeded;
   WizardForm.SetCurPage(wpWelcome);
   if InstallMode = imNormal then begin

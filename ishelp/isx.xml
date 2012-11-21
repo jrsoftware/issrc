@@ -99,6 +99,7 @@
 <keyword value="GetCustomSetupExitCode" anchor="GetCustomSetupExitCode" />
 <keyword value="PrepareToInstall" anchor="PrepareToInstall" />
 <keyword value="RegisterExtraCloseApplicationsResources" anchor="RegisterExtraCloseApplicationsResources" />
+<keyword value="WebFileDownloadHandler" anchor="WebFileDownloadHandler" />
 <keyword value="InitializeUninstall" anchor="InitializeUninstall" />
 <keyword value="DeinitializeUninstall" anchor="DeinitializeUninstall" />
 <keyword value="CurUninstallStepChanged" anchor="CurUninstallStepChanged" />
@@ -225,6 +226,16 @@
 <dt><tt>procedure <a name="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</a>;</tt></dt>
 <dd>
 <p>To register extra files which Setup should check for being in-use if <link topic="setup_closeapplications">CloseApplications</link> is set to <tt>yes</tt>, place a <tt>RegisterExtraCloseApplicationsResources</tt> event function in the Pascal script and call <link topic="isxfunc_RegisterExtraCloseApplicationsResource">RegisterExtraCloseApplicationsResource</link> inside it, once per file.</p>
+</dd>
+
+<p>To register extra files which Setup should check for being in-use, place a <tt>RegisterExtraCloseApplicationsResources</tt> event function in the Pascal script and call <link topic="isxfunc_RegisterExtraCloseApplicationsResource">RegisterExtraCloseApplicationsResource</link> inside it, once per file.</p>
+<p>See also:<br/>
+<link topic="setup_closeapplications">CloseApplications</link></p>
+
+<dt><tt>procedure <a name="WebFileDownloadHandler">WebFileDownloadHandler</a>(const Location, Description, DestFilename: String);</tt></dt>
+<dd>
+<p>The WebFileDownloadHandler event is called if the setup must download a "download://location" web file. The Location parameter contains the source without the "download://" protocol. Description is the download description and DestFilename is the full qualified destination filename.</p>
+<p>Web files can be downloaded with <link topic="isxfunc_DownloadWebFile">DownloadWebFile</link>.</p>
 </dd>
 
 </dl>

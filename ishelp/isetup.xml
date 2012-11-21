@@ -27,6 +27,7 @@
     <contentstopic title="[Types] section" topic="typessection" />
     <contentstopic title="[Components] section" topic="componentssection" />
     <contentstopic title="[Tasks] section" topic="taskssection" />
+    <contentstopic title="[Packages] section" topic="packagessection" />
     <contentstopic title="[Dirs] section" topic="dirssection" />
     <contentstopic title="[Files] section" topic="filessection" />
     <contentstopic title="[Icons] section" topic="iconssection" />
@@ -243,6 +244,7 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 <link topic="typessection">[Types] section</link><br/>
 <link topic="componentssection">[Components] section</link><br/>
 <link topic="taskssection">[Tasks] section</link><br/>
+<link topic="packagessection">[Packages] section</link><br/>
 <link topic="dirssection">[Dirs] section</link><br/>
 <link topic="filessection">[Files] section</link><br/>
 <link topic="iconssection">[Icons] section</link><br/>
@@ -1011,6 +1013,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_useprevioustasks">UsePreviousTasks</link></li>
 <li><link topic="setup_useprevioususerinfo">UsePreviousUserInfo</link></li>
 <li><link topic="setup_userinfopage">UserInfoPage</link></li>
+<li><link topic="setup_websetupupdateurl">WebSetupUpdateURL</link></li>
 </ul>
 
 <p><b>Cosmetic:</b> These directives only affect the appearance of the Setup program.</p>
@@ -1307,6 +1310,78 @@ Name: associate; Description: "&amp;Associate files"; GroupDescription: "Other t
 
 
 
+<topic name="packagessection" title="[Packages] section">
+<keyword value="[Packages] section" />
+<keyword value="Packages" />
+<body>
+
+<p>This optional section defines external packages Setup is to create <i>besides</i> the output file. Packages can be used to split the monolithic setup into multiple files. Packages can be defined as web packages and Setup will automatically download the packages that are required to <tt>{tmp}</tt>.</p>
+
+<p>Here is an example of a <tt>[Packages]</tt> section:</p>
+
+<precode>
+[Packages]
+Name: core; Description: "Core files"; Source: core.isz
+Name: help; Description: "Help files"; Source: http://www.example.com/help.isz; Flags: localcopy
+
+[Files]
+Source: "*.EXE"; DestDir: "{app}"; Package: core
+Source: "*.CHM"; DestDir: "{app}"; Package: help
+Source: "README.TXT"; DestDir: "{app}"
+</precode>
+
+<p>The example above puts <i>README.TXT</i> into the <i>setup.exe</i> whereas all EXE files are put into the local <i>core.isz</i> file and all CHM files are put into the <i>help.isz</i> package file that must be uploaded to <i>http://www.examples.com</i>.</p>
+
+<p>The following is a list of the supported <link topic="params">parameters</link>:</p>
+
+<paramlist>
+
+<param name="Name" required="yes">
+<p>The Name of the package which is used in the <tt>Package</tt> parameter in <link topic="filessection">[Files]</link>.</p>
+<example>
+<pre>Name: mypackage</pre>
+</example>
+</param>
+
+<param name="Description">
+<p>The optional text that is displayed while the package is downloaded from a URL.</p>
+<example>
+<pre>Description: "Core files"</pre>
+</example></param>
+
+<param name="Source" required="yes">
+<p>The filename of the package. Setup treats the package as a web package if the filename starts with "protocol://" where protocol can be "http", "https" or "download". A web package is automatically downloaded to <tt>{tmp}</tt> if there is no local copy in the <tt>{src}</tt> directory. The "download://" web packages must be downloaded by the <link topic="scriptevents" anchor="WebFileDownloadHandler">WebFileDownloadHandler</link> event.</p>
+<p>Multiple URLs can be specified by separating the URLs by spaces. Setup will use randomly choose which URL to use and falls back to the other URLs if the download fails.</p>
+<example>
+<pre>Source: "http://www.example.com/core.isz http://www.myserver.com/core.isz"</pre>
+</example>
+</param>
+
+<param name="Flags">
+<p>This parameter is a set of extra options. Multiple options may be used by separating them by spaces. The following options are supported:</p>
+
+<flaglist>
+<flag name="localcopy">
+<p>If this flag is specified Setup will try to save the downloaded package file to {src}. If it cannot write to <tt>{src}</tt> it will fall back to the <tt>{tmp}</tt> directory where the file will be deleted after the installation has finished.</p>
+<p>If this parameter is not specified, Setup will set the flag <tt>localcopy</tt> if its <tt>Source</tt> parameter isn't a URL.</p>
+</flag>
+</flaglist>
+
+<example>
+<pre>Flags: localcopy</pre>
+</example>
+
+</param>
+
+</paramlist>
+
+<p><b><link topic="commonparams">Common Parameters</link></b></p>
+
+</body>
+</topic>
+
+
+
 <topic name="dirssection" title="[Dirs] section">
 <keyword value="[Dirs] section" />
 <keyword value="Dirs" />
@@ -1545,6 +1620,13 @@ ExternalSize: 1048576; Flags: external
 <p>This parameter is ignored if the <tt>gacinstall</tt> flag isn't also specified.</p>
 <example>
 <pre>StrongAssemblyName: "MyAssemblyName, Version=1.0.0.0, Culture=neutral, PublicKeyToken=abcdef123456, ProcessorArchitecture=MSIL"</pre>
+</example>
+</param>
+
+<param name="Package">
+<p>Specifies the <link topic="packagessection">package</link> to which file belongs.</p>
+<example>
+<pre>Package: mypackage</pre>
 </example>
 </param>
 
@@ -3455,6 +3537,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support.</li>
 
+<li>Andreas Hausladen: Download functions (5.6.0).</li>
+
 </ul>
 
 <p>If I have left anyone out, please don't hesitate to let me know.</p>
@@ -4370,6 +4454,16 @@ DiskSliceSize=1457664
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the name, organization and serial number entered previously as the default settings presented to the user on the <i>User Information</i> wizard page.</p>
 <p>Note that Setup cannot re-use settings from a previous installation that had <tt>Uninstallable</tt> set to <tt>no</tt>, since the registry entries it looks for are not created when <tt>Uninstallable</tt> is <tt>no</tt>.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="WebSetupUpdateURL">
+<body>
+<p>If this option is set to a URL the compiler will create a <i>setup.webinfo</i> file in the output directory that can be copied with the other setup files to a web server. When Setup starts it first downloads the setup.webinfo file and checks if the version on the web server matches the local copy. It then automatically downloads and start the newer setup.</p>
+<p>Multiple URLs can be separated by a space. This option does not work with <tt>DiskSpanning</tt>=yes. If the setup becomes too large you should use the [Packages] section to split the files. Local packages must be copied to the web server with their relative path. They are downloaded directly after the new setup.exe was downloaded. The command line option /LOCALSETUP forces the setup to not look for a newer version.</p>
+<example>
+<pre>WebSetupUpdateURL=http://www.example.com/app</pre>
+</example>
 </body>
 </setuptopic>
 
