@@ -253,7 +253,7 @@ begin
         if OleResult <> S_OK then
           RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall)', OleResult);
         if IsWindows8 then begin
-          PV.vt := VT_I4;
+          PV.vt := VT_UI4;
           PV.lVal := APPUSERMODEL_STARTPINOPTION_NOPINONINSTALL;
           OleResult := PS.SetValue(PKEY_AppUserModel_StartPinOption, PV);
           if OleResult <> S_OK then
