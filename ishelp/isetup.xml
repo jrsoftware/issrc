@@ -3005,6 +3005,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <topic name="setupcmdline" title="Setup Command Line Parameters">
 <keyword value="Setup Command Line Parameters" />
 <keyword value="command line parameters" />
+<keyword value="/HELP" anchor="HELP" />
+<keyword value="/?" anchor="HELP2" />
 <keyword value="/SP-" anchor="SP-" />
 <keyword value="/SILENT" anchor="SILENT" />
 <keyword value="/VERYSILENT" anchor="VERYSILENT" />
@@ -3036,6 +3038,11 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>The Setup program accepts optional command line parameters. These can be useful to system administrators, and to other programs calling the Setup program.</p>
 
 <dl>
+
+<dt><b><a name="HELP">/HELP</a>, <a name="HELP2">/?</a></b></dt>
+<dd>
+<p>Shows a summary of this information. Ignored if the <tt>UseSetupLdr</tt> <tt>[Setup]</tt> section directive was set to <tt>no</tt>.</p>
+</dd>
 
 <dt><b><a name="SP-">/SP-</a></b></dt>
 <dd>
@@ -3227,7 +3234,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <tr>
 <td><b>0</b></td>
 <td>
-<p>Setup was successfully run to completion.</p>
+<p>Setup was successfully run to completion or the /HELP or /? command line parameter was used.</p>
 </td>
 </tr>
 

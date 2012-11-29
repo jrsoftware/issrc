@@ -63,6 +63,7 @@ type
   TLanguageEntryArray = array[0..999999] of TSetupLanguageEntry;
 
 var
+  InitShowHelp: Boolean = False;
   InitDisableStartupPrompt: Boolean = False;
   InitLang: String;
   ActiveLanguage: Integer = -1;
@@ -86,7 +87,10 @@ begin
        (CompareText(Copy(Name, 1, 10), '/SPAWNWND=') = 0) then
       InitDisableStartupPrompt := True
     else if CompareText(Copy(Name, 1, 6), '/Lang=') = 0 then
-      InitLang := Copy(Name, 7, Maxint);
+      InitLang := Copy(Name, 7, Maxint)
+    else if (CompareText(Name, '/HELP') = 0) or
+            (CompareText(Name, '/?') = 0) then
+      InitShowHelp := True;
   end;
 end;
 
@@ -275,6 +279,70 @@ begin
     SetupCorruptError;
 end;
 
+procedure ShowHelp;
+const
+  SNewLine = #13#10;
+var
+  Help: String;
+begin
+  { do not localize }
+
+  Help := 'The Setup program accepts optional command line parameters.' + SNewLine +
+          SNewLine +
+          '/HELP, /?' + SNewLine +
+           'Shows this information.' + SNewLine +
+          '/SP-' + SNewLine +
+          'Disables the This will install... Do you wish to continue? prompt at the beginning of Setup.' + SNewLine +
+          '/SILENT, /VERYSILENT' + SNewLine +
+          'Instructs Setup to be silent or very silent.' + SNewLine +
+          '/SUPPRESSMSGBOXES' + SNewLine +
+          'Instructs Setup to suppress message boxes.' + SNewLine +
+          '/LOG' + SNewLine +
+          'Causes Setup to create a log file in the user''s TEMP directory.' + SNewLine +
+          '/LOG="filename"' + SNewLine +
+          'Same as /LOG, except it allows you to specify a fixed path/filename to use for the log file.' + SNewLine +
+          '/NOCANCEL' + SNewLine +
+          'Prevents the user from cancelling during the installation process.' + SNewLine +
+          '/NORESTART' + SNewLine +
+          'Prevents Setup from restarting the system following a successful installation, or after a Preparing to Install failure that requests a restart.' + SNewLine +
+          '/RESTARTEXITCODE=exit code' + SNewLine +
+          'Specifies a custom exit code that Setup is to return when the system needs to be restarted.' + SNewLine +
+          '/CLOSEAPPLICATIONS' + SNewLine +
+          'Instructs Setup to close applications using files that need to be updated.' + SNewLine +
+          '/NOCLOSEAPPLICATIONS' + SNewLine +
+          'Prevents Setup from closing applications using files that need to be updated.' + SNewLine +
+          '/RESTARTAPPLICATIONS' + SNewLine +
+          'Instructs Setup to restart applications.' + SNewLine +
+          '/NORESTARTAPPLICATIONS' + SNewLine +
+          'Prevents Setup from restarting applications.' + SNewLine +
+          '/LOADINF="filename"' + SNewLine +
+          'Instructs Setup to load the settings from the specified file after having checked the command line.' + SNewLine +
+          '/SAVEINF="filename"' + SNewLine +
+          'Instructs Setup to save installation settings to the specified file.' + SNewLine +
+          '/LANG=language' + SNewLine +
+          'Specifies the internal name of the language to use.' + SNewLine +
+          '/DIR="x:\dirname"' + SNewLine +
+          'Overrides the default directory name.' + SNewLine +
+          '/GROUP="folder name"' + SNewLine +
+          'Overrides the default folder name.' + SNewLine +
+          '/NOICONS' + SNewLine +
+          'Instructs Setup to initially check the Don''t create a Start Menu folder check box.' + SNewLine +
+          '/TYPE=type name' + SNewLine +
+          'Overrides the default setup type.' + SNewLine +
+          '/COMPONENTS="comma separated list of component names"' + SNewLine +
+          'Overrides the default component settings.' + SNewLine +
+          '/TASKS="comma separated list of task names"' + SNewLine +
+          'Specifies a list of tasks that should be initially selected.' + SNewLine +
+          '/MERGETASKS="comma separated list of task names"' + SNewLine +
+          'Like the /TASKS parameter, except the specified tasks will be merged with the set of tasks that would have otherwise been selected by default.' + SNewLine +
+          '/PASSWORD=password' + SNewLine +
+          'Specifies the password to use.' + SNewLine +
+          SNewLine +
+          'For more detailed information, please visit http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline';
+
+  MessageBox(0, PChar(Help), 'Setup', MB_OK or MB_ICONSTOP);
+end;
+
 var
   SelfFilename: String;
   SourceF, DestF: TFile;
@@ -294,6 +362,11 @@ begin
     RunImageLocally(HInstance);
 
     ProcessCommandLine;
+    
+    if InitShowHelp then begin
+      ShowHelp;
+      Halt(0);
+    end;
 
     SelfFilename := NewParamStr(0);
     SourceF := TFile.Create(SelfFilename, fdOpenExisting, faRead, fsRead);
