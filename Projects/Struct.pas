@@ -36,7 +36,7 @@ const
   SetupID: TSetupID = 'Inno Setup Setup Data (5.5.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
-  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (5.5.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (5.5.3)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!001';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idska32'#26;
