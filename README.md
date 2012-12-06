@@ -165,7 +165,7 @@ performs all (un)installation-related tasks.
 
 **SetupLdr** - This is the "setup loader." It self-extracts a compressed
 Setup program into the user's TEMP directory and runs it from there. It also
-displays the "This will install..." message box.
+displays the "This will install..." and /HELP message boxes.
 
 **ISPP\ISPPCC** - This is Inno Setup's ISCC command-line front-end with extra
 preprocessor related parameters added.
