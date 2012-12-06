@@ -28,14 +28,18 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 
 <p><a name="5.5.3"></a><span class="ver">5.5.3-dev </span><span class="date">(?)</span></p>
 <ul>
-<li>Windows 8 change:
-  <ul>
-  <li>[Icons] section flag <tt>excludefromshowinnewinstall</tt> now additionally prevents the new shortcut from being automatically pinned the Start screen.</li>
-  </ul>
-</li>
+<li>Windows 8 change: [Icons] section flag <tt>excludefromshowinnewinstall</tt> now additionally prevents the new shortcut from being automatically pinned the Start screen.</li>
 <li>Added new command line parameters supported by Setup: /HELP and /?. Cause Setup to display the list of accepted command line parameters in a message box, exiting with exit code 0 afterwards. Ignored if the <tt>UseSetupLdr</tt> [Setup] section directive was set to <tt>no</tt>.</li>
 <li>Added workaround for bug in 64-bit Windows which in some cases would cause Windows to display an error message when a user tries to change the icon of an installed shortcut.</li>
 <li>Updated the compiler and document icons, created by Motaz.</li>
+<li>Restart Manager: If Setup is not running silently and is unable to close all applications using files that need to be updated, it will now ask the user to abort, retry, or ignore. Previously it always ignored.</li>
+<li>A message has been added in this version.
+  (<a href="https://github.com/jrsoftware/issrc/commit/90ea96ab34910787321376a928462cbd0fba3415">View differences in Default.isl</a>)
+  <ul>
+    <li><b>New message:</b> ErrorCloseApplications.</li>
+  </ul>
+  Note: only the official English and Dutch (Netherlands) translations have been updated for this change at this moment. See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.<br />
+</li>
 <li>The Inno Setup help file source code has been moved into the main Inno Setup source code repository.</li>
 </ul>
 
