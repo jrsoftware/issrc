@@ -190,7 +190,7 @@ ApplicationsFound=De volgende programma's gebruiken bestanden die moeten worden 
 ApplicationsFound2=De volgende programma's gebruiken bestanden die moeten worden bijgewerkt door Setup. U wordt aanbevolen Setup toe te staan om automatisch deze programma's af te sluiten. Nadat de installatie is voltooid zal Setup proberen de applicaties opnieuw op te starten.
 CloseApplications=&Programma's automatisch afsluiten
 DontCloseApplications=Programma's &niet afsluiten
-ErrorCloseApplications=Setup kon niet alle programma's automatisch afsluiten. U wordt aanbevolen alle programma's die bestanden gebruiken die moeten worden bijgewrkt door Setup af te sluiten voordat u verder gaat.
+ErrorCloseApplications=Setup kon niet alle programma's automatisch afsluiten. U wordt aanbevolen alle programma's die bestanden gebruiken die moeten worden bijgewerkt door Setup af te sluiten voordat u verder gaat.
 
 ; *** "Installing" wizard page
 WizardInstalling=Bezig met installeren
