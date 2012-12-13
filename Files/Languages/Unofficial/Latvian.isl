@@ -1,7 +1,7 @@
 ;Agris Ausejs 
 ;******************************************************
 ; ***                                                ***
-; *** Inno Setup version 5.1.11+ Latvian messages    ***
+; *** Inno Setup version 5.5.1+ Latvian messages    ***
 ; ***                                                ***
 ; *** Original Author:                               ***
 ; ***                                                ***
@@ -59,6 +59,10 @@ LastErrorMessage=%1.%n%nKïûda %2: %3
 SetupFileMissing=Datne %1 nav atrodama instalâcijas mapç. Lûdzu, izlabojiet kïûdu vai iegâdâjieties jaunu programmas kopiju.
 SetupFileCorrupt=Uzstâdâmâs datnes ir sabojâtas. Lûdzu, iegâdâjieties jaunu programmas kopiju.
 SetupFileCorruptOrWrongVer=Uzstâdâmâs datnes ir bojâtas vai nav savienojamas ar ðo Uzstâdîðanas programmu. Lûdzu, izlabojiet ðo kïûdu vai iegâdâjieties jaunu programmas kopiju.
+InvalidParameter=Nederîgs parametrs tika pieòemts uz komandrindas:%n%n%1
+SetupAlreadyRunning=Uzstâdîðana jau darbojas.
+WindowsVersionNotSupported=Ðî programma neatbalsta Windows versiju datorâ darbojas.
+WindowsServicePackRequired=Ðî programma pieprasa %1 servisa pakotnes %2 vai jaunâka.
 NotOnThisPlatform=Ðo programmu nevar palaist uz %1.
 OnlyOnThisPlatform=Ðî programma darbojas uz %1.
 OnlyOnTheseArchitectures=Ðo programmu var uzstâdît tikai uz ðâdâm Windows versijâm:%n%n%1
@@ -149,7 +153,8 @@ SelectDirDesc=Kur [name] tiks instalçts?
 SelectDirLabel3=[name] datnes tiks instalçtas norâdîtajâ mapç.
 SelectDirBrowseLabel=Lai turpinâtu, spiediet "Tâlâk". Ja vçlaties norâdît citu mapi, spiediet "Pârlûkot".
 DiskSpaceMBLabel=Ir nepiecieðami brîvi [mb] MB uz cietâ diska.
-ToUNCPathname=Uzstâdîðana nevar uzstâdît datnes norâdîtajâ adresç. Ja Jûs mçìinât uzstâdît tîklâ, tad Jums ir nepiecieðama speciâla mape.
+CannotInstallToNetworkDrive=Iestatîðana nevar instalçt ar tîkla disku.
+CannotInstallToUNCPath=Iestatîðana nevar uzstâdît uz UNC ceïu.
 InvalidPath=Jums ir jânorâda pilna instalâcijas adrese, piemçrs:%n%nC:\APP%n%nvai  UNC adrese:%n%n\\server\share
 InvalidDrive=Ierîce UNC, kuru Jûs izvçlçjâties, nepastâv vai arî nav pieejama. Lûdzu, izvçlieties citu.
 DiskSpaceWarningTitle=Nepietiek vietas uz diska
@@ -209,6 +214,10 @@ WizardPreparing=Gatavoties instalâcijai
 PreparingDesc=Uzstâdîðana ir gatava instalçt [name] uz Jûsu datora.
 PreviousInstallNotCompleted=Instalâcija/noòemðana iepriekðçjai programmai nav pabeigta. Jums ir jâpârstartç dators, lai pabeigtu instalâciju.%n%nPçc pârstartçðanas palaidiet uzstâdîðanu no jauna, lai pabeigtu uzstâdît [name].
 CannotContinue=Uzstâdîðanu nevar turpinât. Lûdzu, spiediet "Atcelt", lai izietu.
+ApplicationsFound=Ðâdas lietojumprogrammas izmanto failus, kas ir jâatjaunina ar Setup. Tas ir ieteicams, ka jûs ïaujat Setup automâtiski aizvçrt ðos pieteikumus.
+ApplicationsFound2=Ðâdas lietojumprogrammas izmanto failus, kas ir jâatjaunina ar Setup. Tas ir ieteicams, ka jûs ïaujat Setup automâtiski aizvçrt ðos pieteikumus. Pçc uzstâdîðana ir pabeigta, Setup mçìinâs atsâkt pieteikumus.
+CloseApplications=&Automâtiski aizvçrtu programmas
+DontCloseApplications=&Nav aizvçrtu programmas
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalâcija
@@ -241,6 +250,7 @@ SetupAborted=Uzstâdîðana netika pabeigta.%n%nLûdzu, izlabojiet kïûdu un palaidie
 EntryAbortRetryIgnore=Spiediet "Atkârtot", lai mçìinâtu vçlreiz, vai "Ignorçt", lai turpinâtu, vai "Pârtraukt", lai beigtu instalâciju.
 
 ; *** Installation status messages
+StatusClosingApplications=Noslçguma pieteikumi...
 StatusCreateDirs=Mapju izveidoðana...
 StatusExtractFiles=Datòu kopçðana...
 StatusCreateIcons=Îsinâjumikonu izveidoðana...
@@ -249,6 +259,7 @@ StatusCreateRegistryEntries=Izveido reìistra ierakstus...
 StatusRegisterFiles=Reìistrç datnes...
 StatusSavingUninstall=Saglabâ atinstalçðanas datus...
 StatusRunProgram=Pabeidz instalâciju...
+StatusRestartingApplications=Restartçðana pieteikumi...
 StatusRollback=Izveido izmaiòas...
 
 ; *** Misc. errors
@@ -283,7 +294,7 @@ ErrorReplacingExistingFile=Radusies kïûda, pârrakstot jau pastâvoðo datni:
 ErrorRestartReplace=Atkârtota aizstâðana cietusi neveiksmi:
 ErrorRenamingTemp=Radusies kïûda, nomainot nosaukumu datnei galamçría mapç:
 ErrorRegisterServer=Neiespçjami reìistrçt DLL/OCX: %1
-ErrorRegisterServerMissingExport=DllReìistra servera eksports nav atrodams
+ErrorRegSvr32Failed=RegSvr32 neizdevâs ar izejas kodu %1
 ErrorRegisterTypeLib=Neiespçjami reìistrçt tipa bibliotçku: %1
 
 ; *** Post-installation errors
@@ -312,6 +323,10 @@ SharedFileLocationLabel=Atraðanâs vieta:
 WizardUninstalling=Atinstalçðanas Statuss
 StatusUninstalling=Atinstalç %1...
 
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Instalçðana %1.
+ShutdownBlockReasonUninstallingApp=Atinstalç %1.
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 
@@ -326,3 +341,6 @@ UninstallProgram=Atinstalçt %1
 LaunchProgram=Palaist %1
 AssocFileExtension=&Apvienot %1 ar %2 faila paplaðinâjumu
 AssocingFileExtension=Apvienoðana %1 ar %2 faila paplaðinâjumu...
+AutoStartProgramGroupDescription=starta:
+AutoStartProgram=Automâtiski sâkt %1
+AddonHostProgramNotFound=%1 nevar atrasties mapç jûs izvçlçjâties.%n%nVai vçlaties turpinât?
