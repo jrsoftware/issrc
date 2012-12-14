@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ Catalan messages ***
+; *** Inno Setup version 5.5.3+ Catalan messages ***
 ;
 ; Translated by Carles Millan (email: carles@carlesmillan.cat)
 
@@ -190,6 +190,7 @@ ApplicationsFound=Les següents aplicacions estan fent servir fitxers que necessi
 ApplicationsFound2=Les següents aplicacions estan fent servir fitxers que necessiten ser actualitzats per la instal·lació. Es recomana que permeteu a la instal·lació tancar automàticament aquestes aplicacions. Després de completar la instal·lació s'intentarà reiniciar les aplicacions.
 CloseApplications=&Tanca automàticament les aplicacions
 DontCloseApplications=&No tanquis les aplicacions
+ErrorCloseApplications=El programa d'instal·lació no ha pogut tancar automàticament totes les aplicacions. Es recomana que abans de continuar tanqueu totes les aplicacions que estan usant fitxers que han de ser actualitzats pel programa d'instal·lació.
 
 ; *** "Installing" wizard page
 WizardInstalling=Instal·lant

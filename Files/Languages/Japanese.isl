@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ Japanese messages ***
+; *** Inno Setup version 5.5.3+ Japanese messages ***
 ;
 ; Maintained by Koichi Shirasuka (shirasuka@eugrid.co.jp)
 ;
@@ -193,6 +193,7 @@ ApplicationsFound=以下のアプリケーションがセットアップに必要なファイルを使用して
 ApplicationsFound2=以下のアプリケーションがセットアップに必要なファイルを使用しています。セットアップに自動的にアプリケーションを終了させることを推奨します。インストールの完了後、セットアップはアプリケーションの再起動を試みます。
 CloseApplications=自動的にアプリケーションを終了する(&A)
 DontCloseApplications=アプリケーションを終了しない(&D)
+ErrorCloseApplications=セットアップはすべてのアプリケーションを自動的に終了することができませんでした。セットアップを続行する前に、更新の必要なファイルを使用しているすべてのアプリケーションを終了することを推奨します。
 
 ; *** "Installing" wizard page
 WizardInstalling=インストール状況

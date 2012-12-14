@@ -1,8 +1,8 @@
-; *** Inno Setup version 5.5.0+ Spanish messages ***
+; *** Inno Setup version 5.5.3+ Spanish messages ***
 ;
 ; Maintained by Jorge Andres Brugger (jbrugger@ideaworks.com.ar)
-; Spanish.isl version 1.1 (20120606)
-; Default.isl version 5.5.0
+; Spanish.isl version 1.2 (20121214)
+; Default.isl version 5.5.3
 ; 
 ; Thanks to Germán Giraldo, Jordi Latorre, Ximo Tamarit, Emiliano Llano, 
 ; Ramón Verduzco, Graciela García,  Carles Millan and Rafael Barranco-Droege
@@ -206,6 +206,7 @@ ApplicationsFound=Las siguientes aplicaciones están usando archivos que necesita
 ApplicationsFound2=Las siguientes aplicaciones están usando archivos que necesitan ser actualizados por el programa de instalación. Se recomienda que permita al programa de instalación cerrar automáticamente estas aplicaciones. Al completarse la instalación, el programa de instalación intentará reiniciar las aplicaciones.
 CloseApplications=&Cerrar automáticamente las aplicaciones
 DontCloseApplications=&No cerrar las aplicaciones
+ErrorCloseApplications=El programa de instalación no pudo cerrar de forma automática todas las aplicaciones. Se recomienda que, antes de continuar, cierre todas las aplicaciones que utilicen archivos que necesitan ser actualizados por el programa de instalación.
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalando
