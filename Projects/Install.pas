@@ -897,6 +897,7 @@ var
     RetriesLeft: Integer;
     LastError: DWORD;
     DestF, SourceF: TFile;
+    Flags: TMakeDirFlags;
   label Retry, Skip;
   begin
     Log('-- File entry --');
@@ -1206,7 +1207,10 @@ var
           file's directory if it didn't already exist. }
         LastOperation := SetupMessages[msgErrorCreatingTemp];
         TempFile := GenerateUniqueName(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
-        MakeDir(DisableFsRedir, PathExtractDir(TempFile), []);
+        Flags := [];
+        if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
+        if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
+        MakeDir(DisableFsRedir, PathExtractDir(TempFile), Flags);
         DestF := TFileRedir.Create(DisableFsRedir, TempFile, fdCreateAlways, faReadWrite, fsNone);
         try
           TempFileLeftOver := True;
@@ -1505,6 +1509,7 @@ var
       H: THandle;
       FindData: TWin32FindData;
       Size: Integer64;
+      Flags: TMakeDirFlags;
     begin
       SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
       Result := False;
@@ -1573,7 +1578,10 @@ var
             DestName := DestName + SearchSubDir
           else
             DestName := PathExtractPath(DestName) + SearchSubDir;
-          MakeDir(DisableFsRedir, DestName, []);
+          Flags := [];
+          if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
+          if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
+          MakeDir(DisableFsRedir, DestName, Flags);
           Result := True;
         end;
       end;
@@ -2737,10 +2745,17 @@ var
     RmDoRestart := True;
 
     Error := RmShutdown(RmSessionHandle, 0, nil);
-    if Error = ERROR_FAIL_SHUTDOWN then begin
-      { Not closing the session, still should call RmRestart in this case. }
+    while Error = ERROR_FAIL_SHUTDOWN do begin
       Log('Some applications could not be shut down.');
-    end else if Error <> ERROR_SUCCESS then begin
+      if AbortRetryIgnoreMsgBox(SetupMessages[msgErrorCloseApplications],
+         SetupMessages[msgEntryAbortRetryIgnore]) then
+        Break;
+      Log('Retrying to shut down applications using our files.');
+      Error := RmShutdown(RmSessionHandle, 0, nil);
+    end;
+
+    { Close session on all errors except for ERROR_FAIL_SHUTDOWN, should still call RmRestart in that case. }
+    if (Error <> ERROR_SUCCESS) and (Error <> ERROR_FAIL_SHUTDOWN) then begin
       RmEndSession(RmSessionHandle);
       LogFmt('RmShutdown returned an error: %d', [Error]);
       RmDoRestart := False;

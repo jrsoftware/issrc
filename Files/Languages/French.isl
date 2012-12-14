@@ -1,7 +1,7 @@
-; *** Inno Setup version 5.1.11+ French messages ***
+; *** Inno Setup version 5.5.0+ French messages ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/is3rdparty.php
+;   http://www.jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -24,13 +24,23 @@
 ; + Use more standard verbs for click and retry
 ;     "click": "Clicker" instead of "Appuyer" 
 ;     "retry": "Recommencer" au lieu de "Réessayer"
-;
-; $jrsoftware: issrc/Files/Languages/French.isl,v 1.19 2011/10/27 10:04:11 pierrey Exp $
 
 [LangOptions]
+; The following three entries are very important. Be sure to read and 
+; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Fran<00E7>ais
 LanguageID=$040C
 LanguageCodePage=1252
+; If the language you are translating to requires special font faces or
+; sizes, uncomment any of the following entries and change them accordingly.
+;DialogFontName=
+;DialogFontSize=8
+;WelcomeFontName=Verdana
+;WelcomeFontSize=12
+;TitleFontName=Arial
+;TitleFontSize=29
+;CopyrightFontName=Arial
+;CopyrightFontSize=8
 
 [Messages]
 
@@ -55,6 +65,10 @@ LastErrorMessage=%1.%n%nErreur %2 : %3
 SetupFileMissing=Le fichier %1 est absent du dossier d'installation. Veuillez corriger le problème ou vous procurer une nouvelle copie du programme.
 SetupFileCorrupt=Les fichiers d'installation sont altérés. Veuillez vous procurer une nouvelle copie du programme.
 SetupFileCorruptOrWrongVer=Les fichiers d'installation sont altérés ou ne sont pas compatibles avec cette version de l'assistant d'installation. Veuillez corriger le problème ou vous procurer une nouvelle copie du programme.
+InvalidParameter=Un paramètre non valide a été passé à la ligne de commande :%n%n%1
+SetupAlreadyRunning=L'assistant d'installation est déjà en cours d'exécution.
+WindowsVersionNotSupported=Ce programme n'est pas prévu pour fonctionner avec la version de Windows utilisée sur votre ordinateur.
+WindowsServicePackRequired=Ce programme a besoin de %1 Service Pack %2 ou d'une version plus récente.
 NotOnThisPlatform=Ce programme ne fonctionne pas sous %1.
 OnlyOnThisPlatform=Ce programme ne peut fonctionner que sous %1.
 OnlyOnTheseArchitectures=Ce programme ne peut être installé que sur des versions de Windows qui supportent ces architectures : %n%n%1
@@ -145,7 +159,8 @@ SelectDirDesc=Où [name] doit-il être installé ?
 SelectDirLabel3=L'assistant va installer [name] dans le dossier suivant.
 SelectDirBrowseLabel=Pour continuer, cliquez sur Suivant. Si vous souhaitez choisir un dossier différent, cliquez sur Parcourir.
 DiskSpaceMBLabel=Le programme requiert au moins [mb] Mo d'espace disque disponible.
-ToUNCPathname=L'assistant d'installation ne supporte pas les chemins réseau. Si vous souhaitez effectuer cette installation sur un réseau, vous devez d'abord connecter un lecteur réseau.
+CannotInstallToNetworkDrive=L'assistant ne peut pas installer sur un disque réseau.
+CannotInstallToUNCPath=L'assistant ne peut pas installer sur un chemin UNC.
 InvalidPath=Vous devez saisir un chemin complet avec sa lettre de lecteur ; par exemple :%n%nC:\APP%n%nou un chemin réseau de la forme :%n%n\\serveur\partage
 InvalidDrive=L'unité ou l'emplacement réseau que vous avez sélectionné n'existe pas ou n'est pas accessible. Veuillez choisir une autre destination.
 DiskSpaceWarningTitle=Espace disponible insuffisant
@@ -205,6 +220,10 @@ WizardPreparing=Préparation de l'installation
 PreparingDesc=L'assistant d'installation prépare l'installation de [name] sur votre ordinateur.
 PreviousInstallNotCompleted=L'installation ou la suppression d'un programme précédent n'est pas totalement achevée. Veuillez redémarrer votre ordinateur pour achever cette installation ou suppression.%n%nUne fois votre ordinateur redémarré, veuillez relancer cet assistant pour reprendre l'installation de [name].
 CannotContinue=L'assistant ne peut pas continuer. Veuillez cliquer sur Annuler pour abandonner l'installation.
+ApplicationsFound=Les applications suivantes utilisent des fichiers qui doivent être mis à jour par l'assistant. Il est recommandé d'autoriser l'assistant à fermer ces applications automatiquement.
+ApplicationsFound2=Les applications suivantes utilisent des fichiers qui doivent être mis à jour par l'assistant. Il est recommandé d'autoriser l'assistant à fermer ces applications automatiquement. Une fois l'installation terminée, l'assistant essaiera de relancer ces applications.
+CloseApplications=&Arrêter les applications automatiquement
+DontCloseApplications=&Ne pas arrêter les applications
 
 ; *** "Installing" wizard page
 WizardInstalling=Installation en cours
@@ -237,6 +256,7 @@ SetupAborted=L'installation n'est pas terminée.%n%nVeuillez corriger le problème
 EntryAbortRetryIgnore=Cliquez sur Recommencer pour essayer à nouveau, Ignorer pour continuer malgré tout, ou Abandonner pour annuler l'installation.
 
 ; *** Installation status messages
+StatusClosingApplications=Ferme les applications...
 StatusCreateDirs=Création des dossiers...
 StatusExtractFiles=Extraction des fichiers...
 StatusCreateIcons=Création des raccourcis...
@@ -245,6 +265,7 @@ StatusCreateRegistryEntries=Création des entrées de registre...
 StatusRegisterFiles=Enregistrement des fichiers...
 StatusSavingUninstall=Sauvegarde des informations de désinstallation...
 StatusRunProgram=Finalisation de l'installation...
+StatusRestartingApplications=Relance les applications...
 StatusRollback=Annulation des modifications...
 
 ; *** Misc. errors
@@ -308,6 +329,10 @@ SharedFileLocationLabel=Emplacement :
 WizardUninstalling=État de la désinstallation
 StatusUninstalling=Désinstallation de %1...
 
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Installe %1.
+ShutdownBlockReasonUninstallingApp=Désinstalle %1.
+
 ; Les messages personnalisés suivants ne sont pas utilisé par l'installation
 ; elle-même, mais si vous les utilisez dans vos scripts, vous devez les
 ; traduire
@@ -323,3 +348,6 @@ UninstallProgram=Désinstaller %1
 LaunchProgram=Exécuter %1
 AssocFileExtension=&Associer %1 avec l'extension de fichier %2
 AssocingFileExtension=Associe %1 avec l'extension de fichier %2...
+AutoStartProgramGroupDescription=Démarrage :
+AutoStartProgram=Démarrer automatiquement %1
+AddonHostProgramNotFound=%1 n'a pas été trouvé dans le dossier que vous avez choisi.%n%nVoulez-vous continuer malgré tout ?

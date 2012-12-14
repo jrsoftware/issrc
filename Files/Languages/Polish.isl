@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.1.11+ Polish messages ***
+; *** Inno Setup version 5.5.0+ Polish messages ***
 ; Krzysztof Cynarski <krzysztof at cynarski.net>
 ;
 ; To download user-contributed translations of this file, go to:
@@ -39,6 +39,10 @@ LastErrorMessage=%1.%n%nB³¹d %2: %3
 SetupFileMissing=W folderze instalacyjnym brak pliku %1.%nProszê usun¹æ problem lub uzyskaæ now¹ kopiê programu instalacyjnego.
 SetupFileCorrupt=Pliki sk³adowe Instalatora s¹ uszkodzone. Proszê uzyskaæ now¹ kopiê Instalatora od producenta.
 SetupFileCorruptOrWrongVer=Pliki sk³adowe instalatora s¹ uszkodzone lub niezgodne z t¹ wersj¹ Instalatora. Proszê rozwi¹zaæ ten problem lub uzyskaæ now¹ kopiê Instalatora od producenta.
+InvalidParameter=W lini komend zosta³ przekazany nieprawid³owy parametr:%n%n%1
+SetupAlreadyRunning=Instalator jest ju¿ uruchomiony.
+WindowsVersionNotSupported=Ten program nie wspiera aktualnie uruchomionej na Twoim komputerze wersji Windows.
+WindowsServicePackRequired=Ten program wymaga %1 z dodatkiem Service Pack %2 lub póŸniejszym.
 NotOnThisPlatform=Tego programu nie mo¿na uruchomiæ w systemie %1.
 OnlyOnThisPlatform=Ten program wymaga systemu %1.
 OnlyOnTheseArchitectures=Ten program mo¿e byæ uruchomiony tylko w systemie Windows zaprojektowanym na procesory o architekturach:%n%n%1
@@ -129,7 +133,8 @@ SelectDirDesc=Gdzie ma byæ zainstalowany program [name]?
 SelectDirLabel3=Instalator zainstaluje program [name] do poni¿szego folderu.
 SelectDirBrowseLabel=Kliknij przycisk Dalej, aby kontynuowaæ. Jeœli chcesz okreœliæ inny folder, kliknij przycisk Przegl¹daj.
 DiskSpaceMBLabel=Potrzeba przynajmniej [mb] MB wolnego miejsca na dysku.
-ToUNCPathname=Instalator nie mo¿e instalowaæ do œcie¿ki UNC. Jeœli próbujesz zainstalowaæ program na dysku sieciowym, najpierw zmapuj ten dysk.
+CannotInstallToNetworkDrive=Instalator nie mo¿e zainstalowaæ programu na dysku sieciowym.
+CannotInstallToUNCPath=Instalator nie mo¿e zainstalowaæ programu w œcie¿ce UNC.
 InvalidPath=Musisz wprowadziæ pe³n¹ œcie¿kê wraz z liter¹ dysku, np.:%n%nC:\PROGRAM%n%nlub scie¿kê sieciow¹ (UNC) w formacie:%n%n\\serwer\udzia³
 InvalidDrive=Wybrany dysk lub udostêpniony folder sieciowy nie istnieje. Proszê wybraæ inny.
 DiskSpaceWarningTitle=Niewystarczaj¹ca iloœæ wolnego miejsca na dysku
@@ -189,7 +194,10 @@ WizardPreparing=Przygotowanie do instalacji
 PreparingDesc=Instalator przygotowuje instalacjê programu [name] na Twoim komputerze.
 PreviousInstallNotCompleted=Instalacja (usuniêcie) poprzedniej wersji programu nie zosta³a zakoñczona. Bêdziesz musia³ ponownie uruchomiæ komputer, aby zakoñczyæ instalacjê. %n%nPo ponownym uruchomieniu komputera uruchom ponownie instalatora, aby zakoñczyæ instalacjê aplikacji [name].
 CannotContinue=Instalator nie mo¿e kontynuowaæ. Kliknij przycisk Anuluj, aby przerwaæ instalacjê.
-
+ApplicationsFound=Poni¿sze aplikacje u¿ywaj¹ plików, które musz¹ byæ uaktualnione przez Instalator. Zalecane jest aby pozwoliæ Instalatorowi automatycznie zamkn¹æ te aplikacje.
+ApplicationsFound2=Poni¿sze aplikacje u¿ywaj¹ plików, które musz¹ byæ uaktualnione przez Instalator. Zalecane jest aby pozwoliæ Instalatorowi automatycznie zamkn¹æ te aplikacje. Po zakoñczonej instalacji Instalator podejmie próbê ich ponownego uruchomienia.
+CloseApplications=&Automatycznie zamknij aplikacje
+DontCloseApplications=&Nie zamykaj aplikacji
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalacja
@@ -222,6 +230,7 @@ SetupAborted=Instalacja nie zosta³a zakoñczona.%n%nProszê rozwi¹zaæ problem i po
 EntryAbortRetryIgnore=Mo¿esz ponowiæ nieudan¹ czynnoœæ, zignorowaæ j¹ (nie zalecane) lub przerwaæ instalacjê.
 
 ; *** Installation status messages
+StatusClosingApplications=Zamykanie aplikacji...
 StatusCreateDirs=Tworzenie folderów...
 StatusExtractFiles=Dekompresja plików...
 StatusCreateIcons=Tworzenie ikon aplikacji...
@@ -230,6 +239,7 @@ StatusCreateRegistryEntries=Tworzenie zapisów w rejestrze...
 StatusRegisterFiles=Rejestracja plików...
 StatusSavingUninstall=Zachowanie informacji deinstalatora...
 StatusRunProgram=Koñczenie instalacji...
+StatusRestartingApplications=Ponowne uruchamianie aplikacji...
 StatusRollback=Cofanie zmian...
 
 ; *** Misc. errors
@@ -293,6 +303,10 @@ SharedFileLocationLabel=Po³o¿enie:
 WizardUninstalling=Stan deinstalacji
 StatusUninstalling=Deinstalacja %1...
 
+; *** Shutdown block reasons	
+ShutdownBlockReasonInstallingApp=Intstalacja %1.
+ShutdownBlockReasonUninstallingApp=Dezinstalacja %1.
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 
@@ -307,3 +321,6 @@ UninstallProgram=Deinstalacja programu %1
 LaunchProgram=Uruchom program %1
 AssocFileExtension=&Przypisz program %1 do rozszerzenia pliku %2
 AssocingFileExtension=Przypisywanie programu %1 do rozszerzenia pliku %2...
+AutoStartProgramGroupDescription=Autostart:
+AutoStartProgram=Automatycznie uruchamiaj %1
+AddonHostProgramNotFound=%1 nie zosta³ znaleziony we wskazanym przez Ciebie folderze.%n%nCzy pomimo tego chcesz kontynuowaæ?

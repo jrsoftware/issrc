@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; ID: Danish.isl,v 5.1.11 2008/02/26 12:37:00 Thomas Vedel, veco@veco.dk
+; ID: Danish.isl,v 5.5.0+ 2012/06/11 Thomas Vedel, thomas@veco.dk
 
 [LangOptions]
 LanguageName=Dansk
@@ -50,6 +50,10 @@ LastErrorMessage=%1.%n%nFejl %2: %3
 SetupFileMissing=Filen %1 mangler i installations-mappen. Ret fejlen eller skaf en ny kopi af programmet.
 SetupFileCorrupt=Installationsfilerne er ødelagt. Skaf en ny kopi af installationsprogrammet.
 SetupFileCorruptOrWrongVer=Installationsfilerne er ødelagt, eller også passer de ikke til denne version af installationen. Ret fejlen eller skaf en ny kopi af installationsprogrammet.
+InvalidParameter=En ugyldig parameter blev angivet på kommandolinjen:%n%n%1
+SetupAlreadyRunning=Installationsprogrammet kører allerede.
+WindowsVersionNotSupported=Programmet kan ikke anvendes på den version af Windows som denne computer kører.
+WindowsServicePackRequired=Dette program kræver %1 med Service Pack %2 eller senere.
 NotOnThisPlatform=Programmet kan ikke anvendes på %1.
 OnlyOnThisPlatform=Programmet kan kun anvendes på %1.
 OnlyOnTheseArchitectures=Dette program kan kun installeres på Windows-versioner som er designet til denne processortype:%n%n%1
@@ -140,8 +144,9 @@ SelectDirDesc=Hvor skal [name] installeres?
 SelectDirLabel3=Guiden installerer [name] i følgende mappe.
 SelectDirBrowseLabel=Klik Næste for at fortsætte. Hvis du vil vælge en anden mappe skal du klikke Gennemse.
 DiskSpaceMBLabel=Der skal være mindst [mb] MB fri diskplads.
-ToUNCPathname=Guiden kan ikke installere på et UNC-stinavn. Hvis du prøver på at installere på et netværk, er du nødt til at oprette et netværksdrev.
-InvalidPath=Du skal indtaste den fulde sti med drevangivelse; for eksempel:%n%nC:\APP%n%neller et UNC-stinavn på formen:%n%n\\server\share
+CannotInstallToNetworkDrive=Programmet kan ikke installeres på et netværksdrev.
+CannotInstallToUNCPath=Programmet kan ikke installeres til en UNC-sti.
+InvalidPath=Du skal indtaste den komplette sti med drevangivelse; for eksempel:%n%nC:\APP%n%neller et UNC-stinavn på formen:%n%n\\server\share
 InvalidDrive=Drevet eller UNC-stien du valgte eksisterer ikke. Vælg venligst noget andet.
 DiskSpaceWarningTitle=Ikke nok fri diskplads.
 DiskSpaceWarning=Guiden kræver mindst %1 KB fri diskplads for at kunne foretage installationen, men det valgte drev har kun %2 KB diskplads tilgængelig.%n%nVil du installere alligevel?
@@ -200,6 +205,10 @@ WizardPreparing=Klargør installationen
 PreparingDesc=Installationsguiden klargør installationen af [name] på din computer.
 PreviousInstallNotCompleted=Den foregående installation eller fjernelse af et program er ikke afsluttet. Du skal genstarte computeren for at afslutte den foregående installation.%n%nEfter genstarten skal du køre installationsguiden igen for at fuldføre installationen af [name].
 CannotContinue=Installationsguiden kan ikke fortsætte. Klik på Fortryd for at afslutte.
+ApplicationsFound=Følgende programmer bruger filer som skal opdateres. Det anbefales at du giver installationsguiden lov til automatisk at lukke programmerne.
+ApplicationsFound2=Følgende programmer bruger filer som skal opdateres. Det anbefales at du giver installationsguiden lov til automatisk at lukke programmerne. Installationsguiden vil forsøge at genstarte programmerne når installationen er afsluttet.
+CloseApplications=&Luk programmerne automatisk
+DontCloseApplications=Luk &ikke programmerne
 
 ; *** "Installing" wizard page
 WizardInstalling=Installerer
@@ -232,6 +241,7 @@ SetupAborted=Installationen blev ikke gennemført.%n%nInstaller igen, hent progra
 EntryAbortRetryIgnore=Klik Gentag for at forsøge igen, Ignorer for at fortsætte alligevel, eller Afbryd for at annullere installationen.
 
 ; *** Installation status messages
+StatusClosingApplications=Lukker programmer...
 StatusCreateDirs=Opretter mapper...
 StatusExtractFiles=Udpakker filer...
 StatusCreateIcons=Opretter program-genveje...
@@ -240,6 +250,7 @@ StatusCreateRegistryEntries=Opdaterer registrerings-databasen...
 StatusRegisterFiles=Registrerer filer...
 StatusSavingUninstall=Gemmer information om afinstallation...
 StatusRunProgram=Færdiggør installation...
+StatusRestartingApplications=Genstarter programmer...
 StatusRollback=Fjerner programmet igen...
 
 ; *** Misc. errors
@@ -303,6 +314,10 @@ SharedFileLocationLabel=Placering:
 WizardUninstalling=Status for afinstallation
 StatusUninstalling=Afinstallerer %1...
 
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Installerer %1.
+ShutdownBlockReasonUninstallingApp=Afinstallerer %1.
+
 [CustomMessages]
 NameAndVersion=%1 version %2
 AdditionalIcons=Ekstra ikoner:
@@ -313,3 +328,6 @@ UninstallProgram=Afinstaller (fjern) %1
 LaunchProgram=&Kør %1
 AssocFileExtension=Sammen&kæd %1 med filtypen %2
 AssocingFileExtension=Sammenkæder %1 med filtypen %2...
+AutoStartProgramGroupDescription=Start:
+AutoStartProgram=Start automatisk %1
+AddonHostProgramNotFound=%1 blev ikke fundet i den mappe du angav.%n%nØnsker du alligevel at fortsætte?

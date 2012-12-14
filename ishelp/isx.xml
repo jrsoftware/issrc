@@ -1,0 +1,679 @@
+<?xml version="1.0" ?>
+<!DOCTYPE ishelp SYSTEM "isetup.dtd">
+
+<!--
+  Inno Setup
+  Copyright (C) 1997-2008 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+-->
+
+<ishelp version="1">
+
+<!-- Topics -->
+
+<topic name="scriptintro" title="Pascal Scripting: Introduction">
+<keyword value="Pascal Scripting: Introduction" />
+<body>
+
+<p>The Pascal scripting feature (modern Delphi-like Pascal) adds lots of new possibilities to customize your Setup or Uninstall at run-time. Some examples:</p>
+
+<ul>
+
+<li>Support for aborting Setup or Uninstall startup under custom conditions.</li>
+
+<li>Support for adding custom wizard pages to Setup at run-time.</li>
+
+<li>Support for extracting and calling DLL or other files from the Pascal script before, during or after the installation.</li>
+
+<li>Support for scripted constants that can do anything the normal constants, the read-from-registry, read-from-ini and read-from-commandline constants can do + more.</li>
+
+<li>Support for run-time removal of types, components and/or tasks under custom conditions.</li>
+
+<li>Support for conditional installation of <tt>[Files]</tt>, <tt>[Registry]</tt>, <tt>[Run]</tt> etc. entries based on custom conditions.</li>
+
+<li>Lots of support functions to do from the Pascal script just about everything Inno Setup itself does/can do + more.</li>
+
+</ul>
+
+<p>An integrated run-time debugger to debug your custom Pascal script is also available.</p>
+
+<p>The scripting engine used by Inno Setup is RemObjects Pascal Script by Carlo Kok. Like Inno Setup, RemObjects Pascal Script is freely available and comes with source. See <extlink href="http://www.remobjects.com/ps">http://www.remobjects.com/ps</extlink> for more information.</p>
+
+<p>Note: the Pascal scripting feature works exclusively at run-time, and has no compile-time functionality.</p>
+
+<p><br/><b>See also</b><br/>
+<link topic="scriptcreating">Creating the [Code] section</link><br/>
+<link topic="scriptevents">Event Functions</link><br/>
+<link topic="scriptconstants">Scripted Constants</link><br/>
+<link topic="scriptcheck">Check Parameters</link><br/>
+<link topic="scriptinstall">BeforeInstall and AfterInstall Parameters</link><br/>
+<link topic="scriptuninstall">Uninstall Code</link><br/>
+<link topic="scriptexamples">Examples</link><br/>
+<link topic="scriptfunctions">Support Functions Reference</link><br/>
+<link topic="scriptclasses">Support Classes Reference</link><br/>
+<link topic="scriptpages">Using Custom Wizard Pages</link><br/>
+<link topic="scriptdll">Using DLLs</link><br/>
+<link topic="scriptautomation">Using COM Automation objects</link>
+</p>
+
+</body>
+</topic>
+
+
+
+<topic name="scriptcreating" title="Pascal Scripting: Creating the [Code] Section">
+<keyword value="Pascal Scripting: Creating the [Code] Section" />
+<keyword value="[Code] section" />
+<keyword value="Code" />
+<body>
+
+<p>The <tt>[Code]</tt> section is an optional section that specifies a Pascal script. A Pascal script can be used to customize Setup or Uninstall in many ways. Note that creating a Pascal script is not easy and requires experience with Inno Setup and knowledge about programming in Pascal or at least a similar programming language.</p>
+
+<p>The "Code*.iss" and "UninstallCode*.iss" files in the "Examples" subdirectory in your Inno Setup directory contain various example <tt>[Code]</tt> sections. Please study them carefully before trying to create your own Pascal script.</p>
+
+<p>Note: to learn more the Pascal programming language you may find useful to refer to Marco Cantu's free Essential Pascal book. See <extlink href="http://www.marcocantu.com/epascal/">http://www.marcocantu.com/epascal/</extlink>.</p>
+
+</body>
+</topic>
+
+
+
+<topic name="scriptevents" title="Pascal Scripting: Event Functions">
+<keyword value="Pascal Scripting: Event Functions" />
+<keyword value="Event Functions" />
+<keyword value="InitializeSetup" anchor="InitializeSetup" />
+<keyword value="InitializeWizard" anchor="InitializeWizard" />
+<keyword value="DeinitializeSetup" anchor="DeinitializeSetup" />
+<keyword value="CurStepChanged" anchor="CurStepChanged" />
+<keyword value="NextButtonClick" anchor="NextButtonClick" />
+<keyword value="BackButtonClick" anchor="BackButtonClick" />
+<keyword value="CancelButtonClick" anchor="CancelButtonClick" />
+<keyword value="ShouldSkipPage" anchor="ShouldSkipPage" />
+<keyword value="CurPageChanged" anchor="CurPageChanged" />
+<keyword value="CheckPassword" anchor="CheckPassword" />
+<keyword value="NeedRestart" anchor="NeedRestart" />
+<keyword value="UpdateReadyMemo" anchor="UpdateReadyMemo" />
+<keyword value="RegisterPreviousData" anchor="RegisterPreviousData" />
+<keyword value="CheckSerial" anchor="CheckSerial" />
+<keyword value="GetCustomSetupExitCode" anchor="GetCustomSetupExitCode" />
+<keyword value="PrepareToInstall" anchor="PrepareToInstall" />
+<keyword value="RegisterExtraCloseApplicationsResources" anchor="RegisterExtraCloseApplicationsResources" />
+<keyword value="InitializeUninstall" anchor="InitializeUninstall" />
+<keyword value="DeinitializeUninstall" anchor="DeinitializeUninstall" />
+<keyword value="CurUninstallStepChanged" anchor="CurUninstallStepChanged" />
+<keyword value="UninstallNeedRestart" anchor="UninstallNeedRestart" />
+<keyword value="InitializeUninstallProgressForm" anchor="InitializeUninstallProgressForm" />
+<keyword value="ssInstall" anchor="TSetupStep" />
+<keyword value="ssPostInstall" anchor="TSetupStep" />
+<keyword value="ssDone" anchor="TSetupStep" />
+<keyword value="usAppMutexCheck" anchor="TUninstallStep" />
+<keyword value="usUninstall" anchor="TUninstallStep" />
+<keyword value="usFinished" anchor="TUninstallStep" />
+<keyword value="usTerminate" anchor="TUninstallStep" />
+<keyword value="wpWelcome" anchor="PageID" />
+<keyword value="wpLicense" anchor="PageID" />
+<keyword value="wpPassword" anchor="PageID" />
+<keyword value="wpInfoBefore" anchor="PageID" />
+<keyword value="wpUserInfo" anchor="PageID" />
+<keyword value="wpSelectDir" anchor="PageID" />
+<keyword value="wpSelectComponents" anchor="PageID" />
+<keyword value="wpSelectProgramGroup" anchor="PageID" />
+<keyword value="wpSelectTasks" anchor="PageID" />
+<keyword value="wpReady" anchor="PageID" />
+<keyword value="wpPreparing" anchor="PageID" />
+<keyword value="wpInstalling" anchor="PageID" />
+<keyword value="wpInfoAfter" anchor="PageID" />
+<keyword value="wpFinished" anchor="PageID" />
+<body>
+
+<p>The Pascal script can contain several event functions which are called at appropriate times.</p>
+
+<heading>Setup event functions</heading>
+
+<p>Setup supports following event functions:</p>
+
+<dl>
+
+<dt><tt>function <a name="InitializeSetup">InitializeSetup</a>(): Boolean;</tt></dt>
+<dd>
+<p>Called during Setup's initialization. Return False to abort Setup, True otherwise.</p>
+</dd>
+
+<dt><tt>procedure <a name="InitializeWizard">InitializeWizard</a>();</tt></dt>
+<dd>
+<p>Use this event function to make changes to the wizard or wizard pages at startup. You can't use the <tt>InitializeSetup</tt> event function for this since at the time it is triggered, the wizard form does not yet exist.</p>
+</dd>
+
+<dt><tt>procedure <a name="DeinitializeSetup">DeinitializeSetup</a>();</tt></dt>
+<dd>
+<p>Called just before Setup terminates. Note that this function is called even if the user exits Setup before anything is installed.</p>
+</dd>
+
+<dt><tt>procedure <a name="CurStepChanged">CurStepChanged</a>(CurStep: <anchorlink name="TSetupStep">TSetupStep</anchorlink>);</tt></dt>
+<dd>
+<p>You can use this event function to perform your own pre-install and post-install tasks.</p>
+<p>Called with CurStep=ssInstall just before the actual installation starts, with CurStep=ssPostInstall just after the actual installation finishes, and with CurStep=ssDone just before Setup terminates after a successful install.</p>
+</dd>
+
+<dt><tt>function <a name="NextButtonClick">NextButtonClick</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer): Boolean;</tt></dt>
+<dd>
+<p>Called when the user clicks the Next button. If you return True, the wizard will move to the next page; if you return False, it will remain on the current page (specified by CurPageID).</p>
+<p>Note that this function is called on silent installs as well, even though there is no Next button that the user can click. Setup instead simulates "clicks" on the Next button. On a silent install, if your <tt>NextButtonClick</tt> function returns False prior to installation starting, Setup will exit automatically.</p>
+</dd>
+
+<dt><tt>function <a name="BackButtonClick">BackButtonClick</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer): Boolean;</tt></dt>
+<dd>
+<p>Called when the user clicks the Back button. If you return True, the wizard will move to the previous page; if you return False, it will remain on the current page (specified by CurPageID).</p>
+</dd>
+
+<dt><tt>procedure <a name="CancelButtonClick">CancelButtonClick</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer; var Cancel, Confirm: Boolean);</tt></dt>
+<dd>
+<p>Called when the user clicks the Cancel button or clicks the window's Close button. The <tt>Cancel</tt> parameter specifies whether normal cancel processing should occur; it defaults to True. The <tt>Confirm</tt> parameter specifies whether an "Exit Setup?" message box should be displayed; it usually defaults to True. If <tt>Cancel</tt> is set to False, then the value of <tt>Confirm</tt> is ignored.</p>
+</dd>
+
+<dt><tt>function <a name="ShouldSkipPage">ShouldSkipPage</a>(<anchorlink name="PageID">PageID</anchorlink>: Integer): Boolean;</tt></dt>
+<dd>
+<p>The wizard calls this event function to determine whether or not a particular page (specified by PageID) should be shown at all. If you return True, the page will be skipped; if you return False, the page may be shown.</p>
+<p>Note: This event function isn't called for the wpWelcome, wpPreparing, and wpInstalling pages, nor for pages that Setup has already determined should be skipped (for example, wpSelectComponents in an install containing no components).</p>
+</dd>
+
+<dt><tt>procedure <a name="CurPageChanged">CurPageChanged</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer);</tt></dt>
+<dd>
+<p>Called after a new wizard page (specified by CurPageID) is shown.</p>
+</dd>
+
+<dt><tt>function <a name="CheckPassword">CheckPassword</a>(Password: String): Boolean;</tt></dt>
+<dd>
+<p>If Setup finds the <tt>CheckPassword</tt> event function in the Pascal script, it automatically displays the <i>Password</i> page and calls <tt>CheckPassword</tt> to check passwords. Return True to accept the password and False to reject it.</p>
+<p>To avoid storing the actual password inside the compiled [Code] section which is stored inside Setup, you should use comparisons by hash only: calculate the SHA-1 hash of your salted password yourself and then compare that to <tt><link topic="isxfunc_GetSHA1OfString">GetSHA1OfString</link>(Password)</tt>. This way the actual value of the password remains protected.</p>
+<p>Note: If Setup is run with a /PASSWORD= <link topic="setupcmdline" anchor="PASSWORD">command line parameter</link>, your <tt>CheckPassword</tt> function will be called <i>before</i> any other event function is called, including <tt><anchorlink name="InitializeSetup">InitializeSetup</anchorlink></tt>.</p>
+</dd>
+
+<dt><tt>function <a name="NeedRestart">NeedRestart</a>(): Boolean;</tt></dt>
+<dd>
+<p>Return True to instruct Setup to prompt the user to restart the system at the end of a successful installation, False otherwise.</p>
+</dd>
+
+<dt><tt>function <a name="UpdateReadyMemo">UpdateReadyMemo</a>(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;</tt></dt>
+<dd>
+<p>If Setup finds the <tt>UpdateReadyMemo</tt> event function in the Pascal script, it is called automatically when the <i>Ready to Install</i> wizard page becomes the active page. It should return the text to be displayed in the settings memo on the <i>Ready to Install</i> wizard page as a single string with lines separated by the <tt>NewLine</tt> parameter. Parameter <tt>Space</tt> contains a string with spaces. Setup uses this string to indent settings. The other parameters contain the (possibly empty) strings that Setup would have used as the setting sections. The <tt>MemoDirInfo</tt> parameter for example contains the string for the <i>Selected Directory</i> section.</p>
+</dd>
+
+<dt><tt>procedure <a name="RegisterPreviousData">RegisterPreviousData</a>(PreviousDataKey: Integer);</tt></dt>
+<dd>
+<p>To store user settings entered on custom wizard pages, place a <tt>RegisterPreviousData</tt> event function in the Pascal script and call <link topic="isxfunc_SetPreviousData">SetPreviousData(PreviousDataKey, ...)</link> inside it, once per setting.</p>
+</dd>
+
+<dt><tt>function <a name="CheckSerial">CheckSerial</a>(Serial: String): Boolean;</tt></dt>
+<dd>
+<p>If Setup finds the <tt>CheckSerial</tt> event function in the Pascal script, a serial number field will automatically appear on the User Info wizard page (which must be enabled using <tt>UserInfoPage=yes</tt> in your [Setup] section!). Return True to accept the serial number and False to reject it. When using serial numbers, it's important to keep in mind that since no encryption is used and the source code to Inno Setup is freely available, it would not be too difficult for an experienced individual to remove the serial number protection from an installation. Use this only as a convienience to the end user and double check the entered serial number (stored in the <tt>{userinfoserial}</tt> constant) in your application.</p>
+</dd>
+
+<dt><tt>function <a name="GetCustomSetupExitCode">GetCustomSetupExitCode</a>: Integer;</tt></dt>
+<dd>
+<p>Return a non zero number to instruct Setup to return a custom exit code. This function is only called if Setup was successfully run to completion and the exit code would have been 0. Also see <link topic="setupexitcodes">Setup Exit Codes</link>.</p>
+</dd>
+
+<dt><tt>function <a name="PrepareToInstall">PrepareToInstall</a>(var NeedsRestart: Boolean): String;</tt></dt>
+<dd>
+<p>You can use this event function to detect and install missing prerequisites and/or to shutdown any application which is about to be updated.</p>
+<p>Return a non empty string to instruct Setup to stop at the <link topic="wizardpages">Preparing to Install</link> wizard page, showing the returned string as the error message. Set <tt>NeedsRestart</tt> to True if a restart is needed. This function is only called if Setup didn't already determine it can't continue because one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart.</p>
+<p>This event function is called before Setup checks for files being in-use if <link topic="setup_closeapplications">CloseApplications</link> is set to <tt>yes</tt>.</p>
+</dd>
+
+<dt><tt>procedure <a name="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</a>;</tt></dt>
+<dd>
+<p>To register extra files which Setup should check for being in-use if <link topic="setup_closeapplications">CloseApplications</link> is set to <tt>yes</tt>, place a <tt>RegisterExtraCloseApplicationsResources</tt> event function in the Pascal script and call <link topic="isxfunc_RegisterExtraCloseApplicationsResource">RegisterExtraCloseApplicationsResource</link> inside it, once per file.</p>
+</dd>
+
+</dl>
+
+<heading>Uninstall event functions</heading>
+
+<p>Uninstall supports following event functions:</p>
+
+<dl>
+
+<dt><tt>function <a name="InitializeUninstall">InitializeUninstall</a>(): Boolean;</tt></dt>
+<dd>
+<p>Return False to abort Uninstall, True otherwise.</p>
+</dd>
+
+<dt><tt>procedure <a name="InitializeUninstallProgressForm">InitializeUninstallProgressForm</a>();</tt></dt>
+<dd>
+<p>Use this event function to make changes to the progress form at startup. You can't use the <tt>InitializeUninstall</tt> event function for this since at the time it is triggered, the progress form does not yet exist.</p>
+</dd>
+
+<dt><tt>procedure <a name="DeinitializeUninstall">DeinitializeUninstall</a>();</tt></dt>
+<dd />
+
+<dt><tt>procedure <a name="CurUninstallStepChanged">CurUninstallStepChanged</a>(CurUninstallStep: <anchorlink name="TUninstallStep">TUninstallStep</anchorlink>);</tt></dt>
+<dd />
+
+<dt><tt>function <a name="UninstallNeedRestart">UninstallNeedRestart</a>(): Boolean;</tt></dt>
+<dd>
+<p>Return True to instruct Uninstall to prompt the user to restart the system at the end of a successful uninstallation, False otherwise.</p>
+</dd>
+
+</dl>
+
+<heading>Constants</heading>
+
+<p>Here's the list of constants used by these functions:</p>
+
+<ul>
+
+<li><i><a name="TSetupStep">TSetupStep values</a></i><br />
+ssInstall, ssPostInstall, ssDone</li>
+
+<li><i><a name="TUninstallStep">TUninstallStep value</a>s</i><br />
+usAppMutexCheck, usUninstall, usPostUninstall, usDone</li>
+
+<li><i><a name="PageID">PageID</a> values for predefined <link topic="wizardpages">wizard pages</link></i><br />
+wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelectComponents, wpSelectProgramGroup, wpSelectTasks, wpReady, wpPreparing, wpInstalling, wpInfoAfter, wpFinished</li>
+
+</ul>
+
+<p>None of these functions are required to be present in a Pascal script.</p>
+
+</body>
+</topic>
+
+
+
+<topic name="scriptconstants" title="Pascal Scripting: Scripted Constants">
+<keyword value="Pascal Scripting: Scripted Constants" />
+<keyword value="Scripted Constants" />
+<keyword value="{code:...}" />
+<body>
+
+<p>The Pascal script can contain several functions which are called when Setup wants to know the value of a scripted <tt>{code:...}</tt> constant. The called function must have 1 String parameter named <tt>Param</tt>, and must return a String or a Boolean value depending on where the constant is used.</p>
+
+<p>The syntax of a <tt>{code:...}</tt> constant is: <tt>{code:<i>FunctionName</i>|<i>Param</i>}</tt></p>
+
+<ul>
+
+<li><i>FunctionName</i> specifies the name of the Pascal script function.</li>
+
+<li><i>Param</i> specifies the string parameter to pass to the function. If you omit <i>Param</i>, an empty string will be passed.</li>
+
+<li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
+
+<li><i>Param</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
+
+</ul>
+
+<example>
+<pre>DefaultDirName={code:MyConst}\My Program</pre>
+</example>
+
+<p>Here is an example of a <tt>[Code]</tt> section containing the <tt>MyConst</tt> function used above.</p>
+
+<precode>
+[Code]
+function MyConst(Param: String): String;
+begin
+  Result := ExpandConstant('{pf}');
+end;
+</precode>
+
+<p>If the function specified by the <tt>{code:...}</tt> constant is not included in the <tt>[Code]</tt> section, it must be a <link topic="scriptfunctions">support function</link>. Here is an example.</p>
+
+<precode>
+[Setup]
+CreateUninstallRegKey={code:IsTaskSelected|CreateUninstallRegKeyTask}
+</precode>
+
+<p>Another example:</p>
+
+<precode>
+[INI]
+FileName: "{app}\MyIni.ini"; Section: "MySettings"; Key: "ShortApp"; String: "{code:GetShortName|{app}}"
+</precode>
+
+<p><br/><b>See also</b><br/>
+<link topic="consts">Constants</link>
+</p>
+
+</body>
+</topic>
+
+
+
+<topic name="scriptcheck" title="Pascal Scripting: Check Parameters">
+<keyword value="Pascal Scripting: Check Parameters" />
+<keyword value="Check parameters" />
+<body>
+
+<p>There is one optional <link topic="params">parameter</link> that is supported by all sections whose entries are separated into parameters. This is:</p>
+
+<paramlist>
+
+<param name="Check">
+<p>The name of a check function that determines whether an entry has to be processed or not. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
+<p>Besides a single name, you may also use boolean expressions. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
+<p>For each check function, may include a comma separated list of parameters that Setup should pass to the check function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
+<example>
+<pre>[Files]
+Source: "MYPROG.EXE"; DestDir: "{app}"; Check: MyProgCheck
+Source: "A\MYFILE.TXT"; DestDir: "{app}"; Check: MyDirCheck(ExpandConstant('{app}\A'))
+Source: "B\MYFILE.TXT"; DestDir: "{app}"; Check: DirExists(ExpandConstant('{app}\B'))</pre>
+</example>
+</param>
+
+</paramlist>
+
+<p>All check functions must have a Boolean return value. If a check function (or the boolean expression) returns True, the entry is processed otherwise it's skipped.</p>
+
+<p>Setup might call each check function several times, even if there's only one entry that uses the check function. If your function performs a lenghty piece of code, you can optimize it by performing the code only once and 'caching' the result in a global variable.</p>
+
+<p>A check function isn't called if Setup already determined the entry it shouldn't be processed.</p>
+
+<p>Here is an example of a <tt>[Code]</tt> section containing the check functions used above. Function <tt>DirExists</tt> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
+
+<precode>
+[Code]
+var
+  MyProgChecked: Boolean;
+  MyProgCheckResult: Boolean;
+
+function MyProgCheck(): Boolean;
+begin
+  if not MyProgChecked then begin
+    MyProgCheckResult := MsgBox('Do you want to install MyProg.exe to ' + ExtractFilePath(CurrentFileName) + '?', mbConfirmation, MB_YESNO) = idYes;
+    MyProgChecked := True;
+  end;
+  Result := MyProgCheckResult;
+end;
+
+function MyDirCheck(DirName: String): Boolean;
+begin
+  Result := DirExists(DirName);
+end;
+</precode>
+
+</body>
+</topic>
+
+
+
+<topic name="scriptinstall" title="Pascal Scripting: BeforeInstall and AfterInstall Parameters">
+<keyword value="Pascal Scripting: BeforeInstall and AfterInstall Parameters" />
+<keyword value="BeforeInstall parameters" />
+<keyword value="AfterInstall parameters" />
+<body>
+
+<p>There are two optional <link topic="params">parameters</link> that are supported by all sections whose entries are separated into parameters except for [Languages], [Types], [Components] and [Tasks]. These are:</p>
+
+<paramlist>
+
+<param name="BeforeInstall">
+<p>The name of a function that is to be called once just before an entry is installed. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
+<p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
+<example>
+<pre>[Files]
+Source: "MYPROG.EXE"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall
+Source: "A\MYFILE.TXT"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\A\MYFILE.TXT')
+Source: "B\MYFILE.TXT"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\B\MYFILE.TXT')
+Source: "MYPROG.CHM"; DestDir: "{app}"; BeforeInstall: Log('Before MYPROG.CHM Install')</pre>
+</example>
+</param>
+
+<param name="AfterInstall">
+<p>The name of a function that is to be called once just after an entry is installed. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
+<p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
+<example>
+<pre>[Files]
+Source: "MYPROG.EXE"; DestDir: "{app}"; AfterInstall: MyAfterInstall
+Source: "A\MYFILE.TXT"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\A\MYFILE.TXT')
+Source: "B\MYFILE.TXT"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\B\MYFILE.TXT')
+Source: "MYPROG.CHM"; DestDir: "{app}"; AfterInstall: Log('After MYPROG.CHM Install')</pre>
+</example>
+</param>
+
+</paramlist>
+
+<p>All <tt>BeforeInstall</tt> and <tt>AfterInstall</tt> functions must not have a return value.</p>
+
+<p>A <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> function isn't called if Setup already determined the entry it shouldn't be processed.</p>
+
+<p>Here is an example of a <tt>[Code]</tt> section containing the functions used above. Functions <tt>CurrentFileName</tt> and <tt>Log</tt> are <link topic="scriptfunctions">support functions</link> and therefore not included in this [Code] section.</p>
+
+<precode>
+[Code]
+procedure MyBeforeInstall();
+begin
+  MsgBox('About to install MyProg.exe as ' + CurrentFileName + '.', mbInformation, MB_OK);
+end;
+
+procedure MyBeforeInstall2(FileName: String);
+begin
+  MsgBox('About to install ' + FileName + ' as ' + CurrentFileName + '.', mbInformation, MB_OK);
+end;
+
+procedure MyAfterInstall();
+begin
+  MsgBox('Just installed MyProg.exe as ' + CurrentFileName + '.', mbInformation, MB_OK);
+end;
+
+procedure MyAfterInstall2(FileName: String);
+begin
+  MsgBox('Just installed ' + FileName + ' as ' + CurrentFileName + '.', mbInformation, MB_OK);
+end;
+</precode>
+
+</body>
+</topic>
+
+
+
+<topic name="scriptuninstall" title="Pascal Scripting: Uninstall Code">
+<keyword value="Pascal Scripting: Uninstall Code" />
+<keyword value="Uninstall code" />
+<body>
+
+<p>The Pascal script can also contain code invoked at uninstall time. See the <link topic="scriptevents">Event Functions</link> topic for more information.</p>
+
+<p>There is one thing that's important to be aware of when designing code to be executed at uninstall time: In cases where multiple versions of an application are installed over each other, only <i>one</i> Pascal script is run at uninstall time. Ordinarily, the script from the most recent install will be chosen. If, however, you were to <i>downgrade</i> your version of Inno Setup in a new version of your application, the script from the install built with the most recent Inno Setup version may be chosen instead. A similar situation can occur if a user installs an older version of your application over a newer one.</p>
+
+<p>When producing an installation that is a "patch" for another install, and the patch install shares the same uninstall log as the original install (i.e. <tt>Uninstallable</tt> is set to <tt>yes</tt> and <tt>AppId</tt> is the set the same as the original install), make sure the patch includes a copy of the full [Code] section from the original install. Otherwise, no code would be run at uninstall time.</p>
+
+<p>If, however, the patch install has <tt>Uninstallable</tt> set to <tt>no</tt> then Setup will not touch the existing uninstaller EXE or uninstall log; in this case, the patch install need not contain a copy of the [Code] section from the original install.</p>
+
+</body>
+</topic>
+
+
+
+<topic name="scriptexamples" title="Pascal Scripting: Examples">
+<keyword value="Pascal Scripting: Examples" />
+<body>
+
+<p>The Pascal Scripting example scripts are located in separate files. Open one of the "Code*.iss" or "UninstallCode*.iss" files in the "Examples" subdirectory in your Inno Setup directory.</p>
+
+</body>
+</topic>
+
+
+
+<topic name="scriptpages" title="Pascal Scripting: Using Custom Wizard Pages">
+<keyword value="Pascal Scripting: Using Custom Wizard Pages" />
+<keyword value="Custom Wizard Pages" />
+<body>
+
+<p>The Pascal script allows you to add custom pages to Setup's wizard. This includes "pre-built" wizard pages for common queries and completely custom wizard pages with the controls of your choice.</p>
+
+<p>To use custom wizard pages, first create them inside your <tt>InitializeWizard</tt> event function. You can either use pre-built pages created by the <tt>CreateInput...Page</tt> and <tt>CreateOutput...Page</tt> functions or "empty" pages created by the <tt>CreateCustomPage</tt> function. See <link topic="scriptfunctions">Support Functions</link> topic for a listing and explanation of all <tt>Create...Page</tt> functions.</p>
+
+<p>After creating each page, you add controls to it, either by calling the special methods of the pre-built pages, or by manually creating controls on the page yourself.</p>
+
+<p>Most of the <tt>Create...Page</tt> functions take a "page ID" as their first parameter; this identifies the existing page after which the newly created page should be placed. There are several ways to find the "page ID" of an existing page. The pages you create yourself have <tt>ID</tt> properties which hold their page IDs. Built-in wizard pages have predefined IDs. For example, for the <i>Welcome</i> wizard page this is <tt>wpWelcome</tt>. See the <link topic="scriptfunctions">Support Functions</link> topic for a listing of all predefined IDs.</p>
+
+<p>After the custom wizard pages are created, Setup will show and handle them just as if they were built-in wizard pages. This includes the calling of all page related event functions such as <tt>NextButtonClick</tt> and <tt>ShouldSkipPage</tt>.</p>
+
+<p>At any time during Setup you can retrieve the values entered by the user either by using the special properties of the pre-built pages, or by using the properties of the controls you created yourself.</p>
+
+<p>Open the "CodeDlg.iss" script in the "Examples" subdirectory of your Inno Setup directory for an example of how to use pre-built custom wizard pages and event functions. Open the "CodeClasses.iss" script for an example of how to use completely custom wizard pages and controls.</p>
+
+</body>
+</topic>
+
+
+
+<topic name="scriptdll" title="Pascal Scripting: Using DLLs">
+<keyword value="Pascal Scripting: Using DLLs" />
+<keyword value="DLLs" />
+<body>
+
+<p>The Pascal script can call functions inside external DLLs. This includes both standard Win32 API functions inside standard Windows DLLs and custom functions in custom made DLLs (how to make such a custom DLL is beyond the scope of this help file).</p>
+
+<p>To be able to call a DLL function you should first write the function prototype as normal but instead of then writing the function body, you use the 'external' keyword to specify a DLL. If your function has for example prototype <tt>function A(B: Integer): Integer;</tt>, the following three forms are supported:</p>
+
+<precode>
+function A(B: Integer): Integer;
+external '&lt;dllfunctionname&gt;@&lt;dllfilename&gt;';
+
+function A(B: Integer): Integer;
+external '&lt;dllfunctionname&gt;@&lt;dllfilename&gt; &lt;callingconvention&gt;';
+
+function A(B: Integer): Integer;
+external '&lt;dllfunctionname&gt;@&lt;dllfilename&gt; &lt;callingconvention&gt; &lt;options&gt;';
+</precode>
+
+<p>The first form specifies that the DLL function should be called using default calling convention, which is 'stdcall'. All standard Win32 API functions use 'stdcall' just like most custom DLL functions.</p>
+
+<p>The second form specifies that the DLL function should be called using a special calling convention. Valid calling conventions are: 'stdcall' (the default), 'cdecl', 'pascal' and 'register'.</p>
+
+<p>The third form specifies additional one or more options for loading the DLL, separated by spaces:</p>
+
+<indent>
+<flaglist>
+
+<flag name="delayload">
+<p>Specifies that the DLL should be delay loaded. Normally the Pascal script checks at startup whether the DLL function can be called and if not, refuses to run. This does not happen if you specify delay loading using 'delayload'. Use delay loading if you want to call a DLL function for which you don't know whether it will actually be available at runtime: if the DLL function can't be called, the Pascal script will still run but throw an expection when you try to call the DLL function which you can catch to handle the absence of the DLL function.</p>
+</flag>
+
+<flag name="loadwithalteredsearchpath">
+<p>Specifies that the DLL should be loaded using the Windows flag LOAD_WITH_ALTERED_SEARCH_PATH, which, in essence, causes the loader to search for any dependent DLLs in the directory containing the DLL.</p>
+</flag>
+
+<flag name="setuponly">
+<p>Specifies that the DLL should only be loaded when the script is running from Setup.</p>
+</flag>
+
+<flag name="uninstallonly">
+<p>Specifies that the DLL should only be loaded when the script is running from Uninstall.</p>
+</flag>
+
+</flaglist>
+</indent>
+
+<p>An example (of the second form) if the DLL function has name 'A2' inside the DLL, the DLL has name 'MyDll.dll' and the DLL function uses the 'stdcall' calling convention:</p>
+
+<precode>
+[Code]
+function A(B: Integer): Integer;
+external 'A2@MyDll.dll stdcall';
+</precode>
+
+<p>Constants may be used in the DLL filename.</p>
+<p>During Setup, a special 'files:' prefix may also be used to instruct Setup to automatically extract one or more DLLs from the [Files] section before loading the first DLL. For example:</p>
+
+<precode>
+[Files]
+Source: "MyDll.dll"; Flags: dontcopy
+Source: "A.dll"; Flags: dontcopy
+Source: "B.dll"; Flags: dontcopy
+
+[Code]
+procedure MyDllFunc(hWnd: Integer; lpText, lpCaption: String; uType: Cardinal);
+external 'MyDllFunc@files:MyDll.dll stdcall';
+
+procedure ADllFunc(hWnd: Integer; lpText, lpCaption: String; uType: Cardinal);
+external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll depends on B.dll
+</precode>
+
+<p>If you use a 'files:' prefix and <link topic="setup_solidcompression">solid compression</link> is enabled, be sure to list your DLLs at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p>
+
+<p>Open the "CodeDll.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using DLLs.</p>
+
+<p>The "Examples" subdirectory also contains two custom DLL example projects, one for Microsoft Visual C++ and one for Borland Delphi.</p>
+
+</body>
+</topic>
+
+
+
+<topic name="scriptautomation" title="Pascal Scripting: Using COM Automation objects">
+<keyword value="Pascal Scripting: Using COM Automation objects" />
+<keyword value="COM Automation" />
+<keyword value="OLE Automation" />
+<keyword value="ActiveX Automation" />
+<body>
+
+<p>The Pascal script can access COM (also known as OLE or ActiveX) methods and properties via the COM Automation objects support. This allows you to access for example standard Windows COM servers, custom COM servers, Visual Basic ActiveX DLLs and .NET assemblies via COM Interop.</p>
+
+<dl>
+
+<dt><b>IDispatch based COM</b></dt>
+
+<dd>
+
+<p>There are two support functions to initialize IDispatch based COM Automation objects: <link topic="isxfunc_CreateOleObject">CreateOleObject</link> and <link topic="isxfunc_GetActiveOleObject">GetActiveOleObject</link>.</p>
+
+<p>Use <link topic="isxfunc_CreateOleObject">CreateOleObject</link> to create a new COM object with the specified class name. This function returns a variable of type <tt>Variant</tt> if successful and throws an exception otherwise.</p>
+
+<p>Use <link topic="isxfunc_GetActiveOleObject">GetActiveOleObject</link> to connect to an existing COM object with the specified class name. This function returns a variable of type <tt>Variant</tt> if successful and throws an exception otherwise. In case of some programs, this can be used to detect whether the program is running or not.</p>
+
+<p>The value returned by <link topic="isxfunc_CreateOleObject">CreateOleObject</link> or <link topic="isxfunc_GetActiveOleObject">GetActiveOleObject</link> can then be used to access the properties and methods of the COM object. The access is done via 'late binding' which means it is not checked whether the methods or properties you're trying to access actually exist until Setup actually needs to at run time.</p>
+
+<p>To access a property or method whose name is a reserved word, use <link topic="isxfunc_IDispatchInvoke">IDispatchInvoke</link>.</p>
+
+<p>Open the "CodeAutomation.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using IDispatch based COM Automation objects.</p>
+
+</dd>
+
+<dt><b>IUnknown based COM</b></dt>
+
+<dd>
+
+<p>If the IDispatch interface isn't implemented by the object, you can use the IUnknown based COM support.</p>
+
+<p>To initialize IUnknown based COM Automation objects use <link topic="isxfunc_CreateComObject">CreateComObject</link>.</p>
+
+<p>The value returned by <link topic="isxfunc_CreateComObject">CreateComObject</link> can then be used to access the methods of the COM object after casting it to the desired interface. The access is done via 'early binding' which means the desired interface needs to be defined in the script, unlike for IDispatch based COM support.</p>
+
+<p><link topic="isxfunc_StringToGUID">StringToGUID</link> can be used to convert the string representation of a GUID into a 'real' GUID. Use <link topic="isxfunc_OleCheck">OleCheck</link> to check the return values of any method you call.</p>
+
+<p>If you copy the interface definition from any existing Delphi source code, remove the brackets around the interface GUID string. Also remove any calling conventions, Inno Setup assumes 'stdcall'. If the interface contains any functions you won't call, you can replace these by dummies to avoid having to define any special types used by them.</p>
+
+<p>Open the "CodeAutomation2.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using IUnknown based COM Automation objects.</p>
+
+<p>Note: IUnknown based COM support requires <link topic="unicode">Unicode Inno Setup</link>.</p>
+
+</dd>
+
+<dt><b>General</b></dt>
+
+<dd>
+
+<p>COM objects are released automatically when they go out of scope. There are no functions to 'destroy' or 'free' them.</p>
+
+<p>If you are extracting a COM Automation library to a temporary location and want to be able to delete it after using it, make sure you no longer have any references to the library and then call <link topic="isxfunc_CoFreeUnusedLibraries">CoFreeUnusedLibraries</link>. This Windows function will then attempt to unload the library so you can delete it.</p>
+
+</dd>
+
+</dl>
+
+</body>
+</topic>
+
+<topic name="scriptexpression" title="Pascal Scripting: Boolean Expressions">
+<keyword value="Pascal Scripting: Boolean Expressions" />
+<body>
+<p>See <link topic="scriptcheck">Pascal Scripting: Check Parameters</link> for more information on boolean expressions.</p>
+</body>
+</topic>
+
+</ishelp>

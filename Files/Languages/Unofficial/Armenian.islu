@@ -1,0 +1,331 @@
+﻿; *** Inno Setup version 5.5.0+ Armenian messages ***
+;
+; Armenian translation by Hrant Ohanyan
+; E-mail: hrantohanyan@mail.am
+; Translation home page: http://www.haysoft.org
+; Last modification date: 2012-07-10
+;
+[LangOptions]
+LanguageName=Armenian
+LanguageID=$042B
+LanguageCodePage=0
+; If the language you are translating to requires special font faces or
+; sizes, uncomment any of the following entries and change them accordingly.
+;DialogFontName=
+;DialogFontSize=8
+;WelcomeFontName=Verdana
+;WelcomeFontSize=12
+;TitleFontName=Arial
+;TitleFontSize=29
+;CopyrightFontName=Arial
+;CopyrightFontSize=8
+
+[Messages]
+
+; *** Application titles
+SetupAppTitle=Տեղակայում
+SetupWindowTitle=%1-ի տեղակայում
+UninstallAppTitle=Ջնջում
+UninstallAppFullTitle=%1-ի ջնջում
+
+; *** Misc. common
+InformationTitle=Տեղեկություն
+ConfirmTitle=Հաստատեք
+ErrorTitle=Սխալ
+
+; *** SetupLdr messages
+SetupLdrStartupMessage=Այս ծրագիրը կտեղակայի %1-ը Ձեր համակարգչում։ Շարունակե՞լ։
+LdrCannotCreateTemp=Հնարավոր չէ ստեղծել ժամանակավոր ֆայլ։ Տեղակայումը ընդհատվել է
+LdrCannotExecTemp=Հնարավոր չէ ֆայլ բացել ժամանակավոր թղթապանակից։ Տեղակայումը ընդհատվել է
+
+; *** Startup error messages
+LastErrorMessage=%1.%n%nՍխալ %2: %3
+SetupFileMissing=%1 ֆայլը բացակայում է տեղակայման թղթապանակից։ Վերացրեք խնդիրը կամ բեռնեք ծրագրի նոր տարբերակը։
+SetupFileCorrupt=Տեղակայման ֆայլերը վնասված են։
+SetupFileCorruptOrWrongVer=Տեղակայման այս ֆայլերը վնասված են կամ անհամատեղելի են տեղակայիչի այս տարբերակի հետ։
+InvalidParameter=Հրամանի տողում նշված է սխալ հրաման.%n%n%1
+SetupAlreadyRunning=Տեղակայիչը արդեն աշխատում է։
+WindowsVersionNotSupported=Ծրագիրը չի աջակցում այս համակարգչում տեղակայված Windows-ի տարբերակը։
+WindowsServicePackRequired=Ծրագիրը պահանջում է %1 Service Pack %2 կամ ավելի բարձր։
+NotOnThisPlatform=Այս ծրագիրը չի աշխատի %1-ում։
+OnlyOnThisPlatform=Այս ծրագիրւ հնարավոր է բացել միայն %1-ում։
+OnlyOnTheseArchitectures=Այս ծրագրի տեղակյաւոմը հնարավոր է միայն Windows-ի հետևյալ կառուցվածքներում՝ %n%n%1
+MissingWOW64APIs=Windows Ձեր տարբերակում բացակայում են 64 բիթանոց տեղակայման համար պահանջվող ֆունկցիաները։ Դրա համար Դուք պետք է տեղակայաեք թարմացումների հետևյալ փաթեթը՝ (Service Pack) %1։
+WinVersionTooLowError=Այս ծրագիրը պահանջում է %1 տարբերակը %2 կամ ավելի բարձր։
+WinVersionTooHighError=Ծրագիրը չի կարող տեղակայվել %1-ի %2 տարբերակում կամ ավելի բարձր։
+AdminPrivilegesRequired=Այս ծրագիրը տեղակայելու համար պահանջվում են Ադմինի իրավունքներ։
+PowerUserPrivilegesRequired=Այս ծրագիրը տեղակայելու համար պետք է մուտք գործել համակարգ որպես Ադմին կամ «Փորձառու օգտագործող» (Power Users).
+SetupAppRunningError=Նկատվել է %1-ի բացված օրինակ։ %n%nԽնդրում ենք փակել և սեղմել «ԼԱՎ»՝ շարունակելու համար, կամ «Մերժել»՝ փակելու համար։
+UninstallAppRunningError=Ջնջող ծրագիրը գտել է %1-ի բաց օրինակ։%n%nՓակեք այն և սեղմեք «ԼԱՎ»՝ շարունակելու համար, կամ «Մերժել»՝ փակելու համար։
+
+; *** Misc. errors
+ErrorCreatingDir=Հնարավոր չէ ստեղծել "%1" թղթապանակը
+ErrorTooManyFilesInDir=Հնարավոր չէ ստեղծել ֆայլ "%1" թղթապանակում, նրանում կան չափից ավելի շատ ֆայլեր
+
+; *** Setup common messages
+ExitSetupTitle=Տեղակայման ընդհատում
+ExitSetupMessage=Տեղակայումը չի ավարատվել։ Եթե ընդհատեք, ապա ծրագիրը չի տեղակայվի։%n%nԱվարտե՞լ։
+AboutSetupMenuItem=&Ծրագրի մասին...
+AboutSetupTitle=Ծրագրի մասին
+AboutSetupMessage=%1, տարբերակը %2%n%3%n%nՎեբ կայքը %1:%n%4
+AboutSetupNote=
+TranslatorNote=Armenian translation by Hrant Ohanyan »»» http://www.haysoft.org
+
+; *** Buttons
+ButtonBack=« &Նախորդը
+ButtonNext=&Հաջորդը »
+ButtonInstall=&Տեղակայել
+ButtonOK=ԼԱՎ
+ButtonCancel=Մերժել
+ButtonYes=&Այո
+ButtonYesToAll=Այո բոլորի &համար
+ButtonNo=&Ոչ
+ButtonNoToAll=Ո&չ բոլորի համար
+ButtonFinish=&Ավարտել
+ButtonBrowse=&Ընտրել...
+ButtonWizardBrowse=&Ընտրել...
+ButtonNewFolder=&Ստեղծել թղթապանակ
+
+; *** "Select Language" dialog messages
+SelectLanguageTitle=Ընտրեք տեղակայիչի լեզուն
+SelectLanguageLabel=Ընտրեք այն լեզուն, որը օգտագործվելու է տեղակայման ընթացքում.
+
+; *** Common wizard text
+ClickNext=Սեղմեք «Հաջորդը»՝ շարունակելու համար կամ «Մերժել»՝ տեղակայիչ ծրագրիը փակելու համար։
+BeveledLabel=
+BrowseDialogTitle=Ընտրեք թղթապանակը
+BrowseDialogLabel=Ընտրեք թղթապանակը ցանկից և սեղմեք «ԼԱՎ»։
+NewFolderName=Նոր թղթապանակ
+
+; *** "Welcome" wizard page
+WelcomeLabel1=Ձեզ ողջունում է [name]-ի տեղակայման վարպետը
+WelcomeLabel2=Ծրագիրը կտեղակայի [name/ver]-ը Ձեր համակարգչում։%n%nՇարունակելուց առաջ խորհուրդ ենք տալիս փակել բոլոր աշխատող ծրագրերը։ 
+
+; *** "Password" wizard page
+WizardPassword=Գաղտնաբառը
+PasswordLabel1=Ծրագիրը պաշտպանված է գաղտնաբառով։
+PasswordLabel3=Մուտքագրեք գաղտնաբառը և սեղմեք «Հաջորդը»։
+PasswordEditLabel=&Գաղտնաբառը.
+IncorrectPassword=Մուտքագրված գաղտնաբառը սխալ է, կրկին փորձեք։
+
+; *** "License Agreement" wizard page
+WizardLicense=Արտոնագրային համաձայնություն
+LicenseLabel=Խնդրում ենք շարունակելուց առաջ կարդալ հետևյալ տեղեկությունը։
+LicenseLabel3=Կարդացեք այս արտոնագրային համաձայնությունը։ Շարունակելուց առաջ Դուք պետք է ընդունեք նշված պայմանները։
+LicenseAccepted=Ես &ընդունում եմ արտոնագրային համաձայնությունը
+LicenseNotAccepted=Ես &չեմ ընդունում արտոնագրային համաձայնությունը
+
+; *** "Information" wizard pages
+WizardInfoBefore=Տեղեկություն
+InfoBeforeLabel=Շարունակելուց առաջ կարդացեք այս տեղեկությունը։
+InfoBeforeClickLabel=Եթե պատրաստ եք սեղմեք «Հաջորդը»։
+WizardInfoAfter=Տեղեկություն
+InfoAfterLabel=Շարունակելուց առաջ կարդացեք այս տեղեկությունը։
+InfoAfterClickLabel=Երբ պատրաստ լինեք շարունակելու սեղմեք «Հաջորդը»։
+
+; *** "User Information" wizard page
+WizardUserInfo=Տեղեկություն օգտվողի մասին
+UserInfoDesc=Գրեք տվյալներ Ձեր մասին
+UserInfoName=&Օօգտվողի անունը և ազգանունը.
+UserInfoOrg=&Կազմակերպությունը.
+UserInfoSerial=&Հերթական համարը.
+UserInfoNameRequired=Պետք է գրեք Ձեր անունը։
+
+; *** "Select Destination Location" wizard page
+WizardSelectDir=Ընտրեք տեղակայման թղթապանակը
+SelectDirDesc=Ո՞ր թղթապանակում տեղակայել [name]-ը։
+SelectDirLabel3=Ծրագիրը կտեղակայի [name]-ը հետևյալ թղթապանակում։
+SelectDirBrowseLabel=Սեղմեք «Հաջորդը»՝ շարունակելու համար։ Եթե ցանկանում եք ընտրել այլ թղթապանակ սեղմեք «Ընտրել»։
+DiskSpaceMBLabel=Պահանջվում է առնվազն [mb] ՄԲ ազատ տեղ։
+CannotInstallToNetworkDrive=Հնարավոր չէ տեղակայել Ցանցային պնակում։
+CannotInstallToUNCPath=Հնարավոր չէ տեղակայել UNC տեղում։
+InvalidPath=Պետք է նշեք ամբողջական ճանապարհը պնակի տառով, օրինակ՝%n%nC:\APP%n%nկամ UNC ձևով՝ %n%n\\սպասարկիչի_անունը\ռեսուրսի_անունը
+InvalidDrive=Ընտրված պնակը կամ ցանցային ճանապարհը գոյություն չունի կամ անհասանելի է։ Ընտրեք այլ ճանապարհ։
+DiskSpaceWarningTitle=Չկա պահանջվող ծավալի ազատ տեղ
+DiskSpaceWarning=Պահանջվում է ոչ քիչ քան %1 ԿԲ ազատ տեղ, մինչդեռ հասանելի է ընդամենը %2 ԿԲ։%n%nԱյնուհանդերձ, շարունակե՞լ։
+DirNameTooLong=Թղթապանակի անունը կամ ճանապարհը գերազանցում են հասանելի երկարությունը։
+InvalidDirName=Թղթապանակի նշված անունը անընդունելի է։
+BadDirName32=Անվան մեջ չպետք է լինեն նշաններ՝ %n%n%1
+DirExistsTitle=Թղթապանակը գոյություն ունի
+DirExists=Հետևյալ թղթապանակը՝ %n%n%1%n%n արդեն գոյություն ունի։ Այնուհանդերձ, տեղակայե՞լ այստեղ։
+DirDoesntExistTitle=Թղթապանակ գոյություն չունի
+DirDoesntExist=Հետևյալ թղթապանակը՝ %n%n%1%n%n, գոյություն չունի։ Ստեղծե՞լ այն։
+
+; *** "Select Components" wizard page
+WizardSelectComponents=Ընտրեք բաղադրիչները
+SelectComponentsDesc=Ո՞ր ֆայլերը պետք է տեղակայվեն։
+SelectComponentsLabel2=Ընտրեք այն ֆայլերը, որոնք պետք է տեղակայվեն, հանեք ընտրության նշանը այն ֆայլերից, որոնք չպետք է տեղակայվեն։ Սեղմեք «Հաջորդը»՝ շարունակելու համար։
+FullInstallation=Ամբողջական տեղակայում
+; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
+CompactInstallation=Ընդհանուր տեղակայում
+CustomInstallation=Ընտրովի տեղակայում
+NoUninstallWarningTitle=Տեղակայվող ֆայլերը
+NoUninstallWarning=Տեղակայիչ ծրագիրը հայտնաբերել է, որ հետևյալ բաղադրիչները արդեն տեղակայված են Ձեր համակարգչում։ %n%n%1%n%nԱյս բաղադրիչների ընտրության ետարկումը չի ջնջի դրանք։%n%nՇարունակե՞լ։
+ComponentSize1=%1 ԿԲ
+ComponentSize2=%1 ՄԲ
+ComponentsDiskSpaceMBLabel=Տվյալ ընտրությունը պահանջում է ամենաքիչը [mb] ՄԲ տեղ պնակի վրա։
+
+; *** "Select Additional Tasks" wizard page
+WizardSelectTasks=Լրացուցիչ առաջադրանքներ
+SelectTasksDesc=Ի՞նչ լրացուցիչ առաջադրանքներ պետք է կատարվեն։
+SelectTasksLabel2=Ընտրեք լրացուցիչ առաջադրանքները, որոնք պետք է կատարվեն [name]-ի տեղակայման ընթացքում, ապա սեղմեք «Առաջ».
+
+; *** "Select Start Menu Folder" wizard page
+WizardSelectProgramGroup=Ընտրեք «Start» ընտրացանկի թղթապանակը
+SelectStartMenuFolderDesc=Որտե՞ղ ստեղծել պիտակներ.
+SelectStartMenuFolderLabel3=Ծրագիրը կստեղծի պիտակներ «Start» ընտրացանկի հետևյալ թղթապանակում։
+SelectStartMenuFolderBrowseLabel=Սեղմեք «Հաջորդը»՝ շարունակելու համար։ Եթե ցանկանում եք ընտրեք այլ թղթապանակ սեղմեք «Ընտրել»։
+MustEnterGroupName=Պետք է գրեք թղթապանակի անունը։
+GroupNameTooLong=Անունը շատ է երկար։
+InvalidGroupName=Նշված անունը անընդունելի է։
+BadGroupName=Անվան մեջ չպետք է լինեն նշաններ՝ %n%n%1
+NoProgramGroupCheck2=&Չստեղծել թղթապանակ «Start» ընտրացանկում
+
+; *** "Ready to Install" wizard page
+WizardReady=Պատրաստ է տեղակայման
+ReadyLabel1=Տեղակայիչ ծրագիրը պատրաստ է սկսելու [name]-ի տեղակայումը։
+ReadyLabel2a=Սեղմեք «Տեղակայել»՝ շարունակելու համար կամ «Նախորդը»՝ եթե ցանկանում եք դիտել կամ փոփոխել տեղակայման ընտրանքները։
+ReadyLabel2b=Սեղմեք «Տեղակայել»՝ շարունակելու համար։
+ReadyMemoUserInfo=Տեղեկություն օգվողի մասին.
+ReadyMemoDir=Տեղակայման թղթապանակը.
+ReadyMemoType=Տեղակայման ձևը.
+ReadyMemoComponents=Ընտրեք բաղադրիչները.
+ReadyMemoGroup=Թղթապանակ «Start» ընտրացանկում.
+ReadyMemoTasks=Լրացուցիչ պիտակներ.
+
+; *** "Preparing to Install" wizard page
+WizardPreparing=Պատրաստվում է տեղակայման
+PreparingDesc=Տեղակայման ծրագիրը պատրաստվում է [name]-ի տեղակայմանը։
+PreviousInstallNotCompleted=Նախորդ տեղակայումը կամ ջնջումը չեն ավարտվել։ Այն ավարտելու համար պետք է վերագործարկեք համակարգիչը։%n%nՎերագործարկումից հետո կրկին բացեք տեղակայման փաթեթը՝ [name]-ի տեղակայումը ավարտելու համար։
+CannotContinue=Հնարավոր չէ շարունակել։ Սեղմեք «Մերժել»՝ ծրագրիը փակելու համար։
+ApplicationsFound=Հետևյալ ծրագրերը օգտագործում են ֆայլեր, որոնք պետք է թարմացվեն տեղակայիչի կողմից։ Թույլատրեք տեղակայիչին փակելու այս ծրագրերը։
+ApplicationsFound2=Հետևյալ ծրագրերը օգտագործում են ֆայլեր, որոնք պետք է թարմացվեն տեղակայիչի կողմից։ Թույլատրեք տեղակայիչին փակելու այս ծրագրերը։ Տեղակայումը ավարտելուց հետո տեղակայիչը կփորձի վերամեկնարկել այս ծրագրերը։
+CloseApplications=&Միանգամից փակել ծրագրերը
+DontCloseApplications=&Չփակել ծրագրերը
+
+; *** "Installing" wizard page
+WizardInstalling=Տեղակայվում է...
+InstallingLabel=Խնդրում ենք սպասել մինչ [name]-ը կտեղակայվի Ձեր համակարգչում։
+
+; *** "Setup Completed" wizard page
+FinishedHeadingLabel=[name]-ի տեղակայման ավարտը
+FinishedLabelNoIcons=[name] ծրագիրը տեղակայվել է Ձեր համակարգչում։
+FinishedLabel=[name] ծրագիրը տեղակայվել է Ձեր համակարգչում։
+ClickFinish=Սեղմեք «Ավարտել»՝ տեղակայիչ ծրագիրը փակելու համար։
+FinishedRestartLabel=[name]-ի տեղակայումը ավարտելու համար վերագործարկեք համակարգիչը։ Վերագործարկե՞լ։
+FinishedRestartMessage=[name]-ի տեղակայումը ավարտելու համար վերագործարկեք համակարգիչը։ %n%nՎերագործարկե՞լ։
+ShowReadmeCheck=Դիտել README ֆայլը։
+YesRadio=&Այո, վերագործարկել
+NoRadio=&Ոչ, ես հետո վերագործարկեմ
+; used for example as 'Run MyProg.exe'
+RunEntryExec=Բացել %1-ը
+; used for example as 'View Readme.txt'
+RunEntryShellExec=Կարդալ %1-ը
+
+; *** "Setup Needs the Next Disk" stuff
+ChangeDiskTitle=Անհրաժեշտ է տեղադրել հաջորդ պնակը
+SelectDiskLabel2=Տեղադրեք %1 պնակը և սեղմեք «ԼԱՎ»։ %n%nԵթե ֆայլերի ճանապարհը այլ է, ընտրեք ճիշտ ճանապարհը և սեղմեք «Ընտրել»։
+PathLabel=&Ճանապարհը.
+FileNotInDir2="%1" ֆայլը չի գտնվել "%2"-ում։ Տեղադրեք պնակը կամ ընտրեք թղթապանակը։
+SelectDirectoryLabel=Խնդրում ենք նշել ճանապարհը։
+
+; *** Installation phase messages
+SetupAborted=Տեղակայումը չի ավարտվել։ %n%nԼուծեք խնդիրը և նորից փորձեք։
+EntryAbortRetryIgnore=Սեղմեք «Կրկնել»՝ նորից փորձելու համար, «Բաց թողնել»՝ ֆայլը բաց թողնելու համար, կամ «Հրաժարվել»՝ տեղակայումը կանգնեցնելու համար։
+
+; *** Installation status messages
+StatusClosingApplications=Ծրագրերի փակում...
+StatusCreateDirs=Ստեղծվում են թղթապանակներ...
+StatusExtractFiles=Ֆայլերը բացվում են...
+StatusCreateIcons=Ստեղծվում են թղթապանակի պիտակները...
+StatusCreateIniEntries=INI ֆայլերի ստեղծում...
+StatusCreateRegistryEntries=Գրանցատեղի գրանցումների ստեղծում...
+StatusRegisterFiles=Ֆայլերի գրանցում...
+StatusSavingUninstall=Պահպանվում է ջնջման համար տեղեկությունը...
+StatusRunProgram=Տեղակայումը ավարտվում է...
+StatusRestartingApplications=Ծրագրի վերամեկնարկում...
+StatusRollback=Փոփոխությունները ետարկվում են...
+
+; *** Misc. errors
+ErrorInternal2=Ներքին սխալ %1
+ErrorFunctionFailedNoCode=%1. վթար
+ErrorFunctionFailed=%1. վթար, կոդը %2
+ErrorFunctionFailedWithMessage=%1. վթար, կոդը %2.%n%3
+ErrorExecutingProgram=Հնարավոր չէ կատարել %n%1 ֆայլը
+
+; *** Registry errors
+ErrorRegOpenKey=Գրանցատեղի բանալին բացելու սխալ՝ %n%1\%2
+ErrorRegCreateKey=Գրանցատեղի բանալին ստեղծելու սխալ՝ %n%1\%2
+ErrorRegWriteKey=Գրանցատեղի բանալում գրանցում անելու սխալ՝ %n%1\%2
+
+; *** INI errors
+ErrorIniEntry=Սխալ՝ "%1" INI ֆայլում գրառում կատարելիս։
+
+; *** File copying errors
+FileAbortRetryIgnore=Սեղմեք «Կրկնել»՝ կրկնելու համար, «Բաց թողնել»՝ ֆայլը բաց թողնելու համար (խորհուրդ չի տրվում) կամ «Հրաժարվել»՝ փակելու համար։
+FileAbortRetryIgnore2=Սեղմեք «Կրկնել»՝ կրկնելու համար, «Բաց թողնել»՝ սխալը անտեսելու համար (խորհուրդ չի տրվում) կամ «Հրաժարվել»՝ փակելու համար։
+SourceIsCorrupted=Գործող ֆայլը վնասված է։
+SourceDoesntExist=Գործող "%1" ֆայլը գոյություն չունի
+ExistingFileReadOnly=Գոյություն ունեցող ֆայլը նշված է «միայն կարդալու համար»։%n%nՍեղմեք «Կրկնել»՝ ջնջելու համար «միայն կարդալու համար» հատկանիշը, «Բաց թողնել»՝ ֆայլը բաց թողնելու համար «Հրաժարվել»՝ փակելու համար։
+ErrorReadingExistingDest=Սխալ՝ ֆայլը կարդալիս.
+FileExists=Ֆայլը գոյություն չունի։%n%nՎերագրե՞լ։
+ExistingFileNewer=Առկա ֆայլը ավելի նոր է, քան տեղակայվողը։ Խորհուրդ ենք տալիս պահպանել գործողը։ %n%nՊահպանե՞լ գործող ֆայլը։
+ErrorChangingAttr=Սխալ՝ ընթացիկ ֆայլի հատկանիշները փոխելիս.
+ErrorCreatingTemp=Սխալ՝ նշված թղթապանակում ֆայլ ստեղծելիս.
+ErrorReadingSource=Սխալ ֆայլը կարդալիս.
+ErrorCopying=Սխալ ֆայլը պատճենելիս.
+ErrorReplacingExistingFile=Սխալ՝ գոյություն ունեցող ֆայլը փոխելիս.
+ErrorRestartReplace=RestartReplace սխալ.
+ErrorRenamingTemp=Սխալ նշանակման թղթապանակում՝ ֆայլը անվանափոխելիս.
+ErrorRegisterServer=Հնարավոր չէ գրանցել DLL/OCX-ը. %1
+ErrorRegSvr32Failed=Սխալ՝ RegSvr32-ը կատարելիս, կոդը՝ %1
+ErrorRegisterTypeLib=Հնարավոր չէ գրանցել գրադարանները (Type Library)՝ %1
+
+; *** Post-installation errors
+ErrorOpeningReadme=Սխալ՝ README ֆայլը բացելիս։
+ErrorRestartingComputer=Հնարավոր չեղավ վերագործարկել համակարգիչը։ Ինքներդ փորձեք։
+
+; *** Uninstaller messages
+UninstallNotFound="%1" ֆայլը գոյություն չունի։ Հնարավոր չէ ջնջել։
+UninstallOpenError=Հնարավոր չէ բացել "%1" ֆայլը։ Հնարավոր չէ ջնջել
+UninstallUnsupportedVer="%1"-ի ջնջման գրառումները չեն ճանաչվել ջնջող ծրագրի կողմից։ Հնարավոր չէ ջնջել
+UninstallUnknownEntry=Անհայտ կետ(%1)՝ ջնջման ֆայլի գրառումներում
+ConfirmUninstall=Ջնջե՞լ %1-ը և նրա բոլոր բաղադրիչները։
+UninstallOnlyOnWin64=Այս ծրագիրը կարելի է ջնջել միայն 64 բիթանոց Windows-ում։
+OnlyAdminCanUninstall=Այս ծրագիրը կարող է ջնջվել միայն Ադմինի իրավունքներով։
+UninstallStatusLabel=Խնդրում ենք սպասել մինչ %1-ը ջնջվում է Ձեր համակարգչից։
+UninstalledAll=%1 ծրագիրը ամբողջությամբ ջնջվել է համակարգչից։
+UninstalledMost=%1-ը ջնջվեց Ձեր համակարգչից։%n%nՈրոշ ֆայլեր հնարավոր չեղավ ջնջել։ Ինքներդ ջնջեք դրանք։
+UninstalledAndNeedsRestart=%1-ի ջնջումը ավարտելու համար պետք է վերագործարկել համակարգիչը։%n%nՎերագործարկե՞լ։
+UninstallDataCorrupted="%1" ֆայլը վնասված է։ Հնարավոր չէ ջնջել
+
+; *** Uninstallation phase messages
+ConfirmDeleteSharedFileTitle=Ջնջե՞լ համատեղ օգտագործվող ֆայլը։
+ConfirmDeleteSharedFile2=Համակարգը նշում է, որ  հետևյալ համատեղ օգտագործվող ֆայլը այլևս չի օգտագործվում այլ ծրագրի կողմից։ Ջնջե՞լ այն։ %n%nԵթե համոզված չեք սեղմեք «Ոչ»։
+SharedFileNameLabel=Ֆայլի անունը.
+SharedFileLocationLabel=Տեղը.
+WizardUninstalling=Ջնջման դրությունը
+StatusUninstalling=%1-ի ջնջում...
+
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=%1-ի տեղակայում։
+ShutdownBlockReasonUninstallingApp=%1-ի ջնջում։
+
+; The custom messages below aren't used by Setup itself, but if you make
+; use of them in your scripts, you'll want to translate them.
+
+[CustomMessages]
+
+NameAndVersion=%1, տարբերակը %2
+AdditionalIcons=Լրացուցիչ պիտակներ
+CreateDesktopIcon=Ստեղծել պիտակը &Աշխատաշրջանում
+CreateQuickLaunchIcon=Ստեղծել պիտակը &Արագ բացման վահանակում
+ProgramOnTheWeb=%1-ի վեբ կայքը
+UninstallProgram=Ջնջել %1-ը
+LaunchProgram=Բացել %1-ը
+AssocFileExtension=Ասո&ցիացնել %1-ը %2 ֆայլերի հետ։
+AssocingFileExtension=Ասոցիացվում են %1-երը %2 ֆայլերի հետ...
+AutoStartProgramGroupDescription=Բացումը.
+AutoStartProgram=Միանգամից բացել %1
+AddonHostProgramNotFound=%1 չի կարող տեղադրվել Ձեր ընտրած թղթապանակում։%n%nՇարունակե՞լ։
+

@@ -68,6 +68,7 @@ type
     msgDontCloseApplications,
     msgEntryAbortRetryIgnore,
     msgErrorChangingAttr,
+    msgErrorCloseApplications,
     msgErrorCopying,
     msgErrorCreatingDir,
     msgErrorCreatingTemp,

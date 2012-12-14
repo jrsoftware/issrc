@@ -1,19 +1,18 @@
-; *** Inno Setup versione 5.1.11+ lingua Italiana ***
+; *** Inno Setup version 5.5.0+ Italian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/is3rdparty.php
+;   http://www.jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl revisione 30b - 2007/02/28 (Basato su Default.isl 1.69)
+; Italian.isl - Last Update July 5, 2012  (based on ale5000 5.1.11+ translation)
 ;
-; Tradotto da ale5000
-; E-mail: ale5000 AT tiscali DOT it
-; Segnalatemi via e-mail eventuali errori o suggerimenti.
-
+; Translator name: Rinaldo M. aka Whiteshark
+; Translator e-mail: dad428(X)hotmail.com   (replace (X) with @ )
+;
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
 ; understand the '[LangOptions] section' topic in the help file.
@@ -54,6 +53,10 @@ LastErrorMessage=%1.%n%nErrore %2: %3
 SetupFileMissing=File %1 non trovato nella cartella di installazione. Correggere il problema o richiedere una nuova copia del software.
 SetupFileCorrupt=I file di installazione sono danneggiati. Richiedere una nuova copia del software.
 SetupFileCorruptOrWrongVer=I file di installazione sono danneggiati, o sono incompatibili con questa versione del programma di installazione. Correggere il problema o richiedere una nuova copia del software.
+InvalidParameter=Un parametro non valido è stato immesso sulla riga di comando:%n%n%1
+SetupAlreadyRunning=Il processo di installazione è già in funzione.
+WindowsVersionNotSupported=Questo programma non supporta la versione di Windows installata sul computer.
+WindowsServicePackRequired=Questo programma richiede %1 Service Pack %2 o successivo.
 NotOnThisPlatform=Questo programma non è compatibile con %1.
 OnlyOnThisPlatform=Questo programma richiede %1.
 OnlyOnTheseArchitectures=Questo programma può essere installato solo su versioni di Windows progettate per le seguenti architetture del processore:%n%n%1
@@ -76,12 +79,12 @@ AboutSetupMenuItem=&Informazioni sull'installazione...
 AboutSetupTitle=Informazioni sull'installazione
 AboutSetupMessage=%1 versione %2%n%3%n%n%1 sito web:%n%4
 AboutSetupNote=
-TranslatorNote=
+TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark
 
 ; *** Buttons
 ButtonBack=< &Indietro
 ButtonNext=&Avanti >
-ButtonInstall=&Installa
+ButtonInstall=Inst&alla
 ButtonOK=OK
 ButtonCancel=Annulla
 ButtonYes=&Si
@@ -119,7 +122,7 @@ IncorrectPassword=La password inserita non è corretta, riprovare.
 WizardLicense=Contratto di licenza
 LicenseLabel=Leggere con attenzione le informazioni che seguono prima di procedere.
 LicenseLabel3=Leggere il seguente contratto di licenza. È necessario accettare tutti i termini del contratto per procedere con l'installazione.
-LicenseAccepted=&Accetto i termini del contratto di licenza 
+LicenseAccepted=Accetto i termini del &contratto di licenza 
 LicenseNotAccepted=&Non accetto i termini del contratto di licenza
 
 ; *** "Information" wizard pages
@@ -144,7 +147,8 @@ SelectDirDesc=Dove si vuole installare [name]?
 SelectDirLabel3=[name] sarà installato nella seguente cartella.
 SelectDirBrowseLabel=Per continuare, premere Avanti. Per scegliere un'altra cartella, premere Sfoglia.
 DiskSpaceMBLabel=Sono richiesti almeno [mb] MB di spazio sul disco.
-ToUNCPathname=Non è possiblie installare su un percorso di rete. Se si sta installando attraverso una rete, si deve connettere la risorsa come una unità di rete.
+CannotInstallToNetworkDrive=Non è possibile effettuare l'installazione su un drive in rete.
+CannotInstallToUNCPath=Non è possibile effettuare l'installazione su un percorso UNC.
 InvalidPath=Si deve inserire un percorso completo di lettera di unità; per esempio:%n%nC:\APP%n%no un percorso di rete nella forma:%n%n\\server\condivisione
 InvalidDrive=L'unità o il percorso di rete selezionato non esiste o non è accessibile. Selezionarne un'altro.
 DiskSpaceWarningTitle=Spazio su disco insufficiente
@@ -166,7 +170,7 @@ FullInstallation=Installazione completa
 CompactInstallation=Installazione compatta
 CustomInstallation=Installazione personalizzata
 NoUninstallWarningTitle=Componente esistente
-NoUninstallWarning=I seguenti componenti sono già installati sul computer:%n%n%1%n%nDeselezionando questi componenti non verranno disinstallati.%n%nSi desidera continuare comunque?
+NoUninstallWarning=I seguenti componenti sono già installati sul computer:%n%n%1%n%nDeselezionando questi componenti essi non verranno rimossi.%n%nSi desidera continuare comunque?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceMBLabel=La selezione corrente richiede almeno [mb] MB di spazio su disco.
@@ -202,8 +206,12 @@ ReadyMemoTasks=Processi addizionali:
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione all'installazione
 PreparingDesc=Preparazione all'installazione di [name] sul computer.
-PreviousInstallNotCompleted=L'installazione/disinstallazione precedente del programma non è stata completata. È necessario riavviare il sistema per completare l'installazione.%n%nAl successivo riavvio del sistema eseguire di nuovo l'installazione di [name].
+PreviousInstallNotCompleted=L'installazione/rimozione precedente del programma non è stata completata. È necessario riavviare il sistema per completare l'installazione.%n%nDopo il riavvio del sistema eseguire di nuovo l'installazione di [name].
 CannotContinue=L'installazione non può continuare. Premere Annulla per uscire.
+ApplicationsFound=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione. Si consiglia di permettere al processo di chiudere automaticamente queste applicazioni.
+ApplicationsFound2=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione. Si consiglia di permettere al processo di chiudere automaticamente queste applicazioni. Al completamento dell'installazione, il processo tenterà di riavviare le applicazioni.
+CloseApplications=Chiudi &automaticamente le applicazioni
+DontCloseApplications=&Non chiudere le applicazioni
 
 ; *** "Installing" wizard page
 WizardInstalling=Installazione in corso
@@ -236,6 +244,7 @@ SetupAborted=L'installazione non è stata completata.%n%nCorreggere il problema e
 EntryAbortRetryIgnore=Premere Riprova per ritentare nuovamente, Ignora per procedere in ogni caso, o Interrompi per terminare l'installazione.
 
 ; *** Installation status messages
+StatusClosingApplications=Chiusura applicazioni...
 StatusCreateDirs=Creazione cartelle...
 StatusExtractFiles=Estrazione file...
 StatusCreateIcons=Creazione icone...
@@ -244,6 +253,7 @@ StatusCreateRegistryEntries=Creazione voci di registro...
 StatusRegisterFiles=Registrazione file...
 StatusSavingUninstall=Salvataggio delle informazioni di disinstallazione...
 StatusRunProgram=Termine dell'installazione...
+StatusRestartingApplications=Riavvio applicazioni...
 StatusRollback=Recupero delle modifiche...
 
 ; *** Misc. errors
@@ -289,9 +299,9 @@ ErrorRestartingComputer=Impossibile riavviare il sistema. Riavviare manualmente.
 UninstallNotFound=Il file "%1" non esiste. Impossibile disinstallare.
 UninstallOpenError=Il file "%1" non può essere aperto. Impossibile disinstallare
 UninstallUnsupportedVer=Il file log di disinstallazione "%1" è in un formato non riconosciuto da questa versione del programma di disinstallazione. Impossibile disinstallare
-UninstallUnknownEntry=Trovata una voce sconosciuta (%1) nel file di log della disinstallazione
+UninstallUnknownEntry=Trovata una voce sconosciuta (%1) nel file log di disinstallazione
 ConfirmUninstall=Si desidera rimuovere completamente %1 e tutti i suoi componenti?
-UninstallOnlyOnWin64=Questo programma può essere disinstallato solo su Windows a 64-bit.
+UninstallOnlyOnWin64=Questa applicazione può essere disinstallata solo su Windows a 64-bit.
 OnlyAdminCanUninstall=Questa applicazione può essere disinstallata solo da un utente con privilegi di amministratore.
 UninstallStatusLabel=Attendere fino a che %1 è stato rimosso dal computer.
 UninstalledAll=%1 è stato rimosso con successo dal computer.
@@ -307,6 +317,10 @@ SharedFileLocationLabel=Percorso:
 WizardUninstalling=Stato della disinstallazione
 StatusUninstalling=Disinstallazione di %1 in corso...
 
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Installazione di %1.
+ShutdownBlockReasonUninstallingApp=Disinstallazione di %1.
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 
@@ -315,9 +329,12 @@ StatusUninstalling=Disinstallazione di %1 in corso...
 NameAndVersion=%1 versione %2
 AdditionalIcons=Icone aggiuntive:
 CreateDesktopIcon=Crea un'icona sul &desktop
-CreateQuickLaunchIcon=Crea un'icona nella barra &Avvio veloce
+CreateQuickLaunchIcon=Crea un'icona nella &barra Avvio veloce
 ProgramOnTheWeb=%1 sul Web
 UninstallProgram=Disinstalla %1
 LaunchProgram=Avvia %1
 AssocFileExtension=&Associa l'estensione %2 a %1
 AssocingFileExtension=Associazione dell'estensione %2 a %1 in corso...
+AutoStartProgramGroupDescription=Avvio automatico:
+AutoStartProgram=Avvia automaticamente %1
+AddonHostProgramNotFound=Impossibile individuare %1 nella cartella selezionata.%n%nProseguire ugualmente?

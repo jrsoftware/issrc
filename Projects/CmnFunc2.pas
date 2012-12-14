@@ -152,7 +152,48 @@ var
 implementation
 
 uses
-  {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF} ShlObj, PathFunc;
+  {$IFNDEF Delphi3orHigher} OLE2, ShlObj, {$ENDIF} PathFunc;
+
+{$IFDEF Delphi3orHigher}
+
+{ Avoid including Variants (via ActiveX and ShlObj) in SetupLdr (SetupLdr uses CmnFunc2), saving 26 KB. }
+
+const
+  shell32 = 'shell32.dll';
+
+type
+  PSHItemID = ^TSHItemID;
+  _SHITEMID = record
+    cb: Word;                         { Size of the ID (including cb itself) }
+    abID: array[0..0] of Byte;        { The item ID (variable length) }
+  end;
+  TSHItemID = _SHITEMID;
+  SHITEMID = _SHITEMID;
+
+  PItemIDList = ^TItemIDList;
+  _ITEMIDLIST = record
+     mkid: TSHItemID;
+   end;
+  TItemIDList = _ITEMIDLIST;
+  ITEMIDLIST = _ITEMIDLIST;
+
+  IMalloc = interface(IUnknown)
+    ['{00000002-0000-0000-C000-000000000046}']
+    function Alloc(cb: Longint): Pointer; stdcall;
+    function Realloc(pv: Pointer; cb: Longint): Pointer; stdcall;
+    procedure Free(pv: Pointer); stdcall;
+    function GetSize(pv: Pointer): Longint; stdcall;
+    function DidAlloc(pv: Pointer): Integer; stdcall;
+    procedure HeapMinimize; stdcall;
+  end;
+
+function SHGetMalloc(var ppMalloc: IMalloc): HResult; stdcall; external shell32 name 'SHGetMalloc';
+function SHGetSpecialFolderLocation(hwndOwner: HWND; nFolder: Integer;
+  var ppidl: PItemIDList): HResult; stdcall; external shell32 name 'SHGetSpecialFolderLocation';
+function SHGetPathFromIDList(pidl: PItemIDList; pszPath: PChar): BOOL; stdcall;
+  external shell32 name {$IFDEF UNICODE}'SHGetPathFromIDListW'{$ELSE}'SHGetPathFromIDListA'{$ENDIF};
+
+{$ENDIF}
 
 function InternalGetFileAttr(const Name: String): Integer;
 begin

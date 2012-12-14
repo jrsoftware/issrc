@@ -4,17 +4,17 @@
 <title>Inno Setup 5 Revision History</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <style type="text/css">
-	body		{ font: small verdana, arial, sans-serif; color: black; background-color: white }
-	a:link		{ color: #264b99; background-color: white }
-	a:visited	{ color: #5e85d7; background-color: white }
-	a:active	{ color: #7799dd; background-color: white }
-	tt		{ font: small "courier new", monospace }
-	li		{ margin-top: 0.15em; margin-bottom: 0.15em }
-	div.bluehead	{ text-align: center; color: white; background-color: #264b99; padding: 5px; font-weight: bold }
-	.head1		{ font-size: xx-large }
-	.head2		{ font-size: large }
-	.ver		{ font-size: large; font-weight: bold }
-	.date		{ font-size: x-small; font-weight: bold }
+    body         { font: small verdana, arial, sans-serif; color: black; background-color: white }
+    a:link       { color: #264b99; background-color: white }
+    a:active     { color: #7799dd; background-color: white }
+    a:visited    { color: #5e85d7; background-color: white }
+    tt           { font: small "courier new", monospace }
+    li           { margin-top: 0.15em; margin-bottom: 0.15em }
+    div.bluehead { text-align: center; color: white; background-color: #264b99; padding: 5px; font-weight: bold }
+    .date        { font-size: x-small; font-weight: bold }
+    .head1       { font-size: xx-large }
+    .head2       { font-size: large }
+    .ver         { font-size: large; font-weight: bold }
 </style>
 </head>
 <body>
@@ -26,6 +26,43 @@ Portions Copyright &copy; 2000-2012 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
+<p><a name="5.5.3"></a><span class="ver">5.5.3-dev </span><span class="date">(?)</span></p>
+<ul>
+<li>Windows 8 change: [Icons] section flag <tt>excludefromshowinnewinstall</tt> now additionally prevents the new shortcut from being automatically pinned the Start screen.</li>
+<li>Added new command line parameters supported by Setup: /HELP and /?. Cause Setup to display the list of accepted command line parameters in a message box, exiting with exit code 0 afterwards. Ignored if the <tt>UseSetupLdr</tt> [Setup] section directive was set to <tt>no</tt>.</li>
+<li>Added workaround for bug in 64-bit Windows which in some cases would cause Windows to display an error message when a user tries to change the icon of an installed shortcut.</li>
+<li>Updated the compiler and document icons, created by Motaz.</li>
+<li>Restart Manager: If Setup is not running silently and is unable to close all applications using files that need to be updated, it will now ask the user to abort, retry, or ignore. Previously it always ignored.</li>
+<li>A message has been added in this version.
+  (<a href="https://github.com/jrsoftware/issrc/commit/4e2a3c21dcb0a8ecf591d628062e317e8a2fc0e3">View differences in Default.isl</a>)
+  <ul>
+    <li><b>New message:</b> ErrorCloseApplications.</li>
+  </ul>
+  Note: not all translations have been updated for this change at this moment. See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.<br />
+</li>
+<li>The Inno Setup help file source code has been moved into the main Inno Setup source code repository.</li>
+</ul>
+
+<p><a name="5.5.2"></a><span class="ver">5.5.2 </span><span class="date">(2012-10-08)</span></p>
+<ul>
+<li>Added the Windows 8 "compatibility" section to the various manifest resources used by Inno Setup.</li>
+<li>Added constants <tt>{userpf}</tt> and <tt>{usercf}</tt>. Only Windows 7 and later supports <tt>{userpf}</tt> and <tt>{usercf}</tt>; if used on previous Windows versions, they will translate to the same directories as <tt>{localappdata}\Programs</tt> and <tt>{localappdata}\Programs\Common</tt>.</li>
+<li>Pascal Scripting: Added new <tt>RegisterExtraCloseApplicationsResources</tt> event function and also added new <tt>RegisterExtraCloseApplicationsResource</tt> support function. These functions can be used to register extra files which Setup should check for being in-use.</li>
+<li>Added new command line parameters supported by Setup: /CLOSEAPPLICATIONS and /RESTARTAPPLICATIONS. These can be used to override the <tt>CloseApplications</tt> and <tt>RestartApplications</tt> directives.</li>
+<li>Decreased Unicode Inno Setup's size slightly. Contributed by <a href="https://github.com/ahausladen" target="_blank">Andreas Hausladen</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
+<li>Unicode [Code] based on RemObjects Pascal Script Git commit 52291ffbfc14f3cf1a445f3e88c6902e13fbdf78.</li>
+<li>Minor tweaks.</li>
+</ul>
+
+<p><a name="5.5.1"></a><span class="ver">5.5.1 </span><span class="date">(2012-07-09)</span></p>
+<ul>
+<li>Added official Greek translation.</li>
+<li>Updated the official Catalan, Czech, Danish, Finnish, French (Standard), German, Hebrew, Hungarian, Italian, Japanese, Norwegian (Bokmal), Polish, Portuguese (Brazil), Portuguese (Portugal), Russian, Serbian (Cyrillic), Serbian (Latin), Slovenian, Spanish, and Ukrainian translations for the changes introduced by the previous version.</li>
+<li>Demoted the official <a href="http://jrsoftware.org/files/istrans/Basque-1/Basque-1-5.1.11.isl">Basque</a> and <a href="http://jrsoftware.org/files/istrans/Slovak-6/Slovak-6-5.1.11.isl">Slovak</a> translations to unofficial because of a lack of updates by the maintainers. To send updates yourself, see <a href="http://news.jrsoftware.org/read/article.php?id=2295&amp;group=jrsoftware.innosetup.translations#2295">this post</a> for what needs updating and use <a href="http://www.jrsoftware.org/files/istrans/send2.php">this form</a> to send updates (or use <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>). See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.</li>
+<li><i>Fix:</i> The <i>Preparing to Install</i> wizard page's detection of files that need to be updated but are in use or queued (by some other installation) to be replaced or deleted on the next restart did not work for [Files] and [InstallDelete] entries with a <tt>Components</tt> or <tt>Tasks</tt> parameter.</li>
+<li>Minor tweaks.</li>
+</ul>
+
 <p><a name="5.5.0"></a><span class="ver">5.5.0 </span><span class="date">(2012-05-29)</span></p>
 <ul>
 <li>Non-Unicode Inno Setup <b>OS requirements change</b>: Windows 95, 98, Me, and NT 4.0 are no longer supported. Like the Unicode version, Windows 2000 is now the minimum supported operating system.</li>
@@ -35,7 +72,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added new [Setup] section directive: <tt>CloseApplications</tt>, which defaults to <tt>yes</tt>. If set to <tt>yes</tt> and Setup is not running silently, Setup will now pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the [Files] or [InstallDelete] section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed. If set to <tt>yes</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line (see below).</li>
   <li>Added new [Setup] section directive: <tt>CloseApplicationsFilter</tt>, which defaults to <tt>*.exe,*.dll,*.chm</tt>. Controls which files Setup will check for being in use. Setting this to <tt>*.*</tt> can provide better checking at the expense of speed.</li>
   <li>Added new [Setup] section directive: <tt>RestartApplications</tt>, which defaults to <tt>yes</tt>. Note: for Setup to be able to restart an application after the installation has completed, the application needs to be using the Windows <tt>RegisterApplicationRestart</tt> API function.</li>
-  <li>Added new command line parameters supported by Setup: /NOCLOSEAPPLICATIONS and /NORESTARTAPPLICATIONS. These can be used to overide the new <tt>CloseApplications</tt> and <tt>RestartApplications</tt> directives.</li>
+  <li>Added new command line parameters supported by Setup: /NOCLOSEAPPLICATIONS and /NORESTARTAPPLICATIONS. These can be used to override the new <tt>CloseApplications</tt> and <tt>RestartApplications</tt> directives.</li>
   <li>Added new [Code] support function: <tt>RmSessionStarted</tt>.</li>
   <li>TWizardForm: Added new <tt>PreparingMemo</tt> property.</li>
   </ul>
@@ -46,7 +83,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <li>Windows 7 changes:
   <ul>
   <li>Added new [Icons] section flag: <tt>preventpinning</tt>. Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions. Contributed by <a href="https://github.com/miniak" target="_blank">Milan Burda</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-  <li>Windows 7 SP1 fixed the issue with <tt>EstimatedSize</tt> values in the Uninstall registry key and on Windows 7 SP1 or newer Setup now sets <tt>EstimatedSize</tt> even for sizes of 4GB or more.
+  <li>Windows 7 SP1 fixed the issue with <tt>EstimatedSize</tt> values in the Uninstall registry key and on Windows 7 SP1 or newer Setup now sets <tt>EstimatedSize</tt> even for sizes of 4GB or more.</li>
   </ul>
 </li>
 <li>Improved the "auto-retry" feature of the [Files] section: it now automatically retries even if the <tt>restartreplace</tt> [Files] section flag is used.</li>
@@ -59,7 +96,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
     <li><b>New custom messages:</b> AutoStartProgramGroupDescription, AutoStartProgram, AddonHostProgramNotFound.</li>
     <li><b>Removed messages:</b> ToUNCPathname.</li>
   </ul>
-  Note: only the official English and Dutch translations have been updated for these changes at this moment. See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.<br />
+  Note: only the official English and Dutch (Netherlands) translations have been updated for these changes at this moment. See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.<br />
 </li>
 <li>Inno Setup Preprocessor (ISPP) changes:
   <ul>
@@ -67,6 +104,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>The ISPP source code has been moved into the main Inno Setup source code repository.</li>
   </ul>
 </li>
+<li>Unicode [Code] based on RemObjects Pascal Script Git commit e5a93a963f785e89810e61e3eb5e2b6ee3efd3e7.</li>
 <li>Minor tweaks.</li>
 </ul>
 
@@ -76,7 +114,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
 <li>QuickStart Pack: Now offers to download and install <a href="https://www.kymoto.org/inno-script-studio" target="_blank">Inno Script Studio</a> besides <a href="http://www.innoide.org/" target="_blank">InnoIDE</a>.</li>
 <li>Setup now only allows the "Don't create a Start Menu folder" check box to suppress the creation of shortcuts under <tt>{group}</tt>. Previously, it would also suppress the creation of shortcuts in other locations, such as <tt>{userstartup}</tt>, on entries that lacked a Tasks parameter.</li>
-<li>Setup now doesn't count files with <tt>Tasks</tt>/<tt>Check</tt> parameters when calculating the disk space shown at the bottom of the <i>Select Components</i> page.
+<li>Setup now doesn't count files with <tt>Tasks</tt>/<tt>Check</tt> parameters when calculating the disk space shown at the bottom of the <i>Select Components</i> page.</li>
 <li>Improved throughput of external file copying on some devices.</li>
 <li>On Unicode, Setup now supports Rich Edit 4.1 when available.</li>
 <li>Inno Setup Preprocessor (ISPP) changes:
@@ -86,7 +124,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li><tt>ReadReg</tt>: Now only requests KEY_QUERY_VALUE access on the key. Previously, it requested KEY_ALL_ACCESS.</li>
   </ul>
 </li>
-<li>The Inno Setup source code is now also available as a Git repository at <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>. This should make it easier to contribute to Inno Setup, see <a href="http://help.github.com/fork-a-repo/">GitHub Help - Fork A Repo</a> for more info.</li> 
+<li>The Inno Setup source code is now also available as a Git repository at <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>. This should make it easier to contribute to Inno Setup, see <a href="http://help.github.com/fork-a-repo/">GitHub Help - Fork A Repo</a> for more info.</li>
 <li>Added official Serbian (both Latin and Cyrillic) and Ukrainian translations.</li>
 <li>Minor tweaks.</li>
 </ul>
@@ -95,7 +133,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
 <li>Windows 7 change:
   <ul>
-  <li>Added new [Icons] section flag: <tt>excludefromshowinnewinstall</tt>. Prevents a Start menu entry for a newly installed application shortcut from receiving a highlight on Windows 7 (or later). Ignored on earlier Windows versions.</li>
+  <li>Added new [Icons] section flag: <tt>excludefromshowinnewinstall</tt>. Prevents the Start menu entry for the new shortcut from receiving a highlight on Windows 7. Ignored on earlier Windows versions.</li>
   </ul>
 </li>
 <li>Compiler IDE change:
@@ -157,7 +195,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <ul>
   <li>TNewProgressBar: Added new <tt>Style</tt> and <tt>State</tt> properties. See the <i>CodeClasses.iss</i> example script for an example.</li>
   <li>TBitmapImage: Added new <tt>OnClick</tt> and <tt>OnDblClick</tt> properties. See the <i>CodeClasses.iss</i> example script for an example.</li>
-  </ul>  
+  </ul>
 </li>
 <li>Dropped Itanium-specific 64-bit support for the [Files] section's <tt>regtypelib</tt> flag and the [Registry] section's <tt>Permissions</tt> parameter. These features depended on an Itanium-specific "helper" binary, which we no longer have the ability to test or build. (x64 support for these features is unaffected.)</li>
 <li>Updated bzip2 library to version 1.0.6.</li>

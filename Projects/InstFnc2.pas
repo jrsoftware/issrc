@@ -14,7 +14,7 @@ interface
 {$I VERSION.INC}
 
 function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
-  WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
+  WorkingDir: String; IconFilename: String; const IconIndex, ShowCmd: Integer;
   const HotKey: Word; FolderShortcut: Boolean; const AppUserModelID: String;
   const ExcludeFromShowInNewInstall, PreventPinning: Boolean): String;
 procedure RegisterTypeLibrary(const Filename: String);
@@ -44,6 +44,12 @@ function IsWindows7: Boolean;
 { Returns True if running Windows 7 or later }
 begin
   Result := (WindowsVersion >= Cardinal($06010000));
+end;
+
+function IsWindows8: Boolean;
+{ Returns True if running Windows 8 or later }
+begin
+  Result := (WindowsVersion >= Cardinal($06020000));
 end;
 
 procedure AssignWorkingDir(const SL: IShellLink; const WorkingDir: String);
@@ -145,11 +151,11 @@ type
 {$ENDIF}
 
 function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
-  WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
+  WorkingDir: String; IconFilename: String; const IconIndex, ShowCmd: Integer;
   const HotKey: Word; FolderShortcut: Boolean; const AppUserModelID: String;
   const ExcludeFromShowInNewInstall, PreventPinning: Boolean): String;
 { Creates a lnk file named Filename, with a description of Description, with a
-  HotKey hotkey, which points to ShortcutTo.
+  HotKey hotkey, which points to ShortcutTo. Filename should be a full path.
   NOTE! If you want to copy this procedure for use in your own application
   be sure to call CoInitialize at application startup and CoUninitialize at
   application shutdown. See the bottom of this unit for an example. But this
@@ -167,6 +173,10 @@ const
   PKEY_AppUserModel_PreventPinning: TPropertyKey = (
     fmtid: (D1:$9F4C2855; D2:$9F79; D3:$4B39; D4:($A8,$D0,$E1,$D4,$2D,$E1,$D5,$F3));
     pid: 9);
+  PKEY_AppUserModel_StartPinOption: TPropertyKey = (
+    fmtid: (D1:$9F4C2855; D2:$9F79; D3:$4B39; D4:($A8,$D0,$E1,$D4,$2D,$E1,$D5,$F3));
+    pid: 12);
+  APPUSERMODEL_STARTPINOPTION_NOPINONINSTALL = 1;
 
 {$IFNDEF Delphi3OrHigher}
 var
@@ -200,8 +210,16 @@ begin
     SL.SetArguments(PChar(Parameters));
     if not FolderShortcut then
       AssignWorkingDir(SL, WorkingDir);
-    if IconFilename <> '' then
+    if IconFilename <> '' then begin
+      { Work around a 64-bit Windows bug. It replaces pf32 with %ProgramFiles%
+      which is wrong. This causes an error when the user tries to change the
+      icon of the installed shortcut. Note that the icon does actually display
+      fine because it *also* stores the original 'non replaced' path in the
+      shortcut. } 
+      if IsWin64 then
+        StringChangeEx(IconFileName, ExpandConst('{pf32}\'), '%ProgramFiles(x86)%\', True);
       SL.SetIconLocation(PChar(IconFilename), IconIndex);
+    end;
     SL.SetShowCmd(ShowCmd);
     if Description <> '' then
       SL.SetDescription(PChar(Description));
@@ -242,6 +260,13 @@ begin
         OleResult := PS.SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall, PV);
         if OleResult <> S_OK then
           RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall)', OleResult);
+        if IsWindows8 then begin
+          PV.vt := VT_UI4;
+          PV.lVal := APPUSERMODEL_STARTPINOPTION_NOPINONINSTALL;
+          OleResult := PS.SetValue(PKEY_AppUserModel_StartPinOption, PV);
+          if OleResult <> S_OK then
+            RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_StartPinOption)', OleResult);
+        end;
       end;
       OleResult := PS.Commit;
       if OleResult <> S_OK then
@@ -303,8 +328,16 @@ begin
   SL.SetArguments(PChar(Parameters));
   if not FolderShortcut then
     AssignWorkingDir(SL, WorkingDir);
-  if IconFilename <> '' then
+  if IconFilename <> '' then begin
+    { Work around a 64-bit Windows bug. It replaces pf32 with %ProgramFiles%
+      which is wrong. This causes an error when the user tries to change the
+      icon of the installed shortcut. Note that the icon does actually display
+      fine because it *also* stores the original 'non replaced' path in the
+      shortcut. } 
+    if IsWin64 then
+      StringChangeEx(IconFileName, ExpandConst('{pf32}\'), '%ProgramFiles(x86)%\', True);
     SL.SetIconLocation(PChar(IconFilename), IconIndex);
+  end;
   SL.SetShowCmd(ShowCmd);
   if Description <> '' then
     SL.SetDescription(PChar(Description));
@@ -338,6 +371,13 @@ begin
       OleResult := PS.SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall, PV);
       if OleResult <> S_OK then
         RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ExcludeFromShowInNewInstall)', OleResult);
+      if IsWindows8 then begin
+        PV.vt := VT_UI4;
+        PV.ulVal := APPUSERMODEL_STARTPINOPTION_NOPINONINSTALL;
+        OleResult := PS.SetValue(PKEY_AppUserModel_StartPinOption, PV);
+        if OleResult <> S_OK then
+          RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_StartPinOption)', OleResult);
+      end;
     end;
     OleResult := PS.Commit;
     if OleResult <> S_OK then

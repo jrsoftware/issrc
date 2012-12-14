@@ -1,6 +1,6 @@
-; *** Inno Setup version 5.1.11+ Serbian (Latin) messages ***
+; *** Inno Setup version 5.5.0+ Serbian (Latin) messages ***
 ;
-; Translated by Rancher (theranchcowboy@googlemail.com).
+; Translated by Rancher (theranchcowboy@gmail.com).
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -44,9 +44,13 @@ LdrCannotExecTemp=Ne mogu da pokrenem datoteku u privremenoj fascikli. Instalaci
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nGreška %2: %3
-SetupFileMissing=Datoteka %1 nedostaje u fascikli za instalaciju. Ispravite problem ili nabavite novi primerak programa.
-SetupFileCorrupt=Datoteke za instalaciju su ošteæene. Nabavite novi primerak programa.
-SetupFileCorruptOrWrongVer=Datoteke za instalaciju su ošteæene ili nisu saglasne s ovim izdanjem instalacije. Ispravite problem ili nabavite novi primerak programa.
+SetupFileMissing=Datoteka %1 nedostaje u instalacionoj fascikli. Ispravite problem ili nabavite novi primerak programa.
+SetupFileCorrupt=Instalacione datoteke su ošteæene. Nabavite novi primerak programa.
+SetupFileCorruptOrWrongVer=Instalacione datoteke su ošteæene ili nisu saglasne s ovim izdanjem instalacije. Ispravite problem ili nabavite novi primerak programa.
+InvalidParameter=Neispravan parametar je prenet na komandnu liniju: %n%n%1
+SetupAlreadyRunning=Instalacija je veæ pokrenuta.
+WindowsVersionNotSupported=Program ne podržava izdanje vindousa koje koristite.
+WindowsServicePackRequired=Program zahteva %1 servisni paket %2 ili noviji.
 NotOnThisPlatform=Program neæe raditi na %1.
 OnlyOnThisPlatform=Program æe raditi na %1.
 OnlyOnTheseArchitectures=Program se može instalirati samo na izdanjima vindousa koji rade sa sledeæim arhitekturama procesora:%n%n%1
@@ -137,7 +141,8 @@ SelectDirDesc=Izaberite mesto na kom želite da instalirate [name].
 SelectDirLabel3=Program æe instalirati [name] u sledeæu fasciklu.
 SelectDirBrowseLabel=Kliknite na „Dalje“ da nastavite. Ako želite da izaberete drugu fasciklu, kliknite na „Potraži…“.
 DiskSpaceMBLabel=Potrebno je najmanje [mb] MB slobodnog prostora na disku.
-ToUNCPathname=Ne mogu da instaliram program u navedenu fasciklu. Ako pokušavate da ga instalirate na mreži, prvo æete morati da mapirate mrežni disk.
+CannotInstallToNetworkDrive=Ne mogu da instaliram na mrežnu jedinicu.
+CannotInstallToUNCPath=Ne mogu da instaliram na UNC putanju.
 InvalidPath=Morate navesti punu putanju s obeležjem diska (npr.%n%nC:\APP%n%nili putanja u obliku%n%n\\server\share)
 InvalidDrive=Disk koji ste izabrali ne postoji ili nije dostupan. Izaberite neki drugi.
 DiskSpaceWarningTitle=Nema dovoljno prostora na disku
@@ -170,9 +175,9 @@ SelectTasksDesc=Izaberite neke dodatne zadatke.
 SelectTasksLabel2=Izaberite dodatne zadatke koje želite da izvršite pri instaliranju programa [name] i kliknite na „Dalje“.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Odabir fascikle na meniju „Start“
+WizardSelectProgramGroup=Odabir fascikle u meniju „Start“
 SelectStartMenuFolderDesc=Izaberite mesto na kom želite da postavite preèice.
-SelectStartMenuFolderLabel3=Instalacija æe postaviti preèice programa u sledeæoj fascikli na meniju „Start“.
+SelectStartMenuFolderLabel3=Instalacija æe postaviti preèice programa u sledeæoj fascikli u meniju „Start“.
 SelectStartMenuFolderBrowseLabel=Kliknite na „Dalje“ da nastavite. Ako želite da izaberete drugu fasciklu, kliknite na „Potraži…“.
 MustEnterGroupName=Morate navesti naziv fascikle.
 GroupNameTooLong=Naziv fascikle ili putanja je predugaèka.
@@ -189,7 +194,7 @@ ReadyMemoUserInfo=Korisnièki podaci:
 ReadyMemoDir=Odredišna fascikla:
 ReadyMemoType=Vrsta instalacije:
 ReadyMemoComponents=Izabrani delovi:
-ReadyMemoGroup=Fascikla na meniju „Start“:
+ReadyMemoGroup=Fascikla u meniju „Start“:
 ReadyMemoTasks=Dodatni zadaci:
 
 ; *** "Preparing to Install" wizard page
@@ -197,6 +202,10 @@ WizardPreparing=Priprema za instalaciju
 PreparingDesc=Program se priprema da instalira [name] na vaš raèunar.
 PreviousInstallNotCompleted=Instalacija ili uklanjanje prethodnog programa nije završeno. Potrebno je da ponovo pokrenete raèunar da bi se instalacija završila.%n%nNakon ponovnog pokretanja, otvorite instalaciju i instalirajte program [name].
 CannotContinue=Ne mogu da nastavim instaliranje. Kliknite na „Otkaži“ da izaðete.
+ApplicationsFound=Sledeæi programi koriste datoteke koje treba da ažurira instalacioni program. Preporuèuje se da dozvolite instalacionom programu da zatvori ove programe.
+ApplicationsFound2=Sledeæi programi koriste datoteke koje treba da ažurira instalacioni program. Preporuèuje se da dozvolite instalacionom programu da zatvori ove programe. Nakon što se instalacija završi, instalacioni program æe pokušati da ponovo pokrene zatvorene programe.
+CloseApplications=&Zatvori programe
+DontCloseApplications=&Ne zatvaraj programe
 
 ; *** "Installing" wizard page
 WizardInstalling=Instaliranje
@@ -229,14 +238,16 @@ SetupAborted=Instalacija nije završena.%n%nIspravite problem i pokrenite je pono
 EntryAbortRetryIgnore=Kliknite na „Pokušaj opet“ da ponovite radnju, „Zanemari“ da nastavite u svakom sluèaju ili „Prekini“ da obustavite instalaciju.
 
 ; *** Installation status messages
+StatusClosingApplications=Zatvaram programe…
 StatusCreateDirs=Pravim fascikle…
 StatusExtractFiles=Raspakujem datoteke…
 StatusCreateIcons=Postavljam preèice…
-StatusCreateIniEntries=Postavljam unose INI…
+StatusCreateIniEntries=Postavljam INI unose…
 StatusCreateRegistryEntries=Postavljam unose u registar…
 StatusRegisterFiles=Upisujem datoteke…
 StatusSavingUninstall=Èuvam podatke o uklanjanju…
 StatusRunProgram=Završavam instalaciju…
+StatusRestartingApplications=Ponovo pokreæem programe…
 StatusRollback=Poništavam izmene…
 
 ; *** Misc. errors
@@ -252,7 +263,7 @@ ErrorRegCreateKey=Greška pri stvaranju unosa u registru:%n%1\%2
 ErrorRegWriteKey=Greška pri upisivanju unosa u registar:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Greška pri stvaranju unosa INI u datoteci „%1“.
+ErrorIniEntry=Greška pri stvaranju INI unosa u datoteci „%1“.
 
 ; *** File copying errors
 FileAbortRetryIgnore=Kliknite na „Pokušaj opet“ da ponovite radnju, „Zanemari“ da preskoèite datoteku (ne preporuèuje se) ili „Prekini“ da obustavite instalaciju.
@@ -300,6 +311,10 @@ SharedFileLocationLabel=Putanja:
 WizardUninstalling=Stanje uklanjanja
 StatusUninstalling=Uklanjam %1…
 
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Instaliram %1.
+ShutdownBlockReasonUninstallingApp=Uklanjam %1.
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 
@@ -314,3 +329,6 @@ UninstallProgram=Ukloni %1
 LaunchProgram=Pokreni %1
 AssocFileExtension=&Poveži %1 s formatom %2
 AssocingFileExtension=Povezivanje %1 s formatom %2…
+AutoStartProgramGroupDescription=Pokretanje:
+AutoStartProgram=Automatski pokreni %1
+AddonHostProgramNotFound=%1 se ne nalazi u navedenoj fascikli.%n%nŽelite li ipak da nastavite?

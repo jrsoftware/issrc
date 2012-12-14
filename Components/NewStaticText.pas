@@ -3,13 +3,19 @@ unit NewStaticText;
 {
   TNewStaticText - similar to TStaticText on D3+ but with multi-line AutoSize
   support and a WordWrap property
-
-  $jrsoftware: issrc/Components/NewStaticText.pas,v 1.7 2009/03/20 22:48:54 mlaan Exp $
 }
 
 interface
 
-{$I VERSION.INC}
+{$IFNDEF VER90}
+  {$IFNDEF VER100}
+    {$IFNDEF VER120}
+      {$IFNDEF VER130}
+        {$DEFINE Delphi6OrHigher}
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
 
 uses
   Windows, Messages, SysUtils, Classes, Controls, Forms;
@@ -38,7 +44,7 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
-    procedure SetAutoSize(Value: Boolean); {$IFDEF IS_D6}override;{$ENDIF}
+    procedure SetAutoSize(Value: Boolean); {$IFDEF Delphi6OrHigher}override;{$ENDIF}
   public
     constructor Create(AOwner: TComponent); override;
     function AdjustHeight: Integer;

@@ -1,8 +1,6 @@
-; *** Inno Setup version 5.1.11+ Portuguese (Portugal) messages ***
+; *** Inno Setup version 5.5.0+ Portuguese (Portugal) messages ***
 ;
-; Maintained by NARS (nars AT gmx.net)
-;
-; $jrsoftware: issrc/Files/Languages/Portuguese.isl,v 1.5 2008/02/21 22:56:57 nars Exp $
+; Maintained by Nuno Silva (nars AT gmx.net)
 
 [LangOptions]
 LanguageName=Portugu<00EA>s (Portugal)
@@ -32,6 +30,10 @@ LastErrorMessage=%1.%n%nErro %2: %3
 SetupFileMissing=O ficheiro %1 não foi encontrado na pasta de instalação. Corrija o problema ou obtenha uma nova cópia do programa.
 SetupFileCorrupt=Os ficheiros de instalação estão corrompidos. Obtenha uma nova cópia do programa.
 SetupFileCorruptOrWrongVer=Os ficheiros de instalação estão corrompidos, ou são incompatíveis com esta versão do Assistente de Instalação. Corrija o problema ou obtenha uma nova cópia do programa.
+InvalidParameter=Foi especificado um parâmetro inválido na linha de comando:%n%n%1
+SetupAlreadyRunning=A instalação já está em execução.
+WindowsVersionNotSupported=Este programa não suporta a versão do Windows que está a utilizar.
+WindowsServicePackRequired=Este programa necessita de %1 Service Pack %2 ou mais recente.
 NotOnThisPlatform=Este programa não pode ser executado no %1.
 OnlyOnThisPlatform=Este programa deve ser executado no %1.
 OnlyOnTheseArchitectures=Este programa só pode ser instalado em versões do Windows preparadas para as seguintes arquitecturas:%n%n%1
@@ -122,7 +124,8 @@ SelectDirDesc=Onde deverá ser instalado o [name]?
 SelectDirLabel3=O [name] será instalado na seguinte pasta.
 SelectDirBrowseLabel=Para continuar, clique em Seguinte. Se desejar seleccionar uma pasta diferente, clique em Procurar.
 DiskSpaceMBLabel=É necessário pelo menos [mb] MB de espaço livre em disco.
-ToUNCPathname=O Assistente de Instalação não pode instalar num caminho do tipo UNC. Se está a tentar fazer a instalação numa rede, precisa de mapear a unidade de rede.
+CannotInstallToNetworkDrive=O Assistente de Instalação não pode instalar numa unidade de rede.
+CannotInstallToUNCPath=O Assistente de Instalação não pode instalar num caminho UNC.
 InvalidPath=É necessário indicar o caminho completo com a letra de unidade; por exemplo:%n%nC:\APP%n%nou um caminho UNC no formato:%n%n\\servidor\partilha
 InvalidDrive=A unidade ou partilha UNC seleccionada não existe ou não está acessível. Seleccione outra.
 DiskSpaceWarningTitle=Não há espaço suficiente no disco
@@ -181,7 +184,12 @@ ReadyMemoTasks=Tarefas adicionais:
 WizardPreparing=Preparando-se para instalar
 PreparingDesc=Preparando-se para instalar o [name] no seu computador.
 PreviousInstallNotCompleted=A instalação/remoção de um programa anterior não foi completada. Necessitará de reiniciar o computador para completar essa instalação.%n%nDepois de reiniciar o computador, execute novamente este Assistente de Instalação para completar a instalação do [name].
-CannotContinue=A Instalação não pode continuar. Clique em Cancelar para sair.
+CannotContinue=A instalação não pode continuar. Clique em Cancelar para sair.
+ApplicationsFound=As seguintes aplicações estão a utilizar ficheiros que necessitam ser actualizados pelo Assistente de Instalação. É recomendado que permita que o Assistente de Instalação feche estas aplicações.
+ApplicationsFound2=As seguintes aplicações estão a utilizar ficheiros que necessitam ser actualizados pelo Assistente de Instalação. É recomendado que permita que o Assistente de Instalação feche estas aplicações. Depois de completar a instalação, o Assistente de Instalação tentará reiniciar as aplicações.
+CloseApplications=&Fechar as aplicações automaticamente
+DontCloseApplications=&Não fechar as aplicações
+
 
 ; *** "Installing" wizard page
 WizardInstalling=A instalar
@@ -214,6 +222,7 @@ SetupAborted=A instalação não está completa.%n%nCorrija o problema e execute o A
 EntryAbortRetryIgnore=Clique em Repetir para tentar novamente, Ignorar para continuar de qualquer forma, ou Abortar para cancelar a instalação.
 
 ; *** Installation status messages
+StatusClosingApplications=A fechar aplicações...
 StatusCreateDirs=A criar directorias...
 StatusExtractFiles=A extrair ficheiros...
 StatusCreateIcons=A criar atalhos...
@@ -222,6 +231,7 @@ StatusCreateRegistryEntries=A criar entradas no registo...
 StatusRegisterFiles=A registar ficheiros...
 StatusSavingUninstall=A guardar informações para desinstalação...
 StatusRunProgram=A concluir a instalação...
+StatusRestartingApplications=A reiniciar aplicações...
 StatusRollback=A anular as alterações...
 
 ; *** Misc. errors
@@ -285,6 +295,10 @@ SharedFileLocationLabel=Localização:
 WizardUninstalling=Estado da desinstalação
 StatusUninstalling=A desinstalar o %1...
 
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=A instalar %1.
+ShutdownBlockReasonUninstallingApp=A desinstalar %1.
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 
@@ -299,3 +313,6 @@ UninstallProgram=Desinstalar o %1
 LaunchProgram=Executar o %1
 AssocFileExtension=Associa&r o %1 aos ficheiros com a extensão %2
 AssocingFileExtension=A associar o %1 aos ficheiros com a extensão %2...
+AutoStartProgramGroupDescription=Inicialização Automática:
+AutoStartProgram=Iniciar %1 automaticamente
+AddonHostProgramNotFound=Não foi possível localizar %1 na pasta seleccionada.%n%nDeseja continuar de qualquer forma?

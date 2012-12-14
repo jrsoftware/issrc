@@ -191,8 +191,8 @@ type
     procedure CreateTaskButtons(const SelectedComponents: TStringList);
     procedure FindPreviousData;
     function GetPreviousPageID: Integer;
-    function PrepareToInstall: String;
-    function QueryRestartManager: String;
+    function PrepareToInstall(const WizardComponents, WizardTasks: TStringList): String;
+    function QueryRestartManager(const WizardComponents, WizardTasks: TStringList): String;
     procedure RegisterExistingPage(const ID: Integer;
      const AOuterNotebookPage, AInnerNotebookPage: TNewNotebookPage;
      const ACaption, ADescription: String);
@@ -1575,12 +1575,13 @@ var
   ComponentEntry: PSetupComponentEntry;
 begin
   SelectedComponents.Clear;
-  DeselectedComponents.Clear;
+  if DeselectedComponents <> nil then
+    DeselectedComponents.Clear;
   for I := 0 to ComponentsList.Items.Count-1 do begin
     ComponentEntry := PSetupComponentEntry(ComponentsList.ItemObject[I]);
     if ComponentsList.Checked[I] then
       SelectedComponents.Add(ComponentEntry.Name)
-    else
+    else if DeselectedComponents <> nil then
       DeselectedComponents.Add(ComponentEntry.Name);
   end;
 end;
@@ -1592,19 +1593,20 @@ var
   TaskEntry: PSetupTaskEntry;
 begin
   SelectedTasks.Clear;
-  DeselectedTasks.Clear;
+  if DeselectedTasks <> nil then
+    DeselectedTasks.Clear;
   for I := 0 to TasksList.Items.Count-1 do begin
     TaskEntry := PSetupTaskEntry(TasksList.ItemObject[I]);
     if TaskEntry <> nil then begin
       if TasksList.Checked[I] then
         SelectedTasks.Add(TaskEntry.Name)
-      else
+      else if DeselectedTasks <> nil then
         DeselectedTasks.Add(TaskEntry.Name);
     end;
   end;
 end;
 
-function TWizardForm.PrepareToInstall: String;
+function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStringList): String;
 var
   WindowDisabler: TWindowDisabler;
   CodeNeedsRestart: Boolean;
@@ -1617,7 +1619,7 @@ begin
   PreparingYesRadio.Visible := False;
   PreparingNoRadio.Visible := False;
   PreparingMemo.Visible := False;
-  if not PreviousInstallCompleted then begin
+  if not PreviousInstallCompleted(WizardComponents, WizardTasks) then begin
     Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
     PrepareToInstallNeedsRestart := True;
   end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall') then begin
@@ -1665,7 +1667,7 @@ end;
 var
   DidRegisterResources: Boolean;
 
-function TWizardForm.QueryRestartManager: String;
+function TWizardForm.QueryRestartManager(const WizardComponents, WizardTasks: TStringList): String;
 type
   TArrayOfProcessInfo = array[0..(MaxInt div SizeOf(RM_PROCESS_INFO))-1] of RM_PROCESS_INFO;
   PArrayOfProcessInfo = ^TArrayOfProcessInfo;
@@ -1684,7 +1686,7 @@ begin
   end;
 
   if RmSessionStarted then begin
-    RegisterResourcesWithRestartManager;
+    RegisterResourcesWithRestartManager(WizardComponents, WizardTasks);
     DidRegisterResources := True;
   end;
 
@@ -1725,7 +1727,8 @@ begin
   end;
 
   if Result <> '' then begin
-    if (shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications then
+    if InitRestartApplications or
+       ((shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications) then
       PreparingLabel.Caption := SetupMessages[msgApplicationsFound2]
     else
       PreparingLabel.Caption := SetupMessages[msgApplicationsFound];
@@ -2192,6 +2195,7 @@ var
   PageIndex: Integer;
   Continue: Boolean;
   NewPageID: Integer;
+  WizardComponents, WizardTasks: TStringList;
 label Again;
 begin
   if CurPageID = wpInstalling then
@@ -2248,27 +2252,39 @@ begin
 
     case NewPageID of
       wpPreparing: begin
-          PrepareToInstallFailureMessage := PrepareToInstall;
-          if PrepareToInstallFailureMessage <> '' then begin
-            LogFmt('PrepareToInstall failed: %s', [PrepareToInstallFailureMessage]);
-            LogFmt('Need to restart Windows? %s', [SYesNo[PrepareToInstallNeedsRestart]]);
-            Break;  { stop on the page }
-          end else if RmSessionStarted then begin
-            SetCurPage(wpPreparing); { controls are already hidden by PrepareToInstall }
-            BackButton.Visible := False;
-            NextButton.Visible := False;
-            if InstallMode = imSilent then begin
-              SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
-              WizardForm.Show;
+          WizardComponents := nil;
+          WizardTasks := nil;
+          try
+            WizardComponents := TStringList.Create;
+            WizardForm.GetComponents(WizardComponents, nil);
+            WizardTasks := TStringList.Create;
+            WizardForm.GetTasks(WizardTasks, nil);
+
+            PrepareToInstallFailureMessage := PrepareToInstall(WizardComponents, WizardTasks);
+            if PrepareToInstallFailureMessage <> '' then begin
+              LogFmt('PrepareToInstall failed: %s', [PrepareToInstallFailureMessage]);
+              LogFmt('Need to restart Windows? %s', [SYesNo[PrepareToInstallNeedsRestart]]);
+              Break;  { stop on the page }
+            end else if RmSessionStarted then begin
+              SetCurPage(wpPreparing); { controls are already hidden by PrepareToInstall }
+              BackButton.Visible := False;
+              NextButton.Visible := False;
+              if InstallMode = imSilent then begin
+                SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
+                WizardForm.Show;
+              end;
+              try
+                WizardForm.Update;
+                RmFoundApplications := QueryRestartManager(WizardComponents, WizardTasks) <> '';
+                if RmFoundApplications then
+                  Break;  { stop on the page }
+              finally
+                UpdateCurPageButtonVisibility;
+              end;
             end;
-            try
-              WizardForm.Update;
-              RmFoundApplications := QueryRestartManager <> '';
-              if RmFoundApplications then
-                Break;  { stop on the page }
-            finally
-              UpdateCurPageButtonVisibility;
-            end;
+          finally
+            WizardTasks.Free;
+            WizardComponents.Free;
           end;
         end;
       wpInstalling: begin

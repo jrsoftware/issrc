@@ -2,7 +2,7 @@ unit Main;
 
 {
   Inno Setup
-  Copyright (C) 1997-2011 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -101,8 +101,9 @@ var
   InitLang: String;
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
-  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitNoCloseApplications,
-    InitNoRestartApplications, InitNoCancel: Boolean;
+  InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
+    InitNoCloseApplications, InitRestartApplications, InitNoRestartApplications,
+    InitNoCancel: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -118,7 +119,8 @@ var
   { 'Constants' }
   SourceDir, TempInstallDir, WinDir, WinSystemDir, WinSysWow64Dir, SystemDrive,
     ProgramFiles32Dir, CommonFiles32Dir, ProgramFiles64Dir, CommonFiles64Dir,
-    CmdFilename, SysUserInfoName, SysUserInfoOrg, UninstallExeFilename: String;
+    ProgramFilesUserDir, CommonFilesUserDir, CmdFilename, SysUserInfoName,
+    SysUserInfoOrg, UninstallExeFilename: String;
 
   { Uninstall 'constants' }
   UninstallExpandedAppId, UninstallExpandedApp, UninstallExpandedGroup,
@@ -216,8 +218,9 @@ procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure NotifyBeforeInstallEntry(const BeforeInstall: String);
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
-function PreviousInstallCompleted: Boolean;
-procedure RegisterResourcesWithRestartManager;
+function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
+function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
+procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 procedure RemoveTempInstallDir;
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
@@ -244,6 +247,7 @@ uses
   Msgs, MsgIDs, Install, InstFunc, InstFnc2, RedirFunc, PathFunc,
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
   Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
+  {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
   SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion;
 
 {$R *.DFM}
@@ -254,6 +258,8 @@ var
   SHFolderDLLHandle: HMODULE;
   SHGetFolderPathFunc: function(hwndOwner: HWND; nFolder: Integer;
     hToken: THandle; dwFlags: DWORD; pszPath: PChar): HRESULT; stdcall;
+  SHGetKnownFolderPathFunc: function(const rfid: TGUID; dwFlags: DWORD; hToken: THandle;
+    var ppszPath: PWideChar): HRESULT; stdcall;
 
   DecompressorDLLHandle: HMODULE;
   DecryptDLLHandle: HMODULE;
@@ -601,7 +607,7 @@ begin
       Result[I] := '\';
 end;
 
-procedure LoadInf(const FileName: String);
+procedure LoadInf(const FileName: String; var WantToSuppressMsgBoxes: Boolean);
 const
   Section = 'Setup';
 var
@@ -627,10 +633,14 @@ begin
   InitSilent := GetIniBool(Section, 'Silent', InitSilent, FileName);
   InitVerySilent := GetIniBool(Section, 'VerySilent', InitVerySilent, FileName);
   InitNoRestart := GetIniBool(Section, 'NoRestart', InitNoRestart, FileName);
+  InitCloseApplications := GetIniBool(Section, 'CloseApplications', InitCloseApplications, FileName);
   InitNoCloseApplications := GetIniBool(Section, 'NoCloseApplications', InitNoCloseApplications, FileName);
+  InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
+  InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
+  WantToSuppressMsgBoxes := GetIniBool(Section, 'SuppressMsgBoxes', WantToSuppressMsgBoxes, FileName);
   InitSaveInf := GetIniString(Section, 'SaveInf', InitSaveInf, FileName);
 end;
 
@@ -998,11 +1008,23 @@ begin
   else if Cnst = 'srcexe' then Result := SetupLdrOriginalFilename
   else if Cnst = 'tmp' then Result := TempInstallDir
   else if Cnst = 'sd' then Result := SystemDrive
+  else if Cnst = 'userpf' then begin
+    if ProgramFilesUserDir <> '' then
+      Result := ProgramFilesUserDir
+    else
+      Result := ExpandConst('{localappdata}\Programs'); { supply default, same as Window 7 and newer }
+  end
   else if Cnst = 'pf' then begin
     if Is64BitInstallMode then
       Result := ProgramFiles64Dir
     else
       Result := ProgramFiles32Dir;
+  end
+  else if Cnst = 'usercf' then begin
+    if CommonFilesUserDir <> '' then
+      Result := CommonFilesUserDir
+    else
+      Result := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Window 7 and newer }
   end
   else if Cnst = 'cf' then begin
     if Is64BitInstallMode then
@@ -1236,6 +1258,12 @@ procedure InitMainNonSHFolderConsts;
     end;
   end;
 
+const
+  FOLDERID_UserProgramFiles: TGUID = (D1:$5CD7AEE2; D2:$2219; D3:$4A67; D4:($B8,$5D,$6C,$9C,$E1,$56,$60,$CB));
+  FOLDERID_UserProgramFilesCommon: TGUID = (D1:$BCBD3057; D2:$CA5C; D3:$4622; D4:($B4,$2D,$BC,$56,$DB,$0A,$E5,$16));
+  KF_FLAG_CREATE = $00008000;
+var
+  Path: PWideChar;
 begin
   { Read Windows and Windows System dirs }
   WinDir := GetWinDir;
@@ -1270,6 +1298,26 @@ begin
     CommonFiles64Dir := GetPath(rv64Bit, 'CommonFilesDir');
     if CommonFiles64Dir = '' then
       InternalError('Failed to get path of 64-bit Common Files directory');
+  end;
+
+  { Get per-user Program Files and Common Files dirs. Requires Windows 7 or
+    later but trying it on Vista too in case some update adds support for the
+    folders later (like we saw with CSIDLs in the old days). }
+  if Assigned(SHGetKnownFolderPathFunc) and (WindowsVersion shr 16 >= $0600) then begin
+    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFiles, KF_FLAG_CREATE, 0, Path) = S_OK then begin
+      try
+        ProgramFilesUserDir := WideCharToString(Path);
+      finally
+        CoTaskMemFree(Path);
+      end;
+    end;
+    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFilesCommon, KF_FLAG_CREATE, 0, Path) = S_OK then begin
+      try
+        CommonFilesUserDir := WideCharToString(Path);
+      finally
+        CoTaskMemFree(Path);
+      end;
+    end;
   end;
 
   { Get path of command interpreter }
@@ -1334,13 +1382,6 @@ begin
       [FmtSetupMessage1(msgErrorCreatingDir, Subdir), IntToStr(ErrorCode),
        Win32ErrorString(ErrorCode)]));
   end;
-
-  { Extract RegDLL EXE }
-  {$IFNDEF UNICODE}
-  {$R RegDLLEXE.res}
-  Filename := Subdir + '\_RegDLL.tmp';
-  SaveResourceToTempFile('REGDLL_EXE', Filename);
-  {$ENDIF}
 
   { Extract 64-bit helper EXE, if one is available for the current processor
     architecture }
@@ -1668,7 +1709,8 @@ end;
 { Enumerates the files we're going to install and delete. Returns True on success.
   Likewise EnumFilesProc should return True on success and return False
   to break the enum and to cause EnumFiles to return False instead of True. }
-function EnumFiles(const EnumFilesProc: TEnumFilesProc; const Param: Pointer): Boolean;
+function EnumFiles(const EnumFilesProc: TEnumFilesProc;
+  const WizardComponents, WizardTasks: TStringList; const Param: Pointer): Boolean;
 
   function RecurseExternalFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
@@ -1814,7 +1856,7 @@ begin
 end;
 
 { Checks if no file we're going to install or delete has a pending rename or delete. }
-function PreviousInstallCompleted: Boolean;
+function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
 begin
   Result := True;
   if Entries[seFile].Count = 0 then
@@ -1824,7 +1866,7 @@ begin
     EnumFileReplaceOperationsFilenames(EnumProc, CheckForFileSL);
     if CheckForFileSL.Count = 0 then
       Exit;
-    Result := EnumFiles(CheckForFile, nil);
+    Result := EnumFiles(CheckForFile, WizardComponents, WizardTasks, nil);
   finally
     CheckForFileSL.Free;
   end;
@@ -1843,22 +1885,25 @@ function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
 var
   Filename: String;
   I, Len: Integer;
-  Match: Boolean;
+  CheckFilter, Match: Boolean;
 begin
   Filename := AFilename;
 
   { First: check filter. }
   if Filename <> '' then begin
-    Match := False;
-    for I := 0 to CloseApplicationsFilterList.Count-1 do begin
-      if WildcardMatch(PChar(PathExtractName(Filename)), PChar(CloseApplicationsFilterList[I])) then begin
-        Match := True;
-        Break;
+    CheckFilter := Boolean(Param);
+    if CheckFilter then begin
+      Match := False;
+      for I := 0 to CloseApplicationsFilterList.Count-1 do begin
+        if WildcardMatch(PChar(PathExtractName(Filename)), PChar(CloseApplicationsFilterList[I])) then begin
+          Match := True;
+          Break;
+        end;
       end;
-    end;
-    if not Match then begin
-      Result := True;
-      Exit;
+      if not Match then begin
+        Result := True;
+        Exit;
+      end;
     end;
   end;
 
@@ -1899,8 +1944,22 @@ begin
   Result := RmSessionStarted; { Break the enum if there was an error, else continue. }
 end;
 
+{ Helper function for [Code] to register extra files. }
+var
+  AllowCodeRegisterExtraCloseApplicationsResource: Boolean;
+
+function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
+begin
+  if AllowCodeRegisterExtraCloseApplicationsResource then
+    Result := RegisterFile(DisableFsRedir, AFilename, Pointer(False))
+  else begin
+    InternalError('Cannot call "RegisterExtraCloseApplicationsResource" function at this time');
+    Result := False;
+  end;
+end;
+
 { Register all files we're going to install or delete. Ends RmSession on errors. }
-procedure RegisterResourcesWithRestartManager;
+procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 var
   I: Integer;
 begin
@@ -1909,7 +1968,22 @@ begin
   RegisterFileFilenamesMax := 1000;
   GetMem(RegisterFileFilenames, RegisterFileFilenamesMax * SizeOf(RegisterFileFilenames[0]));
   try
-    EnumFiles(RegisterFile, nil);
+    { Register our files. }
+    EnumFiles(RegisterFile, WizardComponents, WizardTasks, Pointer(True));
+    { Ask [Code] for more files. }
+    if CodeRunner <> nil then begin
+      AllowCodeRegisterExtraCloseApplicationsResource := True;
+      try
+        try
+          CodeRunner.RunProcedure('RegisterExtraCloseApplicationsResources', [''], False);
+        except
+          Log('RegisterExtraCloseApplicationsResources raised an exception.');
+          Application.HandleException(nil);
+        end;
+      finally
+        AllowCodeRegisterExtraCloseApplicationsResource := False;
+      end;
+    end;
     { Don't forget to register leftovers. }
     if RmSessionStarted then
       RegisterFile(False, '', nil);
@@ -2703,8 +2777,14 @@ begin
     if CompareText(ParamName, '/NoRestart') = 0 then
       InitNoRestart := True
     else
+    if CompareText(ParamName, '/CloseApplications') = 0 then
+      InitCloseApplications := True
+    else
     if CompareText(ParamName, '/NoCloseApplications') = 0 then
       InitNoCloseApplications := True
+    else
+    if CompareText(ParamName, '/RestartApplications') = 0 then
+      InitRestartApplications := True
     else
     if CompareText(ParamName, '/NoRestartApplications') = 0 then
       InitNoRestartApplications := True
@@ -2779,7 +2859,7 @@ begin
   end;
 
   if InitLoadInf <> '' then
-    LoadInf(InitLoadInf);
+    LoadInf(InitLoadInf, WantToSuppressMsgBoxes);
 
   if WantToSuppressMsgBoxes and (InitSilent or InitVerySilent) then
     InitSuppressMsgBoxes := True;
@@ -3004,7 +3084,8 @@ begin
     LoadDecryptDLL;
 
   { Start RestartManager session }
-  if (shCloseApplications in SetupHeader.Options) and not InitNoCloseApplications then begin
+  if InitCloseApplications or
+     ((shCloseApplications in SetupHeader.Options) and not InitNoCloseApplications) then begin
     InitRestartManagerLibrary;
     { Note from Old New Thing: "The RmStartSession function doesn't properly
       null-terminate the session key <...>. To work around this bug, we pre-fill
@@ -3781,7 +3862,9 @@ begin
 
     ProcessRunEntries;
 
-    if RmDoRestart and (shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications then
+    if RmDoRestart and
+       (InitRestartApplications or
+        ((shRestartApplications in SetupHeader.Options) and not InitNoRestartApplications)) then
       RestartApplications;
 
     SetStep(ssPostInstall, True);
@@ -4249,6 +4332,8 @@ initialization
   DeleteFilesAfterInstallList := TStringList.Create;
   DeleteDirsAfterInstallList := TStringList.Create;
   CloseApplicationsFilterList := TStringList.Create;
+  SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(shell32,
+    SEM_NOOPENFILEERRORBOX), 'SHGetKnownFolderPath');
 
 finalization
   FreeAndNil(WizardImage);

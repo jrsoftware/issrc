@@ -2,13 +2,11 @@ unit RegSvr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2012 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Registers OLE servers & type libraries after a reboot
-
-  $jrsoftware: issrc/Projects/RegSvr.pas,v 1.14 2007/12/08 00:33:47 jr Exp $
 }
 
 interface
@@ -163,7 +161,7 @@ begin
       Application.Title := SetupMessages[msgSetupAppTitle];
 
       try
-        { Extract RegDLL and the 64-bit helper }
+        { Extract the 64-bit helper }
         CreateTempInstallDir;
 
         F := TTextFileReader.Create(ListFilename, fdOpenExisting, faRead, fsRead);

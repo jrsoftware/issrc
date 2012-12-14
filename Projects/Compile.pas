@@ -2513,27 +2513,6 @@ begin
   Result := PrependDirName(Filename, SourceDir);
 end;
 
-function MinVersionErrorMessage(const Param: Boolean;
-  const WinVersion, NTVersion: Word): String;
-
-  function VerToStr(const Ver: Cardinal): String;
-  begin
-    with TSetupVersionDataVersion(Ver) do
-      FmtStr(Result, '%d.%d', [Major, Minor]);
-  end;
-
-var
-  WinVer, NTVer: String;
-begin
-  WinVer := VerToStr(WinVersion shl 16);
-  NTVer := VerToStr(NTVersion shl 16);
-  if not Param then
-    FmtStr(Result, SCompilerMinVersionError, [WinVer, NTVer, WinVer, NTVer])
-  else
-    FmtStr(Result, SCompilerMinVersionErrorParam, [WinVer, NTVer,
-      WinVer, NTVer, WinVer, NTVer]);
-end;
-
 function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVersionData;
   const AllowedConsts: TAllowedConsts): Boolean;
 { Returns True if S contains constants. Aborts compile if they are invalid. }
@@ -2773,32 +2752,27 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
 const
-  Consts: array[0..36] of String = (
+  Consts: array[0..38] of String = (
     'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts',
     'hwnd', 'pf', 'pf32', 'pf64', 'cf', 'cf32', 'cf64', 'computername', 'dao',
     'cmd', 'username', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
     'language', 'syswow64', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
-    'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064');
-  ShellFolderConsts: array[0..16] of String = (
+    'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064', 'userpf', 'usercf');
+  ShellFolderConsts: array[0..18] of String = (
     'group', 'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
     'commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
     'sendto', 'userappdata', 'userdocs', 'commonappdata', 'commondocs',
-    'usertemplates', 'commontemplates', 'localappdata');
-  ShellFolderConsts98: array[0..1] of String = (
+    'usertemplates', 'commontemplates', 'localappdata',
     'userfavorites', 'commonfavorites');
   AllowedConstsNames: array[TAllowedConst] of String = (
     'olddata', 'break');
 var
-  NotWin98orNT4: Boolean;
   I, Start, K: Integer;
   C: TAllowedConst;
   Cnst: String;
 label 1;
 begin
-  with MinVersion do
-    NotWin98orNT4 := ((WinVersion <> 0) and (WinVersion < $040A0000)) or
-      ((NTVersion <> 0) and (NTVersion < $04000000));
   Result := False;
   I := 1;
   while I <= Length(S) do begin
@@ -2861,13 +2835,6 @@ begin
           for K := Low(ShellFolderConsts) to High(ShellFolderConsts) do
             if Cnst = ShellFolderConsts[K] then
               goto 1;
-          for K := Low(ShellFolderConsts98) to High(ShellFolderConsts98) do
-            if Cnst = ShellFolderConsts98[K] then begin
-              if NotWin98orNT4 then
-                AbortCompileOnLineFmt(SCompilerConstUsed + SNewLine2 +
-                  MinVersionErrorMessage(True, $40A, $400), [Cnst]);
-              goto 1;
-            end;
           for C := Low(C) to High(C) do
             if Cnst = AllowedConstsNames[C] then begin
               if not(C in AllowedConsts) then
@@ -5688,12 +5655,6 @@ type
          (CompareText(PathExtractExt(Filename), '.DLL') = 0) and
          (PathCompare(PathExpand(PathExtractDir(SourceFile)), GetSystemDir) = 0) then
         AbortCompileOnLine(SCompilerFilesSystemDirUsed);
-      { COMCAT.DLL 5.0 }
-      if not ExternalFile and
-         (CompareText(Filename, 'COMCAT.DLL') = 0) and
-         (foVersionInfoValid in NewFileLocationEntry^.Flags) and
-         (NewFileLocationEntry^.FileVersionMS >= $50000) then
-        AbortCompileOnLineFmt(SCompilerFilesUnsafeFile, ['COMCAT.DLL version 5.0']);
       { CTL3D32.DLL }
       if not ExternalFile and
          (CompareText(Filename, 'CTL3D32.DLL') = 0) and
@@ -7309,6 +7270,7 @@ begin
     CodeCompiler.AddExport('InitializeWizard', '0', False, '', 0);
     CodeCompiler.AddExport('GetCustomSetupExitCode', 'LongInt', False, '', 0);
     CodeCompiler.AddExport('PrepareToInstall', 'String !Boolean', False, '', 0);
+    CodeCompiler.AddExport('RegisterExtraCloseApplicationsResources', '0', False, '', 0);
 
     CodeCompiler.AddExport('InitializeUninstall', 'Boolean', False, '', 0);
     CodeCompiler.AddExport('DeinitializeUninstall', '0', False, '', 0);

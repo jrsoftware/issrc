@@ -8,7 +8,7 @@
 [Setup]
 AppName=Inno Setup
 AppId=Inno Setup 5
-AppVersion=5.5.0
+AppVersion=5.5.2
 AppPublisher=jrsoftware.org
 AppPublisherURL=http://www.innosetup.com/
 AppSupportURL=http://www.innosetup.com/
@@ -35,7 +35,6 @@ SignedUninstaller=yes
 
 [Languages]
 Name: en; MessagesFile: "files\Default.isl"
-Name: ba; MessagesFile: "files\Languages\Basque.isl"
 Name: br; MessagesFile: "files\Languages\BrazilianPortuguese.isl"
 Name: ca; MessagesFile: "files\Languages\Catalan.isl"
 Name: cz; MessagesFile: "files\Languages\Czech.isl"
@@ -44,6 +43,7 @@ Name: nl; MessagesFile: "files\Languages\Dutch.isl"
 Name: fi; MessagesFile: "files\Languages\Finnish.isl"
 Name: fr; MessagesFile: "files\Languages\French.isl"
 Name: de; MessagesFile: "files\Languages\German.isl"
+Name: gr; MessagesFile: "files\Languages\Greek.isl"
 Name: he; MessagesFile: "files\Languages\Hebrew.isl"
 Name: hu; MessagesFile: "files\Languages\Hungarian.isl"
 Name: it; MessagesFile: "files\Languages\Italian.isl"
@@ -54,7 +54,6 @@ Name: pt; MessagesFile: "files\Languages\Portuguese.isl"
 Name: ru; MessagesFile: "files\Languages\Russian.isl"
 Name: se; MessagesFile: "files\Languages\SerbianLatin.isl"
 Name: se2; MessagesFile: "files\Languages\SerbianCyrillic.isl"
-Name: sl; MessagesFile: "files\Languages\Slovak.isl"
 Name: sl2; MessagesFile: "files\Languages\Slovenian.isl"
 Name: sp; MessagesFile: "files\Languages\Spanish.isl"
 Name: uk; MessagesFile: "files\Languages\Ukrainian.isl"
@@ -90,7 +89,6 @@ Source: "files\ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\Languages\Basque.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\BrazilianPortuguese.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Catalan.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Czech.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
@@ -99,6 +97,7 @@ Source: "files\Languages\Dutch.isl"; DestDir: "{app}\Languages"; Flags: ignoreve
 Source: "files\Languages\French.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Finnish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\German.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+Source: "files\Languages\Greek.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Hebrew.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Hungarian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Italian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
@@ -109,7 +108,6 @@ Source: "files\Languages\Portuguese.isl"; DestDir: "{app}\Languages"; Flags: ign
 Source: "files\Languages\Russian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\SerbianCyrillic.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\SerbianLatin.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Slovak.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Slovenian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Spanish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Ukrainian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
