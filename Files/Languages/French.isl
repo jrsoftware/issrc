@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ French messages ***
+; *** Inno Setup version 5.5.3+ French messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -224,6 +224,7 @@ ApplicationsFound=Les applications suivantes utilisent des fichiers qui doivent 
 ApplicationsFound2=Les applications suivantes utilisent des fichiers qui doivent être mis à jour par l'assistant. Il est recommandé d'autoriser l'assistant à fermer ces applications automatiquement. Une fois l'installation terminée, l'assistant essaiera de relancer ces applications.
 CloseApplications=&Arrêter les applications automatiquement
 DontCloseApplications=&Ne pas arrêter les applications
+ErrorCloseApplications=L'assistant d'installation n'a pas pu arrêter toutes les applications automatiquement. Nous vous recommandons de fermer toutes les applications qui utilisent des fichiers devant être mis à jour par l'assistant d'installation avant de continuer.
 
 ; *** "Installing" wizard page
 WizardInstalling=Installation en cours
