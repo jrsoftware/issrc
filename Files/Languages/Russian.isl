@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ Russian messages ***
+; *** Inno Setup version 5.5.3+ Russian messages ***
 ;
 ; Translated from English by Dmitry Kann, http://yktoo.com/
 ;
@@ -194,6 +194,7 @@ ApplicationsFound=Следующие приложения используют файлы, которые программа устан
 ApplicationsFound2=Следующие приложения используют файлы, которые программа установки должна обновить. Рекомендуется позволить программе установки автоматически закрыть эти приложения. Когда установка будет завершена, программа установки попытается вновь запустить их.
 CloseApplications=&Автоматически закрыть эти приложения
 DontCloseApplications=&Не закрывать эти приложения
+ErrorCloseApplications=Программе установки не удалось автоматически закрыть все приложения. Рекомендуется закрыть все приложения, которые используют подлежащие обновлению файлы, прежде чем продолжить установку.
 
 ; *** "Installing" wizard page
 WizardInstalling=Установка...
@@ -299,7 +300,7 @@ SharedFileLocationLabel=Расположение:
 WizardUninstalling=Состояние деинсталляции
 StatusUninstalling=Деинсталляция %1...
 
-	
+
 ; *** Shutdown block reasons
 ShutdownBlockReasonInstallingApp=Установка %1.
 ShutdownBlockReasonUninstallingApp=Деинсталляция %1.
