@@ -1,8 +1,8 @@
-; *** Inno Setup version 5.5.0+ Finnish messages ***
+; *** Inno Setup version 5.5.3+ Finnish messages ***
 ;
 ; Finnish translation by Antti Karttunen
 ; E-mail: antti.j.karttunen@iki.fi
-; Last modification date: 2012-05-30
+; Last modification date: 2012-12-15
 
 [LangOptions]
 LanguageName=Suomi
@@ -190,6 +190,7 @@ ApplicationsFound=Seuraavat sovellukset k‰ytt‰v‰t tiedostoja, joita Asennuksen p
 ApplicationsFound2=Seuraavat sovellukset k‰ytt‰v‰t tiedostoja, joita Asennuksen pit‰‰ p‰ivitt‰‰. On suositeltavaa, ett‰ annat Asennuksen sulkea n‰m‰ sovellukset automaattisesti. Valmistumisen j‰lkeen Asennus yritt‰‰ uudelleenk‰ynnist‰‰ sovellukset.
 CloseApplications=&Sulje sovellukset automaattisesti
 DontCloseApplications=&ƒl‰ sulje sovelluksia
+ErrorCloseApplications=Asennus ei pystynyt sulkemaan tarvittavia sovelluksia automaattisesti. On suositeltavaa, ett‰ ennen jatkamista suljet sovellukset, jotka k‰ytt‰v‰t asennuksen aikana p‰ivitett‰vi‰ tiedostoja.
 
 ; *** "Installing" wizard page
 WizardInstalling=Asennus k‰ynniss‰

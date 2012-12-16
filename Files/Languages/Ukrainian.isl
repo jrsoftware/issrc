@@ -1,16 +1,16 @@
-; *** Inno Setup version 5.5.0+ Ukrainian messages ***
+; *** Inno Setup version 5.5.3+ Ukrainian messages ***
 ; Author: Dmitry Onischuk
 ; E-Mail: mr.lols@yandex.ua
 ; Web: http://counter-strike.com.ua/
 ; Please report all spelling/grammar errors, and observations.
-; Version 2012.06.01
+; Version 2012.12.14
 
-; *** Український переклад Inno Setup для версії 5.1.11 та вище***
+; *** Український переклад Inno Setup для версії 5.5.3 та вище***
 ; Автор перекладу: Дмитро Онищук
 ; E-Mail: mr.lols@yandex.ua
 ; Сайт: http://counter-strike.com.ua/
 ; Будь ласка, повідомляйте про всі знайдені помилки та зауваження.
-; Версія перекладу 2012.06.01
+; Версія перекладу 2012.12.14
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -211,6 +211,7 @@ ApplicationsFound=Наступні програми використовують файли, які повинні бути оновл
 ApplicationsFound2=Наступні програми використовують файли, які повинні бути оновлені програмою встановлення. Рекомендується дозволили програмі встановлення автоматично закрити ці програми. Після завершення встановлення, програма встановлення спробує знову запустити їх.
 CloseApplications=&Автоматично закрити програми
 DontCloseApplications=&Не закривати програми
+ErrorCloseApplications=Програма встановлення не може автоматично закрити всі програми. Рекомендується закрити всі програми, що використовують файли, які повинні бути оновлені програмою встановлення, перш ніж продовжити.
 
 ; *** Сторінка "Встановлення"
 WizardInstalling=Встановлення
@@ -334,6 +335,6 @@ UninstallProgram=Видалити %1
 LaunchProgram=Відкрити %1
 AssocFileExtension=&Асоціювати %1 з розширенням файлу %2
 AssocingFileExtension=Асоціювання %1 з розширенням файлу %2...
-AutoStartProgramGroupDescription=Автозапуск:
-AutoStartProgram=Автоматично запускати %1
+AutoStartProgramGroupDescription=Автозавантаження:
+AutoStartProgram=Автоматично завантужувати %1
 AddonHostProgramNotFound=%1 не знайдений у вказаній вами папці%n%nВи все одно бажаєте продовжити?

@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ Norwegian (bokmål) messages ***
+; *** Inno Setup version 5.5.3+ Norwegian (bokmål) messages ***
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -68,7 +68,7 @@ AboutSetupMenuItem=&Om installasjonsprogrammet...
 AboutSetupTitle=Om installasjonsprogrammet
 AboutSetupMessage=%1 versjon %2%n%3%n%n%1 hjemmeside:%n%4
 AboutSetupNote=
-TranslatorNote=Norwegian translation maintained by Jostein Chr. Andersen (jostein@josander.net)
+TranslatorNote=Norwegian translation maintained by Eivind Bakkestuen (eivind@nexusdb.com)
 
 ; *** Buttons
 ButtonBack=< &Tilbake
@@ -199,8 +199,9 @@ PreviousInstallNotCompleted=Installasjonen/fjerningen av et tidligere program bl
 CannotContinue=Installasjonsprogrammet kan ikke fortsette. Klikk på Avbryt for å avslutte.
 ApplicationsFound=Disse applikasjonene bruker filer som vil oppdateres av installasjonen. Det anbefales å la installasjonen automatisk avslutte disse applikasjonene.
 ApplicationsFound2=Disse applikasjonene bruker filer som vil oppdateres av installasjonen. Det anbefales å la installasjonen automatisk avslutte disse applikasjonene. Installasjonen vil prøve å starte applikasjonene på nytt etter at installasjonen er avsluttet.
-CloseApplications=&Automatically close the applications
-DontCloseApplications=&Do not close the applications
+CloseApplications=Lukk applikasjonene &automatisk
+DontCloseApplications=&Ikke lukk applikasjonene
+ErrorCloseApplications=Installasjonsprogrammet kunne ikke lukke alle applikasjonene &automatisk. Det anbefales å lukke alle applikasjoner som bruker filer som installasjonsprogrammet trenger å oppdatere før du fortsetter installasjonen.
 
 ; *** "Installing" wizard page
 WizardInstalling=Installerer

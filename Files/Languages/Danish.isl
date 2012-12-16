@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; ID: Danish.isl,v 5.5.0+ 2012/06/11 Thomas Vedel, thomas@veco.dk
+; ID: Danish.isl,v 5.5.3+ 2012/12/14 Thomas Vedel, thomas@veco.dk
 
 [LangOptions]
 LanguageName=Dansk
@@ -209,6 +209,7 @@ ApplicationsFound=Følgende programmer bruger filer som skal opdateres. Det anbef
 ApplicationsFound2=Følgende programmer bruger filer som skal opdateres. Det anbefales at du giver installationsguiden lov til automatisk at lukke programmerne. Installationsguiden vil forsøge at genstarte programmerne når installationen er afsluttet.
 CloseApplications=&Luk programmerne automatisk
 DontCloseApplications=Luk &ikke programmerne
+ErrorCloseApplications=Installationsguiden kan ikke automatisk lukke alle programmerne. Det anbefales at du lukker alle programmer som bruger filer der skal opdateres, inden installationsguiden fortsætter.
 
 ; *** "Installing" wizard page
 WizardInstalling=Installerer

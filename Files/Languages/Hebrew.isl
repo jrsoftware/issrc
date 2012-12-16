@@ -1,9 +1,8 @@
-; *** Inno Setup version 5.5.0+ Hebrew messages (stilgar(at)divrei-tora.com) ***
+; *** Inno Setup version 5.5.3+ Hebrew messages (stilgar(at)divrei-tora.com) ***
 ;
 ;
 ;	Translated by s_h (s_h(at)enativ.com) (c) 2005
 ;
-
 
 [LangOptions]
 LanguageName=<05E2><05D1><05E8><05D9><05EA>
@@ -203,6 +202,7 @@ ApplicationsFound=היישומים הבאים עושים שימוש בקבצים שצריכים להתעדכן על ידי תוכנת
 ApplicationsFound2=היישומים הבאים עושים שימוש בקבצים שצריכים להתעדכן על ידי תוכנת ההתקנה. מומלץ שתאפשר לתוכנת ההתקנה לסגור יישומים אלו אוטומטית. לאחר שההתקנה תסתיים, תוכנית ההתקנה תנסה לפתוח מחדש את אותם יישומים.
 CloseApplications=&סגור יישומים אוטומטית
 DontCloseApplications=&אל תסגור יישומים אלו
+ErrorCloseApplications=אשף ההתקנה לא מצליח לסגור את היישומים אוטומטית. מומלץ שתסגור בעצמך את כל התוכניות שמשתמשות בקבצים שמתעדכנים על ידי תוכנית ההתקנה לפני שתמשיך.
 
 ; *** "Installing" wizard page
 WizardInstalling=מתקין
