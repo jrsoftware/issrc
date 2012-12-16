@@ -1209,8 +1209,8 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Special function. It takes an identifier as opposed to an expression. Returns non-zero if specified identifier is defined with &define; directive.</para>
-					<para>It is allowed to not use parentheses with this function.</para>
+					<para>Special function. Returns non-zero if the specified identifier is defined with &define; directive.</para>
+					<para>Using parentheses is optional.</para>
 				</description>
 			</topic>
 			<topic id="TypeOf">
@@ -1222,8 +1222,21 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Special function. It takes an identifier as opposed to an expression. Returns one of predefined values, each of which corresponds to a particular value type (void, integer, or string), if an identifier is a variable name, or identifier type (macro or function) otherwise. Values that this function returns are declared in &builtins;.</para>
-					<para>It is allowed to not use parentheses with this function.</para>
+					<para>Special function. Returns one of predefined TypeOf constants which are declared in &builtins; for the specified indentifier.</para>
+					<para>Using parentheses is optional.</para>
+				</description>
+			</topic>
+			<topic id="DimOf">
+				<title>DimOf</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> DimOf(&lt;ident&gt;)</line>
+						<line><b>int</b> DimOf &lt;ident&gt;</line>
+					</pre>
+				</section>
+				<description>
+					<para>Special function. Returns the dimension of the specified indentifier.</para>
+					<para>Using parentheses is optional.</para>
 				</description>
 			</topic>
 			<topic id="ParseVersion">

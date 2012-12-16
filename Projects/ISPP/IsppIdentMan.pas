@@ -906,7 +906,7 @@ begin
     Result := itDefinedFunc
   else if CompareText(Name, 'TYPEOF') = 0 then
     Result := itTypeOfFunc
-  else if CompareText(Name, 'DIM') = 0 then
+  else if CompareText(Name, 'DIMOF') = 0 then
     Result := itLenFunc
   else
   begin
