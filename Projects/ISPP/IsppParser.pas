@@ -255,7 +255,7 @@ begin
               MakeInt(Result, FIdentMan.TypeOf(TokenString));
             if ParenthesesUsed then NextTokenExpect([tkCloseParen]);
           end;
-          itLenFunc:
+          itDimOfFunc:
           begin
             ParenthesesUsed := PeekAtNextToken = tkOpenParen;
             if ParenthesesUsed then NextToken;

@@ -45,7 +45,7 @@ type
   end;
 
   TIdentType = (itUnknown, itVariable, itMacro, itFunc, itDefinedFunc,
-    itTypeOfFunc, itLenFunc);
+    itTypeOfFunc, itDimOfFunc);
 
   IIdentManager = interface
     function GetIdent(const Name: string; out CallContext: ICallContext): TIdentType;

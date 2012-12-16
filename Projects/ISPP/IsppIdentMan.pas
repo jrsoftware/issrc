@@ -907,7 +907,7 @@ begin
   else if CompareText(Name, 'TYPEOF') = 0 then
     Result := itTypeOfFunc
   else if CompareText(Name, 'DIMOF') = 0 then
-    Result := itLenFunc
+    Result := itDimOfFunc
   else
   begin
     P := Find(Name, dsAny);
