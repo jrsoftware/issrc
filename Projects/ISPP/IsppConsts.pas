@@ -1,7 +1,6 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppConsts.pas,v 1.1 2004/02/26 22:24:19 mlaan Exp $
 }
 
 unit IsppConsts;
@@ -91,6 +90,7 @@ const
   SUnknownParam = 'Unknown parameter: "%s"';
   SVariableDefined = '%s variable defined: "%s"';
   SWrongParamType = 'Actual parameter %s is not of the declared type';
+  SBadLength = 'Bad dimension';
 
   { Parser errors }
 

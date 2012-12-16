@@ -1,7 +1,6 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppIdentMan.pas,v 1.1 2004/02/26 22:24:19 mlaan Exp $
 }
 
 unit IsppIdentMan;
@@ -853,20 +852,23 @@ var
   V: PVariable;
   I: Integer;
 begin
-  if Scope = dsAny then Scope := dsPublic;
-  Delete(Name, Scope);
-  V := AllocMem(SizeOf(TVariable) + SizeOf(TIsppVariant) * (Length - 1));
-  V.Name := Name;
-  V.Hash := MakeHash(Name);
-  V.IdentType := itVariable;
-  V.Dim := Length;
-  V^.Scope.IsProtected := Scope = dsProtected;
-  if Scope >= dsProtected then V^.Scope.Locality := FLocalLevel;
-  for I := 0 to Length - 1 do
-    V.Value[I] := NULL;
-  FVarMan.Add(V);
-  Sort;
-  VerboseMsg(4, SArrayDeclared, [GL[Scope], Name]);
+  if Length > 0 then begin
+    if Scope = dsAny then Scope := dsPublic;
+    Delete(Name, Scope);
+    V := AllocMem(SizeOf(TVariable) + SizeOf(TIsppVariant) * (Length - 1));
+    V.Name := Name;
+    V.Hash := MakeHash(Name);
+    V.IdentType := itVariable;
+    V.Dim := Length;
+    V^.Scope.IsProtected := Scope = dsProtected;
+    if Scope >= dsProtected then V^.Scope.Locality := FLocalLevel;
+    for I := 0 to Length - 1 do
+      V.Value[I] := NULL;
+    FVarMan.Add(V);
+    Sort;
+    VerboseMsg(4, SArrayDeclared, [GL[Scope], Name]);
+  end else
+    raise EIdentError.Create(SBadLength);
 end;
 
 function TIdentManager.Find(const Name: string; AScope: TDefineScope): PIdent;
