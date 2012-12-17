@@ -198,6 +198,7 @@ ApplicationsFound=Poni¿sze aplikacje u¿ywaj¹ plików, które musz¹ byæ uaktualnion
 ApplicationsFound2=Poni¿sze aplikacje u¿ywaj¹ plików, które musz¹ byæ uaktualnione przez Instalator. Zalecane jest aby pozwoliæ Instalatorowi automatycznie zamkn¹æ te aplikacje. Po zakoñczonej instalacji Instalator podejmie próbê ich ponownego uruchomienia.
 CloseApplications=&Automatycznie zamknij aplikacje
 DontCloseApplications=&Nie zamykaj aplikacji
+ErrorCloseApplications=Instalator nie by³ w stanie zamkn¹æ automatycznie wszystkich aplikacji. Zalecane jest zamkniêcie wszystkich tych aplikacji, które akualnie u¿ywaj¹ uakutalnianych przez Instalator plików.
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalacja
