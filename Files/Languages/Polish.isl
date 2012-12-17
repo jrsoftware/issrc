@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ Polish messages ***
+; *** Inno Setup version 5.5.3+ Polish messages ***
 ; Krzysztof Cynarski <krzysztof at cynarski.net>
 ;
 ; To download user-contributed translations of this file, go to:
