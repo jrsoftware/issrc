@@ -604,6 +604,7 @@ The list of options is provided at the end of this topic.</para>
 						<line>#pragma parseroption -b- -u+</line>
 						<line>#pragma option -c-</line>
 						<line>#pragma warning "Variable value is: " + MyVar</line>
+						<line>#pragma option -v+</line>
 						<line>#pragma verboselevel 9</line>
 						<line>#pragma inlinestart "$("</line>
 						<line>#pragma inlineend ")"</line>
@@ -1233,7 +1234,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Special function. Returns one of predefined TypeOf constants which are declared in &builtins; for the specified indentifier.</para>
+					<para>Special function. Returns one of predefined TypeOf constants which are declared in &builtins; for the specified identifier.</para>
 					<para>Using parentheses is optional.</para>
 				</description>
 			</topic>
@@ -1246,7 +1247,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Special function. Returns the dimension of the specified indentifier.</para>
+					<para>Special function. Returns the dimension of the specified identifier.</para>
 					<para>Using parentheses is optional.</para>
 				</description>
 			</topic>
