@@ -1883,7 +1883,7 @@ var
 function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
   const Param: Pointer): Boolean;
 var
-  Filename: String;
+  Filename, Text: String;
   I, Len: Integer;
   CheckFilter, Match: Boolean;
 begin
@@ -1894,8 +1894,9 @@ begin
     CheckFilter := Boolean(Param);
     if CheckFilter then begin
       Match := False;
+      Text := PathLowercase(PathExtractName(Filename));
       for I := 0 to CloseApplicationsFilterList.Count-1 do begin
-        if WildcardMatch(PChar(PathExtractName(Filename)), PChar(CloseApplicationsFilterList[I])) then begin
+        if WildcardMatch(PChar(Text), PChar(CloseApplicationsFilterList[I])) then begin
           Match := True;
           Break;
         end;
