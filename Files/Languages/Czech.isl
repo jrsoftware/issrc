@@ -1,6 +1,6 @@
 ; *******************************************************
 ; ***                                                 ***
-; *** Inno Setup version 5.5.0+ Czech messages        ***
+; *** Inno Setup version 5.5.3+ Czech messages        ***
 ; ***                                                 ***
 ; *** Original Author:                                ***
 ; ***                                                 ***
@@ -61,11 +61,11 @@ WinVersionTooLowError=Tento produkt vyžaduje %1 verzi %2 nebo vyšší.
 WinVersionTooHighError=Tento produkt nelze nainstalovat ve %1 verzi %2 nebo vyšší.
 AdminPrivilegesRequired=K instalaci tohoto produktu musíte být pøihlášeni s právy administrátora.
 PowerUserPrivilegesRequired=K instalaci tohoto produktu musíte být pøihlášeni s právy administrátora nebo èlena skupiny Power Users.
-SetupAppRunningError=Prùvodce instalací zjistil, že produkt %1 je nyní spuštìn.%n%nUkonèete prosím všechny spuštìné instance tohoto produktu a pokraèujte klepnutím na tlaèítko OK, nebo ukonèete instalaci tlaèítkem Storno.
-UninstallAppRunningError=Prùvodce odinstalací zjistil, že produkt %1 je nyní spuštìn.%n%nUkonèete prosím všechny spuštìné instance tohoto produktu a pokraèujte klepnutím na tlaèítko OK, nebo ukonèete odinstalaci tlaèítkem Storno.
+SetupAppRunningError=Prùvodce instalací zjistil, že produkt %1 je nyní spuštìn.%n%nZavøete prosím všechny instance tohoto produktu a pak pokraèujte klepnutím na tlaèítko OK, nebo ukonèete instalaci tlaèítkem Storno.
+UninstallAppRunningError=Prùvodce odinstalací zjistil, že produkt %1 je nyní spuštìn.%n%nZavøete prosím všechny instance tohoto produktu a pak pokraèujte klepnutím na tlaèítko OK, nebo ukonèete odinstalaci tlaèítkem Storno.
 
 ; *** Misc. errors
-ErrorCreatingDir=Prùvodce instalací nemohl vytvoøit složku "%1"
+ErrorCreatingDir=Prùvodci instalací se nepodaøilo vytvoøit složku "%1"
 ErrorTooManyFilesInDir=Nelze vytvoøit soubor ve složce "%1", protože tato složka již obsahuje pøíliš mnoho souborù
 
 ; *** Setup common messages
@@ -105,7 +105,7 @@ NewFolderName=Nová složka
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Vítá Vás prùvodce instalací produktu [name].
-WelcomeLabel2=Produkt [name/ver] bude nainstalován na Váš poèítaè.%n%nDøíve než budete pokraèovat, doporuèuje se ukonèit veškeré spuštìné aplikace.
+WelcomeLabel2=Produkt [name/ver] bude nainstalován na Váš poèítaè.%n%nDøíve než budete pokraèovat, doporuèuje se zavøít veškeré spuštìné aplikace.
 
 ; *** "Password" wizard page
 WizardPassword=Heslo
@@ -208,6 +208,7 @@ ApplicationsFound=Následující aplikace pøistupují k souborùm, které je tøeba bìh
 ApplicationsFound2=Následující aplikace pøistupují k souborùm, které je tøeba bìhem instalace aktualizovat. Doporuèuje se povolit prùvodci instalací, aby tyto aplikace automaticky zavøel. Po dokonèení instalace se prùvodce instalací pokusí aplikace restartovat.
 CloseApplications=&Zavøít aplikace automaticky
 DontCloseApplications=&Nezavírat aplikace
+ErrorCloseApplications=Prùvodci instalací se nepodaøilo automaticky zavøít všechny aplikace. Døíve než budete pokraèovat, doporuèuje se zavøít veškeré aplikace pøistupující k souborùm, které je tøeba bìhem instalace aktualizovat.
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalování
@@ -218,8 +219,8 @@ FinishedHeadingLabel=Dokonèuje se instalace produktu [name]
 FinishedLabelNoIcons=Prùvodce instalací dokonèil instalaci produktu [name] na Váš poèítaè.
 FinishedLabel=Prùvodce instalací dokonèil instalaci produktu [name] na Váš poèítaè. Produkt lze spustit pomocí nainstalovaných zástupcù.
 ClickFinish=Ukonèete prùvodce instalací klepnutím na tlaèítko Dokonèit.
-FinishedRestartLabel=Pro dokonèení instalace produktu [name] je nezbytné, aby prùvodce instalací restartoval Váš poèítaè. Chcete jej nyní restartovat?
-FinishedRestartMessage=Pro dokonèení instalace produktu [name] je nezbytné, aby prùvodce instalací restartoval Váš poèítaè.%n%nChcete jej nyní restartovat?
+FinishedRestartLabel=K dokonèení instalace produktu [name] je nezbytné, aby prùvodce instalací restartoval Váš poèítaè. Chcete jej nyní restartovat?
+FinishedRestartMessage=K dokonèení instalace produktu [name] je nezbytné, aby prùvodce instalací restartoval Váš poèítaè.%n%nChcete jej nyní restartovat?
 ShowReadmeCheck=Ano, chci zobrazit dokument "ÈTIMNE"
 YesRadio=&Ano, chci nyní restartovat poèítaè
 NoRadio=&Ne, poèítaè restartuji pozdìji
@@ -289,7 +290,7 @@ ErrorRegisterTypeLib=Nelze zaregistrovat typovou knihovnu: %1
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Došlo k chybì pøi pokusu o otevøení dokumentu "ÈTIMNE".
-ErrorRestartingComputer=Prùvodci instalace se nepodaøilo restartovat Váš poèítaè. Restartujte jej prosím ruènì.
+ErrorRestartingComputer=Prùvodci instalací se nepodaøilo restartovat Váš poèítaè. Restartujte jej prosím ruènì.
 
 ; *** Uninstaller messages
 UninstallNotFound=Soubor "%1" neexistuje. Produkt nelze odinstalovat.
