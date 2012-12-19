@@ -71,12 +71,10 @@ type
     FCustomIdents: IIdentManager;
     FFuncSender: Longint;
     FRefCount: Integer;
-    FUpdateCount: Integer;
     FVarMan: TList;
     FLocalLevel: Integer;
     function FindIndex(const Name: string; AScope: TDefineScope): Integer;
     function Find(const Name: string; AScope: TDefineScope): PIdent;
-    procedure Sort;
     procedure FreeItem(Item: Pointer);
     function MacroIdents: IIdentManager;
   protected
@@ -694,19 +692,6 @@ end;
 
 { TIdentManager }
 
-function SortVars(Item1, Item2: Pointer): Integer;
-begin
-  Result := CompareText(PIdent(Item1).Name, PIdent(Item2).Name);
-  if (Result = 0) and (PIdent(Item1).IdentType in [itVariable, itMacro]) and
-    (PIdent(Item2).IdentType in [itVariable, itMacro]) then
-  begin
-    Result := PDefinable(Item2).Scope.Locality - PDefinable(Item1).Scope.Locality;
-    if Result = 0 then
-      Result := SmallInt(PDefinable(Item2).Scope.IsProtected) -
-        SmallInt(PDefinable(Item1).Scope.IsProtected);
-  end;
-end;
-
 constructor TIdentManager.Create(const CustomIdents: IIdentManager; FuncSender: Longint);
 begin
   FCustomIdents := CustomIdents;
@@ -741,7 +726,6 @@ begin
   F.Code := Handler;
   F.Ext := Ext;
   FVarMan.Add(F);
-  Sort;
 end;
 
 procedure TIdentManager.DefineMacro(const Name, Expression: string;
@@ -774,7 +758,6 @@ begin
     for I := 0 to High(Params) do
       P^.Params[I] := Params[I];
     FVarMan.Add(P);
-    Sort;
   except
     FreeMem(P)
   end;
@@ -810,7 +793,6 @@ begin
     V^.Dim := 0;
     V^.Value[0] := Value;
     FVarMan.Add(V);
-    Sort;
   end;
   VerboseMsg(4, SVariableDefined, [GL[Scope], Name]);
 end;
@@ -879,7 +861,6 @@ begin
       for I := 0 to Length - 1 do
         V.Value[I] := NULL;
       FVarMan.Add(V);
-      Sort;
       Msg := SArrayDeclared;
     end else begin
       VOld := PVariable(FVarMan[ReDimIndex]);
@@ -969,13 +950,6 @@ end;
 function TIdentManager.QueryInterface(const IID: TGUID; out Obj): HRESULT;
 begin
   if GetInterface(IID, Obj) then Result := 0 else Result := E_NOINTERFACE;
-end;
-
-procedure TIdentManager.Sort;
-begin
-  Exit;
-  if FUpdateCount = 0 then
-    FVarMan.Sort(SortVars)
 end;
 
 function TIdentManager.TypeOf(const Name: string): Byte;
