@@ -8,6 +8,7 @@
  <!ENTITY define  '<synel><link href="define">define</link></synel>'>
  <!ENTITY undef   '<synel><link href="undef">undef</link></synel>'>
  <!ENTITY dim     '<synel><link href="dim">dim</link></synel>'>
+ <!ENTITY redim   '<synel><link href="dim">redim</link></synel>'>
  <!ENTITY emit    '<synel><link href="emit">emit</link></synel>'>
  <!ENTITY error   '<synel><link href="error">error</link></synel>'>
  <!ENTITY include '<synel><link href="include">include</link></synel>'>
@@ -151,23 +152,33 @@
 				</section>
 			</topic>
 			<topic id="dim">
-				<title>#dim</title>
-				<keywords><kwd>dim</kwd></keywords>
+				<title>#dim, #redim</title>
+				<keywords>
+          <kwd>dim</kwd>
+          <kwd>redim</kwd>
+        </keywords>
 				<syntax>
 					<define id="dim-directive">
 						<txt>dim</txt><opt><nt name="locality"/></opt><nt>ident</nt><nt name="index-spec"/>
+					</define>
+					<define id="redim-directive">
+						<txt>redim</txt><opt><nt name="locality"/></opt><nt>ident</nt><nt name="index-spec"/>
 					</define>
 					<define id="index-spec" inline="yes">
 						<txt>[</txt><nt>expr</nt><txt>]</txt>
 					</define>
 				</syntax>
 				<description>
-					<para>Declares an array variable and sets its dimension. All elements of the array are initialized to null (void). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</para>
+					<para>Use &dim; to declare an array variable and set its dimension. All elements of the array are initialized to null (void). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</para>
+					<para>Use &redim; to increase or decrease the dimension of an existing array variable. All new elements of the array are initialized to null (void) and existing elements are left unchanged. Identical to &dim; if <synel>ident</synel> isn't an existing array variable.</para>
 				</description>
 				<section title="Examples">
 					<pre>
 						<line>#dim MyArray[10]</line>
 						<line>#define MyArray[0] 15</line>
+						<line>#redim MyArray[20]</line>
+						<line>#define MyArray[10] 30</line>
+						<line>#redim MyArray[10]</line>
 					</pre>
 				</section>
 				<section title="See also">

@@ -68,6 +68,7 @@ const
 
   SAllocatingMacroLocalArrayUpToEle = 'Allocating macro %s Local array up to element %d';
   SArrayDeclared = '%s array declared: "%s"';
+  SArrayReDimmed = '%s array redimensioned: "%s"';
   SErrorExecutingMacro = 'Error at %1:d:%d in macro %0:s:'#13#10#13#10'%3:s';
   SErrorExecutingMacroFile = 'Error in %1:s at %d:%d in macro %0:s:'#13#10#13#10'%4:s';
   SErrorExecutingMacroUnexpected = 'Error executing macro %s: "%s"';

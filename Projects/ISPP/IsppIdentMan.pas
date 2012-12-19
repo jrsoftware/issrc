@@ -74,6 +74,7 @@ type
     FUpdateCount: Integer;
     FVarMan: TList;
     FLocalLevel: Integer;
+    function FindIndex(const Name: string; AScope: TDefineScope): Integer;
     function Find(const Name: string; AScope: TDefineScope): PIdent;
     procedure Sort;
     procedure FreeItem(Item: Pointer);
@@ -96,7 +97,7 @@ type
     procedure DefineVariable(const Name: string; Index: Integer;
       const Value: TIsppVariant; Scope: TDefineScope);
     procedure Delete(const Name: string; Scope: TDefineScope);
-    procedure DimVariable(const Name: string; Length: Integer; Scope: TDefineScope);
+    procedure DimVariable(const Name: string; Length: Integer; Scope: TDefineScope; ReDim: Boolean);
     function GetIdent(const Name: string; out CallContext: ICallContext): TIdentType;
     function TypeOf(const Name: string): Byte;
     function DimOf(const Name: String): Integer;
@@ -847,14 +848,24 @@ begin
 end;
 
 procedure TIdentManager.DimVariable(const Name: string; Length: Integer;
-  Scope: TDefineScope);
+  Scope: TDefineScope; ReDim: Boolean);
 var
-  V: PVariable;
-  I: Integer;
+  V, VOld: PVariable;
+  I, ReDimIndex: Integer;
+  Msg: String;
 begin
   if Length > 0 then begin
     if Scope = dsAny then Scope := dsPublic;
-    Delete(Name, Scope);
+
+    if ReDim then begin
+      ReDimIndex := FindIndex(Name, Scope);
+      if (ReDimIndex <> -1) and
+         ((PIdent(FVarMan[ReDimIndex]).IdentType <> itVariable) or
+          (PVariable(FVarMan[ReDimIndex]).Dim = 0)) then
+        ReDimIndex := -1; //not a variable or not an array, #dim normally
+    end else
+      ReDimIndex := -1;
+
     V := AllocMem(SizeOf(TVariable) + SizeOf(TIsppVariant) * (Length - 1));
     V.Name := Name;
     V.Hash := MakeHash(Name);
@@ -862,21 +873,36 @@ begin
     V.Dim := Length;
     V^.Scope.IsProtected := Scope = dsProtected;
     if Scope >= dsProtected then V^.Scope.Locality := FLocalLevel;
-    for I := 0 to Length - 1 do
-      V.Value[I] := NULL;
-    FVarMan.Add(V);
-    Sort;
-    VerboseMsg(4, SArrayDeclared, [GL[Scope], Name]);
-  end else
+
+    if ReDimIndex = -1 then begin
+      Delete(Name, Scope);
+      for I := 0 to Length - 1 do
+        V.Value[I] := NULL;
+      FVarMan.Add(V);
+      Sort;
+      Msg := SArrayDeclared;
+    end else begin
+      VOld := PVariable(FVarMan[ReDimIndex]);
+      for I := 0 to VOld.Dim - 1 do
+        if I < Length then
+          V.Value[I] := VOld.Value[I];
+      for I := VOld.Dim to Length - 1 do
+        V.Value[I] := NULL;
+      FVarMan[ReDimIndex] := V;
+      FreeItem(VOld);
+      Msg := SArrayReDimmed;
+    end;
+    VerboseMsg(4, Msg, [GL[Scope], Name]);
+ end else
     raise EIdentError.Create(SBadLength);
 end;
 
-function TIdentManager.Find(const Name: string; AScope: TDefineScope): PIdent;
+function TIdentManager.FindIndex(const Name: string; AScope: TDefineScope): Integer;
 var
   I: Integer;
   H: Longint;
 begin
-  Result := nil;
+  Result := -1;
   H := MakeHash(Name);
   for I := FVarMan.Count - 1 downto 0 do
     if (H = PIdent(FVarMan[I]).Hash) and (
@@ -894,9 +920,20 @@ begin
           else
               if IsProtected or (Locality <> FLocalLevel) then Continue;
           end;
-      Result := FVarMan[I];
+      Result := I;
       Exit
     end;
+end;
+
+function TIdentManager.Find(const Name: string; AScope: TDefineScope): PIdent;
+var
+  I: Integer;
+begin
+  I := FindIndex(Name, AScope);
+  if I >= 0 then
+    Result := FVarMan[I]
+  else
+    Result := nil;
 end;
 
 function TIdentManager.GetIdent(const Name: string;

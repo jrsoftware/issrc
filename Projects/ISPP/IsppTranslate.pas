@@ -55,7 +55,7 @@ type
     pcIfNExist, pcElseIf, pcElse, pcEndIf, pcDefine, pcUndef, pcInclude,
     pcErrorDir, pcPragma, pcLine, pcImport, pcPrint, pcPrintEnv, pcFile,
     pcExecute, pcGlue, pcEndGlue, pcDim, pcProcedure, pcEndProc, pcEndLoop,
-    pcFor);
+    pcFor, pcReDim);
 
   TDropGarbageProc = procedure(Item: Pointer);
 
@@ -158,10 +158,10 @@ const
     ('', 'if', 'ifdef', 'ifndef', 'ifexist', 'ifnexist', 'elif', 'else',
     'endif', 'define', 'undef', 'include', 'error', 'pragma', 'line', 'import',
     'emit', 'env', 'file', 'expr', 'insert', 'append', 'dim', 'sub', 'endsub',
-    'endloop', 'for');
+    'endloop', 'for', 'redim');
   PpCmdSynonyms: array[TPreprocessorCommand] of Char =
     (#0, '?', #0, #0, #0, #0, #0, '^', '.', ':', #0, '+', #0, #0, #0, #0,
-    '=', '%', #0, '!', #0, #0, #0, #0, #0, #0, #0);
+    '=', '%', #0, '!', #0, #0, #0, #0, #0, #0, #0, #0);
 
 function GetEnv (const EnvVar: String): String;
 
@@ -605,7 +605,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
     if Result = dsAny then Result := GetDefaultScope;
   end;
 
-  procedure ParseDim(Parser: TParserAccess);
+  procedure ParseDim(Parser: TParserAccess; ReDim: Boolean);
   var
     V: string;
     N: Integer;
@@ -618,7 +618,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       NextTokenExpect([tkOpenBracket]);
       N := IntExpr(True);
       NextTokenExpect([tkCloseBracket]);
-      FIdentManager.DimVariable(V, N, Scope);
+      FIdentManager.DimVariable(V, N, Scope, ReDim);
     finally
       //Free
     end;
@@ -986,7 +986,8 @@ begin
       pcIfExist, pcIfNExist:
         Result := FileExists(PrependDirName(StrExpr(False), FSourcePath)) xor (Command = pcIfNExist);
       pcDefine: ParseDefine(Parser);
-      pcDim: ParseDim(Parser);
+      pcDim: ParseDim(Parser, False);
+      pcReDim: ParseDim(Parser, True);
       pcUndef: ParseUndef(Parser);
       pcInclude: IncludeFile(Params);
       pcErrorDir:
@@ -1826,7 +1827,7 @@ begin
   if not FScopeUpdated then
   begin
     FPreproc.FIdentManager.BeginLocal;
-    FPreproc.FIdentManager.DimVariable(SLocal, 16, dsPrivate);
+    FPreproc.FIdentManager.DimVariable(SLocal, 16, dsPrivate, False);
     FScopeUpdated := True;
   end;
 end;
