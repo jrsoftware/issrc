@@ -1,8 +1,8 @@
 ; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 5.5.0+ German messages      ***
+; *** Inno Setup version 5.5.3+ German messages      ***
 ; ***                                                ***
-; *** Changes 5.5.0+ Author:                         ***
+; *** Changes 5.5.3+ Author:                         ***
 ; ***                                                ***
 ; ***   Peter Stadler(Peter.Stadler@univie.ac.at)    ***
 ; *** Original Author:                               ***
@@ -216,7 +216,7 @@ ApplicationsFound=Die folgenden Anwendungen benutzen Dateien, die aktualisiert w
 ApplicationsFound2=Die folgenden Anwendungen benutzen Dateien, die aktualisiert werden m¸ssen. Es wird empfohlen, Setup zu erlauben, diese Anwendungen zu schlieﬂen. Nachdem die Installation fertiggestellt wurde, versucht Setup diese Anwendungen wieder zu starten.
 CloseApplications=&Schlieﬂe automatisch die Anwendungen
 DontCloseApplications=&Schlieﬂe die Anwendungen nicht
-
+ErrorCloseApplications=Das Setup konnte nicht alle Anwendungen automatisch schlieﬂen. Es wird empfohlen, alle Anwendungen zu schlieﬂen, die Dateien benutzen, die vom Setup vor einer Fortsetzung aktualisiert werden m¸ssen.  
 
 ; *** "Installing" wizard page
 WizardInstalling=Installiere ...
