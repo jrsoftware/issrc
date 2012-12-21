@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ Slovenian messages ***
+; *** Inno Setup version 5.5.3+ Slovenian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/is3rdparty.php
@@ -202,6 +202,8 @@ ApplicationsFound=Naslednji programi uporabljajo datoteke, ki jih mora namestitv
 ApplicationsFound2=Naslednji programi uporabljajo datoteke, ki jih mora namestitveni program posodobiti. Priporoèljivo je, da namestitvenemu programu dovolite, da te programe konèa. Po koncu namestitve bo namestitveni program poizkusil znova zagnati te programe.
 CloseApplications=S&amodejno zapri programe
 DontCloseApplications=&Ne zapri programov
+ErrorCloseApplications=Namestitvenemu programu ni uspelo samodejno zapreti vseh programov. Priporoèljivo je, da pred nadaljevanjem zaprete vse programe, ki uporabljajo datoteke, katere mora namestitev posodobiti.
+
 WizardInstalling=Namešèanje
 InstallingLabel=Poèakajte, da bo program [name] namešèen v vaš raèunalnik.
 

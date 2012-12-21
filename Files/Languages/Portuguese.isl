@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ Portuguese (Portugal) messages ***
+; *** Inno Setup version 5.5.3+ Portuguese (Portugal) messages ***
 ;
 ; Maintained by Nuno Silva (nars AT gmx.net)
 
@@ -189,7 +189,7 @@ ApplicationsFound=As seguintes aplicações estão a utilizar ficheiros que necessi
 ApplicationsFound2=As seguintes aplicações estão a utilizar ficheiros que necessitam ser actualizados pelo Assistente de Instalação. É recomendado que permita que o Assistente de Instalação feche estas aplicações. Depois de completar a instalação, o Assistente de Instalação tentará reiniciar as aplicações.
 CloseApplications=&Fechar as aplicações automaticamente
 DontCloseApplications=&Não fechar as aplicações
-
+ErrorCloseApplications=O Assistente de Instalação não conseguiu fechar todas as aplicações automaticamente. Antes de continuar é recomendado que feche todas as aplicações que utilizem ficheiros que necessitem de ser actualizados pelo Assistente de Instalação.
 
 ; *** "Installing" wizard page
 WizardInstalling=A instalar
