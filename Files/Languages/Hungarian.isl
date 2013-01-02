@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ Hungarian messages with "a(z)" definite articles ***
+; *** Inno Setup version 5.5.3+ Hungarian messages with "a(z)" definite articles ***
 ; Copyright (C) 1999-2012 Kornél Pál
 ; All rights reserved.
 ; E-mail: kornelpal@gmail.com
@@ -68,8 +68,8 @@ LdrCannotExecTemp=Az átmeneti könyvtárban nem lehet fájlt végrehajtani. A telepí
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nHiba %2: %3
 SetupFileMissing=A(z) %1 fájl hiányzik a telepítõ könyvtárából. Hárítsa el a hibát, vagy szerezzen be egy új másolatot a programról.
-SetupFileCorrupt=A telepítõ fájlok megsérültek. Szerezzen be egy új másolatot a programról.
-SetupFileCorruptOrWrongVer=A telepítõ fájlok megsérültek, vagy nem kompatibilisek a Telepítõ jelen verziójával. Hárítsa el a hibát, vagy szerezzen be egy új másolatot a programról.
+SetupFileCorrupt=A telepítõfájlok megsérültek. Szerezzen be egy új másolatot a programról.
+SetupFileCorruptOrWrongVer=A telepítõfájlok megsérültek, vagy nem kompatibilisek a Telepítõ jelen verziójával. Hárítsa el a hibát, vagy szerezzen be egy új másolatot a programról.
 InvalidParameter=Az egyik parancssorban átadott paraméter érvénytelen:%n%n%1
 SetupAlreadyRunning=A Telepítõ már fut.
 WindowsVersionNotSupported=A program nem támogatja a Windows számítógépén futó verzióját.
@@ -86,7 +86,7 @@ SetupAppRunningError=A Telepítõ megállapította, hogy a(z) %1 jelenleg fut.%n%nKé
 UninstallAppRunningError=Az Eltávolító megállapította, hogy a(z) %1 jelenleg fut.%n%nKérem, zárja be az összes példányát, majd a folytatáshoz kattintson az OK gombra, vagy a Mégse gombra a kilépéshez.
 
 ; *** Misc. errors
-ErrorCreatingDir=A telepítõ nem tudta létrehozni a(z) "%1" könyvtárat
+ErrorCreatingDir=A Telepítõ nem tudta létrehozni a(z) "%1" könyvtárat
 ErrorTooManyFilesInDir=Nem hozható létre fájl a(z) "%1" könyvtárban, mert az már túl sok fájlt tartalmaz
 
 ; *** Setup common messages
@@ -125,7 +125,7 @@ BrowseDialogLabel=Válasszon egy mappát az alábbi listából, majd kattintson az OK
 NewFolderName=Új mappa
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Üdvözli a(z) [name] Telepítõ Varázsló.
+WelcomeLabel1=Üdvözli a(z) [name] Telepítõvarázsló.
 WelcomeLabel2=A(z) [name/ver] a számítógépére fog kerülni.%n%nA telepítés folytatása elõtt ajánlott minden más futó alkalmazást bezárni.
 
 ; *** "Password" wizard page
@@ -229,13 +229,14 @@ ApplicationsFound=A következõ alkalmazások olyan fájlokat használnak, amelyeket 
 ApplicationsFound2=A következõ alkalmazások olyan fájlokat használnak, amelyeket a Telepítõnek frissíteni kell. Ajánlott, hogy engedélyezze a Telepítõnek ezen alkalmazások automatikus bezárását. A telepítés befejezése után a Telepítõ megkísérli az alkalmazások újraindítását.
 CloseApplications=&Alkalmazások automatikus bezárása
 DontCloseApplications=&Ne zárja be az alkalmazásokat
+ErrorCloseApplications=A Telepítõ nem tudott minden alkalmazást automatikusan bezárni. A folytatás elõtt ajánlott minden, a Telepítõ által frissítendõ fájlokat használó alkalmazást bezárni.
 
 ; *** "Installing" wizard page
 WizardInstalling=Telepítés állapota
 InstallingLabel=Legyen türelemmel, amíg a(z) [name] számítógépére történõ telepítése folyik.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=A(z) [name] Telepítõ Varázsló befejezése
+FinishedHeadingLabel=A(z) [name] Telepítõvarázsló befejezése
 FinishedLabelNoIcons=A(z) [name] telepítése befejezõdött.
 FinishedLabel=A(z) [name] telepítése befejezõdött. Az alkalmazást a létrehozott ikonok kiválasztásával indíthatja.
 ClickFinish=Kattintson a Befejezés gombra a Telepítõbõl történõ kilépéshez.

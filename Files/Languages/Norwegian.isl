@@ -73,7 +73,7 @@ TranslatorNote=Norwegian translation maintained by Eivind Bakkestuen (eivind@nex
 ; *** Buttons
 ButtonBack=< &Tilbake
 ButtonNext=&Neste >
-ButtonInstall=&Installér
+ButtonInstall=&Installer
 ButtonOK=OK
 ButtonCancel=Avbryt
 ButtonYes=&Ja
@@ -109,7 +109,7 @@ IncorrectPassword=Det angitte passordet er feil, vennligst prøv igjen.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Lisensbetingelser
-LicenseLabel=Vennligst les følgende lisensinformasjon før du fortsetter.
+LicenseLabel=Vennligst les følgende viktig informasjon før du fortsetter.
 LicenseLabel3=Vennligst les følgende lisensbetingelser. Du må godta innholdet i lisensbetingelsene før du fortsetter med installasjonen.
 LicenseAccepted=Jeg &aksepterer lisensbetingelsene
 LicenseNotAccepted=Jeg aksepterer &ikke lisensbetingelsene
@@ -183,8 +183,8 @@ NoProgramGroupCheck2=&Ikke legg til mappe på start-menyen
 ; *** "Ready to Install" wizard page
 WizardReady=Klar til å installere
 ReadyLabel1=Installasjonsprogrammet er nå klar til å installere [name] på din maskin.
-ReadyLabel2a=Klikk Installér for å fortsette, eller Tilbake for å se på eller forandre instillingene.
-ReadyLabel2b=Klikk Installér for å fortsette.
+ReadyLabel2a=Klikk Installer for å fortsette, eller Tilbake for å se på eller forandre instillingene.
+ReadyLabel2b=Klikk Installer for å fortsette.
 ReadyMemoUserInfo=Brukerinformasjon:
 ReadyMemoDir=Installer i mappen:
 ReadyMemoType=Installasjonstype:
@@ -210,7 +210,7 @@ InstallingLabel=Vennligst vent mens [name] installeres på din maskin.
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Fullfører installasjonsprogrammet for [name]
 FinishedLabelNoIcons=[name] er installert på din maskin.
-FinishedLabel=[name] er installert på din maskin. Programmet kan kjøres ved at du klikker på et av de installerte ikonene.
+FinishedLabel=[name] er installert på din maskin. Programmet kan kjøres ved at du klikker på ett av de installerte ikonene.
 ClickFinish=Klikk Ferdig for å avslutte installasjonen.
 FinishedRestartLabel=Maskinen må startes på nytt for at installasjonen skal fullføres. Vil du starte på nytt nå?
 FinishedRestartMessage=Maskinen må startes på nytt for at installasjonen skal fullføres.%n%nVil du starte på nytt nå?
@@ -231,7 +231,7 @@ SelectDirectoryLabel=Vennligst angi hvor den neste disketten er.
 
 ; *** Installation phase messages
 SetupAborted=Installasjonen ble avbrutt.%n%nVennligst korriger problemet og prøv igjen.
-EntryAbortRetryIgnore=Klikk Prøv igjen for å forsøke på nytt, Ignorér for å fortsette eller Avslutt for å avslutte installasjonen.
+EntryAbortRetryIgnore=Klikk Prøv igjen for å forsøke på nytt, Ignorer for å fortsette eller Avslutt for å avslutte installasjonen.
 
 ; *** Installation status messages
 StatusClosingApplications=Lukker applikasjoner...
