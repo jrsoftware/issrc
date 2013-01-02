@@ -1,6 +1,6 @@
 ; ***************************************************************
 ; ***                                                         ***
-; *** Inno Setup version 5.5.0+ Portuguese (Brazil) messages ***
+; *** Inno Setup version 5.5.3+ Portuguese (Brazil) messages ***
 ; ***                                                         ***
 ; *** Original Author:                                        ***
 ; ***                                                         ***
@@ -17,8 +17,6 @@
 ; ***                                                         ***
 ; ***************************************************************
 
-; Default.isl version 100644 
-
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/is3rdparty.php
 ;
@@ -26,9 +24,6 @@
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
-;
-; $jrsoftware: issrc/Files/Languages/BrazilianPortuguese.isl,v 1.7 2008/05/21 12:37:37 mlaan Exp $
-;
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -230,6 +225,7 @@ ApplicationsFound=As seguintes aplicações estap usando arquivos que necessitam s
 ApplicationsFound2=As seguintes aplicações estão usandos arquivos que necessitam ser atualizados pelo programa de instalação. É recomendável que você permita que o programa da instalação encerre automaticamente estas aplicações. Após a instalação estar completa, o programa de instalação tentará iniciar novamente as aplicações.
 CloseApplications=&Automaticamente encerre as aplicações
 DontCloseApplications=&Não encerre as aplicações
+ErrorCloseApplications=O instalador foi incapaz de fechar automaticamente todos os aplicativos. É recomendado que você feche todos os aplicativos usando os arquivos que precisam ser atualizados pelo Instalador antes de continuar.
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalando
