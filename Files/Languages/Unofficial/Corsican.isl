@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ Corsican messages ***
+; *** Inno Setup version 5.5.3+ Corsican messages ***
 ;
 ; To download user-contributed translations of this file, go to :
 ;   http ://www.jrsoftware.org/files/istrans/
@@ -13,8 +13,9 @@
 ; E-mail: Patrick.Santa-Maria@LaPoste.Net
 ;
 ; Changes :
-; September 17, 2011 : creation
-; August 8, 2012 : update to 5.5.0+
+; January 3, 2013 : update to version 5.5.3+
+; August 8, 2012 : update to version 5.5.0+
+; September 17, 2011 : creation for version 5.1.11
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -115,11 +116,11 @@ WelcomeLabel1=Benvenutu in l'Assistente d'Installazione di [name]
 WelcomeLabel2=St'Assistente hè prontu à installà [name/ver] nantu à u vostru urdinatore.%n%nHè ricummendatu di chjode tutti l'altri appiecazioni nanzu à cuntinuà.
 
 ; *** "Password" wizard page
-WizardPassword=Parolla d'intesa
-PasswordLabel1=St'installazione hè prutetta cù una parolla d'intesa.
-PasswordLabel3=Entrite a parolla d'intesa, eppò sceglite Seguente per cuntinuà. Fate casu di rispettà e minuscule è maiuscule in e parolle d'intese.
-PasswordEditLabel=&Parolla d'intesa :
-IncorrectPassword=A parolla d'intesa hè falsa. Pruvate un'altra volta.
+WizardPassword=Parolla d'intrata
+PasswordLabel1=St'installazione hè prutetta cù una parolla d'intrata.
+PasswordLabel3=Entrite a parolla d'intrata, eppò sceglite Seguente per cuntinuà. Fate casu di rispettà e minuscule è maiuscule in e parolle d'intrata.
+PasswordEditLabel=&Parolla d'intrata :
+IncorrectPassword=A parolla d'intrata hè falsa. Pruvate un'altra volta.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Cuntrattu d'Utilizazione
@@ -215,6 +216,7 @@ ApplicationsFound=St'applicazioni impieganu schedarii chì devenu esse mudificati
 ApplicationsFound2=St'applicazioni impieganu schedarii chì devenu esse mudificati da l'installazione. Seria più faciule di permette à u prucessu di chjode autumaticamente st'applicazioni. S'è l'installazione si compie bè, u prucessu pruverà di rilancià l'applicazioni.
 CloseApplications=Chjode &autumaticamente l'applicazioni
 DontCloseApplications=&Ùn chjode micca l'applicazioni
+ErrorCloseApplications=L'Assistente ùn hà micca pussutu chjode autumaticamente tutti l'applicazioni. Hè ricummandatu di chjode tutti l'applicazioni chì impieganu schedarii chì devenu esse mudificati da l'Assistente durante l'installazione nanzu à cuntinuà.
 
 ; *** "Installing" wizard page
 WizardInstalling=Installazione in corsu
