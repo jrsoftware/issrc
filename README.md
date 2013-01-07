@@ -237,6 +237,9 @@ How do the projects link together?
   To download dfm2text, go to:
   http://www.jrsoftware.org/files/misc/dfm2text.zip
 
+- For compiler debugging purposes define STATICCOMPILER in CompForm.pas
+  and STATICPREPROC in Compile.pas. The latter requires Unicode Inno Setup.
+
 6. Precompiled executables and libraries
 ----------------------------------------
 
