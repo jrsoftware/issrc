@@ -261,6 +261,7 @@ begin
   FWizardFiles := TList.Create;
 
   FLanguages := TStringList.Create;
+  //note: *.isl will also match .islu files
   if FindFirst(PathExtractPath(NewParamStr(0)) + 'Languages\*.isl', faAnyFile, SearchRec) = 0 then begin
     repeat
       FLanguages.Add(SearchRec.Name);

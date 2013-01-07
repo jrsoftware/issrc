@@ -37,6 +37,7 @@ SignedUninstaller=yes
 Name: en; MessagesFile: "files\Default.isl"
 Name: br; MessagesFile: "files\Languages\BrazilianPortuguese.isl"
 Name: ca; MessagesFile: "files\Languages\Catalan.isl"
+Name: co; MessagesFile: "files\Languages\Corsican.isl"
 Name: cz; MessagesFile: "files\Languages\Czech.isl"
 Name: da; MessagesFile: "files\Languages\Danish.isl"
 Name: nl; MessagesFile: "files\Languages\Dutch.isl"
@@ -48,6 +49,9 @@ Name: he; MessagesFile: "files\Languages\Hebrew.isl"
 Name: hu; MessagesFile: "files\Languages\Hungarian.isl"
 Name: it; MessagesFile: "files\Languages\Italian.isl"
 Name: ja; MessagesFile: "files\Languages\Japanese.isl"
+#ifdef UNICODE
+Name: nep; MessagesFile: "files\Languages\Nepali.islu"
+#endif
 Name: no; MessagesFile: "files\Languages\Norwegian.isl"
 Name: pl; MessagesFile: "files\Languages\Polish.isl"
 Name: pt; MessagesFile: "files\Languages\Portuguese.isl"
@@ -67,6 +71,10 @@ Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked
 Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"
 
 [InstallDelete]
+; Remove Unicode-only files if needed
+#ifndef UNICODE
+Type: files; Name: "{app}\Languages\Nepali.islu"
+#endif
 ; Remove ISPP files if needed
 Type: files; Name: "{app}\ISPP.dll"; Check: not ISPPCheck
 Type: files; Name: "{app}\ISPPBuiltins.iss"; Check: not ISPPCheck
@@ -91,6 +99,7 @@ Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Languages\BrazilianPortuguese.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Catalan.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+Source: "files\Languages\Corsican.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Czech.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Danish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Dutch.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
@@ -102,6 +111,9 @@ Source: "files\Languages\Hebrew.isl"; DestDir: "{app}\Languages"; Flags: ignorev
 Source: "files\Languages\Hungarian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Italian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Japanese.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+#ifdef UNICODE
+Source: "files\Languages\Nepali.islu"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+#endif
 Source: "files\Languages\Norwegian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Polish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Portuguese.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
