@@ -152,7 +152,6 @@ begin
   RegisterFunctionTable(SystemTable);
   RegisterFunctionTable(SysUtilsTable);
   RegisterDelphiFunctionTable(SysUtilsDelphiTable);
-  RegisterFunctionTable(FileCtrlTable);
   RegisterFunctionTable(VerInfoTable);
   RegisterFunctionTable(WindowsTable);
   RegisterFunctionTable(Ole2Table);

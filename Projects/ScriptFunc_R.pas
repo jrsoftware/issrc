@@ -730,6 +730,8 @@ begin
 
   if Proc.Name = 'EXTRACTTEMPORARYFILE' then begin
     ExtractTemporaryFile(Stack.GetString(PStart));
+  end else if Proc.Name = 'EXTRACTTEMPORARYFILES' then begin
+    Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
   end else
     Result := False;
 end;
@@ -881,6 +883,8 @@ begin
     UnregisterFont(Stack.GetString(PStart), Stack.GetString(PStart-1));
   end else if Proc.Name = 'RESTARTREPLACE' then begin
     RestartReplace(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1));
+  end else if Proc.Name = 'FORCEDIRECTORIES' then begin
+    Stack.SetBool(PStart, ForceDirectories(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
   end else
     Result := False;
 end;
@@ -1362,31 +1366,6 @@ begin
 end;
 {$ENDIF}
 
-{ FileCtrl }
-function FileCtrlProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
-
-  function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
-  begin
-    Dir := RemoveBackslashUnlessRoot(Dir);
-    if (PathExtractPath(Dir) = Dir) or DirExistsRedir(DisableFsRedir, Dir) then
-      Result := True
-    else
-      Result := ForceDirectories(DisableFsRedir, PathExtractPath(Dir)) and
-        CreateDirectoryRedir(DisableFsRedir, Dir);
-  end;
-
-var
-  PStart: Cardinal;
-begin
-  PStart := Stack.Count-1;
-  Result := True;
-
-  if Proc.Name = 'FORCEDIRECTORIES' then begin
-    Stack.SetBool(PStart, ForceDirectories(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
-  end else
-    Result := False;
-end;
-
 { VerInfo }
 function VerInfoProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
@@ -1820,7 +1799,6 @@ begin
   RegisterFunctionTable(MsgsTable, @MsgsProc);
   RegisterFunctionTable(SystemTable, @SystemProc);
   RegisterFunctionTable(SysUtilsTable, @SysUtilsProc);
-  RegisterFunctionTable(FileCtrlTable, @FileCtrlProc);
   RegisterFunctionTable(VerInfoTable, @VerInfoProc);
   RegisterFunctionTable(WindowsTable, @WindowsProc);
   RegisterFunctionTable(Ole2Table, @Ole2Proc);

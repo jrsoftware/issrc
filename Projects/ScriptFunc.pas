@@ -110,13 +110,14 @@ const
   );
 
   { Install }
-  InstallTable: array [0..0] of AnsiString =
+  InstallTable: array [0..1] of AnsiString =
   (
-    'procedure ExtractTemporaryFile(const FileName: String);'
+    'procedure ExtractTemporaryFile(const FileName: String);',
+    'function ExtractTemporaryFiles(const Pattern: String): Integer;'
   );
 
   { InstFunc }
-  InstFuncTable: array [0..25] of AnsiString =
+  InstFuncTable: array [0..26] of AnsiString =
   (
     'function CheckForMutexes(Mutexes: String): Boolean;',
     'function DecrementSharedCount(const Is64Bit: Boolean; const Filename: String): Boolean;',
@@ -147,8 +148,9 @@ const
     'function UnregisterServer(const Is64Bit: Boolean; const Filename: String; const FailCriticalErrors: Boolean): Boolean;',
     'procedure UnregisterFont(const FontName, FontFilename: String);',
     //procedure RestartComputer;
-    'procedure RestartReplace(const TempFile, DestFile: String);'
+    'procedure RestartReplace(const TempFile, DestFile: String);',
     //procedure Win32ErrorMsg(const FunctionName: String);
+    'function ForceDirectories(Dir: string): Boolean;'
   );
 
   { InstFnc2 }
@@ -236,12 +238,6 @@ const
     'function FindNext(var FindRec: TFindRec): Boolean;',
     'procedure FindClose(var FindRec: TFindRec);',
     'function Format(const Format: string; const Args: array of const): string;'
-  );
-
-  { FileCtrl }
-  FileCtrlTable: array [0..0] of AnsiString =
-  (
-    'function ForceDirectories(Dir: string): Boolean;'
   );
 
   { VerInfo }

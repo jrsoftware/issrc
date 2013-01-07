@@ -192,6 +192,8 @@ procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
 function ExitSetupMsgBox: Boolean;
 function ExpandConst(const S: String): String;
 function ExpandConstEx(const S: String; const CustomConsts: array of String): String;
+function ExpandConstEx2(const S: String; const CustomConsts: array of String;
+  const DoExpandIndividualConst: Boolean): String;
 function ExpandConstIfPrefixed(const S: String): String;
 function GetCustomMessageValue(const AName: String; var AValue: String): Boolean;
 function GetRealShellFolder(const Common: Boolean; const ID: TShellFolderID;
@@ -1156,10 +1158,16 @@ end;
 
 function ExpandConst(const S: String): String;
 begin
-  Result := ExpandConstEx(S, ['']);
+  Result := ExpandConstEx2(S, [''], True);
 end;
 
 function ExpandConstEx(const S: String; const CustomConsts: array of String): String;
+begin
+  Result := ExpandConstEx2(S, CustomConsts, True);
+end;
+
+function ExpandConstEx2(const S: String; const CustomConsts: array of String;
+  const DoExpandIndividualConst: Boolean): String;
 var
   I, Start: Integer;
   Cnst, ReplaceWith: String;
@@ -1181,15 +1189,18 @@ begin
           InternalError('Unclosed constant');
         Dec(I);  { 'I' now points to the closing brace }
 
-        { Now translate the constant }
-        Cnst := Copy(Result, Start+1, I-(Start+1));
-        ReplaceWith := ExpandIndividualConst(Cnst, CustomConsts);
-        Delete(Result, Start, (I+1)-Start);
-        Insert(ReplaceWith, Result, Start);
-        I := Start + Length(ReplaceWith);
-        if (ReplaceWith <> '') and (PathLastChar(ReplaceWith)^ = '\') and
-           (I <= Length(Result)) and (Result[I] = '\') then
-          Delete(Result, I, 1);
+        if DoExpandIndividualConst then begin
+          { Now translate the constant }
+          Cnst := Copy(Result, Start+1, I-(Start+1));
+          ReplaceWith := ExpandIndividualConst(Cnst, CustomConsts);
+          Delete(Result, Start, (I+1)-Start);
+          Insert(ReplaceWith, Result, Start);
+          I := Start + Length(ReplaceWith);
+          if (ReplaceWith <> '') and (PathLastChar(ReplaceWith)^ = '\') and
+             (I <= Length(Result)) and (Result[I] = '\') then
+            Delete(Result, I, 1);
+        end else
+          Inc(I); { Skip closing brace }
       end;
     end
     else begin

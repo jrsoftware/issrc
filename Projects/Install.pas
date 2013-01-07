@@ -16,6 +16,7 @@ interface
 procedure PerformInstall(var Succeeded: Boolean);
 
 procedure ExtractTemporaryFile(const BaseName: String);
+function ExtractTemporaryFiles(const Pattern: String): Integer;
 
 implementation
 
@@ -2985,60 +2986,66 @@ begin
   Succeeded := True;
 end;
 
-function EscapeBraces(const S: String): String;
-{ Changes all '{' to '{{'. Uses ConstLeadBytes^ for the lead byte table. }
+procedure InternalExtractTemporaryFile(const DestName: String;
+  const CurFile: PSetupFileEntry; const CurFileLocation: PSetupFileLocationEntry;
+  const CreateDirs: Boolean);
 var
-  I: Integer;
+  DisableFsRedir: Boolean;
+  DestFile: String;
+  DestF: TFile;
+  CurFileDate: TFileTime;
 begin
-  Result := S;
-  I := 1;
-  while I <= Length(Result) do begin
-    if Result[I] = '{' then begin
-      Insert('{', Result, I);
-      Inc(I);
-{$IFDEF UNICODE}
+  DestFile := AddBackslash(TempInstallDir) + DestName;
+
+  Log('Extracting temporary file: ' + DestFile);
+
+  DisableFsRedir := InstallDefaultDisableFsRedir;
+  if CreateDirs then
+    ForceDirectories(DisableFsRedir, PathExtractPath(DestFile));
+  DestF := TFileRedir.Create(DisableFsRedir, DestFile, fdCreateAlways, faWrite, fsNone);
+  try
+    try
+      FileExtractor.SeekTo(CurFileLocation^, nil);
+      FileExtractor.DecompressFile(CurFileLocation^, DestF, nil,
+        not (foDontVerifyChecksum in CurFile^.Options));
+
+      if foTimeStampInUTC in CurFileLocation^.Flags then
+        CurFileDate := CurFileLocation^.TimeStamp
+      else
+        LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
+      SetFileTime(DestF.Handle, nil, nil, @CurFileDate);
+    finally
+      DestF.Free;
     end;
-{$ELSE}
-    end
-    else if Result[I] in ConstLeadBytes^ then
-      Inc(I);
-{$ENDIF}
-    Inc(I);
+  except
+    DeleteFileRedir(DisableFsRedir, DestFile);
+    raise;
   end;
+  AddAttributesToFile(DisableFsRedir, DestFile, CurFile^.Attribs);
 end;
 
 procedure ExtractTemporaryFile(const BaseName: String);
 
-  procedure InternalExtractTemporaryFile(const BaseName: String;
-    const CurFile: PSetupFileEntry; const CurFileLocation: PSetupFileLocationEntry);
+  function EscapeBraces(const S: String): String;
+  { Changes all '{' to '{{'. Uses ConstLeadBytes^ for the lead byte table. }
   var
-    DisableFsRedir: Boolean;
-    DestFile: String;
-    DestF: TFile;
-    CurFileDate: TFileTime;
+    I: Integer;
   begin
-    DisableFsRedir := InstallDefaultDisableFsRedir;
-    DestFile := AddBackslash(TempInstallDir) + BaseName;
-    DestF := TFileRedir.Create(DisableFsRedir, DestFile, fdCreateAlways, faWrite, fsNone);
-    try
-      try
-        FileExtractor.SeekTo(CurFileLocation^, nil);
-        FileExtractor.DecompressFile(CurFileLocation^, DestF, nil,
-          not (foDontVerifyChecksum in CurFile^.Options));
-
-        if foTimeStampInUTC in CurFileLocation^.Flags then
-          CurFileDate := CurFileLocation^.TimeStamp
-        else
-          LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
-        SetFileTime(DestF.Handle, nil, nil, @CurFileDate);
-      finally
-        DestF.Free;
+    Result := S;
+    I := 1;
+    while I <= Length(Result) do begin
+      if Result[I] = '{' then begin
+        Insert('{', Result, I);
+        Inc(I);
+  {$IFDEF UNICODE}
       end;
-    except
-      DeleteFileRedir(DisableFsRedir, DestFile);
-      raise;
+  {$ELSE}
+      end
+      else if Result[I] in ConstLeadBytes^ then
+        Inc(I);
+  {$ENDIF}
+      Inc(I);
     end;
-    AddAttributesToFile(DisableFsRedir, DestFile, CurFile^.Attribs);
   end;
 
 var
@@ -3046,17 +3053,45 @@ var
   CurFileNumber: Integer;
   CurFile: PSetupFileEntry;
 begin
-  { TSetupFileEntry.DestName has braces escaped, but BaseName does not;
-    escape it to match }
+  { We compare BaseName to the filename portion of TSetupFileEntry.DestName
+    which has braces escaped, but BaseName does not; escape it to match }
   EscapedBaseName := EscapeBraces(BaseName);
   for CurFileNumber := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][CurFileNumber]);
     if (CurFile^.LocationEntry <> -1) and (CompareText(PathExtractName(CurFile^.DestName), EscapedBaseName) = 0) then begin
-      InternalExtractTemporaryFile(BaseName, CurFile, Entries[seFileLocation][CurFile^.LocationEntry]);
+      InternalExtractTemporaryFile(BaseName, CurFile, Entries[seFileLocation][CurFile^.LocationEntry], False);
       Exit;
     end;
   end;
   InternalError(Format('ExtractTemporaryFile: The file "%s" was not found', [BaseName]));
+end;
+
+function ExtractTemporaryFiles(const Pattern: String): Integer;
+var
+  UpperPattern, DestName: String;
+  CurFileNumber: Integer;
+  CurFile: PSetupFileEntry;
+begin
+  UpperPattern := UpperCase(Pattern);
+  Result := 0;
+
+  for CurFileNumber := 0 to Entries[seFile].Count-1 do begin
+    CurFile := PSetupFileEntry(Entries[seFile][CurFileNumber]);
+    if CurFile^.LocationEntry <> -1 then begin
+      { Use ExpandConstEx2 to unescape any braces not in an embedded constant,
+        while leaving constants unexpanded }
+      DestName := ExpandConstEx2(CurFile^.DestName, [], False);
+      if WildcardMatch(PChar(UpperCase(DestName)), PChar(UpperPattern)) then begin
+        { Remove any drive part }
+        Delete(DestName, 1, PathDrivePartLengthEx(DestName, True));
+        InternalExtractTemporaryFile(DestName, CurFile, Entries[seFileLocation][CurFile^.LocationEntry], True);
+        Inc(Result);
+      end;
+    end;
+  end;
+
+  if Result = 0 then
+    InternalError(Format('ExtractTemporaryFiles: No files matching "%s" found', [Pattern]));
 end;
 
 end.

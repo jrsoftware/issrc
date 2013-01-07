@@ -111,6 +111,7 @@ procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: Stri
 procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
 procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
+function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
 
 implementation
 
@@ -1443,6 +1444,16 @@ begin
       Inc(I);
     end;
   end;
+end;
+
+function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
+begin
+  Dir := RemoveBackslashUnlessRoot(Dir);
+  if (PathExtractPath(Dir) = Dir) or DirExistsRedir(DisableFsRedir, Dir) then
+    Result := True
+  else
+    Result := ForceDirectories(DisableFsRedir, PathExtractPath(Dir)) and
+      CreateDirectoryRedir(DisableFsRedir, Dir);
 end;
 
 { TSimpleStringList }
