@@ -3080,7 +3080,7 @@ begin
     if CurFile^.LocationEntry <> -1 then begin
       { Use ExpandConstEx2 to unescape any braces not in an embedded constant,
         while leaving constants unexpanded }
-      DestName := ExpandConstEx2(CurFile^.DestName, [], False);
+      DestName := ExpandConstEx2(CurFile^.DestName, [''], False);
       if WildcardMatch(PChar(UpperCase(DestName)), PChar(UpperPattern)) then begin
         { Remove any drive part }
         Delete(DestName, 1, PathDrivePartLengthEx(DestName, True));
