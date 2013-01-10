@@ -2995,7 +2995,7 @@ var
   DestF: TFile;
   CurFileDate: TFileTime;
 begin
-  DestFile := AddBackslash(TempInstallDir) + DestName;
+  DestFile := PathCombine(TempInstallDir, DestName);
 
   Log('Extracting temporary file: ' + DestFile);
 
