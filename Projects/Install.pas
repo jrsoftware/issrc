@@ -2996,7 +2996,7 @@ var
   CurFileDate: TFileTime;
 begin
   DestFile := AddBackslash(TempInstallDir) + DestName;
-  
+
   Log('Extracting temporary file: ' + DestFile);
 
   DisableFsRedir := InstallDefaultDisableFsRedir;
@@ -3082,8 +3082,9 @@ begin
         while leaving constants unexpanded }
       DestName := ExpandConstEx2(CurFile^.DestName, [''], False);
       if WildcardMatch(PChar(UpperCase(DestName)), PChar(UpperPattern)) then begin
-        { Remove any drive part }
-        Delete(DestName, 1, PathDrivePartLengthEx(DestName, True));
+        Delete(DestName, 1, PathDrivePartLengthEx(DestName, True)); { Remove any drive part }
+        if Pos('{tmp}\', DestName) = 1 then
+          Delete(DestName, 1, Length('{tmp}\'));
         if Pos(':', DestName) <> 0 then
           InternalError('ExtractTemporaryFiles: Invalid character in matched file name');
         InternalExtractTemporaryFile(DestName, CurFile, Entries[seFileLocation][CurFile^.LocationEntry], True);
