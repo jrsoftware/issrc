@@ -5970,8 +5970,8 @@ type
         NewRunEntry.Tasks := NewFileEntry.Tasks;
         NewRunEntry.Languages := NewFileEntry.Languages;
         NewRunEntry.Check := NewFileEntry.Check;
-        NewRunEntry.BeforeInstall := NewFileEntry.BeforeInstall;
-        NewRunEntry.AfterInstall := NewFileEntry.AfterInstall;
+        NewRunEntry.BeforeInstall := '';
+        NewRunEntry.AfterInstall := '';
         NewRunEntry.MinVersion := NewFileEntry.MinVersion;
         NewRunEntry.OnlyBelowVersion := NewFileEntry.OnlyBelowVersion;
         NewRunEntry.Options := [roShellExec, roSkipIfDoesntExist, roPostInstall,
