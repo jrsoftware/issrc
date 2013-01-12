@@ -3068,11 +3068,14 @@ end;
 
 function ExtractTemporaryFiles(const Pattern: String): Integer;
 var
-  UpperPattern, DestName: String;
+  LowerPattern, DestName: String;
   CurFileNumber: Integer;
   CurFile: PSetupFileEntry;
 begin
-  UpperPattern := UpperCase(Pattern);
+  if Length(Pattern) >= MAX_PATH then
+    InternalError('ExtractTemporaryFiles: Pattern too long');
+
+  LowerPattern := PathLowercase(Pattern);
   Result := 0;
 
   for CurFileNumber := 0 to Entries[seFile].Count-1 do begin
@@ -3081,7 +3084,7 @@ begin
       { Use ExpandConstEx2 to unescape any braces not in an embedded constant,
         while leaving constants unexpanded }
       DestName := ExpandConstEx2(CurFile^.DestName, [''], False);
-      if WildcardMatch(PChar(UpperCase(DestName)), PChar(UpperPattern)) then begin
+      if WildcardMatch(PChar(PathLowercase(DestName)), PChar(LowerPattern)) then begin
         Delete(DestName, 1, PathDrivePartLengthEx(DestName, True)); { Remove any drive part }
         if Pos('{tmp}\', DestName) = 1 then
           Delete(DestName, 1, Length('{tmp}\'));
