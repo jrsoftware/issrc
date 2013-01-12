@@ -177,6 +177,7 @@ end;</pre></example>
 <p>An exception will be raised if the file wasn't extracted successfully, if the file wasn't found, or if the file was found but couldn't be processed because of its MinVersion and/or OnlyBelowVersion parameters.</p></description>
         <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
+        <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link></p></seealso>
         <example><pre>[Files]
 Source: "Readme.txt"; Flags: dontcopy
 
@@ -191,6 +192,41 @@ begin
   begin
     MsgBox(S, mbInformation, MB_OK);
   end;
+
+  Result := True;
+end;</pre></example>
+      </function>
+      <function>
+        <name>ExtractTemporaryFiles</name>
+        <prototype>function ExtractTemporaryFiles(const Pattern: String): Integer;</prototype>
+        <description><p>Extracts the files matching the wildcard specified by Pattern from the [Files] section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+<p>The extracted files are automatically deleted when Setup exits.</p>
+<p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their MinVersion and/or OnlyBelowVersion parameters.</p></description>
+        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
+<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
+        <seealso><p><link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+        <example><pre>[Files]
+Source: "Readme.txt"; Flags: dontcopy
+Source: "MyProg.exe"; DestDir: "{app}"
+Source: "MyProg.chm"; DestDir: "{app}"
+
+[Code]
+function InitializeSetup: Boolean;
+var
+  S: AnsiString;
+  ResultCode: Integer;
+begin
+  // Show the contents of Readme.txt (non Unicode) in a message box
+  ExtractTemporaryFiles('{tmp}\Readme.txt');
+  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
+  begin
+    MsgBox(S, mbInformation, MB_OK);
+  end;
+
+  // Extract all MyProg files and launch it. Note how {app} is left unexpanded.
+  ExtractTemporaryFiles('{app}\MyProg.*');
+  ExecAsOriginalUser(ExpandConstant('{tmp}\')+'{app}\MyProg.exe', '', '',
+    SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
 
   Result := True;
 end;</pre></example>
