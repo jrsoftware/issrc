@@ -1590,12 +1590,13 @@ end;</pre></example>
         <name>SaveStringsToFile</name>
         <prototype>function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string array to the specified file with ASCII encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
-        <remarks><p>Also see <tt>SaveStringsToUTF8File</tt>.</p></remarks>
+        <seealso><p><link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link></p></seealso>
       </function>
       <function>
         <name>SaveStringsToUTF8File</name>
         <prototype>function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string array to the specified file with UTF8 encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
