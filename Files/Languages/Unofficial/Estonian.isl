@@ -2,7 +2,7 @@
 ;
 ; Estonian translation by LiivaneLord
 ; E-mail: liivane.lord@mail.ee
-; Last modification date: 2013-01-08
+; Last modification date: 2013-01-09
 ; Tõlge baseerub rix'i tõlkele, mida on parandatud ja kohandatud uuemale versioonile.
 ;
 ; To download user-contributed translations of this file, go to:
@@ -332,7 +332,7 @@ AdditionalIcons=Täiendavad ikoonid:
 CreateDesktopIcon=Loo &töölaua ikoon
 CreateQuickLaunchIcon=Loo &kiirkäivituse ikoon
 ProgramOnTheWeb=%1 veebis
-UninstallProgram=Eemalda %1
+UninstallProgram=%1 - eemalda
 LaunchProgram=Käivita %1
 AssocFileExtension=&Seosta %1 %2 faililaiendiga
 AssocingFileExtension=Seostan %1 %2 faililaiendiga...
