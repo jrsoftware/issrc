@@ -182,7 +182,7 @@
 					</pre>
 				</section>
 				<section title="See also">
-					<para>&define;, &undef;, <link href="visibility"/>.</para>
+					<para>&define;, &undef;, <link href="DimOf"/>, <link href="visibility"/>.</para>
 				</section>
 			</topic>
 			<topic id="undef">
@@ -1250,6 +1250,9 @@ The list of options is provided at the end of this topic.</para>
 					<para>Special function. Returns the dimension of the specified identifier.</para>
 					<para>Using parentheses is optional.</para>
 				</description>
+				<section title="See also">
+					<para>&dim;, &redim;.</para>
+				</section>
 			</topic>
 			<topic id="ParseVersion">
 				<title>ParseVersion</title>
