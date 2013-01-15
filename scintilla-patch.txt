@@ -1,6 +1,6 @@
-diff -ur scintilla-ORIG\include\Scintilla.h scintilla\include\Scintilla.h
---- scintilla-ORIG\include\Scintilla.h	Wed Oct 27 10:45:10 2010
-+++ scintilla\include\Scintilla.h	Sat Oct 30 13:34:26 2010
+diff -r 9ccb2c951aed -r 21c761a47bb3 include/Scintilla.h
+--- a/include/Scintilla.h	Tue Jan 25 10:03:55 2011 +1100
++++ b/include/Scintilla.h	Wed Jan 26 23:06:33 2011 -0600
 @@ -124,6 +124,7 @@
  #define SC_MARK_LEFTRECT 27
  #define SC_MARK_AVAILABLE 28
@@ -9,7 +9,7 @@ diff -ur scintilla-ORIG\include\Scintilla.h scintilla\include\Scintilla.h
  #define SC_MARK_CHARACTER 10000
  #define SC_MARKNUM_FOLDEREND 25
  #define SC_MARKNUM_FOLDEROPENMID 26
-@@ -166,6 +167,7 @@
+@@ -168,6 +169,7 @@
  #define STYLE_CONTROLCHAR 36
  #define STYLE_INDENTGUIDE 37
  #define STYLE_CALLTIP 38
@@ -17,9 +17,9 @@ diff -ur scintilla-ORIG\include\Scintilla.h scintilla\include\Scintilla.h
  #define STYLE_LASTPREDEFINED 39
  #define STYLE_MAX 255
  #define SC_CHARSET_ANSI 0
-diff -ur scintilla-ORIG\src\AutoComplete.cxx scintilla\src\AutoComplete.cxx
---- scintilla-ORIG\src\AutoComplete.cxx	Wed Oct 27 10:45:10 2010
-+++ scintilla\src\AutoComplete.cxx	Sat Oct 30 13:34:26 2010
+diff -r 9ccb2c951aed -r 21c761a47bb3 src/AutoComplete.cxx
+--- a/src/AutoComplete.cxx	Tue Jan 25 10:03:55 2011 +1100
++++ b/src/AutoComplete.cxx	Wed Jan 26 23:06:33 2011 -0600
 @@ -132,7 +132,7 @@
  	char item[maxItemLen];
  	int start = 0; // lower bound of the api array block to search
@@ -29,18 +29,31 @@ diff -ur scintilla-ORIG\src\AutoComplete.cxx scintilla\src\AutoComplete.cxx
  		int pivot = (start + end) / 2;
  		lb->GetValue(pivot, item, maxItemLen);
  		int cond;
-diff -ur scintilla-ORIG\src\Editor.cxx scintilla\src\Editor.cxx
---- scintilla-ORIG\src\Editor.cxx	Wed Oct 27 10:45:10 2010
-+++ scintilla\src\Editor.cxx	Sat Oct 30 13:34:26 2010
-@@ -114,6 +114,7 @@
- 	printColourMode = SC_PRINT_NORMAL;
- 	printWrapState = eWrapWord;
- 	cursorMode = SC_CURSORNORMAL;
-+	reverseArrowInMargin = false;
- 	controlCharSymbol = 0;	/* Draw the control characters */
- 
- 	hasFocus = false;
-@@ -2619,7 +2620,8 @@
+diff -r 9ccb2c951aed -r 21c761a47bb3 src/Document.cxx
+--- a/src/Document.cxx	Tue Jan 25 10:03:55 2011 +1100
++++ b/src/Document.cxx	Wed Jan 26 23:06:33 2011 -0600
+@@ -1190,7 +1190,7 @@
+ 	if (pos > 0) {
+ 		CharClassify::cc ccPos = WordCharClass(CharAt(pos));
+ 		return (ccPos == CharClassify::ccWord || ccPos == CharClassify::ccPunctuation) &&
+-			(ccPos != WordCharClass(CharAt(pos - 1)));
++			(ccPos != WordCharClass(CharAt(NextPosition(pos, -1))));
+ 	}
+ 	return true;
+ }
+@@ -1201,7 +1201,7 @@
+  */
+ bool Document::IsWordEndAt(int pos) {
+ 	if (pos < Length()) {
+-		CharClassify::cc ccPrev = WordCharClass(CharAt(pos-1));
++		CharClassify::cc ccPrev = WordCharClass(CharAt(NextPosition(pos, -1)));
+ 		return (ccPrev == CharClassify::ccWord || ccPrev == CharClassify::ccPunctuation) &&
+ 			(ccPrev != WordCharClass(CharAt(pos)));
+ 	}
+diff -r 9ccb2c951aed -r 21c761a47bb3 src/Editor.cxx
+--- a/src/Editor.cxx	Tue Jan 25 10:03:55 2011 +1100
++++ b/src/Editor.cxx	Wed Jan 26 23:06:33 2011 -0600
+@@ -2620,7 +2620,8 @@
  	if (!overrideBackground) {
  		int marks = pdoc->GetMark(line);
  		for (int markBit = 0; (markBit < 32) && marks; markBit++) {
@@ -50,7 +63,7 @@ diff -ur scintilla-ORIG\src\Editor.cxx scintilla\src\Editor.cxx
  			        (vsDraw.markers[markBit].alpha == SC_ALPHA_NOALPHA)) {
  				background = vsDraw.markers[markBit].back.allocated;
  				overrideBackground = true;
-@@ -2839,6 +2841,15 @@
+@@ -2840,6 +2841,15 @@
  				if (vsDraw.hotspotForegroundSet)
  					textFore = vsDraw.hotspotForeground.allocated;
  			}
@@ -66,7 +79,7 @@ diff -ur scintilla-ORIG\src\Editor.cxx scintilla\src\Editor.cxx
  			const int inSelection = hideSelection ? 0 : sel.CharacterInSelection(iDoc);
  			if (inSelection && (vsDraw.selforeset)) {
  				textFore = (inSelection == 1) ? vsDraw.selforeground.allocated : vsDraw.selAdditionalForeground.allocated;
-@@ -3050,7 +3061,8 @@
+@@ -3051,7 +3061,8 @@
  	}
  	marks = pdoc->GetMark(line);
  	for (markBit = 0; (markBit < 32) && marks; markBit++) {
@@ -76,29 +89,25 @@ diff -ur scintilla-ORIG\src\Editor.cxx scintilla\src\Editor.cxx
  			SimpleAlphaRectangle(surface, rcSegment, vsDraw.markers[markBit].back.allocated, vsDraw.markers[markBit].alpha);
  		} else if ((marks & 1) && (vsDraw.markers[markBit].markType == SC_MARK_UNDERLINE)) {
  			PRectangle rcUnderline = rcSegment;
-@@ -6151,7 +6163,7 @@
- 	} else {
- 		if (vs.fixedColumnWidth > 0) {	// There is a margin
- 			if (PointInSelMargin(pt)) {
--				DisplayCursor(Window::cursorReverseArrow);
-+				DisplayCursor(reverseArrowInMargin ? Window::cursorReverseArrow : Window::cursorArrow);
- 				SetHotSpotRange(NULL);
- 				return; 	// No need to test for selection
- 			}
-diff -ur scintilla-ORIG\src\Editor.h scintilla\src\Editor.h
---- scintilla-ORIG\src\Editor.h	Wed Oct 27 10:45:10 2010
-+++ scintilla\src\Editor.h	Sat Oct 30 13:34:26 2010
-@@ -137,6 +137,7 @@
- 	int printColourMode;
- 	int printWrapState;
- 	int cursorMode;
-+	bool reverseArrowInMargin;
- 	int controlCharSymbol;
- 
- 	bool hasFocus;
-diff -ur scintilla-ORIG\src\LineMarker.cxx scintilla\src\LineMarker.cxx
---- scintilla-ORIG\src\LineMarker.cxx	Wed Oct 27 10:45:10 2010
-+++ scintilla\src\LineMarker.cxx	Sat Oct 30 13:34:26 2010
+@@ -3272,6 +3283,15 @@
+ 					rcCaret.right = rcCaret.left + vsDraw.caretWidth;
+ 				}
+ 				ColourAllocated caretColour = mainCaret ? vsDraw.caretcolour.allocated : vsDraw.additionalCaretColour.allocated;
++
++				int marks = pdoc->GetMark(lineDoc);
++				for (int markBit = 0; (markBit < 32) && marks; markBit++) {
++					if ((marks & 1) && (vsDraw.markers[markBit].markType == SC_MARK_BACKFORE)) {
++						caretColour = vsDraw.markers[markBit].fore.allocated;
++					}
++					marks >>= 1;
++				}
++
+ 				if (drawBlockCaret) {
+ 					DrawBlockCaret(surface, vsDraw, ll, subLine, xStart, offset, posCaret.Position(), rcCaret, caretColour);
+ 				} else {
+diff -r 9ccb2c951aed -r 21c761a47bb3 src/LineMarker.cxx
+--- a/src/LineMarker.cxx	Tue Jan 25 10:03:55 2011 +1100
++++ b/src/LineMarker.cxx	Wed Jan 26 23:06:33 2011 -0600
 @@ -155,7 +155,8 @@
  		surface->RectangleDraw(rcSmall, fore.allocated, back.allocated);
  
@@ -109,9 +118,9 @@ diff -ur scintilla-ORIG\src\LineMarker.cxx scintilla\src\LineMarker.cxx
  		// An invisible marker so don't draw anything
  
  	} else if (markType == SC_MARK_VLINE) {
-diff -ur scintilla-ORIG\src\ScintillaBase.cxx scintilla\src\ScintillaBase.cxx
---- scintilla-ORIG\src\ScintillaBase.cxx	Wed Oct 27 10:45:10 2010
-+++ scintilla\src\ScintillaBase.cxx	Sat Oct 30 13:34:26 2010
+diff -r 9ccb2c951aed -r 21c761a47bb3 src/ScintillaBase.cxx
+--- a/src/ScintillaBase.cxx	Tue Jan 25 10:03:55 2011 +1100
++++ b/src/ScintillaBase.cxx	Wed Jan 26 23:06:33 2011 -0600
 @@ -220,7 +220,7 @@
  		}
  	}
@@ -155,9 +164,9 @@ diff -ur scintilla-ORIG\src\ScintillaBase.cxx scintilla\src\ScintillaBase.cxx
  		wordCurrent[i - startWord] = pdoc->CharAt(i);
  	wordCurrent[Platform::Minimum(i - startWord, 999)] = '\0';
  	ac.Select(wordCurrent);
-diff -ur scintilla-ORIG\src\ViewStyle.cxx scintilla\src\ViewStyle.cxx
---- scintilla-ORIG\src\ViewStyle.cxx	Wed Oct 27 10:45:10 2010
-+++ scintilla\src\ViewStyle.cxx	Sat Oct 30 13:34:26 2010
+diff -r 9ccb2c951aed -r 21c761a47bb3 src/ViewStyle.cxx
+--- a/src/ViewStyle.cxx	Tue Jan 25 10:03:55 2011 +1100
++++ b/src/ViewStyle.cxx	Wed Jan 26 23:06:33 2011 -0600
 @@ -301,9 +301,9 @@
  	for (unsigned int i=0; i<stylesSize; i++) {
  		if (i != STYLE_DEFAULT) {
@@ -170,10 +179,10 @@ diff -ur scintilla-ORIG\src\ViewStyle.cxx scintilla\src\ViewStyle.cxx
  				maxDescent = styles[i].descent;
  		}
  		if (styles[i].IsProtected()) {
-diff -ur scintilla-ORIG\win32\PlatWin.cxx scintilla\win32\PlatWin.cxx
---- scintilla-ORIG\win32\PlatWin.cxx	Wed Oct 27 10:45:10 2010
-+++ scintilla\win32\PlatWin.cxx	Sat Oct 30 13:34:26 2010
-@@ -1367,7 +1367,7 @@
+diff -r 9ccb2c951aed -r 21c761a47bb3 win32/PlatWin.cxx
+--- a/win32/PlatWin.cxx	Tue Jan 25 10:03:55 2011 +1100
++++ b/win32/PlatWin.cxx	Wed Jan 26 23:06:33 2011 -0600
+@@ -1396,7 +1396,7 @@
  };
  
  const Point ListBoxX::ItemInset(0, 0);
@@ -182,10 +191,10 @@ diff -ur scintilla-ORIG\win32\PlatWin.cxx scintilla\win32\PlatWin.cxx
  const Point ListBoxX::ImageInset(1, 0);
  
  ListBox *ListBox::Allocate() {
-diff -ur scintilla-ORIG\win32\ScintillaWin.cxx scintilla\win32\ScintillaWin.cxx
---- scintilla-ORIG\win32\ScintillaWin.cxx	Wed Oct 27 10:45:10 2010
-+++ scintilla\win32\ScintillaWin.cxx	Sat Oct 30 13:34:26 2010
-@@ -697,7 +697,9 @@
+diff -r 9ccb2c951aed -r 21c761a47bb3 win32/ScintillaWin.cxx
+--- a/win32/ScintillaWin.cxx	Tue Jan 25 10:03:55 2011 +1100
++++ b/win32/ScintillaWin.cxx	Wed Jan 26 23:06:33 2011 -0600
+@@ -695,7 +695,9 @@
  
  		case WM_TIMER:
  			if (wParam == standardTimerID && timer.ticking) {
@@ -196,16 +205,7 @@ diff -ur scintilla-ORIG\win32\ScintillaWin.cxx scintilla\win32\ScintillaWin.cxx
  			} else if (wParam == idleTimerID && idler.state) {
  				SendMessage(MainHWND(), SC_WIN_IDLE, 0, 1);
  			} else {
-@@ -784,7 +786,7 @@
- 					::GetCursorPos(&pt);
- 					::ScreenToClient(MainHWND(), &pt);
- 					if (PointInSelMargin(Point(pt.x, pt.y))) {
--						DisplayCursor(Window::cursorReverseArrow);
-+						DisplayCursor(reverseArrowInMargin ? Window::cursorReverseArrow : Window::cursorArrow);
- 					} else if (PointInSelection(Point(pt.x, pt.y)) && !SelectionEmpty()) {
- 						DisplayCursor(Window::cursorArrow);
- 					} else if (PointIsHotspot(Point(pt.x, pt.y))) {
-@@ -883,6 +885,7 @@
+@@ -885,6 +887,7 @@
  					!(::IsChild(wThis, wOther) || (wOther == wCT))) {
  					SetFocusState(false);
  					DestroySystemCaret();

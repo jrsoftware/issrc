@@ -255,7 +255,7 @@ from the zlib-dll directory in the Iscompress repository.
 by Visual Studio 2005 from the Projects\lzma2\Encoder directory.
 
 **Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintila 2.22 source
-code with scintilla-2.22-patch.txt applied.
+code with scintilla-patch.txt applied.
 
 **Projects\\_shfolder.res** - shfolder.dll from a fresh install of IE 5.5 SP2 on
 NT 4.0 stored in a compiled resource file.
