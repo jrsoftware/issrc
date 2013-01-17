@@ -3905,12 +3905,6 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <body>
 <p>If this is set to <tt>no</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>False</tt>, Setup won't create an entry in the <i>Add/Remove Programs</i> Control Panel applet.</p>
 <p>Setting this to <tt>no</tt> can be useful if your installation is merely an update to an existing application and you don't want another entry created, but don't want to the disable the uninstall features entirely (via <tt>Uninstallable=no</tt>). In this case, <link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link> is usually set to <tt>no</tt> as well.</p>
-<p>Setting this to a boolean expression can be useful if you want to offer the user a 'portable mode' option.</p>
-<example><pre>[Setup]
-CreateUninstallRegKey=not IsTaskSelected('portablemode')
-
-[Tasks]
-Name: portablemode; Description: "Portable Mode"</pre></example>
 <p><b>See also:</b><br/>
 <link topic="setup_uninstallable">Uninstallable</link>
 </p>

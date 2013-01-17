@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ Lithuanian messages ***
+; *** Inno Setup version 5.5.3+ Lithuanian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -9,7 +9,7 @@
 ; two periods being displayed).
 ; Translated by Robertas Rimas (Loptar AT takas DOT lt)
 ; Corrected and updated by Rolandas Rudomanskis (rolandasr AT gmail DOT com)
-; Corrected and updated to version 5.5.0+ by Dalius Guzauskas (d DOT guzauskas AT gmail DOT com)
+; Corrected and updated to version 5.5.3+ by Dalius Guzauskas (d DOT guzauskas AT gmail DOT com)
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -210,6 +210,7 @@ ApplicationsFound=Ðios programos naudoja bylas, kurios turi bûti perraðytos dieg
 ApplicationsFound2=Ðios programos naudoja bylas, kurios turi bûti perraðytos diegimo metu. Rekomenduojama leisti diegimo programai automatiðkai uþdaryti ðias programas. Po to, kai diegimas bus baigtas, diegimo programa bandys ið naujo paleisti ðias programas.
 CloseApplications=&Automatiðkai uþdaryti programas
 DontCloseApplications=&Neuþdarinëti programø
+ErrorCloseApplications=Diegimo programai nepavyko automatiðkai uþdaryti visø programø. Prieð tæsiant diegimà, rekomeduojama uþdaryti visas programas, naudojanèias bylas, kurios turi bûti perraðytos diegimo metu.
 
 ; *** "Installing" wizard page
 WizardInstalling=Vyksta diegimas

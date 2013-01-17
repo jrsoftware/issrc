@@ -21,6 +21,7 @@ DefaultGroupName=Inno Setup 5
 AllowNoIcons=yes
 Compression=lzma2/max
 SolidCompression=yes
+Uninstallable=not PortableCheck
 UninstallDisplayIcon={app}\Compil32.exe
 LicenseFile=license.txt
 TimeStampsInUTC=yes
@@ -308,4 +309,9 @@ end;
 function ISPPCheck: Boolean;
 begin
   Result := ISPPCheckBox.Checked;
+end;
+
+function PortableCheck: Boolean;
+begin
+  Result := ExpandConstant('{param:portable|0}') = '1';
 end;
