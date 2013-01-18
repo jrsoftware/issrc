@@ -51,7 +51,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
   <li>Added new function: <tt>ExtractTemporaryFiles</tt>. This function is like <tt>ExtractTemporaryFile</tt> but supports wildcards and doesn't ignore directory information.</li>
   <li>When <tt>ExtractTemporaryFile</tt> or <tt>ExtractTemporaryFiles</tt> extracts a file, this is now logged.</li>
-  <li>Unicode Inno Setup: Now has an <tt>Int64</tt> type, supported by <tt>IntToStr</tt>. Also added new <tt>StrToInt64</tt> and <tt>StrToInt64Def</tt> support functions.</li>
+  <li>Unicode Inno Setup: Now has an <tt>Int64</tt> type, supported by <tt>IntToStr</tt>. Also added new <tt>StrToInt64</tt>, <tt>StrToInt64Def</tt>, and <tt>GetSpaceOnDisk64</tt> support functions.</li>
 </ul>
 </li>
 <li>If the <tt>Flags</tt> parameter of a [Files] entry includes <tt>isreadme</tt> and the entry also has a <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> parameter, the <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> functions will now only be called when the file is installed and no longer a second time when the file is viewed after the installation has completed.</li>

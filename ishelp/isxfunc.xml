@@ -1240,6 +1240,29 @@ begin
     // the function failed
   end;
 end;</pre></example>
+        <seealso><p><link topic="isxfunc_GetSpaceOnDisk64">GetSpaceOnDisk64</link></p></seealso>
+      </function>
+      <function>
+        <name>GetSpaceOnDisk64</name>
+        <prototype>function GetSpaceOnDisk64(const Path: String; var Free, Total: Int64): Boolean;</prototype>
+        <description><p>Returns the number of free and total bytes on a drive. Path specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>Requires Unicode Inno Setup.</p></remarks>
+        <example><pre>var
+  Path: String;
+  FreeBytes, TotalBytes: Int64;
+begin
+  // Get and display free bytes on the Program Files drive
+  Path := ExpandConstant('{pf}');
+  if GetSpaceOnDisk64(Path, FreeBytes, TotalBytes) then
+  begin
+    MsgBox('There are ' + IntToStr(FreeBytes) + ' bytes free on ' +
+      Path, mbInformation, MB_OK);
+  end
+  else begin
+    // the function failed
+  end;
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_GetSpaceOnDisk">GetSpaceOnDisk</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
