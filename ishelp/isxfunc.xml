@@ -873,9 +873,20 @@ end;</pre></example>
         <remarks><p>Use of <link topic="isxfunc_StrToIntDef">StrToIntDef</link> instead of StrToInt is recommended.</p></remarks>
       </function>
       <function>
+        <name>StrToInt64Def</name>
+        <prototype>function StrToInt64Def(s: string; def: Int64): Int64;</prototype>
+        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt returns the 64-bit number passed in Def.</p><p>Requires Unicode Inno Setup.</p></description>
+      </function>
+      <function>
+        <name>StrToInt64</name>
+        <prototype>function StrToInt64(s: string): Int64;</prototype>
+        <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number.</p><p>Requires Unicode Inno Setup.</p></description>
+        <remarks><p>Use of <link topic="isxfunc_StrToInt64Def">StrToInt64Def</link> instead of StrToInt64 is recommended.</p></remarks>
+      </function>
+      <function>
         <name>IntToStr</name>
-        <prototype>function IntToStr(i: Longint): String;</prototype>
-        <description><p>The IntToStr function converts an integer into a string containing the decimal representation of that number.</p></description>
+        <prototype>function IntToStr(i: Int64): String;</prototype>
+        <description><p>The IntToStr function converts an 32-bit or 64-bit number into a string containing the decimal representation of that number.</p><p>64-bit numbers require Unicode Inno Setup.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -1229,6 +1240,29 @@ begin
     // the function failed
   end;
 end;</pre></example>
+        <seealso><p><link topic="isxfunc_GetSpaceOnDisk64">GetSpaceOnDisk64</link></p></seealso>
+      </function>
+      <function>
+        <name>GetSpaceOnDisk64</name>
+        <prototype>function GetSpaceOnDisk64(const Path: String; var Free, Total: Int64): Boolean;</prototype>
+        <description><p>Returns the number of free and total bytes on a drive. Path specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>Requires Unicode Inno Setup.</p></remarks>
+        <example><pre>var
+  Path: String;
+  FreeBytes, TotalBytes: Int64;
+begin
+  // Get and display free bytes on the Program Files drive
+  Path := ExpandConstant('{pf}');
+  if GetSpaceOnDisk64(Path, FreeBytes, TotalBytes) then
+  begin
+    MsgBox('There are ' + IntToStr(FreeBytes) + ' bytes free on ' +
+      Path, mbInformation, MB_OK);
+  end
+  else begin
+    // the function failed
+  end;
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_GetSpaceOnDisk">GetSpaceOnDisk</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>

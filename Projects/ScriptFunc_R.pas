@@ -808,6 +808,15 @@ begin
       Stack.SetBool(PStart, True);
     end else
       Stack.SetBool(PStart, False);
+{$IFNDEF PS_NOINT64}
+  end else if Proc.Name = 'GETSPACEONDISK64' then begin
+    if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
+      Stack.SetInt64(PStart-2, Int64(FreeBytes.Hi) shl 32 + FreeBytes.Lo);
+      Stack.SetInt64(PStart-3, Int64(TotalBytes.Hi) shl 32 + TotalBytes.Lo);
+      Stack.SetBool(PStart, True);
+    end else
+      Stack.SetBool(PStart, False);
+{$ENDIF}
   end else if Proc.Name = 'GETUSERNAMESTRING' then begin
     Stack.SetString(PStart, GetUserNameString());
   end else if Proc.Name = 'INCREMENTSHAREDCOUNT' then begin
