@@ -725,7 +725,7 @@ begin
       </function>
       <function>
         <name>Copy</name>
-        <prototype>function Copy(S: String; Indx, Count: Integer): String;</prototype>
+        <prototype>function Copy(S: String; Index, Count: Integer): String;</prototype>
         <description><p>Returns a string containing Count characters starting with at S[Index].<br />If Index is larger than the length of S, Copy returns an empty string.<br />If Count specifies more characters than are available, the only the characters from S[Index] to the end of S are returned.</p></description>
       </function>
       <function>
@@ -760,13 +760,13 @@ begin
       </function>
       <function>
         <name>Delete</name>
-        <prototype>procedure Delete(var S: String; Indx, Count: Integer);</prototype>
+        <prototype>procedure Delete(var S: String; Index, Count: Integer);</prototype>
         <description><p>Removes a substring of Count characters from string S starting at S[Index].<br />If Index is larger than the length of S, no characters are deleted. If Count specifies more characters than remain starting at the S[Index], Delete removes the rest of the string.</p></description>
       </function>
       <function>
         <name>Insert</name>
-        <prototype>procedure Insert(Source: String; var Dest: String; Indx: Integer);</prototype>
-        <description><p>Merges Source into S at the position S[index].</p></description>
+        <prototype>procedure Insert(Source: String; var Dest: String; Index: Integer);</prototype>
+        <description><p>Merges Source into Dest at the position Dest[Index].</p></description>
       </function>
       <function>
         <name>StringChange</name>
