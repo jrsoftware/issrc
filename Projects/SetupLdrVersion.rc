@@ -7,6 +7,7 @@
 // with Borland's BRCC32 as well. BRCC32 does not automatically null-terminate
 // string values like Microsoft's RC does, resulting in garbage characters on
 // Explorer's Version tab (on Windows 2000) if \0's aren't included.
+// The spaces are placeholder. Longer texts will be truncated to placeholders length.
 
 1 VERSIONINFO
  FILEVERSION 0,0,0,0
@@ -27,7 +28,7 @@ BEGIN
             VALUE "FileVersion", "                    \0"
             VALUE "LegalCopyright", "                                                                                                    \0"
             VALUE "ProductName", "                                                            \0"
-            VALUE "ProductVersion", "                    \0"
+            VALUE "ProductVersion", "                                                  \0"
         END
     END
     BLOCK "VarFileInfo"
