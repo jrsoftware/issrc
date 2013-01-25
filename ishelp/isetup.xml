@@ -4645,7 +4645,7 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies the textual product version value for the Setup version info.</p>
 <p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
-<p>The text is limited to 50 charachters.</p>
+<p>The text is limited to 50 characters.</p>
 </body>
 </setuptopic>
 
