@@ -1,7 +1,5 @@
-// $jrsoftware: issrc/Projects/SetupVersionUnicode.rc,v 1.5 2010/04/06 16:56:46 mlaan Exp $
-//
 // Setup version resource
-// Compiled with RC.EXE from the Platform SDK (5.2.3690.0)
+// Compiled with RC.EXE from the Platform SDK
 //
 // Note: The \0's in the values are to make this resource script compatible
 // with Borland's BRCC32 as well. BRCC32 does not automatically null-terminate
