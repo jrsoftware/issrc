@@ -52,10 +52,10 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added new function: <tt>ExtractTemporaryFiles</tt>. This function is like <tt>ExtractTemporaryFile</tt> but supports wildcards and doesn't ignore directory information.</li>
   <li>When <tt>ExtractTemporaryFile</tt> or <tt>ExtractTemporaryFiles</tt> extracts a file, this is now logged.</li>
   <li>Unicode Inno Setup: Now has an <tt>Int64</tt> type, supported by <tt>IntToStr</tt>. Also added new <tt>StrToInt64</tt>, <tt>StrToInt64Def</tt>, and <tt>GetSpaceOnDisk64</tt> support functions.</li>
-  <li>Increase the length of <tt>VersionInfoProductTextVersion</tt> to 50 characters.</li>
 </ul>
 </li>
 <li>If the <tt>Flags</tt> parameter of a [Files] entry includes <tt>isreadme</tt> and the entry also has a <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> parameter, the <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> functions will now only be called when the file is installed and no longer a second time when the file is viewed after the installation has completed.</li>
+<li>[Setup] section directive <tt>VersionInfoProductTextVersion</tt>, which sets the textual product version value, is now truncated at 50 characters instead of 20. Contributed by <a href="https://github.com/lukas-ais" target="_blank">Lukas Ais</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
 <li>The Inno Setup help file source code has been moved into the main Inno Setup source code repository.</li>
 <li><i>Fix:</i> [Setup] section directive <tt>CloseApplicationsFilter</tt> was partially case sensitive.</li>
 <li>Unicode [Code] based on RemObjects Pascal Script Git commit 31abd2925837d85a6965b5325e8fb7835ca73ea8.</li>
