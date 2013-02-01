@@ -298,7 +298,7 @@ procedure InitializeWizard;
 begin
   CreateCustomPages;
   
-  ISPPCheckBox.Checked := GetPreviousData('ISPP', '1') = '1';
+  ISPPCheckBox.Checked := (GetPreviousData('ISPP', '1') = '1') or (ExpandConstant('{param:ispp|0}') = '1');
 end;
 
 procedure RegisterPreviousData(PreviousDataKey: Integer);
