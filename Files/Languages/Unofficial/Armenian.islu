@@ -1,9 +1,9 @@
-﻿; *** Inno Setup version 5.5.0+ Armenian messages ***
+﻿; *** Inno Setup version 5.5.3+ Armenian messages ***
 ;
 ; Armenian translation by Hrant Ohanyan
 ; E-mail: hrantohanyan@mail.am
 ; Translation home page: http://www.haysoft.org
-; Last modification date: 2012-07-10
+; Last modification date: 2013-02-01
 ;
 [LangOptions]
 LanguageName=Armenian
@@ -202,6 +202,7 @@ ApplicationsFound=Հետևյալ ծրագրերը օգտագործում են ֆ
 ApplicationsFound2=Հետևյալ ծրագրերը օգտագործում են ֆայլեր, որոնք պետք է թարմացվեն տեղակայիչի կողմից։ Թույլատրեք տեղակայիչին փակելու այս ծրագրերը։ Տեղակայումը ավարտելուց հետո տեղակայիչը կփորձի վերամեկնարկել այս ծրագրերը։
 CloseApplications=&Միանգամից փակել ծրագրերը
 DontCloseApplications=&Չփակել ծրագրերը
+ErrorCloseApplications=Տեղակայիչը չի կարողանում փակել բոլոր ծրագրերը։ Փակեք բոլոր ֆայլերը, որոնք կարող են օգտագործել այն ֆայլերը, որոնք թարմացվելու են տեղակայիչի կողմից։
 
 ; *** "Installing" wizard page
 WizardInstalling=Տեղակայվում է...
