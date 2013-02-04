@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.0+ English messages ***
+; *** Inno Setup version 5.5.3+ Bosnian messages ***
 ;
 ; Bosnian translation by Kenan Dervisevic (kenan3008@gmail.com)
 ;
@@ -177,7 +177,7 @@ MustEnterGroupName=Morate unijeti ime programske grupe.
 GroupNameTooLong=Naziv foldera ili putanje je predug.
 InvalidGroupName=Naziv foldera nije ispravan.
 BadGroupName=Naziv foldera ne smije sadržavati niti jedan od sljedeæih znakova:%n%n%1
-NoProgramGroupCheck2=&Ne kreiraj %1 programsku grupu
+NoProgramGroupCheck2=&Ne kreiraj programsku grupu
 
 ; *** "Ready to Install" wizard page
 WizardReady=Spreman za instalaciju
@@ -200,6 +200,7 @@ ApplicationsFound=Sljedeæe aplikacije koriste datoteke koje ova instalacija treb
 ApplicationsFound2=Sljedeæe aplikacije koriste datoteke koje ova instalacija treba da nadogradi. Preporuèujemo vam da omoguæite instalaciji da automatski zatvori ove aplikacije. Nakon što se sve završi, bit æe izvršen pokušaj ponovnog pokretanja ovih aplikacija.
 CloseApplications=&Automatski zatvori aplikacije
 DontCloseApplications=&Ne zatvaraj aplikacije
+ErrorCloseApplications=Instalacija nije mogla automatski zatvoriti sve aplikacije. Prije nego nastavite, preporuèujemo vam da zatvorite sve aplikacije koje koriste datoteke koje æe ova instalacija trebati da ažurira.
 
 ; *** "Installing" wizard page
 WizardInstalling=Instaliram
