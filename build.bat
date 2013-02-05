@@ -22,7 +22,7 @@ rem  files are stored there for later use while preparing an ISPack release
 
 setlocal
 
-set VER=5.5.3
+set VER=5.5.4
 
 echo Building Inno Setup %VER%...
 echo.
@@ -48,9 +48,9 @@ echo IS help done
 pause
 
 call .\compile.bat
+if errorlevel 1 goto failed
 echo ANSI compile done
 pause
-if errorlevel 1 goto failed
 echo - Setup.exe
 if exist .\setup-sign.bat (
   call .\setup-sign.bat
@@ -65,15 +65,16 @@ echo - Renaming files
 cd output
 if errorlevel 1 goto failed
 move /y setup.exe isetup-%VER%.exe
+if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
 echo ANSI setup done
 pause
 
 call .\compile-unicode.bat
+if errorlevel 1 goto failed
 echo Unicode compile done
 pause
-if errorlevel 1 goto failed
 echo - Setup.exe
 if exist .\setup-sign.bat (
   call .\setup-sign.bat
@@ -88,6 +89,7 @@ echo - Renaming files
 cd output
 if errorlevel 1 goto failed
 move /y setup.exe isetup-%VER%-unicode.exe
+if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
 echo Unicode setup done
