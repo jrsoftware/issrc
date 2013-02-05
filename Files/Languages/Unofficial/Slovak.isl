@@ -1,6 +1,6 @@
 ; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 5.5.0+ Slovak messages     ***
+; *** Inno Setup version 5.5.3+ Slovak messages      ***
 ; ***                                                ***
 ; *** Original Author:                               ***
 ; ***                                                ***
@@ -11,9 +11,9 @@
 ; ***   Ivo Bauer (bauer AT ozm.cz)                  ***
 ; ***                                                ***
 ; ***   Tomas Falb (tomasf AT pobox.sk)              ***
-; ***   Slappy (slappy AT pobox.sk                   ***
+; ***   Slappy (slappy AT pobox.sk)                  ***
 ; ***                                                ***
-; *** Update: 20.07.2012                             ***
+; *** Update: 04.02.2013                             ***
 ; ***                                                ***
 ; ******************************************************
 ;
@@ -165,6 +165,7 @@ ApplicationsFound=Nasledujúce aplikácie pracujú so súbormi, ktoré musí inštaláto
 ApplicationsFound2=Nasledujúce aplikácie pracujú so súbormi, ktoré musí inštalátor aktualizova. Odporúèame Vám, aby ste povolili inštalátoru automaticky ukonèi tieto aplikácie. Po skonèení inštalácie sa inštalátor pokúsi tieto aplikácie opätovne spusti.
 CloseApplications=&Automaticky ukonèi aplikácie
 DontCloseApplications=&Neukonèova aplikácie
+ErrorCloseApplications=Sprievodca nemohol automaticky zatvori všetky aplikácie. Odporúèame Vám, aby ste ruène uzavreli všetky aplikácie, ktoré pouívajú súbory, ktoré má Sprievodca aktualizova.
 WizardInstalling=Inštalujem
 InstallingLabel=Poèkajte prosím, kım sprievodca inštaláciou nedokonèí inštaláciu produktu [name] na Váš poèítaè.
 FinishedHeadingLabel=Dokonèuje sa inštalácia produktu [name]
