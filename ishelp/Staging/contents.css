@@ -4,8 +4,6 @@
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  $jrsoftware: ishelp/Staging/contents.css,v 1.12 2010/09/17 03:48:14 jr Exp $
-
   Style sheet used by contents.htm
 */
 
@@ -26,14 +24,17 @@ INPUT {
 	color: WindowText;
 	padding-top: 4px;
 	cursor: default;
-	-moz-user-select: none;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+		-ms-user-select: none;
 }
 #tabbar TD {
 	padding: 0;
 	border-bottom: 1px solid ThreeDDarkShadow;
 	font-weight: bold;
-	     border-radius: 3px 3px 0 0;
-	-moz-border-radius: 3px 3px 0 0;	/* for Firefox 3.6 */
+	-webkit-border-radius: 3px 3px 0 0;
+	   -moz-border-radius: 3px 3px 0 0;	/* for Firefox 3.6 */
+			border-radius: 3px 3px 0 0;
 }
 #tabbar TD.selectedtab {
 	background-color: Window;
@@ -108,7 +109,9 @@ INPUT {
 #tabbody-index {
 	padding: 4px 2px;
 	white-space: nowrap;
-	-moz-user-select: none;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+		-ms-user-select: none;
 }
 #tabbody-index A {
 	display: inline-block;
@@ -168,19 +171,22 @@ INPUT {
 	color: #008000;
 	font-size: 90%;   /* 9pt (9/10) */
 	text-decoration: none;
-	     border-radius: 3px;
-	-moz-border-radius: 3px;			/* for Firefox 3.6 */
-	        box-shadow: #c0c0c0 1px 1px 2px;
-	   -moz-box-shadow: #c0c0c0 1px 1px 2px;	/* for Firefox 3.6 */
+	-webkit-border-radius: 3px;
+	   -moz-border-radius: 3px;			/* for Firefox 3.6 */
+			border-radius: 3px;
 	-webkit-box-shadow: #c0c0c0 1px 1px 2px;	/* for Chrome 6.0 */
-	-moz-user-select: none;
+	   -moz-box-shadow: #c0c0c0 1px 1px 2px;	/* for Firefox 3.6 */
+			box-shadow: #c0c0c0 1px 1px 2px;
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+		-ms-user-select: none;
 }
 #searchcont .gsc-results .gsc-cursor-box .gsc-cursor-page:hover {
 	background-color: #008000;
 	color: white;
-	        box-shadow: #008000 0 0 5px, #c0c0c0 1px 1px 2px;
-	   -moz-box-shadow: #008000 0 0 5px, #c0c0c0 1px 1px 2px;	/* for Firefox 3.6 */
 	-webkit-box-shadow: #008000 0 0 5px, #c0c0c0 1px 1px 2px;	/* for Chrome 6.0 */
+	   -moz-box-shadow: #008000 0 0 5px, #c0c0c0 1px 1px 2px;	/* for Firefox 3.6 */
+			box-shadow: #008000 0 0 5px, #c0c0c0 1px 1px 2px;
 }
 #searchcont .gsc-results .gsc-cursor-box .gsc-cursor-current-page {
 	background-color: #008000;
