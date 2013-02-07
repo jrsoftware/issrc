@@ -4,7 +4,6 @@
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  $jrsoftware: ishelp/Staging/styles.css,v 1.7 2010/09/17 03:48:14 jr Exp $
 */
 
 BODY {
@@ -34,7 +33,7 @@ TD {
 	/* note: "baseline" is broken on IE6; it only aligns correctly when there's
 	   a single line of text, and that text is directly inside the <TD> tag
 	   (not inside a <DIV>). otherwise it behaves more like "top".
-           (firefox 1.5 and opera 9 don't have this problem) */
+	   (firefox 1.5 and opera 9 don't have this problem) */
 	vertical-align: baseline;
 }
 A:link, A:visited, A:active {
@@ -140,7 +139,7 @@ TD.setuphdrr {
 	border: 1px solid ThreeDDarkShadow;
 	font-size: 120%;
 	font-weight: bold;
-	        box-shadow: #808080 0 0 12px;
-	   -moz-box-shadow: #808080 0 0 12px;	/* for Firefox 3.6 */
 	-webkit-box-shadow: #808080 0 0 12px;	/* for Chrome 6.0 */
+		-moz-box-shadow: #808080 0 0 12px;	/* for Firefox 3.6 */
+			 box-shadow: #808080 0 0 12px;
 }
