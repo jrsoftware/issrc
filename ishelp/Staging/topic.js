@@ -20,7 +20,7 @@ function is_href_local_anchor(path)
 {
 	// Returns true if an A element's HREF points to an anchor on the current page.
 
-	if (path.charAt(0) == "#") {
+	if (path.charAt(0) === "#") {
 		return true;
 	}
 
@@ -30,9 +30,9 @@ function is_href_local_anchor(path)
 
 	var re = /^([^#]+)(#.*)?$/;
 	var pathMatches = path.match(re);
-	if (pathMatches && pathMatches[2] !== undefined && pathMatches[2] != "") {
+	if (pathMatches && pathMatches[2] !== undefined && pathMatches[2] !== "") {
 		var curLocationMatches = window.location.href.match(re);
-		if (curLocationMatches && curLocationMatches[1] == pathMatches[1]) {
+		if (curLocationMatches && curLocationMatches[1] === pathMatches[1]) {
 			return true;
 		}
 	}
@@ -75,11 +75,11 @@ function topic_loaded()
 
 	var matches;
 
-	if (window == window.top &&
-	    window.location.protocol == "http:" &&
-	    window.location.hostname == "www.jrsoftware.org" &&
-	    (matches = window.location.pathname.match(/^(\/.+\/)topic_([a-z0-9_\-]+)\.htm$/)) &&
-	    window.location.hash != "#noredir") {
+	if (window === window.top &&
+		window.location.protocol === "http:" &&
+		window.location.hostname === "www.jrsoftware.org" &&
+		(matches = window.location.pathname.match(/^(\/.+\/)topic_([a-z0-9_\-]+)\.htm$/)) &&
+		window.location.hash !== "#noredir") {
 
 		topicRedirectURL = matches[1] + "index.php?topic=" + matches[2];
 
@@ -93,7 +93,7 @@ function topic_loaded()
 
 	// HTML Help: If an Index entry is clicked and only the hash changes,
 	// we don't receive any notification by default.
-	if (window.location.protocol == "mk:") {
+	if (window.location.protocol === "mk:") {
 		if ("onhashchange" in window) {
 			// IE 8+ supports the onhashchange event.
 			window.onhashchange = update_anchor_highlight;
@@ -114,10 +114,14 @@ function topic_redirect()
 
 function set_anchor_highlight(newAnchor)
 {
-	if (curHighlightedAnchor != newAnchor) {
-		if (curHighlightedAnchor) curHighlightedAnchor.className = "";
+	if (curHighlightedAnchor !== newAnchor) {
+		if (curHighlightedAnchor) {
+			curHighlightedAnchor.className = "";
+		}
 		curHighlightedAnchor = newAnchor;
-		if (curHighlightedAnchor) curHighlightedAnchor.className = "highlighted";
+		if (curHighlightedAnchor) {
+			curHighlightedAnchor.className = "highlighted";
+		}
 	}
 }
 
@@ -131,12 +135,12 @@ function update_anchor_highlight()
 		return;
 	}
 	lastHash = hash;
-	if (hash.charAt(0) == "#") {
+	if (hash.charAt(0) === "#") {
 		anchorName = hash.substr(1);
 	}
 
 	var newAnchor = null;
-	if (anchorName != "") {
+	if (anchorName !== "") {
 		var anchors = document.getElementsByTagName("a");
 		var i;
 		for (i = 0; i < anchors.length; i++) {
@@ -165,9 +169,9 @@ function set_href_and_highlight_anchor(href)
 function topic_element_clicked(evt)
 {
 	var element = evt ? evt.target : event.srcElement;
-	if (element.tagName.toLowerCase() == "a") {
+	if (element.tagName.toLowerCase() === "a") {
 		var href = element.getAttribute("href");
-		if (href != null && is_href_local_anchor(href)) {
+		if (href !== null && is_href_local_anchor(href)) {
 			set_href_and_highlight_anchor(href);
 		}
 	}

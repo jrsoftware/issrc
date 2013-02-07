@@ -4,8 +4,6 @@
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  $jrsoftware: ishelp/Staging/contents.js,v 1.12 2010/04/26 19:37:55 jr Exp $
-
   JavaScript code used by contents.htm
 */
 
@@ -37,8 +35,10 @@ function get_viewport_element()
 function is_element_displayed(element)
 {
 	do {
-		if (element.style.display == "none") return false;
-	} while (element != document.body && (element = element.parentNode));
+		if (element.style.display === "none") {
+			return false;
+		}
+	} while (element !== document.body && (element = element.parentNode));
 
 	return true;
 }
@@ -56,7 +56,9 @@ function ensure_elements_visible(elementTop, elementBottom)
 	// exactly yTop, the link's focus rectangle won't get chopped off on Firefox (3.x),
 	// where focus rectangles are inflated by 1px (unlike IE).
 	// (Adding 1 to yBottom isn't necessary since our TDs have 1px of bottom padding.)
-	if (yTop > 0) yTop--;
+	if (yTop > 0) {
+		yTop--;
+	}
 
 	// Make yTop and yBottom relative to the top of the visible client area
 	var viewportScrollTop = get_viewport_element().scrollTop;
@@ -64,7 +66,7 @@ function ensure_elements_visible(elementTop, elementBottom)
 	yBottom -= viewportScrollTop;
 
 	var clientHeight;
-	if (typeof window.innerHeight != "undefined") {
+	if (typeof window.innerHeight !== "undefined") {
 		// Opera 9.01 compatibility: document.documentElement.clientHeight
 		// returns the page content height, not the client area height,
 		// so we have to use this instead.
@@ -80,15 +82,19 @@ function ensure_elements_visible(elementTop, elementBottom)
 		// How far do we have to scroll down for elementBottom to be entirely visible?
 		var delta = yBottom - clientHeight;
 		// Don't allow any part of elementTop to be scrolled off the top
-		if (delta > yTop) delta = yTop;
-		if (delta > 0) window.scrollBy(0, delta);
+		if (delta > yTop) {
+			delta = yTop;
+		}
+		if (delta > 0) {
+			window.scrollBy(0, delta);
+		}
 	}
 }
 
 function toggle_node(id)
 {
 	var objContent = document.getElementById("nodecontent_" + id);
-	var expanding = (objContent.style.display == "none");
+	var expanding = (objContent.style.display === "none");
 	objContent.style.display = expanding ? "" : "none";
 
 	document.getElementById("nodeimg_" + id).src =
@@ -106,8 +112,8 @@ function toggle_node(id)
 function init_contents(toggleNode)
 {
 	var i;
-	if (toggleNode == 0) {
-		for (i = 1; document.getElementById("nodecontent_" + i) != null; i++) {
+	if (toggleNode === 0) {
+		for (i = 1; document.getElementById("nodecontent_" + i) !== null; i++) {
 			toggle_node(i);
 		}
 	} else {
@@ -127,8 +133,8 @@ var curFocusedNode = null;
 function update_selected_node_class()
 {
 	if (curSelectedNode) {
-		var newClass = (curFocusedNode == curSelectedNode) ? "focusedlink" : "selectedlink";
-		if (curSelectedNode.className != newClass) {
+		var newClass = (curFocusedNode === curSelectedNode) ? "focusedlink" : "selectedlink";
+		if (curSelectedNode.className !== newClass) {
 			curSelectedNode.className = newClass;
 		}
 	}
@@ -136,7 +142,9 @@ function update_selected_node_class()
 
 function set_selected_node(newSel)
 {
-	if (curSelectedNode == newSel) return;
+	if (curSelectedNode === newSel) {
+		return;
+	}
 
 	if (curSelectedNode) {
 		curSelectedNode.className = "";
@@ -147,8 +155,8 @@ function set_selected_node(newSel)
 
 		// Expand parent nodes (may scroll)
 		var p = curSelectedNode;
-		while ((p = p.parentNode) && p.id != "tabbody-contents") {
-			if (p.id && p.id.indexOf("nodecontent_") == 0 && p.style.display == "none") {
+		while ((p = p.parentNode) && p.id !== "tabbody-contents") {
+			if (p.id && p.id.indexOf("nodecontent_") === 0 && p.style.display === "none") {
 				toggle_node(p.id.substring(12));
 			}
 		}
@@ -162,7 +170,7 @@ function set_selected_node(newSel)
 function node_focused(evt)
 {
 	curFocusedNode = evt ? evt.target : event.srcElement;
-	if (curFocusedNode == curSelectedNode) {
+	if (curFocusedNode === curSelectedNode) {
 		update_selected_node_class();
 	} else {
 		set_selected_node(curFocusedNode);
@@ -175,7 +183,7 @@ function node_blurred(evt)
 	update_selected_node_class();
 }
 
-var topic_name_regexp = /(?:^|[/\\])topic_([a-z0-9_\-]+)\.htm$/;
+var topic_name_regexp = /(?:^|[\/\\])topic_([a-z0-9_\-]+)\.htm$/;
 
 function topic_name_from_path(path)
 {
@@ -185,31 +193,37 @@ function topic_name_from_path(path)
 
 function sync_contents()
 {
-	var bodyFrame = window.parent.frames["bodyframe"];
-	if (!bodyFrame) return;
+	var bodyFrame = window.parent.frames.bodyframe;
+	if (!bodyFrame) {
+		return;
+	}
 
 	var bodyTopic = topic_name_from_path(bodyFrame.window.location.pathname);
-	if (bodyTopic == "") return;
+	if (bodyTopic === "") {
+		return;
+	}
 
 	// If the currently selected node already points to bodyTopic, just return.
 	// This check is needed to keep the selection from jumping to "[Run] section"
 	// when "[UninstallRun] section" is clicked (both have the same target topic).
-	if (curSelectedNode && topic_name_from_path(curSelectedNode.getAttribute("href")) == bodyTopic) {
+	if (curSelectedNode && topic_name_from_path(curSelectedNode.getAttribute("href")) === bodyTopic) {
 		return;
 	}
 
 	var elements = document.getElementById("tabbody-contents").getElementsByTagName("a");
 	var i;
 	for (i = 0; i < elements.length; i++) {
-		if (topic_name_from_path(elements[i].getAttribute("href")) == bodyTopic) {
-			if (curSelectedNode != elements[i]) {
+		if (topic_name_from_path(elements[i].getAttribute("href")) === bodyTopic) {
+			if (curSelectedNode !== elements[i]) {
 				// If we're changing the selection while a node is currently
 				// focused -- which can happen if Back is pressed after
 				// clicking/selecting a node -- we need to move the focus.
 				// Otherwise, the focus rectangle would stay where it is,
 				// while the highlight moved to a different node.
 
-				if (curFocusedNode) elements[i].focus();
+				if (curFocusedNode) {
+					elements[i].focus();
+				}
 				set_selected_node(elements[i]);
 			}
 			break;
@@ -223,7 +237,7 @@ function select_tab(newTab)
 
 	var i;
 	for (i = 0; i < tabs.length; i++) {
-		if (tabs[i] != newTab) {
+		if (tabs[i] !== newTab) {
 			document.getElementById("tab-" + tabs[i]).className = "unselectedtab";
 			document.getElementById("tabbody-" + tabs[i]).style.display = "none";
 		}
@@ -232,15 +246,21 @@ function select_tab(newTab)
 	document.getElementById("tab-" + newTab).className = "selectedtab";
 	document.getElementById("tabbody-" + newTab).style.display = "";
 
-	if (newTab == "index") init_index_tab();
-	if (newTab == "search") init_search_tab();
+	if (newTab === "index") {
+		init_index_tab();
+	}
+	if (newTab === "search") {
+		init_search_tab();
+	}
 }
 
 var indexTabInited = false;
 
 function init_index_tab()
 {
-	if (indexTabInited) return;
+	if (indexTabInited) {
+		return;
+	}
 	indexTabInited = true;
 
 	var script = document.createElement("script");
@@ -259,18 +279,20 @@ function init_index_tab_elements()
 		var len = contentsIndexData.length;
 		var htmlArray = new Array(len);
 		var i, matches;
-		var re = /^([^#:]+)(#[^:]+)?:(.+)$/
+		var re = /^([^#:]+)(#[^:]+)?:(.+)$/;
 
 		for (i = 0; i < len; i++) {
 			matches = contentsIndexData[i].match(re);
-			if (!matches) break;
+			if (!matches) {
+				break;
+			}
 			htmlArray[i] = '<a href="topic_' + matches[1] + ".htm" +
 				((matches[2] !== undefined) ? matches[2] : "") +
 				'" target="bodyframe">' + matches[3] + "</a><br />";
 		}
 
 		// Note: On IE6, joining an array is ~5x faster than using "html +=" to build a long string
-		if (i == len) {   // were all processed?
+		if (i === len) {	// were all processed?
 			html = htmlArray.join("");
 		}
 	}
@@ -287,10 +309,10 @@ function index_tab_element_clicked(evt)
 	// So we must manually tell it to update the highlight.
 
 	var element = evt ? evt.target : event.srcElement;
-	if (element.tagName.toLowerCase() == "a") {
+	if (element.tagName.toLowerCase() === "a") {
 		var href = element.getAttribute("href");
-		if (href != null && href != "" && element.getAttribute("target") == "bodyframe") {
-			var bodyFrame = window.parent.frames["bodyframe"];
+		if (href !== null && href !== "" && element.getAttribute("target") === "bodyframe") {
+			var bodyFrame = window.parent.frames.bodyframe;
 			if (bodyFrame) {
 				bodyFrame.set_href_and_highlight_anchor(href);
 			}
@@ -302,7 +324,9 @@ var searchTabInited = false;
 
 function init_search_tab()
 {
-	if (searchTabInited) return;
+	if (searchTabInited) {
+		return;
+	}
 	searchTabInited = true;
 
 	var script = document.createElement("script");
