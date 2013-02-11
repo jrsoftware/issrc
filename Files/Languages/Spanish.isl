@@ -1,7 +1,7 @@
 ; *** Inno Setup version 5.5.3+ Spanish messages ***
 ;
 ; Maintained by Jorge Andres Brugger (jbrugger@ideaworks.com.ar)
-; Spanish.isl version 1.2 (20121214)
+; Spanish.isl version 1.3 (20130207)
 ; Default.isl version 5.5.3
 ; 
 ; Thanks to Germán Giraldo, Jordi Latorre, Ximo Tamarit, Emiliano Llano, 
@@ -68,7 +68,7 @@ ErrorTooManyFilesInDir=Imposible crear un archivo en la carpeta "%1" porque cont
 
 ; *** Setup common messages
 ExitSetupTitle=Salir de la Instalación
-ExitSetupMessage=La instalación no se ha completado aún. Si cancela ahora, el programa no se instalará;.%n%nPuede ejecutar nuevamente el programa de instalación en otra ocasión para completarla.%n%n¿Salir de la instalación?
+ExitSetupMessage=La instalación no se ha completado aún. Si cancela ahora, el programa no se instalará.%n%nPuede ejecutar nuevamente el programa de instalación en otra ocasión para completarla.%n%n¿Salir de la instalación?
 AboutSetupMenuItem=&Acerca de Instalar...
 AboutSetupTitle=Acerca de Instalar
 AboutSetupMessage=%1 versión %2%n%3%n%n%1 sitio Web:%n%4
