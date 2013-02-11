@@ -33,7 +33,7 @@ Source code README
 
   To be able to contribute to Inno Setup, clone your own fork instead of
   cloning the main Inno Setup repository, commit your work on topic branches
-  and make pull requests. See [CONTRIBUTING.md](https://www.github.com/jrsoftware/issrc/blob/master/CONTRIBUTING.md).
+  and make pull requests. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 - Install Borland Delphi
 
