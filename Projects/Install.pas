@@ -35,6 +35,7 @@ type
 
 var
   CurProgress: Integer64;
+  CurInstallStep: TInstallStep;
   ProgressShiftCount: Cardinal;
 
 { TSetupUninstallLog }
@@ -132,6 +133,16 @@ begin
     WizardForm.ProgressGauge.Update;
   end;
   SetAppTaskbarProgressValue(NewPosition.Lo, WizardForm.ProgressGauge.Max);
+
+  if (CodeRunner <> nil) and CodeRunner.FunctionExists('CurInstallProgressChanged') then begin
+    try
+      CodeRunner.RunProcedure('CurInstallProgressChanged', [NewPosition.Lo,
+        WizardForm.ProgressGauge.Max, Ord(CurInstallStep)], False);
+    except
+      Log('CurInstallProgressChanged raised an exception.');
+      Application.HandleException(nil);
+    end;
+  end;
 end;
 
 procedure FinishProgressGauge(const HideGauge: Boolean);
@@ -160,6 +171,11 @@ procedure IncProgress64(const N: Integer64);
 begin
   Inc6464(CurProgress, N);
   UpdateProgressGauge;
+end;
+
+procedure SetInstallStep(const InstallStep: TInstallStep);
+begin
+  CurInstallStep := InstallStep;
 end;
 
 procedure ProcessEvents;
@@ -2826,6 +2842,7 @@ begin
       { Shutdown applications, if any }
       if RmSessionStarted and RmFoundApplications then begin
         if WizardPreparingYesRadio then begin
+          SetInstallStep(isClosingApplications);
           SetStatusLabelText(SetupMessages[msgStatusClosingApplications]);
           ShutdownApplications;
           ProcessEvents;
@@ -2847,6 +2864,7 @@ begin
       ProcessEvents;
 
       { Create the application directory and extra dirs }
+      SetInstallStep(isCreateDirs);
       SetStatusLabelText(SetupMessages[msgStatusCreateDirs]);
       CreateDirs;
       ProcessEvents;
@@ -2854,17 +2872,20 @@ begin
       if Uninstallable then begin
         { Generate the filenames for the uninstall info in the application
           directory }
+        SetInstallStep(isSavingUninstall);
         SetStatusLabelText(SetupMessages[msgStatusSavingUninstall]);
         GenerateUninstallInfoFilename;
       end;
 
       { Copy the files }
+      SetInstallStep(isExtractFiles);
       SetStatusLabelText(SetupMessages[msgStatusExtractFiles]);
       CopyFiles(Uninstallable);
       ProcessEvents;
 
       { Create program icons, if any }
       if HasIcons then begin
+        SetInstallStep(isCreateIcons);
         SetStatusLabelText(SetupMessages[msgStatusCreateIcons]);
         CreateIcons;
         ProcessEvents;
@@ -2872,6 +2893,7 @@ begin
 
       { Create INI entries, if any }
       if Entries[seIni].Count <> 0 then begin
+        SetInstallStep(isCreateIniEntries);
         SetStatusLabelText(SetupMessages[msgStatusCreateIniEntries]);
         CreateIniEntries;
         ProcessEvents;
@@ -2879,6 +2901,7 @@ begin
 
       { Create registry entries, if any }
       if Entries[seRegistry].Count <> 0 then begin
+        SetInstallStep(isCreateRegistryEntries);
         SetStatusLabelText(SetupMessages[msgStatusCreateRegistryEntries]);
         CreateRegistryEntries;
         ProcessEvents;
@@ -2893,6 +2916,7 @@ begin
 
       { Register files, if any }
       if RegisterFilesList.Count <> 0 then begin
+        SetInstallStep(isRegisterFiles);
         SetStatusLabelText(SetupMessages[msgStatusRegisterFiles]);
         RegisterFiles;
         ProcessEvents;
@@ -2902,6 +2926,7 @@ begin
         make any more modifications to the user's system. Any additional
         modifications you want to add must be done before this is called. }
       if Uninstallable then begin
+        SetInstallStep(isSavingUninstall);
         SetStatusLabelText(SetupMessages[msgStatusSavingUninstall]);
         RenameUninstallExe;
         CreateUninstallMsgFile;
@@ -2940,6 +2965,7 @@ begin
         if not UninstLogCleared then begin
           Log('Rolling back changes.');
           try
+            SetInstallStep(isRollback);
             SetStatusLabelText(SetupMessages[msgStatusRollback]);
             WizardForm.ProgressGauge.Visible := False;
             FinishProgressGauge(True);
