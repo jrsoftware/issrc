@@ -2842,7 +2842,6 @@ begin
       { Shutdown applications, if any }
       if RmSessionStarted and RmFoundApplications then begin
         if WizardPreparingYesRadio then begin
-          SetInstallStep(isClosingApplications);
           SetStatusLabelText(SetupMessages[msgStatusClosingApplications]);
           ShutdownApplications;
           ProcessEvents;
@@ -2864,7 +2863,6 @@ begin
       ProcessEvents;
 
       { Create the application directory and extra dirs }
-      SetInstallStep(isCreateDirs);
       SetStatusLabelText(SetupMessages[msgStatusCreateDirs]);
       CreateDirs;
       ProcessEvents;
@@ -2872,7 +2870,6 @@ begin
       if Uninstallable then begin
         { Generate the filenames for the uninstall info in the application
           directory }
-        SetInstallStep(isSavingUninstall);
         SetStatusLabelText(SetupMessages[msgStatusSavingUninstall]);
         GenerateUninstallInfoFilename;
       end;
@@ -2916,7 +2913,6 @@ begin
 
       { Register files, if any }
       if RegisterFilesList.Count <> 0 then begin
-        SetInstallStep(isRegisterFiles);
         SetStatusLabelText(SetupMessages[msgStatusRegisterFiles]);
         RegisterFiles;
         ProcessEvents;
@@ -2926,7 +2922,6 @@ begin
         make any more modifications to the user's system. Any additional
         modifications you want to add must be done before this is called. }
       if Uninstallable then begin
-        SetInstallStep(isSavingUninstall);
         SetStatusLabelText(SetupMessages[msgStatusSavingUninstall]);
         RenameUninstallExe;
         CreateUninstallMsgFile;
@@ -2965,7 +2960,6 @@ begin
         if not UninstLogCleared then begin
           Log('Rolling back changes.');
           try
-            SetInstallStep(isRollback);
             SetStatusLabelText(SetupMessages[msgStatusRollback]);
             WizardForm.ProgressGauge.Visible := False;
             FinishProgressGauge(True);
