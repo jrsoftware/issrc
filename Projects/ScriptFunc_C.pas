@@ -110,7 +110,6 @@ begin
   RegisterRealEnum('TShellFolderID', TypeInfo(TShellFolderID));
   RegisterRealEnum('TSetupMessageID', TypeInfo(TSetupMessageID));
   RegisterRealEnum('TSetupStep', TypeInfo(TSetupStep));
-  RegisterRealEnum('TInstallStep', TypeInfo(TInstallStep));
   RegisterRealEnum('TUninstallStep', TypeInfo(TUninstallStep));
   RegisterRealEnum('TSetupProcessorArchitecture', TypeInfo(TSetupProcessorArchitecture));
 

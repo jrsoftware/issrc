@@ -157,7 +157,7 @@
 <p>Called with CurStep=ssInstall just before the actual installation starts, with CurStep=ssPostInstall just after the actual installation finishes, and with CurStep=ssDone just before Setup terminates after a successful install.</p>
 </dd>
 
-<dt><tt>procedure <a name="CurInstallProgressChanged">CurInstallProgressChanged</a>(CurrentProgress, MaximumProgress: Integer; CurStep: <anchorlink name="TInstallStep">TInstallStep</anchorlink>);</tt></dt>
+<dt><tt>procedure <a name="CurInstallProgressChanged">CurInstallProgressChanged</a>(CurProgress, MaxProgress: Integer);</tt></dt>
 <dd>
 <p>You can use this event function to monitor progress while Setup is extracting files, creating shortcuts, creating INI entries, and creating registry entries.</p>
 </dd>
@@ -272,9 +272,6 @@
 
 <li><i><a name="TSetupStep">TSetupStep values</a></i><br />
 ssInstall, ssPostInstall, ssDone</li>
-
-<li><i><a name="TInstallStep">TInstallStep values</a></i><br />
-isExtractFiles, isCreateIcons, isCreateIniEntries, isCreateRegistryEntries</li>
 
 <li><i><a name="TUninstallStep">TUninstallStep value</a>s</i><br />
 usAppMutexCheck, usUninstall, usPostUninstall, usDone</li>

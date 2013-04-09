@@ -35,7 +35,6 @@ type
 
 var
   CurProgress: Integer64;
-  CurInstallStep: TInstallStep;
   ProgressShiftCount: Cardinal;
 
 { TSetupUninstallLog }
@@ -137,7 +136,7 @@ begin
   if (CodeRunner <> nil) and CodeRunner.FunctionExists('CurInstallProgressChanged') then begin
     try
       CodeRunner.RunProcedure('CurInstallProgressChanged', [NewPosition.Lo,
-        WizardForm.ProgressGauge.Max, Ord(CurInstallStep)], False);
+        WizardForm.ProgressGauge.Max], False);
     except
       Log('CurInstallProgressChanged raised an exception.');
       Application.HandleException(nil);
@@ -171,11 +170,6 @@ procedure IncProgress64(const N: Integer64);
 begin
   Inc6464(CurProgress, N);
   UpdateProgressGauge;
-end;
-
-procedure SetInstallStep(const InstallStep: TInstallStep);
-begin
-  CurInstallStep := InstallStep;
 end;
 
 procedure ProcessEvents;
@@ -2875,14 +2869,12 @@ begin
       end;
 
       { Copy the files }
-      SetInstallStep(isExtractFiles);
       SetStatusLabelText(SetupMessages[msgStatusExtractFiles]);
       CopyFiles(Uninstallable);
       ProcessEvents;
 
       { Create program icons, if any }
       if HasIcons then begin
-        SetInstallStep(isCreateIcons);
         SetStatusLabelText(SetupMessages[msgStatusCreateIcons]);
         CreateIcons;
         ProcessEvents;
@@ -2890,7 +2882,6 @@ begin
 
       { Create INI entries, if any }
       if Entries[seIni].Count <> 0 then begin
-        SetInstallStep(isCreateIniEntries);
         SetStatusLabelText(SetupMessages[msgStatusCreateIniEntries]);
         CreateIniEntries;
         ProcessEvents;
@@ -2898,7 +2889,6 @@ begin
 
       { Create registry entries, if any }
       if Entries[seRegistry].Count <> 0 then begin
-        SetInstallStep(isCreateRegistryEntries);
         SetStatusLabelText(SetupMessages[msgStatusCreateRegistryEntries]);
         CreateRegistryEntries;
         ProcessEvents;

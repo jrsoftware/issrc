@@ -7271,7 +7271,7 @@ begin
     CodeCompiler.AddExport('GetCustomSetupExitCode', 'LongInt', False, '', 0);
     CodeCompiler.AddExport('PrepareToInstall', 'String !Boolean', False, '', 0);
     CodeCompiler.AddExport('RegisterExtraCloseApplicationsResources', '0', False, '', 0);
-    CodeCompiler.AddExport('CurInstallProgressChanged', '0 @LongInt @LongInt @TInstallStep', False, '', 0);
+    CodeCompiler.AddExport('CurInstallProgressChanged', '0 @LongInt @LongInt', False, '', 0);
 
     CodeCompiler.AddExport('InitializeUninstall', 'Boolean', False, '', 0);
     CodeCompiler.AddExport('DeinitializeUninstall', '0', False, '', 0);

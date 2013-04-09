@@ -16,8 +16,6 @@ uses
 
 type
   TSetupStep = (ssPreInstall, ssInstall, ssPostInstall, ssDone);
-  TInstallStep = (isExtractFiles, isCreateIcons, isCreateIniEntries,
-    isCreateRegistryEntries);
   TUninstallStep = (usAppMutexCheck, usUninstall, usPostUninstall, usDone);
 
 const
