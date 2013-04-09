@@ -56,6 +56,11 @@ begin
     FinishedInstall := True;
 end;
 
+procedure CurInstallProgressChanged(CurProgress, MaxProgress: Integer);
+begin
+  Log('CurInstallProgressChanged(' + IntToStr(CurProgress) + ', ' + IntToStr(MaxProgress) + ') called');
+end;
+
 function NextButtonClick(CurPageID: Integer): Boolean;
 var
   ResultCode: Integer;

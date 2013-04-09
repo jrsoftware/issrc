@@ -132,6 +132,16 @@ begin
     WizardForm.ProgressGauge.Update;
   end;
   SetAppTaskbarProgressValue(NewPosition.Lo, WizardForm.ProgressGauge.Max);
+
+  if (CodeRunner <> nil) and CodeRunner.FunctionExists('CurInstallProgressChanged') then begin
+    try
+      CodeRunner.RunProcedure('CurInstallProgressChanged', [NewPosition.Lo,
+        WizardForm.ProgressGauge.Max], False);
+    except
+      Log('CurInstallProgressChanged raised an exception.');
+      Application.HandleException(nil);
+    end;
+  end;
 end;
 
 procedure FinishProgressGauge(const HideGauge: Boolean);
