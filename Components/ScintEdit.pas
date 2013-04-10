@@ -7,8 +7,6 @@ unit ScintEdit;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TScintEdit component: a VCL wrapper for Scintilla
-
-  $jrsoftware: issrc/Components/ScintEdit.pas,v 1.22 2010/12/28 06:52:20 jr Exp $
 }
 
 interface
@@ -65,6 +63,7 @@ type
     FForceModified: Boolean;
     FIndentationGuides: TScintIndentationGuides;
     FLeadBytes: TScintRawCharSet;
+    FLineNumbers: Boolean;
     FLines: TScintEditStrings;
     FOnChange: TScintEditChangeEvent;
     FOnCharAdded: TScintEditCharAddedEvent;
@@ -111,6 +110,7 @@ type
     procedure SetCaretVirtualSpace(const Value: Integer);
     procedure SetFillSelectionToEdge(const Value: Boolean);
     procedure SetIndentationGuides(const Value: TScintIndentationGuides);
+    procedure SetLineNumbers(const Value: Boolean);
     procedure SetRawSelText(const Value: TScintRawString);
     procedure SetRawText(const Value: TScintRawString);
     procedure SetReadOnly(const Value: Boolean);
@@ -126,6 +126,7 @@ type
     procedure SetZoom(const Value: Integer);
     procedure StyleNeeded(const EndPos: Integer);
     procedure UpdateCodePage;
+    procedure UpdateLineNumbersWidth;
     procedure UpdateStyleAttributes;
     procedure CMColorChanged(var Message: TMessage); message CM_COLORCHANGED;
     procedure CMFontChanged(var Message: TMessage); message CM_FONTCHANGED;
@@ -264,6 +265,7 @@ type
     property Font;
     property IndentationGuides: TScintIndentationGuides read FIndentationGuides
       write SetIndentationGuides default sigNone;
+    property LineNumbers: Boolean read FLineNumbers write SetLineNumbers default False;
     property ParentFont;
     property PopupMenu;
     property ReportCaretPositionToStyler: Boolean read FReportCaretPositionToStyler
@@ -1030,6 +1032,9 @@ begin
           Change(True, N.position, N.length, N.linesAdded)
         else if N.modificationType and SC_MOD_DELETETEXT <> 0 then
           Change(False, N.position, N.length, N.linesAdded);
+
+        if (N.linesAdded > 0) and FLineNumbers then
+          UpdateLineNumbersWidth;
       end;
     SCN_SAVEPOINTLEFT,
     SCN_SAVEPOINTREACHED:
@@ -1042,6 +1047,11 @@ begin
       begin
         if Assigned(FOnUpdateUI) then
           FOnUpdateUI(Self);
+      end;
+    SCN_ZOOM:
+      begin
+        if FLineNumbers then
+          UpdateLineNumbersWidth;
       end;
   end;
 end;
@@ -1248,6 +1258,14 @@ begin
   if FIndentationGuides <> Value then begin
     FIndentationGuides := Value;
     ApplyOptions;
+  end;
+end;
+
+procedure TScintEdit.SetLineNumbers(const Value: Boolean);
+begin
+  if FLineNumbers <> Value then begin
+    FLineNumbers := Value;
+    UpdateLineNumbersWidth;
   end;
 end;
 
@@ -1557,6 +1575,29 @@ begin
       (FEffectiveCodePage <> SC_CP_UTF8);
     InitLeadBytes;
   end;
+end;
+
+procedure TScintEdit.UpdateLineNumbersWidth;
+var
+  LineCount, PixelWidth: Integer;
+  Nines: String;
+begin
+  if FLineNumbers then begin
+    { Note: Based on SciTE's SciTEBase::SetLineNumberWidth. }
+
+    LineCount := Call(SCI_GETLINECOUNT, 0, 0);
+
+    Nines := '9';
+    while LineCount >= 10 do begin
+      LineCount := LineCount div 10;
+      Nines := Nines + '9';
+    end;
+
+    PixelWidth := 4 + CallStr(SCI_TEXTWIDTH, STYLE_LINENUMBER, AnsiString(Nines));
+  end else
+    PixelWidth := 0;
+  
+  Call(SCI_SETMARGINWIDTHN, 0, PixelWidth);
 end;
 
 procedure TScintEdit.UpdateStyleAttributes;
