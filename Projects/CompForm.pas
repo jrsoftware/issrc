@@ -270,6 +270,7 @@ type
       AutoIndent: Boolean;
       IndentationGuides: Boolean;
       LowPriorityDuringCompile: Boolean;
+      GutterLineNumbers: Boolean;
     end;
     FOptionsLoaded: Boolean;
     FSignTools: TStringList;
@@ -763,6 +764,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.WordWrap := Ini.ReadBool('Options', 'WordWrap', False);
       FOptions.AutoIndent := Ini.ReadBool('Options', 'AutoIndent', True);
       FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', False);
+      FOptions.GutterLineNumbers := Ini.ReadBool('Options', 'GutterLineNumbers', False);
       if GetACP = 932 then begin
         { Default to MS Gothic font on CP 932 (Japanese), as Courier New is
           only capable of displaying Japanese characters on XP and later. }
@@ -1834,11 +1836,13 @@ begin
   Memo.UseTabCharacter := FOptions.UseTabCharacter;
 
   Memo.WordWrap := FOptions.WordWrap;
-  
+
   if FOptions.IndentationGuides then
     Memo.IndentationGuides := sigLookBoth
   else
     Memo.IndentationGuides := sigNone;
+
+  Memo.LineNumbers := FOptions.GutterLineNumbers;
 
 {$IFNDEF UNICODE}
   { Try to set the editor's code page to match the font's character set }
@@ -2571,6 +2575,7 @@ begin
     OptionsForm.WordWrapCheck.Checked := FOptions.WordWrap;
     OptionsForm.AutoIndentCheck.Checked := FOptions.AutoIndent;
     OptionsForm.IndentationGuidesCheck.Checked := FOptions.IndentationGuides;
+    OptionsForm.GutterLineNumbersCheck.Checked := FOptions.GutterLineNumbers;
     OptionsForm.FontPanel.Font.Assign(Memo.Font);
 
     if OptionsForm.ShowModal <> mrOK then
@@ -2593,6 +2598,7 @@ begin
     FOptions.WordWrap := OptionsForm.WordWrapCheck.Checked;
     FOptions.AutoIndent := OptionsForm.AutoIndentCheck.Checked;
     FOptions.IndentationGuides := OptionsForm.IndentationGuidesCheck.Checked;
+    FOptions.GutterLineNumbers := OptionsForm.GutterLineNumbersCheck.Checked;
     UpdateCaption;
     { Move caret to start of line to ensure it doesn't end up in the middle
       of a double-byte character if the code page changes from SBCS to DBCS }
@@ -2621,6 +2627,7 @@ begin
       Ini.WriteBool('Options', 'WordWrap', FOptions.WordWrap);
       Ini.WriteBool('Options', 'AutoIndent', FOptions.AutoIndent);
       Ini.WriteBool('Options', 'IndentationGuides', FOptions.IndentationGuides);
+      Ini.WriteBool('Options', 'GutterLineNumbers', FOptions.GutterLineNumbers);
       Ini.WriteString('Options', 'EditorFontName', Memo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', Memo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', Memo.Font.Charset);

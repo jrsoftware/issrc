@@ -47,6 +47,7 @@ type
     UseTabCharacterCheck: TCheckBox;
     AutoCompleteCheck: TCheckBox;
     UnderlineErrorsCheck: TCheckBox;
+    GutterLineNumbersCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
