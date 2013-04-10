@@ -19,7 +19,7 @@ object OptionsForm: TOptionsForm
     Left = 8
     Top = 8
     Width = 281
-    Height = 181
+    Height = 201
     Caption = ' Miscellaneous '
     TabOrder = 0
     object StartupCheck: TCheckBox
@@ -89,7 +89,7 @@ object OptionsForm: TOptionsForm
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 196
+    Top = 216
     Width = 281
     Height = 57
     Caption = ' File Associations '
@@ -257,6 +257,6 @@ object OptionsForm: TOptionsForm
     MaxFontSize = 0
     Options = [fdForceFontExist]
     Left = 8
-    Top = 260
+    Top = 284
   end
 end
