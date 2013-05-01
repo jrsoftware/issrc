@@ -2600,7 +2600,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 
 <param name="Name" required="yes">
 <p>Name of the file or directory to delete.</p>
-<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. I strongly recommend against doing this for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, C:\WINDOWS) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
+<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommend against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, C:\WINDOWS) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
 <example>
 <pre>Name: "{win}\MYPROG.INI"</pre>
 </example>
@@ -3437,7 +3437,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Igor Pavlov: Creator of the <extlink href="http://www.7-zip.org/sdk.html">LZMA</extlink> compression library that Inno Setup uses.</li>
 
-<li>?: Most of the disk spanning code (1.09). (Sorry, I somehow managed to lose your name!)</li>
+<li>?: Most of the disk spanning code (1.09). (Sorry, somehow your name was lost!)</li>
 
 <li>Vince Valenti: Most of the code for the "Window" <tt>[Setup]</tt> section directives (1.12.4).</li>
 
@@ -3464,8 +3464,6 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support.</li>
 
 </ul>
-
-<p>If I have left anyone out, please don't hesitate to let me know.</p>
 
 </body>
 </topic>
