@@ -327,13 +327,6 @@ end;
 <p>If the function specified by the <tt>{code:...}</tt> constant is not included in the <tt>[Code]</tt> section, it must be a <link topic="scriptfunctions">support function</link>. Here is an example.</p>
 
 <precode>
-[Setup]
-CreateUninstallRegKey={code:IsTaskSelected|CreateUninstallRegKeyTask}
-</precode>
-
-<p>Another example:</p>
-
-<precode>
 [INI]
 FileName: "{app}\MyIni.ini"; Section: "MySettings"; Key: "ShortApp"; String: "{code:GetShortName|{app}}"
 </precode>
