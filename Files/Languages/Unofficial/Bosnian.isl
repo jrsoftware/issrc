@@ -6,7 +6,7 @@
 [LangOptions]
 LanguageName=Bosanski
 LanguageID=$141a
-LanguageCodePage=0
+LanguageCodePage=1250
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=
@@ -300,7 +300,7 @@ UninstallDataCorrupted="%1" datoteka je ošteæena. Deinstalacija nije moguæa.
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Ukloni dijeljenu datoteku
-ConfirmDeleteSharedFile2=Sistem ukazuje da sljedeæe dijeljene datoteke ne koristi nijedan drugi program. Želite li da Deinstalacija ukloni te dijeljene datoteke?%n%nAko neki programi i dalje koriste te datoteke, a one se obrišu, ti programi neæe raditi ispravno. Ako niste sigurni, odaberite Ne. Ostavljanje datoteka neæe uzrokovati štetu vašem sistemu.
+ConfirmDeleteSharedFile2=Sistem smatra da sljedeæe dijeljene datoteke ne koristi nijedan drugi program. Želite li ukloniti te dijeljene datoteke?%n%nAko neki programi i dalje koriste ove datoteke, a one se obrišu, ti programi neæe raditi ispravno. Ako niste sigurni, odaberite Ne. Ostavljanje datoteka neæe uzrokovati štetu vašem sistemu.
 SharedFileNameLabel=Datoteka:
 SharedFileLocationLabel=Putanja:
 WizardUninstalling=Status deinstalacije
@@ -318,7 +318,7 @@ ShutdownBlockReasonUninstallingApp=Deinstaliram %1.
 NameAndVersion=%1 verzija %2
 AdditionalIcons=Dodatne ikone:
 CreateDesktopIcon=Kreiraj &desktop ikonu
-CreateQuickLaunchIcon=Kreiraj &Quick Launch ikonu
+CreateQuickLaunchIcon=Kreiraj ikonu za &brzo pokretanje
 ProgramOnTheWeb=%1 na webu
 UninstallProgram=Deinstaliraj %1
 LaunchProgram=Pokreni %1
