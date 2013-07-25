@@ -30,6 +30,18 @@
                         {$DEFINE IS_D12}  { then it must be at least Delphi 12 (2009) }
                         {$IFNDEF VER200}  { if it's not Delphi 12 (2009) }
                           {$DEFINE IS_D14}  { then it must be at least Delphi 14 (2010) }
+                          {$IFNDEF VER210}  { if it's not Delphi 14 (2010) }
+                            {$DEFINE IS_DXE}  { then it must be at least Delphi XE }
+                            {$IFNDEF VER220}  { if it's not Delphi XE }
+                              {$DEFINE IS_DXE2}  { then it must be at least Delphi XE2 }
+                              {$IFNDEF VER230}  { if it's not Delphi XE2 }
+                                {$DEFINE IS_DXE3}  { then it must be at least Delphi XE3 }
+                                {$IFNDEF VER240}  { if it's not Delphi XE2 }
+                                  {$DEFINE IS_DXE4}  { then it must be at least Delphi XE3 }
+                                {$ENDIF}
+                              {$ENDIF}
+                            {$ENDIF}
+                          {$ENDIF}
                         {$ENDIF}
                       {$ENDIF}
                     {$ENDIF}
