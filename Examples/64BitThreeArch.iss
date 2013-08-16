@@ -22,10 +22,14 @@ ArchitecturesInstallIn64BitMode=x64 ia64
 [Files]
 ; Install MyProg-x64.exe if running on x64, MyProg-IA64.exe if
 ; running on Itanium, MyProg.exe otherwise.
+; Place all x64 files here
 Source: "MyProg-x64.exe"; DestDir: "{app}"; DestName: "MyProg.exe"; Check: IsX64
-Source: "MyProg-IA64.exe"; DestDir: "{app}"; DestName: "MyProg.exe"; Check: IsIA64
-Source: "MyProg.exe"; DestDir: "{app}"; Check: IsOtherArch
-Source: "MyProg.chm"; DestDir: "{app}"
+; Place all IA64 files here, first one should be marked 'solidbreak'
+Source: "MyProg-IA64.exe"; DestDir: "{app}"; DestName: "MyProg.exe"; Check: IsIA64; Flags: solidbreak
+; Place all x86 files here, first one should be marked 'solidbreak'
+Source: "MyProg.exe"; DestDir: "{app}"; Check: IsOtherArch; Flags: solidbreak
+; Place all common files here, first one should be marked 'solidbreak'
+Source: "MyProg.chm"; DestDir: "{app}"; Flags: solidbreak
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Icons]

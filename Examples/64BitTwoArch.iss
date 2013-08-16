@@ -25,9 +25,12 @@ ArchitecturesInstallIn64BitMode=x64
 [Files]
 ; Install MyProg-x64.exe if running in 64-bit mode (x64; see above),
 ; MyProg.exe otherwise.
+; Place all x64 files here
 Source: "MyProg-x64.exe"; DestDir: "{app}"; DestName: "MyProg.exe"; Check: Is64BitInstallMode
-Source: "MyProg.exe"; DestDir: "{app}"; Check: not Is64BitInstallMode
-Source: "MyProg.chm"; DestDir: "{app}"
+; Place all x86 files here, first one should be marked 'solidbreak'
+Source: "MyProg.exe"; DestDir: "{app}"; Check: not Is64BitInstallMode; Flags: solidbreak
+; Place all common files here, first one should be marked 'solidbreak'
+Source: "MyProg.chm"; DestDir: "{app}"; Flags: solidbreak
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Icons]
