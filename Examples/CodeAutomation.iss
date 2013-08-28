@@ -160,7 +160,7 @@ end;
 {--- MSXML ---}
 
 const
-  XMLURL = 'http://cvs.jrsoftware.org/view/*checkout*/ishelp/isxfunc.xml';
+  XMLURL = 'http://jrsoftware.github.io/issrc/ishelp/isxfunc.xml';
   XMLFileName = 'isxfunc.xml';
   XMLFileName2 = 'isxfuncmodified.xml';
 
