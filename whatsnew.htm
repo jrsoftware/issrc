@@ -30,7 +30,11 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
 <li>Added the Windows 8.1 "compatibility" section to the various manifest resources used by Inno Setup. This enables any check for the operating system version to get the real version number (6.3) instead of getting the same version number as it did in Windows 8 (6.2).</li>
 <li>Compiler IDE: Added new option: <i>Show line numbers in gutter</i> (default: off).</li>
-<li>Pascal Scripting: Added new event function <tt>CurInstallProgressChanged</tt>, which you can use to monitor progress while Setup is extracting files, creating shortcuts, creating INI entries, and creating registry entries. See the help file and the <i>CodeExample1.iss</i> example script for more information. Contributed by <a href="https://github.com/tlama" target="_blank">TLama</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
+<li>Pascal Scripting changes:
+<ul>
+  <li>Added new event function <tt>CurInstallProgressChanged</tt>, which you can use to monitor progress while Setup is extracting files, creating shortcuts, creating INI entries, and creating registry entries. See the help file and the <i>CodeExample1.iss</i> example script for more information. Contributed by <a href="https://github.com/tlama" target="_blank">TLama</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
+  <li><tt>WizardForm.BeveledLabel</tt> visibility is now automatically handled even if its caption was set from [Code].</li>
+</ul>
 <li>Minor tweaks.</li>
 </ul>
 

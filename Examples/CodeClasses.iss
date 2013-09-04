@@ -363,6 +363,10 @@ begin
   BackgroundBitmapText.Top := BackgroundBitmapImage.Top + BackgroundBitmapImage.Height + ScaleY(8);
   BackgroundBitmapText.Caption := 'TBitmapImage';
   BackgroundBitmapText.Parent := MainForm;
+
+  { Custom beveled label }
+
+  WizardForm.BeveledLabel.Caption := ' BeveledLabel ';
 end;
 
 procedure InitializeUninstallProgressForm();

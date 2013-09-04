@@ -931,7 +931,10 @@ begin
   RunList.MinItemHeight := ScalePixelsY(22);
 
   { Initialize BeveledLabel }
-  BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' ';
+  if SetupMessages[msgBeveledLabel] <> '' then
+    BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' '
+  else
+    BeveledLabel.Caption := '';
 
   { Don't set UseRichEdit to True on the TRichEditViewers unless they are going
     to be used. There's no need to load riched*.dll unnecessarily. }
@@ -1951,7 +1954,7 @@ begin
   { Set the page description }
   Page.SyncCaptionAndDescription;
 
-  BeveledLabel.Visible := (SetupMessages[msgBeveledLabel] <> '') and
+  BeveledLabel.Visible := (BeveledLabel.Caption <> '') and
     not(CurPageID in [wpWelcome, wpFinished]);
 
   { Set button visibility and captions }
