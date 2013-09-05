@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo,
+  CompPreprocInt, Commctrl, {$IFDEF IS_DXE}VCL.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, DebugStruct, VerInfo, ResUpdate, CompResUpdate,

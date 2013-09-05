@@ -927,7 +927,7 @@ begin
 
   DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
   FDebugLogListTimeWidth := DebugOutputList.Canvas.TextWidth(Format(
-    '[00%s00%s00%s000]   ', [TimeSeparator, TimeSeparator, DecimalSeparator]));
+    '[00%s00%s00%s000]   ', [{$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DecimalSeparator]));
   DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0');
 
   Application.HintShortPause := 0;
@@ -1477,8 +1477,8 @@ var
   begin
     if FirstLine then begin
       FirstLine := False;
-      Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, TimeSeparator,
-        ST.wMinute, TimeSeparator, ST.wSecond, DecimalSeparator,
+      Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator,
+        ST.wMinute, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator, ST.wSecond, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DecimalSeparator,
         ST.wMilliseconds]), S, 1);
       StartsWithTab := False;
     end
@@ -1772,8 +1772,8 @@ begin
     ElapsedTime := GetTickCount - StartTime;
     ElapsedSeconds := ElapsedTime div 1000;
     StatusMessage(Format(SCompilerStatusFinished, [TimeToStr(Time),
-      Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, TimeSeparator,
-        ElapsedSeconds mod 60, DecimalSeparator, ElapsedTime mod 1000])]));
+      Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator,
+        ElapsedSeconds mod 60, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DecimalSeparator, ElapsedTime mod 1000])]));
   finally
     AppData.Lines.Free;
     FCompiling := False;
@@ -3909,8 +3909,8 @@ begin
     if ASecondsRemaining >= 0 then
       StatusBar.Panels[spExtraStatus].Text := Format(
         ' Estimated time remaining: %.2d%s%.2d%s%.2d     Average KB/sec: %.0n',
-        [(ASecondsRemaining div 60) div 60, TimeSeparator,
-         (ASecondsRemaining div 60) mod 60, TimeSeparator,
+        [(ASecondsRemaining div 60) div 60, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator,
+         (ASecondsRemaining div 60) mod 60, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator,
          ASecondsRemaining mod 60, ABytesCompressedPerSecond / 1024])
     else
       StatusBar.Panels[spExtraStatus].Text := '';
