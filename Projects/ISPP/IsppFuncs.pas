@@ -1,14 +1,13 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppFuncs.pas,v 1.15 2011/04/08 04:41:26 jr Exp $
 }
 
 unit IsppFuncs;
 
 interface
 
-{$I version.inc}
+{$I ..\Version.inc}
 
 uses Windows, Classes, IsppVarUtils, IsppIntf, IsppTranslate, IsppParser;
 

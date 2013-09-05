@@ -36,8 +36,8 @@
                               {$DEFINE IS_DXE2}  { then it must be at least Delphi XE2 }
                               {$IFNDEF VER230}  { if it's not Delphi XE2 }
                                 {$DEFINE IS_DXE3}  { then it must be at least Delphi XE3 }
-                                {$IFNDEF VER240}  { if it's not Delphi XE2 }
-                                  {$DEFINE IS_DXE4}  { then it must be at least Delphi XE3 }
+                                {$IFNDEF VER240}  { if it's not Delphi XE3 }
+                                  {$DEFINE IS_DXE4}  { then it must be at least Delphi XE4 }
                                 {$ENDIF}
                               {$ENDIF}
                             {$ENDIF}
