@@ -1,4 +1,9 @@
-{ $jrsoftware: issrc/Projects/Version.inc,v 1.11 2010/12/29 13:22:17 mlaan Exp $ }
+{
+  Inno Setup
+  Copyright (C) 1997-2013 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+}
 
 { Determine Delphi/C++Builder version }
 {$IFNDEF VER90}  { if it's not Delphi 2.0 }
