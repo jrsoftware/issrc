@@ -26,6 +26,7 @@ implementation
 uses
   Windows, SysUtils, PathFunc, CmnFunc2, InstFunc, Main, Msgs, MsgIDs,
   {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, ComObj, {$ENDIF}
+  {$IFDEF IS_D14} PropSys, {$ENDIF}
   ShellAPI, ShlObj;
 
 function IsWindowsXP: Boolean;
@@ -138,6 +139,7 @@ type
     function Commit: HResult; virtual; stdcall; abstract;
   end;
 {$ELSE}
+{$IFNDEF IS_D14}
 type
   IPropertyStore = interface(IUnknown)
     ['{886d8eeb-8cf2-4446-8d02-cdba1dbdcf99}']
@@ -147,6 +149,7 @@ type
     function SetValue(const key: TPropertyKey; const propvar: TPropVariant): HResult; stdcall;
     function Commit: HResult; stdcall;
   end;
+{$ENDIF}
 {$ENDIF}
 {$ENDIF}
 
@@ -305,7 +308,7 @@ var
   OleResult: HRESULT;
   Obj: IUnknown;
   SL: IShellLink;
-  PS: IPropertyStore;
+  PS: {$IFDEF IS_D14}PropSys.{$ENDIF}IPropertyStore;
   PV: TPropVariant;
   PF: IPersistFile;
   WideAppUserModelID, WideFilename: WideString;
@@ -347,7 +350,7 @@ begin
   { Note: Vista and newer support IPropertyStore but Vista errors if you try to
     commit a PKEY_AppUserModel_ID, so avoid setting the property on Vista. }
   if IsWindows7 and ((AppUserModelID <> '') or ExcludeFromShowInNewInstall or PreventPinning) then begin
-    PS := Obj as IPropertyStore;
+    PS := Obj as {$IFDEF IS_D14}PropSys.{$ENDIF}IPropertyStore;
     { According to MSDN the PreventPinning property should be set before the ID property. In practice
       this doesn't seem to matter - at least not for shortcuts - but do it first anyway. }
     if PreventPinning then begin

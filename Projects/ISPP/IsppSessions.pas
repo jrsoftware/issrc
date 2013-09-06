@@ -1,14 +1,9 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppSessions.pas,v 1.3 2010/11/27 07:10:49 jr Exp $
 }
 
 unit IsppSessions;
-
-{$IFDEF VER200}
-  {$DEFINE DELPHI2009}
-{$ENDIF}
 
 interface
 
@@ -23,7 +18,9 @@ procedure QueueFileForDeletion(const FileName: string);
 
 implementation
 
-uses SysUtils, Classes, IsppStacks {$IFDEF DELPHI2009}, Windows{$ENDIF};
+{$I ..\Version.inc}
+
+uses SysUtils, Classes, IsppStacks {$IFDEF IS_D12}, Windows{$ENDIF};
 
 procedure Warning(const Msg: string; const Args: array of const);
 var
