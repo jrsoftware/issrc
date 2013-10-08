@@ -60,7 +60,7 @@ Source code README
 - Install Microsoft MSXML
 
   Install Microsoft MSXML 4.0 SP2 if you haven't already done so.
-  See http://www.microsoft.com/downloads/details.aspx?FamilyID=3144b72b-b4f2-46da-b4b6-c5d7485f2b42&DisplayLang=en
+  See http://www.microsoft.com/en-us/download/details.aspx?id=19662
 
   If you are not sure whether you have MSXML 4.0 SP2 already, check for a
   file named msxml4.dll in your Windows System directory with a version number
@@ -71,7 +71,7 @@ Source code README
 - Install Microsoft HTML Help Workshop
 
   Install Microsoft HTML Help Workshop if you haven't already done so.
-  See http://www.microsoft.com/downloads/details.aspx?familyid=00535334-c8a6-452f-9aa0-d597d16580cc&displaylang=en
+  See http://www.microsoft.com/en-us/download/details.aspx?id=21138
 
   Note: Microsoft HTML Help Workshop is only needed to be able to compile the
   help files.
