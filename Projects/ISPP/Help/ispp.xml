@@ -324,7 +324,7 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#expr <link href="savetofile">SaveToFile</link>(SourcePath + "\preprocessed.iss"), <link href="exec">Exec</link>(CompilerPath + "\Compil32.exe", SourcePath + "\preprocessed.iss")</line>
+						<line>#expr <link href="savetofile">SaveToFile</link>(AddBackslash(SourcePath) + "preprocessed.iss"), <link href="exec">Exec</link>(AddBackslash(CompilerPath) + "Compil32.exe", AddBackslash(SourcePath) + "preprocessed.iss")</line>
 					</pre>
 				</section>
 				<section title="See also">
