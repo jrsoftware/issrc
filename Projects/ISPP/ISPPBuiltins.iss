@@ -233,8 +233,8 @@
 //
 // ExtractFilePath
 //
-// Returns directory portion of the given filename without backslash (unless
-// it is a root directory). If PathName doesn't contain directory portion,
+// Returns directory portion of the given filename with backslash.
+// If PathName doesn't contain directory portion,
 // the result is an empty string.
 //
 #define ExtractFilePath(str PathName) \
@@ -246,6 +246,13 @@
     ((Local[2] = Len(Local[0])) == 2 && Copy(Local[0], Local[2]) == ":" ? \
       "\" : \
       "")
+//
+// ExtractFileDir
+//
+// Returns directory portion of the given filename without backslash (unless
+// it is a root directory). If PathName doesn't contain directory portion,
+// the result is an empty string.
+//
 #define ExtractFileDir(str PathName) \
   RemoveBackslash(ExtractFilePath(PathName))
 
