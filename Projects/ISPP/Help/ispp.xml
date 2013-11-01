@@ -956,7 +956,7 @@ The list of options is provided at the end of this topic.</para>
 						<line></line>
 						<line>#for &ob;FindHandle = FindResult = FindFirst(Mask, 0); FindResult; FindResult = FindNext(FindHandle)&cb; ProcessFoundFile</line>
 						<line>#if FindHandle</line>
-						<line>&dsp;FindClose(FindHandle)</line>
+						<line>&dsp;#expr FindClose(FindHandle)</line>
 						<line>#endif</line>
 					</pre>
 				</section>
