@@ -324,7 +324,7 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#expr <link href="savetofile">SaveToFile</link>("preprocessed.iss"), <link href="exec">Exec</link>("notepad.exe", "preprocessed.iss")</line>
+						<line>#expr <link href="savetofile">SaveToFile</link>(AddBackslash(SourcePath) + "preprocessed.iss"), <link href="exec">Exec</link>(AddBackslash(CompilerPath) + "Compil32.exe", AddBackslash(SourcePath) + "preprocessed.iss")</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -956,7 +956,7 @@ The list of options is provided at the end of this topic.</para>
 						<line></line>
 						<line>#for &ob;FindHandle = FindResult = FindFirst(Mask, 0); FindResult; FindResult = FindNext(FindHandle)&cb; ProcessFoundFile</line>
 						<line>#if FindHandle</line>
-						<line>&dsp;FindClose(FindHandle)</line>
+						<line>&dsp;#expr FindClose(FindHandle)</line>
 						<line>#endif</line>
 					</pre>
 				</section>
@@ -1331,6 +1331,18 @@ The list of options is provided at the end of this topic.</para>
 				<section title="ExtractFilePath">
 					<pre>
 						<line>#define ExtractFilePath(str PathName)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Returns the directory portion of the given filename with a backslash. If PathName doesn't contain a directory portion, the result is an empty string.</para>
+          <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
+			<topic id="ExtractFileDir">
+				<title>ExtractFileDir</title>
+				<section title="ExtractFileDir">
+					<pre>
+						<line>#define ExtractFileDir(str PathName)</line>
 					</pre>
 				</section>
 				<description>
