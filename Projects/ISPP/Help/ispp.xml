@@ -1023,7 +1023,7 @@ The list of options is provided at the end of this topic.</para>
 							&bs;</line>
 						<line>&dsp;ProcessFileLine</line>
 						<line>#if FileHandle</line>
-						<line>&dsp;#expr <link href="FileClose">FileClose</link>(FindHandle)</line>
+						<line>&dsp;#expr <link href="FileClose">FileClose</link>(FileHandle)</line>
 						<line>#endif</line>
 					</pre>
 				</section>
