@@ -1015,10 +1015,11 @@ The list of options is provided at the end of this topic.</para>
 						<line>#define FileHandle</line>
 						<line>#define FileLine</line>
 						<line>#sub ProcessFileLine</line>
+						<line>&dsp;#define FileLine = FileRead(FileHandle)</line>
 						<line>&dsp;#pragma message FileLine</line>
 						<line>#endsub</line>
 						<line>#for &ob;FileHandle = FileOpen("c:&bs;autoexec.bat"); &bs;</line>
-						<line>&dsp;FileHandle &amp;&amp; !<link href="FileEof">FileEof</link>(FileHandle); FileLine = FileRead(FileHandle)&cb;
+						<line>&dsp;FileHandle &amp;&amp; !<link href="FileEof">FileEof</link>(FileHandle); ""&cb;
 							&bs;</line>
 						<line>&dsp;ProcessFileLine</line>
 						<line>#if FileHandle</line>
