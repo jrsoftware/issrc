@@ -1448,7 +1448,7 @@ Source: "Files\*"
 </param>
 
 <param name="DestDir" required="yes">
-<p>The directory where the file is to be installed on the user's system. The will almost always begin with one of the directory constants. If the specified path does not already exist on the user's system, it will be created automatically, and removed automatically during uninstallation if empty.</p>
+<p>The directory where the file is to be installed on the user's system. Will almost always begin with one of the directory constants. If the specified path does not already exist on the user's system, it will be created automatically, and removed automatically during uninstallation if empty.</p>
 <examples>
 <pre>
 DestDir: "{app}"
