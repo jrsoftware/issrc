@@ -13,7 +13,7 @@
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
 ; understand the '[LangOptions] section' topic in the help file.
-LanguageName=Gàidhlig
+LanguageName=G<00E0>idhlig
 LanguageID=$0491
 LanguageCodePage=1252
 ; If the language you are translating to requires special font faces or
