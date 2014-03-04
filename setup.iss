@@ -61,6 +61,7 @@ Name: se; MessagesFile: "files\Languages\SerbianLatin.isl"
 Name: se2; MessagesFile: "files\Languages\SerbianCyrillic.isl"
 Name: sl2; MessagesFile: "files\Languages\Slovenian.isl"
 Name: sp; MessagesFile: "files\Languages\Spanish.isl"
+Name: tu; MessagesFile: "files\Languages\Turkish.isl"
 Name: uk; MessagesFile: "files\Languages\Ukrainian.isl"
 
 [Messages]
@@ -123,6 +124,7 @@ Source: "files\Languages\SerbianCyrillic.isl"; DestDir: "{app}\Languages"; Flags
 Source: "files\Languages\SerbianLatin.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Slovenian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Spanish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+Source: "files\Languages\Turkish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Ukrainian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\WizModernImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
