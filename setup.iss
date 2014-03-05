@@ -57,6 +57,7 @@ Name: no; MessagesFile: "files\Languages\Norwegian.isl"
 Name: pl; MessagesFile: "files\Languages\Polish.isl"
 Name: pt; MessagesFile: "files\Languages\Portuguese.isl"
 Name: ru; MessagesFile: "files\Languages\Russian.isl"
+Name: sg; MessagesFile: "files\Languages\ScottishGaelic.isl"
 Name: se; MessagesFile: "files\Languages\SerbianLatin.isl"
 Name: se2; MessagesFile: "files\Languages\SerbianCyrillic.isl"
 Name: sl2; MessagesFile: "files\Languages\Slovenian.isl"
@@ -120,6 +121,7 @@ Source: "files\Languages\Norwegian.isl"; DestDir: "{app}\Languages"; Flags: igno
 Source: "files\Languages\Polish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Portuguese.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Russian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+Source: "files\Languages\ScottishGaelic.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\SerbianCyrillic.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\SerbianLatin.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\Languages\Slovenian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
