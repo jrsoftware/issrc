@@ -146,15 +146,15 @@ begin
         EndTime := GetTickCount;
         if not Quiet then begin
           WriteStdOut('');
-					if Data.OutputExeFilename <> '' then begin
-						WriteStdOut(Format('Successful compile (%.3f sec). ' +
-							'Resulting Setup program filename is:',
-							[(EndTime - StartTime) / 1000]));
-						WriteStdOut(Data.OutputExeFilename);
-					end else
-						WriteStdOut(Format('Successful compile (%.3f sec). ' +
-							'Output was disabled.',
-							[(EndTime - StartTime) / 1000]));
+          if Data.OutputExeFilename <> '' then begin
+            WriteStdOut(Format('Successful compile (%.3f sec). ' +
+              'Resulting Setup program filename is:',
+              [(EndTime - StartTime) / 1000]));
+            WriteStdOut(Data.OutputExeFilename);
+          end else
+            WriteStdOut(Format('Successful compile (%.3f sec). ' +
+              'Output was disabled.',
+              [(EndTime - StartTime) / 1000]));
         end;
       end;
     iscbNotifyError:
@@ -358,8 +358,8 @@ begin
   if S <> '' then Options.InlineEnd := AnsiString(S);
   I := 1; S := FindParam(I, 'V');
   if S <> '' then Options.VerboseLevel := StrToIntDef(S, 0);
-	I := 1; FindParam(I, 'DO'); if I <> MaxInt then Output := 'no';
-	I := 1; FindParam(I, 'EO'); if I <> MaxInt then Output := 'yes';
+  I := 1; FindParam(I, 'DO'); if I <> MaxInt then Output := 'no';
+  I := 1; FindParam(I, 'EO'); if I <> MaxInt then Output := 'yes';
   I := 1; OutputPath := FindParam(I, 'O');
   I := 1; OutputFileName := FindParam(I, 'F');
   I := 1; SignTool := FindParam(I, 'S');

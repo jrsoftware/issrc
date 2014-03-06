@@ -3578,7 +3578,7 @@ begin
     if FCompiledExe = '' then
       raise Exception.Create(SCompilerNeedCompiledExe);
     RunFilename := FCompiledExe;
-	end;
+  end;
   RunParameters := Format('/DEBUGWND=$%x ', [Handle]) + FRunParameters;
 
   ResetLineState;

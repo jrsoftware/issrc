@@ -136,15 +136,15 @@ begin
         EndTime := GetTickCount;
         if not Quiet then begin
           WriteStdOut('');
-					if Data.OutputExeFilename <> '' then begin
-						WriteStdOut(Format('Successful compile (%.3f sec). ' +
-							'Resulting Setup program filename is:',
-							[(EndTime - StartTime) / 1000]));
-						WriteStdOut(Data.OutputExeFilename);
-					end else
-						WriteStdOut(Format('Successful compile (%.3f sec). ' +
-							'Output was disabled.',
-							[(EndTime - StartTime) / 1000]));
+          if Data.OutputExeFilename <> '' then begin
+            WriteStdOut(Format('Successful compile (%.3f sec). ' +
+              'Resulting Setup program filename is:',
+              [(EndTime - StartTime) / 1000]));
+            WriteStdOut(Data.OutputExeFilename);
+          end else
+            WriteStdOut(Format('Successful compile (%.3f sec). ' +
+              'Output was disabled.',
+              [(EndTime - StartTime) / 1000]));
         end;
       end;
     iscbNotifyError:
@@ -178,7 +178,7 @@ procedure ProcessCommandLine;
     WriteStdErr('or to read from standard input:  iscc [options] -');
     WriteStdErr('Options:  /DO            Disable output (overrides Output)');
     WriteStdErr('          /EO            Enable output (overrides Output)');
-		WriteStdErr('          /Oc:\path      Output files to specified path (overrides OutputDir)');
+    WriteStdErr('          /Oc:\path      Output files to specified path (overrides OutputDir)');
     WriteStdErr('          /Ffilename     Overrides OutputBaseFilename with the specified filename');
     WriteStdErr('          /Sname=command Sets a SignTool with the specified name and command');
     WriteStdErr('          /Q             Quiet compile (print error messages only)');
@@ -295,7 +295,7 @@ begin
     Params.SourcePath := PChar(ScriptPath);
     Params.CallbackProc := CompilerCallbackProc;
     Options := '';
-		if Output <> '' then
+    if Output <> '' then
       Options := Options + 'Output=' + Output + #0;
     if OutputPath <> '' then
       Options := Options + 'OutputDir=' + OutputPath + #0;
