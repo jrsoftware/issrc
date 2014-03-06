@@ -146,10 +146,15 @@ begin
         EndTime := GetTickCount;
         if not Quiet then begin
           WriteStdOut('');
-          WriteStdOut(Format('Successful compile (%.3f sec). ' +
-            'Resulting Setup program filename is:',
-            [(EndTime - StartTime) / 1000]));
-          WriteStdOut(Data.OutputExeFilename);
+					if Data.OutputExeFilename <> '' then begin
+						WriteStdOut(Format('Successful compile (%.3f sec). ' +
+							'Resulting Setup program filename is:',
+							[(EndTime - StartTime) / 1000]));
+						WriteStdOut(Data.OutputExeFilename);
+					end else
+						WriteStdOut(Format('Successful compile (%.3f sec). ' +
+							'Output was disabled.',
+							[(EndTime - StartTime) / 1000]));
         end;
       end;
     iscbNotifyError:
@@ -249,6 +254,10 @@ procedure Go;
     WriteStdErr('            /{#<string>          #pragma inlinestart <string>');
     WriteStdErr('            /}<string>           #pragma inlineend <string>');
     WriteStdErr('            /v<number>           #pragma verboselevel <number>');
+    WriteStdErr('          Disable output (overrides Output):');
+    WriteStdErr('            /do');
+    WriteStdErr('          Enable output (overrides Output):');
+    WriteStdErr('            /eo');
     WriteStdErr('          Output files to specified path (overrides OutputDir):');
     WriteStdErr('            /o<path>');
     WriteStdErr('          Override OutputBaseFilename with the specified filename:');
@@ -268,7 +277,7 @@ var
   F: TTextFileReader;
   Params: TCompileScriptParamsEx;
   I: Integer;
-  S, IncludePath, Definitions, OutputPath, OutputFilename, SignTool: string;
+  S, IncludePath, Definitions, Output, OutputPath, OutputFilename, SignTool: string;
   Res: Integer;
 begin
   I := 1;
@@ -349,6 +358,8 @@ begin
   if S <> '' then Options.InlineEnd := AnsiString(S);
   I := 1; S := FindParam(I, 'V');
   if S <> '' then Options.VerboseLevel := StrToIntDef(S, 0);
+	I := 1; FindParam(I, 'DO'); if I <> MaxInt then Output := 'no';
+	I := 1; FindParam(I, 'EO'); if I <> MaxInt then Output := 'yes';
   I := 1; OutputPath := FindParam(I, 'O');
   I := 1; OutputFileName := FindParam(I, 'F');
   I := 1; SignTool := FindParam(I, 'S');
@@ -375,6 +386,8 @@ begin
     Params.SourcePath := PChar(ScriptPath);
     Params.CallbackProc := CompilerCallbackProc;
     S := '';
+    if Output <> '' then
+      AppendOption(S, 'Output', Output);
     if OutputPath <> '' then
       AppendOption(S, 'OutputDir', OutputPath);
     if OutputFilename <> '' then

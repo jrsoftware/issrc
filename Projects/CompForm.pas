@@ -3574,8 +3574,11 @@ begin
     if FUninstExe = '' then
       raise Exception.Create(SCompilerNeedUninstExe);
     RunFilename := FUninstExe;
-  end else
+  end else begin
+    if FCompiledExe = '' then
+      raise Exception.Create(SCompilerNeedCompiledExe);
     RunFilename := FCompiledExe;
+	end;
   RunParameters := Format('/DEBUGWND=$%x ', [Handle]) + FRunParameters;
 
   ResetLineState;

@@ -902,6 +902,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_lzmanumfastbytes">LZMANumFastBytes</link></li>
 <li><link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link></li>
 <li><link topic="setup_mergeduplicatefiles">MergeDuplicateFiles</link></li>
+<li><link topic="setup_output">Output</link></li>
 <li><link topic="setup_outputbasefilename">OutputBaseFilename</link></li>
 <li><link topic="setup_outputdir">OutputDir</link></li>
 <li><link topic="setup_outputmanifestfile">OutputManifestFile</link></li>
@@ -2974,7 +2975,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>As shown in the example above, filenames that include spaces must be enclosed in quotes.</p>
 
-<p>Valid options are: "/O" to specify an output path (overriding any <tt>OutputDir</tt> setting in the script), "/F" to specify an output filename (overriding any <tt>OutputBaseFilename</tt> setting in the script), "/S" to specify a Sign Tool, "/Q" for quiet compile (print only error messages), and "/?" to show a help screen.</p>
+<p>Valid options are: "/DO" to disable output (overriding any <tt>Output</tt> setting in the script), "/EO" to enable output (overriding any <tt>Output</tt> setting in the script), "/O" to specify an output path (overriding any <tt>OutputDir</tt> setting in the script), "/F" to specify an output filename (overriding any <tt>OutputBaseFilename</tt> setting in the script), "/S" to specify a Sign Tool, "/Q" for quiet compile (print only error messages), and "/?" to show a help screen.</p>
 
 <indent>
 <example>iscc /Q /O"My Output" /F"MyProgram-1.0" /Sbyparam=$p "c:\isetup\samples\my script.iss"</example>
@@ -4025,6 +4026,14 @@ end;</pre></example>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>Normally, Inno Setup's <tt>{group}</tt> constant points to the All Users start menu if the user has administrative privileges. If this directive is set to <tt>yes</tt>, it always uses current user's profile.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="Output">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>If set to <tt>no</tt> the Setup Compiler will only check the script for errors and skip creating setup files.</p>
 </body>
 </setuptopic>
 

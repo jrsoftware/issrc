@@ -35,7 +35,7 @@ type
 var
   StdOutHandle, StdErrHandle: THandle;
   ScriptFilename: String;
-  OutputPath, OutputFilename, SignTool: String;
+  Output, OutputPath, OutputFilename, SignTool: String;
   ScriptLines, NextScriptLine: PScriptLine;
   CurLine: String;
   StartTime, EndTime: DWORD;
@@ -136,10 +136,15 @@ begin
         EndTime := GetTickCount;
         if not Quiet then begin
           WriteStdOut('');
-          WriteStdOut(Format('Successful compile (%.3f sec). ' +
-            'Resulting Setup program filename is:',
-            [(EndTime - StartTime) / 1000]));
-          WriteStdOut(Data.OutputExeFilename);
+					if Data.OutputExeFilename <> '' then begin
+						WriteStdOut(Format('Successful compile (%.3f sec). ' +
+							'Resulting Setup program filename is:',
+							[(EndTime - StartTime) / 1000]));
+						WriteStdOut(Data.OutputExeFilename);
+					end else
+						WriteStdOut(Format('Successful compile (%.3f sec). ' +
+							'Output was disabled.',
+							[(EndTime - StartTime) / 1000]));
         end;
       end;
     iscbNotifyError:
@@ -171,7 +176,9 @@ procedure ProcessCommandLine;
   begin
     WriteStdErr('Usage:  iscc [options] scriptfile.iss');
     WriteStdErr('or to read from standard input:  iscc [options] -');
-    WriteStdErr('Options:  /Oc:\path      Output files to specified path (overrides OutputDir)');
+    WriteStdErr('Options:  /DO            Disable output (overrides Output)');
+    WriteStdErr('          /EO            Enable output (overrides Output)');
+		WriteStdErr('          /Oc:\path      Output files to specified path (overrides OutputDir)');
     WriteStdErr('          /Ffilename     Overrides OutputBaseFilename with the specified filename');
     WriteStdErr('          /Sname=command Sets a SignTool with the specified name and command');
     WriteStdErr('          /Q             Quiet compile (print error messages only)');
@@ -187,6 +194,10 @@ begin
     if (S = '') or (S[1] = '/') then begin
       if CompareText(S, '/Q') = 0 then
         Quiet := True
+      else if CompareText(Copy(S, 1, 3), '/DO') = 0 then
+        Output := 'no'
+      else if CompareText(Copy(S, 1, 3), '/EO') = 0 then
+        Output := 'yes'
       else if CompareText(Copy(S, 1, 2), '/O') = 0 then
         OutputPath := Copy(S, 3, MaxInt)
       else if CompareText(Copy(S, 1, 2), '/F') = 0 then
@@ -284,6 +295,8 @@ begin
     Params.SourcePath := PChar(ScriptPath);
     Params.CallbackProc := CompilerCallbackProc;
     Options := '';
+		if Output <> '' then
+      Options := Options + 'Output=' + Output + #0;
     if OutputPath <> '' then
       Options := Options + 'OutputDir=' + OutputPath + #0;
     if OutputFilename <> '' then
