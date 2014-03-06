@@ -884,9 +884,19 @@ end;</pre></example>
         <remarks><p>Use of <link topic="isxfunc_StrToInt64Def">StrToInt64Def</link> instead of StrToInt64 is recommended.</p></remarks>
       </function>
       <function>
+        <name>StrToFloat</name>
+        <prototype>function StrToFloat(s: string): Extended;</prototype>
+        <description><p>The StrToFloat function converts the string passed in S into a floating point number. The character used for the decimal point should always be a dot.</p></description>
+      </function>
+      <function>
         <name>IntToStr</name>
         <prototype>function IntToStr(i: Int64): String;</prototype>
-        <description><p>The IntToStr function converts an 32-bit or 64-bit number into a string containing the decimal representation of that number.</p><p>64-bit numbers require Unicode Inno Setup.</p></description>
+        <description><p>The IntToStr function converts an 32-bit or 64-bit number into a string.</p><p>64-bit numbers require Unicode Inno Setup.</p></description>
+      </function>
+      <function>
+        <name>FloatToStr</name>
+        <prototype>function FloatToStr(e: extended): String;</prototype>
+        <description><p>The FloatToStr function converts a floating point number into a string.</p><p>Unicode Inno Setup: the character used for the decimal point will always be a dot. Non-Unicode Inno Setup: the character used for the decimal point is locale-dependant.</p></description>
       </function>
     </subcategory>
     <subcategory>
