@@ -40,6 +40,6 @@ Source: "Readme.txt"; DestDir: "{app}"; \
 Name: "{group}\{#AppName}"; Filename: "{app}\MyProg.exe"
 
 #ifdef Debug
-  #expr SaveToFile(AddBackslash(SourcePath) + "Preprocessed.iss")
-  #expr Exec(AddBackslash(CompilerPath) + "Compil32.exe", """" + AddBackslash(SourcePath) + "Preprocessed.iss""")
+  #expr SaveToFile(AddBackslash(SourcePath) + "Preprocessed.iss"), \
+        Exec(AddBackslash(CompilerPath) + "Compil32.exe", """" + AddBackslash(SourcePath) + "Preprocessed.iss""")
 #endif
