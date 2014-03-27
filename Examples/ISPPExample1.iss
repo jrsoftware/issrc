@@ -41,4 +41,5 @@ Name: "{group}\{#AppName}"; Filename: "{app}\MyProg.exe"
 
 #ifdef Debug
   #expr SaveToFile(AddBackslash(SourcePath) + "Preprocessed.iss")
+  #expr Exec(AddBackslash(CompilerPath) + "Compil32.exe", """" + AddBackslash(SourcePath) + "Preprocessed.iss""")
 #endif
