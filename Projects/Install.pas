@@ -1779,7 +1779,7 @@ var
         ProbableFilename := UrlFilename
       else
         ProbableFilename := LinkFilename;
-      LogFmt('Filename: %s', [ProbableFilename]);
+      LogFmt('Dest filename: %s', [ProbableFilename]);
       SetFilenameLabelText(ProbableFilename, True);
       MakeDir(False, PathExtractDir(ProbableFilename), Flags);
 
@@ -1792,6 +1792,8 @@ var
       end;
       DeleteFile(UrlFilename);
       DeleteFolderShortcut(DirFilename);
+
+      Log('Creating the icon.');
 
       if not URLShortcut then begin
         { Create the shortcut.
@@ -1819,6 +1821,8 @@ var
         ResultingFilename := UrlFilename;
         FolderShortcutCreated := False;
       end;
+
+      Log('Successfully created the icon.');
 
       { Set the global flag that is checked by the Finished wizard page }
       CreatedIcon := True;
@@ -1895,7 +1899,9 @@ var
                 ioUninsNeverUninstall in Options, CloseOnExit, HotKey,
                 ioFolderShortcut in Options, ExpandConst(AppUserModelID),
                 ioExcludeFromShowInNewInstall in Options,
-                ioPreventPinning in Options);
+                ioPreventPinning in Options)
+            else
+              Log('Skipping due to "createonlyiffileexists" flag.');
             NotifyAfterInstallEntry(AfterInstall);
           end;
         end;
@@ -1917,7 +1923,7 @@ var
     CurIniNumber: Integer;
     CurIni: PSetupIniEntry;
     IniSection, IniEntry, IniValue, IniFilename, IniDir: String;
-    Skip: Boolean;
+    Skip, Success: Boolean;
   begin
     for CurIniNumber := 0 to Entries[seIni].Count-1 do begin
       CurIni := PSetupIniEntry(Entries[seIni][CurIniNumber]);
@@ -1925,10 +1931,17 @@ var
         if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
           DebugNotifyEntry(seIni, CurIniNumber);
           NotifyBeforeInstallEntry(BeforeInstall);
+          Log('-- INI entry --');
           IniSection := ExpandConst(Section);
           IniEntry := ExpandConst(Entry);
           IniValue := ExpandConst(Value);
           IniFilename := ExpandConst(Filename);
+          LogFmt('Dest filename: %s', [IniFilename]);
+          LogFmt('Section: %s', [IniSection]);
+          if IniEntry <> '' then
+            LogFmt('Entry: %s', [IniEntry]);
+          if ioHasValue in Options then
+            LogFmt('Value: %s', [IniValue]);
 
           if (IniEntry <> '') and (ioHasValue in Options) and
              (not(ioCreateKeyIfDoesntExist in Options) or
@@ -1949,12 +1962,16 @@ var
               end;
             end;
             if not Skip then
-              while not SetIniString(IniSection, IniEntry, IniValue, IniFilename) do begin
-                if AbortRetryIgnoreMsgBox(FmtSetupMessage1(msgErrorIniEntry, IniFilename),
-                   SetupMessages[msgEntryAbortRetryIgnore]) then
+              Log('Updating the .INI file.');
+              repeat
+                if SetIniString(IniSection, IniEntry, IniValue, IniFilename) then begin
+                  Log('Successfully updated the .INI file.');
                   Break;
-              end;
-          end;
+                end;
+               until AbortRetryIgnoreMsgBox(FmtSetupMessage1(msgErrorIniEntry, IniFilename),
+                 SetupMessages[msgEntryAbortRetryIgnore]);
+          end else
+            Log('Skipping updating the .INI file, only updating uninstall log.');
 
           if ioUninsDeleteEntireSection in Options then
             UninstLog.Add(utIniDeleteSection, [IniFilename, IniSection], 0);
