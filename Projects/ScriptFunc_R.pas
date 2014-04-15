@@ -1706,10 +1706,17 @@ begin
   end else if Proc.Name = 'CURRENTFILENAME' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    if CheckOrInstallCurrentFileName <> '' then
-      Stack.SetString(PStart, CheckOrInstallCurrentFileName)
+    if CheckOrInstallCurrentFilename <> '' then
+      Stack.SetString(PStart, CheckOrInstallCurrentFilename)
     else
-      InternalError('An attempt was made to call the "CurrentFileName" function from outside a "Check", "BeforeInstall" or "AfterInstall" event function belonging to a "[Files]" entry');
+      InternalError('An attempt was made to call the "CurrentFilename" function from outside a "Check", "BeforeInstall" or "AfterInstall" event function belonging to a "[Files]" entry');
+  end else if Proc.Name = 'CURRENTSOURCEFILENAME' then begin
+    if IsUninstaller then
+      NoUninstallFuncError(Proc.Name);
+    if CheckOrInstallCurrentSourceFilename <> '' then
+      Stack.SetString(PStart, CheckOrInstallCurrentSourceFilename)
+    else
+      InternalError('An attempt was made to call the "CurrentSourceFilename" function from outside a "Check", "BeforeInstall" or "AfterInstall" event function belonging to a "[Files]" entry with flag "external"');
   end else if Proc.Name = 'CASTSTRINGTOINTEGER' then begin
     Stack.SetInt(PStart, Integer(PChar(Stack.GetString(PStart-1))));
   end else if Proc.Name = 'CASTINTEGERTOSTRING' then begin

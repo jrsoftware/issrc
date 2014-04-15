@@ -128,10 +128,16 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
-        <name>CurrentFileName</name>
-        <prototype>function CurrentFileName: String;</prototype>
-        <description><p>Returns the destination name of the [Files] entry that is currently being processed. The returned name may include constants.</p>
+        <name>CurrentFilename</name>
+        <prototype>function CurrentFilename: String;</prototype>
+        <description><p>Returns the destination file name of the [Files] entry that is currently being processed. The returned name may include constants.</p>
 <p>Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a [Files] entry.</p></description>
+      </function>
+      <function>
+        <name>CurrentSourceFilename</name>
+        <prototype>function CurrentSourceFilename: String;</prototype>
+        <description><p>Returns the source file name of the [Files] entry that is currently being processed. The returned name may include constants.</p>
+<p>Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a [Files] entry with the "external" flag.</p></description>
       </function>
     </subcategory>
     <subcategory>

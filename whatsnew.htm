@@ -31,7 +31,12 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <li>Added new [Setup] section directive: <tt>Output</tt>, which defaults to <tt>yes</tt>. If set to <tt>no</tt> the Setup Compiler will only check the script for errors and skip creating setup files.</li>
 <li>Added new command line parameters supported by ISCC: /DO and /EO. These can be used to disable or enable output, overriding the <tt>Output</tt> directive.</li>
 <li>/LOG: Now logs INI entries. Also improved logging of icon entries.</li>
-<li>Pascal Scripting: The already-existing <tt>StrToFloat</tt> and <tt>FloatToStr</tt> functions are now documented.</li>
+<li>Pascal Scripting changes:
+<ul>
+  <li>Added new function <tt>CurrentSourceFileName</tt>, which returns the source file name of the [Files] entry that is currently being processed. The returned name may include constants. <i>Note:</i> Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a [Files] entry with the <tt>external</tt> flag.</li>
+  <li>The already-existing <tt>StrToFloat</tt> and <tt>FloatToStr</tt> functions are now documented.</li>
+</ul>
+</li>
 <li>Added official Scottish Gaelic and Turskish translations.</li>
 </ul>
 

@@ -288,7 +288,7 @@ const
   );
 
   { Other }
-  OtherTable: array [0..26] of AnsiString =
+  OtherTable: array [0..27] of AnsiString =
   (
     'procedure BringToFrontAndRestore;',
     'function WizardDirValue: String;',
@@ -300,7 +300,8 @@ const
     'function WizardSilent: Boolean;',
     'function IsUninstaller: Boolean;',
     'function UninstallSilent: Boolean;',
-    'function CurrentFileName: String;',
+    'function CurrentFilename: String;',
+    'function CurrentSourceFilename: String;',
     'function CastStringToInteger(var S: String): Longint;',
     'function CastIntegerToString(const L: Longint): String;',
     'procedure Abort;',
