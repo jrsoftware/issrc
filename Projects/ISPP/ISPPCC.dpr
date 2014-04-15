@@ -9,7 +9,7 @@ program ISPPCC;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2014 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -235,8 +235,8 @@ procedure Go;
   procedure ShowBanner;
   begin
     WriteStdOut('Inno Setup 5 Command-Line Compiler');
-    WriteStdOut('Copyright (C) 1997-2012 Jordan Russell. All rights reserved.');
-    WriteStdOut('Portions Copyright (C) 2000-2012 Martijn Laan');
+    WriteStdOut('Copyright (C) 1997-2014 Jordan Russell. All rights reserved.');
+    WriteStdOut('Portions Copyright (C) 2000-2014 Martijn Laan');
     WriteStdOut('Inno Setup Preprocessor');
     WriteStdOut('Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
     WriteStdOut('');
