@@ -145,7 +145,7 @@ var
   NeedToAbortInstall: Boolean;
 
   { Check/BeforeInstall/AfterInstall 'contants' }
-  CheckOrInstallCurrentFileName: String;
+  CheckOrInstallCurrentFilename, CheckOrInstallCurrentSourceFilename: String;
 
   { RestartManager API state.
     Note: the handle and key might change while running, see TWizardForm.QueryRestartManager. }
@@ -420,9 +420,11 @@ end;
 
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
 begin
-  CheckOrInstallCurrentFileName := FileEntry.DestName;
+  CheckOrInstallCurrentFilename := FileEntry.DestName;
+  CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   NotifyInstallEntry(FileEntry.BeforeInstall);
-  CheckOrInstallCurrentFileName := '';
+  CheckOrInstallCurrentFilename := '';
+  CheckOrInstallCurrentSourceFilename := '';
 end;
 
 procedure NotifyAfterInstallEntry(const AfterInstall: String);
@@ -432,9 +434,11 @@ end;
 
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 begin
-  CheckOrInstallCurrentFileName := FileEntry.DestName;
+  CheckOrInstallCurrentFilename := FileEntry.DestName;
+  CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   NotifyInstallEntry(FileEntry.AfterInstall);
-  CheckOrInstallCurrentFileName := '';
+  CheckOrInstallCurrentFilename := '';
+  CheckOrInstallCurrentSourceFilename := '';
 end;
 
 class function TDummyClass.EvalComponentOrTaskIdentifier(Sender: TSimpleExpression;
@@ -558,12 +562,14 @@ begin
     Result := False;
     Exit;
   end;
-  CheckOrInstallCurrentFileName := FileEntry.DestName;
+  CheckOrInstallCurrentFilename := FileEntry.DestName;
+  CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   if IgnoreCheck then
     Result := ShouldProcessEntry(WizardComponents, WizardTasks, FileEntry.Components, FileEntry.Tasks, FileEntry.Languages, '')
   else
     Result := ShouldProcessEntry(WizardComponents, WizardTasks, FileEntry.Components, FileEntry.Tasks, FileEntry.Languages, FileEntry.Check);
-  CheckOrInstallCurrentFileName := '';
+  CheckOrInstallCurrentFilename := '';
+  CheckOrInstallCurrentSourceFilename := '';
 end;
 
 function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
