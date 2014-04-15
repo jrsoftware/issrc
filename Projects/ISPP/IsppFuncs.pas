@@ -937,6 +937,25 @@ begin
   end;
 end;
 
+function DelFileNowFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      DeleteFile(PChar(PrependPath(Ext, Get(0).AsStr)));
+      ResPtr^.Typ := evNull;
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 function CopyFileFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
@@ -1634,6 +1653,7 @@ begin
     RegisterFunction('EntryCount', EntryCountFunc, -1);
     RegisterFunction('GetEnv', GetEnvFunc, -1);
     RegisterFunction('DeleteFile', DelFileFunc, -1);
+    RegisterFunction('DeleteFileNow', DelFileNowFunc, -1);
     RegisterFunction('CopyFile', CopyFileFunc, -1);
     RegisterFunction('ReadEnv', GetEnvFunc, -1);
     RegisterFunction('FindFirst', FindFirstFunc, -1);
