@@ -1923,7 +1923,7 @@ var
     CurIniNumber: Integer;
     CurIni: PSetupIniEntry;
     IniSection, IniEntry, IniValue, IniFilename, IniDir: String;
-    Skip, Success: Boolean;
+    Skip: Boolean;
   begin
     for CurIniNumber := 0 to Entries[seIni].Count-1 do begin
       CurIni := PSetupIniEntry(Entries[seIni][CurIniNumber]);
