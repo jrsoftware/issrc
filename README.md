@@ -15,7 +15,7 @@ Source code README
   First you need to download the sources from Github. From the command line do:
 
   ```
-  > git clone git://github.com/jrsoftware/issrc.git is
+  > git clone https://github.com/jrsoftware/issrc.git is
   > cd is
   > git submodule init
   > git submodule update
