@@ -906,7 +906,16 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> DeleteFile(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>Marks the specified file for deletion after the compilation has completed. Does not return anything.</para>
+					<para>Marks the specified file for deletion after the compilation has completed. Does not return anything. Also see <synel><link href="DeleteFileNow">DeleteFileNow</link></synel>.</para>
+				</description>
+			</topic>
+			<topic id="DeleteFileNow">
+				<title>DeleteFileNow</title>
+				<section title="Prototype">
+					<pre><line><b>void</b> DeleteFileNow(<b>str</b>)</line></pre>
+				</section>
+				<description>
+					<para>Deletes the specified file. Does not return anything. Also see <synel><link href="DeleteFile">DeleteFile</link></synel>.</para>
 				</description>
 			</topic>
 			<topic id="CopyFile">
@@ -979,7 +988,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> FindClose(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para><synel>FindClose</synel> termiates <synel><link href="FindFirst">FindFirst</link></synel>/<synel><link href="FindNext">FindNext</link></synel> sequence. The parameter must be non-zero find handle returned by <synel>FindFirst</synel>.</para>
+					<para><synel>FindClose</synel> terminates a <synel><link href="FindFirst">FindFirst</link></synel>/<synel><link href="FindNext">FindNext</link></synel> sequence. The parameter must be non-zero find handle returned by <synel>FindFirst</synel>.</para>
 					<para>This function is obsolete since 1.2. ISPP automatically frees resources allocated in a call to <synel>FindFirst</synel>.</para>
 				</description>
 			</topic>
