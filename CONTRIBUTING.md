@@ -30,10 +30,10 @@ your work on topic branches and make pull requests. In detail:
 
 1. [Fork](http://help.github.com/fork-a-repo/) the project.
 
-2. Clone your fork (`git clone git@github.com:<your-username>/issrc.git`).
+2. Clone your fork (`git clone https://github.com/<your-username>/issrc.git`).
 
 3. Add an `upstream` remote (`git remote add upstream
-   git://github.com/jrsoftware/issrc.git`).
+   https://github.com/jrsoftware/issrc.git`).
 
 4. Get the latest changes from upstream (e.g. `git pull upstream master`).
 
@@ -53,8 +53,8 @@ your work on topic branches and make pull requests. In detail:
    <topic-branch-name>`).
 
 9. [Open a Pull Request](http://help.github.com/send-pull-requests/) with a
-   clear title and description. Please include your name and email address if
-	 you are contributing a translation.
+    clear title and description. Please include your name and email address if
+	  you are contributing a translation.
 
 10. Bask in the eternal glory of being an Inno Setup contributor :)
 
