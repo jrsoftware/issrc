@@ -794,7 +794,7 @@ begin
                 CommitStyle(stPascalLiteralString);
                 Break;
               end;
-          end;
+            end;
           end;
         '{':
           begin
