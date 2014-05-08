@@ -46,7 +46,7 @@ type
 
   TInnoSetupStylerStyle = (stDefault, stCompilerDirective,
     stComment, stSection, stSymbol, stKeyword, stParameterValue,
-    stEventFunction, stConstant, stMessageArg);
+    stEventFunction, stConstant, stMessageArg, stPascalLiteralString);
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
@@ -657,6 +657,7 @@ begin
       stSection: Attributes.FontStyle := [fsBold];
       stSymbol: Attributes.ForeColor := $707070;
       stKeyword: Attributes.ForeColor := clBlue;
+      stPascalLiteralString: Attributes.ForeColor := clMaroon;
       //stParameterValue: Attributes.ForeColor := clTeal;
       stEventFunction: Attributes.FontStyle := [fsBold];
       stConstant: Attributes.ForeColor := $C00080;
@@ -786,11 +787,11 @@ begin
             while True do begin
               ConsumeCharsNot(['''']);
               if not ConsumeChar('''') then begin
-                CommitStyleSqPending(stPascalString);
+                CommitStyleSqPending(stPascalLiteralString);
                 Break;
               end;
               if not ConsumeChar('''') then begin
-                CommitStyle(stPascalString);
+                CommitStyle(stPascalLiteralString);
                 Break;
               end;
             end;
