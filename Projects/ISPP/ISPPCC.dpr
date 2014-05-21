@@ -22,6 +22,8 @@ uses
   SafeDLLPath in '..\SafeDLLPath.pas',
   Windows,
   SysUtils,
+  Registry,
+  Classes,
   PathFunc in '..\..\Components\PathFunc.pas',
   CmnFunc2 in '..\CmnFunc2.pas',
   FileClass in '..\FileClass.pas',
@@ -48,14 +50,15 @@ var
   ScriptLines, NextScriptLine: PScriptLine;
   CurLine: String;
   StartTime, EndTime: DWORD;
-  Quiet, WantAbort: Boolean;
+  Quiet, ShowProgress, WantAbort: Boolean;
   Options: TIsppOptions;
+  SignTools: TStringList;
 
 procedure WriteToStdHandle(const H: THandle; S: AnsiString);
 var
   BytesWritten: DWORD;
 begin
-  S := S + #13#10;
+  if Copy(S, 1, 1) <> #13 then S := S + #13#10;
   WriteFile(H, S[1], Length(S), BytesWritten, nil);
 end;
 
@@ -169,6 +172,17 @@ begin
         S := S + ': ' + Data.ErrorMsg;
         WriteStdErr(S);
       end;
+    iscbNotifyIdle:
+      begin
+        if ShowProgress then
+          WriteStdOut(#13 +
+            Format('[%d/%d] Used: %.0fs. ' +
+              'Remaining: %ds. Average: %n kb/s. ',
+              [Data.CompressProgress, Data.CompressProgressMax,
+              (GetTickCount - StartTime) / 1000, Data.SecondsRemaining,
+              Data.BytesCompressedPerSecond / 1024])
+          )
+      end;
   end;
 end;
 
@@ -230,6 +244,39 @@ begin
   Opts := Opts + OptName + '=' + OptValue + #0;
 end;
 
+{ TConfigIniFile }
+
+type
+  TConfigIniFile = class(TRegIniFile)
+  private
+    FMutex: THandle;
+    FAcquiredMutex: Boolean;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  end;
+
+constructor TConfigIniFile.Create;
+begin
+  inherited Create('Software\Jordan Russell\Inno Setup');
+  { Paranoia: Use a mutex to prevent multiple instances from reading/writing
+    to the registry simultaneously }
+  FMutex := CreateMutex(nil, False, 'Inno-Setup-IDE-Config-Mutex');
+  if FMutex <> 0 then
+    if WaitForSingleObject(FMutex, INFINITE) <> WAIT_FAILED then
+      FAcquiredMutex := True;
+end;
+
+destructor TConfigIniFile.Destroy;
+begin
+  if FMutex <> 0 then begin
+    if FAcquiredMutex then
+      ReleaseMutex(FMutex);
+    CloseHandle(FMutex);
+  end;
+  inherited;
+end;
+
 procedure Go;
 
   procedure ShowBanner;
@@ -265,11 +312,32 @@ procedure Go;
     WriteStdErr('          Set a SignTool with the specified name and command:');
     WriteStdErr('            /s<name>=<command>');
     WriteStdErr('          Quiet compile (print error messages only):');
-    WriteStdErr('            /q');
+    WriteStdErr('            /q[p]                p will show a progress info');
     WriteStdErr('');
     WriteStdErr('Example: iscc /$c- /pu+ "/dLic=Trial Lic.txt" /iC:\INC;D:\INC scriptfile.iss');
   end;
 
+  procedure ReadSignTools;
+  var
+    Ini: TConfigIniFile;
+    I: Integer;
+    S: String;
+  begin
+    Ini := TConfigIniFile.Create;
+    try
+      { Sign tools }
+      SignTools.Clear();
+      I := 0;
+      repeat
+        S := Ini.ReadString('SignTools', 'SignTool' + IntToStr(I), '');
+        if S <> '' then
+          SignTools.Add(S);
+        Inc(I);
+      until S = '';
+    finally
+      Ini.Free;
+    end;
+  end;
 var
   ScriptPath: String;
   ExitCode: Integer;
@@ -281,7 +349,7 @@ var
   Res: Integer;
 begin
   I := 1;
-  FindParam(I, 'Q');
+  ShowProgress := 'P' = UpperCase(FindParam(I, 'Q')) ;
   Quiet := I <> MaxInt;
 
   if (ParamCount < 1) or (ParamStr(1) = '/?') then begin
@@ -364,6 +432,7 @@ begin
   I := 1; OutputFileName := FindParam(I, 'F');
   I := 1; SignTool := FindParam(I, 'S');
 
+  SignTools := TStringList.Create;
   ExitCode := 0;
   try
     if ScriptFilename <> '<stdin>' then
@@ -392,8 +461,14 @@ begin
       AppendOption(S, 'OutputDir', OutputPath);
     if OutputFilename <> '' then
       AppendOption(S, 'OutputBaseFilename', OutputFilename);
+
+    ReadSignTools;
+    for I := 0 to SignTools.Count-1 do
+      if (SignTool <> '') and (Pos(UpperCase(SignTools.Names[I]) + '=', UpperCase(SignTool)) = 0) then
+        S := S + 'SignTool-' + SignTools[I] + #0;
     if SignTool <> '' then
       S := S + 'SignTool-' + SignTool + #0;
+
     AppendOption(S, 'ISPP:ParserOptions', ConvertOptionsToString(Options.ParserOptions.Options));
     AppendOption(S, 'ISPP:Options', ConvertOptionsToString(Options.Options));
     AppendOption(S, 'ISPP:VerboseLevel', IntToStr(Options.VerboseLevel));
@@ -417,6 +492,7 @@ begin
         'unexpected result (%d).', [Res]));
     end;
   finally
+    SignTools.Free;
     FreeScriptLines;
   end;
   if ExitCode <> 0 then
