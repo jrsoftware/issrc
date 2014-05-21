@@ -48,14 +48,14 @@ var
   ScriptLines, NextScriptLine: PScriptLine;
   CurLine: String;
   StartTime, EndTime: DWORD;
-  Quiet, WantAbort: Boolean;
+  Quiet, ShowProgress, WantAbort: Boolean;
   Options: TIsppOptions;
 
 procedure WriteToStdHandle(const H: THandle; S: AnsiString);
 var
   BytesWritten: DWORD;
 begin
-  S := S + #13#10;
+  if Copy(S, 1, 1) <> #13 then S := S + #13#10;
   WriteFile(H, S[1], Length(S), BytesWritten, nil);
 end;
 
@@ -169,6 +169,17 @@ begin
         S := S + ': ' + Data.ErrorMsg;
         WriteStdErr(S);
       end;
+    iscbNotifyIdle:
+      begin
+        if ShowProgress then
+          WriteStdOut(#13 +
+            Format('[%d/%d] Used: %.0fs. ' +
+              'Remaining: %ds. Average: %n kb/s. ',
+              [Data.CompressProgress, Data.CompressProgressMax,
+              (GetTickCount - StartTime) / 1000, Data.SecondsRemaining,
+              Data.BytesCompressedPerSecond / 1024])
+          )
+      end;
   end;
 end;
 
@@ -281,7 +292,7 @@ var
   Res: Integer;
 begin
   I := 1;
-  FindParam(I, 'Q');
+  ShowProgress := 'P' = UpperCase(FindParam(I, 'Q')) ;
   Quiet := I <> MaxInt;
 
   if (ParamCount < 1) or (ParamStr(1) = '/?') then begin
