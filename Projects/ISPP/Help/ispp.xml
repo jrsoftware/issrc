@@ -754,7 +754,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>any</b> ReadReg(<b>int</b> 1, <b>str</b> 2, <b>str</b>? 3, <b>any</b>? 4)</line></pre>
 				</section>
 				<description>
-					<para>Reads the value of the specified key in system registry. First parameter is the root key, such as HKEY_LOCAL_MACHINE. Constants for use with this parameter are declared in &builtins; accompanying ISPP. Second parameter specifies a subkey. Third parameter specifies the name of the value, if this parameter is omitted, a default value is assumed. Last optional parameter may be used to specify the default value that will be returned on failure.</para>
+					<para>Reads the value of the specified key in the 32-bit or 64-bit system registry. First parameter is the root key, such as HKEY_LOCAL_MACHINE (32-bit) or HKEY_LOCAL_MACHINE_64 (64-bit). Constants for use with this parameter are declared in &builtins; accompanying ISPP. Second parameter specifies a subkey. Third parameter specifies the name of the value, if this parameter is omitted, a default value is assumed. Last optional parameter may be used to specify the default value that will be returned on failure.</para>
 					<para>Note that this function can return value of any type depending on the type of actual value in registry.</para>
 				</description>
 			</topic>

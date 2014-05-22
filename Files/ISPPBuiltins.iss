@@ -84,15 +84,27 @@
 //
 // ReadReg constants
 //
-#define HKEY_CLASSES_ROOT  0x80000000UL
-#define HKEY_CURRENT_USER  0x80000001UL
-#define HKEY_LOCAL_MACHINE 0x80000002UL
-#define HKEY_USERS         0x80000003UL
+#define HKEY_CLASSES_ROOT       0x80000000UL
+#define HKEY_CURRENT_USER       0x80000001UL
+#define HKEY_LOCAL_MACHINE      0x80000002UL
+#define HKEY_USERS              0x80000003UL
+#define HKEY_CURRENT_CONFIG     0x80000005UL
+#define HKEY_CLASSES_ROOT_64    0x82000000UL
+#define HKEY_CURRENT_USER_64    0x82000001UL
+#define HKEY_LOCAL_MACHINE_64   0x82000002UL
+#define HKEY_USERS_64           0x82000003UL
+#define HKEY_CURRENT_CONFIG_64  0x82000005UL
 //
 #define HKCR               HKEY_CLASSES_ROOT
 #define HKCU               HKEY_CURRENT_USER
 #define HKLM               HKEY_LOCAL_MACHINE
 #define HKU                HKEY_USERS
+#define HKCC               HKEY_CURRENT_CONFIG
+#define HKCR64             HKEY_CLASSES_ROOT_64
+#define HKCU64             HKEY_CURRENT_USER_64
+#define HKLM64             HKEY_LOCAL_MACHINE_64
+#define HKU64              HKEY_USERS_64
+#define HKCC64             HKEY_CURRENT_CONFIG_64
 //
 // Exec constants
 //
