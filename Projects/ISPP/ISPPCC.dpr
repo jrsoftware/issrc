@@ -50,15 +50,16 @@ var
   ScriptLines, NextScriptLine: PScriptLine;
   CurLine: String;
   StartTime, EndTime: DWORD;
-  Quiet, WantAbort: Boolean;
+  Quiet, ShowProgress, WantAbort: Boolean;
   Options: TIsppOptions;
   SignTools: TStringList;
+  ProgressPoint: TPoint;
 
 procedure WriteToStdHandle(const H: THandle; S: AnsiString);
 var
   BytesWritten: DWORD;
 begin
-  S := S + #13#10;
+  if Copy(S, 1, 1) <> #13 then S := S + #13#10;
   WriteFile(H, S[1], Length(S), BytesWritten, nil);
 end;
 
@@ -70,6 +71,63 @@ end;
 procedure WriteStdErr(const S: String);
 begin
   WriteToStdHandle(StdErrHandle, AnsiString(S));
+end;
+
+function GetCursorPos: TPoint;
+var
+  CSBI: TConsoleScreenBufferInfo;
+begin
+  if not GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
+    Exit;
+  Result.X := CSBI.dwCursorPosition.X;
+  Result.Y := CSBI.dwCursorPosition.Y;
+end;
+
+procedure SetCursorPos(const P: TPoint);
+var
+  Coords: TCoord;
+  CSBI: TConsoleScreenBufferInfo;
+begin
+  if not GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
+  if P.X < 0 then Exit;
+  if P.Y < 0 then Exit;
+  if P.X > CSBI.dwSize.X then Exit;
+  if P.Y > CSBI.dwSize.Y then Exit;
+  Coords.X := P.X;
+  Coords.Y := P.Y;
+  SetConsoleCursorPosition(StdOutHandle, Coords);
+end;
+
+procedure ClearProgress;
+var
+  lwWritten: Longword;
+  Coord : TCoord;
+  CSBI : TConsoleScreenBufferInfo;
+begin
+  if ProgressPoint.X < 0 then
+    Exit;
+
+  if not GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
+    Exit;
+
+  Coord.X := ProgressPoint.X;
+  Coord.Y := ProgressPoint.Y;
+
+  FillConsoleOutputCharacter(StdOutHandle, #32, CSBI.dwSize.X, Coord, lwWritten);
+end;
+
+procedure WriteProgress(const S: String);
+var
+  lwWritten: Longword;
+  CSBI : TConsoleScreenBufferInfo;
+  Str: String;
+begin
+  if GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
+    Str := Format('%-' + IntToStr(CSBI.dwSize.X) + 's', [S])
+  else
+    Str := S;
+
+  WriteToStdHandle(StdOutHandle, AnsiString(Str));
 end;
 
 function ConsoleCtrlHandler(dwCtrlType: DWORD): BOOL; stdcall;
@@ -126,6 +184,7 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer; stdcall;
 var
   S: String;
+  Pt: TPoint;
 begin
   if WantAbort then begin
     Result := iscrRequestAbort;
@@ -158,10 +217,14 @@ begin
             WriteStdOut(Format('Successful compile (%.3f sec). ' +
               'Output was disabled.',
               [(EndTime - StartTime) / 1000]));
-        end;
+        end
+        else if ShowProgress then
+          ClearProgress;
       end;
     iscbNotifyError:
       if Assigned(Data.ErrorMsg) then begin
+        if ShowProgress then
+          ClearProgress;
         S := 'Error';
         if Data.ErrorLine <> 0 then
           S := S + Format(' on line %d', [Data.ErrorLine]);
@@ -171,6 +234,26 @@ begin
           S := S + ' in ' + ScriptFilename;
         S := S + ': ' + Data.ErrorMsg;
         WriteStdErr(S);
+      end;
+    iscbNotifyIdle: begin
+        if ShowProgress then
+        begin
+          Pt := GetCursorPos;
+
+          if ProgressPoint.X < 0 then begin
+            ProgressPoint := Pt;
+            WriteStdOut('');
+            Pt := GetCursorPos;
+          end;
+          SetCursorPos(ProgressPoint);
+          WriteProgress(#13 + Format('[%d/%d] Used: %.0fs. ' +
+            'Remaining: %ds. Average: %n kb/s. ',
+            [Data.CompressProgress, Data.CompressProgressMax,
+            (GetTickCount - StartTime) / 1000, Data.SecondsRemaining,
+            Data.BytesCompressedPerSecond / 1024]));
+
+          SetCursorPos(Pt);
+        end;
       end;
   end;
 end;
@@ -268,7 +351,7 @@ procedure Go;
     WriteStdErr('          Set a SignTool with the specified name and command:');
     WriteStdErr('            /s<name>=<command>');
     WriteStdErr('          Quiet compile (print error messages only):');
-    WriteStdErr('            /q');
+    WriteStdErr('            /q[p]                p will show a progress info');
     WriteStdErr('');
     WriteStdErr('Example: iscc /$c- /pu+ "/dLic=Trial Lic.txt" /iC:\INC;D:\INC scriptfile.iss');
   end;
@@ -284,7 +367,7 @@ var
   Res: Integer;
 begin
   I := 1;
-  FindParam(I, 'Q');
+  ShowProgress := 'P' = UpperCase(FindParam(I, 'Q')) ;
   Quiet := I <> MaxInt;
 
   if (ParamCount < 1) or (ParamStr(1) = '/?') then begin
@@ -368,6 +451,7 @@ begin
   I := 1; SignTool := FindParam(I, 'S');
 
   SignTools := TStringList.Create;
+  ProgressPoint.X := -1;
   ExitCode := 0;
   try
     if ScriptFilename <> '<stdin>' then
