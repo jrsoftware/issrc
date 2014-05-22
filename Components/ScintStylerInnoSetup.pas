@@ -46,7 +46,7 @@ type
 
   TInnoSetupStylerStyle = (stDefault, stCompilerDirective,
     stComment, stSection, stSymbol, stKeyword, stParameterValue,
-    stEventFunction, stConstant, stMessageArg);
+    stEventFunction, stConstant, stMessageArg, stPascalString, stPascalNumber);
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
@@ -411,9 +411,7 @@ const
     (Name: 'OnlyBelowVersion'));
 
 const
-  stPascalNumber = stDefault;
   stPascalReservedWord = stKeyword;
-  stPascalString = stDefault;
 
   inSquiggly = 0;
   inPendingSquiggly = 1;
@@ -661,6 +659,7 @@ begin
       stEventFunction: Attributes.FontStyle := [fsBold];
       stConstant: Attributes.ForeColor := $C00080;
       stMessageArg: Attributes.ForeColor := $FF8000;
+      stPascalString, stPascalNumber: Attributes.ForeColor := clMaroon;
     end;
   end
   else begin
