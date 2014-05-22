@@ -22,13 +22,15 @@ uses
   SafeDLLPath in '..\SafeDLLPath.pas',
   Windows,
   SysUtils,
+  Classes,
   PathFunc in '..\..\Components\PathFunc.pas',
   CmnFunc2 in '..\CmnFunc2.pas',
   FileClass in '..\FileClass.pas',
   IsppIntf in 'IsppIntf.pas',
   IsppBase in 'IsppBase.pas',
   CompInt in '..\CompInt.pas',
-  Int64Em in '..\Int64Em.pas';
+  Int64Em in '..\Int64Em.pas',
+  CompTypes in '..\CompTypes.pas';
 
 {$R *.res}
 {$R ISPPCC.manifest.res}
@@ -50,6 +52,7 @@ var
   StartTime, EndTime: DWORD;
   Quiet, WantAbort: Boolean;
   Options: TIsppOptions;
+  SignTools: TStringList;
 
 procedure WriteToStdHandle(const H: THandle; S: AnsiString);
 var
@@ -364,6 +367,7 @@ begin
   I := 1; OutputFileName := FindParam(I, 'F');
   I := 1; SignTool := FindParam(I, 'S');
 
+  SignTools := TStringList.Create;
   ExitCode := 0;
   try
     if ScriptFilename <> '<stdin>' then
@@ -392,8 +396,14 @@ begin
       AppendOption(S, 'OutputDir', OutputPath);
     if OutputFilename <> '' then
       AppendOption(S, 'OutputBaseFilename', OutputFilename);
+
+    ReadSignTools(SignTools);
+    for I := 0 to SignTools.Count-1 do
+      if (SignTool = '') or (Pos(UpperCase(SignTools.Names[I]) + '=', UpperCase(SignTool)) = 0) then
+        S := S + AddSignToolParam(SignTools[I]);
     if SignTool <> '' then
-      S := S + 'SignTool-' + SignTool + #0;
+      S := S + AddSignToolParam(SignTool);
+
     AppendOption(S, 'ISPP:ParserOptions', ConvertOptionsToString(Options.ParserOptions.Options));
     AppendOption(S, 'ISPP:Options', ConvertOptionsToString(Options.Options));
     AppendOption(S, 'ISPP:VerboseLevel', IntToStr(Options.VerboseLevel));
@@ -417,6 +427,7 @@ begin
         'unexpected result (%d).', [Res]));
     end;
   finally
+    SignTools.Free;
     FreeScriptLines;
   end;
   if ExitCode <> 0 then

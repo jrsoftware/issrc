@@ -16,9 +16,9 @@ program ISCC;
 
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
-  Windows, SysUtils,
+  Windows, SysUtils, Classes,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  PathFunc, CmnFunc2, CompInt, FileClass;
+  PathFunc, CmnFunc2, CompInt, FileClass, CompTypes;
 
 {$R *.res}
 {$R ISCC.manifest.res}
@@ -40,6 +40,7 @@ var
   CurLine: String;
   StartTime, EndTime: DWORD;
   Quiet, WantAbort: Boolean;
+  SignTools: TStringList;
 
 procedure WriteToStdHandle(const H: THandle; S: AnsiString);
 var
@@ -251,6 +252,7 @@ var
   Params: TCompileScriptParamsEx;
   Options: String;
   Res: Integer;
+  I: Integer;
 begin
   if ScriptFilename <> '-' then begin
     ScriptFilename := PathExpand(ScriptFilename);
@@ -273,6 +275,7 @@ begin
     Halt(1);
   end;
 
+  SignTools := TStringList.Create;
   ExitCode := 0;
   try
     if ScriptFilename <> '<stdin>' then
@@ -301,8 +304,14 @@ begin
       Options := Options + 'OutputDir=' + OutputPath + #0;
     if OutputFilename <> '' then
       Options := Options + 'OutputBaseFilename=' + OutputFilename + #0;
+
+    ReadSignTools(SignTools);
+    for I := 0 to SignTools.Count-1 do
+      if (SignTool = '') or (Pos(UpperCase(SignTools.Names[I]) + '=', UpperCase(SignTool)) = 0) then
+        Options := Options + AddSignToolParam(SignTools[I]);
     if SignTool <> '' then
-      Options := Options + 'SignTool-' + SignTool + #0;
+      Options := Options + AddSignToolParam(SignTool);
+
     Params.Options := PChar(Options);
 
     StartTime := GetTickCount;
@@ -323,6 +332,7 @@ begin
         'unexpected result (%d).', [Res]));
     end;
   finally
+    SignTools.Free;
     FreeScriptLines;
   end;
   if ExitCode <> 0 then
