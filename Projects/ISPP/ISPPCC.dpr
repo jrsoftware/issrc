@@ -101,8 +101,8 @@ end;
 procedure ClearProgress;
 var
   lwWritten: Longword;
-  Coord : TCoord;
-  CSBI : TConsoleScreenBufferInfo;
+  Coord: TCoord;
+  CSBI: TConsoleScreenBufferInfo;
 begin
   if ProgressPoint.X < 0 then
     Exit;
@@ -118,8 +118,7 @@ end;
 
 procedure WriteProgress(const S: String);
 var
-  lwWritten: Longword;
-  CSBI : TConsoleScreenBufferInfo;
+  CSBI: TConsoleScreenBufferInfo;
   Str: String;
 begin
   if GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
