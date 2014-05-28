@@ -247,17 +247,18 @@ begin
           end;
           SetCursorPos(ProgressPoint);
 
-          Remaining := 'N/A';
-          Average := 'N/A';
-
           if Data.SecondsRemaining > 0 then
-            Remaining := FormatFloat('0', Data.SecondsRemaining);
+            Remaining := FormatFloat('0', Data.SecondsRemaining) + ' s'
+          else
+            Remaining := 'N/A';
 
           if Data.BytesCompressedPerSecond > 0 then
-            Average := FormatFloat('0.00', Data.BytesCompressedPerSecond / 1024);
+            Average := FormatFloat('0.00', Data.BytesCompressedPerSecond / 1024) + ' kb/s'
+          else
+            Average := 'N/A';
 
           WriteProgress(#13 + Format('[%d/%d] Used: %.0f s. ' +
-            'Remaining: %s s. Average: %s kb/s. ',
+            'Remaining: %s. Average: %s.',
             [Data.CompressProgress, Data.CompressProgressMax,
             (GetTickCount - StartTime) / 1000, Remaining, Average]));
 
@@ -360,7 +361,9 @@ procedure Go;
     WriteStdErr('          Set a SignTool with the specified name and command:');
     WriteStdErr('            /s<name>=<command>');
     WriteStdErr('          Quiet compile (print error messages only):');
-    WriteStdErr('            /q[p]                p will show a progress info');
+    WriteStdErr('            /q');
+    WriteStdErr('          Enable quiet compile while still displaying progress:');
+    WriteStdErr('            /qp');
     WriteStdErr('');
     WriteStdErr('Example: iscc /$c- /pu+ "/dLic=Trial Lic.txt" /iC:\INC;D:\INC scriptfile.iss');
   end;
