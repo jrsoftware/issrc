@@ -172,6 +172,7 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
 var
   S: String;
   Pt: TPoint;
+  Remaining, Average: String;
 begin
   if WantAbort then begin
     Result := iscrRequestAbort;
@@ -233,11 +234,20 @@ begin
             Pt := GetCursorPos;
           end;
           SetCursorPos(ProgressPoint);
-          WriteProgress(#13 + Format('[%d/%d] Used: %.0fs. ' +
-            'Remaining: %ds. Average: %n kb/s. ',
+
+          Remaining := 'N/A';
+          Average := 'N/A';
+
+          if Data.SecondsRemaining > 0 then
+            Remaining := FormatFloat('0', Data.SecondsRemaining);
+
+          if Data.BytesCompressedPerSecond > 0 then
+            Average := FormatFloat('0.00', Data.BytesCompressedPerSecond / 1024);
+
+          WriteProgress(#13 + Format('[%d/%d] Used: %.0f s. ' +
+            'Remaining: %s s. Average: %s kb/s. ',
             [Data.CompressProgress, Data.CompressProgressMax,
-            (GetTickCount - StartTime) / 1000, Data.SecondsRemaining,
-            Data.BytesCompressedPerSecond / 1024]));
+            (GetTickCount - StartTime) / 1000, Remaining, Average]));
 
           SetCursorPos(Pt);
         end;
@@ -275,10 +285,10 @@ begin
   for I := 1 to NewParamCount do begin
     S := NewParamStr(I);
     if (S = '') or (S[1] = '/') then begin
-      if CompareText(S, '/Q') = 0 then
+      if CompareText(Copy(S, 1, 2), '/Q') = 0 then
       begin
         Quiet := True;
-        ShowProgress := 'P' = Copy(S, 3, MaxInt);
+        ShowProgress := CompareText(Copy(S, 3, MaxInt), 'P') = 0;
       end
       else if CompareText(Copy(S, 1, 3), '/DO') = 0 then
         Output := 'no'
