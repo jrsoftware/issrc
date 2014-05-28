@@ -88,7 +88,7 @@ end;
 
 procedure ClearProgress;
 var
-  lwWritten: Longword;
+  lwWritten: DWORD;
   Coord: TCoord;
   CSBI: TConsoleScreenBufferInfo;
 begin
