@@ -42,6 +42,7 @@ var
   Quiet, ShowProgress, WantAbort: Boolean;
   SignTools: TStringList;
   ProgressPoint: TPoint;
+  LastProgress, LastPercentage, LastRemaining, LastAverage: String;
 
 procedure WriteToStdHandle(const H: THandle; S: AnsiString);
 var
@@ -110,7 +111,12 @@ var
   Str: String;
 begin
   if GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
-    Str := Format('%-' + IntToStr(CSBI.dwSize.X) + 's', [S])
+  begin
+    if Length(S) > CSBI.dwSize.X then
+      Str := Copy(S, 1, CSBI.dwSize.X)
+    else
+      Str := Format('%-' + IntToStr(CSBI.dwSize.X) + 's', [S]);
+  end
   else
     Str := S;
 
@@ -169,10 +175,64 @@ end;
 
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer; stdcall;
+
+  procedure PrintProgress(Code: Integer);
+  var
+    Pt: TPoint;
+    Percentage, Remaining, Average: String;
+    Progress: String;
+  begin
+    if (Code = iscbNotifyIdle) and (Data.CompressProgressMax > 0) and (Data.CompressProgress / Data.CompressProgressMax > 0) then
+      Percentage := FormatFloat('[0.00%]', Data.CompressProgress / Data.CompressProgressMax * 100)
+    else if LastPercentage <> '' then
+      Percentage := LastPercentage
+    else
+      Percentage := '[N/A]';
+    LastPercentage := Percentage;
+
+    if (Code = iscbNotifyIdle) and (Data.SecondsRemaining > 0) then
+      Remaining := FormatFloat('0', Data.SecondsRemaining) + ' s'
+    else if LastRemaining <> '' then
+      Remaining := LastRemaining
+    else
+      Remaining := 'N/A';
+    LastRemaining := Remaining;
+    if Length(Remaining) > 5 then
+      Remaining := Remaining;
+
+    if (Code = iscbNotifyIdle) and (Data.BytesCompressedPerSecond > 1024) then
+      Average := FormatFloat('0.00', Data.BytesCompressedPerSecond / 1024) + ' kb/s'
+    else if (Code = iscbNotifyIdle) and (Data.BytesCompressedPerSecond > 0) then
+      Average := FormatFloat('0.00', Data.BytesCompressedPerSecond) + ' b/s'
+    else if LastAverage <> '' then
+      Average := LastAverage
+    else
+      Average := 'N/A';
+    LastAverage := Average;
+
+    Progress := Format('%s Used: %.0f s. ' + 'Remaining: %s. Average: %s.',
+      [Percentage, (GetTickCount - StartTime) / 1000, Remaining, Average]);
+    if LastProgress = Progress then
+      Exit;
+
+    Pt := GetCursorPos;
+
+    if Pt.Y <= ProgressPoint.Y then
+      Exit
+    else if ProgressPoint.X < 0 then begin
+      ProgressPoint := Pt;
+      WriteStdOut('');
+      Pt := GetCursorPos;
+    end;
+
+    SetCursorPos(ProgressPoint);
+    WriteProgress(#13 + Progress);
+    LastProgress := Progress;
+    SetCursorPos(Pt);
+  end;
+
 var
   S: String;
-  Pt: TPoint;
-  Remaining, Average: String;
 begin
   if WantAbort then begin
     Result := iscrRequestAbort;
@@ -191,7 +251,9 @@ begin
       end;
     iscbNotifyStatus:
       if not Quiet then
-        WriteStdOut(Data.StatusMsg);
+        WriteStdOut(Data.StatusMsg)
+      else if ShowProgress then
+        PrintProgress(Code);
     iscbNotifySuccess: begin
         EndTime := GetTickCount;
         if not Quiet then begin
@@ -223,36 +285,9 @@ begin
         S := S + ': ' + Data.ErrorMsg;
         WriteStdErr(S);
       end;
-    iscbNotifyIdle: begin
-        if ShowProgress then
-        begin
-          Pt := GetCursorPos;
-
-          if ProgressPoint.X < 0 then begin
-            ProgressPoint := Pt;
-            WriteStdOut('');
-            Pt := GetCursorPos;
-          end;
-          SetCursorPos(ProgressPoint);
-
-          if Data.SecondsRemaining > 0 then
-            Remaining := FormatFloat('0', Data.SecondsRemaining) + ' s'
-          else
-            Remaining := 'N/A';
-
-          if Data.BytesCompressedPerSecond > 0 then
-            Average := FormatFloat('0.00', Data.BytesCompressedPerSecond / 1024) + ' kb/s'
-          else
-            Average := 'N/A';
-
-          WriteProgress(#13 + Format('[%d/%d] Used: %.0f s. ' +
-            'Remaining: %s. Average: %s.',
-            [Data.CompressProgress, Data.CompressProgressMax,
-            (GetTickCount - StartTime) / 1000, Remaining, Average]));
-
-          SetCursorPos(Pt);
-        end;
-      end;
+    iscbNotifyIdle:
+      if ShowProgress then
+        PrintProgress(Code);
   end;
 end;
 
