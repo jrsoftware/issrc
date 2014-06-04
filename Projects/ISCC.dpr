@@ -197,8 +197,6 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
     else
       Remaining := 'N/A';
     LastRemaining := Remaining;
-    if Length(Remaining) > 5 then
-      Remaining := Remaining;
 
     if (Code = iscbNotifyIdle) and (Data.BytesCompressedPerSecond > 1024) then
       Average := FormatFloat('0.00', Data.BytesCompressedPerSecond / 1024) + ' kb/s'
