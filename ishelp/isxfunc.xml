@@ -732,7 +732,7 @@ begin
       <function>
         <name>Copy</name>
         <prototype>function Copy(S: String; Index, Count: Integer): String;</prototype>
-        <description><p>Returns a string containing Count characters starting with at S[Index].<br />If Index is larger than the length of S, Copy returns an empty string.<br />If Count specifies more characters than are available, the only the characters from S[Index] to the end of S are returned.</p></description>
+        <description><p>Returns a string containing Count characters starting at S[Index].<br />If Index is larger than the length of S, Copy returns an empty string.<br />If Count specifies more characters than are available, only the characters from S[Index] to the end of S are returned.</p></description>
       </function>
       <function>
         <name>Length</name>
