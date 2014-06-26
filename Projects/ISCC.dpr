@@ -42,7 +42,7 @@ var
   Quiet, ShowProgress, WantAbort: Boolean;
   SignTools: TStringList;
   ProgressPoint: TPoint;
-  LastProgress, LastPercentage, LastRemaining, LastAverage: String;
+  LastProgress: String;
 
 procedure WriteToStdHandle(const H: THandle; S: AnsiString);
 var
@@ -78,6 +78,7 @@ var
   CSBI: TConsoleScreenBufferInfo;
 begin
   if not GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
+    Exit;
   if P.X < 0 then Exit;
   if P.Y < 0 then Exit;
   if P.X > CSBI.dwSize.X then Exit;
@@ -85,24 +86,6 @@ begin
   Coords.X := P.X;
   Coords.Y := P.Y;
   SetConsoleCursorPosition(StdOutHandle, Coords);
-end;
-
-procedure ClearProgress;
-var
-  lwWritten: DWORD;
-  Coord: TCoord;
-  CSBI: TConsoleScreenBufferInfo;
-begin
-  if ProgressPoint.X < 0 then
-    Exit;
-
-  if not GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
-    Exit;
-
-  Coord.X := ProgressPoint.X;
-  Coord.Y := ProgressPoint.Y;
-
-  FillConsoleOutputCharacter(StdOutHandle, #32, CSBI.dwSize.X, Coord, lwWritten);
 end;
 
 procedure WriteProgress(const S: String);
@@ -176,41 +159,11 @@ end;
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer; stdcall;
 
-  procedure PrintProgress(Code: Integer);
+  procedure PrintProgress(Progress: String);
   var
     Pt: TPoint;
-    Percentage, Remaining, Average: String;
-    Progress: String;
   begin
-    if (Code = iscbNotifyIdle) and (Data.CompressProgressMax > 0) and (Data.CompressProgress / Data.CompressProgressMax > 0) then
-      Percentage := FormatFloat('[0.00%]', Data.CompressProgress / Data.CompressProgressMax * 100)
-    else if LastPercentage <> '' then
-      Percentage := LastPercentage
-    else
-      Percentage := '[N/A]';
-    LastPercentage := Percentage;
-
-    if (Code = iscbNotifyIdle) and (Data.SecondsRemaining > 0) then
-      Remaining := FormatFloat('0', Data.SecondsRemaining) + ' s'
-    else if LastRemaining <> '' then
-      Remaining := LastRemaining
-    else
-      Remaining := 'N/A';
-    LastRemaining := Remaining;
-
-    if (Code = iscbNotifyIdle) and (Data.BytesCompressedPerSecond > 1024) then
-      Average := FormatFloat('0.00', Data.BytesCompressedPerSecond / 1024) + ' kb/s'
-    else if (Code = iscbNotifyIdle) and (Data.BytesCompressedPerSecond > 0) then
-      Average := FormatFloat('0.00', Data.BytesCompressedPerSecond) + ' b/s'
-    else if LastAverage <> '' then
-      Average := LastAverage
-    else
-      Average := 'N/A';
-    LastAverage := Average;
-
-    Progress := Format('%s Used: %.0f s. ' + 'Remaining: %s. Average: %s.',
-      [Percentage, (GetTickCount - StartTime) / 1000, Remaining, Average]);
-    if LastProgress = Progress then
+    if (Progress = '') or (LastProgress = Progress) then
       Exit;
 
     Pt := GetCursorPos;
@@ -230,7 +183,7 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   end;
 
 var
-  S: String;
+  S, BytesCompressedPerSecond, SecondsRemaining: String;
 begin
   if WantAbort then begin
     Result := iscrRequestAbort;
@@ -251,7 +204,7 @@ begin
       if not Quiet then
         WriteStdOut(Data.StatusMsg)
       else if ShowProgress then
-        PrintProgress(Code);
+        PrintProgress(Trim(Data.StatusMsg));
     iscbNotifySuccess: begin
         EndTime := GetTickCount;
         if not Quiet then begin
@@ -265,14 +218,10 @@ begin
             WriteStdOut(Format('Successful compile (%.3f sec). ' +
               'Output was disabled.',
               [(EndTime - StartTime) / 1000]));
-        end
-        else if ShowProgress then
-          ClearProgress;
+        end;
       end;
     iscbNotifyError:
       if Assigned(Data.ErrorMsg) then begin
-        if ShowProgress then
-          ClearProgress;
         S := 'Error';
         if Data.ErrorLine <> 0 then
           S := S + Format(' on line %d', [Data.ErrorLine]);
@@ -284,8 +233,17 @@ begin
         WriteStdErr(S);
       end;
     iscbNotifyIdle:
-      if ShowProgress then
-        PrintProgress(Code);
+      if ShowProgress and (Data.CompressProgress <> 0) then begin
+        if Data.BytesCompressedPerSecond <> 0 then
+          BytesCompressedPerSecond := Format(' at %.2f kb/s', [Data.BytesCompressedPerSecond / 1024])
+        else
+          BytesCompressedPerSecond := '';
+        if Data.SecondsRemaining <> -1 then
+          SecondsRemaining := Format(', %d seconds remaining', [Data.SecondsRemaining])
+        else
+          SecondsRemaining := '';
+        PrintProgress(Format('Compressing: %.2f%% done%s%s', [Data.CompressProgress / Data.CompressProgressMax * 100, BytesCompressedPerSecond, SecondsRemaining]));
+      end;
   end;
 end;
 
