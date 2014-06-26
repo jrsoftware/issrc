@@ -1670,10 +1670,10 @@ Instructs Setup to proceed to comparing time stamps if the file being installed 
 <p>When <link topic="setup_solidcompression">solid compression</link> is enabled, this flag instructs the compiler to finalize the current compression stream and begin a new one before compressing the file(s) matched by <tt>Source</tt>. This allows Setup to seek to the file instantly without having to decompress any preceding files first. May be useful in a large, multi-component installation if you find too much time is being spent decompressing files belonging to components that weren't selected.</p>
 </flag>
 <flag name="sortfilesbyextension">
-<p>This flag instructs the compiler to compress the found files sorted by extension befores it sorts by path name. This potentially decreases the size of Setup if <link topic="setup_solidcompression">solid compression</link> is also used.</p>
+<p>This flag instructs the compiler to compress the found files sorted by extension before it sorts by path name. This potentially decreases the size of Setup if <link topic="setup_solidcompression">solid compression</link> is also used.</p>
 </flag>
 <flag name="sortfilesbyname">
-<p>This flag instructs the compiler to compress the found files sorted by name befores it sorts by path name. This potentially decreases the size of Setup if <link topic="setup_solidcompression">solid compression</link> is also used. If <tt>sortfilesbyextension</tt> is also used, files are first sorted by extension.</p>
+<p>This flag instructs the compiler to compress the found files sorted by name before it sorts by path name. This potentially decreases the size of Setup if <link topic="setup_solidcompression">solid compression</link> is also used. If <tt>sortfilesbyextension</tt> is also used, files are first sorted by extension.</p>
 </flag>
 <flag name="touch">
 <p>This flag causes Setup to set the time/date stamp of the installed file(s) to that which is specified by the <link topic="setup_touchdate">TouchDate</link> and <link topic="setup_touchtime">TouchTime</link> [Setup] section directives.</p>
@@ -4471,7 +4471,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>Output</tt></setupdefault>
 <body>
 <p>Specifies the "output" directory for the script, which is where the Setup Compiler will place the resulting SETUP.* files. By default, it creates a directory named "Output" under the directory containing the script for this.</p>
-<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the the My Documents folder of the currenly logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
+<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the the My Documents folder of the currenlty logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
 <example><pre>OutputDir=c:\output</pre></example>
 </body>
 </setuptopic>
