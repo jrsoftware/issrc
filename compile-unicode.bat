@@ -15,15 +15,12 @@ echo compilesettings.bat is missing or incomplete. It needs to be created
 echo with the following lines, adjusted for your system:
 echo.
 echo   set DELPHI2009ROOT=C:\Program Files\CodeGear\RAD Studio\6.0   [Path to Delphi 2009 (or later)]
-echo   set UNIROPSPATH=c:\rops\source                                [Path to ROPS]
 goto failed2
 
 :compilesettingsfound
 set DELPHI2009ROOT=
-set UNIROPSPATH=
 call .\compilesettings.bat
 if "%DELPHI2009ROOT%"=="" goto compilesettingserror
-if "%UNIROPSPATH%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
@@ -48,15 +45,15 @@ if errorlevel 1 goto failed
 cd ..
 
 echo - Compil32.dpr
-"%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --peflags:1 --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib;..\Components;%UNIROPSPATH%" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Compil32.dpr
+"%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --peflags:1 --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib;..\Components;..\Components\UniPs\Source" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Compil32.dpr
 if errorlevel 1 goto failed
 
 echo - ISCC.dpr
-"%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --peflags:1 --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib;..\Components;%UNIROPSPATH%" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS ISCC.dpr
+"%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --peflags:1 --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib;..\Components;..\Components\UniPs\Source" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS ISCC.dpr
 if errorlevel 1 goto failed
 
 echo - ISCmplr.dpr
-"%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib;..\Components;%UNIROPSPATH%" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS ISCmplr.dpr
+"%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib;..\Components;..\Components\UniPs\Source" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS ISCmplr.dpr
 if errorlevel 1 goto failed
 
 echo - SetupLdr.dpr
@@ -64,7 +61,7 @@ echo - SetupLdr.dpr
 if errorlevel 1 goto failed
 
 echo - Setup.dpr
-"%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --peflags:1 --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib;..\Components;%UNIROPSPATH%" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Setup.dpr
+"%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --peflags:1 --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib;..\Components;..\Components\UniPs\Source" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Setup.dpr
 if errorlevel 1 goto failed
 
 echo - Renaming files

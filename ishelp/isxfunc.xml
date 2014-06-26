@@ -52,7 +52,7 @@ end;</pre></example>
         <name>FmtMessage</name>
         <prototype>function FmtMessage(const S: String; const Args: array of String): String;</prototype>
         <description><p>Formats the string S using the specified string arguments. A <tt>%1</tt> in the format string will be replaced with the first value in the Args array; a <tt>%2</tt> will be replaced with the second value; and so on. <tt>%%</tt> will be replaced with <tt>%</tt>.</p></description>
-        <remarks><p>If a <tt>%</tt>-specifier references a non-existant argument, it will be returned untouched. No exception will be raised.</p></remarks>
+        <remarks><p>If a <tt>%</tt>-specifier references a non-existing argument, it will be returned untouched. No exception will be raised.</p></remarks>
         <example><pre>var
   S: String;
 begin
@@ -732,7 +732,7 @@ begin
       <function>
         <name>Copy</name>
         <prototype>function Copy(S: String; Index, Count: Integer): String;</prototype>
-        <description><p>Returns a string containing Count characters starting with at S[Index].<br />If Index is larger than the length of S, Copy returns an empty string.<br />If Count specifies more characters than are available, the only the characters from S[Index] to the end of S are returned.</p></description>
+        <description><p>Returns a string containing Count characters starting at S[Index].<br />If Index is larger than the length of S, Copy returns an empty string.<br />If Count specifies more characters than are available, only the characters from S[Index] to the end of S are returned.</p></description>
       </function>
       <function>
         <name>Length</name>
@@ -1534,7 +1534,7 @@ end;</pre></example>
       <function>
         <name>Exec</name>
         <prototype>function Exec(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
-        <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The Wait parameter specifies whether the function should return immediately or wait until the launched process has termimated or is idle. Returns True if the specified file was executed successfully, False otherwise. If True is returned and Wait is ewWaitUntilTerminated then ResultCode returns the exit code of the process. If False is returned then ResultCode specifies the error that occurred. Use SysErrorMessage(ResultCode) to get a description of the error.</p></description>
+        <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was executed successfully, False otherwise. If True is returned and Wait is ewWaitUntilTerminated then ResultCode returns the exit code of the process. If False is returned then ResultCode specifies the error that occurred. Use SysErrorMessage(ResultCode) to get a description of the error.</p></description>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Use the <link topic="isxfunc_ShellExec">ShellExec</link> function instead if you need to launch a file that is not an executable or batch file.</p>
@@ -1567,7 +1567,7 @@ end;</pre></example>
       <function>
         <name>ShellExec</name>
         <prototype>function ShellExec(const Verb, Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ErrorCode: Integer): Boolean;</prototype>
-        <description><p>Opens the specified file or performs another action specified by Verb, using the same credentials as Setup/Uninstall. The filename can be an executable file, a document file, a folder, or a URL. Verb may be an empty string, in which case the default verb for the file type is used (usually "open"). The Wait parameter specifies whether the function should return immediately or wait until the launched process has termimated or is idle. Returns True if the specified file was opened successfully, False otherwise. If False is returned then ErrorCode specifies the error that occurred. Use SysErrorMessage(ErrorCode) to get a description of the error.</p></description>
+        <description><p>Opens the specified file or performs another action specified by Verb, using the same credentials as Setup/Uninstall. The filename can be an executable file, a document file, a folder, or a URL. Verb may be an empty string, in which case the default verb for the file type is used (usually "open"). The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was opened successfully, False otherwise. If False is returned then ErrorCode specifies the error that occurred. Use SysErrorMessage(ErrorCode) to get a description of the error.</p></description>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Note that passing a Wait value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p></remarks>
