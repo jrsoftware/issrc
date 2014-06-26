@@ -213,7 +213,7 @@
 
 <dt><tt>function <a name="CheckSerial">CheckSerial</a>(Serial: String): Boolean;</tt></dt>
 <dd>
-<p>If Setup finds the <tt>CheckSerial</tt> event function in the Pascal script, a serial number field will automatically appear on the User Info wizard page (which must be enabled using <tt>UserInfoPage=yes</tt> in your [Setup] section!). Return True to accept the serial number and False to reject it. When using serial numbers, it's important to keep in mind that since no encryption is used and the source code to Inno Setup is freely available, it would not be too difficult for an experienced individual to remove the serial number protection from an installation. Use this only as a convenience to the end user and double check the entered serial number (stored in the <tt>{userinfoserial}</tt> constant) in your application.</p>
+<p>If Setup finds the <tt>CheckSerial</tt> event function in the Pascal script, a serial number field will automatically appear on the User Info wizard page (which must be enabled using <tt>UserInfoPage=yes</tt> in your [Setup] section!). Return True to accept the serial number and False to reject it. When using serial numbers, it's important to keep in mind that since no encryption is used and the source code to Inno Setup is freely available, it would not be too difficult for an experienced individual to remove the serial number protection from an installation. Use this only as a convienience to the end user and double check the entered serial number (stored in the <tt>{userinfoserial}</tt> constant) in your application.</p>
 </dd>
 
 <dt><tt>function <a name="GetCustomSetupExitCode">GetCustomSetupExitCode</a>: Integer;</tt></dt>
@@ -365,7 +365,7 @@ Source: "B\MYFILE.TXT"; DestDir: "{app}"; Check: DirExists(ExpandConstant('{app}
 
 <p>All check functions must have a Boolean return value. If a check function (or the boolean expression) returns True, the entry is processed otherwise it's skipped.</p>
 
-<p>Setup might call each check function several times, even if there's only one entry that uses the check function. If your function performs a lengthy piece of code, you can optimize it by performing the code only once and 'caching' the result in a global variable.</p>
+<p>Setup might call each check function several times, even if there's only one entry that uses the check function. If your function performs a lenghty piece of code, you can optimize it by performing the code only once and 'caching' the result in a global variable.</p>
 
 <p>A check function isn't called if Setup already determined the entry it shouldn't be processed.</p>
 
