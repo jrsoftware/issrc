@@ -705,7 +705,8 @@ end;</pre></example>
         <name>DLLGetLastError</name>
         <prototype>function DLLGetLastError(): Longint;</prototype>
         <description><p>Returns value the last error code had right after the most recent DLL function call you made. Useful after calling Windows API functions (if the function sets the last error code).</p></description>
-        <remarks><p>It's recommended to use this function instead of directly calling the GetLastError Windows API function since Setup or Uninstall makes API calls of its own, so the last error code could be overwritten at any time.</p></remarks>
+        <remarks><p>It's recommended to use this function instead of directly calling the GetLastError Windows API function since Setup or Uninstall makes API calls of its own, so the last error code could be overwritten at any time.</p>
+<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
         <example><pre>function MessageBox(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal): Integer; external 'MessageBoxA@user32.dll stdcall';
 
 ...
@@ -1130,6 +1131,7 @@ end;
         <name>SysErrorMessage</name>
         <prototype>function SysErrorMessage(ErrorCode: Integer): String;</prototype>
         <description><p>Returns a localized error message string that corresponds to the given operating system error code.</p></description>
+        <remarks><p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
       </function>
     </subcategory>
     <subcategory>
@@ -1570,7 +1572,8 @@ end;</pre></example>
         <description><p>Opens the specified file or performs another action specified by Verb, using the same credentials as Setup/Uninstall. The filename can be an executable file, a document file, a folder, or a URL. Verb may be an empty string, in which case the default verb for the file type is used (usually "open"). The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was opened successfully, False otherwise. If False is returned then ErrorCode specifies the error that occurred. Use SysErrorMessage(ErrorCode) to get a description of the error.</p></description>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
-<p>Note that passing a Wait value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p></remarks>
+<p>Note that passing a Wait value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p>
+<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
         <example><pre>var
   ErrorCode: Integer;
 begin
@@ -1587,7 +1590,8 @@ end;</pre></example>
         <prototype>function ShellExecAsOriginalUser(const Verb, Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ErrorCode: Integer): Boolean;</prototype>
         <description><p>Opens the specified file or performs another action specified by Verb, using the (normally non-elevated) credentials of the user that started Setup initially. See <link topic="isxfunc_ShellExec">ShellExec</link> and the [Run] section flag <tt>runasoriginaluser</tt> for more information.</p></description>
         <remarks><p>This function is not supported at uninstall time.</p>
-<p>In very unusual failure cases (e.g. if the initial Setup process died unexpectedly), it is possible for this function to raise an exception instead of just returning False.</p></remarks>
+<p>In very unusual failure cases (e.g. if the initial Setup process died unexpectedly), it is possible for this function to raise an exception instead of just returning False.</p>
+<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
       </function>
     </subcategory>
     <subcategory>
@@ -2415,7 +2419,8 @@ end;</pre></example>
         <name>LoadDLL</name>
         <prototype>function LoadDLL(const DLLName: String; var ErrorCode: Integer): Longint;</prototype>
         <description><p>Loads the specified DLL. Returns the DLL handle if the DLL was loaded successfully, zero otherwise. If zero is returned then ErrorCode specifies the error that occurred. Use SysErrorMessage(ErrorCode) to get a description of the error.</p></description>
-        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
+        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p>
+<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
       </function>
       <function>
         <name>CallDLLProc</name>
