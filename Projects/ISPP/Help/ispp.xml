@@ -574,14 +574,14 @@
 				</syntax>
 				<description>
 					<para>&pragma; is a special directive. Please note that if ISPP fails to parse parameters of this directive (because of typo or wrong sytax), no error will occur &dash; only a warning will be issued; this is done for compatibility with other preprocessors, which can have their own sytax of &pragma; directive.</para>
-					<para>First syntax of &pragma; directive controls the options, which ISPP uses to read the source. There are two groups of options. Each group consists of 26 flags (not all of them are meaningfull and used by ISPP, though). Each flag has an assigned latin letter. You specify options by typing group name (<synel>option</synel> or <synel>parseroption</synel>),
+					<para>First syntax of &pragma; directive controls the options, which ISPP uses to read the source. There are two groups of options. Each group consists of 26 flags (not all of them are meaningful and used by ISPP, though). Each flag has an assigned latin letter. You specify options by typing group name (<synel>option</synel> or <synel>parseroption</synel>),
 then the letter following the dash. After a letter a plus or minus sign shall be specified. Plus sign to turn the option on, minus to turn it off. Unrestricted number of options can be specified at once (see syntax).
 The list of options is provided at the end of this topic.</para>
 					<para>First group of options (<synel>option</synel>) controls the options of the whole ISPP engine, while second group (<synel>parseroption</synel>) controls options specific to parser. The list of options is provided at the end of this topic.</para>
 					<para>Second syntax is used to specify inline directive terminators: starting and ending, respectively. After the token description keyword (<synel>inlinestart</synel> or <synel>inlineend</synel>) a string type expression must follow. It must not evaluate to an empty string. Only first seven symbols from the string are taken. It is allowed to specify the same token for both starting and ending terminators. By default, <synel>&ob;#</synel> (opening brace and a number sign) and <synel>&cb;</synel> (closing brace) are assumed.</para>
 					<para>Third syntax of &pragma; directive issues a message of the type specified by the keyword following the directive name. Messages and warnings are sent to the messages window of the compiler. Errors are shown (by the compiler) using message boxes. Expression must be of type string. Also see the &error; directive.</para>
 					<para>Fourth syntax sets the level of verbosity. When the verbose mode is on (see below), this syntax controls the level of importance of messages. Least important messages will show up only when highest verbose level (9) is set.</para>
-					<para>Fifth syntax sets the include path. Expression may specify multiple paths delimitted with semicolons. The list of these directories is used when ISPP tries to find a file, mentioned in &include; directive.</para>
+					<para>Fifth syntax sets the include path. Expression may specify multiple paths delimited with semicolons. The list of these directories is used when ISPP tries to find a file, mentioned in &include; directive.</para>
 					<para>The last syntax sets the symbol used to span multiple lines together. Expression must not evaluate to an empty string. Only first symbol in string is taken.</para>
 				</description>
 				<section title="ISPP options">
@@ -657,7 +657,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para><synel>GetFileVersion</synel> function takes a string argument which must be set to the name of the file whose version information is to be queried. The function returns string composed of four decimal numbers delimitted with periods. If file does not contain valid version info, the function returns an empty string.</para>
+					<para><synel>GetFileVersion</synel> function takes a string argument which must be set to the name of the file whose version information is to be queried. The function returns string composed of four decimal numbers delimited with periods. If file does not contain valid version info, the function returns an empty string.</para>
 					<para>ISPP also has <link href="GetStringFileInfo">GetStringFileInfo</link> function, which also can be used to retrieve file version (using "FileVersion" or "ProductVersion" as second parameter). The difference is that GetFileVersion takes it from fixed block of version info, unlike GetStringFileInfo, which extracts string from language specific block.</para>
 				</description>
 			</topic>
@@ -845,7 +845,7 @@ The list of options is provided at the end of this topic.</para>
 						<para>Any of the following modifiers may be combined with one of the previous using bitwise OR operator (<synel>|</synel>):</para>
 						<para><synel>FIND_CASESENSITIVE</synel> (4) means that comparison must be case-sensitive.</para>
 						<para><synel>FIND_AND</synel> (0) means that this criterium (the pair of arguments in <synel>Find</synel> function) must be met as well as previous criteria.</para>
-						<para><synel>FIND_OR</synel> (8) means that it is allowed that this criterium is tested even if previos criteria were not met.</para>
+						<para><synel>FIND_OR</synel> (8) means that it is allowed that this criterium is tested even if previous criteria were not met.</para>
 						<para><synel>FIND_NOT</synel> (16) means that this criterium must not be met.</para>
 						<para><synel>FIND_AND</synel> and <synel>FIND_OR</synel> are mutually exclusive. If both are specified, <synel>FIND_OR</synel> takes precedence.</para>
 						<para>Special flags:</para>
@@ -897,7 +897,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> GetEnv(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>Returns the value of the environment variable whose name is specified as the parameter. Returns emtpy string if variable is not defined.</para>
+					<para>Returns the value of the environment variable whose name is specified as the parameter. Returns empty string if variable is not defined.</para>
 				</description>
 			</topic>
 			<topic id="DeleteFile">
@@ -1046,7 +1046,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> FileReset(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function resets the file pointer to zero, so the sugsequent call to <synel><link href="FileRead">FileRead</link></synel> will read the first line of the file. The only parameter should be the file handle returned by <synel><link href="FileOpen">FileOpen</link></synel>.</para>
+					<para>The function resets the file pointer to zero, so the subsequent call to <synel><link href="FileRead">FileRead</link></synel> will read the first line of the file. The only parameter should be the file handle returned by <synel><link href="FileOpen">FileOpen</link></synel>.</para>
 				</description>
 			</topic>
 			<topic id="FileEof">
@@ -1576,7 +1576,7 @@ The list of options is provided at the end of this topic.</para>
 			</keywords>
 			<title>Visibility of Identifiers</title>
 			<description header="no">
-				<para>Variables (as well as macros, read "variable or macro" anywhere it says "variable" below) can be explicitily defined as "public," "protected," or "private." To define such a variable, its name in its &define; directive should be prepended with one of the visibility keywords:</para>
+				<para>Variables (as well as macros, read "variable or macro" anywhere it says "variable" below) can be explicitly defined as "public," "protected," or "private." To define such a variable, its name in its &define; directive should be prepended with one of the visibility keywords:</para>
 				<pre>
 					<line>#define public MyVar 12</line>
 					<line>#define protected MyVar 13</line>
@@ -1587,12 +1587,12 @@ The list of options is provided at the end of this topic.</para>
 				<para>Protected variables are accessible only in the file they are declared in and in files included by that file via &include; or &file; directives. You can basically think of them as public variables which are automatically undefined once their file has finished.</para>
 				<para>Private variables are accessible only in the file they are declared in. They are not propagated to any other file, be it included or "parent" file.</para>
 				<para>Since ISPP does not have semantics of pushing and popping variable value, visibility resolution can be useful.</para>
-				<para>Note that you cannot explicity refer to a variable in a specific visibility from expressions. Given the example above, if <synel>MyVar</synel> is mentioned in expression in declaration file, its identifier refers to private <synel>MyVar</synel>. If it is mentioned in included file, it refers to protected <synel>MyVar</synel>. If it is mentioned in one of the files above the declaration file on the include stack (i. e. one of the files from which a chain of &include; directives resulted in processing the declaration file), it refers to public <synel>MyVar</synel>.</para>
+				<para>Note that you cannot explicitly refer to a variable in a specific visibility from expressions. Given the example above, if <synel>MyVar</synel> is mentioned in expression in declaration file, its identifier refers to private <synel>MyVar</synel>. If it is mentioned in included file, it refers to protected <synel>MyVar</synel>. If it is mentioned in one of the files above the declaration file on the include stack (i. e. one of the files from which a chain of &include; directives resulted in processing the declaration file), it refers to public <synel>MyVar</synel>.</para>
 				<para>Also note, that if we'd swap last two declarations from the above example, private <synel>MyVar</synel> would become inaccessible (until protected is undefined) because protected would be declared after it and would take precedence. But it wouldn't undefine its private counterpart.</para>
 				<para>Each file can set a default visibility, the visibility that will be used when no resolution clause is specified in variable declaration. This can be done using &define; directive, for example:</para>
 				<pre><line>#define protected</line></pre>
 				<para>sets protected visibility by default.</para>
-				<para>The default visibility isn't used when evaluating expressions, it is only used when a variable is defined or undefined without explicity specifying its visibility. When default visibility is not set, public is assumed by default. Setting default visibility is not propagated on included or parent files.</para>
+				<para>The default visibility isn't used when evaluating expressions, it is only used when a variable is defined or undefined without explicitly specifying its visibility. When default visibility is not set, public is assumed by default. Setting default visibility is not propagated on included or parent files.</para>
 				<para>In macro expressions, avoid using identifiers of lower visibility than the one macro is declared in. This may cause "Undeclared identifier" errors if macro is called from another file.</para>
 				<para>It is recommended that you use appropriate visibility when declaring variables to avoid problems with unexpected redefinition of a variable (for example in included third-party file). If no included files depend on a variable, declare it as private. If they do, but the parent file doesn't, declare it as protected. Declare it as public otherwise. If you're unsure, then protected visibility is the common case.</para>
 			</description>
@@ -1659,11 +1659,11 @@ The list of options is provided at the end of this topic.</para>
 						<para>Although functions do not have named arguments, it is still required to enclose assignment expressions in parentheses when calling those functions.</para>
 					</li>
 					<li>
-						<para>By standard rule comma is used to separate actual parameters. If you need to use sequential evaluation operator, you must include the expression in paretheses:</para>
+						<para>By standard rule comma is used to separate actual parameters. If you need to use sequential evaluation operator, you must include the expression in parentheses:</para>
 						<pre>
 							<line>#emit MyMacro((SaveToFile("script.txt"), 5), 10)</line>
 						</pre>
-						<para>In the above example, the first comma is treated as the sequential evaluation operator, whereas the second one as the argument delimitter.</para>
+						<para>In the above example, the first comma is treated as the sequential evaluation operator, whereas the second one as the argument delimiter.</para>
 					</li>
 				</ul>
 			</section>
@@ -1708,8 +1708,8 @@ The list of options is provided at the end of this topic.</para>
   <topic id="looping">
     <title>Looping</title>
     <description header="no">
-      <para>ISPP allows you to call macro recursevely, i. e. call it from itself. This feature can be used to emulate loop.</para>
-      <para>For example, you wish to constuct a "for"-like loop. To achieve this, you'll need to declare a macro that takes one integer argument and which makes the loop "body." After that you declare "outer" loop, which used for iterating:</para>
+      <para>ISPP allows you to call macro recursively, i. e. call it from itself. This feature can be used to emulate loop.</para>
+      <para>For example, you wish to construct a "for"-like loop. To achieve this, you'll need to declare a macro that takes one integer argument and which makes the loop "body." After that you declare "outer" loop, which used for iterating:</para>
       <pre> 
         <line>#define LoopBody(int I) Str(I) + "th iteration&bs;n"</line>
         <line></line>
@@ -1718,7 +1718,7 @@ The list of options is provided at the end of this topic.</para>
         <line>&dsp;&dsp;LoopBody(LoopRoof) +&sp;/* call the body */ &bs; </line>
         <line>&dsp;&dsp;Loop(LoopRoof - 1)&sp;&dsp;/* next iteration*/ &bs;</line>
         <line>&dsp;:&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;/* else */ &bs;</line>
-        <line>&dsp;&dsp;""&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&sp;/* return emtpy string */</line>
+        <line>&dsp;&dsp;""&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&sp;/* return empty string */</line>
       </pre>
       <para>With these two macros declared, this command:</para>
       <pre>
