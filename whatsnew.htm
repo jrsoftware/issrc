@@ -28,9 +28,14 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 
 <p><a name="5.5.5"></a><span class="ver">5.5.5-dev </span><span class="date">(?)</span></p>
 <ul>
-<li>Added new [Setup] section directive: <tt>Output</tt>, which defaults to <tt>yes</tt>. If set to <tt>no</tt> the Setup Compiler will only check the script for errors and skip creating setup files.</li>
-<li>Added new command line parameters supported by ISCC: /DO and /EO. These can be used to disable or enable output, overriding the <tt>Output</tt> directive.</li>
 <li>/LOG: Now logs INI entries. Also improved logging of icon entries.</li>
+<li>Added new [Setup] section directive: <tt>Output</tt>, which defaults to <tt>yes</tt>. If set to <tt>no</tt> the Setup Compiler will only check the script for errors and skip creating setup files.</li>
+<li>Console-mode compiler (ISCC) changes:
+<ul>
+  <li>Added new command line parameters /DO and /EO. These can be used to disable or enable output, overriding the <tt>Output</tt> directive.</li>
+  <li>Added new command line parameter /Qp. Can be used to enable quiet compile while still displaying progress. Contributed by <a href="https://github.com/KngStr" target="_blank">KngStr</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
+  <li>ISCC now automatically specifies any Sign Tools configured using the IDE, eliminating the need to specify these using the /S command line parameter. Also contributed by <a href="https://github.com/KngStr" target="_blank">KngStr</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
+</ul>
 <li>Pascal Scripting changes:
 <ul>
   <li>Added new function <tt>CurrentSourceFileName</tt>, which returns the source file name of the [Files] entry that is currently being processed. The returned name may include constants. <i>Note:</i> Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a [Files] entry with the <tt>external</tt> flag.</li>

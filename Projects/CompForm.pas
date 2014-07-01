@@ -431,7 +431,7 @@ uses
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchemaISX, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  CompOptions, CompStartup, CompWizard, CompSignTools;
+  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes;
 
 {$R *.DFM}
 {$R CompImages.res}
@@ -548,39 +548,6 @@ begin
   finally
     CoTaskMemFree(P);
   end;
-end;
-
-{ TConfigIniFile }
-
-type
-  TConfigIniFile = class(TRegIniFile)
-  private
-    FMutex: THandle;
-    FAcquiredMutex: Boolean;
-  public
-    constructor Create;
-    destructor Destroy; override;
-  end;
-
-constructor TConfigIniFile.Create;
-begin
-  inherited Create('Software\Jordan Russell\Inno Setup');
-  { Paranoia: Use a mutex to prevent multiple instances from reading/writing
-    to the registry simultaneously }
-  FMutex := CreateMutex(nil, False, 'Inno-Setup-IDE-Config-Mutex');
-  if FMutex <> 0 then
-    if WaitForSingleObject(FMutex, INFINITE) <> WAIT_FAILED then
-      FAcquiredMutex := True;
-end;
-
-destructor TConfigIniFile.Destroy;
-begin
-  if FMutex <> 0 then begin
-    if FAcquiredMutex then
-      ReleaseMutex(FMutex);
-    CloseHandle(FMutex);
-  end;
-  inherited;
 end;
 
 { TISScintEdit }
@@ -818,28 +785,6 @@ constructor TCompileForm.Create(AOwner: TComponent);
     FOptionsLoaded := True;
   end;
 
-  procedure ReadSignTools;
-  var
-    Ini: TConfigIniFile;
-    I: Integer;
-    S: String;
-  begin
-    Ini := TConfigIniFile.Create;
-    try
-      { Sign tools }
-      FSignTools.Clear();
-      I := 0;
-      repeat
-        S := Ini.ReadString('SignTools', 'SignTool' + IntToStr(I), '');
-        if S <> '' then
-          FSignTools.Add(S);
-        Inc(I);
-      until S = '';
-    finally
-      Ini.Free;
-    end;
-  end;
-
   procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
   begin
     MenuItem.Caption := MenuItem.Caption + #9 + S;
@@ -953,7 +898,7 @@ begin
   UpdateThemeData(False, True);
 
   if CommandLineCompile then begin
-    ReadSignTools;
+    ReadSignTools(FSignTools);
     PostMessage(Handle, WM_StartCommandLineCompile, 0, 0)
   end else if CommandLineWizard then begin
     { Stop Delphi from showing the compiler form }
@@ -962,7 +907,7 @@ begin
     PostMessage(Handle, WM_StartCommandLineWizard, 0, 0);
   end else begin
     ReadConfig;
-    ReadSignTools;
+    ReadSignTools(FSignTools);
     PostMessage(Handle, WM_StartNormally, 0, 0);
   end;
 end;
@@ -1729,7 +1674,7 @@ begin
     Pointer(Params.AppData) := @AppData;
     Options := '';
     for I := 0 to FSignTools.Count-1 do
-      Options := Options + 'SignTool-' + FSignTools[I] + #0;
+      Options := Options + AddSignToolParam(FSignTools[I]);
     Params.Options := PChar(Options);
 
     AppData.Form := Self;

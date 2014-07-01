@@ -1683,7 +1683,7 @@ The list of options is provided at the end of this topic.</para>
 					<tr><td><code>/}&lt;string&gt;</code></td><td>Sets <code>#pragma inlineend -&lt;string&gt;</code></td></tr>
 					<tr><td><code>/v&lt;number&gt;</code></td><td>Sets <code>#pragma verboselevel -&lt;number&gt;</code></td></tr>
 				</table>
-				<para>Other valid options are: "/O" to specify an output path (overriding any OutputDir setting in the script), "/F" to specify an output filename (overriding any OutputBaseFilename setting in the script), and "/Q" for quiet compile (print only error messages).</para>
+				<para>Other valid options are: "/O" to specify an output path (overriding any OutputDir setting in the script), "/F" to specify an output filename (overriding any OutputBaseFilename setting in the script), and "/Q[p]" for quiet compile (print only error messages, "p" will show progress info).</para>
 				<para>Example: <synel>iscc /$c- /pu+ "/dLic=Trial Lic.txt" /iC:\INC;D:\INC "c:\isetup\samples\my script.iss"</synel></para>
 				<para>ISCC will return an exit code of 0 if the compile was successful, 1 if the command line parameters were invalid or an internal error occurred, or 2 if the compile failed.</para>
 			</description>

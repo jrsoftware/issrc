@@ -16,9 +16,9 @@ program ISCC;
 
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
-  Windows, SysUtils,
+  Windows, SysUtils, Classes,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  PathFunc, CmnFunc2, CompInt, FileClass;
+  PathFunc, CmnFunc2, CompInt, FileClass, CompTypes;
 
 {$R *.res}
 {$R ISCC.manifest.res}
@@ -39,13 +39,16 @@ var
   ScriptLines, NextScriptLine: PScriptLine;
   CurLine: String;
   StartTime, EndTime: DWORD;
-  Quiet, WantAbort: Boolean;
+  Quiet, ShowProgress, WantAbort: Boolean;
+  SignTools: TStringList;
+  ProgressPoint: TPoint;
+  LastProgress: String;
 
 procedure WriteToStdHandle(const H: THandle; S: AnsiString);
 var
   BytesWritten: DWORD;
 begin
-  S := S + #13#10;
+  if Copy(S, 1, 1) <> #13 then S := S + #13#10;
   WriteFile(H, S[1], Length(S), BytesWritten, nil);
 end;
 
@@ -57,6 +60,50 @@ end;
 procedure WriteStdErr(const S: String);
 begin
   WriteToStdHandle(StdErrHandle, AnsiString(S));
+end;
+
+function GetCursorPos: TPoint;
+var
+  CSBI: TConsoleScreenBufferInfo;
+begin
+  if not GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
+    Exit;
+  Result.X := CSBI.dwCursorPosition.X;
+  Result.Y := CSBI.dwCursorPosition.Y;
+end;
+
+procedure SetCursorPos(const P: TPoint);
+var
+  Coords: TCoord;
+  CSBI: TConsoleScreenBufferInfo;
+begin
+  if not GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
+    Exit;
+  if P.X < 0 then Exit;
+  if P.Y < 0 then Exit;
+  if P.X > CSBI.dwSize.X then Exit;
+  if P.Y > CSBI.dwSize.Y then Exit;
+  Coords.X := P.X;
+  Coords.Y := P.Y;
+  SetConsoleCursorPosition(StdOutHandle, Coords);
+end;
+
+procedure WriteProgress(const S: String);
+var
+  CSBI: TConsoleScreenBufferInfo;
+  Str: String;
+begin
+  if GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
+  begin
+    if Length(S) > CSBI.dwSize.X then
+      Str := Copy(S, 1, CSBI.dwSize.X)
+    else
+      Str := Format('%-' + IntToStr(CSBI.dwSize.X) + 's', [S]);
+  end
+  else
+    Str := S;
+
+  WriteToStdHandle(StdOutHandle, AnsiString(Str));
 end;
 
 function ConsoleCtrlHandler(dwCtrlType: DWORD): BOOL; stdcall;
@@ -111,8 +158,32 @@ end;
 
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer; stdcall;
+
+  procedure PrintProgress(Progress: String);
+  var
+    Pt: TPoint;
+  begin
+    if (Progress = '') or (LastProgress = Progress) then
+      Exit;
+
+    Pt := GetCursorPos;
+
+    if Pt.Y <= ProgressPoint.Y then
+      Exit
+    else if ProgressPoint.X < 0 then begin
+      ProgressPoint := Pt;
+      WriteStdOut('');
+      Pt := GetCursorPos;
+    end;
+
+    SetCursorPos(ProgressPoint);
+    WriteProgress(#13 + Progress);
+    LastProgress := Progress;
+    SetCursorPos(Pt);
+  end;
+
 var
-  S: String;
+  S, BytesCompressedPerSecond, SecondsRemaining: String;
 begin
   if WantAbort then begin
     Result := iscrRequestAbort;
@@ -131,7 +202,9 @@ begin
       end;
     iscbNotifyStatus:
       if not Quiet then
-        WriteStdOut(Data.StatusMsg);
+        WriteStdOut(Data.StatusMsg)
+      else if ShowProgress then
+        PrintProgress(Trim(Data.StatusMsg));
     iscbNotifySuccess: begin
         EndTime := GetTickCount;
         if not Quiet then begin
@@ -159,6 +232,18 @@ begin
         S := S + ': ' + Data.ErrorMsg;
         WriteStdErr(S);
       end;
+    iscbNotifyIdle:
+      if ShowProgress and (Data.CompressProgress <> 0) then begin
+        if Data.BytesCompressedPerSecond <> 0 then
+          BytesCompressedPerSecond := Format(' at %.2f kb/s', [Data.BytesCompressedPerSecond / 1024])
+        else
+          BytesCompressedPerSecond := '';
+        if Data.SecondsRemaining <> -1 then
+          SecondsRemaining := Format(', %d seconds remaining', [Data.SecondsRemaining])
+        else
+          SecondsRemaining := '';
+        PrintProgress(Format('Compressing: %.2f%% done%s%s', [Data.CompressProgress / Data.CompressProgressMax * 100, BytesCompressedPerSecond, SecondsRemaining]));
+      end;
   end;
 end;
 
@@ -182,6 +267,7 @@ procedure ProcessCommandLine;
     WriteStdErr('          /Ffilename     Overrides OutputBaseFilename with the specified filename');
     WriteStdErr('          /Sname=command Sets a SignTool with the specified name and command');
     WriteStdErr('          /Q             Quiet compile (print error messages only)');
+    WriteStdErr('          /Qp            Enable quiet compile while still displaying progress');
     WriteStdErr('          /?             Show this help screen');
   end;
 
@@ -192,8 +278,11 @@ begin
   for I := 1 to NewParamCount do begin
     S := NewParamStr(I);
     if (S = '') or (S[1] = '/') then begin
-      if CompareText(S, '/Q') = 0 then
-        Quiet := True
+      if CompareText(Copy(S, 1, 2), '/Q') = 0 then
+      begin
+        Quiet := True;
+        ShowProgress := CompareText(Copy(S, 3, MaxInt), 'P') = 0;
+      end
       else if CompareText(Copy(S, 1, 3), '/DO') = 0 then
         Output := 'no'
       else if CompareText(Copy(S, 1, 3), '/EO') = 0 then
@@ -251,6 +340,7 @@ var
   Params: TCompileScriptParamsEx;
   Options: String;
   Res: Integer;
+  I: Integer;
 begin
   if ScriptFilename <> '-' then begin
     ScriptFilename := PathExpand(ScriptFilename);
@@ -273,6 +363,8 @@ begin
     Halt(1);
   end;
 
+  SignTools := TStringList.Create;
+  ProgressPoint.X := -1;
   ExitCode := 0;
   try
     if ScriptFilename <> '<stdin>' then
@@ -301,8 +393,14 @@ begin
       Options := Options + 'OutputDir=' + OutputPath + #0;
     if OutputFilename <> '' then
       Options := Options + 'OutputBaseFilename=' + OutputFilename + #0;
+
+    ReadSignTools(SignTools);
+    for I := 0 to SignTools.Count-1 do
+      if (SignTool = '') or (Pos(UpperCase(SignTools.Names[I]) + '=', UpperCase(SignTool)) = 0) then
+        Options := Options + AddSignToolParam(SignTools[I]);
     if SignTool <> '' then
-      Options := Options + 'SignTool-' + SignTool + #0;
+      Options := Options + AddSignToolParam(SignTool);
+
     Params.Options := PChar(Options);
 
     StartTime := GetTickCount;
@@ -323,6 +421,7 @@ begin
         'unexpected result (%d).', [Res]));
     end;
   finally
+    SignTools.Free;
     FreeScriptLines;
   end;
   if ExitCode <> 0 then
