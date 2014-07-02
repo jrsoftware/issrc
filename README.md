@@ -78,16 +78,16 @@ Source code README
 
 - Building
 
-  To build all files run build.bat and follow the instructions.
+  To build all files run **build.bat** and follow the instructions.
 
-  To just compile Inno Setup run compile-unicode.bat for Unicode Inno Setup or
-  compile.bat for Non Unicode Inno Setup and follow the instructions.
+  To just compile Inno Setup run **compile-unicode.bat** for Unicode Inno Setup
+  or **compile.bat** for Non Unicode Inno Setup and follow the instructions.
 
   To just compile the Inno Setup help file and its web version run
-  ishelp\compile.bat and follow the instructions.
+  **ishelp\compile.bat** and follow the instructions.
 
   To just compile the Inno Setup Preprocessor help file and its web version run
-  Projects\Ispp\Help\compile.bat and follow the instructions.
+  **Projects\Ispp\Help\compile.bat** and follow the instructions.
 
 2. Delphi 2.0x users ONLY
 -------------------------
