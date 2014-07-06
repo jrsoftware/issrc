@@ -813,7 +813,7 @@ end;</pre></example>
       <function>
         <name>ConvertPercentStr</name>
         <prototype>function ConvertPercentStr(var S: String): Boolean;</prototype>
-        <description><p>Expands all %-encoded characters in the string (see RFC 2396). Returns True if all were successfully expanded.</p></description>
+        <description><p>Expands all %-encoded characters in the string (see <a href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>). Returns True if all were successfully expanded.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -1212,7 +1212,7 @@ const
   varByRef    = $4000;
 </pre>
 </description>
-      </function>     
+      </function>
     </subcategory>
   </category>
   <category>
@@ -1331,7 +1331,7 @@ end;</pre></example>
   FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
   FILE_ATTRIBUTE_ENCRYPTED
 </pre></description>
-        <remarks><p>If FindFirst returns True, call FindNext to enumerate the rest of the files, and then FindClose.</p></remarks>
+        <remarks><p>If FindFirst returns True, call <link topic="isxfunc_FindNext">FindNext</link> to enumerate the rest of the files, and then <link topic="isxfunc_FindClose">FindClose</link>.</p></remarks>
         <example><p>The following example counts the number of files in the Windows System directory.</p>
 <pre>var
   FilesFound: Integer;
@@ -1352,18 +1352,24 @@ begin
   MsgBox(IntToStr(FilesFound) + ' files found in the System directory.',
     mbInformation, MB_OK);
 end;</pre></example>
+        <seealso><p><link topic="isxfunc_FindNext">FindNext</link><br />
+<link topic="isxfunc_FindClose">FindClose</link></p></seealso>
       </function>
       <function>
         <name>FindNext</name>
         <prototype>function FindNext(var FindRec: TFindRec): Boolean;</prototype>
-        <description><p>Retrieves information about the next matching file after a call to FindFirst. Returns True if successful.</p></description>
-        <example><p>For an example, see the documentation for FindFirst.</p></example>
+        <description><p>Retrieves information about the next matching file after a call to <link topic="isxfunc_FindFirst">FindFirst</link>. Returns True if successful.</p></description>
+        <example><p>For an example, see the documentation for <link topic="isxfunc_FindFirst">FindFirst</link>.</p></example>
+        <seealso><p><link topic="isxfunc_FindFirst">FindFirst</link><br />
+<link topic="isxfunc_FindClose">FindClose</link></p></seealso>
       </function>
       <function>
         <name>FindClose</name>
         <prototype>procedure FindClose(var FindRec: TFindRec);</prototype>
-        <description><p>Ends a find sequence, and frees the resources associated with it. You should always call this when FindFirst returns True.</p></description>
-        <example><p>For an example, see the documentation for FindFirst.</p></example>
+        <description><p>Ends a find sequence, and frees the resources associated with it. You should always call this when <link topic="isxfunc_FindFirst">FindFirst</link> returns True.</p></description>
+        <example><p>For an example, see the documentation for <link topic="isxfunc_FindFirst">FindFirst</link>.</p></example>
+        <seealso><p><link topic="isxfunc_FindFirst">FindFirst</link><br />
+<link topic="isxfunc_FindNext">FindNext</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -2338,7 +2344,7 @@ end;</pre></example>
       <function>
         <name>IDispatchInvoke</name>
         <prototype>function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of variant): variant;</prototype>
-        <description><p>Use <tt>IDispatchInvoke</tt> to access a COM Automation property or method whose name is a reserved word. Also see the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+        <description><p>Use <tt>IDispatchInvoke</tt> to access a COM Automation property or method whose name is a reserved word.</p></description>
         <example><pre>var
   AObject: Variant;
   AType: String;
@@ -2350,6 +2356,7 @@ begin
   // Get a property or call a method named 'Type'
   AType := IDispatchInvoke(AObject, False, 'Type', ['']);
 end;</pre></example>
+        <seealso><p><link topic="scriptautomation" window="main">Using COM Automation objects</link></p></seealso>
       </function>
       <function>
         <name>CreateComObject</name>
@@ -2359,12 +2366,14 @@ end;</pre></example>
       <function>
         <name>StringToGUID</name>
         <prototype>function StringToGUID(const S: String): TGUID;</prototype>
-        <description><p>StringToGUID converts the string representation of a GUID into a 'real' GUID. An exception will be raised upon failure. Also see the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+        <description><p>StringToGUID converts the string representation of a GUID into a 'real' GUID. An exception will be raised upon failure.</p></description>
+        <seealso><p><link topic="scriptautomation" window="main">Using COM Automation objects</link></p></seealso>
       </function>
       <function>
         <name>OleCheck</name>
         <prototype>procedure OleCheck(Result: HResult);</prototype>
-        <description><p>Use OleCheck to wrap any IUnknown based COM methods you call, so that if that method fails, an exception will be raised. Also see the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+        <description><p>Use OleCheck to wrap any IUnknown based COM methods you call, so that if that method fails, an exception will be raised.</p></description>
+        <seealso><p><link topic="scriptautomation" window="main">Using COM Automation objects</link></p></seealso>
       </function>
       <function>
         <name>CoFreeUnusedLibraries</name>
