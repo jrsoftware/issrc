@@ -2343,7 +2343,7 @@ end;</pre></example>
       </function>
       <function>
         <name>IDispatchInvoke</name>
-        <prototype>function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of variant): variant;</prototype>
+        <prototype>function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of Variant): Variant;</prototype>
         <description><p>Use <tt>IDispatchInvoke</tt> to access a COM Automation property or method whose name is a reserved word.</p></description>
         <example><pre>var
   AObject: Variant;
