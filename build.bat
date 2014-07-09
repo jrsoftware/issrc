@@ -22,7 +22,7 @@ rem  files are stored there for later use while preparing an ISPack release
 
 setlocal
 
-set VER=5.5.4
+set VER=5.5.5
 
 echo Building Inno Setup %VER%...
 echo.
