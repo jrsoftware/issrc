@@ -39,6 +39,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <li>Pascal Scripting changes:
 <ul>
   <li>Added new function <tt>CurrentSourceFileName</tt>, which returns the source file name of the [Files] entry that is currently being processed. The returned name may include constants. <i>Note:</i> Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a [Files] entry with the <tt>external</tt> flag.</li>
+  <li>Added new class <tt>TStringStream</tt>.</li>
   <li>The already-existing <tt>StrToFloat</tt> and <tt>FloatToStr</tt> functions are now documented.</li>
   <li>Strings and numbers are now highlighted. Based on contribution by <a href="https://github.com/maldoinc" target="_blank">maldoinc</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
 </ul>
@@ -64,7 +65,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added new event function <tt>CurInstallProgressChanged</tt>, which you can use to monitor progress while Setup is extracting files, creating shortcuts, creating INI entries, and creating registry entries. See the help file and the <i>CodeExample1.iss</i> example script for more information. Contributed by <a href="https://github.com/tlama" target="_blank">TLama</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
   <li><tt>WizardForm.BeveledLabel</tt> visibility is now automatically handled even if its caption was set from [Code].</li>
 </ul>
-<li>Unicode [Code] based on RemObjects Pascal Script Git commit 538905910852bcbeef646f26592a973d15d3d5ec.</li>
+<li>Unicode [Code] based on RemObjects Pascal Script Git commit 97eefc260b41ba51328d95b4ed43669f38655720.</li>
 <li>Minor tweaks.</li>
 </ul>
 

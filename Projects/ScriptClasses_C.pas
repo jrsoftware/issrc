@@ -546,6 +546,7 @@ begin
   SIRegisterTStringList(Cl);
   SIRegisterTHandleStream(Cl);
   SIRegisterTFileStream(Cl);
+  SIRegisterTStringStream(Cl);
 
   { Graphics }
   SIRegister_Graphics_TypesAndConsts(Cl);

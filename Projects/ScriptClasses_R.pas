@@ -600,6 +600,7 @@ begin
     RIRegisterTStringList(Cl);
     RIRegisterTHandleStream(Cl);
     RIRegisterTFileStream(Cl);
+    RIRegisterTStringStream(Cl);
 
     { Graphics }
     RIRegisterTGraphicsObject(Cl);

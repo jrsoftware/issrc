@@ -73,6 +73,10 @@ TFileStream = class(THandleStream)
   constructor Create(Filename: String; Mode: Word);
 end;
 
+TStringStream = class(TStream)
+  constructor Create(AString: String);
+end;
+
 TGraphicsObject = class(TPersistent)
   property OnChange: TNotifyEvent; read write;
 end;
