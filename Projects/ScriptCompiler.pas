@@ -353,7 +353,9 @@ begin
     PSPascalCompiler.AllowNoBegin := True;
     PSPascalCompiler.AllowNoEnd := True;
     PSPascalCompiler.BooleanShortCircuit := True;
+{$IFDEF UNICODE}
     PSPascalCompiler.AllowDuplicateRegister := False;
+{$ENDIF}
 
     PSPascalCompiler.OnUses := PSPascalCompilerOnUses;
     PSPascalCompiler.OnExportCheck := PSPascalCompilerOnExportCheck;
