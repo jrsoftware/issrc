@@ -546,7 +546,9 @@ begin
   SIRegisterTStringList(Cl);
   SIRegisterTHandleStream(Cl);
   SIRegisterTFileStream(Cl);
+{$IFDEF UNICODE}
   SIRegisterTStringStream(Cl);
+{$ENDIF}
 
   { Graphics }
   SIRegister_Graphics_TypesAndConsts(Cl);

@@ -2650,8 +2650,9 @@ Type: files; Name: "{win}\MYPROG.INI"
     <li>The new RemObjects PascalScript version used by the Unicode compiler supports Unicode, but not for its input source. This means it does use Unicode string types as said, but any literal Unicode characters in the script will be converted to ANSI. This doesn't mean you can't display Unicode strings: you can for example instead use encoded Unicode characters to build Unicode strings (like <tt>S := #$0100 + #$0101 + 'Aa';</tt>), or load the string from a file using <tt>LoadStringsFromFile</tt>, or use a <tt>{cm:...}</tt> constant.</li>
     <li>Some support functions had their prototype changed: some parameters of <tt>CreateOutputMsgMemoPage</tt>, <tt>RegQueryBinaryValue</tt>, <tt>RegWriteBinaryValue</tt>, <tt>OemToCharBuff</tt>, <tt>CharToOemBuff</tt>, <tt>LoadStringFromfile</tt>, <tt>SaveStringToFile</tt>, and <tt>GetMD5OfString</tt> are of type AnsiString now instead of String.</li>
     <li>Added new <tt>SaveStringsToUTF8File</tt>, and <tt>GetMD5OfUnicodeString</tt> support functions.</li>
-    <li>If you want to compile an existing script that imports ANSI Windows API calls with the Unicode compiler, either upgrade to the 'W' Unicode API call or change the parameters from 'String' or 'PChar' to 'AnsiString'. The 'AnsiString' approach will make your [Code] compatible with both the Unicode and the non Unicode version.</li>
     <li>Added new 'Int64' type, supported by <tt>IntToStr</tt>. Also added new <tt>StrToInt64</tt>, <tt>StrToInt64Def</tt>, and <tt>GetSpaceOnDisk64</tt> support functions.</li>
+    <li>Added new <tt>TStringStream</tt> class.</li>
+    <li>If you want to compile an existing script that imports ANSI Windows API calls with the Unicode compiler, either upgrade to the 'W' Unicode API call or change the parameters from 'String' or 'PChar' to 'AnsiString'. The 'AnsiString' approach will make your [Code] compatible with both the Unicode and the non Unicode version.</li>
     </ul>
   </li>
   <li>Unicode Inno Setup supports UTF-8 encoded .iss files (but not UTF-16).</li>

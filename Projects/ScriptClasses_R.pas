@@ -600,7 +600,9 @@ begin
     RIRegisterTStringList(Cl);
     RIRegisterTHandleStream(Cl);
     RIRegisterTFileStream(Cl);
+{$IFDEF UNICODE}
     RIRegisterTStringStream(Cl);
+{$ENDIF}
 
     { Graphics }
     RIRegisterTGraphicsObject(Cl);
