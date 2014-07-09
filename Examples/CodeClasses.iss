@@ -362,6 +362,7 @@ begin
   BackgroundBitmapText.Left := BackgroundBitmapImage.Left;
   BackgroundBitmapText.Top := BackgroundBitmapImage.Top + BackgroundBitmapImage.Height + ScaleY(8);
   BackgroundBitmapText.Caption := 'TBitmapImage';
+  BackgroundBitmapText.Font.Color := clWhite;
   BackgroundBitmapText.Parent := MainForm;
 
   { Custom beveled label }
