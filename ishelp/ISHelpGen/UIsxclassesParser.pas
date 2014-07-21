@@ -65,7 +65,7 @@ begin
   end;
 end;
 
-procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, OutputFileName: String);
+procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, FooterFileName, OutputFileName: String);
 
   procedure FCopyFile(const SourceFileName, DestFileName: String; AppendToDestFile: Boolean);
   var
@@ -198,12 +198,11 @@ begin
       WriteLn(F, S, '<br/>');
     end;
     WriteLn(F, '</tt></p>');
-    WriteLn(F, '</body>');
-    WriteLn(F, '</topic>');
-    WriteLn(F, '</ishelp>');
   finally
     CloseFile(F);
   end;
+
+  FCopyFile(FooterFileName, OutputFileName, True);
 end;
 
 end.
