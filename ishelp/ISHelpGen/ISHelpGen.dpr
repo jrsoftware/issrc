@@ -903,7 +903,9 @@ procedure Go;
     try
       IsxclassesParser.Parse(SourceDir + 'isxclasses.pas');
       IsxclassesParser.SaveXML(SourceDir + 'isxclasses.header',
-        SourceDir + 'isxclasses.header2', SourceDir + 'isxclasses_generated.xml');
+        SourceDir + 'isxclasses.header2',
+        SourceDir + 'isxclasses.footer',
+        SourceDir + 'isxclasses_generated.xml');
     finally
       IsxclassesParser.Free;
     end;
