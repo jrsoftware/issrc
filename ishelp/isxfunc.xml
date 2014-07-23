@@ -414,7 +414,7 @@ begin
   if Version.SuiteMask and VER_SUITE_PERSONAL &lt;&gt; 0 then
   begin
     SuppressibleMsgBox('This program cannot be installed on a Home edition of Windows.',
-      mbCriticalError, MB_OK, MB_OK);
+      mbCriticalError, MB_OK, IDOK);
     Result := False;
     Exit;
   end;
@@ -423,7 +423,7 @@ begin
   if Version.ProductType = VER_NT_DOMAIN_CONTROLLER then
   begin
     SuppressibleMsgBox('This program cannot be installed on domain controllers.',
-      mbCriticalError, MB_OK, MB_OK);
+      mbCriticalError, MB_OK, IDOK);
     Result := False;
     Exit;
   end;
@@ -435,7 +435,7 @@ begin
      (Version.ServicePackMajor &lt; 4) then
   begin
     SuppressibleMsgBox('When running on Windows 2000, Service Pack 4 is required.',
-      mbCriticalError, MB_OK, MB_OK);
+      mbCriticalError, MB_OK, IDOK);
     Result := False;
     Exit;
   end;
@@ -447,7 +447,7 @@ begin
      (Version.ServicePackMajor &lt; 2) then
   begin
     SuppressibleMsgBox('When running on Windows XP, Service Pack 2 is required.',
-      mbCriticalError, MB_OK, MB_OK);
+      mbCriticalError, MB_OK, IDOK);
     Result := False;
     Exit;
   end;
