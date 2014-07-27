@@ -3449,7 +3449,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Martijn Laan: Code for Rich Edit 2.0 &amp; URL detection support (1.3.13); silent uninstallation (1.3.25); system image list support in drive and directory lists (1.3.25); silent installation (2.0.0); <tt>[Types]</tt>, <tt>[Components]</tt> and <tt>[Tasks]</tt> sections (2.0.0); <tt>postinstall</tt> flag (2.0.0); <tt>[Code]</tt> section (4.0.0); Subcomponents and subtasks support (4.0.0); Many other features after 4.0.0.</li>
 
-<li>Alex Yackimoff: Portions of TNewCheckListBox (4.0.0).</li>
+<li>Alex Yackimoff: Portions of <link topic="scriptclasses" anchor="TNewCheckListBox">TNewCheckListBox</link> (4.0.0).</li>
 
 <li>Carlo Kok: <extlink href="http://www.remobjects.com/ps">RemObjects Pascal Script</extlink> (4.0.0).</li>
 
