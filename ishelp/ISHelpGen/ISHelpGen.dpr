@@ -16,7 +16,7 @@ uses
   UIsxclassesParser in 'UIsxclassesParser.pas';
 
 const
-  Version = '1.11';
+  Version = '1.12';
 
   XMLFileVersion = '1';
 
