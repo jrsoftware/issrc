@@ -181,7 +181,7 @@
 <dt><tt>function <a name="ShouldSkipPage">ShouldSkipPage</a>(<anchorlink name="PageID">PageID</anchorlink>: Integer): Boolean;</tt></dt>
 <dd>
 <p>The wizard calls this event function to determine whether or not a particular page (specified by PageID) should be shown at all. If you return True, the page will be skipped; if you return False, the page may be shown.</p>
-<p>Note: This event function isn't called for the wpWelcome, wpPreparing, and wpInstalling pages, nor for pages that Setup has already determined should be skipped (for example, wpSelectComponents in an install containing no components).</p>
+<p>Note: This event function isn't called for the wpPreparing, and wpInstalling pages, nor for pages that Setup has already determined should be skipped (for example, wpSelectComponents in an install containing no components).</p>
 </dd>
 
 <dt><tt>procedure <a name="CurPageChanged">CurPageChanged</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer);</tt></dt>
