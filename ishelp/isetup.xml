@@ -178,7 +178,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <p>To give you an idea of how this all works, start the Setup Compiler, click <i>File | Open</i>, and select one of the script files in the Examples subdirectory located under the Inno Setup directory. (It may be helpful to use the sample scripts as a template for your own scripts.)</p>
 
-<p><br/><b>See also</b><br/>
+<p><br/><b>See also:</b><br/>
 <link topic="scriptformatoverview">Script Format Overview</link>
 </p>
 
@@ -234,7 +234,7 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 
 <p>By default, scripts use ISPP if available, and .isl files use the built-in preprocessor.</p>
 
-<p><br/><b>See also</b><br/>
+<p><br/><b>See also:</b><br/>
 <link topic="params">Parameters in Sections</link><br/>
 <link topic="consts">Constants</link><br/>
 <link topic="commonparams">Common Parameters</link><br/>
@@ -2142,6 +2142,9 @@ UninstallProgram=Uninstall %1
 LaunchProgram=Launch %1
 AssocFileExtension=&amp;Associate %1 with the %2 file extension
 AssocingFileExtension=Associating %1 with the %2 file extension...
+AutoStartProgramGroupDescription=Startup:
+AutoStartProgram=Automatically start %1
+AddonHostProgramNotFound=%1 could not be located in the folder you selected.%n%nDo you want to continue anyway?
 </precode>
 
 <p>You may use these predefined custom messages in your own script. An example which uses <tt>UninstallProgram</tt>:</p>
