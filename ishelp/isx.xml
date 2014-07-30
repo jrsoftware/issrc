@@ -42,7 +42,7 @@
 
 <p>Note: the Pascal scripting feature works exclusively at run-time, and has no compile-time functionality.</p>
 
-<p><br/><b>See also</b><br/>
+<p><br/><b>See also:</b><br/>
 <link topic="scriptcreating">Creating the [Code] section</link><br/>
 <link topic="scriptevents">Event Functions</link><br/>
 <link topic="scriptconstants">Scripted Constants</link><br/>
@@ -331,7 +331,7 @@ end;
 FileName: "{app}\MyIni.ini"; Section: "MySettings"; Key: "ShortApp"; String: "{code:GetShortName|{app}}"
 </precode>
 
-<p><br/><b>See also</b><br/>
+<p><br/><b>See also:</b><br/>
 <link topic="consts">Constants</link>
 </p>
 
