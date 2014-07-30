@@ -2494,7 +2494,7 @@ end;</pre></example>
      <values>IDOK, IDCANCEL, IDABORT, IDRETRY, IDIGNORE, IDYES, IDNO</values>
   </enum>
   <enum>
-     <description>TGetShellFolderID</description>
+     <description>TShellFolderID</description>
      <values>sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo, sfFonts, sfAppData, sfDocs, sfTemplates, sfFavorites, sfLocalAppData</values>
   </enum>
   <enum>
