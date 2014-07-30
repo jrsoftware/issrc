@@ -14,7 +14,7 @@ type
     constructor Create();
     destructor Destroy(); override;
     procedure Parse(const FileName: String);
-    procedure SaveXML(const HeaderFileName, HeaderFileName2, OutputFileName: String);
+    procedure SaveXML(const HeaderFileName, HeaderFileName2, FooterFileName, OutputFileName: String);
   end;
 
 implementation
