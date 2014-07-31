@@ -16,7 +16,7 @@ uses
   UIsxclassesParser in 'UIsxclassesParser.pas';
 
 const
-  Version = '1.11';
+  Version = '1.12';
 
   XMLFileVersion = '1';
 
@@ -903,7 +903,9 @@ procedure Go;
     try
       IsxclassesParser.Parse(SourceDir + 'isxclasses.pas');
       IsxclassesParser.SaveXML(SourceDir + 'isxclasses.header',
-        SourceDir + 'isxclasses.header2', SourceDir + 'isxclasses_generated.xml');
+        SourceDir + 'isxclasses.header2',
+        SourceDir + 'isxclasses.footer',
+        SourceDir + 'isxclasses_generated.xml');
     finally
       IsxclassesParser.Free;
     end;

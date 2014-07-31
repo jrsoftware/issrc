@@ -1140,6 +1140,7 @@ end;
         <prototype>function MinimizePathName(const Filename: String; const Font: TFont; MaxLen: Integer): String;</prototype>
         <description><p>Returns a minimized filename that will not take more than MaxLen pixels to display with the given font. The minimizing is done by replacing the middle part with '...' as needed.</p></description>
         <example><pre>MyLabel.Caption := MinimizePathName(MyPathName, MyLabel.Font, MyLabel.Width);</pre></example>
+        <seealso><p><link topic="scriptclasses" anchor="TFont">TFont</link></p></seealso>
       </function>
     </subcategory>
   </category>
@@ -2062,6 +2063,7 @@ Page.Values[1] := ExpandConstant('{sysuserinfoorg}');
 UserName := Page.Values[0];
 UserCompany := Page.Values[1];
 </pre></example>
+        <seealso><p><link topic="scriptclasses" anchor="TInputQueryWizardPage">TInputQueryWizardPage</link></p></seealso>
       </function>
       <function>
         <name>CreateInputOptionPage</name>
@@ -2092,6 +2094,7 @@ Page.Values[0] := False;
 // Read values into variables
 IsRegisteredUser := Page.Values[0];
 </pre></example>
+        <seealso><p><link topic="scriptclasses" anchor="TInputOptionWizardPage">TInputOptionWizardPage</link></p></seealso>
       </function>
       <function>
         <name>CreateInputDirPage</name>
@@ -2122,6 +2125,7 @@ Page.Values[0] := ExpandConstant('{userappdata}\My Company\My Program');
 // Read value into variable
 DataDir := Page.Values[0];
 </pre></example>
+        <seealso><p><link topic="scriptclasses" anchor="TInputDirWizardPage">TInputDirWizardPage</link></p></seealso>
       </function>
       <function>
         <name>CreateInputFilePage</name>
@@ -2153,6 +2157,7 @@ Page.Values[0] := ExpandConstant('{win}\notepad.exe');
 // Read value into variable
 NotepadLocation := Page.Values[0];
 </pre></example>
+        <seealso><p><link topic="scriptclasses" anchor="TInputFileWizardPage">TInputFileWizardPage</link></p></seealso>
       </function>
       <function>
         <name>CreateOutputMsgPage</name>
@@ -2168,6 +2173,7 @@ Page := CreateOutputMsgPage(wpWelcome,
   'Information', 'Please read the following important information before continuing.',
   'Blah blah blah.');
 </pre></example>
+        <seealso><p><link topic="scriptclasses" anchor="TOutputMsgWizardPage">TOutputMsgWizardPage</link></p></seealso>
       </function>
       <function>
         <name>CreateOutputMsgMemoPage</name>
@@ -2184,6 +2190,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
   'When you are ready to continue with Setup, click Next.',
   'Blah blah blah.');
 </pre></example>
+        <seealso><p><link topic="scriptclasses" anchor="TOutputMsgMemoWizardPage">TOutputMsgMemoWizardPage</link></p></seealso>
       </function>
       <function>
         <name>CreateOutputProgressPage</name>
@@ -2196,29 +2203,33 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To display or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.
 </p></remarks>
         <example><p>See <i>CodeDlg.iss</i> for an example.</p></example>
+        <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link></p></seealso>
       </function>
       <function>
         <name>CreateCustomPage</name>
         <prototype>function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;</prototype>
-        <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their Parent properties to the Surface property of the TWizardPage instance returned by this function).</p></description>
+        <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their Parent properties to the Surface property of the <link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link> instance returned by this function).</p></description>
         <example><p>See <i>CodeClasses.iss</i> for an example.</p></example>
+        <seealso><p><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>CreateCustomForm</name>
         <prototype>function CreateCustomForm: TSetupForm;</prototype>
-        <description><p>Creates a form. The form is empty by default; you have to create your own controls afterward and place them on the form (by setting their Parent properties to the TSetupForm instance returned by this function).</p></description>
-        <remarks><p>You should call this function instead of creating TForm or TSetupForm instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
+        <description><p>Creates a form. The form is empty by default; you have to create your own controls afterward and place them on the form (by setting their Parent properties to the <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instance returned by this function).</p></description>
+        <remarks><p>You should call this function instead of creating <link topic="scriptclasses" anchor="TForm">TForm</link> or <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
 <p>The <tt>[LangOptions]</tt> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p></remarks>
         <example><p>See <i>CodeClasses.iss</i> for an example.</p></example>
+        <seealso><p><link topic="scriptclasses" anchor="TForm">TForm</link><br />
+<link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>PageFromID</name>
         <prototype>function PageFromID(const ID: Integer): TWizardPage;</prototype>
-        <description><p>Given a page ID, returns a TWizardPage instance. Call this if, for example, you need to get at the surface of a page and only know its ID.</p>
+        <description><p>Given a page ID, returns a <link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link> instance. Call this if, for example, you need to get at the surface of a page and only know its ID.</p>
 <p>An exception will be raised if an invalid page ID is specified.</p></description>
         <example><pre>var
   Page: TWizardPage;
@@ -2226,6 +2237,7 @@ begin
   Page := PageFromID(wpWelcome);
   Page.Surface.Color := clBlue;
 end;</pre></example>
+        <seealso><p><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></p></seealso>
       </function>
       <function>
         <name>PageIndexFromID</name>
@@ -2482,7 +2494,7 @@ end;</pre></example>
      <values>IDOK, IDCANCEL, IDABORT, IDRETRY, IDIGNORE, IDYES, IDNO</values>
   </enum>
   <enum>
-     <description>TGetShellFolderID</description>
+     <description>TShellFolderID</description>
      <values>sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo, sfFonts, sfAppData, sfDocs, sfTemplates, sfFavorites, sfLocalAppData</values>
   </enum>
   <enum>
