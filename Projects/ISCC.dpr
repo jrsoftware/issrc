@@ -261,8 +261,8 @@ procedure ProcessCommandLine;
   begin
     WriteStdErr('Usage:  iscc [options] scriptfile.iss');
     WriteStdErr('or to read from standard input:  iscc [options] -');
-    WriteStdErr('Options:  /DO            Disable output (overrides Output)');
-    WriteStdErr('          /EO            Enable output (overrides Output)');
+    WriteStdErr('Options:  /O-            Disable output (overrides Output)');
+    WriteStdErr('          /O+            Enable output (overrides Output)');
     WriteStdErr('          /Oc:\path      Output files to specified path (overrides OutputDir)');
     WriteStdErr('          /Ffilename     Overrides OutputBaseFilename with the specified filename');
     WriteStdErr('          /Sname=command Sets a SignTool with the specified name and command');
@@ -283,9 +283,9 @@ begin
         Quiet := True;
         ShowProgress := CompareText(Copy(S, 3, MaxInt), 'P') = 0;
       end
-      else if CompareText(Copy(S, 1, 3), '/DO') = 0 then
+      else if CompareText(Copy(S, 1, 3), '/O-') = 0 then
         Output := 'no'
-      else if CompareText(Copy(S, 1, 3), '/EO') = 0 then
+      else if CompareText(Copy(S, 1, 3), '/O+') = 0 then
         Output := 'yes'
       else if CompareText(Copy(S, 1, 2), '/O') = 0 then
         OutputPath := Copy(S, 3, MaxInt)

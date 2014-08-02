@@ -342,9 +342,9 @@ procedure Go;
     WriteStdErr('            /}<string>           #pragma inlineend <string>');
     WriteStdErr('            /v<number>           #pragma verboselevel <number>');
     WriteStdErr('          Disable output (overrides Output):');
-    WriteStdErr('            /do');
+    WriteStdErr('            /o-');
     WriteStdErr('          Enable output (overrides Output):');
-    WriteStdErr('            /eo');
+    WriteStdErr('            /o+');
     WriteStdErr('          Output files to specified path (overrides OutputDir):');
     WriteStdErr('            /o<path>');
     WriteStdErr('          Override OutputBaseFilename with the specified filename:');
@@ -447,9 +447,14 @@ begin
   if S <> '' then Options.InlineEnd := AnsiString(S);
   I := 1; S := FindParam(I, 'V');
   if S <> '' then Options.VerboseLevel := StrToIntDef(S, 0);
-  I := 1; FindParam(I, 'DO'); if I <> MaxInt then Output := 'no';
-  I := 1; FindParam(I, 'EO'); if I <> MaxInt then Output := 'yes';
-  I := 1; OutputPath := FindParam(I, 'O');
+  I := 1; S := FindParam(I, 'O');
+  while S <> '' do
+  begin
+    if S = '-' then Output := 'no'
+    else if S = '+' then Output := 'yes'
+    else OutputPath := S;
+    S := FindParam(I, 'O');
+  end;
   I := 1; OutputFileName := FindParam(I, 'F');
   I := 1; SignTool := FindParam(I, 'S');
 
