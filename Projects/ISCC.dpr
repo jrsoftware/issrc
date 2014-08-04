@@ -261,14 +261,14 @@ procedure ProcessCommandLine;
   begin
     WriteStdErr('Usage:  iscc [options] scriptfile.iss');
     WriteStdErr('or to read from standard input:  iscc [options] -');
-    WriteStdErr('Options:  /O-            Disable output (overrides Output)');
-    WriteStdErr('          /O+            Enable output (overrides Output)');
-    WriteStdErr('          /Oc:\path      Output files to specified path (overrides OutputDir)');
-    WriteStdErr('          /Ffilename     Overrides OutputBaseFilename with the specified filename');
-    WriteStdErr('          /Sname=command Sets a SignTool with the specified name and command');
-    WriteStdErr('          /Q             Quiet compile (print error messages only)');
-    WriteStdErr('          /Qp            Enable quiet compile while still displaying progress');
-    WriteStdErr('          /?             Show this help screen');
+    WriteStdErr('Options:');
+    WriteStdErr('  /O(+|-)            Enable or disable output (overrides Output)');
+    WriteStdErr('  /O<path>           Output files to specified path (overrides OutputDir)');
+    WriteStdErr('  /F<filename>       Overrides OutputBaseFilename with the specified filename');
+    WriteStdErr('  /S<name>=<command> Sets a SignTool with the specified name and command');
+    WriteStdErr('  /Q                 Quiet compile (print error messages only)');
+    WriteStdErr('  /Qp                Enable quiet compile while still displaying progress');
+    WriteStdErr('  /?                 Show this help screen');
   end;
 
 var
