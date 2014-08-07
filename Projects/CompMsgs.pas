@@ -131,6 +131,7 @@ const
   SCompilerStatusWarning = 'Warning: ';
   SCompilerStatusSigningSetup = '   Signing Setup program executable';
   SCompilerStatusSigning = '   Running Sign Tool command: %s';
+  SCompilerStatusWillRetrySigning = '   Sign Tool command failed (%s). Will retry (%d tries left).';
 
   SCompilerSuccessfulMessage2 = 'The setup images were successfully created ' +
     'in the output directory:' + SNewLine +

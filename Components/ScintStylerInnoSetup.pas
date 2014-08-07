@@ -194,6 +194,7 @@ type
     ssSignedUninstaller,
     ssSignedUninstallerDir,
     ssSignTool,
+    ssSignToolRetryCount,
     ssSlicesPerDisk,
     ssSolidCompression,
     ssSourceDir,

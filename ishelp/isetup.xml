@@ -910,6 +910,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_signeduninstaller">SignedUninstaller</link></li>
 <li><link topic="setup_signeduninstallerdir">SignedUninstallerDir</link></li>
 <li><link topic="setup_signtool">SignTool</link></li>
+<li><link topic="setup_signtoolretrycount">SignToolRetryCount</link></li>
 <li><link topic="setup_slicesperdisk">SlicesPerDisk</link></li>
 <li><link topic="setup_solidcompression">SolidCompression</link></li>
 <li><link topic="setup_sourcedir">SourceDir</link></li>
@@ -4881,6 +4882,20 @@ SignTool=byparam format c:
 </example>
 <p>Details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
 <p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <link topic="setup_diskslicesize">DiskSliceSize</link> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-1 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-1 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="SignToolRetryCount">
+<keyword value="signature" />
+<keyword value="digital signature" />
+<keyword value="code signing" />
+<setupdefault><tt>2</tt></setupdefault>
+<body>
+<p>Specifies the number of times the Setup Compiler should automatically retry digital signing on any errors.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_signtool">SignTool</link></p>
 </body>
 </setuptopic>
 

@@ -153,6 +153,7 @@ type
     ssSignedUninstaller,
     ssSignedUninstallerDir,
     ssSignTool,
+    ssSignToolRetryCount,
     ssSlicesPerDisk,
     ssSolidCompression,
     ssSourceDir,
@@ -341,6 +342,7 @@ type
     {$IFDEF UNICODE} PreLangDataList, {$ENDIF} LangDataList: TList;
     SignToolList: TList;
     SignTool, SignToolParams: String;
+    SignToolRetryCount: Integer;
 
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
       ExeFilename: String;
@@ -490,7 +492,7 @@ type
     procedure ReadTextFile(const Filename: String; const LangIndex: Integer; var Text: AnsiString);
     procedure SeparateDirective(const Line: PChar; var Key, Value: String);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
-    procedure Sign(const ACommand, AParams, AExeFilename: String);
+    procedure Sign(const ACommand, AParams, AExeFilename: String; const RetryCount: Integer);
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
@@ -4039,6 +4041,12 @@ begin
         if FindSignToolIndexByName(SignTool) = -1 then
           Invalid;
       end;
+    ssSignToolRetryCount: begin
+        I := StrToIntDef(Value, -1);
+        if I < 0 then
+          Invalid;
+        SignToolRetryCount := I;
+      end;
     ssSlicesPerDisk: begin
         I := StrToIntDef(Value, -1);
         if (I < 1) or (I > 26) then
@@ -7309,7 +7317,7 @@ begin
   SignToolList.Add(SignTool);
 end;
 
-procedure TSetupCompiler.Sign(const ACommand, AParams, AExeFilename: String);
+procedure TSetupCompiler.Sign(const ACommand, AParams, AExeFilename: String; const RetryCount: Integer);
 
   function FmtCommand(S: PChar; const AParams, AExeFileName: String): String;
   var
@@ -7350,45 +7358,63 @@ procedure TSetupCompiler.Sign(const ACommand, AParams, AExeFilename: String);
       end;
     end;
   end;
+  
+  procedure DoSign(const AFormattedCommand: String);
+  var
+    StartupInfo: TStartupInfo;
+    ProcessInfo: TProcessInformation;
+    LastError, ExitCode: DWORD;
+  begin
+    AddStatus(Format(SCompilerStatusSigning, [AFormattedCommand]));
+
+    FillChar(StartupInfo, SizeOf(StartupInfo), 0);
+    StartupInfo.cb := SizeOf(StartupInfo);
+    StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
+    StartupInfo.wShowWindow := SW_SHOW;
+    
+    if not CreateProcess(nil, PChar(AFormattedCommand), nil, nil, False,
+       CREATE_DEFAULT_ERROR_MODE, nil, PChar(CompilerDir), StartupInfo, ProcessInfo) then begin
+      LastError := GetLastError;
+      AbortCompileFmt(SCompilerSignToolCreateProcessFailed, [LastError,
+        Win32ErrorString(LastError)]);
+    end;
+    CloseHandle(ProcessInfo.hThread);
+    try
+      while True do begin
+        case WaitForSingleObject(ProcessInfo.hProcess, 50) of
+          WAIT_OBJECT_0: Break;
+          WAIT_TIMEOUT: CallIdleProc;
+        else
+          AbortCompile('Sign: WaitForSingleObject failed');
+        end;
+      end;
+      if not GetExitCodeProcess(ProcessInfo.hProcess, ExitCode) then
+        AbortCompile('Sign: GetExitCodeProcess failed');
+      if ExitCode <> 0 then
+        AbortCompileFmt(SCompilerSignToolNonZeroExitCode, [ExitCode]);
+    finally
+      CloseHandle(ProcessInfo.hProcess);
+    end;
+  end;
 
 var
   Params, Command: String;
-  StartupInfo: TStartupInfo;
-  ProcessInfo: TProcessInformation;
-  LastError, ExitCode: DWORD;
+  I: Integer;
 begin
   Params := FmtCommand(PChar(AParams), '', AExeFileName);
   Command := FmtCommand(PChar(ACommand), Params, AExeFileName);
-
-  AddStatus(Format(SCompilerStatusSigning, [Command]));
-
-  FillChar(StartupInfo, SizeOf(StartupInfo), 0);
-  StartupInfo.cb := SizeOf(StartupInfo);
-  StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
-  StartupInfo.wShowWindow := SW_SHOW;
-
-  if not CreateProcess(nil, PChar(Command), nil, nil, False,
-     CREATE_DEFAULT_ERROR_MODE, nil, PChar(CompilerDir), StartupInfo, ProcessInfo) then begin
-    LastError := GetLastError;
-    AbortCompileFmt(SCompilerSignToolCreateProcessFailed, [LastError,
-      Win32ErrorString(LastError)]);
-  end;
-  CloseHandle(ProcessInfo.hThread);
-  try
-    while True do begin
-      case WaitForSingleObject(ProcessInfo.hProcess, 50) of
-        WAIT_OBJECT_0: Break;
-        WAIT_TIMEOUT: CallIdleProc;
-      else
-        AbortCompile('Sign: WaitForSingleObject failed');
-      end;
+  
+  for I := 0 to RetryCount do begin
+    try
+      DoSign(Command);
+      Break;
+    except on E: Exception do
+      if I < RetryCount then begin
+        AddStatus(Format(SCompilerStatusWillRetrySigning, [E.Message, RetryCount-I]));
+        Sleep(500); //wait a little bit before retrying
+      end else
+        raise;
     end;
-    if not GetExitCodeProcess(ProcessInfo.hProcess, ExitCode) then
-      AbortCompile('Sign: GetExitCodeProcess failed');
-    if ExitCode <> 0 then
-      AbortCompileFmt(SCompilerSignToolNonZeroExitCode, [ExitCode]);
-  finally
-    CloseHandle(ProcessInfo.hProcess);
   end;
 end;
 
@@ -7997,7 +8023,7 @@ var
       end;
 
       try
-        Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolParams, Filename);
+        Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolParams, Filename, SignToolRetryCount);
         if not InternalSignSetupE32(Filename, UnsignedFile, UnsignedFileSize,
            SCompilerSignedFileContentsMismatch) then
           AbortCompile(SCompilerSignToolSucceededButNoSignature);
@@ -8260,6 +8286,7 @@ begin
     WizardSmallImageFile := 'compiler:WIZMODERNSMALLIMAGE.BMP';
     DefaultDialogFontName := 'Tahoma';
     SignTool := '';
+    SignToolRetryCount := 2;
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
 
     { Read [Setup] section }
@@ -8814,7 +8841,7 @@ begin
         SignToolIndex := FindSignToolIndexByName(SignTool);
         if SignToolIndex <> -1 then begin
           AddStatus(SCompilerStatusSigningSetup);
-          Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolParams, ExeFilename);
+          Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolParams, ExeFilename, SignToolRetryCount);
         end;
       except
         EmptyOutputDir(False);
