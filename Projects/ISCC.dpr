@@ -16,6 +16,8 @@ program ISCC;
 
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
+  IsppIntf in '.\ISPP\IsppIntf.pas',
+  IsppBase in '.\ISPP\IsppBase.pas',
   Windows, SysUtils, Classes,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   PathFunc, CmnFunc2, CompInt, FileClass, CompTypes;
@@ -35,7 +37,7 @@ type
 var
   StdOutHandle, StdErrHandle: THandle;
   ScriptFilename: String;
-  Output, OutputPath, OutputFilename, SignTool: String;
+  IncludePath, Definitions, Output, OutputPath, OutputFilename, SignTool: String;
   ScriptLines, NextScriptLine: PScriptLine;
   CurLine: String;
   StartTime, EndTime: DWORD;
@@ -43,6 +45,8 @@ var
   SignTools: TStringList;
   ProgressPoint: TPoint;
   LastProgress: String;
+  IsppOptions: TIsppOptions;
+  IsppMode: Boolean;
 
 procedure WriteToStdHandle(const H: THandle; S: AnsiString);
 var
@@ -254,6 +258,10 @@ procedure ProcessCommandLine;
     WriteStdOut('Inno Setup 5 Command-Line Compiler');
     WriteStdOut('Copyright (C) 1997-2014 Jordan Russell. All rights reserved.');
     WriteStdOut('Portions Copyright (C) 2000-2014 Martijn Laan');
+    if IsppMode then begin
+      WriteStdOut('Inno Setup Preprocessor');
+      WriteStdOut('Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
+    end;
     WriteStdOut('');
   end;
 
@@ -268,6 +276,18 @@ procedure ProcessCommandLine;
     WriteStdErr('  /S<name>=<command> Sets a SignTool with the specified name and command');
     WriteStdErr('  /Q                 Quiet compile (print error messages only)');
     WriteStdErr('  /Qp                Enable quiet compile while still displaying progress');
+    if IsppMode then begin
+      WriteStdErr('  /D<name>[=<value>] Emulate #define public <name> <value>');
+      WriteStdErr('  /$<letter>(+|-)    Emulate #pragma option -<letter>(+|-)');
+      WriteStdErr('  /P<letter>(+|-)    Emulate #pragma parseroption -<letter>(+|-)');
+      WriteStdErr('  /I<paths>          Emulate #pragma include <paths>');
+      WriteStdErr('  /{#<string>        Emulate #pragma inlinestart <string>');
+      WriteStdErr('  /}<string>         Emulate #pragma inlineend <string>');
+      WriteStdErr('  /V<number>         Emulate #pragma verboselevel <number>');
+      WriteStdErr('');
+      WriteStdErr('Example: iscc /$c- /Pu+ "/DLic=Trial Lic.txt" /IC:\INC;D:\INC scriptfile.iss');
+      WriteStdErr('');
+    end;
     WriteStdErr('  /?                 Show this help screen');
   end;
 
@@ -275,29 +295,45 @@ var
   I: Integer;
   S: String;
 begin
+  if IsppMode then InitIsppOptions(IsppOptions, Definitions, IncludePath);
+
   for I := 1 to NewParamCount do begin
     S := NewParamStr(I);
-    if (S = '') or (S[1] = '/') then begin
-      if CompareText(Copy(S, 1, 2), '/Q') = 0 then
-      begin
+    if (S = '') or IsParam(S) then begin
+      if GetParam(S, 'Q') then begin
         Quiet := True;
-        ShowProgress := CompareText(Copy(S, 3, MaxInt), 'P') = 0;
+        ShowProgress := CompareText(S, 'P') = 0;
       end
-      else if CompareText(Copy(S, 1, 3), '/O-') = 0 then
-        Output := 'no'
-      else if CompareText(Copy(S, 1, 3), '/O+') = 0 then
-        Output := 'yes'
-      else if CompareText(Copy(S, 1, 2), '/O') = 0 then
-        OutputPath := Copy(S, 3, MaxInt)
-      else if CompareText(Copy(S, 1, 2), '/F') = 0 then
-        OutputFilename := Copy(S, 3, MaxInt)
-      else if CompareText(Copy(S, 1, 2), '/S') = 0 then begin
-        SignTool := Copy(S, 3, MaxInt);
+      else if GetParam(S, 'O') then begin
+        if S = '-' then Output := 'no'
+        else if S = '+' then Output := 'yes'
+        else OutputPath := S;
+      end
+      else if GetParam(S, 'F') then
+        OutputFilename := S
+      else if GetParam(S, 'S') then begin
+        SignTool := S;
         if Pos('=', SignTool) = 0 then begin
           ShowBanner;
           WriteStdErr('Invalid option: ' + S);
           Halt(1);
         end;
+      end else if IsppMode and GetParam(S, 'D') then begin
+        if (Pos(';', S) > 0) or (Pos(' ', S) > 0) then
+          S := AnsiQuotedStr(S, '"');
+        Definitions := Definitions + ';' + S;
+      end
+      else if IsppMode and GetParam(S, 'I') then begin
+        IncludePath := IncludePath + ';' + S;
+      end
+      else if IsppMode and GetParam(S, '{#') then begin
+        if S <> '' then IsppOptions.InlineStart := AnsiString(S);
+      end
+      else if IsppMode and GetParam(S, '}') then begin
+        if S <> '' then IsppOptions.InlineEnd := AnsiString(S);
+      end
+      else if IsppMode and GetParam(S, 'V') then begin
+        if S <> '' then IsppOptions.VerboseLevel := StrToIntDef(S, 0);
       end
       else if S = '/?' then begin
         ShowBanner;
@@ -388,11 +424,11 @@ begin
     Params.CallbackProc := CompilerCallbackProc;
     Options := '';
     if Output <> '' then
-      Options := Options + 'Output=' + Output + #0;
+      AppendOption(Options, 'Output', Output);
     if OutputPath <> '' then
-      Options := Options + 'OutputDir=' + OutputPath + #0;
+      AppendOption(Options, 'OutputDir', OutputPath);
     if OutputFilename <> '' then
-      Options := Options + 'OutputBaseFilename=' + OutputFilename + #0;
+      AppendOption(Options, 'OutputBaseFilename', OutputFilename);
 
     ReadSignTools(SignTools);
     for I := 0 to SignTools.Count-1 do
@@ -400,6 +436,8 @@ begin
         Options := Options + AddSignToolParam(SignTools[I]);
     if SignTool <> '' then
       Options := Options + AddSignToolParam(SignTool);
+
+    if IsppMode then IsppOptionsToString(Options, IsppOptions, Definitions, IncludePath);
 
     Params.Options := PChar(Options);
 
@@ -433,6 +471,7 @@ begin
   StdErrHandle := GetStdHandle(STD_ERROR_HANDLE);
   SetConsoleCtrlHandler(@ConsoleCtrlHandler, True);
   try
+    IsppMode := FileExists(ExtractFilePath(NewParamStr(0)) + 'ispp.dll');
     ProcessCommandLine;
     Go;
   except
