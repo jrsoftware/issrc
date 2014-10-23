@@ -59,113 +59,6 @@ var
   IsppOptions: TIsppOptions;
   IsppMode: Boolean;
 
-procedure SetOption(var Options: TOptions; Option: Char; Value: Boolean);
-begin
-  if Value then
-    Include(Options, Ord(UpCase(Option)) - Ord('A'))
-  else
-    Exclude(Options, Ord(UpCase(Option)) - Ord('A'))
-end;
-
-procedure PopulateOptions(var Options: TOptions; Symbol: Char);
-var
-  I: Integer;
-  S: String;
-begin
-  for I := 1 to NewParamCount do
-  begin
-    S := NewParamStr(I);
-    if Length(S) = 4 then
-      if ((S[1] = '/') or (S[1] = '-')) and (UpCase(S[2]) = Symbol) then
-        case S[4] of
-          '-': SetOption(Options, S[3], False);
-          '+': SetOption(Options, S[3], True)
-        else
-          raise Exception.CreateFmt('Invalid command line option: %s', [S]);
-        end;
-  end;
-end;
-
-function IsParam(const S: String): Boolean;
-begin
-  Result := (Length(S) >= 2) and ((S[1] = '/') or (S[1] = '-'));
-end;
-
-function GetParam(var S: String; Symbols: String): Boolean;
-begin
-  Result := IsParam(S) and
-    (CompareText(Copy(S, 2, Length(Symbols)), Symbols) = 0);
-  if Result then
-    S := Copy(S, 2 + Length(Symbols), MaxInt);
-end;
-
-function FindParam(var Index: Integer; Symbols: String): String;
-var
-  I: Integer;
-  S: String;
-begin
-  for I := Index to NewParamCount do
-  begin
-    S := NewParamStr(I);
-    if IsParam(S) and (CompareText(Copy(S, 2, Length(Symbols)), Symbols) = 0) then
-    begin
-      Result := Copy(S, 2 + Length(Symbols), MaxInt);
-      Index := I + 1;
-      Exit;
-    end;
-  end;
-  Index := MaxInt;
-  Result := '';
-end;
-
-function ConvertOptionsToString(const Options: TOptions): String;
-var
-  I: TOptionID;
-begin
-  Result := '';
-  for I := 0 to 25 do
-    if I in Options then
-      Result := Result + Chr(Ord('a') + I);
-end;
-
-procedure AppendOption(var Opts: String; const OptName, OptValue: String);
-begin
-  Opts := Opts + OptName + '=' + OptValue + #0;
-end;
-
-procedure InitIsppOptions(var Opt: TIsppOptions; var Definitions, IncludePath: String);
-begin
-  with Opt do
-  begin
-    SetOption(Options, 'C', True);
-    SetOption(ParserOptions, 'B', True);
-    SetOption(ParserOptions, 'P', True);
-    VerboseLevel := 0;
-    InlineStart := '{#';
-    InlineEnd := '}';
-
-    PopulateOptions(Options, '$');
-    PopulateOptions(ParserOptions, 'p');
-  end;
-
-  Definitions := 'ISPPCC_INVOKED';
-  IncludePath := ExtractFileDir(NewParamStr(0));
-end;
-
-procedure IsppOptionsToString(var S: String; Opt: TIsppOptions; Definitions, IncludePath: String);
-begin
-  with Opt do begin
-    AppendOption(S, 'ISPP:ParserOptions', ConvertOptionsToString(ParserOptions));
-    AppendOption(S, 'ISPP:Options', ConvertOptionsToString(Options));
-    AppendOption(S, 'ISPP:VerboseLevel', IntToStr(VerboseLevel));
-    AppendOption(S, 'ISPP:InlineStart', String(InlineStart));
-    AppendOption(S, 'ISPP:InlineEnd', String(InlineEnd));
-  end;
-
-  AppendOption(S, 'ISPP:IncludePath', IncludePath);
-  AppendOption(S, 'ISPP:Definitions', Definitions);
-end;
-
 procedure WriteToStdHandle(const H: THandle; S: AnsiString);
 var
   BytesWritten: DWORD;
@@ -247,7 +140,7 @@ begin
     try
       L.LineText := F.ReadLine;
       if Pos(#0, L.LineText) <> 0 then
-        raise Exception.CreateFmt('Illegal null character on line %d', [LineNumber]); 
+        raise Exception.CreateFmt('Illegal null character on line %d', [LineNumber]);
       L.Next := nil;
     except
       Dispose(L);
@@ -371,6 +264,80 @@ end;
 
 procedure ProcessCommandLine;
 
+  procedure SetOption(var Options: TOptions; Option: Char; Value: Boolean);
+  begin
+    if Value then
+      Include(Options, Ord(UpCase(Option)) - Ord('A'))
+    else
+      Exclude(Options, Ord(UpCase(Option)) - Ord('A'))
+  end;
+
+  procedure InitIsppOptions(var Opt: TIsppOptions; var Definitions, IncludePath: String);
+  begin
+    with Opt do begin
+      SetOption(Options, 'C', True);
+      SetOption(ParserOptions, 'B', True);
+      SetOption(ParserOptions, 'P', True);
+      VerboseLevel := 0;
+      InlineStart := '{#';
+      InlineEnd := '}';
+    end;
+
+    Definitions := 'ISPPCC_INVOKED';
+    IncludePath := ExtractFileDir(NewParamStr(0));
+  end;
+
+  procedure ReadOptionsParam(var Options: TOptions; Symbol: Char);
+  var
+    I: Integer;
+    S: String;
+  begin
+    for I := 1 to NewParamCount do
+    begin
+      S := NewParamStr(I);
+      if Length(S) = 4 then
+        if ((S[1] = '/') or (S[1] = '-')) and (UpCase(S[2]) = Symbol) then
+          case S[4] of
+            '-': SetOption(Options, S[3], False);
+            '+': SetOption(Options, S[3], True)
+          else
+            raise Exception.CreateFmt('Invalid command line option: %s', [S]);
+          end;
+    end;
+  end;
+
+  function IsParam(const S: String): Boolean;
+  begin
+    Result := (Length(S) >= 2) and ((S[1] = '/') or (S[1] = '-'));
+  end;
+
+  function GetParam(var S: String; Symbols: String): Boolean;
+  begin
+    Result := IsParam(S) and
+      (CompareText(Copy(S, 2, Length(Symbols)), Symbols) = 0);
+    if Result then
+      S := Copy(S, 2 + Length(Symbols), MaxInt);
+  end;
+
+  function FindParam(var Index: Integer; Symbols: String): String;
+  var
+    I: Integer;
+    S: String;
+  begin
+    for I := Index to NewParamCount do
+    begin
+      S := NewParamStr(I);
+      if IsParam(S) and (CompareText(Copy(S, 2, Length(Symbols)), Symbols) = 0) then
+      begin
+        Result := Copy(S, 2 + Length(Symbols), MaxInt);
+        Index := I + 1;
+        Exit;
+      end;
+    end;
+    Index := MaxInt;
+    Result := '';
+  end;
+
   procedure ShowBanner;
   begin
     WriteStdOut('Inno Setup 5 Command-Line Compiler');
@@ -415,7 +382,11 @@ var
   I: Integer;
   S: String;
 begin
-  if IsppMode then InitIsppOptions(IsppOptions, Definitions, IncludePath);
+  if IsppMode then begin
+    InitIsppOptions(IsppOptions, Definitions, IncludePath);
+    ReadOptionsParam(IsppOptions.Options, '$');
+    ReadOptionsParam(IsppOptions.ParserOptions, 'p');
+  end;
 
   for I := 1 to NewParamCount do begin
     S := NewParamStr(I);
@@ -488,6 +459,36 @@ begin
 end;
 
 procedure Go;
+
+  procedure AppendOption(var Opts: String; const OptName, OptValue: String);
+  begin
+    Opts := Opts + OptName + '=' + OptValue + #0;
+  end;
+
+  function ConvertOptionsToString(const Options: TOptions): String;
+  var
+    I: TOptionID;
+  begin
+    Result := '';
+    for I := 0 to 25 do
+      if I in Options then
+        Result := Result + Chr(Ord('a') + I);
+  end;
+
+  procedure IsppOptionsToString(var S: String; Opt: TIsppOptions; Definitions, IncludePath: String);
+  begin
+    with Opt do begin
+      AppendOption(S, 'ISPP:ParserOptions', ConvertOptionsToString(ParserOptions));
+      AppendOption(S, 'ISPP:Options', ConvertOptionsToString(Options));
+      AppendOption(S, 'ISPP:VerboseLevel', IntToStr(VerboseLevel));
+      AppendOption(S, 'ISPP:InlineStart', String(InlineStart));
+      AppendOption(S, 'ISPP:InlineEnd', String(InlineEnd));
+    end;
+
+    AppendOption(S, 'ISPP:IncludePath', IncludePath);
+    AppendOption(S, 'ISPP:Definitions', Definitions);
+  end;
+
 var
   ScriptPath: String;
   ExitCode: Integer;
@@ -557,7 +558,8 @@ begin
     if SignTool <> '' then
       Options := Options + AddSignToolParam(SignTool);
 
-    if IsppMode then IsppOptionsToString(Options, IsppOptions, Definitions, IncludePath);
+    if IsppMode then
+      IsppOptionsToString(Options, IsppOptions, Definitions, IncludePath);
 
     Params.Options := PChar(Options);
 
