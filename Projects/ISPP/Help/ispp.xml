@@ -950,6 +950,7 @@ The list of options is provided at the end of this topic.</para>
 				</description>
 				<section title="Example">
 					<pre>
+						<line>[Files]</line>
 						<line>#define FindHandle</line>
 						<line>#define FindResult</line>
 						<line>#define Mask "*.pas"</line>
