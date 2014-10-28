@@ -7820,6 +7820,7 @@ var
     FL: PSetupFileLocationEntry;
     FT: TFileTime;
     SourceFile: TFile;
+    SCompilerStatusFiles: String;
   begin
     if (SetupHeader.CompressMethod in [cmLZMA, cmLZMA2]) and
        (CompressProps.WorkerProcessFilename <> '') then
@@ -7848,16 +7849,23 @@ var
       CompressionStartTick := GetTickCount;
       CompressionInProgress := True;
 
+      if foChunkCompressed in FL.Flags then
+        if foVersionInfoValid in FL.Flags then
+          SCompilerStatusFiles := SCompilerStatusFilesCompressingVersion;
+        else
+          SCompilerStatusFiles := SCompilerStatusFilesCompressing;
+      else
+        if foVersionInfoValid in FL.Flags then
+          SCompilerStatusFiles := SCompilerStatusFilesStoringVersion;
+        else
+          SCompilerStatusFiles := SCompilerStatusFilesStoring;
+
       for I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
-        if foVersionInfoValid in FL.Flags then
-          AddStatus(Format(SCompilerStatusFilesCompressingVersion,
-            [FileLocationEntryFilenames[I],
-             LongRec(FL.FileVersionMS).Hi, LongRec(FL.FileVersionMS).Lo,
-             LongRec(FL.FileVersionLS).Hi, LongRec(FL.FileVersionLS).Lo]))
-        else
-          AddStatus(Format(SCompilerStatusFilesCompressing,
-            [FileLocationEntryFilenames[I]]));
+        AddStatus(Format(SCompilerStatusFiles,
+          [FileLocationEntryFilenames[I],
+           LongRec(FL.FileVersionMS).Hi, LongRec(FL.FileVersionMS).Lo,
+           LongRec(FL.FileVersionLS).Hi, LongRec(FL.FileVersionLS).Lo]))
         CallIdleProc;
 
         SourceFile := TFile.Create(FileLocationEntryFilenames[I],
