@@ -145,13 +145,11 @@ Source: "Examples\Example1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion
 Source: "Examples\Example2.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Example3.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\64Bit.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
-Source: "Examples\64BitThreeArch.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\64BitTwoArch.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Components.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Languages.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\MyProg.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\MyProg-x64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
-Source: "Examples\MyProg-IA64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\MyProg.chm"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Readme.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Readme-Dutch.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch

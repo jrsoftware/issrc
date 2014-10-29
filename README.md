@@ -270,7 +270,7 @@ See Projects\lzma2\Decoder\compiling.txt.
 
 **ishelp\ISHelpGen\ISHelpGen.exe** - See ishelp\ISHelpGen\compile.bat
 
-**Examples\MyProg.exe**, **Examples\MyProg-IA64.exe**, **Examples\MyProg-x64.exe** -
+**Examples\MyProg.exe**, **Examples\MyProg-x64.exe** -
 Compiled by Visual Studio 2005 from the Examples\MyProg directory.
 
 7. Inno Setup-specific editing guidelines for the help files
