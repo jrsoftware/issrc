@@ -7813,6 +7813,13 @@ var
       end;
     end;
 
+  const
+    StatusFilesStoringOrCompressingVersionStrings: array [Boolean] of String = (
+     SCompilerStatusFilesStoringVersion,
+     SCompilerStatusFilesCompressingVersion);
+    StatusFilesStoringOrCompressingStrings: array [Boolean] of String = (
+     SCompilerStatusFilesStoring,
+     SCompilerStatusFilesCompressing);
   var
     CH: TCompressionHandler;
     ChunkCompressed: Boolean;
@@ -7851,12 +7858,12 @@ var
       for I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
         if foVersionInfoValid in FL.Flags then
-          AddStatus(Format(SCompilerStatusFilesCompressingVersion,
+          AddStatus(Format(StatusFilesStoringOrCompressingVersionStrings[foChunkCompressed in FL.Flags],
             [FileLocationEntryFilenames[I],
              LongRec(FL.FileVersionMS).Hi, LongRec(FL.FileVersionMS).Lo,
              LongRec(FL.FileVersionLS).Hi, LongRec(FL.FileVersionLS).Lo]))
         else
-          AddStatus(Format(SCompilerStatusFilesCompressing,
+          AddStatus(Format(StatusFilesStoringOrCompressingStrings[foChunkCompressed in FL.Flags],
             [FileLocationEntryFilenames[I]]));
         CallIdleProc;
 

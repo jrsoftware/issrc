@@ -120,6 +120,8 @@ const
   SCompilerStatusFilesInitEncryption = '   Initializing encryption';
   SCompilerStatusFilesCompressing = '   Compressing: %s';
   SCompilerStatusFilesCompressingVersion = '   Compressing: %s   (%u.%u.%u.%u)';
+  SCompilerStatusFilesStoring = '   Storing: %s';
+  SCompilerStatusFilesStoringVersion = '   Storing: %s   (%u.%u.%u.%u)';
   SCompilerStatusCompressingSetupExe = '   Compressing Setup program executable';
   SCompilerStatusUpdatingVersionInfo = '   Updating version info';
   SCompilerStatusUpdatingIcons = '   Updating icons (%s)';
