@@ -950,6 +950,7 @@ The list of options is provided at the end of this topic.</para>
 				</description>
 				<section title="Example">
 					<pre>
+						<line>[Files]</line>
 						<line>#define FindHandle</line>
 						<line>#define FindResult</line>
 						<line>#define Mask "*.pas"</line>
@@ -957,9 +958,9 @@ The list of options is provided at the end of this topic.</para>
 						<line>#sub ProcessFoundFile</line>
 						<line>&dsp;#define FileName FindGetFileName(FindHandle)</line>
 						<line>&dsp;#if LowerCase(Copy(FileName, 1, 4)) == "ispp"</line>
-						<line>&dsp;&dsp;FileName: &ob;#FileName&cb;; DestDir: &ob;app&cb;&bs;ispp</line>
+						<line>&dsp;&dsp;Source: &ob;#FileName&cb;; DestDir: &ob;app&cb;&bs;ispp</line>
 						<line>&dsp;#else</line>
-						<line>&dsp;&dsp;FileName: &ob;#FileName&cb;; DestDir: &ob;app&cb;</line>
+						<line>&dsp;&dsp;Source: &ob;#FileName&cb;; DestDir: &ob;app&cb;</line>
 						<line>&dsp;#endif</line>
 						<line>#endsub</line>
 						<line></line>
