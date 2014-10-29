@@ -40,10 +40,6 @@ if errorlevel 1 goto exit
 cd ISPP
 if errorlevel 1 goto failed
 
-echo - ISPPCC.dpr
-"%DELPHI7ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI7ROOT%\lib" -E..\..\Files ISPPCC.dpr -DIS_ALLOWD7
-if errorlevel 1 goto failed
-
 echo - ISPP.dpr
 "%DELPHI7ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI7ROOT%\lib" -E..\..\Files ISPP.dpr -DIS_ALLOWD7
 if errorlevel 1 goto failed
@@ -55,9 +51,8 @@ echo - Compil32.dpr
 if errorlevel 1 goto failed
 
 echo - ISCC.dpr
-"%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components;..\Components\Ps\Source" -E..\Files -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST ISCC.dpr
+"%DELPHI7ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI7ROOT%\lib;..\Components" -E..\Files ISCC.dpr -DIS_ALLOWD7
 if errorlevel 1 goto failed
-
 echo - ISCmplr.dpr
 "%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components;..\Components\Ps\Source" -E..\Files -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST ISCmplr.dpr
 if errorlevel 1 goto failed
@@ -79,7 +74,7 @@ move Setup.exe Setup.e32
 if errorlevel 1 goto failed
 
 echo - StripReloc'ing
-stripreloc /b- Compil32.exe ISCC.exe SetupLdr.e32 Setup.e32 ISPPCC.exe
+stripreloc /b- Compil32.exe ISCC.exe SetupLdr.e32 Setup.e32
 if errorlevel 1 goto failed
 
 echo Success!

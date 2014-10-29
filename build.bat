@@ -55,7 +55,7 @@ echo - Setup.exe
 if exist .\setup-sign.bat (
   call .\setup-sign.bat
 ) else (
-  files\isppcc setup.iss /q /DNOSIGNTOOL
+  files\iscc setup.iss /q /DNOSIGNTOOL
 )
 if errorlevel 1 goto failed
 echo - Copying ISCC for ISPack
@@ -79,7 +79,7 @@ echo - Setup.exe
 if exist .\setup-sign.bat (
   call .\setup-sign.bat
 ) else (
-  files\isppcc setup.iss /q /DNOSIGNTOOL
+  files\iscc setup.iss /q /DNOSIGNTOOL
 )
 if errorlevel 1 goto failed
 echo - Copying ISCC for ISPack

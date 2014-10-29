@@ -34,10 +34,6 @@ if errorlevel 1 goto exit
 cd ISPP
 if errorlevel 1 goto failed
 
-echo - ISPPCC.dpr
-"%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --peflags:1 --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib" -E..\..\Files ISPPCC.dpr
-if errorlevel 1 goto failed
-
 echo - ISPP.dpr
 "%DELPHI2009ROOT%\bin\dcc32.exe" --no-config --string-checks:off -Q -B -H -W %1 -U"%DELPHI2009ROOT%\lib" -E..\..\Files ISPP.dpr
 if errorlevel 1 goto failed
