@@ -31,18 +31,13 @@ type
     LineText: String;
     Next: PScriptLine;
   end;
-  
+
   TOptionID = 0..25;
 
   TOptions = packed set of TOptionID;
 
-  PIsppParserOptions = ^TIsppParserOptions;
-  TIsppParserOptions = packed record
-    Options: TOptions;
-  end;
-
   TIsppOptions = packed record
-    ParserOptions: TIsppParserOptions;
+    ParserOptions: TOptions;
     Options: TOptions;
     VerboseLevel: Byte;
     InlineStart: string[7];
@@ -143,14 +138,14 @@ begin
   with Opt do
   begin
     SetOption(Options, 'C', True);
-    SetOption(ParserOptions.Options, 'B', True);
-    SetOption(ParserOptions.Options, 'P', True);
+    SetOption(ParserOptions, 'B', True);
+    SetOption(ParserOptions, 'P', True);
     VerboseLevel := 0;
     InlineStart := '{#';
     InlineEnd := '}';
 
     PopulateOptions(Options, '$');
-    PopulateOptions(ParserOptions.Options, 'p');
+    PopulateOptions(ParserOptions, 'p');
   end;
 
   Definitions := 'ISPPCC_INVOKED';
@@ -159,9 +154,8 @@ end;
 
 procedure IsppOptionsToString(var S: String; Opt: TIsppOptions; Definitions, IncludePath: String);
 begin
-  with Opt do
-  begin
-    AppendOption(S, 'ISPP:ParserOptions', ConvertOptionsToString(ParserOptions.Options));
+  with Opt do begin
+    AppendOption(S, 'ISPP:ParserOptions', ConvertOptionsToString(ParserOptions));
     AppendOption(S, 'ISPP:Options', ConvertOptionsToString(Options));
     AppendOption(S, 'ISPP:VerboseLevel', IntToStr(VerboseLevel));
     AppendOption(S, 'ISPP:InlineStart', String(InlineStart));
@@ -408,11 +402,13 @@ procedure ProcessCommandLine;
       WriteStdErr('  /{#<string>        Emulate #pragma inlinestart <string>');
       WriteStdErr('  /}<string>         Emulate #pragma inlineend <string>');
       WriteStdErr('  /V<number>         Emulate #pragma verboselevel <number>');
+    end;
+    WriteStdErr('  /?                 Show this help screen');
+    if IsppMode then begin
       WriteStdErr('');
       WriteStdErr('Example: iscc /$c- /Pu+ "/DLic=Trial Lic.txt" /IC:\INC;D:\INC scriptfile.iss');
       WriteStdErr('');
     end;
-    WriteStdErr('  /?                 Show this help screen');
   end;
 
 var

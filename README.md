@@ -154,8 +154,7 @@ under Delphi 3 (3.02 to be exact). The rest of the projects are compiled
 under Delphi 2.01.
 
 **ISCC** - This is the command-line front-end to the compiler. Like
-Compil32, it depends on ISCmplr.dll to do the actual compiling. If
-ispp.dll exist, extra preprocessor related parameters would be supported.
+Compil32, it depends on ISCmplr.dll to do the actual compiling.
 
 **ISCmplr** - This is a DLL which is loaded by Compil32 and ISCC to compile
 scripts. The actual compiler code is in Compile.pas. See CompInt.pas for the
@@ -181,7 +180,7 @@ How do the projects link together?
   clauses of the projects and units if you aren't sure if a project uses a
   particular unit.
 
-- ISPP use various copies of other Inno Setup files. To synch these
+- ISPP uses various copies of other Inno Setup files. To synch these
   run synch-isfiles.bat.
 
 5. Source code tips
