@@ -51,7 +51,7 @@ echo - Compil32.dpr
 if errorlevel 1 goto failed
 
 echo - ISCC.dpr
-"%DELPHI7ROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHI7ROOT%\lib;..\Components" -E..\Files ISCC.dpr -DIS_ALLOWD7
+"%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components;..\Components\Ps\Source" -E..\Files -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST ISCC.dpr
 if errorlevel 1 goto failed
 echo - ISCmplr.dpr
 "%DELPHIROOT%\bin\dcc32.exe" -Q -B -H -W %1 -U"%DELPHIROOT%\lib;..\Components;..\Components\Ps\Source" -E..\Files -DPS_MINIVCL;PS_NOWIDESTRING;PS_NOINT64;PS_NOGRAPHCONST ISCmplr.dpr

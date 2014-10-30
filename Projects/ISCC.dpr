@@ -16,8 +16,6 @@ program ISCC;
 
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
-  IsppIntf in '.\ISPP\IsppIntf.pas',
-  IsppBase in '.\ISPP\IsppBase.pas',
   Windows, SysUtils, Classes,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   PathFunc, CmnFunc2, CompInt, FileClass, CompTypes;
@@ -33,6 +31,24 @@ type
     LineText: String;
     Next: PScriptLine;
   end;
+  
+  TOptionID = 0..25;
+
+  TOptions = packed set of TOptionID;
+
+  PIsppParserOptions = ^TIsppParserOptions;
+  TIsppParserOptions = packed record
+    Options: TOptions;
+  end;
+
+  TIsppOptions = packed record
+    ParserOptions: TIsppParserOptions;
+    Options: TOptions;
+    VerboseLevel: Byte;
+    InlineStart: string[7];
+    InlineEnd: string[7];
+    SpanSymbol: AnsiChar;
+  end;
 
 var
   StdOutHandle, StdErrHandle: THandle;
@@ -47,6 +63,14 @@ var
   LastProgress: String;
   IsppOptions: TIsppOptions;
   IsppMode: Boolean;
+
+procedure SetOption(var Options: TOptions; Option: Char; Value: Boolean);
+begin
+  if Value then
+    Include(Options, Ord(UpCase(Option)) - Ord('A'))
+  else
+    Exclude(Options, Ord(UpCase(Option)) - Ord('A'))
+end;
 
 procedure PopulateOptions(var Options: TOptions; Symbol: Char);
 var
@@ -420,7 +444,7 @@ begin
         end;
       end else if IsppMode and GetParam(S, 'D') then begin
         if (Pos(';', S) > 0) or (Pos(' ', S) > 0) then
-          S := AnsiQuotedStr(S, '"');
+          S := AddQuotes(S);
         Definitions := Definitions + ';' + S;
       end
       else if IsppMode and GetParam(S, 'I') then begin
