@@ -154,7 +154,8 @@ under Delphi 3 (3.02 to be exact). The rest of the projects are compiled
 under Delphi 2.01.
 
 **ISCC** - This is the command-line front-end to the compiler. Like
-Compil32, it depends on ISCmplr.dll to do the actual compiling.
+Compil32, it depends on ISCmplr.dll to do the actual compiling. If
+ispp.dll exist, extra preprocessor related parameters would be supported.
 
 **ISCmplr** - This is a DLL which is loaded by Compil32 and ISCC to compile
 scripts. The actual compiler code is in Compile.pas. See CompInt.pas for the
@@ -166,9 +167,6 @@ performs all (un)installation-related tasks.
 **SetupLdr** - This is the "setup loader." It self-extracts a compressed
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." and /HELP message boxes.
-
-**ISPP\ISPPCC** - This is Inno Setup's ISCC command-line front-end with extra
-preprocessor related parameters added.
 
 **ISPP\ISPP** - This is a DLL implementing Inno Setup's preprocessor interface
 
@@ -183,7 +181,7 @@ How do the projects link together?
   clauses of the projects and units if you aren't sure if a project uses a
   particular unit.
 
-- ISPP and ISPPCC use various copies of other Inno Setup files. To synch these
+- ISPP use various copies of other Inno Setup files. To synch these
   run synch-isfiles.bat.
 
 5. Source code tips

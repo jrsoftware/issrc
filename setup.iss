@@ -95,7 +95,7 @@ Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "ishelp\Staging\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\ISCC.exe"; DestDir: "{app}"; Flags: ignoreversion touch; Check: not ISPPCheck
+Source: "files\ISCC.exe"; DestDir: "{app}"; Flags: ignoreversion touch;
 Source: "files\ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch

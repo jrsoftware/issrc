@@ -34,7 +34,7 @@ if errorlevel 1 goto failed
 echo.
 echo Running help compiler:
 echo.
-del Staging\isetup.chm
+if exist Staging\isetup.chm del Staging\isetup.chm
 if exist Staging\isetup.chm goto failed
 "%HHCEXE%" Staging\hh_project.hhp
 if %errorlevel% neq 1 goto failed
