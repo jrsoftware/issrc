@@ -257,8 +257,9 @@ code with scintilla-2.22-patch.txt applied.
 **Projects\_shfolder.res** - shfolder.dll from a fresh install of IE 5.5 SP2 on
 NT 4.0 stored in a compiled resource file.
 
-**Projects\HelperEXEs.res** - Compiled by Visual Studio 2005 from the
-Projects\Helper directory and then stored in a compiled resource file.
+**Projects\Helper\x64\Release\Helper.exe**, **Projects\HelperEXEs.res** -
+Compiled by Visual Studio 2005 from the Projects\Helper directory and then
+stored in a compiled resource file.
 
 **Projects\LzmaDecode\LzmaDecodeInno.obj** - See Projects\LzmaDecode\compiling.txt.
 
