@@ -1178,7 +1178,15 @@ end;
       <function>
         <name>VarIsEmpty</name>
         <prototype>function VarIsEmpty(const V: Variant): Boolean;</prototype>
-        <description><p>Returns True if the specified variant has no value assigned.</p></description>
+        <description><p>Non Unicode Inno Setup: Returns True if the specified variant's value is undefined. Unicode Inno Setup: Returns True if the specified variant is unassigned.</p></description>
+        <seealso><p><link topic="isxfunc_VarIsClear">VarIsClear</link></p></seealso>
+      </function>
+      <function>
+        <name>VarIsClear</name>
+        <prototype>function VarIsClear(const V: Variant): Boolean;</prototype>
+        <description><p>Returns True if the specified variant's value is undefined.</p></description>
+        <remarks><p>Requires Unicode Inno Setup.</p></remarks>
+        <seealso><p><link topic="isxfunc_VarIsEmpty">VarIsEmpty</link></p></seealso>
       </function>
       <function>
         <name>VarIsNull</name>
