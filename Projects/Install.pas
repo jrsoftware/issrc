@@ -2772,14 +2772,14 @@ var
 
     RmDoRestart := True;
 
-    Error := RmShutdown(RmSessionHandle, 0, nil);
+    Error := RmShutdown(RmSessionHandle, RmForceShutdown or RmShutdownOnlyRegistered, nil);
     while Error = ERROR_FAIL_SHUTDOWN do begin
       Log('Some applications could not be shut down.');
       if AbortRetryIgnoreMsgBox(SetupMessages[msgErrorCloseApplications],
          SetupMessages[msgEntryAbortRetryIgnore]) then
         Break;
       Log('Retrying to shut down applications using our files.');
-      Error := RmShutdown(RmSessionHandle, 0, nil);
+      Error := RmShutdown(RmSessionHandle, RmForceShutdown or RmShutdownOnlyRegistered, nil);
     end;
 
     { Close session on all errors except for ERROR_FAIL_SHUTDOWN, should still call RmRestart in that case. }
