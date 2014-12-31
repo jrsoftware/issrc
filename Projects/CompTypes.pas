@@ -6,7 +6,7 @@ unit CompTypes;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Types and functions used by both IDE, ISCC and ISPPCC units
+  Types and functions used by both IDE and ISCC units
 }
 
 interface

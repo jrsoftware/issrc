@@ -167,9 +167,6 @@ performs all (un)installation-related tasks.
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." and /HELP message boxes.
 
-**ISPP\ISPPCC** - This is Inno Setup's ISCC command-line front-end with extra
-preprocessor related parameters added.
-
 **ISPP\ISPP** - This is a DLL implementing Inno Setup's preprocessor interface
 
 How do the projects link together?
@@ -183,7 +180,7 @@ How do the projects link together?
   clauses of the projects and units if you aren't sure if a project uses a
   particular unit.
 
-- ISPP and ISPPCC use various copies of other Inno Setup files. To synch these
+- ISPP uses various copies of other Inno Setup files. To synch these
   run synch-isfiles.bat.
 
 5. Source code tips
