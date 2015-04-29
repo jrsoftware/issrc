@@ -5649,6 +5649,7 @@ type
       'COMCAT.DLL', 'MSVBVM50.DLL', 'MSVBVM60.DLL', 'OLEAUT32.DLL',
       'OLEPRO32.DLL', 'STDOLE2.TLB');
   var
+    SourceFileDir, SysWow64Dir: String;
     I: Integer;
   begin
     if AllowUnsafeFiles then
@@ -5657,9 +5658,13 @@ type
       { Files that must NOT be deployed to the user's System directory }
       { Any DLL deployed from system's own System directory }
       if not ExternalFile and
-         (CompareText(PathExtractExt(Filename), '.DLL') = 0) and
-         (PathCompare(PathExpand(PathExtractDir(SourceFile)), GetSystemDir) = 0) then
+         (CompareText(PathExtractExt(Filename), '.DLL') = 0) then begin
+        SourceFileDir := PathExpand(PathExtractDir(SourceFile));
+        SysWow64Dir := GetSysWow64Dir;
+        if (PathCompare(SourceFileDir, GetSystemDir) = 0) or
+           ((SysWow64Dir <> '') and ((PathCompare(SourceFileDir, SysWow64Dir) = 0))) then
         AbortCompileOnLine(SCompilerFilesSystemDirUsed);
+      end;
       { CTL3D32.DLL }
       if not ExternalFile and
          (CompareText(Filename, 'CTL3D32.DLL') = 0) and
