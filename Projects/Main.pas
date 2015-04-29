@@ -2746,6 +2746,7 @@ var
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
   MinimumTypeSpace: Integer64;
   SourceWildcard: String;
+  ExpandedSetupMutex: String;
 begin
   InitializeCommonVars;
 
@@ -3166,6 +3167,7 @@ begin
   end;
   ExpandedAppCopyright := ExpandConst(SetupHeader.AppCopyright);
   ExpandedAppMutex := ExpandConst(SetupHeader.AppMutex);
+  ExpandedSetupMutex := ExpandConst(SetupHeader.SetupMutex);
 
   { Update the shutdown block reason now that we have ExpandedAppName. }
   ShutdownBlockReasonCreate(Application.Handle,
@@ -3176,6 +3178,13 @@ begin
     if LoggedMsgBox(FmtSetupMessage1(msgSetupAppRunningError, ExpandedAppName),
        SetupMessages[msgSetupAppTitle], mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
       Abort;
+
+  { Check if Setup is running and if not create mutexes }
+  while CheckForMutexes(ExpandedSetupMutex) do
+    if LoggedMsgBox(FmtSetupMessage1(msgSetupAppRunningError, SetupMessages[msgSetupAppTitle]),
+       SetupMessages[msgSetupAppTitle], mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
+      Abort;
+  CreateMutexes(ExpandedSetupMutex);
 
   { Remove types that fail their 'languages' or 'check'. Can't do this earlier
     because the InitializeSetup call above can't be done earlier. }

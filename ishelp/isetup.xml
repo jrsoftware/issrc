@@ -992,6 +992,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_restartapplications">RestartApplications</link></li>
 <li><link topic="setup_restartifneededbyrun">RestartIfNeededByRun</link></li>
 <li><link topic="setup_setuplogging">SetupLogging</link></li>
+<li><link topic="setup_setupmutex">SetupMutex</link></li>
 <li><link topic="setup_showlanguagedialog">ShowLanguageDialog</link></li>
 <li><link topic="setup_showundisplayablelanguages">ShowUndisplayableLanguages</link></li>
 <li><link topic="setup_timestamprounding">TimeStampRounding</link></li>
@@ -3603,6 +3604,21 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 <p>To specify a mutex name containing a comma, escape the comma with a backslash.</p>
 <p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
 <example><pre>AppMutex=MyProgramsMutexName</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_setupmutex">SetupMutex</link>
+</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="SetupMutex">
+<body>
+<p>This directive is used to prevent Setup from running while Setup is already running. It specifies the names of one or more named mutexes (multiple mutexes are separated by commas), which Setup will check for at startup. If any exist, Setup will display the message: "Setup has detected that Setup is currently running. Please close all instances of it now, then click OK to continue, or Cancel to exit." The value may include constants.</p>
+<p>To specify a mutex name containing a comma, escape the comma with a backslash.</p>
+<p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
+<example><pre>SetupMutex=MySetupsMutexName,Global\MySetupsMutexName</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_appmutex">AppMutex</link>
+</p>
 </body>
 </setuptopic>
 

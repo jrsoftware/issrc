@@ -146,6 +146,7 @@ type
     ssRestartIfNeededByRun,
     ssSetupIconFile,
     ssSetupLogging,
+    ssSetupMutex,
     ssShowComponentSizes,
     ssShowLanguageDialog,
     ssShowTasksTreeLines,
@@ -3999,6 +4000,9 @@ begin
       end;
     ssSetupLogging: begin
         SetSetupHeaderOption(shSetupLogging);
+      end;
+    ssSetupMutex: begin
+        SetupHeader.SetupMutex := Trim(Value);
       end;
     ssShowComponentSizes: begin
         SetSetupHeaderOption(shShowComponentSizes);
@@ -8353,6 +8357,8 @@ begin
     AppVersionHasConsts := CheckConst(SetupHeader.AppVersion, SetupHeader.MinVersion, []);
     LineNumber := SetupDirectiveLines[ssAppMutex];
     CheckConst(SetupHeader.AppMutex, SetupHeader.MinVersion, []);
+    LineNumber := SetupDirectiveLines[ssSetupMutex];
+    CheckConst(SetupHeader.SetupMutex, SetupHeader.MinVersion, []);
     LineNumber := SetupDirectiveLines[ssDefaultDirName];
     CheckConst(SetupHeader.DefaultDirName, SetupHeader.MinVersion, []);
     if SetupHeader.DefaultDirName = '' then begin

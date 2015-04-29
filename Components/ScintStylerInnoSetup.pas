@@ -187,6 +187,7 @@ type
     ssRestartIfNeededByRun,
     ssSetupIconFile,
     ssSetupLogging,
+    ssSetupMutex,
     ssShowComponentSizes,
     ssShowLanguageDialog,
     ssShowTasksTreeLines,
