@@ -268,8 +268,7 @@ begin
   TriggerMessageBoxCallbackFunc(Flags, False);
   try
 {$IFDEF IS_D4}
-    { On Delphi 4+, simply call Application.MessageBox }
-    Result := Application.MessageBox(Text, Caption, Flags);
+    Result := MessageBox(Application.MainFormHandle, Text, Caption, Flags);
 {$ELSE}
     { Use custom implementation on Delphi 2 and 3. The Flags parameter is
       incorrectly declared as a Word on Delphi 2's Application.MessageBox, and
