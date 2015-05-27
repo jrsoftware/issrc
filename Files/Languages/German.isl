@@ -342,5 +342,5 @@ AssocFileExtension=&Registriere %1 mit der %2-Dateierweiterung
 AssocingFileExtension=%1 wird mit der %2-Dateierweiterung registriert...
 AutoStartProgramGroupDescription=Beginn des Setups:
 AutoStartProgram=Starte automatisch%1
-AddonHostProgramNotFound=%1 konnte im ausgwählten Ordner nicht gefunden werden.%n%nMöchten Sie dennoch fortfahren?
+AddonHostProgramNotFound=%1 konnte im ausgewählten Ordner nicht gefunden werden.%n%nMöchten Sie dennoch fortfahren?
 
