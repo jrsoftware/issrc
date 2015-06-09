@@ -1,9 +1,9 @@
-; *** Inno Setup version 5.5.1+ Esperanto messages ***
+; *** Inno Setup version 5.5.3+ Esperanto messages ***
 ;       
 ;       Author: Alexander Gritchin   (E-mail - alexgrimo@mail.ru)
 ;
 ;       Au`toro: Alexander Gritc`in  (E-mail - alexgrimo@mail.ru)
-;       Versio del traduko -  15.06.04
+;       Versio del traduko -  15.06.08
 ; 
 ;  
 ;
@@ -28,8 +28,8 @@ LanguageCodePage=0
 ;TitleFontSize=29
 ;CopyrightFontName=Arial
 ;CopyrightFontSize=8
-;
-;  *****************************************************************************
+
+  
 
 [Messages]
 
@@ -61,20 +61,20 @@ WindowsServicePackRequired=Por c`i tia programo bezonas %1 Service Pack %2 au` p
 NotOnThisPlatform=C`i tia programo ne funkcios en %1.
 OnlyOnThisPlatform=C`i tia programo devas funkcii en %1.
 OnlyOnTheseArchitectures=C`i tia programo nur povas esti instalita en version de Vindoso por sekvaj procesoraj arkitekturoj:%n%n%1
-MissingWOW64APIs=La versio de Vndoso kian vi lanc`is, ne havas posedon bezonatan por ke Majstro plenumis 64-bit instaladon. Por korekti tian problemon bonvolu instali Service Pack %1.
+MissingWOW64APIs=La versio de Vindoso kian vi lanc`is, ne havas posedon bezonatan por ke Majstro plenumis 64-bit instaladon. Por korekti tian problemon bonvolu instali Service Pack %1.
 WinVersionTooLowError=Por c`i tia programo bezonas %1 version %2 au` pli olda.
 WinVersionTooHighError=C`i tia programo ne povas esti instalita en %1 versio %2 au` pli olda.
 AdminPrivilegesRequired=Vi devas eniri kiel administranto kiam instalas c`i tian programon.
 PowerUserPrivilegesRequired=Vi devas eniri kiel administranto au` kiel membro de grupo de Posedaj Uzantoj kiam instalas c`i tia programo.
-SetupAppRunningError=La Majstro difinis ke %1 nun funkcias.%n%nBonvolu s`topi g`in, kaj poste kliku Jes por kontinui, au` S`topu por eliri.
-UninstallAppRunningError=Forigados difinis ke %1 nun funkcias.%n%nBonvolu s`topi g`in, kaj poste kliku Jes por kontinui, au` S`topu por eliri.
+SetupAppRunningError=La Majstro difinis ke %1 nun funkcias.%n%nBonvolu s`topi g`in, kaj poste kliku Jes por kontinui, au` S`topi por eliri.
+UninstallAppRunningError=Forigados difinis ke %1 nun funkcias.%n%nBonvolu s`topi g`in, kaj poste kliku Jes por kontinui, au` S`topi por eliri.
 
 ; *** Misc. errors
 ErrorCreatingDir=La Majstro ne povas krei dosierujon "%1"
 ErrorTooManyFilesInDir=Estas nepoveble krei dosieron en dosierujo "%1" pro tio ke g`i havas tro multe da dosierojn
 
 ; *** Setup common messages
-ExitSetupTitle=S`topu Majstron 
+ExitSetupTitle=S`topo Majstron 
 ExitSetupMessage=La instalado ne estas plena. Se vi eliros nun, la programo ne estos instalita.%n%nPor vi bezonas s`alti Majstron denove en alia tempo por plenumi instaladon.%n%nC`u fini la Majstron?
 AboutSetupMenuItem=&Pri instalo...
 AboutSetupTitle=Pri instalo
@@ -109,7 +109,7 @@ BrowseDialogLabel=Elektu la dosierujon en listo malalte, kaj kliku Jes.
 NewFolderName=Nova dosierujo
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=                 Bonvenon! 
+WelcomeLabel1=Bonvenon al Majstro de instalado de [name] 
 WelcomeLabel2=Nun komencos instalado de [name/ver] en via komputilo.%n%nEstas rekomendite ke vi s`topu c`iajn viajn programojn antau` komenco.
 
 ; *** "Password" wizard page
@@ -165,8 +165,8 @@ DirDoesntExist=La dosierujo:%n%n%1%n%nne ekzistas. C`u vi volas por ke tia dosie
 ; *** "Select Components" wizard page
 WizardSelectComponents=Elektu komponentoj
 SelectComponentsDesc=Kiaj komponentoj devas esti instalitaj?
-SelectComponentsLabel2=Elektu komponentoj kiaj vi volas instali; forigu la komponentojn kiaj vi ne volas instali. Klaku Antau`en kiam vi estas preta por kontinui.
-FullInstallation=Full installation
+SelectComponentsLabel2=Elektu komponentoj kiaj vi volas instali; forigu la komponentojn kiaj vi ne volas instali. Kliku Antau`en kiam vi estas preta por kontinui.
+FullInstallation=Tuta instalado
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Kompakta instalado
 CustomInstallation=Kutima instalado
@@ -179,7 +179,7 @@ ComponentsDiskSpaceMBLabel=Nuna elekto bezonas almenau` [mb] MB de diska spaco.
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Elektu aldonaj taskoj
 SelectTasksDesc=Kiaj aldonaj taskoj devos esti montrotaj?
-SelectTasksLabel2=Elektu aldonaj taskoj kiaj bezonas por ke Majstro montros dum instalado [name], kaj poste klaku Antau`en.
+SelectTasksLabel2=Elektu aldonaj taskoj kiaj bezonas por ke Majstro montros dum instalado [name], kaj poste kliku Antau`en.
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Elektu dosierujon de starta menuo
@@ -207,12 +207,13 @@ ReadyMemoTasks=Aldonaj taskoj:
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparado por Instalo
 PreparingDesc=Majstro estas preparata por instalo [name] en via komputilo.
-PreviousInstallNotCompleted=Instalado/forigo de antau`a programo ne estas plena. Por vi bezonas relanc`i vian komputilon por plenigi tian instaladon.%n%nPost relanc`o de via komputilo, s`altu Majstron denove por finigi instaladon de [name].
+PreviousInstallNotCompleted=Instalado/Forigo de antau`a programo ne estas plena. Por vi bezonas relanc`i vian komputilon por plenigi tian instaladon.%n%nPost relanc`o de via komputilo, s`altu Majstron denove por finigi instaladon de [name].
 CannotContinue=La Majstro ne povas kontinui. Bonvolu kliki Fino por eliri.
-ApplicationsFound=Sekvaj aplikaj`oj uzas dosierojn kiajn bezonas renovigi per Instalado. Estas rekomendite ke vi permesu al Majstro automate kas`i tiajn aplikaj`ojn.
-ApplicationsFound2=Sekvaj aplikaj`oj uzas dosierojn kiajn bezonas renovigi per Instalado. Estas rekomendite ke vi permesu al Majstro automate kas`i tiajn aplikaj`ojn. Poste de instalado Majstro provos relanc`i aplikaj`ojn.
+ApplicationsFound=Sekvaj aplikaj`oj uzas dosierojn kiajn bezonas renovigi per Instalado. Estas rekomendite ke vi permesu al Majstro automate fermi tiajn aplikaj`ojn.
+ApplicationsFound2=Sekvaj aplikaj`oj uzas dosierojn kiajn bezonas renovigi per Instalado. Estas rekomendite ke vi permesu al Majstro automate fermi tiajn aplikaj`ojn. Poste de instalado Majstro provos relanc`i aplikaj`ojn.
 CloseApplications=&Automate fermi aplikaj`ojn
 DontCloseApplications=Ne fermu aplikaj`ojn
+ErrorCloseApplications=Majstro estis nepovebla au`tomate fermi c`iajn aplikaj`ojn. Estas rekomendite ke vi fermu c`iajn aplikaj`ojn, uzantaj dosierojn, kiaj estas bezonatajn por renovigo per la Majstro antau` kontinui. 
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalado
@@ -242,7 +243,7 @@ SelectDirectoryLabel=Bonvolu difini lokon de alia disko.
 
 ; *** Installation phase messages
 SetupAborted=Instalado ne estis plena.%n%nBonvolu korekti problemon kaj lanc`u Majstron denove.
-EntryAbortRetryIgnore=Kliku Reen por provi ankorau`, Ignori por fari c`iokaze, au` S`topu por finigi instaladon.
+EntryAbortRetryIgnore=Kliku Reen por provi ankorau`, Ignori por fari c`iokaze, au` S`topi por finigi instaladon.
 
 ; *** Installation status messages
 StatusClosingApplications=Fermado de aplikaj`oj...
@@ -273,11 +274,11 @@ ErrorRegWriteKey=Eraro dum skribado en registra s`losilo:%n%1\%2
 ErrorIniEntry=Eraro dum kreado de INI pointo en dosiero "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Kliku Reen por provi denove, Ignori por lasi tian dosieron (ne estas rekomendite), au` S`topu por finigi instaladon.
-FileAbortRetryIgnore2=Kliku Reen por provi denove, Ignori por plenumi c`iokaze (ne estas rekomendite), au` S`topu por finigi instaladon.
+FileAbortRetryIgnore=Kliku Reen por provi denove, Ignori por lasi tian dosieron (ne estas rekomendite), au` S`topi por finigi instaladon.
+FileAbortRetryIgnore2=Kliku Reen por provi denove, Ignori por plenumi c`iokaze (ne estas rekomendite), au` S`topi por finigi instaladon.
 SourceIsCorrupted=La fonta dosiero estas kripligita
 SourceDoesntExist=La fonta dosiero "%1" ne ekzistas
-ExistingFileReadOnly=Ekzista dosiero estas markita kiel nurlega.%n%nKliku Reen por forigi la nurlegan atributon kaj provu reen, Ignori por lasi tian dosieron, au` S`topu por fini instaladon.
+ExistingFileReadOnly=Ekzista dosiero estas markita kiel nurlega.%n%nKliku Reen por forigi la nurlegan atributon kaj provu reen, Ignori por lasi tian dosieron, au` S`topi por fini instaladon.
 ErrorReadingExistingDest=Eraro aperis dum legado de ekzista dosiero:
 FileExists=La dosiero jam ekzistas.%n%nC`u vi volas ke Majstro reskribu g`in?
 ExistingFileNewer=Ekzista dosiero estas pli nova ol Majstro provas instali. Estas rekomendita ke vi konservu ekzistan dosieron.%n%nC`u vi volas konservi ekzistan dosieron?
