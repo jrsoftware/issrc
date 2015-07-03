@@ -168,6 +168,21 @@ begin
   end;
 end;
 
+function ForceDirectoriesFunc(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+      MakeBool(ResPtr^, ForceDirectories(PrependPath(Ext, Get(0).AsStr)));
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 {FileSize(<filename>)}
 function FileSize(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
@@ -1670,6 +1685,7 @@ begin
     RegisterFunction('Str', Str, -1);
     RegisterFunction('FileExists', FileExists, -1);
     RegisterFunction('DirExists', DirExists, -1);
+    RegisterFunction('ForceDirectories', ForceDirectoriesFunc, -1);
     RegisterFunction('FileSize', FileSize, -1);
     RegisterFunction('ReadIni', ReadIni, -1);
     RegisterFunction('WriteIni', WriteIni, -1);

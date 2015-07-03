@@ -719,6 +719,17 @@ The list of options is provided at the end of this topic.</para>
 					<para>Returns non-zero value if the specified directory exists.</para>
 				</description>
 			</topic>
+			<topic id="ForceDirectories">
+				<title>ForceDirectories</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> ForceDirectories(<b>str</b>)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Creates all the directories along the specified directory path all at once. If the first directories in the path do exist, but the latter ones don't, ForceDirectories creates just the ones that don't exist. Returns non-zero value if successful.</para>
+				</description>
+			</topic>
 			<topic id="FileSize">
 				<title>FileSize</title>
 				<section title="Prototype">
