@@ -1453,7 +1453,7 @@ begin
   end else if Proc.Name = 'FREEDLL' then begin
     Stack.SetBool(PStart, FreeLibrary(Stack.GetInt(PStart-1)));
   end else if Proc.Name = 'CREATEMUTEX' then begin
-    CreateMutex(nil, False, PChar(Stack.GetString(PStart)));
+    Windows.CreateMutex(nil, False, PChar(Stack.GetString(PStart)));
   end else if Proc.Name = 'OEMTOCHARBUFF' then begin
     S := StackGetAnsiString(Stack, PStart);
     OemToCharBuffA(PAnsiChar(S), PAnsiChar(S), Length(S));

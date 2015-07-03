@@ -136,7 +136,7 @@ begin
     DLL were registered simultaneously by two RegSvr processes? Could the
     registry entries be in an incomplete/inconsistent state? I'm not sure, so
     a mutex is used here to ensure registrations are serialized. }
-  Mutex := CreateMutex(nil, False, 'Inno-Setup-RegSvr-Mutex');
+  Mutex := Windows.CreateMutex(nil, False, 'Inno-Setup-RegSvr-Mutex');
   ShowWindow(Application.Handle, SW_HIDE);  { hide taskbar button while waiting }
   if Mutex <> 0 then begin
     { Even though we have no visible windows, process messages while waiting

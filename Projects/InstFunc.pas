@@ -49,7 +49,8 @@ type
   TDetermineDefaultLanguageResult = (ddNoMatch, ddMatch, ddMatchLangParameter);
   TGetLanguageEntryProc = function(Index: Integer; var Entry: PSetupLanguageEntry): Boolean;
 
-function CheckForMutexes(Mutexes: String): Boolean;
+function CheckForMutexes(const Mutexes: String): Boolean;
+procedure CreateMutexes(const Mutexes: String);
 function CreateTempDir: String;
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
@@ -921,7 +922,7 @@ begin
     HandleProcessWait(Info.hProcess, Wait, ProcessMessagesProc, ResultCode);
 end;
 
-function CheckForMutexes(Mutexes: String): Boolean;
+function CheckForOrCreateMutexes(Mutexes: String; const Create: Boolean): Boolean;
 
   function MutexPos(const S: String): Integer;
   var
@@ -937,7 +938,7 @@ function CheckForMutexes(Mutexes: String): Boolean;
   end;
 
 { Returns True if any of the mutexes in the comma-separated Mutexes string
-  exist }
+  exist and Create is False }
 var
   I: Integer;
   M: String;
@@ -950,15 +951,29 @@ begin
     M := Trim(Copy(Mutexes, 1, I-1));
     if M <> '' then begin
       StringChange(M, '\,', ',');
-      H := OpenMutex(SYNCHRONIZE, False, PChar(M));
-      if H <> 0 then begin
-        CloseHandle(H);
-        Result := True;
-        Break;
+      if Create then begin
+        CreateMutex(M)
+      end else begin
+        H := OpenMutex(SYNCHRONIZE, False, PChar(M));
+        if H <> 0 then begin
+          CloseHandle(H);
+          Result := True;
+          Break;
+        end;
       end;
     end;
     Delete(Mutexes, 1, I);
   until Mutexes = '';
+end;
+
+function CheckForMutexes(const Mutexes: String): Boolean;
+begin
+  Result := CheckForOrCreateMutexes(Mutexes, False);
+end;
+
+procedure CreateMutexes(const Mutexes: String);
+begin
+  CheckForOrCreateMutexes(Mutexes, True);
 end;
 
 function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;
