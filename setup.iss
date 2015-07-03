@@ -8,7 +8,7 @@
 [Setup]
 AppName=Inno Setup
 AppId=Inno Setup 5
-AppVersion=5.5.5
+AppVersion=5.5.6
 AppPublisher=jrsoftware.org
 AppPublisherURL=http://www.innosetup.com/
 AppSupportURL=http://www.innosetup.com/
