@@ -161,11 +161,12 @@ const
   );
   
   { InstFnc2 }
-  InstFnc2Table: array [0..2] of AnsiString =
+  InstFnc2Table: array [0..3] of AnsiString =
   (
     'function CreateShellLink(const Filename, Description, ShortcutTo, Parameters, WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer): String;',
     'procedure RegisterTypeLibrary(const Is64Bit: Boolean; const Filename: String);',
-    'function UnregisterTypeLibrary(const Is64Bit: Boolean; const Filename: String): Boolean;'
+    'function UnregisterTypeLibrary(const Is64Bit: Boolean; const Filename: String): Boolean;',
+    'function UnpinShellLink(const Filename: String): Boolean;'
   );
 
   { Main }

@@ -927,6 +927,8 @@ begin
     except
       Stack.SetBool(PStart, False);
     end;
+  end else if Proc.Name = 'UNPINSHELLLINK' then begin
+    Stack.SetBool(PStart, UnpinShellLink(Stack.GetString(PStart-1)));
   end else
     Result := False;
 end;

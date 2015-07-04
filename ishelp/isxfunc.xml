@@ -1730,6 +1730,11 @@ end;</pre></example>
   0,
   SW_SHOWNORMAL);</pre></example>
       </function>
+      <function>
+        <name>UnpinShellLink</name>
+        <prototype>function UnpinShellLink(const Filename: String): Boolean;</prototype>
+        <description><p>Attempt to unpin the shortcut with the specified filename. Returns True if the shortcut was successfully removed from the list of pinned items and/or the taskbar, or if the shortcut was not pinned at all.</p></description>
+      </function>
     </subcategory>
     <subcategory>
       <function>
