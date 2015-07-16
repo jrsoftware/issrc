@@ -5110,7 +5110,7 @@ SignTool=byparam format c:
 <tr><td>6.3.9600</td><td>Windows 8.1 with Update 1</td></tr>
 <tr><td>10.0.10240</td><td>Windows 10</td></tr>
 </table>
-<p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "5.1" for Windows XP).</p>
+<p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>
 </topic>
 
