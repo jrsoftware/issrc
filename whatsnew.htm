@@ -28,7 +28,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 
 <p><a name="5.5.6"></a><span class="ver">5.5.6 </span><span class="date">(2015-07-16)</span></p>
 <ul>
-<li>Added the Windows 10 "compatibility" section to the various manifest resources used by Inno Setup.</li>
+<li>Added the Windows 10 "compatibility" section to the various manifest resources used by Inno Setup. This enables any check for the operating system version to get the real version number (10.0) instead of getting the same version number as it did in Windows 8.1 (6.3).</li>
 <li>Added new [Setup] section directive: <tt>SignToolRetryCount</tt>, which defaults to <tt>2</tt>. Specifies the number of times the Setup Compiler should automatically retry digital signing on any errors.</li>
 <li>Added new [Setup] section directive: <tt>SetupMutex</tt>. Can be used to prevent Setup from running while Setup is already running.</li>
 <li><i>Fix:</i> Console-mode compiler (ISCC) change: Renamed /DO and /EO command line parameters to /O- and /O+ to avoid possible conflicts with /D.</li>
