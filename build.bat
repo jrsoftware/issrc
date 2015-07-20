@@ -17,8 +17,7 @@ rem  -Create ANSI Inno Setup installer
 rem  -Compile Unicode Inno Setup
 rem  -Create Unicode Inno Setup installer
 rem
-rem  Once done the 2 installers can be found in Output and additionally 2 ISCC
-rem  files are stored there for later use while preparing an ISPack release
+rem  Once done the 2 installers can be found in Output
 
 setlocal
 
