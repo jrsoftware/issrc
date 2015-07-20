@@ -1913,7 +1913,7 @@ end;</pre></example>
       <function>
         <name>RegQueryBinaryValue</name>
         <prototype>function RegQueryBinaryValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultStr: AnsiString): Boolean;</prototype>
-        <description><p>Queries the specified REG_BINARY-type registry value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
+        <description><p>Queries the specified registry value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
       </function>
     </subcategory>
     <subcategory>

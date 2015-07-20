@@ -612,9 +612,9 @@ begin
     S := Stack.GetString(PStart-2);
     if RegOpenKeyExView(RegView, RootKey, PChar(S), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
       N := Stack.GetString(PStart-3);
-      if (RegQueryValueEx(K, PChar(N), nil, @Typ, nil, @Size) = ERROR_SUCCESS) and (Typ = REG_BINARY) then begin
+      if RegQueryValueEx(K, PChar(N), nil, @Typ, nil, @Size) = ERROR_SUCCESS then begin
         SetLength(DataS, Size);
-        if (RegQueryValueEx(K, PChar(N), nil, @Typ, @DataS[1], @Size) = ERROR_SUCCESS) and (Typ = REG_BINARY) then begin
+        if RegQueryValueEx(K, PChar(N), nil, @Typ, @DataS[1], @Size) = ERROR_SUCCESS then begin
           StackSetAnsiString(Stack, PStart-4, DataS);
           Stack.SetBool(PStart, True);
         end else
