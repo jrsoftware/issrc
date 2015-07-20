@@ -826,6 +826,8 @@ end;
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware: Boolean);
 const
+  IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE = $0040;
+  IMAGE_DLLCHARACTERISTICS_NX_COMPAT = $0100;
   IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = $8000;
   OffsetOfImageVersion = $2C;
   OffsetOfDllCharacteristics = $46;
@@ -863,6 +865,7 @@ begin
         F.Seek(Ofs + OffsetOfDllCharacteristics);
         if F.Read(DllChars, SizeOf(DllChars)) = SizeOf(DllChars) then begin
           OrigDllChars := DllChars;
+          DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE or IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
           if IsTSAware then
             DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
           else
