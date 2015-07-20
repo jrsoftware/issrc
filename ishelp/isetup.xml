@@ -1341,7 +1341,7 @@ Name: "{app}\bin"
 </param>
 
 <param name="Attribs">
-<p>Specifies additional attributes for the directory. This can include one or more of the following: <tt>readonly</tt>, <tt>hidden</tt>, <tt>system</tt>. If this parameter is not specified, Setup does not assign any special attributes to the directory.</p>
+<p>Specifies additional attributes for the directory. This can include one or more of the following: <tt>readonly</tt>, <tt>hidden</tt>, <tt>system</tt>, <tt>notcontentindexed</tt>. If this parameter is not specified, Setup does not assign any special attributes to the directory.</p>
 <p>If the directory already exists, the specified attributes will be combined with the directory's existing attributes.</p>
 <example>
 <pre>Attribs: hidden system</pre>
@@ -1502,7 +1502,7 @@ ExternalSize: 1048576; Flags: external
 </param>
 
 <param name="Attribs">
-<p>Specifies additional attributes for the file. This can include one or more of the following: <tt>readonly</tt>, <tt>hidden</tt>, <tt>system</tt>. If this parameter is not specified, Setup does not assign any special attributes to the file.</p>
+<p>Specifies additional attributes for the file. This can include one or more of the following: <tt>readonly</tt>, <tt>hidden</tt>, <tt>system</tt>, <tt>notcontentindexed</tt>. If this parameter is not specified, Setup does not assign any special attributes to the file.</p>
 <example>
 <pre>Attribs: hidden system</pre>
 </example>

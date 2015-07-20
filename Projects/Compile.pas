@@ -4714,6 +4714,9 @@ begin
   TaskEntries.Add(NewTaskEntry);
 end;
 
+const
+  FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = $00002000;
+
 procedure TSetupCompiler.EnumDirs(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paName, paAttribs, paPermissions, paComponents, paTasks,
@@ -4739,8 +4742,8 @@ const
   Flags: array[0..4] of PChar = (
     'uninsneveruninstall', 'deleteafterinstall', 'uninsalwaysuninstall',
     'setntfscompression', 'unsetntfscompression');
-  AttribsFlags: array[0..2] of PChar = (
-    'readonly', 'hidden', 'system');
+  AttribsFlags: array[0..3] of PChar = (
+    'readonly', 'hidden', 'system', 'notcontentindexed');
   AccessMasks: array[0..2] of TNameAndAccessMask = (
     (Name: 'full'; Mask: $1F01FF),
     (Name: 'modify'; Mask: $1301BF),
@@ -4779,6 +4782,7 @@ begin
           0: Attribs := Attribs or FILE_ATTRIBUTE_READONLY;
           1: Attribs := Attribs or FILE_ATTRIBUTE_HIDDEN;
           2: Attribs := Attribs or FILE_ATTRIBUTE_SYSTEM;
+          3: Attribs := Attribs or FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
         end;
 
       { Permissions }
@@ -5617,8 +5621,8 @@ const
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
     'sortfilesbyname', 'gacinstall');
-  AttribsFlags: array[0..2] of PChar = (
-    'readonly', 'hidden', 'system');
+  AttribsFlags: array[0..3] of PChar = (
+    'readonly', 'hidden', 'system', 'notcontentindexed');
   AccessMasks: array[0..2] of TNameAndAccessMask = (
     (Name: 'full'; Mask: $1F01FF),
     (Name: 'modify'; Mask: $1301BF),
@@ -6278,6 +6282,7 @@ begin
                    0: Attribs := Attribs or FILE_ATTRIBUTE_READONLY;
                    1: Attribs := Attribs or FILE_ATTRIBUTE_HIDDEN;
                    2: Attribs := Attribs or FILE_ATTRIBUTE_SYSTEM;
+                   3: Attribs := Attribs or FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
                  end;
 
                { Permissions }
