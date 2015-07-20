@@ -384,8 +384,9 @@ var
 begin
   if IsppMode then begin
     InitIsppOptions(IsppOptions, Definitions, IncludePath);
+    { Also see below }
     ReadOptionsParam(IsppOptions.Options, '$');
-    ReadOptionsParam(IsppOptions.ParserOptions, 'p');
+    ReadOptionsParam(IsppOptions.ParserOptions, 'P');
   end;
 
   for I := 1 to NewParamCount do begin
@@ -425,6 +426,9 @@ begin
       end
       else if IsppMode and GetParam(S, 'V') then begin
         if S <> '' then IsppOptions.VerboseLevel := StrToIntDef(S, 0);
+      end
+      else if IsppMode and (GetParam(S, '$') or GetParam(S, 'P')) then begin
+        { Already handled above }
       end
       else if S = '/?' then begin
         ShowBanner;
