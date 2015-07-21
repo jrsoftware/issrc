@@ -45,8 +45,8 @@ Source code README
 
   We compile all of Inno Setup's projects under Delphi 2.01, with the
   exception of Compil32 which is compiled under Delphi 3.02 (for the better
-  Far East character set support), and Inno Setup Preprocessor's projects which
-  are compiled under Delphi 7.
+  Far East character set support), and Inno Setup Preprocessor's ISPP which
+  is compiled under Delphi 7.
 
   Delphi 2.01 is used for the main projects because its VCL has a significantly
   smaller code size footprint than the later versions.
