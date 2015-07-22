@@ -43,6 +43,18 @@
                                 {$DEFINE IS_DXE3}  { then it must be at least Delphi XE3 }
                                 {$IFNDEF VER240}  { if it's not Delphi XE3 }
                                   {$DEFINE IS_DXE4}  { then it must be at least Delphi XE4 }
+                                  {$IFNDEF VER250}  { if it's not Delphi XE4 }
+                                    {$DEFINE IS_DXE5}  { then it must be at least Delphi XE5 }
+                                    {$IFNDEF VER260}  { if it's not Delphi XE5 }
+                                      {$DEFINE IS_DXE6}  { then it must be at least Delphi XE6 }
+                                      {$IFNDEF VER270}  { if it's not Delphi XE6 }
+                                        {$DEFINE IS_DXE7}  { then it must be at least Delphi XE7 }
+                                        {$IFNDEF VER280}  { if it's not Delphi XE7 }
+                                          {$DEFINE IS_DXE8}  { then it must be at least Delphi XE8 }
+                                        {$ENDIF}
+                                      {$ENDIF}
+                                    {$ENDIF}
+                                  {$ENDIF}
                                 {$ENDIF}
                               {$ENDIF}
                             {$ENDIF}

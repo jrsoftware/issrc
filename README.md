@@ -40,6 +40,9 @@ Source code README
   Unicode Inno Setup:
 
   We compile all of Inno Setup's projects under Delphi 2009 with Update 3.
+  
+  Newer Delphi versions should also work but will lead to significantly larger
+  files.
 
   Non Unicode Inno Setup:
 
