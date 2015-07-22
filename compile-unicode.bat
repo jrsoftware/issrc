@@ -30,6 +30,12 @@ rem -------------------------------------------------------------------------
 rem  Compile each project separately because it seems Delphi
 rem  carries some settings (e.g. $APPTYPE) between projects
 rem  if multiple projects are specified on the command line.
+rem  Note:
+rem  Command line parameter "--peflags:1" below equals the
+rem  {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} directive.
+rem  This causes the Delphi compiler to not just set the flag
+rem  but also it actually strips relocations. Used instead of
+rem  calling StripReloc like compile.bat does.
 
 cd Projects
 if errorlevel 1 goto exit

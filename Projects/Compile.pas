@@ -865,6 +865,9 @@ begin
         F.Seek(Ofs + OffsetOfDllCharacteristics);
         if F.Read(DllChars, SizeOf(DllChars)) = SizeOf(DllChars) then begin
           OrigDllChars := DllChars;
+          { Note: because we stripped relocations from Setup(Ldr).e32 during
+            compilation IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE won't actually
+            enable ASLR, but setting it anyway to make checkers happy. }
           DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE or IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
           if IsTSAware then
             DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
