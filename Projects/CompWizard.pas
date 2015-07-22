@@ -823,6 +823,8 @@ end;
 { --- }
 
 procedure TWizardForm.GenerateScript;
+const
+  DisablePage: array [Boolean] of String = ('auto', 'yes');
 var
   Script, ISPP, Setup, Languages, Tasks, Files, INI, Icons, Run, UninstallDelete: String;
   WizardFile: PWizardFile;
@@ -898,8 +900,7 @@ begin
         Setup := Setup + 'DefaultDirName=' + AddBackslash(AppRootDirEdit.Text) + AppDirNameEdit.Text + SNewLine
       else
         Setup := Setup + 'DefaultDirName=' + AddBackslash(AppRootDirs[AppRootDirComboBox.ItemIndex].Constant) + AppDirNameEdit.Text + SNewLine;
-      if not NotDisableDirPageCheck.Checked then
-        Setup := Setup + 'DisableDirPage=yes' + SNewLine;
+      Setup := Setup + 'DisableDirPage=' + DisablePage[not NotDisableDirPageCheck.Checked] + SNewLine;
     end else begin
       Setup := Setup + 'CreateAppDir=no' + SNewLine;
     end;
@@ -930,8 +931,7 @@ begin
       Setup := Setup + 'DefaultGroupName=' + AppGroupNameEdit.Text + SNewLine;
       if not NoAppExeCheck.Checked then
         Icons := Icons + 'Name: "{group}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"' + SNewLine;
-      if not NotDisableProgramGroupPageCheck.Checked then
-        Setup := Setup + 'DisableProgramGroupPage=yes' + SNewLine;
+      Setup := Setup + 'DisableProgramGroupPage=' + DisablePage[not NotDisableProgramGroupPageCheck.Checked] + SNewLine;
       if AllowNoIconsCheck.Checked and NotDisableProgramGroupPageCheck.Checked then
         Setup := Setup + 'AllowNoIcons=yes' + SNewLine;
       if CreateURLIconCheck.Enabled and CreateURLIconCheck.Checked then
@@ -987,6 +987,7 @@ begin
     end;
 
     { Other }
+    Setup := Setup + 'DisableWelcomePage=yes' + SNewLine;
     Setup := Setup + 'Compression=lzma' + SNewLine;
     Setup := Setup + 'SolidCompression=yes' + SNewLine;
 
