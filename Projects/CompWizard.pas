@@ -2,13 +2,11 @@ unit CompWizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2015 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler Script Wizard form
-
-  $jrsoftware: issrc/Projects/CompWizard.pas,v 1.68 2011/04/16 05:51:19 jr Exp $
 }
 
 interface
@@ -108,6 +106,7 @@ type
     AllLanguagesButton: TButton;
     NoLanguagesButton: TButton;
     NoAppExeCheck: TCheckBox;
+    UseCommonProgramsCheck: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -132,6 +131,7 @@ type
     procedure AllLanguagesButtonClick(Sender: TObject);
     procedure NoLanguagesButtonClick(Sender: TObject);
     procedure NoAppExeCheckClick(Sender: TObject);
+    procedure UseCommonProgramsCheckClick(Sender: TObject);
   private
     CurPage: TWizardPage;
     FWizardName: String;
@@ -149,6 +149,7 @@ type
     procedure UpdateWizardFiles;
     procedure UpdateWizardFilesButtons;
     procedure UpdateAppExeControls;
+    procedure UpdateAppIconsControls;
     procedure GenerateScript;
   public
     property WizardName: String write SetWizardName;
@@ -315,6 +316,7 @@ begin
   UpdateWizardFilesButtons;
 
   { AppIcons }
+  UseCommonProgramsCheck.Checked := True;
   NotDisableProgramGroupPageCheck.Checked := True;
   DesktopIconCheck.Checked := True;
 
@@ -409,7 +411,13 @@ begin
         else
           ActiveControl := AppFilesListBox;
       end;
-    wpAppIcons: ActiveControl := AppGroupNameEdit;
+    wpAppIcons:
+      begin
+        if UseCommonProgramsCheck.Enabled then
+          ActiveControl := UseCommonProgramsCheck
+        else
+          ActiveControl := AppGroupNameEdit;
+      end;
     wpAppDocs: ActiveControl := AppLicenseFileEdit;
     wpLanguages: ActiveControl := LanguagesList;
     wpCompiler: ActiveControl := OutputDirEdit;
@@ -519,11 +527,7 @@ begin
     { Even if we're skipping a page, we should still update it }
     case CurPage of
       wpAppDir: if AppDirNameEdit.Text = '' then AppDirNameEdit.Text := AppNameEdit.Text;
-      wpAppIcons:
-        begin
-          if AppGroupNameEdit.Text = '' then AppGroupNameEdit.Text := AppNameEdit.Text;
-          CreateURLIconCheck.Enabled := AppURLEdit.Text <> '';
-        end;
+      wpAppIcons: if AppGroupNameEdit.Text = '' then AppGroupNameEdit.Text := AppNameEdit.Text;
     end;
   until not SkipCurPage;
 
@@ -608,6 +612,28 @@ begin
     AppExeLabel.Font.Style := AppExeLabel.Font.Style - [fsBold];
 end;
 
+procedure TWizardForm.UpdateAppIconsControls;
+var
+  Enabled: Boolean;
+begin
+  UseCommonProgramsCheck.Enabled := NoAppExeCheck.Enabled and not NoAppExeCheck.Checked;
+
+  Enabled := not (UseCommonProgramsCheck.Enabled and UseCommonProgramsCheck.Checked);
+
+  AppGroupNameLabel.Enabled := Enabled;
+  AppGroupNameEdit.Enabled := Enabled;
+  AppGroupNameEdit.Color := EnabledColors[Enabled];
+  NotDisableProgramGroupPageCheck.Enabled := Enabled;
+  AllowNoIconsCheck.Enabled := Enabled and NotDisableProgramGroupPageCheck.Checked;
+  CreateURLIconCheck.Enabled := Enabled and (AppURLEdit.Text <> '');
+  CreateUninstallIconCheck.Enabled := Enabled;
+
+  if Enabled then
+    AppGroupNameLabel.Font.Style := AppGroupNameLabel.Font.Style + [fsBold]
+  else
+    AppGroupNameLabel.Font.Style := AppGroupNameLabel.Font.Style - [fsBold];
+end;
+
 {---}
 
 procedure TWizardForm.AppRootDirComboBoxChange(Sender: TObject);
@@ -663,6 +689,7 @@ end;
 procedure TWizardForm.NoAppExeCheckClick(Sender: TObject);
 begin
   UpdateAppExeControls;
+  UpdateAppIconsControls;
 end;
 
 procedure TWizardForm.AppFilesListBoxClick(Sender: TObject);
@@ -755,10 +782,15 @@ begin
   UpdateWizardFilesButtons;
 end;
 
+procedure TWizardForm.UseCommonProgramsCheckClick(Sender: TObject);
+begin
+  UpdateAppIconsControls;
+end;
+
 procedure TWizardForm.NotDisableProgramGroupPageCheckClick(
   Sender: TObject);
 begin
-  AllowNoIconsCheck.Enabled := NotDisableProgramGroupPageCheck.Checked;
+  UpdateAppIconsControls;
 end;
 
 procedure TWizardForm.FileButtonClick(Sender: TObject);
@@ -927,17 +959,22 @@ begin
 
     { AppGroup }
     if not NotCreateAppDirCheck.Checked then begin
-      Setup := Setup + 'DefaultGroupName=' + AppGroupNameEdit.Text + SNewLine;
-      if not NoAppExeCheck.Checked then
-        Icons := Icons + 'Name: "{group}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"' + SNewLine;
-      if not NotDisableProgramGroupPageCheck.Checked then
+      if UseCommonProgramsCheck.Enabled and UseCommonProgramsCheck.Checked then begin
         Setup := Setup + 'DisableProgramGroupPage=yes' + SNewLine;
-      if AllowNoIconsCheck.Checked and NotDisableProgramGroupPageCheck.Checked then
-        Setup := Setup + 'AllowNoIcons=yes' + SNewLine;
-      if CreateURLIconCheck.Enabled and CreateURLIconCheck.Checked then
-        Icons := Icons + 'Name: "{group}\{cm:ProgramOnTheWeb,' + AppNameEdit.Text + '}"; Filename: "' + AppURLEdit.Text + '"' + SNewLine;
-      if CreateUninstallIconCheck.Checked then
-        Icons := Icons + 'Name: "{group}\{cm:UninstallProgram,' + AppNameEdit.Text + '}"; Filename: "{uninstallexe}"' + SNewLine;
+        Icons := Icons + 'Name: "{commonprograms}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"' + SNewLine;
+      end else begin
+        Setup := Setup + 'DefaultGroupName=' + AppGroupNameEdit.Text + SNewLine;
+        if not NoAppExeCheck.Checked then
+          Icons := Icons + 'Name: "{group}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"' + SNewLine;
+        if not NotDisableProgramGroupPageCheck.Checked then
+          Setup := Setup + 'DisableProgramGroupPage=yes' + SNewLine;
+        if AllowNoIconsCheck.Checked and NotDisableProgramGroupPageCheck.Checked then
+          Setup := Setup + 'AllowNoIcons=yes' + SNewLine;
+        if CreateURLIconCheck.Enabled and CreateURLIconCheck.Checked then
+          Icons := Icons + 'Name: "{group}\{cm:ProgramOnTheWeb,' + AppNameEdit.Text + '}"; Filename: "' + AppURLEdit.Text + '"' + SNewLine;
+        if CreateUninstallIconCheck.Checked then
+          Icons := Icons + 'Name: "{group}\{cm:UninstallProgram,' + AppNameEdit.Text + '}"; Filename: "{uninstallexe}"' + SNewLine;
+      end;
       if DesktopIconCheck.Enabled and DesktopIconCheck.Checked then begin
         Tasks := Tasks + 'Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked' + SNewLine;
         Icons := Icons + 'Name: "{commondesktop}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: desktopicon' + SNewLine;

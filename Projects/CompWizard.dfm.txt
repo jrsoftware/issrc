@@ -1233,83 +1233,96 @@ object WizardForm: TWizardForm
           Caption = 'AppIcons'
           object AppGroupNameLabel: TNewStaticText
             Left = 36
-            Top = 8
+            Top = 28
             Width = 413
             Height = 16
             AutoSize = False
             Caption = 'Application &Start Menu folder name:'
             FocusControl = AppGroupNameEdit
-            TabOrder = 0
+            TabOrder = 1
             WordWrap = True
           end
           object AppExeIconsLabel: TNewStaticText
             Left = 36
-            Top = 140
+            Top = 160
             Width = 413
             Height = 16
             AutoSize = False
-            Caption = 'Other main executable icons:'
+            Caption = 'Other shortcuts to the main executable:'
             FocusControl = AppDirNameEdit
-            TabOrder = 6
+            TabOrder = 7
             WordWrap = True
           end
           object AppGroupNameEdit: TEdit
             Left = 36
-            Top = 28
+            Top = 48
             Width = 309
             Height = 21
-            TabOrder = 1
+            TabOrder = 2
           end
           object NotDisableProgramGroupPageCheck: TCheckBox
-            Left = 36
-            Top = 56
-            Width = 425
-            Height = 17
-            Caption = 'Allow user to &change the Start Menu folder name'
-            TabOrder = 2
-            OnClick = NotDisableProgramGroupPageCheckClick
-          end
-          object AllowNoIconsCheck: TCheckBox
             Left = 36
             Top = 76
             Width = 425
             Height = 17
-            Caption = 'Allow user to &disable Start Menu folder creation'
+            Caption = 'Allow user to &change the Start Menu folder name'
             TabOrder = 3
+            OnClick = NotDisableProgramGroupPageCheckClick
+          end
+          object AllowNoIconsCheck: TCheckBox
+            Left = 36
+            Top = 96
+            Width = 425
+            Height = 17
+            Caption = 'Allow user to &disable Start Menu folder creation'
+            TabOrder = 4
           end
           object DesktopIconCheck: TCheckBox
-            Left = 36
-            Top = 160
-            Width = 257
-            Height = 17
-            Caption = 'Allow user to create a deskto&p icon'
-            TabOrder = 7
-            OnClick = NotCreateAppDirCheckClick
-          end
-          object QuickLaunchIconCheck: TCheckBox
             Left = 36
             Top = 180
             Width = 257
             Height = 17
-            Caption = 'Allow user to create a &Quick Launch icon'
+            Caption = 'Allow user to create a deskto&p shortcut'
             TabOrder = 8
+            OnClick = NotCreateAppDirCheckClick
+          end
+          object QuickLaunchIconCheck: TCheckBox
+            Left = 36
+            Top = 200
+            Width = 421
+            Height = 17
+            Caption = 
+              'Allow user to create a &Quick Launch shortcut on older versions ' +
+              'of Windows'
+            TabOrder = 9
             OnClick = NotCreateAppDirCheckClick
           end
           object CreateUninstallIconCheck: TCheckBox
             Left = 36
-            Top = 116
+            Top = 136
             Width = 301
             Height = 17
-            Caption = 'Create an &Uninstall icon in the Start Menu folder'
-            TabOrder = 5
+            Caption = 'Create an &Uninstall shortcut in the Start Menu folder'
+            TabOrder = 6
           end
           object CreateURLIconCheck: TCheckBox
             Left = 36
-            Top = 96
+            Top = 116
             Width = 301
             Height = 17
             Caption = 'Create an &Internet shortcut in the Start Menu folder'
-            TabOrder = 4
+            TabOrder = 5
+          end
+          object UseCommonProgramsCheck: TCheckBox
+            Left = 36
+            Top = 8
+            Width = 425
+            Height = 17
+            Caption = 
+              '&Create a shortcut to the main executable in the common Start Me' +
+              'nu Programs folder'
+            TabOrder = 0
+            OnClick = UseCommonProgramsCheckClick
           end
         end
         object TPage
