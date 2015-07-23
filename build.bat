@@ -57,9 +57,6 @@ if exist .\setup-sign.bat (
   files\iscc setup.iss /q /DNOSIGNTOOL
 )
 if errorlevel 1 goto failed
-echo - Copying ISCC for ISPack
-copy files\ISCC.exe output\ISCC-%VER%.exe
-if errorlevel 1 goto failed
 echo - Renaming files
 cd output
 if errorlevel 1 goto failed
@@ -80,9 +77,6 @@ if exist .\setup-sign.bat (
 ) else (
   files\iscc setup.iss /q /DNOSIGNTOOL
 )
-if errorlevel 1 goto failed
-echo - Copying ISCC for ISPack
-copy files\ISCC.exe output\ISCC-%VER%-unicode.exe
 if errorlevel 1 goto failed
 echo - Renaming files
 cd output
