@@ -8296,15 +8296,15 @@ begin
       shAllowUNCPath, shUsePreviousUserInfo, shRestartIfNeededByRun,
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
       shAppendDefaultGroupName, shUsePreviousLanguage, shCloseApplications,
-      shRestartApplications, shAllowNetworkDrive];
+      shRestartApplications, shAllowNetworkDrive, shDisableWelcomePage];
     SetupHeader.PrivilegesRequired := prAdmin;
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';
     SetupHeader.DefaultUserInfoOrg := '{sysuserinfoorg}';
     SetupHeader.BackColor := clBlue;
     SetupHeader.BackColor2 := clBlack;
-    SetupHeader.DisableDirPage := dpNo;
-    SetupHeader.DisableProgramGroupPage := dpNo;
+    SetupHeader.DisableDirPage := dpAuto;
+    SetupHeader.DisableProgramGroupPage := dpAuto;
     SetupHeader.CreateUninstallRegKey := 'yes';
     SetupHeader.Uninstallable := 'yes';
     BackSolid := False;
