@@ -2698,7 +2698,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 
 <li>
 <b>Welcome</b><br/>
-Shown by default, but can be disabled via <link topic="setup_disablewelcomepage">DisableWelcomePage</link>.
+Shown if <link topic="setup_disablewelcomepage">DisableWelcomePage</link> is set to <tt>no</tt>.
 </li>
 
 <li>
@@ -2723,7 +2723,7 @@ Shown if <link topic="setup_userinfopage">UserInfoPage</link> is set to <tt>yes<
 
 <li>
 <b>Select Destination Location</b><br/>
-Shown by default, but can be disabled via <link topic="setup_disabledirpage">DisableDirPage</link>.
+Shown if <link topic="setup_disabledirpage">DisableDirPage</link> is set to <tt>no</tt> or <tt>auto</tt>.
 </li>
 
 <li>
@@ -2733,7 +2733,7 @@ Shown if there are any <link topic="componentssection">[Components]</link> entri
 
 <li>
 <b>Select Start Menu Folder</b><br/>
-Shown if there are any <link topic="iconssection">[Icons]</link> entries, but can be disabled via <link topic="setup_disableprogramgrouppage">DisableProgramGroupPage</link>.
+Shown if there are any <link topic="iconssection">[Icons]</link> entries and if <link topic="setup_disableprogramgrouppage">DisableProgramGroupPage</link> is set to <tt>no</tt> or <tt>auto</tt>.
 </li>
 
 <li>
@@ -3945,7 +3945,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="DisableDirPage">
 <setupvalid><tt>auto</tt>, <link topic="yesnonotes"><tt>yes</tt>, or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
+<setupdefault><tt>auto</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Select Destination Location</i> wizard page.</p>
 <p>If this is set to <tt>auto</tt>, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will not show the <i>Select Destination Location</i> wizard page.</p>
@@ -3965,7 +3965,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="DisableProgramGroupPage">
 <setupvalid><tt>auto</tt>, <link topic="yesnonotes"><tt>yes</tt>, or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
+<setupdefault><tt>auto</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Select Start Menu Folder</i> wizard page.</p>
 <p>If this is set to <tt>auto</tt>, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will not show the <i>Select Start Menu Folder</i> wizard page.</p>
@@ -4005,7 +4005,7 @@ end;</pre></example>
 
 <setuptopic directive="DisableWelcomePage">
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
+<setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Welcome</i> wizard page.</p>
 </body>
