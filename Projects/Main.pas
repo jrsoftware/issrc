@@ -102,8 +102,8 @@ var
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
   InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
-    InitNoCloseApplications, InitRestartApplications, InitNoRestartApplications,
-    InitNoCancel: Boolean;
+    InitNoCloseApplications, InitForceCloseApplications, InitNoForceCloseApplications,
+    InitRestartApplications, InitNoRestartApplications, InitNoCancel: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -643,6 +643,8 @@ begin
   InitNoRestart := GetIniBool(Section, 'NoRestart', InitNoRestart, FileName);
   InitCloseApplications := GetIniBool(Section, 'CloseApplications', InitCloseApplications, FileName);
   InitNoCloseApplications := GetIniBool(Section, 'NoCloseApplications', InitNoCloseApplications, FileName);
+  InitForceCloseApplications := GetIniBool(Section, 'ForceCloseApplications', InitForceCloseApplications, FileName);
+  InitNoForceCloseApplications := GetIniBool(Section, 'NoForceCloseApplications', InitNoForceCloseApplications, FileName);
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
@@ -2801,6 +2803,12 @@ begin
     else
     if CompareText(ParamName, '/NoCloseApplications') = 0 then
       InitNoCloseApplications := True
+    else
+    if CompareText(ParamName, '/ForceCloseApplications') = 0 then
+      InitForceCloseApplications := True
+    else
+    if CompareText(ParamName, '/NoForceCloseApplications') = 0 then
+      InitNoForceCloseApplications := True
     else
     if CompareText(ParamName, '/RestartApplications') = 0 then
       InitRestartApplications := True

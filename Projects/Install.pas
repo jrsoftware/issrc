@@ -2765,21 +2765,27 @@ var
   procedure ShutdownApplications;
   const
     ERROR_FAIL_SHUTDOWN = 351;
+    ForcedStrings: array [Boolean] of String = ('', ' (forced)');
+    ForcedActionFlag: array [Boolean] of ULONG = (0, RmForceShutdown);
   var
+    Forced: Boolean;
     Error: DWORD;
   begin
-    Log('Shutting down applications using our files.');
+    Forced := InitForceCloseApplications or
+              ((shForceCloseApplications in SetupHeader.Options) and not InitNoForceCloseApplications);
+
+    Log('Shutting down applications using our files.' + ForcedStrings[Forced]);
 
     RmDoRestart := True;
 
-    Error := RmShutdown(RmSessionHandle, 0, nil);
+    Error := RmShutdown(RmSessionHandle, ForcedActionFlag[Forced], nil);
     while Error = ERROR_FAIL_SHUTDOWN do begin
       Log('Some applications could not be shut down.');
       if AbortRetryIgnoreMsgBox(SetupMessages[msgErrorCloseApplications],
          SetupMessages[msgEntryAbortRetryIgnore]) then
         Break;
-      Log('Retrying to shut down applications using our files.');
-      Error := RmShutdown(RmSessionHandle, 0, nil);
+      Log('Retrying to shut down applications using our files.' + ForcedStrings[Forced]);
+      Error := RmShutdown(RmSessionHandle, ForcedActionFlag[Forced], nil);
     end;
 
     { Close session on all errors except for ERROR_FAIL_SHUTDOWN, should still call RmRestart in that case. }

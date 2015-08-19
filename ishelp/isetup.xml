@@ -2750,7 +2750,7 @@ Shown by default, but can be disabled via <link topic="setup_disablereadypage">D
 <b>Preparing to Install</b><br/>
 Normally, Setup will never stop or pause on this page. The only time it will is if Setup determines it can't continue or if it detects applications using files that need to be updated.<br/><br/>
 The former can happen if the <tt>PrepareToInstall</tt> event function returned an error or if one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.<br/><br/>
-The latter can happen if <link topic="setup_closeapplications">CloseApplications</link> is set to <tt>yes</tt>.
+The latter can happen if <link topic="setup_closeapplications">CloseApplications</link> is set to <tt>yes</tt> or <tt>force</tt>.
 </li>
 
 <li>
@@ -3021,6 +3021,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="/NORESTART" anchor="NORESTART" />
 <keyword value="/CLOSEAPPLICATIONS" anchor="CLOSEAPPLICATIONS" />
 <keyword value="/NOCLOSEAPPLICATIONS" anchor="NOCLOSEAPPLICATIONS" />
+<keyword value="/FORCECLOSEAPPLICATIONS" anchor="FORCECLOSEAPPLICATIONS" />
+<keyword value="/NOFORCECLOSEAPPLICATIONS" anchor="NOFORCECLOSEAPPLICATIONS" />
 <keyword value="/RESTARTAPPLICATIONS" anchor="RESTARTAPPLICATIONS" />
 <keyword value="/NORESTARTAPPLICATIONS" anchor="NORESTARTAPPLICATIONS" />
 <keyword value="/LOADINF=" anchor="LOADINF" />
@@ -3122,9 +3124,19 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Prevents Setup from closing applications using files that need to be updated by Setup. If /CLOSEAPPLICATIONS was also used, this command line parameter is ignored.</p>
 </dd>
 
+<dt><b><a name="FORCECLOSEAPPLICATIONS">/FORCECLOSEAPPLICATIONS</a></b></dt>
+<dd>
+<p>Instructs Setup to force close when closing applications.</p>
+</dd>
+
+<dt><b><a name="NOFORCECLOSEAPPLICATIONS">/NOFORCECLOSEAPPLICATIONS</a></b></dt>
+<dd>
+<p>Prevents Setup from force closing when closing applications. If /FORCECLOSEAPPLICATIONS was also used, this command line parameter is ignored.</p>
+</dd>
+
 <dt><b><a name="RESTARTAPPLICATIONS">/RESTARTAPPLICATIONS</a></b></dt>
 <dd>
-<p>Instructs Setup to restart applications if possible. If Setup didn't close these applications (for example because /NOCLOSEAPPLICATIONS was used), this command line parameter is ignored.</p>
+<p>Instructs Setup to restart applications if possible. Only has an effect when combined with '/CLOSEAPPLICATIONS'.</p>
 </dd>
 
 <dt><b><a name="NORESTARTAPPLICATIONS">/NORESTARTAPPLICATIONS</a></b></dt>
@@ -4992,11 +5004,12 @@ SignTool=byparam format c:
 </setuptopic>
 
 <setuptopic directive="CloseApplications">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupvalid><tt>force</tt>, <link topic="yesnonotes"><tt>yes</tt>, or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If set to <tt>yes</tt> and Setup is not running silently, Setup will pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the [Files] or [InstallDelete] section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed.</p>
-<p>If set to <tt>yes</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line.</p>
+<p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is not running silently, Setup will pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the [Files] or [InstallDelete] section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed.</p>
+<p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line.</p>
+<p>If set to <tt>force</tt> Setup will force close when closing applications, unless told not to via the command line. Use with care since this may cause the user to lose unsaved work.</p>
 <p>Note: Setup uses the Windows <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa373524.aspx">Restart Manager</extlink> API to close and restart applications, which is available only on Windows Vista and newer.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>

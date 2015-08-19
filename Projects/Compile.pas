@@ -3691,7 +3691,13 @@ begin
         SetSetupHeaderOption(shChangesEnvironment);
       end;
     ssCloseApplications: begin
-        SetSetupHeaderOption(shCloseApplications);
+        if CompareText(Value, 'force') = 0 then begin
+          Include(SetupHeader.Options, shCloseApplications);
+          Include(SetupHeader.Options, shForceCloseApplications);
+        end else begin
+          SetSetupHeaderOption(shCloseApplications);
+          Exclude(SetupHeader.Options, shForceCloseApplications);
+        end;
       end;
     ssCloseApplicationsFilter: begin
         if Value = '' then
