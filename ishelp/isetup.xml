@@ -99,7 +99,7 @@ Inno Setup is a <i>free</i> installer for Windows programs. First introduced in 
 
 <ul>
 
-<li>Support for every Windows release since 2000, including: Windows 10, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Vista, Windows Server 2008, Windows XP, Windows Server 2003, and Windows 2000. (No service packs are required.)</li>
+<li>Support for every Windows release since 2000, including: Windows 10, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Vista, Windows Server 2008, Windows XP, Windows Server 2003, and Windows 2000. (No service packs are required.)</li>
 
 <li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. Both the x64 and Itanium architectures are supported. (On the Itanium architecture, Service Pack 1 or later is required on Windows Server 2003 to install in 64-bit mode.)</li>
 
@@ -4617,7 +4617,7 @@ DiskSliceSize=1457664
 <setupvalid><tt>0</tt> through <tt>60</tt></setupvalid>
 <setupdefault><tt>2</tt></setupdefault>
 <body>
-<p>By default, time stamps on files referenced by [Files] section entries are rounded down to the nearest 2-second boundary. FAT partitions have only a 2-second time stamp resolution, so this ensures that time stamps are set the same way on both FAT and NTFS partitions.</p>
+<p>By default, time stamps on files referenced by non <tt>external</tt> [Files] section entries are rounded down to the nearest 2-second boundary. FAT partitions have only a 2-second time stamp resolution, so this ensures that time stamps are set the same way on both FAT and NTFS partitions.</p>
 <p>The rounding can be altered or disabled by setting the <tt>TimeStampRounding</tt> directive. Setting it to <tt>0</tt> will disable the rounding. Setting it to a number between <tt>1</tt> and <tt>60</tt> will cause time stamps to be rounded down to the nearest <tt>TimeStampRounding</tt>-second boundary.</p>
 </body>
 </setuptopic>
@@ -4626,7 +4626,7 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>By default, time stamps on files referenced by [Files] section entries are saved and restored as local times. This means that if a particular file has a time stamp of 01:00 local time at compile time, Setup will extract the file with a time stamp of 01:00 local time, regardless of the user's time zone setting or whether DST is in effect.</p>
+<p>By default, time stamps on files referenced by non <tt>external</tt> [Files] section entries are saved and restored as local times. This means that if a particular file has a time stamp of 01:00 local time at compile time, Setup will extract the file with a time stamp of 01:00 local time, regardless of the user's time zone setting or whether DST is in effect.</p>
 <p>If <tt>TimeStampsInUTC</tt> is set to <tt>yes</tt>, time stamps will be saved and restored in UTC -- the native time format of Win32 and NTFS. In this mode, a file with a time stamp of 01:00 local time in New York will have a time stamp of 06:00 local time when installed in London.</p>
 </body>
 </setuptopic>
