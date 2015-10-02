@@ -169,32 +169,49 @@ begin
 end;
 
 procedure TBitmapImage.Paint;
+const
+  Bf: TBlendFunction =(
+    BlendOp: AC_SRC_OVER;
+    BlendFlags: 0;
+    SourceConstantAlpha: 255;
+    AlphaFormat: AC_SRC_ALPHA);
+
 var
   R: TRect;
   Bmp: TBitmap;
-  X, Y: Integer;
+  X, Y, W, H: Integer;
+  Is32bit: Boolean;
 begin
   with Canvas do begin
     R := ClientRect;
+    Is32bit := FBitmap.PixelFormat = pf32bit;
 
     if Stretch then begin
-      if not FStretchedBitmapValid or (FStretchedBitmap.Width <> R.Right) or
-         (FStretchedBitmap.Height <> R.Bottom) then begin
-        FStretchedBitmapValid := True;
-        if (FBitmap.Width = R.Right) and (FBitmap.Height = R.Bottom) then
-          FStretchedBitmap.Assign(FBitmap)
-        else begin
-          FStretchedBitmap.Assign(nil);
-          FStretchedBitmap.Palette := CopyPalette(FBitmap.Palette);
-          FStretchedBitmap.Width := R.Right;
-          FStretchedBitmap.Height := R.Bottom;
-          FStretchedBitmap.Canvas.StretchDraw(R, FBitmap);
+      W := R.Right;
+      H := R.Bottom;
+      if not Is32bit then begin
+        if not FStretchedBitmapValid or (FStretchedBitmap.Width <> W) or
+           (FStretchedBitmap.Height <> H) then begin
+          FStretchedBitmapValid := True;
+          if (FBitmap.Width = W) and (FBitmap.Height = H) then
+            FStretchedBitmap.Assign(FBitmap)
+          else begin
+            FStretchedBitmap.Assign(nil);
+            FStretchedBitmap.Palette := CopyPalette(FBitmap.Palette);
+            FStretchedBitmap.Width := W;
+            FStretchedBitmap.Height := H;
+            FStretchedBitmap.Canvas.StretchDraw(R, FBitmap);
+          end;
         end;
-      end;
-      Bmp := FStretchedBitmap;
-    end
-    else
+        Bmp := FStretchedBitmap;
+      end
+      else
+        Bmp := FBitmap;
+    end else begin
       Bmp := FBitmap;
+      W := Bmp.Width;
+      H := Bmp.Height;
+    end;
 
     if (FBackColor <> clNone) and (Bmp.Width < Width) or (Bmp.Height < Height) then begin
       Brush.Style := bsSolid;
@@ -209,10 +226,10 @@ begin
     end;
 
     if Center then begin
-      X := R.Left + ((R.Right - R.Left) - Bmp.Width) div 2;
+      X := R.Left + ((R.Right - R.Left) - W) div 2;
       if X < 0 then
         X := 0;
-      Y := R.Top + ((R.Bottom - R.Top) - Bmp.Height) div 2;
+      Y := R.Top + ((R.Bottom - R.Top) - H) div 2;
       if Y < 0 then
         Y := 0;
     end else begin
@@ -220,9 +237,13 @@ begin
       Y := 0;
     end;
 
+    if Is32bit then begin
+      if AlphaBlend(Handle, X, Y, W, H, Bmp.Canvas.Handle, 0, 0, Bmp.Width, Bmp.Height, Bf) then
+        Exit;
+    end;
     if (FReplaceColor <> clNone) and (FReplaceWithColor <> clNone) then begin
       Brush.Color := FReplaceWithColor;
-      BrushCopy(Rect(X, Y, X + Bmp.Width, Y + Bmp.Height), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), FReplaceColor);
+      BrushCopy(Rect(X, Y, X + W, Y + H), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), FReplaceColor);
     end else
       Draw(X, Y, Bmp);
   end;
