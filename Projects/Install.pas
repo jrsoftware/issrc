@@ -999,9 +999,9 @@ var
 
         if Assigned(CurFileLocation) then begin
           if foTimeStampInUTC in CurFileLocation^.Flags then
-            CurFileDate := CurFileLocation^.TimeStamp
+            CurFileDate := CurFileLocation^.SourceTimeStamp
           else
-            LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
+            LocalFileTimeToFileTime(CurFileLocation^.SourceTimeStamp, CurFileDate);
           CurFileDateValid := True;
         end
         else
@@ -3043,9 +3043,9 @@ begin
         not (foDontVerifyChecksum in CurFile^.Options));
 
       if foTimeStampInUTC in CurFileLocation^.Flags then
-        CurFileDate := CurFileLocation^.TimeStamp
+        CurFileDate := CurFileLocation^.SourceTimeStamp
       else
-        LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
+        LocalFileTimeToFileTime(CurFileLocation^.SourceTimeStamp, CurFileDate);
       SetFileTime(DestF.Handle, nil, nil, @CurFileDate);
     finally
       DestF.Free;

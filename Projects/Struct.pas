@@ -248,11 +248,11 @@ type
     OriginalSize: Integer64;
     ChunkCompressedSize: Integer64;
     SHA1Sum: TSHA1Digest;
-    TimeStamp: TFileTime;
+    SourceTimeStamp: TFileTime;
     FileVersionMS, FileVersionLS: DWORD;
     Flags: set of (foVersionInfoValid, foVersionInfoNotValid, foTimeStampInUTC,
-      foIsUninstExe, foCallInstructionOptimized, foTouch, foChunkEncrypted,
-      foChunkCompressed, foSolidBreak);
+      foIsUninstExe, foCallInstructionOptimized, foApplyTouchDateTime,
+      foChunkEncrypted, foChunkCompressed, foSolidBreak);
   end;
   TSetupIconCloseOnExit = (icNoSetting, icYes, icNo);
 const

@@ -5946,7 +5946,7 @@ type
           end;
         end;
         if Touch then
-          Include(NewFileLocationEntry^.Flags, foTouch);
+          Include(NewFileLocationEntry^.Flags, foApplyTouchDateTime);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then
@@ -7751,7 +7751,7 @@ var
   var
     CurrentTime: TSystemTime;
 
-    procedure ApplyTouch(var FT: TFileTime);
+    procedure ApplyTouchDateTime(var FT: TFileTime);
     var
       ST: TSystemTime;
     begin
@@ -7923,15 +7923,15 @@ var
           if not GetFileTime(SourceFile.Handle, nil, nil, @FT) then
             AbortCompile('CompressFiles: GetFileTime failed');
           if TimeStampsInUTC then begin
-            FL.TimeStamp := FT;
+            FL.SourceTimeStamp := FT;
             Include(FL.Flags, foTimeStampInUTC);
           end
           else
-            FileTimeToLocalFileTime(FT, FL.TimeStamp);
-          if foTouch in FL.Flags then
-            ApplyTouch(FL.TimeStamp);
+            FileTimeToLocalFileTime(FT, FL.SourceTimeStamp);
+          if foApplyTouchDateTime in FL.Flags then
+            ApplyTouchDateTime(FL.SourceTimeStamp);
           if TimeStampRounding > 0 then
-            Dec64(Integer64(FL.TimeStamp), Mod64(Integer64(FL.TimeStamp), TimeStampRounding * 10000000));
+            Dec64(Integer64(FL.SourceTimeStamp), Mod64(Integer64(FL.SourceTimeStamp), TimeStampRounding * 10000000));
 
           if ChunkCompressed and IsX86OrX64Executable(SourceFile) then
             Include(FL.Flags, foCallInstructionOptimized);
@@ -8211,7 +8211,7 @@ var
       for I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
         S := IntToStr(I) + #9 + FileLocationEntryFilenames[I] + #9 +
-          FileTimeToString(FL.TimeStamp, foTimeStampInUTC in FL.Flags) + #9;
+          FileTimeToString(FL.SourceTimeStamp, foTimeStampInUTC in FL.Flags) + #9;
         if foVersionInfoValid in FL.Flags then
           S := S + Format('%u.%u.%u.%u', [FL.FileVersionMS shr 16,
             FL.FileVersionMS and $FFFF, FL.FileVersionLS shr 16,
