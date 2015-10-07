@@ -130,6 +130,7 @@ type
     ssBackColor2,
     ssBackColorDirection,
     ssBackSolid,
+    ssBitmapAlphaFormat,
     ssChangesAssociations,
     ssChangesEnvironment,
     ssCloseApplications,

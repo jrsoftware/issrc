@@ -100,6 +100,7 @@ type
       NumRunEntries, NumUninstallRunEntries: Integer;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     BackColor, BackColor2, WizardImageBackColor: Longint;
+    BitmapAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Same as Graphics.TAlphaFormat
     PasswordHash: TSHA1Digest;
     PasswordSalt: TSetupSalt;
     ExtraDiskSpaceRequired: Integer64;
