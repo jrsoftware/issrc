@@ -13,15 +13,33 @@ unit BitmapImage;
 
 interface
 
+{$I ..\Projects\VERSION.INC}
+
 uses
   Windows, Controls, Graphics, Classes;
 
 type
+{$IFDEF IS_D12}
+  TAlphaBitmap = TBitmap;
+{$ELSE}
+  {$DEFINE CUSTOM_BITMAP}
+  TAlphaFormat = (afIgnored, afDefined, afPremultiplied);
+  TAlphaBitmap = class(TBitmap)
+  private
+    FAlphaFormat: TAlphaFormat;
+    procedure PreMultiplyAlpha;
+  public
+    procedure Assign(Source: TPersistent); override;
+    procedure LoadFromStream(Stream: TStream); override;
+    property AlphaFormat: TAlphaFormat read FAlphaFormat write FAlphaFormat;
+  end;
+{$ENDIF}
+
   TBitmapImage = class(TGraphicControl)
   private
     FAutoSize: Boolean;
     FBackColor: TColor;
-    FBitmap: TBitmap;
+    FBitmap: TAlphaBitmap;
     FCenter: Boolean;
     FReplaceColor: TColor;
     FReplaceWithColor: TColor;
@@ -35,6 +53,7 @@ type
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
+    function GetBitmap: TBitmap;
   protected
     function GetPalette: HPALETTE; override;
     procedure Paint; override;
@@ -51,7 +70,7 @@ type
     property DragMode;
     property Enabled;
     property ParentShowHint;
-    property Bitmap: TBitmap read FBitmap write SetBitmap;
+    property Bitmap: TBitmap read GetBitmap write SetBitmap;
     property PopupMenu;
     property ShowHint;
     property Stretch: Boolean read FStretch write SetStretch default False;
@@ -73,6 +92,23 @@ procedure Register;
 
 implementation
 
+{$IFNDEF IS_D6}
+type
+  TBlendFunction = record
+    BlendOp: BYTE;
+    BlendFlags: BYTE;
+    SourceConstantAlpha: BYTE;
+    AlphaFormat: BYTE;
+  end;
+
+const
+  AC_SRC_OVER = $00;
+  AC_SRC_ALPHA = $01;
+
+function AlphaBlend(DC: HDC; p2, p3, p4, p5: Integer; DC6: HDC; p7, p8, p9,
+  p10: Integer; p11: TBlendFunction): BOOL; stdcall; external 'msimg32.dll' name 'AlphaBlend';
+{$ENDIF}
+
 procedure Register;
 begin
   RegisterComponents('JR', [TBitmapImage]);
@@ -83,7 +119,7 @@ begin
   inherited Create(AOwner);
   ControlStyle := ControlStyle + [csReplicatable];
   FBackColor := clBtnFace;
-  FBitmap := TBitmap.Create;
+  FBitmap := TAlphaBitmap.Create;
   FBitmap.OnChange := BitmapChanged;
   FReplaceColor := clNone;
   FReplaceWithColor := clNone;
@@ -163,38 +199,61 @@ begin
   end;
 end;
 
+function TBitmapImage.GetBitmap: TBitmap;
+begin
+  Result := FBitmap;
+end;
+
 function TBitmapImage.GetPalette: HPALETTE;
 begin
   Result := FBitmap.Palette;
 end;
 
 procedure TBitmapImage.Paint;
+const
+  Bf: TBlendFunction =(
+    BlendOp: AC_SRC_OVER;
+    BlendFlags: 0;
+    SourceConstantAlpha: 255;
+    AlphaFormat: AC_SRC_ALPHA);
+
 var
   R: TRect;
   Bmp: TBitmap;
-  X, Y: Integer;
+  X, Y, W, H: Integer;
+  Is32bit: Boolean;
 begin
   with Canvas do begin
     R := ClientRect;
+    Is32bit := (FBitmap.PixelFormat = pf32bit) and
+      (FBitmap.AlphaFormat in [afDefined, afPremultiplied]);
 
     if Stretch then begin
-      if not FStretchedBitmapValid or (FStretchedBitmap.Width <> R.Right) or
-         (FStretchedBitmap.Height <> R.Bottom) then begin
-        FStretchedBitmapValid := True;
-        if (FBitmap.Width = R.Right) and (FBitmap.Height = R.Bottom) then
-          FStretchedBitmap.Assign(FBitmap)
-        else begin
-          FStretchedBitmap.Assign(nil);
-          FStretchedBitmap.Palette := CopyPalette(FBitmap.Palette);
-          FStretchedBitmap.Width := R.Right;
-          FStretchedBitmap.Height := R.Bottom;
-          FStretchedBitmap.Canvas.StretchDraw(R, FBitmap);
+      W := R.Right;
+      H := R.Bottom;
+      if not Is32bit then begin
+        if not FStretchedBitmapValid or (FStretchedBitmap.Width <> W) or
+           (FStretchedBitmap.Height <> H) then begin
+          FStretchedBitmapValid := True;
+          if (FBitmap.Width = W) and (FBitmap.Height = H) then
+            FStretchedBitmap.Assign(FBitmap)
+          else begin
+            FStretchedBitmap.Assign(nil);
+            FStretchedBitmap.Palette := CopyPalette(FBitmap.Palette);
+            FStretchedBitmap.Width := W;
+            FStretchedBitmap.Height := H;
+            FStretchedBitmap.Canvas.StretchDraw(R, FBitmap);
+          end;
         end;
-      end;
-      Bmp := FStretchedBitmap;
-    end
-    else
+        Bmp := FStretchedBitmap;
+      end
+      else
+        Bmp := FBitmap;
+    end else begin
       Bmp := FBitmap;
+      W := Bmp.Width;
+      H := Bmp.Height;
+    end;
 
     if (FBackColor <> clNone) and (Bmp.Width < Width) or (Bmp.Height < Height) then begin
       Brush.Style := bsSolid;
@@ -209,10 +268,10 @@ begin
     end;
 
     if Center then begin
-      X := R.Left + ((R.Right - R.Left) - Bmp.Width) div 2;
+      X := R.Left + ((R.Right - R.Left) - W) div 2;
       if X < 0 then
         X := 0;
-      Y := R.Top + ((R.Bottom - R.Top) - Bmp.Height) div 2;
+      Y := R.Top + ((R.Bottom - R.Top) - H) div 2;
       if Y < 0 then
         Y := 0;
     end else begin
@@ -220,12 +279,76 @@ begin
       Y := 0;
     end;
 
+    if Is32bit then begin
+      if AlphaBlend(Handle, X, Y, W, H, Bmp.Canvas.Handle, 0, 0, Bmp.Width, Bmp.Height, Bf) then
+        Exit;
+    end;
     if (FReplaceColor <> clNone) and (FReplaceWithColor <> clNone) then begin
       Brush.Color := FReplaceWithColor;
-      BrushCopy(Rect(X, Y, X + Bmp.Width, Y + Bmp.Height), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), FReplaceColor);
+      BrushCopy(Rect(X, Y, X + W, Y + H), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), FReplaceColor);
     end else
       Draw(X, Y, Bmp);
   end;
 end;
+
+{$IFDEF CUSTOM_BITMAP}
+
+{ TAlphaBitmap }
+
+type
+  // Some type that we know all Delphi supports and has correct width on all
+  // platforms.
+  NativeUInt = WPARAM;
+
+procedure TAlphaBitmap.Assign(Source: TPersistent);
+begin
+  inherited;
+  if Source is TAlphaBitmap then
+    FAlphaFormat := TAlphaBitmap(Source).AlphaFormat;
+end;
+
+procedure TAlphaBitmap.LoadFromStream(Stream: TStream);
+begin
+  inherited;
+  if (PixelFormat = pf32bit) and (FAlphaFormat = afDefined) then
+    PreMultiplyAlpha;
+end;
+
+function BytesPerScanline(PixelsPerScanline, BitsPerPixel, Alignment: Longint): Longint;
+begin
+  Dec(Alignment);
+  Result := ((PixelsPerScanline * BitsPerPixel) + Alignment) and not Alignment;
+  Result := Result div 8;
+end;
+
+procedure TAlphaBitmap.PreMultiplyAlpha;
+var
+  Alpha: Word;
+  ImageData, Limit: NativeUInt;
+begin
+  if (PixelFormat = pf32bit) then //Premultiply the alpha into the color
+  begin
+    Pointer(ImageData) := ScanLine[0];
+    if ImageData = NativeUInt(nil) then
+      Exit;
+    Pointer(Limit) := ScanLine[Height - 1];
+    // Is bottom up? (this can be distinguished by biHeight being positive but
+    // since we don't have direct access to the headers we need to work around
+    // that.
+    if Limit < ImageData then
+      ImageData := Limit;
+    Limit := ImageData + NativeUInt(BytesPerScanline(Width, 32, 32) * Height);
+    while ImageData < Limit do
+    begin
+      Alpha := PByte(ImageData + 3)^;
+      PByte(ImageData)^ := MulDiv(PByte(ImageData)^, Alpha, 255);
+      PByte(ImageData + 1)^ := MulDiv(PByte(ImageData + 1)^, Alpha, 255);
+      PByte(ImageData + 2)^ := MulDiv(PByte(ImageData + 2)^, Alpha, 255);
+      Inc(ImageData, 4);
+    end;
+  end;
+end;
+
+{$ENDIF}
 
 end.
