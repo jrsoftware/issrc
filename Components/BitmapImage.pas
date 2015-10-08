@@ -19,21 +19,38 @@ uses
   Windows, Controls, Graphics, Classes;
 
 type
-{$IFDEF IS_D12}
-  TAlphaBitmap = TBitmap;
-{$ELSE}
+{$IFNDEF IS_D12}
   {$DEFINE CUSTOM_BITMAP}
+  {$IFNDEF IS_D3}
+    {$DEFINE CUSTOM_BITMAP_D2}
+  {$ENDIF}
+{$ENDIF}
+
+{$IFNDEF CUSTOM_BITMAP}
+  TAlphaBitmap = TBitmap;
+{$ELSE CUSTOM_BITMAP}
+ {$IFDEF CUSTOM_BITMAP_D2}
+  TPixelFormat = (pfUndefined, pfDevice, pf1bit, pf4bit, pf8bit, pf15bit, pf16bit, pf24bit, pf32bit, pfCustom);
+ {$ENDIF}
   TAlphaFormat = (afIgnored, afDefined, afPremultiplied);
   TAlphaBitmap = class(TBitmap)
   private
     FAlphaFormat: TAlphaFormat;
     procedure PreMultiplyAlpha;
+{$IFDEF CUSTOM_BITMAP_D2}
+  private
+    FPixelFormat: TPixelFormat;
+    function GetPixelFormat: TPixelFormat;
+{$ENDIF}
   public
     procedure Assign(Source: TPersistent); override;
     procedure LoadFromStream(Stream: TStream); override;
     property AlphaFormat: TAlphaFormat read FAlphaFormat write FAlphaFormat;
-  end;
+{$IFDEF CUSTOM_BITMAP_D2}
+    property PixelFormat: TPixelFormat read GetPixelFormat;
 {$ENDIF}
+  end;
+{$ENDIF CUSTOM_BITMAP}
 
   TBitmapImage = class(TGraphicControl)
   private
@@ -293,6 +310,28 @@ end;
 
 {$IFDEF CUSTOM_BITMAP}
 
+{$IFDEF CUSTOM_BITMAP_D2}
+// Types defined to access internal private fields, must match exactly the
+// implementation of both types from Graphics.
+type
+  TBitmapImageAccess = class(TObject)
+  private
+    // TInternalImage
+    FRefCount: Integer;
+    FMemoryManager: Pointer;
+    // TBitmapImage
+    FHandle, FPalette: THandle;
+    FWidth, FHeight: LongInt;
+    FDIBHeader: ^TBitmapInfoHeader;
+    FDIBBits: Pointer;
+  end;
+
+  TBitmapAccess = class(TGraphic)
+  private
+    FImage: TBitmapImageAccess;
+  end;
+{$ENDIF}
+
 { TAlphaBitmap }
 
 type
@@ -306,6 +345,36 @@ begin
   if Source is TAlphaBitmap then
     FAlphaFormat := TAlphaBitmap(Source).AlphaFormat;
 end;
+
+{$IFDEF CUSTOM_BITMAP_D2}
+function TAlphaBitmap.GetPixelFormat: TPixelFormat;
+begin
+  // We use cached value as default since after the canvas handle has been
+  // created the DIB section is no longer valid and the painting must remember
+  // whether the bitmap has alpha or not.
+  Result := FPixelFormat;
+  if TBitmapAccess(Self).FImage = nil then
+    Exit;
+  with TBitmapAccess(Self).FImage do
+  begin
+    if (FDIBHeader = nil) or (FDIBBits = nil) then
+      Exit;
+    Result := pfCustom;
+    case FDIBHeader^.biBitCount of
+      1: Result := pf1Bit;
+      4: Result := pf4Bit;
+      8: Result := pf8Bit;
+     16: case FDIBHeader^.biCompression of
+           BI_RGB : Result := pf15Bit;
+           // BI_BITFIELDS: if FDIBHeader^.dsBitFields[1] = $7E0 then Result := pf16Bit;
+         end;
+     24: Result := pf24Bit;
+     32: if FDIBHeader^.biCompression = BI_RGB then Result := pf32Bit;
+    end;
+  end;
+  FPixelFormat := Result;
+end;
+{$ENDIF}
 
 procedure TAlphaBitmap.LoadFromStream(Stream: TStream);
 begin
@@ -328,6 +397,7 @@ var
 begin
   if (PixelFormat = pf32bit) then //Premultiply the alpha into the color
   begin
+{$IFNDEF CUSTOM_BITMAP_D2}
     Pointer(ImageData) := ScanLine[0];
     if ImageData = NativeUInt(nil) then
       Exit;
@@ -337,6 +407,9 @@ begin
     // that.
     if Limit < ImageData then
       ImageData := Limit;
+{$ELSE}
+    Pointer(ImageData) := TBitmapAccess(Self).FImage.FDIBBits;
+{$ENDIF}
     Limit := ImageData + NativeUInt(BytesPerScanline(Width, 32, 32) * Height);
     while ImageData < Limit do
     begin
@@ -349,6 +422,6 @@ begin
   end;
 end;
 
-{$ENDIF}
+{$ENDIF CUSTOM_BITMAP}
 
 end.
