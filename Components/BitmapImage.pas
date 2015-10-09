@@ -7,8 +7,6 @@ unit BitmapImage;
   For conditions of distribution and use, see LICENSE.TXT.
 
   A TImage-like component for bitmaps without the TPicture bloat
-
-  $jrsoftware: issrc/Components/BitmapImage.pas,v 1.6 2009/03/23 14:57:40 mlaan Exp $
 }
 
 interface
@@ -272,7 +270,7 @@ begin
       H := Bmp.Height;
     end;
 
-    if (FBackColor <> clNone) and (Bmp.Width < Width) or (Bmp.Height < Height) then begin
+    if (FBackColor <> clNone) and (Is32Bit or (Bmp.Width < Width) or (Bmp.Height < Height)) then begin
       Brush.Style := bsSolid;
       Brush.Color := FBackColor;
       FillRect(R);
