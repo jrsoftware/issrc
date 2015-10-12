@@ -1032,6 +1032,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_windowstartmaximized">WindowStartMaximized</link></li>
 <li><link topic="setup_windowresizable">WindowResizable</link></li>
 <li><link topic="setup_windowvisible">WindowVisible</link></li>
+<li><link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></li>
 <li><link topic="setup_wizardimagebackcolor">WizardImageBackColor</link></li>
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
@@ -4431,6 +4432,8 @@ DiskSliceSize=1457664
 <p>Specifies the name of the bitmap file to display on the left side of the wizard in the Setup program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
 <p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes. The maximum size of the bitmap is 164x314 pixels. Note that if Windows is running with Large Fonts, the area on the wizard for the bitmap will be larger.</p>
 <example><pre>WizardImageFile=myimage.bmp</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></p>
 </body>
 </setuptopic>
 
@@ -4467,6 +4470,17 @@ DiskSliceSize=1457664
 <body>
 <p>If set to <tt>yes</tt>, there will be a gradient background window displayed behind the wizard.</p>
 <p>Note that this is considered a legacy feature; it likely will be removed at some point in the future.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="WizardImageAlphaFormat">
+<setupvalid><tt>none</tt>, <tt>defined</tt>, <tt>premultiplied</tt></setupvalid>
+<setupdefault><tt>none</tt></setupdefault>
+<body>
+<p>If set to <tt>none</tt>, the default, any wizard image which is a 32 bit bitmap file should not have an alpha channel.</p>
+<p>If set to <tt>premultiplied</tt>, any wizard image which is a 32 bit bitmap file should have its the red, green and blue channel values premultiplied with the alpha channel value.</p>
+<p>If set to <tt>defined</tt>, any wizard image which is a 32 bit bitmap file should not have its the red, green and blue channel values premultiplied with the alpha channel value.</p>
+<p>This directive has no effect for a wizard image which is not a 32 bit bitmap file.</p>
 </body>
 </setuptopic>
 
@@ -4529,6 +4543,8 @@ DiskSliceSize=1457664
 <p>Specifies the name of the bitmap file to display in the upper right corner of the wizard window. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
 <p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes. The maximum size of the bitmap is 55x58 pixels.</p>
 <example><pre>WizardSmallImageFile=mysmallimage.bmp</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></p>
 </body>
 </setuptopic>
 
