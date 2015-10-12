@@ -2558,7 +2558,7 @@ var
       ReadFileIntoStream(MemStream, R);
       MemStream.Seek(0, soFromBeginning);
       WizardImage := TAlphaBitmap.Create;
-      TAlphaBitmap(WizardImage).AlphaFormat := TAlphaFormat(SetupHeader.BitmapAlphaFormat);
+      TAlphaBitmap(WizardImage).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
       WizardImage.LoadFromStream(MemStream);
     finally
       MemStream.Free;

@@ -89,7 +89,6 @@ type
     ssBackColor2,
     ssBackColorDirection,
     ssBackSolid,
-    ssBitmapAlphaFormat,
     ssChangesAssociations,
     ssChangesEnvironment,
     ssCloseApplications,
@@ -194,6 +193,7 @@ type
     ssWindowShowCaption,
     ssWindowStartMaximized,
     ssWindowVisible,
+    ssWizardImageAlphaFormat,
     ssWizardImageBackColor,
     ssWizardImageFile,
     ssWizardImageStretch,
@@ -3685,16 +3685,6 @@ begin
     ssBackSolid: begin
         BackSolid := StrToBool(Value);
       end;
-    ssBitmapAlphaFormat: begin
-        if CompareText(Value, 'none') = 0 then
-          SetupHeader.BitmapAlphaFormat := afIgnored
-        else if CompareText(Value, 'defined') = 0 then
-          SetupHeader.BitmapAlphaFormat := afDefined
-        else if CompareText(Value, 'premultiplied') = 0 then
-          SetupHeader.BitmapAlphaFormat := afPremultiplied
-        else
-          Invalid;
-    end;
     ssChangesAssociations: begin
         SetSetupHeaderOption(shChangesAssociations);
       end;
@@ -4213,6 +4203,16 @@ begin
     ssWindowVisible: begin
         SetSetupHeaderOption(shWindowVisible);
       end;
+    ssWizardImageAlphaFormat: begin
+        if CompareText(Value, 'none') = 0 then
+          SetupHeader.WizardImageAlphaFormat := afIgnored
+        else if CompareText(Value, 'defined') = 0 then
+          SetupHeader.WizardImageAlphaFormat := afDefined
+        else if CompareText(Value, 'premultiplied') = 0 then
+          SetupHeader.WizardImageAlphaFormat := afPremultiplied
+        else
+          Invalid;
+    end;
     ssWizardImageBackColor: begin
         try
           SetupHeader.WizardImageBackColor := StringToColor(Value);
@@ -8320,7 +8320,6 @@ begin
     SetupHeader.DefaultUserInfoOrg := '{sysuserinfoorg}';
     SetupHeader.BackColor := clBlue;
     SetupHeader.BackColor2 := clBlack;
-    SetupHeader.BitmapAlphaFormat := afIgnored;
     SetupHeader.DisableDirPage := dpAuto;
     SetupHeader.DisableProgramGroupPage := dpAuto;
     SetupHeader.CreateUninstallRegKey := 'yes';
@@ -8333,6 +8332,7 @@ begin
     SignTool := '';
     SignToolRetryCount := 2;
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
+    SetupHeader.WizardImageAlphaFormat := afIgnored;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetup, 'Setup', 0, True, True, '', False, False);
