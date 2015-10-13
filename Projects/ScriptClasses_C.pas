@@ -223,12 +223,19 @@ end;
 
 procedure RegisterBitmapImage_C(Cl: TPSPascalCompiler);
 begin
+  cl.AddTypeS('TAlphaFormat', '(afIgnored, afDefined, afPremultiplied)');
+  cl.AddTypeS('TPixelFormat', '(pfUndefined, pfDevice, pf1bit, pf4bit, pf8bit, pf15bit, pf16bit, pf24bit, pf32bit, pfCustom))');
+  with Cl.AddClassN(CL.FindClass('TBitmap'),'TAlphaBitmap') do
+  begin
+    RegisterProperty('AlphaFormat', 'TAlphaFormat', iptrw);
+    RegisterProperty('PixelFormat', 'TPixelFormat', iptr);
+  end;
   with Cl.AddClassN(CL.FindClass('TGraphicControl'),'TBitmapImage') do
   begin
     RegisterProperty('AutoSize', 'Boolean', iptrw);
     RegisterProperty('BackColor', 'TColor', iptrw);
     RegisterProperty('Center', 'Boolean', iptrw);
-    RegisterProperty('Bitmap', 'TBitmap', iptrw);
+    RegisterProperty('Bitmap', 'TAlphaBitmap', iptrw); //TBitmapImage.Bitmap property is actually published as a TBitmap but in reality it always returns a TAlphaBitmap
     RegisterProperty('ReplaceColor', 'TColor', iptrw);
     RegisterProperty('ReplaceWithColor', 'TColor', iptrw);
     RegisterProperty('Stretch', 'Boolean', iptrw);

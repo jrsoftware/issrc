@@ -588,11 +588,20 @@ TStartMenuFolderTreeView = class(TCustomFolderTreeView)
   property OnRename: TFolderRenameEvent; read write;
 end;
 
+TAlphaFormat = (afIgnored, afDefined, afPremultiplied);
+
+TPixelFormat = (pfUndefined, pfDevice, pf1bit, pf4bit, pf8bit, pf15bit, pf16bit, pf24bit, pf32bit, pfCustom);
+
+TAlphaBitmap = class(TBitmap)
+  property AlphaFormat: TAlphaFormat; read write;
+  property PixelFormat: TPixelFormat; read;
+end;
+
 TBitmapImage = class(TGraphicControl)
   property AutoSize: Boolean; read write;
   property BackColor: TColor; read write;
   property Center: Boolean; read write;
-  property Bitmap: TBitmap; read write;
+  property Bitmap: TAlphaBitmap; read write;
   property ReplaceColor: TColor; read write;
   property ReplaceWithColor: TColor; read write;
   property Stretch: Boolean; read write;
