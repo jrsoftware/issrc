@@ -4213,14 +4213,7 @@ begin
         else
           Invalid;
     end;
-    ssWizardImageBackColor: begin
-        try
-          SetupHeader.WizardImageBackColor := StringToColor(Value);
-        except
-          Invalid;
-        end;
-      end;
-    ssWizardSmallImageBackColor: begin
+    ssWizardImageBackColor, ssWizardSmallImageBackColor: begin
         WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
     ssWizardImageStretch: begin
@@ -8325,7 +8318,6 @@ begin
     SetupHeader.CreateUninstallRegKey := 'yes';
     SetupHeader.Uninstallable := 'yes';
     BackSolid := False;
-    SetupHeader.WizardImageBackColor := $400000;
     WizardImageFile := 'compiler:WIZMODERNIMAGE.BMP';
     WizardSmallImageFile := 'compiler:WIZMODERNSMALLIMAGE.BMP';
     DefaultDialogFontName := 'Tahoma';

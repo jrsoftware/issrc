@@ -67,6 +67,7 @@ object WizardForm: TWizardForm
         Top = 0
         Width = 164
         Height = 314
+        BackColor = clWindow
       end
       object WelcomeLabel2: TNewStaticText
         Left = 176
@@ -555,6 +556,7 @@ object WizardForm: TWizardForm
             Height = 21
             Min = 0
             Max = 100
+            Style = npbstNormal
           end
         end
         object InfoAfterPage: TNewNotebookPage
@@ -628,6 +630,7 @@ object WizardForm: TWizardForm
         Top = 0
         Width = 164
         Height = 314
+        BackColor = clWindow
       end
       object RunList: TNewCheckListBox
         Left = 176
