@@ -4478,8 +4478,8 @@ DiskSliceSize=1457664
 <setupdefault><tt>none</tt></setupdefault>
 <body>
 <p>If set to <tt>none</tt>, the default, any wizard image which is a 32 bit bitmap file should not have an alpha channel.</p>
-<p>If set to <tt>premultiplied</tt>, any wizard image which is a 32 bit bitmap file should have its the red, green and blue channel values premultiplied with the alpha channel value.</p>
-<p>If set to <tt>defined</tt>, any wizard image which is a 32 bit bitmap file should not have its the red, green and blue channel values premultiplied with the alpha channel value.</p>
+<p>If set to <tt>premultiplied</tt>, any wizard image which is a 32 bit bitmap file should have its red, green and blue channel values premultiplied with the alpha channel value.</p>
+<p>If set to <tt>defined</tt>, any wizard image which is a 32 bit bitmap file should not have its red, green and blue channel values premultiplied with the alpha channel value.</p>
 <p>This directive has no effect for a wizard image which is not a 32 bit bitmap file.</p>
 </body>
 </setuptopic>
