@@ -17,25 +17,19 @@ uses
   Windows, Controls, Graphics, Classes;
 
 type
-{$IFNDEF IS_D12}
-  {$DEFINE CUSTOM_BITMAP}
-  {$IFNDEF IS_D3}
-    {$DEFINE CUSTOM_BITMAP_D2}
-  {$ENDIF}
+{$IFNDEF IS_D3}
+  {$DEFINE CUSTOM_PIXELFORMAT_D2}
 {$ENDIF}
 
-{$IFNDEF CUSTOM_BITMAP}
-  TAlphaBitmap = TBitmap;
-{$ELSE CUSTOM_BITMAP}
- {$IFDEF CUSTOM_BITMAP_D2}
+{$IFDEF CUSTOM_PIXELFORMAT_D2}
   TPixelFormat = (pfUndefined, pfDevice, pf1bit, pf4bit, pf8bit, pf15bit, pf16bit, pf24bit, pf32bit, pfCustom);
- {$ENDIF}
+{$ENDIF}
   TAlphaFormat = (afIgnored, afDefined, afPremultiplied);
   TAlphaBitmap = class(TBitmap)
   private
     FAlphaFormat: TAlphaFormat;
     procedure PreMultiplyAlpha;
-{$IFDEF CUSTOM_BITMAP_D2}
+{$IFDEF CUSTOM_PIXELFORMAT_D2}
   private
     FPixelFormat: TPixelFormat;
     function GetPixelFormat: TPixelFormat;
@@ -44,11 +38,10 @@ type
     procedure Assign(Source: TPersistent); override;
     procedure LoadFromStream(Stream: TStream); override;
     property AlphaFormat: TAlphaFormat read FAlphaFormat write FAlphaFormat;
-{$IFDEF CUSTOM_BITMAP_D2}
+{$IFDEF CUSTOM_PIXELFORMAT_D2}
     property PixelFormat: TPixelFormat read GetPixelFormat;
 {$ENDIF}
   end;
-{$ENDIF CUSTOM_BITMAP}
 
   TBitmapImage = class(TGraphicControl)
   private
@@ -306,9 +299,7 @@ begin
   end;
 end;
 
-{$IFDEF CUSTOM_BITMAP}
-
-{$IFDEF CUSTOM_BITMAP_D2}
+{$IFDEF CUSTOM_PIXELFORMAT_D2}
 // Types defined to access internal private fields, must match exactly the
 // implementation of both types from Graphics.
 type
@@ -344,7 +335,7 @@ begin
     FAlphaFormat := TAlphaBitmap(Source).AlphaFormat;
 end;
 
-{$IFDEF CUSTOM_BITMAP_D2}
+{$IFDEF CUSTOM_PIXELFORMAT_D2}
 function TAlphaBitmap.GetPixelFormat: TPixelFormat;
 begin
   // We use cached value as default since after the canvas handle has been
@@ -395,7 +386,7 @@ var
 begin
   if (PixelFormat = pf32bit) then //Premultiply the alpha into the color
   begin
-{$IFNDEF CUSTOM_BITMAP_D2}
+{$IFNDEF CUSTOM_PIXELFORMAT_D2}
     Pointer(ImageData) := ScanLine[0];
     if ImageData = NativeUInt(nil) then
       Exit;
@@ -419,7 +410,5 @@ begin
     end;
   end;
 end;
-
-{$ENDIF CUSTOM_BITMAP}
 
 end.

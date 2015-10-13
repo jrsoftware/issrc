@@ -590,11 +590,8 @@ end;
 
 TAlphaFormat = (afIgnored, afDefined, afPremultiplied);
 
-TPixelFormat = (pfUndefined, pfDevice, pf1bit, pf4bit, pf8bit, pf15bit, pf16bit, pf24bit, pf32bit, pfCustom);
-
 TAlphaBitmap = class(TBitmap)
   property AlphaFormat: TAlphaFormat; read write;
-  property PixelFormat: TPixelFormat; read;
 end;
 
 TBitmapImage = class(TGraphicControl)

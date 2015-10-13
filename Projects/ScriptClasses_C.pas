@@ -224,11 +224,9 @@ end;
 procedure RegisterBitmapImage_C(Cl: TPSPascalCompiler);
 begin
   cl.AddTypeS('TAlphaFormat', '(afIgnored, afDefined, afPremultiplied)');
-  cl.AddTypeS('TPixelFormat', '(pfUndefined, pfDevice, pf1bit, pf4bit, pf8bit, pf15bit, pf16bit, pf24bit, pf32bit, pfCustom))');
   with Cl.AddClassN(CL.FindClass('TBitmap'),'TAlphaBitmap') do
   begin
     RegisterProperty('AlphaFormat', 'TAlphaFormat', iptrw);
-    RegisterProperty('PixelFormat', 'TPixelFormat', iptr);
   end;
   with Cl.AddClassN(CL.FindClass('TGraphicControl'),'TBitmapImage') do
   begin

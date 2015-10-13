@@ -138,14 +138,12 @@ end;
 
 procedure TAlphaBitmapAlphaFormat_W(Self: TAlphaBitmap; const T: TAlphaFormat); begin Self.AlphaFormat := T; end;
 procedure TAlphaBitmapAlphaFormat_R(Self: TAlphaBitmap; var T: TAlphaFormat); begin T := Self.AlphaFormat; end;
-procedure TAlphaBitmapPixelFormat_R(Self: TAlphaBitmap; var T: TPixelFormat); begin T := Self.PixelFormat; end;
 
 procedure RegisterBitmapImage_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TAlphaBitmap) do
   begin
     RegisterPropertyHelper(@TAlphaBitmapAlphaFormat_R, @TAlphaBitmapAlphaFormat_W, 'AlphaFormat');
-    RegisterPropertyHelper(@TAlphaBitmapPixelFormat_R, nil, 'PixelFormat');
   end;
   Cl.Add(TBitmapImage);
 end;
