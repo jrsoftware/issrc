@@ -234,6 +234,7 @@ type
     ssWindowShowCaption,
     ssWindowStartMaximized,
     ssWindowVisible,
+    ssWizardImageAlphaFormat,
     ssWizardImageBackColor,
     ssWizardImageFile,
     ssWizardImageStretch,

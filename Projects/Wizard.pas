@@ -746,11 +746,9 @@ begin
   BackButton.Left := X;
 
   { Initialize images }
-  WizardBitmapImage.BackColor := SetupHeader.WizardImageBackColor;
   WizardBitmapImage.Bitmap := WizardImage;
   WizardBitmapImage.Center := True;
   WizardBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
-  WizardBitmapImage2.BackColor := SetupHeader.WizardImageBackColor;
   WizardBitmapImage2.Bitmap := WizardImage;
   WizardBitmapImage2.Center := True;
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);

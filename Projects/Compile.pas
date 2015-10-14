@@ -193,6 +193,7 @@ type
     ssWindowShowCaption,
     ssWindowStartMaximized,
     ssWindowVisible,
+    ssWizardImageAlphaFormat,
     ssWizardImageBackColor,
     ssWizardImageFile,
     ssWizardImageStretch,
@@ -4202,14 +4203,17 @@ begin
     ssWindowVisible: begin
         SetSetupHeaderOption(shWindowVisible);
       end;
-    ssWizardImageBackColor: begin
-        try
-          SetupHeader.WizardImageBackColor := StringToColor(Value);
-        except
+    ssWizardImageAlphaFormat: begin
+        if CompareText(Value, 'none') = 0 then
+          SetupHeader.WizardImageAlphaFormat := afIgnored
+        else if CompareText(Value, 'defined') = 0 then
+          SetupHeader.WizardImageAlphaFormat := afDefined
+        else if CompareText(Value, 'premultiplied') = 0 then
+          SetupHeader.WizardImageAlphaFormat := afPremultiplied
+        else
           Invalid;
-        end;
-      end;
-    ssWizardSmallImageBackColor: begin
+    end;
+    ssWizardImageBackColor, ssWizardSmallImageBackColor: begin
         WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
     ssWizardImageStretch: begin
@@ -8314,13 +8318,13 @@ begin
     SetupHeader.CreateUninstallRegKey := 'yes';
     SetupHeader.Uninstallable := 'yes';
     BackSolid := False;
-    SetupHeader.WizardImageBackColor := $400000;
     WizardImageFile := 'compiler:WIZMODERNIMAGE.BMP';
     WizardSmallImageFile := 'compiler:WIZMODERNSMALLIMAGE.BMP';
     DefaultDialogFontName := 'Tahoma';
     SignTool := '';
     SignToolRetryCount := 2;
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
+    SetupHeader.WizardImageAlphaFormat := afIgnored;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetup, 'Setup', 0, True, True, '', False, False);

@@ -250,7 +250,7 @@ uses
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
   Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
   {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
-  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion;
+  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion, BitmapImage;
 
 {$R *.DFM}
 
@@ -2557,7 +2557,8 @@ var
     try
       ReadFileIntoStream(MemStream, R);
       MemStream.Seek(0, soFromBeginning);
-      WizardImage := TBitmap.Create;
+      WizardImage := TAlphaBitmap.Create;
+      TAlphaBitmap(WizardImage).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
       WizardImage.LoadFromStream(MemStream);
     finally
       MemStream.Free;
