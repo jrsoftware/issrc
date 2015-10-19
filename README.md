@@ -99,11 +99,10 @@ Before you can successfully compile the projects in Delphi 2.0, you must
 do two things:
 
 - Install the latest version of SYSTEM.DCU if you haven't already done so.
-  It can be downloaded from Inprise's site at:
+  It can be downloaded here:
 
-  http://www.borland.com/devsupport/delphi/downloads/index.html
-
-  Look for "System.zip" in the "Delphi 2 Items" section.
+  http://www.jrsoftware.org/files/delphi200system.zip
+    (md5sum: 54d4201afe431d1ffdc3f8d616907cfd)
 
   If you do not do this, you will probably get an "I/O Error" message
   when trying to run the projects.
