@@ -35,7 +35,11 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <li>[Setup] section directive <tt>CloseApplications</tt> can now be set to <tt>force</tt>. If it is, Setup will force close when closing applications. Use with care since this may cause the user to lose unsaved work.</li>
 <li>Added new command line parameters supported by Setup: /FORCECLOSEAPPLICATIONS and /NOFORCECLOSEAPPLICATIONS. These can be used to override the <tt>CloseApplications</tt> directive.</li>
 <li>The <tt>Attribs</tt> parameter of a [Files] or [Dir] entry may now also include <tt>notcontentindexed</tt> to specify that the file or directory is not to be indexed by the content indexing service.</li>
-<li>Pascal Scripting change: function <tt>RegQueryBinaryValue</tt> can now be used to query any type of registry value and not just <tt>REG_BINARY</tt>-type values.</li>
+<li>Pascal Scripting changes:
+<ul>
+  <li>Function <tt>RegQueryBinaryValue</tt> can now be used to query any type of registry value and not just <tt>REG_BINARY</tt>-type values.</li>
+  <li>Class <tt>TBitmapImage</tt> now supports 32 bit bitmap files with an alpha channel. Make sure to set the <tt>Bitmap.AlphaFormat</tt> property before loading the bitmap file.</li>
+</ul>
 <li>The Setup and Uninstall programs are now marked as DEP and ASLR compatible.</li>
 <li>Unicode [Code] based on RemObjects Pascal Script Git commit bfc1255636eb959f102d0279721b05ba85fbe7da.</li>
 <li>Minor tweaks.</li>
