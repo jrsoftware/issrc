@@ -141,6 +141,7 @@ begin
 
   RegisterFunctionTable(ScriptDlgTable);
   RegisterFunctionTable(NewDiskTable);
+  RegisterFunctionTable(BrowseFuncTable);
   RegisterFunctionTable(CmnFuncTable);
   RegisterFunctionTable(CmnFunc2Table);
   RegisterFunctionTable(InstallTable);

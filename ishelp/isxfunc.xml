@@ -2311,15 +2311,37 @@ end;</pre></example>
         <description><p>Displays a dialog box that enables the user to select an existing file. Returns True if the user selected a file, False otherwise. The name of the selected file is returned in the FileName string.</p></description>
         <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
         <example><pre>var
-  Filename: String;
+  FileName: String;
 begin
   // Set the initial filename
-  Filename := '';
-  if GetOpenFileName('', Filename, '',
+  FileName := '';
+  if GetOpenFileName('', FileName, '',
      'Text Documents (*.txt)|*.txt|All Files|*.*', 'txt') then
   begin
     // Successful; user clicked OK
-    // Filename contains the selected filename
+    // FileName contains the selected filename
+  end;
+end;</pre></example>
+      </function>
+      <function>
+        <name>GetOpenFileNameMulti</name>
+        <prototype>function GetOpenFileNameMulti(const Prompt: String; var FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
+        <description><p>Displays a dialog box that enables the user to select one or more existing file(s). Returns True if the user selected a file, False otherwise. The name of the selected file(s) is returned in the FileNameList list.</p></description>
+        <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+        <example><pre>var
+  FileNameList: TStrings;
+begin
+  // Create the list
+  FileNameList := TStringList.Create;
+  try
+    if GetOpenFileNameMulti('', FileNameList, '',
+       'Text Documents (*.txt)|*.txt|All Files|*.*', 'txt') then
+    begin
+      // Successful; user clicked OK
+      // FileNameList contains the selected filename(s)
+    end;
+  finally
+    FileNameList.Free;
   end;
 end;</pre></example>
       </function>
@@ -2351,6 +2373,11 @@ end;</pre></example>
         <name>ExitSetupMsgBox</name>
         <prototype>function ExitSetupMsgBox: Boolean;</prototype>
         <description><p>Displays the "Exit Setup?" message box, and returns True if the user selects Yes. Does not terminate Setup or Uninstall.</p></description>
+      </function>
+      <function>
+        <name>SelectDisk</name>
+        <prototype>function SelectDisk(const DiskNumber: Integer; const AFilename: String; var Path: String): Boolean;</prototype>
+        <description><p>Displays the "Setup Needs the Next Disk" message box, and returns True if the user enters a path containing the file specified by AFileName and selects OK. The selected path is returned in the Path string. The current value of Path is used as the initially selected path and DiskNumber is used only as information to the user.</p></description>
       </function>
     </subcategory>
   </category>

@@ -25,7 +25,7 @@ uses
   Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo,
   {$IFNDEF Delphi3orHigher} Ole2, {$ELSE} ActiveX, {$ENDIF}
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
-  Install, InstFunc, InstFnc2, Msgs, MsgIDs, BrowseFunc, Wizard, VerInfo,
+  Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
   SpawnClient, UninstProgressForm;
 
@@ -307,6 +307,23 @@ function NewDiskProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: T
 var
   PStart: Cardinal;
   S: String;
+begin
+  PStart := Stack.Count-1;
+  Result := True;
+
+  if Proc.Name = 'SELECTDISK' then begin
+    S := Stack.GetString(PStart-3);
+    Stack.SetBool(PStart, SelectDisk(Stack.GetInt(PStart-1), Stack.GetString(PStart-2), S));
+    Stack.SetString(PStart-3, S);
+  end else
+    Result := False;
+end;
+
+{ BrowseFunc }
+function BrowseFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+var
+  PStart: Cardinal;
+  S: String;
   ParentWnd: HWND;
 begin
   PStart := Stack.Count-1;
@@ -328,6 +345,12 @@ begin
     S := Stack.GetString(PStart-2);
     Stack.SetBool(PStart, NewGetOpenFileName(Stack.GetString(PStart-1), S, Stack.GetString(PStart-3), Stack.GetString(PStart-4), Stack.GetString(PStart-5), ParentWnd));
     Stack.SetString(PStart-2, S);
+  end else if Proc.Name = 'GETOPENFILENAMEMULTI' then begin
+    if Assigned(WizardForm) then
+      ParentWnd := WizardForm.Handle
+    else
+      ParentWnd := 0;
+    Stack.SetBool(PStart, NewGetOpenFileNameMulti(Stack.GetString(PStart-1), TStrings(Stack.GetClass(PStart-2)), Stack.GetString(PStart-3), Stack.GetString(PStart-4), Stack.GetString(PStart-5), ParentWnd));
   end else if Proc.Name = 'GETSAVEFILENAME' then begin
     if Assigned(WizardForm) then
       ParentWnd := WizardForm.Handle
@@ -1808,6 +1831,7 @@ procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
 begin
   RegisterFunctionTable(ScriptDlgTable, @ScriptDlgProc);
   RegisterFunctionTable(NewDiskTable, @NewDiskProc);
+  RegisterFunctionTable(BrowseFuncTable, @BrowseFuncProc);
   RegisterFunctionTable(CmnFuncTable, @CmnFuncProc);
   RegisterFunctionTable(CmnFunc2Table, @CmnFunc2Proc);
   RegisterFunctionTable(InstallTable, @InstallProc);
