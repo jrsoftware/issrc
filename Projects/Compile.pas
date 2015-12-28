@@ -85,6 +85,7 @@ type
     ssAppVersion,
     ssArchitecturesAllowed,
     ssArchitecturesInstallIn64BitMode,
+    ssASLRCompatible,
     ssBackColor,
     ssBackColor2,
     ssBackColorDirection,
@@ -103,6 +104,7 @@ type
     ssDefaultUserInfoName,
     ssDefaultUserInfoOrg,
     ssDefaultUserInfoSerial,
+    ssDEPCompatible,
     ssDirExistsWarning,
     ssDisableDirPage,
     ssDisableFinishedPage,
@@ -365,7 +367,7 @@ type
     SetupHeader: TSetupHeader;
 
     SetupDirectiveLines: array[TSetupSectionDirectives] of Integer;
-    UseSetupLdr, DiskSpanning, BackSolid, TerminalServicesAware: Boolean;
+    UseSetupLdr, DiskSpanning, BackSolid, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
     DiskSliceSize, DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile, WizardImageFile: String;
     WizardSmallImageFile: String;
@@ -825,7 +827,7 @@ begin
 end;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
-  const IsTSAware: Boolean);
+  const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
 const
   IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE = $0040;
   IMAGE_DLLCHARACTERISTICS_NX_COMPAT = $0100;
@@ -866,14 +868,21 @@ begin
         F.Seek(Ofs + OffsetOfDllCharacteristics);
         if F.Read(DllChars, SizeOf(DllChars)) = SizeOf(DllChars) then begin
           OrigDllChars := DllChars;
-          { Note: because we stripped relocations from Setup(Ldr).e32 during
-            compilation IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE won't actually
-            enable ASLR, but setting it anyway to make checkers happy. }
-          DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE or IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
           if IsTSAware then
             DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
           else
             DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE;
+          if IsDEPCompatible then
+            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_NX_COMPAT
+          else
+            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
+          { Note: because we stripped relocations from Setup(Ldr).e32 during
+            compilation IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE won't actually
+            enable ASLR, but allow setting it anyway to make checkers happy. }
+          if IsASLRCompatible then
+            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
+          else
+            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE;
           if DllChars <> OrigDllChars then begin
             F.Seek(Ofs + OffsetOfDllCharacteristics);
             F.WriteBuffer(DllChars, SizeOf(DllChars));
@@ -3660,6 +3669,9 @@ begin
     ssArchitecturesInstallIn64BitMode: begin
         SetupHeader.ArchitecturesInstallIn64BitMode := StrToArchitectures(Value, True);
       end;
+    ssASLRCompatible: begin
+        ASLRCompatible := StrToBool(Value);
+      end;
     ssBackColor: begin
         try
           SetupHeader.BackColor := StringToColor(Value);
@@ -3796,6 +3808,9 @@ begin
       end;
     ssDefaultUserInfoSerial: begin
         SetupHeader.DefaultUserInfoSerial := Value;
+      end;
+    ssDEPCompatible: begin
+        DEPCompatible := StrToBool(Value);
       end;
     ssDirExistsWarning: begin
         if CompareText(Value, 'auto') = 0 then
@@ -8119,7 +8134,7 @@ var
         ConvertFilename := E32Filename;
 
       M := TMemoryFile.Create(ConvertFilename);
-      UpdateSetupPEHeaderFields(M, TerminalServicesAware);
+      UpdateSetupPEHeaderFields(M, TerminalServicesAware, DEPCompatible, ASLRCompatible);
       if shSignedUninstaller in SetupHeader.Options then
         SignSetupE32(M);
     finally
@@ -8291,6 +8306,8 @@ begin
     CompressProps := TLZMACompressorProps.Create;
     UseSetupLdr := True;
     TerminalServicesAware := True;
+    DEPCompatible := True;
+    ASLRCompatible := True;
     DiskSliceSize := MaxDiskSliceSize;
     DiskClusterSize := 512;
     SlicesPerDisk := 1;
@@ -8809,7 +8826,7 @@ begin
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);
           try
-            UpdateSetupPEHeaderFields(SetupFile, TerminalServicesAware);
+            UpdateSetupPEHeaderFields(SetupFile, TerminalServicesAware, DEPCompatible, ASLRCompatible);
             SizeOfExe := SetupFile.Size.Lo;
           finally
             SetupFile.Free;
