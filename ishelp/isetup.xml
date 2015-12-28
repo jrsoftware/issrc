@@ -4861,6 +4861,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>Specifies whether the compiler should set the "NX Compatible" flag in the headers of the Setup and Uninstall programs to mark them compatible with data execution prevention (DEP). This feature is new to version 5.5.7 and defaults to <tt>yes</tt>; previous versions never set the flag.</p>
+<p>Setting this to <tt>no</tt> might be needed if you're using a buggy third-party DLL from [Code].</p>
 </body>
 </setuptopic>
 
