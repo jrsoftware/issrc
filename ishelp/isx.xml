@@ -524,16 +524,22 @@ end;
 
 
 
-<topic name="scriptdll" title="Pascal Scripting: Using DLLs">
-<keyword value="Pascal Scripting: Using DLLs" />
+<topic name="scriptdll" title="Pascal Scripting: Using DLLs and .NET assemblies">
+<keyword value="Pascal Scripting: Using DLLs and .NET assemblies" />
 <keyword value="DLLs" />
+<keyword value=".NET assemblies" />
 <body>
 
-<p>The Pascal script can call functions inside external DLLs. This includes both standard Win32 API functions inside standard Windows DLLs and custom functions in custom made DLLs.</p>
+<p>The Pascal script can call functions inside external DLLs. This includes both standard Win32 API functions inside standard Windows DLLs and custom functions in custom made DLLs. Additionally .NET assemblies can be called.</p>
+
+<p>Open the "CodeDll.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using DLLs.</p>
+
+<p>The "Examples" subdirectory also contains three custom DLL example projects, one for Microsoft Visual C++, one for Microsoft Visual C# and one for Borland Delphi. The C# example shows how to make your .NET assemblies callable by the Pascal script.</p>
 
 <p>To be able to call a DLL function you should first write the function prototype as normal but instead of then writing the function body, you use the 'external' keyword to specify a DLL. If your function has for example prototype <tt>function A(B: Integer): Integer;</tt>, the following three forms are supported:</p>
 
 <precode>
+[Code]
 function A(B: Integer): Integer;
 external '&lt;dllfunctionname&gt;@&lt;dllfilename&gt;';
 
@@ -590,18 +596,26 @@ Source: "A.dll"; Flags: dontcopy
 Source: "B.dll"; Flags: dontcopy
 
 [Code]
-procedure MyDllFunc(hWnd: Integer; lpText, lpCaption: String; uType: Cardinal);
+procedure MyDllFunc(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
 external 'MyDllFunc@files:MyDll.dll stdcall';
 
-procedure ADllFunc(hWnd: Integer; lpText, lpCaption: String; uType: Cardinal);
+procedure ADllFunc(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
 external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll depends on B.dll
 </precode>
 
 <p>If you use a 'files:' prefix and <link topic="setup_solidcompression">solid compression</link> is enabled, be sure to list your DLLs at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p>
 
-<p>Open the "CodeDll.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using DLLs.</p>
+<p>To automatically choose between the ANSI or Unicode version of a function depending on the <link topic="unicode">installed version</link> of Inno Setup, use ISPP:</p>
 
-<p>The "Examples" subdirectory also contains three custom DLL example projects, one for Microsoft Visual C++, one for Microsoft Visual C# and one for Borland Delphi.</p>
+<precode>
+[Code]
+function MessageBox(hWnd: Integer; lpText, lpCaption: String; uType: Cardinal): Integer;
+#ifdef UNICODE
+external 'MessageBoxW@user32.dll stdcall';
+#else
+external 'MessageBoxA@user32.dll stdcall';
+#endif
+</precode>
 
 </body>
 </topic>
