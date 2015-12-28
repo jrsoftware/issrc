@@ -529,7 +529,7 @@ end;
 <keyword value="DLLs" />
 <body>
 
-<p>The Pascal script can call functions inside external DLLs. This includes both standard Win32 API functions inside standard Windows DLLs and custom functions in custom made DLLs (how to make such a custom DLL is beyond the scope of this help file).</p>
+<p>The Pascal script can call functions inside external DLLs. This includes both standard Win32 API functions inside standard Windows DLLs and custom functions in custom made DLLs.</p>
 
 <p>To be able to call a DLL function you should first write the function prototype as normal but instead of then writing the function body, you use the 'external' keyword to specify a DLL. If your function has for example prototype <tt>function A(B: Integer): Integer;</tt>, the following three forms are supported:</p>
 
@@ -601,7 +601,7 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 
 <p>Open the "CodeDll.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using DLLs.</p>
 
-<p>The "Examples" subdirectory also contains two custom DLL example projects, one for Microsoft Visual C++ and one for Borland Delphi.</p>
+<p>The "Examples" subdirectory also contains three custom DLL example projects, one for Microsoft Visual C++, one for Microsoft Visual C# and one for Borland Delphi.</p>
 
 </body>
 </topic>
