@@ -31,7 +31,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <li><b>Changes in default behavior:</b>
 <ul>
   <li>As recommended by Microsoft's desktop applications guideline, <tt>DisableWelcomePage</tt> now defaults to <tt>yes</tt>. Additionally <tt>DisableDirPage</tt> and <tt>DisableProgramGroupPage</tt> now default to <tt>auto</tt>. The defaults in all previous versions were <tt>no</tt>.</li>
-  <li>The Setup and Uninstall programs are now marked as DEP and ASLR compatible. This can be disabled by setting the new <tt>DEPCompatible</tt> and  <tt>ASLRCompatible</tt> [Setup] section directives to <tt>no</tt>. Doing this for DEP compatibility might be needed if you're using a buggy third-party DLL from [Code].</li>
+  <li>The Setup and Uninstall programs are now marked as DEP and ASLR compatible. This can be disabled by setting the new <tt>DEPCompatible</tt> and  <tt>ASLRCompatible</tt> [Setup] section directives to <tt>no</tt>. Doing this for DEP compatibility might be needed if you're using a buggy third-party DLL from [Code], like isxdl.dll.</li>
 </ul>
 </li>
 <li>The Compiler IDE's New Script Wizard now offers to create a shortcut to the main executable in the common Start Menu Programs folder instead of creating a new Start Menu folder especially for the application. This option is enabled by default and is recommended by Microsoft unless you install a suite of applications rather than a single application.</li>
