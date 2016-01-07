@@ -142,7 +142,7 @@ begin
   { Only attempt to load rstrtmgr.dll if running Windows Vista or later }
   if (RestartManagerLibrary = 0) and (Lo(GetVersion) >= 6) then
   begin
-    RestartManagerLibrary := LoadLibrary(restartmanagerlib);
+    RestartManagerLibrary := LoadLibrary(PChar(AddBackslash(GetSystemDir) + restartmanagerlib));
     if RestartManagerLibrary <> 0 then
     begin
       RmStartSession := GetProcAddress(RestartManagerLibrary, 'RmStartSession');

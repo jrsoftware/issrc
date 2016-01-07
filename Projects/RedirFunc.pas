@@ -583,7 +583,7 @@ initialization
     and GetFileVersionInfoSize will try to load it when reading version info
     on 16-bit files. We can't allow the DLL be loaded for the first time while
     FS redirection is disabled. }
-  SafeLoadLibrary('shell32.dll', SEM_NOOPENFILEERRORBOX);
+  SafeLoadLibrary(AddBackslash(GetSystemDir) + 'shell32.dll', SEM_NOOPENFILEERRORBOX);
 
   { FormatMessage might be called with FS redirection disabled, so ensure
     that all the DLLs FormatMessage searches in for messages (e.g. netmsg.dll,

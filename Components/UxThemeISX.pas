@@ -1107,7 +1107,7 @@ begin
     not be located in the dynamic link library ntdll.dll" error message }
   if (ThemeLibrary = 0) and IsWindowsXP then
   begin
-    ThemeLibrary := LoadLibrary(themelib);
+    ThemeLibrary := LoadLibrary(PChar(AddBackslash(GetSystemDir) + themelib));
     if ThemeLibrary <> 0 then
     begin
       OpenThemeData := GetProcAddress(ThemeLibrary, 'OpenThemeData');

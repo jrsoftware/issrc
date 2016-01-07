@@ -357,7 +357,7 @@ var
   M: HMODULE;
 begin
   if not OleAccInited then begin
-    M := LoadLibrary('oleacc.dll');
+    M := LoadLibrary(AddBackslash(GetSystemDir) + 'oleacc.dll');
     if M <> 0 then begin
       LresultFromObjectFunc := GetProcAddress(M, 'LresultFromObject');
       CreateStdAccessibleObjectFunc := GetProcAddress(M, 'CreateStdAccessibleObject');

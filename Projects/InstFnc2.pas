@@ -613,7 +613,7 @@ end;
 
 initialization
   InitOle;
-  SHCreateItemFromParsingNameFunc := GetProcAddress(SafeLoadLibrary(shell32,
+  SHCreateItemFromParsingNameFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
     SEM_NOOPENFILEERRORBOX), 'SHCreateItemFromParsingName');
 
 finalization

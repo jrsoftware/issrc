@@ -86,18 +86,18 @@ begin
   if RichEditUseCount = 0 then begin
     {$IFDEF UNICODE}
     RichEditVersion := 4;
-    RichEditModule := LoadLibrary('MSFTEDIT.DLL');
+    RichEditModule := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'MSFTEDIT.DLL'));
     {$ELSE}
     RichEditModule := 0;
     {$ENDIF}
     if RichEditModule = 0 then begin
       RichEditVersion := 2;
-      RichEditModule := LoadLibrary('RICHED20.DLL');
+      RichEditModule := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'RICHED20.DLL'));
     end;
     {$IFNDEF UNICODE}
     if RichEditModule = 0 then begin
       RichEditVersion := 1;
-      RichEditModule := LoadLibrary('RICHED32.DLL');
+      RichEditModule := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'RICHED32.DLL'));
     end;
     {$ENDIF}
   end;

@@ -1196,6 +1196,6 @@ end;
 
 initialization
   InitThemeLibrary;
-  SHPathPrepareForWriteFunc := GetProcAddress(LoadLibrary(shell32),
+  SHPathPrepareForWriteFunc := GetProcAddress(LoadLibrary(PChar(AddBackslash(GetSystemDir) + shell32)),
     {$IFDEF UNICODE}'SHPathPrepareForWriteW'{$ELSE}'SHPathPrepareForWriteA'{$ENDIF});
 end.

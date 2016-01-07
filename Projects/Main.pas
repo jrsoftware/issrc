@@ -1480,7 +1480,7 @@ begin
     Filename := shfolder;
   { Ensure shell32.dll is pre-loaded so it isn't loaded/freed for each
     individual SHGetFolderPath call }
-  SafeLoadLibrary(shell32, SEM_NOOPENFILEERRORBOX);
+  SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32, SEM_NOOPENFILEERRORBOX);
   SHFolderDLLHandle := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
   if SHFolderDLLHandle = 0 then
     InternalError(Format('Failed to load DLL "%s"', [Filename]));
@@ -4370,7 +4370,7 @@ initialization
   DeleteFilesAfterInstallList := TStringList.Create;
   DeleteDirsAfterInstallList := TStringList.Create;
   CloseApplicationsFilterList := TStringList.Create;
-  SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(shell32,
+  SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
     SEM_NOOPENFILEERRORBOX), 'SHGetKnownFolderPath');
 
 finalization
