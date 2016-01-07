@@ -2,20 +2,16 @@ unit FolderTreeView;
 
 {
   Inno Setup
-  Copyright (C) 1997-2008 Jordan Russell
+  Copyright (C) 1997-2015 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   TFolderTreeView component
-
-  $jrsoftware: issrc/Components/FolderTreeView.pas,v 1.42 2009/03/25 11:47:32 mlaan Exp $
 }
 
 interface
 
-{$IFDEF VER200}
-  {$DEFINE DELPHI2009}
-{$ENDIF}
+{$I VERSION.INC}
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, CommCtrl;
@@ -139,7 +135,7 @@ implementation
 }
 
 uses
-  PathFunc, ShellApi, UxThemeISX{$IFDEF DELPHI2009}, Types{$ENDIF};
+  PathFunc, ShellApi, UxThemeISX{$IFDEF IS_D12}, Types{$ENDIF};
 
 const
   SHPPFW_NONE = $00000000;
@@ -676,7 +672,7 @@ begin
             TVItem.hItem := DispItem.hItem;
             TVItem.pszText := PChar(S);
             TreeView_SetItem(Handle, TVItem);
-            TreeView_SortChildren(Handle, TreeView_GetParent(Handle, DispItem.hItem), 0);
+            TreeView_SortChildren(Handle, TreeView_GetParent(Handle, DispItem.hItem), {$IFDEF IS_DXE}False{$ELSE}0{$ENDIF});
             Change;
           end;
         end;
@@ -1033,7 +1029,7 @@ begin
     if Result then begin
       { When a text callback is used, sorting after all items are inserted is
         exponentially faster than using hInsertAfter=TVI_SORT }
-      TreeView_SortChildren(Handle, Item, 0);
+      TreeView_SortChildren(Handle, Item, {$IFDEF IS_DXE}False{$ELSE}0{$ENDIF});
     end;
   end;
 end;
@@ -1171,7 +1167,7 @@ begin
       AddSubfolders(Item, AddBackslash(FCommonPrograms) + Path, FCommonStartup);
     if FUserPrograms <> '' then
       AddSubfolders(Item, AddBackslash(FUserPrograms) + Path, FUserStartup);
-    TreeView_SortChildren(Handle, Item, 0);
+    TreeView_SortChildren(Handle, Item, {$IFDEF IS_DXE}False{$ELSE}0{$ENDIF});
   end;
 end;
 

@@ -2,7 +2,7 @@ unit Compile;
 
 {
   Inno Setup
-  Copyright (C) 1997-2014 Jordan Russell
+  Copyright (C) 1997-2016 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -85,6 +85,7 @@ type
     ssAppVersion,
     ssArchitecturesAllowed,
     ssArchitecturesInstallIn64BitMode,
+    ssASLRCompatible,
     ssBackColor,
     ssBackColor2,
     ssBackColorDirection,
@@ -103,6 +104,7 @@ type
     ssDefaultUserInfoName,
     ssDefaultUserInfoOrg,
     ssDefaultUserInfoSerial,
+    ssDEPCompatible,
     ssDirExistsWarning,
     ssDisableDirPage,
     ssDisableFinishedPage,
@@ -146,6 +148,7 @@ type
     ssRestartIfNeededByRun,
     ssSetupIconFile,
     ssSetupLogging,
+    ssSetupMutex,
     ssShowComponentSizes,
     ssShowLanguageDialog,
     ssShowTasksTreeLines,
@@ -192,6 +195,7 @@ type
     ssWindowShowCaption,
     ssWindowStartMaximized,
     ssWindowVisible,
+    ssWizardImageAlphaFormat,
     ssWizardImageBackColor,
     ssWizardImageFile,
     ssWizardImageStretch,
@@ -341,7 +345,7 @@ type
     DefaultLangData: TLangData;
     {$IFDEF UNICODE} PreLangDataList, {$ENDIF} LangDataList: TList;
     SignToolList: TList;
-    SignTool, SignToolParams: String;
+    SignTools, SignToolsParams: TStringList;
     SignToolRetryCount: Integer;
 
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
@@ -363,7 +367,7 @@ type
     SetupHeader: TSetupHeader;
 
     SetupDirectiveLines: array[TSetupSectionDirectives] of Integer;
-    UseSetupLdr, DiskSpanning, BackSolid, TerminalServicesAware: Boolean;
+    UseSetupLdr, DiskSpanning, BackSolid, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
     DiskSliceSize, DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile, WizardImageFile: String;
     WizardSmallImageFile: String;
@@ -823,8 +827,10 @@ begin
 end;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
-  const IsTSAware: Boolean);
+  const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
 const
+  IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE = $0040;
+  IMAGE_DLLCHARACTERISTICS_NX_COMPAT = $0100;
   IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = $8000;
   OffsetOfImageVersion = $2C;
   OffsetOfDllCharacteristics = $46;
@@ -866,6 +872,17 @@ begin
             DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
           else
             DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE;
+          if IsDEPCompatible then
+            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_NX_COMPAT
+          else
+            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
+          { Note: because we stripped relocations from Setup(Ldr).e32 during
+            compilation IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE won't actually
+            enable ASLR, but allow setting it anyway to make checkers happy. }
+          if IsASLRCompatible then
+            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
+          else
+            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE;
           if DllChars <> OrigDllChars then begin
             F.Seek(Ofs + OffsetOfDllCharacteristics);
             F.WriteBuffer(DllChars, SizeOf(DllChars));
@@ -1647,6 +1664,8 @@ begin
 {$ENDIF}
   LangDataList := TLowFragList.Create;
   SignToolList := TLowFragList.Create;
+  SignTools := TStringList.Create;
+  SignToolsParams := TStringList.Create;
   DebugInfo := TMemoryStream.Create;
   CodeDebugInfo := TMemoryStream.Create;
   CodeText := TStringList.Create;
@@ -1661,6 +1680,8 @@ begin
   CodeText.Free;
   CodeDebugInfo.Free;
   DebugInfo.Free;
+  SignToolsParams.Free;
+  SignTools.Free;
   if Assigned(SignToolList) then begin
     for I := 0 to SignToolList.Count-1 do
       TSignTool(SignToolList[I]).Free;
@@ -3546,6 +3567,7 @@ var
 var
   P: Integer;
   AIncludes: TStringList;
+  SignTool, SignToolParams: String;
 begin
   SeparateDirective(Line, KeyName, Value);
 
@@ -3555,7 +3577,7 @@ begin
   if I = -1 then
     AbortCompileOnLineFmt(SCompilerUnknownDirective, ['Setup', KeyName]);
   Directive := TSetupSectionDirectives(I);
-  if SetupDirectiveLines[Directive] <> 0 then
+  if (Directive <> ssSignTool) and (SetupDirectiveLines[Directive] <> 0) then
     AbortCompileOnLineFmt(SCompilerEntryAlreadySpecified, ['Setup', KeyName]);
   SetupDirectiveLines[Directive] := LineNumber;
   case Directive of
@@ -3652,6 +3674,9 @@ begin
     ssArchitecturesInstallIn64BitMode: begin
         SetupHeader.ArchitecturesInstallIn64BitMode := StrToArchitectures(Value, True);
       end;
+    ssASLRCompatible: begin
+        ASLRCompatible := StrToBool(Value);
+      end;
     ssBackColor: begin
         try
           SetupHeader.BackColor := StringToColor(Value);
@@ -3684,7 +3709,13 @@ begin
         SetSetupHeaderOption(shChangesEnvironment);
       end;
     ssCloseApplications: begin
-        SetSetupHeaderOption(shCloseApplications);
+        if CompareText(Value, 'force') = 0 then begin
+          Include(SetupHeader.Options, shCloseApplications);
+          Include(SetupHeader.Options, shForceCloseApplications);
+        end else begin
+          SetSetupHeaderOption(shCloseApplications);
+          Exclude(SetupHeader.Options, shForceCloseApplications);
+        end;
       end;
     ssCloseApplicationsFilter: begin
         if Value = '' then
@@ -3782,6 +3813,9 @@ begin
       end;
     ssDefaultUserInfoSerial: begin
         SetupHeader.DefaultUserInfoSerial := Value;
+      end;
+    ssDEPCompatible: begin
+        DEPCompatible := StrToBool(Value);
       end;
     ssDirExistsWarning: begin
         if CompareText(Value, 'auto') = 0 then
@@ -4000,6 +4034,9 @@ begin
     ssSetupLogging: begin
         SetSetupHeaderOption(shSetupLogging);
       end;
+    ssSetupMutex: begin
+        SetupHeader.SetupMutex := Trim(Value);
+      end;
     ssShowComponentSizes: begin
         SetSetupHeaderOption(shShowComponentSizes);
       end;
@@ -4040,6 +4077,8 @@ begin
         end;
         if FindSignToolIndexByName(SignTool) = -1 then
           Invalid;
+        SignTools.Add(SignTool);
+        SignToolsParams.Add(SignToolParams);
       end;
     ssSignToolRetryCount: begin
         I := StrToIntDef(Value, -1);
@@ -4186,14 +4225,17 @@ begin
     ssWindowVisible: begin
         SetSetupHeaderOption(shWindowVisible);
       end;
-    ssWizardImageBackColor: begin
-        try
-          SetupHeader.WizardImageBackColor := StringToColor(Value);
-        except
+    ssWizardImageAlphaFormat: begin
+        if CompareText(Value, 'none') = 0 then
+          SetupHeader.WizardImageAlphaFormat := afIgnored
+        else if CompareText(Value, 'defined') = 0 then
+          SetupHeader.WizardImageAlphaFormat := afDefined
+        else if CompareText(Value, 'premultiplied') = 0 then
+          SetupHeader.WizardImageAlphaFormat := afPremultiplied
+        else
           Invalid;
-        end;
-      end;
-    ssWizardSmallImageBackColor: begin
+    end;
+    ssWizardImageBackColor, ssWizardSmallImageBackColor: begin
         WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
     ssWizardImageStretch: begin
@@ -4707,6 +4749,9 @@ begin
   TaskEntries.Add(NewTaskEntry);
 end;
 
+const
+  FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = $00002000;
+
 procedure TSetupCompiler.EnumDirs(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paName, paAttribs, paPermissions, paComponents, paTasks,
@@ -4732,8 +4777,8 @@ const
   Flags: array[0..4] of PChar = (
     'uninsneveruninstall', 'deleteafterinstall', 'uninsalwaysuninstall',
     'setntfscompression', 'unsetntfscompression');
-  AttribsFlags: array[0..2] of PChar = (
-    'readonly', 'hidden', 'system');
+  AttribsFlags: array[0..3] of PChar = (
+    'readonly', 'hidden', 'system', 'notcontentindexed');
   AccessMasks: array[0..2] of TNameAndAccessMask = (
     (Name: 'full'; Mask: $1F01FF),
     (Name: 'modify'; Mask: $1301BF),
@@ -4772,6 +4817,7 @@ begin
           0: Attribs := Attribs or FILE_ATTRIBUTE_READONLY;
           1: Attribs := Attribs or FILE_ATTRIBUTE_HIDDEN;
           2: Attribs := Attribs or FILE_ATTRIBUTE_SYSTEM;
+          3: Attribs := Attribs or FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
         end;
 
       { Permissions }
@@ -5610,8 +5656,8 @@ const
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
     'sortfilesbyname', 'gacinstall');
-  AttribsFlags: array[0..2] of PChar = (
-    'readonly', 'hidden', 'system');
+  AttribsFlags: array[0..3] of PChar = (
+    'readonly', 'hidden', 'system', 'notcontentindexed');
   AccessMasks: array[0..2] of TNameAndAccessMask = (
     (Name: 'full'; Mask: $1F01FF),
     (Name: 'modify'; Mask: $1301BF),
@@ -5649,6 +5695,7 @@ type
       'COMCAT.DLL', 'MSVBVM50.DLL', 'MSVBVM60.DLL', 'OLEAUT32.DLL',
       'OLEPRO32.DLL', 'STDOLE2.TLB');
   var
+    SourceFileDir, SysWow64Dir: String;
     I: Integer;
   begin
     if AllowUnsafeFiles then
@@ -5657,9 +5704,13 @@ type
       { Files that must NOT be deployed to the user's System directory }
       { Any DLL deployed from system's own System directory }
       if not ExternalFile and
-         (CompareText(PathExtractExt(Filename), '.DLL') = 0) and
-         (PathCompare(PathExpand(PathExtractDir(SourceFile)), GetSystemDir) = 0) then
+         (CompareText(PathExtractExt(Filename), '.DLL') = 0) then begin
+        SourceFileDir := PathExpand(PathExtractDir(SourceFile));
+        SysWow64Dir := GetSysWow64Dir;
+        if (PathCompare(SourceFileDir, GetSystemDir) = 0) or
+           ((SysWow64Dir <> '') and ((PathCompare(SourceFileDir, SysWow64Dir) = 0))) then
         AbortCompileOnLine(SCompilerFilesSystemDirUsed);
+      end;
       { CTL3D32.DLL }
       if not ExternalFile and
          (CompareText(Filename, 'CTL3D32.DLL') = 0) and
@@ -5921,7 +5972,7 @@ type
           end;
         end;
         if Touch then
-          Include(NewFileLocationEntry^.Flags, foTouch);
+          Include(NewFileLocationEntry^.Flags, foApplyTouchDateTime);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then
@@ -6266,6 +6317,7 @@ begin
                    0: Attribs := Attribs or FILE_ATTRIBUTE_READONLY;
                    1: Attribs := Attribs or FILE_ATTRIBUTE_HIDDEN;
                    2: Attribs := Attribs or FILE_ATTRIBUTE_SYSTEM;
+                   3: Attribs := Attribs or FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
                  end;
 
                { Permissions }
@@ -7725,7 +7777,7 @@ var
   var
     CurrentTime: TSystemTime;
 
-    procedure ApplyTouch(var FT: TFileTime);
+    procedure ApplyTouchDateTime(var FT: TFileTime);
     var
       ST: TSystemTime;
     begin
@@ -7897,15 +7949,15 @@ var
           if not GetFileTime(SourceFile.Handle, nil, nil, @FT) then
             AbortCompile('CompressFiles: GetFileTime failed');
           if TimeStampsInUTC then begin
-            FL.TimeStamp := FT;
+            FL.SourceTimeStamp := FT;
             Include(FL.Flags, foTimeStampInUTC);
           end
           else
-            FileTimeToLocalFileTime(FT, FL.TimeStamp);
-          if foTouch in FL.Flags then
-            ApplyTouch(FL.TimeStamp);
+            FileTimeToLocalFileTime(FT, FL.SourceTimeStamp);
+          if foApplyTouchDateTime in FL.Flags then
+            ApplyTouchDateTime(FL.SourceTimeStamp);
           if TimeStampRounding > 0 then
-            Dec64(Integer64(FL.TimeStamp), Mod64(Integer64(FL.TimeStamp), TimeStampRounding * 10000000));
+            Dec64(Integer64(FL.SourceTimeStamp), Mod64(Integer64(FL.SourceTimeStamp), TimeStampRounding * 10000000));
 
           if ChunkCompressed and IsX86OrX64Executable(SourceFile) then
             Include(FL.Flags, foCallInstructionOptimized);
@@ -8011,6 +8063,7 @@ var
     F: TFile;
     LastError: DWORD;
     SignToolIndex: Integer;
+    I: Integer;
   begin
     UnsignedFileSize := UnsignedFile.CappedSize;
 
@@ -8018,8 +8071,7 @@ var
     ModeID := SetupExeModeUninstaller;
     UnsignedFile.WriteBuffer(ModeID, SizeOf(ModeID));
 
-    SignToolIndex := FindSignToolIndexByName(SignTool);
-    if SignToolIndex <> -1 then begin
+    if SignTools.Count > 0 then begin
       Filename := SignedUninstallerDir + 'uninst.e32.tmp';
 
       F := TFile.Create(Filename, fdCreateAlways, faWrite, fsNone);
@@ -8030,7 +8082,10 @@ var
       end;
 
       try
-        Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolParams, Filename, SignToolRetryCount);
+        for I := 0 to SignTools.Count - 1 do begin
+          SignToolIndex := FindSignToolIndexByName(SignTools[I]); //can't fail, already checked
+          Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolsParams[I], Filename, SignToolRetryCount);
+        end;
         if not InternalSignSetupE32(Filename, UnsignedFile, UnsignedFileSize,
            SCompilerSignedFileContentsMismatch) then
           AbortCompile(SCompilerSignToolSucceededButNoSignature);
@@ -8089,7 +8144,7 @@ var
         ConvertFilename := E32Filename;
 
       M := TMemoryFile.Create(ConvertFilename);
-      UpdateSetupPEHeaderFields(M, TerminalServicesAware);
+      UpdateSetupPEHeaderFields(M, TerminalServicesAware, DEPCompatible, ASLRCompatible);
       if shSignedUninstaller in SetupHeader.Options then
         SignSetupE32(M);
     finally
@@ -8185,7 +8240,7 @@ var
       for I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
         S := IntToStr(I) + #9 + FileLocationEntryFilenames[I] + #9 +
-          FileTimeToString(FL.TimeStamp, foTimeStampInUTC in FL.Flags) + #9;
+          FileTimeToString(FL.SourceTimeStamp, foTimeStampInUTC in FL.Flags) + #9;
         if foVersionInfoValid in FL.Flags then
           S := S + Format('%u.%u.%u.%u', [FL.FileVersionMS shr 16,
             FL.FileVersionMS and $FFFF, FL.FileVersionLS shr 16,
@@ -8261,6 +8316,8 @@ begin
     CompressProps := TLZMACompressorProps.Create;
     UseSetupLdr := True;
     TerminalServicesAware := True;
+    DEPCompatible := True;
+    ASLRCompatible := True;
     DiskSliceSize := MaxDiskSliceSize;
     DiskClusterSize := 512;
     SlicesPerDisk := 1;
@@ -8276,25 +8333,24 @@ begin
       shAllowUNCPath, shUsePreviousUserInfo, shRestartIfNeededByRun,
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
       shAppendDefaultGroupName, shUsePreviousLanguage, shCloseApplications,
-      shRestartApplications, shAllowNetworkDrive];
+      shRestartApplications, shAllowNetworkDrive, shDisableWelcomePage];
     SetupHeader.PrivilegesRequired := prAdmin;
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';
     SetupHeader.DefaultUserInfoOrg := '{sysuserinfoorg}';
     SetupHeader.BackColor := clBlue;
     SetupHeader.BackColor2 := clBlack;
-    SetupHeader.DisableDirPage := dpNo;
-    SetupHeader.DisableProgramGroupPage := dpNo;
+    SetupHeader.DisableDirPage := dpAuto;
+    SetupHeader.DisableProgramGroupPage := dpAuto;
     SetupHeader.CreateUninstallRegKey := 'yes';
     SetupHeader.Uninstallable := 'yes';
     BackSolid := False;
-    SetupHeader.WizardImageBackColor := $400000;
     WizardImageFile := 'compiler:WIZMODERNIMAGE.BMP';
     WizardSmallImageFile := 'compiler:WIZMODERNSMALLIMAGE.BMP';
     DefaultDialogFontName := 'Tahoma';
-    SignTool := '';
     SignToolRetryCount := 2;
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
+    SetupHeader.WizardImageAlphaFormat := afIgnored;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetup, 'Setup', 0, True, True, '', False, False);
@@ -8348,6 +8404,8 @@ begin
     AppVersionHasConsts := CheckConst(SetupHeader.AppVersion, SetupHeader.MinVersion, []);
     LineNumber := SetupDirectiveLines[ssAppMutex];
     CheckConst(SetupHeader.AppMutex, SetupHeader.MinVersion, []);
+    LineNumber := SetupDirectiveLines[ssSetupMutex];
+    CheckConst(SetupHeader.SetupMutex, SetupHeader.MinVersion, []);
     LineNumber := SetupDirectiveLines[ssDefaultDirName];
     CheckConst(SetupHeader.DefaultDirName, SetupHeader.MinVersion, []);
     if SetupHeader.DefaultDirName = '' then begin
@@ -8437,10 +8495,10 @@ begin
       LineNumber := SetupDirectiveLines[ssEncryption];
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'Password']);
     end;
-    if (SetupDirectiveLines[ssSignedUninstaller] = 0) and (SignTool <> '') then
+    if (SetupDirectiveLines[ssSignedUninstaller] = 0) and (SignTools.Count > 0) then
       Include(SetupHeader.Options, shSignedUninstaller);
     if not UseSetupLdr and
-       ((SignTool <> '') or (shSignedUninstaller in SetupHeader.Options)) then
+       ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then
       AbortCompile(SCompilerNoSetupLdrSignError);
     LineNumber := SetupDirectiveLines[ssCreateUninstallRegKey];
     CheckCheckOrInstall('CreateUninstallRegKey', SetupHeader.CreateUninstallRegKey, cikDirectiveCheck);
@@ -8777,7 +8835,7 @@ begin
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);
           try
-            UpdateSetupPEHeaderFields(SetupFile, TerminalServicesAware);
+            UpdateSetupPEHeaderFields(SetupFile, TerminalServicesAware, DEPCompatible, ASLRCompatible);
             SizeOfExe := SetupFile.Size.Lo;
           finally
             SetupFile.Free;
@@ -8845,10 +8903,14 @@ begin
         end;
 
         { Sign }
-        SignToolIndex := FindSignToolIndexByName(SignTool);
-        if SignToolIndex <> -1 then begin
-          AddStatus(SCompilerStatusSigningSetup);
-          Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolParams, ExeFilename, SignToolRetryCount);
+        if SignTools.Count > 0 then begin
+          for I := 0 to SignTools.Count - 1 do begin
+            SignToolIndex := FindSignToolIndexByName(SignTools[I]); //can't fail, already checked
+            if SignToolIndex <> -1 then begin
+              AddStatus(SCompilerStatusSigningSetup);
+              Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolsParams[I], ExeFilename, SignToolRetryCount);
+            end;
+          end;
         end;
       except
         EmptyOutputDir(False);
@@ -8874,8 +8936,8 @@ begin
     AddStatus('');
     for I := 0 to WarningsList.Count-1 do
       AddStatus(SCompilerStatusWarning + WarningsList[I]);
-    asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2014 Jordan Russell, '
-                  db 'Portions Copyright (C) 2000-2014 Martijn Laan',0; @1: end;
+    asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2016 Jordan Russell, '
+                  db 'Portions Copyright (C) 2000-2016 Martijn Laan',0; @1: end;
     { Note: Removing or modifying the copyright text is a violation of the
       Inno Setup license agreement; see LICENSE.TXT. }
   finally

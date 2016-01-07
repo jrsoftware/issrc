@@ -32,10 +32,17 @@ const
   );
 
   { NewDisk }
-  NewDiskTable: array [0..2] of AnsiString =
+  NewDiskTable: array [0..0] of AnsiString =
+  (
+    'function SelectDisk(const DiskNumber: Integer; const AFilename: String; var Path: String): Boolean;'
+  );
+
+  { BrowseFunc }
+  BrowseFuncTable: array [0..3] of AnsiString =
   (
     'function BrowseForFolder(const Prompt: String; var Directory: String; const NewFolderButton: Boolean): Boolean;',
     'function GetOpenFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;',
+    'function GetOpenFileNameMulti(const Prompt: String; const FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;',
     'function GetSaveFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;'
   );
 
@@ -161,11 +168,12 @@ const
   );
   
   { InstFnc2 }
-  InstFnc2Table: array [0..2] of AnsiString =
+  InstFnc2Table: array [0..3] of AnsiString =
   (
     'function CreateShellLink(const Filename, Description, ShortcutTo, Parameters, WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer): String;',
     'procedure RegisterTypeLibrary(const Is64Bit: Boolean; const Filename: String);',
-    'function UnregisterTypeLibrary(const Is64Bit: Boolean; const Filename: String): Boolean;'
+    'function UnregisterTypeLibrary(const Is64Bit: Boolean; const Filename: String): Boolean;',
+    'function UnpinShellLink(const Filename: String): Boolean;'
   );
 
   { Main }

@@ -1552,7 +1552,9 @@ end;</pre></example>
       <function>
         <name>Exec</name>
         <prototype>function Exec(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
-        <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was executed successfully, False otherwise. If True is returned and Wait is ewWaitUntilTerminated then ResultCode returns the exit code of the process. If False is returned then ResultCode specifies the error that occurred. Use SysErrorMessage(ResultCode) to get a description of the error.</p></description>
+        <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was executed successfully, False otherwise.</p>
+<p>If True is returned and Wait is ewWaitUntilTerminated then ResultCode returns the exit code of the process.</p>
+<p>If False is returned then ResultCode specifies the error that occurred. Use SysErrorMessage(ResultCode) to get a description of the error.</p></description>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Use the <link topic="isxfunc_ShellExec">ShellExec</link> function instead if you need to launch a file that is not an executable or batch file.</p>
@@ -1729,6 +1731,11 @@ end;</pre></example>
   '',
   0,
   SW_SHOWNORMAL);</pre></example>
+      </function>
+      <function>
+        <name>UnpinShellLink</name>
+        <prototype>function UnpinShellLink(const Filename: String): Boolean;</prototype>
+        <description><p>Attempt to unpin the shortcut with the specified filename. Returns True if the shortcut was successfully removed from the list of pinned items and/or the taskbar, or if the shortcut was not pinned at all.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -1908,7 +1915,7 @@ end;</pre></example>
       <function>
         <name>RegQueryBinaryValue</name>
         <prototype>function RegQueryBinaryValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultStr: AnsiString): Boolean;</prototype>
-        <description><p>Queries the specified REG_BINARY-type registry value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
+        <description><p>Queries the specified registry value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -2306,15 +2313,37 @@ end;</pre></example>
         <description><p>Displays a dialog box that enables the user to select an existing file. Returns True if the user selected a file, False otherwise. The name of the selected file is returned in the FileName string.</p></description>
         <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
         <example><pre>var
-  Filename: String;
+  FileName: String;
 begin
   // Set the initial filename
-  Filename := '';
-  if GetOpenFileName('', Filename, '',
+  FileName := '';
+  if GetOpenFileName('', FileName, '',
      'Text Documents (*.txt)|*.txt|All Files|*.*', 'txt') then
   begin
     // Successful; user clicked OK
-    // Filename contains the selected filename
+    // FileName contains the selected filename
+  end;
+end;</pre></example>
+      </function>
+      <function>
+        <name>GetOpenFileNameMulti</name>
+        <prototype>function GetOpenFileNameMulti(const Prompt: String; var FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
+        <description><p>Displays a dialog box that enables the user to select one or more existing file(s). Returns True if the user selected a file, False otherwise. The name of the selected file(s) is returned in the FileNameList list.</p></description>
+        <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+        <example><pre>var
+  FileNameList: TStrings;
+begin
+  // Create the list
+  FileNameList := TStringList.Create;
+  try
+    if GetOpenFileNameMulti('', FileNameList, '',
+       'Text Documents (*.txt)|*.txt|All Files|*.*', 'txt') then
+    begin
+      // Successful; user clicked OK
+      // FileNameList contains the selected filename(s)
+    end;
+  finally
+    FileNameList.Free;
   end;
 end;</pre></example>
       </function>
@@ -2346,6 +2375,11 @@ end;</pre></example>
         <name>ExitSetupMsgBox</name>
         <prototype>function ExitSetupMsgBox: Boolean;</prototype>
         <description><p>Displays the "Exit Setup?" message box, and returns True if the user selects Yes. Does not terminate Setup or Uninstall.</p></description>
+      </function>
+      <function>
+        <name>SelectDisk</name>
+        <prototype>function SelectDisk(const DiskNumber: Integer; const AFilename: String; var Path: String): Boolean;</prototype>
+        <description><p>Displays the "Setup Needs the Next Disk" message box, and returns True if the user enters a path containing the file specified by AFileName and selects OK. The selected path is returned in the Path string. The current value of Path is used as the initially selected path and DiskNumber is used only as information to the user.</p></description>
       </function>
     </subcategory>
   </category>

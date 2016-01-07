@@ -692,7 +692,7 @@ begin
           if not NoRestart then begin
             if VerySilent or
                (LoggedMessageBoxFmt1(msgUninstalledAndNeedsRestart, UninstLog.AppName,
-                  Title, MB_ICONINFORMATION or MB_YESNO or MB_SETFOREGROUND, True, IDYES) = IDYES) then
+                  Title, MB_ICONQUESTION or MB_YESNO or MB_SETFOREGROUND, True, IDYES) = IDYES) then
               RestartSystem := True;
           end;
           if not RestartSystem then

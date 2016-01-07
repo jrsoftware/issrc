@@ -143,6 +143,7 @@ function TryStrToBoolean(const S: String; var BoolResult: Boolean): Boolean;
 procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
+procedure CreateMutex(const MutexName: String);
 
 {$IFNDEF UNICODE}
 var
@@ -1677,6 +1678,25 @@ begin
 
   if Assigned(SHAutoCompleteFunc) then
     SHAutoCompleteFunc(Wnd, SHACF_FILESYSTEM);
+end;
+
+procedure CreateMutex(const MutexName: String);
+const
+  SECURITY_DESCRIPTOR_REVISION = 1;  { Win32 constant not defined in Delphi 3 }
+var
+  SecurityDesc: TSecurityDescriptor;
+  SecurityAttr: TSecurityAttributes;
+begin
+  { By default on Windows NT, created mutexes are accessible only by the user
+    running the process. We need our mutexes to be accessible to all users, so
+    that the mutex detection can work across user sessions in Windows XP. To
+    do this we use a security descriptor with a null DACL. }
+  InitializeSecurityDescriptor(@SecurityDesc, SECURITY_DESCRIPTOR_REVISION);
+  SetSecurityDescriptorDacl(@SecurityDesc, True, nil, False);
+  SecurityAttr.nLength := SizeOf(SecurityAttr);
+  SecurityAttr.lpSecurityDescriptor := @SecurityDesc;
+  SecurityAttr.bInheritHandle := False;
+  Windows.CreateMutex(@SecurityAttr, False, PChar(MutexName));
 end;
 
 { TOneShotTimer }

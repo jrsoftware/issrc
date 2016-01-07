@@ -3,7 +3,7 @@
 
 <!--
   Inno Setup
-  Copyright (C) 1997-2014 Jordan Russell
+  Copyright (C) 1997-2016 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 -->
@@ -53,7 +53,7 @@
     <contentstopic title="Support Functions Reference" topic="scriptfunctions" />
     <contentstopic title="Support Classes Reference" topic="scriptclasses" />
     <contentstopic title="Using Custom Wizard Pages" topic="scriptpages" />
-    <contentstopic title="Using DLLs" topic="scriptdll" />
+    <contentstopic title="Using DLLs and .NET assemblies" topic="scriptdll" />
     <contentstopic title="Using COM Automation objects" topic="scriptautomation" />
   </contentsheading>
   <contentsheading title="Other Information">
@@ -85,9 +85,9 @@
 <body>
 
 <p>
-<b>Inno Setup version 5.5.5</b><br/>
-<b>Copyright &copy; 1997-2014 Jordan Russell. All rights reserved.</b><br/>
-<b>Portions Copyright &copy; 2000-2014 Martijn Laan. All rights reserved.</b><br/>
+<b>Inno Setup version 5.5.7</b><br/>
+<b>Copyright &copy; 1997-2016 Jordan Russell. All rights reserved.</b><br/>
+<b>Portions Copyright &copy; 2000-2016 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
 </p>
 
@@ -99,13 +99,13 @@ Inno Setup is a <i>free</i> installer for Windows programs. First introduced in 
 
 <ul>
 
-<li>Support for every Windows release since 2000, including: Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Vista, Windows Server 2008, Windows XP, Windows Server 2003, and Windows 2000. (No service packs are required.)</li>
+<li>Support for every Windows release since 2000, including: Windows 10, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Vista, Windows Server 2008, Windows XP, Windows Server 2003, and Windows 2000. (No service packs are required.)</li>
 
 <li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. Both the x64 and Itanium architectures are supported. (On the Itanium architecture, Service Pack 1 or later is required on Windows Server 2003 to install in 64-bit mode.)</li>
 
 <li>Supports creation of a single EXE to install your program for easy online distribution. <link topic="setup_diskspanning">Disk spanning</link> is also supported.</li>
 
-<li>Standard Windows 2000/XP-style wizard interface.</li>
+<li>Standard Windows wizard interface.</li>
 
 <li>Customizable setup <link topic="typessection">types</link>, e.g. Full, Minimal, Custom.</li>
 
@@ -124,7 +124,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Support for <link topic="setup_password">passworded</link> and <link topic="setup_encryption">encrypted</link> installs.</li>
 
-<li>Support for <link topic="setup_signtool">digitally signed</link> installs and uninstalls.</li>
+<li>Support for <link topic="setup_signtool">digitally signed</link> installs and uninstalls, including dual signing (SHA1 &amp; SHA256).</li>
 
 <li><link topic="setupcmdline" anchor="SILENT">Silent install</link> and <link topic="uninstcmdline" anchor="SILENT">silent uninstall</link>.</li>
 
@@ -887,8 +887,10 @@ DefaultGroupName=My Program
 <heading>Compiler-related</heading>
 
 <ul appearance="compact">
+<li><link topic="setup_aslrcompatible">ASLRCompatible</link></li>
 <li><link topic="setup_compression">Compression</link></li>
 <li><link topic="setup_compressionthreads">CompressionThreads</link></li>
+<li><link topic="setup_depcompatible">DEPCompatible</link></li>
 <li><link topic="setup_diskclustersize">DiskClusterSize</link></li>
 <li><link topic="setup_diskslicesize">DiskSliceSize</link></li>
 <li><link topic="setup_diskspanning">DiskSpanning</link></li>
@@ -992,6 +994,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_restartapplications">RestartApplications</link></li>
 <li><link topic="setup_restartifneededbyrun">RestartIfNeededByRun</link></li>
 <li><link topic="setup_setuplogging">SetupLogging</link></li>
+<li><link topic="setup_setupmutex">SetupMutex</link></li>
 <li><link topic="setup_showlanguagedialog">ShowLanguageDialog</link></li>
 <li><link topic="setup_showundisplayablelanguages">ShowUndisplayableLanguages</link></li>
 <li><link topic="setup_timestamprounding">TimeStampRounding</link></li>
@@ -1031,7 +1034,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_windowstartmaximized">WindowStartMaximized</link></li>
 <li><link topic="setup_windowresizable">WindowResizable</link></li>
 <li><link topic="setup_windowvisible">WindowVisible</link></li>
-<li><link topic="setup_wizardimagebackcolor">WizardImageBackColor</link></li>
+<li><link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></li>
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
 <li><link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></li>
@@ -1049,6 +1052,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_uninstalliconfile">UninstallIconFile</link></li>
 <li><link topic="setup_uninstalliconname">UninstallIconName</link></li>
 <li><link topic="setup_uninstallstyle">UninstallStyle</link></li>
+<li><link topic="setup_wizardimagebackcolor">WizardImageBackColor</link></li>
 <li><link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link></li>
 <li><link topic="setup_wizardstyle">WizardStyle</link></li>
 </ul>
@@ -1340,7 +1344,7 @@ Name: "{app}\bin"
 </param>
 
 <param name="Attribs">
-<p>Specifies additional attributes for the directory. This can include one or more of the following: <tt>readonly</tt>, <tt>hidden</tt>, <tt>system</tt>. If this parameter is not specified, Setup does not assign any special attributes to the directory.</p>
+<p>Specifies additional attributes for the directory. This can include one or more of the following: <tt>readonly</tt>, <tt>hidden</tt>, <tt>system</tt>, <tt>notcontentindexed</tt>. If this parameter is not specified, Setup does not assign any special attributes to the directory.</p>
 <p>If the directory already exists, the specified attributes will be combined with the directory's existing attributes.</p>
 <example>
 <pre>Attribs: hidden system</pre>
@@ -1501,7 +1505,7 @@ ExternalSize: 1048576; Flags: external
 </param>
 
 <param name="Attribs">
-<p>Specifies additional attributes for the file. This can include one or more of the following: <tt>readonly</tt>, <tt>hidden</tt>, <tt>system</tt>. If this parameter is not specified, Setup does not assign any special attributes to the file.</p>
+<p>Specifies additional attributes for the file. This can include one or more of the following: <tt>readonly</tt>, <tt>hidden</tt>, <tt>system</tt>, <tt>notcontentindexed</tt>. If this parameter is not specified, Setup does not assign any special attributes to the file.</p>
 <example>
 <pre>Attribs: hidden system</pre>
 </example>
@@ -2697,7 +2701,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 
 <li>
 <b>Welcome</b><br/>
-Shown by default, but can be disabled via <link topic="setup_disablewelcomepage">DisableWelcomePage</link>.
+Shown if <link topic="setup_disablewelcomepage">DisableWelcomePage</link> is set to <tt>no</tt>.
 </li>
 
 <li>
@@ -2722,7 +2726,7 @@ Shown if <link topic="setup_userinfopage">UserInfoPage</link> is set to <tt>yes<
 
 <li>
 <b>Select Destination Location</b><br/>
-Shown by default, but can be disabled via <link topic="setup_disabledirpage">DisableDirPage</link>.
+Shown if <link topic="setup_disabledirpage">DisableDirPage</link> is set to <tt>no</tt> or <tt>auto</tt>.
 </li>
 
 <li>
@@ -2732,7 +2736,7 @@ Shown if there are any <link topic="componentssection">[Components]</link> entri
 
 <li>
 <b>Select Start Menu Folder</b><br/>
-Shown if there are any <link topic="iconssection">[Icons]</link> entries, but can be disabled via <link topic="setup_disableprogramgrouppage">DisableProgramGroupPage</link>.
+Shown if there are any <link topic="iconssection">[Icons]</link> entries and if <link topic="setup_disableprogramgrouppage">DisableProgramGroupPage</link> is set to <tt>no</tt> or <tt>auto</tt>.
 </li>
 
 <li>
@@ -2749,7 +2753,7 @@ Shown by default, but can be disabled via <link topic="setup_disablereadypage">D
 <b>Preparing to Install</b><br/>
 Normally, Setup will never stop or pause on this page. The only time it will is if Setup determines it can't continue or if it detects applications using files that need to be updated.<br/><br/>
 The former can happen if the <tt>PrepareToInstall</tt> event function returned an error or if one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.<br/><br/>
-The latter can happen if <link topic="setup_closeapplications">CloseApplications</link> is set to <tt>yes</tt>.
+The latter can happen if <link topic="setup_closeapplications">CloseApplications</link> is set to <tt>yes</tt> or <tt>force</tt>.
 </li>
 
 <li>
@@ -3020,6 +3024,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="/NORESTART" anchor="NORESTART" />
 <keyword value="/CLOSEAPPLICATIONS" anchor="CLOSEAPPLICATIONS" />
 <keyword value="/NOCLOSEAPPLICATIONS" anchor="NOCLOSEAPPLICATIONS" />
+<keyword value="/FORCECLOSEAPPLICATIONS" anchor="FORCECLOSEAPPLICATIONS" />
+<keyword value="/NOFORCECLOSEAPPLICATIONS" anchor="NOFORCECLOSEAPPLICATIONS" />
 <keyword value="/RESTARTAPPLICATIONS" anchor="RESTARTAPPLICATIONS" />
 <keyword value="/NORESTARTAPPLICATIONS" anchor="NORESTARTAPPLICATIONS" />
 <keyword value="/LOADINF=" anchor="LOADINF" />
@@ -3121,9 +3127,19 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Prevents Setup from closing applications using files that need to be updated by Setup. If /CLOSEAPPLICATIONS was also used, this command line parameter is ignored.</p>
 </dd>
 
+<dt><b><a name="FORCECLOSEAPPLICATIONS">/FORCECLOSEAPPLICATIONS</a></b></dt>
+<dd>
+<p>Instructs Setup to force close when closing applications.</p>
+</dd>
+
+<dt><b><a name="NOFORCECLOSEAPPLICATIONS">/NOFORCECLOSEAPPLICATIONS</a></b></dt>
+<dd>
+<p>Prevents Setup from force closing when closing applications. If /FORCECLOSEAPPLICATIONS was also used, this command line parameter is ignored.</p>
+</dd>
+
 <dt><b><a name="RESTARTAPPLICATIONS">/RESTARTAPPLICATIONS</a></b></dt>
 <dd>
-<p>Instructs Setup to restart applications if possible. If Setup didn't close these applications (for example because /NOCLOSEAPPLICATIONS was used), this command line parameter is ignored.</p>
+<p>Instructs Setup to restart applications if possible. Only has an effect when combined with '/CLOSEAPPLICATIONS'.</p>
 </dd>
 
 <dt><b><a name="NORESTARTAPPLICATIONS">/NORESTARTAPPLICATIONS</a></b></dt>
@@ -3392,7 +3408,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b>Any DLL file from own Windows System directory</b></dt>
 <dd>
-<p>You should not deploy any DLLs out of your own Windows System directory because most of them are tailored for your own specific version of Windows, and will not work when installed on other versions. Often times a user's system will be <b>rendered unbootable</b> if you install a DLL from a different version of Windows. Another reason why it's a bad idea is that when you install programs on your computer, the DLLs may be replaced with different/incompatible versions without your knowledge. This could lead to unexpected and difficult-to-trace problems on users' systems when you build new installations.</p>
+<p>You should not deploy any DLLs out of your own Windows System directory to <tt>{sys}</tt> because most of them are tailored for your own specific version of Windows, and will not work when installed on other versions. Often times a user's system will be <b>rendered unbootable</b> if you install a DLL from a different version of Windows. Another reason why it's a bad idea is that when you install programs on your computer, the DLLs may be replaced with different/incompatible versions without your knowledge. This could lead to unexpected and difficult-to-trace problems on users' systems when you build new installations.</p>
 <p>Instead of deploying the DLLs from your Windows System directory, you should find versions that are specifically deemed "redistributable". Redistributable DLLs typically work on more than one version of Windows. To find redistributable versions of the Visual Basic and Visual C++ run-time DLLs, see the Inno Setup FAQ.</p>
 <p>If you have a DLL residing in the Windows System directory that you are <b>absolutely sure</b> is redistributable, copy it to your script's source directory and deploy it from there instead.</p>
 </dd>
@@ -3603,6 +3619,21 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 <p>To specify a mutex name containing a comma, escape the comma with a backslash.</p>
 <p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
 <example><pre>AppMutex=MyProgramsMutexName</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_setupmutex">SetupMutex</link>
+</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="SetupMutex">
+<body>
+<p>This directive is used to prevent Setup from running while Setup is already running. It specifies the names of one or more named mutexes (multiple mutexes are separated by commas), which Setup will check for at startup. If any exist, Setup will display the message: "Setup has detected that Setup is currently running. Please close all instances of it now, then click OK to continue, or Cancel to exit." If none exist, Setup will create the mutex(es) and continue normally. The value may include constants.</p>
+<p>To specify a mutex name containing a comma, escape the comma with a backslash.</p>
+<p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
+<example><pre>SetupMutex=MySetupsMutexName,Global\MySetupsMutexName</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_appmutex">AppMutex</link>
+</p>
 </body>
 </setuptopic>
 
@@ -3929,7 +3960,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="DisableDirPage">
 <setupvalid><tt>auto</tt>, <link topic="yesnonotes"><tt>yes</tt>, or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
+<setupdefault><tt>auto</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Select Destination Location</i> wizard page.</p>
 <p>If this is set to <tt>auto</tt>, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will not show the <i>Select Destination Location</i> wizard page.</p>
@@ -3949,7 +3980,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="DisableProgramGroupPage">
 <setupvalid><tt>auto</tt>, <link topic="yesnonotes"><tt>yes</tt>, or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
+<setupdefault><tt>auto</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Select Start Menu Folder</i> wizard page.</p>
 <p>If this is set to <tt>auto</tt>, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will not show the <i>Select Start Menu Folder</i> wizard page.</p>
@@ -3989,7 +4020,7 @@ end;</pre></example>
 
 <setuptopic directive="DisableWelcomePage">
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
+<setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Welcome</i> wizard page.</p>
 </body>
@@ -4403,6 +4434,8 @@ DiskSliceSize=1457664
 <p>Specifies the name of the bitmap file to display on the left side of the wizard in the Setup program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
 <p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes. The maximum size of the bitmap is 164x314 pixels. Note that if Windows is running with Large Fonts, the area on the wizard for the bitmap will be larger.</p>
 <example><pre>WizardImageFile=myimage.bmp</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></p>
 </body>
 </setuptopic>
 
@@ -4442,11 +4475,20 @@ DiskSliceSize=1457664
 </body>
 </setuptopic>
 
-<setuptopic directive="WizardImageBackColor">
-<setupvalid>A value in the form of <tt>$<i>bbggrr</i></tt>, where <tt>rr</tt>, <tt>gg</tt>, and <tt>bb</tt> specify the two-digit intensities (in hexadecimal) for red, green, and blue respectively. Or it may be one of the following predefined color names: clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal, clGray, clSilver, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua, clWhite.</setupvalid>
-<setupdefault><tt>$400000</tt></setupdefault>
+<setuptopic directive="WizardImageAlphaFormat">
+<setupvalid><tt>none</tt>, <tt>defined</tt>, <tt>premultiplied</tt></setupvalid>
+<setupdefault><tt>none</tt></setupdefault>
 <body>
-<p>This directive specifies the background color used to fill any unused space around the wizard bitmap (which is specified by <link topic="setup_wizardimagefile">WizardImageFile</link>). There can only be unused space if <link topic="setup_wizardimagestretch">WizardImageStretch</link> is set to <tt>no</tt>.</p>
+<p>If set to <tt>none</tt>, the default, any wizard image which is a 32 bit bitmap file should not have an alpha channel.</p>
+<p>If set to <tt>premultiplied</tt>, any wizard image which is a 32 bit bitmap file should have its red, green and blue channel values premultiplied with the alpha channel value.</p>
+<p>If set to <tt>defined</tt>, any wizard image which is a 32 bit bitmap file should not have its red, green and blue channel values premultiplied with the alpha channel value.</p>
+<p>This directive has no effect for a wizard image which is not a 32 bit bitmap file.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="WizardImageBackColor">
+<body>
+<p><i>Obsolete in 5.5.7.</i> This directive formerly specified the background color used to fill any unused space around the wizard bitmap when <link topic="setup_wizardimagestretch">WizardImageStretch</link> was set to <tt>no</tt>. Now any unused space is filled with the standard window color (usually white). If you wish to create a colored border around the image, do so by modifying the bitmap itself.</p>
 </body>
 </setuptopic>
 
@@ -4501,6 +4543,8 @@ DiskSliceSize=1457664
 <p>Specifies the name of the bitmap file to display in the upper right corner of the wizard window. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
 <p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes. The maximum size of the bitmap is 55x58 pixels.</p>
 <example><pre>WizardSmallImageFile=mysmallimage.bmp</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></p>
 </body>
 </setuptopic>
 
@@ -4601,7 +4645,7 @@ DiskSliceSize=1457664
 <setupvalid><tt>0</tt> through <tt>60</tt></setupvalid>
 <setupdefault><tt>2</tt></setupdefault>
 <body>
-<p>By default, time stamps on files referenced by [Files] section entries are rounded down to the nearest 2-second boundary. FAT partitions have only a 2-second time stamp resolution, so this ensures that time stamps are set the same way on both FAT and NTFS partitions.</p>
+<p>By default, time stamps on files referenced by non <tt>external</tt> [Files] section entries are rounded down to the nearest 2-second boundary. FAT partitions have only a 2-second time stamp resolution, so this ensures that time stamps are set the same way on both FAT and NTFS partitions.</p>
 <p>The rounding can be altered or disabled by setting the <tt>TimeStampRounding</tt> directive. Setting it to <tt>0</tt> will disable the rounding. Setting it to a number between <tt>1</tt> and <tt>60</tt> will cause time stamps to be rounded down to the nearest <tt>TimeStampRounding</tt>-second boundary.</p>
 </body>
 </setuptopic>
@@ -4610,7 +4654,7 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>By default, time stamps on files referenced by [Files] section entries are saved and restored as local times. This means that if a particular file has a time stamp of 01:00 local time at compile time, Setup will extract the file with a time stamp of 01:00 local time, regardless of the user's time zone setting or whether DST is in effect.</p>
+<p>By default, time stamps on files referenced by non <tt>external</tt> [Files] section entries are saved and restored as local times. This means that if a particular file has a time stamp of 01:00 local time at compile time, Setup will extract the file with a time stamp of 01:00 local time, regardless of the user's time zone setting or whether DST is in effect.</p>
 <p>If <tt>TimeStampsInUTC</tt> is set to <tt>yes</tt>, time stamps will be saved and restored in UTC -- the native time format of Win32 and NTFS. In this mode, a file with a time stamp of 01:00 local time in New York will have a time stamp of 06:00 local time when installed in London.</p>
 </body>
 </setuptopic>
@@ -4812,6 +4856,23 @@ DiskSliceSize=1457664
 </body>
 </setuptopic>
 
+<setuptopic directive="DEPCompatible">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>Specifies whether the compiler should set the "NX Compatible" flag in the headers of the Setup and Uninstall programs to mark them compatible with data execution prevention (DEP). This feature is new to version 5.5.7 and defaults to <tt>yes</tt>; previous versions never set the flag.</p>
+<p>Setting this to <tt>no</tt> might be needed if you're using a buggy third-party DLL from [Code].</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="ASLRCompatible">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>Specifies whether the compiler should set the "Dynamic Base" flag in the headers of the Setup and Uninstall programs. This feature is new to version 5.5.7 and defaults to <tt>yes</tt>; previous versions never set the flag.</p>
+</body>
+</setuptopic>
+
 <setuptopic directive="SetupLogging">
 <keyword value="logging" />
 <keyword value="/LOG" />
@@ -4827,7 +4888,7 @@ DiskSliceSize=1457664
 <keyword value="digital signature" />
 <keyword value="code signing" />
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt> if <link topic="setup_signtool">SignTool</link> is set, <tt>no</tt> otherwise</setupdefault>
+<setupdefault><tt>yes</tt> if a <link topic="setup_signtool">SignTool</link> is set, <tt>no</tt> otherwise</setupdefault>
 <body>
 <p>Specifies whether the uninstaller program (unins???.exe) should be deployed with a digital signature attached. When the uninstaller has a valid digital signature, Windows Vista users will not see an "unidentified program" warning when launching it from outside of Control Panel.</p>
 <p>The first time you compile a script with this directive set to <tt>yes</tt>, a uniquely-named copy of the uninstaller EXE file will be created in the directory specified by the <link topic="setup_signeduninstallerdir">SignedUninstallerDir</link> directive (which defaults to the <link topic="setup_outputdir">output directory</link>). Depending on the <link topic="setup_signtool">SignTool</link> setting, you will either then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's signtool.exe) or the file will be automatically signed on the fly. On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers.</p>
@@ -4865,22 +4926,35 @@ DiskSliceSize=1457664
 <example>
 <p>Assume the following Sign Tools have been defined in the IDE:</p>
 <pre>
-mystandard=signtool.exe /x /y /d $qMy Program$q $f
+mystandard=signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
 mycustom=signtool.exe $p
 byparam=$p
 </pre>
 <p>then some examples would be:</p>
 <pre>
+[Setup]
 SignTool=mystandard
-SignTool=mycustom /x /y /d $qMy Program$q $f
-SignTool=byparam signtool.exe /x /y /d $qMy Program$q $f
+
+[Setup]
+SignTool=mycustom sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+
+[Setup]
+SignTool=byparam signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+</pre>
+<p>The Setup section may also list multiple SignTool directives which will be executed in order of appearance. This can be used to dual sign (SHA1 &amp; SHA256) Setup and Uninstall:</p>
+<pre>
+[Setup]
+SignTool=mycustom sign /a /n $qMy Common Name$q /fd sha1 /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+;the /as parameter in the following SignTool requires a recent signtool.exe version
+SignTool=mycustom sign /a /n $qMy Common Name$q /as /fd sha256 /tr http://timestamp.comodoca.com/rfc3161 /d $qMy Program$q $f
 </pre>
 <p>Note: for security reasons you should give a unique name to any Sign Tool set to <tt>$p</tt>, and not use a <tt>byparam</tt> name copied from this example. Consider what happens if you #include a third-party file that says:</p>
 <pre>
+[Setup]
 SignTool=byparam format c: 
 </pre>
 </example>
-<p>Details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
+<p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
 <p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <link topic="setup_diskslicesize">DiskSliceSize</link> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-1 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-1 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
@@ -4976,11 +5050,12 @@ SignTool=byparam format c:
 </setuptopic>
 
 <setuptopic directive="CloseApplications">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupvalid><tt>force</tt>, <link topic="yesnonotes"><tt>yes</tt>, or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If set to <tt>yes</tt> and Setup is not running silently, Setup will pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the [Files] or [InstallDelete] section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed.</p>
-<p>If set to <tt>yes</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line.</p>
+<p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is not running silently, Setup will pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the [Files] or [InstallDelete] section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed.</p>
+<p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line.</p>
+<p>If set to <tt>force</tt> Setup will force close when closing applications, unless told not to via the command line. Use with care since this may cause the user to lose unsaved work.</p>
 <p>Note: Setup uses the Windows <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa373524.aspx">Restart Manager</extlink> API to close and restart applications, which is available only on Windows Vista and newer.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
@@ -5092,8 +5167,9 @@ SignTool=byparam format c:
 <tr><td>6.2.9200</td><td>Windows 8<br/>or Windows Server 2012</td></tr>
 <tr><td>6.3.9200</td><td>Windows 8.1<br/>or Windows Server 2012 R2</td></tr>
 <tr><td>6.3.9600</td><td>Windows 8.1 with Update 1</td></tr>
+<tr><td>10.0.10240</td><td>Windows 10</td></tr>
 </table>
-<p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "5.1" for Windows XP).</p>
+<p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>
 </topic>
 

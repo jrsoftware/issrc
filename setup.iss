@@ -8,13 +8,14 @@
 [Setup]
 AppName=Inno Setup
 AppId=Inno Setup 5
-AppVersion=5.5.5
+AppVersion=5.5.7
 AppPublisher=jrsoftware.org
 AppPublisherURL=http://www.innosetup.com/
 AppSupportURL=http://www.innosetup.com/
 AppUpdatesURL=http://www.innosetup.com/
 VersionInfoCopyright=Copyright (C) 1997-2012 Jordan Russell. Portions Copyright (C) 2000-2012 Martijn Laan.
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
+SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
 MinVersion=0,5.0
 DefaultDirName={pf}\Inno Setup 5
 DefaultGroupName=Inno Setup 5
@@ -31,6 +32,7 @@ WizardImageFile=compiler:WizModernImage-IS.bmp
 WizardSmallImageFile=compiler:WizModernSmallImage-IS.bmp
 #ifndef NOSIGNTOOL
 SignTool=issigntool
+SignTool=issigntool256
 SignedUninstaller=yes
 #endif
 
@@ -166,6 +168,11 @@ Source: "Examples\MyDll.dll"; DestDir: "{app}\Examples"; Flags: ignoreversion to
 Source: "Examples\MyDll\C\MyDll.c"; DestDir: "{app}\Examples\MyDll\C"; Flags: ignoreversion touch
 Source: "Examples\MyDll\C\MyDll.def"; DestDir: "{app}\Examples\MyDll\C"; Flags: ignoreversion touch
 Source: "Examples\MyDll\C\MyDll.dsp"; DestDir: "{app}\Examples\MyDll\C"; Flags: ignoreversion touch
+Source: "Examples\MyDll\C#\MyDll.cs"; DestDir: "{app}\Examples\MyDll\C#"; Flags: ignoreversion touch
+Source: "Examples\MyDll\C#\MyDll.csproj"; DestDir: "{app}\Examples\MyDll\C#"; Flags: ignoreversion touch
+Source: "Examples\MyDll\C#\MyDll.sln"; DestDir: "{app}\Examples\MyDll\C#"; Flags: ignoreversion touch
+Source: "Examples\MyDll\C#\packages.config"; DestDir: "{app}\Examples\MyDll\C#"; Flags: ignoreversion touch
+Source: "Examples\MyDll\C#\Properties\AssemblyInfo.cs"; DestDir: "{app}\Examples\MyDll\C#\Properties"; Flags: ignoreversion touch
 Source: "Examples\MyDll\Delphi\MyDll.dpr"; DestDir: "{app}\Examples\MyDll\Delphi"; Flags: ignoreversion touch
 Source: "Examples\ISPPExample1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\ISPPExample1License.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch

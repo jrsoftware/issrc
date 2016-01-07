@@ -25,7 +25,7 @@ uses
   Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo,
   {$IFNDEF Delphi3orHigher} Ole2, {$ELSE} ActiveX, {$ENDIF}
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
-  Install, InstFunc, InstFnc2, Msgs, MsgIDs, BrowseFunc, Wizard, VerInfo,
+  Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
   SpawnClient, UninstProgressForm;
 
@@ -307,6 +307,23 @@ function NewDiskProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: T
 var
   PStart: Cardinal;
   S: String;
+begin
+  PStart := Stack.Count-1;
+  Result := True;
+
+  if Proc.Name = 'SELECTDISK' then begin
+    S := Stack.GetString(PStart-3);
+    Stack.SetBool(PStart, SelectDisk(Stack.GetInt(PStart-1), Stack.GetString(PStart-2), S));
+    Stack.SetString(PStart-3, S);
+  end else
+    Result := False;
+end;
+
+{ BrowseFunc }
+function BrowseFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+var
+  PStart: Cardinal;
+  S: String;
   ParentWnd: HWND;
 begin
   PStart := Stack.Count-1;
@@ -328,6 +345,12 @@ begin
     S := Stack.GetString(PStart-2);
     Stack.SetBool(PStart, NewGetOpenFileName(Stack.GetString(PStart-1), S, Stack.GetString(PStart-3), Stack.GetString(PStart-4), Stack.GetString(PStart-5), ParentWnd));
     Stack.SetString(PStart-2, S);
+  end else if Proc.Name = 'GETOPENFILENAMEMULTI' then begin
+    if Assigned(WizardForm) then
+      ParentWnd := WizardForm.Handle
+    else
+      ParentWnd := 0;
+    Stack.SetBool(PStart, NewGetOpenFileNameMulti(Stack.GetString(PStart-1), TStrings(Stack.GetClass(PStart-2)), Stack.GetString(PStart-3), Stack.GetString(PStart-4), Stack.GetString(PStart-5), ParentWnd));
   end else if Proc.Name = 'GETSAVEFILENAME' then begin
     if Assigned(WizardForm) then
       ParentWnd := WizardForm.Handle
@@ -612,9 +635,9 @@ begin
     S := Stack.GetString(PStart-2);
     if RegOpenKeyExView(RegView, RootKey, PChar(S), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
       N := Stack.GetString(PStart-3);
-      if (RegQueryValueEx(K, PChar(N), nil, @Typ, nil, @Size) = ERROR_SUCCESS) and (Typ = REG_BINARY) then begin
+      if RegQueryValueEx(K, PChar(N), nil, @Typ, nil, @Size) = ERROR_SUCCESS then begin
         SetLength(DataS, Size);
-        if (RegQueryValueEx(K, PChar(N), nil, @Typ, @DataS[1], @Size) = ERROR_SUCCESS) and (Typ = REG_BINARY) then begin
+        if RegQueryValueEx(K, PChar(N), nil, @Typ, @DataS[1], @Size) = ERROR_SUCCESS then begin
           StackSetAnsiString(Stack, PStart-4, DataS);
           Stack.SetBool(PStart, True);
         end else
@@ -927,6 +950,8 @@ begin
     except
       Stack.SetBool(PStart, False);
     end;
+  end else if Proc.Name = 'UNPINSHELLLINK' then begin
+    Stack.SetBool(PStart, UnpinShellLink(Stack.GetString(PStart-1)));
   end else
     Result := False;
 end;
@@ -1269,19 +1294,19 @@ begin
   end else if Proc.Name = 'COMPARETEXT' then begin
     Stack.SetInt(PStart, CompareText(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
   end else if Proc.Name = 'GETDATETIMESTRING' then begin
-    OldDateSeparator := DateSeparator;
-    OldTimeSeparator := TimeSeparator;
+    OldDateSeparator := {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}DateSeparator;
+    OldTimeSeparator := {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}TimeSeparator;
     try
       NewDateSeparator := Stack.GetString(PStart-2)[1];
       NewTimeSeparator := Stack.GetString(PStart-3)[1];
       if NewDateSeparator <> #0 then
-        DateSeparator := NewDateSeparator;
+        {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparator;
       if NewTimeSeparator <> #0 then
-        TimeSeparator := NewTimeSeparator;
+        {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparator;
       Stack.SetString(PStart, FormatDateTime(Stack.GetString(PStart-1), Now()));
     finally
-      TimeSeparator := OldTimeSeparator;
-      DateSeparator := OldDateSeparator;
+      {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
+      {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
     end;
   end else if Proc.Name = 'SYSERRORMESSAGE' then begin
     Stack.SetString(PStart, Win32ErrorString(Stack.GetInt(PStart-1)));
@@ -1453,7 +1478,7 @@ begin
   end else if Proc.Name = 'FREEDLL' then begin
     Stack.SetBool(PStart, FreeLibrary(Stack.GetInt(PStart-1)));
   end else if Proc.Name = 'CREATEMUTEX' then begin
-    CreateMutex(nil, False, PChar(Stack.GetString(PStart)));
+    Windows.CreateMutex(nil, False, PChar(Stack.GetString(PStart)));
   end else if Proc.Name = 'OEMTOCHARBUFF' then begin
     S := StackGetAnsiString(Stack, PStart);
     OemToCharBuffA(PAnsiChar(S), PAnsiChar(S), Length(S));
@@ -1806,6 +1831,7 @@ procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
 begin
   RegisterFunctionTable(ScriptDlgTable, @ScriptDlgProc);
   RegisterFunctionTable(NewDiskTable, @NewDiskProc);
+  RegisterFunctionTable(BrowseFuncTable, @BrowseFuncProc);
   RegisterFunctionTable(CmnFuncTable, @CmnFuncProc);
   RegisterFunctionTable(CmnFunc2Table, @CmnFunc2Proc);
   RegisterFunctionTable(InstallTable, @InstallProc);

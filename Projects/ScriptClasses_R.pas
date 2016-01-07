@@ -136,8 +136,15 @@ begin
   Cl.Add(TFolderTreeView);
 end;
 
+procedure TAlphaBitmapAlphaFormat_W(Self: TAlphaBitmap; const T: TAlphaFormat); begin Self.AlphaFormat := T; end;
+procedure TAlphaBitmapAlphaFormat_R(Self: TAlphaBitmap; var T: TAlphaFormat); begin T := Self.AlphaFormat; end;
+
 procedure RegisterBitmapImage_R(Cl: TPSRuntimeClassImporter);
 begin
+  with Cl.Add(TAlphaBitmap) do
+  begin
+    RegisterPropertyHelper(@TAlphaBitmapAlphaFormat_R, @TAlphaBitmapAlphaFormat_W, 'AlphaFormat');
+  end;
   Cl.Add(TBitmapImage);
 end;
 

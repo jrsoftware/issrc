@@ -1,8 +1,8 @@
 Inno Setup
 ==========
 
-Copyright (C) 1997-2014 Jordan Russell. All rights reserved.  
-Portions Copyright (C) 2000-2014 Martijn Laan. All rights reserved.  
+Copyright (C) 1997-2016 Jordan Russell. All rights reserved.  
+Portions Copyright (C) 2000-2016 Martijn Laan. All rights reserved.  
 For conditions of distribution and use, see LICENSE.TXT.
 
 Source code README
@@ -40,13 +40,16 @@ Source code README
   Unicode Inno Setup:
 
   We compile all of Inno Setup's projects under Delphi 2009 with Update 3.
+  
+  Newer Delphi versions should also work but will lead to significantly larger
+  files.
 
   Non Unicode Inno Setup:
 
   We compile all of Inno Setup's projects under Delphi 2.01, with the
   exception of Compil32 which is compiled under Delphi 3.02 (for the better
-  Far East character set support), and Inno Setup Preprocessor's projects which
-  are compiled under Delphi 7.
+  Far East character set support), and Inno Setup Preprocessor's ISPP which
+  is compiled under Delphi 7.
 
   Delphi 2.01 is used for the main projects because its VCL has a significantly
   smaller code size footprint than the later versions.
@@ -96,11 +99,10 @@ Before you can successfully compile the projects in Delphi 2.0, you must
 do two things:
 
 - Install the latest version of SYSTEM.DCU if you haven't already done so.
-  It can be downloaded from Inprise's site at:
+  It can be downloaded here:
 
-  http://www.borland.com/devsupport/delphi/downloads/index.html
-
-  Look for "System.zip" in the "Delphi 2 Items" section.
+  http://www.jrsoftware.org/files/delphi200system.zip
+    (md5sum: 54d4201afe431d1ffdc3f8d616907cfd)
 
   If you do not do this, you will probably get an "I/O Error" message
   when trying to run the projects.

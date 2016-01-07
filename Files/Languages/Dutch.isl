@@ -44,8 +44,8 @@ WinVersionTooLowError=Dit programma vereist %1 versie %2 of hoger.
 WinVersionTooHighError=Dit programma kan niet worden geïnstalleerd onder %1 versie %2 of hoger.
 AdminPrivilegesRequired=U moet aangemeld zijn als een systeembeheerder om dit programma te kunnen installeren.
 PowerUserPrivilegesRequired=U moet ingelogd zijn als systeembeheerder of als gebruiker met systeembeheerders rechten om dit programma te kunnen installeren.
-SetupAppRunningError=Setup heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle vensters van dit programma, en klik daarna op OK om verder te gaan, of op Annuleren om Setup af te sluiten.
-UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle vensters van dit programma, en klik daarna op OK om verder te gaan, of op Annuleren om het verwijderen af te breken.
+SetupAppRunningError=Setup heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle vensters hiervan, en klik daarna op OK om verder te gaan, of op Annuleren om Setup af te sluiten.
+UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle vensters hiervan, en klik daarna op OK om verder te gaan, of op Annuleren om het verwijderen af te breken.
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup kan de map "%1" niet maken

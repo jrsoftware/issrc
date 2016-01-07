@@ -2,7 +2,7 @@ unit Main;
 
 {
   Inno Setup
-  Copyright (C) 1997-2014 Jordan Russell
+  Copyright (C) 1997-2016 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -102,8 +102,8 @@ var
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
   InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
-    InitNoCloseApplications, InitRestartApplications, InitNoRestartApplications,
-    InitNoCancel: Boolean;
+    InitNoCloseApplications, InitForceCloseApplications, InitNoForceCloseApplications,
+    InitRestartApplications, InitNoRestartApplications, InitNoCancel: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -250,7 +250,7 @@ uses
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
   Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
   {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
-  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion;
+  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion, BitmapImage;
 
 {$R *.DFM}
 
@@ -643,6 +643,8 @@ begin
   InitNoRestart := GetIniBool(Section, 'NoRestart', InitNoRestart, FileName);
   InitCloseApplications := GetIniBool(Section, 'CloseApplications', InitCloseApplications, FileName);
   InitNoCloseApplications := GetIniBool(Section, 'NoCloseApplications', InitNoCloseApplications, FileName);
+  InitForceCloseApplications := GetIniBool(Section, 'ForceCloseApplications', InitForceCloseApplications, FileName);
+  InitNoForceCloseApplications := GetIniBool(Section, 'NoForceCloseApplications', InitNoForceCloseApplications, FileName);
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
@@ -2555,7 +2557,8 @@ var
     try
       ReadFileIntoStream(MemStream, R);
       MemStream.Seek(0, soFromBeginning);
-      WizardImage := TBitmap.Create;
+      WizardImage := TAlphaBitmap.Create;
+      TAlphaBitmap(WizardImage).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
       WizardImage.LoadFromStream(MemStream);
     finally
       MemStream.Free;
@@ -2746,6 +2749,7 @@ var
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
   MinimumTypeSpace: Integer64;
   SourceWildcard: String;
+  ExpandedSetupMutex: String;
 begin
   InitializeCommonVars;
 
@@ -2800,6 +2804,12 @@ begin
     else
     if CompareText(ParamName, '/NoCloseApplications') = 0 then
       InitNoCloseApplications := True
+    else
+    if CompareText(ParamName, '/ForceCloseApplications') = 0 then
+      InitForceCloseApplications := True
+    else
+    if CompareText(ParamName, '/NoForceCloseApplications') = 0 then
+      InitNoForceCloseApplications := True
     else
     if CompareText(ParamName, '/RestartApplications') = 0 then
       InitRestartApplications := True
@@ -3166,6 +3176,7 @@ begin
   end;
   ExpandedAppCopyright := ExpandConst(SetupHeader.AppCopyright);
   ExpandedAppMutex := ExpandConst(SetupHeader.AppMutex);
+  ExpandedSetupMutex := ExpandConst(SetupHeader.SetupMutex);
 
   { Update the shutdown block reason now that we have ExpandedAppName. }
   ShutdownBlockReasonCreate(Application.Handle,
@@ -3176,6 +3187,13 @@ begin
     if LoggedMsgBox(FmtSetupMessage1(msgSetupAppRunningError, ExpandedAppName),
        SetupMessages[msgSetupAppTitle], mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
       Abort;
+
+  { Check if Setup is running and if not create mutexes }
+  while CheckForMutexes(ExpandedSetupMutex) do
+    if LoggedMsgBox(FmtSetupMessage1(msgSetupAppRunningError, SetupMessages[msgSetupAppTitle]),
+       SetupMessages[msgSetupAppTitle], mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
+      Abort;
+  CreateMutexes(ExpandedSetupMutex);
 
   { Remove types that fail their 'languages' or 'check'. Can't do this earlier
     because the InitializeSetup call above can't be done earlier. }
@@ -3584,8 +3602,8 @@ begin
   S := SetupTitle + ' version ' + SetupVersion + SNewLine;
   if SetupTitle <> 'Inno Setup' then
     S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
-  S := S + ('Copyright (C) 1997-2014 Jordan Russell' + SNewLine +
-    'Portions Copyright (C) 2000-2014 Martijn Laan' + SNewLine +
+  S := S + ('Copyright (C) 1997-2016 Jordan Russell' + SNewLine +
+    'Portions Copyright (C) 2000-2016 Martijn Laan' + SNewLine +
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
     'http://www.innosetup.com/');

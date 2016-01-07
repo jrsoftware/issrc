@@ -21,17 +21,51 @@
 
 <div class="bluehead"><span class="head1">Inno Setup 5</span><br /><span class="head2">Revision History</span></div>
 
-<p>Copyright &copy; 1997-2014 <a href="http://www.jrsoftware.org/">Jordan Russell</a>. All rights reserved.<br />
-Portions Copyright &copy; 2000-2014 Martijn Laan. All rights reserved.<br />
+<p>Copyright &copy; 1997-2016 <a href="http://www.jrsoftware.org/">Jordan Russell</a>. All rights reserved.<br />
+Portions Copyright &copy; 2000-2016 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
-<p><a name="5.5.6"></a><span class="ver">5.5.6-dev </span><span class="date">(?)</span></p>
+<p><a name="5.5.8"></a><span class="ver">5.5.8-dev </span><span class="date">(?)</span></p>
 <ul>
-<li>Added the Windows 10 "compatibility" section to the various manifest resources used by Inno Setup.</li>
+<li>The [Setup] section many now list multiple <tt>SignTool</tt> directives which will be executed in order of appearance. This can be used to dual sign (SHA1 &amp; SHA256) Setup and Uninstall. Inno Setup's own installer is now also dual signed.</li>
+<li>The console-mode compiler (ISCC) now accepts multiple /S command line parameters (to specify a Sign Tool) instead of ignoring all but the last.</li>
+</ul>
+
+<p><a name="5.5.7"></a><span class="ver">5.5.7 </span><span class="date">(2015-12-28)</span></p>
+<ul>
+<li><b>Changes in default behavior:</b>
+<ul>
+  <li>As recommended by Microsoft's desktop applications guideline, <tt>DisableWelcomePage</tt> now defaults to <tt>yes</tt>. Additionally <tt>DisableDirPage</tt> and <tt>DisableProgramGroupPage</tt> now default to <tt>auto</tt>. The defaults in all previous versions were <tt>no</tt>.</li>
+  <li>The Setup and Uninstall programs are now marked as DEP and ASLR compatible. This can be disabled by setting the new <tt>DEPCompatible</tt> and  <tt>ASLRCompatible</tt> [Setup] section directives to <tt>no</tt>. Doing this for DEP compatibility might be needed if you're using a buggy third-party DLL from [Code], like isxdl.dll.</li>
+</ul>
+</li>
+<li>The Compiler IDE's New Script Wizard now offers to create a shortcut to the main executable in the common Start Menu Programs folder instead of creating a new Start Menu folder especially for the application. This option is enabled by default and is recommended by Microsoft unless you install a suite of applications rather than a single application.</li>
+<li>The <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> [Setup] section directives now support 32 bit bitmap files with an alpha channel. Use the new <tt>WizardImageAlphaFormat</tt> [Setup] section directive to specify if the bitmap file has its red, green and blue channel values premultiplied with the alpha channel value or not. Contributed by <a href="https://github.com/shadow-cs" target="_blank">Honza Rame&scaron;</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
+<li>The <tt>WizardImageBackColor</tt> [Setup] section directive is now deprecated and ignored, just like the similar <tt>WizardSmallImageBackColor</tt> directive already was. Any unused space around the wizard image is now filled with the standard window color (usually white).</li>
+<li>[Setup] section directive <tt>CloseApplications</tt> can now be set to <tt>force</tt>. If it is, Setup will force close when closing applications. Use with care since this may cause the user to lose unsaved work.</li>
+<li>Added new command line parameters supported by Setup: /FORCECLOSEAPPLICATIONS and /NOFORCECLOSEAPPLICATIONS. These can be used to override the <tt>CloseApplications</tt> directive.</li>
+<li>The <tt>Attribs</tt> parameter of a [Files] or [Dir] entry may now also include <tt>notcontentindexed</tt> to specify that the file or directory is not to be indexed by the content indexing service.</li>
+<li>Pascal Scripting changes:
+<ul>
+  <li>Function <tt>RegQueryBinaryValue</tt> can now be used to query any type of registry value and not just <tt>REG_BINARY</tt>-type values.</li>
+  <li>Class <tt>TBitmapImage</tt> now supports 32 bit bitmap files with an alpha channel. Make sure to set the <tt>Bitmap.AlphaFormat</tt> property before loading the bitmap file.</li>
+  <li>Added new functions <tt>GetOpenFileNameMulti</tt> and <tt>SelectDisk</tt>.</li>
+  <li>Added C# version of the MyDll.dll example DLL <a href="https://github.com/jrsoftware/issrc/blob/master/Examples/Mydll/C%23/Mydll.cs">showing</a> how to call .NET assemblies from [Code] without requiring COM or other DLLs. Uses <a href="https://www.nuget.org/packages/UnmanagedExports">Unmanaged Exports</a> by Robert Giesecke.</li>
+</ul>
+</li>
+<li>Unicode [Code] based on RemObjects Pascal Script Git commit bfc1255636eb959f102d0279721b05ba85fbe7da.</li>
+<li>Minor tweaks.</li>
+</ul>
+
+<p><a name="5.5.6"></a><span class="ver">5.5.6 </span><span class="date">(2015-07-16)</span></p>
+<ul>
+<li>Added the Windows 10 "compatibility" section to the various manifest resources used by Inno Setup. This enables any check for the operating system version to get the real version number (10.0) instead of getting the same version number as it did in Windows 8.1 (6.3).</li>
 <li>Added new [Setup] section directive: <tt>SignToolRetryCount</tt>, which defaults to <tt>2</tt>. Specifies the number of times the Setup Compiler should automatically retry digital signing on any errors.</li>
+<li>Added new [Setup] section directive: <tt>SetupMutex</tt>. Can be used to prevent Setup from running while Setup is already running.</li>
 <li><i>Fix:</i> Console-mode compiler (ISCC) change: Renamed /DO and /EO command line parameters to /O- and /O+ to avoid possible conflicts with /D.</li>
-<li>Pascal Scripting change: Unicode Inno Setup: Added new function <tt>VarIsClear</tt>.</li>
+<li>Pascal Scripting change: Unicode Inno Setup: Added new functions <tt>VarIsClear</tt> and <tt>UnpinShellLink</tt>.</li>
+<li>Inno Setup Preprocessor (ISPP) change: Added new function <tt>ForceDirectories</tt>.</li>
 <li>Unicode [Code] based on RemObjects Pascal Script Git commit db0d6f521113a31b34a76aeefd79fb148a9c4bfd.</li>
 <li>Various documentation improvements. Contributed by <a href="https://github.com/jogo-" target="_blank">jogo-</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
 <li>Minor tweaks.</li>
@@ -47,6 +81,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added new command line parameter /Qp. Can be used to enable quiet compile while still displaying progress. Contributed by <a href="https://github.com/KngStr" target="_blank">KngStr</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
   <li>ISCC now automatically specifies any Sign Tools configured using the IDE, eliminating the need to specify these using the /S command line parameter. Also contributed by <a href="https://github.com/KngStr" target="_blank">KngStr</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
 </ul>
+</li>
 <li>Pascal Scripting changes:
 <ul>
   <li>Added new function <tt>CurrentSourceFileName</tt>, which returns the source file name of the [Files] entry that is currently being processed. The returned name may include constants. <i>Note:</i> Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a [Files] entry with the <tt>external</tt> flag.</li>
@@ -57,7 +92,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 </li>
 <li>Inno Setup Preprocessor (ISPP) changes:
 <ul>
-  <li>Added function <tt>DeleteFileNow</tt>.</li>
+  <li>Added new function <tt>DeleteFileNow</tt>.</li>
   <li>Added 64-bit support to function <tt>ReadReg</tt>.</li>
 </ul>
 </li>
@@ -76,6 +111,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added new event function <tt>CurInstallProgressChanged</tt>, which you can use to monitor progress while Setup is extracting files, creating shortcuts, creating INI entries, and creating registry entries. See the help file and the <i>CodeExample1.iss</i> example script for more information. Contributed by <a href="https://github.com/tlama" target="_blank">TLama</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
   <li><tt>WizardForm.BeveledLabel</tt> visibility is now automatically handled even if its caption was set from [Code].</li>
 </ul>
+</li>
 <li>Unicode [Code] based on RemObjects Pascal Script Git commit 538905910852bcbeef646f26592a973d15d3d5ec.</li>
 <li>Minor tweaks.</li>
 </ul>

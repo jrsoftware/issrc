@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '5.5.5 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
-  SetupBinVersion = (5 shl 24) + (5 shl 16) + (5 shl 8) + 0;
+  SetupVersion = '5.5.7 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
+  SetupBinVersion = (5 shl 24) + (5 shl 16) + (7 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (5.5.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  SetupID: TSetupID = 'Inno Setup Setup Data (5.5.7)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (5.5.3)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
@@ -65,7 +65,8 @@ type
     shAppendDefaultGroupName, shEncryptionUsed, shChangesEnvironment,
     {$IFNDEF UNICODE}shShowUndisplayableLanguages, {$ENDIF}shSetupLogging,
     shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
-    shCloseApplications, shRestartApplications, shAllowNetworkDrive);
+    shCloseApplications, shRestartApplications, shAllowNetworkDrive,
+    shForceCloseApplications);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;
@@ -77,7 +78,7 @@ const
     ('Unknown', 'x86', 'x64', 'Itanium');
 
 const
-  SetupHeaderStrings = 27;
+  SetupHeaderStrings = 28;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
@@ -87,7 +88,7 @@ type
       UninstallDisplayIcon, AppMutex, DefaultUserInfoName, DefaultUserInfoOrg,
       DefaultUserInfoSerial, AppReadmeFile, AppContact, AppComments,
       AppModifyPath, CreateUninstallRegKey, Uninstallable,
-      CloseApplicationsFilter: String;
+      CloseApplicationsFilter, SetupMutex: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
 {$IFNDEF UNICODE}
     LeadBytes: set of AnsiChar;
@@ -98,7 +99,8 @@ type
       NumRegistryEntries, NumInstallDeleteEntries, NumUninstallDeleteEntries,
       NumRunEntries, NumUninstallRunEntries: Integer;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
-    BackColor, BackColor2, WizardImageBackColor: Longint;
+    BackColor, BackColor2: Longint;
+    WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
     PasswordHash: TSHA1Digest;
     PasswordSalt: TSetupSalt;
     ExtraDiskSpaceRequired: Integer64;
@@ -247,11 +249,11 @@ type
     OriginalSize: Integer64;
     ChunkCompressedSize: Integer64;
     SHA1Sum: TSHA1Digest;
-    TimeStamp: TFileTime;
+    SourceTimeStamp: TFileTime;
     FileVersionMS, FileVersionLS: DWORD;
     Flags: set of (foVersionInfoValid, foVersionInfoNotValid, foTimeStampInUTC,
-      foIsUninstExe, foCallInstructionOptimized, foTouch, foChunkEncrypted,
-      foChunkCompressed, foSolidBreak);
+      foIsUninstExe, foCallInstructionOptimized, foApplyTouchDateTime,
+      foChunkEncrypted, foChunkCompressed, foSolidBreak);
   end;
   TSetupIconCloseOnExit = (icNoSetting, icYes, icNo);
 const

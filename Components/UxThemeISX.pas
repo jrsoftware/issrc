@@ -44,9 +44,7 @@
 {                                                                              }
 {******************************************************************************}
 
-{ Simplified by Martijn Laan for My Inno Setup Extensions and Delphi 2
-  See http://isx.wintax.nl/ for more information
-}
+{ Simplified by Martijn Laan for Inno Setup and Delphi 2 }
 
 unit UxThemeISX;
 
