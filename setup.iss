@@ -32,6 +32,7 @@ WizardImageFile=compiler:WizModernImage-IS.bmp
 WizardSmallImageFile=compiler:WizModernSmallImage-IS.bmp
 #ifndef NOSIGNTOOL
 SignTool=issigntool
+SignTool=issigntool256
 SignedUninstaller=yes
 #endif
 

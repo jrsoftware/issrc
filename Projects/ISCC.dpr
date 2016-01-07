@@ -48,12 +48,12 @@ type
 var
   StdOutHandle, StdErrHandle: THandle;
   ScriptFilename: String;
-  IncludePath, Definitions, Output, OutputPath, OutputFilename, SignTool: String;
+  IncludePath, Definitions, Output, OutputPath, OutputFilename: String;
+  SignTools: TStringList;
   ScriptLines, NextScriptLine: PScriptLine;
   CurLine: String;
   StartTime, EndTime: DWORD;
   Quiet, ShowProgress, WantAbort: Boolean;
-  SignTools: TStringList;
   ProgressPoint: TPoint;
   LastProgress: String;
   IsppOptions: TIsppOptions;
@@ -404,12 +404,12 @@ begin
       else if GetParam(S, 'F') then
         OutputFilename := S
       else if GetParam(S, 'S') then begin
-        SignTool := S;
-        if Pos('=', SignTool) = 0 then begin
+        if Pos('=', S) = 0 then begin
           ShowBanner;
           WriteStdErr('Invalid option: ' + S);
           Halt(1);
         end;
+        SignTools.Add(S);
       end else if IsppMode and GetParam(S, 'D') then begin
         if (Pos(';', S) > 0) or (Pos(' ', S) > 0) then
           S := AddQuotes(S);
@@ -502,6 +502,7 @@ var
   Options: String;
   Res: Integer;
   I: Integer;
+  IDESignTools: TStringList;
 begin
   if ScriptFilename <> '-' then begin
     ScriptFilename := PathExpand(ScriptFilename);
@@ -524,7 +525,6 @@ begin
     Halt(1);
   end;
 
-  SignTools := TStringList.Create;
   ProgressPoint.X := -1;
   ExitCode := 0;
   try
@@ -555,12 +555,20 @@ begin
     if OutputFilename <> '' then
       AppendOption(Options, 'OutputBaseFilename', OutputFilename);
 
-    ReadSignTools(SignTools);
     for I := 0 to SignTools.Count-1 do
-      if (SignTool = '') or (Pos(UpperCase(SignTools.Names[I]) + '=', UpperCase(SignTool)) = 0) then
-        Options := Options + AddSignToolParam(SignTools[I]);
-    if SignTool <> '' then
-      Options := Options + AddSignToolParam(SignTool);
+      Options := Options + AddSignToolParam(SignTools[I]);
+
+    IDESignTools := TStringList.Create;
+    try
+      { Also automatically read and add SignTools defined using the IDE. Adding
+        these after the command line SignTools so that the latter are always
+        found first by the compiler. }
+      ReadSignTools(IDESignTools);
+      for I := 0 to IDESignTools.Count-1 do
+        Options := Options + AddSignToolParam(IDESignTools[I]);
+    finally
+      IDESignTools.Free;
+    end;
 
     if IsppMode then
       IsppOptionsToString(Options, IsppOptions, Definitions, IncludePath);
@@ -585,7 +593,6 @@ begin
         'unexpected result (%d).', [Res]));
     end;
   finally
-    SignTools.Free;
     FreeScriptLines;
   end;
   if ExitCode <> 0 then
@@ -593,17 +600,22 @@ begin
 end;
 
 begin
-  StdOutHandle := GetStdHandle(STD_OUTPUT_HANDLE);
-  StdErrHandle := GetStdHandle(STD_ERROR_HANDLE);
-  SetConsoleCtrlHandler(@ConsoleCtrlHandler, True);
+  SignTools := TStringList.Create;
   try
-    IsppMode := FileExists(ExtractFilePath(NewParamStr(0)) + 'ispp.dll');
-    ProcessCommandLine;
-    Go;
-  except
-    { Show a friendlier exception message. (By default, Delphi prints out
-      the exception class and address.) }
-    WriteStdErr(GetExceptMessage);
-    Halt(2);
+    StdOutHandle := GetStdHandle(STD_OUTPUT_HANDLE);
+    StdErrHandle := GetStdHandle(STD_ERROR_HANDLE);
+    SetConsoleCtrlHandler(@ConsoleCtrlHandler, True);
+    try
+      IsppMode := FileExists(ExtractFilePath(NewParamStr(0)) + 'ispp.dll');
+      ProcessCommandLine;
+      Go;
+    except
+      { Show a friendlier exception message. (By default, Delphi prints out
+        the exception class and address.) }
+      WriteStdErr(GetExceptMessage);
+      Halt(2);
+    end;
+  finally
+    SignTools.Free;
   end;
 end.

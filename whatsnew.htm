@@ -26,6 +26,12 @@ Portions Copyright &copy; 2000-2015 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
+<p><a name="5.5.8"></a><span class="ver">5.5.8-dev </span><span class="date">(?)</span></p>
+<ul>
+<li>The [Setup] section many now list multiple <tt>SignTool</tt> directives which will be executed in order of appearance. This can be used to dual sign (SHA1 &amp; SHA256) Setup and Uninstall. Inno Setup's own installer is now also dual signed.</li>
+<li>The console-mode compiler (ISCC) now accepts multiple /S command line parameters (to specify a Sign Tool) instead of ignoring all but the last.</li>
+</ul>
+
 <p><a name="5.5.7"></a><span class="ver">5.5.7 </span><span class="date">(2015-12-28)</span></p>
 <ul>
 <li><b>Changes in default behavior:</b>

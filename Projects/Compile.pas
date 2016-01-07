@@ -345,7 +345,7 @@ type
     DefaultLangData: TLangData;
     {$IFDEF UNICODE} PreLangDataList, {$ENDIF} LangDataList: TList;
     SignToolList: TList;
-    SignTool, SignToolParams: String;
+    SignTools, SignToolsParams: TStringList;
     SignToolRetryCount: Integer;
 
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
@@ -1664,6 +1664,8 @@ begin
 {$ENDIF}
   LangDataList := TLowFragList.Create;
   SignToolList := TLowFragList.Create;
+  SignTools := TStringList.Create;
+  SignToolsParams := TStringList.Create;
   DebugInfo := TMemoryStream.Create;
   CodeDebugInfo := TMemoryStream.Create;
   CodeText := TStringList.Create;
@@ -1678,6 +1680,8 @@ begin
   CodeText.Free;
   CodeDebugInfo.Free;
   DebugInfo.Free;
+  SignToolsParams.Free;
+  SignTools.Free;
   if Assigned(SignToolList) then begin
     for I := 0 to SignToolList.Count-1 do
       TSignTool(SignToolList[I]).Free;
@@ -3563,6 +3567,7 @@ var
 var
   P: Integer;
   AIncludes: TStringList;
+  SignTool, SignToolParams: String;
 begin
   SeparateDirective(Line, KeyName, Value);
 
@@ -3572,7 +3577,7 @@ begin
   if I = -1 then
     AbortCompileOnLineFmt(SCompilerUnknownDirective, ['Setup', KeyName]);
   Directive := TSetupSectionDirectives(I);
-  if SetupDirectiveLines[Directive] <> 0 then
+  if (Directive <> ssSignTool) and (SetupDirectiveLines[Directive] <> 0) then
     AbortCompileOnLineFmt(SCompilerEntryAlreadySpecified, ['Setup', KeyName]);
   SetupDirectiveLines[Directive] := LineNumber;
   case Directive of
@@ -4072,6 +4077,8 @@ begin
         end;
         if FindSignToolIndexByName(SignTool) = -1 then
           Invalid;
+        SignTools.Add(SignTool);
+        SignToolsParams.Add(SignToolParams);
       end;
     ssSignToolRetryCount: begin
         I := StrToIntDef(Value, -1);
@@ -8056,6 +8063,7 @@ var
     F: TFile;
     LastError: DWORD;
     SignToolIndex: Integer;
+    I: Integer;
   begin
     UnsignedFileSize := UnsignedFile.CappedSize;
 
@@ -8063,8 +8071,7 @@ var
     ModeID := SetupExeModeUninstaller;
     UnsignedFile.WriteBuffer(ModeID, SizeOf(ModeID));
 
-    SignToolIndex := FindSignToolIndexByName(SignTool);
-    if SignToolIndex <> -1 then begin
+    if SignTools.Count > 0 then begin
       Filename := SignedUninstallerDir + 'uninst.e32.tmp';
 
       F := TFile.Create(Filename, fdCreateAlways, faWrite, fsNone);
@@ -8075,7 +8082,10 @@ var
       end;
 
       try
-        Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolParams, Filename, SignToolRetryCount);
+        for I := 0 to SignTools.Count - 1 do begin
+          SignToolIndex := FindSignToolIndexByName(SignTools[I]); //can't fail, already checked
+          Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolsParams[I], Filename, SignToolRetryCount);
+        end;
         if not InternalSignSetupE32(Filename, UnsignedFile, UnsignedFileSize,
            SCompilerSignedFileContentsMismatch) then
           AbortCompile(SCompilerSignToolSucceededButNoSignature);
@@ -8338,7 +8348,6 @@ begin
     WizardImageFile := 'compiler:WIZMODERNIMAGE.BMP';
     WizardSmallImageFile := 'compiler:WIZMODERNSMALLIMAGE.BMP';
     DefaultDialogFontName := 'Tahoma';
-    SignTool := '';
     SignToolRetryCount := 2;
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
     SetupHeader.WizardImageAlphaFormat := afIgnored;
@@ -8486,10 +8495,10 @@ begin
       LineNumber := SetupDirectiveLines[ssEncryption];
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'Password']);
     end;
-    if (SetupDirectiveLines[ssSignedUninstaller] = 0) and (SignTool <> '') then
+    if (SetupDirectiveLines[ssSignedUninstaller] = 0) and (SignTools.Count > 0) then
       Include(SetupHeader.Options, shSignedUninstaller);
     if not UseSetupLdr and
-       ((SignTool <> '') or (shSignedUninstaller in SetupHeader.Options)) then
+       ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then
       AbortCompile(SCompilerNoSetupLdrSignError);
     LineNumber := SetupDirectiveLines[ssCreateUninstallRegKey];
     CheckCheckOrInstall('CreateUninstallRegKey', SetupHeader.CreateUninstallRegKey, cikDirectiveCheck);
@@ -8894,10 +8903,14 @@ begin
         end;
 
         { Sign }
-        SignToolIndex := FindSignToolIndexByName(SignTool);
-        if SignToolIndex <> -1 then begin
-          AddStatus(SCompilerStatusSigningSetup);
-          Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolParams, ExeFilename, SignToolRetryCount);
+        if SignTools.Count > 0 then begin
+          for I := 0 to SignTools.Count - 1 do begin
+            SignToolIndex := FindSignToolIndexByName(SignTools[I]); //can't fail, already checked
+            if SignToolIndex <> -1 then begin
+              AddStatus(SCompilerStatusSigningSetup);
+              Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolsParams[I], ExeFilename, SignToolRetryCount);
+            end;
+          end;
         end;
       except
         EmptyOutputDir(False);

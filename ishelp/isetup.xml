@@ -124,7 +124,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Support for <link topic="setup_password">passworded</link> and <link topic="setup_encryption">encrypted</link> installs.</li>
 
-<li>Support for <link topic="setup_signtool">digitally signed</link> installs and uninstalls.</li>
+<li>Support for <link topic="setup_signtool">digitally signed</link> installs and uninstalls, including dual signing (SHA1 &amp; SHA256).</li>
 
 <li><link topic="setupcmdline" anchor="SILENT">Silent install</link> and <link topic="uninstcmdline" anchor="SILENT">silent uninstall</link>.</li>
 
@@ -4888,7 +4888,7 @@ DiskSliceSize=1457664
 <keyword value="digital signature" />
 <keyword value="code signing" />
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt> if <link topic="setup_signtool">SignTool</link> is set, <tt>no</tt> otherwise</setupdefault>
+<setupdefault><tt>yes</tt> if a <link topic="setup_signtool">SignTool</link> is set, <tt>no</tt> otherwise</setupdefault>
 <body>
 <p>Specifies whether the uninstaller program (unins???.exe) should be deployed with a digital signature attached. When the uninstaller has a valid digital signature, Windows Vista users will not see an "unidentified program" warning when launching it from outside of Control Panel.</p>
 <p>The first time you compile a script with this directive set to <tt>yes</tt>, a uniquely-named copy of the uninstaller EXE file will be created in the directory specified by the <link topic="setup_signeduninstallerdir">SignedUninstallerDir</link> directive (which defaults to the <link topic="setup_outputdir">output directory</link>). Depending on the <link topic="setup_signtool">SignTool</link> setting, you will either then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's signtool.exe) or the file will be automatically signed on the fly. On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers.</p>
@@ -4926,22 +4926,34 @@ DiskSliceSize=1457664
 <example>
 <p>Assume the following Sign Tools have been defined in the IDE:</p>
 <pre>
-mystandard=signtool.exe /x /y /d $qMy Program$q $f
+mystandard=signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
 mycustom=signtool.exe $p
 byparam=$p
 </pre>
 <p>then some examples would be:</p>
 <pre>
+[Setup]
 SignTool=mystandard
-SignTool=mycustom /x /y /d $qMy Program$q $f
-SignTool=byparam signtool.exe /x /y /d $qMy Program$q $f
+
+[Setup]
+SignTool=mycustom sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+
+[Setup]
+SignTool=byparam signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+</pre>
+<p>The Setup section may also list multiple SignTool directives which will be executed in order of appearance. This can be used to dual sign (SHA1 &amp; SHA256) Setup and Uninstall:</p>
+<pre>
+[Setup]
+SignTool=mycustom sign /a /n $qMy Common Name$q /fd sha1 /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+SignTool=mycustom sign /a /n $qMy Common Name$q /as /fd sha256 /tr http://timestamp.comodoca.com/rfc3161 /d $qMy Program$q $f
 </pre>
 <p>Note: for security reasons you should give a unique name to any Sign Tool set to <tt>$p</tt>, and not use a <tt>byparam</tt> name copied from this example. Consider what happens if you #include a third-party file that says:</p>
 <pre>
+[Setup]
 SignTool=byparam format c: 
 </pre>
 </example>
-<p>Details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
+<p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
 <p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <link topic="setup_diskslicesize">DiskSliceSize</link> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-1 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-1 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
