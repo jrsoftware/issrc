@@ -1552,7 +1552,9 @@ end;</pre></example>
       <function>
         <name>Exec</name>
         <prototype>function Exec(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
-        <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was executed successfully, False otherwise. If True is returned and Wait is ewWaitUntilTerminated then ResultCode returns the exit code of the process. If False is returned then ResultCode specifies the error that occurred. Use SysErrorMessage(ResultCode) to get a description of the error.</p></description>
+        <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was executed successfully, False otherwise.</p>
+<p>If True is returned and Wait is ewWaitUntilTerminated then ResultCode returns the exit code of the process.</p>
+<p>If False is returned then ResultCode specifies the error that occurred. Use SysErrorMessage(ResultCode) to get a description of the error.</p></description>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Use the <link topic="isxfunc_ShellExec">ShellExec</link> function instead if you need to launch a file that is not an executable or batch file.</p>
