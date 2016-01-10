@@ -560,7 +560,7 @@ external '&lt;dllfunctionname&gt;@&lt;dllfilename&gt; &lt;callingconvention&gt; 
 <flaglist>
 
 <flag name="delayload">
-<p>Specifies that the DLL should be delay loaded. Normally the Pascal script checks at startup whether the DLL function can be called and if not, refuses to run. This does not happen if you specify delay loading using 'delayload'. Use delay loading if you want to call a DLL function for which you don't know whether it will actually be available at runtime: if the DLL function can't be called, the Pascal script will still run but throw an expection when you try to call the DLL function which you can catch to handle the absence of the DLL function.</p>
+<p>Specifies that the DLL should be delay loaded. Normally the Pascal script checks at startup whether the DLL function can be called and if not, refuses to run. This does not happen if you specify delay loading using 'delayload'. Use delay loading if you want to call a DLL function for which you don't know whether it will actually be available at runtime: if the DLL function can't be called, the Pascal script will still run but throw an exception when you try to call the DLL function which you can catch to handle the absence of the DLL function.</p>
 </flag>
 
 <flag name="loadwithalteredsearchpath">
