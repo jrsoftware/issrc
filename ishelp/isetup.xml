@@ -85,7 +85,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 5.5.7</b><br/>
+<b>Inno Setup version 5.5.8</b><br/>
 <b>Copyright &copy; 1997-2016 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2016 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
@@ -3094,7 +3094,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <dd>
 <p>Causes Setup to create a log file in the user's TEMP directory detailing file installation and [Run] actions taken during the installation process. This can be a helpful debugging aid. For example, if you suspect a file isn't being replaced when you believe it should be (or vice versa), the log file will tell you if the file was really skipped, and why.</p>
 <p>The log file is created with a unique name based on the current date. (It will not overwrite or append to existing files.)</p>
-<p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parseable; the format of the file is subject to change without notice.</p>
+<p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parsable; the format of the file is subject to change without notice.</p>
 </dd>
 
 <dt><b><a name="LOG2">/LOG=</a>"<i>filename</i>"</b></dt>
@@ -3361,7 +3361,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <dd>
 <p>Causes Uninstall to create a log file in the user's TEMP directory detailing file uninstallation and [UninstallRun] actions taken during the uninstallation process. This can be a helpful debugging aid.</p>
 <p>The log file is created with a unique name based on the current date. (It will not overwrite or append to existing files.)</p>
-<p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parseable; the format of the file is subject to change without notice.</p>
+<p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parsable; the format of the file is subject to change without notice.</p>
 </dd>
 
 <dt><b><a name="LOG2">/LOG=</a>"<i>filename</i>"</b></dt>
@@ -3865,7 +3865,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupdefault><tt>lzma2/max</tt></setupdefault>
 <body>
 <p>This specifies the method of compression to use on the files, and optionally the level of compression. Higher levels compress better but take longer doing so, and may also require more memory while compressing/decompressing.</p>
-<p><tt>zip</tt> is the method of compression employed by .zip files ("deflate"). It is fast in both compression and decompression, and has very low memory requirements (less than 1 MB for both compression and decompression at level 9), but generally does not compress nearly as well as the other supported methods. <tt>zip</tt>, like <tt>lzma2</tt>, has one special property, though: it will not expand uncompressible data (e.g., files that are already compressed). If a compression level isn't specified, it defaults to 7.</p>
+<p><tt>zip</tt> is the method of compression employed by .zip files ("deflate"). It is fast in both compression and decompression, and has very low memory requirements (less than 1 MB for both compression and decompression at level 9), but generally does not compress nearly as well as the other supported methods. <tt>zip</tt>, like <tt>lzma2</tt>, has one special property, though: it will not expand incompressible data (e.g., files that are already compressed). If a compression level isn't specified, it defaults to 7.</p>
 <p><tt>bzip</tt> is the method of compression employed by the <extlink href="http://www.bzip.org/">bzip2</extlink> compressor. It almost always compresses better than <tt>zip</tt> but is usually slower in both compression and decompression. Up to 4 MB of memory is required during decompression, and up to 8 MB during compression. If a compression level isn't specified, it defaults to 9.</p>
 <p><tt>lzma</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA</extlink> compressor. It typically compresses significantly better than the <tt>zip</tt> and <tt>bzip</tt> methods. However, depending on the compression level used, it can be significantly slower at compressing, and consume a <i>lot</i> more memory. The following table summarizes the approximate memory requirements for each of the supported <tt>lzma</tt> compression levels. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <indent>
@@ -3878,7 +3878,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <tr><td><tt>ultra64</tt> (best)</td><td>64 MB</td><td>676 MB</td></tr>
 </table>
 </indent>
-<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for uncompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>). Like LZMA, it can consume a <i>lot</i> of memory; see the above table. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
+<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>). Like LZMA, it can consume a <i>lot</i> of memory; see the above table. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <p><tt>none</tt> specifies that no compression be used.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_solidcompression">SolidCompression</link><br/>
@@ -4518,7 +4518,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>Output</tt></setupdefault>
 <body>
 <p>Specifies the "output" directory for the script, which is where the Setup Compiler will place the resulting SETUP.* files. By default, it creates a directory named "Output" under the directory containing the script for this.</p>
-<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the the My Documents folder of the currenlty logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
+<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
 <example><pre>OutputDir=c:\output</pre></example>
 </body>
 </setuptopic>

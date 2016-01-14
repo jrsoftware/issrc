@@ -22,9 +22,9 @@ LanguageCodePage=1250
 [Messages]
   
 ; *** Application titles
-SetupAppTitle=Instalacja
+SetupAppTitle=Instalator
 SetupWindowTitle=Instalacja - %1
-UninstallAppTitle=Dezinstalacja
+UninstallAppTitle=Dezinstalator
 UninstallAppFullTitle=Dezinstalacja - %1
 
 ; *** Misc. common
