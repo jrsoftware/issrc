@@ -67,7 +67,7 @@ ExitSetupMessage=Instalacja nie zosta³a zakoñczona. Je¿eli przerwiesz j¹ teraz, 
 AboutSetupMenuItem=&O instalatorze...
 AboutSetupTitle=O instalatorze
 AboutSetupMessage=%1 wersja %2%n%3%n%n Strona domowa %1:%n%4
-AboutSetupNote=	
+AboutSetupNote=
 TranslatorNote=Wersja polska: Krzysztof Cynarski%n<krzysztof at cynarski.net>%nKorekta: £ukasz Abramczuk%n<lukasz.abramczuk at gmail.com>
 
 ; *** Buttons
