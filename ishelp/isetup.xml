@@ -4946,7 +4946,7 @@ SignTool=byparam signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.
 [Setup]
 SignTool=mycustom sign /a /n $qMy Common Name$q /fd sha1 /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
 ;the /as parameter in the following SignTool requires a recent signtool.exe version
-SignTool=mycustom sign /a /n $qMy Common Name$q /as /fd sha256 /tr http://timestamp.comodoca.com/rfc3161 /d $qMy Program$q $f
+SignTool=mycustom sign /a /n $qMy Common Name$q /as /fd sha256 /td sha256 /tr http://timestamp.comodoca.com/rfc3161 /d $qMy Program$q $f
 </pre>
 <p>Note: for security reasons you should give a unique name to any Sign Tool set to <tt>$p</tt>, and not use a <tt>byparam</tt> name copied from this example. Consider what happens if you #include a third-party file that says:</p>
 <pre>
