@@ -57,10 +57,23 @@ begin
 end;
 
 function SetBiDiStyles(const AControl: TControl; var AParams: TCreateParams): Boolean;
+var
+  ClassName: String;
+  ExStyle: DWORD;
+
 begin
   Result := IsParentRightToLeft(AControl);
   if Result then
-    AParams.ExStyle := AParams.ExStyle or (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
+  begin
+    ClassName := AControl.ClassType.ClassName;
+    
+    if (ClassName = 'TNewProgressBar') then
+       ExStyle := (WS_EX_LAYOUTRTL or WS_EX_NOINHERITLAYOUT)
+    else
+       ExStyle := (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
+
+    AParams.ExStyle := AParams.ExStyle or ExStyle;
+  end;
 end;
 
 procedure FlipControls(const AParentCtl: TWinControl);
