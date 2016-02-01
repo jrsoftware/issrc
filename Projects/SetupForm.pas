@@ -335,6 +335,7 @@ end;
 procedure TSetupForm.CreateParams(var Params: TCreateParams);
 begin
   inherited;
+  { Added full RightToLeft support }
   if FRightToLeft then
     Params.ExStyle := Params.ExStyle or (WS_EX_LAYOUTRTL or WS_EX_NOINHERITLAYOUT or WS_EX_LEFTSCROLLBAR);
 end;
@@ -357,6 +358,9 @@ begin
 
     for I := 0 to Self.ControlCount - 1 do
     begin
+	  { When added WS_EX_LAYOUTRTL there is no need to flip all controls
+        because Windows will flipped it automatically, so we still need
+        to flip all controls in TNewsNotebook because it's no effect }
       if Self.Controls[I] is TNewNotebook then
          FlipControls(TWinControl(Self.Controls[I]));
     end;

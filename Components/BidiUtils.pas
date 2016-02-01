@@ -65,10 +65,13 @@ begin
   Result := IsParentRightToLeft(AControl);
   if Result then
   begin
+    { We get (Fatal F2047) when added NewProgressBar and FolderTreeView unit
+      to uses section, so we used the class name to check if it's
+      TNewProgressBar or TCustomFolderTreeView }
     ClassName := AControl.ClassType.ClassName;
     
-    if (ClassName = 'TNewProgressBar') then
-       ExStyle := (WS_EX_LAYOUTRTL or WS_EX_NOINHERITLAYOUT)
+    if (ClassName = 'TNewProgressBar') or (ClassName = 'TCustomFolderTreeView') then
+       ExStyle := WS_EX_LAYOUTRTL
     else
        ExStyle := (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
 

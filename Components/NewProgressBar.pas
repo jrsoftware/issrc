@@ -32,7 +32,6 @@ type
     FMin: LongInt;
     FMax: LongInt;
     FPosition: LongInt;
-    FUseRightToLeft: Boolean;
     FState: TNewProgressBarState;
     FStyle: TNewProgressBarStyle;
     procedure SetMin(Value: LongInt);
@@ -90,7 +89,8 @@ begin
   Params.Style := Params.Style or PBS_SMOOTH;
   if XP and (Style = npbstMarquee) then
     Params.Style := Params.Style or PBS_MARQUEE;
-  FUseRightToLeft := SetBiDiStyles(Self, Params);
+  
+  SetBiDiStyles(Self, Params);
 end;
 
 procedure TNewProgressBar.CreateWnd;

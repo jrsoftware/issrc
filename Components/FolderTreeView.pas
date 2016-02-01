@@ -14,7 +14,8 @@ interface
 {$I VERSION.INC}
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, CommCtrl;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, 
+  CommCtrl, BidiUtils;
 
 type
   TCustomFolderTreeView = class;
@@ -1087,6 +1088,7 @@ procedure TStartMenuFolderTreeView.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   Params.Style := Params.Style and not TVS_LINESATROOT;
+  SetBiDiStyles(Self, Params);
 end;
 
 function TStartMenuFolderTreeView.GetItemImageIndex(const Item: HTREEITEM;
