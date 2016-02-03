@@ -2214,7 +2214,8 @@ If <tt>LanguageCodePage</tt> is set to <tt>0</tt>, the language will always be c
 
 <p><link topic="unicode">Unicode Inno Setup</link> <b>LanguageCodePage</b>:<br />
 <tt>LanguageCodePage</tt> specifies the "code page" (character set) needed for the compiler to convert the text in the language's .isl file to Unicode. Note that text in the .iss file such as a [CustomMessages] entry for the language is not converted and should be in Unicode already.<br/>
-If <tt>LanguageCodePage</tt> is set to <tt>0</tt>, the system code page will be used.</p>
+If no code page currently exists for the language, set <tt>LanguageCodePage</tt> to <tt>0</tt>, use a special .islu extension for the language's file, and encode this file as Unicode. Note: this makes your language file unusable by Non Unicode Inno Setup so only do this if really needed. Also note: a <tt>LanguageName</tt> setting in a .islu file does not need to use the special "&lt;nnnn&gt;" encoding mentioned above.<br/>
+If <tt>LanguageCodePage</tt> is set to <tt>0</tt> but no .islu extension is used, the system code page will be used to convert the text in the language's .isl file to Unicode.</p>
 
 <p><b><a name="DialogFontName">DialogFontName</a></b> and <b><a name="DialogFontSize">DialogFontSize</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <link topic="setup_defaultdialogfontname">DefaultDialogFontName</link> [Setup] section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
