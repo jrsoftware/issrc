@@ -53,7 +53,7 @@ type
     Data: String;
   end;
 
-  TEnumIniSectionProc = procedure(const Line: PChar; const Ext: Integer) of object;
+  TEnumIniSectionProc = procedure(const Line: PChar; const Ext, Ext2: Integer) of object;
 
   TSetupSectionDirectives = (
     ssAllowCancelDuringInstall,
@@ -410,7 +410,7 @@ type
     procedure CallIdleProc;
     procedure DoCallback(const Code: Integer; var Data: TCompilerCallbackData);
     procedure EnumIniSection(const EnumProc: TEnumIniSectionProc;
-      const SectionName: String; const Ext: Integer; const Verbose, SkipBlankLines: Boolean;
+      const SectionName: String; const Ext, Ext2: Integer; const Verbose, SkipBlankLines: Boolean;
       const Filename: String; const AnsiLanguageFile, Pre: Boolean);
     function EvalCheckOrInstallIdentifier(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
@@ -420,27 +420,27 @@ type
       const AllowedConsts: TAllowedConsts): Boolean;
     procedure CheckCustomMessageDefinitions;
     procedure CheckCustomMessageReferences;
-    procedure EnumTypes(const Line: PChar; const Ext: Integer);
-    procedure EnumComponents(const Line: PChar; const Ext: Integer);
-    procedure EnumTasks(const Line: PChar; const Ext: Integer);
-    procedure EnumDirs(const Line: PChar; const Ext: Integer);
-    procedure EnumIcons(const Line: PChar; const Ext: Integer);
-    procedure EnumINI(const Line: PChar; const Ext: Integer);
+    procedure EnumTypes(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumComponents(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumTasks(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumDirs(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumIcons(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumINI(const Line: PChar; const Ext, Ext2: Integer);
 {$IFDEF UNICODE}
-    procedure EnumLangOptionsPre(const Line: PChar; const Ext: Integer);
+    procedure EnumLangOptionsPre(const Line: PChar; const Ext, Ext2: Integer);
 {$ENDIF}
-    procedure EnumLangOptions(const Line: PChar; const Ext: Integer);
+    procedure EnumLangOptions(const Line: PChar; const Ext, Ext2: Integer);
 {$IFDEF UNICODE}
-    procedure EnumLanguagesPre(const Line: PChar; const Ext: Integer);
+    procedure EnumLanguagesPre(const Line: PChar; const Ext, Ext2: Integer);
 {$ENDIF}
-    procedure EnumLanguages(const Line: PChar; const Ext: Integer);
-    procedure EnumRegistry(const Line: PChar; const Ext: Integer);
-    procedure EnumDelete(const Line: PChar; const Ext: Integer);
-    procedure EnumFiles(const Line: PChar; const Ext: Integer);
-    procedure EnumRun(const Line: PChar; const Ext: Integer);
-    procedure EnumSetup(const Line: PChar; const Ext: Integer);
-    procedure EnumMessages(const Line: PChar; const Ext: Integer);
-    procedure EnumCustomMessages(const Line: PChar; const Ext: Integer);
+    procedure EnumLanguages(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumRegistry(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumDelete(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumFiles(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumRun(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumSetup(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumMessages(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumCustomMessages(const Line: PChar; const Ext, Ext2: Integer);
     procedure ExtractParameters(S: PChar; const ParamInfo: array of TParamInfo;
       var ParamValues: array of TParamValue);
     function FindLangEntryIndexByName(const AName: String; const Pre: Boolean): Integer;
@@ -485,7 +485,7 @@ type
     procedure ReadMessagesFromScript;
     function ReadScriptFile(const Filename: String; const UseCache: Boolean;
       const AnsiConvertCodePage: Cardinal): TScriptFileLines;
-    procedure EnumCode(const Line: PChar; const Ext: Integer);
+    procedure EnumCode(const Line: PChar; const Ext, Ext2: Integer);
     procedure ReadCode;
     procedure CodeCompilerOnLineToLineInfo(const Line: LongInt; var Filename: String; var FileLine: LongInt);
     procedure CodeCompilerOnUsedLine(const Filename: String; const Line, Position: LongInt);
@@ -2256,7 +2256,7 @@ begin
 end;
 
 procedure TSetupCompiler.EnumIniSection(const EnumProc: TEnumIniSectionProc;
-  const SectionName: String; const Ext: Integer; const Verbose, SkipBlankLines: Boolean;
+  const SectionName: String; const Ext, Ext2: Integer; const Verbose, SkipBlankLines: Boolean;
   const Filename: String; const AnsiLanguageFile, Pre: Boolean);
 var
   FoundSection: Boolean;
@@ -2341,7 +2341,7 @@ var
               AddStatus(Format(SCompilerStatusParsingSectionLineFile,
                 [SectionName, LineNumber, ParseFilename]));
           end;
-          EnumProc(PChar(Line.LineText), Ext);
+          EnumProc(PChar(Line.LineText), Ext, Ext2);
         end;
       end;
 
@@ -3395,7 +3395,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.EnumSetup(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumSetup(const Line: PChar; const Ext, Ext2: Integer);
 var
   KeyName, Value: String;
   I: Integer;
@@ -4301,7 +4301,7 @@ begin
 end;
 
 {$IFDEF UNICODE}
-procedure TSetupCompiler.EnumLangOptionsPre(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumLangOptionsPre(const Line: PChar; const Ext, Ext2: Integer);
 
   procedure ApplyToLangEntryPre(const KeyName, Value: String;
     const PreLangData: TPreLangData; const AffectsMultipleLangs: Boolean);
@@ -4355,10 +4355,10 @@ begin
 end;
 {$ENDIF}
 
-procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext, Ext2: Integer);
 
   procedure ApplyToLangEntry(const KeyName, Value: String;
-    var LangOptions: TSetupLanguageEntry; const AffectsMultipleLangs: Boolean);
+    var LangOptions: TSetupLanguageEntry; const AffectsMultipleLangs, AnsiLanguageFile: Boolean);
   var
     I: Integer;
     Directive: TLangOptionsSectionDirectives;
@@ -4401,7 +4401,7 @@ procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext: Integer);
           Inc(I, 6);
         end
         else begin
-          if (N[I] > #126) and not AsciiWarningShown then begin
+          if AnsiLanguageFile and (N[I] > #126) and not AsciiWarningShown then begin
             WarningsList.Add(SCompilerLanguageNameNotAscii);
             AsciiWarningShown := True;
           end;
@@ -4472,18 +4472,20 @@ procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext: Integer);
 var
   KeyName, Value: String;
   I, LangIndex: Integer;
+  AnsiLanguageFile: Boolean;
 begin
   SeparateDirective(Line, KeyName, Value);
   LangIndex := ExtractLangIndex(Self, KeyName, Ext, False);
+  AnsiLanguageFile := Boolean(Ext2);
   if LangIndex = -1 then begin
     for I := 0 to LanguageEntries.Count-1 do
       ApplyToLangEntry(KeyName, Value, PSetupLanguageEntry(LanguageEntries[I])^,
-        LanguageEntries.Count > 1);
+        LanguageEntries.Count > 1, AnsiLanguageFile);
   end else
-    ApplyToLangEntry(KeyName, Value, PSetupLanguageEntry(LanguageEntries[LangIndex])^, False);
+    ApplyToLangEntry(KeyName, Value, PSetupLanguageEntry(LanguageEntries[LangIndex])^, False, AnsiLanguageFile);
 end;
 
-procedure TSetupCompiler.EnumTypes(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumTypes(const Line: PChar; const Ext, Ext2: Integer);
 
   function IsCustomTypeAlreadyDefined: Boolean;
   var
@@ -4558,7 +4560,7 @@ begin
   TypeEntries.Add(NewTypeEntry);
 end;
 
-procedure TSetupCompiler.EnumComponents(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumComponents(const Line: PChar; const Ext, Ext2: Integer);
 type
   TParam = (paFlags, paName, paDescription, paExtraDiskSpaceRequired, paTypes,
     paLanguages, paCheck, paMinVersion, paOnlyBelowVersion);
@@ -4662,7 +4664,7 @@ begin
   ComponentEntries.Add(NewComponentEntry);
 end;
 
-procedure TSetupCompiler.EnumTasks(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumTasks(const Line: PChar; const Ext, Ext2: Integer);
 type
   TParam = (paFlags, paName, paDescription, paGroupDescription, paComponents,
     paLanguages, paCheck, paMinVersion, paOnlyBelowVersion);
@@ -4752,7 +4754,7 @@ end;
 const
   FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = $00002000;
 
-procedure TSetupCompiler.EnumDirs(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumDirs(const Line: PChar; const Ext, Ext2: Integer);
 type
   TParam = (paFlags, paName, paAttribs, paPermissions, paComponents, paTasks,
     paLanguages, paCheck, paBeforeInstall, paAfterInstall, paMinVersion,
@@ -4891,7 +4893,7 @@ const
     SmkcDown, SmkcIns, SmkcDel, SmkcShift, SmkcCtrl, SmkcAlt);
 {$ENDIF}
 
-procedure TSetupCompiler.EnumIcons(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumIcons(const Line: PChar; const Ext, Ext2: Integer);
 
   {$IFNDEF Delphi3OrHigher}
   procedure LoadStrings;
@@ -5135,7 +5137,7 @@ begin
   IconEntries.Add(NewIconEntry);
 end;
 
-procedure TSetupCompiler.EnumINI(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumINI(const Line: PChar; const Ext, Ext2: Integer);
 type
   TParam = (paFlags, paFilename, paSection, paKey, paString, paComponents,
     paTasks, paLanguages, paCheck, paBeforeInstall, paAfterInstall,
@@ -5234,7 +5236,7 @@ begin
   IniEntries.Add(NewIniEntry);
 end;
 
-procedure TSetupCompiler.EnumRegistry(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumRegistry(const Line: PChar; const Ext, Ext2: Integer);
 type
   TParam = (paFlags, paRoot, paSubkey, paValueType, paValueName, paValueData,
     paPermissions, paComponents, paTasks, paLanguages, paCheck, paBeforeInstall,
@@ -5507,7 +5509,7 @@ begin
   RegistryEntries.Add(NewRegistryEntry);
 end;
 
-procedure TSetupCompiler.EnumDelete(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumDelete(const Line: PChar; const Ext, Ext2: Integer);
 type
   TParam = (paType, paName, paComponents, paTasks, paLanguages, paCheck,
     paBeforeInstall, paAfterInstall, paMinVersion, paOnlyBelowVersion);
@@ -5584,7 +5586,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.EnumFiles(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumFiles(const Line: PChar; const Ext, Ext2: Integer);
 
   function EscapeBraces(const S: String): String;
   { Changes all '{' to '{{' }
@@ -6491,7 +6493,7 @@ begin
   SetFileTime(H, nil, nil, @FT);
 end;
 
-procedure TSetupCompiler.EnumRun(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumRun(const Line: PChar; const Ext, Ext2: Integer);
 type
   TParam = (paFlags, paFilename, paParameters, paWorkingDir, paRunOnceId,
     paDescription, paStatusMsg, paVerb, paComponents, paTasks, paLanguages,
@@ -6711,7 +6713,7 @@ const
     (Name: ParamLanguagesInfoAfterFile; Flags: [piNoEmpty]));
 
 {$IFDEF UNICODE}
-procedure TSetupCompiler.EnumLanguagesPre(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumLanguagesPre(const Line: PChar; const Ext, Ext2: Integer);
 var
   Values: array[TLanguagesParam] of TParamValue;
   NewPreLangData: TPreLangData;
@@ -6743,7 +6745,7 @@ begin
 end;
 {$ENDIF}
 
-procedure TSetupCompiler.EnumLanguages(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumLanguages(const Line: PChar; const Ext, Ext2: Integer);
 var
   Values: array[TLanguagesParam] of TParamValue;
   NewLanguageEntry: PSetupLanguageEntry;
@@ -6800,7 +6802,7 @@ begin
   ReadMessagesFromFiles(Filename, LanguageEntries.Count-1);
 end;
 
-procedure TSetupCompiler.EnumMessages(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumMessages(const Line: PChar; const Ext, Ext2: Integer);
 var
   P, P2: PChar;
   I, ID, LangIndex: Integer;
@@ -6849,7 +6851,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.EnumCustomMessages(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumCustomMessages(const Line: PChar; const Ext, Ext2: Integer);
 
   function ExpandNewlines(const S: String): String;
   { Replaces '%n' with #13#10 }
@@ -7033,7 +7035,7 @@ begin
     Filename := PathExpand(PrependSourceDirName(Filename));
     AnsiLanguageFile := CompareText(PathExtractExt(Filename), '.islu') <> 0;
     AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
-    EnumIniSection(EnumLangOptionsPre, 'LangOptions', ALangIndex, False, True, Filename, AnsiLanguageFile, True);
+    EnumIniSection(EnumLangOptionsPre, 'LangOptions', ALangIndex, 0, False, True, Filename, AnsiLanguageFile, True);
     CallIdleProc;
   end;
 end;
@@ -7053,11 +7055,11 @@ begin
     Filename := PathExpand(PrependSourceDirName(Filename));
     AnsiLanguageFile := CompareText(PathExtractExt(Filename), '.islu') <> 0;
     AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
-    EnumIniSection(EnumLangOptions, 'LangOptions', ALangIndex, False, True, Filename, AnsiLanguageFile, False);
+    EnumIniSection(EnumLangOptions, 'LangOptions', ALangIndex, Integer(AnsiLanguageFile), False, True, Filename, AnsiLanguageFile, False);
     CallIdleProc;
-    EnumIniSection(EnumMessages, 'Messages', ALangIndex, False, True, Filename, AnsiLanguageFile, False);
+    EnumIniSection(EnumMessages, 'Messages', ALangIndex, 0, False, True, Filename, AnsiLanguageFile, False);
     CallIdleProc;
-    EnumIniSection(EnumCustomMessages, 'CustomMessages', ALangIndex, False, True, Filename, AnsiLanguageFile, False);
+    EnumIniSection(EnumCustomMessages, 'CustomMessages', ALangIndex, 0, False, True, Filename, AnsiLanguageFile, False);
     CallIdleProc;
   end;
 end;
@@ -7067,7 +7069,7 @@ var
   J: TSetupMessageID;
 begin
   { Read messages from Default.isl into DefaultLangData }
-  EnumIniSection(EnumMessages, 'Messages', -2, False, True, 'compiler:Default.isl', True, False);
+  EnumIniSection(EnumMessages, 'Messages', -2, 0, False, True, 'compiler:Default.isl', True, False);
   CallIdleProc;
 
   { Check for missing messages in Default.isl }
@@ -7109,7 +7111,7 @@ begin
 
   { Then read the [LangOptions] section in the script }
   AddStatus(SCompilerStatusReadingInScriptMsgs);
-  EnumIniSection(EnumLangOptionspre, 'LangOptions', -1, False, True, '', False, True);
+  EnumIniSection(EnumLangOptionspre, 'LangOptions', -1, 0, False, True, '', False, True);
   CallIdleProc;
 end;
 {$ENDIF}
@@ -7153,11 +7155,11 @@ begin
 
   { Then read the [LangOptions] & [Messages] & [CustomMessages] sections in the script }
   AddStatus(SCompilerStatusReadingInScriptMsgs);
-  EnumIniSection(EnumLangOptions, 'LangOptions', -1, False, True, '', False, False);
+  EnumIniSection(EnumLangOptions, 'LangOptions', -1, 0, False, True, '', False, False);
   CallIdleProc;
-  EnumIniSection(EnumMessages, 'Messages', -1, False, True, '', False, False);
+  EnumIniSection(EnumMessages, 'Messages', -1, 0, False, True, '', False, False);
   CallIdleProc;
-  EnumIniSection(EnumCustomMessages, 'CustomMessages', -1, False, True, '', False, False);
+  EnumIniSection(EnumCustomMessages, 'CustomMessages', -1, 0, False, True, '', False, False);
   CallIdleProc;
 
   { Check for missing messages }
@@ -7220,7 +7222,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.EnumCode(const Line: PChar; const Ext: Integer);
+procedure TSetupCompiler.EnumCode(const Line: PChar; const Ext, Ext2: Integer);
 var
   CodeTextLineInfo: TLineInfo;
 begin
@@ -7234,7 +7236,7 @@ procedure TSetupCompiler.ReadCode;
 begin
   { Read [Code] section }
   AddStatus(SCompilerStatusReadingCode);
-  EnumIniSection(EnumCode, 'Code', 0, False, False, '', False, False);
+  EnumIniSection(EnumCode, 'Code', 0, 0, False, False, '', False, False);
   CallIdleProc;
 end;
 
@@ -8353,7 +8355,7 @@ begin
     SetupHeader.WizardImageAlphaFormat := afIgnored;
 
     { Read [Setup] section }
-    EnumIniSection(EnumSetup, 'Setup', 0, True, True, '', False, False);
+    EnumIniSection(EnumSetup, 'Setup', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Verify settings set in [Setup] section }
@@ -8671,7 +8673,7 @@ begin
 
     { 0.1. Read [Languages] section and [LangOptions] in the .isl files the
       entries reference }
-    EnumIniSection(EnumLanguagesPre, 'Languages', 0, True, True, '', False, True);
+    EnumIniSection(EnumLanguagesPre, 'Languages', 0, 0, True, True, '', False, True);
     CallIdleProc;
 
     { 0.2. Read [LangOptions] in the script }
@@ -8683,7 +8685,7 @@ begin
     ReadDefaultMessages;
 
     { 2. Read [Languages] section and the .isl files the entries reference }
-    EnumIniSection(EnumLanguages, 'Languages', 0, True, True, '', False, False);
+    EnumIniSection(EnumLanguages, 'Languages', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { 3. Read [LangOptions] & [Messages] & [CustomMessages] in the script }
@@ -8698,53 +8700,53 @@ begin
     ReadCode;
 
     { Read [Types] section }
-    EnumIniSection(EnumTypes, 'Types', 0, True, True, '', False, False);
+    EnumIniSection(EnumTypes, 'Types', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Components] section }
-    EnumIniSection(EnumComponents, 'Components', 0, True, True, '', False, False);
+    EnumIniSection(EnumComponents, 'Components', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Tasks] section }
-    EnumIniSection(EnumTasks, 'Tasks', 0, True, True, '', False, False);
+    EnumIniSection(EnumTasks, 'Tasks', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Dirs] section }
-    EnumIniSection(EnumDirs, 'Dirs', 0, True, True, '', False, False);
+    EnumIniSection(EnumDirs, 'Dirs', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Icons] section }
-    EnumIniSection(EnumIcons, 'Icons', 0, True, True, '', False, False);
+    EnumIniSection(EnumIcons, 'Icons', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [INI] section }
-    EnumIniSection(EnumINI, 'INI', 0, True, True, '', False, False);
+    EnumIniSection(EnumINI, 'INI', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Registry] section }
-    EnumIniSection(EnumRegistry, 'Registry', 0, True, True, '', False, False);
+    EnumIniSection(EnumRegistry, 'Registry', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [InstallDelete] section }
-    EnumIniSection(EnumDelete, 'InstallDelete', 0, True, True, '', False, False);
+    EnumIniSection(EnumDelete, 'InstallDelete', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [UninstallDelete] section }
-    EnumIniSection(EnumDelete, 'UninstallDelete', 1, True, True, '', False, False);
+    EnumIniSection(EnumDelete, 'UninstallDelete', 1, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Run] section }
-    EnumIniSection(EnumRun, 'Run', 0, True, True, '', False, False);
+    EnumIniSection(EnumRun, 'Run', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [UninstallRun] section }
-    EnumIniSection(EnumRun, 'UninstallRun', 1, True, True, '', False, False);
+    EnumIniSection(EnumRun, 'UninstallRun', 1, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Files] section }
     if not TryStrToBoolean(SetupHeader.Uninstallable, Uninstallable) or Uninstallable then
-      EnumFiles('', 1);
-    EnumIniSection(EnumFiles, 'Files', 0, True, True, '', False, False);
+      EnumFiles('', 1, 0);
+    EnumIniSection(EnumFiles, 'Files', 0, 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read decompressor DLL. Must be done after [Files] is parsed, since

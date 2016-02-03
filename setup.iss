@@ -38,6 +38,9 @@ SignedUninstaller=yes
 
 [Languages]
 Name: en; MessagesFile: "files\Default.isl"
+#ifdef UNICODE
+Name: ar; MessagesFile: "files\Languages\Armenian.islu"
+#endif
 Name: br; MessagesFile: "files\Languages\BrazilianPortuguese.isl"
 Name: ca; MessagesFile: "files\Languages\Catalan.isl"
 Name: co; MessagesFile: "files\Languages\Corsican.isl"
@@ -78,7 +81,7 @@ Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"
 [InstallDelete]
 ; Remove Unicode-only files if needed
 #ifndef UNICODE
-Type: files; Name: "{app}\Languages\Nepali.islu"
+Type: files; Name: "{app}\Languages\*.islu"
 #endif
 ; Remove ISPP files if needed
 Type: files; Name: "{app}\ISPP.dll"; Check: not ISPPCheck
@@ -102,34 +105,10 @@ Source: "files\ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\Languages\BrazilianPortuguese.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Catalan.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Corsican.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Czech.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Danish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Dutch.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\French.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Finnish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\German.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Greek.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Hebrew.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Hungarian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Italian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Japanese.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+Source: "files\Languages\*.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 #ifdef UNICODE
-Source: "files\Languages\Nepali.islu"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+Source: "files\Languages\*.islu"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 #endif
-Source: "files\Languages\Norwegian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Polish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Portuguese.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Russian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\ScottishGaelic.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\SerbianCyrillic.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\SerbianLatin.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Slovenian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Spanish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Turkish.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\Ukrainian.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\WizModernImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
