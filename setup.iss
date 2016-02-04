@@ -75,7 +75,7 @@ Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"
 #ifndef UNICODE
 Type: files; Name: "{app}\Languages\*.islu"
 #endif
-; Remove ISPP files if needed
+; Remove ISPP files if needed (leave ISPP.chm)
 Type: files; Name: "{app}\ISPP.dll"; Check: not ISPPCheck
 Type: files; Name: "{app}\ISPPBuiltins.iss"; Check: not ISPPCheck
 ; Remove old ISPP files
