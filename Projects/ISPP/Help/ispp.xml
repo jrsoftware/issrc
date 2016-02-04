@@ -1408,6 +1408,18 @@ The list of options is provided at the end of this topic.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
+			<topic id="RemoveFileExt">
+				<title>RemoveFileExt</title>
+				<section title="RemoveFileExt">
+					<pre>
+						<line>#define RemoveFileExt(str FileName)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Removes the extension in FileName.</para>
+          <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
 			<topic id="AddBackslash">
 				<title>AddBackslash</title>
 				<section title="AddBackslash">

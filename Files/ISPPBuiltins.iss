@@ -84,10 +84,10 @@
 //
 // ReadReg constants
 //
-#define HKEY_CLASSES_ROOT       0x80000000UL
-#define HKEY_CURRENT_USER       0x80000001UL
-#define HKEY_LOCAL_MACHINE      0x80000002UL
-#define HKEY_USERS              0x80000003UL
+#define HKEY_CLASSES_ROOT  0x80000000UL
+#define HKEY_CURRENT_USER  0x80000001UL
+#define HKEY_LOCAL_MACHINE 0x80000002UL
+#define HKEY_USERS         0x80000003UL
 #define HKEY_CURRENT_CONFIG     0x80000005UL
 #define HKEY_CLASSES_ROOT_64    0x82000000UL
 #define HKEY_CURRENT_USER_64    0x82000001UL
@@ -284,6 +284,15 @@
   !(Local[0] = RPos(".", FileName)) ? \
     FileName + "." + NewExt : \
     Copy(FileName, 1, Local[0]) + NewExt
+//
+// RemoveFileExt
+//
+// Removes extension in FileName.
+//
+#define RemoveFileExt(str FileName) \
+  !(Local[0] = RPos(".", FileName)) ? \
+  FileName : \
+  Copy(FileName, 1, Local[0] - 1)
 //
 // AddBackslash
 //
