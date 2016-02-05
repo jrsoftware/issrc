@@ -212,16 +212,6 @@ var
 begin
   Attr := GetFileAttributes(PChar(Name));
   Result := (Attr <> -1) and (Attr and faDirectory = 0);
-  {
-    When file is in pending delete, then Result is currently false,
-    but but it is impossible to open file or do anything to it. 
-    So it needs to be handled as existing
-    SysUtils.FileExists detects such files as existsing
-    Although there is still a problem with such file existing
-    in directory without list permission
-  }
-  if not Result and SysUtils.FileExists(Name) then
-    Result := True;
 end;
 
 function DirExists(const Name: String): Boolean;

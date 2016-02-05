@@ -236,22 +236,6 @@ begin
   try
     Result := Windows.DeleteFile(PChar(Filename));
     ErrorCode := GetLastError;
-    if Result then begin
-      { 
-        Using SysUtils.FileExists because only detects this file existing 
-        when also calling SysUtils.FileExists 
-      }
-      if SysUtils.FileExists(FileName) then begin
-        Result := False;
-        { 
-          Maybe it should be ERROR_DELETE_PENDING (303) - but that is supposed 
-          to be an error for opening file. 
-          ERROR_ACCESS_DENIED is better, because then installer handles it 
-          and will retry and  then Windows will respond with ERROR_ACCESS_DENIED anyway
-        }
-        ErrorCode := Windows.ERROR_ACCESS_DENIED; 
-      end;
-    end;
   finally
     RestoreFsRedirection(PrevState);
   end;
