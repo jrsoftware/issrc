@@ -37,42 +37,34 @@ SignedUninstaller=yes
 #endif
 
 [Languages]
-Name: en; MessagesFile: "files\Default.isl"
-#ifdef UNICODE
-Name: ar; MessagesFile: "files\Languages\Armenian.islu"
+Name: english; MessagesFile: "files\Default.isl"
+
+#sub ProcessFoundFile
+  #define FileName FindGetFileName(FindHandle)
+  #define Name LowerCase(RemoveFileExt(FileName))
+  #define MessagesFile PathName + FileName
+  #pragma message "Generating [Languages] entry with name " + Name
+  Name: {#Name}; MessagesFile: {#MessagesFile}
+#endsub
+
+#define PathName "files\Languages\"
+#define FindHandle
+#define FindResult
+
+#for {FindHandle = FindResult = FindFirst(PathName + "*.isl", 0); FindResult; FindResult = FindNext(FindHandle)} ProcessFoundFile
+#if FindHandle
+  #expr FindClose(FindHandle)
 #endif
-Name: br; MessagesFile: "files\Languages\BrazilianPortuguese.isl"
-Name: ca; MessagesFile: "files\Languages\Catalan.isl"
-Name: co; MessagesFile: "files\Languages\Corsican.isl"
-Name: cz; MessagesFile: "files\Languages\Czech.isl"
-Name: da; MessagesFile: "files\Languages\Danish.isl"
-Name: nl; MessagesFile: "files\Languages\Dutch.isl"
-Name: fi; MessagesFile: "files\Languages\Finnish.isl"
-Name: fr; MessagesFile: "files\Languages\French.isl"
-Name: de; MessagesFile: "files\Languages\German.isl"
-Name: gr; MessagesFile: "files\Languages\Greek.isl"
-Name: he; MessagesFile: "files\Languages\Hebrew.isl"
-Name: hu; MessagesFile: "files\Languages\Hungarian.isl"
-Name: it; MessagesFile: "files\Languages\Italian.isl"
-Name: ja; MessagesFile: "files\Languages\Japanese.isl"
 #ifdef UNICODE
-Name: nep; MessagesFile: "files\Languages\Nepali.islu"
+  #for {FindHandle = FindResult = FindFirst(PathName + "*.islu", 0); FindResult; FindResult = FindNext(FindHandle)} ProcessFoundFile
+  #if FindHandle
+    #expr FindClose(FindHandle)
+  #endif
 #endif
-Name: no; MessagesFile: "files\Languages\Norwegian.isl"
-Name: pl; MessagesFile: "files\Languages\Polish.isl"
-Name: pt; MessagesFile: "files\Languages\Portuguese.isl"
-Name: ru; MessagesFile: "files\Languages\Russian.isl"
-Name: sg; MessagesFile: "files\Languages\ScottishGaelic.isl"
-Name: se; MessagesFile: "files\Languages\SerbianLatin.isl"
-Name: se2; MessagesFile: "files\Languages\SerbianCyrillic.isl"
-Name: sl2; MessagesFile: "files\Languages\Slovenian.isl"
-Name: sp; MessagesFile: "files\Languages\Spanish.isl"
-Name: tu; MessagesFile: "files\Languages\Turkish.isl"
-Name: uk; MessagesFile: "files\Languages\Ukrainian.isl"
 
 [Messages]
 ; two "Setup" on the same line looks weird, so put a line break in between
-en.WelcomeLabel1=Welcome to the Inno Setup%nSetup Wizard
+english.WelcomeLabel1=Welcome to the Inno Setup%nSetup Wizard
 
 [Tasks]
 Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked
@@ -83,7 +75,7 @@ Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"
 #ifndef UNICODE
 Type: files; Name: "{app}\Languages\*.islu"
 #endif
-; Remove ISPP files if needed
+; Remove ISPP files if needed (leave ISPP.chm)
 Type: files; Name: "{app}\ISPP.dll"; Check: not ISPPCheck
 Type: files; Name: "{app}\ISPPBuiltins.iss"; Check: not ISPPCheck
 ; Remove old ISPP files

@@ -7,8 +7,8 @@
     <ProjectGuid>{79237A5C-6C62-400A-BBDD-3DA1CA327973}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Mydll</RootNamespace>
-    <AssemblyName>Mydll</AssemblyName>
+    <RootNamespace>MyDll</RootNamespace>
+    <AssemblyName>MyDll</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -45,7 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Mydll.cs" />
+    <Compile Include="MyDll.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
