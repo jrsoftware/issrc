@@ -1408,19 +1408,19 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      OldDateSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator;
-      OldTimeSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator;
+      OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
+      OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
       try
         NewDateSeparatorString := Get(1).AsStr;
         NewTimeSeparatorString := Get(2).AsStr;
         if NewDateSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
         if NewTimeSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
         MakeStr(ResPtr^, FormatDateTime(Get(0).AsStr, Now()));
       finally
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
       end;
     end;
   except
@@ -1443,23 +1443,23 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      OldDateSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator;
-      OldTimeSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator;
+      OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
+      OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
       try
         NewDateSeparatorString := Get(2).AsStr;
         NewTimeSeparatorString := Get(3).AsStr;
         if NewDateSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
         if NewTimeSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
         if not FileAge(PrependPath(Ext, Get(0).AsStr), Age) then begin
           FuncResult.Error('Invalid file name');
           Result.Error := ISPPFUNC_FAIL
         end else
           MakeStr(ResPtr^, FormatDateTime(Get(1).AsStr, Age));
       finally
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
       end;
     end;
   except

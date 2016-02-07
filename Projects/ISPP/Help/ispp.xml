@@ -573,7 +573,7 @@
 					</define>
 				</syntax>
 				<description>
-					<para>&pragma; is a special directive. Please note that if ISPP fails to parse parameters of this directive (because of typo or wrong sytax), no error will occur &dash; only a warning will be issued; this is done for compatibility with other preprocessors, which can have their own sytax of &pragma; directive.</para>
+					<para>&pragma; is a special directive. Please note that if ISPP fails to parse parameters of this directive (because of typo or wrong syntax), no error will occur &dash; only a warning will be issued; this is done for compatibility with other preprocessors, which can have their own syntax of &pragma; directive.</para>
 					<para>First syntax of &pragma; directive controls the options, which ISPP uses to read the source. There are two groups of options. Each group consists of 26 flags (not all of them are meaningful and used by ISPP, though). Each flag has an assigned latin letter. You specify options by typing group name (<synel>option</synel> or <synel>parseroption</synel>),
 then the letter following the dash. After a letter a plus or minus sign shall be specified. Plus sign to turn the option on, minus to turn it off. Unrestricted number of options can be specified at once (see syntax).
 The list of options is provided at the end of this topic.</para>
@@ -1405,6 +1405,18 @@ The list of options is provided at the end of this topic.</para>
 				</section>
 				<description>
 					<para>Changes the extension in FileName with NewExt. NewExt must not contain period.</para>
+          <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
+			<topic id="RemoveFileExt">
+				<title>RemoveFileExt</title>
+				<section title="RemoveFileExt">
+					<pre>
+						<line>#define RemoveFileExt(str FileName)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Removes the extension in FileName.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>

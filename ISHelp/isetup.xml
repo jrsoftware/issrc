@@ -3,7 +3,7 @@
 
 <!--
   Inno Setup
-  Copyright (C) 1997-2015 Jordan Russell
+  Copyright (C) 1997-2016 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 -->
@@ -85,9 +85,9 @@
 <body>
 
 <p>
-<b>Inno Setup version 5.5.7</b><br/>
-<b>Copyright &copy; 1997-2015 Jordan Russell. All rights reserved.</b><br/>
-<b>Portions Copyright &copy; 2000-2015 Martijn Laan. All rights reserved.</b><br/>
+<b>Inno Setup version 5.5.8</b><br/>
+<b>Copyright &copy; 1997-2016 Jordan Russell. All rights reserved.</b><br/>
+<b>Portions Copyright &copy; 2000-2016 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
 </p>
 
@@ -124,7 +124,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Support for <link topic="setup_password">passworded</link> and <link topic="setup_encryption">encrypted</link> installs.</li>
 
-<li>Support for <link topic="setup_signtool">digitally signed</link> installs and uninstalls.</li>
+<li>Support for <link topic="setup_signtool">digitally signed</link> installs and uninstalls, including dual signing (SHA1 &amp; SHA256).</li>
 
 <li><link topic="setupcmdline" anchor="SILENT">Silent install</link> and <link topic="uninstcmdline" anchor="SILENT">silent uninstall</link>.</li>
 
@@ -470,38 +470,38 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="dotnet20">{dotnet20}</a></b></dt>
 <dd>
-<p>.NET Framework version 2.0 root directory. <tt>{dotnet20}</tt> is equivalent to <tt>{dotnet2032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit mode</link>, in which case it is equivalent to <tt>{dotnet2064}</tt>.</p>
-<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0 present.</p>
+<p>.NET Framework version 2.0-3.5 root directory. <tt>{dotnet20}</tt> is equivalent to <tt>{dotnet2032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit mode</link>, in which case it is equivalent to <tt>{dotnet2064}</tt>.</p>
+<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0-3.5 present.</p>
 </dd>
 
 <dt><b><a name="dotnet2032">{dotnet2032}</a></b></dt>
 <dd>
-<p>32-bit .NET Framework version 2.0 root directory.</p>
-<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0 present.</p>
+<p>32-bit .NET Framework version 2.0-3.5 root directory.</p>
+<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0-3.5 present.</p>
 </dd>
 
 <dt><b><a name="dotnet2064">{dotnet2064}</a></b></dt>
 <dd>
-<p>64-bit Windows only: 64-bit .NET Framework version 2.0 root directory.</p>
-<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0 present.</p>
+<p>64-bit Windows only: 64-bit .NET Framework version 2.0-3.5 root directory.</p>
+<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0-3.5 present.</p>
 </dd>
 
 <dt><b><a name="dotnet40">{dotnet40}</a></b></dt>
 <dd>
-<p>.NET Framework version 4.0 root directory. <tt>{dotnet40}</tt> is equivalent to <tt>{dotnet4032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit mode</link>, in which case it is equivalent to <tt>{dotnet4064}</tt>.</p>
-<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 present.</p>
+<p>.NET Framework version 4.0 and later root directory. <tt>{dotnet40}</tt> is equivalent to <tt>{dotnet4032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit mode</link>, in which case it is equivalent to <tt>{dotnet4064}</tt>.</p>
+<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 or later present.</p>
 </dd>
 
 <dt><b><a name="dotnet4032">{dotnet4032}</a></b></dt>
 <dd>
-<p>32-bit .NET Framework version 4.0 root directory.</p>
-<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 present.</p>
+<p>32-bit .NET Framework version 4.0 and later root directory.</p>
+<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 or later present.</p>
 </dd>
 
 <dt><b><a name="dotnet4064">{dotnet4064}</a></b></dt>
 <dd>
-<p>64-bit Windows only: 64-bit .NET Framework version 2.0 root directory.</p>
-<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 present.</p>
+<p>64-bit Windows only: 64-bit .NET Framework version 4.0 and later root directory.</p>
+<p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 or later present.</p>
 </dd>
 
 </dl>
@@ -2214,7 +2214,8 @@ If <tt>LanguageCodePage</tt> is set to <tt>0</tt>, the language will always be c
 
 <p><link topic="unicode">Unicode Inno Setup</link> <b>LanguageCodePage</b>:<br />
 <tt>LanguageCodePage</tt> specifies the "code page" (character set) needed for the compiler to convert the text in the language's .isl file to Unicode. Note that text in the .iss file such as a [CustomMessages] entry for the language is not converted and should be in Unicode already.<br/>
-If <tt>LanguageCodePage</tt> is set to <tt>0</tt>, the system code page will be used.</p>
+If no code page currently exists for the language, set <tt>LanguageCodePage</tt> to <tt>0</tt>, use a special .islu extension for the language's file, and encode this file as Unicode. Note: this makes your language file unusable by Non Unicode Inno Setup so only do this if really needed. Also note: a <tt>LanguageName</tt> setting in a .islu file does not need to use the special "&lt;nnnn&gt;" encoding mentioned above.<br/>
+If <tt>LanguageCodePage</tt> is set to <tt>0</tt> but no .islu extension is used, the system code page will be used to convert the text in the language's .isl file to Unicode.</p>
 
 <p><b><a name="DialogFontName">DialogFontName</a></b> and <b><a name="DialogFontSize">DialogFontSize</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <link topic="setup_defaultdialogfontname">DefaultDialogFontName</link> [Setup] section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
@@ -3094,7 +3095,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <dd>
 <p>Causes Setup to create a log file in the user's TEMP directory detailing file installation and [Run] actions taken during the installation process. This can be a helpful debugging aid. For example, if you suspect a file isn't being replaced when you believe it should be (or vice versa), the log file will tell you if the file was really skipped, and why.</p>
 <p>The log file is created with a unique name based on the current date. (It will not overwrite or append to existing files.)</p>
-<p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parseable; the format of the file is subject to change without notice.</p>
+<p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parsable; the format of the file is subject to change without notice.</p>
 </dd>
 
 <dt><b><a name="LOG2">/LOG=</a>"<i>filename</i>"</b></dt>
@@ -3361,7 +3362,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <dd>
 <p>Causes Uninstall to create a log file in the user's TEMP directory detailing file uninstallation and [UninstallRun] actions taken during the uninstallation process. This can be a helpful debugging aid.</p>
 <p>The log file is created with a unique name based on the current date. (It will not overwrite or append to existing files.)</p>
-<p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parseable; the format of the file is subject to change without notice.</p>
+<p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parsable; the format of the file is subject to change without notice.</p>
 </dd>
 
 <dt><b><a name="LOG2">/LOG=</a>"<i>filename</i>"</b></dt>
@@ -3865,7 +3866,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupdefault><tt>lzma2/max</tt></setupdefault>
 <body>
 <p>This specifies the method of compression to use on the files, and optionally the level of compression. Higher levels compress better but take longer doing so, and may also require more memory while compressing/decompressing.</p>
-<p><tt>zip</tt> is the method of compression employed by .zip files ("deflate"). It is fast in both compression and decompression, and has very low memory requirements (less than 1 MB for both compression and decompression at level 9), but generally does not compress nearly as well as the other supported methods. <tt>zip</tt>, like <tt>lzma2</tt>, has one special property, though: it will not expand uncompressible data (e.g., files that are already compressed). If a compression level isn't specified, it defaults to 7.</p>
+<p><tt>zip</tt> is the method of compression employed by .zip files ("deflate"). It is fast in both compression and decompression, and has very low memory requirements (less than 1 MB for both compression and decompression at level 9), but generally does not compress nearly as well as the other supported methods. <tt>zip</tt>, like <tt>lzma2</tt>, has one special property, though: it will not expand incompressible data (e.g., files that are already compressed). If a compression level isn't specified, it defaults to 7.</p>
 <p><tt>bzip</tt> is the method of compression employed by the <extlink href="http://www.bzip.org/">bzip2</extlink> compressor. It almost always compresses better than <tt>zip</tt> but is usually slower in both compression and decompression. Up to 4 MB of memory is required during decompression, and up to 8 MB during compression. If a compression level isn't specified, it defaults to 9.</p>
 <p><tt>lzma</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA</extlink> compressor. It typically compresses significantly better than the <tt>zip</tt> and <tt>bzip</tt> methods. However, depending on the compression level used, it can be significantly slower at compressing, and consume a <i>lot</i> more memory. The following table summarizes the approximate memory requirements for each of the supported <tt>lzma</tt> compression levels. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <indent>
@@ -3878,7 +3879,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <tr><td><tt>ultra64</tt> (best)</td><td>64 MB</td><td>676 MB</td></tr>
 </table>
 </indent>
-<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for uncompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>). Like LZMA, it can consume a <i>lot</i> of memory; see the above table. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
+<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>). Like LZMA, it can consume a <i>lot</i> of memory; see the above table. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <p><tt>none</tt> specifies that no compression be used.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_solidcompression">SolidCompression</link><br/>
@@ -4518,7 +4519,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>Output</tt></setupdefault>
 <body>
 <p>Specifies the "output" directory for the script, which is where the Setup Compiler will place the resulting SETUP.* files. By default, it creates a directory named "Output" under the directory containing the script for this.</p>
-<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the the My Documents folder of the currenlty logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
+<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
 <example><pre>OutputDir=c:\output</pre></example>
 </body>
 </setuptopic>
@@ -4888,7 +4889,7 @@ DiskSliceSize=1457664
 <keyword value="digital signature" />
 <keyword value="code signing" />
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt> if <link topic="setup_signtool">SignTool</link> is set, <tt>no</tt> otherwise</setupdefault>
+<setupdefault><tt>yes</tt> if a <link topic="setup_signtool">SignTool</link> is set, <tt>no</tt> otherwise</setupdefault>
 <body>
 <p>Specifies whether the uninstaller program (unins???.exe) should be deployed with a digital signature attached. When the uninstaller has a valid digital signature, Windows Vista users will not see an "unidentified program" warning when launching it from outside of Control Panel.</p>
 <p>The first time you compile a script with this directive set to <tt>yes</tt>, a uniquely-named copy of the uninstaller EXE file will be created in the directory specified by the <link topic="setup_signeduninstallerdir">SignedUninstallerDir</link> directive (which defaults to the <link topic="setup_outputdir">output directory</link>). Depending on the <link topic="setup_signtool">SignTool</link> setting, you will either then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's signtool.exe) or the file will be automatically signed on the fly. On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers.</p>
@@ -4926,22 +4927,35 @@ DiskSliceSize=1457664
 <example>
 <p>Assume the following Sign Tools have been defined in the IDE:</p>
 <pre>
-mystandard=signtool.exe /x /y /d $qMy Program$q $f
+mystandard=signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
 mycustom=signtool.exe $p
 byparam=$p
 </pre>
 <p>then some examples would be:</p>
 <pre>
+[Setup]
 SignTool=mystandard
-SignTool=mycustom /x /y /d $qMy Program$q $f
-SignTool=byparam signtool.exe /x /y /d $qMy Program$q $f
+
+[Setup]
+SignTool=mycustom sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+
+[Setup]
+SignTool=byparam signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+</pre>
+<p>The Setup section may also list multiple SignTool directives which will be executed in order of appearance. This can be used to dual sign (SHA1 &amp; SHA256) Setup and Uninstall:</p>
+<pre>
+[Setup]
+SignTool=mycustom sign /a /n $qMy Common Name$q /fd sha1 /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+;the /as parameter in the following SignTool requires a recent signtool.exe version and a SHA256 (SHA-2) certificate
+SignTool=mycustom sign /a /n $qMy Common Name$q /as /fd sha256 /td sha256 /tr http://timestamp.comodoca.com/rfc3161 /d $qMy Program$q $f
 </pre>
 <p>Note: for security reasons you should give a unique name to any Sign Tool set to <tt>$p</tt>, and not use a <tt>byparam</tt> name copied from this example. Consider what happens if you #include a third-party file that says:</p>
 <pre>
+[Setup]
 SignTool=byparam format c: 
 </pre>
 </example>
-<p>Details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
+<p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
 <p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <link topic="setup_diskslicesize">DiskSliceSize</link> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-1 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-1 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>

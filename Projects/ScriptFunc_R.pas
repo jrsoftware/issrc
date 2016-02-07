@@ -1294,19 +1294,19 @@ begin
   end else if Proc.Name = 'COMPARETEXT' then begin
     Stack.SetInt(PStart, CompareText(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
   end else if Proc.Name = 'GETDATETIMESTRING' then begin
-    OldDateSeparator := {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}DateSeparator;
-    OldTimeSeparator := {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}TimeSeparator;
+    OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
+    OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
     try
       NewDateSeparator := Stack.GetString(PStart-2)[1];
       NewTimeSeparator := Stack.GetString(PStart-3)[1];
       if NewDateSeparator <> #0 then
-        {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparator;
       if NewTimeSeparator <> #0 then
-        {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparator;
       Stack.SetString(PStart, FormatDateTime(Stack.GetString(PStart-1), Now()));
     finally
-      {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
-      {$IFDEF IS_DXE6}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
+      {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
+      {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
     end;
   end else if Proc.Name = 'SYSERRORMESSAGE' then begin
     Stack.SetString(PStart, Win32ErrorString(Stack.GetInt(PStart-1)));
