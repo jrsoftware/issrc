@@ -46,7 +46,7 @@ procedure FreeHtmlHelpLibrary;
 implementation
 
 uses
-  Messages, SysUtils;
+  Messages, SysUtils, CmnFunc2, PathFunc;
 
 var
   HHCtrl: THandle;

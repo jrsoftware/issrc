@@ -104,7 +104,7 @@ type
 implementation
 
 uses
-  CmnFunc2;
+  CmnFunc2, PathFunc;
 
 var
   Wow64DisableWow64FsRedirectionFunc: function(var OldValue: Pointer): BOOL; stdcall;

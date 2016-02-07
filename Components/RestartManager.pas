@@ -107,6 +107,9 @@ implementation
 
 //----------------------------------------------------------------------------------------------------------------------
 
+uses
+  SysUtils, PathFunc;
+
 const
   restartmanagerlib = 'Rstrtmgr.dll';
 
@@ -136,6 +139,15 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function InitRestartManagerLibrary: Boolean;
+
+  function GetSystemDir: String;
+  var
+    Buf: array[0..MAX_PATH-1] of Char;
+  begin
+    GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+    Result := StrPas(Buf);
+  end;
+
 begin
   Inc(ReferenceCount);
 

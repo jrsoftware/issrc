@@ -1013,6 +1013,9 @@ implementation
 
 //----------------------------------------------------------------------------------------------------------------------
 
+uses
+  SysUtils, PathFunc;
+
 const
   themelib = 'uxtheme.dll';
 
@@ -1096,6 +1099,14 @@ function InitThemeLibrary: Boolean;
         if (Info.dwMajorVersion > 5) or
            ((Info.dwMajorVersion = 5) and (Info.dwMinorVersion >= 1)) then
           Result := True;
+  end;
+
+  function GetSystemDir: String;
+  var
+    Buf: array[0..MAX_PATH-1] of Char;
+  begin
+    GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+    Result := StrPas(Buf);
   end;
 
 begin

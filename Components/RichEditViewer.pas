@@ -49,7 +49,7 @@ procedure Register;
 implementation
 
 uses
-  RichEdit, ShellApi, BidiUtils;
+  RichEdit, ShellApi, BidiUtils, PathFunc;
 
 const
   { Note: There is no 'W' 1.0 class }
@@ -82,6 +82,15 @@ var
   RichEditVersion: Integer;
 
 procedure LoadRichEdit;
+
+  function GetSystemDir: String;
+  var
+    Buf: array[0..MAX_PATH-1] of Char;
+  begin
+    GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+    Result := StrPas(Buf);
+  end;
+
 begin
   if RichEditUseCount = 0 then begin
     {$IFDEF UNICODE}

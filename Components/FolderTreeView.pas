@@ -1194,6 +1194,14 @@ begin
   RecreateWnd;
 end;
 
+function GetSystemDir: String;
+var
+  Buf: array[0..MAX_PATH-1] of Char;
+begin
+  GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+  Result := StrPas(Buf);
+end;
+
 initialization
   InitThemeLibrary;
   SHPathPrepareForWriteFunc := GetProcAddress(LoadLibrary(PChar(AddBackslash(GetSystemDir) + shell32)),
