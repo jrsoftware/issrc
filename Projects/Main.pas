@@ -1460,24 +1460,26 @@ end;
 procedure LoadSHFolderDLL;
 var
   Filename: String;
-  ExistingFileVersion, NewFileVersion: TFileVersionNumbers;
+  ExistingFileIsOk: Boolean;
+  ExistingFileVersion: TFileVersionNumbers;
 const
   shfolder = 'shfolder.dll';
+  _shfoldrMS = $50032;    //must match the version numbers of the DLL image in _shfoldr.res
+  _shfoldrLS = $12C708FC; //
 begin
-  Filename := AddBackslash(TempInstallDir) + '_isetup\_shfoldr.dll';
-  {$R _shfoldr.res}  { Link in the .res file containing the DLL image }
-  SaveResourceToTempFile('SHFOLDERDLL', Filename);
-  if not GetVersionNumbers(Filename, NewFileVersion) then
-    InternalError('Failed to get version numbers of _shfoldr.dll');
-  { Does the system already have the same version or a newer version of
-    shfolder.dll? If so, use it instead of the one we just extracted. }
-  if GetVersionNumbers(shfolder, ExistingFileVersion) and
-     (((ExistingFileVersion.MS > NewFileVersion.MS) or
-       ((ExistingFileVersion.MS = NewFileVersion.MS) and
-        (ExistingFileVersion.LS > NewFileVersion.LS)))) or
-      ((ExistingFileVersion.MS = NewFileVersion.MS) and
-       (ExistingFileVersion.LS = NewFileVersion.LS)) then
-    Filename := shfolder;
+  Filename := AddBackslash(GetSystemDir) + shfolder;
+  ExistingFileIsOk :=
+    GetVersionNumbers(shfolder, ExistingFileVersion) and
+    (((ExistingFileVersion.MS > _shfoldrMS) or
+      ((ExistingFileVersion.MS = _shfoldrMS) and
+       (ExistingFileVersion.LS > _shfoldrLS)))) or
+     ((ExistingFileVersion.MS = _shfoldrMS) and
+      (ExistingFileVersion.LS = _shfoldrLS));
+  if not ExistingFileIsOk then begin
+    Filename := AddBackslash(TempInstallDir) + '_isetup\_shfoldr.dll';
+    {$R _shfoldr.res}  { Link in the .res file containing the DLL image }
+    SaveResourceToTempFile('SHFOLDERDLL', Filename);
+  end;
   { Ensure shell32.dll is pre-loaded so it isn't loaded/freed for each
     individual SHGetFolderPath call }
   SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32, SEM_NOOPENFILEERRORBOX);
