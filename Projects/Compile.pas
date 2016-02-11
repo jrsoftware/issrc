@@ -496,7 +496,8 @@ type
     procedure ReadTextFile(const Filename: String; const LangIndex: Integer; var Text: AnsiString);
     procedure SeparateDirective(const Line: PChar; var Key, Value: String);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
-    procedure Sign(const ACommand, AParams, AExeFilename: String; const RetryCount: Integer);
+    procedure Sign(AExeFilename: String);
+    procedure SignCommand(const ACommand, AParams, AExeFilename: String; const RetryCount: Integer);
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
@@ -7371,7 +7372,17 @@ begin
   SignToolList.Add(SignTool);
 end;
 
-procedure TSetupCompiler.Sign(const ACommand, AParams, AExeFilename: String; const RetryCount: Integer);
+procedure TSetupCompiler.Sign(AExeFilename: String);
+var
+  I, SignToolIndex: Integer;
+begin
+  for I := 0 to SignTools.Count - 1 do begin
+    SignToolIndex := FindSignToolIndexByName(SignTools[I]); //can't fail, already checked
+    SignCommand(TSignTool(SignToolList[SignToolIndex]).Command, SignToolsParams[I], AExeFilename, SignToolRetryCount);
+  end;
+end;
+
+procedure TSetupCompiler.SignCommand(const ACommand, AParams, AExeFilename: String; const RetryCount: Integer);
 
   function FmtCommand(S: PChar; const AParams, AExeFileName: String): String;
   var
@@ -7413,7 +7424,7 @@ procedure TSetupCompiler.Sign(const ACommand, AParams, AExeFilename: String; con
     end;
   end;
   
-  procedure DoSign(const AFormattedCommand: String);
+  procedure InternalSignCommand(const AFormattedCommand: String);
   var
     StartupInfo: TStartupInfo;
     ProcessInfo: TProcessInformation;
@@ -7460,7 +7471,7 @@ begin
   
   for I := 0 to RetryCount do begin
     try
-      DoSign(Command);
+      InternalSignCommand(Command);
       Break;
     except on E: Exception do
       if I < RetryCount then begin
@@ -8064,8 +8075,6 @@ var
     Filename, TempFilename: String;
     F: TFile;
     LastError: DWORD;
-    SignToolIndex: Integer;
-    I: Integer;
   begin
     UnsignedFileSize := UnsignedFile.CappedSize;
 
@@ -8084,10 +8093,7 @@ var
       end;
 
       try
-        for I := 0 to SignTools.Count - 1 do begin
-          SignToolIndex := FindSignToolIndexByName(SignTools[I]); //can't fail, already checked
-          Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolsParams[I], Filename, SignToolRetryCount);
-        end;
+        Sign(Filename);
         if not InternalSignSetupE32(Filename, UnsignedFile, UnsignedFileSize,
            SCompilerSignedFileContentsMismatch) then
           AbortCompile(SCompilerSignToolSucceededButNoSignature);
@@ -8276,7 +8282,7 @@ var
 
  var
   SetupE32: TMemoryFile;
-  I, SignToolIndex: Integer;
+  I: Integer;
   AppNameHasConsts, AppVersionHasConsts, AppPublisherHasConsts,
     AppCopyrightHasConsts, AppIdHasConsts, Uninstallable: Boolean;
 begin
@@ -8906,13 +8912,8 @@ begin
 
         { Sign }
         if SignTools.Count > 0 then begin
-          for I := 0 to SignTools.Count - 1 do begin
-            SignToolIndex := FindSignToolIndexByName(SignTools[I]); //can't fail, already checked
-            if SignToolIndex <> -1 then begin
-              AddStatus(SCompilerStatusSigningSetup);
-              Sign(TSignTool(SignToolList[SignToolIndex]).Command, SignToolsParams[I], ExeFilename, SignToolRetryCount);
-            end;
-          end;
+          AddStatus(SCompilerStatusSigningSetup);
+          Sign(ExeFileName);
         end;
       except
         EmptyOutputDir(False);
