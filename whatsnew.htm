@@ -29,6 +29,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <p><a name="5.5.9"></a><span class="ver">5.5.9-dev </span><span class="date">(?)</span></p>
 <ul>
 <li>To help protect against potential <a href="http://msdn.microsoft.com/en-us/library/ff919712.aspx">DLL preloading attacks</a>, Setup and Uninstall now call Windows' SetDefaultDllDirectories API if available and if not, Setup and Uninstall call the other protection API functions they already called before and now additionally preload a set of system DLLs known to be loaded unsafely by older or unpatched versions of Windows.</li>
+<li>The <tt>OutputBaseFileName</tt> [Setup] section directive now defaults to <tt>mysetup</tt> instead of <tt>setup</tt>. Setting it back to <tt>setup</tt> is not recommended, all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll. These DLLs are loaded unsafely by Windows and can be hijacked. If you do so anyway, the compiler will issue a warning.</li>
 <li>Added official Armenian translation.</li>
 <li>Inno Setup Preprocessor (ISPP) change: Added new function <tt>RemoveFileExt</tt>.</li>
 <li>Minor tweaks.</li>
