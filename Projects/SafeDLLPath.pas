@@ -145,6 +145,8 @@ initialization
       // Mail: Windows 7 SP1: oleaut32.dll -> ole32.dll -> crypt32.dll -> version.dll
       // WIX3: required by Burn
       SafeLoadLibrary(SystemDir + 'version.dll');
+      // Mail: Windows 7 SP1: oleaut32.dll -> ole32.dll -> crypt32.dll -> profapi.dll
+      SafeLoadLibrary(SystemDir + 'profapi.dll');
       // WIX3: required by CLSIDFromProgID() when loading clbcatq.dll
       SafeLoadLibrary(SystemDir + 'comres.dll');
       // WIX3: required by CLSIDFromProgID() when loading msxml?.dll
