@@ -7,8 +7,8 @@ unit SafeDLLPath;
   For conditions of distribution and use, see LICENSE.TXT.
 
   To provide protection against "DLL preloading" attacks, this unit calls
-  SetDefaultDllDirectories. SetDefaultDllDirectories is available on Windows 8,
-  and on previous version that have the KB2533623 update installed.
+  SetDefaultDllDirectories. SetDefaultDllDirectories is available on Windows 8
+  and newer, and on previous versions that have the KB2533623 update installed.
   
   If SetDefaultDllDirectories is not available:
   -It calls SetDllDirectory('') to prevent LoadLibrary from searching the current
@@ -16,10 +16,10 @@ unit SafeDLLPath;
   -It then also calls SetSearchPathMode to enable "safe search mode", which
    causes SearchPath, and callers of SearchPath such as CreateProcess, to search
    the current directory after the system directories (rather than before).
-   SetSearchPathMode is available in Windows 7, and on previous versions that
-   have the KB959426 update installed.
-  -And finally it preloads a list of system DLLs which are known to be unsafely
-   loaded by older or unpatched versions of Windows.
+   SetSearchPathMode is available in Windows 7 and newer, and on previous
+   versions that have the KB959426 update installed.
+  -It then preloads a list of system DLLs which are known to be loaded unsafely
+   by older or unpatched versions of Windows.
 
   Also see:
   -http://wixtoolset.org/development/wips/5184-burn-clean-room/
