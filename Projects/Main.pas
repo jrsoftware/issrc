@@ -1469,7 +1469,7 @@ const
 begin
   Filename := AddBackslash(GetSystemDir) + shfolder;
   ExistingFileIsOk :=
-    GetVersionNumbers(shfolder, ExistingFileVersion) and
+    GetVersionNumbers(Filename, ExistingFileVersion) and
     (((ExistingFileVersion.MS > _shfoldrMS) or
       ((ExistingFileVersion.MS = _shfoldrMS) and
        (ExistingFileVersion.LS > _shfoldrLS)))) or

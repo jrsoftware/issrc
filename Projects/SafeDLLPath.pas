@@ -13,11 +13,6 @@ unit SafeDLLPath;
   If SetDefaultDllDirectories is not available:
   -It calls SetDllDirectory('') to prevent LoadLibrary from searching the current
    directory for DLLs. (Has no effect on Windows versions prior to XP SP1.)
-  -It then also calls SetSearchPathMode to enable "safe search mode", which
-   causes SearchPath, and callers of SearchPath such as CreateProcess, to search
-   the current directory after the system directories (rather than before).
-   SetSearchPathMode is available in Windows 7 and newer, and on previous
-   versions that have the KB959426 update installed.
   -It then preloads a list of system DLLs which are known to be loaded unsafely
    by older or unpatched versions of Windows.
 
@@ -26,6 +21,12 @@ unit SafeDLLPath;
   -https://github.com/firegiant/wix3/blob/master/src/libs/dutil/apputil.cpp
   -https://github.com/firegiant/wix3/blob/master/src/burn/stub/stub.cpp
   -https://sourceforge.net/p/nsis/code/HEAD/tree/NSIS/trunk/Source/exehead/Main.c
+
+  It also calls SetSearchPathMode to enable "safe search mode", which causes
+  SearchPath, and callers of SearchPath such as CreateProcess, to search the
+  current directory after the system directories (rather than before).
+  SetSearchPathMode is available in Windows 7 and newer, and on previous
+  versions that have the KB959426 update installed.
 
   Finally, it calls SetProcessDEPPolicy (where available) to enable DEP for
   the lifetime of the process. (This has nothing to do with search paths;
@@ -114,11 +115,6 @@ initialization
     if Assigned(SetDllDirectoryFunc) then
       SetDllDirectoryFunc('');
 
-    SetSearchPathModeFunc := GetProcAddress(KernelModule, PAnsiChar('SetSearchPathMode'));
-    if Assigned(SetSearchPathModeFunc) then
-      SetSearchPathModeFunc(BASE_SEARCH_PATH_ENABLE_SAFE_SEARCHMODE or
-        BASE_SEARCH_PATH_PERMANENT);
-
     SystemDir := GetSystemDir;
     if SystemDir <> '' then begin
       if SystemDir[Length(SystemDir)] <> '\' then
@@ -167,6 +163,11 @@ initialization
 }      
     end;
   end;
+
+  SetSearchPathModeFunc := GetProcAddress(KernelModule, PAnsiChar('SetSearchPathMode'));
+  if Assigned(SetSearchPathModeFunc) then
+    SetSearchPathModeFunc(BASE_SEARCH_PATH_ENABLE_SAFE_SEARCHMODE or
+      BASE_SEARCH_PATH_PERMANENT);
 
   SetProcessDEPPolicyFunc := GetProcAddress(KernelModule, PAnsiChar('SetProcessDEPPolicy'));
   if Assigned(SetProcessDEPPolicyFunc) then
