@@ -2774,6 +2774,6 @@ begin
 end;
 
 initialization
-  SHPathPrepareForWriteFunc := GetProcAddress(SafeLoadLibrary(shell32,
+  SHPathPrepareForWriteFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
     SEM_NOOPENFILEERRORBOX), {$IFDEF UNICODE}'SHPathPrepareForWriteW'{$ELSE}'SHPathPrepareForWriteA'{$ENDIF});
 end.

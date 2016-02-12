@@ -49,7 +49,7 @@ procedure Register;
 implementation
 
 uses
-  RichEdit, ShellApi, BidiUtils;
+  RichEdit, ShellApi, BidiUtils, PathFunc;
 
 const
   { Note: There is no 'W' 1.0 class }
@@ -82,22 +82,31 @@ var
   RichEditVersion: Integer;
 
 procedure LoadRichEdit;
+
+  function GetSystemDir: String;
+  var
+    Buf: array[0..MAX_PATH-1] of Char;
+  begin
+    GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+    Result := StrPas(Buf);
+  end;
+
 begin
   if RichEditUseCount = 0 then begin
     {$IFDEF UNICODE}
     RichEditVersion := 4;
-    RichEditModule := LoadLibrary('MSFTEDIT.DLL');
+    RichEditModule := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'MSFTEDIT.DLL'));
     {$ELSE}
     RichEditModule := 0;
     {$ENDIF}
     if RichEditModule = 0 then begin
       RichEditVersion := 2;
-      RichEditModule := LoadLibrary('RICHED20.DLL');
+      RichEditModule := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'RICHED20.DLL'));
     end;
     {$IFNDEF UNICODE}
     if RichEditModule = 0 then begin
       RichEditVersion := 1;
-      RichEditModule := LoadLibrary('RICHED32.DLL');
+      RichEditModule := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'RICHED32.DLL'));
     end;
     {$ENDIF}
   end;

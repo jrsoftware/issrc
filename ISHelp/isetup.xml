@@ -85,7 +85,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 5.5.8</b><br/>
+<b>Inno Setup version 5.5.9-dev</b><br/>
 <b>Copyright &copy; 1997-2016 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2016 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
@@ -4075,9 +4075,10 @@ end;</pre></example>
 </setuptopic>
 
 <setuptopic directive="OutputBaseFilename">
-<setupdefault><tt>setup</tt></setupdefault>
+<setupdefault><tt>mysetup</tt></setupdefault>
 <body>
 <p>This directive allows you to assign a different name for the resulting Setup file(s), so you don't have to manually rename them after running the Setup Compiler.</p>
+<p>Setting this to <tt>setup</tt> is not recommended: all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll. These DLLs are loaded unsafely by Windows and can be hijacked.</p>
 <example><pre>OutputBaseFilename=MyProg100</pre></example>
 </body>
 </setuptopic>

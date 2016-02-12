@@ -8316,7 +8316,7 @@ begin
     if not FixedOutputDir then
       OutputDir := 'Output';
     if not FixedOutputBaseFilename then
-      OutputBaseFilename := 'setup';
+      OutputBaseFilename := 'mysetup';
     InternalCompressLevel := clLZMANormal;
     InternalCompressProps := TLZMACompressorProps.Create;
     CompressMethod := cmLZMA2;
@@ -8520,7 +8520,8 @@ begin
       if OutputBaseFileName = '' then begin
         LineNumber := SetupDirectiveLines[ssOutputBaseFileName];
         AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputBaseFileName']);
-      end;
+      end else if OutputBaseFileName = 'setup' then
+        WarningsList.Add(SCompilerOutputBaseFileNameSetup);
       if (SetupDirectiveLines[ssOutputManifestfile] <> 0) and (OutputManifestFile = '') then begin
         LineNumber := SetupDirectiveLines[ssOutputManifestFile];
         AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputManifestFile']);

@@ -1669,7 +1669,7 @@ var
   M: HMODULE;
 begin
   if not SHAutoCompleteInitialized then begin
-    M := SafeLoadLibrary(PChar(AddBackslash(GetSystemDir) + 'shlwapi.dll'),
+    M := SafeLoadLibrary(AddBackslash(GetSystemDir) + 'shlwapi.dll',
       SEM_NOOPENFILEERRORBOX);
     if M <> 0 then
       SHAutoCompleteFunc := GetProcAddress(M, 'SHAutoComplete');

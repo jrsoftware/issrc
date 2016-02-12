@@ -46,7 +46,7 @@ procedure FreeHtmlHelpLibrary;
 implementation
 
 uses
-  Messages, SysUtils;
+  Messages, SysUtils, CmnFunc2, PathFunc;
 
 var
   HHCtrl: THandle;
@@ -54,7 +54,7 @@ var
 procedure InitHtmlHelpLibrary;
 begin
   if HHCtrl = 0 then begin
-    HHCtrl := LoadLibrary('hhctrl.ocx');
+    HHCtrl := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'hhctrl.ocx'));
     if HHCtrl <> 0 then
       HtmlHelp := GetProcAddress(HHCtrl, {$IFDEF UNICODE}'HtmlHelpW'{$ELSE}'HtmlHelpA'{$ENDIF})
     else
