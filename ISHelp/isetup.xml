@@ -1668,6 +1668,9 @@ Instructs Setup to proceed to comparing time stamps if the file being installed 
 <p>If Setup is run more than once, the reference count for the file will be incremented more than once. The uninstaller will decrement the reference count the same number of times, however, so no references are leaked (provided the <link topic="setup_uninstalllogmode">UninstallLogMode</link> [Setup] section directive isn't changed from its default setting of <tt>append</tt>).</p>
 <p>When this flag is used, do not specify <tt>{syswow64}</tt> in the <tt>DestDir</tt> parameter; use <tt>{sys}</tt> instead. Even though <tt>{sys}</tt> and <tt>{syswow64}</tt> map to the same underlying directory in a <link topic="32vs64bitinstalls">32-bit mode</link> install, the path name must exactly match what every other existing installer is using; otherwise, a second reference count for the file would be created, which could result in the file being removed prematurely. If you need to install a shared file to the 32-bit System directory in a <link topic="32vs64bitinstalls">64-bit mode</link> install, specify <tt>{sys}</tt> in the <tt>DestDir</tt> parameter and additionally include the <tt>32bit</tt> flag.</p>
 </flag>
+<flag name="sign">
+<p>This flag instructs the compiler to sign the original source files before storing them. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+</flag>
 <flag name="skipifsourcedoesntexist">
 <p>This flag instructs the compiler -- or Setup, if the <tt>external</tt> flag is also used -- to silently skip over the entry if the source file does not exist, instead of displaying an error message.</p>
 </flag>
@@ -4918,7 +4921,13 @@ DiskSliceSize=1457664
 <keyword value="code signing" />
 <setupvalid>A name followed by zero or more parameters, space separated</setupvalid>
 <body>
-<p>Specifies the name and parameters of the Sign Tool to be used to digitally sign Setup (and Uninstall if <link topic="setup_signeduninstaller">SignedUninstaller</link> is set to <tt>yes</tt>). When Setup has a valid digital signature, users will not see an "unidentified program" warning when launching it.</p>
+<p>Specifies the name and parameters of the Sign Tool to be used to digitally sign:</p>
+<ul appearance="compact">
+<li>Setup</li>
+<li>Uninstall if <link topic="setup_signeduninstaller">SignedUninstaller</link> is set to <tt>yes</tt></li>
+<li>Original source files if the <link topic="filessection">[Files]</link> section's <tt>sign</tt> flag is used</li>
+</ul>
+<p>When Setup has a valid digital signature, users will not see an "unidentified program" warning when launching it.</p>
 <p>The specified Sign Tool name and its command have to be defined in the compiler IDE (via the <i>Tools | Configure Sign Tools...</i> menu) or on the <link topic="compilercmdline">compiler command line</link> (via the "/S" parameter), else an error will occur.</p>
 <p>The following special sequences may be used in Sign Tool parameters and commands:</p>
 <p><tt>$f</tt>, replaced by the quoted file name of the file to be signed.</p>

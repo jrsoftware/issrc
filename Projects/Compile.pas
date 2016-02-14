@@ -5647,7 +5647,7 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..37] of PChar = (
+  Flags: array[0..38] of PChar = (
     'confirmoverwrite', 'uninsneveruninstall', 'isreadme', 'regserver',
     'sharedfile', 'restartreplace', 'deleteafterinstall',
     'comparetimestamp', 'fontisnttruetype', 'regtypelib', 'external',
@@ -5658,7 +5658,7 @@ const
     'noencryption', 'nocompression', 'dontverifychecksum',
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
-    'sortfilesbyname', 'gacinstall');
+    'sortfilesbyname', 'gacinstall', 'sign');
   AttribsFlags: array[0..3] of PChar = (
     'readonly', 'hidden', 'system', 'notcontentindexed');
   AccessMasks: array[0..2] of TNameAndAccessMask = (
@@ -5673,7 +5673,7 @@ var
   SourceWildcard, ADestDir, ADestName, AInstallFontName, AStrongAssemblyName: String;
   AExcludes: TStringList;
   ReadmeFile, ExternalFile, SourceIsWildcard, RecurseSubdirs,
-    AllowUnsafeFiles, Touch, NoCompression, NoEncryption, SolidBreak: Boolean;
+    AllowUnsafeFiles, Touch, NoCompression, NoEncryption, SolidBreak, Sign: Boolean;
 type
   PFileListRec = ^TFileListRec;
   TFileListRec = record
@@ -5976,6 +5976,8 @@ type
         end;
         if Touch then
           Include(NewFileLocationEntry^.Flags, foApplyTouchDateTime);
+        if Sign then
+          Include(NewFileLocationEntry^.Flags, foSign);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then
@@ -6214,6 +6216,7 @@ begin
         ExternalSize.Hi := 0;
         ExternalSize.Lo := 0;
         SortFilesByName := False;
+        Sign := False;
 
         case Ext of
           0: begin
@@ -6260,6 +6263,7 @@ begin
                    35: Include(Options, foUnsetNTFSCompression);
                    36: SortFilesByName := True;
                    37: Include(Options, foGacInstall);
+                   38: Sign := SignTools.Count > 0;
                  end;
 
                { Source }
@@ -6403,9 +6407,14 @@ begin
         if not NoCompression and (foDontVerifyChecksum in Options) then
           AbortCompileOnLineFmt(SCompilerParamFlagMissing, ['nocompression', 'dontverifychecksum']);
 
-        if ExternalFile and (AExcludes.Count > 0) then
-          AbortCompileOnLine(SCompilerFilesCantHaveExternalExclude);
-
+        if ExternalFile then begin
+          if (AExcludes.Count > 0) then
+            AbortCompileOnLine(SCompilerFilesCantHaveExternalExclude)
+          else if Sign then
+            AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+              [ParamCommonFlags, 'external', 'sign']);
+        end;
+        
         if not RecurseSubdirs and (foCreateAllSubDirs in Options) then
           AbortCompileOnLineFmt(SCompilerParamFlagMissing, ['recursesubdirs', 'createallsubdirs']);
 
@@ -7922,6 +7931,13 @@ var
 
       for I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
+
+        if foSign in FL.Flags then begin
+          AddStatus(Format(SCompilerStatusSigningSourceFile, [FileLocationEntryFilenames[I]]));
+          Sign(FileLocationEntryFilenames[I]);
+          CallIdleProc;
+        end;
+
         if foVersionInfoValid in FL.Flags then
           AddStatus(Format(StatusFilesStoringOrCompressingVersionStrings[foChunkCompressed in FL.Flags],
             [FileLocationEntryFilenames[I],
@@ -7931,7 +7947,7 @@ var
           AddStatus(Format(StatusFilesStoringOrCompressingStrings[foChunkCompressed in FL.Flags],
             [FileLocationEntryFilenames[I]]));
         CallIdleProc;
-
+        
         SourceFile := TFile.Create(FileLocationEntryFilenames[I],
           fdOpenExisting, faRead, fsRead);
         try

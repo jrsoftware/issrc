@@ -132,6 +132,7 @@ const
   SCompilerStatusReset = '*** Log size limit reached, list reset.';
   SCompilerStatusWarning = 'Warning: ';
   SCompilerStatusSigningSetup = '   Signing Setup program executable';
+  SCompilerStatusSigningSourceFile = '   Signing: %s';
   SCompilerStatusSigning = '   Running Sign Tool command: %s';
   SCompilerStatusWillRetrySigning = '   Sign Tool command failed (%s). Will retry (%d tries left).';
 
