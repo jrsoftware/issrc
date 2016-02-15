@@ -133,6 +133,7 @@ const
   SCompilerStatusWarning = 'Warning: ';
   SCompilerStatusSigningSetup = '   Signing Setup program executable';
   SCompilerStatusSigningSourceFile = '   Signing: %s';
+  SCompilerStatusSourceFileAlreadySigned = '   Skipping signing, already signed: %s';
   SCompilerStatusSigning = '   Running Sign Tool command: %s';
   SCompilerStatusWillRetrySigning = '   Sign Tool command failed (%s). Will retry (%d tries left).';
 

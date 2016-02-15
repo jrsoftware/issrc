@@ -1671,6 +1671,9 @@ Instructs Setup to proceed to comparing time stamps if the file being installed 
 <flag name="sign">
 <p>This flag instructs the compiler to sign the original source files before storing them. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
 </flag>
+<flag name="signonce">
+<p>This flag instructs the compiler to sign the original source files before storing them, but only if the files are not already signed. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+</flag>
 <flag name="skipifsourcedoesntexist">
 <p>This flag instructs the compiler -- or Setup, if the <tt>external</tt> flag is also used -- to silently skip over the entry if the source file does not exist, instead of displaying an error message.</p>
 </flag>
@@ -4925,7 +4928,7 @@ DiskSliceSize=1457664
 <ul appearance="compact">
 <li>Setup</li>
 <li>Uninstall if <link topic="setup_signeduninstaller">SignedUninstaller</link> is set to <tt>yes</tt></li>
-<li>Original source files if the <link topic="filessection">[Files]</link> section's <tt>sign</tt> flag is used</li>
+<li>Original source files if the <link topic="filessection">[Files]</link> section's <tt>sign</tt> or <tt>signonce</tt> flag is used</li>
 </ul>
 <p>When Setup has a valid digital signature, users will not see an "unidentified program" warning when launching it.</p>
 <p>The specified Sign Tool name and its command have to be defined in the compiler IDE (via the <i>Tools | Configure Sign Tools...</i> menu) or on the <link topic="compilercmdline">compiler command line</link> (via the "/S" parameter), else an error will occur.</p>

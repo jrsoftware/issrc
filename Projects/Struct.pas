@@ -253,7 +253,7 @@ type
     FileVersionMS, FileVersionLS: DWORD;
     Flags: set of (foVersionInfoValid, foVersionInfoNotValid, foTimeStampInUTC,
       foIsUninstExe, foCallInstructionOptimized, foApplyTouchDateTime,
-      foChunkEncrypted, foChunkCompressed, foSolidBreak, foSign);
+      foChunkEncrypted, foChunkCompressed, foSolidBreak, foSign, foSignOnce);
   end;
   TSetupIconCloseOnExit = (icNoSetting, icYes, icNo);
 const

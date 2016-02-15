@@ -90,16 +90,16 @@ Source: "files\ISPP.ico"; Flags: dontcopy
 ; Other files
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "ishelp\Staging\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion sign touch
-Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion sign touch
+Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 #ifndef isccexe
   #define isccexe "ISCC.exe"
 #endif
-Source: "files\{#isccexe}"; DestName: "ISCC.exe"; DestDir: "{app}"; Flags: ignoreversion sign touch
+Source: "files\{#isccexe}"; DestName: "ISCC.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 #ifndef iscmplrdll
   #define iscmplrdll "ISCmplr.dll"
 #endif
-Source: "files\{#iscmplrdll}"; DestName: "ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion sign touch
+Source: "files\{#iscmplrdll}"; DestName: "ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch
@@ -111,16 +111,16 @@ Source: "files\WizModernImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernSmallImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\iszlib.dll"; DestDir: "{app}"; Flags: ignoreversion sign touch
-Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion sign touch
-Source: "files\isbzip.dll"; DestDir: "{app}"; Flags: ignoreversion sign touch
-Source: "files\isbunzip.dll"; DestDir: "{app}"; Flags: ignoreversion sign touch
+Source: "files\iszlib.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\isbzip.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\isbunzip.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 #ifndef islzmadll
   #define islzmadll "islzma.dll"
 #endif
-Source: "files\{#islzmadll}"; DestName: "islzma.dll"; DestDir: "{app}"; Flags: ignoreversion sign touch
-Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion sign touch
-Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion sign touch
+Source: "files\{#islzmadll}"; DestName: "islzma.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "whatsnew.htm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "ishelp\isfaq.htm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "Examples\Example1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
@@ -130,8 +130,8 @@ Source: "Examples\64Bit.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion to
 Source: "Examples\64BitTwoArch.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Components.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Languages.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
-Source: "Examples\MyProg.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion sign touch
-Source: "Examples\MyProg-x64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion sign touch
+Source: "Examples\MyProg.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
+Source: "Examples\MyProg-x64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
 Source: "Examples\MyProg.chm"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Readme.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Readme-Dutch.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
@@ -144,7 +144,7 @@ Source: "Examples\CodeAutomation.iss"; DestDir: "{app}\Examples"; Flags: ignorev
 Source: "Examples\CodeAutomation2.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodePrepareToInstall.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\UninstallCodeExample1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
-Source: "Examples\MyDll.dll"; DestDir: "{app}\Examples"; Flags: ignoreversion sign touch
+Source: "Examples\MyDll.dll"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
 Source: "Examples\MyDll\C\MyDll.c"; DestDir: "{app}\Examples\MyDll\C"; Flags: ignoreversion touch
 Source: "Examples\MyDll\C\MyDll.def"; DestDir: "{app}\Examples\MyDll\C"; Flags: ignoreversion touch
 Source: "Examples\MyDll\C\MyDll.dsp"; DestDir: "{app}\Examples\MyDll\C"; Flags: ignoreversion touch
@@ -161,7 +161,7 @@ Source: "Projects\ISPP\Help\Staging\ISPP.chm"; DestDir: "{app}"; Flags: ignoreve
 #ifndef isppdll
   #define isppdll "ispp.dll"
 #endif
-Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion sign touch; Check: ISPPCheck
+Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch; Check: ISPPCheck
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch; Check: ISPPCheck
 
 [Icons]
