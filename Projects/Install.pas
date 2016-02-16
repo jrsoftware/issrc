@@ -916,6 +916,7 @@ var
         DoContinue := False;
       end;
     end;
+
   var
     ProgressUpdated: Boolean;
     PreviousProgress: Integer64;
