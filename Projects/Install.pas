@@ -887,6 +887,35 @@ var
         LogFmt('Failed to set NTFS compression state (%d).', [GetLastError]);
     end;
 
+    procedure DoHandleFailedDeleteOrMoveFileTry(const TempFile, DestFile: String;
+      const LastError: DWORD; var RetriesLeft: Integer; var LastOperation: String;
+      var NeedsRestart, ReplaceOnRestart, DoBreak, DoContinue: Boolean);
+    begin
+      { Automatically retry. Wait with replace on restart until no
+        retries left, unless we already know we're going to restart. }
+      if ((RetriesLeft = 0) or NeedsRestart) and
+         (foRestartReplace in CurFile^.Options) and IsAdmin then begin
+        LogFmt('The existing file appears to be in use (%d). ' +
+          'Will replace on restart.', [LastError]);
+        LastOperation := SetupMessages[msgErrorRestartReplace];
+        NeedsRestart := True;
+        RestartReplace(DisableFsRedir, TempFile, DestFile);
+        ReplaceOnRestart := True;
+        DoBreak := True;
+        DoContinue := False;
+      end else if RetriesLeft > 0 then begin
+        LogFmt('The existing file appears to be in use (%d). ' +
+          'Retrying.', [LastError]);
+        Dec(RetriesLeft);
+        Sleep(1000);
+        ProcessEvents;
+        DoBreak := False;
+        DoContinue := True;
+      end else begin
+        DoBreak := False;
+        DoContinue := False;
+      end;
+    end;
   var
     ProgressUpdated: Boolean;
     PreviousProgress: Integer64;
@@ -894,7 +923,8 @@ var
     CurFileLocation: PSetupFileLocationEntry;
     SourceFile, DestFile, TempFile, FontFilename: String;
     DestFileExists, DestFileExistedBefore, CheckedDestFileExistedBefore,
-      TempFileLeftOver, AllowFileToBeDuplicated, ReplaceOnRestart: Boolean;
+      TempFileLeftOver, AllowFileToBeDuplicated, ReplaceOnRestart, DoBreak,
+      DoContinue: Boolean;
     ExistingFileAttr: Integer;
     Failed: String;
     CurFileVersionInfoValid: Boolean;
@@ -1283,7 +1313,7 @@ var
         { Delete existing version of file, if any. If it can't be deleted
           because it's in use and the "restartreplace" flag was specified
           on the entry, register it to be replaced when the system is
-          restarted. }
+          restarted. Do retry deletion before doing this. }
         if DestFileExists and (CurFile^.FileType <> ftUninstExe) then begin
           LastOperation := SetupMessages[msgErrorReplacingExistingFile];
           RetriesLeft := 4;
@@ -1296,25 +1326,13 @@ var
             { Does the error code indicate that it is possibly in use? }
             if (LastError = ERROR_ACCESS_DENIED) or
                (LastError = ERROR_SHARING_VIOLATION) then begin
-              { Automatically retry. Wait with replace on restart until no
-                retries left or until we already know we're going to restart. }
-              if ((RetriesLeft = 0) or NeedsRestart) and
-                 (foRestartReplace in CurFile^.Options) and IsAdmin then begin
-                LogFmt('The existing file appears to be in use (%d). ' +
-                  'Will replace on restart.', [LastError]);
-                LastOperation := SetupMessages[msgErrorRestartReplace];
-                NeedsRestart := True;
-                RestartReplace(DisableFsRedir, TempFile, DestFile);
-                ReplaceOnRestart := True;
-                Break;
-              end else if RetriesLeft > 0 then begin
-                LogFmt('The existing file appears to be in use (%d). ' +
-                  'Retrying.', [LastError]);
-                Dec(RetriesLeft);
-                Sleep(1000);
-                ProcessEvents;
+              DoHandleFailedDeleteOrMoveFileTry(TempFile, DestFile, LastError,
+                RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
+                DoBreak, DoContinue);
+              if DoBreak then
+                Break
+              else if DoContinue then
                 Continue;
-              end;
             end;
             { Some other error occurred, or we ran out of tries }
             SetLastError(LastError);
@@ -1325,7 +1343,55 @@ var
         { Rename the temporary file to the new name now, unless the file is
           to be replaced when the system is restarted, or if the file is the
           uninstall program and an existing uninstall program already exists.
-          Then set any file attributes. }
+          If it can't be renamed and the "restartreplace" flag was specified
+          on the entry, register it to be replaced when the system is
+          restarted. Do retry renaming before doing this. }
+        if not (ReplaceOnRestart or
+                ((CurFile^.FileType = ftUninstExe) and DestFileExistedBefore)) then begin
+          LastOperation := SetupMessages[msgErrorRenamingTemp];
+          { Since the DeleteFile above succeeded you would expect the rename to
+            also always succeed, but if it doesn't anyway. }
+          RetriesLeft := 4;
+          while not MoveFileRedir(DisableFsRedir, TempFile, DestFile) do begin
+            { Couldn't rename the temporary file... }
+            LastError := GetLastError;
+            { Does the error code indicate that it is possibly in use? }
+            if (LastError = ERROR_ACCESS_DENIED) or
+               (LastError = ERROR_SHARING_VIOLATION) or
+               (LastError = ERROR_ALREADY_EXISTS) then begin
+              DoHandleFailedDeleteOrMoveFileTry(TempFile, DestFile, LastError,
+                RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
+                DoBreak, DoContinue);
+              if DoBreak then
+                Break
+              else if DoContinue then
+                Continue;
+            end;
+            { Some other error occurred, or we ran out of tries }
+            SetLastError(LastError);
+            Win32ErrorMsg('MoveFile'); { Throws an exception }
+          end;
+
+          { If ReplaceOnRestart is still False the rename succeeded so handle this.
+            Then set any file attributes. }
+          if not ReplaceOnRestart then begin
+            TempFileLeftOver := False;
+            TempFile := '';
+            LastOperation := '';
+            Log('Successfully installed the file.');
+            if AllowFileToBeDuplicated then
+              SetFileLocationFilename(CurFile^.LocationEntry, DestFile);
+            if foDeleteAfterInstall in CurFile^.Options then
+              DeleteFilesAfterInstallList.AddObject(DestFile, Pointer(Ord(DisableFsRedir)));
+            { Set file attributes *after* renaming the file since Novell
+              reportedly can't rename read-only files. }
+            AddAttributesToFile(DisableFsRedir, DestFile, CurFile^.Attribs);
+          end;
+        end;
+
+        { Leave the temporary file in place for now if the file is to be
+          replaced when the system is restarted, or if the file is the uninstall
+          program and an existing uninstall program already exists. }
         if ReplaceOnRestart or
            ((CurFile^.FileType = ftUninstExe) and DestFileExistedBefore) then begin
           if CurFile^.FileType = ftUninstExe then
@@ -1336,22 +1402,6 @@ var
           if AllowFileToBeDuplicated then
             SetFileLocationFilename(CurFile^.LocationEntry, TempFile);
           AddAttributesToFile(DisableFsRedir, TempFile, CurFile^.Attribs);
-        end
-        else begin
-          LastOperation := SetupMessages[msgErrorRenamingTemp];
-          if not MoveFileRedir(DisableFsRedir, TempFile, DestFile) then
-            Win32ErrorMsg('MoveFile');
-          TempFileLeftOver := False;
-          TempFile := '';
-          LastOperation := '';
-          Log('Successfully installed the file.');
-          if AllowFileToBeDuplicated then
-            SetFileLocationFilename(CurFile^.LocationEntry, DestFile);
-          if foDeleteAfterInstall in CurFile^.Options then
-            DeleteFilesAfterInstallList.AddObject(DestFile, Pointer(Ord(DisableFsRedir)));
-          { Set file attributes *after* renaming the file since Novell
-            reportedly can't rename read-only files. }
-          AddAttributesToFile(DisableFsRedir, DestFile, CurFile^.Attribs);
         end;
 
         { If it's a font, register it }
