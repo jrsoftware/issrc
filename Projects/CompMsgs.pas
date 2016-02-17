@@ -132,6 +132,8 @@ const
   SCompilerStatusReset = '*** Log size limit reached, list reset.';
   SCompilerStatusWarning = 'Warning: ';
   SCompilerStatusSigningSetup = '   Signing Setup program executable';
+  SCompilerStatusSigningSourceFile = '   Signing: %s';
+  SCompilerStatusSourceFileAlreadySigned = '   Skipping signing, already signed: %s';
   SCompilerStatusSigning = '   Running Sign Tool command: %s';
   SCompilerStatusWillRetrySigning = '   Sign Tool command failed (%s). Will retry (%d tries left).';
 
@@ -185,6 +187,7 @@ const
   SCompilerDirectiveNotUsingDefault = 'The [Setup] section directive "%s" is not assuming a default value because %s includes constants.';
   SCompilerDirectiveNotUsingPreferredDefault = 'The [Setup] section directive "%s" is defaulting to %s because %s includes constants.';
   SCompilerDirectiveCloseApplicationsFilterTooLong = 'The [Setup] section directive "CloseApplicationsFilter" contains a pattern that is too long';
+  SCompilerOutputBaseFileNameSetup = 'Setting the [Setup] section "OutputBaseFileName" to "setup" is not recommended, all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll.' + ' These DLLs are loaded unsafely by Windows and can be hijacked. Use a different name, for example "mysetup".';
 
   { Signing }
   SCompilerSignatureNeeded = 'Signed uninstaller mode is enabled. Using ' +

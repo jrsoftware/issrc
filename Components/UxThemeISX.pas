@@ -1013,6 +1013,9 @@ implementation
 
 //----------------------------------------------------------------------------------------------------------------------
 
+uses
+  SysUtils, PathFunc;
+
 const
   themelib = 'uxtheme.dll';
 
@@ -1098,6 +1101,14 @@ function InitThemeLibrary: Boolean;
           Result := True;
   end;
 
+  function GetSystemDir: String;
+  var
+    Buf: array[0..MAX_PATH-1] of Char;
+  begin
+    GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+    Result := StrPas(Buf);
+  end;
+
 begin
   Inc(ReferenceCount);
 
@@ -1107,7 +1118,7 @@ begin
     not be located in the dynamic link library ntdll.dll" error message }
   if (ThemeLibrary = 0) and IsWindowsXP then
   begin
-    ThemeLibrary := LoadLibrary(themelib);
+    ThemeLibrary := LoadLibrary(PChar(AddBackslash(GetSystemDir) + themelib));
     if ThemeLibrary <> 0 then
     begin
       OpenThemeData := GetProcAddress(ThemeLibrary, 'OpenThemeData');

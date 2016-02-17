@@ -85,7 +85,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 5.5.8</b><br/>
+<b>Inno Setup version 5.5.9-dev</b><br/>
 <b>Copyright &copy; 1997-2016 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2016 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
@@ -1667,6 +1667,12 @@ Instructs Setup to proceed to comparing time stamps if the file being installed 
 <p>Windows' standard shared file reference-counting mechanism (located in the registry under HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs) is used to keep track of how many applications depend on the file. Each time the file is installed, the reference count for the file is incremented. (This happens regardless of whether the installer actually replaces the file on disk.) When an application using the file is uninstalled, the reference count is decremented. If the count reaches zero, the file is deleted (with the user's confirmation, unless the <tt>uninsnosharedfileprompt</tt> flag is also specified).</p>
 <p>If Setup is run more than once, the reference count for the file will be incremented more than once. The uninstaller will decrement the reference count the same number of times, however, so no references are leaked (provided the <link topic="setup_uninstalllogmode">UninstallLogMode</link> [Setup] section directive isn't changed from its default setting of <tt>append</tt>).</p>
 <p>When this flag is used, do not specify <tt>{syswow64}</tt> in the <tt>DestDir</tt> parameter; use <tt>{sys}</tt> instead. Even though <tt>{sys}</tt> and <tt>{syswow64}</tt> map to the same underlying directory in a <link topic="32vs64bitinstalls">32-bit mode</link> install, the path name must exactly match what every other existing installer is using; otherwise, a second reference count for the file would be created, which could result in the file being removed prematurely. If you need to install a shared file to the 32-bit System directory in a <link topic="32vs64bitinstalls">64-bit mode</link> install, specify <tt>{sys}</tt> in the <tt>DestDir</tt> parameter and additionally include the <tt>32bit</tt> flag.</p>
+</flag>
+<flag name="sign">
+<p>This flag instructs the compiler to digitally sign the original source files before storing them. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+</flag>
+<flag name="signonce">
+<p>This flag instructs the compiler to digitally sign the original source files before storing them, but only if the files are not already signed. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
 </flag>
 <flag name="skipifsourcedoesntexist">
 <p>This flag instructs the compiler -- or Setup, if the <tt>external</tt> flag is also used -- to silently skip over the entry if the source file does not exist, instead of displaying an error message.</p>
@@ -4075,9 +4081,10 @@ end;</pre></example>
 </setuptopic>
 
 <setuptopic directive="OutputBaseFilename">
-<setupdefault><tt>setup</tt></setupdefault>
+<setupdefault><tt>mysetup</tt></setupdefault>
 <body>
 <p>This directive allows you to assign a different name for the resulting Setup file(s), so you don't have to manually rename them after running the Setup Compiler.</p>
+<p>Setting this to <tt>setup</tt> is not recommended: all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll. These DLLs are loaded unsafely by Windows and can be hijacked.</p>
 <example><pre>OutputBaseFilename=MyProg100</pre></example>
 </body>
 </setuptopic>
@@ -4917,7 +4924,13 @@ DiskSliceSize=1457664
 <keyword value="code signing" />
 <setupvalid>A name followed by zero or more parameters, space separated</setupvalid>
 <body>
-<p>Specifies the name and parameters of the Sign Tool to be used to digitally sign Setup (and Uninstall if <link topic="setup_signeduninstaller">SignedUninstaller</link> is set to <tt>yes</tt>). When Setup has a valid digital signature, users will not see an "unidentified program" warning when launching it.</p>
+<p>Specifies the name and parameters of the Sign Tool to be used to digitally sign:</p>
+<ul appearance="compact">
+<li>Setup</li>
+<li>Uninstall if <link topic="setup_signeduninstaller">SignedUninstaller</link> is set to <tt>yes</tt></li>
+<li>Original source files if the <link topic="filessection">[Files]</link> section's <tt>sign</tt> or <tt>signonce</tt> flag is used</li>
+</ul>
+<p>When Setup has a valid digital signature, users will not see an "unidentified program" warning when launching it.</p>
 <p>The specified Sign Tool name and its command have to be defined in the compiler IDE (via the <i>Tools | Configure Sign Tools...</i> menu) or on the <link topic="compilercmdline">compiler command line</link> (via the "/S" parameter), else an error will occur.</p>
 <p>The following special sequences may be used in Sign Tool parameters and commands:</p>
 <p><tt>$f</tt>, replaced by the quoted file name of the file to be signed.</p>

@@ -204,7 +204,8 @@ procedure Register;
 implementation
 
 uses
-  TmSchemaISX, {$IFDEF DELPHI2} Ole2 {$ELSE} ActiveX {$ENDIF}, BidiUtils{$IFDEF DELPHI2009}, Types{$ENDIF};
+  TmSchemaISX, PathFunc, {$IFDEF DELPHI2} Ole2 {$ELSE} ActiveX {$ENDIF},
+  BidiUtils{$IFDEF DELPHI2009}, Types{$ENDIF};
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';
@@ -353,11 +354,20 @@ var
     const riidInterface: TGUID; var ppvObject: Pointer): HRESULT; stdcall;
 
 function InitializeOleAcc: Boolean;
+
+  function GetSystemDir: String;
+  var
+    Buf: array[0..MAX_PATH-1] of Char;
+  begin
+    GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+    Result := StrPas(Buf);
+  end;
+
 var
   M: HMODULE;
 begin
   if not OleAccInited then begin
-    M := LoadLibrary('oleacc.dll');
+    M := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'oleacc.dll'));
     if M <> 0 then begin
       LresultFromObjectFunc := GetProcAddress(M, 'LresultFromObject');
       CreateStdAccessibleObjectFunc := GetProcAddress(M, 'CreateStdAccessibleObject');

@@ -21,7 +21,7 @@ rem  Once done the 2 installers can be found in Output
 
 setlocal
 
-set VER=5.5.8
+set VER=5.5.9-dev
 
 echo Building Inno Setup %VER%...
 echo.
@@ -60,7 +60,7 @@ if errorlevel 1 goto failed
 echo - Renaming files
 cd output
 if errorlevel 1 goto failed
-move /y setup.exe isetup-%VER%.exe
+move /y mysetup.exe isetup-%VER%.exe
 if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
@@ -81,7 +81,7 @@ if errorlevel 1 goto failed
 echo - Renaming files
 cd output
 if errorlevel 1 goto failed
-move /y setup.exe isetup-%VER%-unicode.exe
+move /y mysetup.exe isetup-%VER%-unicode.exe
 if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
