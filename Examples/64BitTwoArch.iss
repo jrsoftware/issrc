@@ -1,6 +1,9 @@
 ; -- 64BitTwoArch.iss --
 ; Demonstrates how to install a program built for two different
-; architectures (x86 and x64) using a single installer.
+; architectures (x86 and x64) using a single installer: on a "x86"
+; edition of Windows the x86 version of the program will be
+; installed but on a "x64" edition of Windows the x64 version will
+; be installed.
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
