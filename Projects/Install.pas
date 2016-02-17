@@ -887,7 +887,7 @@ var
         LogFmt('Failed to set NTFS compression state (%d).', [GetLastError]);
     end;
 
-    procedure DoHandleFailedDeleteOrMoveFileTry(const TempFile, DestFile: String;
+    procedure DoHandleFailedDeleteOrMoveFileTry(const Func, TempFile, DestFile: String;
       const LastError: DWORD; var RetriesLeft: Integer; var LastOperation: String;
       var NeedsRestart, ReplaceOnRestart, DoBreak, DoContinue: Boolean);
     begin
@@ -895,8 +895,8 @@ var
         retries left, unless we already know we're going to restart. }
       if ((RetriesLeft = 0) or NeedsRestart) and
          (foRestartReplace in CurFile^.Options) and IsAdmin then begin
-        LogFmt('The existing file appears to be in use (%d). ' +
-          'Will replace on restart.', [LastError]);
+        LogFmt('%s: The existing file appears to be in use (%d). ' +
+          'Will replace on restart.', [Func, LastError]);
         LastOperation := SetupMessages[msgErrorRestartReplace];
         NeedsRestart := True;
         RestartReplace(DisableFsRedir, TempFile, DestFile);
@@ -904,8 +904,8 @@ var
         DoBreak := True;
         DoContinue := False;
       end else if RetriesLeft > 0 then begin
-        LogFmt('The existing file appears to be in use (%d). ' +
-          'Retrying.', [LastError]);
+        LogFmt('%s: The existing file appears to be in use (%d). ' +
+          'Retrying.', [Func, LastError]);
         Dec(RetriesLeft);
         Sleep(1000);
         ProcessEvents;
@@ -1327,8 +1327,8 @@ var
             { Does the error code indicate that it is possibly in use? }
             if (LastError = ERROR_ACCESS_DENIED) or
                (LastError = ERROR_SHARING_VIOLATION) then begin
-              DoHandleFailedDeleteOrMoveFileTry(TempFile, DestFile, LastError,
-                RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
+              DoHandleFailedDeleteOrMoveFileTry('DeleteFile', TempFile, DestFile,
+                LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
                 DoBreak, DoContinue);
               if DoBreak then
                 Break
@@ -1360,8 +1360,8 @@ var
             if (LastError = ERROR_ACCESS_DENIED) or
                (LastError = ERROR_SHARING_VIOLATION) or
                (LastError = ERROR_ALREADY_EXISTS) then begin
-              DoHandleFailedDeleteOrMoveFileTry(TempFile, DestFile, LastError,
-                RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
+              DoHandleFailedDeleteOrMoveFileTry('MoveFile', TempFile, DestFile,
+                LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
                 DoBreak, DoContinue);
               if DoBreak then
                 Break
