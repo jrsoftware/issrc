@@ -1340,49 +1340,18 @@ var
         else begin
           LastOperation := SetupMessages[msgErrorRenamingTemp];
           if not MoveFileRedir(DisableFsRedir, TempFile, DestFile) then
-          begin
-            LastError := GetLastError;            
-            LogFmt('MoveFileRedir failed with %d', [LastError]);
-            if ((LastError = ERROR_ACCESS_DENIED) or
-               (LastError = ERROR_SHARING_VIOLATION) or
-               (LastError = ERROR_ALREADY_EXISTS)) and 
-               (foRestartReplace in CurFile^.Options) and IsAdmin then begin
-              { If rename failed with Access Denied or Share Violation and restartreplace 
-                is set, then will set to be replaced on restart automatically } 
-              LogFmt('The existing file appears to be in use (%d). ' +
-                  'Will replace on restart.', [LastError]);
-              LastOperation := SetupMessages[msgErrorRestartReplace];
-              NeedsRestart := True;
-              RestartReplace(DisableFsRedir, TempFile, DestFile);
-              ReplaceOnRestart := True;              
-              
-              TempFileLeftOver := False;
-              LastOperation := '';
-              Log('Leaving temporary file in place for now.');
-              if AllowFileToBeDuplicated then
-                SetFileLocationFilename(CurFile^.LocationEntry, TempFile);
-              AddAttributesToFile(DisableFsRedir, TempFile, CurFile^.Attribs);
-            end
-            else
-            begin
-              SetLastError(LastError);
-              Win32ErrorMsg('MoveFile');
-            end;
-          end
-          else
-          begin
-            TempFileLeftOver := False;
-            TempFile := '';
-            LastOperation := '';
-            Log('Successfully installed the file.');
-            if AllowFileToBeDuplicated then
-              SetFileLocationFilename(CurFile^.LocationEntry, DestFile);
-            if foDeleteAfterInstall in CurFile^.Options then
-              DeleteFilesAfterInstallList.AddObject(DestFile, Pointer(Ord(DisableFsRedir)));
-            { Set file attributes *after* renaming the file since Novell
-              reportedly can't rename read-only files. }
-            AddAttributesToFile(DisableFsRedir, DestFile, CurFile^.Attribs);
-          end;
+            Win32ErrorMsg('MoveFile');
+          TempFileLeftOver := False;
+          TempFile := '';
+          LastOperation := '';
+          Log('Successfully installed the file.');
+          if AllowFileToBeDuplicated then
+            SetFileLocationFilename(CurFile^.LocationEntry, DestFile);
+          if foDeleteAfterInstall in CurFile^.Options then
+            DeleteFilesAfterInstallList.AddObject(DestFile, Pointer(Ord(DisableFsRedir)));
+          { Set file attributes *after* renaming the file since Novell
+            reportedly can't rename read-only files. }
+          AddAttributesToFile(DisableFsRedir, DestFile, CurFile^.Attribs);
         end;
 
         { If it's a font, register it }
