@@ -3931,10 +3931,10 @@ begin
         CompressProps.Algorithm := StrToIntRange(Value, 0, 1);
       end;
     ssLZMABlockSize: begin
-        CompressProps.BlockSize := StrToIntRange(Value, 1024, 262144) * 1024;
+        CompressProps.BlockSize := StrToIntRange(Value, 1024, 262144) * 1024; //search Lzma2Enc.c for kMaxSize to see this limit: 262144*1024==1<<28
       end;
     ssLZMADictionarySize: begin
-        CompressProps.DictionarySize := StrToIntRange(Value, 4, 262144) * 1024;
+        CompressProps.DictionarySize := StrToIntRange(Value, 4, 1048576) * 1024;
       end;
     ssLZMAMatchFinder: begin
         if CompareText(Value, 'BT') = 0 then

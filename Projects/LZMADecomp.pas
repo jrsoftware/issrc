@@ -93,7 +93,7 @@ const
   { To ensure we don't allocate inordinate amounts of memory in the event a
     stream's header is corrupted, we limit the dictionary size to the maximum
     size the compiler currently allows. }
-  MaxDictionarySize = 256 shl 20;  { 256 MB }
+  MaxDictionarySize = 1024 shl 20;  { 1 GB }
 
 {$L lzma2\Decoder\ISLzmaDec.obj}
 {$L lzma2\Decoder\ISLzma2Dec.obj}

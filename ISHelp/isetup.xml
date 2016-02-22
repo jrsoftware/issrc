@@ -3877,12 +3877,16 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p><tt>lzma</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA</extlink> compressor. It typically compresses significantly better than the <tt>zip</tt> and <tt>bzip</tt> methods. However, depending on the compression level used, it can be significantly slower at compressing, and consume a <i>lot</i> more memory. The following table summarizes the approximate memory requirements for each of the supported <tt>lzma</tt> compression levels. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <indent>
 <table>
-<tr><td></td><td><u>Decompression (dictionary size)</u></td><td><u>Compression</u></td></tr>
+<tr><td></td><td><u>Decompression (dictionary size)</u></td><td><u>Compression (4 MB + 11 * dictionary size)</u></td></tr>
 <tr><td><tt>fast</tt> (worst)</td><td>32 KB</td><td>3 MB</td></tr>
 <tr><td><tt>normal</tt></td><td>2 MB</td><td>26 MB</td></tr>
-<tr><td><tt>max</tt> (default)</td><td>8 MB</td><td>95 MB</td></tr>
-<tr><td><tt>ultra</tt></td><td>32 MB</td><td>372 MB</td></tr>
-<tr><td><tt>ultra64</tt> (best)</td><td>64 MB</td><td>676 MB</td></tr>
+<tr><td><tt>max</tt> (default)</td><td>8 MB</td><td>92 MB</td></tr>
+<tr><td><tt>ultra</tt></td><td>32 MB</td><td>356 MB</td></tr>
+<tr><td><tt>ultra64</tt> (best)</td><td>64 MB</td><td>708 MB</td></tr>
+<tr><td></td><td>128 MB</td><td>1.38 GB</td></tr>
+<tr><td></td><td>256 MB</td><td>2.75 GB</td></tr>
+<tr><td></td><td>512 MB</td><td>5.5 GB</td></tr>
+<tr><td></td><td>1 GB</td><td>11 GB</td></tr>
 </table>
 </indent>
 <p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>). Like LZMA, it can consume a <i>lot</i> of memory; see the above table. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
@@ -5000,7 +5004,7 @@ SignTool=byparam format c:
 
 <setuptopic directive="LZMABlockSize">
 <setupvalid><tt>1024</tt> through <tt>262144</tt></setupvalid>
-<setupdefault>4 * <link topic="setup_lzmadictionarysize">LZMADictionarySize</link></setupdefault>
+<setupdefault>4 * <link topic="setup_lzmadictionarysize">LZMADictionarySize</link> with a minimum of 1024 and a maximum of 262144</setupdefault>
 <body>
 <p>Controls the block size used by the LZMA2 compressor, in kilobytes, when <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link> is set to <tt>2</tt> or higher.</p>
 <p>Note that setting this too high can negate the benefits of using multiple block threads. Typically, the block size should be no more than the total size of your data divided by the number of block threads.</p>
@@ -5021,7 +5025,7 @@ SignTool=byparam format c:
 <body>
 <p>Controls the dictionary size used by the LZMA and LZMA2 compressors, in kilobytes. A larger dictionary size can provide a better compression ratio at the expense of compression speed and memory requirements.</p>
 <p>Review the memory requirements listed in the <link topic="setup_compression">Compression</link> topic before using.</p>
-<p>If an "Out of memory" error is seen when a very large dictionary size is used, <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> may need to be set.</p>
+<p>If an "Out of memory" error is seen after increasing the dictionary size, <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> may need to be set.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_lzmablocksize">LZMABlockSize</link></p>
 </body>
