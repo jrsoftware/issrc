@@ -150,10 +150,7 @@ Inno Setup consists of seven projects:
 do the actual compilation itself; it relegates it to ISCmplr.dll. If the
 ISCmplr project is changed, you normally don't need to recompile Compil32
 since it's essentially a text editor, and is not affected by internal
-changes to the compiler.  
-Non Unicode Inno Setup note: This is the only project that is compiled
-under Delphi 3 (3.02 to be exact). The rest of the projects are compiled
-under Delphi 2.01.
+changes to the compiler.
 
 **ISCC** - This is the command-line front-end to the compiler. Like
 Compil32, it depends on ISCmplr.dll to do the actual compiling.
@@ -182,8 +179,8 @@ How do the projects link together?
   clauses of the projects and units if you aren't sure if a project uses a
   particular unit.
 
-- ISPP uses various copies of other Inno Setup files. To synch these
-  run synch-isfiles.bat.
+- The ISPP help file uses various copies of other Inno Setup files. To synch
+  these run synch-isfiles.bat.
 
 5. Source code tips
 -------------------
