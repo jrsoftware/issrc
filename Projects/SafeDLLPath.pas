@@ -146,6 +146,7 @@ initialization
       // WIX3: required by CLSIDFromProgID() when loading clbcatq.dll
       SafeLoadLibrary(SystemDir + 'comres.dll');
       // WIX3: required by CLSIDFromProgID() when loading msxml?.dll
+      // NSIS: XP.SP2&SP3: SHAutoComplete ... OLE32!InitializeCatalogIfNecessary ... OLE32!CComCatalog::TryToLoadCLB
       SafeLoadLibrary(SystemDir + 'clbcatq.dll');
 {
       // WIX3: required by Burn
