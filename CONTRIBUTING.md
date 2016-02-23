@@ -15,11 +15,11 @@ Should only be used for one of the following:
 
 - To request new features. Make sure you first discussed the request on the Inno
  Setup [newsgroups](http://www.jrsoftware.org/newsgroups.php)
-(web-based interface available).
+(web-based interface available)!
 
-Please do not use the issue tracker for anything else. Questions should be
+Please do not use the issue tracker for anything else. **Questions should be
 posted on the [newsgroups](http://www.jrsoftware.org/newsgroups.php)
-(web-based interface available) and not on the issue tracker.
+(web-based interface available) and not on the issue tracker!**
 
 Contributing new code, translations or documentation updates
 ------------------------------------------------------------
