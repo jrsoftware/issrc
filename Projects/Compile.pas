@@ -8334,7 +8334,10 @@ var
     end;
   end;
 
- var
+
+const
+  BadFileNameChars = '/:*?"<>|';
+var
   SetupE32: TMemoryFile;
   I: Integer;
   AppNameHasConsts, AppVersionHasConsts, AppPublisherHasConsts,
@@ -8571,12 +8574,13 @@ begin
         LineNumber := SetupDirectiveLines[ssOutput];
         AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
       end;
-      if OutputBaseFileName = '' then begin
+      if (OutputBaseFileName = '') or (PathLastDelimiter(BadFileNameChars + '\', OutputBaseFileName) <> 0) then begin
         LineNumber := SetupDirectiveLines[ssOutputBaseFileName];
         AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputBaseFileName']);
       end else if OutputBaseFileName = 'setup' then
         WarningsList.Add(SCompilerOutputBaseFileNameSetup);
-      if (SetupDirectiveLines[ssOutputManifestfile] <> 0) and (OutputManifestFile = '') then begin
+      if (SetupDirectiveLines[ssOutputManifestFile] <> 0) and
+         ((OutputManifestFile = '') or (PathLastDelimiter(BadFileNameChars, OutputManifestFile) <> 0)) then begin
         LineNumber := SetupDirectiveLines[ssOutputManifestFile];
         AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputManifestFile']);
       end;
