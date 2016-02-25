@@ -119,6 +119,8 @@ type
 
                             Currently supported options:
 
+                            Output=(0|no|false|1|yes|true)
+                              Enables or disables output.
                             OutputBaseFilename=[filename]
                               Overrides any OutputBaseFilename setting in the
                               script; causes the compiler to use [filename]

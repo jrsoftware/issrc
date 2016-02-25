@@ -1528,6 +1528,7 @@ The list of options is provided at the end of this topic.</para>
 					<tr><td><code>__POPT_X__</code></td><td><code><b>void</b></code>. Defined if specified parser option set via <code>#pragma parseroption -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z." Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
 					<tr><td><code>__WIN32__</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>ISPP_INVOKED</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
+					<tr><td><code>ISPPCC_INVOKED</code></td><td><code><b>void</b></code>. Defined if compilation was invoked using the console-mode compiler, ISCC.exe.</td></tr>
 					<tr><td><code>PREPROCVER</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of ISPP. Highest byte holds the major version, lowest byte holds the build number.</td></tr>
 					<tr><td><code>WINDOWS</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>UNICODE</code></td><td><code><b>void</b></code>. Always defined for Unicode ISPP. Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
@@ -1693,23 +1694,19 @@ The list of options is provided at the end of this topic.</para>
 			</section>
 		</topic>
 		<topic id="isppcc">
-			<title>Extended Command Line Compiler</title>
+			<title>Command Line Compiler Execution</title>
 			<description header="no">
-				<para>Inno Setup Preprocessor replaces the standard Inno Setup Command Line Compiler (ISCC.exe) by an extended version. This extended version provides extra parameters to control Inno Setup Preprocessor.</para>
-				<para>Usage: <synel>iscc [options] scriptfile.iss</synel>. Or to read from standard input: <synel>iscc [options] -</synel>.</para>
-				<para>Options are to emulate a <link href="define">define</link> or <link href="pragma">pragma</link> directive are:</para>
+				<para>If Inno Setup Preprocessor is installed the console-mode compiler ISCC.exe automatically provides extra parameters to control Inno Setup Preprocessor:</para>
 				<table>
-					<tr><td><code>/d&lt;name&gt;[=&lt;value&gt;]</code></td><td>Sets <code>#define public &lt;name&gt; &lt;value&gt;</code></td></tr>
-					<tr><td><code>/$&lt;letter&gt;(+|-)</code></td><td>Sets <code>#pragma option -&lt;letter&gt;(+|-)</code></td></tr>
-					<tr><td><code>/p&lt;letter&gt;(+|-)</code></td><td>Sets <code>#pragma parseroption -&lt;letter&gt;(+|-)</code></td></tr>
-					<tr><td><code>/i&lt;paths&gt;</code></td><td>Sets <code>#pragma include -&lt;paths&gt;</code></td></tr>
-					<tr><td><code>/{#&lt;string&gt;</code></td><td>Sets <code>#pragma inlinestart -&lt;string&gt;</code></td></tr>
-					<tr><td><code>/}&lt;string&gt;</code></td><td>Sets <code>#pragma inlineend -&lt;string&gt;</code></td></tr>
-					<tr><td><code>/v&lt;number&gt;</code></td><td>Sets <code>#pragma verboselevel -&lt;number&gt;</code></td></tr>
+					<tr><td><code>/D&lt;name&gt;[=&lt;value&gt;]</code></td><td>Emulate <code>#define public &lt;name&gt; &lt;value&gt;</code></td></tr>
+					<tr><td><code>/$&lt;letter&gt;(+|-)</code></td><td>Emulate <code>#pragma option -&lt;letter&gt;(+|-)</code></td></tr>
+					<tr><td><code>/P&lt;letter&gt;(+|-)</code></td><td>Emulate <code>#pragma parseroption -&lt;letter&gt;(+|-)</code></td></tr>
+					<tr><td><code>/I&lt;paths&gt;</code></td><td>Emulate <code>#pragma include &lt;paths&gt;</code></td></tr>
+					<tr><td><code>/{#&lt;string&gt;</code></td><td>Emulate <code>#pragma inlinestart &lt;string&gt;</code></td></tr>
+					<tr><td><code>/}&lt;string&gt;</code></td><td>Emulate <code>#pragma inlineend &lt;string&gt;</code></td></tr>
+					<tr><td><code>/V&lt;number&gt;</code></td><td>Emulate <code>#pragma verboselevel &lt;number&gt;</code></td></tr>
 				</table>
-				<para>Other valid options are: "/O" to specify an output path (overriding any OutputDir setting in the script), "/F" to specify an output filename (overriding any OutputBaseFilename setting in the script), and "/Q[p]" for quiet compile (print only error messages, "p" will show progress info).</para>
-				<para>Example: <synel>iscc /$c- /pu+ "/dLic=Trial Lic.txt" /iC:\INC;D:\INC "c:\isetup\samples\my script.iss"</synel></para>
-				<para>ISCC will return an exit code of 0 if the compile was successful, 1 if the command line parameters were invalid or an internal error occurred, or 2 if the compile failed.</para>
+				<para>Example: <synel>iscc /$c- /Pu+ "/DLicenseFile=Trial License.txt" /Ic:\inc;d:\inc "c:\isetup\samples\my script.iss"</synel></para>
 			</description>
 		</topic>
 		<topic id="translation" popup="yes">
