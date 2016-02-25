@@ -1702,11 +1702,12 @@ The list of options is provided at the end of this topic.</para>
 					<tr><td><code>/$&lt;letter&gt;(+|-)</code></td><td>Emulate <code>#pragma option -&lt;letter&gt;(+|-)</code></td></tr>
 					<tr><td><code>/P&lt;letter&gt;(+|-)</code></td><td>Emulate <code>#pragma parseroption -&lt;letter&gt;(+|-)</code></td></tr>
 					<tr><td><code>/I&lt;paths&gt;</code></td><td>Emulate <code>#pragma include &lt;paths&gt;</code></td></tr>
+					<tr><td><code>/J&lt;filename&gt;</code></td><td>Emulate <code>#include &lt;filename&gt;</code></td></tr>
 					<tr><td><code>/{#&lt;string&gt;</code></td><td>Emulate <code>#pragma inlinestart &lt;string&gt;</code></td></tr>
 					<tr><td><code>/}&lt;string&gt;</code></td><td>Emulate <code>#pragma inlineend &lt;string&gt;</code></td></tr>
 					<tr><td><code>/V&lt;number&gt;</code></td><td>Emulate <code>#pragma verboselevel &lt;number&gt;</code></td></tr>
 				</table>
-				<para>Example: <synel>iscc /$c- /Pu+ "/DLicenseFile=Trial License.txt" /Ic:\inc;d:\inc "c:\isetup\samples\my script.iss"</synel></para>
+				<para>Example: <synel>iscc /$c- /Pu+ "/DLicenseFile=Trial License.txt" /Ic:\inc;d:\inc /Jdefines.iss "c:\isetup\samples\my script.iss"</synel></para>
 			</description>
 		</topic>
 		<topic id="translation" popup="yes">

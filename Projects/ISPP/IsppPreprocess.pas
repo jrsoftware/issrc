@@ -24,10 +24,10 @@ uses
 var
   BuiltinsDir: string;
 
-procedure ReadScript(const Params: TPreprocessScriptParams;
+procedure ReadScript(const Params: TPreprocessScriptParams; const IncludeFiles: String;
   const Preprocessor: TPreprocessor);
 
-  procedure BuiltIns;
+  function Include(FileName: String): Boolean;
 
     function Escape(const S: string): string;
     var
@@ -41,23 +41,36 @@ procedure ReadScript(const Params: TPreprocessScriptParams;
       end;
     end;
 
+  begin
+    if not GetOption(Preprocessor.FOptions.ParserOptions.Options, 'P') then
+      FileName := Escape(FileName);
+    Preprocessor.IncludeFile(FileName, False, True);
+  end;
+
+  function Includes: Boolean;
   const
     SBuiltins = 'ISPPBuiltins.iss';
   var
-    BuiltinsFileName: string;
+    P, DelimPos: PChar;
+    IncludeFile: String;
   begin
-    if FileExists(BuiltinsDir + SBuiltins) then
-    begin
-      BuiltinsFileName := BuiltinsDir + SBuiltins;
-      if not GetOption(Preprocessor.FOptions.ParserOptions.Options, 'P') then
-        BuiltinsFileName := Escape(BuiltinsFileName);
-      Preprocessor.IncludeFile(BuiltinsFileName, False);
-      //Preprocessor.IncludeFile('D:\PROGRA~1\INNOSE~1\BUILTINS.ISS', False);
-      {TPreprocProtectedMethods(Preprocessor).InternalAddLine
-        (Format('#include "%s"', [BuiltinsFileName]), 0, Word(-1), False)}
-    end
+    Result := True;
+    IncludeFile := BuiltinsDir + SBuiltins;
+    if FileExists(IncludeFile) then
+      Include(IncludeFile)
     else
       Preprocessor.IssueMessage(SBuiltins + ' file was not found', imtWarning);
+    P := PChar(IncludeFiles);
+    while P^ <> #0 do begin
+      DelimPos := StrScan(P, #1);
+      if DelimPos = nil then begin
+        Result := False;
+        Break;
+      end;
+      SetString(IncludeFile, P, DelimPos - P);
+      Include(IncludeFile);
+      Inc(P, Length(IncludeFile) + 1);
+    end;
   end;
 
 var
@@ -65,7 +78,7 @@ var
   LineText: PChar;
   LineTextStr: String;
 begin
-  BuiltIns;
+  Includes;
   I := 0;
   while True do
   begin
@@ -110,7 +123,7 @@ const
       InlineStart: '{#'; InlineEnd: '}'; SpanSymbol: #0);
 var
   ISPPOptions: TIsppOptions;
-  IncludePath, Definitions: string;
+  Definitions, IncludePath, IncludeFiles: String;
   Preprocessor: TPreprocessor;
   V: TIsppVariant;
 
@@ -127,10 +140,12 @@ var
       ISPPOptions.InlineStart := AnsiString(OptValue)
     else if OptName = 'ISPP:InlineEnd' then
       ISPPOptions.InlineEnd := AnsiString(OptValue)
-    else if OptName = 'ISPP:IncludePath' then
-      IncludePath := OptValue
     else if OptName = 'ISPP:Definitions' then
       Definitions := OptValue
+    else if OptName = 'ISPP:IncludePath' then
+      IncludePath := OptValue
+    else if OptName = 'ISPP:IncludeFiles' then
+      IncludeFiles := OptValue
     else
       Result := False;
   end;
@@ -224,8 +239,9 @@ begin
   CompilerPath := Params.CompilerPath;
 
   ISPPOptions := DefaultOptions;
-  IncludePath := RemoveBackslashUnlessRoot(CompilerPath);
   Definitions := '';
+  IncludePath := RemoveBackslashUnlessRoot(CompilerPath);
+  IncludeFiles := '';
   if not ParseOptions(Params.Options) then
   begin
     Result := ispeInvalidParam;
@@ -254,7 +270,7 @@ begin
 
       ParseDefinitions(PChar(Definitions), Preprocessor.VarMan);
 
-      ReadScript(Params, Preprocessor);
+      ReadScript(Params, IncludeFiles, Preprocessor);
       Preprocessor.Stack.Resolved;
       Preprocessor.IssueMessage('Preprocessed', imtStatus);
       Preprocessor.IssueMessage('', imtBlank);

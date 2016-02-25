@@ -126,7 +126,7 @@ type
     function GetLineNumber(Code: Integer): Word;
     function GetNext(var LineFilename: string; var LineNumber: Integer;
       var LineText: string): Boolean;
-    procedure IncludeFile(FileName: string; UseIncludePathOnly: Boolean);
+    procedure IncludeFile(FileName: string; UseIncludePathOnly, ResetCurrentFile: Boolean);
     procedure IssueMessage(const Message: string; MsgType: TIsppMessageType);
     procedure QueueLine(const LineRead: string);
     function PrependDirName(const FileName, Dir: string): string;
@@ -756,7 +756,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       IncludePathOnly := False;
     end;
 
-    Self.IncludeFile(FileName, IncludePathOnly);
+    Self.IncludeFile(FileName, IncludePathOnly, False);
   end;
 
   procedure Pragma(Parser: TParserAccess);
@@ -1576,7 +1576,7 @@ begin
 end;
 
 procedure TPreprocessor.IncludeFile(FileName: string;
-  UseIncludePathOnly: Boolean);
+  UseIncludePathOnly, ResetCurrentFile: Boolean);
 
   function IsDotRelativePath(const Filename: String): Boolean;
   begin
@@ -1626,6 +1626,11 @@ var
   LineText: PChar;
   LineTextStr: string;
 begin
+  if ResetCurrentFile then begin
+    FCurrentFile := 0;
+    FCurrentLine := 0;
+  end;
+
   { Expand any prefix on the filename (e.g. 'compiler:') }
   FileName := PrependDirName(FileName, '');
 
