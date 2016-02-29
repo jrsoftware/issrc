@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls;
+  StdCtrls, ExtCtrls;
 
 type
   TNewEdit = class(TEdit)
@@ -53,6 +53,11 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
   end;
 
+  TNewPanel = class(TPanel)
+  protected
+    procedure CreateParams(var Params: TCreateParams); override;
+  end;
+
 procedure Register;
   
 implementation
@@ -62,8 +67,8 @@ uses
 
 procedure Register;
 begin
-  RegisterComponents('JR', [TNewEdit, TNewMemo, TNewComboBox, TNewListBox,
-    TNewButton, TNewCheckBox, TNewRadioButton]);
+  RegisterComponents('JR', [TNewEdit, TNewMemo, TNewComboBox,
+    TNewListBox, TNewButton, TNewCheckBox, TNewRadioButton, TNewPanel]);
 end;
 
 { TNewEdit }
@@ -118,6 +123,14 @@ end;
 { TNewRadioButton }
 
 procedure TNewRadioButton.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  SetBiDiStyles(Self, Params);
+end;
+
+{ TNewPanel}
+
+procedure TNewPanel.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   SetBiDiStyles(Self, Params);

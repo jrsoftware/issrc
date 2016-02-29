@@ -14,7 +14,7 @@ interface
 {$I ..\Projects\VERSION.INC}
 
 uses
-  Windows, Controls, Graphics, Classes;
+  Windows, Controls, Graphics, Classes, BidiUtils, SysUtils;
 
 type
 {$IFNDEF IS_D3}
@@ -116,6 +116,14 @@ const
 function AlphaBlend(DC: HDC; p2, p3, p4, p5: Integer; DC6: HDC; p7, p8, p9,
   p10: Integer; p11: TBlendFunction): BOOL; stdcall; external 'msimg32.dll' name 'AlphaBlend';
 {$ENDIF}
+
+{ Use it to set or get layout for HDC }
+const
+  LAYOUT_BITMAPORIENTATIONPRESERVED = $08;
+  LAYOUT_RTL = $01;
+
+function GetLayout(DC: HDC): DWORD; stdcall; external 'gdi32.dll' name 'GetLayout';
+function SetLayout(hdc: HDC; dwLayout: DWORD): DWORD; stdcall; external 'gdi32.dll' name 'SetLayout';
 
 procedure Register;
 begin
@@ -229,8 +237,17 @@ var
   R: TRect;
   Bmp: TBitmap;
   X, Y, W, H: Integer;
-  Is32bit: Boolean;
+  Is32bit, IsRightToLeft: Boolean;
+
 begin
+  { Check if HDC for BitmapImage is mirrord, If mirrord we added
+    LAYOUT_BITMAPORIENTATIONPRESERVED to it's layout }
+  IsRightToLeft := (GetLayout(Canvas.Handle) and LAYOUT_RTL) = LAYOUT_RTL;
+
+  if IsRightToLeft then begin
+    SetLayout(Canvas.Handle, LAYOUT_RTL or LAYOUT_BITMAPORIENTATIONPRESERVED);
+  end;
+
   with Canvas do begin
     R := ClientRect;
     Is32bit := (FBitmap.PixelFormat = pf32bit) and
@@ -294,8 +311,14 @@ begin
     if (FReplaceColor <> clNone) and (FReplaceWithColor <> clNone) then begin
       Brush.Color := FReplaceWithColor;
       BrushCopy(Rect(X, Y, X + W, Y + H), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), FReplaceColor);
-    end else
-      Draw(X, Y, Bmp);
+    end else begin
+      { Added Left to X when HDC is mirrord to fix shift problem }
+      if IsRightToLeft then
+        Draw(X + Left, Y, Bmp)
+      else
+        Draw(X, Y, Bmp);
+
+    end;
   end;
 end;
 

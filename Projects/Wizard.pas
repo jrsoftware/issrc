@@ -110,7 +110,7 @@ type
     WelcomeLabel1: TNewStaticText;
     InfoBeforeMemo: TRichEditViewer;
     InfoBeforeClickLabel: TNewStaticText;
-    MainPanel: TPanel;
+    MainPanel: TNewPanel;
     Bevel1: TBevel;
     PageNameLabel: TNewStaticText;
     PageDescriptionLabel: TNewStaticText;

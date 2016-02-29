@@ -24,13 +24,10 @@ type
   private
     FBaseUnitX, FBaseUnitY: Integer;
     FRightToLeft: Boolean;
-    FFlipControlsOnShow: Boolean;
-    FControlsFlipped: Boolean;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
-    procedure VisibleChanging; override;
     procedure WndProc(var Message: TMessage); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -44,14 +41,11 @@ type
     procedure CenterInsideControl(const Ctl: TWinControl;
       const InsideClientArea: Boolean);
     procedure CenterInsideRect(const InsideRect: TRect);
-    procedure FlipControlsIfNeeded;
     procedure InitializeFont;
     function ScalePixelsX(const N: Integer): Integer;
     function ScalePixelsY(const N: Integer): Integer;
     property BaseUnitX: Integer read FBaseUnitX;
     property BaseUnitY: Integer read FBaseUnitY;
-    property ControlsFlipped: Boolean read FControlsFlipped;
-    property FlipControlsOnShow: Boolean read FFlipControlsOnShow write FFlipControlsOnShow;
     property RightToLeft: Boolean read FRightToLeft;
   end;
 
@@ -218,17 +212,6 @@ begin
   Result := nil;
 end;
 
-function IsParentSetupFormFlipped(AControl: TControl): Boolean;
-var
-  ParentForm: TSetupForm;
-begin
-  ParentForm := GetParentSetupForm(AControl);
-  if Assigned(ParentForm) then
-    Result := ParentForm.ControlsFlipped
-  else
-    Result := False;
-end;
-
 function IsParentSetupFormRightToLeft(AControl: TControl): Boolean;
 var
   ParentForm: TSetupForm;
@@ -247,7 +230,6 @@ begin
   { Must initialize FRightToLeft here in addition to CreateNew because
     CreateNew isn't virtual on Delphi 2 and 3 }
   FRightToLeft := LangOptions.RightToLeft;
-  FFlipControlsOnShow := FRightToLeft;
   inherited;
   { In Delphi 2005 and later, Position defaults to poDefaultPosOnly, but we
     don't want the form to be changing positions whenever its handle is
@@ -265,7 +247,6 @@ begin
   { Note: On Delphi 2 and 3, CreateNew isn't virtual, so this is only reached
     when TSetupForm.CreateNew is called explicitly }
   FRightToLeft := LangOptions.RightToLeft;
-  FFlipControlsOnShow := FRightToLeft;
   inherited;
 end;
 
@@ -337,7 +318,7 @@ begin
   inherited;
   { Added full RightToLeft support }
   if FRightToLeft then
-    Params.ExStyle := Params.ExStyle or (WS_EX_LAYOUTRTL or WS_EX_NOINHERITLAYOUT or WS_EX_LEFTSCROLLBAR);
+    Params.ExStyle := Params.ExStyle or (WS_EX_LAYOUTRTL or WS_EX_NOINHERITLAYOUT);
 end;
 
 procedure TSetupForm.CreateWnd;
@@ -345,27 +326,6 @@ begin
   inherited;
   if WM_QueryCancelAutoPlay <> 0 then
     AddToWindowMessageFilterEx(Handle, WM_QueryCancelAutoPlay);
-end;
-
-procedure TSetupForm.FlipControlsIfNeeded;
-var
-  I: Integer;
-
-begin
-  if FFlipControlsOnShow then begin
-    FFlipControlsOnShow := False;
-    FControlsFlipped := not FControlsFlipped;
-
-    for I := 0 to Self.ControlCount - 1 do
-    begin
-	  { When added WS_EX_LAYOUTRTL there is no need to flip all controls
-        because Windows will flipped it automatically, so we still need
-        to flip all controls in TNewsNotebook because it's no effect }
-      if Self.Controls[I] is TNewNotebook then
-         FlipControls(TWinControl(Self.Controls[I]));
-    end;
-
-  end;
 end;
 
 procedure TSetupForm.InitializeFont;
@@ -399,15 +359,6 @@ begin
   Result := MulDiv(N, BaseUnitY, OrigBaseUnitY);
 end;
 
-procedure TSetupForm.VisibleChanging;
-begin
-  inherited;
-  { Note: Unlike DoShow, any exceptions raised in VisibleChanging will be
-    propagated out, which is what we want }
-  if not Visible then
-    FlipControlsIfNeeded;
-end;
-
 procedure TSetupForm.WMQueryEndSession(var Message: TWMQueryEndSession);
 begin
   { TDummyClass.AntiShutdownHook in Setup.dpr already denies shutdown attempts
@@ -436,7 +387,6 @@ begin
 end;
 
 initialization
-  BidiUtils.IsParentFlippedFunc := IsParentSetupFormFlipped;
   BidiUtils.IsParentRightToLeftFunc := IsParentSetupFormRightToLeft;
   WM_QueryCancelAutoPlay := RegisterWindowMessage('QueryCancelAutoPlay');
 end.

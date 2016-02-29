@@ -6,10 +6,13 @@ object UninstallProgressForm: TUninstallProgressForm
   Caption = 'UninstallProgressForm'
   ClientHeight = 360
   ClientWidth = 497
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  OldCreateOrder = True
   Scaled = False
   PixelsPerInch = 96
   TextHeight = 13
@@ -21,8 +24,8 @@ object UninstallProgressForm: TUninstallProgressForm
     Shape = bsTopLine
   end
   object CancelButton: TNewButton
-    Left = 410
-    Top = 327
+    Left = 408
+    Top = 325
     Width = 75
     Height = 23
     Cancel = True
@@ -62,6 +65,7 @@ object UninstallProgressForm: TUninstallProgressForm
             Height = 21
             Min = 0
             Max = 400
+            Style = npbstNormal
           end
           object StatusLabel: TNewStaticText
             Left = 36
@@ -75,7 +79,7 @@ object UninstallProgressForm: TUninstallProgressForm
           end
         end
       end
-      object MainPanel: TPanel
+      object MainPanel: TNewPanel
         Left = 0
         Top = 0
         Width = 497

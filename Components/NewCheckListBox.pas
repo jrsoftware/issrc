@@ -1733,13 +1733,21 @@ end;
 procedure TNewCheckListBox.WMNCHitTest(var Message: TWMNCHitTest);
 var
   I: Integer;
+  Point: TPoint;
 begin
   inherited;
   if FWantTabs and not (csDesigning in ComponentState) then
   begin
     if Message.Result = HTCLIENT then
     begin
-      I := ItemAtPos(ScreenToClient(SmallPointToPoint(Message.Pos)), True);
+      Point := SmallPointToPoint(Message.Pos);
+
+      if FUseRightToLeft then
+        Point := MapWindowPoint(Handle, Point)
+      else
+        Point := ScreenToClient(Point);
+
+      I := ItemAtPos(Point, True);
       if (I < 0) or not CanFocusItem(I) then
       begin
         UpdateHotIndex(-1);
