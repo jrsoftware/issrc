@@ -3098,13 +3098,13 @@ begin
       if not IsAdmin then AbortInit(msgAdminPrivilegesRequired);
   end;
 
-  { Init main constants, not depending on _shfoldr.dll }
+  { Init main constants, not depending on shfolder.dll/_shfoldr.dll }
   InitMainNonSHFolderConsts;
 
   { Create temporary directory and extract 64-bit helper EXE if necessary }
   CreateTempInstallDir;
 
-  { Extract "_shfoldr.dll" to TempInstallDir, and load it }
+  { Load system's "shfolder.dll" or extract "_shfoldr.dll" to TempInstallDir, and load it }
   LoadSHFolderDLL;
 
   { Extract "_isdecmp.dll" to TempInstallDir, and load it }
