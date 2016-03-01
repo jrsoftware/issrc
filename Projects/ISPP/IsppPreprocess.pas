@@ -24,61 +24,13 @@ uses
 var
   BuiltinsDir: string;
 
-procedure ReadScript(const Params: TPreprocessScriptParams; const IncludeFiles: String;
+procedure ReadScript(const Params: TPreprocessScriptParams;
   const Preprocessor: TPreprocessor);
-
-  function Include(FileName: String): Boolean;
-
-    function Escape(const S: string): string;
-    var
-      I: Integer;
-    begin
-      Result := '';
-      for I := 1 to Length(S) do
-      begin
-        Result := Result + S[I];
-        if S[I] = '\' then Result := Result + '\';
-      end;
-    end;
-
-  begin
-    if not GetOption(Preprocessor.FOptions.ParserOptions.Options, 'P') then
-      FileName := Escape(FileName);
-    Preprocessor.IncludeFile(FileName, False, True);
-  end;
-
-  function Includes: Boolean;
-  const
-    SBuiltins = 'ISPPBuiltins.iss';
-  var
-    P, DelimPos: PChar;
-    IncludeFile: String;
-  begin
-    Result := True;
-    IncludeFile := BuiltinsDir + SBuiltins;
-    if FileExists(IncludeFile) then
-      Include(IncludeFile)
-    else
-      Preprocessor.IssueMessage(SBuiltins + ' file was not found', imtWarning);
-    P := PChar(IncludeFiles);
-    while P^ <> #0 do begin
-      DelimPos := StrScan(P, #1);
-      if DelimPos = nil then begin
-        Result := False;
-        Break;
-      end;
-      SetString(IncludeFile, P, DelimPos - P);
-      Include(IncludeFile);
-      Inc(P, Length(IncludeFile) + 1);
-    end;
-  end;
-
 var
   I: Integer;
   LineText: PChar;
   LineTextStr: String;
 begin
-  Includes;
   I := 0;
   while True do
   begin
@@ -224,6 +176,55 @@ var
     end;
   end;
 
+  function IncludeBuiltinsAndParseIncludeFiles(IncludeFiles: PChar; Options: TOptions): Boolean;
+
+    function Escape(const S: string): string;
+    var
+      I: Integer;
+    begin
+      Result := '';
+      for I := 1 to Length(S) do
+      begin
+        Result := Result + S[I];
+        if S[I] = '\' then Result := Result + '\';
+      end;
+    end;
+
+    procedure Include(FileName: String);
+    begin
+      if not GetOption(Options, 'P') then
+        FileName := Escape(FileName);
+      Preprocessor.IncludeFile(FileName, False, True);
+    end;
+
+  const
+    SBuiltins = 'ISPPBuiltins.iss';
+  var
+    DelimPos: PChar;
+    N: Integer;
+    IncludeFile: String;
+  begin
+    Result := True;
+    IncludeFile := BuiltinsDir + SBuiltins;
+    if FileExists(IncludeFile) then
+      Include(IncludeFile)
+    else
+      Preprocessor.IssueMessage(SBuiltins + ' file was not found', imtWarning);
+    while IncludeFiles^ <> #0 do begin
+      DelimPos := StrScan(IncludeFiles, #1);
+      if DelimPos = nil then begin
+        Result := False;
+        Break;
+      end;
+      N := DelimPos - IncludeFiles;
+      if N > 0 then begin
+        SetString(IncludeFile, IncludeFiles, N);
+        Include(IncludeFile);
+      end;
+      Inc(IncludeFiles, N + 1);
+    end;
+  end;
+
 var
   SourcePath, CompilerPath, LineFilename, LineText: string;
   LineNumber: Integer;
@@ -270,7 +271,14 @@ begin
 
       ParseDefinitions(PChar(Definitions), Preprocessor.VarMan);
 
-      ReadScript(Params, IncludeFiles, Preprocessor);
+      if not IncludeBuiltinsAndParseIncludeFiles(PChar(IncludeFiles),
+        Preprocessor.FOptions.ParserOptions.Options) then
+      begin
+        Result := ispeInvalidParam;
+        Exit;
+      end;
+
+      ReadScript(Params, Preprocessor);
       Preprocessor.Stack.Resolved;
       Preprocessor.IssueMessage('Preprocessed', imtStatus);
       Preprocessor.IssueMessage('', imtBlank);
