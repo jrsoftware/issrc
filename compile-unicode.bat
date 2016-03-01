@@ -24,6 +24,7 @@ set DELPHI2009ROOT=
 set DELPHIXEROOT=
 call .\compilesettings.bat
 if "%DELPHI2009ROOT%"=="" if "%DELPHIXEROOT%"=="" goto compilesettingserror
+if not "%DELPHI2009ROOT%"=="" if not "%DELPHIXEROOT%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
