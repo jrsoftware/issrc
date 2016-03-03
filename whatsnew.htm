@@ -33,6 +33,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <li>Added new [Files] section flags: <tt>sign</tt> and <tt>signonce</tt>. Instructs the compiler to digitally sign the original source files before storing them. Ignored if [Setup] section directive <tt>SignTool</tt> is not set. Inno Setup's own compiler files are now also signed.</li>
 <li>[Setup] section directive <tt>LZMADictionarySize</tt> now allows the LZMA dictionary size to be increased up to 1 GB from the previous maximum of 256 MB. Review the memory requirements listed in the <tt>Compression</tt> topic before using!</li>
 <li>Improved the "auto-retry" feature of the [Files] section: it now also retries if MoveFile failed even if the preceding DeleteFile succeeded. Additionally, if MoveFile keeps failing it will now register the file to be replaced on restart if the <tt>restartreplace</tt> [Files] section flag is used instead of displaying an error message.</li>
+<li>The value of the <tt>AppVersion</tt> directive is now not only used to set the <tt>MajorVersion</tt> and <tt>MinorVersion</tt> values in the Uninstall registry key when possible but also used to set the <tt>VersionMajor</tt> and <tt>VersionMinor</tt> values as required by newer versions of the Windows App Certification Kit.</li>
 <li>Inno Setup Preprocessor (ISPP) changes:
 <ul>
   <li>Added new function <tt>RemoveFileExt</tt>.</li>

@@ -2305,7 +2305,7 @@ multisz<br/>
 dword<br/>
 qword<br/>
 binary</tt></p></indent>
-<p>If <tt>none</tt> (the default setting) is specified, Setup will create the key but <i>not</i> a value. In this case the <tt>ValueName</tt> and <tt>ValueData</tt> parameters are ignored.<br/>
+<p>If <tt>none</tt> (the default setting) is specified, Setup will create the key but <i>not</i> a value. In this case the <tt>ValueData</tt> parameter is ignored.<br/>
 If <tt>string</tt> is specified, Setup will create a string (REG_SZ) value.<br/>
 If <tt>expandsz</tt> is specified, Setup will create an expand-string (REG_EXPAND_SZ) value.<br/>
 If <tt>multisz</tt> is specified, Setup will create an multi-string (REG_MULTI_SZ) value.<br/>
@@ -2318,7 +2318,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 </param>
 
 <param name="ValueName">
-<p>The name of the value to create, which can include constants. If this is blank, it will write to the "Default" value. If the <tt>ValueType</tt> parameter is set to <tt>none</tt>, this parameter is ignored.</p>
+<p>The name of the value to modify, which can include constants. If this is blank, it will modify the "Default" value.</p>
 <example>
 <pre>ValueName: "Version"</pre>
 </example>

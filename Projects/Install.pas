@@ -580,8 +580,11 @@ var
       SetDWordValue(H2, 'NoRepair', 1);
       SetStringValue(H2, 'InstallDate', GetInstallDateString);
       if ExtractMajorMinorVersion(ExpandConst(SetupHeader.AppVersion), MajorVersion, MinorVersion) then begin
+        { Originally MSDN say to write to Major/MinorVersion, now it says to write to VersionMajor/Minor. So write to both. }
         SetDWordValue(H2, 'MajorVersion', MajorVersion);
         SetDWordValue(H2, 'MinorVersion', MinorVersion);
+        SetDWordValue(H2, 'VersionMajor', MajorVersion);
+        SetDWordValue(H2, 'VersionMinor', MinorVersion);
       end;
       { Note: Windows 7 doesn't automatically calculate sizes so set EstimatedSize ourselves. Do not set it
         on earlier Windows versions since calculated sizes are cached and clearing the cache would require
