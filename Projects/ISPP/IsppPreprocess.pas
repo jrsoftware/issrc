@@ -126,7 +126,7 @@ var
     end;
   end;
 
-  procedure ParseDefinitions(Definitions: PChar; VarMan: TIdentManager);
+  function ParseDefinitions(Definitions: PChar; VarMan: TIdentManager): Boolean;
 
     procedure ParseDefinition(const S: string);
     var
@@ -148,31 +148,24 @@ var
       VarMan.DefineVariable(Name, -1, Value, dsPublic);
     end;
 
-  const
-    QuoteChar = Char('"');
-    Delimiter = Char(';');
   var
-    P: PChar;
-    S: string;
+    DelimPos: PChar;
+    N: Integer;
+    Definition: string;
   begin
-    if Definitions = nil then Exit;
-    while CharInSet(Definitions^, [#1..' ']) do Inc(Definitions);
-    while Definitions^ <> #0 do
-    begin
-      if Definitions^ = QuoteChar then
-        S := AnsiExtractQuotedStr(Definitions, QuoteChar)
-      else
-      begin
-        P := Definitions;
-        while (Definitions^ > ' ') and (Definitions^ <> Delimiter) do Inc(Definitions);
-        SetString(S, P, Definitions - P);
+    Result := True;
+    while Definitions^ <> #0 do begin
+      DelimPos := StrScan(Definitions, #1);
+      if DelimPos = nil then begin
+        Result := False;
+        Break;
       end;
-      ParseDefinition(S);
-      while CharInSet(Definitions^, [#1..' ']) do Inc(Definitions);
-      if Definitions^ = Delimiter then
-      repeat
-        Inc(Definitions);
-      until not CharInSet(Definitions^, [#1..' ']);
+      N := DelimPos - Definitions;
+      if N > 0 then begin
+        SetString(Definition, Definitions, N);
+        ParseDefinition(Definition);
+      end;
+      Inc(Definitions, N + 1);
     end;
   end;
 
@@ -269,10 +262,9 @@ begin
       MakeInt(V, Params.CompilerBinVersion);
       Preprocessor.VarMan.DefineVariable('Ver', -1, V, dsPublic);
 
-      ParseDefinitions(PChar(Definitions), Preprocessor.VarMan);
-
-      if not IncludeBuiltinsAndParseIncludeFiles(PChar(IncludeFiles),
-        Preprocessor.FOptions.ParserOptions.Options) then
+      if not ParseDefinitions(PChar(Definitions), Preprocessor.VarMan) or
+         not IncludeBuiltinsAndParseIncludeFiles(PChar(IncludeFiles),
+           Preprocessor.FOptions.ParserOptions.Options) then
       begin
         Result := ispeInvalidParam;
         Exit;

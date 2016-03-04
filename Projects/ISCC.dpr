@@ -283,7 +283,7 @@ procedure ProcessCommandLine;
       InlineEnd := '}';
     end;
 
-    Definitions := 'ISPPCC_INVOKED';
+    Definitions := 'ISPPCC_INVOKED'#1;
     IncludePath := ExtractFileDir(NewParamStr(0));
     IncludeFiles := '';
   end;
@@ -413,9 +413,7 @@ begin
         end;
         SignTools.Add(S);
       end else if IsppMode and GetParam(S, 'D') then begin
-        if (Pos(';', S) > 0) or (Pos(' ', S) > 0) then
-          S := AddQuotes(S);
-        Definitions := Definitions + ';' + S;
+        Definitions := Definitions + S + #1;
       end
       else if IsppMode and GetParam(S, 'I') then begin
         IncludePath := IncludePath + ';' + S;
