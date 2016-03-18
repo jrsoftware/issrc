@@ -21,7 +21,7 @@ rem  Once done the 2 installers can be found in Output
 
 setlocal
 
-set VER=5.5.9-dev
+set VER=5.5.9
 
 echo Building Inno Setup %VER%...
 echo.
