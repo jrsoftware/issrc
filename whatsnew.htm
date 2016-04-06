@@ -26,7 +26,7 @@ Portions Copyright &copy; 2000-2016 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
-<p><a name="5.5.9"></a><span class="ver">5.5.9 </span><span class="date">(2016-03-18)</span></p>
+<p><a name="5.5.9"></a><span class="ver">5.5.9 </span><span class="date">(2016-04-06)</span></p>
 <ul>
 <li>To <a href="#installerprotect1">further</a> help protect installers against potential <a href="http://msdn.microsoft.com/en-us/library/ff919712.aspx">DLL preloading attacks</a>, Setup/Uninstall now calls SetDefaultDllDirectories if available to remove the application directory from the DLL search order. If SetDefaultDllDirectories is not available or cannot be called, it now additionally preloads a set of system DLLs known to be loaded unsafely by older or unpatched versions of Windows.</li>
 <li><b>Change in default behavior:</b> the <tt>OutputBaseFileName</tt> [Setup] section directive now defaults to <tt>mysetup</tt> instead of <tt>setup</tt>. Setting it back to <tt>setup</tt> is not recommended: all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll. These DLLs are loaded unsafely by Windows and can be hijacked. If you do so anyway, the compiler will issue a warning.</li>
