@@ -5016,7 +5016,7 @@ SignTool=byparam format c:
 
 <setuptopic directive="LZMADictionarySize">
 <setupvalid><tt>4</tt> through <tt>131072</tt> (by default)<br />
-<tt>4</tt> through <tt>262144</tt> if <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> is set to <tt>yes</tt> and running on 64-bit Windows (x64)</setupvalid>
+<tt>4</tt> through <tt>1048576</tt> if <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> is set to <tt>yes</tt> and running on 64-bit Windows (x64)</setupvalid>
 <setupdefault><tt>32</tt> if the <link topic="setup_compression">LZMA compression level</link> is set to <tt>fast</tt><br />
 <tt>2048</tt> if the LZMA compression level is set to <tt>normal</tt><br />
 <tt>8192</tt> if the LZMA compression level is set to <tt>max</tt><br />
