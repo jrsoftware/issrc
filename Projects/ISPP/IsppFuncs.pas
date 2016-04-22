@@ -363,7 +363,7 @@ function SetupSetting(Ext: Longint; const Params: IIsppFuncParams;
     with L do
       for I := 0 to Count - 1 do
       begin
-        if Strings[I] = '' then Continue;
+        if Trim(Strings[I]) = '' then Continue;
         if InSetupSection then
         begin
           if (Trim(Strings[I])[1] = '[') then
@@ -417,7 +417,7 @@ function SetSetupSetting(Ext: Longint; const Params: IIsppFuncParams;
     begin
       for I := 0 to Count - 1 do
       begin
-        if Strings[I] = '' then Continue;
+        if Trim(Strings[I]) = '' then Continue;
         if InSetupSection then
         begin
           if (Trim(Strings[I])[1] = '[') then
