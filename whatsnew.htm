@@ -26,6 +26,11 @@ Portions Copyright &copy; 2000-2016 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
+<p><a name="5.5.10"></a><span class="ver">5.5.10 </span><span class="date">(?)</span></p>
+<ul>
+<li><i>Fix:</i>In 5.5.9 it was no longer possible to include a drive colon in [Setup] section directive <tt>OutputManifestFile</tt>.</li>
+</ul>
+
 <p><a name="5.5.9"></a><span class="ver">5.5.9 </span><span class="date">(2016-04-06)</span></p>
 <ul>
 <li>To <a href="#installerprotect1">further</a> help protect installers against potential <a href="http://msdn.microsoft.com/en-us/library/ff919712.aspx">DLL preloading attacks</a>, Setup/Uninstall now calls SetDefaultDllDirectories if available to remove the application directory from the DLL search order. If SetDefaultDllDirectories is not available or cannot be called, it now additionally preloads a set of system DLLs known to be loaded unsafely by older or unpatched versions of Windows.</li>
