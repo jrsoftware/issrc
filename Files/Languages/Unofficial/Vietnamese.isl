@@ -1,8 +1,6 @@
-; Language: Vietnamese
-; Full name: Phung Tien Duong
-; Email: phungtienduong@yahoo.com
-
-; *** Inno Setup version 5.1.11+ English messages ***
+; *** Inno Setup version 5.5.3+ Vietnamese messages ***
+;Transtator: Duy Quang Le (Hanoi, Vietnam)
+;Email: leduyquang753@gmail.com
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -15,14 +13,14 @@
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
 ; understand the '[LangOptions] section' topic in the help file.
-LanguageName=Vietnam
+LanguageName=Vietnamese (Tieng Viet)
 LanguageID=$042A
-LanguageCodePage=1258
+LanguageCodePage=0
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
-DialogFontName=Arial
-DialogFontSize=8
-WelcomeFontName=Arial
+;DialogFontName=
+;DialogFontSize=8
+;WelcomeFontName=Verdana
 ;WelcomeFontSize=12
 ;TitleFontName=Arial
 ;TitleFontSize=29
@@ -32,290 +30,305 @@ WelcomeFontName=Arial
 [Messages]
 
 ; *** Application titles
-SetupAppTitle=CaÌi ğãòt
-SetupWindowTitle=CaÌi ğãòt - %1
-UninstallAppTitle=GõŞ boÒ
-UninstallAppFullTitle=%1 GõŞ boÒ
+SetupAppTitle=Cai dat
+SetupWindowTitle=Cai dat - %1
+UninstallAppTitle=Go cai dat
+UninstallAppFullTitle=Go cai dat %1
 
 ; *** Misc. common
-InformationTitle=Thông tin
-ConfirmTitle=Xaìc nhâòn
-ErrorTitle=LôŞi
+InformationTitle=Thong tin
+ConfirmTitle=Chung nhan
+ErrorTitle=Loi
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=%1 seŞ ğıõòc caÌi ğãòt. Baòn coì muôìn tiêìp tuòc ?
-LdrCannotCreateTemp=Không thêÒ taòo tâòp tin taòm. CaÌi ğãòt biò huÒy
-LdrCannotExecTemp=Không thêÒ thıòc thi tâòp tin trong thı muòc taòm. CaÌi ğãòt biò huÒy
-
+SetupLdrStartupMessage=Chuong trinh nay se cai dat %1. Ban co muon tiep tuc?
+LdrCannotCreateTemp=Khong the tao tep tam thoi. Cai dat bi huy bo
+LdrCannotExecTemp=Khong the chay tep trong thu muc tam thoi. Cai dat bi huy bo
 ; *** Startup error messages
-LastErrorMessage=%1.%n%nLôŞi %2: %3
-SetupFileMissing=Tâòp tin %1 không coì trong thı muòc caÌi ğãòt. HaŞy xem laòi vâìn ğêÌ naÌy hoãòc duÌng bôò caÌi ğãòt khaìc
-SetupFileCorrupt=Caìc tâòp tin caÌi ğãòt biò hı. ĞêÌ nghiò tiÌm bôò caÌi ğãòt khaìc.
-SetupFileCorruptOrWrongVer=Caìc tâòp tin caÌi ğãòt biò hı, hoãòc không tıõng thiìch võìi phiên baÒn naÌy. HaŞy xem laòi vâìn ğêÌ naÌy hoãòc duÌng bôò caÌi ğãòt khaìc.
-NotOnThisPlatform=Chıõng triÌnh naÌy seŞ không chaòy trên %1.
-OnlyOnThisPlatform=Chıõng triÌnh naÌy phaÒi ğıõòc chaòy trên %1.
-OnlyOnTheseArchitectures=Chıõng triÌnh naÌy chiÒ coì thêÒ ğıõòc caÌi ğãòt trên phiên baÒn cuÒa Windows ğıõòc thiêìt kêì cho caìc CPU sau:%n%n%1
-MissingWOW64APIs=Phiên baÒn Windows ğang chaòy không coì chıìc nãng câÌn thiêìt cho bôò caÌi ğãòt caÌi ğãòt ıìng duòng 64 bit. ĞêÒ khãìc phuòc, ğêÌ nghiò caÌi ğãòt baÒn vaì %1.
-WinVersionTooLowError=Chıõng triÌnh naÌy yêu câÌu %1 phiên baÒn %2 hoãòc mõìi hõn.
-WinVersionTooHighError=Chıõng triÌnh naÌy không thêÒ ğıõòc caÌi ğãòt trên %1 phiên baÒn %2 hoãòc mõìi hõn.
-AdminPrivilegesRequired=Baòn phaÒi ğãng nhâòp võìi quyêÌn quaÒn triò khi caÌi ğãòt chıõng triÌnh naÌy.
-PowerUserPrivilegesRequired=Baòn phaÒi ğãng nhâòp võìi quyêÌn quaÒn triò hoãòc laÌ thaÌnh viên cuÒa nhoìm Power Users khi caÌi ğãòt chıõng triÌnh naÌy.
-SetupAppRunningError=TriÌnh caÌi ğãòt phaìt hiêòn %1 ğang chaòy.%n%nĞêÌ nghiò ğoìng tâìt caÒ laòi, rôÌi nhâìn ĞôÌng yì ğêÒ tiêìp tuòc, hoãòc HuÒy ğêÒ ngıÌng caÌi ğãòt.
-UninstallAppRunningError=TriÌnh gõŞ boÒ phaìt hiêòn %1 ğang chaòy.%n%nĞêÌ nghiò ğoìng tâìt caÒ laòi, rôÌi nhâìn ĞôÌng yì ğêÒ tiêìp tuòc, hoãòc HuÒy ğêÒ ngıÌng caÌi ğãòt.
-
+LastErrorMessage=%1.%n%nLoi %2: %3
+SetupFileMissing=Tep %1 khong duoc tim thay trong thu muc cai dat. Hay sua loi hoac tim ban khac cua chuong trinh.
+SetupFileCorrupt=Tep cai dat co hong hoc. Hay tim ban khac cua chuong trinh.
+SetupFileCorruptOrWrongVer=Tep cai dat co hong hoc, hoac khong tuong thich voi phien ban cai dat nay. Hay sua loi hoac tim ban khac cua chuong trinh.
+InvalidParameter=Mot con tro khong hop le da di qua tren dong lenh:%n%n%1
+SetupAlreadyRunning=Cai dat hien dang chay.
+WindowsVersionNotSupported=Chuong trinh nay khong ho tro cho phien ban Windows ma ban dang chay.
+WindowsServicePackRequired=Chuong trinh nay yeu cau %1 Goi An ninh %2 hoac moi hon.
+NotOnThisPlatform=Chuong trinh nay se khong chay tren %1.
+OnlyOnThisPlatform=Chuong trinh nay phai chay tren %1.
+OnlyOnTheseArchitectures=Chuong trinh nay chi co the cai dat tren nhung phien ban cua Windows duoc thiet ke cho nhung bo vi xu ly sau:%n%n%1
+MissingWOW64APIs=Phien ban Windows ban dang chay khong bao gom cac kha nangduoc yeu cau boi cai dat de thuc hien mot su cai dat chuong trinh 64-bit. De sua loi nay, please install Service Hay cai dat Goi An ninh%1.
+WinVersionTooLowError=Chuong trinh nay yeu cau %1 phien ban %2 hoac moi hon.
+WinVersionTooHighError=Chuong trinh nay khong the duoc cai dat tren %1 phien ban %2 hoac moi hon.
+AdminPrivilegesRequired=Ban phai la Adminstrator de cai dat chuong trinh nay.
+PowerUserPrivilegesRequired=Ban phai la Adminstrator hoac mot thanh vien cua nhom nguoi dung quyen luc de cai dat chuong trinh nay.
+SetupAppRunningError=Viec cai dat bi gian doan vi %1 dang chay.%n%nHay dong chung lai, roi click OK de tiep tuc, hoac Huy de thoat.
+UninstallAppRunningError=Viec go cai dat bi gian doan vi %1 dang chay.%n%nHay dong chung lai, roi click OK de tiep tuc, hoac Huy de thoat.
 ; *** Misc. errors
-ErrorCreatingDir=TriÌnh caÌi ğãòt không thêÒ taòo thı muòc "%1"
-ErrorTooManyFilesInDir=Không thêÒ taòo tâòp tin trong thı muòc "%1" viÌ noì chıìa quaì nhiêÌu tâòp tin
-
+ErrorCreatingDir=Cai dat khong the tao thu muc "%1"
+ErrorTooManyFilesInDir=Khong the tao tep trong thu muc "%1" vi no chua qua nhieu tep
 ; *** Setup common messages
-ExitSetupTitle=NgıÌng caÌi ğãòt
-ExitSetupMessage=TriÌnh caÌi ğãòt chıa hoaÌn tâìt. Nêìu baòn ngıÌng laòi, chıõng triÌnh seŞ không ğıõòc caÌi ğãòt.%n%nBaòn coì thêÒ chaòy triÌnh caÌi ğãòt vaÌo luìc khaìc ğêÒ hoaÌn tâìt viêòc caÌi ğãòt.%n%nBaòn thâòt sıò muôìn ngıÌng caÌi ğãòt ?
-AboutSetupMenuItem=&Giõìi thiêòu triÌnh caÌi ğãòt...
-AboutSetupTitle=Giõìi thiêòu triÌnh caÌi ğãòt
-AboutSetupMessage=%1 phiên baÒn %2%n%3%n%n%1 trang chuÒ:%n%4
-AboutSetupNote=
-TranslatorNote=
+ExitSetupTitle=Thoat cai dat
+ExitSetupMessage=Viec cai dat chua hoan thanh. Neu ban thoat bay gio, chuong trinh se khong duoc cai dat.%n%nBan co the phai chay Cai dat mot lan khac de hoan thanh cai dat.%n%nThoat cai dat?
+AboutSetupMenuItem=&Ve cai dat...
+AboutSetupTitle=Ve cai dat
+AboutSetupMessage=%1 phien ban %2%n%3%n%n%1 trang chu:%n%4
+AboutSetupNote=Phien ban ngon ngu goc: Tieng Anh
+TranslatorNote=Nguoi dich: Le Duy Quang
 
 ; *** Buttons
-ButtonBack=< &Lui laòi
-ButtonNext=Ği &tiêìp >
-ButtonInstall=&CaÌi ğãòt
-ButtonOK=ĞôÌng yì
-ButtonCancel=HuÒy
-ButtonYes=ĞôÌ&ng yì
-ButtonYesToAll=ĞôÌng yì &tâìt
-ButtonNo=&Không
-ButtonNoToAll=Khôn&g tâìt
-ButtonFinish=&HoaÌn tâìt
-ButtonBrowse=&Duyêòt...
-ButtonWizardBrowse=&Duyêòt...
-ButtonNewFolder=&Taòo thı muòc mõìi
+ButtonBack=< &Truoc
+ButtonNext=T&iep >
+ButtonInstall=&Cai dat
+ButtonOK=OK
+ButtonCancel=Huy
+ButtonYes=C&o
+ButtonYesToAll=Co c&ho tat ca
+ButtonNo=&Khong
+ButtonNoToAll=Kho&ng cho tat ca
+ButtonFinish=Ho&an thanh
+ButtonBrowse=Ti&m...
+ButtonWizardBrowse=Tim&...
+ButtonNewFolder=Tao th&u muc moi
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Choòn ngôn ngıŞ caÌi ğãòt
-SelectLanguageLabel=Choòn ngôn ngıŞ duÌng trong khi caÌi ğãòt:
+SelectLanguageTitle=Lua chon ngon ngu cai dat
+SelectLanguageLabel=Lua chon ngon ngu de hien thi khi cai dat:
 
 ; *** Common wizard text
-ClickNext=Nhâìn Ği tiêìp ğêÒ tiêìp tuòc, hoãòc HuÒy ğêÒ ngıÌng caÌi ğãòt.
+ClickNext=Click Tiep de tiep tuc, hoac Huy de thoat cai dat.
 BeveledLabel=
-BrowseDialogTitle=Duyêòt thı muòc
-BrowseDialogLabel=Choòn thı muòc trong danh saìch dıõìi ğây, rôÌi nhâìn ĞôÌng yì.
-NewFolderName=Thı muòc mõìi
+BrowseDialogTitle=Tim thu muc
+BrowseDialogLabel=Chon mot thu muc trong danh sach duoi day, roi click OK.
+NewFolderName=Thu muc moi
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=ChaÌo mıÌng ğêìn võìi triÌnh caÌi ğãòt [name]
-WelcomeLabel2=[name/ver] seŞ ğıõòc caÌi ğãòt trên maìy tiình cuÒa baòn.%n%nBaòn nên ğoìng caìc ıìng duòng ğang chaòy trıõìc khi tiêìp tuòc.
+WelcomeLabel1=Chao mung toi trinh cai dat [name]
+WelcomeLabel2=No se cai dat [name/ver] tren may tinh cua ban.%n%nBan can phai dong tat ca chuong trinh co lien quan truoc khi tiep tuc.
 
 ; *** "Password" wizard page
-WizardPassword=Mâòt maŞ
-PasswordLabel1=Bôò caÌi ğãòt naÌy ğıõòc baÒo vêò bõÒi mâòt maŞ.
-PasswordLabel3=ĞêÌ nghiò cung câìp mâòt maŞ, rôÌi nhân Ği tiêìp ğêÒ tiêìp tuòc. Mâòt maŞ coì phân biêòt chıŞ hoa.
-PasswordEditLabel=&Mâòt maŞ:
-IncorrectPassword=Mâòt maŞ baòn nhâòp vaÌo không ğuìng. ĞêÌ nghiò thıÒ laòi.
+WizardPassword=Mat khau
+PasswordLabel1=Viec cai dat duoc bao ve bang mat khau.
+PasswordLabel3=Hay nhap mat khau, roi click Tiep de tiep tuc. Can nhap chinh xac 100% (phan biet chu hoa va chu thuong).
+PasswordEditLabel=&Mat khau:
+IncorrectPassword=Mat khau ban vua nhap vao khong dung. Hay thu lai.
 
 ; *** "License Agreement" wizard page
-WizardLicense=ThoÒa thuâòn giâìy pheìp
-LicenseLabel=ĞêÌ nghiò ğoòc kyŞ thông tin quan troòng sau ğây trıõìc khi caÌi ğãòt.
-LicenseLabel3=ĞêÌ nghiò ğoòc kyŞ thoÒa thuâòn giâìy pheìp. Baòn phaÒi châìp nhâòn caìc ğiêÌu khoaÒn trong thoÒa thuâòn naÌy trıõìc khi tiêìp tuòc caÌi ğãòt.
-LicenseAccepted=Tôi &châìp nhâòn thoÒa thuâòn naÌy
-LicenseNotAccepted=Tôi &không châìp nhâòn thoÒa thuâòn naÌy
+WizardLicense=Hop dong Chuyen giao
+LicenseLabel=Hay doc nhung thong tin quan trong sau truoc khi tiep tuc.
+LicenseLabel3=Hay doc hop dong Chuyen giao sau day. Ban PHAI chap nhan cac dieu khoan truoc khi tiep tuc.
+LicenseAccepted=Toi &chap nhan cac dieu khoan
+LicenseNotAccepted=Toi k&hong chap nhan cac dieu khoan
 
 ; *** "Information" wizard pages
-WizardInfoBefore=Thông tin
-InfoBeforeLabel=ĞêÌ nghiò ğoòc kyŞ thông tin quan troòng sau ğây trıõìc khi caÌi ğãòt.
-InfoBeforeClickLabel=Khi ğaŞ sãŞn saÌng tiêìp tuòc caÌi ğãòt, nhâìn Ği tiêìp.
-WizardInfoAfter=Thông tin
-InfoAfterLabel=ĞêÌ nghiò ğoòc kyŞ thông tin quan troòng sau ğây trıõìc khi caÌi ğãòt.
-InfoAfterClickLabel=Khi ğaŞ sãŞn saÌng tiêìp tuòc caÌi ğãòt, nhâìn Ği tiêìp.
+WizardInfoBefore=Thong tin
+InfoBeforeLabel=Hay doc nhung thong tin quan trong sau truoc khi tiep tuc.
+InfoBeforeClickLabel=Khi ban da san sang tiep tuc voi Cai dat, click Tiep.
+WizardInfoAfter=Thong tin
+InfoAfterLabel=Hay doc nhung thong tin quan trong sau truoc khi tiep tuc.
+InfoAfterClickLabel=Khi ban da san sang tiep tuc voi Cai dat, click Tiep.
 
 ; *** "User Information" wizard page
-WizardUserInfo=Thông tin ngıõÌi duÌng
-UserInfoDesc=ĞêÌ nghiò nhâòp thông tin cuÒa baòn.
-UserInfoName=&Hoò tên:
-UserInfoOrg=&TôÒ chıìc:
-UserInfoSerial=&Sôì serial:
-UserInfoNameRequired=Baòn phaÒi nhâòp tên.
+WizardUserInfo=Thong tin nguoi dung
+UserInfoDesc=Hay nhap thong tin cua ban.
+UserInfoName=T&en nguoi dung:
+UserInfoOrg=T&o chuc:
+UserInfoSerial=&Serial:
+UserInfoNameRequired=Ban phai dien vao mot ten.
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=Choòn viò triì caÌi ğãòt
-SelectDirDesc=[name] seŞ ğıõòc caÌi ğãòt õÒ ğâu ?
-SelectDirLabel3=TriÌnh caÌi ğãòt seŞ caÌi ğãòt [name] vaÌo thı muòc sau.
-SelectDirBrowseLabel=ĞêÒ tiêìp tuòc, nhâìn Ği tiêìp. Nêìu baòn muôìn choòn thı muòc khaìc, nhâìn Duyêòt.
-DiskSpaceMBLabel=CâÌn tôìi thiêÒu [mb] MB trôìng trên ğiŞa cıìng.
-ToUNCPathname=TriÌnh caÌi ğãòt không thêÒ caÌi ğãòt lên ğıõÌng dâŞn UNC. Nêìu muôìn caÌi ğãòt lên maòng, baòn phaÒi taòo ôÒ ğiŞa maòng.
-InvalidPath=Baòn phaÒi nhâòp tên ğıõÌng dâŞn ğâÌy ğuÒ keÌm theo tên ôÒ ğiŞa; thiì duò:%n%nC:\APP%n%nhoãòc ğıõÌng dâŞn UNC dıõìi daòng:%n%n\\server\share
-InvalidDrive=ÔÒ ğiŞa hoãòc ğıõÌng dâŞn UNC baòn choòn không tôÌn taòi hoãòc không thêÒ truy xuâìt. ĞêÌ nghiò choòn caìi khaìc.
-DiskSpaceWarningTitle=Không ğuÒ ğiŞa trôìng
-DiskSpaceWarning=TriÌnh caÌi ğãòt câÌn iìt nhâìt %1 KB ğiŞa trôìng ğêÒ caÌi ğãòt, nhıng ôÒ ğiŞa ğıõòc choòn chiÒ coì %2 KB trôìng.%n%nBaòn vâŞn muôìn tiêìp tuòc ?
-DirNameTooLong=Tên thı muòc hoãòc ğıõÌng dâŞn quaì daÌi.
-InvalidDirName=Tên thı muòc không hõòp lêò.
-BadDirName32=Tên thı muòc không ğıõòc chıìa caìc kyì tıò sau:%n%n%1
-DirExistsTitle=Thı muòc ğaŞ coì
-DirExists=Thı muòc:%n%n%1%n%nğaŞ coì. Baòn vâŞn muôìn caÌi ğãòt lên thı muòc ğoì ?
-DirDoesntExistTitle=Thı muòc chıa coì
-DirDoesntExist=Thı muòc:%n%n%1%n%nkhông coì. Baòn muôìn taòo thı muòc mõìi ?
+WizardSelectDir=Lua chon thu muc dich
+SelectDirDesc=[name] nen duoc cai dat o dau?
+SelectDirLabel3=Cai dat se cai [name] vao thu muc sau.
+SelectDirBrowseLabel=De tiep tuc, click Tiep. Neu ban muon chon thu muc khac, click Tim.
+DiskSpaceMBLabel=It nhat [mb] MB o dia trong duoc yeu cau.
+CannotInstallToNetworkDrive=Cai dat khong the cai vao mang luoi.
+CannotInstallToUNCPath=Cai dat khong the cai vao dia chi UNC.
+InvalidPath=Ban phai nhap duong dan day du voi chu cai cua o dia; vi du:%n%nC:\APP%n%nhoac mot duong dan UNC theo mau:%n%n\\server\share
+InvalidDrive=O dia hoac UNC share ban da chon khong ton tai hoac khong the truy cap. Hay chon khac.
+DiskSpaceWarningTitle=Khong du dung luong dia trong
+DiskSpaceWarning=Cai dat can it nhat %1 KB o dia trong de cai dat, nhung o dia da chon chi co %2 KB.%n%nBan co muon tiep tuc?
+DirNameTooLong=Ten thu muc hoac duong dan qua dai.
+InvalidDirName=Ten thu muc khong hop le.
+BadDirName32=Ten thu muc khong duoc co cac ki tu sau:%n%n%1
+DirExistsTitle=Thu muc da ton tai
+DirExists=Thu muc:%n%n%1%n%nda ton tai. Ban co muon cai thu muc nay?
+DirDoesntExistTitle=Thu muc khong ton tai
+DirDoesntExist=Thu muc:%n%n%1%n%nkhong ton tai. Ban co muon tao thu muc nay?
 
 ; *** "Select Components" wizard page
-WizardSelectComponents=Choòn thaÌnh phâÌn
-SelectComponentsDesc=Baòn muôìn caÌi ğãòt thaÌnh phâÌn naÌo ?
-SelectComponentsLabel2=Choòn thaÌnh phâÌn baòn muôìn caÌi ğãòt; không choòn thaÌnh phâÌn baòn không muôìn caÌi ğãòt. Nhâìn Ği tiêìp ğêÒ tiêìp tuòc.
-FullInstallation=CaÌi ğãòt ğâÌy ğuÒ
+WizardSelectComponents=Lua chon phan phu tro
+SelectComponentsDesc=Nhung phan phu tro nao nen duoc cai dat?
+SelectComponentsLabel2=Lua chon nhung phan phu tro ban muon cai dat; xoa nhung cai ban khong muon. Click Tiep khi ban da san sang tiep tuc.
+FullInstallation=Cai dat day du
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
-CompactInstallation=CaÌi ğãòt tôìi thiêÒu
-CustomInstallation=CaÌi ğãòt tuÌy choòn
-NoUninstallWarningTitle=ThaÌnh phâÌn ğaŞ coì
-NoUninstallWarning=TriÌnh caÌi ğãòt phaìt hiêòn thaÌnh phâÌn sau ğây ğaŞ ğıõòc caÌi ğãòt trên maìy tiình cuÒa baòn:%n%n%1%n%nKhông lıòa choòn caìc thaÌnh phâÌn naÌy seŞ không gõŞ boÒ chuìng.%n%nBaòn vâŞn muôìn tiêìp tuòc ?
+CompactInstallation=Cai dat co ban
+CustomInstallation=Cai dat theo y thich
+NoUninstallWarningTitle=Phan phu tro da ton tai
+NoUninstallWarning=Cai dat bi gian doan vi nhung thanh phan phu tro sau da duoc cai dat vao may tinh cua ban:%n%n%1%n%nBo chon nhung cai nay se khong cai dat chung.%n%nBan co muon tiep tuc?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceMBLabel=Lıòa choòn hiêòn taòi câÌn tôìi thiêÒu [mb] MB ğiŞa trôìng.
+ComponentsDiskSpaceMBLabel=Lua chon nay can it nhat [mb] MB o dia trong.
 
 ; *** "Select Additional Tasks" wizard page
-WizardSelectTasks=Choòn caìc taìc vuò bôÒ sung
-SelectTasksDesc=Taìc vuò bôÒ sung naÌo câÌn thıòc hiêòn ?
-SelectTasksLabel2=Choòn caìc taìc vuò bôÒ sung baòn muôìn triÌnh caÌi ğãòt thıòc hiêòn trong khi caÌi ğãòt [name], rôÌi nhâìn Ği tiêìp.
+WizardSelectTasks=Lua chon hanh dong bo sung
+SelectTasksDesc=Nhung hanh dong nao can duoc bo sung?
+SelectTasksLabel2=Lua chon nhung hanh dong ma ban muon Cai dat bo sung khi cai dat [name], sau do click Tiep.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Choòn thı muòc Start Menu
-SelectStartMenuFolderDesc=TriÌnh caÌi ğãòt taòo shortcut cuÒa chıõng triÌnh õÒ ğâu ?
-SelectStartMenuFolderLabel3=TriÌnh caÌi ğãòt seŞ taòo shortcut cuÒa chıõng triÌnh trong thı muòc sau cuÒa Start Menu.
-SelectStartMenuFolderBrowseLabel=ĞêÒ tiêìp tuòc, nhâìn Ği tiêìp. Nêìu baòn muôìn choòn thı muòc khaìc, nhâìn Duyêòt.
-MustEnterGroupName=Baòn phaÒi nhâòp tên thı muòc.
-GroupNameTooLong=Tên thı muòc hoãòc ğıõÌng dâŞn quaì daÌi.
-InvalidGroupName=Tên thı muòc không hõòp lêò.
-BadGroupName=Tên thı muòc không ğıõòc chıìa caìc kyì tıò sau:%n%n%1
-NoProgramGroupCheck2=&Không taòo ğıõòc thı muòc Start Menu
+WizardSelectProgramGroup=ua chon thu muc trong menu Start
+SelectStartMenuFolderDesc=Loi tat cua chuong trinh nen duoc dat o dau trong menu Start?
+SelectStartMenuFolderLabel3=Cai dat se tao loi tat cua chuong trinh trong thu muc sau cua menu Start.
+SelectStartMenuFolderBrowseLabel=De tiep tuc, click Tiep. Neu ban muon chon thu muc khac, click Tim.
+MustEnterGroupName=Ban phai nhap ten mot thu muc.
+GroupNameTooLong=Ten thu muc hoac duong dan qua dai.
+InvalidGroupName=Ten thu muc khong hop le.
+BadGroupName=Ten thu muc khong duoc chua cac ki tu sau:%n%n%1
+NoProgramGroupCheck2=&Khong tao mot thu muc trong menu Start
 
 ; *** "Ready to Install" wizard page
-WizardReady=SãŞn saÌng caÌi ğãòt
-ReadyLabel1=TriÌnh caÌi ğãòt ğaŞ sãŞn saÌng caÌi ğãòt [name] lên maìy tiình cuÒa baòn.
-ReadyLabel2a=Nhâìn CaÌi ğãòt ğêÒ tiêìp tuòc caÌi ğãòt, hoãòc nhâìn Lui laòi nêìu baòn muôìn xem laòi hoãòc thay ğôÒi bâìt cıì thiêìt lâòp naÌo.
-ReadyLabel2b=Nhâìn CaÌi ğãòt ğêÒ tiêìp tuòc caÌi ğãòt.
-ReadyMemoUser=Thông tin ngıõÌi duÌng:
-ReadyMemoDir=Viò triì caÌi ğãòt:
-ReadyMemoType=KiêÒu caÌi ğãòt:
-ReadyMemoComponents=Caìc thaÌnh phâÌn ğıõòc choòn:
-ReadyMemoGroup=Thı muòc Start Menu:
-ReadyMemoTasks=Cac taìc vuò bôÒ sung:
+WizardReady=San sang cai dat
+ReadyLabel1=Cai dat da san sang cai [name] tren may tinh cua ban.
+ReadyLabel2a=Click Cai dat de tiep tuc cai dat, hoac click Truoc neu ban muon xem lai hoac thay doi mot so cai dat.
+ReadyLabel2b=Click Cai dat de tiep tuc cai dat.
+ReadyMemoUserInfo=Thong tin nguoi dung:
+ReadyMemoDir=Thu muc dich:
+ReadyMemoType=Kieu cai dat:
+ReadyMemoComponents=Nhung thanh phan phu tro da chon:
+ReadyMemoGroup=Thu muc trong menu Start:
+ReadyMemoTasks=Nhung hanh dong bo sung:
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=Ğang chuâÒn biò caÌi ğãòt
-PreparingDesc=Trinh caÌi ğãòt ğang chuâÒn biò caÌi ğãòt [name] lên maìy tiình cuÒa baòn.
-PreviousInstallNotCompleted=Viêòc caÌi ğãòt/gõŞ boÒ cuÒa chıõng triÌnh trıõìc chıa hoaÌn tâìt. Baòn câÌn khõÒi ğôòng laòi maìy tiình ğêÒ hoaÌn tâìt quaì triÌnh caÌi ğãòt.%n%nSau khi khõÒi ğôòng laòi maìy tiình, chaòy triÌnh caÌi ğãòt lâÌn nıŞa ğêÒ hoaÌn tâìt quaì triÌnh caÌi ğãòt [name].
-CannotContinue=TriÌnh caÌi ğãòt không thêÒ tiêìp tuòc. ĞêÌ nghiò nhâìn HuÒy ğêÒ ngıÌng caÌi ğãòt.
+WizardPreparing=Chuan bi cai dat
+PreparingDesc=Cai dat dang chuan bi cai [name] tren may tinh cua ban.
+PreviousInstallNotCompleted=Viec (go) cai dat chuong trinh cu khong hoan thanh. Ban se can phai khoi dong lai may tinh de hoan thanh cai dat.%n%nSau khi khoi dong lai, hay chay Cai dat mot lan nua de hoan thanh cai dat [name].
+CannotContinue=Cai dat khong the tiep tuc. Click Huy de thoat.
+ApplicationsFound=Nhung chuong trinh sau su dung cac tep can duoc cap nhat boi Cai dat. Dieu can thiet la ban phai chap nhan Cai dat dong cac chuong trinh nay.
+ApplicationsFound2=Nhung chuong trinh sau su dung cac tep can duoc cap nhat boi Cai dat. Dieu can thiet la ban phai chap nhan Cai dat dong cac chuong trinh nay. Sau khi cai dat hoan thanh, Cai dat se co mo lai chung.
+CloseApplications=T&u dong dong nhung chuong trinh nay
+DontCloseApplications=&Khong dong nhung chuong trinh nay
+ErrorCloseApplications=Cai dat khong the dong tat ca cac chuong trinh. Dieu can thiet la ban phai dong cac chuong trinh su dung tep can duoc cap nhat boi Cai dat truoc khi tiep tuc.
 
 ; *** "Installing" wizard page
-WizardInstalling=Ğang caÌi ğãòt
-InstallingLabel=ĞêÌ nghiò chõÌ trong khi caÌi ğãòt [name] lên maìy tiình cuÒa baòn.
+WizardInstalling=Dang cai dat
+InstallingLabel=Hay doi khi Cai dat dang cai [name] tren may tinh cua ban.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=ĞaŞ hoaÌn tâìt caÌi ğãòt [name]
-FinishedLabelNoIcons=TriÌnh caÌi ğãòt ğaŞ hoaÌn tâìt viêòc caÌi ğãòt [name] lên maìy tiình cuÒa baòn.
-FinishedLabel=TriÌnh caÌi ğãòt ğaŞ hoaÌn tâìt viêòc caÌi ğãòt [name] lên maìy tiình cuÒa baòn. İìng duòng seŞ ğıõòc thıòc thi khi choòn biêÒu tıõòng ğaŞ ğıõòc caÌi ğãòt.
-ClickFinish=Nhâìn HoaÌn tâìt ğêÒ thoaìt khoÒi triÌnh caÌi ğãòt.
-FinishedRestartLabel=ĞêÒ hoaÌn tâìt viêòc caÌi ğãòt [name], triÌnh caÌi ğãòt câÌn phaÒi khõÒi ğôòng laòi maìy tiình. Baòn muôìn khõÒi ğôòng laòi bây giõÌ ?
-FinishedRestartMessage=ĞêÒ hoaÌn tâìt viêòc caÌi ğãòt [name], triÌnh caÌi ğãòt câÌn phaÒi khõÒi ğôòng laòi maìy tiình.%n%nBaòn muôìn khõÒi ğôòng laòi bây giõÌ ?
-ShowReadmeCheck=Vâng, tôi muôìn xem tâòp tin README
-YesRadio=&Vâng, khõÒi ğôòng laòi maìy tiình bây giõÌ
-NoRadio=&Không, tôi seŞ khõÒi ğôòng laòi maìy tiình sau
+FinishedHeadingLabel=Hoan thanh cai dat [name]
+FinishedLabelNoIcons=Da cai dat thanh cong [name] tren may tinh cua ban.
+FinishedLabel=Da cai dat thanh cong [name] tren may tinh cua ban. No co the duoc chay bang cach click vao bieu tuong cua no.
+ClickFinish=Click Hoan thnah de thoat Cai dat.
+FinishedRestartLabel=De hoan thanh cai dat [name], may tinh cua ban phai duoc khoi dong lai. Ban co muon khoi dong lai khong?
+FinishedRestartMessage=De hoan thanh cai dat [name], may tinh cua ban phai duoc khoi dong lai.%n%nBan co muon khoi dong lai khong?
+ShowReadmeCheck=Co, to muon xem tep README
+YesRadio=&Co, khoi dong lai may tinh ngay bay gio
+NoRadio=&Khong, toi se khoi dong lai may tinh sau
 ; used for example as 'Run MyProg.exe'
-RunEntryExec=Chaòy %1
+RunEntryExec=Chay %1
 ; used for example as 'View Readme.txt'
-RunEntryShellExec=Xem %1
+RunEntryShellExec=Hien thi %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=TriÌnh caÌi ğãòt câÌn ğiŞa tiêìp theo
-SelectDiskLabel2=ĞêÌ nghiò ğıa ğiŞa %1 vaÌ nhâìn ĞôÌng yì.%n%nNêìu caìc tâòp tin trên ğiŞa naÌy coì trong thı muòc khaìc võìi thı muòc ğang hiêÒn thiò dıõìi ğây, nhâòp ğıõÌng dâŞn chiình xaìc hoãòc nhâìn Duyêòt.
-PathLabel=ĞıõÌng &dâŞn:
-FileNotInDir2=Tâòp tin "%1" không ğıõòc tiÌm thâìy trong "%2". ĞêÌ nghiò ğıa ğuìng ğiŞa hoãòc choòn thı muòc khaìc.
-SelectDirectoryLabel=ĞêÌ nghiò chiÒ viò triì cuÒa ğiŞa tiêìp theo.
+ChangeDiskTitle=Cai dat can dia tiep theo
+SelectDiskLabel2=Hay chen dia %1 va click OK.%n%nNeu nhung tep tren dia do co the tim o noi khac voi duoc hien thi duoi day, nhap duong dan dung hoac click Tim.
+PathLabel=&Path:
+FileNotInDir2=Tep "%1" khong duoc dat trong "%2". Hay chen dia dung hoac chon thu muc khac.
+SelectDirectoryLabel=Hay xac dinh vi tri cua dia tiep theo.
 
 ; *** Installation phase messages
-SetupAborted=TriÌnh caÌi ğãòt chıa hoaÌn tâìt.%n%nĞêÌ nghiò xem laòi vaÌ chaòy laòi lâÌn nıŞa.
-EntryAbortRetryIgnore=Nhâìn Retry ğêÒ thıÒ laòi, Ignore ğêÒ boÒ qua, hoãòc Abort ğêÒ huÒy quaì triÌnh caÌi ğãòt.
+SetupAborted=Cai dat khong duoc hoan thanh.%n%nHay sua loi va chay Cai dat lai.
+EntryAbortRetryIgnore=Click Thu lai de thu lai, Bo qua de tiep tuc (nhay qua loi), hoac Tu choi de huy cai dat.
 
 ; *** Installation status messages
-StatusCreateDirs=Ğang taòo thı muòc...
-StatusExtractFiles=Ğang taìch caìc tâòp tin...
-StatusCreateIcons=Ğang taòo shortcuts...
-StatusCreateIniEntries=Ğang taòo caìc doÌng INI...
-StatusCreateRegistryEntries=Ğang taòo caìc doÌng registry...
-StatusRegisterFiles=Ğang ğãng kyì caìc tâòp tin...
-StatusSavingUninstall=Ğang lıu caìc thông tin cho triÌnh gõŞ boÒ...
-StatusRunProgram=Ğang hoaÌn tâìt quaì triÌnh caÌi ğãòt...
-StatusRollback=Ğang hoaÌn laòi nhıŞng thay ğôÒi...
+StatusClosingApplications=Dang dong cac chuong trinh...
+StatusCreateDirs=Dang tao thu muc...
+StatusExtractFiles=Dang giai nen cac tep...
+StatusCreateIcons=Dang tao loi tat...
+StatusCreateIniEntries=Dang tao dau vao INI...
+StatusCreateRegistryEntries=Dang tao dau vao Registry...
+StatusRegisterFiles=Dang xac minh cac tep...
+StatusSavingUninstall=Dang luu thong tin go cai dat...
+StatusRunProgram=Dang hoan thanh cai dat...
+StatusRestartingApplications=Dang khoi dong lai cac chuong trinh...
+StatusRollback=Dang reset lai cac thay doi...
 
 ; *** Misc. errors
-ErrorInternal2=LôŞi bên trong: %1
-ErrorFunctionFailedNoCode=%1 biò hı
-ErrorFunctionFailed=%1 biò hı; maŞ %2
-ErrorFunctionFailedWithMessage=%1 biò hı; maŞ %2.%n%3
-ErrorExecutingProgram=Không thêÒ thıòc thi tâòp tin:%n%1
+ErrorInternal2=Loi: %1
+ErrorFunctionFailedNoCode=%1 that bai
+ErrorFunctionFailed=%1 that bai; ma %2
+ErrorFunctionFailedWithMessage=%1 that bai; ma %2.%n%3
+ErrorExecutingProgram=hong the giai nen tep:%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=LôŞi khi mõÒ khoìa registry:%n%1\%2
-ErrorRegCreateKey=LôŞi khi taòo khoìa registry:%n%1\%2
-ErrorRegWriteKey=LôŞi khi ghi khoìa vô registry:%n%1\%2
+ErrorRegOpenKey=Loi mo chia khoa xac thuc:%n%1\%2
+ErrorRegCreateKey=Loi tao chia khoa xac thuc:%n%1\%2
+ErrorRegWriteKey=Loi viet chia khoa xac thuc:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=LôŞi khi taòo doÌng INI trong tâòp tin "%1".
+ErrorIniEntry=Loi tao dau vao INI trong tep "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Nhâìn Retry ğêÒ thıÒ laòi, Ignore ğêÒ boÒ qua tâòp tin naÌy (không nên), hoãòc Abort ğêÒ huÒy quaì trinh caÌi ğãòt.
-FileAbortRetryIgnore2=Nhâìn Retry ğêÒ thıÒ laòi, Ignore ğêÒ tiêìp tuòc (không nên), hoãòc Abort ğêÒ huÒy quaì trinh caÌi ğãòt.
-SourceIsCorrupted=Tâòp tin nguôÌn biò hı
-SourceDoesntExist=Tâòp tin nguôÌn "%1" không tôÌn taòi
-ExistingFileReadOnly=Tâòp tin ğang coì biò ğaình dâìu chiÒ ğoòc.%n%nNhâìn Retry ğêÒ boÒ thuôòc tiình chiÒ ğoòc vaÌ thıÒ laòi, Ignore ğêÒ boÒ qua tâòp tin naÌy, hoãòc Abort ğêÒ huÒy quaì trinh caÌi ğãòt.
-ErrorReadingExistingDest=Coì lôŞi xuâìt hiêòn khi ğoòc tâòp tin hiêòn coì:
-FileExists=Tâòp tin ğaŞ coì.%n%nBaòn coì muôìn triÌnh caÌi ğãòt ghi ğeÌ lên noì ?
-ExistingFileNewer=Tâòp tin hiêòn coì mõìi hõn tâòp tin maÌ triÌnh caÌi ğãòt sãìp caÌi vaÌo. Baòn nên giıŞ laòi tâòp tin hiêòn coì.%n%nBaòn coì muôìn giıŞ laòi tâòp tin hiêòn coì ?
-ErrorChangingAttr=Coì lôŞi xaÒy ra khi thay ğôÒi thuôòc tiình cuÒa tâòp tin hiêòn coì:
-ErrorCreatingTemp=Coì lôŞi xaÒy ra khi taòo môòt tâòp tin trong thı muòc ğiìch:
-ErrorReadingSource=Coì lôŞi xaÒy ra khi ğoòc tâòp tin nguôÌn:
-ErrorCopying=Coì lôŞi xaÒy ra khi sao cheìp tâòp tin:
-ErrorReplacingExistingFile=Coì lôŞi xaÒy ra khi thay thêì tâòp tin hiêòn coì:
-ErrorRestartReplace=Thay thêì biò hı:
-ErrorRenamingTemp=Coì lôŞi xaÒy ra khi ğôÒi tên tâòp tin trong thı muòc ğiìch:
-ErrorRegisterServer=Không thêÒ ğãng kyì DLL/OCX: %1
-ErrorRegSvr32Failed=RegSvr32 thâìt baòi võìi maŞ lôŞi %1
-ErrorRegisterTypeLib=Không thêÒ ğãng kyì thı viêòn kiêÒu: %1
+FileAbortRetryIgnore=Click thu lai de thu lai, Bo qua de bo qua tep nay (khong khuyen nghi), hoac Tu choi de huy cai dat.
+FileAbortRetryIgnore2=Click thu lai de thu lai, Bo qua de bo qua loi (khong khuyen nghi), hoac Tu choi de huy cai dat.
+SourceIsCorrupted=Tep nguon bi hu hong
+SourceDoesntExist=Tep nguon "%1" khong ton tai
+ExistingFileReadOnly=Tep nay da duoc danh dau Chi doc.%n%nClick Thu lai de bo danh dau Chi doc va thu lai, Bo qua de bo qua tep nay, hoac Tu choi de huy cai dat.
+ErrorReadingExistingDest=Co loi khi doc tep:
+FileExists=Tep da ton tai.%n%nBan co muon thay the?
+ExistingFileNewer=Tep nay moi hon tep ma Cai dat muon cai vao. Dieu can thiet la ban giu lai tep nay.%n%nBan co muon giu lai?
+ErrorChangingAttr=Co van de khi thay doi thuoc tinh tep:
+ErrorCreatingTemp=Co van de khi tao tep trong thu muc dich:
+ErrorReadingSource=Co van de khi doc tep nguon:
+ErrorCopying=Co van de khi co copy tep:
+ErrorReplacingExistingFile=Co van de khi co thay the tep:
+ErrorRestartReplace=Thay the khoi dong lai that bai:
+ErrorRenamingTemp=Co van de khi co doi ten tep trong thu muc dich:
+ErrorRegisterServer=Khong the xac thuc DLL/OCX: %1
+ErrorRegSvr32Failed=RegSvr32 that bai voi ma thoat %1
+ErrorRegisterTypeLib=Khong the xac thuc thu vien kieu: %1
 
 ; *** Post-installation errors
-ErrorOpeningReadme=Coì lôŞi xaÒy ra khi mõÒ tâòp tin README.
-ErrorRestartingComputer=TriÌnh caÌi ğãòt không thêÒ khõÒi ğôòng laòi maìy tiình. ĞêÌ nghiò baòn tıò khõÒi ğôòng laòi.
+ErrorOpeningReadme=Co van de khi co mo tep README.
+ErrorRestartingComputer=Cai dat khong the khoi dong lai may tinh. Hay lam thu cong.
 
 ; *** Uninstaller messages
-UninstallNotFound=Tâòp tin "%1" không coì. Không thêÒ gõŞ boÒ.
-UninstallOpenError=Tâòp tin "%1" không thêÒ mõÒ ğıõòc. Không thêÒ gõŞ boÒ
-UninstallUnsupportedVer=Tâòp tin nhâòt kyì cuÒa triÌnh gõŞ boÒ "%1" coì ğiònh daòng maÌ phiên baÒn cuÒa triÌnh gõŞ boÒ naÌy không hiêÒu. Không thêÒ gõŞ boÒ
-UninstallUnknownEntry=Coì doÌng laò (%1) ğıõòc tiÌm thâìy trong nhâòt kyì cuÒa triÌnh gõŞ boÒ
-ConfirmUninstall=Baòn coì muôìn gõŞ boÒ hoaÌn toaÌn %1 vaÌ tâìt caÒ caìc thaÌnh phâÌn cuÒa noì ?
-UninstallOnlyOnWin64=CaÌi ğãòt naÌy chiÒ coì thêÒ ğıõòc gõŞ boÒ trên Windows 64 bit.
-OnlyAdminCanUninstall=CaÌi ğãòt naÌy chiÒ coì thêÒ ğıõòc gõŞ boÒ bõÒi ngıõÌi duÌng coì quyêÌn quaÒn triò.
-UninstallStatusLabel=ĞêÌ nghiò chõÌ trong khi %1 ğıõòc gõŞ boÒ khoÒi maìy tiình cuÒa baòn.
-UninstalledAll=%1 ğaŞ ğıõòc gõŞ boÒ thaÌnh công trên maìy tiình cuÒa baòn.
-UninstalledMost=%1 ğaŞ ğıõòc gõŞ boÒ hoaÌn toaÌn.%n%nMôòt vaÌi phâÌn tıÒ coì thêÒ chıa ğıõòc gõŞ boÒ vaÌ coì thêÒ ğıõòc laÌm bãÌng tay.
-UninstalledAndNeedsRestart=ĞêÒ hoaÌn tâìt quaì triÌnh gõŞ boÒ %1, maìy tiình cuÒa baòn phaÒi ğıõòc khõÒi ğôòng laòi.%n%nBaòn coì muôìn khõÒi ğôòng laòi bây giõÌ ?
-UninstallDataCorrupted=Tâòp tin "%1" biò hı. Không thêÒ gõŞ boÒ
-
+UninstallNotFound=Tep "%1" hong ton tai. Khong the go cai dat
+UninstallOpenError=Khong the mo tep "%1". Khong the go cai dat
+UninstallUnsupportedVer=Tep dang nhap go cai dat "%1" thuoc kieu tep khong duoc ho tro. Khong the go cai dat
+UninstallUnknownEntry=Mot dau vao khong ro rang (%1) duoc ke den trong dang nhap go cai dat
+ConfirmUninstall=Ban co thuc su muon go %1 va toan bo thanh phan lien quan?
+UninstallOnlyOnWin64=Viec cai dat nay chi co the go tren phien ban Windows 64-bit.
+OnlyAdminCanUninstall=Viec cai dat nay chi co the go khi ban la Adminstrator.
+UninstallStatusLabel=Hay doi khi %1 duoc go khoi may tinh cua ban.
+UninstalledAll=%1 da duoc go thanh cong khoi may tinh cua ban.
+UninstalledMost=Go cai dat %1 hoan thanh.%n%nMot so thanh phan khong the go. Chung co the duoc go thu cong.
+UninstalledAndNeedsRestart=De hoan thanh go cai dat %1, phai khoi dong lai may tinh.%n%nBan co muon khoi dong lai?
+UninstallDataCorrupted=Tep "%1" bi hu hong. Khong the go cai dat
 ; *** Uninstallation phase messages
-ConfirmDeleteSharedFileTitle=GõŞ boÒ tâòp tin chia seÒ?
-ConfirmDeleteSharedFile2=Hêò thôìng cho biêìt tâòp tin chia seÒ dıõìi ğây không coÌn ğıõòc duÌng bõÒi bâìt cıì chıõng triÌnh naÌo nıŞa. Baòn coì muôìn triÌnh gõŞ boÒ xoìa tâòp tin naÌy không ?%n%nNêìu coì chıõng triÌnh naÌo coÌn sıÒ duòng tâòp tin naÌy maÌ noì biò xoìa ği thiÌ chıõng triÌnh ğoì seŞ không hoaòt ğôòng ğuìng ğıõòc. Nêìu baòn không chãìc, choòn No. Viêòc ğêÒ laòi tâòp tin naÌy cuŞng không gây aÒnh hıõÒng ğêìn hêò thôìng cuÒa baòn.
-SharedFileNameLabel=Tên tâòp tin:
-SharedFileLocationLabel=Viò triì:
-WizardUninstalling=Traòng thaìi gõŞ boÒ
-StatusUninstalling=Ğang gõŞ boÒ %1...
+ConfirmDeleteSharedFileTitle=Go tep da chia se?
+ConfirmDeleteSharedFile2=He thong da chi ra tep da chia se sau khong duoc dung boi bat cu chuong trinh nao khac. Ban co muon go chung?%n%nNeu mot so chuong trinh van con dung tep nay ma no da bi go, chung co the khong hoat dong tot. Neu ban khong hai long, chon Khong. Go bo chung tren he thong cua ban se khong gay ra bat cu thiet hai nao.
+SharedFileNameLabel=Ten tep:
+SharedFileLocationLabel=Vi tri:
+WizardUninstalling=Tinh trang go
+StatusUninstalling=Dang go cai dat %1...
+
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Dang cai dat %1.
+ShutdownBlockReasonUninstallingApp=Dang go cai dat %1.
 
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
 
 [CustomMessages]
 
-NameAndVersion=%1 phiên baÒn %2
-AdditionalIcons=BiêÒu tıõòng bôÒ sung:
-CreateDesktopIcon=Taòo biêÒu tıõòng &desktop
-CreateQuickLaunchIcon=Taòo biêÒu tıõòng &Quick Launch
-ProgramOnTheWeb=%1 trên Web
-UninstallProgram=GõŞ boÒ %1
-LaunchProgram=Thıòc thi %1
-AssocFileExtension=&Gãìn %1 võìi phâÌn mõÒ rôòng %2
-AssocingFileExtension=Ğang gãìn %1 võìi phâÌn mõÒ rôòng %2...
+NameAndVersion=%1 phien ban %2
+AdditionalIcons=Nhung loi tat bo sung:
+CreateDesktopIcon=Tao mot loi tat &Desktop
+CreateQuickLaunchIcon=Tao mot loi tat Khoi dong nh&anh
+ProgramOnTheWeb=%1 tren Web
+UninstallProgram=Go cai dat %1
+LaunchProgram=Khoi chay %1
+AssocFileExtension=&Gan ket %1 voi su mo rong tep cua %2
+AssocingFileExtension=Dang gan ket %1 voi su mo rong tep cua %2...
+AutoStartProgramGroupDescription=Khoi dong:
+AutoStartProgram=Tu dong khoi dong %1
+AddonHostProgramNotFound=%1 khong the duoc dat vao thu muc ban da chon.%n%nBan co muon tiep tuc?
