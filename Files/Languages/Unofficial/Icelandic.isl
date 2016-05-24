@@ -1,16 +1,21 @@
-; *** Inno Setup version 5.1.11+ Icelandic messages ***
-; *** Íslensk Þýðing Sigurður N. Þorleifsson sigurdn@postur.is
+; *** Inno Setup version 5.5.3+ Icelandic messages ***
+;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/is3rdparty.htm
+;   http://www.jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
+;
+; ID: Icelandic.isl,v 5.5.3+ 2016/04/27 Sigurður N. Þorleifsson, sigurdn@postur.is
 
 [LangOptions]
+; The following three entries are very important. Be sure to read and 
+; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Icelandic
 LanguageID=$040F
+LanguageCodePage=1252
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=
@@ -45,16 +50,20 @@ LastErrorMessage=%1.%n%nVilla %2: %3
 SetupFileMissing=Skrána %1 vantar í uppsetningarmöppuna. Vinsamlegast leysið vandann eða útvegið nýtt eintak af forritinu.
 SetupFileCorrupt=Uppsetningarskrárnar eru gallaðar. Vinsamlegast útvegið nýtt eintak af forritinu.
 SetupFileCorruptOrWrongVer=Uppsetningarskrárnar eru gallaðar, eða virka ekki með þessari útgáfu af forritinu. Vinsamlegast leiðréttið vandann eða útvegið nýtt eintak af forritinu.
+InvalidParameter=Ógilt viðfang var sent yfir skipanalínu:%n%n%1
+SetupAlreadyRunning=Uppsetning er nú þegar keyrandi.
+WindowsVersionNotSupported=Þetta forrit styður ekki þá útgáfu af Windows stýrikerfinu sem tölvan þín notar.
+WindowsServicePackRequired=Þetta forrit þarf %1 Þjónustupakka (Service Pack)  %2 eða nýrra.
 NotOnThisPlatform=Þetta forrit er ekki samhæft við %1
 OnlyOnThisPlatform=Þetta forrit verður að keyra á %1
 OnlyOnTheseArchitectures=Þetta forrit er aðeins hægt að setja upp á Windows útgáfum hannaðar fyrir eftirfarandi örgjörva (CPU) kynslóðir:%n%n%1
 MissingWOW64APIs=Windows stýrikerfið á tölvunni þinni innheldur ekki alla virkni sem Uppsetningarálfurinn þarf til að framkvæma 64-bita uppsetningu. Til að leiðrétta vandann, vinsamlegast setjið upp Service Pack %1.
 WinVersionTooLowError=Þetta forrit þarf %1 útgáfu %2 eða nýrra.
 WinVersionTooHighError=Þetta forrit er ekki hægt að setja upp á %1 útgáfu %2 eða nýrra
-AdminPrivilegesRequired=Þú verður að vera skráð(ur) inn sem kerfisstjóri þegar uppsetningin er keyrð.
-PowerUserPrivilegesRequired=Þú þarft að vera skráður inn sem administrator (kerfisstjóri) eða vera í notendagrúppunni Power Users til að keyra þessa uppsetningu.
-SetupAppRunningError=Uppsettning - Forritið %1 er í gangi.%n%nVinsamlegast lokið öllum eintökum af þessu forriti, og smellið á ÁFRAM til að ljúka uppsetningu, eða HÆTTA til að stöðva uppsetninguna.
-UninstallAppRunningError=Fjarlægja forrit - Forritið %1 er í gangi.%n%nVinsamlegast lokið öllum eintökum af þessu forriti, og smellið á ÁFRAM til að ljúka uppsetningu, eða HÆTTA til að stöðva uppsetninguna.
+AdminPrivilegesRequired=Þú verður að vera innskráð(ur) sem kerfisstjóri til að setja þetta forrit upp.
+PowerUserPrivilegesRequired=Þú verður að vera innskráð(ur) sem kerfisstjóri eða ofurnotandi til að setja þetta forrit upp.
+SetupAppRunningError=Uppsetningar forritið hefur fundið að %1 er í notkun.%n%nVinsamlegast lokaðu öllum eintökum, veldu síðan OK til að halda áfram, eða Cancel til að hætta.
+UninstallAppRunningError=Niðurtöku forritið hefur fundið að %1 er í notkun.%n%nVinsamlegast lokaðu öllum eintökum, veldu síðan OK til að halda áfram, eða Cancel til að hætta.
 
 ; *** Misc. errors
 ErrorCreatingDir=Uppsetningarforritið gat ekki búið til möppuna "%1"
@@ -92,8 +101,8 @@ SelectLanguageLabel=Veldu tungumál til að nota fyrir þessa uppsetningu
 ClickNext=Smelltu á Næsta til að halda áfram, eða Hætta við til að stöðva uppsetninguna.
 BeveledLabel=
 BrowseDialogTitle=Leita eftir möppu
-BrowseDialogLabel=Veldu möppu í listanum hér fyrir neðan, smelltu síðan á Í lagi. 
-NewFolderName=Ný mappa 
+BrowseDialogLabel=Veldu möppu í listanum hér fyrir neðan, smelltu síðan á Í lagi.
+NewFolderName=Ný mappa
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Velkomin(n) í uppsetningarálfinn fyrir [name]
@@ -132,14 +141,15 @@ UserInfoNameRequired=Þú verður að setja inn nafn.
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Veldu möppu fyrir forritið
 SelectDirDesc=Hvar á að setja [name] upp?
-SelectDirLabel3=Álfurinn mun setja [name] upp í eftirfarandi möppu. 
+SelectDirLabel3=Álfurinn mun setja [name] upp í eftirfarandi möppu.
 SelectDirBrowseLabel=Til að halda áfram, smelltu á Næsta. Ef þú villt velja aðra möppu, smelltu á Finna.
 DiskSpaceMBLabel=Þetta forrit krefst a.m.k. [mb] MB af diskrými.
-ToUNCPathname=Uppsetningarálfurinn getur ekki notað UNC skráaslóða, eins og t.d.\\nafn\mappa. Þú þarft að tengja slóðann sem netdrif.
+CannotInstallToNetworkDrive=Uppsetning getur ekki sett forritið inná netdrif.
+CannotInstallToUNCPath=Uppsetningin getur ekki notað UNC skráarslóða.
 InvalidPath=Þú verður að gefa upp fullan skráaslóða með drifbókstaf: t.d. %nC:\MAPPA
 InvalidDrive=Drifið eða slóðinn sem þú valdir er ekki til. Vinsamlega veldu annað drif.
 DiskSpaceWarningTitle=Ekki er nægilegt pláss eftir á disknum
-DiskSpaceWarning=Uppsetningarálfurinn þarf að minnsta kosti %1 KB af diskrými til þess að setja forritið upp, en drifið sem þú valdir er einungis með %2 KB laust.%n%nViltu samt halda áfram?
+DiskSpaceWarning=Uppsetningarálfurinn þarf minnst %1 KB af diskrými til að setja forritið upp, en valið drif hefur aðeins %2 KB gagnapláss laust.%n%nViltu samt halda áfram?
 DirNameTooLong=Nafn á möppu eða skráarslóða er of langt.
 InvalidDirName=Þetta er ekki gilt nafn á möppu
 BadDirName32=Nafn möppunnar má ekki innihalda neinn af eftirfarandi bókstöfum:%n%n%1
@@ -170,8 +180,8 @@ SelectTasksLabel2=Veldu þá verkliði til viðbótar sem þú vilt að uppsetningarálfu
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Veldu staðsetningu í ræsivalmyndinni.
 SelectStartMenuFolderDesc=Hvar á uppsetningarálfurinn að setja flýtivísa fyrir forritið?
-SelectStartMenuFolderLabel3=Álfurinn mun stofna flýtivísa fyrir forritið í ræsivalmyndinni undir eftirfarandi möppu. 
-SelectStartMenuFolderBrowseLabel=Til að halda áfram, smelltu á Næsta. Ef þú villt velja aðra möppu, smelltu á Finna. 
+SelectStartMenuFolderLabel3=Álfurinn mun stofna flýtivísa fyrir forritið í ræsivalmyndinni undir eftirfarandi möppu.
+SelectStartMenuFolderBrowseLabel=Til að halda áfram, smelltu á Næsta. Ef þú villt velja aðra möppu, smelltu á Finna.
 MustEnterGroupName=Þú verður að slá inn nafn á möppu.
 GroupNameTooLong=Nafn á möppu eða skráarslóða er of langt.
 InvalidGroupName=Nafnið á möppunni er ekki löglegt.
@@ -192,9 +202,14 @@ ReadyMemoTasks=Viðbótarverkliðir:
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Framkvæmi undirbúning fyrir uppsetningu
-PreparingDesc=Uppsetningar álfurin er að undirbúa uppsetningu á [name] inn á tölvuna þína.
+PreparingDesc=Uppsetningarálfurinn er að undirbúa uppsetningu á [name] inn á tölvuna þína.
 PreviousInstallNotCompleted=Annað uppsetningar forrit hefur ekki lokið við að setja upp / fjarlægja hugbúnað. Þú þarft að endurræsa tölvuna þína til klára þetta ferli fyrst.
 CannotContinue=Uppsetnig getur ekki klárað. Vinsamlegast smelltu á hætta við til að stöðva.
+ApplicationsFound=Eftirfarandi forrit eru að nota skrár sem uppsetningarálfurinn þarf að skipta út. Við mælum með að þú leyfir að þeim verði lokað sjálfkrafa.
+ApplicationsFound2=Eftirfarandi forrit eru að nota skrár sem uppsetningarálfurinn þarf að skipta út. Við mælum með að þú leyfir að þeim verði lokað sjálfkrafa. Eftir að uppsetningu lýkur, verður reynt að endurræsa forritin.
+CloseApplications=&Loka forritunum sjálfkrafa
+DontCloseApplications=&Ekki loka forritunum
+ErrorCloseApplications=Ekki var hægt að loka öllum forritunum. Við mælum með að loka öllum forritum sem hindra aðgang að skrám sem þarf að uppfæra áður en haldið er áfarm.
 
 ; *** "Installing" wizard page
 WizardInstalling=Uppsetning í gangi
@@ -227,6 +242,7 @@ SetupAborted=Uppsetningunni var ekki lokið. %n%nVinsamlega leystu vandann og end
 EntryAbortRetryIgnore=Smelltu á Reyna aftur til að reyna aftur, Sleppa til að halda samt áfram, eða Hætta við til að hætta við uppsetninguna.
 
 ; *** Installation status messages
+StatusClosingApplications=Loka forritum...
 StatusCreateDirs=Bý til möppur...
 StatusExtractFiles=Afþjappa skrár...
 StatusCreateIcons=Bý til íkon...
@@ -234,7 +250,8 @@ StatusCreateIniEntries=Bý til INI færslur...
 StatusCreateRegistryEntries=Bý til registry færslur...
 StatusRegisterFiles=Skrifa skrár í registry...
 StatusSavingUninstall=Vista upplýsingar til að henda forritinu út...
-StatusRunProgram=Lýk uppsetningu...
+StatusRunProgram=Klára uppsetningu...
+StatusRestartingApplications=Endurræsi forrit...
 StatusRollback=Afturkalla breytingar ....
 
 ; *** Misc. errors
@@ -250,7 +267,7 @@ ErrorRegCreateKey=Villa þegar verið var að búa til registry lykil:%n%1\%2
 ErrorRegWriteKey=Villa þegar verið var að skrifa registry lykil:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Villa þegar verið var að búa til INI færslu í skránni "%1".
+ErrorIniEntry=Gat ekki stofnað færslu í INI skránni "%1".
 
 ; *** File copying errors
 FileAbortRetryIgnore=Smelltu á Reyna aftur til að reyna á ný, Sleppa til að sleppa þessari skrá (ekki mælt með), eða Hætta við til að stöðva uppsetninguna.
@@ -269,7 +286,7 @@ ErrorReplacingExistingFile=Ekki tókst að skipta út skránni:
 ErrorRestartReplace=Það mistókst að endurræsa og skipta út skránni:
 ErrorRenamingTemp=Ekki tókst að endurskíra skrána í úttaksmöppunni:
 ErrorRegisterServer=Get ekki afskráð DLL/OCX: %1
-ErrorRegSvr32Failed=RegSvr32 stöðvaðist með villukóða %1
+ErrorRegSvr32Failed=RegSvr32 hætti með villukóðanum %1
 ErrorRegisterTypeLib=Get ekki skráð type library: %1
 
 ; *** Post-installation errors
@@ -298,17 +315,23 @@ SharedFileLocationLabel=Staðsetning:
 WizardUninstalling=Staða:
 StatusUninstalling=Hef fjarlægt %1...
 
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Er að setja upp %1.
+ShutdownBlockReasonUninstallingApp=Er að fjarlægja %1.
+
 ; The custom messages below aren't used by Setup itself, but if you make 
 ; use of them in your scripts, you'll want to translate them. 
     
-[CustomMessages] 
-    
+[CustomMessages]
 NameAndVersion=%1 útgáfa %2
-AdditionalIcons=Fleiri íkonar: 
-CreateDesktopIcon=Stofna &desktop íkona 
-CreateQuickLaunchIcon=Stofna &Quick Launch íkona 
-ProgramOnTheWeb=%1 á Internetinu 
-UninstallProgram=Fjarlægja %1 
-LaunchProgram=Ræsa %1 
-AssocFileExtension=&Samtengja %1 við eftirfarandi %2 skráarendingu 
-AssocingFileExtension=Er að samtengja %1 við skráarendinguna %2 ... 
+AdditionalIcons=Fleiri íkonar:
+CreateDesktopIcon=Stofna &desktop íkona
+CreateQuickLaunchIcon=Stofna &Quick Launch íkona
+ProgramOnTheWeb=%1 á Internetinu
+UninstallProgram=Fjarlægja %1
+LaunchProgram=Ræsa %1
+AssocFileExtension=&Samtengja %1 við eftirfarandi %2 skráarendingu
+AssocingFileExtension=Er að samtengja %1 við skráarendinguna %2 ...
+AutoStartProgramGroupDescription=Ræsing:
+AutoStartProgram=Ræsa sjálfkrafa %1
+AddonHostProgramNotFound=%1 fannst ekki í möppunni sem þú valdir.%n%nViltu samt halda áfram?
