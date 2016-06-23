@@ -1134,6 +1134,10 @@ begin
     ConsumeAllRemaining;
     CommitStyle(stComment);
   end
+  else if CurCharIs('/') and NextCharIs('/') then begin
+    ConsumeAllRemaining;
+    CommitStyle(stComment);
+  end
   else if ConsumeChar('[') then begin
     SectionEnd := ConsumeChar('/');
     S := ConsumeString(AlphaUnderscoreChars);
