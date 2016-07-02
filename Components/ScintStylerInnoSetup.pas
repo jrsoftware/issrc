@@ -65,7 +65,7 @@ type
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState);
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
     procedure HandleParameterSection(const ValidParameters: array of TInnoSetupStylerParamInfo);
-    procedure HandleISPPStyle;
+    procedure HandleISPPStyle(EndIndex: Integer = -1);
     procedure PreStyleInlineISPPDirectives;
     procedure SkipWhitespace;
     procedure SquigglifyUntilChars(const Chars: TScintRawCharSet;
@@ -838,7 +838,7 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.HandleISPPStyle;
+procedure TInnoSetupStyler.HandleISPPStyle(EndIndex: Integer);
 
   function FinishConsumingStarComment: Boolean;
   begin
@@ -871,7 +871,7 @@ var
   C: AnsiChar;
 begin
   SkipWhitespace;
-  while not EndOfLine do begin
+  while (not EndOfLine) and ((EndIndex = -1) or (CurIndex <= EndIndex)) do begin
     if CurChar in ISPPIdentFirstChars then begin
       S := ConsumeString(ISPPIdentChars);
       for I := Low(ISPPDirectives) to High(ISPPDirectives) do
@@ -904,16 +904,26 @@ begin
         '@', '#':
           begin
             if (C = ';') then begin
-              ConsumeCharsNot(['\']);
-              if ((CurIndex = TextLength) or (CurIndex+1 = TextLength)) and
-                 (CurChar = '\') and (Text[CurIndex-1] in WhitespaceChars) then begin
+              if EndIndex = -1 then
+                ConsumeCharsNot(['\'])
+              else
+                ConsumeCharsNot(['}']);
+              if (EndIndex = -1) and ((CurIndex = TextLength) or
+                (CurIndex + 1 = TextLength)) and (CurChar = '\') and
+                (Text[CurIndex - 1] in WhitespaceChars) then begin
                 CommitStyle(stComment);
                 ConsumeAllRemaining;
                 CommitStyle(stSymbol);
               end
               else begin
-                ConsumeAllRemaining;
-                CommitStyle(stComment);
+                if EndIndex > -1 then begin
+                  CommitStyle(stComment);
+                  ConsumeChar('}');
+                  CommitStyle(stCompilerDirective);
+                end else begin
+                  ConsumeAllRemaining;
+                  CommitStyle(stComment);
+                end;
               end;
             end
             else if (C = '/') and ConsumeChar('*') then begin
@@ -1168,16 +1178,22 @@ begin
             Break;
           end;
         end;
-        { Replace the directive with spaces to prevent any further processing }
-        ReplaceText(StartIndex, I - 1, ' ');
-        if Valid then
-          ApplyStyle(Ord(stCompilerDirective), StartIndex, I - 1)
+        if Valid then begin
+          ResetIndexTo(StartIndex);
+          try
+            HandleISPPStyle(I - 1);
+          finally
+            ResetIndexTo(0);
+          end
+        end
         else begin
           if (CaretIndex >= StartIndex) and (CaretIndex <= I) then
             ApplyIndicators([inPendingSquiggly], StartIndex, I - 1)
           else
             ApplyIndicators([inSquiggly], StartIndex, I - 1);
         end;
+        { Replace the directive with spaces to prevent any further processing }
+        ReplaceText(StartIndex, I - 1, ' ');
       end
       else
         Inc(I);

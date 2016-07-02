@@ -367,6 +367,7 @@ type
     function LineTextSpans(const S: TScintRawString): Boolean; virtual;
     function NextCharIs(const C: AnsiChar): Boolean;
     function PreviousCharIn(const Chars: TScintRawCharSet): Boolean;
+    procedure ResetIndexTo(I: Integer);
     procedure ReplaceText(StartIndex, EndIndex: Integer; const C: AnsiChar);
     procedure StyleNeeded; virtual; abstract;
     property CaretIndex: Integer read FCaretIndex;
@@ -2084,6 +2085,12 @@ begin
   P := @FText[1];
   for I := StartIndex to EndIndex do
     P[I-1] := C;
+end;
+
+procedure TScintCustomStyler.ResetIndexTo(I: Integer);
+begin
+  FCurIndex := I;
+  FStyleStartIndex := I;
 end;
 
 end.
