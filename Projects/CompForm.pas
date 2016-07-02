@@ -421,6 +421,8 @@ var
   CommandLineCompile: Boolean;
   CommandLineWizard: Boolean;
 
+  IsppMode: Boolean;
+
 function GenerateGuid: String;
 procedure InitFormFont(Form: TForm);
 
@@ -842,7 +844,10 @@ begin
     editor's autocompletion list } 
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
 
+  IsppMode := FileExists(ExtractFilePath(NewParamStr(0)) + 'ispp.dll');
+
   MemoStyler := TInnoSetupStyler.Create(Self);
+  MemoStyler.IsppMode := IsppMode;
 
   Memo := TISScintEdit.Create(Self);
   Memo.AcceptDroppedFiles := True;

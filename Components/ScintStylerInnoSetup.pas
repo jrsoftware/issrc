@@ -52,6 +52,7 @@ type
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FKeywordList: array[TInnoSetupStylerSection] of AnsiString;
+    FIsppMode: Boolean;
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
     procedure BuildKeywordListFromEnumType(const Section: TInnoSetupStylerSection;
@@ -84,6 +85,7 @@ type
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     property KeywordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordList;
+    property IsppMode: Boolean read FIsppMode write FIsppMode;
   end;
 
 implementation
@@ -870,6 +872,17 @@ var
   I: Integer;
   C: AnsiChar;
 begin
+  if not IsppMode then begin
+    if EndIndex > -1 then begin
+      ConsumeCharsNot(['}']);
+      ConsumeChar('}');
+    end
+    else
+      ConsumeAllRemaining;
+    CommitStyleSqPending(stDefault);
+    Exit;
+  end;
+
   SkipWhitespace;
   while (not EndOfLine) and ((EndIndex = -1) or (CurIndex <= EndIndex)) do begin
     if CurChar in ISPPIdentFirstChars then begin
@@ -1270,7 +1283,10 @@ begin
   end
   else if CurCharIs('/') and NextCharIs('/') then begin
     ConsumeAllRemaining;
-    CommitStyle(stComment);
+    if IsppMode or (Section = scCode) then
+      CommitStyle(stComment)
+    else
+      CommitStyleSqPending(stDefault);
   end
   else if ConsumeChar('[') then begin
     SectionEnd := ConsumeChar('/');
@@ -1289,9 +1305,8 @@ begin
     Section := scNone;
     SquigglifyUntilChars([], stDefault);
   end
-  else if CurCharIs('#') then begin
-    HandleISPPStyle;
-  end
+  else if CurCharIs('#') then
+    HandleISPPStyle
   else begin
     case Section of
       scUnknown: ;
