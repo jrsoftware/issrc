@@ -66,7 +66,7 @@ type
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState);
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
     procedure HandleParameterSection(const ValidParameters: array of TInnoSetupStylerParamInfo);
-    procedure HandleISPPStyle(EndIndex: Integer = -1);
+    procedure HandleISPPStyle(EndIndex: Integer);
     procedure PreStyleInlineISPPDirectives;
     procedure SkipWhitespace;
     procedure SquigglifyUntilChars(const Chars: TScintRawCharSet;
@@ -1306,7 +1306,7 @@ begin
     SquigglifyUntilChars([], stDefault);
   end
   else if CurCharIs('#') then
-    HandleISPPStyle
+    HandleISPPStyle(-1)
   else begin
     case Section of
       scUnknown: ;
