@@ -799,7 +799,7 @@ end;</pre></example>
       <function>
         <name>Pos</name>
         <prototype>function Pos(SubStr, S: String): Integer;</prototype>
-        <description><p>Searches for Substr within S and returns an integer value that is the index of the first character of Substr within S.<br />If Substr is not found, Pos returns zero.</p></description>
+        <description><p>Searches for Substr within S and returns an integer value that is the index of the first character of Substr within S.<br />If Substr is not found, Pos returns zero. The Pos function is case-sensitive.</p></description>
       </function>
       <function>
         <name>AddQuotes</name>
@@ -821,7 +821,7 @@ end;</pre></example>
       <function>
         <name>CompareText</name>
         <prototype>function CompareText(const S1, S2: string): Integer;</prototype>
-        <description><p>Compares the strings S1 and S2 and returns 0 if they are equal. If S1 is greater than S2, CompareText returns an integer greater than 0. If S1 is less than S2, CompareText returns an integer less than 0. The CompareText function is not case sensitive.</p></description>
+        <description><p>Compares the strings S1 and S2 and returns 0 if they are equal. If S1 is greater than S2, CompareText returns an integer greater than 0. If S1 is less than S2, CompareText returns an integer less than 0. The CompareText function is not case-sensitive.</p></description>
       </function>
       <function>
         <name>CompareStr</name>
