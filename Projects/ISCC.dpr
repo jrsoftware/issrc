@@ -110,8 +110,8 @@ var
 begin
   if GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
   begin
-    if Length(S) > CSBI.dwSize.X then
-      Str := Copy(S, 1, CSBI.dwSize.X)
+    if Length(AnsiString(S)) > CSBI.dwSize.X then
+      Str := Copy(AnsiString(S), 1, CSBI.dwSize.X - 4) + '... '
     else
       Str := Format('%-' + IntToStr(CSBI.dwSize.X) + 's', [S]);
   end
@@ -183,7 +183,7 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
 
     Pt := GetCursorPos;
 
-    if Pt.Y <= ProgressPoint.Y then
+    if Pt.Y < ProgressPoint.Y then
       Exit
     else if ProgressPoint.X < 0 then begin
       ProgressPoint := Pt;
