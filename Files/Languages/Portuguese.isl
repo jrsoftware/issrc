@@ -1,11 +1,32 @@
-; *** Inno Setup version 5.5.3+ Portuguese (Portugal) messages ***
+; *** Inno Setup versão 5.5.3+ mensagens Portuguesas ***
 ;
-; Maintained by Nuno Silva (nars AT gmx.net)
+; Para descarregar traduções deste ficheiro dos contribuidores, siga:
+;   http://www.jrsoftware.org/files/istrans/
+;
+; Nota: Ao traduzir este texto, não adicione pontos finais (.) to final das
+; mensagens que não os possuam previamente, pois nessas mensagens o Inno
+; Setup adiciona automaticamente os pontos finais (adicionar um ponto final
+; resulta em que dois pontos sejam aplicados).
+;
+; Tradução mantida por Nuno Silva (nars AT gmx.net) e enVide neFelibata (www.envidenefelibata.com)
+; Translation maintained by por Nuno Silva (nars AT gmx.net) and enVide neFelibata (www.envidenefelibata.com)
 
 [LangOptions]
+; The following three entries are very important. Be sure to read and 
+; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Portugu<00EA>s (Portugal)
 LanguageID=$0816
 LanguageCodePage=1252
+; If the language you are translating to requires special font faces or
+; sizes, uncomment any of the following entries and change them accordingly.
+;DialogFontName=
+;DialogFontSize=8
+;WelcomeFontName=Verdana
+;WelcomeFontSize=12
+;TitleFontName=Arial
+;TitleFontSize=29
+;CopyrightFontName=Arial
+;CopyrightFontSize=8
 
 [Messages]
 
@@ -21,42 +42,42 @@ ConfirmTitle=Confirmação
 ErrorTitle=Erro
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Irá ser instalado o %1. Deseja continuar?
-LdrCannotCreateTemp=Não foi possível criar um ficheiro temporário. Instalação cancelada
-LdrCannotExecTemp=Não foi possível executar um ficheiro na directoria temporária. Instalação cancelada
+SetupLdrStartupMessage=Irá instalar %1. Deseja continuar?
+LdrCannotCreateTemp=Incapaz de criar um ficheiro temporário. Instalação cancelada
+LdrCannotExecTemp=Incapaz de executar um ficheiro na diretoria temporária. Instalação cancelada
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nErro %2: %3
-SetupFileMissing=O ficheiro %1 não foi encontrado na pasta de instalação. Corrija o problema ou obtenha uma nova cópia do programa.
-SetupFileCorrupt=Os ficheiros de instalação estão corrompidos. Obtenha uma nova cópia do programa.
-SetupFileCorruptOrWrongVer=Os ficheiros de instalação estão corrompidos, ou são incompatíveis com esta versão do Assistente de Instalação. Corrija o problema ou obtenha uma nova cópia do programa.
-InvalidParameter=Foi especificado um parâmetro inválido na linha de comando:%n%n%1
-SetupAlreadyRunning=A instalação já está em execução.
-WindowsVersionNotSupported=Este programa não suporta a versão do Windows que está a utilizar.
-WindowsServicePackRequired=Este programa necessita de %1 Service Pack %2 ou mais recente.
+SetupFileMissing=O ficheiro %1 não foi encontrado na pasta de instalação. Por favor corrija o problema ou obtenha uma nova cópia do programa.
+SetupFileCorrupt=Os ficheiros de instalação encontram-se corrompidos. Por favor obtenha uma nova cópia do programa.
+SetupFileCorruptOrWrongVer=Os ficheiros de instalação encontram-se corrompidos, ou são incompatíveis com esta versão do Assistente de Instalação. Por favor corrija o problema ou obtenha uma nova cópia do programa.
+InvalidParameter=Foi especificado um parâmetro inválido na linha de comandos:%n%n%1
+SetupAlreadyRunning=A instalação já se encontra em execução.
+WindowsVersionNotSupported=Este programa não suporta a versão do Windows que utiliza.
+WindowsServicePackRequired=Este programa necessita do %1 Service Pack %2 ou mais recente.
 NotOnThisPlatform=Este programa não pode ser executado no %1.
 OnlyOnThisPlatform=Este programa deve ser executado no %1.
-OnlyOnTheseArchitectures=Este programa só pode ser instalado em versões do Windows preparadas para as seguintes arquitecturas:%n%n%1
-MissingWOW64APIs=A versão do Windows que está a utilizar não dispõe das funcionalidades necessárias para o Assistente de Instalação poder realizar uma instalação de 64-bit's. Para corrigir este problema, por favor instale o Service Pack %1.
+OnlyOnTheseArchitectures=Este programa só pode ser instalado em versões do Windows preparadas para as seguintes arquiteturas:%n%n%1
+MissingWOW64APIs=A versão do Windows que utiliza não dispõe das funcionalidades necessárias para o Assistente de Instalação realizar uma instalação de 64-bit's. Para corrigir este problema, por favor instale o Service Pack %1.
 WinVersionTooLowError=Este programa necessita do %1 versão %2 ou mais recente.
 WinVersionTooHighError=Este programa não pode ser instalado no %1 versão %2 ou mais recente.
 AdminPrivilegesRequired=Deve iniciar sessão como administrador para instalar este programa.
 PowerUserPrivilegesRequired=Deve iniciar sessão como administrador ou membro do grupo de Super Utilizadores para instalar este programa.
-SetupAppRunningError=O Assistente de Instalação detectou que o %1 está em execução. Feche-o e de seguida clique em OK para continuar, ou clique em Cancelar para cancelar a instalação.
-UninstallAppRunningError=O Assistente de Desinstalação detectou que o %1 está em execução. Feche-o e de seguida clique em OK para continuar, ou clique em Cancelar para cancelar a desinstalação.
+SetupAppRunningError=O Assistente de Instalação detetou que o %1 encontra-se em execução.%n%nPor favor encerre todas as instâncias do programa e de seguida clique em OK para continuar, ou em Cancelar para cancelar a instalação.
+UninstallAppRunningError=O Assistente de Desinstalação detectou que o %1 encontra-se em execução. Por favor encerre todas as instâncias do programa e de seguida clique em OK para continuar, ou em Cancelar para cancelar a desinstalação.
 
 ; *** Misc. errors
-ErrorCreatingDir=O Assistente de Instalação não consegue criar a directoria "%1"
-ErrorTooManyFilesInDir=Não é possível criar um ficheiro na directoria "%1" porque esta contém demasiados ficheiros
+ErrorCreatingDir=O Assistente de Instalação foi incapaz de criar a diretoria "%1"
+ErrorTooManyFilesInDir=Incapaz de criar um ficheiro na diretoria "%1" porque este contém demasiados ficheiros
 
 ; *** Setup common messages
-ExitSetupTitle=Terminar a instalação
-ExitSetupMessage=A instalação não está completa. Se terminar agora, o programa não será instalado.%n%nMais tarde poderá executar novamente este Assistente de Instalação e concluir a instalação.%n%nDeseja terminar a instalação?
-AboutSetupMenuItem=&Acerca de...
+ExitSetupTitle=Cancelar Instalação
+ExitSetupMessage=A instalação não está completa. Se cancelar agora, o programa não será instalado.%n%nPoderá executar novamente este Assistente de Instalação para concluir a instalação.%n%nDeseja cancelar da instalação?
+AboutSetupMenuItem=&Acerca do Assistente de Instalação...
 AboutSetupTitle=Acerca do Assistente de Instalação
-AboutSetupMessage=%1 versão %2%n%3%n%n%1 home page:%n%4
+AboutSetupMessage=%1 versão %2%n%3%n%n%1 página internet:%n%4
 AboutSetupNote=
-TranslatorNote=Portuguese translation maintained by NARS (nars@gmx.net)
+TranslatorNote=Portuguese translation maintained by NARS (nars@gmx.net) and enVide neFelibata (www.envidenefelibata.com)
 
 ; *** Buttons
 ButtonBack=< &Anterior
@@ -65,61 +86,61 @@ ButtonInstall=&Instalar
 ButtonOK=OK
 ButtonCancel=Cancelar
 ButtonYes=&Sim
-ButtonYesToAll=Sim para &todos
+ButtonYesToAll=Sim para &Todos
 ButtonNo=&Não
-ButtonNoToAll=Nã&o para todos
+ButtonNoToAll=Nã&o para Todos
 ButtonFinish=&Concluir
 ButtonBrowse=&Procurar...
 ButtonWizardBrowse=P&rocurar...
 ButtonNewFolder=&Criar Nova Pasta
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Seleccione o Idioma do Assistente de Instalação
-SelectLanguageLabel=Seleccione o idioma para usar durante a Instalação:
+SelectLanguageTitle=Selecione o Idioma do Assistente de Instalação
+SelectLanguageLabel=Selecione o idioma a usar durante a instalação:
 
 ; *** Common wizard text
 ClickNext=Clique em Seguinte para continuar ou em Cancelar para cancelar a instalação.
 BeveledLabel=
 BrowseDialogTitle=Procurar Pasta
-BrowseDialogLabel=Seleccione uma pasta na lista abaixo e clique em OK.
+BrowseDialogLabel=Selecione uma pasta na lista abaixo e clique em OK.
 NewFolderName=Nova Pasta
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Bem-vindo ao Assistente de Instalação do [name]
-WelcomeLabel2=O Assistente de Instalação irá instalar o [name/ver] no seu computador.%n%nÉ recomendado que feche todas as outras aplicações antes de continuar.
+WelcomeLabel2=O Assistente de Instalação irá instalar o [name/ver] no seu computador.%n%nÉ recomendado que encerre todas as outras aplicações antes de continuar.
 
 ; *** "Password" wizard page
 WizardPassword=Palavra-passe
-PasswordLabel1=Esta instalação está protegida por palavra-passe.
-PasswordLabel3=Insira a palavra-passe e de seguida clique em Seguinte para continuar. Na palavra-passe existe diferença entre maiúsculas e minúsculas.
+PasswordLabel1=Esta instalação encontra-se protegida por palavra-passe.
+PasswordLabel3=Por favor insira a palavra-passe e de seguida clique em Seguinte para continuar. As palavras-passe são sensíveis a maiúsculas e minúsculas.
 PasswordEditLabel=&Palavra-passe:
-IncorrectPassword=A palavra-passe que introduziu não está correcta. Tente novamente.
+IncorrectPassword=A palavra-passe que introduziu não está correcta. Por favor tente novamente.
 
 ; *** "License Agreement" wizard page
-WizardLicense=Contrato de licença
-LicenseLabel=É importante que leia as seguintes informações antes de continuar.
-LicenseLabel3=Leia atentamente o seguinte contrato de licença. Deve aceitar os termos do contrato antes de continuar a instalação.
-LicenseAccepted=A&ceito o contrato
-LicenseNotAccepted=&Não aceito o contrato
+WizardLicense=Acordo de Licença
+LicenseLabel=Por favor leia a seguinte informação importante antes de continuar.
+LicenseLabel3=Leia atentamente o seguinte Acordo de Licença. Deve aceitar os termos do acordo antes de continuar com a instalação.
+LicenseAccepted=&Aceito o acordo
+LicenseNotAccepted=&Não aceito o acordo
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Informação
-InfoBeforeLabel=É importante que leia as seguintes informações antes de continuar.
-InfoBeforeClickLabel=Quando estiver pronto para continuar clique em Seguinte.
+InfoBeforeLabel=Por favor leia a seguinte informação importante antes de continuar.
+InfoBeforeClickLabel=Quando estiver pronto para continuar com a instalação clique em Seguinte.
 WizardInfoAfter=Informação
-InfoAfterLabel=É importante que leia as seguintes informações antes de continuar.
-InfoAfterClickLabel=Quando estiver pronto para continuar clique em Seguinte.
+InfoAfterLabel=Por favor leia a seguinte informação importante antes de continuar.
+InfoAfterClickLabel=Quando estiver pronto para continuar com a instalação clique em Seguinte.
 
 ; *** "User Information" wizard page
-WizardUserInfo=Informações do utilizador
-UserInfoDesc=Introduza as suas informações.
-UserInfoName=Nome do &utilizador:
+WizardUserInfo=Informações do Utilizador
+UserInfoDesc=Por favor introduza as suas informações.
+UserInfoName=Nome de &Utilizador:
 UserInfoOrg=&Organização:
-UserInfoSerial=&Número de série:
+UserInfoSerial=&Número de Série:
 UserInfoNameRequired=Deve introduzir um nome.
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=Seleccione a localização de destino
+WizardSelectDir=Selecione a localização de destino
 SelectDirDesc=Onde deverá ser instalado o [name]?
 SelectDirLabel3=O [name] será instalado na seguinte pasta.
 SelectDirBrowseLabel=Para continuar, clique em Seguinte. Se desejar seleccionar uma pasta diferente, clique em Procurar.
