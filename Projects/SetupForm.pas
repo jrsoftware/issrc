@@ -17,7 +17,7 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, MsgIDs;
+  UIStateForm, MsgIDs, NewNotebook;
 
 type
   TSetupForm = class(TUIStateForm)
@@ -336,7 +336,7 @@ procedure TSetupForm.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   if FRightToLeft then
-    Params.ExStyle := Params.ExStyle or (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
+    Params.ExStyle := Params.ExStyle or (WS_EX_LAYOUTRTL or WS_EX_NOINHERITLAYOUT or WS_EX_LEFTSCROLLBAR);
 end;
 
 procedure TSetupForm.CreateWnd;
@@ -347,11 +347,20 @@ begin
 end;
 
 procedure TSetupForm.FlipControlsIfNeeded;
+var
+  I: Integer;
+
 begin
   if FFlipControlsOnShow then begin
     FFlipControlsOnShow := False;
     FControlsFlipped := not FControlsFlipped;
-    FlipControls(Self);
+
+    for I := 0 to Self.ControlCount - 1 do
+    begin
+      if Self.Controls[I] is TNewNotebook then
+         FlipControls(TWinControl(Self.Controls[I]));
+    end;
+
   end;
 end;
 
