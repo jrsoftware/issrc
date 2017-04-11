@@ -131,6 +131,7 @@ type
     BMenu: TMenuItem;
     BLowPriority: TMenuItem;
     HDonate: TMenuItem;
+    HReportIssue: TMenuItem;
     N14: TMenuItem;
     HPSWebsite: TMenuItem;
     N15: TMenuItem;
@@ -222,6 +223,7 @@ type
     procedure StatusBarDrawPanel(StatusBar: TStatusBar;
       Panel: TStatusPanel; const Rect: TRect);
     procedure HDonateClick(Sender: TObject);
+    procedure HReportIssueClick(Sender: TObject);
     procedure RTargetClick(Sender: TObject);
     procedure DebugOutputListDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
@@ -839,7 +841,7 @@ begin
   SetFakeShortCutText(VZoomOut, SmkcCtrl + 'Num -');
   SetFakeShortCutText(VZoomReset, SmkcCtrl + 'Num /');
   { Use fake Esc shortcut for Stop Compile so it doesn't conflict with the
-    editor's autocompletion list } 
+    editor's autocompletion list }
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
 
   MemoStyler := TInnoSetupStyler.Create(Self);
@@ -935,7 +937,7 @@ destructor TCompileForm.Destroy;
       Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
       Ini.WriteBool('State', 'WindowMaximized', WindowState = wsMaximized);
       Ini.WriteInteger('State', 'StatusPanelHeight', StatusPanel.Height);
-      
+
       { Zoom state }
       Ini.WriteInteger('Options', 'Zoom', Memo.Zoom);
     finally
@@ -1024,7 +1026,7 @@ begin
           if (CtlType = ODT_MENU) and not IsMenu(hwndItem) then
             CtlType := ODT_STATIC;
     end;
-  inherited 
+  inherited
 end;
 {$ENDIF}
 
@@ -2173,6 +2175,12 @@ end;
 procedure TCompileForm.HDonateClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open', 'http://www.jrsoftware.org/isdonate.php', nil,
+    nil, SW_SHOW);
+end;
+
+procedure TCompileForm.HReportIssueClick(Sender: TObject);
+begin
+  ShellExecute(Application.Handle, 'open', 'https://github.com/jrsoftware/issrc/issues', nil,
     nil, SW_SHOW);
 end;
 
@@ -3408,7 +3416,7 @@ var
 begin
   if WaitForTermination then begin
     { Give the initial process time to fully terminate so we can successfully
-      get its exit code }  
+      get its exit code }
     WaitForSingleObject(FProcessHandle, 5000);
   end;
   FDebugging := False;
@@ -3963,7 +3971,7 @@ procedure TCompileForm.DebugOutputListDrawItem(Control: TWinControl;
 var
   S: String;
 begin
-  { An owner drawn list box is used for precise tab expansion }  
+  { An owner drawn list box is used for precise tab expansion }
   S := SafeGetItem(DebugOutputList.Handle, Index);
   DebugOutputList.Canvas.FillRect(Rect);
   Inc(Rect.Left, 2);
