@@ -168,7 +168,7 @@ DirDoesntExist=Der Ordner:%n%n%1%n%nist nicht vorhanden. Soll der Ordner erstell
 ; *** "Select Components" wizard page
 WizardSelectComponents=Komponenten auswählen
 SelectComponentsDesc=Welche Komponenten sollen installiert werden?
-SelectComponentsLabel2=Wählen Sie die Komponenten aus, die Sie installieren möchten. Klicken Sie auf "Weiter", wenn sie bereit sind fortzufahren.
+SelectComponentsLabel2=Wählen Sie die Komponenten aus, die Sie installieren möchten. Klicken Sie auf "Weiter", wenn Sie bereit sind fortzufahren.
 FullInstallation=Vollständige Installation
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Kompakte Installation
