@@ -8,11 +8,12 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update 24.10.2017
-; based on translation of ale5000 5.1.11+ and by Rinaldo M. aka Whiteshark
+; Italian.isl - Last Update: 19.02.2018  by bovirus (bovirus@gmail.com) 
 ;
-; Translator name: bovirus
+; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
+;
+; Based on previous translations of Rinaldo M. aka Whiteshark (based on ale5000 5.1.11+ translation)
 ;
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -66,8 +67,8 @@ WinVersionTooLowError=Questo programma richiede %1 versione %2 o successiva.
 WinVersionTooHighError=Questo programma non può essere installato su %1 versione %2 o successiva.
 AdminPrivilegesRequired=Per installare questo programmas ono richiesti privilegi di amministratore.
 PowerUserPrivilegesRequired=Per poter installare questo programma sono richiesti privilegi di amministratore o di Power Users.
-SetupAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona [OK], o seleziona [Annulla] per uscire.
-UninstallAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona [OK], o seleziona [Annulla] per uscire.
+SetupAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK", o seleziona "Annulla" per uscire.
+UninstallAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK", o seleziona "Annulla" per uscire.
 
 ; *** Misc. errors
 ErrorCreatingDir=Impossibile creare la cartella "%1"
@@ -102,10 +103,10 @@ SelectLanguageTitle=Seleziona la lingua dell'installazione
 SelectLanguageLabel=Seleziona la lingua da usare durante l'installazione:
 
 ; *** Common wizard text
-ClickNext=Seleziona [Avanti] per continuare, o [Annulla] per uscire.
+ClickNext=Seleziona "Avanti" per continuare, o "Annulla" per uscire.
 BeveledLabel=
 BrowseDialogTitle=Sfoglia cartelle
-BrowseDialogLabel=Seleziona una cartella nell'elenco, e quindi seleziona [OK].
+BrowseDialogLabel=Seleziona una cartella nell'elenco, e quindi seleziona "OK".
 NewFolderName=Nuova cartella
 
 ; *** "Welcome" wizard page
@@ -115,7 +116,7 @@ WelcomeLabel2=[name/ver] sarà installato sul computer.%n%nPrima di procedere chi
 ; *** "Password" wizard page
 WizardPassword=Password
 PasswordLabel1=Questa installazione è protetta da password.
-PasswordLabel3=Inserisci la password, quindi per continuare seleziona [Avanti]. Le password sono sensibili alle maiuscole/minuscole.
+PasswordLabel3=Inserisci la password, quindi per continuare seleziona "Avanti".%nLe password sono sensibili alle maiuscole/minuscole.
 PasswordEditLabel=&Password:
 IncorrectPassword=La password inserita non è corretta. Riprova.
 
@@ -129,10 +130,10 @@ LicenseNotAccepted=&Non accetto i termini del contratto di licenza
 ; *** "Information" wizard pages
 WizardInfoBefore=Informazioni
 InfoBeforeLabel=Prima di procedere leggi le importanti informazioni che seguono.
-InfoBeforeClickLabel=Quando sei pronto per proseguire, seleziona [Avanti].
+InfoBeforeClickLabel=Quando sei pronto per proseguire, seleziona "Avanti".
 WizardInfoAfter=Informazioni
 InfoAfterLabel=Prima di procedere leggi le importanti informazioni che seguono.
-InfoAfterClickLabel=Quando sei pronto per proseguire, seleziona [Avanti].
+InfoAfterClickLabel=Quando sei pronto per proseguire, seleziona "Avanti".
 
 ; *** "User Information" wizard page
 WizardUserInfo=Informazioni utente
@@ -146,7 +147,7 @@ UserInfoNameRequired=È necessario inserire un nome.
 WizardSelectDir=Selezione della cartella di installazione
 SelectDirDesc=Dove vuoi installare [name]?
 SelectDirLabel3=[name] sarà installato nella seguente cartella.
-SelectDirBrowseLabel=Per continuare, seleziona [Avanti]. Per scegliere un'altra cartella, seleziona [Sfoglia].
+SelectDirBrowseLabel=Per continuare seleziona "Avanti".Per scegliere un'altra cartella seleziona "Sfoglia".
 DiskSpaceMBLabel=Sono richiesti almeno [mb] MB di spazio nel disco.
 CannotInstallToNetworkDrive=Non è possibile effettuare l'installazione in un disco in rete.
 CannotInstallToUNCPath=Non è possibile effettuare l'installazione in un percorso UNC.
@@ -165,7 +166,7 @@ DirDoesntExist=La cartella:%n%n%1 non esiste.%n%nVuoi creare la cartella?
 ; *** "Select Components" wizard page
 WizardSelectComponents=Selezione componenti
 SelectComponentsDesc=Quali componenti vuoi installare?
-SelectComponentsLabel2=Seleziona i componenti da installare, deseleziona quelli che non vuoi installare. Per continuare seleziona [Avanti].
+SelectComponentsLabel2=Seleziona i componenti da installare, deseleziona quelli che non vuoi installare. %nPer continuare seleziona "Avanti".
 FullInstallation=Installazione completa
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Installazione compatta
@@ -179,13 +180,13 @@ ComponentsDiskSpaceMBLabel=La selezione attuale richiede almeno [mb] MB di spazi
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Selezione processi aggiuntivi
 SelectTasksDesc=Quali processi aggiuntivi si vogliono avviare?
-SelectTasksLabel2=Seleziona i processi aggiuntivi che verranno eseguiti durante l'installazione di [name], quindi seleziona [Avanti].
+SelectTasksLabel2=Seleziona i processi aggiuntivi che verranno eseguiti durante l'installazione di [name], quindi seleziona "Avanti".
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Selezione della cartella nel menu Avvio/Start
 SelectStartMenuFolderDesc=Dove vuoi inserire i collegamenti al programma?
 SelectStartMenuFolderLabel3=Saranno creati i collegamenti al programma nella seguente cartella del menu Avvio/Start.
-SelectStartMenuFolderBrowseLabel=Per continuare, seleziona [Avanti]. Per selezionare un'altra cartella, seleziona [Sfoglia].
+SelectStartMenuFolderBrowseLabel=Per continuare, seleziona "Avanti". Per selezionare un'altra cartella, seleziona "Sfoglia".
 MustEnterGroupName=Devi inserire il nome della cartella.
 GroupNameTooLong=Il nome della cartella o il percorso sono troppo lunghi.
 InvalidGroupName=Il nome della cartella non è valido.
@@ -195,8 +196,8 @@ NoProgramGroupCheck2=&Non creare una cartella nel menu Avvio/Start
 ; *** "Ready to Install" wizard page
 WizardReady=Pronto per l'installazione
 ReadyLabel1=Il programma è pronto per iniziare l'installazione di [name] nel computer.
-ReadyLabel2a=Seleziona [Installa] per continuare con l'installazione, o [Indietro] per rivedere o modificare le impostazioni.
-ReadyLabel2b=Per procedere con l'installazione seleziona [Installa].
+ReadyLabel2a=Seleziona "Installa" per continuare con l'installazione, o "Indietro" per rivedere o modificare le impostazioni.
+ReadyLabel2b=Per procedere con l'installazione seleziona "Installa".
 ReadyMemoUserInfo=Informazioni utente:
 ReadyMemoDir=Cartella di installazione:
 ReadyMemoType=Tipo di installazione:
@@ -208,7 +209,7 @@ ReadyMemoTasks=Processi aggiuntiuvi:
 WizardPreparing=Preparazione all'installazione
 PreparingDesc=Preparazione all'installazione di [name] nel computer.
 PreviousInstallNotCompleted=L'installazione/rimozione precedente del programma non è stata completata. È necessario riavviare il sistema per completare l'installazione.%n%nDopo il riavvio del sistema esegui di nuovo l'installazione di [name].
-CannotContinue=L'installazione non può continuare. Seleziona [Annulla] per uscire.
+CannotContinue=L'installazione non può continuare. Seleziona "Annulla" per uscire.
 ApplicationsFound=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione. Ti consigliamo di permettere al processo di chiudere automaticamente queste applicazioni.
 ApplicationsFound2=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione. Ti consigliamo di permettere al processo di chiudere automaticamente queste applicazioni. Al completamento dell'installazione, il processo tenterà di riavviare le applicazioni.
 CloseApplications=Chiudi &automaticamente le applicazioni
@@ -220,11 +221,11 @@ WizardInstalling=Installazione in corso
 InstallingLabel=Attendi il completamento dell'installazione di [name] nel computer.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=Completamento installazione di [name]
+FinishedHeadingLabel=Installazione di [name] completata
 FinishedLabelNoIcons=Installazione di [name] completata.
-FinishedLabel=Installazione di [name] completata. L'applicazione può essere eseguita selezionando le relative icone.
-ClickFinish=Seleziona [Fine] per uscire dall'installazione.
-FinishedRestartLabel=Per completare l'installazione di [name], è necessario riavviare il sistema. Vuoi riavviare adesso?
+FinishedLabel=Installazione di [name] completata.%n%nL'applicazione può essere eseguita selezionando le relative icone.
+ClickFinish=Seleziona "Fine" per uscire dall'installazione.
+FinishedRestartLabel=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare adesso?
 FinishedRestartMessage=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare adesso?
 ShowReadmeCheck=Si, visualizza ora il file LEGGIMI
 YesRadio=&Si, riavvia il sistema adesso
@@ -236,14 +237,14 @@ RunEntryShellExec=Visualizza %1
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=L'installazione necessita del disco successivo
-SelectDiskLabel2=Inserisci il disco %1 e seleziona [OK].%n%nSe i file di questo disco si trovano in una cartella diversa da quella visualizzata sotto, inserisci il percorso corretto o seleziona [Sfoglia].
+SelectDiskLabel2=Inserisci il disco %1 e seleziona "OK".%n%nSe i file di questo disco si trovano in una cartella diversa da quella visualizzata sotto, inserisci il percorso corretto o seleziona "Sfoglia".
 PathLabel=&Percorso:
 FileNotInDir2=Il file "%1" non è stato trovato in "%2". Inserisci il disco corretto o seleziona un'altra cartella.
 SelectDirectoryLabel=Specifica il percorso del prossimo disco.
 
 ; *** Installation phase messages
 SetupAborted=L'installazione non è stata completata.%n%nCorreggi il problema e riesegui nuovamente l'installazione.
-EntryAbortRetryIgnore=Seleziona [Riprova] per ritentare nuovamente, o [Ignora] per procedere in ogni caso, o [Interrompi] per terminare l'installazione.
+EntryAbortRetryIgnore=Seleziona "Riprova" per ritentare nuovamente, o "Ignora" per procedere in ogni caso, o "Interrompi" per terminare l'installazione.
 
 ; *** Installation status messages
 StatusClosingApplications=Chiusura applicazioni...
@@ -274,11 +275,11 @@ ErrorRegWriteKey=Errore di scrittura della chiave di registro:%n%1\%2
 ErrorIniEntry=Errore nella creazione delle voci INI nel file "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Seleziona [Riprova] per tentare di nuovo, o [Ignora] per saltare questo file (sconsigliato), o [Interrompi] per terminare l'installazione.
-FileAbortRetryIgnore2=Seleziona [Riprova] per tentare di nuovo, o [Ignora] per proseguire comunque (sconsigliato), o [Interrompi] per terminare l'installazione.
+FileAbortRetryIgnore=Seleziona "Riprova" per tentare di nuovo, o "Ignora"] per saltare questo file (sconsigliato), o "Interrompi" per terminare l'installazione.
+FileAbortRetryIgnore2=Seleziona "Riprova" per tentare di nuovo, o "Ignora" per proseguire comunque (sconsigliato), o "Interrompi" per terminare l'installazione.
 SourceIsCorrupted=Il file sorgente è danneggiato
 SourceDoesntExist=Il file sorgente "%1" non esiste
-ExistingFileReadOnly=Il file esistente ha l'attributo di sola lettura.%n%nSeleziona [Riprova] per rimuovere l'attributo di sola lettura e ritentare, o [Ignora] per saltare questo file, o [Interrompi] per terminare l'installazione.
+ExistingFileReadOnly=Il file esistente ha l'attributo di sola lettura.%n%nSeleziona "Riprova" per rimuovere l'attributo di sola lettura e ritentare, o "Ignora" per saltare questo file, o "Interrompi" per terminare l'installazione.
 ErrorReadingExistingDest=Si è verificato un errore durante la lettura del file esistente:
 FileExists=Il file esiste già.%n%nVuoi sovrascrivere il file?
 ExistingFileNewer=Il file esistente è più recente di quello che si stà installando. Ti raccomandiamo di mantenere il file esistente.%n%nVuoi mantenere il file esistente?
@@ -313,10 +314,10 @@ UninstallDataCorrupted=Il file "%1" è danneggiato. Impossibile disinstallare
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Vuoi rimuovere il file condiviso?
-ConfirmDeleteSharedFile2=Il sistema indica che il seguente file condiviso non è più usato da nessun programma. Vuoi rimuovere questo file condiviso?%n%nSe qualche programma usasse questo file, potrebbe non funzionare più correttamente. Se non sei sicuro, seleziona [No]. Lasciare il file nel sistema non può causare danni.
+ConfirmDeleteSharedFile2=Il sistema indica che il seguente file condiviso non è più usato da nessun programma. Vuoi rimuovere questo file condiviso?%n%nSe qualche programma usasse questo file, potrebbe non funzionare più correttamente. Se non sei sicuro, seleziona "No". Lasciare il file nel sistema non può causare danni.
 SharedFileNameLabel=Nome del file:
 SharedFileLocationLabel=Percorso:
-WizardUninstalling=Stato della disinstallazione
+WizardUninstalling=Stato disinstallazione
 StatusUninstalling=Disinstallazione di %1...
 
 ; *** Shutdown block reasons
@@ -331,12 +332,12 @@ ShutdownBlockReasonUninstallingApp=Disinstallazione di %1.
 NameAndVersion=%1 versione %2
 AdditionalIcons=Icone aggiuntive:
 CreateDesktopIcon=Crea un'icona sul &desktop
-CreateQuickLaunchIcon=Crea un'icona nella &barra Avvio veloce
+CreateQuickLaunchIcon=Crea un'icona nella &barra 'Avvio veloce'
 ProgramOnTheWeb=Sito web di %1
 UninstallProgram=Disinstalla %1
-LaunchProgram=Esegui %1
-AssocFileExtension==&Associa %1 ai file con estensione %2
-AssocingFileExtension=Associazione di %1 ai file con estensione %2...
-AutoStartProgramGroupDescription=Avvio automatico:
+LaunchProgram=Avvia %1
+AssocFileExtension=&Associa i file con estensione %2 a %1
+AssocingFileExtension=Associazione i file con estensione %2 a %1...
+AutoStartProgramGroupDescription=Esecuzione automatica:
 AutoStartProgram=Esegui automaticamente %1
 AddonHostProgramNotFound=Impossibile individuare %1 nella cartella selezionata.%n%nVuoi continuare ugualmente?
