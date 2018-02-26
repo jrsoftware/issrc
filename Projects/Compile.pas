@@ -3549,7 +3549,7 @@ var
 
   function StrToArchitectures(S: String; const Only64Bit: Boolean): TSetupProcessorArchitectures;
   const
-    ProcessorFlags: array[0..2] of PChar = ('x86', 'x64', 'ia64');
+    ProcessorFlags: array[0..3] of PChar = ('x86', 'x64', 'ia64', 'arm64');
   begin
     Result := [];
     while True do
@@ -3562,6 +3562,10 @@ var
              Include(Result, paX86);
         1: Include(Result, paX64);
         2: Include(Result, paIA64);
+        3: if Only64Bit then
+             Invalid //ARM64 can actually only run x86 binaries
+           else
+             Include(Result, paARM64);
       end;
   end;
 

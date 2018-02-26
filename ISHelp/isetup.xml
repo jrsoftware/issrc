@@ -4824,7 +4824,8 @@ DiskSliceSize=1457664
 <keyword value="x64" />
 <keyword value="IA-64" />
 <keyword value="Itanium" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>x86</tt> <br/><tt>x64</tt> <br/><tt>ia64</tt></setupvalid>
+<keyword value="ARM64" />
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>x86</tt> <br/><tt>x64</tt> <br/><tt>ia64</tt> <br/><tt>arm64</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies which processor architecture(s) Setup is allowed to run on. If this directive is not specified or is blank, Setup will be allowed to run on all processor architectures capable of executing its 32-bit code (including ones it doesn't recognize). Otherwise, if a user's processor architecture is not one of those specified in this directive, Setup will display an error message and exit.</p>
@@ -4851,6 +4852,7 @@ DiskSliceSize=1457664
 <p>Be sure you have read the <link topic="64bitlimitations">64-bit Installation Limitations</link> topic before setting this directive.</p>
 <p>If your application runs only on 64-bit processor architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
 <p>Setup can only run in 64-bit mode on versions of Windows that provide the API support Inno Setup requires (e.g. RegDeleteKeyEx). All x64 editions provide the necessary APIs, however Itanium editions prior to Windows Server 2003 SP1 do not. If the user is running an older Itanium version of Windows, Setup will display a message (<tt>MissingWOW64APIs</tt>) recommending that the user install a service pack, and exit.</p>
+<p><i>Note:</i> Windows 10 on ARM64 only supports 32-bit (x86) binaries. Therefore Setup will never install in <link topic="32vs64bitinstalls">64-bit mode</link> on Windows 10 on ARM64.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesallowed">ArchitecturesAllowed</link></p>
 </body>

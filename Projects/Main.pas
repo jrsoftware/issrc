@@ -179,7 +179,7 @@ var
 {$ENDIF}
 
   CodeRunner: TScriptRunner;
-
+  
 function CodeRunnerOnDebug(const Position: LongInt;
   var ContinueStepOver: Boolean): Boolean;
 function CodeRunnerOnDebugIntermediate(const Position: LongInt;
@@ -4193,6 +4193,7 @@ const
   PROCESSOR_ARCHITECTURE_INTEL = 0;
   PROCESSOR_ARCHITECTURE_IA64 = 6;
   PROCESSOR_ARCHITECTURE_AMD64 = 9;
+  PROCESSOR_ARCHITECTURE_ARM64 = 12;
 var
   KernelModule: HMODULE;
   GetNativeSystemInfoFunc: procedure(var lpSystemInfo: TSystemInfo); stdcall;
@@ -4219,10 +4220,10 @@ begin
     IsWow64ProcessFunc := GetProcAddress(KernelModule, 'IsWow64Process');
     if Assigned(IsWow64ProcessFunc) and
        IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
-       Wow64Process then begin
+      Wow64Process then begin
       if AreFsRedirectionFunctionsAvailable and
          (GetProcAddress(KernelModule, 'GetSystemWow64DirectoryA') <> nil) and
-         (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil) then
+        (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil) then
         IsWin64 := True;
     end;
   end
@@ -4233,6 +4234,7 @@ begin
     PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
     PROCESSOR_ARCHITECTURE_IA64: ProcessorArchitecture := paIA64;
     PROCESSOR_ARCHITECTURE_AMD64: ProcessorArchitecture := paX64;
+    PROCESSOR_ARCHITECTURE_ARM64: ProcessorArchitecture := paARM64;
   else
     ProcessorArchitecture := paUnknown;
   end;

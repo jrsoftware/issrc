@@ -28,6 +28,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 
 <p><a name="5.5.10"></a><span class="ver">5.5.10 </span><span class="date">(?)</span></p>
 <ul>
+<li>Added new [Setup] section directive <tt>ArchitecturesAllowed</tt> value: <tt>arm64</tt>. Can be used to not allow Setup to run on Windows 10 on ARM64. Note that Windows 10 on ARM64 only supports 32-bit (x86) binaries and therefore Setup (even in older versions) will never install in 64-bit mode on Windows 10 on ARM64.</li>
 <li><i>Fix:</i>In 5.5.9 it was no longer possible to include a drive colon in [Setup] section directive <tt>OutputManifestFile</tt>.</li>
 <li>Minor tweaks.</li>
 </ul>

@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '5.5.9 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
-  SetupBinVersion = (5 shl 24) + (5 shl 16) + (9 shl 8) + 0;
+  SetupVersion = '5.5.10 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
+  SetupBinVersion = (5 shl 24) + (5 shl 16) + (10 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -70,12 +70,12 @@ type
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;
-  TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64);
+  TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64, paARM64);
   TSetupProcessorArchitectures = set of TSetupProcessorArchitecture;
   TSetupDisablePage = (dpAuto, dpNo, dpYes);
 const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =
-    ('Unknown', 'x86', 'x64', 'Itanium');
+    ('Unknown', 'x86', 'x64', 'Itanium', 'ARM64');
 
 const
   SetupHeaderStrings = 28;
