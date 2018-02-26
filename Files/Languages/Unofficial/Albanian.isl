@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.1.11+ Albanian messages ***
+; *** Inno Setup version 5.5.3+ Albanian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -8,12 +8,12 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Përkthyer nga Besmir Godole
-; Posta-e: bgodole@gmail.com
-; Më kontaktoni me postë-e për ndonjë gabim ose sugjerim rreth përkthimit.
+; PÃ«rktheu Besmir Godole
+; Posta elektronike: bgodole@gmail.com
+; MÃ« kontaktoni pÃ«r ndonjÃ« gabim ose sugjerim rreth pÃ«rkthimit.
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Albanian
 LanguageID=$041C
@@ -34,8 +34,8 @@ LanguageCodePage=1252
 ; *** Application titles
 SetupAppTitle=Sistemim
 SetupWindowTitle=Sistemon - %1
-UninstallAppTitle=Çinstalim
-UninstallAppFullTitle=Çinstalon %1
+UninstallAppTitle=Ã‡instalim
+UninstallAppFullTitle=Ã‡instalon %1
 
 ; *** Misc. common
 InformationTitle=Informacion
@@ -43,267 +43,283 @@ ConfirmTitle=Miratim
 ErrorTitle=Gabim
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Tani do instalosh %1. Do vijosh?
-LdrCannotCreateTemp=Nuk mund të krijohet një skedë kohëshkurtër. Ndërpritet sistemimi
-LdrCannotExecTemp=Nuk mund të ekzekutohet skeda në direktorinë kohëshkurtër. Ndërpritet sistemimi
+SetupLdrStartupMessage=Do tÃ« instalohet %1. TÃ« vijohet?
+LdrCannotCreateTemp=Nuk mund tÃ« krijohet njÃ« skedar i pÃ«rkohshÃ«m. U ndÃ«rpre sistemimi
+LdrCannotExecTemp=Nuk mund tÃ« ekzekutohet skedari nÃ« direktorinÃ« e pÃ«rkohshme. U ndÃ«rpre sistemimi
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nGabim %2: %3
-SetupFileMissing=Skeda %1 mungon në direktorinë e instalimit. Të lutem korrigjo problemin ose gjej një kopje të re të programit.
-SetupFileCorrupt=Skedat e sistemimit janë prishur. Të lutem gjej një kopje të re të programit.
-SetupFileCorruptOrWrongVer=Skedat e sistemimit janë prishur ose nuk pajtohen me këtë version të Sistemimit. Të lutem korrigjo problemin ose gjej një kopje të re të programit.
-NotOnThisPlatform=Ky program nuk do veprojë në %1.
-OnlyOnThisPlatform=Ky program duhet të veprojë në %1.
-OnlyOnTheseArchitectures=Ky program mund të instalohet vetëm në versionet e Windows-it që janë modeluar për këto modele arkitekturore të procesorit:%n%n%1
-MissingWOW64APIs=Versioni i Windows-it që ke nuk përmban funksionet që kërkon Sistemimi për të kryer një instalim 64-bit. Për ta korrigjuar këtë problem, të lutem instalo Paketën e Shërbimit %1.
-WinVersionTooLowError=Këtij programi i nevojitet %1 me version %2 a më vonë.
-WinVersionTooHighError=Ky program nuk mund të instalohet në %1 me versionin %2 a më vonë.
-AdminPrivilegesRequired=Kur e instalon këtë program duhet të hysh si administrator.
-PowerUserPrivilegesRequired=Kur e instalon këtë program duhet të hysh si administrator ose anëtar i grupit Përdorues me Fuqi.
-SetupAppRunningError=Sistemimi diktoi se aktualisht po vepron %1.%n%nTë lutem mbylli tani tërë rastet e tij dhe kliko OK për të vijuar, ose Anulo për të dalë.
-UninstallAppRunningError=Çinstalimi diktoi se aktualisht po vepron %1.%n%nTë lutem mbylli tani tërë rastet e tij dhe kliko OK për të vijuar, ose Anulo për të dalë.
+SetupFileMissing=Mungon skedari %1 nÃ« direktorinÃ« e instalimit. Lutemi tÃ« korrigjohet problemi ose tÃ« pÃ«rdoret njÃ« kopje e re e programit.
+SetupFileCorrupt=JanÃ« dÃ«mtuar skedarÃ«t e Sistemuesit. Lutemi tÃ« pÃ«rdoret njÃ« kopje e re e programit.
+SetupFileCorruptOrWrongVer=JanÃ« dÃ«mtuar skedarÃ«t e sistemuesit ose nuk pÃ«rshtaten me kÃ«tÃ« version tÃ« Sistemimit. Lutemi tÃ« korrigjohet problemi ose tÃ« pÃ«rdoret njÃ« kopje e re e programit.
+InvalidParameter=NÃ« vijÃ«n e komandÃ«s u vendos njÃ« parametÃ«r i pasaktÃ«:%n%n%1
+SetupAlreadyRunning=Ã‹shtÃ« duke vepruar Sistemuesi.
+WindowsVersionNotSupported=Nuk pÃ«rshtatet programi me kÃ«tÃ« version tÃ« Windows-it.
+WindowsServicePackRequired=Programi ka nevojÃ« pÃ«r %1 me PaketÃ« Sigurie %2 ose mÃ« tÃ« re.
+NotOnThisPlatform=Programi nuk do tÃ« veprojÃ« nÃ« %1.
+OnlyOnThisPlatform=Programi duhet tÃ« veprojÃ« nÃ« %1.
+OnlyOnTheseArchitectures=Programi mund tÃ« instalohet vetÃ«m nÃ« versionet e Windows-it me kÃ«to modele arkitekturore tÃ« procesorit:%n%n%1
+MissingWOW64APIs=Ky version i Windows-it nuk pÃ«rmban funksionet qÃ« kÃ«rkohen pÃ«r tÃ« kryer njÃ« instalim 64-bit. Lutemi tÃ« korrigjohet problemi duke instaluar PaketÃ«n e ShÃ«rbimit %1.
+WinVersionTooLowError=Programi ka nevojÃ« pÃ«r %1 nÃ« versionin %2 a mÃ« tÃ« ri.
+WinVersionTooHighError=Programi nuk mund tÃ« instalohet nÃ« %1 nÃ« versionin %2 a mÃ« tÃ« ri.
+AdminPrivilegesRequired=Instalimi i programit duhet tÃ« kryhet nga administratori.
+PowerUserPrivilegesRequired=Instalimi i kÃ«tij programi duhet tÃ« kryhet nga administratori ose nga njÃ« PÃ«rdorues me Privilegje.
+SetupAppRunningError=Sistemuesi vÃ«ren se aktualisht po vepron %1.%n%nLutemi tÃ« mbyllet dhe tÃ« vijoni duke klikuar OK, ose Anuloj pÃ«r t'u larguar.
+UninstallAppRunningError=Ã‡instaluesi vÃ«ren se aktualisht po vepron %1.%n%nLutemi tÃ« mbyllet dhe tÃ« vijoni duke klikuar OK, ose Anuloj pÃ«r t'u larguar.
 
 ; *** Misc. errors
-ErrorCreatingDir=Sistemimi nuk arrin të krijojë direktorinë "%1"
-ErrorTooManyFilesInDir=Në direktorinë "%1" nuk mund të krijohen skeda sepse ka shumë të tjera
+ErrorCreatingDir=Sistemuesi nuk arrin tÃ« krijojÃ« direktorinÃ« "%1"
+ErrorTooManyFilesInDir=Nuk mund tÃ« krijohen skedarÃ« nÃ« direktorinÃ« "%1" sepse ka shumÃ« tÃ« tjera
 
 ; *** Setup common messages
-ExitSetupTitle=Dalje nga Sistemimi
-ExitSetupMessage=Sistemimi nuk është plotësuar. Po e mbylle, programi nuk instalohet.%n%nQë instalimi të plotësohet, mund ta lëshosh Sistemimin një herë tjetër.%n%nTë Mbyllet Sistemimi?
-AboutSetupMenuItem=&Për Sistemimin...
-AboutSetupTitle=Për Sistemimin
+ExitSetupTitle=Mbyllet sistemuesi
+ExitSetupMessage=Nuk ka pÃ«rfunduar sistemimi. Nuk do tÃ« instalohet programi nÃ«se e mbyllni.%n%nQÃ« instalimi tÃ« pÃ«rfundojÃ«, mund ta hapni Sistemuesin njÃ« herÃ« tjetÃ«r.%n%nTÃ« mbyllet Sistemuesi?
+AboutSetupMenuItem=&PÃ«r Sistemimin...
+AboutSetupTitle=PÃ«r Sistemimin
 AboutSetupMessage=%1 versioni %2%n%3%n%n%1 faqe zyrtare:%n%4
 AboutSetupNote=
 TranslatorNote=
 
 ; *** Buttons
-ButtonBack=< &Pas
-ButtonNext=&Tjetër >
-ButtonInstall=&Instalo
+ButtonBack=< &Kthehem
+ButtonNext=&TjetÃ«r >
+ButtonInstall=&Instaloj
 ButtonOK=OK
-ButtonCancel=Anulo
+ButtonCancel=Anuloj
 ButtonYes=&Po
-ButtonYesToAll=Po, &Gjithçka
+ButtonYesToAll=Po, &tÃ« gjitha
 ButtonNo=&Jo
-ButtonNoToAll=J&o, Asnjë
-ButtonFinish=&Përfundo
-ButtonBrowse=&Shfleto...
-ButtonWizardBrowse=S&hfleto...
-ButtonNewFolder=&Krijo Dosje të Re
+ButtonNoToAll=J&o, asnjÃ«
+ButtonFinish=&PÃ«rfundoj
+ButtonBrowse=&Shfletoj...
+ButtonWizardBrowse=S&hfletoj...
+ButtonNewFolder=&Krijoj dosje tÃ« re
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Zgjedh Gjuhën e Sistemimit
-SelectLanguageLabel=Zgjidhe gjuhën e përdorimit gjatë instalimit:
+SelectLanguageTitle=Zgjidhet gjuha e sistemuesit
+SelectLanguageLabel=Zgjidhni gjuhÃ«n e pÃ«rdorur gjatÃ« instalimit:
 
 ; *** Common wizard text
-ClickNext=Kliko Tjetër për të vijuar, ose Anulo që Sistemimi të mbyllet.
+ClickNext=Vijoni duke klikuar TjetÃ«r, ose Anuloj pÃ«r ta mbyllur Sistemuesin.
 BeveledLabel=
-BrowseDialogTitle=Shfleton dosjen
-BrowseDialogLabel=Zgjidhe një dosje në këtë listë, pastaj kliko OK.
-NewFolderName=Dosje e re
+BrowseDialogTitle=Shfletohet dosja
+BrowseDialogLabel=Zgjidhni dosjen nga kjo listÃ«, pastaj klikoni OK.
+NewFolderName=Dosje tÃ« re
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Mirë se erdhe te Udhërrëfyesi për Sistemimin e [name]
-WelcomeLabel2=[name/ver] do instalohet tani në kompjuter.%n%nPara se të vijosh, rekomandohet të mbyllen aplikimet e tjera.
+WelcomeLabel1=MirÃ«sevini te UdhÃ«rrÃ«fyesi pÃ«r Sistemimin e [name]
+WelcomeLabel2=[name/ver] do tÃ« instalohet nÃ« kompjuter.%n%nRekomandohet tÃ« mbyllen aplikacionet e tjera para se tÃ« vijoni.
 
 ; *** "Password" wizard page
-WizardPassword=Fjalëkalimi
-PasswordLabel1=Ky instalim është i mbrojtur me fjalëkalim.
-PasswordLabel3=Të lutem shkruaj fjalëkalimin, pastaj kliko Tjetër që të vijosh. Fjalëkalimi duhet vënë me kujdes.
-PasswordEditLabel=&Fjalëkalimi:
-IncorrectPassword=Fjalëkalimi i shkruar nuk është i saktë. Të lutem provoje përsëri.
+WizardPassword=FjalÃ«kalimi
+PasswordLabel1=Instalimi Ã«shtÃ« i mbrojtur me fjalÃ«kalim.
+PasswordLabel3=Lutemi tÃ« shkruani fjalÃ«kalimin, pastaj vijoni duke klikuar TjetÃ«r. FjalÃ«kalimi duhet vendosur me kujdes.
+PasswordEditLabel=&FjalÃ«kalimi:
+IncorrectPassword=Nuk Ã«shtÃ« i saktÃ« fjalÃ«kalimi. Lutemi tÃ« provoni sÃ«rish.
 
 ; *** "License Agreement" wizard page
-WizardLicense=Marrëveshja e Licencës
-LicenseLabel=Të lutem lexo informacionin e rëndësishëm më poshtë para se të vijosh.
-LicenseLabel3=Të lutem lexo Marrëveshjen e Licencës më poshtë. Para se të vijosh me instalimin, duhet të pranosh detyrimet e kësaj marrëveshjeje.
-LicenseAccepted=&Pranoj marrëveshjen
-LicenseNotAccepted=&Nuk e pranoj marrëveshjen
+WizardLicense=MarrÃ«veshja e licencimit
+LicenseLabel=Lutemi tÃ« lexohet ky informacion i rÃ«ndÃ«sishÃ«m para se tÃ« vijoni.
+LicenseLabel3=Lutemi tÃ« lexohet MarrÃ«veshja e licencimit. Duhet tÃ« pranoni detyrimet e kÃ«saj marrÃ«veshjeje para se tÃ« vijoni me instalimin.
+LicenseAccepted=&Pranoj marrÃ«veshjen
+LicenseNotAccepted=&Nuk e pranoj marrÃ«veshjen
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Informacion
-InfoBeforeLabel=Të lutem lexo informacionin e rëndësishëm më poshtë para se të vijosh.
-InfoBeforeClickLabel=Kur të jesh gati për të vijuar me Sistemimin, kliko Tjetër.
+InfoBeforeLabel=Lutemi tÃ« lexohet ky informacion i rÃ«ndÃ«sishÃ«m para se tÃ« vijoni.
+InfoBeforeClickLabel=Kur tÃ« jeni gati pÃ«r tÃ« vijuar me Sistemimin, klikoni TjetÃ«r.
 WizardInfoAfter=Informacion
-InfoAfterLabel=Të lutem lexo informacionin e rëndësishëm më poshtë para se të vijosh.
-InfoAfterClickLabel=Kur të jesh gati për të vijuar me Sistemimin, kliko Tjetër.
+InfoAfterLabel=Lutemi tÃ« lexohet ky informacion i rÃ«ndÃ«sishÃ«m para se tÃ« vijoni.
+InfoAfterClickLabel=Kur tÃ« jeni gati pÃ«r tÃ« vijuar me Sistemimin, klikoni TjetÃ«r.
 
 ; *** "User Information" wizard page
-WizardUserInfo=Informacion i Përdoruesit
-UserInfoDesc=Të lutem vendos informacionin tënd.
-UserInfoName=&Përdoruesi:
+WizardUserInfo=Informacion i pÃ«rdoruesit
+UserInfoDesc=Vendosni informacionin tuaj.
+UserInfoName=&PÃ«rdoruesi:
 UserInfoOrg=&Organizata:
-UserInfoSerial=&Numri i Serisë:
-UserInfoNameRequired=Duhet shkruar një emër.
+UserInfoSerial=&Numri i SerisÃ«:
+UserInfoNameRequired=TÃ« shkruhet emri.
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=Zgjedh Destinacionin
-SelectDirDesc=Ku duhet të instalohet [name]?
-SelectDirLabel3=Sistemimi do e instalojë [name] në këtë dosje.
-SelectDirBrowseLabel=Për të vijuar, kliko Tjetër. Nëse do të zgjedhësh një dosje ndryshe, kliko Shfleto.
-DiskSpaceMBLabel=Kërkon jo më pak se [mb] MB hapësirë të lirë në disk.
-ToUNCPathname=Sistemimi nuk mund të instalojë në një shteg UNC. Nëse po provon instalimin në rrjet, duhet të lokalizosh drajvin e rrjetit.
-InvalidPath=Duhet të shkruhet shtegu i plotë me shkronjën e drajvit; për shembull:%n%nC:\APP%n%nose shtegu UNC në formën:%n%n\\server\share
-InvalidDrive=Drajvi ose shpërndarësi UNC i zgjedhur nuk ekziston ose nuk hapet. Të lutem zgjidhe një tjetër.
-DiskSpaceWarningTitle=Hapësirë e Pamjaftueshme
-DiskSpaceWarning=Sistemimi kërkon të paktën %1 KB hapësirë të lirë për të instaluar, por ky drajv ka vetëm %2 KB me vlerë.%n%nGjithsesi, do vijosh?
-DirNameTooLong=Emri ose shtegu i dosjes është tepër i gjatë.
-InvalidDirName=Emri i dosjes nuk ka vlerë.
-BadDirName32=Emri i dosjes nuk mund të përmbajë këto shkronja:%n%n%1
-DirExistsTitle=Dosje Ekzistuese
-DirExists=Dosja:%n%n%1%n%nekziston që më parë. Gjithsesi, të instalohet në këtë dosje?
-DirDoesntExistTitle=Dosje Joekzistuese
-DirDoesntExist=Dosja:%n%n%1%n%nnuk ekziston. Të krijohet kjo dosje?
+WizardSelectDir=Zgjidhet destinacioni
+SelectDirDesc=Ku do tÃ« instalohet [name]?
+SelectDirLabel3=Sistemuesi do e instalojÃ« [name] nÃ« kÃ«tÃ« dosje.
+SelectDirBrowseLabel=Vijoni duke klikuar TjetÃ«r. Klikoni Shfletoj pÃ«r tÃ« zgjedhur njÃ« dosje tÃ« ndryshme.
+DiskSpaceMBLabel=KÃ«rkohet jo mÃ« pak se [mb] MB hapÃ«sirÃ« e lirÃ« nÃ« disk.
+CannotInstallToNetworkDrive=Instalimi nuk mund tÃ« kryhet nÃ« njÃ« disk nÃ« rrjet.
+CannotInstallToUNCPath=Instalimi nuk mund tÃ« kryhet nÃ« njÃ« shteg UNC.
+InvalidPath=TÃ« shkruhet i plotÃ« shtegu i diskut, pÃ«r shembull:%n%nC:\APP%n%nose shtegu UNC sipas formatit:%n%n\\server\share
+InvalidDrive=Nuk ekziston ose nuk hapet disku ose shpÃ«rndarÃ«si UNC i zgjedhur. Lutemi tÃ« zgjidhet njÃ« tjetÃ«r.
+DiskSpaceWarningTitle=Nuk mjafton hapÃ«sira
+DiskSpaceWarning=Sistemuesi kÃ«rkon tÃ« paktÃ«n %1 KB hapÃ«sirÃ« tÃ« lirÃ« pÃ«r tÃ« kryer instalimin, por disku ka vetÃ«m %2 KB tÃ« vlefshme.%n%nGjithsesi, tÃ« vijohet?
+DirNameTooLong=Ã‹shtÃ« tepÃ«r i gjatÃ« emri ose shtegu i dosjes.
+InvalidDirName=Nuk Ã«shtÃ« i saktÃ« emri i dosjes.
+BadDirName32=Emri i dosjes nuk mund tÃ« pÃ«rmbajÃ« kÃ«to shkronja:%n%n%1
+DirExistsTitle=Ekziston dosja
+DirExists=Dosja:%n%n%1%n%nekziston qÃ« mÃ« parÃ«. Gjithsesi, tÃ« instalohet nÃ« kÃ«tÃ« dosje?
+DirDoesntExistTitle=Nuk ekziston dosja
+DirDoesntExist=Nuk ekziston dosja:%n%n%1%n%n. TÃ« krijohet dosja?
 
 ; *** "Select Components" wizard page
-WizardSelectComponents=Zgjedh Përbërësit
-SelectComponentsDesc=Cilët përbërës të instalohen?
-SelectComponentsLabel2=Zgjidhi përbërësit që do të instalosh; mos i shëno përbërësit që nuk do të instalosh. Kliko Tjetër kur të jesh gati për të vijuar.
-FullInstallation=Instalim i Plotë
+WizardSelectComponents=Zgjidhen komponentÃ«t
+SelectComponentsDesc=CilÃ«t komponentÃ« do tÃ« instalohen?
+SelectComponentsLabel2=Zgjidhni komponentÃ«t qÃ« do tÃ« instaloni; mos shÃ«noni komponentÃ« qÃ« nuk ju duhen. Klikoni TjetÃ«r kur tÃ« jeni gati.
+FullInstallation=Instaloj tÃ« plotÃ«
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
-CompactInstallation=Instalim i Pakët
-CustomInstallation=Instalim i Porositur
-NoUninstallWarningTitle=Përbërës Ekzistues
-NoUninstallWarning=Sistemimi diktoi se këta përbërës janë tashmë të instaluar në kompjuter:%n%n%1%n%nMoszgjedhja e këtyre përbërësve nuk do i çinstalojë ata.%n%nGjithsesi, do vijosh?
+CompactInstallation=Instaloj tÃ« ngjeshur
+CustomInstallation=Instaloj me zgjedhje
+NoUninstallWarningTitle=KomponentÃ« ekzistues
+NoUninstallWarning=Sistemuesi vÃ«ren se kÃ«ta komponentÃ« janÃ« instaluar mÃ« parÃ« nÃ« kompjuter:%n%n%1%n%nNuk do tÃ« Ã§instalohen nÃ«se nuk i zgjidhni.%n%nGjithsesi, tÃ« vijohet?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceMBLabel=Kjo zgjedhje kërkon jo më pak se [mb] MB hapësirë të lirë në disk.
+ComponentsDiskSpaceMBLabel=Kjo zgjedhje kÃ«rkon jo mÃ« pak se [mb] MB hapÃ«sirÃ« tÃ« lirÃ« nÃ« disk.
 
 ; *** "Select Additional Tasks" wizard page
-WizardSelectTasks=Zgjedh Detyrat Shtesë
-SelectTasksDesc=Cilat detyra shtesë të kryhen?
-SelectTasksLabel2=Zgjidhi detyrat shtesë që duhet të kryejë Sistemimi gjatë instalimit të [name], pastaj kliko Tjetër.
+WizardSelectTasks=Zgjidhen detyrat shtesÃ«
+SelectTasksDesc=Ã‡farÃ« detyrash tÃ« tjera do tÃ« kryhen?
+SelectTasksLabel2=Zgjidhni detyrat shtesÃ« qÃ« duhet tÃ« kryejÃ« Sistemuesi kur tÃ« instalojÃ« [name], pastaj klikoni TjetÃ«r.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Zgjedh Dosjen në Menynë Nis
-SelectStartMenuFolderDesc=Ku duhet t'i vendosë Sistemimi shkurtoret e programit?
-SelectStartMenuFolderLabel3=Sistemimi do i krijojë shkurtoret e programit në këtë dosje të Menysë Nis.
-SelectStartMenuFolderBrowseLabel=Për të vijuar, kliko Tjetër. Nëse do të zgjedhësh një dosje ndryshe, kliko Shfleto.
-MustEnterGroupName=Duhet shkruar emri i dosjes.
-GroupNameTooLong=Emri ose shtegu i dosjes është tepër i gjatë.
-InvalidGroupName=Emri i dosjes nuk ka vlerë.
-BadGroupName=Emri i dosjes nuk duhet të përmbajë asnjë nga këto shkronja:%n%n%1
-NoProgramGroupCheck2=&Mos krijo dosje në Menynë Nis
+WizardSelectProgramGroup=Zgjidhet dosja nÃ« MenynÃ« Nis
+SelectStartMenuFolderDesc=Ku do tÃ« vendosen shkurtoret e programit?
+SelectStartMenuFolderLabel3=Shkurtoret e programit do tÃ« krijohen nÃ« kÃ«tÃ« dosje tÃ« MenysÃ« Nis.
+SelectStartMenuFolderBrowseLabel=PÃ«r tÃ« vijuar, klikoni TjetÃ«r. PÃ«r tÃ« zgjedhur njÃ« dosje tÃ« ndryshme, klikoni Shfletoj.
+MustEnterGroupName=TÃ« shkruhet emri i dosjes.
+GroupNameTooLong=Ã‹shtÃ« tepÃ«r i gjatÃ« emri ose shtegu i dosjes.
+InvalidGroupName=Nuk Ã«shtÃ« i saktÃ« emri i dosjes.
+BadGroupName=Emri i dosjes nuk duhet tÃ« pÃ«rmbajÃ« asnjÃ« nga kÃ«to shkronja:%n%n%1
+NoProgramGroupCheck2=&Nuk krijoj dosje nÃ« MenynÃ« Nis
 
 ; *** "Ready to Install" wizard page
-WizardReady=Gati të Instalohet
-ReadyLabel1=Sistemimi është gati të nisë instalimin e [name] në kompjuter.
-ReadyLabel2a=Kliko Instalo për të vijuar me instalimin, ose kliko Pas për të rishikuar apo ndryshuar ndonjë vendosje.
-ReadyLabel2b=Kliko Instalo për të vijuar me instalimin.
-ReadyMemoUserInfo=Informacioni i përdoruesit:
+WizardReady=Gati tÃ« instalohet
+ReadyLabel1=Sistemuesi Ã«shtÃ« gati tÃ« instalojÃ« [name] nÃ« kompjuter.
+ReadyLabel2a=Klikoni Instaloj pÃ«r tÃ« vijuar instalimin ose ndryshoni ndonjÃ« parametÃ«r duke klikuar Kthehem.
+ReadyLabel2b=Klikoni Instaloj pÃ«r tÃ« vijuar instalimin.
+ReadyMemoUserInfo=Informacioni i pÃ«rdoruesit:
 ReadyMemoDir=Destinacioni:
 ReadyMemoType=Lloji i sistemimit:
-ReadyMemoComponents=Përbërësit e zgjedhur:
-ReadyMemoGroup=Dosja në Menynë Nis:
-ReadyMemoTasks=Detyra shtesë:
+ReadyMemoComponents=KomponentÃ«t e zgjedhur:
+ReadyMemoGroup=Dosja nÃ« MenynÃ« Nis:
+ReadyMemoTasks=Detyra shtesÃ«:
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=Gati të Instalohet
-PreparingDesc=Sistemimi është gati të instalojë [name] në kompjuter.
-PreviousInstallNotCompleted=Nuk plotësohet instalimi/heqja e programit të mëparshëm. Kompjuteri duhet të rinisë që të plotësohet instalimi.%n%nPasi kompjuteri të riniset, vepro përsëri Sistemimin që të plotësohet instalimi i [name].
-CannotContinue=Sistemimi nuk mund të vijojë. Të lutem kliko Anulo për të dalë.
+WizardPreparing=Gati tÃ« instalohet
+PreparingDesc=Sistemuesi Ã«shtÃ« gati tÃ« instalojÃ« [name] nÃ« kompjuter.
+PreviousInstallNotCompleted=Nuk ka pÃ«rfunduar instalimi/heqja e programit tÃ« mÃ«parshÃ«m. Instalimi do tÃ« pÃ«rfundojÃ« kur kompjuteri tÃ« rinisÃ«.%n%nPas rinisjes, hapni sÃ«rish Sistemuesin qÃ« tÃ« kryhet instalimi i [name].
+CannotContinue=Nuk mund tÃ« vijojÃ« sistemimi. Lutemi tÃ« mbyllet duke klikuar Anuloj.
+ApplicationsFound=KÃ«to aplikacione pÃ«rdorin skedarÃ« qÃ« do tÃ« pÃ«rditÃ«sohen. Rekomandohet qÃ« Sistemuesi t'i mbyllÃ« ato automatikisht me lejen tuaj.
+ApplicationsFound2=KÃ«to aplikacione pÃ«rdorin skedarÃ« qÃ« do tÃ« pÃ«rditÃ«sohen. Rekomandohet qÃ« Sistemuesi t'i mbyllÃ« ato automatikisht me lejen tuaj. Pasi instalimi tÃ« pÃ«rfundojÃ«, Sistemuesi do tÃ« tentojÃ« t'i hapÃ« sÃ«rish.
+CloseApplications=&Mbyll automatikisht aplikacionet
+DontCloseApplications=&Mos i mbyll aplikacionet
+ErrorCloseApplications=Jo tÃ« gjitha aplikacionet u mbyllÃ«n automatikisht. Rekomandohet tÃ« mbyllen tÃ« gjithÃ« skedarÃ«t para se tÃ« vijojÃ« pÃ«rditÃ«simi.
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalim
-InstallingLabel=Të lutem prit që Sistemimi të instalojë [name] në kompjuter.
+InstallingLabel=Kini durim qÃ« Sistemuesi tÃ« instalojÃ« [name] nÃ« kompjuter.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=Plotëson Udhërrëfyesin për Sistemimin e [name]
-FinishedLabelNoIcons=Sistemimi përfundon instalimin në kompjuter të [name].
-FinishedLabel=Sistemimi përfundon instalimin në kompjuter të [name]. Aplikimi mund të lëshohet duke zgjedhur ikonën e instaluar.
-ClickFinish=Kliko Përfundo për të dalë nga Sistemimi.
-FinishedRestartLabel=Që të përfundojë instalimi i [name], Sistemimi duhet të rinisë kompjuterin. Të rinisë tani?
-FinishedRestartMessage=Që të përfundojë instalimi i [name], Sistemimi duhet të rinisë kompjuterin.%n%nTë rinisë tani?
-ShowReadmeCheck=Po, dua të shikoj skedën README
+FinishedHeadingLabel=PÃ«rfundon udhÃ«rrÃ«fimi pÃ«r Sistemimin e [name]
+FinishedLabelNoIcons=Sistemuesi pÃ«rfundoi instalimin nÃ« kompjuter tÃ« [name].
+FinishedLabel=Sistemuesi pÃ«rfundoi instalimin nÃ« kompjuter tÃ« [name]. Aplikacioni mund tÃ« hapet me anÃ« tÃ« ikonÃ«s sÃ« instaluar.
+ClickFinish=Klikoni PÃ«rfundoj pÃ«r ta mbyllur Sistemuesin.
+FinishedRestartLabel=Duhet tÃ« riniset kompjuteri qÃ« Sistemuesi tÃ« pÃ«rfundojÃ« instalimin e [name]. TÃ« rinisÃ« tani?
+FinishedRestartMessage=Duhet tÃ« riniset kompjuteri qÃ« Sistemuesi tÃ« pÃ«rfundojÃ« instalimin e [name].%n%nTÃ« rinisÃ« tani?
+ShowReadmeCheck=Po, dua tÃ« shoh skedarin README
 YesRadio=&Po, rinis kompjuterin tani
-NoRadio=&Jo, do rinis kompjuterin më vonë
+NoRadio=&Jo, do e rinis kompjuterin mÃ« vonÃ«
 ; used for example as 'Run MyProg.exe'
-RunEntryExec=Lësho %1
+RunEntryExec=Hap %1
 ; used for example as 'View Readme.txt'
-RunEntryShellExec=Shiko %1
+RunEntryShellExec=Shoh %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=Sistemimi Kërkon Diskun Tjetër
-SelectDiskLabel2=Të lutem vendos Diskun %1 dhe kliko OK.%n%nNëse skedat në këtë disk mund të ndodhen në një dosje ndryshe nga ajo e shfaqur këtu, vendos shtegun e saktë ose kliko Shfleto.
+ChangeDiskTitle=Sistemuesi kÃ«rkon diskun tjetÃ«r
+SelectDiskLabel2=Lutemi tÃ« vendoset Disku %1 dhe klikoni OK.%n%nNÃ«se skedarÃ«t nÃ« disk ndodhen nÃ« njÃ« dosje tÃ« ndryshme, pÃ«rcaktoni shtegun e saktÃ« ose klikoni Shfletoj.
 PathLabel=&Shtegu:
-FileNotInDir2=Skeda "%1" nuk ndodhet në "%2". Të lutem vendos diskun e saktë ose zgjidhe një dosje tjetër.
-SelectDirectoryLabel=Të lutem përcakto vendin e diskut tjetër.
+FileNotInDir2=Skedari "%1" nuk ndodhet nÃ« "%2". Lutemi tÃ« vendoset disku i saktÃ« ose tÃ« zgjidhet njÃ« dosje e ndryshme.
+SelectDirectoryLabel=Lutemi tÃ« pÃ«rcaktohet vendi i diskut tjetÃ«r.
 
 ; *** Installation phase messages
-SetupAborted=Nuk plotësohet sistemimi.%n%nTë lutem korrigjo problemin dhe lëshoje atë përsëri.
-EntryAbortRetryIgnore=Kliko Riprovo për të provuar përsëri, Përbuz për të vijuar gjithsesi, ose Ndërprit që instalimi të anulohet.
+SetupAborted=Nuk pÃ«rfundoi sistemimi.%n%nLutemi tÃ« korrigjohet problemi dhe tÃ« provoni sÃ«rish.
+EntryAbortRetryIgnore=Klikoni Provoj sÃ«rish pÃ«r ta pÃ«rsÃ«ritur, Shmang pÃ«r tÃ« vijuar me Ã§do mÃ«nyrÃ«, ose NdÃ«rpres pÃ«r tÃ« anuluar instalimin.
 
 ; *** Installation status messages
-StatusCreateDirs=Krijon direktoritë...
-StatusExtractFiles=Nxjerr skedat...
-StatusCreateIcons=Krijon shkurtoret...
-StatusCreateIniEntries=Krijon hyrjet INI...
-StatusCreateRegistryEntries=Krijon hyrjet në regjistër...
-StatusRegisterFiles=Regjistron skedat...
-StatusSavingUninstall=Ruan informacionin e çinstalimit...
-StatusRunProgram=Përfundon instalimin...
-StatusRollback=Kthen ndryshimin...
+StatusClosingApplications=Mbyllen aplikacionet...
+StatusCreateDirs=Krijohen direktoritÃ«...
+StatusExtractFiles=Nxirren skedarÃ«t...
+StatusCreateIcons=Krijohen shkurtoret...
+StatusCreateIniEntries=Krijohen elementet INI...
+StatusCreateRegistryEntries=Krijohen elementet nÃ« regjistÃ«r...
+StatusRegisterFiles=Regjistrohen skedarÃ«t...
+StatusSavingUninstall=Ruhet informacioni i Ã§instalimit...
+StatusRunProgram=PÃ«rfundon instalimi...
+StatusRestartingApplications=Rinisen aplikacionet...
+StatusRollback=Kthehen ndryshimet...
 
 ; *** Misc. errors
-ErrorInternal2=Gabim i brendshëm: %1
-ErrorFunctionFailedNoCode=%1 ndalon
-ErrorFunctionFailed=%1 ndalon; kodi %2
-ErrorFunctionFailedWithMessage=%1 ndalon; kodi %2.%n%3
-ErrorExecutingProgram=Kjo skedë nuk ekzekutohet:%n%1
+ErrorInternal2=Problem i brendshÃ«m: %1
+ErrorFunctionFailedNoCode=%1 ndali
+ErrorFunctionFailed=%1 ndali; kodi %2
+ErrorFunctionFailedWithMessage=%1 ndali; kodi %2.%n%3
+ErrorExecutingProgram=Nuk ekzekutohet skedari:%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=Gabim në hapjen e kodit të regjistrit:%n%1\%2
-ErrorRegCreateKey=Gabim në krijimin e kodit të regjistrit:%n%1\%2
-ErrorRegWriteKey=Gabim në shkrimin e kodit të regjistrit:%n%1\%2
+ErrorRegOpenKey=Problem me hapjen e kodit tÃ« regjistrit:%n%1\%2
+ErrorRegCreateKey=Problem me krijimin e kodit tÃ« regjistrit:%n%1\%2
+ErrorRegWriteKey=Problem me shkrimin e kodit tÃ« regjistrit:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Gabim në krijimin e hyrjes INI te skeda "%1".
+ErrorIniEntry=Problem me krijimin e elementit INI te skedari "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Kliko Riprovo për të provuar përsëri, Përbuz për ta kaluar këtë skedë (nuk rekomandohet), ose Ndërprit që instalimi të anulohet.
-FileAbortRetryIgnore2=Kliko Riprovo për të provuar përsëri, Përbuz për të vijuar gjithsesi (nuk rekomandohet), ose Ndërprit që instalimi të anulohet.
-SourceIsCorrupted=Është prishur skeda e burimit
-SourceDoesntExist=Nuk ekziston skeda e burimit "%1"
-ExistingFileReadOnly=Skeda ekzistuese është shënuar vetëm për lexim.%n%nKliko Riprovo për të hequr atributin e leximit dhe provoje përsëri, Përbuz për ta kaluar këtë skedë, ose Ndërprit që çinstalimi të anulohet.
-ErrorReadingExistingDest=Ndodhi një gabim gjatë provës për të lexuar skedën ekzistuese:
-FileExists=Skeda ekziston që më parë.%n%nTa mbishkruajë Sistemimi atë?
-ExistingFileNewer=Skeda ekzistuese është me e re sesa ajo që Sistemimi provon të instalojë. Rekomandohet që të mbash skedën ekzistuese.%n%nDo mbash skedën ekzistuese?
-ErrorChangingAttr=Ndodhi një gabim gjatë provës për të ndryshuar atributet e skedës ekzistuese:
-ErrorCreatingTemp=Ndodhi një gabim gjatë provës për të krijuar një skedë në direktorinë e destinacionit:
-ErrorReadingSource=Ndodhi një gabim gjatë provës për të lexuar skedën burim:
-ErrorCopying=Ndodhi një gabim gjatë orvatjes për të kopjuar një skedë:
-ErrorReplacingExistingFile=Ndodhi një gabim gjatë orvatjes për të zëvendësuar skedën ekzistuese:
-ErrorRestartReplace=Ndalon RestartReplace:
-ErrorRenamingTemp=Ndodhi një gabim gjatë riemërtimit të skedës në direktorinë e destinacionit:
-ErrorRegisterServer=Nuk mund të regjistrohet DLL/OCX: %1
-ErrorRegSvr32Failed=RegSvr32 ndalon me kodin e daljes %1
-ErrorRegisterTypeLib=Nuk mund të regjistrohet lloji i librarisë: %1
+FileAbortRetryIgnore=Klikoni Provoj sÃ«rish pÃ«r ta pÃ«rsÃ«ritur, Shmang pÃ«r ta evituar kÃ«tÃ« skedarin (nuk rekomandohet), ose NdÃ«rpres pÃ«r tÃ« anuluar instalimin.
+FileAbortRetryIgnore2=Klikoni Provoj sÃ«rish pÃ«r ta pÃ«rsÃ«ritur, Shmang pÃ«r tÃ« vijuar me Ã§do mÃ«nyrÃ« (nuk rekomandohet), ose NdÃ«rpres pÃ«r tÃ« anuluar instalimin.
+SourceIsCorrupted=Ã‹shtÃ« dÃ«mtuar skedari burimor
+SourceDoesntExist=Nuk ekziston skedari burimor "%1"
+ExistingFileReadOnly=Skedari ekzistues vetÃ«m mund tÃ« lexohet.%n%nKlikoni Provoj sÃ«rish pÃ«r tÃ« hequr atributin e leximit dhe pÃ«r ta provuar sÃ«rish, Shmang pÃ«r ta evituar kÃ«tÃ« skedarin, ose NdÃ«rpres pÃ«r tÃ« anuluar Ã§instalimin.
+ErrorReadingExistingDest=Ka njÃ« problem me leximin e skedarit ekzistues:
+FileExists=Skedari ekziston qÃ« mÃ« parÃ«.%n%nTÃ« mbishkruhet?
+ExistingFileNewer=Skedari ekzistues Ã«shtÃ« me e re sesa ajo qÃ« Sistemuesi po provon tÃ« instalojÃ«. Rekomandohet qÃ« tÃ« mbahet skedari ekzistues.%n%nTÃ« mbahet skedari ekzistues?
+ErrorChangingAttr=Ka njÃ« problem me ndryshimin e atributeve tÃ« skedarÃ«ve ekzistues:
+ErrorCreatingTemp=Ka njÃ« problem me krijimin e skedarit nÃ« direktorinÃ« e destinacionit:
+ErrorReadingSource=Ka njÃ« problem me leximin e skedarit nga burimi:
+ErrorCopying=Ka njÃ« problem me kopjimin e skedarit:
+ErrorReplacingExistingFile=Ka njÃ« problem me zÃ«vendÃ«simin e skedarit ekzistues:
+ErrorRestartReplace=Ndali RestartReplace:
+ErrorRenamingTemp=Ka njÃ« problem me emÃ«rtimin e skedarit nÃ« direktorinÃ« e destinacionit:
+ErrorRegisterServer=Nuk mund tÃ« regjistrohet DLL/OCX: %1
+ErrorRegSvr32Failed=RegSvr32 ndali me kodin e daljes %1
+ErrorRegisterTypeLib=Nuk mund tÃ« regjistrohet lloji i librarisÃ«: %1
 
 ; *** Post-installation errors
-ErrorOpeningReadme=Ndodhi një gabim gjatë hapjes së skedës README.
-ErrorRestartingComputer=Sistemimi nuk arriti të rinisë kompjuterin. Të lutem bëje vetë.
+ErrorOpeningReadme=Ka njÃ« problem me hapjen e skedarit README.
+ErrorRestartingComputer=Sistemuesi nuk e rinisi dot kompjuterin. Lutemi ta bÃ«ni vetÃ«.
 
 ; *** Uninstaller messages
-UninstallNotFound=Skeda "%1" nuk ekziston. Nuk mund të çinstalohet.
-UninstallOpenError=Skeda "%1" nuk mund të hapet. Nuk mund të çinstalohet.
-UninstallUnsupportedVer=Ditari i çinstalimit "%1" ka një format që nuk njihet nga ky version i çinstaluesit. Nuk mund të çinstalohet
-UninstallUnknownEntry=Te ditari i çinstalimit vërehet një hyrje e panjohur (%1)
-ConfirmUninstall=Je i sigurt për fshirjen e plotë të %1 dhe tërë përbërësit e vet?
-UninstallOnlyOnWin64=Ky instalim mund të çinstalohet vetëm në Windows 64-bit.
-OnlyAdminCanUninstall=Ky instalim mund të çinstalohet vetëm nga një përdorues me privilegje administrimi.
-UninstallStatusLabel=Të lutem prit ndërkohë që %1 fshihet nga kompjuteri.
+UninstallNotFound=Nuk ekziston skedari "%1". Nuk mund tÃ« Ã§instalohet.
+UninstallOpenError=Nuk mund tÃ« hapet skedari "%1". Nuk mund tÃ« Ã§instalohet.
+UninstallUnsupportedVer=Formati i ditarit tÃ« Ã§instalimit "%1" nuk njihet nga ky version i Ã§instaluesit. Nuk mund tÃ« Ã§instalohet
+UninstallUnknownEntry=Ditari i Ã§instalimit ka njÃ« element tÃ« panjohur (%1)
+ConfirmUninstall=TÃ« fshihet %1 bashkÃ« me komponentÃ«t e vet?
+UninstallOnlyOnWin64=Instalimi mund tÃ« kryhet vetÃ«m nÃ« Windows 64-bit.
+OnlyAdminCanUninstall=Instalimi mund tÃ« Ã§instalohet vetÃ«m nga pÃ«rdoruesit me privilegje administruese.
+UninstallStatusLabel=Kini durim ndÃ«rkohÃ« qÃ« %1 fshihet nga kompjuteri.
 UninstalledAll=%1 u fshi me sukses nga kompjuteri.
-UninstalledMost=Përfundon çinstalimi i %1.%n%nDisa elemente nuk mund të fshiheshin. Këto mund t'i fshish vetë.
-UninstalledAndNeedsRestart=Që të plotësohet çinstalimi i %1, kompjuteri duhet të riniset.%n%nTë rinisë tani?
-UninstallDataCorrupted="%1" është skedë e prishur. Nuk mund të çinstalohet.
+UninstalledMost=PÃ«rfundoi Ã§instalimi i %1.%n%nNuk mund tÃ« fshiheshin disa elemente. KÃ«to mund t'i fshini vetÃ«.
+UninstalledAndNeedsRestart=Duhet rinisur kompjuteri qÃ« tÃ« pÃ«rfundojÃ« Ã§instalimi i %1.%n%nTÃ« rinisÃ« tani?
+UninstallDataCorrupted=Skedari "%1" Ã«shtÃ« dÃ«mtuar. Nuk mund tÃ« Ã§instalohet.
 
 ; *** Uninstallation phase messages
-ConfirmDeleteSharedFileTitle=Fshin Skedën e Ndarë?
-ConfirmDeleteSharedFile2=Sistemimi tregon se kjo skedë e ndarë nuk përdoret më nga asnjë program. Ta fshijë Çinstalimi këtë skedë të ndarë?%n%nNëse ndonjë program e përdor akoma skedën, kur ajo të fshihet programi mund të mos punojë siç duhet. Nëse nuk je i sigurt, zgjidhe Jo. Lënia e skedës në sistem nuk do shkaktojë dëme.
-SharedFileNameLabel=Emri i skedës:
+ConfirmDeleteSharedFileTitle=TÃ« fshihet skedari i ndarÃ«?
+ConfirmDeleteSharedFile2=Sistemuesi tregon se ky skedar i ndarÃ« nuk pÃ«rdoret mÃ« nga programet. TÃ« fshihet ky skedar i ndarÃ«?%n%nNÃ«se skedari Ã«shtÃ« duke u pÃ«rdorur nga ndonjÃ« program tjetÃ«r, ai mund tÃ« mos punojÃ« siÃ§ duhet. NÃ«se nuk jeni tÃ« sigurt, tÃ« zgjidhet Jo. Mbajtja e skedarit nÃ« sistem nuk shkakton dÃ«m.
+SharedFileNameLabel=Emri i skedarit:
 SharedFileLocationLabel=Vendi:
-WizardUninstalling=Statusi i Çinstalimit
-StatusUninstalling=Çinstalon %1...
+WizardUninstalling=Statusi i Ã§instalimit
+StatusUninstalling=Ã‡instalon %1...
+
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=Instalon %1.
+ShutdownBlockReasonUninstallingApp=Ã‡instalon %1.
 
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
@@ -311,11 +327,14 @@ StatusUninstalling=Çinstalon %1...
 [CustomMessages]
 
 NameAndVersion=%1 versioni %2
-AdditionalIcons=Ikona shtesë:
-CreateDesktopIcon=Krijo një ikonë në &tryezë
-CreateQuickLaunchIcon=Krijo një ikonë në &Quick Launch
-ProgramOnTheWeb=%1 në Rrjetë
-UninstallProgram=Çinstalo %1
-LaunchProgram=Lësho %1
-AssocFileExtension=&Shoqëro %1 me siglën e skedës %2
-AssocingFileExtension=%1 shoqërohet me siglën e skedës %2...
+AdditionalIcons=Ikona shtesÃ«:
+CreateDesktopIcon=Krijoj njÃ« ikonÃ« nÃ« &tryezÃ«
+CreateQuickLaunchIcon=Krijoj njÃ« ikonÃ« nÃ« &Quick Launch
+ProgramOnTheWeb=%1 nÃ« internet
+UninstallProgram=Ã‡instaloj %1
+LaunchProgram=Hap %1
+AssocFileExtension=&ShoqÃ«roj %1 me siglÃ«n %2
+AssocingFileExtension=%1 shoqÃ«rohet me siglÃ«n %2...
+AutoStartProgramGroupDescription=Fillimi:
+AutoStartProgram=Filloj automatikisht %1
+AddonHostProgramNotFound=%1 nuk ndodhet nÃ« dosjen e pÃ«rzgjedhur.%n%nGjithsesi, tÃ« vijohet?
