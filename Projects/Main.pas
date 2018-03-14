@@ -131,8 +131,8 @@ var
   SetupHeader: TSetupHeader;
   LangOptions: TSetupLanguageEntry;
   Entries: array[TEntryType] of TList;
-  WizardImage: TBitmap;
-  WizardSmallImage: TBitmap;
+  WizardImages: TList;
+  WizardSmallImages: TList;
   CloseApplicationsFilterList: TStringList;
 
   { User options }
@@ -2551,7 +2551,7 @@ var
     end;
   end;
 
-  procedure ReadWizardImage(var WizardImage: TBitmap; const R: TCompressedBlockReader);
+  function ReadWizardImage(const R: TCompressedBlockReader): TBitmap;
   var
     MemStream: TMemoryStream;
   begin
@@ -2559,9 +2559,9 @@ var
     try
       ReadFileIntoStream(MemStream, R);
       MemStream.Seek(0, soFromBeginning);
-      WizardImage := TAlphaBitmap.Create;
-      TAlphaBitmap(WizardImage).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
-      WizardImage.LoadFromStream(MemStream);
+      Result := TAlphaBitmap.Create;
+      TAlphaBitmap(Result).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
+      Result.LoadFromStream(MemStream);
     finally
       MemStream.Free;
     end;
@@ -2739,7 +2739,7 @@ var
 var
   ParamName, ParamValue: String;
   StartParam: Integer;
-  I: Integer;
+  I, N: Integer;
   IsRespawnedProcess, EnableLogging, WantToSuppressMsgBoxes, Res: Boolean;
   DebugWndValue: HWND;
   LogFilename: String;
@@ -3021,8 +3021,13 @@ begin
           Integer(@PSetupRunEntry(nil).OnlyBelowVersion));
 
         { Wizard image }
-        ReadWizardImage(WizardImage, Reader);
-        ReadWizardImage(WizardSmallImage, Reader);
+
+        Reader.Read(N, SizeOf(LongInt));
+        for I := 0 to N-1 do
+          WizardImages.Add(ReadWizardImage(Reader));
+        Reader.Read(N, SizeOf(LongInt));
+        for I := 0 to N-1 do
+          WizardSmallImages.Add(ReadWizardImage(Reader));
         { Decompressor DLL }
         DecompressorDLL := nil;
         if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
@@ -4357,6 +4362,18 @@ begin
   end;
 end;
 
+procedure FreeWizardImages;
+var
+  I: Integer;
+begin
+  for I := WizardImages.Count-1 downto 0 do
+    TBitmap(WizardImages[I]).Free;
+  FreeAndNil(WizardImages);
+  for I := WizardSmallImages.Count-1 downto 0 do
+    TBitmap(WizardSmallImages[I]).Free;
+  FreeAndNil(WizardSmallImages);
+end;
+
 initialization
   IsNT := UsingWinNT;
   InitIsWin64AndProcessorArchitecture;
@@ -4374,12 +4391,13 @@ initialization
   DeleteFilesAfterInstallList := TStringList.Create;
   DeleteDirsAfterInstallList := TStringList.Create;
   CloseApplicationsFilterList := TStringList.Create;
+  WizardImages := TList.Create;
+  WizardSmallImages := TList.Create;
   SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
     SEM_NOOPENFILEERRORBOX), 'SHGetKnownFolderPath');
 
 finalization
-  FreeAndNil(WizardImage);
-  FreeAndNil(WizardSmallImage);
+  FreeWizardImages;
   FreeAndNil(CloseApplicationsFilterList);
   FreeAndNil(DeleteDirsAfterInstallList);
   FreeAndNil(DeleteFilesAfterInstallList);

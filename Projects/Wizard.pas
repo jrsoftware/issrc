@@ -664,6 +664,23 @@ constructor TWizardForm.Create(AOwner: TComponent);
     end;
   end;
 
+  function SelectBestImage(WizardImages: TList; TargetWidth, TargetHeight: Integer): TBitmap;
+  var
+    TargetArea, Difference, SmallestDifference, I: Integer;
+  begin
+    { Find the image with the smallest area difference compared to the target area. }
+    TargetArea := TargetWidth*TargetHeight;
+    SmallestDifference := -1;
+    Result := nil;
+    for I := 0 to WizardImages.Count-1 do begin
+      Difference := Abs(TargetArea-TBitmap(WizardImages[I]).Width*TBitmap(WizardImages[I]).Height);
+      if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
+        Result := WizardImages[I];
+        SmallestDifference := Difference;
+      end;
+    end;
+  end;
+
 var
   X, W1, W2: Integer;
   SystemMenu: HMENU;
@@ -686,22 +703,22 @@ begin
 {$IFDEF IS_D7}
   MainPanel.ParentBackground := False;
 {$ENDIF}
-
   { Prior to scaling the form, shrink WizardSmallBitmapImage if it's currently
     larger than WizardSmallImage. This way, stretching will not occur if the
     user specifies a smaller-than-default image and WizardImageStretch=yes,
     except if the form has to be scaled (e.g. due to Large Fonts). }
-  I := WizardSmallBitmapImage.Height - WizardSmallImage.Height;
-  if I > 0 then begin
-    WizardSmallBitmapImage.Height := WizardSmallBitmapImage.Height - I;
-    WizardSmallBitmapImage.Top := WizardSmallBitmapImage.Top + (I div 2);
+  if WizardSmallImages.Count = 1 then begin
+    I := WizardSmallBitmapImage.Height - TBitmap(WizardSmallImages[0]).Height;
+    if I > 0 then begin
+      WizardSmallBitmapImage.Height := WizardSmallBitmapImage.Height - I;
+      WizardSmallBitmapImage.Top := WizardSmallBitmapImage.Top + (I div 2);
+    end;
+    I := WizardSmallBitmapImage.Width - TBitmap(WizardSmallImages[0]).Width;
+    if I > 0 then begin
+      WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Width - I;
+      WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
+    end;
   end;
-  I := WizardSmallBitmapImage.Width - WizardSmallImage.Width;
-  if I > 0 then begin
-    WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Width - I;
-    WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
-  end;
-
   InitializeFont;
   if shWindowVisible in SetupHeader.Options then
     CenterInsideControl(MainForm, True)
@@ -746,13 +763,13 @@ begin
   BackButton.Left := X;
 
   { Initialize images }
-  WizardBitmapImage.Bitmap := WizardImage;
+  WizardBitmapImage.Bitmap := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
   WizardBitmapImage.Center := True;
   WizardBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
-  WizardBitmapImage2.Bitmap := WizardImage;
+  WizardBitmapImage2.Bitmap := WizardBitmapImage.Bitmap;
   WizardBitmapImage2.Center := True;
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
-  WizardSmallBitmapImage.Bitmap := WizardSmallImage;
+  WizardSmallBitmapImage.Bitmap := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   PreparingErrorBitmapImage.Bitmap.Handle := LoadBitmap(HInstance, 'STOPIMAGE');
   PreparingErrorBitmapImage.ReplaceColor := clSilver;

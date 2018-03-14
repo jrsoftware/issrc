@@ -501,6 +501,7 @@ type
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
+    function CreateMemoryStreamsFromFiles(const AFiles: String): TList;
   public
     AppData: Longint;
     CallbackProc: TCompilerCallbackProc;
@@ -694,6 +695,39 @@ begin
       F.ReadBuffer(Result.Memory^, SizeOfFile);
     finally
       F.Free;
+    end;
+  except
+    Result.Free;
+    raise Exception.CreateFmt(SCompilerReadError, [Filename, GetExceptMessage]);
+  end;
+end;
+
+function ExtractStr(var S: String; const Separator: Char): String;
+var
+  I: Integer;
+begin
+  repeat
+    I := PathPos(Separator, S);
+    if I = 0 then I := Length(S)+1;
+    Result := Trim(Copy(S, 1, I-1));
+    S := Trim(Copy(S, I+1, Maxint));
+  until (Result <> '') or (S = '');
+end;
+
+function TSetupCompiler.CreateMemoryStreamsFromFiles(const AFiles: String): TList;
+var
+  S, Filename: String;
+begin
+  Result := TList.Create;
+  try
+    S := AFiles;
+    while True do begin
+      Filename := ExtractStr(S, ',');
+      if Filename = '' then
+        Break;
+      Filename := PrependSourceDirName(Filename);
+      AddStatus(Format(SCompilerStatusReadingInFile, [FileName]));
+      Result.Add(CreateMemoryStreamFromFile(FileName));
     end;
   except
     Result.Free;
@@ -2947,18 +2981,6 @@ begin
     if Kind = cikDirectiveCheck then
       AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', ParamName]); 
   end;
-end;
-
-function ExtractStr(var S: String; const Separator: Char): String;
-var
-  I: Integer;
-begin
-  repeat
-    I := PathPos(Separator, S);
-    if I = 0 then I := Length(S)+1;
-    Result := Trim(Copy(S, 1, I-1));
-    S := Trim(Copy(S, I+1, Maxint));
-  until (Result <> '') or (S = '');
 end;
 
 function ExtractFlag(var S: String; const FlagStrs: array of PChar): Integer;
@@ -7661,8 +7683,8 @@ var
   SetupFile: TFile;
   ExeFile: TFile;
   LicenseText, InfoBeforeText, InfoAfterText: AnsiString;
-  WizardImage: TMemoryStream;
-  WizardSmallImage: TMemoryStream;
+  WizardImages: TList;
+  WizardSmallImages: TList;
   DecompressorDLL, DecryptionDLL: TMemoryStream;
 
   SetupLdrOffsetTable: TSetupLdrOffsetTable;
@@ -7764,8 +7786,12 @@ var
         SECompressedBlockWrite(W, UninstallRunEntries[J]^, SizeOf(TSetupRunEntry),
           SetupRunEntryStrings, SetupRunEntryAnsiStrings);
 
-      WriteStream(WizardImage, W);
-      WriteStream(WizardSmallImage, W);
+      W.Write(WizardImages.Count, SizeOf(LongInt));
+      for J := 0 to WizardImages.Count-1 do
+        WriteStream(WizardImages[J], W);
+      W.Write(WizardSmallImages.Count, SizeOf(LongInt));
+      for J := 0 to WizardSmallImages.Count-1 do
+        WriteStream(WizardSmallImages[J], W);
       if SetupHeader.CompressMethod in [cmZip, cmBzip] then
         WriteStream(DecompressorDLL, W);
       if shEncryptionUsed in SetupHeader.Options then
@@ -8360,8 +8386,8 @@ begin
   InitPreprocessor;
   InitLZMADLL;
 
-  WizardImage := nil;
-  WizardSmallImage := nil;
+  WizardImages := nil;
+  WizardSmallImages := nil;
   SetupE32 := nil;
   DecompressorDLL := nil;
   DecryptionDLL := nil;
@@ -8636,12 +8662,10 @@ begin
     { Read wizard image }
     LineNumber := SetupDirectiveLines[ssWizardImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFile']));
-    AddStatus(Format(SCompilerStatusReadingInFile, [PrependSourceDirName(WizardImageFile)]));
-    WizardImage := CreateMemoryStreamFromFile(PrependSourceDirName(WizardImageFile));
+    WizardImages := CreateMemoryStreamsFromFiles(WizardImageFile);
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
-    AddStatus(Format(SCompilerStatusReadingInFile, [PrependSourceDirName(WizardSmallImageFile)]));
-    WizardSmallImage := CreateMemoryStreamFromFile(PrependSourceDirName(WizardSmallImageFile));
+    WizardSmallImages := CreateMemoryStreamsFromFiles(WizardSmallImageFile);
     LineNumber := 0;
 
     { Prepare Setup executable & signed uninstaller data }
@@ -8654,7 +8678,7 @@ begin
     { Read languages:
 
       Non Unicode:
-      
+
       1. Read Default.isl messages:
 
       ReadDefaultMessages calls EnumMessages for Default.isl's [Messages], with Ext set to -2.
@@ -9014,8 +9038,12 @@ begin
     DecryptionDLL.Free;
     DecompressorDLL.Free;
     SetupE32.Free;
-    WizardSmallImage.Free;
-    WizardImage.Free;
+    for I := WizardSmallImages.Count-1 downto 0 do
+      TStream(WizardSmallImages[I]).Free;
+    WizardSmallImages.Free;
+    for I := WizardImages.Count-1 downto 0 do
+      TStream(WizardImages[I]).Free;
+    WizardImages.Free;
     FreeListItems(LanguageEntries, SetupLanguageEntryStrings, SetupLanguageEntryAnsiStrings);
     FreeListItems(CustomMessageEntries, SetupCustomMessageEntryStrings, SetupCustomMessageEntryAnsiStrings);
     FreeListItems(PermissionEntries, SetupPermissionEntryStrings, SetupPermissionEntryAnsiStrings);
