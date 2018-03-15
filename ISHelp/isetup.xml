@@ -4443,11 +4443,46 @@ DiskSliceSize=1457664
 <setuptopic directive="WizardImageFile">
 <setupdefault><tt>compiler:WIZMODERNIMAGE.BMP</tt></setupdefault>
 <body>
-<p>Specifies the name of the bitmap file to display on the left side of the wizard in the Setup program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
-<p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes. The maximum size of the bitmap is 164x314 pixels. Note that if Windows is running with Large Fonts, the area on the wizard for the bitmap will be larger.</p>
-<example><pre>WizardImageFile=myimage.bmp</pre></example>
+<p>Specifies the name(s) of the bitmap file(s) to display on the left side of the wizard. The files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
+<p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes.</p>
+<p>When multiple files are specified, Setup will select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
+<table>
+<tr><td>100%</td><td>164x314</td></tr>
+<tr><td>125%</td><td>192x386</td></tr>
+<tr><td>150%</td><td>246x459</td></tr>
+<tr><td>175%</td><td>273x556</td></tr>
+<tr><td>200%</td><td>328x604</td></tr>
+<tr><td>225%</td><td>355x700</td></tr>
+<tr><td>250%</td><td>410x797</td></tr>
+</table>
+<example><pre>WizardImageFile=myimage.bmp,myimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></p>
+<link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link><br/>
+<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
+<link topic="setup_wizardimagestretch">WizardImageStretch</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="WizardSmallImageFile">
+<setupdefault><tt>compiler:WIZMODERNSMALLIMAGE.BMP</tt></setupdefault>
+<body>
+<p>Specifies the name(s) of the bitmap file(s) to display in the upper right corner of the wizard. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
+<p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes.</p>
+<p>When multiple files are specified, Setup will select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
+<table>
+<tr><td>100%</td><td>55x55</td></tr>
+<tr><td>125%</td><td>64x68</td></tr>
+<tr><td>150%</td><td>83x80</td></tr>
+<tr><td>175%</td><td>92x97</td></tr>
+<tr><td>200%</td><td>110x106</td></tr>
+<tr><td>225%</td><td>119x123</td></tr>
+<tr><td>250%</td><td>138x140</td></tr>
+</table>
+<example><pre>WizardSmallImageFile=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardimagefile">WizardImageFile</link><br/>
+<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
+<link topic="setup_wizardimagestretch">WizardImageStretch</link></p>
 </body>
 </setuptopic>
 
@@ -4508,8 +4543,8 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If set to <tt>yes</tt>, the default, the wizard images will be stretched or shrunk if the wizard is larger or smaller than normal, e.g. if the user is running in Large Fonts.</p>
-<p>If set to <tt>no</tt>, the wizard images will be centered in their respective areas if the wizard is larger than normal, and clipped if the wizard is smaller than normal. (This corresponds to the default behavior of Inno Setup 4.1.2 and earlier.)</p>
+<p>If set to <tt>yes</tt>, the default, the wizard images will be stretched or shrunk if the images are larger or smaller than required.</p>
+<p>If set to <tt>no</tt>, the wizard images will be centered in their respective areas if the images are larger than required, and clipped if the images are smaller than required. (This corresponds to the default behavior of Inno Setup 4.1.2 and earlier.)</p>
 </body>
 </setuptopic>
 
@@ -4546,17 +4581,6 @@ DiskSliceSize=1457664
 <setuptopic directive="UninstallStyle">
 <body>
 <p><i>Obsolete in 5.0.0.</i> Only the "modern" uninstaller style is supported now.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="WizardSmallImageFile">
-<setupdefault><tt>compiler:WIZMODERNSMALLIMAGE.BMP</tt></setupdefault>
-<body>
-<p>Specifies the name of the bitmap file to display in the upper right corner of the wizard window. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
-<p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes. The maximum size of the bitmap is 55x58 pixels.</p>
-<example><pre>WizardSmallImageFile=mysmallimage.bmp</pre></example>
-<p><b>See also:</b><br/>
-<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></p>
 </body>
 </setuptopic>
 
