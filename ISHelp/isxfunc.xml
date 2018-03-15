@@ -466,7 +466,8 @@ end;</pre></example>
       <function>
         <name>IsWin64</name>
         <prototype>function IsWin64: Boolean;</prototype>
-        <description><p>Returns True if the system is running a 64-bit version of Windows that provides the API support Inno Setup requires to perform 64-bit installation tasks. If False is returned, you cannot utilize any of Inno Setup's 64-bit-only features.</p></description>
+        <description><p>Returns True if the system is running a 64-bit version of Windows that provides the API support Inno Setup requires to perform 64-bit installation tasks. If False is returned, you cannot utilize any of Inno Setup's 64-bit-only features.</p>
+<p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit mode</link>, use <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link> instead.</p></description>
         <remarks><p>This function will always return True on an x64 edition of Windows.</p>
 <p>For this function to return True on an Itanium edition of Windows, the system must be running Windows Server 2003 SP1 or later. Older versions lack APIs that Inno Setup requires (e.g. RegDeleteKeyEx).</p></remarks>
         <example><pre>begin
