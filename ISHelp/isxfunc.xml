@@ -537,8 +537,52 @@ begin
   end;
   MsgBox('Your processor architecture: ' + S, mbInformation, MB_OK);
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_IsWin64">IsWin64</link><br />
+        <seealso><p><link topic="isxfunc_IsX86">IsX86</link><br />
+<link topic="isxfunc_IsX64">IsX64</link><br />
+<link topic="isxfunc_IsIA64">IsIA64</link><br />
+<link topic="isxfunc_IsARM64">IsARM64</link><br />
+<link topic="isxfunc_IsWin64">IsWin64</link><br />
 <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link></p></seealso>
+      </function>
+      <function>
+        <name>IsX86</name>
+        <prototype>function IsX86: Boolean;</prototype>
+        <description><p>Returns True if the native processor architecture is x86.</p>
+<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
+        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
+<link topic="isxfunc_IsX64">IsX64</link><br />
+<link topic="isxfunc_IsIA64">IsIA64</link><br />
+<link topic="isxfunc_IsARM64">IsARM64</link></p></seealso>
+      </function>
+      <function>
+        <name>IsX64</name>
+        <prototype>function IsX64: Boolean;</prototype>
+        <description><p>Returns True if the native processor architecture is x64.</p>
+<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
+        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
+<link topic="isxfunc_IsX86">IsX86</link><br />
+<link topic="isxfunc_IsIA64">IsIA64</link><br />
+<link topic="isxfunc_IsARM64">IsARM64</link></p></seealso>
+      </function>
+      <function>
+        <name>IsIA64</name>
+        <prototype>function IsIA64: Boolean;</prototype>
+        <description><p>Returns True if the native processor architecture is ia64.</p>
+<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
+        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
+<link topic="isxfunc_IsX86">IsX86</link><br />
+<link topic="isxfunc_IsX64">IsX64</link><br />
+<link topic="isxfunc_IsARM64">IsARM64</link></p></seealso>
+      </function>
+      <function>
+        <name>IsARM64</name>
+        <prototype>function IsARM64: Boolean;</prototype>
+        <description><p>Returns True if the native processor architecture is arm64.</p>
+<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
+        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
+<link topic="isxfunc_IsX86">IsX86</link><br />
+<link topic="isxfunc_IsX64">IsX64</link><br />
+<link topic="isxfunc_IsIA64">IsIA64</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
