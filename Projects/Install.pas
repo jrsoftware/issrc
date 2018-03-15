@@ -80,27 +80,33 @@ begin
   SetAppTaskbarProgressState(States[NewState]);
 end;
 
-function CalcFilesSize: Integer64;
+procedure CalcFilesSize(var InstallFilesSize, AfterInstallFilesSize: Integer64);
 var
   N: Integer;
   CurFile: PSetupFileEntry;
+  FileSize: Integer64;
 begin
-  Result.Hi := 0;
-  Result.Lo := 0;
+  InstallFilesSize.Hi := 0;
+  InstallFilesSize.Lo := 0;
+  AfterInstallFilesSize := InstallFilesSize;
   for N := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][N]);
     if ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
-      with CurFile^ do
+      with CurFile^ do begin
         if LocationEntry <> -1 then  { not an "external" file }
-          Inc6464(Result, PSetupFileLocationEntry(Entries[seFileLocation][
-           LocationEntry])^.OriginalSize)
+          FileSize := PSetupFileLocationEntry(Entries[seFileLocation][
+           LocationEntry])^.OriginalSize
         else
-          Inc6464(Result, ExternalSize);
+          FileSize := ExternalSize;
+        Inc6464(InstallFilesSize, FileSize);
+        if not (foDeleteAfterInstall in Options) then
+          Inc6464(AfterInstallFilesSize, FileSize);
       end;
+    end;
   end;
 end;
 
-procedure InitProgressGauge(const FilesSize: Integer64);
+procedure InitProgressGauge(const InstallFilesSize: Integer64);
 var
   NewMaxValue: Integer64;
 begin
@@ -109,7 +115,7 @@ begin
   NewMaxValue.Lo := 1000 * Entries[seIcon].Count;
   if Entries[seIni].Count <> 0 then Inc(NewMaxValue.Lo, 1000);
   if Entries[seRegistry].Count <> 0 then Inc(NewMaxValue.Lo, 1000);
-  Inc6464(NewMaxValue, FilesSize);
+  Inc6464(NewMaxValue, InstallFilesSize);
   { To avoid progress updates that are too small to result in any visible
     change, divide the Max value by 2 until it's under 1500 }
   ProgressShiftCount := 0;
@@ -431,7 +437,7 @@ var
         [FuncNames[Func], IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
   end;
 
-  procedure RegisterUninstallInfo(const UninstallRegKeyBaseName: String; const FilesSize: Integer64);
+  procedure RegisterUninstallInfo(const UninstallRegKeyBaseName: String; const AfterInstallFilesSize: Integer64);
   { Stores uninstall information in the Registry so that the program can be
     uninstalled through the Control Panel Add/Remove Programs applet. }
   var
@@ -592,7 +598,7 @@ var
       if WindowsVersion shr 16 >= $0601 then begin
         if (SetupHeader.UninstallDisplaySize.Hi = 0) and (SetupHeader.UninstallDisplaySize.Lo = 0) then begin
           { Estimate the size by taking the size of all files and adding any ExtraDiskSpaceRequired. }
-          EstimatedSize := FilesSize;
+          EstimatedSize := AfterInstallFilesSize;
           Inc6464(EstimatedSize, SetupHeader.ExtraDiskSpaceRequired);
           for I := 0 to Entries[seComponent].Count-1 do begin
             with PSetupComponentEntry(Entries[seComponent][I])^ do begin
@@ -2854,13 +2860,13 @@ var
   Uninstallable, UninstLogCleared: Boolean;
   I: Integer;
   UninstallRegKeyBaseName: String;
-  FilesSize: Integer64;
+  InstallFilesSize, AfterInstallFilesSize: Integer64;
 begin
   Succeeded := False;
   Log('Starting the installation process.');
   SetCurrentDir(WinSystemDir);
-  FilesSize := CalcFilesSize;
-  InitProgressGauge(FilesSize);
+  CalcFilesSize(InstallFilesSize, AfterInstallFilesSize);
+  InitProgressGauge(InstallFilesSize);
   UninstallExeCreated := ueNone;
   UninstallDataCreated := False;
   UninstallMsgCreated := False;
@@ -2997,7 +3003,7 @@ begin
           on NT 3.51 too, so that the uninstall entry for the app will appear
           if the user later upgrades to NT 4.0+. }
         if EvalDirectiveCheck(SetupHeader.CreateUninstallRegKey) then
-          RegisterUninstallInfo(UninstallRegKeyBaseName, FilesSize);
+          RegisterUninstallInfo(UninstallRegKeyBaseName, AfterInstallFilesSize);
         RecordUninstallRunEntries;
         UninstLog.Add(utEndInstall, [GetLocalTimeAsStr], 0);
         UninstLog.Save(UninstallDataFilename, AppendUninstallData,
