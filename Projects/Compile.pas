@@ -715,23 +715,37 @@ begin
 end;
 
 function TSetupCompiler.CreateMemoryStreamsFromFiles(const AFiles: String): TList;
+
+  procedure AddFile(const Filename: String);
+  begin
+    AddStatus(Format(SCompilerStatusReadingInFile, [FileName]));
+    Result.Add(CreateMemoryStreamFromFile(FileName));    
+  end;
+
 var
   S, Filename: String;
 begin
   Result := TList.Create;
   try
-    S := AFiles;
-    while True do begin
-      Filename := ExtractStr(S, ',');
-      if Filename = '' then
-        Break;
-      Filename := PrependSourceDirName(Filename);
-      AddStatus(Format(SCompilerStatusReadingInFile, [FileName]));
-      Result.Add(CreateMemoryStreamFromFile(FileName));
+    { In older versions only one file could be listed and comma's could be used so
+      before treating AFiles as a list, first check if it's actually a single file
+      with a comma in its name. }
+    Filename := PrependSourceDirName(AFiles);
+    if NewFileExists(Filename) then
+       AddFile(Filename)
+    else begin 
+      S := AFiles;
+      while True do begin
+        Filename := ExtractStr(S, ',');
+        if Filename = '' then
+          Break;
+        Filename := PrependSourceDirName(Filename);
+        AddFile(Filename);
+      end;
     end;
   except
     Result.Free;
-    raise Exception.CreateFmt(SCompilerReadError, [Filename, GetExceptMessage]);
+    raise;
   end;
 end;
 
@@ -9038,12 +9052,16 @@ begin
     DecryptionDLL.Free;
     DecompressorDLL.Free;
     SetupE32.Free;
-    for I := WizardSmallImages.Count-1 downto 0 do
-      TStream(WizardSmallImages[I]).Free;
-    WizardSmallImages.Free;
-    for I := WizardImages.Count-1 downto 0 do
-      TStream(WizardImages[I]).Free;
-    WizardImages.Free;
+    if WizardSmallImages <> nil then begin
+      for I := WizardSmallImages.Count-1 downto 0 do
+        TStream(WizardSmallImages[I]).Free;
+      WizardSmallImages.Free;
+    end;
+    if WizardImages <> nil then begin
+      for I := WizardImages.Count-1 downto 0 do
+        TStream(WizardImages[I]).Free;
+      WizardImages.Free;
+    end;
     FreeListItems(LanguageEntries, SetupLanguageEntryStrings, SetupLanguageEntryAnsiStrings);
     FreeListItems(CustomMessageEntries, SetupCustomMessageEntryStrings, SetupCustomMessageEntryAnsiStrings);
     FreeListItems(PermissionEntries, SetupPermissionEntryStrings, SetupPermissionEntryAnsiStrings);
