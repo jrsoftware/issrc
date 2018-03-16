@@ -3480,7 +3480,10 @@ begin
     Application.ShowMainForm := False;
   end;
 
-  Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
+  if shDisableWelcomePage in SetupHeader.Options then
+    Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppVerName)
+  else
+    Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
 
   { Append the 'About Setup' item to the system menu }
   SystemMenu := GetSystemMenu(Handle, False);

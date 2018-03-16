@@ -731,6 +731,8 @@ begin
 
   if shWindowVisible in SetupHeader.Options then
     Caption := SetupMessages[msgSetupAppTitle]
+  else if shDisableWelcomePage in SetupHeader.Options then
+    Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppVerName)
   else
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
 
