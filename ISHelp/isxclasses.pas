@@ -181,7 +181,6 @@ TControl = class(TComponent)
   property ShowHint: Boolean; read write;
   property Visible: Boolean; read write;
   property Enabled: Boolean; read write;
-  property Hint: String; read write;
   property Cursor: Integer; read write;
 end;
 
