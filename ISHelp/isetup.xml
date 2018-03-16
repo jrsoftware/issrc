@@ -85,7 +85,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 5.5.9</b><br/>
+<b>Inno Setup version 5.5.10</b><br/>
 <b>Copyright &copy; 1997-2018 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2018 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
@@ -3559,8 +3559,12 @@ BackColor2=$000000
 <setuptopic directive="AppName">
 <body>
 <p>This required directive specifies the name of the application being installed. Do not include the version number, as that is defined by the <link topic="setup_appversion">AppVersion</link> and/or <link topic="setup_appvername">AppVerName</link> directives. <tt>AppName</tt> is displayed throughout the Setup program and uninstaller in window titles, wizard pages, and dialog boxes. The value may include constants.</p>
+<p>If <link topic="setup_disablewelcomepage">DisableWelcomePage</link> is set to <tt>yes</tt> (which it is by default) then <link topic="setup_appvername">AppVerName</link> is displayed in window titles instead of <tt>AppName</tt>.</p>
 <p>The value of this directive is also used as the default value for the <link topic="setup_appid">AppId</link>, <link topic="setup_versioninfodescription">VersionInfoDescription</link>, and <link topic="setup_versioninfoproductname">VersionInfoProductName</link> directives if those are not specified.</p>
 <example><pre>AppName=My Program</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_appvername">AppVerName</link>
+</p>
 </body>
 </setuptopic>
 
@@ -3576,12 +3580,16 @@ BackColor2=$000000
 <setupdefault><link topic="setup_appname">AppName</link> version <link topic="setup_appversion">AppVersion</link>, localized according to the active language's <tt>NameAndVersion</tt> <link topic="custommessagessection">custom message</link></setupdefault>
 <body>
 <p>This directive specifies the name of the application plus its version number. The value of this directive is displayed on the <i>Welcome</i> page of Setup's wizard, and is used as the default title of the application's <i>Add/Remove Programs</i> entry (see <link topic="setup_uninstalldisplayname">UninstallDisplayName</link>). The value may include constants.</p>
+<p>If <link topic="setup_disablewelcomepage">DisableWelcomePage</link> is set to <tt>yes</tt> (which it is by default) then <tt>AppVerName</tt> is also displayed in window titles instead of <link topic="setup_appname">AppName</link>.</p>
 <p>This directive is required if the <link topic="setup_appversion">AppVersion</link> directive is not set.</p>
 <examples><pre>
 AppVerName=My Program 1.5
 AppVerName=My Program version 1.5
 AppVerName={cm:NameAndVersion,My Program,1.5}
 </pre></examples>
+<p><b>See also:</b><br/>
+<link topic="setup_appname">AppName</link>
+</p>
 </body>
 </setuptopic>
 
