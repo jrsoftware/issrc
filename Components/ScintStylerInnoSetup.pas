@@ -46,11 +46,13 @@ type
 
   TInnoSetupStylerStyle = (stDefault, stCompilerDirective,
     stComment, stSection, stSymbol, stKeyword, stParameterValue,
-    stEventFunction, stConstant, stMessageArg, stPascalString, stPascalNumber);
+    stEventFunction, stConstant, stMessageArg, stPascalString, stPascalNumber,
+    stISPPDirectives);
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FKeywordList: array[TInnoSetupStylerSection] of AnsiString;
+    FIsppMode: Boolean;
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
     procedure BuildKeywordListFromEnumType(const Section: TInnoSetupStylerSection;
@@ -64,6 +66,7 @@ type
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState);
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
     procedure HandleParameterSection(const ValidParameters: array of TInnoSetupStylerParamInfo);
+    procedure HandleISPPStyle(EndIndex: Integer);
     procedure PreStyleInlineISPPDirectives;
     procedure SkipWhitespace;
     procedure SquigglifyUntilChars(const Chars: TScintRawCharSet;
@@ -82,6 +85,7 @@ type
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     property KeywordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordList;
+    property IsppMode: Boolean read FIsppMode write FIsppMode;
   end;
 
 implementation
@@ -433,6 +437,9 @@ const
   PascalIdentFirstChars = AlphaUnderscoreChars;
   PascalIdentChars = AlphaDigitUnderscoreChars;
 
+  ISPPIdentFirstChars = AlphaUnderscoreChars;
+  ISPPIdentChars = AlphaDigitUnderscoreChars;
+
 function SameRawText(const S1, S2: TScintRawString): Boolean;
 var
   Len, I: Integer;
@@ -665,6 +672,11 @@ begin
       stConstant: Attributes.ForeColor := $C00080;
       stMessageArg: Attributes.ForeColor := $FF8000;
       stPascalString, stPascalNumber: Attributes.ForeColor := clMaroon;
+      stISPPDirectives:
+      begin
+        Attributes.ForeColor := $4040C0;
+        Attributes.FontStyle := [fsBold];
+      end;
     end;
   end
   else begin
@@ -822,6 +834,135 @@ begin
       else
         { Illegal character }
         CommitStyleSq(stSymbol, True); 
+      end;
+    end;
+    SkipWhitespace;
+  end;
+end;
+
+procedure TInnoSetupStyler.HandleISPPStyle(EndIndex: Integer);
+
+  function FinishConsumingStarComment: Boolean;
+  begin
+    Result := False;
+    while True do begin
+      ConsumeCharsNot(['*']);
+      if not ConsumeChar('*') then
+        Break;
+      if ConsumeChar('/') then begin
+        Result := True;
+        Break;
+      end;
+    end;
+    if Result then
+      CommitStyle(stComment)
+    else
+      CommitStyleSqPending(stCompilerDirective);
+  end;
+
+const
+  ISPPDirectives: array[0..22] of TScintRawString = (
+    'define', 'dim', 'redim', 'undef', 'include',
+    'file', 'emit', 'expr', 'insert', 'append', 'if',
+    'elif', 'else', 'endif', 'ifdef', 'ifndef',
+    'ifexist','ifnexist', 'for', 'sub', 'endsub',
+    'pragma', 'error');
+var
+  S: TScintRawString;
+  I: Integer;
+  C: AnsiChar;
+begin
+  if not IsppMode then begin
+    if EndIndex > -1 then begin
+      ConsumeCharsNot(['}']);
+      ConsumeChar('}');
+    end
+    else
+      ConsumeAllRemaining;
+    CommitStyleSqPending(stDefault);
+    Exit;
+  end;
+
+  SkipWhitespace;
+  while (not EndOfLine) and ((EndIndex = -1) or (CurIndex <= EndIndex)) do begin
+    if CurChar in ISPPIdentFirstChars then begin
+      S := ConsumeString(ISPPIdentChars);
+      for I := Low(ISPPDirectives) to High(ISPPDirectives) do
+        if SameRawText(S, ISPPDirectives[I]) then begin
+          CommitStyle(stISPPDirectives);
+          Break;
+        end;
+      CommitStyle(stCompilerDirective);
+    end
+    else if ConsumeChars(DigitChars) then begin
+      if not CurCharIs('.') or not NextCharIs('.') then begin
+        if ConsumeChar('.') then
+          ConsumeChars(DigitChars);
+        C := CurChar;
+        if C in ['X', 'x'] then begin
+          ConsumeChar(C);
+          if not ConsumeChars(HexDigitChars) then
+            CommitStyleSqPending(stCompilerDirective);
+        end;
+        ConsumeChars(['L', 'U', 'l', 'u']);
+      end;
+      CommitStyle(stCompilerDirective);
+    end
+    else begin
+      C := CurChar;
+      ConsumeChar(C);
+      case C of
+        '!', '&', '=', '|', '^', '>', '<', '+', '-', '/', '%', '*',
+        '?', ':', ';', ',', '.', '~', '(', '[', '{', ')', ']', '}',
+        '@', '#':
+          begin
+            if (C = ';') then begin
+              if EndIndex = -1 then
+                ConsumeCharsNot(['\'])
+              else
+                ConsumeCharsNot(['}']);
+              if (EndIndex = -1) and ((CurIndex = TextLength) or
+                (CurIndex + 1 = TextLength)) and (CurChar = '\') and
+                (Text[CurIndex - 1] in WhitespaceChars) then begin
+                CommitStyle(stComment);
+                ConsumeAllRemaining;
+                CommitStyle(stSymbol);
+              end
+              else begin
+                if EndIndex > -1 then begin
+                  CommitStyle(stComment);
+                  ConsumeChar('}');
+                  CommitStyle(stCompilerDirective);
+                end else begin
+                  ConsumeAllRemaining;
+                  CommitStyle(stComment);
+                end;
+              end;
+            end
+            else if (C = '/') and ConsumeChar('*') then begin
+              if not FinishConsumingStarComment then
+                Exit;
+            end
+            else
+              CommitStyle(stCompilerDirective);
+          end;
+        '''', '"':
+          begin
+            while True do begin
+              ConsumeCharsNot([C]);
+              if not ConsumeChar(C) then begin
+                CommitStyleSqPending(stCompilerDirective);
+                Break;
+              end;
+              if not ConsumeChar(C) then begin
+                CommitStyle(stCompilerDirective);
+                Break;
+              end;
+            end;
+          end;
+      else
+        { Illegal character }
+        CommitStyleSq(stCompilerDirective, True);
       end;
     end;
     SkipWhitespace;
@@ -1050,16 +1191,22 @@ begin
             Break;
           end;
         end;
-        { Replace the directive with spaces to prevent any further processing }
-        ReplaceText(StartIndex, I - 1, ' ');
-        if Valid then
-          ApplyStyle(Ord(stCompilerDirective), StartIndex, I - 1)
+        if Valid then begin
+          ResetIndexTo(StartIndex);
+          try
+            HandleISPPStyle(I - 1);
+          finally
+            ResetIndexTo(0);
+          end
+        end
         else begin
           if (CaretIndex >= StartIndex) and (CaretIndex <= I) then
             ApplyIndicators([inPendingSquiggly], StartIndex, I - 1)
           else
             ApplyIndicators([inSquiggly], StartIndex, I - 1);
         end;
+        { Replace the directive with spaces to prevent any further processing }
+        ReplaceText(StartIndex, I - 1, ' ');
       end
       else
         Inc(I);
@@ -1134,6 +1281,13 @@ begin
     ConsumeAllRemaining;
     CommitStyle(stComment);
   end
+  else if CurCharIs('/') and NextCharIs('/') then begin
+    ConsumeAllRemaining;
+    if IsppMode or (Section = scCode) then
+      CommitStyle(stComment)
+    else
+      CommitStyleSqPending(stDefault);
+  end
   else if ConsumeChar('[') then begin
     SectionEnd := ConsumeChar('/');
     S := ConsumeString(AlphaUnderscoreChars);
@@ -1151,10 +1305,8 @@ begin
     Section := scNone;
     SquigglifyUntilChars([], stDefault);
   end
-  else if ConsumeChar('#') then begin
-    ConsumeAllRemaining;
-    CommitStyle(stCompilerDirective);
-  end
+  else if CurCharIs('#') then
+    HandleISPPStyle(-1)
   else begin
     case Section of
       scUnknown: ;
