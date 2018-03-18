@@ -28,6 +28,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 
 <p><a name="5.5.10"></a><span class="ver">5.5.10 </span><span class="date">(?)</span></p>
 <ul>
+<li>Compiler IDE change: Syntax highlighting and syntax error underlining support for <tt>#include</tt> and ISPP has been significantly improved (with ISPP installed: <a href="https://i.imgur.com/nPiun9k.png">before</a> and <a href="https://i.imgur.com/HoJaBRP.png">after</a>, without ISPP installed: <a href="https://i.imgur.com/nPiun9k.png">before</a> and <a href="https://i.imgur.com/ro0ejL3.png">after</a>. Based on a contribution by <a href="https://github.com/KngStr" target="_blank">KngStr</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a></li>
 <li>The <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> [Setup] section directives now may list multiple files. This can be used to include multiple sizes of the wizard images to avoid blurred images on high DPI systems. See the help file for a list of recommended sizes. Note: when you test this be sure to first log out and back in after any DPI change.</li>
 <li>Any [Files] entries with the <tt>deleteafterinstall</tt> flag or with <tt>DestDir</tt> set to <tt>{tmp}</tt> or a subdirectory of <tt>{tmp}</tt> are no longer included in the <tt>EstimatedSize</tt> value in the Uninstall registry key.</li>
 <li><b>Change in default behavior:</b> If [Setup] section directive <tt>DisableWelcomePage</tt> is set (which it is by default), then the title of the wizard now includes <tt>AppVerName</tt> instead of <tt>AppName</tt>, in other words: it now includes the version number of the application. If <tt>WindowVisible</tt> is set to <tt>yes</tt> this applies to the background window instead.</li>
@@ -116,7 +117,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
   <li>Added new function <tt>CurrentSourceFileName</tt>, which returns the source file name of the [Files] entry that is currently being processed. The returned name may include constants. <i>Note:</i> Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a [Files] entry with the <tt>external</tt> flag.</li>
   <li>The already-existing <tt>StrToFloat</tt> and <tt>FloatToStr</tt> functions are now documented.</li>
-  <li>Strings and numbers are now highlighted. Based on contribution by <a href="https://github.com/maldoinc" target="_blank">maldoinc</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
+  <li>Strings and numbers are now highlighted. Based on a contribution by <a href="https://github.com/maldoinc" target="_blank">maldoinc</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
   <li>Unicode Inno Setup: Added new class <tt>TStringStream</tt>.</li>
 </ul>
 </li>
