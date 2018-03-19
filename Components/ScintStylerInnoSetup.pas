@@ -884,20 +884,42 @@ const
     'str', 'func', 'option', 'parseroption', 'inlinestart',
     'inlineend', 'message', 'warning', 'error',
     'verboselevel', 'include', 'spansymbol');
-  ISPPDirectives: array[0..22] of TScintRawString = (
-    'define', 'dim', 'redim', 'undef', 'include',
-    'file', 'emit', 'expr', 'insert', 'append', 'if',
-    'elif', 'else', 'endif', 'ifdef', 'ifndef',
-    'ifexist', 'ifnexist', 'for', 'sub', 'endsub',
-    'pragma', 'error');
-  ISPPDirectiveRequiresParameter: array[0..22] of Boolean = (
-    True, True, True, True, True,
-    True, True, True, True, False, True,
-    False { bug in ISPP? }, False, False, True, True,
-    True, True, True, True, False,
-    False, False);
+type
+  TISPPDirective = record
+    Name: TScintRawString;
+    RequiresParameter: Boolean;
+  end;
+const
+  ISPPDirectives: array[0..22] of TISPPDirective = (
+    (Name: 'define'; RequiresParameter: True),
+    (Name: 'dim'; RequiresParameter: True),
+    (Name: 'redim'; RequiresParameter: True),
+    (Name: 'undef'; RequiresParameter: True),
+    (Name: 'include'; RequiresParameter: True),
+    (Name: 'file'; RequiresParameter: True),
+    (Name: 'emit'; RequiresParameter: True),
+    (Name: 'expr'; RequiresParameter: True),
+    (Name: 'insert'; RequiresParameter: True),
+    (Name: 'append'; RequiresParameter: False),
+    (Name: 'if'; RequiresParameter: True),
+    (Name: 'elif'; RequiresParameter: False { bug in ISPP? }),
+    (Name: 'else'; RequiresParameter: False),
+    (Name: 'endif'; RequiresParameter: False),
+    (Name: 'ifdef'; RequiresParameter: True),
+    (Name: 'ifndef'; RequiresParameter: True),
+    (Name: 'ifexist'; RequiresParameter: True),
+    (Name: 'ifnexist'; RequiresParameter: True),
+    (Name: 'for'; RequiresParameter: True),
+    (Name: 'sub'; RequiresParameter: True),
+    (Name: 'endsub'; RequiresParameter: False),
+    (Name: 'pragma'; RequiresParameter: False),
+    (Name: 'error'; RequiresParameter: False));
   ISPPDirectiveShorthands: TScintRawCharSet =
-    [':' {define}, 'x' {undef}, '+' {include}, '=' {emit}, '!' {expr}];
+    [':' {define},
+     'x' {undef},
+     '+' {include},
+     '=' {emit},
+     '!' {expr}];
 var
   S: TScintRawString;
   StartIndex, I: Integer;
@@ -922,9 +944,9 @@ begin
   else begin
     S := ConsumeString(ISPPIdentChars);
     for I := Low(ISPPDirectives) to High(ISPPDirectives) do
-      if SameRawText(S, ISPPDirectives[I]) then begin
+      if SameRawText(S, ISPPDirectives[I].Name) then begin
         NeedIspp := not SameRawText(S, 'include'); { Built-in preprocessor only supports '#include' }
-        FinishDirectiveNameOrShorthand(ISPPDirectiveRequiresParameter[I]);
+        FinishDirectiveNameOrShorthand(ISPPDirectives[I].RequiresParameter);
         Break;
       end;
     if InlineDirective then
