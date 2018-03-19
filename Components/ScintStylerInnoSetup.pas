@@ -554,14 +554,14 @@ end;
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
 begin
   if (CaretIndex >= StartIndex) and (CaretIndex <= EndIndex) then
-    ApplyIndicators([inPendingSquiggly], StartIndex, EndIndex - 1)
+    ApplyIndicators([inPendingSquiggly], StartIndex, EndIndex)
   else
-    ApplyIndicators([inSquiggly], StartIndex, EndIndex - 1);
+    ApplyIndicators([inSquiggly], StartIndex, EndIndex);
 end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
 begin
-  ApplyPendingSquigglyFromToIndex(StartIndex, CurIndex);
+  ApplyPendingSquigglyFromToIndex(StartIndex, CurIndex - 1);
 end;
 
 procedure TInnoSetupStyler.ApplySquigglyFromIndex(const StartIndex: Integer);
@@ -1030,7 +1030,7 @@ begin
 
   if NeedIspp and not IsppInstalled then begin
     if InlineDirective then
-      ApplyPendingSquigglyFromToIndex(StartIndex + 1, InlineDirectiveEndIndex)
+      ApplyPendingSquigglyFromToIndex(StartIndex + 1, InlineDirectiveEndIndex - 1)
     else
       ApplyPendingSquigglyFromIndex(StartIndex + 1);
   end;
@@ -1267,7 +1267,7 @@ begin
           ResetCurIndexTo(0);
         end;
         if not Valid then
-          ApplyPendingSquigglyFromToIndex(StartIndex, I);
+          ApplyPendingSquigglyFromToIndex(StartIndex, I - 1);
         { Replace the directive with spaces to prevent any further processing }
         ReplaceText(StartIndex, I - 1, ' ');
       end
