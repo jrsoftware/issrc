@@ -68,7 +68,8 @@ type
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState);
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
     procedure HandleParameterSection(const ValidParameters: array of TInnoSetupStylerParamInfo);
-    procedure HandleCompilerDirective(InlineDirective: Boolean; InlineDirectiveEndIndex: Integer);
+    procedure HandleCompilerDirective(const InlineDirective: Boolean;
+      const InlineDirectiveEndIndex: Integer);
     procedure PreStyleInlineISPPDirectives;
     procedure SkipWhitespace;
     procedure SquigglifyUntilChars(const Chars: TScintRawCharSet;
@@ -843,11 +844,20 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.HandleCompilerDirective(InlineDirective: Boolean; InlineDirectiveEndIndex: Integer);
+procedure TInnoSetupStyler.HandleCompilerDirective(const InlineDirective: Boolean; const InlineDirectiveEndIndex: Integer);
 
   function EndOfDirective: Boolean;
   begin
     Result := EndOfLine or (InlineDirective and (CurIndex > InlineDirectiveEndIndex));
+  end;
+
+  procedure FinishDirectiveNameOrShorthand(const RequiresParameter: Boolean);
+  begin
+    if RequiresParameter then begin
+      ConsumeChars(WhitespaceChars); { This will give the whitespace the stCompilerDirective style instead of stDefault but that's ok }
+      CommitStyleSq(stCompilerDirective, EndOfDirective);
+    end else
+      CommitStyle(stCompilerDirective);
   end;
 
   function FinishConsumingStarComment: Boolean;
@@ -886,7 +896,8 @@ const
     False { bug in ISPP? }, False, False, True, True,
     True, True, True, True, False,
     False, False);
-  ISPPDirectiveShorthands: TScintRawCharSet = [':', 'x', '+', '=', '!'];
+  ISPPDirectiveShorthands: TScintRawCharSet =
+    [':' {define}, 'x' {undef}, '+' {include}, '=' {emit}, '!' {expr}];
 var
   S: TScintRawString;
   StartIndex, I: Integer;
@@ -906,20 +917,16 @@ begin
   SkipWhiteSpace;
   if ConsumeCharIn(ISPPDirectiveShorthands) then begin
     NeedIspp := True;
-    CommitStyle(stCompilerDirective);
+    FinishDirectiveNameOrShorthand(True); { All shorthands require a parameter }
   end
   else begin
     S := ConsumeString(ISPPIdentChars);
-      for I := Low(ISPPDirectives) to High(ISPPDirectives) do
-        if SameRawText(S, ISPPDirectives[I]) then begin
-          NeedIspp := not SameRawText(S, 'include'); { Built-in preprocessor only supports '#include' }
-          if ISPPDirectiveRequiresParameter[I] then begin
-            ConsumeChars(WhitespaceChars); { This will give the whitespace the stCompilerDirective style instead of stDefault but that's ok }
-            CommitStyleSq(stCompilerDirective, EndOfDirective);
-          end else
-            CommitStyle(stCompilerDirective);
-          Break;
-        end;
+    for I := Low(ISPPDirectives) to High(ISPPDirectives) do
+      if SameRawText(S, ISPPDirectives[I]) then begin
+        NeedIspp := not SameRawText(S, 'include'); { Built-in preprocessor only supports '#include' }
+        FinishDirectiveNameOrShorthand(ISPPDirectiveRequiresParameter[I]);
+        Break;
+      end;
     if InlineDirective then
       CommitStyle(stDefault) { #emit shorthand was used (='#' directly followed by an expression): not an error }
     else
