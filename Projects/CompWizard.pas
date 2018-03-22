@@ -141,8 +141,6 @@ type
     FResultScript: String;
     function FixLabel(const S: String): String;
     procedure SetWizardName(const WizardName: String);
-    function ISPPInstalled: Boolean;
-    function ISCryptInstalled: Boolean;
     procedure CurPageChanged;
     function SkipCurPage: Boolean;
     procedure AddWizardFile(const Source: String; const RecurseSubDirs, CreateAllSubDirs: Boolean);
@@ -214,16 +212,6 @@ end;
 procedure TWizardForm.SetWizardName(const WizardName: String);
 begin
   FWizardName := WizardName;
-end;
-
-function TWizardForm.ISPPInstalled(): Boolean;
-begin
-  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
-end;
-
-function TWizardForm.ISCryptInstalled(): Boolean;
-begin
-  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
 end;
 
 { --- }

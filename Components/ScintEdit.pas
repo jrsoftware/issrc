@@ -357,6 +357,7 @@ type
     procedure CommitStyle(const Style: TScintStyleNumber);
     function ConsumeAllRemaining: Boolean;
     function ConsumeChar(const C: AnsiChar): Boolean;
+    function ConsumeCharIn(const Chars: TScintRawCharSet): Boolean;
     function ConsumeChars(const Chars: TScintRawCharSet): Boolean;
     function ConsumeCharsNot(const Chars: TScintRawCharSet): Boolean;
     function ConsumeString(const Chars: TScintRawCharSet): TScintRawString;
@@ -367,6 +368,7 @@ type
     function LineTextSpans(const S: TScintRawString): Boolean; virtual;
     function NextCharIs(const C: AnsiChar): Boolean;
     function PreviousCharIn(const Chars: TScintRawCharSet): Boolean;
+    procedure ResetCurIndexTo(Index: Integer);
     procedure ReplaceText(StartIndex, EndIndex: Integer; const C: AnsiChar);
     procedure StyleNeeded; virtual; abstract;
     property CaretIndex: Integer read FCaretIndex;
@@ -2002,6 +2004,13 @@ begin
     Inc(FCurIndex);
 end;
 
+function TScintCustomStyler.ConsumeCharIn(const Chars: TScintRawCharSet): Boolean;
+begin
+  Result := (FCurIndex <= FTextLen) and (FText[FCurIndex] in Chars);
+  if Result then
+    Inc(FCurIndex);
+end;
+
 function TScintCustomStyler.ConsumeChars(const Chars: TScintRawCharSet): Boolean;
 begin
   Result := False;
@@ -2084,6 +2093,12 @@ begin
   P := @FText[1];
   for I := StartIndex to EndIndex do
     P[I-1] := C;
+end;
+
+procedure TScintCustomStyler.ResetCurIndexTo(Index: Integer);
+begin
+  FCurIndex := Index;
+  FStyleStartIndex := Index;
 end;
 
 end.

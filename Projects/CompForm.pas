@@ -422,6 +422,8 @@ var
   CommandLineWizard: Boolean;
 
 function GenerateGuid: String;
+function ISPPInstalled: Boolean;
+function ISCryptInstalled: Boolean;
 procedure InitFormFont(Form: TForm);
 
 implementation
@@ -549,6 +551,17 @@ begin
     CoTaskMemFree(P);
   end;
 end;
+
+function ISPPInstalled: Boolean;
+begin
+  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
+end;
+
+function ISCryptInstalled: Boolean;
+begin
+  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
+end;
+
 
 { TISScintEdit }
 
@@ -843,6 +856,7 @@ begin
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
 
   MemoStyler := TInnoSetupStyler.Create(Self);
+  MemoStyler.IsppInstalled := IsppInstalled;
 
   Memo := TISScintEdit.Create(Self);
   Memo.AcceptDroppedFiles := True;
