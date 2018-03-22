@@ -7551,7 +7551,7 @@ procedure TSetupCompiler.SignCommand(const ACommand, AParams, AExeFilename: Stri
 
 var
   Params, Command: String;
-  MinimumTimeBetweenDelay: Cardinal;
+  MinimumTimeBetweenDelay: Integer;
   I: Integer;
 begin
   Params := FmtCommand(PChar(AParams), '', AExeFileName);
@@ -7560,7 +7560,7 @@ begin
   for I := 0 to RetryCount do begin
     try
       if (MinimumTimeBetween <> 0) and (LastSignCommandStartTick <> 0) then begin
-        MinimumTimeBetweenDelay := MinimumTimeBetween - (GetTickCount - LastSignCommandStartTick);
+        MinimumTimeBetweenDelay := MinimumTimeBetween - Integer(GetTickCount - LastSignCommandStartTick);
         if MinimumTimeBetweenDelay < 0 then
           MinimumTimeBetweenDelay := 0;
       end else
