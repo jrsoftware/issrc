@@ -912,7 +912,9 @@ DefaultGroupName=My Program
 <li><link topic="setup_signeduninstaller">SignedUninstaller</link></li>
 <li><link topic="setup_signeduninstallerdir">SignedUninstallerDir</link></li>
 <li><link topic="setup_signtool">SignTool</link></li>
+<li><link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link></li>
 <li><link topic="setup_signtoolretrycount">SignToolRetryCount</link></li>
+<li><link topic="setup_signtoolretrydelay">SignToolRetryDelay</link></li>
 <li><link topic="setup_slicesperdisk">SlicesPerDisk</link></li>
 <li><link topic="setup_solidcompression">SolidCompression</link></li>
 <li><link topic="setup_sourcedir">SourceDir</link></li>
@@ -5009,7 +5011,20 @@ SignTool=byparam format c:
 <p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
 <p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <link topic="setup_diskslicesize">DiskSliceSize</link> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-1 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-1 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
 <p><b>See also:</b><br/>
+<link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link><br/>
 <link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="SignToolMinimumTimeBetween">
+<keyword value="signature" />
+<keyword value="digital signature" />
+<keyword value="code signing" />
+<setupdefault><tt>0</tt></setupdefault>
+<body>
+<p>If not set to 0, specifies the minimum number of milliseconds that should have elapsed between consecutive digital signing actions by the Setup Compiler. For example, if set to 5000 then the Setup Compiler will perform 1 digital signing per 5 seconds at most. Can be used to avoid being rejected by rate limiting timestamp services.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_signtool">SignTool</link></p>
 </body>
 </setuptopic>
 
@@ -5021,7 +5036,21 @@ SignTool=byparam format c:
 <body>
 <p>Specifies the number of times the Setup Compiler should automatically retry digital signing on any errors.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_signtool">SignTool</link></p>
+<link topic="setup_signtool">SignTool</link><br/>
+<link topic="setup_signtoolretrydelay">SignToolRetryDelay</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="SignToolRetryDelay">
+<keyword value="signature" />
+<keyword value="digital signature" />
+<keyword value="code signing" />
+<setupdefault><tt>500</tt></setupdefault>
+<body>
+<p>Specifies the number of milliseconds the Setup Compiler should wait before any automatic digital signing retries specified by <link topic="setup_signtoolretrycount">SignToolRetryCount</link>.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_signtool">SignTool</link><br/>
+<link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
 </body>
 </setuptopic>
 

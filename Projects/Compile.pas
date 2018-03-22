@@ -156,7 +156,9 @@ type
     ssSignedUninstaller,
     ssSignedUninstallerDir,
     ssSignTool,
+    ssSignToolMinimumTimeBetween,
     ssSignToolRetryCount,
+    ssSignToolRetryDelay,
     ssSlicesPerDisk,
     ssSolidCompression,
     ssSourceDir,
@@ -346,7 +348,8 @@ type
     {$IFDEF UNICODE} PreLangDataList, {$ENDIF} LangDataList: TList;
     SignToolList: TList;
     SignTools, SignToolsParams: TStringList;
-    SignToolRetryCount: Integer;
+    SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween: Integer;
+    LastSignCommandStartTick: DWORD;
 
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
       ExeFilename: String;
@@ -497,7 +500,7 @@ type
     procedure SeparateDirective(const Line: PChar; var Key, Value: String);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
     procedure Sign(AExeFilename: String);
-    procedure SignCommand(const ACommand, AParams, AExeFilename: String; const RetryCount: Integer);
+    procedure SignCommand(const ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer);
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
@@ -4121,11 +4124,23 @@ begin
         SignTools.Add(SignTool);
         SignToolsParams.Add(SignToolParams);
       end;
+    ssSignToolMinimumTimeBetween: begin
+        I := StrToIntDef(Value, -1);
+        if I < 0 then
+          Invalid;
+        SignToolMinimumTimeBetween := I;
+      end;
     ssSignToolRetryCount: begin
         I := StrToIntDef(Value, -1);
         if I < 0 then
           Invalid;
         SignToolRetryCount := I;
+      end;
+    ssSignToolRetryDelay: begin
+        I := StrToIntDef(Value, -1);
+        if I < 0 then
+          Invalid;
+        SignToolRetryDelay := I;
       end;
     ssSlicesPerDisk: begin
         I := StrToIntDef(Value, -1);
@@ -7443,11 +7458,11 @@ var
 begin
   for I := 0 to SignTools.Count - 1 do begin
     SignToolIndex := FindSignToolIndexByName(SignTools[I]); //can't fail, already checked
-    SignCommand(TSignTool(SignToolList[SignToolIndex]).Command, SignToolsParams[I], AExeFilename, SignToolRetryCount);
+    SignCommand(TSignTool(SignToolList[SignToolIndex]).Command, SignToolsParams[I], AExeFilename, SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween);
   end;
 end;
 
-procedure TSetupCompiler.SignCommand(const ACommand, AParams, AExeFilename: String; const RetryCount: Integer);
+procedure TSetupCompiler.SignCommand(const ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer);
 
   function FmtCommand(S: PChar; const AParams, AExeFileName: String): String;
   var
@@ -7489,13 +7504,20 @@ procedure TSetupCompiler.SignCommand(const ACommand, AParams, AExeFilename: Stri
     end;
   end;
   
-  procedure InternalSignCommand(const AFormattedCommand: String);
+  procedure InternalSignCommand(const AFormattedCommand: String;
+    const Delay: Cardinal);
   var
     StartupInfo: TStartupInfo;
     ProcessInfo: TProcessInformation;
     LastError, ExitCode: DWORD;
   begin
-    AddStatus(Format(SCompilerStatusSigning, [AFormattedCommand]));
+    if Delay <> 0 then begin
+      AddStatus(Format(SCompilerStatusSigningWithDelay, [Delay, AFormattedCommand]));
+      Sleep(Delay);
+    end else
+      AddStatus(Format(SCompilerStatusSigning, [AFormattedCommand]));
+
+    LastSignCommandStartTick := GetTickCount;
 
     FillChar(StartupInfo, SizeOf(StartupInfo), 0);
     StartupInfo.cb := SizeOf(StartupInfo);
@@ -7529,6 +7551,7 @@ procedure TSetupCompiler.SignCommand(const ACommand, AParams, AExeFilename: Stri
 
 var
   Params, Command: String;
+  MinimumTimeBetweenDelay: Cardinal;
   I: Integer;
 begin
   Params := FmtCommand(PChar(AParams), '', AExeFileName);
@@ -7536,12 +7559,18 @@ begin
   
   for I := 0 to RetryCount do begin
     try
-      InternalSignCommand(Command);
+      if (MinimumTimeBetween <> 0) and (LastSignCommandStartTick <> 0) then begin
+        MinimumTimeBetweenDelay := MinimumTimeBetween - (GetTickCount - LastSignCommandStartTick);
+        if MinimumTimeBetweenDelay < 0 then
+          MinimumTimeBetweenDelay := 0;
+      end else
+        MinimumTimeBetweenDelay := 0;
+      InternalSignCommand(Command, MinimumTimeBetweenDelay);
       Break;
     except on E: Exception do
       if I < RetryCount then begin
         AddStatus(Format(SCompilerStatusWillRetrySigning, [E.Message, RetryCount-I]));
-        Sleep(500); //wait a little bit before retrying
+        Sleep(RetryDelay);
       end else
         raise;
     end;
@@ -8459,6 +8488,7 @@ begin
     WizardSmallImageFile := 'compiler:WIZMODERNSMALLIMAGE.BMP';
     DefaultDialogFontName := 'Tahoma';
     SignToolRetryCount := 2;
+    SignToolRetryDelay := 500;
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
     SetupHeader.WizardImageAlphaFormat := afIgnored;
 

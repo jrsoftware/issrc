@@ -135,6 +135,7 @@ const
   SCompilerStatusSigningSourceFile = '   Signing: %s';
   SCompilerStatusSourceFileAlreadySigned = '   Skipping signing, already signed: %s';
   SCompilerStatusSigning = '   Running Sign Tool command: %s';
+  SCompilerStatusSigningWithDelay = '   Running Sign Tool command in %d milliseconds: %s';
   SCompilerStatusWillRetrySigning = '   Sign Tool command failed (%s). Will retry (%d tries left).';
 
   SCompilerSuccessfulMessage2 = 'The setup images were successfully created ' +
