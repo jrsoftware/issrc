@@ -2054,7 +2054,7 @@ var
   end;
 
   procedure CreateRegistryEntries;
-
+  
     function IsDeletableSubkey(const S: String): Boolean;
     { A sanity check to prevent people from shooting themselves in the foot by
       using
@@ -2080,18 +2080,16 @@ var
     var
       P: PSetupPermissionEntry;
     begin
-      if PermsEntry <> -1 then begin
-        LogFmt('Setting permissions on registry key: %s\%s',
-          [GetRegRootKeyName(RootKey), Subkey]);
-        P := Entries[sePermission][PermsEntry];
-        if not GrantPermissionOnKey(RegView, RootKey, Subkey,
-           TGrantPermissionEntry(Pointer(P.Permissions)^),
-           Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then begin
-          if GetLastError = ERROR_FILE_NOT_FOUND then
-            Log('Could not set permissions on the registry key because it currently does not exist.')
-          else
-            LogFmt('Failed to set permissions on registry key (%d).', [GetLastError]);
-        end;
+      LogFmt('Setting permissions on key: %s\%s',
+        [GetRegRootKeyName(RootKey), Subkey]);
+      P := Entries[sePermission][PermsEntry];
+      if not GrantPermissionOnKey(RegView, RootKey, Subkey,
+         TGrantPermissionEntry(Pointer(P.Permissions)^),
+         Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then begin
+        if GetLastError = ERROR_FILE_NOT_FOUND then
+          Log('Could not set permissions on the key because it currently does not exist.')
+        else
+          LogFmt('Failed to set permissions on the key (%d).', [GetLastError]);
       end;
     end;
 
@@ -2105,7 +2103,7 @@ var
     S: String;
     RV: TRegView;
     CurRegNumber: Integer;
-    NeedToRetry: Boolean;
+    NeedToRetry, DidDeleteKey: Boolean;
     ErrorCode: Longint;
     QV: Integer64;
 {$IFDEF UNICODE}
@@ -2118,49 +2116,74 @@ var
         if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
           DebugNotifyEntry(seRegistry, CurRegNumber);
           NotifyBeforeInstallEntry(BeforeInstall);
+          Log('-- Registry entry --');
           S := ExpandConst(Subkey);
+          LogFmt('Key: %s\%s', [GetRegRootKeyName(RootKey), Subkey]); {LOG rootkey}
           N := ExpandConst(ValueName);
+          if N <> '' then
+            LogFmt('Value name: %s', [N]);
           RV := InstallDefaultRegView;
-          if ro32Bit in Options then
+          if (ro32Bit in Options) and (RV <> rv32Bit) then begin
+            Log('Non-default bitness: 32-bit');
             RV := rv32Bit;
+          end;
           if ro64Bit in Options then begin
             if not IsWin64 then
               InternalError('Cannot access 64-bit registry keys on this version of Windows');
-            RV := rv64Bit;
+            if RV <> rv64Bit then begin
+              Log('Non-default bitness: 64-bit');
+              RV := rv64Bit;
+            end;
           end;
 
           repeat
             NeedToRetry := False;
 
             try
-              if roDeleteKey in Options then
-                if IsDeletableSubkey(S) then
+              DidDeleteKey := False;
+              if roDeleteKey in Options then begin
+                if IsDeletableSubkey(S) then begin
+                  Log('Deleting the key. ');
                   RegDeleteKeyIncludingSubkeys(RV, RootKey, PChar(S));
-              if (roDeleteKey in Options) and (Typ = rtNone) then
+                  DidDeleteKey := True;
+                end else
+                  Log('Key to delete is not deletable.');
+              end;
+              if (roDeleteKey in Options) and (Typ = rtNone) then begin
                 { We've deleted the key, and no value is to be created.
                   Our work is done. }
-              else if (roDeleteValue in Options) and (Typ = rtNone) then begin
+                if DidDeleteKey then
+                  Log('Successfully deleted the key.');
+              end else if (roDeleteValue in Options) and (Typ = rtNone) then begin
                 { We're going to delete a value with no intention of creating
                   another, so don't create the key if it didn't exist. }
                 if RegOpenKeyExView(RV, RootKey, PChar(S), 0, KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
+                  Log('Deleting the value.');
                   RegDeleteValue(K, PChar(N));
                   RegCloseKey(K);
-                end;
+                  Log('Successfully deleted the value.');
+                  { Our work is done. }
+                end else
+                  Log('Key of value to delete does not exist.');
               end
               else begin
                 { Apply any permissions *before* calling RegCreateKeyExView or
                   RegOpenKeyExView, since we may (in a rather unlikely scenario)
                   need those permissions in order for those calls to succeed }
-                ApplyPermissions(RV, RootKey, S, PermissionsEntry);
+                if PermissionsEntry <> -1 then
+                  ApplyPermissions(RV, RootKey, S, PermissionsEntry);
                 { Create or open the key }
                 if not(roDontCreateKey in Options) then begin
+                  Log('Creating or opening the key.');
                   ErrorCode := RegCreateKeyExView(RV, RootKey, PChar(S), 0, nil,
                     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE,
                     nil, K, @Disp);
                   if ErrorCode = ERROR_SUCCESS then begin
                     { Apply permissions again if a new key was created }
-                    if Disp = REG_CREATED_NEW_KEY then
+                    if (Disp = REG_CREATED_NEW_KEY) and (PermissionsEntry <> -1) then begin
+                      Log('New key created, need to set permissions again.');
                       ApplyPermissions(RV, RootKey, S, PermissionsEntry);
+                    end;
                   end
                   else begin
                     if not(roNoError in Options) then
@@ -2169,6 +2192,7 @@ var
                 end
                 else begin
                   if Typ <> rtNone then begin
+                    Log('Opening the key.');
                     ErrorCode := RegOpenKeyExView(RV, RootKey, PChar(S), 0,
                       KEY_QUERY_VALUE or KEY_SET_VALUE, K);
                     if (ErrorCode <> ERROR_SUCCESS) and (ErrorCode <> ERROR_FILE_NOT_FOUND) then
@@ -2186,11 +2210,14 @@ var
                   and/or creating the value }
                 if ErrorCode = ERROR_SUCCESS then
                 try
-                  if roDeleteValue in Options then
+                  if roDeleteValue in Options then begin
+                    Log('Deleting the value.');
                     RegDeleteValue(K, PChar(N));
+                  end;
                   if (Typ <> rtNone) and
                      (not(roCreateValueIfDoesntExist in Options) or
-                      not RegValueExists(K, PChar(N))) then
+                      not RegValueExists(K, PChar(N))) then begin
+                    Log('Creating or setting the value.');
                     case Typ of
                       rtString, rtExpandString, rtMultiString: begin
                           NewType := REG_SZ;
@@ -2264,17 +2291,25 @@ var
                              not(roNoError in Options) then
                             RegError(reRegSetValueEx, RootKey, S, ErrorCode);
                         end;
-                    end;
+                      end;
+                    Log('Succesfully created or set the value.');
+                  end else if roDeleteValue in Options then
+                    Log('Successully deleted the value.')
+                  else
+                    Log('Successully created the key.')
+                  { Our work is done. }
                 finally
                   RegCloseKey(K);
                 end;
               end;
             except
-              if not AbortRetryIgnoreMsgBox(GetExceptMessage, SetupMessages[msgEntryAbortRetryIgnore]) then
+              if not AbortRetryIgnoreMsgBox(GetExceptMessage, SetupMessages[msgEntryAbortRetryIgnore]) then begin
+                Log('Retrying.');
                 NeedToRetry := True;
+              end;
             end;
           until not NeedToRetry;
-
+          
           if roUninsDeleteEntireKey in Options then
             if IsDeletableSubkey(S) then
               UninstLog.AddReg(utRegDeleteEntireKey, RV, RootKey, [S]);
