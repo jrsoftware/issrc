@@ -555,7 +555,7 @@ end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
 begin
-  if (CaretIndex >= StartIndex) and (CaretIndex <= EndIndex) then
+  if (CaretIndex >= StartIndex) and (CaretIndex <= EndIndex + 1) then
     ApplyIndicators([inPendingSquiggly], StartIndex, EndIndex)
   else
     ApplyIndicators([inSquiggly], StartIndex, EndIndex);
