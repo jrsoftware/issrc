@@ -268,8 +268,8 @@ begin
   end;
 
 {$IFDEF UNICODE}
-  { Convert Position from an ANSI string index to a UTF-16 string index }
-  Position := Length(String(Copy(FScriptText, LineStartPosition, Position - 1))) + 1;
+  { Convert Position from the UTF8 encoded ANSI string index to a UTF-16 string index }
+  Position := Length(UTF8ToString(Copy(FScriptText, LineStartPosition, Position - 1))) + 1;
 {$ENDIF}
   Col := Position;
 end;
@@ -343,8 +343,11 @@ var
 begin
   Result := False;
 
-  { Note: Cast disabled on non-Unicode to work around D2 codegen bug }
-  FScriptText := {$IFDEF UNICODE}AnsiString{$ENDIF}(ScriptText);
+{$IFDEF UNICODE}
+  FScriptText := UTF8Encode(ScriptText);
+{$ELSE}
+  FScriptText := ScriptText;
+{$ENDIF}
 
   PSPascalCompiler := TPSPascalCompiler.Create();
 
@@ -355,6 +358,7 @@ begin
     PSPascalCompiler.BooleanShortCircuit := True;
 {$IFDEF UNICODE}
     PSPascalCompiler.AllowDuplicateRegister := False;
+    PSPascalCompiler.UTF8Decode := True;
 {$ENDIF}
 
     PSPascalCompiler.OnUses := PSPascalCompilerOnUses;

@@ -74,6 +74,7 @@ Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"
 ; Remove Unicode-only files if needed
 #ifndef UNICODE
 Type: files; Name: "{app}\Languages\*.islu"
+Type: files; Name: "{app}\Examples\UnicodeExample1.iss"
 #endif
 ; Remove ISPP files if needed (leave ISPP.chm)
 Type: files; Name: "{app}\ISPP.dll"; Check: not ISPPCheck
@@ -143,6 +144,9 @@ Source: "Examples\CodeDll.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion 
 Source: "Examples\CodeAutomation.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodeAutomation2.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodePrepareToInstall.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
+#ifdef UNICODE
+Source: "Examples\UnicodeExample1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
+#endif
 Source: "Examples\UninstallCodeExample1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\MyDll.dll"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
 Source: "Examples\MyDll\C\MyDll.c"; DestDir: "{app}\Examples\MyDll\C"; Flags: ignoreversion touch
