@@ -16,18 +16,19 @@ interface
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls;
 
-procedure FlipControls(const AParentCtl: TWinControl);
 procedure FlipRect(var Rect: TRect; const ParentRect: TRect; const UseRightToLeft: Boolean);
-function IsParentFlipped(const AControl: TControl): Boolean;
 function IsParentRightToLeft(const AControl: TControl): Boolean;
 function SetBiDiStyles(const AControl: TControl; var AParams: TCreateParams): Boolean;
+function MapWindowPoint(const Handle: HWND; const Point: TPoint): TPoint;
 
 var
   { These are set by the SetupForm unit: }
-  IsParentFlippedFunc: function(AControl: TControl): Boolean;
   IsParentRightToLeftFunc: function(AControl: TControl): Boolean;
 
 implementation
+
+uses
+  FolderTreeView, NewProgressBar, BidiCtrls, NewNotebook;
 
 procedure FlipRect(var Rect: TRect; const ParentRect: TRect; const UseRightToLeft: Boolean);
 var
@@ -40,14 +41,6 @@ begin
   end;
 end;
 
-function IsParentFlipped(const AControl: TControl): Boolean;
-begin
-  if Assigned(IsParentFlippedFunc) then
-    Result := IsParentFlippedFunc(AControl)
-  else
-    Result := False;
-end;
-
 function IsParentRightToLeft(const AControl: TControl): Boolean;
 begin
   if Assigned(IsParentRightToLeftFunc) then
@@ -57,32 +50,35 @@ begin
 end;
 
 function SetBiDiStyles(const AControl: TControl; var AParams: TCreateParams): Boolean;
+var
+  ExStyle: DWORD;
+
 begin
   Result := IsParentRightToLeft(AControl);
   if Result then
-    AParams.ExStyle := AParams.ExStyle or (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
+  begin
+    if (AControl is TCustomFolderTreeView)
+        or (AControl is TNewProgressBar)
+        or (AControl is TNewNotebook)
+        or (AControl is TNewNotebookPage)
+        or (AControl is TNewPanel) then
+       ExStyle := (WS_EX_LAYOUTRTL or WS_EX_NOINHERITLAYOUT)
+    else
+       ExStyle := (WS_EX_RTLREADING or WS_EX_RIGHT or WS_EX_LEFTSCROLLBAR);
+
+    AParams.ExStyle := AParams.ExStyle or ExStyle;
+  end;
 end;
 
-procedure FlipControls(const AParentCtl: TWinControl);
+{ In mirrord Windows we should use MapWindowPoints instant of ScreenToClient or
+  ClientToScreen }
+function MapWindowPoint(const Handle: HWND; const Point: TPoint): TPoint;
 var
-  ParentWidth, I: Integer;
-  Ctl: TControl;
+ RPoint: TPoint;
 begin
-  if AParentCtl.ControlCount = 0 then
-    Exit;
-  AParentCtl.DisableAlign;
-  try
-    ParentWidth := AParentCtl.ClientWidth;
-    for I := 0 to AParentCtl.ControlCount-1 do begin
-      Ctl := AParentCtl.Controls[I];
-      Ctl.Left := ParentWidth - Ctl.Width - Ctl.Left;
-    end;
-  finally
-    AParentCtl.EnableAlign;
-  end;
-  for I := 0 to AParentCtl.ControlCount-1 do
-    if AParentCtl.Controls[I] is TWinControl then
-      FlipControls(TWinControl(AParentCtl.Controls[I]));
+  RPoint := Point;
+  MapWindowPoints(0, Handle, RPoint, 1);
+  Result := RPoint;
 end;
 
 end.

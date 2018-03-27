@@ -20,7 +20,7 @@ unit NewProgressBar;
 interface
 
 uses
-  Messages, Classes, Controls, ComCtrls;
+  Messages, Classes, Controls, ComCtrls, BidiUtils;
 
 type
   TNewProgressBarState = (npbsNormal, npbsError, npbsPaused);
@@ -89,6 +89,8 @@ begin
   Params.Style := Params.Style or PBS_SMOOTH;
   if XP and (Style = npbstMarquee) then
     Params.Style := Params.Style or PBS_MARQUEE;
+  
+  SetBiDiStyles(Self, Params);
 end;
 
 procedure TNewProgressBar.CreateWnd;

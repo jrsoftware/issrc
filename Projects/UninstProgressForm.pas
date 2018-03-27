@@ -26,7 +26,7 @@ type
     InnerPage: TNewNotebookPage;
     InnerNotebook: TNewNotebook;
     InstallingPage: TNewNotebookPage;
-    MainPanel: TPanel;
+    MainPanel: TNewPanel;
     PageNameLabel: TNewStaticText;
     PageDescriptionLabel: TNewStaticText;
     WizardSmallBitmapImage: TBitmapImage;

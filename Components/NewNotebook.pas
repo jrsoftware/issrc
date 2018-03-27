@@ -18,7 +18,8 @@ unit NewNotebook;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, BidiCtrls,
+  BidiUtils;
 
 type
   TNewNotebookPage = class;
@@ -33,7 +34,6 @@ type
     procedure RemovePage(Page: TNewNotebookPage);
     procedure SetActivePage(Page: TNewNotebookPage);
   protected
-    procedure AlignControls(AControl: TControl; var Rect: TRect); override;
     procedure CreateParams(var Params: TCreateParams); override;
     procedure ShowControl(AControl: TControl); override;
   public
@@ -80,6 +80,7 @@ type
   protected
     procedure Paint; override;
     procedure ReadState(Reader: TReader); override;
+    procedure CreateParams(var Params: TCreateParams); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -155,6 +156,12 @@ begin
     Notebook := TNewNotebook(Reader.Parent);
 end;
 
+procedure TNewNotebookPage.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  SetBiDiStyles(Self, Params);
+end;
+
 procedure TNewNotebookPage.SetNotebook(ANotebook: TNewNotebook);
 begin
   if FNotebook <> ANotebook then begin
@@ -199,31 +206,11 @@ begin
   inherited;
 end;
 
-procedure TNewNotebook.AlignControls(AControl: TControl; var Rect: TRect);
-var
-  I: Integer;
-  Ctl: TControl;
-begin
-  inherited;
-  { The default AlignControls implementation in Delphi 2 and 3 doesn't set
-    the size of invisible controls. Pages that aren't currently visible must
-    have valid sizes for BidiUtils' FlipControls to work properly.
-    Note: We loop through Controls and not FPages here because
-    TNewNotebookPage.SetNotebook sets Parent (causing AlignControls to be
-    called) before it calls InsertPage. }
-  if not IsRectEmpty(Rect) then begin
-    for I := 0 to ControlCount-1 do begin
-      Ctl := Controls[I];
-      if (Ctl is TNewNotebookPage) and not Ctl.Visible then
-        Ctl.BoundsRect := Rect;
-    end;
-  end;
-end;
-
 procedure TNewNotebook.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   Params.Style := Params.Style or WS_CLIPCHILDREN;
+  SetBiDiStyles(Self, Params);
 end;
 
 function TNewNotebook.FindNextPage(CurPage: TNewNotebookPage;

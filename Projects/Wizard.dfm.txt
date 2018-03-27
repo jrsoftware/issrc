@@ -6,10 +6,13 @@ object WizardForm: TWizardForm
   Caption = 'WizardForm'
   ClientHeight = 360
   ClientWidth = 497
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  OldCreateOrder = True
   Scaled = False
   OnClose = FormClose
   PixelsPerInch = 96
@@ -22,8 +25,8 @@ object WizardForm: TWizardForm
     Shape = bsTopLine
   end
   object CancelButton: TNewButton
-    Left = 464
-    Top = 327
+    Left = 466
+    Top = 325
     Width = 17
     Height = 23
     Cancel = True
@@ -32,8 +35,8 @@ object WizardForm: TWizardForm
     OnClick = CancelButtonClick
   end
   object NextButton: TNewButton
-    Left = 440
-    Top = 327
+    Left = 442
+    Top = 325
     Width = 17
     Height = 23
     Caption = '*'
@@ -42,8 +45,8 @@ object WizardForm: TWizardForm
     OnClick = NextButtonClick
   end
   object BackButton: TNewButton
-    Left = 424
-    Top = 327
+    Left = 426
+    Top = 325
     Width = 16
     Height = 23
     Caption = '*'
@@ -62,6 +65,8 @@ object WizardForm: TWizardForm
     object WelcomePage: TNewNotebookPage
       Color = clWindow
       ParentColor = False
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object WizardBitmapImage: TBitmapImage
         Left = 0
         Top = 0
@@ -152,6 +157,8 @@ object WizardForm: TWizardForm
           end
         end
         object PasswordPage: TNewNotebookPage
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object PasswordEdit: TPasswordEdit
             Left = 0
             Top = 40
@@ -183,6 +190,8 @@ object WizardForm: TWizardForm
           end
         end
         object InfoBeforePage: TNewNotebookPage
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object InfoBeforeMemo: TRichEditViewer
             Left = 0
             Top = 24
@@ -207,6 +216,8 @@ object WizardForm: TWizardForm
           end
         end
         object UserInfoPage: TNewNotebookPage
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object UserInfoSerialEdit: TNewEdit
             Left = 0
             Top = 120
@@ -269,6 +280,8 @@ object WizardForm: TWizardForm
           end
         end
         object SelectDirPage: TNewNotebookPage
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object SelectDirBitmapImage: TBitmapImage
             Left = 0
             Top = 0
@@ -327,6 +340,8 @@ object WizardForm: TWizardForm
           end
         end
         object SelectComponentsPage: TNewNotebookPage
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object ComponentsDiskSpaceLabel: TNewStaticText
             Left = 0
             Top = 216
@@ -370,6 +385,8 @@ object WizardForm: TWizardForm
           end
         end
         object SelectProgramGroupPage: TNewNotebookPage
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object SelectGroupBitmapImage: TBitmapImage
             Left = 0
             Top = 0
@@ -426,6 +443,8 @@ object WizardForm: TWizardForm
           end
         end
         object SelectTasksPage: TNewNotebookPage
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object TasksList: TNewCheckListBox
             Left = 0
             Top = 24
@@ -450,6 +469,8 @@ object WizardForm: TWizardForm
           end
         end
         object ReadyPage: TNewNotebookPage
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object ReadyMemo: TNewMemo
             Left = 0
             Top = 24
@@ -475,6 +496,8 @@ object WizardForm: TWizardForm
           end
         end
         object PreparingPage: TNewNotebookPage
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object PreparingErrorBitmapImage: TBitmapImage
             Left = 0
             Top = 0
@@ -530,6 +553,8 @@ object WizardForm: TWizardForm
           end
         end
         object InstallingPage: TNewNotebookPage
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object FilenameLabel: TNewStaticText
             Left = 0
             Top = 16
@@ -560,6 +585,8 @@ object WizardForm: TWizardForm
           end
         end
         object InfoAfterPage: TNewNotebookPage
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object InfoAfterMemo: TRichEditViewer
             Left = 0
             Top = 24
@@ -584,7 +611,7 @@ object WizardForm: TWizardForm
           end
         end
       end
-      object MainPanel: TPanel
+      object MainPanel: TNewPanel
         Left = 0
         Top = 0
         Width = 497
@@ -625,6 +652,8 @@ object WizardForm: TWizardForm
     object FinishedPage: TNewNotebookPage
       Color = clWindow
       ParentColor = False
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object WizardBitmapImage2: TBitmapImage
         Left = 0
         Top = 0

@@ -265,8 +265,6 @@ begin
     NewWidth := Width;
     if not FWordWrap then begin
       NewWidth := NewBounds.X;
-      if IsParentFlipped(Self) then
-        Inc(NewLeft, Width - NewWidth);
     end;
     SetBounds(NewLeft, Top, NewWidth, NewBounds.Y);
   end;

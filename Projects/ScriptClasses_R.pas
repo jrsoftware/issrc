@@ -188,9 +188,6 @@ begin
   Cl.Add(TUIStateForm);
 end;
 
-procedure TSetupFormControlsFlipped_R(Self: TSetupForm; var T: Boolean); begin T := Self.ControlsFlipped; end;
-procedure TSetupFormFlipControlsOnShow_W(Self: TSetupForm; const T: Boolean); begin Self.FlipControlsOnShow := T; end;
-procedure TSetupFormFlipControlsOnShow_R(Self: TSetupForm; var T: Boolean); begin T := Self.FlipControlsOnShow; end;
 procedure TSetupFormRightToLeft_R(Self: TSetupForm; var T: Boolean); begin T := Self.RightToLeft; end;
 
 procedure RegisterSetupForm_R(Cl: TPSRuntimeClassImporter);
@@ -199,8 +196,6 @@ begin
   begin
     RegisterMethod(@TSetupForm.Center, 'Center');
     RegisterMethod(@TSetupForm.CenterInsideControl, 'CenterInsideControl');
-    RegisterPropertyHelper(@TSetupFormControlsFlipped_R, nil, 'ControlsFlipped');
-    RegisterPropertyHelper(@TSetupFormFlipControlsOnShow_R, @TSetupFormFlipControlsOnShow_W, 'FlipControlsOnShow');
     RegisterPropertyHelper(@TSetupFormRightToLeft_R, nil, 'RightToLeft');
   end;
 end;

@@ -3675,7 +3675,7 @@ begin
       raise;
     end;
   end;
-  WizardForm.FlipControlsIfNeeded;
+
   WizardForm.SetCurPage(wpWelcome);
   if InstallMode = imNormal then begin
     WizardForm.ClickToStartPage; { this won't go past wpReady  }

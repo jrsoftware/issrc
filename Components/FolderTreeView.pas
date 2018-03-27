@@ -14,7 +14,8 @@ interface
 {$I VERSION.INC}
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, CommCtrl;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, 
+  CommCtrl, BidiUtils;
 
 type
   TCustomFolderTreeView = class;
@@ -30,6 +31,7 @@ type
     FItemExpanding: Boolean;
     FOnChange: TNotifyEvent;
     FOnRename: TFolderRenameEvent;
+    FUseRightToLeft: Boolean;
     procedure Change;
     procedure DeleteObsoleteNewItems(const ParentItem, ItemToKeep: HTREEITEM);
     function FindItem(const ParentItem: HTREEITEM; const AName: String): HTREEITEM;
@@ -406,6 +408,7 @@ begin
     ExStyle := ExStyle or WS_EX_CLIENTEDGE;
     WindowClass.style := WindowClass.style and not (CS_HREDRAW or CS_VREDRAW);
   end;
+  FUseRightToLeft := SetBiDiStyles(Self, Params);
 end;
 
 procedure TCustomFolderTreeView.CreateWnd;
@@ -549,8 +552,15 @@ const
   var
     Item: HTREEITEM;
     HitTestInfo: TTVHitTestInfo;
+    Point: TPoint;
   begin
-    HitTestInfo.pt := ScreenToClient(SmallPointToPoint(TSmallPoint(GetMessagePos())));
+    Point := SmallPointToPoint(TSmallPoint(GetMessagePos()));
+
+    if FUseRightToLeft then
+      HitTestInfo.pt := MapWindowPoint(Handle, Point)
+    else
+      HitTestInfo.pt := ScreenToClient(Point);
+
     Item := TreeView_HitTest(Handle, HitTestInfo);
     if Assigned(Item) then begin
       if HitTestInfo.flags and TVHT_ONITEMBUTTON <> 0 then
