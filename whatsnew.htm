@@ -29,22 +29,29 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <p><a name="5.5.10"></a><span class="ver">5.5.10 </span><span class="date">(?)</span></p>
 <ul>
 <li>/LOG: Now logs registry entries.</li>
-<li>Compiler IDE change: Syntax highlighting and syntax error underlining support for <tt>#include</tt> and ISPP has been significantly improved (with ISPP installed: <a href="https://i.imgur.com/nPiun9k.png">before</a> and <a href="https://i.imgur.com/HoJaBRP.png">after</a>, without ISPP installed: <a href="https://i.imgur.com/nPiun9k.png">before</a> and <a href="https://i.imgur.com/ro0ejL3.png">after</a>. Based on a contribution by <a href="https://github.com/KngStr" target="_blank">KngStr</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-<li>The <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> [Setup] section directives now may list multiple files. This can be used to include multiple sizes of the wizard images to avoid blurred images on high DPI systems. See the help file for a list of recommended sizes. Note: when you test this be sure to first log out and back in after any DPI change.</li>
-<li><b>Change in default behavior:</b> If [Setup] section directive <tt>DisableWelcomePage</tt> is set (which it is by default), then the title of the wizard now includes <tt>AppVerName</tt> instead of <tt>AppName</tt>, in other words: it now includes the version number of the application. If <tt>WindowVisible</tt> is set to <tt>yes</tt> this applies to the background window instead.</li>
+<li>Compiler IDE change: Syntax highlighting and syntax error underlining support for <tt>#include</tt> and ISPP has been significantly improved (with ISPP installed: <a href="https://i.imgur.com/nPiun9k.png">before</a> and <a href="https://i.imgur.com/HoJaBRP.png">after</a>, without ISPP installed: <a href="https://i.imgur.com/nPiun9k.png">before</a> and <a href="https://i.imgur.com/ro0ejL3.png">after</a></li>
+<li>Improved support for high DPI systems:
+<ul>
+  <li>The <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> [Setup] section directives now may list multiple files. When multiple files are specified, Setup will automatically select the one which best matches the system's DPI setting. See the help file for a list of recommended sizes. Note: when you test this be sure to first log out and back in after any DPI change.</li>
+  <li>If the <tt>WizardImageStretch</tt> [Setup] section is set to <tt>yes</tt> (which it is by default) then the quality of the stretching that occurs if the best matching wizard image is still larger or smaller than required has been much improved. Also applies to any <tt>TBitmapImage</tt> which uses stretching.</li>
+</ul>
+</li>
+<li><b>Change in default behavior:</b> If [Setup] section directive <tt>DisableWelcomePage</tt> is set to <tt>yes</tt> (which it is by default), then the title of the wizard now includes <tt>AppVerName</tt> instead of <tt>AppName</tt>, in other words: it now includes the version number of the application. If <tt>WindowVisible</tt> is set to <tt>yes</tt> this applies to the background window instead.</li>
 <li>Added new [Setup] section directive: <tt>SignToolRetryDelay</tt>, which defaults to 500. Specifies the number of milliseconds the Setup Compiler should wait before any automatic digital signing retries specified by <tt>SignToolRetryCount</tt>.</li>
 <li>Added new [Setup] section directive: <tt>SignToolMinimumTimeBetween</tt>, which defaults to 0. If not set to 0, specifies the minimum number of milliseconds that should have elapsed between consecutive digital signing actions by the Setup Compiler. For example, if set to 5000 then the Setup Compiler will perform 1 digital signing per 5 seconds at most. Can be used to avoid being rejected by rate limiting timestamp services.</li>
 <li>Added new [Setup] section directive <tt>ArchitecturesAllowed</tt> value: <tt>arm64</tt>. This can be used to not allow Setup to run on Windows 10 on ARM64. Note that Windows 10 on ARM64 only supports 32-bit (x86) binaries and therefore Setup (even in older 3s) will never install in 64-bit mode on Windows 10 on ARM64.</li>
 <li>Pascal Scripting changes:
 <ul>
-  <li>Unicode Inno Setup: Unicode is now supported for the input source. For example, where before you had to write <tt>S := #$0100 + #$0101 + 'Aa';</tt> you can now write <tt>S := '&#x0100;&#x0101;Aa';</tt> directly. Also see the new <i>UnicodeExample1.iss</i> example script. Based on a contribution by <a href="https://github.com/ElSanchez666" target="_blank">ElSanchez</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
+  <li>Unicode Inno Setup: Unicode is now supported for the input source. For example, where before you had to write <tt>S := #$0100 + #$0101 + 'Aa';</tt> you can now write <tt>S := '&#x0100;&#x0101;Aa';</tt> directly. Also see the new <i>UnicodeExample1.iss</i> example script.</li>
   <li>Added new <tt>IsX86</tt>, <tt>IsX64</tt>, <tt>IsIA64</tt>, and <tt>IsARM64</tt> support functions.</li>
 </ul>
+</li>
 <li>Any [Files] entries with the <tt>deleteafterinstall</tt> flag or with <tt>DestDir</tt> set to <tt>{tmp}</tt> or a subdirectory of <tt>{tmp}</tt> are no longer included in the <tt>EstimatedSize</tt> value in the Uninstall registry key.</li>
 <li><i>Fix:</i> In 5.5.9 it was no longer possible to include a drive colon in [Setup] section directive <tt>OutputManifestFile</tt>.</li>
 <li>Unicode [Code] based on RemObjects Pascal Script Git commit 4b310a0fe3905b8b1b6004a2891a8388a3fb3c1c.</li>
 <li>Minor tweaks.</li>
 </ul>
+<p>Thanks to ElSanchez and DRON for their contributions for Unicode input source support and improved image stretching respectively. Thanks to KngStr for his proof of concept for ISPP compiler directive highlighting.<p>
 
 <p><a name="5.5.9"></a><span class="ver">5.5.9 </span><span class="date">(2016-04-06)</span></p>
 <ul>

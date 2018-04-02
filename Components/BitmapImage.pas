@@ -14,7 +14,7 @@ interface
 {$I ..\Projects\VERSION.INC}
 
 uses
-  Windows, Controls, Graphics, Classes;
+  Windows, Controls, Graphics, Classes, Resample;
 
 type
 {$IFNDEF IS_D3}
@@ -239,24 +239,27 @@ begin
     if Stretch then begin
       W := R.Right;
       H := R.Bottom;
-      if not Is32bit then begin
-        if not FStretchedBitmapValid or (FStretchedBitmap.Width <> W) or
-           (FStretchedBitmap.Height <> H) then begin
-          FStretchedBitmapValid := True;
-          if (FBitmap.Width = W) and (FBitmap.Height = H) then
-            FStretchedBitmap.Assign(FBitmap)
-          else begin
-            FStretchedBitmap.Assign(nil);
-            FStretchedBitmap.Palette := CopyPalette(FBitmap.Palette);
-            FStretchedBitmap.Width := W;
-            FStretchedBitmap.Height := H;
-            FStretchedBitmap.Canvas.StretchDraw(R, FBitmap);
+      Bmp := FStretchedBitmap;
+      if not FStretchedBitmapValid or (FStretchedBitmap.Width <> W) or
+         (FStretchedBitmap.Height <> H) then begin
+        FStretchedBitmapValid := True;
+        if (FBitmap.Width = W) and (FBitmap.Height = H) then
+          FStretchedBitmap.Assign(FBitmap)
+        else begin
+          FStretchedBitmap.Assign(nil);
+          if not StretchBmp(Canvas, FBitmap, FStretchedBitmap, W, H, Is32bit) then begin
+            if Is32bit then begin
+              FStretchedBitmapValid := False;
+              Bmp := FBitmap;
+            end else begin
+              FStretchedBitmap.Palette := CopyPalette(FBitmap.Palette);
+              FStretchedBitmap.Width := W;
+              FStretchedBitmap.Height := H;
+              FStretchedBitmap.Canvas.StretchDraw(R, FBitmap);
+            end;
           end;
         end;
-        Bmp := FStretchedBitmap;
-      end
-      else
-        Bmp := FBitmap;
+      end;
     end else begin
       Bmp := FBitmap;
       W := Bmp.Width;

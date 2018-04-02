@@ -4454,7 +4454,7 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies the name(s) of the bitmap file(s) to display on the left side of the wizard. The files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
 <p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes.</p>
-<p>When multiple files are specified, Setup will select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
+<p>When multiple files are specified, Setup will automatically select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
 <table>
 <tr><td>100%</td><td>164x314</td></tr>
 <tr><td>125%</td><td>192x386</td></tr>
@@ -4477,7 +4477,7 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies the name(s) of the bitmap file(s) to display in the upper right corner of the wizard. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
 <p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes.</p>
-<p>When multiple files are specified, Setup will select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
+<p>When multiple files are specified, Setup will automatically select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
 <table>
 <tr><td>100%</td><td>55x55</td></tr>
 <tr><td>125%</td><td>64x68</td></tr>
