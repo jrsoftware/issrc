@@ -857,7 +857,10 @@ procedure TInnoSetupStyler.HandleCompilerDirective(const InlineDirective: Boolea
   begin
     if RequiresParameter then begin
       ConsumeChars(WhitespaceChars); { This will give the whitespace the stCompilerDirective style instead of stDefault but that's ok }
-      CommitStyleSq(stCompilerDirective, EndOfDirective);
+      if EndOfDirective then
+        CommitStyleSqPending(stCompilerDirective)
+      else
+        CommitStyle(stCompilerDirective);
     end else
       CommitStyle(stCompilerDirective);
   end;
