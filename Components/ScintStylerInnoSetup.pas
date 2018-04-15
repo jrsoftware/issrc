@@ -69,7 +69,7 @@ type
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
     procedure HandleParameterSection(const ValidParameters: array of TInnoSetupStylerParamInfo);
     procedure HandleCompilerDirective(const InlineDirective: Boolean;
-      const InlineDirectiveEndIndex: Integer);
+      const InlineDirectiveEndIndex: Integer; var OpenCount: ShortInt);
     procedure PreStyleInlineISPPDirectives;
     procedure SkipWhitespace;
     procedure SquigglifyUntilChars(const Chars: TScintRawCharSet;
@@ -100,7 +100,7 @@ type
   TInnoSetupStylerLineState = record
     Section, NextLineSection: TInnoSetupStylerSection;
     SpanState: TInnoSetupStylerSpanState;
-    Reserved: Byte;
+    OpenCompilerDirectivesCount: ShortInt;
   end;
 
   TSetupSectionDirective = (
@@ -846,7 +846,7 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.HandleCompilerDirective(const InlineDirective: Boolean; const InlineDirectiveEndIndex: Integer);
+procedure TInnoSetupStyler.HandleCompilerDirective(const InlineDirective: Boolean; const InlineDirectiveEndIndex: Integer; var OpenCount: ShortInt);
 
   function EndOfDirective: Boolean;
   begin
@@ -893,32 +893,33 @@ type
   TISPPDirective = record
     Name: TScintRawString;
     RequiresParameter: Boolean;
+    OpenCountChange: ShortInt;
   end;
 const
   ISPPDirectives: array[0..22] of TISPPDirective = (
-    (Name: 'define'; RequiresParameter: True),
-    (Name: 'dim'; RequiresParameter: True),
-    (Name: 'redim'; RequiresParameter: True),
-    (Name: 'undef'; RequiresParameter: True),
-    (Name: 'include'; RequiresParameter: True),
-    (Name: 'file'; RequiresParameter: True),
-    (Name: 'emit'; RequiresParameter: True),
-    (Name: 'expr'; RequiresParameter: True),
-    (Name: 'insert'; RequiresParameter: True),
-    (Name: 'append'; RequiresParameter: False),
-    (Name: 'if'; RequiresParameter: True),
-    (Name: 'elif'; RequiresParameter: False { bug in ISPP? }),
-    (Name: 'else'; RequiresParameter: False),
-    (Name: 'endif'; RequiresParameter: False),
-    (Name: 'ifdef'; RequiresParameter: True),
-    (Name: 'ifndef'; RequiresParameter: True),
-    (Name: 'ifexist'; RequiresParameter: True),
-    (Name: 'ifnexist'; RequiresParameter: True),
-    (Name: 'for'; RequiresParameter: True),
-    (Name: 'sub'; RequiresParameter: True),
-    (Name: 'endsub'; RequiresParameter: False),
-    (Name: 'pragma'; RequiresParameter: False),
-    (Name: 'error'; RequiresParameter: False));
+    (Name: 'define'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'dim'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'redim'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'undef'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'include'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'file'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'emit'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'expr'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'insert'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'append'; RequiresParameter: False; OpenCountChange: 0),
+    (Name: 'if'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'elif'; RequiresParameter: False { bug in ISPP? }; OpenCountChange: 0),
+    (Name: 'else'; RequiresParameter: False; OpenCountChange: 0),
+    (Name: 'endif'; RequiresParameter: False; OpenCountChange: -1),
+    (Name: 'ifdef'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'ifndef'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'ifexist'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'ifnexist'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'for'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'sub'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'endsub'; RequiresParameter: False; OpenCountChange: -1),
+    (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
+    (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
   ISPPDirectiveShorthands: TScintRawCharSet =
     [':' {define},
      'x' {undef},
@@ -937,27 +938,34 @@ begin
     NeedIspp := True;
   end else
     NeedIspp := False; { Might be updated later to True later }
-  ConsumeChar('#');
-  CommitStyle(stCompilerDirective);
 
-  { Directive name or shorthand }
-  SkipWhiteSpace;
-  if ConsumeCharIn(ISPPDirectiveShorthands) then begin
-    NeedIspp := True;
-    FinishDirectiveNameOrShorthand(True); { All shorthands require a parameter }
-  end
-  else begin
-    S := ConsumeString(ISPPIdentChars);
-    for I := Low(ISPPDirectives) to High(ISPPDirectives) do
-      if SameRawText(S, ISPPDirectives[I].Name) then begin
-        NeedIspp := not SameRawText(S, 'include'); { Built-in preprocessor only supports '#include' }
-        FinishDirectiveNameOrShorthand(ISPPDirectives[I].RequiresParameter);
-        Break;
-      end;
-    if InlineDirective then
-      CommitStyle(stDefault) { #emit shorthand was used (='#' directly followed by an expression): not an error }
-    else
-      CommitStyleSqPending(stCompilerDirective);
+  if ConsumeChar('#') then begin
+    CommitStyle(stCompilerDirective);
+
+    { Directive name or shorthand }
+    SkipWhiteSpace;
+    if ConsumeCharIn(ISPPDirectiveShorthands) then begin
+      NeedIspp := True;
+      FinishDirectiveNameOrShorthand(True); { All shorthands require a parameter }
+    end
+    else begin
+      S := ConsumeString(ISPPIdentChars);
+      for I := Low(ISPPDirectives) to High(ISPPDirectives) do
+        if SameRawText(S, ISPPDirectives[I].Name) then begin
+          NeedIspp := not SameRawText(S, 'include'); { Built-in preprocessor only supports '#include' }
+          Inc(OpenCount, ISPPDirectives[I].OpenCountChange);
+          if OpenCount < 0 then begin
+            CommitStyleSq(stCompilerDirective, True);
+            OpenCount := 0; { Reset so that next doesn't automatically gets error as well }
+          end;
+          FinishDirectiveNameOrShorthand(ISPPDirectives[I].RequiresParameter);
+          Break;
+        end;
+      if InlineDirective then
+        CommitStyle(stDefault) { #emit shorthand was used (='#' directly followed by an expression): not an error }
+      else
+        CommitStyleSqPending(stCompilerDirective);
+    end;
   end;
 
   { Rest of the directive }
@@ -1237,6 +1245,7 @@ const
 var
   I, StartIndex: Integer;
   Valid: Boolean;
+  Dummy: ShortInt;
 begin
   { Style span symbols, then replace them with spaces to prevent any further
     processing }
@@ -1267,7 +1276,7 @@ begin
         end;
         ResetCurIndexTo(StartIndex);
         try
-          HandleCompilerDirective(True, I - 1);
+          HandleCompilerDirective(True, I - 1, Dummy);
         finally
           ResetCurIndexTo(0);
         end;
@@ -1370,8 +1379,8 @@ begin
     Section := scNone;
     SquigglifyUntilChars([], stDefault);
   end
-  else if CurCharIs('#') then begin
-    HandleCompilerDirective(False, -1);
+  else if CurCharIs('#') or (NewLineState.OpenCompilerDirectivesCount > 0) then begin
+    HandleCompilerDirective(False, -1, NewLineState.OpenCompilerDirectivesCount);
   end
   else begin
     case Section of
