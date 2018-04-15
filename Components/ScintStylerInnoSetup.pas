@@ -44,7 +44,12 @@ type
     scUninstallDelete,
     scUninstallRun);
 
-  TInnoSetupStylerStyle = (stDefault, stCompilerDirective,
+  TInnoSetupStylerStyle = (stDontUse { Makes stDefault equal 1 instead of 0
+      which makes sure ApplyStyle doesn't overwrite already applied stDefault
+      styles which is needed for PreStyleInlineISPPDirectives to work properly
+      when the inline directive is inside a comment or string.
+      Note: using 'stDefault = 1' isn't supported by Delphi 3. },
+    stDefault, stCompilerDirective,
     stComment, stSection, stSymbol, stKeyword, stParameterValue,
     stEventFunction, stConstant, stMessageArg,
     stPascalReservedWord, stPascalString, stPascalNumber,
