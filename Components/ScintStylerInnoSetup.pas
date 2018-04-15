@@ -715,10 +715,10 @@ procedure TInnoSetupStyler.HandleCodeSection(var SpanState: TInnoSetupStylerSpan
   end;
 
 const
-  PascalReservedWords: array[0..41] of TScintRawString = (
+  PascalReservedWords: array[0..42] of TScintRawString = (
     'and', 'array', 'as', 'begin', 'case', 'const', 'div',
     'do', 'downto', 'else', 'end', 'except', 'external',
-    'finally', 'for', 'function', 'goto', 'if', 'in', 'is',
+    'finally', 'for', 'forward', 'function', 'goto', 'if', 'in', 'is',
     'label', 'mod', 'nil', 'not', 'of', 'or', 'procedure',
     'program', 'record', 'repeat', 'set', 'shl', 'shr',
     'then', 'to', 'try', 'type', 'until', 'var', 'while',
