@@ -48,11 +48,12 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
   <li>Unicode Inno Setup: Unicode is now supported for the input source. For example, where before you had to write <tt>S := #$0100 + #$0101 + 'Aa';</tt> you can now write <tt>S := '&#x0100;&#x0101;Aa';</tt> directly. Also see the new <i>UnicodeExample1.iss</i> example script.</li>
   <li>Added new <tt>IsX86</tt>, <tt>IsX64</tt>, <tt>IsIA64</tt>, and <tt>IsARM64</tt> support functions.</li>
+  <li>/LOG: Now logs DLL function imports.</li>
 </ul>
 </li>
 <li>Any [Files] entries with the <tt>deleteafterinstall</tt> flag or with <tt>DestDir</tt> set to <tt>{tmp}</tt> or a subdirectory of <tt>{tmp}</tt> are no longer included in the <tt>EstimatedSize</tt> value in the Uninstall registry key.</li>
 <li><i>Fix:</i> In 5.5.9 it was no longer possible to include a drive colon in [Setup] section directive <tt>OutputManifestFile</tt>.</li>
-<li>Unicode [Code] based on RemObjects Pascal Script Git commit 4b310a0fe3905b8b1b6004a2891a8388a3fb3c1c.</li>
+<li>Unicode [Code] based on RemObjects Pascal Script Git commit 76e377efa5fddc55b3a6a3a3d944317bdfde4a12.</li>
 <li>Minor tweaks.</li>
 </ul>
 <p>Thanks to ElSanchez and DRON for their contributions for Unicode input source support and improved image stretching respectively. Thanks to KngStr for his proof of concept for ISPP compiler directive highlighting.<p>

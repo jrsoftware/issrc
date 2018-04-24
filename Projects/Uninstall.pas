@@ -589,6 +589,8 @@ begin
       AssignCustomMessages(Pointer(CompiledCodeData[6]), Length(CompiledCodeData[6])*SizeOf(CompiledCodeData[6][1]));
 
       CodeRunner := TScriptRunner.Create();
+      CodeRunner.OnLog := CodeRunnerOnLog;
+      CodeRunner.OnLogFmt := CodeRunnerOnLogFmt;
       CodeRunner.OnDllImport := CodeRunnerOnDllImport;
       CodeRunner.OnDebug := CodeRunnerOnDebug;
       CodeRunner.OnDebugIntermediate := CodeRunnerOnDebugIntermediate;

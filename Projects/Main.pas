@@ -179,7 +179,9 @@ var
 {$ENDIF}
 
   CodeRunner: TScriptRunner;
-  
+
+procedure CodeRunnerOnLog(const S: String);
+procedure CodeRunnerOnLogFmt(const S: String; const Args: array of const);
 function CodeRunnerOnDebug(const Position: LongInt;
   var ContinueStepOver: Boolean): Boolean;
 function CodeRunnerOnDebugIntermediate(const Position: LongInt;
@@ -2038,6 +2040,16 @@ begin
   DebugNotify(Kind, Integer(OriginalEntryIndexes[EntryType][Number]), B);
 end;
 
+procedure CodeRunnerOnLog(const S: String);
+begin
+  Log(S);
+end;
+
+procedure CodeRunnerOnLogFmt(const S: String; const Args: array of const);
+begin
+  LogFmt(S, Args);
+end;
+
 procedure CodeRunnerOnDllImport(var DllName: String; var ForceDelayLoad: Boolean);
 var
   S, BaseName, FullName: String;
@@ -3141,6 +3153,8 @@ begin
   if SetupHeader.CompiledCodeText <> '' then begin
     CodeRunner := TScriptRunner.Create();
     try
+      CodeRunner.OnLog := CodeRunnerOnLog;
+      CodeRunner.OnLogFmt := CodeRunnerOnLogFmt;
       CodeRunner.OnDllImport := CodeRunnerOnDllImport;
       CodeRunner.OnDebug := CodeRunnerOnDebug;
       CodeRunner.OnDebugIntermediate := CodeRunnerOnDebugIntermediate;

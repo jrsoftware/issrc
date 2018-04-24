@@ -17,6 +17,8 @@ uses
   uPSRuntime, uPSDebugger, uPSUtils;
 
 type
+  TScriptRunnerOnLog = procedure(const S: String);
+  TScriptRunnerOnLogFmt = procedure(const S: String; const Args: array of const);
   TScriptRunnerOnDllImport = procedure(var DllName: String; var ForceDelayLoad: Boolean);
   TScriptRunnerOnDebug = function(const Position: LongInt; var ContinueStepOver: Boolean): Boolean;
   TScriptRunnerOnDebugIntermediate = function(const Position: LongInt; var ContinueStepOver: Boolean): Boolean;
@@ -26,10 +28,14 @@ type
     private
       FPSExec: TPSDebugExec;
       FClassImporter: TPSRuntimeClassImporter;
+      FOnLog: TScriptRunnerOnLog;
+      FOnLogFmt: TScriptRunnerOnLogFmt;
       FOnDllImport: TScriptRunnerOnDllImport;
       FOnDebug: TScriptRunnerOnDebug;
       FOnDebugIntermediate: TScriptRunnerOnDebugIntermediate;
       FOnException: TScriptRunnerOnException;
+      procedure Log(const S: String);
+      procedure LogFmt(const S: String; const Args: array of const);
       procedure RaisePSExecException;
       procedure SetPSExecParameters(const Parameters: array of Const; Params: TPSList);
       procedure SetPSExecReturnValue(Params: TPSList; BaseType: TPSBaseType; var Res: PPSVariant);
@@ -44,6 +50,8 @@ type
       function RunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: Integer): Integer;
       function RunStringFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: String): String;
       function EvaluateUsedVariable(const Param1, Param2, Param3: LongInt; const Param4: AnsiString): String;
+      property OnLog: TScriptRunnerOnLog read FOnLog write FOnLog;
+      property OnLogFmt: TScriptRunnerOnLogFmt read FOnLogFmt write FOnLogFmt;
       property OnDllImport: TScriptRunnerOnDllImport read FOnDllImport write FOnDllImport;
       property OnDebug: TScriptRunnerOnDebug read FOnDebug write FOnDebug;
       property OnDebugIntermediate: TScriptRunnerOnDebugIntermediate read FOnDebugIntermediate write FOnDebugIntermediate;
@@ -68,6 +76,18 @@ uses
 {$IFDEF UNICODE}
   {$WARN IMPLICIT_STRING_CAST OFF}
 {$ENDIF}
+
+procedure TScriptRunner.Log(const S: String);
+begin
+  if Assigned(FOnLog) then
+    FOnLog(S);
+end;
+
+procedure TScriptRunner.LogFmt(const S: String; const Args: array of const);
+begin
+  if Assigned(FOnLogFmt) then
+    FOnLogFmt(S, Args);
+end;
 
 procedure TScriptRunner.ShowPSExecError(const Error: TPSError);
 begin
@@ -155,54 +175,74 @@ end;
 {---}
 
 {$IFDEF UNICODE}
-function EncodeDLLFilename(const Filename: String): AnsiString;
+function EncodeDLLFilenameForROPS(const Filename: String): AnsiString;
 begin
   Result := '';
   if Filename <> '' then
-    Result := AnsiString('<utf8>') + UTF8Encode(Filename);
+      Result := AnsiString('<utf8>') + UTF8Encode(Filename);
 end;
 
 function NewUnloadDLLProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 begin
-  UnloadDLL(Caller, EncodeDLLFilename(Stack.GetString(-1)));
+  UnloadDLL(Caller, EncodeDLLFilenameForROPS(Stack.GetString(-1)));
   Result := True;
 end;
 {$ENDIF}
 
 function PSExecOnSpecialProcImport(Sender: TPSExec; p: TPSExternalProcRec; Tag: Pointer): Boolean;
+const
+  SYesNo: array[Boolean] of String = ('No', 'Yes');
 var
   ScriptRunner: TScriptRunner;
-  DllName: AnsiString;
+  S, DllName, FunctionName: AnsiString;
 {$IFDEF UNICODE}
   UnicodeDllName: String;
 {$ENDIF}
   I: Integer;
-  ForceDelayLoad: Boolean;
+  ForceDelayLoad, DelayLoad: Boolean;
+  ErrorCode: LongInt;
 begin
   ScriptRunner := Sender.ID;
   ForceDelayLoad := False;
 
-  if Assigned(ScriptRunner.FOnDllImport) then begin
-    DllName := p.Decl;
+  ScriptRunner.Log('-- DLL function import --');
 
-    I := Pos(AnsiString('dll:'), DllName);
-    if I <> 1 then begin
-      Result := False;
-      Exit;
-    end;
-    Delete(DllName, 1, Length('dll:'));
+  S := p.Decl;
 
-    I := Pos(AnsiString(#0), DllName);
-    if I = 0 then begin
-      Result := False;
-      Exit;
-    end;
-    Delete(DllName, I, MaxInt);
+  I := Pos(AnsiString('dll:'), S);
+  if I <> 1 then begin
+    Result := False;
+    Exit;
+  end;
+  Delete(S, 1, Length('dll:'));
 
+  I := Pos(AnsiString(#0), S);
+  if I = 0 then begin
+    Result := False;
+    Exit;
+  end;
+  DllName := Copy(S, 1, I-1);
+  Delete(S, 1, I);
+
+  I := Pos(AnsiString(#0), S);
+  if I = 0 then begin
+    Result := False;
+    Exit;
+  end;
+  FunctionName := Copy(S, 1, I-1);
+
+  ScriptRunner.LogFmt('Function name: %s', [FunctionName]);
 {$IFDEF UNICODE}
-    UnicodeDllName := UTF8ToString(DllName);
+  UnicodeDllName := UTF8ToString(DllName);
+  ScriptRunner.LogFmt('DLL name: %s', [UnicodeDllname]);
+{$ELSE}
+  ScriptRunner.LogFmt('DLL name: %s', [DllName]);
+{$ENDIF}
+
+  if Assigned(ScriptRunner.FOnDllImport) then begin
+{$IFDEF UNICODE}
     ScriptRunner.FOnDllImport(UnicodeDllName, ForceDelayLoad);
-    DllName := EncodeDLLFilename(UnicodeDllName);
+    DllName := EncodeDLLFilenameForROPS(UnicodeDllName);
 {$ELSE}
     ScriptRunner.FOnDllImport(DllName, ForceDelayLoad);
 {$ENDIF}
@@ -210,7 +250,24 @@ begin
     p.Decl := AnsiString('dll:') + DllName + Copy(p.Decl, Pos(AnsiString(#0), p.Decl), MaxInt);
   end;
 
-  Result := ProcessDllImportEx(Sender, p, ForceDelayLoad);
+  if DllName <> '' then begin
+{$IFDEF UNICODE}
+    ScriptRunner.LogFmt('Dest DLL name: %s', [UnicodeDllName]);
+{$ELSE}
+    ScriptRunner.LogFmt('Dest DLL name: %s', [DllName]);
+{$ENDIF}
+    ScriptRunner.Log('Importing the DLL function.');
+  end else
+    ScriptRunner.Log('Skipping.'); { We're actually still going to call ProcessDllImport but this doesn't matter to the user. }
+
+  Result := ProcessDllImportEx2(Sender, p, ForceDelayLoad, DelayLoad, ErrorCode);
+
+  if DllName <> '' then begin
+    if Result then
+      ScriptRunner.LogFmt('Succesfully imported the DLL function. Delay loaded? %s', [SYesNo[DelayLoad]])
+    else
+      ScriptRunner.LogFmt('Failed to import the DLL function (%d).', [ErrorCode]);
+  end;
 end;
 
 procedure PSExecOnSourceLine(Sender: TPSDebugExec; const Name: AnsiString; Position, Row, Col: Cardinal);
