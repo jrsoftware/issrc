@@ -200,7 +200,7 @@ begin
     Delete(DllName, I, MaxInt);
 
 {$IFDEF UNICODE}
-    UnicodeDllName := String(DllName);
+    UnicodeDllName := UTF8ToString(DllName);
     ScriptRunner.FOnDllImport(UnicodeDllName, ForceDelayLoad);
     DllName := EncodeDLLFilename(UnicodeDllName);
 {$ELSE}
