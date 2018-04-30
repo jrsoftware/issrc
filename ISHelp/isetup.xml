@@ -5252,6 +5252,7 @@ SignTool=byparam format c:
 <tr><td>10.0.14393</td><td>Windows 10 Version 1607</td></tr>
 <tr><td>10.0.15063</td><td>Windows 10 Version 1703</td></tr>
 <tr><td>10.0.16299</td><td>Windows 10 Version 1709</td></tr>
+<tr><td>10.0.17134</td><td>Windows 10 Version 1803</td></tr>
 </table>
 <p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>
