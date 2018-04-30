@@ -264,7 +264,7 @@ begin
 
   if DllName <> '' then begin
     if Result then
-      ScriptRunner.LogFmt('Succesfully imported the DLL function. Delay loaded? %s', [SYesNo[DelayLoad]])
+      ScriptRunner.LogFmt('Successfully imported the DLL function. Delay loaded? %s', [SYesNo[DelayLoad]])
     else
       ScriptRunner.LogFmt('Failed to import the DLL function (%d).', [ErrorCode]);
   end;
