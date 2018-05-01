@@ -2143,7 +2143,7 @@ var
               DidDeleteKey := False;
               if roDeleteKey in Options then begin
                 if IsDeletableSubkey(S) then begin
-                  Log('Deleting the key. ');
+                  Log('Deleting the key.');
                   RegDeleteKeyIncludingSubkeys(RV, RootKey, PChar(S));
                   DidDeleteKey := True;
                 end else
@@ -2292,11 +2292,11 @@ var
                             RegError(reRegSetValueEx, RootKey, S, ErrorCode);
                         end;
                       end;
-                    Log('Succesfully created or set the value.');
+                    Log('Successfully created or set the value.');
                   end else if roDeleteValue in Options then
-                    Log('Successully deleted the value.')
+                    Log('Successfully deleted the value.')
                   else
-                    Log('Successully created the key.')
+                    Log('Successfully created the key.')
                   { Our work is done. }
                 finally
                   RegCloseKey(K);
