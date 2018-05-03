@@ -8,11 +8,10 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 05.04.2018  by bovirus (bovirus@gmail.com) 
+; Italian.isl - Last Update: 03.05.2018  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
-;
 ; Based on previous translations of Rinaldo M. aka Whiteshark (based on ale5000 5.1.11+ translation)
 ;
 [LangOptions]
@@ -76,7 +75,7 @@ ErrorTooManyFilesInDir=Impossibile creare i file nella cartella "%1" perché con
 
 ; *** Setup common messages
 ExitSetupTitle=Uscita dall'installazione
-ExitSetupMessage=L'installazione non è completa. Uscendo dall'installazione in questo momento, il programma non sarà installato.%n%nÈ possibile eseguire l'installazione in un secondo tempo.%n%nVuoi uscire dall'installazione?
+ExitSetupMessage=L'installazione non è completa.%n%nUscendo dall'installazione in questo momento, il programma non sarà installato.%n%nÈ possibile eseguire l'installazione in un secondo tempo.%n%nVuoi uscire dall'installazione?
 AboutSetupMenuItem=&Informazioni sull'installazione...
 AboutSetupTitle=Informazioni sull'installazione
 AboutSetupMessage=%1 versione %2%n%3%n%n%1 sito web:%n%4
@@ -179,7 +178,7 @@ ComponentsDiskSpaceMBLabel=La selezione attuale richiede almeno [mb] MB di spazi
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Selezione processi aggiuntivi
-SelectTasksDesc=Quali processi aggiuntivi vuoi avviare?
+SelectTasksDesc=Quali processi aggiuntivi vuoi eseguire?
 SelectTasksLabel2=Seleziona i processi aggiuntivi che verranno eseguiti durante l'installazione di [name], quindi seleziona "Avanti".
 
 ; *** "Select Start Menu Folder" wizard page
@@ -211,10 +210,10 @@ PreparingDesc=Preparazione all'installazione di [name] nel computer.
 PreviousInstallNotCompleted=L'installazione/rimozione precedente del programma non è stata completata.%n%nÈ necessario riavviare il sistema per completare l'installazione.%n%nDopo il riavvio del sistema esegui di nuovo l'installazione di [name].
 CannotContinue=L'installazione non può continuare. Seleziona "Annulla" per uscire.
 ApplicationsFound=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione.%n%nTi consigliamo di permettere al processo di chiudere automaticamente queste applicazioni.
-ApplicationsFound2=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione. Ti consigliamo di permettere al processo di chiudere automaticamente queste applicazioni. %n%nAl completamento dell'installazione, il processo tenterà di riavviare le applicazioni.
+ApplicationsFound2=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione.%n%nTi consigliamo di permettere al processo di chiudere automaticamente queste applicazioni.%n%nAl completamento dell'installazione, il processo tenterà di riavviare le applicazioni.
 CloseApplications=Chiudi &automaticamente le applicazioni
 DontCloseApplications=&Non chiudere le applicazioni
-ErrorCloseApplications=L'installazione non è riuscita a chiudere automaticamente tutte le applicazioni.%n%nPrima di proseguire ti raccomandiamo di chiudere tutte le applicazioni che usano file che devono essere aggiornati durante l'installazione.
+ErrorCloseApplications=L'installazione non è riuscita a chiudere automaticamente tutte le applicazioni.%n%nPrima di proseguire ti raccomandiamo di chiudere tutte le applicazioni che usano file che devono essere aggiornati durante l'installazione.
 
 ; *** "Installing" wizard page
 WizardInstalling=Installazione in corso
