@@ -367,7 +367,7 @@ Source: "B\MYFILE.TXT"; DestDir: "{app}"; Check: DirExists(ExpandConstant('{app}
 
 <p>Setup might call each check function several times, even if there's only one entry that uses the check function. If your function performs a lengthy piece of code, you can optimize it by performing the code only once and 'caching' the result in a global variable.</p>
 
-<p>A check function isn't called if Setup already determined the entry it shouldn't be processed.</p>
+<p>A check function isn't called if Setup already determined the entry shouldn't be processed.</p>
 
 <p>A check function for a [Files] section entry using a wildcard is called once per file matching the wildcard. Use <tt>CurrentFileName</tt> to check for which file the function is called.</p>
 
@@ -437,7 +437,7 @@ Source: "MYPROG.CHM"; DestDir: "{app}"; AfterInstall: Log('After MYPROG.CHM Inst
 
 <p>All <tt>BeforeInstall</tt> and <tt>AfterInstall</tt> functions must not have a return value.</p>
 
-<p>A <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> function isn't called if Setup already determined the entry it shouldn't be processed.</p>
+<p>A <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> function isn't called if Setup already determined the entry shouldn't be processed.</p>
 
 <p>A <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> function for a [Files] section entry using a wildcard is called once per file matching the wildcard. Use <tt>CurrentFileName</tt> to check for which file the function is called.</p>
 
