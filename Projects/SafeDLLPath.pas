@@ -148,6 +148,8 @@ initialization
       // WIX3: required by CLSIDFromProgID() when loading msxml?.dll
       // NSIS: XP.SP2&SP3: SHAutoComplete ... OLE32!InitializeCatalogIfNecessary ... OLE32!CComCatalog::TryToLoadCLB
       SafeLoadLibrary(SystemDir + 'clbcatq.dll');
+      // NSIS: Win7 without KB2533623: SHGetFileInfo ... SetEntriesInAcl ... ADVAPI32!AccProvpLoadMartaFunctions
+      SafeLoadLibrary(SystemDir + 'ntmarta.dll');
 {
       // WIX3: required by Burn
       SafeLoadLibrary(SystemDir + 'cabinet.dll');
