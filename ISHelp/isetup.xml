@@ -919,6 +919,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_solidcompression">SolidCompression</link></li>
 <li><link topic="setup_sourcedir">SourceDir</link></li>
 <li><link topic="setup_terminalservicesaware">TerminalServicesAware</link></li>
+<li><link topic="setup_useduserareaswarning">UsedUserAreasWarning</link></li>
 <li><link topic="setup_usesetupldr">UseSetupLdr</link></li>
 <li><link topic="setup_versioninfocompany">VersionInfoCompany</link></li>
 <li><link topic="setup_versioninfocopyright">VersionInfoCopyright</link></li>
@@ -3806,6 +3807,14 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </body>
 </setuptopic>
 
+<setuptopic directive="UsedUserAreasWarning">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>This directive lets you disable the used user areas warning. See <link topic="setup_privilegesrequired">PrivilegesRequired</link> for more information.</p>
+</body>
+</setuptopic>
+
 <setuptopic directive="PrivilegesRequired">
 <setupvalid><tt>poweruser</tt>, <tt>admin</tt>, or <tt>lowest</tt></setupvalid>
 <setupdefault><tt>admin</tt></setupdefault>
@@ -3823,7 +3832,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <!-- <p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
 <p>When set to <tt>lowest</tt> Setup will not check the user's group membership. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "common" forms of the Shell Folder constants are mapped to the "user" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
 <p><b>Note:</b></p>
-<p>Regardless of the version of Windows, only if the installation is per-user (<tt>PrivilegesRequired=lowest</tt>) you may touch Windows' per-user areas from your script.</p>
+<p>Regardless of the version of Windows, if the installation is administrative (<tt>PrivilegesRequired=admin</tt> or <tt>PrivilegesRequired=poweruser</tt>) then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
 </body>
 </setuptopic>
 

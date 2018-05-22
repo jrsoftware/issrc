@@ -230,6 +230,7 @@ type
     ssUninstallLogMode,
     ssUninstallRestartComputer,
     ssUninstallStyle,
+    ssUsedUserAreasWarning,
     ssUsePreviousAppDir,
     ssUsePreviousGroup,
     ssUsePreviousLanguage,

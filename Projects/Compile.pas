@@ -177,6 +177,7 @@ type
     ssUninstallLogMode,
     ssUninstallRestartComputer,
     ssUninstallStyle,
+    ssUsedUserAreasWarning,
     ssUsePreviousAppDir,
     ssUsePreviousGroup,
     ssUsePreviousLanguage,
@@ -343,6 +344,8 @@ type
     FileLocationEntryFilenames: THashStringList;
     WarningsList: TLowFragStringList;
     ExpectedCustomMessageNames: TStringList;
+    UsedUserAreasWarning: Boolean;
+    UsedUserAreas: TStringList;
 
     DefaultLangData: TLangData;
     {$IFDEF UNICODE} PreLangDataList, {$ENDIF} LangDataList: TList;
@@ -1710,6 +1713,9 @@ begin
   FileLocationEntryFilenames := THashStringList.Create;
   WarningsList := TLowFragStringList.Create;
   ExpectedCustomMessageNames := TStringList.Create;
+  UsedUserAreas := TStringList.Create;
+  UsedUserAreas.Sorted := True;
+  UsedUserAreas.Duplicates := dupIgnore;
   DefaultLangData := TLangData.Create;
 {$IFDEF UNICODE}
   PreLangDataList := TLowFragList.Create;
@@ -1744,6 +1750,7 @@ begin
   PreLangDataList.Free;
 {$ENDIF}
   DefaultLangData.Free;
+  UsedUserAreas.Free;
   ExpectedCustomMessageNames.Free;
   WarningsList.Free;
   FileLocationEntryFilenames.Free;
@@ -2835,12 +2842,13 @@ const
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
     'language', 'syswow64', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
     'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064', 'userpf', 'usercf');
-  ShellFolderConsts: array[0..18] of String = (
-    'group', 'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
-    'commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
-    'sendto', 'userappdata', 'userdocs', 'commonappdata', 'commondocs',
-    'usertemplates', 'commontemplates', 'localappdata',
-    'userfavorites', 'commonfavorites');
+  UserShellFolderConsts: array[0..7] of String = (
+    'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
+    'userappdata', 'userdocs', 'usertemplates', 'userfavorites');
+  ShellFolderConsts: array[0..10] of String = (
+    'group', 'commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
+    'sendto', 'commonappdata', 'commondocs', 'commontemplates', 'localappdata',
+    'commonfavorites');
   AllowedConstsNames: array[TAllowedConst] of String = (
     'olddata', 'break');
 var
@@ -2908,6 +2916,11 @@ begin
           for K := Low(Consts) to High(Consts) do
             if Cnst = Consts[K] then
               goto 1;
+          for K := Low(UserShellFolderConsts) to High(UserShellFolderConsts) do
+            if Cnst = UserShellFolderConsts[K] then begin
+              UsedUserAreas.Add(Cnst);
+              goto 1;
+            end;
           for K := Low(ShellFolderConsts) to High(ShellFolderConsts) do
             if Cnst = ShellFolderConsts[K] then
               goto 1;
@@ -4220,6 +4233,9 @@ begin
     ssUsePreviousAppDir: begin
         SetSetupHeaderOption(shUsePreviousAppDir);
       end;
+    ssUsedUserAreasWarning: begin
+        UsedUserAreasWarning := StrToBool(Value);
+      end;
     ssUsePreviousGroup: begin
         SetSetupHeaderOption(shUsePreviousGroup);
       end;
@@ -5453,9 +5469,10 @@ begin
       end;
       if S = 'HKCR' then
         RootKey := HKEY_CLASSES_ROOT
-      else if S = 'HKCU' then
-        RootKey := HKEY_CURRENT_USER
-      else if S = 'HKLM' then
+      else if S = 'HKCU' then begin
+        UsedUserAreas.Add(S);
+        RootKey := HKEY_CURRENT_USER;
+      end else if S = 'HKLM' then
         RootKey := HKEY_LOCAL_MACHINE
       else if S = 'HKU' then
         RootKey := HKEY_USERS
@@ -8416,6 +8433,7 @@ var
   I: Integer;
   AppNameHasConsts, AppVersionHasConsts, AppPublisherHasConsts,
     AppCopyrightHasConsts, AppIdHasConsts, Uninstallable: Boolean;
+  PrivilegesRequiredValue: String;
 begin
   { Sanity check: A single TSetupCompiler instance cannot be used to do
     multiple compiles. A separate instance must be used for each compile,
@@ -8491,6 +8509,7 @@ begin
     SignToolRetryDelay := 500;
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
     SetupHeader.WizardImageAlphaFormat := afIgnored;
+    UsedUserAreasWarning := True;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetup, 'Setup', 0, 0, True, True, '', False, False);
@@ -8886,6 +8905,16 @@ begin
       EnumFiles('', 1, 0);
     EnumIniSection(EnumFiles, 'Files', 0, 0, True, True, '', False, False);
     CallIdleProc;
+
+    if UsedUserAreasWarning and (UsedUserAreas.Count > 0) and
+       (SetupHeader.PrivilegesRequired in [prPowerUser, prAdmin]) then begin
+      if SetupHeader.PrivilegesRequired = prPowerUser then
+        PrivilegesRequiredValue := 'poweruser'
+      else
+        PrivilegesRequiredValue := 'admin';
+      WarningsList.Add(Format(SCompilerUsedUserAreasWarning, ['Setup',
+        'PrivilegesRequired', PrivilegesRequiredValue, UsedUserAreas.CommaText]));
+    end;
 
     { Read decompressor DLL. Must be done after [Files] is parsed, since
       SetupHeader.CompressMethod isn't set until then }
