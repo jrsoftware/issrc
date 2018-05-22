@@ -586,7 +586,7 @@ var
       SetDWordValue(H2, 'NoRepair', 1);
       SetStringValue(H2, 'InstallDate', GetInstallDateString);
       if ExtractMajorMinorVersion(ExpandConst(SetupHeader.AppVersion), MajorVersion, MinorVersion) then begin
-        { Originally MSDN say to write to Major/MinorVersion, now it says to write to VersionMajor/Minor. So write to both. }
+        { Originally MSDN said to write to Major/MinorVersion, now it says to write to VersionMajor/Minor. So write to both. }
         SetDWordValue(H2, 'MajorVersion', MajorVersion);
         SetDWordValue(H2, 'MinorVersion', MinorVersion);
         SetDWordValue(H2, 'VersionMajor', MajorVersion);

@@ -44,7 +44,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added new [Setup] section directive: <tt>SignToolMinimumTimeBetween</tt>, which defaults to 0. If not set to 0, specifies the minimum number of milliseconds that should have elapsed between consecutive digital signing actions by the Setup Compiler. For example, if set to 5000 then the Setup Compiler will perform 1 digital signing per 5 seconds at most. Can be used to avoid being rejected by rate limiting timestamp services.</li>
 </ul>
 </li>
-<li>Added new [Setup] section directive <tt>ArchitecturesAllowed</tt> value: <tt>arm64</tt>. This can be used to not allow Setup to run on Windows 10 on ARM64. Note that Windows 10 on ARM64 only supports 32-bit (x86) binaries and therefore Setup (even in older 3s) will never install in 64-bit mode on Windows 10 on ARM64.</li>
+<li>Added new [Setup] section directive <tt>ArchitecturesAllowed</tt> value: <tt>arm64</tt>. This can be used to not allow Setup to run on Windows 10 on ARM64. Note that Windows 10 on ARM64 only supports 32-bit (x86) binaries and therefore Setup (even older versions) will never install in 64-bit mode on Windows 10 on ARM64.</li>
 <li>Pascal Scripting changes:
 <ul>
   <li>Unicode Inno Setup: Unicode is now supported for the input source. For example, where before you had to write <tt>S := #$0100 + #$0101 + 'Aa';</tt> you can now write <tt>S := '&#x0100;&#x0101;Aa';</tt> directly. Also see the new <i>UnicodeExample1.iss</i> example script.</li>
