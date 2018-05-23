@@ -736,6 +736,12 @@ begin
     Stack.SetInt(PStart, PathCharLength(Stack.GetString(PStart-1), Stack.GetInt(PStart-2)));
   end else if Proc.Name = 'SETNTFSCOMPRESSION' then begin
     Stack.SetBool(PStart, SetNTFSCompressionRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetBool(PStart-2)));
+  end else if Proc.Name = 'ISWILDCARD' then begin
+    Stack.SetBool(PStart, IsWildcard(Stack.GetString(PStart-1)));
+  end else if Proc.Name = 'WILDCARDMATCH' then begin
+    S := Stack.GetString(PStart-1);
+    N := Stack.GetString(PStart-2);
+    Stack.SetBool(PStart, WildcardMatch(PChar(S), PChar(N)));
   end else
     Result := False;
 end;

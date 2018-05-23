@@ -507,7 +507,7 @@ type
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
-    function CreateMemoryStreamsFromFiles(const AFiles: String): TList;
+    function CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TList;
   public
     AppData: Longint;
     CallbackProc: TCompilerCallbackProc;
@@ -720,16 +720,20 @@ begin
   until (Result <> '') or (S = '');
 end;
 
-function TSetupCompiler.CreateMemoryStreamsFromFiles(const AFiles: String): TList;
+function TSetupCompiler.CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TList;
 
   procedure AddFile(const Filename: String);
   begin
     AddStatus(Format(SCompilerStatusReadingInFile, [FileName]));
-    Result.Add(CreateMemoryStreamFromFile(FileName));    
+    Result.Add(CreateMemoryStreamFromFile(FileName));
   end;
 
 var
-  S, Filename: String;
+  Filename, SearchSubDir: String;
+  AFilesList: TStringList;
+  I: Integer;
+  H: THandle;
+  FindData: TWin32FindData;
 begin
   Result := TList.Create;
   try
@@ -739,14 +743,32 @@ begin
     Filename := PrependSourceDirName(AFiles);
     if NewFileExists(Filename) then
        AddFile(Filename)
-    else begin 
-      S := AFiles;
-      while True do begin
-        Filename := ExtractStr(S, ',');
-        if Filename = '' then
-          Break;
-        Filename := PrependSourceDirName(Filename);
-        AddFile(Filename);
+    else begin
+      AFilesList := TStringList.Create;
+      try
+        ProcessWildcardsParameter(AFiles, AFilesList,
+          Format(SCompilerDirectivePatternTooLong, [ADirectiveName]));
+        for I := 0 to AFilesList.Count-1 do begin
+          Filename := PrependSourceDirName(AFilesList[I]);
+          if IsWildcard(FileName) then begin
+            H := FindFirstFile(PChar(Filename), FindData);
+            if H <> INVALID_HANDLE_VALUE then begin
+              try
+                SearchSubDir := PathExtractPath(Filename);
+                repeat
+                  if FindData.dwFileAttributes and (FILE_ATTRIBUTE_DIRECTORY or FILE_ATTRIBUTE_HIDDEN) <> 0 then
+                    Continue;
+                   AddFile(SearchSubDir + FindData.cFilename);
+                until not FindNextFile(H, FindData);
+              finally
+                Windows.FindClose(H);
+              end;
+            end;
+          end else
+            AddFile(Filename);  { use the case specified in the script }
+        end;
+      finally
+        AFilesList.Free;
       end;
     end;
   except
@@ -3780,7 +3802,7 @@ begin
         AIncludes := TStringList.Create;
         try
           ProcessWildcardsParameter(Value, AIncludes,
-            SCompilerDirectiveCloseApplicationsFilterTooLong);
+            Format(SCompilerDirectivePatternTooLong, ['CloseApplicationsFilter']));
           SetupHeader.CloseApplicationsFilter := StringsToCommaString(AIncludes);
         finally
           AIncludes.Free;
@@ -8725,10 +8747,10 @@ begin
     { Read wizard image }
     LineNumber := SetupDirectiveLines[ssWizardImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFile']));
-    WizardImages := CreateMemoryStreamsFromFiles(WizardImageFile);
+    WizardImages := CreateMemoryStreamsFromFiles('WizardImageFile', WizardImageFile);
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
-    WizardSmallImages := CreateMemoryStreamsFromFiles(WizardSmallImageFile);
+    WizardSmallImages := CreateMemoryStreamsFromFiles('WizardSmallImageFile', WizardSmallImageFile);
     LineNumber := 0;
 
     { Prepare Setup executable & signed uninstaller data }

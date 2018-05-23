@@ -4461,7 +4461,7 @@ DiskSliceSize=1457664
 <setuptopic directive="WizardImageFile">
 <setupdefault><tt>compiler:WIZMODERNIMAGE.BMP</tt></setupdefault>
 <body>
-<p>Specifies the name(s) of the bitmap file(s) to display on the left side of the wizard. The files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
+<p>Specifies the name(s) of the bitmap file(s) to display on the left side of the wizard. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
 <p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes.</p>
 <p>When multiple files are specified, Setup will automatically select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
 <table>
@@ -4484,7 +4484,7 @@ DiskSliceSize=1457664
 <setuptopic directive="WizardSmallImageFile">
 <setupdefault><tt>compiler:WIZMODERNSMALLIMAGE.BMP</tt></setupdefault>
 <body>
-<p>Specifies the name(s) of the bitmap file(s) to display in the upper right corner of the wizard. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
+<p>Specifies the name(s) of the bitmap file(s) to display in the upper right corner of the wizard. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
 <p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes.</p>
 <p>When multiple files are specified, Setup will automatically select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
 <table>

@@ -874,6 +874,16 @@ end;</pre></example>
         <prototype>function CompareStr(const S1, S2: string): Integer;</prototype>
         <description><p>Compares S1 to S2, with case-sensitivity. The return value is less than 0 if S1 is less than S2, 0 if S1 equals S2, or greater than 0 if S1 is greater than S2.</p></description>
       </function>
+      <function>
+        <name>IsWildcard</name>
+        <prototype>function IsWildcard(const Pattern: String): Boolean;</prototype>
+        <description><p>Returns True if the specified pattern contains a wildcard.</p></description>
+      </function>
+      <function>
+        <name>WildcardMatch</name>
+        <prototype>function WildcardMatch(const Text, Pattern: String): Boolean;</prototype>
+        <description><p>Returns True if the specified text matches the specified pattern.</p></description>
+      </function>
     </subcategory>
     <subcategory>
       <function>
