@@ -196,11 +196,11 @@ procedure RegisterCustomFolderTreeView_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(Cl.FindClass('TWinControl'),'TCustomFolderTreeView') do
   begin
-    RegisterMethod('Procedure ChangeDirectory( const Value : String; const CreateNewItems : Boolean)');
-    RegisterMethod('Procedure CreateNewDirectory( const ADefaultName : String)');
+    RegisterMethod('procedure ChangeDirectory(const Value: String; const CreateNewItems: Boolean)');
+    RegisterMethod('procedure CreateNewDirectory(const ADefaultName: String)');
     RegisterProperty('Directory', 'String', iptrw);
   end;
-  CL.AddTypeS('TFolderRenameEvent', 'Procedure ( Sender : TCustomFolderTreeView; var NewName : String; var Accept : Boolean)');
+  CL.AddTypeS('TFolderRenameEvent', 'procedure(Sender: TCustomFolderTreeView; var NewName: String; var Accept: Boolean)');
 end;
 
 procedure RegisterFolderTreeView_C(Cl: TPSPascalCompiler);
@@ -216,7 +216,7 @@ procedure RegisterStartMenuFolderTreeView_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(Cl.FindClass('TCustomFolderTreeView'),'TStartMenuFolderTreeView') do
   begin
-    RegisterMethod('Procedure SetPaths( const AUserPrograms, ACommonPrograms, AUserStartup, ACommonStartup : String)');
+    RegisterMethod('procedure SetPaths(const AUserPrograms, ACommonPrograms, AUserStartup, ACommonStartup: String)');
     RegisterProperty('OnChange', 'TNotifyEvent', iptrw);
     RegisterProperty('OnRename', 'TFolderRenameEvent', iptrw);
   end;
@@ -260,7 +260,7 @@ begin
 
   with Cl.AddClassN(Cl.FindClass('TWinControl'),'TNewNotebook') do
   begin
-    RegisterMethod('Function FindNextPage( CurPage : TNewNotebookPage; GoForward : Boolean) : TNewNotebookPage');
+    RegisterMethod('function FindNextPage(CurPage: TNewNotebookPage; GoForward: Boolean): TNewNotebookPage');
     RegisterProperty('PageCount', 'Integer', iptr);
     RegisterProperty('Pages', 'TNewNotebookPage Integer', iptr);
     RegisterProperty('ActivePage', 'TNewNotebookPage', iptrw);
@@ -298,7 +298,7 @@ procedure RegisterMainForm_C(Cl: TPSPascalCompiler);
 begin
   with CL.AddClassN(CL.FindClass('TSetupForm'), 'TMainForm') do
   begin
-    RegisterMethod('Procedure ShowAboutBox');
+    RegisterMethod('procedure ShowAboutBox');
   end;
 end;
 
@@ -388,8 +388,8 @@ begin
     RegisterProperty('PreparingNoRadio', 'TNewRadioButton', iptr);
     RegisterProperty('PreparingMemo', 'TNewMemo', iptr);
     RegisterProperty('CurPageID', 'Integer', iptr);
-    RegisterMethod('function AdjustLabelHeight(ALabel:TNewStaticText):Integer');
-    RegisterMethod('procedure IncTopDecHeight(AControl:TControl;Amount:Integer)');
+    RegisterMethod('function AdjustLabelHeight(ALabel: TNewStaticText): Integer');
+    RegisterMethod('procedure IncTopDecHeight(AControl: TControl; Amount: Integer)');
     RegisterProperty('PrevAppDir', 'String', iptr);
   end;
 end;
