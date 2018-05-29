@@ -50,6 +50,29 @@ uses
 
 {$R *.DFM}
 
+procedure TSignToolsForm.ActiveFormChanged(Sender: TObject);
+var
+  Form: TCustomForm;
+  Ctrl: TControl;
+  Edit: TEdit;
+  I: Integer;
+begin
+  Form := Screen.ActiveCustomForm;
+  if (Form = nil) or (Form.ClassName <> 'TInputQueryForm') then Exit;
+
+  for I := 0 to Form.ControlCount-1 do
+  begin
+    Ctrl := Form.Controls[i];
+    if Ctrl is TEdit then
+    begin
+      Edit := TEdit(Ctrl);
+    end;
+  end;
+
+  Edit.SetBounds(Edit.Left, Edit.Top, Edit.Width * 5, Edit.Height);
+  Form.ClientWidth := (Edit.Left * 2) + Edit.Width;
+end;
+
 procedure TSignToolsForm.UpdateSignTools;
 begin
   SignToolsListBox.Items.Assign(FSignTools);
@@ -87,6 +110,7 @@ function TSignToolsForm.InputSignTool(var SignToolName, SignToolCommand: String;
   ExistingIndex: Integer): Boolean;
 var
   I: Integer;
+  ClickedOK: Boolean;
 begin
   Result := False;
 
@@ -103,11 +127,17 @@ begin
       end;
     end;
 
-    if InputQuery(Caption, 'Command of the Sign Tool:', SignToolCommand) then begin
-      if SignToolCommand = '' then begin
-        AppMessageBox(PChar('Invalid command.'), PChar(Caption), MB_OK or MB_ICONSTOP);
-        Exit;
+    Screen.OnActiveFormChange := ActiveFormChanged;
+    try
+      ClickedOK := InputQuery(Caption, 'Command of the Sign Tool:', SignToolCommand);
+      if ClickedOK then begin
+        if SignToolCommand = '' then begin
+          AppMessageBox(PChar('Invalid command.'), PChar(Caption), MB_OK or MB_ICONSTOP);
+          Exit;
+        end;
       end;
+    finally
+      Screen.OnActiveFormChange := nil;
     end;
 
     Result := True;
