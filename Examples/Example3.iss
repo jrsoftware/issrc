@@ -26,12 +26,9 @@ Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 ; you don't need a [Registry] section.
 
 [Registry]
-; Start "Software\My Company\My Program" keys under HKEY_CURRENT_USER
-; and HKEY_LOCAL_MACHINE. The flags tell it to always delete the
-; "My Program" keys upon uninstall, and delete the "My Company" keys
-; if there is nothing left in them.
-Root: HKCU; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
-Root: HKCU; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
+; Create "Software\My Company\My Program" keys under LOCAL_MACHINE. The flags
+; tell it to always delete the "My Program" key upon uninstall, and delete
+; the "My Company" key if there is nothing left in it.
 Root: HKLM; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
 Root: HKLM; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Path"; ValueData: "{app}"
