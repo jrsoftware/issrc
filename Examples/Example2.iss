@@ -12,6 +12,8 @@ DefaultDirName={pf}\My Program
 ; to ask for a Start Menu folder name:
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\MyProg.exe
+Compression=lzma2
+SolidCompression=yes
 OutputDir=userdocs:Inno Setup Examples Output
 
 [Files]
