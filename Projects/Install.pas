@@ -2203,6 +2203,7 @@ var
                     { We're not creating a value, and we're not just deleting a
                       value (that was checked above), so there is no reason to
                       even open the key }
+                    Log('Not creating the key or a value, skipping the key and only updating uninstall log.');
                     ErrorCode := ERROR_FILE_NOT_FOUND;
                   end;
                 end;
