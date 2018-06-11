@@ -26,12 +26,18 @@ Portions Copyright &copy; 2000-2018 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
+<p><a name="5.6.1"></a><span class="ver">5.6.1 </span><span class="date">(?)</span></p>
+<ul>
+<li>The <tt>{sendto}</tt> constant has been renamed to <tt>{usersendto}</tt> and now can correctly trigger a <a href="#useduserareaswarnings">used user areas warning</a>. It still returns the same directory: the path to the current user's Send To folder. (There is no common Send To folder.)</li>
+<li>Minor tweaks.</li>
+</ul>
+
 <p><a name="5.6.0"></a><span class="ver">5.6.0 </span><span class="date">(2018-06-08)</span></p>
 <ul>
 <li>/LOG: Now logs registry entries.</li>
 <li>Compiler IDE change: Syntax highlighting and syntax error underlining support for <tt>#include</tt> and ISPP has been significantly improved (with ISPP installed: <a href="https://i.imgur.com/nPiun9k.png">before</a> and <a href="https://i.imgur.com/HoJaBRP.png">after</a>, without ISPP installed: <a href="https://i.imgur.com/nPiun9k.png">before</a> and <a href="https://i.imgur.com/ro0ejL3.png">after</a></li>
 <li><b>Change in default behavior:</b> If [Setup] section directive <tt>DisableWelcomePage</tt> is set to <tt>yes</tt> (which it is by default), then the title of the wizard now includes <tt>AppVerName</tt> instead of <tt>AppName</tt>, in other words: it now includes the version number of the application. If <tt>WindowVisible</tt> is set to <tt>yes</tt> this applies to the background window instead.</li>
-<li>Regardless of the version of Windows, if the installation is administrative then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. The compiler will now warn you about this, which can be disabled using new [Setup] section directive <tt>UsedUserAreasWarning</tt>.</tt>
+<li><a name="useduserareaswarnings">Regardless of the version of Windows</a>, if the installation is administrative then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. The compiler will now warn you about this, which can be disabled using new [Setup] section directive <tt>UsedUserAreasWarning</tt>.</tt>
 <li>Improved support for high DPI systems:
 <ul>
   <li>The <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> [Setup] section directives now may list multiple files. This support wildcards. When multiple files are specified, Setup will automatically select the one which best matches the system's DPI setting. See the help file for a list of recommended sizes. Note: when you test this be sure to first log out and back in after any DPI change.</li>

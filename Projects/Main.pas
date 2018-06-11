@@ -974,10 +974,10 @@ function ExpandIndividualConst(const Cnst: String;
 const
   FolderConsts: array[Boolean, TShellFolderID] of String =
     (('userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
-      'sendto', 'fonts', 'userappdata', 'userdocs', 'usertemplates',
+      'usersendto', 'fonts', 'userappdata', 'userdocs', 'usertemplates',
       'userfavorites', 'localappdata'),
      ('commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
-      'sendto', 'fonts', 'commonappdata', 'commondocs', 'commontemplates',
+      'usersendto', 'fonts', 'commonappdata', 'commondocs', 'commontemplates',
       'commonfavorites', 'localappdata'));
   NoUninstallConsts: array[0..6] of String =
     ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'hwnd',

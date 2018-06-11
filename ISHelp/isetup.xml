@@ -342,7 +342,6 @@ This " contains " embedded " quotes
 <keyword value="{pf64}" anchor="pf64" />
 <keyword value="{reg:...}" anchor="reg" />
 <keyword value="{sd}" anchor="sd" />
-<keyword value="{sendto}" anchor="sendto" />
 <keyword value="{src}" anchor="src" />
 <keyword value="{srcexe}" anchor="srcexe" />
 <keyword value="{sys}" anchor="sys" />
@@ -362,6 +361,7 @@ This " contains " embedded " quotes
 <keyword value="{username}" anchor="username" />
 <keyword value="{userpf}" anchor="userpf" />
 <keyword value="{userprograms}" anchor="userprograms" />
+<keyword value="{usersendto}" anchor="usersendto" />
 <keyword value="{userstartmenu}" anchor="userstartmenu" />
 <keyword value="{userstartup}" anchor="userstartup" />
 <keyword value="{usertemplates}" anchor="usertemplates" />
@@ -530,11 +530,6 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>The path to the local (nonroaming) Application Data folder.</p>
 </dd>
 
-<dt><b><a name="sendto">{sendto}</a></b></dt>
-<dd>
-<p>The path to the current user's Send To folder. (There is no common Send To folder.)</p>
-</dd>
-
 <dt><b><a name="userappdata">{userappdata}</a></b> &amp; <b><a name="commonappdata">{commonappdata}</a></b></dt>
 <dd>
 <p>The path to the Application Data folder.</p>
@@ -568,6 +563,11 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <dt><b><a name="userprograms">{userprograms}</a></b> &amp; <b><a name="commonprograms">{commonprograms}</a></b> *</dt>
 <dd>
 <p>The path to the Programs folder on the Start Menu.</p>
+</dd>
+
+<dt><b><a name="usersendto">{usersendto}</a></b></dt>
+<dd>
+<p>The path to the current user's Send To folder. (There is no common Send To folder.)</p>
 </dd>
 
 <dt><b><a name="userstartmenu">{userstartmenu}</a></b> &amp; <b><a name="commonstartmenu">{commonstartmenu}</a></b> *</dt>

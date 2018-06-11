@@ -2864,12 +2864,12 @@ const
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
     'language', 'syswow64', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
     'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064', 'userpf', 'usercf');
-  UserShellFolderConsts: array[0..7] of String = (
+  UserShellFolderConsts: array[0..8] of String = (
     'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
-    'userappdata', 'userdocs', 'usertemplates', 'userfavorites');
-  ShellFolderConsts: array[0..10] of String = (
+    'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto');
+  ShellFolderConsts: array[0..9] of String = (
     'group', 'commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
-    'sendto', 'commonappdata', 'commondocs', 'commontemplates', 'localappdata',
+    'commonappdata', 'commondocs', 'commontemplates', 'localappdata',
     'commonfavorites');
   AllowedConstsNames: array[TAllowedConst] of String = (
     'olddata', 'break');
