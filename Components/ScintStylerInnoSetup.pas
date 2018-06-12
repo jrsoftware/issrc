@@ -944,34 +944,32 @@ begin
     NeedIspp := True;
   end else
     NeedIspp := False; { Might be updated later to True later }
+  ConsumeChar('#');
+  CommitStyle(stCompilerDirective);
 
-  if ConsumeChar('#') then begin
-    CommitStyle(stCompilerDirective);
-
-    { Directive name or shorthand }
-    SkipWhiteSpace;
-    if ConsumeCharIn(ISPPDirectiveShorthands) then begin
-      NeedIspp := True;
-      FinishDirectiveNameOrShorthand(True); { All shorthands require a parameter }
-    end
-    else begin
-      S := ConsumeString(ISPPIdentChars);
-      for I := Low(ISPPDirectives) to High(ISPPDirectives) do
-        if SameRawText(S, ISPPDirectives[I].Name) then begin
-          NeedIspp := not SameRawText(S, 'include'); { Built-in preprocessor only supports '#include' }
-          Inc(OpenCount, ISPPDirectives[I].OpenCountChange);
-          if OpenCount < 0 then begin
-            CommitStyleSq(stCompilerDirective, True);
-            OpenCount := 0; { Reset so that next doesn't automatically gets error as well }
-          end;
-          FinishDirectiveNameOrShorthand(ISPPDirectives[I].RequiresParameter);
-          Break;
+  { Directive name or shorthand }
+  SkipWhiteSpace;
+  if ConsumeCharIn(ISPPDirectiveShorthands) then begin
+    NeedIspp := True;
+    FinishDirectiveNameOrShorthand(True); { All shorthands require a parameter }
+  end
+  else begin
+    S := ConsumeString(ISPPIdentChars);
+    for I := Low(ISPPDirectives) to High(ISPPDirectives) do
+      if SameRawText(S, ISPPDirectives[I].Name) then begin
+        NeedIspp := not SameRawText(S, 'include'); { Built-in preprocessor only supports '#include' }
+        Inc(OpenCount, ISPPDirectives[I].OpenCountChange);
+        if OpenCount < 0 then begin
+          CommitStyleSq(stCompilerDirective, True);
+          OpenCount := 0; { Reset so that next doesn't automatically gets error as well }
         end;
-      if InlineDirective then
-        CommitStyle(stDefault) { #emit shorthand was used (='#' directly followed by an expression): not an error }
-      else
-        CommitStyleSqPending(stCompilerDirective);
-    end;
+        FinishDirectiveNameOrShorthand(ISPPDirectives[I].RequiresParameter);
+        Break;
+      end;
+    if InlineDirective then
+      CommitStyle(stDefault) { #emit shorthand was used (='#' directly followed by an expression): not an error }
+    else
+      CommitStyleSqPending(stCompilerDirective);
   end;
 
   { Rest of the directive }
@@ -1385,9 +1383,8 @@ begin
     Section := scNone;
     SquigglifyUntilChars([], stDefault);
   end
-  else if CurCharIs('#') or (NewLineState.OpenCompilerDirectivesCount > 0) then begin
-    HandleCompilerDirective(False, -1, NewLineState.OpenCompilerDirectivesCount);
-  end
+  else if CurCharIs('#') then
+    HandleCompilerDirective(False, -1, NewLineState.OpenCompilerDirectivesCount)
   else begin
     case Section of
       scUnknown: ;
