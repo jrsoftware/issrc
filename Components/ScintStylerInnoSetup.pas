@@ -936,7 +936,7 @@ var
   S: TScintRawString;
   StartIndex, I: Integer;
   C: AnsiChar;
-  NeedIspp: Boolean;
+  NeedIspp, ForDirectiveExpressionsNext: Boolean;
 begin
   StartIndex := CurIndex;
   if InlineDirective then begin
@@ -944,6 +944,7 @@ begin
     NeedIspp := True;
   end else
     NeedIspp := False; { Might be updated later to True later }
+  ForDirectiveExpressionsNext := False;
   ConsumeChar('#');
   CommitStyle(stCompilerDirective);
 
@@ -958,6 +959,7 @@ begin
     for I := Low(ISPPDirectives) to High(ISPPDirectives) do
       if SameRawText(S, ISPPDirectives[I].Name) then begin
         NeedIspp := not SameRawText(S, 'include'); { Built-in preprocessor only supports '#include' }
+        ForDirectiveExpressionsNext := SameRawText(S, 'for'); { #for uses ';' as an expressions list separator so we need to remember that ';' doesn't start a comment until the list is done }
         Inc(OpenCount, ISPPDirectives[I].OpenCountChange);
         if OpenCount < 0 then begin
           CommitStyleSq(stCompilerDirective, True);
@@ -1008,6 +1010,8 @@ begin
         '?', ':', ',', '.', '~', '(', '[', '{', ')', ']', '}', '@',
         '#':
           begin
+            if (C = '}') and ForDirectiveExpressionsNext then
+              ForDirectiveExpressionsNext := False;
             if (C = '/') and ConsumeChar('*') then
               FinishConsumingStarComment
             else if InlineDirective and (C = '}') then
@@ -1017,11 +1021,15 @@ begin
           end;
         ';':
           begin
-            if not InlineDirective then
-              ConsumeAllRemaining
-            else
-              ConsumeCharsNot(['}']);
-            CommitStyle(stComment);
+            if ForDirectiveExpressionsNext then
+              CommitStyle(stSymbol)
+            else begin
+              if not InlineDirective then
+                ConsumeAllRemaining
+              else
+                ConsumeCharsNot(['}']);
+              CommitStyle(stComment);
+            end;
           end;
         '''', '"':
           begin
