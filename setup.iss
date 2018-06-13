@@ -167,12 +167,12 @@ Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignor
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch; Check: ISPPCheck
 
 [Icons]
-Name: "{group}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.5"
-Name: "{group}\Inno Setup Documentation"; Filename: "{app}\ISetup.chm"
-Name: "{group}\Inno Setup Example Scripts"; Filename: "{app}\Examples\"
-Name: "{group}\Inno Setup FAQ"; Filename: "{app}\isfaq.htm"
-Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"
-Name: "{commondesktop}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.5"; Tasks: desktopicon
+Name: "{group}\{cm:InnoSetupCompiler}"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.5"
+Name: "{group}\{cm:InnoSetupDocumentation}"; Filename: "{app}\ISetup.chm"
+Name: "{group}\{cm:InnoSetupExampleScripts}"; Filename: "{app}\Examples\"
+Name: "{group}\{cm:InnoSetupFAQ}"; Filename: "{app}\isfaq.htm"
+Name: "{group}\{cm:InnoSetupRevisionHistory}"; Filename: "{app}\whatsnew.htm"
+Name: "{commondesktop}\{cm:InnoSetupCompiler}"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.5"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\Compil32.exe"; Parameters: "/ASSOC"; StatusMsg: "{cm:AssocingFileExtension,Inno Setup,.iss}"; Tasks: fileassoc
@@ -187,6 +187,21 @@ ISPPSubtitle=Would you like to install Inno Setup Preprocessor?
 ISPPText=Inno Setup Preprocessor (ISPP) is an official add-on for Inno Setup. ISPP allows you to conditionally compile parts of scripts, to use compile time variables in your scripts and to use built-in functions which for example can read from the registry or INI files at compile time.%n%nISPP also contains a special version of the ISCC command line compiler which can take variable definitions as command line parameters and use them during compilation.
 ISPPText2=Select whether you would like to install ISPP, then click Next.
 ISPPCheck=&Install Inno Setup Preprocessor
+italian.ISPPTitle=Inno Setup Preprocessor
+italian.ISPPSubtitle=Vuoi installare Inno Setup Preprocessor?
+italian.ISPPText=Inno Setup Preprocessor (ISPP) è un addon ufficiale per Inno Setup.%n%nISPP ti permette condizionalmente di compilare parte degli script, di usare variabili tempo durante la compilazione negli script e di usare le funzioni integrate come ad esempio leggere il registro o file INI durante la compilazione.%n%nISPP contiene inoltre una versione speciale del compilatore a linea di comando ISCC che accetta la definizione delle variabili come parametri da linea di comando e puÃ² usarle durante la compilazione.
+italian.ISPPText2=Seleziona se vuoi installare ISPP, quindi seleziona 'Avanti'.
+italian.ISPPCheck=&Installa Inno Setup Preprocessor
+InnoSetupCompiler=Inno Setup Compiler
+InnoSetupDocumentation=Inno Setup Documentation
+InnoSetupExampleScripts=Inno Setup Example Scripts
+InnoSetupFAQ=Inno Setup FAQ
+InnoSetupRevisionHistory=Inno Setup Revision History
+italian.InnoSetupCompiler=Compilatore Inno Setup
+italian.InnoSetupDocumentation=Documentazione Inno Setup (inglese)
+italian.InnoSetupExampleScripts=Script campione Inno Setup
+italian.InnoSetupFAQ=FAQ Inno Setup (inglese)
+italian.InnoSetupRevisionHistory=Cronologia versioni Inno Setup
 
 [Code]
 var
