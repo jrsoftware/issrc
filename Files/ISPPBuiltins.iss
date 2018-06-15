@@ -50,8 +50,13 @@
 //
 #ifndef __POPT_P__
 # define private CStrings
-# pragma parseroption -p+
+#else
+# pragma parseroption -p-
 #endif
+
+#define NewLine "\n"
+#pragma parseroption -p+
+
 //
 #pragma spansymbol "\"
 //
