@@ -1535,6 +1535,7 @@ The list of options is provided at the end of this topic.</para>
 					<tr><td><code>CompilerPath</code></td><td><code><b>str</b></code>. Points to the directory where the compiler is located.</td></tr>
 					<tr><td><code>SourcePath</code></td><td><code><b>str</b></code>. Points to the directory where the current script is located, or the My Documents directory if the script has not yet been saved.</td></tr>
 					<tr><td><code>Ver</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of Inno Setup compiler. Highest byte holds the major version, lowest byte usually holds zero.</td></tr>
+					<tr><td><code>NewLine</code></td><td><code><b>str</b></code>. Returns the newline character. Declared in &builtins;.</td></tr>
 				</table>
 			</description>
 		</topic>
