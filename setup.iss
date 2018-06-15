@@ -187,6 +187,11 @@ ISPPSubtitle=Would you like to install Inno Setup Preprocessor?
 ISPPText=Inno Setup Preprocessor (ISPP) is an official add-on for Inno Setup. ISPP allows you to conditionally compile parts of scripts, to use compile time variables in your scripts and to use built-in functions which for example can read from the registry or INI files at compile time.%n%nISPP also contains a special version of the ISCC command line compiler which can take variable definitions as command line parameters and use them during compilation.
 ISPPText2=Select whether you would like to install ISPP, then click Next.
 ISPPCheck=&Install Inno Setup Preprocessor
+italian.ISPPTitle=Inno Setup Preprocessor
+italian.ISPPSubtitle=Vuoi installare Inno Setup Preprocessor?
+italian.ISPPText=Inno Setup Preprocessor (ISPP) è un addon ufficiale per Inno Setup.%n%nISPP ti permette di compilare condizionalmnte parte degli script, usare variabili tempo compilazione negli script e usare le funzioni integrate che per esempio possono leggere il Registro o i file INI durante la compilazione.%n%nISPP include anche una versione speciale del compilatore a linea di comando ISCC che può acquisre il valore delle variabili e usarle durante la compilazione.
+italian.ISPPText2=Imposta se vuoi installare ISPP, quindi seleziona 'Avanti'.
+italian.ISPPCheck=&Installa Inno Setup Preprocessor
 
 [Code]
 var
