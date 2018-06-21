@@ -693,7 +693,7 @@ begin
   end;
 end;
 
-function ExpandIndividualConst(const Cnst: String;
+function ExpandIndividualConst(Cnst: String;
   const CustomConsts: array of String): String;
 { Cnst must be the name of a single constant, without the braces.
   For example: app
@@ -988,6 +988,9 @@ var
   SF: TShellFolderID;
   K: Integer;
 begin
+  if Cnst = 'sendto' then { old name of 'usersendto' }
+    Cnst := 'usersendto';
+    
   if IsUninstaller then
     for K := Low(NoUninstallConsts) to High(NoUninstallConsts) do
       if NoUninstallConsts[K] = Cnst then
