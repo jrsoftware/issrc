@@ -81,7 +81,10 @@
 			<subtopicstitle>Available directives</subtopicstitle>
 			<topic id="define">
 				<title>#define</title>
-				<keywords><kwd>define</kwd></keywords>
+				<keywords>
+          <kwd>#:</kwd>
+          <kwd>define</kwd>
+        </keywords>
 				<syntax>
 					<define id="define-directive">
 						<variant><nt name="variable-definition"/></variant>
@@ -136,7 +139,7 @@
 				</syntax>
 				<description>
 					<para>The first syntax ("variable-definition") defines a variable named <synel>ident</synel>, or assigns a value to an element of an array named <synel>ident</synel>. If none of the <synel>public</synel>, <synel>protected</synel>, or <synel>private</synel> keywords are specified, default <link href="visibility">visibility</link> is assumed.</para>
-					<para>The second syntax ("macro-definition") defines a macro named <synel>ident</synel>. When defining a macro there must be no whitespace between macro name and opening parenthesis, otherwise it will be treated as variable declaration.</para>
+					<para>The second syntax ("macro-definition") defines <link href="macros">a user defined function</link> named <synel>ident</synel>. When defining a user defined function there must be no whitespace between the name and opening parenthesis, otherwise it will be treated as variable declaration.</para>
 					<para>The third syntax ("default-visibility-set") sets the default <link href="visibility">visibility</link> of further variable and macro definitions in this file. If no visibility declaration occurs in a file, public visibility is assumed by default.</para>
 				</description>
 				<section title="Examples">
@@ -149,12 +152,14 @@
 				</section>
 				<section title="See also">
 					<para>&dim;, &undef;, <link href="visibility"/>.</para>
+					<para><link href="macros"/>.</para>
 				</section>
 			</topic>
 			<topic id="dim">
 				<title>#dim, #redim</title>
 				<keywords>
           <kwd>dim</kwd>
+          <kwd>#redim</kwd>
           <kwd>redim</kwd>
         </keywords>
 				<syntax>
@@ -187,7 +192,10 @@
 			</topic>
 			<topic id="undef">
 				<title>#undef</title>
-				<keywords><kwd>undef</kwd></keywords>
+				<keywords>
+            <kwd>#x</kwd>
+            <kwd>undef</kwd>
+        </keywords>
 				<syntax>
 					<define id="undef-directive">
 						<group><nt name="undef-dir-name"/></group><opt><nt name="locality"/></opt><nt>ident</nt>
@@ -200,12 +208,12 @@
 					</define>
 				</syntax>
 				<description>
-					<para>Undefines (removes) a variable or macro. If no <link href="visibility">visibility</link> (<synel>public</synel>, <synel>protected</synel>, or <synel>private</synel>) is specified, ISPP first tries to remove a private variable of the given name, then protected, then public.</para>
+					<para>Undefines (removes) a variable or user defined function. If no <link href="visibility">visibility</link> (<synel>public</synel>, <synel>protected</synel>, or <synel>private</synel>) is specified, ISPP first tries to remove a private variable of the given name, then protected, then public.</para>
 				</description>
 				<section title="Examples">
 					<pre>
 						<line>#undef MyVar</line>
-						<line>#undef MyMacro</line>
+						<line>#undef MyFunction</line>
 						<line>#undef public MyVar</line>
 					</pre>
 				</section>
@@ -215,7 +223,10 @@
 			</topic>
 			<topic id="include">
 				<title>#include</title>
-				<keywords><kwd>include</kwd></keywords>
+				<keywords>
+            <kwd>#+</kwd>
+            <kwd>include</kwd>
+        </keywords>
 				<syntax>
 					<define id="include-directive">
 						<variant><group><nt name="inc-dir-name"/></group><txt>&lt;</txt><nt>filename</nt><txt>&gt;</txt></variant>
@@ -272,7 +283,10 @@
 			</topic>
 			<topic id="emit">
 				<title>#emit</title>
-				<keywords><kwd>emit</kwd></keywords>
+				<keywords>
+            <kwd>#=</kwd>
+            <kwd>emit</kwd>
+        </keywords>
 				<syntax>
 					<define id="emit-directive">
 						<group><nt name="emit-dir-name"/></group><nt>expr</nt>
@@ -293,7 +307,7 @@
 						<line>[Files]</line>
 						<line>#emit 'Filename: "file1.ext"; DestDir: &ob;' + MyDestDir + '&cb;'</line>
 						<line>Filename: "file2.ext"; DestDir: &ob;&ob;#MyDestDir&cb;&cb;</line>
-						<line>#emit GenerateVisualCppFilesEntries ; user defined macro</line>
+						<line>#emit GenerateVisualCppFilesEntries ; user defined function</line>
 						<line></line>
 						<line>[Code]</line>
 						<line>const</line>
@@ -306,7 +320,10 @@
 			</topic>
 			<topic id="expr">
 				<title>#expr</title>
-				<keywords><kwd>expr</kwd></keywords>
+				<keywords>
+            <kwd>#!</kwd>
+            <kwd>expr</kwd>
+        </keywords>
 				<syntax>
 					<define id="expr-directive">
 						<group><nt name="expr-dir-name"/></group><nt>expr</nt>
@@ -375,8 +392,11 @@
 				<title>#if, #elif, #else, #endif</title>
 				<keywords>
 					<kwd>if</kwd>
+					<kwd>#elif</kwd>
 					<kwd>elif</kwd>
+					<kwd>#else</kwd>
 					<kwd>else</kwd>
+					<kwd>#endif</kwd>
 					<kwd>endif</kwd>
 				</keywords>
 				<syntax>
@@ -422,8 +442,11 @@
 				<title>#ifdef, #ifndef, #ifexist, #ifnexist</title>
 				<keywords>
 					<kwd>ifdef</kwd>
+					<kwd>#ifndef</kwd>
 					<kwd>ifndef</kwd>
+					<kwd>#ifexist</kwd>
 					<kwd>ifexist</kwd>
+					<kwd>#ifnexist</kwd>
 					<kwd>ifnexist</kwd>
 				</keywords>
 				<syntax>
@@ -493,6 +516,7 @@
 				<title>#sub, #endsub</title>
 				<keywords>
 					<kwd>sub</kwd>
+					<kwd>#endsub</kwd>
 					<kwd>endsub</kwd>
 				</keywords>
 				<syntax>
@@ -670,7 +694,7 @@ The list of options is provided at the end of this topic.</para>
 				</section>
 				<description>
 					<para><synel>GetStringFileInfo</synel> function retrieves string from specified file's (first argument) version information resource.</para>
-					<para>Second argument is the name of the version info string-value. This should be one of the predefined strings. Those strings and shortcut macros are declared in &builtins;.</para>
+					<para>Second argument is the name of the version info string-value. This should be one of the predefined strings. Those strings and shortcuts are declared in &builtins;.</para>
 					<para>Third optional argument should specify language and charset identifier. For example: 0x04BE0409 stands for "English (United States)." If this parameter is omitted, ISPP scans for all available version info blocks to find the value.</para>
 					<para>The function returns an empty string, if it was unable to retrieve the desired string-value.</para>
 				</description>
@@ -1320,7 +1344,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Returns the index of the line following the header of the section. This macro is intended to be used with &insert; directive.</para>
+					<para>Returns the index of the line following the header of the section. This function is intended to be used with &insert; directive.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
@@ -1332,7 +1356,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Returns the index of the line following last entry of the section. This macro is intended to be used with #insert directive.</para>
+					<para>Returns the index of the line following last entry of the section. This function is intended to be used with #insert directive.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
@@ -1514,6 +1538,105 @@ The list of options is provided at the end of this topic.</para>
 				</description>
 			</topic>
 		</topic>
+    <topic id="macros">
+			<keywords>
+				<kwd>#define</kwd>
+				<kwd>define</kwd>
+				<kwd>Functions</kwd>
+				<kwd>Local</kwd>
+			</keywords>
+			<title>User Defined Functions</title>
+			<description header="no">
+				<para>You can define user defined functions.</para>
+				<para>A user defined function declaration consists of a formal parameter list and an expression. That expression is evaluated when the function is called (see below). The result of the function call is the result of the expression. The expression can contain parameter names, they are treated as usual variables.</para>
+				<para>The formal syntax of a user defined function is provided in &define; and the &builtins; contains many example functions.</para>
+        <para>Please note that there must be no space between the function name and opening parenthesis.</para>
+				<para>Actual parameters for parameters declared as by-reference must be modifiable l-values (in other words, other defined variables or expressions that evaluate to l-values). If the expression modifies by-reference parameter, the variable that is passed as this parameter gets modified. By-value parameters can also be modified by the expression (using assignment operators), but this modification doesn't affect the value of a variable which could be passed as this parameter.</para>
+				<para>Though a user defined function can only contain one expression, sequential evaluation operators (comma), assignment operators (simple and compound) and conditional operators (<synel>?:</synel>) can be used to build more complicated functions.</para>
+      </description>
+			<section title="Local array">
+        <para>In context of the expression an additional array named <synel>Local</synel> is valid. Its elements can be used for temporary storage and reusing values in sequential expressions. Values stored in <synel>Local</synel> array are neither preserved from call to call (including recursive), nor are they accessible from anywhere except the expression.</para>
+        <pre>
+          <line>#define DeleteToFirstPeriod(str *S) /* user defined function declaration */ &bs;</line>
+          <line>&dsp;Local[1] = <link href="copy">Copy</link>(S, 1, (Local[0] = <link href="pos">Pos</link>(".", S)) - 1), &bs;</line>
+          <line>&dsp;S = Copy(S, Local[0] + 1), &bs;</line>
+          <line>&dsp;Local[1]</line>
+        </pre>
+			</section>
+		</topic>
+		<!--   EXPRESSIONS -->
+		<topic id="expressions">
+      <keywords>
+        <kwd>Data types</kwd>
+        <kwd>Types</kwd>
+        <kwd>Comments</kwd>
+      </keywords>
+      <title>Expression Syntax</title>
+			<description header="no">
+				<para>ISPP uses C/C++-like expression syntax. It supports simple and compound assignment operators, conditional operator, and sequential evaluation operator. Although ISPP is an interpreter, it does support short circuit boolean evaluation and never evaluates expressions (nor calls any user defined functions mentioned in those expressions) that should not be evaluated due to specific rules (for example, when conditional operator is used, always only 2 out of 3 operands are evaluated).</para>
+        <para>The &builtins; contains many example expressions.</para>
+			</description>
+			<section title="Differences between C and ISPP expression syntax">
+				<ul>
+					<li>ISPP does not support a number of operators (reference, dereference, namespace resolution, member selection, etc.).</li>
+					<li>ISPP treats an identifier and the equality sign as a name of an argument, if it is used in argument list.</li>
+					<li>Arithmetic division operator (slash) performs integer division, since ISPP does not support floating point math.</li>
+					<li>ISPP does not check for validity of expressions is certain cases. For example, in conditional expression, "true" operand can be of string type, whereas "false" operand can be of integer type.</li>
+					<li>String literals can be quoted by both single and double quotes (in both modes &dash; C-style or Pascal-style). If a literal begins with a single quote, it must also end with a single quote. Double quotes may be used in single quoted string without any escaping, and vice versa. Within a string the character used to quote the string must be escaped (the manner depends on current state of "Pascal-style string literals" parser option, see &pragma;).</li>
+				</ul>
+			</section>
+			<section title="Data types">
+				<para>There are three types in ISPP: void, integer, and string. Variable of void type is declared by just specifying its name after &define; directive without any value. Such variables should be used with &ifdef; directive or <synel><link href="Defined">Defined</link></synel> function.</para>
+				<para>If "allow undeclared identifiers" parser option is off (the default state, see &pragma;), an error is raised when undefined variable is mentioned. Otherwise, it will be treated as a value of type void.</para>
+				<para>Void is compatible with integer and string in expressions. For example, you can use addition operator with void and integer operands, in this case void operand will be treated as zero. In conjunction with string, void operand is treated as an empty string.</para>
+			</section>
+			<section title="Comments">
+				<para>Comments may be embedded in expression by using a slash and an asterisk. For example:</para>
+				<pre>
+					<line>#emit Var1 /* this is a comment */ + Var2 /* this is a comment */</line>
+				</pre>
+				<para>Also one line comments are supported. Those comments must begin with a semicolon. Whole text after the semicolon up to the end of a line is considered comment.</para>
+				<pre>
+					<line>#emit Var1 + Var2 ; this is a comment</line>
+				</pre>
+				<para>Please note that line spanning feature is triggered before any further processing, thus a comment may occupy more than one line:</para>
+				<pre>
+					<line>#emit Var1 + Var2 ; this is &bs;</line>
+					<line>&dsp;a comment</line>
+				</pre>
+			</section>
+			<section title="Extended User Defined Function Call Syntax">
+				<para>In ISPP it is possible to use named arguments when calling user defined function. Given the declaration:</para>
+				<pre>
+					<line>#define MyFunction(int A = 2, int B = 2) A + B</line>
+				</pre>
+				<para>This function can be called specifying argument names:</para>
+				<pre>
+					<line>#emit MyFunction(A = 5, B = 10)</line>
+					<line>#emit MyFunction(B = 3)</line>
+					<line>#emit MyFunction(B = 10, A = 5)</line>
+				</pre>
+				<ul>
+					<li>If a name is specified for one argument, then all (required) arguments in the list must also be named.</li>
+					<li>The order of named arguments does not matter.</li>
+					<li>
+						<para>Because of this extension, an assignment expression must be enclosed in parentheses, if not using extended call syntax, to avoid ambiguity:</para>
+						<pre>
+							<line>#emit MyFunction((MyVar = 5), 10)</line>
+						</pre>
+						<para>In the above example, the equality sign is treated as a direct assignment operator.</para>
+						<para>Although functions do not have named arguments, it is still required to enclose assignment expressions in parentheses when calling those functions.</para>
+					</li>
+					<li>
+						<para>By standard rule comma is used to separate actual parameters. If you need to use sequential evaluation operator, you must include the expression in parentheses:</para>
+						<pre>
+							<line>#emit MyFunction((SaveToFile("script.txt"), 5), 10)</line>
+						</pre>
+						<para>In the above example, the first comma is treated as the sequential evaluation operator, whereas the second one as the argument delimiter.</para>
+					</li>
+				</ul>
+			</section>
+		</topic>
 		<topic id="predefinedvars">
 			<title>Predefined Variables</title>
 			<description header="no">
@@ -1522,7 +1645,7 @@ The list of options is provided at the end of this topic.</para>
 					<tr><td><code>__COUNTER__</code></td><td><code><b>int</b></code>. Automatically increments each time it is used (afterwards).</td></tr>
 					<tr><td><code>__FILE__</code></td><td><code><b>str</b></code>. Returns the name of the current file. Empty string for the root file.</td></tr>
 					<tr><td><code>__INCLUDE__</code></td><td><code><b>str</b></code>. Returns the current include path (or paths delimited with semicolons) set via <code>#pragma include</code>.</td></tr>
-					<tr><td><code>__LINE__</code></td><td><code><b>int</b></code>. Returns the number of the line in the current file (not a &translation;) on which the variable is used (or macro that uses this variable is called).</td></tr>
+					<tr><td><code>__LINE__</code></td><td><code><b>int</b></code>. Returns the number of the line in the current file (not a &translation;) on which the variable is used (or user defined function that uses this variable is called).</td></tr>
 					<tr><td><code>__OPT_X__</code></td><td><code><b>void</b></code>. Defined if specified option set via <code>#pragma option -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z." Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
 					<tr><td><code>__PATHFILENAME__</code></td><td><code><b>str</b></code>. Similar to __FILE__ but, returns the full pathname of the file. Empty string for the root file.</td></tr>
 					<tr><td><code>__POPT_X__</code></td><td><code><b>void</b></code>. Defined if specified parser option set via <code>#pragma parseroption -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z." Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
@@ -1557,39 +1680,10 @@ The list of options is provided at the end of this topic.</para>
         <para>Also see &builtins;.</para>
       </description>
     </topic>
-    <topic id="macros">
-			<keywords>
-				<kwd>#define</kwd>
-				<kwd>define</kwd>
-				<kwd>macros</kwd>
-			</keywords>
-			<title>User Defined Macros</title>
-			<description header="no">
-				<para>You can define so called "macros" in your scripts, these can be thought of as "user defined functions."</para>
-				<para>Macro declaration consists of formal parameter list and expression. That expression is evaluated when macro is called (see below). The result of the macro call is the result of the macro expression. Macro expression can contain parameter names, they are treated as usual variables.</para>
-				<para>The formal syntax of macro declaration is provided in &define; and the &builtins; contains many example macros.</para>
-          <para>Please note that there must be no space between macro name and opening parenthesis.</para>
-				<para>Actual parameters for parameters declared as by-reference must be modifiable l-values (in other words, other defined variables or expressions that evaluate to l-values). If macro expression modifies by-reference parameter, the variable that is passed as this parameter gets modified. By-value parameters can also be modified by macro expression (using assignment operators), but this modification doesn't affect the value of a variable which could be passed as this parameter.</para>
-				<para>Though macro can only contain one expression, it can be used as full featured user defined function, because ISPP supports sequential evaluation operator (comma), assignment operators (simple and compound) and conditional operator (<synel>?:</synel>).</para>
-      </description>
-			<subtopicstitle>See also</subtopicstitle>
-			<topic id="localarray">
-				<title>Macros' Local array</title>
-				<description header="no">
-					<para>In context of macro expression additional array named <synel>Local</synel> is valid. Its elements can be used for temporary storage and reusing values in sequential expressions. This array belongs to one context of macro call, that means that values stored in <synel>Local</synel> array are neither preserved from call to call (including recursive), nor are they accessible from anywhere except the macro expression.</para>
-					<pre>
-						<line>#define DeleteToFirstPeriod(str *S) /* macro declaration */ &bs;</line>
-						<line>&dsp;Local[1] = <link href="copy">Copy</link>(S, 1, (Local[0] = <link href="pos">Pos</link>(".", S)) - 1), &bs;</line>
-						<line>&dsp;S = Copy(S, Local[0] + 1), &bs;</line>
-						<line>&dsp;Local[1]</line>
-					</pre>
-				</description>
-			</topic>
-		</topic>
 		<topic id="builtinsiss">
 			<title>ISPPBuiltins.iss</title>
 			<description header="no">
-				<para>The ISPPBuiltins.iss file is accompanying the Inno Setup Preprocessor. It is automatically included, if it exists in the compiler directory, as if the very first line of your script contained an &include; directive for it. This file contains common declarations, such as special constants for using with functions, and some useful macros. The file is a regular Inno Setup Script file but mostly contains only ISPP directives.</para>
+				<para>The ISPPBuiltins.iss file is accompanying the Inno Setup Preprocessor. It is automatically included, if it exists in the compiler directory, as if the very first line of your script contained an &include; directive for it. This file contains common declarations, such as special constants for using with functions, and some useful user defined functions. The file is a regular Inno Setup Script file but mostly contains only ISPP directives.</para>
         <para>To learn more about the functionality provided by this file please open it with the Inno Setup Compiler, it is well commented.</para>
 			</description>
 		</topic>
@@ -1602,7 +1696,7 @@ The list of options is provided at the end of this topic.</para>
 			</keywords>
 			<title>Visibility of Identifiers</title>
 			<description header="no">
-				<para>Variables (as well as macros, read "variable or macro" anywhere it says "variable" below) can be explicitly defined as "public," "protected," or "private." To define such a variable, its name in its &define; directive should be prepended with one of the visibility keywords:</para>
+				<para>Variables (as well as user defined function, read "variable or user defined function" anywhere it says "variable" below) can be explicitly defined as "public," "protected," or "private." To define such a variable, its name in its &define; directive should be prepended with one of the visibility keywords:</para>
 				<pre>
 					<line>#define public MyVar 12</line>
 					<line>#define protected MyVar 13</line>
@@ -1619,80 +1713,9 @@ The list of options is provided at the end of this topic.</para>
 				<pre><line>#define protected</line></pre>
 				<para>sets protected visibility by default.</para>
 				<para>The default visibility isn't used when evaluating expressions, it is only used when a variable is defined or undefined without explicitly specifying its visibility. When default visibility is not set, public is assumed by default. Setting default visibility is not propagated on included or parent files.</para>
-				<para>In macro expressions, avoid using identifiers of lower visibility than the one macro is declared in. This may cause "Undeclared identifier" errors if macro is called from another file.</para>
+				<para>In user defined function expressions, avoid using identifiers of lower visibility than the one the user defined function is declared in. This may cause "Undeclared identifier" errors if the user defined function is called from another file.</para>
 				<para>It is recommended that you use appropriate visibility when declaring variables to avoid problems with unexpected redefinition of a variable (for example in included third-party file). If no included files depend on a variable, declare it as private. If they do, but the parent file doesn't, declare it as protected. Declare it as public otherwise. If you're unsure, then protected visibility is the common case.</para>
 			</description>
-		</topic>
-		<!--   EXPRESSIONS -->
-		<topic id="expressions">
-      <keywords>
-        <kwd>Comments</kwd>
-      </keywords>
-      <title>Expression Syntax</title>
-			<description header="no">
-				<para>ISPP uses C/C++-like expression syntax. It supports simple and compound assignment operators, conditional operator, and sequential evaluation operator. Although ISPP is an interpreter, it does support short circuit boolean evaluation and never evaluates expressions (nor calls any macros mentioned in those expressions) that should not be evaluated due to specific rules (for example, when conditional operator is used, always only 2 out of 3 operands are evaluated).</para>
-        <para>The &builtins; contains many example expressions.</para>
-			</description>
-			<section title="Differences between C and ISPP expression syntax">
-				<ul>
-					<li>ISPP does not support a number of operators (reference, dereference, namespace resolution, member selection, etc.).</li>
-					<li>ISPP treats an identifier and the equality sign as a name of an argument, if it is used in argument list.</li>
-					<li>Arithmetic division operator (slash) performs integer division, since ISPP does not support floating point math.</li>
-					<li>ISPP does not check for validity of expressions is certain cases. For example, in conditional expression, "true" operand can be of string type, whereas "false" operand can be of integer type.</li>
-					<li>String literals can be quoted by both single and double quotes (in both modes &dash; C-style or Pascal-style). If a literal begins with a single quote, it must also end with a single quote. Double quotes may be used in single quoted string without any escaping, and vice versa. Within a string the character used to quote the string must be escaped (the manner depends on current state of "Pascal-style string literals" parser option, see &pragma;).</li>
-				</ul>
-			</section>
-			<section title="Data types">
-				<para>There are three types in ISPP: void, integer, and string. Variable of void type is declared by just specifying its name after &define; directive without any value. Such variables should be used with &ifdef; directive or <synel><link href="Defined">Defined</link></synel> function.</para>
-				<para>If "allow undeclared identifiers" parser option is off (the default state, see &pragma;), an error is raised when undefined variable is mentioned. Otherwise, it will be treated as a value of type void.</para>
-				<para>Void is compatible with integer and string in expressions. For example, you can use addition operator with void and integer operands, in this case void operand will be treated as zero. In conjunction with string, void operand is treated as an empty string.</para>
-			</section>
-			<section title="Comments">
-				<para>Comments may be embedded in expression by using a slash and an asterisk. For example:</para>
-				<pre>
-					<line>#emit Var1 /* this is a comment */ + Var2 /* this is a comment */</line>
-				</pre>
-				<para>Also one line comments are supported. Those comments must begin with a semicolon. Whole text after the semicolon up to the end of a line is considered comment.</para>
-				<pre>
-					<line>#emit Var1 + Var2 ; this is a comment</line>
-				</pre>
-				<para>Please note that line spanning feature is triggered before any further processing, thus a comment may occupy more than one line:</para>
-				<pre>
-					<line>#emit Var1 + Var2 ; this is &bs;</line>
-					<line>&dsp;a comment</line>
-				</pre>
-			</section>
-			<section title="Extended Macro Call Syntax">
-				<para>In ISPP it is possible to use named arguments when calling user defined macro. Given the declaration:</para>
-				<pre>
-					<line>#define MyMacro(int A = 2, int B = 2) A + B</line>
-				</pre>
-				<para>This macro can be called specifying argument names:</para>
-				<pre>
-					<line>#emit MyMacro(A = 5, B = 10)</line>
-					<line>#emit MyMacro(B = 3)</line>
-					<line>#emit MyMacro(B = 10, A = 5)</line>
-				</pre>
-				<ul>
-					<li>If a name is specified for one argument, then all (required) arguments in the list must also be named.</li>
-					<li>The order of named arguments does not matter.</li>
-					<li>
-						<para>Because of this extension, an assignment expression must be enclosed in parentheses, if not using extended call syntax, to avoid ambiguity:</para>
-						<pre>
-							<line>#emit MyMacro((MyVar = 5), 10)</line>
-						</pre>
-						<para>In the above example, the equality sign is treated as a direct assignment operator.</para>
-						<para>Although functions do not have named arguments, it is still required to enclose assignment expressions in parentheses when calling those functions.</para>
-					</li>
-					<li>
-						<para>By standard rule comma is used to separate actual parameters. If you need to use sequential evaluation operator, you must include the expression in parentheses:</para>
-						<pre>
-							<line>#emit MyMacro((SaveToFile("script.txt"), 5), 10)</line>
-						</pre>
-						<para>In the above example, the first comma is treated as the sequential evaluation operator, whereas the second one as the argument delimiter.</para>
-					</li>
-				</ul>
-			</section>
 		</topic>
 		<topic id="isppcc">
 			<title>Command Line Compiler Execution</title>

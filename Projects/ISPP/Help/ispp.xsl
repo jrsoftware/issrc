@@ -27,14 +27,14 @@
       <contentstopic title="Documentation Conventions" topic="docconv" />
       <contentstopic title="Directives" topic="directives" />
       <contentstopic title="Functions" topic="funcs" />
+      <contentstopic title="User Defined Functions" topic="macros" />
+      <contentstopic title="Expression Syntax" topic="expressions" />
       <contentstopic title="Predefined Variables" topic="predefinedvars" />
       <contentstopic title="Line Spanning" topic="linespan" />
       <contentsheading title="Other Information">
-        <contentstopic title="Example Script" topic="example" />
-        <contentstopic title="User Defined Macros" topic="macros" />
-        <contentstopic title="ISPPBuiltins.iss" topic="builtinsiss" />
         <contentstopic title="Visibility of Identifiers" topic="visibility" />
-        <contentstopic title="Expression Syntax" topic="expressions" />
+        <contentstopic title="Example Script" topic="example" />
+        <contentstopic title="ISPPBuiltins.iss" topic="builtinsiss" />
         <contentstopic title="Extended Command Line Compiler" topic="isppcc" />
       </contentsheading>
     </contentsheading>
