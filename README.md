@@ -1,4 +1,4 @@
-**NOTE** Currently the main Inno Setup web site is down. The original and signed 5.6.1 binaries can be downloaded from GitHub under releases, see https://github.com/jrsoftware/issrc/releases.
+**NOTE** Currently the main Inno Setup web site is down. The original and signed 5.6.1 binaries can be downloaded from GitHub under releases, see https://github.com/jrsoftware/issrc/releases and https://github.com/jrsoftware/ispack/releases.
 
 Inno Setup
 ==========
