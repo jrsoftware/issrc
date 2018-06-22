@@ -223,6 +223,18 @@ type
 
 procedure TWizardForm.FormCreate(Sender: TObject);
 
+  procedure AddLanguages(const Extension: String);
+  var
+    SearchRec: TSearchRec;
+  begin
+    if FindFirst(PathExtractPath(NewParamStr(0)) + 'Languages\*.' + Extension, faAnyFile, SearchRec) = 0 then begin
+      repeat
+        FLanguages.Add(SearchRec.Name);
+      until FindNext(SearchRec) <> 0;
+      FindClose(SearchRec);
+    end;
+  end;
+
   procedure MakeBold(const Ctl: TNewStaticText);
   begin
     Ctl.Font.Style := [fsBold];
@@ -241,7 +253,6 @@ procedure TWizardForm.FormCreate(Sender: TObject);
   end;
 
 var
-  SearchRec: TSearchRec;
   I: Integer;
 begin
   FResult := wrNone;
@@ -250,14 +261,11 @@ begin
   FWizardFiles := TList.Create;
 
   FLanguages := TStringList.Create;
-  //note: *.isl will also match .islu files
-  if FindFirst(PathExtractPath(NewParamStr(0)) + 'Languages\*.isl', faAnyFile, SearchRec) = 0 then begin
-    repeat
-      FLanguages.Add(SearchRec.Name);
-    until FindNext(SearchRec) <> 0;
-    FindClose(SearchRec);
-  end;
-  FLanguages.Sort;
+  FLanguages.Sorted := True;
+  FLanguages.Duplicates := dupIgnore; { Some systems also return .islu files when searching for *.isl }
+  AddLanguages('isl'); 
+  AddLanguages('islu');
+  FLanguages.Sorted := False;
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
   InitFormFont(Self);
