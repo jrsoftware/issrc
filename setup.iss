@@ -63,7 +63,7 @@ Name: english; MessagesFile: "files\Default.isl"
 #endif
 
 [Messages]
-; two "Setup" on the same line looks weird, so put a line break in between
+; Two "Setup" on the same line looks weird, so put a line break in between
 english.WelcomeLabel1=Welcome to the Inno Setup%nSetup Wizard
 
 [Tasks]
