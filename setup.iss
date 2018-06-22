@@ -36,31 +36,48 @@ SignTool=issigntool256
 SignedUninstaller=yes
 #endif
 
-[Languages]
-Name: english; MessagesFile: "files\Default.isl"
-
-#sub ProcessFoundFile
+#sub ProcessFoundLanguagesFile
   #define FileName FindGetFileName(FindHandle)
   #define Name LowerCase(RemoveFileExt(FileName))
-  #define MessagesFile PathName + FileName
-  #pragma message "Generating [Languages] entry with name " + Name
+  #define MessagesFile FindPathName + FileName
+  #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile
   Name: {#Name}; MessagesFile: {#MessagesFile}
 #endsub
 
-#define PathName "files\Languages\"
+#sub ProcessFoundCustomMessagesFile
+  #define FileName FindGetFileName(FindHandle)
+  #define CustomMessagesFile FindPathName + FileName
+  #pragma message "Including CustomMessages file: " + CustomMessagesFile
+  #include CustomMessagesFile
+#endsub
+
+#define FindPathName
+#define FindBaseExtension
+#define FindType
 #define FindHandle
 #define FindResult
 
-#for {FindHandle = FindResult = FindFirst(PathName + "*.isl", 0); FindResult; FindResult = FindNext(FindHandle)} ProcessFoundFile
-#if FindHandle
-  #expr FindClose(FindHandle)
-#endif
-#ifdef UNICODE
-  #for {FindHandle = FindResult = FindFirst(PathName + "*.islu", 0); FindResult; FindResult = FindNext(FindHandle)} ProcessFoundFile
+#sub DoFindFiles
+  #for {FindHandle = FindResult = FindFirst(FindPathName + "*." + FindBaseExtension, 0); FindResult; FindResult = FindNext(FindHandle)} FindType == 0 ? ProcessFoundLanguagesFile : ProcessFoundCustomMessagesFile
   #if FindHandle
     #expr FindClose(FindHandle)
   #endif
-#endif
+  #ifdef UNICODE
+    #for {FindHandle = FindResult = FindFirst(FindPathName + "*." + FindBaseExtension + "u", 0); FindResult; FindResult = FindNext(FindHandle)} FindType == 0 ? ProcessFoundLanguagesFile : ProcessFoundCustomMessagesFile
+    #if FindHandle
+      #expr FindClose(FindHandle)
+    #endif
+  #endif
+#endsub
+
+#define FindFiles(str PathName, str BaseExtension, int Type) FindPathName = PathName, FindBaseExtension = BaseExtension, FindType = Type, DoFindFiles
+
+[Languages]
+Name: english; MessagesFile: "files\Default.isl"
+;generate [Languages] entries for all official translations
+#expr FindFiles("files\Languages\", "isl", 0)
+;#include any translations for [CustomMessages], including the default messages
+#expr FindFiles("files\Languages\Setup\", "iss", 1)
 
 [Messages]
 ; two "Setup" on the same line looks weird, so put a line break in between
@@ -180,13 +197,6 @@ Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; Description: "{cm:LaunchPro
 
 [UninstallRun]
 Filename: "{app}\Compil32.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAssoc"
-
-[CustomMessages]
-ISPPTitle=Inno Setup Preprocessor
-ISPPSubtitle=Would you like to install Inno Setup Preprocessor?
-ISPPText=Inno Setup Preprocessor (ISPP) is an official add-on for Inno Setup. ISPP allows you to conditionally compile parts of scripts, to use compile time variables in your scripts and to use built-in functions which for example can read from the registry or INI files at compile time.%n%nISPP also contains a special version of the ISCC command line compiler which can take variable definitions as command line parameters and use them during compilation.
-ISPPText2=Select whether you would like to install ISPP, then click Next.
-ISPPCheck=&Install Inno Setup Preprocessor
 
 [Code]
 var
