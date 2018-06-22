@@ -36,19 +36,26 @@ SignTool=issigntool256
 SignedUninstaller=yes
 #endif
 
+#define MatchingExtension(str FileName, str Extension) \
+  LowerCase(ExtractFileExt(FileName)) == Extension
+
 #sub ProcessFoundLanguagesFile
   #define FileName FindGetFileName(FindHandle)
-  #define Name LowerCase(RemoveFileExt(FileName))
-  #define MessagesFile FindPathName + FileName
-  #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile
-  Name: {#Name}; MessagesFile: {#MessagesFile}
+  #if MatchingExtension(FileName, FindBaseExtension) ; Some systems also return .islu files when asked for *.isl
+    #define Name LowerCase(RemoveFileExt(FileName))
+    #define MessagesFile FindPathName + FileName
+    #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile
+    Name: {#Name}; MessagesFile: {#MessagesFile}
+  #endif
 #endsub
 
 #sub ProcessFoundCustomMessagesFile
   #define FileName FindGetFileName(FindHandle)
-  #define CustomMessagesFile FindPathName + FileName
-  #pragma message "Including CustomMessages file: " + CustomMessagesFile
-  #include CustomMessagesFile
+  #if MatchingExtension(FileName, FindBaseExtension) ; See above
+    #define CustomMessagesFile FindPathName + FileName
+    #pragma message "Including CustomMessages file: " + CustomMessagesFile
+    #include CustomMessagesFile
+  #endif
 #endsub
 
 #define FindPathName
@@ -57,26 +64,30 @@ SignedUninstaller=yes
 #define FindHandle
 #define FindResult
 
-#sub DoFindFiles
+#sub DoFindFilesLoop
   #for {FindHandle = FindResult = FindFirst(FindPathName + "*." + FindBaseExtension, 0); FindResult; FindResult = FindNext(FindHandle)} FindType == 0 ? ProcessFoundLanguagesFile : ProcessFoundCustomMessagesFile
   #if FindHandle
     #expr FindClose(FindHandle)
   #endif
+#endsub
+
+#sub DoFindFiles
+  #expr DoFindFilesLoop
   #ifdef UNICODE
-    #for {FindHandle = FindResult = FindFirst(FindPathName + "*." + FindBaseExtension + "u", 0); FindResult; FindResult = FindNext(FindHandle)} FindType == 0 ? ProcessFoundLanguagesFile : ProcessFoundCustomMessagesFile
-    #if FindHandle
-      #expr FindClose(FindHandle)
-    #endif
+    #expr FindBaseExtension = FindBaseExtension + "u"
+    #expr DoFindFilesLoop
   #endif
 #endsub
 
-#define FindFiles(str PathName, str BaseExtension, int Type) FindPathName = PathName, FindBaseExtension = BaseExtension, FindType = Type, DoFindFiles
+#define FindFiles(str PathName, str BaseExtension, int Type) \
+  FindPathName = PathName, FindBaseExtension = BaseExtension, FindType = Type, \
+  DoFindFiles
 
 [Languages]
 Name: english; MessagesFile: "files\Default.isl"
-;generate [Languages] entries for all official translations
+; Generate [Languages] entries for all official translations
 #expr FindFiles("files\Languages\", "isl", 0)
-;#include any translations for [CustomMessages], including the default messages
+; #include any translations for [CustomMessages] (includes the default custom messages)
 #expr FindFiles("files\Languages\Setup\", "iss", 1)
 
 [Messages]
