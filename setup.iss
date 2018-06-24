@@ -37,7 +37,7 @@ SignedUninstaller=yes
 #endif
 
 #define MatchingExtension(str FileName, str Extension) \
-  LowerCase(ExtractFileExt(FileName)) == Extension
+  SameText(ExtractFileExt(FileName), Extension)
 
 #sub ProcessFoundLanguagesFile
   #define FileName FindGetFileName(FindHandle)
