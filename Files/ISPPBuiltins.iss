@@ -6,10 +6,8 @@
 // Portions by Martijn Laan.
 // http://ispp.sourceforge.net
 //
-// Inno Setup (C) 1997-2009 Jordan Russell. All Rights Reserved.
+// Inno Setup (C) 1997-2018 Jordan Russell. All Rights Reserved.
 // Portions by Martijn Laan.
-//
-// $Id: ISPPBuiltins.iss,v 1.3 2010/12/29 15:20:26 mlaan Exp $
 //
 #if defined(ISPP_INVOKED) && !defined(_BUILTINS_ISS_)
 //
@@ -361,6 +359,20 @@
 //
 #define Max(int A, int B, int C = MinInt)  \
   A > B ? A > C ? Int(A) : Int(C) : Int(B)
+//
+// SameText
+//
+// Returns True if the given strings are identical, ignoring case.
+// 
+#define SameText(str S1, str S2) \
+  LowerCase(S1) == LowerCase(S2)
+// 
+// SameStr
+//
+// Returns True if the given strings are identical, with case-sensitivity.
+//
+#define SameStr(str S1, str S2) \
+  S1 == S2
 //
 
 #ifdef CStrings

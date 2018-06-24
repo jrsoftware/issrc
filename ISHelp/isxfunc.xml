@@ -875,6 +875,16 @@ end;</pre></example>
         <description><p>Compares S1 to S2, with case-sensitivity. The return value is less than 0 if S1 is less than S2, 0 if S1 equals S2, or greater than 0 if S1 is greater than S2.</p></description>
       </function>
       <function>
+        <name>SameText</name>
+        <prototype>function SameText(const S1, S2: string): Boolean;</prototype>
+        <description><p>Compares the strings S1 and S2 and returns True if they are equal.  The SameText function is not case-sensitive.</p></description>
+      </function>
+      <function>
+        <name>SameStr</name>
+        <prototype>function SameStr(const S1, S2: string): Boolan;</prototype>
+        <description><p>Compares S1 to S2, with case-sensitivity. The return value is True if they are equal.</p></description>
+      </function>
+      <function>
         <name>IsWildcard</name>
         <prototype>function IsWildcard(const Pattern: String): Boolean;</prototype>
         <description><p>Returns True if the specified pattern contains a wildcard.</p></description>

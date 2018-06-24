@@ -1258,6 +1258,15 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 			</topic>
+			<topic id="IsWin64">
+				<title>IsWin64</title>
+				<section title="Prototype">
+					<pre><line><b>int</b> IsWin64()</line></pre>
+				</section>
+				<description>
+					<para>Returns non-zero if the system is running a 64-bit version of Windows that provides the API support Inno Setup requires to perform 64-bit installation tasks, or zero otherwise.</para>
+				</description>
+			</topic>
 			<topic id="Defined">
 				<title>Defined</title>
 				<section title="Prototype">
@@ -1302,7 +1311,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ParseVersion">
 				<title>ParseVersion</title>
-				<section title="ParseVersion">
+				<section title="Prototype">
 					<pre>
 						<line>#define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build)</line>
 					</pre>
@@ -1314,7 +1323,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="EncodeVer">
 				<title>EncodeVer</title>
-				<section title="EncodeVer">
+				<section title="Prototype">
 					<pre>
 						<line>#define EncodeVer(int Major, int Minor, int Revision = 0, int Build = -1)</line>
 					</pre>
@@ -1326,7 +1335,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="DecodeVer">
 				<title>DecodeVer</title>
-				<section title="DecodeVer">
+				<section title="Prototype">
 					<pre>
 						<line>#define DecodeVer(int Ver, int Digits = 3)</line>
 					</pre>
@@ -1338,7 +1347,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="FindSection">
 				<title>FindSection</title>
-				<section title="FindSection">
+				<section title="Prototype">
 					<pre>
 						<line>#define FindSection(str Section = "Files")</line>
 					</pre>
@@ -1350,7 +1359,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="FindSectionEnd">
 				<title>FindSectionEnd</title>
-				<section title="FindSectionEnd">
+				<section title="Prototype">
 					<pre>
 						<line>#define FindSectionEnd(str Section = "Files")</line>
 					</pre>
@@ -1362,7 +1371,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="FindCode">
 				<title>FindCode</title>
-				<section title="FindCode">
+				<section title="Prototype">
 					<pre>
 						<line>#define FindCode()</line>
 					</pre>
@@ -1374,7 +1383,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ExtractFilePath">
 				<title>ExtractFilePath</title>
-				<section title="ExtractFilePath">
+				<section title="Prototype">
 					<pre>
 						<line>#define ExtractFilePath(str PathName)</line>
 					</pre>
@@ -1386,7 +1395,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ExtractFileDir">
 				<title>ExtractFileDir</title>
-				<section title="ExtractFileDir">
+				<section title="Prototype">
 					<pre>
 						<line>#define ExtractFileDir(str PathName)</line>
 					</pre>
@@ -1398,7 +1407,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ExtractFileExt">
 				<title>ExtractFileExt</title>
-				<section title="ExtractFileExt">
+				<section title="Prototype">
 					<pre>
 						<line>#define ExtractFileExt(str PathName)</line>
 					</pre>
@@ -1410,7 +1419,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ExtractFileName">
 				<title>ExtractFileName</title>
-				<section title="ExtractFileName">
+				<section title="Prototype">
 					<pre>
 						<line>#define ExtractFileName(str PathName)</line>
 					</pre>
@@ -1422,7 +1431,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ChangeFileExt">
 				<title>ChangeFileExt</title>
-				<section title="ChangeFileExt">
+				<section title="Prototype">
 					<pre>
 						<line>#define ChangeFileExt(str FileName, str NewExt)</line>
 					</pre>
@@ -1434,7 +1443,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="RemoveFileExt">
 				<title>RemoveFileExt</title>
-				<section title="RemoveFileExt">
+				<section title="Prototype">
 					<pre>
 						<line>#define RemoveFileExt(str FileName)</line>
 					</pre>
@@ -1446,7 +1455,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="AddBackslash">
 				<title>AddBackslash</title>
-				<section title="AddBackslash">
+				<section title="Prototype">
 					<pre>
 						<line>#define AddBackslash(str S)</line>
 					</pre>
@@ -1458,7 +1467,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="RemoveBackslash">
 				<title>RemoveBackslash</title>
-				<section title="RemoveBackslash">
+				<section title="Prototype">
 					<pre>
 						<line>#define RemoveBackslash(str S)</line>
 					</pre>
@@ -1470,7 +1479,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="Delete">
 				<title>Delete</title>
-				<section title="Delete">
+				<section title="Prototype">
 					<pre>
 						<line>#define Delete(str *S, int Index, int Count = MaxInt)</line>
 					</pre>
@@ -1482,7 +1491,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="Insert2">
 				<title>Insert</title>
-				<section title="Insert">
+				<section title="Prototype">
 					<pre>
 						<line>#define Insert(str *S, int Index, str Substr)</line>
 					</pre>
@@ -1494,7 +1503,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="YesNo">
 				<title>YesNo</title>
-				<section title="YesNo">
+				<section title="Prototype">
 					<pre>
 						<line>#define YesNo(str S)</line>
 					</pre>
@@ -1506,7 +1515,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="Power">
 				<title>Power</title>
-				<section title="Power">
+				<section title="Prototype">
 					<pre>
 						<line>#define Power(int X, int P = 2)</line>
 					</pre>
@@ -1517,7 +1526,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="Min">
 				<title>Min</title>
-				<section title="Min">
+				<section title="Prototype">
 					<pre>
 						<line>#define Min(int A, int B, int C = MaxInt)</line>
 					</pre>
@@ -1528,12 +1537,36 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="Max">
 				<title>Max</title>
-				<section title="Max">
+				<section title="Prototype">
 					<pre>
 						<line>#define Max(int A, int B, int C = MinInt)</line>
 					</pre>
 				</section>
 				<description>
+          <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
+			<topic id="SameText">
+				<title>SameText</title>
+				<section title="Prototype">
+					<pre>
+						<line>#define SameText(str S1, str S2)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Returns True if the given strings are identical, ignoring case.</para>
+          <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
+			<topic id="SameStr">
+				<title>SameStr</title>
+				<section title="Prototype">
+					<pre>
+						<line>#define SameStr(str S1, str S2)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Returns True if the given strings are identical, with case-sensitivity.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
