@@ -1258,6 +1258,15 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 			</topic>
+			<topic id="IsWin64">
+				<title>IsWin64</title>
+				<section title="Prototype">
+					<pre><line><b>int</b> IsWin64()</line></pre>
+				</section>
+				<description>
+					<para>Returns non-zero if the system is running a 64-bit version of Windows that provides the API support Inno Setup requires to perform 64-bit installation tasks, or zero otherwise.</para>
+				</description>
+			</topic>
 			<topic id="Defined">
 				<title>Defined</title>
 				<section title="Prototype">
@@ -1534,6 +1543,30 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
+          <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
+			<topic id="SameText">
+				<title>SameText</title>
+				<section title="Prototype">
+					<pre>
+						<line>#define SameText(str S1, str S2)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Returns True if the given strings are identical, ignoring case.</para>
+          <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
+			<topic id="SameStr">
+				<title>SameStr</title>
+				<section title="Prototype">
+					<pre>
+						<line>#define SameStr(str S1, str S2)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Returns True if the given strings are identical, with case-sensitivity.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>

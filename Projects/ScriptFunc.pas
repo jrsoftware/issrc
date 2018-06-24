@@ -226,7 +226,7 @@ const
   );
 
   { SysUtils }
-  SysUtilsTable: array [0..23] of AnsiString =
+  SysUtilsTable: array [0..25] of AnsiString =
   (
     'procedure Beep;',
     'function Trim(const S: string): string;',
@@ -250,6 +250,8 @@ const
     'function RemoveDir(const Dir: string): Boolean;',
     'function CompareStr(const S1, S2: string): Integer;',
     'function CompareText(const S1, S2: string): Integer;',
+    'function SameStr(const S1, S2: string): Boolean;',
+    'function SameText(const S1, S2: string): Boolean;',
     'function GetDateTimeString(const DateTimeFormat: String; const DateSeparator, TimeSeparator: Char): String;',
     'function SysErrorMessage(ErrorCode: Integer): String;'
   );

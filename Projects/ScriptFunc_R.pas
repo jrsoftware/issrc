@@ -1307,6 +1307,10 @@ begin
     Stack.SetInt(PStart, CompareStr(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
   end else if Proc.Name = 'COMPARETEXT' then begin
     Stack.SetInt(PStart, CompareText(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
+  end else if Proc.Name = 'SAMESTR' then begin
+    Stack.SetBool(PStart, CompareStr(Stack.GetString(PStart-1), Stack.GetString(PStart-2)) = 0);
+  end else if Proc.Name = 'SAMETEXT' then begin
+    Stack.SetBool(PStart, CompareText(Stack.GetString(PStart-1), Stack.GetString(PStart-2)) = 0);
   end else if Proc.Name = 'GETDATETIMESTRING' then begin
     OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
     OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
