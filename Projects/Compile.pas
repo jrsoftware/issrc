@@ -194,6 +194,7 @@ type
     ssVersionInfoProductTextVersion,
     ssVersionInfoTextVersion,
     ssVersionInfoVersion,
+    ssVersionInfoOriginalFileName,
     ssWindowResizable,
     ssWindowShowCaption,
     ssWindowStartMaximized,
@@ -381,7 +382,7 @@ type
 
     VersionInfoVersion, VersionInfoProductVersion: TFileVersionNumbers;
     VersionInfoVersionOriginalValue, VersionInfoCompany, VersionInfoCopyright,
-      VersionInfoDescription, VersionInfoTextVersion, VersionInfoProductName,
+      VersionInfoDescription, VersionInfoTextVersion, VersionInfoProductName, VersionInfoOriginalFileName,
       VersionInfoProductTextVersion, VersionInfoProductVersionOriginalValue: String;
     SetupIconFilename: String;
 
@@ -4288,6 +4289,9 @@ begin
       end;
     ssVersionInfoDescription: begin
         VersionInfoDescription := Value;
+      end;
+    ssVersionInfoOriginalFileName: begin
+        VersionInfoOriginalFileName := Value;
       end;
     ssVersionInfoProductName: begin
         VersionInfoProductName := Value;
@@ -9083,7 +9087,7 @@ begin
             AddStatus(SCompilerStatusUpdatingVersionInfo);
             UpdateVersionInfo(ExeFile, VersionInfoVersion, VersionInfoProductVersion, VersionInfoCompany,
               VersionInfoDescription, VersionInfoTextVersion,
-              VersionInfoCopyright, VersionInfoProductName, VersionInfoProductTextVersion);
+              VersionInfoCopyright, VersionInfoProductName, VersionInfoProductTextVersion, VersionInfoOriginalFileName);
 
             { For some reason, on Win95 the date/time of the EXE sometimes
               doesn't get updated after it's been written to so it has to
