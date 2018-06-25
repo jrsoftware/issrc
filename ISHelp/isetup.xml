@@ -924,12 +924,12 @@ DefaultGroupName=My Program
 <li><link topic="setup_versioninfocompany">VersionInfoCompany</link></li>
 <li><link topic="setup_versioninfocopyright">VersionInfoCopyright</link></li>
 <li><link topic="setup_versioninfodescription">VersionInfoDescription</link></li>
+<li><link topic="setup_versioninfooriginalfilename">VersionInfoOriginalFileName</link></li>
 <li><link topic="setup_versioninfoproductname">VersionInfoProductName</link></li>
 <li><link topic="setup_versioninfoproducttextversion">VersionInfoProductTextVersion</link></li>
 <li><link topic="setup_versioninfoproductversion">VersionInfoProductVersion</link></li>
 <li><link topic="setup_versioninfotextversion">VersionInfoTextVersion</link></li>
 <li><link topic="setup_versioninfoversion">VersionInfoVersion</link></li>
-<li><link topic="setup_versioninfooriginalfilename">VersionInfoOriginalFileName</link></li>
 </ul>
 
 <heading>Installer-related</heading>
