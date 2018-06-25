@@ -37,8 +37,9 @@
 		<title>Introduction</title>
 		<description header="no">
 			<para>Inno Setup Preprocessor (ISPP) is a preprocessor add-on for Inno Setup.</para>
-			<para>The main purpose of ISPP is to automate compile-time tasks and decrease the probability of typos in your scripts. For example, you can declare an ISPP variable (compile-time variable) &dash; your application name, for instance &dash; and then use its value in several places of your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without ISPP, you would probably need to change all occurrences of your application name throughout the script (AppName, AppVerName, DefaultGroupName etc. <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> directives).</para>
-			<para>Another example of using ISPP would be gathering version information from your application by reading the version info of an EXE file, and using it in AppVerName <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> directive or anywhere else. Without ISPP, you would have to modify your script each time version of your application changes.</para>
+			<para>The main purpose of ISPP is to automate compile-time tasks and avoid repetition in your scripts. For example, you can declare an ISPP variable (compile-time variable) &dash; your application name, for instance &dash; and then use its value in several places of your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without ISPP, you would need to change all occurrences of your application name throughout the script (AppName, AppVerName, DefaultGroupName etc. <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> directives).</para>
+			<para>Another example of using ISPP would be gathering version information from your application at compile-time by reading the version info of an EXE file, and using it in AppVerName <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> directive or anywhere else. Without ISPP, you would have to modify your script each time version of your application changes.</para>
+			<para>Similarly you can use ISPP to scan your source folder and generate script lines for the found files. Without ISPP, you would have to manually maintain the list of files.</para>
 			<para>Also, conditional in- and exclusion of portions of script is made possible by ISPP: you can create one single script for different versions/levels of your applications (for example, trial versus fully functional).</para>
 			<para>Finally, ISPP makes it possible to split long lines using a line spanning symbol.</para>
 			<para>Note: ISPP works exclusively at compile-time, and has no run-time functionality.</para>
@@ -66,7 +67,7 @@
 		<topic id="directives">
 			<title>Directives</title>
  			<description header="no">
-				<para>In ISPP directives can be used in two ways: simple or inline.</para>
+				<para>There are two kinds of directives in ISPP: simple and inline.</para>
 				<para>Simple directives occupy a whole line and begin with the <synel>#</synel> symbol. For example the following defines a variable called <synel>MyAppName</synel>:</para>
 				<pre>
 					<line>#define MyAppName "My Program"</line>
@@ -140,7 +141,7 @@
 				<description>
 					<para>The first syntax ("variable-definition") defines a variable named <synel>ident</synel>, or assigns a value to an element of an array named <synel>ident</synel>. If none of the <synel>public</synel>, <synel>protected</synel>, or <synel>private</synel> keywords are specified, default <link href="visibility">visibility</link> is assumed.</para>
 					<para>The second syntax ("macro-definition") defines <link href="macros">a user defined function</link> named <synel>ident</synel>. When defining a user defined function there must be no whitespace between the name and opening parenthesis, otherwise it will be treated as variable declaration.</para>
-					<para>The third syntax ("default-visibility-set") sets the default <link href="visibility">visibility</link> of further variable and macro definitions in this file. If no visibility declaration occurs in a file, public visibility is assumed by default.</para>
+					<para>The third syntax ("default-visibility-set") sets the default <link href="visibility">visibility</link> of further variable and user defined function definitions in this file. If no visibility declaration occurs in a file, public visibility is assumed by default.</para>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -646,7 +647,7 @@ The list of options is provided at the end of this topic.</para>
 					</define>
 				</syntax>
 				<description>
-					<para>Directive causes the Inno Setup compiler to issue an error message with the specified text. Unlike <synel>pragma error</synel>, text in <synel>error</synel> directive is not parsed, so it is recommended to use this directive instead of &pragma; when possible to avoid possible syntax errors that may hide real errors your script is trying to report.</para>
+					<para>Causes the Inno Setup compiler to issue an error message with the specified text. Unlike <synel>pragma error</synel>, text in <synel>error</synel> directive is not parsed, so it is recommended to use this directive instead of &pragma; when possible to avoid possible syntax errors that may hide real errors your script is trying to report.</para>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -681,7 +682,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para><synel>GetFileVersion</synel> function takes a string argument which must be set to the name of the file whose version information is to be queried. The function returns string composed of four decimal numbers delimited with periods. If file does not contain valid version info, the function returns an empty string.</para>
+					<para>Takes a string argument which must be set to the name of the file whose version information is to be queried. Returns string composed of four decimal numbers delimited with periods. Returns an empty string if the file does not contain valid version info.</para>
 					<para>ISPP also has <link href="GetStringFileInfo">GetStringFileInfo</link> function, which also can be used to retrieve file version (using "FileVersion" or "ProductVersion" as second parameter). The difference is that GetFileVersion takes it from fixed block of version info, unlike GetStringFileInfo, which extracts string from language specific block.</para>
 				</description>
 			</topic>
@@ -693,7 +694,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para><synel>GetStringFileInfo</synel> function retrieves string from specified file's (first argument) version information resource.</para>
+					<para>Retrieves string from specified file's (first argument) version information resource.</para>
 					<para>Second argument is the name of the version info string-value. This should be one of the predefined strings. Those strings and shortcuts are declared in &builtins;.</para>
 					<para>Third optional argument should specify language and charset identifier. For example: 0x04BE0409 stands for "English (United States)." If this parameter is omitted, ISPP scans for all available version info blocks to find the value.</para>
 					<para>The function returns an empty string, if it was unable to retrieve the desired string-value.</para>
@@ -707,7 +708,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Function converts an expression (first argument) to its integer representation. If the expression is an integer, the result of the function is the expression value. If the expression is void, the result is 0. If the expression is string, ISPP tries to convert it to integer; if such attempt fails, an error is raised unless second parameter specifies the default result.</para>
+					<para>Converts an expression (first argument) to its integer representation. If the expression is an integer, the result of the function is the expression value. If the expression is void, the result is 0. If the expression is string, ISPP tries to convert it to integer; if such attempt fails, an error is raised unless second parameter specifies the default result.</para>
 				</description>
 			</topic>
 			<topic id="Str">
@@ -718,7 +719,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Function converts an expression to string. If the expression is integer, the result is its string representation. If the expression is void, the result is an empty string. Otherwise the result is the value of the expression.</para>
+					<para>Converts an expression to string. If the expression is integer, the result is its string representation. If the expression is void, the result is an empty string. Otherwise the result is the value of the expression.</para>
 				</description>
 			</topic>
 			<topic id="FileExists">
@@ -814,7 +815,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> Copy(<b>str</b> 1, <b>int</b> 2, <b>int</b>? 3)</line></pre>
 				</section>
 				<description>
-					<para>Function extracts a substring from a string (first argument). The 1-based index of the character from which the substring should start is specified by the second argument. The third argument specifies the number of characters to take, if it is omitted, all characters up to the end of the string are copied to the result.</para>
+					<para>Extracts a substring from a string (first argument). The 1-based index of the character from which the substring should start is specified by the second argument. The third argument specifies the number of characters to take, if it is omitted, all characters up to the end of the string are copied to the result.</para>
 				</description>
 			</topic>
 			<topic id="Pos">
@@ -823,7 +824,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> Pos(<b>str</b> 1, <b>str</b> 2)</line></pre>
 				</section>
 				<description>
-					<para><synel>Pos</synel> searches for a substring (first argument) in another string (second argument) and returns an integer value that is the 1-based index of the first character of the substring within the second string. <synel>Pos</synel> is case-sensitive. If the substring is not found, <synel>Pos</synel> returns zero.</para>
+					<para>Searches for a substring (first argument) in another string (second argument) and returns an integer value that is the 1-based index of the first character of the substring within the second string. <synel>Pos</synel> is case-sensitive. If the substring is not found, <synel>Pos</synel> returns zero.</para>
 				</description>
 			</topic>
 			<topic id="RPos">
@@ -832,7 +833,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> RPos(<b>str</b> 1, <b>str</b> 2)</line></pre>
 				</section>
 				<description>
-					<para><synel>RPos</synel> searches for a substring (first argument) in another string (second argument) and returns an integer value that is the 1-based index of the first character of the last occurrence of the substring within the second string. <synel>RPos</synel> is case-sensitive. If the substring is not found, <synel>RPos</synel> returns zero.</para>
+					<para>Searches for a substring (first argument) in another string (second argument) and returns an integer value that is the 1-based index of the first character of the last occurrence of the substring within the second string. <synel>RPos</synel> is case-sensitive. If the substring is not found, <synel>RPos</synel> returns zero.</para>
 				</description>
 			</topic>
 			<topic id="Len">
@@ -850,7 +851,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> SaveToFile(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>This function saves &curtrans; to the specified file.</para>
+					<para>Saves &curtrans; to the specified file.</para>
 				</description>
 			</topic>
 			<topic id="Find">
@@ -859,7 +860,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> Find(<b>int</b> 1, <b>str</b> 2, <b>int</b>? 3, <b>str</b>? 4, <b>int</b>? 5, <b>str</b>? 6, <b>int</b>? 7)</line></pre>
 				</section>
 				<description>
-					<para><synel>Find</synel> function is intended to be used with &insert; directive. Function returns the index of the line in a &translation; depending on specified criteria.</para>
+					<para>Intended to be used with &insert; directive: returns the index of the line in a &translation; depending on specified criteria.</para>
 					<para>First parameter denotes the index of the line to start the search from, usually it is set to zero.</para>
 					<para>Second, fourth, and sixth parameters should specify string(s) to search within each line. Only the second parameter must be specified whereas fourth and sixth may be omitted.</para>
 					<para>Third, fifth, and seventh parameters should specify the search flags for each string meaning that third parameter specifies flags for second, fifth for fourth, and seventh for sixth.</para>
@@ -894,7 +895,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> SetupSetting(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para><synel>SetupSetting</synel> function parses <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> in &curtrans; to find the key whose name is specified as function parameter. Function returns the value of that key if it's found, or an empty string otherwise.</para>
+					<para>Parses <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> in &curtrans; to find the key whose name is specified as function parameter. Function returns the value of that key if it's found, or an empty string otherwise.</para>
 				</description>
 			</topic>
 			<topic id="SetSetupSetting">
@@ -903,7 +904,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> SetSetupSetting(<b>str</b> 1, <b>str</b> 2)</line></pre>
 				</section>
 				<description>
-					<para><synel>SetSetupSetting</synel> function modifies or generates [Setup] section directive given the key (first parameter) and its value (second parameter).</para>
+					<para>Modifies or generates [Setup] section directive given the key (first parameter) and its value (second parameter).</para>
 					<para>If there is no [Setup] section in &curtrans; (it may happen that function is called before that section in a script), its header (as well as directive itself) is generated by this function.</para>
 					<para>Please use this function carefully &dash; it should not be called when ISPP is in insert mode (i. e. after &insert; directive).</para>
 				</description>
@@ -914,7 +915,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> LowerCase(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para><synel>LowerCase</synel> returns a string with the same text as the string passed in its parameter, but with all letters converted to lowercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</para>
+					<para>Returns a string with the same text as the string passed in its parameter, but with all letters converted to lowercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</para>
 				</description>
 			</topic>
 			<topic id="EntryCount">
@@ -923,7 +924,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> EntryCount(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>Function returns the total number of entries in specified section in &curtrans;. It does not count empty lines or comments. Function takes care of multiple sections with the same name and counts all of them.</para>
+					<para>Returns the total number of entries in specified section in &curtrans;. It does not count empty lines or comments. Function takes care of multiple sections with the same name and counts all of them.</para>
 				</description>
 			</topic>
 			<topic id="GetEnv">
@@ -968,7 +969,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> FindFirst(<b>str</b>, <b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para><synel>FindFirst</synel> searches the directory specified by first parameter for the first file that matches the file name implied by first parameter and the attributes specified by second parameter. If the file is found, the result is a find handle, that should be used in subsequent calls to <synel><link href="FindGetFileName">FindGetFileName</link></synel>, <synel><link href="FindNext">FindNext</link></synel>, and <synel><link href="FindClose"/></synel> functions, otherwise the return value is 0.</para>
+					<para>Searches the directory specified by first parameter for the first file that matches the file name implied by first parameter and the attributes specified by second parameter. If the file is found, the result is a find handle, that should be used in subsequent calls to <synel><link href="FindGetFileName">FindGetFileName</link></synel>, <synel><link href="FindNext">FindNext</link></synel>, and <synel><link href="FindClose"/></synel> functions, otherwise the return value is 0.</para>
 					<para>The first parameter is the directory and file name mask, including wildcard characters. For example, <synel>'.&bs;*.*'</synel> specifies all files in the current directory).</para>
 					<para>The second parameter specifies the special files to include in addition to all normal files. Choose from these file attribute constants defined in &builtins; when specifying this parameter:</para>
 					<table>
@@ -1015,7 +1016,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> FindNext(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para><synel>FindNext</synel> returns the next entry that matches the name and attributes specified in a previous call to <synel><link href="FindFirst">FindFirst</link></synel>. The parameter must be find handle returned by <synel>FindFirst</synel>. The return value is non-zero if the function was successful.</para>
+					<para>Returns the next entry that matches the name and attributes specified in a previous call to <synel><link href="FindFirst">FindFirst</link></synel>. The parameter must be find handle returned by <synel>FindFirst</synel>. The return value is non-zero if the function was successful.</para>
 				</description>
 			</topic>
 			<topic id="FindClose">
@@ -1024,7 +1025,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> FindClose(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para><synel>FindClose</synel> terminates a <synel><link href="FindFirst">FindFirst</link></synel>/<synel><link href="FindNext">FindNext</link></synel> sequence. The parameter must be non-zero find handle returned by <synel>FindFirst</synel>.</para>
+					<para>Terminates a <synel><link href="FindFirst">FindFirst</link></synel>/<synel><link href="FindNext">FindNext</link></synel> sequence. The parameter must be non-zero find handle returned by <synel>FindFirst</synel>.</para>
 					<para>This function is obsolete since 1.2. ISPP automatically frees resources allocated in a call to <synel>FindFirst</synel>.</para>
 				</description>
 			</topic>
@@ -1043,7 +1044,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> FileOpen(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>This function opens a text file for reading and returns the file handle (or zero on failure) to be used in subsequent calls to <synel>File*</synel> functions.</para>
+					<para>Opens a text file for reading and returns the file handle (or zero on failure) to be used in subsequent calls to <synel>File*</synel> functions.</para>
 					<!--para><synel>FileOpen</synel> allocates resources which must be released by calling <synel><link href="FileClose">FileClose</link></synel>.</para-->
 				</description>
 			</topic>
@@ -1053,7 +1054,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> FileRead(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function reads the next line in a text file opened with <synel><link href="FileOpen">FileOpen</link></synel>. The only parameter should be the file handle returned by <synel>FileOpen</synel>.</para>
+					<para>Reads the next line in a text file opened with <synel><link href="FileOpen">FileOpen</link></synel>. The only parameter should be the file handle returned by <synel>FileOpen</synel>.</para>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1082,7 +1083,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> FileReset(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function resets the file pointer to zero, so the subsequent call to <synel><link href="FileRead">FileRead</link></synel> will read the first line of the file. The only parameter should be the file handle returned by <synel><link href="FileOpen">FileOpen</link></synel>.</para>
+					<para>Resets the file pointer to zero, so the subsequent call to <synel><link href="FileRead">FileRead</link></synel> will read the first line of the file. The only parameter should be the file handle returned by <synel><link href="FileOpen">FileOpen</link></synel>.</para>
 				</description>
 			</topic>
 			<topic id="FileEof">
@@ -1091,7 +1092,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> FileEof(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function returns zero if the file pointer does not point to the end of the file, or non-zero otherwise. If this function returns non-zero value, subsequent calls to <synel><link href="FileRead">FileRead</link></synel> will fail. The only parameter should be the file handle returned by <synel><link href="FileOpen">FileOpen</link></synel>.</para>
+					<para>Returns zero if the file pointer does not point to the end of the file, or non-zero otherwise. If this function returns non-zero value, subsequent calls to <synel><link href="FileRead">FileRead</link></synel> will fail. The only parameter should be the file handle returned by <synel><link href="FileOpen">FileOpen</link></synel>.</para>
 				</description>
 			</topic>
 			<topic id="FileClose">
@@ -1100,7 +1101,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> FileClose(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function closes open file and releases all resources allocated by a call to <synel><link href="FileOpen">FileOpen</link></synel>. After calling <synel>FileClose</synel>, the file handle becomes invalid.</para>
+					<para>Closes open file and releases all resources allocated by a call to <synel><link href="FileOpen">FileOpen</link></synel>. After calling <synel>FileClose</synel>, the file handle becomes invalid.</para>
 					<para>This function is obsolete since 1.2. ISPP automatically frees resources allocated in a call to <synel>FileOpen</synel>.</para>
 				</description>
 			</topic>
@@ -1110,7 +1111,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> GetDateTimeString(<b>str</b>, <b>str</b>, <b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function returns the current date and time as a string using the specified formatting.</para>
+					<para>Returns the current date and time as a string using the specified formatting.</para>
 					<para>The first parameter is the format string. The second and third parameters denote the DateSeparator and TimeSeparator parameters explained below.</para>
 					<para>The following format specifiers are supported:</para>
 					<table>
@@ -1156,7 +1157,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> GetFileDateTimeString(<b>str</b>, <b>str</b>, <b>str</b>, <b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function returns the date and time of the specified file as a string using the specified formatting.</para>
+					<para>Returns the date and time of the specified file as a string using the specified formatting.</para>
 					<para>The first parameter is the file name. The second, third and fourth parameters denote the format string, DateSeparator and TimeSeparator parameters as explained in the <link href="GetDateTimeString">GetDateTimeString</link> topic.</para>
 				</description>
 				<section title="Example">
