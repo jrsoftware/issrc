@@ -22,7 +22,7 @@ procedure UpdateIcons(const FileName, IcoFileName: String);
 procedure UpdateVersionInfo(const F: TFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
-  NewProductName, NewTextProductVersion, OriginalFileName: String);
+  NewProductName, NewTextProductVersion, NewOriginalFileName: String);
 
 implementation
 
@@ -42,7 +42,7 @@ end;
 procedure UpdateVersionInfo(const F: TFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
-  NewProductName, NewTextProductVersion, OriginalFileName: String);
+  NewProductName, NewTextProductVersion, NewOriginalFileName: String);
 
   function WideStrsEqual(P1, P2: PWideChar): Boolean;
 
