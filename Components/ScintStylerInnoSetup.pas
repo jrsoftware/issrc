@@ -247,6 +247,7 @@ type
     ssVersionInfoProductTextVersion,
     ssVersionInfoTextVersion,
     ssVersionInfoVersion,
+    ssVersionInfoOriginalFileName,
     ssWindowResizable,
     ssWindowShowCaption,
     ssWindowStartMaximized,

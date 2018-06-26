@@ -85,7 +85,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 5.6.1</b><br/>
+<b>Inno Setup version 5.6.2</b><br/>
 <b>Copyright &copy; 1997-2018 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2018 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
@@ -924,6 +924,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_versioninfocompany">VersionInfoCompany</link></li>
 <li><link topic="setup_versioninfocopyright">VersionInfoCopyright</link></li>
 <li><link topic="setup_versioninfodescription">VersionInfoDescription</link></li>
+<li><link topic="setup_versioninfooriginalfilename">VersionInfoOriginalFileName</link></li>
 <li><link topic="setup_versioninfoproductname">VersionInfoProductName</link></li>
 <li><link topic="setup_versioninfoproducttextversion">VersionInfoProductTextVersion</link></li>
 <li><link topic="setup_versioninfoproductversion">VersionInfoProductVersion</link></li>
@@ -4748,6 +4749,13 @@ DiskSliceSize=1457664
 <setupdefault><link topic="setup_appname">AppName</link> if <link topic="setup_appname">AppName</link> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the product name value for the Setup version info.</p>
+<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="VersionInfoOriginalFileName">
+<body>
+<p>Specifies the original name of the setup .exe file (not including a path) for the Setup version info. This information can be useful to determine whether a setup file has been renamed.</p>
 <p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
