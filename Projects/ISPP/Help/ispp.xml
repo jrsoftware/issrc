@@ -1101,8 +1101,8 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> FileClose(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para>Closes open file and releases all resources allocated by a call to <synel><link href="FileOpen">FileOpen</link></synel>. After calling <synel>FileClose</synel>, the file handle becomes invalid.</para>
-					<para>This function is obsolete since 1.2. ISPP automatically frees resources allocated in a call to <synel>FileOpen</synel>.</para>
+					<para>Closes a file opened using <synel><link href="FileOpen">FileOpen</link></synel>. After calling <synel>FileClose</synel>, the file handle becomes invalid.</para>
+					<para>Note: open files which are not closed using this function will be automatically closed after the script has been preprocessed.</para>
 				</description>
 			</topic>
 			<topic id="GetDateTimeString">
