@@ -164,10 +164,11 @@
 // GetStringFileInfo helpers
 //
 #define GetFileCompany(str FileName) GetStringFileInfo(FileName, COMPANY_NAME)
-#define GetFileCopyright(str FileName) GetStringFileInfo(FileName, LEGAL_COPYRIGHT)
 #define GetFileDescription(str FileName) GetStringFileInfo(FileName, FILE_DESCRIPTION)
-#define GetFileProductVersion(str FileName) GetStringFileInfo(FileName, PRODUCT_VERSION)
 #define GetFileVersionString(str FileName) GetStringFileInfo(FileName, FILE_VERSION)
+#define GetFileCopyright(str FileName) GetStringFileInfo(FileName, LEGAL_COPYRIGHT)
+#define GetFileOriginalFilename(str FileName) GetStringFileInfo(FileName, ORIGINAL_FILENAME)
+#define GetFileProductVersion(str FileName) GetStringFileInfo(FileName, PRODUCT_VERSION)
 //
 // ParseVersion
 //
