@@ -25,6 +25,7 @@ BEGIN
             VALUE "FileDescription", "                                                            \0"
             VALUE "FileVersion", "                    \0"
             VALUE "LegalCopyright", "                                                                                                    \0"
+            VALUE "OriginalFileName", "                                                  \0"
             VALUE "ProductName", "                                                            \0"
             VALUE "ProductVersion", "                                                  \0"
         END

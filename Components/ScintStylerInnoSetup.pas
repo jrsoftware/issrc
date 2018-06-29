@@ -242,6 +242,7 @@ type
     ssVersionInfoCompany,
     ssVersionInfoCopyright,
     ssVersionInfoDescription,
+    ssVersionInfoOriginalFileName,
     ssVersionInfoProductName,
     ssVersionInfoProductVersion,
     ssVersionInfoProductTextVersion,

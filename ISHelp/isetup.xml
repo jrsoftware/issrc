@@ -924,6 +924,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_versioninfocompany">VersionInfoCompany</link></li>
 <li><link topic="setup_versioninfocopyright">VersionInfoCopyright</link></li>
 <li><link topic="setup_versioninfodescription">VersionInfoDescription</link></li>
+<li><link topic="setup_versioninfooriginalfilename">VersionInfoOriginalFileName</link></li>
 <li><link topic="setup_versioninfoproductname">VersionInfoProductName</link></li>
 <li><link topic="setup_versioninfoproducttextversion">VersionInfoProductTextVersion</link></li>
 <li><link topic="setup_versioninfoproductversion">VersionInfoProductVersion</link></li>
@@ -4740,6 +4741,13 @@ DiskSliceSize=1457664
 <setupdefault>"<link topic="setup_appname">AppName</link> Setup" if <link topic="setup_appname">AppName</link> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the file description value for the Setup version info.</p>
+<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="VersionInfoOriginalFileName">
+<body>
+<p>Specifies the original file name value for the Setup version info.</p>
 <p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
