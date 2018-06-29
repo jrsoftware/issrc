@@ -983,18 +983,18 @@ const
     ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'hwnd',
      'wizardhwnd');
 var
-  Z: String;
-  B: Boolean;
-  SF: TShellFolderID;
-  K: Integer;
+  ShellFolder: String;
+  Common: Boolean;
+  ShellFolderID: TShellFolderID;
+  I: Integer;
 begin
   if Cnst = 'sendto' then { old name of 'usersendto' }
     Cnst := 'usersendto';
     
   if IsUninstaller then
-    for K := Low(NoUninstallConsts) to High(NoUninstallConsts) do
-      if NoUninstallConsts[K] = Cnst then
-        NoUninstallConstError(NoUninstallConsts[K]);
+    for I := Low(NoUninstallConsts) to High(NoUninstallConsts) do
+      if NoUninstallConsts[I] = Cnst then
+        NoUninstallConstError(NoUninstallConsts[I]);
 
   if Cnst = '\' then Result := '\'
   else if Cnst = 'app' then begin
@@ -1092,11 +1092,11 @@ begin
     else begin
       if WizardGroupValue = '' then
         InternalError('An attempt was made to expand the "group" constant before it was initialized');
-      Z := GetShellFolder(not(shAlwaysUsePersonalGroup in SetupHeader.Options),
+      ShellFolder := GetShellFolder(not(shAlwaysUsePersonalGroup in SetupHeader.Options),
         sfPrograms, False);
-      if Z = '' then
+      if ShellFolder = '' then
         InternalError('Failed to expand "group" constant');
-      Result := AddBackslash(Z) + WizardGroupValue;
+      Result := AddBackslash(ShellFolder) + WizardGroupValue;
     end;
   end
   else if Cnst = 'language' then begin
@@ -1144,24 +1144,24 @@ begin
   else if StrLComp(PChar(Cnst), 'cm:', 3) = 0 then Result := ExpandCustomMessageConst(Cnst)
   else begin
     { Shell folder constants }
-    for B := False to True do
-      for SF := Low(SF) to High(SF) do
-        if Cnst = FolderConsts[B, SF] then begin
-          Z := GetShellFolder(B, SF, False);
-          if Z = '' then
+    for Common := False to True do
+      for ShellFolderID := Low(ShellFolderID) to High(ShellFolderID) do
+        if Cnst = FolderConsts[Common, ShellFolderID] then begin
+          ShellFolder := GetShellFolder(Common, False, ShellFolderID);
+          if ShellFolder = '' then
             InternalError(Format('Failed to expand shell folder constant "%s"', [Cnst]));
-          Result := Z;
+          Result := ShellFolder;
           Exit;
         end;
     { Custom constants }
     if Cnst <> '' then begin
-      K := 0;
-      while K < High(CustomConsts) do begin
-        if Cnst = CustomConsts[K] then begin
-          Result := CustomConsts[K+1];
+      I := 0;
+      while I < High(CustomConsts) do begin
+        if Cnst = CustomConsts[I] then begin
+          Result := CustomConsts[I+1];
           Exit;
         end;
-        Inc(K, 2);
+        Inc(I, 2);
       end;
     end;
     { Unknown constant }
