@@ -301,7 +301,7 @@ var
   FontDir: String;
 begin
   Result := PathExpand(Filename);
-  FontDir := GetShellFolder(False, sfFonts, False);
+  FontDir := GetShellFolder(False, False, sfFonts, False);
   if FontDir <> '' then
     if PathCompare(PathExtractDir(Result), FontDir) = 0 then
       Result := PathExtractName(Result);

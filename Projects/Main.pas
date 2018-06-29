@@ -200,7 +200,7 @@ function ExpandConstIfPrefixed(const S: String): String;
 function GetCustomMessageValue(const AName: String; var AValue: String): Boolean;
 function GetRealShellFolder(const Common: Boolean; const ID: TShellFolderID;
   ReadOnly: Boolean): String;
-function GetShellFolder(Common: Boolean; const ID: TShellFolderID;
+function GetShellFolder(Common, CommonAllowDowngrade: Boolean; const ID: TShellFolderID;
   ReadOnly: Boolean): String;
 function GetShellFolderByCSIDL(Folder: Integer; const Create: Boolean): String;
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
@@ -1092,7 +1092,7 @@ begin
     else begin
       if WizardGroupValue = '' then
         InternalError('An attempt was made to expand the "group" constant before it was initialized');
-      ShellFolder := GetShellFolder(not(shAlwaysUsePersonalGroup in SetupHeader.Options),
+      ShellFolder := GetShellFolder(not(shAlwaysUsePersonalGroup in SetupHeader.Options), True,
         sfPrograms, False);
       if ShellFolder = '' then
         InternalError('Failed to expand "group" constant');
@@ -1147,7 +1147,7 @@ begin
     for Common := False to True do
       for ShellFolderID := Low(ShellFolderID) to High(ShellFolderID) do
         if Cnst = FolderConsts[Common, ShellFolderID] then begin
-          ShellFolder := GetShellFolder(Common, False, ShellFolderID);
+          ShellFolder := GetShellFolder(Common, False, ShellFolderID, False);
           if ShellFolder = '' then
             InternalError(Format('Failed to expand shell folder constant "%s"', [Cnst]));
           Result := ShellFolder;
@@ -1591,13 +1591,14 @@ begin
     GetFolder(False);
 end;
 
-function GetShellFolder(Common: Boolean; const ID: TShellFolderID;
+function GetShellFolder(Common, CommonAllowDowngrade: Boolean; const ID: TShellFolderID;
   ReadOnly: Boolean): String;
 begin
   { If the user isn't an administrator, or is running Windows 9x, always fall
     back to user folders, except in the case of sfAppData (which is writable
     by Users on XP) and sfDocs (which is writable by Users on 2000 & XP) }
-  if Common and (not IsAdmin or (SetupHeader.PrivilegesRequired = prLowest) or not IsNT) and
+  if Common and CommonAllowDowngrade and
+     (not IsAdmin or (SetupHeader.PrivilegesRequired = prLowest) or not IsNT) and
      not(ID in [sfAppData, sfDocs]) then
     Common := False;
   Result := GetRealShellFolder(Common, ID, ReadOnly);

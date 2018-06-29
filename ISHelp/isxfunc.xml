@@ -1491,25 +1491,6 @@ end;</pre></example>
         <description><p>Returns fully qualified path of the temporary directory, with trailing backslash. This does not use the Win32 function GetTempPath, due to platform differences.<br />Gets the temporary file path as follows:<br />1. The path specified by the TMP environment variable.<br />2. The path specified by the TEMP environment variable, if TMP is not defined or if TMP specifies a directory that does not exist.<br />3. The path specified by the USERPROFILE environment variable, if both TMP and TEMP are not defined or specify nonexistent directories.<br />4. The Windows directory, if all the above TMP, TEMP and USERPROFILE are not defined or specify nonexistent directories.</p></description>
       </function>
       <function>
-        <name>GetShellFolder</name>
-        <prototype>function GetShellFolder(Common: Boolean; const ID: TShellFolderID): String;</prototype>
-        <description><p>Gets the location of the specified shell folder. Returns the 'common' version of the shell folder location if Common is True and the user has administrative privileges. On failure (unlikely but possible), an empty string is returned.</p></description>
-        <remarks><p>There is little reason to use this function. It is recommended that you use the ExpandConstant function instead to get the paths of shell folders.</p></remarks>
-        <example><pre>var
-  Path: String;
-begin
-  Path := GetShellFolder(False, sfAppData);
-  if Path &lt;&gt; '' then
-  begin
-    MsgBox('Application Data path = ' + Path, mbInformation, MB_OK);
-  end
-  else
-  begin
-    // handle failure
-  end;
-end;</pre></example>
-      </function>
-      <function>
         <name>GetShellFolderByCSIDL</name>
         <prototype>function GetShellFolderByCSIDL(const Folder: Integer; const Create: Boolean): String;</prototype>
         <description><p>Gets the path of the specified shell folder. Folder specifies the value of a CSIDL constant (a complete list of which can be found in ShlObj.h). If Create is True, the folder will be created if it does not exist. On failure, an empty string is returned.</p></description>

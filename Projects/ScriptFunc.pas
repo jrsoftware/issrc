@@ -179,7 +179,7 @@ const
   );
 
   { Main }
-  MainTable: array [0..24] of AnsiString =
+  MainTable: array [0..23] of AnsiString =
   (
     'function WizardForm: TWizardForm;',
     'function MainForm: TMainForm;',
@@ -189,7 +189,6 @@ const
     'function ExpandConstant(const S: String): String;',
     'function ExpandConstantEx(const S: String; const CustomConst, CustomValue: String): String;',
     'function ExitSetupMsgBox: Boolean;',
-    'function GetShellFolder(Common: Boolean; const ID: TShellFolderID): String;',
     'function GetShellFolderByCSIDL(const Folder: Integer; const Create: Boolean): String;',
     'function InstallOnThisVersion(const MinVersion, OnlyBelowVersion: String): Boolean;',
     'function GetWindowsVersion: Cardinal;',

@@ -28,6 +28,12 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 
 <p><a name="5.6.2"></a><span class="ver">5.6.2 </span><span class="date">(?)</span></p>
 <ul>
+<li>A number of changes have been made to the &quot;common&quot; and &quot;user&quot; constants functionality:
+<ul>
+   <li><b>Change in default behavior:</b> The &quot;common&quot; contants (<tt>commonappdata</tt>, <tt>commondesktop</tt>, <tt>commondocs</tt>, <tt>commonfavorites</tt>, <tt>commonprograms</tt>, <tt>commonstartmenu</tt><tt>commonstartup</tt>, and <tt>commontemplates</tt>) are no longer mapper to their "user" forms if the logged-in user lacks administrative privileges, or if PrivilegesRequired is set to lowest. Instead they simply return the requested common directory.</li>
+   <li>Pascal Scripting change: Removed the <tt>GetShellFolder</tt> support function. As the help file already recommended, use <tt>ExpandConstant</tt> instead.</li>
+</ul>
+</li>
 <li>Added new [Setup] section directive: <tt>VersionInfoOriginalFileName</tt>, which sets the original filename version value.</li>
 <li>Pascal Scripting changes: Added new <tt>SameStr</tt> and <tt>SameText</tt> support functions.</li>
 <li>Inno Setup Preprocessor (ISPP) changes:

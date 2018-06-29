@@ -1017,8 +1017,6 @@ begin
     Stack.SetString(PStart, ExpandConstEx(Stack.GetString(PStart-1), [Stack.GetString(PStart-2), Stack.GetString(PStart-3)]));
   end else if Proc.Name = 'EXITSETUPMSGBOX' then begin
     Stack.SetBool(PStart, ExitSetupMsgBox());
-  end else if Proc.Name = 'GETSHELLFOLDER' then begin
-    Stack.SetString(PStart, GetShellFolder(Stack.GetBool(PStart-1), TShellFolderID(Stack.GetInt(PStart-2)), False));
   end else if Proc.Name = 'GETSHELLFOLDERBYCSIDL' then begin
     Stack.SetString(PStart, GetShellFolderByCSIDL(Stack.GetInt(PStart-1), Stack.GetBool(PStart-2)));
   end else if Proc.Name = 'INSTALLONTHISVERSION' then begin
