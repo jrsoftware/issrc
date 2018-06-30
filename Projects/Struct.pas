@@ -29,7 +29,7 @@ type
   TDiskSliceID = array[1..8] of AnsiChar;
 const
   { SetupID is used by the Setup program to check if the SETUP.0 file is
-    compatible with with it. If you make any modifications to the records in
+    compatible with it. If you make any modifications to the records in
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
