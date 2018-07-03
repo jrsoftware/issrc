@@ -87,7 +87,7 @@ SignedUninstaller=yes
 Name: english; MessagesFile: "files\Default.isl"
 ; Generate [Languages] entries for all official translations
 #expr FindFiles("files\Languages\", "isl", 0)
-; #include any translations for [CustomMessages] (includes the default custom messages)
+; Include translations of messages used by this script (includes the default messages)
 #expr FindFiles("files\Languages\Setup\", "iss", 1)
 
 [Messages]
