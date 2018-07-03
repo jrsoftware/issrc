@@ -1147,7 +1147,7 @@ begin
     for Common := False to True do
       for ShellFolderID := Low(ShellFolderID) to High(ShellFolderID) do
         if Cnst = FolderConsts[Common, ShellFolderID] then begin
-          ShellFolder := GetShellFolder(Common, False, ShellFolderID);
+          ShellFolder := GetShellFolder(Common, ShellFolderID, False);
           if ShellFolder = '' then
             InternalError(Format('Failed to expand shell folder constant "%s"', [Cnst]));
           Result := ShellFolder;
