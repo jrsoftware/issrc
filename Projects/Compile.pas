@@ -2858,13 +2858,15 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
 const
-  Consts: array[0..38] of String = (
+  UserConsts: array[0..1] of String = (
+    'userpf', 'usercf');
+  Consts: array[0..36] of String = (
     'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts',
     'hwnd', 'pf', 'pf32', 'pf64', 'cf', 'cf32', 'cf64', 'computername', 'dao',
     'cmd', 'username', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
     'language', 'syswow64', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
-    'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064', 'userpf', 'usercf');
+    'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064');
   UserShellFolderConsts: array[0..9] of String = (
     'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
     'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto',
@@ -2937,6 +2939,11 @@ begin
               AbortCompileOnLineFmt(SCompilerBadCustomMessageConst, [Cnst]);
             goto 1;
           end;
+          for K := Low(UserConsts) to High(UserConsts) do
+            if Cnst = UserConsts[K] then begin
+              UsedUserAreas.Add(Cnst);
+              goto 1;
+            end;
           for K := Low(Consts) to High(Consts) do
             if Cnst = Consts[K] then
               goto 1;
