@@ -1,13 +1,13 @@
 ; *** Inno Setup version 5.7.0+ English installer messages ***
 ;
+; IMPORTANT: Before translating this text, make sure to prefix all messages
+; with your language's internal name followed by a period. See Italian.iss
+; for an example.
+;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
-;
-; Also note: Before translating this text, make sure to prefix all messages
-; with your language's internal name followed by a period. See Italian.iss
-; for an example.
 
 [Messages]
 HelpTextNote=/PORTABLE=1%nEnable portable mode.
