@@ -108,6 +108,7 @@ type
     msgFinishedRestartMessage, 
     msgFullInstallation,
     msgGroupNameTooLong,
+    msgHelpTextNote,
     msgIncorrectPassword,
     msgInfoAfterClickLabel,
     msgInfoAfterLabel,
@@ -237,7 +238,7 @@ type
     msgWizardUninstalling,
     msgWizardUserInfo,
     msgYesRadio);
-
+    
 implementation
 
 end.

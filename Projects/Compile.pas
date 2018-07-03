@@ -7293,7 +7293,7 @@ begin
     for J := Low(LangData.Messages) to High(LangData.Messages) do
       if not LangData.MessagesDefined[J] then begin
         { Use the message from Default.isl }
-        if J <> msgTranslatorNote then
+        if not (J in [msgHelpTextNote, msgTranslatorNote]) then
           WarningsList.Add(Format(SCompilerMessagesMissingMessageWarning,
             [Copy(GetEnumName(TypeInfo(TSetupMessageID), Ord(J)), 4, Maxint),
              PSetupLanguageEntry(LanguageEntries[I]).Name]));
