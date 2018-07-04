@@ -279,7 +279,7 @@ begin
     SetupCorruptError;
 end;
 
-procedure ShowHelp;
+procedure ShowHelp(const CustomNote: String);
 const
   SNewLine = #13#10;
 var
@@ -337,6 +337,7 @@ begin
           'Like the /TASKS parameter, except the specified tasks will be merged with the set of tasks that would have otherwise been selected by default.' + SNewLine +
           '/PASSWORD=password' + SNewLine +
           'Specifies the password to use.' + SNewLine +
+          CustomNote +
           SNewLine +
           'For more detailed information, please visit http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline';
 
@@ -363,11 +364,6 @@ begin
 
     ProcessCommandLine;
     
-    if InitShowHelp then begin
-      ShowHelp;
-      Halt(0);
-    end;
-
     SelfFilename := NewParamStr(0);
     SourceF := TFile.Create(SelfFilename, fdOpenExisting, faRead, fsRead);
     try
@@ -402,82 +398,88 @@ begin
         on ECompressDataError do
           SetupCorruptError;
       end;
-
+      
       ActivateDefaultLanguage;
 
-      { Show the startup prompt. If this is enabled, SetupHeader.AppName won't
-        have constants. }
-      if not(shDisableStartupPrompt in SetupHeader.Options) and
-         not InitDisableStartupPrompt and
-         (MessageBox(0, PChar(FmtSetupMessage1(msgSetupLdrStartupMessage, SetupHeader.AppName)),
-           PChar(SetupMessages[msgSetupAppTitle]), MB_YESNO or MB_ICONQUESTION) <> IDYES) then begin
-        SetupLdrExitCode := ecCancelledBeforeInstall;
-        Abort;
-      end;
+      if InitShowHelp then begin
+        { Show the command line help. }
+        ShowHelp(SetupMessages[msgHelpTextNote]);
+        SetupLdrExitCode := 0;
+      end else begin
+        { Show the startup prompt. If this is enabled, SetupHeader.AppName won't
+          have constants. }
+        if not(shDisableStartupPrompt in SetupHeader.Options) and
+           not InitDisableStartupPrompt and
+           (MessageBox(0, PChar(FmtSetupMessage1(msgSetupLdrStartupMessage, SetupHeader.AppName)),
+             PChar(SetupMessages[msgSetupAppTitle]), MB_YESNO or MB_ICONQUESTION) <> IDYES) then begin
+          SetupLdrExitCode := ecCancelledBeforeInstall;
+          Abort;
+        end;
 
-      { Create a temporary directory, and extract the embedded setup program
-        there }
-      Randomize;
-      TempDir := CreateTempDir;
-      S := AddBackslash(TempDir) + PathChangeExt(PathExtractName(SelfFilename), '.tmp');
-      TempFile := S;  { assign only if string was successfully constructed }
+        { Create a temporary directory, and extract the embedded setup program
+          there }
+        Randomize;
+        TempDir := CreateTempDir;
+        S := AddBackslash(TempDir) + PathChangeExt(PathExtractName(SelfFilename), '.tmp');
+        TempFile := S;  { assign only if string was successfully constructed }
 
-      SourceF.Seek(OffsetTable.OffsetEXE);
+        SourceF.Seek(OffsetTable.OffsetEXE);
 
-      try
-        P := nil;
-        DestF := TFile.Create(TempFile, fdCreateAlways, faWrite, fsNone);
         try
-          GetMem(P, OffsetTable.UncompressedSizeEXE);
-          FillChar(P^, OffsetTable.UncompressedSizeEXE, 0);
+          P := nil;
+          DestF := TFile.Create(TempFile, fdCreateAlways, faWrite, fsNone);
           try
-            Reader := TCompressedBlockReader.Create(SourceF, TLZMA1SmallDecompressor);
+            GetMem(P, OffsetTable.UncompressedSizeEXE);
+            FillChar(P^, OffsetTable.UncompressedSizeEXE, 0);
             try
-              Reader.Read(P^, OffsetTable.UncompressedSizeEXE);
-            finally
-              Reader.Free;
+              Reader := TCompressedBlockReader.Create(SourceF, TLZMA1SmallDecompressor);
+              try
+                Reader.Read(P^, OffsetTable.UncompressedSizeEXE);
+              finally
+                Reader.Free;
+              end;
+            except
+              on ECompressDataError do
+                SetupCorruptError;
             end;
-          except
-            on ECompressDataError do
+            TransformCallInstructions(P^, OffsetTable.UncompressedSizeEXE, False, 0);
+            if GetCRC32(P^, OffsetTable.UncompressedSizeEXE) <> OffsetTable.CRCEXE then
               SetupCorruptError;
+            { Preallocate the bytes to avoid file system fragmentation }
+            DestF.Seek(OffsetTable.UncompressedSizeEXE);
+            DestF.Truncate;
+            DestF.Seek(0);
+            DestF.WriteBuffer(P^, OffsetTable.UncompressedSizeEXE);
+          finally
+            FreeMem(P);
+            DestF.Free;
           end;
-          TransformCallInstructions(P^, OffsetTable.UncompressedSizeEXE, False, 0);
-          if GetCRC32(P^, OffsetTable.UncompressedSizeEXE) <> OffsetTable.CRCEXE then
-            SetupCorruptError;
-          { Preallocate the bytes to avoid file system fragmentation }
-          DestF.Seek(OffsetTable.UncompressedSizeEXE);
-          DestF.Truncate;
-          DestF.Seek(0);
-          DestF.WriteBuffer(P^, OffsetTable.UncompressedSizeEXE);
-        finally
-          FreeMem(P);
-          DestF.Free;
+        except
+          on E: EFileError do begin
+            SetLastError(E.ErrorCode);
+            RaiseLastError(msgLdrCannotCreateTemp);
+          end;
         end;
-      except
-        on E: EFileError do begin
-          SetLastError(E.ErrorCode);
-          RaiseLastError(msgLdrCannotCreateTemp);
-        end;
+
+        FreeAndNil(SourceF);
+
+        { Create SetupLdrWnd, which is used by Setup to communicate with
+          SetupLdr }
+        SetupLdrWnd := CreateWindowEx(0, 'STATIC', 'InnoSetupLdrWindow', 0,
+          0, 0, 0, 0, HWND_DESKTOP, 0, HInstance, nil);
+        Longint(OrigWndProc) := SetWindowLong(SetupLdrWnd, GWL_WNDPROC,
+          Longint(@SetupLdrWndProc));
+
+        { Now execute Setup. Use the exit code it returns as our exit code. }
+        ExecAndWait(TempFile, Format('/SL5="$%x,%d,%d,',
+          [SetupLdrWnd, OffsetTable.Offset0, OffsetTable.Offset1]) +
+          SelfFilename + '" ' + GetCmdTail, SetupLdrExitCode);
+
+        { Synchronize our active language with Setup's, in case we need to
+          display any messages below } 
+        if PendingNewLanguage <> -1 then
+          SetActiveLanguage(PendingNewLanguage);
       end;
-
-      FreeAndNil(SourceF);
-
-      { Create SetupLdrWnd, which is used by Setup to communicate with
-        SetupLdr }
-      SetupLdrWnd := CreateWindowEx(0, 'STATIC', 'InnoSetupLdrWindow', 0,
-        0, 0, 0, 0, HWND_DESKTOP, 0, HInstance, nil);
-      Longint(OrigWndProc) := SetWindowLong(SetupLdrWnd, GWL_WNDPROC,
-        Longint(@SetupLdrWndProc));
-
-      { Now execute Setup. Use the exit code it returns as our exit code. }
-      ExecAndWait(TempFile, Format('/SL5="$%x,%d,%d,',
-        [SetupLdrWnd, OffsetTable.Offset0, OffsetTable.Offset1]) +
-        SelfFilename + '" ' + GetCmdTail, SetupLdrExitCode);
-
-      { Synchronize our active language with Setup's, in case we need to
-        display any messages below } 
-      if PendingNewLanguage <> -1 then
-        SetActiveLanguage(PendingNewLanguage);
     finally
       SourceF.Free;
       if TempFile <> '' then

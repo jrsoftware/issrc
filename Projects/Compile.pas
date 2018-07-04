@@ -2858,14 +2858,16 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
 const
-  Consts: array[0..44] of String = (
+  UserConsts: array[0..1] of String = (
+    'userpf', 'usercf');
+  Consts: array[0..42] of String = (
     'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts', 'hwnd',
     'commonpf', 'commonpf32', 'commonpf64', 'commoncf', 'commoncf32', 'commoncf64',
     'autopf', 'autopf32', 'autopf64', 'autocf', 'autocf32', 'autocf64',
     'computername', 'dao', 'cmd', 'username', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
     'language', 'syswow64', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
-    'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064', 'userpf', 'usercf');
+    'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064');
   UserShellFolderConsts: array[0..8] of String = (
     'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
     'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto');
@@ -2939,6 +2941,11 @@ begin
               AbortCompileOnLineFmt(SCompilerBadCustomMessageConst, [Cnst]);
             goto 1;
           end;
+          for K := Low(UserConsts) to High(UserConsts) do
+            if Cnst = UserConsts[K] then begin
+              UsedUserAreas.Add(Cnst);
+              goto 1;
+            end;
           for K := Low(Consts) to High(Consts) do
             if Cnst = Consts[K] then
               goto 1;
@@ -7295,7 +7302,7 @@ begin
     for J := Low(LangData.Messages) to High(LangData.Messages) do
       if not LangData.MessagesDefined[J] then begin
         { Use the message from Default.isl }
-        if J <> msgTranslatorNote then
+        if not (J in [msgHelpTextNote, msgTranslatorNote]) then
           WarningsList.Add(Format(SCompilerMessagesMissingMessageWarning,
             [Copy(GetEnumName(TypeInfo(TSetupMessageID), Ord(J)), 4, Maxint),
              PSetupLanguageEntry(LanguageEntries[I]).Name]));

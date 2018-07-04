@@ -198,10 +198,10 @@ How do the projects link together?
   your installations with the new code, you'll need to copy the new EXE
   file(s) to the Setup Compiler directory under the extension .E32.
 
-- When debugging the Setup project you should set UseSetupLdr=no in your
-  script, and copy the resulting setup-*.bin files to the source code
-  directory. This way you can simulate an actual installation while running
-  under the Delphi debugger.
+- When debugging the Setup project you should set UseSetupLdr=no and
+  OutputBaseFilename=setup in your script, and copy the resulting setup-*.bin
+  files to the source code directory. This way you can simulate an actual
+  installation while runningunder the Delphi debugger.
 
 - All of the forms in the Setup project, with the exception of Main.dfm, have
   Scaled set to False. This is because they dynamically scale themselves at
