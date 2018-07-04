@@ -148,58 +148,61 @@ const
   NULL = {$IFDEF VER90}nil{$ELSE}0{$ENDIF};
 begin
   Result := False;
-  if (DstWidth <= 0) or (DstHeight <= 0) then Exit;
-  //High quality resampling makes sense only
-  //in True Color and High Color display modes.
-  if GetDeviceCaps(Canvas.Handle, BITSPIXEL) <= 8 then Exit;
-  SrcWidth  := SrcBitmap.Width;
-  SrcHeight := SrcBitmap.Height;
-  if (SrcWidth <= 0) or (SrcHeight <= 0) then Exit;
-  FillChar(BI, SizeOf(BI), 0);
-  BI.bmiHeader.biSize := SizeOf(BI.bmiHeader);
-  BI.bmiHeader.biWidth := SrcWidth;
-  BI.bmiHeader.biHeight := SrcHeight;
-  BI.bmiHeader.biPlanes := 1;
-  BI.bmiHeader.biCompression := BI_RGB;
-  if Is32bit then begin
-    BI.bmiHeader.biBitCount := 32;
-    PixelSize := 4;
-    Proc := PutPixel32P;
-  end else begin
-    BI.bmiHeader.biBitCount := 24;
-    PixelSize := 3;
-    Proc := PutPixel24;
-  end;
-  DstLineSize := (DstWidth * PixelSize + 3) and not 3;
-  SrcLineSize := (SrcWidth * PixelSize + 3) and not 3;
-  GetMem(tmpBits, SrcHeight * DstLineSize);
   try
-    GetMem(SrcBits, SrcLineSize * SrcHeight);
+    if (DstWidth <= 0) or (DstHeight <= 0) then Exit;
+    //High quality resampling makes sense only
+    //in True Color and High Color display modes.
+    if GetDeviceCaps(Canvas.Handle, BITSPIXEL) <= 8 then Exit;
+    SrcWidth  := SrcBitmap.Width;
+    SrcHeight := SrcBitmap.Height;
+    if (SrcWidth <= 0) or (SrcHeight <= 0) then Exit;
+    FillChar(BI, SizeOf(BI), 0);
+    BI.bmiHeader.biSize := SizeOf(BI.bmiHeader);
+    BI.bmiHeader.biWidth := SrcWidth;
+    BI.bmiHeader.biHeight := SrcHeight;
+    BI.bmiHeader.biPlanes := 1;
+    BI.bmiHeader.biCompression := BI_RGB;
+    if Is32bit then begin
+      BI.bmiHeader.biBitCount := 32;
+      PixelSize := 4;
+      Proc := PutPixel32P;
+    end else begin
+      BI.bmiHeader.biBitCount := 24;
+      PixelSize := 3;
+      Proc := PutPixel24;
+    end;
+    DstLineSize := (DstWidth * PixelSize + 3) and not 3;
+    SrcLineSize := (SrcWidth * PixelSize + 3) and not 3;
+    GetMem(tmpBits, SrcHeight * DstLineSize);
     try
-      if GetDIBits(Canvas.Handle, SrcBitmap.Handle,
-        0, SrcHeight, SrcBits, BI, DIB_RGB_COLORS) = 0 then Exit;
-      //Stretch horizontally
-      ResampleBits(DstWidth, SrcWidth, SrcBits, tmpBits,
-        PixelSize, SrcHeight, SrcLineSize, DstLineSize, Proc);
+      GetMem(SrcBits, SrcLineSize * SrcHeight);
+      try
+        if GetDIBits(Canvas.Handle, SrcBitmap.Handle,
+          0, SrcHeight, SrcBits, BI, DIB_RGB_COLORS) = 0 then Exit;
+        //Stretch horizontally
+        ResampleBits(DstWidth, SrcWidth, SrcBits, tmpBits,
+          PixelSize, SrcHeight, SrcLineSize, DstLineSize, Proc);
+      finally
+        FreeMem(SrcBits);
+      end;
+      BI.bmiHeader.biWidth := DstWidth;
+      BI.bmiHeader.biHeight := DstHeight;
+      DIB := CreateDIBSection(Canvas.Handle, BI, DIB_RGB_COLORS, DstBits, NULL, 0);
+      if DIB = 0 then Exit;
+      try
+        //Stretch vertically
+        ResampleBits(DstHeight, SrcHeight, tmpBits, DstBits,
+          DstLineSize, DstWidth, PixelSize, PixelSize, Proc);
+        DstBitmap.Handle := DIB;
+        Result := True;
+      except
+        DeleteObject(DIB);
+        raise;
+      end;
     finally
-      FreeMem(SrcBits);
+      FreeMem(tmpBits);
     end;
-    BI.bmiHeader.biWidth := DstWidth;
-    BI.bmiHeader.biHeight := DstHeight;
-    DIB := CreateDIBSection(Canvas.Handle, BI, DIB_RGB_COLORS, DstBits, NULL, 0);
-    if DIB = 0 then Exit;
-    try
-      //Stretch vertically
-      ResampleBits(DstHeight, SrcHeight, tmpBits, DstBits,
-        DstLineSize, DstWidth, PixelSize, PixelSize, Proc);
-      DstBitmap.Handle := DIB;
-      Result := True;
-    except
-      DeleteObject(DIB);
-      raise;
-    end;
-  finally
-    FreeMem(tmpBits);
+  except
   end;
 end;
 
