@@ -305,8 +305,11 @@ This " contains " embedded " quotes
 <keyword value="{\}" anchor="bs" />
 <keyword value="{%NAME}" anchor="name" />
 <keyword value="{app}" anchor="app" />
+<keyword value="{commoncf}" anchor="commoncf" />
 <keyword value="{cf}" anchor="cf" />
+<keyword value="{commoncf32}" anchor="commoncf32" />
 <keyword value="{cf32}" anchor="cf32" />
+<keyword value="{commoncf64}" anchor="commoncf64" />
 <keyword value="{cf64}" anchor="cf64" />
 <keyword value="{cm:...}" anchor="cm" />
 <keyword value="{cmd}" anchor="cmd" />
@@ -337,8 +340,11 @@ This " contains " embedded " quotes
 <keyword value="{localappdata}" anchor="localappdata" />
 <keyword value="{log}" anchor="log" />
 <keyword value="{param:...}" anchor="param" />
+<keyword value="{commonpf}" anchor="commonpf" />
 <keyword value="{pf}" anchor="pf" />
+<keyword value="{commonpf32}" anchor="commonpf32" />
 <keyword value="{pf32}" anchor="pf32" />
+<keyword value="{commonpf64}" anchor="commonpf64" />
 <keyword value="{pf64}" anchor="pf64" />
 <keyword value="{reg:...}" anchor="reg" />
 <keyword value="{sd}" anchor="sd" />
@@ -362,6 +368,7 @@ This " contains " embedded " quotes
 <keyword value="{userpf}" anchor="userpf" />
 <keyword value="{userprograms}" anchor="userprograms" />
 <keyword value="{usersendto}" anchor="usersendto" />
+<keyword value="{sendto}" anchor="usersendto" />
 <keyword value="{userstartmenu}" anchor="userstartmenu" />
 <keyword value="{userstartup}" anchor="userstartup" />
 <keyword value="{usertemplates}" anchor="usertemplates" />
@@ -417,32 +424,32 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>System Drive. The drive Windows is installed on, typically "C:". This directory constant is equivalent to the <i>SystemDrive</i> environment variable.</p>
 </dd>
 
-<dt><b><a name="pf">{pf}</a></b></dt>
+<dt><b><a name="commonpf">{commonpf}</a></b></dt>
 <dd>
-<p>Program Files. The path of the system's Program Files directory. <tt>{pf}</tt> is equivalent to <tt>{pf32}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit mode</link>, in which case it is equivalent to <tt>{pf64}</tt>.</p>
+<p>Program Files. The path of the system's Program Files directory. <tt>{commonpf}</tt> is equivalent to <tt>{commonpf32}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit mode</link>, in which case it is equivalent to <tt>{commonpf64}</tt>.</p>
 </dd>
 
-<dt><b><a name="pf32">{pf32}</a></b></dt>
+<dt><b><a name="commonpf32">{commonpf32}</a></b></dt>
 <dd>
 <p>32-bit Program Files. The path of the system's 32-bit Program Files directory, typically "C:\Program Files" on 32-bit Windows and "C:\Program Files (x86)" on 64-bit Windows.</p>
 </dd>
 
-<dt><b><a name="pf64">{pf64}</a></b></dt>
+<dt><b><a name="commonpf64">{commonpf64}</a></b></dt>
 <dd>
 <p>64-bit Windows only: 64-bit Program Files. The path of the system's 64-bit Program Files directory, typically "C:\Program Files". An exception will be raised if an attempt is made to expand this constant on 32-bit Windows.</p>
 </dd>
 
-<dt><b><a name="cf">{cf}</a></b></dt>
+<dt><b><a name="commoncf">{commoncf}</a></b></dt>
 <dd>
-<p>Common Files. The path of the system's Common Files directory. <tt>{cf}</tt> is equivalent to <tt>{cf32}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit mode</link>, in which case it is equivalent to <tt>{cf64}</tt>.</p>
+<p>Common Files. The path of the system's Common Files directory. <tt>{commoncf}</tt> is equivalent to <tt>{commoncf32}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit mode</link>, in which case it is equivalent to <tt>{commoncf64}</tt>.</p>
 </dd>
 
-<dt><b><a name="cf32">{cf32}</a></b></dt>
+<dt><b><a name="commoncf32">{commoncf32}</a></b></dt>
 <dd>
 <p>32-bit Common Files. The path of the system's 32-bit Common Files directory, typically "C:\Program Files\Common Files" on 32-bit Windows and "C:\Program Files (x86)\Common Files" on 64-bit Windows.</p>
 </dd>
 
-<dt><b><a name="cf64">{cf64}</a></b></dt>
+<dt><b><a name="commoncf64">{commoncf64}</a></b></dt>
 <dd>
 <p>64-bit Windows only: 64-bit Common Files. The path of the system's 64-bit Common Files directory, typically "C:\Program Files\Common Files". An exception will be raised if an attempt is made to expand this constant on 32-bit Windows.</p>
 </dd>
@@ -459,7 +466,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="dao">{dao}</a></b></dt>
 <dd>
-<p>DAO directory. This is equivalent to <tt>{cf}\Microsoft Shared\DAO</tt>.</p>
+<p>DAO directory. This is equivalent to <tt>{commoncf}\Microsoft Shared\DAO</tt>.</p>
 </dd>
 
 <dt><b><a name="dotnet11">{dotnet11}</a></b></dt>
@@ -584,6 +591,23 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 </dd>
 
 </dl>
+
+<heading>Renamed Constants</heading>
+
+<p>Inno Setup 5.7.0 renamed some of the directory and shell folder constants. The old names are still supported, but it is recommended to update your scripts to the new names.</p>
+
+<indent>
+<table>
+<tr><td><u>Old name</u></td><td><u>New name</u></td></tr>
+<tr><td><tt><a name="cf">cf</a></tt></td><td><tt>commoncf</tt></td></tr>
+<tr><td><tt><a name="cf32">cf32</a></tt></td><td><tt>commoncf32</tt></td></tr>
+<tr><td><tt><a name="cf64">cf64</a></tt></td><td><tt>commoncf64</tt></td></tr>
+<tr><td><tt><a name="pf">pf</a></tt></td><td><tt>commonpf</tt></td></tr>
+<tr><td><tt><a name="pf32">pf32</a></tt></td><td><tt>commonpf32</tt></td></tr>
+<tr><td><tt><a name="pf64">pf64</a></tt></td><td><tt>commonpf64</tt></td></tr>
+<tr><td><tt><a name="sendto">sendto</a></tt></td><td><tt>usersendto</tt></td></tr>
+</table>
+</indent>
 
 <heading>Other Constants</heading>
 
@@ -1356,7 +1380,7 @@ Name: "{app}\bin"
 <param name="Permissions">
 <p>Specifies additional permissions to grant in the directory's ACL (access control list). It is not recommended that you use this parameter if you aren't familiar with ACLs or why you would need to change them, because misusing it could negatively impact system security.</p>
 <p>For this parameter to have an effect the directory must be located on a partition that supports ACLs (such as NTFS), and the current user must be able to change the permissions on the directory. In the event these conditions are not met, no error message will be displayed, and the permissions will not be set.</p>
-<p>This parameter should <i>only</i> be used on directories private to your application. Never change the ACLs on top-level directories like <tt>{sys}</tt> or <tt>{pf}</tt>, otherwise you can open up security holes on your users' systems.</p>
+<p>This parameter should <i>only</i> be used on directories private to your application. Never change the ACLs on top-level directories like <tt>{sys}</tt> or <tt>{commonpf}</tt>, otherwise you can open up security holes on your users' systems.</p>
 <p>In addition, it is recommended that you avoid using this parameter to grant write access on directories containing program files. Granting, for example, <tt>everyone-modify</tt> permission on the <tt>{app}</tt> directory will allow unprivileged users to tamper with your application's program files; this creates the potential for a privilege escalation vulnerability. (However, it is safe to change the permissions on a subdirectory of your application's directory which does not contain program files, e.g. <tt>{app}\data</tt>.)</p>
 <p>The specified permissions are set regardless of whether the directory existed prior to installation.</p>
 <p>This parameter can include one or more space separated values in the format:</p>
@@ -2866,8 +2890,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <ul>
 <li>The System32 path returned by the <tt>{sys}</tt> constant maps to the 32-bit System directory by default.</li>
-<li>The <tt>{pf}</tt> constant is equivalent to <tt>{pf32}</tt>.</li>
-<li>The <tt>{cf}</tt> constant is equivalent to <tt>{cf32}</tt>.</li>
+<li>The <tt>{commonpf}</tt> constant is equivalent to <tt>{commonpf32}</tt>.</li>
+<li>The <tt>{commoncf}</tt> constant is equivalent to <tt>{commoncf32}</tt>.</li>
 <li>[Registry] writes to the 32-bit view by default.</li>
 <li>The <tt>{reg:...}</tt> constant reads the 32-bit view by default.</li>
 <li>The <tt>Reg*</tt> [Code] support functions access the 32-bit view by default.</li>
@@ -2881,8 +2905,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <ul>
 <li>The System32 path returned by the <tt>{sys}</tt> constant maps to the 64-bit System directory by default when used in the [Dirs], [Files], [InstallDelete], [Run], [UninstallDelete], and [UninstallRun] sections. This is because Setup/Uninstall temporarily disables <extlink href="http://msdn.microsoft.com/en-us/library/aa384187.aspx">WOW64 file system redirection</extlink> when files/directories are accessed by those sections. Elsewhere, System32 and <tt>{sys}</tt> map to the 32-bit System directory, as is normal in a 32-bit process.</li>
-<li>The <tt>{pf}</tt> constant is equivalent to <tt>{pf64}</tt>.</li>
-<li>The <tt>{cf}</tt> constant is equivalent to <tt>{cf64}</tt>.</li>
+<li>The <tt>{commonpf}</tt> constant is equivalent to <tt>{commonpf64}</tt>.</li>
+<li>The <tt>{commoncf}</tt> constant is equivalent to <tt>{commoncf64}</tt>.</li>
 <li>[Registry] writes to the 64-bit view by default.</li>
 <li>The <tt>{reg:...}</tt> constant reads the 64-bit view by default.</li>
 <li>The <tt>Reg*</tt> [Code] support functions access the 64-bit view by default.</li>

@@ -2859,16 +2859,15 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
 
 const
   Consts: array[0..38] of String = (
-    'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts',
-    'hwnd', 'pf', 'pf32', 'pf64', 'cf', 'cf32', 'cf64', 'computername', 'dao',
-    'cmd', 'username', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
+    'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts', 'hwnd',
+    'commonpf', 'commonpf32', 'commonpf64', 'commoncf', 'commoncf32', 'commoncf64',
+    'computername', 'dao', 'cmd', 'username', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
     'language', 'syswow64', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
     'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064', 'userpf', 'usercf');
-  UserShellFolderConsts: array[0..9] of String = (
+  UserShellFolderConsts: array[0..8] of String = (
     'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
-    'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto',
-    'sendto' { old name of 'usersendto' });
+    'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto');
   ShellFolderConsts: array[0..9] of String = (
     'group', 'commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
     'commonappdata', 'commondocs', 'commontemplates', 'localappdata',
@@ -2900,6 +2899,7 @@ begin
         { Now check the constant }
         Cnst := Copy(S, Start+1, I-(Start+1));
         if Cnst <> '' then begin
+          HandleRenamedConstants(Cnst);
           if Cnst = '\' then
             goto 1;
           if Cnst[1] = '%' then begin

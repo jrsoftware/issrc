@@ -26,11 +26,12 @@ Portions Copyright &copy; 2000-2018 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
-<p><a name="5.6.2"></a><span class="ver">5.6.2 </span><span class="date">(?)</span></p>
+<p><a name="5.7.0"></a><span class="ver">5.7.0 </span><span class="date">(?)</span></p>
 <ul>
 <li>A number of changes have been made to the &quot;common&quot; and &quot;user&quot; constants functionality:
 <ul>
    <li><b>Change in default behavior:</b> The &quot;common&quot; contants (<tt>commonappdata</tt>, <tt>commondesktop</tt>, <tt>commondocs</tt>, <tt>commonfavorites</tt>, <tt>commonprograms</tt>, <tt>commonstartmenu</tt><tt>commonstartup</tt>, and <tt>commontemplates</tt>) are no longer mapper to their "user" forms if the logged-in user lacks administrative privileges, or if PrivilegesRequired is set to lowest. Instead they simply return the requested common directory.</li>
+   <li>The <tt>{pf}</tt> and <tt>{cf}</tt> constants have been renamed to <tt>{commonpf}</tt> and <tt>{commoncf}</tt> (this includes <tt>{pf32}</tt> to <tt>{commonpf32}</tt>, etc.). The old names are still supported, but it is recommended to update your scripts to the new names.</tt>
    <li>Pascal Scripting change: Removed the <tt>GetShellFolder</tt> support function. As the help file already recommended, use <tt>ExpandConstant</tt> instead.</li>
 </ul>
 </li>
@@ -51,7 +52,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <p><a name="5.6.1"></a><span class="ver">5.6.1 </span><span class="date">(2018-06-14)</span></p>
 <ul>
 <li>/LOG: Now logs some additional information about uninstall info saving.</li>
-<li>The <tt>{sendto}</tt> constant has been renamed to <tt>{usersendto}</tt> and now can correctly trigger a <a href="#useduserareaswarnings">used user areas warning</a>. It still returns the same directory: the path to the current user's Send To folder. (There is no common Send To folder.)</li>
+<li>The <tt>{sendto}</tt> constant has been renamed to <tt>{usersendto}</tt> and now can correctly trigger a <a href="#useduserareaswarnings">used user areas warning</a>. It still returns the same directory: the path to the current user's Send To folder. (There is no common Send To folder.) Note: in Inno Setup version 5.7.0 support for the old name was readded, but it is recommended to update your scripts to the new name.</li>
 <li>Minor fixes to the registry entries logging and improved syntax highlighting introduced by the previous version.</li>
 <li>Minor tweaks.</li>
 </ul>

@@ -54,6 +54,7 @@ const
 function StringsToCommaString(const Strings: TStrings): String;
 procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
 function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): Boolean;
+procedure HandleRenamedConstants(var Cnst: String);
 
 implementation
 
@@ -263,6 +264,24 @@ begin
     else
       raise;
   end;
+end;
+
+procedure HandleRenamedConstants(var Cnst: String);
+begin
+  if Cnst = 'sendto' then
+    Cnst := 'usersendto'
+  else if Cnst = 'pf' then
+    Cnst := 'commonpf'
+  else if Cnst = 'pf32' then
+    Cnst := 'commonpf32'
+  else if Cnst = 'pf64' then
+    Cnst := 'commonpf64'
+  else if Cnst = 'cf' then
+    Cnst := 'commoncf'
+  else if Cnst = 'cf32' then
+    Cnst := 'commoncf32'
+  else if Cnst = 'cf64' then
+    Cnst := 'commoncf64';
 end;
 
 end.

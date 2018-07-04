@@ -988,9 +988,8 @@ var
   ShellFolderID: TShellFolderID;
   I: Integer;
 begin
-  if Cnst = 'sendto' then { old name of 'usersendto' }
-    Cnst := 'usersendto';
-    
+  HandleRenamedConstants(Cnst);
+
   if IsUninstaller then
     for I := Low(NoUninstallConsts) to High(NoUninstallConsts) do
       if NoUninstallConsts[I] = Cnst then
@@ -1029,7 +1028,7 @@ begin
     else
       Result := ExpandConst('{localappdata}\Programs'); { supply default, same as Window 7 and newer }
   end
-  else if Cnst = 'pf' then begin
+  else if Cnst = 'commonpf' then begin
     if Is64BitInstallMode then
       Result := ProgramFiles64Dir
     else
@@ -1041,21 +1040,21 @@ begin
     else
       Result := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Window 7 and newer }
   end
-  else if Cnst = 'cf' then begin
+  else if Cnst = 'commoncf' then begin
     if Is64BitInstallMode then
       Result := CommonFiles64Dir
     else
       Result := CommonFiles32Dir;
   end
-  else if Cnst = 'pf32' then Result := ProgramFiles32Dir
-  else if Cnst = 'cf32' then Result := CommonFiles32Dir
-  else if Cnst = 'pf64' then begin
+  else if Cnst = 'commonpf32' then Result := ProgramFiles32Dir
+  else if Cnst = 'commoncf32' then Result := CommonFiles32Dir
+  else if Cnst = 'commonpf64' then begin
     if IsWin64 then
       Result := ProgramFiles64Dir
     else
       InternalError('Cannot expand "pf64" constant on this version of Windows');
   end
-  else if Cnst = 'cf64' then begin
+  else if Cnst = 'commoncf64' then begin
     if IsWin64 then
       Result := CommonFiles64Dir
     else
@@ -1568,14 +1567,14 @@ function GetRealShellFolder(const Common: Boolean; const ID: TShellFolderID;
        CSIDL_SENDTO, CSIDL_FONTS, CSIDL_COMMON_APPDATA, CSIDL_COMMON_DOCUMENTS,
        CSIDL_COMMON_TEMPLATES, CSIDL_COMMON_FAVORITES, CSIDL_LOCAL_APPDATA));
   var
-    Z: String;
+    ShellFolder: String;
   begin
     if not ShellFoldersRead[Common, ID] then begin
       { Note: Must pass Create=True or else SHGetFolderPath fails if the
         specified CSIDL is valid but doesn't currently exist. }
-      Z := GetShellFolderByCSIDL(FolderIDs[Common, ID], not ReadOnly);
-      ShellFolders[Common, ID] := Z;
-      if not ReadOnly or (Z <> '') then
+      ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], not ReadOnly);
+      ShellFolders[Common, ID] := ShellFolder;
+      if not ReadOnly or (ShellFolder <> '') then
         ShellFoldersRead[Common, ID] := True;
     end;
     Result := ShellFolders[Common, ID];
