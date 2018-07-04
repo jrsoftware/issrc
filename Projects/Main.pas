@@ -198,9 +198,7 @@ function ExpandConstEx2(const S: String; const CustomConsts: array of String;
   const DoExpandIndividualConst: Boolean): String;
 function ExpandConstIfPrefixed(const S: String): String;
 function GetCustomMessageValue(const AName: String; var AValue: String): Boolean;
-function GetRealShellFolder(const Common: Boolean; const ID: TShellFolderID;
-  ReadOnly: Boolean): String;
-function GetShellFolder(Common, CommonAllowDowngrade: Boolean; const ID: TShellFolderID;
+function GetShellFolder(const Common: Boolean; const ID: TShellFolderID;
   ReadOnly: Boolean): String;
 function GetShellFolderByCSIDL(Folder: Integer; const Create: Boolean): String;
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
@@ -693,12 +691,29 @@ begin
   end;
 end;
 
+function IsLowest: Boolean;
+begin
+  Result := not IsAdmin or (SetupHeader.PrivilegesRequired = prLowest);
+end;
+
 function ExpandIndividualConst(Cnst: String;
   const CustomConsts: array of String): String;
 { Cnst must be the name of a single constant, without the braces.
   For example: app
   IsPath is set to True if the result is a path which needs special trailing-
   backslash handling. }
+  
+  procedure HandleAutoConstants(var Cnst: String);
+  const
+    Actual: array [Boolean] of String = ('common', 'user');
+  begin
+    if Copy(Cnst, 1, 4) = 'auto' then begin
+      StringChange(Cnst, 'auto', Actual[IsLowest]);
+      if (Cnst = 'userpf32') or (Cnst = 'userpf64') or
+         (Cnst = 'usercf32') or (Cnst = 'usercf64') then
+        Delete(Cnst, Length(Cnst)-1, 2);
+    end;
+  end;
 
   procedure NoUninstallConstError(const C: String);
   begin
@@ -983,12 +998,14 @@ const
     ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'hwnd',
      'wizardhwnd');
 var
-  ShellFolder: String;
+  OriginalCnst, ShellFolder: String;
   Common: Boolean;
   ShellFolderID: TShellFolderID;
   I: Integer;
 begin
+  OriginalCnst := Cnst;
   HandleRenamedConstants(Cnst);
+  HandleAutoConstants(Cnst);
 
   if IsUninstaller then
     for I := Low(NoUninstallConsts) to High(NoUninstallConsts) do
@@ -999,11 +1016,11 @@ begin
   else if Cnst = 'app' then begin
     if IsUninstaller then begin
       if UninstallExpandedApp = '' then
-        InternalError('An attempt was made to expand the "app" constant but Setup didn''t create the "app" dir');
+        InternalError('An attempt was made to expand the "' + OriginalCnst + '" constant but Setup didn''t create the "app" dir');
       Result := UninstallExpandedApp;
     end else begin
       if WizardDirValue = '' then
-        InternalError('An attempt was made to expand the "app" constant before it was initialized');
+        InternalError('An attempt was made to expand the "' + OriginalCnst + '" constant before it was initialized');
       Result := WizardDirValue;
     end;
   end
@@ -1014,7 +1031,7 @@ begin
       Result := WinSysWow64Dir
     else begin
       if IsWin64 then  { sanity check }
-        InternalError('Cannot expand "syswow64" constant because there is no SysWOW64 directory');
+        InternalError('Cannot expand "' + OriginalCnst + '" constant because there is no SysWOW64 directory');
       Result := WinSystemDir;
     end;
   end
@@ -1052,13 +1069,13 @@ begin
     if IsWin64 then
       Result := ProgramFiles64Dir
     else
-      InternalError('Cannot expand "pf64" constant on this version of Windows');
+      InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
   else if Cnst = 'commoncf64' then begin
     if IsWin64 then
       Result := CommonFiles64Dir
     else
-      InternalError('Cannot expand "cf64" constant on this version of Windows');
+      InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
   else if Cnst = 'dao' then Result := ExpandConst('{cf}\Microsoft Shared\DAO')
   else if Cnst = 'cmd' then Result := CmdFilename
@@ -1067,12 +1084,12 @@ begin
   else if Cnst = 'groupname' then begin
     if IsUninstaller then begin
       if UninstallExpandedGroupName = '' then
-        InternalError('Cannot expand "groupname" constant because it was not available at install time');
+        InternalError('Cannot expand "' + OriginalCnst + '" constant because it was not available at install time');
       Result := UninstallExpandedGroupName;
     end
     else begin
       if WizardGroupValue = '' then
-        InternalError('An attempt was made to expand the "groupname" constant before it was initialized');
+        InternalError('An attempt was made to expand the "' + OriginalCnst + '" constant before it was initialized');
       Result := WizardGroupValue;
     end;
   end
@@ -1085,16 +1102,16 @@ begin
   else if Cnst = 'group' then begin
     if IsUninstaller then begin
       if UninstallExpandedGroup = '' then
-        InternalError('Cannot expand "group" constant because it was not available at install time');
+        InternalError('Cannot expand "' + OriginalCnst + '" constant because it was not available at install time');
       Result := UninstallExpandedGroup;
     end
     else begin
       if WizardGroupValue = '' then
-        InternalError('An attempt was made to expand the "group" constant before it was initialized');
-      ShellFolder := GetShellFolder(not(shAlwaysUsePersonalGroup in SetupHeader.Options), True,
+        InternalError('An attempt was made to expand the "' + OriginalCnst + '" constant before it was initialized');
+      ShellFolder := GetShellFolder(not(shAlwaysUsePersonalGroup in SetupHeader.Options) and not IsLowest,
         sfPrograms, False);
       if ShellFolder = '' then
-        InternalError('Failed to expand "group" constant');
+        InternalError('Failed to expand "' + OriginalCnst + '" constant');
       Result := AddBackslash(ShellFolder) + WizardGroupValue;
     end;
   end
@@ -1124,7 +1141,7 @@ begin
     if IsWin64 then
       Result := GetDotNetVersionRoot(rv64Bit, dt20)
     else
-      InternalError('Cannot expand "dotnet2064" constant on this version of Windows');
+      InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
   else if Cnst = 'dotnet40' then Result := GetDotNetVersionRoot(InstallDefaultRegView, dt40)
   else if Cnst = 'dotnet4032' then Result := GetDotNetVersionRoot(rv32Bit, dt40)
@@ -1132,7 +1149,7 @@ begin
     if IsWin64 then
       Result := GetDotNetVersionRoot(rv64Bit, dt40)
     else
-      InternalError('Cannot expand "dotnet4064" constant on this version of Windows');
+      InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
   else if (Cnst <> '') and (Cnst[1] = '%') then Result := ExpandEnvConst(Cnst)
   else if StrLComp(PChar(Cnst), 'reg:', 4) = 0 then Result := ExpandRegConst(Cnst)
@@ -1146,9 +1163,9 @@ begin
     for Common := False to True do
       for ShellFolderID := Low(ShellFolderID) to High(ShellFolderID) do
         if Cnst = FolderConsts[Common, ShellFolderID] then begin
-          ShellFolder := GetShellFolder(Common, False, ShellFolderID, False);
+          ShellFolder := GetShellFolder(Common, ShellFolderID, False);
           if ShellFolder = '' then
-            InternalError(Format('Failed to expand shell folder constant "%s"', [Cnst]));
+            InternalError(Format('Failed to expand shell folder constant "%s"', [OriginalCnst]));
           Result := ShellFolder;
           Exit;
         end;
@@ -1164,7 +1181,7 @@ begin
       end;
     end;
     { Unknown constant }
-    InternalError(Format('Unknown constant "%s"', [Cnst]));
+    InternalError(Format('Unknown constant "%s"', [OriginalCnst]));
   end;
 end;
 
@@ -1342,7 +1359,7 @@ begin
       end;
     end;
   end;
-
+  
   { Get path of command interpreter }
   if IsNT then
     CmdFilename := AddBackslash(WinSystemDir) + 'cmd.exe'
@@ -1542,7 +1559,7 @@ begin
   end;
 end;
 
-function GetRealShellFolder(const Common: Boolean; const ID: TShellFolderID;
+function GetShellFolder(const Common: Boolean; const ID: TShellFolderID;
   ReadOnly: Boolean): String;
 
   procedure GetFolder(const Common: Boolean);
@@ -1588,19 +1605,6 @@ begin
       User version of the CSIDL instead. (Many of the Common CSIDLS are
       unsupported by Win9x.) }
     GetFolder(False);
-end;
-
-function GetShellFolder(Common, CommonAllowDowngrade: Boolean; const ID: TShellFolderID;
-  ReadOnly: Boolean): String;
-begin
-  { If the user isn't an administrator, or is running Windows 9x, always fall
-    back to user folders, except in the case of sfAppData (which is writable
-    by Users on XP) and sfDocs (which is writable by Users on 2000 & XP) }
-  if Common and CommonAllowDowngrade and
-     (not IsAdmin or (SetupHeader.PrivilegesRequired = prLowest) or not IsNT) and
-     not(ID in [sfAppData, sfDocs]) then
-    Common := False;
-  Result := GetRealShellFolder(Common, ID, ReadOnly);
 end;
 
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;

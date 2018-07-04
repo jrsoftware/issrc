@@ -2858,9 +2858,10 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
 const
-  Consts: array[0..38] of String = (
+  Consts: array[0..44] of String = (
     'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts', 'hwnd',
     'commonpf', 'commonpf32', 'commonpf64', 'commoncf', 'commoncf32', 'commoncf64',
+    'autopf', 'autopf32', 'autopf64', 'autocf', 'autocf32', 'autocf64',
     'computername', 'dao', 'cmd', 'username', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
     'language', 'syswow64', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
@@ -2868,10 +2869,11 @@ const
   UserShellFolderConsts: array[0..8] of String = (
     'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
     'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto');
-  ShellFolderConsts: array[0..9] of String = (
+  ShellFolderConsts: array[0..17] of String = (
     'group', 'commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
     'commonappdata', 'commondocs', 'commontemplates', 'localappdata',
-    'commonfavorites');
+    'commonfavorites', 'autodesktop', 'autostartmenu', 'autoprograms', 'autostartup',
+    'autoappdata', 'autodocs', 'autotemplates', 'autofavorites');
   AllowedConstsNames: array[TAllowedConst] of String = (
     'olddata', 'break');
 var

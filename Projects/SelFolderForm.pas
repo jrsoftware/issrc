@@ -61,13 +61,13 @@ begin
     if StartMenu then begin
       with Form.FFolderTreeView as TStartMenuFolderTreeView do
         if IsNT then
-          SetPaths(GetRealShellFolder(False, sfPrograms, False),
-            GetRealShellFolder(True, sfPrograms, False),
-            GetRealShellFolder(False, sfStartup, False),
-            GetRealShellFolder(True, sfStartup, False))
+          SetPaths(GetShellFolder(False, sfPrograms, False),
+            GetShellFolder(True, sfPrograms, False),
+            GetShellFolder(False, sfStartup, False),
+            GetShellFolder(True, sfStartup, False))
         else
-          SetPaths(GetRealShellFolder(False, sfPrograms, False),
-            '', GetRealShellFolder(False, sfStartup, False), '');
+          SetPaths(GetShellFolder(False, sfPrograms, False),
+            '', GetShellFolder(False, sfStartup, False), '');
       TidyUpGroupName(Path);
     end
     else

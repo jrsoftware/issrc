@@ -649,9 +649,9 @@ constructor TWizardForm.Create(AOwner: TComponent);
           SelectGroupBitmapImage);
       end
       else begin
-        Path := GetRealShellFolder(False, sfPrograms, False);
+        Path := GetShellFolder(False, sfPrograms, False);
         if Path = '' then
-          Path := GetRealShellFolder(True, sfPrograms, False);
+          Path := GetShellFolder(True, sfPrograms, False);
         if Path <> '' then begin
           if (SHGetFileInfo(PChar(Path), 0, FileInfo, SizeOf(FileInfo),
               SHGFI_ICONLOCATION) <> 0) and (FileInfo.szDisplayName[0] <> #0) then
