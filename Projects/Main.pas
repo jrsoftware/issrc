@@ -993,7 +993,7 @@ const
       'userfavorites', 'localappdata'),
      ('commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
       'usersendto', 'fonts', 'commonappdata', 'commondocs', 'commontemplates',
-      'commonfavorites', 'localappdata'));
+      'commonfavorites' { not accepted anymore by the compiler }, 'localappdata'));
   NoUninstallConsts: array[0..6] of String =
     ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'hwnd',
      'wizardhwnd');

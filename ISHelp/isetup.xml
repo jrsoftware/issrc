@@ -305,7 +305,19 @@ This " contains " embedded " quotes
 <keyword value="{\}" anchor="bs" />
 <keyword value="{%NAME}" anchor="name" />
 <keyword value="{app}" anchor="app" />
-<keyword value="{commoncf}" anchor="commoncf" />
+<keyword value="{autoappdata}" anchor="autoappdata" />
+<keyword value="{autocf}" anchor="autocf" />
+<keyword value="{autocf32}" anchor="autocf32" />
+<keyword value="{autocf64}" anchor="autocf64" />
+<keyword value="{autodesktop}" anchor="autodesktop" />
+<keyword value="{autodocs}" anchor="autodocs" />
+<keyword value="{autopf}" anchor="autopf" />
+<keyword value="{autopf32}" anchor="autopf32" />
+<keyword value="{autopf64}" anchor="autopf64" />
+<keyword value="{autoprograms}" anchor="autoprograms" />
+<keyword value="{autostartmenu}" anchor="autostartmenu" />
+<keyword value="{autostartup}" anchor="autostartup" />
+<keyword value="{autotemplates}" anchor="autotemplates" />
 <keyword value="{cf}" anchor="cf" />
 <keyword value="{commoncf32}" anchor="commoncf32" />
 <keyword value="{cf32}" anchor="cf32" />
@@ -316,7 +328,6 @@ This " contains " embedded " quotes
 <keyword value="{commonappdata}" anchor="commonappdata" />
 <keyword value="{commondesktop}" anchor="commondesktop" />
 <keyword value="{commondocs}" anchor="commondocs" />
-<keyword value="{commonfavorites}" anchor="commonfavorites" />
 <keyword value="{commonprograms}" anchor="commonprograms" />
 <keyword value="{commonstartmenu}" anchor="commonstartmenu" />
 <keyword value="{commonstartup}" anchor="commonstartup" />
@@ -517,17 +528,17 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <p>Inno Setup supports another set of directory constants, referred to as <i>shell folder constants</i>. They can be used in the same way as the other directory constants.</p>
 
-<p>"common" below constants refer to the <i>All Users</i> profile.</p>
+<p>The "common" constants refer to the <i>All Users</i> profile.</p>
 
 <p>The "user" constants refer to the profile of the user running Setup. This user is often not the same as the currently logged-in user, so use the "user" constants with caution.</p>
 
-<p>Except where otherwise noted, shell folder constants work on all versions of Windows that Inno Setup supports.</p>
+<!-- <p>Except where otherwise noted, shell folder constants work on all versions of Windows that Inno Setup supports.</p> -->
 
 <dl>
 
 <dt><b><a name="group">{group}</a></b></dt>
 <dd>
-<p>The path to the Start Menu folder, as selected by the user on Setup's <i>Select Start Menu Folder</i> wizard page. This folder is created under the <i>All Users</i> profile unless the user installing the application does not have administrative privileges, in which case it is created in the user's profile.</p>
+<p>The path to the Start Menu folder, as selected by the user on Setup's <i>Select Start Menu Folder</i> wizard page. This folder is created under the <i>All Users</i> profile unless the user installing the application does not have administrative privileges or <link topic="setup_privilegesrequired">PrivilegesRequired</link> is set to <tt>lowest</tt>, in which case it is created in the user's profile.</p>
 </dd>
 
 <dt><b><a name="localappdata">{localappdata}</a></b></dt>
@@ -555,9 +566,9 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>The path to the My Documents folder.</p>
 </dd>
 
-<dt><b><a name="userfavorites">{userfavorites}</a></b> &amp; <b><a name="commonfavorites">{commonfavorites}</a></b></dt>
+<dt><b><a name="userfavorites">{userfavorites}</a></b></dt>
 <dd>
-<p>The path to the Favorites folder.</p>
+<p>The path to the current user's Favorites folder. (There is no common Favorites folder.)</p>
 </dd>
 
 <dt><b><a name="userpf">{userpf}</a></b></dt>
@@ -591,6 +602,29 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 </dd>
 
 </dl>
+
+<heading>Auto Constants</heading>
+
+<p>Besides the "common" and "user" constants, Inno Setup also supports "auto" constants. These automatically map to their "common" form unless the user installing the application does not have administrative privileges or <link topic="setup_privilegesrequired">PrivilegesRequired</link> is set to <tt>lowest</tt>, in which case they map to their "user" form. It is recommended you always use these "auto" constants when possible to avoid mistakes.</p>
+
+<indent>
+<table>
+<tr><td></td><td><u>Administrative</u></td><td><u>Not administrative</u></td></tr>
+<tr><td><tt><a name="autoappdata">autoappdata</a></tt></td><td><tt>commonappdata</tt></td><td><tt>userappdata</tt></td></tr>
+<tr><td><tt><a name="autocf">autocf</a></tt></td><td><tt>commoncf</tt></td><td><tt>usercf</tt></td></tr>
+<tr><td><tt><a name="autocf32">autocf32</a></tt></td><td><tt>commoncf32</tt></td><td><tt>usercf</tt></td></tr>
+<tr><td><tt><a name="autocf64">autocf64</a></tt></td><td><tt>commoncf64</tt></td><td><tt>usercf</tt></td></tr>
+<tr><td><tt><a name="autodesktop">autodesktop</a></tt></td><td><tt>commondesktop</tt></td><td><tt>userdesktop</tt></td></tr>
+<tr><td><tt><a name="autodocs">autodocs</a></tt></td><td><tt>commondocs</tt></td><td><tt>userdocs</tt></td></tr>
+<tr><td><tt><a name="autopf">autopf</a></tt></td><td><tt>commonpf</tt></td><td><tt>userpf</tt></td></tr>
+<tr><td><tt><a name="autopf32">autopf32</a></tt></td><td><tt>commonpf32</tt></td><td><tt>userpf</tt></td></tr>
+<tr><td><tt><a name="autopf64">autopf64</a></tt></td><td><tt>commonpf64</tt></td><td><tt>userpf</tt></td></tr>
+<tr><td><tt><a name="autoprograms">autoprograms</a></tt></td><td><tt>commonprograms</tt></td><td><tt>userprograms</tt></td></tr>
+<tr><td><tt><a name="autostartmenu">autostartmenu</a></tt></td><td><tt>commonstartmenu</tt></td><td><tt>userstartmenu</tt></td></tr>
+<tr><td><tt><a name="autostartup">autostartup</a></tt></td><td><tt>commonstartup</tt></td><td><tt>userstartup</tt></td></tr>
+<tr><td><tt><a name="autotemplates">autotemplates</a></tt></td><td><tt>commontemplates</tt></td><td><tt>usertemplates</tt></td></tr>
+</table>
+</indent>
 
 <heading>Renamed Constants</heading>
 
@@ -3854,13 +3888,13 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p>This directive affects whether elevated rights are requested (via a User Account Control dialog) when the installation is started.</p>
 <p>When set to <tt>admin</tt> (the default) or <tt>poweruser</tt>, Setup will always run with administrative privileges. If Setup was started by an unprivileged user, Windows will ask for the password to an account that has administrative privileges, and Setup will then run under that account.</p>
 <!-- <p>When set to <tt>none</tt>, Setup will only run with administrative privileges if it was started by a member of the Administrators group. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
-<p>When set to <tt>lowest</tt>, Setup will not request to be run with administrative privileges even if it was started by a member of the Administrators group. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "writable" forms of the Shell Folder constants are mapped to the "user" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
+<p>When set to <tt>lowest</tt>, Setup will not request to be run with administrative privileges even if it was started by a member of the Administrators group. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "auto" forms of the Shell Folder constants are mapped to the "user" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
 <p><b>On earlier versions of Windows:</b></p>
 <p>This directive specifies the minimum user privileges required to run the installation.</p>
 <p>When set to <tt>admin</tt> (the default), Setup will only run if the user is a member of the Administrators group. Otherwise, it will display the following message and exit: "You must be logged in as an administrator when installing this program."</p>
 <p>When set to <tt>poweruser</tt>, Setup will only run if the user is a member of the Administrators or Power Users groups. Otherwise, it will display the following message and exit: "You must be logged in as an administrator or as a member of the Power Users group when installing this program."</p>
 <!-- <p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
-<p>When set to <tt>lowest</tt> Setup will not check the user's group membership. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "writable" forms of the Shell Folder constants are mapped to the "user" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
+<p>When set to <tt>lowest</tt> Setup will not check the user's group membership. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "writable" forms of the Shell Folder constants are mapped to the "auto" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
 <p><b>Note:</b></p>
 <p>Regardless of the version of Windows, if the installation is administrative (<tt>PrivilegesRequired=admin</tt> or <tt>PrivilegesRequired=poweruser</tt>) then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
 </body>

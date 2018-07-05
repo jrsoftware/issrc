@@ -2871,10 +2871,10 @@ const
   UserShellFolderConsts: array[0..8] of String = (
     'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
     'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto');
-  ShellFolderConsts: array[0..17] of String = (
+  ShellFolderConsts: array[0..16] of String = (
     'group', 'commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
     'commonappdata', 'commondocs', 'commontemplates', 'localappdata',
-    'commonfavorites', 'autodesktop', 'autostartmenu', 'autoprograms', 'autostartup',
+    'autodesktop', 'autostartmenu', 'autoprograms', 'autostartup',
     'autoappdata', 'autodocs', 'autotemplates', 'autofavorites');
   AllowedConstsNames: array[TAllowedConst] of String = (
     'olddata', 'break');
