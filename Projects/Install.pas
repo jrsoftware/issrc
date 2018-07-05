@@ -510,7 +510,7 @@ var
     MajorVersion, MinorVersion, I: Integer;
     EstimatedSize: Integer64;
   begin
-    if IsAdmin and ((SetupHeader.PrivilegesRequired <> prLowest) or not IsNT) then
+    if IsAdminInstallMode then
       RootKey := HKEY_LOCAL_MACHINE
     else
       RootKey := HKEY_CURRENT_USER;

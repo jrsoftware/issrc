@@ -209,6 +209,7 @@ procedure InitializeSetup;
 procedure InitMainNonSHFolderConsts;
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
+function IsAdminInstallMode: Boolean;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
 procedure LoadSHFolderDLL;
 function LoggedAppMessageBox(const Text, Caption: PChar; const Flags: Longint;
@@ -691,9 +692,9 @@ begin
   end;
 end;
 
-function IsLowest: Boolean;
+function IsAdminInstallMode: Boolean;
 begin
-  Result := not IsAdmin or (SetupHeader.PrivilegesRequired = prLowest);
+  Result := IsAdmin and (SetupHeader.PrivilegesRequired <> prLowest);
 end;
 
 function ExpandIndividualConst(Cnst: String;
@@ -705,10 +706,10 @@ function ExpandIndividualConst(Cnst: String;
   
   procedure HandleAutoConstants(var Cnst: String);
   const
-    Actual: array [Boolean] of String = ('common', 'user');
+    Actual: array [Boolean] of String = ('user', 'common');
   begin
     if Copy(Cnst, 1, 4) = 'auto' then begin
-      StringChange(Cnst, 'auto', Actual[IsLowest]);
+      StringChange(Cnst, 'auto', Actual[IsAdminInstallMode]);
       if (Cnst = 'userpf32') or (Cnst = 'userpf64') or
          (Cnst = 'usercf32') or (Cnst = 'usercf64') then
         Delete(Cnst, Length(Cnst)-1, 2);
@@ -1108,7 +1109,7 @@ begin
     else begin
       if WizardGroupValue = '' then
         InternalError('An attempt was made to expand the "' + OriginalCnst + '" constant before it was initialized');
-      ShellFolder := GetShellFolder(not(shAlwaysUsePersonalGroup in SetupHeader.Options) and not IsLowest,
+      ShellFolder := GetShellFolder(not(shAlwaysUsePersonalGroup in SetupHeader.Options) and IsAdminInstallMode,
         sfPrograms, False);
       if ShellFolder = '' then
         InternalError('Failed to expand "' + OriginalCnst + '" constant');
