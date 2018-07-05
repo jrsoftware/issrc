@@ -1561,50 +1561,38 @@ end;
 
 function GetShellFolder(const Common: Boolean; const ID: TShellFolderID;
   ReadOnly: Boolean): String;
-
-  procedure GetFolder(const Common: Boolean);
-  const
-    CSIDL_COMMON_STARTMENU = $0016;
-    CSIDL_COMMON_PROGRAMS = $0017;
-    CSIDL_COMMON_STARTUP = $0018;
-    CSIDL_COMMON_DESKTOPDIRECTORY = $0019;
-    CSIDL_APPDATA = $001A;
-    CSIDL_LOCAL_APPDATA = $001C;
-    CSIDL_COMMON_FAVORITES = $001F;
-    CSIDL_COMMON_APPDATA = $0023;
-    CSIDL_COMMON_TEMPLATES = $002D;
-    CSIDL_COMMON_DOCUMENTS = $002E;
-    FolderIDs: array[Boolean, TShellFolderID] of Integer = (
-      { User }
-      (CSIDL_DESKTOPDIRECTORY, CSIDL_STARTMENU, CSIDL_PROGRAMS, CSIDL_STARTUP,
-       CSIDL_SENDTO, CSIDL_FONTS, CSIDL_APPDATA, CSIDL_PERSONAL,
-       CSIDL_TEMPLATES, CSIDL_FAVORITES, CSIDL_LOCAL_APPDATA),
-      { Common }
-      (CSIDL_COMMON_DESKTOPDIRECTORY, CSIDL_COMMON_STARTMENU, CSIDL_COMMON_PROGRAMS, CSIDL_COMMON_STARTUP,
-       CSIDL_SENDTO, CSIDL_FONTS, CSIDL_COMMON_APPDATA, CSIDL_COMMON_DOCUMENTS,
-       CSIDL_COMMON_TEMPLATES, CSIDL_COMMON_FAVORITES, CSIDL_LOCAL_APPDATA));
-  var
-    ShellFolder: String;
-  begin
-    if not ShellFoldersRead[Common, ID] then begin
-      { Note: Must pass Create=True or else SHGetFolderPath fails if the
-        specified CSIDL is valid but doesn't currently exist. }
-      ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], not ReadOnly);
-      ShellFolders[Common, ID] := ShellFolder;
-      if not ReadOnly or (ShellFolder <> '') then
-        ShellFoldersRead[Common, ID] := True;
-    end;
-    Result := ShellFolders[Common, ID];
-  end;
-
+const
+  CSIDL_COMMON_STARTMENU = $0016;
+  CSIDL_COMMON_PROGRAMS = $0017;
+  CSIDL_COMMON_STARTUP = $0018;
+  CSIDL_COMMON_DESKTOPDIRECTORY = $0019;
+  CSIDL_APPDATA = $001A;
+  CSIDL_LOCAL_APPDATA = $001C;
+  CSIDL_COMMON_FAVORITES = $001F;
+  CSIDL_COMMON_APPDATA = $0023;
+  CSIDL_COMMON_TEMPLATES = $002D;
+  CSIDL_COMMON_DOCUMENTS = $002E;
+  FolderIDs: array[Boolean, TShellFolderID] of Integer = (
+    { User }
+    (CSIDL_DESKTOPDIRECTORY, CSIDL_STARTMENU, CSIDL_PROGRAMS, CSIDL_STARTUP,
+     CSIDL_SENDTO, CSIDL_FONTS, CSIDL_APPDATA, CSIDL_PERSONAL,
+     CSIDL_TEMPLATES, CSIDL_FAVORITES, CSIDL_LOCAL_APPDATA),
+    { Common }
+    (CSIDL_COMMON_DESKTOPDIRECTORY, CSIDL_COMMON_STARTMENU, CSIDL_COMMON_PROGRAMS, CSIDL_COMMON_STARTUP,
+     CSIDL_SENDTO, CSIDL_FONTS, CSIDL_COMMON_APPDATA, CSIDL_COMMON_DOCUMENTS,
+     CSIDL_COMMON_TEMPLATES, CSIDL_COMMON_FAVORITES, CSIDL_LOCAL_APPDATA));
+var
+  ShellFolder: String;
 begin
-  Result := '';
-  GetFolder(Common);
-  if (Result = '') and Common then
-    { If it failed to get the path of a Common CSIDL, try getting the
-      User version of the CSIDL instead. (Many of the Common CSIDLS are
-      unsupported by Win9x.) }
-    GetFolder(False);
+  if not ShellFoldersRead[Common, ID] then begin
+    { Note: Must pass Create=True or else SHGetFolderPath fails if the
+      specified CSIDL is valid but doesn't currently exist. }
+    ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], not ReadOnly);
+    ShellFolders[Common, ID] := ShellFolder;
+    if not ReadOnly or (ShellFolder <> '') then
+      ShellFoldersRead[Common, ID] := True;
+  end;
+  Result := ShellFolders[Common, ID];
 end;
 
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;
