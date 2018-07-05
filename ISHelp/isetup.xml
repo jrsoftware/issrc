@@ -723,7 +723,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li><i>Filename, Section,</i> and <i>Key</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{ini:{win}\MyProg.ini,Settings,Path|{pf}\My Program}</pre>
+<pre>{ini:{win}\MyProg.ini,Settings,Path|{autopf}\My Program}</pre>
 </example>
 </dd>
 
@@ -760,7 +760,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li><i>SubkeyName, ValueName,</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{reg:HKLM\Software\My Program,Path|{pf}\My Program}</pre>
+<pre>{reg:HKLM\Software\My Program,Path|{autopf}\My Program}</pre>
 </example>
 </dd>
 
@@ -774,7 +774,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li><i>ParamName</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{param:Path|{pf}\My Program}</pre>
+<pre>{param:Path|{autopf}\My Program}</pre>
 </example>
 <p>The example above translates to <tt>c:\My Program</tt> if the command line <tt>/Path="c:\My Program"</tt> was specified.</p>
 </dd>
@@ -930,7 +930,7 @@ Name: t; Description: a or b - old style; Components: a b
 [Setup]
 AppName=My Program
 AppVersion=1.5
-DefaultDirName={pf}\My Program
+DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 </precode>
 
@@ -3008,7 +3008,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>To easily auto update your application, first make your application somehow detect a new version of your Setup.exe and make it locate or download this new version. Then, to auto update, start your Setup.exe from your application with for example the following command line:</p>
 
 <precode>
-/SP- /silent /noicons "/dir=expand:{pf}\My Program"
+/SP- /silent /noicons "/dir=expand:{autopf}\My Program"
 </precode>
 
 <p>After starting setup.exe, exit your application as soon as possible. Note that to avoid problems with updating your .exe, Setup has an auto retry feature.</p>
@@ -3240,7 +3240,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <dt><b><a name="DIR">/DIR=</a>"<i>x</i>:\<i>dirname</i>"</b></dt>
 <dd>
-<p>Overrides the default directory name displayed on the <i>Select Destination Location</i> wizard page. A fully qualified pathname must be specified. May include an "expand:" prefix which instructs Setup to expand any constants in the name. For example: '/DIR=expand:{pf}\My Program'.</p>
+<p>Overrides the default directory name displayed on the <i>Select Destination Location</i> wizard page. A fully qualified pathname must be specified. May include an "expand:" prefix which instructs Setup to expand any constants in the name. For example: '/DIR=expand:{autopf}\My Program'.</p>
 </dd>
 
 <dt><b><a name="GROUP">/GROUP=</a>"<i>folder name</i>"</b></dt>
@@ -3827,7 +3827,7 @@ AppUpdatesURL=http://www.example.com/updates.html
 <b>In Setup, this would typically display:</b><br/>
 C:\MYPROG<br/><br/>
 <b>If you used:</b><br/>
-<pre>DefaultDirName={pf}\My Program</pre>
+<pre>DefaultDirName={autopf}\My Program</pre>
 <b>In Setup, this would typically display:</b><br/>
 C:\Program Files\My Program
 </examples>
@@ -4871,7 +4871,7 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Destination Location</i> wizard page is clicked, Setup automatically appends the last component of <tt>DefaultDirName</tt> onto the new path. For example, if <tt>DefaultDirName</tt> is <tt>{pf}\My Program</tt> and "Z:\" is clicked, the new path will become "Z:\My Program".</p>
+<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Destination Location</i> wizard page is clicked, Setup automatically appends the last component of <tt>DefaultDirName</tt> onto the new path. For example, if <tt>DefaultDirName</tt> is <tt>{autopf}\My Program</tt> and "Z:\" is clicked, the new path will become "Z:\My Program".</p>
 <p>Setting this directive to <tt>no</tt> disables the aforementioned behavior. In addition, it causes a <i>Make New Folder</i> button to appear on the dialog.</p>
 </body>
 </setuptopic>
