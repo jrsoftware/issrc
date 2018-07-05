@@ -156,7 +156,7 @@ var
   { Other }
   ShowLanguageDialog: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
-  HasIcons, IsNT, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin,
+  HasIcons, IsNT, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem,
     IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress: Boolean;
   InstallDefaultDisableFsRedir, ScriptFuncDisableFsRedir: Boolean;
@@ -203,13 +203,13 @@ function GetShellFolder(const Common: Boolean; const ID: TShellFolderID;
 function GetShellFolderByCSIDL(Folder: Integer; const Create: Boolean): String;
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
-procedure Initialize64BitInstallMode(const A64Bit: Boolean);
+procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
+procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 procedure InitializeCommonVars;
 procedure InitializeSetup;
 procedure InitMainNonSHFolderConsts;
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
-function IsAdminInstallMode: Boolean;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
 procedure LoadSHFolderDLL;
 function LoggedAppMessageBox(const Text, Caption: PChar; const Flags: Longint;
@@ -690,11 +690,6 @@ begin
       end;
     end;
   end;
-end;
-
-function IsAdminInstallMode: Boolean;
-begin
-  Result := IsAdmin and (SetupHeader.PrivilegesRequired <> prLowest);
 end;
 
 function ExpandIndividualConst(Cnst: String;
@@ -2467,14 +2462,21 @@ begin
   Randomize;
 end;
 
-procedure Initialize64BitInstallMode(const A64Bit: Boolean);
+procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
+{ Initializes IsAdminInstallMode }
+begin
+  LogFmt('Administrative install mode: %s', [SYesNo[AAdminInstallMode]]);
+  IsAdminInstallMode := AAdminInstallMode;
+end;
+
+procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 { Initializes Is64BitInstallMode and other global variables that depend on it }
 begin
-  LogFmt('64-bit install mode: %s', [SYesNo[A64Bit]]);
-  Is64BitInstallMode := A64Bit;
-  InstallDefaultDisableFsRedir := A64Bit;
-  ScriptFuncDisableFsRedir := A64Bit;
-  if A64Bit then
+  LogFmt('64-bit install mode: %s', [SYesNo[A64BitInstallMode]]);
+  Is64BitInstallMode := A64BitInstallMode;
+  InstallDefaultDisableFsRedir := A64BitInstallMode;
+  ScriptFuncDisableFsRedir := A64BitInstallMode;
+  if A64BitInstallMode then
     InstallDefaultRegView := rv64Bit
   else
     InstallDefaultRegView := rv32Bit;
@@ -3066,6 +3068,8 @@ begin
   finally
     SetupFile.Free;
   end;
+  
+  InitializeAdminInstallMode(IsAdmin and (SetupHeader.PrivilegesRequired <> prLowest));
 
   { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
     one on which a "64-bit mode" install should be performed }
