@@ -7,7 +7,7 @@
 AppName={cm:MyAppName}
 AppId=My Program
 AppVerName={cm:MyAppVerName,1.5}
-DefaultDirName={pf}\{cm:MyAppName}
+DefaultDirName={autopf}\{cm:MyAppName}
 DefaultGroupName={cm:MyAppName}
 UninstallDisplayIcon={app}\MyProg.exe
 VersionInfoDescription=My Program Setup

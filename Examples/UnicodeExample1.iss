@@ -6,7 +6,7 @@
 [Setup]
 AppName=ɯɐɹƃoɹd ʎɯ
 AppVerName=ɯɐɹƃoɹd ʎɯ version 1.5
-DefaultDirName={pf}\ɯɐɹƃoɹd ʎɯ
+DefaultDirName={autopf}\ɯɐɹƃoɹd ʎɯ
 DefaultGroupName=ɯɐɹƃoɹd ʎɯ
 UninstallDisplayIcon={app}\ƃoɹdʎɯ.exe
 Compression=lzma2

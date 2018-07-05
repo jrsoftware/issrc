@@ -8,7 +8,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-DefaultDirName={userpf}\My Program
+DefaultDirName={autopf}\My Program
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output

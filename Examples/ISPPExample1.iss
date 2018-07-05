@@ -21,7 +21,7 @@
 [Setup]
 AppName={#AppName}
 AppVersion={#AppVersion}
-DefaultDirName={pf}\{#AppName}
+DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
 UninstallDisplayIcon={app}\MyProg.exe
 LicenseFile={#file AddBackslash(SourcePath) + "ISPPExample1License.txt"}

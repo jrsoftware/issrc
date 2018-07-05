@@ -149,6 +149,6 @@ end;
 function MyConst(Param: String): String;
 begin
   Log('MyConst(''' + Param + ''') called');
-  Result := ExpandConstant('{pf}');
+  Result := ExpandConstant('{autopf}');
 end;
 
