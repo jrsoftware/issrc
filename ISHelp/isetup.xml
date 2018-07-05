@@ -1543,7 +1543,7 @@ ExternalSize: 1048576; Flags: external
 <p>Tells Setup the file is a font that needs to be installed. The value of this parameter is the name of the font as stored in the registry or WIN.INI. This must be exactly the same name as you see when you double-click the font file in Explorer. Note that Setup will automatically append " (TrueType)" to the end of the name.</p>
 <p>If the file is not a TrueType font, you must specify the flag <tt>fontisnttruetype</tt> in the Flags parameter.</p>
 <p>It's recommended that you use the flags <tt>onlyifdoesntexist</tt> and <tt>uninsneveruninstall</tt> when installing fonts to the {fonts} directory.</p>
-<p>To successfully install a font, the user must be a member of the Power Users or Administrators groups.</p>
+<p>To successfully install a font, the user must be a member of the Administrators groups.</p>
 <p>For compatibility with 64-bit Windows, fonts should not be installed to the <tt>{sys}</tt> directory. Use <tt>{fonts}</tt> as the destination directory instead.</p>
 <example>
 <pre>Source: "OZHANDIN.TTF"; DestDir: "{fonts}"; FontInstall: "Oz Handicraft BT"; Flags: onlyifdoesntexist uninsneveruninstall</pre>
@@ -3824,23 +3824,22 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </setuptopic>
 
 <setuptopic directive="PrivilegesRequired">
-<setupvalid><tt>poweruser</tt>, <tt>admin</tt>, or <tt>lowest</tt></setupvalid>
+<setupvalid><tt>admin</tt>, or <tt>lowest</tt></setupvalid>
 <setupdefault><tt>admin</tt></setupdefault>
 <body>
 <p>The effect of this directive depends on which version of Windows the user is running:</p>
 <p><b>On Windows Vista and later:</b></p>
 <p>This directive affects whether elevated rights are requested (via a User Account Control dialog) when the installation is started.</p>
-<p>When set to <tt>admin</tt> (the default) or <tt>poweruser</tt>, Setup will always run with administrative privileges. If Setup was started by an unprivileged user, Windows will ask for the password to an account that has administrative privileges, and Setup will then run under that account.</p>
+<p>When set to <tt>admin</tt> (the default), Setup will always run with administrative privileges. If Setup was started by an unprivileged user, Windows will ask for the password to an account that has administrative privileges, and Setup will then run under that account.</p>
 <!-- <p>When set to <tt>none</tt>, Setup will only run with administrative privileges if it was started by a member of the Administrators group. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
 <p>When set to <tt>lowest</tt>, Setup will not request to be run with administrative privileges even if it was started by a member of the Administrators group. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "common" forms of the Shell Folder constants are mapped to the "user" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
 <p><b>On earlier versions of Windows:</b></p>
 <p>This directive specifies the minimum user privileges required to run the installation.</p>
 <p>When set to <tt>admin</tt> (the default), Setup will only run if the user is a member of the Administrators group. Otherwise, it will display the following message and exit: "You must be logged in as an administrator when installing this program."</p>
-<p>When set to <tt>poweruser</tt>, Setup will only run if the user is a member of the Administrators or Power Users groups. Otherwise, it will display the following message and exit: "You must be logged in as an administrator or as a member of the Power Users group when installing this program."</p>
 <!-- <p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
 <p>When set to <tt>lowest</tt> Setup will not check the user's group membership. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "common" forms of the Shell Folder constants are mapped to the "user" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
 <p><b>Note:</b></p>
-<p>Regardless of the version of Windows, if the installation is administrative (<tt>PrivilegesRequired=admin</tt> or <tt>PrivilegesRequired=poweruser</tt>) then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
+<p>Regardless of the version of Windows, if the installation is administrative (<tt>PrivilegesRequired=admin</tt>) then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
 </body>
 </setuptopic>
 
@@ -5289,7 +5288,6 @@ SignTool=byparam format c:
 <tr><td><tt>admins</tt></td><td>Built-in Administrators group</td></tr>
 <tr><td><tt>authusers</tt></td><td>Authenticated Users group</td></tr>
 <tr><td><tt>everyone</tt></td><td>Everyone group</td></tr>
-<tr><td><tt>powerusers</tt></td><td>Built-in Power Users group</td></tr>
 <tr><td><tt>system</tt></td><td>Local SYSTEM user</td></tr>
 <tr><td><tt>users</tt></td><td>Built-in Users group</td></tr>
 </table>

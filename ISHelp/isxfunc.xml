@@ -350,11 +350,6 @@ end;</pre></example>
         <description><p>Returns True if the user account that Setup/Uninstall is running under is a member of the local Administrators group.</p></description>
       </function>
       <function>
-        <name>IsPowerUserLoggedOn</name>
-        <prototype>function IsPowerUserLoggedOn: Boolean;</prototype>
-        <description><p>Returns True if the user account that Setup/Uninstall is running under is a member of the Power Users group.</p></description>
-      </function>
-      <function>
         <name>GetWindowsVersion</name>
         <prototype>function GetWindowsVersion: Cardinal;</prototype>
         <description><p>Returns the version number of Windows packed into a single integer. The upper 8 bits specify the major version; the following 8 bits specify the minor version; the lower 16 bits specify the build number. For example, this function will return $05000893 on Windows 2000, which is version 5.0.2195.</p>
