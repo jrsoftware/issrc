@@ -3894,7 +3894,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p>When set to <tt>admin</tt> (the default), Setup will only run if the user is a member of the Administrators group. Otherwise, it will display the following message and exit: "You must be logged in as an administrator when installing this program."</p>
 <p>When set to <tt>poweruser</tt>, Setup will only run if the user is a member of the Administrators or Power Users groups. Otherwise, it will display the following message and exit: "You must be logged in as an administrator or as a member of the Power Users group when installing this program."</p>
 <!-- <p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
-<p>When set to <tt>lowest</tt> Setup will not check the user's group membership. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "writable" forms of the Shell Folder constants are mapped to the "auto" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
+<p>When set to <tt>lowest</tt> Setup will not check the user's group membership. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "auto" forms of the Shell Folder constants are mapped to the "user" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
 <p><b>Note:</b></p>
 <p>Regardless of the version of Windows, if the installation is administrative (<tt>PrivilegesRequired=admin</tt> or <tt>PrivilegesRequired=poweruser</tt>) then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
 </body>
@@ -4155,6 +4155,7 @@ end;</pre></example>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>Normally, Inno Setup's <tt>{group}</tt> constant points to the All Users start menu if the user has administrative privileges. If this directive is set to <tt>yes</tt>, it always uses current user's profile.</p>
+<p>You should be careful about using this option: it may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
 </body>
 </setuptopic>
 
