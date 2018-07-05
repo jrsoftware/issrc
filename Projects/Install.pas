@@ -318,8 +318,7 @@ var
   UninstLog: TSetupUninstallLog;
   UninstallTempExeFilename, UninstallDataFilename, UninstallMsgFilename: String;
   UninstallExeCreated: (ueNone, ueNew, ueReplaced);
-  UninstallDataCreated, UninstallMsgCreated, AppendUninstallData,
-    UninstallRequiresAdmin: Boolean;
+  UninstallDataCreated, UninstallMsgCreated, AppendUninstallData: Boolean;
   RegisterFilesList: TList;
   ExpandedAppId: String;
 
@@ -1306,8 +1305,6 @@ var
           if CurFile^.FileType = ftUninstExe then begin
             AllowFileToBeDuplicated := False;
             MarkExeHeader(DestF, SetupExeModeUninstaller);
-            LogFmt('Uninstaller requires administrator: %s',
-              [SYesNo[UninstallRequiresAdmin]]);
             if not(shSignedUninstaller in SetupHeader.Options) and
                not DetachedUninstMsgFile then
               BindUninstallMsgDataToExe(DestF);
@@ -2734,9 +2731,6 @@ var
             if SetupHeader.UninstallLogMode = lmAppend then begin
               LogFmt('Will append to existing uninstall log: %s', [UninstallDataFilename]);
               AppendUninstallData := True;
-              if (ufAdminInstalled in ExistingFlags) or
-                 (ufPowerUserInstalled in ExistingFlags) then
-                UninstallRequiresAdmin := True;
             end
             else
               LogFmt('Will overwrite existing uninstall log: %s', [UninstallDataFilename]);
@@ -2917,7 +2911,6 @@ begin
   UninstallDataCreated := False;
   UninstallMsgCreated := False;
   AppendUninstallData := False;
-  UninstallRequiresAdmin := IsPowerUserOrAdmin;
   UninstLogCleared := False;
   RegisterFilesList := nil;
   UninstLog := TSetupUninstallLog.Create;
