@@ -8717,6 +8717,8 @@ begin
         AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputManifestFile']);
       end;
     end;
+    if shAlwaysUsePersonalGroup in SetupHeader.Options then
+      UsedUserAreas.Add('AlwaysUsePersonalGroup');
 
     LineNumber := 0;
 
