@@ -1884,7 +1884,7 @@ Filename: "http://www.example.com/"
 <example>
 <pre>IconFilename: "{app}\myicon.ico"</pre>
 </example>
-<p>Note: when Setup is running on 64-bit Windows, it will automatically replace <tt>{pf32}\</tt> in the filename with '%ProgramFiles(x86)%\' to work around a bug in 64-bit Windows: 64-bit Windows replaces <tt>{pf32}\</tt> with '%ProgramFiles%\' which is incorrect.</p>
+<p>Note: when Setup is running on 64-bit Windows, it will automatically replace <tt>{commonpf32}\</tt>'s value in the filename with '%ProgramFiles(x86)%\' to work around a bug in 64-bit Windows: 64-bit Windows replaces it with '%ProgramFiles%\' instead which is incorrect.</p>
 </param>
 
 <param name="IconIndex">
