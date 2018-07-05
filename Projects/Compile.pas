@@ -773,6 +773,8 @@ begin
       end;
     end;
   except
+    for I := Result.Count-1 downto 0 do
+      TMemoryStream(Result[I]).Free;
     Result.Free;
     raise;
   end;
