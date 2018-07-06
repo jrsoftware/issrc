@@ -7,8 +7,8 @@
 
 [Setup]
 AppName=Inno Setup
-AppId=Inno Setup 5
-AppVersion=5.7.0
+AppId=Inno Setup 6
+AppVersion=6.0.0
 AppPublisher=jrsoftware.org
 AppPublisherURL=http://www.innosetup.com/
 AppSupportURL=http://www.innosetup.com/
@@ -17,8 +17,8 @@ VersionInfoCopyright=Copyright (C) 1997-2018 Jordan Russell. Portions Copyright 
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
 MinVersion=0,5.0
-DefaultDirName={autopf}\Inno Setup 5
-DefaultGroupName=Inno Setup 5
+DefaultDirName={autopf}\Inno Setup 6
+DefaultGroupName=Inno Setup 6
 AllowNoIcons=yes
 Compression=lzma2/max
 SolidCompression=yes
