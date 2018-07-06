@@ -2328,11 +2328,9 @@ en.LanguageName=English
 
 <precode>
 [Registry]
-Root: HKCU; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
-Root: HKCU; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
-Root: HKLM; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
-Root: HKLM; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
-Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"
+Root: HKA; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
+Root: HKA; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -2350,11 +2348,17 @@ Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string
 <tr><td><tt>HKCC</tt></td><td>(HKEY_CURRENT_CONFIG)</td></tr>
 </table>
 </indent>
-<p>The values may have a suffix of <tt>32</tt> or <tt>64</tt>. Root key values with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) map to the 32-bit view of the registry; root key values with a suffix of <tt>64</tt> (for example, <tt>HKLM64</tt>) map to the 64-bit view of the registry.</p>
+<p>Additionally one special value is allowed:</p>
+<indent>
+<table>
+<tr><td><tt>HKA</tt></td><td>(equals HKLM in <link topic="admininstallmode">administrative install mode</link>, HKCU otherwise)</td></tr>
+</table>
+</indent>
+<p>The values (including <tt>HKA</tt>) may have a suffix of <tt>32</tt> or <tt>64</tt>. Root key values with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) map to the 32-bit view of the registry; root key values with a suffix of <tt>64</tt> (for example, <tt>HKLM64</tt>) map to the 64-bit view of the registry.</p>
 <p>Root key values with a suffix of <tt>64</tt> can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: IsWin64</tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
 <p>A root key value without a suffix (for example, <tt>HKLM</tt>) is equivalent to the value with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to the value with a suffix of <tt>64</tt> (for example, <tt>HKLM64</tt>).</p>
 <example>
-<pre>Root: HKCU</pre>
+<pre>Root: HKA</pre>
 </example>
 </param>
 
@@ -2929,14 +2933,14 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <ul>
 <li>The <tt>{group}</tt> folder is created in the <i>All Users</i> profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "common" form.</li>
-<li>The uninstall info root key will be HKEY_LOCAL_MACHINE.</li>
+<li>The <link topic="registrysection">HKA</link> and uninstall info root keys will be HKEY_LOCAL_MACHINE.</li>
 </ul>
 
 <p>In non administrative install mode:</p>
 <ul>
 <li>The <tt>{group}</tt> folder is created in the current user's profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "user" form.</li>
-<li>The uninstall info root key will be HKEY_CURRENT_USER.</li>
+<li>The <link topic="registrysection">HKA</link> and uninstall info root keys will be HKEY_CURRENT_USER.</li>
 </ul>
 
 <p><b>Notes:</b></p>

@@ -387,16 +387,25 @@ end;
 { CmnFunc2 }
 function CmnFunc2Proc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
-  procedure CrackCodeRootKey(const CodeRootKey: Longint; var RegView: TRegView;
+  procedure CrackCodeRootKey(CodeRootKey: Longint; var RegView: TRegView;
     var RootKey: HKEY);
   begin
-    { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
-      open keys because they might have our special flag bits set.
-      Also reject unknown flags which may have a meaning in the future. }
-    if (CodeRootKey shr 31 <> 1) or
-       ((CodeRootKey and CodeRootKeyFlagMask) and not CodeRootKeyValidFlags <> 0) then
-      InternalError('Invalid RootKey value');
-
+    if (CodeRootKey and not CodeRootKeyValidFlags) = HKEY_AUTO then begin
+      { Change HKA to HKLM or HKCU, keeping our special flag bits. }
+      CodeRootKey := CodeRootKey and CodeRootKeyValidFlags;
+      if IsAdminInstallMode then
+        CodeRootKey := CodeRootKey or HKEY_LOCAL_MACHINE
+      else
+        CodeRootKey := CodeRootKey or HKEY_CURRENT_USER;
+    end else begin
+      { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
+        open keys because they might have our special flag bits set.
+        Also reject unknown flags which may have a meaning in the future. }
+      if (CodeRootKey shr 31 <> 1) or
+         ((CodeRootKey and CodeRootKeyFlagMask) and not CodeRootKeyValidFlags <> 0) then
+        InternalError('Invalid RootKey value');
+    end;
+    
     if CodeRootKey and CodeRootKeyFlag32Bit <> 0 then
       RegView := rv32Bit
     else if CodeRootKey and CodeRootKeyFlag64Bit <> 0 then begin
