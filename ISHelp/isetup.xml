@@ -136,6 +136,8 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Full source code is available (Borland Delphi 2.0-5.0 and 2009).</li>
 
+<li>Used by <extlink href="https://code.visualstudio.com">Microsoft Visual Studio Code</extlink> and <extlink href="https://www.embarcadero.com/products/delphi">Embarcardero Delphi</extlink>.</li>
+
 </ul>
 
 <p><br/>
@@ -2659,7 +2661,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 <keyword value="Unicode Inno Setup" />
 <body>
 
-<p>Beginning with Inno Setup 5.3.0, there are two versions of Inno Setup available: Non Unicode Inno Setup and Unicode Inno Setup.</p>
+<p>There are two versions of Inno Setup available: Non Unicode Inno Setup and Unicode Inno Setup.</p>
 <p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames. One could consider Unicode Inno Setup as the new standard Inno Setup and Non Unicode Inno Setup as an old special Inno Setup for those who want the very smallest size possible.</p>
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. If it says "(u)" you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
@@ -2961,6 +2963,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </li>
 
 <li>Inno Setup's own installers accept an additional /PORTABLE=1 command line parameter to enable portable mode.</li>
+
+<li>The Inno Setup backup website can be found at <extlink href="http://www.innosetup.nl/">www.innosetup.nl</extlink>. Normally this link will simply redirect you to the main website at <extlink href="http://www.jrsoftware.org/">www.jrsoftware.org</extlink> but in case of emergencies this redirect will be disabled.</li>
 
 </ul>
 
