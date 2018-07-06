@@ -462,7 +462,7 @@ end;</pre></example>
         <name>IsWin64</name>
         <prototype>function IsWin64: Boolean;</prototype>
         <description><p>Returns True if the system is running a 64-bit version of Windows that provides the API support Inno Setup requires to perform 64-bit installation tasks. If False is returned, you cannot utilize any of Inno Setup's 64-bit-only features.</p>
-<p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit mode</link>, use <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link> instead.</p></description>
+<p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit install mode</link>, use <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link> instead.</p></description>
         <remarks><p>This function will always return True on an x64 edition of Windows.</p>
 <p>For this function to return True on an Itanium edition of Windows, the system must be running Windows Server 2003 SP1 or later. Older versions lack APIs that Inno Setup requires (e.g. RegDeleteKeyEx).</p></remarks>
         <example><pre>begin
@@ -480,7 +480,7 @@ end;</pre></example>
       <function>
         <name>Is64BitInstallMode</name>
         <prototype>function Is64BitInstallMode: Boolean;</prototype>
-        <description><p>Returns True if Setup or Uninstall is running in <link topic="32vs64bitinstalls">64-bit mode</link>, or False if it is running in <link topic="32vs64bitinstalls">32-bit mode</link>.</p></description>
+        <description><p>Returns True if Setup or Uninstall is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, or False if it is running in <link topic="32vs64bitinstalls">32-bit install mode</link>.</p></description>
         <remarks><p>When True is returned, it is safe to assume that <link topic="isxfunc_IsWin64">IsWin64</link> will also return True.</p></remarks>
         <example><pre>begin
   if Is64BitInstallMode then
@@ -1560,10 +1560,10 @@ end;</pre></example>
         <description><p>Controls whether built-in support functions that access files disable WOW64 file system redirection (with <link topic="64bitlimitations">some exceptions</link>). Specify True in the Enable parameter to leave redirection enabled when those functions are called; specify False to disable it. Returns the previous redirection state (True if redirection was enabled).</p>
 <p>If False is passed in the Enable parameter and the user isn't running a supported 64-bit version of Windows, an exception will be raised. To avoid the exception, call <link topic="isxfunc_IsWin64">IsWin64</link> first.</p></description>
         <remarks><p>After you've performed the operation that required changing the redirection state, be sure to restore the previous state. Always use a <tt>try..finally</tt> language construct to ensure that the previous state is restored even if an exception occurs. See below for an example.</p>
-<p>By default, file system redirection is enabled in <link topic="32vs64bitinstalls">32-bit mode</link> installs, and disabled in 64-bit mode installs.</p>
+<p>By default, file system redirection is enabled in <link topic="32vs64bitinstalls">32-bit install mode</link>, and disabled in 64-bit install mode.</p>
 <p>This function has no effect on calls to functions in external DLLs. When invoking external functions, file system redirection is always left enabled.</p>
 <p>It is legal to call this function with True in the Enable parameter if the user isn't running a 64-bit version of Windows. In such a case, the call has no effect.</p></remarks>
-        <example><p>The following example demonstrates how to launch an executable located in the 64-bit System directory. (Note: In a <link topic="32vs64bitinstalls">64-bit mode</link> install, it isn't necessary to call EnableFsRedirection because file system redirection is already disabled by default.)</p>
+        <example><p>The following example demonstrates how to launch an executable located in the 64-bit System directory. (Note: In <link topic="32vs64bitinstalls">64-bit install mode</link>, it isn't necessary to call EnableFsRedirection because file system redirection is already disabled by default.)</p>
 <pre>var
   OldState: Boolean;
   ResultCode: Integer;
@@ -1603,7 +1603,7 @@ end;</pre></example>
 <p>Do not include quotes in the Filename parameter; the function will add them automatically.</p>
 <p>The WorkingDir parameter can be an empty string, in which case it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process. If no pathname was specified in Filename, a default directory will be used.</p>
 <p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the Filename parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
-<p>By default, when Setup/Uninstall is running in <link topic="32vs64bitinstalls">64-bit mode</link>, this function disables WOW64 file system redirection when calling CreateProcess. It is possible to override this by calling <link topic="isxfunc_EnableFsRedirection">EnableFsRedirection</link>.</p></remarks>
+<p>By default, when Setup/Uninstall is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, this function disables WOW64 file system redirection when calling CreateProcess. It is possible to override this by calling <link topic="isxfunc_EnableFsRedirection">EnableFsRedirection</link>.</p></remarks>
         <example><pre>var
   ResultCode: Integer;
 begin
@@ -1789,7 +1789,7 @@ end;</pre></example>
   // Register hhctrl.ocx located in the System directory.
   RegisterServer(Is64BitInstallMode, ExpandConstant('{sys}\hhctrl.ocx'), False);
 end;</pre>
-<p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit OCX in the 64-bit System directory when Setup is running in 64-bit mode. Otherwise, it will register the 32-bit OCX in the 32-bit System directory.</p></example>
+<p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit OCX in the 64-bit System directory when Setup is running in 64-bit install mode. Otherwise, it will register the 32-bit OCX in the 32-bit System directory.</p></example>
       </function>
       <function>
         <name>UnregisterServer</name>
@@ -1804,7 +1804,7 @@ end;</pre>
   // Register stdole2.tlb located in the System directory.
   RegisterTypeLibrary(Is64BitInstallMode, ExpandConstant('{sys}\stdole2.tlb'));
 end;</pre>
-<p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit type library in the 64-bit System directory when Setup is running in 64-bit mode. Otherwise, it will register the 32-bit type library in the 32-bit System directory.</p></example>
+<p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit type library in the 64-bit System directory when Setup is running in 64-bit install mode. Otherwise, it will register the 32-bit type library in the 32-bit System directory.</p></example>
       </function>
       <function>
         <name>UnregisterTypeLibrary</name>
