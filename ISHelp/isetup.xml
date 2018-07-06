@@ -2926,14 +2926,14 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>In administrative install mode:</p>
 <ul>
 <li>The <tt>{group}</tt> folder is created in the <i>All Users</i> profile.</li>
-<li>The "auto" form of the directory and Shell Folder constants are mapped to the "common" form.</li>
+<li>The "auto" form of the directory and Shell Folder constants is mapped to the "common" form.</li>
 <li>The uninstall info root key will be HKEY_LOCAL_MACHINE.</li>
 </ul>
 
 <p>In non administrative install mode:</p>
 <ul>
 <li>The <tt>{group}</tt> folder is created in the current user's profile.</li>
-<li>The "auto" form of the directory and Shell Folder constants are mapped to the "user" form.</li>
+<li>The "auto" form of the directory and Shell Folder constants is mapped to the "user" form.</li>
 <li>The uninstall info root key will be HKEY_CURRENT_USER.</li>
 </ul>
 
