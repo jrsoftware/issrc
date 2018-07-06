@@ -471,7 +471,7 @@ end;</pre></example>
   if IsWin64 then
   begin
     MsgBox('64-bit program files reside in: ' +
-      ExpandConstant('{pf64}'), mbInformation, MB_OK);
+      ExpandConstant('{autopf64}'), mbInformation, MB_OK);
   end;
 end;</pre></example>
         <seealso><p><link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link><br />
@@ -499,12 +499,12 @@ end;</pre></example>
 <p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64, paARM64);</tt></p></description>
         <remarks><p>A 64-bit processor architecture will never be returned on 32-bit versions of Windows. Hence, you cannot use this function to detect a 64-bit AMD CPU on a 32-bit version of Windows; you'll just get back <tt>paX86</tt> if you try.</p>
 <p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the processor architecture. It can be assumed that an "unknown" architecture is at least capable of executing 32-bit code, or Setup/Uninstall wouldn't be running at all.</p>
-<p>If <tt>paIA64</tt> is returned, and <tt>ia64</tt> is <i>not</i> included in the value of the <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> [Setup] section directive, you should not assume that Inno Setup's 64-bit-only features are available -- for example, the <tt>{pf64}</tt> constant. Those features only work when <link topic="isxfunc_IsWin64">IsWin64</link> returns True, and as documented, it may not return True on older Itanium versions of Windows that lack certain APIs Inno Setup requires.</p>
+<p>If <tt>paIA64</tt> is returned, and <tt>ia64</tt> is <i>not</i> included in the value of the <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> [Setup] section directive, you should not assume that Inno Setup's 64-bit-only features are available -- for example, the <tt>{autopf64}</tt> constant. Those features only work when <link topic="isxfunc_IsWin64">IsWin64</link> returns True, and as documented, it may not return True on older Itanium versions of Windows that lack certain APIs Inno Setup requires.</p>
 <p>Therefore, instead of:</p>
 <pre>
   if ProcessorArchitecture = paIA64 then
     // perform some Itanium-specific install task that
-    // involves expanding {pf64}
+    // involves expanding {autopf64}
 </pre>
 <p>you should additionally check that IsWin64 returns True:</p>
 <pre>
@@ -512,7 +512,7 @@ end;</pre></example>
   begin
     if IsWin64 then
       // perform some Itanium-specific install task that
-      // involves expanding {pf64}
+      // involves expanding {autopf64}
     else
       // cannot use 64-bit features; display an error message,
       // fail silently, try something else, etc.
@@ -1319,7 +1319,7 @@ const
   FreeMB, TotalMB: Cardinal;
 begin
   // Get and display free megabytes on the Program Files drive
-  Path := ExpandConstant('{pf}');
+  Path := ExpandConstant('{autopf}');
   if GetSpaceOnDisk(Path, True, FreeMB, TotalMB) then
   begin
     MsgBox('There are ' + IntToStr(FreeMB) + ' megabytes free on ' +
@@ -1341,7 +1341,7 @@ end;</pre></example>
   FreeBytes, TotalBytes: Int64;
 begin
   // Get and display free bytes on the Program Files drive
-  Path := ExpandConstant('{pf}');
+  Path := ExpandConstant('{autopf}');
   if GetSpaceOnDisk64(Path, FreeBytes, TotalBytes) then
   begin
     MsgBox('There are ' + IntToStr(FreeBytes) + ' bytes free on ' +

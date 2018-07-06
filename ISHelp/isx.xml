@@ -320,7 +320,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 [Code]
 function MyConst(Param: String): String;
 begin
-  Result := ExpandConstant('{pf}');
+  Result := ExpandConstant('{autopf}');
 end;
 </precode>
 
