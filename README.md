@@ -201,7 +201,7 @@ How do the projects link together?
 - When debugging the Setup project you should set UseSetupLdr=no and
   OutputBaseFilename=setup in your script, and copy the resulting setup-*.bin
   files to the source code directory. This way you can simulate an actual
-  installation while runningunder the Delphi debugger.
+  installation while running under the Delphi debugger.
 
 - All of the forms in the Setup project, with the exception of Main.dfm, have
   Scaled set to False. This is because they dynamically scale themselves at
@@ -219,7 +219,7 @@ How do the projects link together?
           ...
   ```
 
-  The cast is needed to to work around a bug in Delphi 2 and 3 compilers:
+  The cast is needed to work around a bug in Delphi 2 and 3 compilers:
   without it, a *signed* comparison is done.
 
 - A note for those curious: The Setup Compiler creates single EXE Setups by
@@ -237,7 +237,7 @@ How do the projects link together?
   track changes to the forms using ordinary "diff" commands, .dfm.txt "mirrors"
   of the binary .dfm files have been created. Each time a .dfm file is
   modified, dfm2text is ran and both the .dfm file and the updated .dfm.txt
-  file are commited.
+  file are committed.
 
   To download dfm2text, go to:
   http://www.jrsoftware.org/files/misc/dfm2text.zip
@@ -248,7 +248,7 @@ How do the projects link together?
 6. Precompiled executables and libraries
 ----------------------------------------
 
-The source code contains several precompiled executables and libaries:
+The source code contains several precompiled executables and libraries:
 
 **Files\isbunzip.dll**, **Files\isbzip.dll** - Compiled by Visual Studio 2005
 from the bzlib directory in the Iscompress repository.
@@ -259,7 +259,7 @@ from the zlib-dll directory in the Iscompress repository.
 **Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
 by Visual Studio 2005 from the Projects\lzma2\Encoder directory.
 
-**Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintila 2.22 source
+**Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintilla 2.22 source
 code with scintilla-2.22-patch.txt applied.
 
 **Projects\_shfolder.res** - shfolder.dll from a fresh install of IE 5.5 SP2 on
