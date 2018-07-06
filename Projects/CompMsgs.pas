@@ -243,8 +243,8 @@ const
   
   { Area checks }
   SCompilerUsedUserAreasWarning = 'The [%s] section directive "%s" is set to "%s" but per-user areas (%s) are used by the script. ' +
-    'Regardless of the version of Windows, if the installation is administrative then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. ' +
-    'See the help file for more information.';
+    'Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. ' +
+    'See the "UsedUserAreasWarning" topic in help file for more information.';
 
   { Directive parsing }
   SCompilerDirectiveNameMissing = 'Missing directive name';
