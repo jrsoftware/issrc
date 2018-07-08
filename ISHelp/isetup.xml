@@ -66,8 +66,8 @@
     <contentstopic title="Unsafe Files" topic="unsafefiles" />
     <contentstopic title="Compiler Command Line Execution" topic="compilercmdline" />
     <contentstopic title="Setup Command Line Parameters" topic="setupcmdline" />
-    <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
     <contentstopic title="Uninstaller Command Line Parameters" topic="uninstcmdline" />
+    <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />

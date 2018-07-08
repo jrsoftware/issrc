@@ -2932,7 +2932,7 @@ begin
       UninstLog.AppId := ExpandedAppId;
       if IsWin64 then
         Include(UninstLog.Flags, ufWin64);
-      if IsAdmin then
+      if IsAdmin then { Setup or [Code] might have done administrative actions, so using IsAdmin here and not IsAdminInstallMode }
         Include(UninstLog.Flags, ufAdminInstalled)
       else if IsPowerUserOrAdmin then
         { Note: This flag is only set in 5.1.9 and later }
