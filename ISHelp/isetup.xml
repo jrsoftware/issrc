@@ -63,12 +63,12 @@
     <contentstopic title="64-bit Installation Limitations" topic="64bitlimitations" />
     <contentstopic title="Wizard Pages" topic="wizardpages" />
     <contentstopic title="Installation Order" topic="installorder" />
-    <contentstopic title="Command Line Compiler Execution" topic="compilercmdline" />
+    <contentstopic title="Unsafe Files" topic="unsafefiles" />
+    <contentstopic title="Compiler Command Line Execution" topic="compilercmdline" />
     <contentstopic title="Setup Command Line Parameters" topic="setupcmdline" />
     <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
     <contentstopic title="Uninstaller Command Line Parameters" topic="uninstcmdline" />
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
-    <contentstopic title="Unsafe Files" topic="unsafefiles" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />
     <contentstopic title="Frequently Asked Questions" topic="faq" />
@@ -2098,9 +2098,9 @@ Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
 </param>
 
 <param name="MessagesFile" required="yes">
-<p>Specifies the name(s) of file(s) to read the default messages from. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
-<p>When multiple files are specified, they are read in the order they are specified, thus the last message file overrides any messages in previous files.</p>
-<p>See the <link topic="messagessection">[Messages] section</link> help topic for details on the format of .isl files.</p>
+<p>Specifies the name(s) of the .isl file(s) to read the default messages from. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
+<p>Each message file may contain a <link topic="langoptionssection">[LangOptions] section</link>, a <link topic="messagessection">[Messages] section</link>, and a <link topic="custommessagessection">[CustomMessages] section.</link></p>
+<p>When multiple files are specified, they are read in the order they are specified, thus the last message file overrides any language options or messages from previous files. Any language options or messages in the main script override the ones from message files.</p>
 <examples>
 <pre>
 MessagesFile: "compiler:Dutch.isl"
@@ -3051,7 +3051,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Optionally you could also use the <tt>skipifsilent</tt> and <tt>skipifnotsilent</tt> flags and make your application aware of a '/updated' parameter to for example show a nice message box to inform the user that the update has completed.</p>
 </li>
 
-<li>Inno Setup's own installers accept an additional /PORTABLE=1 command line parameter to enable portable mode.</li>
+<li>Inno Setup's own installers accept an additional /PORTABLE=1 command line parameter to enable portable mode which causes the installers to not create an uninstaller nor an entry in the Add/Remove Programs Control Panel applet.</li>
 
 <li>The Inno Setup backup website can be found at <extlink href="http://www.innosetup.nl/">www.innosetup.nl</extlink>. Normally this link will simply redirect you to the main website at <extlink href="http://www.jrsoftware.org/">www.jrsoftware.org</extlink> but in case of emergencies this redirect will be disabled.</li>
 
@@ -3512,7 +3512,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="Unsafe Files" />
 <body>
 
-<p>As a convenience to new users who are unfamiliar with which files they should and should not distribute, the Inno Setup compiler will display an error message if one attempts to install certain "unsafe" files using the <link topic="filessection">[Files] section</link>. These files are listed below.</p>
+<p>As a convenience to new users who are unfamiliar with which files they should and should not distribute, the compiler will display an error message if one attempts to install certain "unsafe" files using the <link topic="filessection">[Files] section</link>. These files are listed below.</p>
 
 <p>(Note: It is possible to disable the error message by using a certain flag on the [Files] section entry, but this is NOT recommended.)</p>
 

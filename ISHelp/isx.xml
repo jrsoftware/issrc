@@ -649,6 +649,8 @@ external 'MessageBoxA@user32.dll stdcall';
 
 <p>Open the "CodeAutomation.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using IDispatch based COM Automation objects.</p>
 
+<p>If you're using a .NET COM object and loading it fails since Inno Setup 5.5.9 try putting this line in your script before creating the COM object: <tt>LoadDLL(ExpandConstant('{sys}\mscoree.dll'), ErrorCode);</tt> and add a variable <tt>ErrorCode</tt> of type <tt>Integer</tt>.</p>
+
 </dd>
 
 <dt><b>IUnknown based COM</b></dt>
