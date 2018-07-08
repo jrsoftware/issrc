@@ -44,28 +44,23 @@ SignedUninstaller=yes
   #if MatchingExtension(FileName, FindBaseExtension) ; Some systems also return .islu files when asked for *.isl
     #define Name LowerCase(RemoveFileExt(FileName))
     #define MessagesFile FindPathName + FileName
-    #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile
-    Name: {#Name}; MessagesFile: {#MessagesFile}
-  #endif
-#endsub
-
-#sub ProcessFoundCustomMessagesFile
-  #define FileName FindGetFileName(FindHandle)
-  #if MatchingExtension(FileName, FindBaseExtension) ; See above
-    #define CustomMessagesFile FindPathName + FileName
-    #pragma message "Including CustomMessages file: " + CustomMessagesFile
-    #include CustomMessagesFile
+    #define CustomMessagesFile FindPathName + 'Setup\' + Name + '.' + FindBaseExtension
+    #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile + ', ' + CustomMessagesFile
+    #if FileExists(CustomMessagesFile)
+      Name: {#Name}; MessagesFile: "{#MessagesFile},{#CustomMessagesFile}"
+    #else
+      Name: {#Name}; MessagesFile: "{#MessagesFile}"
+    #endif
   #endif
 #endsub
 
 #define FindPathName
 #define FindBaseExtension
-#define FindType
 #define FindHandle
 #define FindResult
 
 #sub DoFindFilesLoop
-  #for {FindHandle = FindResult = FindFirst(FindPathName + "*." + FindBaseExtension, 0); FindResult; FindResult = FindNext(FindHandle)} FindType == 0 ? ProcessFoundLanguagesFile : ProcessFoundCustomMessagesFile
+  #for {FindHandle = FindResult = FindFirst(FindPathName + "*." + FindBaseExtension, 0); FindResult; FindResult = FindNext(FindHandle)} ProcessFoundLanguagesFile
   #if FindHandle
     #expr FindClose(FindHandle)
   #endif
@@ -79,16 +74,14 @@ SignedUninstaller=yes
   #endif
 #endsub
 
-#define FindFiles(str PathName, str BaseExtension, int Type) \
-  FindPathName = PathName, FindBaseExtension = BaseExtension, FindType = Type, \
+#define FindFiles(str PathName, str BaseExtension) \
+  FindPathName = PathName, FindBaseExtension = BaseExtension, \
   DoFindFiles
 
 [Languages]
-Name: english; MessagesFile: "files\Default.isl"
+Name: english; MessagesFile: "files\Default.isl,files\Languages\Setup\Default.isl"
 ; Generate [Languages] entries for all official translations
-#expr FindFiles("files\Languages\", "isl", 0)
-; Include translations of messages used by this script (includes the default messages)
-#expr FindFiles("files\Languages\Setup\", "iss", 1)
+#expr FindFiles("files\Languages\", "isl")
 
 [Messages]
 ; Two "Setup" on the same line looks weird, so put a line break in between
