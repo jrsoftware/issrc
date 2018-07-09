@@ -2655,7 +2655,8 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
       KeyConst: HKEY;
     end;
   const
-    KeyNameConsts: array[0..4] of TKeyNameConst = (
+    KeyNameConsts: array[0..5] of TKeyNameConst = (
+      (KeyName: 'HKA';  KeyConst: HKEY_AUTO),
       (KeyName: 'HKCR'; KeyConst: HKEY_CLASSES_ROOT),
       (KeyName: 'HKCU'; KeyConst: HKEY_CURRENT_USER),
       (KeyName: 'HKLM'; KeyConst: HKEY_LOCAL_MACHINE),
@@ -5505,7 +5506,9 @@ begin
           SetLength(S, Length(S)-2);
         end;
       end;
-      if S = 'HKCR' then
+      if S = 'HKA' then
+        RootKey := HKEY_AUTO
+      else if S = 'HKCR' then
         RootKey := HKEY_CLASSES_ROOT
       else if S = 'HKCU' then begin
         UsedUserAreas.Add(S);

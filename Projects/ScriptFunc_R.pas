@@ -387,16 +387,12 @@ end;
 { CmnFunc2 }
 function CmnFunc2Proc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
-  procedure CrackCodeRootKey(CodeRootKey: Longint; var RegView: TRegView;
+  procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
     var RootKey: HKEY);
   begin
     if (CodeRootKey and not CodeRootKeyValidFlags) = HKEY_AUTO then begin
       { Change HKA to HKLM or HKCU, keeping our special flag bits. }
-      CodeRootKey := CodeRootKey and CodeRootKeyValidFlags;
-      if IsAdminInstallMode then
-        CodeRootKey := CodeRootKey or HKEY_LOCAL_MACHINE
-      else
-        CodeRootKey := CodeRootKey or HKEY_CURRENT_USER;
+      CodeRootKey := (CodeRootKey and CodeRootKeyValidFlags) or InstallModeRootKey;
     end else begin
       { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
         open keys because they might have our special flag bits set.

@@ -1225,55 +1225,47 @@ end;
 
 { Also see GetPreviousData in Main.pas }
 procedure TWizardForm.FindPreviousData;
-const
-  RootKeys: array[0..1] of HKEY = (HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE);
 var
-  I: Integer;
   H: HKEY;
   S, ExpandedAppId, UninstallRegKeyBaseName: String;
 begin
   ExpandedAppId := ExpandConst(SetupHeader.AppId);
   if ExpandedAppId <> '' then begin
-    { First look in HKEY_CURRENT_USER. That's where Inno Setup creates
-      the uninstall key for non-administrators. If the key doesn't exist
-      under HKEY_CURRENT_USER, check HKEY_LOCAL_MACHINE. }
     UninstallRegKeyBaseName := GetUninstallRegKeyBaseName(ExpandedAppId);
-    for I := 0 to 1 do
-      if RegOpenKeyExView(InstallDefaultRegView, RootKeys[I],
-         PChar(Format('%s\%s_is1', [NEWREGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName])),
-         0, KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
-        try
-          { do not localize or change the following strings }
-          if shUsePreviousAppDir in SetupHeader.Options then
-            RegQueryStringValue(H, 'Inno Setup: App Path', PrevAppDir);
-          if shUsePreviousGroup in SetupHeader.Options then begin
-            RegQueryStringValue(H, 'Inno Setup: Icon Group', PrevGroup);
-            if RegValueExists(H, 'Inno Setup: No Icons') then
-              PrevNoIcons := True;
-          end;
-          if shUsePreviousSetupType in SetupHeader.Options then begin
-            RegQueryStringValue(H, 'Inno Setup: Setup Type', PrevSetupType);
-            if RegQueryStringValue(H, 'Inno Setup: Selected Components', S) then
-              SetStringsFromCommaString(PrevSelectedComponents, S);
-            if RegQueryStringValue(H, 'Inno Setup: Deselected Components', S) then
-              SetStringsFromCommaString(PrevDeselectedComponents, S);
-          end;
-          if shUsePreviousTasks in SetupHeader.Options then begin
-            if RegQueryStringValue(H, 'Inno Setup: Selected Tasks', S) then
-              SetStringsFromCommaString(PrevSelectedTasks, S);
-            if RegQueryStringValue(H, 'Inno Setup: Deselected Tasks', S) then
-              SetStringsFromCommaString(PrevDeselectedTasks, S);
-          end;
-          if shUsePreviousUserInfo in SetupHeader.Options then begin
-            RegQueryStringValue(H, 'Inno Setup: User Info: Name', PrevUserInfoName);
-            RegQueryStringValue(H, 'Inno Setup: User Info: Organization', PrevUserInfoOrg);
-            RegQueryStringValue(H, 'Inno Setup: User Info: Serial', PrevUserInfoSerial);
-          end;
-        finally
-          RegCloseKey(H);
+    if RegOpenKeyExView(InstallDefaultRegView, InstallModeRootKey,
+       PChar(Format('%s\%s_is1', [NEWREGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName])),
+       0, KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
+      try
+        { do not localize or change the following strings }
+        if shUsePreviousAppDir in SetupHeader.Options then
+          RegQueryStringValue(H, 'Inno Setup: App Path', PrevAppDir);
+        if shUsePreviousGroup in SetupHeader.Options then begin
+          RegQueryStringValue(H, 'Inno Setup: Icon Group', PrevGroup);
+          if RegValueExists(H, 'Inno Setup: No Icons') then
+            PrevNoIcons := True;
         end;
-        Break;
+        if shUsePreviousSetupType in SetupHeader.Options then begin
+          RegQueryStringValue(H, 'Inno Setup: Setup Type', PrevSetupType);
+          if RegQueryStringValue(H, 'Inno Setup: Selected Components', S) then
+            SetStringsFromCommaString(PrevSelectedComponents, S);
+          if RegQueryStringValue(H, 'Inno Setup: Deselected Components', S) then
+            SetStringsFromCommaString(PrevDeselectedComponents, S);
+        end;
+        if shUsePreviousTasks in SetupHeader.Options then begin
+          if RegQueryStringValue(H, 'Inno Setup: Selected Tasks', S) then
+            SetStringsFromCommaString(PrevSelectedTasks, S);
+          if RegQueryStringValue(H, 'Inno Setup: Deselected Tasks', S) then
+            SetStringsFromCommaString(PrevDeselectedTasks, S);
+        end;
+        if shUsePreviousUserInfo in SetupHeader.Options then begin
+          RegQueryStringValue(H, 'Inno Setup: User Info: Name', PrevUserInfoName);
+          RegQueryStringValue(H, 'Inno Setup: User Info: Organization', PrevUserInfoOrg);
+          RegQueryStringValue(H, 'Inno Setup: User Info: Serial', PrevUserInfoSerial);
+        end;
+      finally
+        RegCloseKey(H);
       end;
+    end;
   end;
 end;
 

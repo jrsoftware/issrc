@@ -177,6 +177,7 @@ var
 {$IFDEF IS_D12}
   TaskbarButtonHidden: Boolean;
 {$ENDIF}
+  InstallModeRootKey: HKEY;
 
   CodeRunner: TScriptRunner;
 
@@ -327,26 +328,20 @@ end;
 
 { Based on FindPreviousData in Wizard.pas }
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
-const
-  RootKeys: array[0..1] of HKEY = (HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE);
 var
-  I: Integer;
   H: HKEY;
   UninstallRegKeyBaseName: String;
 begin
   Result := DefaultValueData;
   if ExpandedAppId <> '' then begin
     UninstallRegKeyBaseName := GetUninstallRegKeyBaseName(ExpandedAppId);
-    for I := 0 to 1 do begin
-      if RegOpenKeyExView(InstallDefaultRegView, RootKeys[I],
-         PChar(Format('%s\%s_is1', [NEWREGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName])),
-         0, KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
-        try
-          RegQueryStringValue (H, PChar(ValueName), Result);
-        finally
-          RegCloseKey (H);
-        end;
-        Break;
+    if RegOpenKeyExView(InstallDefaultRegView, InstallModeRootKey,
+       PChar(Format('%s\%s_is1', [NEWREGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName])),
+       0, KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
+      try
+        RegQueryStringValue (H, PChar(ValueName), Result);
+      finally
+        RegCloseKey (H);
       end;
     end;
   end;
@@ -710,7 +705,7 @@ function ExpandIndividualConst(Cnst: String;
         Delete(Cnst, Length(Cnst)-1, 2);
     end;
   end;
-
+  
   procedure NoUninstallConstError(const C: String);
   begin
     InternalError(Format('Cannot evaluate "%s" constant during Uninstall', [C]));
@@ -744,7 +739,8 @@ function ExpandIndividualConst(Cnst: String;
       KeyConst: HKEY;
     end;
   const
-    KeyNameConsts: array[0..4] of TKeyNameConst = (
+    KeyNameConsts: array[0..5] of TKeyNameConst = (
+      (KeyName: 'HKA';  KeyConst: HKEY_AUTO),
       (KeyName: 'HKCR'; KeyConst: HKEY_CLASSES_ROOT),
       (KeyName: 'HKCU'; KeyConst: HKEY_CURRENT_USER),
       (KeyName: 'HKLM'; KeyConst: HKEY_LOCAL_MACHINE),
@@ -781,6 +777,8 @@ function ExpandIndividualConst(Cnst: String;
         for J := Low(KeyNameConsts) to High(KeyNameConsts) do
           if CompareText(KeyNameConsts[J].KeyName, Z) = 0 then begin
             RootKey := KeyNameConsts[J].KeyConst;
+            if RootKey = HKEY_AUTO then
+              RootKey := InstallModeRootKey;
             Break;
           end;
         if RootKey <> 0 then begin
@@ -2463,10 +2461,14 @@ begin
 end;
 
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
-{ Initializes IsAdminInstallMode }
+{ Initializes IsAdminInstallMode and other global variables that depend on it }
+const
+  RootKeys: array[Boolean] of HKEY = (HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE);
 begin
   LogFmt('Administrative install mode: %s', [SYesNo[AAdminInstallMode]]);
   IsAdminInstallMode := AAdminInstallMode;
+  InstallModeRootKey := RootKeys[AAdminInstallMode];
+  LogFmt('Install mode root key: %s', [GetRegRootKeyName(InstallModeRootKey)]);
 end;
 
 procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);

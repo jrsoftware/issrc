@@ -1854,7 +1854,7 @@ end;</pre>
         <prototype>function RegKeyExists(const RootKey: Integer; const SubKeyName: String): Boolean;</prototype>
         <description><p>Returns True if the specified registry key exists.</p></description>
         <example><pre>begin
-  if RegKeyExists(HKEY_CURRENT_USER, 'Software\Jordan Russell\Inno Setup') then
+  if RegKeyExists(HKEY_AUTO, 'Software\Jordan Russell\Inno Setup') then
   begin
     // The key exists
   end;
@@ -1967,7 +1967,7 @@ end;</pre></example>
         <description><p>Writes the specified REG_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <remarks><p>If the value already exists and is of type REG_EXPAND_SZ, the new value will also be of type REG_EXPAND_SZ. Otherwise, a REG_SZ-type value will be created.</p></remarks>
         <example><pre>begin
-  RegWriteStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+  RegWriteStringValue(HKEY_AUTO, 'Software\My Company\My Program',
     'UserName', ExpandConstant('{sysuserinfoname}'));
 end;</pre></example>
       </function>
@@ -1976,7 +1976,7 @@ end;</pre></example>
         <prototype>function RegWriteExpandStringValue(const RootKey: Integer; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
         <description><p>Writes the specified REG_EXPAND_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <example><pre>begin
-  RegWriteStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+  RegWriteStringValue(HKEY_AUTO, 'Software\My Company\My Program',
     'UserName', '%UserName%);
 end;</pre></example>
       </function>
@@ -1986,7 +1986,7 @@ end;</pre></example>
         <description><p>Writes the specified REG_MULTI_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <remarks><p>In a REG_MULTI_SZ-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
         <example><pre>begin
-  RegWriteMultiStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+  RegWriteMultiStringValue(HKEY_AUTO, 'Software\My Company\My Program',
     'MultiStringTest', 'String1' + #0 + 'String2' + #0 + 'String3');
 end;</pre></example>
       </function>
@@ -1995,7 +1995,7 @@ end;</pre></example>
         <prototype>function RegWriteDWordValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: Cardinal): Boolean;</prototype>
         <description><p>Writes the specified REG_DWORD-type registry value. Returns True if successful, False otherwise.</p></description>
         <example><pre>begin
-  RegWriteDWordValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+  RegWriteDWordValue(HKEY_AUTO, 'Software\My Company\My Program',
     'ShowToolbar', 1);
 end;</pre></example>
       </function>
@@ -2004,7 +2004,7 @@ end;</pre></example>
         <prototype>function RegWriteBinaryValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: AnsiString): Boolean;</prototype>
         <description><p>Writes the specified REG_BINARY-type registry value. Returns True if successful, False otherwise.</p></description>
         <example><pre>begin
-  RegWriteBinaryValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+  RegWriteBinaryValue(HKEY_AUTO, 'Software\My Company\My Program',
     'BinaryTest', 'Whatever' + #1#2#3#4);
 end;</pre></example>
       </function>

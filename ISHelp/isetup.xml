@@ -763,7 +763,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li><i>SubkeyName, ValueName,</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{reg:HKLM\Software\My Program,Path|{autopf}\My Program}</pre>
+<pre>{reg:HKA\Software\My Program,Path|{autopf}\My Program}</pre>
 </example>
 </dd>
 
@@ -2552,7 +2552,7 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 </param>
 
 <param name="RunOnceId">
-<p>Valid only in an <tt>[UninstallRun]</tt> section. If the same application is installed more than once, "run" entries will be duplicated in the uninstall log file. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular <tt>[UninstallRun]</tt> entry will only be executed once during uninstallation. For example, if two or more "run" entries in the uninstall log have a <tt>RunOnceId</tt> setting of "DelService", only the latest entry with a <tt>RunOnceId</tt> setting of "DelService" will be executed; the rest will be ignored. Note that <tt>RunOnceId</tt> comparisons are case-sensitive.</p>
+<p>Valid only in an <tt>[UninstallRun]</tt> section. If the <link topic="sameappnotes">same application</link> is installed more than once, "run" entries will be duplicated in the uninstall log file. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular <tt>[UninstallRun]</tt> entry will only be executed once during uninstallation. For example, if two or more "run" entries in the uninstall log have a <tt>RunOnceId</tt> setting of "DelService", only the latest entry with a <tt>RunOnceId</tt> setting of "DelService" will be executed; the rest will be ignored. Note that <tt>RunOnceId</tt> comparisons are case-sensitive.</p>
 <example>
 <pre>RunOnceId: "DelService"</pre>
 </example>
@@ -5321,7 +5321,7 @@ SignTool=byparam format c:
 <topic name="sameappnotes" title="Same Application">
 <keyword value="Same Application" />
 <body>
-<p>"Same application" refers to two separate installations that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting), and the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>.</p>
+<p>"Same application" refers to two separate installations that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting), and the same <link topic="admininstallmode">administrative or non administrative install mode</link>. In administrative install mode the installations additionally need to share the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>.</p>
 </body>
 </topic>
 

@@ -26,9 +26,10 @@ Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 ; you don't need a [Registry] section.
 
 [Registry]
-; Create "Software\My Company\My Program" keys under LOCAL_MACHINE. The flags
-; tell it to always delete the "My Program" key upon uninstall, and delete
-; the "My Company" key if there is nothing left in it.
-Root: HKLM; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
-Root: HKLM; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
-Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Path"; ValueData: "{app}"
+; Create "Software\My Company\My Program" keys under CURRENT_USER or
+; LOCAL_MACHINE depending on administrative or non administrative install
+; mode. The flags tell it to always delete the "My Program" key upon
+; uninstall, and delete the "My Company" key if there is nothing left in it.
+Root: HKA; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
+Root: HKA; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Path"; ValueData: "{app}"
