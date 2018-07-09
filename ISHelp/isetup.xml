@@ -3573,7 +3573,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="Contributers" />
 <body>
 
-<p>Currently (since 5.4.3) Inno Setup is maintained by Martijn Laan.</p>
+<p>Inno Setup was created by Jordan Russell and is currently (since 5.4.3) maintained by Martijn Laan.</p>
 
 <p>The following is a list of those who have contributed significant code to the Inno Setup project, or otherwise deserve special recognition:</p>
 
