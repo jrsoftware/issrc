@@ -80,7 +80,7 @@ begin
 
   { Save the shortcut }
   PF := IPersistFile(Obj);
-  OleCheck(PF.Save(ExpandConstant('{commondesktop}\CodeAutomation2 Test.lnk'), True));
+  OleCheck(PF.Save(ExpandConstant('{autodesktop}\CodeAutomation2 Test.lnk'), True));
 
   MsgBox('Saved a shortcut named ''CodeAutomation2 Test'' on the common desktop.', mbInformation, mb_Ok);
 end;

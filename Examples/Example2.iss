@@ -22,5 +22,5 @@ Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Icons]
-Name: "{commonprograms}\My Program"; Filename: "{app}\MyProg.exe"
-Name: "{commondesktop}\My Program"; Filename: "{app}\MyProg.exe"
+Name: "{autoprograms}\My Program"; Filename: "{app}\MyProg.exe"
+Name: "{autodesktop}\My Program"; Filename: "{app}\MyProg.exe"
