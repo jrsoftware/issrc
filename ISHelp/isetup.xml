@@ -2318,6 +2318,18 @@ en.LanguageName=English
 <topic name="registrysection" title="[Registry] section">
 <keyword value="[Registry] section" />
 <keyword value="Registry" />
+<keyword value="HKA" />
+<keyword value="HKEY_AUTO" />
+<keyword value="HKCR" />
+<keyword value="HKEY_CLASSES_ROOT" />
+<keyword value="HKCU" />
+<keyword value="HKEY_CURRENT_USER" />
+<keyword value="HKLM" />
+<keyword value="HKEY_LOCAL_MACHINE" />
+<keyword value="HKU" />
+<keyword value="HKEY_USERS" />
+<keyword value="HKCC" />
+<keyword value="HKEY_CURRENT_CONFIG" />
 <body>
 
 <p>This optional section defines any registry keys/values you would like Setup to create, modify, or delete on the user's system.</p>
