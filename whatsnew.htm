@@ -43,8 +43,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Pascal Scripting change: Removed the <tt>GetShellFolder</tt> support function. As the help file already recommended, use <tt>ExpandConstant</tt> instead.</li>
 </ul>
 <ul>
-  <li>Added new [Registry] section <tt>Root</tt> value: <tt>HKA</tt>. Equals <tt>HKLM</tt> in administrative install mode, and <tt>HKCU</tt> otherwise. Also supported by <tt>{reg:...}</tt> constants. It is recommended to update your scripts to use <tt>HKA</tt> as much as possible to avoid mistakes. <tt>HKA32</tt> and <tt>HKA64</tt> are also supported.</tt></li>
-  <li>Updated all examples to use <tt>HKA</tt> instead of <tt>HKLM</tt> or <tt>HKCU</tt> as much as possible.</li>
+  <li>Added new [Registry] section <tt>Root</tt> value: <tt>HKA</tt>. Equals <tt>HKLM</tt> in administrative install mode, and <tt>HKCU</tt> otherwise. Also supported by <tt>{reg:...}</tt> constants. <tt>HKA</tt> (and <tt>HKCU</tt>) should only be used for settings which are compatible with roaming profiles. <tt>HKA32</tt> and <tt>HKA64</tt> are also supported.</tt></li>
   <li>Pascal Scripting change: Added <tt>HKA</tt> and <tt>HKEY_AUTO</tt> constants. <tt>HKA32</tt>, <tt>HKA64</tt>, <tt>HKEY_AUTO_32</tt>, and <tt>HKEY_AUTO_64</tt> are also supported.</li>
 </ul>
 <p>Other changes:</p>

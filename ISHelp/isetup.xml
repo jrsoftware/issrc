@@ -763,7 +763,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li><i>SubkeyName, ValueName,</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{reg:HKA\Software\My Program,Path|{autopf}\My Program}</pre>
+<pre>{reg:HKLM\Software\My Program,Path|{autopf}\My Program}</pre>
 </example>
 </dd>
 
@@ -2340,9 +2340,9 @@ en.LanguageName=English
 
 <precode>
 [Registry]
-Root: HKA; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
-Root: HKA; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
-Root: HKA; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"
+Root: HKLM; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
+Root: HKLM; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -2366,11 +2366,12 @@ Root: HKA; Subkey: "Software\My Company\My Program\Settings"; ValueType: string;
 <tr><td><tt>HKA</tt></td><td>(equals HKLM in <link topic="admininstallmode">administrative install mode</link>, HKCU otherwise)</td></tr>
 </table>
 </indent>
+<p>Note: <tt>HKCU</tt> and <tt>HKA</tt> should only be used for settings which are compatible with roaming profiles.</p>
 <p>The values (including <tt>HKA</tt>) may have a suffix of <tt>32</tt> or <tt>64</tt>. Root key values with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) map to the 32-bit view of the registry; root key values with a suffix of <tt>64</tt> (for example, <tt>HKLM64</tt>) map to the 64-bit view of the registry.</p>
 <p>Root key values with a suffix of <tt>64</tt> can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: IsWin64</tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
 <p>A root key value without a suffix (for example, <tt>HKLM</tt>) is equivalent to the value with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to the value with a suffix of <tt>64</tt> (for example, <tt>HKLM64</tt>).</p>
 <example>
-<pre>Root: HKA</pre>
+<pre>Root: HKLM</pre>
 </example>
 </param>
 
