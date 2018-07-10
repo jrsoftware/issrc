@@ -238,11 +238,11 @@ RunEntryExec=%1 starten
 RunEntryShellExec=%1 anzeigen
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=Nächste Diskette einlegen
-SelectDiskLabel2=Legen Sie bitte Diskette %1 ein, und klicken Sie auf "OK".%n%nWenn sich die Dateien von dieser Diskette in einem anderen als dem angezeigten Ordner befinden, dann geben Sie bitte den korrekten Pfad ein oder klicken auf "Durchsuchen".
+ChangeDiskTitle=Nächsten Datenträger einlegen
+SelectDiskLabel2=Legen Sie bitte Datenträger %1 ein, und klicken Sie auf "OK".%n%nWenn sich die Dateien von diesem Datenträger in einem anderen als dem angezeigten Ordner befinden, dann geben Sie bitte den korrekten Pfad ein oder klicken auf "Durchsuchen".
 PathLabel=&Pfad:
-FileNotInDir2=Die Datei "%1" befindet sich nicht in "%2". Bitte Ordner ändern oder richtige Diskette einlegen.
-SelectDirectoryLabel=Geben Sie bitte an, wo die nächste Diskette eingelegt wird.
+FileNotInDir2=Die Datei "%1" befindet sich nicht in "%2". Bitte Ordner ändern oder richtigen Datenträger einlegen.
+SelectDirectoryLabel=Geben Sie bitte an, wo der nächste Datenträger eingelegt wird.
 
 ; *** Installation phase messages
 SetupAborted=Das Setup konnte nicht abgeschlossen werden.%n%nBeheben Sie bitte das Problem, und starten Sie das Setup erneut.
