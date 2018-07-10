@@ -54,7 +54,7 @@ const
   );
 
    { CmnFunc2 }
-  CmnFunc2Table: array [0..57] of AnsiString =
+  CmnFunc2Table: array [0..59] of AnsiString =
   (
     'function FileExists(const Name: String): Boolean;',
     'function DirExists(const Name: String): Boolean;',
@@ -107,8 +107,10 @@ const
     'function RegWriteDWordValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: Cardinal): Boolean;',
     'function RegWriteBinaryValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: AnsiString): Boolean;',
     //
-    'function IsAdminLoggedOn: Boolean;',
+    'function IsAdmin: Boolean;',
+    'function IsAdminLoggedOn: Boolean;', { old name of IsAdmin }
     'function IsPowerUserLoggedOn: Boolean;',
+    'function IsAdminInstallMode: Boolean;',
     'function FontExists(const FaceName: String): Boolean;',
     'function GetUILanguage: Integer;',
     'function AddPeriod(const S: String): String;',

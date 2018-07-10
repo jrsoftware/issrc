@@ -727,10 +727,12 @@ begin
       RegCloseKey(K);
     end else
       Stack.SetBool(PStart, False);
-  end else if Proc.Name = 'ISADMINLOGGEDON' then begin
-    Stack.SetBool(PStart, IsAdminLoggedOn());
+  end else if (Proc.Name = 'ISADMIN') or (Proc.Name = 'ISADMINLOGGEDON') then begin
+    Stack.SetBool(PStart, IsAdmin);
   end else if Proc.Name = 'ISPOWERUSERLOGGEDON' then begin
     Stack.SetBool(PStart, IsPowerUserLoggedOn());
+  end else if Proc.Name= 'ISADMININSTALLMODE' then begin
+    Stack.SetBool(PStart, IsAdminInstallMode);
   end else if Proc.Name = 'FONTEXISTS' then begin
     Stack.SetBool(PStart, FontExists(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'GETUILANGUAGE' then begin

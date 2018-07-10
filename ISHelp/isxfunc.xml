@@ -345,9 +345,14 @@ end;</pre></example>
     <description><p>System</p></description>
     <subcategory>
       <function>
-        <name>IsAdminLoggedOn</name>
-        <prototype>function IsAdminLoggedOn: Boolean;</prototype>
-        <description><p>Returns True if the user account that Setup/Uninstall is running under is a member of the local Administrators group.</p></description>
+        <name>IsAdmin</name>
+        <prototype>function IsAdmin: Boolean;</prototype>
+        <description><p>Returns True if Setup/Uninstall is running with administrative privileges.</p></description>
+      </function>
+      <function>
+        <name>IsAdminInstallMode</name>
+        <prototype>function IsAdminInstallMode: Boolean;</prototype>
+        <description><p>Returns True if Setup is running in <link topic="admininstallmode">administrative install mode</link> or if Uninstall is running with administrative privileges.</p></description>
       </function>
       <function>
         <name>GetWindowsVersion</name>

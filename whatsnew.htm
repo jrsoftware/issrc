@@ -29,22 +29,23 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <p><a name="6.0.0"></a><span class="ver">6.0.0-dev </span><span class="date">(?)</span></p>
 <p>A number of changes have been made to the administrative vs. non administrative install mode functionality:</p>
 <ul>
-   <li>Added a separate <a href="http://www.jrsoftware.org/is6help/index.php?topic=admininstallmode">Non Administrative Install Mode</a> topic to the help file.</li>
-   <li>Two installations that do not share the same administrative or non administrative install mode no longer count as the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a>. This means you can now install in these modes side-by-side even if the installers share the same <tt>AppId</tt> setting.</li>
+  <li>Added a separate <a href="http://www.jrsoftware.org/is6help/index.php?topic=admininstallmode">Non Administrative Install Mode</a> topic to the help file.</li>
+  <li>Two installations that do not share the same administrative or non administrative install mode no longer count as the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a>. This means you can now install in these modes side-by-side even if the installers share the same <tt>AppId</tt> setting.</li>
+  <li>Pascal Scripting changes: Added new <tt>IsAdminInstallMode</tt> support function.</li>
 </ul>
 <ul>
-   <li>Added new &quot;auto&quot; constants which automatically map to their &quot;common&quot; form unless the installation is running in non administrative install mode, in which case they map to their &quot;user&quot; form. It is recommended to update your scripts to use these "auto" constants as much as possible to avoid mistakes. The list of added &quot;auto&quot; constants is: <tt>{autoappdata}</tt>, <tt>{autocf}</tt>, <tt>{autocf32}</tt>, <tt>{autocf64}</tt>, <tt>{autodesktop}</tt>, <tt>{autodocs}</tt>, <tt>{autopf}</tt>, <tt>{autopf32}</tt>, <tt>{autopf64}</tt>, <tt>{autoprograms}</tt>, <tt>{autostartmenu}</tt><tt>, {autostartup}</tt>, and <tt>{autotemplates}</tt>.</li>
-   <li><b>Change in default behavior:</b> The &quot;common&quot; Shell Folder contants are no longer mapped to their "user" form if the installation is running in non administrative install mode. Instead they simply return the requested common directory. The list of affected &quot;common&quot; constants is: <tt>{commonappdata}</tt>, <tt>{commondesktop}</tt>, <tt>{commondocs}</tt>, <tt>{commonprograms}</tt>, <tt>{commonstartmenu}</tt><tt>, {commonstartup}</tt>, and <tt>{commontemplates}</tt>.</li>
-   <li>The <tt>{commonfavorites}</tt> constant has been removed: this directory doesn't exist anymore in Windows.</li>
-   <li>The <tt>{pf}</tt> and <tt>{cf}</tt> constants have been renamed to <tt>{commonpf}</tt> and <tt>{commoncf}</tt>. This includes <tt>{pf32}</tt> to <tt>{commonpf32}</tt>, etc. The old names are still supported, but it is recommended to update your scripts to the new names.</tt>
-   <li>The <tt>{userpf}</tt> and <tt>{usercf}</tt> constants and the <tt>AlwaysUsePersonalGroup</tt> [Setup] section directive can now correctly trigger a <a href="http://www.jrsoftware.org/files/is5-whatsnew.htm#useduserareaswarnings">used user areas warning</a>.</li>
-   <li>Updated all examples to use <tt>{autopf}</tt> instead of <tt>{pf}</tt>, etc.</li>
-   <li>Pascal Scripting change: Removed the <tt>GetShellFolder</tt> support function. As the help file already recommended, use <tt>ExpandConstant</tt> instead.</li>
+  <li>Added new &quot;auto&quot; constants which automatically map to their &quot;common&quot; form unless the installation is running in non administrative install mode, in which case they map to their &quot;user&quot; form. It is recommended to update your scripts to use these "auto" constants as much as possible to avoid mistakes. The list of added &quot;auto&quot; constants is: <tt>{autoappdata}</tt>, <tt>{autocf}</tt>, <tt>{autocf32}</tt>, <tt>{autocf64}</tt>, <tt>{autodesktop}</tt>, <tt>{autodocs}</tt>, <tt>{autopf}</tt>, <tt>{autopf32}</tt>, <tt>{autopf64}</tt>, <tt>{autoprograms}</tt>, <tt>{autostartmenu}</tt><tt>, {autostartup}</tt>, and <tt>{autotemplates}</tt>.</li>
+  <li><b>Change in default behavior:</b> The &quot;common&quot; Shell Folder contants are no longer mapped to their "user" form if the installation is running in non administrative install mode. Instead they simply return the requested common directory. The list of affected &quot;common&quot; constants is: <tt>{commonappdata}</tt>, <tt>{commondesktop}</tt>, <tt>{commondocs}</tt>, <tt>{commonprograms}</tt>, <tt>{commonstartmenu}</tt><tt>, {commonstartup}</tt>, and <tt>{commontemplates}</tt>.</li>
+  <li>The <tt>{commonfavorites}</tt> constant has been removed: this directory doesn't exist anymore in Windows.</li>
+  <li>The <tt>{pf}</tt> and <tt>{cf}</tt> constants have been renamed to <tt>{commonpf}</tt> and <tt>{commoncf}</tt>. This includes <tt>{pf32}</tt> to <tt>{commonpf32}</tt>, etc. The old names are still supported, but it is recommended to update your scripts to the new names.</tt>
+  <li>The <tt>{userpf}</tt> and <tt>{usercf}</tt> constants and the <tt>AlwaysUsePersonalGroup</tt> [Setup] section directive can now correctly trigger a <a href="http://www.jrsoftware.org/files/is5-whatsnew.htm#useduserareaswarnings">used user areas warning</a>.</li>
+  <li>Updated all examples to use <tt>{autopf}</tt> instead of <tt>{pf}</tt>, etc.</li>
+  <li>Pascal Scripting change: Removed the <tt>GetShellFolder</tt> support function. As the help file already recommended, use <tt>ExpandConstant</tt> instead.</li>
 </ul>
 <ul>
-   <li>Added new [Registry] section <tt>Root</tt> value: <tt>HKA</tt>. Equals <tt>HKLM</tt> in administrative install mode, and <tt>HKCU</tt> otherwise. Also supported by <tt>{reg:...}</tt> constants. It is recommended to update your scripts to use <tt>HKA</tt> as much as possible to avoid mistakes. <tt>HKA32</tt> and <tt>HKA64</tt> are also supported.</tt></li>
-   <li>Updated all examples to use <tt>HKA</tt> instead of <tt>HKLM</tt> or <tt>HKCU</tt> as much as possible.</li>
-   <li>Pascal Scripting change: Added <tt>HKA</tt> and <tt>HKEY_AUTO</tt> constants. <tt>HKA32</tt>, <tt>HKA64</tt>, <tt>HKEY_AUTO_32</tt>, and <tt>HKEY_AUTO_64</tt> are also supported.</li>
+  <li>Added new [Registry] section <tt>Root</tt> value: <tt>HKA</tt>. Equals <tt>HKLM</tt> in administrative install mode, and <tt>HKCU</tt> otherwise. Also supported by <tt>{reg:...}</tt> constants. It is recommended to update your scripts to use <tt>HKA</tt> as much as possible to avoid mistakes. <tt>HKA32</tt> and <tt>HKA64</tt> are also supported.</tt></li>
+  <li>Updated all examples to use <tt>HKA</tt> instead of <tt>HKLM</tt> or <tt>HKCU</tt> as much as possible.</li>
+  <li>Pascal Scripting change: Added <tt>HKA</tt> and <tt>HKEY_AUTO</tt> constants. <tt>HKA32</tt>, <tt>HKA64</tt>, <tt>HKEY_AUTO_32</tt>, and <tt>HKEY_AUTO_64</tt> are also supported.</li>
 </ul>
 <p>Other changes:</p>
 <ul>
@@ -53,7 +54,9 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
   <li>Added new special-purpose <i>HelpTextNote</i> message that can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing /HELP on the command line.</li>
   <li>Added new <tt>SameStr</tt> and <tt>SameText</tt> support functions.</li>
+  <li>Renamed the <tt>IsAdminLoggedOn</tt> support function to <tt>IsAdmin</tt>. The old name is still supported, but it is recommended to update your scripts to the new name.</li>
 </ul>
+</li>
 <li>Inno Setup Preprocessor (ISPP) changes:
 <ul>
    <li>Added new predefined variable <tt>NewLine</tt>.</li>
