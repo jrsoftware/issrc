@@ -12,6 +12,7 @@ UninstallDisplayIcon={app}\MyProg.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=userdocs:Inno Setup Examples Output
+ChangesAssociations=yes
 
 [Files]
 Source: "MyProg.exe"; DestDir: "{app}"
@@ -33,6 +34,12 @@ Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 Root: HKA; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
 Root: HKA; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Language"; ValueData: "{language}"
+; Associate .myp files with My Program (requires ChangesAssociations=yes)
+Root: HKA; Subkey: "Software\Classes\.myp"; ValueType: string; ValueName: ""; ValueData: "MyProgramFile.myp"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\.myp\OpenWithProgids"; ValueType: string; ValueName: "MyProgamFile.myp"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\MyProgramFile.myp"; ValueType: string; ValueName: ""; ValueData: "My Program File"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\MyProgramFile.myp\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\MyProg.exe,0"
+Root: HKA; Subkey: "Software\Classes\MyProgramFile.myp\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\MyProg.exe"" ""%1"""
 ; HKA (and HKCU) should only be used for settings which are compatible with
 ; roaming profiles so settings like paths should be written to HKLM, which
 ; is only possible in administrative install mode.
