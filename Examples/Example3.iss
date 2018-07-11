@@ -32,7 +32,7 @@ Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 ; uninstall, and delete the "My Company" key if there is nothing left in it.
 Root: HKA; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
 Root: HKA; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
-Root: HKA; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "UserName"; ValueData: "{sysuserinfoname}"
+Root: HKA; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Language"; ValueData: "{language}"
 ; HKA (and HKCU) should only be used for settings which are compatible with
 ; roaming profiles so settings like paths should be written to HKLM, which
 ; is only possible in administrative install mode.

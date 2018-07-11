@@ -1973,7 +1973,7 @@ end;</pre></example>
         <remarks><p>If the value already exists and is of type REG_EXPAND_SZ, the new value will also be of type REG_EXPAND_SZ. Otherwise, a REG_SZ-type value will be created.</p></remarks>
         <example><pre>begin
   RegWriteStringValue(HKEY_AUTO, 'Software\My Company\My Program',
-    'UserName', ExpandConstant('{sysuserinfoname}'));
+    'Language', ExpandConstant('{language}'));
 end;</pre></example>
       </function>
       <function>
@@ -1981,7 +1981,7 @@ end;</pre></example>
         <prototype>function RegWriteExpandStringValue(const RootKey: Integer; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
         <description><p>Writes the specified REG_EXPAND_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <example><pre>begin
-  RegWriteStringValue(HKEY_AUTO, 'Software\My Company\My Program',
+  RegWriteStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
     'UserName', '%UserName%);
 end;</pre></example>
       </function>
