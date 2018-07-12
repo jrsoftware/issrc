@@ -13,6 +13,10 @@ Compression=lzma2
 SolidCompression=yes
 OutputDir=userdocs:Inno Setup Examples Output
 ChangesAssociations=yes
+UserInfoPage=yes
+; This script works in both administrative and non administrative install mode.
+; Remove the next line to run in administrative install mode.  
+PrivilegesRequired=lowest
 
 [Files]
 Source: "MyProg.exe"; DestDir: "{app}"
@@ -46,3 +50,14 @@ Root: HKA; Subkey: "Software\Classes\MyProgramFile.myp\shell\open\command"; Valu
 Root: HKLM; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty; Check: IsAdminInstallMode
 Root: HKLM; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey; Check: IsAdminInstallMode
 Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"; Check: IsAdminInstallMode
+; User specific settings should always be written to HKCU, which should only
+; be done in non administrative install mode.
+Root: HKCU; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "UserName"; ValueData: "{userinfoname}"; Check: not IsAdminInstallMode
+Root: HKCU; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "UserOrganization"; ValueData: "{userinfoorg}"; Check: not IsAdminInstallMode
+
+[Code]
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  // User specific pages should be skipped in administrative install mode
+  Result := IsAdminInstallMode and (PageID = wpUserInfo);
+end;
