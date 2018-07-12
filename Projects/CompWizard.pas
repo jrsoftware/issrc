@@ -188,7 +188,7 @@ const
 
   AppRootDirs: array[0..0] of TConstant =
   (
-    ( Constant: '{pf}'; Description: 'Program Files folder')
+    ( Constant: '{autopf}'; Description: 'Program Files folder')
   );
 
   LanguagesDefaultIsl = 'Default.isl';
@@ -325,7 +325,7 @@ begin
   end;
 
   { Compiler }
-  OutputBaseFileNameEdit.Text := 'setup';
+  OutputBaseFileNameEdit.Text := 'mysetup';
   EncryptionCheck.Visible := ISCryptInstalled;
   EncryptionCheck.Checked := True;
   EncryptionCheck.Enabled := False;
@@ -957,7 +957,7 @@ begin
     if not NotCreateAppDirCheck.Checked then begin
       if UseCommonProgramsCheck.Enabled and UseCommonProgramsCheck.Checked then begin
         Setup := Setup + 'DisableProgramGroupPage=yes' + SNewLine;
-        Icons := Icons + 'Name: "{commonprograms}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"' + SNewLine;
+        Icons := Icons + 'Name: "{autoprograms}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"' + SNewLine;
       end else begin
         Setup := Setup + 'DefaultGroupName=' + AppGroupNameEdit.Text + SNewLine;
         if not NoAppExeCheck.Checked then
@@ -973,10 +973,12 @@ begin
       end;
       if DesktopIconCheck.Enabled and DesktopIconCheck.Checked then begin
         Tasks := Tasks + 'Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked' + SNewLine;
-        Icons := Icons + 'Name: "{commondesktop}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: desktopicon' + SNewLine;
+        Icons := Icons + 'Name: "{autodesktop}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: desktopicon' + SNewLine;
       end;
       if QuickLaunchIconCheck.Enabled and QuickLaunchIconCheck.Checked then begin
-        Tasks := Tasks + 'Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1' + SNewLine;
+        Setup := Setup + '; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check' + SNewLine + 
+                         'UsedUserAreasWarning=no';  
+        Tasks := Tasks + 'Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1; Check: not IsAdminInstallMode' + SNewLine;
         Icons := Icons + 'Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: quicklaunchicon' + SNewLine;
       end;
     end;
