@@ -921,8 +921,7 @@ begin
 
   if not EmptyCheck.Checked then begin
     Setup := Setup + (
-      '; NOTE: The value of AppId uniquely identifies this application.' + SNewLine +
-      '; Do not use the same AppId value in installers for other applications.' + SNewLine +
+      '; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.' + SNewLine +
       '; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)' + SNewLine);
     Setup := Setup + 'AppId={' + GenerateGuid + SNewLine;
     { AppInfo }
@@ -993,7 +992,7 @@ begin
         Icons := Icons + 'Name: "{autodesktop}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: desktopicon' + SNewLine;
       end;
       if QuickLaunchIconCheck.Enabled and QuickLaunchIconCheck.Checked then begin
-        Setup := Setup + '; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check' + SNewLine +
+        Setup := Setup + '; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check.' + SNewLine +
                          'UsedUserAreasWarning=no' + SNewLine;
         Tasks := Tasks + 'Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1; Check: not IsAdminInstallMode' + SNewLine;
         Icons := Icons + 'Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: quicklaunchicon' + SNewLine;
@@ -1010,9 +1009,9 @@ begin
 
     { PrivilegesRequired }
     if PrivilegesRequiredAdminRadioButton.Checked then
-      Setup := Setup + '; Uncomment the following line to enable non administrative install mode (install for current user only)' + SNewLine + ';'
+      Setup := Setup + '; Uncomment the following line to run in non administrative install mode (install for current user only.)' + SNewLine + ';'
     else
-      Setup := Setup + '; Remove the following line to enable administrative install mode (install for all users)' + SNewLine;
+      Setup := Setup + '; Remove the following line to run in administrative install mode (install for all users.)' + SNewLine;
     Setup := Setup + 'PrivilegesRequired=lowest' + SNewLine; { Note how previous made sure this is outputted as comment if needed. }
 
     { Languages }
