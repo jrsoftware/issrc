@@ -785,7 +785,6 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <param name="MinVersion">
 <p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use "0" then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>MinVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without a <tt>MinVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
-<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>4.1,5.0</tt>. The Windows 95/98/Me version number (the first number) isn't used, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
 <example>
 <pre>MinVersion: 5.1</pre>
 </example>
@@ -794,7 +793,6 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <param name="OnlyBelowVersion">
 <p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you put <tt>6.0</tt> and the user is running Windows 2000 or XP, the entry <i>will</i> be processed, but if the user is running Windows Vista (which reports its version as 6.0) or later, it will <i>not</i> be processed. Putting "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without an <tt>OnlyBelowVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
-<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>4.1,5.0</tt>. The Windows 95/98/Me version number (the first number) isn't used, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
 <example>
 <pre>OnlyBelowVersion: 6.0</pre>
 </example>
@@ -4150,7 +4148,6 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setuptopic directive="UninstallDisplayName">
 <body>
 <p>This lets you specify a custom name for the program's entry in the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants. If this directive is not specified or is blank, Setup will use the value of <tt>[Setup]</tt> section directive <tt>AppVerName</tt> for the name.</p>
-<p>Due to limitations of Windows 95/98/Me's <i>Add/Remove Programs</i> Control Panel applet, the value of <tt>UninstallDisplayName</tt> will be trimmed if it exceeds 63 characters.</p>
 <example><pre>UninstallDisplayName=My Program</pre></example>
 </body>
 </setuptopic>
