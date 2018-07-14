@@ -531,7 +531,7 @@ begin
     end;
 
     { Check if admin privileges are needed to uninstall }
-    if (ufAdminInstalled in UninstLog.Flags) and not IsAdminLoggedOn then begin
+    if (ufAdminInstalled in UninstLog.Flags) and not IsAdmin then begin
       LoggedAppMessageBox(PChar(SetupMessages[msgOnlyAdminCanUninstall]), PChar(Title),
         MB_OK or MB_ICONEXCLAMATION, True, IDOK);
       Abort;

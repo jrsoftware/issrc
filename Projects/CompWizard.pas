@@ -976,8 +976,8 @@ begin
         Icons := Icons + 'Name: "{autodesktop}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: desktopicon' + SNewLine;
       end;
       if QuickLaunchIconCheck.Enabled and QuickLaunchIconCheck.Checked then begin
-        Setup := Setup + '; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check' + SNewLine + 
-                         'UsedUserAreasWarning=no';  
+        Setup := Setup + '; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check' + SNewLine +
+                         'UsedUserAreasWarning=no' + SNewLine;
         Tasks := Tasks + 'Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1; Check: not IsAdminInstallMode' + SNewLine;
         Icons := Icons + 'Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: quicklaunchicon' + SNewLine;
       end;
