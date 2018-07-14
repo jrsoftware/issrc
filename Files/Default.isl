@@ -288,6 +288,14 @@ ErrorRegisterServer=Unable to register the DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 failed with exit code %1
 ErrorRegisterTypeLib=Unable to register the type library: %1
 
+; *** Uninstall display name markings
+UninstallDisplayNameMark=%1 (%2)
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=All users
+UninstallDisplayNameMarkCurrentUser=Current user
+
 ; *** Post-installation errors
 ErrorOpeningReadme=An error occurred while trying to open the README file.
 ErrorRestartingComputer=Setup was unable to restart the computer. Please do this manually.
