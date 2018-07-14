@@ -48,6 +48,8 @@ const
   SWizardAppDocs2 = 'Please specify which documentation files should be shown by Setup during installation.';
   SWizardAppDocsFilter = 'Documentation files (*.rtf,*.txt)|*.rtf;*.txt|All Files|*.*';
   SWizardAppDocsDefaultExt = 'rtf';
+  SWizardPrivilegesRequired = 'Setup Install Mode';
+  SWizardPrivilegesRequired2 = 'Please specify in which install mode Setup should run.';
   SWizardLanguages = 'Setup Languages';
   SWizardLanguages2 = 'Please specify which Setup languages should be included.';
   SWizardCompiler = 'Compiler Settings';

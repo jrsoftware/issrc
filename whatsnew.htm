@@ -31,6 +31,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
   <li>Added a separate <a href="http://www.jrsoftware.org/is6help/index.php?topic=admininstallmode">Non Administrative Install Mode</a> topic to the help file.</li>
   <li>Two installations that do not share the same administrative or non administrative install mode no longer count as the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a>. This means you can now install in these modes side-by-side even if the installers share the same <tt>AppId</tt> setting.</li>
+  <li>The Compiler IDE's New Script Wizard now offers an option to select administrative or non administrative install mode and outputs scripts which work in both modes.</li>
   <li>Pascal Scripting changes: Added new <tt>IsAdminInstallMode</tt> support function.</li>
 </ul>
 <ul>
@@ -39,7 +40,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>The <tt>{commonfavorites}</tt> constant has been removed: this directory doesn't exist anymore in Windows.</li>
   <li>The <tt>{pf}</tt> and <tt>{cf}</tt> constants have been renamed to <tt>{commonpf}</tt> and <tt>{commoncf}</tt>. This includes <tt>{pf32}</tt> to <tt>{commonpf32}</tt>, etc. The old names are still supported, but it is recommended to update your scripts to the new names.</tt>
   <li>The <tt>{userpf}</tt> and <tt>{usercf}</tt> constants and the <tt>AlwaysUsePersonalGroup</tt> [Setup] section directive can now correctly trigger a <a href="http://www.jrsoftware.org/files/is5-whatsnew.htm#useduserareaswarnings">used user areas warning</a>.</li>
-  <li>Updated all examples and the New Script Wizard to use <tt>{autopf}</tt> instead of <tt>{pf}</tt>, etc.</li>
+  <li>Updated all examples and the Compiler IDE's New Script Wizard to use <tt>{autopf}</tt> instead of <tt>{pf}</tt>, etc.</li>
   <li>Pascal Scripting change: Removed the <tt>GetShellFolder</tt> support function. As the help file already recommended, use <tt>ExpandConstant</tt> instead.</li>
 </ul>
 <ul>

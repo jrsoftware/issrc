@@ -19,7 +19,8 @@ uses
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppIcons,
-                 wpAppDocs, wpLanguages, wpCompiler, wpISPP, wpFinished);
+                 wpAppDocs, wpPrivilegesRequired, wpLanguages, wpCompiler,
+                 wpISPP, wpFinished);
 
   TWizardFormResult = (wrNone, wrEmpty, wrComplete);
 
@@ -107,6 +108,9 @@ type
     NoLanguagesButton: TButton;
     NoAppExeCheck: TCheckBox;
     UseCommonProgramsCheck: TCheckBox;
+    PrivilegesRequiredLabel: TNewStaticText;
+    PrivilegesRequiredAdminRadioButton: TRadioButton;
+    PrivilegesRequiredLowestRadioButton: TRadioButton;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -171,20 +175,22 @@ type
 
 const
   NotebookPages: array[TWizardPage, 0..1] of Integer =
-    ((0, -1), (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (2, -1));
+    ((0, -1), (1, 0), (1, 1), (1, 2),
+     (1, 3), (1, 4), (1, 5), (1, 6),
+     (1, 7), (1, 8), (2, -1));
 
   PageCaptions: array[TWizardPage] of String =
     (SWizardWelcome, SWizardAppInfo, SWizardAppDir, SWizardAppFiles,
-     SWizardAppIcons, SWizardAppDocs, SWizardLanguages,
+     SWizardAppIcons, SWizardAppDocs, SWizardPrivilegesRequired, SWizardLanguages,
      SWizardCompiler, SWizardISPP, SWizardFinished);
 
   PageDescriptions: array[TWizardPage] of String =
     ('', SWizardAppInfo2, SWizardAppDir2, SWizardAppFiles2,
-         SWizardAppIcons2, SWizardAppDocs2, SWizardLanguages2,
+         SWizardAppIcons2, SWizardAppDocs2, SWizardPrivilegesRequired2, SWizardLanguages2,
          SWizardCompiler2, SWizardISPP2, '');
 
   RequiredLabelVisibles: array[TWizardPage] of Boolean =
-    (False, True, True, True, True, False, True, False, False, False);
+    (False, True, True, True, True, False, True, True, False, False, False);
 
   AppRootDirs: array[0..0] of TConstant =
   (
@@ -285,6 +291,7 @@ begin
   MakeBold(AppDirNameLabel);
   MakeBold(AppExeLabel);
   MakeBold(AppGroupNameLabel);
+  MakeBold(PrivilegesRequiredLabel);
   MakeBold(LanguagesLabel);
 
   FinishedImage.Picture := WelcomeImage.Picture;
@@ -315,6 +322,9 @@ begin
   UseCommonProgramsCheck.Checked := True;
   NotDisableProgramGroupPageCheck.Checked := True;
   DesktopIconCheck.Checked := True;
+
+  { PrivilegesRequired }
+  PrivilegesRequiredAdminRadioButton.Checked := True;
 
   { Languages }
   for I := 0 to FLanguages.Count-1 do begin
@@ -415,6 +425,13 @@ begin
           ActiveControl := AppGroupNameEdit;
       end;
     wpAppDocs: ActiveControl := AppLicenseFileEdit;
+    wpPrivilegesRequired:
+      begin
+        if PrivilegesRequiredAdminRadioButton.Checked then
+          ActiveControl := PrivilegesRequiredAdminRadioButton
+        else
+          ActiveControl := PrivilegesRequiredLowestRadioButton;
+      end;
     wpLanguages: ActiveControl := LanguagesList;
     wpCompiler: ActiveControl := OutputDirEdit;
     wpISPP: ActiveControl := ISPPCheck;
@@ -991,7 +1008,14 @@ begin
     if AppInfoAfterFileEdit.Text <> '' then
       Setup := Setup + 'InfoAfterFile=' + AppInfoAfterFileEdit.Text + SNewLine;
 
-    { Languages}
+    { PrivilegesRequired }
+    if PrivilegesRequiredAdminRadioButton.Checked then
+      Setup := Setup + '; Uncomment the following line to enable non administrative install mode (install for current user only)' + SNewLine + ';'
+    else
+      Setup := Setup + '; Remove the following line to enable administrative install mode (install for all users)' + SNewLine;
+    Setup := Setup + 'PrivilegesRequired=lowest' + SNewLine; { Note how previous made sure this is outputted as comment if needed. }
+
+    { Languages }
     if FLanguages.Count > 1 then begin
       for I := 0 to LanguagesList.Items.Count-1 do begin
         if LanguagesList.Checked[I] then begin

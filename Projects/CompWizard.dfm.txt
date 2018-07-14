@@ -1414,6 +1414,38 @@ object WizardForm: TWizardForm
         object TPage
           Left = 0
           Top = 0
+          Caption = 'PrivilegesRequired'
+          object PrivilegesRequiredLabel: TNewStaticText
+            Left = 36
+            Top = 8
+            Width = 413
+            Height = 16
+            AutoSize = False
+            Caption = 'Install mode:'
+            FocusControl = AppLicenseFileEdit
+            TabOrder = 0
+            WordWrap = True
+          end
+          object PrivilegesRequiredAdminRadioButton: TRadioButton
+            Left = 36
+            Top = 28
+            Width = 255
+            Height = 17
+            Caption = '&Aministrative install mode (install for all users)'
+            TabOrder = 1
+          end
+          object PrivilegesRequiredLowestRadioButton: TRadioButton
+            Left = 36
+            Top = 48
+            Width = 311
+            Height = 17
+            Caption = '&Non administrative install mode (install for current user only)'
+            TabOrder = 2
+          end
+        end
+        object TPage
+          Left = 0
+          Top = 0
           Caption = 'Languages'
           object LanguagesLabel: TNewStaticText
             Left = 36
