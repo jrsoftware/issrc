@@ -268,6 +268,14 @@ ErrorRegisterServer=Kan de DLL/OCX niet registreren: %1
 ErrorRegSvr32Failed=RegSvr32 mislukt met afsluitcode %1
 ErrorRegisterTypeLib=Kan de type library niet registreren: %1
 
+; *** Uninstall display name markings
+UninstallDisplayNameMark=%1 (%2)
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=Alle gebruikers
+UninstallDisplayNameMarkCurrentUser=Huidige gebruiker
+
 ; *** Post-installation errors
 ErrorOpeningReadme=Er is een fout opgetreden bij het openen van het Leesmij-bestand.
 ErrorRestartingComputer=Setup kan de computer niet opnieuw opstarten. Doe dit handmatig.

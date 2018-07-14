@@ -203,6 +203,7 @@ function GetShellFolder(const Common: Boolean; const ID: TShellFolderID;
   ReadOnly: Boolean): String;
 function GetShellFolderByCSIDL(Folder: Integer; const Create: Boolean): String;
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
+function GetUninstallRegSubkeyName(const UninstallRegKeyBaseName: String): String;
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
 procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
@@ -326,17 +327,20 @@ begin
   end;
 end;
 
+function GetUninstallRegSubkeyName(const UninstallRegKeyBaseName: String): String;
+begin
+  Result := Format('%s\%s_is1', [NEWREGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName]);
+end;
+
 { Based on FindPreviousData in Wizard.pas }
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
 var
   H: HKEY;
-  UninstallRegKeyBaseName: String;
 begin
   Result := DefaultValueData;
   if ExpandedAppId <> '' then begin
-    UninstallRegKeyBaseName := GetUninstallRegKeyBaseName(ExpandedAppId);
     if RegOpenKeyExView(InstallDefaultRegView, InstallModeRootKey,
-       PChar(Format('%s\%s_is1', [NEWREGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName])),
+       PChar(GetUninstallRegSubkeyName(GetUninstallRegKeyBaseName(ExpandedAppId))),
        0, KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
       try
         RegQueryStringValue (H, PChar(ValueName), Result);

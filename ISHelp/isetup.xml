@@ -4253,6 +4253,8 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <p>This lets you specify a custom name for the program's entry in the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants. If this directive is not specified or is blank, Setup will use the value of <tt>[Setup]</tt> section directive <tt>AppVerName</tt> for the name.</p>
 <p>Due to limitations of Windows 95/98/Me's <i>Add/Remove Programs</i> Control Panel applet, the value of <tt>UninstallDisplayName</tt> will be trimmed if it exceeds 63 characters.</p>
 <example><pre>UninstallDisplayName=My Program</pre></example>
+<p><b>See also:</b><br/>
+<link topic="sameappnotes" anchor="sidebyside">Side-by-side installation</link></p>
 </body>
 </setuptopic>
 
@@ -5333,8 +5335,11 @@ SignTool=byparam format c:
 
 <topic name="sameappnotes" title="Same Application">
 <keyword value="Same Application" />
+<keyword value="Side-by-side installation" />
 <body>
-<p>"Same application" refers to two separate installations that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting), and the same <link topic="admininstallmode">administrative or non administrative install mode</link>. In administrative install mode the installations additionally need to share the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>.</p>
+<p>"Same application" refers to two separate installation runs that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting), and the same <link topic="admininstallmode">administrative or non administrative install mode</link>, and the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>*. Two of such installation runs will lead to only one actual installation of the files.</p>
+<p><a name="sidebyside">"Side-by-side installation"</a> refers to two separate installation runs that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting) but not the other "Same application" requirements. Two of such installation runs will lead to two actual installations of the files. To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will automatically mark the new entry with a text like "Current user" or "64-bit" when necessary during a side-by-side installation.</p>
+<p>(* = This requirement does not apply to any same application information retrieved from the registry in non administrative install mode since the HKEY_CURRENT_USER key is shared between the 32-bit and 64-bit registry. It does however always apply to the uninstall log since the 32-bit and 64-bit uninstall log formats are incompatible, even in non administrative install mode.)</p>
 </body>
 </topic>
 

@@ -439,8 +439,16 @@ var
   procedure RegisterUninstallInfo(const UninstallRegKeyBaseName: String; const AfterInstallFilesSize: Integer64);
   { Stores uninstall information in the Registry so that the program can be
     uninstalled through the Control Panel Add/Remove Programs applet. }
+  const
+    AdminInstallModeNames: array [Boolean] of String =
+      ('non administrative', 'administrative');
+    BitInstallModeNames: array [Boolean] of String =
+      ('32-bit', '64-bit');
   var
-    RootKey: HKEY;
+    RegView, OppositeRegView: TRegView;
+    RegViewIs64Bit, OppositeRegViewIs64Bit: Boolean;
+    RootKey, OppositeRootKey: HKEY;
+    RootKeyIsHKLM, OppositeRootKeyIsHKLM: Boolean;
     SubkeyName: String;
 
     procedure SetStringValue(const K: HKEY; const ValueName: PChar;
@@ -502,6 +510,72 @@ var
       Result := I = 0;
     end;
 
+    function ExistingInstallationAt(const RegView: TRegView; const RootKey: HKEY): Boolean;
+    var
+      K: HKEY;
+    begin
+      if RegOpenKeyExView(RegView, RootKey, PChar(SubkeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+        Result := True;
+        RegCloseKey(K);
+      end else
+        Result := False;
+    end;
+
+    procedure HandleDuplicateDisplayNames(var DisplayName: String);
+    const
+      UninstallDisplayNameMarksUser: array [Boolean] of TSetupMessageId =
+        (msgUninstallDisplayNameMarkCurrentUser, msgUninstallDisplayNameMarkAllUsers);
+      UninstallDisplayNameMarksBits: array [Boolean] of TSetupMessageId =
+        (msgUninstallDisplayNameMark32Bit, msgUninstallDisplayNameMark64Bit);
+    var
+      ExistingAtOppositeAdminInstallMode, ExistingAtOpposite64BitInstallMode: Boolean;
+    begin
+      { Check opposite administrative install mode. }
+      ExistingAtOppositeAdminInstallMode := ExistingInstallationAt(RegView, OppositeRootKey);
+      if RootKeyIsHKLM then begin
+        { Opposite (HKCU) is shared for 32-bit and 64-bit so don't log bitness. }
+        LogFmt('Detected previous %s install? %s',
+          [AdminInstallModeNames[OppositeRootKeyIsHKLM {always False}], SYesNo[ExistingAtOppositeAdminInstallMode]])
+      end else begin
+        { Opposite (HKLM) is not shared for 32-bit and 64-bit so log bitness. }
+        LogFmt('Detected previous %s %s install? %s',
+          [AdminInstallModeNames[OppositeRootKeyIsHKLM {always True}], BitInstallModeNames[RegViewIs64Bit], SYesNo[ExistingAtOppositeAdminInstallMode]]);
+      end;
+
+      { Check opposite 32-bit or 64-bit install mode. }
+      if RootKeyIsHKLM then begin
+        { HKLM is not shared for 32-bit and 64-bit so check it for opposite 32-bit or 64-bit install mode. Not checking HKCU
+          since HKCU is shared for 32-bit and 64-bit mode and we already checked HKCU above. }
+        ExistingAtOpposite64BitInstallMode := ExistingInstallationAt(OppositeRegView, RootKey {always HKLM});
+        LogFmt('Detected previous %s %s install? %s',
+          [AdminInstallModeNames[RootKeyIsHKLM {always True}], BitInstallModeNames[OppositeRegViewIs64Bit], SYesNo[ExistingAtOpposite64BitInstallMode]]);
+      end else begin
+        { HKCU is shared for 32-bit and 64-bit so not checking it but we do still need to check HKLM for opposite 32-bit or
+          64-bit install mode since we haven't already done that. }
+        ExistingAtOpposite64BitInstallMode := ExistingInstallationAt(OppositeRegView, OppositeRootKey {always HKLM});
+        if ExistingAtOpposite64BitInstallMode then
+          ExistingAtOppositeAdminInstallMode := True;
+        LogFmt('Detected previous %s %s install? %s',
+          [AdminInstallModeNames[OppositeRootKeyIsHKLM {always True}], BitInstallModeNames[OppositeRegViewIs64Bit], SYesNo[ExistingAtOpposite64BitInstallMode]]);
+      end;
+
+      { Mark new display name if needed. Note: currently we don't attempt to mark existing display names as well. }
+      if ExistingAtOppositeAdminInstallMode or ExistingAtOpposite64BitInstallMode then begin
+        Log('Marking new display name to avoid duplicate entries.');
+        if ExistingAtOppositeAdminInstallMode and ExistingAtOpposite64BitInstallMode then
+          DisplayName := FmtSetupMessage(msgUninstallDisplayNameMarks,
+            [DisplayName, SetupMessages[UninstallDisplayNameMarksUser[RootKeyIsHKLM]],
+                          SetupMessages[UninstallDisplayNameMarksBits[RegViewIs64Bit]]])
+        else if ExistingAtOppositeAdminInstallMode then
+          DisplayName := FmtSetupMessage(msgUninstallDisplayNameMark,
+            [DisplayName, SetupMessages[UninstallDisplayNameMarksUser[RootKeyIsHKLM]]])
+        else
+          DisplayName := FmtSetupMessage(msgUninstallDisplayNameMark,
+            [DisplayName, SetupMessages[UninstallDisplayNameMarksBits[RegViewIs64Bit]]]);
+        LogFmt('New display name: %s', [DisplayName]);
+      end;
+    end;
+
   var
     H2: HKEY;
     ErrorCode: Longint;
@@ -509,17 +583,42 @@ var
     MajorVersion, MinorVersion, I: Integer;
     EstimatedSize: Integer64;
   begin
-    RootKey := InstallModeRootKey;
-    SubkeyName := NEWREGSTR_PATH_UNINSTALL + '\' + UninstallRegKeyBaseName + '_is1';
- 
-    Log('Deleting any uninstall key left over from previous install');
+    RegView := InstallDefaultRegView;
+    RegViewIs64Bit := RegView = rv64Bit;
+    if RegViewIs64Bit then
+      OppositeRegView := rv32Bit
+    else
+      OppositeRegView := rv64Bit;
+    OppositeRegViewIs64Bit := not RegViewIs64Bit;
 
-    RegDeleteKeyIncludingSubkeys(InstallDefaultRegView, RootKey, PChar(SubkeyName));
+    RootKey := InstallModeRootKey;
+    RootKeyIsHKLM := RootKey = HKEY_LOCAL_MACHINE;
+    if RootKeyIsHKLM then
+      OppositeRootKey := HKEY_CURRENT_USER
+    else
+      OppositeRootKey := HKEY_LOCAL_MACHINE;
+    OppositeRootKeyIsHKLM := not RootKeyIsHKLM;
+
+    SubkeyName := GetUninstallRegSubkeyName(UninstallRegKeyBaseName);
+
+    if ExistingInstallationAt(RegView, RootKey) then begin
+      if RootKeyIsHKLM then begin
+        { HKLM is not shared for 32-bit and 64-bit so log bitness. }
+        LogFmt('Deleting uninstall key left over from previous %s %s install.',
+          [AdminInstallModeNames[RootKeyIsHKLM {always True}], BitInstallModeNames[RegViewIs64Bit]]);
+      end else begin
+        { HKCU is shared for 32-bit and 64-bit so don't log bitness. }
+        LogFmt('Deleting uninstall key left over from previous %s install.',
+          [AdminInstallModeNames[RootKeyIsHKLM {always False}]])
+      end;
+
+      RegDeleteKeyIncludingSubkeys(RegView, RootKey, PChar(SubkeyName));
+    end;
 
     LogFmt('Creating new uninstall key: %s\%s', [GetRegRootKeyName(RootKey), SubkeyName]);
 
     { Create uninstall key }
-    ErrorCode := RegCreateKeyExView(InstallDefaultRegView, RootKey, PChar(SubkeyName),
+    ErrorCode := RegCreateKeyExView(RegView, RootKey, PChar(SubkeyName),
       0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, H2, nil);
     if ErrorCode <> ERROR_SUCCESS then
       RegError(reRegCreateKeyEx, RootKey, SubkeyName, ErrorCode);
@@ -559,6 +658,7 @@ var
         Z := ExpandConst(SetupHeader.UninstallDisplayName)
       else
         Z := ExpandedAppVerName;
+      HandleDuplicateDisplayNames(Z);
       { For the entry to appear in ARP, DisplayName cannot exceed 63 characters
         on Windows 9x/NT 4.0, or 259 characters on Windows 2000 and later. }
       if WindowsVersionAtLeast(5, 0) then
@@ -630,7 +730,7 @@ var
       RegCloseKey(H2);
     end;
 
-    UninstLog.AddReg(utRegDeleteEntireKey, InstallDefaultRegView, RootKey,
+    UninstLog.AddReg(utRegDeleteEntireKey, RegView, RootKey,
       [SubkeyName]);
   end;
 

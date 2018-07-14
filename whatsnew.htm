@@ -29,8 +29,12 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <p><a name="6.0.0"></a><span class="ver">6.0.0-dev </span><span class="date">(?)</span></p>
 <p>A number of changes have been made to the administrative vs. non administrative install mode functionality:</p>
 <ul>
-  <li>Added a separate <a href="http://www.jrsoftware.org/is6help/index.php?topic=admininstallmode">Non Administrative Install Mode</a> topic to the help file.</li>
-  <li>Two installations that do not share the same administrative or non administrative install mode no longer count as the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a>. This means you can now install in these modes side-by-side even if the installers share the same <tt>AppId</tt> setting.</li>
+  <li>Added a <a href="http://www.jrsoftware.org/is6help/index.php?topic=admininstallmode">Non Administrative Install Mode</a> topic to the help file.</li>
+  <li>Added a <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes#sidebyside">Side-by-side installation</a> subtopic to the help file.</li>
+</ul>
+<ul>
+  <li>Two separate installation runs that do not share the same administrative or non administrative install mode no longer count as the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a>. This means you can now install these modes <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes#sidebyside">side-by-side</a> even if the installers share the same <tt>AppId</tt> setting.</li>
+  <li><b>Change in default behavior:</b> To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will now automatically mark the new entry with a text like &quot;Current user&quot; or &quot;64-bit&quot; when necessary during a <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes#sidebyside">side-by-side</a> installation.</a>
   <li>The Compiler IDE's New Script Wizard now offers an option to select administrative or non administrative install mode and outputs scripts which work in both modes.</li>
   <li>Pascal Scripting changes: Added new <tt>IsAdminInstallMode</tt> support function.</li>
 </ul>
@@ -64,12 +68,19 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 </ul>
 </li>
 <li>Maintainers of official translations can now translate the custom messages used by Inno Setup's own installer.</li>
-<li>All documentation referring to the Power Users group has been removed: this group is not special anymore in Windows.</tt>
+<li>All documentation referring to the Power Users group has been removed: this group is not special anymore in Windows.</li>
 <li>Documentation and examples improvements.</li>
 <li>Minor tweaks.</li>
 </ul>
 
 <p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to jogo-, Martin Prikryl, dscharrer and Kleuter for their contributions.<p>
+
+<p>Some messages have been added in this version: (<a href="https://github.com/jrsoftware/issrc/commit/3a63ee7e4315bd6c06b54b4011dac90d693a14d7">View differences in Default.isl</a>).</p>
+<ul>
+  <li><b>New messages:</b> UninstallDisplayNameMark, UninstallDisplayNameMarks, UninstallDisplayNameMark32Bit, UninstallDisplayNameMark64Bit, UninstallDisplayNameMarkAllUsers, UninstallDisplayNameCurrentUser.</li>
+</ul>
+
+<p>Note: Only the official English and Dutch (Netherlands) translations have been updated for these changes at this moment. See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.)</p>
 
 <p><a href="http://www.jrsoftware.org/files/is5-whatsnew.htm">Inno Setup 5.6 Revision History</a></p>
 

@@ -1227,13 +1227,12 @@ end;
 procedure TWizardForm.FindPreviousData;
 var
   H: HKEY;
-  S, ExpandedAppId, UninstallRegKeyBaseName: String;
+  S, ExpandedAppId: String;
 begin
   ExpandedAppId := ExpandConst(SetupHeader.AppId);
   if ExpandedAppId <> '' then begin
-    UninstallRegKeyBaseName := GetUninstallRegKeyBaseName(ExpandedAppId);
     if RegOpenKeyExView(InstallDefaultRegView, InstallModeRootKey,
-       PChar(Format('%s\%s_is1', [NEWREGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName])),
+       PChar(GetUninstallRegSubkeyName(GetUninstallRegKeyBaseName(ExpandedAppId))),
        0, KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
       try
         { do not localize or change the following strings }
