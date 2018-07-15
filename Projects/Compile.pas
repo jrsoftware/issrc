@@ -283,6 +283,7 @@ type
   private
     FCapacity: Integer;
     FCount: Integer;
+    FIgnoreDuplicates: Boolean;
     FList: PHashStringItemList;
     procedure Grow;
   public
@@ -292,6 +293,7 @@ type
     procedure Clear;
     function Get(Index: Integer): String;
     property Count: Integer read FCount;
+    property IgnoreDuplicates: Boolean read FIgnoreDuplicates write FIgnoreDuplicates;
     property Strings[Index: Integer]: String read Get; default;
   end;
 
@@ -343,7 +345,7 @@ type
     UninstallRunEntries: TList;
 
     FileLocationEntryFilenames: THashStringList;
-    WarningsList: TLowFragStringList;
+    WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
     UsedUserAreasWarning: Boolean;
     UsedUserAreas: TStringList;
@@ -492,6 +494,7 @@ type
     procedure ReadMessagesFromScript;
     function ReadScriptFile(const Filename: String; const UseCache: Boolean;
       const AnsiConvertCodePage: Cardinal): TScriptFileLines;
+    procedure RenamedConstantCallback(const Cnst, CnstRenamed: String);
     procedure EnumCode(const Line: PChar; const Ext, Ext2: Integer);
     procedure ReadCode;
     procedure CodeCompilerOnLineToLineInfo(const Line: LongInt; var Filename: String; var FileLine: LongInt);
@@ -1169,6 +1172,11 @@ function THashStringList.Add(const S: String): Integer;
 var
   LS: String;
 begin
+  if FIgnoreDuplicates and (CaseInsensitiveIndexOf(S) <> -1) then begin
+    Result := -1;
+    Exit;
+  end;
+
   Result := FCount;
   if Result = FCapacity then
     Grow;
@@ -1736,7 +1744,8 @@ begin
   RunEntries := TLowFragList.Create;
   UninstallRunEntries := TLowFragList.Create;
   FileLocationEntryFilenames := THashStringList.Create;
-  WarningsList := TLowFragStringList.Create;
+  WarningsList := THashStringList.Create;
+  WarningsList.IgnoreDuplicates := True;
   ExpectedCustomMessageNames := TStringList.Create;
   UsedUserAreas := TStringList.Create;
   UsedUserAreas.Sorted := True;
@@ -2621,6 +2630,14 @@ begin
   Result := PrependDirName(Filename, SourceDir);
 end;
 
+procedure TSetupCompiler.RenamedConstantCallback(const Cnst, CnstRenamed: String);
+begin
+  if Pos('common', LowerCase(CnstRenamed)) <> 0 then
+    WarningsList.Add(Format(SCompilerCommonConstantRenamed, [Cnst, CnstRenamed]))
+  else
+    WarningsList.Add(Format(SCompilerConstantRenamed, [Cnst, CnstRenamed]));
+end;
+
 function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVersionData;
   const AllowedConsts: TAllowedConsts): Boolean;
 { Returns True if S contains constants. Aborts compile if they are invalid. }
@@ -2906,7 +2923,7 @@ begin
         { Now check the constant }
         Cnst := Copy(S, Start+1, I-(Start+1));
         if Cnst <> '' then begin
-          HandleRenamedConstants(Cnst);
+          HandleRenamedConstants(Cnst, RenamedConstantCallback);
           if Cnst = '\' then
             goto 1;
           if Cnst[1] = '%' then begin

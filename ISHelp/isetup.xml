@@ -631,7 +631,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <heading>Renamed Constants</heading>
 
-<p>Inno Setup 5.7.0 renamed some of the directory and shell folder constants. The old names are still supported, but it is recommended to update your scripts to the new names.</p>
+<p>Inno Setup 5.7.0 renamed some of the directory and shell folder constants. The old names are still supported, but it is recommended to update your scripts to the new names and the compiler will issue a warning if you don't.</p>
 
 <indent>
 <table>

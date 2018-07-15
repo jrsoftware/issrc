@@ -1002,7 +1002,7 @@ var
   I: Integer;
 begin
   OriginalCnst := Cnst;
-  HandleRenamedConstants(Cnst);
+  HandleRenamedConstants(Cnst, nil);
   HandleAutoConstants(Cnst);
 
   if IsUninstaller then

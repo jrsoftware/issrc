@@ -2,7 +2,7 @@ unit SetupTypes;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -42,6 +42,8 @@ type
 
   TInstallOnThisVersionResult = (irInstall, irNotOnThisPlatform,
     irVersionTooLow, irServicePackTooLow, irVerTooHigh);
+    
+  TRenamedConstantCallBack = procedure(const Cnst, CnstRenamed: String) of object;
 
 const
   crHand = 1;
@@ -56,7 +58,7 @@ const
 function StringsToCommaString(const Strings: TStrings): String;
 procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
 function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): Boolean;
-procedure HandleRenamedConstants(var Cnst: String);
+procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback: TRenamedConstantCallback);
 
 implementation
 
@@ -268,22 +270,32 @@ begin
   end;
 end;
 
-procedure HandleRenamedConstants(var Cnst: String);
+procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback: TRenamedConstantCallback);
+var
+  CnstRenamed: String;
 begin
   if Cnst = 'sendto' then
-    Cnst := 'usersendto'
+    CnstRenamed := 'usersendto'
   else if Cnst = 'pf' then
-    Cnst := 'commonpf'
+    CnstRenamed := 'commonpf'
   else if Cnst = 'pf32' then
-    Cnst := 'commonpf32'
+    CnstRenamed := 'commonpf32'
   else if Cnst = 'pf64' then
-    Cnst := 'commonpf64'
+    CnstRenamed := 'commonpf64'
   else if Cnst = 'cf' then
-    Cnst := 'commoncf'
+    CnstRenamed := 'commoncf'
   else if Cnst = 'cf32' then
-    Cnst := 'commoncf32'
+    CnstRenamed := 'commoncf32'
   else if Cnst = 'cf64' then
-    Cnst := 'commoncf64';
+    CnstRenamed := 'commoncf64'
+  else
+    CnstRenamed := '';
+
+  if CnstRenamed <> '' then begin
+    if Assigned(RenamedConstantCallback) then
+      RenamedConstantCallback(Cnst, CnstRenamed);
+    Cnst := CnstRenamed;
+  end;
 end;
 
 end.

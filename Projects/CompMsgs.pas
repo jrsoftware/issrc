@@ -2,7 +2,7 @@ unit CompMsgs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -242,7 +242,9 @@ const
   SCompilerBadDriveConst = 'Invalid drive constant "%s"';
   SCompilerBadCustomMessageConst = 'Invalid custom message constant "%s"';
   SCompilerBadBoolConst = 'Invalid boolean constant "%s"';
-  
+  SCompilerConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead.';
+  SCompilerCommonConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead or consider using its "auto" form.';
+
   { Area checks }
   SCompilerUsedUserAreasWarning = 'The [%s] section directive "%s" is set to "%s" but per-user areas (%s) are used by the script. ' +
     'Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. ' +
