@@ -117,6 +117,7 @@ procedure CheckParams;
 var
   P, I: Integer;
   S: String;
+  Dummy: Boolean;
 begin
   P := NewParamCount;
   I := 1;
@@ -133,7 +134,7 @@ begin
     end
     else if CompareText(S, '/ASSOC') = 0 then begin
       try
-        RegisterISSFileAssociation;
+        RegisterISSFileAssociation(False, Dummy);
       except
         MessageBox(0, PChar(GetExceptMessage), nil, MB_OK or MB_ICONSTOP);
         Halt(2);
