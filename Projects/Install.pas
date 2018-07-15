@@ -561,7 +561,6 @@ var
 
       { Mark new display name if needed. Note: currently we don't attempt to mark existing display names as well. }
       if ExistingAtOppositeAdminInstallMode or ExistingAtOpposite64BitInstallMode then begin
-        Log('Marking new display name to avoid duplicate entries.');
         if ExistingAtOppositeAdminInstallMode and ExistingAtOpposite64BitInstallMode then
           DisplayName := FmtSetupMessage(msgUninstallDisplayNameMarks,
             [DisplayName, SetupMessages[UninstallDisplayNameMarksUser[RootKeyIsHKLM]],
@@ -572,7 +571,7 @@ var
         else
           DisplayName := FmtSetupMessage(msgUninstallDisplayNameMark,
             [DisplayName, SetupMessages[UninstallDisplayNameMarksBits[RegViewIs64Bit]]]);
-        LogFmt('New display name: %s', [DisplayName]);
+        LogFmt('Marked uninstall display name to avoid duplicate entries. New display name: %s', [DisplayName]);
       end;
     end;
 
