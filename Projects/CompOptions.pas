@@ -81,10 +81,14 @@ begin
 end;
 
 procedure TOptionsForm.AssocButtonClick(Sender: TObject);
+const
+  UserStrings: array [Boolean] of String = ('the current user', 'all users');
+var
+  AllUsers: Boolean;
 begin
-  RegisterISSFileAssociation;
-  MsgBox('The .iss extension was successfully associated with:'#13#10 + NewParamStr(0),
-    'Associate', mbInformation, MB_OK);
+  if RegisterISSFileAssociation(True, AllUsers) then
+    MsgBox('The .iss extension was successfully associated for ' + UserStrings[AllUsers] + ' with:'#13#10 + NewParamStr(0),
+      'Associate', mbInformation, MB_OK);
 end;
 
 procedure TOptionsForm.ChangeFontButtonClick(Sender: TObject);
