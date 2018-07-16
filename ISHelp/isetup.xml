@@ -2772,7 +2772,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 <keyword value="BDE installation" />
 `<body>
 
-<p>The Frequently Asked Questions is now located in a separate document. Please click the "Inno Setup FAQ" shortcut created in the Start Menu when you installed Inno Setup, or open the "isfaq.htm" file in your Inno Setup directory.</p>
+<p>The Frequently Asked Questions is now located in a separate document. Please click the "Inno Setup FAQ" shortcut created in the Start Menu when you installed Inno Setup, or open the "isfaq.url" file in your Inno Setup directory.</p>
 
 <p>For the most recent Frequently Asked Questions, go to <extlink href="http://www.jrsoftware.org/isfaq.php">http://www.jrsoftware.org/isfaq.php</extlink></p>
 
