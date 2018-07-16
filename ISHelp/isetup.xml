@@ -631,7 +631,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <heading>Renamed Constants</heading>
 
-<p>Inno Setup 5.7.0 renamed some of the directory and shell folder constants. The old names are still supported, but it is recommended to update your scripts to the new names and the compiler will issue a warning if you don't.</p>
+<p>Inno Setup 6 renamed some of the directory and shell folder constants. The old names are still supported, but it is recommended to update your scripts to the new names (or the "auto" form) and the compiler will issue a warning if you don't.</p>
 
 <indent>
 <table>
@@ -2770,8 +2770,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 <keyword value="file associations, creating" />
 <keyword value="Visual Basic" />
 <keyword value="BDE installation" />
-<keyword value="Y2K compliance" />
-<body>
+`<body>
 
 <p>The Frequently Asked Questions is now located in a separate document. Please click the "Inno Setup FAQ" shortcut created in the Start Menu when you installed Inno Setup, or open the "isfaq.htm" file in your Inno Setup directory.</p>
 
@@ -5336,7 +5335,7 @@ SignTool=byparam format c:
 <body>
 <p>"Same application" refers to two separate installation runs that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting), and the same <link topic="admininstallmode">administrative or non administrative install mode</link>, and the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>*. Two of such installation runs will lead to only one actual installation of the files.</p>
 <p><a name="sidebyside">"Side-by-side installation"</a> refers to two separate installation runs that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting) but not the other "Same application" requirements. Two of such installation runs will lead to two actual installations of the files. To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will automatically mark the new entry with a text like "Current user" or "64-bit" when necessary during a side-by-side installation.</p>
-<p>(* = This requirement does not apply to any same application information retrieved from the registry in non administrative install mode since the HKEY_CURRENT_USER key is shared between the 32-bit and 64-bit registry. It does however always apply to the uninstall log since the 32-bit and 64-bit uninstall log formats are incompatible, even in non administrative install mode.)</p>
+<p>(* = This requirement does not apply to any same application information retrieved from the registry in non administrative install mode since the HKEY_CURRENT_USER key is shared between the 32-bit and 64-bit registry. It does however always apply to the uninstall log since the 32-bit and 64-bit uninstall logs are kept separate, even in non administrative install mode.)</p>
 </body>
 </topic>
 
