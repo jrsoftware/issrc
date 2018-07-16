@@ -102,6 +102,8 @@ Type: files; Name: "{app}\ISPPBuiltins.iss"; Check: not ISPPCheck
 ; Remove old ISPP files
 Type: files; Name: "{app}\ISCmplr.dls"
 Type: files; Name: "{app}\Builtins.iss"
+; Remove desktop icon if needed
+Type: files; Name: {commondesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon
 
 [Files]
 ; Files used by [Code] first so these can be quickly decompressed despite solid compression
