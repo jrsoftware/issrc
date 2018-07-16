@@ -2157,7 +2157,7 @@ end;
 procedure TCompileForm.HFaqClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open',
-    PChar(PathExtractPath(NewParamStr(0)) + 'isfaq.htm'), nil, nil, SW_SHOW);
+    PChar(PathExtractPath(NewParamStr(0)) + 'isfaq.url'), nil, nil, SW_SHOW);
 end;
 
 procedure TCompileForm.HWhatsNewClick(Sender: TObject);

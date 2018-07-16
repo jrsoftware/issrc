@@ -104,6 +104,8 @@ Type: files; Name: "{app}\ISCmplr.dls"
 Type: files; Name: "{app}\Builtins.iss"
 ; Remove desktop icon if needed
 Type: files; Name: {commondesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon
+; Remove old FAQ file
+Type: files; Name: "{app}\isfaq.htm"
 
 [Files]
 ; Files used by [Code] first so these can be quickly decompressed despite solid compression
@@ -143,7 +145,6 @@ Source: "files\{#islzmadll}"; DestName: "islzma.dll"; DestDir: "{app}"; Flags: i
 Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "whatsnew.htm"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "ishelp\isfaq.htm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "Examples\Example1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Example2.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Example3.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
@@ -188,11 +189,17 @@ Source: "Projects\ISPP\Help\Staging\ISPP.chm"; DestDir: "{app}"; Flags: ignoreve
 Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch; Check: ISPPCheck
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch; Check: ISPPCheck
 
+[INI]
+Filename: "{app}\isfaq.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.jrsoftware.org/isfaq.php" 
+
+[UninstallDelete]
+Type: files; Name: "{app}\isfaq.url"
+
 [Icons]
 Name: "{group}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.5"
 Name: "{group}\Inno Setup Documentation"; Filename: "{app}\ISetup.chm"
 Name: "{group}\Inno Setup Example Scripts"; Filename: "{app}\Examples\"
-Name: "{group}\Inno Setup FAQ"; Filename: "{app}\isfaq.htm"
+Name: "{group}\Inno Setup FAQ"; Filename: "{app}\isfaq.url"
 Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"
 Name: "{commondesktop}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.5"; Tasks: desktopicon
 
