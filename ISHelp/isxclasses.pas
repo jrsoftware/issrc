@@ -627,9 +627,9 @@ TWizardPage = class(TComponent)
   property ID: Integer; read;
   property Caption: String; read write;
   property Description: String; read write;
-  property Surface: TNewNotebookPage; read write;
-  property SurfaceHeight: Integer; read write;
-  property SurfaceWidth: Integer; read write;
+  property Surface: TNewNotebookPage; read;
+  property SurfaceHeight: Integer; read;
+  property SurfaceWidth: Integer; read;
   property OnActivate: TWizardPageNotifyEvent; read write;
   property OnBackButtonClick: TWizardPageButtonEvent; read write;
   property OnCancelButtonClick: TWizardPageCancelEvent; read write;
