@@ -96,9 +96,6 @@ Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"
 Type: files; Name: "{app}\Languages\*.islu"
 Type: files; Name: "{app}\Examples\UnicodeExample1.iss"
 #endif
-; Remove ISPP files if needed (leave ISPP.chm)
-Type: files; Name: "{app}\ISPP.dll"; Check: not ISPPCheck
-Type: files; Name: "{app}\ISPPBuiltins.iss"; Check: not ISPPCheck
 ; Remove old ISPP files
 Type: files; Name: "{app}\ISCmplr.dls"
 Type: files; Name: "{app}\Builtins.iss"
@@ -108,9 +105,6 @@ Type: files; Name: {commondesktop}\Inno Setup Compiler.lnk; Tasks: not desktopic
 Type: files; Name: "{app}\isfaq.htm"
 
 [Files]
-; Files used by [Code] first so these can be quickly decompressed despite solid compression
-Source: "files\ISPP.ico"; Flags: dontcopy
-; Other files
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "ishelp\Staging\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
@@ -181,13 +175,12 @@ Source: "Examples\MyDll\C#\Properties\AssemblyInfo.cs"; DestDir: "{app}\Examples
 Source: "Examples\MyDll\Delphi\MyDll.dpr"; DestDir: "{app}\Examples\MyDll\Delphi"; Flags: ignoreversion touch
 Source: "Examples\ISPPExample1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\ISPPExample1License.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
-; ISPP files
 Source: "Projects\ISPP\Help\Staging\ISPP.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 #ifndef isppdll
   #define isppdll "ispp.dll"
 #endif
-Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch; Check: ISPPCheck
-Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch; Check: ISPPCheck
+Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
 
 [INI]
 Filename: "{app}\isfaq.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.jrsoftware.org/isfaq.php" 
@@ -211,121 +204,6 @@ Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; Description: "{cm:LaunchPro
 Filename: "{app}\Compil32.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAssoc"
 
 [Code]
-var
-  ISPPPage: TWizardPage;
-  ISPPCheckBox: TCheckBox;
-  
-function GetModuleHandle(lpModuleName: LongInt): LongInt;
-external 'GetModuleHandleA@kernel32.dll stdcall';
-function ExtractIcon(hInst: LongInt; lpszExeFileName: AnsiString; nIconIndex: LongInt): LongInt;
-external 'ExtractIconA@shell32.dll stdcall';
-function DrawIconEx(hdc: LongInt; xLeft, yTop: Integer; hIcon: LongInt; cxWidth, cyWidth: Integer; istepIfAniCur: LongInt; hbrFlickerFreeDraw, diFlags: LongInt): LongInt;
-external 'DrawIconEx@user32.dll stdcall';
-function DestroyIcon(hIcon: LongInt): LongInt;
-external 'DestroyIcon@user32.dll stdcall';
-
-const
-  DI_NORMAL = 3;
-  
-function CreateCustomOptionPage(AAfterId: Integer; ACaption, ASubCaption, AIconFileName, ALabel1Caption, ALabel2Caption,
-  ACheckCaption: String; var CheckBox: TCheckBox): TWizardPage;
-var
-  Page: TWizardPage;
-  Rect: TRect;
-  hIcon: LongInt;
-  Label1, Label2: TNewStaticText;
-begin
-  Page := CreateCustomPage(AAfterID, ACaption, ASubCaption);
-  
-  try
-    AIconFileName := ExpandConstant('{tmp}\' + AIconFileName);
-    if not FileExists(AIconFileName) then
-      ExtractTemporaryFile(ExtractFileName(AIconFileName));
-
-    Rect.Left := 0;
-    Rect.Top := 0;
-    Rect.Right := 32;
-    Rect.Bottom := 32;
-
-    hIcon := ExtractIcon(GetModuleHandle(0), AIconFileName, 0);
-    try
-      with TBitmapImage.Create(Page) do begin
-        with Bitmap do begin
-          Width := 32;
-          Height := 32;
-          Canvas.Brush.Color := WizardForm.Color;
-          Canvas.FillRect(Rect);
-          DrawIconEx(Canvas.Handle, 0, 0, hIcon, 32, 32, 0, 0, DI_NORMAL);
-        end;
-        Parent := Page.Surface;
-      end;
-    finally
-      DestroyIcon(hIcon);
-    end;
-  except
-  end;
-
-  Label1 := TNewStaticText.Create(Page);
-  with Label1 do begin
-    AutoSize := False;
-    Left := WizardForm.SelectDirLabel.Left;
-    Width := Page.SurfaceWidth - Left;
-    WordWrap := True;
-    Caption := ALabel1Caption;
-    Parent := Page.Surface;
-  end;
-  WizardForm.AdjustLabelHeight(Label1);
-
-  Label2 := TNewStaticText.Create(Page);
-  with Label2 do begin
-    Top := Label1.Top + Label1.Height + ScaleY(12);
-    Caption := ALabel2Caption;
-    Parent := Page.Surface;
-  end;
-  WizardForm.AdjustLabelHeight(Label2);
-
-  CheckBox := TCheckBox.Create(Page);
-  with CheckBox do begin
-    Top := Label2.Top + Label2.Height + ScaleY(12);
-    Width := Page.SurfaceWidth;
-    Caption := ACheckCaption;
-    Parent := Page.Surface;
-  end;
-  
-  Result := Page;
-end;
-
-procedure CreateCustomPages;
-var
-  Caption, SubCaption1, IconFileName, Label1Caption, Label2Caption, CheckCaption: String;
-begin
-  Caption := CustomMessage('ISPPTitle');
-  SubCaption1 := CustomMessage('ISPPSubtitle');
-  IconFileName := 'ISPP.ico';
-  Label1Caption := CustomMessage('ISPPText');
-  Label2Caption := CustomMessage('ISPPText2');
-  CheckCaption := CustomMessage('ISPPCheck');
-
-  ISPPPage := CreateCustomOptionPage(wpSelectProgramGroup, Caption, SubCaption1, IconFileName, Label1Caption, Label2Caption, CheckCaption, ISPPCheckBox);
-end;
-
-procedure InitializeWizard;
-begin
-  CreateCustomPages;
-  
-  ISPPCheckBox.Checked := (GetPreviousData('ISPP', '1') = '1') or (ExpandConstant('{param:ispp|0}') = '1');
-end;
-
-procedure RegisterPreviousData(PreviousDataKey: Integer);
-begin
-  SetPreviousData(PreviousDataKey, 'ISPP', IntToStr(Ord(ISPPCheckBox.Checked)));
-end;
-
-function ISPPCheck: Boolean;
-begin
-  Result := ISPPCheckBox.Checked;
-end;
-
 function PortableCheck: Boolean;
 begin
   Result := ExpandConstant('{param:portable|0}') = '1';
