@@ -104,6 +104,8 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. Both the x64 and Itanium architectures are supported. (On the Itanium architecture, Service Pack 1 or later is required on Windows Server 2003 to install in 64-bit mode.)</li>
 
+<li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link> installations.</li>
+
 <li>Supports creation of a single EXE to install your program for easy online distribution. <link topic="setup_diskspanning">Disk spanning</link> is also supported.</li>
 
 <li>Standard Windows wizard interface.</li>
