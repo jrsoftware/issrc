@@ -13,7 +13,8 @@ interface
 
 {$I VERSION.INC}
 
-procedure PerformInstall(var Succeeded: Boolean);
+procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
+  ChangesAssociations: Boolean);
 
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
@@ -307,7 +308,8 @@ begin
       Result := PathExtractName(Result);
 end;
 
-procedure PerformInstall(var Succeeded: Boolean);
+procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
+  ChangesAssociations: Boolean);
 type
   PRegisterFilesListRec = ^TRegisterFilesListRec;
   TRegisterFilesListRec = record
@@ -2947,7 +2949,7 @@ begin
       Include(UninstLog.Flags, ufModernStyle);
       if shUninstallRestartComputer in SetupHeader.Options then
         Include(UninstLog.Flags, ufAlwaysRestart);
-      if shChangesEnvironment in SetupHeader.Options then
+      if ChangesEnvironment then
         Include(UninstLog.Flags, ufChangesEnvironment);
       RecordStartInstall;
       RecordCompiledCode;
@@ -2978,7 +2980,7 @@ begin
 
       if ExpandedAppMutex <> '' then
         UninstLog.Add(utMutexCheck, [ExpandedAppMutex], 0);
-      if shChangesAssociations in SetupHeader.Options then
+      if ChangesAssociations then
         UninstLog.Add(utRefreshFileAssoc, [''], 0);
 
       { Record UninstallDelete entries, if any }

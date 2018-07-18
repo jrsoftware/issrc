@@ -3887,7 +3887,7 @@ function TMainForm.Install: Boolean;
   end;
 
 var
-  Succeeded: Boolean;
+  Succeeded, ChangesEnvironment, ChangesAssociations: Boolean;
   S: String;
 begin
   Result := False;
@@ -3915,8 +3915,11 @@ begin
     WizardForm.Update;
 
     SetStep(ssInstall, False);
+    
+    ChangesEnvironment := EvalDirectiveCheck(SetupHeader.ChangesEnvironment);
+    ChangesAssociations := EvalDirectiveCheck(SetupHeader.ChangesAssociations);
 
-    PerformInstall(Succeeded);
+    PerformInstall(Succeeded, ChangesEnvironment, ChangesAssociations);
     if not Succeeded then begin
       { The user canceled the install or there was a fatal error }
       TerminateApp;
@@ -3936,9 +3939,9 @@ begin
 
     { Notify Windows of assocations/environment changes *after* ssPostInstall
       since user might set more stuff there }
-    if shChangesAssociations in SetupHeader.Options then
+    if ChangesAssociations then
       SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);
-    if shChangesEnvironment in SetupHeader.Options then
+    if ChangesEnvironment then
       RefreshEnvironment;
 
     if InstallMode <> imNormal then

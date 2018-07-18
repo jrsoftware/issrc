@@ -689,7 +689,7 @@ external 'MessageBoxA@user32.dll stdcall';
 <topic name="scriptexpression" title="Pascal Scripting: Boolean Expressions">
 <keyword value="Pascal Scripting: Boolean Expressions" />
 <body>
-<p>See <link topic="scriptcheck">Pascal Scripting: Check Parameters</link> for more information on boolean expressions.</p>
+<p>See <link topic="scriptcheck">Pascal Scripting: Check Parameters</link> for more information on boolean expressions and see <link topic="setup_uninstallable">Uninstallable</link> for an example.</p>
 </body>
 </topic>
 
