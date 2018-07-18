@@ -3813,10 +3813,10 @@ begin
         BackSolid := StrToBool(Value);
       end;
     ssChangesAssociations: begin
-        SetSetupHeaderOption(shChangesAssociations);
+        SetupHeader.ChangesAssociations := Value;
       end;
     ssChangesEnvironment: begin
-        SetSetupHeaderOption(shChangesEnvironment);
+        SetupHeader.ChangesEnvironment := Value;
       end;
     ssCloseApplications: begin
         if CompareText(Value, 'force') = 0 then begin
@@ -8559,6 +8559,8 @@ begin
     SetupHeader.DisableProgramGroupPage := dpAuto;
     SetupHeader.CreateUninstallRegKey := 'yes';
     SetupHeader.Uninstallable := 'yes';
+    SetupHeader.ChangesEnvironment := 'no';
+    SetupHeader.ChangesAssociations := 'no';
     BackSolid := False;
     WizardImageFile := 'compiler:WIZMODERNIMAGE.BMP';
     WizardSmallImageFile := 'compiler:WIZMODERNSMALLIMAGE.BMP';
@@ -8721,6 +8723,10 @@ begin
     CheckCheckOrInstall('CreateUninstallRegKey', SetupHeader.CreateUninstallRegKey, cikDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssUninstallable];
     CheckCheckOrInstall('Uninstallable', SetupHeader.Uninstallable, cikDirectiveCheck);
+    LineNumber := SetupDirectiveLines[ssChangesEnvironment];
+    CheckCheckOrInstall('ChangesEnviroment', SetupHeader.ChangesEnvironment, cikDirectiveCheck);
+    LineNumber := SetupDirectiveLines[ssChangesAssociations];
+    CheckCheckOrInstall('ChangesAssociations', SetupHeader.ChangesAssociations, cikDirectiveCheck);
     if Output then begin
       if OutputDir = '' then begin
         LineNumber := SetupDirectiveLines[ssOutput];

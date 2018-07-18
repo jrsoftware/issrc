@@ -104,8 +104,6 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. Both the x64 and Itanium architectures are supported. (On the Itanium architecture, Service Pack 1 or later is required on Windows Server 2003 to install in 64-bit mode.)</li>
 
-<li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link> installations.</li>
-
 <li>Supports creation of a single EXE to install your program for easy online distribution. <link topic="setup_diskspanning">Disk spanning</link> is also supported.</li>
 
 <li>Standard Windows wizard interface.</li>
@@ -2910,9 +2908,9 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <li><link topic="runsection">[Run]</link> is processed, except for entries with the <tt>postinstall</tt> flag, which get processed after the <i>Setup Completed</i> wizard page is shown.</li>
 
-<li>If <link topic="setup_changesassociations">ChangesAssociations</link> was set to <tt>yes</tt>, file associations are refreshed now.</li>
+<li>If <link topic="setup_changesassociations">ChangesAssociations</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, file associations are refreshed now.</li>
 
-<li>If <link topic="setup_changesenvironment">ChangesEnvironment</link> was set to <tt>yes</tt>, other applications are notified at this point.</li>
+<li>If <link topic="setup_changesenvironment">ChangesEnvironment</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, other applications are notified at this point.</li>
 
 </ul>
 
@@ -4495,19 +4493,19 @@ DiskSliceSize=1457664
 </setuptopic>
 
 <setuptopic directive="ChangesAssociations">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, Setup will tell Explorer to refresh its file associations information at the end of the installation, and Uninstall will do the same at the end of uninstallation.</p>
+<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, Setup will tell Explorer to refresh its file associations information at the end of the installation, and Uninstall will do the same at the end of uninstallation.</p>
 <p>If your installation creates a file association but doesn't have <tt>ChangesAssociations</tt> set to <tt>yes</tt>, the correct icon for the file type likely won't be displayed until the user logs off or restarts the computer.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="ChangesEnvironment">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, at the end of the installation Setup will notify other running applications (notably Windows Explorer) that they should reload their environment variables from the registry.</p>
+<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, at the end of the installation Setup will notify other running applications (notably Windows Explorer) that they should reload their environment variables from the registry.</p>
 <p>If your installation creates or changes an environment variable but doesn't have <tt>ChangesEnvironment</tt> set to <tt>yes</tt>, the new/changed environment variable will not be seen by applications launched from Explorer until the user logs off or restarts the computer.</p>
 </body>
 </setuptopic>
