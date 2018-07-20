@@ -288,9 +288,9 @@ begin
   { do not localize }
   
   if proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed then begin
-    PrNote := '/PR:ADMIN' + SNewLine +
+    PrNote := '/ALLUSERS' + SNewLine +
               'Instructs Setup to install in administrative install mode.' + SNewLine +
-              '/PR:LOWEST' + SNewLine +
+              '/CURRENTUSER' + SNewLine +
               'Instructs Setup to install in non administrative install mode.' + SNewLine;
   end else
     PrNote := '';

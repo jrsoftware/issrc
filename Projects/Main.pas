@@ -2905,12 +2905,12 @@ begin
     if CompareText(ParamName, '/DEBUGWND=') = 0 then
       DebugWndValue := StrToInt(ParamValue)
     else     
-    if CompareText(ParamName, '/PR:ADMIN') = 0 then begin
+    if CompareText(ParamName, '/ALLUSERS') = 0 then begin
       InitPrivilegesRequired := prAdmin;
       HasInitPrivilegesRequired := True;
     end
     else     
-    if CompareText(ParamName, '/PR:LOWEST') = 0 then begin
+    if CompareText(ParamName, '/CURRENTUSER') = 0 then begin
       InitPrivilegesRequired := prLowest;
       HasInitPrivilegesRequired := True;
     end;
@@ -2975,16 +2975,16 @@ begin
             if MsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox2],
               SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNO) <> IDYES then begin
                SetupHeader.PrivilegesRequired := prAdmin;
-               ExtraRespawnParam := '/PR:ADMIN';
+               ExtraRespawnParam := '/ALLUSERS';
             end else
-               ExtraRespawnParam := '/PR:LOWEST';
+               ExtraRespawnParam := '/CURRENTUSER';
           end else begin
             if MsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox1],
               SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNO) <> IDYES then begin
                SetupHeader.PrivilegesRequired := prLowest;
-               ExtraRespawnParam := '/PR:LOWEST';
+               ExtraRespawnParam := '/CURRENTUSER';
              end else
-               ExtraRespawnParam := '/PR:ADMIN';
+               ExtraRespawnParam := '/ALLUSERS';
           end;
         end;
 
