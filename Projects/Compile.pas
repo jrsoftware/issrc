@@ -8741,7 +8741,7 @@ begin
     LineNumber := SetupDirectiveLines[ssUninstallable];
     CheckCheckOrInstall('Uninstallable', SetupHeader.Uninstallable, cikDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssChangesEnvironment];
-    CheckCheckOrInstall('ChangesEnviroment', SetupHeader.ChangesEnvironment, cikDirectiveCheck);
+    CheckCheckOrInstall('ChangesEnvironment', SetupHeader.ChangesEnvironment, cikDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssChangesAssociations];
     CheckCheckOrInstall('ChangesAssociations', SetupHeader.ChangesAssociations, cikDirectiveCheck);
     if Output then begin
