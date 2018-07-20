@@ -269,7 +269,7 @@ begin
     SetErrorMode(SEM_FAILCRITICALERRORS);
     DisableWindowGhosting;
     Application.HookMainWindow(TDummyClass.AntiShutdownHook);
-    SelectMode;
+    SelectMode; { Only returns if we should run as Setup }
   except
     { Halt on any exception }
     ShowExceptionMsg;
