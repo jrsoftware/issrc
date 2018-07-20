@@ -146,6 +146,8 @@ type
     msgPowerUserPrivilegesRequired,
     msgPreparingDesc,
     msgPreviousInstallNotCompleted,
+    msgPrivilegesRequiredOverrideMsgBox1,
+    msgPrivilegesRequiredOverrideMsgBox2,
     msgReadyLabel1,
     msgReadyLabel2a,
     msgReadyLabel2b,

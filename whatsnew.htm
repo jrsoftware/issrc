@@ -53,9 +53,10 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 </ul>
 <p>Once your script is fully updated to support both administrative and non administrative mode (for example by using the new &quot;auto&quot; constants and the new [Registry] section <tt>Root</tt> value <tt>HKA</tt>) you can then use the following:</p>
 <ul>
-  <li>Added new [Setup] section directive: <tt>PrivilegesRequiredOverridesAllowed</tt>, which can be set to one or more overrides which allow the end user to override the script's default <tt>PrivilegesRequired</tt> setting. The following overrides are supported: <tt>commandline</tt>.</li>
+  <li>Added new [Setup] section directive: <tt>PrivilegesRequiredOverridesAllowed</tt>, which can be set to one or more overrides which allow the end user to override the script's default <tt>PrivilegesRequired</tt> setting. The following overrides are supported: <tt>commandline</tt> and <tt>msgbox</tt>.</li>
   <ul>
     <li>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <tt>PrivilegesRequired</tt> setting: /PR:ADMIN and /PR:LOWEST.</li>
+    <li>If override <tt>msgbox</tt> is allowed then Setup will ask the user whether administrative or non administrative install mode should be used based on the script's default <tt>PrivilegesRequired</tt> setting. Allowing <tt>msgbox</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</li>
   </ul>
   <li>Inno Setup's own installer now supports both administrative and non administrative mode and allows the <tt>commandline</tt> override.</li>
 </ul>

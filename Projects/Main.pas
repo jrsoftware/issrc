@@ -2769,7 +2769,7 @@ var
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
   MinimumTypeSpace: Integer64;
   SourceWildcard: String;
-  ExpandedSetupMutex: String;
+  ExpandedSetupMutex, ExtraRespawnParam, RespawnParams: String;
 begin
   InitializeCommonVars;
 
@@ -2966,7 +2966,27 @@ begin
         
         { Apply InitPrivilegesRequired }
         if HasInitPrivilegesRequired and (proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed) then
-          SetupHeader.PrivilegesRequired := InitPrivilegesRequired;
+          SetupHeader.PrivilegesRequired := InitPrivilegesRequired
+        else if not InitSuppressMsgBoxes and (proMsgBox in SetupHeader.PrivilegesRequiredOverridesAllowed) then begin
+          { Ask user. Doesn't log since logging hasn't started yet. Also doesn't use ExpandedAppName since it isn't set yet.
+            Afterwards we need to tell the respawned Setup about the user choice. Will use the command line parameter for
+            this. Allowing proMsgBox forces allowing proCommandLine, so we can count on the parameter to work. }
+          if SetupHeader.PrivilegesRequired = prLowest then begin
+            if MsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox2],
+              SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNO) <> IDYES then begin
+               SetupHeader.PrivilegesRequired := prAdmin;
+               ExtraRespawnParam := '/PR:ADMIN';
+            end else
+               ExtraRespawnParam := '/PR:LOWEST';
+          end else begin
+            if MsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox1],
+              SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNO) <> IDYES then begin
+               SetupHeader.PrivilegesRequired := prLowest;
+               ExtraRespawnParam := '/PR:LOWEST';
+             end else
+               ExtraRespawnParam := '/PR:ADMIN';
+          end;
+        end;
 
         { Start a new, elevated Setup(Ldr) process if needed }
         if not IsRespawnedProcess and
@@ -2974,7 +2994,10 @@ begin
              SetupHeader.PrivilegesRequired <> prLowest) then begin
           FreeAndNil(Reader);
           FreeAndNil(SetupFile);
-          RespawnSetupElevated(GetCmdTailEx(StartParam));
+          RespawnParams := GetCmdTailEx(StartParam);
+          if ExtraRespawnParam <> '' then
+            RespawnParams := RespawnParams + ' ' + ExtraRespawnParam;
+          RespawnSetupElevated(RespawnParams);
           { Note: RespawnSetupElevated does not return; it either calls Halt
             or raises an exception. }
         end;

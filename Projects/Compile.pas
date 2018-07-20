@@ -3678,7 +3678,7 @@ var
 
   function StrToPrivilegesRequiredOverrides(S: String): TSetupPrivilegesRequiredOverrides;
   const
-    Overrides: array[0..0] of PChar = ('commandline');
+    Overrides: array[0..1] of PChar = ('commandline', 'msgbox');
   begin
     Result := [];
     while True do
@@ -3686,6 +3686,7 @@ var
         -2: Break;
         -1: Invalid;
         0: Include(Result, proCommandLine);
+        1: Result := Result + [proCommandLine, proMsgBox];
       end;
   end;
 var

@@ -73,7 +73,7 @@ type
   TSetupProcessorArchitectures = set of TSetupProcessorArchitecture;
   TSetupDisablePage = (dpAuto, dpNo, dpYes);
   TSetupPrivilegesRequired = (prNone, prPowerUser, prAdmin, prLowest);
-  TSetupPrivilegesRequiredOverride = (proCommandLine);
+  TSetupPrivilegesRequiredOverride = (proCommandLine, proMsgBox);
   TSetupPrivilegesRequiredOverrides = set of TSetupPrivilegesRequiredOverride;
 const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =
