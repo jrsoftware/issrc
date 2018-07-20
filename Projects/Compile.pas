@@ -143,6 +143,7 @@ type
     ssOutputManifestFile,
     ssPassword,
     ssPrivilegesRequired,
+    ssPrivilegesRequiredOverridesAllowed,
     ssReserveBytes,
     ssRestartApplications,
     ssRestartIfNeededByRun,
@@ -3674,6 +3675,19 @@ var
       end;
   end;
 
+
+  function StrToPrivilegesRequiredOverrides(S: String): TSetupPrivilegesRequiredOverrides;
+  const
+    Overrides: array[0..0] of PChar = ('commandline');
+  begin
+    Result := [];
+    while True do
+      case ExtractFlag(S, Overrides) of
+        -2: Break;
+        -1: Invalid;
+        0: Include(Result, proCommandLine);
+      end;
+  end;
 var
   P: Integer;
   AIncludes: TStringList;
@@ -4124,6 +4138,9 @@ begin
           SetupHeader.PrivilegesRequired := prLowest
         else
           Invalid;
+      end;
+    ssPrivilegesRequiredOverridesAllowed: begin
+        SetupHeader.PrivilegesRequiredOverridesAllowed := StrToPrivilegesRequiredOverrides(Value);
       end;
     ssReserveBytes: begin
         Val(Value, ReserveBytes, I);

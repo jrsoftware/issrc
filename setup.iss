@@ -18,6 +18,7 @@ AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
 DefaultDirName={autopf}\Inno Setup 6
 DefaultGroupName=Inno Setup 6
+PrivilegesRequiredOverridesAllowed=commandline
 AllowNoIcons=yes
 Compression=lzma2/max
 SolidCompression=yes
@@ -100,7 +101,7 @@ Type: files; Name: "{app}\Examples\UnicodeExample1.iss"
 Type: files; Name: "{app}\ISCmplr.dls"
 Type: files; Name: "{app}\Builtins.iss"
 ; Remove desktop icon if needed
-Type: files; Name: {commondesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon
+Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon
 ; Remove old FAQ file
 Type: files; Name: "{app}\isfaq.htm"
 
@@ -194,7 +195,7 @@ Name: "{group}\Inno Setup Documentation"; Filename: "{app}\ISetup.chm"
 Name: "{group}\Inno Setup Example Scripts"; Filename: "{app}\Examples\"
 Name: "{group}\Inno Setup FAQ"; Filename: "{app}\isfaq.url"
 Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"
-Name: "{commondesktop}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"; Tasks: desktopicon
+Name: "{autodesktop}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\Compil32.exe"; Parameters: "/ASSOC"; StatusMsg: "{cm:AssocingFileExtension,Inno Setup,.iss}"; Tasks: fileassoc

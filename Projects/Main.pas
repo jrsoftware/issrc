@@ -110,6 +110,8 @@ var
   InitDeselectAllTasks: Boolean;
   InitPassword: String;
   InitRestartExitCode: Integer;
+  InitPrivilegesRequired: TSetupPrivilegesRequired;
+  HasInitPrivilegesRequired: Boolean;
   InitSuppressMsgBoxes: Boolean;
   DetachedUninstMsgFile: Boolean;
 
@@ -2901,7 +2903,17 @@ begin
       EnterSpawnServerDebugMode  { does not return }
     else
     if CompareText(ParamName, '/DEBUGWND=') = 0 then
-      DebugWndValue := StrToInt(ParamValue);
+      DebugWndValue := StrToInt(ParamValue)
+    else     
+    if CompareText(ParamName, '/PR:ADMIN') = 0 then begin
+      InitPrivilegesRequired := prAdmin;
+      HasInitPrivilegesRequired := True;
+    end
+    else     
+    if CompareText(ParamName, '/PR:LOWEST') = 0 then begin
+      InitPrivilegesRequired := prLowest;
+      HasInitPrivilegesRequired := True;
+    end;
   end;
 
   if InitLoadInf <> '' then
@@ -2951,6 +2963,10 @@ begin
           Integer(@PSetupTypeEntry(nil).OnlyBelowVersion));
 
         ActivateDefaultLanguage;
+        
+        { Apply InitPrivilegesRequired }
+        if HasInitPrivilegesRequired and (proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed) then
+          SetupHeader.PrivilegesRequired := InitPrivilegesRequired;
 
         { Start a new, elevated Setup(Ldr) process if needed }
         if not IsRespawnedProcess and

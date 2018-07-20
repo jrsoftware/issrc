@@ -51,6 +51,14 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added new [Registry] section <tt>Root</tt> value: <tt>HKA</tt>. Equals <tt>HKLM</tt> in administrative install mode, and <tt>HKCU</tt> otherwise. Also supported by <tt>{reg:...}</tt> constants and <tt>HKA32</tt>/<tt>HKA64</tt> are also supported. Note: <tt>HKA</tt> (like <tt>HKCU</tt>) should only be used for settings which are compatible with roaming profiles.</li>
   <li>Pascal Scripting change: Added <tt>HKA</tt> and <tt>HKEY_AUTO</tt> constants. <tt>HKA32</tt>, <tt>HKA64</tt>, <tt>HKEY_AUTO_32</tt>, and <tt>HKEY_AUTO_64</tt> are also supported.</li>
 </ul>
+<p>Once your script is fully updated to support both administrative and non administrative mode (for example by using the new &quot;auto&quot; constants and the new [Registry] section <tt>Root</tt> value <tt>HKA</tt>) you can then use the following:</p>
+<ul>
+  <li>Added new [Setup] section directive: <tt>PrivilegesRequiredOverridesAllowed</tt>, which can be set to one or more overrides which allow the end user to override the script's default <tt>PrivilegesRequired</tt> setting. The following overrides are supported: <tt>commandline</tt>.</li>
+  <ul>
+    <li>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <tt>PrivilegesRequired</tt> setting: /PR:ADMIN and /PR:LOWEST.</li>
+  </ul>
+  <li>Inno Setup's own installer now supports both administrative and non administrative mode and allows the <tt>commandline</tt> override.</li>
+</ul>
 <p>Other changes:</p>
 <ul>
 <li>Added new [Setup] section directive: <tt>VersionInfoOriginalFileName</tt>, which sets the original filename version value.</li>

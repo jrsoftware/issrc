@@ -283,9 +283,17 @@ procedure ShowHelp(const CustomNote: String);
 const
   SNewLine = #13#10;
 var
-  Help: String;
+  PrNote, Help: String;
 begin
   { do not localize }
+  
+  if proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed then begin
+    PrNote := '/PR:ADMIN' + SNewLine +
+              'Instructs Setup to install in administrative install mode.' + SNewLine +
+              '/PR:LOWEST' + SNewLine +
+              'Instructs Setup to install in non administrative install mode.' + SNewLine;
+  end else
+    PrNote := '';
 
   Help := 'The Setup program accepts optional command line parameters.' + SNewLine +
           SNewLine +
@@ -337,6 +345,7 @@ begin
           'Like the /TASKS parameter, except the specified tasks will be merged with the set of tasks that would have otherwise been selected by default.' + SNewLine +
           '/PASSWORD=password' + SNewLine +
           'Specifies the password to use.' + SNewLine +
+          PrNote +
           CustomNote +
           SNewLine +
           'For more detailed information, please visit http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline';
