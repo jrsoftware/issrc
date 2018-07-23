@@ -2357,9 +2357,9 @@ Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string
 <p>The root key. This must be one of the following values:</p>
 <indent>
 <table>
-<tr><td><tt>HKCR</tt></td><td>(HKEY_CLASSES_ROOT)</td></tr>
 <tr><td><tt>HKCU</tt></td><td>(HKEY_CURRENT_USER)</td></tr>
 <tr><td><tt>HKLM</tt></td><td>(HKEY_LOCAL_MACHINE)</td></tr>
+<tr><td><tt>HKCR</tt></td><td>(HKEY_CLASSES_ROOT)</td></tr>
 <tr><td><tt>HKU</tt></td><td>(HKEY_USERS)</td></tr>
 <tr><td><tt>HKCC</tt></td><td>(HKEY_CURRENT_CONFIG)</td></tr>
 </table>
@@ -2370,7 +2370,8 @@ Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string
 <tr><td><tt>HKA</tt></td><td>(equals HKLM in <link topic="admininstallmode">administrative install mode</link>, HKCU otherwise)</td></tr>
 </table>
 </indent>
-<p>Note: <tt>HKCU</tt> and <tt>HKA</tt> should only be used for settings which are compatible with roaming profiles.</p>
+<p><tt>HKCU</tt> and <tt>HKA</tt> should only be used for settings which are compatible with roaming profiles.</p>
+<p>Using <tt>HKCR</tt> is not recommended, use <tt>HKA</tt> with the <tt>Subkey</tt> parameter set to "Software\Classes" instead.</p>
 <p>The values (including <tt>HKA</tt>) may have a suffix of <tt>32</tt> or <tt>64</tt>. Root key values with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) map to the 32-bit view of the registry; root key values with a suffix of <tt>64</tt> (for example, <tt>HKLM64</tt>) map to the 64-bit view of the registry.</p>
 <p>Root key values with a suffix of <tt>64</tt> can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: IsWin64</tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
 <p>A root key value without a suffix (for example, <tt>HKLM</tt>) is equivalent to the value with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to the value with a suffix of <tt>64</tt> (for example, <tt>HKLM64</tt>).</p>

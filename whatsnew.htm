@@ -48,7 +48,8 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Pascal Scripting change: Removed the <tt>GetShellFolder</tt> support function. As the help file already recommended, use <tt>ExpandConstant</tt> instead.</li>
 </ul>
 <ul>
-  <li>Added new [Registry] section <tt>Root</tt> value: <tt>HKA</tt>. Equals <tt>HKLM</tt> in administrative install mode, and <tt>HKCU</tt> otherwise. Also supported by <tt>{reg:...}</tt> constants and <tt>HKA32</tt>/<tt>HKA64</tt> are also supported. Note: <tt>HKA</tt> (like <tt>HKCU</tt>) should only be used for settings which are compatible with roaming profiles.</li>
+  <li>Added new [Registry] section <tt>Root</tt> value <tt>HKA</tt>. Equals <tt>HKLM</tt> in administrative install mode, and <tt>HKCU</tt> otherwise. Also supported by <tt>{reg:...}</tt> constants and <tt>HKA32</tt>/<tt>HKA64</tt> are also supported. Note: <tt>HKA</tt> (like <tt>HKCU</tt>) should only be used for settings which are compatible with roaming profiles.</li>
+  <li>Using [Registry] section <tt>Root</tt> value <tt>HKCR</tt> is no longer recommended, use <tt>HKA</tt> with the <tt>Subkey</tt> parameter set to &quot;Software\Classes&quot; instead.</li>
   <li>Pascal Scripting change: Added <tt>HKA</tt> and <tt>HKEY_AUTO</tt> constants. <tt>HKA32</tt>, <tt>HKA64</tt>, <tt>HKEY_AUTO_32</tt>, and <tt>HKEY_AUTO_64</tt> are also supported.</li>
 </ul>
 <p>Once your script is fully updated to support both administrative and non administrative mode (for example by using the new &quot;auto&quot; constants and the new [Registry] section <tt>Root</tt> value <tt>HKA</tt>) you can then use the following:</p>
