@@ -504,7 +504,7 @@ type
     procedure SeparateDirective(const Line: PChar; var Key, Value: String);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
     procedure Sign(AExeFilename: String);
-    procedure SignCommand(const ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer);
+    procedure SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer);
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
@@ -7508,21 +7508,24 @@ end;
 procedure TSetupCompiler.Sign(AExeFilename: String);
 var
   I, SignToolIndex: Integer;
+  SignTool: TSignTool;
 begin
   for I := 0 to SignTools.Count - 1 do begin
     SignToolIndex := FindSignToolIndexByName(SignTools[I]); //can't fail, already checked
-    SignCommand(TSignTool(SignToolList[SignToolIndex]).Command, SignToolsParams[I], AExeFilename, SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween);
+    SignTool := TSignTool(SignToolList[SignToolIndex]);
+    SignCommand(SignTool.Name, SignTool.Command, SignToolsParams[I], AExeFilename, SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween);
   end;
 end;
 
-procedure TSetupCompiler.SignCommand(const ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer);
+procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer);
 
-  function FmtCommand(S: PChar; const AParams, AExeFileName: String): String;
+  function FmtCommand(S: PChar; const AParams, AFileName: String; var AFileNameSequenceFound: Boolean): String;
   var
     P: PChar;
     Z: String;
   begin
     Result := '';
+    AFileNameSequenceFound := False;
     if S = nil then Exit;
     while True do begin
       P := StrScan(S, '$');
@@ -7541,7 +7544,8 @@ procedure TSetupCompiler.SignCommand(const ACommand, AParams, AExeFilename: Stri
         Inc(S, 2);
       end
       else if (P^ = 'f') then begin
-        Result := Result + '"' + AExeFileName + '"';
+        Result := Result + '"' + AFileName + '"';
+        AFileNameSequenceFound := True;
         Inc(S, 2);
       end
       else if (P^ = 'q') then begin
@@ -7565,10 +7569,10 @@ procedure TSetupCompiler.SignCommand(const ACommand, AParams, AExeFilename: Stri
     LastError, ExitCode: DWORD;
   begin
     if Delay <> 0 then begin
-      AddStatus(Format(SCompilerStatusSigningWithDelay, [Delay, AFormattedCommand]));
+      AddStatus(Format(SCompilerStatusSigningWithDelay, [AName, Delay, AFormattedCommand]));
       Sleep(Delay);
     end else
-      AddStatus(Format(SCompilerStatusSigning, [AFormattedCommand]));
+      AddStatus(Format(SCompilerStatusSigning, [AName, AFormattedCommand]));
 
     LastSignCommandStartTick := GetTickCount;
 
@@ -7606,9 +7610,13 @@ var
   Params, Command: String;
   MinimumTimeBetweenDelay: Integer;
   I: Integer;
+  FileNameSequenceFound1, FileNameSequenceFound2: Boolean;
 begin
-  Params := FmtCommand(PChar(AParams), '', AExeFileName);
-  Command := FmtCommand(PChar(ACommand), Params, AExeFileName);
+  Params := FmtCommand(PChar(AParams), '', AExeFileName, FileNameSequenceFound1);
+  Command := FmtCommand(PChar(ACommand), Params, AExeFileName, FileNameSequenceFound2);
+  
+  if not FileNameSequenceFound1 and not FileNameSequenceFound2 then
+    AbortCompileFmt(SCompilerSignToolFileNameSequenceNotFound, [AName]);
   
   for I := 0 to RetryCount do begin
     try
