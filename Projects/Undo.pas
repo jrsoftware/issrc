@@ -21,8 +21,8 @@ uses
 const
   HighestSupportedVersion = 48 {$IFDEF UNICODE} + 1000{$ENDIF};
   { Each time the format of the uninstall log changes (usually a new entry type
-    is added), I increment HighestSupportedVersion and the file version number
-    of Setup to match (51.x). Do NOT do this yourself; doing so could cause
+    is added), HighestSupportedVersion and the file version number of Setup
+    are incremented to match (51.x). Do NOT do this yourself; doing so could cause
     incompatibilies with future Inno Setup releases. It's recommended that you
     use the "utUserDefined" log entry type if you wish to implement your own
     custom uninstall log entries; see below for more information.
