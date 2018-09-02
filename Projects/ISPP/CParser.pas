@@ -207,7 +207,7 @@ function TCTokenizer.InternalNextToken: TTokenKind;
         'f': Result := Result + #12;
         'n': Result := Result + #10;
         'r': Result := Result + #13;
-        't': Result := Result + #8;
+        't': Result := Result + #9;
         'v': Result := Result + #11;
         'x':
           begin
