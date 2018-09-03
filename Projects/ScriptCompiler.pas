@@ -392,7 +392,7 @@ begin
     if ((Name = '') or (CompareText(ScriptExport.Name, Name) = 0)) and
        ((Decl = '') or (CompareText(ScriptExport.Decl, Decl) = 0)) and
        ((IgnoreIndex = -1) or (I <> IgnoreIndex)) then begin
-      Result := 0;
+      Result := I;
       Exit;
     end;
   end;
