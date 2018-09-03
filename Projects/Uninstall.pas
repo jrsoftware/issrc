@@ -98,7 +98,7 @@ begin
   UninstallProgressForm.Initialize(Title, UninstLog.AppName);
   if CodeRunner <> nil then begin
     try
-      CodeRunner.RunProcedure('InitializeUninstallProgressForm', [''], False);
+      CodeRunner.RunProcedure('InitializeUninstallProgressForm', [''], True, False);
     except
       Log('InitializeUninstallProgressForm raised an exception (fatal).');
       raise;
@@ -299,7 +299,7 @@ procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep; HandleExcept
 begin
   if CodeRunner <> nil then begin
     try
-      CodeRunner.RunProcedure('CurUninstallStepChanged', [Ord(CurUninstallStep)], False);
+      CodeRunner.RunProcedure('CurUninstallStepChanged', [Ord(CurUninstallStep)], True, False);
     except
       if HandleException then begin
         Log('CurUninstallStepChanged raised an exception.');
@@ -603,7 +603,7 @@ begin
       try
         if CodeRunner <> nil then begin
           try
-            Res := CodeRunner.RunBooleanFunction('InitializeUninstall', [''], False, True);
+            Res := CodeRunner.RunBooleanFunction('InitializeUninstall', [''], True, False, True);
           except
             Log('InitializeUninstall raised an exception (fatal).');
             raise;
@@ -654,10 +654,10 @@ begin
         LogFmt('Removed all? %s', [SYesNo[RemovedAll]]);
 
         UninstallNeedsRestart := UninstLog.NeedRestart or (ufAlwaysRestart in UninstLog.Flags);
-        if (CodeRunner <> nil) and CodeRunner.FunctionExists('UninstallNeedRestart') then begin
+        if (CodeRunner <> nil) and CodeRunner.FunctionExists('UninstallNeedRestart', True) then begin
           if not UninstallNeedsRestart then begin
             try
-              if CodeRunner.RunBooleanFunction('UninstallNeedRestart', [''], False, False) then begin
+              if CodeRunner.RunBooleanFunction('UninstallNeedRestart', [''], True, False, False) then begin
                 UninstallNeedsRestart := True;
                 Log('Will restart because UninstallNeedRestart returned True.');
               end;
@@ -719,7 +719,7 @@ begin
       end;
       if CodeRunner <> nil then begin
         try
-          CodeRunner.RunProcedure('DeinitializeUninstall', [''], False);
+          CodeRunner.RunProcedure('DeinitializeUninstall', [''], True, False);
         except
           Log('DeinitializeUninstall raised an exception.');
           ShowExceptionMsg;

@@ -33,6 +33,17 @@ begin
     MsgBox('InitializeSetup:' #13#13 'Ok, bye bye.', mbInformation, MB_OK);
 end;
 
+procedure InitializeWizard;
+begin
+  Log('InitializeWizard called');
+end;
+
+<event('InitializeWizard')>
+procedure InitializeWizard2;
+begin
+  Log('InitializeWizard2 called');
+end;
+
 procedure DeinitializeSetup();
 var
   FileName: String;
