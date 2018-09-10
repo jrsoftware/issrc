@@ -367,13 +367,10 @@ var
 begin
   Result := 0;
 
+  { Locate main implementation. Will add later. }
   MainProcNo := FPSExec.GetProc(Name);
-  if MainProcNo <> Cardinal(-1) then begin
-    if ProcNos <> nil then
-      ProcNos.Add(Pointer(MainProcNo));
-    Inc(Result);
-  end;
-
+  
+  { Locate other implementations using attributes. }
   if CheckNamingAttribute and (FNamingAttribute <> '') then begin
     for ProcNo := 0 to FPSExec.GetProcCount-1 do begin
       if ProcNo <> MainProcNo then begin
@@ -390,6 +387,13 @@ begin
         end;
       end;
     end;
+  end;
+
+  { Add main implementation. Doing this last so it will be called last always. }
+  if MainProcNo <> Cardinal(-1) then begin
+    if ProcNos <> nil then
+      ProcNos.Add(Pointer(MainProcNo));
+    Inc(Result);
   end;
 end;
 
