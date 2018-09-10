@@ -110,17 +110,17 @@ begin
   ScriptCompiler := TScriptCompiler(Sender.ID);
   if CompareText(String(Attr.AType.Name), ScriptCompiler.FNamingAttribute) = 0 then begin
     if (aProc.ClassType <> TPSInternalProcedure) then begin
-      with Sender.MakeError('', ecCustomError, tbtstring('"' + ScriptCompiler.FNamingAttribute + '" attribute cannot be used on external function or procedure')) do
+      with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute cannot be used on external function or procedure', [ScriptCompiler.FNamingAttribute]))) do
         SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
       Result := False;
     end else if Attr.Count <> 1 then begin
-      with Sender.MakeError('', ecCustomError, tbtstring('"' + ScriptCompiler.FNamingAttribute + '" attribute value not found')) do
+      with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value not found', [ScriptCompiler.FNamingAttribute]))) do
         SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
       Result := False;
     end else begin
       if ScriptCompiler.FindExport(String(TPSInternalProcedure(aProc).Name), '', -1) <> -1 then begin
         { Don't allow attributes on functions already matching an export so that we don't have to deal with this later. }
-        with Sender.MakeError('', ecCustomError, tbtstring('"' + ScriptCompiler.FNamingAttribute + '" attribute not allowed for function or procedure "' + String(TPSInternalProcedure(aProc).Name) + '"')) do
+        with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute not allowed for function or procedure "%s"', [ScriptCompiler.FNamingAttribute, String(TPSInternalProcedure(aProc).Name)]))) do
           SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
         Result := False;
       end else begin
@@ -129,7 +129,7 @@ begin
         if I <> -1 then begin
           ScriptExport := ScriptCompiler.FExports[I];
           if not ScriptExport.AllowNamingAttribute then begin
-            with Sender.MakeError('', ecCustomError, tbtstring('"' + ScriptCompiler.FNamingAttribute + '" attribute value "' + AttrValue + '" not allowed')) do
+            with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" not allowed', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
               SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
             Result := False;
           end else begin
@@ -137,11 +137,11 @@ begin
             Result := True;
           end;
         end else if ScriptCompiler.FindExport(AttrValue, '', -1) <> -1 then begin
-          with Sender.MakeError('', ecCustomError, tbtstring('Invalid function or procedure prototype for attribute value "' + AttrValue + '"')) do
+          with Sender.MakeError('', ecCustomError, tbtstring(Format('Invalid function or procedure prototype for attribute value "%s"', [AttrValue]))) do
             SetCustomPos(TPSInternalProcedure(aProc).DeclarePos, TPSInternalProcedure(aProc).DeclareRow, TPSInternalProcedure(aProc).DeclareCol);
           Result := False;
         end else begin
-          with Sender.MakeError('', ecCustomError, tbtstring('"' + ScriptCompiler.FNamingAttribute + '" attribute value "' + AttrValue + '"  invalid')) do
+          with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" invalid', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
             SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
           Result := False;
         end;
@@ -156,8 +156,8 @@ var
   NamingAttribute: String;
 begin
   NamingAttribute := TScriptCompiler(Sender.ID).FNamingAttribute;
-  if (CompareText(String(Attr.AType.Name), NamingAttribute) = 0)  then begin
-    with Sender.MakeError('', ecCustomError, tbtstring('"' + NamingAttribute + '" attribute cannot be used on types')) do
+  if CompareText(String(Attr.AType.Name), NamingAttribute) = 0 then begin
+    with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute cannot be used on types', [NamingAttribute]))) do
       SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
     Result := False;
   end else
