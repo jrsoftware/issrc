@@ -64,10 +64,6 @@ PowerUserPrivilegesRequired=You must be logged in as an administrator or as a me
 SetupAppRunningError=Setup has detected that %1 is currently running.%n%nPlease close all instances of it now, then click OK to continue, or Cancel to exit.
 UninstallAppRunningError=Uninstall has detected that %1 is currently running.%n%nPlease close all instances of it now, then click OK to continue, or Cancel to exit.
 
-; *** Startup questions
-PrivilegesRequiredOverrideMsgBox1=This program can be installed for all users (recommended, but requires administrator privileges), or only for yourself.%n%nInstall for all users?
-PrivilegesRequiredOverrideMsgBox2=This program can be installed for all users (requires administrator privileges), or only for yourself (recommended).%n%nInstall only for yourself?
-
 ; *** Misc. errors
 ErrorCreatingDir=Setup was unable to create the directory "%1"
 ErrorTooManyFilesInDir=Unable to create a file in the directory "%1" because it contains too many files
@@ -291,14 +287,6 @@ ErrorRenamingTemp=An error occurred while trying to rename a file in the destina
 ErrorRegisterServer=Unable to register the DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 failed with exit code %1
 ErrorRegisterTypeLib=Unable to register the type library: %1
-
-; *** Uninstall display name markings
-UninstallDisplayNameMark=%1 (%2)
-UninstallDisplayNameMarks=%1 (%2, %3)
-UninstallDisplayNameMark32Bit=32-bit
-UninstallDisplayNameMark64Bit=64-bit
-UninstallDisplayNameMarkAllUsers=All users
-UninstallDisplayNameMarkCurrentUser=Current user
 
 ; *** Post-installation errors
 ErrorOpeningReadme=An error occurred while trying to open the README file.
