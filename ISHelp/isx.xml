@@ -82,6 +82,9 @@
 <topic name="scriptevents" title="Pascal Scripting: Event Functions">
 <keyword value="Pascal Scripting: Event Functions" />
 <keyword value="Event Functions" />
+<keyword value="Pascal Scripting: Event Attributes" anchor="eventattributes" />
+<keyword value="Event Attributes" anchor="eventattributes" />
+<keyword value="Attributes" anchor="eventattributes" />
 <keyword value="InitializeSetup" anchor="InitializeSetup" />
 <keyword value="InitializeWizard" anchor="InitializeWizard" />
 <keyword value="DeinitializeSetup" anchor="DeinitializeSetup" />
@@ -281,7 +284,41 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 </ul>
 
-<p>None of these functions are required to be present in a Pascal script.</p>
+<heading><a name="eventattributes">Event Attributes</a></heading>
+
+<p>Normally a script can contain only one implementation per event function. Using event attributes it is possible to have multiple implementations of the same event function in your script. This is especially useful in included scripts implementing an event function to avoid conflicts with the main script.</p>
+
+<p>Here is an example of a script which contains three implementations of the <tt>InitializeWizard</tt> event function.</p>
+
+<precode>
+[Code]
+procedure InitializeWizard;
+begin
+  Log('InitializeWizard called');
+end;
+
+&lt;event('InitializeWizard')&gt;
+procedure InitializeWizard2;
+begin
+  Log('InitializeWizard2 called');
+end;
+
+&lt;event('InitializeWizard')&gt;
+procedure InitializeWizard3;
+begin
+  Log('InitializeWizard3 called');
+end;
+</precode>
+
+<p>The following rules apply:</p>
+
+<ul>
+<li>All implementations will be always be called in an undefined order except that any main implementation (=the implementation without an event attribute) will be called last.</li>
+<li>Event attributes may only be used for event functions which are a procedure or are a function which return a Boolean. In the latter case all implementations much return True for the event function to be treated as returning True and an implementation returning False does not stop the calls to the other implementations.</li>
+<li>Event attributes may only be used on procedures or functions which do not already have the name of an event function.</li>
+<li>If the event function uses <tt>var</tt> parameters then the value will be passed on from implementation to implementation.</li>
+<li>To call an implementation with an event attribute yourself from [Code] you should use the normal name of the function, just as if the implementation had no event attribute.</li>
+</ul>
 
 </body>
 </topic>
