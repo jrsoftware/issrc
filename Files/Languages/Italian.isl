@@ -1,3 +1,4 @@
+; bovirus@gmail.com
 ; *** Inno Setup version 5.5.3+ Italian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
@@ -8,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 03.05.2018  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 11.09.2018  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -64,7 +65,7 @@ OnlyOnTheseArchitectures=Questo programma può essere installato solo su versioni
 MissingWOW64APIs=La versione di Windows utilizzata non include la funzionalità richiesta dal programma di installazione per realizzare un'installazione a 64-bit.%n%nPer correggere questo problema, installa il Service Pack %1.
 WinVersionTooLowError=Questo programma richiede %1 versione %2 o successiva.
 WinVersionTooHighError=Questo programma non può essere installato su %1 versione %2 o successiva.
-AdminPrivilegesRequired=Per installare questo programmas ono richiesti privilegi di amministratore.
+AdminPrivilegesRequired=Per installare questo programma sono richiesti privilegi di amministratore.
 PowerUserPrivilegesRequired=Per poter installare questo programma sono richiesti i privilegi di amministratore o di Power Users.
 SetupAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK", o seleziona "Annulla" per uscire.
 UninstallAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK", o seleziona "Annulla" per uscire.
@@ -80,7 +81,7 @@ AboutSetupMenuItem=&Informazioni sull'installazione...
 AboutSetupTitle=Informazioni sull'installazione
 AboutSetupMessage=%1 versione %2%n%3%n%n%1 sito web:%n%4
 AboutSetupNote=
-TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 05.04.2018)
+TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 11.09.2018)
 
 ; *** Buttons
 ButtonBack=< &Indietro
