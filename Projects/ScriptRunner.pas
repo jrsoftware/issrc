@@ -36,6 +36,8 @@ type
       FOnDebugIntermediate: TScriptRunnerOnDebugIntermediate;
       FOnException: TScriptRunnerOnException;
       function GetProcNos(const Name: AnsiString; const CheckNamingAttribute: Boolean; const ProcNos: TPSList): Integer;
+      procedure InternalRunProcedure(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, MustExist: Boolean);
+      function InternalRunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, CheckNamingAttributeAndResults, MustExist, Default: Boolean): Boolean;
       procedure Log(const S: String);
       procedure LogFmt(const S: String; const Args: array of const);
       procedure RaisePSExecException;
@@ -47,8 +49,10 @@ type
       destructor Destroy; override;
       procedure LoadScript(const CompiledScriptText, CompiledScriptDebugInfo: AnsiString);
       function FunctionExists(const Name: AnsiString; const CheckNamingAttribute: Boolean): Boolean;
-      procedure RunProcedure(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, MustExist: Boolean);
-      function RunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, MustExist, Default: Boolean): Boolean;
+      procedure RunProcedure(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
+      procedure RunProcedures(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
+      function RunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist, Default: Boolean): Boolean;
+      function RunBooleanFunctions(const Name: AnsiString; const Parameters: array of Const; const AndResults, MustExist, Default: Boolean): Boolean;
       function RunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: Integer): Integer;
       function RunStringFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: String): String;
       function EvaluateUsedVariable(const Param1, Param2, Param3: LongInt; const Param4: AnsiString): String;
@@ -412,7 +416,7 @@ begin
       Boolean(Parameters[I].VPointer^) := (PPSVariantU8(Params[High(Parameters)-I]).Data = 1);
 end;
 
-procedure TScriptRunner.RunProcedure(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, MustExist: Boolean);
+procedure TScriptRunner.InternalRunProcedure(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, MustExist: Boolean);
 var
   ProcNos, Params: TPSList;
   I: Integer;
@@ -441,7 +445,17 @@ begin
   end;
 end;
 
-function TScriptRunner.RunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, MustExist, Default: Boolean): Boolean;
+procedure TScriptRunner.RunProcedure(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
+begin
+  InternalRunProcedure(Name, Parameters, False, MustExist);
+end;
+
+procedure TScriptRunner.RunProcedures(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
+begin
+  InternalRunProcedure(Name, Parameters, True, MustExist);
+end;
+
+function TScriptRunner.InternalRunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, CheckNamingAttributeAndResults, MustExist, Default: Boolean): Boolean;
 var
   ProcNos, Params: TPSList;
   Res: PPSVariant;
@@ -460,7 +474,10 @@ begin
           WriteBackParameters(Parameters, Params);
 
           RaisePSExecException;
-          Result := Result and (PPSVariantU8(Res).Data = 1); { Don't break on Result = False: need to call all procs always. }
+          if CheckNamingAttributeAndResults then
+            Result := Result and (PPSVariantU8(Res).Data = 1) { Don't break on Result = False: need to call all procs always. }
+          else
+            Result := Result or (PPSVariantU8(Res).Data = 1) { Don't break on Result = True: need to call all procs always. }
         finally
           FreePSVariantList(Params);
         end;
@@ -473,6 +490,16 @@ begin
   finally
     ProcNos.Free;
   end;
+end;
+
+function TScriptRunner.RunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist, Default: Boolean): Boolean;
+begin
+  Result := InternalRunBooleanFunction(Name, Parameters, False, False, MustExist, Default);
+end;
+
+function TScriptRunner.RunBooleanFunctions(const Name: AnsiString; const Parameters: array of Const; const AndResults, MustExist, Default: Boolean): Boolean;
+begin
+  Result := InternalRunBooleanFunction(Name, Parameters, True, AndResults, MustExist, Default);
 end;
 
 function TScriptRunner.RunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: Integer): Integer;

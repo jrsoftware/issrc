@@ -98,7 +98,7 @@ begin
   UninstallProgressForm.Initialize(Title, UninstLog.AppName);
   if CodeRunner <> nil then begin
     try
-      CodeRunner.RunProcedure('InitializeUninstallProgressForm', [''], True, False);
+      CodeRunner.RunProcedures('InitializeUninstallProgressForm', [''], False);
     except
       Log('InitializeUninstallProgressForm raised an exception (fatal).');
       raise;
@@ -299,7 +299,7 @@ procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep; HandleExcept
 begin
   if CodeRunner <> nil then begin
     try
-      CodeRunner.RunProcedure('CurUninstallStepChanged', [Ord(CurUninstallStep)], True, False);
+      CodeRunner.RunProcedures('CurUninstallStepChanged', [Ord(CurUninstallStep)], False);
     except
       if HandleException then begin
         Log('CurUninstallStepChanged raised an exception.');
@@ -603,7 +603,7 @@ begin
       try
         if CodeRunner <> nil then begin
           try
-            Res := CodeRunner.RunBooleanFunction('InitializeUninstall', [''], True, False, True);
+            Res := CodeRunner.RunBooleanFunctions('InitializeUninstall', [''], True, False, True);
           except
             Log('InitializeUninstall raised an exception (fatal).');
             raise;
@@ -657,7 +657,7 @@ begin
         if (CodeRunner <> nil) and CodeRunner.FunctionExists('UninstallNeedRestart', True) then begin
           if not UninstallNeedsRestart then begin
             try
-              if CodeRunner.RunBooleanFunction('UninstallNeedRestart', [''], True, False, False) then begin
+              if CodeRunner.RunBooleanFunctions('UninstallNeedRestart', [''], False, False, False) then begin
                 UninstallNeedsRestart := True;
                 Log('Will restart because UninstallNeedRestart returned True.');
               end;
@@ -719,7 +719,7 @@ begin
       end;
       if CodeRunner <> nil then begin
         try
-          CodeRunner.RunProcedure('DeinitializeUninstall', [''], True, False);
+          CodeRunner.RunProcedures('DeinitializeUninstall', [''], False);
         except
           Log('DeinitializeUninstall raised an exception.');
           ShowExceptionMsg;

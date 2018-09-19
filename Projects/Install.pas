@@ -142,8 +142,8 @@ begin
 
   if (CodeRunner <> nil) and CodeRunner.FunctionExists('CurInstallProgressChanged', True) then begin
     try
-      CodeRunner.RunProcedure('CurInstallProgressChanged', [NewPosition.Lo,
-        WizardForm.ProgressGauge.Max], True, False);
+      CodeRunner.RunProcedures('CurInstallProgressChanged', [NewPosition.Lo,
+        WizardForm.ProgressGauge.Max], False);
     except
       Log('CurInstallProgressChanged raised an exception.');
       Application.HandleException(nil);
@@ -721,7 +721,7 @@ var
       { Also see SetPreviousData in ScriptFunc.pas }
       if CodeRunner <> nil then begin
         try
-          CodeRunner.RunProcedure('RegisterPreviousData', [Integer(H2)], True, False);
+          CodeRunner.RunProcedures('RegisterPreviousData', [Integer(H2)], False);
         except
           Log('RegisterPreviousData raised an exception.');
           Application.HandleException(nil);
@@ -2919,7 +2919,7 @@ var
     if (CodeRunner <> nil) and CodeRunner.FunctionExists('NeedRestart', True) then begin
       if not NeedsRestart then begin
         try
-          if CodeRunner.RunBooleanFunction('NeedRestart', [''], True, False, False) then begin
+          if CodeRunner.RunBooleanFunctions('NeedRestart', [''], False, False, False) then begin
             NeedsRestart := True;
             Log('Will restart because NeedRestart returned True.');
           end;
