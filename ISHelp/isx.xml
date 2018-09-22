@@ -316,8 +316,8 @@ end;
 <li>All implementations will always be called in an undefined order except that any main implementation (=the implementation without an event attribute) will be called last.</li>
 <li>Event attributes may only be used for event functions which are a procedure or are a function which return a Boolean. In the latter case:</li>
 <ul>
-<li><tt>InitializeSetup</tt>, <tt>ShouldSkipPage</tt>, <tt>NextButtonClick</tt>, <tt>BackButtonClick</tt>, <tt>InitializeUninstall</tt>: All implementations must return True for the event function to be treated as returning True and an implementation returning False does not stop the calls to the other implementations. In other words: the results are 'and'-ed without lazy evaluation.</li>
-<li><tt>CheckPassword</tt>, <tt>CheckSerial</tt>, <tt>NeedRestart</tt>: One implementation must return True for the event function to be treated as returning True and an implementation returning True does not stop the calls to the other implementations. In other words: the results are 'or'-ed without lazy evaluation.</li>
+<li><tt>InitializeSetup</tt>, <tt>BackButtonClick</tt>, <tt>NextButtonClick</tt>, <tt>InitializeUninstall</tt>: All implementations must return True for the event function to be treated as returning True and an implementation returning False does not stop the calls to the other implementations. In other words: the results are 'and'-ed without lazy evaluation.</li>
+<li><tt>CheckPassword</tt>, <tt>CheckSerial</tt>, <tt>ShouldSkipPage</tt>, <tt>NeedRestart</tt>: One implementation must return True for the event function to be treated as returning True and an implementation returning True does not stop the calls to the other implementations. In other words: the results are 'or'-ed without lazy evaluation.</li>
 </ul>
 <li>Event attributes may only be used on procedures or functions which do not already have the name of an event function.</li>
 <li>If the event function uses <tt>var</tt> parameters then the value will be passed on from implementation to implementation.</li>

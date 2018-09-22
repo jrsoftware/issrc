@@ -2042,7 +2042,7 @@ begin
     if not Result then begin
       try
         if CodeRunner <> nil then
-          Result := CodeRunner.RunBooleanFunctions('ShouldSkipPage', [PageID], True, False, Result);
+          Result := CodeRunner.RunBooleanFunctions('ShouldSkipPage', [PageID], False, False, Result);
       except
         Application.HandleException(Self);
       end;
