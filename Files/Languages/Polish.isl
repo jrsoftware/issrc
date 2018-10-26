@@ -288,7 +288,7 @@ ErrorRestartingComputer=Instalator nie móg³ ponownie uruchomiæ tego komputera. P
 ; *** Uninstaller messages
 UninstallNotFound=Plik "%1" nie istnieje. Nie mo¿na przeprowadziæ dezinstalacji.
 UninstallOpenError=Plik "%1" nie móg³ zostaæ otwarty. Nie mo¿na przeprowadziæ dezinstalacji.
-UninstallUnsupportedVer=Ta wersja programu dezinstalacyjnego nie rozpoznaje formatu logu dezinstalacji w pliku "%1%". Nie mo¿na przeprowadziæ dezinstalacji.
+UninstallUnsupportedVer=Ta wersja programu dezinstalacyjnego nie rozpoznaje formatu logu dezinstalacji w pliku "%1". Nie mo¿na przeprowadziæ dezinstalacji.
 UninstallUnknownEntry=W logu dezinstalacji wyst¹pi³a nieznana pozycja (%1)
 ConfirmUninstall=Czy na pewno chcesz usun¹æ aplikacjê %1 i wszystkie jej sk³adniki?
 UninstallOnlyOnWin64=Ta aplikacja mo¿e byæ odinstalowana tylko w 64-bitowej wersji systemu Windows.
