@@ -313,7 +313,7 @@ end;
 <p>The following rules apply:</p>
 
 <ul>
-<li>All implementations will always be called in an undefined order except that any main implementation (=the implementation without an event attribute) will be called last.</li>
+<li>The implementations will be called in order of their definition except that any main implementation (=the implementation without an event attribute) will be called last.</li>
 <li>Event attributes may only be used for event functions which are a procedure or are a function which return a Boolean. In the latter case:</li>
 <ul>
 <li><tt>InitializeSetup</tt>, <tt>BackButtonClick</tt>, <tt>NextButtonClick</tt>, <tt>InitializeUninstall</tt>: All implementations must return True for the event function to be treated as returning True and an implementation returning False does not stop the calls to the other implementations. In other words: the results are 'and'-ed without lazy evaluation.</li>
