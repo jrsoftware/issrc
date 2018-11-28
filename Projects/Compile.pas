@@ -9284,6 +9284,7 @@ begin
           else begin
             { Bad option }
             Result := isceInvalidParam;
+            Exit;
           end;
         end
         else if StrLIComp(P, 'OutputDir=', Length('OutputDir=')) = 0 then begin
