@@ -140,9 +140,9 @@ begin
   end;
   SetAppTaskbarProgressValue(NewPosition.Lo, WizardForm.ProgressGauge.Max);
 
-  if (CodeRunner <> nil) and CodeRunner.FunctionExists('CurInstallProgressChanged') then begin
+  if (CodeRunner <> nil) and CodeRunner.FunctionExists('CurInstallProgressChanged', True) then begin
     try
-      CodeRunner.RunProcedure('CurInstallProgressChanged', [NewPosition.Lo,
+      CodeRunner.RunProcedures('CurInstallProgressChanged', [NewPosition.Lo,
         WizardForm.ProgressGauge.Max], False);
     except
       Log('CurInstallProgressChanged raised an exception.');
@@ -721,7 +721,7 @@ var
       { Also see SetPreviousData in ScriptFunc.pas }
       if CodeRunner <> nil then begin
         try
-          CodeRunner.RunProcedure('RegisterPreviousData', [Integer(H2)], False);
+          CodeRunner.RunProcedures('RegisterPreviousData', [Integer(H2)], False);
         except
           Log('RegisterPreviousData raised an exception.');
           Application.HandleException(nil);
@@ -2916,10 +2916,10 @@ var
 
   procedure ProcessNeedRestartEvent;
   begin
-    if (CodeRunner <> nil) and CodeRunner.FunctionExists('NeedRestart') then begin
+    if (CodeRunner <> nil) and CodeRunner.FunctionExists('NeedRestart', True) then begin
       if not NeedsRestart then begin
         try
-          if CodeRunner.RunBooleanFunction('NeedRestart', [''], False, False) then begin
+          if CodeRunner.RunBooleanFunctions('NeedRestart', [''], False, False, False) then begin
             NeedsRestart := True;
             Log('Will restart because NeedRestart returned True.');
           end;

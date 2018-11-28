@@ -26,6 +26,7 @@ type
 
   TScriptRunner = class
     private
+      FNamingAttribute: String;
       FPSExec: TPSDebugExec;
       FClassImporter: TPSRuntimeClassImporter;
       FOnLog: TScriptRunnerOnLog;
@@ -34,6 +35,9 @@ type
       FOnDebug: TScriptRunnerOnDebug;
       FOnDebugIntermediate: TScriptRunnerOnDebugIntermediate;
       FOnException: TScriptRunnerOnException;
+      function GetProcNos(const Name: AnsiString; const CheckNamingAttribute: Boolean; const ProcNos: TPSList): Integer;
+      procedure InternalRunProcedure(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, MustExist: Boolean);
+      function InternalRunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, CheckNamingAttributeAndResults, MustExist, Default: Boolean): Boolean;
       procedure Log(const S: String);
       procedure LogFmt(const S: String; const Args: array of const);
       procedure RaisePSExecException;
@@ -44,12 +48,15 @@ type
       constructor Create;
       destructor Destroy; override;
       procedure LoadScript(const CompiledScriptText, CompiledScriptDebugInfo: AnsiString);
-      function FunctionExists(const Name: AnsiString): Boolean;
+      function FunctionExists(const Name: AnsiString; const CheckNamingAttribute: Boolean): Boolean;
       procedure RunProcedure(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
+      procedure RunProcedures(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
       function RunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist, Default: Boolean): Boolean;
+      function RunBooleanFunctions(const Name: AnsiString; const Parameters: array of Const; const AndResults, MustExist, Default: Boolean): Boolean;
       function RunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: Integer): Integer;
       function RunStringFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: String): String;
       function EvaluateUsedVariable(const Param1, Param2, Param3: LongInt; const Param4: AnsiString): String;
+      property NamingAttribute: String write FNamingAttribute;
       property OnLog: TScriptRunnerOnLog read FOnLog write FOnLog;
       property OnLogFmt: TScriptRunnerOnLogFmt read FOnLogFmt write FOnLogFmt;
       property OnDllImport: TScriptRunnerOnDllImport read FOnDllImport write FOnDllImport;
@@ -356,9 +363,47 @@ begin
   end;
 end;
 
-function TScriptRunner.FunctionExists(const Name: AnsiString): Boolean;
+function TScriptRunner.GetProcNos(const Name: AnsiString; const CheckNamingAttribute: Boolean; const ProcNos: TPSList): Integer;
+var
+  MainProcNo, ProcNo: Cardinal;
+  Proc: PIFProcRec;
+  Attr: TPSRuntimeAttribute;
 begin
-  Result := FPSExec.GetProc(Name) <> Cardinal(-1);
+  Result := 0;
+
+  { Locate main implementation. Will add later. }
+  MainProcNo := FPSExec.GetProc(Name);
+  
+  { Locate other implementations using attributes. }
+  if CheckNamingAttribute and (FNamingAttribute <> '') then begin
+    for ProcNo := 0 to FPSExec.GetProcCount-1 do begin
+      if ProcNo <> MainProcNo then begin
+        Proc := FPSExec.GetProcNo(ProcNo);
+        if Proc.Attributes.Count > 0 then begin
+          Attr := Proc.Attributes.FindAttribute(AnsiString(FNamingAttribute));
+          if (Attr <> nil) and (Attr.ValueCount = 1) and
+             ({$IFDEF UNICODE} ((Attr.Value[0].FType.BaseType = btUnicodeString) and (CompareText(PPSVariantUString(Attr.Value[0]).Data, Name) = 0)) or {$ENDIF}
+              ((Attr.Value[0].FType.BaseType = btString) and (CompareText(PPSVariantAString(Attr.Value[0]).Data, Name) = 0))) then begin
+            if ProcNos <> nil then
+              ProcNos.Add(Pointer(ProcNo));
+            Inc(Result);
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  { Add main implementation. Doing this last so it will be called last always. }
+  if MainProcNo <> Cardinal(-1) then begin
+    if ProcNos <> nil then
+      ProcNos.Add(Pointer(MainProcNo));
+    Inc(Result);
+  end;
+end;
+
+function TScriptRunner.FunctionExists(const Name: AnsiString; const CheckNamingAttribute: Boolean): Boolean;
+begin
+  Result := GetProcNos(Name, CheckNamingAttribute, nil) <> 0;
 end;
 
 procedure WriteBackParameters(const Parameters: array of Const; const Params: TPSList);
@@ -371,55 +416,90 @@ begin
       Boolean(Parameters[I].VPointer^) := (PPSVariantU8(Params[High(Parameters)-I]).Data = 1);
 end;
 
-procedure TScriptRunner.RunProcedure(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
+procedure TScriptRunner.InternalRunProcedure(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, MustExist: Boolean);
 var
-  ProcNo: Cardinal;
-  Params: TPSList;
+  ProcNos, Params: TPSList;
+  I: Integer;
 begin
-  ProcNo := FPSExec.GetProc(Name);
-  if ProcNo <> Cardinal(-1) then begin
-    Params := TPSList.Create();
-    try
-      SetPSExecParameters(Parameters, Params);
-      FPSExec.RunProc(Params, ProcNo);
-      WriteBackParameters(Parameters, Params);
-    finally
-      FreePSVariantList(Params);
-    end;
+  ProcNos := TPSList.Create;
+  try
+    if GetProcNos(Name, CheckNamingAttribute, ProcNos) <> 0 then begin
+      for I := 0 to ProcNos.Count-1 do begin
+        Params := TPSList.Create();
+        try
+          SetPSExecParameters(Parameters, Params);
+          FPSExec.RunProc(Params, Cardinal(ProcNos[I]));
+          WriteBackParameters(Parameters, Params);
 
-    RaisePSExecException;
-  end else begin
-    if MustExist then
-      ShowPSExecError(erCouldNotCallProc);
+          RaisePSExecException;
+        finally
+          FreePSVariantList(Params);
+        end;
+      end;
+    end else begin
+      if MustExist then
+        ShowPSExecError(erCouldNotCallProc);
+    end;
+  finally
+    ProcNos.Free;
+  end;
+end;
+
+procedure TScriptRunner.RunProcedure(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
+begin
+  InternalRunProcedure(Name, Parameters, False, MustExist);
+end;
+
+procedure TScriptRunner.RunProcedures(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
+begin
+  InternalRunProcedure(Name, Parameters, True, MustExist);
+end;
+
+function TScriptRunner.InternalRunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, CheckNamingAttributeAndResults, MustExist, Default: Boolean): Boolean;
+var
+  ProcNos, Params: TPSList;
+  Res: PPSVariant;
+  I: Integer;
+begin
+  ProcNos := TPSList.Create;
+  try
+    if GetProcNos(Name, CheckNamingAttribute, ProcNos) <> 0 then begin
+      Result := True;
+      for I := 0 to ProcNos.Count-1 do begin
+        Params := TPSList.Create();
+        try
+          SetPSExecParameters(Parameters, Params);
+          SetPSExecReturnValue(Params, btU8, Res);
+          FPSExec.RunProc(Params, Cardinal(ProcNos[I]));
+          WriteBackParameters(Parameters, Params);
+
+          RaisePSExecException;
+          if CheckNamingAttributeAndResults then
+            Result := Result and (PPSVariantU8(Res).Data = 1) { Don't break on Result = False: need to call all procs always. }
+          else
+            Result := Result or (PPSVariantU8(Res).Data = 1) { Don't break on Result = True: need to call all procs always. }
+        finally
+          FreePSVariantList(Params);
+        end;
+      end;
+    end else begin
+      if MustExist then
+        ShowPSExecError(erCouldNotCallProc);
+      Result := Default;
+    end;
+  finally
+    ProcNos.Free;
   end;
 end;
 
 function TScriptRunner.RunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist, Default: Boolean): Boolean;
-var
-  ProcNo: Cardinal;
-  Params: TPSList;
-  Res: PPSVariant;
 begin
-  Result := Default;
+  Result := InternalRunBooleanFunction(Name, Parameters, False, False, MustExist, Default);
+end;
 
-  ProcNo := FPSExec.GetProc(Name);
-  if ProcNo <> Cardinal(-1) then begin
-    Params := TPSList.Create();
-    try
-      SetPSExecParameters(Parameters, Params);
-      SetPSExecReturnValue(Params, btU8, Res);
-      FPSExec.RunProc(Params, ProcNo);
-      WriteBackParameters(Parameters, Params);
-
-      RaisePSExecException;
-      Result := PPSVariantU8(Res).Data = 1;
-    finally
-      FreePSVariantList(Params);
-    end;
-  end else begin
-    if MustExist then
-      ShowPSExecError(erCouldNotCallProc);
-  end;
+function TScriptRunner.RunBooleanFunctions(const Name: AnsiString; const Parameters: array of Const; const AndResults, MustExist, Default: Boolean): Boolean;
+begin
+  Result := InternalRunBooleanFunction(Name, Parameters, True, AndResults, MustExist, Default);
 end;
 
 function TScriptRunner.RunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: Integer): Integer;
@@ -428,8 +508,6 @@ var
   Params: TPSList;
   Res: PPSVariant;
 begin
-  Result := Default;
-
   ProcNo := FPSExec.GetProc(Name);
   if ProcNo <> Cardinal(-1) then begin
     Params := TPSList.Create();
@@ -447,6 +525,7 @@ begin
   end else begin
     if MustExist then
       ShowPSExecError(erCouldNotCallProc);
+    Result := Default;
   end;
 end;
 
@@ -456,8 +535,6 @@ var
   Params: TPSList;
   Res: PPSVariant;
 begin
-  Result := Default;
-
   ProcNo := FPSExec.GetProc(Name);
   if ProcNo <> Cardinal(-1) then begin
     Params := TPSList.Create();
@@ -483,6 +560,7 @@ begin
   end else begin
     if MustExist then
       ShowPSExecError(erCouldNotCallProc);
+    Result := Default;
   end;
 end;
 

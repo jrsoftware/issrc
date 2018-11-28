@@ -1994,7 +1994,7 @@ begin
       AllowCodeRegisterExtraCloseApplicationsResource := True;
       try
         try
-          CodeRunner.RunProcedure('RegisterExtraCloseApplicationsResources', [''], False);
+          CodeRunner.RunProcedures('RegisterExtraCloseApplicationsResources', [''], False);
         except
           Log('RegisterExtraCloseApplicationsResources raised an exception.');
           Application.HandleException(nil);
@@ -2679,7 +2679,7 @@ var
       if shPassword in SetupHeader.Options then
         PasswordOk := TestPassword(S);
       if not PasswordOk and (CodeRunner <> nil) then
-        PasswordOk := CodeRunner.RunBooleanFunction('CheckPassword', [S], False, PasswordOk);
+        PasswordOk := CodeRunner.RunBooleanFunctions('CheckPassword', [S], False, False, PasswordOk);
 
       if PasswordOk then begin
         Result := False;
@@ -3198,6 +3198,7 @@ begin
   if SetupHeader.CompiledCodeText <> '' then begin
     CodeRunner := TScriptRunner.Create();
     try
+      CodeRunner.NamingAttribute := 'Event';
       CodeRunner.OnLog := CodeRunnerOnLog;
       CodeRunner.OnLogFmt := CodeRunnerOnLogFmt;
       CodeRunner.OnDllImport := CodeRunnerOnDllImport;
@@ -3206,17 +3207,17 @@ begin
       CodeRunner.OnException := CodeRunnerOnException;
       CodeRunner.LoadScript(SetupHeader.CompiledCodeText, DebugClientCompiledCodeDebugInfo);
       if not NeedPassword then
-        NeedPassword := CodeRunner.FunctionExists('CheckPassword');
+        NeedPassword := CodeRunner.FunctionExists('CheckPassword', True);
       NeedPassword := HandleInitPassword(NeedPassword);
       if not NeedSerial then
-        NeedSerial := CodeRunner.FunctionExists('CheckSerial');
+        NeedSerial := CodeRunner.FunctionExists('CheckSerial', True);
     except
       { Don't let DeinitSetup see a partially-initialized CodeRunner }
       FreeAndNil(CodeRunner);
       raise;
     end;
     try
-      Res := CodeRunner.RunBooleanFunction('InitializeSetup', [''], False, True);
+      Res := CodeRunner.RunBooleanFunctions('InitializeSetup', [''], True, False, True);
     except
       Log('InitializeSetup raised an exception (fatal).');
       raise;
@@ -3400,7 +3401,7 @@ begin
       end;
     end;
     try
-      CodeRunner.RunProcedure('DeinitializeSetup', [''], False);
+      CodeRunner.RunProcedures('DeinitializeSetup', [''], False);
     except
       Log('DeinitializeSetup raised an exception.');
       Application.HandleException(nil);
@@ -3709,7 +3710,7 @@ begin
   CurStep := AStep;
   if CodeRunner <> nil then begin
     try
-      CodeRunner.RunProcedure('CurStepChanged', [Ord(CurStep)], False);
+      CodeRunner.RunProcedures('CurStepChanged', [Ord(CurStep)], False);
     except
       if HandleExceptions then begin
         Log('CurStepChanged raised an exception.');
@@ -3728,7 +3729,7 @@ begin
   WizardForm := TWizardForm.Create(Application);
   if CodeRunner <> nil then begin
     try
-      CodeRunner.RunProcedure('InitializeWizard', [''], False);
+      CodeRunner.RunProcedures('InitializeWizard', [''], False);
     except
       Log('InitializeWizard raised an exception (fatal).');
       raise;

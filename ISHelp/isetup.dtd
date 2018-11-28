@@ -72,7 +72,7 @@
 
 <!-- Fancier block elements -->
 
-<!ELEMENT ul (li*)>
+<!ELEMENT ul (li|ul)*>
 <!ATTLIST ul appearance (normal|compact) "normal">
 <!ELEMENT ol (li*)>
 <!ELEMENT li %InlineOrBlock;>

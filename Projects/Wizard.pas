@@ -431,7 +431,7 @@ begin
     WizardUserInfoName := UserInfoNameEdit.Text;
     WizardUserInfoOrg := UserInfoOrgEdit.Text;
     WizardUserInfoSerial := UserInfoSerialEdit.Text;
-    Result := CodeRunner.RunBooleanFunction('CheckSerial', [UserInfoSerialEdit.Text], True, False)
+    Result := CodeRunner.RunBooleanFunctions('CheckSerial', [UserInfoSerialEdit.Text], False, True, False)
   end else
     Result := True;
 end;
@@ -1633,7 +1633,7 @@ begin
   if not PreviousInstallCompleted(WizardComponents, WizardTasks) then begin
     Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
     PrepareToInstallNeedsRestart := True;
-  end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall') then begin
+  end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', False) then begin
     SetCurPage(wpPreparing);
     BackButton.Visible := False;
     NextButton.Visible := False;
@@ -1837,7 +1837,7 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
         MemoTasksInfo := '';
       SelectedTasks.Free();
 
-      if (CodeRunner <> nil) and CodeRunner.FunctionExists('UpdateReadyMemo') then begin
+      if (CodeRunner <> nil) and CodeRunner.FunctionExists('UpdateReadyMemo', False) then begin
         try
           ReadyMemo.Lines.Text := CodeRunner.RunStringFunction('UpdateReadyMemo',
             [Space, SNewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo,
@@ -2003,7 +2003,7 @@ begin
 
   try
     if CodeRunner <> nil then
-      CodeRunner.RunProcedure('CurPageChanged', [CurPageID], False);
+      CodeRunner.RunProcedures('CurPageChanged', [CurPageID], False);
   except
     Application.HandleException(Self);
   end;
@@ -2042,7 +2042,7 @@ begin
     if not Result then begin
       try
         if CodeRunner <> nil then
-          Result := CodeRunner.RunBooleanFunction('ShouldSkipPage', [PageID], False, Result);
+          Result := CodeRunner.RunBooleanFunctions('ShouldSkipPage', [PageID], False, False, Result);
       except
         Application.HandleException(Self);
       end;
@@ -2063,7 +2063,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     if shPassword in SetupHeader.Options then
       Result := TestPassword(S);
     if not Result and (CodeRunner <> nil) then
-      Result := CodeRunner.RunBooleanFunction('CheckPassword', [S], False, Result);
+      Result := CodeRunner.RunBooleanFunctions('CheckPassword', [S], False, False, Result);
 
     if Result then begin
       NeedPassword := False;
@@ -2228,7 +2228,7 @@ begin
     Exit;
 
   if CodeRunner <> nil then
-    if CodeRunner.RunBooleanFunction('NextButtonClick', [CurPageID], False, True) = False then
+    if CodeRunner.RunBooleanFunctions('NextButtonClick', [CurPageID], True, False, True) = False then
       Exit;
 
   { Go to the next page, or close wizard if it was on the last page }
@@ -2328,7 +2328,7 @@ begin
     Exit;
 
   if CodeRunner <> nil then
-    if CodeRunner.RunBooleanFunction('BackButtonClick', [CurPageID], False, True) = False then
+    if CodeRunner.RunBooleanFunctions('BackButtonClick', [CurPageID], True, False, True) = False then
       Exit;
 
   PrevPageID := GetPreviousPageID;
@@ -2349,7 +2349,7 @@ begin
     Exit;
 
   if CodeRunner <> nil then
-    CodeRunner.RunProcedure('CancelButtonClick', [CurPageID, @ACancel,
+    CodeRunner.RunProcedures('CancelButtonClick', [CurPageID, @ACancel,
       @AConfirm], False);
 end;
 

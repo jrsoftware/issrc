@@ -1763,6 +1763,12 @@ begin
   CodeDebugInfo := TMemoryStream.Create;
   CodeText := TStringList.Create;
   CodeCompiler := TScriptCompiler.Create;
+  CodeCompiler.NamingAttribute := 'Event';
+  CodeCompiler.OnLineToLineInfo := CodeCompilerOnLineToLineInfo;
+  CodeCompiler.OnUsedLine := CodeCompilerOnUsedLine;
+  CodeCompiler.OnUsedVariable := CodeCompilerOnUsedVariable;
+  CodeCompiler.OnError := CodeCompilerOnError;
+  CodeCompiler.OnWarning := CodeCompilerOnWarning;
 end;
 
 destructor TSetupCompiler.Destroy;
@@ -2806,7 +2812,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
     ScriptFunc := Z;
     if ConvertConstPercentStr(ScriptFunc) and ConvertConstPercentStr(Param) then begin
       CheckConst(Param, MinVersion, AllowedConsts);
-      CodeCompiler.AddExport(ScriptFunc, 'String @String', True, ParseFileName, LineNumber);
+      CodeCompiler.AddExport(ScriptFunc, 'String @String', False, True, ParseFileName, LineNumber);
       Result := True;
       Exit;
     end;
@@ -3025,7 +3031,7 @@ begin
       raise Exception.Create('Internal Error: unknown parameter type');
   end;
 
-  CodeCompiler.AddExport(Name, Decl, True, ParseFileName, LineNumber);
+  CodeCompiler.AddExport(Name, Decl, False, True, ParseFileName, LineNumber);
 
   Result := True; { Result doesn't matter }
 end;
@@ -7475,42 +7481,39 @@ var
   CompiledCodeDebugInfo: AnsiString;
 begin
   { Compile CodeText }
-
-  CodeCompiler.OnLineToLineInfo := CodeCompilerOnLineToLineInfo;
-  CodeCompiler.OnUsedLine := CodeCompilerOnUsedLine;
-  CodeCompiler.OnUsedVariable := CodeCompilerOnUsedVariable;
-  CodeCompiler.OnError := CodeCompilerOnError;
-  CodeCompiler.OnWarning := CodeCompilerOnWarning;
-
   if (CodeText.Count > 0) or (CodeCompiler.ExportCount > 0) then begin
     if CodeText.Count > 0 then
       AddStatus(SCompilerStatusCompilingCode);
 
     //don't forget highlighter!
-    CodeCompiler.AddExport('InitializeSetup', 'Boolean', False, '', 0);
-    CodeCompiler.AddExport('DeinitializeSetup', '0', False, '', 0);
-    CodeCompiler.AddExport('CurStepChanged', '0 @TSetupStep', False, '', 0);
-    CodeCompiler.AddExport('NextButtonClick', 'Boolean @LongInt', False, '', 0);
-    CodeCompiler.AddExport('BackButtonClick', 'Boolean @LongInt', False, '', 0);
-    CodeCompiler.AddExport('CancelButtonClick', '0 @LongInt !Boolean !Boolean', False, '', 0);
-    CodeCompiler.AddExport('ShouldSkipPage', 'Boolean @LongInt', False, '', 0);
-    CodeCompiler.AddExport('CurPageChanged', '0 @LongInt', False, '', 0);
-    CodeCompiler.AddExport('CheckPassword', 'Boolean @String', False, '', 0);
-    CodeCompiler.AddExport('NeedRestart', 'Boolean', False, '', 0);
-    CodeCompiler.AddExport('UpdateReadyMemo', 'String @String @String @String @String @String @String @String @String', False, '', 0);
-    CodeCompiler.AddExport('RegisterPreviousData', '0 @LongInt', False, '', 0);
-    CodeCompiler.AddExport('CheckSerial', 'Boolean @String', False, '', 0);
-    CodeCompiler.AddExport('InitializeWizard', '0', False, '', 0);
-    CodeCompiler.AddExport('GetCustomSetupExitCode', 'LongInt', False, '', 0);
-    CodeCompiler.AddExport('PrepareToInstall', 'String !Boolean', False, '', 0);
-    CodeCompiler.AddExport('RegisterExtraCloseApplicationsResources', '0', False, '', 0);
-    CodeCompiler.AddExport('CurInstallProgressChanged', '0 @LongInt @LongInt', False, '', 0);
+    //setup + allownamingattribute (=all procedures and boolean functions)
+    CodeCompiler.AddExport('InitializeSetup', 'Boolean', True, False, '', 0);
+    CodeCompiler.AddExport('DeinitializeSetup', '0', True, False, '', 0);
+    CodeCompiler.AddExport('CurStepChanged', '0 @TSetupStep', True, False, '', 0);
+    CodeCompiler.AddExport('NextButtonClick', 'Boolean @LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('BackButtonClick', 'Boolean @LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('CancelButtonClick', '0 @LongInt !Boolean !Boolean', True, False, '', 0);
+    CodeCompiler.AddExport('ShouldSkipPage', 'Boolean @LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('CurPageChanged', '0 @LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('CheckPassword', 'Boolean @String', True, False, '', 0);
+    CodeCompiler.AddExport('NeedRestart', 'Boolean', True, False, '', 0);
+    CodeCompiler.AddExport('RegisterPreviousData', '0 @LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('CheckSerial', 'Boolean @String', True, False, '', 0);
+    CodeCompiler.AddExport('InitializeWizard', '0', True, False, '', 0);
+    CodeCompiler.AddExport('RegisterExtraCloseApplicationsResources', '0', True, False, '', 0);
+    CodeCompiler.AddExport('CurInstallProgressChanged', '0 @LongInt @LongInt', True, False, '', 0);
 
-    CodeCompiler.AddExport('InitializeUninstall', 'Boolean', False, '', 0);
-    CodeCompiler.AddExport('DeinitializeUninstall', '0', False, '', 0);
-    CodeCompiler.AddExport('CurUninstallStepChanged', '0 @TUninstallStep', False, '', 0);
-    CodeCompiler.AddExport('UninstallNeedRestart', 'Boolean', False, '', 0);
-    CodeCompiler.AddExport('InitializeUninstallProgressForm', '0', False, '', 0);
+    //setup + !allownamingattribute (=non boolean functions)
+    CodeCompiler.AddExport('UpdateReadyMemo', 'String @String @String @String @String @String @String @String @String', False, False, '', 0);
+    CodeCompiler.AddExport('GetCustomSetupExitCode', 'LongInt', False, False, '', 0);
+    CodeCompiler.AddExport('PrepareToInstall', 'String !Boolean', False, False, '', 0);
+
+    //uninstall + allownamingattribute (=all procedures and boolean functions)
+    CodeCompiler.AddExport('InitializeUninstall', 'Boolean', True, False, '', 0);
+    CodeCompiler.AddExport('DeinitializeUninstall', '0', True, False, '', 0);
+    CodeCompiler.AddExport('CurUninstallStepChanged', '0 @TUninstallStep', True, False, '', 0);
+    CodeCompiler.AddExport('UninstallNeedRestart', 'Boolean', True, False, '', 0);
+    CodeCompiler.AddExport('InitializeUninstallProgressForm', '0', True, False, '', 0);
 
     CodeStr := CodeText.Text;
     { Remove trailing CR-LF so that ROPS will never report an error on
