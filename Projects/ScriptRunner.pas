@@ -459,12 +459,13 @@ function TScriptRunner.InternalRunBooleanFunction(const Name: AnsiString; const 
 var
   ProcNos, Params: TPSList;
   Res: PPSVariant;
+  ProcResult: Boolean;
   I: Integer;
 begin
   ProcNos := TPSList.Create;
   try
     if GetProcNos(Name, CheckNamingAttribute, ProcNos) <> 0 then begin
-      Result := True;
+      Result := True; { Silence compiler }
       for I := 0 to ProcNos.Count-1 do begin
         Params := TPSList.Create();
         try
@@ -474,10 +475,13 @@ begin
           WriteBackParameters(Parameters, Params);
 
           RaisePSExecException;
-          if CheckNamingAttributeAndResults then
-            Result := Result and (PPSVariantU8(Res).Data = 1) { Don't break on Result = False: need to call all procs always. }
+          ProcResult := PPSVariantU8(Res).Data = 1;
+          if I = 0 then
+            Result := ProcResult
+          else if CheckNamingAttributeAndResults then
+            Result := Result and ProcResult { Don't break on Result = False: need to call all procs always. }
           else
-            Result := Result or (PPSVariantU8(Res).Data = 1) { Don't break on Result = True: need to call all procs always. }
+            Result := Result or ProcResult { Don't break on Result = True: need to call all procs always. }
         finally
           FreePSVariantList(Params);
         end;
