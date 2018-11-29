@@ -12,7 +12,7 @@ rem
 rem  This batch files does the following things:
 rem  -Compile ISPP.chm
 rem  -Compile ISetup.chm
-rem  -Compile projects
+rem  -Compile Inno Setup
 rem  -Create Inno Setup installer
 rem
 rem  Once done the installer can be found in Output
@@ -32,7 +32,7 @@ call .\compile.bat
 if errorlevel 1 goto failed
 cd ..\..\..
 if errorlevel 1 goto failed
-echo ISPP help done
+echo Compiling ISPP.chm done
 pause
 
 cd ishelp
@@ -41,12 +41,12 @@ call .\compile.bat
 if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
-echo IS help done
+echo Compiling ISetup.chm done
 pause
 
 call .\compile.bat
 if errorlevel 1 goto failed
-echo Projects done
+echo Compiling Inno Setup done
 pause
 echo - Setup.exe
 if exist .\setup-sign.bat (
@@ -62,7 +62,7 @@ move /y mysetup.exe innosetup-%VER%.exe
 if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
-echo Setup done
+echo Creating Inno Setup installer done
 
 echo All done!
 pause
