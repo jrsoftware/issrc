@@ -5,7 +5,7 @@ rem  Copyright (C) 1997-2018 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
-rem  Batch file to compile all projects with Unicode support
+rem  Batch file to compile the help files and all projects
 
 setlocal
 
@@ -35,8 +35,7 @@ rem  Note:
 rem  Command line parameter "--peflags:1" below equals the
 rem  {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} directive.
 rem  This causes the Delphi compiler to not just set the flag
-rem  but also it actually strips relocations. Used instead of
-rem  calling StripReloc like compile.bat does.
+rem  but also it actually strips relocations.
 
 set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_CAST -W-EXPLICIT_STRING_CAST -W-EXPLICIT_STRING_CAST_LOSS -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS
 
