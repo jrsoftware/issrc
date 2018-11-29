@@ -11,13 +11,6 @@ unit NewCheckListBox;
   Item.Objects yourself, use ItemObject instead.
 }
 
-{$IFDEF VER90}
-  {$DEFINE DELPHI2}
-{$ENDIF}
-{$IFDEF VER200}
-  {$DEFINE DELPHI2009}
-{$ENDIF}
-
 interface
 
 uses
@@ -204,8 +197,7 @@ procedure Register;
 implementation
 
 uses
-  TmSchemaISX, PathFunc, {$IFDEF DELPHI2} Ole2 {$ELSE} ActiveX {$ENDIF},
-  BidiUtils{$IFDEF DELPHI2009}, Types{$ENDIF};
+  TmSchemaISX, PathFunc, ActiveX, BidiUtils, Types;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';

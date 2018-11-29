@@ -113,7 +113,7 @@ const
 
 implementation
 
-uses Windows, IsppTranslate, CParser, IsppParser, IsppVarUtils, IsppConsts,
+uses Windows, Types, IsppTranslate, CParser, IsppParser, IsppVarUtils, IsppConsts,
   IsppSessions;
 
 const

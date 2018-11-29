@@ -2,7 +2,7 @@ unit ScintEdit;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -386,12 +386,7 @@ type
 implementation
 
 uses
-  ShellAPI,
-{$IFDEF UNICODE}
-  RTLConsts;
-{$ELSE}
-  Consts;
-{$ENDIF}
+  ShellAPI, RTLConsts, UITypes;
 
 { TScintEdit }
 

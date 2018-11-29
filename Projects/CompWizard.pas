@@ -2,7 +2,7 @@ unit CompWizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2015 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -164,7 +164,7 @@ implementation
 {$R *.DFM}
 
 uses
-  SysUtils, ShlObj, {$IFNDEF Delphi3orHigher} Ole2, {$ELSE} ActiveX, {$ENDIF}
+  SysUtils, ShlObj, ActiveX, UITypes,
   PathFunc, CmnFunc, CmnFunc2, VerInfo, BrowseFunc,
   CompMsgs, CompWizardFile, CompForm;
 
