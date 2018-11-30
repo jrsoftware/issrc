@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.7.0+ Italian installer messages ***
+; *** Inno Setup version 6.0.0+ Italian installer messages ***
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
