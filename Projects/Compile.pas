@@ -8756,21 +8756,19 @@ begin
     CheckCheckOrInstall('ChangesEnvironment', SetupHeader.ChangesEnvironment, cikDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssChangesAssociations];
     CheckCheckOrInstall('ChangesAssociations', SetupHeader.ChangesAssociations, cikDirectiveCheck);
-    if Output then begin
-      if OutputDir = '' then begin
-        LineNumber := SetupDirectiveLines[ssOutput];
-        AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
-      end;
-      if (OutputBaseFileName = '') or (PathLastDelimiter(BadFileNameChars + '\', OutputBaseFileName) <> 0) then begin
-        LineNumber := SetupDirectiveLines[ssOutputBaseFileName];
-        AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputBaseFileName']);
-      end else if OutputBaseFileName = 'setup' then
-        WarningsList.Add(SCompilerOutputBaseFileNameSetup);
-      if (SetupDirectiveLines[ssOutputManifestFile] <> 0) and
-         ((OutputManifestFile = '') or (PathLastDelimiter(BadFilePathChars, OutputManifestFile) <> 0)) then begin
-        LineNumber := SetupDirectiveLines[ssOutputManifestFile];
-        AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputManifestFile']);
-      end;
+    if Output and (OutputDir = '') then begin
+      LineNumber := SetupDirectiveLines[ssOutput];
+      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
+    end;
+    if (Output and (OutputBaseFileName = '')) or (PathLastDelimiter(BadFileNameChars + '\', OutputBaseFileName) <> 0) then begin
+      LineNumber := SetupDirectiveLines[ssOutputBaseFileName];
+      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputBaseFileName']);
+    end else if OutputBaseFileName = 'setup' then { Warn even if Output is False }
+      WarningsList.Add(SCompilerOutputBaseFileNameSetup);
+    if (SetupDirectiveLines[ssOutputManifestFile] <> 0) and
+       ((Output and (OutputManifestFile = '')) or (PathLastDelimiter(BadFilePathChars, OutputManifestFile) <> 0)) then begin
+      LineNumber := SetupDirectiveLines[ssOutputManifestFile];
+      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputManifestFile']);
     end;
     if shAlwaysUsePersonalGroup in SetupHeader.Options then
       UsedUserAreas.Add('AlwaysUsePersonalGroup');
