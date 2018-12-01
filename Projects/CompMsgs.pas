@@ -59,7 +59,7 @@ const
   SWizardCompilerOutputDir = 'Please specify the folder.';
   SWizardISPP = 'Inno Setup Preprocessor';
   SWizardISPP2 = 'Please specify whether Inno Setup Preprocessor should be used.';
-  SWizardISPPLabel = 'The [name] has detected the presence of Inno Setup Preprocessor (ISPP) and can therefore use #define compiler directives to simplify your script. Although this is not necessary, it will make it easier to manually change the script later.' + SNewLine2 + 'Do you want the [name] to use #define compiler directives?';
+  SWizardISPPLabel = 'The [name] can use #define compiler directives to simplify your script. Although this is not necessary, it will make it easier to manually change the script later.' + SNewLine2 + 'Do you want the [name] to use #define compiler directives?';
   SWizardISPPCheck = '&Yes, use #define compiler directives';
   SWizardFinished = 'Finished';
 

@@ -2161,7 +2161,7 @@ ButtonNext=&amp;Forward &gt;
 en.ButtonNext=&amp;Forward &gt;
 </precode>
 
-<heading>Special-purpose IDs</heading>
+<heading>Special-purpose messages</heading>
 
 <p>The <a name="BeveledLabel"><tt>BeveledLabel</tt></a> message can be used to specify a line of text that is shown in the lower left corner of the wizard window and uninstaller window. The following is an example:</p>
 
@@ -2176,6 +2176,8 @@ BeveledLabel=Inno Setup
 [Messages]
 HelpTextNote=/PORTABLE=1%nEnable portable mode.
 </precode>
+
+<p>These special-purpose messages default to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use these messages.</p>
 
 </body>
 </topic>

@@ -44,13 +44,14 @@ SignedUninstaller=yes
   #if MatchingExtension(FileName, FindBaseExtension) ; Some systems also return .islu files when asked for *.isl
     #define Name LowerCase(RemoveFileExt(FileName))
     #define MessagesFile FindPathName + FileName
-    #define CustomMessagesFile FindPathName + 'Setup\' + Name + '.' + FindBaseExtension
-    #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile + ', ' + CustomMessagesFile
-    #if FileExists(CustomMessagesFile)
-      Name: {#Name}; MessagesFile: "{#MessagesFile},{#CustomMessagesFile}"
-    #else
+    //#define CustomMessagesFile FindPathName + 'Setup\' + Name + '.' + FindBaseExtension
+    //#if FileExists(CustomMessagesFile)
+    //  #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile + ' & ' + CustomMessagesFile
+    //  Name: {#Name}; MessagesFile: "{#MessagesFile},{#CustomMessagesFile}"
+    //#else
+      #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile
       Name: {#Name}; MessagesFile: "{#MessagesFile}"
-    #endif
+    //#endif
   #endif
 #endsub
 
@@ -79,11 +80,12 @@ SignedUninstaller=yes
   DoFindFiles
 
 [Languages]
-Name: english; MessagesFile: "files\Default.isl,files\Languages\Setup\Default.isl"
+Name: english; MessagesFile: "files\Default.isl"
 ; Generate [Languages] entries for all official translations
 #expr FindFiles("files\Languages\", "isl")
 
 [Messages]
+HelpTextNote=/PORTABLE=1%nEnable portable mode.
 ; Two "Setup" on the same line looks weird, so put a line break in between
 english.WelcomeLabel1=Welcome to the Inno Setup%nSetup Wizard
 
