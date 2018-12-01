@@ -4246,7 +4246,7 @@ end;</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If set to <tt>no</tt> the Setup Compiler will only check the script for errors and skip creating setup files.</p>
+<p>If set to <tt>no</tt> the Setup Compiler will only check the script for errors and skip creating setup files. Note: it will still clean the output directory and delete the manifest file, unless <tt>OutputDir</tt> and <tt>OutputManifestFile</tt> are set to an empty string.</p>
 </body>
 </setuptopic>
 
