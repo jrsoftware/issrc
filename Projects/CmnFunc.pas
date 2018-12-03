@@ -51,7 +51,9 @@ function MsgBoxFmt(const Text: String; const Args: array of const;
   const Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal): Integer;
 procedure ReactivateTopWindow;
 procedure SetMessageBoxCaption(const Typ: TMsgBoxType; const NewCaption: PChar);
+function GetMessageBoxCaption(const Caption: PChar; const Typ: TMsgBoxType): PChar;
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
+function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: LongInt);
 
 implementation
@@ -165,9 +167,40 @@ begin
     MessageBoxCaptions[Typ] := StrNew(NewCaption);
 end;
 
+function GetMessageBoxCaption(const Caption: PChar; const Typ: TMsgBoxType): PChar;
+const
+  {$IFNDEF Delphi3orHigher}
+  DefaultCaptions: array[TMsgBoxType] of Word =
+    (SMsgDlgInformation, SMsgDlgConfirm, SMsgDlgError, SMsgDlgError);
+  {$ELSE}
+  DefaultCaptions: array[TMsgBoxType] of Pointer =
+    (@SMsgDlgInformation, @SMsgDlgConfirm, @SMsgDlgError, @SMsgDlgError);
+  {$ENDIF}
+var
+  NewCaption: String;
+begin
+  Result := Caption;
+  if (Result = nil) or (Result[0] = #0) then begin
+    Result := MessageBoxCaptions[Typ];
+    if Result = nil then begin
+      {$IFNDEF Delphi3orHigher}
+      NewCaption := LoadStr(DefaultCaptions[Typ]);
+      {$ELSE}
+      NewCaption := LoadResString(DefaultCaptions[Typ]);
+      {$ENDIF}
+      Result := PChar(NewCaption);
+    end;
+  end;
+end;
+
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 begin
   MessageBoxRightToLeft := ARightToLeft;
+end;
+
+function GetMessageBoxRightToLeft: Boolean;
+begin
+  Result := MessageBoxRightToLeft;
 end;
 
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: LongInt);
@@ -303,30 +336,8 @@ function MsgBoxP(const Text, Caption: PChar; const Typ: TMsgBoxType;
 const
   IconFlags: array[TMsgBoxType] of Cardinal =
     (MB_ICONINFORMATION, MB_ICONQUESTION, MB_ICONEXCLAMATION, MB_ICONSTOP);
-  {$IFNDEF Delphi3orHigher}
-  DefaultCaptions: array[TMsgBoxType] of Word =
-    (SMsgDlgInformation, SMsgDlgConfirm, SMsgDlgError, SMsgDlgError);
-  {$ELSE}
-  DefaultCaptions: array[TMsgBoxType] of Pointer =
-    (@SMsgDlgInformation, @SMsgDlgConfirm, @SMsgDlgError, @SMsgDlgError);
-  {$ENDIF}
-var
-  C: PChar;
-  NewCaption: String;
 begin
-  C := Caption;
-  if (C = nil) or (C[0] = #0) then begin
-    C := MessageBoxCaptions[Typ];
-    if C = nil then begin
-      {$IFNDEF Delphi3orHigher}
-      NewCaption := LoadStr(DefaultCaptions[Typ]);
-      {$ELSE}
-      NewCaption := LoadResString(DefaultCaptions[Typ]);
-      {$ENDIF}
-      C := PChar(NewCaption);
-    end;
-  end;
-  Result := AppMessageBox(Text, C, Buttons or IconFlags[Typ]);
+  Result := AppMessageBox(Text, GetMessageBoxCaption(Caption, Typ), Buttons or IconFlags[Typ]);
 end;
 
 function MsgBox(const Text, Caption: String; const Typ: TMsgBoxType;

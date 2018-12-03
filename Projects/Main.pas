@@ -255,7 +255,8 @@ uses
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
   Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
   {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
-  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion, BitmapImage;
+  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion, BitmapImage,
+  TaskDialog;
 
 {$R *.DFM}
 
@@ -2969,22 +2970,34 @@ begin
           SetupHeader.PrivilegesRequired := InitPrivilegesRequired
         else if not InitSuppressMsgBoxes and (proMsgBox in SetupHeader.PrivilegesRequiredOverridesAllowed) then begin
           { Ask user. Doesn't log since logging hasn't started yet. Also doesn't use ExpandedAppName since it isn't set yet.
-            Afterwards we need to tell the respawned Setup about the user choice. Will use the command line parameter for
-            this. Allowing proMsgBox forces allowing proCommandLine, so we can count on the parameter to work. }
+            Afterwards we need to tell the respawned Setup about the user choice (and avoid it asking agin). Will use the
+            command line parameter for this. Allowing proMsgBox forces allowing proCommandLine, so we can count on the parameter to work. }
           if SetupHeader.PrivilegesRequired = prLowest then begin
-            if MsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox2],
-              SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNO) <> IDYES then begin
-               SetupHeader.PrivilegesRequired := prAdmin;
-               ExtraRespawnParam := '/ALLUSERS';
-            end else
-               ExtraRespawnParam := '/CURRENTUSER';
+            case TaskDialogMsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox2],
+                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, IDNO) of
+              IDYES:
+                ExtraRespawnParam := '/CURRENTUSER';
+              IDNO:
+                begin
+                  SetupHeader.PrivilegesRequired := prAdmin;
+                  ExtraRespawnParam := '/ALLUSERS';
+                end;
+              IDCANCEL:
+                Abort;
+              end;
           end else begin
-            if MsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox1],
-              SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNO) <> IDYES then begin
-               SetupHeader.PrivilegesRequired := prLowest;
-               ExtraRespawnParam := '/CURRENTUSER';
-             end else
-               ExtraRespawnParam := '/ALLUSERS';
+            case TaskDialogMsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox1],
+                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, IDYES) of
+              IDYES:
+                ExtraRespawnParam := '/ALLUSERS';
+              IDNO:
+                begin
+                  SetupHeader.PrivilegesRequired := prLowest;
+                  ExtraRespawnParam := '/CURRENTUSER';
+                end;
+              IDCANCEL:
+                Abort;
+            end;
           end;
         end;
 
