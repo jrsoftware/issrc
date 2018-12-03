@@ -69,8 +69,7 @@ begin
         Config.cButtons := Buttons.Count;
 {$ENDIF}
 //fixme: disable stuff?
-        TaskDialogIndirectFunc(Config, @ModalResult, nil, nil);
-        Result := True;
+        Result := TaskDialogIndirectFunc(Config, @ModalResult, nil, nil) = S_OK;
 {$IFDEF TESTBUTTONS}
       finally
         Buttons.Free;
