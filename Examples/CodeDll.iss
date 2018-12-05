@@ -5,6 +5,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
+DisableWelcomePage=no
 DefaultDirName={autopf}\My Program
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\MyProg.exe
