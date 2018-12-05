@@ -5,6 +5,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
+DisableWelcomePage=no
 DefaultDirName={code:MyConst}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
