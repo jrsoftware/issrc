@@ -10,6 +10,8 @@ program ISCC;
   Command-line compiler
 }
 
+{$WEAKLINKRTTI ON}
+
 {x$DEFINE STATICCOMPILER}
 { For debugging purposes, remove the 'x' to have it link the compiler code
   into this program and not depend on ISCmplr.dll. }

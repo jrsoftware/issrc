@@ -10,6 +10,8 @@ library ISCmplr;
   Compiler DLL
 }
 
+{$WEAKLINKRTTI ON}
+
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
   SysUtils,
