@@ -5409,11 +5409,15 @@ SignTool=byparam format c:
 <keyword value="User &amp; Group Identifiers" />
 <body>
 <table>
-<tr><td><tt>admins</tt></td><td>Built-in Administrators group</td></tr>
+<tr><td><tt>admins</tt></td><td>Administrators group</td></tr>
 <tr><td><tt>authusers</tt></td><td>Authenticated Users group</td></tr>
+<tr><td><tt>createowner</tt></td><td>Creator Owner</td></tr>
 <tr><td><tt>everyone</tt></td><td>Everyone group</td></tr>
-<tr><td><tt>system</tt></td><td>Local SYSTEM user</td></tr>
-<tr><td><tt>users</tt></td><td>Built-in Users group</td></tr>
+<tr><td><tt>guests</tt></td><td>Guests group</td></tr>
+<tr><td><tt>networkservice</tt></td><td>Network service account</td></tr>
+<tr><td><tt>service</tt></td><td>Local service account</td></tr>
+<tr><td><tt>system</tt></td><td>Local system account</td></tr>
+<tr><td><tt>users</tt></td><td>Users group</td></tr>
 </table>
 </body>
 </topic>
