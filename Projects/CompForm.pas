@@ -732,7 +732,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.Autosave := Ini.ReadBool('Options', 'Autosave', False);
       FOptions.MakeBackups := Ini.ReadBool('Options', 'MakeBackups', False);
       FOptions.FullPathInTitleBar := Ini.ReadBool('Options', 'FullPathInTitleBar', False);
-      FOptions.UndoAfterSave := Ini.ReadBool('Options', 'UndoAfterSave', False);
+      FOptions.UndoAfterSave := Ini.ReadBool('Options', 'UndoAfterSave', True);
       FOptions.PauseOnDebuggerExceptions := Ini.ReadBool('Options', 'PauseOnDebuggerExceptions', True);
       FOptions.RunAsDifferentUser := Ini.ReadBool('Options', 'RunAsDifferentUser', False);
       FOptions.AutoComplete := Ini.ReadBool('Options', 'AutoComplete', True);
