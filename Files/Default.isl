@@ -65,8 +65,8 @@ SetupAppRunningError=Setup has detected that %1 is currently running.%n%nPlease 
 UninstallAppRunningError=Uninstall has detected that %1 is currently running.%n%nPlease close all instances of it now, then click OK to continue, or Cancel to exit.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideMsgBox1=This program can be installed for all users (recommended, but requires administrator privileges), or only for yourself.%n%nInstall for all users?
-PrivilegesRequiredOverrideMsgBox2=This program can be installed only for yourself (recommended), or for all users (requires administrator privileges).%n%nInstall only for yourself?
+PrivilegesRequiredOverrideMsgBox1=This program can be installed for all users (recommended, but requires administrative privileges), or only for yourself.%n%nInstall for all users?
+PrivilegesRequiredOverrideMsgBox2=This program can be installed only for yourself (recommended), or for all users (requires administrative privileges).%n%nInstall only for yourself?
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup was unable to create the directory "%1"
