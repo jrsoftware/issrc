@@ -3,7 +3,7 @@ interface
 uses
   Windows, Math, Graphics;
 
-function StretchBmp(Canvas: TCanvas; SrcBitmap, DstBitmap: TBitmap;
+function StretchBmp(SrcBitmap, DstBitmap: TBitmap;
   DstWidth, DstHeight: Integer; Is32bit: Boolean): Boolean;
 
 implementation
@@ -136,71 +136,73 @@ begin
   end;
 end;
 
-function StretchBmp(Canvas: TCanvas; SrcBitmap, DstBitmap: TBitmap;
+
+function StretchBmp(SrcBitmap, DstBitmap: TBitmap;
   DstWidth, DstHeight: Integer; Is32bit: Boolean): Boolean;
 var
-  SrcLineSize, DstLineSize, SrcWidth, SrcHeight, PixelSize: Integer;
-  SrcBits, DstBits, tmpBits: Pointer;
-  BI: TBitmapInfo;
-  DIB: HBITMAP;
+  SrcWidth, SrcHeight, SrcLineSize, DstLineSize, PixelSize: Integer;
+  SrcBits, DstBits, TmpBits: Pointer;
+  PixelFormat: TPixelFormat;
   Proc: TPutPixelProc;
-const
-  NULL = {$IFDEF VER90}nil{$ELSE}0{$ENDIF};
 begin
   Result := False;
   try
     if (DstWidth <= 0) or (DstHeight <= 0) then Exit;
-    //High quality resampling makes sense only
-    //in True Color and High Color display modes.
-    if GetDeviceCaps(Canvas.Handle, BITSPIXEL) <= 8 then Exit;
-    SrcWidth  := SrcBitmap.Width;
+    SrcWidth := SrcBitmap.Width;
     SrcHeight := SrcBitmap.Height;
     if (SrcWidth <= 0) or (SrcHeight <= 0) then Exit;
-    FillChar(BI, SizeOf(BI), 0);
-    BI.bmiHeader.biSize := SizeOf(BI.bmiHeader);
-    BI.bmiHeader.biWidth := SrcWidth;
-    BI.bmiHeader.biHeight := SrcHeight;
-    BI.bmiHeader.biPlanes := 1;
-    BI.bmiHeader.biCompression := BI_RGB;
     if Is32bit then begin
-      BI.bmiHeader.biBitCount := 32;
+      PixelFormat := pf32bit;
       PixelSize := 4;
       Proc := PutPixel32P;
     end else begin
-      BI.bmiHeader.biBitCount := 24;
+      PixelFormat := pf24bit;
       PixelSize := 3;
       Proc := PutPixel24;
     end;
-    DstLineSize := (DstWidth * PixelSize + 3) and not 3;
-    SrcLineSize := (SrcWidth * PixelSize + 3) and not 3;
-    GetMem(tmpBits, SrcHeight * DstLineSize);
+    //NOTE: Irreversible change of SrcBitmap pixel format
+    SrcBitmap.PixelFormat := PixelFormat;
+    SrcLineSize := WPARAM(SrcBitmap.ScanLine[0]) - WPARAM(SrcBitmap.ScanLine[1]);
+    if SrcLineSize >= 0 then
+      SrcBits := SrcBitmap.ScanLine[SrcHeight - 1]
+    else begin
+      SrcLineSize := -SrcLineSize;
+      SrcBits := SrcBitmap.ScanLine[0];
+    end;
+    DstBitmap.PixelFormat := PixelFormat;
+    DstBitmap.AlphaFormat := SrcBitmap.AlphaFormat;
+    DstBitmap.Width := DstWidth;
+    DstBitmap.Height := DstHeight;
+    DstLineSize := WPARAM(DstBitmap.ScanLine[0]) - WPARAM(DstBitmap.ScanLine[1]);
+    if DstLineSize >= 0 then
+      DstBits := DstBitmap.ScanLine[DstHeight - 1]
+    else begin
+      DstLineSize := -DstLineSize;
+      DstBits := DstBitmap.ScanLine[0];
+    end;
+    TmpBits := nil;
     try
-      GetMem(SrcBits, SrcLineSize * SrcHeight);
-      try
-        if GetDIBits(Canvas.Handle, SrcBitmap.Handle,
-          0, SrcHeight, SrcBits, BI, DIB_RGB_COLORS) = 0 then Exit;
+      //Minimize temporary allocations by choosing right stretch order
+      if DstWidth * SrcHeight < DstHeight * SrcWidth then begin
+        GetMem(TmpBits, SrcHeight * DstLineSize);
         //Stretch horizontally
-        ResampleBits(DstWidth, SrcWidth, SrcBits, tmpBits,
-          PixelSize, SrcHeight, SrcLineSize, DstLineSize, Proc);
-      finally
-        FreeMem(SrcBits);
-      end;
-      BI.bmiHeader.biWidth := DstWidth;
-      BI.bmiHeader.biHeight := DstHeight;
-      DIB := CreateDIBSection(Canvas.Handle, BI, DIB_RGB_COLORS, DstBits, NULL, 0);
-      if DIB = 0 then Exit;
-      try
+        ResampleBits(DstWidth, SrcWidth, SrcBits, TmpBits, PixelSize,
+          SrcHeight, SrcLineSize, DstLineSize, Proc);
         //Stretch vertically
-        ResampleBits(DstHeight, SrcHeight, tmpBits, DstBits,
-          DstLineSize, DstWidth, PixelSize, PixelSize, Proc);
-        DstBitmap.Handle := DIB;
-        Result := True;
-      except
-        DeleteObject(DIB);
-        raise;
+        ResampleBits(DstHeight, SrcHeight, TmpBits, DstBits, DstLineSize,
+          DstWidth, PixelSize, PixelSize, Proc);
+      end else begin
+        GetMem(TmpBits, DstHeight * SrcLineSize);
+        //Stretch vertically
+        ResampleBits(DstHeight, SrcHeight, SrcBits, TmpBits, SrcLineSize,
+          SrcWidth, PixelSize, PixelSize, Proc);
+        //Stretch horizontally
+        ResampleBits(DstWidth, SrcWidth, TmpBits, DstBits, PixelSize,
+          DstHeight, SrcLineSize, DstLineSize, Proc);
       end;
+      Result := True;
     finally
-      FreeMem(tmpBits);
+      FreeMem(TmpBits);
     end;
   except
   end;
