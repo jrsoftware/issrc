@@ -55,6 +55,7 @@ function GetMessageBoxCaption(const Caption: PChar; const Typ: TMsgBoxType): PCh
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: LongInt);
+procedure TriggerMessageBoxCallbackFunc(const Flags: LongInt; const After: Boolean);
 
 implementation
 
@@ -281,26 +282,26 @@ begin
   if MessageBoxRightToLeft then
     Flags := Flags or (MB_RTLREADING or MB_RIGHT);
 
-  { If the application window isn't currently visible, show the message box
-    with no owner window so it'll get a taskbar button } 
-  if IsIconic(Application.Handle) or
-     (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or
-     (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then begin
-    ActiveWindow := GetActiveWindow;
-    WindowList := DisableTaskWindows(0);
-    try
-      { Note: DisableTaskWindows doesn't disable invisible windows.
-        MB_TASKMODAL will ensure that Application.Handle gets disabled too. }
-      Result := MessageBox(0, Text, Caption, Flags or MB_TASKMODAL);
-    finally
-      EnableTaskWindows(WindowList);
-      SetActiveWindow(ActiveWindow);
-    end;
-    Exit;
-  end;
-
   TriggerMessageBoxCallbackFunc(Flags, False);
   try
+    { If the application window isn't currently visible, show the message box
+      with no owner window so it'll get a taskbar button } 
+    if IsIconic(Application.Handle) or
+       (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or
+       (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then begin
+      ActiveWindow := GetActiveWindow;
+      WindowList := DisableTaskWindows(0);
+      try
+        { Note: DisableTaskWindows doesn't disable invisible windows.
+          MB_TASKMODAL will ensure that Application.Handle gets disabled too. }
+        Result := MessageBox(0, Text, Caption, Flags or MB_TASKMODAL);
+      finally
+        EnableTaskWindows(WindowList);
+        SetActiveWindow(ActiveWindow);
+      end;
+      Exit;
+    end;
+
 {$IFDEF IS_D4}
     { On Delphi 4+, simply call Application.MessageBox }
     Result := Application.MessageBox(Text, Caption, Flags);

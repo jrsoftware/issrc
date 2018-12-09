@@ -19,7 +19,7 @@ function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText, Caption
 implementation
 
 uses
-  Windows, Classes, StrUtils, Forms, Dialogs, SysUtils, Commctrl, CmnFunc2, InstFunc, PathFunc;
+  Windows, Classes, StrUtils, Math, Forms, Dialogs, SysUtils, Commctrl, CmnFunc2, InstFunc, PathFunc;
 
 var
   TaskDialogIndirectFunc: function(const pTaskConfig: TTaskDialogConfig;
@@ -34,13 +34,15 @@ begin
 end;
 
 
-function DoTaskDialog(const hWnd: HWND; const Instruction, Text, Caption, Icon: PWideChar; const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer; const RightToLeft: Boolean; var ModalResult: Integer): Boolean;
+function DoTaskDialog(const hWnd: HWND; const Instruction, Text, Caption, Icon: PWideChar; const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer; const RightToLeft: Boolean; const TriggerMessageBoxCallbackFuncFlags: LongInt; var ModalResult: Integer): Boolean;
 var
   Config: TTaskDialogConfig;
   NButtonLabelsAvailable: Integer;
   ButtonItems: TTaskDialogButtons;
   ButtonItem: TTaskDialogButtonItem;
   I: Integer;
+  ActiveWindow: Windows.HWND;
+  WindowList: Pointer;
 begin
   if Assigned(TaskDialogIndirectFunc) then begin
     try
@@ -48,7 +50,14 @@ begin
       Config.cbSize := SizeOf(Config);
       if RightToLeft then
         Config.dwFlags := Config.dwFlags or TDF_RTL_LAYOUT;
-      Config.hwndParent := hWnd;
+      { If the application window isn't currently visible, show the task dialog
+        with no owner window so it'll get a taskbar button } 
+      if IsIconic(Application.Handle) or
+         (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or
+         (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then
+        Config.hWndParent := 0
+      else
+        Config.hwndParent := hWnd;
       Config.dwCommonButtons := CommonButtons;
       Config.pszWindowTitle := Caption;
       Config.pszMainIcon := Icon;
@@ -72,7 +81,16 @@ begin
           Config.pButtons := ButtonItems.Buttons;
           Config.cButtons := ButtonItems.Count;
         end;
-        Result := TaskDialogIndirectFunc(Config, @ModalResult, nil, nil) = S_OK;
+        TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
+        ActiveWindow := GetActiveWindow;
+        WindowList := DisableTaskWindows(0);
+        try
+          Result := TaskDialogIndirectFunc(Config, @ModalResult, nil, nil) = S_OK;
+        finally
+          EnableTaskWindows(WindowList);
+          SetActiveWindow(ActiveWindow);
+          TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, True);
+        end;
       finally
         ButtonItems.Free;
       end;
@@ -116,7 +134,9 @@ begin
   end;
   if Length(ButtonIDs) <> NButtonLabelsAvailable then
     InternalError('TaskDialogMsgBox: Invalid ButtonLabels');
-  if not DoTaskDialog(Application.Handle {fixme}, PChar(Instruction), PChar(TaskDialogText), GetMessageBoxCaption(PChar(Caption), Typ), Icon, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton, GetMessageBoxRightToLeft, Result) then
+  if not DoTaskDialog(Application.Handle, PChar(Instruction), PChar(TaskDialogText),
+           GetMessageBoxCaption(PChar(Caption), Typ), Icon, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
+           GetMessageBoxRightToLeft, IfThen(Typ = mbCriticalError, MB_ICONSTOP, 0), Result) then
     Result := MsgBox(MsgBoxText, IfThen(Instruction <> '', Instruction, Caption), Typ, Buttons);
 end;
 
