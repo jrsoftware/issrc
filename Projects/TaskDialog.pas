@@ -12,14 +12,14 @@ unit TaskDialog;
 interface
 
 uses
-  Windows, CmnFunc;
+  CmnFunc;
 
-function TaskDialogMsgBox(const Text, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ShieldButton: Integer): Integer;
+function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer): Integer;
 
 implementation
 
 uses
-  SysUtils, Commctrl, CmnFunc2, InstFunc, PathFunc;
+  Windows, Classes, StrUtils, Forms, Dialogs, SysUtils, Commctrl, CmnFunc2, InstFunc, PathFunc;
 
 var
   TaskDialogIndirectFunc: function(const pTaskConfig: TTaskDialogConfig;
@@ -33,15 +33,14 @@ begin
   Result := S_OK;
 end;
 
-{.$DEFINE TESTBUTTONS}
 
-function DoTaskDialog(const hWnd: HWND; const Text, Caption, Icon: PWideChar; const Buttons: Cardinal; const ShieldButton: Integer; const RightToLeft: Boolean; var ModalResult: Integer): Boolean;
+function DoTaskDialog(const hWnd: HWND; const Instruction, Text, Caption, Icon: PWideChar; const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer; const RightToLeft: Boolean; var ModalResult: Integer): Boolean;
 var
   Config: TTaskDialogConfig;
-{$IFDEF TESTBUTTONS}
-  Buttons: TTaskDialogButtons;
-  Button: TTaskDialogButtonItem;
-{$ENDIF}
+  NButtonLabelsAvailable: Integer;
+  ButtonItems: TTaskDialogButtons;
+  ButtonItem: TTaskDialogButtonItem;
+  I: Integer;
 begin
   if Assigned(TaskDialogIndirectFunc) then begin
     try
@@ -50,31 +49,33 @@ begin
       if RightToLeft then
         Config.dwFlags := Config.dwFlags or TDF_RTL_LAYOUT;
       Config.hwndParent := hWnd;
-      Config.dwCommonButtons := Buttons;
+      Config.dwCommonButtons := CommonButtons;
       Config.pszWindowTitle := Caption;
       Config.pszMainIcon := Icon;
+      Config.pszMainInstruction := Instruction;
       Config.pszContent := Text;
       if ShieldButton <> 0 then begin
         Config.pfCallback := ShieldButtonCallback;
         Config.lpCallbackData := ShieldButton;
       end;
-{$IFDEF TESTBUTTONS}
-      Buttons := TTaskDialogButtons.Create(nil, TTaskDialogButtonItem);
+      ButtonItems := nil;
       try
-        //Config.dwFlags := Config.dwFlags or TDF_USE_COMMAND_LINKS;
-        Button := TTaskDialogButtonItem(Buttons.Add);
-        Button.ModalResult := 999;
-        Button.Caption := 'My OK';
-        Config.pButtons := Buttons.Buttons;
-        Config.cButtons := Buttons.Count;
-{$ENDIF}
-//fixme: disable stuff?
+        NButtonLabelsAvailable := Length(ButtonLabels);
+        if NButtonLabelsAvailable <> 0 then begin
+          ButtonItems := TTaskDialogButtons.Create(nil, TTaskDialogButtonItem);
+          Config.dwFlags := Config.dwFlags or TDF_USE_COMMAND_LINKS;
+          for I := 0 to NButtonLabelsAvailable-1 do begin
+            ButtonItem := TTaskDialogButtonItem(ButtonItems.Add);
+            ButtonItem.Caption := ButtonLabels[I];
+            ButtonItem.ModalResult := ButtonIDs[I];
+          end;
+          Config.pButtons := ButtonItems.Buttons;
+          Config.cButtons := ButtonItems.Count;
+        end;
         Result := TaskDialogIndirectFunc(Config, @ModalResult, nil, nil) = S_OK;
-{$IFDEF TESTBUTTONS}
       finally
-        Buttons.Free;
+        ButtonItems.Free;
       end;
-{$ENDIF}
     except
       Result := False;
     end;
@@ -82,10 +83,12 @@ begin
     Result := False;
 end;
 
-function TaskDialogMsgBox(const Text, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ShieldButton: Integer): Integer;
+function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer): Integer;
 var
   Icon: PChar;
-  TDButtons: Cardinal;
+  TDCommonButtons: Cardinal;
+  NButtonLabelsAvailable: Integer;
+  ButtonIDs: array of Integer;
 begin
   case Typ of
     mbInformation: Icon := TD_INFORMATION_ICON;
@@ -94,16 +97,27 @@ begin
   else
     Icon := nil; { No other TD_ constant available, MS recommends to use no icon for questions now and the old icon should only be used for help entries }
   end;
+  NButtonLabelsAvailable := Length(ButtonLabels);
   case Buttons of
-    MB_YESNOCANCEL: TDButtons := TDCBF_YES_BUTTON or TDCBF_NO_BUTTON or TDCBF_CANCEL_BUTTON;
-  else
-    begin
-      InternalError('TaskDialogMsgBox: Invalid Buttons');
-      TDButtons := 0; { Silence compiler }
-    end;
+    MB_YESNOCANCEL:
+      begin
+        if NButtonLabelsAvailable = 0 then
+          TDCommonButtons := TDCBF_YES_BUTTON or TDCBF_NO_BUTTON or TDCBF_CANCEL_BUTTON
+        else begin
+          TDCommonButtons := TDCBF_CANCEL_BUTTON;
+          ButtonIDs := [IDYES, IDNO];
+        end;
+      end;
+    else
+      begin
+        InternalError('TaskDialogMsgBox: Invalid Buttons');
+        TDCommonButtons := 0; { Silence compiler }
+      end;
   end;
- if not DoTaskDialog(0 {fixme}, PChar(Text), GetMessageBoxCaption(PChar(Caption), Typ), Icon, TDButtons, ShieldButton, GetMessageBoxRightToLeft, Result) then
-    Result := MsgBox(Text, Caption, Typ, Buttons);
+  if Length(ButtonIDs) <> NButtonLabelsAvailable then
+    InternalError('TaskDialogMsgBox: Invalid ButtonLabels');
+  if not DoTaskDialog(Application.Handle {fixme}, PChar(Instruction), PChar(TaskDialogText), GetMessageBoxCaption(PChar(Caption), Typ), Icon, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton, GetMessageBoxRightToLeft, Result) then
+    Result := MsgBox(MsgBoxText, IfThen(Instruction <> '', Instruction, Caption), Typ, Buttons);
 end;
 
 procedure InitCommonControls; external comctl32 name 'InitCommonControls';

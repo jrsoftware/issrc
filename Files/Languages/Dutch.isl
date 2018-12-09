@@ -48,8 +48,13 @@ SetupAppRunningError=Setup heeft vastgesteld dat %1 op dit moment actief is.%n%n
 UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle vensters hiervan, en klik daarna op OK om verder te gaan, of op Annuleren om het verwijderen af te breken.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideMsgBox1=Dit programma kan geïnstalleerd worden voor alle gebruikers (aanbevolen, maar vereist aanmelding als een systeembeheerder), of voor alleen de huidige gebruiker.%n%nWilt u voor alle gebruikers installeren?
-PrivilegesRequiredOverrideMsgBox2=Dit programma kan geïnstalleerd worden voor alleen de huidige gebruiker (aanbevolen), of voor alle gebruikers (vereist aanmelding als een systeembeheerder).%n%nWilt u voor alleen de huidige gebruiker installeren?
+PrivilegesRequiredOverrideInstruction=Kies installatie modus
+PrivilegesRequiredOverrideContent1=Dit programma kan geïnstalleerd worden voor alle gebruikers (aanbevolen, maar vereist aanmelding als een systeembeheerder), of voor uzelf alleen.
+PrivilegesRequiredOverrideContent1WithQuestion=%1%n%nWilt u voor alle gebruikers installeren?
+PrivilegesRequiredOverrideConfirm1=Installeer voor alle gebruikers%nHet programma zal beschikbaar zijn voor gebruik voor alle gebruikers.
+PrivilegesRequiredOverrideContent2=Dit programma kan geïnstalleerd worden voor uzelf alleen (aanbevolen), of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
+PrivilegesRequiredOverrideContent2WithQuestion=%1%n%nWilt u voor uzelf alleen installeren?
+PrivilegesRequiredOverrideConfirm2=Installeer voor mijzelf alleen%nHet programma zal beschikbaar zijn voor gebruik voor uzelf alleen.
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup kan de map "%1" niet maken

@@ -2973,8 +2973,9 @@ begin
             Afterwards we need to tell the respawned Setup about the user choice (and avoid it asking agin). Will use the
             command line parameter for this. Allowing proMsgBox forces allowing proCommandLine, so we can count on the parameter to work. }
           if SetupHeader.PrivilegesRequired = prLowest then begin
-            case TaskDialogMsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox2],
-                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, IDNO) of
+            case TaskDialogMsgBox(SetupMessages[msgPrivilegesRequiredOverrideInstruction], SetupMessages[msgPrivilegesRequiredOverrideContent2],
+                   FmtSetupMessage(msgPrivilegesRequiredOverrideContent2WithQuestion, [SetupMessages[msgPrivilegesRequiredOverrideContent2]]),
+                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, [SetupMessages[msgPrivilegesRequiredOverrideConfirm2], SetupMessages[msgPrivilegesRequiredOverrideConfirm1]], IDNO) of
               IDYES:
                 ExtraRespawnParam := '/CURRENTUSER';
               IDNO:
@@ -2986,8 +2987,9 @@ begin
                 Abort;
               end;
           end else begin
-            case TaskDialogMsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox1],
-                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, IDYES) of
+            case TaskDialogMsgBox(SetupMessages[msgPrivilegesRequiredOverrideInstruction], SetupMessages[msgPrivilegesRequiredOverrideContent1],
+                   FmtSetupMessage(msgPrivilegesRequiredOverrideContent2WithQuestion, [SetupMessages[msgPrivilegesRequiredOverrideContent2]]),
+                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, [SetupMessages[msgPrivilegesRequiredOverrideConfirm1], SetupMessages[msgPrivilegesRequiredOverrideConfirm2]], IDYES) of
               IDYES:
                 ExtraRespawnParam := '/ALLUSERS';
               IDNO:

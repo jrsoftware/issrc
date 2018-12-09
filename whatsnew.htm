@@ -50,13 +50,13 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>The Compiler IDE's New Script Wizard now offers an option to select administrative or non administrative install mode and outputs scripts which work in both modes.</li>
   <li>Pascal Scripting changes: Added new <tt>IsAdminInstallMode</tt> support function.</li>
 </ul>
-<p><span class="head2">Dynamic install mode</span></p>
+<p><span class="head2">Overridable install mode</span></p>
 <p>Once your script is fully updated to support both administrative and non administrative mode (for example by using the new &quot;auto&quot; constants and the new [Registry] section <tt>Root</tt> value <tt>HKA</tt>) you can then use the following:</p>
 <ul>
   <li>Added new [Setup] section directive: <tt>PrivilegesRequiredOverridesAllowed</tt>, which can be set to one or more overrides which allow the end user to override the script's default <tt>PrivilegesRequired</tt> setting. The following overrides are supported: <tt>commandline</tt> and <tt>msgbox</tt>.</li>
   <ul>
     <li>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <tt>PrivilegesRequired</tt> setting: /ALLUSERS and /CURRENTUSER.</li>
-    <li>If override <tt>msgbox</tt> is allowed then Setup will ask the user whether administrative or non administrative install mode should be used based on the script's default <tt>PrivilegesRequired</tt> setting (<a href="https://i.imgur.com/pmOkO31.png">example</a>). Allowing <tt>msgbox</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</li>
+    <li>If override <tt>msgbox</tt> is allowed then Setup will ask the user whether administrative or non administrative install mode should be used based on the script's default <tt>PrivilegesRequired</tt> setting (<a href="https://i.imgur.com/YoYvRh0.png">example</a>). Allowing <tt>msgbox</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</li>
   </ul>
   <li>Inno Setup's own installer now supports both administrative and non administrative mode and allows the <tt>commandline</tt> override.</li>
 </ul>
@@ -106,9 +106,9 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 
 <p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to jogo-, Martin Prikryl, dscharrer, Kleuter, Gavin Lambert, and Stef&aacute;n &Ouml;rvar Sigmundsson for their contributions.</p>
 
-<p>Some messages have been added in this version: (<a href="https://github.com/jrsoftware/issrc/commit/b0cd1a0177b818e36734026c67dc24f01ad6a0d0">View differences in Default.isl</a>).</p>
+<p>Some messages have been added in this version:<!-- (<a href="https://github.com/jrsoftware/issrc/commit/b0cd1a0177b818e36734026c67dc24f01ad6a0d0">View differences in Default.isl</a>).--></p>
 <ul>
-  <li><b>New messages:</b> PrivilegesRequiredOverrideMsgBox1, PrivilegesRequiredOverrideMsgBox2, UninstallDisplayNameMark, UninstallDisplayNameMarks, UninstallDisplayNameMark32Bit, UninstallDisplayNameMark64Bit, UninstallDisplayNameMarkAllUsers, UninstallDisplayNameCurrentUser.</li>
+  <li><b>New messages:</b> PrivilegesRequiredOverrideInstruction, PrivilegesRequiredOverrideContent1, PrivilegesRequiredOverrideContent1WithQuestion, PrivilegesRequiredOverrideConfirm1, PrivilegesRequiredOverrideContent2, PrivilegesRequiredOverrideContent2WithQuestion, PrivilegesRequiredOverrideConfirm2, UninstallDisplayNameMark, UninstallDisplayNameMarks, UninstallDisplayNameMark32Bit, UninstallDisplayNameMark64Bit, UninstallDisplayNameMarkAllUsers, UninstallDisplayNameCurrentUser.</li>
 </ul>
 
 <p>Note: Only the official English and Dutch (Netherlands) translations have been updated for these changes at this moment. See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.</p>
