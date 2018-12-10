@@ -304,6 +304,12 @@ const
     'procedure Log(const S: String);'
   );
 
+  { TaskDialog }
+  TaskDialogTable: array [0..0] of AnsiString =
+  (
+    'function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;'
+  );
+
   { Other }
   OtherTable: array [0..27] of AnsiString =
   (

@@ -157,6 +157,7 @@ begin
   RegisterFunctionTable(WindowsTable);
   RegisterFunctionTable(Ole2Table);
   RegisterFunctionTable(LoggingTable);
+  RegisterFunctionTable(TaskDialogTable);
   RegisterFunctionTable(OtherTable);
 
   RegisterConst('MaxInt', MaxInt);

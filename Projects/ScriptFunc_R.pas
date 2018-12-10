@@ -26,7 +26,7 @@ uses
   {$IFNDEF Delphi3orHigher} Ole2, {$ELSE} ActiveX, {$ENDIF}
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
   Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
-  SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
+  SetupTypes, Int64Em, MD5, SHA1, Logging, TaskDialog, SetupForm, RegDLL, Helper,
   SpawnClient, UninstProgressForm;
 
 var
@@ -101,6 +101,17 @@ begin
     InternalError('An attempt was made to access UninstallProgressForm before it has been created'); 
 end;
 
+function GetMsgBoxCaption: String;
+var
+  ID: TSetupMessageID;
+begin
+  if IsUninstaller then
+    ID := msgUninstallAppTitle
+  else
+    ID := msgSetupAppTitle;
+  Result := SetupMessages[ID];
+end;
+
 procedure InitializeScaleBaseUnits;
 var
   Font: TFont;
@@ -122,28 +133,6 @@ end;
 
 { ScriptDlg }
 function ScriptDlgProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
-
-  function ArrayToStringList(Arr: PPSVariantIFC): TStringList;
-  var
-    StringList: TStringList;
-    I, N: Integer;
-  begin
-    StringList := TStringList.Create();
-    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
-    for I := 0 to N-1 do
-      StringList.Append(VNGetString(PSGetArrayField(Arr^, I)));
-    Result := StringList;
-  end;
-
-  procedure StringListToArray(StringList: TStringList; Arr: PPSVariantIFC);
-  var
-    I, N: Integer;
-  begin
-    N := StringList.Count;
-    for I := 0 to N-1 do
-      VNSetString(PSGetArrayField(Arr^, I), StringList[I]);
-  end;
-
 var
   PStart: Cardinal;
   NewPage: TWizardPage;
@@ -367,17 +356,12 @@ end;
 function CmnFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
-  ID: TSetupMessageID;
 begin
   PStart := Stack.Count-1;
   Result := True;
 
   if Proc.Name = 'MSGBOX' then begin
-    if IsUninstaller then
-      ID := msgUninstallAppTitle
-    else
-      ID := msgSetupAppTitle;
-    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), SetupMessages[ID], TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), False, 0));
+    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), False, 0));
   end else if Proc.Name = 'MINIMIZEPATHNAME' then begin
     Stack.SetString(PStart, MinimizePathName(Stack.GetString(PStart-1), TFont(Stack.GetClass(PStart-2)), Stack.GetInt(PStart-3)));
   end else
@@ -593,12 +577,12 @@ begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     Arr := NewTPSVariantIFC(Stack[PStart-3], True);
     Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
-      Stack.GetString(PStart-2), @Arr, True));
+    Stack.GetString(PStart-2), @Arr, True));
   end else if Proc.Name = 'REGGETVALUENAMES' then begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     Arr := NewTPSVariantIFC(Stack[PStart-3], True);
     Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
-      Stack.GetString(PStart-2), @Arr, False));
+    Stack.GetString(PStart-2), @Arr, False));
   end else if Proc.Name = 'REGQUERYSTRINGVALUE' then begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     S := Stack.GetString(PStart-2);
@@ -982,7 +966,6 @@ var
   PStart: Cardinal;
   MinVersion, OnlyBelowVersion: TSetupVersionData;
   WizardComponents, WizardTasks: TStringList;
-  ID: TSetupMessageID;
   S: String;
 begin
   PStart := Stack.Count-1;
@@ -1039,11 +1022,7 @@ begin
     Stack.SetString(PStart, Format('%u.%.2u.%u', [WindowsVersion shr 24,
       (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF]));
   end else if Proc.Name = 'SUPPRESSIBLEMSGBOX' then begin
-    if IsUninstaller then
-      ID := msgUninstallAppTitle
-    else
-      ID := msgSetupAppTitle;
-    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), SetupMessages[ID], TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), True, Stack.GetInt(PStart-4)));
+    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), True, Stack.GetInt(PStart-4)));
   end else if Proc.Name = 'ISWIN64' then begin
     Stack.SetBool(PStart, IsWin64);
   end else if Proc.Name = 'IS64BITINSTALLMODE' then begin
@@ -1539,6 +1518,28 @@ begin
     Result := False;
 end;
 
+{ TaskDialog }
+function TaskDialogProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+var
+  PStart: Cardinal;
+  Arr: TPSVariantIFC;
+  N, I: Integer;
+  ButtonLabels: array of String;
+begin
+  PStart := Stack.Count-1;
+  Result := True;
+
+  if Proc.Name = 'TASKDIALOGMSGBOX' then begin
+    Arr := NewTPSVariantIFC(Stack[PStart-6], True);
+    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
+    SetLength(ButtonLabels, N);
+    for I := 0 to N-1 do
+      ButtonLabels[I] := VNGetString(PSGetArrayField(Arr, I));
+    Stack.SetInt(PStart, TaskDialogMsgBox(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-4)), Stack.GetInt(PStart-5), ButtonLabels, Stack.GetInt(PStart-7), Stack.GetBool(PStart-8)));
+  end else
+    Result := False;
+end;
+
 { Other }
 function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
@@ -1868,6 +1869,7 @@ begin
   RegisterFunctionTable(WindowsTable, @WindowsProc);
   RegisterFunctionTable(Ole2Table, @Ole2Proc);
   RegisterFunctionTable(LoggingTable, @LoggingProc);
+  RegisterFunctionTable(TaskDialogTable, @TaskDialogProc);
   RegisterFunctionTable(OtherTable, @OtherProc);
 
   ScriptInterpreter.RegisterDelphiFunction(@_FindFirst, 'FindFirst', cdRegister);
