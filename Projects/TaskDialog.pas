@@ -14,7 +14,7 @@ interface
 uses
   CmnFunc;
 
-function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer): Integer;
+function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;
 
 implementation
 
@@ -101,7 +101,7 @@ begin
     Result := False;
 end;
 
-function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer): Integer;
+function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;
 var
   Icon: PChar;
   TDCommonButtons: Cardinal;
@@ -117,14 +117,39 @@ begin
   end;
   NButtonLabelsAvailable := Length(ButtonLabels);
   case Buttons of
-    MB_YESNOCANCEL:
+  //MB_DEFBUTTON1, MB_DEFBUTTON2, MB_DEFBUTTON3, MB_SETFOREGROUND
+    MB_OK, MB_OKCANCEL:
       begin
         if NButtonLabelsAvailable = 0 then
-          TDCommonButtons := TDCBF_YES_BUTTON or TDCBF_NO_BUTTON or TDCBF_CANCEL_BUTTON
+          TDCommonButtons := TDCBF_OK_BUTTON
         else begin
-          TDCommonButtons := TDCBF_CANCEL_BUTTON;
+          TDCommonButtons := 0;
+          ButtonIDs := [IDOK];
+        end;
+        if Buttons = MB_OKCANCEL then
+          TDCommonButtons := TDCommonButtons or TDCBF_CANCEL_BUTTON;
+      end;
+    MB_YESNO, MB_YESNOCANCEL:
+      begin
+        if NButtonLabelsAvailable = 0 then
+          TDCommonButtons := TDCBF_YES_BUTTON or TDCBF_NO_BUTTON
+        else begin
+          TDCommonButtons := 0;
           ButtonIDs := [IDYES, IDNO];
         end;
+        if Buttons = MB_YESNOCANCEL then
+          TDCommonButtons := TDCommonButtons or TDCBF_CANCEL_BUTTON;
+      end;
+    //MB_ABORTRETRYIGNORE: TDCBF_ABORT_BUTTON and TDCBF_IGNORE_BUTTON don't exist
+    MB_RETRYCANCEL:
+      begin
+        if NButtonLabelsAvailable = 0 then
+          TDCommonButtons := TDCBF_RETRY_BUTTON
+        else begin
+          TDCommonButtons := 0;
+          ButtonIDs := [IDRETRY];
+        end;
+        TDCommonButtons := TDCommonButtons or TDCBF_CANCEL_BUTTON;
       end;
     else
       begin
@@ -134,7 +159,8 @@ begin
   end;
   if Length(ButtonIDs) <> NButtonLabelsAvailable then
     InternalError('TaskDialogMsgBox: Invalid ButtonLabels');
-  if not DoTaskDialog(Application.Handle, PChar(Instruction), PChar(TaskDialogText),
+  if ForceMsgBox or
+     not DoTaskDialog(Application.Handle, PChar(Instruction), PChar(TaskDialogText),
            GetMessageBoxCaption(PChar(Caption), Typ), Icon, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
            GetMessageBoxRightToLeft, IfThen(Typ = mbCriticalError, MB_ICONSTOP, 0), Result) then
     Result := MsgBox(MsgBoxText, IfThen(Instruction <> '', Instruction, Caption), Typ, Buttons);

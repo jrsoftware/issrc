@@ -2975,7 +2975,7 @@ begin
           if SetupHeader.PrivilegesRequired = prLowest then begin
             case TaskDialogMsgBox(SetupMessages[msgPrivilegesRequiredOverrideInstruction], SetupMessages[msgPrivilegesRequiredOverrideContent2],
                    FmtSetupMessage(msgPrivilegesRequiredOverrideContent2WithQuestion, [SetupMessages[msgPrivilegesRequiredOverrideContent2]]),
-                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, [SetupMessages[msgPrivilegesRequiredOverrideConfirm2], SetupMessages[msgPrivilegesRequiredOverrideConfirm1]], IDNO) of
+                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, [SetupMessages[msgPrivilegesRequiredOverrideConfirm2], SetupMessages[msgPrivilegesRequiredOverrideConfirm1]], IDNO, False) of
               IDYES:
                 ExtraRespawnParam := '/CURRENTUSER';
               IDNO:
@@ -2989,7 +2989,7 @@ begin
           end else begin
             case TaskDialogMsgBox(SetupMessages[msgPrivilegesRequiredOverrideInstruction], SetupMessages[msgPrivilegesRequiredOverrideContent1],
                    FmtSetupMessage(msgPrivilegesRequiredOverrideContent2WithQuestion, [SetupMessages[msgPrivilegesRequiredOverrideContent2]]),
-                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, [SetupMessages[msgPrivilegesRequiredOverrideConfirm1], SetupMessages[msgPrivilegesRequiredOverrideConfirm2]], IDYES) of
+                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, [SetupMessages[msgPrivilegesRequiredOverrideConfirm1], SetupMessages[msgPrivilegesRequiredOverrideConfirm2]], IDYES, False) of
               IDYES:
                 ExtraRespawnParam := '/ALLUSERS';
               IDNO:
