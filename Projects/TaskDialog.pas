@@ -122,7 +122,6 @@ begin
   end;
   NButtonLabelsAvailable := Length(ButtonLabels);
   case Buttons of
-  //MB_DEFBUTTON1, MB_DEFBUTTON2, MB_DEFBUTTON3, MB_SETFOREGROUND
     MB_OK, MB_OKCANCEL:
       begin
         if NButtonLabelsAvailable = 0 then
@@ -145,7 +144,6 @@ begin
         if Buttons = MB_YESNOCANCEL then
           TDCommonButtons := TDCommonButtons or TDCBF_CANCEL_BUTTON;
       end;
-    //MB_ABORTRETRYIGNORE: TDCBF_ABORT_BUTTON and TDCBF_IGNORE_BUTTON don't exist
     MB_RETRYCANCEL:
       begin
         if NButtonLabelsAvailable = 0 then
