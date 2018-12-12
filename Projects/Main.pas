@@ -2968,10 +2968,10 @@ begin
         { Apply InitPrivilegesRequired }
         if HasInitPrivilegesRequired and (proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed) then
           SetupHeader.PrivilegesRequired := InitPrivilegesRequired
-        else if not InitSuppressMsgBoxes and (proMsgBox in SetupHeader.PrivilegesRequiredOverridesAllowed) then begin
+        else if not InitSuppressMsgBoxes and (proDialog in SetupHeader.PrivilegesRequiredOverridesAllowed) then begin
           { Ask user. Doesn't log since logging hasn't started yet. Also doesn't use ExpandedAppName since it isn't set yet.
             Afterwards we need to tell the respawned Setup about the user choice (and avoid it asking agin). Will use the
-            command line parameter for this. Allowing proMsgBox forces allowing proCommandLine, so we can count on the parameter to work. }
+            command line parameter for this. Allowing proDialog forces allowing proCommandLine, so we can count on the parameter to work. }
           if SetupHeader.PrivilegesRequired = prLowest then begin
             case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
                    SetupMessages[msgPrivilegesRequiredOverrideTaskDialogText2], SetupMessages[msgPrivilegesRequiredOverrideMsgBoxText2],
