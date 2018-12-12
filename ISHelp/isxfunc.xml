@@ -2352,7 +2352,8 @@ end;</pre></example>
     // user clicked Yes
   end;
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_SuppressibleMsgBox">SuppressibleMsgBox</link></p></seealso>
+        <seealso><p><link topic="isxfunc_SuppressibleMsgBox">SuppressibleMsgBox</link><br />
+<link topic="isxfunc_TaskDialogMsgBox">TaskDialogMsgBox</link></p></seealso>
       </function>
       <function>
         <name>SuppressibleMsgBox</name>
@@ -2392,7 +2393,8 @@ end;</pre></example>
     IDNO: MsgBox('You chose B.', mbInformation, MB_OK);
   end;
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_SuppressibleTaskDialogMsgBox">SuppressibleTaskDialogMsgBox</link></p></seealso>
+        <seealso><p><link topic="isxfunc_SuppressibleTaskDialogMsgBox">SuppressibleTaskDialogMsgBox</link><br />
+<link topic="isxfunc_MsgBox">MsgBox</link></p></seealso>
       </function>
       <function>
         <name>SuppressibleTaskDialogMsgBox</name>
