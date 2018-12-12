@@ -66,12 +66,13 @@ UninstallAppRunningError=Uninstall has detected that %1 is currently running.%n%
 
 ; *** Startup questions
 PrivilegesRequiredOverrideInstruction=Choose install mode
-PrivilegesRequiredOverrideContent1=This program can be installed for all users (recommended, but requires administrative privileges), or for yourself only.
-PrivilegesRequiredOverrideContent1WithQuestion=%1%n%nInstall for all users?
-PrivilegesRequiredOverrideConfirm1=Install for all users%nThe program will be available for all users on this computer.
-PrivilegesRequiredOverrideContent2=This program can be installed for yourself only (recommended), or for all users (requires administrative privileges).
-PrivilegesRequiredOverrideContent2WithQuestion=%1%n%nInstall for yourself only?
-PrivilegesRequiredOverrideConfirm2=Install for myself only%nThe program will be available for yourself only.
+PrivilegesRequiredOverrideTaskDialogText1=This program can be installed for all users (requires administrative privileges), or for you only.
+PrivilegesRequiredOverrideMsgBoxText1=This program can be installed for all users (recommended, but requires administrative privileges), or for you only.%n%nInstall for all users?
+PrivilegesRequiredOverrideTaskDialogText2=This program can be installed for you only, or for all users (requires administrative privileges).
+PrivilegesRequiredOverrideMsgBoxText2=This program can be installed for you only (recommended), or for all users (requires administrative privileges).%n%nInstall for you only?
+PrivilegesRequiredOverrideAllUsers=Install for all users
+PrivilegesRequiredOverrideCurrentUser=Install for me only
+PrivilegesRequiredOverrideRecommended=%1 (recommended)
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup was unable to create the directory "%1"

@@ -14,7 +14,7 @@ interface
 uses
   CmnFunc;
 
-function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;
+function TaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;
 
 implementation
 
@@ -52,6 +52,7 @@ begin
         Config.dwFlags := Config.dwFlags or TDF_RTL_LAYOUT;
       { If the application window isn't currently visible, show the task dialog
         with no owner window so it'll get a taskbar button } 
+      Config.hInstance := HInstance;
       if IsIconic(Application.Handle) or
          (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or
          (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then
@@ -101,19 +102,23 @@ begin
     Result := False;
 end;
 
-function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;
+function TaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;
 var
-  Icon: PChar;
+  IconP: PChar;
   TDCommonButtons: Cardinal;
   NButtonLabelsAvailable: Integer;
   ButtonIDs: array of Integer;
 begin
-  case Typ of
-    mbInformation: Icon := TD_INFORMATION_ICON;
-    mbError: Icon := TD_WARNING_ICON;
-    mbCriticalError: Icon := TD_ERROR_ICON;
-  else
-    Icon := nil; { No other TD_ constant available, MS recommends to use no icon for questions now and the old icon should only be used for help entries }
+  if Icon <> '' then
+    IconP := PChar(Icon)
+  else begin
+    case Typ of
+      mbInformation: IconP := TD_INFORMATION_ICON;
+      mbError: IconP := TD_WARNING_ICON;
+      mbCriticalError: IconP := TD_ERROR_ICON;
+    else
+      IconP := nil; { No other TD_ constant available, MS recommends to use no icon for questions now and the old icon should only be used for help entries }
+    end;
   end;
   NButtonLabelsAvailable := Length(ButtonLabels);
   case Buttons of
@@ -161,7 +166,7 @@ begin
     InternalError('TaskDialogMsgBox: Invalid ButtonLabels');
   if ForceMsgBox or
      not DoTaskDialog(Application.Handle, PChar(Instruction), PChar(TaskDialogText),
-           GetMessageBoxCaption(PChar(Caption), Typ), Icon, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
+           GetMessageBoxCaption(PChar(Caption), Typ), IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
            GetMessageBoxRightToLeft, IfThen(Typ = mbCriticalError, MB_ICONSTOP, 0), Result) then
     Result := MsgBox(MsgBoxText, IfThen(Instruction <> '', Instruction, Caption), Typ, Buttons);
 end;

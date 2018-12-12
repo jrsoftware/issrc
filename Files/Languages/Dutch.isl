@@ -49,12 +49,13 @@ UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit 
 
 ; *** Startup questions
 PrivilegesRequiredOverrideInstruction=Kies installatie modus
-PrivilegesRequiredOverrideContent1=Dit programma kan geïnstalleerd worden voor alle gebruikers (aanbevolen, maar vereist aanmelding als een systeembeheerder), of voor uzelf alleen.
-PrivilegesRequiredOverrideContent1WithQuestion=%1%n%nWilt u voor alle gebruikers installeren?
-PrivilegesRequiredOverrideConfirm1=Installeer voor alle gebruikers%nHet programma zal beschikbaar zijn voor alle gebruikers op deze computer.
-PrivilegesRequiredOverrideContent2=Dit programma kan geïnstalleerd worden voor uzelf alleen (aanbevolen), of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
-PrivilegesRequiredOverrideContent2WithQuestion=%1%n%nWilt u voor uzelf alleen installeren?
-PrivilegesRequiredOverrideConfirm2=Installeer voor mijzelf alleen%nHet programma zal beschikbaar zijn voor uzelf alleen.
+PrivilegesRequiredOverrideTaskDialogText1=Dit programma kan geïnstalleerd worden voor alle gebruikers (vereist aanmelding als een systeembeheerder), of voor u alleen.
+PrivilegesRequiredOverrideMsgBoxText1=Dit programma kan geïnstalleerd worden voor alle gebruikers (aanbevolen, maar vereist aanmelding als een systeembeheerder), of voor u alleen.%n%nWilt u voor alle gebruikers installeren?
+PrivilegesRequiredOverrideTaskDialogText2=Dit programma kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
+PrivilegesRequiredOverrideMsgBoxText2=Dit programma kan geïnstalleerd worden voor u alleen (aanbevolen), of voor alle gebruikers (vereist aanmelding als een systeembeheerder).%n%nWilt u voor u alleen installeren?
+PrivilegesRequiredOverrideAllUsers=Installeer voor alle gebruikers
+PrivilegesRequiredOverrideCurrentUser=Installeer voor mij alleen
+PrivilegesRequiredOverrideRecommended=%1 (aanbevolen)
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup kan de map "%1" niet maken

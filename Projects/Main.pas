@@ -2973,9 +2973,10 @@ begin
             Afterwards we need to tell the respawned Setup about the user choice (and avoid it asking agin). Will use the
             command line parameter for this. Allowing proMsgBox forces allowing proCommandLine, so we can count on the parameter to work. }
           if SetupHeader.PrivilegesRequired = prLowest then begin
-            case TaskDialogMsgBox(SetupMessages[msgPrivilegesRequiredOverrideInstruction], SetupMessages[msgPrivilegesRequiredOverrideContent2],
-                   FmtSetupMessage(msgPrivilegesRequiredOverrideContent2WithQuestion, [SetupMessages[msgPrivilegesRequiredOverrideContent2]]),
-                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, [SetupMessages[msgPrivilegesRequiredOverrideConfirm2], SetupMessages[msgPrivilegesRequiredOverrideConfirm1]], IDNO, False) of
+            case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+                   SetupMessages[msgPrivilegesRequiredOverrideTaskDialogText2], SetupMessages[msgPrivilegesRequiredOverrideMsgBoxText2],
+                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
+                   [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]]), SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO, False) of
               IDYES:
                 ExtraRespawnParam := '/CURRENTUSER';
               IDNO:
@@ -2987,9 +2988,10 @@ begin
                 Abort;
               end;
           end else begin
-            case TaskDialogMsgBox(SetupMessages[msgPrivilegesRequiredOverrideInstruction], SetupMessages[msgPrivilegesRequiredOverrideContent1],
-                   FmtSetupMessage(msgPrivilegesRequiredOverrideContent2WithQuestion, [SetupMessages[msgPrivilegesRequiredOverrideContent2]]),
-                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL, [SetupMessages[msgPrivilegesRequiredOverrideConfirm1], SetupMessages[msgPrivilegesRequiredOverrideConfirm2]], IDYES, False) of
+            case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+                   SetupMessages[msgPrivilegesRequiredOverrideTaskDialogText1], SetupMessages[msgPrivilegesRequiredOverrideMsgBoxText1],
+                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
+                   [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideAllUsers]]), SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES, False) of
               IDYES:
                 ExtraRespawnParam := '/ALLUSERS';
               IDNO:
