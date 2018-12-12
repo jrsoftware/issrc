@@ -2367,9 +2367,9 @@ end;</pre></example>
 <p>If a task dialog is displayed:<br />
 <tt>Instruction</tt> specifies the instruction to display.<br />
 <tt>TaskDialogText</tt> specifies the message to display.<br />
-<tt>Typ</tt> specifies which icon to display in the message box. If set to <tt>mbConfirmation</tt>, no icon will be displayed.<br />
-<tt>Buttons</tt> specifies which buttons to include in the message box.<br />
-<tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists on two strings separated by a newline, then the first string specifies the button label and the second string specifies the button note.<br />
+<tt>Typ</tt> specifies which icon to display in the task dialog. If set to <tt>mbConfirmation</tt>, no icon will be displayed.<br />
+<tt>Buttons</tt> specifies which buttons to include in the task dialog.<br />
+<tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline, then the first string specifies the button label and the second string specifies the button note.<br />
 <tt>ShieldButton</tt> specifies which button to display a shield icon on. If set to 0, no shield icon will be displayed.</p>
 <p>If a a regular message box is displayed:<br/>
 <tt>Instruction</tt> specifies the caption to display. If set to an empty string, the default caption will be displayed.<br />
