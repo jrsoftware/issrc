@@ -220,6 +220,9 @@ function LoggedAppMessageBox(const Text, Caption: PChar; const Flags: Longint;
   const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
+function LoggedTaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String;
+  const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
+  const ShieldButton: Integer; const ForceMsgBox: Boolean; const Suppressible: Boolean; const Default: Integer): Integer;
 procedure LogWindowsVersion;
 procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
@@ -2371,6 +2374,24 @@ begin
       LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
     else
       Log('MsgBox failed.');
+  end;
+end;
+
+function LoggedTaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String;
+  const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
+  const ShieldButton: Integer; const ForceMsgBox: Boolean; const Suppressible: Boolean; const Default: Integer): Integer;
+begin
+  if InitSuppressMsgBoxes and Suppressible then begin
+    LogSuppressedMessageBox(PChar(TaskDialogText), Buttons, Default);
+    Result := Default;
+  end else begin
+    LogMessageBox(PChar(TaskDialogText), Buttons);
+    Result := TaskDialogMsgBox(Icon, Instruction, TaskDialogText, MsgBoxText,
+      Caption, Typ, Buttons, ButtonLabels, ShieldButton, ForceMsgBox);
+    if Result <> 0 then
+      LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
+    else
+      Log('TaskDialogMsgBox failed.');
   end;
 end;
 

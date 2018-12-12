@@ -26,7 +26,7 @@ uses
   {$IFNDEF Delphi3orHigher} Ole2, {$ELSE} ActiveX, {$ENDIF}
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
   Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
-  SetupTypes, Int64Em, MD5, SHA1, Logging, TaskDialog, SetupForm, RegDLL, Helper,
+  SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
   SpawnClient, UninstProgressForm;
 
 var
@@ -1535,7 +1535,7 @@ begin
     SetLength(ButtonLabels, N);
     for I := 0 to N-1 do
       ButtonLabels[I] := VNGetString(PSGetArrayField(Arr, I));
-    Stack.SetInt(PStart, TaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-4)), Stack.GetInt(PStart-5), ButtonLabels, Stack.GetInt(PStart-7), Stack.GetBool(PStart-8)));
+    Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-4)), Stack.GetInt(PStart-5), ButtonLabels, Stack.GetInt(PStart-7), Stack.GetBool(PStart-8), False, 0));
   end else
     Result := False;
 end;
