@@ -2791,7 +2791,7 @@ var
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
   MinimumTypeSpace: Integer64;
   SourceWildcard: String;
-  ExpandedSetupMutex, ExtraRespawnParam, RespawnParams: String;
+  ExpandedSetupMutex, AppName, ExtraRespawnParam, RespawnParams: String;
 begin
   InitializeCommonVars;
 
@@ -2993,9 +2993,14 @@ begin
           { Ask user. Doesn't log since logging hasn't started yet. Also doesn't use ExpandedAppName since it isn't set yet.
             Afterwards we need to tell the respawned Setup about the user choice (and avoid it asking agin). Will use the
             command line parameter for this. Allowing proDialog forces allowing proCommandLine, so we can count on the parameter to work. }
+          if shAppNameHasConsts in SetupHeader.Options then
+            AppName := SetupMessages[msgPrivilegesRequiredOverrideThisProgram]
+          else
+            AppName := SetupHeader.AppName;          
           if SetupHeader.PrivilegesRequired = prLowest then begin
             case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
-                   SetupMessages[msgPrivilegesRequiredOverrideTaskDialogText2], SetupMessages[msgPrivilegesRequiredOverrideMsgBoxText2],
+                   FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText2, [AppName]),
+                   FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText2, [AppName]),
                    SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
                    [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]]), SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO, False) of
               IDYES:
@@ -3010,7 +3015,8 @@ begin
               end;
           end else begin
             case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
-                   SetupMessages[msgPrivilegesRequiredOverrideTaskDialogText1], SetupMessages[msgPrivilegesRequiredOverrideMsgBoxText1],
+                   FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText1, [AppName]),
+                   FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText1, [AppName]),
                    SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
                    [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideAllUsers]]), SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES, False) of
               IDYES:

@@ -66,10 +66,11 @@ UninstallAppRunningError=Uninstall has detected that %1 is currently running.%n%
 
 ; *** Startup questions
 PrivilegesRequiredOverrideInstruction=Choose install mode
-PrivilegesRequiredOverrideTaskDialogText1=This program can be installed for all users (requires administrative privileges), or for you only.
-PrivilegesRequiredOverrideMsgBoxText1=This program can be installed for all users (recommended, but requires administrative privileges), or for you only.%n%nInstall for all users?
-PrivilegesRequiredOverrideTaskDialogText2=This program can be installed for you only, or for all users (requires administrative privileges).
-PrivilegesRequiredOverrideMsgBoxText2=This program can be installed for you only (recommended), or for all users (requires administrative privileges).%n%nInstall for you only?
+PrivilegesRequiredOverrideThisProgram=This program
+PrivilegesRequiredOverrideTaskDialogText1=%1 can be installed for all users (requires administrative privileges), or for you only.
+PrivilegesRequiredOverrideMsgBoxText1=%1 can be installed for all users (recommended, but requires administrative privileges), or for you only.%n%nInstall for all users?
+PrivilegesRequiredOverrideTaskDialogText2=%1 can be installed for you only, or for all users (requires administrative privileges).
+PrivilegesRequiredOverrideMsgBoxText2=%1 can be installed for you only (recommended), or for all users (requires administrative privileges).%n%nInstall for you only?
 PrivilegesRequiredOverrideAllUsers=Install for all users
 PrivilegesRequiredOverrideCurrentUser=Install for me only
 PrivilegesRequiredOverrideRecommended=%1 (recommended)

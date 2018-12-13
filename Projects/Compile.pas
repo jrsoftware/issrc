@@ -8611,10 +8611,13 @@ begin
       AbortCompile(SCompilerAppVersionOrAppVerNameRequired);
     LineNumber := SetupDirectiveLines[ssAppName];
     AppNameHasConsts := CheckConst(SetupHeader.AppName, SetupHeader.MinVersion, []);
-    if AppNameHasConsts and not(shDisableStartupPrompt in SetupHeader.Options) then begin
-      { AppName has contants so DisableStartupPrompt must be used }
-      LineNumber := SetupDirectiveLines[ssDisableStartupPrompt];
-      AbortCompile(SCompilerMustUseDisableStartupPrompt);
+    if AppNameHasConsts then begin
+      Include(SetupHeader.Options, shAppNameHasConsts);
+      if not(shDisableStartupPrompt in SetupHeader.Options) then begin
+        { AppName has contants so DisableStartupPrompt must be used }
+        LineNumber := SetupDirectiveLines[ssDisableStartupPrompt];
+        AbortCompile(SCompilerMustUseDisableStartupPrompt);
+      end;
     end;
     if SetupHeader.AppId = '' then
       SetupHeader.AppId := SetupHeader.AppName
