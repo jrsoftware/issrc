@@ -68,7 +68,8 @@ uses
   ResUpdate in 'ResUpdate.pas',
   SpawnCommon in 'SpawnCommon.pas',
   SpawnServer in 'SpawnServer.pas',
-  SpawnClient in 'SpawnClient.pas';
+  SpawnClient in 'SpawnClient.pas',
+  TaskDialog in 'TaskDialog.pas';
 
 {$R *.RES}
 {$IFDEF UNICODE}

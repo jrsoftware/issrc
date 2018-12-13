@@ -3705,7 +3705,7 @@ var
 
   function StrToPrivilegesRequiredOverrides(S: String): TSetupPrivilegesRequiredOverrides;
   const
-    Overrides: array[0..1] of PChar = ('commandline', 'msgbox');
+    Overrides: array[0..1] of PChar = ('commandline', 'dialog');
   begin
     Result := [];
     while True do
@@ -3713,7 +3713,7 @@ var
         -2: Break;
         -1: Invalid;
         0: Include(Result, proCommandLine);
-        1: Result := Result + [proCommandLine, proMsgBox];
+        1: Result := Result + [proCommandLine, proDialog];
       end;
   end;
 var
@@ -8632,10 +8632,13 @@ begin
       AbortCompile(SCompilerAppVersionOrAppVerNameRequired);
     LineNumber := SetupDirectiveLines[ssAppName];
     AppNameHasConsts := CheckConst(SetupHeader.AppName, SetupHeader.MinVersion, []);
-    if AppNameHasConsts and not(shDisableStartupPrompt in SetupHeader.Options) then begin
-      { AppName has contants so DisableStartupPrompt must be used }
-      LineNumber := SetupDirectiveLines[ssDisableStartupPrompt];
-      AbortCompile(SCompilerMustUseDisableStartupPrompt);
+    if AppNameHasConsts then begin
+      Include(SetupHeader.Options, shAppNameHasConsts);
+      if not(shDisableStartupPrompt in SetupHeader.Options) then begin
+        { AppName has contants so DisableStartupPrompt must be used }
+        LineNumber := SetupDirectiveLines[ssDisableStartupPrompt];
+        AbortCompile(SCompilerMustUseDisableStartupPrompt);
+      end;
     end;
     if SetupHeader.AppId = '' then
       SetupHeader.AppId := SetupHeader.AppName

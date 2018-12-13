@@ -47,9 +47,8 @@ const
   );
 
   { CmnFunc }
-  CmnFuncTable: array [0..1] of AnsiString =
+  CmnFuncTable: array [0..0] of AnsiString =
   (
-    'function MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;',
     'function MinimizePathName(const Filename: String; const Font: TFont; MaxLen: Integer): String;'
   );
 
@@ -181,7 +180,7 @@ const
   );
 
   { Main }
-  MainTable: array [0..23] of AnsiString =
+  MainTable: array [0..26] of AnsiString =
   (
     'function WizardForm: TWizardForm;',
     'function MainForm: TMainForm;',
@@ -196,7 +195,10 @@ const
     'function GetWindowsVersion: Cardinal;',
     'procedure GetWindowsVersionEx(var Version: TWindowsVersion);',
     'function GetWindowsVersionString: String;',
+    'function MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;',
     'function SuppressibleMsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons, Default: Integer): Integer;',
+    'function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;',
+    'function SuppressibleTaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const ForceMsgBox: Boolean;'+'const Default: Integer): Integer;',
     'function IsWin64: Boolean;',
     'function Is64BitInstallMode: Boolean;',
     'function ProcessorArchitecture: TSetupProcessorArchitecture;',
