@@ -360,9 +360,7 @@ begin
   PStart := Stack.Count-1;
   Result := True;
 
-  if Proc.Name = 'MSGBOX' then begin
-    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), False, 0));
-  end else if Proc.Name = 'MINIMIZEPATHNAME' then begin
+  if Proc.Name = 'MINIMIZEPATHNAME' then begin
     Stack.SetString(PStart, MinimizePathName(Stack.GetString(PStart-1), TFont(Stack.GetClass(PStart-2)), Stack.GetInt(PStart-3)));
   end else
     Result := False;
@@ -967,6 +965,11 @@ var
   MinVersion, OnlyBelowVersion: TSetupVersionData;
   WizardComponents, WizardTasks: TStringList;
   S: String;
+  Suppressible: Boolean;
+  Default: Integer;
+  Arr: TPSVariantIFC;
+  N, I: Integer;
+  ButtonLabels: array of String;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -1021,8 +1024,29 @@ begin
   end else if Proc.Name = 'GETWINDOWSVERSIONSTRING' then begin
     Stack.SetString(PStart, Format('%u.%.2u.%u', [WindowsVersion shr 24,
       (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF]));
-  end else if Proc.Name = 'SUPPRESSIBLEMSGBOX' then begin
-    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), True, Stack.GetInt(PStart-4)));
+  end else if (Proc.Name = 'MSGBOX') or (Proc.Name = 'SUPPRESSIBLEMSGBOX') then begin
+    if Proc.Name = 'MSGBOX' then begin
+      Suppressible := False;
+      Default := 0;
+    end else begin
+      Suppressible := True;
+      Default := Stack.GetInt(PStart-4);
+    end;
+    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), Suppressible, Default));
+  end else if (Proc.Name = 'TASKDIALOGMSGBOX') or (Proc.Name = 'SUPPRESSIBLETASKDIALOGMSGBOX') then begin
+    if Proc.Name = 'TASKDIALOGMSGBOX' then begin
+      Suppressible := False;
+      Default := 0;
+    end else begin
+      Suppressible := True;
+      Default := Stack.GetInt(PStart-9);
+    end;
+    Arr := NewTPSVariantIFC(Stack[PStart-6], True);
+    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
+    SetLength(ButtonLabels, N);
+    for I := 0 to N-1 do
+      ButtonLabels[I] := VNGetString(PSGetArrayField(Arr, I));
+    Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-4)), Stack.GetInt(PStart-5), ButtonLabels, Stack.GetInt(PStart-7), Stack.GetBool(PStart-8), Suppressible, Default));
   end else if Proc.Name = 'ISWIN64' then begin
     Stack.SetBool(PStart, IsWin64);
   end else if Proc.Name = 'IS64BITINSTALLMODE' then begin
@@ -1518,28 +1542,6 @@ begin
     Result := False;
 end;
 
-{ TaskDialog }
-function TaskDialogProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
-var
-  PStart: Cardinal;
-  Arr: TPSVariantIFC;
-  N, I: Integer;
-  ButtonLabels: array of String;
-begin
-  PStart := Stack.Count-1;
-  Result := True;
-
-  if Proc.Name = 'TASKDIALOGMSGBOX' then begin
-    Arr := NewTPSVariantIFC(Stack[PStart-6], True);
-    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
-    SetLength(ButtonLabels, N);
-    for I := 0 to N-1 do
-      ButtonLabels[I] := VNGetString(PSGetArrayField(Arr, I));
-    Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-4)), Stack.GetInt(PStart-5), ButtonLabels, Stack.GetInt(PStart-7), Stack.GetBool(PStart-8), False, 0));
-  end else
-    Result := False;
-end;
-
 { Other }
 function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
@@ -1869,7 +1871,6 @@ begin
   RegisterFunctionTable(WindowsTable, @WindowsProc);
   RegisterFunctionTable(Ole2Table, @Ole2Proc);
   RegisterFunctionTable(LoggingTable, @LoggingProc);
-  RegisterFunctionTable(TaskDialogTable, @TaskDialogProc);
   RegisterFunctionTable(OtherTable, @OtherProc);
 
   ScriptInterpreter.RegisterDelphiFunction(@_FindFirst, 'FindFirst', cdRegister);

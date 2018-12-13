@@ -2398,7 +2398,7 @@ end;</pre></example>
       </function>
       <function>
         <name>SuppressibleTaskDialogMsgBox</name>
-        <prototype>function SuppressibleTaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const ForceMsgBox: Boolean; const Default: Integer): Integer;): Integer;</prototype>
+        <prototype>function SuppressibleTaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const ForceMsgBox: Boolean; const Default: Integer): Integer;</prototype>
         <description><p>Displays a suppressible task dialog. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, SuppressibleTaskDialogMsgBox acts the same as the regular <link topic="isxfunc_TaskDialogMsgBox">TaskDialogMsgBox</link>.</p></description>
       </function>
       <function>
