@@ -1590,12 +1590,9 @@ procedure TPreprocessor.IncludeFile(FileName: string;
       Result := False;
   end;
 
-var
-  SearchDirs, FullFileName: string;
-
   procedure AddToPath(var Path: string; const Dir: string);
   begin
-    if (Dir <> '') and (Pos(Dir, Path) = 0) then
+    if (Dir <> '') and (Pos(';' + Dir + ';', ';' + Path + ';') = 0) then
     begin
       if Path <> '' then Path := Path + ';';
       Path := Path + Dir;
@@ -1609,17 +1606,17 @@ var
       Delete(Result, Length(Result), 1);
   end;
 
-  procedure DoSearch;
+  function DoSearch(const SearchDirs: String): String;
   var
     FilePart: PChar;
   begin
-    SetLength(FullFileName, MAX_PATH);
-    SetLength(FullFileName, SearchPath(PChar(SearchDirs), PChar(FileName), nil, MAX_PATH,
-      PChar(FullFileName), FilePart));
+    SetLength(Result, MAX_PATH);
+    SetLength(Result, SearchPath(PChar(SearchDirs), PChar(FileName), nil, MAX_PATH,
+      PChar(Result), FilePart));
   end;
 
 var
-  CurPath: String;
+  CurPath, SearchDirs, FullFileName: String;
   FileHandle: TPreprocFileHandle;
   I, FileIndex: Integer;
   J: Word;
@@ -1630,7 +1627,7 @@ begin
     FCurrentFile := 0;
     FCurrentLine := 0;
   end;
-
+  
   { Expand any prefix on the filename (e.g. 'compiler:') }
   FileName := PrependDirName(FileName, '');
 
@@ -1661,7 +1658,7 @@ begin
       AddToPath(SearchDirs, RemoveSlash(FCompilerPath));
   end;
 
-  DoSearch;
+  FullFileName := DoSearch(SearchDirs);
 
   if FullFileName <> '' then
   begin
