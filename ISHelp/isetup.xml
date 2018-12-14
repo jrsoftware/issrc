@@ -3205,7 +3205,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>The Exit Setup? message box.</li>
 <li>The FileNotInDir2 message box displayed when Setup requires a new disk to be inserted and the disk was not found.</li>
 <li>Any (error) message box displayed before Setup (or Uninstall) could read the command line parameters.</li>
-<li>Any message box displayed by [Code] support function <tt>MsgBox</tt>.</li>
+<li>Any task dialog or message box displayed by [Code] support functions <tt>TaskDialogMsgBox</tt> and <tt>MsgBox</tt>.</li>
 </ul>
 </dd>
 
@@ -3958,13 +3958,13 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="PrivilegesRequiredOverridesAllowed">
 <keyword value="commandline" />
-<keyword value="msgbox" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>commandline</tt> <br/><tt>msgbox</tt></setupvalid>
+<keyword value="dialog" />
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>commandline</tt> <br/><tt>dialog</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Can be set to one or more overrides which allow the end user to override the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting.</p>
 <p>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting: /ALLUSERS and /CURRENTUSER. See <link topic="setupcmdline" anchor="ALLUSERS">Setup Command Line Parameters</link> for more details.</p>
-<p>If override <tt>msgbox</tt> is allowed then Setup will ask the user whether administrative or non administrative install mode should be used based on the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting. Allowing <tt>msgbox</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</p>
+<p>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting using a suppressible dialog. Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</p>
 </body>
 </setuptopic>
 
@@ -5400,6 +5400,7 @@ SignTool=byparam format c:
 <tr><td>10.0.15063</td><td>Windows 10 Version 1703 (Creators Update)</td></tr>
 <tr><td>10.0.16299</td><td>Windows 10 Version 1709 (Fall Creators Update)</td></tr>
 <tr><td>10.0.17134</td><td>Windows 10 Version 1803 (April 2018 Update)</td></tr>
+<tr><td>10.0.17763</td><td>Windows 10 Version 1809 (October 2018 Update)</td></tr>
 </table>
 <p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>
@@ -5409,11 +5410,15 @@ SignTool=byparam format c:
 <keyword value="User &amp; Group Identifiers" />
 <body>
 <table>
-<tr><td><tt>admins</tt></td><td>Built-in Administrators group</td></tr>
+<tr><td><tt>admins</tt></td><td>Administrators group</td></tr>
 <tr><td><tt>authusers</tt></td><td>Authenticated Users group</td></tr>
+<tr><td><tt>createowner</tt></td><td>Creator Owner</td></tr>
 <tr><td><tt>everyone</tt></td><td>Everyone group</td></tr>
-<tr><td><tt>system</tt></td><td>Local SYSTEM user</td></tr>
-<tr><td><tt>users</tt></td><td>Built-in Users group</td></tr>
+<tr><td><tt>guests</tt></td><td>Guests group</td></tr>
+<tr><td><tt>networkservice</tt></td><td>Network service account</td></tr>
+<tr><td><tt>service</tt></td><td>Local service account</td></tr>
+<tr><td><tt>system</tt></td><td>Local system account</td></tr>
+<tr><td><tt>users</tt></td><td>Users group</td></tr>
 </table>
 </body>
 </topic>

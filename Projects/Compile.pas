@@ -3324,14 +3324,19 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
   const
     SECURITY_WORLD_SID_AUTHORITY = 1;
     SECURITY_WORLD_RID = $00000000;
+    SECURITY_CREATOR_SID_AUTHORITY = 3;
+    SECURITY_CREATOR_OWNER_RID = $00000000;
     SECURITY_NT_AUTHORITY = 5;
     SECURITY_AUTHENTICATED_USER_RID = $0000000B;
     SECURITY_LOCAL_SYSTEM_RID = $00000012;
+    SECURITY_LOCAL_SERVICE_RID = $00000013;
+    SECURITY_NETWORK_SERVICE_RID = $00000014;
     SECURITY_BUILTIN_DOMAIN_RID = $00000020;
     DOMAIN_ALIAS_RID_ADMINS = $00000220;
     DOMAIN_ALIAS_RID_USERS = $00000221;
+    DOMAIN_ALIAS_RID_GUESTS = $00000222;
     DOMAIN_ALIAS_RID_POWER_USERS = $00000223;
-    KnownSids: array[0..5] of TKnownSid = (
+    KnownSids: array[0..9] of TKnownSid = (
       (Name: 'admins';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 2;
@@ -3340,14 +3345,30 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 1;
              SubAuth: (SECURITY_AUTHENTICATED_USER_RID, 0))),
+      (Name: 'creatorowner';
+       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_CREATOR_SID_AUTHORITY));
+             SubAuthCount: 1;
+             SubAuth: (SECURITY_CREATOR_OWNER_RID, 0))),
       (Name: 'everyone';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_WORLD_SID_AUTHORITY));
              SubAuthCount: 1;
              SubAuth: (SECURITY_WORLD_RID, 0))),
+      (Name: 'guests';
+       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
+             SubAuthCount: 2;
+             SubAuth: (SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_GUESTS))),
+      (Name: 'networkservice';
+       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
+             SubAuthCount: 1;
+             SubAuth: (SECURITY_NETWORK_SERVICE_RID, 0))),
       (Name: 'powerusers';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 2;
              SubAuth: (SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_POWER_USERS))),
+      (Name: 'service';
+       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
+             SubAuthCount: 1;
+             SubAuth: (SECURITY_LOCAL_SERVICE_RID, 0))),
       (Name: 'system';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 1;
@@ -3684,7 +3705,7 @@ var
 
   function StrToPrivilegesRequiredOverrides(S: String): TSetupPrivilegesRequiredOverrides;
   const
-    Overrides: array[0..1] of PChar = ('commandline', 'msgbox');
+    Overrides: array[0..1] of PChar = ('commandline', 'dialog');
   begin
     Result := [];
     while True do
@@ -3692,7 +3713,7 @@ var
         -2: Break;
         -1: Invalid;
         0: Include(Result, proCommandLine);
-        1: Result := Result + [proCommandLine, proMsgBox];
+        1: Result := Result + [proCommandLine, proDialog];
       end;
   end;
 var
@@ -8611,10 +8632,13 @@ begin
       AbortCompile(SCompilerAppVersionOrAppVerNameRequired);
     LineNumber := SetupDirectiveLines[ssAppName];
     AppNameHasConsts := CheckConst(SetupHeader.AppName, SetupHeader.MinVersion, []);
-    if AppNameHasConsts and not(shDisableStartupPrompt in SetupHeader.Options) then begin
-      { AppName has contants so DisableStartupPrompt must be used }
-      LineNumber := SetupDirectiveLines[ssDisableStartupPrompt];
-      AbortCompile(SCompilerMustUseDisableStartupPrompt);
+    if AppNameHasConsts then begin
+      Include(SetupHeader.Options, shAppNameHasConsts);
+      if not(shDisableStartupPrompt in SetupHeader.Options) then begin
+        { AppName has contants so DisableStartupPrompt must be used }
+        LineNumber := SetupDirectiveLines[ssDisableStartupPrompt];
+        AbortCompile(SCompilerMustUseDisableStartupPrompt);
+      end;
     end;
     if SetupHeader.AppId = '' then
       SetupHeader.AppId := SetupHeader.AppName

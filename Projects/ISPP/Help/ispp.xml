@@ -242,8 +242,8 @@
 				</syntax>
 				<description>
 					<para>Includes the &translation; of the specified file.</para>
-					<para>If the filename is enclosed in angle brackets, ISPP first searches for the file in the directory where current file resides, then in the directory where the file that included current file resides, and so on. If the file is not found, it is searched on current include path, set via &pragma;, then on the path specified by INCLUDE environment variable.</para>
-					<para>If filename is an expression or specified in quotes, it is searched on current include path only.</para>
+					<para>If the filename is enclosed in quotes, ISPP first searches for the file in the directory where current file resides, then in the directory where the file that included current file resides, and so on. If the file is not found, it is searched on current include path, set via &pragma;, then on the path specified by INCLUDE environment variable.</para>
+					<para>If filename is an expression or specified in angle brackets, it is searched on current include path only.</para>
           <para>The filename may be prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</para>
 					<para>This directive cannot be used inline.</para>
 				</description>
