@@ -2,7 +2,7 @@ unit BitmapImage;
 
 {
   Inno Setup
-  Copyright (C) 1997-2004 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -15,8 +15,6 @@ uses
   Windows, Controls, Graphics, Classes, Resample;
 
 type
-  TAlphaBitmap = TBitmap;
-
   TBitmapImage = class(TGraphicControl)
   private
     FAutoSize: Boolean;
