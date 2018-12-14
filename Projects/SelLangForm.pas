@@ -112,8 +112,11 @@ begin
    { If there's multiple languages, select the previous language, if available }
     if (shUsePreviousLanguage in SetupHeader.Options) and
        (LangForm.LangCombo.Items.Count > 1) then begin
+      { Note: if UsePreviousLanguage is set to "yes" then the compiler does not
+        allow AppId to include constants so we can safely use it here without
+        having to call ExpandConstant first. }
       { do not localize or change the following string }
-      PrevLang := GetPreviousData(ExpandConst(SetupHeader.AppId), 'Inno Setup: Language', '');
+      PrevLang := GetPreviousData(SetupHeader.AppId, 'Inno Setup: Language', '');
 
       if PrevLang <> '' then begin
         for I := 0 to Entries[seLanguage].Count-1 do begin
