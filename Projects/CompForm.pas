@@ -429,7 +429,7 @@ procedure InitFormFont(Form: TForm);
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, CommDlg, Consts,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, CommDlg, Consts, Types,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchemaISX, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}

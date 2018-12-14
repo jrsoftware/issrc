@@ -7,6 +7,7 @@
 library ISPP;
 
 {$IMAGEBASE $01800000}
+{$WEAKLINKRTTI ON}
 {$I ..\Version.inc}
 {$R *.RES}
 

@@ -179,7 +179,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <keyword value="Creating Installations" />
 <body>
 
-<p>Installations are created by means of <i>scripts</i>, which are ASCII text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!). <link topic="unicode">Unicode Inno Setup</link> also supports UTF-8 encoded text files.</p>
+<p>Installations are created by means of <i>scripts</i>, which are ASCII or UTF-8 encoded text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!).</p>
 
 <p>Scripts have an ".iss" (meaning Inno Setup Script) extension. The script controls every aspect of the installation. It specifies which files are to be installed and where, what shortcuts are to be created and what they are to be named, and so on.</p>
 
@@ -1064,7 +1064,6 @@ DefaultGroupName=My Program
 <li><link topic="setup_setuplogging">SetupLogging</link></li>
 <li><link topic="setup_setupmutex">SetupMutex</link></li>
 <li><link topic="setup_showlanguagedialog">ShowLanguageDialog</link></li>
-<li><link topic="setup_showundisplayablelanguages">ShowUndisplayableLanguages</link></li>
 <li><link topic="setup_timestamprounding">TimeStampRounding</link></li>
 <li><link topic="setup_timestampsinutc">TimeStampsInUTC</link></li>
 <li><link topic="setup_touchdate">TouchDate</link></li>
@@ -2069,21 +2068,13 @@ Filename: "MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; String: 
 
 <p>Setup determines the default language to use for its messages in the following order:</p>
 
-<p>Non-Unicode Inno Setup:</p>
-<ol>
-<li>It searches for a language whose <tt>LanguageID</tt> setting (normally specified in the [LangOptions] section of the language's .isl file) matches both the primary language identifier and sublanguage identifier of the current user's UI language or locale (depending on the setting of <link topic="setup_languagedetectionmethod">LanguageDetectionMethod</link>), and whose <tt>LanguageCodePage</tt> setting matches the system code page.</li>
-<li>If no match is found, it searches for just a primary language identifier and code page match. If two or more available languages have the same primary language identifier and code page, it selects the first one listed in the [Languages] section.</li>
-<li>If no match is found, it defaults to the first language specified in the [Languages] section.</li>
-</ol>
-
-<p><link topic="unicode">Unicode Inno Setup</link>:</p>
 <ol>
 <li>It searches for a language whose <tt>LanguageID</tt> setting (normally specified in the [LangOptions] section of the language's .isl file) matches both the primary language identifier and sublanguage identifier of the current user's UI language or locale (depending on the setting of <link topic="setup_languagedetectionmethod">LanguageDetectionMethod</link>).</li>
 <li>If no match is found, it searches for just a primary language identifier match. If two or more available languages have the same primary language identifier, it selects the first one listed in the [Languages] section.<br />Exception: Simplified Chinese is excluded from consideration in this step if the user's UI language or locale (depending on the setting of <link topic="setup_languagedetectionmethod">LanguageDetectionMethod</link>) is Traditional Chinese, and vice versa.</li>
 <li>If no match is found, it defaults to the first language specified in the [Languages] section.</li>
 </ol>
 
-<p>If the <link topic="setup_showlanguagedialog">ShowLanguageDialog</link> [Setup] section directive is set to <tt>yes</tt> (the default), a <i>Select Language</i> dialog will be displayed which gives the user an opportunity to override the language Setup chose. On non Unicode Inno Setup languages that can't be displayed properly on the user's system will be hidden. See the <link topic="langoptionssection">[LangOptions] section</link> help topic for details.</p>
+<p>If the <link topic="setup_showlanguagedialog">ShowLanguageDialog</link> [Setup] section directive is set to <tt>yes</tt> (the default), a <i>Select Language</i> dialog will be displayed which gives the user an opportunity to override the language Setup chose. See the <link topic="langoptionssection">[LangOptions] section</link> help topic for details.</p>
 
 <p>The following is an example of a <tt>[Languages]</tt> section. It defines two languages: English, based on the standard Default.isl file, and Dutch, based on a third-party translation.</p>
 
@@ -2290,14 +2281,8 @@ RightToLeft=no
 
 <p><b><a name="LanguageID">LanguageID</a></b> is the numeric "language identifier" of the language. Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>. This, along with <tt>LanguageCodePage</tt>, is used for the purpose of auto-detecting the most appropriate language to use by default, so be sure it is set correctly. It should always begin with a "$" sign, since language identifiers are in hexadecimal. If no language identifier currently exists for the language, set this to zero.</p>
 
-<p>Non Unicode Inno Setup <b><a name="LanguageCodePage">LanguageCodePage</a></b>:<br/>
-<tt>LanguageCodePage</tt> specifies the "code page" (character set) needed for Setup to display the language. When auto-detecting the most appropriate language to use by default, it only considers languages whose <tt>LanguageCodePage</tt> values match the system code page.<br/>
-In addition, when populating the list of available languages on the <i>Select Language</i> dialog in a multilingual installation, it likewise only considers languages whose <tt>LanguageCodePage</tt> values match the system code page (except if <link topic="setup_showundisplayablelanguages">ShowUndisplayableLanguages</link> is set). The goal of this is to hide languages that can't be displayed properly on the user's system. For example, Russian text can't be displayed properly unless the code page is 1251, so there is little reason to list Russian as an option if the system is running in a different code page.<br/>
-If <tt>LanguageCodePage</tt> is set to <tt>0</tt>, the language will always be considered, regardless of the system code page. It makes sense to use 0 on languages that contain pure ASCII, such as English, since ASCII is identical across all code pages.</p>
-
-<p><link topic="unicode">Unicode Inno Setup</link> <b>LanguageCodePage</b>:<br />
-<tt>LanguageCodePage</tt> specifies the "code page" (character set) needed for the compiler to convert the text in the language's .isl file to Unicode. Note that text in the .iss file such as a [CustomMessages] entry for the language is not converted and should be in Unicode already.<br/>
-If no code page currently exists for the language, set <tt>LanguageCodePage</tt> to <tt>0</tt>, use a special .islu extension for the language's file, and encode this file as Unicode. Note: this makes your language file unusable by Non Unicode Inno Setup so only do this if really needed. Also note: a <tt>LanguageName</tt> setting in a .islu file does not need to use the special "&lt;nnnn&gt;" encoding mentioned above.<br/>
+<p><b><a name="LanguageCodePage">LanguageCodePage</a></b> specifies the "code page" (character set) needed for the compiler to convert the text in the language's .isl file to Unicode. Note that text in the .iss file such as a [CustomMessages] entry for the language is not converted and should be in Unicode already.<br/>
+If no code page currently exists for the language, set <tt>LanguageCodePage</tt> to <tt>0</tt>, use a special .islu extension for the language's file, and encode this file as Unicode. Also note: a <tt>LanguageName</tt> setting in a .islu file does not need to use the special "&lt;nnnn&gt;" encoding mentioned above.<br/>
 If <tt>LanguageCodePage</tt> is set to <tt>0</tt> but no .islu extension is used, the system code page will be used to convert the text in the language's .isl file to Unicode.</p>
 
 <p><b><a name="DialogFontName">DialogFontName</a></b> and <b><a name="DialogFontSize">DialogFontSize</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <link topic="setup_defaultdialogfontname">DefaultDialogFontName</link> [Setup] section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
@@ -2743,7 +2728,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 <keyword value="Unicode Inno Setup" />
 <body>
 
-<p>There are two versions of Inno Setup available: Non Unicode Inno Setup and Unicode Inno Setup.</p>
+<p>Prior to Inno Setup 6 two versions of Inno Setup were available: Non Unicode Inno Setup and Unicode Inno Setup. Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup.</p>
 <p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames. One could consider Unicode Inno Setup as the new standard Inno Setup and Non Unicode Inno Setup as an old special Inno Setup for those who want the very smallest size possible.</p>
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. If it says "(u)" you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
@@ -3220,7 +3205,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>The Exit Setup? message box.</li>
 <li>The FileNotInDir2 message box displayed when Setup requires a new disk to be inserted and the disk was not found.</li>
 <li>Any (error) message box displayed before Setup (or Uninstall) could read the command line parameters.</li>
-<li>Any message box displayed by [Code] support function <tt>MsgBox</tt>.</li>
+<li>Any task dialog or message box displayed by [Code] support functions <tt>TaskDialogMsgBox</tt> and <tt>MsgBox</tt>.</li>
 </ul>
 </dd>
 
@@ -3973,13 +3958,13 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="PrivilegesRequiredOverridesAllowed">
 <keyword value="commandline" />
-<keyword value="msgbox" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>commandline</tt> <br/><tt>msgbox</tt></setupvalid>
+<keyword value="dialog" />
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>commandline</tt> <br/><tt>dialog</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Can be set to one or more overrides which allow the end user to override the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting.</p>
 <p>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting: /ALLUSERS and /CURRENTUSER. See <link topic="setupcmdline" anchor="ALLUSERS">Setup Command Line Parameters</link> for more details.</p>
-<p>If override <tt>msgbox</tt> is allowed then Setup will ask the user whether administrative or non administrative install mode should be used based on the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting. Allowing <tt>msgbox</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</p>
+<p>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting using a suppressible dialog. Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</p>
 </body>
 </setuptopic>
 
@@ -4817,20 +4802,7 @@ DiskSliceSize=1457664
 <p>When set to <tt>no</tt>, the dialog will never be displayed.</p>
 <p>When set to <tt>auto</tt>, the dialog will only be displayed if Setup does not find a language identifier match.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_showundisplayablelanguages">ShowUndisplayableLanguages</link><br/>
 <link topic="setup_usepreviouslanguage">UsePreviousLanguage</link></p>
-</body>
-</setuptopic>
-
-<setuptopic directive="ShowUndisplayableLanguages">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
-<body>
-<p>By default, languages that cannot be displayed on a user's system due to a code page mismatch are not listed in the <i>Select Language</i> dialog. For example, Russian text can only be displayed properly if the active code page is 1251; if the user isn't running code page 1251 they will not see Russian as an option.</p>
-<p>If this directive is set to <tt>yes</tt>, all languages will be listed in the <i>Select Language</i> dialog. To avoid user confusion, it is not recommended that you enable this in production installs.</p>
-<p>This directive is ignored by <link topic="unicode">Unicode Inno Setup</link>.</p>
-<p><b>See also:</b><br/>
-<link topic="setup_showlanguagedialog">ShowLanguageDialog</link></p>
 </body>
 </setuptopic>
 

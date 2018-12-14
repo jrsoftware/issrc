@@ -2,7 +2,7 @@ unit Wizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2011 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -249,7 +249,7 @@ function ValidateCustomDirEdit(const AEdit: TEdit;
 implementation
 
 uses
-  ShellApi, ShlObj, Msgs, Main, PathFunc, CmnFunc, CmnFunc2,
+  ShellApi, ShlObj, Types, Msgs, Main, PathFunc, CmnFunc, CmnFunc2,
   MD5, InstFunc, SelFolderForm, Extract, Logging, RestartManager;
 
 {$R *.DFM}

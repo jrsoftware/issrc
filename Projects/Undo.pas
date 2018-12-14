@@ -515,7 +515,6 @@ begin
   for I := 0 to High(Data) do
     Data[I] := '';
   I := 0;
-  L := 0;  { prevent warning }
   X := @Rec^.Data;
   while I <= High(Data) do begin
     case X^ of

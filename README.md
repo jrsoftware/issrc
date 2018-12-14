@@ -35,39 +35,18 @@ Source code README
   cloning the main Inno Setup repository, commit your work on topic branches
   and make pull requests. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-- Install Borland Delphi
+- Install Embarcadero Delphi
 
-  Unicode Inno Setup:
-
-  We compile all of Inno Setup's projects under Delphi 2009 with Update 3.
+  We compile all of Inno Setup's projects under Delphi 10.2 Tokyo Release 2.
   
-  Newer Delphi versions should also work but will lead to significantly larger
-  files.
-
-  To work with the Delphi 2009 IDE under Windows 8.1 you need these two things
-  to make it work well:
-
-  http://www.jrsoftware.org/files/Delphi_2007_2009_WOW64_Debugger_Fix.exe
-    (md5sum: 545fc506c0614cf7a3339a7acb5217dc)
-
-  http://www.jrsoftware.org/files/dzEditorLineEndsFix.exe
-    (md5sum: c9598cf14452dd08987c5aec23d04f7d)
-
-  Non Unicode Inno Setup:
-
-  We compile all of Inno Setup's projects under Delphi 2.01, with the
-  exception of Compil32 which is compiled under Delphi 3.02 (for the better
-  Far East character set support), and Inno Setup Preprocessor's ISPP which
-  is compiled under Delphi 7.
-
-  Delphi 2.01 is used for the main projects because its VCL has a significantly
-  smaller code size footprint than the later versions.
-
-  If you do not have access to these old versions of Delphi, you should be
+  If you do not have access to this version of Delphi, you should be
   able to compile the projects on later versions, however complete
   compatibility is NOT guaranteed. We try to make Inno Setup compilable on
   the later versions when possible, but do not have the resources to test
   every change on every Delphi version.
+  
+  There's a free version of Delphi available called the Community Edition.
+  See https://www.embarcadero.com/products/delphi/starter/free-download
 
 - Install Microsoft MSXML
 
@@ -92,8 +71,7 @@ Source code README
 
   To build all files run **build.bat** and follow the instructions.
 
-  To just compile Inno Setup run **compile-unicode.bat** for Unicode Inno Setup
-  or **compile.bat** for Non Unicode Inno Setup and follow the instructions.
+  To just compile Inno Setup run **compile.bat** and follow the instructions.
 
   To just compile the Inno Setup help file and its web version run
   **ishelp\compile.bat** and follow the instructions.
@@ -101,28 +79,7 @@ Source code README
   To just compile the Inno Setup Preprocessor help file and its web version run
   **Projects\Ispp\Help\compile.bat** and follow the instructions.
 
-2. Delphi 2.0x users ONLY
--------------------------
-
-Before you can successfully compile the projects in Delphi 2.0, you must
-do two things:
-
-- Install the latest version of SYSTEM.DCU if you haven't already done so.
-  It can be downloaded here:
-
-  http://www.jrsoftware.org/files/delphi200system.zip
-    (md5sum: 54d4201afe431d1ffdc3f8d616907cfd)
-
-  If you do not do this, you will probably get an "I/O Error" message
-  when trying to run the projects.
-
-- If the files SHLOBJ.DCU and REGSTR.DCU are missing from your Delphi\Lib
-  directory, download them here:
-
-  http://www.jrsoftware.org/files/delphi200units.zip
-    (md5sum: 94530f3c400c728df897d7d740889487)
-
-3. Component Installation
+2. Component Installation
 -------------------------
 
 If you intend to view or modify the Setup project's forms, you must install
@@ -140,8 +97,7 @@ directory.
 - RichEditViewer
 
 If you intend to view or modify the Compil32 project's forms, you must
-additionally install the following components. (Like the Compil32 project
-itself, these require Delphi 3 or later.)
+additionally install the following components.
 
 - DropListBox
 - NewTabSet
@@ -150,7 +106,7 @@ If you only want to edit code, then you may skip installation of the
 components, and choose "Cancel" if the Delphi IDE tells you a class can't
 be found.
 
-4. Overview
+3. Overview
 -----------
 
 Inno Setup consists of seven projects:
@@ -191,7 +147,7 @@ How do the projects link together?
 - The ISPP help file uses various copies of other Inno Setup files. To synch
   these run synch-isfiles.bat.
 
-5. Source code tips
+4. Source code tips
 -------------------
 
 - If you modify the Setup or SetupLdr projects and want to be able to compile
@@ -207,45 +163,15 @@ How do the projects link together?
   Scaled set to False. This is because they dynamically scale themselves at
   run-time by calling a function named SetFormFont.
 
-- When a Cardinal-type variable is compared against a constant expression,
-  why is a Cardinal cast sometimes used around the constant expression?
-  For example:
-
-  ```delphi
-  var
-      X: Cardinal;
-  begin
-      if X > Cardinal(1) then
-          ...
-  ```
-
-  The cast is needed to work around a bug in Delphi 2 and 3 compilers:
-  without it, a *signed* comparison is done.
-
 - A note for those curious: The Setup Compiler creates single EXE Setups by
   first creating the SETUP.EXE as usual, then concatenating the SETUP.0 and
   SETUP-1.BIN to the end of the SETUP.EXE, and finally modifying an internal
   data block in SETUP.EXE so it knows it's in "single EXE" form.
 
-- Starting with the 32-bit version of Inno Setup 1.12.7, the "StripReloc"
-  utility is used to decrease the size of the Non Unicode .EXE and .E32 files.
-
-  To download StripReloc, go to:
-  http://www.jrsoftware.org/striprlc.php
-
-- Delphi versions prior to 5 store .dfm files in a binary format. To be able to
-  track changes to the forms using ordinary "diff" commands, .dfm.txt "mirrors"
-  of the binary .dfm files have been created. Each time a .dfm file is
-  modified, dfm2text is ran and both the .dfm file and the updated .dfm.txt
-  file are committed.
-
-  To download dfm2text, go to:
-  http://www.jrsoftware.org/files/misc/dfm2text.zip
-
 - For compiler debugging purposes define ``STATICCOMPILER`` in CompForm.pas
   and ``STATICPREPROC`` in Compile.pas. The latter requires Unicode Inno Setup.
 
-6. Precompiled executables and libraries
+5. Precompiled executables and libraries
 ----------------------------------------
 
 The source code contains several precompiled executables and libraries:
@@ -262,7 +188,7 @@ by Visual Studio 2005 from the Projects\lzma2\Encoder directory.
 **Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintilla 2.22 source
 code with scintilla-2.22-patch.txt applied.
 
-**Projects\_shfolder.res** - shfolder.dll from a fresh install of IE 5.5 SP2 on
+**Projects\\_shfolder.res** - shfolder.dll from a fresh install of IE 5.5 SP2 on
 NT 4.0 stored in a compiled resource file. Note: this file is normally not
 actually used by Setup.
 
@@ -280,7 +206,7 @@ See Projects\lzma2\Decoder\compiling.txt.
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe** -
 Compiled by Visual Studio 2005 from the Examples\MyProg directory.
 
-7. Inno Setup-specific editing guidelines for the help files
+6. Inno Setup-specific editing guidelines for the help files
 ------------------------------------------------------------
 
 - When mentioning something the user would type in a script, e.g. "MinVersion",

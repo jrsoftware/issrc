@@ -2,13 +2,11 @@ unit ScriptClasses_R;
 
 {
   Inno Setup
-  Copyright (C) 1997-2008 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script support classes (run time)
-
-  $Id: ScriptClasses_R.pas,v 1.61 2012/02/05 18:59:23 mlaan Exp $
 }
 
 interface
@@ -41,11 +39,7 @@ procedure RegisterWinControl_R(Cl: TPSRuntimeClassImporter);
 begin
   RIRegisterTWinControl(Cl);
 
-{$IFNDEF UNICODE}
-  with Cl.FindClass(FastUppercase(TWinControl.ClassName)) do
-{$ELSE}
   with Cl.FindClass(AnsiString(TWinControl.ClassName)) do
-{$ENDIF}
   begin
     RegisterPropertyHelper(@TWinControlParentBackground_R, @TWinControlParentBackground_W, 'ParentBackground');
   end;
@@ -136,14 +130,14 @@ begin
   Cl.Add(TFolderTreeView);
 end;
 
-procedure TAlphaBitmapAlphaFormat_W(Self: TAlphaBitmap; const T: TAlphaFormat); begin Self.AlphaFormat := T; end;
-procedure TAlphaBitmapAlphaFormat_R(Self: TAlphaBitmap; var T: TAlphaFormat); begin T := Self.AlphaFormat; end;
+procedure TBitmapAlphaFormat_W(Self: TBitmap; const T: TAlphaFormat); begin Self.AlphaFormat := T; end;
+procedure TBitmapAlphaFormat_R(Self: TBitmap; var T: TAlphaFormat); begin T := Self.AlphaFormat; end;
 
 procedure RegisterBitmapImage_R(Cl: TPSRuntimeClassImporter);
 begin
-  with Cl.Add(TAlphaBitmap) do
+  with Cl.FindClass('TBitmap') do
   begin
-    RegisterPropertyHelper(@TAlphaBitmapAlphaFormat_R, @TAlphaBitmapAlphaFormat_W, 'AlphaFormat');
+    RegisterPropertyHelper(@TBitmapAlphaFormat_R, @TBitmapAlphaFormat_W, 'AlphaFormat');
   end;
   Cl.Add(TBitmapImage);
 end;

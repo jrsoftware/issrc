@@ -65,7 +65,7 @@ type
     {$IFNDEF UNICODE}shShowUndisplayableLanguages, {$ENDIF}shSetupLogging,
     shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
-    shForceCloseApplications);
+    shForceCloseApplications, shAppNameHasConsts);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;
@@ -73,7 +73,7 @@ type
   TSetupProcessorArchitectures = set of TSetupProcessorArchitecture;
   TSetupDisablePage = (dpAuto, dpNo, dpYes);
   TSetupPrivilegesRequired = (prNone, prPowerUser, prAdmin, prLowest);
-  TSetupPrivilegesRequiredOverride = (proCommandLine, proMsgBox);
+  TSetupPrivilegesRequiredOverride = (proCommandLine, proDialog);
   TSetupPrivilegesRequiredOverrides = set of TSetupPrivilegesRequiredOverride;
 const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =

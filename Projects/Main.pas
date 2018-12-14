@@ -220,6 +220,9 @@ function LoggedAppMessageBox(const Text, Caption: PChar; const Flags: Longint;
   const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
+function LoggedTaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String;
+  const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
+  const ShieldButton: Integer; const ForceMsgBox: Boolean; const Suppressible: Boolean; const Default: Integer): Integer;
 procedure LogWindowsVersion;
 procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
@@ -255,7 +258,8 @@ uses
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
   Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
   {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
-  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion, BitmapImage;
+  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion, BitmapImage,
+  TaskDialog;
 
 {$R *.DFM}
 
@@ -2373,6 +2377,24 @@ begin
   end;
 end;
 
+function LoggedTaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String;
+  const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
+  const ShieldButton: Integer; const ForceMsgBox: Boolean; const Suppressible: Boolean; const Default: Integer): Integer;
+begin
+  if InitSuppressMsgBoxes and Suppressible then begin
+    LogSuppressedMessageBox(PChar(TaskDialogText), Buttons, Default);
+    Result := Default;
+  end else begin
+    LogMessageBox(PChar(TaskDialogText), Buttons);
+    Result := TaskDialogMsgBox(Icon, Instruction, TaskDialogText, MsgBoxText,
+      Caption, Typ, Buttons, ButtonLabels, ShieldButton, ForceMsgBox);
+    if Result <> 0 then
+      LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
+    else
+      Log('TaskDialogMsgBox failed.');
+  end;
+end;
+
 procedure RestartComputerFromThisProcess;
 begin
   RestartInitiatedByThisProcess := True;
@@ -2577,8 +2599,8 @@ var
     try
       ReadFileIntoStream(MemStream, R);
       MemStream.Seek(0, soFromBeginning);
-      Result := TAlphaBitmap.Create;
-      TAlphaBitmap(Result).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
+      Result := TBitmap.Create;
+      Result.AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
       Result.LoadFromStream(MemStream);
     finally
       MemStream.Free;
@@ -2769,7 +2791,7 @@ var
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
   MinimumTypeSpace: Integer64;
   SourceWildcard: String;
-  ExpandedSetupMutex, ExtraRespawnParam, RespawnParams: String;
+  ExpandedSetupMutex, AppName, ExtraRespawnParam, RespawnParams: String;
 begin
   InitializeCommonVars;
 
@@ -2967,24 +2989,46 @@ begin
         { Apply InitPrivilegesRequired }
         if HasInitPrivilegesRequired and (proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed) then
           SetupHeader.PrivilegesRequired := InitPrivilegesRequired
-        else if not InitSuppressMsgBoxes and (proMsgBox in SetupHeader.PrivilegesRequiredOverridesAllowed) then begin
+        else if not InitSuppressMsgBoxes and (proDialog in SetupHeader.PrivilegesRequiredOverridesAllowed) then begin
           { Ask user. Doesn't log since logging hasn't started yet. Also doesn't use ExpandedAppName since it isn't set yet.
-            Afterwards we need to tell the respawned Setup about the user choice. Will use the command line parameter for
-            this. Allowing proMsgBox forces allowing proCommandLine, so we can count on the parameter to work. }
+            Afterwards we need to tell the respawned Setup about the user choice (and avoid it asking agin). Will use the
+            command line parameter for this. Allowing proDialog forces allowing proCommandLine, so we can count on the parameter to work. }
+          if shAppNameHasConsts in SetupHeader.Options then
+            AppName := SetupMessages[msgPrivilegesRequiredOverrideThisProgram]
+          else
+            AppName := SetupHeader.AppName;          
           if SetupHeader.PrivilegesRequired = prLowest then begin
-            if MsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox2],
-              SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNO) <> IDYES then begin
-               SetupHeader.PrivilegesRequired := prAdmin;
-               ExtraRespawnParam := '/ALLUSERS';
-            end else
-               ExtraRespawnParam := '/CURRENTUSER';
+            case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+                   FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText2, [AppName]),
+                   FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText2, [AppName]),
+                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
+                   [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]]), SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO, False) of
+              IDYES:
+                ExtraRespawnParam := '/CURRENTUSER';
+              IDNO:
+                begin
+                  SetupHeader.PrivilegesRequired := prAdmin;
+                  ExtraRespawnParam := '/ALLUSERS';
+                end;
+              IDCANCEL:
+                Abort;
+              end;
           end else begin
-            if MsgBox(SetupMessages[msgPrivilegesRequiredOverrideMsgBox1],
-              SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNO) <> IDYES then begin
-               SetupHeader.PrivilegesRequired := prLowest;
-               ExtraRespawnParam := '/CURRENTUSER';
-             end else
-               ExtraRespawnParam := '/ALLUSERS';
+            case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+                   FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText1, [AppName]),
+                   FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText1, [AppName]),
+                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
+                   [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideAllUsers]]), SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES, False) of
+              IDYES:
+                ExtraRespawnParam := '/ALLUSERS';
+              IDNO:
+                begin
+                  SetupHeader.PrivilegesRequired := prLowest;
+                  ExtraRespawnParam := '/CURRENTUSER';
+                end;
+              IDCANCEL:
+                Abort;
+            end;
           end;
         end;
 

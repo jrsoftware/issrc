@@ -9,6 +9,8 @@ program Compil32;
   Compiler
 }
 
+{$WEAKLINKRTTI ON}
+
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
   Windows,
