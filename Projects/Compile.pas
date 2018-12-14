@@ -182,6 +182,7 @@ type
     ssUsePreviousAppDir,
     ssUsePreviousGroup,
     ssUsePreviousLanguage,
+    ssUsePreviousPrivileges,
     ssUsePreviousSetupType,
     ssUsePreviousTasks,
     ssUsePreviousUserInfo,
@@ -4339,6 +4340,9 @@ begin
       end;
     ssUsePreviousLanguage: begin
         SetSetupHeaderOption(shUsePreviousLanguage);
+      end;
+    ssUsePreviousPrivileges: begin
+        SetSetupHeaderOption(shUsePreviousPrivileges);
       end;
     ssUsePreviousSetupType: begin
         SetSetupHeaderOption(shUsePreviousSetupType);
@@ -8598,7 +8602,8 @@ begin
       shAllowUNCPath, shUsePreviousUserInfo, shRestartIfNeededByRun,
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
       shAppendDefaultGroupName, shUsePreviousLanguage, shCloseApplications,
-      shRestartApplications, shAllowNetworkDrive, shDisableWelcomePage];
+      shRestartApplications, shAllowNetworkDrive, shDisableWelcomePage,
+      shUsePreviousPrivileges];
     SetupHeader.PrivilegesRequired := prAdmin;
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';
@@ -8649,6 +8654,11 @@ begin
       { AppId has contants so UsePreviousLanguage must not be used }
       LineNumber := SetupDirectiveLines[ssUsePreviousLanguage];
       AbortCompile(SCompilerMustNotUsePreviousLanguage);
+    end;
+    if AppIdHasConsts and (proDialog in SetupHeader.PrivilegesRequiredOverridesAllowed) and (shUsePreviousPrivileges in SetupHeader.Options) then begin
+      { AppId has contants so UsePreviousPrivileges must not be used }
+      LineNumber := SetupDirectiveLines[ssUsePreviousPrivileges];
+      AbortCompile(SCompilerMustNotUsePreviousPrivileges);
     end;
     LineNumber := SetupDirectiveLines[ssAppVerName];
     CheckConst(SetupHeader.AppVerName, SetupHeader.MinVersion, []);

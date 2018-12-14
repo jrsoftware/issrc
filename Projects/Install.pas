@@ -512,6 +512,7 @@ var
       Result := I = 0;
     end;
 
+    { Also see Main.pas }
     function ExistingInstallationAt(const RegView: TRegView; const RootKey: HKEY): Boolean;
     var
       K: HKEY;

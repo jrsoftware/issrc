@@ -235,6 +235,7 @@ type
     ssUsePreviousAppDir,
     ssUsePreviousGroup,
     ssUsePreviousLanguage,
+    ssUsePreviousPrivileges,
     ssUsePreviousSetupType,
     ssUsePreviousTasks,
     ssUsePreviousUserInfo,

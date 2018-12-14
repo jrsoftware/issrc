@@ -209,6 +209,7 @@ function GetUninstallRegSubkeyName(const UninstallRegKeyBaseName: String): Strin
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
 procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
+procedure Log64BitInstallMode;
 procedure InitializeCommonVars;
 procedure InitializeSetup;
 procedure InitMainNonSHFolderConsts;
@@ -2502,7 +2503,6 @@ end;
 procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 { Initializes Is64BitInstallMode and other global variables that depend on it }
 begin
-  LogFmt('64-bit install mode: %s', [SYesNo[A64BitInstallMode]]);
   Is64BitInstallMode := A64BitInstallMode;
   InstallDefaultDisableFsRedir := A64BitInstallMode;
   ScriptFuncDisableFsRedir := A64BitInstallMode;
@@ -2510,6 +2510,11 @@ begin
     InstallDefaultRegView := rv64Bit
   else
     InstallDefaultRegView := rv32Bit;
+end;
+
+procedure Log64BitInstallMode;
+begin
+  LogFmt('64-bit install mode: %s', [SYesNo[Is64BitInstallMode]]);
 end;
 
 procedure InitializeSetup;
@@ -2775,6 +2780,94 @@ var
       end;
     end;
   end;
+  
+  { Also see Install.pas }
+  function ExistingInstallationAt(const RootKey: HKEY; const SubkeyName: String): Boolean;
+  var
+    K: HKEY;
+  begin
+    if RegOpenKeyExView(InstallDefaultRegView, RootKey, PChar(SubkeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+      Result := True;
+      RegCloseKey(K);
+    end else
+      Result := False;
+  end;
+
+  procedure HandlePrivilegesRequiredOverrides(var ExtraRespawnParam: String);
+  var
+    ExistingAtAdminInstallMode, ExistingAtNonAdminInstallMode, DesireAnInstallMode, DesireAdminInstallMode: Boolean;
+    SubkeyName, AppName: String;
+  begin
+    if HasInitPrivilegesRequired and (proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed) then begin
+      SetupHeader.PrivilegesRequired := InitPrivilegesRequired;
+      { We don't need to set ExtraRespawnParam since the existing command line
+        already contains the needed parameters and it will automatically be
+        passed on to any respawned Setup(Ldr). }
+    end else if proDialog in SetupHeader.PrivilegesRequiredOverridesAllowed then begin
+      if shUsePreviousPrivileges in SetupHeader.Options then begin
+        { Note: if proDialog is used and UsePreviousPrivileges is set to "yes"
+          then the compiler does not allow AppId to include constants so we can
+          safely use it here without having to call ExpandConstant first. }
+        SubkeyName := GetUninstallRegSubkeyName(GetUninstallRegKeyBaseName(SetupHeader.AppID));
+        ExistingAtAdminInstallMode := ExistingInstallationAt(HKEY_LOCAL_MACHINE, SubkeyName);
+        ExistingAtNonAdminInstallMode := ExistingInstallationAt(HKEY_CURRENT_USER, SubkeyName);
+      end else begin
+        ExistingAtAdminInstallMode := False;
+        ExistingAtNonAdminInstallMode := False;
+      end;
+
+      DesireAnInstallMode := True;
+      DesireAdminInstallMode := False; { Silence compiler }
+
+      if ExistingAtAdminInstallMode and not ExistingAtNonAdminInstallMode then
+        DesireAdminInstallMode := True
+      else if not ExistingAtAdminInstallMode and ExistingAtNonAdminInstallMode then
+        DesireAdminInstallMode := False
+      else if not InitSuppressMsgBoxes then begin
+        { Ask user. Doesn't log since logging hasn't started yet. Also doesn't
+          use ExpandedAppName since it isn't set yet. Afterwards we need to tell
+          any respawned Setup(Ldr) about the user choice (and avoid asking again).
+          Will use the command line parameter for this. Allowing proDialog forces
+          allowing proCommandLine, so we can count on the parameter to work. }
+        if shAppNameHasConsts in SetupHeader.Options then
+          AppName := SetupMessages[msgPrivilegesRequiredOverrideThisProgram]
+        else
+          AppName := SetupHeader.AppName;
+        if SetupHeader.PrivilegesRequired = prLowest then begin
+          case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText2, [AppName]),
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText2, [AppName]),
+                 SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
+                 [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]]), SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO, False) of
+            IDYES: DesireAdminInstallMode := False;
+            IDNO: DesireAdminInstallMode := True;
+            IDCANCEL: Abort;
+            end;
+        end else begin
+          case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText1, [AppName]),
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText1, [AppName]),
+                 SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
+                 [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideAllUsers]]), SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES, False) of
+            IDYES: DesireAdminInstallMode := True;
+            IDNO: DesireAdminInstallMode := False;
+            IDCANCEL: Abort;
+          end;
+        end;
+      end else
+        DesireAnInstallMode := False; { No previous found and msgboxes are suppressed, just keep things as they are. }
+
+      if DesireAnInstallMode then begin
+        if DesireAdminInstallMode then begin
+          SetupHeader.PrivilegesRequired := prAdmin;
+          ExtraRespawnParam := '/ALLUSERS';
+        end else begin
+          SetupHeader.PrivilegesRequired := prLowest;
+          ExtraRespawnParam := '/CURRENTUSER';
+        end;
+      end;
+    end;
+  end;
 
 var
   ParamName, ParamValue: String;
@@ -2791,7 +2884,7 @@ var
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
   MinimumTypeSpace: Integer64;
   SourceWildcard: String;
-  ExpandedSetupMutex, AppName, ExtraRespawnParam, RespawnParams: String;
+  ExpandedSetupMutex, ExtraRespawnParam, RespawnParams: String;
 begin
   InitializeCommonVars;
 
@@ -2986,51 +3079,21 @@ begin
 
         ActivateDefaultLanguage;
         
-        { Apply InitPrivilegesRequired }
-        if HasInitPrivilegesRequired and (proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed) then
-          SetupHeader.PrivilegesRequired := InitPrivilegesRequired
-        else if not InitSuppressMsgBoxes and (proDialog in SetupHeader.PrivilegesRequiredOverridesAllowed) then begin
-          { Ask user. Doesn't log since logging hasn't started yet. Also doesn't use ExpandedAppName since it isn't set yet.
-            Afterwards we need to tell the respawned Setup about the user choice (and avoid it asking agin). Will use the
-            command line parameter for this. Allowing proDialog forces allowing proCommandLine, so we can count on the parameter to work. }
-          if shAppNameHasConsts in SetupHeader.Options then
-            AppName := SetupMessages[msgPrivilegesRequiredOverrideThisProgram]
-          else
-            AppName := SetupHeader.AppName;          
-          if SetupHeader.PrivilegesRequired = prLowest then begin
-            case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
-                   FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText2, [AppName]),
-                   FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText2, [AppName]),
-                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
-                   [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]]), SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO, False) of
-              IDYES:
-                ExtraRespawnParam := '/CURRENTUSER';
-              IDNO:
-                begin
-                  SetupHeader.PrivilegesRequired := prAdmin;
-                  ExtraRespawnParam := '/ALLUSERS';
-                end;
-              IDCANCEL:
-                Abort;
-              end;
-          end else begin
-            case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
-                   FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText1, [AppName]),
-                   FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText1, [AppName]),
-                   SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
-                   [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideAllUsers]]), SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES, False) of
-              IDYES:
-                ExtraRespawnParam := '/ALLUSERS';
-              IDNO:
-                begin
-                  SetupHeader.PrivilegesRequired := prLowest;
-                  ExtraRespawnParam := '/CURRENTUSER';
-                end;
-              IDCANCEL:
-                Abort;
-            end;
+        { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
+          one on which a "64-bit mode" install should be performed. Doing this early
+          so that UsePreviousPrivileges knows where to look. Will log later. }
+        if ProcessorArchitecture in SetupHeader.ArchitecturesInstallIn64BitMode then begin
+          if not IsWin64 then begin
+            { A 64-bit processor was detected and 64-bit install mode was requested,
+              but IsWin64 is False, indicating required WOW64 APIs are not present }
+            AbortInitFmt1(msgMissingWOW64APIs, '1');
           end;
-        end;
+          Initialize64BitInstallMode(True);
+        end
+        else
+          Initialize64BitInstallMode(False);
+          
+        HandlePrivilegesRequiredOverrides(ExtraRespawnParam);
 
         { Start a new, elevated Setup(Ldr) process if needed }
         if not IsRespawnedProcess and
@@ -3160,18 +3223,7 @@ begin
   
   InitializeAdminInstallMode(IsAdmin and (SetupHeader.PrivilegesRequired <> prLowest));
 
-  { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
-    one on which a "64-bit mode" install should be performed }
-  if ProcessorArchitecture in SetupHeader.ArchitecturesInstallIn64BitMode then begin
-    if not IsWin64 then begin
-      { A 64-bit processor was detected and 64-bit install mode was requested,
-        but IsWin64 is False, indicating required WOW64 APIs are not present }
-      AbortInitFmt1(msgMissingWOW64APIs, '1');
-    end;
-    Initialize64BitInstallMode(True);
-  end
-  else
-    Initialize64BitInstallMode(False);
+  Log64BitInstallMode;
 
   { Show "Select Language" dialog if necessary - requires "64-bit mode" to be
     initialized else it might query the previous language from the wrong registry

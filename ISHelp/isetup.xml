@@ -1079,6 +1079,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_usepreviousappdir">UsePreviousAppDir</link></li>
 <li><link topic="setup_usepreviousgroup">UsePreviousGroup</link></li>
 <li><link topic="setup_usepreviouslanguage">UsePreviousLanguage</link></li>
+<li><link topic="setup_usepreviousprivileges">UsePreviousPrivigeles</link></li>
 <li><link topic="setup_useprevioussetuptype">UsePreviousSetupType</link></li>
 <li><link topic="setup_useprevioustasks">UsePreviousTasks</link></li>
 <li><link topic="setup_useprevioususerinfo">UsePreviousUserInfo</link></li>
@@ -3965,6 +3966,8 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p>Can be set to one or more overrides which allow the end user to override the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting.</p>
 <p>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting: /ALLUSERS and /CURRENTUSER. See <link topic="setupcmdline" anchor="ALLUSERS">Setup Command Line Parameters</link> for more details.</p>
 <p>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting using a suppressible dialog. Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_usepreviousprivileges">UsePreviousPrivileges</link></p>
 </body>
 </setuptopic>
 
@@ -4554,6 +4557,18 @@ DiskSliceSize=1457664
 <p>Note that this directive does not change the language used by the <i>Select Language</i> dialog itself because it cannot assume that the current user understands the same languages as the previous user. See the <link topic="languagessection">[Languages] section</link> help topic for details on which language the <i>Select Language</i> dialog uses by default.</p>
 <p>Also note that Setup cannot re-use settings from a previous installation that had <tt>Uninstallable</tt> set to <tt>no</tt>, since the registry entries it looks for are not created when <tt>Uninstallable</tt> is <tt>no</tt>.</p>
 <p><tt>UsePreviousLanguage</tt> must be set to <tt>no</tt> when <tt>AppId</tt> includes constants.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="UsePreviousPrivileges">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed in one of the two install modes, and if so, it will use that install mode and not ask the user.</p>
+<p>If <tt>PrivilegesRequiredOverridesAllowed</tt> does not allow <tt>dialog</tt>, this directive is effectively ignored.</p>
+<p><tt>UsePreviousPrivileges</tt> must be set to <tt>no</tt> when <tt>AppId</tt> includes constants and <tt>PrivilegesRequiredOverridesAllowed</tt> allows <tt>dialog</tt>.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link></p>
 </body>
 </setuptopic>
 

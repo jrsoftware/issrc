@@ -65,7 +65,7 @@ type
     {$IFNDEF UNICODE}shShowUndisplayableLanguages, {$ENDIF}shSetupLogging,
     shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
-    shForceCloseApplications, shAppNameHasConsts);
+    shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;

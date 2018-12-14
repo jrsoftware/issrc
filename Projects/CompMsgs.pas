@@ -187,6 +187,7 @@ const
   SCompilerDirectiveRequiresWindows2000 = 'The [%s] section directive "%s" may not be used when compiling on Windows 95/98/Me/NT4';
   SCompilerMustUseDisableStartupPrompt = 'DisableStartupPrompt must be set to "yes" when AppName includes constants';
   SCompilerMustNotUsePreviousLanguage = 'UsePreviousLanguage must be set to "no" when AppId includes constants';
+  SCompilerMustNotUsePreviousPrivileges = 'UsePreviousPrivileges must be set to "no" when AppId includes constants and PrivilegesRequiredOverridesAllowed allows "dialog"';
   SCompilerDirectiveNotUsingDefault = 'The [Setup] section directive "%s" is not assuming a default value because %s includes constants.';
   SCompilerDirectiveNotUsingPreferredDefault = 'The [Setup] section directive "%s" is defaulting to %s because %s includes constants.';
   SCompilerDirectivePatternTooLong = 'The [Setup] section directive "%s" contains a pattern that is too long';
