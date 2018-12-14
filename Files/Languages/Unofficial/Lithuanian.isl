@@ -9,7 +9,7 @@
 ; two periods being displayed).
 ; Translated by Robertas Rimas (Loptar AT takas DOT lt)
 ; Corrected and updated by Rolandas Rudomanskis (rolandasr AT gmail DOT com)
-; Corrected and updated to version 5.5.3+ by Dalius Guzauskas (d DOT guzauskas AT gmail DOT com)
+; Corrected and updated to version 5.5.3+ by Dalius Guzauskas (aka Tichij) (tichij AT mail DOT com)
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -43,14 +43,14 @@ ErrorTitle=Klaida
 
 ; *** SetupLdr messages
 SetupLdrStartupMessage=%1 diegimas. Ar norite tæsti?
-LdrCannotCreateTemp=Negaliu sukurti laikinosios bylos. Diegimas nutraukiamas.
-LdrCannotExecTemp=Negaliu ávykdyti bylos laikinajame kataloge. Diegimas nutraukiamas.
+LdrCannotCreateTemp=Negaliu sukurti laikinojo failo. Diegimas nutraukiamas.
+LdrCannotExecTemp=Negaliu ávykdyti failo laikinajame kataloge. Diegimas nutraukiamas.
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nKlaida %2: %3
-SetupFileMissing=Diegimo kataloge nerasta byla „%1“. Praðome iðtaisyti ðià problemà arba ásigyti naujà programos kopijà.
-SetupFileCorrupt=Ádiegiamos bylos sugadintos. Ásigykite naujà programos kopijà.
-SetupFileCorruptOrWrongVer=Ádiegiamos bylos yra sugadintos arba nesuderinamos su diegimo programa. Iðtaisykite problemà arba ásigykite naujà programos kopijà.
+SetupFileMissing=Diegimo kataloge nerastas „%1“ failas. Praðome iðtaisyti ðià problemà arba ásigyti naujà programos kopijà.
+SetupFileCorrupt=Ádiegiami failai sugadinti. Ásigykite naujà programos kopijà.
+SetupFileCorruptOrWrongVer=Ádiegiami failai yra sugadinti arba nesuderinami su diegimo programa. Iðtaisykite problemà arba ásigykite naujà programos kopijà.
 InvalidParameter=Klaidingas parametras buvo gautas ið komandinës eilutës:%n%n%1
 SetupAlreadyRunning=Diegimo programa jau yra paleista.
 WindowsVersionNotSupported=Ði programa nesuderinama su Jûsø kompiuteryje ádiegta Windows versija.
@@ -68,7 +68,7 @@ UninstallAppRunningError=Paðalinimo programa aptiko, kad yra paleista „%1“.%n%nU
 
 ; *** Misc. errors
 ErrorCreatingDir=Diegimo programa negali sukurti katalogo „%1“
-ErrorTooManyFilesInDir=Neámanoma sukurti bylos kataloge „%1“, nes jame per daug bylø
+ErrorTooManyFilesInDir=Neámanoma sukurti failo „%1“ kataloge, nes jame per daug failø
 
 ; *** Setup common messages
 ExitSetupTitle=Uþdaryti diegimo programà
@@ -206,11 +206,11 @@ WizardPreparing=Pasirengimas diegimui
 PreparingDesc=Diegimo programa pasirengusi „[name]“ diegimui Jûsø kompiuteryje.
 PreviousInstallNotCompleted=Ankstesnës programos diegimas/ðalinimas buvo neuþbaigtas. Jums reikëtø perkrauti kompiuterá, kad uþbaigtumëte diegimà.%n%nKai perkrausite kompiuterá, paleiskite diegimo programà dar kartà, kad pabaigtumëte „[name]“ diegimà.
 CannotContinue=Diegimas negali bûti tæsiamas. Praðome paspausti „Atðaukti“, kad baigtumëte diegimà.
-ApplicationsFound=Ðios programos naudoja bylas, kurios turi bûti perraðytos diegimo metu. Rekomenduojama leisti diegimo programai automatiðkai uþdaryti ðias programas.
-ApplicationsFound2=Ðios programos naudoja bylas, kurios turi bûti perraðytos diegimo metu. Rekomenduojama leisti diegimo programai automatiðkai uþdaryti ðias programas. Po to, kai diegimas bus baigtas, diegimo programa bandys ið naujo paleisti ðias programas.
+ApplicationsFound=Ðios programos naudoja failus, kurie turi bûti perraðyti diegimo metu. Rekomenduojama leisti diegimo programai automatiðkai uþdaryti ðias programas.
+ApplicationsFound2=Ðios programos naudoja failus, kurie turi bûti perraðyti diegimo metu. Rekomenduojama leisti diegimo programai automatiðkai uþdaryti ðias programas. Po to, kai diegimas bus baigtas, diegimo programa bandys ið naujo paleisti ðias programas.
 CloseApplications=&Automatiðkai uþdaryti programas
 DontCloseApplications=&Neuþdarinëti programø
-ErrorCloseApplications=Diegimo programai nepavyko automatiðkai uþdaryti visø programø. Prieð tæsiant diegimà, rekomeduojama uþdaryti visas programas, naudojanèias bylas, kurios turi bûti perraðytos diegimo metu.
+ErrorCloseApplications=Diegimo programai nepavyko automatiðkai uþdaryti visø programø. Prieð tæsiant diegimà, rekomeduojama uþdaryti visas programas, naudojanèias failus, kurie turi bûti perraðyti diegimo metu.
 
 ; *** "Installing" wizard page
 WizardInstalling=Vyksta diegimas
@@ -223,7 +223,7 @@ FinishedLabel=Diegimo programa baigë „[name]“ diegimà Jûsø kompiuteryje. Program
 ClickFinish=Spauskite „Pabaiga“, kad uþdarytumëte diegimo programà.
 FinishedRestartLabel=Sëkmingam „[name]“ diegimui, reikëtø perkrauti kompiuterá. Ar norite perkrauti já dabar?
 FinishedRestartMessage=Sëkmingam „[name]“ diegimui, reikëtø perkrauti kompiuterá.%n%nAr norite perkrauti já dabar?
-ShowReadmeCheck=Taip, að norëèiau perskaityti „README“ bylà
+ShowReadmeCheck=Taip, að norëèiau perskaityti „README“ failà
 YesRadio=&Taip, að noriu perkrauti kompiuterá dabar
 NoRadio=&Ne, að perkrausiu kompiuterá vëliau
 ; used for example as 'Run MyProg.exe'
@@ -233,9 +233,9 @@ RunEntryShellExec=Perþiûrëti „%1“
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=Diegimo programai reikia kito diskelio
-SelectDiskLabel2=Idëkite diskelá %1 ir spauskite „Gerai“.%n%nJeigu reikiamos bylos gali bûti rastos kitame kataloge, nei pavaizduota þemiau, áveskite teisingà kelià arba spauskite „Nurodyti“.
+SelectDiskLabel2=Idëkite diskelá %1 ir spauskite „Gerai“.%n%nJeigu reikiami failai gali bûti rasti kitame kataloge, nei pavaizduota þemiau, áveskite teisingà kelià arba spauskite „Nurodyti“.
 PathLabel=&Katalogas:
-FileNotInDir2=Byla „%1“ nerasta kataloge „%2“. Praðome ádëti teisingà diskelá arba nurodyti teisingà kelià.
+FileNotInDir2=„%1“ failas nerastas „%2“ kataloge. Praðome ádëti teisingà diskelá arba nurodyti teisingà kelià.
 SelectDirectoryLabel=Praðome nurodyti kito diskelio vietà.
 
 ; *** Installation phase messages
@@ -245,11 +245,11 @@ EntryAbortRetryIgnore=Spauskite „Retry“, jeigu norite bandyti vël, „Ignore“ - tæ
 ; *** Installation status messages
 StatusClosingApplications=Uþdaromos programos...
 StatusCreateDirs=Kuriami katalogai...
-StatusExtractFiles=Iðpakuojamos bylos...
+StatusExtractFiles=Iðpakuojami failai...
 StatusCreateIcons=Kuriamos nuorodos...
 StatusCreateIniEntries=Kuriami INI áraðai...
 StatusCreateRegistryEntries=Kuriami registro áraðai...
-StatusRegisterFiles=Registruojamos bylos...
+StatusRegisterFiles=Registruojami failai...
 StatusSavingUninstall=Iðsaugoma informacija programos paðalinimui...
 StatusRunProgram=Baigiamas diegimas...
 StatusRestartingApplications=Ið naujo paleidþiamos programos...
@@ -260,7 +260,7 @@ ErrorInternal2=Vidinë klaida: %1
 ErrorFunctionFailedNoCode=%1 nepavyko
 ErrorFunctionFailed=%1 nepavyko; kodas %2
 ErrorFunctionFailedWithMessage=%1 nepavyko; kodas %2.%n%3
-ErrorExecutingProgram=Nepavyko paleisti bylos:%n%1
+ErrorExecutingProgram=Nepavyko paleisti failo:%n%1
 
 ; *** Registry errors
 ErrorRegOpenKey=Klaida skaitant registro áraðà:%n%1\%2
@@ -268,37 +268,37 @@ ErrorRegCreateKey=Klaida sukuriant registro áraðà:%n%1\%2
 ErrorRegWriteKey=Klaida raðant registro áraðà:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Klaida raðant INI áraðà byloje „%1“.
+ErrorIniEntry=Klaida raðant INI áraðà „%1“ faile.
 
 ; *** File copying errors
-FileAbortRetryIgnore=Spauskite „Retry“, jeigu norite bandyti dar kartà, „Ignore“ - praleisti bylà (nerekomenduojama) arba „Abort“ - nutraukti diegimà.
+FileAbortRetryIgnore=Spauskite „Retry“, jeigu norite bandyti dar kartà, „Ignore“ - praleisti failà (nerekomenduojama) arba „Abort“ - nutraukti diegimà.
 FileAbortRetryIgnore2=Spauskite „Retry“, jeigu norite bandyti dar kartà, „Ignore“ - tæsti vistiek (nerekomenduojama) arba „Abort“ - nutraukti diegimà.
-SourceIsCorrupted=Byla sugadinta
-SourceDoesntExist=Byla „%1“ neegzistuoja
-ExistingFileReadOnly=Egzistuojanti byla turi tik skaitymo atributus.%n%nSpauskite „Retry“ ðio atributo iðtrynimui ir bandyti vël, „Ignore“ - praleisti bylà arba „Abort“ - nutraukti diegimà.
-ErrorReadingExistingDest=Klaida ávyko skaitant bylà:
-FileExists=Tokia byla jau egzistuoja.%n%nAr norite, kad diegimo programa perraðytø bylà?
-ExistingFileNewer=Egzistuojanti byla yra naujesnë uþ tà, kurià diegimo programa bando áraðyti. Rekomenduojama palikti esanèià naujesnæ bylà.%n%nAr norite palikti naujesnæ bylà?
-ErrorChangingAttr=Klaida ávyko keièiant bylos atributus:
-ErrorCreatingTemp=Klaida ávyko kuriant bylà pasirinktame kataloge:
-ErrorReadingSource=Klaida ávyko skaitant diegiamàjà bylà:
-ErrorCopying=Klaida ávyko kopijuojant bylà:
-ErrorReplacingExistingFile=Klaida ávyko perraðant egzistuojanèià bylà:
+SourceIsCorrupted=Failas sugadintas
+SourceDoesntExist=Neegzistuoja „%1“ failas
+ExistingFileReadOnly=Egzistuojantis failas turi tik skaitymo atributus.%n%nSpauskite „Retry“ ðio atributo iðtrynimui ir bandyti vël, „Ignore“ - praleisti failà arba „Abort“ - nutraukti diegimà.
+ErrorReadingExistingDest=Skaitant egzistuojantá failà ávyko klaida:
+FileExists=Toks failas jau egzistuoja.%n%nAr norite, kad diegimo programa perraðytø failà?
+ExistingFileNewer=Egzistuojantis failas yra naujesnis uþ tà, kurá diegimo programa bando áraðyti. Rekomenduojama palikti esantá naujesná failà.%n%nAr norite palikti naujesná failà?
+ErrorChangingAttr=Keièiant failo atributus ávyko klaida:
+ErrorCreatingTemp=Kuriant failà pasirinktame kataloge ávyko klaida:
+ErrorReadingSource=Skaitant diegiamàjá failà ávyko klaida:
+ErrorCopying=Kopijuojant failà ávyko klaida:
+ErrorReplacingExistingFile=Perraðant egzistuojantá failà ávyko klaida:
 ErrorRestartReplace=Perkrovimas/Perraðymas nepavyko:
-ErrorRenamingTemp=Klaida ávyko pervadinant bylà pasirinktame kataloge:
+ErrorRenamingTemp=Pervadinant failà pasirinktame kataloge ávyko klaida:
 ErrorRegisterServer=Nepavyko uþregistruoti DLL/OCX bibliotekos: „%1“
 ErrorRegSvr32Failed=RegSvr32 registracijos klaida %1
 ErrorRegisterTypeLib=Nepavyko uþregistruoti tipø bibliotekos: „%1“
 
 ; *** Post-installation errors
-ErrorOpeningReadme=Klaida ávyko bandant atidaryti „README“ bylà.
+ErrorOpeningReadme=Bandant atidaryti „README“ failà ávyko klaida.
 ErrorRestartingComputer=Diegimo programa negali perkrauti kompiuterio. Praðome perkrauti kompiuterá áprastu bûdu.
 
 ; *** Uninstaller messages
-UninstallNotFound=Byla „%1“ neegzistuoja. Paðalinti neámanoma.
-UninstallOpenError=Byla „%1“ negali bûti atidaryta. Paðalinti neámanoma.
-UninstallUnsupportedVer=Paðalinimo log byla „%1“ yra formato, kurio nesupranta paðalinimo programa. Paðalinti neámanoma.
-UninstallUnknownEntry=Neþinomas áraðas (%1) rastas paðalinimo log byloje
+UninstallNotFound=„%1“ failas neegzistuoja. Paðalinti neámanoma.
+UninstallOpenError=„%1“ failas negali bûti atidarytas. Paðalinti neámanoma.
+UninstallUnsupportedVer=Paðalinimo þurnalo failas „%1“ yra paðalinimo programai nesuprantamo formato. Paðalinti neámanoma.
+UninstallUnknownEntry=Neþinomas áraðas (%1) rastas paðalinimo þurnalo faile.
 ConfirmUninstall=Ar esate tikri, kad norite paðalinti „%1“ ir visus priklausanèius komponentus?
 UninstallOnlyOnWin64=Ðis diegimas gali bûti paðalintas tik 64 bitø Windows sistemose.
 OnlyAdminCanUninstall=Tik administratoriaus teises turintis vartotojas gali paðalinti programà.
@@ -306,12 +306,12 @@ UninstallStatusLabel=Praðome palaukti, kol „%1“ bus paðalinta ið Jûsø kompiuteri
 UninstalledAll=„%1“ buvo sëkmingai paðalinta ið Jûsø kompiuterio.
 UninstalledMost=„%1“ paðalinimas sëkmingai baigtas.%n%nKai kurie elementai nebuvo iðtrinti - juos galite paðalinti rankiniu bûdu.
 UninstalledAndNeedsRestart=„%1“ paðalinimui uþbaigti Jûsø kompiuteris turi bûti perkrautas.%n%nAr norite perkrauti já dabar?
-UninstallDataCorrupted=„%1“ byla yra sugadinta. Programos paðalinti neámanoma.
+UninstallDataCorrupted=„%1“ failas yra sugadinta. Programos paðalinti neámanoma.
 
 ; *** Uninstallation phase messages
-ConfirmDeleteSharedFileTitle=Iðtrinti bendràsias bylas?
-ConfirmDeleteSharedFile2=Aptikta, kad jokia programa nenaudoja bendrøjø bylø. Ar norite iðtrinti bendràsias bylas? %n%nJeigu kurios nors programos naudoja ðias bylas, ir jos bus iðtrintos, tos programos gali veikti neteisingai. Jeigu nesate tikras - spauskite „Ne“. Bylos palikimas Jûsø kompiuteryje nesukels jokiø problemø.
-SharedFileNameLabel=Bylos pavadinimas:
+ConfirmDeleteSharedFileTitle=Iðtrinti bendruosius failus?
+ConfirmDeleteSharedFile2=Aptikta, kad jokia programa nenaudoja bendrøjø failø. Ar norite iðtrinti bendruosius failus? %n%nJeigu kurios nors programos naudoja ðiuos failus, ir jie bus iðtrinti, tos programos gali veikti neteisingai. Jeigu nesate tikras - spauskite „Ne“. Failo palikimas Jûsø kompiuteryje nesukels jokiø problemø.
+SharedFileNameLabel=Failo pavadinimas:
 SharedFileLocationLabel=Vieta:
 WizardUninstalling=Paðalinimo eiga
 StatusUninstalling=Ðalinama „%1“...
@@ -326,14 +326,14 @@ ShutdownBlockReasonUninstallingApp=Ðalinama „%1“.
 [CustomMessages]
 
 NameAndVersion=%1 versija %2
-AdditionalIcons=Papildomos piktogramos:
-CreateDesktopIcon=Rodyti piktogramà &Darbalaukyje
-CreateQuickLaunchIcon=Rodyti Sparèiosios &Paleisties piktogramà
+AdditionalIcons=Papildomos nuorodos:
+CreateDesktopIcon=Sukurti nuorodà &Darbalaukyje
+CreateQuickLaunchIcon=Sukurti Sparèiosios &Paleisties nuorodà
 ProgramOnTheWeb=„%1“ þiniatinklyje
 UninstallProgram=Paðalinti „%1“
 LaunchProgram=Paleisti „%1“
-AssocFileExtension=&Susieti „%1“ programà su bylos plëtiniu %2
-AssocingFileExtension=„%1“ programa susiejama su bylos plëtiniu %2...
+AssocFileExtension=&Susieti „%1“ programà su failo plëtiniu %2
+AssocingFileExtension=„%1“ programa susiejama su failo plëtiniu %2...
 AutoStartProgramGroupDescription=Atomatinë paleistis:
 AutoStartProgram=Atomatiðkai paleisti „%1“
 AddonHostProgramNotFound=„%1“ nerasta Jûsø nurodytame kataloge.%n%nAr Jûs vis tiek norite tæsti?
