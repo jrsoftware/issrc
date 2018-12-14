@@ -2599,8 +2599,8 @@ var
     try
       ReadFileIntoStream(MemStream, R);
       MemStream.Seek(0, soFromBeginning);
-      Result := TAlphaBitmap.Create;
-      TAlphaBitmap(Result).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
+      Result := TBitmap.Create;
+      Result.AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
       Result.LoadFromStream(MemStream);
     finally
       MemStream.Free;
