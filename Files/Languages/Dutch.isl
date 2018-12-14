@@ -77,7 +77,7 @@ ButtonNewFolder=&Nieuwe map maken
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Taalkeuze voor Setup
-SelectLanguageLabel=Selecteer de taal welke Setup gebruikt tijdens de installatie:
+SelectLanguageLabel=Selecteer de taal die Setup gebruikt tijdens de installatie:
 
 ; *** Common wizard text
 ClickNext=Klik op Volgende om verder te gaan of op Annuleren om Setup af te sluiten.

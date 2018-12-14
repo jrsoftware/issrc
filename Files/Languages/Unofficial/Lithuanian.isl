@@ -45,7 +45,6 @@ ErrorTitle=Klaida
 SetupLdrStartupMessage=%1 diegimas. Ar norite tæsti?
 LdrCannotCreateTemp=Negaliu sukurti laikinojo failo. Diegimas nutraukiamas.
 LdrCannotExecTemp=Negaliu ávykdyti failo laikinajame kataloge. Diegimas nutraukiamas.
-HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nKlaida %2: %3
