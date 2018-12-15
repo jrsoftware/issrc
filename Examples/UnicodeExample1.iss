@@ -12,9 +12,6 @@ UninstallDisplayIcon={app}\ƃoɹdʎɯ.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=userdocs:Inno Setup Examples Output
-; This script works in both administrative and non administrative install mode.
-; Remove the next line to run in administrative install mode.  
-PrivilegesRequired=lowest
 
 [Files]
 Source: "MyProg.exe"; DestDir: "{app}"; DestName: "ƃoɹdʎɯ.exe"

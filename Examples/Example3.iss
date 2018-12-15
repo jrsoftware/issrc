@@ -1,5 +1,6 @@
 ; -- Example3.iss --
-; Same as Example1.iss, but creates some registry entries too.
+; Same as Example1.iss, but creates some registry entries too and allows the end
+; use to choose the install mode (administrative or non administrative).
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
@@ -14,9 +15,7 @@ SolidCompression=yes
 OutputDir=userdocs:Inno Setup Examples Output
 ChangesAssociations=yes
 UserInfoPage=yes
-; This script works in both administrative and non administrative install mode.
-; Remove the next line to run in administrative install mode.  
-PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog
 
 [Files]
 Source: "MyProg.exe"; DestDir: "{app}"
