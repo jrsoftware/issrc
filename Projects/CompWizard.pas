@@ -111,6 +111,8 @@ type
     PrivilegesRequiredLabel: TNewStaticText;
     PrivilegesRequiredAdminRadioButton: TRadioButton;
     PrivilegesRequiredLowestRadioButton: TRadioButton;
+    PrivilegesRequiredOverridesAllowedCommandLineCheckbox: TCheckBox;
+    PrivilegesRequiredOverridesAllowedDialogCheckbox: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -136,6 +138,7 @@ type
     procedure NoLanguagesButtonClick(Sender: TObject);
     procedure NoAppExeCheckClick(Sender: TObject);
     procedure UseCommonProgramsCheckClick(Sender: TObject);
+    procedure PrivilegesRequiredOverridesAllowedDialogCheckboxClick(Sender: TObject);
   private
     CurPage: TWizardPage;
     FWizardName: String;
@@ -865,6 +868,14 @@ begin
     LanguagesList.Checked[I] := False;
 end;
 
+procedure TWizardForm.PrivilegesRequiredOverridesAllowedDialogCheckboxClick(
+  Sender: TObject);
+begin
+  PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Enabled := not PrivilegesRequiredOverridesAllowedDialogCheckbox.Checked;
+  if PrivilegesRequiredOverridesAllowedDialogCheckbox.Checked then
+    PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Checked := True;
+end;
+
 { --- }
 
 procedure TWizardForm.GenerateScript;
@@ -1013,6 +1024,10 @@ begin
     else
       Setup := Setup + '; Remove the following line to run in administrative install mode (install for all users.)' + SNewLine;
     Setup := Setup + 'PrivilegesRequired=lowest' + SNewLine; { Note how previous made sure this is outputted as comment if needed. }
+    if PrivilegesRequiredOverridesAllowedDialogCheckbox.Checked then
+      Setup := Setup + 'PrivilegesRequiredOverridesAllowed=dialog' + SNewLine
+    else if PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Checked then
+      Setup := Setup + 'PrivilegesRequiredOverridesAllowed=commandline' + SNewLine;
 
     { Languages }
     if FLanguages.Count > 1 then begin

@@ -1442,6 +1442,23 @@ object WizardForm: TWizardForm
             Caption = '&Non administrative install mode (install for current user only)'
             TabOrder = 2
           end
+          object PrivilegesRequiredOverridesAllowedCommandLineCheckbox: TCheckBox
+            Left = 36
+            Top = 68
+            Width = 311
+            Height = 17
+            Caption = 'Allow user to &override the install mode via the command line'
+            TabOrder = 3
+          end
+          object PrivilegesRequiredOverridesAllowedDialogCheckbox: TCheckBox
+            Left = 36
+            Top = 88
+            Width = 255
+            Height = 17
+            Caption = 'Ask the user to &choose the install mode at startup'
+            TabOrder = 4
+            OnClick = PrivilegesRequiredOverridesAllowedDialogCheckboxClick
+          end
         end
         object TPage
           Left = 0

@@ -60,6 +60,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
     <li>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <tt>PrivilegesRequired</tt> setting using a suppressible dialog (<a href="https://i.imgur.com/9tjXjmg.png">example</a> if <tt>PrivilegesRequired</tt> is set to <tt>admin</tt>). Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</li>
   </ul>
   <li>Added new [Setup] section directive: <tt>UsePreviousPrivileges</tt>. If this directive is set to <tt>yes</tt> (which it is by default) and <tt>PrivilegesRequiredOverridesAllowed</tt> is set to <tt>dialog</tt>, at startup Setup will look in the registry to see if the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a> is already installed in one of the two install modes, and if so, it will use that install mode and not ask the user.</li>
+  <li>The Compiler IDE's New Script Wizard now offers options to allow the <tt>commandline</tt> and <tt>dialog</tt> overrides.</li>
   <li>Inno Setup's own installer script now supports both administrative and non administrative install mode and allows the <tt>dialog</tt> override.</li>
 </ul>
 <p><span class="head2">Side-by-side installations</span></p>
