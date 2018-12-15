@@ -180,7 +180,7 @@ const
   );
 
   { Main }
-  MainTable: array [0..26] of AnsiString =
+  MainTable: array [0..27] of AnsiString =
   (
     'function WizardForm: TWizardForm;',
     'function MainForm: TMainForm;',
@@ -199,7 +199,8 @@ const
     'function SuppressibleMsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons, Default: Integer): Integer;',
     'function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;',
     'function SuppressibleTaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const ForceMsgBox: Boolean;'+'const Default: Integer): Integer;',
-    'function IsWin64: Boolean;',
+    'function Is64BitInstallModeSupported: Boolean;',
+    'function IsWin64: Boolean;', { old name of Is64BitInstallModeSupported }
     'function Is64BitInstallMode: Boolean;',
     'function ProcessorArchitecture: TSetupProcessorArchitecture;',
     'function IsX86: Boolean;',

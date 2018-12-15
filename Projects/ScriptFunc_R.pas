@@ -1047,7 +1047,7 @@ begin
     for I := 0 to N-1 do
       ButtonLabels[I] := VNGetString(PSGetArrayField(Arr, I));
     Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-4)), Stack.GetInt(PStart-5), ButtonLabels, Stack.GetInt(PStart-7), Stack.GetBool(PStart-8), Suppressible, Default));
-  end else if Proc.Name = 'ISWIN64' then begin
+  end else if (Proc.Name = 'IS64BITINSTALLMODESUPPORTED') or (Proc.Name = 'ISWIN64') then begin
     Stack.SetBool(PStart, IsWin64);
   end else if Proc.Name = 'IS64BITINSTALLMODE' then begin
     Stack.SetBool(PStart, Is64BitInstallMode);
