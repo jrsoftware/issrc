@@ -27,7 +27,7 @@ uses
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
   Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
-  SpawnClient, UninstProgressForm;
+  SpawnClient, UninstProgressForm, ASMInline;
 
 var
   ScaleBaseUnitsInitialized: Boolean;
@@ -1543,6 +1543,9 @@ begin
 end;
 
 { Other }
+var
+  ASMInliners: array of Pointer;
+
 function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
   function GetExceptionMessage: String;
@@ -1686,6 +1689,74 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
       Result := False;
     end;
   end;
+  
+  function CreateCallback(P: PPSVariantProcPtr): LongWord;
+  var
+    ProcRec: TPSInternalProcRec;
+    Method: TMethod;
+    Inliner: TASMInline;
+    ParamCount, SwapFirst, SwapLast: Integer;
+    S: tbtstring;
+  begin
+    { Calculate parameter count of our proc, will will need this later. }
+    ProcRec := Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
+    S := ProcRec.ExportDecl;
+    GRFW(S);
+    ParamCount := 0;
+    while S <> '' do begin
+      Inc(ParamCount);
+      GRFW(S);
+    end;
+
+    { Turn our proc into a callable TMethod - its Code will point to
+      ROPS' MyAllMethodsHandler and its Data to a record identifying our proc.
+      When called, MyAllMethodsHandler will use the record to call our proc. }
+    Method := MkMethod(Caller, P.ProcNo);
+
+    { Wrap our TMethod with a dynamically generated stdcall callback which will
+      do two things:
+      -Remember the Data pointer which MyAllMethodsHandler needs.
+      -Handle the calling convention mismatch.
+
+      Based on InnoCallback by Sherlock Software, see
+      http://www.sherlocksoftware.org/page.php?id=54 and
+      https://github.com/thenickdude/InnoCallback. }
+    Inliner := TASMInline.create;
+
+    try
+      Inliner.Pop(EAX); //get the retptr off the stack
+
+      SwapFirst := 2;
+      SwapLast := ParamCount-1;
+
+      //Reverse the order of parameters from param3 onwards in the stack
+      while SwapLast > SwapFirst do begin
+        Inliner.Mov(ECX, Inliner.Addr(ESP, SwapFirst * 4)); //load the first item of the pair
+        Inliner.Mov(EDX, Inliner.Addr(ESP, SwapLast * 4)); //load the last item of the pair
+        Inliner.Mov(Inliner.Addr(ESP, SwapFirst * 4), EDX);
+        Inliner.Mov(Inliner.Addr(ESP, SwapLast * 4), ECX);
+        Inc(SwapFirst);
+        Dec(SwapLast);
+      end;
+
+      if ParamCount >= 1 then
+        Inliner.Pop(EDX); //load param1
+      if ParamCount >= 2 then
+        Inliner.Pop(ECX); //load param2
+
+      Inliner.Push(EAX); //put the retptr back onto the stack
+
+      Inliner.Mov(EAX, LongWord(Method.Data)); //Load the self ptr
+
+      Inliner.Jmp(Method.Code); //jump to the wrapped proc
+
+      SetLength(ASMInliners, Length(ASMInliners) + 1);
+      ASMInliners[High(ASMInliners)] := Inliner.SaveAsMemory;
+      Result := LongWord(ASMInliners[High(ASMInliners)]);
+    finally
+      Inliner.Free;
+    end;
+  end;
 
 var
   PStart: Cardinal;
@@ -1815,6 +1886,8 @@ begin
     end;
   end else if Proc.Name = 'UNINSTALLPROGRESSFORM' then begin
     Stack.SetClass(PStart, GetUninstallProgressForm);
+  end else if Proc.Name = 'CREATECALLBACK' then begin
+   Stack.SetInt(PStart, CreateCallback(Stack.Items[PStart-1]));
   end else
     Result := False;
 end;
@@ -1881,4 +1954,16 @@ begin
   ScriptInterpreter.RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx', cdRegister); 
 end;
 
+procedure FreeASMInliners;
+var
+  I: Integer;
+begin
+  for I := 0 to High(ASMInliners) do
+    FreeMem(ASMInliners[I]);
+  SetLength(ASMInliners, 0);
+end;
+
+initialization
+finalization
+  FreeASMInliners;
 end.
