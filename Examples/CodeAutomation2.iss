@@ -2,8 +2,6 @@
 ;
 ; This script shows how to use IUnknown based COM Automation objects.
 ;
-; REQUIRES UNICODE INNO SETUP!
-;
 ; Note: some unneeded interface functions which had special types have been replaced
 ; by dummies to avoid having to define those types. Do not remove these dummies as
 ; that would change the function indices which is bad. Also, not all function

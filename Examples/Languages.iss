@@ -16,11 +16,6 @@ OutputDir=userdocs:Inno Setup Examples Output
 ; Uncomment the following line to disable the "Select Setup Language"
 ; dialog and have it rely solely on auto-detection.
 ;ShowLanguageDialog=no
-; If you want all languages to be listed in the "Select Setup Language"
-; dialog, even those that can't be displayed in the active code page,
-; uncomment the following line. Note: Unicode Inno Setup always displays
-; all languages.
-;ShowUndisplayableLanguages=yes
 
 [Languages]
 Name: en; MessagesFile: "compiler:Default.isl"

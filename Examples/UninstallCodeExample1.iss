@@ -1,6 +1,6 @@
 ; -- UninstallCodeExample1.iss --
 ;
-; This script shows various things you can achieve using a [Code] section for Uninstall
+; This script shows various things you can achieve using a [Code] section for Uninstall.
 
 [Setup]
 AppName=My Program
