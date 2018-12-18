@@ -729,6 +729,28 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
+        <name>CreateCallback</name>
+        <prototype>function CreateCallback(Method: AnyMethod): Longword;</prototype>
+        <description><p>Allows you to perform direct callbacks from functions in external DLLs (like Windows API functions) to functions in your script.</p></description>
+        <example><pre>function SetTimer(hWnd, nIDEvent, uElapse, lpTimerFunc: Longword): Longword;
+external 'SetTimer@user32.dll stdcall';
+
+var
+  TimerCount: Integer;
+
+procedure MyTimerProc(Arg1, Arg2, Arg3, Arg4: Longword);
+begin
+  Inc(TimerCount);
+  WizardForm.BeveledLabel.Caption := ' Timer! ' + IntToStr(TimerCount);
+  WizardForm.BeveledLabel.Visible := True;
+end;
+
+procedure InitializeWizard;
+begin
+  SetTimer(0, 0, 1000, CreateCallback(@MyTimerProc));
+end;</pre></example>
+      </function>
+      <function>
         <name>UnloadDLL</name>
         <prototype>procedure UnloadDLL(Filename: String);</prototype>
         <description><p>Unloads the specified DLL that was loaded by the [Code] section using an "external" keyword. This can be useful if you need to delete the DLL.</p>
