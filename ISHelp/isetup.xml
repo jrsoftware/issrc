@@ -102,7 +102,7 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <li>Support for every Windows release since 2000, including: Windows 10, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Vista, Windows Server 2008, Windows XP, Windows Server 2003, and Windows 2000. (No service packs are required.)</li>
 
-<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. Both the x64 and Itanium architectures are supported. (On the Itanium architecture, Service Pack 1 or later is required on Windows Server 2003 to install in 64-bit mode.)</li>
+<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are supported. (On the Itanium architecture, Service Pack 1 or later is required on Windows Server 2003 to install in 64-bit mode.)</li>
 
 <li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link> installations.</li>
 
@@ -5014,13 +5014,13 @@ DiskSliceSize=1457664
 <keyword value="IA-64" />
 <keyword value="Itanium" />
 <keyword value="ARM64" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>x86</tt> <br/><tt>x64</tt> <br/><tt>ia64</tt> <br/><tt>arm64</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>x86</tt> <br/><tt>x64</tt> <br/><tt>arm64</tt> <br/><tt>ia64</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies which processor architecture(s) Setup is allowed to run on. If this directive is not specified or is blank, Setup will be allowed to run on all processor architectures capable of executing its 32-bit code (including ones it doesn't recognize). Otherwise, if a user's processor architecture is not one of those specified in this directive, Setup will display an error message and exit.</p>
-<p>If your application's binaries are all 32-bit and run in user mode, you should not change this directive from its default value (specifically, don't set it to <tt>x86</tt>), because normally such binaries will run without issue on the x64 and Itanium editions of Windows via the WOW64 emulator.</p>
+<p>If your application's binaries are all 32-bit and run in user mode, you should not change this directive from its default value (specifically, don't set it to <tt>x86</tt>), because normally such binaries will run without issue on the 64-bit Windows via the WOW64 emulator.</p>
 <p>If you install any 32-bit device drivers, you should set this directive to <tt>x86</tt>, as 32-bit device drivers cannot function on 64-bit Windows.</p>
-<p>If your application's binaries are built for the x64 or Itanium architectures, you should set this directive to either <tt>x64</tt> or <tt>ia64</tt> respectively.</p>
+<p>If your application's binaries are built for the x64, ARM64 or Itanium architectures, you should set this directive to either <tt>x64</tt>, <tt>arm64</tt> or <tt>ia64</tt> respectively.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link></p>
 </body>
@@ -5033,7 +5033,8 @@ DiskSliceSize=1457664
 <keyword value="x64" />
 <keyword value="IA-64" />
 <keyword value="Itanium" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>x64</tt> <br/><tt>ia64</tt></setupvalid>
+<keyword value="ARM64" />
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>x64</tt> <br/><tt>arm64</tt> <br/><tt>ia64</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies the 64-bit processor architecture(s) on which Setup should install in <link topic="32vs64bitinstalls">64-bit install mode</link>. If this directive is not specified or is blank, Setup will always install in <link topic="32vs64bitinstalls">32-bit install mode</link>.</p>
@@ -5041,7 +5042,6 @@ DiskSliceSize=1457664
 <p>Be sure you have read the <link topic="64bitlimitations">64-bit Installation Limitations</link> topic before setting this directive.</p>
 <p>If your application runs only on 64-bit processor architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
 <p>Setup can only run in 64-bit install mode on versions of Windows that provide the API support Inno Setup requires (e.g. RegDeleteKeyEx). All x64 editions provide the necessary APIs, however Itanium editions prior to Windows Server 2003 SP1 do not. If the user is running an older Itanium version of Windows, Setup will display a message (<tt>MissingWOW64APIs</tt>) recommending that the user install a service pack, and exit.</p>
-<p><i>Note:</i> Windows 10 on ARM64 only supports 32-bit (x86) binaries. Therefore Setup will never install in <link topic="32vs64bitinstalls">64-bit install mode</link> on Windows 10 on ARM64.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesallowed">ArchitecturesAllowed</link></p>
 </body>
