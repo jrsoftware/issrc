@@ -3615,6 +3615,10 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support.</li>
 
+<li>DRON: Code for the improved image stretching (5.6.0).</li>
+
+<li>Sherlock Software: Most of the code for the <tt>CreateCallback</tt> support function (6.0).</li>
+
 </ul>
 
 </body>

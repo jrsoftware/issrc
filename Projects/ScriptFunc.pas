@@ -308,7 +308,7 @@ const
   );
 
   { Other }
-  OtherTable: array [0..27] of AnsiString =
+  OtherTable: array [0..28] of AnsiString =
   (
     'procedure BringToFrontAndRestore;',
     'function WizardDirValue: String;',
@@ -337,7 +337,8 @@ const
     'function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function EnableFsRedirection(const Enable: Boolean): Boolean;',
-    'function UninstallProgressForm: TUninstallProgressForm;'
+    'function UninstallProgressForm: TUninstallProgressForm;',
+    'function CreateCallback(Method: AnyMethod): Longword;'
   );
 
 implementation

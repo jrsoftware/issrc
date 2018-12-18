@@ -95,6 +95,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <ul>
     <li>Using event attributes it is now possible to have multiple implementations of the same event function in your script. This is especially useful in included scripts implementing an event function to avoid conflicts with the main script. See the help file for more information and the <i>CodeExample1.iss</i> example script for an example.</li>
     <li>Added new <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> support functions which display a task dialog if supported by the system and a regular message box otherwise (<a href="https://i.imgur.com/hU4RQP2.png">example</a>). See the help file for more information and the <i>CodeClasses.iss</i> example script for an example.</li>
+    <li>Added new <tt>CreateCallback</tt> support function which allows you to perform direct callbacks from functions in external DLLs (like Windows API functions) to functions in your script. See the help file and the <i>CodeDll.iss</i> example script for an example.</li>
     <li>[Setup] section directives <tt>ChangesAssociations</tt> and <tt>ChangesEnvironment</tt> may now be set to a boolean expression, which may contain calls to check functions.</li>
     <li>Added new special-purpose <i>HelpTextNote</i> message that can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing /HELP on the command line. This message defaults to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use it.</li>
     <li>Added new <tt>SameStr</tt> and <tt>SameText</tt> support functions.</li>
@@ -118,7 +119,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Minor tweaks.</li>
 </ul>
 
-<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to jogo-, Martin Prikryl, dscharrer, Kleuter, Gavin Lambert, Stef&aacute;n &Ouml;rvar Sigmundsson, DRON, and Kevin Puetz for their contributions.</p>
+<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to jogo-, Martin Prikryl, dscharrer, Kleuter, Gavin Lambert, Stef&aacute;n &Ouml;rvar Sigmundsson, DRON, Kevin Puetz, and Sherlock Software for their contributions.</p>
 
 <p>Some messages have been added in this version:<!-- (<a href="https://github.com/jrsoftware/issrc/commit/b0cd1a0177b818e36734026c67dc24f01ad6a0d0">View differences in Default.isl</a>).--></p>
 <ul>
