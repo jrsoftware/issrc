@@ -3696,10 +3696,7 @@ var
              Include(Result, paX86);
         1: Include(Result, paX64);
         2: Include(Result, paIA64);
-        3: if Only64Bit then
-             Invalid //ARM64 can actually only run x86 binaries
-           else
-             Include(Result, paARM64);
+        3: Include(Result, paARM64);
       end;
   end;
 

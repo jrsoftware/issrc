@@ -4377,7 +4377,7 @@ begin
     5. GetSystemWow64DirectoryA is available.
     6. RegDeleteKeyExA is available.
     The system does not have to be one of the known 64-bit architectures
-    (AMD64, IA64) to be considered a "Win64" system. }
+    (AMD64, IA64, ARM64) to be considered a "Win64" system. }
 
   IsWin64 := False;
   KernelModule := GetModuleHandle(kernel32);
