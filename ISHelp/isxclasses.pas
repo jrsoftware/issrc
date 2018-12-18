@@ -708,8 +708,8 @@ TWizardForm = class(TSetupForm)
   property CancelButton: TNewButton; read;
   property NextButton: TNewButton; read;
   property BackButton: TNewButton; read;
-  property Notebook1: TNotebook; read;
-  property Notebook2: TNotebook; read;
+  property OuterNotebook: TNotebook; read;
+  property InnerNotebook: TNotebook; read;
   property WelcomePage: TNewNotebookPage; read;
   property InnerPage: TNewNotebookPage; read;
   property FinishedPage: TNewNotebookPage; read;

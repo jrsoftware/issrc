@@ -1,6 +1,6 @@
 ; -- CodeExample1.iss --
 ;
-; This script shows various things you can achieve using a [Code] section
+; This script shows various things you can achieve using a [Code] section.
 
 [Setup]
 AppName=My Program

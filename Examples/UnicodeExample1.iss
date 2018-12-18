@@ -1,5 +1,5 @@
 ﻿; -- UnicodeExample1.iss --
-; Demonstrates some Unicode functionality. Requires Unicode Inno Setup.
+; Demonstrates some Unicode functionality.
 ;
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 

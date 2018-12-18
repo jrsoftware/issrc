@@ -5,7 +5,6 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-DisableWelcomePage=yes
 CreateAppDir=no
 DisableProgramGroupPage=yes
 DefaultGroupName=My Program
