@@ -4361,50 +4361,75 @@ const
   PROCESSOR_ARCHITECTURE_IA64 = 6;
   PROCESSOR_ARCHITECTURE_AMD64 = 9;
   PROCESSOR_ARCHITECTURE_ARM64 = 12;
+  IMAGE_FILE_MACHINE_I386 = $014c;
+  IMAGE_FILE_MACHINE_IA64 = $0200;
+  IMAGE_FILE_MACHINE_AMD64 = $8664;
+  IMAGE_FILE_MACHINE_ARM64 = $AA64;
 var
   KernelModule: HMODULE;
   GetNativeSystemInfoFunc: procedure(var lpSystemInfo: TSystemInfo); stdcall;
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
+  IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
+  ProcessMachine, NativeMachine: USHORT;
   Wow64Process: BOOL;
   SysInfo: TSystemInfo;
 begin
   { The system is considered a "Win64" system if all of the following
     conditions are true:
-    1. GetNativeSystemInfo is available.
-    2. IsWow64Process is available, and returns True for the current process.
-    3. Wow64DisableWow64FsRedirection is available.
-    4. Wow64RevertWow64FsRedirection is available.
-    5. GetSystemWow64DirectoryA is available.
-    6. RegDeleteKeyExA is available.
+    1. One of the following two is true:
+       a. IsWow64Process2 is available, and returns True for the current process.
+       b. GetNativeSystemInfo is available +
+          IsWow64Process is available, and returns True for the current process.
+    2. Wow64DisableWow64FsRedirection is available.
+    3. Wow64RevertWow64FsRedirection is available.
+    4. GetSystemWow64DirectoryA is available.
+    5. RegDeleteKeyExA is available.
     The system does not have to be one of the known 64-bit architectures
     (AMD64, IA64, ARM64) to be considered a "Win64" system. }
 
   IsWin64 := False;
   KernelModule := GetModuleHandle(kernel32);
-  GetNativeSystemInfoFunc := GetProcAddress(KernelModule, 'GetNativeSystemInfo');
-  if Assigned(GetNativeSystemInfoFunc) then begin
-    GetNativeSystemInfoFunc(SysInfo);
-    IsWow64ProcessFunc := GetProcAddress(KernelModule, 'IsWow64Process');
-    if Assigned(IsWow64ProcessFunc) and
-       IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
-      Wow64Process then begin
-      if AreFsRedirectionFunctionsAvailable and
-         (GetProcAddress(KernelModule, 'GetSystemWow64DirectoryA') <> nil) and
-        (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil) then
-        IsWin64 := True;
-    end;
-  end
-  else
-    GetSystemInfo(SysInfo);
 
-  case SysInfo.wProcessorArchitecture of
-    PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
-    PROCESSOR_ARCHITECTURE_IA64: ProcessorArchitecture := paIA64;
-    PROCESSOR_ARCHITECTURE_AMD64: ProcessorArchitecture := paX64;
-    PROCESSOR_ARCHITECTURE_ARM64: ProcessorArchitecture := paARM64;
-  else
-    ProcessorArchitecture := paUnknown;
+  IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
+  if Assigned(IsWow64Process2Func) and
+     IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) and
+     (ProcessMachine <> IMAGE_FILE_MACHINE_UNKNOWN) then begin
+    IsWin64 := True;
+    case NativeMachine of
+      IMAGE_FILE_MACHINE_I386: ProcessorArchitecture := paX86;
+      IMAGE_FILE_MACHINE_IA64: ProcessorArchitecture := paIA64;
+      IMAGE_FILE_MACHINE_AMD64: ProcessorArchitecture := paX64;
+      IMAGE_FILE_MACHINE_ARM64: ProcessorArchitecture := paARM64;
+    else
+      ProcessorArchitecture := paUnknown;
+    end;
+  end else begin
+    GetNativeSystemInfoFunc := GetProcAddress(KernelModule, 'GetNativeSystemInfo');
+    if Assigned(GetNativeSystemInfoFunc) then begin
+      GetNativeSystemInfoFunc(SysInfo);
+      IsWow64ProcessFunc := GetProcAddress(KernelModule, 'IsWow64Process');
+      if Assigned(IsWow64ProcessFunc) and
+         IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
+         Wow64Process then
+        IsWin64 := True;
+    end else
+      GetSystemInfo(SysInfo);
+
+    case SysInfo.wProcessorArchitecture of
+      PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
+      PROCESSOR_ARCHITECTURE_IA64: ProcessorArchitecture := paIA64;
+      PROCESSOR_ARCHITECTURE_AMD64: ProcessorArchitecture := paX64;
+      PROCESSOR_ARCHITECTURE_ARM64: ProcessorArchitecture := paARM64;
+    else
+      ProcessorArchitecture := paUnknown;
+    end;
   end;
+
+  if IsWin64 and
+     not (AreFsRedirectionFunctionsAvailable and
+          (GetProcAddress(KernelModule, 'GetSystemWow64DirectoryA') <> nil) and
+          (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil)) then
+    IsWin64 := False;
 end;
 
 procedure InitWindowsVersion;
