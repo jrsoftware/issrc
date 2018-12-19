@@ -293,6 +293,7 @@ const
 
   { [Code] }
   SCompilerCodeUnsupportedEventFunction = 'Event function named "%s" is no longer supported. Create a "%s" function instead';
+  SCompilerCodeFunctionRenamed = 'Support function "%s" has been renamed. Use "%s" instead.';
 
   { [Types] }
   SCompilerTypesCustomTypeAlreadyDefined = 'A custom type has already been defined';

@@ -2,19 +2,17 @@ unit ScriptCompiler;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script compiler
-
-  $jrsoftware: issrc/Projects/ScriptCompiler.pas,v 1.22 2010/11/13 06:02:48 jr Exp $
 }
 
 interface
 
 uses
-  Classes, uPSUtils;
+  Classes, Generics.Collections, uPSUtils;
 
 type
   TScriptCompilerOnLineToLineInfo = procedure(const Line: LongInt; var Filename: String; var FileLine: LongInt) of object;
@@ -26,6 +24,7 @@ type
   TScriptCompiler = class
     private
       FNamingAttribute: String;
+      FObsoleteFunctionWarnings: TDictionary<String, String>;
       FExports, FUsedLines: TList;
       FFunctionsFound: TStringList;
       FScriptText: AnsiString;
@@ -37,6 +36,7 @@ type
       function FindExport(const Name, Decl: String; const IgnoreIndex: Integer): Integer;
       function GetExportCount: Integer;
       procedure PSPositionToLineCol(Position: LongInt; var Line, Col: LongInt);
+      procedure TriggerWarning(const Position: LongInt; const WarningType, WarningMessage: String);
     public
       constructor Create;
       destructor Destroy; override;
@@ -46,6 +46,7 @@ type
       property ExportCount: Integer read GetExportCount;
       function ExportFound(const Name: String): Boolean;
       function FunctionFound(const Name: String): Boolean;
+      function IsObsoleteFunction(const Name: String): String;
       property NamingAttribute: String write FNamingAttribute;
       property OnLineToLineInfo: TScriptCompilerOnLineToLineInfo write FOnLineToLineInfo;
       property OnUsedLine: TScriptCompilerOnUsedLine write FOnUsedLine;
@@ -57,7 +58,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  SysUtils, Generics.Defaults,
   uPSCompiler, uPSC_dll,
   ScriptClasses_C, ScriptFunc_C;
 
@@ -175,7 +176,7 @@ begin
     RegisterDll_Compiletime(Sender);
     Sender.OnExternalProc := PSPascalCompilerOnExternalProc;
     ScriptClassesLibraryRegister_C(Sender);
-    ScriptFuncLibraryRegister_C(Sender);
+    ScriptFuncLibraryRegister_C(Sender, TScriptCompiler(Sender.ID).FObsoleteFunctionWarnings);
     NamingAttribute := TScriptCompiler(Sender.ID).FNamingAttribute;
     if NamingAttribute <> '' then begin
       with Sender.AddAttributeType do begin
@@ -279,7 +280,7 @@ begin
     Result := True;
 end;
 
-procedure PSPascalCompilerOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtstring); 
+procedure PSPascalCompilerOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtstring);
 var
   ScriptCompiler: TScriptCompiler;
   Filename: String;
@@ -296,10 +297,25 @@ begin
   end;
 end;
 
+procedure PSPascalCompilerOnUseRegProc(Sender: TPSPascalCompiler; Position: Cardinal; const Name: tbtstring);
+var
+  ScriptCompiler: TScriptCompiler;
+  WarningMessage: String;
+begin
+  ScriptCompiler := Sender.ID;
+
+  if Assigned(ScriptCompiler.FOnWarning) then begin
+    WarningMessage := ScriptCompiler.IsObsoleteFunction(Name);
+    if WarningMessage <> '' then
+      ScriptCompiler.TriggerWarning(Position, 'Hint', WarningMessage);
+  end;
+end;
+
 {---}
 
 constructor TScriptCompiler.Create;
 begin
+  FObsoleteFunctionWarnings := TDictionary<String, String>.Create(TIStringComparer.Ordinal);
   FExports := TList.Create();
   FUsedLines := TList.Create();
   FFunctionsFound := TStringList.Create();
@@ -314,6 +330,7 @@ begin
   for I := 0 to FExports.Count-1 do
     TScriptExport(FExports[I]).Free();
   FExports.Free();
+  FObsoleteFunctionWarnings.Free();
 end;
 
 procedure TScriptCompiler.PSPositionToLineCol(Position: LongInt; var Line, Col: LongInt);
@@ -351,6 +368,22 @@ begin
   Position := Length(UTF8ToString(Copy(FScriptText, LineStartPosition, Position - 1))) + 1;
 {$ENDIF}
   Col := Position;
+end;
+
+procedure TScriptCompiler.TriggerWarning(const Position: LongInt; const WarningType, WarningMessage: String);
+var
+  Line, Col: LongInt;
+  Filename, Msg: String;
+begin
+  PSPositionToLineCol(Position, Line, Col);
+  Filename := '';
+  if Assigned(FOnLineToLineInfo) then
+    FOnLineToLineInfo(Line, Filename, Line);
+  Msg := '';
+  if Filename <> '' then
+    Msg := Msg + Filename + ', ';
+  Msg := Msg + Format('Line %d, Column %d: [%s] %s', [Line, Col, WarningType, WarningMessage]);
+  FOnWarning(Msg);
 end;
 
 procedure TScriptCompiler.AddExport(const Name, Decl: String; const AllowNamingAttribute, Required: Boolean; const RequiredFilename: String; const RequiredLine: LongInt);
@@ -466,6 +499,7 @@ begin
     FUsedLines.Clear();
     PSPascalCompiler.OnWriteLine := PSPascalCompilerOnWriteLine;
     PSPascalCompiler.OnUseVariable := PSPascalCompilerOnUseVariable;
+    PSPascalCompiler.OnUseRegProc := PSPascalCompilerOnUseRegProc;
 
     if not PSPascalCompiler.Compile(FScriptText) then begin
       if Assigned(FOnError) then begin
@@ -502,21 +536,10 @@ begin
         Exit;
       end;
 
-      if Assigned(FOnWarning) then begin
-        for L := 0 to PSPascalCompiler.MsgCount-1 do begin
-          PSPositionToLineCol(PSPascalCompiler.Msg[L].Pos, Line, Col);
-          Filename := '';
-          if Assigned(FOnLineToLineInfo) then
-            FOnLineToLineInfo(Line, Filename, Line);
-          Msg := '';
-          if Filename <> '' then
-            Msg := Msg + Filename + ', ';
-          Msg := Msg + Format('Line %d, Column %d: [%s] %s', [Line, Col,
-            PSPascalCompiler.Msg[L].ErrorType,
-            PSPascalCompiler.Msg[L].ShortMessageToString]);
-          FOnWarning(Msg);
-        end;
-      end;
+      if Assigned(FOnWarning) then
+        for L := 0 to PSPascalCompiler.MsgCount-1 do
+          TriggerWarning(PSPascalCompiler.Msg[L].Pos, PSPascalCompiler.Msg[L].ErrorType,
+            PSPascalCompiler.Msg[L].ShortMessageToString);
     end;
 
     Result := True;
@@ -557,6 +580,11 @@ end;
 function TScriptCompiler.GetExportCount: Integer;
 begin
   Result := FExports.Count;
+end;
+
+function TScriptCompiler.IsObsoleteFunction(const Name: String): String;
+begin
+  FObsoleteFunctionWarnings.TryGetValue(Name, Result);
 end;
 
 end.

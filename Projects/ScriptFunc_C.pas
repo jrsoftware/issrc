@@ -2,7 +2,7 @@ unit ScriptFunc_C;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,23 +12,25 @@ unit ScriptFunc_C;
 interface
 
 uses
-  uPSCompiler, uPSUtils;
+  Generics.Collections, uPSCompiler, uPSUtils;
 
-procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler);
+procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
+  ObsoleteFunctionWarnings: TDictionary<String, String>);
 
 implementation
 
 uses
   Windows, SysUtils, TypInfo,
   CmnFunc2, MsgIDs, Struct,
-  SetupTypes, ScriptFunc;
+  SetupTypes, ScriptFunc, CompMsgs;
 
 { This type copied from CmnFunc.pas. We don't actually 'use' CmnFunc since
   it would cause VCL units to be linked in. }
 type
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 
-procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler);
+procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
+  ObsoleteFunctionWarnings: TDictionary<String, String>);
 
   procedure RegisterType(const Name, Value: tbtstring);
   begin
@@ -144,6 +146,7 @@ begin
   RegisterFunctionTable(BrowseFuncTable);
   RegisterFunctionTable(CmnFuncTable);
   RegisterFunctionTable(CmnFunc2Table);
+  ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamed, ['IsAdminLoggedOn', 'IsAdmin']));
   RegisterFunctionTable(InstallTable);
   RegisterFunctionTable(InstFuncTable);
   RegisterFunctionTable(InstFnc2Table);
