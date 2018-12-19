@@ -25,6 +25,8 @@ object CompileForm: TCompileForm
     Width = 361
     Height = 28
     Align = alTop
+    BevelEdges = [beBottom]
+    BevelKind = bkFlat
     BevelOuter = bvNone
     FullRepaint = False
     ParentShowHint = False
@@ -32,7 +34,7 @@ object CompileForm: TCompileForm
     TabOrder = 2
     object NewButton: TSpeedButton
       Left = 6
-      Top = 4
+      Top = 2
       Width = 23
       Height = 22
       Hint = 'New'
@@ -91,17 +93,9 @@ object CompileForm: TCompileForm
       NumGlyphs = 2
       OnClick = FNewClick
     end
-    object Bevel1: TBevel
-      Left = 0
-      Top = 0
-      Width = 361
-      Height = 2
-      Align = alTop
-      Shape = bsTopLine
-    end
     object OpenButton: TSpeedButton
       Left = 29
-      Top = 4
+      Top = 2
       Width = 23
       Height = 22
       Hint = 'Open'
@@ -162,7 +156,7 @@ object CompileForm: TCompileForm
     end
     object SaveButton: TSpeedButton
       Left = 52
-      Top = 4
+      Top = 2
       Width = 23
       Height = 22
       Hint = 'Save'
@@ -223,14 +217,14 @@ object CompileForm: TCompileForm
     end
     object Bevel2: TBevel
       Left = 78
-      Top = 4
+      Top = 2
       Width = 2
       Height = 22
       Shape = bsLeftLine
     end
     object CompileButton: TSpeedButton
       Left = 83
-      Top = 4
+      Top = 2
       Width = 23
       Height = 22
       Hint = 'Compile'
@@ -291,7 +285,7 @@ object CompileForm: TCompileForm
     end
     object StopCompileButton: TSpeedButton
       Left = 106
-      Top = 4
+      Top = 2
       Width = 23
       Height = 22
       Hint = 'Stop Compile'
@@ -353,14 +347,14 @@ object CompileForm: TCompileForm
     end
     object Bevel3: TBevel
       Left = 131
-      Top = 4
+      Top = 2
       Width = 2
       Height = 22
       Shape = bsLeftLine
     end
     object RunButton: TSpeedButton
       Left = 136
-      Top = 4
+      Top = 2
       Width = 23
       Height = 22
       Hint = 'Run'
@@ -421,7 +415,7 @@ object CompileForm: TCompileForm
     end
     object PauseButton: TSpeedButton
       Left = 159
-      Top = 4
+      Top = 2
       Width = 23
       Height = 22
       Hint = 'Pause'
@@ -483,14 +477,14 @@ object CompileForm: TCompileForm
     end
     object Bevel4: TBevel
       Left = 238
-      Top = 4
+      Top = 2
       Width = 2
       Height = 22
       Shape = bsLeftLine
     end
     object HelpButton: TSpeedButton
       Left = 243
-      Top = 4
+      Top = 2
       Width = 23
       Height = 22
       Hint = 'Help'
@@ -551,7 +545,7 @@ object CompileForm: TCompileForm
     end
     object TargetSetupButton: TSpeedButton
       Left = 189
-      Top = 4
+      Top = 2
       Width = 23
       Height = 22
       Hint = 'Target Setup'
@@ -589,7 +583,7 @@ object CompileForm: TCompileForm
     end
     object TargetUninstallButton: TSpeedButton
       Left = 212
-      Top = 4
+      Top = 2
       Width = 23
       Height = 22
       Hint = 'Target Uninstall'
@@ -626,7 +620,7 @@ object CompileForm: TCompileForm
     end
     object Bevel5: TBevel
       Left = 184
-      Top = 4
+      Top = 2
       Width = 2
       Height = 22
       Shape = bsLeftLine

@@ -595,7 +595,7 @@ procedure TScintEdit.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   CreateSubClass(Params, 'Scintilla');
-  Params.ExStyle := Params.ExStyle or WS_EX_CLIENTEDGE;
+  //Params.ExStyle := Params.ExStyle or WS_EX_CLIENTEDGE;
   Params.WindowClass.style := Params.WindowClass.style and
     not (CS_HREDRAW or CS_VREDRAW);
 end;

@@ -88,7 +88,6 @@ type
     SplitPanel: TPanel;
     ToolbarPanel: TPanel;
     NewButton: TSpeedButton;
-    Bevel1: TBevel;
     OpenButton: TSpeedButton;
     SaveButton: TSpeedButton;
     CompileButton: TSpeedButton;
