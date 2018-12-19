@@ -305,7 +305,7 @@ begin
   ScriptCompiler := Sender.ID;
 
   if Assigned(ScriptCompiler.FOnWarning) then begin
-    WarningMessage := ScriptCompiler.IsObsoleteFunction(Name);
+    WarningMessage := ScriptCompiler.IsObsoleteFunction(String(Name));
     if WarningMessage <> '' then
       ScriptCompiler.TriggerWarning(Position, 'Hint', WarningMessage);
   end;
@@ -538,8 +538,9 @@ begin
 
       if Assigned(FOnWarning) then
         for L := 0 to PSPascalCompiler.MsgCount-1 do
-          TriggerWarning(PSPascalCompiler.Msg[L].Pos, PSPascalCompiler.Msg[L].ErrorType,
-            PSPascalCompiler.Msg[L].ShortMessageToString);
+          TriggerWarning(PSPascalCompiler.Msg[L].Pos,
+            String(PSPascalCompiler.Msg[L].ErrorType),
+            String(PSPascalCompiler.Msg[L].ShortMessageToString);
     end;
 
     Result := True;
