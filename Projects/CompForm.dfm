@@ -658,19 +658,13 @@ object CompileForm: TCompileForm
       FullRepaint = False
       TabOrder = 0
       Visible = False
-      object SpacerPaintBox: TPaintBox
-        Left = 0
-        Top = 82
-        Width = 361
-        Height = 2
-        Align = alBottom
-      end
       object DebugOutputList: TListBox
         Left = 0
         Top = 0
         Width = 361
-        Height = 82
+        Height = 83
         Align = alClient
+        BorderStyle = bsNone
         ItemHeight = 13
         PopupMenu = ListPopupMenu
         Style = lbOwnerDrawFixed
@@ -682,17 +676,18 @@ object CompileForm: TCompileForm
         Left = 0
         Top = 0
         Width = 361
-        Height = 82
+        Height = 83
         Align = alClient
+        BorderStyle = bsNone
         ItemHeight = 13
         PopupMenu = ListPopupMenu
         TabOrder = 0
       end
       object TabSet: TNewTabSet
         Left = 0
-        Top = 84
+        Top = 83
         Width = 361
-        Height = 20
+        Height = 21
         Align = alBottom
         TabIndex = 0
         Tabs.Strings = (

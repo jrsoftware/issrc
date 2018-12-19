@@ -143,7 +143,6 @@ type
     VDebugOutput: TMenuItem;
     VHide: TMenuItem;
     N11: TMenuItem;
-    SpacerPaintBox: TPaintBox;
     TMenu: TMenuItem;
     TAddRemovePrograms: TMenuItem;
     RToggleBreakPoint: TMenuItem;
@@ -790,7 +789,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
       StatusPanel.Height := Ini.ReadInteger('State', 'StatusPanelHeight',
-        (10 * DebugOutputList.ItemHeight + 4) + SpacerPaintBox.Height + TabSet.Height);
+        (10 * DebugOutputList.ItemHeight + 4) + TabSet.Height);
     finally
       Ini.Free;
     end;
@@ -2416,8 +2415,7 @@ procedure TCompileForm.UpdateStatusPanelHeight(H: Integer);
 var
   MinHeight, MaxHeight: Integer;
 begin
-  MinHeight := (3 * DebugOutputList.ItemHeight + 4) +
-    SpacerPaintBox.Height + TabSet.Height;
+  MinHeight := (3 * DebugOutputList.ItemHeight + 4) + TabSet.Height;
   MaxHeight := BodyPanel.ClientHeight - 48 - SplitPanel.Height;
   if H > MaxHeight then H := MaxHeight;
   if H < MinHeight then H := MinHeight;
