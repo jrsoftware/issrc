@@ -152,6 +152,7 @@ Source: "Examples\Components.iss"; DestDir: "{app}\Examples"; Flags: ignoreversi
 Source: "Examples\Languages.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\MyProg.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
 Source: "Examples\MyProg-x64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
+Source: "Examples\MyProg-ARM64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
 Source: "Examples\MyProg.chm"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Readme.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Readme-Dutch.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
