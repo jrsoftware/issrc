@@ -729,7 +729,7 @@ end;</pre></example>
       <function>
         <name>CreateCallback</name>
         <prototype>function CreateCallback(Method: AnyMethod): Longword;</prototype>
-        <description><p>Allows you to perform direct callbacks from functions in external DLLs (like Windows API functions) to functions in your script.</p></description>
+        <description><p>Allows you to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p></description>
         <example><pre>function SetTimer(hWnd, nIDEvent, uElapse, lpTimerFunc: Longword): Longword;
 external 'SetTimer@user32.dll stdcall';
 

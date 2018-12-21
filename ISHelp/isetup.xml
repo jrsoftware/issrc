@@ -137,7 +137,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Integrated <link topic="scriptintro">Pascal scripting</link> engine option for advanced run-time install and uninstall customization.</li>
 
-<li>Full source code is available (Borland Delphi 2.0-5.0 and 2009) from <extlink href="https://github.com/jrsoftware/issrc">GitHub</extlink>.</li>
+<li>Full source code is available from <extlink href="https://github.com/jrsoftware/issrc">GitHub</extlink>.</li>
 
 <li>Tiny footprint: only about 500 kB overhead with all features included and about 300 kB overhead with all features except Unicode support included.</li>
 

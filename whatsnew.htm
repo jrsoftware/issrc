@@ -49,7 +49,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 </ul>
 <ul>
   <li>The Compiler IDE's New Script Wizard now offers an option to select administrative or non administrative install mode and outputs scripts which work in both modes.</li>
-  <li>Pascal Scripting changes: Added new <tt>IsAdminInstallMode</tt> support function.</li>
+  <li>Pascal Scripting change: Added new <tt>IsAdminInstallMode</tt> support function.</li>
 </ul>
 <p><span class="head2">Overridable install mode</span></p>
 <p>Once your script is fully updated to support both administrative and non administrative install mode (for example by using the new &quot;auto&quot; constants and the new [Registry] section <tt>Root</tt> value <tt>HKA</tt>) you can then use the following:</p>
@@ -81,6 +81,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
   <li>Added new [Setup] section directive: <tt>VersionInfoOriginalFileName</tt>, which sets the original filename version value.</li>
   <li>The <tt>Permissions</tt> parameter supported by [Files], [Dirs] and [Registry] entries now also allows you to grant permission to the Guests group, the Local Service account, the Network Service account, and to the Creator Owner.</li>
+  <li>Added new special-purpose <i>HelpTextNote</i> message that can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing /HELP on the command line. This message defaults to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use it.</li>
 </ul>
 <ul>
   <li>Compiler changes:
@@ -96,9 +97,8 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <ul>
     <li>Using event attributes it is now possible to have multiple implementations of the same event function in your script. This is especially useful in included scripts implementing an event function to avoid conflicts with the main script. See the help file for more information and the <i>CodeExample1.iss</i> example script for an example.</li>
     <li>Added new <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> support functions which display a task dialog if supported by the system and a regular message box otherwise (<a href="https://i.imgur.com/hU4RQP2.png">example</a>). See the help file for more information and the <i>CodeClasses.iss</i> example script for an example.</li>
-    <li>Added new <tt>CreateCallback</tt> support function which allows you to perform direct callbacks from functions in external DLLs (like Windows API functions) to functions in your script. See the help file and the <i>CodeDll.iss</i> example script for an example.</li>
+    <li>Added new <tt>CreateCallback</tt> support function which allows you to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script. See the help file and the <i>CodeDll.iss</i> example script for an example.</li>
     <li>[Setup] section directives <tt>ChangesAssociations</tt> and <tt>ChangesEnvironment</tt> may now be set to a boolean expression, which may contain calls to check functions.</li>
-    <li>Added new special-purpose <i>HelpTextNote</i> message that can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing /HELP on the command line. This message defaults to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use it.</li>
     <li>Added new <tt>SameStr</tt> and <tt>SameText</tt> support functions.</li>
     <li>Renamed the <tt>IsAdminLoggedOn</tt> support function to <tt>IsAdmin</tt>. The old name is still supported, but it is recommended to update your scripts to the new name and the compiler will issue a warning if you don't.</li>
     <li>Removed the <tt>TAlphaBitmap</tt> support class. Its functionality is now provided directly by <tt>TBitmap</tt>.</li>

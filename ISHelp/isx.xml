@@ -53,7 +53,7 @@
 <link topic="scriptfunctions">Support Functions Reference</link><br/>
 <link topic="scriptclasses">Support Classes Reference</link><br/>
 <link topic="scriptpages">Using Custom Wizard Pages</link><br/>
-<link topic="scriptdll">Using DLLs</link><br/>
+<link topic="scriptdll">Using DLLs and .NET assemblies</link><br/>
 <link topic="scriptautomation">Using COM Automation objects</link>
 </p>
 
@@ -646,18 +646,7 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 
 <p>If you use a 'files:' prefix and <link topic="setup_solidcompression">solid compression</link> is enabled, be sure to list your DLLs at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p>
 
-<p>To automatically choose between the ANSI or Unicode version of a function depending on the <link topic="unicode">installed version</link> of Inno Setup, use ISPP:</p>
-
-<precode>
-[Code]
-function MessageBox(hWnd: Integer; lpText, lpCaption: String; uType: Cardinal): Integer;
-#ifdef UNICODE
-external 'MessageBoxW@user32.dll stdcall';
-#else
-external 'MessageBoxA@user32.dll stdcall';
-#endif
-</precode>
-
+<p>Use <link topic="isxfunc_CreateCallback">CreateCallback</link> to be able to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script</p>
 </body>
 </topic>
 
@@ -709,8 +698,6 @@ external 'MessageBoxA@user32.dll stdcall';
 <p>If you copy the interface definition from any existing Delphi source code, remove the brackets around the interface GUID string. Also remove any calling conventions, Inno Setup assumes 'stdcall'. If the interface contains any functions you won't call, you can replace these by dummies to avoid having to define any special types used by them.</p>
 
 <p>Open the "CodeAutomation2.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using IUnknown based COM Automation objects.</p>
-
-<p>Note: IUnknown based COM support requires <link topic="unicode">Unicode Inno Setup</link>.</p>
 
 </dd>
 
