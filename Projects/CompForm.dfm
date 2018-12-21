@@ -216,9 +216,9 @@ object CompileForm: TCompileForm
       OnClick = FSaveClick
     end
     object Bevel2: TBevel
-      Left = 78
+      Left = 79
       Top = 2
-      Width = 2
+      Width = 1
       Height = 22
       Shape = bsLeftLine
     end
@@ -346,9 +346,9 @@ object CompileForm: TCompileForm
       OnClick = BStopCompileClick
     end
     object Bevel3: TBevel
-      Left = 131
+      Left = 132
       Top = 2
-      Width = 2
+      Width = 1
       Height = 22
       Shape = bsLeftLine
     end
@@ -476,9 +476,9 @@ object CompileForm: TCompileForm
       OnClick = RPauseClick
     end
     object Bevel4: TBevel
-      Left = 238
+      Left = 239
       Top = 2
-      Width = 2
+      Width = 1
       Height = 22
       Shape = bsLeftLine
     end
@@ -619,9 +619,9 @@ object CompileForm: TCompileForm
       OnClick = RTargetClick
     end
     object Bevel5: TBevel
-      Left = 184
+      Left = 185
       Top = 2
-      Width = 2
+      Width = 1
       Height = 22
       Shape = bsLeftLine
     end
@@ -705,27 +705,33 @@ object CompileForm: TCompileForm
     Panels = <
       item
         Alignment = taCenter
+        Bevel = pbNone
         Text = '   1:   1'
         Width = 64
       end
       item
         Alignment = taCenter
+        Bevel = pbNone
         Width = 64
       end
       item
         Alignment = taCenter
+        Bevel = pbNone
         Text = 'Insert'
         Width = 64
       end
       item
+        Bevel = pbNone
         Style = psOwnerDraw
         Width = 23
       end
       item
+        Bevel = pbNone
         Style = psOwnerDraw
         Width = 128
       end
       item
+        Bevel = pbNone
         Width = 50
       end>
     SimplePanel = False

@@ -540,7 +540,7 @@ begin
         for L := 0 to PSPascalCompiler.MsgCount-1 do
           TriggerWarning(PSPascalCompiler.Msg[L].Pos,
             String(PSPascalCompiler.Msg[L].ErrorType),
-            String(PSPascalCompiler.Msg[L].ShortMessageToString);
+            String(PSPascalCompiler.Msg[L].ShortMessageToString));
     end;
 
     Result := True;
