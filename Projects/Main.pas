@@ -2830,7 +2830,7 @@ var
           Will use the command line parameter for this. Allowing proDialog forces
           allowing proCommandLine, so we can count on the parameter to work. }
         if shAppNameHasConsts in SetupHeader.Options then
-          AppName := SetupMessages[msgPrivilegesRequiredOverrideThisProgram]
+          AppName := PathChangeExt(PathExtractName(SetupLdrOriginalFilename), '')
         else
           AppName := SetupHeader.AppName;
         if SetupHeader.PrivilegesRequired = prLowest then begin

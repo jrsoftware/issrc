@@ -147,7 +147,6 @@ type
     msgPreparingDesc,
     msgPreviousInstallNotCompleted,
     msgPrivilegesRequiredOverrideInstruction,
-    msgPrivilegesRequiredOverrideThisProgram,
     msgPrivilegesRequiredOverrideTaskDialogText1,
     msgPrivilegesRequiredOverrideMsgBoxText1,
     msgPrivilegesRequiredOverrideTaskDialogText2,

@@ -49,7 +49,6 @@ UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit 
 
 ; *** Startup questions
 PrivilegesRequiredOverrideInstruction=Kies installatie modus
-PrivilegesRequiredOverrideThisProgram=Dit programma
 PrivilegesRequiredOverrideTaskDialogText1=%1 kan geïnstalleerd worden voor alle gebruikers (vereist aanmelding als een systeembeheerder), of voor u alleen.
 PrivilegesRequiredOverrideMsgBoxText1=%1 kan geïnstalleerd worden voor alle gebruikers (aanbevolen, maar vereist aanmelding als een systeembeheerder), of voor u alleen.%n%nWilt u voor alle gebruikers installeren?
 PrivilegesRequiredOverrideTaskDialogText2=%1 kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
