@@ -8640,7 +8640,7 @@ begin
     if AppNameHasConsts then begin
       Include(SetupHeader.Options, shAppNameHasConsts);
       if not(shDisableStartupPrompt in SetupHeader.Options) then begin
-        { AppName has contants so DisableStartupPrompt must be used }
+        { AppName has constants so DisableStartupPrompt must be used }
         LineNumber := SetupDirectiveLines[ssDisableStartupPrompt];
         AbortCompile(SCompilerMustUseDisableStartupPrompt);
       end;
@@ -8651,12 +8651,12 @@ begin
       LineNumber := SetupDirectiveLines[ssAppId];
     AppIdHasConsts := CheckConst(SetupHeader.AppId, SetupHeader.MinVersion, []);
     if AppIdHasConsts and (shUsePreviousLanguage in SetupHeader.Options) then begin
-      { AppId has contants so UsePreviousLanguage must not be used }
+      { AppId has constants so UsePreviousLanguage must not be used }
       LineNumber := SetupDirectiveLines[ssUsePreviousLanguage];
       AbortCompile(SCompilerMustNotUsePreviousLanguage);
     end;
     if AppIdHasConsts and (proDialog in SetupHeader.PrivilegesRequiredOverridesAllowed) and (shUsePreviousPrivileges in SetupHeader.Options) then begin
-      { AppId has contants so UsePreviousPrivileges must not be used }
+      { AppId has constants so UsePreviousPrivileges must not be used }
       LineNumber := SetupDirectiveLines[ssUsePreviousPrivileges];
       AbortCompile(SCompilerMustNotUsePreviousPrivileges);
     end;
