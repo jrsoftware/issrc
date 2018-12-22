@@ -82,15 +82,15 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added new [Setup] section directive: <tt>VersionInfoOriginalFileName</tt>, which sets the original filename version value.</li>
   <li>The <tt>Permissions</tt> parameter supported by [Files], [Dirs] and [Registry] entries now also allows you to grant permission to the Guests group, the Local Service account, the Network Service account, and to the Creator Owner.</li>
   <li>Added new special-purpose <i>HelpTextNote</i> message that can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing /HELP on the command line. This message defaults to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use it.</li>
-</ul>
-<ul>
-  <li>Compiler changes:
-  <ul>
-    <li>The Compiler IDE Options button <i>Associate .iss files with this compiler</i> can now associate for the current user instead of displaying an error if administrative privileges are not available.</li>
-    <li>The Compiler IDE option <i>Allow Undo after save</i> is now on by default for new installations.</li>
-    <li>The Compiler IDE main window has been flattened for a more modern look.</li>
     <li>The compiler will now throw an error if the $f sequence is missing in a Sign Tool command instead of executing it anyway.</li>
     <li>Fix: The compiler now checks <tt>OutputBaseFileName</tt> and <tt>OutputManifestFile</tt> for bad characters even if <tt>Output</tt> is set to <tt>no</tt>.</li>
+</ul>
+<ul>
+  <li>Compiler IDE changes:
+  <ul>
+    <li>Options button <i>Associate .iss files with this compiler</i> can now associate for the current user instead of displaying an error if administrative privileges are not available.</li>
+    <li>Option <i>Allow Undo after save</i> is now on by default for new installations.</li>
+    <li>The main window has been flattened for a more modern look.</li>
   </ul>
   </li>
   <li>Pascal Scripting changes:
