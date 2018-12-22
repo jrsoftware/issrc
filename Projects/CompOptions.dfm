@@ -6,11 +6,13 @@ object OptionsForm: TOptionsForm
   Caption = 'Options'
   ClientHeight = 317
   ClientWidth = 589
+  Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
   PixelsPerInch = 96
@@ -188,7 +190,8 @@ object OptionsForm: TOptionsForm
       Top = 196
       Width = 121
       Height = 32
-      BevelOuter = bvLowered
+      BevelKind = bkFlat
+      BevelOuter = bvNone
       Caption = 'AaBbXxZz'
       TabOrder = 10
     end
@@ -253,8 +256,6 @@ object OptionsForm: TOptionsForm
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = []
-    MinFontSize = 0
-    MaxFontSize = 0
     Options = [fdForceFontExist]
     Left = 8
     Top = 284
