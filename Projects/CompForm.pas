@@ -25,7 +25,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet,
-  DebugStruct, CompInt, UxThemeISX;
+  DebugStruct, CompInt, UxThemeISX, System.ImageList, Vcl.ImgList, Vcl.ToolWin;
 
 const
   WM_StartCommandLineCompile = WM_USER + $1000;
@@ -86,19 +86,11 @@ type
     StatusPanel: TPanel;
     CompilerOutputList: TListBox;
     SplitPanel: TPanel;
-    ToolbarPanel: TPanel;
-    NewButton: TSpeedButton;
-    OpenButton: TSpeedButton;
-    SaveButton: TSpeedButton;
-    CompileButton: TSpeedButton;
-    HelpButton: TSpeedButton;
     HWebsite: TMenuItem;
     VToolbar: TMenuItem;
     N7: TMenuItem;
     TOptions: TMenuItem;
     HFaq: TMenuItem;
-    Bevel2: TBevel;
-    Bevel3: TBevel;
     StatusBar: TStatusBar;
     BodyPanel: TPanel;
     VStatusBar: TMenuItem;
@@ -112,9 +104,6 @@ type
     N10: TMenuItem;
     REvaluate: TMenuItem;
     CheckIfRunningTimer: TTimer;
-    RunButton: TSpeedButton;
-    Bevel4: TBevel;
-    PauseButton: TSpeedButton;
     RPause: TMenuItem;
     RParameters: TMenuItem;
     ListPopupMenu: TPopupMenu;
@@ -122,7 +111,6 @@ type
     HISPPSep: TMenuItem;
     N12: TMenuItem;
     BStopCompile: TMenuItem;
-    StopCompileButton: TSpeedButton;
     HISPPDoc: TMenuItem;
     N13: TMenuItem;
     EGoto: TMenuItem;
@@ -135,9 +123,6 @@ type
     N15: TMenuItem;
     RTargetSetup: TMenuItem;
     RTargetUninstall: TMenuItem;
-    TargetSetupButton: TSpeedButton;
-    TargetUninstallButton: TSpeedButton;
-    Bevel5: TBevel;
     TabSet: TNewTabSet;
     DebugOutputList: TListBox;
     VDebugOutput: TMenuItem;
@@ -165,6 +150,24 @@ type
     FSaveEncoding: TMenuItem;
     FSaveEncodingAuto: TMenuItem;
     FSaveEncodingUTF8: TMenuItem;
+    ImageList1: TImageList;
+    ToolBar: TToolBar;
+    NewButton: TToolButton;
+    OpenButton: TToolButton;
+    SaveButton: TToolButton;
+    ToolButton4: TToolButton;
+    CompileButton: TToolButton;
+    StopCompileButton: TToolButton;
+    ToolButton7: TToolButton;
+    RunButton: TToolButton;
+    PauseButton: TToolButton;
+    ToolButton10: TToolButton;
+    TargetSetupButton: TToolButton;
+    TargetUninstallButton: TToolButton;
+    ToolButton13: TToolButton;
+    HelpButton: TToolButton;
+    Bevel1: TBevel;
+    BuildImageList: TImageList;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenClick(Sender: TObject);
@@ -302,7 +305,6 @@ type
     FLastReplaceText: String;
     FLastEvaluateConstantText: String;
     FSavePriorityClass: DWORD;
-    FBuildImageList: HIMAGELIST;
     FBuildAnimationFrame: Cardinal;
     FLastAnimationTick: DWORD;
     FProgress, FProgressMax: Cardinal;
@@ -434,7 +436,6 @@ uses
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes;
 
 {$R *.DFM}
-{$R CompImages.res}
 
 const
   { Status bar panel indexes }
@@ -720,7 +721,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
     Ini := TConfigIniFile.Create;
     try
       { Menu check boxes state }
-      ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
+      Toolbar.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
       StatusBar.Visible := Ini.ReadBool('Options', 'ShowStatusBar', True);
       FOptions.LowPriorityDuringCompile := Ini.ReadBool('Options', 'LowPriorityDuringCompile', False);
 
@@ -824,8 +825,6 @@ begin
   FModifiedSinceLastCompile := True;
 
   InitFormFont(Self);
-
-  FBuildImageList := ImageList_LoadBitmap(HInstance, 'BUILDIMAGES', 17, 0, clSilver);
 
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
     'poDefault' Position setting }
@@ -934,7 +933,7 @@ destructor TCompileForm.Destroy;
     Ini := TConfigIniFile.Create;
     try
       { Menu check boxes state }
-      Ini.WriteBool('Options', 'ShowToolbar', ToolbarPanel.Visible);
+      Ini.WriteBool('Options', 'ShowToolbar', Toolbar.Visible);
       Ini.WriteBool('Options', 'ShowStatusBar', StatusBar.Visible);
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
@@ -968,11 +967,7 @@ begin
   DestroyDebugInfo;
   FSignTools.Free;
   FMRUList.Free;
-  if FBuildImageList <> 0 then begin
-    ImageList_Destroy(FBuildImageList);
-    FBuildImageList := 0;
-  end;
-
+ 
   inherited;
 end;
 
@@ -1978,7 +1973,7 @@ begin
   VZoomIn.Enabled := (Memo.Zoom < 20);
   VZoomOut.Enabled := (Memo.Zoom > -10);
   VZoomReset.Enabled := (Memo.Zoom <> 0);
-  VToolbar.Checked := ToolbarPanel.Visible;
+  VToolbar.Checked := Toolbar.Visible;
   VStatusBar.Checked := StatusBar.Visible;
   VHide.Checked := not StatusPanel.Visible;
   VCompilerOutput.Checked := StatusPanel.Visible and (TabSet.TabIndex = tiCompilerOutput);
@@ -2002,7 +1997,7 @@ end;
 
 procedure TCompileForm.VToolbarClick(Sender: TObject);
 begin
-  ToolbarPanel.Visible := not ToolbarPanel.Visible;
+  Toolbar.Visible := not Toolbar.Visible;
 end;
 
 procedure TCompileForm.VStatusBarClick(Sender: TObject);
@@ -3808,7 +3803,7 @@ begin
   case Panel.Index of
     spCompileIcon:
       if FCompiling then begin
-        ImageList_Draw(FBuildImageList, FBuildAnimationFrame, StatusBar.Canvas.Handle,
+        ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
           Rect.Left + ((Rect.Right - Rect.Left) - 17) div 2,
           Rect.Top + ((Rect.Bottom - Rect.Top) - 15) div 2, ILD_NORMAL);
       end;
