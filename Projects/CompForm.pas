@@ -3806,8 +3806,8 @@ begin
     spCompileIcon:
       if FCompiling then begin
         ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
-          Rect.Left + ((Rect.Right - Rect.Left) - 17) div 2,
-          Rect.Top + ((Rect.Bottom - Rect.Top) - 15) div 2, ILD_NORMAL);
+          Rect.Left + ((Rect.Right - Rect.Left) - 16) div 2,
+          Rect.Top + ((Rect.Bottom - Rect.Top) - 17) div 2, ILD_NORMAL);
       end;
     spCompileProgress:
       if FCompiling and (FProgressMax > 0) then begin
