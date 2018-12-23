@@ -3973,12 +3973,12 @@ begin
     DebugOutputList.Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth,
       Rect.Top, Copy(S, 2, Maxint))
   else begin
-    if (Length(S) > 16) and (S[14] = '-') and (S[15] = '-') and (S[16] = ' ') then begin
+    if (Length(S) > 20) and (S[18] = '-') and (S[19] = '-') and (S[20] = ' ') then begin
       { Draw lines that begin with '-- ' (like '-- File entry --') in bold }
-      DebugOutputList.Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, 13));
+      DebugOutputList.Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, 17));
       DebugOutputList.Canvas.Font.Style := [fsBold];
       DebugOutputList.Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth,
-        Rect.Top, Copy(S, 14, Maxint));
+        Rect.Top, Copy(S, 18, Maxint));
     end
     else
       DebugOutputList.Canvas.TextOut(Rect.Left, Rect.Top, S);
