@@ -453,6 +453,8 @@ end;
 TNewListBox = class(TListBox)
 end;
 
+TBevelKind = (bkNone, bkTile, bkSoft, bkFlat);
+
 TBevelShape = (bsBox, bsFrame, bsTopLine, bsBottomLine, bsLeftLine, bsRightLine, bsSpacer);
 
 TBevelStyle = (bsLowered, bsRaised);
@@ -474,6 +476,7 @@ TBorderWidth = Longint;
 TPanel = class(TCustomPanel)
   property Alignment: TAlignment; read write;
   property BevelInner: TPanelBevel; read write;
+  property BevelKind: TBevelKind; read write;
   property BevelOuter: TPanelBevel; read write;
   property BevelWidth: TBevelWidth; read write;
   property BorderWidth: TBorderWidth; read write;
@@ -545,6 +548,8 @@ TNewProgressBar = class(TWinControl)
 end;
 
 TRichEditViewer = class(TMemo)
+  property BevelKind: TBevelKind; read write;
+  property BorderStyle: TBorderStyle; read write;
   property RTFText: AnsiString; write;
   property UseRichEdit: Boolean; read write;
 end;

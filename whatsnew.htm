@@ -85,13 +85,14 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added new special-purpose <i>HelpTextNote</i> message that can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing /HELP on the command line. This message defaults to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use it.</li>
   <li>The compiler will now throw an error if the $f sequence is missing in a Sign Tool command instead of executing it anyway.</li>
   <li>Fix: The compiler now checks <tt>OutputBaseFileName</tt> and <tt>OutputManifestFile</tt> for bad characters even if <tt>Output</tt> is set to <tt>no</tt>.</li>
+  <li>Flattened a few elements of Setup's interface for a more modern look.</li>
 </ul>
 <ul>
   <li>Compiler IDE changes:
   <ul>
+    <li>Updated all icons and flattened the interface for a more modern look.</li>
     <li>Options button <i>Associate .iss files with this compiler</i> can now associate for the current user instead of displaying an error if administrative privileges are not available.</li>
     <li>Options <i>Allow Undo after save</i> and <i>Show indentation guides</i> are now on by default for new installations.</li>
-    <li>Updated all icons and flattened the interface for a more modern look.</li>
     <li>The "Compiler Output" view is now colorized. This can be turned off in the options.</li>
     <li>The "Debug Output" view now uses bold text for any entry lines such as '-- File entry --'.</li>
   </ul>
@@ -102,6 +103,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
     <li>Added new <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> support functions which display a task dialog if supported by the system and a regular message box otherwise (<a href="https://i.imgur.com/hU4RQP2.png">example</a>). See the help file for more information and the <i>CodeClasses.iss</i> example script for an example.</li>
     <li>Added new <tt>CreateCallback</tt> support function which allows you to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script. See the help file and the <i>CodeDll.iss</i> example script for an example.</li>
     <li>[Setup] section directives <tt>ChangesAssociations</tt> and <tt>ChangesEnvironment</tt> may now be set to a boolean expression, which may contain calls to check functions.</li>
+    <li>Added new <tt>BevelKind</tt> property to the <tt>TPanel</tt> support class and new <tt>BevelKind</tt> and <tt>BorderStyle</tt> properties to the <tt>TRichEditViewer</tt> support class, allowing you to enable a flatter interface for a more modern look. See the <i>CodeClasses.iss</i> example script for an example.</li>
     <li>Added new <tt>SameStr</tt> and <tt>SameText</tt> support functions.</li>
     <li>Renamed the <tt>IsAdminLoggedOn</tt> support function to <tt>IsAdmin</tt>. The old name is still supported, but it is recommended to update your scripts to the new name and the compiler will issue a warning if you don't.</li>
     <li>Removed the <tt>TAlphaBitmap</tt> support class. Its functionality is now provided directly by <tt>TBitmap</tt>.</li>
