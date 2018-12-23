@@ -30,7 +30,7 @@ TouchDate=none
 TouchTime=00:00
 WizardImageFile=compiler:WizModernImage-IS.bmp
 WizardSmallImageFile=compiler:WizModernSmallImage-IS.bmp
-#ifndef NOSIGNTOOL
+#ifdef SIGNTOOL
 SignTool=issigntool
 SignTool=issigntool256
 SignedUninstaller=yes
