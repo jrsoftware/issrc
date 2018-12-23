@@ -125,6 +125,8 @@ begin
   Panel.Height := Button.Height * 2;
   Panel.Caption := 'TPanel';
   Panel.Color := clWindow;
+  Panel.BevelKind := bkFlat;
+  Panel.BevelOuter := bvNone;
   Panel.ParentBackground := False;
   Panel.Parent := Page.Surface;
 
