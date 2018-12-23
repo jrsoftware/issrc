@@ -314,6 +314,8 @@ begin
   RichEditViewer := TRichEditViewer.Create(Page);
   RichEditViewer.Width := Page.SurfaceWidth;
   RichEditViewer.Height := Page.SurfaceHeight;
+  RichEditViewer.BevelKind := bkFlat;
+  RichEditViewer.BorderStyle := bsNone;
   RichEditViewer.Parent := Page.Surface;
   RichEditViewer.ScrollBars := ssVertical;
   RichEditViewer.UseRichEdit := True;

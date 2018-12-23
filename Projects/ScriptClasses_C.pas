@@ -142,6 +142,8 @@ procedure RegisterRichEditViewer_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(Cl.FindClass('TMemo'), 'TRichEditViewer') do
   begin
+    RegisterProperty('BevelKind', 'TBevelKind', iptrw);
+    RegisterProperty('BorderStyle', 'TBorderStyle', iptrw);
     RegisterProperty('RTFText', 'AnsiString', iptw);
     RegisterProperty('UseRichEdit', 'Boolean', iptrw);
   end;

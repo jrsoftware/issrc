@@ -133,6 +133,8 @@ object WizardForm: TWizardForm
             Top = 24
             Width = 417
             Height = 161
+            BevelKind = bkFlat
+            BorderStyle = bsNone
             ReadOnly = True
             ScrollBars = ssVertical
             TabOrder = 1
@@ -188,6 +190,8 @@ object WizardForm: TWizardForm
             Top = 24
             Width = 417
             Height = 205
+            BevelKind = bkFlat
+            BorderStyle = bsNone
             ReadOnly = True
             ScrollBars = ssVertical
             TabOrder = 1
@@ -565,6 +569,8 @@ object WizardForm: TWizardForm
             Top = 24
             Width = 417
             Height = 205
+            BevelKind = bkFlat
+            BorderStyle = bsNone
             ReadOnly = True
             ScrollBars = ssVertical
             TabOrder = 1
