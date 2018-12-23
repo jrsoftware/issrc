@@ -268,6 +268,7 @@ type
       RunAsDifferentUser: Boolean;
       AutoComplete: Boolean;
       UseSyntaxHighlighting: Boolean;
+      ColorizeCompilerOutput: Boolean;
       UnderlineErrors: Boolean;
       CursorPastEOL: Boolean;
       TabWidth: Integer;
@@ -735,13 +736,14 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.RunAsDifferentUser := Ini.ReadBool('Options', 'RunAsDifferentUser', False);
       FOptions.AutoComplete := Ini.ReadBool('Options', 'AutoComplete', True);
       FOptions.UseSyntaxHighlighting := Ini.ReadBool('Options', 'UseSynHigh', True);
+      FOptions.ColorizeCompilerOutput := Ini.ReadBool('Options', 'ColorizeCompilerOutput', True);
       FOptions.UnderlineErrors := Ini.ReadBool('Options', 'UnderlineErrors', True);
       FOptions.CursorPastEOL := Ini.ReadBool('Options', 'EditorCursorPastEOL', True);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
       FOptions.UseTabCharacter := Ini.ReadBool('Options', 'UseTabCharacter', False);
       FOptions.WordWrap := Ini.ReadBool('Options', 'WordWrap', False);
       FOptions.AutoIndent := Ini.ReadBool('Options', 'AutoIndent', True);
-      FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', False);
+      FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', True);
       FOptions.GutterLineNumbers := Ini.ReadBool('Options', 'GutterLineNumbers', False);
       if GetACP = 932 then begin
         { Default to MS Gothic font on CP 932 (Japanese), as Courier New is
@@ -2522,6 +2524,7 @@ begin
     OptionsForm.RunAsDifferentUserCheck.Checked := FOptions.RunAsDifferentUser;
     OptionsForm.AutoCompleteCheck.Checked := FOptions.AutoComplete;
     OptionsForm.UseSynHighCheck.Checked := FOptions.UseSyntaxHighlighting;
+    OptionsForm.ColorizeCompilerOutputCheck.Checked := FOptions.ColorizeCompilerOutput;
     OptionsForm.UnderlineErrorsCheck.Checked := FOptions.UnderlineErrors;
     OptionsForm.CursorPastEOLCheck.Checked := FOptions.CursorPastEOL;
     OptionsForm.TabWidthEdit.Text := IntToStr(FOptions.TabWidth);
@@ -2545,6 +2548,7 @@ begin
     FOptions.RunAsDifferentUser := OptionsForm.RunAsDifferentUserCheck.Checked;
     FOptions.AutoComplete := OptionsForm.AutoCompleteCheck.Checked;
     FOptions.UseSyntaxHighlighting := OptionsForm.UseSynHighCheck.Checked;
+    FOptions.ColorizeCompilerOutput := OptionsForm.ColorizeCompilerOutputCheck.Checked;
     FOptions.UnderlineErrors := OptionsForm.UnderlineErrorsCheck.Checked;
     FOptions.CursorPastEOL := OptionsForm.CursorPastEOLCheck.Checked;
     FOptions.TabWidth := StrToInt(OptionsForm.TabWidthEdit.Text);
@@ -2574,6 +2578,7 @@ begin
       Ini.WriteBool('Options', 'RunAsDifferentUser', FOptions.RunAsDifferentUser);
       Ini.WriteBool('Options', 'AutoComplete', FOptions.AutoComplete);
       Ini.WriteBool('Options', 'UseSynHigh', FOptions.UseSyntaxHighlighting);
+      Ini.WriteBool('Options', 'ColorizeCompilerOutput', FOptions.ColorizeCompilerOutput);
       Ini.WriteBool('Options', 'UnderlineErrors', FOptions.UnderlineErrors);
       Ini.WriteBool('Options', 'EditorCursorPastEOL', FOptions.CursorPastEOL);
       Ini.WriteInteger('Options', 'TabWidth', FOptions.TabWidth);
@@ -3963,7 +3968,7 @@ begin
 
   Canvas.FillRect(Rect);
   Inc(Rect.Left, 2);
-  if not (odSelected in State) then
+  if FOptions.ColorizeCompilerOutput and not (odSelected in State) then
     Canvas.Font.Color := Color;
   Canvas.TextOut(Rect.Left, Rect.Top, S);
 end;

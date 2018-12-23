@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 317
+  ClientHeight = 337
   ClientWidth = 589
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,13 +15,17 @@ object OptionsForm: TOptionsForm
   OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
+  DesignSize = (
+    589
+    337)
   PixelsPerInch = 96
   TextHeight = 13
   object GroupBox1: TGroupBox
     Left = 8
     Top = 8
     Width = 281
-    Height = 201
+    Height = 221
+    Anchors = [akLeft, akTop, akBottom]
     Caption = ' Miscellaneous '
     TabOrder = 0
     object StartupCheck: TCheckBox
@@ -91,11 +95,13 @@ object OptionsForm: TOptionsForm
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 216
+    Top = 236
     Width = 281
     Height = 57
+    Anchors = [akLeft, akBottom]
     Caption = ' File Associations '
     TabOrder = 1
+    ExplicitTop = 216
     object AssocButton: TButton
       Left = 40
       Top = 20
@@ -110,7 +116,8 @@ object OptionsForm: TOptionsForm
     Left = 300
     Top = 8
     Width = 281
-    Height = 265
+    Height = 285
+    Anchors = [akLeft, akTop, akBottom]
     Caption = ' Editor '
     TabOrder = 2
     object AutoCompleteCheck: TCheckBox
@@ -131,124 +138,136 @@ object OptionsForm: TOptionsForm
     end
     object UnderlineErrorsCheck: TCheckBox
       Left = 8
-      Top = 56
-      Width = 265
-      Height = 17
-      Caption = 'U&nderline syntax errors'
-      TabOrder = 2
-    end
-    object CursorPastEOLCheck: TCheckBox
-      Left = 8
       Top = 76
       Width = 265
       Height = 17
-      Caption = 'Allow cursor to move beyond &end of lines'
+      Caption = 'U&nderline syntax errors'
       TabOrder = 3
     end
-    object WordWrapCheck: TCheckBox
+    object CursorPastEOLCheck: TCheckBox
       Left = 8
       Top = 96
       Width = 265
       Height = 17
-      Caption = 'W&ord wrap'
+      Caption = 'Allow cursor to move beyond &end of lines'
       TabOrder = 4
     end
-    object UseTabCharacterCheck: TCheckBox
+    object WordWrapCheck: TCheckBox
       Left = 8
       Top = 116
       Width = 265
       Height = 17
-      Caption = 'Use tab cha&racter'
+      Caption = 'W&ord wrap'
       TabOrder = 5
     end
-    object AutoIndentCheck: TCheckBox
+    object UseTabCharacterCheck: TCheckBox
       Left = 8
       Top = 136
       Width = 265
       Height = 17
-      Caption = 'Auto &indent mode'
+      Caption = 'Use tab cha&racter'
       TabOrder = 6
     end
-    object IndentationGuidesCheck: TCheckBox
+    object AutoIndentCheck: TCheckBox
       Left = 8
       Top = 156
       Width = 265
       Height = 17
-      Caption = 'Show indentation &guides'
+      Caption = 'Auto &indent mode'
       TabOrder = 7
+    end
+    object IndentationGuidesCheck: TCheckBox
+      Left = 8
+      Top = 176
+      Width = 265
+      Height = 17
+      Caption = 'Show indentation &guides'
+      TabOrder = 8
     end
     object Label1: TNewStaticText
       Left = 8
-      Top = 205
+      Top = 225
       Width = 55
       Height = 14
       Caption = 'Editor Font:'
-      TabOrder = 9
+      TabOrder = 10
     end
     object FontPanel: TPanel
       Left = 72
-      Top = 196
+      Top = 216
       Width = 121
       Height = 32
       BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'AaBbXxZz'
-      TabOrder = 10
+      TabOrder = 11
     end
     object ChangeFontButton: TButton
       Left = 200
-      Top = 201
+      Top = 221
       Width = 73
       Height = 23
       Caption = '&Change...'
-      TabOrder = 11
+      TabOrder = 12
       OnClick = ChangeFontButtonClick
     end
     object Label2: TNewStaticText
       Left = 8
-      Top = 239
+      Top = 259
       Width = 54
       Height = 14
       Caption = '&Tab Width:'
       FocusControl = TabWidthEdit
-      TabOrder = 12
+      TabOrder = 13
     end
     object TabWidthEdit: TEdit
       Left = 72
-      Top = 236
+      Top = 256
       Width = 41
       Height = 21
-      TabOrder = 13
+      TabOrder = 14
       OnChange = TabWidthEditChange
     end
     object GutterLineNumbersCheck: TCheckBox
       Left = 8
-      Top = 176
+      Top = 196
       Width = 265
       Height = 17
       Caption = 'Show &line numbers in gutter'
-      TabOrder = 8
+      TabOrder = 9
+    end
+    object ColorizeCompilerOutputCheck: TCheckBox
+      Left = 8
+      Top = 56
+      Width = 265
+      Height = 17
+      Caption = 'Colori&ze "Compiler Output" view'
+      TabOrder = 2
     end
   end
   object OKButton: TButton
     Left = 428
-    Top = 285
+    Top = 305
     Width = 73
     Height = 23
+    Anchors = [akLeft, akBottom]
     Caption = 'OK'
     Default = True
     ModalResult = 1
     TabOrder = 3
+    ExplicitTop = 285
   end
   object CancelButton: TButton
     Left = 508
-    Top = 285
+    Top = 305
     Width = 73
     Height = 23
+    Anchors = [akLeft, akBottom]
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 4
+    ExplicitTop = 285
   end
   object FontDialog: TFontDialog
     Font.Charset = DEFAULT_CHARSET
