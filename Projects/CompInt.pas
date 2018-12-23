@@ -2,13 +2,11 @@ unit CompInt;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler interface
-
-  $jrsoftware: issrc/Projects/CompInt.pas,v 1.16 2011/06/15 14:37:46 mlaan Exp $
 }
 
 interface
@@ -62,7 +60,8 @@ type
                                 same pointer each time). }
 
       iscbNotifyStatus: (
-        StatusMsg: PChar);    { [in] Contents of status message. }
+        StatusMsg: PChar;     { [in] Contents of status message. }
+        Warning: BOOL);       { [in] Warning indicator (new in 6.0.0) }
 
       iscbNotifyIdle: (
         CompressProgress: Cardinal;     { [in] Amount compressed so far

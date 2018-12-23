@@ -408,8 +408,9 @@ type
 
     CachedUserDocsDir: String;
 
-    procedure AddStatus(const S: String);
-    procedure AddStatusFmt(const Msg: String; const Args: array of const);
+    procedure AddStatus(const S: String; const Warning: Boolean = False);
+    procedure AddStatusFmt(const Msg: String; const Args: array of const;
+      const Warning: Boolean);
     procedure AbortCompile(const Msg: String);
     procedure AbortCompileFmt(const Msg: String; const Args: array of const);
     procedure AbortCompileOnLine(const Msg: String);
@@ -2548,17 +2549,19 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.AddStatus(const S: String);
+procedure TSetupCompiler.AddStatus(const S: String; const Warning: Boolean);
 var
   Data: TCompilerCallbackData;
 begin
   Data.StatusMsg := PChar(S);
+  Data.Warning := Warning;
   DoCallback(iscbNotifyStatus, Data);
 end;
 
-procedure TSetupCompiler.AddStatusFmt(const Msg: String; const Args: array of const);
+procedure TSetupCompiler.AddStatusFmt(const Msg: String; const Args: array of const;
+  const Warning: Boolean);
 begin
-  AddStatus(Format(Msg, Args));
+  AddStatus(Format(Msg, Args), Warning);
 end;
 
 procedure TSetupCompiler.AbortCompile(const Msg: String);
@@ -8529,7 +8532,7 @@ var
       ResultCode := PreprocCleanupProc(PreprocCleanupProcData);
       if ResultCode <> 0 then
         AddStatusFmt(SCompilerStatusWarning +
-          'Preprocessor cleanup function failed with code %d.', [ResultCode]);
+          'Preprocessor cleanup function failed with code %d.', [ResultCode], True);
     end;
   end;
 
@@ -9223,7 +9226,7 @@ begin
     { Done }
     AddStatus('');
     for I := 0 to WarningsList.Count-1 do
-      AddStatus(SCompilerStatusWarning + WarningsList[I]);
+      AddStatus(SCompilerStatusWarning + WarningsList[I], True);
     asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2018 Jordan Russell, '
                   db 'Portions Copyright (C) 2000-2018 Martijn Laan',0; @1: end;
     { Note: Removing or modifying the copyright text is a violation of the

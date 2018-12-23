@@ -80,11 +80,13 @@ object CompileForm: TCompileForm
         Top = 0
         Width = 361
         Height = 83
+        Style = lbOwnerDrawFixed
         Align = alClient
         BorderStyle = bsNone
         ItemHeight = 13
         PopupMenu = ListPopupMenu
         TabOrder = 0
+        OnDrawItem = CompilerOutputListDrawItem
       end
       object TabSet: TNewTabSet
         Left = 0

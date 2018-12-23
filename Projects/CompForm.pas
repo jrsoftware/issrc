@@ -51,6 +51,8 @@ const
 type
   TISScintEdit = class;
 
+  TStatusMessageKind = (smkStartEnd, smkNormal, smkWarning, smkError);
+
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -245,6 +247,8 @@ type
     procedure VZoomResetClick(Sender: TObject);
     procedure ECompleteWordClick(Sender: TObject);
     procedure FSaveEncodingItemClick(Sender: TObject);
+    procedure CompilerOutputListDrawItem(Control: TWinControl; Index: Integer;
+      Rect: TRect; State: TOwnerDrawState);
   private
     { Private declarations }
     FCompilerVersion: PCompilerVersionInfo;
@@ -367,7 +371,7 @@ type
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(ALine: Integer);
     procedure ShowOpenDialog(const Examples: Boolean);
-    procedure StatusMessage(const S: String);
+    procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
     procedure ToggleBreakPoint(Line: Integer);
     procedure UpdateAllLineMarkers;
@@ -1381,14 +1385,14 @@ begin
   end;
 end;
 
-procedure TCompileForm.StatusMessage(const S: String);
+procedure TCompileForm.StatusMessage(const Kind: TStatusMessageKind; const S: String);
 var
   DC: HDC;
   Size: TSize;
 begin
   with CompilerOutputList do begin
     try
-      TopIndex := Items.Add(S);
+      TopIndex := Items.AddObject(S, TObject(Kind));
     except
       on EOutOfResources do begin
         Clear;
@@ -1424,6 +1428,7 @@ var
   begin
     if FirstLine then begin
       FirstLine := False;
+      { Don't forget about DebugOutputListDrawItem if you change the format of the following timestamp. }
       Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
         ST.wMinute, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, ST.wSecond, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator,
         ST.wMilliseconds]), S, 1);
@@ -1519,7 +1524,10 @@ begin
           end;
         end;
       iscbNotifyStatus:
-        Form.StatusMessage(Data.StatusMsg);
+        if Data.Warning then
+          Form.StatusMessage(smkWarning, Data.StatusMsg)
+        else
+          Form.StatusMessage(smkNormal, Data.StatusMsg);
       iscbNotifyIdle:
         begin
           Form.UpdateCompileStatusPanels(Data.CompressProgress,
@@ -1685,8 +1693,8 @@ begin
     ReadScriptLines(AppData.Lines);
 
     StartTime := GetTickCount;
-    StatusMessage(Format(SCompilerStatusStarting, [TimeToStr(Time)]));
-    StatusMessage('');
+    StatusMessage(smkStartEnd, Format(SCompilerStatusStarting, [TimeToStr(Time)]));
+    StatusMessage(smkStartEnd, '');
     FCompiling := True;
     FCompileWantAbort := False;
     UpdateRunMenu;
@@ -1697,7 +1705,7 @@ begin
     {$ELSE}
     if ISCompileScript(Params, False) <> isceNoError then begin
     {$ENDIF}
-      StatusMessage(SCompilerStatusErrorAborted);
+      StatusMessage(smkError, SCompilerStatusErrorAborted);
       if not ReadFromFile and (AppData.ErrorLine > 0) and
          (AppData.ErrorFilename = '') then begin
         { Move the caret to the line number the error occured on }
@@ -1718,7 +1726,7 @@ begin
     end;
     ElapsedTime := GetTickCount - StartTime;
     ElapsedSeconds := ElapsedTime div 1000;
-    StatusMessage(Format(SCompilerStatusFinished, [TimeToStr(Time),
+    StatusMessage(smkStartEnd, Format(SCompilerStatusFinished, [TimeToStr(Time),
       Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
         ElapsedSeconds mod 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator, ElapsedTime mod 1000])]));
   finally
@@ -3940,48 +3948,47 @@ begin
   end;
 end;
 
+procedure TCompileForm.CompilerOutputListDrawItem(Control: TWinControl;
+  Index: Integer; Rect: TRect; State: TOwnerDrawState);
+const
+  Colors: array [TStatusMessageKind] of TColor = (clGreen, clWindowText, clOlive, clRed);
+var
+  Canvas: TCanvas;
+  S: String;
+  Color: TColor;
+begin
+  Canvas := CompilerOutputList.Canvas;
+  S := CompilerOutputList.Items[Index];
+  Color := Colors[TStatusMessageKind(CompilerOutputList.Items.Objects[Index])];
+
+  Canvas.FillRect(Rect);
+  Inc(Rect.Left, 2);
+  if not (odSelected in State) then
+    Canvas.Font.Color := Color;
+  Canvas.TextOut(Rect.Left, Rect.Top, S);
+end;
+
 procedure TCompileForm.DebugOutputListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
-
-  function SafeGetItem(const ListBoxHandle: HWND; const Index: Integer): String;
-  { Prior to Delphi 6, the VCL will incur a buffer overflow if you trying
-    reading an item from a TListBox longer than 4096 characters. }
-  var
-    Len: Integer;
-  begin
-    Len := SendMessage(ListBoxHandle, LB_GETTEXTLEN, Index, 0);
-    if Len <= 0 then
-      Result := ''  { zero length or out of range? }
-    else begin
-      SetString(Result, nil, Len);
-      Len := SendMessage(ListBoxHandle, LB_GETTEXT, Index, LPARAM(Result));
-      if Len <= 0 then
-        Result := ''  { failed? }
-      else
-        SetLength(Result, Len);  { since LB_GETTEXTLEN can overestimate }
-    end;
-  end;
-
 var
+  Canvas: TCanvas;
   S: String;
 begin
-  { An owner drawn list box is used for precise tab expansion }  
-  S := SafeGetItem(DebugOutputList.Handle, Index);
-  DebugOutputList.Canvas.FillRect(Rect);
+  Canvas := DebugOutputList.Canvas;
+  S := DebugOutputList.Items[Index];
+
+  Canvas.FillRect(Rect);
   Inc(Rect.Left, 2);
   if (S <> '') and (S[1] = #9) then
-    DebugOutputList.Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth,
-      Rect.Top, Copy(S, 2, Maxint))
+    Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth, Rect.Top, Copy(S, 2, Maxint))
   else begin
     if (Length(S) > 20) and (S[18] = '-') and (S[19] = '-') and (S[20] = ' ') then begin
       { Draw lines that begin with '-- ' (like '-- File entry --') in bold }
-      DebugOutputList.Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, 17));
-      DebugOutputList.Canvas.Font.Style := [fsBold];
-      DebugOutputList.Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth,
-        Rect.Top, Copy(S, 18, Maxint));
-    end
-    else
-      DebugOutputList.Canvas.TextOut(Rect.Left, Rect.Top, S);
+      Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, 17));
+      Canvas.Font.Style := [fsBold];
+      Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth, Rect.Top, Copy(S, 18, Maxint));
+    end else
+      Canvas.TextOut(Rect.Left, Rect.Top, S);
   end;
 end;
 
