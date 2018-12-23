@@ -88,6 +88,14 @@ object OptionsForm: TOptionsForm
       Caption = '*'
       TabOrder = 7
     end
+    object ColorizeCompilerOutputCheck: TCheckBox
+      Left = 8
+      Top = 176
+      Width = 265
+      Height = 17
+      Caption = 'Colori&ze "Compiler Output" view'
+      TabOrder = 8
+    end
   end
   object GroupBox2: TGroupBox
     Left = 8
