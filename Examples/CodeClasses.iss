@@ -393,7 +393,7 @@ begin
 
   { Custom beveled label }
 
-  WizardForm.BeveledLabel.Caption := ' BeveledLabel ';
+  WizardForm.BeveledLabel.Caption := ' Bevel ';
 end;
 
 procedure InitializeUninstallProgressForm();
