@@ -18,7 +18,7 @@ object WizardForm: TWizardForm
     Left = 0
     Top = 313
     Width = 497
-    Height = 2
+    Height = 1
     Shape = bsTopLine
   end
   object CancelButton: TNewButton
@@ -97,7 +97,7 @@ object WizardForm: TWizardForm
         Left = 0
         Top = 58
         Width = 499
-        Height = 3
+        Height = 1
         Shape = bsTopLine
       end
       object InnerNotebook: TNewNotebook
