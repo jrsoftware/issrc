@@ -244,7 +244,7 @@ end;
 type
   TControlAnchorsList = TDictionary<TControl, TAnchors>;
 
-procedure StripAndStoreSpecialAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
+procedure StripAndStoreCustomAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
 var
   I: Integer;
 begin
@@ -255,7 +255,7 @@ begin
 
   if Ctl is TWinControl then
     for I := 0 to TWinControl(Ctl).ControlCount-1 do
-      StripAndStoreSpecialAnchors(TWinControl(Ctl).Controls[I], AnchorsList);
+      StripAndStoreCustomAnchors(TWinControl(Ctl).Controls[I], AnchorsList);
 end;
 
 procedure RestoreAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
@@ -401,9 +401,9 @@ begin
   if (FBaseUnitX <> OrigBaseUnitX) or (FBaseUnitY <> OrigBaseUnitY) then begin
     ControlAnchorsList := TControlAnchorsList.Create;
     try
-      { Anchors interfere with our custom scaling code, so strip them and restore
+      { Custom anchors interfere with our scaling code, so strip them and restore
         afterwards. }
-      StripAndStoreSpecialAnchors(Self, ControlAnchorsList);
+      StripAndStoreCustomAnchors(Self, ControlAnchorsList);
       { Loosely based on scaling code from TForm.ReadState: }
       NewScaleControls(Self, BaseUnitX, OrigBaseUnitX, BaseUnitY, OrigBaseUnitY);
       R := ClientRect;
