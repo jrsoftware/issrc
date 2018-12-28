@@ -169,6 +169,7 @@ type
     procedure UserInfoEditChange(Sender: TObject);
     procedure DirBrowseButtonClick(Sender: TObject);
     procedure GroupBrowseButtonClick(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     { Private declarations }
     FPageList: TList;
@@ -720,6 +721,8 @@ begin
     end;
   end;
   InitializeFont;
+  Constraints.MinHeight := Height;
+  Constraints.MinWidth := Width;
   if shWindowVisible in SetupHeader.Options then
     CenterInsideControl(MainForm, True)
   else
@@ -743,7 +746,7 @@ begin
     SaveClientWidth := ClientWidth;
     SaveClientHeight := ClientHeight;
     BorderIcons := BorderIcons + [biMinimize];
-    BorderStyle := bsSingle;
+    BorderStyle := bsSizeable;
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
   end;
@@ -2358,6 +2361,40 @@ begin
   { Redirect an attempt to close this form to MainForm }
   MainForm.Close;
   Action := caNone;
+end;
+
+procedure TWizardForm.FormResize(Sender: TObject);
+
+  procedure AnchorOuterPage(const Page: TNewNotebookPage;
+    const BitmapImage: TBitmapImage);
+  var
+    Ctl: TControl;
+    I, NewLeft, NewWidth: Integer;
+  begin
+    NewWidth := MulDiv(BitmapImage.Height, 164, 314);
+    if RightToLeft then
+      BitmapImage.Left := ClientWidth - NewWidth;
+    BitmapImage.Width := NewWidth;
+    for I := 0 to Page.ControlCount-1 do begin
+      Ctl := Page.Controls[I];
+      if Ctl <> BitmapImage then begin
+        NewLeft := BitmapImage.Width + ScalePixelsX(12); // 12 is space between bitmap and controls
+        Ctl.Width := ClientWidth - ScalePixelsX(20) - NewLeft; //20 is space between controls and right border
+        if not RightToLeft then
+          Ctl.Left := NewLeft;
+      end;
+    end;
+  end;
+
+begin
+  { WizardBitmapImage(2)'s size is already corrected by the Anchors property but
+    this doesn't keep the aspect ratio. Calculate and set new width to restore
+    the aspect ratio and update all the other controls in the page for this. }
+  AnchorOuterPage(WelcomePage, WizardBitmapImage);
+  { Not sure why the following is needed but without this FinishedPage does not
+    initally return updated control positions. }
+  FinishedPage.HandleNeeded;
+  AnchorOuterPage(FinishedPage, WizardBitmapImage2);
 end;
 
 procedure TWizardForm.TypesComboChange(Sender: TObject);
