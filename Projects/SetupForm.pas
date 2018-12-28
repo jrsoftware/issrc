@@ -68,6 +68,7 @@ const
 implementation
 
 uses
+  Generics.Collections, UITypes,
   CmnFunc2, Main, Msgs, BidiUtils;
 
 var
@@ -240,6 +241,36 @@ begin
     Result := False;
 end;
 
+type
+  TControlAnchorsList = TDictionary<TControl, TAnchors>;
+
+procedure StripAndStoreSpecialAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
+var
+  I: Integer;
+begin
+  if Ctl.Anchors <> [akLeft, akTop] then begin
+    AnchorsList.Add(Ctl, Ctl.Anchors);
+    Ctl.Anchors := [akLeft, akTop];
+  end;
+
+  if Ctl is TWinControl then
+    for I := 0 to TWinControl(Ctl).ControlCount-1 do
+      StripAndStoreSpecialAnchors(TWinControl(Ctl).Controls[I], AnchorsList);
+end;
+
+procedure RestoreAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
+var
+  Anchors: TAnchors;
+  I: Integer;
+begin
+  if AnchorsList.TryGetValue(Ctl, Anchors) then
+    Ctl.Anchors := Anchors;
+
+  if Ctl is TWinControl then
+    for I := 0 to TWinControl(Ctl).ControlCount-1 do
+      RestoreAnchors(TWinControl(Ctl).Controls[I], AnchorsList);
+end;
+
 { TSetupForm }
 
 constructor TSetupForm.Create(AOwner: TComponent);
@@ -357,6 +388,7 @@ end;
 
 procedure TSetupForm.InitializeFont;
 var
+  ControlAnchorsList: TControlAnchorsList;
   W, H: Integer;
   R: TRect;
 begin
@@ -367,12 +399,20 @@ begin
   CalculateBaseUnitsFromFont(Font, FBaseUnitX, FBaseUnitY);
 
   if (FBaseUnitX <> OrigBaseUnitX) or (FBaseUnitY <> OrigBaseUnitY) then begin
-    { Loosely based on scaling code from TForm.ReadState: }
-    NewScaleControls(Self, BaseUnitX, OrigBaseUnitX, BaseUnitY, OrigBaseUnitY);
-    R := ClientRect;
-    W := MulDiv(R.Right, FBaseUnitX, OrigBaseUnitX);
-    H := MulDiv(R.Bottom, FBaseUnitY, OrigBaseUnitY);
-    SetBounds(Left, Top, W + (Width - R.Right), H + (Height - R.Bottom));
+    ControlAnchorsList := TControlAnchorsList.Create;
+    try
+      { Anchors interfere with our custom scaling code, so strip them and restore
+        afterwards. }
+      StripAndStoreSpecialAnchors(Self, ControlAnchorsList);
+      { Loosely based on scaling code from TForm.ReadState: }
+      NewScaleControls(Self, BaseUnitX, OrigBaseUnitX, BaseUnitY, OrigBaseUnitY);
+      R := ClientRect;
+      W := MulDiv(R.Right, FBaseUnitX, OrigBaseUnitX);
+      H := MulDiv(R.Bottom, FBaseUnitY, OrigBaseUnitY);
+      SetBounds(Left, Top, W + (Width - R.Right), H + (Height - R.Bottom));
+    finally
+      RestoreAnchors(Self, ControlAnchorsList);
+    end;
   end;
 end;
 
