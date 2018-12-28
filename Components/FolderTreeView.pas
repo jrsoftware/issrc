@@ -2,7 +2,7 @@ unit FolderTreeView;
 
 {
   Inno Setup
-  Copyright (C) 1997-2015 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -74,6 +74,7 @@ type
     function GetItemImageIndex(const Item: HTREEITEM;
       const NewItem, SelectedImage: Boolean): Integer; override;
   published
+    property Anchors;
     property TabOrder;
     property TabStop default True;
     property Visible;
@@ -97,6 +98,7 @@ type
     procedure SetPaths(const AUserPrograms, ACommonPrograms,
       AUserStartup, ACommonStartup: String);
   published
+    property Anchors;
     property TabOrder;
     property TabStop default True;
     property Visible;

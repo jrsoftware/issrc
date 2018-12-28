@@ -43,6 +43,7 @@ type
     destructor Destroy; override;
   published
     property Align;
+    property Anchors;
     property AutoSize: Boolean read FAutoSize write SetAutoSize default False;
     property BackColor: TColor read FBackColor write SetBackColor default clBtnFace;
     property Center: Boolean read FCenter write SetCenter default False;

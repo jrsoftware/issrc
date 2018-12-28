@@ -2,19 +2,16 @@ unit NewProgressBar;
 
 {
   Inno Setup
-  Copyright (C) 1997-2006 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  TNewProgressBar component - a smooth TProgressBar for Delphi 2 and a 32 bit
-  TProgressBar for Delphi 2 and all platforms
+  TNewProgressBar component - a smooth TProgressBar 32 bit TProgressBar
 
   Note: themed Vista and newer animate progress bars and don't immediately show changes.
   This applies both to Position and State. For example if you set State while the
   progress bar is still moving towards a new Position, the new State doesnt show until
   the moving animation has finished.
-
-  $jrsoftware: issrc/Components/NewProgressBar.pas,v 1.10 2010/10/27 09:45:06 mlaan Exp $
 }
 
 interface
@@ -46,6 +43,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
   published
+    property Anchors;
     property Min: LongInt read FMin write SetMin;
     property Max: LongInt read FMax write SetMax;
     property Position: LongInt read FPosition write SetPosition default 0;

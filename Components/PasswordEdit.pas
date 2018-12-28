@@ -2,13 +2,11 @@ unit PasswordEdit;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  This unit provides a true password edit for Delphi 2.
-
-  $jrsoftware: issrc/Components/PasswordEdit.pas,v 1.3 2007/12/10 18:28:53 jr Exp $
+  This unit provides a true password edit.
 }
 
 interface
@@ -26,6 +24,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
   published
+    property Anchors;
     property AutoSelect;
     property AutoSize;
     property BorderStyle;

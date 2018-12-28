@@ -50,6 +50,7 @@ type
     function AdjustHeight: Integer;
   published
     property Align;
+    property Anchors;
     property AutoSize: Boolean read FAutoSize write SetAutoSize default True;
     property Caption;
     property Color;
