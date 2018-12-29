@@ -10,7 +10,9 @@ DisableProgramGroupPage=yes
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 WindowVisible=yes
+WizardResizable=yes
 OutputDir=userdocs:Inno Setup Examples Output
+PrivilegesRequired=lowest
 
 [Files]
 Source: compiler:WizModernSmallImage.bmp; Flags: dontcopy
@@ -123,6 +125,7 @@ begin
   Panel.Width := Page.SurfaceWidth div 2 - ScaleX(8);
   Panel.Left :=  Page.SurfaceWidth - Panel.Width;
   Panel.Height := Button.Height * 2;
+  Panel.Anchors := [akLeft, akTop, akRight];
   Panel.Caption := 'TPanel';
   Panel.Color := clWindow;
   Panel.BevelKind := bkFlat;
@@ -148,6 +151,7 @@ begin
   PasswordEdit.Left := Page.SurfaceWidth - Edit.Width;
   PasswordEdit.Top := CheckBox.Top + CheckBox.Height + ScaleY(8);
   PasswordEdit.Width := Edit.Width;
+  PasswordEdit.Anchors := [akLeft, akTop, akRight];
   PasswordEdit.Text := 'TPasswordEdit';
   PasswordEdit.Parent := Page.Surface;
 
@@ -155,6 +159,7 @@ begin
   Memo.Top := Edit.Top + Edit.Height + ScaleY(8);
   Memo.Width := Page.SurfaceWidth;
   Memo.Height := ScaleY(89);
+  Memo.Anchors := [akLeft, akTop, akRight, akBottom];
   Memo.ScrollBars := ssVertical;
   Memo.Text := 'TNewMemo';
   Memo.Parent := Page.Surface;
@@ -163,6 +168,7 @@ begin
   FormButton.Top := Memo.Top + Memo.Height + ScaleY(8);
   FormButton.Width := ScaleX(75);
   FormButton.Height := ScaleY(23);
+  FormButton.Anchors := [akLeft, akBottom];
   FormButton.Caption := 'TSetupForm';
   FormButton.OnClick := @FormButtonOnClick;
   FormButton.Parent := Page.Surface;
@@ -172,6 +178,7 @@ begin
   TaskDialogButton.Left := FormButton.Left + FormButton.Width + ScaleX(8);
   TaskDialogButton.Width := ScaleX(110);
   TaskDialogButton.Height := ScaleY(23);
+  TaskDialogButton.Anchors := [akLeft, akBottom];
   TaskDialogButton.Caption := 'TaskDialogMsgBox';
   TaskDialogButton.OnClick := @TaskDialogButtonOnClick;
   TaskDialogButton.Parent := Page.Surface;
@@ -182,6 +189,7 @@ begin
 
   ComboBox := TNewComboBox.Create(Page);
   ComboBox.Width := Page.SurfaceWidth;
+  ComboBox.Anchors := [akLeft, akTop, akRight];
   ComboBox.Parent := Page.Surface;
   ComboBox.Style := csDropDownList;
   ComboBox.Items.Add('TComboBox');
@@ -191,18 +199,21 @@ begin
   ListBox.Top := ComboBox.Top + ComboBox.Height + ScaleY(8);
   ListBox.Width := Page.SurfaceWidth;
   ListBox.Height := ScaleY(97);
+  ListBox.Anchors := [akLeft, akTop, akRight, akBottom];
   ListBox.Parent := Page.Surface;
   ListBox.Items.Add('TListBox');
   ListBox.ItemIndex := 0;
 
   StaticText := TNewStaticText.Create(Page);
   StaticText.Top := ListBox.Top + ListBox.Height + ScaleY(8);
+  StaticText.Anchors := [akLeft, akRight, akBottom];
   StaticText.Caption := 'TNewStaticText';
   StaticText.AutoSize := True;
   StaticText.Parent := Page.Surface;
 
   ProgressBarLabel := TNewStaticText.Create(Page);
   ProgressBarLabel.Top := StaticText.Top + StaticText.Height + ScaleY(8);
+  ProgressBarLabel.Anchors := [akLeft, akBottom];
   ProgressBarLabel.Caption := 'TNewProgressBar';
   ProgressBarLabel.AutoSize := True;
   ProgressBarLabel.Parent := Page.Surface;
@@ -212,6 +223,7 @@ begin
   ProgressBar.Top := ProgressBarLabel.Top;
   ProgressBar.Width := Page.SurfaceWidth - ProgressBar.Left;
   ProgressBar.Height := ProgressBarLabel.Height + ScaleY(8);
+  ProgressBar.Anchors := [akLeft, akRight, akBottom];
   ProgressBar.Parent := Page.Surface;
   ProgressBar.Position := 25;
 
@@ -220,6 +232,7 @@ begin
   ProgressBar2.Top := ProgressBar.Top + ProgressBar.Height + ScaleY(4);
   ProgressBar2.Width := Page.SurfaceWidth - ProgressBar.Left;
   ProgressBar2.Height := ProgressBarLabel.Height + ScaleY(8);
+  ProgressBar2.Anchors := [akLeft, akRight, akBottom];
   ProgressBar2.Parent := Page.Surface;
   ProgressBar2.Position := 50;
   { Note: TNewProgressBar.State property only has an effect on Windows Vista and newer }
@@ -230,6 +243,7 @@ begin
   ProgressBar3.Top := ProgressBar2.Top + ProgressBar2.Height + ScaleY(4);
   ProgressBar3.Width := Page.SurfaceWidth - ProgressBar.Left;
   ProgressBar3.Height := ProgressBarLabel.Height + ScaleY(8);
+  ProgressBar3.Anchors := [akLeft, akRight, akBottom];
   ProgressBar3.Parent := Page.Surface;
   { Note: TNewProgressBar.Style property only has an effect on Windows XP and newer }
   ProgressBar3.Style := npbstMarquee;
@@ -241,6 +255,7 @@ begin
   CheckListBox := TNewCheckListBox.Create(Page);
   CheckListBox.Width := Page.SurfaceWidth;
   CheckListBox.Height := ScaleY(97);
+  CheckListBox.Anchors := [akLeft, akTop, akRight, akBottom];
   CheckListBox.Flat := True;
   CheckListBox.Parent := Page.Surface;
   CheckListBox.AddCheckBox('TNewCheckListBox', '', 0, True, True, False, True, nil);
@@ -252,6 +267,7 @@ begin
   CheckListBox2.Top := CheckListBox.Top + CheckListBox.Height + ScaleY(8);
   CheckListBox2.Width := Page.SurfaceWidth;
   CheckListBox2.Height := ScaleY(97);
+  CheckListBox2.Anchors := [akLeft, akRight, akBottom];
   CheckListBox2.BorderStyle := bsNone;
   CheckListBox2.ParentColor := True;
   CheckListBox2.MinItemHeight := WizardForm.TasksList.MinItemHeight;
@@ -269,6 +285,7 @@ begin
   FolderTreeView := TFolderTreeView.Create(Page);
   FolderTreeView.Width := Page.SurfaceWidth;
   FolderTreeView.Height := Page.SurfaceHeight;
+  FolderTreeView.Anchors := [akLeft, akTop, akRight, akBottom];
   FolderTreeView.Parent := Page.Surface;
   FolderTreeView.Directory := ExpandConstant('{src}');
 
@@ -303,6 +320,7 @@ begin
   BitmapImage3.Left := 3*BitmapImage.Width + 20;
   BitmapImage3.Height := 4*BitmapImage.Height;
   BitmapImage3.Width := 4*BitmapImage.Width;
+  BitmapImage3.Anchors := [akLeft, akTop, akRight, akBottom];
   BitmapImage3.Cursor := crHand;
   BitmapImage3.OnClick := @BitmapImageOnClick;
   BitmapImage3.Parent := Page.Surface;
@@ -314,6 +332,7 @@ begin
   RichEditViewer := TRichEditViewer.Create(Page);
   RichEditViewer.Width := Page.SurfaceWidth;
   RichEditViewer.Height := Page.SurfaceHeight;
+  RichEditViewer.Anchors := [akLeft, akTop, akRight, akBottom];
   RichEditViewer.BevelKind := bkFlat;
   RichEditViewer.BorderStyle := bsNone;
   RichEditViewer.Parent := Page.Surface;
@@ -345,6 +364,7 @@ begin
   AboutButton.Top := CancelButton.Top;
   AboutButton.Width := CancelButton.Width;
   AboutButton.Height := CancelButton.Height;
+  AboutButton.Anchors := [akLeft, akBottom];
   AboutButton.Caption := '&About...';
   AboutButton.OnClick := @AboutButtonOnClick;
   AboutButton.Parent := ParentForm;
@@ -362,6 +382,7 @@ begin
     URLLabel.Font.Color := clBlue;
   URLLabel.Top := AboutButton.Top + AboutButton.Height - URLLabel.Height - 2;
   URLLabel.Left := AboutButton.Left + AboutButton.Width + ScaleX(20);
+  URLLabel.Anchors := [akLeft, akBottom];
 end;
 
 procedure InitializeWizard();
