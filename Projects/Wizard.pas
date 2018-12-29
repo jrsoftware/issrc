@@ -721,8 +721,6 @@ begin
     end;
   end;
   InitializeFont;
-  Constraints.MinHeight := Height;
-  Constraints.MinWidth := Width;
   if shWindowVisible in SetupHeader.Options then
     CenterInsideControl(MainForm, True)
   else
@@ -760,6 +758,10 @@ begin
     end;
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
+    if shWizardResizable in SetupHeader.Options then begin
+      Constraints.MinHeight := Height;
+      Constraints.MinWidth := Width;
+    end;
   end;
 
   { Position the buttons, and scale their size }
