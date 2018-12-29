@@ -391,9 +391,6 @@ begin
 end;
 
 procedure InitializeWizard();
-var
-  BackgroundBitmapImage: TBitmapImage;
-  BackgroundBitmapText: TNewStaticText;
 begin
   { Custom wizard pages }
 
