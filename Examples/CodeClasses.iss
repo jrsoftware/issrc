@@ -9,7 +9,6 @@ CreateAppDir=no
 DisableProgramGroupPage=yes
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
-WindowVisible=yes
 OutputDir=userdocs:Inno Setup Examples Output
 
 [Files]
@@ -376,20 +375,6 @@ begin
   { Custom controls }
 
   CreateAboutButtonAndURLLabel(WizardForm, WizardForm.CancelButton);
-
-  BackgroundBitmapImage := TBitmapImage.Create(MainForm);
-  BackgroundBitmapImage.Left := 50;
-  BackgroundBitmapImage.Top := 90;
-  BackgroundBitmapImage.AutoSize := True;
-  BackgroundBitmapImage.Bitmap := WizardForm.WizardBitmapImage.Bitmap;
-  BackgroundBitmapImage.Parent := MainForm;
-  
-  BackgroundBitmapText := TNewStaticText.Create(MainForm);
-  BackgroundBitmapText.Left := BackgroundBitmapImage.Left;
-  BackgroundBitmapText.Top := BackgroundBitmapImage.Top + BackgroundBitmapImage.Height + ScaleY(8);
-  BackgroundBitmapText.Caption := 'TBitmapImage';
-  BackgroundBitmapText.Font.Color := clWhite;
-  BackgroundBitmapText.Parent := MainForm;
 
   { Custom beveled label }
 
