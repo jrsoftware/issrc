@@ -3831,6 +3831,7 @@ begin
       raise;
     end;
   end;
+  WizardForm.SizeAndCenter;
   WizardForm.FlipControlsIfNeeded;
   WizardForm.SetCurPage(wpWelcome);
   if InstallMode = imNormal then begin

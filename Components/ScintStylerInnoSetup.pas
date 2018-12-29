@@ -261,6 +261,7 @@ type
     ssWizardResizable,
     ssWizardSmallImageBackColor,
     ssWizardSmallImageFile,
+    ssWizardSizePercent,
     ssWizardStyle);
 
   TLangOptionsSectionDirective = (

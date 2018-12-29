@@ -104,6 +104,7 @@ type
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     BackColor, BackColor2: Longint;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
+    WizardSizePercentX, WizardSizePercentY: Integer;
     PasswordHash: TSHA1Digest;
     PasswordSalt: TSetupSalt;
     ExtraDiskSpaceRequired: Integer64;

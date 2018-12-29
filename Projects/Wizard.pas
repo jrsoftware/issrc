@@ -232,6 +232,7 @@ type
     function PageIndexFromID(const ID: Integer): Integer;
     procedure UpdateCurPageButtonVisibility;
     procedure SetCurPage(const NewPageID: Integer);
+    procedure SizeAndCenter;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
     function ValidateGroupEdit: Boolean;
@@ -720,11 +721,18 @@ begin
       WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
     end;
   end;
+
+  { Not sure why the following is needed but various things related to
+    positioning and anchoring don't work without this (you get positions of
+    page controls back as if there was no anchoring until the page handle
+    is automatically created. Cause might be related to the comment in
+    TNewNotebook.AlignControls. }
+  for I := 0 to OuterNotebook.PageCount-1 do
+    OuterNotebook.Pages[I].HandleNeeded;
+  for I := 0 to InnerNotebook.PageCount-1 do
+    InnerNotebook.Pages[I].HandleNeeded;
+
   InitializeFont;
-  if shWindowVisible in SetupHeader.Options then
-    CenterInsideControl(MainForm, True)
-  else
-    Center;
   SetFontNameSize(WelcomeLabel1.Font, LangOptions.WelcomeFontName,
     LangOptions.WelcomeFontSize, '', 12);
   WelcomeLabel1.Font.Style := [fsBold];
@@ -759,6 +767,7 @@ begin
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
     if shWizardResizable in SetupHeader.Options then begin
+      { Do not allow user to resize it smaller than the current size. }
       Constraints.MinHeight := Height;
       Constraints.MinWidth := Width;
     end;
@@ -1156,6 +1165,21 @@ begin
     NoIconsCheck.Visible := False;
 end;
 
+procedure TWizardForm.SizeAndCenter;
+begin
+  { Apply custom initial size from script }
+  if SetupHeader.WizardSizePercentX > 100 then
+    ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
+  if SetupHeader.WizardSizePercentY > 100 then
+    ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
+
+  { Center }
+  if shWindowVisible in SetupHeader.Options then
+    CenterInsideControl(MainForm, True)
+  else
+    Center;
+end;
+
 destructor TWizardForm.Destroy;
 begin
   FreeAndNil(PrevDeselectedComponents);
@@ -1232,6 +1256,7 @@ begin
 
   NotebookPage := TNewNotebookPage.Create(APage);
   NotebookPage.Notebook := InnerNotebook;
+  NotebookPage.HandleNeeded; { See TWizardForm.Create comment }
   APage.FID := FNextPageID;
   APage.FOuterNotebookPage := InnerPage;
   APage.FInnerNotebookPage := NotebookPage;
@@ -2404,9 +2429,6 @@ begin
     this doesn't keep the aspect ratio. Calculate and set new width to restore
     the aspect ratio and update all the other controls in the page for this. }
   AnchorOuterPage(WelcomePage, WizardBitmapImage);
-  { Not sure why the following is needed but without this FinishedPage does not
-    initally return updated control positions. }
-  FinishedPage.HandleNeeded;
   AnchorOuterPage(FinishedPage, WizardBitmapImage2);
 end;
 

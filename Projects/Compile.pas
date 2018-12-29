@@ -208,6 +208,7 @@ type
     ssWizardResizable,
     ssWizardSmallImageBackColor,
     ssWizardSmallImageFile,
+    ssWizardSizePercent,
     ssWizardStyle);
   TLangOptionsSectionDirectives = (
     lsCopyrightFontName,
@@ -3718,6 +3719,24 @@ var
         1: Result := Result + [proCommandLine, proDialog];
       end;
   end;
+
+  procedure StrToPercentages(const S: String; var X, Y: Integer; const Min: Integer);
+  var
+    I: Integer;
+  begin
+    I := Pos(',', S);
+    if I = Length(S) then Invalid;
+    if I <> 0 then begin
+      X := StrToIntDef(Copy(S, 1, I-1), -1);
+      Y := StrToIntDef(Copy(S, I+1, Maxint), -1);
+    end else begin
+      X := StrToIntDef(S, -1);
+      Y := X;
+    end;
+    if (X < Min) or (Y < Min) then
+      Invalid;
+  end;
+
 var
   P: Integer;
   AIncludes: TStringList;
@@ -4431,6 +4450,10 @@ begin
         if Value = '' then
           Invalid;
         WizardSmallImageFile := Value;
+      end;
+    ssWizardSizePercent: begin
+        StrToPercentages(Value, SetupHeader.WizardSizePercentX,
+          SetupHeader.WizardSizePercentY, 100)
       end;
     ssWizardStyle: begin
         if CompareText(Value, 'modern') = 0 then begin
@@ -8629,6 +8652,8 @@ begin
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
     SetupHeader.WizardImageAlphaFormat := afIgnored;
     UsedUserAreasWarning := True;
+    SetupHeader.WizardSizePercentX := 100;
+    SetupHeader.WizardSizePercentY := 100;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetup, 'Setup', 0, 0, True, True, '', False, False);
