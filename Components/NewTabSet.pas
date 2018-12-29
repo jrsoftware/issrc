@@ -34,7 +34,7 @@ type
     destructor Destroy; override;
   published
     property Align;
-    property Flat: Boolean read FFlat write FFlat;
+    property Flat: Boolean read FFlat write FFlat default True;
     property Font;
     property ParentFont;
     property TabIndex: Integer read FTabIndex write SetTabIndex;
