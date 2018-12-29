@@ -74,6 +74,12 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Two separate installation runs that do not share the same administrative or non administrative install mode no longer count as the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a>. This means you can now install these modes <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">side-by-side</a> even if the installers share the same <tt>AppId</tt> setting (or if <tt>AppId</tt> is not set, the same <tt>AppName</tt> setting.)</li>
   <li><b>Change in default behavior:</b> To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will now automatically mark the new entry with a text like &quot;Current user&quot; or &quot;64-bit&quot; when necessary during a <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">side-by-side</a> installation.</a>
 </ul>
+<p><span class="head2">Resizable wizard window</span></p>
+<p>The wizard window is now resizable:</p>
+<ul>
+  <li>Added new [Setup] section directive: <tt>WizardResizable</tt>. If this directive is set to <tt>yes</tt>, the user will be able to resize and maximize the wizard window.</li>
+  <li>Pascal Scripting change: Added new <tt>Anchors</tt> property to all controls which allows you to support resizing for all your custom controls and wizard pages. See the <i>CodeClasses.iss</i> example script for an example.</li>
+</ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li><b>Change in default behavior:</b> Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup. Unicode Inno Setup has been available for 9 years but in case you have not yet updated to it: please see the <a href="http://www.jrsoftware.org/is6help/index.php?topic=unicode">Unicode Inno Setup</a> topic in the help file for more information. Basically, unless you're using [Code] to make DLL calls with string parameters you shouldn't have to make any changes to your script.</li>

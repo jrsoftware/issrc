@@ -1105,6 +1105,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></li>
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
+<li><link topic="setup_wizardresizable">WizardResizable</link></li>
 <li><link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></li>
 </ul>
 
@@ -4715,6 +4716,14 @@ DiskSliceSize=1457664
 <body>
 <p>If set to <tt>yes</tt>, the default, the wizard images will be stretched or shrunk if the images are larger or smaller than required.</p>
 <p>If set to <tt>no</tt>, the wizard images will be centered in their respective areas if the images are larger than required, and clipped if the images are smaller than required. (This corresponds to the default behavior of Inno Setup 4.1.2 and earlier.)</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="WizardResizable">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>no</tt></setupdefault>
+<body>
+<p>If set to <tt>yes</tt>, the user will be able to resize and maximize the wizard window.</p>
 </body>
 </setuptopic>
 
