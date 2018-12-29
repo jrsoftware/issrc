@@ -242,6 +242,7 @@ begin
 end;
 
 type
+  TControlAnchorsListItem = TPair<TControl, TAnchors>;
   TControlAnchorsList = TDictionary<TControl, TAnchors>;
 
 procedure StripAndStoreCustomAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
@@ -260,15 +261,12 @@ end;
 
 procedure RestoreAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
 var
-  Anchors: TAnchors;
-  I: Integer;
+  I: TControlAnchorsListItem;
 begin
-  if AnchorsList.TryGetValue(Ctl, Anchors) then
-    Ctl.Anchors := Anchors;
-
-  if Ctl is TWinControl then
-    for I := 0 to TWinControl(Ctl).ControlCount-1 do
-      RestoreAnchors(TWinControl(Ctl).Controls[I], AnchorsList);
+  { The order in which we restore the anchors shouldn't matter, so just
+    enumerate the list. }
+  for I in AnchorsList do
+    I.Key.Anchors := I.Value;
 end;
 
 { TSetupForm }
