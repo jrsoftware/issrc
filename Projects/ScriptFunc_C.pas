@@ -146,7 +146,7 @@ begin
   RegisterFunctionTable(BrowseFuncTable);
   RegisterFunctionTable(CmnFuncTable);
   RegisterFunctionTable(CmnFunc2Table);
-  ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamed, ['IsAdminLoggedOn', 'IsAdmin']));
+  ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));
   RegisterFunctionTable(InstallTable);
   RegisterFunctionTable(InstFuncTable);
   RegisterFunctionTable(InstFnc2Table);
