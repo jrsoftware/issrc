@@ -2385,7 +2385,7 @@ procedure TWizardForm.FormResize(Sender: TObject);
     I, NewLeft, NewWidth: Integer;
   begin
     NewWidth := MulDiv(BitmapImage.Height, 164, 314);
-    if RightToLeft then
+    if ControlsFlipped then
       BitmapImage.Left := ClientWidth - NewWidth;
     BitmapImage.Width := NewWidth;
     for I := 0 to Page.ControlCount-1 do begin
@@ -2393,7 +2393,7 @@ procedure TWizardForm.FormResize(Sender: TObject);
       if Ctl <> BitmapImage then begin
         NewLeft := BitmapImage.Width + ScalePixelsX(12); // 12 is space between bitmap and controls
         Ctl.Width := ClientWidth - ScalePixelsX(20) - NewLeft; //20 is space between controls and right border
-        if not RightToLeft then
+        if not ControlsFlipped then
           Ctl.Left := NewLeft;
       end;
     end;
