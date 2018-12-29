@@ -6,7 +6,7 @@ unit NewProgressBar;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  TNewProgressBar component - a smooth TProgressBar 32 bit TProgressBar
+  TNewProgressBar component - a smooth 32 bit TProgressBar
 
   Note: themed Vista and newer animate progress bars and don't immediately show changes.
   This applies both to Position and State. For example if you set State while the
