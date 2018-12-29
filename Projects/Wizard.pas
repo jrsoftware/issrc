@@ -739,14 +739,25 @@ begin
   else
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
 
-  { Give it a minimize button if main window isn't visible }
-  if not(shWindowVisible in SetupHeader.Options) then begin
+  { Set BorderStyle and BorderIcons:
+    -WindowVisible + WizardResizable = sizeable + maximize
+    -not WindowVisible + WizardResizable = sizeable + maximize + minimize
+    -WindowVisible + not WizardResizable = dialog (.dfm default)
+    -not WindowVisible + not WizardResizable = single + minimize }
+  if not(shWindowVisible in SetupHeader.Options) or
+     (shWizardResizable in SetupHeader.Options) then begin
     { Save ClientWidth/ClientHeight and restore them after changing
-      BorderStyle. Needed for NT 3.x. }
+      BorderStyle. }
     SaveClientWidth := ClientWidth;
     SaveClientHeight := ClientHeight;
-    BorderIcons := BorderIcons + [biMinimize];
-    BorderStyle := bsSizeable;
+    if not(shWindowVisible in SetupHeader.Options) then
+      BorderIcons := BorderIcons + [biMinimize];
+    if not(shWizardResizable in SetupHeader.Options) then
+      BorderStyle := bsSingle
+    else begin
+      BorderIcons := BorderIcons + [biMaximize];
+      BorderStyle := bsSizeable;
+    end;
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
   end;

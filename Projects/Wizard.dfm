@@ -1,7 +1,8 @@
 object WizardForm: TWizardForm
   Left = 191
   Top = 139
-  BorderIcons = [biSystemMenu, biMaximize]
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
   Caption = 'WizardForm'
   ClientHeight = 360
   ClientWidth = 497

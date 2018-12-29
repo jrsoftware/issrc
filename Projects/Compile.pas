@@ -205,6 +205,7 @@ type
     ssWizardImageBackColor,
     ssWizardImageFile,
     ssWizardImageStretch,
+    ssWizardResizable,
     ssWizardSmallImageBackColor,
     ssWizardSmallImageFile,
     ssWizardStyle);
@@ -4422,6 +4423,9 @@ begin
         if Value = '' then
           Invalid;
         WizardImageFile := Value;
+      end;
+    ssWizardResizable: begin
+        SetSetupHeaderOption(shWizardResizable);
       end;
     ssWizardSmallImageFile: begin
         if Value = '' then
