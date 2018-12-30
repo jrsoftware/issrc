@@ -87,7 +87,7 @@ begin
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 
   DiskBitmapImage.Bitmap.Handle := LoadBitmap(HInstance, 'DISKIMAGE');  {don't localize};
-  DiskBitmapImage.ReplaceColor := clBlue;
+  DiskBitmapImage.ReplaceColor := RGB(255, 0, 255);
   DiskBitmapImage.ReplaceWithColor := Color;
 
   TryEnableAutoCompleteFileSystem(PathEdit.Handle);
