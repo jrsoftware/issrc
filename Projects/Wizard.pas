@@ -45,6 +45,7 @@ type
     FStyle: TWizardPageStyle;
     FWizardForm: TWizardForm;
     function GetSurface: TNewNotebookPage;
+    function GetSurfaceColor: TColor;
     function GetSurfaceHeight: Integer;
     function GetSurfaceWidth: Integer;
     procedure SetCaption(const Value: String);
@@ -66,6 +67,7 @@ type
     property Description: String read FDescription write SetDescription;
     property ID: Integer read FID;
     property Surface: TNewNotebookPage read GetSurface;
+    property SurfaceColor: TColor read GetSurfaceColor;
     property SurfaceHeight: Integer read GetSurfaceHeight;
     property SurfaceWidth: Integer read GetSurfaceWidth;
     property OnActivate: TWizardPageNotifyEvent read FOnActivate write FOnActivate;
@@ -563,6 +565,11 @@ begin
     Result := FInnerNotebookPage
   else
     Result := FOuterNotebookPage;
+end;
+
+function TWizardPage.GetSurfaceColor: TColor;
+begin
+  Result := TNewNotebook(Surface.Parent).Color;
 end;
 
 function TWizardPage.GetSurfaceHeight: Integer;

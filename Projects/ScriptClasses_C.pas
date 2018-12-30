@@ -441,6 +441,7 @@ begin
     RegisterProperty('Caption', 'String', iptrw);
     RegisterProperty('Description', 'String', iptrw);
     RegisterProperty('Surface', 'TNewNotebookPage', iptr);
+    RegisterProperty('SurfaceColor', 'TColor', iptr);
     RegisterProperty('SurfaceHeight', 'Integer', iptr);
     RegisterProperty('SurfaceWidth', 'Integer', iptr);
     RegisterProperty('OnActivate', 'TWizardPageNotifyEvent', iptrw);

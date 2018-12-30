@@ -653,6 +653,7 @@ TWizardPage = class(TComponent)
   property Caption: String; read write;
   property Description: String; read write;
   property Surface: TNewNotebookPage; read;
+  property SurfaceColor: TColor; read;
   property SurfaceHeight: Integer; read;
   property SurfaceWidth: Integer; read;
   property OnActivate: TWizardPageNotifyEvent; read write;
