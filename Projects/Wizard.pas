@@ -774,8 +774,8 @@ begin
   WizardSmallBitmapImage.Bitmap := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   PreparingErrorBitmapImage.Bitmap.Handle := LoadBitmap(HInstance, 'STOPIMAGE');
-  PreparingErrorBitmapImage.ReplaceColor := clSilver;
-  PreparingErrorBitmapImage.ReplaceWithColor := Color;
+  PreparingErrorBitmapImage.ReplaceColor := RGB(255, 0, 255);
+  PreparingErrorBitmapImage.ReplaceWithColor := PreparingPage.Color;
   LoadSelectDirAndGroupImages;
 
   { Initialize wpWelcome page }
