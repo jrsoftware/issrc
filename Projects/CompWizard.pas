@@ -1062,6 +1062,7 @@ begin
     { Other }
     Setup := Setup + 'Compression=lzma' + SNewLine;
     Setup := Setup + 'SolidCompression=yes' + SNewLine;
+    Setup := Setup + 'WizardStyle=modern' + SNewLine;
 
     { Build script }
     if ISPP <> '' then
