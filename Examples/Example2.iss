@@ -7,6 +7,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
+WizardStyle=modern
 DefaultDirName={autopf}\My Program
 ; Since no icons will be created in "{group}", we don't need the wizard
 ; to ask for a Start Menu folder name:
