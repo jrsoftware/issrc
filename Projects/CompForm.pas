@@ -152,7 +152,7 @@ type
     FSaveEncoding: TMenuItem;
     FSaveEncodingAuto: TMenuItem;
     FSaveEncodingUTF8: TMenuItem;
-    ImageList1: TImageList;
+    ImageList1_16: TImageList;
     ToolBar: TToolBar;
     NewButton: TToolButton;
     OpenButton: TToolButton;
@@ -169,8 +169,12 @@ type
     ToolButton13: TToolButton;
     HelpButton: TToolButton;
     Bevel1: TBevel;
-    BuildImageList: TImageList;
+    BuildImageList_16: TImageList;
     TerminateButton: TToolButton;
+    ImageList1_32: TImageList;
+    ImageList1_24: TImageList;
+    BuildImageList_24: TImageList;
+    BuildImageList_32: TImageList;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenClick(Sender: TObject);
@@ -320,6 +324,7 @@ type
     FBreakPoints: TList;
     FOnPendingSquiggly: Boolean;
     FPendingSquigglyCaretPos: Integer;
+    FBuildImageList: TImageList;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -492,12 +497,13 @@ begin
   else
 {$ENDIF}
   begin
-    Metrics.cbSize := SizeOf(Metrics);  { <- won't work on Delphi 2010? }
+    Metrics.cbSize := SizeOf(Metrics);
     if SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SizeOf(Metrics),
        @Metrics, 0) then
       FontName := Metrics.lfMessageFont.lfFaceName;
     { Only allow fonts that we know will fit the text correctly }
-    if CompareText(FontName, 'Microsoft Sans Serif') <> 0 then
+    if not SameText(FontName, 'Microsoft Sans Serif') and
+       not SameText(FontName, 'Segoe UI') then
       FontName := 'Tahoma';
   end;
   Form.Font.Name := FontName;
@@ -567,6 +573,15 @@ begin
   Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
 end;
 
+function ToPPI(const XY: Integer): Integer;
+begin
+  Result := MulDiv(XY, Screen.PixelsPerInch, 96);
+end;
+
+function To96(const XY: Integer): Integer;
+begin
+  Result := MulDiv(XY, 96, Screen.PixelsPerInch);
+end;
 
 { TISScintEdit }
 
@@ -783,15 +798,16 @@ constructor TCompileForm.Create(AOwner: TComponent);
         'WindowRight', WindowPlacement.rcNormalPosition.Left + Width);
       WindowPlacement.rcNormalPosition.Bottom := Ini.ReadInteger('State',
         'WindowBottom', WindowPlacement.rcNormalPosition.Top + Height);
-      SetWindowPlacement(Handle, @WindowPlacement);
+      SetWindowPlacement(Handle, @WindowPlacement);      
       { Note: Must set WindowState *after* calling SetWindowPlacement, since
         TCustomForm.WMSize resets WindowState }
       if Ini.ReadBool('State', 'WindowMaximized', False) then
         WindowState := wsMaximized;
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
-      StatusPanel.Height := Ini.ReadInteger('State', 'StatusPanelHeight',
-        (10 * DebugOutputList.ItemHeight + 4) + TabSet.Height);
+
+      StatusPanel.Height := ToPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
+        (10 * To96(DebugOutputList.ItemHeight) + 4) + To96(TabSet.Height)));
     finally
       Ini.Free;
     end;
@@ -852,6 +868,21 @@ begin
   { Use fake Esc shortcut for Stop Compile so it doesn't conflict with the
     editor's autocompletion list } 
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
+
+  { Select best images }
+  if Screen.PixelsPerInch >= 192 then begin
+    ToolBar.Images := ImageList1_32;
+    FBuildImageList := BuildImageList_32;
+  end else if Screen.PixelsPerInch >= 128 then begin
+    ToolBar.Images := ImageList1_24;
+    FBuildImageList := BuildImageList_24;
+  end else
+    FBuildImageList := BuildImageList_16;
+
+  { TStatusBar needs manual scaling }
+  StatusBar.Height := ToPPI(StatusBar.Height);
+  for I := 0 to StatusBar.Panels.Count-1 do
+    StatusBar.Panels[I].Width := ToPPI(StatusBar.Panels[I].Width);
 
   MemoStyler := TInnoSetupStyler.Create(Self);
   MemoStyler.IsppInstalled := IsppInstalled;
@@ -946,7 +977,7 @@ destructor TCompileForm.Destroy;
       Ini.WriteInteger('State', 'WindowRight', WindowPlacement.rcNormalPosition.Right);
       Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
       Ini.WriteBool('State', 'WindowMaximized', WindowState = wsMaximized);
-      Ini.WriteInteger('State', 'StatusPanelHeight', StatusPanel.Height);
+      Ini.WriteInteger('State', 'StatusPanelHeight', To96(StatusPanel.Height));
       
       { Zoom state }
       Ini.WriteInteger('Options', 'Zoom', Memo.Zoom);
@@ -2415,8 +2446,8 @@ procedure TCompileForm.UpdateStatusPanelHeight(H: Integer);
 var
   MinHeight, MaxHeight: Integer;
 begin
-  MinHeight := (3 * DebugOutputList.ItemHeight + 4) + TabSet.Height;
-  MaxHeight := BodyPanel.ClientHeight - 48 - SplitPanel.Height;
+  MinHeight := (3 * DebugOutputList.ItemHeight + ToPPI(4)) + TabSet.Height;
+  MaxHeight := BodyPanel.ClientHeight - ToPPI(48) - SplitPanel.Height;
   if H > MaxHeight then H := MaxHeight;
   if H < MinHeight then H := MinHeight;
   StatusPanel.Height := H;
@@ -3812,9 +3843,9 @@ begin
   case Panel.Index of
     spCompileIcon:
       if FCompiling then begin
-        ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
-          Rect.Left + ((Rect.Right - Rect.Left) - 16) div 2,
-          Rect.Top + ((Rect.Bottom - Rect.Top) - 17) div 2, ILD_NORMAL);
+        ImageList_Draw(FBuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
+          Rect.Left + ((Rect.Right - Rect.Left) - FBuildImageList.Width) div 2,
+          Rect.Top + ((Rect.Bottom - Rect.Top) - FBuildImageList.Height) div 2, ILD_NORMAL);
       end;
     spCompileProgress:
       if FCompiling and (FProgressMax > 0) then begin

@@ -33,6 +33,10 @@ type
     StartupCheck: TCheckBox;
     NewImage: TImage;
     OpenImage: TImage;
+    NewImage_24: TImage;
+    NewImage_32: TImage;
+    OpenImage_24: TImage;
+    OpenImage_32: TImage;
     procedure RadioButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure DblClick_(Sender: TObject);
@@ -69,6 +73,14 @@ begin
   FResult := srNone;
 
   InitFormFont(Self);
+
+  if Screen.PixelsPerInch >= 192 then begin
+    NewImage.Picture := NewImage_32.Picture;
+    OpenImage.Picture := OpenImage_32.Picture;
+  end else if Screen.PixelsPerInch >= 128 then begin
+    NewImage.Picture := NewImage_24.Picture;
+    OpenImage.Picture := OpenImage_24.Picture;
+  end;
 
   OpenListBox.Items.Add(SCompilerExampleScripts);
   OpenListBox.Items.Add(SCompilerMoreFiles);
