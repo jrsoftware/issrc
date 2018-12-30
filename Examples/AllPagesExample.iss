@@ -49,6 +49,6 @@ end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
-  if MsgBox('Do you want to stop Setup at the Preparing To Install wizard page?', mbConfirmation, MB_YESNO) = IDYES then
+  if SuppressibleMsgBox('Do you want to stop Setup at the Preparing To Install wizard page?', mbConfirmation, MB_YESNO, IDNO) = IDYES then
     Result := 'Stopped by user';
 end;
