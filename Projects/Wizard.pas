@@ -169,7 +169,6 @@ type
     procedure UserInfoEditChange(Sender: TObject);
     procedure DirBrowseButtonClick(Sender: TObject);
     procedure GroupBrowseButtonClick(Sender: TObject);
-    procedure FormResize(Sender: TObject);
   private
     { Private declarations }
     FPageList: TList;
@@ -186,10 +185,12 @@ type
     DoneWithWizard: Boolean;
     PrepareToInstallNeedsRestart: Boolean;
     procedure AdjustFocus;
+    procedure AnchorOuterPagesOnResize(Sender: TObject);
     procedure CalcCurrentComponentsSpace;
     procedure ChangeReadyLabel(const S: String);
     function CheckSerialOk: Boolean;
     procedure CreateTaskButtons(const SelectedComponents: TStringList);
+    procedure EnableAnchorOuterPagesOnResize;
     procedure FindPreviousData;
     function GetPreviousPageID: Integer;
     function PrepareToInstall(const WizardComponents, WizardTasks: TStringList): String;
@@ -767,6 +768,7 @@ begin
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
     if shWizardResizable in SetupHeader.Options then begin
+      EnableAnchorOuterPagesOnResize;
       { Do not allow user to resize it smaller than the current size. }
       Constraints.MinHeight := Height;
       Constraints.MinWidth := Width;
@@ -1165,13 +1167,55 @@ begin
     NoIconsCheck.Visible := False;
 end;
 
+procedure TWizardForm.AnchorOuterPagesOnResize(Sender: TObject);
+
+  procedure AnchorOuterPage(const Page: TNewNotebookPage;
+    const BitmapImage: TBitmapImage);
+  var
+    Ctl: TControl;
+    I, NewLeft, NewWidth: Integer;
+  begin
+    if BaseUnitX = 0 then
+      InternalError('AnchorOuterPage: BaseUnitX = 0');
+
+    NewWidth := MulDiv(BitmapImage.Height, 164, 314);
+    if ControlsFlipped then
+      BitmapImage.Left := ClientWidth - NewWidth;
+    BitmapImage.Width := NewWidth;
+    for I := 0 to Page.ControlCount-1 do begin
+      Ctl := Page.Controls[I];
+      if Ctl <> BitmapImage then begin
+        NewLeft := BitmapImage.Width + ScalePixelsX(12); // 12 is space between bitmap and controls
+        Ctl.Width := ClientWidth - ScalePixelsX(20) - NewLeft; //20 is space between controls and right border
+        if not ControlsFlipped then
+          Ctl.Left := NewLeft;
+      end;
+    end;
+  end;
+
+begin
+  { WizardBitmapImage(2)'s size is already corrected by the Anchors property but
+    this doesn't keep the aspect ratio. Calculate and set new width to restore
+    the aspect ratio and update all the other controls in the page for this. }
+  AnchorOuterPage(WelcomePage, WizardBitmapImage);
+  AnchorOuterPage(FinishedPage, WizardBitmapImage2);
+end;
+
+procedure TWizardForm.EnableAnchorOuterPagesOnResize;
+begin
+  OnResize := AnchorOuterPagesOnResize;
+end;
+
 procedure TWizardForm.SizeAndCenter;
 begin
   { Apply custom initial size from script }
-  if SetupHeader.WizardSizePercentX > 100 then
-    ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
-  if SetupHeader.WizardSizePercentY > 100 then
-    ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
+  if (SetupHeader.WizardSizePercentX > 100) or (SetupHeader.WizardSizePercentY > 100) then begin
+    EnableAnchorOuterPagesOnResize;
+    if SetupHeader.WizardSizePercentX > 100 then
+      ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
+    if SetupHeader.WizardSizePercentY > 100 then
+      ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
+  end;
 
   { Center }
   if shWindowVisible in SetupHeader.Options then
@@ -2399,37 +2443,6 @@ begin
   { Redirect an attempt to close this form to MainForm }
   MainForm.Close;
   Action := caNone;
-end;
-
-procedure TWizardForm.FormResize(Sender: TObject);
-
-  procedure AnchorOuterPage(const Page: TNewNotebookPage;
-    const BitmapImage: TBitmapImage);
-  var
-    Ctl: TControl;
-    I, NewLeft, NewWidth: Integer;
-  begin
-    NewWidth := MulDiv(BitmapImage.Height, 164, 314);
-    if ControlsFlipped then
-      BitmapImage.Left := ClientWidth - NewWidth;
-    BitmapImage.Width := NewWidth;
-    for I := 0 to Page.ControlCount-1 do begin
-      Ctl := Page.Controls[I];
-      if Ctl <> BitmapImage then begin
-        NewLeft := BitmapImage.Width + ScalePixelsX(12); // 12 is space between bitmap and controls
-        Ctl.Width := ClientWidth - ScalePixelsX(20) - NewLeft; //20 is space between controls and right border
-        if not ControlsFlipped then
-          Ctl.Left := NewLeft;
-      end;
-    end;
-  end;
-
-begin
-  { WizardBitmapImage(2)'s size is already corrected by the Anchors property but
-    this doesn't keep the aspect ratio. Calculate and set new width to restore
-    the aspect ratio and update all the other controls in the page for this. }
-  AnchorOuterPage(WelcomePage, WizardBitmapImage);
-  AnchorOuterPage(FinishedPage, WizardBitmapImage2);
 end;
 
 procedure TWizardForm.TypesComboChange(Sender: TObject);
