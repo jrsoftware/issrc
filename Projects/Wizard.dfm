@@ -435,7 +435,7 @@ object WizardForm: TWizardForm
             Top = 24
             Width = 417
             Height = 205
-            Color = clBtnFace
+            ParentColor = True
             RequireRadioSelection = True
             ShowLines = False
             TabOrder = 1
