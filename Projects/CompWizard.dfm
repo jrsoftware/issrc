@@ -956,6 +956,7 @@ object WizardForm: TWizardForm
         Width = 499
         Height = 1
         Shape = bsTopLine
+        Visible = False
       end
       object Notebook2: TNotebook
         Left = 4

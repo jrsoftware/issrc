@@ -225,10 +225,8 @@ end;
 
 { --- }
 
-{$IFDEF IS_D7}
 type
   TNotebookAccess = class(TNotebook);
-{$ENDIF}
 
 procedure TWizardForm.FormCreate(Sender: TObject);
 
@@ -281,10 +279,8 @@ begin
   if FontExists('Verdana') then
     WelcomeLabel1.Font.Name := 'Verdana';
 
-{$IFDEF IS_D7}
   TNotebookAccess(Notebook1).ParentBackground := False;
-  PnlMain.ParentBackground := False;
-{$ENDIF}
+  Notebook1.Color := clWindow;
 
   MakeBold(PageNameLabel);
   MakeBold(RequiredLabel1);
@@ -398,10 +394,6 @@ begin
   { Set the Caption to match the current page's title }
   PageNameLabel.Caption := PageCaptions[CurPage];
   PageDescriptionLabel.Caption := PageDescriptions[CurPage];
-  if CurPage in [wpWelcome, wpFinished] then
-    Notebook1.Color := clWindow
-  else
-    Notebook1.Color := clBtnFace;
 
   { Adjust focus }
   case CurPage of
