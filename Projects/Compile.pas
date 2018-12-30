@@ -4456,9 +4456,11 @@ begin
           SetupHeader.WizardSizePercentY, 100)
       end;
     ssWizardStyle: begin
-        if CompareText(Value, 'modern') = 0 then begin
-          { no-op }
-        end else
+        if CompareText(Value, 'classic') = 0 then
+          SetupHeader.WizardStyle := wsClassic
+        else if CompareText(Value, 'modern') = 0 then
+          SetupHeader.WizardStyle := wsModern
+        else
           Invalid;
       end;
   end;
@@ -8652,8 +8654,7 @@ begin
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
     SetupHeader.WizardImageAlphaFormat := afIgnored;
     UsedUserAreasWarning := True;
-    SetupHeader.WizardSizePercentX := 100;
-    SetupHeader.WizardSizePercentY := 100;
+    SetupHeader.WizardStyle := wsClassic;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetup, 'Setup', 0, 0, True, True, '', False, False);
@@ -8835,6 +8836,15 @@ begin
     end;
     if shAlwaysUsePersonalGroup in SetupHeader.Options then
       UsedUserAreas.Add('AlwaysUsePersonalGroup');
+    if SetupDirectiveLines[ssWizardSizePercent] = 0 then begin
+      if SetupHeader.WizardStyle = wsModern then
+        SetupHeader.WizardSizePercentX := 120
+      else
+        SetupHeader.WizardSizePercentX := 100;
+      SetupHeader.WizardSizePercentY := SetupHeader.WizardSizePercentX;
+    end;
+    if (SetupDirectiveLines[ssWizardResizable] = 0) and (SetupHeader.WizardStyle = wsModern) then
+      Include(SetupHeader.Options, shWizardResizable);
 
     LineNumber := 0;
 

@@ -791,6 +791,12 @@ begin
   Dec(X, W1);
   BackButton.Left := X;
 
+  { Initialize wizard style }
+  if SetupHeader.WizardStyle = wsModern then begin
+    OuterNotebook.Color := clWindow;
+    Bevel1.Visible := False;
+  end;
+
   { Initialize images }
   WizardBitmapImage.Bitmap := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
   WizardBitmapImage.Center := True;

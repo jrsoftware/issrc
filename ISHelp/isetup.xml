@@ -4722,7 +4722,7 @@ DiskSliceSize=1457664
 
 <setuptopic directive="WizardResizable">
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
+<setupdefault><tt>yes</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>no</tt> otherwise</setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, the user will be able to resize and maximize the wizard window.</p>
 <p>Use <tt>Anchors</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
@@ -4734,7 +4734,7 @@ DiskSliceSize=1457664
 <setuptopic directive="WizardSizePercent">
 <setupformat><tt><i>a</i>,<i>b</i></tt>, where <tt><i>a</i></tt> is the horizontal size, and <tt><i>b</i></tt> is the vertical size.</setupformat>
 <setupvalid>each size: <tt>100</tt> or more</setupvalid>
-<setupdefault><tt>100,100</tt></setupdefault>
+<setupdefault><tt>120,120</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>100,100</tt> otherwise</setupdefault>
 <body>
 <p>Lets you increase the default size of the wizard window without increasing the font size. A size of for example 120 means a 20% size increase.</p>
 <p>If you specify only one size it will be used as both the horizontal and the vertical size.</p>
@@ -4769,16 +4769,17 @@ DiskSliceSize=1457664
 </setuptopic>
 
 <setuptopic directive="WizardStyle">
-<setupvalid><tt>modern</tt></setupvalid>
-<setupdefault><tt>modern</tt></setupdefault>
+<setupvalid><tt>classic</tt> or <tt>modern</tt></setupvalid>
+<setupdefault><tt>classic</tt></setupdefault>
 <body>
-<p><i>Obsolete in 3.0.</i> Inno Setup 2.x supported an alternate wizard style called "classic". Support for the "classic" style has been dropped in Inno Setup 3.0.</p>
+<p>If this directive is set to <tt>modern</tt>, Setup will show a more modern look and also the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> change to respectively <tt>yes</tt> and <tt>120,120</tt>.</p>
+<p>Use <tt>Anchors</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="UninstallStyle">
 <body>
-<p><i>Obsolete in 5.0.0.</i> Only the "modern" uninstaller style is supported now.</p>
+<p><i>Obsolete in 5.0.0.</i></p>
 </body>
 </setuptopic>
 
