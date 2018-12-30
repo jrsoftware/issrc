@@ -254,9 +254,7 @@ begin
     AnchorsList.Add(Ctl, Ctl.Anchors);
     { Before we can set Anchors to [akLeft, akTop] (which has a special
       'no anchors' meaning to VCL), we first need to update the Explicit*
-      properties so the control doesn't get moved back to an old position.
-      Actually only needed if a resize is done in the IDE without removing
-      all Explicit* properties from the DFM. }
+      properties so the control doesn't get moved back to an old position. }
     TControlAccess(Ctl).UpdateExplicitBounds;
     Ctl.Anchors := [akLeft, akTop];
   end;

@@ -61,6 +61,9 @@ begin
     AParams.ExStyle := AParams.ExStyle or (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
 end;
 
+type
+  TControlAccess = class(TControl);
+
 procedure FlipControls(const AParentCtl: TWinControl);
 var
   ParentWidth, I: Integer;
@@ -75,8 +78,14 @@ begin
       Ctl := AParentCtl.Controls[I];
       if (akLeft in Ctl.Anchors) and not (akRight in Ctl.Anchors) then
         Ctl.Anchors := Ctl.Anchors - [akLeft] + [akRight]
-      else if not (akLeft in Ctl.Anchors) and (akRight in Ctl.Anchors) then
+      else if not (akLeft in Ctl.Anchors) and (akRight in Ctl.Anchors) then begin
+        { Before we can set Anchors to [akLeft, akTop] (which has a special
+          'no anchors' meaning to VCL), we first need to update the Explicit*
+          properties so the control doesn't get moved back to an old position. }
+        if Ctl.Anchors = [akTop, akRight] then
+          TControlAccess(Ctl).UpdateExplicitBounds;
         Ctl.Anchors := Ctl.Anchors - [akRight] + [akLeft];
+      end;
       Ctl.Left := ParentWidth - Ctl.Width - Ctl.Left;
     end;
   finally
