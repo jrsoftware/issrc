@@ -511,7 +511,7 @@ object WizardForm: TWizardForm
             Width = 417
             Height = 205
             Anchors = [akLeft, akTop, akRight, akBottom]
-            Color = clBtnFace
+            ParentColor = True
             RequireRadioSelection = True
             ShowLines = False
             TabOrder = 1
