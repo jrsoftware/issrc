@@ -603,14 +603,14 @@ constructor TWizardForm.Create(AOwner: TComponent);
 
   procedure LoadSelectDirAndGroupImages;
 
-    procedure IconToBitmapImage(const AIcon: HICON; const Ctl: TBitmapImage);
+    procedure IconToBitmapImage(const AIcon: HICON; const Ctl: TBitmapImage; const BkColor: TColor);
     begin
       if AIcon <> 0 then begin
         try
           with Ctl.Bitmap do begin
             Width := 32;
             Height := 32;
-            Canvas.Brush.Color := clBtnFace;
+            Canvas.Brush.Color := BkColor;
             Canvas.FillRect(Rect(0, 0, 32, 32));
             DrawIconEx(Canvas.Handle, 0, 0, AIcon, 32, 32, 0, 0, DI_NORMAL);
           end;
@@ -641,14 +641,14 @@ constructor TWizardForm.Create(AOwner: TComponent);
           SizeOf(FileInfo), SHGFI_USEFILEATTRIBUTES or SHGFI_ICONLOCATION) <> 0) and
          (FileInfo.szDisplayName[0] <> #0) then
         IconToBitmapImage(ExtractIcon(HInstance, FileInfo.szDisplayName,
-          FileInfo.iIcon), SelectDirBitmapImage);
+          FileInfo.iIcon), SelectDirBitmapImage, SelectDirPage.Color);
 
       if WindowsVersionAtLeast(6, 0) then begin
         { On Windows Vista and 7, use the "Taskbar and Start Menu Properties"
           icon as there is no longer a separate icon for Start Menu folders }
         IconToBitmapImage(ExtractIcon(HInstance,
           PChar(AddBackslash(WinSystemDir) + 'shell32.dll'), 39),
-          SelectGroupBitmapImage);
+          SelectGroupBitmapImage, SelectProgramGroupPage.Color);
       end
       else begin
         Path := GetShellFolder(False, sfPrograms, False);
@@ -658,7 +658,7 @@ constructor TWizardForm.Create(AOwner: TComponent);
           if (SHGetFileInfo(PChar(Path), 0, FileInfo, SizeOf(FileInfo),
               SHGFI_ICONLOCATION) <> 0) and (FileInfo.szDisplayName[0] <> #0) then
             IconToBitmapImage(ExtractIcon(HInstance, FileInfo.szDisplayName,
-              FileInfo.iIcon), SelectGroupBitmapImage);
+              FileInfo.iIcon), SelectGroupBitmapImage, SelectProgramGroupPage.Color);
         end;
       end;
     except
