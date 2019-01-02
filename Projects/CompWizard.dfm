@@ -22,7 +22,7 @@ object WizardForm: TWizardForm
     Left = 0
     Top = 314
     Width = 503
-    Height = 2
+    Height = 1
     Shape = bsTopLine
   end
   object RequiredLabel1: TNewStaticText
@@ -955,7 +955,7 @@ object WizardForm: TWizardForm
         Left = 0
         Top = 58
         Width = 499
-        Height = 3
+        Height = 1
         Shape = bsTopLine
       end
       object Notebook2: TNotebook

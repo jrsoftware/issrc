@@ -1,6 +1,6 @@
 {
   Inno Setup
-  Copyright (C) 1997-2013 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -51,6 +51,18 @@
                                         {$DEFINE IS_DXE7}  { then it must be at least Delphi XE7 }
                                         {$IFNDEF VER280}  { if it's not Delphi XE7 }
                                           {$DEFINE IS_DXE8}  { then it must be at least Delphi XE8 }
+                                          {$IFNDEF VER290}  { if it's not Delphi XE8 }
+                                            {$DEFINE IS_D10SEATTLE}  { then it must be at least Delphi 10 Seattle }
+                                            {$IFNDEF VER300}  { if it's not Delphi 10 Seattle }
+                                              {$DEFINE IS_D101BERLIN}  { then it must be at least Delphi 10.1 Berlin }
+                                              {$IFNDEF VER310}  { if it's not Delphi 10.1 Berlin }
+                                                {$DEFINE IS_D102TOKYO}  { then it must be at least Delphi 10.2 Tokyo }
+                                                {$IFNDEF VER320}  { if it's not Delphi 10.2 Tokyo }
+                                                  {$DEFINE IS_D103RIO}  { then it must be at least Delphi 10.3 Rio }
+                                                {$ENDIF}
+                                              {$ENDIF}
+                                            {$ENDIF}
+                                          {$ENDIF}
                                         {$ENDIF}
                                       {$ENDIF}
                                     {$ENDIF}

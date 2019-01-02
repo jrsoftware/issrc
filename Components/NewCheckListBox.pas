@@ -1563,7 +1563,8 @@ var
 begin
   for I := 0 to Items.Count - 1 do
   begin
-    ItemStates[I].ThreadCache := [];
+    ItemStates[I].ThreadCache := [0];       //Doing ':= []' causes a "F2084 Internal Error: C21846" compiler error on Delphi 10.3 Rio }
+    Exclude(ItemStates[I].ThreadCache, 0);  //
     ItemStates[I].IsLastChild := False;
   end;
   for I := 0 to Items.Count - 1 do
