@@ -902,6 +902,9 @@ begin
 
   FBreakPoints := TList.Create;
 
+  CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
+  CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
+
   DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
   FDebugLogListTimeWidth := DebugOutputList.Canvas.TextWidth(Format(
     '[00%s00%s00%s000]   ', [{$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator]));
