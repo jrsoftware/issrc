@@ -798,7 +798,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
         'WindowRight', WindowPlacement.rcNormalPosition.Left + Width);
       WindowPlacement.rcNormalPosition.Bottom := Ini.ReadInteger('State',
         'WindowBottom', WindowPlacement.rcNormalPosition.Top + Height);
-      SetWindowPlacement(Handle, @WindowPlacement);      
+      SetWindowPlacement(Handle, @WindowPlacement);
       { Note: Must set WindowState *after* calling SetWindowPlacement, since
         TCustomForm.WMSize resets WindowState }
       if Ini.ReadBool('State', 'WindowMaximized', False) then
@@ -879,10 +879,12 @@ begin
   end else
     FBuildImageList := BuildImageList_16;
 
-  { TStatusBar needs manual scaling }
+{$IFNDEF IS_D103RIO}
+  { TStatusBar needs manual scaling before Delphi 10.3 Rio }
   StatusBar.Height := ToPPI(StatusBar.Height);
   for I := 0 to StatusBar.Panels.Count-1 do
     StatusBar.Panels[I].Width := ToPPI(StatusBar.Panels[I].Width);
+{$ENDIF}
 
   MemoStyler := TInnoSetupStyler.Create(Self);
   MemoStyler.IsppInstalled := IsppInstalled;
