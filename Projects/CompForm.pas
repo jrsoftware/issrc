@@ -2,7 +2,7 @@ unit CompForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -25,7 +25,8 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet,
-  DebugStruct, CompInt, UxThemeISX, System.ImageList, Vcl.ImgList, Vcl.ToolWin;
+  DebugStruct, CompInt, UxThemeISX, System.ImageList, Vcl.ImgList, Vcl.ToolWin,
+  Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection;
 
 const
   WM_StartCommandLineCompile = WM_USER + $1000;
@@ -152,7 +153,6 @@ type
     FSaveEncoding: TMenuItem;
     FSaveEncodingAuto: TMenuItem;
     FSaveEncodingUTF8: TMenuItem;
-    ImageList1_16: TImageList;
     ToolBar: TToolBar;
     NewButton: TToolButton;
     OpenButton: TToolButton;
@@ -169,12 +169,10 @@ type
     ToolButton13: TToolButton;
     HelpButton: TToolButton;
     Bevel1: TBevel;
-    BuildImageList_16: TImageList;
+    BuildImageList: TImageList;
     TerminateButton: TToolButton;
-    ImageList1_32: TImageList;
-    ImageList1_24: TImageList;
-    BuildImageList_24: TImageList;
-    BuildImageList_32: TImageList;
+    ToolbarImageCollection: TImageCollection;
+    ToolbarVirtualImageList: TVirtualImageList;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenClick(Sender: TObject);
@@ -324,7 +322,6 @@ type
     FBreakPoints: TList;
     FOnPendingSquiggly: Boolean;
     FPendingSquigglyCaretPos: Integer;
-    FBuildImageList: TImageList;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -868,16 +865,6 @@ begin
   { Use fake Esc shortcut for Stop Compile so it doesn't conflict with the
     editor's autocompletion list } 
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
-
-  { Select best images }
-  if Screen.PixelsPerInch >= 192 then begin
-    ToolBar.Images := ImageList1_32;
-    FBuildImageList := BuildImageList_32;
-  end else if Screen.PixelsPerInch >= 128 then begin
-    ToolBar.Images := ImageList1_24;
-    FBuildImageList := BuildImageList_24;
-  end else
-    FBuildImageList := BuildImageList_16;
 
 {$IFNDEF IS_D103RIO}
   { TStatusBar needs manual scaling before Delphi 10.3 Rio }
@@ -3845,9 +3832,9 @@ begin
   case Panel.Index of
     spCompileIcon:
       if FCompiling then begin
-        ImageList_Draw(FBuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
-          Rect.Left + ((Rect.Right - Rect.Left) - FBuildImageList.Width) div 2,
-          Rect.Top + ((Rect.Bottom - Rect.Top) - FBuildImageList.Height) div 2, ILD_NORMAL);
+        ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
+          Rect.Left + ((Rect.Right - Rect.Left) - BuildImageList.Width) div 2,
+          Rect.Top + ((Rect.Bottom - Rect.Top) - BuildImageList.Height) div 2, ILD_NORMAL);
       end;
     spCompileProgress:
       if FCompiling and (FProgressMax > 0) then begin
