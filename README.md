@@ -169,7 +169,7 @@ How do the projects link together?
   data block in SETUP.EXE so it knows it's in "single EXE" form.
 
 - For compiler debugging purposes define ``STATICCOMPILER`` in CompForm.pas
-  and ``STATICPREPROC`` in Compile.pas. The latter requires Unicode Inno Setup.
+  and ``STATICPREPROC`` in Compile.pas.
 
 5. Precompiled executables and libraries
 ----------------------------------------
@@ -203,8 +203,11 @@ See Projects\lzma2\Decoder\compiling.txt.
 
 **ishelp\ISHelpGen\ISHelpGen.exe** - See ishelp\ISHelpGen\compile.bat
 
-**Examples\MyProg.exe**, **Examples\MyProg-x64.exe** -
-Compiled by Visual Studio 2005 from the Examples\MyProg directory.
+**Examples\MyProg.exe**, **Examples\MyProg-x64.exe** - Compiled by Visual Studio
+2005 from the Examples\MyProg directory.
+
+**Examples\MyProg-ARM64.exe** - Compiled by Visual Studio 2017 from the
+Examples\MyProg directory.
 
 6. Inno Setup-specific editing guidelines for the help files
 ------------------------------------------------------------
