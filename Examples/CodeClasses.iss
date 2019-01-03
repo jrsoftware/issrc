@@ -10,7 +10,6 @@ CreateAppDir=no
 DisableProgramGroupPage=yes
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
-WizardResizable=yes
 OutputDir=userdocs:Inno Setup Examples Output
 PrivilegesRequired=lowest
 
@@ -267,6 +266,10 @@ begin
   CheckListBox.AddRadioButton('TNewCheckListBox', '', 1, True, True, nil);
   CheckListBox.AddRadioButton('TNewCheckListBox', '', 1, False, True, nil);
   CheckListBox.AddCheckBox('TNewCheckListBox', '', 0, True, True, False, True, nil);
+  CheckListBox.AddCheckBox('TNewCheckListBox', '', 1, True, True, False, True, nil);
+  CheckListBox.AddCheckBox('TNewCheckListBox', '', 2, True, True, False, True, nil);
+  CheckListBox.AddCheckBox('TNewCheckListBox', '', 2, False, True, False, True, nil);
+  CheckListBox.AddCheckBox('TNewCheckListBox', '', 1, False, True, False, True, nil);
 
   CheckListBox2 := TNewCheckListBox.Create(Page);
   CheckListBox2.Top := CheckListBox.Top + CheckListBox.Height + ScaleY(8);
@@ -381,10 +384,7 @@ begin
   URLLabel.Parent := ParentForm;
   { Alter Font *after* setting Parent so the correct defaults are inherited first }
   URLLabel.Font.Style := URLLabel.Font.Style + [fsUnderline];
-  if GetWindowsVersion >= $040A0000 then   { Windows 98 or later? }
-    URLLabel.Font.Color := clHotLight
-  else
-    URLLabel.Font.Color := clBlue;
+  URLLabel.Font.Color := clHotLight
   URLLabel.Top := AboutButton.Top + AboutButton.Height - URLLabel.Height - 2;
   URLLabel.Left := AboutButton.Left + AboutButton.Width + ScaleX(20);
   URLLabel.Anchors := [akLeft, akBottom];
