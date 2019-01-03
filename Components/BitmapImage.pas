@@ -2,7 +2,7 @@ unit BitmapImage;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit BitmapImage;
 interface
 
 uses
-  Windows, Controls, Graphics, Classes, Resample;
+  Windows, Controls, Graphics, Classes;
 
 type
   TBitmapImage = class(TGraphicControl)
@@ -71,6 +71,9 @@ type
 procedure Register;
 
 implementation
+
+uses
+  Resample;
 
 procedure Register;
 begin
