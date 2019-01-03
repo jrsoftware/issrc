@@ -251,6 +251,8 @@ type
     procedure FSaveEncodingItemClick(Sender: TObject);
     procedure CompilerOutputListDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
+    procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+      NewDPI: Integer);
   private
     { Private declarations }
     FCompilerVersion: PCompilerVersionInfo;
@@ -339,6 +341,7 @@ type
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       var Output: String): Integer;
     procedure FindNext;
+    function FromCurrentPPI(const XY: Integer): Integer;
     procedure Go(AStepMode: TStepMode);
     procedure HideError;
     procedure InitializeFindText(Dlg: TFindDialog);
@@ -376,6 +379,7 @@ type
     procedure ShowOpenDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
+    function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
     procedure UpdateAllLineMarkers;
     procedure UpdateCaption;
@@ -384,6 +388,7 @@ type
     procedure UpdateEditModePanel;
     procedure UpdateLineMarkers(const Line: Integer);
     procedure UpdateNewButtons;
+    procedure UpdateOutputListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateTargetMenu;
     procedure UpdateThemeData(const Close, Open: Boolean);
@@ -568,16 +573,6 @@ end;
 function ISCryptInstalled: Boolean;
 begin
   Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
-end;
-
-function ToPPI(const XY: Integer): Integer;
-begin
-  Result := MulDiv(XY, Screen.PixelsPerInch, 96);
-end;
-
-function To96(const XY: Integer): Integer;
-begin
-  Result := MulDiv(XY, 96, Screen.PixelsPerInch);
 end;
 
 { TISScintEdit }
@@ -803,8 +798,8 @@ constructor TCompileForm.Create(AOwner: TComponent);
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
 
-      StatusPanel.Height := ToPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
-        (10 * To96(DebugOutputList.ItemHeight) + 4) + To96(TabSet.Height)));
+      StatusPanel.Height := ToCurrentPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
+        (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(TabSet.Height)));
     finally
       Ini.Free;
     end;
@@ -902,13 +897,7 @@ begin
 
   FBreakPoints := TList.Create;
 
-  CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
-  CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
-
-  DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
-  FDebugLogListTimeWidth := DebugOutputList.Canvas.TextWidth(Format(
-    '[00%s00%s00%s000]   ', [{$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator]));
-  DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0');
+  UpdateOutputListsItemHeightAndDebugTimeWidth;
 
   Application.HintShortPause := 0;
   Application.OnException := AppOnException;
@@ -969,7 +958,7 @@ destructor TCompileForm.Destroy;
       Ini.WriteInteger('State', 'WindowRight', WindowPlacement.rcNormalPosition.Right);
       Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
       Ini.WriteBool('State', 'WindowMaximized', WindowState = wsMaximized);
-      Ini.WriteInteger('State', 'StatusPanelHeight', To96(StatusPanel.Height));
+      Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
       
       { Zoom state }
       Ini.WriteInteger('Options', 'Zoom', Memo.Zoom);
@@ -999,6 +988,13 @@ class procedure TCompileForm.AppOnException(Sender: TObject; E: Exception);
 begin
   AppMessageBox(PChar(AddPeriod(E.Message)), SCompilerFormCaption,
     MB_OK or MB_ICONSTOP);
+end;
+
+procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+  NewDPI: Integer);
+begin
+  UpdateOutputListsItemHeightAndDebugTimeWidth;
+  UpdateStatusPanelHeight(StatusPanel.Height);
 end;
 
 procedure TCompileForm.FormCloseQuery(Sender: TObject;
@@ -2438,11 +2434,21 @@ procedure TCompileForm.UpdateStatusPanelHeight(H: Integer);
 var
   MinHeight, MaxHeight: Integer;
 begin
-  MinHeight := (3 * DebugOutputList.ItemHeight + ToPPI(4)) + TabSet.Height;
-  MaxHeight := BodyPanel.ClientHeight - ToPPI(48) - SplitPanel.Height;
+  MinHeight := (3 * DebugOutputList.ItemHeight + ToCurrentPPI(4)) + TabSet.Height;
+  MaxHeight := BodyPanel.ClientHeight - ToCurrentPPI(48) - SplitPanel.Height;
   if H > MaxHeight then H := MaxHeight;
   if H < MinHeight then H := MinHeight;
   StatusPanel.Height := H;
+end;
+
+procedure TCompileForm.UpdateOutputListsItemHeightAndDebugTimeWidth;
+begin
+  CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
+  CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
+
+  DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
+  FDebugLogListTimeWidth := DebugOutputList.Canvas.TextWidth(Format('[00%s00%s00%s000]   ', [FormatSettings.TimeSeparator, FormatSettings.TimeSeparator, FormatSettings.DecimalSeparator]));
+  DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0');
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
@@ -4213,6 +4219,16 @@ end;
 procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);
 begin
   ToggleBreakPoint(Memo.CaretLine);
+end;
+
+function TCompileForm.ToCurrentPPI(const XY: Integer): Integer;
+begin
+  Result := MulDiv(XY, CurrentPPI, 96);
+end;
+
+function TCompileForm.FromCurrentPPI(const XY: Integer): Integer;
+begin
+  Result := MulDiv(XY, 96, CurrentPPI);
 end;
 
 {$IFNDEF UNICODE}

@@ -33,19 +33,18 @@ type
     StartupCheck: TCheckBox;
     NewImage: TImage;
     OpenImage: TImage;
-    NewImage_24: TImage;
-    NewImage_32: TImage;
-    OpenImage_24: TImage;
-    OpenImage_32: TImage;
     procedure RadioButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure DblClick_(Sender: TObject);
     procedure OpenListBoxClick(Sender: TObject);
     procedure OKButtonClick(Sender: TObject);
+    procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+      NewDPI: Integer);
   private
     FResult: TStartupFormResult;
     FResultFileName: TFileName;
     procedure SetMRUList(const MRUList: TStringList);
+    procedure UpdateImages;
   public
     property MRUList: TStringList write SetMRUList;
     property Result: TStartupFormResult read FResult;
@@ -55,7 +54,7 @@ type
 implementation
 
 uses
-  CompMsgs, CmnFunc, CmnFunc2, CompForm;
+  CompMsgs, CmnFunc, CmnFunc2, CompForm, ComCtrls;
 
 {$R *.DFM}
 
@@ -68,19 +67,35 @@ begin
   UpdateHorizontalExtent(OpenListBox);
 end;
 
+procedure TStartupForm.UpdateImages;
+
+  function GetBitmap(const Button: TToolButton; const WH: Integer): TBitmap;
+  begin
+    Result := CompileForm.ToolbarImageCollection.GetBitmap(Button.ImageIndex, WH, WH)
+  end;
+
+var
+  WH: Integer;
+begin
+ { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
+  WH := MulDiv(16, CurrentPPI, 96);
+  NewImage.Picture.Bitmap := GetBitmap(CompileForm.NewButton, WH);
+  OpenImage.Picture.Bitmap := GetBitmap(CompileForm.OpenButton, WH);
+end;
+
+procedure TStartupForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+  NewDPI: Integer);
+begin
+  UpdateImages;
+end;
+
 procedure TStartupForm.FormCreate(Sender: TObject);
 begin
   FResult := srNone;
 
   InitFormFont(Self);
 
-  if Screen.PixelsPerInch >= 192 then begin
-    NewImage.Picture := NewImage_32.Picture;
-    OpenImage.Picture := OpenImage_32.Picture;
-  end else if Screen.PixelsPerInch >= 128 then begin
-    NewImage.Picture := NewImage_24.Picture;
-    OpenImage.Picture := OpenImage_24.Picture;
-  end;
+  UpdateImages;
 
   OpenListBox.Items.Add(SCompilerExampleScripts);
   OpenListBox.Items.Add(SCompilerMoreFiles);

@@ -14,6 +14,7 @@ object CompileForm: TCompileForm
   Menu = MainMenu1
   OldCreateOrder = True
   Position = poDefault
+  OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCloseQuery = FormCloseQuery
   OnKeyDown = FormKeyDown
   OnResize = FormResize
