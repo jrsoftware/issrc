@@ -239,18 +239,22 @@ begin
 
   CheckListBox := TNewCheckListBox.Create(Page);
   CheckListBox.Width := Page.SurfaceWidth;
-  CheckListBox.Height := ScaleY(97);
+  CheckListBox.Height := ScaleY(137);
   CheckListBox.Flat := True;
   CheckListBox.Parent := Page.Surface;
   CheckListBox.AddCheckBox('TNewCheckListBox', '', 0, True, True, False, True, nil);
   CheckListBox.AddRadioButton('TNewCheckListBox', '', 1, True, True, nil);
   CheckListBox.AddRadioButton('TNewCheckListBox', '', 1, False, True, nil);
   CheckListBox.AddCheckBox('TNewCheckListBox', '', 0, True, True, False, True, nil);
+  CheckListBox.AddCheckBox('TNewCheckListBox', '', 1, True, True, False, True, nil);
+  CheckListBox.AddCheckBox('TNewCheckListBox', '', 2, True, True, False, True, nil);
+  CheckListBox.AddCheckBox('TNewCheckListBox', '', 2, False, True, False, True, nil);
+  CheckListBox.AddCheckBox('TNewCheckListBox', '', 1, False, True, False, True, nil);
 
   CheckListBox2 := TNewCheckListBox.Create(Page);
   CheckListBox2.Top := CheckListBox.Top + CheckListBox.Height + ScaleY(8);
   CheckListBox2.Width := Page.SurfaceWidth;
-  CheckListBox2.Height := ScaleY(97);
+  CheckListBox2.Height := ScaleY(67);
   CheckListBox2.BorderStyle := bsNone;
   CheckListBox2.ParentColor := True;
   CheckListBox2.MinItemHeight := WizardForm.TasksList.MinItemHeight;
@@ -355,10 +359,7 @@ begin
   URLLabel.Parent := ParentForm;
   { Alter Font *after* setting Parent so the correct defaults are inherited first }
   URLLabel.Font.Style := URLLabel.Font.Style + [fsUnderline];
-  if GetWindowsVersion >= $040A0000 then   { Windows 98 or later? }
-    URLLabel.Font.Color := clHotLight
-  else
-    URLLabel.Font.Color := clBlue;
+  URLLabel.Font.Color := clHotLight
   URLLabel.Top := AboutButton.Top + AboutButton.Height - URLLabel.Height - 2;
   URLLabel.Left := AboutButton.Left + AboutButton.Width + ScaleX(20);
 end;
