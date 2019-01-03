@@ -891,6 +891,7 @@ object WizardForm: TWizardForm
           CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
           CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
           CCCCCCCCCCCCCCCC0000}
+        Stretch = True
       end
       object WelcomeLabel1: TNewStaticText
         Left = 176
@@ -1698,6 +1699,7 @@ object WizardForm: TWizardForm
             4433333444444444444444444440444444444444444444444444444444444444
             4444444444444444444044444444444444444444444444444444444444444444
             444444444440}
+          Stretch = True
         end
         object PageNameLabel: TNewStaticText
           Left = 24
@@ -1730,6 +1732,7 @@ object WizardForm: TWizardForm
         Top = 0
         Width = 164
         Height = 314
+        Stretch = True
       end
       object FinishedLabel: TNewStaticText
         Left = 176

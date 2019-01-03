@@ -2,7 +2,7 @@ unit CompForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -25,7 +25,8 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet,
-  DebugStruct, CompInt, UxThemeISX, System.ImageList, Vcl.ImgList, Vcl.ToolWin;
+  DebugStruct, CompInt, UxThemeISX, System.ImageList, ImgList, ToolWin,
+  VirtualImageList, BaseImageCollection, ImageCollection;
 
 const
   WM_StartCommandLineCompile = WM_USER + $1000;
@@ -152,7 +153,6 @@ type
     FSaveEncoding: TMenuItem;
     FSaveEncodingAuto: TMenuItem;
     FSaveEncodingUTF8: TMenuItem;
-    ImageList1: TImageList;
     ToolBar: TToolBar;
     NewButton: TToolButton;
     OpenButton: TToolButton;
@@ -171,6 +171,8 @@ type
     Bevel1: TBevel;
     BuildImageList: TImageList;
     TerminateButton: TToolButton;
+    ToolBarImageCollection: TImageCollection;
+    ToolBarVirtualImageList: TVirtualImageList;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenClick(Sender: TObject);
@@ -249,6 +251,8 @@ type
     procedure FSaveEncodingItemClick(Sender: TObject);
     procedure CompilerOutputListDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
+    procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+      NewDPI: Integer);
   private
     { Private declarations }
     FCompilerVersion: PCompilerVersionInfo;
@@ -337,6 +341,7 @@ type
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       var Output: String): Integer;
     procedure FindNext;
+    function FromCurrentPPI(const XY: Integer): Integer;
     procedure Go(AStepMode: TStepMode);
     procedure HideError;
     procedure InitializeFindText(Dlg: TFindDialog);
@@ -374,6 +379,7 @@ type
     procedure ShowOpenDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
+    function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
     procedure UpdateAllLineMarkers;
     procedure UpdateCaption;
@@ -382,6 +388,7 @@ type
     procedure UpdateEditModePanel;
     procedure UpdateLineMarkers(const Line: Integer);
     procedure UpdateNewButtons;
+    procedure UpdateOutputListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateTargetMenu;
     procedure UpdateThemeData(const Close, Open: Boolean);
@@ -492,12 +499,13 @@ begin
   else
 {$ENDIF}
   begin
-    Metrics.cbSize := SizeOf(Metrics);  { <- won't work on Delphi 2010? }
+    Metrics.cbSize := SizeOf(Metrics);
     if SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SizeOf(Metrics),
        @Metrics, 0) then
       FontName := Metrics.lfMessageFont.lfFaceName;
     { Only allow fonts that we know will fit the text correctly }
-    if CompareText(FontName, 'Microsoft Sans Serif') <> 0 then
+    if not SameText(FontName, 'Microsoft Sans Serif') and
+       not SameText(FontName, 'Segoe UI') then
       FontName := 'Tahoma';
   end;
   Form.Font.Name := FontName;
@@ -566,7 +574,6 @@ function ISCryptInstalled: Boolean;
 begin
   Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
 end;
-
 
 { TISScintEdit }
 
@@ -790,8 +797,9 @@ constructor TCompileForm.Create(AOwner: TComponent);
         WindowState := wsMaximized;
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
-      StatusPanel.Height := Ini.ReadInteger('State', 'StatusPanelHeight',
-        (10 * DebugOutputList.ItemHeight + 4) + TabSet.Height);
+
+      StatusPanel.Height := ToCurrentPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
+        (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(TabSet.Height)));
     finally
       Ini.Free;
     end;
@@ -853,6 +861,13 @@ begin
     editor's autocompletion list } 
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
 
+{$IFNDEF IS_D103RIO}
+  { TStatusBar needs manual scaling before Delphi 10.3 Rio }
+  StatusBar.Height := ToPPI(StatusBar.Height);
+  for I := 0 to StatusBar.Panels.Count-1 do
+    StatusBar.Panels[I].Width := ToPPI(StatusBar.Panels[I].Width);
+{$ENDIF}
+
   MemoStyler := TInnoSetupStyler.Create(Self);
   MemoStyler.IsppInstalled := IsppInstalled;
 
@@ -882,13 +897,7 @@ begin
 
   FBreakPoints := TList.Create;
 
-  CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
-  CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
-
-  DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
-  FDebugLogListTimeWidth := DebugOutputList.Canvas.TextWidth(Format(
-    '[00%s00%s00%s000]   ', [{$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator]));
-  DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0');
+  UpdateOutputListsItemHeightAndDebugTimeWidth;
 
   Application.HintShortPause := 0;
   Application.OnException := AppOnException;
@@ -949,7 +958,7 @@ destructor TCompileForm.Destroy;
       Ini.WriteInteger('State', 'WindowRight', WindowPlacement.rcNormalPosition.Right);
       Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
       Ini.WriteBool('State', 'WindowMaximized', WindowState = wsMaximized);
-      Ini.WriteInteger('State', 'StatusPanelHeight', StatusPanel.Height);
+      Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
       
       { Zoom state }
       Ini.WriteInteger('Options', 'Zoom', Memo.Zoom);
@@ -979,6 +988,13 @@ class procedure TCompileForm.AppOnException(Sender: TObject; E: Exception);
 begin
   AppMessageBox(PChar(AddPeriod(E.Message)), SCompilerFormCaption,
     MB_OK or MB_ICONSTOP);
+end;
+
+procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+  NewDPI: Integer);
+begin
+  UpdateOutputListsItemHeightAndDebugTimeWidth;
+  UpdateStatusPanelHeight(StatusPanel.Height);
 end;
 
 procedure TCompileForm.FormCloseQuery(Sender: TObject;
@@ -2418,11 +2434,21 @@ procedure TCompileForm.UpdateStatusPanelHeight(H: Integer);
 var
   MinHeight, MaxHeight: Integer;
 begin
-  MinHeight := (3 * DebugOutputList.ItemHeight + 4) + TabSet.Height;
-  MaxHeight := BodyPanel.ClientHeight - 48 - SplitPanel.Height;
+  MinHeight := (3 * DebugOutputList.ItemHeight + ToCurrentPPI(4)) + TabSet.Height;
+  MaxHeight := BodyPanel.ClientHeight - ToCurrentPPI(48) - SplitPanel.Height;
   if H > MaxHeight then H := MaxHeight;
   if H < MinHeight then H := MinHeight;
   StatusPanel.Height := H;
+end;
+
+procedure TCompileForm.UpdateOutputListsItemHeightAndDebugTimeWidth;
+begin
+  CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
+  CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
+
+  DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
+  FDebugLogListTimeWidth := DebugOutputList.Canvas.TextWidth(Format('[00%s00%s00%s000]   ', [FormatSettings.TimeSeparator, FormatSettings.TimeSeparator, FormatSettings.DecimalSeparator]));
+  DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0');
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
@@ -3816,8 +3842,8 @@ begin
     spCompileIcon:
       if FCompiling then begin
         ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
-          Rect.Left + ((Rect.Right - Rect.Left) - 16) div 2,
-          Rect.Top + ((Rect.Bottom - Rect.Top) - 17) div 2, ILD_NORMAL);
+          Rect.Left + ((Rect.Right - Rect.Left) - BuildImageList.Width) div 2,
+          Rect.Top + ((Rect.Bottom - Rect.Top) - BuildImageList.Height) div 2, ILD_NORMAL);
       end;
     spCompileProgress:
       if FCompiling and (FProgressMax > 0) then begin
@@ -4193,6 +4219,16 @@ end;
 procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);
 begin
   ToggleBreakPoint(Memo.CaretLine);
+end;
+
+function TCompileForm.ToCurrentPPI(const XY: Integer): Integer;
+begin
+  Result := MulDiv(XY, CurrentPPI, 96);
+end;
+
+function TCompileForm.FromCurrentPPI(const XY: Integer): Integer;
+begin
+  Result := MulDiv(XY, 96, CurrentPPI);
 end;
 
 {$IFNDEF UNICODE}
