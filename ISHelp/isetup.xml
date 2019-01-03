@@ -108,7 +108,7 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <li>Supports creation of a single EXE to install your program for easy online distribution. <link topic="setup_diskspanning">Disk spanning</link> is also supported.</li>
 
-<li>Standard resizable Windows wizard interface.</li>
+<li>Resizable standard Windows wizard interface.</li>
 
 <li>Customizable setup <link topic="typessection">types</link>, e.g. Full, Minimal, Custom.</li>
 
