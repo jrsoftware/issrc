@@ -161,7 +161,7 @@ How do the projects link together?
 
 - All of the forms in the Setup project, with the exception of Main.dfm, have
   Scaled set to False. This is because they dynamically scale themselves at
-  run-time by calling a function named SetFormFont.
+  run-time by calling a function named InitializeFont.
 
 - A note for those curious: The Setup Compiler creates single EXE Setups by
   first creating the SETUP.EXE as usual, then concatenating the SETUP.0 and
