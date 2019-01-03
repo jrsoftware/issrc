@@ -25,8 +25,8 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet,
-  DebugStruct, CompInt, UxThemeISX, System.ImageList, Vcl.ImgList, Vcl.ToolWin,
-  Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection;
+  DebugStruct, CompInt, UxThemeISX, System.ImageList, ImgList, ToolWin,
+  VirtualImageList, BaseImageCollection, ImageCollection;
 
 const
   WM_StartCommandLineCompile = WM_USER + $1000;
@@ -171,8 +171,8 @@ type
     Bevel1: TBevel;
     BuildImageList: TImageList;
     TerminateButton: TToolButton;
-    ToolbarImageCollection: TImageCollection;
-    ToolbarVirtualImageList: TVirtualImageList;
+    ToolBarImageCollection: TImageCollection;
+    ToolBarVirtualImageList: TVirtualImageList;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenClick(Sender: TObject);

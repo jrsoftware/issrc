@@ -151,7 +151,7 @@ object CompileForm: TCompileForm
     Margins.Left = 7
     Margins.Top = 4
     Margins.Bottom = 0
-    Images = ToolbarVirtualImageList
+    Images = ToolBarVirtualImageList
     ParentShowHint = False
     ShowHint = True
     TabOrder = 2
@@ -940,7 +940,7 @@ object CompileForm: TCompileForm
       0000000000000000000000000000000000000000000000000000000000000000
       00000000000000000000000000000000000000000000}
   end
-  object ToolbarImageCollection: TImageCollection
+  object ToolBarImageCollection: TImageCollection
     Images = <
       item
         Name = 'NewFile'
@@ -1472,7 +1472,7 @@ object CompileForm: TCompileForm
     Left = 272
     Top = 48
   end
-  object ToolbarVirtualImageList: TVirtualImageList
+  object ToolBarVirtualImageList: TVirtualImageList
     AutoFill = True
     DisabledGrayscale = False
     DisabledSuffix = '_Disabled'
@@ -1543,7 +1543,7 @@ object CompileForm: TCompileForm
         Disabled = False
         Name = 'Stop'
       end>
-    ImageCollection = ToolbarImageCollection
+    ImageCollection = ToolBarImageCollection
     Left = 272
     Top = 80
   end
