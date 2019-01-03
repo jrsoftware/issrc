@@ -14,11 +14,10 @@ WizardResizable=yes
 OutputDir=userdocs:Inno Setup Examples Output
 PrivilegesRequired=lowest
 
-; Uncomment the following four lines to test the layout when resizing, scaling and rtl are active
-;WizardSizePercent=120
+; Uncomment the following three lines to test the layout when scaling and rtl are active
 ;[LangOptions]
 ;RightToLeft=yes
-;DialogFontName=12
+;DialogFontSize=12
 
 [Files]
 Source: compiler:WizModernSmallImage.bmp; Flags: dontcopy
