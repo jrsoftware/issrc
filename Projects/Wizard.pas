@@ -1221,7 +1221,7 @@ end;
 
 procedure TWizardForm.SizeAndCenter;
 begin
-  { Apply custom initial size from script }
+  { Apply custom initial size from script - depends on Anchors being set on all the controls }
   if (SetupHeader.WizardSizePercentX > 100) or (SetupHeader.WizardSizePercentY > 100) then begin
     EnableAnchorOuterPagesOnResize;
     if SetupHeader.WizardSizePercentX > 100 then
