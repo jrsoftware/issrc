@@ -250,7 +250,7 @@ implementation
 
 uses
   ShellApi, ShlObj, Types, Msgs, Main, PathFunc, CmnFunc, CmnFunc2,
-  MD5, InstFunc, SelFolderForm, Extract, Logging, RestartManager;
+  MD5, InstFunc, SelFolderForm, Extract, Logging, RestartManager, ScriptRunner;
 
 {$R *.DFM}
 
@@ -431,7 +431,7 @@ begin
     WizardUserInfoName := UserInfoNameEdit.Text;
     WizardUserInfoOrg := UserInfoOrgEdit.Text;
     WizardUserInfoSerial := UserInfoSerialEdit.Text;
-    Result := CodeRunner.RunBooleanFunctions('CheckSerial', [UserInfoSerialEdit.Text], False, True, False)
+    Result := CodeRunner.RunBooleanFunctions('CheckSerial', [UserInfoSerialEdit.Text], bcTrue, True, False)
   end else
     Result := True;
 end;
@@ -2042,7 +2042,7 @@ begin
     if not Result then begin
       try
         if CodeRunner <> nil then
-          Result := CodeRunner.RunBooleanFunctions('ShouldSkipPage', [PageID], False, False, Result);
+          Result := CodeRunner.RunBooleanFunctions('ShouldSkipPage', [PageID], bcTrue, False, Result);
       except
         Application.HandleException(Self);
       end;
@@ -2063,7 +2063,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     if shPassword in SetupHeader.Options then
       Result := TestPassword(S);
     if not Result and (CodeRunner <> nil) then
-      Result := CodeRunner.RunBooleanFunctions('CheckPassword', [S], False, False, Result);
+      Result := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, Result);
 
     if Result then begin
       NeedPassword := False;
@@ -2228,7 +2228,7 @@ begin
     Exit;
 
   if CodeRunner <> nil then
-    if CodeRunner.RunBooleanFunctions('NextButtonClick', [CurPageID], True, False, True) = False then
+    if CodeRunner.RunBooleanFunctions( 'NextButtonClick', [CurPageID], bcFalse, False, True) = False then
       Exit;
 
   { Go to the next page, or close wizard if it was on the last page }
@@ -2328,7 +2328,7 @@ begin
     Exit;
 
   if CodeRunner <> nil then
-    if CodeRunner.RunBooleanFunctions('BackButtonClick', [CurPageID], True, False, True) = False then
+    if CodeRunner.RunBooleanFunctions('BackButtonClick', [CurPageID], bcFalse, False, True) = False then
       Exit;
 
   PrevPageID := GetPreviousPageID;

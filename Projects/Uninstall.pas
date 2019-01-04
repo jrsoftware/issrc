@@ -603,7 +603,7 @@ begin
       try
         if CodeRunner <> nil then begin
           try
-            Res := CodeRunner.RunBooleanFunctions('InitializeUninstall', [''], True, False, True);
+            Res := CodeRunner.RunBooleanFunctions('InitializeUninstall', [''], bcFalse, False, True);
           except
             Log('InitializeUninstall raised an exception (fatal).');
             raise;
@@ -657,7 +657,7 @@ begin
         if (CodeRunner <> nil) and CodeRunner.FunctionExists('UninstallNeedRestart', True) then begin
           if not UninstallNeedsRestart then begin
             try
-              if CodeRunner.RunBooleanFunctions('UninstallNeedRestart', [''], False, False, False) then begin
+              if CodeRunner.RunBooleanFunctions('UninstallNeedRestart', [''], bcTrue, False, False) then begin
                 UninstallNeedsRestart := True;
                 Log('Will restart because UninstallNeedRestart returned True.');
               end;
