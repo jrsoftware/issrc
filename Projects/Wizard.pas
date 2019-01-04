@@ -171,6 +171,7 @@ type
     procedure UserInfoEditChange(Sender: TObject);
     procedure DirBrowseButtonClick(Sender: TObject);
     procedure GroupBrowseButtonClick(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     { Private declarations }
     FPageList: TList;
@@ -186,13 +187,12 @@ type
     HasLargeComponents: Boolean;
     DoneWithWizard: Boolean;
     PrepareToInstallNeedsRestart: Boolean;
+    EnableAnchorOuterPagesOnResize: Boolean;
     procedure AdjustFocus;
-    procedure AnchorOuterPagesOnResize(Sender: TObject);
     procedure CalcCurrentComponentsSpace;
     procedure ChangeReadyLabel(const S: String);
     function CheckSerialOk: Boolean;
     procedure CreateTaskButtons(const SelectedComponents: TStringList);
-    procedure EnableAnchorOuterPagesOnResize;
     procedure FindPreviousData;
     function GetPreviousPageID: Integer;
     function PrepareToInstall(const WizardComponents, WizardTasks: TStringList): String;
@@ -775,7 +775,7 @@ begin
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
     if shWizardResizable in SetupHeader.Options then begin
-      EnableAnchorOuterPagesOnResize;
+      EnableAnchorOuterPagesOnResize := True;
       { Do not allow user to resize it smaller than the current size. }
       Constraints.MinHeight := Height;
       Constraints.MinWidth := Width;
@@ -1180,7 +1180,7 @@ begin
     NoIconsCheck.Visible := False;
 end;
 
-procedure TWizardForm.AnchorOuterPagesOnResize(Sender: TObject);
+procedure TWizardForm.FormResize(Sender: TObject);
 
   procedure AnchorOuterPage(const Page: TNewNotebookPage;
     const BitmapImage: TBitmapImage);
@@ -1207,23 +1207,20 @@ procedure TWizardForm.AnchorOuterPagesOnResize(Sender: TObject);
   end;
 
 begin
-  { WizardBitmapImage(2)'s size is already corrected by the Anchors property but
-    this doesn't keep the aspect ratio. Calculate and set new width to restore
-    the aspect ratio and update all the other controls in the page for this. }
-  AnchorOuterPage(WelcomePage, WizardBitmapImage);
-  AnchorOuterPage(FinishedPage, WizardBitmapImage2);
-end;
-
-procedure TWizardForm.EnableAnchorOuterPagesOnResize;
-begin
-  OnResize := AnchorOuterPagesOnResize;
+  if EnableAnchorOuterPagesOnResize then begin
+    { WizardBitmapImage(2)'s size is already corrected by the Anchors property but
+      this doesn't keep the aspect ratio. Calculate and set new width to restore
+      the aspect ratio and update all the other controls in the page for this. }
+    AnchorOuterPage(WelcomePage, WizardBitmapImage);
+    AnchorOuterPage(FinishedPage, WizardBitmapImage2);
+  end;
 end;
 
 procedure TWizardForm.SizeAndCenter;
 begin
   { Apply custom initial size from script - depends on Anchors being set on all the controls }
   if (SetupHeader.WizardSizePercentX > 100) or (SetupHeader.WizardSizePercentY > 100) then begin
-    EnableAnchorOuterPagesOnResize;
+    EnableAnchorOuterPagesOnResize := True;
     if SetupHeader.WizardSizePercentX > 100 then
       ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
     if SetupHeader.WizardSizePercentY > 100 then
