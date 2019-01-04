@@ -314,10 +314,12 @@ end;
 
 <ul>
 <li>The implementations will be called in order of their definition except that any main implementation (=the implementation without an event attribute) will be called last.</li>
-<li>Event attributes may only be used for event functions which are a procedure or are a function which return a Boolean. In the latter case lazy evaluation is performed:</li>
+<li>Event attributes may be used for all event functions. If the event function has a return value then lazy evaluation is performed:</li>
 <ul>
 <li><tt>InitializeSetup</tt>, <tt>BackButtonClick</tt>, <tt>NextButtonClick</tt>, <tt>InitializeUninstall</tt>: All implementations must return True for the event function to be treated as returning True and an implementation returning False stops the calls to the other implementations.</li>
-<li><tt>CheckPassword</tt>, <tt>CheckSerial</tt>, <tt>ShouldSkipPage</tt>, <tt>NeedRestart</tt>: All implementation must return False for the event function to be treated as returning False and an implementation returning True stop the calls to the other implementations.</li>
+<li><tt>CheckPassword</tt>, <tt>CheckSerial</tt>, <tt>ShouldSkipPage</tt>, <tt>NeedRestart</tt>: All implementations must return False for the event function to be treated as returning False and an implementation returning True stops the calls to the other implementations.</li>
+<li><tt>UpdateReadyMemo</tt>, <tt>PrepareToInstall</tt>: All implementations must return an empty string for the event function to be treated as returning an empty string and an implementation returning a non empty string stops the calls to the other implementations.</li>
+<li><tt>GetCustomSetupExitCode</tt>: All implementations must return zero for the event function to be treated as returning zero and an implementation returning a non zero number stops the calls to the other implementations.</li>
 </ul>
 <li>Event attributes may only be used on procedures or functions which do not already have the name of an event function.</li>
 <li>If the event function uses <tt>var</tt> parameters then the value will be passed on from implementation to implementation.</li>

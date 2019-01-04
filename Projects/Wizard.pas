@@ -1633,7 +1633,7 @@ begin
   if not PreviousInstallCompleted(WizardComponents, WizardTasks) then begin
     Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
     PrepareToInstallNeedsRestart := True;
-  end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', False) then begin
+  end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', True) then begin
     SetCurPage(wpPreparing);
     BackButton.Visible := False;
     NextButton.Visible := False;
@@ -1645,7 +1645,7 @@ begin
     WindowDisabler := TWindowDisabler.Create;
     try
       CodeNeedsRestart := False;
-      Result := CodeRunner.RunStringFunction('PrepareToInstall', [@CodeNeedsRestart], True, '');
+      Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
       PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
     finally
       WindowDisabler.Free;
@@ -1837,11 +1837,11 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
         MemoTasksInfo := '';
       SelectedTasks.Free();
 
-      if (CodeRunner <> nil) and CodeRunner.FunctionExists('UpdateReadyMemo', False) then begin
+      if (CodeRunner <> nil) and CodeRunner.FunctionExists('UpdateReadyMemo', True) then begin
         try
-          ReadyMemo.Lines.Text := CodeRunner.RunStringFunction('UpdateReadyMemo',
+          ReadyMemo.Lines.Text := CodeRunner.RunStringFunctions('UpdateReadyMemo',
             [Space, SNewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo,
-             MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo], True, '');
+             MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo], bcNonEmpty, True, '');
         except
           Application.HandleException(Self);
         end;

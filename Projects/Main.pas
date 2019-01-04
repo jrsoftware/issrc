@@ -3489,8 +3489,8 @@ begin
   if Assigned(CodeRunner) then begin
     if AllowCustomSetupExitCode then begin
       try
-        SetupExitCode := CodeRunner.RunIntegerFunction('GetCustomSetupExitCode',
-          [''], False, SetupExitCode);
+        SetupExitCode := CodeRunner.RunIntegerFunctions('GetCustomSetupExitCode',
+          [''], bcNonZero, False, SetupExitCode);
       except
         Log('GetCustomSetupExitCode raised an exception.');
         Application.HandleException(nil);

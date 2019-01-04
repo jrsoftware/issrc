@@ -2,13 +2,11 @@ unit ScriptRunner;
 
 {
   Inno Setup
-  Copyright (C) 1997-2011 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script runner
-
-  $jrsoftware: issrc/Projects/ScriptRunner.pas,v 1.34 2011/01/11 05:30:39 jr Exp $
 }
 
 interface
@@ -24,7 +22,7 @@ type
   TScriptRunnerOnDebugIntermediate = function(const Position: LongInt; var ContinueStepOver: Boolean): Boolean;
   TScriptRunnerOnException = procedure(const Exception: AnsiString; const Position: LongInt);
 
-  TBreakCondition = (bcNone, bcTrue, bcFalse);
+  TBreakCondition = (bcNone, bcTrue, bcFalse, bcNonZero, bcNonEmpty);
 
   TScriptRunner = class
     private
@@ -40,12 +38,13 @@ type
       function GetProcNos(const Name: AnsiString; const CheckNamingAttribute: Boolean; const ProcNos: TPSList): Integer;
       procedure InternalRunProcedure(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, MustExist: Boolean);
       function InternalRunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist, Default: Boolean): Boolean;
+      function InternalRunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist: Boolean; const Default: Integer): Integer;
+      function InternalRunStringFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist: Boolean; const Default: String): String;
       procedure Log(const S: String);
       procedure LogFmt(const S: String; const Args: array of const);
       procedure RaisePSExecException;
       procedure SetPSExecParameters(const Parameters: array of Const; Params: TPSList);
       procedure SetPSExecReturnValue(Params: TPSList; BaseType: TPSBaseType; var Res: PPSVariant);
-      procedure ShowPSExecError(const Error: TPSError);
     public
       constructor Create;
       destructor Destroy; override;
@@ -56,7 +55,9 @@ type
       function RunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist, Default: Boolean): Boolean;
       function RunBooleanFunctions(const Name: AnsiString; const Parameters: array of Const; const BreakCondition: TBreakCondition; const MustExist, Default: Boolean): Boolean;
       function RunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: Integer): Integer;
+      function RunIntegerFunctions(const Name: AnsiString; const Parameters: array of Const; const BreakCondition: TBreakCondition; const MustExist: Boolean; Default: Integer): Integer;
       function RunStringFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: String): String;
+      function RunStringFunctions(const Name: AnsiString; const Parameters: array of Const; const BreakCondition: TBreakCondition; const MustExist: Boolean; Default: String): String;
       function EvaluateUsedVariable(const Param1, Param2, Param3: LongInt; const Param4: AnsiString): String;
       property NamingAttribute: String write FNamingAttribute;
       property OnLog: TScriptRunnerOnLog read FOnLog write FOnLog;
@@ -98,9 +99,14 @@ begin
     FOnLogFmt(S, Args);
 end;
 
-procedure TScriptRunner.ShowPSExecError(const Error: TPSError);
+procedure ShowError(const Error: String);
 begin
-  raise Exception.Create('Script error: ' + PSErrorToString(Error, ''));
+  raise Exception.Create(Error);
+end;
+
+procedure ShowPSExecError(const Error: TPSError);
+begin
+  ShowError('Script error: ' + PSErrorToString(Error, ''));
 end;
 
 procedure TScriptRunner.RaisePSExecException;
@@ -114,14 +120,14 @@ begin
       'Exception' objects raised from other modules (which we mustn't modify) }
     E := ExceptObject;
     if E is Exception then begin
-      Exception(E).Message := Format('Runtime Error (at %d:%d):'#13#10#13#10,
+      Exception(E).Message := Format('Runtime error (at %d:%d):'#13#10#13#10,
         [FPSExec.ExceptionProcNo, FPSExec.ExceptionPos]) + Exception(E).Message;
       raise;
     end
     else begin
       { If we don't see it as an Exception, it was likely raised by another
         module }
-      raise Exception.CreateFmt('Runtime Error (at %d:%d):'#13#10#13#10 +
+      raise Exception.CreateFmt('Runtime error (at %d:%d):'#13#10#13#10 +
         'Exception "%s" at address %p',
         [FPSExec.ExceptionProcNo, FPSExec.ExceptionPos, E.ClassName, ExceptAddr]);
     end;
@@ -466,8 +472,10 @@ begin
   ProcNos := TPSList.Create;
   try
     if GetProcNos(Name, CheckNamingAttribute, ProcNos) <> 0 then begin
-      if (BreakCondition = bcNone) and (ProcNos.Count > 1) then
-        InternalError('InternalRunBooleanFunction: invalid BreakCondition');
+      if not (BreakCondition in [bcNone, bcTrue, bcFalse]) or
+         ((BreakCondition = bcNone) and (ProcNos.Count > 1)) then
+        ShowError('Internal error: InternalRunBooleanFunction: invalid BreakCondition');
+      Result := True; { Silence compiler }
       for I := 0 to ProcNos.Count-1 do begin
         Params := TPSList.Create();
         try
@@ -505,66 +513,110 @@ begin
   Result := InternalRunBooleanFunction(Name, Parameters, True, BreakCondition, MustExist, Default);
 end;
 
-function TScriptRunner.RunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: Integer): Integer;
+function TScriptRunner.InternalRunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist: Boolean; const Default: Integer): Integer;
 var
-  ProcNo: Cardinal;
-  Params: TPSList;
+  ProcNos, Params: TPSList;
   Res: PPSVariant;
+  I: Integer;
 begin
-  ProcNo := FPSExec.GetProc(Name);
-  if ProcNo <> Cardinal(-1) then begin
-    Params := TPSList.Create();
-    try
-      SetPSExecParameters(Parameters, Params);
-      SetPSExecReturnValue(Params, btS32, Res);
-      FPSExec.RunProc(Params, ProcNo);
-      WriteBackParameters(Parameters, Params);
+  ProcNos := TPSList.Create;
+  try
+    if GetProcNos(Name, CheckNamingAttribute, ProcNos) <> 0 then begin
+      if not (BreakCondition in [bcNone, bcNonZero]) or
+         ((BreakCondition = bcNone) and (ProcNos.Count > 1)) then
+        ShowError('Internal error: InternalRunIntegerFunction: invalid BreakCondition');
+      Result := 0; { Silence compiler }
+      for I := 0 to ProcNos.Count-1 do begin
+        Params := TPSList.Create();
+        try
+          SetPSExecParameters(Parameters, Params);
+          SetPSExecReturnValue(Params, btS32, Res);
+          FPSExec.RunProc(Params, Cardinal(ProcNos[I]));
+          WriteBackParameters(Parameters, Params);
 
-      RaisePSExecException;
-      Result := PPSVariantS32(Res).Data;
-    finally
-      FreePSVariantList(Params);
+          RaisePSExecException;
+          Result := PPSVariantS32(Res).Data;
+          if (Result <> 0) and (BreakCondition = bcNonZero) then
+            Exit;
+        finally
+          FreePSVariantList(Params);
+        end;
+      end;
+    end else begin
+      if MustExist then
+        ShowPSExecError(erCouldNotCallProc);
+      Result := Default;
     end;
-  end else begin
-    if MustExist then
-      ShowPSExecError(erCouldNotCallProc);
-    Result := Default;
+  finally
+    ProcNos.Free;
+  end;
+end;
+
+function TScriptRunner.RunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: Integer): Integer;
+begin
+  Result := InternalRunIntegerFunction(Name, Parameters, False, bcNone, MustExist, Default);
+end;
+
+function TScriptRunner.RunIntegerFunctions(const Name: AnsiString; const Parameters: array of Const; const BreakCondition: TBreakCondition; const MustExist: Boolean; Default: Integer): Integer;
+begin
+  Result := InternalRunIntegerFunction(Name, Parameters, True, BreakCondition, MustExist, Default);
+end;
+
+function TScriptRunner.InternalRunStringFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist: Boolean; const Default: String): String;
+var
+  ProcNos, Params: TPSList;
+  Res: PPSVariant;
+  I: Integer;
+begin
+  ProcNos := TPSList.Create;
+  try
+    if GetProcNos(Name, CheckNamingAttribute, ProcNos) <> 0 then begin
+      if not (BreakCondition in [bcNone, bcNonEmpty]) or
+         ((BreakCondition = bcNone) and (ProcNos.Count > 1)) then
+        ShowError('Internal error: InternalRunStringFunction: invalid BreakCondition');
+      Result := ''; { Silence compiler }
+      for I := 0 to ProcNos.Count-1 do begin
+        Params := TPSList.Create();
+        try
+          SetPSExecParameters(Parameters, Params);
+{$IFDEF UNICODE}
+          SetPSExecReturnValue(Params, btUnicodeString, Res);
+{$ELSE}
+          SetPSExecReturnValue(Params, btString, Res);
+{$ENDIF}
+          FPSExec.RunProc(Params, Cardinal(ProcNos[I]));
+          WriteBackParameters(Parameters, Params);
+
+          RaisePSExecException;
+{$IFDEF UNICODE}
+          Result := PPSVariantUString(Res).Data;
+{$ELSE}
+          Result := PPSVariantAString(Res).Data;
+{$ENDIF}
+          if (Result <> '') and (BreakCondition = bcNonEmpty) then
+            Exit;
+        finally
+          FreePSVariantList(Params);
+        end;
+      end;
+    end else begin
+      if MustExist then
+        ShowPSExecError(erCouldNotCallProc);
+      Result := Default;
+    end;
+  finally
+    ProcNos.Free;
   end;
 end;
 
 function TScriptRunner.RunStringFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: String): String;
-var
-  ProcNo: Cardinal;
-  Params: TPSList;
-  Res: PPSVariant;
 begin
-  ProcNo := FPSExec.GetProc(Name);
-  if ProcNo <> Cardinal(-1) then begin
-    Params := TPSList.Create();
-    try
-      SetPSExecParameters(Parameters, Params);
-{$IFDEF UNICODE}
-      SetPSExecReturnValue(Params, btUnicodeString, Res);
-{$ELSE}
-      SetPSExecReturnValue(Params, btString, Res);
-{$ENDIF}
-      FPSExec.RunProc(Params, ProcNo);
-      WriteBackParameters(Parameters, Params);
+  Result := InternalRunStringFunction(Name, Parameters, False, bcNone, MustExist, Default);
+end;
 
-      RaisePSExecException;
-{$IFDEF UNICODE}
-      Result := PPSVariantUString(Res).Data;
-{$ELSE}
-      Result := PPSVariantAString(Res).Data;
-{$ENDIF}
-    finally
-      FreePSVariantList(Params);
-    end;
-  end else begin
-    if MustExist then
-      ShowPSExecError(erCouldNotCallProc);
-    Result := Default;
-  end;
+function TScriptRunner.RunStringFunctions(const Name: AnsiString; const Parameters: array of Const; const BreakCondition: TBreakCondition; const MustExist: Boolean; Default: String): String;
+begin
+  Result := InternalRunStringFunction(Name, Parameters, True, BreakCondition, MustExist, Default);
 end;
 
 function TScriptRunner.EvaluateUsedVariable(const Param1, Param2, Param3: LongInt; const Param4: AnsiString): String;
