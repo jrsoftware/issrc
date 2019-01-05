@@ -1,5 +1,5 @@
 ; Inno Setup
-; Copyright (C) 1997-2018 Jordan Russell. All rights reserved.
+; Copyright (C) 1997-2019 Jordan Russell. All rights reserved.
 ; Portions by Martijn Laan
 ; For conditions of distribution and use, see LICENSE.TXT.
 ;
@@ -13,7 +13,7 @@ AppPublisher=jrsoftware.org
 AppPublisherURL=http://www.innosetup.com/
 AppSupportURL=http://www.innosetup.com/
 AppUpdatesURL=http://www.innosetup.com/
-VersionInfoCopyright=Copyright (C) 1997-2018 Jordan Russell. Portions Copyright (C) 2000-2018 Martijn Laan.
+VersionInfoCopyright=Copyright (C) 1997-2019 Jordan Russell. Portions Copyright (C) 2000-2019 Martijn Laan.
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
 WizardStyle=modern
