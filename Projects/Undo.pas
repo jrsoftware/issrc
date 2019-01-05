@@ -106,9 +106,8 @@ type
   TDeleteUninstallDataFilesProc = procedure;
 
   TUninstallLogFlags = set of (ufAdminInstalled, ufDontCheckRecCRCs,
-    ufModernStyleOld { pre 6.0.0 - was always set so can't reuse it },
-    ufAlwaysRestart, ufChangesEnvironment, ufWin64, ufPowerUserInstalled,
-    ufModernStyle);
+    ufModernStyle, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
+    ufPowerUserInstalled);
 
   TUninstallLog = class
   private
@@ -1250,7 +1249,7 @@ begin
       WriteSafeHeaderString(Header.AppName, AppName, SizeOf(Header.AppName));
     if Version > Header.Version then
       Header.Version := Version;
-    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) + Flags;
+    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) - [ufModernStyle] + Flags;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the
