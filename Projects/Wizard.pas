@@ -256,7 +256,7 @@ implementation
 
 uses
   ShellApi, ShlObj, Types, Msgs, Main, PathFunc, CmnFunc, CmnFunc2,
-  MD5, InstFunc, SelFolderForm, Extract, Logging, RestartManager;
+  MD5, InstFunc, SelFolderForm, Extract, Logging, RestartManager, ScriptRunner;
 
 {$R *.DFM}
 
@@ -437,7 +437,7 @@ begin
     WizardUserInfoName := UserInfoNameEdit.Text;
     WizardUserInfoOrg := UserInfoOrgEdit.Text;
     WizardUserInfoSerial := UserInfoSerialEdit.Text;
-    Result := CodeRunner.RunBooleanFunctions('CheckSerial', [UserInfoSerialEdit.Text], False, True, False)
+    Result := CodeRunner.RunBooleanFunctions('CheckSerial', [UserInfoSerialEdit.Text], bcTrue, True, False)
   end else
     Result := True;
 end;
@@ -1719,7 +1719,7 @@ begin
   if not PreviousInstallCompleted(WizardComponents, WizardTasks) then begin
     Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
     PrepareToInstallNeedsRestart := True;
-  end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', False) then begin
+  end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', True) then begin
     SetCurPage(wpPreparing);
     BackButton.Visible := False;
     NextButton.Visible := False;
@@ -1731,7 +1731,7 @@ begin
     WindowDisabler := TWindowDisabler.Create;
     try
       CodeNeedsRestart := False;
-      Result := CodeRunner.RunStringFunction('PrepareToInstall', [@CodeNeedsRestart], True, '');
+      Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
       PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
     finally
       WindowDisabler.Free;
@@ -1923,11 +1923,11 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
         MemoTasksInfo := '';
       SelectedTasks.Free();
 
-      if (CodeRunner <> nil) and CodeRunner.FunctionExists('UpdateReadyMemo', False) then begin
+      if (CodeRunner <> nil) and CodeRunner.FunctionExists('UpdateReadyMemo', True) then begin
         try
-          ReadyMemo.Lines.Text := CodeRunner.RunStringFunction('UpdateReadyMemo',
+          ReadyMemo.Lines.Text := CodeRunner.RunStringFunctions('UpdateReadyMemo',
             [Space, SNewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo,
-             MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo], True, '');
+             MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo], bcNonEmpty, True, '');
         except
           Application.HandleException(Self);
         end;
@@ -2128,7 +2128,7 @@ begin
     if not Result then begin
       try
         if CodeRunner <> nil then
-          Result := CodeRunner.RunBooleanFunctions('ShouldSkipPage', [PageID], False, False, Result);
+          Result := CodeRunner.RunBooleanFunctions('ShouldSkipPage', [PageID], bcTrue, False, Result);
       except
         Application.HandleException(Self);
       end;
@@ -2149,7 +2149,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     if shPassword in SetupHeader.Options then
       Result := TestPassword(S);
     if not Result and (CodeRunner <> nil) then
-      Result := CodeRunner.RunBooleanFunctions('CheckPassword', [S], False, False, Result);
+      Result := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, Result);
 
     if Result then begin
       NeedPassword := False;
@@ -2314,7 +2314,7 @@ begin
     Exit;
 
   if CodeRunner <> nil then
-    if CodeRunner.RunBooleanFunctions('NextButtonClick', [CurPageID], True, False, True) = False then
+    if CodeRunner.RunBooleanFunctions( 'NextButtonClick', [CurPageID], bcFalse, False, True) = False then
       Exit;
 
   { Go to the next page, or close wizard if it was on the last page }
@@ -2414,7 +2414,7 @@ begin
     Exit;
 
   if CodeRunner <> nil then
-    if CodeRunner.RunBooleanFunctions('BackButtonClick', [CurPageID], True, False, True) = False then
+    if CodeRunner.RunBooleanFunctions('BackButtonClick', [CurPageID], bcFalse, False, True) = False then
       Exit;
 
   PrevPageID := GetPreviousPageID;

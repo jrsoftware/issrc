@@ -161,7 +161,7 @@ How do the projects link together?
 
 - All of the forms in the Setup project, with the exception of Main.dfm, have
   Scaled set to False. This is because they dynamically scale themselves at
-  run-time by calling a function named SetFormFont.
+  run-time by calling a function named InitializeFont.
 
 - A note for those curious: The Setup Compiler creates single EXE Setups by
   first creating the SETUP.EXE as usual, then concatenating the SETUP.0 and
@@ -169,7 +169,7 @@ How do the projects link together?
   data block in SETUP.EXE so it knows it's in "single EXE" form.
 
 - For compiler debugging purposes define ``STATICCOMPILER`` in CompForm.pas
-  and ``STATICPREPROC`` in Compile.pas. The latter requires Unicode Inno Setup.
+  and ``STATICPREPROC`` in Compile.pas.
 
 5. Precompiled executables and libraries
 ----------------------------------------
@@ -203,8 +203,11 @@ See Projects\lzma2\Decoder\compiling.txt.
 
 **ishelp\ISHelpGen\ISHelpGen.exe** - See ishelp\ISHelpGen\compile.bat
 
-**Examples\MyProg.exe**, **Examples\MyProg-x64.exe** -
-Compiled by Visual Studio 2005 from the Examples\MyProg directory.
+**Examples\MyProg.exe**, **Examples\MyProg-x64.exe** - Compiled by Visual Studio
+2005 from the Examples\MyProg directory.
+
+**Examples\MyProg-ARM64.exe** - Compiled by Visual Studio 2017 from the
+Examples\MyProg directory.
 
 6. Inno Setup-specific editing guidelines for the help files
 ------------------------------------------------------------

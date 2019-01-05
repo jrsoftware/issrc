@@ -7540,7 +7540,7 @@ begin
       AddStatus(SCompilerStatusCompilingCode);
 
     //don't forget highlighter!
-    //setup + allownamingattribute (=all procedures and boolean functions)
+    //setup
     CodeCompiler.AddExport('InitializeSetup', 'Boolean', True, False, '', 0);
     CodeCompiler.AddExport('DeinitializeSetup', '0', True, False, '', 0);
     CodeCompiler.AddExport('CurStepChanged', '0 @TSetupStep', True, False, '', 0);
@@ -7556,13 +7556,10 @@ begin
     CodeCompiler.AddExport('InitializeWizard', '0', True, False, '', 0);
     CodeCompiler.AddExport('RegisterExtraCloseApplicationsResources', '0', True, False, '', 0);
     CodeCompiler.AddExport('CurInstallProgressChanged', '0 @LongInt @LongInt', True, False, '', 0);
-
-    //setup + !allownamingattribute (=non boolean functions)
-    CodeCompiler.AddExport('UpdateReadyMemo', 'String @String @String @String @String @String @String @String @String', False, False, '', 0);
-    CodeCompiler.AddExport('GetCustomSetupExitCode', 'LongInt', False, False, '', 0);
-    CodeCompiler.AddExport('PrepareToInstall', 'String !Boolean', False, False, '', 0);
-
-    //uninstall + allownamingattribute (=all procedures and boolean functions)
+    CodeCompiler.AddExport('UpdateReadyMemo', 'String @String @String @String @String @String @String @String @String', True, False, '', 0);
+    CodeCompiler.AddExport('GetCustomSetupExitCode', 'LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('PrepareToInstall', 'String !Boolean', True, False, '', 0);
+    //uninstall
     CodeCompiler.AddExport('InitializeUninstall', 'Boolean', True, False, '', 0);
     CodeCompiler.AddExport('DeinitializeUninstall', '0', True, False, '', 0);
     CodeCompiler.AddExport('CurUninstallStepChanged', '0 @TUninstallStep', True, False, '', 0);

@@ -391,9 +391,6 @@ var
   ScriptExport: TScriptExport;
   I: Integer;
 begin
-  if AllowNamingAttribute and not ((Pos('0', Decl) = 1) or (Pos('Boolean', Decl) = 1)) then
-    raise Exception.Create('Naming attributes only supported on procedures and boolean functions.');
-
   I := FindExport(Name, Decl, -1);
   if I <> -1 then begin
     ScriptExport := FExports[I];

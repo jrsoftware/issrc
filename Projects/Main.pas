@@ -2706,7 +2706,7 @@ var
       if shPassword in SetupHeader.Options then
         PasswordOk := TestPassword(S);
       if not PasswordOk and (CodeRunner <> nil) then
-        PasswordOk := CodeRunner.RunBooleanFunctions('CheckPassword', [S], False, False, PasswordOk);
+        PasswordOk := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, PasswordOk);
 
       if PasswordOk then begin
         Result := False;
@@ -3313,7 +3313,7 @@ begin
       raise;
     end;
     try
-      Res := CodeRunner.RunBooleanFunctions('InitializeSetup', [''], True, False, True);
+      Res := CodeRunner.RunBooleanFunctions('InitializeSetup', [''], bcFalse, False, True);
     except
       Log('InitializeSetup raised an exception (fatal).');
       raise;
@@ -3489,8 +3489,8 @@ begin
   if Assigned(CodeRunner) then begin
     if AllowCustomSetupExitCode then begin
       try
-        SetupExitCode := CodeRunner.RunIntegerFunction('GetCustomSetupExitCode',
-          [''], False, SetupExitCode);
+        SetupExitCode := CodeRunner.RunIntegerFunctions('GetCustomSetupExitCode',
+          [''], bcNonZero, False, SetupExitCode);
       except
         Log('GetCustomSetupExitCode raised an exception.');
         Application.HandleException(nil);

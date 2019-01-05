@@ -1,7 +1,7 @@
 @echo off
 
 rem  Inno Setup
-rem  Copyright (C) 1997-2018 Jordan Russell
+rem  Copyright (C) 1997-2019 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
@@ -14,7 +14,7 @@ if exist compilesettings.bat goto compilesettingsfound
 echo compilesettings.bat is missing or incomplete. It needs to be created
 echo with the following line, adjusted for your system:
 echo.
-echo   set DELPHIXEROOT=C:\Program Files\Embarcadero\RAD Studio\19.0 [Path to Delphi 10.2 Tokyo (or later)]
+echo   set DELPHIXEROOT=C:\Program Files\Embarcadero\RAD Studio\20.0 [Path to Delphi 10.3 Rio (or later)]
 goto failed2
 
 :compilesettingsfound

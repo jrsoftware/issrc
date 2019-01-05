@@ -2920,7 +2920,7 @@ var
     if (CodeRunner <> nil) and CodeRunner.FunctionExists('NeedRestart', True) then begin
       if not NeedsRestart then begin
         try
-          if CodeRunner.RunBooleanFunctions('NeedRestart', [''], False, False, False) then begin
+          if CodeRunner.RunBooleanFunctions('NeedRestart', [''], bcTrue, False, False) then begin
             NeedsRestart := True;
             Log('Will restart because NeedRestart returned True.');
           end;
