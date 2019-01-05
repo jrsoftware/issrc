@@ -1,14 +1,14 @@
 Inno Setup License
 ==================
 
-Except where otherwise noted, all of the documentation and software included
-in the Inno Setup package is copyrighted by Jordan Russell.
+Except where otherwise noted, all of the documentation and software included in the Inno Setup
+package is copyrighted by Jordan Russell.
 
 Copyright (C) 1997-2019 Jordan Russell. All rights reserved.
 Portions Copyright (C) 2000-2019 Martijn Laan. All rights reserved.
 
-This software is provided "as-is," without any express or implied warranty.
-In no event shall the author be held liable for any damages arising from the use of this software.
+This software is provided "as-is," without any express or implied warranty. In no event shall the
+author be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial
 applications, and to alter and redistribute it, provided that the following conditions are met:
