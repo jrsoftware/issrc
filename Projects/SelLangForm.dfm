@@ -6,11 +6,17 @@ object SelectLanguageForm: TSelectLanguageForm
   Caption = 'SelectLanguageForm'
   ClientHeight = 125
   ClientWidth = 297
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  OldCreateOrder = True
   Scaled = False
+  DesignSize = (
+    297
+    125)
   PixelsPerInch = 96
   TextHeight = 13
   object IconBitmapImage: TBitmapImage
@@ -24,6 +30,7 @@ object SelectLanguageForm: TSelectLanguageForm
     Top = 93
     Width = 75
     Height = 23
+    Anchors = [akRight, akBottom]
     Cancel = True
     Caption = '*'
     ModalResult = 2
@@ -34,6 +41,7 @@ object SelectLanguageForm: TSelectLanguageForm
     Top = 93
     Width = 75
     Height = 23
+    Anchors = [akRight, akBottom]
     Caption = '*'
     Default = True
     ModalResult = 1
@@ -45,8 +53,8 @@ object SelectLanguageForm: TSelectLanguageForm
     Width = 233
     Height = 21
     Style = csDropDownList
+    Anchors = [akTop, akRight]
     DropDownCount = 16
-    ItemHeight = 13
     Sorted = True
     TabOrder = 1
   end
@@ -55,6 +63,7 @@ object SelectLanguageForm: TSelectLanguageForm
     Top = 8
     Width = 233
     Height = 39
+    Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = '*'
     TabOrder = 0

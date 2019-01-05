@@ -2,13 +2,11 @@ unit SelLangForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2006 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   "Select Language" form
-
-  $jrsoftware: issrc/Projects/SelLangForm.pas,v 1.18 2010/01/13 17:48:52 mlaan Exp $
 }
 
 interface
@@ -158,7 +156,6 @@ begin
   inherited;
 
   InitializeFont;
-  Center;
 
   Caption := SetupMessages[msgSelectLanguageTitle];
   SelectLabel.Caption := SetupMessages[msgSelectLanguageLabel];
@@ -171,6 +168,8 @@ begin
   IconBitmapImage.Bitmap.Canvas.Draw(0, 0, Application.Icon);
   IconBitmapImage.Width := IconBitmapImage.Bitmap.Width;
   IconBitmapImage.Height := IconBitmapImage.Bitmap.Height;
+
+  KeepSizeY := True;
 end;
 
 end.

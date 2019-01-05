@@ -43,37 +43,43 @@ begin
     Form.ClientWidth := ScaleX(256);
     Form.ClientHeight := ScaleY(128);
     Form.Caption := 'TSetupForm';
-    Form.CenterInsideControl(WizardForm, False);
 
     Edit := TNewEdit.Create(Form);
     Edit.Top := ScaleY(10);
     Edit.Left := ScaleX(10);
     Edit.Width := Form.ClientWidth - ScaleX(2 * 10);
     Edit.Height := ScaleY(23);
+    Edit.Anchors := [akLeft, akTop, akRight];
     Edit.Text := 'TNewEdit';
     Edit.Parent := Form;
 
     OKButton := TNewButton.Create(Form);
     OKButton.Parent := Form;
-    OKButton.Width := ScaleX(75);
-    OKButton.Height := ScaleY(23);
     OKButton.Left := Form.ClientWidth - ScaleX(75 + 6 + 75 + 10);
     OKButton.Top := Form.ClientHeight - ScaleY(23 + 10);
+    OKButton.Width := ScaleX(75);
+    OKButton.Height := ScaleY(23);
+    OKButton.Anchors := [akRight, akBottom]
     OKButton.Caption := 'OK';
     OKButton.ModalResult := mrOk;
     OKButton.Default := True;
 
     CancelButton := TNewButton.Create(Form);
     CancelButton.Parent := Form;
-    CancelButton.Width := ScaleX(75);
-    CancelButton.Height := ScaleY(23);
     CancelButton.Left := Form.ClientWidth - ScaleX(75 + 10);
     CancelButton.Top := Form.ClientHeight - ScaleY(23 + 10);
+    CancelButton.Width := ScaleX(75);
+    CancelButton.Height := ScaleY(23);
+    CancelButton.Anchors := [akRight, akBottom]
     CancelButton.Caption := 'Cancel';
     CancelButton.ModalResult := mrCancel;
     CancelButton.Cancel := True;
 
     Form.ActiveControl := Edit;
+    { Keep the form from sizing vertically since we don't have any controls which can size vertically }
+    Form.KeepSizeY := True;
+    { Center on WizardForm. Without this call it will still automatically center, but on the screen }
+    Form.FlipSizeAndCenterIfNeeded(True, WizardForm, False);
 
     if Form.ShowModal() = mrOk then
       MsgBox('You clicked OK.', mbInformation, MB_OK);
@@ -84,7 +90,8 @@ end;
 
 procedure TaskDialogButtonOnClick(Sender: TObject);
 begin
-  //TaskDialogMsgBox isn't a class but showing it anyway since it fits with the theme
+  { TaskDialogMsgBox isn't a class but showing it anyway since it fits with the theme }
+
   case TaskDialogMsgBox('Choose A or B',
                         'You can choose A or B.', 'You can choose A or B'#13#10#13#10'Do you choose A?',   
                         mbInformation,

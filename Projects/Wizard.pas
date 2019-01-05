@@ -2,7 +2,7 @@ unit Wizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -235,7 +235,8 @@ type
     function PageIndexFromID(const ID: Integer): Integer;
     procedure UpdateCurPageButtonVisibility;
     procedure SetCurPage(const NewPageID: Integer);
-    procedure SizeAndCenter;
+    procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+      const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean); override;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
     function ValidateGroupEdit: Boolean;
@@ -1216,22 +1217,12 @@ begin
   end;
 end;
 
-procedure TWizardForm.SizeAndCenter;
+procedure TWizardForm.FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+  const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
 begin
-  { Apply custom initial size from script - depends on Anchors being set on all the controls }
-  if (SetupHeader.WizardSizePercentX > 100) or (SetupHeader.WizardSizePercentY > 100) then begin
+  if ShouldSizeX or ShouldSizeY then
     EnableAnchorOuterPagesOnResize := True;
-    if SetupHeader.WizardSizePercentX > 100 then
-      ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
-    if SetupHeader.WizardSizePercentY > 100 then
-      ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
-  end;
-
-  { Center }
-  if shWindowVisible in SetupHeader.Options then
-    CenterInsideControl(MainForm, True)
-  else
-    Center;
+  inherited;
 end;
 
 destructor TWizardForm.Destroy;

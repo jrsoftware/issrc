@@ -110,6 +110,7 @@ begin
     TStartMenuFolderTreeView(FFolderTreeView).OnRename := WizardForm.GroupTreeRename;
   end;
   FFolderTreeView.SetBounds(16, 64, 317, 229);
+  FFolderTreeView.Anchors := [akLeft, akTop, akRight, akBottom];
   FFolderTreeView.Visible := False;
   FFolderTreeView.Parent := Self;
   PathEdit.BringToFront;     { for MSAA }
@@ -137,7 +138,7 @@ begin
     OKButton.Top + YDiff, W, OKButton.Height);
   ClientHeight := ClientHeight + YDiff;
 
-  CenterInsideControl(WizardForm, False);
+  FlipSizeAndCenterIfNeeded(True, WizardForm, False);
 end;
 
 constructor TSelectFolderForm.Create2(AOwner: TComponent; AStartMenu: Boolean);

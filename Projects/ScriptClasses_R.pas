@@ -185,17 +185,24 @@ end;
 procedure TSetupFormControlsFlipped_R(Self: TSetupForm; var T: Boolean); begin T := Self.ControlsFlipped; end;
 procedure TSetupFormFlipControlsOnShow_W(Self: TSetupForm; const T: Boolean); begin Self.FlipControlsOnShow := T; end;
 procedure TSetupFormFlipControlsOnShow_R(Self: TSetupForm; var T: Boolean); begin T := Self.FlipControlsOnShow; end;
+procedure TSetupFormKeepSizeY_W(Self: TSetupForm; const T: Boolean); begin Self.KeepSizeY := T; end;
+procedure TSetupFormKeepSizeY_R(Self: TSetupForm; var T: Boolean); begin T := Self.KeepSizeY; end;
 procedure TSetupFormRightToLeft_R(Self: TSetupForm; var T: Boolean); begin T := Self.RightToLeft; end;
+procedure TSetupFormSizeAndCenterOnShow_W(Self: TSetupForm; const T: Boolean); begin Self.SizeAndCenterOnShow := T; end;
+procedure TSetupFormSizeAndCenterOnShow_R(Self: TSetupForm; var T: Boolean); begin T := Self.SizeAndCenterOnShow; end;
 
 procedure RegisterSetupForm_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TSetupForm) do
   begin
-    RegisterMethod(@TSetupForm.Center, 'Center');
-    RegisterMethod(@TSetupForm.CenterInsideControl, 'CenterInsideControl');
+    RegisterMethod(@TSetupForm.ShouldSizeX, 'ShouldSizeX');
+    RegisterMethod(@TSetupForm.ShouldSizeY, 'ShouldSizeY');
+    RegisterMethod(@TSetupForm.FlipSizeAndCenterIfNeeded, 'FlipSizeAndCenterIfNeeded');
     RegisterPropertyHelper(@TSetupFormControlsFlipped_R, nil, 'ControlsFlipped');
     RegisterPropertyHelper(@TSetupFormFlipControlsOnShow_R, @TSetupFormFlipControlsOnShow_W, 'FlipControlsOnShow');
+    RegisterPropertyHelper(@TSetupFormKeepSizeY_R, @TSetupFormKeepSizeY_W, 'KeepSizeY');
     RegisterPropertyHelper(@TSetupFormRightToLeft_R, nil, 'RightToLeft');
+    RegisterPropertyHelper(@TSetupFormSizeAndCenterOnShow_R, @TSetupFormSizeAndCenterOnShow_W, 'SizeAndCenterOnShow');
   end;
 end;
 

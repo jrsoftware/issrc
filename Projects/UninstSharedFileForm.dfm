@@ -6,11 +6,17 @@ object UninstSharedFileForm: TUninstSharedFileForm
   Caption = 'UninstSharedFileForm'
   ClientHeight = 225
   ClientWidth = 397
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  OldCreateOrder = True
   Scaled = False
+  DesignSize = (
+    397
+    225)
   PixelsPerInch = 96
   TextHeight = 13
   object NoToAllButton: TNewButton
@@ -18,6 +24,7 @@ object UninstSharedFileForm: TUninstSharedFileForm
     Top = 189
     Width = 75
     Height = 23
+    Anchors = [akBottom]
     Caption = '*'
     ModalResult = 9
     TabOrder = 3
@@ -27,6 +34,7 @@ object UninstSharedFileForm: TUninstSharedFileForm
     Top = 189
     Width = 75
     Height = 23
+    Anchors = [akBottom]
     Caption = '*'
     ModalResult = 7
     TabOrder = 2
@@ -36,6 +44,7 @@ object UninstSharedFileForm: TUninstSharedFileForm
     Top = 189
     Width = 75
     Height = 23
+    Anchors = [akBottom]
     Caption = '*'
     ModalResult = 10
     TabOrder = 1
@@ -45,6 +54,7 @@ object UninstSharedFileForm: TUninstSharedFileForm
     Top = 189
     Width = 75
     Height = 23
+    Anchors = [akBottom]
     Caption = '*'
     Default = True
     ModalResult = 6
@@ -55,6 +65,7 @@ object UninstSharedFileForm: TUninstSharedFileForm
     Top = 148
     Width = 297
     Height = 21
+    Anchors = [akLeft, akTop, akRight]
     ParentColor = True
     ReadOnly = True
     TabOrder = 8
@@ -72,6 +83,7 @@ object UninstSharedFileForm: TUninstSharedFileForm
     Top = 116
     Width = 297
     Height = 21
+    Anchors = [akLeft, akTop, akRight]
     ParentColor = True
     ReadOnly = True
     TabOrder = 6
@@ -89,6 +101,7 @@ object UninstSharedFileForm: TUninstSharedFileForm
     Top = 12
     Width = 373
     Height = 97
+    Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = '*'
     ShowAccelChar = False

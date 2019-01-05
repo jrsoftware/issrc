@@ -73,12 +73,6 @@ begin
   inherited;
 
   InitializeFont;
-  { WizardForm will not exist yet if we're being called from [Code]'s
-    ExtractTemporaryFile in InitializeSetup }
-  if Assigned(WizardForm) then
-    CenterInsideControl(WizardForm, False)
-  else
-    Center;
 
   Caption := SetupMessages[msgChangeDiskTitle];
   PathLabel.Caption := SetupMessages[msgPathLabel];
@@ -91,6 +85,11 @@ begin
   DiskBitmapImage.ReplaceWithColor := Color;
 
   TryEnableAutoCompleteFileSystem(PathEdit.Handle);
+
+  KeepSizeY := True;
+  { WizardForm will not exist yet if we're being called from [Code]'s
+    ExtractTemporaryFile in InitializeSetup }
+  FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
 end;
 
 function TNewDiskForm.GetSanitizedPath: String;

@@ -2,13 +2,11 @@ unit SetupForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   TSetupForm
-
-  $jrsoftware: issrc/Projects/SetupForm.pas,v 1.16 2010/02/02 06:59:38 jr Exp $
 }
 
 interface
@@ -25,11 +23,21 @@ type
     FBaseUnitX, FBaseUnitY: Integer;
     FRightToLeft: Boolean;
     FFlipControlsOnShow: Boolean;
+    FSizeAndCenterOnShow: Boolean;
     FControlsFlipped: Boolean;
+    FKeepSizeY: Boolean;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
   protected
+    procedure Center;
+    procedure CenterInsideControl(const Ctl: TWinControl;
+      const InsideClientArea: Boolean);
+    procedure CenterInsideRect(const InsideRect: TRect);
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
+    procedure FlipControlsIfNeeded;
+    procedure SizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+      const CenterInsideControlCtl: TWinControl;
+      const CenterInsideControlInsideClientArea: Boolean);
     procedure VisibleChanging; override;
     procedure WndProc(var Message: TMessage); override;
   public
@@ -40,19 +48,21 @@ type
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
     {$ENDIF}
     function CalculateButtonWidth(const ButtonCaptions: array of TSetupMessageID): Integer;
-    procedure Center;
-    procedure CenterInsideControl(const Ctl: TWinControl;
-      const InsideClientArea: Boolean);
-    procedure CenterInsideRect(const InsideRect: TRect);
-    procedure FlipControlsIfNeeded;
     procedure InitializeFont;
     function ScalePixelsX(const N: Integer): Integer;
     function ScalePixelsY(const N: Integer): Integer;
+    function ShouldSizeX: Boolean;
+    function ShouldSizeY: Boolean;
+    procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean = False;
+      const CenterInsideControlCtl: TWinControl = nil;
+      const CenterInsideControlInsideClientArea: Boolean = False); virtual;
     property BaseUnitX: Integer read FBaseUnitX;
     property BaseUnitY: Integer read FBaseUnitY;
     property ControlsFlipped: Boolean read FControlsFlipped;
     property FlipControlsOnShow: Boolean read FFlipControlsOnShow write FFlipControlsOnShow;
+    property KeepSizeY: Boolean read FKeepSizeY write FKeepSizeY;
     property RightToLeft: Boolean read FRightToLeft;
+    property SizeAndCenterOnShow: Boolean read FSizeAndCenterOnShow write FSizeAndCenterOnShow;
   end;
 
 procedure CalculateBaseUnitsFromFont(const Font: TFont; var X, Y: Integer);
@@ -282,6 +292,7 @@ begin
     CreateNew isn't virtual on Delphi 2 and 3 }
   FRightToLeft := LangOptions.RightToLeft;
   FFlipControlsOnShow := FRightToLeft;
+  FSizeAndCenterOnShow := True;
   inherited;
   { In Delphi 2005 and later, Position defaults to poDefaultPosOnly, but we
     don't want the form to be changing positions whenever its handle is
@@ -300,6 +311,7 @@ begin
     when TSetupForm.CreateNew is called explicitly }
   FRightToLeft := LangOptions.RightToLeft;
   FFlipControlsOnShow := FRightToLeft;
+  FSizeAndCenterOnShow := True;
   inherited;
 end;
 
@@ -389,6 +401,41 @@ begin
   end;
 end;
 
+procedure TSetupForm.SizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
+begin
+  if FSizeAndCenterOnShow then begin
+    FSizeAndCenterOnShow := False;
+    { Apply custom initial size from script - depends on Anchors being set on all the controls }
+    if ShouldSizeX then
+      ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
+    if ShouldSizeY then
+      ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
+    { Center }
+    if ACenterInsideControl then
+      CenterInsideControl(CenterInsideControlCtl, CenterInsideControlInsideClientArea)
+    else
+      Center;
+  end;
+end;
+
+function TSetupForm.ShouldSizeX: Boolean;
+begin
+  Result := SetupHeader.WizardSizePercentX > 100;
+end;
+
+function TSetupForm.ShouldSizeY: Boolean;
+begin
+  Result := not FKeepSizeY and (SetupHeader.WizardSizePercentY > 100);
+end;
+
+procedure TSetupForm.FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+  const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
+begin
+ { Flipping must be done first because when flipping after sizing the flipping might get old info for anchors that didn't do their work yet. }
+  FlipControlsIfNeeded;
+  SizeAndCenterIfNeeded(ACenterInsideControl, CenterInsideControlCtl, CenterInsideControlInsideClientArea);
+end;
+
 procedure TSetupForm.InitializeFont;
 var
   ControlAnchorsList: TControlAnchorsList;
@@ -435,7 +482,7 @@ begin
   { Note: Unlike DoShow, any exceptions raised in VisibleChanging will be
     propagated out, which is what we want }
   if not Visible then
-    FlipControlsIfNeeded;
+    FlipSizeAndCenterIfNeeded;
 end;
 
 procedure TSetupForm.WMQueryEndSession(var Message: TWMQueryEndSession);

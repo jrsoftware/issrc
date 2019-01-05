@@ -6,11 +6,17 @@ object SelectFolderForm: TSelectFolderForm
   Caption = 'SelectFolderForm'
   ClientHeight = 337
   ClientWidth = 349
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  OldCreateOrder = True
   Scaled = False
+  DesignSize = (
+    349
+    337)
   PixelsPerInch = 96
   TextHeight = 13
   object CancelButton: TNewButton
@@ -18,6 +24,7 @@ object SelectFolderForm: TSelectFolderForm
     Top = 305
     Width = 17
     Height = 23
+    Anchors = [akRight, akBottom]
     Cancel = True
     Caption = '*'
     ModalResult = 2
@@ -28,6 +35,7 @@ object SelectFolderForm: TSelectFolderForm
     Top = 305
     Width = 16
     Height = 23
+    Anchors = [akRight, akBottom]
     Caption = '*'
     Default = True
     Enabled = False
@@ -39,6 +47,7 @@ object SelectFolderForm: TSelectFolderForm
     Top = 305
     Width = 17
     Height = 23
+    Anchors = [akLeft, akBottom]
     Cancel = True
     Caption = '*'
     Enabled = False
@@ -50,6 +59,7 @@ object SelectFolderForm: TSelectFolderForm
     Top = 36
     Width = 317
     Height = 21
+    Anchors = [akLeft, akTop, akRight]
     TabOrder = 1
     OnChange = PathEditChange
   end
@@ -58,6 +68,7 @@ object SelectFolderForm: TSelectFolderForm
     Top = 12
     Width = 325
     Height = 14
+    Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = '*'
     TabOrder = 0

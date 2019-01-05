@@ -297,11 +297,14 @@ procedure RegisterSetupForm_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(Cl.FindClass('TUIStateForm'), 'TSetupForm') do
   begin
-    RegisterMethod('procedure Center');
-    RegisterMethod('procedure CenterInsideControl(const Ctl: TWinControl; const InsideClientArea: Boolean)');
+    RegisterMethod('function ShouldSizeX: Boolean;');
+    RegisterMethod('function ShouldSizeY: Boolean;');
+    RegisterMethod('procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean)');
     RegisterProperty('ControlsFlipped', 'Boolean', iptr);
     RegisterProperty('FlipControlsOnShow', 'Boolean', iptrw);
+    RegisterProperty('KeepSizeY', 'Boolean', iptrw);
     RegisterProperty('RightToLeft', 'Boolean', iptr);
+    RegisterProperty('SizeAndCenterOnShow', 'Boolean', iptrw);
   end;
 end;
 

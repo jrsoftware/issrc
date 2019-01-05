@@ -92,7 +92,6 @@ begin
   SetMessageBoxCallbackFunc(UninstallMessageBoxCallback, LongInt(Self));
 
   InitializeFont;
-  Center;
 
 {$IFDEF IS_D7}
   MainPanel.ParentBackGround := False;
