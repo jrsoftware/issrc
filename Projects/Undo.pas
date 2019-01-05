@@ -106,8 +106,9 @@ type
   TDeleteUninstallDataFilesProc = procedure;
 
   TUninstallLogFlags = set of (ufAdminInstalled, ufDontCheckRecCRCs,
-    ufModernStyle, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
-    ufPowerUserInstalled);
+    ufModernStyleOld { pre 6.0.0 - was always set so can't reuse it },
+    ufAlwaysRestart, ufChangesEnvironment, ufWin64, ufPowerUserInstalled,
+    ufModernStyle);
 
   TUninstallLog = class
   private

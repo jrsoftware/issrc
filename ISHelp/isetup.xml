@@ -4775,7 +4775,7 @@ DiskSliceSize=1457664
 <setupvalid><tt>classic</tt> or <tt>modern</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
-<p>If this directive is set to <tt>modern</tt>, Setup will show a more modern look and also the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> change to respectively <tt>yes</tt> and <tt>120,120</tt>.</p>
+<p>If this directive is set to <tt>modern</tt>, Setup and Uninstall will show a more modern look and also the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> change to respectively <tt>yes</tt> and <tt>120,120</tt>.</p>
 <p>Use <tt>Anchors</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
 </body>
 </setuptopic>

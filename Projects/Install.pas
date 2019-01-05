@@ -3037,7 +3037,8 @@ begin
       else if IsPowerUserOrAdmin then
         { Note: This flag is only set in 5.1.9 and later }
         Include(UninstLog.Flags, ufPowerUserInstalled);
-      Include(UninstLog.Flags, ufModernStyle);
+      if SetupHeader.WizardStyle = wsModern then
+        Include(UninstLog.Flags, ufModernStyle);
       if shUninstallRestartComputer in SetupHeader.Options then
         Include(UninstLog.Flags, ufAlwaysRestart);
       if ChangesEnvironment then
