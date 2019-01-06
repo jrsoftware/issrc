@@ -53,7 +53,7 @@ object SelectLanguageForm: TSelectLanguageForm
     Width = 233
     Height = 21
     Style = csDropDownList
-    Anchors = [akTop, akRight]
+    Anchors = [akLeft, akTop, akRight]
     DropDownCount = 16
     Sorted = True
     TabOrder = 1
