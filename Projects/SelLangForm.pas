@@ -11,6 +11,8 @@ unit SelLangForm;
 
 interface
 
+{$I VERSION.INC}
+
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   SetupForm, StdCtrls, ExtCtrls, NewStaticText, BitmapImage, BidiCtrls;
@@ -22,6 +24,8 @@ type
     OKButton: TNewButton;
     CancelButton: TNewButton;
     IconBitmapImage: TBitmapImage;
+    MainPanel: TPanel;
+    Bevel: TBevel;
   private
     { Private declarations }
   public
@@ -155,6 +159,10 @@ constructor TSelectLanguageForm.Create(AOwner: TComponent);
 begin
   inherited;
 
+{$IFDEF IS_D7}
+  MainPanel.ParentBackground := False;
+{$ENDIF}
+
   InitializeFont;
 
   Caption := SetupMessages[msgSelectLanguageTitle];
@@ -162,7 +170,7 @@ begin
   OKButton.Caption := SetupMessages[msgButtonOK];
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 
-  IconBitmapImage.Bitmap.Canvas.Brush.Color := Color;
+  IconBitmapImage.Bitmap.Canvas.Brush.Color := MainPanel.Color;
   IconBitmapImage.Bitmap.Width := Application.Icon.Width;
   IconBitmapImage.Bitmap.Height := Application.Icon.Height;
   IconBitmapImage.Bitmap.Canvas.Draw(0, 0, Application.Icon);
