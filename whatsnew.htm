@@ -89,32 +89,37 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Updated all examples and the Compiler IDE's New Script Wizard to use <tt>WizardStyle=modern</tt>.</li>
   <li>Pascal Scripting change: Added new <tt>SurfaceColor</tt> property to the <tt>TWizardPage</tt> support class.</li>
 </ul>
+<p>A few elements now always have a more modern look regardless of the <tt>WizardStyle</tt> setting:</p>
+<ul>
+  <li>The <i>Select Language</i> dialog now has more modern look, consistent with Windows 10 task dialogs and message boxes (<a href="https://i.imgur.com/bC3BNHg.png">example</a>).</li>
+  <li>Flattened a few elements of Setup's interface for a more modern look.</li>
+</ul>
+<p><span class="head2">Compiler IDE updates</span></p>
+<p>The look and feel of the Compiler IDE has been updated:</p>
+<ul>
+    <li>The Compiler IDE now uses per-monitor DPI awareness mode and also allows the "Segoe UI" font for its interface elements.</li>
+    <li>Updated all icons and flattened the interface of the Compiler IDE for a more modern look.</li>
+    <li>The "Compiler Output" view is now colorized. This can be turned off in the options.</li>
+    <li>The "Debug Output" view now uses bold text for any entry lines such as '-- File entry --'.</li>
+    <li>Options button <i>Associate .iss files with this compiler</i> can now associate for the current user instead of displaying an error if administrative privileges are not available.</li>
+    <li>Options <i>Allow Undo after save</i> and <i>Show indentation guides</i> are now on by default for new installations.</li>
+    <li>The "Configure Sign Tools" window is now wider by default and also resizable.</li>
+</ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li><b>Change in default behavior:</b> Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup. Unicode Inno Setup has been available for 9 years but in case you have not yet updated to it: please see the <a href="http://www.jrsoftware.org/is6help/index.php?topic=unicode">Unicode Inno Setup</a> topic in the help file for more information. Basically, unless you're using [Code] to make DLL calls with string parameters you shouldn't have to make any changes to your script.</li>
 </ul>
 <ul>
   <li>Added support for 64-bit mode on Windows 10 on ARM64 which can be used to install ARM64 binaries. See the <i>64BitThreeArch.iss</i> example script for an example which demonstrates how to install a program built for three different architectures (x86, x64, ARM64) using a single installer.</li>
+</ul>
+<ul>
   <li>Added new [Setup] section directive: <tt>VersionInfoOriginalFileName</tt>, which sets the original filename version value.</li>
   <li>The <tt>Permissions</tt> parameter supported by [Files], [Dirs] and [Registry] entries now also allows you to grant permission to the Guests group, the Local Service account, the Network Service account, and to the Creator Owner.</li>
   <li>Added new special-purpose <i>HelpTextNote</i> message that can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing /HELP on the command line. This message defaults to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use it.</li>
   <li>The compiler will now throw an error if the $f sequence is missing in a Sign Tool command instead of executing it anyway.</li>
   <li>Fix: The compiler now checks <tt>OutputBaseFileName</tt> and <tt>OutputManifestFile</tt> for bad characters even if <tt>Output</tt> is set to <tt>no</tt>.</li>
-  <li>Flattened a few elements of Setup's interface for a more modern look.</li>
-  <li>The <i>Select Language</i> dialog now has more modern look, consistent with Windows 10 task dialogs and message boxes (<a href="https://i.imgur.com/bC3BNHg.png">example</a>).</li>
 </ul>
 <ul>
-  <li>Compiler IDE changes:
-  <ul>
-    <li>Updated all icons and flattened the interface for a more modern look.</li>
-    <li>The Compiler IDE now uses per-monitor DPI awareness mode and also allows the "Segoe UI" font for its interface elements.</li>
-    <li>Options button <i>Associate .iss files with this compiler</i> can now associate for the current user instead of displaying an error if administrative privileges are not available.</li>
-    <li>Options <i>Allow Undo after save</i> and <i>Show indentation guides</i> are now on by default for new installations.</li>
-    <li>The "Compiler Output" view is now colorized. This can be turned off in the options.</li>
-    <li>The "Debug Output" view now uses bold text for any entry lines such as '-- File entry --'.</li>
-    <li>The "Configure Sign Tools" window is now wider by default and also resizable.</li>
-  </ul>
-  </li>
   <li>Pascal Scripting changes:
   <ul>
     <li>Using event attributes it is now possible to have multiple implementations of the same event function in your script. This is especially useful in included scripts implementing an event function to avoid conflicts with the main script. See the help file for more information and the <i>CodeExample1.iss</i> example script for an example.</li>
