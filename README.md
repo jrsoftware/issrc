@@ -183,7 +183,7 @@ from the bzlib directory in the Iscompress repository.
 from the zlib-dll directory in the Iscompress repository.
 
 **Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
-by Visual Studio 2005 from the Projects\lzma2\Encoder directory.
+by Visual Studio 2005 from the Projects\Lzma2\Encoder directory.
 
 **Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintilla 2.22 source
 code with scintilla-2.22-patch.txt applied.
@@ -198,8 +198,8 @@ stored in a compiled resource file.
 
 **Projects\LzmaDecode\LzmaDecodeInno.obj** - See Projects\LzmaDecode\compiling.txt.
 
-**Projects\lzma2\Decoder\ISLzmaDec.obj**, **Projects\lzma2\Decoder\ISLzma2Dec.obj** -
-See Projects\lzma2\Decoder\compiling.txt.
+**Projects\Lzma2\Decoder\ISLzmaDec.obj**, **Projects\Lzma2\Decoder\ISLzma2Dec.obj** -
+See Projects\Lzma2\Decoder\compiling.txt.
 
 **ishelp\ISHelpGen\ISHelpGen.exe** - See ishelp\ISHelpGen\compile.bat
 

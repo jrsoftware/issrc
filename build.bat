@@ -48,6 +48,7 @@ call .\compile.bat
 if errorlevel 1 goto failed
 echo Compiling Inno Setup done
 pause
+
 echo - Setup.exe
 if exist .\setup-sign.bat (
   call .\setup-sign.bat
