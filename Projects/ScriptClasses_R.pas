@@ -432,6 +432,7 @@ procedure TWizardPageCaption_W(Self: TWizardPage; T: String); begin Self.Caption
 procedure TWizardPageDescription_R(Self: TWizardPage; var T: String); begin T := Self.Description; end;
 procedure TWizardPageDescription_W(Self: TWizardPage; T: String); begin Self.Description := T; end;
 procedure TWizardPageSurface_R(Self: TWizardPage; var T: TNewNotebookPage); begin T := Self.Surface; end;
+procedure TWizardPageSurfaceColor_R(Self: TWizardPage; var T: TColor); begin T := Self.SurfaceColor; end;
 procedure TWizardPageSurfaceHeight_R(Self: TWizardPage; var T: Integer); begin T := Self.SurfaceHeight; end;
 procedure TWizardPageSurfaceWidth_R(Self: TWizardPage; var T: Integer); begin T := Self.SurfaceWidth; end;
 procedure TWizardPageOnActivate_R(Self: TWizardPage; var T: TWizardPageNotifyEvent); begin T := Self.OnActivate; end;
@@ -453,6 +454,7 @@ begin
     RegisterPropertyHelper(@TWizardPageCaption_R, @TWizardPageCaption_W, 'Caption');
     RegisterPropertyHelper(@TWizardPageDescription_R, @TWizardPageDescription_W, 'Description');
     RegisterPropertyHelper(@TWizardPageSurface_R, nil, 'Surface');
+    RegisterPropertyHelper(@TWizardPageSurfaceColor_R, nil, 'SurfaceColor');
     RegisterPropertyHelper(@TWizardPageSurfaceHeight_R, nil, 'SurfaceHeight');
     RegisterPropertyHelper(@TWizardPageSurfaceWidth_R, nil, 'SurfaceWidth');
     RegisterPropertyHelper(@TWizardPageOnActivate_R, @TWizardPageOnActivate_W, 'OnActivate');
