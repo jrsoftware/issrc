@@ -95,7 +95,7 @@ end;
 procedure InitializeUninstallProgressForm;
 begin
   UninstallProgressForm := TUninstallProgressForm.Create(nil);
-  UninstallProgressForm.Initialize(Title, UninstLog.AppName);
+  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufModernStyle in UninstLog.Flags);
   if CodeRunner <> nil then begin
     try
       CodeRunner.RunProcedures('InitializeUninstallProgressForm', [''], False);

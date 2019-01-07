@@ -6,12 +6,19 @@ object WizardForm: TWizardForm
   Caption = 'WizardForm'
   ClientHeight = 360
   ClientWidth = 497
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  OldCreateOrder = True
   Scaled = False
   OnClose = FormClose
+  OnResize = FormResize
+  DesignSize = (
+    497
+    360)
   PixelsPerInch = 96
   TextHeight = 13
   object Bevel: TBevel
@@ -19,6 +26,7 @@ object WizardForm: TWizardForm
     Top = 313
     Width = 497
     Height = 1
+    Anchors = [akLeft, akRight, akBottom]
     Shape = bsTopLine
   end
   object CancelButton: TNewButton
@@ -26,6 +34,7 @@ object WizardForm: TWizardForm
     Top = 327
     Width = 17
     Height = 23
+    Anchors = [akRight, akBottom]
     Cancel = True
     Caption = '*'
     TabOrder = 4
@@ -36,6 +45,7 @@ object WizardForm: TWizardForm
     Top = 327
     Width = 17
     Height = 23
+    Anchors = [akRight, akBottom]
     Caption = '*'
     Default = True
     TabOrder = 3
@@ -46,6 +56,7 @@ object WizardForm: TWizardForm
     Top = 327
     Width = 16
     Height = 23
+    Anchors = [akRight, akBottom]
     Caption = '*'
     TabOrder = 2
     OnClick = BackButtonClick
@@ -56,17 +67,22 @@ object WizardForm: TWizardForm
     Width = 497
     Height = 313
     ActivePage = InnerPage
+    Anchors = [akLeft, akTop, akRight, akBottom]
     Color = clBtnFace
     ParentColor = False
     TabOrder = 0
     object WelcomePage: TNewNotebookPage
       Color = clWindow
       ParentColor = False
+      DesignSize = (
+        497
+        313)
       object WizardBitmapImage: TBitmapImage
         Left = 0
         Top = 0
         Width = 164
         Height = 314
+        Anchors = [akLeft, akTop, akBottom]
         BackColor = clWindow
       end
       object WelcomeLabel2: TNewStaticText
@@ -74,6 +90,7 @@ object WizardForm: TWizardForm
         Top = 76
         Width = 301
         Height = 234
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = '*'
         ShowAccelChar = False
@@ -85,6 +102,7 @@ object WizardForm: TWizardForm
         Top = 16
         Width = 301
         Height = 54
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = '*'
         ShowAccelChar = False
@@ -93,11 +111,15 @@ object WizardForm: TWizardForm
       end
     end
     object InnerPage: TNewNotebookPage
+      DesignSize = (
+        497
+        313)
       object Bevel1: TBevel
         Left = 0
         Top = 58
         Width = 499
         Height = 1
+        Anchors = [akLeft, akTop, akRight]
         Shape = bsTopLine
       end
       object InnerNotebook: TNewNotebook
@@ -106,13 +128,18 @@ object WizardForm: TWizardForm
         Width = 417
         Height = 237
         ActivePage = LicensePage
+        Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 1
         object LicensePage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object LicenseNotAcceptedRadio: TNewRadioButton
             Left = 0
             Top = 216
             Width = 417
             Height = 17
+            Anchors = [akLeft, akRight, akBottom]
             Caption = '*'
             Checked = True
             TabOrder = 3
@@ -124,6 +151,7 @@ object WizardForm: TWizardForm
             Top = 196
             Width = 417
             Height = 17
+            Anchors = [akLeft, akRight, akBottom]
             Caption = '*'
             TabOrder = 2
             OnClick = LicenseAcceptedRadioClick
@@ -133,6 +161,7 @@ object WizardForm: TWizardForm
             Top = 24
             Width = 417
             Height = 161
+            Anchors = [akLeft, akTop, akRight, akBottom]
             BevelKind = bkFlat
             BorderStyle = bsNone
             ReadOnly = True
@@ -146,6 +175,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -154,11 +184,15 @@ object WizardForm: TWizardForm
           end
         end
         object PasswordPage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object PasswordEdit: TPasswordEdit
             Left = 0
             Top = 40
             Width = 265
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 2
           end
           object PasswordEditLabel: TNewStaticText
@@ -166,6 +200,7 @@ object WizardForm: TWizardForm
             Top = 24
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             FocusControl = PasswordEdit
@@ -177,6 +212,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -185,11 +221,15 @@ object WizardForm: TWizardForm
           end
         end
         object InfoBeforePage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object InfoBeforeMemo: TRichEditViewer
             Left = 0
             Top = 24
             Width = 417
             Height = 205
+            Anchors = [akLeft, akTop, akRight, akBottom]
             BevelKind = bkFlat
             BorderStyle = bsNone
             ReadOnly = True
@@ -203,6 +243,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -211,11 +252,15 @@ object WizardForm: TWizardForm
           end
         end
         object UserInfoPage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object UserInfoSerialEdit: TNewEdit
             Left = 0
             Top = 120
             Width = 417
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             MaxLength = 255
             TabOrder = 5
             OnChange = UserInfoEditChange
@@ -225,6 +270,7 @@ object WizardForm: TWizardForm
             Top = 104
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             FocusControl = UserInfoSerialEdit
@@ -236,6 +282,7 @@ object WizardForm: TWizardForm
             Top = 68
             Width = 417
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             MaxLength = 255
             TabOrder = 3
             OnChange = UserInfoEditChange
@@ -245,6 +292,7 @@ object WizardForm: TWizardForm
             Top = 52
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             FocusControl = UserInfoOrgEdit
@@ -256,6 +304,7 @@ object WizardForm: TWizardForm
             Top = 16
             Width = 417
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             MaxLength = 255
             TabOrder = 1
             OnChange = UserInfoEditChange
@@ -265,6 +314,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             FocusControl = UserInfoNameEdit
@@ -273,6 +323,9 @@ object WizardForm: TWizardForm
           end
         end
         object SelectDirPage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object SelectDirBitmapImage: TBitmapImage
             Left = 0
             Top = 0
@@ -284,6 +337,7 @@ object WizardForm: TWizardForm
             Top = 216
             Width = 417
             Height = 14
+            Anchors = [akLeft, akRight, akBottom]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -295,6 +349,7 @@ object WizardForm: TWizardForm
             Top = 67
             Width = 17
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = '*'
             TabOrder = 3
             OnClick = DirBrowseButtonClick
@@ -304,6 +359,7 @@ object WizardForm: TWizardForm
             Top = 68
             Width = 397
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 2
             Text = 'DirEdit'
           end
@@ -312,6 +368,7 @@ object WizardForm: TWizardForm
             Top = 44
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -323,6 +380,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 373
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -331,11 +389,15 @@ object WizardForm: TWizardForm
           end
         end
         object SelectComponentsPage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object ComponentsDiskSpaceLabel: TNewStaticText
             Left = 0
             Top = 216
             Width = 417
             Height = 14
+            Anchors = [akLeft, akRight, akBottom]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -346,6 +408,7 @@ object WizardForm: TWizardForm
             Top = 48
             Width = 417
             Height = 157
+            Anchors = [akLeft, akTop, akRight, akBottom]
             Offset = 2
             OnClickCheck = ComponentsListClickCheck
             RequireRadioSelection = True
@@ -357,7 +420,7 @@ object WizardForm: TWizardForm
             Width = 417
             Height = 21
             Style = csDropDownList
-            ItemHeight = 0
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 1
             OnChange = TypesComboChange
           end
@@ -366,6 +429,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -374,6 +438,9 @@ object WizardForm: TWizardForm
           end
         end
         object SelectProgramGroupPage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object SelectGroupBitmapImage: TBitmapImage
             Left = 0
             Top = 0
@@ -385,6 +452,7 @@ object WizardForm: TWizardForm
             Top = 215
             Width = 417
             Height = 17
+            Anchors = [akLeft, akRight, akBottom]
             Caption = '*'
             TabOrder = 4
             OnClick = NoIconsCheckClick
@@ -394,6 +462,7 @@ object WizardForm: TWizardForm
             Top = 67
             Width = 17
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = '*'
             TabOrder = 3
             OnClick = GroupBrowseButtonClick
@@ -403,6 +472,7 @@ object WizardForm: TWizardForm
             Top = 68
             Width = 397
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 2
             Text = 'GroupEdit'
           end
@@ -411,6 +481,7 @@ object WizardForm: TWizardForm
             Top = 44
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -422,6 +493,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 373
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -430,11 +502,15 @@ object WizardForm: TWizardForm
           end
         end
         object SelectTasksPage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object TasksList: TNewCheckListBox
             Left = 0
             Top = 24
             Width = 417
             Height = 205
+            Anchors = [akLeft, akTop, akRight, akBottom]
             ParentColor = True
             RequireRadioSelection = True
             ShowLines = False
@@ -446,6 +522,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -454,11 +531,15 @@ object WizardForm: TWizardForm
           end
         end
         object ReadyPage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object ReadyMemo: TNewMemo
             Left = 0
             Top = 24
             Width = 417
             Height = 205
+            Anchors = [akLeft, akTop, akRight, akBottom]
             Color = clBtnFace
             ReadOnly = True
             ScrollBars = ssBoth
@@ -471,6 +552,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -479,6 +561,9 @@ object WizardForm: TWizardForm
           end
         end
         object PreparingPage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object PreparingErrorBitmapImage: TBitmapImage
             Left = 0
             Top = 0
@@ -491,6 +576,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 393
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -503,6 +589,7 @@ object WizardForm: TWizardForm
             Top = 28
             Width = 393
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = '*'
             Checked = True
             TabOrder = 2
@@ -514,6 +601,7 @@ object WizardForm: TWizardForm
             Top = 56
             Width = 393
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = '*'
             TabOrder = 3
             Visible = False
@@ -523,6 +611,7 @@ object WizardForm: TWizardForm
             Top = 88
             Width = 393
             Height = 145
+            Anchors = [akLeft, akTop, akRight, akBottom]
             Color = clBtnFace
             Lines.Strings = (
               'PreparingMemo')
@@ -534,11 +623,15 @@ object WizardForm: TWizardForm
           end
         end
         object InstallingPage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object FilenameLabel: TNewStaticText
             Left = 0
             Top = 16
             Width = 417
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             ForceLTRReading = True
             ShowAccelChar = False
@@ -549,6 +642,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 417
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             ShowAccelChar = False
             TabOrder = 0
@@ -558,17 +652,22 @@ object WizardForm: TWizardForm
             Top = 42
             Width = 417
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             Min = 0
             Max = 100
             Style = npbstNormal
           end
         end
         object InfoAfterPage: TNewNotebookPage
+          DesignSize = (
+            417
+            237)
           object InfoAfterMemo: TRichEditViewer
             Left = 0
             Top = 24
             Width = 417
             Height = 205
+            Anchors = [akLeft, akTop, akRight, akBottom]
             BevelKind = bkFlat
             BorderStyle = bsNone
             ReadOnly = True
@@ -582,6 +681,7 @@ object WizardForm: TWizardForm
             Top = 0
             Width = 417
             Height = 14
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             ShowAccelChar = False
@@ -595,14 +695,19 @@ object WizardForm: TWizardForm
         Top = 0
         Width = 497
         Height = 58
+        Anchors = [akLeft, akTop, akRight]
         BevelOuter = bvNone
         Color = clWindow
         TabOrder = 0
+        DesignSize = (
+          497
+          58)
         object WizardSmallBitmapImage: TBitmapImage
           Left = 440
           Top = 0
           Width = 55
           Height = 58
+          Anchors = [akTop, akRight]
           BackColor = clWindow
         end
         object PageDescriptionLabel: TNewStaticText
@@ -610,6 +715,7 @@ object WizardForm: TWizardForm
           Top = 26
           Width = 389
           Height = 29
+          Anchors = [akLeft, akTop, akRight]
           AutoSize = False
           Caption = '*'
           ShowAccelChar = False
@@ -621,6 +727,7 @@ object WizardForm: TWizardForm
           Top = 10
           Width = 405
           Height = 14
+          Anchors = [akLeft, akTop, akRight]
           AutoSize = False
           Caption = '*'
           ShowAccelChar = False
@@ -631,11 +738,15 @@ object WizardForm: TWizardForm
     object FinishedPage: TNewNotebookPage
       Color = clWindow
       ParentColor = False
+      DesignSize = (
+        497
+        313)
       object WizardBitmapImage2: TBitmapImage
         Left = 0
         Top = 0
         Width = 164
         Height = 314
+        Anchors = [akLeft, akTop, akBottom]
         BackColor = clWindow
       end
       object RunList: TNewCheckListBox
@@ -643,6 +754,7 @@ object WizardForm: TWizardForm
         Top = 156
         Width = 301
         Height = 149
+        Anchors = [akLeft, akTop, akRight, akBottom]
         BorderStyle = bsNone
         ParentColor = True
         TabOrder = 2
@@ -654,6 +766,7 @@ object WizardForm: TWizardForm
         Top = 184
         Width = 301
         Height = 17
+        Anchors = [akLeft, akTop, akRight]
         Caption = '*'
         TabOrder = 4
         Visible = False
@@ -663,6 +776,7 @@ object WizardForm: TWizardForm
         Top = 156
         Width = 301
         Height = 17
+        Anchors = [akLeft, akTop, akRight]
         Caption = '*'
         Checked = True
         TabOrder = 3
@@ -674,6 +788,7 @@ object WizardForm: TWizardForm
         Top = 76
         Width = 301
         Height = 53
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = '*'
         ShowAccelChar = False
@@ -685,6 +800,7 @@ object WizardForm: TWizardForm
         Top = 16
         Width = 301
         Height = 54
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = '*'
         ShowAccelChar = False
@@ -698,6 +814,7 @@ object WizardForm: TWizardForm
     Top = 306
     Width = 5
     Height = 14
+    Anchors = [akLeft, akBottom]
     Caption = '*'
     Enabled = False
     ShowAccelChar = False

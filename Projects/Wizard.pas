@@ -2,7 +2,7 @@ unit Wizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -45,6 +45,7 @@ type
     FStyle: TWizardPageStyle;
     FWizardForm: TWizardForm;
     function GetSurface: TNewNotebookPage;
+    function GetSurfaceColor: TColor;
     function GetSurfaceHeight: Integer;
     function GetSurfaceWidth: Integer;
     procedure SetCaption(const Value: String);
@@ -66,6 +67,7 @@ type
     property Description: String read FDescription write SetDescription;
     property ID: Integer read FID;
     property Surface: TNewNotebookPage read GetSurface;
+    property SurfaceColor: TColor read GetSurfaceColor;
     property SurfaceHeight: Integer read GetSurfaceHeight;
     property SurfaceWidth: Integer read GetSurfaceWidth;
     property OnActivate: TWizardPageNotifyEvent read FOnActivate write FOnActivate;
@@ -169,6 +171,7 @@ type
     procedure UserInfoEditChange(Sender: TObject);
     procedure DirBrowseButtonClick(Sender: TObject);
     procedure GroupBrowseButtonClick(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     { Private declarations }
     FPageList: TList;
@@ -184,6 +187,7 @@ type
     HasLargeComponents: Boolean;
     DoneWithWizard: Boolean;
     PrepareToInstallNeedsRestart: Boolean;
+    EnableAnchorOuterPagesOnResize: Boolean;
     procedure AdjustFocus;
     procedure CalcCurrentComponentsSpace;
     procedure ChangeReadyLabel(const S: String);
@@ -231,6 +235,8 @@ type
     function PageIndexFromID(const ID: Integer): Integer;
     procedure UpdateCurPageButtonVisibility;
     procedure SetCurPage(const NewPageID: Integer);
+    procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+      const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean); override;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
     function ValidateGroupEdit: Boolean;
@@ -562,6 +568,11 @@ begin
     Result := FOuterNotebookPage;
 end;
 
+function TWizardPage.GetSurfaceColor: TColor;
+begin
+  Result := TNewNotebook(Surface.Parent).Color;
+end;
+
 function TWizardPage.GetSurfaceHeight: Integer;
 begin
   Result := Surface.Parent.Height;
@@ -601,14 +612,14 @@ constructor TWizardForm.Create(AOwner: TComponent);
 
   procedure LoadSelectDirAndGroupImages;
 
-    procedure IconToBitmapImage(const AIcon: HICON; const Ctl: TBitmapImage);
+    procedure IconToBitmapImage(const AIcon: HICON; const Ctl: TBitmapImage; const BkColor: TColor);
     begin
       if AIcon <> 0 then begin
         try
           with Ctl.Bitmap do begin
             Width := 32;
             Height := 32;
-            Canvas.Brush.Color := clBtnFace;
+            Canvas.Brush.Color := BkColor;
             Canvas.FillRect(Rect(0, 0, 32, 32));
             DrawIconEx(Canvas.Handle, 0, 0, AIcon, 32, 32, 0, 0, DI_NORMAL);
           end;
@@ -639,14 +650,14 @@ constructor TWizardForm.Create(AOwner: TComponent);
           SizeOf(FileInfo), SHGFI_USEFILEATTRIBUTES or SHGFI_ICONLOCATION) <> 0) and
          (FileInfo.szDisplayName[0] <> #0) then
         IconToBitmapImage(ExtractIcon(HInstance, FileInfo.szDisplayName,
-          FileInfo.iIcon), SelectDirBitmapImage);
+          FileInfo.iIcon), SelectDirBitmapImage, SelectDirPage.Color);
 
       if WindowsVersionAtLeast(6, 0) then begin
         { On Windows Vista and 7, use the "Taskbar and Start Menu Properties"
           icon as there is no longer a separate icon for Start Menu folders }
         IconToBitmapImage(ExtractIcon(HInstance,
           PChar(AddBackslash(WinSystemDir) + 'shell32.dll'), 39),
-          SelectGroupBitmapImage);
+          SelectGroupBitmapImage, SelectProgramGroupPage.Color);
       end
       else begin
         Path := GetShellFolder(False, sfPrograms, False);
@@ -656,7 +667,7 @@ constructor TWizardForm.Create(AOwner: TComponent);
           if (SHGetFileInfo(PChar(Path), 0, FileInfo, SizeOf(FileInfo),
               SHGFI_ICONLOCATION) <> 0) and (FileInfo.szDisplayName[0] <> #0) then
             IconToBitmapImage(ExtractIcon(HInstance, FileInfo.szDisplayName,
-              FileInfo.iIcon), SelectGroupBitmapImage);
+              FileInfo.iIcon), SelectGroupBitmapImage, SelectProgramGroupPage.Color);
         end;
       end;
     except
@@ -719,11 +730,18 @@ begin
       WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
     end;
   end;
+
+  { Not sure why the following is needed but various things related to
+    positioning and anchoring don't work without this (you get positions of
+    page controls back as if there was no anchoring until the page handle
+    is automatically created. Cause might be related to the comment in
+    TNewNotebook.AlignControls. }
+  for I := 0 to OuterNotebook.PageCount-1 do
+    OuterNotebook.Pages[I].HandleNeeded;
+  for I := 0 to InnerNotebook.PageCount-1 do
+    InnerNotebook.Pages[I].HandleNeeded;
+
   InitializeFont;
-  if shWindowVisible in SetupHeader.Options then
-    CenterInsideControl(MainForm, True)
-  else
-    Center;
   SetFontNameSize(WelcomeLabel1.Font, LangOptions.WelcomeFontName,
     LangOptions.WelcomeFontSize, '', 12);
   WelcomeLabel1.Font.Style := [fsBold];
@@ -736,16 +754,33 @@ begin
   else
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
 
-  { Give it a minimize button if main window isn't visible }
-  if not(shWindowVisible in SetupHeader.Options) then begin
+  { Set BorderStyle and BorderIcons:
+    -WindowVisible + WizardResizable = sizeable + maximize
+    -not WindowVisible + WizardResizable = sizeable + maximize + minimize
+    -WindowVisible + not WizardResizable = dialog (.dfm default)
+    -not WindowVisible + not WizardResizable = single + minimize }
+  if not(shWindowVisible in SetupHeader.Options) or
+     (shWizardResizable in SetupHeader.Options) then begin
     { Save ClientWidth/ClientHeight and restore them after changing
-      BorderStyle. Needed for NT 3.x. }
+      BorderStyle. }
     SaveClientWidth := ClientWidth;
     SaveClientHeight := ClientHeight;
-    BorderIcons := BorderIcons + [biMinimize];
-    BorderStyle := bsSingle;
+    if not(shWindowVisible in SetupHeader.Options) then
+      BorderIcons := BorderIcons + [biMinimize];
+    if not(shWizardResizable in SetupHeader.Options) then
+      BorderStyle := bsSingle
+    else begin
+      BorderIcons := BorderIcons + [biMaximize];
+      BorderStyle := bsSizeable;
+    end;
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
+    if shWizardResizable in SetupHeader.Options then begin
+      EnableAnchorOuterPagesOnResize := True;
+      { Do not allow user to resize it smaller than the current size. }
+      Constraints.MinHeight := Height;
+      Constraints.MinWidth := Width;
+    end;
   end;
 
   { Position the buttons, and scale their size }
@@ -763,6 +798,12 @@ begin
   NextButton.Left := X;
   Dec(X, W1);
   BackButton.Left := X;
+
+  { Initialize wizard style }
+  if SetupHeader.WizardStyle = wsModern then begin
+    OuterNotebook.Color := clWindow;
+    Bevel1.Visible := False;
+  end;
 
   { Initialize images }
   WizardBitmapImage.Bitmap := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
@@ -1140,6 +1181,50 @@ begin
     NoIconsCheck.Visible := False;
 end;
 
+procedure TWizardForm.FormResize(Sender: TObject);
+
+  procedure AnchorOuterPage(const Page: TNewNotebookPage;
+    const BitmapImage: TBitmapImage);
+  var
+    Ctl: TControl;
+    I, NewLeft, NewWidth: Integer;
+  begin
+    if BaseUnitX = 0 then
+      InternalError('AnchorOuterPage: BaseUnitX = 0');
+
+    NewWidth := MulDiv(BitmapImage.Height, 164, 314);
+    if ControlsFlipped then
+      BitmapImage.Left := ClientWidth - NewWidth;
+    BitmapImage.Width := NewWidth;
+    for I := 0 to Page.ControlCount-1 do begin
+      Ctl := Page.Controls[I];
+      if Ctl <> BitmapImage then begin
+        NewLeft := BitmapImage.Width + ScalePixelsX(12); // 12 is space between bitmap and controls
+        Ctl.Width := ClientWidth - ScalePixelsX(20) - NewLeft; //20 is space between controls and right border
+        if not ControlsFlipped then
+          Ctl.Left := NewLeft;
+      end;
+    end;
+  end;
+
+begin
+  if EnableAnchorOuterPagesOnResize then begin
+    { WizardBitmapImage(2)'s size is already corrected by the Anchors property but
+      this doesn't keep the aspect ratio. Calculate and set new width to restore
+      the aspect ratio and update all the other controls in the page for this. }
+    AnchorOuterPage(WelcomePage, WizardBitmapImage);
+    AnchorOuterPage(FinishedPage, WizardBitmapImage2);
+  end;
+end;
+
+procedure TWizardForm.FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+  const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
+begin
+  if ShouldSizeX or ShouldSizeY then
+    EnableAnchorOuterPagesOnResize := True;
+  inherited;
+end;
+
 destructor TWizardForm.Destroy;
 begin
   FreeAndNil(PrevDeselectedComponents);
@@ -1216,6 +1301,7 @@ begin
 
   NotebookPage := TNewNotebookPage.Create(APage);
   NotebookPage.Notebook := InnerNotebook;
+  NotebookPage.HandleNeeded; { See TWizardForm.Create comment }
   APage.FID := FNextPageID;
   APage.FOuterNotebookPage := InnerPage;
   APage.FInnerNotebookPage := NotebookPage;

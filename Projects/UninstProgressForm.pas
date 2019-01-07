@@ -2,13 +2,11 @@ unit UninstProgressForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Uninstaller progress form
-
-  $jrsoftware: issrc/Projects/UninstProgressForm.pas,v 1.16 2010/10/30 20:26:25 jr Exp $
 }
 
 interface
@@ -44,7 +42,7 @@ type
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Initialize(const ATitle, AAppName: String);
+    procedure Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
     procedure UpdateProgress(const AProgress, ARange: Integer);
   end;
 
@@ -92,7 +90,6 @@ begin
   SetMessageBoxCallbackFunc(UninstallMessageBoxCallback, LongInt(Self));
 
   InitializeFont;
-  Center;
 
 {$IFDEF IS_D7}
   MainPanel.ParentBackGround := False;
@@ -119,11 +116,16 @@ begin
   inherited;
 end;
 
-procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String);
+procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
 begin
   Caption := ATitle;
   PageDescriptionLabel.Caption := FmtSetupMessage1(msgUninstallStatusLabel, AAppName);
   StatusLabel.Caption := FmtSetupMessage1(msgStatusUninstalling, AAppName);
+  
+  if AModernStyle then begin
+    OuterNotebook.Color := clWindow;
+    Bevel1.Visible := False;
+  end;
 end;
 
 procedure TUninstallProgressForm.CreateParams(var Params: TCreateParams);

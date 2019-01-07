@@ -6,12 +6,18 @@ object NewDiskForm: TNewDiskForm
   Caption = '*'
   ClientHeight = 169
   ClientWidth = 377
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  OldCreateOrder = True
   Scaled = False
   OnCloseQuery = FormCloseQuery
+  DesignSize = (
+    377
+    169)
   PixelsPerInch = 96
   TextHeight = 13
   object DiskBitmapImage: TBitmapImage
@@ -25,6 +31,7 @@ object NewDiskForm: TNewDiskForm
     Top = 137
     Width = 73
     Height = 23
+    Anchors = [akRight, akBottom]
     Cancel = True
     Caption = '*'
     ModalResult = 2
@@ -35,6 +42,7 @@ object NewDiskForm: TNewDiskForm
     Top = 137
     Width = 73
     Height = 23
+    Anchors = [akRight, akBottom]
     Caption = '*'
     Default = True
     ModalResult = 1
@@ -45,6 +53,7 @@ object NewDiskForm: TNewDiskForm
     Top = 95
     Width = 73
     Height = 23
+    Anchors = [akTop, akRight]
     Caption = '*'
     TabOrder = 3
     OnClick = BrowseButtonClick
@@ -54,6 +63,7 @@ object NewDiskForm: TNewDiskForm
     Top = 96
     Width = 281
     Height = 21
+    Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
   end
   object PathLabel: TNewStaticText
@@ -70,6 +80,7 @@ object NewDiskForm: TNewDiskForm
     Top = 8
     Width = 297
     Height = 72
+    Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = '*'
     ShowAccelChar = False

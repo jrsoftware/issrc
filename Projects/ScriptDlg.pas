@@ -302,7 +302,7 @@ begin
   FExclusive := Exclusive;
   if not ListBox then begin
     FCheckListBox.BorderStyle := bsNone;
-    FCheckListBox.Color := clBtnFace;
+    FCheckListBox.Color := SurfaceColor;
     FCheckListBox.MinItemHeight := WizardForm.ScalePixelsY(22);
     FCheckListBox.WantTabs := True;
   end;

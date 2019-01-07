@@ -108,7 +108,7 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <li>Supports creation of a single EXE to install your program for easy online distribution. <link topic="setup_diskspanning">Disk spanning</link> is also supported.</li>
 
-<li>Standard Windows wizard interface.</li>
+<li>Resizable standard Windows wizard interface.</li>
 
 <li>Customizable setup <link topic="typessection">types</link>, e.g. Full, Minimal, Custom.</li>
 
@@ -1105,6 +1105,8 @@ DefaultGroupName=My Program
 <li><link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></li>
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
+<li><link topic="setup_wizardresizable">WizardResizable</link></li>
+<li><link topic="setup_wizardsizepercent">WizardSizePercent</link></li>
 <li><link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></li>
 </ul>
 
@@ -4720,6 +4722,33 @@ DiskSliceSize=1457664
 </body>
 </setuptopic>
 
+<setuptopic directive="WizardResizable">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>no</tt> otherwise</setupdefault>
+<body>
+<p>If set to <tt>yes</tt>, the user will be able to resize and maximize the main Setup wizard window.</p>
+<p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls, custom wizard pages and <tt>TSetupForm</tt> forms if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardsizepercent">WizardSizePercent</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="WizardSizePercent">
+<setupformat><tt><i>a</i>,<i>b</i></tt>, where <tt><i>a</i></tt> is the horizontal size, and <tt><i>b</i></tt> is the vertical size.</setupformat>
+<setupvalid>each size: <tt>100</tt> or more</setupvalid>
+<setupdefault><tt>120,120</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>100,100</tt> otherwise</setupdefault>
+<body>
+<p>Lets you increase the default size of all Setup and Uninstall wizard windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
+<p>If you specify only one size it will be used as both the horizontal and the vertical size.</p>
+<example><pre>WizardSizePercent=120</pre></example>
+<p>Use <tt>Anchors</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
+<p>Note: Some of the wizard windows such as the <i>Select Language</i> dialog will only increase in size horizontally.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardresizable">WizardResizable</link><br/>
+<link topic="langoptionssection" anchor="DialogFontSize">DialogFontSize</link></p>
+</body>
+</setuptopic>
+
 <setuptopic directive="WizardSmallImageBackColor">
 <body>
 <p><i>Obsolete in 5.0.4.</i> This directive formerly specified the background color used to fill any unused space around the small wizard bitmap when <link topic="setup_wizardimagestretch">WizardImageStretch</link> was set to <tt>no</tt>. Now any unused space is filled with the standard window color (usually white). If you wish to create a colored border around the image, do so by modifying the bitmap itself.</p>
@@ -4743,16 +4772,17 @@ DiskSliceSize=1457664
 </setuptopic>
 
 <setuptopic directive="WizardStyle">
-<setupvalid><tt>modern</tt></setupvalid>
-<setupdefault><tt>modern</tt></setupdefault>
+<setupvalid><tt>classic</tt> or <tt>modern</tt></setupvalid>
+<setupdefault><tt>classic</tt></setupdefault>
 <body>
-<p><i>Obsolete in 3.0.</i> Inno Setup 2.x supported an alternate wizard style called "classic". Support for the "classic" style has been dropped in Inno Setup 3.0.</p>
+<p>If this directive is set to <tt>modern</tt>, Setup and Uninstall will show a more modern look and also the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> change to respectively <tt>yes</tt> and <tt>120,120</tt>.</p>
+<p>Use <tt>Anchors</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="UninstallStyle">
 <body>
-<p><i>Obsolete in 5.0.0.</i> Only the "modern" uninstaller style is supported now.</p>
+<p><i>Obsolete in 5.0.0.</i></p>
 </body>
 </setuptopic>
 

@@ -16,6 +16,7 @@ AppUpdatesURL=http://www.innosetup.com/
 VersionInfoCopyright=Copyright (C) 1997-2019 Jordan Russell. Portions Copyright (C) 2000-2019 Martijn Laan.
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
+WizardStyle=modern
 DefaultDirName={autopf}\Inno Setup 6
 DefaultGroupName=Inno Setup 6
 PrivilegesRequiredOverridesAllowed=dialog

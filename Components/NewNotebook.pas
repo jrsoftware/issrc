@@ -40,6 +40,7 @@ type
   published
     property ActivePage: TNewNotebookPage read FActivePage write SetActivePage;
     property Align;
+    property Anchors;
     property Color;
     property DragCursor;
     property DragMode;

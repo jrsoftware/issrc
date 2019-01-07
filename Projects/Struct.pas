@@ -65,7 +65,8 @@ type
     {$IFNDEF UNICODE}shShowUndisplayableLanguages, {$ENDIF}shSetupLogging,
     shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
-    shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges);
+    shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
+    shWizardResizable);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;
@@ -75,6 +76,7 @@ type
   TSetupPrivilegesRequired = (prNone, prPowerUser, prAdmin, prLowest);
   TSetupPrivilegesRequiredOverride = (proCommandLine, proDialog);
   TSetupPrivilegesRequiredOverrides = set of TSetupPrivilegesRequiredOverride;
+  TSetupWizardStyle = (wsClassic, wsModern);
 const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =
     ('Unknown', 'x86', 'x64', 'Itanium', 'ARM64');
@@ -102,6 +104,8 @@ type
       NumRunEntries, NumUninstallRunEntries: Integer;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     BackColor, BackColor2: Longint;
+    WizardStyle: TSetupWizardStyle;
+    WizardSizePercentX, WizardSizePercentY: Integer;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
     PasswordHash: TSHA1Digest;
     PasswordSalt: TSetupSalt;

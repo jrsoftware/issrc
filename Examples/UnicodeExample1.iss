@@ -6,6 +6,7 @@
 [Setup]
 AppName=ɯɐɹƃoɹd ʎɯ
 AppVerName=ɯɐɹƃoɹd ʎɯ version 1.5
+WizardStyle=modern
 DefaultDirName={autopf}\ɯɐɹƃoɹd ʎɯ
 DefaultGroupName=ɯɐɹƃoɹd ʎɯ
 UninstallDisplayIcon={app}\ƃoɹdʎɯ.exe

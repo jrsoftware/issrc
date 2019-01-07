@@ -42,6 +42,7 @@ begin
   with Cl.AddClassN(Cl.FindClass('TWinControl'), 'TNewStaticText') do
   begin
     RegisterMethod('function AdjustHeight: Integer');
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('AutoSize', 'Boolean', iptrw);
     RegisterProperty('Caption', 'String', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
@@ -79,6 +80,7 @@ begin
     RegisterMethod('function AddGroup(const ACaption, ASubItem: string; ALevel: Byte; AObject: TObject): Integer');
     RegisterMethod('function AddRadioButton(const ACaption, ASubItem: string; ALevel: Byte; AChecked, AEnabled: Boolean; AObject: TObject): Integer');
     RegisterMethod('function CheckItem(const Index: Integer; const AOperation: TCheckItemOperation): Boolean');
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('Checked', 'Boolean Integer', iptrw);
     RegisterProperty('State', 'TCheckBoxState Integer', iptr);
     RegisterProperty('ItemCaption', 'String Integer', iptrw);
@@ -130,6 +132,7 @@ begin
   cl.AddTypeS('TNewProgressBarStyle', '(npbstNormal, npbstMarquee)');
   with Cl.AddClassN(Cl.FindClass('TWinControl'), 'TNewProgressBar') do
   begin
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('Min', 'Longint', iptrw);
     RegisterProperty('Max', 'Longint', iptrw);
     RegisterProperty('Position', 'Longint', iptrw);
@@ -142,6 +145,7 @@ procedure RegisterRichEditViewer_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(Cl.FindClass('TMemo'), 'TRichEditViewer') do
   begin
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('BevelKind', 'TBevelKind', iptrw);
     RegisterProperty('BorderStyle', 'TBorderStyle', iptrw);
     RegisterProperty('RTFText', 'AnsiString', iptw);
@@ -153,6 +157,7 @@ procedure RegisterPasswordEdit_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TCustomEdit'), 'TPasswordEdit') do
   begin
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('AutoSelect', 'Boolean', iptrw);
     RegisterProperty('AutoSize', 'Boolean', iptrw);
     RegisterProperty('BorderStyle', 'TBorderStyle', iptrw);
@@ -209,6 +214,7 @@ procedure RegisterFolderTreeView_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(Cl.FindClass('TCustomFolderTreeView'),'TFolderTreeView') do
   begin
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('OnChange', 'TNotifyEvent', iptrw);
     RegisterProperty('OnRename', 'TFolderRenameEvent', iptrw);
   end;
@@ -219,6 +225,7 @@ begin
   with Cl.AddClassN(Cl.FindClass('TCustomFolderTreeView'),'TStartMenuFolderTreeView') do
   begin
     RegisterMethod('procedure SetPaths(const AUserPrograms, ACommonPrograms, AUserStartup, ACommonStartup: String)');
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('OnChange', 'TNotifyEvent', iptrw);
     RegisterProperty('OnRename', 'TFolderRenameEvent', iptrw);
   end;
@@ -233,6 +240,7 @@ begin
   end;
   with Cl.AddClassN(CL.FindClass('TGraphicControl'),'TBitmapImage') do
   begin
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('AutoSize', 'Boolean', iptrw);
     RegisterProperty('BackColor', 'TColor', iptrw);
     RegisterProperty('Center', 'Boolean', iptrw);
@@ -263,6 +271,7 @@ begin
   with Cl.AddClassN(Cl.FindClass('TWinControl'),'TNewNotebook') do
   begin
     RegisterMethod('function FindNextPage(CurPage: TNewNotebookPage; GoForward: Boolean): TNewNotebookPage');
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('PageCount', 'Integer', iptr);
     RegisterProperty('Pages', 'TNewNotebookPage Integer', iptr);
     RegisterProperty('ActivePage', 'TNewNotebookPage', iptrw);
@@ -288,11 +297,14 @@ procedure RegisterSetupForm_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(Cl.FindClass('TUIStateForm'), 'TSetupForm') do
   begin
-    RegisterMethod('procedure Center');
-    RegisterMethod('procedure CenterInsideControl(const Ctl: TWinControl; const InsideClientArea: Boolean)');
+    RegisterMethod('function ShouldSizeX: Boolean;');
+    RegisterMethod('function ShouldSizeY: Boolean;');
+    RegisterMethod('procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean)');
     RegisterProperty('ControlsFlipped', 'Boolean', iptr);
     RegisterProperty('FlipControlsOnShow', 'Boolean', iptrw);
+    RegisterProperty('KeepSizeY', 'Boolean', iptrw);
     RegisterProperty('RightToLeft', 'Boolean', iptr);
+    RegisterProperty('SizeAndCenterOnShow', 'Boolean', iptrw);
   end;
 end;
 
@@ -432,6 +444,7 @@ begin
     RegisterProperty('Caption', 'String', iptrw);
     RegisterProperty('Description', 'String', iptrw);
     RegisterProperty('Surface', 'TNewNotebookPage', iptr);
+    RegisterProperty('SurfaceColor', 'TColor', iptr);
     RegisterProperty('SurfaceHeight', 'Integer', iptr);
     RegisterProperty('SurfaceWidth', 'Integer', iptr);
     RegisterProperty('OnActivate', 'TWizardPageNotifyEvent', iptrw);

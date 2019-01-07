@@ -153,6 +153,7 @@ type
     property State[Index: Integer]: TCheckBoxState read GetState;
   published
     property Align;
+    property Anchors;
     property BorderStyle;
     property Color;
     property Ctl3D;

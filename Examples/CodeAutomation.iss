@@ -5,6 +5,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
+WizardStyle=modern
 DisableWelcomePage=no
 CreateAppDir=no
 DisableProgramGroupPage=yes
