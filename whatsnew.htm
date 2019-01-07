@@ -98,7 +98,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <p>The look and feel of the Compiler IDE has been updated:</p>
 <ul>
     <li>The Compiler IDE now uses per-monitor DPI awareness mode and also allows the "Segoe UI" font for its interface elements.</li>
-    <li>Updated all icons and flattened the interface of the Compiler IDE for a more modern look.</li>
+    <li>Updated all toolbar icons and flattened the interface of the Compiler IDE for a more modern look.</li>
     <li>The "Compiler Output" view is now colorized. This can be turned off in the options.</li>
     <li>The "Debug Output" view now uses bold text for any entry lines such as '-- File entry --'.</li>
     <li>Options button <i>Associate .iss files with this compiler</i> can now associate for the current user instead of displaying an error if administrative privileges are not available.</li>
@@ -110,7 +110,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li><b>Change in default behavior:</b> Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup. Unicode Inno Setup has been available for 9 years but in case you have not yet updated to it: please see the <a href="http://www.jrsoftware.org/is6help/index.php?topic=unicode">Unicode Inno Setup</a> topic in the help file for more information. Basically, unless you're using [Code] to make DLL calls with string parameters you shouldn't have to make any changes to your script.</li>
 </ul>
 <ul>
-  <li>Added support for 64-bit mode on Windows 10 on ARM64 which can be used to install ARM64 binaries. See the <i>64BitThreeArch.iss</i> example script for an example which demonstrates how to install a program built for three different architectures (x86, x64, ARM64) using a single installer.</li>
+  <li>Added support for 64-bit mode on Windows 10 on ARM which can be used to install ARM64 binaries. See the <i>64BitThreeArch.iss</i> example script for an example which demonstrates how to install a program built for three different architectures (x86, x64, ARM64) using a single installer.</li>
 </ul>
 <ul>
   <li>Added new [Setup] section directive: <tt>VersionInfoOriginalFileName</tt>, which sets the original filename version value.</li>
@@ -130,7 +130,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
     <li>Added new <tt>SameStr</tt> and <tt>SameText</tt> support functions.</li>
     <li>Renamed the <tt>IsAdminLoggedOn</tt> support function to <tt>IsAdmin</tt>. The old name is still supported, but it is recommended to update your scripts to the new name and the compiler will issue a warning if you don't.</li>
     <li>Removed the <tt>TAlphaBitmap</tt> support class. Its functionality is now provided directly by <tt>TBitmap</tt>.</li>
-    <li>Fix: On Windows 10 on ARM64, the <tt>IsWin64</tt> support function now correctly returns <tt>True</tt>, and the <tt>ProcessorArchitecture</tt> support function now correctly returns <tt>paARM64</tt>.</li>
+    <li>Fix: On Windows 10 on ARM, the <tt>IsWin64</tt> support function now correctly returns <tt>True</tt>, and the <tt>ProcessorArchitecture</tt> support function now correctly returns <tt>paARM64</tt>.</li>
   </ul>
   </li>
   <li>Inno Setup Preprocessor (ISPP) changes:
