@@ -54,7 +54,7 @@ object SelectLanguageForm: TSelectLanguageForm
     Top = 0
     Width = 297
     Height = 89
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Color = clWindow
     TabOrder = 0
