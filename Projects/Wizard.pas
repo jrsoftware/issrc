@@ -1215,7 +1215,7 @@ procedure TWizardForm.FormResize(Sender: TObject);
             Ctl.Left := NewLeft;
         end;
       end;
-     end;
+    end;
   end;
 
 begin
