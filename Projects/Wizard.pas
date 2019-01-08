@@ -1186,32 +1186,40 @@ procedure TWizardForm.FormResize(Sender: TObject);
   procedure AnchorOuterPage(const Page: TNewNotebookPage;
     const BitmapImage: TBitmapImage);
   var
+    ExpectedAnchors: TAnchors;
     Ctl: TControl;
     I, NewLeft, NewWidth: Integer;
   begin
-    if BaseUnitX = 0 then
-      InternalError('AnchorOuterPage: BaseUnitX = 0');
-
-    NewWidth := MulDiv(BitmapImage.Height, 164, 314);
+    { BitmapImage's size is already corrected by the Anchors property but this
+      doesn't keep the aspect ratio. Calculate and set new width to restore the
+      aspect ratio and update all the other controls in the page for this. Don't
+      do this if [Code] made any change to BitmapImage's Align or Anchors
+      signalling that it wants a custom layout. }
     if ControlsFlipped then
-      BitmapImage.Left := ClientWidth - NewWidth;
-    BitmapImage.Width := NewWidth;
-    for I := 0 to Page.ControlCount-1 do begin
-      Ctl := Page.Controls[I];
-      if Ctl <> BitmapImage then begin
-        NewLeft := BitmapImage.Width + ScalePixelsX(12); // 12 is space between bitmap and controls
-        Ctl.Width := ClientWidth - ScalePixelsX(20) - NewLeft; //20 is space between controls and right border
-        if not ControlsFlipped then
-          Ctl.Left := NewLeft;
+      ExpectedAnchors := [akTop, akRight, akBottom]
+    else
+      ExpectedAnchors := [akLeft, akTop, akBottom];
+    if (BitmapImage.Align = alNone) and (BitmapImage.Anchors = ExpectedAnchors) then begin
+      if BaseUnitX = 0 then
+        InternalError('AnchorOuterPage: BaseUnitX = 0');
+      NewWidth := MulDiv(BitmapImage.Height, ScalePixelsX(164), ScalePixelsY(314)); //164x314 is the original bitmapimage size
+      if ControlsFlipped then
+        BitmapImage.Left := ClientWidth - NewWidth;
+      BitmapImage.Width := NewWidth;
+      for I := 0 to Page.ControlCount-1 do begin
+        Ctl := Page.Controls[I];
+        if Ctl <> BitmapImage then begin
+          NewLeft := BitmapImage.Width + ScalePixelsX(12); //12 is original space between bitmapimage and controls
+          Ctl.Width := ClientWidth - ScalePixelsX(20) - NewLeft; //20 is original space between controls and right border
+          if not ControlsFlipped then
+            Ctl.Left := NewLeft;
+        end;
       end;
-    end;
+     end;
   end;
 
 begin
   if EnableAnchorOuterPagesOnResize then begin
-    { WizardBitmapImage(2)'s size is already corrected by the Anchors property but
-      this doesn't keep the aspect ratio. Calculate and set new width to restore
-      the aspect ratio and update all the other controls in the page for this. }
     AnchorOuterPage(WelcomePage, WizardBitmapImage);
     AnchorOuterPage(FinishedPage, WizardBitmapImage2);
   end;
