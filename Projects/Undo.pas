@@ -107,7 +107,7 @@ type
 
   TUninstallLogFlags = set of (ufAdminInstalled, ufDontCheckRecCRCs,
     ufModernStyle, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
-    ufPowerUserInstalled);
+    ufPowerUserInstalled, ufAdminInstallMode);
 
   TUninstallLog = class
   private

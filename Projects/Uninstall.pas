@@ -559,7 +559,7 @@ begin
     ConstLeadBytes := @UninstLeadBytes;
 {$ENDIF}
 
-    InitializeAdminInstallMode(ufAdminInstalled in UninstLog.Flags);
+    InitializeAdminInstallMode(ufAdminInstallMode in UninstLog.Flags);
 
     { Initialize install mode }
     if UninstLog.InstallMode64Bit then begin

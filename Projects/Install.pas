@@ -3030,9 +3030,11 @@ begin
       UninstLog.InstallMode64Bit := Is64BitInstallMode;
       UninstLog.AppName := ExpandedAppName;
       UninstLog.AppId := ExpandedAppId;
+      if IsAdminInstallMode then
+        Include(UninstLog.Flags, ufAdminInstallMode);
       if IsWin64 then
         Include(UninstLog.Flags, ufWin64);
-      if IsAdmin then { Setup or [Code] might have done administrative actions, so using IsAdmin here and not IsAdminInstallMode }
+      if IsAdmin then { Setup or [Code] might have done administrative actions, even if IsAdminInstallMode is False }
         Include(UninstLog.Flags, ufAdminInstalled)
       else if IsPowerUserOrAdmin then
         { Note: This flag is only set in 5.1.9 and later }
