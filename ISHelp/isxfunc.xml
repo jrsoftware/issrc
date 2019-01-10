@@ -2402,9 +2402,10 @@ end;</pre></example>
         <remarks><p>TMsgBoxType is defined as:</p>
 <p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p>
 <p>Supported flags for <tt>Buttons</tt> are:</p>
-<p><tt>MB_OK, MB_OKCANCEL, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL</tt></p>
+<p><tt>MB_OK, MB_OKCANCEL, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL, MB_ABORTRETRYIGNORE</tt></p>
+<p>If <tt>MB_ABORTRETRYIGNORE</tt> is used, <tt>ButtonLabels</tt> may not be an empty array and the button labels must be specified in the following special order: Retry, Ignore, Abort.</p>
 <p>Supported values for <tt>ShieldButton</tt> and possible return values are:</p>
-<p><tt>IDOK, IDCANCEL, IDRETRY, IDYES, IDNO</tt></p></remarks>
+<p><tt>IDOK, IDCANCEL, IDRETRY, IDYES, IDNO, IDABORT, IDIGNORE</tt></p></remarks>
         <example><pre>begin
   case TaskDialogMsgBox('Choose A or B',
                         'You can choose A or B.', 'You can choose A or B'#13#10#13#10'Do you choose A?',   

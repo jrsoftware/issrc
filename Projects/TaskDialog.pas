@@ -154,6 +154,14 @@ begin
         end;
         TDCommonButtons := TDCommonButtons or TDCBF_CANCEL_BUTTON;
       end;
+    MB_ABORTRETRYIGNORE:
+      begin
+        if NButtonLabelsAvailable = 0 then
+          InternalError('TaskDialogMsgBox: Invalid ButtonLabels')
+        else
+          ButtonIDs := [IDRETRY, IDIGNORE, IDABORT]; { Notice the order, abort label must be last }
+        TDCommonButtons := 0;
+      end;
     else
       begin
         InternalError('TaskDialogMsgBox: Invalid Buttons');
