@@ -4087,7 +4087,6 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <body>
 <p>If <tt>yes</tt>, solid compression will be enabled. This causes all files to be compressed at once instead of separately. This can result in a much greater overall compression ratio if your installation contains many files with common content, such as text files, especially if such common content files are grouped together within the [Files] section.</p>
 <p>The disadvantage to using solid compression is that because all files are compressed into a single compressed stream, Setup can no longer randomly access the files. This can decrease performance. If a certain file isn't going to be extracted on the user's system, it has to decompress the data for that file anyway (into memory) before it can decompress the next file. And if, for example, there was an error while extracting a particular file and the user clicks Retry, it can't just seek to the beginning of that file's compressed data; since all files are stored in one stream, it has seek to the very beginning. If disk spanning was enabled, the user would have to re-insert disk 1.</p>
-<p>Thus, it is not recommended that solid compression be enabled on huge installs (say, over 100 MB) or on disk-spanned installs. It is primarily designed to save download time on smaller installs distributed over the Internet.</p>
 </body>
 </setuptopic>
 
