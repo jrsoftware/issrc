@@ -1698,7 +1698,7 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
     ParamCount, SwapFirst, SwapLast: Integer;
     S: tbtstring;
   begin
-    { Calculate parameter count of our proc, will will need this later. }
+    { Calculate parameter count of our proc, will need this later. }
     ProcRec := Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
     S := ProcRec.ExportDecl;
     GRFW(S);
@@ -1722,7 +1722,6 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
       http://www.sherlocksoftware.org/page.php?id=54 and
       https://github.com/thenickdude/InnoCallback. }
     Inliner := TASMInline.create;
-
     try
       Inliner.Pop(EAX); //get the retptr off the stack
 
