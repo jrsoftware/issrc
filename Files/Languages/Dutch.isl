@@ -229,6 +229,7 @@ SelectDirectoryLabel=Geef de locatie van de volgende diskette.
 ; *** Installation phase messages
 SetupAborted=Setup is niet voltooid.%n%nCorrigeer het probleem en voer Setup opnieuw uit.
 EntryAbortRetryIgnore=Klik op Opnieuw om het opnieuw te proberen, op Negeren om toch door te gaan, of op Afbreken om de installatie af te breken.
+ChooseAction=Kies actie
 
 ; *** Installation status messages
 StatusClosingApplications=Programma's afsluiten...
@@ -259,11 +260,15 @@ ErrorRegWriteKey=Fout bij het schrijven naar registersleutel:%n%1\%2
 ErrorIniEntry=Fout bij het maken van een INI-instelling in bestand "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Klik op Opnieuw om het opnieuw te proberen, op Negeren om toch door te gaan (niet aanbevolen), of op Afbreken om de installatie af te breken.
+FileAbortRetryIgnore=Klik op Opnieuw om het opnieuw te proberen, op Negeren om dit bestand over te slaan (niet aanbevolen), of op Afbreken om de installatie af te breken.
 FileAbortRetryIgnore2=Klik op Opnieuw om het opnieuw te proberen, op Negeren om toch door te gaan (niet aanbevolen), of op Afbreken om de installatie af te breken.
+FileAbortRetryIgnoreSkip=Sla dit bestand over
+FileAbortRetryIgnoreCancel=Breek de installatie af
 SourceIsCorrupted=Het bronbestand is beschadigd
 SourceDoesntExist=Het bronbestand "%1" bestaat niet
 ExistingFileReadOnly=Het bestaande bestand is gemarkeerd als alleen-lezen.%n%nKlik op Opnieuw om het kenmerk alleen-lezen te verwijderen en opnieuw te proberen, op Negeren om dit bestand over te slaan, of op Afbreken om de installatie af te breken.
+ExistingFileReadOnly2=Het bestaande bestand is gemarkeerd als alleen-lezen.
+ExistingFileReadOnlyRetry=Verwijder het kenmerk alleen-lezen en probeer opnieuw
 ErrorReadingExistingDest=Er is een fout opgetreden bij het lezen van het bestaande bestand:
 FileExists=Het bestand bestaat al.%n%nWilt u dat Setup het overschrijft?
 ExistingFileNewer=Het bestaande bestand is nieuwer dan het bestand dat Setup probeert te installeren. U wordt aanbevolen het bestaande bestand te behouden.%n%nWilt u het bestaande bestand behouden?

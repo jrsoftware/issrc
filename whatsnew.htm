@@ -113,6 +113,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added support for 64-bit mode on Windows 10 on ARM which can be used to install ARM64 binaries. See the <i>64BitThreeArch.iss</i> example script for an example which demonstrates how to install a program built for three different architectures (x86, x64, ARM64) using a single installer.</li>
 </ul>
 <ul>
+  <li>The Abort/Retry/Ignore dialog shown if an existing file is marked as read-only now displays a task dialog if supported by the system and the existing regular message box otherwise. The task dialog is more user friendly (<a href="https://i.imgur.com/IwOfoQo.png">task dialog example</a>, <a href="https://i.imgur.com/n7wh2UC.png">message box example</a>).</li>
   <li>Added new [Setup] section directive: <tt>VersionInfoOriginalFileName</tt>, which sets the original filename version value.</li>
   <li>The <tt>Permissions</tt> parameter supported by [Files], [Dirs] and [Registry] entries now also allows you to grant permission to the Guests group, the Local Service account, the Network Service account, and to the Creator Owner.</li>
   <li>Added new special-purpose <i>HelpTextNote</i> message that can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing /HELP on the command line. This message defaults to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use it.</li>
@@ -154,7 +155,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 
 <p>Some messages have been added in this version:<!-- (<a href="https://github.com/jrsoftware/issrc/commit/b0cd1a0177b818e36734026c67dc24f01ad6a0d0">View differences in Default.isl</a>).--></p>
 <ul>
-  <li><b>New messages:</b> PrivilegesRequiredOverrideInstruction, PrivilegesRequiredOverrideTaskDialogText1, PrivilegesRequiredOverrideMsgBoxText1, PrivilegesRequiredOverrideTaskDialogText2, PrivilegesRequiredOverrideMsgBoxText2, PrivilegesRequiredOverrideAllUsers, PrivilegesRequiredOverrideCurrentUser, PrivilegesRequiredOverrideRecommended, UninstallDisplayNameMark, UninstallDisplayNameMarks, UninstallDisplayNameMark32Bit, UninstallDisplayNameMark64Bit, UninstallDisplayNameMarkAllUsers, UninstallDisplayNameCurrentUser.</li>
+  <li><b>New messages:</b> ChooseAction, ExistingFileReadOnly2, ExistingFileReadOnlyRetry, FileAbortRetryIgnoreSkip, FileAbortRetryIgnoreCancel, PrivilegesRequiredOverrideInstruction, PrivilegesRequiredOverrideTaskDialogText1, PrivilegesRequiredOverrideMsgBoxText1, PrivilegesRequiredOverrideTaskDialogText2, PrivilegesRequiredOverrideMsgBoxText2, PrivilegesRequiredOverrideAllUsers, PrivilegesRequiredOverrideCurrentUser, PrivilegesRequiredOverrideRecommended, UninstallDisplayNameMark, UninstallDisplayNameMarks, UninstallDisplayNameMark32Bit, UninstallDisplayNameMark64Bit, UninstallDisplayNameMarkAllUsers, UninstallDisplayNameCurrentUser.</li>
 </ul>
 
 <p>Note: Only the official English and Dutch (Netherlands) translations have been updated for these changes at this moment. See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.</p>

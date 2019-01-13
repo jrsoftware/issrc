@@ -211,6 +211,31 @@ begin
   end;
 end;
 
+function AbortRetryIgnoreTaskDialogMsgBox(const TaskDialogText1, TaskDialogText2, MsgBoxText1, MsgBoxText2: String;
+  const RetryIgnoreAbortButtonLabels: array of String): Boolean;
+{ Returns True if Ignore was selected, False if Retry was selected, or
+  calls Abort if Abort was selected. }
+var
+  TaskDialogText: String;
+begin
+  if TaskDialogText2 <> '' then
+    TaskDialogText := TaskDialogText1 + SNewLine2 + TaskDialogText2
+  else
+    TaskDialogText := TaskDialogText1;
+  Result := False;
+  case LoggedTaskDialogMsgBox('', SetupMessages[msgChooseAction], TaskDialogText,
+         MsgBoxText1 + SNewLine2 + MsgBoxText2, '', mbError, MB_ABORTRETRYIGNORE,
+         RetryIgnoreAbortButtonLabels,
+         0, False, True, IDABORT) of
+    IDABORT: Abort;
+    IDRETRY: ;
+    IDIGNORE: Result := True;
+  else
+    Log('LoggedTaskDialogMsgBox returned an unexpected value. Assuming Abort.');
+    Abort;
+  end;
+end;
+
 function FileTimeToStr(const AFileTime: TFileTime): String;
 { Converts a TFileTime into a string for log purposes. }
 var
@@ -1310,7 +1335,10 @@ var
             if (ExistingFileAttr <> -1) and
                (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then begin
               if not(foOverwriteReadOnly in CurFile^.Options) and
-                 AbortRetryIgnoreMsgBox(DestFile, SetupMessages[msgExistingFileReadOnly]) then begin
+                 AbortRetryIgnoreTaskDialogMsgBox(
+                   DestFile, SetupMessages[msgExistingFileReadOnly2],
+                   DestFile, SetupMessages[msgExistingFileReadOnly],
+                   [SetupMessages[msgExistingFileReadOnlyRetry], SetupMessages[msgFileAbortRetryIgnoreSkip], SetupMessages[msgFileAbortRetryIgnoreCancel]]) then begin
                 Log('User opted not to strip the existing file''s read-only attribute. Skipping.');
                 goto Skip;
               end;
