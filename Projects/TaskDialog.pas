@@ -173,7 +173,7 @@ begin
   if ForceMsgBox or
      not DoTaskDialog(Application.Handle, PChar(Instruction), PChar(TaskDialogText),
            GetMessageBoxCaption(PChar(Caption), Typ), IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
-           GetMessageBoxRightToLeft, IfThen(Typ = mbCriticalError, MB_ICONSTOP, 0), Result) then
+           GetMessageBoxRightToLeft, IfThen(Typ in [mbError, mbCriticalError], MB_ICONSTOP, 0), Result) then //note that MB_ICONEXCLAMATION (used by mbError) includes MB_ICONSTOP (used by mbCriticalError)
     Result := MsgBox(MsgBoxText, IfThen(Instruction <> '', Instruction, Caption), Typ, Buttons);
 end;
 
