@@ -249,7 +249,10 @@ SelectDirectoryLabel=Please specify the location of the next disk.
 ; *** Installation phase messages
 SetupAborted=Setup was not completed.%n%nPlease correct the problem and run Setup again.
 EntryAbortRetryIgnore=Click Retry to try again, Ignore to proceed anyway, or Abort to cancel installation.
-ChooseAction=Choose action
+AbortRetryIgnoreChooseAction=Choose action
+AbortRetryIgnoreRetry=Try again
+AbortRetryIgnoreProceedAnyway=Proceed anyway
+AbortRetryIgnoreCancel=Cancel installation
 
 ; *** Installation status messages
 StatusClosingApplications=Closing applications...
@@ -282,13 +285,14 @@ ErrorIniEntry=Error creating INI entry in file "%1".
 ; *** File copying errors
 FileAbortRetryIgnore=Click Retry to try again, Ignore to skip this file (not recommended), or Abort to cancel installation.
 FileAbortRetryIgnore2=Click Retry to try again, Ignore to proceed anyway (not recommended), or Abort to cancel installation.
-FileAbortRetryIgnoreSkip=Skip this file
-FileAbortRetryIgnoreCancel=Cancel installation
+FileAbortRetryIgnoreSkipNotRecommended=Skip this file (not recommended)
+FileAbortRetryIgnoreProceedAnywayNotRecommended=Proceed anyway (not recommended)
 SourceIsCorrupted=The source file is corrupted
 SourceDoesntExist=The source file "%1" does not exist
-ExistingFileReadOnly=The existing file is marked as read-only.%n%nClick Retry to remove the read-only attribute and try again, Ignore to skip this file, or Abort to cancel installation.
-ExistingFileReadOnly2=The existing file is marked as read-only.
+ExistingFileReadOnly=The existing file is marked as read-only.
+ExistingFileReadOnlyAbortRetryIgnore=Click Retry to remove the read-only attribute and try again, Ignore to skip this file, or Abort to cancel installation.
 ExistingFileReadOnlyRetry=Remove the read-only attribute and try again
+ExistingFileReadOnlySkip=Skip this file
 ErrorReadingExistingDest=An error occurred while trying to read the existing file:
 FileExists=The file already exists.%n%nWould you like Setup to overwrite it?
 ExistingFileNewer=The existing file is newer than the one Setup is trying to install. It is recommended that you keep the existing file.%n%nDo you want to keep the existing file?
