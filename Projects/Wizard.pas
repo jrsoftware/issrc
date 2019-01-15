@@ -63,6 +63,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+  published
     property Caption: String read FCaption write SetCaption;
     property Description: String read FDescription write SetDescription;
     property ID: Integer read FID;

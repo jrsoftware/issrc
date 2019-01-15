@@ -426,43 +426,9 @@ begin
   end;
 end;
 
-procedure TWizardPageID_R(Self: TWizardPage; var T: Integer); begin T := Self.ID; end;
-procedure TWizardPageCaption_R(Self: TWizardPage; var T: String); begin T := Self.Caption; end;
-procedure TWizardPageCaption_W(Self: TWizardPage; T: String); begin Self.Caption := T; end;
-procedure TWizardPageDescription_R(Self: TWizardPage; var T: String); begin T := Self.Description; end;
-procedure TWizardPageDescription_W(Self: TWizardPage; T: String); begin Self.Description := T; end;
-procedure TWizardPageSurface_R(Self: TWizardPage; var T: TNewNotebookPage); begin T := Self.Surface; end;
-procedure TWizardPageSurfaceColor_R(Self: TWizardPage; var T: TColor); begin T := Self.SurfaceColor; end;
-procedure TWizardPageSurfaceHeight_R(Self: TWizardPage; var T: Integer); begin T := Self.SurfaceHeight; end;
-procedure TWizardPageSurfaceWidth_R(Self: TWizardPage; var T: Integer); begin T := Self.SurfaceWidth; end;
-procedure TWizardPageOnActivate_R(Self: TWizardPage; var T: TWizardPageNotifyEvent); begin T := Self.OnActivate; end;
-procedure TWizardPageOnActivate_W(Self: TWizardPage; T: TWizardPageNotifyEvent); begin Self.OnActivate := T; end;
-procedure TWizardPageOnBackButtonClick_R(Self: TWizardPage; var T: TWizardPageButtonEvent); begin T := Self.OnBackButtonClick; end;
-procedure TWizardPageOnBackButtonClick_W(Self: TWizardPage; T: TWizardPageButtonEvent); begin Self.OnBackButtonClick := T; end;
-procedure TWizardPageOnCancelButtonClick_R(Self: TWizardPage; var T: TWizardPageCancelEvent); begin T := Self.OnCancelButtonClick; end;
-procedure TWizardPageOnCancelButtonClick_W(Self: TWizardPage; T: TWizardPageCancelEvent); begin Self.OnCancelButtonClick := T; end;
-procedure TWizardPageOnNextButtonClick_R(Self: TWizardPage; var T: TWizardPageButtonEvent); begin T := Self.OnNextButtonClick; end;
-procedure TWizardPageOnNextButtonClick_W(Self: TWizardPage; T: TWizardPageButtonEvent); begin Self.OnNextButtonClick := T; end;
-procedure TWizardPageOnShouldSkipPage_R(Self: TWizardPage; var T: TWizardPageShouldSkipEvent); begin T := Self.OnShouldSkipPage; end;
-procedure TWizardPageOnShouldSkipPage_W(Self: TWizardPage; T: TWizardPageShouldSkipEvent); begin Self.OnShouldSkipPage := T; end;
-
 procedure RegisterWizardPage_R(Cl: TIFPSRuntimeClassImporter);
 begin
-  with Cl.Add(TWizardPage) do
-  begin
-    RegisterPropertyHelper(@TWizardPageID_R, nil, 'ID');
-    RegisterPropertyHelper(@TWizardPageCaption_R, @TWizardPageCaption_W, 'Caption');
-    RegisterPropertyHelper(@TWizardPageDescription_R, @TWizardPageDescription_W, 'Description');
-    RegisterPropertyHelper(@TWizardPageSurface_R, nil, 'Surface');
-    RegisterPropertyHelper(@TWizardPageSurfaceColor_R, nil, 'SurfaceColor');
-    RegisterPropertyHelper(@TWizardPageSurfaceHeight_R, nil, 'SurfaceHeight');
-    RegisterPropertyHelper(@TWizardPageSurfaceWidth_R, nil, 'SurfaceWidth');
-    RegisterPropertyHelper(@TWizardPageOnActivate_R, @TWizardPageOnActivate_W, 'OnActivate');
-    RegisterPropertyHelper(@TWizardPageOnBackButtonClick_R, @TWizardPageOnBackButtonClick_W, 'OnBackButtonClick');
-    RegisterPropertyHelper(@TWizardPageOnCancelButtonClick_R, @TWizardPageOnCancelButtonClick_W, 'OnCancelButtonClick');
-    RegisterPropertyHelper(@TWizardPageOnNextButtonClick_R, @TWizardPageOnNextButtonClick_W, 'OnNextButtonClick');
-    RegisterPropertyHelper(@TWizardPageOnShouldSkipPage_R, @TWizardPageOnShouldSkipPage_W, 'OnShouldSkipPage');
-  end;
+  Cl.Add(TWizardPage);
 end;
 
 procedure TInputQueryWizardPageEdits_R(Self: TInputQueryWizardPage; var T: TPasswordEdit; const t1: Integer); begin T := Self.Edits[t1]; end;
