@@ -144,7 +144,7 @@ var
   WizardComponents, WizardDeselectedComponents, WizardTasks, WizardDeselectedTasks: TStringList;
   NeedToAbortInstall: Boolean;
 
-  { Check/BeforeInstall/AfterInstall 'contants' }
+  { Check/BeforeInstall/AfterInstall 'constants' }
   CheckOrInstallCurrentFilename, CheckOrInstallCurrentSourceFilename: String;
 
   { RestartManager API state.
