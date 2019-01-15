@@ -54,8 +54,9 @@ PrivilegesRequiredOverrideMsgBoxText1=%1 kan geïnstalleerd worden voor alle gebr
 PrivilegesRequiredOverrideTaskDialogText2=%1 kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
 PrivilegesRequiredOverrideMsgBoxText2=%1 kan geïnstalleerd worden voor u alleen (aanbevolen), of voor alle gebruikers (vereist aanmelding als een systeembeheerder).%n%nWilt u voor u alleen installeren?
 PrivilegesRequiredOverrideAllUsers=Installeer voor alle gebruikers
+PrivilegesRequiredOverrideAllUsersRecommended=Installeer voor alle gebruikers (aanbevolen)
 PrivilegesRequiredOverrideCurrentUser=Installeer voor mij alleen
-PrivilegesRequiredOverrideRecommended=%1 (aanbevolen)
+PrivilegesRequiredOverrideCurrentUserRecommended=Installeer voor mij alleen (aanbevolen)
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup kan de map "%1" niet maken

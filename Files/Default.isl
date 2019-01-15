@@ -71,8 +71,9 @@ PrivilegesRequiredOverrideMsgBoxText1=%1 can be installed for all users (recomme
 PrivilegesRequiredOverrideTaskDialogText2=%1 can be installed for you only, or for all users (requires administrative privileges).
 PrivilegesRequiredOverrideMsgBoxText2=%1 can be installed for you only (recommended), or for all users (requires administrative privileges).%n%nInstall for you only?
 PrivilegesRequiredOverrideAllUsers=Install for all users
+PrivilegesRequiredOverrideAllUsersRecommended=Install for all users (recommended)
 PrivilegesRequiredOverrideCurrentUser=Install for me only
-PrivilegesRequiredOverrideRecommended=%1 (recommended)
+PrivilegesRequiredOverrideCurrentUserRecommended=Install for me only (recommended)
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup was unable to create the directory "%1"

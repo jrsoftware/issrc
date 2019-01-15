@@ -2838,7 +2838,7 @@ var
                  FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText2, [AppName]),
                  FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText2, [AppName]),
                  SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
-                 [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]]), SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO, False) of
+                 [SetupMessages[msgPrivilegesRequiredOverrideCurrentUserRecommended], SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO, False) of
             IDYES: DesireAdminInstallMode := False;
             IDNO: DesireAdminInstallMode := True;
             IDCANCEL: Abort;
@@ -2848,7 +2848,7 @@ var
                  FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText1, [AppName]),
                  FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText1, [AppName]),
                  SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
-                 [FmtSetupMessage(msgPrivilegesRequiredOverrideRecommended, [SetupMessages[msgPrivilegesRequiredOverrideAllUsers]]), SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES, False) of
+                 [SetupMessages[msgPrivilegesRequiredOverrideAllUsersRecommended], SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES, False) of
             IDYES: DesireAdminInstallMode := True;
             IDNO: DesireAdminInstallMode := False;
             IDCANCEL: Abort;
