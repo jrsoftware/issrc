@@ -182,15 +182,6 @@ begin
   Cl.Add(TUIStateForm);
 end;
 
-procedure TSetupFormControlsFlipped_R(Self: TSetupForm; var T: Boolean); begin T := Self.ControlsFlipped; end;
-procedure TSetupFormFlipControlsOnShow_W(Self: TSetupForm; const T: Boolean); begin Self.FlipControlsOnShow := T; end;
-procedure TSetupFormFlipControlsOnShow_R(Self: TSetupForm; var T: Boolean); begin T := Self.FlipControlsOnShow; end;
-procedure TSetupFormKeepSizeY_W(Self: TSetupForm; const T: Boolean); begin Self.KeepSizeY := T; end;
-procedure TSetupFormKeepSizeY_R(Self: TSetupForm; var T: Boolean); begin T := Self.KeepSizeY; end;
-procedure TSetupFormRightToLeft_R(Self: TSetupForm; var T: Boolean); begin T := Self.RightToLeft; end;
-procedure TSetupFormSizeAndCenterOnShow_W(Self: TSetupForm; const T: Boolean); begin Self.SizeAndCenterOnShow := T; end;
-procedure TSetupFormSizeAndCenterOnShow_R(Self: TSetupForm; var T: Boolean); begin T := Self.SizeAndCenterOnShow; end;
-
 procedure RegisterSetupForm_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TSetupForm) do
@@ -198,11 +189,6 @@ begin
     RegisterMethod(@TSetupForm.ShouldSizeX, 'ShouldSizeX');
     RegisterMethod(@TSetupForm.ShouldSizeY, 'ShouldSizeY');
     RegisterMethod(@TSetupForm.FlipSizeAndCenterIfNeeded, 'FlipSizeAndCenterIfNeeded');
-    RegisterPropertyHelper(@TSetupFormControlsFlipped_R, nil, 'ControlsFlipped');
-    RegisterPropertyHelper(@TSetupFormFlipControlsOnShow_R, @TSetupFormFlipControlsOnShow_W, 'FlipControlsOnShow');
-    RegisterPropertyHelper(@TSetupFormKeepSizeY_R, @TSetupFormKeepSizeY_W, 'KeepSizeY');
-    RegisterPropertyHelper(@TSetupFormRightToLeft_R, nil, 'RightToLeft');
-    RegisterPropertyHelper(@TSetupFormSizeAndCenterOnShow_R, @TSetupFormSizeAndCenterOnShow_W, 'SizeAndCenterOnShow');
   end;
 end;
 
@@ -434,7 +420,6 @@ end;
 procedure TInputQueryWizardPageEdits_R(Self: TInputQueryWizardPage; var T: TPasswordEdit; const t1: Integer); begin T := Self.Edits[t1]; end;
 procedure TInputQueryWizardPagePromptLabels_R(Self: TInputQueryWizardPage; var T: TNewStaticText; const t1: Integer); begin T := Self.PromptLabels[t1]; end;
 procedure TInputQueryWizardPageValues_R(Self: TInputQueryWizardPage; var T: String; const t1: Integer); begin T := Self.Values[t1]; end;
-procedure TInputQueryWizardPageSubCaptionLabel_R(Self: TInputQueryWizardPage; var T: TNewStaticText); begin T := Self.SubCaptionLabel; end;
 procedure TInputQueryWizardPageValues_W(Self: TInputQueryWizardPage; const T: String; const t1: Integer); begin Self.Values[t1] := T; end;
 
 procedure RegisterInputQueryWizardPage_R(CL: TPSRuntimeClassImporter);
@@ -444,7 +429,6 @@ begin
     RegisterMethod(@TInputQueryWizardPage.Add, 'Add');
     RegisterPropertyHelper(@TInputQueryWizardPageEdits_R,nil,'Edits');
     RegisterPropertyHelper(@TInputQueryWizardPagePromptLabels_R,nil,'PromptLabels');
-    RegisterPropertyHelper(@TInputQueryWizardPageSubcaptionLabel_R,nil,'SubCaptionLabel');
     RegisterPropertyHelper(@TInputQueryWizardPageValues_R,@TInputQueryWizardPageValues_W,'Values');
   end;
 end;
@@ -452,7 +436,6 @@ end;
 procedure TInputOptionWizardPageCheckListBox_R(Self: TInputOptionWizardPage; var T: TNewCheckListBox); begin T := Self.CheckListBox; end;
 procedure TInputOptionWizardPageSelectedValueIndex_R(Self: TInputOptionWizardPage; var T: Integer); begin T := Self.SelectedValueIndex; end;
 procedure TInputOptionWizardPageSelectedValueIndex_W(Self: TInputOptionWizardPage; const T: Integer); begin Self.SelectedValueIndex := T; end;
-procedure TInputOptionWizardPageSubCaptionLabel_R(Self: TInputOptionWizardPage; var T: TNewStaticText); begin T := Self.SubCaptionLabel; end;
 procedure TInputOptionWizardPageValues_W(Self: TInputOptionWizardPage; const T: Boolean; const t1: Integer); begin Self.Values[t1] := T; end;
 procedure TInputOptionWizardPageValues_R(Self: TInputOptionWizardPage; var T: Boolean; const t1: Integer); begin T := Self.Values[t1]; end;
 
@@ -464,7 +447,6 @@ begin
     RegisterMethod(@TInputOptionWizardPage.AddEx, 'AddEx');
     RegisterPropertyHelper(@TInputOptionWizardPageCheckListBox_R,nil,'CheckListBox');
     RegisterPropertyHelper(@TInputOptionWizardPageSelectedValueIndex_R,@TInputOptionWizardPageSelectedValueIndex_W,'SelectedValueIndex');
-    RegisterPropertyHelper(@TInputOptionWizardPageSubcaptionLabel_R,nil,'SubCaptionLabel');
     RegisterPropertyHelper(@TInputOptionWizardPageValues_R,@TInputOptionWizardPageValues_W,'Values');
   end;
 end;
@@ -472,7 +454,6 @@ end;
 procedure TInputDirWizardPageButtons_R(Self: TInputDirWizardPage; var T: TNewButton; const t1: Integer); begin T := Self.Buttons[t1]; end;
 procedure TInputDirWizardPageEdits_R(Self: TInputDirWizardPage; var T: TEdit; const t1: Integer); begin T := Self.Edits[t1]; end;
 procedure TInputDirWizardPagePromptLabels_R(Self: TInputDirWizardPage; var T: TNewStaticText; const t1: Integer); begin T := Self.PromptLabels[t1]; end;
-procedure TInputDirWizardPageSubCaptionLabel_R(Self: TInputDirWizardPage; var T: TNewStaticText); begin T := Self.SubCaptionLabel; end;
 procedure TInputDirWizardPageValues_W(Self: TInputDirWizardPage; const T: String; const t1: Integer); begin Self.Values[t1] := T; end;
 procedure TInputDirWizardPageValues_R(Self: TInputDirWizardPage; var T: String; const t1: Integer); begin T := Self.Values[t1]; end;
 
@@ -484,7 +465,6 @@ begin
     RegisterPropertyHelper(@TInputDirWizardPageButtons_R,nil,'Buttons');
     RegisterPropertyHelper(@TInputDirWizardPageEdits_R,nil,'Edits');
     RegisterPropertyHelper(@TInputDirWizardPagePromptLabels_R,nil,'PromptLabels');
-    RegisterPropertyHelper(@TInputDirWizardPageSubcaptionLabel_R,nil,'SubCaptionLabel');
     RegisterPropertyHelper(@TInputDirWizardPageValues_R,@TInputDirWizardPageValues_W,'Values');
   end;
 end;
@@ -492,7 +472,6 @@ end;
 procedure TInputFileWizardPageButtons_R(Self: TInputFileWizardPage; var T: TNewButton; const t1: Integer); begin T := Self.Buttons[t1]; end;
 procedure TInputFileWizardPagePromptLabels_R(Self: TInputFileWizardPage; var T: TNewStaticText; const t1: Integer); begin T := Self.PromptLabels[t1]; end;
 procedure TInputFileWizardPageEdits_R(Self: TInputFileWizardPage; var T: TEdit; const t1: Integer); begin T := Self.Edits[t1]; end;
-procedure TInputFileWizardPageSubCaptionLabel_R(Self: TInputFileWizardPage; var T: TNewStaticText); begin T := Self.SubCaptionLabel; end;
 procedure TInputFileWizardPageValues_W(Self: TInputFileWizardPage; const T: String; const t1: Integer); begin Self.Values[t1] := T; end;
 procedure TInputFileWizardPageValues_R(Self: TInputFileWizardPage; var T: String; const t1: Integer); begin T := Self.Values[t1]; end;
 procedure TInputFileWizardPageIsSaveButton_W(Self: TInputFileWizardPage; const T: Boolean; const t1: Integer); begin Self.IsSaveButton[t1] := T; end;
@@ -506,46 +485,26 @@ begin
     RegisterPropertyHelper(@TInputFileWizardPageButtons_R,nil,'Buttons');
     RegisterPropertyHelper(@TInputFileWizardPageEdits_R,nil,'Edits');
     RegisterPropertyHelper(@TInputFileWizardPagePromptLabels_R,nil,'PromptLabels');
-    RegisterPropertyHelper(@TInputFileWizardPageSubcaptionLabel_R,nil,'SubCaptionLabel');
     RegisterPropertyHelper(@TInputFileWizardPageValues_R,@TInputFileWizardPageValues_W,'Values');
     RegisterPropertyHelper(@TInputFileWizardPageIsSaveButton_R,@TInputFileWizardPageIsSaveButton_W,'IsSaveButton');
   end;
 end;
 
-procedure TOutputMsgWizardPageMsgLabel_R(Self: TOutputMsgWizardPage; var T: TNewStaticText); begin T := Self.MsgLabel; end;
-
 procedure RegisterOutputMsgWizardPage_R(CL: TPSRuntimeClassImporter);
 begin
-  with CL.Add(TOutputMsgWizardPage) do
-  begin
-    RegisterPropertyHelper(@TOutputMsgWizardPageMsgLabel_R,nil,'MsgLabel');
-  end;
+  CL.Add(TOutputMsgWizardPage);
 end;
-
-procedure TOutputMsgMemoWizardPageRichEditViewer_R(Self: TOutputMsgMemoWizardPage; var T: TRichEditViewer); begin T := Self.RichEditViewer; end;
-procedure TOutputMsgMemoWizardPageSubCaptionLabel_R(Self: TOutputMsgMemoWizardPage; var T: TNewStaticText); begin T := Self.SubCaptionLabel; end;
 
 procedure RegisterOutputMsgMemoWizardPage_R(CL: TPSRuntimeClassImporter);
 begin
-  with CL.Add(TOutputMsgMemoWizardPage) do
-  begin
-    RegisterPropertyHelper(@TOutputMsgMemoWizardPageRichEditViewer_R,nil,'RichEditViewer');
-    RegisterPropertyHelper(@TOutputMsgMemoWizardPageSubcaptionLabel_R,nil,'SubCaptionLabel');
-  end;
+  CL.Add(TOutputMsgMemoWizardPage);
 end;
-
-procedure TOutputProgressWizardPageMsg1Label_R(Self: TOutputProgressWizardPage; var T: TNewStaticText); begin T := Self.Msg1Label; end;
-procedure TOutputProgressWizardPageMsg2Label_R(Self: TOutputProgressWizardPage; var T: TNewStaticText); begin T := Self.Msg2Label; end;
-procedure TOutputProgressWizardPageProgressBar_R(Self: TOutputProgressWizardPage; var T: TNewProgressBar); begin T := Self.ProgressBar; end;
 
 procedure RegisterOutputProgressWizardPage_R(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(TOutputProgressWizardPage) do
   begin
     RegisterMethod(@TOutputProgressWizardPage.Hide, 'Hide');
-    RegisterPropertyHelper(@TOutputProgressWizardPageMsg1Label_R,nil,'Msg1Label');
-    RegisterPropertyHelper(@TOutputProgressWizardPageMsg2Label_R,nil,'Msg2Label');
-    RegisterPropertyHelper(@TOutputProgressWizardPageProgressBar_R,nil,'ProgressBar');
     RegisterMethod(@TOutputProgressWizardPage.SetProgress, 'SetProgress');
     RegisterMethod(@TOutputProgressWizardPage.SetText, 'SetText');
     RegisterMethod(@TOutputProgressWizardPage.Show, 'Show');
