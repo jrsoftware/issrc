@@ -1,6 +1,7 @@
-; *** Inno Setup version 5.5.3+ Russian messages ***
+; *** Inno Setup version 6.0.0+ Russian messages ***
 ;
-; Translated from English by Dmitry Kann, http://yktoo.com/
+; Translated from English by: Dmitry Kann,   http://yktoo.com/Translated
+;                             Astafev Roman, astafev.roman.mail@gmail.com
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -8,9 +9,21 @@
 ; two periods being displayed).
 
 [LangOptions]
+; The following three entries are very important. Be sure to read and 
+; understand the '[LangOptions] section' topic in the help file.
 LanguageName=<0420><0443><0441><0441><043A><0438><0439>
 LanguageID=$0419
 LanguageCodePage=1251
+; If the language you are translating to requires special font faces or
+; sizes, uncomment any of the following entries and change them accordingly.
+;DialogFontName=
+;DialogFontSize=8
+;WelcomeFontName=Verdana
+;WelcomeFontSize=12
+;TitleFontName=Arial
+;TitleFontSize=29
+;CopyrightFontName=Arial
+;CopyrightFontSize=8
 
 [Messages]
 
@@ -29,6 +42,7 @@ ErrorTitle=Ошибка
 SetupLdrStartupMessage=Данная программа установит %1 на ваш компьютер, продолжить?
 LdrCannotCreateTemp=Невозможно создать временный файл. Установка прервана
 LdrCannotExecTemp=Невозможно выполнить файл во временном каталоге. Установка прервана
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nОшибка %2: %3
@@ -50,6 +64,17 @@ PowerUserPrivilegesRequired=Чтобы установить эту программу, вы должны выполнить 
 SetupAppRunningError=Обнаружен запущенный экземпляр %1.%n%nПожалуйста, закройте все экземпляры приложения, затем нажмите «OK», чтобы продолжить, или «Отмена», чтобы выйти.
 UninstallAppRunningError=Деинсталлятор обнаружил запущенный экземпляр %1.%n%nПожалуйста, закройте все экземпляры приложения, затем нажмите «OK», чтобы продолжить, или «Отмена», чтобы выйти.
 
+; *** Startup questions
+PrivilegesRequiredOverrideInstruction=Выберите режим установки
+PrivilegesRequiredOverrideTaskDialogText1=%1 может быть установлен для всех пользователей (требуются права администратора) или только для вас.
+PrivilegesRequiredOverrideMsgBoxText1=%1 может быть установлен для всех пользователей (рекомендуется, но требует прав администратора) или только для вас.%n%nУстановить для всех пользователей?
+PrivilegesRequiredOverrideTaskDialogText2=%1 может быть установлен только для вас или для всех пользователей (требуются права администратора).
+PrivilegesRequiredOverrideMsgBoxText2=%1 может быть установлен только для вас (рекомендуется) или для всех пользователей (требуются права администратора).%n%nУстановить только для вас?
+PrivilegesRequiredOverrideAllUsers=Установить для всех пользователей
+PrivilegesRequiredOverrideAllUsersRecommended=Установить для всех пользователей (рекомендуется)
+PrivilegesRequiredOverrideCurrentUser=Установить только для меня
+PrivilegesRequiredOverrideCurrentUserRecommended=Установить только для меня (рекомендуется)
+
 ; *** Misc. errors
 ErrorCreatingDir=Невозможно создать папку "%1"
 ErrorTooManyFilesInDir=Невозможно создать файл в каталоге "%1", так как в нём слишком много файлов
@@ -61,7 +86,7 @@ AboutSetupMenuItem=&О программе...
 AboutSetupTitle=О программе
 AboutSetupMessage=%1, версия %2%n%3%n%nСайт %1:%n%4
 AboutSetupNote=
-TranslatorNote=Russian translation by Dmitry Kann, http://www.dk-soft.org/
+TranslatorNote=Russian translation by Dmitry Kann & Astafev Roman
 
 ; *** Buttons
 ButtonBack=< &Назад
@@ -225,6 +250,10 @@ SelectDirectoryLabel=Пожалуйста, укажите путь к следующему диску.
 ; *** Installation phase messages
 SetupAborted=Установка не была завершена.%n%nПожалуйста, устраните проблему и запустите установку снова.
 EntryAbortRetryIgnore=Нажмите «Повтор», чтобы повторить попытку, «Пропустить», чтобы пропустить файл, или «Прервать» для отмены установки.
+AbortRetryIgnoreChooseAction=Выберите действие
+AbortRetryIgnoreRetry=Попробуйте еще раз
+AbortRetryIgnoreProceedAnyway=Все равно продолжить
+AbortRetryIgnoreCancel=Отменить установку
 
 ; *** Installation status messages
 StatusClosingApplications=Закрытие приложений...
@@ -257,9 +286,14 @@ ErrorIniEntry=Ошибка создания записи в INI-файле "%1".
 ; *** File copying errors
 FileAbortRetryIgnore=Нажмите «Повтор», чтобы повторить, «Пропустить», чтобы пропустить файл (не рекомендуется) или «Прервать» для выхода.
 FileAbortRetryIgnore2=Нажмите «Повтор», чтобы повторить, «Пропустить», чтобы игнорировать ошибку (не рекомендуется) или «Прервать» для выхода.
+FileAbortRetryIgnoreSkipNotRecommended=Пропустить этот файл (не рекомендуется)
+FileAbortRetryIgnoreProceedAnywayNotRecommended=Все равно продолжить (не рекомендуется
 SourceIsCorrupted=Исходный файл поврежден
 SourceDoesntExist=Исходный файл "%1" не существует
 ExistingFileReadOnly=Существующий файл помечен как «файл только для чтения».%n%nНажмите «Повтор» для удаления атрибута «только для чтения», «Пропустить», чтобы пропустить файл или «Прервать» для выхода.
+ExistingFileReadOnlyAbortRetryIgnore=Нажмите «Повторить» чтобы удалить атрибут только для чтения и повторите попытку, «Пропустить» чтобы пропустить этот файл, или «Отменить» чтобы отменить установку.
+ExistingFileReadOnlyRetry=Удалите атрибут только для чтения и повторите попытку
+ExistingFileReadOnlySkip=Пропустить этот файл
 ErrorReadingExistingDest=Произошла ошибка при попытке чтения существующего файла:
 FileExists=Файл уже существует.%n%nПерезаписать его?
 ExistingFileNewer=Существующий файл более новый, чем устанавливаемый. Рекомендуется сохранить существующий файл.%n%nВы хотите сохранить существующий файл?
@@ -273,6 +307,14 @@ ErrorRenamingTemp=Произошла ошибка при попытке переименования файла в папке назн
 ErrorRegisterServer=Невозможно зарегистрировать DLL/OCX: %1
 ErrorRegSvr32Failed=Ошибка при выполнении RegSvr32, код возврата %1
 ErrorRegisterTypeLib=Невозможно зарегистрировать библиотеку типов (Type Library): %1
+
+; *** Uninstall display name markings
+UninstallDisplayNameMark=%1 (%2)
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-бит
+UninstallDisplayNameMark64Bit=64-бит
+UninstallDisplayNameMarkAllUsers=Все пользователи
+UninstallDisplayNameMarkCurrentUser=Текущий пользователь
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Произошла ошибка при попытке открытия файла README.
@@ -299,7 +341,6 @@ SharedFileNameLabel=Имя файла:
 SharedFileLocationLabel=Расположение:
 WizardUninstalling=Состояние деинсталляции
 StatusUninstalling=Деинсталляция %1...
-
 
 ; *** Shutdown block reasons
 ShutdownBlockReasonInstallingApp=Установка %1.
