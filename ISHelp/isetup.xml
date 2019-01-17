@@ -100,9 +100,9 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <ul>
 
-<li>Support for every Windows release since 2000, including: Windows 10, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Vista, Windows Server 2008, Windows XP, Windows Server 2003, and Windows 2000. (No service packs are required.)</li>
+<li>Support for every Windows release since 2006, including: Windows 10, Windows 10 on ARM, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Server 2008, and Windows Vista. (No service packs are required.)</li>
 
-<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are supported. (On the Itanium architecture, Service Pack 1 or later is required on Windows Server 2003 to install in 64-bit mode.)</li>
+<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are supported.</li>
 
 <li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link> installations.</li>
 
@@ -849,15 +849,15 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use "0" then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>MinVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without a <tt>MinVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
-<pre>MinVersion: 10.0</pre>
+<pre>MinVersion: 6.2</pre>
 </example>
 </param>
 
 <param name="OnlyBelowVersion">
-<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you put <tt>6.0</tt> and the user is running Windows 2000 or XP, the entry <i>will</i> be processed, but if the user is running Windows Vista (which reports its version as 6.0) or later, it will <i>not</i> be processed. Putting "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you put <tt>6.2</tt> and the user is running Windows 7, the entry <i>will</i> be processed, but if the user is running Windows 8 (which reports its version as 6.2) or later, it will <i>not</i> be processed. Putting "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without an <tt>OnlyBelowVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
-<pre>OnlyBelowVersion: 10.0</pre>
+<pre>OnlyBelowVersion: 6.2</pre>
 </example>
 </param>
 
@@ -1906,7 +1906,7 @@ Filename: "http://www.example.com/"
 </param>
 
 <param name="AppUserModelID">
-<p>Specifies the Windows 7 Application User Model ID for the shortcut. Ignored on earlier Windows versions. This parameter can include constants.</p>
+<p>Specifies the Windows 7 (or later) Application User Model ID for the shortcut. Ignored on earlier Windows versions. This parameter can include constants.</p>
 <example>
 <pre>AppUserModelID: "MyCompany.MyProg"</pre>
 </example>
@@ -2604,7 +2604,7 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 <p>This flag cannot be combined with the <tt>runasoriginaluser</tt> flag.</p>
 </flag>
 <flag name="runasoriginaluser">
-<p>Valid only in a [Run] section. If this flag is specified and the system is running Windows Vista or later, the spawned process will execute with the (normally non-elevated) credentials of the user that started Setup initially (i.e., the "pre-UAC dialog" credentials).</p>
+<p>Valid only in a [Run] section. If this flag is specified, the spawned process will execute with the (normally non-elevated) credentials of the user that started Setup initially (i.e., the "pre-UAC dialog" credentials).</p>
 <p>This is the default behavior when the <tt>postinstall</tt> flag is used.</p>
 <p>If a user launches Setup by right-clicking its EXE file and selecting "Run as administrator", then this flag, unfortunately, will have no effect, because Setup has no opportunity to run any code with the original user credentials. The same is true if Setup is launched from an already-elevated process. Note, however, that this is not an Inno Setup-specific limitation; Windows Installer-based installers cannot return to the original user credentials either in such cases.</p>
 <p>This flag cannot be combined with the <tt>runascurrentuser</tt> flag.</p>
@@ -3921,7 +3921,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <body>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software runs on. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>If the user's system does not meet the minimum version requirement, Setup will give an error message and exit.</p>
-<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>MinVersion=0,5.0</tt>. The Windows 95/98/Me version number (the first number) must be <tt>0</tt>, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
+<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>MinVersion=0,6.2</tt>. The Windows 95/98/Me version number (the first number) must be <tt>0</tt>, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
 </body>
 </setuptopic>
 
@@ -3931,7 +3931,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <body>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software <i>will not</i> run on. Specifying "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>This directive is essentially the opposite of <link topic="setup_minversion">MinVersion</link>.</p>
-<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>OnlyBelowVersion=0,10.0</tt>. The Windows 95/98/Me version number (the first number) isn't used, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
+<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>OnlyBelowVersion=0,6.2</tt>. The Windows 95/98/Me version number (the first number) isn't used, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
 </body>
 </setuptopic>
 
@@ -3947,15 +3947,19 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupvalid><tt>admin</tt>, or <tt>lowest</tt></setupvalid>
 <setupdefault><tt>admin</tt></setupdefault>
 <body>
+<!--
 <p>The effect of this directive depends on which version of Windows the user is running:</p>
 <p><b>On Windows Vista and later:</b></p>
+-->
 <p>This directive affects whether elevated rights are requested (via a User Account Control dialog) when the installation is started.</p>
 <p>When set to <tt>admin</tt> (the default), Setup will always run with administrative privileges and in <link topic="admininstallmode">administrative install mode</link>. If Setup was started by an unprivileged user, Windows will ask for the password to an account that has administrative privileges, and Setup will then run under that account.</p>
 <!-- <p>When set to <tt>none</tt>, Setup will only run with administrative privileges if it was started by a member of the Administrators group. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
 <p>When set to <tt>lowest</tt>, Setup will not request to be run with administrative privileges even if it was started by a member of the Administrators group and will always run in <link topic="admininstallmode">non administrative install mode</link>. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
+<!--
 <p><b>On earlier versions of Windows:</b></p>
 <p>This directive specifies the minimum user privileges required to run the installation.</p>
 <p>When set to <tt>admin</tt> (the default), Setup will only run if the user is a member of the Administrators group and will always run in <link topic="admininstallmode">administrative install mode</link>. Otherwise, it will display the following message and exit: "You must be logged in as an administrator when installing this program."</p>
+-->
 <!-- <p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
 <p>When set to <tt>lowest</tt> Setup will not check the user's group membership and will always run in <link topic="admininstallmode">non administrative install mode</link>. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
 <p><b>See also:</b><br/>
@@ -4287,7 +4291,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 
 <setuptopic directive="UninstallDisplaySize">
 <body>
-<p>On Windows 7 and newer, Setup uses this directive to set the <tt>EstimatedSize</tt> value in the Uninstall registry key when possible since the Windows 7 <i>Add/Remove Programs</i> Control Panel (called <i>Program and Features</i>) no longer automatically calculates it. If an <tt>UninstallDisplaySize</tt> is not set, Setup estimates the size itself by taking the size of all files installed and adding any <tt>ExtraDiskSpaceRequired</tt> values set. Note: Windows 7 without any service pack only supports the display of values smaller than 4 GB.</p>
+<p>On Windows 7 and later, Setup uses this directive to set the <tt>EstimatedSize</tt> value in the Uninstall registry key when possible since the Windows 7 <i>Add/Remove Programs</i> Control Panel (called <i>Program and Features</i>) no longer automatically calculates it. If an <tt>UninstallDisplaySize</tt> is not set, Setup estimates the size itself by taking the size of all files installed and adding any <tt>ExtraDiskSpaceRequired</tt> values set. Note: Windows 7 without any service pack only supports the display of values smaller than 4 GB.</p>
 <p>Set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example><pre>UninstallDisplaySize=1073741824</pre></example>
 </body>
@@ -5071,7 +5075,7 @@ DiskSliceSize=1457664
 <p>Normally, you should not change this directive from its default value unless your application contains native 64-bit binaries.</p>
 <p>Be sure you have read the <link topic="64bitlimitations">64-bit Installation Limitations</link> topic before setting this directive.</p>
 <p>If your application runs only on 64-bit processor architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
-<p>Setup can only run in 64-bit install mode on versions of Windows that provide the API support Inno Setup requires (e.g. RegDeleteKeyEx). All x64 editions provide the necessary APIs, however Itanium editions prior to Windows Server 2003 SP1 do not. If the user is running an older Itanium version of Windows, Setup will display a message (<tt>MissingWOW64APIs</tt>) recommending that the user install a service pack, and exit.</p>
+<p>Setup can only run in 64-bit install mode on versions of Windows that provide the API support Inno Setup requires (e.g. RegDeleteKeyEx). All x64 known editions provide the necessary APIs but if they are lacking anyway, Setup will display a message (<tt>MissingWOW64APIs2</tt>), and exit.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesallowed">ArchitecturesAllowed</link></p>
 </body>
@@ -5322,7 +5326,7 @@ SignTool=byparam format c:
 <p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is not running silently, Setup will pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the [Files] or [InstallDelete] section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed.</p>
 <p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line.</p>
 <p>If set to <tt>force</tt> Setup will force close when closing applications, unless told not to via the command line. Use with care since this may cause the user to lose unsaved work.</p>
-<p>Note: Setup uses the Windows <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa373524.aspx">Restart Manager</extlink> API to close and restart applications, which is available only on Windows Vista / Windows Server 2008 and newer.</p>
+<p>Note: Setup uses the Windows <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa373524.aspx">Restart Manager</extlink> API to close and restart applications.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
 <link topic="scriptevents" anchor="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</link><br/>

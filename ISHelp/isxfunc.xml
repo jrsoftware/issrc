@@ -357,11 +357,11 @@ end;</pre></example>
       <function>
         <name>GetWindowsVersion</name>
         <prototype>function GetWindowsVersion: Cardinal;</prototype>
-        <description><p>Returns the version number of Windows packed into a single integer. The upper 8 bits specify the major version; the following 8 bits specify the minor version; the lower 16 bits specify the build number. For example, this function will return $05000893 on Windows 2000, which is version 5.0.2195.</p>
+        <description><p>Returns the version number of Windows packed into a single integer. The upper 8 bits specify the major version; the following 8 bits specify the minor version; the lower 16 bits specify the build number. For example, this function will return $0A002800 on Windows 10 Version 1507, which is version 10.0.10240.</p>
 <p>To retrieve just the major version number, use: "GetWindowsVersion shr 24". To retrieve just the minor version number, use: "(GetWindowsVersion shr 16) and $FF". To retrieve just the build number, use: "GetWindowsVersion and $FFFF".</p></description>
-        <example><pre>function IsWindowsXPOrLater: Boolean;
+        <example><pre>function IsWindows8OrLater: Boolean;
 begin
-  Result := (GetWindowsVersion &gt;= $05010000);
+  Result := (GetWindowsVersion &gt;= $06020000);
 end;</pre></example>
         <seealso><p><link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
       </function>
@@ -429,30 +429,6 @@ begin
     Exit;
   end;
 
-  // On Windows 2000, check for SP4
-  if Version.NTPlatform and
-     (Version.Major = 5) and
-     (Version.Minor = 0) and
-     (Version.ServicePackMajor &lt; 4) then
-  begin
-    SuppressibleMsgBox('When running on Windows 2000, Service Pack 4 is required.',
-      mbCriticalError, MB_OK, IDOK);
-    Result := False;
-    Exit;
-  end;
-
-  // On Windows XP, check for SP2
-  if Version.NTPlatform and
-     (Version.Major = 5) and
-     (Version.Minor = 1) and
-     (Version.ServicePackMajor &lt; 2) then
-  begin
-    SuppressibleMsgBox('When running on Windows XP, Service Pack 2 is required.',
-      mbCriticalError, MB_OK, IDOK);
-    Result := False;
-    Exit;
-  end;
-
   Result := True;
 end;</pre></example>
       </function>
@@ -468,8 +444,6 @@ end;</pre></example>
         <prototype>function IsWin64: Boolean;</prototype>
         <description><p>Returns True if the system is running a 64-bit version of Windows. If False is returned, you cannot utilize any of Inno Setup's 64-bit-only features.</p>
 <p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit install mode</link>, use <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link> instead.</p></description>
-        <remarks><p>This function will always return True on an x64 edition of Windows.</p>
-<p>For this function to return True on an Itanium edition of Windows, the system must be running Windows Server 2003 SP1 or later. Older versions lack APIs that Inno Setup requires (e.g. RegDeleteKeyEx).</p></remarks>
         <example><pre>begin
   // Check IsWin64 before using a 64-bit-only feature to
   // avoid an exception when running on 32-bit Windows.
@@ -593,15 +567,15 @@ end;</pre></example>
 <p>This function is provided for backward compatibility only, and may be removed in a future release. New scripts should use <link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link> or <link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link> instead.</p></description>
         <remarks><p>Prior to Inno Setup 5.5.0, this function returned <tt>irInstall</tt> rather than a Boolean True value. <tt>irInstall</tt> is now defined as an alias for True.</p></remarks>
         <example><pre>// Old method, deprecated
-function IsWindowsXPOrLater: Boolean;
+function IsWindows8OrLater: Boolean;
 begin
-  Result := InstallOnThisVersion('0,5.1', '0,0');
+  Result := InstallOnThisVersion('0,6.2', '0,0');
 end;
 
 // New method
-function IsWindowsXPOrLater: Boolean;
+function IsWindows8OrLater: Boolean;
 begin
-  Result := (GetWindowsVersion &gt;= $05010000);
+  Result := (GetWindowsVersion &gt;= $06020000);
 end;</pre></example>
         <seealso><p><link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link><br />
 <link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
@@ -1783,7 +1757,7 @@ end;</pre></example>
         <description><p>Creates a shortcut to a file or folder. Returns the resulting filename of the link, which may differ from <tt>Filename</tt> if it ended up creating a .pif file instead of a .lnk file. On failure, an exception will be raised.</p>
 <p><b>Parameters:</b><br />
 <i>Filename</i><br />Filename of the shortcut file to be created. This should be the full path and must end with ".lnk".<br />
-<i>Description</i><br />Description of the link. This will be displayed on Windows 2000/XP and other supporting OS when the user hovers the mouse over the file or shows the properties.<br />
+<i>Description</i><br />Description of the link. This will be displayed on a supporting OS when the user hovers the mouse over the file or shows the properties.<br />
 <i>ShortcutTo</i><br />Target file for the shortcut. This must be the full path to the file. Double quotation marks to surround the path will be added automatically.<br />
 <i>Parameters</i><br />Parameters to pass to the target file of the shortcut. Parameters which may include spaces should have double quote marks surrounding them. e.g. <tt>ExpandConstant('"{app}\foo"')</tt><br />
 <i>WorkingDir</i><br />Working directory for the target file. This should be set to an absolute directory.<br />
@@ -2486,7 +2460,6 @@ end;</pre></example>
         <name>BrowseForFolder</name>
         <prototype>function BrowseForFolder(const Prompt: String; var Directory: String; const NewFolderButton: Boolean): Boolean;</prototype>
         <description><p>Displays a dialog box that enables the user to select a directory. The current value of Directory is used as the initially selected directory. If NewFolderButton is True, a <i>New Folder</i> button will be shown, allowing the user to create new folders. Returns True if the user selected a directory and clicked OK, False otherwise. The selected directory is returned in the Directory string.</p></description>
-        <remarks><p>On Windows versions prior to XP, passing False in the NewFolderButton parameter has no effect; the New Folder button will always be shown. This is a Windows limitation.</p></remarks>
       </function>
       <function>
         <name>ExitSetupMsgBox</name>

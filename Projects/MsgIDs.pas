@@ -137,7 +137,7 @@ type
     msgLicenseLabel,
     msgLicenseLabel3,
     msgLicenseNotAccepted,
-    msgMissingWOW64APIs,
+    msgMissingWOW64APIs2,
     msgMustEnterGroupName,
     msgNewFolderName,
     msgNoProgramGroupCheck2,
