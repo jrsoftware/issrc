@@ -2,13 +2,11 @@ unit ScriptClasses_C;
 
 {
   Inno Setup
-  Copyright (C) 1997-2011 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script support classes (compile time)
-
-  $Id: ScriptClasses_C.pas,v 1.69 2012/02/05 18:59:23 mlaan Exp $
 }
 
 interface
@@ -652,6 +650,10 @@ begin
   RegisterOutputProgressWizardPage_C(Cl);
 
   RegisterHandCursor_C(Cl);
+  
+  AddImportedClassVariable(Cl, 'WizardForm', 'TWizardForm');
+  AddImportedClassVariable(Cl, 'MainForm', 'TMainForm');
+  AddImportedClassVariable(Cl, 'UninstallProgressForm', 'TUninstallProgressForm');
 end;
 
 end.

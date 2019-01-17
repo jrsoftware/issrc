@@ -2,7 +2,7 @@ unit ScriptClasses_R;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -17,6 +17,7 @@ uses
   uPSRuntime;
 
 function ScriptClassesLibraryRegister_R(ScriptInterpreter: TPSExec): TPSRuntimeClassImporter;
+procedure ScriptClassesLibraryUpdateVars(ScriptInterpreter: TIFPSExec);
 
 implementation
 
@@ -622,6 +623,13 @@ begin
   end;
 
   Result := Cl;
+end;
+
+procedure ScriptClassesLibraryUpdateVars(ScriptInterpreter: TIFPSExec);
+begin
+  SetVariantToClass(ScriptInterpreter.GetVarNo(ScriptInterpreter.GetVar('WIZARDFORM')), WizardForm);
+  SetVariantToClass(ScriptInterpreter.GetVarNo(ScriptInterpreter.GetVar('MAINFORM')), MainForm);
+  SetVariantToClass(ScriptInterpreter.GetVarNo(ScriptInterpreter.GetVar('UNINSTALLPROGRESSFORM')), UninstallProgressForm);
 end;
 
 end.
