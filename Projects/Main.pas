@@ -221,9 +221,9 @@ function LoggedAppMessageBox(const Text, Caption: PChar; const Flags: Longint;
   const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
-function LoggedTaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String;
+function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
-  const ShieldButton: Integer; const ForceMsgBox: Boolean; const Suppressible: Boolean; const Default: Integer): Integer;
+  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer): Integer;
 procedure LogWindowsVersion;
 procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
@@ -2378,17 +2378,17 @@ begin
   end;
 end;
 
-function LoggedTaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String;
+function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
-  const ShieldButton: Integer; const ForceMsgBox: Boolean; const Suppressible: Boolean; const Default: Integer): Integer;
+  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin
-    LogSuppressedMessageBox(PChar(TaskDialogText), Buttons, Default);
+    LogSuppressedMessageBox(PChar(Text), Buttons, Default);
     Result := Default;
   end else begin
-    LogMessageBox(PChar(TaskDialogText), Buttons);
-    Result := TaskDialogMsgBox(Icon, Instruction, TaskDialogText, MsgBoxText,
-      Caption, Typ, Buttons, ButtonLabels, ShieldButton, ForceMsgBox);
+    LogMessageBox(PChar(Text), Buttons);
+    Result := TaskDialogMsgBox(Icon, Instruction, Text,
+      Caption, Typ, Buttons, ButtonLabels, ShieldButton);
     if Result <> 0 then
       LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
     else
@@ -2835,20 +2835,18 @@ var
           AppName := SetupHeader.AppName;
         if SetupHeader.PrivilegesRequired = prLowest then begin
           case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
-                 FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText2, [AppName]),
-                 FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText2, [AppName]),
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideDialogText2, [AppName]),
                  SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
-                 [SetupMessages[msgPrivilegesRequiredOverrideCurrentUserRecommended], SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO, False) of
+                 [SetupMessages[msgPrivilegesRequiredOverrideCurrentUserRecommended], SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO) of
             IDYES: DesireAdminInstallMode := False;
             IDNO: DesireAdminInstallMode := True;
             IDCANCEL: Abort;
             end;
         end else begin
           case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
-                 FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText1, [AppName]),
-                 FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText1, [AppName]),
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideDialogText1, [AppName]),
                  SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
-                 [SetupMessages[msgPrivilegesRequiredOverrideAllUsersRecommended], SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES, False) of
+                 [SetupMessages[msgPrivilegesRequiredOverrideAllUsersRecommended], SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES) of
             IDYES: DesireAdminInstallMode := True;
             IDNO: DesireAdminInstallMode := False;
             IDCANCEL: Abort;

@@ -66,10 +66,8 @@ UninstallAppRunningError=Uninstall has detected that %1 is currently running.%n%
 
 ; *** Startup questions
 PrivilegesRequiredOverrideInstruction=Choose install mode
-PrivilegesRequiredOverrideTaskDialogText1=%1 can be installed for all users (requires administrative privileges), or for you only.
-PrivilegesRequiredOverrideMsgBoxText1=%1 can be installed for all users (recommended, but requires administrative privileges), or for you only.%n%nInstall for all users?
-PrivilegesRequiredOverrideTaskDialogText2=%1 can be installed for you only, or for all users (requires administrative privileges).
-PrivilegesRequiredOverrideMsgBoxText2=%1 can be installed for you only (recommended), or for all users (requires administrative privileges).%n%nInstall for you only?
+PrivilegesRequiredOverrideDialogText1=%1 can be installed for all users (requires administrative privileges), or for you only.
+PrivilegesRequiredOverrideDialogText2=%1 can be installed for you only, or for all users (requires administrative privileges).
 PrivilegesRequiredOverrideAllUsers=Install for all users
 PrivilegesRequiredOverrideAllUsersRecommended=Install for all users (recommended)
 PrivilegesRequiredOverrideCurrentUser=Install for me only
@@ -249,7 +247,6 @@ SelectDirectoryLabel=Please specify the location of the next disk.
 
 ; *** Installation phase messages
 SetupAborted=Setup was not completed.%n%nPlease correct the problem and run Setup again.
-EntryAbortRetryIgnore=Click Retry to try again, Ignore to proceed anyway, or Abort to cancel installation.
 AbortRetryIgnoreChooseAction=Choose action
 AbortRetryIgnoreRetry=Try again
 AbortRetryIgnoreProceedAnyway=Proceed anyway
@@ -284,14 +281,11 @@ ErrorRegWriteKey=Error writing to registry key:%n%1\%2
 ErrorIniEntry=Error creating INI entry in file "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Click Retry to try again, Ignore to skip this file (not recommended), or Abort to cancel installation.
-FileAbortRetryIgnore2=Click Retry to try again, Ignore to proceed anyway (not recommended), or Abort to cancel installation.
 FileAbortRetryIgnoreSkipNotRecommended=Skip this file (not recommended)
 FileAbortRetryIgnoreProceedAnywayNotRecommended=Proceed anyway (not recommended)
 SourceIsCorrupted=The source file is corrupted
 SourceDoesntExist=The source file "%1" does not exist
 ExistingFileReadOnly=The existing file is marked as read-only.
-ExistingFileReadOnlyAbortRetryIgnore=Click Retry to remove the read-only attribute and try again, Ignore to skip this file, or Abort to cancel installation.
 ExistingFileReadOnlyRetry=Remove the read-only attribute and try again
 ExistingFileReadOnlySkip=Skip this file
 ErrorReadingExistingDest=An error occurred while trying to read the existing file:

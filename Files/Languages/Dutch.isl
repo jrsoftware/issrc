@@ -49,10 +49,8 @@ UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit 
 
 ; *** Startup questions
 PrivilegesRequiredOverrideInstruction=Kies installatie modus
-PrivilegesRequiredOverrideTaskDialogText1=%1 kan geïnstalleerd worden voor alle gebruikers (vereist aanmelding als een systeembeheerder), of voor u alleen.
-PrivilegesRequiredOverrideMsgBoxText1=%1 kan geïnstalleerd worden voor alle gebruikers (aanbevolen, maar vereist aanmelding als een systeembeheerder), of voor u alleen.%n%nWilt u voor alle gebruikers installeren?
-PrivilegesRequiredOverrideTaskDialogText2=%1 kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
-PrivilegesRequiredOverrideMsgBoxText2=%1 kan geïnstalleerd worden voor u alleen (aanbevolen), of voor alle gebruikers (vereist aanmelding als een systeembeheerder).%n%nWilt u voor u alleen installeren?
+PrivilegesRequiredOverrideDialogText1=%1 kan geïnstalleerd worden voor alle gebruikers (vereist aanmelding als een systeembeheerder), of voor u alleen.
+PrivilegesRequiredOverrideDialogText2=%1 kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
 PrivilegesRequiredOverrideAllUsers=Installeer voor alle gebruikers
 PrivilegesRequiredOverrideAllUsersRecommended=Installeer voor alle gebruikers (aanbevolen)
 PrivilegesRequiredOverrideCurrentUser=Installeer voor mij alleen
@@ -229,7 +227,6 @@ SelectDirectoryLabel=Geef de locatie van de volgende diskette.
 
 ; *** Installation phase messages
 SetupAborted=Setup is niet voltooid.%n%nCorrigeer het probleem en voer Setup opnieuw uit.
-EntryAbortRetryIgnore=Klik op Opnieuw om het opnieuw te proberen, op Negeren om toch door te gaan, of op Afbreken om de installatie af te breken.
 AbortRetryIgnoreChooseAction=Kies actie
 AbortRetryIgnoreRetry=Probeer opnieuw
 AbortRetryIgnoreProceedAnyway=Ga toch door
@@ -264,14 +261,11 @@ ErrorRegWriteKey=Fout bij het schrijven naar registersleutel:%n%1\%2
 ErrorIniEntry=Fout bij het maken van een INI-instelling in bestand "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Klik op Opnieuw om het opnieuw te proberen, op Negeren om dit bestand over te slaan (niet aanbevolen), of op Afbreken om de installatie af te breken.
-FileAbortRetryIgnore2=Klik op Opnieuw om het opnieuw te proberen, op Negeren om toch door te gaan (niet aanbevolen), of op Afbreken om de installatie af te breken.
 FileAbortRetryIgnoreSkipNotRecommended=Sla dit bestand over (niet aanbevolen)
 FileAbortRetryIgnoreProceedAnywayNotRecommended=Ga toch door (niet aanbevolen)
 SourceIsCorrupted=Het bronbestand is beschadigd
 SourceDoesntExist=Het bronbestand "%1" bestaat niet
 ExistingFileReadOnly=Het bestaande bestand is gemarkeerd als alleen-lezen.
-ExistingFileReadOnlyAbortRetryIgnore=Klik op Opnieuw om het kenmerk alleen-lezen te verwijderen en opnieuw te proberen, op Negeren om dit bestand over te slaan, of op Afbreken om de installatie af te breken.
 ExistingFileReadOnlyRetry=Verwijder de alleen-lezen markering en probeer opnieuw
 ExistingFileReadOnlySkip=Sla dit bestand over
 ErrorReadingExistingDest=Er is een fout opgetreden bij het lezen van het bestaande bestand:

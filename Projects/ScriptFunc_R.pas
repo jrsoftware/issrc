@@ -1039,14 +1039,14 @@ begin
       Default := 0;
     end else begin
       Suppressible := True;
-      Default := Stack.GetInt(PStart-9);
+      Default := Stack.GetInt(PStart-7);
     end;
-    Arr := NewTPSVariantIFC(Stack[PStart-6], True);
+    Arr := NewTPSVariantIFC(Stack[PStart-5], True);
     N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
     SetLength(ButtonLabels, N);
     for I := 0 to N-1 do
       ButtonLabels[I] := VNGetString(PSGetArrayField(Arr, I));
-    Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-4)), Stack.GetInt(PStart-5), ButtonLabels, Stack.GetInt(PStart-7), Stack.GetBool(PStart-8), Suppressible, Default));
+    Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-3)), Stack.GetInt(PStart-4), ButtonLabels, Stack.GetInt(PStart-6), Suppressible, Default));
   end else if Proc.Name = 'ISWIN64' then begin
     Stack.SetBool(PStart, IsWin64);
   end else if Proc.Name = 'IS64BITINSTALLMODE' then begin

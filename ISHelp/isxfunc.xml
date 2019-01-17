@@ -2358,20 +2358,14 @@ end;</pre></example>
       </function>
       <function>
         <name>TaskDialogMsgBox</name>
-        <prototype>function TaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;</prototype>
-        <description><p>Displays a task dialog if supported by the system and <tt>ForceMsgBox</tt> is set to <tt>False</tt>. Otherwise, displays a regular message box.</p>
-<p>If a task dialog is displayed:<br />
+        <prototype>function TaskDialogMsgBox(const Instruction, Text: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer): Integer;</prototype>
+        <description><p>Displays a message box using a task dialog:<br />
 <tt>Instruction</tt> specifies the instruction to display.<br />
-<tt>TaskDialogText</tt> specifies the message to display.<br />
+<tt>Text</tt> specifies the message to display.<br />
 <tt>Typ</tt> specifies which icon to display in the task dialog. If set to <tt>mbConfirmation</tt>, no icon will be displayed.<br />
 <tt>Buttons</tt> specifies which buttons to include in the task dialog.<br />
 <tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline, then the first string specifies the button label and the second string specifies the button note.<br />
 <tt>ShieldButton</tt> specifies which button to display a shield icon on. If set to 0, no shield icon will be displayed.</p>
-<p>If a a regular message box is displayed:<br/>
-<tt>Instruction</tt> specifies the caption to display. If set to an empty string, the default caption will be displayed.<br />
-<tt>MsgBoxText</tt> specifies the message to display.<br />
-<tt>Typ</tt> specifies which icon to display in the message box.<br />
-<tt>Buttons</tt> specifies which buttons to include in the message box.</p>
 <p>Returns an ID* constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
         <remarks><p>TMsgBoxType is defined as:</p>
 <p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p>
@@ -2382,10 +2376,10 @@ end;</pre></example>
 <p><tt>IDOK, IDCANCEL, IDRETRY, IDYES, IDNO, IDABORT, IDIGNORE</tt></p></remarks>
         <example><pre>begin
   case TaskDialogMsgBox('Choose A or B',
-                        'You can choose A or B.', 'You can choose A or B'#13#10#13#10'Do you choose A?',   
+                        'You can choose A or B.',   
                         mbInformation,
                         MB_YESNOCANCEL, ['I choose A'#13#10'A will be chosen.', 'I choose B'#13#10'B will be chosen.'],
-                        IDYES, False) of
+                        IDYES) of
     IDYES: MsgBox('You chose A.', mbInformation, MB_OK);
     IDNO: MsgBox('You chose B.', mbInformation, MB_OK);
   end;
@@ -2395,8 +2389,8 @@ end;</pre></example>
       </function>
       <function>
         <name>SuppressibleTaskDialogMsgBox</name>
-        <prototype>function SuppressibleTaskDialogMsgBox(const Instruction, TaskDialogText, MsgBoxText: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const ForceMsgBox: Boolean; const Default: Integer): Integer;</prototype>
-        <description><p>Displays a suppressible task dialog. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, SuppressibleTaskDialogMsgBox acts the same as the regular <link topic="isxfunc_TaskDialogMsgBox">TaskDialogMsgBox</link>.</p></description>
+        <prototype>function SuppressibleTaskDialogMsgBox(const Instruction, Text: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const Default: Integer): Integer;</prototype>
+        <description><p>Displays a suppressible message box using a task dialog. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, SuppressibleTaskDialogMsgBox acts the same as the regular <link topic="isxfunc_TaskDialogMsgBox">TaskDialogMsgBox</link>.</p></description>
       </function>
       <function>
         <name>GetOpenFileName</name>
