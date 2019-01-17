@@ -14,7 +14,7 @@ interface
 uses
   CmnFunc;
 
-function TaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;
+function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer): Integer;
 
 implementation
 
@@ -32,7 +32,6 @@ begin
     SendMessage(hwnd, TDM_SET_BUTTON_ELEVATION_REQUIRED_STATE, lpRefData, 1);
   Result := S_OK;
 end;
-
 
 function DoTaskDialog(const hWnd: HWND; const Instruction, Text, Caption, Icon: PWideChar; const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer; const RightToLeft: Boolean; const TriggerMessageBoxCallbackFuncFlags: LongInt; var ModalResult: Integer): Boolean;
 var
@@ -102,7 +101,7 @@ begin
     Result := False;
 end;
 
-function TaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const ForceMsgBox: Boolean): Integer;
+function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer): Integer;
 var
   IconP: PChar;
   TDCommonButtons: Cardinal;
@@ -170,11 +169,10 @@ begin
   end;
   if Length(ButtonIDs) <> NButtonLabelsAvailable then
     InternalError('TaskDialogMsgBox: Invalid ButtonLabels');
-  if ForceMsgBox or
-     not DoTaskDialog(Application.Handle, PChar(Instruction), PChar(TaskDialogText),
+  if not DoTaskDialog(Application.Handle, PChar(Instruction), PChar(Text),
            GetMessageBoxCaption(PChar(Caption), Typ), IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
            GetMessageBoxRightToLeft, IfThen(Typ in [mbError, mbCriticalError], MB_ICONSTOP, 0), Result) then //note that MB_ICONEXCLAMATION (used by mbError) includes MB_ICONSTOP (used by mbCriticalError)
-    Result := MsgBox(MsgBoxText, IfThen(Instruction <> '', Instruction, Caption), Typ, Buttons);
+    Result := 0;
 end;
 
 procedure InitCommonControls; external comctl32 name 'InitCommonControls';

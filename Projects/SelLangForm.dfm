@@ -4,7 +4,7 @@ object SelectLanguageForm: TSelectLanguageForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'SelectLanguageForm'
-  ClientHeight = 132
+  ClientHeight = 142
   ClientWidth = 297
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,12 +16,12 @@ object SelectLanguageForm: TSelectLanguageForm
   Scaled = False
   DesignSize = (
     297
-    132)
+    142)
   PixelsPerInch = 96
   TextHeight = 13
   object Bevel: TBevel
     Left = 0
-    Top = 89
+    Top = 99
     Width = 297
     Height = 1
     Anchors = [akLeft, akRight, akBottom]
@@ -29,7 +29,7 @@ object SelectLanguageForm: TSelectLanguageForm
   end
   object CancelButton: TNewButton
     Left = 214
-    Top = 100
+    Top = 110
     Width = 75
     Height = 23
     Anchors = [akRight, akBottom]
@@ -40,7 +40,7 @@ object SelectLanguageForm: TSelectLanguageForm
   end
   object OKButton: TNewButton
     Left = 133
-    Top = 100
+    Top = 110
     Width = 75
     Height = 23
     Anchors = [akRight, akBottom]
@@ -53,14 +53,14 @@ object SelectLanguageForm: TSelectLanguageForm
     Left = 0
     Top = 0
     Width = 297
-    Height = 89
+    Height = 99
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Color = clWindow
     TabOrder = 0
     DesignSize = (
       297
-      89)
+      99)
     object IconBitmapImage: TBitmapImage
       Left = 8
       Top = 8

@@ -39,7 +39,7 @@ WindowsServicePackRequired=Dit programma vereist %1 Service Pack %2 of hoger.
 NotOnThisPlatform=Dit programma kan niet worden uitgevoerd onder %1.
 OnlyOnThisPlatform=Dit programma moet worden uitgevoerd onder %1.
 OnlyOnTheseArchitectures=Dit programma kan alleen geïnstalleerd worden onder versies van Windows ontworpen voor de volgende processor architecturen:%n%n%1
-MissingWOW64APIs=De versie van Windows die u gebruikt bevat niet de door Setup benodige functionaliteit om een 64-bit installatie uit te voeren. Installeer Service Pack %1 om dit probleem te corrigeren.
+MissingWOW64APIs2=De versie van Windows die u gebruikt bevat niet de door Setup benodige functionaliteit om een 64-bit installatie uit te voeren.
 WinVersionTooLowError=Dit programma vereist %1 versie %2 of hoger.
 WinVersionTooHighError=Dit programma kan niet worden geïnstalleerd onder %1 versie %2 of hoger.
 AdminPrivilegesRequired=U moet aangemeld zijn als een systeembeheerder om dit programma te kunnen installeren.
@@ -48,15 +48,14 @@ SetupAppRunningError=Setup heeft vastgesteld dat %1 op dit moment actief is.%n%n
 UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle vensters hiervan, en klik daarna op OK om verder te gaan, of op Annuleren om het verwijderen af te breken.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideInstruction=Kies installatie modus
-PrivilegesRequiredOverrideTaskDialogText1=%1 kan geïnstalleerd worden voor alle gebruikers (vereist aanmelding als een systeembeheerder), of voor u alleen.
-PrivilegesRequiredOverrideMsgBoxText1=%1 kan geïnstalleerd worden voor alle gebruikers (aanbevolen, maar vereist aanmelding als een systeembeheerder), of voor u alleen.%n%nWilt u voor alle gebruikers installeren?
-PrivilegesRequiredOverrideTaskDialogText2=%1 kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
-PrivilegesRequiredOverrideMsgBoxText2=%1 kan geïnstalleerd worden voor u alleen (aanbevolen), of voor alle gebruikers (vereist aanmelding als een systeembeheerder).%n%nWilt u voor u alleen installeren?
-PrivilegesRequiredOverrideAllUsers=Installeer voor alle gebruikers
-PrivilegesRequiredOverrideAllUsersRecommended=Installeer voor alle gebruikers (aanbevolen)
-PrivilegesRequiredOverrideCurrentUser=Installeer voor mij alleen
-PrivilegesRequiredOverrideCurrentUserRecommended=Installeer voor mij alleen (aanbevolen)
+PrivilegesRequiredOverrideTitle=Selecteer installatie modus voor Setup
+PrivilegesRequiredOverrideInstruction=Selecteer installatie modus
+PrivilegesRequiredOverrideText1=%1 kan geïnstalleerd worden voor alle gebruikers (vereist aanmelding als een systeembeheerder), of voor u alleen.
+PrivilegesRequiredOverrideText2=%1 kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
+PrivilegesRequiredOverrideAllUsers=Installeer voor &alle gebruikers
+PrivilegesRequiredOverrideAllUsersRecommended=Installeer voor &alle gebruikers (aanbevolen)
+PrivilegesRequiredOverrideCurrentUser=Installeer voor &mij alleen
+PrivilegesRequiredOverrideCurrentUserRecommended=Installeer voor &mij alleen (aanbevolen)
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup kan de map "%1" niet maken
@@ -87,7 +86,7 @@ ButtonWizardBrowse=B&laderen...
 ButtonNewFolder=&Nieuwe map maken
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Taalkeuze voor Setup
+SelectLanguageTitle=Selecteer taal voor Setup
 SelectLanguageLabel=Selecteer de taal die Setup gebruikt tijdens de installatie:
 
 ; *** Common wizard text
@@ -229,10 +228,9 @@ SelectDirectoryLabel=Geef de locatie van de volgende diskette.
 
 ; *** Installation phase messages
 SetupAborted=Setup is niet voltooid.%n%nCorrigeer het probleem en voer Setup opnieuw uit.
-EntryAbortRetryIgnore=Klik op Opnieuw om het opnieuw te proberen, op Negeren om toch door te gaan, of op Afbreken om de installatie af te breken.
-AbortRetryIgnoreChooseAction=Kies actie
-AbortRetryIgnoreRetry=Probeer opnieuw
-AbortRetryIgnoreProceedAnyway=Ga toch door
+AbortRetryIgnoreSelectAction=Selecteer actie
+AbortRetryIgnoreRetry=&Probeer opnieuw
+AbortRetryIgnoreIgnore=&Negeer de fout en ga door
 AbortRetryIgnoreCancel=Breek installatie af
 
 ; *** Installation status messages
@@ -264,16 +262,13 @@ ErrorRegWriteKey=Fout bij het schrijven naar registersleutel:%n%1\%2
 ErrorIniEntry=Fout bij het maken van een INI-instelling in bestand "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Klik op Opnieuw om het opnieuw te proberen, op Negeren om dit bestand over te slaan (niet aanbevolen), of op Afbreken om de installatie af te breken.
-FileAbortRetryIgnore2=Klik op Opnieuw om het opnieuw te proberen, op Negeren om toch door te gaan (niet aanbevolen), of op Afbreken om de installatie af te breken.
-FileAbortRetryIgnoreSkipNotRecommended=Sla dit bestand over (niet aanbevolen)
-FileAbortRetryIgnoreProceedAnywayNotRecommended=Ga toch door (niet aanbevolen)
+FileAbortRetryIgnoreSkipNotRecommended=&Sla dit bestand over (niet aanbevolen)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Negeer de fout en ga door (niet aanbevolen)
 SourceIsCorrupted=Het bronbestand is beschadigd
 SourceDoesntExist=Het bronbestand "%1" bestaat niet
-ExistingFileReadOnly=Het bestaande bestand is gemarkeerd als alleen-lezen.
-ExistingFileReadOnlyAbortRetryIgnore=Klik op Opnieuw om het kenmerk alleen-lezen te verwijderen en opnieuw te proberen, op Negeren om dit bestand over te slaan, of op Afbreken om de installatie af te breken.
-ExistingFileReadOnlyRetry=Verwijder de alleen-lezen markering en probeer opnieuw
-ExistingFileReadOnlySkip=Sla dit bestand over
+ExistingFileReadOnly2=Het bestaande bestand kon niet vervangen worden omdat het een alleen-lezen markering heeft.
+ExistingFileReadOnlyRetry=&Verwijder de alleen-lezen markering en probeer het opnieuw
+ExistingFileReadOnlyKeepExisting=&Behoud het bestaande bestand
 ErrorReadingExistingDest=Er is een fout opgetreden bij het lezen van het bestaande bestand:
 FileExists=Het bestand bestaat al.%n%nWilt u dat Setup het overschrijft?
 ExistingFileNewer=Het bestaande bestand is nieuwer dan het bestand dat Setup probeert te installeren. U wordt aanbevolen het bestaande bestand te behouden.%n%nWilt u het bestaande bestand behouden?

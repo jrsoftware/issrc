@@ -221,9 +221,9 @@ function LoggedAppMessageBox(const Text, Caption: PChar; const Flags: Longint;
   const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
-function LoggedTaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String;
+function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
-  const ShieldButton: Integer; const ForceMsgBox: Boolean; const Suppressible: Boolean; const Default: Integer): Integer;
+  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer): Integer;
 procedure LogWindowsVersion;
 procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
@@ -2378,17 +2378,17 @@ begin
   end;
 end;
 
-function LoggedTaskDialogMsgBox(const Icon, Instruction, TaskDialogText, MsgBoxText, Caption: String;
+function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
-  const ShieldButton: Integer; const ForceMsgBox: Boolean; const Suppressible: Boolean; const Default: Integer): Integer;
+  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin
-    LogSuppressedMessageBox(PChar(TaskDialogText), Buttons, Default);
+    LogSuppressedMessageBox(PChar(Text), Buttons, Default);
     Result := Default;
   end else begin
-    LogMessageBox(PChar(TaskDialogText), Buttons);
-    Result := TaskDialogMsgBox(Icon, Instruction, TaskDialogText, MsgBoxText,
-      Caption, Typ, Buttons, ButtonLabels, ShieldButton, ForceMsgBox);
+    LogMessageBox(PChar(Text), Buttons);
+    Result := TaskDialogMsgBox(Icon, Instruction, Text,
+      Caption, Typ, Buttons, ButtonLabels, ShieldButton);
     if Result <> 0 then
       LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
     else
@@ -2835,20 +2835,18 @@ var
           AppName := SetupHeader.AppName;
         if SetupHeader.PrivilegesRequired = prLowest then begin
           case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
-                 FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText2, [AppName]),
-                 FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText2, [AppName]),
-                 SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
-                 [SetupMessages[msgPrivilegesRequiredOverrideCurrentUserRecommended], SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO, False) of
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideText2, [AppName]),
+                 SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
+                 [SetupMessages[msgPrivilegesRequiredOverrideCurrentUserRecommended], SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO) of
             IDYES: DesireAdminInstallMode := False;
             IDNO: DesireAdminInstallMode := True;
             IDCANCEL: Abort;
             end;
         end else begin
           case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
-                 FmtSetupMessage(msgPrivilegesRequiredOverrideTaskDialogText1, [AppName]),
-                 FmtSetupMessage(msgPrivilegesRequiredOverrideMsgBoxText1, [AppName]),
-                 SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
-                 [SetupMessages[msgPrivilegesRequiredOverrideAllUsersRecommended], SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES, False) of
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideText1, [AppName]),
+                 SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
+                 [SetupMessages[msgPrivilegesRequiredOverrideAllUsersRecommended], SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES) of
             IDYES: DesireAdminInstallMode := True;
             IDNO: DesireAdminInstallMode := False;
             IDCANCEL: Abort;
@@ -3086,7 +3084,7 @@ begin
           if not IsWin64 then begin
             { A 64-bit processor was detected and 64-bit install mode was requested,
               but IsWin64 is False, indicating required WOW64 APIs are not present }
-            AbortInitFmt1(msgMissingWOW64APIs, '1');
+            AbortInit(msgMissingWOW64APIs2);
           end;
           Initialize64BitInstallMode(True);
         end

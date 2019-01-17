@@ -56,7 +56,7 @@ WindowsServicePackRequired=This program requires %1 Service Pack %2 or later.
 NotOnThisPlatform=This program will not run on %1.
 OnlyOnThisPlatform=This program must be run on %1.
 OnlyOnTheseArchitectures=This program can only be installed on versions of Windows designed for the following processor architectures:%n%n%1
-MissingWOW64APIs=The version of Windows you are running does not include functionality required by Setup to perform a 64-bit installation. To correct this problem, please install Service Pack %1.
+MissingWOW64APIs2=The version of Windows you are running does not include functionality required by Setup to perform a 64-bit installation.
 WinVersionTooLowError=This program requires %1 version %2 or later.
 WinVersionTooHighError=This program cannot be installed on %1 version %2 or later.
 AdminPrivilegesRequired=You must be logged in as an administrator when installing this program.
@@ -65,15 +65,14 @@ SetupAppRunningError=Setup has detected that %1 is currently running.%n%nPlease 
 UninstallAppRunningError=Uninstall has detected that %1 is currently running.%n%nPlease close all instances of it now, then click OK to continue, or Cancel to exit.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideInstruction=Choose install mode
-PrivilegesRequiredOverrideTaskDialogText1=%1 can be installed for all users (requires administrative privileges), or for you only.
-PrivilegesRequiredOverrideMsgBoxText1=%1 can be installed for all users (recommended, but requires administrative privileges), or for you only.%n%nInstall for all users?
-PrivilegesRequiredOverrideTaskDialogText2=%1 can be installed for you only, or for all users (requires administrative privileges).
-PrivilegesRequiredOverrideMsgBoxText2=%1 can be installed for you only (recommended), or for all users (requires administrative privileges).%n%nInstall for you only?
-PrivilegesRequiredOverrideAllUsers=Install for all users
-PrivilegesRequiredOverrideAllUsersRecommended=Install for all users (recommended)
-PrivilegesRequiredOverrideCurrentUser=Install for me only
-PrivilegesRequiredOverrideCurrentUserRecommended=Install for me only (recommended)
+PrivilegesRequiredOverrideTitle=Select Setup Install Mode
+PrivilegesRequiredOverrideInstruction=Select install mode
+PrivilegesRequiredOverrideText1=%1 can be installed for all users (requires administrative privileges), or for you only.
+PrivilegesRequiredOverrideText2=%1 can be installed for you only, or for all users (requires administrative privileges).
+PrivilegesRequiredOverrideAllUsers=Install for &all users
+PrivilegesRequiredOverrideAllUsersRecommended=Install for &all users (recommended)
+PrivilegesRequiredOverrideCurrentUser=Install for &me only
+PrivilegesRequiredOverrideCurrentUserRecommended=Install for &me only (recommended)
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup was unable to create the directory "%1"
@@ -249,10 +248,9 @@ SelectDirectoryLabel=Please specify the location of the next disk.
 
 ; *** Installation phase messages
 SetupAborted=Setup was not completed.%n%nPlease correct the problem and run Setup again.
-EntryAbortRetryIgnore=Click Retry to try again, Ignore to proceed anyway, or Abort to cancel installation.
-AbortRetryIgnoreChooseAction=Choose action
-AbortRetryIgnoreRetry=Try again
-AbortRetryIgnoreProceedAnyway=Proceed anyway
+AbortRetryIgnoreSelectAction=Select action
+AbortRetryIgnoreRetry=&Try again
+AbortRetryIgnoreIgnore=&Ignore the error and continue
 AbortRetryIgnoreCancel=Cancel installation
 
 ; *** Installation status messages
@@ -284,16 +282,13 @@ ErrorRegWriteKey=Error writing to registry key:%n%1\%2
 ErrorIniEntry=Error creating INI entry in file "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Click Retry to try again, Ignore to skip this file (not recommended), or Abort to cancel installation.
-FileAbortRetryIgnore2=Click Retry to try again, Ignore to proceed anyway (not recommended), or Abort to cancel installation.
-FileAbortRetryIgnoreSkipNotRecommended=Skip this file (not recommended)
-FileAbortRetryIgnoreProceedAnywayNotRecommended=Proceed anyway (not recommended)
+FileAbortRetryIgnoreSkipNotRecommended=&Skip this file (not recommended)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Ignore the error and continue (not recommended)
 SourceIsCorrupted=The source file is corrupted
 SourceDoesntExist=The source file "%1" does not exist
-ExistingFileReadOnly=The existing file is marked as read-only.
-ExistingFileReadOnlyAbortRetryIgnore=Click Retry to remove the read-only attribute and try again, Ignore to skip this file, or Abort to cancel installation.
-ExistingFileReadOnlyRetry=Remove the read-only attribute and try again
-ExistingFileReadOnlySkip=Skip this file
+ExistingFileReadOnly2=The existing file could not be replaced because it is marked read-only.
+ExistingFileReadOnlyRetry=&Remove the read-only attribute and try again
+ExistingFileReadOnlyKeepExisting=&Keep the existing file
 ErrorReadingExistingDest=An error occurred while trying to read the existing file:
 FileExists=The file already exists.%n%nWould you like Setup to overwrite it?
 ExistingFileNewer=The existing file is newer than the one Setup is trying to install. It is recommended that you keep the existing file.%n%nDo you want to keep the existing file?

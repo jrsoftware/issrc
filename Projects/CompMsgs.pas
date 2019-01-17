@@ -2,7 +2,7 @@ unit CompMsgs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -178,7 +178,7 @@ const
   SCompilerEntryAlreadySpecified = '[%s] section directive "%s" already specified';
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
   SCompilerMinVersionWinMustBeZero = 'Minimum Windows version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
-  SCompilerMinVersionNTTooLow = 'Minimum NT version specified by MinVersion must be at least %s';
+  SCompilerMinVersionNTTooLow = 'Minimum NT version specified by MinVersion must be at least %s. (Windows 2000/XP/Server 2003 are no longer supported.)';
   SCompilerDiskSliceSizeInvalid = 'DiskSliceSize must be between %d and %d, or "max"';
   SCompilerDiskClusterSizeInvalid = 'DiskClusterSize must be between 1 and 32768';
   SCompilerInstallModeObsolete = 'The [%s] section directive "%s" is obsolete and ignored in this version of Inno Setup. Use command line parameters instead.';
