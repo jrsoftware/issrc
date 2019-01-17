@@ -934,7 +934,7 @@ var
           end;
         until AbortRetryIgnoreTaskDialogMsgBox(
                 AddPeriod(FmtSetupMessage1(msgErrorFunctionFailedNoCode, 'AddFontResource')),
-                [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreProceedAnyway], SetupMessages[msgAbortRetryIgnoreCancel]]);
+                [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]);
       end;
     end;
 
@@ -1315,7 +1315,7 @@ var
               if not(foOverwriteReadOnly in CurFile^.Options) and
                  AbortRetryIgnoreTaskDialogMsgBox(
                    DestFile + SNewLine2 + SetupMessages[msgExistingFileReadOnly2],
-                   [SetupMessages[msgExistingFileReadOnlyRetry], SetupMessages[msgExistingFileReadOnlySkip], SetupMessages[msgAbortRetryIgnoreCancel]]) then begin
+                   [SetupMessages[msgExistingFileReadOnlyRetry], SetupMessages[msgExistingFileReadOnlyKeepExisting], SetupMessages[msgAbortRetryIgnoreCancel]]) then begin
                 Log('User opted not to strip the existing file''s read-only attribute. Skipping.');
                 goto Skip;
               end;
@@ -2122,7 +2122,7 @@ var
                 except
                   if AbortRetryIgnoreTaskDialogMsgBox(
                        GetExceptMessage,
-                       [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreProceedAnyway], SetupMessages[msgAbortRetryIgnoreCancel]]) then begin
+                       [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]) then begin
                     Skip := True;
                     Break;
                   end;
@@ -2138,7 +2138,7 @@ var
                 end;
                until AbortRetryIgnoreTaskDialogMsgBox(
                        FmtSetupMessage1(msgErrorIniEntry, IniFilename),
-                       [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreProceedAnyway], SetupMessages[msgAbortRetryIgnoreCancel]]);
+                       [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]);
           end else
             Log('Skipping updating the .INI file, only updating uninstall log.');
 
@@ -2418,7 +2418,7 @@ var
             except
               if not AbortRetryIgnoreTaskDialogMsgBox(
                        GetExceptMessage,
-                       [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreProceedAnyway], SetupMessages[msgAbortRetryIgnoreCancel]]) then begin
+                       [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]) then begin
                 Log('Retrying.');
                 NeedToRetry := True;
               end;
@@ -2617,7 +2617,7 @@ var
           if not NoErrorMessages then
             if not AbortRetryIgnoreTaskDialogMsgBox(
                      Filename + SNewLine2 + FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage),
-                     [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreProceedAnywayNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]) then
+                     [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreIgnoreNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]) then
               NeedToRetry := True;
         end;
       until not NeedToRetry;
@@ -2645,7 +2645,7 @@ var
           if not NoErrorMessages then
             if not AbortRetryIgnoreTaskDialogMsgBox(
                      Filename + SNewLine2 + FmtSetupMessage1(msgErrorRegisterTypeLib, GetExceptMessage),
-                     [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreProceedAnywayNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]) then
+                     [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreIgnoreNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]) then
               NeedToRetry := True;
         end;
       until not NeedToRetry;
@@ -2994,7 +2994,7 @@ var
       Log('Some applications could not be shut down.');
       if AbortRetryIgnoreTaskDialogMsgBox(
            SetupMessages[msgErrorCloseApplications],
-           [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreProceedAnyway], SetupMessages[msgAbortRetryIgnoreCancel]]) then
+           [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]) then
         Break;
       Log('Retrying to shut down applications using our files.' + ForcedStrings[Forced]);
       Error := RmShutdown(RmSessionHandle, ForcedActionFlag[Forced], nil);

@@ -249,7 +249,7 @@ SelectDirectoryLabel=Please specify the location of the next disk.
 SetupAborted=Setup was not completed.%n%nPlease correct the problem and run Setup again.
 AbortRetryIgnoreChooseAction=Choose action
 AbortRetryIgnoreRetry=Try again
-AbortRetryIgnoreProceedAnyway=Proceed anyway
+AbortRetryIgnoreIgnore=Ignore the error and continue
 AbortRetryIgnoreCancel=Cancel installation
 
 ; *** Installation status messages
@@ -282,12 +282,12 @@ ErrorIniEntry=Error creating INI entry in file "%1".
 
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=Skip this file (not recommended)
-FileAbortRetryIgnoreProceedAnywayNotRecommended=Proceed anyway (not recommended)
+FileAbortRetryIgnoreIgnoreNotRecommended=Ignore the error and continue (not recommended)
 SourceIsCorrupted=The source file is corrupted
 SourceDoesntExist=The source file "%1" does not exist
-ExistingFileReadOnly2=The existing file is marked as read-only.
+ExistingFileReadOnly2=The existing file could not be replaced because it is marked read-only.
 ExistingFileReadOnlyRetry=Remove the read-only attribute and try again
-ExistingFileReadOnlySkip=Skip this file
+ExistingFileReadOnlyKeepExisting=Keep the existing file
 ErrorReadingExistingDest=An error occurred while trying to read the existing file:
 FileExists=The file already exists.%n%nWould you like Setup to overwrite it?
 ExistingFileNewer=The existing file is newer than the one Setup is trying to install. It is recommended that you keep the existing file.%n%nDo you want to keep the existing file?

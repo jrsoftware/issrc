@@ -229,7 +229,7 @@ SelectDirectoryLabel=Geef de locatie van de volgende diskette.
 SetupAborted=Setup is niet voltooid.%n%nCorrigeer het probleem en voer Setup opnieuw uit.
 AbortRetryIgnoreChooseAction=Kies actie
 AbortRetryIgnoreRetry=Probeer opnieuw
-AbortRetryIgnoreProceedAnyway=Ga toch door
+AbortRetryIgnoreIgnore=Negeer de fout en ga door
 AbortRetryIgnoreCancel=Breek installatie af
 
 ; *** Installation status messages
@@ -262,12 +262,12 @@ ErrorIniEntry=Fout bij het maken van een INI-instelling in bestand "%1".
 
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=Sla dit bestand over (niet aanbevolen)
-FileAbortRetryIgnoreProceedAnywayNotRecommended=Ga toch door (niet aanbevolen)
+FileAbortRetryIgnoreIgnoreRecommended=Negeer de fout en ga door (niet aanbevolen)
 SourceIsCorrupted=Het bronbestand is beschadigd
 SourceDoesntExist=Het bronbestand "%1" bestaat niet
-ExistingFileReadOnly2=Het bestaande bestand is gemarkeerd als alleen-lezen.
-ExistingFileReadOnlyRetry=Verwijder de alleen-lezen markering en probeer opnieuw
-ExistingFileReadOnlySkip=Sla dit bestand over
+ExistingFileReadOnly2=Het bestaande bestand kon niet vervangen worden omdat het een alleen-lezen markering heeft.
+ExistingFileReadOnlyRetry=Verwijder de alleen-lezen markering en probeer het opnieuw
+ExistingFileReadOnlyKeepExisting=Behoud het bestaande bestand
 ErrorReadingExistingDest=Er is een fout opgetreden bij het lezen van het bestaande bestand:
 FileExists=Het bestand bestaat al.%n%nWilt u dat Setup het overschrijft?
 ExistingFileNewer=Het bestaande bestand is nieuwer dan het bestand dat Setup probeert te installeren. U wordt aanbevolen het bestaande bestand te behouden.%n%nWilt u het bestaande bestand behouden?
