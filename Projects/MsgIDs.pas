@@ -97,7 +97,7 @@ type
     msgErrorTitle,
     msgErrorTooManyFilesInDir,
     msgExistingFileNewer,
-    msgExistingFileReadOnly,
+    msgExistingFileReadOnly2,
     msgExistingFileReadOnlyRetry,
     msgExistingFileReadOnlySkip,
     msgExitSetupMessage,

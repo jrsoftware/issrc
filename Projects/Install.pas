@@ -1314,7 +1314,7 @@ var
                (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then begin
               if not(foOverwriteReadOnly in CurFile^.Options) and
                  AbortRetryIgnoreTaskDialogMsgBox(
-                   DestFile + SNewLine2 + SetupMessages[msgExistingFileReadOnly],
+                   DestFile + SNewLine2 + SetupMessages[msgExistingFileReadOnly2],
                    [SetupMessages[msgExistingFileReadOnlyRetry], SetupMessages[msgExistingFileReadOnlySkip], SetupMessages[msgAbortRetryIgnoreCancel]]) then begin
                 Log('User opted not to strip the existing file''s read-only attribute. Skipping.');
                 goto Skip;
