@@ -268,7 +268,6 @@ begin
   end;
 end;
 
-procedure TInputOptionWizardPageCheckListBox_R(Self: TInputOptionWizardPage; var T: TNewCheckListBox); begin T := Self.CheckListBox; end;
 procedure TInputOptionWizardPageSelectedValueIndex_R(Self: TInputOptionWizardPage; var T: Integer); begin T := Self.SelectedValueIndex; end;
 procedure TInputOptionWizardPageSelectedValueIndex_W(Self: TInputOptionWizardPage; const T: Integer); begin Self.SelectedValueIndex := T; end;
 procedure TInputOptionWizardPageValues_W(Self: TInputOptionWizardPage; const T: Boolean; const t1: Integer); begin Self.Values[t1] := T; end;
@@ -280,7 +279,6 @@ begin
   begin
     RegisterMethod(@TInputOptionWizardPage.Add, 'Add');
     RegisterMethod(@TInputOptionWizardPage.AddEx, 'AddEx');
-    RegisterPropertyHelper(@TInputOptionWizardPageCheckListBox_R,nil,'CheckListBox');
     RegisterPropertyHelper(@TInputOptionWizardPageSelectedValueIndex_R,@TInputOptionWizardPageSelectedValueIndex_W,'SelectedValueIndex');
     RegisterPropertyHelper(@TInputOptionWizardPageValues_R,@TInputOptionWizardPageValues_W,'Values');
   end;

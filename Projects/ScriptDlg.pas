@@ -54,11 +54,11 @@ type
     public
       function Add(const ACaption: String): Integer;
       function AddEx(const ACaption: String; const ALevel: Byte; const AExclusive: Boolean): Integer;
-      property CheckListBox: TNewCheckListBox read FCheckListBox;
       procedure Initialize(const SubCaption: String; const Exclusive, ListBox: Boolean);
       property SelectedValueIndex: Integer read GetSelectedValueIndex write SetSelectedValueIndex;
       property Values[Index: Integer]: Boolean read GetValue write SetValue;
     published
+      property CheckListBox: TNewCheckListBox read FCheckListBox;
       property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
 
