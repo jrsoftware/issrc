@@ -17,7 +17,7 @@ interface
 type
   TSetupMessageID = (
     msgAbortRetryIgnoreCancel,
-    msgAbortRetryIgnoreChooseAction,
+    msgAbortRetryIgnoreSelectAction,
     msgAbortRetryIgnoreIgnore,
     msgAbortRetryIgnoreRetry,
     msgAboutSetupMenuItem,
@@ -151,9 +151,10 @@ type
     msgPowerUserPrivilegesRequired,
     msgPreparingDesc,
     msgPreviousInstallNotCompleted,
+    msgPrivilegesRequiredOverrideTitle,
     msgPrivilegesRequiredOverrideInstruction,
-    msgPrivilegesRequiredOverrideDialogText1,
-    msgPrivilegesRequiredOverrideDialogText2,
+    msgPrivilegesRequiredOverrideText1,
+    msgPrivilegesRequiredOverrideText2,
     msgPrivilegesRequiredOverrideAllUsers,
     msgPrivilegesRequiredOverrideAllUsersRecommended,
     msgPrivilegesRequiredOverrideCurrentUser,

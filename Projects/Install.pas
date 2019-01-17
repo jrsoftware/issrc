@@ -202,7 +202,7 @@ function AbortRetryIgnoreTaskDialogMsgBox(const Text: String;
   calls Abort if Abort was selected. }
 begin
   Result := False;
-  case LoggedTaskDialogMsgBox('', SetupMessages[msgAbortRetryIgnoreChooseAction], Text, '',
+  case LoggedTaskDialogMsgBox('', SetupMessages[msgAbortRetryIgnoreSelectAction], Text, '',
          mbError, MB_ABORTRETRYIGNORE, RetryIgnoreAbortButtonLabels, 0, True, IDABORT) of
     IDABORT: Abort;
     IDRETRY: ;

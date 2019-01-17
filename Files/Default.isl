@@ -65,9 +65,10 @@ SetupAppRunningError=Setup has detected that %1 is currently running.%n%nPlease 
 UninstallAppRunningError=Uninstall has detected that %1 is currently running.%n%nPlease close all instances of it now, then click OK to continue, or Cancel to exit.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideInstruction=Choose install mode
-PrivilegesRequiredOverrideDialogText1=%1 can be installed for all users (requires administrative privileges), or for you only.
-PrivilegesRequiredOverrideDialogText2=%1 can be installed for you only, or for all users (requires administrative privileges).
+PrivilegesRequiredOverrideTitle=Select Setup Install Mode
+PrivilegesRequiredOverrideInstruction=Select install mode
+PrivilegesRequiredOverrideText1=%1 can be installed for all users (requires administrative privileges), or for you only.
+PrivilegesRequiredOverrideText2=%1 can be installed for you only, or for all users (requires administrative privileges).
 PrivilegesRequiredOverrideAllUsers=Install for &all users
 PrivilegesRequiredOverrideAllUsersRecommended=Install for &all users (recommended)
 PrivilegesRequiredOverrideCurrentUser=Install for &me only
@@ -247,7 +248,7 @@ SelectDirectoryLabel=Please specify the location of the next disk.
 
 ; *** Installation phase messages
 SetupAborted=Setup was not completed.%n%nPlease correct the problem and run Setup again.
-AbortRetryIgnoreChooseAction=Choose action
+AbortRetryIgnoreSelectAction=Select action
 AbortRetryIgnoreRetry=&Try again
 AbortRetryIgnoreIgnore=&Ignore the error and continue
 AbortRetryIgnoreCancel=Cancel installation

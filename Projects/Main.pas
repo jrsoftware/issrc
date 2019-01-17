@@ -2835,8 +2835,8 @@ var
           AppName := SetupHeader.AppName;
         if SetupHeader.PrivilegesRequired = prLowest then begin
           case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
-                 FmtSetupMessage(msgPrivilegesRequiredOverrideDialogText2, [AppName]),
-                 SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideText2, [AppName]),
+                 SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
                  [SetupMessages[msgPrivilegesRequiredOverrideCurrentUserRecommended], SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO) of
             IDYES: DesireAdminInstallMode := False;
             IDNO: DesireAdminInstallMode := True;
@@ -2844,8 +2844,8 @@ var
             end;
         end else begin
           case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
-                 FmtSetupMessage(msgPrivilegesRequiredOverrideDialogText1, [AppName]),
-                 SetupMessages[msgSetupAppTitle], mbInformation, MB_YESNOCANCEL,
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideText1, [AppName]),
+                 SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
                  [SetupMessages[msgPrivilegesRequiredOverrideAllUsersRecommended], SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES) of
             IDYES: DesireAdminInstallMode := True;
             IDNO: DesireAdminInstallMode := False;

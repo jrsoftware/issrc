@@ -48,9 +48,10 @@ SetupAppRunningError=Setup heeft vastgesteld dat %1 op dit moment actief is.%n%n
 UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle vensters hiervan, en klik daarna op OK om verder te gaan, of op Annuleren om het verwijderen af te breken.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideInstruction=Kies installatie modus
-PrivilegesRequiredOverrideDialogText1=%1 kan geïnstalleerd worden voor alle gebruikers (vereist aanmelding als een systeembeheerder), of voor u alleen.
-PrivilegesRequiredOverrideDialogText2=%1 kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
+PrivilegesRequiredOverrideTitle=Selecteer installatie modus voor Setup
+PrivilegesRequiredOverrideInstruction=Selecteer installatie modus
+PrivilegesRequiredOverrideText1=%1 kan geïnstalleerd worden voor alle gebruikers (vereist aanmelding als een systeembeheerder), of voor u alleen.
+PrivilegesRequiredOverrideText2=%1 kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
 PrivilegesRequiredOverrideAllUsers=Installeer voor &alle gebruikers
 PrivilegesRequiredOverrideAllUsersRecommended=Installeer voor &alle gebruikers (aanbevolen)
 PrivilegesRequiredOverrideCurrentUser=Installeer voor &mij alleen
@@ -85,7 +86,7 @@ ButtonWizardBrowse=B&laderen...
 ButtonNewFolder=&Nieuwe map maken
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Taalkeuze voor Setup
+SelectLanguageTitle=Selecteer taal voor Setup
 SelectLanguageLabel=Selecteer de taal die Setup gebruikt tijdens de installatie:
 
 ; *** Common wizard text
@@ -227,7 +228,7 @@ SelectDirectoryLabel=Geef de locatie van de volgende diskette.
 
 ; *** Installation phase messages
 SetupAborted=Setup is niet voltooid.%n%nCorrigeer het probleem en voer Setup opnieuw uit.
-AbortRetryIgnoreChooseAction=Kies actie
+AbortRetryIgnoreSelectAction=Selecteer actie
 AbortRetryIgnoreRetry=&Probeer opnieuw
 AbortRetryIgnoreIgnore=&Negeer de fout en ga door
 AbortRetryIgnoreCancel=Breek installatie af
