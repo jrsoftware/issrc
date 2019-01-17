@@ -263,7 +263,7 @@ ErrorIniEntry=Fout bij het maken van een INI-instelling in bestand "%1".
 
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=&Sla dit bestand over (niet aanbevolen)
-FileAbortRetryIgnoreIgnoreRecommended=&Negeer de fout en ga door (niet aanbevolen)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Negeer de fout en ga door (niet aanbevolen)
 SourceIsCorrupted=Het bronbestand is beschadigd
 SourceDoesntExist=Het bronbestand "%1" bestaat niet
 ExistingFileReadOnly2=Het bestaande bestand kon niet vervangen worden omdat het een alleen-lezen markering heeft.
