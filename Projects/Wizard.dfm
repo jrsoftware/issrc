@@ -21,7 +21,7 @@ object WizardForm: TWizardForm
     360)
   PixelsPerInch = 96
   TextHeight = 13
-  object Bevel: TBevel
+  object FBevel: TBevel
     Left = 0
     Top = 313
     Width = 497
@@ -29,7 +29,7 @@ object WizardForm: TWizardForm
     Anchors = [akLeft, akRight, akBottom]
     Shape = bsTopLine
   end
-  object CancelButton: TNewButton
+  object FCancelButton: TNewButton
     Left = 464
     Top = 327
     Width = 17
@@ -40,7 +40,7 @@ object WizardForm: TWizardForm
     TabOrder = 4
     OnClick = CancelButtonClick
   end
-  object NextButton: TNewButton
+  object FNextButton: TNewButton
     Left = 440
     Top = 327
     Width = 17
@@ -51,7 +51,7 @@ object WizardForm: TWizardForm
     TabOrder = 3
     OnClick = NextButtonClick
   end
-  object BackButton: TNewButton
+  object FBackButton: TNewButton
     Left = 424
     Top = 327
     Width = 16
@@ -61,23 +61,23 @@ object WizardForm: TWizardForm
     TabOrder = 2
     OnClick = BackButtonClick
   end
-  object OuterNotebook: TNewNotebook
+  object FOuterNotebook: TNewNotebook
     Left = 0
     Top = 0
     Width = 497
     Height = 313
-    ActivePage = InnerPage
+    ActivePage = FInnerPage
     Anchors = [akLeft, akTop, akRight, akBottom]
     Color = clBtnFace
     ParentColor = False
     TabOrder = 0
-    object WelcomePage: TNewNotebookPage
+    object FWelcomePage: TNewNotebookPage
       Color = clWindow
       ParentColor = False
       DesignSize = (
         497
         313)
-      object WizardBitmapImage: TBitmapImage
+      object FWizardBitmapImage: TBitmapImage
         Left = 0
         Top = 0
         Width = 164
@@ -85,7 +85,7 @@ object WizardForm: TWizardForm
         Anchors = [akLeft, akTop, akBottom]
         BackColor = clWindow
       end
-      object WelcomeLabel2: TNewStaticText
+      object FWelcomeLabel2: TNewStaticText
         Left = 176
         Top = 76
         Width = 301
@@ -97,7 +97,7 @@ object WizardForm: TWizardForm
         TabOrder = 1
         WordWrap = True
       end
-      object WelcomeLabel1: TNewStaticText
+      object FWelcomeLabel1: TNewStaticText
         Left = 176
         Top = 16
         Width = 301
@@ -110,11 +110,11 @@ object WizardForm: TWizardForm
         WordWrap = True
       end
     end
-    object InnerPage: TNewNotebookPage
+    object FInnerPage: TNewNotebookPage
       DesignSize = (
         497
         313)
-      object Bevel1: TBevel
+      object FBevel1: TBevel
         Left = 0
         Top = 58
         Width = 499
@@ -122,19 +122,19 @@ object WizardForm: TWizardForm
         Anchors = [akLeft, akTop, akRight]
         Shape = bsTopLine
       end
-      object InnerNotebook: TNewNotebook
+      object FInnerNotebook: TNewNotebook
         Left = 40
         Top = 72
         Width = 417
         Height = 237
-        ActivePage = LicensePage
+        ActivePage = FLicensePage
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 1
-        object LicensePage: TNewNotebookPage
+        object FLicensePage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object LicenseNotAcceptedRadio: TNewRadioButton
+          object FLicenseNotAcceptedRadio: TNewRadioButton
             Left = 0
             Top = 216
             Width = 417
@@ -146,7 +146,7 @@ object WizardForm: TWizardForm
             TabStop = True
             OnClick = LicenseNotAcceptedRadioClick
           end
-          object LicenseAcceptedRadio: TNewRadioButton
+          object FLicenseAcceptedRadio: TNewRadioButton
             Left = 0
             Top = 196
             Width = 417
@@ -156,7 +156,7 @@ object WizardForm: TWizardForm
             TabOrder = 2
             OnClick = LicenseAcceptedRadioClick
           end
-          object LicenseMemo: TRichEditViewer
+          object FLicenseMemo: TRichEditViewer
             Left = 0
             Top = 24
             Width = 417
@@ -170,7 +170,7 @@ object WizardForm: TWizardForm
             WantReturns = False
             UseRichEdit = False
           end
-          object LicenseLabel1: TNewStaticText
+          object FLicenseLabel1: TNewStaticText
             Left = 0
             Top = 0
             Width = 417
@@ -183,11 +183,11 @@ object WizardForm: TWizardForm
             WordWrap = True
           end
         end
-        object PasswordPage: TNewNotebookPage
+        object FPasswordPage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object PasswordEdit: TPasswordEdit
+          object FPasswordEdit: TPasswordEdit
             Left = 0
             Top = 40
             Width = 265
@@ -195,7 +195,7 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             TabOrder = 2
           end
-          object PasswordEditLabel: TNewStaticText
+          object FPasswordEditLabel: TNewStaticText
             Left = 0
             Top = 24
             Width = 417
@@ -203,11 +203,11 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
-            FocusControl = PasswordEdit
+            FocusControl = FPasswordEdit
             TabOrder = 1
             WordWrap = True
           end
-          object PasswordLabel: TNewStaticText
+          object FPasswordLabel: TNewStaticText
             Left = 0
             Top = 0
             Width = 417
@@ -220,11 +220,11 @@ object WizardForm: TWizardForm
             WordWrap = True
           end
         end
-        object InfoBeforePage: TNewNotebookPage
+        object FInfoBeforePage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object InfoBeforeMemo: TRichEditViewer
+          object FInfoBeforeMemo: TRichEditViewer
             Left = 0
             Top = 24
             Width = 417
@@ -238,7 +238,7 @@ object WizardForm: TWizardForm
             WantReturns = False
             UseRichEdit = False
           end
-          object InfoBeforeClickLabel: TNewStaticText
+          object FInfoBeforeClickLabel: TNewStaticText
             Left = 0
             Top = 0
             Width = 417
@@ -251,11 +251,11 @@ object WizardForm: TWizardForm
             WordWrap = True
           end
         end
-        object UserInfoPage: TNewNotebookPage
+        object FUserInfoPage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object UserInfoSerialEdit: TNewEdit
+          object FUserInfoSerialEdit: TNewEdit
             Left = 0
             Top = 120
             Width = 417
@@ -265,7 +265,7 @@ object WizardForm: TWizardForm
             TabOrder = 5
             OnChange = UserInfoEditChange
           end
-          object UserInfoSerialLabel: TNewStaticText
+          object FUserInfoSerialLabel: TNewStaticText
             Left = 0
             Top = 104
             Width = 417
@@ -273,11 +273,11 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
-            FocusControl = UserInfoSerialEdit
+            FocusControl = FUserInfoSerialEdit
             TabOrder = 4
             WordWrap = True
           end
-          object UserInfoOrgEdit: TNewEdit
+          object FUserInfoOrgEdit: TNewEdit
             Left = 0
             Top = 68
             Width = 417
@@ -287,7 +287,7 @@ object WizardForm: TWizardForm
             TabOrder = 3
             OnChange = UserInfoEditChange
           end
-          object UserInfoOrgLabel: TNewStaticText
+          object FUserInfoOrgLabel: TNewStaticText
             Left = 0
             Top = 52
             Width = 417
@@ -295,11 +295,11 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
-            FocusControl = UserInfoOrgEdit
+            FocusControl = FUserInfoOrgEdit
             TabOrder = 2
             WordWrap = True
           end
-          object UserInfoNameEdit: TNewEdit
+          object FUserInfoNameEdit: TNewEdit
             Left = 0
             Top = 16
             Width = 417
@@ -309,7 +309,7 @@ object WizardForm: TWizardForm
             TabOrder = 1
             OnChange = UserInfoEditChange
           end
-          object UserInfoNameLabel: TNewStaticText
+          object FUserInfoNameLabel: TNewStaticText
             Left = 0
             Top = 0
             Width = 417
@@ -317,22 +317,22 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
-            FocusControl = UserInfoNameEdit
+            FocusControl = FUserInfoNameEdit
             TabOrder = 0
             WordWrap = True
           end
         end
-        object SelectDirPage: TNewNotebookPage
+        object FSelectDirPage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object SelectDirBitmapImage: TBitmapImage
+          object FSelectDirBitmapImage: TBitmapImage
             Left = 0
             Top = 0
             Width = 32
             Height = 32
           end
-          object DiskSpaceLabel: TNewStaticText
+          object FDiskSpaceLabel: TNewStaticText
             Left = 0
             Top = 216
             Width = 417
@@ -344,7 +344,7 @@ object WizardForm: TWizardForm
             TabOrder = 4
             WordWrap = True
           end
-          object DirBrowseButton: TNewButton
+          object FDirBrowseButton: TNewButton
             Left = 400
             Top = 67
             Width = 17
@@ -354,7 +354,7 @@ object WizardForm: TWizardForm
             TabOrder = 3
             OnClick = DirBrowseButtonClick
           end
-          object DirEdit: TEdit
+          object FDirEdit: TEdit
             Left = 0
             Top = 68
             Width = 397
@@ -363,7 +363,7 @@ object WizardForm: TWizardForm
             TabOrder = 2
             Text = 'DirEdit'
           end
-          object SelectDirBrowseLabel: TNewStaticText
+          object FSelectDirBrowseLabel: TNewStaticText
             Left = 0
             Top = 44
             Width = 417
@@ -375,7 +375,7 @@ object WizardForm: TWizardForm
             TabOrder = 1
             WordWrap = True
           end
-          object SelectDirLabel: TNewStaticText
+          object FSelectDirLabel: TNewStaticText
             Left = 44
             Top = 0
             Width = 373
@@ -388,11 +388,11 @@ object WizardForm: TWizardForm
             WordWrap = True
           end
         end
-        object SelectComponentsPage: TNewNotebookPage
+        object FSelectComponentsPage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object ComponentsDiskSpaceLabel: TNewStaticText
+          object FComponentsDiskSpaceLabel: TNewStaticText
             Left = 0
             Top = 216
             Width = 417
@@ -403,7 +403,7 @@ object WizardForm: TWizardForm
             ShowAccelChar = False
             TabOrder = 3
           end
-          object ComponentsList: TNewCheckListBox
+          object FComponentsList: TNewCheckListBox
             Left = 0
             Top = 48
             Width = 417
@@ -414,7 +414,7 @@ object WizardForm: TWizardForm
             RequireRadioSelection = True
             TabOrder = 2
           end
-          object TypesCombo: TNewComboBox
+          object FTypesCombo: TNewComboBox
             Left = 0
             Top = 24
             Width = 417
@@ -424,7 +424,7 @@ object WizardForm: TWizardForm
             TabOrder = 1
             OnChange = TypesComboChange
           end
-          object SelectComponentsLabel: TNewStaticText
+          object FSelectComponentsLabel: TNewStaticText
             Left = 0
             Top = 0
             Width = 417
@@ -437,17 +437,17 @@ object WizardForm: TWizardForm
             WordWrap = True
           end
         end
-        object SelectProgramGroupPage: TNewNotebookPage
+        object FSelectProgramGroupPage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object SelectGroupBitmapImage: TBitmapImage
+          object FSelectGroupBitmapImage: TBitmapImage
             Left = 0
             Top = 0
             Width = 32
             Height = 32
           end
-          object NoIconsCheck: TNewCheckBox
+          object FNoIconsCheck: TNewCheckBox
             Left = 0
             Top = 215
             Width = 417
@@ -457,7 +457,7 @@ object WizardForm: TWizardForm
             TabOrder = 4
             OnClick = NoIconsCheckClick
           end
-          object GroupBrowseButton: TNewButton
+          object FGroupBrowseButton: TNewButton
             Left = 400
             Top = 67
             Width = 17
@@ -467,7 +467,7 @@ object WizardForm: TWizardForm
             TabOrder = 3
             OnClick = GroupBrowseButtonClick
           end
-          object GroupEdit: TNewEdit
+          object FGroupEdit: TNewEdit
             Left = 0
             Top = 68
             Width = 397
@@ -476,7 +476,7 @@ object WizardForm: TWizardForm
             TabOrder = 2
             Text = 'GroupEdit'
           end
-          object SelectStartMenuFolderBrowseLabel: TNewStaticText
+          object FSelectStartMenuFolderBrowseLabel: TNewStaticText
             Left = 0
             Top = 44
             Width = 417
@@ -488,7 +488,7 @@ object WizardForm: TWizardForm
             TabOrder = 1
             WordWrap = True
           end
-          object SelectStartMenuFolderLabel: TNewStaticText
+          object FSelectStartMenuFolderLabel: TNewStaticText
             Left = 44
             Top = 0
             Width = 373
@@ -501,11 +501,11 @@ object WizardForm: TWizardForm
             WordWrap = True
           end
         end
-        object SelectTasksPage: TNewNotebookPage
+        object FSelectTasksPage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object TasksList: TNewCheckListBox
+          object FTasksList: TNewCheckListBox
             Left = 0
             Top = 24
             Width = 417
@@ -517,7 +517,7 @@ object WizardForm: TWizardForm
             TabOrder = 1
             WantTabs = True
           end
-          object SelectTasksLabel: TNewStaticText
+          object FSelectTasksLabel: TNewStaticText
             Left = 0
             Top = 0
             Width = 417
@@ -530,11 +530,11 @@ object WizardForm: TWizardForm
             WordWrap = True
           end
         end
-        object ReadyPage: TNewNotebookPage
+        object FReadyPage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object ReadyMemo: TNewMemo
+          object FReadyMemo: TNewMemo
             Left = 0
             Top = 24
             Width = 417
@@ -547,7 +547,7 @@ object WizardForm: TWizardForm
             WantReturns = False
             WordWrap = False
           end
-          object ReadyLabel: TNewStaticText
+          object FReadyLabel: TNewStaticText
             Left = 0
             Top = 0
             Width = 417
@@ -560,18 +560,18 @@ object WizardForm: TWizardForm
             WordWrap = True
           end
         end
-        object PreparingPage: TNewNotebookPage
+        object FPreparingPage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object PreparingErrorBitmapImage: TBitmapImage
+          object FPreparingErrorBitmapImage: TBitmapImage
             Left = 0
             Top = 0
             Width = 16
             Height = 16
             Visible = False
           end
-          object PreparingLabel: TNewStaticText
+          object FPreparingLabel: TNewStaticText
             Left = 24
             Top = 0
             Width = 393
@@ -584,7 +584,7 @@ object WizardForm: TWizardForm
             Visible = False
             WordWrap = True
           end
-          object PreparingYesRadio: TNewRadioButton
+          object FPreparingYesRadio: TNewRadioButton
             Left = 24
             Top = 28
             Width = 393
@@ -596,7 +596,7 @@ object WizardForm: TWizardForm
             TabStop = True
             Visible = False
           end
-          object PreparingNoRadio: TNewRadioButton
+          object FPreparingNoRadio: TNewRadioButton
             Left = 24
             Top = 56
             Width = 393
@@ -606,7 +606,7 @@ object WizardForm: TWizardForm
             TabOrder = 3
             Visible = False
           end
-          object PreparingMemo: TNewMemo
+          object FPreparingMemo: TNewMemo
             Left = 24
             Top = 88
             Width = 393
@@ -622,11 +622,11 @@ object WizardForm: TWizardForm
             WordWrap = False
           end
         end
-        object InstallingPage: TNewNotebookPage
+        object FInstallingPage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object FilenameLabel: TNewStaticText
+          object FFilenameLabel: TNewStaticText
             Left = 0
             Top = 16
             Width = 417
@@ -637,7 +637,7 @@ object WizardForm: TWizardForm
             ShowAccelChar = False
             TabOrder = 1
           end
-          object StatusLabel: TNewStaticText
+          object FStatusLabel: TNewStaticText
             Left = 0
             Top = 0
             Width = 417
@@ -647,7 +647,7 @@ object WizardForm: TWizardForm
             ShowAccelChar = False
             TabOrder = 0
           end
-          object ProgressGauge: TNewProgressBar
+          object FProgressGauge: TNewProgressBar
             Left = 0
             Top = 42
             Width = 417
@@ -658,11 +658,11 @@ object WizardForm: TWizardForm
             Style = npbstNormal
           end
         end
-        object InfoAfterPage: TNewNotebookPage
+        object FInfoAfterPage: TNewNotebookPage
           DesignSize = (
             417
             237)
-          object InfoAfterMemo: TRichEditViewer
+          object FInfoAfterMemo: TRichEditViewer
             Left = 0
             Top = 24
             Width = 417
@@ -676,7 +676,7 @@ object WizardForm: TWizardForm
             WantReturns = False
             UseRichEdit = False
           end
-          object InfoAfterClickLabel: TNewStaticText
+          object FInfoAfterClickLabel: TNewStaticText
             Left = 0
             Top = 0
             Width = 417
@@ -690,7 +690,7 @@ object WizardForm: TWizardForm
           end
         end
       end
-      object MainPanel: TPanel
+      object FMainPanel: TPanel
         Left = 0
         Top = 0
         Width = 497
@@ -702,7 +702,7 @@ object WizardForm: TWizardForm
         DesignSize = (
           497
           58)
-        object WizardSmallBitmapImage: TBitmapImage
+        object FWizardSmallBitmapImage: TBitmapImage
           Left = 440
           Top = 0
           Width = 55
@@ -710,7 +710,7 @@ object WizardForm: TWizardForm
           Anchors = [akTop, akRight]
           BackColor = clWindow
         end
-        object PageDescriptionLabel: TNewStaticText
+        object FPageDescriptionLabel: TNewStaticText
           Left = 40
           Top = 26
           Width = 389
@@ -722,7 +722,7 @@ object WizardForm: TWizardForm
           TabOrder = 1
           WordWrap = True
         end
-        object PageNameLabel: TNewStaticText
+        object FPageNameLabel: TNewStaticText
           Left = 24
           Top = 10
           Width = 405
@@ -735,13 +735,13 @@ object WizardForm: TWizardForm
         end
       end
     end
-    object FinishedPage: TNewNotebookPage
+    object FFinishedPage: TNewNotebookPage
       Color = clWindow
       ParentColor = False
       DesignSize = (
         497
         313)
-      object WizardBitmapImage2: TBitmapImage
+      object FWizardBitmapImage2: TBitmapImage
         Left = 0
         Top = 0
         Width = 164
@@ -749,7 +749,7 @@ object WizardForm: TWizardForm
         Anchors = [akLeft, akTop, akBottom]
         BackColor = clWindow
       end
-      object RunList: TNewCheckListBox
+      object FRunList: TNewCheckListBox
         Left = 176
         Top = 156
         Width = 301
@@ -761,7 +761,7 @@ object WizardForm: TWizardForm
         Visible = False
         WantTabs = True
       end
-      object NoRadio: TNewRadioButton
+      object FNoRadio: TNewRadioButton
         Left = 176
         Top = 184
         Width = 301
@@ -771,7 +771,7 @@ object WizardForm: TWizardForm
         TabOrder = 4
         Visible = False
       end
-      object YesRadio: TNewRadioButton
+      object FYesRadio: TNewRadioButton
         Left = 176
         Top = 156
         Width = 301
@@ -783,7 +783,7 @@ object WizardForm: TWizardForm
         TabStop = True
         Visible = False
       end
-      object FinishedLabel: TNewStaticText
+      object FFinishedLabel: TNewStaticText
         Left = 176
         Top = 76
         Width = 301
@@ -795,7 +795,7 @@ object WizardForm: TWizardForm
         TabOrder = 1
         WordWrap = True
       end
-      object FinishedHeadingLabel: TNewStaticText
+      object FFinishedHeadingLabel: TNewStaticText
         Left = 176
         Top = 16
         Width = 301
@@ -809,7 +809,7 @@ object WizardForm: TWizardForm
       end
     end
   end
-  object BeveledLabel: TNewStaticText
+  object FBeveledLabel: TNewStaticText
     Left = 0
     Top = 306
     Width = 5
