@@ -849,7 +849,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use "0" then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>MinVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without a <tt>MinVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
-<pre>MinVersion: 5.1</pre>
+<pre>MinVersion: 10.0</pre>
 </example>
 </param>
 
@@ -857,7 +857,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you put <tt>6.0</tt> and the user is running Windows 2000 or XP, the entry <i>will</i> be processed, but if the user is running Windows Vista (which reports its version as 6.0) or later, it will <i>not</i> be processed. Putting "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without an <tt>OnlyBelowVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
-<pre>OnlyBelowVersion: 6.0</pre>
+<pre>OnlyBelowVersion: 10.0</pre>
 </example>
 </param>
 
@@ -3917,7 +3917,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="MinVersion">
 <setupformat><tt><i>major</i>.<i>minor</i></tt></setupformat>
-<setupdefault><tt>5.0</tt></setupdefault>
+<setupdefault><tt>6.0</tt></setupdefault>
 <body>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software runs on. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>If the user's system does not meet the minimum version requirement, Setup will give an error message and exit.</p>
@@ -3931,7 +3931,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <body>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software <i>will not</i> run on. Specifying "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>This directive is essentially the opposite of <link topic="setup_minversion">MinVersion</link>.</p>
-<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>OnlyBelowVersion=0,6.0</tt>. The Windows 95/98/Me version number (the first number) isn't used, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
+<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>OnlyBelowVersion=0,10.0</tt>. The Windows 95/98/Me version number (the first number) isn't used, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
 </body>
 </setuptopic>
 
@@ -5433,9 +5433,6 @@ SignTool=byparam format c:
 <keyword value="Windows Versions" />
 <body>
 <table>
-<tr><td>5.0.2195</td><td>Windows 2000</td></tr>
-<tr><td>5.1.2600</td><td>Windows XP<br/>or Windows XP 64-Bit Edition Version 2002 (Itanium)</td></tr>
-<tr><td>5.2.3790</td><td>Windows Server 2003<br/>or Windows XP x64 Edition (AMD64/EM64T)<br/>or Windows XP 64-Bit Edition Version 2003 (Itanium)</td></tr>
 <tr><td>6.0.6000</td><td>Windows Vista</td></tr>
 <tr><td>6.0.6001</td><td>Windows Vista with Service Pack 1<br/>or Windows Server 2008</td></tr>
 <tr><td>6.1.7600</td><td>Windows 7<br/>or Windows Server 2008 R2</td></tr>

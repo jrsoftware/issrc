@@ -4146,8 +4146,8 @@ begin
           Invalid;
         if SetupHeader.MinVersion.WinVersion <> 0 then
           AbortCompileOnLine(SCompilerMinVersionWinMustBeZero);
-        if SetupHeader.MinVersion.NTVersion < $05000000 then
-          AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, ['5.0']);
+        if SetupHeader.MinVersion.NTVersion < $06000000 then
+          AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, ['6.0']);
       end;
     ssOnlyBelowVersion: begin
         if not StrToVersionNumbers(Value, SetupHeader.OnlyBelowVersion) then
@@ -8619,7 +8619,7 @@ begin
     ReserveBytes := 0;
     TimeStampRounding := 2;
     SetupHeader.MinVersion.WinVersion := 0;
-    SetupHeader.MinVersion.NTVersion := $05000000;
+    SetupHeader.MinVersion.NTVersion := $06000000;
     SetupHeader.Options := [shDisableStartupPrompt, shCreateAppDir,
       shWindowStartMaximized, shWindowShowCaption, shWindowResizable,
       shUsePreviousAppDir, shUsePreviousGroup,
