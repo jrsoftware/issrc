@@ -51,10 +51,10 @@ UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit 
 PrivilegesRequiredOverrideInstruction=Kies installatie modus
 PrivilegesRequiredOverrideDialogText1=%1 kan geïnstalleerd worden voor alle gebruikers (vereist aanmelding als een systeembeheerder), of voor u alleen.
 PrivilegesRequiredOverrideDialogText2=%1 kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
-PrivilegesRequiredOverrideAllUsers=Installeer voor alle gebruikers
-PrivilegesRequiredOverrideAllUsersRecommended=Installeer voor alle gebruikers (aanbevolen)
-PrivilegesRequiredOverrideCurrentUser=Installeer voor mij alleen
-PrivilegesRequiredOverrideCurrentUserRecommended=Installeer voor mij alleen (aanbevolen)
+PrivilegesRequiredOverrideAllUsers=Installeer voor &alle gebruikers
+PrivilegesRequiredOverrideAllUsersRecommended=Installeer voor &alle gebruikers (aanbevolen)
+PrivilegesRequiredOverrideCurrentUser=Installeer voor &mij alleen
+PrivilegesRequiredOverrideCurrentUserRecommended=Installeer voor &mij alleen (aanbevolen)
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup kan de map "%1" niet maken
@@ -228,8 +228,8 @@ SelectDirectoryLabel=Geef de locatie van de volgende diskette.
 ; *** Installation phase messages
 SetupAborted=Setup is niet voltooid.%n%nCorrigeer het probleem en voer Setup opnieuw uit.
 AbortRetryIgnoreChooseAction=Kies actie
-AbortRetryIgnoreRetry=Probeer opnieuw
-AbortRetryIgnoreIgnore=Negeer de fout en ga door
+AbortRetryIgnoreRetry=&Probeer opnieuw
+AbortRetryIgnoreIgnore=&Negeer de fout en ga door
 AbortRetryIgnoreCancel=Breek installatie af
 
 ; *** Installation status messages
@@ -261,13 +261,13 @@ ErrorRegWriteKey=Fout bij het schrijven naar registersleutel:%n%1\%2
 ErrorIniEntry=Fout bij het maken van een INI-instelling in bestand "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnoreSkipNotRecommended=Sla dit bestand over (niet aanbevolen)
-FileAbortRetryIgnoreIgnoreRecommended=Negeer de fout en ga door (niet aanbevolen)
+FileAbortRetryIgnoreSkipNotRecommended=&Sla dit bestand over (niet aanbevolen)
+FileAbortRetryIgnoreIgnoreRecommended=&Negeer de fout en ga door (niet aanbevolen)
 SourceIsCorrupted=Het bronbestand is beschadigd
 SourceDoesntExist=Het bronbestand "%1" bestaat niet
 ExistingFileReadOnly2=Het bestaande bestand kon niet vervangen worden omdat het een alleen-lezen markering heeft.
-ExistingFileReadOnlyRetry=Verwijder de alleen-lezen markering en probeer het opnieuw
-ExistingFileReadOnlyKeepExisting=Behoud het bestaande bestand
+ExistingFileReadOnlyRetry=&Verwijder de alleen-lezen markering en probeer het opnieuw
+ExistingFileReadOnlyKeepExisting=&Behoud het bestaande bestand
 ErrorReadingExistingDest=Er is een fout opgetreden bij het lezen van het bestaande bestand:
 FileExists=Het bestand bestaat al.%n%nWilt u dat Setup het overschrijft?
 ExistingFileNewer=Het bestaande bestand is nieuwer dan het bestand dat Setup probeert te installeren. U wordt aanbevolen het bestaande bestand te behouden.%n%nWilt u het bestaande bestand behouden?

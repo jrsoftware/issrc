@@ -95,7 +95,7 @@ begin
   case TaskDialogMsgBox('Choose A or B',
                         'You can choose A or B.',   
                         mbInformation,
-                        MB_YESNOCANCEL, ['I choose A'#13#10'A will be chosen.', 'I choose B'#13#10'B will be chosen.'],
+                        MB_YESNOCANCEL, ['I choose &A'#13#10'A will be chosen.', 'I choose &B'#13#10'B will be chosen.'],
                         IDYES) of
     IDYES: MsgBox('You chose A.', mbInformation, MB_OK);
     IDNO: MsgBox('You chose B.', mbInformation, MB_OK);

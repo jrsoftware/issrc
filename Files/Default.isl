@@ -68,10 +68,10 @@ UninstallAppRunningError=Uninstall has detected that %1 is currently running.%n%
 PrivilegesRequiredOverrideInstruction=Choose install mode
 PrivilegesRequiredOverrideDialogText1=%1 can be installed for all users (requires administrative privileges), or for you only.
 PrivilegesRequiredOverrideDialogText2=%1 can be installed for you only, or for all users (requires administrative privileges).
-PrivilegesRequiredOverrideAllUsers=Install for all users
-PrivilegesRequiredOverrideAllUsersRecommended=Install for all users (recommended)
-PrivilegesRequiredOverrideCurrentUser=Install for me only
-PrivilegesRequiredOverrideCurrentUserRecommended=Install for me only (recommended)
+PrivilegesRequiredOverrideAllUsers=Install for &all users
+PrivilegesRequiredOverrideAllUsersRecommended=Install for &all users (recommended)
+PrivilegesRequiredOverrideCurrentUser=Install for &me only
+PrivilegesRequiredOverrideCurrentUserRecommended=Install for &me only (recommended)
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup was unable to create the directory "%1"
@@ -248,8 +248,8 @@ SelectDirectoryLabel=Please specify the location of the next disk.
 ; *** Installation phase messages
 SetupAborted=Setup was not completed.%n%nPlease correct the problem and run Setup again.
 AbortRetryIgnoreChooseAction=Choose action
-AbortRetryIgnoreRetry=Try again
-AbortRetryIgnoreIgnore=Ignore the error and continue
+AbortRetryIgnoreRetry=&Try again
+AbortRetryIgnoreIgnore=&Ignore the error and continue
 AbortRetryIgnoreCancel=Cancel installation
 
 ; *** Installation status messages
@@ -281,13 +281,13 @@ ErrorRegWriteKey=Error writing to registry key:%n%1\%2
 ErrorIniEntry=Error creating INI entry in file "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnoreSkipNotRecommended=Skip this file (not recommended)
-FileAbortRetryIgnoreIgnoreNotRecommended=Ignore the error and continue (not recommended)
+FileAbortRetryIgnoreSkipNotRecommended=&Skip this file (not recommended)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Ignore the error and continue (not recommended)
 SourceIsCorrupted=The source file is corrupted
 SourceDoesntExist=The source file "%1" does not exist
 ExistingFileReadOnly2=The existing file could not be replaced because it is marked read-only.
-ExistingFileReadOnlyRetry=Remove the read-only attribute and try again
-ExistingFileReadOnlyKeepExisting=Keep the existing file
+ExistingFileReadOnlyRetry=&Remove the read-only attribute and try again
+ExistingFileReadOnlyKeepExisting=&Keep the existing file
 ErrorReadingExistingDest=An error occurred while trying to read the existing file:
 FileExists=The file already exists.%n%nWould you like Setup to overwrite it?
 ExistingFileNewer=The existing file is newer than the one Setup is trying to install. It is recommended that you keep the existing file.%n%nDo you want to keep the existing file?
