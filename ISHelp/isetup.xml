@@ -5076,7 +5076,6 @@ DiskSliceSize=1457664
 <p>Normally, you should not change this directive from its default value unless your application contains native 64-bit binaries.</p>
 <p>Be sure you have read the <link topic="64bitlimitations">64-bit Installation Limitations</link> topic before setting this directive.</p>
 <p>If your application runs only on 64-bit processor architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
-<p>Setup can only run in 64-bit install mode on versions of Windows that provide the API support Inno Setup requires (e.g. RegDeleteKeyEx). All x64 known editions provide the necessary APIs but if they are lacking anyway, Setup will display a message (<tt>MissingWOW64APIs2</tt>), and exit.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesallowed">ArchitecturesAllowed</link></p>
 </body>
