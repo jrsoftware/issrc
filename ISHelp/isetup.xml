@@ -3200,8 +3200,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>No in a 'File exists, confirm overwrite.' situation.</li>
 <li>Abort in Abort/Retry situations.</li>
 <li>Cancel in Retry/Cancel situations.</li>
-<li>Yes (=continue) in a DiskSpaceWarning/DirExists/DirDoesntExist/NoUninstallWarning/ExitSetupMessage/ConfirmUninstall/PrivilegesRequiredOverrideMsgBox situation.</li>
+<li>Yes (=continue) in a DiskSpaceWarning/DirExists/DirDoesntExist/NoUninstallWarning/ExitSetupMessage/ConfirmUninstall situation.</li>
 <li>Yes (=restart) in a FinishedRestartMessage/UninstalledAndNeedsRestart situation.</li>
+<li>The recommended choice in a PrivilegesRequiredOverridesAllowed=dialog situation.</li>
 </ul>
 <p>5 message boxes are not suppressible:</p>
 <ul appearance="compact">
@@ -3959,9 +3960,9 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p><b>On earlier versions of Windows:</b></p>
 <p>This directive specifies the minimum user privileges required to run the installation.</p>
 <p>When set to <tt>admin</tt> (the default), Setup will only run if the user is a member of the Administrators group and will always run in <link topic="admininstallmode">administrative install mode</link>. Otherwise, it will display the following message and exit: "You must be logged in as an administrator when installing this program."</p>
--->
-<!-- <p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
+<p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
 <p>When set to <tt>lowest</tt> Setup will not check the user's group membership and will always run in <link topic="admininstallmode">non administrative install mode</link>. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
+-->
 <p><b>See also:</b><br/>
 <link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link>
 </p>
@@ -5075,7 +5076,6 @@ DiskSliceSize=1457664
 <p>Normally, you should not change this directive from its default value unless your application contains native 64-bit binaries.</p>
 <p>Be sure you have read the <link topic="64bitlimitations">64-bit Installation Limitations</link> topic before setting this directive.</p>
 <p>If your application runs only on 64-bit processor architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
-<p>Setup can only run in 64-bit install mode on versions of Windows that provide the API support Inno Setup requires (e.g. RegDeleteKeyEx). All x64 known editions provide the necessary APIs but if they are lacking anyway, Setup will display a message (<tt>MissingWOW64APIs2</tt>), and exit.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesallowed">ArchitecturesAllowed</link></p>
 </body>

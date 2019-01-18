@@ -56,7 +56,6 @@ WindowsServicePackRequired=This program requires %1 Service Pack %2 or later.
 NotOnThisPlatform=This program will not run on %1.
 OnlyOnThisPlatform=This program must be run on %1.
 OnlyOnTheseArchitectures=This program can only be installed on versions of Windows designed for the following processor architectures:%n%n%1
-MissingWOW64APIs2=The version of Windows you are running does not include functionality required by Setup to perform a 64-bit installation.
 WinVersionTooLowError=This program requires %1 version %2 or later.
 WinVersionTooHighError=This program cannot be installed on %1 version %2 or later.
 AdminPrivilegesRequired=You must be logged in as an administrator when installing this program.
@@ -104,7 +103,7 @@ ButtonNewFolder=&Make New Folder
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Select Setup Language
-SelectLanguageLabel=Select the language to use during the installation:
+SelectLanguageLabel=Select the language to use during the installation.
 
 ; *** Common wizard text
 ClickNext=Click Next to continue, or Cancel to exit Setup.

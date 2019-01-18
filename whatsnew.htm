@@ -31,9 +31,6 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <p><span class="head2">Administrative vs. non administrative install mode</span></p>
 <p>A number of changes have been made to the administrative vs. non administrative install mode functionality:</p>
 <ul>
-  <li>Added a <a href="http://www.jrsoftware.org/is6help/index.php?topic=admininstallmode">Non Administrative Install Mode</a> topic to the help file.</li>
-</ul>
-<ul>
   <li>Added new &quot;auto&quot; constants which automatically map to their &quot;common&quot; form unless the installation is running in non administrative install mode, in which case they map to their &quot;user&quot; form. It is recommended to update your scripts to use these "auto" constants as much as possible to avoid mistakes. The list of added &quot;auto&quot; constants is: <tt>{autoappdata}</tt>, <tt>{autocf}</tt>, <tt>{autocf32}</tt>, <tt>{autocf64}</tt>, <tt>{autodesktop}</tt>, <tt>{autodocs}</tt>, <tt>{autopf}</tt>, <tt>{autopf32}</tt>, <tt>{autopf64}</tt>, <tt>{autoprograms}</tt>, <tt>{autostartmenu}</tt><tt>, {autostartup}</tt>, and <tt>{autotemplates}</tt>.</li>
   <li>Updated all examples and the Compiler IDE's New Script Wizard to use <tt>{autopf}</tt> instead of <tt>{pf}</tt>, etc.</li>
   <li><b>Change in default behavior:</b> The &quot;common&quot; shell folder constants are no longer mapped to their "user" form if the installation is running in non administrative install mode. Instead they simply return the requested common directory. The list of affected &quot;common&quot; constants is: <tt>{commonappdata}</tt>, <tt>{commondesktop}</tt>, <tt>{commondocs}</tt>, <tt>{commonprograms}</tt>, <tt>{commonstartmenu}</tt><tt>, {commonstartup}</tt>, and <tt>{commontemplates}</tt>.</li>
@@ -50,6 +47,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
   <li>The Compiler IDE's New Script Wizard now offers an option to select administrative or non administrative install mode and outputs scripts which work in both modes.</li>
   <li>Pascal Scripting change: Added new <tt>IsAdminInstallMode</tt> support function.</li>
+  <li>Added a <a href="http://www.jrsoftware.org/is6help/index.php?topic=admininstallmode">Non Administrative Install Mode</a> topic to the help file.</li>
 </ul>
 <p><span class="head2">Overridable install mode</span></p>
 <p>Once your script is fully updated to support both administrative and non administrative install mode (for example by using the new &quot;auto&quot; constants and the new [Registry] section <tt>Root</tt> value <tt>HKA</tt>) you can then use the following:</p>
@@ -57,7 +55,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added new [Setup] section directive: <tt>PrivilegesRequiredOverridesAllowed</tt>, which can be set to one or more overrides which allow the end user to override the script's default <tt>PrivilegesRequired</tt> setting. The following overrides are supported: <tt>commandline</tt> and <tt>dialog</tt>.</li>
   <ul>
     <li>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <tt>PrivilegesRequired</tt> setting: /ALLUSERS and /CURRENTUSER.</li>
-    <li>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <tt>PrivilegesRequired</tt> setting using a suppressible dialog (<a href="https://i.imgur.com/9tjXjmg.png">example</a> if <tt>PrivilegesRequired</tt> is set to <tt>admin</tt>). Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</li>
+    <li>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <tt>PrivilegesRequired</tt> setting using a suppressible dialog (<a href="https://i.imgur.com/up287vq.png">example</a> if <tt>PrivilegesRequired</tt> is set to <tt>admin</tt>). Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</li>
   </ul>
   <li>Added new [Setup] section directive: <tt>UsePreviousPrivileges</tt>. If this directive is set to <tt>yes</tt> (which it is by default) and <tt>PrivilegesRequiredOverridesAllowed</tt> is set to <tt>dialog</tt>, at startup Setup will look in the registry to see if the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a> is already installed in one of the two install modes, and if so, it will use that install mode and not ask the user.</li>
 </ul>
@@ -68,11 +66,9 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <p><span class="head2">Side-by-side installations</span></p>
 <p>Support for <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">side-by-side</a> installations has been improved:</p>
 <ul>
-  <li>Added a <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">Side-by-side installation</a> topic to the help file.</li>
-</ul>
-<ul>
-  <li>Two separate installation runs that do not share the same administrative or non administrative install mode no longer count as the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a>. This means you can now install these modes <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">side-by-side</a> even if the installers share the same <tt>AppId</tt> setting (or if <tt>AppId</tt> is not set, the same <tt>AppName</tt> setting.)</li>
+  <li>Two separate installation runs that do not share the same administrative or non administrative install mode no longer count as the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a>. This means you can now install these modes <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">side-by-side</a> even if the installers share the same <tt>AppId</tt> setting (or if <tt>AppId</tt> is not set, the same <tt>AppName</tt> setting) without the odd side effects you would get in previous versions.</li>
   <li><b>Change in default behavior:</b> To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will now automatically mark the new entry with a text like &quot;Current user&quot; or &quot;64-bit&quot; when necessary during a <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">side-by-side</a> installation.</a>
+  <li>Added a <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">Side-by-side installation</a> topic to the help file.</li>
 </ul>
 <p><span class="head2">Resizable wizard window</span></p>
 <p>The wizard window is now optionally resizable:</p>
@@ -91,7 +87,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 </ul>
 <p>A few elements now always have a more modern look regardless of the <tt>WizardStyle</tt> setting:</p>
 <ul>
-  <li>The <i>Select Language</i> dialog now has more modern look, consistent with Windows 10 task dialogs and message boxes (<a href="https://i.imgur.com/bC3BNHg.png">example</a>).</li>
+  <li>The <i>Select Language</i> dialog now has more modern look, consistent with Windows 10 task dialogs and message boxes (<a href="https://i.imgur.com/4xWv5tw.png">example</a>).</li>
   <li>Flattened a few elements of Setup's interface for a more modern look.</li>
 </ul>
 <p><span class="head2">Compiler IDE updates</span></p>
@@ -114,7 +110,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added support for 64-bit mode on Windows 10 on ARM which can be used to install ARM64 binaries. See the <i>64BitThreeArch.iss</i> example script for an example which demonstrates how to install a program built for three different architectures (x86, x64, ARM64) using a single installer.</li>
 </ul>
 <ul>
-  <li>The Abort/Retry/Ignore dialogs shown by Setup now display task dialogs. These task dialogs are much more user friendly than the message boxes previously used (example: <a href="https://i.imgur.com/IwOfoQo.png">task dialog</a> versus <a href="https://i.imgur.com/n7wh2UC.png">message box</a>).</li>
+  <li>The Abort/Retry/Ignore dialogs shown by Setup now display task dialogs. These task dialogs are much more user friendly than the message boxes previously used (example: <a href="https://i.imgur.com/NfbJAsS.png">task dialog</a> versus <a href="https://i.imgur.com/n7wh2UC.png">message box</a>).</li>
   <li>Added new [Setup] section directive: <tt>VersionInfoOriginalFileName</tt>, which sets the original filename version value.</li>
   <li>The <tt>Permissions</tt> parameter supported by [Files], [Dirs] and [Registry] entries now also allows you to grant permission to the Guests group, the Local Service account, the Network Service account, and to the Creator Owner.</li>
   <li>Added new special-purpose <i>HelpTextNote</i> message that can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing /HELP on the command line. This message defaults to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use it.</li>
@@ -158,8 +154,9 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 
 <p>Some messages have been added and changed in this version:<!-- (<a href="https://github.com/jrsoftware/issrc/commit/b0cd1a0177b818e36734026c67dc24f01ad6a0d0">View differences in Default.isl</a>).--></p>
 <ul>
-  <li><b>New messages:</b> AbortRetryIgnoreSelectAction, AbortRetryIgnoreRetry, AbortRetryIgnoreIgnore, AbortRetryIgnoreCancel, ExistingFileReadOnly2, ExistingFileReadOnlyRetry, ExistingFileReadOnlyKeepExisting, FileAbortRetryIgnoreIgnoreNotRecommended, FileAbortRetryIgnoreSkipNotRecommended, MissingWOW64APIs2, PrivilegesRequiredOverrideTitle, PrivilegesRequiredOverrideInstruction, PrivilegesRequiredOverrideText1, PrivilegesRequiredOverrideText2, PrivilegesRequiredOverrideAllUsers, PrivilegesRequiredOverrideAllUsersRecommended, PrivilegesRequiredOverrideCurrentUser, PrivilegesRequiredOverrideCurrentUserRecommended, UninstallDisplayNameMark, UninstallDisplayNameMarks, UninstallDisplayNameMark32Bit, UninstallDisplayNameMark64Bit, UninstallDisplayNameMarkAllUsers, UninstallDisplayNameCurrentUser.</li>
-  <li><b>Removed message:</b> MissingWOW64APIs, EntryAbortRetryIgnore, ExistingFileReadOnly, ExistingFileReadOnlyAbortRetryIgnore, FileAbortRetryIgnore, FileAbortRetryIgnore2.</li>
+  <li><b>New messages:</b> AbortRetryIgnoreSelectAction, AbortRetryIgnoreRetry, AbortRetryIgnoreIgnore, AbortRetryIgnoreCancel, ExistingFileReadOnly2, ExistingFileReadOnlyRetry, ExistingFileReadOnlyKeepExisting, FileAbortRetryIgnoreIgnoreNotRecommended, FileAbortRetryIgnoreSkipNotRecommended, PrivilegesRequiredOverrideTitle, PrivilegesRequiredOverrideInstruction, PrivilegesRequiredOverrideText1, PrivilegesRequiredOverrideText2, PrivilegesRequiredOverrideAllUsers, PrivilegesRequiredOverrideAllUsersRecommended, PrivilegesRequiredOverrideCurrentUser, PrivilegesRequiredOverrideCurrentUserRecommended, UninstallDisplayNameMark, UninstallDisplayNameMarks, UninstallDisplayNameMark32Bit, UninstallDisplayNameMark64Bit, UninstallDisplayNameMarkAllUsers, UninstallDisplayNameCurrentUser.</li>
+  <li><b>Changed message:</b> SelectLanguageLabel.</li>
+  <li><b>Removed messages:</b> MissingWOW64APIs, EntryAbortRetryIgnore, ExistingFileReadOnly, ExistingFileReadOnlyAbortRetryIgnore, FileAbortRetryIgnore, FileAbortRetryIgnore2.</li>
 </ul>
 
 <p>Note: Only the official English and Dutch (Netherlands) translations have been updated for these changes at this moment. See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.</p>

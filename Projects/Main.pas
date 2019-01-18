@@ -3084,7 +3084,7 @@ begin
           if not IsWin64 then begin
             { A 64-bit processor was detected and 64-bit install mode was requested,
               but IsWin64 is False, indicating required WOW64 APIs are not present }
-            AbortInit(msgMissingWOW64APIs2);
+            AbortInit(msgWindowsVersionNotSupported);
           end;
           Initialize64BitInstallMode(True);
         end

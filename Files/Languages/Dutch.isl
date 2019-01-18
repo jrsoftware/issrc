@@ -39,7 +39,6 @@ WindowsServicePackRequired=Dit programma vereist %1 Service Pack %2 of hoger.
 NotOnThisPlatform=Dit programma kan niet worden uitgevoerd onder %1.
 OnlyOnThisPlatform=Dit programma moet worden uitgevoerd onder %1.
 OnlyOnTheseArchitectures=Dit programma kan alleen geïnstalleerd worden onder versies van Windows ontworpen voor de volgende processor architecturen:%n%n%1
-MissingWOW64APIs2=De versie van Windows die u gebruikt bevat niet de door Setup benodige functionaliteit om een 64-bit installatie uit te voeren.
 WinVersionTooLowError=Dit programma vereist %1 versie %2 of hoger.
 WinVersionTooHighError=Dit programma kan niet worden geïnstalleerd onder %1 versie %2 of hoger.
 AdminPrivilegesRequired=U moet aangemeld zijn als een systeembeheerder om dit programma te kunnen installeren.
@@ -87,7 +86,7 @@ ButtonNewFolder=&Nieuwe map maken
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Selecteer taal voor Setup
-SelectLanguageLabel=Selecteer de taal die Setup gebruikt tijdens de installatie:
+SelectLanguageLabel=Selecteer de taal die Setup gebruikt tijdens de installatie.
 
 ; *** Common wizard text
 ClickNext=Klik op Volgende om verder te gaan of op Annuleren om Setup af te sluiten.
