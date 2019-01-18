@@ -19,7 +19,7 @@ object UninstallProgressForm: TUninstallProgressForm
     360)
   PixelsPerInch = 96
   TextHeight = 13
-  object Bevel: TBevel
+  object FBevel: TBevel
     Left = 0
     Top = 313
     Width = 497
@@ -27,7 +27,7 @@ object UninstallProgressForm: TUninstallProgressForm
     Anchors = [akLeft, akRight, akBottom]
     Shape = bsTopLine
   end
-  object CancelButton: TNewButton
+  object FCancelButton: TNewButton
     Left = 410
     Top = 327
     Width = 75
@@ -38,21 +38,21 @@ object UninstallProgressForm: TUninstallProgressForm
     Enabled = False
     TabOrder = 2
   end
-  object OuterNotebook: TNewNotebook
+  object FOuterNotebook: TNewNotebook
     Left = 0
     Top = 0
     Width = 497
     Height = 313
-    ActivePage = InnerPage
+    ActivePage = FInnerPage
     Anchors = [akLeft, akTop, akRight, akBottom]
     Color = clBtnFace
     ParentColor = False
     TabOrder = 0
-    object InnerPage: TNewNotebookPage
+    object FInnerPage: TNewNotebookPage
       DesignSize = (
         497
         313)
-      object Bevel1: TBevel
+      object FBevel1: TBevel
         Left = 0
         Top = 58
         Width = 499
@@ -60,19 +60,19 @@ object UninstallProgressForm: TUninstallProgressForm
         Anchors = [akLeft, akTop, akRight]
         Shape = bsTopLine
       end
-      object InnerNotebook: TNewNotebook
+      object FInnerNotebook: TNewNotebook
         Left = 4
         Top = 64
         Width = 489
         Height = 245
-        ActivePage = InstallingPage
+        ActivePage = FInstallingPage
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 1
-        object InstallingPage: TNewNotebookPage
+        object FInstallingPage: TNewNotebookPage
           DesignSize = (
             489
             245)
-          object ProgressBar: TNewProgressBar
+          object FProgressBar: TNewProgressBar
             Left = 36
             Top = 56
             Width = 417
@@ -82,7 +82,7 @@ object UninstallProgressForm: TUninstallProgressForm
             Max = 400
             Style = npbstNormal
           end
-          object StatusLabel: TNewStaticText
+          object FStatusLabel: TNewStaticText
             Left = 36
             Top = 12
             Width = 417
@@ -95,7 +95,7 @@ object UninstallProgressForm: TUninstallProgressForm
           end
         end
       end
-      object MainPanel: TPanel
+      object FMainPanel: TPanel
         Left = 0
         Top = 0
         Width = 497
@@ -107,7 +107,7 @@ object UninstallProgressForm: TUninstallProgressForm
         DesignSize = (
           497
           58)
-        object WizardSmallBitmapImage: TBitmapImage
+        object FWizardSmallBitmapImage: TBitmapImage
           Left = 440
           Top = 1
           Width = 55
@@ -116,7 +116,7 @@ object UninstallProgressForm: TUninstallProgressForm
           BackColor = clWindow
           Center = True
         end
-        object PageDescriptionLabel: TNewStaticText
+        object FPageDescriptionLabel: TNewStaticText
           Left = 40
           Top = 26
           Width = 389
@@ -128,7 +128,7 @@ object UninstallProgressForm: TUninstallProgressForm
           TabOrder = 1
           WordWrap = True
         end
-        object PageNameLabel: TNewStaticText
+        object FPageNameLabel: TNewStaticText
           Left = 24
           Top = 10
           Width = 405
@@ -141,7 +141,7 @@ object UninstallProgressForm: TUninstallProgressForm
       end
     end
   end
-  object BeveledLabel: TNewStaticText
+  object FBeveledLabel: TNewStaticText
     Left = 0
     Top = 306
     Width = 5

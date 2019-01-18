@@ -211,40 +211,9 @@ begin
   end;
 end;
 
-procedure TUninstallProgressFormOuterNotebook_R(Self: TUninstallProgressForm; var T: TNewNotebook); begin T := Self.OuterNotebook; end;
-procedure TUninstallProgressFormInnerPage_R(Self: TUninstallProgressForm; var T: TNewNotebookPage); begin T := Self.InnerPage; end;
-procedure TUninstallProgressFormInnerNotebook_R(Self: TUninstallProgressForm; var T: TNewNotebook); begin T := Self.InnerNotebook; end;
-procedure TUninstallProgressFormInstallingPage_R(Self: TUninstallProgressForm; var T: TNewNotebookPage); begin T := Self.InstallingPage; end;
-procedure TUninstallProgressFormMainPanel_R(Self: TUninstallProgressForm; var T: TPanel); begin T := Self.MainPanel; end;
-procedure TUninstallProgressFormPageNameLabel_R(Self: TUninstallProgressForm; var T: TNewStaticText); begin T := Self.PageNameLabel; end;
-procedure TUninstallProgressFormPageDescriptionLabel_R(Self: TUninstallProgressForm; var T: TNewStaticText); begin T := Self.PageDescriptionLabel; end;
-procedure TUninstallProgressFormWizardSmallBitmapImage_R(Self: TUninstallProgressForm; var T: TBitmapImage); begin T := Self.WizardSmallBitmapImage; end;
-procedure TUninstallProgressFormBevel1_R(Self: TUninstallProgressForm; var T: TBevel); begin T := Self.Bevel1; end;
-procedure TUninstallProgressFormStatusLabel_R(Self: TUninstallProgressForm; var T: TNewStaticText); begin T := Self.StatusLabel; end;
-procedure TUninstallProgressFormProgressBar_R(Self: TUninstallProgressForm; var T: TNewProgressBar); begin T := Self.ProgressBar; end;
-procedure TUninstallProgressFormBeveledLabel_R(Self: TUninstallProgressForm; var T: TNewStaticText); begin T := Self.BeveledLabel; end;
-procedure TUninstallProgressFormBevel_R(Self: TUninstallProgressForm; var T: TBevel); begin T := Self.Bevel; end;
-procedure TUninstallProgressFormCancelButton_R(Self: TUninstallProgressForm; var T: TNewButton); begin T := Self.CancelButton; end;
-
 procedure RegisterUninstallProgressForm_R(Cl: TPSRuntimeClassImporter);
 begin
-  with Cl.Add(TUninstallProgressForm) do
-  begin
-    RegisterPropertyHelper(@TUninstallProgressFormOuterNotebook_R, nil, 'OuterNotebook');
-    RegisterPropertyHelper(@TUninstallProgressFormInnerPage_R, nil, 'InnerPage');
-    RegisterPropertyHelper(@TUninstallProgressFormInnerNotebook_R, nil, 'InnerNotebook');
-    RegisterPropertyHelper(@TUninstallProgressFormInstallingPage_R, nil, 'InstallingPage');
-    RegisterPropertyHelper(@TUninstallProgressFormMainPanel_R, nil, 'MainPanel');
-    RegisterPropertyHelper(@TUninstallProgressFormPageNameLabel_R, nil, 'PageNameLabel');
-    RegisterPropertyHelper(@TUninstallProgressFormPageDescriptionLabel_R, nil, 'PageDescriptionLabel');
-    RegisterPropertyHelper(@TUninstallProgressFormWizardSmallBitmapImage_R, nil, 'WizardSmallBitmapImage');
-    RegisterPropertyHelper(@TUninstallProgressFormBevel1_R, nil, 'Bevel1');
-    RegisterPropertyHelper(@TUninstallProgressFormStatusLabel_R, nil, 'StatusLabel');
-    RegisterPropertyHelper(@TUninstallProgressFormProgressBar_R, nil, 'ProgressBar');
-    RegisterPropertyHelper(@TUninstallProgressFormBeveledLabel_R, nil, 'BeveledLabel');
-    RegisterPropertyHelper(@TUninstallProgressFormBevel_R, nil, 'Bevel');
-    RegisterPropertyHelper(@TUninstallProgressFormCancelButton_R, nil, 'CancelButton');
-  end;
+  Cl.Add(TUninstallProgressForm);
 end;
 
 procedure RegisterWizardPage_R(Cl: TIFPSRuntimeClassImporter);
