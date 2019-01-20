@@ -9,6 +9,8 @@ program Compil32;
   Compiler
 }
 
+{$WEAKLINKRTTI ON}
+
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
   Windows,
@@ -48,7 +50,7 @@ begin
   Func := GetProcAddress(GetModuleHandle('shell32.dll'),
     'SetCurrentProcessExplicitAppUserModelID');
   if Assigned(Func) then
-    Func('JR.InnoSetup.IDE.5');
+    Func('JR.InnoSetup.IDE.6');
 end;
 
 procedure RegisterApplicationRestart;

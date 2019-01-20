@@ -21,8 +21,8 @@ uses
 const
   HighestSupportedVersion = 48 {$IFDEF UNICODE} + 1000{$ENDIF};
   { Each time the format of the uninstall log changes (usually a new entry type
-    is added), I increment HighestSupportedVersion and the file version number
-    of Setup to match (51.x). Do NOT do this yourself; doing so could cause
+    is added), HighestSupportedVersion and the file version number of Setup
+    are incremented to match (51.x). Do NOT do this yourself; doing so could cause
     incompatibilies with future Inno Setup releases. It's recommended that you
     use the "utUserDefined" log entry type if you wish to implement your own
     custom uninstall log entries; see below for more information.
@@ -107,7 +107,7 @@ type
 
   TUninstallLogFlags = set of (ufAdminInstalled, ufDontCheckRecCRCs,
     ufModernStyle, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
-    ufPowerUserInstalled);
+    ufPowerUserInstalled, ufAdminInstallMode);
 
   TUninstallLog = class
   private
@@ -515,7 +515,6 @@ begin
   for I := 0 to High(Data) do
     Data[I] := '';
   I := 0;
-  L := 0;  { prevent warning }
   X := @Rec^.Data;
   while I <= High(Data) do begin
     case X^ of
@@ -1250,7 +1249,7 @@ begin
       WriteSafeHeaderString(Header.AppName, AppName, SizeOf(Header.AppName));
     if Version > Header.Version then
       Header.Version := Version;
-    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) + Flags;
+    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) - [ufModernStyle] + Flags;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the

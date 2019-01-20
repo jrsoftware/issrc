@@ -3,12 +3,14 @@ program ISCC;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Command-line compiler
 }
+
+{$WEAKLINKRTTI ON}
 
 {x$DEFINE STATICCOMPILER}
 { For debugging purposes, remove the 'x' to have it link the compiler code
@@ -342,8 +344,8 @@ procedure ProcessCommandLine;
   procedure ShowBanner;
   begin
     WriteStdOut('Inno Setup 5 Command-Line Compiler');
-    WriteStdOut('Copyright (C) 1997-2018 Jordan Russell. All rights reserved.');
-    WriteStdOut('Portions Copyright (C) 2000-2018 Martijn Laan');
+    WriteStdOut('Copyright (C) 1997-2019 Jordan Russell. All rights reserved.');
+    WriteStdOut('Portions Copyright (C) 2000-2019 Martijn Laan');
     if IsppMode then begin
       WriteStdOut('Inno Setup Preprocessor');
       WriteStdOut('Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');

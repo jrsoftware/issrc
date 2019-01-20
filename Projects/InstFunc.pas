@@ -117,7 +117,7 @@ function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
 implementation
 
 uses
-  Messages, ShellApi, PathFunc, Msgs, MsgIDs, FileClass, RedirFunc;
+  Messages, ShellApi, PathFunc, Msgs, MsgIDs, FileClass, RedirFunc, SetupTypes;
 
 procedure InternalError(const Id: String);
 begin
@@ -155,6 +155,7 @@ end;
 function GetRegRootKeyName(const RootKey: HKEY): String;
 begin
   case RootKey of
+    HKEY_AUTO: InternalError('GetRegRootKeyName called for HKEY_AUTO');
     HKEY_CLASSES_ROOT: Result := 'HKEY_CLASSES_ROOT';
     HKEY_CURRENT_USER: Result := 'HKEY_CURRENT_USER';
     HKEY_LOCAL_MACHINE: Result := 'HKEY_LOCAL_MACHINE';

@@ -6,7 +6,8 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-DefaultDirName={pf}\My Program
+WizardStyle=modern
+DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 Compression=lzma2

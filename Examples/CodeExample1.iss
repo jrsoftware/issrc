@@ -1,10 +1,12 @@
 ; -- CodeExample1.iss --
 ;
-; This script shows various things you can achieve using a [Code] section
+; This script shows various things you can achieve using a [Code] section.
 
 [Setup]
 AppName=My Program
 AppVersion=1.5
+WizardStyle=modern
+DisableWelcomePage=no
 DefaultDirName={code:MyConst}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
@@ -31,6 +33,17 @@ begin
   Result := MsgBox('InitializeSetup:' #13#13 'Setup is initializing. Do you really want to start setup?', mbConfirmation, MB_YESNO) = idYes;
   if Result = False then
     MsgBox('InitializeSetup:' #13#13 'Ok, bye bye.', mbInformation, MB_OK);
+end;
+
+procedure InitializeWizard;
+begin
+  Log('InitializeWizard called');
+end;
+
+<event('InitializeWizard')>
+procedure InitializeWizard2;
+begin
+  Log('InitializeWizard2 called');
 end;
 
 procedure DeinitializeSetup();
@@ -149,6 +162,6 @@ end;
 function MyConst(Param: String): String;
 begin
   Log('MyConst(''' + Param + ''') called');
-  Result := ExpandConstant('{pf}');
+  Result := ExpandConstant('{autopf}');
 end;
 

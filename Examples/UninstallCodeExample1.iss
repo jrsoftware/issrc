@@ -1,11 +1,12 @@
 ; -- UninstallCodeExample1.iss --
 ;
-; This script shows various things you can achieve using a [Code] section for Uninstall
+; This script shows various things you can achieve using a [Code] section for Uninstall.
 
 [Setup]
 AppName=My Program
 AppVersion=1.5
-DefaultDirName={pf}\My Program
+WizardStyle=modern
+DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output

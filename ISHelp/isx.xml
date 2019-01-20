@@ -53,7 +53,7 @@
 <link topic="scriptfunctions">Support Functions Reference</link><br/>
 <link topic="scriptclasses">Support Classes Reference</link><br/>
 <link topic="scriptpages">Using Custom Wizard Pages</link><br/>
-<link topic="scriptdll">Using DLLs</link><br/>
+<link topic="scriptdll">Using DLLs and .NET assemblies</link><br/>
 <link topic="scriptautomation">Using COM Automation objects</link>
 </p>
 
@@ -82,6 +82,9 @@
 <topic name="scriptevents" title="Pascal Scripting: Event Functions">
 <keyword value="Pascal Scripting: Event Functions" />
 <keyword value="Event Functions" />
+<keyword value="Pascal Scripting: Event Attributes" anchor="eventattributes" />
+<keyword value="Event Attributes" anchor="eventattributes" />
+<keyword value="Attributes" anchor="eventattributes" />
 <keyword value="InitializeSetup" anchor="InitializeSetup" />
 <keyword value="InitializeWizard" anchor="InitializeWizard" />
 <keyword value="DeinitializeSetup" anchor="DeinitializeSetup" />
@@ -281,7 +284,47 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 </ul>
 
-<p>None of these functions are required to be present in a Pascal script.</p>
+<heading><a name="eventattributes">Event Attributes</a></heading>
+
+<p>Normally a script can contain only one implementation per event function. Using event attributes it is possible to have multiple implementations of the same event function in your script. This is especially useful in included scripts implementing an event function to avoid conflicts with the main script.</p>
+
+<p>Here is an example of a script which contains three implementations of the <tt>InitializeWizard</tt> event function.</p>
+
+<precode>
+[Code]
+procedure InitializeWizard;
+begin
+  Log('InitializeWizard called');
+end;
+
+&lt;event('InitializeWizard')&gt;
+procedure InitializeWizard2;
+begin
+  Log('InitializeWizard2 called');
+end;
+
+&lt;event('InitializeWizard')&gt;
+procedure InitializeWizard3;
+begin
+  Log('InitializeWizard3 called');
+end;
+</precode>
+
+<p>The following rules apply:</p>
+
+<ul>
+<li>The implementations will be called in order of their definition except that any main implementation (=the implementation without an event attribute) will be called last.</li>
+<li>Event attributes may be used for all event functions. If the event function has a return value then lazy evaluation is performed:</li>
+<ul>
+<li><tt>InitializeSetup</tt>, <tt>BackButtonClick</tt>, <tt>NextButtonClick</tt>, <tt>InitializeUninstall</tt>: All implementations must return True for the event function to be treated as returning True and an implementation returning False stops the calls to the other implementations.</li>
+<li><tt>CheckPassword</tt>, <tt>CheckSerial</tt>, <tt>ShouldSkipPage</tt>, <tt>NeedRestart</tt>: All implementations must return False for the event function to be treated as returning False and an implementation returning True stops the calls to the other implementations.</li>
+<li><tt>UpdateReadyMemo</tt>, <tt>PrepareToInstall</tt>: All implementations must return an empty string for the event function to be treated as returning an empty string and an implementation returning a non empty string stops the calls to the other implementations.</li>
+<li><tt>GetCustomSetupExitCode</tt>: All implementations must return zero for the event function to be treated as returning zero and an implementation returning a non zero number stops the calls to the other implementations.</li>
+</ul>
+<li>Event attributes may only be used on procedures or functions which do not already have the name of an event function.</li>
+<li>If the event function uses <tt>var</tt> parameters then the value will be passed on from implementation to implementation.</li>
+<li>To call an implementation with an event attribute yourself from [Code] you should use the normal name of the function, just as if the implementation had no event attribute.</li>
+</ul>
 
 </body>
 </topic>
@@ -320,7 +363,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 [Code]
 function MyConst(Param: String): String;
 begin
-  Result := ExpandConstant('{pf}');
+  Result := ExpandConstant('{autopf}');
 end;
 </precode>
 
@@ -605,18 +648,7 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 
 <p>If you use a 'files:' prefix and <link topic="setup_solidcompression">solid compression</link> is enabled, be sure to list your DLLs at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p>
 
-<p>To automatically choose between the ANSI or Unicode version of a function depending on the <link topic="unicode">installed version</link> of Inno Setup, use ISPP:</p>
-
-<precode>
-[Code]
-function MessageBox(hWnd: Integer; lpText, lpCaption: String; uType: Cardinal): Integer;
-#ifdef UNICODE
-external 'MessageBoxW@user32.dll stdcall';
-#else
-external 'MessageBoxA@user32.dll stdcall';
-#endif
-</precode>
-
+<p>Use <link topic="isxfunc_CreateCallback">CreateCallback</link> to be able to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script</p>
 </body>
 </topic>
 
@@ -649,6 +681,8 @@ external 'MessageBoxA@user32.dll stdcall';
 
 <p>Open the "CodeAutomation.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using IDispatch based COM Automation objects.</p>
 
+<p>If you're using a .NET COM object and loading it fails since Inno Setup 5.5.9 try putting this line in your script before creating the COM object: <tt>LoadDLL(ExpandConstant('{sys}\mscoree.dll'), ErrorCode);</tt> and add a variable <tt>ErrorCode</tt> of type <tt>Integer</tt>.</p>
+
 </dd>
 
 <dt><b>IUnknown based COM</b></dt>
@@ -666,8 +700,6 @@ external 'MessageBoxA@user32.dll stdcall';
 <p>If you copy the interface definition from any existing Delphi source code, remove the brackets around the interface GUID string. Also remove any calling conventions, Inno Setup assumes 'stdcall'. If the interface contains any functions you won't call, you can replace these by dummies to avoid having to define any special types used by them.</p>
 
 <p>Open the "CodeAutomation2.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using IUnknown based COM Automation objects.</p>
-
-<p>Note: IUnknown based COM support requires <link topic="unicode">Unicode Inno Setup</link>.</p>
 
 </dd>
 

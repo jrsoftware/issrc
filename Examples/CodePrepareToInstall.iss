@@ -7,7 +7,8 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-DefaultDirName={pf}\My Program
+WizardStyle=modern
+DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
@@ -36,7 +37,7 @@ begin
   Restarted := ExpandConstant('{param:restart|0}') = '1';
 
   if not Restarted then begin
-    Result := not RegValueExists(HKLM, 'Software\Microsoft\Windows\CurrentVersion\RunOnce', RunOnceName);
+    Result := not RegValueExists(HKA, 'Software\Microsoft\Windows\CurrentVersion\RunOnce', RunOnceName);
     if not Result then
       MsgBox(QuitMessageReboot, mbError, mb_Ok);
   end else
@@ -91,7 +92,7 @@ begin
 
   //<your code here>
   
-  RegWriteStringValue(HKLM, 'Software\Microsoft\Windows\CurrentVersion\RunOnce', RunOnceName, RunOnceData);
+  RegWriteStringValue(HKA, 'Software\Microsoft\Windows\CurrentVersion\RunOnce', RunOnceName, RunOnceData);
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;

@@ -11,13 +11,6 @@ unit NewCheckListBox;
   Item.Objects yourself, use ItemObject instead.
 }
 
-{$IFDEF VER90}
-  {$DEFINE DELPHI2}
-{$ENDIF}
-{$IFDEF VER200}
-  {$DEFINE DELPHI2009}
-{$ENDIF}
-
 interface
 
 uses
@@ -160,6 +153,7 @@ type
     property State[Index: Integer]: TCheckBoxState read GetState;
   published
     property Align;
+    property Anchors;
     property BorderStyle;
     property Color;
     property Ctl3D;
@@ -204,8 +198,7 @@ procedure Register;
 implementation
 
 uses
-  TmSchemaISX, PathFunc, {$IFDEF DELPHI2} Ole2 {$ELSE} ActiveX {$ENDIF},
-  BidiUtils{$IFDEF DELPHI2009}, Types{$ENDIF};
+  TmSchemaISX, PathFunc, ActiveX, BidiUtils, Types;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';
@@ -1571,7 +1564,8 @@ var
 begin
   for I := 0 to Items.Count - 1 do
   begin
-    ItemStates[I].ThreadCache := [];
+    ItemStates[I].ThreadCache := [0];       //Doing ':= []' causes a "F2084 Internal Error: C21846" compiler error on Delphi 10.3 Rio }
+    Exclude(ItemStates[I].ThreadCache, 0);  //
     ItemStates[I].IsLastChild := False;
   end;
   for I := 0 to Items.Count - 1 do

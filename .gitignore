@@ -1,6 +1,4 @@
 c.bat
 compilesettings.bat
 setup-sign.bat
-C[Vv][Ss]
-.cvsignore
 Output

@@ -3,7 +3,7 @@
 
 <!--
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 -->
@@ -58,19 +58,20 @@
   </contentsheading>
   <contentsheading title="Other Information">
     <contentstopic title="Unicode Inno Setup" topic="unicode" />
-    <contentstopic title="Example Scripts" topic="examples" />
-    <contentstopic title="Frequently Asked Questions" topic="faq" />
-    <contentstopic title="Wizard Pages" topic="wizardpages" />
-    <contentstopic title="Installation Order" topic="installorder" />
+    <contentstopic title="Non Administrative Install Mode" topic="admininstallmode" />
     <contentstopic title="64-bit Install Mode" topic="32vs64bitinstalls" />
     <contentstopic title="64-bit Installation Limitations" topic="64bitlimitations" />
-    <contentstopic title="Miscellaneous Notes" topic="technotes" />
-    <contentstopic title="Command Line Compiler Execution" topic="compilercmdline" />
-    <contentstopic title="Setup Command Line Parameters" topic="setupcmdline" />
-    <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
-    <contentstopic title="Uninstaller Command Line Parameters" topic="uninstcmdline" />
-    <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
+    <contentstopic title="Wizard Pages" topic="wizardpages" />
+    <contentstopic title="Installation Order" topic="installorder" />
     <contentstopic title="Unsafe Files" topic="unsafefiles" />
+    <contentstopic title="Compiler Command Line Execution" topic="compilercmdline" />
+    <contentstopic title="Setup Command Line Parameters" topic="setupcmdline" />
+    <contentstopic title="Uninstaller Command Line Parameters" topic="uninstcmdline" />
+    <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
+    <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
+    <contentstopic title="Miscellaneous Notes" topic="technotes" />
+    <contentstopic title="Example Scripts" topic="examples" />
+    <contentstopic title="Frequently Asked Questions" topic="faq" />
     <contentstopic title="Contributors" topic="credits" />
     <contentstopic title="Support Inno Setup" topic="donate" />
   </contentsheading>
@@ -85,9 +86,9 @@
 <body>
 
 <p>
-<b>Inno Setup version 5.6.1</b><br/>
-<b>Copyright &copy; 1997-2018 Jordan Russell. All rights reserved.</b><br/>
-<b>Portions Copyright &copy; 2000-2018 Martijn Laan. All rights reserved.</b><br/>
+<b>Inno Setup version 6.0.0</b><br/>
+<b>Copyright &copy; 1997-2019 Jordan Russell. All rights reserved.</b><br/>
+<b>Portions Copyright &copy; 2000-2019 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
 </p>
 
@@ -99,13 +100,15 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <ul>
 
-<li>Support for every Windows release since 2000, including: Windows 10, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Vista, Windows Server 2008, Windows XP, Windows Server 2003, and Windows 2000. (No service packs are required.)</li>
+<li>Support for every Windows release since 2006, including: Windows 10, Windows 10 on ARM, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Server 2008, and Windows Vista. (No service packs are required.)</li>
 
-<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. Both the x64 and Itanium architectures are supported. (On the Itanium architecture, Service Pack 1 or later is required on Windows Server 2003 to install in 64-bit mode.)</li>
+<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are supported.</li>
+
+<li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link> installations.</li>
 
 <li>Supports creation of a single EXE to install your program for easy online distribution. <link topic="setup_diskspanning">Disk spanning</link> is also supported.</li>
 
-<li>Standard Windows wizard interface.</li>
+<li>Resizable standard Windows wizard interface.</li>
 
 <li>Customizable setup <link topic="typessection">types</link>, e.g. Full, Minimal, Custom.</li>
 
@@ -134,7 +137,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Integrated <link topic="scriptintro">Pascal scripting</link> engine option for advanced run-time install and uninstall customization.</li>
 
-<li>Full source code is available (Borland Delphi 2.0-5.0 and 2009) from <extlink href="https://github.com/jrsoftware/issrc">GitHub</extlink>.</li>
+<li>Full source code is available from <extlink href="https://github.com/jrsoftware/issrc">GitHub</extlink>.</li>
 
 <li>Tiny footprint: only about 500 kB overhead with all features included and about 300 kB overhead with all features except Unicode support included.</li>
 
@@ -176,7 +179,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <keyword value="Creating Installations" />
 <body>
 
-<p>Installations are created by means of <i>scripts</i>, which are ASCII text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!). <link topic="unicode">Unicode Inno Setup</link> also supports UTF-8 encoded text files.</p>
+<p>Installations are created by means of <i>scripts</i>, which are ASCII or UTF-8 encoded text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!).</p>
 
 <p>Scripts have an ".iss" (meaning Inno Setup Script) extension. The script controls every aspect of the installation. It specifies which files are to be installed and where, what shortcuts are to be created and what they are to be named, and so on.</p>
 
@@ -311,15 +314,29 @@ This " contains " embedded " quotes
 <keyword value="{\}" anchor="bs" />
 <keyword value="{%NAME}" anchor="name" />
 <keyword value="{app}" anchor="app" />
+<keyword value="{autoappdata}" anchor="autoappdata" />
+<keyword value="{autocf}" anchor="autocf" />
+<keyword value="{autocf32}" anchor="autocf32" />
+<keyword value="{autocf64}" anchor="autocf64" />
+<keyword value="{autodesktop}" anchor="autodesktop" />
+<keyword value="{autodocs}" anchor="autodocs" />
+<keyword value="{autopf}" anchor="autopf" />
+<keyword value="{autopf32}" anchor="autopf32" />
+<keyword value="{autopf64}" anchor="autopf64" />
+<keyword value="{autoprograms}" anchor="autoprograms" />
+<keyword value="{autostartmenu}" anchor="autostartmenu" />
+<keyword value="{autostartup}" anchor="autostartup" />
+<keyword value="{autotemplates}" anchor="autotemplates" />
 <keyword value="{cf}" anchor="cf" />
+<keyword value="{commoncf32}" anchor="commoncf32" />
 <keyword value="{cf32}" anchor="cf32" />
+<keyword value="{commoncf64}" anchor="commoncf64" />
 <keyword value="{cf64}" anchor="cf64" />
 <keyword value="{cm:...}" anchor="cm" />
 <keyword value="{cmd}" anchor="cmd" />
 <keyword value="{commonappdata}" anchor="commonappdata" />
 <keyword value="{commondesktop}" anchor="commondesktop" />
 <keyword value="{commondocs}" anchor="commondocs" />
-<keyword value="{commonfavorites}" anchor="commonfavorites" />
 <keyword value="{commonprograms}" anchor="commonprograms" />
 <keyword value="{commonstartmenu}" anchor="commonstartmenu" />
 <keyword value="{commonstartup}" anchor="commonstartup" />
@@ -343,8 +360,11 @@ This " contains " embedded " quotes
 <keyword value="{localappdata}" anchor="localappdata" />
 <keyword value="{log}" anchor="log" />
 <keyword value="{param:...}" anchor="param" />
+<keyword value="{commonpf}" anchor="commonpf" />
 <keyword value="{pf}" anchor="pf" />
+<keyword value="{commonpf32}" anchor="commonpf32" />
 <keyword value="{pf32}" anchor="pf32" />
+<keyword value="{commonpf64}" anchor="commonpf64" />
 <keyword value="{pf64}" anchor="pf64" />
 <keyword value="{reg:...}" anchor="reg" />
 <keyword value="{sd}" anchor="sd" />
@@ -368,6 +388,7 @@ This " contains " embedded " quotes
 <keyword value="{userpf}" anchor="userpf" />
 <keyword value="{userprograms}" anchor="userprograms" />
 <keyword value="{usersendto}" anchor="usersendto" />
+<keyword value="{sendto}" anchor="usersendto" />
 <keyword value="{userstartmenu}" anchor="userstartmenu" />
 <keyword value="{userstartup}" anchor="userstartup" />
 <keyword value="{usertemplates}" anchor="usertemplates" />
@@ -423,32 +444,32 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>System Drive. The drive Windows is installed on, typically "C:". This directory constant is equivalent to the <i>SystemDrive</i> environment variable.</p>
 </dd>
 
-<dt><b><a name="pf">{pf}</a></b></dt>
+<dt><b><a name="commonpf">{commonpf}</a></b></dt>
 <dd>
-<p>Program Files. The path of the system's Program Files directory. <tt>{pf}</tt> is equivalent to <tt>{pf32}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{pf64}</tt>.</p>
+<p>Program Files. The path of the system's Program Files directory. <tt>{commonpf}</tt> is equivalent to <tt>{commonpf32}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{commonpf64}</tt>.</p>
 </dd>
 
-<dt><b><a name="pf32">{pf32}</a></b></dt>
+<dt><b><a name="commonpf32">{commonpf32}</a></b></dt>
 <dd>
 <p>32-bit Program Files. The path of the system's 32-bit Program Files directory, typically "C:\Program Files" on 32-bit Windows and "C:\Program Files (x86)" on 64-bit Windows.</p>
 </dd>
 
-<dt><b><a name="pf64">{pf64}</a></b></dt>
+<dt><b><a name="commonpf64">{commonpf64}</a></b></dt>
 <dd>
 <p>64-bit Windows only: 64-bit Program Files. The path of the system's 64-bit Program Files directory, typically "C:\Program Files". An exception will be raised if an attempt is made to expand this constant on 32-bit Windows.</p>
 </dd>
 
-<dt><b><a name="cf">{cf}</a></b></dt>
+<dt><b><a name="commoncf">{commoncf}</a></b></dt>
 <dd>
-<p>Common Files. The path of the system's Common Files directory. <tt>{cf}</tt> is equivalent to <tt>{cf32}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{cf64}</tt>.</p>
+<p>Common Files. The path of the system's Common Files directory. <tt>{commoncf}</tt> is equivalent to <tt>{commoncf32}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{commoncf64}</tt>.</p>
 </dd>
 
-<dt><b><a name="cf32">{cf32}</a></b></dt>
+<dt><b><a name="commoncf32">{commoncf32}</a></b></dt>
 <dd>
 <p>32-bit Common Files. The path of the system's 32-bit Common Files directory, typically "C:\Program Files\Common Files" on 32-bit Windows and "C:\Program Files (x86)\Common Files" on 64-bit Windows.</p>
 </dd>
 
-<dt><b><a name="cf64">{cf64}</a></b></dt>
+<dt><b><a name="commoncf64">{commoncf64}</a></b></dt>
 <dd>
 <p>64-bit Windows only: 64-bit Common Files. The path of the system's 64-bit Common Files directory, typically "C:\Program Files\Common Files". An exception will be raised if an attempt is made to expand this constant on 32-bit Windows.</p>
 </dd>
@@ -465,7 +486,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="dao">{dao}</a></b></dt>
 <dd>
-<p>DAO directory. This is equivalent to <tt>{cf}\Microsoft Shared\DAO</tt>.</p>
+<p>DAO directory. This is equivalent to <tt>{commoncf}\Microsoft Shared\DAO</tt>.</p>
 </dd>
 
 <dt><b><a name="dotnet11">{dotnet11}</a></b></dt>
@@ -516,19 +537,17 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <p>Inno Setup supports another set of directory constants, referred to as <i>shell folder constants</i>. They can be used in the same way as the other directory constants.</p>
 
-<p>"common" below constants refer to the <i>All Users</i> profile.</p>
+<p>The "common" constants refer to the <i>All Users</i> profile.</p>
 
 <p>The "user" constants refer to the profile of the user running Setup. This user is often not the same as the currently logged-in user, so use the "user" constants with caution.</p>
 
-<p>Except where otherwise noted, shell folder constants work on all versions of Windows that Inno Setup supports.</p>
-
-<p>* = The "common" form of this constant is mapped to the "user" form if the logged-in user lacks administrative privileges, or if <tt>PrivilegesRequired</tt> is set to <tt>lowest</tt>.</p>
+<!-- <p>Except where otherwise noted, shell folder constants work on all versions of Windows that Inno Setup supports.</p> -->
 
 <dl>
 
 <dt><b><a name="group">{group}</a></b></dt>
 <dd>
-<p>The path to the Start Menu folder, as selected by the user on Setup's <i>Select Start Menu Folder</i> wizard page. This folder is created under the <i>All Users</i> profile unless the user installing the application does not have administrative privileges, in which case it is created in the user's profile.</p>
+<p>The path to the Start Menu folder, as selected by the user on Setup's <i>Select Start Menu Folder</i> wizard page. This folder is created in the <i>All Users</i> profile unless the installation is running in <link topic="admininstallmode">non administrative install mode</link>, in which case it is created in the current user's profile.</p>
 </dd>
 
 <dt><b><a name="localappdata">{localappdata}</a></b></dt>
@@ -546,7 +565,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>The path to the current user's Common Files directory. Only Windows 7 and later supports <tt>{usercf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs\Common</tt>.</p>
 </dd>
 
-<dt><b><a name="userdesktop">{userdesktop}</a></b> &amp; <b><a name="commondesktop">{commondesktop}</a></b> *</dt>
+<dt><b><a name="userdesktop">{userdesktop}</a></b> &amp; <b><a name="commondesktop">{commondesktop}</a></b></dt>
 <dd>
 <p>The path to the desktop folder.</p>
 </dd>
@@ -556,9 +575,9 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>The path to the My Documents folder.</p>
 </dd>
 
-<dt><b><a name="userfavorites">{userfavorites}</a></b> &amp; <b><a name="commonfavorites">{commonfavorites}</a></b> *</dt>
+<dt><b><a name="userfavorites">{userfavorites}</a></b></dt>
 <dd>
-<p>The path to the Favorites folder.</p>
+<p>The path to the current user's Favorites folder. (There is no common Favorites folder.)</p>
 </dd>
 
 <dt><b><a name="userpf">{userpf}</a></b></dt>
@@ -566,7 +585,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>The path to the current user's Program Files directory. Only Windows 7 and later supports <tt>{userpf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs</tt>.</p>
 </dd>
 
-<dt><b><a name="userprograms">{userprograms}</a></b> &amp; <b><a name="commonprograms">{commonprograms}</a></b> *</dt>
+<dt><b><a name="userprograms">{userprograms}</a></b> &amp; <b><a name="commonprograms">{commonprograms}</a></b></dt>
 <dd>
 <p>The path to the Programs folder on the Start Menu.</p>
 </dd>
@@ -576,22 +595,62 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>The path to the current user's Send To folder. (There is no common Send To folder.)</p>
 </dd>
 
-<dt><b><a name="userstartmenu">{userstartmenu}</a></b> &amp; <b><a name="commonstartmenu">{commonstartmenu}</a></b> *</dt>
+<dt><b><a name="userstartmenu">{userstartmenu}</a></b> &amp; <b><a name="commonstartmenu">{commonstartmenu}</a></b></dt>
 <dd>
 <p>The path to the top level of the Start Menu.</p>
 </dd>
 
-<dt><b><a name="userstartup">{userstartup}</a></b> &amp; <b><a name="commonstartup">{commonstartup}</a></b> *</dt>
+<dt><b><a name="userstartup">{userstartup}</a></b> &amp; <b><a name="commonstartup">{commonstartup}</a></b></dt>
 <dd>
 <p>The path to the Startup folder on the Start Menu.</p>
 </dd>
 
-<dt><b><a name="usertemplates">{usertemplates}</a></b> &amp; <b><a name="commontemplates">{commontemplates}</a></b> *</dt>
+<dt><b><a name="usertemplates">{usertemplates}</a></b> &amp; <b><a name="commontemplates">{commontemplates}</a></b></dt>
 <dd>
 <p>The path to the Templates folder.</p>
 </dd>
 
 </dl>
+
+<heading>Auto Constants</heading>
+
+<p>Besides the "common" and "user" constants, Inno Setup also supports "auto" constants. These automatically map to their "common" form unless the installation is running in <link topic="admininstallmode">non administrative install mode</link>, in which case they map to their "user" form. It is recommended you always use these "auto" constants when possible to avoid mistakes.</p>
+
+<indent>
+<table>
+<tr><td></td><td><u>Administrative</u></td><td><u>Not administrative</u></td></tr>
+<tr><td><tt><a name="autoappdata">autoappdata</a></tt></td><td><tt>commonappdata</tt></td><td><tt>userappdata</tt></td></tr>
+<tr><td><tt><a name="autocf">autocf</a></tt></td><td><tt>commoncf</tt></td><td><tt>usercf</tt></td></tr>
+<tr><td><tt><a name="autocf32">autocf32</a></tt></td><td><tt>commoncf32</tt></td><td><tt>usercf</tt></td></tr>
+<tr><td><tt><a name="autocf64">autocf64</a></tt></td><td><tt>commoncf64</tt></td><td><tt>usercf</tt></td></tr>
+<tr><td><tt><a name="autodesktop">autodesktop</a></tt></td><td><tt>commondesktop</tt></td><td><tt>userdesktop</tt></td></tr>
+<tr><td><tt><a name="autodocs">autodocs</a></tt></td><td><tt>commondocs</tt></td><td><tt>userdocs</tt></td></tr>
+<tr><td><tt><a name="autopf">autopf</a></tt></td><td><tt>commonpf</tt></td><td><tt>userpf</tt></td></tr>
+<tr><td><tt><a name="autopf32">autopf32</a></tt></td><td><tt>commonpf32</tt></td><td><tt>userpf</tt></td></tr>
+<tr><td><tt><a name="autopf64">autopf64</a></tt></td><td><tt>commonpf64</tt></td><td><tt>userpf</tt></td></tr>
+<tr><td><tt><a name="autoprograms">autoprograms</a></tt></td><td><tt>commonprograms</tt></td><td><tt>userprograms</tt></td></tr>
+<tr><td><tt><a name="autostartmenu">autostartmenu</a></tt></td><td><tt>commonstartmenu</tt></td><td><tt>userstartmenu</tt></td></tr>
+<tr><td><tt><a name="autostartup">autostartup</a></tt></td><td><tt>commonstartup</tt></td><td><tt>userstartup</tt></td></tr>
+<tr><td><tt><a name="autotemplates">autotemplates</a></tt></td><td><tt>commontemplates</tt></td><td><tt>usertemplates</tt></td></tr>
+</table>
+</indent>
+
+<heading>Renamed Constants</heading>
+
+<p>Inno Setup 6 renamed some of the directory and shell folder constants. The old names are still supported, but it is recommended to update your scripts to the new names (or the "auto" form) and the compiler will issue a warning if you don't.</p>
+
+<indent>
+<table>
+<tr><td><u>Old name</u></td><td><u>New name</u></td></tr>
+<tr><td><tt><a name="cf">cf</a></tt></td><td><tt>commoncf</tt></td></tr>
+<tr><td><tt><a name="cf32">cf32</a></tt></td><td><tt>commoncf32</tt></td></tr>
+<tr><td><tt><a name="cf64">cf64</a></tt></td><td><tt>commoncf64</tt></td></tr>
+<tr><td><tt><a name="pf">pf</a></tt></td><td><tt>commonpf</tt></td></tr>
+<tr><td><tt><a name="pf32">pf32</a></tt></td><td><tt>commonpf32</tt></td></tr>
+<tr><td><tt><a name="pf64">pf64</a></tt></td><td><tt>commonpf64</tt></td></tr>
+<tr><td><tt><a name="sendto">sendto</a></tt></td><td><tt>usersendto</tt></td></tr>
+</table>
+</indent>
 
 <heading>Other Constants</heading>
 
@@ -673,7 +732,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li><i>Filename, Section,</i> and <i>Key</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{ini:{win}\MyProg.ini,Settings,Path|{pf}\My Program}</pre>
+<pre>{ini:{win}\MyProg.ini,Settings,Path|{autopf}\My Program}</pre>
 </example>
 </dd>
 
@@ -710,7 +769,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li><i>SubkeyName, ValueName,</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{reg:HKLM\Software\My Program,Path|{pf}\My Program}</pre>
+<pre>{reg:HKLM\Software\My Program,Path|{autopf}\My Program}</pre>
 </example>
 </dd>
 
@@ -724,7 +783,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li><i>ParamName</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{param:Path|{pf}\My Program}</pre>
+<pre>{param:Path|{autopf}\My Program}</pre>
 </example>
 <p>The example above translates to <tt>c:\My Program</tt> if the command line <tt>/Path="c:\My Program"</tt> was specified.</p>
 </dd>
@@ -790,15 +849,15 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use "0" then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>MinVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without a <tt>MinVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
-<pre>MinVersion: 5.1</pre>
+<pre>MinVersion: 6.2</pre>
 </example>
 </param>
 
 <param name="OnlyBelowVersion">
-<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you put <tt>6.0</tt> and the user is running Windows 2000 or XP, the entry <i>will</i> be processed, but if the user is running Windows Vista (which reports its version as 6.0) or later, it will <i>not</i> be processed. Putting "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you put <tt>6.2</tt> and the user is running Windows 7, the entry <i>will</i> be processed, but if the user is running Windows 8 (which reports its version as 6.2) or later, it will <i>not</i> be processed. Putting "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without an <tt>OnlyBelowVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
-<pre>OnlyBelowVersion: 6.0</pre>
+<pre>OnlyBelowVersion: 6.2</pre>
 </example>
 </param>
 
@@ -878,7 +937,7 @@ Name: t; Description: a or b - old style; Components: a b
 [Setup]
 AppName=My Program
 AppVersion=1.5
-DefaultDirName={pf}\My Program
+DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 </precode>
 
@@ -999,12 +1058,12 @@ DefaultGroupName=My Program
 <li><link topic="setup_onlybelowversion">OnlyBelowVersion</link></li>
 <li><link topic="setup_password">Password</link></li>
 <li><link topic="setup_privilegesrequired">PrivilegesRequired</link></li>
+<li><link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link></li>
 <li><link topic="setup_restartapplications">RestartApplications</link></li>
 <li><link topic="setup_restartifneededbyrun">RestartIfNeededByRun</link></li>
 <li><link topic="setup_setuplogging">SetupLogging</link></li>
 <li><link topic="setup_setupmutex">SetupMutex</link></li>
 <li><link topic="setup_showlanguagedialog">ShowLanguageDialog</link></li>
-<li><link topic="setup_showundisplayablelanguages">ShowUndisplayableLanguages</link></li>
 <li><link topic="setup_timestamprounding">TimeStampRounding</link></li>
 <li><link topic="setup_timestampsinutc">TimeStampsInUTC</link></li>
 <li><link topic="setup_touchdate">TouchDate</link></li>
@@ -1020,6 +1079,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_usepreviousappdir">UsePreviousAppDir</link></li>
 <li><link topic="setup_usepreviousgroup">UsePreviousGroup</link></li>
 <li><link topic="setup_usepreviouslanguage">UsePreviousLanguage</link></li>
+<li><link topic="setup_usepreviousprivileges">UsePreviousPrivigeles</link></li>
 <li><link topic="setup_useprevioussetuptype">UsePreviousSetupType</link></li>
 <li><link topic="setup_useprevioustasks">UsePreviousTasks</link></li>
 <li><link topic="setup_useprevioususerinfo">UsePreviousUserInfo</link></li>
@@ -1045,6 +1105,8 @@ DefaultGroupName=My Program
 <li><link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></li>
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
+<li><link topic="setup_wizardresizable">WizardResizable</link></li>
+<li><link topic="setup_wizardsizepercent">WizardSizePercent</link></li>
 <li><link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></li>
 </ul>
 
@@ -1362,7 +1424,7 @@ Name: "{app}\bin"
 <param name="Permissions">
 <p>Specifies additional permissions to grant in the directory's ACL (access control list). It is not recommended that you use this parameter if you aren't familiar with ACLs or why you would need to change them, because misusing it could negatively impact system security.</p>
 <p>For this parameter to have an effect the directory must be located on a partition that supports ACLs (such as NTFS), and the current user must be able to change the permissions on the directory. In the event these conditions are not met, no error message will be displayed, and the permissions will not be set.</p>
-<p>This parameter should <i>only</i> be used on directories private to your application. Never change the ACLs on top-level directories like <tt>{sys}</tt> or <tt>{pf}</tt>, otherwise you can open up security holes on your users' systems.</p>
+<p>This parameter should <i>only</i> be used on directories private to your application. Never change the ACLs on top-level directories like <tt>{sys}</tt> or <tt>{commonpf}</tt>, otherwise you can open up security holes on your users' systems.</p>
 <p>In addition, it is recommended that you avoid using this parameter to grant write access on directories containing program files. Granting, for example, <tt>everyone-modify</tt> permission on the <tt>{app}</tt> directory will allow unprivileged users to tamper with your application's program files; this creates the potential for a privilege escalation vulnerability. (However, it is safe to change the permissions on a subdirectory of your application's directory which does not contain program files, e.g. <tt>{app}\data</tt>.)</p>
 <p>The specified permissions are set regardless of whether the directory existed prior to installation.</p>
 <p>This parameter can include one or more space separated values in the format:</p>
@@ -1832,7 +1894,7 @@ Filename: "http://www.example.com/"
 <example>
 <pre>IconFilename: "{app}\myicon.ico"</pre>
 </example>
-<p>Note: when Setup is running on 64-bit Windows, it will automatically replace <tt>{pf32}\</tt> in the filename with '%ProgramFiles(x86)%\' to work around a bug in 64-bit Windows: 64-bit Windows replaces <tt>{pf32}\</tt> with '%ProgramFiles%\' which is incorrect.</p>
+<p>Note: when Setup is running on 64-bit Windows, it will automatically replace <tt>{commonpf32}\</tt>'s value in the filename with '%ProgramFiles(x86)%\' to work around a bug in 64-bit Windows: 64-bit Windows replaces it with '%ProgramFiles%\' instead which is incorrect.</p>
 </param>
 
 <param name="IconIndex">
@@ -1844,7 +1906,7 @@ Filename: "http://www.example.com/"
 </param>
 
 <param name="AppUserModelID">
-<p>Specifies the Windows 7 Application User Model ID for the shortcut. Ignored on earlier Windows versions. This parameter can include constants.</p>
+<p>Specifies the Windows 7 (or later) Application User Model ID for the shortcut. Ignored on earlier Windows versions. This parameter can include constants.</p>
 <example>
 <pre>AppUserModelID: "MyCompany.MyProg"</pre>
 </example>
@@ -2009,21 +2071,13 @@ Filename: "MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; String: 
 
 <p>Setup determines the default language to use for its messages in the following order:</p>
 
-<p>Non-Unicode Inno Setup:</p>
-<ol>
-<li>It searches for a language whose <tt>LanguageID</tt> setting (normally specified in the [LangOptions] section of the language's .isl file) matches both the primary language identifier and sublanguage identifier of the current user's UI language or locale (depending on the setting of <link topic="setup_languagedetectionmethod">LanguageDetectionMethod</link>), and whose <tt>LanguageCodePage</tt> setting matches the system code page.</li>
-<li>If no match is found, it searches for just a primary language identifier and code page match. If two or more available languages have the same primary language identifier and code page, it selects the first one listed in the [Languages] section.</li>
-<li>If no match is found, it defaults to the first language specified in the [Languages] section.</li>
-</ol>
-
-<p><link topic="unicode">Unicode Inno Setup</link>:</p>
 <ol>
 <li>It searches for a language whose <tt>LanguageID</tt> setting (normally specified in the [LangOptions] section of the language's .isl file) matches both the primary language identifier and sublanguage identifier of the current user's UI language or locale (depending on the setting of <link topic="setup_languagedetectionmethod">LanguageDetectionMethod</link>).</li>
 <li>If no match is found, it searches for just a primary language identifier match. If two or more available languages have the same primary language identifier, it selects the first one listed in the [Languages] section.<br />Exception: Simplified Chinese is excluded from consideration in this step if the user's UI language or locale (depending on the setting of <link topic="setup_languagedetectionmethod">LanguageDetectionMethod</link>) is Traditional Chinese, and vice versa.</li>
 <li>If no match is found, it defaults to the first language specified in the [Languages] section.</li>
 </ol>
 
-<p>If the <link topic="setup_showlanguagedialog">ShowLanguageDialog</link> [Setup] section directive is set to <tt>yes</tt> (the default), a <i>Select Language</i> dialog will be displayed which gives the user an opportunity to override the language Setup chose. On non Unicode Inno Setup languages that can't be displayed properly on the user's system will be hidden. See the <link topic="langoptionssection">[LangOptions] section</link> help topic for details.</p>
+<p>If the <link topic="setup_showlanguagedialog">ShowLanguageDialog</link> [Setup] section directive is set to <tt>yes</tt> (the default), a <i>Select Language</i> dialog will be displayed which gives the user an opportunity to override the language Setup chose. See the <link topic="langoptionssection">[LangOptions] section</link> help topic for details.</p>
 
 <p>The following is an example of a <tt>[Languages]</tt> section. It defines two languages: English, based on the standard Default.isl file, and Dutch, based on a third-party translation.</p>
 
@@ -2043,9 +2097,9 @@ Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
 </param>
 
 <param name="MessagesFile" required="yes">
-<p>Specifies the name(s) of file(s) to read the default messages from. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
-<p>When multiple files are specified, they are read in the order they are specified, thus the last message file overrides any messages in previous files.</p>
-<p>See the <link topic="messagessection">[Messages] section</link> help topic for details on the format of .isl files.</p>
+<p>Specifies the name(s) of the .isl file(s) to read the default messages from. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
+<p>Each message file may contain a <link topic="langoptionssection">[LangOptions] section</link>, a <link topic="messagessection">[Messages] section</link>, and a <link topic="custommessagessection">[CustomMessages] section.</link></p>
+<p>When multiple files are specified, they are read in the order they are specified, thus the last message file overrides any language options or messages from previous files. Any language options or messages in the main script override the ones from message files.</p>
 <examples>
 <pre>
 MessagesFile: "compiler:Dutch.isl"
@@ -2110,7 +2164,7 @@ ButtonNext=&amp;Forward &gt;
 en.ButtonNext=&amp;Forward &gt;
 </precode>
 
-<heading>Special-purpose IDs</heading>
+<heading>Special-purpose messages</heading>
 
 <p>The <a name="BeveledLabel"><tt>BeveledLabel</tt></a> message can be used to specify a line of text that is shown in the lower left corner of the wizard window and uninstaller window. The following is an example:</p>
 
@@ -2125,6 +2179,8 @@ BeveledLabel=Inno Setup
 [Messages]
 HelpTextNote=/PORTABLE=1%nEnable portable mode.
 </precode>
+
+<p>These special-purpose messages default to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use these messages.</p>
 
 </body>
 </topic>
@@ -2228,14 +2284,8 @@ RightToLeft=no
 
 <p><b><a name="LanguageID">LanguageID</a></b> is the numeric "language identifier" of the language. Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>. This, along with <tt>LanguageCodePage</tt>, is used for the purpose of auto-detecting the most appropriate language to use by default, so be sure it is set correctly. It should always begin with a "$" sign, since language identifiers are in hexadecimal. If no language identifier currently exists for the language, set this to zero.</p>
 
-<p>Non Unicode Inno Setup <b><a name="LanguageCodePage">LanguageCodePage</a></b>:<br/>
-<tt>LanguageCodePage</tt> specifies the "code page" (character set) needed for Setup to display the language. When auto-detecting the most appropriate language to use by default, it only considers languages whose <tt>LanguageCodePage</tt> values match the system code page.<br/>
-In addition, when populating the list of available languages on the <i>Select Language</i> dialog in a multilingual installation, it likewise only considers languages whose <tt>LanguageCodePage</tt> values match the system code page (except if <link topic="setup_showundisplayablelanguages">ShowUndisplayableLanguages</link> is set). The goal of this is to hide languages that can't be displayed properly on the user's system. For example, Russian text can't be displayed properly unless the code page is 1251, so there is little reason to list Russian as an option if the system is running in a different code page.<br/>
-If <tt>LanguageCodePage</tt> is set to <tt>0</tt>, the language will always be considered, regardless of the system code page. It makes sense to use 0 on languages that contain pure ASCII, such as English, since ASCII is identical across all code pages.</p>
-
-<p><link topic="unicode">Unicode Inno Setup</link> <b>LanguageCodePage</b>:<br />
-<tt>LanguageCodePage</tt> specifies the "code page" (character set) needed for the compiler to convert the text in the language's .isl file to Unicode. Note that text in the .iss file such as a [CustomMessages] entry for the language is not converted and should be in Unicode already.<br/>
-If no code page currently exists for the language, set <tt>LanguageCodePage</tt> to <tt>0</tt>, use a special .islu extension for the language's file, and encode this file as Unicode. Note: this makes your language file unusable by Non Unicode Inno Setup so only do this if really needed. Also note: a <tt>LanguageName</tt> setting in a .islu file does not need to use the special "&lt;nnnn&gt;" encoding mentioned above.<br/>
+<p><b><a name="LanguageCodePage">LanguageCodePage</a></b> specifies the "code page" (character set) needed for the compiler to convert the text in the language's .isl file to Unicode. Note that text in the .iss file such as a [CustomMessages] entry for the language is not converted and should be in Unicode already.<br/>
+If no code page currently exists for the language, set <tt>LanguageCodePage</tt> to <tt>0</tt>, use a special .islu extension for the language's file, and encode this file as Unicode. Also note: a <tt>LanguageName</tt> setting in a .islu file does not need to use the special "&lt;nnnn&gt;" encoding mentioned above.<br/>
 If <tt>LanguageCodePage</tt> is set to <tt>0</tt> but no .islu extension is used, the system code page will be used to convert the text in the language's .isl file to Unicode.</p>
 
 <p><b><a name="DialogFontName">DialogFontName</a></b> and <b><a name="DialogFontSize">DialogFontSize</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <link topic="setup_defaultdialogfontname">DefaultDialogFontName</link> [Setup] section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
@@ -2263,6 +2313,18 @@ en.LanguageName=English
 <topic name="registrysection" title="[Registry] section">
 <keyword value="[Registry] section" />
 <keyword value="Registry" />
+<keyword value="HKA" />
+<keyword value="HKEY_AUTO" />
+<keyword value="HKCR" />
+<keyword value="HKEY_CLASSES_ROOT" />
+<keyword value="HKCU" />
+<keyword value="HKEY_CURRENT_USER" />
+<keyword value="HKLM" />
+<keyword value="HKEY_LOCAL_MACHINE" />
+<keyword value="HKU" />
+<keyword value="HKEY_USERS" />
+<keyword value="HKCC" />
+<keyword value="HKEY_CURRENT_CONFIG" />
 <body>
 
 <p>This optional section defines any registry keys/values you would like Setup to create, modify, or delete on the user's system.</p>
@@ -2273,8 +2335,6 @@ en.LanguageName=English
 
 <precode>
 [Registry]
-Root: HKCU; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
-Root: HKCU; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
 Root: HKLM; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"
@@ -2288,18 +2348,26 @@ Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string
 <p>The root key. This must be one of the following values:</p>
 <indent>
 <table>
-<tr><td><tt>HKCR</tt></td><td>(HKEY_CLASSES_ROOT)</td></tr>
 <tr><td><tt>HKCU</tt></td><td>(HKEY_CURRENT_USER)</td></tr>
 <tr><td><tt>HKLM</tt></td><td>(HKEY_LOCAL_MACHINE)</td></tr>
+<tr><td><tt>HKCR</tt></td><td>(HKEY_CLASSES_ROOT)</td></tr>
 <tr><td><tt>HKU</tt></td><td>(HKEY_USERS)</td></tr>
 <tr><td><tt>HKCC</tt></td><td>(HKEY_CURRENT_CONFIG)</td></tr>
 </table>
 </indent>
-<p>The values may have a suffix of <tt>32</tt> or <tt>64</tt>. Root key values with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) map to the 32-bit view of the registry; root key values with a suffix of <tt>64</tt> (for example, <tt>HKLM64</tt>) map to the 64-bit view of the registry.</p>
+<p>Additionally one special value is allowed:</p>
+<indent>
+<table>
+<tr><td><tt>HKA</tt></td><td>(equals HKLM in <link topic="admininstallmode">administrative install mode</link>, HKCU otherwise)</td></tr>
+</table>
+</indent>
+<p><tt>HKCU</tt> and <tt>HKA</tt> should only be used for settings which are compatible with roaming profiles.</p>
+<p>Using <tt>HKCR</tt> is not recommended, use <tt>HKA</tt> with the <tt>Subkey</tt> parameter set to "Software\Classes" instead.</p>
+<p>The values (including <tt>HKA</tt>) may have a suffix of <tt>32</tt> or <tt>64</tt>. Root key values with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) map to the 32-bit view of the registry; root key values with a suffix of <tt>64</tt> (for example, <tt>HKLM64</tt>) map to the 64-bit view of the registry.</p>
 <p>Root key values with a suffix of <tt>64</tt> can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: IsWin64</tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
 <p>A root key value without a suffix (for example, <tt>HKLM</tt>) is equivalent to the value with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to the value with a suffix of <tt>64</tt> (for example, <tt>HKLM64</tt>).</p>
 <example>
-<pre>Root: HKCU</pre>
+<pre>Root: HKLM</pre>
 </example>
 </param>
 
@@ -2493,7 +2561,7 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 </param>
 
 <param name="RunOnceId">
-<p>Valid only in an <tt>[UninstallRun]</tt> section. If the same application is installed more than once, "run" entries will be duplicated in the uninstall log file. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular <tt>[UninstallRun]</tt> entry will only be executed once during uninstallation. For example, if two or more "run" entries in the uninstall log have a <tt>RunOnceId</tt> setting of "DelService", only the latest entry with a <tt>RunOnceId</tt> setting of "DelService" will be executed; the rest will be ignored. Note that <tt>RunOnceId</tt> comparisons are case-sensitive.</p>
+<p>Valid only in an <tt>[UninstallRun]</tt> section. If the <link topic="sameappnotes">same application</link> is installed more than once, "run" entries will be duplicated in the uninstall log file. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular <tt>[UninstallRun]</tt> entry will only be executed once during uninstallation. For example, if two or more "run" entries in the uninstall log have a <tt>RunOnceId</tt> setting of "DelService", only the latest entry with a <tt>RunOnceId</tt> setting of "DelService" will be executed; the rest will be ignored. Note that <tt>RunOnceId</tt> comparisons are case-sensitive.</p>
 <example>
 <pre>RunOnceId: "DelService"</pre>
 </example>
@@ -2536,7 +2604,7 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 <p>This flag cannot be combined with the <tt>runasoriginaluser</tt> flag.</p>
 </flag>
 <flag name="runasoriginaluser">
-<p>Valid only in a [Run] section. If this flag is specified and the system is running Windows Vista or later, the spawned process will execute with the (normally non-elevated) credentials of the user that started Setup initially (i.e., the "pre-UAC dialog" credentials).</p>
+<p>Valid only in a [Run] section. If this flag is specified, the spawned process will execute with the (normally non-elevated) credentials of the user that started Setup initially (i.e., the "pre-UAC dialog" credentials).</p>
 <p>This is the default behavior when the <tt>postinstall</tt> flag is used.</p>
 <p>If a user launches Setup by right-clicking its EXE file and selecting "Run as administrator", then this flag, unfortunately, will have no effect, because Setup has no opportunity to run any code with the original user credentials. The same is true if Setup is launched from an already-elevated process. Note, however, that this is not an Inno Setup-specific limitation; Windows Installer-based installers cannot return to the original user credentials either in such cases.</p>
 <p>This flag cannot be combined with the <tt>runascurrentuser</tt> flag.</p>
@@ -2663,7 +2731,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 <keyword value="Unicode Inno Setup" />
 <body>
 
-<p>There are two versions of Inno Setup available: Non Unicode Inno Setup and Unicode Inno Setup.</p>
+<p>Prior to Inno Setup 6 two versions of Inno Setup were available: Non Unicode Inno Setup and Unicode Inno Setup. Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup.</p>
 <p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames. One could consider Unicode Inno Setup as the new standard Inno Setup and Non Unicode Inno Setup as an old special Inno Setup for those who want the very smallest size possible.</p>
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. If it says "(u)" you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
@@ -2671,7 +2739,6 @@ Type: files; Name: "{win}\MYPROG.INI"
   <li>Unicode Inno Setup uses the existing ANSI .isl language files and you should not and may not convert these to Unicode or anything similar since it does so automatically during compilation using the <tt>LanguageCodePage</tt> setting of the language. However, you do need to convert existing [Messages] and [CustomMessages] entries in your .iss files to Unicode if the language used a special <tt>LanguageCodePage</tt>.</li>
   <li>The automatic conversion is also done for any language specific plain text ANSI <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> used so you should not convert these either (but you may do so if you wish anyway, unlike ANSI .isl language files).</li>
   <li>The [Setup] directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li>
-  <li>Unicode Inno Setup is compiled with Delphi 2009 instead of Delphi 2 and 3, leading to slightly larger files. The source code however is still compatible with Delphi 2 and 3, and a non Unicode version will remain available.</li>
   <li>Existing installations of your programs done by non Unicode installers can be freely updated by Unicode installers, and vice versa.</li>
   <li>Unicode Pascal Scripting notes:
     <ul>
@@ -2793,6 +2860,8 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 </ul>
 
+<p>See the <i>AllPagesExample.iss</i> example script for an example which shows all these pages.</p>
+
 </body>
 </topic>
 
@@ -2860,6 +2929,36 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </topic>
 
 
+<topic name="admininstallmode" title="Non Administrative Install Mode">
+<keyword value="Install Mode: administrative vs. non administrative" />
+<keyword value="Administrative install mode" />
+<keyword value="Non administrative install mode" />
+<keyword value="install mode" />
+<body>
+
+<p>An installation can run in one of two modes: administrative or non administrative. Which mode is selected is specified by the <link topic="setup_privilegesrequired">PrivilegesRequired</link> and <link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link> [Setup] section directives.</p>
+
+<p>In administrative install mode:</p>
+<ul>
+<li>The <tt>{group}</tt> folder is created in the <i>All Users</i> profile.</li>
+<li>The "auto" form of the directory and Shell Folder constants is mapped to the "common" form.</li>
+<li>The <link topic="registrysection">HKA</link> and uninstall info root keys will be HKEY_LOCAL_MACHINE.</li>
+</ul>
+
+<p>In non administrative install mode:</p>
+<ul>
+<li>The <tt>{group}</tt> folder is created in the current user's profile.</li>
+<li>The "auto" form of the directory and Shell Folder constants is mapped to the "user" form.</li>
+<li>The <link topic="registrysection">HKA</link> and uninstall info root keys will be HKEY_CURRENT_USER.</li>
+</ul>
+
+<p><b>Notes:</b></p>
+<p>Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
+<p>If the installation is running in non administrative install mode, but administrative privileges are available anyway then Setup or the [Code] section might still make use of these privileges. For this reason the uninstaller will always be marked as requiring administrative privileges in this case, just as if the installation was running in administrative install mode.</p>
+
+</body>
+</topic>
+
 
 <topic name="32vs64bitinstalls" title="64-bit Install Mode">
 <keyword value="Install Mode: 32-bit vs. 64-bit" />
@@ -2868,9 +2967,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="install mode" />
 <body>
 
-<p>An installation can run in one of two modes: 32-bit or 64-bit.</p>
-
-<p>64-bit install mode is selected if the user is running a 64-bit version of Windows and the system's processor architecture is included in the value of the <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> [Setup] section directive. Otherwise, 32-bit install mode is used.</p>
+<p>An installation can run in one of two modes: 32-bit or 64-bit. 64-bit install mode is selected if the user is running a 64-bit version of Windows and the system's processor architecture is included in the value of the <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> [Setup] section directive. Otherwise, 32-bit install mode is used.</p>
 
 <p>How do the two modes of installation differ? Primarily, the differences lie in where things are installed by default.</p>
 
@@ -2878,8 +2975,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <ul>
 <li>The System32 path returned by the <tt>{sys}</tt> constant maps to the 32-bit System directory by default.</li>
-<li>The <tt>{pf}</tt> constant is equivalent to <tt>{pf32}</tt>.</li>
-<li>The <tt>{cf}</tt> constant is equivalent to <tt>{cf32}</tt>.</li>
+<li>The <tt>{commonpf}</tt> constant is equivalent to <tt>{commonpf32}</tt>.</li>
+<li>The <tt>{commoncf}</tt> constant is equivalent to <tt>{commoncf32}</tt>.</li>
 <li>[Registry] writes to the 32-bit view by default.</li>
 <li>The <tt>{reg:...}</tt> constant reads the 32-bit view by default.</li>
 <li>The <tt>Reg*</tt> [Code] support functions access the 32-bit view by default.</li>
@@ -2893,8 +2990,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <ul>
 <li>The System32 path returned by the <tt>{sys}</tt> constant maps to the 64-bit System directory by default when used in the [Dirs], [Files], [InstallDelete], [Run], [UninstallDelete], and [UninstallRun] sections. This is because Setup/Uninstall temporarily disables <extlink href="http://msdn.microsoft.com/en-us/library/aa384187.aspx">WOW64 file system redirection</extlink> when files/directories are accessed by those sections. Elsewhere, System32 and <tt>{sys}</tt> map to the 32-bit System directory, as is normal in a 32-bit process.</li>
-<li>The <tt>{pf}</tt> constant is equivalent to <tt>{pf64}</tt>.</li>
-<li>The <tt>{cf}</tt> constant is equivalent to <tt>{cf64}</tt>.</li>
+<li>The <tt>{commonpf}</tt> constant is equivalent to <tt>{commonpf64}</tt>.</li>
+<li>The <tt>{commoncf}</tt> constant is equivalent to <tt>{commoncf64}</tt>.</li>
 <li>[Registry] writes to the 64-bit view by default.</li>
 <li>The <tt>{reg:...}</tt> constant reads the 64-bit view by default.</li>
 <li>The <tt>Reg*</tt> [Code] support functions access the 64-bit view by default.</li>
@@ -2955,7 +3052,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>To easily auto update your application, first make your application somehow detect a new version of your Setup.exe and make it locate or download this new version. Then, to auto update, start your Setup.exe from your application with for example the following command line:</p>
 
 <precode>
-/SP- /silent /noicons "/dir=expand:{pf}\My Program"
+/SP- /silent /noicons "/dir=expand:{autopf}\My Program"
 </precode>
 
 <p>After starting setup.exe, exit your application as soon as possible. Note that to avoid problems with updating your .exe, Setup has an auto retry feature.</p>
@@ -2963,7 +3060,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Optionally you could also use the <tt>skipifsilent</tt> and <tt>skipifnotsilent</tt> flags and make your application aware of a '/updated' parameter to for example show a nice message box to inform the user that the update has completed.</p>
 </li>
 
-<li>Inno Setup's own installers accept an additional /PORTABLE=1 command line parameter to enable portable mode.</li>
+<li>Inno Setup's own installers accept an additional /PORTABLE=1 command line parameter to enable portable mode which causes the installers to not create an uninstaller nor an entry in the Add/Remove Programs Control Panel applet.</li>
 
 <li>The Inno Setup backup website can be found at <extlink href="http://www.innosetup.nl/">www.innosetup.nl</extlink>. Normally this link will simply redirect you to the main website at <extlink href="http://www.jrsoftware.org/">www.jrsoftware.org</extlink> but in case of emergencies this redirect will be disabled.</li>
 
@@ -3068,6 +3165,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="/PASSWORD=" anchor="PASSWORD" />
 <keyword value="/RESTARTEXITCODE=" anchor="RESTARTEXITCODE" />
 <keyword value="/SUPPRESSMSGBOXES" anchor="SUPPRESSMSGBOXES" />
+<keyword value="/ALLUSERS" anchor="ALLUSERS" />
+<keyword value="/CURRENTUSER" anchor="CURRENTUSER" />
 <keyword value="silent installation" />
 <keyword value="logging" />
 <body>
@@ -3103,6 +3202,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>Cancel in Retry/Cancel situations.</li>
 <li>Yes (=continue) in a DiskSpaceWarning/DirExists/DirDoesntExist/NoUninstallWarning/ExitSetupMessage/ConfirmUninstall situation.</li>
 <li>Yes (=restart) in a FinishedRestartMessage/UninstalledAndNeedsRestart situation.</li>
+<li>The recommended choice in a PrivilegesRequiredOverridesAllowed=dialog situation.</li>
 </ul>
 <p>5 message boxes are not suppressible:</p>
 <ul appearance="compact">
@@ -3110,8 +3210,18 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>The Exit Setup? message box.</li>
 <li>The FileNotInDir2 message box displayed when Setup requires a new disk to be inserted and the disk was not found.</li>
 <li>Any (error) message box displayed before Setup (or Uninstall) could read the command line parameters.</li>
-<li>Any message box displayed by [Code] support function <tt>MsgBox</tt>.</li>
+<li>Any task dialog or message box displayed by [Code] support functions <tt>TaskDialogMsgBox</tt> and <tt>MsgBox</tt>.</li>
 </ul>
+</dd>
+
+<dt><b><a name="ALLUSERS">/ALLUSERS</a></b></dt>
+<dd>
+<p>Instructs Setup to install in <link topic="admininstallmode">administrative install</link> mode. Only has an effect when the <tt>[Setup]</tt> section directive <link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link> allows the <tt>commandline</tt> override.</p>
+</dd>
+
+<dt><b><a name="CURRENTUSER">/CURRENTUSER</a></b></dt>
+<dd>
+<p>Instructs Setup to install in <link topic="admininstallmode">non administrative install</link> mode. Only has an effect when the <tt>[Setup]</tt> section directive <link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link> allows the <tt>commandline</tt> override.</p>
 </dd>
 
 <dt><b><a name="LOG">/LOG</a></b></dt>
@@ -3191,7 +3301,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <dt><b><a name="DIR">/DIR=</a>"<i>x</i>:\<i>dirname</i>"</b></dt>
 <dd>
-<p>Overrides the default directory name displayed on the <i>Select Destination Location</i> wizard page. A fully qualified pathname must be specified. May include an "expand:" prefix which instructs Setup to expand any constants in the name. For example: '/DIR=expand:{pf}\My Program'.</p>
+<p>Overrides the default directory name displayed on the <i>Select Destination Location</i> wizard page. A fully qualified pathname must be specified. May include an "expand:" prefix which instructs Setup to expand any constants in the name. For example: '/DIR=expand:{autopf}\My Program'.</p>
 </dd>
 
 <dt><b><a name="GROUP">/GROUP=</a>"<i>folder name</i>"</b></dt>
@@ -3424,7 +3534,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="Unsafe Files" />
 <body>
 
-<p>As a convenience to new users who are unfamiliar with which files they should and should not distribute, the Inno Setup compiler will display an error message if one attempts to install certain "unsafe" files using the <link topic="filessection">[Files] section</link>. These files are listed below.</p>
+<p>As a convenience to new users who are unfamiliar with which files they should and should not distribute, the compiler will display an error message if one attempts to install certain "unsafe" files using the <link topic="filessection">[Files] section</link>. These files are listed below.</p>
 
 <p>(Note: It is possible to disable the error message by using a certain flag on the [Files] section entry, but this is NOT recommended.)</p>
 
@@ -3473,7 +3583,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="Contributers" />
 <body>
 
-<p>Inno Setup was created by Jordan Russell and is currently (since 5.4.3) maintained by Martijn Laan.</p>
+<p>Inno Setup was created by Jordan Russell and is currently (since 5.4.3, released in 2011) maintained by Martijn Laan.</p>
 
 <p>The following is a list of those who have contributed significant code to the Inno Setup project, or otherwise deserve special recognition:</p>
 
@@ -3508,6 +3618,10 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <li>Zaher Dirkey: Initial work on improved right-to-left languages support.</li>
 
 <li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support.</li>
+
+<li>DRON: Code for the improved image stretching (5.6.0).</li>
+
+<li>Sherlock Software: Most of the code for the <tt>CreateCallback</tt> support function (6.0).</li>
 
 </ul>
 
@@ -3778,7 +3892,7 @@ AppUpdatesURL=http://www.example.com/updates.html
 <b>In Setup, this would typically display:</b><br/>
 C:\MYPROG<br/><br/>
 <b>If you used:</b><br/>
-<pre>DefaultDirName={pf}\My Program</pre>
+<pre>DefaultDirName={autopf}\My Program</pre>
 <b>In Setup, this would typically display:</b><br/>
 C:\Program Files\My Program
 </examples>
@@ -3804,11 +3918,11 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="MinVersion">
 <setupformat><tt><i>major</i>.<i>minor</i></tt></setupformat>
-<setupdefault><tt>5.0</tt></setupdefault>
+<setupdefault><tt>6.0</tt></setupdefault>
 <body>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software runs on. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>If the user's system does not meet the minimum version requirement, Setup will give an error message and exit.</p>
-<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>MinVersion=0,5.0</tt>. The Windows 95/98/Me version number (the first number) must be <tt>0</tt>, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
+<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>MinVersion=0,6.2</tt>. The Windows 95/98/Me version number (the first number) must be <tt>0</tt>, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
 </body>
 </setuptopic>
 
@@ -3818,7 +3932,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <body>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software <i>will not</i> run on. Specifying "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>This directive is essentially the opposite of <link topic="setup_minversion">MinVersion</link>.</p>
-<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>OnlyBelowVersion=0,6.0</tt>. The Windows 95/98/Me version number (the first number) isn't used, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
+<p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>OnlyBelowVersion=0,6.2</tt>. The Windows 95/98/Me version number (the first number) isn't used, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
 </body>
 </setuptopic>
 
@@ -3826,7 +3940,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>This directive lets you disable the used user areas warning. See <link topic="setup_privilegesrequired">PrivilegesRequired</link> for more information.</p>
+<p>This directive lets you disable the used user areas warning. See <link topic="admininstallmode">Non Administrative Install Mode</link> for more information.</p>
 </body>
 </setuptopic>
 
@@ -3834,19 +3948,38 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupvalid><tt>admin</tt>, or <tt>lowest</tt></setupvalid>
 <setupdefault><tt>admin</tt></setupdefault>
 <body>
+<!--
 <p>The effect of this directive depends on which version of Windows the user is running:</p>
 <p><b>On Windows Vista and later:</b></p>
+-->
 <p>This directive affects whether elevated rights are requested (via a User Account Control dialog) when the installation is started.</p>
-<p>When set to <tt>admin</tt> (the default), Setup will always run with administrative privileges. If Setup was started by an unprivileged user, Windows will ask for the password to an account that has administrative privileges, and Setup will then run under that account.</p>
+<p>When set to <tt>admin</tt> (the default), Setup will always run with administrative privileges and in <link topic="admininstallmode">administrative install mode</link>. If Setup was started by an unprivileged user, Windows will ask for the password to an account that has administrative privileges, and Setup will then run under that account.</p>
 <!-- <p>When set to <tt>none</tt>, Setup will only run with administrative privileges if it was started by a member of the Administrators group. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
-<p>When set to <tt>lowest</tt>, Setup will not request to be run with administrative privileges even if it was started by a member of the Administrators group. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "common" forms of the Shell Folder constants are mapped to the "user" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
+<p>When set to <tt>lowest</tt>, Setup will not request to be run with administrative privileges even if it was started by a member of the Administrators group and will always run in <link topic="admininstallmode">non administrative install mode</link>. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
+<!--
 <p><b>On earlier versions of Windows:</b></p>
 <p>This directive specifies the minimum user privileges required to run the installation.</p>
-<p>When set to <tt>admin</tt> (the default), Setup will only run if the user is a member of the Administrators group. Otherwise, it will display the following message and exit: "You must be logged in as an administrator when installing this program."</p>
-<!-- <p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
-<p>When set to <tt>lowest</tt> Setup will not check the user's group membership. Additionally, the uninstall info root key will always be HKEY_CURRENT_USER, and the "common" forms of the Shell Folder constants are mapped to the "user" forms, even if administrative privileges are available. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
-<p><b>Note:</b></p>
-<p>Regardless of the version of Windows, if the installation is administrative (<tt>PrivilegesRequired=admin</tt>) then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
+<p>When set to <tt>admin</tt> (the default), Setup will only run if the user is a member of the Administrators group and will always run in <link topic="admininstallmode">administrative install mode</link>. Otherwise, it will display the following message and exit: "You must be logged in as an administrator when installing this program."</p>
+<p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
+<p>When set to <tt>lowest</tt> Setup will not check the user's group membership and will always run in <link topic="admininstallmode">non administrative install mode</link>. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
+-->
+<p><b>See also:</b><br/>
+<link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link>
+</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="PrivilegesRequiredOverridesAllowed">
+<keyword value="commandline" />
+<keyword value="dialog" />
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>commandline</tt> <br/><tt>dialog</tt></setupvalid>
+<setupdefault><i>(blank)</i></setupdefault>
+<body>
+<p>Can be set to one or more overrides which allow the end user to override the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting.</p>
+<p>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting: /ALLUSERS and /CURRENTUSER. See <link topic="setupcmdline" anchor="ALLUSERS">Setup Command Line Parameters</link> for more details.</p>
+<p>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting using a suppressible dialog. Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_usepreviousprivileges">UsePreviousPrivileges</link></p>
 </body>
 </setuptopic>
 
@@ -3959,7 +4092,6 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <body>
 <p>If <tt>yes</tt>, solid compression will be enabled. This causes all files to be compressed at once instead of separately. This can result in a much greater overall compression ratio if your installation contains many files with common content, such as text files, especially if such common content files are grouped together within the [Files] section.</p>
 <p>The disadvantage to using solid compression is that because all files are compressed into a single compressed stream, Setup can no longer randomly access the files. This can decrease performance. If a certain file isn't going to be extracted on the user's system, it has to decompress the data for that file anyway (into memory) before it can decompress the next file. And if, for example, there was an error while extracting a particular file and the user clicks Retry, it can't just seek to the beginning of that file's compressed data; since all files are stored in one stream, it has seek to the very beginning. If disk spanning was enabled, the user would have to re-insert disk 1.</p>
-<p>Thus, it is not recommended that solid compression be enabled on huge installs (say, over 100 MB) or on disk-spanned installs. It is primarily designed to save download time on smaller installs distributed over the Internet.</p>
 </body>
 </setuptopic>
 
@@ -4073,7 +4205,7 @@ end;</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If this is set to <tt>yes</tt>, Setup will show a <i>User Information</i> wizard page which asks for the user's name, organization and possibly a serial number. The values the user enters are stored in the <tt>{userinfoname}</tt>, <tt>{userinfoorg}</tt> and <tt>{userinfoserial}</tt> constants. You can use these constants in [Registry] or [INI] entries to save their values for later use.</p>
+<p>If this is set to <tt>yes</tt>, Setup will show a <i>User Information</i> wizard page which asks for the user's name, organization and possibly a serial number. The values the user enters are stored in the <tt>{userinfoname}</tt>, <tt>{userinfoorg}</tt> and <tt>{userinfoserial}</tt> constants. If the installation is running in <link topic="admininstallmode">non administrative install mode</link> you can use these constants in [Registry] or [INI] entries to save their values for later use.</p>
 <p>For the serial number field to appear, a <link topic="scriptevents" anchor="CheckSerial">CheckSerial</link> event function must be present.</p>
 <p>The <link topic="setup_defaultuserinfoname">DefaultUserInfoName</link>, <link topic="setup_defaultuserinfoorg">DefaultUserInfoOrg</link> and <link topic="setup_defaultuserinfoserial">DefaultUserInfoSerial</link> directives determine the default name, organization and serial number shown. If <link topic="setup_useprevioususerinfo">UsePreviousUserInfo</link> is <tt>yes</tt> (the default) and Setup finds that a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will use the name, organization and serial number entered previously instead.</p>
 <p>On silent installs, the default user name, organization, and serial number values will be assumed. Setup will not check whether the user name is blank (since the user has no way of correcting it), however it will still check the serial number.</p>
@@ -4105,6 +4237,7 @@ end;</pre></example>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>Normally, Inno Setup's <tt>{group}</tt> constant points to the All Users start menu if the user has administrative privileges. If this directive is set to <tt>yes</tt>, it always uses current user's profile.</p>
+<p>You should be careful about using this option: it may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
 </body>
 </setuptopic>
 
@@ -4112,7 +4245,7 @@ end;</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If set to <tt>no</tt> the Setup Compiler will only check the script for errors and skip creating setup files.</p>
+<p>If set to <tt>no</tt> the Setup Compiler will only check the script for errors and skip creating setup files. Note: it will still clean the output directory and delete the manifest file, unless <tt>OutputDir</tt> and <tt>OutputManifestFile</tt> are set to an empty string.</p>
 </body>
 </setuptopic>
 
@@ -4152,12 +4285,14 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <body>
 <p>This lets you specify a custom name for the program's entry in the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants. If this directive is not specified or is blank, Setup will use the value of <tt>[Setup]</tt> section directive <tt>AppVerName</tt> for the name.</p>
 <example><pre>UninstallDisplayName=My Program</pre></example>
+<p><b>See also:</b><br/>
+<link topic="sidebyside">Side-by-side installation</link></p>
 </body>
 </setuptopic>
 
 <setuptopic directive="UninstallDisplaySize">
 <body>
-<p>On Windows 7 and newer, Setup uses this directive to set the <tt>EstimatedSize</tt> value in the Uninstall registry key when possible since the Windows 7 <i>Add/Remove Programs</i> Control Panel (called <i>Program and Features</i>) no longer automatically calculates it. If an <tt>UninstallDisplaySize</tt> is not set, Setup estimates the size itself by taking the size of all files installed and adding any <tt>ExtraDiskSpaceRequired</tt> values set. Note: Windows 7 without any service pack only supports the display of values smaller than 4 GB.</p>
+<p>On Windows 7 and later, Setup uses this directive to set the <tt>EstimatedSize</tt> value in the Uninstall registry key when possible since the Windows 7 <i>Add/Remove Programs</i> Control Panel (called <i>Program and Features</i>) no longer automatically calculates it. If an <tt>UninstallDisplaySize</tt> is not set, Setup estimates the size itself by taking the size of all files installed and adding any <tt>ExtraDiskSpaceRequired</tt> values set. Note: Windows 7 without any service pack only supports the display of values smaller than 4 GB.</p>
 <p>Set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example><pre>UninstallDisplaySize=1073741824</pre></example>
 </body>
@@ -4436,6 +4571,18 @@ DiskSliceSize=1457664
 </body>
 </setuptopic>
 
+<setuptopic directive="UsePreviousPrivileges">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed in one of the two install modes, and if so, it will use that install mode and not ask the user.</p>
+<p>If <tt>PrivilegesRequiredOverridesAllowed</tt> does not allow <tt>dialog</tt>, this directive is effectively ignored.</p>
+<p><tt>UsePreviousPrivileges</tt> must be set to <tt>no</tt> when <tt>AppId</tt> includes constants and <tt>PrivilegesRequiredOverridesAllowed</tt> allows <tt>dialog</tt>.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link></p>
+</body>
+</setuptopic>
+
 <setuptopic directive="UsePreviousSetupType">
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
@@ -4579,6 +4726,33 @@ DiskSliceSize=1457664
 </body>
 </setuptopic>
 
+<setuptopic directive="WizardResizable">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>no</tt> otherwise</setupdefault>
+<body>
+<p>If set to <tt>yes</tt>, the user will be able to resize and maximize the main Setup wizard window.</p>
+<p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls, custom wizard pages and <tt>TSetupForm</tt> forms if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardsizepercent">WizardSizePercent</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="WizardSizePercent">
+<setupformat><tt><i>a</i>,<i>b</i></tt>, where <tt><i>a</i></tt> is the horizontal size, and <tt><i>b</i></tt> is the vertical size.</setupformat>
+<setupvalid>each size: <tt>100</tt> or more</setupvalid>
+<setupdefault><tt>120,120</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>100,100</tt> otherwise</setupdefault>
+<body>
+<p>Lets you increase the default size of all Setup and Uninstall wizard windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
+<p>If you specify only one size it will be used as both the horizontal and the vertical size.</p>
+<example><pre>WizardSizePercent=120</pre></example>
+<p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
+<p>Note: Some of the wizard windows such as the <i>Select Language</i> dialog will only increase in size horizontally.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardresizable">WizardResizable</link><br/>
+<link topic="langoptionssection" anchor="DialogFontSize">DialogFontSize</link></p>
+</body>
+</setuptopic>
+
 <setuptopic directive="WizardSmallImageBackColor">
 <body>
 <p><i>Obsolete in 5.0.4.</i> This directive formerly specified the background color used to fill any unused space around the small wizard bitmap when <link topic="setup_wizardimagestretch">WizardImageStretch</link> was set to <tt>no</tt>. Now any unused space is filled with the standard window color (usually white). If you wish to create a colored border around the image, do so by modifying the bitmap itself.</p>
@@ -4602,16 +4776,17 @@ DiskSliceSize=1457664
 </setuptopic>
 
 <setuptopic directive="WizardStyle">
-<setupvalid><tt>modern</tt></setupvalid>
-<setupdefault><tt>modern</tt></setupdefault>
+<setupvalid><tt>classic</tt> or <tt>modern</tt></setupvalid>
+<setupdefault><tt>classic</tt></setupdefault>
 <body>
-<p><i>Obsolete in 3.0.</i> Inno Setup 2.x supported an alternate wizard style called "classic". Support for the "classic" style has been dropped in Inno Setup 3.0.</p>
+<p>If this directive is set to <tt>modern</tt>, Setup and Uninstall will show a more modern look and also the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> change to respectively <tt>yes</tt> and <tt>120,120</tt>.</p>
+<p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="UninstallStyle">
 <body>
-<p><i>Obsolete in 5.0.0.</i> Only the "modern" uninstaller style is supported now.</p>
+<p><i>Obsolete in 5.0.0.</i></p>
 </body>
 </setuptopic>
 
@@ -4681,20 +4856,7 @@ DiskSliceSize=1457664
 <p>When set to <tt>no</tt>, the dialog will never be displayed.</p>
 <p>When set to <tt>auto</tt>, the dialog will only be displayed if Setup does not find a language identifier match.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_showundisplayablelanguages">ShowUndisplayableLanguages</link><br/>
 <link topic="setup_usepreviouslanguage">UsePreviousLanguage</link></p>
-</body>
-</setuptopic>
-
-<setuptopic directive="ShowUndisplayableLanguages">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
-<body>
-<p>By default, languages that cannot be displayed on a user's system due to a code page mismatch are not listed in the <i>Select Language</i> dialog. For example, Russian text can only be displayed properly if the active code page is 1251; if the user isn't running code page 1251 they will not see Russian as an option.</p>
-<p>If this directive is set to <tt>yes</tt>, all languages will be listed in the <i>Select Language</i> dialog. To avoid user confusion, it is not recommended that you enable this in production installs.</p>
-<p>This directive is ignored by <link topic="unicode">Unicode Inno Setup</link>.</p>
-<p><b>See also:</b><br/>
-<link topic="setup_showlanguagedialog">ShowLanguageDialog</link></p>
 </body>
 </setuptopic>
 
@@ -4820,7 +4982,7 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Destination Location</i> wizard page is clicked, Setup automatically appends the last component of <tt>DefaultDirName</tt> onto the new path. For example, if <tt>DefaultDirName</tt> is <tt>{pf}\My Program</tt> and "Z:\" is clicked, the new path will become "Z:\My Program".</p>
+<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Destination Location</i> wizard page is clicked, Setup automatically appends the last component of <tt>DefaultDirName</tt> onto the new path. For example, if <tt>DefaultDirName</tt> is <tt>{autopf}\My Program</tt> and "Z:\" is clicked, the new path will become "Z:\My Program".</p>
 <p>Setting this directive to <tt>no</tt> disables the aforementioned behavior. In addition, it causes a <i>Make New Folder</i> button to appear on the dialog.</p>
 </body>
 </setuptopic>
@@ -4887,13 +5049,13 @@ DiskSliceSize=1457664
 <keyword value="IA-64" />
 <keyword value="Itanium" />
 <keyword value="ARM64" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>x86</tt> <br/><tt>x64</tt> <br/><tt>ia64</tt> <br/><tt>arm64</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>x86</tt> <br/><tt>x64</tt> <br/><tt>arm64</tt> <br/><tt>ia64</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies which processor architecture(s) Setup is allowed to run on. If this directive is not specified or is blank, Setup will be allowed to run on all processor architectures capable of executing its 32-bit code (including ones it doesn't recognize). Otherwise, if a user's processor architecture is not one of those specified in this directive, Setup will display an error message and exit.</p>
-<p>If your application's binaries are all 32-bit and run in user mode, you should not change this directive from its default value (specifically, don't set it to <tt>x86</tt>), because normally such binaries will run without issue on the x64 and Itanium editions of Windows via the WOW64 emulator.</p>
+<p>If your application's binaries are all 32-bit and run in user mode, you should not change this directive from its default value (specifically, don't set it to <tt>x86</tt>), because normally such binaries will run without issue on the 64-bit Windows via the WOW64 emulator.</p>
 <p>If you install any 32-bit device drivers, you should set this directive to <tt>x86</tt>, as 32-bit device drivers cannot function on 64-bit Windows.</p>
-<p>If your application's binaries are built for the x64 or Itanium architectures, you should set this directive to either <tt>x64</tt> or <tt>ia64</tt> respectively.</p>
+<p>If your application's binaries are built for the x64, ARM64 or Itanium architectures, you should set this directive to either <tt>x64</tt>, <tt>arm64</tt> or <tt>ia64</tt> respectively.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link></p>
 </body>
@@ -4906,15 +5068,14 @@ DiskSliceSize=1457664
 <keyword value="x64" />
 <keyword value="IA-64" />
 <keyword value="Itanium" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>x64</tt> <br/><tt>ia64</tt></setupvalid>
+<keyword value="ARM64" />
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>x64</tt> <br/><tt>arm64</tt> <br/><tt>ia64</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies the 64-bit processor architecture(s) on which Setup should install in <link topic="32vs64bitinstalls">64-bit install mode</link>. If this directive is not specified or is blank, Setup will always install in <link topic="32vs64bitinstalls">32-bit install mode</link>.</p>
 <p>Normally, you should not change this directive from its default value unless your application contains native 64-bit binaries.</p>
 <p>Be sure you have read the <link topic="64bitlimitations">64-bit Installation Limitations</link> topic before setting this directive.</p>
 <p>If your application runs only on 64-bit processor architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
-<p>Setup can only run in 64-bit install mode on versions of Windows that provide the API support Inno Setup requires (e.g. RegDeleteKeyEx). All x64 editions provide the necessary APIs, however Itanium editions prior to Windows Server 2003 SP1 do not. If the user is running an older Itanium version of Windows, Setup will display a message (<tt>MissingWOW64APIs</tt>) recommending that the user install a service pack, and exit.</p>
-<p><i>Note:</i> Windows 10 on ARM64 only supports 32-bit (x86) binaries. Therefore Setup will never install in <link topic="32vs64bitinstalls">64-bit install mode</link> on Windows 10 on ARM64.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesallowed">ArchitecturesAllowed</link></p>
 </body>
@@ -5165,7 +5326,7 @@ SignTool=byparam format c:
 <p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is not running silently, Setup will pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the [Files] or [InstallDelete] section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed.</p>
 <p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line.</p>
 <p>If set to <tt>force</tt> Setup will force close when closing applications, unless told not to via the command line. Use with care since this may cause the user to lose unsaved work.</p>
-<p>Note: Setup uses the Windows <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa373524.aspx">Restart Manager</extlink> API to close and restart applications, which is available only on Windows Vista / Windows Server 2008 and newer.</p>
+<p>Note: Setup uses the Windows <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa373524.aspx">Restart Manager</extlink> API to close and restart applications.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
 <link topic="scriptevents" anchor="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</link><br/>
@@ -5233,7 +5394,17 @@ SignTool=byparam format c:
 <topic name="sameappnotes" title="Same Application">
 <keyword value="Same Application" />
 <body>
-<p>"Same application" refers to two separate installations that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting), and the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>.</p>
+<p>"Same application" refers to two separate installation runs that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting), and the same <link topic="admininstallmode">administrative or non administrative install mode</link>, and the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>*. Two of such installation runs will usually lead to only one actual installation of the files.</p>
+<p>(* = This requirement does not apply to any same application information retrieved from the registry in non administrative install mode since the HKEY_CURRENT_USER key is shared between the 32-bit and 64-bit registry. It does however always apply to the uninstall log since the 32-bit and 64-bit uninstall logs are kept separate, even in non administrative install mode. In practice this means you should avoid offering both a 32-bit and a 64-bit non administrative installer to your users without giving these installers different <tt>AppId</tt>, <tt>DefaultDirName</tt>, <tt>DefaultGroupName</tt>, and <tt>UninstallDisplayName</tt> settings.)</p>
+<p><b>See also:</b><br/>
+<link topic="sidebyside">Side-by-side installation</link></p>
+</body>
+</topic>
+
+<topic name="sidebyside" title="Side-by-side installation">
+<keyword value="Side-by-side installation" />
+<body>
+<p>"Side-by-side installation" refers to two separate installation runs that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting) but not the other <link topic="sameappnotes">"Same application"</link> requirements. Two of such installation runs will usually lead to two actual installations of the files. To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will automatically mark the new entry with a text like "Current user" or "64-bit" when necessary during a side-by-side installation.</p>
 </body>
 </topic>
 
@@ -5266,9 +5437,6 @@ SignTool=byparam format c:
 <keyword value="Windows Versions" />
 <body>
 <table>
-<tr><td>5.0.2195</td><td>Windows 2000</td></tr>
-<tr><td>5.1.2600</td><td>Windows XP<br/>or Windows XP 64-Bit Edition Version 2002 (Itanium)</td></tr>
-<tr><td>5.2.3790</td><td>Windows Server 2003<br/>or Windows XP x64 Edition (AMD64/EM64T)<br/>or Windows XP 64-Bit Edition Version 2003 (Itanium)</td></tr>
 <tr><td>6.0.6000</td><td>Windows Vista</td></tr>
 <tr><td>6.0.6001</td><td>Windows Vista with Service Pack 1<br/>or Windows Server 2008</td></tr>
 <tr><td>6.1.7600</td><td>Windows 7<br/>or Windows Server 2008 R2</td></tr>
@@ -5292,11 +5460,15 @@ SignTool=byparam format c:
 <keyword value="User &amp; Group Identifiers" />
 <body>
 <table>
-<tr><td><tt>admins</tt></td><td>Built-in Administrators group</td></tr>
+<tr><td><tt>admins</tt></td><td>Administrators group</td></tr>
 <tr><td><tt>authusers</tt></td><td>Authenticated Users group</td></tr>
+<tr><td><tt>createowner</tt></td><td>Creator Owner</td></tr>
 <tr><td><tt>everyone</tt></td><td>Everyone group</td></tr>
-<tr><td><tt>system</tt></td><td>Local SYSTEM user</td></tr>
-<tr><td><tt>users</tt></td><td>Built-in Users group</td></tr>
+<tr><td><tt>guests</tt></td><td>Guests group</td></tr>
+<tr><td><tt>networkservice</tt></td><td>Network service account</td></tr>
+<tr><td><tt>service</tt></td><td>Local service account</td></tr>
+<tr><td><tt>system</tt></td><td>Local system account</td></tr>
+<tr><td><tt>users</tt></td><td>Users group</td></tr>
 </table>
 </body>
 </topic>

@@ -47,14 +47,13 @@ const
   );
 
   { CmnFunc }
-  CmnFuncTable: array [0..1] of AnsiString =
+  CmnFuncTable: array [0..0] of AnsiString =
   (
-    'function MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;',
     'function MinimizePathName(const Filename: String; const Font: TFont; MaxLen: Integer): String;'
   );
 
    { CmnFunc2 }
-  CmnFunc2Table: array [0..57] of AnsiString =
+  CmnFunc2Table: array [0..59] of AnsiString =
   (
     'function FileExists(const Name: String): Boolean;',
     'function DirExists(const Name: String): Boolean;',
@@ -107,8 +106,10 @@ const
     'function RegWriteDWordValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: Cardinal): Boolean;',
     'function RegWriteBinaryValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: AnsiString): Boolean;',
     //
-    'function IsAdminLoggedOn: Boolean;',
+    'function IsAdmin: Boolean;',
+    'function IsAdminLoggedOn: Boolean;', { old name of IsAdmin }
     'function IsPowerUserLoggedOn: Boolean;',
+    'function IsAdminInstallMode: Boolean;',
     'function FontExists(const FaceName: String): Boolean;',
     'function GetUILanguage: Integer;',
     'function AddPeriod(const S: String): String;',
@@ -179,23 +180,25 @@ const
   );
 
   { Main }
-  MainTable: array [0..24] of AnsiString =
+  MainTable: array [0..26] of AnsiString =
   (
-    'function WizardForm: TWizardForm;',
-    'function MainForm: TMainForm;',
+    'function GetWizardForm: TWizardForm;',
+    'function GetMainForm: TMainForm;',
     'function ActiveLanguage: String;',
     'function IsComponentSelected(const Components: String): Boolean;',
     'function IsTaskSelected(const Tasks: String): Boolean;',
     'function ExpandConstant(const S: String): String;',
     'function ExpandConstantEx(const S: String; const CustomConst, CustomValue: String): String;',
     'function ExitSetupMsgBox: Boolean;',
-    'function GetShellFolder(Common: Boolean; const ID: TShellFolderID): String;',
     'function GetShellFolderByCSIDL(const Folder: Integer; const Create: Boolean): String;',
     'function InstallOnThisVersion(const MinVersion, OnlyBelowVersion: String): Boolean;',
     'function GetWindowsVersion: Cardinal;',
     'procedure GetWindowsVersionEx(var Version: TWindowsVersion);',
     'function GetWindowsVersionString: String;',
+    'function MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;',
     'function SuppressibleMsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons, Default: Integer): Integer;',
+    'function TaskDialogMsgBox(const Instruction, Text: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer): Integer;',
+    'function SuppressibleTaskDialogMsgBox(const Instruction, Text: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer;'+' const Default: Integer): Integer;',
     'function IsWin64: Boolean;',
     'function Is64BitInstallMode: Boolean;',
     'function ProcessorArchitecture: TSetupProcessorArchitecture;',
@@ -304,7 +307,7 @@ const
   );
 
   { Other }
-  OtherTable: array [0..27] of AnsiString =
+  OtherTable: array [0..28] of AnsiString =
   (
     'procedure BringToFrontAndRestore;',
     'function WizardDirValue: String;',
@@ -333,7 +336,8 @@ const
     'function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function EnableFsRedirection(const Enable: Boolean): Boolean;',
-    'function UninstallProgressForm: TUninstallProgressForm;'
+    'function GetUninstallProgressForm: TUninstallProgressForm;',
+    'function CreateCallback(Method: AnyMethod): Longword;'
   );
 
 implementation

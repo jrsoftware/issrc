@@ -2,7 +2,7 @@ unit ScintEdit;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -386,12 +386,7 @@ type
 implementation
 
 uses
-  ShellAPI,
-{$IFDEF UNICODE}
-  RTLConsts;
-{$ELSE}
-  Consts;
-{$ENDIF}
+  ShellAPI, RTLConsts, UITypes;
 
 { TScintEdit }
 
@@ -600,7 +595,7 @@ procedure TScintEdit.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   CreateSubClass(Params, 'Scintilla');
-  Params.ExStyle := Params.ExStyle or WS_EX_CLIENTEDGE;
+  //Params.ExStyle := Params.ExStyle or WS_EX_CLIENTEDGE;
   Params.WindowClass.style := Params.WindowClass.style and
     not (CS_HREDRAW or CS_VREDRAW);
 end;

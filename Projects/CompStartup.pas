@@ -38,10 +38,13 @@ type
     procedure DblClick_(Sender: TObject);
     procedure OpenListBoxClick(Sender: TObject);
     procedure OKButtonClick(Sender: TObject);
+    procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+      NewDPI: Integer);
   private
     FResult: TStartupFormResult;
     FResultFileName: TFileName;
     procedure SetMRUList(const MRUList: TStringList);
+    procedure UpdateImages;
   public
     property MRUList: TStringList write SetMRUList;
     property Result: TStartupFormResult read FResult;
@@ -51,7 +54,7 @@ type
 implementation
 
 uses
-  CompMsgs, CmnFunc, CmnFunc2, CompForm;
+  CompMsgs, CmnFunc, CmnFunc2, CompForm, ComCtrls;
 
 {$R *.DFM}
 
@@ -64,11 +67,35 @@ begin
   UpdateHorizontalExtent(OpenListBox);
 end;
 
+procedure TStartupForm.UpdateImages;
+
+  function GetBitmap(const Button: TToolButton; const WH: Integer): TBitmap;
+  begin
+    Result := CompileForm.ToolBarImageCollection.GetBitmap(Button.ImageIndex, WH, WH)
+  end;
+
+var
+  WH: Integer;
+begin
+ { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
+  WH := MulDiv(16, CurrentPPI, 96);
+  NewImage.Picture.Bitmap := GetBitmap(CompileForm.NewButton, WH);
+  OpenImage.Picture.Bitmap := GetBitmap(CompileForm.OpenButton, WH);
+end;
+
+procedure TStartupForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+  NewDPI: Integer);
+begin
+  UpdateImages;
+end;
+
 procedure TStartupForm.FormCreate(Sender: TObject);
 begin
   FResult := srNone;
 
   InitFormFont(Self);
+
+  UpdateImages;
 
   OpenListBox.Items.Add(SCompilerExampleScripts);
   OpenListBox.Items.Add(SCompilerMoreFiles);

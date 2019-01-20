@@ -2,7 +2,7 @@ unit Wizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2011 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -45,6 +45,7 @@ type
     FStyle: TWizardPageStyle;
     FWizardForm: TWizardForm;
     function GetSurface: TNewNotebookPage;
+    function GetSurfaceColor: TColor;
     function GetSurfaceHeight: Integer;
     function GetSurfaceWidth: Integer;
     procedure SetCaption(const Value: String);
@@ -62,10 +63,12 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+  published
     property Caption: String read FCaption write SetCaption;
     property Description: String read FDescription write SetDescription;
     property ID: Integer read FID;
     property Surface: TNewNotebookPage read GetSurface;
+    property SurfaceColor: TColor read GetSurfaceColor;
     property SurfaceHeight: Integer read GetSurfaceHeight;
     property SurfaceWidth: Integer read GetSurfaceWidth;
     property OnActivate: TWizardPageNotifyEvent read FOnActivate write FOnActivate;
@@ -76,87 +79,87 @@ type
   end;
 
   TWizardForm = class(TSetupForm)
-    CancelButton: TNewButton;
-    NextButton: TNewButton;
-    BackButton: TNewButton;
-    OuterNotebook: TNewNotebook;
-    InnerNotebook: TNewNotebook;
-    WelcomePage: TNewNotebookPage;
-    InnerPage: TNewNotebookPage;
-    FinishedPage: TNewNotebookPage;
-    LicensePage: TNewNotebookPage;
-    PasswordPage: TNewNotebookPage;
-    InfoBeforePage: TNewNotebookPage;
-    UserInfoPage: TNewNotebookPage;
-    SelectDirPage: TNewNotebookPage;
-    SelectComponentsPage: TNewNotebookPage;
-    SelectProgramGroupPage: TNewNotebookPage;
-    SelectTasksPage: TNewNotebookPage;
-    ReadyPage: TNewNotebookPage;
-    PreparingPage: TNewNotebookPage;
-    InstallingPage: TNewNotebookPage;
-    InfoAfterPage: TNewNotebookPage;
-    DiskSpaceLabel: TNewStaticText;
-    DirEdit: TEdit;
-    GroupEdit: TNewEdit;
-    NoIconsCheck: TNewCheckBox;
-    PasswordLabel: TNewStaticText;
-    PasswordEdit: TPasswordEdit;
-    PasswordEditLabel: TNewStaticText;
-    ReadyMemo: TNewMemo;
-    TypesCombo: TNewComboBox;
-    Bevel: TBevel;
-    WizardBitmapImage: TBitmapImage;
-    WelcomeLabel1: TNewStaticText;
-    InfoBeforeMemo: TRichEditViewer;
-    InfoBeforeClickLabel: TNewStaticText;
-    MainPanel: TPanel;
-    Bevel1: TBevel;
-    PageNameLabel: TNewStaticText;
-    PageDescriptionLabel: TNewStaticText;
-    WizardSmallBitmapImage: TBitmapImage;
-    ReadyLabel: TNewStaticText;
-    FinishedLabel: TNewStaticText;
-    YesRadio: TNewRadioButton;
-    NoRadio: TNewRadioButton;
-    WizardBitmapImage2: TBitmapImage;
-    WelcomeLabel2: TNewStaticText;
-    LicenseLabel1: TNewStaticText;
-    LicenseMemo: TRichEditViewer;
-    InfoAfterMemo: TRichEditViewer;
-    InfoAfterClickLabel: TNewStaticText;
-    ComponentsList: TNewCheckListBox;
-    ComponentsDiskSpaceLabel: TNewStaticText;
-    BeveledLabel: TNewStaticText;
-    StatusLabel: TNewStaticText;
-    FilenameLabel: TNewStaticText;
-    ProgressGauge: TNewProgressBar;
-    SelectDirLabel: TNewStaticText;
-    SelectStartMenuFolderLabel: TNewStaticText;
-    SelectComponentsLabel: TNewStaticText;
-    SelectTasksLabel: TNewStaticText;
-    LicenseAcceptedRadio: TNewRadioButton;
-    LicenseNotAcceptedRadio: TNewRadioButton;
-    UserInfoNameLabel: TNewStaticText;
-    UserInfoNameEdit: TNewEdit;
-    UserInfoOrgLabel: TNewStaticText;
-    UserInfoOrgEdit: TNewEdit;
-    PreparingErrorBitmapImage: TBitmapImage;
-    PreparingLabel: TNewStaticText;
-    FinishedHeadingLabel: TNewStaticText;
-    UserInfoSerialLabel: TNewStaticText;
-    UserInfoSerialEdit: TNewEdit;
-    TasksList: TNewCheckListBox;
-    RunList: TNewCheckListBox;
-    DirBrowseButton: TNewButton;
-    GroupBrowseButton: TNewButton;
-    SelectDirBitmapImage: TBitmapImage;
-    SelectGroupBitmapImage: TBitmapImage;
-    SelectDirBrowseLabel: TNewStaticText;
-    SelectStartMenuFolderBrowseLabel: TNewStaticText;
-    PreparingYesRadio: TNewRadioButton;
-    PreparingNoRadio: TNewRadioButton;
-    PreparingMemo: TNewMemo;
+    FCancelButton: TNewButton;
+    FNextButton: TNewButton;
+    FBackButton: TNewButton;
+    FOuterNotebook: TNewNotebook;
+    FInnerNotebook: TNewNotebook;
+    FWelcomePage: TNewNotebookPage;
+    FInnerPage: TNewNotebookPage;
+    FFinishedPage: TNewNotebookPage;
+    FLicensePage: TNewNotebookPage;
+    FPasswordPage: TNewNotebookPage;
+    FInfoBeforePage: TNewNotebookPage;
+    FUserInfoPage: TNewNotebookPage;
+    FSelectDirPage: TNewNotebookPage;
+    FSelectComponentsPage: TNewNotebookPage;
+    FSelectProgramGroupPage: TNewNotebookPage;
+    FSelectTasksPage: TNewNotebookPage;
+    FReadyPage: TNewNotebookPage;
+    FPreparingPage: TNewNotebookPage;
+    FInstallingPage: TNewNotebookPage;
+    FInfoAfterPage: TNewNotebookPage;
+    FDiskSpaceLabel: TNewStaticText;
+    FDirEdit: TEdit;
+    FGroupEdit: TNewEdit;
+    FNoIconsCheck: TNewCheckBox;
+    FPasswordLabel: TNewStaticText;
+    FPasswordEdit: TPasswordEdit;
+    FPasswordEditLabel: TNewStaticText;
+    FReadyMemo: TNewMemo;
+    FTypesCombo: TNewComboBox;
+    FBevel: TBevel;
+    FWizardBitmapImage: TBitmapImage;
+    FWelcomeLabel1: TNewStaticText;
+    FInfoBeforeMemo: TRichEditViewer;
+    FInfoBeforeClickLabel: TNewStaticText;
+    FMainPanel: TPanel;
+    FBevel1: TBevel;
+    FPageNameLabel: TNewStaticText;
+    FPageDescriptionLabel: TNewStaticText;
+    FWizardSmallBitmapImage: TBitmapImage;
+    FReadyLabel: TNewStaticText;
+    FFinishedLabel: TNewStaticText;
+    FYesRadio: TNewRadioButton;
+    FNoRadio: TNewRadioButton;
+    FWizardBitmapImage2: TBitmapImage;
+    FWelcomeLabel2: TNewStaticText;
+    FLicenseLabel1: TNewStaticText;
+    FLicenseMemo: TRichEditViewer;
+    FInfoAfterMemo: TRichEditViewer;
+    FInfoAfterClickLabel: TNewStaticText;
+    FComponentsList: TNewCheckListBox;
+    FComponentsDiskSpaceLabel: TNewStaticText;
+    FBeveledLabel: TNewStaticText;
+    FStatusLabel: TNewStaticText;
+    FFilenameLabel: TNewStaticText;
+    FProgressGauge: TNewProgressBar;
+    FSelectDirLabel: TNewStaticText;
+    FSelectStartMenuFolderLabel: TNewStaticText;
+    FSelectComponentsLabel: TNewStaticText;
+    FSelectTasksLabel: TNewStaticText;
+    FLicenseAcceptedRadio: TNewRadioButton;
+    FLicenseNotAcceptedRadio: TNewRadioButton;
+    FUserInfoNameLabel: TNewStaticText;
+    FUserInfoNameEdit: TNewEdit;
+    FUserInfoOrgLabel: TNewStaticText;
+    FUserInfoOrgEdit: TNewEdit;
+    FPreparingErrorBitmapImage: TBitmapImage;
+    FPreparingLabel: TNewStaticText;
+    FFinishedHeadingLabel: TNewStaticText;
+    FUserInfoSerialLabel: TNewStaticText;
+    FUserInfoSerialEdit: TNewEdit;
+    FTasksList: TNewCheckListBox;
+    FRunList: TNewCheckListBox;
+    FDirBrowseButton: TNewButton;
+    FGroupBrowseButton: TNewButton;
+    FSelectDirBitmapImage: TBitmapImage;
+    FSelectGroupBitmapImage: TBitmapImage;
+    FSelectDirBrowseLabel: TNewStaticText;
+    FSelectStartMenuFolderBrowseLabel: TNewStaticText;
+    FPreparingYesRadio: TNewRadioButton;
+    FPreparingNoRadio: TNewRadioButton;
+    FPreparingMemo: TNewMemo;
     procedure NextButtonClick(Sender: TObject);
     procedure BackButtonClick(Sender: TObject);
     procedure CancelButtonClick(Sender: TObject);
@@ -169,12 +172,13 @@ type
     procedure UserInfoEditChange(Sender: TObject);
     procedure DirBrowseButtonClick(Sender: TObject);
     procedure GroupBrowseButtonClick(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
     { Private declarations }
     FPageList: TList;
-    FNextPageID: Integer;
+    FCurPageID, FNextPageID: Integer;
     ExpandedDefaultDirName, ExpandedDefaultGroupName: String;
-    PrevGroup, PrevSetupType, PrevUserInfoName, PrevUserInfoOrg, PrevUserInfoSerial: String;
+    FPrevAppDir, PrevGroup, PrevSetupType, PrevUserInfoName, PrevUserInfoOrg, PrevUserInfoSerial: String;
     PrevNoIcons: Boolean;
     PrevSelectedComponents, PrevDeselectedComponents: TStringList;
     PrevSelectedTasks, PrevDeselectedTasks: TStringList;
@@ -184,6 +188,7 @@ type
     HasLargeComponents: Boolean;
     DoneWithWizard: Boolean;
     PrepareToInstallNeedsRestart: Boolean;
+    EnableAnchorOuterPagesOnResize: Boolean;
     procedure AdjustFocus;
     procedure CalcCurrentComponentsSpace;
     procedure ChangeReadyLabel(const S: String);
@@ -208,9 +213,7 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
   public
     { Public declarations }
-    CurPageID: Integer;
     PrepareToInstallFailureMessage: String;
-    PrevAppDir: String;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AddPage(const APage: TWizardPage; const AfterID: Integer);
@@ -231,9 +234,95 @@ type
     function PageIndexFromID(const ID: Integer): Integer;
     procedure UpdateCurPageButtonVisibility;
     procedure SetCurPage(const NewPageID: Integer);
+    procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+      const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean); override;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
     function ValidateGroupEdit: Boolean;
+  published
+    property CurPageID: Integer read FCurPageID;
+    property PrevAppDir: String read FPrevAppDir;
+    property CancelButton: TNewButton read FCancelButton;
+    property NextButton: TNewButton read FNextButton;
+    property BackButton: TNewButton read FBackButton;
+    property OuterNotebook: TNewNotebook read FOuterNotebook;
+    property InnerNotebook: TNewNotebook read FInnerNotebook;
+    property WelcomePage: TNewNotebookPage read FWelcomePage;
+    property InnerPage: TNewNotebookPage read FInnerPage;
+    property FinishedPage: TNewNotebookPage read FFinishedPage;
+    property LicensePage: TNewNotebookPage read FLicensePage;
+    property PasswordPage: TNewNotebookPage read FPasswordPage;
+    property InfoBeforePage: TNewNotebookPage read FInfoBeforePage;
+    property UserInfoPage: TNewNotebookPage read FUserInfoPage;
+    property SelectDirPage: TNewNotebookPage read FSelectDirPage;
+    property SelectComponentsPage: TNewNotebookPage read FSelectComponentsPage;
+    property SelectProgramGroupPage: TNewNotebookPage read FSelectProgramGroupPage;
+    property SelectTasksPage: TNewNotebookPage read FSelectTasksPage;
+    property ReadyPage: TNewNotebookPage read FReadyPage;
+    property PreparingPage: TNewNotebookPage read FPreparingPage;
+    property InstallingPage: TNewNotebookPage read FInstallingPage;
+    property InfoAfterPage: TNewNotebookPage read FInfoBeforePage;
+    property DiskSpaceLabel: TNewStaticText read FDiskSpaceLabel;
+    property DirEdit: TEdit read FDirEdit;
+    property GroupEdit: TNewEdit read FGroupEdit;
+    property NoIconsCheck: TNewCheckBox read FNoIconsCheck;
+    property PasswordLabel: TNewStaticText read FPasswordLabel;
+    property PasswordEdit: TPasswordEdit read FPasswordEdit;
+    property PasswordEditLabel: TNewStaticText read FPasswordEditLabel;
+    property ReadyMemo: TNewMemo read FReadyMemo;
+    property TypesCombo: TNewComboBox read FTypesCombo;
+    property Bevel: TBevel read FBevel;
+    property WizardBitmapImage: TBitmapImage read FWizardBitmapImage;
+    property WelcomeLabel1: TNewStaticText read FWelcomeLabel1;
+    property InfoBeforeMemo: TRichEditViewer read FInfoBeforeMemo;
+    property InfoBeforeClickLabel: TNewStaticText read FInfoBeforeClickLabel;
+    property MainPanel: TPanel read FMainPanel;
+    property Bevel1: TBevel read FBevel1;
+    property PageNameLabel: TNewStaticText read FPageNameLabel;
+    property PageDescriptionLabel: TNewStaticText read FPageDescriptionLabel;
+    property WizardSmallBitmapImage: TBitmapImage read FWizardSmallBitmapImage;
+    property ReadyLabel: TNewStaticText read FReadyLabel;
+    property FinishedLabel: TNewStaticText read FFinishedLabel;
+    property YesRadio: TNewRadioButton read FYesRadio;
+    property NoRadio: TNewRadioButton read FNoRadio;
+    property WizardBitmapImage2: TBitmapImage read FWizardBitmapImage2;
+    property WelcomeLabel2: TNewStaticText read FWelcomeLabel2;
+    property LicenseLabel1: TNewStaticText read FLicenseLabel1;
+    property LicenseMemo: TRichEditViewer read FLicenseMemo;
+    property InfoAfterMemo: TRichEditViewer read FInfoAfterMemo;
+    property InfoAfterClickLabel: TNewStaticText read FInfoAfterClickLabel;
+    property ComponentsList: TNewCheckListBox read FComponentsList;
+    property ComponentsDiskSpaceLabel: TNewStaticText read FComponentsDiskSpaceLabel;
+    property BeveledLabel: TNewStaticText read FBeveledLabel;
+    property StatusLabel: TNewStaticText read FStatusLabel;
+    property FilenameLabel: TNewStaticText read FFileNameLabel;
+    property ProgressGauge: TNewProgressBar read FProgressGauge;
+    property SelectDirLabel: TNewStaticText read FSelectDirLabel;
+    property SelectStartMenuFolderLabel: TNewStaticText read FSelectStartMenuFolderLabel;
+    property SelectComponentsLabel: TNewStaticText read FSelectComponentsLabel;
+    property SelectTasksLabel: TNewStaticText read FSelectTasksLabel;
+    property LicenseAcceptedRadio: TNewRadioButton read FLicenseAcceptedRadio;
+    property LicenseNotAcceptedRadio: TNewRadioButton read FLicenseNotAcceptedRadio;
+    property UserInfoNameLabel: TNewStaticText read FUserInfoNameLabel;
+    property UserInfoNameEdit: TNewEdit read FUserInfoNameEdit;
+    property UserInfoOrgLabel: TNewStaticText read FUserInfoOrgLabel;
+    property UserInfoOrgEdit: TNewEdit read FUserInfoOrgEdit;
+    property PreparingErrorBitmapImage: TBitmapImage read FPreparingErrorBitmapImage;
+    property PreparingLabel: TNewStaticText read FPreparingLabel;
+    property FinishedHeadingLabel: TNewStaticText read FFinishedHeadingLabel;
+    property UserInfoSerialLabel: TNewStaticText read FUserInfoSerialLabel;
+    property UserInfoSerialEdit: TNewEdit read FUserInfoSerialEdit;
+    property TasksList: TNewCheckListBox read FTasksList;
+    property RunList: TNewCheckListBox read FRunList;
+    property DirBrowseButton: TNewButton read FDirBrowseButton;
+    property GroupBrowseButton: TNewButton read FGroupBrowseButton;
+    property SelectDirBitmapImage: TBitmapImage read FSelectDirBitmapImage;
+    property SelectGroupBitmapImage: TBitmapImage read FSelectGroupBitmapImage;
+    property SelectDirBrowseLabel: TNewStaticText read FSelectDirBrowseLabel;
+    property SelectStartMenuFolderBrowseLabel: TNewStaticText read FSelectStartMenuFolderBrowseLabel;
+    property PreparingYesRadio: TNewRadioButton read FPreparingYesRadio;
+    property PreparingNoRadio: TNewRadioButton read FPreparingNoRadio;
+    property PreparingMemo: TNewMemo read FPreparingMemo;
   end;
 
 var
@@ -249,8 +338,8 @@ function ValidateCustomDirEdit(const AEdit: TEdit;
 implementation
 
 uses
-  ShellApi, ShlObj, Msgs, Main, PathFunc, CmnFunc, CmnFunc2,
-  MD5, InstFunc, SelFolderForm, Extract, Logging, RestartManager;
+  ShellApi, ShlObj, Types, Msgs, Main, PathFunc, CmnFunc, CmnFunc2,
+  MD5, InstFunc, SelFolderForm, Extract, Logging, RestartManager, ScriptRunner;
 
 {$R *.DFM}
 
@@ -431,7 +520,7 @@ begin
     WizardUserInfoName := UserInfoNameEdit.Text;
     WizardUserInfoOrg := UserInfoOrgEdit.Text;
     WizardUserInfoSerial := UserInfoSerialEdit.Text;
-    Result := CodeRunner.RunBooleanFunction('CheckSerial', [UserInfoSerialEdit.Text], True, False)
+    Result := CodeRunner.RunBooleanFunctions('CheckSerial', [UserInfoSerialEdit.Text], bcTrue, True, False)
   end else
     Result := True;
 end;
@@ -562,6 +651,11 @@ begin
     Result := FOuterNotebookPage;
 end;
 
+function TWizardPage.GetSurfaceColor: TColor;
+begin
+  Result := TNewNotebook(Surface.Parent).Color;
+end;
+
 function TWizardPage.GetSurfaceHeight: Integer;
 begin
   Result := Surface.Parent.Height;
@@ -601,14 +695,14 @@ constructor TWizardForm.Create(AOwner: TComponent);
 
   procedure LoadSelectDirAndGroupImages;
 
-    procedure IconToBitmapImage(const AIcon: HICON; const Ctl: TBitmapImage);
+    procedure IconToBitmapImage(const AIcon: HICON; const Ctl: TBitmapImage; const BkColor: TColor);
     begin
       if AIcon <> 0 then begin
         try
           with Ctl.Bitmap do begin
             Width := 32;
             Height := 32;
-            Canvas.Brush.Color := clBtnFace;
+            Canvas.Brush.Color := BkColor;
             Canvas.FillRect(Rect(0, 0, 32, 32));
             DrawIconEx(Canvas.Handle, 0, 0, AIcon, 32, 32, 0, 0, DI_NORMAL);
           end;
@@ -639,24 +733,24 @@ constructor TWizardForm.Create(AOwner: TComponent);
           SizeOf(FileInfo), SHGFI_USEFILEATTRIBUTES or SHGFI_ICONLOCATION) <> 0) and
          (FileInfo.szDisplayName[0] <> #0) then
         IconToBitmapImage(ExtractIcon(HInstance, FileInfo.szDisplayName,
-          FileInfo.iIcon), SelectDirBitmapImage);
+          FileInfo.iIcon), SelectDirBitmapImage, SelectDirPage.Color);
 
       if WindowsVersionAtLeast(6, 0) then begin
         { On Windows Vista and 7, use the "Taskbar and Start Menu Properties"
           icon as there is no longer a separate icon for Start Menu folders }
         IconToBitmapImage(ExtractIcon(HInstance,
           PChar(AddBackslash(WinSystemDir) + 'shell32.dll'), 39),
-          SelectGroupBitmapImage);
+          SelectGroupBitmapImage, SelectProgramGroupPage.Color);
       end
       else begin
-        Path := GetRealShellFolder(False, sfPrograms, False);
+        Path := GetShellFolder(False, sfPrograms, False);
         if Path = '' then
-          Path := GetRealShellFolder(True, sfPrograms, False);
+          Path := GetShellFolder(True, sfPrograms, False);
         if Path <> '' then begin
           if (SHGetFileInfo(PChar(Path), 0, FileInfo, SizeOf(FileInfo),
               SHGFI_ICONLOCATION) <> 0) and (FileInfo.szDisplayName[0] <> #0) then
             IconToBitmapImage(ExtractIcon(HInstance, FileInfo.szDisplayName,
-              FileInfo.iIcon), SelectGroupBitmapImage);
+              FileInfo.iIcon), SelectGroupBitmapImage, SelectProgramGroupPage.Color);
         end;
       end;
     except
@@ -719,11 +813,18 @@ begin
       WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
     end;
   end;
+
+  { Not sure why the following is needed but various things related to
+    positioning and anchoring don't work without this (you get positions of
+    page controls back as if there was no anchoring until the page handle
+    is automatically created. Cause might be related to the comment in
+    TNewNotebook.AlignControls. }
+  for I := 0 to OuterNotebook.PageCount-1 do
+    OuterNotebook.Pages[I].HandleNeeded;
+  for I := 0 to InnerNotebook.PageCount-1 do
+    InnerNotebook.Pages[I].HandleNeeded;
+
   InitializeFont;
-  if shWindowVisible in SetupHeader.Options then
-    CenterInsideControl(MainForm, True)
-  else
-    Center;
   SetFontNameSize(WelcomeLabel1.Font, LangOptions.WelcomeFontName,
     LangOptions.WelcomeFontSize, '', 12);
   WelcomeLabel1.Font.Style := [fsBold];
@@ -736,16 +837,33 @@ begin
   else
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
 
-  { Give it a minimize button if main window isn't visible }
-  if not(shWindowVisible in SetupHeader.Options) then begin
+  { Set BorderStyle and BorderIcons:
+    -WindowVisible + WizardResizable = sizeable + maximize
+    -not WindowVisible + WizardResizable = sizeable + maximize + minimize
+    -WindowVisible + not WizardResizable = dialog (.dfm default)
+    -not WindowVisible + not WizardResizable = single + minimize }
+  if not(shWindowVisible in SetupHeader.Options) or
+     (shWizardResizable in SetupHeader.Options) then begin
     { Save ClientWidth/ClientHeight and restore them after changing
-      BorderStyle. Needed for NT 3.x. }
+      BorderStyle. }
     SaveClientWidth := ClientWidth;
     SaveClientHeight := ClientHeight;
-    BorderIcons := BorderIcons + [biMinimize];
-    BorderStyle := bsSingle;
+    if not(shWindowVisible in SetupHeader.Options) then
+      BorderIcons := BorderIcons + [biMinimize];
+    if not(shWizardResizable in SetupHeader.Options) then
+      BorderStyle := bsSingle
+    else begin
+      BorderIcons := BorderIcons + [biMaximize];
+      BorderStyle := bsSizeable;
+    end;
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
+    if shWizardResizable in SetupHeader.Options then begin
+      EnableAnchorOuterPagesOnResize := True;
+      { Do not allow user to resize it smaller than the current size. }
+      Constraints.MinHeight := Height;
+      Constraints.MinWidth := Width;
+    end;
   end;
 
   { Position the buttons, and scale their size }
@@ -764,6 +882,12 @@ begin
   Dec(X, W1);
   BackButton.Left := X;
 
+  { Initialize wizard style }
+  if SetupHeader.WizardStyle = wsModern then begin
+    OuterNotebook.Color := clWindow;
+    Bevel1.Visible := False;
+  end;
+
   { Initialize images }
   WizardBitmapImage.Bitmap := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
   WizardBitmapImage.Center := True;
@@ -774,8 +898,8 @@ begin
   WizardSmallBitmapImage.Bitmap := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   PreparingErrorBitmapImage.Bitmap.Handle := LoadBitmap(HInstance, 'STOPIMAGE');
-  PreparingErrorBitmapImage.ReplaceColor := clSilver;
-  PreparingErrorBitmapImage.ReplaceWithColor := Color;
+  PreparingErrorBitmapImage.ReplaceColor := RGB(255, 0, 255);
+  PreparingErrorBitmapImage.ReplaceWithColor := PreparingPage.Color;
   LoadSelectDirAndGroupImages;
 
   { Initialize wpWelcome page }
@@ -1140,6 +1264,58 @@ begin
     NoIconsCheck.Visible := False;
 end;
 
+procedure TWizardForm.FormResize(Sender: TObject);
+
+  procedure AnchorOuterPage(const Page: TNewNotebookPage;
+    const BitmapImage: TBitmapImage);
+  var
+    ExpectedAnchors: TAnchors;
+    Ctl: TControl;
+    I, NewLeft, NewWidth: Integer;
+  begin
+    { BitmapImage's size is already corrected by the Anchors property but this
+      doesn't keep the aspect ratio. Calculate and set new width to restore the
+      aspect ratio and update all the other controls in the page for this. Don't
+      do this if [Code] made any change to BitmapImage's Align or Anchors
+      signalling that it wants a custom layout. }
+    if ControlsFlipped then
+      ExpectedAnchors := [akTop, akRight, akBottom]
+    else
+      ExpectedAnchors := [akLeft, akTop, akBottom];
+    if (BitmapImage.Align = alNone) and (BitmapImage.Anchors = ExpectedAnchors) then begin
+      if BaseUnitX = 0 then
+        InternalError('AnchorOuterPage: BaseUnitX = 0');
+      NewWidth := MulDiv(BitmapImage.Height, ScalePixelsX(164), ScalePixelsY(314)); //164x314 is the original bitmapimage size
+      if ControlsFlipped then
+        BitmapImage.Left := ClientWidth - NewWidth;
+      BitmapImage.Width := NewWidth;
+      for I := 0 to Page.ControlCount-1 do begin
+        Ctl := Page.Controls[I];
+        if Ctl <> BitmapImage then begin
+          NewLeft := BitmapImage.Width + ScalePixelsX(12); //12 is original space between bitmapimage and controls
+          Ctl.Width := ClientWidth - ScalePixelsX(20) - NewLeft; //20 is original space between controls and right border
+          if not ControlsFlipped then
+            Ctl.Left := NewLeft;
+        end;
+      end;
+    end;
+  end;
+
+begin
+  if EnableAnchorOuterPagesOnResize then begin
+    AnchorOuterPage(WelcomePage, WizardBitmapImage);
+    AnchorOuterPage(FinishedPage, WizardBitmapImage2);
+  end;
+end;
+
+procedure TWizardForm.FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+  const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
+begin
+  if ShouldSizeX or ShouldSizeY then
+    EnableAnchorOuterPagesOnResize := True;
+  inherited;
+end;
+
 destructor TWizardForm.Destroy;
 begin
   FreeAndNil(PrevDeselectedComponents);
@@ -1216,6 +1392,7 @@ begin
 
   NotebookPage := TNewNotebookPage.Create(APage);
   NotebookPage.Notebook := InnerNotebook;
+  NotebookPage.HandleNeeded; { See TWizardForm.Create comment }
   APage.FID := FNextPageID;
   APage.FOuterNotebookPage := InnerPage;
   APage.FInnerNotebookPage := NotebookPage;
@@ -1225,55 +1402,46 @@ end;
 
 { Also see GetPreviousData in Main.pas }
 procedure TWizardForm.FindPreviousData;
-const
-  RootKeys: array[0..1] of HKEY = (HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE);
 var
-  I: Integer;
   H: HKEY;
-  S, ExpandedAppId, UninstallRegKeyBaseName: String;
+  S, ExpandedAppId: String;
 begin
   ExpandedAppId := ExpandConst(SetupHeader.AppId);
   if ExpandedAppId <> '' then begin
-    { First look in HKEY_CURRENT_USER. That's where Inno Setup creates
-      the uninstall key for non-administrators. If the key doesn't exist
-      under HKEY_CURRENT_USER, check HKEY_LOCAL_MACHINE. }
-    UninstallRegKeyBaseName := GetUninstallRegKeyBaseName(ExpandedAppId);
-    for I := 0 to 1 do
-      if RegOpenKeyExView(InstallDefaultRegView, RootKeys[I],
-         PChar(Format('%s\%s_is1', [NEWREGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName])),
-         0, KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
-        try
-          { do not localize or change the following strings }
-          if shUsePreviousAppDir in SetupHeader.Options then
-            RegQueryStringValue(H, 'Inno Setup: App Path', PrevAppDir);
-          if shUsePreviousGroup in SetupHeader.Options then begin
-            RegQueryStringValue(H, 'Inno Setup: Icon Group', PrevGroup);
-            if RegValueExists(H, 'Inno Setup: No Icons') then
-              PrevNoIcons := True;
-          end;
-          if shUsePreviousSetupType in SetupHeader.Options then begin
-            RegQueryStringValue(H, 'Inno Setup: Setup Type', PrevSetupType);
-            if RegQueryStringValue(H, 'Inno Setup: Selected Components', S) then
-              SetStringsFromCommaString(PrevSelectedComponents, S);
-            if RegQueryStringValue(H, 'Inno Setup: Deselected Components', S) then
-              SetStringsFromCommaString(PrevDeselectedComponents, S);
-          end;
-          if shUsePreviousTasks in SetupHeader.Options then begin
-            if RegQueryStringValue(H, 'Inno Setup: Selected Tasks', S) then
-              SetStringsFromCommaString(PrevSelectedTasks, S);
-            if RegQueryStringValue(H, 'Inno Setup: Deselected Tasks', S) then
-              SetStringsFromCommaString(PrevDeselectedTasks, S);
-          end;
-          if shUsePreviousUserInfo in SetupHeader.Options then begin
-            RegQueryStringValue(H, 'Inno Setup: User Info: Name', PrevUserInfoName);
-            RegQueryStringValue(H, 'Inno Setup: User Info: Organization', PrevUserInfoOrg);
-            RegQueryStringValue(H, 'Inno Setup: User Info: Serial', PrevUserInfoSerial);
-          end;
-        finally
-          RegCloseKey(H);
+    if RegOpenKeyExView(InstallDefaultRegView, InstallModeRootKey,
+       PChar(GetUninstallRegSubkeyName(GetUninstallRegKeyBaseName(ExpandedAppId))),
+       0, KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
+      try
+        { do not localize or change the following strings }
+        if shUsePreviousAppDir in SetupHeader.Options then
+          RegQueryStringValue(H, 'Inno Setup: App Path', FPrevAppDir);
+        if shUsePreviousGroup in SetupHeader.Options then begin
+          RegQueryStringValue(H, 'Inno Setup: Icon Group', PrevGroup);
+          if RegValueExists(H, 'Inno Setup: No Icons') then
+            PrevNoIcons := True;
         end;
-        Break;
+        if shUsePreviousSetupType in SetupHeader.Options then begin
+          RegQueryStringValue(H, 'Inno Setup: Setup Type', PrevSetupType);
+          if RegQueryStringValue(H, 'Inno Setup: Selected Components', S) then
+            SetStringsFromCommaString(PrevSelectedComponents, S);
+          if RegQueryStringValue(H, 'Inno Setup: Deselected Components', S) then
+            SetStringsFromCommaString(PrevDeselectedComponents, S);
+        end;
+        if shUsePreviousTasks in SetupHeader.Options then begin
+          if RegQueryStringValue(H, 'Inno Setup: Selected Tasks', S) then
+            SetStringsFromCommaString(PrevSelectedTasks, S);
+          if RegQueryStringValue(H, 'Inno Setup: Deselected Tasks', S) then
+            SetStringsFromCommaString(PrevDeselectedTasks, S);
+        end;
+        if shUsePreviousUserInfo in SetupHeader.Options then begin
+          RegQueryStringValue(H, 'Inno Setup: User Info: Name', PrevUserInfoName);
+          RegQueryStringValue(H, 'Inno Setup: User Info: Organization', PrevUserInfoOrg);
+          RegQueryStringValue(H, 'Inno Setup: User Info: Serial', PrevUserInfoSerial);
+        end;
+      finally
+        RegCloseKey(H);
       end;
+    end;
   end;
 end;
 
@@ -1642,7 +1810,7 @@ begin
   if not PreviousInstallCompleted(WizardComponents, WizardTasks) then begin
     Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
     PrepareToInstallNeedsRestart := True;
-  end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall') then begin
+  end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', True) then begin
     SetCurPage(wpPreparing);
     BackButton.Visible := False;
     NextButton.Visible := False;
@@ -1654,7 +1822,7 @@ begin
     WindowDisabler := TWindowDisabler.Create;
     try
       CodeNeedsRestart := False;
-      Result := CodeRunner.RunStringFunction('PrepareToInstall', [@CodeNeedsRestart], True, '');
+      Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
       PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
     finally
       WindowDisabler.Free;
@@ -1846,11 +2014,11 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
         MemoTasksInfo := '';
       SelectedTasks.Free();
 
-      if (CodeRunner <> nil) and CodeRunner.FunctionExists('UpdateReadyMemo') then begin
+      if (CodeRunner <> nil) and CodeRunner.FunctionExists('UpdateReadyMemo', True) then begin
         try
-          ReadyMemo.Lines.Text := CodeRunner.RunStringFunction('UpdateReadyMemo',
+          ReadyMemo.Lines.Text := CodeRunner.RunStringFunctions('UpdateReadyMemo',
             [Space, SNewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo,
-             MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo], True, '');
+             MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo], bcNonEmpty, True, '');
         except
           Application.HandleException(Self);
         end;
@@ -1961,7 +2129,7 @@ var
   Page: TWizardPage;
 begin
   Page := PageFromID(NewPageID);
-  CurPageID := NewPageID;
+  FCurPageID := NewPageID;
 
   { Select the page in the notebooks }
   if Assigned(Page.InnerNotebookPage) then
@@ -2012,7 +2180,7 @@ begin
 
   try
     if CodeRunner <> nil then
-      CodeRunner.RunProcedure('CurPageChanged', [CurPageID], False);
+      CodeRunner.RunProcedures('CurPageChanged', [CurPageID], False);
   except
     Application.HandleException(Self);
   end;
@@ -2051,7 +2219,7 @@ begin
     if not Result then begin
       try
         if CodeRunner <> nil then
-          Result := CodeRunner.RunBooleanFunction('ShouldSkipPage', [PageID], False, Result);
+          Result := CodeRunner.RunBooleanFunctions('ShouldSkipPage', [PageID], bcTrue, False, Result);
       except
         Application.HandleException(Self);
       end;
@@ -2072,7 +2240,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     if shPassword in SetupHeader.Options then
       Result := TestPassword(S);
     if not Result and (CodeRunner <> nil) then
-      Result := CodeRunner.RunBooleanFunction('CheckPassword', [S], False, Result);
+      Result := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, Result);
 
     if Result then begin
       NeedPassword := False;
@@ -2237,7 +2405,7 @@ begin
     Exit;
 
   if CodeRunner <> nil then
-    if CodeRunner.RunBooleanFunction('NextButtonClick', [CurPageID], False, True) = False then
+    if CodeRunner.RunBooleanFunctions( 'NextButtonClick', [CurPageID], bcFalse, False, True) = False then
       Exit;
 
   { Go to the next page, or close wizard if it was on the last page }
@@ -2337,7 +2505,7 @@ begin
     Exit;
 
   if CodeRunner <> nil then
-    if CodeRunner.RunBooleanFunction('BackButtonClick', [CurPageID], False, True) = False then
+    if CodeRunner.RunBooleanFunctions('BackButtonClick', [CurPageID], bcFalse, False, True) = False then
       Exit;
 
   PrevPageID := GetPreviousPageID;
@@ -2358,7 +2526,7 @@ begin
     Exit;
 
   if CodeRunner <> nil then
-    CodeRunner.RunProcedure('CancelButtonClick', [CurPageID, @ACancel,
+    CodeRunner.RunProcedures('CancelButtonClick', [CurPageID, @ACancel,
       @AConfirm], False);
 end;
 

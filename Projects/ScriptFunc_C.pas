@@ -2,7 +2,7 @@ unit ScriptFunc_C;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,23 +12,25 @@ unit ScriptFunc_C;
 interface
 
 uses
-  uPSCompiler, uPSUtils;
+  Generics.Collections, uPSCompiler, uPSUtils;
 
-procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler);
+procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
+  ObsoleteFunctionWarnings: TDictionary<String, String>);
 
 implementation
 
 uses
   Windows, SysUtils, TypInfo,
   CmnFunc2, MsgIDs, Struct,
-  SetupTypes, ScriptFunc;
+  SetupTypes, ScriptFunc, CompMsgs;
 
 { This type copied from CmnFunc.pas. We don't actually 'use' CmnFunc since
   it would cause VCL units to be linked in. }
 type
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 
-procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler);
+procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
+  ObsoleteFunctionWarnings: TDictionary<String, String>);
 
   procedure RegisterType(const Name, Value: tbtstring);
   begin
@@ -144,6 +146,7 @@ begin
   RegisterFunctionTable(BrowseFuncTable);
   RegisterFunctionTable(CmnFuncTable);
   RegisterFunctionTable(CmnFunc2Table);
+  ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));
   RegisterFunctionTable(InstallTable);
   RegisterFunctionTable(InstFuncTable);
   RegisterFunctionTable(InstFnc2Table);
@@ -199,6 +202,9 @@ begin
 
   RegisterConst('HWND_BROADCAST', HWND_BROADCAST);
 
+  RegisterConst('HKEY_AUTO', LongInt(HKEY_AUTO));
+  RegisterConst('HKEY_AUTO_32', LongInt(HKEY_AUTO or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_AUTO_64', LongInt(HKEY_AUTO or CodeRootKeyFlag64Bit));
   RegisterConst('HKEY_CLASSES_ROOT', LongInt(HKEY_CLASSES_ROOT));
   RegisterConst('HKEY_CLASSES_ROOT_32', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag32Bit));
   RegisterConst('HKEY_CLASSES_ROOT_64', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag64Bit));
@@ -217,6 +223,9 @@ begin
   RegisterConst('HKEY_CURRENT_CONFIG_64', LongInt(HKEY_CURRENT_CONFIG or CodeRootKeyFlag64Bit));
   RegisterConst('HKEY_DYN_DATA', LongInt(HKEY_DYN_DATA));
 
+  RegisterConst('HKA', LongInt(HKEY_AUTO));
+  RegisterConst('HKA32', LongInt(HKEY_AUTO or CodeRootKeyFlag32Bit));
+  RegisterConst('HKA64', LongInt(HKEY_AUTO or CodeRootKeyFlag64Bit));
   RegisterConst('HKCR', LongInt(HKEY_CLASSES_ROOT));
   RegisterConst('HKCR32', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag32Bit));
   RegisterConst('HKCR64', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag64Bit));

@@ -1,12 +1,13 @@
 ﻿; -- UnicodeExample1.iss --
-; Demonstrates some Unicode functionality. Requires Unicode Inno Setup.
+; Demonstrates some Unicode functionality.
 ;
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
 [Setup]
 AppName=ɯɐɹƃoɹd ʎɯ
 AppVerName=ɯɐɹƃoɹd ʎɯ version 1.5
-DefaultDirName={pf}\ɯɐɹƃoɹd ʎɯ
+WizardStyle=modern
+DefaultDirName={autopf}\ɯɐɹƃoɹd ʎɯ
 DefaultGroupName=ɯɐɹƃoɹd ʎɯ
 UninstallDisplayIcon={app}\ƃoɹdʎɯ.exe
 Compression=lzma2

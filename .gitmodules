@@ -1,6 +1,3 @@
-[submodule "Components/Ps"]
-	path = Components/Ps
-	url = https://github.com/martijnlaan/Ps.git
 [submodule "Components/UniPs"]
 	path = Components/UniPs
 	url = https://github.com/remobjects/pascalscript.git
