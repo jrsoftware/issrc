@@ -2,7 +2,7 @@ unit Struct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -17,7 +17,7 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.0.0-dev '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
+  SetupVersion = '6.0.0-beta '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
   SetupBinVersion = (6 shl 24) + (0 shl 16) + (0 shl 8) + 0;
 
 type
