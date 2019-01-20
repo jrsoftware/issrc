@@ -271,6 +271,26 @@ end;</pre></example>
         <seealso><p><link topic="setup_closeapplications">CloseApplications</link></p></seealso>
       </function>
     </subcategory>
+    <subcategory>
+      <function>
+        <name>GetWizardForm</name>
+        <prototype>function GetWizardForm: TWizardForm;</prototype>
+        <description><p>Returns the <tt>WizardForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
+        <seealso><p><link topic="scriptclasses" anchor="WizardForm">WizardForm</link></p></seealso>
+      </function>
+      <function>
+        <name>GetUninstallProgressForm</name>
+        <prototype>function GetUninstallProgressForm: TUninstallProgressForm;</prototype>
+        <description><p>Returns the <tt>UninstallProgressForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
+        <seealso><p><link topic="scriptclasses" anchor="UninstallProgressForm">UninstallProgressForm</link></p></seealso>
+      </function>
+      <function>
+        <name>GetMainForm</name>
+        <prototype>function GetMainForm: TMainForm;</prototype>
+        <description><p>Returns the <tt>MainForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
+        <seealso><p><link topic="scriptclasses" anchor="MainForm">MainForm</link></p></seealso>
+      </function>
+    </subcategory>
   </category>
   <category>
     <description>Exception</description>

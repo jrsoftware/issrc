@@ -432,6 +432,7 @@ begin
   ProcNos := TPSList.Create;
   try
     if GetProcNos(Name, CheckNamingAttribute, ProcNos) <> 0 then begin
+      ScriptClassesLibraryUpdateVars(FPSExec);
       for I := 0 to ProcNos.Count-1 do begin
         Params := TPSList.Create();
         try
@@ -476,6 +477,7 @@ begin
          ((BreakCondition = bcNone) and (ProcNos.Count > 1)) then
         ShowError('Internal error: InternalRunBooleanFunction: invalid BreakCondition');
       Result := True; { Silence compiler }
+      ScriptClassesLibraryUpdateVars(FPSExec);
       for I := 0 to ProcNos.Count-1 do begin
         Params := TPSList.Create();
         try
@@ -526,6 +528,7 @@ begin
          ((BreakCondition = bcNone) and (ProcNos.Count > 1)) then
         ShowError('Internal error: InternalRunIntegerFunction: invalid BreakCondition');
       Result := 0; { Silence compiler }
+      ScriptClassesLibraryUpdateVars(FPSExec);
       for I := 0 to ProcNos.Count-1 do begin
         Params := TPSList.Create();
         try
@@ -575,6 +578,7 @@ begin
          ((BreakCondition = bcNone) and (ProcNos.Count > 1)) then
         ShowError('Internal error: InternalRunStringFunction: invalid BreakCondition');
       Result := ''; { Silence compiler }
+      ScriptClassesLibraryUpdateVars(FPSExec);
       for I := 0 to ProcNos.Count-1 do begin
         Params := TPSList.Create();
         try

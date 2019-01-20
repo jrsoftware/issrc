@@ -20,20 +20,20 @@ uses
 
 type
   TUninstallProgressForm = class(TSetupForm)
-    OuterNotebook: TNewNotebook;
-    InnerPage: TNewNotebookPage;
-    InnerNotebook: TNewNotebook;
-    InstallingPage: TNewNotebookPage;
-    MainPanel: TPanel;
-    PageNameLabel: TNewStaticText;
-    PageDescriptionLabel: TNewStaticText;
-    WizardSmallBitmapImage: TBitmapImage;
-    Bevel1: TBevel;
-    StatusLabel: TNewStaticText;
-    ProgressBar: TNewProgressBar;
-    BeveledLabel: TNewStaticText;
-    Bevel: TBevel;
-    CancelButton: TNewButton;
+    FOuterNotebook: TNewNotebook;
+    FInnerPage: TNewNotebookPage;
+    FInnerNotebook: TNewNotebook;
+    FInstallingPage: TNewNotebookPage;
+    FMainPanel: TPanel;
+    FPageNameLabel: TNewStaticText;
+    FPageDescriptionLabel: TNewStaticText;
+    FWizardSmallBitmapImage: TBitmapImage;
+    FBevel1: TBevel;
+    FStatusLabel: TNewStaticText;
+    FProgressBar: TNewProgressBar;
+    FBeveledLabel: TNewStaticText;
+    FBevel: TBevel;
+    FCancelButton: TNewButton;
   private
     { Private declarations }
   protected
@@ -44,6 +44,21 @@ type
     destructor Destroy; override;
     procedure Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
     procedure UpdateProgress(const AProgress, ARange: Integer);
+  published
+    property OuterNotebook: TNewNotebook read FOuterNotebook;
+    property InnerPage: TNewNotebookPage read FInnerPage;
+    property InnerNotebook: TNewNotebook read FInnerNotebook;
+    property InstallingPage: TNewNotebookPage read FInstallingPage;
+    property MainPanel: TPanel read FMainPanel;
+    property PageNameLabel: TNewStaticText read FPageNameLabel;
+    property PageDescriptionLabel: TNewStaticText read FPageDescriptionLabel;
+    property WizardSmallBitmapImage: TBitmapImage read FWizardSmallBitmapImage;
+    property Bevel1: TBevel read FBevel1;
+    property StatusLabel: TNewStaticText read FStatusLabel;
+    property ProgressBar: TNewProgressBar read FProgressBar;
+    property BeveledLabel: TNewStaticText read FBeveledLabel;
+    property Bevel: TBevel read FBevel;
+    property CancelButton: TNewButton read FCancelButton;
   end;
 
 var

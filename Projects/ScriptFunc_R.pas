@@ -974,9 +974,9 @@ begin
   PStart := Stack.Count-1;
   Result := True;
 
-  if Proc.Name = 'WIZARDFORM' then begin
+  if Proc.Name = 'GETWIZARDFORM' then begin
     Stack.SetClass(PStart, GetWizardForm);
-  end else if Proc.Name = 'MAINFORM' then begin
+  end else if Proc.Name = 'GETMAINFORM' then begin
     Stack.SetClass(PStart, GetMainForm);
   end else if Proc.Name = 'ACTIVELANGUAGE' then begin
     Stack.SetString(PStart, ExpandConst('{language}'));
@@ -1883,7 +1883,7 @@ begin
         InternalError('Cannot disable FS redirection on this version of Windows');
       ScriptFuncDisableFsRedir := True;
     end;
-  end else if Proc.Name = 'UNINSTALLPROGRESSFORM' then begin
+  end else if Proc.Name = 'GETUNINSTALLPROGRESSFORM' then begin
     Stack.SetClass(PStart, GetUninstallProgressForm);
   end else if Proc.Name = 'CREATECALLBACK' then begin
    Stack.SetInt(PStart, CreateCallback(Stack.Items[PStart-1]));

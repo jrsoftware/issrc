@@ -182,8 +182,8 @@ const
   { Main }
   MainTable: array [0..26] of AnsiString =
   (
-    'function WizardForm: TWizardForm;',
-    'function MainForm: TMainForm;',
+    'function GetWizardForm: TWizardForm;',
+    'function GetMainForm: TMainForm;',
     'function ActiveLanguage: String;',
     'function IsComponentSelected(const Components: String): Boolean;',
     'function IsTaskSelected(const Tasks: String): Boolean;',
@@ -336,7 +336,7 @@ const
     'function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function EnableFsRedirection(const Enable: Boolean): Boolean;',
-    'function UninstallProgressForm: TUninstallProgressForm;',
+    'function GetUninstallProgressForm: TUninstallProgressForm;',
     'function CreateCallback(Method: AnyMethod): Longword;'
   );
 

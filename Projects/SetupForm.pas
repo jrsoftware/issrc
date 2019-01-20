@@ -58,6 +58,7 @@ type
       const CenterInsideControlInsideClientArea: Boolean = False); virtual;
     property BaseUnitX: Integer read FBaseUnitX;
     property BaseUnitY: Integer read FBaseUnitY;
+  published
     property ControlsFlipped: Boolean read FControlsFlipped;
     property FlipControlsOnShow: Boolean read FFlipControlsOnShow write FFlipControlsOnShow;
     property KeepSizeY: Boolean read FKeepSizeY write FKeepSizeY;

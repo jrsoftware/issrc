@@ -37,8 +37,9 @@ type
       property Edits[Index: Integer]: TPasswordEdit read GetEdit;
       procedure Initialize(const SubCaption: String);
       property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
-      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
       property Values[Index: Integer]: String read GetValue write SetValue;
+    published
+      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
 
   TInputOptionWizardPage = class(TWizardPage)
@@ -53,11 +54,12 @@ type
     public
       function Add(const ACaption: String): Integer;
       function AddEx(const ACaption: String; const ALevel: Byte; const AExclusive: Boolean): Integer;
-      property CheckListBox: TNewCheckListBox read FCheckListBox;
       procedure Initialize(const SubCaption: String; const Exclusive, ListBox: Boolean);
       property SelectedValueIndex: Integer read GetSelectedValueIndex write SetSelectedValueIndex;
-      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
       property Values[Index: Integer]: Boolean read GetValue write SetValue;
+    published
+      property CheckListBox: TNewCheckListBox read FCheckListBox;
+      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
 
   TInputDirWizardPage = class(TWizardPage)
@@ -86,8 +88,9 @@ type
       procedure Initialize(const SubCaption: String; const AppendDir: Boolean;
         const NewFolderName: String);
       property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
-      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
       property Values[Index: Integer]: String read GetValue write SetValue;
+    published
+      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
 
   TInputFileWizardPage = class(TWizardPage)
@@ -115,9 +118,10 @@ type
       property Edits[Index: Integer]: TEdit read GetEdit;
       procedure Initialize(const SubCaption: String);
       property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
-      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
       property Values[Index: Integer]: String read GetValue write SetValue;
       property IsSaveButton[Index: Integer]: Boolean read GetIsSaveButton write SetIsSaveButton;
+    published
+      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
 
   TOutputMsgWizardPage = class(TWizardPage)
@@ -125,6 +129,7 @@ type
       FMsgLabel: TNewStaticText;
     public
       procedure Initialize(const Msg: String);
+    published
       property MsgLabel: TNewStaticText read FMsgLabel;
   end;
 
@@ -134,6 +139,7 @@ type
       FSubCaptionLabel: TNewStaticText;
     public
       procedure Initialize(const SubCaption: String; const Msg: AnsiString);
+    published
       property RichEditViewer: TRichEditViewer read FRichEditViewer;
       property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
@@ -149,12 +155,13 @@ type
       constructor Create(AOwner: TComponent); override;
       procedure Hide;
       procedure Initialize;
-      property Msg1Label: TNewStaticText read FMsg1Label;
-      property Msg2Label: TNewStaticText read FMsg2Label;
-      property ProgressBar: TNewProgressBar read FProgressBar;
       procedure SetProgress(const Position, Max: Longint);
       procedure SetText(const Msg1, Msg2: String);
       procedure Show;
+    published
+      property Msg1Label: TNewStaticText read FMsg1Label;
+      property Msg2Label: TNewStaticText read FMsg2Label;
+      property ProgressBar: TNewProgressBar read FProgressBar;
   end;
 
 implementation
