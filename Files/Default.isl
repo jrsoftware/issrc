@@ -303,7 +303,9 @@ ErrorRegSvr32Failed=RegSvr32 failed with exit code %1
 ErrorRegisterTypeLib=Unable to register the type library: %1
 
 ; *** Uninstall display name markings
+; used for example as 'My Program (32-bit)'
 UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
 UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32-bit
 UninstallDisplayNameMark64Bit=64-bit

@@ -44,58 +44,54 @@ var
   WindowList: Pointer;
 begin
   if Assigned(TaskDialogIndirectFunc) then begin
+    ZeroMemory(@Config, Sizeof(Config));
+    Config.cbSize := SizeOf(Config);
+    if RightToLeft then
+      Config.dwFlags := Config.dwFlags or TDF_RTL_LAYOUT;
+    { If the application window isn't currently visible, show the task dialog
+      with no owner window so it'll get a taskbar button } 
+    Config.hInstance := HInstance;
+    if IsIconic(Application.Handle) or
+       (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or
+       (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then
+      Config.hWndParent := 0
+    else
+      Config.hwndParent := hWnd;
+    Config.dwCommonButtons := CommonButtons;
+    Config.pszWindowTitle := Caption;
+    Config.pszMainIcon := Icon;
+    Config.pszMainInstruction := Instruction;
+    Config.pszContent := Text;
+    if ShieldButton <> 0 then begin
+      Config.pfCallback := ShieldButtonCallback;
+      Config.lpCallbackData := ShieldButton;
+    end;
+    ButtonItems := nil;
     try
-      ZeroMemory(@Config, Sizeof(Config));
-      Config.cbSize := SizeOf(Config);
-      if RightToLeft then
-        Config.dwFlags := Config.dwFlags or TDF_RTL_LAYOUT;
-      { If the application window isn't currently visible, show the task dialog
-        with no owner window so it'll get a taskbar button } 
-      Config.hInstance := HInstance;
-      if IsIconic(Application.Handle) or
-         (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or
-         (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then
-        Config.hWndParent := 0
-      else
-        Config.hwndParent := hWnd;
-      Config.dwCommonButtons := CommonButtons;
-      Config.pszWindowTitle := Caption;
-      Config.pszMainIcon := Icon;
-      Config.pszMainInstruction := Instruction;
-      Config.pszContent := Text;
-      if ShieldButton <> 0 then begin
-        Config.pfCallback := ShieldButtonCallback;
-        Config.lpCallbackData := ShieldButton;
+      NButtonLabelsAvailable := Length(ButtonLabels);
+      if NButtonLabelsAvailable <> 0 then begin
+        ButtonItems := TTaskDialogButtons.Create(nil, TTaskDialogButtonItem);
+        Config.dwFlags := Config.dwFlags or TDF_USE_COMMAND_LINKS;
+        for I := 0 to NButtonLabelsAvailable-1 do begin
+          ButtonItem := TTaskDialogButtonItem(ButtonItems.Add);
+          ButtonItem.Caption := ButtonLabels[I];
+          ButtonItem.ModalResult := ButtonIDs[I];
+        end;
+        Config.pButtons := ButtonItems.Buttons;
+        Config.cButtons := ButtonItems.Count;
       end;
-      ButtonItems := nil;
+      TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
+      ActiveWindow := GetActiveWindow;
+      WindowList := DisableTaskWindows(0);
       try
-        NButtonLabelsAvailable := Length(ButtonLabels);
-        if NButtonLabelsAvailable <> 0 then begin
-          ButtonItems := TTaskDialogButtons.Create(nil, TTaskDialogButtonItem);
-          Config.dwFlags := Config.dwFlags or TDF_USE_COMMAND_LINKS;
-          for I := 0 to NButtonLabelsAvailable-1 do begin
-            ButtonItem := TTaskDialogButtonItem(ButtonItems.Add);
-            ButtonItem.Caption := ButtonLabels[I];
-            ButtonItem.ModalResult := ButtonIDs[I];
-          end;
-          Config.pButtons := ButtonItems.Buttons;
-          Config.cButtons := ButtonItems.Count;
-        end;
-        TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
-        ActiveWindow := GetActiveWindow;
-        WindowList := DisableTaskWindows(0);
-        try
-          Result := TaskDialogIndirectFunc(Config, @ModalResult, nil, nil) = S_OK;
-        finally
-          EnableTaskWindows(WindowList);
-          SetActiveWindow(ActiveWindow);
-          TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, True);
-        end;
+        Result := TaskDialogIndirectFunc(Config, @ModalResult, nil, nil) = S_OK;
       finally
-        ButtonItems.Free;
+        EnableTaskWindows(WindowList);
+        SetActiveWindow(ActiveWindow);
+        TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, True);
       end;
-    except
-      Result := False;
+    finally
+      ButtonItems.Free;
     end;
   end else
     Result := False;

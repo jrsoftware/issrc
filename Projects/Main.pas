@@ -2806,9 +2806,9 @@ var
     end else if proDialog in SetupHeader.PrivilegesRequiredOverridesAllowed then begin
       if shUsePreviousPrivileges in SetupHeader.Options then begin
         { Note: if proDialog is used and UsePreviousPrivileges is set to "yes"
-          then the compiler does not allow AppId to include constants so we can
-          safely use it here without having to call ExpandConstant first. }
-        SubkeyName := GetUninstallRegSubkeyName(GetUninstallRegKeyBaseName(SetupHeader.AppID));
+          then the compiler does not allow AppId to include constants but we
+          should still call ExpandConst to handle any '{{'. }
+        SubkeyName := GetUninstallRegSubkeyName(GetUninstallRegKeyBaseName(ExpandConst(SetupHeader.AppID)));
         ExistingAtAdminInstallMode := ExistingInstallationAt(HKEY_LOCAL_MACHINE, SubkeyName);
         ExistingAtNonAdminInstallMode := ExistingInstallationAt(HKEY_CURRENT_USER, SubkeyName);
       end else begin

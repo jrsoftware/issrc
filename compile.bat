@@ -27,11 +27,6 @@ rem -------------------------------------------------------------------------
 rem  Compile each project separately because it seems Delphi
 rem  carries some settings (e.g. $APPTYPE) between projects
 rem  if multiple projects are specified on the command line.
-rem  Note:
-rem  Command line parameter "--peflags:1" below equals the
-rem  {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} directive.
-rem  This causes the Delphi compiler to not just set the flag
-rem  but also it actually strips relocations.
 
 set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_CAST -W-EXPLICIT_STRING_CAST -W-EXPLICIT_STRING_CAST_LOSS -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS
 
@@ -48,11 +43,11 @@ if errorlevel 1 goto failed
 cd ..
 
 echo - Compil32.dpr
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config --peflags:1 -NSsystem;system.win;winapi;vcl -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components;..\Components\UniPs\Source" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Compil32.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi;vcl -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components;..\Components\UniPs\Source" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Compil32.dpr
 if errorlevel 1 goto failed
 
 echo - ISCC.dpr
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config --peflags:1 -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components;..\Components\UniPs\Source" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS ISCC.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components;..\Components\UniPs\Source" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS ISCC.dpr
 if errorlevel 1 goto failed
 
 echo - ISCmplr.dpr
@@ -60,11 +55,11 @@ echo - ISCmplr.dpr
 if errorlevel 1 goto failed
 
 echo - SetupLdr.dpr
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config --peflags:1 -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components" -E..\Files SetupLdr.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components" -E..\Files SetupLdr.dpr
 if errorlevel 1 goto failed
 
 echo - Setup.dpr
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config --peflags:1 -NSsystem;system.win;winapi;vcl -Q -B -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components;..\Components\UniPs\Source" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Setup.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi;vcl -Q -B -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components;..\Components\UniPs\Source" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Setup.dpr
 if errorlevel 1 goto failed
 
 echo - Renaming E32 files
