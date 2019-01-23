@@ -56,10 +56,10 @@ end;
 TStream = class(TObject)
   function Read(Buffer: String; Count: Longint): Longint;
   function Write(Buffer: String; Count: Longint): Longint;
-  function Seek(Offset: Longint; Origin: Word): Longint;
+  function Seek(Offset: Int64; Origin: Word): Int64;
   procedure ReadBuffer(Buffer: String; Count: Longint);
   procedure WriteBuffer(Buffer: String; Count: Longint);
-  function CopyFrom(Source: TStream; Count: Longint): Longint;
+  function CopyFrom(Source: TStream; Count: Int64): Int64;
   property Position: Longint; read write;
   property Size: Longint; read write;
 end;
