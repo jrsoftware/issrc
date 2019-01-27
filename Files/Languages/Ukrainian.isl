@@ -292,7 +292,6 @@ SourceIsCorrupted=Вихідний файл пошкоджений
 SourceDoesntExist=Вихідний файл "%1" не існує
 ExistingFileReadOnly2=Неможливо замінити існуючий файл, оскільки він позначений лише для читання.
 ExistingFileReadOnlyRetry=&Видалити атрибут "лише читання" та спробувати знову
-Remove the read-only attribute and try again
 ExistingFileReadOnlyKeepExisting=&Залишити існуючий файл
 ErrorReadingExistingDest=Виникла помилка при спробі читання існуючого файлу:
 FileExists=Файл вже існує.%n%nПерезаписати його?
