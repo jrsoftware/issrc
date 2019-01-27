@@ -3710,7 +3710,7 @@ var
       end;
   end;
 
-  procedure StrToPercentages(const S: String; var X, Y: Integer; const Min: Integer);
+  procedure StrToPercentages(const S: String; var X, Y: Integer; const Min, Max: Integer);
   var
     I: Integer;
   begin
@@ -3723,7 +3723,7 @@ var
       X := StrToIntDef(S, -1);
       Y := X;
     end;
-    if (X < Min) or (Y < Min) then
+    if (X < Min) or (X > Max) or (Y < Min) or (Y > Max) then
       Invalid;
   end;
 
@@ -4443,7 +4443,7 @@ begin
       end;
     ssWizardSizePercent: begin
         StrToPercentages(Value, SetupHeader.WizardSizePercentX,
-          SetupHeader.WizardSizePercentY, 100)
+          SetupHeader.WizardSizePercentY, 100, 150)
       end;
     ssWizardStyle: begin
         if CompareText(Value, 'classic') = 0 then

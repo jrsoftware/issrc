@@ -780,7 +780,7 @@ var
   SystemMenu: HMENU;
   P: String;
   I, DefaultSetupTypeIndex: Integer;
-  IgnoreInitComponents: Boolean;
+  DfmDefault, IgnoreInitComponents: Boolean;
   TypeEntry: PSetupTypeEntry;
   ComponentEntry: PSetupComponentEntry;
   SaveClientWidth, SaveClientHeight: Integer;
@@ -838,34 +838,34 @@ begin
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
 
   { Set BorderStyle and BorderIcons:
-    -WindowVisible + WizardResizable = sizeable + maximize
-    -not WindowVisible + WizardResizable = sizeable + maximize + minimize
-    -WindowVisible + not WizardResizable = dialog (.dfm default)
+    -WindowVisible + WizardResizable = sizeable
+    -not WindowVisible + WizardResizable = sizeable + minimize
+    -WindowVisible + not WizardResizable = dialog = .dfm default = do nothing
     -not WindowVisible + not WizardResizable = single + minimize }
-  if not(shWindowVisible in SetupHeader.Options) or
-     (shWizardResizable in SetupHeader.Options) then begin
-    { Save ClientWidth/ClientHeight and restore them after changing
-      BorderStyle. }
+  DfmDefault := (shWindowVisible in SetupHeader.Options) and not (shWizardResizable in SetupHeader.Options);
+  if not DfmDefault then begin
+    { Save ClientWidth/ClientHeight and restore them after changing BorderStyle. }
     SaveClientWidth := ClientWidth;
     SaveClientHeight := ClientHeight;
     if not(shWindowVisible in SetupHeader.Options) then
       BorderIcons := BorderIcons + [biMinimize];
     if not(shWizardResizable in SetupHeader.Options) then
       BorderStyle := bsSingle
-    else begin
-      BorderIcons := BorderIcons + [biMaximize];
+    else
       BorderStyle := bsSizeable;
-    end;
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
-    if shWizardResizable in SetupHeader.Options then begin
-      EnableAnchorOuterPagesOnResize := True;
-      { Do not allow user to resize it smaller than the current size. }
-      Constraints.MinHeight := Height;
-      Constraints.MinWidth := Width;
-    end;
   end;
 
+  if shWizardResizable in SetupHeader.Options then begin
+    EnableAnchorOuterPagesOnResize := True;
+    { Do not allow user to resize it smaller than 100% nor larger than 150%. }
+    Constraints.MinHeight := Height;
+    Constraints.MinWidth := Width;
+    Constraints.MaxHeight := MulDiv(Height, 150, 100);
+    Constraints.MaxWidth := MulDiv(Width, 150, 100);
+  end;
+  
   { Position the buttons, and scale their size }
   W1 := CalculateButtonWidth([msgButtonBack, msgButtonCancel, msgButtonFinish,
     msgButtonInstall, msgButtonNext]);  { width of each button }

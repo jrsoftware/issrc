@@ -4730,7 +4730,7 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>no</tt> otherwise</setupdefault>
 <body>
-<p>If set to <tt>yes</tt>, the user will be able to resize and maximize the main Setup wizard window.</p>
+<p>If set to <tt>yes</tt>, the user will be able to resize the main Setup wizard window.</p>
 <p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls, custom wizard pages and <tt>TSetupForm</tt> forms if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardsizepercent">WizardSizePercent</link></p>
@@ -4739,7 +4739,7 @@ DiskSliceSize=1457664
 
 <setuptopic directive="WizardSizePercent">
 <setupformat><tt><i>a</i>,<i>b</i></tt>, where <tt><i>a</i></tt> is the horizontal size, and <tt><i>b</i></tt> is the vertical size.</setupformat>
-<setupvalid>each size: <tt>100</tt> or more</setupvalid>
+<setupvalid>each size: <tt>100</tt> through <tt>150</tt></setupvalid>
 <setupdefault><tt>120,120</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>100,100</tt> otherwise</setupdefault>
 <body>
 <p>Lets you increase the default size of all Setup and Uninstall wizard windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
