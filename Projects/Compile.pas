@@ -2073,9 +2073,6 @@ var
   Lines: TLowFragStringList;
   F: TTextFileReader;
   L: String;
-{$IFDEF UNICODE}
-  S: RawByteString;
-{$ENDIF}
 begin
   Data := CompilerData;
   Filename := AFilename;
@@ -2098,16 +2095,9 @@ begin
   try
     F := TTextFileReader.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
+      F.CodePage := Data.AnsiConvertCodePage;
       while not F.Eof do begin
-{$IFDEF UNICODE}
-        if Data.AnsiConvertCodePage <> 0 then begin
-          { Read the ANSI line, then convert it to Unicode. }
-          S := F.ReadAnsiLine;
-          SetCodePage(S, Data.AnsiConvertCodePage, False);
-          L := String(S);
-        end else
-{$ENDIF}
-          L := F.ReadLine;
+         L := F.ReadLine;
         for I := 1 to Length(L) do
           if L[I] = #0 then
             raise Exception.CreateFmt(SCompilerIllegalNullChar, [Lines.Count + 1]);
@@ -4564,7 +4554,7 @@ end;
 procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext, Ext2: Integer);
 
   procedure ApplyToLangEntry(const KeyName, Value: String;
-    var LangOptions: TSetupLanguageEntry; const AffectsMultipleLangs, AnsiLanguageFile: Boolean);
+    var LangOptions: TSetupLanguageEntry; const AffectsMultipleLangs: Boolean);
   var
     I: Integer;
     Directive: TLangOptionsSectionDirectives;
@@ -4585,14 +4575,12 @@ procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext, Ext2: Int
 
     function ConvertLanguageName(N: String): String;
     var
-      AsciiWarningShown: Boolean;
       I, J, L: Integer;
       W: Word;
     begin
       N := Trim(N);
       if N = '' then
         Invalid;
-      AsciiWarningShown := False;
       Result := '';
       I := 1;
       while I <= Length(N) do begin
@@ -4607,10 +4595,6 @@ procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext, Ext2: Int
           Inc(I, 6);
         end
         else begin
-          if AnsiLanguageFile and (N[I] > #126) and not AsciiWarningShown then begin
-            WarningsList.Add(SCompilerLanguageNameNotAscii);
-            AsciiWarningShown := True;
-          end;
           W := Ord(N[I]);
           Inc(I);
         end;
@@ -4678,17 +4662,15 @@ procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext, Ext2: Int
 var
   KeyName, Value: String;
   I, LangIndex: Integer;
-  AnsiLanguageFile: Boolean;
 begin
   SeparateDirective(Line, KeyName, Value);
   LangIndex := ExtractLangIndex(Self, KeyName, Ext, False);
-  AnsiLanguageFile := Boolean(Ext2);
   if LangIndex = -1 then begin
     for I := 0 to LanguageEntries.Count-1 do
       ApplyToLangEntry(KeyName, Value, PSetupLanguageEntry(LanguageEntries[I])^,
-        LanguageEntries.Count > 1, AnsiLanguageFile);
+        LanguageEntries.Count > 1);
   end else
-    ApplyToLangEntry(KeyName, Value, PSetupLanguageEntry(LanguageEntries[LangIndex])^, False, AnsiLanguageFile);
+    ApplyToLangEntry(KeyName, Value, PSetupLanguageEntry(LanguageEntries[LangIndex])^, False);
 end;
 
 procedure TSetupCompiler.EnumTypes(const Line: PChar; const Ext, Ext2: Integer);
@@ -7267,7 +7249,7 @@ begin
     if Filename = '' then
       Break;
     Filename := PathExpand(PrependSourceDirName(Filename));
-    AnsiLanguageFile := CompareText(PathExtractExt(Filename), '.islu') <> 0;
+    AnsiLanguageFile := not TFile.IsUTF8File(Filename);
     AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
     EnumIniSection(EnumLangOptionsPre, 'LangOptions', ALangIndex, 0, False, True, Filename, AnsiLanguageFile, True);
     CallIdleProc;
@@ -7287,7 +7269,7 @@ begin
     if Filename = '' then
       Break;
     Filename := PathExpand(PrependSourceDirName(Filename));
-    AnsiLanguageFile := CompareText(PathExtractExt(Filename), '.islu') <> 0;
+    AnsiLanguageFile := not TFile.IsUTF8File(Filename);
     AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
     EnumIniSection(EnumLangOptions, 'LangOptions', ALangIndex, Integer(AnsiLanguageFile), False, True, Filename, AnsiLanguageFile, False);
     CallIdleProc;

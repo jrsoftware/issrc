@@ -72,6 +72,7 @@ type
     procedure Seek64(Offset: Integer64); override;
     procedure SeekToEnd;
     procedure Truncate;
+    class function IsUTF8File(const Filename: String): Boolean;
     procedure WriteBuffer(const Buffer; Count: Cardinal); override;
     property Handle: THandle read FHandle;
   end;
@@ -104,7 +105,7 @@ type
     FBuffer: array[0..4095] of AnsiChar;
 {$IFDEF UNICODE}
     FSawFirstLine: Boolean;
-    FUTF8: Boolean;
+    FCodePage: Cardinal;
 {$ENDIF}
     function DoReadLine{$IFDEF UNICODE}(const UTF8: Boolean){$ENDIF}: AnsiString;
     function GetEof: Boolean;
@@ -114,6 +115,7 @@ type
 {$IFDEF UNICODE}
     function ReadAnsiLine: AnsiString;
 {$ENDIF}
+    property CodePage: Cardinal write FCodePage;
     property Eof: Boolean read GetEof;
   end;
 
@@ -307,6 +309,24 @@ begin
     RaiseLastError;
 end;
 
+class function TFile.IsUTF8File(const Filename: String): Boolean;
+var
+  F: TFile;
+  S: RawByteString;
+begin
+  F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
+  try
+    if F.Size.Lo > 2 then begin
+      SetLength(S, 3);
+      F.ReadBuffer(S[1], 3);
+      Result := (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF);
+    end else
+      Result := False;
+  finally
+    F.Free;
+  end;
+end;
+
 procedure TFile.WriteBuffer(const Buffer; Count: Cardinal);
 var
   BytesWritten: DWORD;
@@ -442,19 +462,18 @@ end;
 function TTextFileReader.ReadLine: String;
 {$IFDEF UNICODE}
 var
-  S: AnsiString;
+ S: RawByteString;
 {$ENDIF}
 begin
 {$IFDEF UNICODE}
-  S := DoReadLine(True);
-  if FUTF8 then
-    Result := UTF8ToString(S)
-  else
-    Result := String(S);
+ S := DoReadLine(True);
+ if FCodePage <> 0 then
+   SetCodePage(S, FCodePage, False);
+ Result := String(S);
 {$ELSE}
-  Result := DoReadLine;
+ Result := DoReadLine;
 {$ENDIF}
-end;
+end; 
 
 {$IFDEF UNICODE}
 function TTextFileReader.ReadAnsiLine: AnsiString;
@@ -510,7 +529,7 @@ begin
     { Handle UTF8 BOM if requested }
     if UTF8 and (Length(S) > 2) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF) then begin
       Delete(S, 1, 3);
-      FUTF8 := True;
+      FCodePage := CP_UTF8;
     end;
     FSawFirstLine := True;
   end;

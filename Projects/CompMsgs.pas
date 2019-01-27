@@ -325,9 +325,6 @@ const
   SCompilerUnknownLanguage = 'Unknown language name "%s"';
   SCompilerCantSpecifyLanguage = 'A language name may not be specified in a messages file';
   SCompilerCantSpecifyLangOption = 'Language option "%s" cannot be applied to all languages';
-  SCompilerLanguageNameNotAscii = 'LanguageName should not contain non-ASCII characters; ' +
-    'such characters will be interpreted as being from the ISO-8859-1 character set by a non Unicode Setup. ' +
-    'Use "<nnnn>" to embed Unicode characters, where "nnnn" is the 4-digit hexadecimal Unicode character code.';
 
   { [Files] }
   SCompilerFilesTmpBadFlag = 'Parameter "Flags" cannot have the "%s" flag on ' +
