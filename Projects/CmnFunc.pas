@@ -170,27 +170,14 @@ end;
 
 function GetMessageBoxCaption(const Caption: PChar; const Typ: TMsgBoxType): PChar;
 const
-  {$IFNDEF Delphi3orHigher}
-  DefaultCaptions: array[TMsgBoxType] of Word =
-    (SMsgDlgInformation, SMsgDlgConfirm, SMsgDlgError, SMsgDlgError);
-  {$ELSE}
-  DefaultCaptions: array[TMsgBoxType] of Pointer =
-    (@SMsgDlgInformation, @SMsgDlgConfirm, @SMsgDlgError, @SMsgDlgError);
-  {$ENDIF}
-var
-  NewCaption: String;
+ DefaultCaptions: array[TMsgBoxType] of PChar =
+   ('Information', 'Confirm', 'Error', 'Error');
 begin
   Result := Caption;
   if (Result = nil) or (Result[0] = #0) then begin
     Result := MessageBoxCaptions[Typ];
-    if Result = nil then begin
-      {$IFNDEF Delphi3orHigher}
-      NewCaption := LoadStr(DefaultCaptions[Typ]);
-      {$ELSE}
-      NewCaption := LoadResString(DefaultCaptions[Typ]);
-      {$ENDIF}
-      Result := PChar(NewCaption);
-    end;
+    if Result = nil then
+      Result := DefaultCaptions[Typ];
   end;
 end;
 
