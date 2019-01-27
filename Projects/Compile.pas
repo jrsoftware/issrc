@@ -2387,7 +2387,7 @@ var
     if AnsiLanguageFile and (Ext >= 0) and not Pre then begin
       AnsiConvertCodePage := TPreLangData(PreLangDataList[Ext]).LanguageCodePage;
       if AnsiConvertCodePage <> 0 then
-        AddStatus(Format(SCompilerStatusConvertCodePage , [AnsiConvertCodePage]));
+        AddStatus(Format(SCompilerStatusConvertCodePage, [AnsiConvertCodePage]));
     end;
 {$ENDIF}
 
