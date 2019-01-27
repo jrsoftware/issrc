@@ -37,51 +37,39 @@ SignTool=issigntool256
 SignedUninstaller=yes
 #endif
 
-#define MatchingExtension(str FileName, str Extension) \
-  SameText(ExtractFileExt(FileName), Extension)
-
 #sub ProcessFoundLanguagesFile
   #define FileName FindGetFileName(FindHandle)
-  #if MatchingExtension(FileName, FindBaseExtension) ; Some systems also return .islu files when asked for *.isl
-    #define Name LowerCase(RemoveFileExt(FileName))
-    #define MessagesFile FindPathName + FileName
-    //#define CustomMessagesFile FindPathName + 'Setup\' + Name + '.' + FindBaseExtension
-    //#if FileExists(CustomMessagesFile)
-    //  #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile + ' & ' + CustomMessagesFile
-    //  Name: {#Name}; MessagesFile: "{#MessagesFile},{#CustomMessagesFile}"
-    //#else
-      #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile
-      Name: {#Name}; MessagesFile: "{#MessagesFile}"
-    //#endif
-  #endif
+  #define Name LowerCase(RemoveFileExt(FileName))
+  #define MessagesFile FindPathName + FileName
+  //#define CustomMessagesFile FindPathName + 'Setup\' + Name + '.isl';
+  //#if FileExists(CustomMessagesFile)
+  //  #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile + ' & ' + CustomMessagesFile
+  //  Name: {#Name}; MessagesFile: "{#MessagesFile},{#CustomMessagesFile}"
+  //#else
+    #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile
+    Name: {#Name}; MessagesFile: "{#MessagesFile}"
+  //#endif
 #endsub
 
 #define FindPathName
-#define FindBaseExtension
 #define FindHandle
 #define FindResult
 
-#sub DoFindFilesLoop
-  #for {FindHandle = FindResult = FindFirst(FindPathName + "*." + FindBaseExtension, 0); FindResult; FindResult = FindNext(FindHandle)} ProcessFoundLanguagesFile
+#sub DoFindFiles
+  #for {FindHandle = FindResult = FindFirst(FindPathName + "*.isl", 0); FindResult; FindResult = FindNext(FindHandle)} ProcessFoundLanguagesFile
   #if FindHandle
     #expr FindClose(FindHandle)
   #endif
 #endsub
 
-#sub DoFindFiles
-  #expr DoFindFilesLoop
-  #expr FindBaseExtension = FindBaseExtension + "u"
-  #expr DoFindFilesLoop
-#endsub
-
-#define FindFiles(str PathName, str BaseExtension) \
-  FindPathName = PathName, FindBaseExtension = BaseExtension, \
+#define FindFiles(str PathName) \
+  FindPathName = PathName, \
   DoFindFiles
 
 [Languages]
 Name: english; MessagesFile: "files\Default.isl"
 ; Generate [Languages] entries for all official translations
-#expr FindFiles("files\Languages\", "isl")
+#expr FindFiles("files\Languages\")
 
 [Messages]
 HelpTextNote=/PORTABLE=1%nEnable portable mode.
