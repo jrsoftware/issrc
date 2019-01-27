@@ -114,7 +114,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Added new [Setup] section directive: <tt>VersionInfoOriginalFileName</tt>, which sets the original filename version value.</li>
   <li>The <tt>Permissions</tt> parameter supported by [Files], [Dirs] and [Registry] entries now also allows you to grant permission to the Guests group, the Local Service account, the Network Service account, and to the Creator Owner.</li>
   <li>Added new special-purpose <i>HelpTextNote</i> message that can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing /HELP on the command line. This message defaults to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use it.</li>
-  <li>The compiler now supports UTF-8 encoded .isl files without requiring a special extension. You should still always set <tt>LanguageCodePage</tt> when possible.</li>
+  <li>The compiler now supports UTF-8 encoded .isl files without requiring a special extension. Translators should still always set <tt>LanguageCodePage</tt> when possible.</li>
   <li>The compiler will now throw an error if the $f sequence is missing in a Sign Tool command instead of executing it anyway.</li>
   <li>Fix: The compiler now checks <tt>OutputBaseFileName</tt> and <tt>OutputManifestFile</tt> for bad characters even if <tt>Output</tt> is set to <tt>no</tt>.</li>
 </ul>
