@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo,
+  CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, DebugStruct, VerInfo, ResUpdate, CompResUpdate,
@@ -281,8 +281,13 @@ type
     Hash: Longint;
     Str: String;
   end;
+
+const
+  MaxHashStringItemListSize = MaxInt div 16;
+
+type
   PHashStringItemList = ^THashStringItemList;
-  THashStringItemList = array[0..MaxListSize-1] of THashStringItem;
+  THashStringItemList = array[0..MaxHashStringItemListSize-1] of THashStringItem;
   THashStringList = class
   private
     FCapacity: Integer;
@@ -1217,7 +1222,7 @@ begin
     if FCapacity > 8 then Delta := 16 else
       Delta := 4;
   NewCapacity := FCapacity + Delta;
-  if NewCapacity > MaxListSize then
+  if NewCapacity > MaxHashStringItemListSize then
     raise EStringListError.Create('THashStringList: Exceeded maximum list size');
   ReallocMem(FList, NewCapacity * SizeOf(FList[0]));
   FCapacity := NewCapacity;
@@ -7493,7 +7498,7 @@ begin
     Rec.Param2 := Param2;
     Rec.Param3 := Param3;
     FillChar(Rec.Param4, SizeOf(Rec.Param4), 0);
-    StrPCopy(Rec.Param4, Param4);
+    AnsiStrings.StrPCopy(Rec.Param4, Param4);
     CodeDebugInfo.WriteBuffer(Rec, SizeOf(Rec));
     Inc(VariableDebugEntryCount);
   end;
