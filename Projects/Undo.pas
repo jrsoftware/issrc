@@ -2,7 +2,7 @@ unit Undo;
 
 {
   Inno Setup
-  Copyright (C) 1997-2008 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -158,7 +158,7 @@ function ReadUninstallLogFlags(const F: TFile; const Filename: String): TUninsta
 implementation
 
 uses
-  Messages, ShlObj,
+  Messages, ShlObj, AnsiStrings,
   PathFunc, Struct, Msgs, MsgIDs, InstFunc, InstFnc2, RedirFunc, Compress,
   Logging, RegDLL, Helper, LibFusion;
 
@@ -1141,7 +1141,7 @@ begin
   end;
 {$ENDIF}
   if MaxDestBytes <> 0 then
-    StrPLCopy(Dest, AnsiString(Source), MaxDestBytes - 1);
+    AnsiStrings.StrPLCopy(Dest, AnsiString(Source), MaxDestBytes - 1);
   Result := (N + 1) * SizeOf(Dest^);
 end;
 

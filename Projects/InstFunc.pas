@@ -2,7 +2,7 @@ unit InstFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -1336,7 +1336,7 @@ procedure RefreshEnvironment;
   changed. Based on code from KB article 104011.
   Note: Win9x's Explorer ignores this message. }
 var
-  MsgResult: DWORD;
+  MsgResult: DWORD_PTR;
 begin
   { Note: We originally used SendNotifyMessage to broadcast the message but it
     turned out that while it worked fine on NT 4 and 2000 it didn't work on XP
@@ -1345,7 +1345,7 @@ begin
     in the KB article 104011. It isn't as elegant since it could cause us to
     be delayed if another app is hung, but it'll have to do. }
   SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
-    LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, MsgResult);
+    LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, @MsgResult);
 end;
 
 procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);

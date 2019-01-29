@@ -434,7 +434,7 @@ begin
     if alabel = nil then
       raise Exception.create('Unknown label ''' + labelref.labelname + '''');
 
-    fbuffer.seek(labelref.position, soFromBeginning);
+    fbuffer.seek(labelref.position, soBeginning);
     lw := alabel.position + labelref.delta;
     writelongword(lw);
 
@@ -458,9 +458,9 @@ begin
       reloc := Relocs[i];
       case reloc.relocType of
         rt32Bit: begin
-            fbuffer.Seek(reloc.position, soFromBeginning);
+            fbuffer.Seek(reloc.position, soBeginning);
             fbuffer.Read(orig, sizeof(orig));
-            fbuffer.seek(-sizeof(orig), soFromCurrent);
+            fbuffer.seek(-sizeof(orig), soCurrent);
             orig := LongWord(orig + diff);
             fbuffer.write(orig, sizeof(orig));
           end;
