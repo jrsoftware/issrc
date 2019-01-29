@@ -75,7 +75,12 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
   <li>Added new [Setup] section directive: <tt>WizardResizable</tt>. If this directive is set to <tt>yes</tt>, the user will be able to resize the main Setup wizard window.</li>
   <li>Added new [Setup] section directive: <tt>WizardSizePercent</tt>, which can be used to increase the default size of all Setup and Uninstall wizard windows without increasing the font size.</li>
-  <li>Pascal Scripting change: Added new <tt>Anchors</tt> property to all controls and new <tt>KeepSizeY</tt> property to <tt>TSetupForm</tt> which allows you to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls, custom wizard pages and <tt>TSetupForm</tt> forms if you have any. See the <i>CodeClasses.iss</i> example script for an example. This example also shows other changes done to <tt>TSetupForm</tt>.</li>
+  <li>Pascal Scripting changes:
+  <ul>
+    <li>Added new <tt>Anchors</tt> property to all controls and new <tt>KeepSizeY</tt> property to <tt>TSetupForm</tt> which allows you to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls, custom wizard pages and <tt>TSetupForm</tt> forms if you have any. See the <i>CodeClasses.iss</i> example script for an example. This example also shows other changes done to <tt>TSetupForm</tt>.</li>
+    <li>Added new <tt>Constraints</tt> property to the <tt>TForm</tt> support class.</li>
+  </ul>
+  </li>
 </ul>
 <p><span class="head2">New modern wizard style</span></p>
 <p>The wizard window now supports a more modern look:</p>

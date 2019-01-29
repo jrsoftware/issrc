@@ -356,6 +356,7 @@ begin
     RIRegisterTGraphicControl(Cl);
     RIRegisterTCustomControl(Cl);
     RIRegister_TDragObject(Cl);
+    RIRegisterTSizeConstraints(cl);
 
     { Forms }
     RIRegisterTScrollingWinControl(Cl);

@@ -583,6 +583,7 @@ begin
   { Controls }
   SIRegister_Controls_TypesAndConsts(Cl);
   SIRegisterTDragObject(Cl);
+  SIRegisterTSizeConstraints(Cl);
   SIRegisterTControl(Cl);
   RegisterWinControl_C(Cl);
   SIRegisterTGraphicControl(Cl);

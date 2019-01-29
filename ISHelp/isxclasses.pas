@@ -221,6 +221,15 @@ TBorderIcon = (biSystemMenu, biMinimize, biMaximize, biHelp);
 
 TBorderIcons = set of TBorderIcon;
 
+TConstraintSize = 0..MaxInt;
+
+TSizeConstraints = class(TPersistent);
+  property MaxHeight: TConstraintSize; read write;
+  property MaxWidth: TConstraintSize; read write;
+  property MinHeight: TConstraintSize; read write;
+  property MinWidth: TConstraintSize; read write;
+end;
+
 TPosition = (poDesigned, poDefault, poDefaultPosOnly, poDefaultSizeOnly, poScreenCenter, poDesktopCenter, poMainFormCenter, poOwnerFormCenter);
 
 TCloseAction = (caNone, caHide, caFree, caMinimize);
@@ -247,11 +256,12 @@ TForm = class(TScrollingWinControl)
   property Active: Boolean; read;
   property ActiveControl: TWinControl; read write;
   property Anchors: TAnchors; read write;
+  property AutoScroll: Boolean; read write;
   property BorderIcons: TBorderIcons; read write;
   property BorderStyle: TFormBorderStyle; read write;
   property Caption: String; read write;
-  property AutoScroll: Boolean; read write;
   property Color: TColor; read write;
+  property Constraints: TSizeConstraints; read write;
   property Font: TFont; read write;
   property FormStyle: TFormStyle; read write;
   property KeyPreview: Boolean; read write;
