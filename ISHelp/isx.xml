@@ -227,7 +227,8 @@
 <dt><tt>function <a name="PrepareToInstall">PrepareToInstall</a>(var NeedsRestart: Boolean): String;</tt></dt>
 <dd>
 <p>You can use this event function to detect and install missing prerequisites and/or to shutdown any application which is about to be updated.</p>
-<p>Return a non empty string to instruct Setup to stop at the <link topic="wizardpages">Preparing to Install</link> wizard page, showing the returned string as the error message. Set <tt>NeedsRestart</tt> to True if a restart is needed. This function is only called if Setup didn't already determine it can't continue because one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart.</p>
+<p>Return a non empty string to instruct Setup to stop at the <link topic="wizardpages">Preparing to Install</link> wizard page, showing the returned string as the error message. Set <tt>NeedsRestart</tt> to True (and return a non empty string) if a restart is needed. This function is only called if Setup didn't already determine it can't continue because one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart.</p>
+<p>If this event function returns a non empty string, setup will exit with dedicated exit codes as described in <link topic="setupexitcodes">Setup Exit Codes</link>.  (<link topic="setupcmdline" anchor="RESTARTEXITCODE"><tt>/RESTARTEXITCODE</tt></link> will not be used.)</p>
 <p>This event function is called before Setup checks for files being in-use if <link topic="setup_closeapplications">CloseApplications</link> is set to <tt>yes</tt>.</p>
 </dd>
 
