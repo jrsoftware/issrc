@@ -2839,7 +2839,7 @@ Shown by default, but can be disabled via <link topic="setup_disablereadypage">D
 <li>
 <b>Preparing to Install</b><br/>
 Normally, Setup will never stop or pause on this page. The only time it will is if Setup determines it can't continue or if it detects applications using files that need to be updated.<br/><br/>
-The former can happen if the <tt>PrepareToInstall</tt> event function returned an error or if one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.<br/><br/>
+The former can happen if the <link topic="scriptevents" anchor="PrepareToInstall"><tt>PrepareToInstall</tt></link> event function returned an error or if one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.<br/><br/>
 The latter can happen if <link topic="setup_closeapplications">CloseApplications</link> is set to <tt>yes</tt> or <tt>force</tt>.
 </li>
 
@@ -3441,14 +3441,14 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <tr>
 <td><b>7</b></td>
 <td>
-<p>The <i>Preparing to Install</i> stage determined that Setup cannot proceed with installation. <i>(First introduced in Inno Setup 5.4.1.)</i></p>
+<p>The <link topic="wizardpages"><i>Preparing to Install</i></link> stage determined that Setup cannot proceed with installation. <i>(First introduced in Inno Setup 5.4.1.)</i></p>
 </td>
 </tr>
 
 <tr>
 <td><b>8</b></td>
 <td>
-<p>The <i>Preparing to Install</i> stage determined that Setup cannot proceed with installation, and that the system needs to be restarted in order to correct the problem. <i>(First introduced in Inno Setup 5.4.1.)</i></p>
+<p>The <link topic="wizardpages"><i>Preparing to Install</i></link> stage determined that Setup cannot proceed with installation, and that the system needs to be restarted in order to correct the problem. <i>(First introduced in Inno Setup 5.4.1.)</i></p>
 </td>
 </tr>
 
