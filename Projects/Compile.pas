@@ -2376,6 +2376,7 @@ var
       Filename := PathExpand(PrependSourceDirName(Filename));
 
     UseCache := not (AnsiLanguageFile and Pre);
+    AnsiConvertCodePage := 0;
 {$IFDEF UNICODE}
     { During a Pre pass on an .isl file, use code page 1252 for translation.
       Previously, the system code page was used, but on DBCS that resulted in
@@ -2385,17 +2386,14 @@ var
       if not IsValidCodePage(PreCodePage) then  { just in case }
         AbortCompileFmt('Code page %u unsupported', [PreCodePage]);
       AnsiConvertCodePage := PreCodePage;
-    end else if (Ext >= 0) and not Pre then begin
-      { Ext = LangIndex, except for Default.isl for which its -2 when default
-        messages are read but no special conversion is needed for those. }
+    end;
+    { Ext = LangIndex, except for Default.isl for which its -2 when default
+      messages are read but no special conversion is needed for those. }
+    if AnsiLanguageFile and (Ext >= 0) and not Pre then begin
       AnsiConvertCodePage := TPreLangData(PreLangDataList[Ext]).LanguageCodePage;
-    end else
-      AnsiConvertCodePage := 0;
-
-    if (AnsiConvertCodePage <> 0) and AnsiLanguageFile and not Pre then
-      AddStatus(Format(SCompilerStatusConvertCodePage, [AnsiConvertCodePage]));
-{$ELSE}
-    AnsiConvertCodePage := 0;
+      if AnsiConvertCodePage <> 0 then
+        AddStatus(Format(SCompilerStatusConvertCodePage, [AnsiConvertCodePage]));
+    end;
 {$ENDIF}
 
     Lines := ReadScriptFile(Filename, UseCache, AnsiConvertCodePage);
