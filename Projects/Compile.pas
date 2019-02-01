@@ -430,7 +430,7 @@ type
     procedure DoCallback(const Code: Integer; var Data: TCompilerCallbackData);
     procedure EnumIniSection(const EnumProc: TEnumIniSectionProc;
       const SectionName: String; const Ext: Integer; const Verbose, SkipBlankLines: Boolean;
-      const Filename: String; const AnsiLanguageFile, Pre: Boolean);
+      const Filename: String; const LangSection: Boolean = False; const LangSectionPre: Boolean = False);
     function EvalCheckOrInstallIdentifier(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
     procedure CheckCheckOrInstall(const ParamName, ParamData: String;
@@ -2356,7 +2356,7 @@ end;
 
 procedure TSetupCompiler.EnumIniSection(const EnumProc: TEnumIniSectionProc;
   const SectionName: String; const Ext: Integer; const Verbose, SkipBlankLines: Boolean;
-  const Filename: String; const AnsiLanguageFile, Pre: Boolean);
+  const Filename: String; const LangSection, LangSectionPre: Boolean);
 var
   FoundSection: Boolean;
   LastSection: String;
@@ -2375,24 +2375,23 @@ var
     if Filename <> '' then
       Filename := PathExpand(PrependSourceDirName(Filename));
 
-    UseCache := not (AnsiLanguageFile and Pre);
+    UseCache := not (LangSection and LangSectionPre);
     AnsiConvertCodePage := 0;
 {$IFDEF UNICODE}
-    { During a Pre pass on an .isl file, use code page 1252 for translation.
-      Previously, the system code page was used, but on DBCS that resulted in
-      "Illegal null character" errors on files containing byte sequences that
-      do not form valid lead/trail byte combinations (i.e. most languages). }
-    if AnsiLanguageFile and Pre then begin
-      if not IsValidCodePage(PreCodePage) then  { just in case }
-        AbortCompileFmt('Code page %u unsupported', [PreCodePage]);
-      AnsiConvertCodePage := PreCodePage;
-    end;
-    { Ext = LangIndex, except for Default.isl for which its -2 when default
-      messages are read but no special conversion is needed for those. }
-    if AnsiLanguageFile and (Ext >= 0) and not Pre then begin
-      AnsiConvertCodePage := TPreLangData(PreLangDataList[Ext]).LanguageCodePage;
-      if AnsiConvertCodePage <> 0 then
-        AddStatus(Format(SCompilerStatusConvertCodePage, [AnsiConvertCodePage]));
+    if LangSection then begin
+      { During a Pre pass on an .isl file, use code page 1252 for translation.
+        Previously, the system code page was used, but on DBCS that resulted in
+        "Illegal null character" errors on files containing byte sequences that
+        do not form valid lead/trail byte combinations (i.e. most languages). }
+      if LangSectionPre then begin
+        if not IsValidCodePage(PreCodePage) then  { just in case }
+          AbortCompileFmt('Code page %u unsupported', [PreCodePage]);
+        AnsiConvertCodePage := PreCodePage;
+      end else if Ext >= 0 then begin
+        { Ext = LangIndex, except for Default.isl for which its -2 when default
+          messages are read but no special conversion is needed for those. }
+        AnsiConvertCodePage := TPreLangData(PreLangDataList[Ext]).LanguageCodePage;
+      end;
     end;
 {$ENDIF}
 
@@ -7246,7 +7245,6 @@ procedure TSetupCompiler.ReadMessagesFromFilesPre(const AFiles: String;
   const ALangIndex: Integer);
 var
   S, Filename: String;
-  AnsiLanguageFile: Boolean;
 begin
   S := AFiles;
   while True do begin
@@ -7255,8 +7253,7 @@ begin
       Break;
     Filename := PathExpand(PrependSourceDirName(Filename));
     AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
-    AnsiLanguageFile := not TFile.IsUTF8File(Filename);
-    EnumIniSection(EnumLangOptionsPre, 'LangOptions', ALangIndex, False, True, Filename, AnsiLanguageFile, True);
+    EnumIniSection(EnumLangOptionsPre, 'LangOptions', ALangIndex, False, True, Filename, True, True);
     CallIdleProc;
   end;
 end;
@@ -7266,7 +7263,6 @@ procedure TSetupCompiler.ReadMessagesFromFiles(const AFiles: String;
   const ALangIndex: Integer);
 var
   S, Filename: String;
-  AnsiLanguageFile: Boolean;
 begin
   S := AFiles;
   while True do begin
@@ -7275,12 +7271,11 @@ begin
       Break;
     Filename := PathExpand(PrependSourceDirName(Filename));
     AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
-    AnsiLanguageFile := not TFile.IsUTF8File(Filename);
-    EnumIniSection(EnumLangOptions, 'LangOptions', ALangIndex, False, True, Filename, AnsiLanguageFile, False);
+    EnumIniSection(EnumLangOptions, 'LangOptions', ALangIndex, False, True, Filename, True, False);
     CallIdleProc;
-    EnumIniSection(EnumMessages, 'Messages', ALangIndex, False, True, Filename, AnsiLanguageFile, False);
+    EnumIniSection(EnumMessages, 'Messages', ALangIndex, False, True, Filename, True, False);
     CallIdleProc;
-    EnumIniSection(EnumCustomMessages, 'CustomMessages', ALangIndex, False, True, Filename, AnsiLanguageFile, False);
+    EnumIniSection(EnumCustomMessages, 'CustomMessages', ALangIndex, False, True, Filename, True, False);
     CallIdleProc;
   end;
 end;
@@ -7332,7 +7327,7 @@ begin
 
   { Then read the [LangOptions] section in the script }
   AddStatus(SCompilerStatusReadingInScriptMsgs);
-  EnumIniSection(EnumLangOptionspre, 'LangOptions', -1, False, True, '', False, True);
+  EnumIniSection(EnumLangOptionspre, 'LangOptions', -1, False, True, '', True, False);
   CallIdleProc;
 end;
 {$ENDIF}
@@ -7376,11 +7371,11 @@ begin
 
   { Then read the [LangOptions] & [Messages] & [CustomMessages] sections in the script }
   AddStatus(SCompilerStatusReadingInScriptMsgs);
-  EnumIniSection(EnumLangOptions, 'LangOptions', -1, False, True, '', False, False);
+  EnumIniSection(EnumLangOptions, 'LangOptions', -1, False, True, '', True, False);
   CallIdleProc;
-  EnumIniSection(EnumMessages, 'Messages', -1, False, True, '', False, False);
+  EnumIniSection(EnumMessages, 'Messages', -1, False, True, '', True, False);
   CallIdleProc;
-  EnumIniSection(EnumCustomMessages, 'CustomMessages', -1, False, True, '', False, False);
+  EnumIniSection(EnumCustomMessages, 'CustomMessages', -1, False, True, '', True, False);
   CallIdleProc;
 
   { Check for missing messages }

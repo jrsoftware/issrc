@@ -72,7 +72,6 @@ type
     procedure Seek64(Offset: Integer64); override;
     procedure SeekToEnd;
     procedure Truncate;
-    class function IsUTF8File(const Filename: String): Boolean;
     procedure WriteBuffer(const Buffer; Count: Cardinal); override;
     property Handle: THandle read FHandle;
   end;
@@ -307,24 +306,6 @@ procedure TFile.Truncate;
 begin
   if not SetEndOfFile(FHandle) then
     RaiseLastError;
-end;
-
-class function TFile.IsUTF8File(const Filename: String): Boolean;
-var
-  F: TFile;
-  S: RawByteString;
-begin
-  F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
-  try
-    if F.Size.Lo > 2 then begin
-      SetLength(S, 3);
-      F.ReadBuffer(S[1], 3);
-      Result := (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF);
-    end else
-      Result := False;
-  finally
-    F.Free;
-  end;
 end;
 
 procedure TFile.WriteBuffer(const Buffer; Count: Cardinal);
