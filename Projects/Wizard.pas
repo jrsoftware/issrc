@@ -1856,6 +1856,36 @@ var
   DidRegisterResources: Boolean;
 
 function TWizardForm.QueryRestartManager(const WizardComponents, WizardTasks: TStringList): String;
+
+  procedure CheckAndAddRebootReasonToString(var S: String; const RebootReasons, RebootReason: Integer; const RebootReasonString: String);
+  begin
+    if (RebootReasons and RebootReason) <> 0 then begin
+      if S <> '' then
+        S := S + '+';
+      S := S + RebootReasonString;
+    end;
+  end;
+
+  function RebootReasonsToString(const RebootReasons: Integer): String;
+  var
+    UnknownReasons: Integer;
+  begin
+    Result := '';
+    if RebootReasons <> RmRebootReasonNone then begin
+      CheckAndAddRebootReasonToString(Result, RebootReasons, RmRebootReasonPermissionDenied, 'Permission Denied');
+      CheckAndAddRebootReasonToString(Result, RebootReasons, RmRebootReasonSessionMismatch, 'Session Mismatch');
+      CheckAndAddRebootReasonToString(Result, RebootReasons, RmRebootReasonCriticalProcess, 'Critical Process');
+      CheckAndAddRebootReasonToString(Result, RebootReasons, RmRebootReasonCriticalService, 'Critical Service');
+      CheckAndAddRebootReasonToString(Result, RebootReasons, RmRebootReasonDetectedSelf, 'Detected Self');
+      UnknownReasons := RebootReasons and not (RmRebootReasonNone or RmRebootReasonPermissionDenied or
+                                               RmRebootReasonSessionMismatch or RmRebootReasonCriticalProcess or
+                                               RmRebootReasonCriticalService or RmRebootReasonDetectedSelf);
+      CheckAndAddRebootReasonToString(Result, RebootReasons, UnknownReasons, Format('Unknown Reason(s) %d', [UnknownReasons]));
+      Result := ': ' + Result;
+    end;
+    Result := IntToStr(RebootReasons) + Result;
+  end;
+
 type
   TArrayOfProcessInfo = array[0..(MaxInt div SizeOf(RM_PROCESS_INFO))-1] of RM_PROCESS_INFO;
   PArrayOfProcessInfo = ^TArrayOfProcessInfo;
@@ -1883,6 +1913,7 @@ begin
     ProcessInfosCountNeeded := 5; { Start with 5 to hopefully avoid a realloc }
     ProcessInfos := nil;
     try
+      Log('Calling RestartManager''s RmGetList.');
       while ProcessInfosCount < ProcessInfosCountNeeded do begin
         if ProcessInfos <> nil then
           FreeMem(ProcessInfos);
@@ -1896,18 +1927,23 @@ begin
         end;
       end;
 
-      if RmSessionStarted and (ProcessInfosCount > 0) then begin
-        for I := 0 to ProcessInfosCount-1 do begin
-          AppName := WideCharToString(ProcessInfos[I].strAppName);
-          LogFmt('RestartManager found an application using one of our files: %s', [AppName]);
-          if RebootReasons = RmRebootReasonNone then begin
-            if Result <> '' then
-              Result := Result + #13#10;
-            Result := Result + AppName;
+      if RmSessionStarted then begin
+        Log('RmGetList finished successfully.');
+        if ProcessInfosCount > 0 then begin
+          for I := 0 to ProcessInfosCount-1 do begin
+            AppName := WideCharToString(ProcessInfos[I].strAppName);
+            LogFmt('RestartManager found an application using one of our files: %s', [AppName]);
+            if RebootReasons = RmRebootReasonNone then begin
+              if Result <> '' then
+                Result := Result + #13#10;
+              Result := Result + AppName;
+            end;
           end;
-        end;
-        LogFmt('Can use RestartManager to avoid reboot? %s (%d)', [SYesNo[RebootReasons = RmRebootReasonNone], RebootReasons]);
-      end;
+          LogFmt('Can use RestartManager to avoid reboot? %s (%s)', [SYesNo[RebootReasons = RmRebootReasonNone], RebootReasonsToString(RebootReasons)]);
+        end else
+          Log('RestartManager found no applications using one of our files.');
+      end else
+        Log('RmGetList failed.');
     finally
       if ProcessInfos <> nil then
         FreeMem(ProcessInfos);
