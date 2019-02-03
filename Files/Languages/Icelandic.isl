@@ -104,7 +104,7 @@ WizardPassword=Aðgangsorð
 PasswordLabel1=Þessi uppsetning er aðgangsorðsvarin.
 PasswordLabel3=Vinsamlega veitu aðgangsorðið, smelltu síðan á Næst til að halda áfram. Aðgangsorð eru hástafanæm.
 PasswordEditLabel=&Aðgangsorð:
-IncorrectPassword=Aðgangsorðið sem þú ritaðir er ekki rétt. Vinsamlega reyndu aftur.
+IncorrectPassword=Aðgangsorðið sem þú innslóst er ekki rétt. Vinsamlega reyndu aftur.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Leyfissamningur
@@ -123,11 +123,11 @@ InfoAfterClickLabel=Þegar þú ert tilbúin(n) til að halda áfram með Uppsetninguna
 
 ; *** "User Information" wizard page
 WizardUserInfo=Notandaupplýsingar
-UserInfoDesc=Vinsamlega ritaðu upplýsingarnar þínar.
+UserInfoDesc=Vinsamlega innsláðu upplýsingarnar þínar.
 UserInfoName=&Notandanafn:
 UserInfoOrg=&Stofnun:
 UserInfoSerial=&Raðnúmer:
-UserInfoNameRequired=Þú verður að rita nafn.
+UserInfoNameRequired=Þú verður að innslá nafn.
 
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Velja áfangastað
@@ -137,7 +137,7 @@ SelectDirBrowseLabel=Til að halda áfram, smelltu á Næst. Ef þú vilt velja aðra m
 DiskSpaceMBLabel=Að minnsta kosti [mb] MB af lausu diskplássi er krafist.
 CannotInstallToNetworkDrive=Uppsetning getur ekki uppsett á netdrif.
 CannotInstallToUNCPath=Uppsetning getur ekki uppsett á UNC-slóð.
-InvalidPath=Þú verður að rita fulla slóð með drifstaf; til dæmis:%n%nC:\APP%n%neða UNC-slóð samkvæmt sniðinu:%n%n\\server\share
+InvalidPath=Þú verður að innslá fulla slóð með drifstaf; til dæmis:%n%nC:\APP%n%neða UNC-slóð samkvæmt sniðinu:%n%n\\server\share
 InvalidDrive=Drifið eða UNC-deiling sem þú valdir er ekki til eða er ekki aðgengilegt. Vinsamlega veldu annað.
 DiskSpaceWarningTitle=Ekki nóg diskpláss
 DiskSpaceWarning=Uppsetning krefst að minnsta kosti %1 KB af lausu plássi til að uppsetja, en hið valda drif hefur einungis %2 KB tiltæk.%n%nVilt þú halda áfram hvort sem er?
@@ -172,7 +172,7 @@ WizardSelectProgramGroup=Veldu Upphafsvalmyndarmöppu
 SelectStartMenuFolderDesc=Hvert ætti Uppsetning að setja skyndivísa forritsins?
 SelectStartMenuFolderLabel3=Uppsetning mun skapa skyndivísa forritsins í hina eftirfarandi Upphafsvalmyndarmöppu.
 SelectStartMenuFolderBrowseLabel=Til að halda áfram, smelltu á Næst. Ef þú vilt velja aðra möppu, smelltu á Vafra.
-MustEnterGroupName=Þú verður að rita möppunafn.
+MustEnterGroupName=Þú verður að innslá möppunafn.
 GroupNameTooLong=Möppunafnið eða slóðin er of löng.
 InvalidGroupName=Möppunafnið er ekki gilt.
 BadGroupName=Möppunafnið getur ekki innihaldið neitt af hinum eftirfarandi rittáknum:%n%n%1
@@ -220,9 +220,9 @@ RunEntryShellExec=Skoða %1
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=Uppsetning þarfnast næsta disks
-SelectDiskLabel2=Vinsamlega innsettu disk %1 og smelltu á Í lagi.%n%nEf skrárnar á þessum disk er hægt að finna í annarri möppu en þeirri sem birt er fyrir neðan, ritaðu réttu slóðina og smelltu á Vafra.
+SelectDiskLabel2=Vinsamlega settu inn disk %1 og smelltu á Í lagi.%n%nEf skrárnar á þessum disk er hægt að finna í annarri möppu en þeirri sem birt er fyrir neðan, innsláðu réttu slóðina og smelltu á Vafra.
 PathLabel=&Slóð:
-FileNotInDir2=Skrána „%1“ var ekki hægt að staðsetja í „%2“. Vinsamlega innsettu rétta diskinn eða veldu aðra möppu.
+FileNotInDir2=Skrána „%1“ var ekki hægt að staðsetja í „%2“. Vinsamlega settu inn rétta diskinn eða veldu aðra möppu.
 SelectDirectoryLabel=Vinsamlega tilgreindu staðsetningu næsta disks.
 
 ; *** Installation phase messages
