@@ -88,6 +88,8 @@ Type: files; Name: "{app}\Builtins.iss"
 Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon
 ; Remove old FAQ file
 Type: files; Name: "{app}\isfaq.htm"
+; Remove old .islu files
+Type: files; Name: "{app}\Languages\*.islu"
 ; Remove translations in case any got demoted
 Type: files; Name: "{app}\Languages\*.isl"
 
@@ -108,7 +110,6 @@ Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Languages\*.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
-Source: "files\Languages\*.islu"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\WizModernImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
