@@ -88,6 +88,8 @@ Type: files; Name: "{app}\Builtins.iss"
 Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon
 ; Remove old FAQ file
 Type: files; Name: "{app}\isfaq.htm"
+; Remove translations in case any got demoted
+Type: files; Name: "{app}\Languages\*.isl"
 
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
