@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.6.0+ Russian messages ***
+; *** Inno Setup version 6.0.0+ Russian messages ***
 ;
 ; Translated from English by Dmitry Kann, http://yktoo.com/
 ;
