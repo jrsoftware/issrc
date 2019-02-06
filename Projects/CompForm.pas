@@ -925,10 +925,10 @@ begin
   end;
 
   Memo.UpdateStyleAttributes;
-  CompilerOutputList.Color := Memo.Color;
   CompilerOutputList.Font.Color := Memo.Font.Color;
-  DebugOutputList.Color := Memo.Color;
+  CompilerOutputList.Color := Memo.Color;
   DebugOutputList.Font.Color := Memo.Font.Color;
+  DebugOutputList.Color := Memo.Color;
   Bevel1.Visible := FOptions.MemoHighlighting = mhClassic;
   SplitPanel.ParentBackground := False;
   if FOptions.MemoHighlighting = mhDark then
@@ -2604,6 +2604,8 @@ begin
     OptionsForm.IndentationGuidesCheck.Checked := FOptions.IndentationGuides;
     OptionsForm.GutterLineNumbersCheck.Checked := FOptions.GutterLineNumbers;
     OptionsForm.FontPanel.Font.Assign(Memo.Font);
+    OptionsForm.FontPanel.ParentBackground := False;
+    OptionsForm.FontPanel.Color := Memo.Color;
 
     if OptionsForm.ShowModal <> mrOK then
       Exit;
