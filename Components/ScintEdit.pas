@@ -1656,6 +1656,7 @@ begin
   if Assigned(FStyler) and FUseStyleAttributes then begin
     for I := 0 to 31 do
       SetStyleAttrFromStyler(I);
+    SetStyleAttrFromStyler(STYLE_LINENUMBER);
     SetStyleAttrFromStyler(STYLE_BRACELIGHT);
     SetStyleAttrFromStyler(STYLE_INDENTGUIDE);
   end;

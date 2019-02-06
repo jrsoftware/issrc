@@ -929,6 +929,7 @@ begin
   CompilerOutputList.Font.Color := Memo.Font.Color;
   DebugOutputList.Color := Memo.Color;
   DebugOutputList.Font.Color := Memo.Font.Color;
+  Bevel1.Visible := MH = mhClassic;
 
   FBreakPoints := TList.Create;
 

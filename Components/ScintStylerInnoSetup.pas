@@ -678,6 +678,7 @@ end;
 procedure TInnoSetupStyler.GetStyleAttributes(const Style: Integer;
   var Attributes: TScintStyleAttributes);
 const
+  STYLE_LINENUMBER = 33;
   STYLE_BRACELIGHT = 34;
   STYLE_IDENTGUIDE = 37;
 begin
@@ -713,11 +714,26 @@ begin
   end else begin
     if FDarkBackColor then begin
       case Style of
+        STYLE_LINENUMBER:
+          begin
+            Attributes.ForeColor := $707070;
+            Attributes.BackColor := $3E3A3D;
+          end;
         STYLE_BRACELIGHT: Attributes.BackColor := $707070;
         STYLE_IDENTGUIDE: Attributes.ForeColor := $707070;
       end;
     end else begin
       case Style of
+        STYLE_LINENUMBER:
+          begin
+            if FClassicStyles then begin
+              Attributes.ForeColor := clWindowText;
+              Attributes.BackColor := clBtnFace
+            end else begin
+              Attributes.ForeColor := $707070;
+              Attributes.BackColor := $FAFAFA;
+            end;
+          end;
         STYLE_BRACELIGHT: Attributes.BackColor := $E0E0E0;
         STYLE_IDENTGUIDE: Attributes.ForeColor := clSilver;
       end;
