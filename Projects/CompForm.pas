@@ -54,6 +54,8 @@ type
 
   TStatusMessageKind = (smkStartEnd, smkNormal, smkWarning, smkError);
 
+  TMemoHighlighting = (mhClassic, mhLight, mhDark);
+
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -820,6 +822,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
 var
   I: Integer;
   NewItem: TMenuItem;
+  MH: TMemoHighlighting;
 begin
   inherited;
 
@@ -894,6 +897,38 @@ begin
   Memo.OnModifiedChange := MemoModifiedChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.Parent := BodyPanel;
+
+  MH := mhDark;
+
+  case MH of
+    mhClassic:
+      begin
+        Memo.Font.Color := clWindowText;
+        Memo.Color := clWindow;
+        MemoStyler.DarkBackColor := False;
+        MemoStyler.ClassicStyles := True;
+        end;
+    mhLight:
+      begin
+        Memo.Font.Color := clBlack;
+        Memo.Color := clWhite;
+        MemoStyler.DarkBackColor := False;
+        MemoStyler.ClassicStyles := False;
+      end;
+    mhDark:
+      begin
+        Memo.Font.Color := clWhite;
+        Memo.Color := $2C282C; //$1E1F20;
+        MemoStyler.DarkBackColor := True;
+        MemoStyler.ClassicStyles := False;
+      end;
+  end;
+
+  Memo.UpdateStyleAttributes;
+  CompilerOutputList.Color := Memo.Color;
+  CompilerOutputList.Font.Color := Memo.Font.Color;
+  DebugOutputList.Color := Memo.Color;
+  DebugOutputList.Font.Color := Memo.Font.Color;
 
   FBreakPoints := TList.Create;
 
@@ -3985,20 +4020,26 @@ end;
 procedure TCompileForm.CompilerOutputListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 const
-  Colors: array [TStatusMessageKind] of TColor = (clGreen, clWindowText, clOlive, clRed);
+  Colors: array [TStatusMessageKind] of TColor = ($339933 {53C392}, 0, $5E88E5, $3D29CC);
 var
   Canvas: TCanvas;
   S: String;
+  StatusMessageKind: TStatusMessageKind;
   Color: TColor;
 begin
   Canvas := CompilerOutputList.Canvas;
   S := CompilerOutputList.Items[Index];
-  Color := Colors[TStatusMessageKind(CompilerOutputList.Items.Objects[Index])];
 
   Canvas.FillRect(Rect);
   Inc(Rect.Left, 2);
-  if FOptions.ColorizeCompilerOutput and not (odSelected in State) then
+  if FOptions.ColorizeCompilerOutput and not (odSelected in State) then begin
+    StatusMessageKind := TStatusMessageKind(CompilerOutputList.Items.Objects[Index]);
+    if StatusMessageKind <> smkNormal then
+      Color := Colors[StatusMessageKind]
+    else
+      Color := CompilerOutputList.Font.Color;
     Canvas.Font.Color := Color;
+  end;
   Canvas.TextOut(Rect.Left, Rect.Top, S);
 end;
 

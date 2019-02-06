@@ -2,7 +2,7 @@ unit ScintEdit;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -127,7 +127,6 @@ type
     procedure StyleNeeded(const EndPos: Integer);
     procedure UpdateCodePage;
     procedure UpdateLineNumbersWidth;
-    procedure UpdateStyleAttributes;
     procedure CMColorChanged(var Message: TMessage); message CM_COLORCHANGED;
     procedure CMFontChanged(var Message: TMessage); message CM_FONTCHANGED;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
@@ -227,6 +226,7 @@ type
     procedure SetSavePoint;
     procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
     procedure Undo;
+    procedure UpdateStyleAttributes;
     function WordAtCursor: String;
     procedure ZoomIn;
     procedure ZoomOut;

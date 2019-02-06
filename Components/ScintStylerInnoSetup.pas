@@ -2,7 +2,7 @@ unit ScintStylerInnoSetup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -58,7 +58,7 @@ type
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FKeywordList: array[TInnoSetupStylerSection] of AnsiString;
-    FIsppInstalled: Boolean;
+    FIsppInstalled, FClassicStyles, FDarkBackColor: Boolean;
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
@@ -92,6 +92,8 @@ type
     class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
+    property ClassicStyles: Boolean read FClassicStyles write FClassicStyles;
+    property DarkBackColor: Boolean read FDarkBackColor write FDarkBackColor;
     property KeywordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordList;
     property IsppInstalled: Boolean read FIsppInstalled write FIsppInstalled;
   end;
@@ -680,22 +682,45 @@ const
   STYLE_IDENTGUIDE = 37;
 begin
   if (Style >= 0) and (Style <= Ord(High(TInnoSetupStylerStyle))) then begin
-    case TInnoSetupStylerStyle(Style) of
-      stCompilerDirective: Attributes.ForeColor := $4040C0;
-      stComment: Attributes.ForeColor := clGreen;
-      stSection: Attributes.FontStyle := [fsBold];
-      stSymbol: Attributes.ForeColor := $707070;
-      stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := clBlue;
-      //stParameterValue: Attributes.ForeColor := clTeal;
-      stEventFunction: Attributes.FontStyle := [fsBold];
-      stConstant: Attributes.ForeColor := $C00080;
-      stMessageArg: Attributes.ForeColor := $FF8000;
-      stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := clMaroon;
+    if FClassicStyles then begin
+      case TInnoSetupStylerStyle(Style) of
+        stCompilerDirective: Attributes.ForeColor := $4040C0;
+        stComment: Attributes.ForeColor := clGreen;
+        stSection: Attributes.FontStyle := [fsBold];
+        stSymbol: Attributes.ForeColor := $707070;
+        stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := clBlue;
+        //stParameterValue: Attributes.ForeColor := clTeal;
+        stEventFunction: Attributes.FontStyle := [fsBold];
+        stConstant: Attributes.ForeColor := $C00080;
+        stMessageArg: Attributes.ForeColor := $FF8000;
+        stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := clMaroon;
+      end;
+    end else begin
+      //unused blue/greenish color: $B0C94E
+      case TInnoSetupStylerStyle(Style) of
+        stCompilerDirective: Attributes.ForeColor := $3D29CC;
+        stComment: Attributes.ForeColor := $339933;
+        stSection: Attributes.FontStyle := [fsBold];
+        stSymbol: Attributes.ForeColor := $707070;
+        stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := $D47800;
+        //stParameterValue: Attributes.ForeColor := clTeal;
+        stEventFunction: Attributes.FontStyle := [fsBold];
+        stConstant: Attributes.ForeColor := $933B77;
+        stMessageArg: Attributes.ForeColor := $3D29CC;
+        stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := $5E88E5;
+      end;
     end;
   end else begin
-    case Style of
-      STYLE_BRACELIGHT: Attributes.BackColor := $E0E0E0;
-      STYLE_IDENTGUIDE: Attributes.ForeColor := clSilver;
+    if FDarkBackColor then begin
+      case Style of
+        STYLE_BRACELIGHT: Attributes.BackColor := $707070;
+        STYLE_IDENTGUIDE: Attributes.ForeColor := $707070;
+      end;
+    end else begin
+      case Style of
+        STYLE_BRACELIGHT: Attributes.BackColor := $E0E0E0;
+        STYLE_IDENTGUIDE: Attributes.ForeColor := clSilver;
+      end;
     end;
   end;
 end;
