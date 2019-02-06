@@ -284,6 +284,7 @@ type
       IndentationGuides: Boolean;
       LowPriorityDuringCompile: Boolean;
       GutterLineNumbers: Boolean;
+      MemoHighlighting: TMemoHighlighting;
     end;
     FOptionsLoaded: Boolean;
     FSignTools: TStringList;
@@ -822,7 +823,6 @@ constructor TCompileForm.Create(AOwner: TComponent);
 var
   I: Integer;
   NewItem: TMenuItem;
-  MH: TMemoHighlighting;
 begin
   inherited;
 
@@ -898,9 +898,9 @@ begin
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.Parent := BodyPanel;
 
-  MH := mhDark;
+  FOptions.MemoHighlighting := mhDark;
 
-  case MH of
+  case FOptions.MemoHighlighting of
     mhClassic:
       begin
         Memo.Font.Color := clWindowText;
@@ -929,7 +929,12 @@ begin
   CompilerOutputList.Font.Color := Memo.Font.Color;
   DebugOutputList.Color := Memo.Color;
   DebugOutputList.Font.Color := Memo.Font.Color;
-  Bevel1.Visible := MH = mhClassic;
+  Bevel1.Visible := FOptions.MemoHighlighting = mhClassic;
+  SplitPanel.ParentBackground := False;
+  if FOptions.MemoHighlighting = mhDark then
+    SplitPanel.Color := $3E3A3D
+  else
+    SplitPanel.Color := clBtnFace;
 
   FBreakPoints := TList.Create;
 
@@ -4021,7 +4026,10 @@ end;
 procedure TCompileForm.CompilerOutputListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 const
-  Colors: array [TStatusMessageKind] of TColor = ($339933 {53C392}, 0, $5E88E5, $3D29CC);
+  Colors: array [TMemoHighlighting, TStatusMessageKind] of TColor = (
+    (clGreen, 0, clOlive, clRed),
+    ($339933, 0, $5E88E5, $3D29CC),
+    ($339933, 0, $5E88E5, $3D29CC));
 var
   Canvas: TCanvas;
   S: String;
@@ -4036,7 +4044,7 @@ begin
   if FOptions.ColorizeCompilerOutput and not (odSelected in State) then begin
     StatusMessageKind := TStatusMessageKind(CompilerOutputList.Items.Objects[Index]);
     if StatusMessageKind <> smkNormal then
-      Color := Colors[StatusMessageKind]
+      Color := Colors[FOptions.MemoHighlighting, StatusMessageKind]
     else
       Color := CompilerOutputList.Font.Color;
     Canvas.Font.Color := Color;
