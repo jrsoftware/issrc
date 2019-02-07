@@ -446,7 +446,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, CommDlg, Consts, Types,
-  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchemaISX, BrowseFunc,
+  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchemaISX, BrowseFunc, ModernColors,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes;
@@ -910,15 +910,15 @@ begin
         end;
     mhLight:
       begin
-        Memo.Font.Color := clBlack;
-        Memo.Color := clWhite;
+        Memo.Font.Color := clModernLightFore;
+        Memo.Color := clModernLightBack;
         MemoStyler.DarkBackColor := False;
         MemoStyler.ClassicStyles := False;
       end;
     mhDark:
       begin
-        Memo.Font.Color := clWhite;
-        Memo.Color := $2C282C; //$1E1F20;
+        Memo.Font.Color := clModernDarkFore;
+        Memo.Color := clModernDarkBack;
         MemoStyler.DarkBackColor := True;
         MemoStyler.ClassicStyles := False;
       end;
@@ -932,7 +932,7 @@ begin
   Bevel1.Visible := FOptions.MemoHighlighting = mhClassic;
   SplitPanel.ParentBackground := False;
   if FOptions.MemoHighlighting = mhDark then
-    SplitPanel.Color := $3E3A3D
+    SplitPanel.Color := clModernDarkHiBack
   else
     SplitPanel.Color := clBtnFace;
 
@@ -4029,9 +4029,9 @@ procedure TCompileForm.CompilerOutputListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 const
   Colors: array [TMemoHighlighting, TStatusMessageKind] of TColor = (
-    (clGreen, 0, clOlive, clRed),
-    ($339933, 0, $5E88E5, $3D29CC),
-    ($339933, 0, $5E88E5, $3D29CC));
+    (      clGreen, 0,        clOlive,       clRed),
+    (clModernGreen, 0, clModernOrange, clModernRed),
+    (clModernGreen, 0, clModernOrange, clModernRed));
 var
   Canvas: TCanvas;
   S: String;

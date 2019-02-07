@@ -101,7 +101,7 @@ type
 implementation
 
 uses
-  TypInfo;
+  TypInfo, ModernColors;
 
 type
   TInnoSetupStylerLineState = record
@@ -697,18 +697,17 @@ begin
         stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := clMaroon;
       end;
     end else begin
-      //unused blue/greenish color: $B0C94E
       case TInnoSetupStylerStyle(Style) of
-        stCompilerDirective: Attributes.ForeColor := $3D29CC;
-        stComment: Attributes.ForeColor := $339933;
+        stCompilerDirective: Attributes.ForeColor := clModernRed;
+        stComment: Attributes.ForeColor := clModernGreen;
         stSection: Attributes.FontStyle := [fsBold];
-        stSymbol: Attributes.ForeColor := $707070;
-        stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := $D47800;
-        //stParameterValue: Attributes.ForeColor := clTeal;
+        stSymbol: Attributes.ForeColor := clModernGray;
+        stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := clModernBlue;
+        //stParameterValue: Attributes.ForeColor := clModernTeal;
         stEventFunction: Attributes.FontStyle := [fsBold];
-        stConstant: Attributes.ForeColor := $933B77;
-        stMessageArg: Attributes.ForeColor := $3D29CC;
-        stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := $5E88E5;
+        stConstant: Attributes.ForeColor := clModernPurple;
+        stMessageArg: Attributes.ForeColor := clModernRed;
+        stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := clModernOrange;
       end;
     end;
   end else begin
@@ -716,11 +715,11 @@ begin
       case Style of
         STYLE_LINENUMBER:
           begin
-            Attributes.ForeColor := $707070;
-            Attributes.BackColor := $3E3A3D;
+            Attributes.ForeColor := clModernDarkHiFore;
+            Attributes.BackColor := clModernDarkHiBack;
           end;
-        STYLE_BRACELIGHT: Attributes.BackColor := $707070;
-        STYLE_IDENTGUIDE: Attributes.ForeColor := $707070;
+        STYLE_BRACELIGHT: Attributes.BackColor := clModernGray;
+        STYLE_IDENTGUIDE: Attributes.ForeColor := clModernGray;
       end;
     end else begin
       case Style of
@@ -730,8 +729,8 @@ begin
               Attributes.ForeColor := clWindowText;
               Attributes.BackColor := clBtnFace
             end else begin
-              Attributes.ForeColor := $707070;
-              Attributes.BackColor := $FAFAFA;
+              Attributes.ForeColor := clModernLightLoFore;
+              Attributes.BackColor := clModernLightLoBack;
             end;
           end;
         STYLE_BRACELIGHT: Attributes.BackColor := $E0E0E0;
