@@ -47,6 +47,8 @@ type
     UnderlineErrorsCheck: TCheckBox;
     GutterLineNumbersCheck: TCheckBox;
     ColorizeCompilerOutputCheck: TCheckBox;
+    Label3: TNewStaticText;
+    ThemeComboBox: TComboBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -77,6 +79,11 @@ begin
   else
     RunAsDifferentUserCheck.Caption := 'Always &launch Setup/Uninstall as different user';
   RunAsDifferentUserCheck.Enabled := (Win32MajorVersion >= 5);
+
+  { Order must match TThemeType. }
+  ThemeComboBox.Items.Add('Light');
+  ThemeComboBox.Items.Add('Dark');
+  ThemeComboBox.Items.Add('Classic');
 end;
 
 procedure TOptionsForm.AssocButtonClick(Sender: TObject);

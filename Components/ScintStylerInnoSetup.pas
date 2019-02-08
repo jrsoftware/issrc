@@ -2,7 +2,7 @@ unit ScintStylerInnoSetup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit ScintStylerInnoSetup;
 interface
 
 uses
-  SysUtils, Classes, Graphics, ScintEdit;
+  SysUtils, Classes, Graphics, ScintEdit, ModernColors;
 
 type
   { Internally-used types }
@@ -59,6 +59,7 @@ type
   private
     FKeywordList: array[TInnoSetupStylerSection] of AnsiString;
     FIsppInstalled: Boolean;
+    FTheme: TTheme;
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
@@ -94,6 +95,7 @@ type
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     property KeywordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordList;
     property IsppInstalled: Boolean read FIsppInstalled write FIsppInstalled;
+    property Theme: TTheme read FTheme write FTheme;
   end;
 
 implementation
@@ -676,26 +678,42 @@ end;
 procedure TInnoSetupStyler.GetStyleAttributes(const Style: Integer;
   var Attributes: TScintStyleAttributes);
 const
+  STYLE_LINENUMBER = 33;
   STYLE_BRACELIGHT = 34;
   STYLE_IDENTGUIDE = 37;
 begin
-  if (Style >= 0) and (Style <= Ord(High(TInnoSetupStylerStyle))) then begin
-    case TInnoSetupStylerStyle(Style) of
-      stCompilerDirective: Attributes.ForeColor := $4040C0;
-      stComment: Attributes.ForeColor := clGreen;
-      stSection: Attributes.FontStyle := [fsBold];
-      stSymbol: Attributes.ForeColor := $707070;
-      stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := clBlue;
-      //stParameterValue: Attributes.ForeColor := clTeal;
-      stEventFunction: Attributes.FontStyle := [fsBold];
-      stConstant: Attributes.ForeColor := $C00080;
-      stMessageArg: Attributes.ForeColor := $FF8000;
-      stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := clMaroon;
-    end;
-  end else begin
-    case Style of
-      STYLE_BRACELIGHT: Attributes.BackColor := $E0E0E0;
-      STYLE_IDENTGUIDE: Attributes.ForeColor := clSilver;
+  if FTheme <> nil then begin
+    if (Style >= 0) and (Style <= Ord(High(TInnoSetupStylerStyle))) then begin
+      if not FTheme.Modern then begin
+        { Check for some exceptions }
+        case TInnoSetupStylerStyle(Style) of
+          stCompilerDirective: begin Attributes.ForeColor := $4040C0; Exit; end;
+          stMessageArg: begin Attributes.ForeColor := $FF8000; Exit; end;
+          stPascalString, stPascalNumber, stISPPString, stISPPNumber: begin Attributes.ForeColor := clMaroon; Exit; end;
+        end;
+      end;
+      case TInnoSetupStylerStyle(Style) of
+        stCompilerDirective: Attributes.ForeColor := FTheme.Colors[tcRed];
+        stComment: Attributes.ForeColor := FTheme.Colors[tcGreen];
+        stSection: Attributes.FontStyle := [fsBold];
+        stSymbol: Attributes.ForeColor := FTheme.Colors[tcGray];
+        stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := FTheme.Colors[tcBlue];
+        //stParameterValue: Attributes.ForeColor := FTheme.Colors[tcTeal];
+        stEventFunction: Attributes.FontStyle := [fsBold];
+        stConstant: Attributes.ForeColor := FTheme.Colors[tcPurple];
+        stMessageArg: Attributes.ForeColor := FTheme.Colors[tcRed];
+        stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := FTheme.Colors[tcOrange];
+      end;
+    end else begin
+      case Style of
+        STYLE_LINENUMBER:
+          begin
+            Attributes.ForeColor := FTheme.Colors[tcMarginFore];
+            Attributes.BackColor := FTheme.Colors[tcMarginBack];
+          end;
+        STYLE_BRACELIGHT: Attributes.BackColor := FTheme.Colors[tcBraceBack];
+        STYLE_IDENTGUIDE: Attributes.ForeColor := FTheme.Colors[tcIdentGuideFore];
+      end;
     end;
   end;
 end;

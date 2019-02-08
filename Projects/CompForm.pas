@@ -24,7 +24,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
-  ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet,
+  ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors,
   DebugStruct, CompInt, UxThemeISX, System.ImageList, ImgList, ToolWin,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
@@ -282,8 +282,10 @@ type
       IndentationGuides: Boolean;
       LowPriorityDuringCompile: Boolean;
       GutterLineNumbers: Boolean;
+      ThemeType: TThemeType;
     end;
     FOptionsLoaded: Boolean;
+    FTheme: TTheme;
     FSignTools: TStringList;
     FCompiling: Boolean;
     FCompileWantAbort: Boolean;
@@ -391,6 +393,7 @@ type
     procedure UpdateOutputListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateTargetMenu;
+    procedure UpdateTheme;
     procedure UpdateThemeData(const Close, Open: Boolean);
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
@@ -423,8 +426,13 @@ type
   end;
 
   TISScintEdit = class(TScintEdit)
+  private
+    FTheme: TTheme;
   protected
     procedure CreateWnd; override;
+  public
+    property Theme: TTheme read FTheme write FTheme;
+    procedure UpdateThemeColors;
   end;
 
 var
@@ -666,7 +674,7 @@ begin
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
   Call(SCI_INDICSETSTYLE, inSquiggly, INDIC_SQUIGGLE);
-  Call(SCI_INDICSETFORE, inSquiggly, clRed);
+  Call(SCI_INDICSETFORE, inSquiggly, clRed); { Maybe be overwitten by UpdateThemeColors }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
@@ -692,6 +700,16 @@ begin
   Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
+end;
+
+procedure TISScintEdit.UpdateThemeColors;
+begin
+  if FTheme <> nil then begin
+    Font.Color := FTheme.Colors[tcFore];
+    Color := FTheme.Colors[tcBack];
+    Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
+    Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
+  end;
 end;
 
 { TCompileFormMemoPopupMenu }
@@ -724,6 +742,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
   var
     Ini: TConfigIniFile;
     WindowPlacement: TWindowPlacement;
+    I: Integer;
   begin
     Ini := TConfigIniFile.Create;
     try
@@ -752,6 +771,9 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.AutoIndent := Ini.ReadBool('Options', 'AutoIndent', True);
       FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', True);
       FOptions.GutterLineNumbers := Ini.ReadBool('Options', 'GutterLineNumbers', False);
+      I := Ini.ReadInteger('Options', 'ThemeType', Ord(ttModernLight));
+      if (I >= 0) and (I <= Ord(High(TThemeType))) then
+        FOptions.ThemeType := TThemeType(I);
       if GetACP = 932 then begin
         { Default to MS Gothic font on CP 932 (Japanese), as Courier New is
           only capable of displaying Japanese characters on XP and later. }
@@ -777,6 +799,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       Memo.Zoom := Ini.ReadInteger('Options', 'Zoom', 0);
       SyncEditorOptions;
       UpdateNewButtons;
+      UpdateTheme;
 
       { Window state }
       WindowPlacement.length := SizeOf(WindowPlacement);
@@ -895,6 +918,10 @@ begin
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.Parent := BodyPanel;
 
+  FTheme := TTheme.Create;
+  Memo.Theme := FTheme;
+  MemoStyler.Theme := FTheme;
+
   FBreakPoints := TList.Create;
 
   UpdateOutputListsItemHeightAndDebugTimeWidth;
@@ -976,6 +1003,7 @@ begin
   if FOptionsLoaded and not (CommandLineCompile or CommandLineWizard) then
     SaveConfig;
 
+  FTheme.Free;
   FBreakPoints.Free;
   DestroyDebugInfo;
   FSignTools.Free;
@@ -2562,7 +2590,10 @@ begin
     OptionsForm.AutoIndentCheck.Checked := FOptions.AutoIndent;
     OptionsForm.IndentationGuidesCheck.Checked := FOptions.IndentationGuides;
     OptionsForm.GutterLineNumbersCheck.Checked := FOptions.GutterLineNumbers;
+    OptionsForm.ThemeComboBox.ItemIndex := Ord(FOptions.ThemeType);
     OptionsForm.FontPanel.Font.Assign(Memo.Font);
+    OptionsForm.FontPanel.ParentBackground := False;
+    OptionsForm.FontPanel.Color := Memo.Color;
 
     if OptionsForm.ShowModal <> mrOK then
       Exit;
@@ -2586,6 +2617,7 @@ begin
     FOptions.AutoIndent := OptionsForm.AutoIndentCheck.Checked;
     FOptions.IndentationGuides := OptionsForm.IndentationGuidesCheck.Checked;
     FOptions.GutterLineNumbers := OptionsForm.GutterLineNumbersCheck.Checked;
+    FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
     UpdateCaption;
     { Move caret to start of line to ensure it doesn't end up in the middle
       of a double-byte character if the code page changes from SBCS to DBCS }
@@ -2593,6 +2625,7 @@ begin
     Memo.Font.Assign(OptionsForm.FontPanel.Font);
     SyncEditorOptions;
     UpdateNewButtons;
+    UpdateTheme;
 
     { Save new options }
     Ini := TConfigIniFile.Create;
@@ -2616,6 +2649,7 @@ begin
       Ini.WriteBool('Options', 'AutoIndent', FOptions.AutoIndent);
       Ini.WriteBool('Options', 'IndentationGuides', FOptions.IndentationGuides);
       Ini.WriteBool('Options', 'GutterLineNumbers', FOptions.GutterLineNumbers);
+      Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType));
       Ini.WriteString('Options', 'EditorFontName', Memo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', Memo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', Memo.Font.Charset);
@@ -3525,6 +3559,22 @@ begin
   end;
 end;
 
+procedure TCompileForm.UpdateTheme;
+begin
+  FTheme.Typ := FOptions.ThemeType;
+  Memo.UpdateThemeColors;
+  Memo.UpdateStyleAttributes;
+  Bevel1.Visible := FTheme.Colors[tcMarginBack] = ToolBar.Color;
+  SplitPanel.ParentBackground := False;
+  SplitPanel.Color := FTheme.Colors[tcSplitterBack];
+  CompilerOutputList.Font.Color := FTheme.Colors[tcFore];
+  CompilerOutputList.Color := FTheme.Colors[tcBack];
+  CompilerOutputList.Invalidate;
+  DebugOutputList.Font.Color := FTheme.Colors[tcFore];
+  DebugOutputList.Color := FTheme.Colors[tcBack];
+  DebugOutputList.Invalidate;
+end;
+
 procedure TCompileForm.UpdateThemeData(const Close, Open: Boolean);
 begin
   if Close then begin
@@ -3985,20 +4035,21 @@ end;
 procedure TCompileForm.CompilerOutputListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 const
-  Colors: array [TStatusMessageKind] of TColor = (clGreen, clWindowText, clOlive, clRed);
+  ThemeColors: array [TStatusMessageKind] of TThemeColor = (tcGreen, tcFore, tcOrange, tcRed);
 var
   Canvas: TCanvas;
   S: String;
-  Color: TColor;
+  StatusMessageKind: TStatusMessageKind;
 begin
   Canvas := CompilerOutputList.Canvas;
   S := CompilerOutputList.Items[Index];
-  Color := Colors[TStatusMessageKind(CompilerOutputList.Items.Objects[Index])];
 
   Canvas.FillRect(Rect);
   Inc(Rect.Left, 2);
-  if FOptions.ColorizeCompilerOutput and not (odSelected in State) then
-    Canvas.Font.Color := Color;
+  if FOptions.ColorizeCompilerOutput and not (odSelected in State) then begin
+    StatusMessageKind := TStatusMessageKind(CompilerOutputList.Items.Objects[Index]);
+    Canvas.Font.Color := FTheme.Colors[ThemeColors[StatusMessageKind]];
+  end;
   Canvas.TextOut(Rect.Left, Rect.Top, S);
 end;
 

@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 317
+  ClientHeight = 349
   ClientWidth = 589
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -15,13 +15,17 @@ object OptionsForm: TOptionsForm
   OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
+  DesignSize = (
+    589
+    349)
   PixelsPerInch = 96
   TextHeight = 13
   object GroupBox1: TGroupBox
     Left = 8
     Top = 8
     Width = 281
-    Height = 201
+    Height = 233
+    Anchors = [akLeft, akTop, akBottom]
     Caption = ' Miscellaneous '
     TabOrder = 0
     object StartupCheck: TCheckBox
@@ -99,16 +103,21 @@ object OptionsForm: TOptionsForm
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 216
+    Top = 248
     Width = 281
     Height = 57
+    Anchors = [akLeft, akBottom]
     Caption = ' File Associations '
     TabOrder = 1
+    DesignSize = (
+      281
+      57)
     object AssocButton: TButton
       Left = 40
       Top = 20
       Width = 201
       Height = 23
+      Anchors = [akLeft, akBottom]
       Caption = '&Associate .iss files with this compiler'
       TabOrder = 0
       OnClick = AssocButtonClick
@@ -118,7 +127,8 @@ object OptionsForm: TOptionsForm
     Left = 300
     Top = 8
     Width = 281
-    Height = 265
+    Height = 297
+    Anchors = [akLeft, akTop, akBottom]
     Caption = ' Editor '
     TabOrder = 2
     object AutoCompleteCheck: TCheckBox
@@ -187,46 +197,46 @@ object OptionsForm: TOptionsForm
     end
     object Label1: TNewStaticText
       Left = 8
-      Top = 205
-      Width = 55
+      Top = 237
+      Width = 25
       Height = 14
-      Caption = 'Editor Font:'
-      TabOrder = 9
+      Caption = 'Font:'
+      TabOrder = 10
     end
     object FontPanel: TPanel
       Left = 72
-      Top = 196
+      Top = 228
       Width = 121
       Height = 32
       BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'AaBbXxZz'
-      TabOrder = 10
+      TabOrder = 11
     end
     object ChangeFontButton: TButton
       Left = 200
-      Top = 201
+      Top = 233
       Width = 73
       Height = 23
       Caption = '&Change...'
-      TabOrder = 11
+      TabOrder = 12
       OnClick = ChangeFontButtonClick
     end
     object Label2: TNewStaticText
       Left = 8
-      Top = 239
+      Top = 271
       Width = 54
       Height = 14
       Caption = '&Tab Width:'
       FocusControl = TabWidthEdit
-      TabOrder = 12
+      TabOrder = 13
     end
     object TabWidthEdit: TEdit
       Left = 72
-      Top = 236
+      Top = 268
       Width = 41
       Height = 21
-      TabOrder = 13
+      TabOrder = 14
       OnChange = TabWidthEditChange
     end
     object GutterLineNumbersCheck: TCheckBox
@@ -237,12 +247,30 @@ object OptionsForm: TOptionsForm
       Caption = 'Show &line numbers in gutter'
       TabOrder = 8
     end
+    object Label3: TNewStaticText
+      Left = 8
+      Top = 202
+      Width = 37
+      Height = 14
+      Caption = 'T&heme:'
+      FocusControl = ThemeComboBox
+      TabOrder = 15
+    end
+    object ThemeComboBox: TComboBox
+      Left = 72
+      Top = 199
+      Width = 201
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 9
+    end
   end
   object OKButton: TButton
     Left = 428
-    Top = 285
+    Top = 317
     Width = 73
     Height = 23
+    Anchors = [akLeft, akBottom]
     Caption = 'OK'
     Default = True
     ModalResult = 1
@@ -250,9 +278,10 @@ object OptionsForm: TOptionsForm
   end
   object CancelButton: TButton
     Left = 508
-    Top = 285
+    Top = 317
     Width = 73
     Height = 23
+    Anchors = [akLeft, akBottom]
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2

@@ -24,23 +24,22 @@ object CompileForm: TCompileForm
     Left = 0
     Top = 29
     Width = 361
-    Height = 2
+    Height = 1
     Align = alTop
     Shape = bsTopLine
-    ExplicitTop = 57
   end
   object BodyPanel: TPanel
     Left = 0
-    Top = 31
+    Top = 30
     Width = 361
-    Height = 214
+    Height = 215
     Align = alClient
     BevelOuter = bvNone
     FullRepaint = False
     TabOrder = 0
     object SplitPanel: TPanel
       Left = 0
-      Top = 106
+      Top = 107
       Width = 361
       Height = 4
       Cursor = crSizeNS
@@ -53,7 +52,7 @@ object CompileForm: TCompileForm
     end
     object StatusPanel: TPanel
       Left = 0
-      Top = 110
+      Top = 111
       Width = 361
       Height = 104
       Align = alBottom
