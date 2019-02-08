@@ -12,7 +12,7 @@ unit ScintStylerInnoSetup;
 interface
 
 uses
-  SysUtils, Classes, Graphics, ScintEdit;
+  SysUtils, Classes, Graphics, ScintEdit, ModernColors;
 
 type
   { Internally-used types }
@@ -58,7 +58,8 @@ type
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FKeywordList: array[TInnoSetupStylerSection] of AnsiString;
-    FIsppInstalled, FClassicStyles, FDarkBackColor: Boolean;
+    FIsppInstalled: Boolean;
+    FTheme: TTheme;
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
@@ -92,16 +93,15 @@ type
     class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
-    property ClassicStyles: Boolean read FClassicStyles write FClassicStyles;
-    property DarkBackColor: Boolean read FDarkBackColor write FDarkBackColor;
     property KeywordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordList;
     property IsppInstalled: Boolean read FIsppInstalled write FIsppInstalled;
+    property Theme: TTheme read FTheme write FTheme;
   end;
 
 implementation
 
 uses
-  TypInfo, ModernColors;
+  TypInfo;
 
 type
   TInnoSetupStylerLineState = record
@@ -682,59 +682,37 @@ const
   STYLE_BRACELIGHT = 34;
   STYLE_IDENTGUIDE = 37;
 begin
-  if (Style >= 0) and (Style <= Ord(High(TInnoSetupStylerStyle))) then begin
-    if FClassicStyles then begin
-      case TInnoSetupStylerStyle(Style) of
-        stCompilerDirective: Attributes.ForeColor := $4040C0;
-        stComment: Attributes.ForeColor := clGreen;
-        stSection: Attributes.FontStyle := [fsBold];
-        stSymbol: Attributes.ForeColor := $707070;
-        stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := clBlue;
-        //stParameterValue: Attributes.ForeColor := clTeal;
-        stEventFunction: Attributes.FontStyle := [fsBold];
-        stConstant: Attributes.ForeColor := $C00080;
-        stMessageArg: Attributes.ForeColor := $FF8000;
-        stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := clMaroon;
+  if FTheme <> nil then begin
+    if (Style >= 0) and (Style <= Ord(High(TInnoSetupStylerStyle))) then begin
+      if not FTheme.Modern then begin
+        { Check for some exceptions }
+        case TInnoSetupStylerStyle(Style) of
+          stCompilerDirective: begin Attributes.ForeColor := $4040C0; Exit; end;
+          stMessageArg: begin Attributes.ForeColor := $FF8000; Exit; end;
+          stPascalString, stPascalNumber, stISPPString, stISPPNumber: begin Attributes.ForeColor := clMaroon; Exit; end;
+        end;
       end;
-    end else begin
       case TInnoSetupStylerStyle(Style) of
-        stCompilerDirective: Attributes.ForeColor := clModernRed;
-        stComment: Attributes.ForeColor := clModernGreen;
+        stCompilerDirective: Attributes.ForeColor := FTheme.Colors[tcRed];
+        stComment: Attributes.ForeColor := FTheme.Colors[tcGreen];
         stSection: Attributes.FontStyle := [fsBold];
-        stSymbol: Attributes.ForeColor := clModernGray;
-        stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := clModernBlue;
-        //stParameterValue: Attributes.ForeColor := clModernTeal;
+        stSymbol: Attributes.ForeColor := FTheme.Colors[tcGray];
+        stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := FTheme.Colors[tcBlue];
+        //stParameterValue: Attributes.ForeColor := FTheme.Colors[tcTeal];
         stEventFunction: Attributes.FontStyle := [fsBold];
-        stConstant: Attributes.ForeColor := clModernPurple;
-        stMessageArg: Attributes.ForeColor := clModernRed;
-        stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := clModernOrange;
-      end;
-    end;
-  end else begin
-    if FDarkBackColor then begin
-      case Style of
-        STYLE_LINENUMBER:
-          begin
-            Attributes.ForeColor := clModernDarkHiFore;
-            Attributes.BackColor := clModernDarkHiBack;
-          end;
-        STYLE_BRACELIGHT: Attributes.BackColor := clModernGray;
-        STYLE_IDENTGUIDE: Attributes.ForeColor := clModernGray;
+        stConstant: Attributes.ForeColor := FTheme.Colors[tcPurple];
+        stMessageArg: Attributes.ForeColor := FTheme.Colors[tcRed];
+        stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := FTheme.Colors[tcOrange];
       end;
     end else begin
       case Style of
         STYLE_LINENUMBER:
           begin
-            if FClassicStyles then begin
-              Attributes.ForeColor := clWindowText;
-              Attributes.BackColor := clBtnFace
-            end else begin
-              Attributes.ForeColor := clModernLightLoFore;
-              Attributes.BackColor := clModernLightLoBack;
-            end;
+            Attributes.ForeColor := FTheme.Colors[tcMarginFore];
+            Attributes.BackColor := FTheme.Colors[tcMarginBack];
           end;
-        STYLE_BRACELIGHT: Attributes.BackColor := $E0E0E0;
-        STYLE_IDENTGUIDE: Attributes.ForeColor := clSilver;
+        STYLE_BRACELIGHT: Attributes.BackColor := FTheme.Colors[tcBraceBack];
+        STYLE_IDENTGUIDE: Attributes.ForeColor := FTheme.Colors[tcIdentGuideFore];
       end;
     end;
   end;
