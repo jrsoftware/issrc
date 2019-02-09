@@ -81,7 +81,7 @@ const
   CGreen = clGreen;
   CBlue = clBlue;
   COrange = clOlive;
-  CPurple = $C00080;
+  CPurple = $C00080;         { Inno Setup 5 }
   CYellow = clYellow;
   CTeal = clTeal;
   CGray = $707070;           { Inno Setup 5 }

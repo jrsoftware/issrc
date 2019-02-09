@@ -201,7 +201,7 @@ object OptionsForm: TOptionsForm
       Width = 25
       Height = 14
       Caption = 'Font:'
-      TabOrder = 10
+      TabOrder = 11
     end
     object FontPanel: TPanel
       Left = 72
@@ -211,7 +211,7 @@ object OptionsForm: TOptionsForm
       BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'AaBbXxZz'
-      TabOrder = 11
+      TabOrder = 12
     end
     object ChangeFontButton: TButton
       Left = 200
@@ -219,7 +219,7 @@ object OptionsForm: TOptionsForm
       Width = 73
       Height = 23
       Caption = '&Change...'
-      TabOrder = 12
+      TabOrder = 13
       OnClick = ChangeFontButtonClick
     end
     object Label2: TNewStaticText
@@ -229,14 +229,14 @@ object OptionsForm: TOptionsForm
       Height = 14
       Caption = '&Tab Width:'
       FocusControl = TabWidthEdit
-      TabOrder = 13
+      TabOrder = 14
     end
     object TabWidthEdit: TEdit
       Left = 72
       Top = 268
       Width = 41
       Height = 21
-      TabOrder = 14
+      TabOrder = 15
       OnChange = TabWidthEditChange
     end
     object GutterLineNumbersCheck: TCheckBox
@@ -254,7 +254,7 @@ object OptionsForm: TOptionsForm
       Height = 14
       Caption = 'T&heme:'
       FocusControl = ThemeComboBox
-      TabOrder = 15
+      TabOrder = 9
     end
     object ThemeComboBox: TComboBox
       Left = 72
@@ -262,7 +262,7 @@ object OptionsForm: TOptionsForm
       Width = 201
       Height = 21
       Style = csDropDownList
-      TabOrder = 9
+      TabOrder = 10
     end
   end
   object OKButton: TButton
