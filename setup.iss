@@ -94,6 +94,7 @@ Type: files; Name: "{app}\Languages\*.islu"
 Type: files; Name: "{app}\Languages\*.isl"
 
 [Files]
+Source: "paypaldonate.bmp"; Flags: dontcopy
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "ishelp\Staging\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
@@ -195,4 +196,32 @@ Filename: "{app}\Compil32.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAss
 function PortableCheck: Boolean;
 begin
   Result := ExpandConstant('{param:portable|0}') = '1';
+end;
+
+procedure DonateImageOnClick(Sender: TObject);
+var
+  ErrorCode: Integer;
+begin
+  ShellExecAsOriginalUser('open', 'http://www.jrsoftware.org/isdonate.php', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+end;
+
+procedure InitializeWizard;
+var
+  DonateImageFileName: String;
+  DonateImage: TBitmapImage;
+  BevelTop: Integer;
+begin
+  DonateImageFileName := ExpandConstant('{tmp}\paypaldonate.bmp');
+  ExtractTemporaryFile(ExtractFileName(DonateImageFileName));
+
+  DonateImage := TBitmapImage.Create(WizardForm);
+  DonateImage.AutoSize := True;
+  DonateImage.Bitmap.LoadFromFile(DonateImageFileName);
+  DonateImage.Anchors := [akLeft, akBottom];
+  BevelTop := WizardForm.Bevel.Top;
+  DonateImage.Top := BevelTop + (WizardForm.ClientHeight - BevelTop - DonateImage.Bitmap.Height) div 2;
+  DonateImage.Left := DonateImage.Top - BevelTop;
+  DonateImage.Cursor := crHand;
+  DonateImage.OnClick := @DonateImageOnClick;
+  DonateImage.Parent := WizardForm;
 end;
