@@ -61,13 +61,13 @@ begin
     if StartMenu then begin
       with Form.FFolderTreeView as TStartMenuFolderTreeView do
         if IsNT then
-          SetPaths(GetRealShellFolder(False, sfPrograms, False),
-            GetRealShellFolder(True, sfPrograms, False),
-            GetRealShellFolder(False, sfStartup, False),
-            GetRealShellFolder(True, sfStartup, False))
+          SetPaths(GetShellFolder(False, sfPrograms, False),
+            GetShellFolder(True, sfPrograms, False),
+            GetShellFolder(False, sfStartup, False),
+            GetShellFolder(True, sfStartup, False))
         else
-          SetPaths(GetRealShellFolder(False, sfPrograms, False),
-            '', GetRealShellFolder(False, sfStartup, False), '');
+          SetPaths(GetShellFolder(False, sfPrograms, False),
+            '', GetShellFolder(False, sfStartup, False), '');
       TidyUpGroupName(Path);
     end
     else
@@ -110,6 +110,7 @@ begin
     TStartMenuFolderTreeView(FFolderTreeView).OnRename := WizardForm.GroupTreeRename;
   end;
   FFolderTreeView.SetBounds(16, 64, 317, 229);
+  FFolderTreeView.Anchors := [akLeft, akTop, akRight, akBottom];
   FFolderTreeView.Visible := False;
   FFolderTreeView.Parent := Self;
   PathEdit.BringToFront;     { for MSAA }
@@ -137,7 +138,7 @@ begin
     OKButton.Top + YDiff, W, OKButton.Height);
   ClientHeight := ClientHeight + YDiff;
 
-  CenterInsideControl(WizardForm, False);
+  FlipSizeAndCenterIfNeeded(True, WizardForm, False);
 end;
 
 constructor TSelectFolderForm.Create2(AOwner: TComponent; AStartMenu: Boolean);

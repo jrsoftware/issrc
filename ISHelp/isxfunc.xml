@@ -271,6 +271,26 @@ end;</pre></example>
         <seealso><p><link topic="setup_closeapplications">CloseApplications</link></p></seealso>
       </function>
     </subcategory>
+    <subcategory>
+      <function>
+        <name>GetWizardForm</name>
+        <prototype>function GetWizardForm: TWizardForm;</prototype>
+        <description><p>Returns the <tt>WizardForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
+        <seealso><p><link topic="scriptclasses" anchor="WizardForm">WizardForm</link></p></seealso>
+      </function>
+      <function>
+        <name>GetUninstallProgressForm</name>
+        <prototype>function GetUninstallProgressForm: TUninstallProgressForm;</prototype>
+        <description><p>Returns the <tt>UninstallProgressForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
+        <seealso><p><link topic="scriptclasses" anchor="UninstallProgressForm">UninstallProgressForm</link></p></seealso>
+      </function>
+      <function>
+        <name>GetMainForm</name>
+        <prototype>function GetMainForm: TMainForm;</prototype>
+        <description><p>Returns the <tt>MainForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
+        <seealso><p><link topic="scriptclasses" anchor="MainForm">MainForm</link></p></seealso>
+      </function>
+    </subcategory>
   </category>
   <category>
     <description>Exception</description>
@@ -345,18 +365,23 @@ end;</pre></example>
     <description><p>System</p></description>
     <subcategory>
       <function>
-        <name>IsAdminLoggedOn</name>
-        <prototype>function IsAdminLoggedOn: Boolean;</prototype>
-        <description><p>Returns True if the user account that Setup/Uninstall is running under is a member of the local Administrators group.</p></description>
+        <name>IsAdmin</name>
+        <prototype>function IsAdmin: Boolean;</prototype>
+        <description><p>Returns True if Setup/Uninstall is running with administrative privileges.</p></description>
+      </function>
+      <function>
+        <name>IsAdminInstallMode</name>
+        <prototype>function IsAdminInstallMode: Boolean;</prototype>
+        <description><p>Returns True if Setup is running in <link topic="admininstallmode">administrative install mode</link> or if Uninstall is running with administrative privileges.</p></description>
       </function>
       <function>
         <name>GetWindowsVersion</name>
         <prototype>function GetWindowsVersion: Cardinal;</prototype>
-        <description><p>Returns the version number of Windows packed into a single integer. The upper 8 bits specify the major version; the following 8 bits specify the minor version; the lower 16 bits specify the build number. For example, this function will return $05000893 on Windows 2000, which is version 5.0.2195.</p>
+        <description><p>Returns the version number of Windows packed into a single integer. The upper 8 bits specify the major version; the following 8 bits specify the minor version; the lower 16 bits specify the build number. For example, this function will return $0A002800 on Windows 10 Version 1507, which is version 10.0.10240.</p>
 <p>To retrieve just the major version number, use: "GetWindowsVersion shr 24". To retrieve just the minor version number, use: "(GetWindowsVersion shr 16) and $FF". To retrieve just the build number, use: "GetWindowsVersion and $FFFF".</p></description>
-        <example><pre>function IsWindowsXPOrLater: Boolean;
+        <example><pre>function IsWindows8OrLater: Boolean;
 begin
-  Result := (GetWindowsVersion &gt;= $05010000);
+  Result := (GetWindowsVersion &gt;= $06020000);
 end;</pre></example>
         <seealso><p><link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
       </function>
@@ -424,30 +449,6 @@ begin
     Exit;
   end;
 
-  // On Windows 2000, check for SP4
-  if Version.NTPlatform and
-     (Version.Major = 5) and
-     (Version.Minor = 0) and
-     (Version.ServicePackMajor &lt; 4) then
-  begin
-    SuppressibleMsgBox('When running on Windows 2000, Service Pack 4 is required.',
-      mbCriticalError, MB_OK, IDOK);
-    Result := False;
-    Exit;
-  end;
-
-  // On Windows XP, check for SP2
-  if Version.NTPlatform and
-     (Version.Major = 5) and
-     (Version.Minor = 1) and
-     (Version.ServicePackMajor &lt; 2) then
-  begin
-    SuppressibleMsgBox('When running on Windows XP, Service Pack 2 is required.',
-      mbCriticalError, MB_OK, IDOK);
-    Result := False;
-    Exit;
-  end;
-
   Result := True;
 end;</pre></example>
       </function>
@@ -461,17 +462,15 @@ end;</pre></example>
       <function>
         <name>IsWin64</name>
         <prototype>function IsWin64: Boolean;</prototype>
-        <description><p>Returns True if the system is running a 64-bit version of Windows that provides the API support Inno Setup requires to perform 64-bit installation tasks. If False is returned, you cannot utilize any of Inno Setup's 64-bit-only features.</p>
+        <description><p>Returns True if the system is running a 64-bit version of Windows. If False is returned, you cannot utilize any of Inno Setup's 64-bit-only features.</p>
 <p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit install mode</link>, use <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link> instead.</p></description>
-        <remarks><p>This function will always return True on an x64 edition of Windows.</p>
-<p>For this function to return True on an Itanium edition of Windows, the system must be running Windows Server 2003 SP1 or later. Older versions lack APIs that Inno Setup requires (e.g. RegDeleteKeyEx).</p></remarks>
         <example><pre>begin
   // Check IsWin64 before using a 64-bit-only feature to
   // avoid an exception when running on 32-bit Windows.
   if IsWin64 then
   begin
     MsgBox('64-bit program files reside in: ' +
-      ExpandConstant('{pf64}'), mbInformation, MB_OK);
+      ExpandConstant('{autopf64}'), mbInformation, MB_OK);
   end;
 end;</pre></example>
         <seealso><p><link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link><br />
@@ -499,12 +498,12 @@ end;</pre></example>
 <p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64, paARM64);</tt></p></description>
         <remarks><p>A 64-bit processor architecture will never be returned on 32-bit versions of Windows. Hence, you cannot use this function to detect a 64-bit AMD CPU on a 32-bit version of Windows; you'll just get back <tt>paX86</tt> if you try.</p>
 <p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the processor architecture. It can be assumed that an "unknown" architecture is at least capable of executing 32-bit code, or Setup/Uninstall wouldn't be running at all.</p>
-<p>If <tt>paIA64</tt> is returned, and <tt>ia64</tt> is <i>not</i> included in the value of the <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> [Setup] section directive, you should not assume that Inno Setup's 64-bit-only features are available -- for example, the <tt>{pf64}</tt> constant. Those features only work when <link topic="isxfunc_IsWin64">IsWin64</link> returns True, and as documented, it may not return True on older Itanium versions of Windows that lack certain APIs Inno Setup requires.</p>
+<p>If <tt>paIA64</tt> is returned, and <tt>ia64</tt> is <i>not</i> included in the value of the <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> [Setup] section directive, you should not assume that Inno Setup's 64-bit-only features are available -- for example, the <tt>{autopf64}</tt> constant. Those features only work when <link topic="isxfunc_IsWin64">IsWin64</link> returns True, and as documented, it may not return True on older Itanium versions of Windows that lack certain APIs Inno Setup requires.</p>
 <p>Therefore, instead of:</p>
 <pre>
   if ProcessorArchitecture = paIA64 then
     // perform some Itanium-specific install task that
-    // involves expanding {pf64}
+    // involves expanding {autopf64}
 </pre>
 <p>you should additionally check that IsWin64 returns True:</p>
 <pre>
@@ -512,7 +511,7 @@ end;</pre></example>
   begin
     if IsWin64 then
       // perform some Itanium-specific install task that
-      // involves expanding {pf64}
+      // involves expanding {autopf64}
     else
       // cannot use 64-bit features; display an error message,
       // fail silently, try something else, etc.
@@ -588,15 +587,15 @@ end;</pre></example>
 <p>This function is provided for backward compatibility only, and may be removed in a future release. New scripts should use <link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link> or <link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link> instead.</p></description>
         <remarks><p>Prior to Inno Setup 5.5.0, this function returned <tt>irInstall</tt> rather than a Boolean True value. <tt>irInstall</tt> is now defined as an alias for True.</p></remarks>
         <example><pre>// Old method, deprecated
-function IsWindowsXPOrLater: Boolean;
+function IsWindows8OrLater: Boolean;
 begin
-  Result := InstallOnThisVersion('0,5.1', '0,0');
+  Result := InstallOnThisVersion('0,6.2', '0,0');
 end;
 
 // New method
-function IsWindowsXPOrLater: Boolean;
+function IsWindows8OrLater: Boolean;
 begin
-  Result := (GetWindowsVersion &gt;= $05010000);
+  Result := (GetWindowsVersion &gt;= $06020000);
 end;</pre></example>
         <seealso><p><link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link><br />
 <link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
@@ -721,6 +720,28 @@ end;</pre></example>
       </function>
     </subcategory>
     <subcategory>
+      <function>
+        <name>CreateCallback</name>
+        <prototype>function CreateCallback(Method: AnyMethod): Longword;</prototype>
+        <description><p>Allows you to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p></description>
+        <example><pre>function SetTimer(hWnd, nIDEvent, uElapse, lpTimerFunc: Longword): Longword;
+external 'SetTimer@user32.dll stdcall';
+
+var
+  TimerCount: Integer;
+
+procedure MyTimerProc(Arg1, Arg2, Arg3, Arg4: Longword);
+begin
+  Inc(TimerCount);
+  WizardForm.BeveledLabel.Caption := ' Timer! ' + IntToStr(TimerCount);
+  WizardForm.BeveledLabel.Visible := True;
+end;
+
+procedure InitializeWizard;
+begin
+  SetTimer(0, 0, 1000, CreateCallback(@MyTimerProc));
+end;</pre></example>
+      </function>
       <function>
         <name>UnloadDLL</name>
         <prototype>procedure UnloadDLL(Filename: String);</prototype>
@@ -1319,7 +1340,7 @@ const
   FreeMB, TotalMB: Cardinal;
 begin
   // Get and display free megabytes on the Program Files drive
-  Path := ExpandConstant('{pf}');
+  Path := ExpandConstant('{autopf}');
   if GetSpaceOnDisk(Path, True, FreeMB, TotalMB) then
   begin
     MsgBox('There are ' + IntToStr(FreeMB) + ' megabytes free on ' +
@@ -1341,7 +1362,7 @@ end;</pre></example>
   FreeBytes, TotalBytes: Int64;
 begin
   // Get and display free bytes on the Program Files drive
-  Path := ExpandConstant('{pf}');
+  Path := ExpandConstant('{autopf}');
   if GetSpaceOnDisk64(Path, FreeBytes, TotalBytes) then
   begin
     MsgBox('There are ' + IntToStr(FreeBytes) + ' bytes free on ' +
@@ -1484,25 +1505,6 @@ end;</pre></example>
         <name>GetTempDir</name>
         <prototype>function GetTempDir: String;</prototype>
         <description><p>Returns fully qualified path of the temporary directory, with trailing backslash. This does not use the Win32 function GetTempPath, due to platform differences.<br />Gets the temporary file path as follows:<br />1. The path specified by the TMP environment variable.<br />2. The path specified by the TEMP environment variable, if TMP is not defined or if TMP specifies a directory that does not exist.<br />3. The path specified by the USERPROFILE environment variable, if both TMP and TEMP are not defined or specify nonexistent directories.<br />4. The Windows directory, if all the above TMP, TEMP and USERPROFILE are not defined or specify nonexistent directories.</p></description>
-      </function>
-      <function>
-        <name>GetShellFolder</name>
-        <prototype>function GetShellFolder(Common: Boolean; const ID: TShellFolderID): String;</prototype>
-        <description><p>Gets the location of the specified shell folder. Returns the 'common' version of the shell folder location if Common is True and the user has administrative privileges. On failure (unlikely but possible), an empty string is returned.</p></description>
-        <remarks><p>There is little reason to use this function. It is recommended that you use the ExpandConstant function instead to get the paths of shell folders.</p></remarks>
-        <example><pre>var
-  Path: String;
-begin
-  Path := GetShellFolder(False, sfAppData);
-  if Path &lt;&gt; '' then
-  begin
-    MsgBox('Application Data path = ' + Path, mbInformation, MB_OK);
-  end
-  else
-  begin
-    // handle failure
-  end;
-end;</pre></example>
       </function>
       <function>
         <name>GetShellFolderByCSIDL</name>
@@ -1775,7 +1777,7 @@ end;</pre></example>
         <description><p>Creates a shortcut to a file or folder. Returns the resulting filename of the link, which may differ from <tt>Filename</tt> if it ended up creating a .pif file instead of a .lnk file. On failure, an exception will be raised.</p>
 <p><b>Parameters:</b><br />
 <i>Filename</i><br />Filename of the shortcut file to be created. This should be the full path and must end with ".lnk".<br />
-<i>Description</i><br />Description of the link. This will be displayed on Windows 2000/XP and other supporting OS when the user hovers the mouse over the file or shows the properties.<br />
+<i>Description</i><br />Description of the link. This will be displayed on a supporting OS when the user hovers the mouse over the file or shows the properties.<br />
 <i>ShortcutTo</i><br />Target file for the shortcut. This must be the full path to the file. Double quotation marks to surround the path will be added automatically.<br />
 <i>Parameters</i><br />Parameters to pass to the target file of the shortcut. Parameters which may include spaces should have double quote marks surrounding them. e.g. <tt>ExpandConstant('"{app}\foo"')</tt><br />
 <i>WorkingDir</i><br />Working directory for the target file. This should be set to an absolute directory.<br />
@@ -1873,7 +1875,7 @@ end;</pre>
         <prototype>function RegKeyExists(const RootKey: Integer; const SubKeyName: String): Boolean;</prototype>
         <description><p>Returns True if the specified registry key exists.</p></description>
         <example><pre>begin
-  if RegKeyExists(HKEY_CURRENT_USER, 'Software\Jordan Russell\Inno Setup') then
+  if RegKeyExists(HKEY_AUTO, 'Software\Jordan Russell\Inno Setup') then
   begin
     // The key exists
   end;
@@ -1986,8 +1988,8 @@ end;</pre></example>
         <description><p>Writes the specified REG_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <remarks><p>If the value already exists and is of type REG_EXPAND_SZ, the new value will also be of type REG_EXPAND_SZ. Otherwise, a REG_SZ-type value will be created.</p></remarks>
         <example><pre>begin
-  RegWriteStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
-    'UserName', ExpandConstant('{sysuserinfoname}'));
+  RegWriteStringValue(HKEY_AUTO, 'Software\My Company\My Program',
+    'Language', ExpandConstant('{language}'));
 end;</pre></example>
       </function>
       <function>
@@ -2005,7 +2007,7 @@ end;</pre></example>
         <description><p>Writes the specified REG_MULTI_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <remarks><p>In a REG_MULTI_SZ-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
         <example><pre>begin
-  RegWriteMultiStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+  RegWriteMultiStringValue(HKEY_AUTO, 'Software\My Company\My Program',
     'MultiStringTest', 'String1' + #0 + 'String2' + #0 + 'String3');
 end;</pre></example>
       </function>
@@ -2014,7 +2016,7 @@ end;</pre></example>
         <prototype>function RegWriteDWordValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: Cardinal): Boolean;</prototype>
         <description><p>Writes the specified REG_DWORD-type registry value. Returns True if successful, False otherwise.</p></description>
         <example><pre>begin
-  RegWriteDWordValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+  RegWriteDWordValue(HKEY_AUTO, 'Software\My Company\My Program',
     'ShowToolbar', 1);
 end;</pre></example>
       </function>
@@ -2023,7 +2025,7 @@ end;</pre></example>
         <prototype>function RegWriteBinaryValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: AnsiString): Boolean;</prototype>
         <description><p>Writes the specified REG_BINARY-type registry value. Returns True if successful, False otherwise.</p></description>
         <example><pre>begin
-  RegWriteBinaryValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+  RegWriteBinaryValue(HKEY_AUTO, 'Software\My Company\My Program',
     'BinaryTest', 'Whatever' + #1#2#3#4);
 end;</pre></example>
       </function>
@@ -2343,9 +2345,13 @@ end;</pre></example>
       <function>
         <name>MsgBox</name>
         <prototype>function MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;</prototype>
-        <description><p>Displays a message box. <tt>Text</tt> specifies the message to display. <tt>Typ</tt> specifies which icon to use in the message box. <tt>Buttons</tt> specifies which buttons to include in the message box. Returns an ID* constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
+        <description><p>Displays a message box. <tt>Text</tt> specifies the message to display. <tt>Typ</tt> specifies which icon to display in the message box. <tt>Buttons</tt> specifies which buttons to include in the message box. Returns an ID* constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
         <remarks><p>TMsgBoxType is defined as:</p>
-<p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p></remarks>
+<p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p>
+<p>Supported flags for <tt>Buttons</tt> are:</p>
+<p><tt>MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL, MB_DEFBUTTON1, MB_DEFBUTTON2, MB_DEFBUTTON3, MB_SETFOREGROUND</tt></p>
+<p>Possible return values are:</p>
+<p><tt>IDOK, IDCANCEL, IDABORT, IDRETRY, IDIGNORE, IDYES, IDNO</tt></p></remarks>
         <example><pre>begin
   // Display a simple message box with an OK button
   MsgBox('Hello.', mbInformation, MB_OK);
@@ -2362,11 +2368,49 @@ end;</pre></example>
     // user clicked Yes
   end;
 end;</pre></example>
+        <seealso><p><link topic="isxfunc_SuppressibleMsgBox">SuppressibleMsgBox</link><br />
+<link topic="isxfunc_TaskDialogMsgBox">TaskDialogMsgBox</link></p></seealso>
       </function>
       <function>
         <name>SuppressibleMsgBox</name>
         <prototype>function SuppressibleMsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons, Default: Integer): Integer;</prototype>
         <description><p>Displays a suppressible message box. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, SuppressibleMsgBox acts the same as the regular <link topic="isxfunc_MsgBox">MsgBox</link>.</p></description>
+      </function>
+      <function>
+        <name>TaskDialogMsgBox</name>
+        <prototype>function TaskDialogMsgBox(const Instruction, Text: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer): Integer;</prototype>
+        <description><p>Displays a message box using a task dialog:<br />
+<tt>Instruction</tt> specifies the instruction to display.<br />
+<tt>Text</tt> specifies the message to display.<br />
+<tt>Typ</tt> specifies which icon to display in the task dialog. If set to <tt>mbConfirmation</tt>, no icon will be displayed.<br />
+<tt>Buttons</tt> specifies which buttons to include in the task dialog.<br />
+<tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline, then the first string specifies the button label and the second string specifies the button note.<br />
+<tt>ShieldButton</tt> specifies which button to display a shield icon on. If set to 0, no shield icon will be displayed.</p>
+<p>Returns an ID* constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
+        <remarks><p>TMsgBoxType is defined as:</p>
+<p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p>
+<p>Supported flags for <tt>Buttons</tt> are:</p>
+<p><tt>MB_OK, MB_OKCANCEL, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL, MB_ABORTRETRYIGNORE</tt></p>
+<p>If <tt>MB_ABORTRETRYIGNORE</tt> is used, <tt>ButtonLabels</tt> may not be an empty array and the button labels must be specified in the following special order: Retry, Ignore, Abort.</p>
+<p>Supported values for <tt>ShieldButton</tt> and possible return values are:</p>
+<p><tt>IDOK, IDCANCEL, IDRETRY, IDYES, IDNO, IDABORT, IDIGNORE</tt></p></remarks>
+        <example><pre>begin
+  case TaskDialogMsgBox('Choose A or B',
+                        'You can choose A or B.',   
+                        mbInformation,
+                        MB_YESNOCANCEL, ['I choose &amp;A'#13#10'A will be chosen.', 'I choose &amp;B'#13#10'B will be chosen.'],
+                        IDYES) of
+    IDYES: MsgBox('You chose A.', mbInformation, MB_OK);
+    IDNO: MsgBox('You chose B.', mbInformation, MB_OK);
+  end;
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_SuppressibleTaskDialogMsgBox">SuppressibleTaskDialogMsgBox</link><br />
+<link topic="isxfunc_MsgBox">MsgBox</link></p></seealso>
+      </function>
+      <function>
+        <name>SuppressibleTaskDialogMsgBox</name>
+        <prototype>function SuppressibleTaskDialogMsgBox(const Instruction, Text: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const Default: Integer): Integer;</prototype>
+        <description><p>Displays a suppressible message box using a task dialog. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, SuppressibleTaskDialogMsgBox acts the same as the regular <link topic="isxfunc_TaskDialogMsgBox">TaskDialogMsgBox</link>.</p></description>
       </function>
       <function>
         <name>GetOpenFileName</name>
@@ -2430,7 +2474,6 @@ end;</pre></example>
         <name>BrowseForFolder</name>
         <prototype>function BrowseForFolder(const Prompt: String; var Directory: String; const NewFolderButton: Boolean): Boolean;</prototype>
         <description><p>Displays a dialog box that enables the user to select a directory. The current value of Directory is used as the initially selected directory. If NewFolderButton is True, a <i>New Folder</i> button will be shown, allowing the user to create new folders. Returns True if the user selected a directory and clicked OK, False otherwise. The selected directory is returned in the Directory string.</p></description>
-        <remarks><p>On Windows versions prior to XP, passing False in the NewFolderButton parameter has no effect; the New Folder button will always be shown. This is a Windows limitation.</p></remarks>
       </function>
       <function>
         <name>ExitSetupMsgBox</name>
@@ -2603,7 +2646,7 @@ end;</pre></example>
   </enum>
   <enum>
      <description>Reg* - RootKey values (also see the <link topic="registrysection" window="main">[Registry]</link> section documentation)</description>
-     <values>HKEY_CLASSES_ROOT, HKEY_CLASSES_ROOT_32, HKEY_CLASSES_ROOT_64,<br />HKEY_CURRENT_USER, HKEY_CURRENT_USER_32, HKEY_CURRENT_USER_64,<br />HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, HKEY_LOCAL_MACHINE_64,<br />HKEY_USERS, HKEY_USERS_32, HKEY_USERS_64,<br />HKEY_PERFORMANCE_DATA,<br />HKEY_CURRENT_CONFIG, HKEY_CURRENT_CONFIG_32, HKEY_CURRENT_CONFIG_64,<br />HKEY_DYN_DATA,<br />HKCR, HKCR32, HKCR64, HKCU, HKCU32, HKCU64, HKLM, HKLM32, HKLM64, HKU, HKU32, HKU64, HKCC, HKCC32, HKCC64</values>
+     <values>HKEY_AUTO, HKEY_AUTO_32, HKEY_AUTO_64,<br />HKEY_CLASSES_ROOT, HKEY_CLASSES_ROOT_32, HKEY_CLASSES_ROOT_64,<br />HKEY_CURRENT_USER, HKEY_CURRENT_USER_32, HKEY_CURRENT_USER_64,<br />HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, HKEY_LOCAL_MACHINE_64,<br />HKEY_USERS, HKEY_USERS_32, HKEY_USERS_64,<br />HKEY_PERFORMANCE_DATA,<br />HKEY_CURRENT_CONFIG, HKEY_CURRENT_CONFIG_32, HKEY_CURRENT_CONFIG_64,<br />HKEY_DYN_DATA,<br />HKA, HKA32, HKA64, HKCR, HKCR32, HKCR64, HKCU, HKCU32, HKCU64, HKLM, HKLM32, HKLM64, HKU, HKU32, HKU64, HKCC, HKCC32, HKCC64</values>
   </enum>
   <enum>
      <description>TShouldProcessEntryResult</description>

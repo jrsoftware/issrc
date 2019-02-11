@@ -8,7 +8,9 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-DefaultDirName={userpf}\My Program
+WizardStyle=modern
+DisableWelcomePage=no
+DefaultDirName={autopf}\My Program
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
@@ -20,11 +22,11 @@ Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Registry]
-Root: HKCU; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
-Root: HKCU; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Name"; ValueData: "{code:GetUser|Name}"
-Root: HKCU; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Company"; ValueData: "{code:GetUser|Company}"
-Root: HKCU; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "DataDir"; ValueData: "{code:GetDataDir}"
+Root: HKA; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
+Root: HKA; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Name"; ValueData: "{code:GetUser|Name}"
+Root: HKA; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Company"; ValueData: "{code:GetUser|Company}"
+Root: HKA; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "DataDir"; ValueData: "{code:GetDataDir}"
 ; etc.
 
 [Dirs]

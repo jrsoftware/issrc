@@ -1,0 +1,336 @@
+﻿; *** Inno Setup version 5.5.3+ Marathi messages ***
+; Translated by Ajay Nandeshwar & Prashant Shinde  [ sprashant80 at gmail.com ]
+; To download user-contributed translations of this file, go to:
+; http://www.jrsoftware.org/files/istrans/
+;
+; Note: When translating this text, do not add periods (.) to the end of
+; messages that didn't have them already, because on those messages Inno
+; Setup adds the periods automatically (appending a period would result in
+; two periods being displayed).
+
+[LangOptions]
+; The following three entries are very important. Be sure to read and 
+; understand the '[LangOptions] section' topic in the help file.
+LanguageName=<0939><093F><0902><0926><0940>
+LanguageID=$0439
+LanguageCodePage=0
+; If the language you are translating to requires special font faces or
+; sizes, uncomment any of the following entries and change them accordingly.
+;DialogFontName=
+;DialogFontSize=10
+;WelcomeFontName=
+WelcomeFontSize=12
+;TitleFontName=
+TitleFontSize=35
+;CopyrightFontName=
+CopyrightFontSize=9
+
+[Messages]
+
+; *** Application titles
+SetupAppTitle=स्थापना
+SetupWindowTitle=स्थापना - %1
+UninstallAppTitle=विस्थापन 
+UninstallAppFullTitle=%1 चे विस्थापन 
+
+; *** Misc. common
+InformationTitle=माहिती 
+ConfirmTitle=पुष्टी करा
+ErrorTitle=त्रुटी
+
+; *** SetupLdr messages
+SetupLdrStartupMessage=ह्याने  %1 आपल्या कल्पयन्त्र मध्ये स्थापित  होईल. तुम्हाला नक्की पुढे जायचे का?
+LdrCannotCreateTemp=तात्पूर्ती फाइल अनुवाद तयार करू शकत नाही. स्थापना मध्येच थांबवावी लागली
+LdrCannotExecTemp=तात्पूर्ती फोल्डरमध्य फाइल अंमलबजावणी केली जाऊ शकत नाही.स्थापना मध्येच थांबवावी लागली
+
+; *** Startup error messages
+LastErrorMessage=%1.%n%nत्रुटी %2: %3
+SetupFileMissing=फ़ाइल %1 प्रतिष्ठापन  संग्रहात नाही. कृपया एकतर  समस्येचे  निदान करा  किंवा कार्यक्रम ची नवीन  प्रत आणा
+SetupFileCorrupt=स्थापना फाइल मधे त्रुटी आहे. कृपया नविन  कार्यक्रम ची प्रत आणा
+SetupFileCorruptOrWrongVer=स्थापना फाइल मधे त्रुटी आहे किंवा वेगळ्या प्रकार ची आहे. कृपया समस्येचे निदान करा  किंवा कार्यक्रम ची नवीन प्रत आणा
+InvalidParameter=फोल्डर चे नाव वैध नाही
+SetupAlreadyRunning=स्थापना तर  आधीपासूनच  चालू आहे
+WindowsVersionNotSupported=इस से [name/ver] आपल्या  कल्पयन्त्र मधे स्थापना होईल.%n%n हे बरे होईल कि पुढे जाण्या आधी तुम्ही उर्वरित सर्व कार्यक्रम हाल सध्यासाठी थांबवा
+WindowsServicePackRequired=ह्या कार्यक्रम ला  %1 Service Pack %2 किंवा मागील आवृत्ती पाहिजे
+NotOnThisPlatform=हे  कार्यक्रम %1 वर नाही चालू शकत
+OnlyOnThisPlatform=हे  कार्यक्रम फक्त  %1 वरच चालू शकते
+OnlyOnTheseArchitectures=हे  कार्यक्रम फक्त  ह्या प्रोसेसर :%n%n%1 समान विन्डोज़ प्लेटफॉर्म वरच चालू शकते
+MissingWOW64APIs=आपला  विंडो प्लेटफॉर्म 64-bit स्थापना समर्थन नाही करू शकत. कृपया सर्विस पैक %1 स्थापित करा
+WinVersionTooLowError=हे कार्यक्रम चालण्यासाठी %1 आव्रुती %2 किंवा त्या मागील आव्रुती पाहिजे
+WinVersionTooHighError=हे  कार्यक्रम स्थापित करू शकत नाही  %1 आवृत्ती %2 किंवा मागील पाहिजे
+AdminPrivilegesRequired=जर आपण  प्रशासक खात्यातून  सुरु कराल तरच हे  कार्यक्रम स्थापित करू शकाल
+PowerUserPrivilegesRequired=आपण प्रशासक खाते किंवा शक्ति-प्रयोग कृत समूह च्या खात्यातून सुरु कराल तरच कार्यक्रम स्थापित करू शकाल
+SetupAppRunningError=स्थापना मधे  %1 error आला आहे ..%n%n कृपया त्याला त्वरित थांबवा, आणि नंतर पुढे जाण्यासाठी 'ठीक' किंवा निघून जाण्यासाठी 'रद्द करा' वर क्लिक करा
+UninstallAppRunningError=निस्कासन ला हे  ज्ञात झाले की %1 आता चालू आहे.%n%n कृपया त्याला त्वरित थांबवा, आणि नंतर पुढे जाण्यासाठी 'ठीक' किंवा निघून जाण्यासाठी 'रद्द करा' वर क्लिक करा
+
+; *** Misc. errors
+ErrorCreatingDir=स्थापना "%1" संग्रहनाची निर्मिती करण्यात अयशस्वी झाले आहे
+ErrorTooManyFilesInDir=%1 संग्रहानामध्ये खूप फाईल असल्या कारणाने स्थापना फाईल तयार करण्यात अयशस्वी झाले आहे
+
+; *** Setup common messages
+ExitSetupTitle=स्थापना मधून बाहेर पडा
+ExitSetupMessage=स्थापना चे  कार्य पूर्ण नाही झाले, जर तुम्ही आता बाहेर पडू इच्छिता तर कार्यक्रम व्यवस्थित स्थापित होणार नाही. %n%nतुम्ही अन्यवेळी पुन्हा स्थापना करू शकता.%n%nबाहेर पडायचे आहे का?
+AboutSetupMenuItem=स्थापना च्या संबंधित
+AboutSetupTitle=स्थापना च्या संबंधित
+AboutSetupMessage=%1 आवृत्ती  %2%n%3%n%n%1 गृह पृष्ठ:%n%4
+AboutSetupNote=
+TranslatorNote= हे भाषांतर अजय आणि प्रशांत यांनी केले आहे
+
+; *** Buttons
+ButtonBack=< &मागे जा
+ButtonNext=&पुढे जा >
+ButtonInstall=&स्थापना 
+ButtonOK=&ठीक
+ButtonCancel=&रद्द करा 
+ButtonYes=&हो 
+ButtonYesToAll=&सगळ्यासाठी हो 
+ButtonNo=&नाही 
+ButtonNoToAll=सगळ्यासाठी नाही
+ButtonFinish=&समाप्त
+ButtonBrowse=&ब्राउज़
+ButtonWizardBrowse=&ब्राउज़
+ButtonNewFolder=&नवीन  फोल्डर बनवा 
+
+; "Select Language" dialog messages
+SelectLanguageTitle=स्थापना भाषा निवड 
+SelectLanguageLabel=अधिष्ठापन  च्या  दरम्यान वापरली जाणारी भाषा निवडा
+
+; *** Common wizard text
+ClickNext= पुढे जाण्यासाठी पुढे जा दाबा, किंवा बाहेर पडण्यासाठी रद्द करा दाबा
+BeveledLabel= सौजन्यः अजय आणि प्रशांत 
+BrowseDialogTitle=फोल्डर साठी ब्राउज़ करा
+BrowseDialogLabel= खालील सूचीमधून एक फोल्डर निवडून ठीक दाबा
+NewFolderName=नविन फोल्डर
+
+; "Welcome" wizard page
+WelcomeLabel1=हे  [name] च्या प्रतिष्ठापन कार्य मधे आपले स्वागत आहे
+WelcomeLabel2=ह्याने  [name/ver] आपल्या  कल्पयन्त्र मध्ये स्थापित होईल.%n%n हे बरे होईल कि पुढे जाण्याआधी तुम्ही उर्वरित सर्व चालू कार्यक्रम हाल थांबवा
+
+; "Password" wizard page
+WizardPassword=गूढ शब्द
+PasswordLabel1= ही स्थापना गूढ शब्दाने लॉक आहे
+PasswordLabel3=कृपया गूढ शब्द लिहा आणि नंतर 'पुढे जा' बटन दाबा. गूढ शब्द case-संवेदनशील आहे
+PasswordEditLabel=गूढ शब्द
+IncorrectPassword= तुम्ही लिहिलेला गूढ शब्द चुकीचा आहे, कृपया पुन्हा प्रयत्न करा
+
+; "License Agreement" wizard page
+WizardLicense=परवानगी करार
+LicenseLabel= पुढे जाण्याआधी ही महत्वाची सूचना वाचा
+LicenseLabel3= हे परवानगी करार वाचा. पुढे जाण्याआधी तुम्हाला ह्याच्या सर्व अटी मान्यच कराव्या लागतील
+LicenseAccepted=होय मला हा करार स्वीकार आहे
+LicenseNotAccepted=नाही मला हा करार स्वीकार नाही
+
+; "Information" wizard pages
+WizardInfoBefore=माहिती 
+InfoBeforeLabel=पुढे जाण्याआधी महत्वाच्या सूचना वाचा
+InfoBeforeClickLabel= जेव्हा आपण सज्ज आहात तेव्हा 'पुढे जा' बटन दाबा
+WizardInfoAfter=माहिती 
+InfoAfterLabel=पुढे जाण्याआधी महत्वाच्या सूचना वाचा
+InfoAfterClickLabel=जेव्हा आपण सज्ज आहात तेव्हा 'पुढे जा' बटन दाबा
+
+; "User Information" wizard page
+WizardUserInfo=प्रयोग कर्ता ची माहिती 
+UserInfoDesc=कृपया आपली माहिती आत टाका
+UserInfoName=प्रयोग कर्ता चे  नाव
+UserInfoOrg=संस्था
+UserInfoSerial=क्रमांक 
+UserInfoNameRequired=तुम्हाला नाव टाकावेच लागेल
+
+; "Select Destination Location" wizard page
+WizardSelectDir=लक्ष्य मार्ग निवडा
+SelectDirDesc=[name] ला कुठे स्थापित करायचे आहे?
+SelectDirLabel3=स्थापना [name] ला खालील फोल्डर मधे होईल
+SelectDirBrowseLabel=पुढे जाण्यासाठी पुढे जा दाबा. जर इतर फोल्डर निवडायचे असल्यास ब्राउज़ दाबा
+DiskSpaceMBLabel=कमीतकमी [mb] MB इतकी जागा आवश्यक आहे
+CannotInstallToNetworkDrive=श्थापना ने नेटवर्क ड्राईव्ह नाही ठेवू शकत
+CannotInstallToUNCPath=स्थापना ने UNC path नाही ठेवू शकत
+InvalidPath=तुम्हाला ड्राइव अक्षर बरोबर संपूर्ण मार्ग द्यावा लागेल उदारणार्थ :%n%nC:\APP%n%n एकतर  UNC मार्ग ह्या स्वरूपात :%n%n\\server\share
+InvalidDrive=जी  drive किंवा UNC share आपण निवडली आहे तिथे पोहोचू शकत नाही. कृपया अन्य निवड करा
+DiskSpaceWarningTitle=आवश्यक जागा नाही आहे
+DiskSpaceWarning=स्थापना किमान  %1 KB जागा मागते, परंतु निवडलेल्या ड्राईव मध्ये केवळ %2 KB जागा उपलब्ध आहे.%n%nतरीपण पुढे जायचे आहे का?
+DirNameTooLong=फोल्डर चे नाव किंवा मार्ग खूप मोठे आहे
+InvalidDirName=फोल्डर चे  नाव  वैध नाही
+BadDirName32=फोल्डर च्या नावात हे अक्षर वापरू शकत नाही.:%n%n%1
+DirExistsTitle=फोल्डर उपलब्ध आहे
+DirExists=फोल्डर:%n%n%1%n%n आधीपासूनच उपलब्ध आहे, तरीपण त्यात स्थापित करू इच्छिता?
+DirDoesntExistTitle=फोल्डर उपलब्ध नाही
+DirDoesntExist=फोल्डर:%n%n%1%n%nउपलब्ध नाही. तुम्हाला हे फोल्डर बनवायचे आहे?
+
+; "Select Components" wizard page
+WizardSelectComponents=सहकारी निवडा
+SelectComponentsDesc=कोणते सहकारी स्थापित करायचे आहे?
+SelectComponentsLabel2= ज्या सहकारी स्थापित करायची आहे, त्यांची निवड करा; ज्यांना नाही करायची त्यांना काढून टाका. जेव्हा पुढे जाण्यासाठी सज्ज आहात तेव्हा पुढे जा दाबा
+FullInstallation=सम्पूर्ण स्थापना 
+; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
+CompactInstallation=संक्षिप्त स्थापना
+CustomInstallation=सानुकूल स्थापना
+NoUninstallWarningTitle=सहकारी उपलब्ध आहे
+NoUninstallWarning=स्थापना ला कळाले की खालील सहकारी आधीपासूनच उपलब्ध आहे.:%n%n%1%n%n ह्यांची निवड रद्द केल्याने ते विस्थापित होणार नाही.%n%nतुम्हाला असेच पुढे जायचे आहे का?
+ComponentSize1=%1 KB
+ComponentSize2=%1 MB
+ComponentsDiskSpaceMBLabel=ह्या निवड ने स्थापना साठी [mb] MB जागा पाहिजे
+
+; "Select Additional Tasks" wizard page
+WizardSelectTasks=अतिरिक्त काम निवडा
+SelectTasksDesc=कोणते अतिरिक्त काम करायचे आहे?
+SelectTasksLabel2=[name] ला स्थापित करताना जी अतिरिक्त कामे करायची आहेत त्यांची निवड करा आणि नंतर पुढे जा वर क्लिक करा
+
+; "Select Start Menu Folder" wizard page
+WizardSelectProgramGroup=सुरु मेनू फोल्डर निवडा
+SelectStartMenuFolderDesc=कार्यक्रम चे लहान मार्ग कुठे ठवायचे आहे?
+SelectStartMenuFolderLabel3=स्थापना कार्यक्रम चे लहान मार्ग खालील सुरु-मेनू फोल्डर मध्ये टाकेल
+SelectStartMenuFolderBrowseLabel=पुढे जाण्यासाठी पुढे जा दाबा. जर वेगळ्या फोल्डर मधे स्थापना करायची असेल तर Browse दाबा
+MustEnterGroupName=तुम्हाला फोल्डर चे नाव टाकावेच लागेल
+GroupNameTooLong=फोल्डर चे नाव किंवा मार्ग खूप मोठे आहे
+InvalidGroupName=फोल्डर चे  नाव  वैध नाही
+BadGroupName=फोल्डर च्या नावात हे अक्षर वापरू शकत नाही:%n%n%1
+NoProgramGroupCheck2=सुरु मेनू फोल्डर बनवायचे नाही
+
+; "Ready to Install" wizard page
+WizardReady=स्थापनेसाठी तयार  
+ReadyLabel1=स्थापना आता [name] ला आपल्या कल्पयन्त्रमध्ये स्थापित करण्यासठी तयार आहे
+ReadyLabel2a=पुढे जाण्यासाठी  स्थापना दाबा, जर काही बदल करायचे असल्यास मागे जा दाबा
+ReadyLabel2b=स्थापनामध्ये पुढे जाण्यासाठी स्थापना दाबा
+ReadyMemoUserInfo=प्रयोग कर्ता ची माहिती
+ReadyMemoDir=लक्ष्य संग्रह
+ReadyMemoType=स्थापना चा प्रकार
+ReadyMemoComponents=सहकारी निवड
+ReadyMemoGroup=सुरु मेनू फोल्डर
+ReadyMemoTasks=अतिरिक्त कामे
+
+; "Preparing to Install" wizard page
+WizardPreparing=स्थापनेसाठी तैयारी करत आहे
+PreparingDesc=स्थापना [name] ला आपल्या कल्पयंत्र मध्ये टाकण्याची तैयारी करत आहे
+PreviousInstallNotCompleted=मागील कार्यक्रम च्या स्थापना/विस्थापना व्यवथित पाने झालेली नाही. तुम्हाला कल्पयंत्र पुन्हा सुरु करवा लागेल.%n%nकल्पयन्त्र पुन्हा सुरु केल्यानंतर तुम्ही पुन्हा  [name] ची स्थापना सुरु करा
+CannotContinue=स्थापना पुढे जाऊ शकत नाही, कृपया रद्द करा बटन दाबा
+ApplicationsFound=खाली असलेल्या अनुप्रयोगांनी स्थापना करून अद्यतने केलेल्या फाइल्सचा वापर केलेला आहे. तुम्हाला हा सल्ला देण्यात येतो कि तुम्ही स्थापना ला हे अनुप्रयोगांना स्वतःहून बंद करण्याची परवानगी द्या
+ApplicationsFound2=ह्या अनुप्रयोगांनी स्थापना द्वारा अपडेट करणाऱ्या फाईल चा उपयोग केलेला आहे. तुम्हाला हा सल्ला दिला जातो कि तुम्ही स्थापना ला हे अनुप्रयोगांना स्वतःहून बंद करण्याची परवानगी द्या. स्थापना संपल्यानंतर, स्थापना ह्या अनुप्रयोगांना पुन्हा सुरु करण्याचा प्रयत्न करेल
+CloseApplications=&स्वतःच अनुप्रयोगाला बंद करा
+DontCloseApplications=अनुप्रयोगाला बंद &करायचे नाही
+ErrorCloseApplications=स्थापना स्वतः सर्व अनुप्रयोगांना बंद नाही करू शकली.तुम्हाला हा सल्ला देण्यात येतो कि स्थापना ने अपडेट करणाऱ्या फाईल चा उपयोग करणाऱ्या अनुप्रयोगांना पुढे जाण्याआधी स्वतःहून बंद करा
+
+; "Installing" wizard page
+WizardInstalling=स्थापना होत आहे
+InstallingLabel=जोपर्यंत स्थापना आपल्या कल्पयंत्र मध्ये  [name] स्थापित करत आहे, तोपर्यंत कृपया प्रतीक्षा करा
+
+; "Setup Completed" wizard page
+FinishedHeadingLabel=[name] स्थापना चे कार्य पूर्ण होत आहे
+FinishedLabelNoIcons=स्थापना ने [name] चे आपल्या कल्पयंत्र मधे यशस्वीपणे स्थापित केले गेले आह
+FinishedLabel=स्थापना ने [name] आपल्या कल्पयंत्र मध्ये स्थापित केले आहे. तुम्ही उपयुक्त प्रतिमेवर क्लिक करून केव्हाही कार्यक्रम सुरु करू शकता
+ClickFinish=स्थापना तून बाहेर पडण्यासाठी समाप्त वर क्लिक करा
+FinishedRestartLabel=[name] चे स्थापित पूर्ण करण्यासाठी कल्पयंत्र पुन्हा सुरु करून खूप आवश्यक आहे . %n%nतुम्ही आता पुन्हा सुरु करू इच्छिता
+FinishedRestartMessage=[name] चे स्थापित पूर्ण करण्यासाठी कल्पयंत्र पुन्हा सुरु करणे खूप आवश्यक आहे.%n%nतुम्ही आता पुन्हा सुरु करू इच्छिता
+ShowReadmeCheck=होय मला मला वाचा फाईल बघायची आहे
+YesRadio=&होय, कल्पयंत्र पुन्हा सुरु करा
+NoRadio=&नाही मी कल्पयंत्र नंतर स्वतः सुरु करेल
+; used for example as 'Run MyProg.exe'
+RunEntryExec=रन %1
+; used for example as 'View Readme.txt'
+RunEntryShellExec=बघा %1
+
+; "Setup Needs the Next Disk" stuff
+ChangeDiskTitle=स्थापनेसाठी पुढील  डिस्क पाहिजे
+SelectDiskLabel2=कृपया डिस्क %1 टाकून ठीक दाबा.%n%nजर ह्या डिस्क ची फाईल नाही मिळाली तर योग्य मार्ग सांगा किंवा  ब्राउज़ वर  क्लिक करा
+PathLabel=मार्ग
+FileNotInDir2=फाइल "%1" ला"%2" मध्ये नाही शोधू शकलो, कृपया योग्य डिस्क टाका किंवा वेगळे फोल्डर निवडा
+SelectDirectoryLabel=पुढील डिस्क चा मार्ग सांगा
+
+; *** Installation phase messages
+SetupAborted=स्थापना पूर्ण नाही होऊ शकली.%n%nकृपया त्रुटी ठीक करा आणि पुन्हा प्रयत्न करा
+EntryAbortRetryIgnore=पुन्हा प्रयत्न करण्यासाठी Retry दाबा, जर असेच पुढे जायचे आहे तर Ignore दाबा, किंवा स्थापना रद्द करण्यासाठी Abort दाबा
+
+; *** Installation status messages
+StatusClosingApplications=अनुप्रयोगकांना बंद केले जात आहे
+StatusCreateDirs=सङ्ग्रहिका बनविणे
+StatusExtractFiles=फाइल उत्खनन करणे
+StatusCreateIcons=छोटा मार्ग बनविणे
+StatusCreateIniEntries=INI एंट्री बनविणे
+StatusCreateRegistryEntries=रेजीस्टर एन्ट्री बनविणे
+StatusRegisterFiles=फाइल  रेजीस्टर करत आहे
+StatusSavingUninstall=विस्थापन ची माहिती बचत करीत आहे
+StatusRunProgram=स्थापना पूर्ण करत आहे
+StatusRestartingApplications=अनुप्रयोगकांची पुन्हा सुरुवात
+StatusRollback=बदल मागे हटविण्याचे काम करीत आहे
+
+; *** Misc. errors
+ErrorInternal2=अंतर्गत त्रुटी: %1
+ErrorFunctionFailedNoCode=%1 अयशस्वी 
+ErrorFunctionFailed=%1 अयशस्वी; कोड %2
+ErrorFunctionFailedWithMessage=%1 अयशस्वी; कोड %2.%n%3
+ErrorExecutingProgram=फाइल ची अंमलबजावणी करू शकत नाही.:%n%1
+
+; *** Registry errors
+ErrorRegOpenKey=रेजीस्टर कळ खोलताना त्रुटी:%n%1\%2
+ErrorRegCreateKey=रेजीस्टर कळ बनविताना त्रुटी:%n%1\%2
+ErrorRegWriteKey=रेजीस्टर कळ मध्ये लिहिताना त्रुटी:%n%1\%2
+
+; *** INI errors
+ErrorIniEntry=फ़ाइल "%1" मध्ये INI एंट्री टाकताना त्रुटी
+
+; *** File copying errors
+FileAbortRetryIgnore=पुन्हा प्रयत्न करण्यासाठी Retry बटन दाबा, जर असेच पुढे जायचे असल्यास  Ignore दाबा (आम्ही असा सल्ला देत नाही),किंवा Abort दाबा स्थापना रद्द करण्यासाठी
+FileAbortRetryIgnore2=पुन्हा प्रयत्न करण्यासाठी Retry बटन दाबा, जर असेच पुढे जायचे असल्यास  Ignore दाबा (आम्ही असा सल्ला देत नाही),किंवा Abort दाबा स्थापना रद्द करण्यासाठी
+SourceIsCorrupted=स्रोत फाईल संशयास्पद आहे
+SourceDoesntExist=स्रोत फाइल "%1" उपलब्धच नाही
+ExistingFileReadOnly=उपलब्ध फाईल फक्त वाचा आहे.%n%n तुम्ही Retry वर क्लिक करा, त्याचे फक्त वाचा  attribute हटविण्यासाठी पुन्हा प्रयत्न करा. जर ह्या फाईल ला सोडून द्यायचे असल्यास  Ignore, किंवा जर स्थापना रद्द करावयची असल्यास Abort बटन दाबा
+ErrorReadingExistingDest=उपलब्ध फाईल वाचताना त्रुटी
+FileExists=फाइल आधीपासूनच उपलब्ध आहे.%n%nतुम्ही तिला ओवर-राईट करू इच्छिता
+ExistingFileNewer=उपलब्ध फाईल स्थापना फाईल पेक्षा नवी आहे, आमचा सल्ला आहे कि आपण हिला राहू द्यावे.%n%nतुम्ही फाईल ठेवू इच्छिता
+ErrorChangingAttr=उपलब्ध फाईल चे एट्रीब्यूट बदलताना त्रुटी
+ErrorCreatingTemp=फ़ाइल बनवताना  त्रुटी
+ErrorReadingSource=स्रोत फाईल खोलताना त्रुटी
+ErrorCopying=फाईल प्रत करण्याचे प्रयत्न करतानाच्या त्रुटी
+ErrorReplacingExistingFile=उपलब्ध फाइल ची  प्रतिस्थापना करताना त्रुटी
+ErrorRestartReplace=प्रतिस्थापन ची सुरुवात पुन्हा अयशस्वी झाली
+ErrorRenamingTemp=सङ्ग्रहिका मध्ये  फाइल चे  नाव  बदलताना  वक्त त्रुटी
+ErrorRegisterServer=ह्याला रेजीस्टर करू शकत नाही DLL/OCX: %1
+ErrorRegSvr32Failed=RegSvr32 अयशस्वी झाले, बाहेर जाण्याचा कोड  %1 च्या बरोबर
+ErrorRegisterTypeLib=हे टाइप लाइब्रेरी ला रेजीस्टर  करू शकत नाही.: %1
+
+; *** Post-installation errors
+ErrorOpeningReadme=मला वाचा फ़ाइल खोलताना त्रुटी
+ErrorRestartingComputer=स्थापना कल्पयन्त्र ला पुन्हा सुरु करण्यात अयशस्वी झाले. कृपया तुम्हीच ह्याला पुन्हा सुरु करा
+
+; *** Uninstaller messages
+UninstallNotFound=फाइल "%1" उपलब्ध नाही, विस्थापित करणे अशक्य आहे
+UninstallOpenError=फ़ाइल "%1" उघडत नाही. विस्थापित करणे अशक्य आहे
+UninstallUnsupportedVer=विस्थापित लॉग फाईल  "%1" ज्या फोर्मेट मध्ये आहे ती आम्ही ओळखू शकत नाही. पुढे जाणे अशक्य आहे
+UninstallUnknownEntry=विस्थापित लॉग मध्ये एक अज्ञात नोंद  (%1)मिळाली
+ConfirmUninstall=तुम्ही नक्की  %1 ला विस्थापित करू इच्छिता
+UninstallOnlyOnWin64=केवळ  64-bit Windows नेच हिला विस्थापित केले जाऊ शकते
+OnlyAdminCanUninstall=केवळ प्रशासक खात्यातूनच हिला विस्थापित केले जाऊ शकते
+UninstallStatusLabel=जोपर्यंत  %1 नाही हटविले जात, धैर्य ठेवा
+UninstalledAll=%1 यशस्वीरीत्या विस्थापित झाले
+UninstalledMost=%1 विस्थापन पूर्ण झाले.%n%nकाही घटक काढू शकत नाही परंतु तुम्ही त्यांना तुमच्या पद्धतीने काढून टाकू शकता
+UninstalledAndNeedsRestart=%1 चे विस्थापन पूर्ण करण्यासाठी कल्पयंत्र पुन्हा सुरु करणे आवश्यक आहे.%n%nआता पुन्हा सुरु करावे
+UninstallDataCorrupted=%1 फ़ाइल मध्ये  त्रुटी. विस्थापित करणे अशक्य
+
+; *** Uninstallation phase messages
+ConfirmDeleteSharedFileTitle=शेअर्ड -फाइल ला काढून टाकणे आहे का?
+ConfirmDeleteSharedFile2=प्रणाली ने हे ओळखले जाते की शेअर्ड फाईल आता पुढे वापरता येणार नाही. तुम्हाला त्यांनापण विस्थापित करायचे आहे काय?%n%n जर काही इतर कार्यक्रम ह्या फाईल वर आधारित असतील तर कदाचित ते ह्यांना काढून टाकल्यामुळे व्यवथित काम करू शकणार नाही. जर तुम्ही निर्णय घेवू शकत नाही आहात तर 'नाही' वर क्लिक करा. ह्या फाईल ला कल्पयंत्र मध्येच राहू दिले तरी काही नुकसान होणार नाही
+SharedFileNameLabel=फाइलचे नाव
+SharedFileLocationLabel=पत्ता
+WizardUninstalling=विस्थापित स्थिति
+StatusUninstalling=विस्थापित होत आहे %1
+
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp= %1 ची स्थापना होत आहे
+ShutdownBlockReasonUninstallingApp=%1 चे विस्थापन होत आहे
+
+; The custom messages below aren't used by Setup itself, but if you make
+; use of them in your scripts, you'll want to translate them.
+
+[CustomMessages]
+
+NameAndVersion=%1 आवृत्ती %2
+AdditionalIcons=अतिरिक्त प्रतिमा
+CreateDesktopIcon=डेस्कटॉप प्रतिमा बनवा
+CreateQuickLaunchIcon=क्विक लोंच  प्रतिमा बनवा
+ProgramOnTheWeb=%1 इन्टरनेट वर 
+UninstallProgram=विस्थापित करणे %1
+LaunchProgram=लोंच करणे %1
+AssocFileExtension=%1 ला  %2 फ़ाइल एक्सटेंशन बरोबर प्रतिबद्ध करा
+AssocingFileExtension=%1 ला %2 फ़ाइल एक्सटेंशन बरोबर प्रतिबद्ध करत आहे
+AutoStartProgramGroupDescription=सुरुवात
+AutoStartProgram=%1 ला  %2 फ़ाइल एक्सटेंशन बरोबर प्रतिबद्ध करत आहे
+AddonHostProgramNotFound=तुम्ही निवडलेल्या फोल्डर मध्ये  %1  नाही मिळाले. %n%nतुम्ही कुठल्याही प्रकारे ह्याची सुसंगता ठेवू इच्छिता का?

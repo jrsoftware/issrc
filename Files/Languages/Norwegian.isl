@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.3+ Norwegian (bokmål) messages ***
+; *** Inno Setup version 6.0.0+ Norwegian (bokmål) messages ***
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -6,7 +6,7 @@
 ; two periods being displayed).
 ;
 ; Norwegian translation by Eivind Bakkestuen
-; E-mail: eivind@nexusdb.com
+; E-mail: eivind.bakkestuen@gmail.com
 ; Many thanks to the following people for language improvements and comments:
 ;
 ; Harald Habberstad, Frode Weum, Morten Johnsen,
@@ -49,13 +49,22 @@ WindowsServicePackRequired=Dette programmet krever %1 Service Pack %2 eller nyer
 NotOnThisPlatform=Dette programmet kjører ikke på %1.
 OnlyOnThisPlatform=Dette programmet kjører kun på %1.
 OnlyOnTheseArchitectures=Dette programmet kan kun installeres i Windows-versjoner som er beregnet på følgende prossessorarkitekturer:%n%n%1
-MissingWOW64APIs=Din Windows-versjon mangler funksjonalitet for at installasjonsprogrammet skal gjøre en 64-bits-installasjon. Installer Service Pack %1 for å rette på dette.
-WinVersionTooLowError=Dette programmet krever %1 versjon %2 eller senere.
-WinVersionTooHighError=Dette programmet kan ikke installeres på %1 versjon %2 eller senere.
+WinVersionTooLowError=Dette programmet krever %1 versjon %2 eller nyere.
+WinVersionTooHighError=Dette programmet kan ikke installeres på %1 versjon %2 eller nyere.
 AdminPrivilegesRequired=Administrator-rettigheter kreves for å installere dette programmet.
 PowerUserPrivilegesRequired=Du må være logget inn som administrator eller ha administrator-rettigheter når du installerer dette programmet.
 SetupAppRunningError=Installasjonsprogrammet har funnet ut at %1 kjører.%n%nVennligst avslutt det nå og klikk deretter OK for å fortsette, eller Avbryt for å avslutte.
 UninstallAppRunningError=Avinstallasjonsprogrammet har funnet ut at %1 kjører.%n%nVennligst avslutt det nå og klikk deretter OK for å fortsette, eller Avbryt for å avslutte.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Velg Installasjon Type
+PrivilegesRequiredOverrideInstruction=Installasjons Type
+PrivilegesRequiredOverrideText1=%1 kan installeres for alle brukere (krever administrator-rettigheter), eller bare for deg.
+PrivilegesRequiredOverrideText2=%1 kan installeres bare for deg, eller for alle brukere (krever administrator-rettigheter).
+PrivilegesRequiredOverrideAllUsers=Installer for &alle brukere
+PrivilegesRequiredOverrideAllUsersRecommended=Installer for &alle brukere (anbefalt)
+PrivilegesRequiredOverrideCurrentUser=Installer bare for &meg
+PrivilegesRequiredOverrideCurrentUserRecommended=Installer bare for &meg (anbefalt)
 
 ; *** Misc. errors
 ErrorCreatingDir=Installasjonsprogrammet kunne ikke lage mappen "%1"
@@ -68,7 +77,7 @@ AboutSetupMenuItem=&Om installasjonsprogrammet...
 AboutSetupTitle=Om installasjonsprogrammet
 AboutSetupMessage=%1 versjon %2%n%3%n%n%1 hjemmeside:%n%4
 AboutSetupNote=
-TranslatorNote=Norwegian translation maintained by Eivind Bakkestuen (eivind@nexusdb.com)
+TranslatorNote=Norwegian translation maintained by Eivind Bakkestuen (eivind.bakkestuen@gmail.com)
 
 ; *** Buttons
 ButtonBack=< &Tilbake
@@ -87,7 +96,7 @@ ButtonNewFolder=&Lag ny mappe
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Velg installasjonsspråk
-SelectLanguageLabel=Velg språket som skal brukes under installasjonen:
+SelectLanguageLabel=Velg språket som skal brukes under installasjonen.
 
 ; *** Common wizard text
 ClickNext=Klikk på Neste for å fortsette, eller Avbryt for å avslutte installasjonen.
@@ -130,7 +139,7 @@ UserInfoOrg=&Organisasjon:
 UserInfoSerial=&Serienummer:
 UserInfoNameRequired=Du må angi et navn.
 
-; *** "Select Destination Directory" wizard page
+; *** "Select Destination Location" wizard page
 WizardSelectDir=Velg mappen hvor filene skal installeres:
 SelectDirDesc=Hvor skal [name] installeres?
 SelectDirLabel3=Installasjonsprogrammet vil installere [name] i følgende mappe.
@@ -231,7 +240,10 @@ SelectDirectoryLabel=Vennligst angi hvor den neste disketten er.
 
 ; *** Installation phase messages
 SetupAborted=Installasjonen ble avbrutt.%n%nVennligst korriger problemet og prøv igjen.
-EntryAbortRetryIgnore=Klikk Prøv igjen for å forsøke på nytt, Ignorer for å fortsette eller Avslutt for å avslutte installasjonen.
+AbortRetryIgnoreSelectAction=Velg aksjon
+AbortRetryIgnoreRetry=&Prøv Igjen
+AbortRetryIgnoreIgnore=&Ignorer feil og fortsett
+AbortRetryIgnoreCancel=Cancel installation
 
 ; *** Installation status messages
 StatusClosingApplications=Lukker applikasjoner...
@@ -262,11 +274,13 @@ ErrorRegWriteKey=Feil under skriving til registernøkkel:%n%1\%2
 ErrorIniEntry=Feil under laging av innstilling i filen "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Klikk Prøv igjen for å forsøke på nytt, Ignorer for å overse denne filen (anbefales ikke) eller Avslutt for å stoppe installasjonen.
-FileAbortRetryIgnore2=Klikk Prøv igjen for å forsøke på nytt, Ignorer for å fortsette uansett (anbefales ikke) eller Avslutt for å stoppe installasjonen.
+FileAbortRetryIgnoreSkipNotRecommended=&Hopp over denne filen (ikke anbefalt)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorer feilen og fortsett (ikke anbefalt)
 SourceIsCorrupted=Kildefilen er ødelagt
 SourceDoesntExist=Kildefilen "%1" finnes ikke
-ExistingFileReadOnly=Den eksisterende filen er skrivebeskyttet.%n%nKlikk Prøv igjen for å fjerne skrivebeskyttelsen og prøve på nytt, Ignorer for å hoppe over denne filen, eller Avslutt for å stoppe installasjonen.
+ExistingFileReadOnly2=Den eksisterende filen er skrivebeskyttet og kan ikke erstattes.
+ExistingFileReadOnlyRetry=&Fjern skrivebeskyttelse og prøv igjen
+ExistingFileReadOnlyKeepExisting=&Behold eksisterende fil
 ErrorReadingExistingDest=En feil oppsto under lesing av den eksisterende filen:
 FileExists=Filen eksisterer allerede.%n%nVil du overskrive den?
 ExistingFileNewer=Den eksisterende filen er nyere enn den som blir forsøkt installert. Det anbefales at du beholder den eksisterende filen.%n%nVil du beholde den eksisterende filen?
@@ -280,6 +294,14 @@ ErrorRenamingTemp=En feil oppsto under omdøping av fil i mål-mappen:
 ErrorRegisterServer=Kan ikke registrere DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 gikk galt med avslutte kode %1
 ErrorRegisterTypeLib=Kan ikke registrere typebiblioteket: %1
+
+; *** Uninstall display name markings
+UninstallDisplayNameMark=%1 (%2)
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=Alle brukere
+UninstallDisplayNameMarkCurrentUser=Aktiv bruker
 
 ; *** Post-installation errors
 ErrorOpeningReadme=En feil oppsto under forsøket på å åpne LESMEG-filen.

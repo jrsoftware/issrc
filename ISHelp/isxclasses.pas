@@ -56,10 +56,10 @@ end;
 TStream = class(TObject)
   function Read(Buffer: String; Count: Longint): Longint;
   function Write(Buffer: String; Count: Longint): Longint;
-  function Seek(Offset: Longint; Origin: Word): Longint;
+  function Seek(Offset: Int64; Origin: Word): Int64;
   procedure ReadBuffer(Buffer: String; Count: Longint);
   procedure WriteBuffer(Buffer: String; Count: Longint);
-  function CopyFrom(Source: TStream; Count: Longint): Longint;
+  function CopyFrom(Source: TStream; Count: Int64): Int64;
   property Position: Longint; read write;
   property Size: Longint; read write;
 end;
@@ -159,6 +159,10 @@ end;
 
 TAlign = (alNone, alTop, alBottom, alLeft, alRight, alClient);
 
+TAnchorKind = (akLeft, akTop, akRight, akBottom);
+
+TAnchors = set of TAnchorKind;
+
 TControl = class(TComponent)
   constructor Create(AOwner: TComponent);
   procedure BringToFront;
@@ -217,6 +221,15 @@ TBorderIcon = (biSystemMenu, biMinimize, biMaximize, biHelp);
 
 TBorderIcons = set of TBorderIcon;
 
+TConstraintSize = 0..MaxInt;
+
+TSizeConstraints = class(TPersistent);
+  property MaxHeight: TConstraintSize; read write;
+  property MaxWidth: TConstraintSize; read write;
+  property MinHeight: TConstraintSize; read write;
+  property MinWidth: TConstraintSize; read write;
+end;
+
 TPosition = (poDesigned, poDefault, poDefaultPosOnly, poDefaultSizeOnly, poScreenCenter, poDesktopCenter, poMainFormCenter, poOwnerFormCenter);
 
 TCloseAction = (caNone, caHide, caFree, caMinimize);
@@ -242,11 +255,13 @@ TForm = class(TScrollingWinControl)
   procedure Release;
   property Active: Boolean; read;
   property ActiveControl: TWinControl; read write;
+  property Anchors: TAnchors; read write;
+  property AutoScroll: Boolean; read write;
   property BorderIcons: TBorderIcons; read write;
   property BorderStyle: TFormBorderStyle; read write;
   property Caption: String; read write;
-  property AutoScroll: Boolean; read write;
   property Color: TColor; read write;
+  property Constraints: TSizeConstraints; read write;
   property Font: TFont; read write;
   property FormStyle: TFormStyle; read write;
   property KeyPreview: Boolean; read write;
@@ -274,6 +289,7 @@ TAlignment = (taLeftJustify, taRightJustify, taCenter);
 
 TLabel = class(TCustomLabel)
   property Alignment: TAlignment; read write;
+  property Anchors: TAnchors; read write;
   property AutoSize: Boolean; read write;
   property Caption: String; read write;
   property Color: TColor; read write;
@@ -300,6 +316,7 @@ TBorderStyle = TFormBorderStyle;
 TEditCharCase = (ecNormal, ecUpperCase, ecLowerCase);
 
 TEdit = class(TCustomEdit)
+  property Anchors: TAnchors; read write;
   property AutoSelect: Boolean; read write;
   property AutoSize: Boolean; read write;
   property BorderStyle: TBorderStyle; read write;
@@ -329,12 +346,13 @@ end;
 TScrollStyle = (ssNone, ssHorizontal, ssVertical, ssBoth);
 
 TMemo = class(TCustomMemo)
-  property Lines: TStrings; read write;
   property Alignment: TAlignment; read write;
+  property Anchors: TAnchors; read write;
   property BorderStyle: TBorderStyle; read write;
   property Color: TColor; read write;
   property Font: TFont; read write;
   property HideSelection: Boolean; read write;
+  property Lines: TStrings; read write;
   property MaxLength: Integer; read write;
   property ReadOnly: Boolean; read write;
   property ScrollBars: TScrollStyle; read write;
@@ -361,12 +379,13 @@ end;
 TComboBoxStyle = (csDropDown, csSimple, csDropDownList, csOwnerDrawFixed, csOwnerDrawVariable);
 
 TComboBox = class(TCustomComboBox)
-  property Style: TComboBoxStyle; read write;
+  property Anchors: TAnchors; read write;
   property Color: TColor; read write;
   property DropDownCount: Integer; read write;
   property Font: TFont; read write;
   property MaxLength: Integer; read write;
   property Sorted: Boolean; read write;
+  property Style: TComboBoxStyle; read write;
   property Text: String; read write;
   property OnChange: TNotifyEvent; read write;
   property OnClick: TNotifyEvent; read write;
@@ -384,6 +403,7 @@ TButtonControl = class(TWinControl)
 end;
 
 TButton = class(TButtonControl)
+  property Anchors: TAnchors; read write;
   property Cancel: Boolean; read write;
   property Caption: String; read write;
   property Default: Boolean; read write;
@@ -403,6 +423,7 @@ TCheckBoxState = (cbUnchecked, cbChecked, cbGrayed);
 TCheckBox = class(TCustomCheckBox)
   property Alignment: TAlignment; read write;
   property AllowGrayed: Boolean; read write;
+  property Anchors: TAnchors; read write;
   property Caption: String; read write;
   property Checked: Boolean; read write;
   property Color: TColor; read write;
@@ -416,6 +437,7 @@ end;
 
 TRadioButton = class(TButtonControl)
   property Alignment: TAlignment; read write;
+  property Anchors: TAnchors; read write;
   property Caption: String; read write;
   property Checked: Boolean; read write;
   property Color: TColor; read write;
@@ -437,6 +459,7 @@ end;
 TListBoxStyle = (lbStandard, lbOwnerDrawFixed, lbOwnerDrawVariable);
 
 TListBox = class(TCustomListBox)
+  property Anchors: TAnchors; read write;
   property BorderStyle: TBorderStyle; read write;
   property Color: TColor; read write;
   property Font: TFont; read write;
@@ -453,11 +476,14 @@ end;
 TNewListBox = class(TListBox)
 end;
 
+TBevelKind = (bkNone, bkTile, bkSoft, bkFlat);
+
 TBevelShape = (bsBox, bsFrame, bsTopLine, bsBottomLine, bsLeftLine, bsRightLine, bsSpacer);
 
 TBevelStyle = (bsLowered, bsRaised);
 
 TBevel = class(TGraphicControl)
+  property Anchors: TAnchors; read write;
   property Shape: TBevelShape; read write;
   property Style: TBevelStyle; read write;
 end;
@@ -473,7 +499,9 @@ TBorderWidth = Longint;
 
 TPanel = class(TCustomPanel)
   property Alignment: TAlignment; read write;
+  property Anchors: TAnchors; read write;
   property BevelInner: TPanelBevel; read write;
+  property BevelKind: TBevelKind; read write;
   property BevelOuter: TPanelBevel; read write;
   property BevelWidth: TBevelWidth; read write;
   property BorderWidth: TBorderWidth; read write;
@@ -487,6 +515,7 @@ end;
 
 TNewStaticText = class(TWinControl)
   function AdjustHeight: Integer;
+  property Anchors: TAnchors; read write;
   property AutoSize: Boolean; read write;
   property Caption: String; read write;
   property Color: TColor; read write;
@@ -506,6 +535,7 @@ TNewCheckListBox = class(TCustomListBox)
   function AddGroup(ACaption, ASubItem: String; ALevel: Byte; AObject: TObject): Integer;
   function AddRadioButton(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled: Boolean; AObject: TObject): Integer;
   function CheckItem(const Index: Integer; const AOperation: TCheckItemOperation): Boolean;
+  property Anchors: TAnchors; read write;
   property Checked[Index: Integer]: Boolean; read write;
   property State[Index: Integer]: TCheckBoxState; read write;
   property ItemCaption[Index: Integer]: String; read write;
@@ -536,6 +566,7 @@ TNewProgressBarState = (npbsNormal, npbsError, npbsPaused);
 TNewProgressBarStyle = (npbstNormal, npbstMarquee);
 
 TNewProgressBar = class(TWinControl)
+  property Anchors: TAnchors; read write;
   property Min: Longint; read write;
   property Max: Longint; read write;
   property Position: Longint; read write;
@@ -545,11 +576,15 @@ TNewProgressBar = class(TWinControl)
 end;
 
 TRichEditViewer = class(TMemo)
+  property Anchors: TAnchors; read write;
+  property BevelKind: TBevelKind; read write;
+  property BorderStyle: TBorderStyle; read write;
   property RTFText: AnsiString; write;
   property UseRichEdit: Boolean; read write;
 end;
 
 TPasswordEdit = class(TCustomEdit)
+  property Anchors: TAnchors; read write;
   property AutoSelect: Boolean; read write;
   property AutoSize: Boolean; read write;
   property BorderStyle: TBorderStyle; read write;
@@ -577,27 +612,26 @@ end;
 TFolderRenameEvent = procedure(Sender: TCustomFolderTreeView; var NewName: String; var Accept: Boolean);
 
 TFolderTreeView = class(TCustomFolderTreeView)
+  property Anchors: TAnchors; read write;
   property OnChange: TNotifyEvent; read write;
   property OnRename: TFolderRenameEvent; read write;
 end;
 
 TStartMenuFolderTreeView = class(TCustomFolderTreeView)
   procedure SetPaths(const AUserPrograms, ACommonPrograms, AUserStartup, ACommonStartup: String);
+  property Anchors: TAnchors; read write;
   property OnChange: TNotifyEvent; read write;
   property OnRename: TFolderRenameEvent; read write;
 end;
 
 TAlphaFormat = (afIgnored, afDefined, afPremultiplied);
 
-TAlphaBitmap = class(TBitmap)
-  property AlphaFormat: TAlphaFormat; read write;
-end;
-
 TBitmapImage = class(TGraphicControl)
+  property Anchors: TAnchors; read write;
   property AutoSize: Boolean; read write;
   property BackColor: TColor; read write;
   property Center: Boolean; read write;
-  property Bitmap: TAlphaBitmap; read write;
+  property Bitmap: TBitmap; read write;
   property ReplaceColor: TColor; read write;
   property ReplaceWithColor: TColor; read write;
   property Stretch: Boolean; read write;
@@ -607,6 +641,7 @@ end;
 
 TNewNotebook = class(TWinControl)
   function FindNextPage(CurPage: TNewNotebookPage; GoForward: Boolean): TNewNotebookPage;
+  property Anchors: TAnchors; read write;
   property PageCount: Integer; read write;
   property Pages[Index: Integer]: TNewNotebookPage; read;
   property ActivePage: TNewNotebookPage; read write;
@@ -628,6 +663,7 @@ TWizardPage = class(TComponent)
   property Caption: String; read write;
   property Description: String; read write;
   property Surface: TNewNotebookPage; read;
+  property SurfaceColor: TColor; read;
   property SurfaceHeight: Integer; read;
   property SurfaceWidth: Integer; read;
   property OnActivate: TWizardPageNotifyEvent; read write;
@@ -696,12 +732,14 @@ TUIStateForm = class(TForm)
 end;
 
 TSetupForm = class(TUIStateForm)
-  procedure Center;
-  procedure CenterInsideControl(const Ctl: TWinControl; const InsideClientArea: Boolean);
-  procedure FlipControlsIfNeeded;
+  function ShouldSizeX: Boolean;
+  function ShouldSizeY: Boolean;
+  procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
   property ControlsFlipped: Boolean; read;
   property FlipControlsOnShow: Boolean; read write;
+  property KeepSizeY: Boolean; read; write;
   property RightToLeft: Boolean; read;
+  property SizeAndCenterOnShow: Boolean; read write;
 end;
 
 TMainForm = class(TSetupForm)
@@ -712,8 +750,8 @@ TWizardForm = class(TSetupForm)
   property CancelButton: TNewButton; read;
   property NextButton: TNewButton; read;
   property BackButton: TNewButton; read;
-  property Notebook1: TNotebook; read;
-  property Notebook2: TNotebook; read;
+  property OuterNotebook: TNotebook; read;
+  property InnerNotebook: TNotebook; read;
   property WelcomePage: TNewNotebookPage; read;
   property InnerPage: TNewNotebookPage; read;
   property FinishedPage: TNewNotebookPage; read;

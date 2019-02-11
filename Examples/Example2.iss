@@ -7,7 +7,8 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-DefaultDirName={pf}\My Program
+WizardStyle=modern
+DefaultDirName={autopf}\My Program
 ; Since no icons will be created in "{group}", we don't need the wizard
 ; to ask for a Start Menu folder name:
 DisableProgramGroupPage=yes
@@ -22,5 +23,5 @@ Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Icons]
-Name: "{commonprograms}\My Program"; Filename: "{app}\MyProg.exe"
-Name: "{commondesktop}\My Program"; Filename: "{app}\MyProg.exe"
+Name: "{autoprograms}\My Program"; Filename: "{app}\MyProg.exe"
+Name: "{autodesktop}\My Program"; Filename: "{app}\MyProg.exe"

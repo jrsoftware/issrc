@@ -56,5 +56,6 @@ Contributing translations
 
 To contribute translations please see http://jrsoftware.org/files/istrans/send.php.
 
-Please do NOT use GitHub's web editor to edit translations and create pull requests.
-This editor doesn't work since it automatically turns ANSI files into UTF8 files.
+Please do NOT use GitHub's web editor to edit ANSI translations and create pull
+requests. This editor doesn't work since it automatically turns ANSI files into
+UTF8 files without a BOM which are not supported (only UTF8 with a BOM is).

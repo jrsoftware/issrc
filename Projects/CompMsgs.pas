@@ -2,7 +2,7 @@ unit CompMsgs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -48,6 +48,8 @@ const
   SWizardAppDocs2 = 'Please specify which documentation files should be shown by Setup during installation.';
   SWizardAppDocsFilter = 'Documentation files (*.rtf,*.txt)|*.rtf;*.txt|All Files|*.*';
   SWizardAppDocsDefaultExt = 'rtf';
+  SWizardPrivilegesRequired = 'Setup Install Mode';
+  SWizardPrivilegesRequired2 = 'Please specify in which install mode Setup should run.';
   SWizardLanguages = 'Setup Languages';
   SWizardLanguages2 = 'Please specify which Setup languages should be included.';
   SWizardCompiler = 'Compiler Settings';
@@ -57,7 +59,7 @@ const
   SWizardCompilerOutputDir = 'Please specify the folder.';
   SWizardISPP = 'Inno Setup Preprocessor';
   SWizardISPP2 = 'Please specify whether Inno Setup Preprocessor should be used.';
-  SWizardISPPLabel = 'The [name] has detected the presence of Inno Setup Preprocessor (ISPP) and can therefore use #define compiler directives to simplify your script. Although this is not necessary, it will make it easier to manually change the script later.' + SNewLine2 + 'Do you want the [name] to use #define compiler directives?';
+  SWizardISPPLabel = 'The [name] can use #define compiler directives to simplify your script. Although this is not necessary, it will make it easier to manually change the script later.' + SNewLine2 + 'Do you want the [name] to use #define compiler directives?';
   SWizardISPPCheck = '&Yes, use #define compiler directives';
   SWizardFinished = 'Finished';
 
@@ -176,7 +178,7 @@ const
   SCompilerEntryAlreadySpecified = '[%s] section directive "%s" already specified';
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
   SCompilerMinVersionWinMustBeZero = 'Minimum Windows version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
-  SCompilerMinVersionNTTooLow = 'Minimum NT version specified by MinVersion must be at least %s';
+  SCompilerMinVersionNTTooLow = 'Minimum NT version specified by MinVersion must be at least %s. (Windows 2000/XP/Server 2003 are no longer supported.)';
   SCompilerDiskSliceSizeInvalid = 'DiskSliceSize must be between %d and %d, or "max"';
   SCompilerDiskClusterSizeInvalid = 'DiskClusterSize must be between 1 and 32768';
   SCompilerInstallModeObsolete = 'The [%s] section directive "%s" is obsolete and ignored in this version of Inno Setup. Use command line parameters instead.';
@@ -185,6 +187,7 @@ const
   SCompilerDirectiveRequiresWindows2000 = 'The [%s] section directive "%s" may not be used when compiling on Windows 95/98/Me/NT4';
   SCompilerMustUseDisableStartupPrompt = 'DisableStartupPrompt must be set to "yes" when AppName includes constants';
   SCompilerMustNotUsePreviousLanguage = 'UsePreviousLanguage must be set to "no" when AppId includes constants';
+  SCompilerMustNotUsePreviousPrivileges = 'UsePreviousPrivileges must be set to "no" when AppId includes constants and PrivilegesRequiredOverridesAllowed allows "dialog"';
   SCompilerDirectiveNotUsingDefault = 'The [Setup] section directive "%s" is not assuming a default value because %s includes constants.';
   SCompilerDirectiveNotUsingPreferredDefault = 'The [Setup] section directive "%s" is defaulting to %s because %s includes constants.';
   SCompilerDirectivePatternTooLong = 'The [Setup] section directive "%s" contains a pattern that is too long';
@@ -241,11 +244,13 @@ const
   SCompilerBadDriveConst = 'Invalid drive constant "%s"';
   SCompilerBadCustomMessageConst = 'Invalid custom message constant "%s"';
   SCompilerBadBoolConst = 'Invalid boolean constant "%s"';
-  
+  SCompilerConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead.';
+  SCompilerCommonConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead or consider using its "auto" form.';
+
   { Area checks }
   SCompilerUsedUserAreasWarning = 'The [%s] section directive "%s" is set to "%s" but per-user areas (%s) are used by the script. ' +
-    'Regardless of the version of Windows, if the installation is administrative then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. ' +
-    'See the help file for more information.';
+    'Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. ' +
+    'See the "UsedUserAreasWarning" topic in help file for more information.';
 
   { Directive parsing }
   SCompilerDirectiveNameMissing = 'Missing directive name';
@@ -288,6 +293,7 @@ const
 
   { [Code] }
   SCompilerCodeUnsupportedEventFunction = 'Event function named "%s" is no longer supported. Create a "%s" function instead';
+  SCompilerCodeFunctionRenamedWithAlternative = 'Support function "%s" has been renamed. Use "%s" instead or consider using "%s".';
 
   { [Types] }
   SCompilerTypesCustomTypeAlreadyDefined = 'A custom type has already been defined';
@@ -319,9 +325,6 @@ const
   SCompilerUnknownLanguage = 'Unknown language name "%s"';
   SCompilerCantSpecifyLanguage = 'A language name may not be specified in a messages file';
   SCompilerCantSpecifyLangOption = 'Language option "%s" cannot be applied to all languages';
-  SCompilerLanguageNameNotAscii = 'LanguageName should not contain non-ASCII characters; ' +
-    'such characters will be interpreted as being from the ISO-8859-1 character set by a non Unicode Setup. ' +
-    'Use "<nnnn>" to embed Unicode characters, where "nnnn" is the 4-digit hexadecimal Unicode character code.';
 
   { [Files] }
   SCompilerFilesTmpBadFlag = 'Parameter "Flags" cannot have the "%s" flag on ' +

@@ -2,13 +2,11 @@ unit CompOptions;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler Options form
-
-  $jrsoftware: issrc/Projects/CompOptions.pas,v 1.26 2010/10/30 04:29:19 jr Exp $
 }
 
 interface
@@ -48,6 +46,9 @@ type
     AutoCompleteCheck: TCheckBox;
     UnderlineErrorsCheck: TCheckBox;
     GutterLineNumbersCheck: TCheckBox;
+    ColorizeCompilerOutputCheck: TCheckBox;
+    Label3: TNewStaticText;
+    ThemeComboBox: TComboBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -78,6 +79,11 @@ begin
   else
     RunAsDifferentUserCheck.Caption := 'Always &launch Setup/Uninstall as different user';
   RunAsDifferentUserCheck.Enabled := (Win32MajorVersion >= 5);
+
+  { Order must match TThemeType. }
+  ThemeComboBox.Items.Add('Light');
+  ThemeComboBox.Items.Add('Dark');
+  ThemeComboBox.Items.Add('Classic');
 end;
 
 procedure TOptionsForm.AssocButtonClick(Sender: TObject);

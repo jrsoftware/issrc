@@ -2,7 +2,7 @@ unit Compile;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo,
+  CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, DebugStruct, VerInfo, ResUpdate, CompResUpdate,
@@ -53,7 +53,7 @@ type
     Data: String;
   end;
 
-  TEnumIniSectionProc = procedure(const Line: PChar; const Ext, Ext2: Integer) of object;
+  TEnumIniSectionProc = procedure(const Line: PChar; const Ext: Integer) of object;
 
   TSetupSectionDirectives = (
     ssAllowCancelDuringInstall,
@@ -143,6 +143,7 @@ type
     ssOutputManifestFile,
     ssPassword,
     ssPrivilegesRequired,
+    ssPrivilegesRequiredOverridesAllowed,
     ssReserveBytes,
     ssRestartApplications,
     ssRestartIfNeededByRun,
@@ -181,6 +182,7 @@ type
     ssUsePreviousAppDir,
     ssUsePreviousGroup,
     ssUsePreviousLanguage,
+    ssUsePreviousPrivileges,
     ssUsePreviousSetupType,
     ssUsePreviousTasks,
     ssUsePreviousUserInfo,
@@ -203,8 +205,10 @@ type
     ssWizardImageBackColor,
     ssWizardImageFile,
     ssWizardImageStretch,
+    ssWizardResizable,
     ssWizardSmallImageBackColor,
     ssWizardSmallImageFile,
+    ssWizardSizePercent,
     ssWizardStyle);
   TLangOptionsSectionDirectives = (
     lsCopyrightFontName,
@@ -277,12 +281,18 @@ type
     Hash: Longint;
     Str: String;
   end;
+
+const
+  MaxHashStringItemListSize = MaxInt div 16;
+
+type
   PHashStringItemList = ^THashStringItemList;
-  THashStringItemList = array[0..MaxListSize-1] of THashStringItem;
+  THashStringItemList = array[0..MaxHashStringItemListSize-1] of THashStringItem;
   THashStringList = class
   private
     FCapacity: Integer;
     FCount: Integer;
+    FIgnoreDuplicates: Boolean;
     FList: PHashStringItemList;
     procedure Grow;
   public
@@ -292,6 +302,7 @@ type
     procedure Clear;
     function Get(Index: Integer): String;
     property Count: Integer read FCount;
+    property IgnoreDuplicates: Boolean read FIgnoreDuplicates write FIgnoreDuplicates;
     property Strings[Index: Integer]: String read Get; default;
   end;
 
@@ -343,7 +354,7 @@ type
     UninstallRunEntries: TList;
 
     FileLocationEntryFilenames: THashStringList;
-    WarningsList: TLowFragStringList;
+    WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
     UsedUserAreasWarning: Boolean;
     UsedUserAreas: TStringList;
@@ -404,8 +415,9 @@ type
 
     CachedUserDocsDir: String;
 
-    procedure AddStatus(const S: String);
-    procedure AddStatusFmt(const Msg: String; const Args: array of const);
+    procedure AddStatus(const S: String; const Warning: Boolean = False);
+    procedure AddStatusFmt(const Msg: String; const Args: array of const;
+      const Warning: Boolean);
     procedure AbortCompile(const Msg: String);
     procedure AbortCompileFmt(const Msg: String; const Args: array of const);
     procedure AbortCompileOnLine(const Msg: String);
@@ -417,8 +429,8 @@ type
     procedure CallIdleProc;
     procedure DoCallback(const Code: Integer; var Data: TCompilerCallbackData);
     procedure EnumIniSection(const EnumProc: TEnumIniSectionProc;
-      const SectionName: String; const Ext, Ext2: Integer; const Verbose, SkipBlankLines: Boolean;
-      const Filename: String; const AnsiLanguageFile, Pre: Boolean);
+      const SectionName: String; const Ext: Integer; const Verbose, SkipBlankLines: Boolean;
+      const Filename: String; const LangSection: Boolean = False; const LangSectionPre: Boolean = False);
     function EvalCheckOrInstallIdentifier(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
     procedure CheckCheckOrInstall(const ParamName, ParamData: String;
@@ -427,27 +439,27 @@ type
       const AllowedConsts: TAllowedConsts): Boolean;
     procedure CheckCustomMessageDefinitions;
     procedure CheckCustomMessageReferences;
-    procedure EnumTypes(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumComponents(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumTasks(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumDirs(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumIcons(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumINI(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumTypesProc(const Line: PChar; const Ext: Integer);
+    procedure EnumComponentsProc(const Line: PChar; const Ext: Integer);
+    procedure EnumTasksProc(const Line: PChar; const Ext: Integer);
+    procedure EnumDirsProc(const Line: PChar; const Ext: Integer);
+    procedure EnumIconsProc(const Line: PChar; const Ext: Integer);
+    procedure EnumINIProc(const Line: PChar; const Ext: Integer);
 {$IFDEF UNICODE}
-    procedure EnumLangOptionsPre(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumLangOptionsPreProc(const Line: PChar; const Ext: Integer);
 {$ENDIF}
-    procedure EnumLangOptions(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumLangOptionsProc(const Line: PChar; const Ext: Integer);
 {$IFDEF UNICODE}
-    procedure EnumLanguagesPre(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumLanguagesPreProc(const Line: PChar; const Ext: Integer);
 {$ENDIF}
-    procedure EnumLanguages(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumRegistry(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumDelete(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumFiles(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumRun(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumSetup(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumMessages(const Line: PChar; const Ext, Ext2: Integer);
-    procedure EnumCustomMessages(const Line: PChar; const Ext, Ext2: Integer);
+    procedure EnumLanguagesProc(const Line: PChar; const Ext: Integer);
+    procedure EnumRegistryProc(const Line: PChar; const Ext: Integer);
+    procedure EnumDeleteProc(const Line: PChar; const Ext: Integer);
+    procedure EnumFilesProc(const Line: PChar; const Ext: Integer);
+    procedure EnumRunProc(const Line: PChar; const Ext: Integer);
+    procedure EnumSetupProc(const Line: PChar; const Ext: Integer);
+    procedure EnumMessagesProc(const Line: PChar; const Ext: Integer);
+    procedure EnumCustomMessagesProc(const Line: PChar; const Ext: Integer);
     procedure ExtractParameters(S: PChar; const ParamInfo: array of TParamInfo;
       var ParamValues: array of TParamValue);
     function FindLangEntryIndexByName(const AName: String; const Pre: Boolean): Integer;
@@ -492,7 +504,8 @@ type
     procedure ReadMessagesFromScript;
     function ReadScriptFile(const Filename: String; const UseCache: Boolean;
       const AnsiConvertCodePage: Cardinal): TScriptFileLines;
-    procedure EnumCode(const Line: PChar; const Ext, Ext2: Integer);
+    procedure RenamedConstantCallback(const Cnst, CnstRenamed: String);
+    procedure EnumCodeProc(const Line: PChar; const Ext: Integer);
     procedure ReadCode;
     procedure CodeCompilerOnLineToLineInfo(const Line: LongInt; var Filename: String; var FileLine: LongInt);
     procedure CodeCompilerOnUsedLine(const Filename: String; const Line, Position: LongInt);
@@ -1169,6 +1182,11 @@ function THashStringList.Add(const S: String): Integer;
 var
   LS: String;
 begin
+  if FIgnoreDuplicates and (CaseInsensitiveIndexOf(S) <> -1) then begin
+    Result := -1;
+    Exit;
+  end;
+
   Result := FCount;
   if Result = FCapacity then
     Grow;
@@ -1204,7 +1222,7 @@ begin
     if FCapacity > 8 then Delta := 16 else
       Delta := 4;
   NewCapacity := FCapacity + Delta;
-  if NewCapacity > MaxListSize then
+  if NewCapacity > MaxHashStringItemListSize then
     raise EStringListError.Create('THashStringList: Exceeded maximum list size');
   ReallocMem(FList, NewCapacity * SizeOf(FList[0]));
   FCapacity := NewCapacity;
@@ -1736,7 +1754,8 @@ begin
   RunEntries := TLowFragList.Create;
   UninstallRunEntries := TLowFragList.Create;
   FileLocationEntryFilenames := THashStringList.Create;
-  WarningsList := TLowFragStringList.Create;
+  WarningsList := THashStringList.Create;
+  WarningsList.IgnoreDuplicates := True;
   ExpectedCustomMessageNames := TStringList.Create;
   UsedUserAreas := TStringList.Create;
   UsedUserAreas.Sorted := True;
@@ -1753,6 +1772,12 @@ begin
   CodeDebugInfo := TMemoryStream.Create;
   CodeText := TStringList.Create;
   CodeCompiler := TScriptCompiler.Create;
+  CodeCompiler.NamingAttribute := 'Event';
+  CodeCompiler.OnLineToLineInfo := CodeCompilerOnLineToLineInfo;
+  CodeCompiler.OnUsedLine := CodeCompilerOnUsedLine;
+  CodeCompiler.OnUsedVariable := CodeCompilerOnUsedVariable;
+  CodeCompiler.OnError := CodeCompilerOnError;
+  CodeCompiler.OnWarning := CodeCompilerOnWarning;
 end;
 
 destructor TSetupCompiler.Destroy;
@@ -2053,9 +2078,6 @@ var
   Lines: TLowFragStringList;
   F: TTextFileReader;
   L: String;
-{$IFDEF UNICODE}
-  S: RawByteString;
-{$ENDIF}
 begin
   Data := CompilerData;
   Filename := AFilename;
@@ -2078,16 +2100,9 @@ begin
   try
     F := TTextFileReader.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
+      F.CodePage := Data.AnsiConvertCodePage;
       while not F.Eof do begin
-{$IFDEF UNICODE}
-        if Data.AnsiConvertCodePage <> 0 then begin
-          { Read the ANSI line, then convert it to Unicode. }
-          S := F.ReadAnsiLine;
-          SetCodePage(S, Data.AnsiConvertCodePage, False);
-          L := String(S);
-        end else
-{$ENDIF}
-          L := F.ReadLine;
+         L := F.ReadLine;
         for I := 1 to Length(L) do
           if L[I] = #0 then
             raise Exception.CreateFmt(SCompilerIllegalNullChar, [Lines.Count + 1]);
@@ -2340,8 +2355,8 @@ begin
 end;
 
 procedure TSetupCompiler.EnumIniSection(const EnumProc: TEnumIniSectionProc;
-  const SectionName: String; const Ext, Ext2: Integer; const Verbose, SkipBlankLines: Boolean;
-  const Filename: String; const AnsiLanguageFile, Pre: Boolean);
+  const SectionName: String; const Ext: Integer; const Verbose, SkipBlankLines: Boolean;
+  const Filename: String; const LangSection, LangSectionPre: Boolean);
 var
   FoundSection: Boolean;
   LastSection: String;
@@ -2360,24 +2375,23 @@ var
     if Filename <> '' then
       Filename := PathExpand(PrependSourceDirName(Filename));
 
-    UseCache := not (AnsiLanguageFile and Pre);
+    UseCache := not (LangSection and LangSectionPre);
     AnsiConvertCodePage := 0;
 {$IFDEF UNICODE}
-    { During a Pre pass on an .isl file, use code page 1252 for translation.
-      Previously, the system code page was used, but on DBCS that resulted in
-      "Illegal null character" errors on files containing byte sequences that
-      do not form valid lead/trail byte combinations (i.e. most languages). }
-    if AnsiLanguageFile and Pre then begin
-      if not IsValidCodePage(PreCodePage) then  { just in case }
-        AbortCompileFmt('Code page %u unsupported', [PreCodePage]);
-      AnsiConvertCodePage := PreCodePage;
-    end;
-    { Ext = LangIndex, except for Default.isl for which its -2 when default
-      messages are read but no special conversion is needed for those. }
-    if AnsiLanguageFile and (Ext >= 0) and not Pre then begin
-      AnsiConvertCodePage := TPreLangData(PreLangDataList[Ext]).LanguageCodePage;
-      if AnsiConvertCodePage <> 0 then
-        AddStatus(Format(SCompilerStatusConvertCodePage , [AnsiConvertCodePage]));
+    if LangSection then begin
+      { During a Pre pass on an .isl file, use code page 1252 for translation.
+        Previously, the system code page was used, but on DBCS that resulted in
+        "Illegal null character" errors on files containing byte sequences that
+        do not form valid lead/trail byte combinations (i.e. most languages). }
+      if LangSectionPre then begin
+        if not IsValidCodePage(PreCodePage) then  { just in case }
+          AbortCompileFmt('Code page %u unsupported', [PreCodePage]);
+        AnsiConvertCodePage := PreCodePage;
+      end else if Ext >= 0 then begin
+        { Ext = LangIndex, except for Default.isl for which its -2 when default
+          messages are read but no special conversion is needed for those. }
+        AnsiConvertCodePage := TPreLangData(PreLangDataList[Ext]).LanguageCodePage;
+      end;
     end;
 {$ENDIF}
 
@@ -2425,7 +2439,7 @@ var
               AddStatus(Format(SCompilerStatusParsingSectionLineFile,
                 [SectionName, LineNumber, ParseFilename]));
           end;
-          EnumProc(PChar(Line.LineText), Ext, Ext2);
+          EnumProc(PChar(Line.LineText), Ext);
         end;
       end;
 
@@ -2531,17 +2545,19 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.AddStatus(const S: String);
+procedure TSetupCompiler.AddStatus(const S: String; const Warning: Boolean);
 var
   Data: TCompilerCallbackData;
 begin
   Data.StatusMsg := PChar(S);
+  Data.Warning := Warning;
   DoCallback(iscbNotifyStatus, Data);
 end;
 
-procedure TSetupCompiler.AddStatusFmt(const Msg: String; const Args: array of const);
+procedure TSetupCompiler.AddStatusFmt(const Msg: String; const Args: array of const;
+  const Warning: Boolean);
 begin
-  AddStatus(Format(Msg, Args));
+  AddStatus(Format(Msg, Args), Warning);
 end;
 
 procedure TSetupCompiler.AbortCompile(const Msg: String);
@@ -2621,6 +2637,14 @@ begin
   Result := PrependDirName(Filename, SourceDir);
 end;
 
+procedure TSetupCompiler.RenamedConstantCallback(const Cnst, CnstRenamed: String);
+begin
+  if Pos('common', LowerCase(CnstRenamed)) <> 0 then
+    WarningsList.Add(Format(SCompilerCommonConstantRenamed, [Cnst, CnstRenamed]))
+  else
+    WarningsList.Add(Format(SCompilerConstantRenamed, [Cnst, CnstRenamed]));
+end;
+
 function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVersionData;
   const AllowedConsts: TAllowedConsts): Boolean;
 { Returns True if S contains constants. Aborts compile if they are invalid. }
@@ -2655,7 +2679,8 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
       KeyConst: HKEY;
     end;
   const
-    KeyNameConsts: array[0..4] of TKeyNameConst = (
+    KeyNameConsts: array[0..5] of TKeyNameConst = (
+      (KeyName: 'HKA';  KeyConst: HKEY_AUTO),
       (KeyName: 'HKCR'; KeyConst: HKEY_CLASSES_ROOT),
       (KeyName: 'HKCU'; KeyConst: HKEY_CURRENT_USER),
       (KeyName: 'HKLM'; KeyConst: HKEY_LOCAL_MACHINE),
@@ -2787,7 +2812,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
     ScriptFunc := Z;
     if ConvertConstPercentStr(ScriptFunc) and ConvertConstPercentStr(Param) then begin
       CheckConst(Param, MinVersion, AllowedConsts);
-      CodeCompiler.AddExport(ScriptFunc, 'String @String', True, ParseFileName, LineNumber);
+      CodeCompiler.AddExport(ScriptFunc, 'String @String', False, True, ParseFileName, LineNumber);
       Result := True;
       Exit;
     end;
@@ -2860,23 +2885,24 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
 const
-  UserConsts: array[0..1] of String = (
-    'userpf', 'usercf');
-  Consts: array[0..36] of String = (
-    'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts',
-    'hwnd', 'pf', 'pf32', 'pf64', 'cf', 'cf32', 'cf64', 'computername', 'dao',
-    'cmd', 'username', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
+  UserConsts: array[0..2] of String = (
+    'userpf', 'usercf', 'username');
+  Consts: array[0..41] of String = (
+    'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts', 'hwnd',
+    'commonpf', 'commonpf32', 'commonpf64', 'commoncf', 'commoncf32', 'commoncf64',
+    'autopf', 'autopf32', 'autopf64', 'autocf', 'autocf32', 'autocf64',
+    'computername', 'dao', 'cmd', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
     'language', 'syswow64', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
     'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064');
-  UserShellFolderConsts: array[0..9] of String = (
+  UserShellFolderConsts: array[0..8] of String = (
     'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
-    'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto',
-    'sendto' { old name of 'usersendto' });
-  ShellFolderConsts: array[0..9] of String = (
+    'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto');
+  ShellFolderConsts: array[0..16] of String = (
     'group', 'commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
     'commonappdata', 'commondocs', 'commontemplates', 'localappdata',
-    'commonfavorites');
+    'autodesktop', 'autostartmenu', 'autoprograms', 'autostartup',
+    'autoappdata', 'autodocs', 'autotemplates', 'autofavorites');
   AllowedConstsNames: array[TAllowedConst] of String = (
     'olddata', 'break');
 var
@@ -2904,6 +2930,7 @@ begin
         { Now check the constant }
         Cnst := Copy(S, Start+1, I-(Start+1));
         if Cnst <> '' then begin
+          HandleRenamedConstants(Cnst, RenamedConstantCallback);
           if Cnst = '\' then
             goto 1;
           if Cnst[1] = '%' then begin
@@ -3004,7 +3031,7 @@ begin
       raise Exception.Create('Internal Error: unknown parameter type');
   end;
 
-  CodeCompiler.AddExport(Name, Decl, True, ParseFileName, LineNumber);
+  CodeCompiler.AddExport(Name, Decl, False, True, ParseFileName, LineNumber);
 
   Result := True; { Result doesn't matter }
 end;
@@ -3297,14 +3324,19 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
   const
     SECURITY_WORLD_SID_AUTHORITY = 1;
     SECURITY_WORLD_RID = $00000000;
+    SECURITY_CREATOR_SID_AUTHORITY = 3;
+    SECURITY_CREATOR_OWNER_RID = $00000000;
     SECURITY_NT_AUTHORITY = 5;
     SECURITY_AUTHENTICATED_USER_RID = $0000000B;
     SECURITY_LOCAL_SYSTEM_RID = $00000012;
+    SECURITY_LOCAL_SERVICE_RID = $00000013;
+    SECURITY_NETWORK_SERVICE_RID = $00000014;
     SECURITY_BUILTIN_DOMAIN_RID = $00000020;
     DOMAIN_ALIAS_RID_ADMINS = $00000220;
     DOMAIN_ALIAS_RID_USERS = $00000221;
+    DOMAIN_ALIAS_RID_GUESTS = $00000222;
     DOMAIN_ALIAS_RID_POWER_USERS = $00000223;
-    KnownSids: array[0..5] of TKnownSid = (
+    KnownSids: array[0..9] of TKnownSid = (
       (Name: 'admins';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 2;
@@ -3313,14 +3345,30 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 1;
              SubAuth: (SECURITY_AUTHENTICATED_USER_RID, 0))),
+      (Name: 'creatorowner';
+       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_CREATOR_SID_AUTHORITY));
+             SubAuthCount: 1;
+             SubAuth: (SECURITY_CREATOR_OWNER_RID, 0))),
       (Name: 'everyone';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_WORLD_SID_AUTHORITY));
              SubAuthCount: 1;
              SubAuth: (SECURITY_WORLD_RID, 0))),
+      (Name: 'guests';
+       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
+             SubAuthCount: 2;
+             SubAuth: (SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_GUESTS))),
+      (Name: 'networkservice';
+       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
+             SubAuthCount: 1;
+             SubAuth: (SECURITY_NETWORK_SERVICE_RID, 0))),
       (Name: 'powerusers';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 2;
              SubAuth: (SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_POWER_USERS))),
+      (Name: 'service';
+       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
+             SubAuthCount: 1;
+             SubAuth: (SECURITY_LOCAL_SERVICE_RID, 0))),
       (Name: 'system';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 1;
@@ -3481,7 +3529,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.EnumSetup(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumSetupProc(const Line: PChar; const Ext: Integer);
 var
   KeyName, Value: String;
   I: Integer;
@@ -3647,11 +3695,40 @@ var
              Include(Result, paX86);
         1: Include(Result, paX64);
         2: Include(Result, paIA64);
-        3: if Only64Bit then
-             Invalid //ARM64 can actually only run x86 binaries
-           else
-             Include(Result, paARM64);
+        3: Include(Result, paARM64);
       end;
+  end;
+
+
+  function StrToPrivilegesRequiredOverrides(S: String): TSetupPrivilegesRequiredOverrides;
+  const
+    Overrides: array[0..1] of PChar = ('commandline', 'dialog');
+  begin
+    Result := [];
+    while True do
+      case ExtractFlag(S, Overrides) of
+        -2: Break;
+        -1: Invalid;
+        0: Include(Result, proCommandLine);
+        1: Result := Result + [proCommandLine, proDialog];
+      end;
+  end;
+
+  procedure StrToPercentages(const S: String; var X, Y: Integer; const Min, Max: Integer);
+  var
+    I: Integer;
+  begin
+    I := Pos(',', S);
+    if I = Length(S) then Invalid;
+    if I <> 0 then begin
+      X := StrToIntDef(Copy(S, 1, I-1), -1);
+      Y := StrToIntDef(Copy(S, I+1, Maxint), -1);
+    end else begin
+      X := StrToIntDef(S, -1);
+      Y := X;
+    end;
+    if (X < Min) or (X > Max) or (Y < Min) or (Y > Max) then
+      Invalid;
   end;
 
 var
@@ -4063,8 +4140,8 @@ begin
           Invalid;
         if SetupHeader.MinVersion.WinVersion <> 0 then
           AbortCompileOnLine(SCompilerMinVersionWinMustBeZero);
-        if SetupHeader.MinVersion.NTVersion < $05000000 then
-          AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, ['5.0']);
+        if SetupHeader.MinVersion.NTVersion < $06000000 then
+          AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, ['6.0']);
       end;
     ssOnlyBelowVersion: begin
         if not StrToVersionNumbers(Value, SetupHeader.OnlyBelowVersion) then
@@ -4104,6 +4181,9 @@ begin
           SetupHeader.PrivilegesRequired := prLowest
         else
           Invalid;
+      end;
+    ssPrivilegesRequiredOverridesAllowed: begin
+        SetupHeader.PrivilegesRequiredOverridesAllowed := StrToPrivilegesRequiredOverrides(Value);
       end;
     ssReserveBytes: begin
         Val(Value, ReserveBytes, I);
@@ -4275,6 +4355,9 @@ begin
     ssUsePreviousLanguage: begin
         SetSetupHeaderOption(shUsePreviousLanguage);
       end;
+    ssUsePreviousPrivileges: begin
+        SetSetupHeaderOption(shUsePreviousPrivileges);
+      end;
     ssUsePreviousSetupType: begin
         SetSetupHeaderOption(shUsePreviousSetupType);
       end;
@@ -4354,15 +4437,24 @@ begin
           Invalid;
         WizardImageFile := Value;
       end;
+    ssWizardResizable: begin
+        SetSetupHeaderOption(shWizardResizable);
+      end;
     ssWizardSmallImageFile: begin
         if Value = '' then
           Invalid;
         WizardSmallImageFile := Value;
       end;
+    ssWizardSizePercent: begin
+        StrToPercentages(Value, SetupHeader.WizardSizePercentX,
+          SetupHeader.WizardSizePercentY, 100, 150)
+      end;
     ssWizardStyle: begin
-        if CompareText(Value, 'modern') = 0 then begin
-          { no-op }
-        end else
+        if CompareText(Value, 'classic') = 0 then
+          SetupHeader.WizardStyle := wsClassic
+        else if CompareText(Value, 'modern') = 0 then
+          SetupHeader.WizardStyle := wsModern
+        else
           Invalid;
       end;
   end;
@@ -4409,7 +4501,7 @@ begin
 end;
 
 {$IFDEF UNICODE}
-procedure TSetupCompiler.EnumLangOptionsPre(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumLangOptionsPreProc(const Line: PChar; const Ext: Integer);
 
   procedure ApplyToLangEntryPre(const KeyName, Value: String;
     const PreLangData: TPreLangData; const AffectsMultipleLangs: Boolean);
@@ -4463,10 +4555,10 @@ begin
 end;
 {$ENDIF}
 
-procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integer);
 
   procedure ApplyToLangEntry(const KeyName, Value: String;
-    var LangOptions: TSetupLanguageEntry; const AffectsMultipleLangs, AnsiLanguageFile: Boolean);
+    var LangOptions: TSetupLanguageEntry; const AffectsMultipleLangs: Boolean);
   var
     I: Integer;
     Directive: TLangOptionsSectionDirectives;
@@ -4487,14 +4579,12 @@ procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext, Ext2: Int
 
     function ConvertLanguageName(N: String): String;
     var
-      AsciiWarningShown: Boolean;
       I, J, L: Integer;
       W: Word;
     begin
       N := Trim(N);
       if N = '' then
         Invalid;
-      AsciiWarningShown := False;
       Result := '';
       I := 1;
       while I <= Length(N) do begin
@@ -4509,10 +4599,6 @@ procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext, Ext2: Int
           Inc(I, 6);
         end
         else begin
-          if AnsiLanguageFile and (N[I] > #126) and not AsciiWarningShown then begin
-            WarningsList.Add(SCompilerLanguageNameNotAscii);
-            AsciiWarningShown := True;
-          end;
           W := Ord(N[I]);
           Inc(I);
         end;
@@ -4580,20 +4666,18 @@ procedure TSetupCompiler.EnumLangOptions(const Line: PChar; const Ext, Ext2: Int
 var
   KeyName, Value: String;
   I, LangIndex: Integer;
-  AnsiLanguageFile: Boolean;
 begin
   SeparateDirective(Line, KeyName, Value);
   LangIndex := ExtractLangIndex(Self, KeyName, Ext, False);
-  AnsiLanguageFile := Boolean(Ext2);
   if LangIndex = -1 then begin
     for I := 0 to LanguageEntries.Count-1 do
       ApplyToLangEntry(KeyName, Value, PSetupLanguageEntry(LanguageEntries[I])^,
-        LanguageEntries.Count > 1, AnsiLanguageFile);
+        LanguageEntries.Count > 1);
   end else
-    ApplyToLangEntry(KeyName, Value, PSetupLanguageEntry(LanguageEntries[LangIndex])^, False, AnsiLanguageFile);
+    ApplyToLangEntry(KeyName, Value, PSetupLanguageEntry(LanguageEntries[LangIndex])^, False);
 end;
 
-procedure TSetupCompiler.EnumTypes(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumTypesProc(const Line: PChar; const Ext: Integer);
 
   function IsCustomTypeAlreadyDefined: Boolean;
   var
@@ -4668,7 +4752,7 @@ begin
   TypeEntries.Add(NewTypeEntry);
 end;
 
-procedure TSetupCompiler.EnumComponents(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumComponentsProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paName, paDescription, paExtraDiskSpaceRequired, paTypes,
     paLanguages, paCheck, paMinVersion, paOnlyBelowVersion);
@@ -4772,7 +4856,7 @@ begin
   ComponentEntries.Add(NewComponentEntry);
 end;
 
-procedure TSetupCompiler.EnumTasks(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumTasksProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paName, paDescription, paGroupDescription, paComponents,
     paLanguages, paCheck, paMinVersion, paOnlyBelowVersion);
@@ -4862,7 +4946,7 @@ end;
 const
   FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = $00002000;
 
-procedure TSetupCompiler.EnumDirs(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumDirsProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paName, paAttribs, paPermissions, paComponents, paTasks,
     paLanguages, paCheck, paBeforeInstall, paAfterInstall, paMinVersion,
@@ -5001,7 +5085,7 @@ const
     SmkcDown, SmkcIns, SmkcDel, SmkcShift, SmkcCtrl, SmkcAlt);
 {$ENDIF}
 
-procedure TSetupCompiler.EnumIcons(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumIconsProc(const Line: PChar; const Ext: Integer);
 
   {$IFNDEF Delphi3OrHigher}
   procedure LoadStrings;
@@ -5245,7 +5329,7 @@ begin
   IconEntries.Add(NewIconEntry);
 end;
 
-procedure TSetupCompiler.EnumINI(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumINIProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paFilename, paSection, paKey, paString, paComponents,
     paTasks, paLanguages, paCheck, paBeforeInstall, paAfterInstall,
@@ -5344,7 +5428,7 @@ begin
   IniEntries.Add(NewIniEntry);
 end;
 
-procedure TSetupCompiler.EnumRegistry(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumRegistryProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paRoot, paSubkey, paValueType, paValueName, paValueData,
     paPermissions, paComponents, paTasks, paLanguages, paCheck, paBeforeInstall,
@@ -5503,7 +5587,9 @@ begin
           SetLength(S, Length(S)-2);
         end;
       end;
-      if S = 'HKCR' then
+      if S = 'HKA' then
+        RootKey := HKEY_AUTO
+      else if S = 'HKCR' then
         RootKey := HKEY_CLASSES_ROOT
       else if S = 'HKCU' then begin
         UsedUserAreas.Add(S);
@@ -5618,7 +5704,7 @@ begin
   RegistryEntries.Add(NewRegistryEntry);
 end;
 
-procedure TSetupCompiler.EnumDelete(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumDeleteProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paType, paName, paComponents, paTasks, paLanguages, paCheck,
     paBeforeInstall, paAfterInstall, paMinVersion, paOnlyBelowVersion);
@@ -5695,7 +5781,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.EnumFiles(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumFilesProc(const Line: PChar; const Ext: Integer);
 
   function EscapeBraces(const S: String): String;
   { Changes all '{' to '{{' }
@@ -6627,7 +6713,7 @@ begin
   SetFileTime(H, nil, nil, @FT);
 end;
 
-procedure TSetupCompiler.EnumRun(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumRunProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paFilename, paParameters, paWorkingDir, paRunOnceId,
     paDescription, paStatusMsg, paVerb, paComponents, paTasks, paLanguages,
@@ -6847,7 +6933,7 @@ const
     (Name: ParamLanguagesInfoAfterFile; Flags: [piNoEmpty]));
 
 {$IFDEF UNICODE}
-procedure TSetupCompiler.EnumLanguagesPre(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumLanguagesPreProc(const Line: PChar; const Ext: Integer);
 var
   Values: array[TLanguagesParam] of TParamValue;
   NewPreLangData: TPreLangData;
@@ -6879,7 +6965,7 @@ begin
 end;
 {$ENDIF}
 
-procedure TSetupCompiler.EnumLanguages(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumLanguagesProc(const Line: PChar; const Ext: Integer);
 var
   Values: array[TLanguagesParam] of TParamValue;
   NewLanguageEntry: PSetupLanguageEntry;
@@ -6936,7 +7022,7 @@ begin
   ReadMessagesFromFiles(Filename, LanguageEntries.Count-1);
 end;
 
-procedure TSetupCompiler.EnumMessages(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumMessagesProc(const Line: PChar; const Ext: Integer);
 var
   P, P2: PChar;
   I, ID, LangIndex: Integer;
@@ -6985,7 +7071,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.EnumCustomMessages(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumCustomMessagesProc(const Line: PChar; const Ext: Integer);
 
   function ExpandNewlines(const S: String): String;
   { Replaces '%n' with #13#10 }
@@ -7159,7 +7245,6 @@ procedure TSetupCompiler.ReadMessagesFromFilesPre(const AFiles: String;
   const ALangIndex: Integer);
 var
   S, Filename: String;
-  AnsiLanguageFile: Boolean;
 begin
   S := AFiles;
   while True do begin
@@ -7167,9 +7252,8 @@ begin
     if Filename = '' then
       Break;
     Filename := PathExpand(PrependSourceDirName(Filename));
-    AnsiLanguageFile := CompareText(PathExtractExt(Filename), '.islu') <> 0;
     AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
-    EnumIniSection(EnumLangOptionsPre, 'LangOptions', ALangIndex, 0, False, True, Filename, AnsiLanguageFile, True);
+    EnumIniSection(EnumLangOptionsPreProc, 'LangOptions', ALangIndex, False, True, Filename, True, True);
     CallIdleProc;
   end;
 end;
@@ -7179,7 +7263,6 @@ procedure TSetupCompiler.ReadMessagesFromFiles(const AFiles: String;
   const ALangIndex: Integer);
 var
   S, Filename: String;
-  AnsiLanguageFile: Boolean;
 begin
   S := AFiles;
   while True do begin
@@ -7187,13 +7270,12 @@ begin
     if Filename = '' then
       Break;
     Filename := PathExpand(PrependSourceDirName(Filename));
-    AnsiLanguageFile := CompareText(PathExtractExt(Filename), '.islu') <> 0;
     AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
-    EnumIniSection(EnumLangOptions, 'LangOptions', ALangIndex, Integer(AnsiLanguageFile), False, True, Filename, AnsiLanguageFile, False);
+    EnumIniSection(EnumLangOptionsProc, 'LangOptions', ALangIndex, False, True, Filename, True, False);
     CallIdleProc;
-    EnumIniSection(EnumMessages, 'Messages', ALangIndex, 0, False, True, Filename, AnsiLanguageFile, False);
+    EnumIniSection(EnumMessagesProc, 'Messages', ALangIndex, False, True, Filename, True, False);
     CallIdleProc;
-    EnumIniSection(EnumCustomMessages, 'CustomMessages', ALangIndex, 0, False, True, Filename, AnsiLanguageFile, False);
+    EnumIniSection(EnumCustomMessagesProc, 'CustomMessages', ALangIndex, False, True, Filename, True, False);
     CallIdleProc;
   end;
 end;
@@ -7203,7 +7285,7 @@ var
   J: TSetupMessageID;
 begin
   { Read messages from Default.isl into DefaultLangData }
-  EnumIniSection(EnumMessages, 'Messages', -2, 0, False, True, 'compiler:Default.isl', True, False);
+  EnumIniSection(EnumMessagesProc, 'Messages', -2, False, True, 'compiler:Default.isl', True, False);
   CallIdleProc;
 
   { Check for missing messages in Default.isl }
@@ -7245,7 +7327,7 @@ begin
 
   { Then read the [LangOptions] section in the script }
   AddStatus(SCompilerStatusReadingInScriptMsgs);
-  EnumIniSection(EnumLangOptionspre, 'LangOptions', -1, 0, False, True, '', False, True);
+  EnumIniSection(EnumLangOptionsPreProc, 'LangOptions', -1, False, True, '', True, False);
   CallIdleProc;
 end;
 {$ENDIF}
@@ -7289,11 +7371,11 @@ begin
 
   { Then read the [LangOptions] & [Messages] & [CustomMessages] sections in the script }
   AddStatus(SCompilerStatusReadingInScriptMsgs);
-  EnumIniSection(EnumLangOptions, 'LangOptions', -1, 0, False, True, '', False, False);
+  EnumIniSection(EnumLangOptionsProc, 'LangOptions', -1, False, True, '', True, False);
   CallIdleProc;
-  EnumIniSection(EnumMessages, 'Messages', -1, 0, False, True, '', False, False);
+  EnumIniSection(EnumMessagesProc, 'Messages', -1, False, True, '', True, False);
   CallIdleProc;
-  EnumIniSection(EnumCustomMessages, 'CustomMessages', -1, 0, False, True, '', False, False);
+  EnumIniSection(EnumCustomMessagesProc, 'CustomMessages', -1, False, True, '', True, False);
   CallIdleProc;
 
   { Check for missing messages }
@@ -7356,7 +7438,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.EnumCode(const Line: PChar; const Ext, Ext2: Integer);
+procedure TSetupCompiler.EnumCodeProc(const Line: PChar; const Ext: Integer);
 var
   CodeTextLineInfo: TLineInfo;
 begin
@@ -7370,7 +7452,7 @@ procedure TSetupCompiler.ReadCode;
 begin
   { Read [Code] section }
   AddStatus(SCompilerStatusReadingCode);
-  EnumIniSection(EnumCode, 'Code', 0, 0, False, False, '', False, False);
+  EnumIniSection(EnumCodeProc, 'Code', 0, False, False, '', False, False);
   CallIdleProc;
 end;
 
@@ -7411,7 +7493,7 @@ begin
     Rec.Param2 := Param2;
     Rec.Param3 := Param3;
     FillChar(Rec.Param4, SizeOf(Rec.Param4), 0);
-    StrPCopy(Rec.Param4, Param4);
+    AnsiStrings.StrPCopy(Rec.Param4, Param4);
     CodeDebugInfo.WriteBuffer(Rec, SizeOf(Rec));
     Inc(VariableDebugEntryCount);
   end;
@@ -7435,42 +7517,36 @@ var
   CompiledCodeDebugInfo: AnsiString;
 begin
   { Compile CodeText }
-
-  CodeCompiler.OnLineToLineInfo := CodeCompilerOnLineToLineInfo;
-  CodeCompiler.OnUsedLine := CodeCompilerOnUsedLine;
-  CodeCompiler.OnUsedVariable := CodeCompilerOnUsedVariable;
-  CodeCompiler.OnError := CodeCompilerOnError;
-  CodeCompiler.OnWarning := CodeCompilerOnWarning;
-
   if (CodeText.Count > 0) or (CodeCompiler.ExportCount > 0) then begin
     if CodeText.Count > 0 then
       AddStatus(SCompilerStatusCompilingCode);
 
     //don't forget highlighter!
-    CodeCompiler.AddExport('InitializeSetup', 'Boolean', False, '', 0);
-    CodeCompiler.AddExport('DeinitializeSetup', '0', False, '', 0);
-    CodeCompiler.AddExport('CurStepChanged', '0 @TSetupStep', False, '', 0);
-    CodeCompiler.AddExport('NextButtonClick', 'Boolean @LongInt', False, '', 0);
-    CodeCompiler.AddExport('BackButtonClick', 'Boolean @LongInt', False, '', 0);
-    CodeCompiler.AddExport('CancelButtonClick', '0 @LongInt !Boolean !Boolean', False, '', 0);
-    CodeCompiler.AddExport('ShouldSkipPage', 'Boolean @LongInt', False, '', 0);
-    CodeCompiler.AddExport('CurPageChanged', '0 @LongInt', False, '', 0);
-    CodeCompiler.AddExport('CheckPassword', 'Boolean @String', False, '', 0);
-    CodeCompiler.AddExport('NeedRestart', 'Boolean', False, '', 0);
-    CodeCompiler.AddExport('UpdateReadyMemo', 'String @String @String @String @String @String @String @String @String', False, '', 0);
-    CodeCompiler.AddExport('RegisterPreviousData', '0 @LongInt', False, '', 0);
-    CodeCompiler.AddExport('CheckSerial', 'Boolean @String', False, '', 0);
-    CodeCompiler.AddExport('InitializeWizard', '0', False, '', 0);
-    CodeCompiler.AddExport('GetCustomSetupExitCode', 'LongInt', False, '', 0);
-    CodeCompiler.AddExport('PrepareToInstall', 'String !Boolean', False, '', 0);
-    CodeCompiler.AddExport('RegisterExtraCloseApplicationsResources', '0', False, '', 0);
-    CodeCompiler.AddExport('CurInstallProgressChanged', '0 @LongInt @LongInt', False, '', 0);
-
-    CodeCompiler.AddExport('InitializeUninstall', 'Boolean', False, '', 0);
-    CodeCompiler.AddExport('DeinitializeUninstall', '0', False, '', 0);
-    CodeCompiler.AddExport('CurUninstallStepChanged', '0 @TUninstallStep', False, '', 0);
-    CodeCompiler.AddExport('UninstallNeedRestart', 'Boolean', False, '', 0);
-    CodeCompiler.AddExport('InitializeUninstallProgressForm', '0', False, '', 0);
+    //setup
+    CodeCompiler.AddExport('InitializeSetup', 'Boolean', True, False, '', 0);
+    CodeCompiler.AddExport('DeinitializeSetup', '0', True, False, '', 0);
+    CodeCompiler.AddExport('CurStepChanged', '0 @TSetupStep', True, False, '', 0);
+    CodeCompiler.AddExport('NextButtonClick', 'Boolean @LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('BackButtonClick', 'Boolean @LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('CancelButtonClick', '0 @LongInt !Boolean !Boolean', True, False, '', 0);
+    CodeCompiler.AddExport('ShouldSkipPage', 'Boolean @LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('CurPageChanged', '0 @LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('CheckPassword', 'Boolean @String', True, False, '', 0);
+    CodeCompiler.AddExport('NeedRestart', 'Boolean', True, False, '', 0);
+    CodeCompiler.AddExport('RegisterPreviousData', '0 @LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('CheckSerial', 'Boolean @String', True, False, '', 0);
+    CodeCompiler.AddExport('InitializeWizard', '0', True, False, '', 0);
+    CodeCompiler.AddExport('RegisterExtraCloseApplicationsResources', '0', True, False, '', 0);
+    CodeCompiler.AddExport('CurInstallProgressChanged', '0 @LongInt @LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('UpdateReadyMemo', 'String @String @String @String @String @String @String @String @String', True, False, '', 0);
+    CodeCompiler.AddExport('GetCustomSetupExitCode', 'LongInt', True, False, '', 0);
+    CodeCompiler.AddExport('PrepareToInstall', 'String !Boolean', True, False, '', 0);
+    //uninstall
+    CodeCompiler.AddExport('InitializeUninstall', 'Boolean', True, False, '', 0);
+    CodeCompiler.AddExport('DeinitializeUninstall', '0', True, False, '', 0);
+    CodeCompiler.AddExport('CurUninstallStepChanged', '0 @TUninstallStep', True, False, '', 0);
+    CodeCompiler.AddExport('UninstallNeedRestart', 'Boolean', True, False, '', 0);
+    CodeCompiler.AddExport('InitializeUninstallProgressForm', '0', True, False, '', 0);
 
     CodeStr := CodeText.Text;
     { Remove trailing CR-LF so that ROPS will never report an error on
@@ -8464,7 +8540,7 @@ var
       ResultCode := PreprocCleanupProc(PreprocCleanupProcData);
       if ResultCode <> 0 then
         AddStatusFmt(SCompilerStatusWarning +
-          'Preprocessor cleanup function failed with code %d.', [ResultCode]);
+          'Preprocessor cleanup function failed with code %d.', [ResultCode], True);
     end;
   end;
 
@@ -8525,7 +8601,7 @@ begin
     ReserveBytes := 0;
     TimeStampRounding := 2;
     SetupHeader.MinVersion.WinVersion := 0;
-    SetupHeader.MinVersion.NTVersion := $05000000;
+    SetupHeader.MinVersion.NTVersion := $06000000;
     SetupHeader.Options := [shDisableStartupPrompt, shCreateAppDir,
       shWindowStartMaximized, shWindowShowCaption, shWindowResizable,
       shUsePreviousAppDir, shUsePreviousGroup,
@@ -8534,7 +8610,8 @@ begin
       shAllowUNCPath, shUsePreviousUserInfo, shRestartIfNeededByRun,
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
       shAppendDefaultGroupName, shUsePreviousLanguage, shCloseApplications,
-      shRestartApplications, shAllowNetworkDrive, shDisableWelcomePage];
+      shRestartApplications, shAllowNetworkDrive, shDisableWelcomePage,
+      shUsePreviousPrivileges];
     SetupHeader.PrivilegesRequired := prAdmin;
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';
@@ -8556,9 +8633,10 @@ begin
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
     SetupHeader.WizardImageAlphaFormat := afIgnored;
     UsedUserAreasWarning := True;
+    SetupHeader.WizardStyle := wsClassic;
 
     { Read [Setup] section }
-    EnumIniSection(EnumSetup, 'Setup', 0, 0, True, True, '', False, False);
+    EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
     CallIdleProc;
 
     { Verify settings set in [Setup] section }
@@ -8568,10 +8646,13 @@ begin
       AbortCompile(SCompilerAppVersionOrAppVerNameRequired);
     LineNumber := SetupDirectiveLines[ssAppName];
     AppNameHasConsts := CheckConst(SetupHeader.AppName, SetupHeader.MinVersion, []);
-    if AppNameHasConsts and not(shDisableStartupPrompt in SetupHeader.Options) then begin
-      { AppName has contants so DisableStartupPrompt must be used }
-      LineNumber := SetupDirectiveLines[ssDisableStartupPrompt];
-      AbortCompile(SCompilerMustUseDisableStartupPrompt);
+    if AppNameHasConsts then begin
+      Include(SetupHeader.Options, shAppNameHasConsts);
+      if not(shDisableStartupPrompt in SetupHeader.Options) then begin
+        { AppName has constants so DisableStartupPrompt must be used }
+        LineNumber := SetupDirectiveLines[ssDisableStartupPrompt];
+        AbortCompile(SCompilerMustUseDisableStartupPrompt);
+      end;
     end;
     if SetupHeader.AppId = '' then
       SetupHeader.AppId := SetupHeader.AppName
@@ -8579,9 +8660,14 @@ begin
       LineNumber := SetupDirectiveLines[ssAppId];
     AppIdHasConsts := CheckConst(SetupHeader.AppId, SetupHeader.MinVersion, []);
     if AppIdHasConsts and (shUsePreviousLanguage in SetupHeader.Options) then begin
-      { AppId has contants so UsePreviousLanguage must not be used }
+      { AppId has constants so UsePreviousLanguage must not be used }
       LineNumber := SetupDirectiveLines[ssUsePreviousLanguage];
       AbortCompile(SCompilerMustNotUsePreviousLanguage);
+    end;
+    if AppIdHasConsts and (proDialog in SetupHeader.PrivilegesRequiredOverridesAllowed) and (shUsePreviousPrivileges in SetupHeader.Options) then begin
+      { AppId has constants so UsePreviousPrivileges must not be used }
+      LineNumber := SetupDirectiveLines[ssUsePreviousPrivileges];
+      AbortCompile(SCompilerMustNotUsePreviousPrivileges);
     end;
     LineNumber := SetupDirectiveLines[ssAppVerName];
     CheckConst(SetupHeader.AppVerName, SetupHeader.MinVersion, []);
@@ -8713,22 +8799,31 @@ begin
     CheckCheckOrInstall('ChangesEnvironment', SetupHeader.ChangesEnvironment, cikDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssChangesAssociations];
     CheckCheckOrInstall('ChangesAssociations', SetupHeader.ChangesAssociations, cikDirectiveCheck);
-    if Output then begin
-      if OutputDir = '' then begin
-        LineNumber := SetupDirectiveLines[ssOutput];
-        AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
-      end;
-      if (OutputBaseFileName = '') or (PathLastDelimiter(BadFileNameChars + '\', OutputBaseFileName) <> 0) then begin
-        LineNumber := SetupDirectiveLines[ssOutputBaseFileName];
-        AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputBaseFileName']);
-      end else if OutputBaseFileName = 'setup' then
-        WarningsList.Add(SCompilerOutputBaseFileNameSetup);
-      if (SetupDirectiveLines[ssOutputManifestFile] <> 0) and
-         ((OutputManifestFile = '') or (PathLastDelimiter(BadFilePathChars, OutputManifestFile) <> 0)) then begin
-        LineNumber := SetupDirectiveLines[ssOutputManifestFile];
-        AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputManifestFile']);
-      end;
+    if Output and (OutputDir = '') then begin
+      LineNumber := SetupDirectiveLines[ssOutput];
+      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
     end;
+    if (Output and (OutputBaseFileName = '')) or (PathLastDelimiter(BadFileNameChars + '\', OutputBaseFileName) <> 0) then begin
+      LineNumber := SetupDirectiveLines[ssOutputBaseFileName];
+      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputBaseFileName']);
+    end else if OutputBaseFileName = 'setup' then { Warn even if Output is False }
+      WarningsList.Add(SCompilerOutputBaseFileNameSetup);
+    if (SetupDirectiveLines[ssOutputManifestFile] <> 0) and
+       ((Output and (OutputManifestFile = '')) or (PathLastDelimiter(BadFilePathChars, OutputManifestFile) <> 0)) then begin
+      LineNumber := SetupDirectiveLines[ssOutputManifestFile];
+      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputManifestFile']);
+    end;
+    if shAlwaysUsePersonalGroup in SetupHeader.Options then
+      UsedUserAreas.Add('AlwaysUsePersonalGroup');
+    if SetupDirectiveLines[ssWizardSizePercent] = 0 then begin
+      if SetupHeader.WizardStyle = wsModern then
+        SetupHeader.WizardSizePercentX := 120
+      else
+        SetupHeader.WizardSizePercentX := 100;
+      SetupHeader.WizardSizePercentY := SetupHeader.WizardSizePercentX;
+    end;
+    if (SetupDirectiveLines[ssWizardResizable] = 0) and (SetupHeader.WizardStyle = wsModern) then
+      Include(SetupHeader.Options, shWizardResizable);
 
     LineNumber := 0;
 
@@ -8880,7 +8975,7 @@ begin
 
     { 0.1. Read [Languages] section and [LangOptions] in the .isl files the
       entries reference }
-    EnumIniSection(EnumLanguagesPre, 'Languages', 0, 0, True, True, '', False, True);
+    EnumIniSection(EnumLanguagesPreProc, 'Languages', 0, True, True, '', False, True);
     CallIdleProc;
 
     { 0.2. Read [LangOptions] in the script }
@@ -8892,7 +8987,7 @@ begin
     ReadDefaultMessages;
 
     { 2. Read [Languages] section and the .isl files the entries reference }
-    EnumIniSection(EnumLanguages, 'Languages', 0, 0, True, True, '', False, False);
+    EnumIniSection(EnumLanguagesProc, 'Languages', 0, True, True, '', False, False);
     CallIdleProc;
 
     { 3. Read [LangOptions] & [Messages] & [CustomMessages] in the script }
@@ -8907,53 +9002,53 @@ begin
     ReadCode;
 
     { Read [Types] section }
-    EnumIniSection(EnumTypes, 'Types', 0, 0, True, True, '', False, False);
+    EnumIniSection(EnumTypesProc, 'Types', 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Components] section }
-    EnumIniSection(EnumComponents, 'Components', 0, 0, True, True, '', False, False);
+    EnumIniSection(EnumComponentsProc, 'Components', 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Tasks] section }
-    EnumIniSection(EnumTasks, 'Tasks', 0, 0, True, True, '', False, False);
+    EnumIniSection(EnumTasksProc, 'Tasks', 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Dirs] section }
-    EnumIniSection(EnumDirs, 'Dirs', 0, 0, True, True, '', False, False);
+    EnumIniSection(EnumDirsProc, 'Dirs', 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Icons] section }
-    EnumIniSection(EnumIcons, 'Icons', 0, 0, True, True, '', False, False);
+    EnumIniSection(EnumIconsProc, 'Icons', 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [INI] section }
-    EnumIniSection(EnumINI, 'INI', 0, 0, True, True, '', False, False);
+    EnumIniSection(EnumINIProc, 'INI', 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Registry] section }
-    EnumIniSection(EnumRegistry, 'Registry', 0, 0, True, True, '', False, False);
+    EnumIniSection(EnumRegistryProc, 'Registry', 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [InstallDelete] section }
-    EnumIniSection(EnumDelete, 'InstallDelete', 0, 0, True, True, '', False, False);
+    EnumIniSection(EnumDeleteProc, 'InstallDelete', 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [UninstallDelete] section }
-    EnumIniSection(EnumDelete, 'UninstallDelete', 1, 0, True, True, '', False, False);
+    EnumIniSection(EnumDeleteProc, 'UninstallDelete', 1, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Run] section }
-    EnumIniSection(EnumRun, 'Run', 0, 0, True, True, '', False, False);
+    EnumIniSection(EnumRunProc, 'Run', 0, True, True, '', False, False);
     CallIdleProc;
 
     { Read [UninstallRun] section }
-    EnumIniSection(EnumRun, 'UninstallRun', 1, 0, True, True, '', False, False);
+    EnumIniSection(EnumRunProc, 'UninstallRun', 1, True, True, '', False, False);
     CallIdleProc;
 
     { Read [Files] section }
     if not TryStrToBoolean(SetupHeader.Uninstallable, Uninstallable) or Uninstallable then
-      EnumFiles('', 1, 0);
-    EnumIniSection(EnumFiles, 'Files', 0, 0, True, True, '', False, False);
+      EnumFilesProc('', 1);
+    EnumIniSection(EnumFilesProc, 'Files', 0, True, True, '', False, False);
     CallIdleProc;
 
     if UsedUserAreasWarning and (UsedUserAreas.Count > 0) and
@@ -9149,9 +9244,9 @@ begin
     { Done }
     AddStatus('');
     for I := 0 to WarningsList.Count-1 do
-      AddStatus(SCompilerStatusWarning + WarningsList[I]);
-    asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2018 Jordan Russell, '
-                  db 'Portions Copyright (C) 2000-2018 Martijn Laan',0; @1: end;
+      AddStatus(SCompilerStatusWarning + WarningsList[I], True);
+    asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2019 Jordan Russell, '
+                  db 'Portions Copyright (C) 2000-2019 Martijn Laan',0; @1: end;
     { Note: Removing or modifying the copyright text is a violation of the
       Inno Setup license agreement; see LICENSE.TXT. }
   finally
@@ -9239,6 +9334,7 @@ begin
           else begin
             { Bad option }
             Result := isceInvalidParam;
+            Exit;
           end;
         end
         else if StrLIComp(P, 'OutputDir=', Length('OutputDir=')) = 0 then begin

@@ -118,11 +118,11 @@ procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, Foote
           Result := Text^;
           Inc(Text);
         end;
-      'A'..'Z', 'a'..'z', '_':
+      '0'..'9', 'A'..'Z', 'a'..'z', '_', '.':
         begin
           P := Text;
           Inc(Text);
-          while CharInSet(Text^ , ['0'..'9', 'A'..'Z', 'a'..'z', '_']) do
+          while CharInSet(Text^ , ['0'..'9', 'A'..'Z', 'a'..'z', '_', '.']) do
             Inc(Text);
           SetString(Result, P, Text - P);
         end;

@@ -27,7 +27,7 @@ uses
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
   Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
-  SpawnClient, UninstProgressForm;
+  SpawnClient, UninstProgressForm, ASMInline;
 
 var
   ScaleBaseUnitsInitialized: Boolean;
@@ -101,6 +101,17 @@ begin
     InternalError('An attempt was made to access UninstallProgressForm before it has been created'); 
 end;
 
+function GetMsgBoxCaption: String;
+var
+  ID: TSetupMessageID;
+begin
+  if IsUninstaller then
+    ID := msgUninstallAppTitle
+  else
+    ID := msgSetupAppTitle;
+  Result := SetupMessages[ID];
+end;
+
 procedure InitializeScaleBaseUnits;
 var
   Font: TFont;
@@ -122,28 +133,6 @@ end;
 
 { ScriptDlg }
 function ScriptDlgProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
-
-  function ArrayToStringList(Arr: PPSVariantIFC): TStringList;
-  var
-    StringList: TStringList;
-    I, N: Integer;
-  begin
-    StringList := TStringList.Create();
-    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
-    for I := 0 to N-1 do
-      StringList.Append(VNGetString(PSGetArrayField(Arr^, I)));
-    Result := StringList;
-  end;
-
-  procedure StringListToArray(StringList: TStringList; Arr: PPSVariantIFC);
-  var
-    I, N: Integer;
-  begin
-    N := StringList.Count;
-    for I := 0 to N-1 do
-      VNSetString(PSGetArrayField(Arr^, I), StringList[I]);
-  end;
-
 var
   PStart: Cardinal;
   NewPage: TWizardPage;
@@ -367,18 +356,11 @@ end;
 function CmnFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
-  ID: TSetupMessageID;
 begin
   PStart := Stack.Count-1;
   Result := True;
 
-  if Proc.Name = 'MSGBOX' then begin
-    if IsUninstaller then
-      ID := msgUninstallAppTitle
-    else
-      ID := msgSetupAppTitle;
-    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), SetupMessages[ID], TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), False, 0));
-  end else if Proc.Name = 'MINIMIZEPATHNAME' then begin
+  if Proc.Name = 'MINIMIZEPATHNAME' then begin
     Stack.SetString(PStart, MinimizePathName(Stack.GetString(PStart-1), TFont(Stack.GetClass(PStart-2)), Stack.GetInt(PStart-3)));
   end else
     Result := False;
@@ -387,16 +369,21 @@ end;
 { CmnFunc2 }
 function CmnFunc2Proc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
-  procedure CrackCodeRootKey(const CodeRootKey: Longint; var RegView: TRegView;
+  procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
     var RootKey: HKEY);
   begin
-    { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
-      open keys because they might have our special flag bits set.
-      Also reject unknown flags which may have a meaning in the future. }
-    if (CodeRootKey shr 31 <> 1) or
-       ((CodeRootKey and CodeRootKeyFlagMask) and not CodeRootKeyValidFlags <> 0) then
-      InternalError('Invalid RootKey value');
-
+    if (CodeRootKey and not CodeRootKeyValidFlags) = HKEY_AUTO then begin
+      { Change HKA to HKLM or HKCU, keeping our special flag bits. }
+      CodeRootKey := (CodeRootKey and CodeRootKeyValidFlags) or InstallModeRootKey;
+    end else begin
+      { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
+        open keys because they might have our special flag bits set.
+        Also reject unknown flags which may have a meaning in the future. }
+      if (CodeRootKey shr 31 <> 1) or
+         ((CodeRootKey and CodeRootKeyFlagMask) and not CodeRootKeyValidFlags <> 0) then
+        InternalError('Invalid RootKey value');
+    end;
+    
     if CodeRootKey and CodeRootKeyFlag32Bit <> 0 then
       RegView := rv32Bit
     else if CodeRootKey and CodeRootKeyFlag64Bit <> 0 then begin
@@ -588,12 +575,12 @@ begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     Arr := NewTPSVariantIFC(Stack[PStart-3], True);
     Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
-      Stack.GetString(PStart-2), @Arr, True));
+    Stack.GetString(PStart-2), @Arr, True));
   end else if Proc.Name = 'REGGETVALUENAMES' then begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     Arr := NewTPSVariantIFC(Stack[PStart-3], True);
     Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
-      Stack.GetString(PStart-2), @Arr, False));
+    Stack.GetString(PStart-2), @Arr, False));
   end else if Proc.Name = 'REGQUERYSTRINGVALUE' then begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     S := Stack.GetString(PStart-2);
@@ -722,10 +709,12 @@ begin
       RegCloseKey(K);
     end else
       Stack.SetBool(PStart, False);
-  end else if Proc.Name = 'ISADMINLOGGEDON' then begin
-    Stack.SetBool(PStart, IsAdminLoggedOn());
+  end else if (Proc.Name = 'ISADMIN') or (Proc.Name = 'ISADMINLOGGEDON') then begin
+    Stack.SetBool(PStart, IsAdmin);
   end else if Proc.Name = 'ISPOWERUSERLOGGEDON' then begin
     Stack.SetBool(PStart, IsPowerUserLoggedOn());
+  end else if Proc.Name= 'ISADMININSTALLMODE' then begin
+    Stack.SetBool(PStart, IsAdminInstallMode);
   end else if Proc.Name = 'FONTEXISTS' then begin
     Stack.SetBool(PStart, FontExists(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'GETUILANGUAGE' then begin
@@ -975,15 +964,19 @@ var
   PStart: Cardinal;
   MinVersion, OnlyBelowVersion: TSetupVersionData;
   WizardComponents, WizardTasks: TStringList;
-  ID: TSetupMessageID;
   S: String;
+  Suppressible: Boolean;
+  Default: Integer;
+  Arr: TPSVariantIFC;
+  N, I: Integer;
+  ButtonLabels: array of String;
 begin
   PStart := Stack.Count-1;
   Result := True;
 
-  if Proc.Name = 'WIZARDFORM' then begin
+  if Proc.Name = 'GETWIZARDFORM' then begin
     Stack.SetClass(PStart, GetWizardForm);
-  end else if Proc.Name = 'MAINFORM' then begin
+  end else if Proc.Name = 'GETMAINFORM' then begin
     Stack.SetClass(PStart, GetMainForm);
   end else if Proc.Name = 'ACTIVELANGUAGE' then begin
     Stack.SetString(PStart, ExpandConst('{language}'));
@@ -1017,8 +1010,6 @@ begin
     Stack.SetString(PStart, ExpandConstEx(Stack.GetString(PStart-1), [Stack.GetString(PStart-2), Stack.GetString(PStart-3)]));
   end else if Proc.Name = 'EXITSETUPMSGBOX' then begin
     Stack.SetBool(PStart, ExitSetupMsgBox());
-  end else if Proc.Name = 'GETSHELLFOLDER' then begin
-    Stack.SetString(PStart, GetShellFolder(Stack.GetBool(PStart-1), TShellFolderID(Stack.GetInt(PStart-2)), False));
   end else if Proc.Name = 'GETSHELLFOLDERBYCSIDL' then begin
     Stack.SetString(PStart, GetShellFolderByCSIDL(Stack.GetInt(PStart-1), Stack.GetBool(PStart-2)));
   end else if Proc.Name = 'INSTALLONTHISVERSION' then begin
@@ -1033,12 +1024,29 @@ begin
   end else if Proc.Name = 'GETWINDOWSVERSIONSTRING' then begin
     Stack.SetString(PStart, Format('%u.%.2u.%u', [WindowsVersion shr 24,
       (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF]));
-  end else if Proc.Name = 'SUPPRESSIBLEMSGBOX' then begin
-    if IsUninstaller then
-      ID := msgUninstallAppTitle
-    else
-      ID := msgSetupAppTitle;
-    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), SetupMessages[ID], TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), True, Stack.GetInt(PStart-4)));
+  end else if (Proc.Name = 'MSGBOX') or (Proc.Name = 'SUPPRESSIBLEMSGBOX') then begin
+    if Proc.Name = 'MSGBOX' then begin
+      Suppressible := False;
+      Default := 0;
+    end else begin
+      Suppressible := True;
+      Default := Stack.GetInt(PStart-4);
+    end;
+    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), Suppressible, Default));
+  end else if (Proc.Name = 'TASKDIALOGMSGBOX') or (Proc.Name = 'SUPPRESSIBLETASKDIALOGMSGBOX') then begin
+    if Proc.Name = 'TASKDIALOGMSGBOX' then begin
+      Suppressible := False;
+      Default := 0;
+    end else begin
+      Suppressible := True;
+      Default := Stack.GetInt(PStart-7);
+    end;
+    Arr := NewTPSVariantIFC(Stack[PStart-5], True);
+    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
+    SetLength(ButtonLabels, N);
+    for I := 0 to N-1 do
+      ButtonLabels[I] := VNGetString(PSGetArrayField(Arr, I));
+    Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-3)), Stack.GetInt(PStart-4), ButtonLabels, Stack.GetInt(PStart-6), Suppressible, Default));
   end else if Proc.Name = 'ISWIN64' then begin
     Stack.SetBool(PStart, IsWin64);
   end else if Proc.Name = 'IS64BITINSTALLMODE' then begin
@@ -1535,6 +1543,9 @@ begin
 end;
 
 { Other }
+var
+  ASMInliners: array of Pointer;
+
 function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
   function GetExceptionMessage: String;
@@ -1678,6 +1689,73 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
       Result := False;
     end;
   end;
+  
+  function CreateCallback(P: PPSVariantProcPtr): LongWord;
+  var
+    ProcRec: TPSInternalProcRec;
+    Method: TMethod;
+    Inliner: TASMInline;
+    ParamCount, SwapFirst, SwapLast: Integer;
+    S: tbtstring;
+  begin
+    { Calculate parameter count of our proc, will need this later. }
+    ProcRec := Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
+    S := ProcRec.ExportDecl;
+    GRFW(S);
+    ParamCount := 0;
+    while S <> '' do begin
+      Inc(ParamCount);
+      GRFW(S);
+    end;
+
+    { Turn our proc into a callable TMethod - its Code will point to
+      ROPS' MyAllMethodsHandler and its Data to a record identifying our proc.
+      When called, MyAllMethodsHandler will use the record to call our proc. }
+    Method := MkMethod(Caller, P.ProcNo);
+
+    { Wrap our TMethod with a dynamically generated stdcall callback which will
+      do two things:
+      -Remember the Data pointer which MyAllMethodsHandler needs.
+      -Handle the calling convention mismatch.
+
+      Based on InnoCallback by Sherlock Software, see
+      http://www.sherlocksoftware.org/page.php?id=54 and
+      https://github.com/thenickdude/InnoCallback. }
+    Inliner := TASMInline.create;
+    try
+      Inliner.Pop(EAX); //get the retptr off the stack
+
+      SwapFirst := 2;
+      SwapLast := ParamCount-1;
+
+      //Reverse the order of parameters from param3 onwards in the stack
+      while SwapLast > SwapFirst do begin
+        Inliner.Mov(ECX, Inliner.Addr(ESP, SwapFirst * 4)); //load the first item of the pair
+        Inliner.Mov(EDX, Inliner.Addr(ESP, SwapLast * 4)); //load the last item of the pair
+        Inliner.Mov(Inliner.Addr(ESP, SwapFirst * 4), EDX);
+        Inliner.Mov(Inliner.Addr(ESP, SwapLast * 4), ECX);
+        Inc(SwapFirst);
+        Dec(SwapLast);
+      end;
+
+      if ParamCount >= 1 then
+        Inliner.Pop(EDX); //load param1
+      if ParamCount >= 2 then
+        Inliner.Pop(ECX); //load param2
+
+      Inliner.Push(EAX); //put the retptr back onto the stack
+
+      Inliner.Mov(EAX, LongWord(Method.Data)); //Load the self ptr
+
+      Inliner.Jmp(Method.Code); //jump to the wrapped proc
+
+      SetLength(ASMInliners, Length(ASMInliners) + 1);
+      ASMInliners[High(ASMInliners)] := Inliner.SaveAsMemory;
+      Result := LongWord(ASMInliners[High(ASMInliners)]);
+    finally
+      Inliner.Free;
+    end;
+  end;
 
 var
   PStart: Cardinal;
@@ -1805,8 +1883,10 @@ begin
         InternalError('Cannot disable FS redirection on this version of Windows');
       ScriptFuncDisableFsRedir := True;
     end;
-  end else if Proc.Name = 'UNINSTALLPROGRESSFORM' then begin
+  end else if Proc.Name = 'GETUNINSTALLPROGRESSFORM' then begin
     Stack.SetClass(PStart, GetUninstallProgressForm);
+  end else if Proc.Name = 'CREATECALLBACK' then begin
+   Stack.SetInt(PStart, CreateCallback(Stack.Items[PStart-1]));
   end else
     Result := False;
 end;
@@ -1873,4 +1953,16 @@ begin
   ScriptInterpreter.RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx', cdRegister); 
 end;
 
+procedure FreeASMInliners;
+var
+  I: Integer;
+begin
+  for I := 0 to High(ASMInliners) do
+    FreeMem(ASMInliners[I]);
+  SetLength(ASMInliners, 0);
+end;
+
+initialization
+finalization
+  FreeASMInliners;
 end.

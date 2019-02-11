@@ -2,13 +2,11 @@ unit DebugStruct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Debug info stuff
-
-  $jrsoftware: issrc/Projects/DebugStruct.pas,v 1.20 2009/04/21 13:46:04 mlaan Exp $
 }
 
 interface
@@ -86,7 +84,7 @@ type
     Index: Integer;
   end;
 
-  { TVariableDebugEntrys associate [Code] section variable referenes with line
+  { TVariableDebugEntrys associate [Code] section variable references with line
     numbers & column positions }
   PVariableDebugEntry = ^TVariableDebugEntry;
   TVariableDebugEntry = packed record
