@@ -409,6 +409,7 @@ type
     procedure WMStartCommandLineCompile(var Message: TMessage); message WM_StartCommandLineCompile;
     procedure WMStartCommandLineWizard(var Message: TMessage); message WM_StartCommandLineWizard;
     procedure WMStartNormally(var Message: TMessage); message WM_StartNormally;
+    procedure WMSettingChange(var Message: TMessage); message WM_SETTINGCHANGE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
 {$IFDEF IS_D4}
   protected
@@ -581,6 +582,20 @@ end;
 function ISCryptInstalled: Boolean;
 begin
   Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
+end;
+
+function GetDefaultThemeType: TThemeType;
+var
+  K: HKEY;
+  Size, AppsUseLightTheme: DWORD;
+begin
+  Result := ttModernLight;
+  if (Win32MajorVersion >= 10) and (RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS) then begin
+    Size := SizeOf(AppsUseLightTheme);
+    if (RegQueryValueEx(K, 'AppsUseLightTheme', nil, nil, @AppsUseLightTheme, @Size) = ERROR_SUCCESS) and (AppsUseLightTheme = 0) then
+      Result := ttModernDark;
+    RegCloseKey(K);
+  end;
 end;
 
 { TISScintEdit }
@@ -771,7 +786,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.AutoIndent := Ini.ReadBool('Options', 'AutoIndent', True);
       FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', True);
       FOptions.GutterLineNumbers := Ini.ReadBool('Options', 'GutterLineNumbers', False);
-      I := Ini.ReadInteger('Options', 'ThemeType', Ord(ttModernLight));
+      I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
       if (I >= 0) and (I <= Ord(High(TThemeType))) then
         FOptions.ThemeType := TThemeType(I);
       if GetACP = 932 then begin
@@ -972,6 +987,9 @@ destructor TCompileForm.Destroy;
   begin
     Ini := TConfigIniFile.Create;
     try
+      { Theme state }
+      Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType));  { Also see TOptionsClick }
+
       { Menu check boxes state }
       Ini.WriteBool('Options', 'ShowToolbar', Toolbar.Visible);
       Ini.WriteBool('Options', 'ShowStatusBar', StatusBar.Visible);
@@ -986,7 +1004,7 @@ destructor TCompileForm.Destroy;
       Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
       Ini.WriteBool('State', 'WindowMaximized', WindowState = wsMaximized);
       Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
-      
+
       { Zoom state }
       Ini.WriteInteger('Options', 'Zoom', Memo.Zoom);
     finally
@@ -2649,7 +2667,7 @@ begin
       Ini.WriteBool('Options', 'AutoIndent', FOptions.AutoIndent);
       Ini.WriteBool('Options', 'IndentationGuides', FOptions.IndentationGuides);
       Ini.WriteBool('Options', 'GutterLineNumbers', FOptions.GutterLineNumbers);
-      Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType));
+      Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
       Ini.WriteString('Options', 'EditorFontName', Memo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', Memo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', Memo.Font.Charset);
@@ -3965,6 +3983,14 @@ begin
     FProgressMax := AProgressMax;
     InvalidateStatusPanel(spCompileProgress);
     SetAppTaskbarProgressValue(AProgress, AProgressMax);
+  end;
+end;
+
+procedure TCompileForm.WMSettingChange(var Message: TMessage);
+begin
+  if (FTheme.Typ <> ttClassic) and (Win32MajorVersion >= 10) and (Message.LParam <> 0) and (StrIComp(PChar(Message.LParam), 'ImmersiveColorSet') = 0) then begin
+    FOptions.ThemeType := GetDefaultThemeType;
+    UpdateTheme;
   end;
 end;
 
