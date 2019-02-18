@@ -1,12 +1,14 @@
 ; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 5.5.3+ German messages      ***
+; *** Inno Setup version 6.0.0+ German messages      ***
 ; ***                                                ***
-; *** Changes 5.5.3+ Author:                         ***
+; *** Changes 6.6.0+ Author:                         ***
+; ***                                                ***
+; ***   Jens Brand (jens.brand@wolf-software.de)     ***
+; ***                                                ***
+; *** Original Authors:                               ***
 ; ***                                                ***
 ; ***   Peter Stadler(Peter.Stadler@univie.ac.at)    ***
-; *** Original Author:                               ***
-; ***                                                ***
 ; ***   Michael Reitz (innosetup@assimilate.de)      ***
 ; ***                                                ***
 ; *** Contributors:                                  ***
@@ -19,7 +21,14 @@
 ;
 ; Diese Übersetzung hält sich an die neue deutsche Rechtschreibung.
 
+; Note: When translating this text, do not add periods (.) to the end of
+; messages that didn't have them already, because on those messages Inno
+; Setup adds the periods automatically (appending a period would result in
+; two periods being displayed).
+
 [LangOptions]
+; The following three entries are very important. Be sure to read and 
+; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Deutsch
 LanguageID=$0407
 LanguageCodePage=1252
@@ -51,6 +60,7 @@ ErrorTitle=Fehler
 SetupLdrStartupMessage=%1 wird jetzt installiert. Möchten Sie fortfahren?
 LdrCannotCreateTemp=Es konnte keine temporäre Datei erstellt werden. Das Setup wurde abgebrochen
 LdrCannotExecTemp=Die Datei konnte nicht im temporären Ordner ausgeführt werden. Das Setup wurde abgebrochen
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nFehler %2: %3
@@ -64,7 +74,6 @@ WindowsServicePackRequired=Dieses Programm benötigt %1 Service Pack %2 oder höhe
 NotOnThisPlatform=Dieses Programm kann nicht unter %1 ausgeführt werden.
 OnlyOnThisPlatform=Dieses Programm muss unter %1 ausgeführt werden.
 OnlyOnTheseArchitectures=Dieses Programm kann nur auf Windows-Versionen installiert werden, die folgende Prozessor-Architekturen unterstützen:%n%n%1
-MissingWOW64APIs=Ihre Windows-Version enthält nicht die Funktionen, die vom Setup für eine 64-bit Installation benötigt werden. Installieren Sie bitte Service Pack %1, um dieses Problem zu beheben.
 WinVersionTooLowError=Dieses Programm benötigt %1 Version %2 oder höher.
 WinVersionTooHighError=Dieses Programm kann nicht unter %1 Version %2 oder höher installiert werden.
 AdminPrivilegesRequired=Sie müssen als Administrator angemeldet sein, um dieses Programm installieren zu können.
@@ -72,6 +81,15 @@ PowerUserPrivilegesRequired=Sie müssen als Administrator oder als Mitglied der H
 SetupAppRunningError=Das Setup hat entdeckt, dass %1 zur Zeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen, und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
 UninstallAppRunningError=Die Deinstallation hat entdeckt, dass %1 zur Zeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen, und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
 
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Installationsmodus auswählen
+PrivilegesRequiredOverrideInstruction=Bitte wählen Sie den Installationsmodus
+PrivilegesRequiredOverrideText1=%1 kann für alle Benutzer installiert werden (erfordert Administrationsrechte), oder nur für Sie.
+PrivilegesRequiredOverrideText2=%1 kann nur für Sie installiert werden, oder für alle Venutzer (erfordert Administrationsrechte).
+PrivilegesRequiredOverrideAllUsers=Installation für &alle Benutzer
+PrivilegesRequiredOverrideAllUsersRecommended=Installation für &alle Benutzer (empfohlen)
+PrivilegesRequiredOverrideCurrentUser=Installion nur für &Sie
+PrivilegesRequiredOverrideCurrentUserRecommended=Install nur für &Sie (empfohlen)
 ; *** Misc. errors
 ErrorCreatingDir=Das Setup konnte den Ordner "%1" nicht erstellen
 ErrorTooManyFilesInDir=Das Setup konnte eine Datei im Ordner "%1" nicht erstellen, weil er zu viele Dateien enthält
@@ -83,7 +101,7 @@ AboutSetupMenuItem=&Über das Setup ...
 AboutSetupTitle=Über das Setup
 AboutSetupMessage=%1 Version %2%n%3%n%n%1 Internet-Seite:%n%4
 AboutSetupNote=
-TranslatorNote=German translation maintained by Peter Stadler (Peter.Stadler@univie.ac.at)
+TranslatorNote=German translation maintained by Jens Brand (jens.brand@wolf-software.de)
 
 ; *** Buttons
 ButtonBack=< &Zurück
@@ -246,7 +264,10 @@ SelectDirectoryLabel=Geben Sie bitte an, wo der nächste Datenträger eingelegt wi
 
 ; *** Installation phase messages
 SetupAborted=Das Setup konnte nicht abgeschlossen werden.%n%nBeheben Sie bitte das Problem, und starten Sie das Setup erneut.
-EntryAbortRetryIgnore=Klicken Sie auf "Wiederholen" für einen weiteren Versuch, "Ignorieren", um trotzdem fortzufahren, oder "Abbrechen", um die Installation abzubrechen.
+AbortRetryIgnoreSelectAction=Bitte auswählen
+AbortRetryIgnoreRetry=&Nochmals versuchen
+AbortRetryIgnoreIgnore=&Den Fehler ignorieren und fortfahren
+AbortRetryIgnoreCancel=Installation abbrechen
 
 ; *** Installation status messages
 StatusClosingApplications=Anwendungen werden geschlossen...
@@ -277,11 +298,13 @@ ErrorRegWriteKey=Fehler beim Schreiben des Registry-Schlüssels:%n%1\%2
 ErrorIniEntry=Fehler beim Erstellen eines INI-Eintrages in der Datei "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Klicken Sie auf "Wiederholen" für einen weiteren Versuch, "Ignorieren", um diese Datei zu überspringen (nicht empfohlen), oder "Abbrechen", um die Installation abzubrechen.
-FileAbortRetryIgnore2=Klicken Sie auf "Wiederholen" für einen weiteren Versuch, "Ignorieren", um trotzdem fortzufahren (nicht empfohlen), oder "Abbrechen", um die Installation abzubrechen.
+FileAbortRetryIgnoreSkipNotRecommended=Diese Datei &überspringen (nicht empfohlen)
+FileAbortRetryIgnoreIgnoreNotRecommended=Den Fehler &ignorieren und fortfahren (nicht empfohlen)
 SourceIsCorrupted=Die Quelldatei ist beschädigt
 SourceDoesntExist=Die Quelldatei "%1" existiert nicht
-ExistingFileReadOnly=Die vorhandene Datei ist schreibgeschützt.%n%nKlicken Sie auf "Wiederholen", um den Schreibschutz zu entfernen, "Ignorieren", um die Datei zu überspringen, oder "Abbrechen", um die Installation abzubrechen.
+ExistingFileReadOnly2=Die vorhandene Datei kann nicht ersetzt werden, das sie schreibgeschützt ist
+ExistingFileReadOnlyRetry=&Den Schreibschutz entfernen und noch einmal versuchen
+ExistingFileReadOnlyKeepExisting=Die &vorhandene Datei behalten
 ErrorReadingExistingDest=Lesefehler in Datei:
 FileExists=Die Datei ist bereits vorhanden.%n%nSoll sie überschrieben werden?
 ExistingFileNewer=Die vorhandene Datei ist neuer als die Datei, die installiert werden soll. Es wird empfohlen die vorhandene Datei beizubehalten.%n%n Möchten Sie die vorhandene Datei beibehalten?
@@ -295,6 +318,16 @@ ErrorRenamingTemp=Fehler beim Umbenennen einer Datei im Ziel-Ordner:
 ErrorRegisterServer=DLL/OCX konnte nicht registriert werden: %1
 ErrorRegSvr32Failed=RegSvr32-Aufruf scheiterte mit Exit-Code %1
 ErrorRegisterTypeLib=Typen-Bibliothek konnte nicht registriert werden: %1
+
+; *** Uninstall display name markings
+; used for example as 'Mein Programm (32-bit)'
+UninstallDisplayNameMark=%1 (%2)
+; used for example as 'Mein Programm (32-bit, Alle Benutzer)'
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=Alle Benutzer
+UninstallDisplayNameMarkCurrentUser=Aktueller Benutzer
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Fehler beim Öffnen der LIESMICH-Datei.
