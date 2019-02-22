@@ -46,6 +46,7 @@ const
   DSplitterBack = $413E40;   { Monokai Pro }
   DBraceBack = $716F71;      { Monokai Pro }
   DIdentGuideFore = $716F71; { Monokai Pro }
+  //Monokai Pro's dark control color: $221F22
 
   LFore = clBlack;
   LBack = clWhite;

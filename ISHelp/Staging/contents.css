@@ -1,16 +1,14 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
-
-  $jrsoftware: ishelp/Staging/contents.css,v 1.12 2010/09/17 03:48:14 jr Exp $
 
   Style sheet used by contents.htm
 */
 
 BODY {
-	font-family: Tahoma, "Microsoft Sans Serif", "MS Sans Serif", sans-serif;
+	font-family: "Segoe UI", Tahoma, "Microsoft Sans Serif", "MS Sans Serif", sans-serif;
 	font-size: 66.667%;   /* 8pt (8/12) */
 	margin: 0;
 	color: WindowText;
@@ -30,15 +28,11 @@ INPUT {
 }
 #tabbar TD {
 	padding: 0;
-	border-bottom: 1px solid ThreeDDarkShadow;
 	font-weight: bold;
-	     border-radius: 3px 3px 0 0;
-	-moz-border-radius: 3px 3px 0 0;	/* for Firefox 3.6 */
 }
 #tabbar TD.selectedtab {
 	background-color: Window;
 	padding: 2px 6px 3px 6px;
-	border: 1px solid ThreeDDarkShadow;
 	border-bottom: none;
 }
 #tabbar TD.unselectedtab {
@@ -55,8 +49,7 @@ INPUT {
 	cursor: default;
 }
 #tabbar TD.unselectedtab:hover A {
-	color: blue;
-	text-decoration: underline;
+	color: #0078D4;
 }
 
 
@@ -75,9 +68,8 @@ INPUT {
 	text-decoration: none;
 }
 #tabbody-contents A:hover {
-	color: blue;
+	color: #0078D4;
 	background-color: transparent;
-	text-decoration: underline;
 }
 #tabbody-contents A.selectedlink:link,
 #tabbody-contents A.selectedlink:visited {
@@ -123,9 +115,8 @@ INPUT {
 	text-decoration: none;
 }
 #tabbody-index A:hover {
-	color: blue;
+	color: #0078D4;
 	background-color: transparent;
-	text-decoration: underline;
 }
 #tabbody-index A:focus {
 	color: HighlightText;
