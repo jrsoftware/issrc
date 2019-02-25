@@ -2,13 +2,11 @@ unit NewTabSet;
 
 {
   Inno Setup
-  Copyright (C) 1997-2004 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  TNewTabSet - modern VS.NET-style tabs
-
-  $jrsoftware: issrc/Components/NewTabSet.pas,v 1.3 2010/08/18 03:36:36 jr Exp $
+  TNewTabSet - modern VS-style tabs
 }
 
 interface
@@ -19,6 +17,7 @@ uses
 type
   TNewTabSet = class(TCustomControl)
   private
+    FFlat: Boolean;
     FTabs: TStrings;
     FTabIndex: Integer;
     function GetTabRect(Index: Integer): TRect;
@@ -35,6 +34,7 @@ type
     destructor Destroy; override;
   published
     property Align;
+    property Flat: Boolean read FFlat write FFlat default True;
     property Font;
     property ParentFont;
     property TabIndex: Integer read FTabIndex write SetTabIndex;
@@ -132,8 +132,9 @@ begin
   FTabs := TStringList.Create;
   TStringList(FTabs).OnChange := ListChanged;
   ControlStyle := ControlStyle + [csOpaque];
+  FFlat := True;
   Width := 129;
-  Height := 20;
+  Height := 21;
 end;
 
 procedure TNewTabSet.CreateParams(var Params: TCreateParams);
@@ -216,12 +217,14 @@ var
         Dec(R.Right, TabSpacing);
         Canvas.Brush.Color := clBtnFace;
         Canvas.FillRect(R);
-        Canvas.Pen.Color := clBtnHighlight;
-        Canvas.MoveTo(R.Left, R.Top);
-        Canvas.LineTo(R.Left, R.Bottom-1);
-        Canvas.Pen.Color := clBtnText;
-        Canvas.LineTo(R.Right-1, R.Bottom-1);
-        Canvas.LineTo(R.Right-1, R.Top-1);
+        if not FFlat then begin
+          Canvas.Pen.Color := clBtnHighlight;
+          Canvas.MoveTo(R.Left, R.Top);
+          Canvas.LineTo(R.Left, R.Bottom-1);
+          Canvas.Pen.Color := clBtnText;
+          Canvas.LineTo(R.Right-1, R.Bottom-1);
+          Canvas.LineTo(R.Right-1, R.Top-1);
+        end;
         Canvas.Font.Color := clBtnText;
         Canvas.TextOut(R.Left + TabPaddingX, R.Top + TabPaddingY, FTabs[I]);
         ExcludeClipRect(Canvas.Handle, R.Left, R.Top, R.Right, R.Bottom);
@@ -231,17 +234,19 @@ var
         if HighColorMode and (ColorToRGB(clBtnFace) <> clBlack) then
           Canvas.Font.Color := LightenColor(ColorToRGB(clBtnShadow), -43)
         else begin
-          { Like VS.NET, if the button face color is black, or if running in
-            low color mode, use plain clBtnHighlight as the text color }
+          { If the button face color is black, or if running in low color mode,
+            use plain clBtnHighlight as the text color }
           Canvas.Font.Color := clBtnHighlight;
         end;
         Canvas.TextOut(R.Left + TabPaddingX, R.Top + TabPaddingY, FTabs[I]);
-        if HighColorMode then
-          Canvas.Pen.Color := clBtnShadow
-        else
-          Canvas.Pen.Color := clBtnFace;
-        Canvas.MoveTo(R.Right, R.Top+3);
-        Canvas.LineTo(R.Right, R.Bottom-2);
+        if not FFlat then begin
+          if HighColorMode then
+            Canvas.Pen.Color := clBtnShadow
+          else
+            Canvas.Pen.Color := clBtnFace;
+          Canvas.MoveTo(R.Right, R.Top+3);
+          Canvas.LineTo(R.Right, R.Bottom-2);
+        end;
       end;
     end;
   end;
@@ -267,7 +272,10 @@ begin
   DrawTabs(True);
 
   { Top line }
-  Canvas.Pen.Color := clBtnText;
+  if FFlat then
+    Canvas.Pen.Color := clBtnFace
+  else
+    Canvas.Pen.Color := clBtnText;
   Canvas.MoveTo(0, 0);
   Canvas.LineTo(CR.Right, 0);
 

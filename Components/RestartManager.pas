@@ -107,6 +107,9 @@ implementation
 
 //----------------------------------------------------------------------------------------------------------------------
 
+uses
+  SysUtils, PathFunc;
+
 const
   restartmanagerlib = 'Rstrtmgr.dll';
 
@@ -136,13 +139,22 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 function InitRestartManagerLibrary: Boolean;
+
+  function GetSystemDir: String;
+  var
+    Buf: array[0..MAX_PATH-1] of Char;
+  begin
+    GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+    Result := StrPas(Buf);
+  end;
+
 begin
   Inc(ReferenceCount);
 
   { Only attempt to load rstrtmgr.dll if running Windows Vista or later }
   if (RestartManagerLibrary = 0) and (Lo(GetVersion) >= 6) then
   begin
-    RestartManagerLibrary := LoadLibrary(restartmanagerlib);
+    RestartManagerLibrary := LoadLibrary(PChar(AddBackslash(GetSystemDir) + restartmanagerlib));
     if RestartManagerLibrary <> 0 then
     begin
       RmStartSession := GetProcAddress(RestartManagerLibrary, 'RmStartSession');

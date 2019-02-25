@@ -2,7 +2,7 @@ unit FolderTreeView;
 
 {
   Inno Setup
-  Copyright (C) 1997-2015 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -74,6 +74,7 @@ type
     function GetItemImageIndex(const Item: HTREEITEM;
       const NewItem, SelectedImage: Boolean): Integer; override;
   published
+    property Anchors;
     property TabOrder;
     property TabStop default True;
     property Visible;
@@ -97,6 +98,7 @@ type
     procedure SetPaths(const AUserPrograms, ACommonPrograms,
       AUserStartup, ACommonStartup: String);
   published
+    property Anchors;
     property TabOrder;
     property TabStop default True;
     property Visible;
@@ -672,7 +674,7 @@ begin
             TVItem.hItem := DispItem.hItem;
             TVItem.pszText := PChar(S);
             TreeView_SetItem(Handle, TVItem);
-            TreeView_SortChildren(Handle, TreeView_GetParent(Handle, DispItem.hItem), {$IFDEF IS_DXE}False{$ELSE}0{$ENDIF});
+            TreeView_SortChildren(Handle, TreeView_GetParent(Handle, DispItem.hItem), {$IFDEF IS_DXE2}False{$ELSE}0{$ENDIF});
             Change;
           end;
         end;
@@ -1029,7 +1031,7 @@ begin
     if Result then begin
       { When a text callback is used, sorting after all items are inserted is
         exponentially faster than using hInsertAfter=TVI_SORT }
-      TreeView_SortChildren(Handle, Item, {$IFDEF IS_DXE}False{$ELSE}0{$ENDIF});
+      TreeView_SortChildren(Handle, Item, {$IFDEF IS_DXE2}False{$ELSE}0{$ENDIF});
     end;
   end;
 end;
@@ -1167,7 +1169,7 @@ begin
       AddSubfolders(Item, AddBackslash(FCommonPrograms) + Path, FCommonStartup);
     if FUserPrograms <> '' then
       AddSubfolders(Item, AddBackslash(FUserPrograms) + Path, FUserStartup);
-    TreeView_SortChildren(Handle, Item, {$IFDEF IS_DXE}False{$ELSE}0{$ENDIF});
+    TreeView_SortChildren(Handle, Item, {$IFDEF IS_DXE2}False{$ELSE}0{$ENDIF});
   end;
 end;
 
@@ -1194,8 +1196,16 @@ begin
   RecreateWnd;
 end;
 
+function GetSystemDir: String;
+var
+  Buf: array[0..MAX_PATH-1] of Char;
+begin
+  GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+  Result := StrPas(Buf);
+end;
+
 initialization
   InitThemeLibrary;
-  SHPathPrepareForWriteFunc := GetProcAddress(LoadLibrary(shell32),
+  SHPathPrepareForWriteFunc := GetProcAddress(LoadLibrary(PChar(AddBackslash(GetSystemDir) + shell32)),
     {$IFDEF UNICODE}'SHPathPrepareForWriteW'{$ELSE}'SHPathPrepareForWriteA'{$ENDIF});
 end.

@@ -19,7 +19,7 @@ uses SysUtils, IniFiles, Registry, IsppConsts, IsppBase, IsppIdentMan,
   IsppSessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2;
   
 var
-  IsWow64: Boolean;
+  IsWin64: Boolean;
 
 function PrependPath(const Ext: Longint; const Filename: String): String;
 var
@@ -280,7 +280,7 @@ const
       raise Exception.Create('Invalid root key value');
 
     if ISPPRootKey and ISPPRootKeyFlag64Bit <> 0 then begin
-      if not IsWow64 then
+      if not IsWin64 then
         raise Exception.Create('Cannot access 64-bit registry keys on this version of Windows');
       RegView64 := True
     end
@@ -363,7 +363,7 @@ function SetupSetting(Ext: Longint; const Params: IIsppFuncParams;
     with L do
       for I := 0 to Count - 1 do
       begin
-        if Strings[I] = '' then Continue;
+        if Trim(Strings[I]) = '' then Continue;
         if InSetupSection then
         begin
           if (Trim(Strings[I])[1] = '[') then
@@ -417,7 +417,7 @@ function SetSetupSetting(Ext: Longint; const Params: IIsppFuncParams;
     begin
       for I := 0 to Count - 1 do
       begin
-        if Strings[I] = '' then Continue;
+        if Trim(Strings[I]) = '' then Continue;
         if InSetupSection then
         begin
           if (Trim(Strings[I])[1] = '[') then
@@ -1408,19 +1408,19 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      OldDateSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator;
-      OldTimeSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator;
+      OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
+      OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
       try
         NewDateSeparatorString := Get(1).AsStr;
         NewTimeSeparatorString := Get(2).AsStr;
         if NewDateSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
         if NewTimeSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
         MakeStr(ResPtr^, FormatDateTime(Get(0).AsStr, Now()));
       finally
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
       end;
     end;
   except
@@ -1443,23 +1443,23 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      OldDateSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator;
-      OldTimeSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator;
+      OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
+      OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
       try
         NewDateSeparatorString := Get(2).AsStr;
         NewTimeSeparatorString := Get(3).AsStr;
         if NewDateSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
         if NewTimeSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
         if not FileAge(PrependPath(Ext, Get(0).AsStr), Age) then begin
           FuncResult.Error('Invalid file name');
           Result.Error := ISPPFUNC_FAIL
         end else
           MakeStr(ResPtr^, FormatDateTime(Get(1).AsStr, Age));
       finally
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
       end;
     end;
   except
@@ -1675,6 +1675,24 @@ begin
   end;
 end;
 
+function IsWin64Func(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [], 0, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      MakeBool(ResPtr^, IsWin64);
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 procedure Register(Preproc: TPreprocessor);
 begin
   with Preproc do
@@ -1731,22 +1749,23 @@ begin
     RegisterFunction('GetSHA1OfUnicodeString', GetSHA1OfUnicodeString, -1);
     RegisterFunction('Trim', TrimFunc, -1);
     RegisterFunction('StringChange', StringChangeFunc, -1);
+    RegisterFunction('IsWin64', IsWin64Func, -1);
   end;
 end;
 
-procedure InitIsWow64;
+procedure InitIsWin64;
 var
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
   Wow64Process: BOOL;
 begin
   IsWow64ProcessFunc := GetProcAddress(GetModuleHandle(kernel32), 'IsWow64Process');
-  IsWow64 := Assigned(IsWow64ProcessFunc) and
+  IsWin64 := Assigned(IsWow64ProcessFunc) and
              IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
              Wow64Process;
 end;
 
 initialization
-  InitIsWow64;
+  InitIsWin64;
 
 end.
 

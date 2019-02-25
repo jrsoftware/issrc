@@ -2,7 +2,7 @@ unit CompWizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2015 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -19,7 +19,8 @@ uses
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppIcons,
-                 wpAppDocs, wpLanguages, wpCompiler, wpISPP, wpFinished);
+                 wpAppDocs, wpPrivilegesRequired, wpLanguages, wpCompiler,
+                 wpISPP, wpFinished);
 
   TWizardFormResult = (wrNone, wrEmpty, wrComplete);
 
@@ -107,6 +108,11 @@ type
     NoLanguagesButton: TButton;
     NoAppExeCheck: TCheckBox;
     UseCommonProgramsCheck: TCheckBox;
+    PrivilegesRequiredLabel: TNewStaticText;
+    PrivilegesRequiredAdminRadioButton: TRadioButton;
+    PrivilegesRequiredLowestRadioButton: TRadioButton;
+    PrivilegesRequiredOverridesAllowedCommandLineCheckbox: TCheckBox;
+    PrivilegesRequiredOverridesAllowedDialogCheckbox: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -132,6 +138,7 @@ type
     procedure NoLanguagesButtonClick(Sender: TObject);
     procedure NoAppExeCheckClick(Sender: TObject);
     procedure UseCommonProgramsCheckClick(Sender: TObject);
+    procedure PrivilegesRequiredOverridesAllowedDialogCheckboxClick(Sender: TObject);
   private
     CurPage: TWizardPage;
     FWizardName: String;
@@ -141,8 +148,6 @@ type
     FResultScript: String;
     function FixLabel(const S: String): String;
     procedure SetWizardName(const WizardName: String);
-    function ISPPInstalled: Boolean;
-    function ISCryptInstalled: Boolean;
     procedure CurPageChanged;
     function SkipCurPage: Boolean;
     procedure AddWizardFile(const Source: String; const RecurseSubDirs, CreateAllSubDirs: Boolean);
@@ -162,7 +167,7 @@ implementation
 {$R *.DFM}
 
 uses
-  SysUtils, ShlObj, {$IFNDEF Delphi3orHigher} Ole2, {$ELSE} ActiveX, {$ENDIF}
+  SysUtils, ShlObj, ActiveX, UITypes,
   PathFunc, CmnFunc, CmnFunc2, VerInfo, BrowseFunc,
   CompMsgs, CompWizardFile, CompForm;
 
@@ -173,24 +178,26 @@ type
 
 const
   NotebookPages: array[TWizardPage, 0..1] of Integer =
-    ((0, -1), (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (2, -1));
+    ((0, -1), (1, 0), (1, 1), (1, 2),
+     (1, 3), (1, 4), (1, 5), (1, 6),
+     (1, 7), (1, 8), (2, -1));
 
   PageCaptions: array[TWizardPage] of String =
     (SWizardWelcome, SWizardAppInfo, SWizardAppDir, SWizardAppFiles,
-     SWizardAppIcons, SWizardAppDocs, SWizardLanguages,
+     SWizardAppIcons, SWizardAppDocs, SWizardPrivilegesRequired, SWizardLanguages,
      SWizardCompiler, SWizardISPP, SWizardFinished);
 
   PageDescriptions: array[TWizardPage] of String =
     ('', SWizardAppInfo2, SWizardAppDir2, SWizardAppFiles2,
-         SWizardAppIcons2, SWizardAppDocs2, SWizardLanguages2,
+         SWizardAppIcons2, SWizardAppDocs2, SWizardPrivilegesRequired2, SWizardLanguages2,
          SWizardCompiler2, SWizardISPP2, '');
 
   RequiredLabelVisibles: array[TWizardPage] of Boolean =
-    (False, True, True, True, True, False, True, False, False, False);
+    (False, True, True, True, True, False, True, True, False, False, False);
 
   AppRootDirs: array[0..0] of TConstant =
   (
-    ( Constant: '{pf}'; Description: 'Program Files folder')
+    ( Constant: '{autopf}'; Description: 'Program Files folder')
   );
 
   LanguagesDefaultIsl = 'Default.isl';
@@ -216,24 +223,24 @@ begin
   FWizardName := WizardName;
 end;
 
-function TWizardForm.ISPPInstalled(): Boolean;
-begin
-  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
-end;
-
-function TWizardForm.ISCryptInstalled(): Boolean;
-begin
-  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
-end;
-
 { --- }
 
-{$IFDEF IS_D7}
 type
   TNotebookAccess = class(TNotebook);
-{$ENDIF}
 
 procedure TWizardForm.FormCreate(Sender: TObject);
+
+  procedure AddLanguages(const Extension: String);
+  var
+    SearchRec: TSearchRec;
+  begin
+    if FindFirst(PathExtractPath(NewParamStr(0)) + 'Languages\*.' + Extension, faAnyFile, SearchRec) = 0 then begin
+      repeat
+        FLanguages.Add(SearchRec.Name);
+      until FindNext(SearchRec) <> 0;
+      FindClose(SearchRec);
+    end;
+  end;
 
   procedure MakeBold(const Ctl: TNewStaticText);
   begin
@@ -253,7 +260,6 @@ procedure TWizardForm.FormCreate(Sender: TObject);
   end;
 
 var
-  SearchRec: TSearchRec;
   I: Integer;
 begin
   FResult := wrNone;
@@ -262,24 +268,19 @@ begin
   FWizardFiles := TList.Create;
 
   FLanguages := TStringList.Create;
-  //note: *.isl will also match .islu files
-  if FindFirst(PathExtractPath(NewParamStr(0)) + 'Languages\*.isl', faAnyFile, SearchRec) = 0 then begin
-    repeat
-      FLanguages.Add(SearchRec.Name);
-    until FindNext(SearchRec) <> 0;
-    FindClose(SearchRec);
-  end;
-  FLanguages.Sort;
+  FLanguages.Sorted := True;
+  FLanguages.Duplicates := dupIgnore; { Some systems also return .islu files when searching for *.isl }
+  AddLanguages('isl'); 
+  AddLanguages('islu');
+  FLanguages.Sorted := False;
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
   InitFormFont(Self);
   if FontExists('Verdana') then
     WelcomeLabel1.Font.Name := 'Verdana';
 
-{$IFDEF IS_D7}
   TNotebookAccess(Notebook1).ParentBackground := False;
-  PnlMain.ParentBackground := False;
-{$ENDIF}
+  Notebook1.Color := clWindow;
 
   MakeBold(PageNameLabel);
   MakeBold(RequiredLabel1);
@@ -289,6 +290,7 @@ begin
   MakeBold(AppDirNameLabel);
   MakeBold(AppExeLabel);
   MakeBold(AppGroupNameLabel);
+  MakeBold(PrivilegesRequiredLabel);
   MakeBold(LanguagesLabel);
 
   FinishedImage.Picture := WelcomeImage.Picture;
@@ -320,6 +322,9 @@ begin
   NotDisableProgramGroupPageCheck.Checked := True;
   DesktopIconCheck.Checked := True;
 
+  { PrivilegesRequired }
+  PrivilegesRequiredAdminRadioButton.Checked := True;
+
   { Languages }
   for I := 0 to FLanguages.Count-1 do begin
     if FLanguages[I] <> LanguagesDefaultIsl then
@@ -329,7 +334,7 @@ begin
   end;
 
   { Compiler }
-  OutputBaseFileNameEdit.Text := 'setup';
+  OutputBaseFileNameEdit.Text := 'mysetup';
   EncryptionCheck.Visible := ISCryptInstalled;
   EncryptionCheck.Checked := True;
   EncryptionCheck.Enabled := False;
@@ -389,10 +394,6 @@ begin
   { Set the Caption to match the current page's title }
   PageNameLabel.Caption := PageCaptions[CurPage];
   PageDescriptionLabel.Caption := PageDescriptions[CurPage];
-  if CurPage in [wpWelcome, wpFinished] then
-    Notebook1.Color := clWindow
-  else
-    Notebook1.Color := clBtnFace;
 
   { Adjust focus }
   case CurPage of
@@ -419,6 +420,13 @@ begin
           ActiveControl := AppGroupNameEdit;
       end;
     wpAppDocs: ActiveControl := AppLicenseFileEdit;
+    wpPrivilegesRequired:
+      begin
+        if PrivilegesRequiredAdminRadioButton.Checked then
+          ActiveControl := PrivilegesRequiredAdminRadioButton
+        else
+          ActiveControl := PrivilegesRequiredLowestRadioButton;
+      end;
     wpLanguages: ActiveControl := LanguagesList;
     wpCompiler: ActiveControl := OutputDirEdit;
     wpISPP: ActiveControl := ISPPCheck;
@@ -852,6 +860,14 @@ begin
     LanguagesList.Checked[I] := False;
 end;
 
+procedure TWizardForm.PrivilegesRequiredOverridesAllowedDialogCheckboxClick(
+  Sender: TObject);
+begin
+  PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Enabled := not PrivilegesRequiredOverridesAllowedDialogCheckbox.Checked;
+  if PrivilegesRequiredOverridesAllowedDialogCheckbox.Checked then
+    PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Checked := True;
+end;
+
 { --- }
 
 procedure TWizardForm.GenerateScript;
@@ -908,8 +924,7 @@ begin
 
   if not EmptyCheck.Checked then begin
     Setup := Setup + (
-      '; NOTE: The value of AppId uniquely identifies this application.' + SNewLine +
-      '; Do not use the same AppId value in installers for other applications.' + SNewLine +
+      '; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.' + SNewLine +
       '; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)' + SNewLine);
     Setup := Setup + 'AppId={' + GenerateGuid + SNewLine;
     { AppInfo }
@@ -961,7 +976,7 @@ begin
     if not NotCreateAppDirCheck.Checked then begin
       if UseCommonProgramsCheck.Enabled and UseCommonProgramsCheck.Checked then begin
         Setup := Setup + 'DisableProgramGroupPage=yes' + SNewLine;
-        Icons := Icons + 'Name: "{commonprograms}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"' + SNewLine;
+        Icons := Icons + 'Name: "{autoprograms}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"' + SNewLine;
       end else begin
         Setup := Setup + 'DefaultGroupName=' + AppGroupNameEdit.Text + SNewLine;
         if not NoAppExeCheck.Checked then
@@ -977,10 +992,12 @@ begin
       end;
       if DesktopIconCheck.Enabled and DesktopIconCheck.Checked then begin
         Tasks := Tasks + 'Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked' + SNewLine;
-        Icons := Icons + 'Name: "{commondesktop}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: desktopicon' + SNewLine;
+        Icons := Icons + 'Name: "{autodesktop}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: desktopicon' + SNewLine;
       end;
       if QuickLaunchIconCheck.Enabled and QuickLaunchIconCheck.Checked then begin
-        Tasks := Tasks + 'Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1' + SNewLine;
+        Setup := Setup + '; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check.' + SNewLine +
+                         'UsedUserAreasWarning=no' + SNewLine;
+        Tasks := Tasks + 'Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode' + SNewLine;
         Icons := Icons + 'Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: quicklaunchicon' + SNewLine;
       end;
     end;
@@ -993,7 +1010,18 @@ begin
     if AppInfoAfterFileEdit.Text <> '' then
       Setup := Setup + 'InfoAfterFile=' + AppInfoAfterFileEdit.Text + SNewLine;
 
-    { Languages}
+    { PrivilegesRequired }
+    if PrivilegesRequiredAdminRadioButton.Checked then
+      Setup := Setup + '; Uncomment the following line to run in non administrative install mode (install for current user only.)' + SNewLine + ';'
+    else
+      Setup := Setup + '; Remove the following line to run in administrative install mode (install for all users.)' + SNewLine;
+    Setup := Setup + 'PrivilegesRequired=lowest' + SNewLine; { Note how previous made sure this is outputted as comment if needed. }
+    if PrivilegesRequiredOverridesAllowedDialogCheckbox.Checked then
+      Setup := Setup + 'PrivilegesRequiredOverridesAllowed=dialog' + SNewLine
+    else if PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Checked then
+      Setup := Setup + 'PrivilegesRequiredOverridesAllowed=commandline' + SNewLine;
+
+    { Languages }
     if FLanguages.Count > 1 then begin
       for I := 0 to LanguagesList.Items.Count-1 do begin
         if LanguagesList.Checked[I] then begin
@@ -1026,6 +1054,7 @@ begin
     { Other }
     Setup := Setup + 'Compression=lzma' + SNewLine;
     Setup := Setup + 'SolidCompression=yes' + SNewLine;
+    Setup := Setup + 'WizardStyle=modern' + SNewLine;
 
     { Build script }
     if ISPP <> '' then

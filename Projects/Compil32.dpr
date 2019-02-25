@@ -2,12 +2,17 @@ program Compil32;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler
 }
+
+{$SetPEFlags 1} 
+{$SETPEOSVERSION 6.0}
+{$SETPESUBSYSVERSION 6.0}
+{$WEAKLINKRTTI ON}
 
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
@@ -32,7 +37,8 @@ uses
   CompSignTools in 'CompSignTools.pas' {SignToolsForm},
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
-  ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas';
+  ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas',
+  ModernColors in '..\Components\ModernColors.pas';
 
 {$R *.res}
 {$R Compil32.manifest.res}
@@ -48,7 +54,7 @@ begin
   Func := GetProcAddress(GetModuleHandle('shell32.dll'),
     'SetCurrentProcessExplicitAppUserModelID');
   if Assigned(Func) then
-    Func('JR.InnoSetup.IDE.5');
+    Func('JR.InnoSetup.IDE.6');
 end;
 
 procedure RegisterApplicationRestart;
@@ -117,6 +123,7 @@ procedure CheckParams;
 var
   P, I: Integer;
   S: String;
+  Dummy: Boolean;
 begin
   P := NewParamCount;
   I := 1;
@@ -133,7 +140,7 @@ begin
     end
     else if CompareText(S, '/ASSOC') = 0 then begin
       try
-        RegisterISSFileAssociation;
+        RegisterISSFileAssociation(False, Dummy);
       except
         MessageBox(0, PChar(GetExceptMessage), nil, MB_OK or MB_ICONSTOP);
         Halt(2);

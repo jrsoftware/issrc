@@ -5,6 +5,8 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
+WizardStyle=modern
+DisableWelcomePage=no
 CreateAppDir=no
 DisableProgramGroupPage=yes
 DefaultGroupName=My Program
@@ -160,7 +162,7 @@ end;
 {--- MSXML ---}
 
 const
-  XMLURL = 'http://jrsoftware.github.io/issrc/ishelp/isxfunc.xml';
+  XMLURL = 'http://jrsoftware.github.io/issrc/ISHelp/isxfunc.xml';
   XMLFileName = 'isxfunc.xml';
   XMLFileName2 = 'isxfuncmodified.xml';
 
@@ -306,5 +308,3 @@ begin
   Top := Top + TopInc;
   CreateButton(Left, Top, '&Word...', @WordButtonOnClick);
 end;
-
-

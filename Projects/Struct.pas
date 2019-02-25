@@ -2,7 +2,7 @@ unit Struct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '5.5.8 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
-  SetupBinVersion = (5 shl 24) + (5 shl 16) + (8 shl 8) + 0;
+  SetupVersion = '6.0.0-beta '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
+  SetupBinVersion = (6 shl 24) + (0 shl 16) + (0 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -29,14 +29,14 @@ type
   TDiskSliceID = array[1..8] of AnsiChar;
 const
   { SetupID is used by the Setup program to check if the SETUP.0 file is
-    compatible with with it. If you make any modifications to the records in
+    compatible with it. If you make any modifications to the records in
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (5.5.7)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.0.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
-  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (5.5.3)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.0.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!001';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idska32'#26;
@@ -53,8 +53,7 @@ type
     shAllowNoIcons, shAlwaysRestart, shAlwaysUsePersonalGroup,
     shWindowVisible, shWindowShowCaption, shWindowResizable,
     shWindowStartMaximized, shEnableDirDoesntExistWarning,
-    shPassword, shAllowRootDirectory, shDisableFinishedPage,
-    shChangesAssociations, shUsePreviousAppDir,
+    shPassword, shAllowRootDirectory, shDisableFinishedPage, shUsePreviousAppDir,
     shBackColorHorizontal, shUsePreviousGroup, shUpdateUninstallLogAppName,
     shUsePreviousSetupType, shDisableReadyMemo, shAlwaysShowComponentsList,
     shFlatComponentsList, shShowComponentSizes, shUsePreviousTasks,
@@ -62,23 +61,28 @@ type
     shAllowUNCPath, shUserInfoPage, shUsePreviousUserInfo,
     shUninstallRestartComputer, shRestartIfNeededByRun, shShowTasksTreeLines,
     shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
-    shAppendDefaultGroupName, shEncryptionUsed, shChangesEnvironment,
+    shAppendDefaultGroupName, shEncryptionUsed,
     {$IFNDEF UNICODE}shShowUndisplayableLanguages, {$ENDIF}shSetupLogging,
     shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
-    shForceCloseApplications);
+    shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
+    shWizardResizable);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;
-  TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64);
+  TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64, paARM64);
   TSetupProcessorArchitectures = set of TSetupProcessorArchitecture;
   TSetupDisablePage = (dpAuto, dpNo, dpYes);
+  TSetupPrivilegesRequired = (prNone, prPowerUser, prAdmin, prLowest);
+  TSetupPrivilegesRequiredOverride = (proCommandLine, proDialog);
+  TSetupPrivilegesRequiredOverrides = set of TSetupPrivilegesRequiredOverride;
+  TSetupWizardStyle = (wsClassic, wsModern);
 const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =
-    ('Unknown', 'x86', 'x64', 'Itanium');
+    ('Unknown', 'x86', 'x64', 'Itanium', 'ARM64');
 
 const
-  SetupHeaderStrings = 28;
+  SetupHeaderStrings = 30;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
@@ -87,8 +91,8 @@ type
       DefaultGroupName, BaseFilename, UninstallFilesDir, UninstallDisplayName,
       UninstallDisplayIcon, AppMutex, DefaultUserInfoName, DefaultUserInfoOrg,
       DefaultUserInfoSerial, AppReadmeFile, AppContact, AppComments,
-      AppModifyPath, CreateUninstallRegKey, Uninstallable,
-      CloseApplicationsFilter, SetupMutex: String;
+      AppModifyPath, CreateUninstallRegKey, Uninstallable, CloseApplicationsFilter,
+      SetupMutex, ChangesEnvironment, ChangesAssociations: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
 {$IFNDEF UNICODE}
     LeadBytes: set of AnsiChar;
@@ -100,6 +104,8 @@ type
       NumRunEntries, NumUninstallRunEntries: Integer;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     BackColor, BackColor2: Longint;
+    WizardStyle: TSetupWizardStyle;
+    WizardSizePercentX, WizardSizePercentY: Integer;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
     PasswordHash: TSHA1Digest;
     PasswordSalt: TSetupSalt;
@@ -107,7 +113,8 @@ type
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);
     DirExistsWarning: (ddAuto, ddNo, ddYes);
-    PrivilegesRequired: (prNone, prPowerUser, prAdmin, prLowest);
+    PrivilegesRequired: TSetupPrivilegesRequired;
+    PrivilegesRequiredOverridesAllowed: TSetupPrivilegesRequiredOverrides;
     ShowLanguageDialog: (slYes, slNo, slAuto);
     LanguageDetectionMethod: TSetupLanguageDetectionMethod;
     CompressMethod: TSetupCompressMethod;
@@ -253,7 +260,7 @@ type
     FileVersionMS, FileVersionLS: DWORD;
     Flags: set of (foVersionInfoValid, foVersionInfoNotValid, foTimeStampInUTC,
       foIsUninstExe, foCallInstructionOptimized, foApplyTouchDateTime,
-      foChunkEncrypted, foChunkCompressed, foSolidBreak);
+      foChunkEncrypted, foChunkCompressed, foSolidBreak, foSign, foSignOnce);
   end;
   TSetupIconCloseOnExit = (icNoSetting, icYes, icNo);
 const

@@ -104,7 +104,7 @@ type
     FBuffer: array[0..4095] of AnsiChar;
 {$IFDEF UNICODE}
     FSawFirstLine: Boolean;
-    FUTF8: Boolean;
+    FCodePage: Cardinal;
 {$ENDIF}
     function DoReadLine{$IFDEF UNICODE}(const UTF8: Boolean){$ENDIF}: AnsiString;
     function GetEof: Boolean;
@@ -114,6 +114,7 @@ type
 {$IFDEF UNICODE}
     function ReadAnsiLine: AnsiString;
 {$ENDIF}
+    property CodePage: Cardinal write FCodePage;
     property Eof: Boolean read GetEof;
   end;
 
@@ -442,19 +443,18 @@ end;
 function TTextFileReader.ReadLine: String;
 {$IFDEF UNICODE}
 var
-  S: AnsiString;
+ S: RawByteString;
 {$ENDIF}
 begin
 {$IFDEF UNICODE}
-  S := DoReadLine(True);
-  if FUTF8 then
-    Result := UTF8ToString(S)
-  else
-    Result := String(S);
+ S := DoReadLine(True);
+ if FCodePage <> 0 then
+   SetCodePage(S, FCodePage, False);
+ Result := String(S);
 {$ELSE}
-  Result := DoReadLine;
+ Result := DoReadLine;
 {$ENDIF}
-end;
+end; 
 
 {$IFDEF UNICODE}
 function TTextFileReader.ReadAnsiLine: AnsiString;
@@ -510,7 +510,7 @@ begin
     { Handle UTF8 BOM if requested }
     if UTF8 and (Length(S) > 2) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF) then begin
       Delete(S, 1, 3);
-      FUTF8 := True;
+      FCodePage := CP_UTF8;
     end;
     FSawFirstLine := True;
   end;

@@ -2,7 +2,7 @@ unit ScintStylerInnoSetup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit ScintStylerInnoSetup;
 interface
 
 uses
-  SysUtils, Classes, Graphics, ScintEdit;
+  SysUtils, Classes, Graphics, ScintEdit, ModernColors;
 
 type
   { Internally-used types }
@@ -44,13 +44,23 @@ type
     scUninstallDelete,
     scUninstallRun);
 
-  TInnoSetupStylerStyle = (stDefault, stCompilerDirective,
+  TInnoSetupStylerStyle = (stDontUse { Makes stDefault equal 1 instead of 0
+      which makes sure ApplyStyle doesn't overwrite already applied stDefault
+      styles which is needed for PreStyleInlineISPPDirectives to work properly
+      when the inline directive is inside a comment or string.
+      Note: using 'stDefault = 1' isn't supported by Delphi 3. },
+    stDefault, stCompilerDirective,
     stComment, stSection, stSymbol, stKeyword, stParameterValue,
-    stEventFunction, stConstant, stMessageArg, stPascalString, stPascalNumber);
+    stEventFunction, stConstant, stMessageArg,
+    stPascalReservedWord, stPascalString, stPascalNumber,
+    stISPPReservedWord, stISPPString, stISPPNumber);
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FKeywordList: array[TInnoSetupStylerSection] of AnsiString;
+    FIsppInstalled: Boolean;
+    FTheme: TTheme;
+    procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
     procedure BuildKeywordListFromEnumType(const Section: TInnoSetupStylerSection;
@@ -64,6 +74,8 @@ type
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState);
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
     procedure HandleParameterSection(const ValidParameters: array of TInnoSetupStylerParamInfo);
+    procedure HandleCompilerDirective(const InlineDirective: Boolean;
+      const InlineDirectiveEndIndex: Integer; var OpenCount: ShortInt);
     procedure PreStyleInlineISPPDirectives;
     procedure SkipWhitespace;
     procedure SquigglifyUntilChars(const Chars: TScintRawCharSet;
@@ -82,6 +94,8 @@ type
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     property KeywordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordList;
+    property IsppInstalled: Boolean read FIsppInstalled write FIsppInstalled;
+    property Theme: TTheme read FTheme write FTheme;
   end;
 
 implementation
@@ -93,7 +107,7 @@ type
   TInnoSetupStylerLineState = record
     Section, NextLineSection: TInnoSetupStylerSection;
     SpanState: TInnoSetupStylerSpanState;
-    Reserved: Byte;
+    OpenCompilerDirectivesCount: ShortInt;
   end;
 
   TSetupSectionDirective = (
@@ -184,6 +198,7 @@ type
     ssOutputManifestFile,
     ssPassword,
     ssPrivilegesRequired,
+    ssPrivilegesRequiredOverridesAllowed,
     ssReserveBytes,
     ssRestartApplications,
     ssRestartIfNeededByRun,
@@ -197,7 +212,9 @@ type
     ssSignedUninstaller,
     ssSignedUninstallerDir,
     ssSignTool,
+    ssSignToolMinimumTimeBetween,
     ssSignToolRetryCount,
+    ssSignToolRetryDelay,
     ssSlicesPerDisk,
     ssSolidCompression,
     ssSourceDir,
@@ -216,9 +233,11 @@ type
     ssUninstallLogMode,
     ssUninstallRestartComputer,
     ssUninstallStyle,
+    ssUsedUserAreasWarning,
     ssUsePreviousAppDir,
     ssUsePreviousGroup,
     ssUsePreviousLanguage,
+    ssUsePreviousPrivileges,
     ssUsePreviousSetupType,
     ssUsePreviousTasks,
     ssUsePreviousUserInfo,
@@ -227,6 +246,7 @@ type
     ssVersionInfoCompany,
     ssVersionInfoCopyright,
     ssVersionInfoDescription,
+    ssVersionInfoOriginalFileName,
     ssVersionInfoProductName,
     ssVersionInfoProductVersion,
     ssVersionInfoProductTextVersion,
@@ -240,8 +260,10 @@ type
     ssWizardImageBackColor,
     ssWizardImageFile,
     ssWizardImageStretch,
+    ssWizardResizable,
     ssWizardSmallImageBackColor,
     ssWizardSmallImageFile,
+    ssWizardSizePercent,
     ssWizardStyle);
 
   TLangOptionsSectionDirective = (
@@ -416,8 +438,6 @@ const
     (Name: 'OnlyBelowVersion'));
 
 const
-  stPascalReservedWord = stKeyword;
-
   inSquiggly = 0;
   inPendingSquiggly = 1;
 
@@ -432,6 +452,9 @@ const
 
   PascalIdentFirstChars = AlphaUnderscoreChars;
   PascalIdentChars = AlphaDigitUnderscoreChars;
+
+  ISPPIdentFirstChars = AlphaUnderscoreChars;
+  ISPPIdentChars = AlphaDigitUnderscoreChars;
 
 function SameRawText(const S1, S2: TScintRawString): Boolean;
 var
@@ -543,12 +566,17 @@ begin
   BuildKeywordListFromParameters(scUninstallRun, RunSectionParameters);
 end;
 
+procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
+begin
+  if (CaretIndex >= StartIndex) and (CaretIndex <= EndIndex + 1) then
+    ApplyIndicators([inPendingSquiggly], StartIndex, EndIndex)
+  else
+    ApplyIndicators([inSquiggly], StartIndex, EndIndex);
+end;
+
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
 begin
-  if (CaretIndex >= StartIndex) and (CaretIndex <= CurIndex) then
-    ApplyIndicators([inPendingSquiggly], StartIndex, CurIndex - 1)
-  else
-    ApplyIndicators([inSquiggly], StartIndex, CurIndex - 1);
+  ApplyPendingSquigglyFromToIndex(StartIndex, CurIndex - 1);
 end;
 
 procedure TInnoSetupStyler.ApplySquigglyFromIndex(const StartIndex: Integer);
@@ -650,27 +678,42 @@ end;
 procedure TInnoSetupStyler.GetStyleAttributes(const Style: Integer;
   var Attributes: TScintStyleAttributes);
 const
+  STYLE_LINENUMBER = 33;
   STYLE_BRACELIGHT = 34;
   STYLE_IDENTGUIDE = 37;
 begin
-  if (Style >= 0) and (Style <= Ord(High(TInnoSetupStylerStyle))) then begin
-    case TInnoSetupStylerStyle(Style) of
-      stCompilerDirective: Attributes.ForeColor := $4040C0;
-      stComment: Attributes.ForeColor := clGreen;
-      stSection: Attributes.FontStyle := [fsBold];
-      stSymbol: Attributes.ForeColor := $707070;
-      stKeyword: Attributes.ForeColor := clBlue;
-      //stParameterValue: Attributes.ForeColor := clTeal;
-      stEventFunction: Attributes.FontStyle := [fsBold];
-      stConstant: Attributes.ForeColor := $C00080;
-      stMessageArg: Attributes.ForeColor := $FF8000;
-      stPascalString, stPascalNumber: Attributes.ForeColor := clMaroon;
-    end;
-  end
-  else begin
-    case Style of
-      STYLE_BRACELIGHT: Attributes.BackColor := $E0E0E0;
-      STYLE_IDENTGUIDE: Attributes.ForeColor := clSilver;
+  if FTheme <> nil then begin
+    if (Style >= 0) and (Style <= Ord(High(TInnoSetupStylerStyle))) then begin
+      if not FTheme.Modern then begin
+        { Check for some exceptions }
+        case TInnoSetupStylerStyle(Style) of
+          stCompilerDirective: begin Attributes.ForeColor := $4040C0; Exit; end;
+          stMessageArg: begin Attributes.ForeColor := $FF8000; Exit; end;
+          stPascalString, stPascalNumber, stISPPString, stISPPNumber: begin Attributes.ForeColor := clMaroon; Exit; end;
+        end;
+      end;
+      case TInnoSetupStylerStyle(Style) of
+        stCompilerDirective: Attributes.ForeColor := FTheme.Colors[tcRed];
+        stComment: Attributes.ForeColor := FTheme.Colors[tcGreen];
+        stSection: Attributes.FontStyle := [fsBold];
+        stSymbol: Attributes.ForeColor := FTheme.Colors[tcGray];
+        stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := FTheme.Colors[tcBlue];
+        //stParameterValue: Attributes.ForeColor := FTheme.Colors[tcTeal];
+        stEventFunction: Attributes.FontStyle := [fsBold];
+        stConstant: Attributes.ForeColor := FTheme.Colors[tcPurple];
+        stMessageArg: Attributes.ForeColor := FTheme.Colors[tcRed];
+        stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := FTheme.Colors[tcOrange];
+      end;
+    end else begin
+      case Style of
+        STYLE_LINENUMBER:
+          begin
+            Attributes.ForeColor := FTheme.Colors[tcMarginFore];
+            Attributes.BackColor := FTheme.Colors[tcMarginBack];
+          end;
+        STYLE_BRACELIGHT: Attributes.BackColor := FTheme.Colors[tcBraceBack];
+        STYLE_IDENTGUIDE: Attributes.ForeColor := FTheme.Colors[tcIdentGuideFore];
+      end;
     end;
   end;
 end;
@@ -700,10 +743,10 @@ procedure TInnoSetupStyler.HandleCodeSection(var SpanState: TInnoSetupStylerSpan
   end;
 
 const
-  PascalReservedWords: array[0..41] of TScintRawString = (
+  PascalReservedWords: array[0..42] of TScintRawString = (
     'and', 'array', 'as', 'begin', 'case', 'const', 'div',
     'do', 'downto', 'else', 'end', 'except', 'external',
-    'finally', 'for', 'function', 'goto', 'if', 'in', 'is',
+    'finally', 'for', 'forward', 'function', 'goto', 'if', 'in', 'is',
     'label', 'mod', 'nil', 'not', 'of', 'or', 'procedure',
     'program', 'record', 'repeat', 'set', 'shl', 'shr',
     'then', 'to', 'try', 'type', 'until', 'var', 'while',
@@ -719,10 +762,12 @@ const
     'CancelButtonClick', 'InitializeUninstallProgressForm',
     'PrepareToInstall', 'RegisterExtraCloseApplicationsResources',
     'CurInstallProgressChanged');
+  EventNamingAttribute = 'event';
 var
   S: TScintRawString;
   I: Integer;
   C: AnsiChar;
+  PreviousIsAttributeOpen: Boolean;
 begin
   case SpanState of
     spBraceComment:
@@ -737,20 +782,24 @@ begin
   SkipWhitespace;
   while not EndOfLine do begin
     if CurChar in PascalIdentFirstChars then begin
+      PreviousIsAttributeOpen := PreviousCharIn(['<']);
       S := ConsumeString(PascalIdentChars);
-      for I := Low(PascalReservedWords) to High(PascalReservedWords) do
-        if SameRawText(S, PascalReservedWords[I]) then begin
-          CommitStyle(stPascalReservedWord);
-          Break;
-        end;
-      for I := Low(EventFunctions) to High(EventFunctions) do
-        if SameRawText(S, EventFunctions[I]) then begin
-          CommitStyle(stEventFunction);
-          Break;
-        end;
-      CommitStyle(stDefault);
-    end
-    else if ConsumeChars(DigitChars) then begin
+      if PreviousIsAttributeOpen and SameRawText(S, EventNamingAttribute) then
+        CommitStyle(stPascalReservedWord)
+      else begin
+        for I := Low(PascalReservedWords) to High(PascalReservedWords) do
+          if SameRawText(S, PascalReservedWords[I]) then begin
+            CommitStyle(stPascalReservedWord);
+            Break;
+          end;
+        for I := Low(EventFunctions) to High(EventFunctions) do
+          if SameRawText(S, EventFunctions[I]) then begin
+            CommitStyle(stEventFunction);
+            Break;
+          end;
+        CommitStyle(stDefault);
+      end;
+    end else if ConsumeChars(DigitChars) then begin
       if not CurCharIs('.') or not NextCharIs('.') then begin
         if ConsumeChar('.') then
           ConsumeChars(DigitChars);
@@ -764,8 +813,7 @@ begin
         end;
       end;
       CommitStyle(stPascalNumber);
-    end
-    else begin
+    end else begin
       C := CurChar;
       ConsumeChar(C);
       case C of
@@ -775,25 +823,23 @@ begin
             if (C = '/') and ConsumeChar('/') then begin
               ConsumeAllRemaining;
               CommitStyle(stComment);
-            end
-            else if (C = '(') and ConsumeChar('*') then begin
+            end else if (C = '(') and ConsumeChar('*') then begin
               if not FinishConsumingStarComment then begin
                 SpanState := spStarComment;
                 Exit;
               end;
-            end
-            else
+            end else
               CommitStyle(stSymbol);
           end;
         '''':
           begin
             while True do begin
-              ConsumeCharsNot(['''']);
-              if not ConsumeChar('''') then begin
+              ConsumeCharsNot([C]);
+              if not ConsumeChar(C) then begin
                 CommitStyleSqPending(stPascalString);
                 Break;
               end;
-              if not ConsumeChar('''') then begin
+              if not ConsumeChar(C) then begin
                 CommitStyle(stPascalString);
                 Break;
               end;
@@ -808,23 +854,231 @@ begin
           end;
         '$':
           begin
-            ConsumeChars(HexDigitChars);
+            if not ConsumeChars(HexDigitChars) then
+              CommitStyleSqPending(stPascalNumber);
             CommitStyle(stPascalNumber);
           end;
         '#':
           begin
-            if ConsumeChar('$') then
-              ConsumeChars(HexDigitChars)
-            else
-              ConsumeChars(DigitChars);
+            if ConsumeChar('$') then begin
+              if not ConsumeChars(HexDigitChars) then
+                 CommitStyleSqPending(stPascalString);
+            end else if not ConsumeChars(DigitChars) then
+              CommitStyleSqPending(stPascalString);
             CommitStyle(stPascalString);
           end;
       else
         { Illegal character }
-        CommitStyleSq(stSymbol, True); 
+        CommitStyleSq(stSymbol, True);
       end;
     end;
     SkipWhitespace;
+  end;
+end;
+
+procedure TInnoSetupStyler.HandleCompilerDirective(const InlineDirective: Boolean; const InlineDirectiveEndIndex: Integer; var OpenCount: ShortInt);
+
+  function EndOfDirective: Boolean;
+  begin
+    Result := EndOfLine or (InlineDirective and (CurIndex > InlineDirectiveEndIndex));
+  end;
+
+  procedure FinishDirectiveNameOrShorthand(const RequiresParameter: Boolean);
+  begin
+    if RequiresParameter then begin
+      ConsumeChars(WhitespaceChars); { This will give the whitespace the stCompilerDirective style instead of stDefault but that's ok }
+      if EndOfDirective then
+        CommitStyleSqPending(stCompilerDirective)
+      else
+        CommitStyle(stCompilerDirective);
+    end else
+      CommitStyle(stCompilerDirective);
+  end;
+
+  function FinishConsumingStarComment: Boolean;
+  begin
+    Result := False;
+    while True do begin
+      ConsumeCharsNot(['*']);
+      if not ConsumeChar('*') then
+        Break;
+      if ConsumeChar('/') then begin
+        Result := True;
+        Break;
+      end;
+    end;
+    if Result then
+      CommitStyle(stComment)
+    else
+      CommitStyleSqPending(stComment);
+  end;
+
+const
+  ISPPReservedWords: array[0..16] of TScintRawString = (
+    'private', 'protected', 'public', 'any', 'int',
+    'str', 'func', 'option', 'parseroption', 'inlinestart',
+    'inlineend', 'message', 'warning', 'error',
+    'verboselevel', 'include', 'spansymbol');
+type
+  TISPPDirective = record
+    Name: TScintRawString;
+    RequiresParameter: Boolean;
+    OpenCountChange: ShortInt;
+  end;
+const
+  ISPPDirectives: array[0..22] of TISPPDirective = (
+    (Name: 'define'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'dim'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'redim'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'undef'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'include'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'file'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'emit'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'expr'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'insert'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'append'; RequiresParameter: False; OpenCountChange: 0),
+    (Name: 'if'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'elif'; RequiresParameter: False { bug in ISPP? }; OpenCountChange: 0),
+    (Name: 'else'; RequiresParameter: False; OpenCountChange: 0),
+    (Name: 'endif'; RequiresParameter: False; OpenCountChange: -1),
+    (Name: 'ifdef'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'ifndef'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'ifexist'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'ifnexist'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'for'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'sub'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'endsub'; RequiresParameter: False; OpenCountChange: -1),
+    (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
+    (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
+  ISPPDirectiveShorthands: TScintRawCharSet =
+    [':' {define},
+     'x' {undef},
+     '+' {include},
+     '=' {emit},
+     '!' {expr}];
+var
+  S: TScintRawString;
+  StartIndex, I: Integer;
+  C: AnsiChar;
+  NeedIspp, ForDirectiveExpressionsNext: Boolean;
+begin
+  StartIndex := CurIndex;
+  if InlineDirective then begin
+    ConsumeChar('{');
+    NeedIspp := True;
+  end else
+    NeedIspp := False; { Might be updated later to True later }
+  ForDirectiveExpressionsNext := False;
+  ConsumeChar('#');
+  CommitStyle(stCompilerDirective);
+
+  { Directive name or shorthand }
+  SkipWhiteSpace;
+  if ConsumeCharIn(ISPPDirectiveShorthands) then begin
+    NeedIspp := True;
+    FinishDirectiveNameOrShorthand(True); { All shorthands require a parameter }
+  end else begin
+    S := ConsumeString(ISPPIdentChars);
+    for I := Low(ISPPDirectives) to High(ISPPDirectives) do
+      if SameRawText(S, ISPPDirectives[I].Name) then begin
+        NeedIspp := not SameRawText(S, 'include'); { Built-in preprocessor only supports '#include' }
+        ForDirectiveExpressionsNext := SameRawText(S, 'for'); { #for uses ';' as an expressions list separator so we need to remember that ';' doesn't start a comment until the list is done }
+        Inc(OpenCount, ISPPDirectives[I].OpenCountChange);
+        if OpenCount < 0 then begin
+          CommitStyleSq(stCompilerDirective, True);
+          OpenCount := 0; { Reset so that next doesn't automatically gets error as well }
+        end;
+        FinishDirectiveNameOrShorthand(ISPPDirectives[I].RequiresParameter);
+        Break;
+      end;
+    if InlineDirective then
+      CommitStyle(stDefault) { #emit shorthand was used (='#' directly followed by an expression): not an error }
+    else
+      CommitStyleSqPending(stCompilerDirective);
+  end;
+
+  { Rest of the directive }
+  SkipWhitespace;
+  if not NeedIspp then
+    NeedIspp := CurChar <> '"'; { Built-in preprocessor requires a '"' quoted string after the '#include' and doesn't support anything else }
+  while not EndOfDirective do begin
+    if CurChar in ISPPIdentFirstChars then begin
+      S := ConsumeString(ISPPIdentChars);
+      for I := Low(ISPPReservedWords) to High(ISPPReservedWords) do
+        if SameRawText(S, ISPPReservedWords[I]) then begin
+          CommitStyle(stISPPReservedWord);
+          Break;
+        end;
+      CommitStyle(stDefault)
+    end else if ConsumeChars(DigitChars) then begin
+      if not CurCharIs('.') or not NextCharIs('.') then begin
+        if ConsumeChar('.') then
+          ConsumeChars(DigitChars);
+        C := CurChar;
+        if C in ['X', 'x'] then begin
+          ConsumeChar(C);
+          if not ConsumeChars(HexDigitChars) then
+            CommitStyleSqPending(stISPPNumber);
+        end;
+        ConsumeChars(['L', 'U', 'l', 'u']);
+      end;
+      CommitStyle(stISPPNumber);
+    end else begin
+      C := CurChar;
+      ConsumeChar(C);
+      case C of
+        '!', '&', '=', '|', '^', '>', '<', '+', '-', '/', '%', '*',
+        '?', ':', ',', '.', '~', '(', '[', '{', ')', ']', '}', '@',
+        '#':
+          begin
+            if (C = '}') and ForDirectiveExpressionsNext then
+              ForDirectiveExpressionsNext := False;
+            if (C = '/') and ConsumeChar('*') then
+              FinishConsumingStarComment
+            else if InlineDirective and (C = '}') then
+              CommitStyle(stCompilerDirective) (* Closing '}' of the ISPP inline directive *)
+            else
+              CommitStyle(stSymbol);
+          end;
+        ';':
+          begin
+            if ForDirectiveExpressionsNext then
+              CommitStyle(stSymbol)
+            else begin
+              if not InlineDirective then
+                ConsumeAllRemaining
+              else
+                ConsumeCharsNot(['}']);
+              CommitStyle(stComment);
+            end;
+          end;
+        '''', '"':
+          begin
+            while True do begin
+              ConsumeCharsNot([C]);
+              if not ConsumeChar(C) then begin
+                CommitStyleSqPending(stISPPString);
+                Break;
+              end;
+              if not ConsumeChar(C) then begin
+                CommitStyle(stISPPString);
+                Break;
+              end;
+            end;
+          end;
+      else
+        { Illegal character }
+        CommitStyleSq(stSymbol, True);
+      end;
+    end;
+    SkipWhitespace;
+  end;
+
+  if NeedIspp and not IsppInstalled then begin
+    if InlineDirective then
+      ApplyPendingSquigglyFromToIndex(StartIndex + 1, InlineDirectiveEndIndex - 1)
+    else
+      ApplyPendingSquigglyFromIndex(StartIndex + 1);
   end;
 end;
 
@@ -888,8 +1142,7 @@ begin
         if not ConsumeChar('"') then
           Break;
       end;
-    end
-    else begin
+    end else begin
       while True do begin
         StyleConstsUntilChars([';', '"'], stParameterValue, BraceLevel);
         { Squigglify any quote characters inside an unquoted string }
@@ -1024,6 +1277,7 @@ const
 var
   I, StartIndex: Integer;
   Valid: Boolean;
+  Dummy: ShortInt;
 begin
   { Style span symbols, then replace them with spaces to prevent any further
     processing }
@@ -1033,6 +1287,8 @@ begin
        not(Text[I-2] in LineEndChars) then begin
       ReplaceText(I, I, ' ');
       ApplyStyle(Ord(stSymbol), I, I);
+      if not IsppInstalled then
+        ApplyIndicators([inSquiggly], I, I);
     end;
   end;
 
@@ -1050,18 +1306,17 @@ begin
             Break;
           end;
         end;
+        ResetCurIndexTo(StartIndex);
+        try
+          HandleCompilerDirective(True, I - 1, Dummy);
+        finally
+          ResetCurIndexTo(0);
+        end;
+        if not Valid then
+          ApplyPendingSquigglyFromToIndex(StartIndex, I - 1);
         { Replace the directive with spaces to prevent any further processing }
         ReplaceText(StartIndex, I - 1, ' ');
-        if Valid then
-          ApplyStyle(Ord(stCompilerDirective), StartIndex, I - 1)
-        else begin
-          if (CaretIndex >= StartIndex) and (CaretIndex <= I) then
-            ApplyIndicators([inPendingSquiggly], StartIndex, I - 1)
-          else
-            ApplyIndicators([inSquiggly], StartIndex, I - 1);
-        end;
-      end
-      else
+      end else
         Inc(I);
     end;
   end;
@@ -1079,7 +1334,7 @@ var
   IsWhitespace: Boolean;
 begin
   { Consume and squigglify all non-whitespace characters until one of Chars
-    is encountered } 
+    is encountered }
   while not EndOfLine and not CurCharIn(Chars) do begin
     IsWhitespace := CurCharIn(WhitespaceChars);
     ConsumeChar(CurChar);
@@ -1133,8 +1388,10 @@ begin
   if (Section <> scCode) and ConsumeChar(';') then begin
     ConsumeAllRemaining;
     CommitStyle(stComment);
-  end
-  else if ConsumeChar('[') then begin
+  end else if CurCharIs('/') and NextCharIs('/') then begin
+    ConsumeAllRemaining;
+    CommitStyleSq(stComment, not IsppInstalled and (Section <> scCode))
+  end else if ConsumeChar('[') then begin
     SectionEnd := ConsumeChar('/');
     S := ConsumeString(AlphaUnderscoreChars);
     if ConsumeChar(']') then begin
@@ -1144,17 +1401,13 @@ begin
         (SectionEnd and (NewSection <> Section)));
       if not SectionEnd then
         NewLineState.NextLineSection := NewSection;
-    end
-    else
+    end else
       CommitStyleSqPending(stDefault);
     { Section tags themselves are not associated with any section }
     Section := scNone;
     SquigglifyUntilChars([], stDefault);
-  end
-  else if ConsumeChar('#') then begin
-    ConsumeAllRemaining;
-    CommitStyle(stCompilerDirective);
-  end
+  end else if CurCharIs('#') then
+    HandleCompilerDirective(False, -1, NewLineState.OpenCompilerDirectivesCount)
   else begin
     case Section of
       scUnknown: ;

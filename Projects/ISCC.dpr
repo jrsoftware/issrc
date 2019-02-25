@@ -3,12 +3,17 @@ program ISCC;
 
 {
   Inno Setup
-  Copyright (C) 1997-2016 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Command-line compiler
 }
+
+{$SetPEFlags 1} 
+{$SETPEOSVERSION 6.0}
+{$SETPESUBSYSVERSION 6.0}
+{$WEAKLINKRTTI ON}
 
 {x$DEFINE STATICCOMPILER}
 { For debugging purposes, remove the 'x' to have it link the compiler code
@@ -48,7 +53,7 @@ type
 var
   StdOutHandle, StdErrHandle: THandle;
   ScriptFilename: String;
-  IncludePath, Definitions, Output, OutputPath, OutputFilename: String;
+  Definitions, IncludePath, IncludeFiles, Output, OutputPath, OutputFilename: String;
   SignTools: TStringList;
   ScriptLines, NextScriptLine: PScriptLine;
   CurLine: String;
@@ -272,7 +277,7 @@ procedure ProcessCommandLine;
       Exclude(Options, Ord(UpCase(Option)) - Ord('A'))
   end;
 
-  procedure InitIsppOptions(var Opt: TIsppOptions; var Definitions, IncludePath: String);
+  procedure InitIsppOptions(var Opt: TIsppOptions; var Definitions, IncludePath, IncludeFiles: String);
   begin
     with Opt do begin
       SetOption(Options, 'C', True);
@@ -283,8 +288,9 @@ procedure ProcessCommandLine;
       InlineEnd := '}';
     end;
 
-    Definitions := 'ISPPCC_INVOKED';
+    Definitions := 'ISPPCC_INVOKED'#1;
     IncludePath := ExtractFileDir(NewParamStr(0));
+    IncludeFiles := '';
   end;
 
   procedure ReadOptionsParam(var Options: TOptions; Symbol: Char);
@@ -340,9 +346,9 @@ procedure ProcessCommandLine;
 
   procedure ShowBanner;
   begin
-    WriteStdOut('Inno Setup 5 Command-Line Compiler');
-    WriteStdOut('Copyright (C) 1997-2016 Jordan Russell. All rights reserved.');
-    WriteStdOut('Portions Copyright (C) 2000-2016 Martijn Laan');
+    WriteStdOut('Inno Setup Command-Line Compiler');
+    WriteStdOut('Copyright (C) 1997-2019 Jordan Russell. All rights reserved.');
+    WriteStdOut('Portions Copyright (C) 2000-2019 Martijn Laan');
     if IsppMode then begin
       WriteStdOut('Inno Setup Preprocessor');
       WriteStdOut('Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
@@ -366,6 +372,7 @@ procedure ProcessCommandLine;
       WriteStdErr('  /$<letter>(+|-)    Emulate #pragma option -<letter>(+|-)');
       WriteStdErr('  /P<letter>(+|-)    Emulate #pragma parseroption -<letter>(+|-)');
       WriteStdErr('  /I<paths>          Emulate #pragma include <paths>');
+      WriteStdErr('  /J<filename>       Emulate #include <filename>');
       WriteStdErr('  /{#<string>        Emulate #pragma inlinestart <string>');
       WriteStdErr('  /}<string>         Emulate #pragma inlineend <string>');
       WriteStdErr('  /V<number>         Emulate #pragma verboselevel <number>');
@@ -383,7 +390,7 @@ var
   S: String;
 begin
   if IsppMode then begin
-    InitIsppOptions(IsppOptions, Definitions, IncludePath);
+    InitIsppOptions(IsppOptions, Definitions, IncludePath, IncludeFiles);
     { Also see below }
     ReadOptionsParam(IsppOptions.Options, '$');
     ReadOptionsParam(IsppOptions.ParserOptions, 'P');
@@ -411,12 +418,13 @@ begin
         end;
         SignTools.Add(S);
       end else if IsppMode and GetParam(S, 'D') then begin
-        if (Pos(';', S) > 0) or (Pos(' ', S) > 0) then
-          S := AddQuotes(S);
-        Definitions := Definitions + ';' + S;
+        Definitions := Definitions + S + #1;
       end
       else if IsppMode and GetParam(S, 'I') then begin
         IncludePath := IncludePath + ';' + S;
+      end
+      else if IsppMode and GetParam(S, 'J') then begin
+        IncludeFiles := IncludeFiles + S + #1;
       end
       else if IsppMode and GetParam(S, '{#') then begin
         if S <> '' then IsppOptions.InlineStart := AnsiString(S);
@@ -479,7 +487,7 @@ procedure Go;
         Result := Result + Chr(Ord('a') + I);
   end;
 
-  procedure IsppOptionsToString(var S: String; Opt: TIsppOptions; Definitions, IncludePath: String);
+  procedure IsppOptionsToString(var S: String; Opt: TIsppOptions; Definitions, IncludePath, IncludeFiles: String);
   begin
     with Opt do begin
       AppendOption(S, 'ISPP:ParserOptions', ConvertOptionsToString(ParserOptions));
@@ -489,8 +497,9 @@ procedure Go;
       AppendOption(S, 'ISPP:InlineEnd', String(InlineEnd));
     end;
 
-    AppendOption(S, 'ISPP:IncludePath', IncludePath);
     AppendOption(S, 'ISPP:Definitions', Definitions);
+    AppendOption(S, 'ISPP:IncludePath', IncludePath);
+    AppendOption(S, 'ISPP:IncludeFiles', IncludeFiles);
   end;
 
 var
@@ -571,7 +580,7 @@ begin
     end;
 
     if IsppMode then
-      IsppOptionsToString(Options, IsppOptions, Definitions, IncludePath);
+      IsppOptionsToString(Options, IsppOptions, Definitions, IncludePath, IncludeFiles);
 
     Params.Options := PChar(Options);
 

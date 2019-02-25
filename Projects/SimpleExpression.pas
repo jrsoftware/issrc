@@ -232,7 +232,6 @@ begin
   Name := FToken;
   Next;
 
-  Result := False; { Silence compiler }
   FillChar(Parameters, SizeOf(Parameters), 0);
   try
     if FParametersAllowed and (FTokenId = tiOpenRound) then begin

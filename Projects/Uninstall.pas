@@ -95,10 +95,10 @@ end;
 procedure InitializeUninstallProgressForm;
 begin
   UninstallProgressForm := TUninstallProgressForm.Create(nil);
-  UninstallProgressForm.Initialize(Title, UninstLog.AppName);
+  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufModernStyle in UninstLog.Flags);
   if CodeRunner <> nil then begin
     try
-      CodeRunner.RunProcedure('InitializeUninstallProgressForm', [''], False);
+      CodeRunner.RunProcedures('InitializeUninstallProgressForm', [''], False);
     except
       Log('InitializeUninstallProgressForm raised an exception (fatal).');
       raise;
@@ -299,7 +299,7 @@ procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep; HandleExcept
 begin
   if CodeRunner <> nil then begin
     try
-      CodeRunner.RunProcedure('CurUninstallStepChanged', [Ord(CurUninstallStep)], False);
+      CodeRunner.RunProcedures('CurUninstallStepChanged', [Ord(CurUninstallStep)], False);
     except
       if HandleException then begin
         Log('CurUninstallStepChanged raised an exception.');
@@ -531,7 +531,7 @@ begin
     end;
 
     { Check if admin privileges are needed to uninstall }
-    if (ufAdminInstalled in UninstLog.Flags) and not IsAdminLoggedOn then begin
+    if (ufAdminInstalled in UninstLog.Flags) and not IsAdmin then begin
       LoggedAppMessageBox(PChar(SetupMessages[msgOnlyAdminCanUninstall]), PChar(Title),
         MB_OK or MB_ICONEXCLAMATION, True, IDOK);
       Abort;
@@ -558,6 +558,8 @@ begin
     Move(Pointer(CompiledCodeData[1])^, UninstLeadBytes, SizeOf(UninstLeadBytes));
     ConstLeadBytes := @UninstLeadBytes;
 {$ENDIF}
+
+    InitializeAdminInstallMode(ufAdminInstallMode in UninstLog.Flags);
 
     { Initialize install mode }
     if UninstLog.InstallMode64Bit then begin
@@ -589,6 +591,8 @@ begin
       AssignCustomMessages(Pointer(CompiledCodeData[6]), Length(CompiledCodeData[6])*SizeOf(CompiledCodeData[6][1]));
 
       CodeRunner := TScriptRunner.Create();
+      CodeRunner.OnLog := CodeRunnerOnLog;
+      CodeRunner.OnLogFmt := CodeRunnerOnLogFmt;
       CodeRunner.OnDllImport := CodeRunnerOnDllImport;
       CodeRunner.OnDebug := CodeRunnerOnDebug;
       CodeRunner.OnDebugIntermediate := CodeRunnerOnDebugIntermediate;
@@ -599,7 +603,7 @@ begin
       try
         if CodeRunner <> nil then begin
           try
-            Res := CodeRunner.RunBooleanFunction('InitializeUninstall', [''], False, True);
+            Res := CodeRunner.RunBooleanFunctions('InitializeUninstall', [''], bcFalse, False, True);
           except
             Log('InitializeUninstall raised an exception (fatal).');
             raise;
@@ -650,10 +654,10 @@ begin
         LogFmt('Removed all? %s', [SYesNo[RemovedAll]]);
 
         UninstallNeedsRestart := UninstLog.NeedRestart or (ufAlwaysRestart in UninstLog.Flags);
-        if (CodeRunner <> nil) and CodeRunner.FunctionExists('UninstallNeedRestart') then begin
+        if (CodeRunner <> nil) and CodeRunner.FunctionExists('UninstallNeedRestart', True) then begin
           if not UninstallNeedsRestart then begin
             try
-              if CodeRunner.RunBooleanFunction('UninstallNeedRestart', [''], False, False) then begin
+              if CodeRunner.RunBooleanFunctions('UninstallNeedRestart', [''], bcTrue, False, False) then begin
                 UninstallNeedsRestart := True;
                 Log('Will restart because UninstallNeedRestart returned True.');
               end;
@@ -715,7 +719,7 @@ begin
       end;
       if CodeRunner <> nil then begin
         try
-          CodeRunner.RunProcedure('DeinitializeUninstall', [''], False);
+          CodeRunner.RunProcedures('DeinitializeUninstall', [''], False);
         except
           Log('DeinitializeUninstall raised an exception.');
           ShowExceptionMsg;

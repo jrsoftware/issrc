@@ -2,19 +2,17 @@ unit ScriptCompiler;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script compiler
-
-  $jrsoftware: issrc/Projects/ScriptCompiler.pas,v 1.22 2010/11/13 06:02:48 jr Exp $
 }
 
 interface
 
 uses
-  Classes, uPSUtils;
+  Classes, Generics.Collections, uPSUtils;
 
 type
   TScriptCompilerOnLineToLineInfo = procedure(const Line: LongInt; var Filename: String; var FileLine: LongInt) of object;
@@ -25,6 +23,8 @@ type
 
   TScriptCompiler = class
     private
+      FNamingAttribute: String;
+      FObsoleteFunctionWarnings: TDictionary<String, String>;
       FExports, FUsedLines: TList;
       FFunctionsFound: TStringList;
       FScriptText: AnsiString;
@@ -33,17 +33,21 @@ type
       FOnUsedVariable: TScriptCompilerOnUsedVariable;
       FOnError: TScriptCompilerOnError;
       FOnWarning: TScriptCompilerOnWarning;
+      function FindExport(const Name, Decl: String; const IgnoreIndex: Integer): Integer;
       function GetExportCount: Integer;
       procedure PSPositionToLineCol(Position: LongInt; var Line, Col: LongInt);
+      procedure TriggerWarning(const Position: LongInt; const WarningType, WarningMessage: String);
     public
       constructor Create;
       destructor Destroy; override;
-      procedure AddExport(const Name, Decl: String; const Required: Boolean; const RequiredFilename: String; const RequiredLine: LongInt);
+      procedure AddExport(const Name, Decl: String; const AllowNamingAttribute, Required: Boolean; const RequiredFilename: String; const RequiredLine: LongInt);
       function CheckExports: Boolean;
       function Compile(const ScriptText: String; var CompiledScriptText, CompiledScriptDebugInfo: tbtString): Boolean;
       property ExportCount: Integer read GetExportCount;
       function ExportFound(const Name: String): Boolean;
       function FunctionFound(const Name: String): Boolean;
+      function IsObsoleteFunction(const Name: String): String;
+      property NamingAttribute: String write FNamingAttribute;
       property OnLineToLineInfo: TScriptCompilerOnLineToLineInfo write FOnLineToLineInfo;
       property OnUsedLine: TScriptCompilerOnUsedLine write FOnUsedLine;
       property OnUsedVariable: TScriptCompilerOnUsedVariable write FOnUsedVariable;
@@ -54,13 +58,14 @@ type
 implementation
 
 uses
-  SysUtils,
+  SysUtils, Generics.Defaults,
   uPSCompiler, uPSC_dll,
   ScriptClasses_C, ScriptFunc_C;
 
 type
   TScriptExport = class
     Name, Decl: String;
+    AllowNamingAttribute: Boolean;
     Required: Boolean;
     RequiredFilename: String;
     RequiredLine: LongInt;
@@ -95,13 +100,95 @@ begin
   Result := DllExternalProc(Sender, Decl, Name, tbtstring(TrimRight(S)));
 end;
 
-function PSPascalCompilerOnUses(Sender: TPSPascalCompiler; const Name: tbtstring): Boolean; 
+function PSPascalCompilerOnApplyAttributeToProc(Sender: TPSPascalCompiler; aProc: TPSProcedure; Attr: TPSAttribute): Boolean;
+var
+  ScriptCompiler: TScriptCompiler;
+  AttrValue: String;
+  ScriptExport: TScriptExport;
+  B: Boolean;
+  I: Integer;
+begin
+  ScriptCompiler := TScriptCompiler(Sender.ID);
+  if CompareText(String(Attr.AType.Name), ScriptCompiler.FNamingAttribute) = 0 then begin
+    if aProc.ClassType <> TPSInternalProcedure then begin
+      with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute cannot be used on external function or procedure', [ScriptCompiler.FNamingAttribute]))) do
+        SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
+      Result := False;
+    end else if Attr.Count <> 1 then begin
+      with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value not found', [ScriptCompiler.FNamingAttribute]))) do
+        SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
+      Result := False;
+    end else begin
+      if ScriptCompiler.FindExport(String(TPSInternalProcedure(aProc).Name), '', -1) <> -1 then begin
+        { Don't allow attributes on functions already matching an export (by their name) so that we don't have to deal with this later. }
+        with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute not allowed for function or procedure "%s"', [ScriptCompiler.FNamingAttribute, String(TPSInternalProcedure(aProc).Name)]))) do
+          SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
+        Result := False;
+      end else begin
+        AttrValue := String(GetString(Attr.Values[0], B));
+        I := ScriptCompiler.FindExport(AttrValue, String(Sender.MakeDecl(TPSInternalProcedure(aProc).Decl)), -1);
+        if I <> -1 then begin
+          { The name from the attribute and the function prototype are both ok. }
+          ScriptExport := ScriptCompiler.FExports[I];
+          if not ScriptExport.AllowNamingAttribute then begin
+            with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" not allowed', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
+              SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
+            Result := False;
+          end else begin
+            ScriptExport.Exported := True;
+            Result := True;
+          end;
+        end else if ScriptCompiler.FindExport(AttrValue, '', -1) <> -1 then begin
+          { The name from the attribute is ok but the function prototype is not. }
+          with Sender.MakeError('', ecCustomError, tbtstring(Format('Invalid function or procedure prototype for attribute value "%s"', [AttrValue]))) do
+            SetCustomPos(TPSInternalProcedure(aProc).DeclarePos, TPSInternalProcedure(aProc).DeclareRow, TPSInternalProcedure(aProc).DeclareCol);
+          Result := False;
+        end else begin
+          { The name from the attribute is not ok. } 
+          with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" invalid', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
+            SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
+          Result := False;
+        end;
+      end;
+    end;
+  end else
+    Result := True;
+end;
+
+function PSPascalCompilerOnApplyAttributeToType(Sender: TPSPascalCompiler; aType: TPSType; Attr: TPSAttribute): Boolean;
+var
+  NamingAttribute: String;
+begin
+  NamingAttribute := TScriptCompiler(Sender.ID).FNamingAttribute;
+  if CompareText(String(Attr.AType.Name), NamingAttribute) = 0 then begin
+    with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute cannot be used on types', [NamingAttribute]))) do
+      SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
+    Result := False;
+  end else
+    Result := True;
+end;
+
+function PSPascalCompilerOnUses(Sender: TPSPascalCompiler; const Name: tbtstring): Boolean;
+var
+  NamingAttribute: String;
 begin
   if Name = 'SYSTEM' then begin
     RegisterDll_Compiletime(Sender);
     Sender.OnExternalProc := PSPascalCompilerOnExternalProc;
     ScriptClassesLibraryRegister_C(Sender);
-    ScriptFuncLibraryRegister_C(Sender);
+    ScriptFuncLibraryRegister_C(Sender, TScriptCompiler(Sender.ID).FObsoleteFunctionWarnings);
+    NamingAttribute := TScriptCompiler(Sender.ID).FNamingAttribute;
+    if NamingAttribute <> '' then begin
+      with Sender.AddAttributeType do begin
+        OrgName := tbtstring(NamingAttribute);
+        with AddField do begin
+          FieldOrgName := 'Name';
+          FieldType := Sender.FindType('String');
+        end;
+        OnApplyAttributeToProc := PSPascalCompilerOnApplyAttributeToProc;
+        OnApplyAttributeToType := PSPascalCompilerOnApplyAttributeToType;
+      end;
+    end;
     Result := True;
   end else begin
     Sender.MakeError('', ecUnknownIdentifier, '');
@@ -109,39 +196,32 @@ begin
   end;
 end;
 
-function PSPascalCompilerOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: tbtstring): Boolean; 
+function PSPascalCompilerOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInternalProcedure; const ProcDecl: tbtstring): Boolean;
 var
-  ScriptExports: TList;
+  ScriptCompiler: TScriptCompiler;
   ScriptExport: TScriptExport;
-  NameFound: Boolean;
   I: Integer;
 begin
-  TScriptCompiler(Sender.ID).FFunctionsFound.Add(String(Proc.Name));
-  ScriptExports := TScriptCompiler(Sender.ID).FExports;
+  ScriptCompiler := TScriptCompiler(Sender.ID);
 
-  { Try and see if the [Code] function matches an export name and if so,
-    see if one of the prototypes for that name matches }
+  ScriptCompiler.FFunctionsFound.Add(String(Proc.Name));
 
-  NameFound := False;
+  { Try and see if the function name matches an export and if so,
+    see if one of the prototypes for that name matches. }
 
-  for I := 0 to ScriptExports.Count-1 do begin
-    ScriptExport := ScriptExports[I];
-    if CompareText(ScriptExport.Name, String(Proc.Name)) = 0 then begin
-      NameFound := True;
-      if CompareText(ScriptExport.Decl, String(ProcDecl)) = 0 then begin
-        ScriptExport.Exported := True;
-        Result := True;
-        Exit;
-      end;
-    end;
-  end;
-
-  if NameFound then begin
+  I := ScriptCompiler.FindExport(String(Proc.Name), String(Procdecl), -1);
+  if I <> -1 then begin
+    { The function name is a matche and the function prototype is ok. }    
+    ScriptExport := ScriptCompiler.FExports[I];
+    ScriptExport.Exported := True;
+    Result := True;
+  end else if ScriptCompiler.FindExport(String(Proc.Name), '', -1) <> -1 then begin
+    { The function name is a match but the function prototype is not. }
     with Sender.MakeError('', ecCustomError, tbtstring(Format('Invalid prototype for ''%s''', [Proc.OriginalName]))) do
       SetCustomPos(Proc.DeclarePos, Proc.DeclareRow, Proc.DeclareCol);
     Result := False;
   end else
-    Result := True;
+    Result := True; { The function name is not a match - this is a user function. }
 end;
 
 function PSPascalCompilerOnBeforeOutput(Sender: TPSPascalCompiler): Boolean;
@@ -200,7 +280,7 @@ begin
     Result := True;
 end;
 
-procedure PSPascalCompilerOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtstring); 
+procedure PSPascalCompilerOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtstring);
 var
   ScriptCompiler: TScriptCompiler;
   Filename: String;
@@ -217,10 +297,25 @@ begin
   end;
 end;
 
+procedure PSPascalCompilerOnUseRegProc(Sender: TPSPascalCompiler; Position: Cardinal; const Name: tbtstring);
+var
+  ScriptCompiler: TScriptCompiler;
+  WarningMessage: String;
+begin
+  ScriptCompiler := Sender.ID;
+
+  if Assigned(ScriptCompiler.FOnWarning) then begin
+    WarningMessage := ScriptCompiler.IsObsoleteFunction(String(Name));
+    if WarningMessage <> '' then
+      ScriptCompiler.TriggerWarning(Position, 'Hint', WarningMessage);
+  end;
+end;
+
 {---}
 
 constructor TScriptCompiler.Create;
 begin
+  FObsoleteFunctionWarnings := TDictionary<String, String>.Create(TIStringComparer.Ordinal);
   FExports := TList.Create();
   FUsedLines := TList.Create();
   FFunctionsFound := TStringList.Create();
@@ -235,6 +330,7 @@ begin
   for I := 0 to FExports.Count-1 do
     TScriptExport(FExports[I]).Free();
   FExports.Free();
+  FObsoleteFunctionWarnings.Free();
 end;
 
 procedure TScriptCompiler.PSPositionToLineCol(Position: LongInt; var Line, Col: LongInt);
@@ -268,32 +364,49 @@ begin
   end;
 
 {$IFDEF UNICODE}
-  { Convert Position from an ANSI string index to a UTF-16 string index }
-  Position := Length(String(Copy(FScriptText, LineStartPosition, Position - 1))) + 1;
+  { Convert Position from the UTF8 encoded ANSI string index to a UTF-16 string index }
+  Position := Length(UTF8ToString(Copy(FScriptText, LineStartPosition, Position - 1))) + 1;
 {$ENDIF}
   Col := Position;
 end;
 
-procedure TScriptCompiler.AddExport(const Name, Decl: String; const Required: Boolean; const RequiredFilename: String; const RequiredLine: LongInt);
+procedure TScriptCompiler.TriggerWarning(const Position: LongInt; const WarningType, WarningMessage: String);
+var
+  Line, Col: LongInt;
+  Filename, Msg: String;
+begin
+  PSPositionToLineCol(Position, Line, Col);
+  Filename := '';
+  if Assigned(FOnLineToLineInfo) then
+    FOnLineToLineInfo(Line, Filename, Line);
+  Msg := '';
+  if Filename <> '' then
+    Msg := Msg + Filename + ', ';
+  Msg := Msg + Format('Line %d, Column %d: [%s] %s', [Line, Col, WarningType, WarningMessage]);
+  FOnWarning(Msg);
+end;
+
+procedure TScriptCompiler.AddExport(const Name, Decl: String; const AllowNamingAttribute, Required: Boolean; const RequiredFilename: String; const RequiredLine: LongInt);
 var
   ScriptExport: TScriptExport;
   I: Integer;
 begin
-  for I := 0 to FExports.Count-1 do begin
+  I := FindExport(Name, Decl, -1);
+  if I <> -1 then begin
     ScriptExport := FExports[I];
-    if (CompareText(ScriptExport.Name, Name) = 0) and (CompareText(ScriptExport.Decl, Decl) = 0) then begin
-      if Required and not ScriptExport.Required then begin
-        ScriptExport.Required := True;
-        ScriptExport.RequiredFilename := RequiredFilename;
-        ScriptExport.RequiredLine := RequiredLine;
-      end;
-      Exit;
+    if Required and not ScriptExport.Required then begin
+      ScriptExport.Required := True;
+      ScriptExport.RequiredFilename := RequiredFilename;
+      ScriptExport.RequiredLine := RequiredLine;
     end;
+    ScriptExport.AllowNamingAttribute := ScriptExport.AllowNamingAttribute and AllowNamingAttribute;
+    Exit;
   end;
 
   ScriptExport := TScriptExport.Create();
   ScriptExport.Name := Name;
   ScriptExport.Decl := Decl;
+  ScriptExport.AllowNamingAttribute := AllowNamingAttribute;
   ScriptExport.Required := Required;
   if Required then begin
     ScriptExport.RequiredFilename := RequiredFilename;
@@ -302,12 +415,28 @@ begin
   FExports.Add(ScriptExport);
 end;
 
+function TScriptCompiler.FindExport(const Name, Decl: String; const IgnoreIndex: Integer): Integer;
+var
+  ScriptExport: TScriptExport;
+  I: Integer;
+begin
+  for I := 0 to FExports.Count-1 do begin
+    ScriptExport := FExports[I];
+    if ((Name = '') or (CompareText(ScriptExport.Name, Name) = 0)) and
+       ((Decl = '') or (CompareText(ScriptExport.Decl, Decl) = 0)) and
+       ((IgnoreIndex = -1) or (I <> IgnoreIndex)) then begin
+      Result := I;
+      Exit;
+    end;
+  end;
+  Result := -1;
+end;
+
 function TScriptCompiler.CheckExports: Boolean;
 var
-  ScriptExport, ScriptExport2: TScriptExport;
-  I, J: Integer;
+  ScriptExport: TScriptExport;
+  I: Integer;
   Msg: String;
-  NameFound: Boolean;
 begin
   Result := True;
   for I := 0 to FExports.Count-1 do begin
@@ -315,15 +444,7 @@ begin
     if ScriptExport.Required and not ScriptExport.Exported then begin
       if Assigned(FOnError) then begin
         { Either the function wasn't present or it was present but matched another export }
-        NameFound := False;
-        for J := 0 to FExports.Count-1 do begin
-          ScriptExport2 := FExports[J];
-          if (I <> J) and (CompareText(ScriptExport.Name, ScriptExport2.Name) = 0) then begin
-            NameFound := True;
-            Break;
-          end;
-        end;
-        if NameFound then
+        if FindExport(ScriptExport.Name, '', I) <> -1 then
           Msg := Format('Required function or procedure ''%s'' found but not with a compatible prototype', [ScriptExport.Name])
         else
           Msg := Format('Required function or procedure ''%s'' not found', [ScriptExport.Name]);
@@ -340,11 +461,19 @@ var
   PSPascalCompiler: TPSPascalCompiler;
   L, Line, Col: LongInt;
   Filename, Msg: String;
+  I: Integer;
 begin
   Result := False;
 
-  { Note: Cast disabled on non-Unicode to work around D2 codegen bug }
-  FScriptText := {$IFDEF UNICODE}AnsiString{$ENDIF}(ScriptText);
+{$IFDEF UNICODE}
+  FScriptText := UTF8Encode(ScriptText);
+{$ELSE}
+  FScriptText := ScriptText;
+{$ENDIF}
+
+  for I := 0 to FExports.Count-1 do
+    TScriptExport(FExports[I]).Exported := False;
+  FFunctionsFound.Clear;
 
   PSPascalCompiler := TPSPascalCompiler.Create();
 
@@ -355,7 +484,10 @@ begin
     PSPascalCompiler.BooleanShortCircuit := True;
 {$IFDEF UNICODE}
     PSPascalCompiler.AllowDuplicateRegister := False;
+    PSPascalCompiler.UTF8Decode := True;
 {$ENDIF}
+    PSPascalCompiler.AttributesOpenTokenID := CSTI_Less;
+    PSPascalCompiler.AttributesCloseTokenID := CSTI_Greater;
 
     PSPascalCompiler.OnUses := PSPascalCompilerOnUses;
     PSPascalCompiler.OnExportCheck := PSPascalCompilerOnExportCheck;
@@ -364,6 +496,7 @@ begin
     FUsedLines.Clear();
     PSPascalCompiler.OnWriteLine := PSPascalCompilerOnWriteLine;
     PSPascalCompiler.OnUseVariable := PSPascalCompilerOnUseVariable;
+    PSPascalCompiler.OnUseRegProc := PSPascalCompilerOnUseRegProc;
 
     if not PSPascalCompiler.Compile(FScriptText) then begin
       if Assigned(FOnError) then begin
@@ -400,21 +533,11 @@ begin
         Exit;
       end;
 
-      if Assigned(FOnWarning) then begin
-        for L := 0 to PSPascalCompiler.MsgCount-1 do begin
-          PSPositionToLineCol(PSPascalCompiler.Msg[L].Pos, Line, Col);
-          Filename := '';
-          if Assigned(FOnLineToLineInfo) then
-            FOnLineToLineInfo(Line, Filename, Line);
-          Msg := '';
-          if Filename <> '' then
-            Msg := Msg + Filename + ', ';
-          Msg := Msg + Format('Line %d, Column %d: [%s] %s', [Line, Col,
-            PSPascalCompiler.Msg[L].ErrorType,
-            PSPascalCompiler.Msg[L].ShortMessageToString]);
-          FOnWarning(Msg);
-        end;
-      end;
+      if Assigned(FOnWarning) then
+        for L := 0 to PSPascalCompiler.MsgCount-1 do
+          TriggerWarning(PSPascalCompiler.Msg[L].Pos,
+            String(PSPascalCompiler.Msg[L].ErrorType),
+            String(PSPascalCompiler.Msg[L].ShortMessageToString));
     end;
 
     Result := True;
@@ -455,6 +578,11 @@ end;
 function TScriptCompiler.GetExportCount: Integer;
 begin
   Result := FExports.Count;
+end;
+
+function TScriptCompiler.IsObsoleteFunction(const Name: String): String;
+begin
+  FObsoleteFunctionWarnings.TryGetValue(Name, Result);
 end;
 
 end.

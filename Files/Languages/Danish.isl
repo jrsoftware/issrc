@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.3+ Danish messages ***
+; *** Inno Setup version 6.0.0+ Danish messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -8,7 +8,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; ID: Danish.isl,v 5.5.3+ 2015/07/20 Thomas Vedel, thomas@veco.dk
+; ID: Danish.isl,v 6.0.0+ 2019/01/20 Thomas Vedel, thomas@veco.dk
 ; Parts by scootergrisen, 2015
 
 [LangOptions]
@@ -43,6 +43,7 @@ ErrorTitle=Fejl
 SetupLdrStartupMessage=Denne guide installerer %1. Vil du fortsætte?
 LdrCannotCreateTemp=Kan ikke oprette en midlertidig fil. Installationen afbrydes
 LdrCannotExecTemp=Kan ikke køre et program i den midlertidige mappe. Installationen afbrydes
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nFejl %2: %3
@@ -56,13 +57,22 @@ WindowsServicePackRequired=Programmet kræver %1 med Service Pack %2 eller senere
 NotOnThisPlatform=Programmet kan ikke anvendes på %1.
 OnlyOnThisPlatform=Programmet kan kun anvendes på %1.
 OnlyOnTheseArchitectures=Programmet kan kun installeres på versioner af Windows der anvender disse processor-arkitekturer:%n%n%1
-MissingWOW64APIs=Den version af Windows du anvender indeholder ikke funktioner som er nødvendige for at foretage en 64-bit installation. Du kan afhjælpe problemet ved at installere Service Pack %1.
 WinVersionTooLowError=Programmet kræver %1 version %2 eller senere.
 WinVersionTooHighError=Programmet kan ikke installeres på %1 version %2 eller senere.
 AdminPrivilegesRequired=Du skal være logget på som administrator imens programmet installeres.
 PowerUserPrivilegesRequired=Du skal være logget på som administrator eller være medlem af gruppen Superbrugere imens programmet installeres.
 SetupAppRunningError=Installationsprogrammet har registreret at %1 kører.%n%nLuk venligst alle forekomster af programmet, og klik så OK for at fortsætte, eller Annuller for at afbryde.
 UninstallAppRunningError=Afinstallationsprogrammet har registreret at %1 kører.%n%nLuk venligst alle forekomster af programmet, og klik så OK for at fortsætte, eller Annuller for at afbryde.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Vælg guidens installationsmåde
+PrivilegesRequiredOverrideInstruction=Vælg installationsmåde
+PrivilegesRequiredOverrideText1=%1 kan installeres for alle brugere (kræver administrator-rettigheder), eller for dig alene.
+PrivilegesRequiredOverrideText2=%1 kan installeres for dig alene, eller for alle brugere på computeren (sidstnævnte kræver administrator-rettigheder).
+PrivilegesRequiredOverrideAllUsers=Installer for &alle brugere
+PrivilegesRequiredOverrideAllUsersRecommended=Installer for &alle brugere (anbefales)
+PrivilegesRequiredOverrideCurrentUser=Installer for &mig alene
+PrivilegesRequiredOverrideCurrentUserRecommended=Installer for &mig alene (anbefales)
 
 ; *** Misc. errors
 ErrorCreatingDir=Installationsprogrammet kan ikke oprette mappen "%1"
@@ -94,7 +104,7 @@ ButtonNewFolder=&Opret ny mappe
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Vælg installationssprog
-SelectLanguageLabel=Vælg det sprog der skal vises under installationen:
+SelectLanguageLabel=Vælg det sprog der skal vises under installationen.
 
 ; *** Common wizard text
 ClickNext=Klik på Næste for at fortsætte, eller Annuller for at afbryde installationen.
@@ -238,7 +248,10 @@ SelectDirectoryLabel=Angiv venligst placeringen af den næste disk.
 
 ; *** Installation phase messages
 SetupAborted=Installationen blev ikke fuldført.%n%nRet venligst de fundne problemer og kør installationsprogrammet igen.
-EntryAbortRetryIgnore=Klik på Forsøg igen for at prøve igen, Ignorer for at fortsætte alligevel, eller Afbryd for at annullere installationen.
+AbortRetryIgnoreSelectAction=Vælg ønsket handling
+AbortRetryIgnoreRetry=&Forsøg igen
+AbortRetryIgnoreIgnore=&Ignorer fejlen og fortsæt
+AbortRetryIgnoreCancel=Afbryd installationen
 
 ; *** Installation status messages
 StatusClosingApplications=Lukker programmer...
@@ -269,11 +282,13 @@ ErrorRegWriteKey=Fejl ved skrivning til nøgle i registreringsdatabase:%n%1\%2
 ErrorIniEntry=Fejl ved oprettelse af post i INI-filen "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Klik på Forsøg igen for at prøve igen, Ignorer for at springe filen over (anbefales ikke) eller Afbryd for at afbryde installationen.
-FileAbortRetryIgnore2=Klik på Forsøg igen for at prøve igen, Ignorer for at fortsætte alligevel (anbefales ikke) eller Afbryd for at afbryde installationen.
+FileAbortRetryIgnoreSkipNotRecommended=&Spring over denne fil (anbefales ikke)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorer fejlen og fortsæt (anbefales ikke)
 SourceIsCorrupted=Kildefilen er beskadiget
 SourceDoesntExist=Kildefilen "%1" findes ikke
-ExistingFileReadOnly=Den eksisterende fil er skrivebeskyttet.%n%nKlik Forsøg igen for at prøve igen (efter fjernelse af skrivebeskyttelsen), Ignorer for at springe filen over eller Afbryd for at afbryde installationen.
+ExistingFileReadOnly2=Den eksisterende fil er skrivebeskyttet og kan derfor ikke overskrives.
+ExistingFileReadOnlyRetry=&Fjern skrivebeskyttelsen og forsøg igen
+ExistingFileReadOnlyKeepExisting=&Behold den eksisterende fil
 ErrorReadingExistingDest=Der opstod en fejl ved læsning af den eksisterende fil:
 FileExists=Filen findes allerede.%n%nSkal installationsprogrammet overskrive den?
 ExistingFileNewer=Den eksisterende fil er nyere end den installationsprogrammet forsøger at installere. Det anbefales at beholde den eksisterende fil.%n%n Skal den eksisterende fil beholdes?
@@ -287,6 +302,14 @@ ErrorRenamingTemp=Der opstod en fejl ved forsøg på at omdøbe en fil i installati
 ErrorRegisterServer=Kan ikke registrere DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 fejlede med exit kode %1
 ErrorRegisterTypeLib=Kan ikke registrere typebiblioteket: %1
+
+; *** Uninstall display name markings
+UninstallDisplayNameMark=%1 (%2)
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=Alle brugere
+UninstallDisplayNameMarkCurrentUser=Nuværende bruger
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Der opstod en fejl ved forsøg på at åbne README-filen.

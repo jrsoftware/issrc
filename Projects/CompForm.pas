@@ -2,7 +2,7 @@ unit CompForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2016 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -24,8 +24,9 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
-  ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet,
-  DebugStruct, CompInt, UxThemeISX;
+  ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors,
+  DebugStruct, CompInt, UxThemeISX, System.ImageList, ImgList, ToolWin,
+  VirtualImageList, BaseImageCollection, ImageCollection;
 
 const
   WM_StartCommandLineCompile = WM_USER + $1000;
@@ -50,6 +51,8 @@ const
 
 type
   TISScintEdit = class;
+
+  TStatusMessageKind = (smkStartEnd, smkNormal, smkWarning, smkError);
 
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
@@ -86,20 +89,11 @@ type
     StatusPanel: TPanel;
     CompilerOutputList: TListBox;
     SplitPanel: TPanel;
-    ToolbarPanel: TPanel;
-    NewButton: TSpeedButton;
-    Bevel1: TBevel;
-    OpenButton: TSpeedButton;
-    SaveButton: TSpeedButton;
-    CompileButton: TSpeedButton;
-    HelpButton: TSpeedButton;
     HWebsite: TMenuItem;
     VToolbar: TMenuItem;
     N7: TMenuItem;
     TOptions: TMenuItem;
     HFaq: TMenuItem;
-    Bevel2: TBevel;
-    Bevel3: TBevel;
     StatusBar: TStatusBar;
     BodyPanel: TPanel;
     VStatusBar: TMenuItem;
@@ -113,9 +107,6 @@ type
     N10: TMenuItem;
     REvaluate: TMenuItem;
     CheckIfRunningTimer: TTimer;
-    RunButton: TSpeedButton;
-    Bevel4: TBevel;
-    PauseButton: TSpeedButton;
     RPause: TMenuItem;
     RParameters: TMenuItem;
     ListPopupMenu: TPopupMenu;
@@ -123,7 +114,6 @@ type
     HISPPSep: TMenuItem;
     N12: TMenuItem;
     BStopCompile: TMenuItem;
-    StopCompileButton: TSpeedButton;
     HISPPDoc: TMenuItem;
     N13: TMenuItem;
     EGoto: TMenuItem;
@@ -136,15 +126,11 @@ type
     N15: TMenuItem;
     RTargetSetup: TMenuItem;
     RTargetUninstall: TMenuItem;
-    TargetSetupButton: TSpeedButton;
-    TargetUninstallButton: TSpeedButton;
-    Bevel5: TBevel;
     TabSet: TNewTabSet;
     DebugOutputList: TListBox;
     VDebugOutput: TMenuItem;
     VHide: TMenuItem;
     N11: TMenuItem;
-    SpacerPaintBox: TPaintBox;
     TMenu: TMenuItem;
     TAddRemovePrograms: TMenuItem;
     RToggleBreakPoint: TMenuItem;
@@ -167,6 +153,26 @@ type
     FSaveEncoding: TMenuItem;
     FSaveEncodingAuto: TMenuItem;
     FSaveEncodingUTF8: TMenuItem;
+    ToolBar: TToolBar;
+    NewButton: TToolButton;
+    OpenButton: TToolButton;
+    SaveButton: TToolButton;
+    ToolButton4: TToolButton;
+    CompileButton: TToolButton;
+    StopCompileButton: TToolButton;
+    ToolButton7: TToolButton;
+    RunButton: TToolButton;
+    PauseButton: TToolButton;
+    ToolButton10: TToolButton;
+    TargetSetupButton: TToolButton;
+    TargetUninstallButton: TToolButton;
+    ToolButton13: TToolButton;
+    HelpButton: TToolButton;
+    Bevel1: TBevel;
+    BuildImageList: TImageList;
+    TerminateButton: TToolButton;
+    ToolBarImageCollection: TImageCollection;
+    ToolBarVirtualImageList: TVirtualImageList;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenClick(Sender: TObject);
@@ -243,6 +249,10 @@ type
     procedure VZoomResetClick(Sender: TObject);
     procedure ECompleteWordClick(Sender: TObject);
     procedure FSaveEncodingItemClick(Sender: TObject);
+    procedure CompilerOutputListDrawItem(Control: TWinControl; Index: Integer;
+      Rect: TRect; State: TOwnerDrawState);
+    procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+      NewDPI: Integer);
   private
     { Private declarations }
     FCompilerVersion: PCompilerVersionInfo;
@@ -262,6 +272,7 @@ type
       RunAsDifferentUser: Boolean;
       AutoComplete: Boolean;
       UseSyntaxHighlighting: Boolean;
+      ColorizeCompilerOutput: Boolean;
       UnderlineErrors: Boolean;
       CursorPastEOL: Boolean;
       TabWidth: Integer;
@@ -271,8 +282,10 @@ type
       IndentationGuides: Boolean;
       LowPriorityDuringCompile: Boolean;
       GutterLineNumbers: Boolean;
+      ThemeType: TThemeType;
     end;
     FOptionsLoaded: Boolean;
+    FTheme: TTheme;
     FSignTools: TStringList;
     FCompiling: Boolean;
     FCompileWantAbort: Boolean;
@@ -304,7 +317,6 @@ type
     FLastReplaceText: String;
     FLastEvaluateConstantText: String;
     FSavePriorityClass: DWORD;
-    FBuildImageList: HIMAGELIST;
     FBuildAnimationFrame: Cardinal;
     FLastAnimationTick: DWORD;
     FProgress, FProgressMax: Cardinal;
@@ -331,6 +343,7 @@ type
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       var Output: String): Integer;
     procedure FindNext;
+    function FromCurrentPPI(const XY: Integer): Integer;
     procedure Go(AStepMode: TStepMode);
     procedure HideError;
     procedure InitializeFindText(Dlg: TFindDialog);
@@ -366,8 +379,9 @@ type
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(ALine: Integer);
     procedure ShowOpenDialog(const Examples: Boolean);
-    procedure StatusMessage(const S: String);
+    procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
+    function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
     procedure UpdateAllLineMarkers;
     procedure UpdateCaption;
@@ -376,8 +390,10 @@ type
     procedure UpdateEditModePanel;
     procedure UpdateLineMarkers(const Line: Integer);
     procedure UpdateNewButtons;
+    procedure UpdateOutputListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateTargetMenu;
+    procedure UpdateTheme;
     procedure UpdateThemeData(const Close, Open: Boolean);
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
@@ -393,6 +409,7 @@ type
     procedure WMStartCommandLineCompile(var Message: TMessage); message WM_StartCommandLineCompile;
     procedure WMStartCommandLineWizard(var Message: TMessage); message WM_StartCommandLineWizard;
     procedure WMStartNormally(var Message: TMessage); message WM_StartNormally;
+    procedure WMSettingChange(var Message: TMessage); message WM_SETTINGCHANGE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
 {$IFDEF IS_D4}
   protected
@@ -410,8 +427,13 @@ type
   end;
 
   TISScintEdit = class(TScintEdit)
+  private
+    FTheme: TTheme;
   protected
     procedure CreateWnd; override;
+  public
+    property Theme: TTheme read FTheme write FTheme;
+    procedure UpdateThemeColors;
   end;
 
 var
@@ -422,19 +444,20 @@ var
   CommandLineWizard: Boolean;
 
 function GenerateGuid: String;
+function ISPPInstalled: Boolean;
+function ISCryptInstalled: Boolean;
 procedure InitFormFont(Form: TForm);
 
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, CommDlg, Consts,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, CommDlg, Consts, Types,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchemaISX, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes;
 
 {$R *.DFM}
-{$R CompImages.res}
 
 const
   { Status bar panel indexes }
@@ -485,12 +508,13 @@ begin
   else
 {$ENDIF}
   begin
-    Metrics.cbSize := SizeOf(Metrics);  { <- won't work on Delphi 2010? }
+    Metrics.cbSize := SizeOf(Metrics);
     if SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SizeOf(Metrics),
        @Metrics, 0) then
       FontName := Metrics.lfMessageFont.lfFaceName;
     { Only allow fonts that we know will fit the text correctly }
-    if CompareText(FontName, 'Microsoft Sans Serif') <> 0 then
+    if not SameText(FontName, 'Microsoft Sans Serif') and
+       not SameText(FontName, 'Segoe UI') then
       FontName := 'Tahoma';
   end;
   Form.Font.Name := FontName;
@@ -547,6 +571,30 @@ begin
     Result := P;
   finally
     CoTaskMemFree(P);
+  end;
+end;
+
+function ISPPInstalled: Boolean;
+begin
+  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
+end;
+
+function ISCryptInstalled: Boolean;
+begin
+  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
+end;
+
+function GetDefaultThemeType: TThemeType;
+var
+  K: HKEY;
+  Size, AppsUseLightTheme: DWORD;
+begin
+  Result := ttModernLight;
+  if (Win32MajorVersion >= 10) and (RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS) then begin
+    Size := SizeOf(AppsUseLightTheme);
+    if (RegQueryValueEx(K, 'AppsUseLightTheme', nil, nil, @AppsUseLightTheme, @Size) = ERROR_SUCCESS) and (AppsUseLightTheme = 0) then
+      Result := ttModernDark;
+    RegCloseKey(K);
   end;
 end;
 
@@ -641,19 +689,13 @@ begin
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
   Call(SCI_INDICSETSTYLE, inSquiggly, INDIC_SQUIGGLE);
-  Call(SCI_INDICSETFORE, inSquiggly, clRed);
+  Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwitten by UpdateThemeColors }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
   Call(SCI_SETMARGINWIDTHN, 1, 21);
   Call(SCI_SETMARGINSENSITIVEN, 1, 1);
   Call(SCI_SETMARGINCURSORN, 1, SC_CURSORARROW);
-  Call(SCI_SETMARGINTYPEN, 2, SC_MARGIN_BACK);
-  Call(SCI_SETMARGINMASKN, 2, 0);
-  Call(SCI_SETMARGINWIDTHN, 2, 1);
-  Call(SCI_SETMARGINTYPEN, 3, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINMASKN, 3, 0);
-  Call(SCI_SETMARGINWIDTHN, 3, 1);
   Call(SCI_SETMARGINLEFT, 0, 2);
 
   Call(SCI_MARKERDEFINEPIXMAP, mmIconHasEntry, LPARAM(@PixmapHasEntry));
@@ -673,6 +715,16 @@ begin
   Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
+end;
+
+procedure TISScintEdit.UpdateThemeColors;
+begin
+  if FTheme <> nil then begin
+    Font.Color := FTheme.Colors[tcFore];
+    Color := FTheme.Colors[tcBack];
+    Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
+    Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
+  end;
 end;
 
 { TCompileFormMemoPopupMenu }
@@ -705,11 +757,12 @@ constructor TCompileForm.Create(AOwner: TComponent);
   var
     Ini: TConfigIniFile;
     WindowPlacement: TWindowPlacement;
+    I: Integer;
   begin
     Ini := TConfigIniFile.Create;
     try
       { Menu check boxes state }
-      ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
+      Toolbar.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
       StatusBar.Visible := Ini.ReadBool('Options', 'ShowStatusBar', True);
       FOptions.LowPriorityDuringCompile := Ini.ReadBool('Options', 'LowPriorityDuringCompile', False);
 
@@ -719,19 +772,23 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.Autosave := Ini.ReadBool('Options', 'Autosave', False);
       FOptions.MakeBackups := Ini.ReadBool('Options', 'MakeBackups', False);
       FOptions.FullPathInTitleBar := Ini.ReadBool('Options', 'FullPathInTitleBar', False);
-      FOptions.UndoAfterSave := Ini.ReadBool('Options', 'UndoAfterSave', False);
+      FOptions.UndoAfterSave := Ini.ReadBool('Options', 'UndoAfterSave', True);
       FOptions.PauseOnDebuggerExceptions := Ini.ReadBool('Options', 'PauseOnDebuggerExceptions', True);
       FOptions.RunAsDifferentUser := Ini.ReadBool('Options', 'RunAsDifferentUser', False);
       FOptions.AutoComplete := Ini.ReadBool('Options', 'AutoComplete', True);
       FOptions.UseSyntaxHighlighting := Ini.ReadBool('Options', 'UseSynHigh', True);
+      FOptions.ColorizeCompilerOutput := Ini.ReadBool('Options', 'ColorizeCompilerOutput', True);
       FOptions.UnderlineErrors := Ini.ReadBool('Options', 'UnderlineErrors', True);
       FOptions.CursorPastEOL := Ini.ReadBool('Options', 'EditorCursorPastEOL', True);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
       FOptions.UseTabCharacter := Ini.ReadBool('Options', 'UseTabCharacter', False);
       FOptions.WordWrap := Ini.ReadBool('Options', 'WordWrap', False);
       FOptions.AutoIndent := Ini.ReadBool('Options', 'AutoIndent', True);
-      FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', False);
+      FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', True);
       FOptions.GutterLineNumbers := Ini.ReadBool('Options', 'GutterLineNumbers', False);
+      I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
+      if (I >= 0) and (I <= Ord(High(TThemeType))) then
+        FOptions.ThemeType := TThemeType(I);
       if GetACP = 932 then begin
         { Default to MS Gothic font on CP 932 (Japanese), as Courier New is
           only capable of displaying Japanese characters on XP and later. }
@@ -757,6 +814,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       Memo.Zoom := Ini.ReadInteger('Options', 'Zoom', 0);
       SyncEditorOptions;
       UpdateNewButtons;
+      UpdateTheme;
 
       { Window state }
       WindowPlacement.length := SizeOf(WindowPlacement);
@@ -777,8 +835,9 @@ constructor TCompileForm.Create(AOwner: TComponent);
         WindowState := wsMaximized;
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
-      StatusPanel.Height := Ini.ReadInteger('State', 'StatusPanelHeight',
-        (10 * DebugOutputList.ItemHeight + 4) + SpacerPaintBox.Height + TabSet.Height);
+
+      StatusPanel.Height := ToCurrentPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
+        (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(TabSet.Height)));
     finally
       Ini.Free;
     end;
@@ -814,8 +873,6 @@ begin
 
   InitFormFont(Self);
 
-  FBuildImageList := ImageList_LoadBitmap(HInstance, 'BUILDIMAGES', 17, 0, clSilver);
-
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
     'poDefault' Position setting }
   AutoScroll := False;
@@ -842,7 +899,15 @@ begin
     editor's autocompletion list } 
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
 
+{$IFNDEF IS_D103RIO}
+  { TStatusBar needs manual scaling before Delphi 10.3 Rio }
+  StatusBar.Height := ToPPI(StatusBar.Height);
+  for I := 0 to StatusBar.Panels.Count-1 do
+    StatusBar.Panels[I].Width := ToPPI(StatusBar.Panels[I].Width);
+{$ENDIF}
+
   MemoStyler := TInnoSetupStyler.Create(Self);
+  MemoStyler.IsppInstalled := IsppInstalled;
 
   Memo := TISScintEdit.Create(Self);
   Memo.AcceptDroppedFiles := True;
@@ -868,12 +933,13 @@ begin
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.Parent := BodyPanel;
 
+  FTheme := TTheme.Create;
+  Memo.Theme := FTheme;
+  MemoStyler.Theme := FTheme;
+
   FBreakPoints := TList.Create;
 
-  DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
-  FDebugLogListTimeWidth := DebugOutputList.Canvas.TextWidth(Format(
-    '[00%s00%s00%s000]   ', [{$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DecimalSeparator]));
-  DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0');
+  UpdateOutputListsItemHeightAndDebugTimeWidth;
 
   Application.HintShortPause := 0;
   Application.OnException := AppOnException;
@@ -921,8 +987,11 @@ destructor TCompileForm.Destroy;
   begin
     Ini := TConfigIniFile.Create;
     try
+      { Theme state }
+      Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType));  { Also see TOptionsClick }
+
       { Menu check boxes state }
-      Ini.WriteBool('Options', 'ShowToolbar', ToolbarPanel.Visible);
+      Ini.WriteBool('Options', 'ShowToolbar', Toolbar.Visible);
       Ini.WriteBool('Options', 'ShowStatusBar', StatusBar.Visible);
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
@@ -934,8 +1003,8 @@ destructor TCompileForm.Destroy;
       Ini.WriteInteger('State', 'WindowRight', WindowPlacement.rcNormalPosition.Right);
       Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
       Ini.WriteBool('State', 'WindowMaximized', WindowState = wsMaximized);
-      Ini.WriteInteger('State', 'StatusPanelHeight', StatusPanel.Height);
-      
+      Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
+
       { Zoom state }
       Ini.WriteInteger('Options', 'Zoom', Memo.Zoom);
     finally
@@ -952,15 +1021,12 @@ begin
   if FOptionsLoaded and not (CommandLineCompile or CommandLineWizard) then
     SaveConfig;
 
+  FTheme.Free;
   FBreakPoints.Free;
   DestroyDebugInfo;
   FSignTools.Free;
   FMRUList.Free;
-  if FBuildImageList <> 0 then begin
-    ImageList_Destroy(FBuildImageList);
-    FBuildImageList := 0;
-  end;
-
+ 
   inherited;
 end;
 
@@ -968,6 +1034,13 @@ class procedure TCompileForm.AppOnException(Sender: TObject; E: Exception);
 begin
   AppMessageBox(PChar(AddPeriod(E.Message)), SCompilerFormCaption,
     MB_OK or MB_ICONSTOP);
+end;
+
+procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+  NewDPI: Integer);
+begin
+  UpdateOutputListsItemHeightAndDebugTimeWidth;
+  UpdateStatusPanelHeight(StatusPanel.Height);
 end;
 
 procedure TCompileForm.FormCloseQuery(Sender: TObject;
@@ -1379,14 +1452,14 @@ begin
   end;
 end;
 
-procedure TCompileForm.StatusMessage(const S: String);
+procedure TCompileForm.StatusMessage(const Kind: TStatusMessageKind; const S: String);
 var
   DC: HDC;
   Size: TSize;
 begin
   with CompilerOutputList do begin
     try
-      TopIndex := Items.Add(S);
+      TopIndex := Items.AddObject(S, TObject(Kind));
     except
       on EOutOfResources do begin
         Clear;
@@ -1422,8 +1495,9 @@ var
   begin
     if FirstLine then begin
       FirstLine := False;
-      Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator,
-        ST.wMinute, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator, ST.wSecond, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DecimalSeparator,
+      { Don't forget about DebugOutputListDrawItem if you change the format of the following timestamp. }
+      Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
+        ST.wMinute, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, ST.wSecond, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator,
         ST.wMilliseconds]), S, 1);
       StartsWithTab := False;
     end
@@ -1517,7 +1591,10 @@ begin
           end;
         end;
       iscbNotifyStatus:
-        Form.StatusMessage(Data.StatusMsg);
+        if Data.Warning then
+          Form.StatusMessage(smkWarning, Data.StatusMsg)
+        else
+          Form.StatusMessage(smkNormal, Data.StatusMsg);
       iscbNotifyIdle:
         begin
           Form.UpdateCompileStatusPanels(Data.CompressProgress,
@@ -1683,8 +1760,8 @@ begin
     ReadScriptLines(AppData.Lines);
 
     StartTime := GetTickCount;
-    StatusMessage(Format(SCompilerStatusStarting, [TimeToStr(Time)]));
-    StatusMessage('');
+    StatusMessage(smkStartEnd, Format(SCompilerStatusStarting, [TimeToStr(Time)]));
+    StatusMessage(smkStartEnd, '');
     FCompiling := True;
     FCompileWantAbort := False;
     UpdateRunMenu;
@@ -1695,7 +1772,7 @@ begin
     {$ELSE}
     if ISCompileScript(Params, False) <> isceNoError then begin
     {$ENDIF}
-      StatusMessage(SCompilerStatusErrorAborted);
+      StatusMessage(smkError, SCompilerStatusErrorAborted);
       if not ReadFromFile and (AppData.ErrorLine > 0) and
          (AppData.ErrorFilename = '') then begin
         { Move the caret to the line number the error occured on }
@@ -1716,9 +1793,9 @@ begin
     end;
     ElapsedTime := GetTickCount - StartTime;
     ElapsedSeconds := ElapsedTime div 1000;
-    StatusMessage(Format(SCompilerStatusFinished, [TimeToStr(Time),
-      Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator,
-        ElapsedSeconds mod 60, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DecimalSeparator, ElapsedTime mod 1000])]));
+    StatusMessage(smkStartEnd, Format(SCompilerStatusFinished, [TimeToStr(Time),
+      Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
+        ElapsedSeconds mod 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator, ElapsedTime mod 1000])]));
   finally
     AppData.Lines.Free;
     FCompiling := False;
@@ -1966,7 +2043,7 @@ begin
   VZoomIn.Enabled := (Memo.Zoom < 20);
   VZoomOut.Enabled := (Memo.Zoom > -10);
   VZoomReset.Enabled := (Memo.Zoom <> 0);
-  VToolbar.Checked := ToolbarPanel.Visible;
+  VToolbar.Checked := Toolbar.Visible;
   VStatusBar.Checked := StatusBar.Visible;
   VHide.Checked := not StatusPanel.Visible;
   VCompilerOutput.Checked := StatusPanel.Visible and (TabSet.TabIndex = tiCompilerOutput);
@@ -1990,7 +2067,7 @@ end;
 
 procedure TCompileForm.VToolbarClick(Sender: TObject);
 begin
-  ToolbarPanel.Visible := not ToolbarPanel.Visible;
+  Toolbar.Visible := not Toolbar.Visible;
 end;
 
 procedure TCompileForm.VStatusBarClick(Sender: TObject);
@@ -2143,7 +2220,7 @@ end;
 procedure TCompileForm.HFaqClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open',
-    PChar(PathExtractPath(NewParamStr(0)) + 'isfaq.htm'), nil, nil, SW_SHOW);
+    PChar(PathExtractPath(NewParamStr(0)) + 'isfaq.url'), nil, nil, SW_SHOW);
 end;
 
 procedure TCompileForm.HWhatsNewClick(Sender: TObject);
@@ -2188,8 +2265,8 @@ begin
     String(FCompilerVersion.Version) + SNewLine;
   if FCompilerVersion.Title <> 'Inno Setup' then
     S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
-  S := S + ('Copyright (C) 1997-2016 Jordan Russell' + SNewLine +
-    'Portions Copyright (C) 2000-2016 Martijn Laan' + SNewLine +
+  S := S + ('Copyright (C) 1997-2019 Jordan Russell' + SNewLine +
+    'Portions Copyright (C) 2000-2019 Martijn Laan' + SNewLine +
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
     'http://www.innosetup.com/' + SNewLine2 +
@@ -2403,12 +2480,21 @@ procedure TCompileForm.UpdateStatusPanelHeight(H: Integer);
 var
   MinHeight, MaxHeight: Integer;
 begin
-  MinHeight := (3 * DebugOutputList.ItemHeight + 4) +
-    SpacerPaintBox.Height + TabSet.Height;
-  MaxHeight := BodyPanel.ClientHeight - 48 - SplitPanel.Height;
+  MinHeight := (3 * DebugOutputList.ItemHeight + ToCurrentPPI(4)) + TabSet.Height;
+  MaxHeight := BodyPanel.ClientHeight - ToCurrentPPI(48) - SplitPanel.Height;
   if H > MaxHeight then H := MaxHeight;
   if H < MinHeight then H := MinHeight;
   StatusPanel.Height := H;
+end;
+
+procedure TCompileForm.UpdateOutputListsItemHeightAndDebugTimeWidth;
+begin
+  CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
+  CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
+
+  DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
+  FDebugLogListTimeWidth := DebugOutputList.Canvas.TextWidth(Format('[00%s00%s00%s000]   ', [FormatSettings.TimeSeparator, FormatSettings.TimeSeparator, FormatSettings.DecimalSeparator]));
+  DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0');
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
@@ -2513,6 +2599,7 @@ begin
     OptionsForm.RunAsDifferentUserCheck.Checked := FOptions.RunAsDifferentUser;
     OptionsForm.AutoCompleteCheck.Checked := FOptions.AutoComplete;
     OptionsForm.UseSynHighCheck.Checked := FOptions.UseSyntaxHighlighting;
+    OptionsForm.ColorizeCompilerOutputCheck.Checked := FOptions.ColorizeCompilerOutput;
     OptionsForm.UnderlineErrorsCheck.Checked := FOptions.UnderlineErrors;
     OptionsForm.CursorPastEOLCheck.Checked := FOptions.CursorPastEOL;
     OptionsForm.TabWidthEdit.Text := IntToStr(FOptions.TabWidth);
@@ -2521,7 +2608,10 @@ begin
     OptionsForm.AutoIndentCheck.Checked := FOptions.AutoIndent;
     OptionsForm.IndentationGuidesCheck.Checked := FOptions.IndentationGuides;
     OptionsForm.GutterLineNumbersCheck.Checked := FOptions.GutterLineNumbers;
+    OptionsForm.ThemeComboBox.ItemIndex := Ord(FOptions.ThemeType);
     OptionsForm.FontPanel.Font.Assign(Memo.Font);
+    OptionsForm.FontPanel.ParentBackground := False;
+    OptionsForm.FontPanel.Color := Memo.Color;
 
     if OptionsForm.ShowModal <> mrOK then
       Exit;
@@ -2536,6 +2626,7 @@ begin
     FOptions.RunAsDifferentUser := OptionsForm.RunAsDifferentUserCheck.Checked;
     FOptions.AutoComplete := OptionsForm.AutoCompleteCheck.Checked;
     FOptions.UseSyntaxHighlighting := OptionsForm.UseSynHighCheck.Checked;
+    FOptions.ColorizeCompilerOutput := OptionsForm.ColorizeCompilerOutputCheck.Checked;
     FOptions.UnderlineErrors := OptionsForm.UnderlineErrorsCheck.Checked;
     FOptions.CursorPastEOL := OptionsForm.CursorPastEOLCheck.Checked;
     FOptions.TabWidth := StrToInt(OptionsForm.TabWidthEdit.Text);
@@ -2544,6 +2635,7 @@ begin
     FOptions.AutoIndent := OptionsForm.AutoIndentCheck.Checked;
     FOptions.IndentationGuides := OptionsForm.IndentationGuidesCheck.Checked;
     FOptions.GutterLineNumbers := OptionsForm.GutterLineNumbersCheck.Checked;
+    FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
     UpdateCaption;
     { Move caret to start of line to ensure it doesn't end up in the middle
       of a double-byte character if the code page changes from SBCS to DBCS }
@@ -2551,6 +2643,7 @@ begin
     Memo.Font.Assign(OptionsForm.FontPanel.Font);
     SyncEditorOptions;
     UpdateNewButtons;
+    UpdateTheme;
 
     { Save new options }
     Ini := TConfigIniFile.Create;
@@ -2565,6 +2658,7 @@ begin
       Ini.WriteBool('Options', 'RunAsDifferentUser', FOptions.RunAsDifferentUser);
       Ini.WriteBool('Options', 'AutoComplete', FOptions.AutoComplete);
       Ini.WriteBool('Options', 'UseSynHigh', FOptions.UseSyntaxHighlighting);
+      Ini.WriteBool('Options', 'ColorizeCompilerOutput', FOptions.ColorizeCompilerOutput);
       Ini.WriteBool('Options', 'UnderlineErrors', FOptions.UnderlineErrors);
       Ini.WriteBool('Options', 'EditorCursorPastEOL', FOptions.CursorPastEOL);
       Ini.WriteInteger('Options', 'TabWidth', FOptions.TabWidth);
@@ -2573,6 +2667,7 @@ begin
       Ini.WriteBool('Options', 'AutoIndent', FOptions.AutoIndent);
       Ini.WriteBool('Options', 'IndentationGuides', FOptions.IndentationGuides);
       Ini.WriteBool('Options', 'GutterLineNumbers', FOptions.GutterLineNumbers);
+      Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
       Ini.WriteString('Options', 'EditorFontName', Memo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', Memo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', Memo.Font.Charset);
@@ -3467,6 +3562,7 @@ begin
   RStepInto.Enabled := RRun.Enabled;
   RStepOver.Enabled := RRun.Enabled;
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
+  TerminateButton.Enabled := RTerminate.Enabled;
   REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
 end;
 
@@ -3479,6 +3575,22 @@ begin
     RTargetUninstall.Checked := True;
     TargetUninstallButton.Down := True;
   end;
+end;
+
+procedure TCompileForm.UpdateTheme;
+begin
+  FTheme.Typ := FOptions.ThemeType;
+  Memo.UpdateThemeColors;
+  Memo.UpdateStyleAttributes;
+  Bevel1.Visible := FTheme.Colors[tcMarginBack] = ToolBar.Color;
+  SplitPanel.ParentBackground := False;
+  SplitPanel.Color := FTheme.Colors[tcSplitterBack];
+  CompilerOutputList.Font.Color := FTheme.Colors[tcFore];
+  CompilerOutputList.Color := FTheme.Colors[tcBack];
+  CompilerOutputList.Invalidate;
+  DebugOutputList.Font.Color := FTheme.Colors[tcFore];
+  DebugOutputList.Color := FTheme.Colors[tcBack];
+  DebugOutputList.Invalidate;
 end;
 
 procedure TCompileForm.UpdateThemeData(const Close, Open: Boolean);
@@ -3797,9 +3909,9 @@ begin
   case Panel.Index of
     spCompileIcon:
       if FCompiling then begin
-        ImageList_Draw(FBuildImageList, FBuildAnimationFrame, StatusBar.Canvas.Handle,
-          Rect.Left + ((Rect.Right - Rect.Left) - 17) div 2,
-          Rect.Top + ((Rect.Bottom - Rect.Top) - 15) div 2, ILD_NORMAL);
+        ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
+          Rect.Left + ((Rect.Right - Rect.Left) - BuildImageList.Width) div 2,
+          Rect.Top + ((Rect.Bottom - Rect.Top) - BuildImageList.Height) div 2, ILD_NORMAL);
       end;
     spCompileProgress:
       if FCompiling and (FProgressMax > 0) then begin
@@ -3857,8 +3969,8 @@ begin
     if ASecondsRemaining >= 0 then
       StatusBar.Panels[spExtraStatus].Text := Format(
         ' Estimated time remaining: %.2d%s%.2d%s%.2d     Average KB/sec: %.0n',
-        [(ASecondsRemaining div 60) div 60, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator,
-         (ASecondsRemaining div 60) mod 60, {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator,
+        [(ASecondsRemaining div 60) div 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
+         (ASecondsRemaining div 60) mod 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
          ASecondsRemaining mod 60, ABytesCompressedPerSecond / 1024])
     else
       StatusBar.Panels[spExtraStatus].Text := '';
@@ -3871,6 +3983,14 @@ begin
     FProgressMax := AProgressMax;
     InvalidateStatusPanel(spCompileProgress);
     SetAppTaskbarProgressValue(AProgress, AProgressMax);
+  end;
+end;
+
+procedure TCompileForm.WMSettingChange(var Message: TMessage);
+begin
+  if (FTheme.Typ <> ttClassic) and (Win32MajorVersion >= 10) and (Message.LParam <> 0) and (StrIComp(PChar(Message.LParam), 'ImmersiveColorSet') = 0) then begin
+    FOptions.ThemeType := GetDefaultThemeType;
+    UpdateTheme;
   end;
 end;
 
@@ -3938,48 +4058,48 @@ begin
   end;
 end;
 
+procedure TCompileForm.CompilerOutputListDrawItem(Control: TWinControl;
+  Index: Integer; Rect: TRect; State: TOwnerDrawState);
+const
+  ThemeColors: array [TStatusMessageKind] of TThemeColor = (tcGreen, tcFore, tcOrange, tcRed);
+var
+  Canvas: TCanvas;
+  S: String;
+  StatusMessageKind: TStatusMessageKind;
+begin
+  Canvas := CompilerOutputList.Canvas;
+  S := CompilerOutputList.Items[Index];
+
+  Canvas.FillRect(Rect);
+  Inc(Rect.Left, 2);
+  if FOptions.ColorizeCompilerOutput and not (odSelected in State) then begin
+    StatusMessageKind := TStatusMessageKind(CompilerOutputList.Items.Objects[Index]);
+    Canvas.Font.Color := FTheme.Colors[ThemeColors[StatusMessageKind]];
+  end;
+  Canvas.TextOut(Rect.Left, Rect.Top, S);
+end;
+
 procedure TCompileForm.DebugOutputListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
-
-  function SafeGetItem(const ListBoxHandle: HWND; const Index: Integer): String;
-  { Prior to Delphi 6, the VCL will incur a buffer overflow if you trying
-    reading an item from a TListBox longer than 4096 characters. }
-  var
-    Len: Integer;
-  begin
-    Len := SendMessage(ListBoxHandle, LB_GETTEXTLEN, Index, 0);
-    if Len <= 0 then
-      Result := ''  { zero length or out of range? }
-    else begin
-      SetString(Result, nil, Len);
-      Len := SendMessage(ListBoxHandle, LB_GETTEXT, Index, LPARAM(Result));
-      if Len <= 0 then
-        Result := ''  { failed? }
-      else
-        SetLength(Result, Len);  { since LB_GETTEXTLEN can overestimate }
-    end;
-  end;
-
 var
+  Canvas: TCanvas;
   S: String;
 begin
-  { An owner drawn list box is used for precise tab expansion }  
-  S := SafeGetItem(DebugOutputList.Handle, Index);
-  DebugOutputList.Canvas.FillRect(Rect);
+  Canvas := DebugOutputList.Canvas;
+  S := DebugOutputList.Items[Index];
+
+  Canvas.FillRect(Rect);
   Inc(Rect.Left, 2);
   if (S <> '') and (S[1] = #9) then
-    DebugOutputList.Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth,
-      Rect.Top, Copy(S, 2, Maxint))
+    Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth, Rect.Top, Copy(S, 2, Maxint))
   else begin
-    if (Length(S) > 16) and (S[14] = '-') and (S[15] = '-') and (S[16] = ' ') then begin
+    if (Length(S) > 20) and (S[18] = '-') and (S[19] = '-') and (S[20] = ' ') then begin
       { Draw lines that begin with '-- ' (like '-- File entry --') in bold }
-      DebugOutputList.Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, 13));
-      DebugOutputList.Canvas.Font.Style := [fsBold];
-      DebugOutputList.Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth,
-        Rect.Top, Copy(S, 14, Maxint));
-    end
-    else
-      DebugOutputList.Canvas.TextOut(Rect.Left, Rect.Top, S);
+      Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, 17));
+      Canvas.Font.Style := [fsBold];
+      Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth, Rect.Top, Copy(S, 18, Maxint));
+    end else
+      Canvas.TextOut(Rect.Left, Rect.Top, S);
   end;
 end;
 
@@ -4176,6 +4296,16 @@ end;
 procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);
 begin
   ToggleBreakPoint(Memo.CaretLine);
+end;
+
+function TCompileForm.ToCurrentPPI(const XY: Integer): Integer;
+begin
+  Result := MulDiv(XY, CurrentPPI, 96);
+end;
+
+function TCompileForm.FromCurrentPPI(const XY: Integer): Integer;
+begin
+  Result := MulDiv(XY, 96, CurrentPPI);
 end;
 
 {$IFNDEF UNICODE}

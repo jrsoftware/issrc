@@ -13,7 +13,8 @@ interface
 
 {$I VERSION.INC}
 
-procedure PerformInstall(var Succeeded: Boolean);
+procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
+  ChangesAssociations: Boolean);
 
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
@@ -80,27 +81,33 @@ begin
   SetAppTaskbarProgressState(States[NewState]);
 end;
 
-function CalcFilesSize: Integer64;
+procedure CalcFilesSize(var InstallFilesSize, AfterInstallFilesSize: Integer64);
 var
   N: Integer;
   CurFile: PSetupFileEntry;
+  FileSize: Integer64;
 begin
-  Result.Hi := 0;
-  Result.Lo := 0;
+  InstallFilesSize.Hi := 0;
+  InstallFilesSize.Lo := 0;
+  AfterInstallFilesSize := InstallFilesSize;
   for N := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][N]);
     if ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
-      with CurFile^ do
+      with CurFile^ do begin
         if LocationEntry <> -1 then  { not an "external" file }
-          Inc6464(Result, PSetupFileLocationEntry(Entries[seFileLocation][
-           LocationEntry])^.OriginalSize)
+          FileSize := PSetupFileLocationEntry(Entries[seFileLocation][
+           LocationEntry])^.OriginalSize
         else
-          Inc6464(Result, ExternalSize);
+          FileSize := ExternalSize;
+        Inc6464(InstallFilesSize, FileSize);
+        if not (foDeleteAfterInstall in Options) then
+          Inc6464(AfterInstallFilesSize, FileSize);
       end;
+    end;
   end;
 end;
 
-procedure InitProgressGauge(const FilesSize: Integer64);
+procedure InitProgressGauge(const InstallFilesSize: Integer64);
 var
   NewMaxValue: Integer64;
 begin
@@ -109,7 +116,7 @@ begin
   NewMaxValue.Lo := 1000 * Entries[seIcon].Count;
   if Entries[seIni].Count <> 0 then Inc(NewMaxValue.Lo, 1000);
   if Entries[seRegistry].Count <> 0 then Inc(NewMaxValue.Lo, 1000);
-  Inc6464(NewMaxValue, FilesSize);
+  Inc6464(NewMaxValue, InstallFilesSize);
   { To avoid progress updates that are too small to result in any visible
     change, divide the Max value by 2 until it's under 1500 }
   ProgressShiftCount := 0;
@@ -133,9 +140,9 @@ begin
   end;
   SetAppTaskbarProgressValue(NewPosition.Lo, WizardForm.ProgressGauge.Max);
 
-  if (CodeRunner <> nil) and CodeRunner.FunctionExists('CurInstallProgressChanged') then begin
+  if (CodeRunner <> nil) and CodeRunner.FunctionExists('CurInstallProgressChanged', True) then begin
     try
-      CodeRunner.RunProcedure('CurInstallProgressChanged', [NewPosition.Lo,
+      CodeRunner.RunProcedures('CurInstallProgressChanged', [NewPosition.Lo,
         WizardForm.ProgressGauge.Max], False);
     except
       Log('CurInstallProgressChanged raised an exception.');
@@ -189,17 +196,19 @@ begin
   ProcessEvents;
 end;
 
-function AbortRetryIgnoreMsgBox(const Text1, Text2: String): Boolean;
+function AbortRetryIgnoreTaskDialogMsgBox(const Text: String;
+  const RetryIgnoreAbortButtonLabels: array of String): Boolean;
 { Returns True if Ignore was selected, False if Retry was selected, or
   calls Abort if Abort was selected. }
 begin
   Result := False;
-  case LoggedMsgBox(Text1 + SNewLine2 + Text2, '', mbError, MB_ABORTRETRYIGNORE, True, IDABORT) of
+  case LoggedTaskDialogMsgBox('', SetupMessages[msgAbortRetryIgnoreSelectAction], Text, '',
+         mbError, MB_ABORTRETRYIGNORE, RetryIgnoreAbortButtonLabels, 0, True, IDABORT) of
     IDABORT: Abort;
     IDRETRY: ;
     IDIGNORE: Result := True;
   else
-    Log('LoggedMsgBox returned an unexpected value. Assuming Abort.');
+    Log('LoggedTaskDialogMsgBox returned an unexpected value. Assuming Abort.');
     Abort;
   end;
 end;
@@ -301,7 +310,8 @@ begin
       Result := PathExtractName(Result);
 end;
 
-procedure PerformInstall(var Succeeded: Boolean);
+procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
+  ChangesAssociations: Boolean);
 type
   PRegisterFilesListRec = ^TRegisterFilesListRec;
   TRegisterFilesListRec = record
@@ -312,8 +322,7 @@ var
   UninstLog: TSetupUninstallLog;
   UninstallTempExeFilename, UninstallDataFilename, UninstallMsgFilename: String;
   UninstallExeCreated: (ueNone, ueNew, ueReplaced);
-  UninstallDataCreated, UninstallMsgCreated, AppendUninstallData,
-    UninstallRequiresAdmin: Boolean;
+  UninstallDataCreated, UninstallMsgCreated, AppendUninstallData: Boolean;
   RegisterFilesList: TList;
   ExpandedAppId: String;
 
@@ -431,11 +440,19 @@ var
         [FuncNames[Func], IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
   end;
 
-  procedure RegisterUninstallInfo(const UninstallRegKeyBaseName: String; const FilesSize: Integer64);
+  procedure RegisterUninstallInfo(const UninstallRegKeyBaseName: String; const AfterInstallFilesSize: Integer64);
   { Stores uninstall information in the Registry so that the program can be
     uninstalled through the Control Panel Add/Remove Programs applet. }
+  const
+    AdminInstallModeNames: array [Boolean] of String =
+      ('non administrative', 'administrative');
+    BitInstallModeNames: array [Boolean] of String =
+      ('32-bit', '64-bit');
   var
-    RootKey: HKEY;
+    RegView, OppositeRegView: TRegView;
+    RegViewIs64Bit, OppositeRegViewIs64Bit: Boolean;
+    RootKey, OppositeRootKey: HKEY;
+    RootKeyIsHKLM, OppositeRootKeyIsHKLM: Boolean;
     SubkeyName: String;
 
     procedure SetStringValue(const K: HKEY; const ValueName: PChar;
@@ -497,6 +514,72 @@ var
       Result := I = 0;
     end;
 
+    { Also see Main.pas }
+    function ExistingInstallationAt(const RegView: TRegView; const RootKey: HKEY): Boolean;
+    var
+      K: HKEY;
+    begin
+      if RegOpenKeyExView(RegView, RootKey, PChar(SubkeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+        Result := True;
+        RegCloseKey(K);
+      end else
+        Result := False;
+    end;
+
+    procedure HandleDuplicateDisplayNames(var DisplayName: String);
+    const
+      UninstallDisplayNameMarksUser: array [Boolean] of TSetupMessageId =
+        (msgUninstallDisplayNameMarkCurrentUser, msgUninstallDisplayNameMarkAllUsers);
+      UninstallDisplayNameMarksBits: array [Boolean] of TSetupMessageId =
+        (msgUninstallDisplayNameMark32Bit, msgUninstallDisplayNameMark64Bit);
+    var
+      ExistingAtOppositeAdminInstallMode, ExistingAtOpposite64BitInstallMode: Boolean;
+    begin
+      { Check opposite administrative install mode. }
+      ExistingAtOppositeAdminInstallMode := ExistingInstallationAt(RegView, OppositeRootKey);
+      if RootKeyIsHKLM then begin
+        { Opposite (HKCU) is shared for 32-bit and 64-bit so don't log bitness. }
+        LogFmt('Detected previous %s install? %s',
+          [AdminInstallModeNames[OppositeRootKeyIsHKLM {always False}], SYesNo[ExistingAtOppositeAdminInstallMode]])
+      end else begin
+        { Opposite (HKLM) is not shared for 32-bit and 64-bit so log bitness. }
+        LogFmt('Detected previous %s %s install? %s',
+          [AdminInstallModeNames[OppositeRootKeyIsHKLM {always True}], BitInstallModeNames[RegViewIs64Bit], SYesNo[ExistingAtOppositeAdminInstallMode]]);
+      end;
+
+      { Check opposite 32-bit or 64-bit install mode. }
+      if RootKeyIsHKLM then begin
+        { HKLM is not shared for 32-bit and 64-bit so check it for opposite 32-bit or 64-bit install mode. Not checking HKCU
+          since HKCU is shared for 32-bit and 64-bit mode and we already checked HKCU above. }
+        ExistingAtOpposite64BitInstallMode := ExistingInstallationAt(OppositeRegView, RootKey {always HKLM});
+        LogFmt('Detected previous %s %s install? %s',
+          [AdminInstallModeNames[RootKeyIsHKLM {always True}], BitInstallModeNames[OppositeRegViewIs64Bit], SYesNo[ExistingAtOpposite64BitInstallMode]]);
+      end else begin
+        { HKCU is shared for 32-bit and 64-bit so not checking it but we do still need to check HKLM for opposite 32-bit or
+          64-bit install mode since we haven't already done that. }
+        ExistingAtOpposite64BitInstallMode := ExistingInstallationAt(OppositeRegView, OppositeRootKey {always HKLM});
+        if ExistingAtOpposite64BitInstallMode then
+          ExistingAtOppositeAdminInstallMode := True;
+        LogFmt('Detected previous %s %s install? %s',
+          [AdminInstallModeNames[OppositeRootKeyIsHKLM {always True}], BitInstallModeNames[OppositeRegViewIs64Bit], SYesNo[ExistingAtOpposite64BitInstallMode]]);
+      end;
+
+      { Mark new display name if needed. Note: currently we don't attempt to mark existing display names as well. }
+      if ExistingAtOppositeAdminInstallMode or ExistingAtOpposite64BitInstallMode then begin
+        if ExistingAtOppositeAdminInstallMode and ExistingAtOpposite64BitInstallMode then
+          DisplayName := FmtSetupMessage(msgUninstallDisplayNameMarks,
+            [DisplayName, SetupMessages[UninstallDisplayNameMarksUser[RootKeyIsHKLM]],
+                          SetupMessages[UninstallDisplayNameMarksBits[RegViewIs64Bit]]])
+        else if ExistingAtOppositeAdminInstallMode then
+          DisplayName := FmtSetupMessage(msgUninstallDisplayNameMark,
+            [DisplayName, SetupMessages[UninstallDisplayNameMarksUser[RootKeyIsHKLM]]])
+        else
+          DisplayName := FmtSetupMessage(msgUninstallDisplayNameMark,
+            [DisplayName, SetupMessages[UninstallDisplayNameMarksBits[RegViewIs64Bit]]]);
+        LogFmt('Marked uninstall display name to avoid duplicate entries. New display name: %s', [DisplayName]);
+      end;
+    end;
+
   var
     H2: HKEY;
     ErrorCode: Longint;
@@ -504,23 +587,49 @@ var
     MajorVersion, MinorVersion, I: Integer;
     EstimatedSize: Integer64;
   begin
-    if IsAdmin and ((SetupHeader.PrivilegesRequired <> prLowest) or not IsNT) then
-      RootKey := HKEY_LOCAL_MACHINE
+    RegView := InstallDefaultRegView;
+    RegViewIs64Bit := RegView = rv64Bit;
+    if RegViewIs64Bit then
+      OppositeRegView := rv32Bit
     else
-      RootKey := HKEY_CURRENT_USER;
-    SubkeyName := NEWREGSTR_PATH_UNINSTALL + '\' + UninstallRegKeyBaseName + '_is1';
+      OppositeRegView := rv64Bit;
+    OppositeRegViewIs64Bit := not RegViewIs64Bit;
 
-    { Delete any uninstall keys left over from previous installs }
-    RegDeleteKeyIncludingSubkeys(InstallDefaultRegView, HKEY_CURRENT_USER, PChar(SubkeyName));
-    if IsAdmin then
-      RegDeleteKeyIncludingSubkeys(InstallDefaultRegView, HKEY_LOCAL_MACHINE, PChar(SubkeyName));
+    RootKey := InstallModeRootKey;
+    RootKeyIsHKLM := RootKey = HKEY_LOCAL_MACHINE;
+    if RootKeyIsHKLM then
+      OppositeRootKey := HKEY_CURRENT_USER
+    else
+      OppositeRootKey := HKEY_LOCAL_MACHINE;
+    OppositeRootKeyIsHKLM := not RootKeyIsHKLM;
+
+    SubkeyName := GetUninstallRegSubkeyName(UninstallRegKeyBaseName);
+
+    if ExistingInstallationAt(RegView, RootKey) then begin
+      if RootKeyIsHKLM then begin
+        { HKLM is not shared for 32-bit and 64-bit so log bitness. }
+        LogFmt('Deleting uninstall key left over from previous %s %s install.',
+          [AdminInstallModeNames[RootKeyIsHKLM {always True}], BitInstallModeNames[RegViewIs64Bit]]);
+      end else begin
+        { HKCU is shared for 32-bit and 64-bit so don't log bitness. }
+        LogFmt('Deleting uninstall key left over from previous %s install.',
+          [AdminInstallModeNames[RootKeyIsHKLM {always False}]])
+      end;
+
+      RegDeleteKeyIncludingSubkeys(RegView, RootKey, PChar(SubkeyName));
+    end;
+
+    LogFmt('Creating new uninstall key: %s\%s', [GetRegRootKeyName(RootKey), SubkeyName]);
 
     { Create uninstall key }
-    ErrorCode := RegCreateKeyExView(InstallDefaultRegView, RootKey, PChar(SubkeyName),
+    ErrorCode := RegCreateKeyExView(RegView, RootKey, PChar(SubkeyName),
       0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, H2, nil);
     if ErrorCode <> ERROR_SUCCESS then
       RegError(reRegCreateKeyEx, RootKey, SubkeyName, ErrorCode);
+ 
     try
+      Log('Writing uninstall key values.');
+    
       { do not localize or change any of the following strings }
       SetStringValue(H2, 'Inno Setup: Setup Version', SetupVersion);
       if shCreateAppDir in SetupHeader.Options then
@@ -553,6 +662,7 @@ var
         Z := ExpandConst(SetupHeader.UninstallDisplayName)
       else
         Z := ExpandedAppVerName;
+      HandleDuplicateDisplayNames(Z);
       { For the entry to appear in ARP, DisplayName cannot exceed 63 characters
         on Windows 9x/NT 4.0, or 259 characters on Windows 2000 and later. }
       if WindowsVersionAtLeast(5, 0) then
@@ -580,8 +690,11 @@ var
       SetDWordValue(H2, 'NoRepair', 1);
       SetStringValue(H2, 'InstallDate', GetInstallDateString);
       if ExtractMajorMinorVersion(ExpandConst(SetupHeader.AppVersion), MajorVersion, MinorVersion) then begin
+        { Originally MSDN said to write to Major/MinorVersion, now it says to write to VersionMajor/Minor. So write to both. }
         SetDWordValue(H2, 'MajorVersion', MajorVersion);
         SetDWordValue(H2, 'MinorVersion', MinorVersion);
+        SetDWordValue(H2, 'VersionMajor', MajorVersion);
+        SetDWordValue(H2, 'VersionMinor', MinorVersion);
       end;
       { Note: Windows 7 doesn't automatically calculate sizes so set EstimatedSize ourselves. Do not set it
         on earlier Windows versions since calculated sizes are cached and clearing the cache would require
@@ -589,7 +702,7 @@ var
       if WindowsVersion shr 16 >= $0601 then begin
         if (SetupHeader.UninstallDisplaySize.Hi = 0) and (SetupHeader.UninstallDisplaySize.Lo = 0) then begin
           { Estimate the size by taking the size of all files and adding any ExtraDiskSpaceRequired. }
-          EstimatedSize := FilesSize;
+          EstimatedSize := AfterInstallFilesSize;
           Inc6464(EstimatedSize, SetupHeader.ExtraDiskSpaceRequired);
           for I := 0 to Entries[seComponent].Count-1 do begin
             with PSetupComponentEntry(Entries[seComponent][I])^ do begin
@@ -611,7 +724,7 @@ var
       { Also see SetPreviousData in ScriptFunc.pas }
       if CodeRunner <> nil then begin
         try
-          CodeRunner.RunProcedure('RegisterPreviousData', [Integer(H2)], False);
+          CodeRunner.RunProcedures('RegisterPreviousData', [Integer(H2)], False);
         except
           Log('RegisterPreviousData raised an exception.');
           Application.HandleException(nil);
@@ -621,7 +734,7 @@ var
       RegCloseKey(H2);
     end;
 
-    UninstLog.AddReg(utRegDeleteEntireKey, InstallDefaultRegView, RootKey,
+    UninstLog.AddReg(utRegDeleteEntireKey, RegView, RootKey,
       [SubkeyName]);
   end;
 
@@ -819,8 +932,9 @@ var
             SendNotifyMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
             Break;
           end;
-        until AbortRetryIgnoreMsgBox(AddPeriod(FmtSetupMessage1(msgErrorFunctionFailedNoCode,
-          'AddFontResource')), SetupMessages[msgEntryAbortRetryIgnore]);
+        until AbortRetryIgnoreTaskDialogMsgBox(
+                AddPeriod(FmtSetupMessage1(msgErrorFunctionFailedNoCode, 'AddFontResource')),
+                [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]);
       end;
     end;
 
@@ -887,6 +1001,36 @@ var
         LogFmt('Failed to set NTFS compression state (%d).', [GetLastError]);
     end;
 
+    procedure DoHandleFailedDeleteOrMoveFileTry(const Func, TempFile, DestFile: String;
+      const LastError: DWORD; var RetriesLeft: Integer; var LastOperation: String;
+      var NeedsRestart, ReplaceOnRestart, DoBreak, DoContinue: Boolean);
+    begin
+      { Automatically retry. Wait with replace on restart until no
+        retries left, unless we already know we're going to restart. }
+      if ((RetriesLeft = 0) or NeedsRestart) and
+         (foRestartReplace in CurFile^.Options) and IsAdmin then begin
+        LogFmt('%s: The existing file appears to be in use (%d). ' +
+          'Will replace on restart.', [Func, LastError]);
+        LastOperation := SetupMessages[msgErrorRestartReplace];
+        NeedsRestart := True;
+        RestartReplace(DisableFsRedir, TempFile, DestFile);
+        ReplaceOnRestart := True;
+        DoBreak := True;
+        DoContinue := False;
+      end else if RetriesLeft > 0 then begin
+        LogFmt('%s: The existing file appears to be in use (%d). ' +
+          'Retrying.', [Func, LastError]);
+        Dec(RetriesLeft);
+        Sleep(1000);
+        ProcessEvents;
+        DoBreak := False;
+        DoContinue := True;
+      end else begin
+        DoBreak := False;
+        DoContinue := False;
+      end;
+    end;
+
   var
     ProgressUpdated: Boolean;
     PreviousProgress: Integer64;
@@ -894,7 +1038,8 @@ var
     CurFileLocation: PSetupFileLocationEntry;
     SourceFile, DestFile, TempFile, FontFilename: String;
     DestFileExists, DestFileExistedBefore, CheckedDestFileExistedBefore,
-      TempFileLeftOver, AllowFileToBeDuplicated, ReplaceOnRestart: Boolean;
+      TempFileLeftOver, AllowFileToBeDuplicated, ReplaceOnRestart, DoBreak,
+      DoContinue: Boolean;
     ExistingFileAttr: Integer;
     Failed: String;
     CurFileVersionInfoValid: Boolean;
@@ -1168,7 +1313,9 @@ var
             if (ExistingFileAttr <> -1) and
                (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then begin
               if not(foOverwriteReadOnly in CurFile^.Options) and
-                 AbortRetryIgnoreMsgBox(DestFile, SetupMessages[msgExistingFileReadOnly]) then begin
+                 AbortRetryIgnoreTaskDialogMsgBox(
+                   DestFile + SNewLine2 + SetupMessages[msgExistingFileReadOnly2],
+                   [SetupMessages[msgExistingFileReadOnlyRetry], SetupMessages[msgExistingFileReadOnlyKeepExisting], SetupMessages[msgAbortRetryIgnoreCancel]]) then begin
                 Log('User opted not to strip the existing file''s read-only attribute. Skipping.');
                 goto Skip;
               end;
@@ -1260,8 +1407,6 @@ var
           if CurFile^.FileType = ftUninstExe then begin
             AllowFileToBeDuplicated := False;
             MarkExeHeader(DestF, SetupExeModeUninstaller);
-            LogFmt('Uninstaller requires administrator: %s',
-              [SYesNo[UninstallRequiresAdmin]]);
             if not(shSignedUninstaller in SetupHeader.Options) and
                not DetachedUninstMsgFile then
               BindUninstallMsgDataToExe(DestF);
@@ -1283,7 +1428,7 @@ var
         { Delete existing version of file, if any. If it can't be deleted
           because it's in use and the "restartreplace" flag was specified
           on the entry, register it to be replaced when the system is
-          restarted. }
+          restarted. Do retry deletion before doing this. }
         if DestFileExists and (CurFile^.FileType <> ftUninstExe) then begin
           LastOperation := SetupMessages[msgErrorReplacingExistingFile];
           RetriesLeft := 4;
@@ -1296,25 +1441,13 @@ var
             { Does the error code indicate that it is possibly in use? }
             if (LastError = ERROR_ACCESS_DENIED) or
                (LastError = ERROR_SHARING_VIOLATION) then begin
-              { Automatically retry. Wait with replace on restart until no
-                retries left or until we already know we're going to restart. }
-              if ((RetriesLeft = 0) or NeedsRestart) and
-                 (foRestartReplace in CurFile^.Options) and IsAdmin then begin
-                LogFmt('The existing file appears to be in use (%d). ' +
-                  'Will replace on restart.', [LastError]);
-                LastOperation := SetupMessages[msgErrorRestartReplace];
-                NeedsRestart := True;
-                RestartReplace(DisableFsRedir, TempFile, DestFile);
-                ReplaceOnRestart := True;
-                Break;
-              end else if RetriesLeft > 0 then begin
-                LogFmt('The existing file appears to be in use (%d). ' +
-                  'Retrying.', [LastError]);
-                Dec(RetriesLeft);
-                Sleep(1000);
-                ProcessEvents;
+              DoHandleFailedDeleteOrMoveFileTry('DeleteFile', TempFile, DestFile,
+                LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
+                DoBreak, DoContinue);
+              if DoBreak then
+                Break
+              else if DoContinue then
                 Continue;
-              end;
             end;
             { Some other error occurred, or we ran out of tries }
             SetLastError(LastError);
@@ -1325,7 +1458,55 @@ var
         { Rename the temporary file to the new name now, unless the file is
           to be replaced when the system is restarted, or if the file is the
           uninstall program and an existing uninstall program already exists.
-          Then set any file attributes. }
+          If it can't be renamed and the "restartreplace" flag was specified
+          on the entry, register it to be replaced when the system is
+          restarted. Do retry renaming before doing this. }
+        if not (ReplaceOnRestart or
+                ((CurFile^.FileType = ftUninstExe) and DestFileExistedBefore)) then begin
+          LastOperation := SetupMessages[msgErrorRenamingTemp];
+          { Since the DeleteFile above succeeded you would expect the rename to
+            also always succeed, but if it doesn't anyway. }
+          RetriesLeft := 4;
+          while not MoveFileRedir(DisableFsRedir, TempFile, DestFile) do begin
+            { Couldn't rename the temporary file... }
+            LastError := GetLastError;
+            { Does the error code indicate that it is possibly in use? }
+            if (LastError = ERROR_ACCESS_DENIED) or
+               (LastError = ERROR_SHARING_VIOLATION) or
+               (LastError = ERROR_ALREADY_EXISTS) then begin
+              DoHandleFailedDeleteOrMoveFileTry('MoveFile', TempFile, DestFile,
+                LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
+                DoBreak, DoContinue);
+              if DoBreak then
+                Break
+              else if DoContinue then
+                Continue;
+            end;
+            { Some other error occurred, or we ran out of tries }
+            SetLastError(LastError);
+            Win32ErrorMsg('MoveFile'); { Throws an exception }
+          end;
+
+          { If ReplaceOnRestart is still False the rename succeeded so handle this.
+            Then set any file attributes. }
+          if not ReplaceOnRestart then begin
+            TempFileLeftOver := False;
+            TempFile := '';
+            LastOperation := '';
+            Log('Successfully installed the file.');
+            if AllowFileToBeDuplicated then
+              SetFileLocationFilename(CurFile^.LocationEntry, DestFile);
+            if foDeleteAfterInstall in CurFile^.Options then
+              DeleteFilesAfterInstallList.AddObject(DestFile, Pointer(Ord(DisableFsRedir)));
+            { Set file attributes *after* renaming the file since Novell
+              reportedly can't rename read-only files. }
+            AddAttributesToFile(DisableFsRedir, DestFile, CurFile^.Attribs);
+          end;
+        end;
+
+        { Leave the temporary file in place for now if the file is to be
+          replaced when the system is restarted, or if the file is the uninstall
+          program and an existing uninstall program already exists. }
         if ReplaceOnRestart or
            ((CurFile^.FileType = ftUninstExe) and DestFileExistedBefore) then begin
           if CurFile^.FileType = ftUninstExe then
@@ -1336,22 +1517,6 @@ var
           if AllowFileToBeDuplicated then
             SetFileLocationFilename(CurFile^.LocationEntry, TempFile);
           AddAttributesToFile(DisableFsRedir, TempFile, CurFile^.Attribs);
-        end
-        else begin
-          LastOperation := SetupMessages[msgErrorRenamingTemp];
-          if not MoveFileRedir(DisableFsRedir, TempFile, DestFile) then
-            Win32ErrorMsg('MoveFile');
-          TempFileLeftOver := False;
-          TempFile := '';
-          LastOperation := '';
-          Log('Successfully installed the file.');
-          if AllowFileToBeDuplicated then
-            SetFileLocationFilename(CurFile^.LocationEntry, DestFile);
-          if foDeleteAfterInstall in CurFile^.Options then
-            DeleteFilesAfterInstallList.AddObject(DestFile, Pointer(Ord(DisableFsRedir)));
-          { Set file attributes *after* renaming the file since Novell
-            reportedly can't rename read-only files. }
-          AddAttributesToFile(DisableFsRedir, DestFile, CurFile^.Attribs);
         end;
 
         { If it's a font, register it }
@@ -1485,8 +1650,9 @@ var
 
       if LastOperation <> '' then
         LastOperation := LastOperation + SNewLine;
-      if not AbortRetryIgnoreMsgBox(DestFile + SNewLine2 + LastOperation + Failed,
-         SetupMessages[msgFileAbortRetryIgnore]) then begin
+      if not AbortRetryIgnoreTaskDialogMsgBox(
+               DestFile + SNewLine2 + LastOperation + Failed,
+               [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]) then begin
         if ProgressUpdated then
           SetProgress(PreviousProgress);
         goto Retry;
@@ -1657,9 +1823,9 @@ var
                 ExpectedBytesLeft);
             until FoundFiles or
                   (foSkipIfSourceDoesntExist in CurFile^.Options) or
-                  AbortRetryIgnoreMsgBox(SetupMessages[msgErrorReadingSource] + SNewLine +
-                    AddPeriod(FmtSetupMessage(msgSourceDoesntExist, [SourceWildcard])),
-                    SetupMessages[msgFileAbortRetryIgnore]);
+                  AbortRetryIgnoreTaskDialogMsgBox(
+                    SetupMessages[msgErrorReadingSource] + SNewLine + AddPeriod(FmtSetupMessage(msgSourceDoesntExist, [SourceWildcard])),
+                    [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]);
             { In case we didn't end up copying all the expected bytes, bump
               the progress bar up to the expected amount }
             Inc6464(ProgressBefore, CurFile^.ExternalSize);
@@ -1954,7 +2120,9 @@ var
                   MakeDir(False, IniDir, []);
                   Break;
                 except
-                  if AbortRetryIgnoreMsgBox(GetExceptMessage, SetupMessages[msgEntryAbortRetryIgnore]) then begin
+                  if AbortRetryIgnoreTaskDialogMsgBox(
+                       GetExceptMessage,
+                       [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]) then begin
                     Skip := True;
                     Break;
                   end;
@@ -1968,8 +2136,9 @@ var
                   Log('Successfully updated the .INI file.');
                   Break;
                 end;
-               until AbortRetryIgnoreMsgBox(FmtSetupMessage1(msgErrorIniEntry, IniFilename),
-                 SetupMessages[msgEntryAbortRetryIgnore]);
+               until AbortRetryIgnoreTaskDialogMsgBox(
+                       FmtSetupMessage1(msgErrorIniEntry, IniFilename),
+                       [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]);
           end else
             Log('Skipping updating the .INI file, only updating uninstall log.');
 
@@ -1994,7 +2163,7 @@ var
   end;
 
   procedure CreateRegistryEntries;
-
+  
     function IsDeletableSubkey(const S: String): Boolean;
     { A sanity check to prevent people from shooting themselves in the foot by
       using
@@ -2020,32 +2189,30 @@ var
     var
       P: PSetupPermissionEntry;
     begin
-      if PermsEntry <> -1 then begin
-        LogFmt('Setting permissions on registry key: %s\%s',
-          [GetRegRootKeyName(RootKey), Subkey]);
-        P := Entries[sePermission][PermsEntry];
-        if not GrantPermissionOnKey(RegView, RootKey, Subkey,
-           TGrantPermissionEntry(Pointer(P.Permissions)^),
-           Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then begin
-          if GetLastError = ERROR_FILE_NOT_FOUND then
-            Log('Could not set permissions on the registry key because it currently does not exist.')
-          else
-            LogFmt('Failed to set permissions on registry key (%d).', [GetLastError]);
-        end;
+      LogFmt('Setting permissions on key: %s\%s',
+        [GetRegRootKeyName(RootKey), Subkey]);
+      P := Entries[sePermission][PermsEntry];
+      if not GrantPermissionOnKey(RegView, RootKey, Subkey,
+         TGrantPermissionEntry(Pointer(P.Permissions)^),
+         Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then begin
+        if GetLastError = ERROR_FILE_NOT_FOUND then
+          Log('Could not set permissions on the key because it currently does not exist.')
+        else
+          LogFmt('Failed to set permissions on the key (%d).', [GetLastError]);
       end;
     end;
 
   const
     REG_QWORD = 11;
   var
-    K: HKEY;
+    RK, K: HKEY;
     Disp: DWORD;
     N, V, ExistingData: String;
     ExistingType, NewType, DV: DWORD;
     S: String;
     RV: TRegView;
     CurRegNumber: Integer;
-    NeedToRetry: Boolean;
+    NeedToRetry, DidDeleteKey: Boolean;
     ErrorCode: Longint;
     QV: Integer64;
 {$IFDEF UNICODE}
@@ -2058,67 +2225,97 @@ var
         if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
           DebugNotifyEntry(seRegistry, CurRegNumber);
           NotifyBeforeInstallEntry(BeforeInstall);
+          Log('-- Registry entry --');
+          RK := RootKey;
+          if RK = HKEY_AUTO then
+            RK := InstallModeRootKey;
           S := ExpandConst(Subkey);
+          LogFmt('Key: %s\%s', [GetRegRootKeyName(RK), Subkey]);
           N := ExpandConst(ValueName);
+          if N <> '' then
+            LogFmt('Value name: %s', [N]);
           RV := InstallDefaultRegView;
-          if ro32Bit in Options then
+          if (ro32Bit in Options) and (RV <> rv32Bit) then begin
+            Log('Non-default bitness: 32-bit');
             RV := rv32Bit;
+          end;
           if ro64Bit in Options then begin
             if not IsWin64 then
               InternalError('Cannot access 64-bit registry keys on this version of Windows');
-            RV := rv64Bit;
+            if RV <> rv64Bit then begin
+              Log('Non-default bitness: 64-bit');
+              RV := rv64Bit;
+            end;
           end;
 
           repeat
             NeedToRetry := False;
 
             try
-              if roDeleteKey in Options then
-                if IsDeletableSubkey(S) then
-                  RegDeleteKeyIncludingSubkeys(RV, RootKey, PChar(S));
-              if (roDeleteKey in Options) and (Typ = rtNone) then
+              DidDeleteKey := False;
+              if roDeleteKey in Options then begin
+                if IsDeletableSubkey(S) then begin
+                  Log('Deleting the key.');
+                  RegDeleteKeyIncludingSubkeys(RV, RK, PChar(S));
+                  DidDeleteKey := True;
+                end else
+                  Log('Key to delete is not deletable.');
+              end;
+              if (roDeleteKey in Options) and (Typ = rtNone) then begin
                 { We've deleted the key, and no value is to be created.
                   Our work is done. }
-              else if (roDeleteValue in Options) and (Typ = rtNone) then begin
+                if DidDeleteKey then
+                  Log('Successfully deleted the key.');
+              end else if (roDeleteValue in Options) and (Typ = rtNone) then begin
                 { We're going to delete a value with no intention of creating
                   another, so don't create the key if it didn't exist. }
-                if RegOpenKeyExView(RV, RootKey, PChar(S), 0, KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
+                if RegOpenKeyExView(RV, RK, PChar(S), 0, KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
+                  Log('Deleting the value.');
                   RegDeleteValue(K, PChar(N));
                   RegCloseKey(K);
-                end;
+                  Log('Successfully deleted the value.');
+                  { Our work is done. }
+                end else
+                  Log('Key of value to delete does not exist.');
               end
               else begin
                 { Apply any permissions *before* calling RegCreateKeyExView or
                   RegOpenKeyExView, since we may (in a rather unlikely scenario)
                   need those permissions in order for those calls to succeed }
-                ApplyPermissions(RV, RootKey, S, PermissionsEntry);
+                if PermissionsEntry <> -1 then
+                  ApplyPermissions(RV, RK, S, PermissionsEntry);
                 { Create or open the key }
                 if not(roDontCreateKey in Options) then begin
-                  ErrorCode := RegCreateKeyExView(RV, RootKey, PChar(S), 0, nil,
+                  Log('Creating or opening the key.');
+                  ErrorCode := RegCreateKeyExView(RV, RK, PChar(S), 0, nil,
                     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE,
                     nil, K, @Disp);
                   if ErrorCode = ERROR_SUCCESS then begin
                     { Apply permissions again if a new key was created }
-                    if Disp = REG_CREATED_NEW_KEY then
-                      ApplyPermissions(RV, RootKey, S, PermissionsEntry);
+                    if (Disp = REG_CREATED_NEW_KEY) and (PermissionsEntry <> -1) then begin
+                      Log('New key created, need to set permissions again.');
+                      ApplyPermissions(RV, RK, S, PermissionsEntry);
+                    end;
                   end
                   else begin
                     if not(roNoError in Options) then
-                      RegError(reRegCreateKeyEx, RootKey, S, ErrorCode);
+                      RegError(reRegCreateKeyEx, RK, S, ErrorCode);
                   end;
                 end
                 else begin
                   if Typ <> rtNone then begin
-                    ErrorCode := RegOpenKeyExView(RV, RootKey, PChar(S), 0,
+                    Log('Opening the key.');
+                    ErrorCode := RegOpenKeyExView(RV, RK, PChar(S), 0,
                       KEY_QUERY_VALUE or KEY_SET_VALUE, K);
                     if (ErrorCode <> ERROR_SUCCESS) and (ErrorCode <> ERROR_FILE_NOT_FOUND) then
                       if not(roNoError in Options) then
-                        RegError(reRegOpenKeyEx, RootKey, S, ErrorCode);
+                        RegError(reRegOpenKeyEx, RK, S, ErrorCode);
                   end
                   else begin
                     { We're not creating a value, and we're not just deleting a
                       value (that was checked above), so there is no reason to
                       even open the key }
+                    Log('Not creating the key or a value, skipping the key and only updating uninstall log.');
                     ErrorCode := ERROR_FILE_NOT_FOUND;
                   end;
                 end;
@@ -2126,11 +2323,14 @@ var
                   and/or creating the value }
                 if ErrorCode = ERROR_SUCCESS then
                 try
-                  if roDeleteValue in Options then
+                  if roDeleteValue in Options then begin
+                    Log('Deleting the value.');
                     RegDeleteValue(K, PChar(N));
+                  end;
                   if (Typ <> rtNone) and
                      (not(roCreateValueIfDoesntExist in Options) or
-                      not RegValueExists(K, PChar(N))) then
+                      not RegValueExists(K, PChar(N))) then begin
+                    Log('Creating or setting the value.');
                     case Typ of
                       rtString, rtExpandString, rtMultiString: begin
                           NewType := REG_SZ;
@@ -2170,7 +2370,7 @@ var
                             PChar(V), (Length(V)+1)*SizeOf(V[1]));
                           if (ErrorCode <> ERROR_SUCCESS) and
                              not(roNoError in Options) then
-                            RegError(reRegSetValueEx, RootKey, S, ErrorCode);
+                            RegError(reRegSetValueEx, RK, S, ErrorCode);
                         end;
                       rtDWord: begin
                           DV := StrToInt(ExpandConst(ValueData));
@@ -2178,7 +2378,7 @@ var
                             @DV, SizeOf(DV));
                           if (ErrorCode <> ERROR_SUCCESS) and
                              not(roNoError in Options) then
-                            RegError(reRegSetValueEx, RootKey, S, ErrorCode);
+                            RegError(reRegSetValueEx, RK, S, ErrorCode);
                         end;
                       rtQWord: begin
                           if not StrToInteger64(ExpandConst(ValueData), QV) then
@@ -2187,7 +2387,7 @@ var
                             @TLargeInteger(QV), SizeOf(TLargeInteger(QV)));
                           if (ErrorCode <> ERROR_SUCCESS) and
                              not(roNoError in Options) then
-                            RegError(reRegSetValueEx, RootKey, S, ErrorCode);
+                            RegError(reRegSetValueEx, RK, S, ErrorCode);
                         end;
                       rtBinary: begin
 {$IFDEF UNICODE}
@@ -2202,32 +2402,42 @@ var
 {$ENDIF}
                           if (ErrorCode <> ERROR_SUCCESS) and
                              not(roNoError in Options) then
-                            RegError(reRegSetValueEx, RootKey, S, ErrorCode);
+                            RegError(reRegSetValueEx, RK, S, ErrorCode);
                         end;
-                    end;
+                      end;
+                    Log('Successfully created or set the value.');
+                  end else if roDeleteValue in Options then
+                    Log('Successfully deleted the value.')
+                  else
+                    Log('Successfully created the key.')
+                  { Our work is done. }
                 finally
                   RegCloseKey(K);
                 end;
               end;
             except
-              if not AbortRetryIgnoreMsgBox(GetExceptMessage, SetupMessages[msgEntryAbortRetryIgnore]) then
+              if not AbortRetryIgnoreTaskDialogMsgBox(
+                       GetExceptMessage,
+                       [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]) then begin
+                Log('Retrying.');
                 NeedToRetry := True;
+              end;
             end;
           until not NeedToRetry;
-
+          
           if roUninsDeleteEntireKey in Options then
             if IsDeletableSubkey(S) then
-              UninstLog.AddReg(utRegDeleteEntireKey, RV, RootKey, [S]);
+              UninstLog.AddReg(utRegDeleteEntireKey, RV, RK, [S]);
           if roUninsDeleteEntireKeyIfEmpty in Options then
             if IsDeletableSubkey(S) then
-              UninstLog.AddReg(utRegDeleteKeyIfEmpty, RV, RootKey, [S]);
+              UninstLog.AddReg(utRegDeleteKeyIfEmpty, RV, RK, [S]);
           if roUninsDeleteValue in Options then
-            UninstLog.AddReg(utRegDeleteValue, RV, RootKey, [S, N]);
+            UninstLog.AddReg(utRegDeleteValue, RV, RK, [S, N]);
             { ^ must add roUninsDeleteValue after roUninstDeleteEntireKey*
               since the entry may have both the roUninsDeleteValue and
               roUninsDeleteEntireKeyIfEmpty options }
           if roUninsClearValue in Options then
-            UninstLog.AddReg(utRegClearValue, RV, RootKey, [S, N]);
+            UninstLog.AddReg(utRegClearValue, RV, RK, [S, N]);
 
           NotifyAfterInstallEntry(AfterInstall);
         end;
@@ -2404,11 +2614,11 @@ var
           Log('Registration successful.');
         except
           Log('Registration failed:' + SNewLine + GetExceptMessage);
-          if not NoErrorMessages and
-             not AbortRetryIgnoreMsgBox(Filename + SNewLine2 +
-             FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage),
-             SetupMessages[msgFileAbortRetryIgnore2]) then
-            NeedToRetry := True;
+          if not NoErrorMessages then
+            if not AbortRetryIgnoreTaskDialogMsgBox(
+                     Filename + SNewLine2 + FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage),
+                     [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreIgnoreNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]) then
+              NeedToRetry := True;
         end;
       until not NeedToRetry;
     end;
@@ -2432,11 +2642,11 @@ var
           Log('Registration successful.');
         except
           Log('Registration failed:' + SNewLine + GetExceptMessage);
-          if not NoErrorMessages and
-             not AbortRetryIgnoreMsgBox(Filename + SNewLine2 +
-             FmtSetupMessage1(msgErrorRegisterTypeLib, GetExceptMessage),
-             SetupMessages[msgFileAbortRetryIgnore2]) then
-            NeedToRetry := True;
+          if not NoErrorMessages then
+            if not AbortRetryIgnoreTaskDialogMsgBox(
+                     Filename + SNewLine2 + FmtSetupMessage1(msgErrorRegisterTypeLib, GetExceptMessage),
+                     [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreIgnoreNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]) then
+              NeedToRetry := True;
         end;
       until not NeedToRetry;
     end;
@@ -2632,9 +2842,6 @@ var
             if SetupHeader.UninstallLogMode = lmAppend then begin
               LogFmt('Will append to existing uninstall log: %s', [UninstallDataFilename]);
               AppendUninstallData := True;
-              if (ufAdminInstalled in ExistingFlags) or
-                 (ufPowerUserInstalled in ExistingFlags) then
-                UninstallRequiresAdmin := True;
             end
             else
               LogFmt('Will overwrite existing uninstall log: %s', [UninstallDataFilename]);
@@ -2663,6 +2870,7 @@ var
       replacing an existing uninstall EXE, exit. }
     if UninstallTempExeFilename = '' then
       Exit;
+    Log('Renaming uninstaller.');
     RetriesLeft := 4;
     while True do begin
       Timer.Start(1000);
@@ -2673,6 +2881,8 @@ var
       if (LastError = ERROR_ACCESS_DENIED) or
          (LastError = ERROR_SHARING_VIOLATION) then begin
         if RetriesLeft > 0 then begin
+          LogFmt('The existing file appears to be in use (%d). ' +
+            'Retrying.', [LastError]);
           Dec(RetriesLeft);
           Timer.SleepUntilExpired;
           ProcessEvents;
@@ -2704,6 +2914,7 @@ var
       do nothing }
     if (UninstallExeCreated <> ueNone) and
        ((shSignedUninstaller in SetupHeader.Options) or DetachedUninstMsgFile) then begin
+      LogFmt('Writing uninstaller messages: %s', [UninstallMsgFilename]);
       F := TFile.Create(UninstallMsgFilename, fdCreateAlways, faWrite, fsNone);
       try
         if UninstallExeCreated = ueNew then
@@ -2717,10 +2928,10 @@ var
 
   procedure ProcessNeedRestartEvent;
   begin
-    if (CodeRunner <> nil) and CodeRunner.FunctionExists('NeedRestart') then begin
+    if (CodeRunner <> nil) and CodeRunner.FunctionExists('NeedRestart', True) then begin
       if not NeedsRestart then begin
         try
-          if CodeRunner.RunBooleanFunction('NeedRestart', [''], False, False) then begin
+          if CodeRunner.RunBooleanFunctions('NeedRestart', [''], bcTrue, False, False) then begin
             NeedsRestart := True;
             Log('Will restart because NeedRestart returned True.');
           end;
@@ -2781,8 +2992,9 @@ var
     Error := RmShutdown(RmSessionHandle, ForcedActionFlag[Forced], nil);
     while Error = ERROR_FAIL_SHUTDOWN do begin
       Log('Some applications could not be shut down.');
-      if AbortRetryIgnoreMsgBox(SetupMessages[msgErrorCloseApplications],
-         SetupMessages[msgEntryAbortRetryIgnore]) then
+      if AbortRetryIgnoreTaskDialogMsgBox(
+           SetupMessages[msgErrorCloseApplications],
+           [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]) then
         Break;
       Log('Retrying to shut down applications using our files.' + ForcedStrings[Forced]);
       Error := RmShutdown(RmSessionHandle, ForcedActionFlag[Forced], nil);
@@ -2800,18 +3012,17 @@ var
   Uninstallable, UninstLogCleared: Boolean;
   I: Integer;
   UninstallRegKeyBaseName: String;
-  FilesSize: Integer64;
+  InstallFilesSize, AfterInstallFilesSize: Integer64;
 begin
   Succeeded := False;
   Log('Starting the installation process.');
   SetCurrentDir(WinSystemDir);
-  FilesSize := CalcFilesSize;
-  InitProgressGauge(FilesSize);
+  CalcFilesSize(InstallFilesSize, AfterInstallFilesSize);
+  InitProgressGauge(InstallFilesSize);
   UninstallExeCreated := ueNone;
   UninstallDataCreated := False;
   UninstallMsgCreated := False;
   AppendUninstallData := False;
-  UninstallRequiresAdmin := IsPowerUserOrAdmin;
   UninstLogCleared := False;
   RegisterFilesList := nil;
   UninstLog := TSetupUninstallLog.Create;
@@ -2831,17 +3042,20 @@ begin
       UninstLog.InstallMode64Bit := Is64BitInstallMode;
       UninstLog.AppName := ExpandedAppName;
       UninstLog.AppId := ExpandedAppId;
+      if IsAdminInstallMode then
+        Include(UninstLog.Flags, ufAdminInstallMode);
       if IsWin64 then
         Include(UninstLog.Flags, ufWin64);
-      if IsAdmin then
+      if IsAdmin then { Setup or [Code] might have done administrative actions, even if IsAdminInstallMode is False }
         Include(UninstLog.Flags, ufAdminInstalled)
       else if IsPowerUserOrAdmin then
         { Note: This flag is only set in 5.1.9 and later }
         Include(UninstLog.Flags, ufPowerUserInstalled);
-      Include(UninstLog.Flags, ufModernStyle);
+      if SetupHeader.WizardStyle = wsModern then
+        Include(UninstLog.Flags, ufModernStyle);
       if shUninstallRestartComputer in SetupHeader.Options then
         Include(UninstLog.Flags, ufAlwaysRestart);
-      if shChangesEnvironment in SetupHeader.Options then
+      if ChangesEnvironment then
         Include(UninstLog.Flags, ufChangesEnvironment);
       RecordStartInstall;
       RecordCompiledCode;
@@ -2872,7 +3086,7 @@ begin
 
       if ExpandedAppMutex <> '' then
         UninstLog.Add(utMutexCheck, [ExpandedAppMutex], 0);
-      if shChangesAssociations in SetupHeader.Options then
+      if ChangesAssociations then
         UninstLog.Add(utRefreshFileAssoc, [''], 0);
 
       { Record UninstallDelete entries, if any }
@@ -2936,6 +3150,7 @@ begin
         modifications you want to add must be done before this is called. }
       if Uninstallable then begin
         SetStatusLabelText(SetupMessages[msgStatusSavingUninstall]);
+        Log('Saving uninstall information.');
         RenameUninstallExe;
         CreateUninstallMsgFile;
         { Register uninstall information so the program can be uninstalled
@@ -2943,7 +3158,7 @@ begin
           on NT 3.51 too, so that the uninstall entry for the app will appear
           if the user later upgrades to NT 4.0+. }
         if EvalDirectiveCheck(SetupHeader.CreateUninstallRegKey) then
-          RegisterUninstallInfo(UninstallRegKeyBaseName, FilesSize);
+          RegisterUninstallInfo(UninstallRegKeyBaseName, AfterInstallFilesSize);
         RecordUninstallRunEntries;
         UninstLog.Add(utEndInstall, [GetLocalTimeAsStr], 0);
         UninstLog.Save(UninstallDataFilename, AppendUninstallData,
