@@ -24,11 +24,11 @@ struct LZMAHandle {
 
 static void *SzBigAlloc(void *p, size_t size) { return BigAlloc(size); }
 static void SzBigFree(void *p, void *address) { BigFree(address); }
-static ISzAlloc g_BigAlloc = { SzBigAlloc, SzBigFree };
+//static ISzAlloc g_BigAlloc = { SzBigAlloc, SzBigFree };
 
 static void *SzAlloc(void *p, size_t size) { return MyAlloc(size); }
 static void SzFree(void *p, void *address) { MyFree(address); }
-static ISzAlloc g_Alloc = { SzAlloc, SzFree };
+//static ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
 SRes __stdcall LZMA_Init(BOOL LZMA2, struct LZMAHandle **handle)
 {
@@ -80,7 +80,7 @@ SRes __stdcall LZMA_SetProps(struct LZMAHandle *handle,
 	props->numThreads = encProps->NumThreads;
 
 	if (handle->LZMA2) {
-		props2.numBlockThreads = encProps->NumBlockThreads;
+		props2.numBlockThreads_Max = encProps->NumBlockThreads;
 		props2.blockSize = encProps->BlockSize;
 		return Lzma2Enc_SetProps(handle->encoder2, &props2);
 	} else {
@@ -102,7 +102,7 @@ SRes __stdcall LZMA_Encode(struct LZMAHandle *handle, ISeqInStream *inStream,
 		if (outStream->Write(outStream, &props, propsSize) != propsSize) {
 			return SZ_ERROR_WRITE;
 		};
-		return Lzma2Enc_Encode(handle->encoder2, outStream, inStream, progress);
+		return Lzma2Enc_Encode2(handle->encoder2, outStream, NULL, NULL, inStream, NULL, 0, progress);
 	} else {
 		Byte props[LZMA_PROPS_SIZE];
 		SizeT propsSize = sizeof(props);

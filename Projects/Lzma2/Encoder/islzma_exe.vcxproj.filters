@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="SDK">
+      <UniqueIdentifier>{c495481c-490b-4452-bacc-f42283f8c4a6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\C\Alloc.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\C\LzFind.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\C\LzFindMt.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\C\Lzma2Enc.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\C\LzmaEnc.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\C\MtCoder.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\C\Threads.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="islzma.c" />
+    <ClCompile Include="islzma_exe.c" />
+    <ClCompile Include="..\C\MtDec.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\C\Alloc.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\C\LzFind.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\C\LzFindMt.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\C\LzHash.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\C\Lzma2Enc.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\C\LzmaEnc.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\C\MtCoder.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\C\Threads.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\C\7zTypes.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="islzma.h" />
+    <ClInclude Include="..\C\Compiler.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\C\Precomp.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\C\MtDec.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

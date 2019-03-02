@@ -1,9 +1,10 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "islzma", "islzma.vcproj", "{9A22AB1E-129F-4448-A167-79B909AC4C10}"
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "islzma", "islzma.vcxproj", "{9A22AB1E-129F-4448-A167-79B909AC4C10}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "islzma_exe", "islzma_exe.vcproj", "{A260686C-A249-40E7-8E00-EF9F1B315341}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "islzma_exe", "islzma_exe.vcxproj", "{A260686C-A249-40E7-8E00-EF9F1B315341}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +31,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {15CA51BD-E4D6-4240-B52B-97AE061339DF}
 	EndGlobalSection
 EndGlobal

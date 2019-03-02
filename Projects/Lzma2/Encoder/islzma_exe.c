@@ -20,7 +20,7 @@
 
 #include <windows.h>
 #include <shlwapi.h>
-#include "../C/Types.h"
+#include "../C/7zTypes.h"
 #include "islzma.h"
 
 #define ISLZMA_EXE_VERSION 101

@@ -1,7 +1,9 @@
 /* Threads.c -- multithreading library
-2009-09-20 : Igor Pavlov : Public domain */
+2017-06-26 : Igor Pavlov : Public domain */
 
-#ifndef _WIN32_WCE
+#include "Precomp.h"
+
+#ifndef UNDER_CE
 #include <process.h>
 #endif
 
@@ -10,18 +12,20 @@
 static WRes GetError()
 {
   DWORD res = GetLastError();
-  return (res) ? (WRes)(res) : 1;
+  return res ? (WRes)res : 1;
 }
 
-WRes HandleToWRes(HANDLE h) { return (h != 0) ? 0 : GetError(); }
-WRes BOOLToWRes(BOOL v) { return v ? 0 : GetError(); }
+static WRes HandleToWRes(HANDLE h) { return (h != NULL) ? 0 : GetError(); }
+static WRes BOOLToWRes(BOOL v) { return v ? 0 : GetError(); }
 
 WRes HandlePtr_Close(HANDLE *p)
 {
   if (*p != NULL)
+  {
     if (!CloseHandle(*p))
       return GetError();
-  *p = NULL;
+    *p = NULL;
+  }
   return 0;
 }
 
@@ -29,18 +33,25 @@ WRes Handle_WaitObject(HANDLE h) { return (WRes)WaitForSingleObject(h, INFINITE)
 
 WRes Thread_Create(CThread *p, THREAD_FUNC_TYPE func, LPVOID param)
 {
-  unsigned threadId; /* Windows Me/98/95: threadId parameter may not be NULL in _beginthreadex/CreateThread functions */
-  *p =
-    #ifdef UNDER_CE
-    CreateThread(0, 0, func, param, 0, &threadId);
-    #else
-    (HANDLE)_beginthreadex(NULL, 0, func, param, 0, &threadId);
-    #endif
-    /* maybe we must use errno here, but probably GetLastError() is also OK. */
+  /* Windows Me/98/95: threadId parameter may not be NULL in _beginthreadex/CreateThread functions */
+  
+  #ifdef UNDER_CE
+  
+  DWORD threadId;
+  *p = CreateThread(0, 0, func, param, 0, &threadId);
+
+  #else
+
+  unsigned threadId;
+  *p = (HANDLE)_beginthreadex(NULL, 0, func, param, 0, &threadId);
+   
+  #endif
+
+  /* maybe we must use errno here, but probably GetLastError() is also OK. */
   return HandleToWRes(*p);
 }
 
-WRes Event_Create(CEvent *p, BOOL manualReset, int signaled)
+static WRes Event_Create(CEvent *p, BOOL manualReset, int signaled)
 {
   *p = CreateEvent(NULL, manualReset, (signaled ? TRUE : FALSE), NULL);
   return HandleToWRes(*p);
