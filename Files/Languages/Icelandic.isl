@@ -1,8 +1,8 @@
-; *** Inno Setup version 6.0.0+ Icelandic messages ***
+ï»¿; *** Inno Setup version 6.0.0+ Icelandic messages ***
 ;
-; Translator: Stefán Örvar Sigmundsson, eMedia Intellect
+; Translator: StefÃ¡n Ã–rvar Sigmundsson, eMedia Intellect
 ; Contact: emi@emi.is
-; Date: 2019-01-24
+; Date: 2019-03-06
 
 [LangOptions]
 LanguageName=<00CD>slenska
@@ -13,274 +13,274 @@ LanguageCodePage=1252
 ; *** Application titles
 SetupAppTitle=Uppsetning
 SetupWindowTitle=Uppsetning - %1
-UninstallAppTitle=Niğurtaka
-UninstallAppFullTitle=%1-niğurtaka
+UninstallAppTitle=NiÃ°urtaka
+UninstallAppFullTitle=%1-niÃ°urtaka
 
 ; *** Misc. common
-InformationTitle=Upplısingar
-ConfirmTitle=Stağfesta
+InformationTitle=UpplÃ½singar
+ConfirmTitle=StaÃ°festa
 ErrorTitle=Villa
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Şetta mun uppsetja %1. Vilt şú halda áfram?
-LdrCannotCreateTemp=Ófært um ağ skapa tímabundna skrá. Uppsetningu hætt
-LdrCannotExecTemp=Ófært um ağ keyra skrá í tímabundna skráasafninu. Uppsetningu hætt
+SetupLdrStartupMessage=Ãetta mun uppsetja %1. Vilt Ã¾Ãº halda Ã¡fram?
+LdrCannotCreateTemp=Ã“fÃ¦rt um aÃ° skapa tÃ­mabundna skrÃ¡. Uppsetningu hÃ¦tt
+LdrCannotExecTemp=Ã“fÃ¦rt um aÃ° keyra skrÃ¡ Ã­ tÃ­mabundna skrÃ¡asafninu. Uppsetningu hÃ¦tt
 HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nVilla %2: %3
-SetupFileMissing=Skrána %1 vantar úr uppsetningarskráasafninu. Vinsamlega leiğréttu vandamáliğ eğa fáğu nıtt afrita af forritinu.
-SetupFileCorrupt=Uppsetningarskrárnar eru spilltar. Vinsamlega fáğu nıtt afrita af forritinu.
-SetupFileCorruptOrWrongVer=Uppsetningarskrárnar eru spilltar eğa eru ósamrımanlegar viğ şessa útgáfu af Uppsetningu. Vinsamlega leiğréttu vandamáliğ eğa fáğu nıtt afrit af forritinu.
-InvalidParameter=Ógild færibreyta var afhend á skipanalínunni:%n%n%1
-SetupAlreadyRunning=Uppsetning er nú şegar keyrandi.
-WindowsVersionNotSupported=Şetta forrit styğur ekki útgáfuna af Windows sem tölvan şín er keyrandi.
-WindowsServicePackRequired=Şetta forrit krefst Şjónustupakka %2 eğa síğari.
-NotOnThisPlatform=Şetta forrit mun ekki keyra á %1.
-OnlyOnThisPlatform=Şetta forrit verğur ağ keyra á %1.
-OnlyOnTheseArchitectures=Şetta forrit er einungis hægt ağ uppsetja á útgáfur af Windows hannağar fyrir eftirfarandi gjörvahannanir:%n%n%1
-WinVersionTooLowError=Şetta forrit krefst %1-útgáfu %2 eğa síğari.
-WinVersionTooHighError=Şetta forrit er ekki hægt ağ uppsetja á %1-útgáfu %2 eğa síğari.
-AdminPrivilegesRequired=Şú verğur ağ vera innskráğ(ur) sem stjórnandi meğan şú uppsetur şetta forrit.
-PowerUserPrivilegesRequired=Şú verğur ağ vera innskráğ(ur) sem stjórnandi eğa sem meğlimur Power Users-hópsins meğan şú uppsetur şetta forrit.
-SetupAppRunningError=Uppsetning hefur greint ağ %1 er eins og er keyrandi.%n%nVinsamlega lokağu öllum tilvikum şess núna, smelltu síğan á Í lagi til ağ halda áfram eğa Hætta viğ til ağ hætta.
-UninstallAppRunningError=Niğurtaka hefur greint ağ %1 er eins og er keyrandi.%n%nVinsamlega lokağu öllum tilvikum şess núna, smelltu síğan á Í lagi til ağ halda áfram eğa Hætta viğ til ağ hætta.
+SetupFileMissing=SkrÃ¡na %1 vantar Ãºr uppsetningarskrÃ¡asafninu. Vinsamlega leiÃ°rÃ©ttu vandamÃ¡liÃ° eÃ°a fÃ¡Ã°u nÃ½tt afrita af forritinu.
+SetupFileCorrupt=UppsetningarskrÃ¡rnar eru spilltar. Vinsamlega fÃ¡Ã°u nÃ½tt afrita af forritinu.
+SetupFileCorruptOrWrongVer=UppsetningarskrÃ¡rnar eru spilltar eÃ°a eru Ã³samrÃ½manlegar viÃ° Ã¾essa ÃºtgÃ¡fu af Uppsetningu. Vinsamlega leiÃ°rÃ©ttu vandamÃ¡liÃ° eÃ°a fÃ¡Ã°u nÃ½tt afrit af forritinu.
+InvalidParameter=Ã“gild fÃ¦ribreyta var afhend Ã¡ skipanalÃ­nunni:%n%n%1
+SetupAlreadyRunning=Uppsetning er nÃº Ã¾egar keyrandi.
+WindowsVersionNotSupported=Ãetta forrit styÃ°ur ekki ÃºtgÃ¡funa af Windows sem tÃ¶lvan Ã¾Ã­n er keyrandi.
+WindowsServicePackRequired=Ãetta forrit krefst ÃjÃ³nustupakka %2 eÃ°a sÃ­Ã°ari.
+NotOnThisPlatform=Ãetta forrit mun ekki keyra Ã¡ %1.
+OnlyOnThisPlatform=Ãetta forrit verÃ°ur aÃ° keyra Ã¡ %1.
+OnlyOnTheseArchitectures=Ãetta forrit er einungis hÃ¦gt aÃ° uppsetja Ã¡ ÃºtgÃ¡fur af Windows hannaÃ°ar fyrir eftirfarandi gjÃ¶rvahannanir:%n%n%1
+WinVersionTooLowError=Ãetta forrit krefst %1-ÃºtgÃ¡fu %2 eÃ°a sÃ­Ã°ari.
+WinVersionTooHighError=Ãetta forrit er ekki hÃ¦gt aÃ° uppsetja Ã¡ %1-ÃºtgÃ¡fu %2 eÃ°a sÃ­Ã°ari.
+AdminPrivilegesRequired=ÃÃº verÃ°ur aÃ° vera innskrÃ¡Ã°(ur) sem stjÃ³rnandi meÃ°an Ã¾Ãº uppsetur Ã¾etta forrit.
+PowerUserPrivilegesRequired=ÃÃº verÃ°ur aÃ° vera innskrÃ¡Ã°(ur) sem stjÃ³rnandi eÃ°a sem meÃ°limur Power Users-hÃ³psins meÃ°an Ã¾Ãº uppsetur Ã¾etta forrit.
+SetupAppRunningError=Uppsetning hefur greint aÃ° %1 er eins og er keyrandi.%n%nVinsamlega lokaÃ°u Ã¶llum tilvikum Ã¾ess nÃºna, smelltu sÃ­Ã°an Ã¡ Ã lagi til aÃ° halda Ã¡fram eÃ°a HÃ¦tta viÃ° til aÃ° hÃ¦tta.
+UninstallAppRunningError=NiÃ°urtaka hefur greint aÃ° %1 er eins og er keyrandi.%n%nVinsamlega lokaÃ°u Ã¶llum tilvikum Ã¾ess nÃºna, smelltu sÃ­Ã°an Ã¡ Ã lagi til aÃ° halda Ã¡fram eÃ°a HÃ¦tta viÃ° til aÃ° hÃ¦tta.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Velja uppsetningarham
-PrivilegesRequiredOverrideInstruction=Velja uppsetningarham
-PrivilegesRequiredOverrideText1=%1 er hægt ağ setja upp fyrir alla notendur (krefst stjórnandaréttinda) eğa fyrir şig einungis.
-PrivilegesRequiredOverrideText2=%1 er hægt ağ setja upp fyrir şig einungis eğa fyrir alla notendur (krefst stjórnandaréttinda).
+PrivilegesRequiredOverrideTitle=Veldu uppsetningarham
+PrivilegesRequiredOverrideInstruction=Veldu uppsetningarham
+PrivilegesRequiredOverrideText1=%1 er hÃ¦gt aÃ° setja upp fyrir alla notendur (krefst stjÃ³rnandarÃ©ttinda) eÃ°a fyrir Ã¾ig einungis.
+PrivilegesRequiredOverrideText2=%1 er hÃ¦gt aÃ° setja upp fyrir Ã¾ig einungis eÃ°a fyrir alla notendur (krefst stjÃ³rnandarÃ©ttinda).
 PrivilegesRequiredOverrideAllUsers=Uppsetja fyrir &alla notendur
-PrivilegesRequiredOverrideAllUsersRecommended=Uppsetja fyrir &alla notendur (ráğlagt)
+PrivilegesRequiredOverrideAllUsersRecommended=Uppsetja fyrir &alla notendur (rÃ¡Ã°lagt)
 PrivilegesRequiredOverrideCurrentUser=Uppsetja fyrir &mig einungis
-PrivilegesRequiredOverrideCurrentUserRecommended=Uppsetja fyrir &mig einungis (ráğlagt)
+PrivilegesRequiredOverrideCurrentUserRecommended=Uppsetja fyrir &mig einungis (rÃ¡Ã°lagt)
 
 ; *** Misc. errors
-ErrorCreatingDir=Uppsetningunni var ófært um ağ skapa skráasafniğ „%1“
-ErrorTooManyFilesInDir=Ófært um ağ skapa skrá í skráasafninu „%1“ vegna şess şağ inniheldur of margar skrár
+ErrorCreatingDir=Uppsetningunni var Ã³fÃ¦rt um aÃ° skapa skrÃ¡asafniÃ° â€%1â€œ
+ErrorTooManyFilesInDir=Ã“fÃ¦rt um aÃ° skapa skrÃ¡ Ã­ skrÃ¡asafninu â€%1â€œ vegna Ã¾ess Ã¾aÃ° inniheldur of margar skrÃ¡r
 
 ; *** Setup common messages
-ExitSetupTitle=Hætta í Uppsetningu
-ExitSetupMessage=Uppsetningu er ekki lokiğ. Ef şú hættir núna mun forritiğ ekki vera uppsett.%n%nŞú getur keyrt Uppsetningu aftur síğar til ağ ljúka uppsetningunni.%n%nHætta í Uppsetningu?
-AboutSetupMenuItem=&Um Uppsetningu…
+ExitSetupTitle=HÃ¦tta Ã­ Uppsetningu
+ExitSetupMessage=Uppsetningu er ekki lokiÃ°. Ef Ã¾Ãº hÃ¦ttir nÃºna mun forritiÃ° ekki vera uppsett.%n%nÃÃº getur keyrt Uppsetningu aftur sÃ­Ã°ar til aÃ° ljÃºka uppsetningunni.%n%nHÃ¦tta Ã­ Uppsetningu?
+AboutSetupMenuItem=&Um Uppsetninguâ€¦
 AboutSetupTitle=Um Uppsetningu
-AboutSetupMessage=%1 útgáfa %2%n%3%n%n%1 heimasíğu:%n%4
+AboutSetupMessage=%1 ÃºtgÃ¡fa %2%n%3%n%n%1 heimasÃ­Ã°u:%n%4
 AboutSetupNote=
-TranslatorNote=Stefán Örvar Sigmundsson, eMedia Intellect
+TranslatorNote=StefÃ¡n Ã–rvar Sigmundsson, eMedia Intellect
 
 ; *** Buttons
 ButtonBack=< &Fyrri
-ButtonNext=&Næst >
+ButtonNext=&NÃ¦st >
 ButtonInstall=&Uppsetja
-ButtonOK=Í lagi
-ButtonCancel=Hætta viğ
-ButtonYes=&Já
-ButtonYesToAll=Já viğ &öllu
+ButtonOK=Ã lagi
+ButtonCancel=HÃ¦tta viÃ°
+ButtonYes=&JÃ¡
+ButtonYesToAll=JÃ¡ viÃ° &Ã¶llu
 ButtonNo=&Nei
-ButtonNoToAll=&Nei viğ öllu
-ButtonFinish=&Ljúka
-ButtonBrowse=&Vafra…
-ButtonWizardBrowse=&Vafra…
-ButtonNewFolder=&Skapa nıja möppu
+ButtonNoToAll=&Nei viÃ° Ã¶llu
+ButtonFinish=&LjÃºka
+ButtonBrowse=&Vafraâ€¦
+ButtonWizardBrowse=&Vafraâ€¦
+ButtonNewFolder=&Skapa nÃ½ja mÃ¶ppu
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Veldu tungumál Uppsetningar
-SelectLanguageLabel=Veldu tungumáliğ sem nota á viğ uppsetninguna.
+SelectLanguageTitle=Veldu tungumÃ¡l Uppsetningar
+SelectLanguageLabel=Veldu tungumÃ¡liÃ° sem nota Ã¡ viÃ° uppsetninguna.
 
 ; *** Common wizard text
-ClickNext=Smelltu á Næst til ağ halda áfram eğa Hætta viğ til ağ hætta Uppsetningu.
+ClickNext=Smelltu Ã¡ NÃ¦st til aÃ° halda Ã¡fram eÃ°a HÃ¦tta viÃ° til aÃ° hÃ¦tta Uppsetningu.
 BeveledLabel=
-BrowseDialogTitle=Vafra eftir möppu
-BrowseDialogLabel=Veldu möppu í listanum fyrir neğan, smelltu síğan á Í lagi.
-NewFolderName=Nı mappa
+BrowseDialogTitle=Vafra eftir mÃ¶ppu
+BrowseDialogLabel=Veldu mÃ¶ppu Ã­ listanum fyrir neÃ°an, smelltu sÃ­Ã°an Ã¡ Ã lagi.
+NewFolderName=NÃ½ mappa
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Velkomin(n) í [name]-uppsetningarağstoğarann
-WelcomeLabel2=Şetta mun uppsetja [name/ver] á şína tölvu.%n%nŞağ er ráğlagt ağ şú lokir öllum öğrum hugbúnaği áğur en haldiğ er áfram.
+WelcomeLabel1=Velkomin(n) Ã­ [name]-uppsetningaraÃ°stoÃ°arann
+WelcomeLabel2=Ãetta mun uppsetja [name/ver] Ã¡ Ã¾Ã­na tÃ¶lvu.%n%nÃaÃ° er rÃ¡Ã°lagt aÃ° Ã¾Ãº lokir Ã¶llum Ã¶Ã°rum hugbÃºnaÃ°i Ã¡Ã°ur en haldiÃ° er Ã¡fram.
 
 ; *** "Password" wizard page
-WizardPassword=Ağgangsorğ
-PasswordLabel1=Şessi uppsetning er ağgangsorğsvarin.
-PasswordLabel3=Vinsamlega veitu ağgangsorğiğ, smelltu síğan á Næst til ağ halda áfram. Ağgangsorğ eru hástafanæm.
-PasswordEditLabel=&Ağgangsorğ:
-IncorrectPassword=Ağgangsorğiğ sem şú innslóst er ekki rétt. Vinsamlega reyndu aftur.
+WizardPassword=AÃ°gangsorÃ°
+PasswordLabel1=Ãessi uppsetning er aÃ°gangsorÃ°svarin.
+PasswordLabel3=Vinsamlega veitu aÃ°gangsorÃ°iÃ°, smelltu sÃ­Ã°an Ã¡ NÃ¦st til aÃ° halda Ã¡fram. AÃ°gangsorÃ° eru hÃ¡stafanÃ¦m.
+PasswordEditLabel=&AÃ°gangsorÃ°:
+IncorrectPassword=AÃ°gangsorÃ°iÃ° sem Ã¾Ãº innslÃ³st er ekki rÃ©tt. Vinsamlega reyndu aftur.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Leyfissamningur
-LicenseLabel=Vinsamlega lestu hinar eftirfarandi mikilvægu upplısingar áğur en haldiğ er áfram.
-LicenseLabel3=Vinsamlega lestu eftirfarandi leyfissamning. Şú verğur ağ samşykkja skilmála samningsins áğur en haldiğ er áfram meğ uppsetninguna.
-LicenseAccepted=Ég &samşykki samninginn
-LicenseNotAccepted=Ég samşykki &ekki samninginn
+LicenseLabel=Vinsamlega lestu hinar eftirfarandi mikilvÃ¦gu upplÃ½singar Ã¡Ã°ur en haldiÃ° er Ã¡fram.
+LicenseLabel3=Vinsamlega lestu eftirfarandi leyfissamning. ÃÃº verÃ°ur aÃ° samÃ¾ykkja skilmÃ¡la samningsins Ã¡Ã°ur en haldiÃ° er Ã¡fram meÃ° uppsetninguna.
+LicenseAccepted=Ã‰g &samÃ¾ykki samninginn
+LicenseNotAccepted=Ã‰g samÃ¾ykki &ekki samninginn
 
 ; *** "Information" wizard pages
-WizardInfoBefore=Upplısingar
-InfoBeforeLabel=Vinsamlega lestu hinar eftirfarandi mikilvægu upplısingar áğur en haldiğ er áfram.
-InfoBeforeClickLabel=Şegar şú ert tilbúin(n) til ağ halda áfram meğ Uppsetninguna, smelltu á Næst.
-WizardInfoAfter=Upplısingar
-InfoAfterLabel=Vinsamlega lestu hinar eftirfarandi mikilvægu upplısingar áğur en haldiğ er áfram.
-InfoAfterClickLabel=Şegar şú ert tilbúin(n) til ağ halda áfram meğ Uppsetninguna, smelltu á Næst.
+WizardInfoBefore=UpplÃ½singar
+InfoBeforeLabel=Vinsamlega lestu hinar eftirfarandi mikilvÃ¦gu upplÃ½singar Ã¡Ã°ur en haldiÃ° er Ã¡fram.
+InfoBeforeClickLabel=Ãegar Ã¾Ãº ert tilbÃºin(n) til aÃ° halda Ã¡fram meÃ° Uppsetninguna, smelltu Ã¡ NÃ¦st.
+WizardInfoAfter=UpplÃ½singar
+InfoAfterLabel=Vinsamlega lestu hinar eftirfarandi mikilvÃ¦gu upplÃ½singar Ã¡Ã°ur en haldiÃ° er Ã¡fram.
+InfoAfterClickLabel=Ãegar Ã¾Ãº ert tilbÃºin(n) til aÃ° halda Ã¡fram meÃ° Uppsetninguna, smelltu Ã¡ NÃ¦st.
 
 ; *** "User Information" wizard page
-WizardUserInfo=Notandaupplısingar
-UserInfoDesc=Vinsamlega innsláğu upplısingarnar şínar.
+WizardUserInfo=NotandaupplÃ½singar
+UserInfoDesc=Vinsamlega innslÃ¡Ã°u upplÃ½singarnar Ã¾Ã­nar.
 UserInfoName=&Notandanafn:
 UserInfoOrg=&Stofnun:
-UserInfoSerial=&Rağnúmer:
-UserInfoNameRequired=Şú verğur ağ innslá nafn.
+UserInfoSerial=&RaÃ°nÃºmer:
+UserInfoNameRequired=ÃÃº verÃ°ur aÃ° innslÃ¡ nafn.
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=Velja áfangastağ
-SelectDirDesc=Hvar ætti [name] ağ vera uppsettur?
-SelectDirLabel3=Uppsetning mun uppsetja [name] í hina eftirfarandi möppu.
-SelectDirBrowseLabel=Til ağ halda áfram, smelltu á Næst. Ef şú vilt velja ağra möppu, smelltu á Vafra.
-DiskSpaceMBLabel=Ağ minnsta kosti [mb] MB af lausu diskplássi er krafist.
-CannotInstallToNetworkDrive=Uppsetning getur ekki uppsett á netdrif.
-CannotInstallToUNCPath=Uppsetning getur ekki uppsett á UNC-slóğ.
-InvalidPath=Şú verğur ağ innslá fulla slóğ meğ drifstaf; til dæmis:%n%nC:\APP%n%neğa UNC-slóğ samkvæmt sniğinu:%n%n\\server\share
-InvalidDrive=Drifiğ eğa UNC-deiling sem şú valdir er ekki til eğa er ekki ağgengilegt. Vinsamlega veldu annağ.
-DiskSpaceWarningTitle=Ekki nóg diskpláss
-DiskSpaceWarning=Uppsetning krefst ağ minnsta kosti %1 KB af lausu plássi til ağ uppsetja, en hiğ valda drif hefur einungis %2 KB tiltæk.%n%nVilt şú halda áfram hvort sem er?
-DirNameTooLong=Möppunafniğ eğa slóğin er of löng.
-InvalidDirName=Möppunafniğ er ekki gilt.
-BadDirName32=Möppunöfn geta ekki innihaldiğ nein af hinum eftirfarandi rittáknum:%n%n%1
+WizardSelectDir=Velja staÃ°setningu
+SelectDirDesc=Hvar Ã¦tti [name] aÃ° vera uppsettur?
+SelectDirLabel3=Uppsetning mun uppsetja [name] Ã­ hina eftirfarandi mÃ¶ppu.
+SelectDirBrowseLabel=Til aÃ° halda Ã¡fram, smelltu Ã¡ NÃ¦st. Ef Ã¾Ãº vilt velja aÃ°ra mÃ¶ppu, smelltu Ã¡ Vafra.
+DiskSpaceMBLabel=AÃ° minnsta kosti [mb] MB af lausu diskplÃ¡ssi er krafist.
+CannotInstallToNetworkDrive=Uppsetning getur ekki uppsett Ã¡ netdrif.
+CannotInstallToUNCPath=Uppsetning getur ekki uppsett Ã¡ UNC-slÃ³Ã°.
+InvalidPath=ÃÃº verÃ°ur aÃ° innslÃ¡ fulla slÃ³Ã° meÃ° drifstaf; til dÃ¦mis:%n%nC:\APP%n%neÃ°a UNC-slÃ³Ã° samkvÃ¦mt sniÃ°inu:%n%n\\server\share
+InvalidDrive=DrifiÃ° eÃ°a UNC-deilingin sem Ã¾Ãº valdir er ekki til eÃ°a er ekki aÃ°gengileg. Vinsamlega veldu annaÃ°.
+DiskSpaceWarningTitle=Ekki nÃ³g diskplÃ¡ss
+DiskSpaceWarning=Uppsetning krefst aÃ° minnsta kosti %1 KB af lausu plÃ¡ssi til aÃ° uppsetja, en hiÃ° valda drif hefur einungis %2 KB tiltÃ¦k.%n%nVilt Ã¾Ãº halda Ã¡fram hvort sem er?
+DirNameTooLong=MÃ¶ppunafniÃ° eÃ°a slÃ³Ã°in er of lÃ¶ng.
+InvalidDirName=MÃ¶ppunafniÃ° er ekki gilt.
+BadDirName32=MÃ¶ppunÃ¶fn geta ekki innihaldiÃ° nein af hinum eftirfarandi rittÃ¡knum:%n%n%1
 DirExistsTitle=Mappa er til
-DirExists=Mappan:%n%n%1%n%ner nú şegar til. Vilt şú uppsetja í şá möppu hvort sem er?
+DirExists=Mappan:%n%n%1%n%ner nÃº Ã¾egar til. Vilt Ã¾Ãº uppsetja Ã­ Ã¾Ã¡ mÃ¶ppu hvort sem er?
 DirDoesntExistTitle=Mappa er ekki til
-DirDoesntExist=Mappan:%n%n%1%n%ner ekki til. Vilt şú ağ mappan sé sköpuğ?
+DirDoesntExist=Mappan:%n%n%1%n%ner ekki til. Vilt Ã¾Ãº aÃ° mappan sÃ© skÃ¶puÃ°?
 
 ; *** "Select Components" wizard page
-WizardSelectComponents=Velja atriği
-SelectComponentsDesc=Hvağa atriği ætti ağ uppsetja?
-SelectComponentsLabel2=Veldu atriğin sem şú vilt uppsetja; hreinsağu atriğin sem şú vilt ekki uppsetja. Smelltu á Næst şegar şú ert tilbúin(n) til ağ halda áfram.
+WizardSelectComponents=Velja atriÃ°i
+SelectComponentsDesc=HvaÃ°a atriÃ°i Ã¦tti aÃ° uppsetja?
+SelectComponentsLabel2=Veldu atriÃ°in sem Ã¾Ãº vilt uppsetja; hreinsaÃ°u atriÃ°in sem Ã¾Ãº vilt ekki uppsetja. Smelltu Ã¡ NÃ¦st Ã¾egar Ã¾Ãº ert tilbÃºin(n) til aÃ° halda Ã¡fram.
 FullInstallation=Full uppsetning
-CompactInstallation=Samanşjöppuğ uppsetning
-CustomInstallation=Sérsnídd uppsetning
-NoUninstallWarningTitle=Atriği eru til
-NoUninstallWarning=Uppsetning hefur greint şağ ağ eftirfarandi atriği eru nú şegar uppsett á tölvunni şinni:%n%n%1%n%nAğ afvelja şessi atriği mun ekki niğurtaka şau.%n%nVilt şú halda áfram hvort sem er?
+CompactInstallation=SamanÃ¾jÃ¶ppuÃ° uppsetning
+CustomInstallation=SÃ©rsnÃ­dd uppsetning
+NoUninstallWarningTitle=AtriÃ°i eru til
+NoUninstallWarning=Uppsetning hefur greint Ã¾aÃ° aÃ° eftirfarandi atriÃ°i eru nÃº Ã¾egar uppsett Ã¡ tÃ¶lvunni Ã¾inni:%n%n%1%n%nAÃ° afvelja Ã¾essi atriÃ°i mun ekki niÃ°urtaka Ã¾au.%n%nVilt Ã¾Ãº halda Ã¡fram hvort sem er?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceMBLabel=Núverandi val krefst ağ minnsta kosti [mb] MB af diskplássi.
+ComponentsDiskSpaceMBLabel=NÃºverandi val krefst aÃ° minnsta kosti [mb] MB af diskplÃ¡ssi.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Veldu aukaleg verk
-SelectTasksDesc=Hvağa aukalegu verk vilt şú framkvæmd?
-SelectTasksLabel2=Veldu hin aukalegu verk sem şú vilt ağ Uppsetning framkvæmi meğan [name] er uppsettur, ıttu síğan á Næst.
+SelectTasksDesc=HvaÃ°a aukalegu verk Ã¦ttu aÃ° vera framkvÃ¦md?
+SelectTasksLabel2=Veldu hin aukalegu verk sem Ã¾Ãº vilt aÃ° Uppsetning framkvÃ¦mi meÃ°an [name] er uppsettur, Ã½ttu sÃ­Ã°an Ã¡ NÃ¦st.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Veldu Upphafsvalmyndarmöppu
-SelectStartMenuFolderDesc=Hvert ætti Uppsetning ağ setja skyndivísa forritsins?
-SelectStartMenuFolderLabel3=Uppsetning mun skapa skyndivísa forritsins í hina eftirfarandi Upphafsvalmyndarmöppu.
-SelectStartMenuFolderBrowseLabel=Til ağ halda áfram, smelltu á Næst. Ef şú vilt velja ağra möppu, smelltu á Vafra.
-MustEnterGroupName=Şú verğur ağ innslá möppunafn.
-GroupNameTooLong=Möppunafniğ eğa slóğin er of löng.
-InvalidGroupName=Möppunafniğ er ekki gilt.
-BadGroupName=Möppunafniğ getur ekki innihaldiğ neitt af hinum eftirfarandi rittáknum:%n%n%1
-NoProgramGroupCheck2=&Ekki skapa Upphafsvalmyndarmöppu
+WizardSelectProgramGroup=Veldu UpphafsvalmyndarmÃ¶ppu
+SelectStartMenuFolderDesc=Hvert Ã¦tti Uppsetning aÃ° setja skyndivÃ­sa forritsins?
+SelectStartMenuFolderLabel3=Uppsetning mun skapa skyndivÃ­sa forritsins Ã­ hina eftirfarandi UpphafsvalmyndarmÃ¶ppu.
+SelectStartMenuFolderBrowseLabel=Til aÃ° halda Ã¡fram, smelltu Ã¡ NÃ¦st. Ef Ã¾Ãº vilt velja aÃ°ra mÃ¶ppu, smelltu Ã¡ Vafra.
+MustEnterGroupName=ÃÃº verÃ°ur aÃ° innslÃ¡ mÃ¶ppunafn.
+GroupNameTooLong=MÃ¶ppunafniÃ° eÃ°a slÃ³Ã°in er of lÃ¶ng.
+InvalidGroupName=MÃ¶ppunafniÃ° er ekki gilt.
+BadGroupName=MÃ¶ppunafniÃ° getur ekki innihaldiÃ° neitt af hinum eftirfarandi rittÃ¡knum:%n%n%1
+NoProgramGroupCheck2=&Ekki skapa UpphafsvalmyndarmÃ¶ppu
 
 ; *** "Ready to Install" wizard page
-WizardReady=Tilbúin til ağ uppsetja
-ReadyLabel1=Uppsetning er núna tilbúin til ağ hefja uppsetningu [name] á tölvuna şína.
-ReadyLabel2a=Smelltu á Uppsetja til ağ halda áfram uppsetningunni eğa smelltu á Til baka ef şú vilt endurskoğa eğa breyta einhverjum stillingum.
-ReadyLabel2b=Smelltu á Uppsetja til ağ halda áfram uppsetningunni.
-ReadyMemoUserInfo=Notandaupplısingar:
-ReadyMemoDir=Áfangastağur:
+WizardReady=TilbÃºin til aÃ° uppsetja
+ReadyLabel1=Uppsetning er nÃºna tilbÃºin til aÃ° hefja uppsetningu [name] Ã¡ tÃ¶lvuna Ã¾Ã­na.
+ReadyLabel2a=Smelltu Ã¡ Uppsetja til aÃ° halda Ã¡fram uppsetningunni eÃ°a smelltu Ã¡ Til baka ef Ã¾Ãº vilt endurskoÃ°a eÃ°a breyta einhverjum stillingum.
+ReadyLabel2b=Smelltu Ã¡ Uppsetja til aÃ° halda Ã¡fram uppsetningunni.
+ReadyMemoUserInfo=NotandaupplÃ½singar:
+ReadyMemoDir=StaÃ°setning:
 ReadyMemoType=Uppsetningartegund:
-ReadyMemoComponents=Valin atriği:
+ReadyMemoComponents=Valin atriÃ°i:
 ReadyMemoGroup=Upphafsvalmyndarmappa:
 ReadyMemoTasks=Aukaleg verk:
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=Undirbúandi uppsetningu
-PreparingDesc=Uppsetning er undirbúandi uppsetningu [name] á tölvuna şína.
-PreviousInstallNotCompleted=Uppsetningu/Fjarlægingu eftirfarandi forrits var ekki lokiğ. Şú şarft ağ endurræsa tölvuna şína til ağ ljúka şeirri uppsetningu.%n%nEftir endurræsingu tölvunnar şinnar, keyrğu Uppsetningu aftur til ağ ljúka uppsetningu [name].
-CannotContinue=Uppsetning getur ekki haldiğ áfram. Vinsamlega smelltu á Hætta viğ til ağ hætta.
-ApplicationsFound=Eftirfarandi hugbúnağur er notandi skrár sem şurfa ağ vera uppfærğar af Uppsetningu. Şağ er ráğlagt ağ şú leyfir Uppsetningu sjálfvirkt ağ loka şessum hugbúnaği.
-ApplicationsFound2=Eftirfarandi hugbúnağur er notandi skrár sem şurfa ağ vera uppfærğar af Uppsetningu. Şağ er ráğlagt ağ şú leyfir Uppsetningu sjálfvirkt ağ loka şessum hugbúnaği. Eftir ağ uppsetningunni er lokiğ, mun Uppsetning reyna ağ endurræsa hugbúnağinn.
-CloseApplications=&Sjálfvirkt loka hugbúnağinum
-DontCloseApplications=&Ekki loka hugbúnağinum
-ErrorCloseApplications=Uppsetningu var ófært um ağ sjálfvirkt loka öllum hugbúnaği. Şağ er ráğlagt ağ şú lokir öllum hugbúnaği notandi skrár sem şurfa ağ vera uppfærğar af Uppsetningu áğur en haldiğ er áfram.
+WizardPreparing=UndirbÃºandi uppsetningu
+PreparingDesc=Uppsetning er undirbÃºandi uppsetningu [name] Ã¡ tÃ¶lvuna Ã¾Ã­na.
+PreviousInstallNotCompleted=Uppsetningu/FjarlÃ¦gingu eftirfarandi forrits var ekki lokiÃ°. ÃÃº Ã¾arft aÃ° endurrÃ¦sa tÃ¶lvuna Ã¾Ã­na til aÃ° ljÃºka Ã¾eirri uppsetningu.%n%nEftir endurrÃ¦singu tÃ¶lvunnar Ã¾innar, keyrÃ°u Uppsetningu aftur til aÃ° ljÃºka uppsetningu [name].
+CannotContinue=Uppsetning getur ekki haldiÃ° Ã¡fram. Vinsamlega smelltu Ã¡ HÃ¦tta viÃ° til aÃ° hÃ¦tta.
+ApplicationsFound=Eftirfarandi hugbÃºnaÃ°ur er notandi skrÃ¡r sem Ã¾urfa aÃ° vera uppfÃ¦rÃ°ar af Uppsetningu. ÃaÃ° er rÃ¡Ã°lagt aÃ° Ã¾Ãº leyfir Uppsetningu sjÃ¡lfvirkt aÃ° loka Ã¾essum hugbÃºnaÃ°i.
+ApplicationsFound2=Eftirfarandi hugbÃºnaÃ°ur er notandi skrÃ¡r sem Ã¾urfa aÃ° vera uppfÃ¦rÃ°ar af Uppsetningu. ÃaÃ° er rÃ¡Ã°lagt aÃ° Ã¾Ãº leyfir Uppsetningu sjÃ¡lfvirkt aÃ° loka Ã¾essum hugbÃºnaÃ°i. Eftir aÃ° uppsetningunni lÃ½kur mun Uppsetning reyna aÃ° endurrÃ¦sa hugbÃºnaÃ°inn.
+CloseApplications=&SjÃ¡lfvirkt loka hugbÃºnaÃ°inum
+DontCloseApplications=&Ekki loka hugbÃºnaÃ°inum
+ErrorCloseApplications=Uppsetningu var Ã³fÃ¦rt um aÃ° sjÃ¡lfvirkt loka Ã¶llum hugbÃºnaÃ°i. ÃaÃ° er rÃ¡Ã°lagt aÃ° Ã¾Ãº lokir Ã¶llum hugbÃºnaÃ°i notandi skrÃ¡r sem Ã¾urfa aÃ° vera uppfÃ¦rÃ°ar af Uppsetningu Ã¡Ã°ur en haldiÃ° er Ã¡fram.
 
 ; *** "Installing" wizard page
 WizardInstalling=Uppsetjandi
-InstallingLabel=Vinsamlega bíddu meğan Uppsetning uppsetur [name] á tölvuna şína.
+InstallingLabel=Vinsamlega bÃ­ddu meÃ°an Uppsetning uppsetur [name] Ã¡ tÃ¶lvuna Ã¾Ã­na.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=Ljúkandi [name]-uppsetningarağstoğaranum
-FinishedLabelNoIcons=Uppsetning hefur lokiğ uppsetningu [name] á tölvuna şína.
-FinishedLabel=Uppsetning hefur lokiğ uppsetningu [name] á şinni tölvu. Hugbúnağurinn getur veriğ ræstur meğ şví ağ velja hina uppsettu skyndivísa.
-ClickFinish=Smelltu á Ljúka til ağ hætta í Uppsetningu.
-FinishedRestartLabel=Til ağ ljúka uppsetningu [name], şarft Uppsetning ağ endurræsa tölvuna şína. Vilt şú endurræsa núna?
-FinishedRestartMessage=Til ağ ljúka uppsetningu [name], şarf Uppsetning ağ endurræsa tölvuna şína.%n%nVilt şú endurræsa núna?
-ShowReadmeCheck=Já, ég vil skoğa README-skrána
-YesRadio=&Já, endurræsa tölvuna núna
-NoRadio=&Nei, ég mun endurræsa tölvuna síğar
+FinishedHeadingLabel=LjÃºkandi [name]-uppsetningaraÃ°stoÃ°aranum
+FinishedLabelNoIcons=Uppsetning hefur lokiÃ° uppsetningu [name] Ã¡ tÃ¶lvuna Ã¾Ã­na.
+FinishedLabel=Uppsetning hefur lokiÃ° uppsetningu [name] Ã¡ Ã¾inni tÃ¶lvu. HugbÃºnaÃ°urinn getur veriÃ° rÃ¦stur meÃ° Ã¾vÃ­ aÃ° velja hina uppsettu skyndivÃ­sa.
+ClickFinish=Smelltu Ã¡ LjÃºka til aÃ° hÃ¦tta Ã­ Uppsetningu.
+FinishedRestartLabel=Til aÃ° ljÃºka uppsetningu [name] Ã¾arft Uppsetning aÃ° endurrÃ¦sa tÃ¶lvuna Ã¾Ã­na. Vilt Ã¾Ãº endurrÃ¦sa nÃºna?
+FinishedRestartMessage=Til aÃ° ljÃºka uppsetningu [name] Ã¾arf Uppsetning aÃ° endurrÃ¦sa tÃ¶lvuna Ã¾Ã­na.%n%nVilt Ã¾Ãº endurrÃ¦sa nÃºna?
+ShowReadmeCheck=JÃ¡, Ã©g vil skoÃ°a README-skrÃ¡na
+YesRadio=&JÃ¡, endurrÃ¦sa tÃ¶lvuna nÃºna
+NoRadio=&Nei, Ã©g mun endurrÃ¦sa tÃ¶lvuna sÃ­Ã°ar
 RunEntryExec=Keyra %1
-RunEntryShellExec=Skoğa %1
+RunEntryShellExec=SkoÃ°a %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=Uppsetning şarfnast næsta disks
-SelectDiskLabel2=Vinsamlega settu inn disk %1 og smelltu á Í lagi.%n%nEf skrárnar á şessum disk er hægt ağ finna í annarri möppu en şeirri sem birt er fyrir neğan, innsláğu réttu slóğina og smelltu á Vafra.
-PathLabel=&Slóğ:
-FileNotInDir2=Skrána „%1“ var ekki hægt ağ stağsetja í „%2“. Vinsamlega settu inn rétta diskinn eğa veldu ağra möppu.
-SelectDirectoryLabel=Vinsamlega tilgreindu stağsetningu næsta disks.
+ChangeDiskTitle=Uppsetning Ã¾arfnast nÃ¦sta disks
+SelectDiskLabel2=Vinsamlega settu inn disk %1 og smelltu Ã¡ Ã lagi.%n%nEf skrÃ¡rnar Ã¡ Ã¾essum disk er hÃ¦gt aÃ° finna Ã­ annarri mÃ¶ppu en Ã¾eirri sem birt er fyrir neÃ°an, innslÃ¡Ã°u rÃ©ttu slÃ³Ã°ina og smelltu Ã¡ Vafra.
+PathLabel=&SlÃ³Ã°:
+FileNotInDir2=SkrÃ¡na â€%1â€œ var ekki hÃ¦gt aÃ° staÃ°setja Ã­ â€%2â€œ. Vinsamlega settu inn rÃ©tta diskinn eÃ°a veldu aÃ°ra mÃ¶ppu.
+SelectDirectoryLabel=Vinsamlega tilgreindu staÃ°setningu nÃ¦sta disks.
 
 ; *** Installation phase messages
-SetupAborted=Uppsetningu var ekki lokiğ.%n%nVinsamlega leiğréttu vandamáliğ og keyrğu Uppsetningu aftur.
-AbortRetryIgnoreSelectAction=Velja ağgerğ
+SetupAborted=Uppsetningu var ekki lokiÃ°.%n%nVinsamlega leiÃ°rÃ©ttu vandamÃ¡liÃ° og keyrÃ°u Uppsetningu aftur.
+AbortRetryIgnoreSelectAction=Velja aÃ°gerÃ°
 AbortRetryIgnoreRetry=&Reyna aftur
-AbortRetryIgnoreIgnore=&Hunsa villuna og halda áfram
-AbortRetryIgnoreCancel=Hætta viğ uppsetningu
+AbortRetryIgnoreIgnore=&Hunsa villuna og halda Ã¡fram
+AbortRetryIgnoreCancel=HÃ¦tta viÃ° uppsetningu
 
 ; *** Installation status messages
-StatusClosingApplications=Lokandi hugbúnaği…
-StatusCreateDirs=Skapandi skráasöfn…
-StatusExtractFiles=Útdragandi skrár…
-StatusCreateIcons=Skapandi skyndivísa…
-StatusCreateIniEntries=Skapandi INI-færslur…
-StatusCreateRegistryEntries=Skapandi Windows Registry-færslur…
-StatusRegisterFiles=Skrásetjandi skrár…
-StatusSavingUninstall=Vistandi niğurtekningarupplısingar…
-StatusRunProgram=Ljúkandi uppsetningu…
-StatusRestartingApplications=Endurræsandi hugbúnağ…
-StatusRollback=Rúllandi aftur breytingum…
+StatusClosingApplications=Lokandi hugbÃºnaÃ°iâ€¦
+StatusCreateDirs=Skapandi skrÃ¡asÃ¶fnâ€¦
+StatusExtractFiles=Ãštdragandi skrÃ¡râ€¦
+StatusCreateIcons=Skapandi skyndivÃ­saâ€¦
+StatusCreateIniEntries=Skapandi INI-fÃ¦rslurâ€¦
+StatusCreateRegistryEntries=Skapandi Windows Registry-fÃ¦rslurâ€¦
+StatusRegisterFiles=SkrÃ¡setjandi skrÃ¡râ€¦
+StatusSavingUninstall=Vistandi niÃ°urtekningarupplÃ½singarâ€¦
+StatusRunProgram=LjÃºkandi uppsetninguâ€¦
+StatusRestartingApplications=EndurrÃ¦sandi hugbÃºnaÃ°â€¦
+StatusRollback=RÃºllandi aftur breytingumâ€¦
 
 ; *** Misc. errors
 ErrorInternal2=Innri villa: %1
-ErrorFunctionFailedNoCode=%1 mistókst
-ErrorFunctionFailed=%1 mistókst; kóği %2
-ErrorFunctionFailedWithMessage=%1 mistókst; kóği %2.%n%3
-ErrorExecutingProgram=Ófært um ağ keyra skrá:%n%1
+ErrorFunctionFailedNoCode=%1 mistÃ³kst
+ErrorFunctionFailed=%1 mistÃ³kst; kÃ³Ã°i %2
+ErrorFunctionFailedWithMessage=%1 mistÃ³kst; kÃ³Ã°i %2.%n%3
+ErrorExecutingProgram=Ã“fÃ¦rt um aÃ° keyra skrÃ¡:%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=Villa viğ opnun Windows Registry-lykils:%n%1\%2
-ErrorRegCreateKey=Villa viğ sköpun Windows Registry-lykils:%n%1\%2
-ErrorRegWriteKey=Villa viğ ritun í Windows Registry-lykil:%n%1\%2
+ErrorRegOpenKey=Villa viÃ° opnun Windows Registry-lykils:%n%1\%2
+ErrorRegCreateKey=Villa viÃ° skÃ¶pun Windows Registry-lykils:%n%1\%2
+ErrorRegWriteKey=Villa viÃ° ritun Ã­ Windows Registry-lykil:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Villa viğ sköpun INI-færslu í skrána „%1“.
+ErrorIniEntry=Villa viÃ° skÃ¶pun INI-fÃ¦rslu Ã­ skrÃ¡na â€%1â€œ.
 
 ; *** File copying errors
-FileAbortRetryIgnoreSkipNotRecommended=&Sleppa şessari skrá (ekki ráğlagt)
-FileAbortRetryIgnoreIgnoreNotRecommended=&Hunsa villuna og halda áfram (ekki ráğlagt)
-SourceIsCorrupted=Upprunaskráin er spillt
-SourceDoesntExist=Upprunaskráin „%1“ er ekki til
-ExistingFileReadOnly2=Hina gildandi skrá var ekki hægt ağ yfirrita şví hún er merkt sem lesa-einungis.
-ExistingFileReadOnlyRetry=&Fjarlægja lesa-einungis eigindi og reyna aftur
-ExistingFileReadOnlyKeepExisting=&Halda gildandi skrá
-ErrorReadingExistingDest=Villa kom upp viğ ağ reyna ağ lesa gildandi skrána:
-FileExists=Skráin er nú şegar til.%n%nVilt şú ağ Uppsetning yfirriti hana?
-ExistingFileNewer=Hin gildandi skrá er nırri en sú sem Uppsetning er reynandi ağ uppsetja. Şağ er ráğlagt ağ şú haldir hinni gildandi skrá.%n%nVilt şú halda hinni gildandi skrá?
-ErrorChangingAttr=Villa kom upp meğan reynt var ağ breyta eigindum gildandi skráarinnar:
-ErrorCreatingTemp=Villa kom upp meğan reynt var ağ skapa skrá í áfangastağsskráasafninu:
-ErrorReadingSource=Villa kom upp meğan reynt var ağ lesa upprunaskrána:
-ErrorCopying=Villa kom upp meğan reynt var ağ afrita skrána:
-ErrorReplacingExistingFile=Villa kom upp meğan reynt var ağ yfirrita gildandi skrána:
-ErrorRestartReplace=RestartReplace mistókst:
-ErrorRenamingTemp=Villa kom upp meğan reynt var ağ endurnefna skrá í áfangastağsskráasafninu:
-ErrorRegisterServer=Ófært um ağ skrá DLL/OCX: %1
-ErrorRegSvr32Failed=RegSvr32 mistókst meğ skilakóğann %1
-ErrorRegisterTypeLib=Ófært um ağ skrá tegundasafniğ: $1
+FileAbortRetryIgnoreSkipNotRecommended=&Sleppa Ã¾essari skrÃ¡ (ekki rÃ¡Ã°lagt)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Hunsa villuna og halda Ã¡fram (ekki rÃ¡Ã°lagt)
+SourceIsCorrupted=UpprunaskrÃ¡in er spillt
+SourceDoesntExist=UpprunaskrÃ¡in â€%1â€œ er ekki til
+ExistingFileReadOnly2=Hina gildandi skrÃ¡ var ekki hÃ¦gt aÃ° yfirrita Ã¾vÃ­ hÃºn er merkt sem lesa-einungis.
+ExistingFileReadOnlyRetry=&FjarlÃ¦gja lesa-einungis eigindi og reyna aftur
+ExistingFileReadOnlyKeepExisting=&Halda gildandi skrÃ¡
+ErrorReadingExistingDest=Villa kom upp meÃ°an reynt var aÃ° lesa gildandi skrÃ¡na:
+FileExists=SkrÃ¡in er nÃº Ã¾egar til.%n%nVilt Ã¾Ãº aÃ° Uppsetning yfirriti hana?
+ExistingFileNewer=Hin gildandi skrÃ¡ er nÃ½rri en sÃº sem Uppsetning er reynandi aÃ° uppsetja. ÃaÃ° er rÃ¡Ã°lagt aÃ° Ã¾Ãº haldir hinni gildandi skrÃ¡.%n%nVilt Ã¾Ãº halda hinni gildandi skrÃ¡?
+ErrorChangingAttr=Villa kom upp meÃ°an reynt var aÃ° breyta eigindum gildandi skrÃ¡arinnar:
+ErrorCreatingTemp=Villa kom upp meÃ°an reynt var aÃ° skapa skrÃ¡ Ã­ staÃ°setningarskrÃ¡asafninu:
+ErrorReadingSource=Villa kom upp meÃ°an reynt var aÃ° lesa upprunaskrÃ¡na:
+ErrorCopying=Villa kom upp meÃ°an reynt var aÃ° afrita skrÃ¡na:
+ErrorReplacingExistingFile=Villa kom upp meÃ°an reynt var aÃ° yfirrita gildandi skrÃ¡na:
+ErrorRestartReplace=RestartReplace mistÃ³kst:
+ErrorRenamingTemp=Villa kom upp meÃ°an reynt var aÃ° endurnefna skrÃ¡ Ã­ staÃ°setningarskrÃ¡asafninu:
+ErrorRegisterServer=Ã“fÃ¦rt um aÃ° skrÃ¡ DLL/OCX: %1
+ErrorRegSvr32Failed=RegSvr32 mistÃ³kst meÃ° skilakÃ³Ã°ann %1
+ErrorRegisterTypeLib=Ã“fÃ¦rt um aÃ° skrÃ¡ tegundasafniÃ°: $1
 
 ; *** Uninstall display name markings
 UninstallDisplayNameMark=%1 (%2)
@@ -288,48 +288,48 @@ UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32-bita
 UninstallDisplayNameMark64Bit=64-bita
 UninstallDisplayNameMarkAllUsers=Allir notendur
-UninstallDisplayNameMarkCurrentUser=Núverandi notandi
+UninstallDisplayNameMarkCurrentUser=NÃºverandi notandi
 
 ; *** Post-installation errors
-ErrorOpeningReadme=Villa kom upp meğan reynt var ağ opna README-skrána.
-ErrorRestartingComputer=Uppsetningu tókst ekki ağ endurræsa tölvuna. Vinsamlega gerğu şetta handvirkt.
+ErrorOpeningReadme=Villa kom upp meÃ°an reynt var aÃ° opna README-skrÃ¡na.
+ErrorRestartingComputer=Uppsetningu tÃ³kst ekki aÃ° endurrÃ¦sa tÃ¶lvuna. Vinsamlega gerÃ°u Ã¾etta handvirkt.
 
 ; *** Uninstaller messages
-UninstallNotFound=Skráin „%1“ er ekki til. Getur ekki niğurtekiğ.
-UninstallOpenError=Skrána „%1“ var ekki hægt ağ opna. Getur ekki niğurtekiğ
-UninstallUnsupportedVer=Niğurtökuatburğaskráin „%1“ er á sniği sem er ekki şekkt af şessari útgáfu af niğurtakaranum. Getur ekki niğurtekiğ
-UninstallUnknownEntry=Óşekkt færsla (%1) var fundin í niğurtökuatburğaskránni
-ConfirmUninstall=Ert şú viss um ağ şú viljir algjörlega fjarlægja %1 og öll atriği şess?
-UninstallOnlyOnWin64=Şessa uppsetningu er einungis hægt ağ niğurtaka á 64-bita Windows.
-OnlyAdminCanUninstall=Şessi uppsetning getur einungis veriğ niğurtekin af notanda meğ stjórnandaréttindi.
-UninstallStatusLabel=Vinsamlega bíddu meğan %1 er fjarlægt úr tölvunni şinni.
-UninstalledAll=%1 var færsællega fjarlægt af tölvunni şinni.
-UninstalledMost=%1-niğurtöku lokiğ.%n%nSuma liği var ekki hægt ağ fjarlægja. Şá er hægt ağ fjarlægja handvirkt.
-UninstalledAndNeedsRestart=Til ağ ljúka niğurtöku %1, şarft ağ endurræsa tölvuna şína.%n%nVilt şú endurræsa núna?
-UninstallDataCorrupted=„%1“-skráin er spillt. Getur ekki niğurtekiğ
+UninstallNotFound=SkrÃ¡in â€%1â€œ er ekki til. Getur ekki niÃ°urtekiÃ°.
+UninstallOpenError=SkrÃ¡na â€%1â€œ var ekki hÃ¦gt aÃ° opna. Getur ekki niÃ°urtekiÃ°
+UninstallUnsupportedVer=NiÃ°urtÃ¶kuatburÃ°askrÃ¡in â€%1â€œ er Ã¡ sniÃ°i sem er ekki Ã¾ekkt af Ã¾essari ÃºtgÃ¡fu af niÃ°urtakaranum. Getur ekki niÃ°urtekiÃ°
+UninstallUnknownEntry=Ã“Ã¾ekkt fÃ¦rsla (%1) var fundin Ã­ niÃ°urtÃ¶kuatburÃ°askrÃ¡nni
+ConfirmUninstall=Ert Ã¾Ãº viss um aÃ° Ã¾Ãº viljir algjÃ¶rlega fjarlÃ¦gja %1 og Ã¶ll atriÃ°i Ã¾ess?
+UninstallOnlyOnWin64=Ãessa uppsetningu er einungis hÃ¦gt aÃ° niÃ°urtaka Ã¡ 64-bita Windows.
+OnlyAdminCanUninstall=Ãessi uppsetning getur einungis veriÃ° niÃ°urtekin af notanda meÃ° stjÃ³rnandarÃ©ttindi.
+UninstallStatusLabel=Vinsamlega bÃ­ddu meÃ°an %1 er fjarlÃ¦gt Ãºr tÃ¶lvunni Ã¾inni.
+UninstalledAll=%1 var fÃ¦rsÃ¦llega fjarlÃ¦gt af tÃ¶lvunni Ã¾inni.
+UninstalledMost=%1-niÃ°urtÃ¶ku lokiÃ°.%n%nSuma liÃ°i var ekki hÃ¦gt aÃ° fjarlÃ¦gja. ÃÃ¡ er hÃ¦gt aÃ° fjarlÃ¦gja handvirkt.
+UninstalledAndNeedsRestart=Til aÃ° ljÃºka niÃ°urtÃ¶ku %1 Ã¾arf aÃ° endurrÃ¦sa tÃ¶lvuna Ã¾Ã­na.%n%nVilt Ã¾Ãº endurrÃ¦sa nÃºna?
+UninstallDataCorrupted=â€%1â€œ-skrÃ¡in er spillt. Getur ekki niÃ°urtekiÃ°
 
 ; *** Uninstallation phase messages
-ConfirmDeleteSharedFileTitle=Fjarlægja deilda skrá?
-ConfirmDeleteSharedFile2=Kerfiğ gefur til kynna ağ hin eftirfarandi deilda skrá er ekki lengur í notkun hjá neinu forriti. Vilt şú ağ Niğurtakari fjarlægi şessa deildu skrá?%n%nEf einhver forrit eru enn notandi şessa skrá og hún er fjarlægğ, kann ağ vera ağ şau forrit munu ekki virka almennilega. Ef şú ert óviss, veldu Nei. Ağ skilja skrána eftir á kerfinu şínu mun ekki valda skağa.
-SharedFileNameLabel=Skráarnafn:
-SharedFileLocationLabel=Stağsetning:
-WizardUninstalling=Niğurtökustağa
-StatusUninstalling=Niğurtakandi %1…
+ConfirmDeleteSharedFileTitle=FjarlÃ¦gja deilda skrÃ¡?
+ConfirmDeleteSharedFile2=KerfiÃ° gefur til kynna aÃ° hin eftirfarandi deilda skrÃ¡ er ekki lengur Ã­ notkun hjÃ¡ neinu forriti. Vilt Ã¾Ãº aÃ° NiÃ°urtakari fjarlÃ¦gi Ã¾essa deildu skrÃ¡?%n%nEf einhver forrit eru enn notandi Ã¾essa skrÃ¡ og hÃºn er fjarlÃ¦gÃ°, kann aÃ° vera aÃ° Ã¾au forrit munu ekki virka almennilega. Ef Ã¾Ãº ert Ã³viss, veldu Nei. AÃ° skilja skrÃ¡na eftir Ã¡ kerfinu Ã¾Ã­nu mun ekki valda skaÃ°a.
+SharedFileNameLabel=SkrÃ¡arnafn:
+SharedFileLocationLabel=StaÃ°setning:
+WizardUninstalling=NiÃ°urtÃ¶kustaÃ°a
+StatusUninstalling=NiÃ°urtakandi %1â€¦
 
 ; *** Shutdown block reasons
 ShutdownBlockReasonInstallingApp=Uppsetjandi %1.
-ShutdownBlockReasonUninstallingApp=Niğurtakandi %1.
+ShutdownBlockReasonUninstallingApp=NiÃ°urtakandi %1.
 
 [CustomMessages]
-NameAndVersion=%1 útgáfa %2
-AdditionalIcons=Aukalegir skyndivísir:
-CreateDesktopIcon=Skapa &skjáborğsskyndivísi
-CreateQuickLaunchIcon=Skapa &Skyndiræsitáknmynd
-ProgramOnTheWeb=%1 á Vefnum
-UninstallProgram=Niğurtaka %1
-LaunchProgram=Ræsa %1
-AssocFileExtension=&Tengja %1 viğ %2-skráarframlenginguna
-AssocingFileExtension=&Tengjandi %1 viğ %2-skráarframlenginguna…
-AutoStartProgramGroupDescription=Ræsing:
-AutoStartProgram=Sjálfvikt ræsa %1
-AddonHostProgramNotFound=%1 gat ekki stağsett möppuna sem şú valdir.%n%nVilt şú halda áfram hvort sem er?
+NameAndVersion=%1 ÃºtgÃ¡fa %2
+AdditionalIcons=Aukalegir skyndivÃ­sir:
+CreateDesktopIcon=Skapa &skjÃ¡borÃ°sskyndivÃ­si
+CreateQuickLaunchIcon=Skapa &SkyndirÃ¦sitÃ¡knmynd
+ProgramOnTheWeb=%1 Ã¡ Vefnum
+UninstallProgram=NiÃ°urtaka %1
+LaunchProgram=RÃ¦sa %1
+AssocFileExtension=&Tengja %1 viÃ° %2-skrÃ¡arframlenginguna
+AssocingFileExtension=&Tengjandi %1 viÃ° %2-skrÃ¡arframlengingunaâ€¦
+AutoStartProgramGroupDescription=RÃ¦sing:
+AutoStartProgram=SjÃ¡lfvikt rÃ¦sa %1
+AddonHostProgramNotFound=%1 gat ekki staÃ°sett mÃ¶ppuna sem Ã¾Ãº valdir.%n%nVilt Ã¾Ãº halda Ã¡fram hvort sem er?
