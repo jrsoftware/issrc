@@ -261,7 +261,7 @@ type
     property ReadyPage: TNewNotebookPage read FReadyPage;
     property PreparingPage: TNewNotebookPage read FPreparingPage;
     property InstallingPage: TNewNotebookPage read FInstallingPage;
-    property InfoAfterPage: TNewNotebookPage read FInfoBeforePage;
+    property InfoAfterPage: TNewNotebookPage read FInfoAfterPage;
     property DiskSpaceLabel: TNewStaticText read FDiskSpaceLabel;
     property DirEdit: TEdit read FDirEdit;
     property GroupEdit: TNewEdit read FGroupEdit;
