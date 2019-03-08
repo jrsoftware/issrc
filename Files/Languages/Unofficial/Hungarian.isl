@@ -280,7 +280,7 @@ ErrorRegCreateKey=Nem hozható létre a rendszerleíró kulcs:%n%1\%2
 ErrorRegWriteKey=Nem módosítható a rendszerleíró kulcs:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Error creating INI entry in file "%1".
+ErrorIniEntry=INI bejegyzés létrehozása sikertelen a következő fájlban: "%1".
 
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=&Fájl kihagyása (nem ajánlott)
