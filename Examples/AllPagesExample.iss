@@ -58,32 +58,32 @@ begin
 
   AfterID := wpSelectTasks;
   
-  AfterID := CreateCustomPage(AfterID, 'WizardPage', 'ADescription').ID;
+  AfterID := CreateCustomPage(AfterID, 'CreateCustomPage', 'ADescription').ID;
   
-  InputQueryWizardPage := CreateInputQueryPage(AfterID, 'InputQueryWizardPage', 'ADescription', 'ASubCaption');
+  InputQueryWizardPage := CreateInputQueryPage(AfterID, 'CreateInputQueryPage', 'ADescription', 'ASubCaption');
   InputQueryWizardPage.Add('&APrompt:', False);
   AfterID := InputQueryWizardPage.ID;
   
-  InputOptionWizardPage := CreateInputOptionPage(AfterID, 'InputOptionWizardPage', 'ADescription', 'ASubCaption', False, False);
+  InputOptionWizardPage := CreateInputOptionPage(AfterID, 'CreateInputOptionPage', 'ADescription', 'ASubCaption', False, False);
   InputOptionWizardPage.Add('&AOption');
   AfterID := InputOptionWizardPage.ID;
 
-  InputDirWizardPage := CreateInputDirPage(AfterID, 'InputDirWizardPage', 'ADescription', 'ASubCaption', False, 'ANewFolderName');
+  InputDirWizardPage := CreateInputDirPage(AfterID, 'CreateInputDirPage', 'ADescription', 'ASubCaption', False, 'ANewFolderName');
   InputDirWizardPage.Add('&APrompt:');
   InputDirWizardPage.Values[0] := 'C:\';
   AfterID := InputDirWizardPage.ID;
 
-  InputFileWizardPage := CreateInputFilePage(AfterID, 'InputFileWizardPage', 'ADescription', 'ASubCaption');
+  InputFileWizardPage := CreateInputFilePage(AfterID, 'CreateInputFilePage', 'ADescription', 'ASubCaption');
   InputFileWizardPage.Add('&APrompt:', 'Executable files|*.exe|All files|*.*', '.exe');
   AfterID := InputFileWizardPage.ID;
 
-  OutputMsgWizardPage := CreateOutputMsgPage(AfterID, 'OutputMsgWizardPage', 'ADescription', 'AMsg');
+  OutputMsgWizardPage := CreateOutputMsgPage(AfterID, 'CreateOutputMsgPage', 'ADescription', 'AMsg');
   AfterID := OutputMsgWizardPage.ID;
 
-  OutputMsgMemoWizardPage := CreateOutputMsgMemoPage(AfterID, 'OutputMsgMemoWizardPage', 'ADescription', 'ASubCaption', 'AMsg');
+  OutputMsgMemoWizardPage := CreateOutputMsgMemoPage(AfterID, 'CreateOutputMsgMemoPage', 'ADescription', 'ASubCaption', 'AMsg');
   AfterID := OutputMsgMemoWizardPage.ID;
 
-  OutputProgressWizardPage := CreateOutputProgressPage('ACaption', 'ADescription');
+  OutputProgressWizardPage := CreateOutputProgressPage('CreateOutputProgressPage', 'ADescription');
   OutputProgressWizardPageAfterID := AfterID;
 end;
 
