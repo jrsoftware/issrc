@@ -22,9 +22,9 @@ LanguageCodePage=1250
 ;DialogFontSize=8
 ;WelcomeFontName=Verdana
 ;WelcomeFontSize=12
-;TitleFontName=Arial CE
+;TitleFontName=Arial
 ;TitleFontSize=29
-;CopyrightFontName=Arial CE
+;CopyrightFontName=Arial
 ;CopyrightFontSize=8
 
 [Messages]
@@ -43,7 +43,7 @@ ErrorTitle=Hiba
 ; *** SetupLdr messages
 SetupLdrStartupMessage=%1 telepítve lesz. Szeretné folytatni?
 LdrCannotCreateTemp=Átmeneti fájl létrehozása nem lehetséges. A telepítés megszakítva
-LdrCannotExecTemp=Fájl futattása nem lehetséges az átmeneti könyvtárban. A telepítés megszakítva
+LdrCannotExecTemp=Fájl futtatása nem lehetséges az átmeneti könyvtárban. A telepítés megszakítva
 HelpTextNote=
 
 ; *** Startup error messages
@@ -104,7 +104,7 @@ ButtonWizardBrowse=T&allózás...
 ButtonNewFolder=Új &könyvtár
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Telepítõ nyelvi beállítás
+SelectLanguageTitle=Telepítõ nyelvi beállítása
 SelectLanguageLabel=Válassza ki a telepítés alatt használt nyelvet.
 
 ; *** Common wizard text
@@ -280,11 +280,11 @@ ErrorRegCreateKey=Nem hozható létre a rendszerleíró kulcs:%n%1\%2
 ErrorRegWriteKey=Nem módosítható a rendszerleíró kulcs:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Error creating INI entry in file "%1".
+ErrorIniEntry=Hiba történt az INI bejegyzés során ebben a fájlban: "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnoreSkipNotRecommended=&Fájl kihagyása (not recommended)
-FileAbortRetryIgnoreIgnoreNotRecommended=&Hiba elvetése és folytatás (not recommended)
+FileAbortRetryIgnoreSkipNotRecommended=&Fájl kihagyása (nem ajánlott)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Hiba elvetése és folytatás (nem ajánlott)
 SourceIsCorrupted=A forrásfájl megsérült
 SourceDoesntExist=A(z) "%1" forrásfájl nem létezik
 ExistingFileReadOnly2=A fájl csak olvashatóként van jelölve.
@@ -328,7 +328,7 @@ UninstallOnlyOnWin64=Ezt a telepítést csak 64-bites Windowson lehet eltávolítani
 OnlyAdminCanUninstall=Ezt a telepítést csak adminisztrációs jogokkal rendelkezõ felhasználó távolíthatja el.
 UninstallStatusLabel=Legyen türelemmel, amíg a(z) %1 számítógépérõl történõ eltávolítása befejezõdik.
 UninstalledAll=A(z) %1 sikeresen el lett távolítva a számítógéprõl.
-UninstalledMost=A(z) %1 eltávolítása befejezõdött.%n%nNéhány elemet nem lehetetett eltávolítani. Törölje kézileg.
+UninstalledMost=A(z) %1 eltávolítása befejezõdött.%n%nNéhány elemet nem lehetett eltávolítani. Törölje kézileg.
 UninstalledAndNeedsRestart=A(z) %1 eltávolításának befejezéséhez újra kell indítania a számítógépét.%n%nÚjraindítja most?
 UninstallDataCorrupted=A(z) "%1" fájl sérült. Nem távolítható el.
 
