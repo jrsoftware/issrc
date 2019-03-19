@@ -1,6 +1,6 @@
 ; *** Inno Setup version 6.0.0+ Polish messages ***
 ; Krzysztof Cynarski <krzysztof at cynarski.net>
-; Proofreading and corrections:
+; Proofreading, corrections and 6.0.0+ updates:
 ; £ukasz Abramczuk <lukasz.abramczuk at gmail.com>
 ; To download user-contributed translations of this file, go to:
 ; http://www.jrsoftware.org/is3rdparty.php
@@ -60,7 +60,7 @@ UninstallAppRunningError=Dezinstalator wykry³, i¿ aplikacja %1 jest aktualnie ur
 ; *** Startup questions	 ---
 PrivilegesRequiredOverrideTitle=Wybierz typ instalacji aplikacji
 PrivilegesRequiredOverrideInstruction=Wybierz typ instalacji
-PrivilegesRequiredOverrideText1=Aplikacja %1 mo¿e zostaæ zainstalowana dla wszystkich u¿ytkowników (wymagane s¹ uprawnienia administratora) lub tylko dla bie¿¹ceg u¿ytkownika.
+PrivilegesRequiredOverrideText1=Aplikacja %1 mo¿e zostaæ zainstalowana dla wszystkich u¿ytkowników (wymagane s¹ uprawnienia administratora) lub tylko dla bie¿¹cego u¿ytkownika.
 PrivilegesRequiredOverrideText2=Aplikacja %1 mo¿e zostaæ zainstalowana dla bie¿¹cego u¿ytkownika lub wszystkich u¿ytkowników (wymagane s¹ uprawnienia administratora).
 PrivilegesRequiredOverrideAllUsers=Zainstaluj dla &wszystkich u¿ytkowników
 PrivilegesRequiredOverrideAllUsersRecommended=Zainstaluj dla &wszystkich u¿ytkowników (zalecane)
@@ -73,7 +73,7 @@ ErrorTooManyFilesInDir=Nie mo¿na utworzyæ pliku w katalogu %1, poniewa¿ zawiera 
 
 ; *** Setup common messages
 ExitSetupTitle=Zakoñcz instalacjê
-ExitSetupMessage=Instalacja nie zosta³a zakoñczona. Je¿eli przerwiesz j¹ teraz, aplikacja nie zostanie zainstalowana. Mo¿na ponowiæ instalacjê póŸniej poprzez uruchamianie instalatora.%n%nCzy chcesz przerwaæ instalacjê ?
+ExitSetupMessage=Instalacja nie zosta³a zakoñczona. Je¿eli przerwiesz j¹ teraz, aplikacja nie zostanie zainstalowana. Mo¿na ponowiæ instalacjê póŸniej poprzez uruchamianie instalatora.%n%nCzy chcesz przerwaæ instalacjê?
 AboutSetupMenuItem=&O instalatorze...
 AboutSetupTitle=O instalatorze
 AboutSetupMessage=%1 wersja %2%n%3%n%n Strona domowa %1:%n%4
@@ -120,7 +120,7 @@ IncorrectPassword=Wprowadzone has³o jest nieprawid³owe. Spróbuj ponownie.
 ; *** "License Agreement" wizard page
 WizardLicense=Umowa Licencyjna
 LicenseLabel=Przed kontynuacj¹ nale¿y zapoznaæ siê z poni¿sz¹ wa¿n¹ informacj¹.
-LicenseLabel3=Proszê przeczytaæ tekst Umowy Licencyjnej. Przed kontynuacj¹ instalacji nale¿y zaakceptowaæ powy¿sze warunki.
+LicenseLabel3=Proszê przeczytaæ tekst Umowy Licencyjnej. Przed kontynuacj¹ instalacji nale¿y zaakceptowaæ warunki umowy.
 LicenseAccepted=&Akceptujê warunki umowy
 LicenseNotAccepted=&Nie akceptujê warunków umowy
 
@@ -143,7 +143,7 @@ UserInfoNameRequired=Nazwa u¿ytkownika jest wymagana.
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Lokalizacja docelowa
 SelectDirDesc=Gdzie ma zostaæ zainstalowana aplikacja [name]?
-SelectDirLabel3=Instalator zainstaluje aplikacjê [name] do poni¿szego folderu.
+SelectDirLabel3=Instalator zainstaluje aplikacjê [name] do wskazanego poni¿ej folderu.
 SelectDirBrowseLabel=Kliknij przycisk Dalej, aby kontynuowaæ. Jeœli chcesz wskazaæ inny folder, kliknij przycisk Przegl¹daj.
 DiskSpaceMBLabel=Wymagane jest przynajmniej [mb] MB wolnego miejsca na dysku.
 CannotInstallToNetworkDrive=Instalator nie mo¿e zainstalowaæ aplikacji na dysku sieciowym.
@@ -182,7 +182,7 @@ SelectTasksLabel2=Zaznacz dodatkowe zadania, które instalator ma wykonaæ podczas
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Folder Menu Start
 SelectStartMenuFolderDesc=Gdzie maj¹ zostaæ umieszczone skróty do aplikacji?
-SelectStartMenuFolderLabel3=Instalator utworzy skróty do aplikacji w poni¿szym folderze Menu Start.
+SelectStartMenuFolderLabel3=Instalator utworzy skróty do aplikacji we wskazanym poni¿ej folderze Menu Start.
 SelectStartMenuFolderBrowseLabel=Kliknij przycisk Dalej, aby kontynuowaæ. Jeœli chcesz wskazaæ inny folder, kliknij przycisk Przegl¹daj.
 MustEnterGroupName=Musisz wprowadziæ nazwê folderu.
 GroupNameTooLong=Nazwa folderu lub œcie¿ki jest za d³uga.
