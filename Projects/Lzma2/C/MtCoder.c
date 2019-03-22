@@ -7,6 +7,52 @@
 
 #ifndef _7ZIP_ST
 
+
+void MtProgress_Init(CMtProgress* p, ICompressProgress* progress)
+{
+	p->progress = progress;
+	p->res = SZ_OK;
+	p->totalInSize = 0;
+	p->totalOutSize = 0;
+}
+
+
+SRes MtProgress_ProgressAdd(CMtProgress * p, UInt64 inSize, UInt64 outSize)
+{
+	SRes res;
+	CriticalSection_Enter(&p->cs);
+
+	p->totalInSize += inSize;
+	p->totalOutSize += outSize;
+	if (p->res == SZ_OK && p->progress)
+		if (ICompressProgress_Progress(p->progress, p->totalInSize, p->totalOutSize) != SZ_OK)
+			p->res = SZ_ERROR_PROGRESS;
+	res = p->res;
+
+	CriticalSection_Leave(&p->cs);
+	return res;
+}
+
+
+SRes MtProgress_GetError(CMtProgress * p)
+{
+	SRes res;
+	CriticalSection_Enter(&p->cs);
+	res = p->res;
+	CriticalSection_Leave(&p->cs);
+	return res;
+}
+
+
+void MtProgress_SetError(CMtProgress * p, SRes res)
+{
+	CriticalSection_Enter(&p->cs);
+	if (p->res == SZ_OK)
+		p->res = res;
+	CriticalSection_Leave(&p->cs);
+}
+
+
 SRes MtProgressThunk_Progress(const ICompressProgress *pp, UInt64 inSize, UInt64 outSize)
 {
   CMtProgressThunk *thunk = CONTAINER_FROM_VTBL(pp, CMtProgressThunk, vt);

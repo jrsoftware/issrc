@@ -29,9 +29,6 @@
     </ClCompile>
     <ClCompile Include="islzma.c" />
     <ClCompile Include="islzma_exe.c" />
-    <ClCompile Include="..\C\MtDec.c">
-      <Filter>SDK</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\C\Alloc.h">
@@ -66,9 +63,6 @@
       <Filter>SDK</Filter>
     </ClInclude>
     <ClInclude Include="..\C\Precomp.h">
-      <Filter>SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="..\C\MtDec.h">
       <Filter>SDK</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,7 +4,7 @@
 #ifndef __MT_CODER_H
 #define __MT_CODER_H
 
-#include "MtDec.h"
+#include "Threads.h"
 
 EXTERN_C_BEGIN
 
@@ -25,6 +25,22 @@ EXTERN_C_BEGIN
 
 
 #ifndef _7ZIP_ST
+
+
+typedef struct
+{
+	ICompressProgress* progress;
+	SRes res;
+	UInt64 totalInSize;
+	UInt64 totalOutSize;
+	CCriticalSection cs;
+} CMtProgress;
+
+
+void MtProgress_Init(CMtProgress* p, ICompressProgress* progress);
+SRes MtProgress_ProgressAdd(CMtProgress* p, UInt64 inSize, UInt64 outSize);
+SRes MtProgress_GetError(CMtProgress* p);
+void MtProgress_SetError(CMtProgress* p, SRes res);
 
 
 typedef struct
