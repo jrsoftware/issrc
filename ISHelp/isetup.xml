@@ -1108,6 +1108,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_wizardresizable">WizardResizable</link></li>
 <li><link topic="setup_wizardsizepercent">WizardSizePercent</link></li>
 <li><link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></li>
+<li><link topic="setup_wizardstyle">WizardStyle</link></li>
 </ul>
 
 <heading>Obsolete</heading>
@@ -1124,7 +1125,6 @@ DefaultGroupName=My Program
 <li><link topic="setup_uninstallstyle">UninstallStyle</link></li>
 <li><link topic="setup_wizardimagebackcolor">WizardImageBackColor</link></li>
 <li><link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link></li>
-<li><link topic="setup_wizardstyle">WizardStyle</link></li>
 </ul>
 
 </body>
