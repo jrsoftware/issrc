@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.3+ Scottish Gaelic messages ***
+ï»¿; *** Inno Setup version 6.0.0+ Scottish Gaelic messages ***
 ;
 ; Translation by GunChleoc <fios@foramnagaidhlig.net>
 ;
@@ -30,294 +30,316 @@ LanguageCodePage=1252
 [Messages]
 
 ; *** Application titles
-SetupAppTitle=Stàladh
-SetupWindowTitle=Stàladh - %1
-UninstallAppTitle=Dì-stàladh
-UninstallAppFullTitle=’Ga dhì-stàladh %1
+SetupAppTitle=StÃ ladh
+SetupWindowTitle=Aâ€™ stÃ ladh %1
+UninstallAppTitle=DÃ¬-stÃ ladh
+UninstallAppFullTitle=Aâ€™ dÃ¬-stÃ ladh %1
 
 ; *** Misc. common
 InformationTitle=Fiosrachadh
-ConfirmTitle=Dearbhaich
+ConfirmTitle=Dearbhadh
 ErrorTitle=Mearachd
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Thèid %1 a stàladh a-nis. A bheil thu airson leantainn air adhart?
-LdrCannotCreateTemp=Cha b’ urrainn dhuinn faidhle sealach a chruthachadh. Chaidh sgur dhen stàladh
-LdrCannotExecTemp=Cha b’ urrainn dhuinn am faidhle a ruith sa phasgan shealach. Chaidh sgur dhen stàladh
+SetupLdrStartupMessage=ThÃ¨id %1 a stÃ ladh a-nis. A bheil thu airson leantainn air adhart?
+LdrCannotCreateTemp=Cha bâ€™ urrainn dhuinn faidhle sealach a chruthachadh. Chaidh sgur dhen stÃ ladh
+LdrCannotExecTemp=Cha bâ€™ urrainn dhuinn am faidhle a ruith sa phasgan shealach. Chaidh sgur dhen stÃ ladh
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nMearachd %2: %3
-SetupFileMissing=Tha am faidhle %1 a dhìth sa phasgan stàlaidh. Feuch an càraich thu an duilgheadas seo no faigh lethbhreac ùr dhen phrògram.
-SetupFileCorrupt=Tha na faidhlichean stàlaidh coirbte. Feuch am faigh thu lethbhreac ùr dhen phrògram.
-SetupFileCorruptOrWrongVer=Tha na faidhlichean stàlaidh coirbte no neo-chòrdail ris an tionndadh seo aig an stàladh. Feuch an càraich thu an duilgheadas seo no faigh lethbhreac ùr dhen phrògram.
-InvalidParameter=Chaidh paramadair mì-dhligheach a shìneadh air an loidhne-àithne:%n%n%1
-SetupAlreadyRunning=Tha an stàladh ’ga ruith mu thràth.
-WindowsVersionNotSupported=Cha chuir am prògram seo taic ris an tionndadh aig Windows a tha an coimpiutair agad a’ ruith.
-WindowsServicePackRequired=Tha %1 pacaid seirbheise %2 no tionndadh nas ùire dhith a dhìth air a’ phrògram seo.
-NotOnThisPlatform=Chan urrainn dhut am prògram seo a ruith fo %1.
-OnlyOnThisPlatform=Feumaidh tu am prògram seo a ruith fo %1.
-OnlyOnTheseArchitectures=Chan urrainn dhut am prògram seo a ruith ach air tionndaidhean Windows a chuireas taic ri ailtireachdan nam pròiseasar seo:%n%n%1
-MissingWOW64APIs=Chan eil na foincseanan a tha a feumach airson stàladh 64-biod a dhèanamh aig an tionndadh aig Windows a tha thu a’ ruith. Feuch an stàlaich thu a’ phacaid sheirbheise %1 gus an duilgheadas seo a chàradh.
-WinVersionTooLowError=Tha %1 tionndadh %2 no nas ùire a dhìth airson a’ phrògraim seo.
-WinVersionTooHighError=Cha ghabh am prògram seo a stàladh fo %1 tionndadh %2 no nas ùire.
-AdminPrivilegesRequired=Feumaidh tu clàradh a-steach mar rianaire gus am prògram seo a stàladh.
-PowerUserPrivilegesRequired=Feumaidh tu clàradh a-steach mar rianaire no mar bhall dhen bhuidheann Power Users gus am prògram seo a stàladh.
-SetupAppRunningError=Mhothaich an stàladh gu bheil %1 ’ga ruith an-dràsta.%n%nDùin gach ionstans a tha a’ ruith an-dràsta is briog air “Ceart ma-thà” air neo briog air “Sguir dheth” gus an stàladh fhàgail.
-UninstallAppRunningError=Mhothaich an dì-stàladh gu bheil %1 ’ga ruith an-dràsta.%n%nDùin gach ionstans a tha a’ ruith an-dràsta is briog air “Ceart ma-thà” air neo briog air “Sguir dheth” gus an dì-stàladh fhàgail.
+SetupFileMissing=Tha am faidhle %1 a dhÃ¬th sa phasgan stÃ laidh. Feuch an cÃ raich thu an duilgheadas seo no faigh lethbhreac Ã¹r dhen phrÃ²gram.
+SetupFileCorrupt=Tha na faidhlichean stÃ laidh coirbte. Feuch am faigh thu lethbhreac Ã¹r dhen phrÃ²gram.
+SetupFileCorruptOrWrongVer=Tha na faidhlichean stÃ laidh coirbte no neo-chÃ²rdail ris an tionndadh seo aig an stÃ ladh. Feuch an cÃ raich thu an duilgheadas seo no faigh lethbhreac Ã¹r dhen phrÃ²gram.
+InvalidParameter=Chaidh paramadair mÃ¬-dhligheach a shÃ¬neadh air an loidhne-Ã ithne:%n%n%1
+SetupAlreadyRunning=Tha an stÃ ladh â€™ga ruith mu thrÃ th.
+WindowsVersionNotSupported=Cha chuir am prÃ²gram seo taic ris an tionndadh aig Windows a tha an coimpiutair agad aâ€™ ruith.
+WindowsServicePackRequired=Tha %1 pacaid seirbheise %2 no tionndadh nas Ã¹ire dhith a dhÃ¬th air aâ€™ phrÃ²gram seo.
+NotOnThisPlatform=Chan urrainn dhut am prÃ²gram seo a ruith fo %1.
+OnlyOnThisPlatform=Feumaidh tu am prÃ²gram seo a ruith fo %1.
+OnlyOnTheseArchitectures=Chan urrainn dhut am prÃ²gram seo a ruith ach air tionndaidhean Windows a chuireas taic ri ailtireachdan nam prÃ²iseasar seo:%n%n%1
+WinVersionTooLowError=Tha feum air %1 tionndadh %2 no nas Ã¹ire airson aâ€™ phrÃ²graim seo.
+WinVersionTooHighError=Cha ghabh am prÃ²gram seo a stÃ ladh fo %1 tionndadh %2 no nas Ã¹ire.
+AdminPrivilegesRequired=Feumaidh tu clÃ radh a-steach mar rianaire gus am prÃ²gram seo a stÃ ladh.
+PowerUserPrivilegesRequired=Feumaidh tu clÃ radh a-steach mar rianaire no mar bhall dhen bhuidheann Power Users gus am prÃ²gram seo a stÃ ladh.
+SetupAppRunningError=Mhothaich an stÃ ladh gu bheil %1 â€™ga ruith an-drÃ sta.%n%nDÃ¹in gach ionstans a tha aâ€™ ruith an-drÃ sta is briog air â€œCeart ma-thÃ â€ air neo briog air â€œSguir dhethâ€ gus an stÃ ladh fhÃ gail.
+UninstallAppRunningError=Mhothaich an dÃ¬-stÃ ladh gu bheil %1 â€™ga ruith an-drÃ sta.%n%nDÃ¹in gach ionstans a tha aâ€™ ruith an-drÃ sta is briog air â€œCeart ma-thÃ â€ air neo briog air â€œSguir dhethâ€ gus an dÃ¬-stÃ ladh fhÃ gail.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Suidhich modh an stÃ laidh
+PrivilegesRequiredOverrideInstruction=Tagh modh an stÃ laidh
+PrivilegesRequiredOverrideText1=Gabhaidh %1 a stÃ ladh dha na h-uile cleachdaiche (bidh feum air pribhleidean rianaire) no dhut-sa a-mhÃ in.
+PrivilegesRequiredOverrideText2=Gabhaidh %1 a stÃ ladh dhut-sa a-mhÃ in no dha na h-uile cleachdaiche (bidh feum air pribhleidean rianaire).
+PrivilegesRequiredOverrideAllUsers=StÃ laich dh&a na h-uile cleachdaiche
+PrivilegesRequiredOverrideAllUsersRecommended=StÃ laich dh&a na h-uile cleachdaiche (mholamaid seo)
+PrivilegesRequiredOverrideCurrentUser=StÃ laich dho&mh-sa a-mhÃ in
+PrivilegesRequiredOverrideCurrentUserRecommended=StÃ laich dho&mh-sa a-mhÃ in (mholamaid seo)
 
 ; *** Misc. errors
-ErrorCreatingDir=Cha b’ urrainn dhan stàladh am pasgan "%1" a chruthachadh
-ErrorTooManyFilesInDir=Tha faidhle ann nach b’ urrainn dhan stàladh cruthachadh sa phasgan “%1” on a tha cus fhaidhlichean ann
+ErrorCreatingDir=Cha bâ€™ urrainn dhan stÃ ladh am pasgan "%1" a chruthachadh
+ErrorTooManyFilesInDir=Tha faidhle ann nach bâ€™ urrainn dhan stÃ ladh cruthachadh sa phasgan â€œ%1â€ on a tha cus fhaidhlichean ann
 
 ; *** Setup common messages
-ExitSetupTitle=Fàg an stàladh
-ExitSetupMessage=Chan eil an stàladh coileanta fhathast. Ma sguireas tu dheth an-dràsta, cha dèid am prògram a stàladh.%n%n’S urrainn dhut an stàladh a dhèanamh a-rithist uaireigin eile gus a choileanadh.%n%nA bheil thu airson an stàladh fhàgail?
-AboutSetupMenuItem=&Mun stàladh …
-AboutSetupTitle=Mun stàladh
-AboutSetupMessage=%1 Tionndadh %2%n%3%n%n%1 Duilleag-lìn:%n%4
+ExitSetupTitle=FÃ g an stÃ ladh
+ExitSetupMessage=Chan eil an stÃ ladh coileanta fhathast. Ma sguireas tu dheth an-drÃ sta, cha dÃ¨id am prÃ²gram a stÃ ladh.%n%nâ€™S urrainn dhut an stÃ ladh a dhÃ¨anamh a-rithist uaireigin eile gus a choileanadh.%n%nA bheil thu airson an stÃ ladh fhÃ gail?
+AboutSetupMenuItem=&Mun stÃ ladh â€¦
+AboutSetupTitle=Mun stÃ ladh
+AboutSetupMessage=%1 Tionndadh %2%n%3%n%n%1 Duilleag-lÃ¬n:%n%4
 AboutSetupNote=
 TranslatorNote=An t-eadar-theangachadh le GunChleoc (fios@foramnagaidhlig.net)
 
 ; *** Buttons
 ButtonBack=< Air ai&s
 ButtonNext=Air adha&rt >
-ButtonInstall=&Stàlaich
-ButtonOK=Ceart ma-thà
+ButtonInstall=&StÃ laich
+ButtonOK=Ceart ma-thÃ 
 ButtonCancel=Sguir dheth
 ButtonYes=&Tha
 ButtonYesToAll=Th&a dhan a h-uile
 ButtonNo=&Chan eil
 ButtonNoToAll=Cha&n eil dhan a h-uile
-ButtonFinish=&Crìochnaich
-ButtonBrowse=Rùrai&ch …
-ButtonWizardBrowse=&Rùraich …
-ButtonNewFolder=&Cruthaich pasgan ùr
+ButtonFinish=&CrÃ¬ochnaich
+ButtonBrowse=RÃ¹rai&ch â€¦
+ButtonWizardBrowse=&RÃ¹raich â€¦
+ButtonNewFolder=&Cruthaich pasgan Ã¹r
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Tagh cànan an stàlaidh
-SelectLanguageLabel=Tagh an cànan a chleachdas an t-inneal-stàlaidh
+SelectLanguageTitle=Tagh cÃ nan an stÃ laidh
+SelectLanguageLabel=Tagh an cÃ nan a chleachdas an t-inneal-stÃ laidh seo.
 
 ; *** Common wizard text
-ClickNext=Briog air “Air adhart” gus leantainn air adhart no air “Sguir dheth” gus fàgail an-seo.
+ClickNext=Briog air â€œAir adhartâ€ gus leantainn air adhart no air â€œSguir dhethâ€ gus fÃ gail an-seo.
 BeveledLabel=
 BrowseDialogTitle=Lorg pasgan
-BrowseDialogLabel=Tagh pasgan is briog air “Ceart ma-thà” an uairsin.
-NewFolderName=Pasgan ùr
+BrowseDialogLabel=Tagh pasgan is briog air â€œCeart ma-thÃ â€ an uairsin.
+NewFolderName=Pasgan Ã¹r
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Fàilte dhan draoidh stàlaidh aig [name]
-WelcomeLabel2=Stàlaichidh an draoidh seo [name/ver] air a’ choimpiutair agad a-nis.%n%nBu chòir dhut crìoch a chur air a h-uile aplacaid eile mus lean thu air adhart leis an stàladh.
+WelcomeLabel1=FÃ ilte dhan draoidh stÃ laidh aig [name]
+WelcomeLabel2=StÃ laichidh an draoidh seo [name/ver] air aâ€™ choimpiutair agad a-nis.%n%nBu chÃ²ir dhut crÃ¬och a chur air a h-uile aplacaid eile mus lean thu air adhart leis an stÃ ladh.
 
 ; *** "Password" wizard page
 WizardPassword=Facal-faire
-PasswordLabel1=Tha an stàladh seo dìonta le facal-faire.
-PasswordLabel3=Cuir a-steach am facal-faire is briog air “Air adhart” an uairsin. Thoir an aire air litrichean mòra is beaga.
+PasswordLabel1=Tha an stÃ ladh seo dÃ¬onta le facal-faire.
+PasswordLabel3=Cuir a-steach am facal-faire is briog air â€œAir adhartâ€ an uairsin. Thoir an aire air litrichean mÃ²ra is beaga.
 PasswordEditLabel=&Facal-faire:
-IncorrectPassword=Chan eil am facal-faire a chuir thu ann mar bu chòir. Am feuch thu ris a-rithist?
+IncorrectPassword=Chan eil am facal-faire a chuir thu ann mar bu chÃ²ir. Am feuch thu ris a-rithist?
 
 ; *** "License Agreement" wizard page
 WizardLicense=Aonta ceadachais
 LicenseLabel=An leugh thu am fiosrachadh cudromach seo mus lean thu air adhart?
 LicenseLabel3=Feuch an leugh thu an t-aonta ceadachais seo. Feumaidh tu gabhail ri teirmichean an aonta mus fhaod thu leantainn air adhart.
 LicenseAccepted=&Gabhaidh mi ris an aonta
-LicenseNotAccepted=&Diùltaidh mi an t-aonta
+LicenseNotAccepted=&DiÃ¹ltaidh mi an t-aonta
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Fiosrachadh
 InfoBeforeLabel=An leugh thu am fiosrachadh cudromach seo mus lean thu air adhart?
-InfoBeforeClickLabel=Nuair a bhios tu deiseil gus leantainn air adhart, briog air “Air adhart.”
+InfoBeforeClickLabel=Nuair a bhios tu deiseil gus leantainn air adhart, briog air â€œAir adhart.â€
 WizardInfoAfter=Fiosrachadh
 InfoAfterLabel=An leugh thu am fiosrachadh cudromach seo mus lean thu air adhart?
-InfoAfterClickLabel=Nuair a bhios tu deiseil gus leantainn air adhart, briog air “Air adhart.”
+InfoAfterClickLabel=Nuair a bhios tu deiseil gus leantainn air adhart, briog air â€œAir adhart.â€
 
 ; *** "User Information" wizard page
-WizardUserInfo=Fiosrachadh a’ chleachdaiche
-UserInfoDesc=An cuir thu a-steach an dàta agad?
+WizardUserInfo=Fiosrachadh aâ€™ chleachdaiche
+UserInfoDesc=An cuir thu a-steach an dÃ ta agad?
 UserInfoName=&Ainm:
-UserInfoOrg=&Buidheann:
-UserInfoSerial=Àireamh &shreathach:
+UserInfoOrg=&Eagrachas:
+UserInfoSerial=Ã€ireamh &shreathach:
 UserInfoNameRequired=Feumaidh tu ainm a chur a-steach.
 
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Tagh am pasgan-amais
-SelectDirDesc=Càite an dèid [name] a stàladh?
-SelectDirLabel3=Thèid [name] a stàladh sa phasgan seo.
-SelectDirBrowseLabel=Briog air “Air adhart” gus leantainn air adhart. Briog air “Rùraich” ma tha thu airson pasgan eile a thaghadh.
-DiskSpaceMBLabel=Bidh feum air co-dhiù [mb] MB de rum sàbhalaidh saor.
-CannotInstallToNetworkDrive=Cha ghabh seo stàladh air draibh lìonraidh.
-CannotInstallToUNCPath=Cha ghabh seo stàladh air slighe UNC.
+SelectDirDesc=CÃ ite an dÃ¨id [name] a stÃ ladh?
+SelectDirLabel3=ThÃ¨id [name] a stÃ ladh sa phasgan seo.
+SelectDirBrowseLabel=Briog air â€œAir adhartâ€ gus leantainn air adhart. Briog air â€œRÃ¹raichâ€ ma tha thu airson pasgan eile a thaghadh.
+DiskSpaceMBLabel=Bidh feum air co-dhiÃ¹ [mb] MB de rÃ¹m sÃ bhalaidh saor.
+CannotInstallToNetworkDrive=Cha ghabh seo stÃ ladh air draibh lÃ¬onraidh.
+CannotInstallToUNCPath=Cha ghabh seo stÃ ladh air slighe UNC.
 InvalidPath=Feumaidh tu slighe iomlan le litir draibh a thoirt seachad; m.e.:%n%nC:\Ball-eisimpleir%n%nno slighe UNC leis a' chruth:%n%n\\Frithealaiche\Co-roinneadh
 InvalidDrive=Chan eil an draibh no an t-slighe UNC a thug thu seachad ann no chan urrainn dhuinn inntrigeadh. Feuch an tagh thu pasgan eile.
-DiskSpaceWarningTitle=Chan eil rum saor gu leòr ann
-DiskSpaceWarning=Cha feum air co-dhiù %1 KB de rum saor airson an stàlaidh, ach chan eil ach %2 KB ri làimh air an draibh a thagh thu.%n%nA bheil thu airson leantainn air adhart co-dhiù?
-DirNameTooLong=Tha ainm a’ phasgain/na slighe ro fhada.
-InvalidDirName=Chan eil ainm a’ phasgain dligheach.
+DiskSpaceWarningTitle=Chan eil rÃ¹m saor gu leÃ²r ann
+DiskSpaceWarning=Cha feum air co-dhiÃ¹ %1 KB de rÃ¹m saor airson an stÃ laidh, ach chan eil ach %2 KB ri lÃ imh air an draibh a thagh thu.%n%nA bheil thu airson leantainn air adhart co-dhiÃ¹?
+DirNameTooLong=Tha ainm aâ€™ phasgain/na slighe ro fhada.
+InvalidDirName=Chan eil ainm aâ€™ phasgain dligheach.
 BadDirName32=Chan fhaod na caractaran seo a bhith ann an ainm pasgain:%n%n%1
-DirExistsTitle=Tha am pasgan ann mu thràth
-DirExists=Tha am pasgan:%n%n%1%n%nann mu thràth. A bheil thu airson a stàladh sa phasgan seo co-dhiù?
+DirExistsTitle=Tha am pasgan ann mu thrÃ th
+DirExists=Tha am pasgan:%n%n%1%n%nann mu thrÃ th. A bheil thu airson a stÃ ladh sa phasgan seo co-dhiÃ¹?
 DirDoesntExistTitle=Chan eil am pasgan ann
 DirDoesntExist=Chan eil am pasgan:%n%n%1%n%nann. A bheil thu airson a chruthachadh?
 
 ; *** "Select Components" wizard page
-WizardSelectComponents=Tagh co-phàirtean
-SelectComponentsDesc=Dè na co-phàirtean a thèid a stàladh?
-SelectComponentsLabel2=Tagh na co-phàirtean a tha thu airson stàladh. Briog air “Air adhart” nuair a bhios tu ullamh.
-FullInstallation=Stàladh slàn
+WizardSelectComponents=Tagh co-phÃ irtean
+SelectComponentsDesc=DÃ¨ na co-phÃ irtean a thÃ¨id a stÃ ladh?
+SelectComponentsLabel2=Tagh na co-phÃ irtean a tha thu airson stÃ ladh. Briog air â€œAir adhartâ€ nuair a bhios tu ullamh.
+FullInstallation=StÃ ladh slÃ n
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
-CompactInstallation=Stàladh beag
-CustomInstallation=Stàladh gnàthaichte
-NoUninstallWarningTitle=Tha co-phàirtean ann
-NoUninstallWarning=Mhothaich an stàladh gun deach na co-phàirtean seo a stàladh air a’ choimpiutair agad roimhe:%n%n%1%n%nCha dèid na co-phàirtean seo nach do thagh thu tuilleadh a thoirt air falbh on choimpiutair agad.%n%nA bheil thu airson leantainn air adhart co-dhiù?
+CompactInstallation=StÃ ladh beag
+CustomInstallation=StÃ ladh gnÃ thaichte
+NoUninstallWarningTitle=Tha co-phÃ irtean ann
+NoUninstallWarning=Mhothaich an stÃ ladh gun deach na co-phÃ irtean seo a stÃ ladh air aâ€™ choimpiutair agad roimhe:%n%n%1%n%nCha dÃ¨id na co-phÃ irtean seo nach do thagh thu tuilleadh a thoirt air falbh on choimpiutair agad.%n%nA bheil thu airson leantainn air adhart co-dhiÃ¹?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceMBLabel=Thèid co-dhiù [mb] MB de rum a chleachdadh airson na thagh thu.
+ComponentsDiskSpaceMBLabel=ThÃ¨id co-dhiÃ¹ [mb] MB de rÃ¹m a chleachdadh airson na thagh thu.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Saothraichean a bharrachd
-SelectTasksDesc=Dè na saothraichean a bharrachd a thèid a ruith?
-SelectTasksLabel2=Tagh na saothraichean a bharrachd a tha thu airson ruith leis an stàladh aig [name] is briog air “Air adhart” an uairsin.
+SelectTasksDesc=DÃ¨ na saothraichean a bharrachd a thÃ¨id a ruith?
+SelectTasksLabel2=Tagh na saothraichean a bharrachd a tha thu airson ruith leis an stÃ ladh aig [name] is briog air â€œAir adhartâ€ an uairsin.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Tagh pasgan sa chlàr-taice tòiseachaidh
-SelectStartMenuFolderDesc=Càite an cruthaich an stàladh na ceanglaichean dhan phrògram?
-SelectStartMenuFolderLabel3=Cruthaichidh an stàladh na ceanglaichean dhan phrògram sa phasgan seo ann an “Tòisich.”
-SelectStartMenuFolderBrowseLabel=Briog air “Air adhart” gus leantainn air adhart. Briog air “Rùraich” ma tha thu airson pasgan eile a thaghadh.
+WizardSelectProgramGroup=Tagh pasgan ann an â€œTÃ²isichâ€
+SelectStartMenuFolderDesc=CÃ ite an cruthaich an stÃ ladh na ceanglaichean dhan phrÃ²gram?
+SelectStartMenuFolderLabel3=Cruthaichidh an stÃ ladh na ceanglaichean dhan phrÃ²gram sa phasgan seo ann an â€œTÃ²isich.â€
+SelectStartMenuFolderBrowseLabel=Briog air â€œAir adhartâ€ gus leantainn air adhart. Briog air â€œRÃ¹raichâ€ ma tha thu airson pasgan eile a thaghadh.
 MustEnterGroupName=Feumaidh tu ainm pasgain a chur a-steach.
-GroupNameTooLong=Tha ainm a’ phasgain/na slighe ro fhada.
-InvalidGroupName=Chan eil ainm a’ phasgain dligheach.
+GroupNameTooLong=Tha ainm aâ€™ phasgain/na slighe ro fhada.
+InvalidGroupName=Chan eil ainm aâ€™ phasgain dligheach.
 BadGroupName=Chan fhaod na caractaran seo a bhith ann an ainm pasgain:%n%n%1
-NoProgramGroupCheck2=&Na cruthaich pasgan sam bith ann an “Tòisich.”
+NoProgramGroupCheck2=&Na cruthaich pasgan sam bith ann an â€œTÃ²isich.â€
 
 ; *** "Ready to Install" wizard page
-WizardReady=Deiseil airson an stàlaidh
-ReadyLabel1=Tha an draoidh stàlaidh deiseil gus [name] a stàladh air a’ choimpiutair agad.
-ReadyLabel2a=Briog air “Stàlaich” gus tòiseachadh air an stàladh no air “Air ais” gus sùil a thoirt air na roghainnean no gus an atharrachadh.
-ReadyLabel2b=Briog air “Stàlaich” gus tòiseachadh air an stàladh.
-ReadyMemoUserInfo=Fiosrachadh a’ chleachdaiche:
+WizardReady=Deiseil airson an stÃ laidh
+ReadyLabel1=Tha an draoidh stÃ laidh deiseil gus [name] a stÃ ladh air aâ€™ choimpiutair agad.
+ReadyLabel2a=Briog air â€œStÃ laichâ€ gus tÃ²iseachadh air an stÃ ladh no air â€œAir aisâ€ gus sÃ¹il a thoirt air na roghainnean no gus an atharrachadh.
+ReadyLabel2b=Briog air â€œStÃ laichâ€ gus tÃ²iseachadh air an stÃ ladh.
+ReadyMemoUserInfo=Fiosrachadh aâ€™ chleachdaiche:
 ReadyMemoDir=Pasgan-amais:
-ReadyMemoType=Seòrsa an stàlaidh:
-ReadyMemoComponents=Co-phàirtean air an taghadh:
-ReadyMemoGroup=Pasgan ann an “Tòisich”:
+ReadyMemoType=SeÃ²rsa an stÃ laidh:
+ReadyMemoComponents=Co-phÃ irtean air an taghadh:
+ReadyMemoGroup=Pasgan ann an â€œTÃ²isichâ€:
 ReadyMemoTasks=Saothraichean a bharrachd:
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=Ag ullachadh an stàlaidh
-PreparingDesc=Tha an stàladh aig [name] air a’ choimpiutair seo ’ga ullachadh.
-PreviousInstallNotCompleted=Chaidh prògram eile a stàladh/a dhì-stàladh roimhe ’s cha deach sin a choileanadh. Feumaidh tu an coimpiutair ath-thòiseachadh gus crìoch a chur air an stàladh/dì-stàladh sin.%n%nAn dèidh dhut an coimpiutair agad ath-thòiseachadh, tòisich an stàladh a-rithist gus [name] a stàladh.
-CannotContinue=Chan urrainn dhan stàladh leantainn air adhart. Feuch am briog thu air “Sguir dheth” gus fàgail an-seo.
-ApplicationsFound=Tha na h-aplacaidean seo a’ cleachdadh faidhlichean a dh’fheumas an stàladh ùrachadh. Mholamaid gun ceadaich thu gun dùin an stàladh na h-aplacaidean sin gu fèin-obrachail.
-ApplicationsFound2=Tha na h-aplacaidean seo a’ cleachdadh faidhlichean a dh’fheumas an stàladh ùrachadh. Mholamaid gun ceadaich thu gun dùin an stàladh na h-aplacaidean sin gu fèin-obrachail. Nuair a bhios an stàladh coileanta, feuchaidh sinn ris na h-aplacaidean sin ath-thòiseachadh.
-CloseApplications=&Dùin na h-aplacaidean gu fèin-obrachail
-DontCloseApplications=&Na dùin na h-aplacaidean
-ErrorCloseApplications=Cha deach leis an stàladh a h-uile aplacaid a dhùnadh gu fèin-obrachail. Mus lean thu air adhart, mholamaid gun dùin thu a h-uile aplacaid a chleachdas faidhlichean a dh’fheumas an stàladh ùrachadh.
+WizardPreparing=Ag ullachadh an stÃ laidh
+PreparingDesc=Tha an stÃ ladh aig [name] air aâ€™ choimpiutair seo â€™ga ullachadh.
+PreviousInstallNotCompleted=Chaidh prÃ²gram eile a stÃ ladh/a dhÃ¬-stÃ ladh roimhe â€™s cha deach sin a choileanadh. Feumaidh tu an coimpiutair ath-thÃ²iseachadh gus crÃ¬och a chur air an stÃ ladh/dÃ¬-stÃ ladh sin.%n%nAn dÃ¨idh dhut an coimpiutair agad ath-thÃ²iseachadh, tÃ²isich an stÃ ladh a-rithist gus [name] a stÃ ladh.
+CannotContinue=Chan urrainn dhan stÃ ladh leantainn air adhart. Feuch am briog thu air â€œSguir dhethâ€ gus fÃ gail an-seo.
+ApplicationsFound=Tha na h-aplacaidean seo aâ€™ cleachdadh faidhlichean a dhâ€™fheumas an stÃ ladh Ã¹rachadh. Mholamaid gun ceadaich thu gun dÃ¹in an stÃ ladh na h-aplacaidean sin gu fÃ¨in-obrachail.
+ApplicationsFound2=Tha na h-aplacaidean seo aâ€™ cleachdadh faidhlichean a dhâ€™fheumas an stÃ ladh Ã¹rachadh. Mholamaid gun ceadaich thu gun dÃ¹in an stÃ ladh na h-aplacaidean sin gu fÃ¨in-obrachail. Nuair a bhios an stÃ ladh deiseil, feuchaidh sinn ris na h-aplacaidean sin ath-thÃ²iseachadh.
+CloseApplications=&DÃ¹in na h-aplacaidean gu fÃ¨in-obrachail
+DontCloseApplications=&Na dÃ¹in na h-aplacaidean
+ErrorCloseApplications=Cha deach leis an stÃ ladh a h-uile aplacaid a dhÃ¹nadh gu fÃ¨in-obrachail. Mus lean thu air adhart, mholamaid gun dÃ¹in thu a h-uile aplacaid a chleachdas faidhlichean a dhâ€™fheumas an stÃ ladh Ã¹rachadh.
 
 ; *** "Installing" wizard page
-WizardInstalling=’Ga stàladh
-InstallingLabel=Fuirich ort fhad ’s a tha [name] ’ga stàladh air a’ choimpiutair agad.
+WizardInstalling=â€™Ga stÃ ladh
+InstallingLabel=Fuirich ort fhad â€™s a tha [name] â€™ga stÃ ladh air aâ€™ choimpiutair agad.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=A’ crìochnachadh an draoidh stàlaidh aig [name]
-FinishedLabelNoIcons=Tha sinn deiseil a’ stàladh [name] air a’ choimpiutair agad.
-FinishedLabel=Tha sinn deiseil a’ stàladh [name] air a’ choimpiutair agad. ’S urrainn dhut am prògram a thòiseachadh a-nis leis na ceanglaichean dhan phrògram a chaidh a stàladh.
-ClickFinish=Briog air “Crìochnaich” gus crìoch a chur air an stàladh.
-FinishedRestartLabel=Feumaidh sinn an coimpiutair ath-thòiseachadh gus an stàladh aig [name] a choileanadh. An dèan sinn seo dhut an-dràsta?
-FinishedRestartMessage=Feumaidh sinn an coimpiutair ath-thòiseachadh gus an stàladh aig [name] a choileanadh.%n%nAn dèan sinn seo dhut an-dràsta?
+FinishedHeadingLabel=Aâ€™ crÃ¬ochnachadh an draoidh stÃ laidh aig [name]
+FinishedLabelNoIcons=Tha sinn deiseil aâ€™ stÃ ladh [name] air aâ€™ choimpiutair agad.
+FinishedLabel=Tha sinn deiseil aâ€™ stÃ ladh [name] air aâ€™ choimpiutair agad. â€™S urrainn dhut am prÃ²gram a thÃ²iseachadh a-nis leis na ceanglaichean dhan phrÃ²gram a chaidh a stÃ ladh.
+ClickFinish=Briog air â€œCrÃ¬ochnaichâ€ gus crÃ¬och a chur air an stÃ ladh.
+FinishedRestartLabel=Feumaidh sinn an coimpiutair ath-thÃ²iseachadh gus an stÃ ladh aig [name] a choileanadh. An dÃ¨an sinn seo dhut an-drÃ sta?
+FinishedRestartMessage=Feumaidh sinn an coimpiutair ath-thÃ²iseachadh gus an stÃ ladh aig [name] a choileanadh.%n%nAn dÃ¨an sinn seo dhut an-drÃ sta?
 ShowReadmeCheck=Tha mi airson am faidhle LEUGHMI a shealltainn
-YesRadio=&Nì, ath-thòisichibh an coimpiutair dhomh an-dràsta
-NoRadio=&Cha dèan, ath-thòisichidh mi fhìn an coimpiutair uaireigin eile
+YesRadio=&NÃ¬, ath-thÃ²isichibh an coimpiutair dhomh an-drÃ sta
+NoRadio=&Cha dÃ¨an, ath-thÃ²isichidh mi fhÃ¬n an coimpiutair uaireigin eile
 ; used for example as 'Run MyProg.exe'
 RunEntryExec=Cuir %1 gu dol
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Seall %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=Tha an t-ath-chlàr a dhìth aig an stàladh
-SelectDiskLabel2=Cuir a-steach clàr %1 is briog air “Ceart ma-thà.”%n%nMur eil na faidhlichean on chlàir-shùbailte seo sa phasgan a tha ’ga shealltainn dhut, cuir a-steach an t-slighe cheart no briog air “Rùraich.”
+ChangeDiskTitle=Tha an t-ath-chlÃ r a dhÃ¬th aig an stÃ ladh
+SelectDiskLabel2=Cuir a-steach clÃ r %1 is briog air â€œCeart ma-thÃ .â€%n%nMur eil na faidhlichean on chlÃ ir-shÃ¹bailte seo sa phasgan a tha â€™ga shealltainn dhut, cuir a-steach an t-slighe cheart no briog air â€œRÃ¹raich.â€
 PathLabel=&Slighe:
-FileNotInDir2=Chan eil am faidhle “%1” an-seo: “%2.” Feuch an atharraich thu am pasgan no an cuir thu a-steach clàr-sùbailte eile.
-SelectDirectoryLabel=Sònraich càite an dèid an t-ath-chlàr a chur a-steach.
+FileNotInDir2=Chan eil am faidhle â€œ%1â€ an-seo: â€œ%2.â€ Feuch an atharraich thu am pasgan no an cuir thu a-steach clÃ r-sÃ¹bailte eile.
+SelectDirectoryLabel=SÃ²nraich cÃ ite an dÃ¨id an t-ath-chlÃ r a chur a-steach.
 
 ; *** Installation phase messages
-SetupAborted=Cha b’ urrainn dhuinn an stàladh a choileanadh.%n%nFeuch an càraich thu an duilgheadas is tòisich air an stàladh a-rithist.
-EntryAbortRetryIgnore=Briog air “Ath-dhèan” gus feuchainn ris a-rithist, air “Leig seachad” gus leantainn air adhart co-dhiù no air “Sguir dheth” gus sgur dhen stàladh.
+SetupAborted=Cha bâ€™ urrainn dhuinn an stÃ ladh a choileanadh.%n%nFeuch an cÃ raich thu an duilgheadas is tÃ²isich air an stÃ ladh a-rithist.
+AbortRetryIgnoreSelectAction=Tagh gnÃ¬omh
+AbortRetryIgnoreRetry=Feuch ris a-ri&thist
+AbortRetryIgnoreIgnore=Le&ig seachad aâ€™ mhearachd is lean air adhart
+AbortRetryIgnoreCancel=Sguir dhen stÃ ladh
 
 ; *** Installation status messages
-StatusClosingApplications=A’ dùnadh aplacaidean …
-StatusCreateDirs=A’ cruthachadh pasganan …
-StatusExtractFiles=A’ dì-dhùmhlachadh faidhlichean …
-StatusCreateIcons=A’ cruthachadh ceanglaichean …
-StatusCreateIniEntries=A’ cruthachadh innteartan INI …
-StatusCreateRegistryEntries=A’ cruthachadh innteartan na clàr-lainn …
-StatusRegisterFiles=A’ clàradh faidhlichean …
-StatusSavingUninstall=A’ sàbhaladh fiosrachadh dì-stàlaidh …
-StatusRunProgram=A’ crìochnachadh an stàlaidh …
-StatusRestartingApplications=Ag ath-thòiseachadh nan aplacaidean …
-StatusRollback=A’ neo-dhèanamh nan atharraichean …
+StatusClosingApplications=Aâ€™ dÃ¹nadh aplacaidean â€¦
+StatusCreateDirs=Aâ€™ cruthachadh pasganan â€¦
+StatusExtractFiles=Aâ€™ dÃ¬-dhÃ¹mhlachadh faidhlichean â€¦
+StatusCreateIcons=Aâ€™ cruthachadh ceanglaichean â€¦
+StatusCreateIniEntries=Aâ€™ cruthachadh innteartan INI â€¦
+StatusCreateRegistryEntries=Aâ€™ cruthachadh innteartan na clÃ r-lainn â€¦
+StatusRegisterFiles=Aâ€™ clÃ radh faidhlichean â€¦
+StatusSavingUninstall=Aâ€™ sÃ bhaladh fiosrachadh dÃ¬-stÃ laidh â€¦
+StatusRunProgram=Aâ€™ crÃ¬ochnachadh an stÃ laidh â€¦
+StatusRestartingApplications=Ag ath-thÃ²iseachadh nan aplacaidean â€¦
+StatusRollback=Aâ€™ neo-dhÃ¨anamh nan atharraichean â€¦
 
 ; *** Misc. errors
 ErrorInternal2=Mearachd inntearnail: %1
-ErrorFunctionFailedNoCode=Dh’fhàillig le %1
-ErrorFunctionFailed=Dh’fhàillig le %1; còd %2
-ErrorFunctionFailedWithMessage=Dh’fhàillig le %1; còd %2.%n%3
+ErrorFunctionFailedNoCode=Dhâ€™fhÃ illig le %1
+ErrorFunctionFailed=Dhâ€™fhÃ illig le %1; cÃ²d %2
+ErrorFunctionFailedWithMessage=Dhâ€™fhÃ illig le %1; cÃ²d %2.%n%3
 ErrorExecutingProgram=Cha ghabh am faidhle a ruith:%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=Cha b’ urrainn dhuinn iuchair na clàr-lainn fhosgladh:%n%1\%2
-ErrorRegCreateKey=Cha b’ urrainn dhuinn iuchair na clàr-lainn a chruthachadh:%n%1\%2
-ErrorRegWriteKey=Mearachd le sgrìobhadh iuchair na clàr-lainn:%n%1\%2
+ErrorRegOpenKey=Cha bâ€™ urrainn dhuinn iuchair na clÃ r-lainn fhosgladh:%n%1\%2
+ErrorRegCreateKey=Cha bâ€™ urrainn dhuinn iuchair na clÃ r-lainn a chruthachadh:%n%1\%2
+ErrorRegWriteKey=Mearachd le sgrÃ¬obhadh iuchair na clÃ r-lainn:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Mearachd le cruthachadh innteart INI san fhaidhle “%1.”
+ErrorIniEntry=Mearachd le cruthachadh innteart INI san fhaidhle â€œ%1.â€
 
 ; *** File copying errors
-FileAbortRetryIgnore=Briog air “Ath-dhèan” gus feuchainn ris a-rithist, air “Leig seachad” gus leum thairis air an fhaidhle seo (cha mholamaid seo) no air “Sguir dheth” gus sgur dhen stàladh.
-FileAbortRetryIgnore2=Briog air “Ath-dhèan” gus feuchainn ris a-rithist, air “Leig seachad” gus leantainn air adhart co-dhiù (cha mholamaid seo) no air “Sguir dheth” gus sgur dhen stàladh.
-SourceIsCorrupted=Tha am faidhle tùsail coirbte
-SourceDoesntExist=Chan eil am faidhle tùsail “%1” ann
-ExistingFileReadOnly=Tha dìon sgrìobhaidh air an fhaidhle a tha ann.%n%nBriog air “Ath-dhèan” gus an dìon sgrìobhaidh a thoirt air falbh, air “Leig seachad” gus leum thairis air an fhaidhle no air “Sguir dheth” gus sgur dhen stàladh.
+FileAbortRetryIgnoreSkipNotRecommended=&GeÃ rr leum thar an fhaidhle seo (cha mholamaid seo)
+FileAbortRetryIgnoreIgnoreNotRecommended=Le&ig seachad aâ€™ mhearachd is lean air adhart (cha mholamaid seo)
+SourceIsCorrupted=Tha am faidhle tÃ¹sail coirbte
+SourceDoesntExist=Chan eil am faidhle tÃ¹sail â€œ%1â€ ann
+ExistingFileReadOnly2=Cha bâ€™ urrainn dhuinn am faidhle Ã¹r a chur an Ã ite an t-seann-fhir on a tha comharra ri leughadh a-mhÃ in ris.
+ExistingFileReadOnlyRetry=Thoi&r air falbh an comharra gu bheil e ri leughadh a-mhÃ in â€™s feuch ris a-rithist
+ExistingFileReadOnlyKeepExisting=&CÃ¹m am faidhle a tha ann mu thrÃ th
 ErrorReadingExistingDest=Mearachd leughaidh san fhaidhle:
-FileExists=Tha am faidhle seo ann mu thràth.%n%nA bheil thu airson sgrìobhadh thairis air?
-ExistingFileNewer=Tha am faidhle a tha ann mu thràth nas ùire na am faidhle a tha thu airson stàladh. Mholamaid gun cùm thu am faidhle a tha ann mu thràth.%n%n A bheil thu airson am faidhle a chumail a tha ann mu thràth?
-ErrorChangingAttr=Thachair mearachd le atharrachadh nan gleusan aig an fhaidhle a tha ann mu thràth:
-ErrorCreatingTemp=Thachair mearachd a’ feuchainn ri faidhle a chruthachadh sa phasgan-amais:
-ErrorReadingSource=Thachair mearachd a’ feuchainn ris am faidhle tùsail a leughadh:
-ErrorCopying=Thachair mearachd a’ feuchainn ri lethbhreac a dhèanamh de dh’fhaidhle:
-ErrorReplacingExistingFile=Thachair mearachd le feuchainn ri cur an àite an fhaidhle a tha ann:
-ErrorRestartReplace=Dh’fhàillig le ath-thòiseachadh/cur ’na àite:
-ErrorRenamingTemp=Thachair mearachd a’ feuchainn ri ainm ùr a thoirt air faidhle sa phasgan-amais:
-ErrorRegisterServer=Cha ghabh an DLL/OCX a chlàradh: %1
-ErrorRegSvr32Failed=Dh’fhàillig RegSvr32 le còd fàgail %1
-ErrorRegisterTypeLib=Cha ghabh leabharlann nan seòrsa a chlàradh: %1
+FileExists=Tha am faidhle seo ann mu thrÃ th.%n%nA bheil thu airson sgrÃ¬obhadh thairis air?
+ExistingFileNewer=Tha am faidhle a tha ann mu thrÃ th nas Ã¹ire na am faidhle a tha thu airson stÃ ladh. Mholamaid gun cÃ¹m thu am faidhle a tha ann mu thrÃ th.%n%n A bheil thu airson am faidhle a chumail a tha ann mu thrÃ th?
+ErrorChangingAttr=Thachair mearachd le atharrachadh nan gleusan aig an fhaidhle a tha ann mu thrÃ th:
+ErrorCreatingTemp=Thachair mearachd aâ€™ feuchainn ri faidhle a chruthachadh sa phasgan-amais:
+ErrorReadingSource=Thachair mearachd aâ€™ feuchainn ris am faidhle tÃ¹sail a leughadh:
+ErrorCopying=Thachair mearachd aâ€™ feuchainn ri lethbhreac a dhÃ¨anamh de dhâ€™fhaidhle:
+ErrorReplacingExistingFile=Thachair mearachd le feuchainn ri cur an Ã ite an fhaidhle a tha ann:
+ErrorRestartReplace=Dhâ€™fhÃ illig le ath-thÃ²iseachadh/cur â€™na Ã ite:
+ErrorRenamingTemp=Thachair mearachd aâ€™ feuchainn ri ainm Ã¹r a thoirt air faidhle sa phasgan-amais:
+ErrorRegisterServer=Cha ghabh an DLL/OCX a chlÃ radh: %1
+ErrorRegSvr32Failed=Dhâ€™fhÃ illig RegSvr32 le cÃ²d fÃ gail %1
+ErrorRegisterTypeLib=Cha ghabh leabhar-lann nan seÃ²rsa a chlÃ radh: %1
+
+; *** Uninstall display name markings
+UninstallDisplayNameMark=%1 (%2)
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-biod
+UninstallDisplayNameMark64Bit=64-biod
+UninstallDisplayNameMarkAllUsers=Na h-uile cleachdaiche
+UninstallDisplayNameMarkCurrentUser=An cleachdaiche lÃ ithreach
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Mearachd le fosgladh an fhaidhle LEUGHMI.
-ErrorRestartingComputer=Cha deach leis an stàladh an coimpiutair agad ath-thòiseachadh. An dèan thu an t-ath-thòiseachadh a làimh?
+ErrorRestartingComputer=Cha deach leis an stÃ ladh an coimpiutair agad ath-thÃ²iseachadh. An dÃ¨an thu an t-ath-thÃ²iseachadh a lÃ imh?
 
 ; *** Uninstaller messages
-UninstallNotFound=Chan eil am faidhle “%1” ann. Dh’fhàillig le dì-stàladh na h-aplacaid.
-UninstallOpenError=Cha b’ urrainn dhuinn am faidhle “%1” fhosgladh. Dh’fhàillig le dì-stàladh na h-aplacaid
-UninstallUnsupportedVer=Cha b’ urrainn dhuinn mothachadh do fhòrmat an fhaidhle dì-stàlaidh “%1.” Dh’fhàillig le dì-stàladh na h-aplacaid
-UninstallUnknownEntry=Tha innteart neo-aithnichte (%1) san loga dì-stàlaidh
-ConfirmUninstall=A bheil thu cinnteach bu bheil thu airson %1 is a h-uile co-phàirt aige a thoirt air falbh?
-UninstallOnlyOnWin64=Chan urrainn dhuinn an stàladh seo a thoirt air falbh ach fo thionndaidhean Windows 64-biod.
-OnlyAdminCanUninstall=Chan fhaod ach cleachdaiche le pribhleidean rianaire an stàladh seo a thoirt air falbh.
-UninstallStatusLabel=Fuirich ort fhad ’s a tha %1 ’ga dhì-stàladh on choimpiutair agad.
-UninstalledAll=Chaidh %1 a thoirt air falbh on choimpiutair agad gu soirbheachail.
-UninstalledMost=Tha an dì-stàladh aig %1 deiseil.%n%nTha co-phàirtean ann nach b’ urrainn dhuinn toirt air falbh. ’S urrainn dhut fhèin an sguabadh às a làimh.
-UninstalledAndNeedsRestart=Feumaidh sinn an coimpiutair agad ath-thòiseachadh gus an dì-stàladh aig %1 a choileanadh.%n%nAn dèan sinn seo dhut an-dràsta?
-UninstallDataCorrupted=Tha am faidhle “%1” coirbte. Dh’fhàillig le dì-stàladh na h-aplacaid.
+UninstallNotFound=Chan eil am faidhle â€œ%1â€ ann. Dhâ€™fhÃ illig le dÃ¬-stÃ ladh na h-aplacaid.
+UninstallOpenError=Cha bâ€™ urrainn dhuinn am faidhle â€œ%1â€ fhosgladh. Dhâ€™fhÃ illig le dÃ¬-stÃ ladh na h-aplacaid
+UninstallUnsupportedVer=Cha bâ€™ urrainn dhuinn mothachadh dÃ¨ am fÃ²rmat a thâ€™ air an fhaidhle dÃ¬-stÃ laidh â€œ%1.â€ Dhâ€™fhÃ illig le dÃ¬-stÃ ladh na h-aplacaid
+UninstallUnknownEntry=Tha innteart neo-aithnichte (%1) san loga dÃ¬-stÃ laidh
+ConfirmUninstall=A bheil thu cinnteach bu bheil thu airson %1 is a h-uile co-phÃ irt aige a thoirt air falbh?
+UninstallOnlyOnWin64=Chan urrainn dhuinn an stÃ ladh seo a thoirt air falbh ach fo thionndaidhean Windows 64-biod.
+OnlyAdminCanUninstall=Chan fhaod ach cleachdaiche le pribhleidean rianaire an stÃ ladh seo a thoirt air falbh.
+UninstallStatusLabel=Fuirich ort fhad â€™s a tha %1 â€™ga dhÃ¬-stÃ ladh on choimpiutair agad.
+UninstalledAll=Chaidh %1 a thoirt air falbh on choimpiutair agad.
+UninstalledMost=Tha an dÃ¬-stÃ ladh aig %1 deiseil.%n%nTha co-phÃ irtean ann nach bâ€™ urrainn dhuinn toirt air falbh. â€™S urrainn dhut fhÃ¨in an sguabadh Ã s a lÃ imh.
+UninstalledAndNeedsRestart=Feumaidh sinn an coimpiutair agad ath-thÃ²iseachadh gus an dÃ¬-stÃ ladh aig %1 a choileanadh.%n%nAn dÃ¨an sinn seo dhut an-drÃ sta?
+UninstallDataCorrupted=Tha am faidhle â€œ%1â€ coirbte. Dhâ€™fhÃ illig le dÃ¬-stÃ ladh na h-aplacaid.
 
 ; *** Uninstallation phase messages
-ConfirmDeleteSharedFileTitle=A bheil thu airson am faidhle co-roinnte a sguabadh às?
-ConfirmDeleteSharedFile2=Tha an siostam ag innse nach dèid am faidhle co-roinnte seo a chleachdadh le prògram sam bith eile. A bheil thu airson ’s gun sguab sinn às dha?%nMa tha prògraman eile ann fhathast a chleachdas am faidhle seo is ma thèid a thoirt air falbh, dh’fhaoidte nach obraich na prògraman ud mar bu chòir tuilleadh. Ma tha thu mì-chinnteach, tagh “Chan eil” gus am faidhle fhàgail san t-siostam. Cha dèan e cron dhan t-siostam agad ma chumas tu am faidhle seo air.
+ConfirmDeleteSharedFileTitle=A bheil thu airson am faidhle co-roinnte a sguabadh Ã s?
+ConfirmDeleteSharedFile2=Tha an siostam ag innse nach dÃ¨id am faidhle co-roinnte seo a chleachdadh le prÃ²gram sam bith eile. A bheil thu airson â€™s gun sguab sinn Ã s dha?%nMa tha prÃ²graman eile ann a chleachdas am faidhle seo fhathast is ma thÃ¨id a thoirt air falbh, dhâ€™fhaoidte nach obraich na prÃ²graman ud mar bu chÃ²ir tuilleadh. Ma tha thu mÃ¬-chinnteach, tagh â€œChan eilâ€ gus am faidhle fhÃ gail san t-siostam. Cha dÃ¨an e cron dhan t-siostam agad ma chumas tu am faidhle seo air.
 SharedFileNameLabel=Ainm an fhaidhle:
 SharedFileLocationLabel=Pasgan:
-WizardUninstalling=Staid an dì-stàlaidh
-StatusUninstalling=A’ dì-stàladh %1 ...
+WizardUninstalling=Staid an dÃ¬-stÃ laidh
+StatusUninstalling=Aâ€™ dÃ¬-stÃ ladh %1 ...
 
 ; *** Shutdown block reasons
-ShutdownBlockReasonInstallingApp=A’ stàladh %1.
-ShutdownBlockReasonUninstallingApp=A’ dì-stàladh %1.
+ShutdownBlockReasonInstallingApp=Aâ€™ stÃ ladh %1.
+ShutdownBlockReasonUninstallingApp=Aâ€™ dÃ¬-stÃ ladh %1.
 
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
@@ -325,14 +347,14 @@ ShutdownBlockReasonUninstallingApp=A’ dì-stàladh %1.
 [CustomMessages]
 
 NameAndVersion=%1 tionndadh %2
-AdditionalIcons=Ìomhaigheagan a bharrachd:
-CreateDesktopIcon=Cruthaich ìomhaigheag air an &deasg
-CreateQuickLaunchIcon=Cruthaich ìomhaigheag &grad-thòiseachaidh
-ProgramOnTheWeb=%1 air an eadar-lìon
-UninstallProgram=Dì-stàlaich %1
-LaunchProgram=Tòisich %1
-AssocFileExtension=&Clàraich %1 leis an leudachan fhaidhle %2
-AssocingFileExtension=A’ clàradh %1 leis an leudachan fhaidhle %2 ...
-AutoStartProgramGroupDescription=Tòiseachadh:
-AutoStartProgram=Tòisich %1 gu fèin-obrachail
-AddonHostProgramNotFound=Cha deach %1 a lorg sa phasgan a thagh thu.%n%nA bheil thu airson leantainn air adhart co-dhiù?
+AdditionalIcons=ÃŒomhaigheagan a bharrachd:
+CreateDesktopIcon=Cruthaich Ã¬omhaigheag air an &deasg
+CreateQuickLaunchIcon=Cruthaich Ã¬omhaigheag &grad-thÃ²iseachaidh
+ProgramOnTheWeb=%1 air an eadar-lÃ¬on
+UninstallProgram=DÃ¬-stÃ laich %1
+LaunchProgram=Cuir %1 gu dol
+AssocFileExtension=&ClÃ raich %1 leis an leudachan fhaidhle %2
+AssocingFileExtension=Aâ€™ clÃ radh %1 leis an leudachan fhaidhle %2 ...
+AutoStartProgramGroupDescription=TÃ²iseachadh:
+AutoStartProgram=TÃ²isich %1 gu fÃ¨in-obrachail
+AddonHostProgramNotFound=Cha deach %1 a lorg sa phasgan a thagh thu.%n%nA bheil thu airson leantainn air adhart co-dhiÃ¹?
