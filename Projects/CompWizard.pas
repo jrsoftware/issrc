@@ -2,7 +2,7 @@ unit CompWizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs,
-  UIStateForm, NewStaticText, DropListBox, NewCheckListBox;
+  UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppIcons,
@@ -28,8 +28,20 @@ type
     CancelButton: TButton;
     NextButton: TButton;
     BackButton: TButton;
-    Notebook1: TNotebook;
-    Notebook2: TNotebook;
+    OuterNotebook: TNewNotebook;
+    InnerNotebook: TNewNotebook;
+    WelcomePage: TNewNotebookPage;
+    MainPage: TNewNotebookPage;
+    AppInfoPage: TNewNotebookPage;
+    AppDirPage: TNewNotebookPage;
+    AppFilesPage: TNewNotebookPage;
+    AppIconsPage: TNewNotebookPage;
+    AppDocsPage: TNewNotebookPage;
+    PrivilegesRequiredPage: TNewNotebookPage;
+    LanguagesPage: TNewNotebookPage;
+    CompilerPage: TNewNotebookPage;
+    ISPPPage: TNewNotebookPage;
+    FinishedPage: TNewNotebookPage;
     Bevel: TBevel;
     WelcomeImage: TImage;
     WelcomeLabel1: TNewStaticText;
@@ -276,11 +288,19 @@ begin
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
   InitFormFont(Self);
+  if Font.Name = 'Segoe UI' then begin
+    { See Wizard.pas }
+    for I := 0 to OuterNotebook.PageCount-1 do
+      OuterNotebook.Pages[I].HandleNeeded;
+    for I := 0 to InnerNotebook.PageCount-1 do
+      InnerNotebook.Pages[I].HandleNeeded;
+    ClientWidth := MulDiv(ClientWidth, 105, 100);
+  end;
   if FontExists('Verdana') then
     WelcomeLabel1.Font.Name := 'Verdana';
 
-  TNotebookAccess(Notebook1).ParentBackground := False;
-  Notebook1.Color := clWindow;
+  TNotebookAccess(OuterNotebook).ParentBackground := False;
+  OuterNotebook.Color := clWindow;
 
   MakeBold(PageNameLabel);
   MakeBold(RequiredLabel1);
@@ -377,9 +397,9 @@ end;
 procedure TWizardForm.CurPageChanged;
 { Call this whenever the current page is changed }
 begin
-  Notebook1.PageIndex := NotebookPages[CurPage, 0];
+  OuterNotebook.ActivePage := OuterNotebook.Pages[NotebookPages[CurPage, 0]];
   if NotebookPages[CurPage, 1] <> -1 then
-    Notebook2.PageIndex := NotebookPages[CurPage, 1];
+    InnerNotebook.ActivePage := InnerNotebook.Pages[NotebookPages[CurPage, 1]];
 
   { Set button visibility and captions }
   BackButton.Visible := not (CurPage = wpWelcome);

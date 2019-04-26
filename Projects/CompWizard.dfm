@@ -6,16 +6,21 @@ object WizardForm: TWizardForm
   Caption = '*'
   ClientHeight = 358
   ClientWidth = 495
+  Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  OldCreateOrder = True
   Position = poScreenCenter
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
+  DesignSize = (
+    495
+    358)
   PixelsPerInch = 96
   TextHeight = 13
   object Bevel: TBevel
@@ -23,6 +28,7 @@ object WizardForm: TWizardForm
     Top = 314
     Width = 503
     Height = 1
+    Anchors = [akLeft, akRight, akBottom]
     Shape = bsTopLine
   end
   object RequiredLabel1: TNewStaticText
@@ -30,6 +36,7 @@ object WizardForm: TWizardForm
     Top = 332
     Width = 21
     Height = 14
+    Anchors = [akLeft, akBottom]
     Caption = 'bold'
     Enabled = False
     TabOrder = 4
@@ -39,28 +46,33 @@ object WizardForm: TWizardForm
     Top = 332
     Width = 51
     Height = 14
+    Anchors = [akLeft, akBottom]
     Caption = ' = required'
     Enabled = False
     TabOrder = 5
   end
-  object Notebook1: TNotebook
+  object OuterNotebook: TNewNotebook
     Left = 0
     Top = 0
     Width = 496
     Height = 314
+    ActivePage = MainPage
+    Anchors = [akLeft, akTop, akRight, akBottom]
     Color = clBtnFace
-    PageIndex = 1
     ParentColor = False
     TabOrder = 3
-    object TPage
-      Left = 0
-      Top = 0
-      Caption = 'Welcome'
+    object WelcomePage: TNewNotebookPage
+      Color = clWindow
+      ParentColor = False
+      DesignSize = (
+        496
+        314)
       object WelcomeImage: TImage
         Left = 0
         Top = 0
         Width = 164
         Height = 314
+        Anchors = [akLeft, akTop, akBottom]
         Picture.Data = {
           07544269746D61707E670000424D7E670000000000007600000028000000A400
           00003A0100000100040000000000086700000000000000000000100000001000
@@ -898,6 +910,7 @@ object WizardForm: TWizardForm
         Top = 16
         Width = 301
         Height = 53
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 'Welcome to the [name]'
         Font.Charset = DEFAULT_CHARSET
@@ -915,6 +928,7 @@ object WizardForm: TWizardForm
         Top = 76
         Width = 301
         Height = 57
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 
           'This wizard will guide you through the process of creating a new' +
@@ -930,6 +944,7 @@ object WizardForm: TWizardForm
         Top = 140
         Width = 301
         Height = 77
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 
           'Not all features of Inno Setup are covered by this wizard. See t' +
@@ -943,14 +958,15 @@ object WizardForm: TWizardForm
         Top = 288
         Width = 189
         Height = 17
+        Anchors = [akLeft, akRight, akBottom]
         Caption = 'Create a new &empty script file'
         TabOrder = 3
       end
     end
-    object TPage
-      Left = 0
-      Top = 0
-      Caption = 'Main'
+    object MainPage: TNewNotebookPage
+      DesignSize = (
+        496
+        314)
       object Bevel1: TBevel
         Left = 0
         Top = 58
@@ -959,21 +975,24 @@ object WizardForm: TWizardForm
         Shape = bsTopLine
         Visible = False
       end
-      object Notebook2: TNotebook
+      object InnerNotebook: TNewNotebook
         Left = 4
         Top = 64
         Width = 485
         Height = 245
+        ActivePage = AppInfoPage
+        Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 0
-        object TPage
-          Left = 0
-          Top = 0
-          Caption = 'AppInfo'
+        object AppInfoPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
           object AppNameLabel: TNewStaticText
             Left = 36
             Top = 8
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Application na&me:'
             FocusControl = AppNameEdit
@@ -985,6 +1004,7 @@ object WizardForm: TWizardForm
             Top = 56
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Application &version:'
             FocusControl = AppVersionEdit
@@ -996,6 +1016,7 @@ object WizardForm: TWizardForm
             Top = 104
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Application &publisher:'
             FocusControl = AppPublisherEdit
@@ -1007,6 +1028,7 @@ object WizardForm: TWizardForm
             Top = 152
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Application &website:'
             FocusControl = AppURLEdit
@@ -1018,6 +1040,7 @@ object WizardForm: TWizardForm
             Top = 28
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 1
           end
           object AppVersionEdit: TEdit
@@ -1025,6 +1048,7 @@ object WizardForm: TWizardForm
             Top = 76
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 3
           end
           object AppPublisherEdit: TEdit
@@ -1032,6 +1056,7 @@ object WizardForm: TWizardForm
             Top = 124
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 5
           end
           object AppURLEdit: TEdit
@@ -1039,18 +1064,20 @@ object WizardForm: TWizardForm
             Top = 172
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 7
           end
         end
-        object TPage
-          Left = 0
-          Top = 0
-          Caption = 'AppDir'
+        object AppDirPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
           object AppDirNameLabel: TNewStaticText
             Left = 36
             Top = 84
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Application folder na&me:'
             FocusControl = AppDirNameEdit
@@ -1062,6 +1089,7 @@ object WizardForm: TWizardForm
             Top = 8
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Application &destination base folder:'
             FocusControl = AppRootDirComboBox
@@ -1073,6 +1101,7 @@ object WizardForm: TWizardForm
             Top = 156
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Other:'
             FocusControl = AppDirNameEdit
@@ -1085,8 +1114,8 @@ object WizardForm: TWizardForm
             Width = 309
             Height = 21
             Style = csDropDownList
+            Anchors = [akLeft, akTop, akRight]
             DropDownCount = 12
-            ItemHeight = 13
             TabOrder = 1
             OnChange = AppRootDirComboBoxChange
           end
@@ -1095,6 +1124,7 @@ object WizardForm: TWizardForm
             Top = 56
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 2
           end
           object AppDirNameEdit: TEdit
@@ -1102,6 +1132,7 @@ object WizardForm: TWizardForm
             Top = 104
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 4
           end
           object NotDisableDirPageCheck: TCheckBox
@@ -1109,6 +1140,7 @@ object WizardForm: TWizardForm
             Top = 132
             Width = 425
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'Allow user to &change the application folder'
             TabOrder = 5
           end
@@ -1117,20 +1149,22 @@ object WizardForm: TWizardForm
             Top = 176
             Width = 257
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'The application doe&sn'#39't need a folder'
             TabOrder = 7
             OnClick = NotCreateAppDirCheckClick
           end
         end
-        object TPage
-          Left = 0
-          Top = 0
-          Caption = 'AppFiles'
+        object AppFilesPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
           object AppFilesLabel: TNewStaticText
             Left = 36
             Top = 100
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Other application &files:'
             FocusControl = AppFilesListBox
@@ -1142,6 +1176,7 @@ object WizardForm: TWizardForm
             Top = 8
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Application &main executable file:'
             FocusControl = AppExeEdit
@@ -1153,6 +1188,7 @@ object WizardForm: TWizardForm
             Top = 120
             Width = 309
             Height = 117
+            Anchors = [akLeft, akTop, akRight, akBottom]
             ItemHeight = 13
             TabOrder = 6
             OnClick = AppFilesListBoxClick
@@ -1164,6 +1200,7 @@ object WizardForm: TWizardForm
             Top = 119
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = '&Add file(s)...'
             TabOrder = 7
             OnClick = AppFilesAddButtonClick
@@ -1173,6 +1210,7 @@ object WizardForm: TWizardForm
             Top = 175
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = '&Edit...'
             TabOrder = 9
             OnClick = AppFilesEditButtonClick
@@ -1182,6 +1220,7 @@ object WizardForm: TWizardForm
             Top = 203
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = 'Remo&ve'
             TabOrder = 10
             OnClick = AppFilesRemoveButtonClick
@@ -1191,6 +1230,7 @@ object WizardForm: TWizardForm
             Top = 28
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 1
           end
           object AppExeRunCheck: TCheckBox
@@ -1198,6 +1238,7 @@ object WizardForm: TWizardForm
             Top = 56
             Width = 413
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'Allow &user to start the application after Setup has finished'
             TabOrder = 3
           end
@@ -1206,6 +1247,7 @@ object WizardForm: TWizardForm
             Top = 27
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = 'B&rowse...'
             TabOrder = 2
             OnClick = AppExeButtonClick
@@ -1215,6 +1257,7 @@ object WizardForm: TWizardForm
             Top = 147
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = 'Add fol&der...'
             TabOrder = 8
             OnClick = AppFilesAddDirButtonClick
@@ -1224,20 +1267,22 @@ object WizardForm: TWizardForm
             Top = 76
             Width = 413
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'The application doe&sn'#39't have a main executable file'
             TabOrder = 4
             OnClick = NoAppExeCheckClick
           end
         end
-        object TPage
-          Left = 0
-          Top = 0
-          Caption = 'AppIcons'
+        object AppIconsPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
           object AppGroupNameLabel: TNewStaticText
             Left = 36
             Top = 28
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Application &Start Menu folder name:'
             FocusControl = AppGroupNameEdit
@@ -1249,6 +1294,7 @@ object WizardForm: TWizardForm
             Top = 160
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Other shortcuts to the main executable:'
             FocusControl = AppDirNameEdit
@@ -1260,6 +1306,7 @@ object WizardForm: TWizardForm
             Top = 48
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 2
           end
           object NotDisableProgramGroupPageCheck: TCheckBox
@@ -1267,6 +1314,7 @@ object WizardForm: TWizardForm
             Top = 76
             Width = 425
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'Allow user to &change the Start Menu folder name'
             TabOrder = 3
             OnClick = NotDisableProgramGroupPageCheckClick
@@ -1276,6 +1324,7 @@ object WizardForm: TWizardForm
             Top = 96
             Width = 425
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'Allow user to &disable Start Menu folder creation'
             TabOrder = 4
           end
@@ -1284,6 +1333,7 @@ object WizardForm: TWizardForm
             Top = 180
             Width = 257
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'Allow user to create a deskto&p shortcut'
             TabOrder = 8
             OnClick = NotCreateAppDirCheckClick
@@ -1293,6 +1343,7 @@ object WizardForm: TWizardForm
             Top = 200
             Width = 421
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 
               'Allow user to create a &Quick Launch shortcut on older versions ' +
               'of Windows'
@@ -1304,6 +1355,7 @@ object WizardForm: TWizardForm
             Top = 136
             Width = 301
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'Create an &Uninstall shortcut in the Start Menu folder'
             TabOrder = 6
           end
@@ -1312,6 +1364,7 @@ object WizardForm: TWizardForm
             Top = 116
             Width = 301
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'Create an &Internet shortcut in the Start Menu folder'
             TabOrder = 5
           end
@@ -1320,6 +1373,7 @@ object WizardForm: TWizardForm
             Top = 8
             Width = 425
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 
               '&Create a shortcut to the main executable in the common Start Me' +
               'nu Programs folder'
@@ -1327,15 +1381,16 @@ object WizardForm: TWizardForm
             OnClick = UseCommonProgramsCheckClick
           end
         end
-        object TPage
-          Left = 0
-          Top = 0
-          Caption = 'AppDocs'
+        object AppDocsPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
           object AppLicenseFileLabel: TNewStaticText
             Left = 36
             Top = 8
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '&License file:'
             FocusControl = AppLicenseFileEdit
@@ -1347,6 +1402,7 @@ object WizardForm: TWizardForm
             Top = 56
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '&Information file shown before installation:'
             FocusControl = AppInfoBeforeFileEdit
@@ -1358,6 +1414,7 @@ object WizardForm: TWizardForm
             Top = 104
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Information file shown &after installation:'
             FocusControl = AppInfoAfterFileEdit
@@ -1369,6 +1426,7 @@ object WizardForm: TWizardForm
             Top = 28
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 1
           end
           object AppLicenseFileButton: TButton
@@ -1376,6 +1434,7 @@ object WizardForm: TWizardForm
             Top = 27
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = 'B&rowse...'
             TabOrder = 2
             OnClick = FileButtonClick
@@ -1385,6 +1444,7 @@ object WizardForm: TWizardForm
             Top = 76
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 4
           end
           object AppInfoBeforeFileButton: TButton
@@ -1392,6 +1452,7 @@ object WizardForm: TWizardForm
             Top = 75
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = 'Br&owse...'
             TabOrder = 5
             OnClick = FileButtonClick
@@ -1401,6 +1462,7 @@ object WizardForm: TWizardForm
             Top = 124
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 7
           end
           object AppInfoAfterFileButton: TButton
@@ -1408,20 +1470,22 @@ object WizardForm: TWizardForm
             Top = 123
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = 'Bro&wse...'
             TabOrder = 8
             OnClick = FileButtonClick
           end
         end
-        object TPage
-          Left = 0
-          Top = 0
-          Caption = 'PrivilegesRequired'
+        object PrivilegesRequiredPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
           object PrivilegesRequiredLabel: TNewStaticText
             Left = 36
             Top = 8
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Install mode:'
             FocusControl = AppLicenseFileEdit
@@ -1431,46 +1495,51 @@ object WizardForm: TWizardForm
           object PrivilegesRequiredAdminRadioButton: TRadioButton
             Left = 36
             Top = 28
-            Width = 255
+            Width = 413
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = '&Aministrative install mode (install for all users)'
             TabOrder = 1
           end
           object PrivilegesRequiredLowestRadioButton: TRadioButton
             Left = 36
             Top = 48
-            Width = 311
+            Width = 413
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = '&Non administrative install mode (install for current user only)'
             TabOrder = 2
           end
           object PrivilegesRequiredOverridesAllowedCommandLineCheckbox: TCheckBox
             Left = 36
-            Top = 68
-            Width = 311
+            Top = 65
+            Width = 413
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'Allow user to &override the install mode via the command line'
             TabOrder = 3
           end
           object PrivilegesRequiredOverridesAllowedDialogCheckbox: TCheckBox
             Left = 36
             Top = 88
-            Width = 255
+            Width = 413
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'Ask the user to &choose the install mode at startup'
             TabOrder = 4
             OnClick = PrivilegesRequiredOverridesAllowedDialogCheckboxClick
           end
         end
-        object TPage
-          Left = 0
-          Top = 0
-          Caption = 'Languages'
+        object LanguagesPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
           object LanguagesLabel: TNewStaticText
             Left = 36
             Top = 8
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '&Languages:'
             FocusControl = LanguagesList
@@ -1482,6 +1551,7 @@ object WizardForm: TWizardForm
             Top = 28
             Width = 309
             Height = 209
+            Anchors = [akLeft, akTop, akRight, akBottom]
             Offset = 2
             TabOrder = 1
           end
@@ -1490,6 +1560,7 @@ object WizardForm: TWizardForm
             Top = 27
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = '&Select all'
             TabOrder = 2
             OnClick = AllLanguagesButtonClick
@@ -1499,20 +1570,22 @@ object WizardForm: TWizardForm
             Top = 55
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = '&Deselect all'
             TabOrder = 3
             OnClick = NoLanguagesButtonClick
           end
         end
-        object TPage
-          Left = 0
-          Top = 0
-          Caption = 'Compiler'
+        object CompilerPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
           object OutputDirLabel: TNewStaticText
             Left = 36
             Top = 8
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Custom compiler output fol&der:'
             FocusControl = OutputDirEdit
@@ -1524,6 +1597,7 @@ object WizardForm: TWizardForm
             Top = 28
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 1
           end
           object OutputBaseFileNameLabel: TNewStaticText
@@ -1531,6 +1605,7 @@ object WizardForm: TWizardForm
             Top = 56
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Compiler output base &file name:'
             FocusControl = OutputBaseFileNameEdit
@@ -1542,6 +1617,7 @@ object WizardForm: TWizardForm
             Top = 76
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 4
           end
           object SetupIconFileLabel: TNewStaticText
@@ -1549,6 +1625,7 @@ object WizardForm: TWizardForm
             Top = 104
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Custom Setup &icon file:'
             FocusControl = SetupIconFileEdit
@@ -1560,6 +1637,7 @@ object WizardForm: TWizardForm
             Top = 124
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 6
           end
           object PasswordLabel: TNewStaticText
@@ -1567,6 +1645,7 @@ object WizardForm: TWizardForm
             Top = 152
             Width = 413
             Height = 16
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Setup &password:'
             FocusControl = PasswordEdit
@@ -1578,6 +1657,7 @@ object WizardForm: TWizardForm
             Top = 172
             Width = 309
             Height = 21
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 9
             OnChange = PasswordEditChange
           end
@@ -1586,6 +1666,7 @@ object WizardForm: TWizardForm
             Top = 123
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = 'Bro&wse...'
             TabOrder = 7
             OnClick = FileButtonClick
@@ -1595,6 +1676,7 @@ object WizardForm: TWizardForm
             Top = 200
             Width = 425
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = 'Use the password to &encrypt the application files'
             TabOrder = 10
             OnClick = NotDisableProgramGroupPageCheckClick
@@ -1604,20 +1686,22 @@ object WizardForm: TWizardForm
             Top = 27
             Width = 89
             Height = 23
+            Anchors = [akTop, akRight]
             Caption = 'B&rowse...'
             TabOrder = 2
             OnClick = OutputDirButtonClick
           end
         end
-        object TPage
-          Left = 0
-          Top = 0
-          Caption = 'ISPP'
+        object ISPPPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
           object ISPPLabel: TLabel
             Left = 36
             Top = 8
             Width = 425
             Height = 81
+            Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = '*'
             WordWrap = True
@@ -1627,6 +1711,7 @@ object WizardForm: TWizardForm
             Top = 90
             Width = 425
             Height = 17
+            Anchors = [akLeft, akTop, akRight]
             Caption = '*'
             TabOrder = 0
             OnClick = NotDisableProgramGroupPageCheckClick
@@ -1638,14 +1723,19 @@ object WizardForm: TWizardForm
         Top = 0
         Width = 497
         Height = 58
+        Anchors = [akLeft, akTop, akRight]
         BevelOuter = bvNone
         Color = clWindow
         TabOrder = 1
+        DesignSize = (
+          497
+          58)
         object InnerImage: TImage
           Left = 438
           Top = 1
           Width = 55
           Height = 55
+          Anchors = [akTop, akRight]
           Picture.Data = {
             07544269746D61707A060000424D7A0600000000000076000000280000003700
             0000370000000100040000000000040600000000000000000000100000001000
@@ -1707,6 +1797,7 @@ object WizardForm: TWizardForm
           Top = 10
           Width = 405
           Height = 13
+          Anchors = [akLeft, akTop, akRight]
           AutoSize = False
           Caption = '*'
           TabOrder = 0
@@ -1716,6 +1807,7 @@ object WizardForm: TWizardForm
           Top = 26
           Width = 389
           Height = 29
+          Anchors = [akLeft, akTop, akRight]
           AutoSize = False
           Caption = '*'
           ShowAccelChar = False
@@ -1724,15 +1816,18 @@ object WizardForm: TWizardForm
         end
       end
     end
-    object TPage
-      Left = 0
-      Top = 0
-      Caption = 'Finished'
+    object FinishedPage: TNewNotebookPage
+      Color = clWindow
+      ParentColor = False
+      DesignSize = (
+        496
+        314)
       object FinishedImage: TImage
         Left = 0
         Top = 0
         Width = 164
         Height = 314
+        Anchors = [akLeft, akTop, akBottom]
         Stretch = True
       end
       object FinishedLabel: TNewStaticText
@@ -1740,6 +1835,7 @@ object WizardForm: TWizardForm
         Top = 16
         Width = 301
         Height = 121
+        Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 
           'You have successfully completed the [name].'#13#13'To close this wizar' +
@@ -1755,6 +1851,7 @@ object WizardForm: TWizardForm
     Top = 326
     Width = 75
     Height = 23
+    Anchors = [akRight, akBottom]
     Caption = '< &Back'
     TabOrder = 0
     OnClick = BackButtonClick
@@ -1764,6 +1861,7 @@ object WizardForm: TWizardForm
     Top = 326
     Width = 75
     Height = 23
+    Anchors = [akRight, akBottom]
     Caption = '*'
     Default = True
     TabOrder = 1
@@ -1774,6 +1872,7 @@ object WizardForm: TWizardForm
     Top = 326
     Width = 75
     Height = 23
+    Anchors = [akRight, akBottom]
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
