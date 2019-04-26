@@ -189,6 +189,7 @@ type
     DoneWithWizard: Boolean;
     PrepareToInstallNeedsRestart: Boolean;
     EnableAnchorOuterPagesOnResize: Boolean;
+    EnableAdjustReadyLabelHeightOnResize: Boolean;
     procedure AdjustFocus;
     procedure CalcCurrentComponentsSpace;
     procedure ChangeReadyLabel(const S: String);
@@ -1306,6 +1307,8 @@ begin
     AnchorOuterPage(WelcomePage, WizardBitmapImage);
     AnchorOuterPage(FinishedPage, WizardBitmapImage2);
   end;
+  if EnableAdjustReadyLabelHeightOnResize then
+    IncTopDecHeight(ReadyMemo, AdjustLabelHeight(ReadyLabel));
 end;
 
 procedure TWizardForm.FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
@@ -1449,6 +1452,7 @@ procedure TWizardForm.ChangeReadyLabel(const S: String);
 begin
   ReadyLabel.Caption := S;
   IncTopDecHeight(ReadyMemo, AdjustLabelHeight(ReadyLabel));
+  EnableAdjustReadyLabelHeightOnResize := True;
 end;
 
 procedure TWizardForm.ChangeFinishedLabel(const S: String);

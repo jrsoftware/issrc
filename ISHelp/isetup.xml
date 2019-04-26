@@ -371,6 +371,7 @@ This " contains " embedded " quotes
 <keyword value="{src}" anchor="src" />
 <keyword value="{srcexe}" anchor="srcexe" />
 <keyword value="{sys}" anchor="sys" />
+<keyword value="{sysnative}" anchor="sysnative" />
 <keyword value="{sysuserinfoname}" anchor="sysuserinfoname" />
 <keyword value="{sysuserinfoorg}" anchor="sysuserinfoorg" />
 <keyword value="{syswow64}" anchor="syswow64" />
@@ -427,9 +428,14 @@ For example: If you used <tt>{sys}\CTL3D32.DLL</tt> on an entry and the system's
 <p>On 64-bit Windows, by default, the System32 path returned by this constant maps to the directory containing 32-bit system files, just like on 32-bit Windows. (This can be overridden by enabling <link topic="32vs64bitinstalls">64-bit install mode</link>.)</p>
 </dd>
 
+<dt><b><a name="sysnative">{sysnative}</a></b></dt>
+<dd>
+<p>On 64-bit Windows, the directory containing 64-bit system files. On 32-bit Windows, the directory containing 32-bit system files.</p>
+</dd>
+
 <dt><b><a name="syswow64">{syswow64}</a></b></dt>
 <dd>
-<p>On 64-bit Windows, the system's SysWOW64 directory, typically "C:\WINDOWS\SysWOW64". This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files reside in "System32" or "System", not in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
+<p>On 64-bit Windows, the system's SysWOW64 directory, typically "C:\WINDOWS\SysWOW64". This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files do not reside in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
 <p>Do not use this constant unless you have a specific need to obtain the name of the actual directory in which 32-bit system files reside. Gratuitously using <tt>{syswow64}</tt> in places where <tt>{sys}</tt> will suffice may cause problems. (See the documentation for the <link topic="filessection">[Files]</link> section's <tt>sharedfile</tt> flag for one example.)</p>
 </dd>
 
@@ -614,11 +620,12 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <heading>Auto Constants</heading>
 
-<p>Besides the "common" and "user" constants, Inno Setup also supports "auto" constants. These automatically map to their "common" form unless the installation is running in <link topic="admininstallmode">non administrative install mode</link>, in which case they map to their "user" form. It is recommended you always use these "auto" constants when possible to avoid mistakes.</p>
+<p>Besides the "common" and "user" constants, Inno Setup also supports "auto" constants. These automatically map to their "common" form unless the installation is running in <link topic="admininstallmode">non administrative install mode</link>, in which case they map to their "user" form.</p>
+<p>It is recommended you always use these "auto" constants when possible to avoid mistakes.</p>
 
 <indent>
 <table>
-<tr><td></td><td><u>Administrative</u></td><td><u>Not administrative</u></td></tr>
+<tr><td></td><td><u>Administrative</u></td><td><u>Non administrative</u></td></tr>
 <tr><td><tt><a name="autoappdata">autoappdata</a></tt></td><td><tt>commonappdata</tt></td><td><tt>userappdata</tt></td></tr>
 <tr><td><tt><a name="autocf">autocf</a></tt></td><td><tt>commoncf</tt></td><td><tt>usercf</tt></td></tr>
 <tr><td><tt><a name="autocf32">autocf32</a></tt></td><td><tt>commoncf32</tt></td><td><tt>usercf</tt></td></tr>
