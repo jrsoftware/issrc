@@ -102,7 +102,7 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <li>Support for every Windows release since 2006, including: Windows 10, Windows 10 on ARM, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Server 2008, and Windows Vista. (No service packs are required.)</li>
 
-<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are supported.</li>
+<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are all supported.</li>
 
 <li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link> installations.</li>
 
