@@ -102,11 +102,33 @@ end;</pre></example>
         <name>WizardSelectedComponents</name>
         <prototype>function WizardSelectedComponents(const Descriptions: Boolean): String;</prototype>
         <description><p>Returns a comma-separated list of names or descriptions of the components selected by the user.</p></description>
+        <seealso><p><link topic="isxfunc_WizardIsComponentSelected">WizardIsComponentSelected</link></p></seealso>
+      </function>
+      <function>
+        <name>WizardIsComponentSelected</name>
+        <prototype>function WizardIsComponentSelected(const Components: String): Boolean;</prototype>
+        <description><p>Returns True if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Components parameter</link>.</p></description>
+        <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link></p></seealso>
+        <example><pre>begin
+  if WizardIsComponentSelected('helpfiles') then
+    // the 'helpfiles' component is selected
+end;</pre></example>
       </function>
       <function>
         <name>WizardSelectedTasks</name>
         <prototype>function WizardSelectedTasks(const Descriptions: Boolean): String;</prototype>
         <description><p>Returns a comma-separated list of names or descriptions of the tasks selected by the user.</p></description>
+        <seealso><p><link topic="isxfunc_WizardIsTaskSelected">WizardIsTaskSelected</link></p></seealso>
+      </function>
+      <function>
+        <name>WizardIsTaskSelected</name>
+        <prototype>function WizardIsTaskSelected(const Tasks: String): Boolean;</prototype>
+        <description><p>Returns True if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Tasks parameter</link>.</p></description>
+        <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link></p></seealso>
+        <example><pre>begin
+  if WizardIsTaskSelected('desktopicon') then
+    // the 'desktopicon' task is selected
+end;</pre></example>
       </function>
       <function>
         <name>WizardSilent</name>
@@ -152,26 +174,6 @@ end;</pre></example>
         <prototype>function ExpandConstantEx(const S: String; const CustomConst, CustomValue: String): String;</prototype>
         <description><p>Changes all constants in S to their values. Additionally, any constant equal to CustomConst will be changed to CustomValue.</p>
 <p>An exception will be raised if there was an error expanding the constants.</p></description>
-      </function>
-    </subcategory>
-    <subcategory>
-      <function>
-        <name>IsComponentSelected</name>
-        <prototype>function IsComponentSelected(const Components: String): Boolean;</prototype>
-        <description><p>Returns True if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Components parameter</link>.</p></description>
-        <example><pre>begin
-  if IsComponentSelected('helpfiles') then
-    // the 'helpfiles' component is selected
-end;</pre></example>
-      </function>
-      <function>
-        <name>IsTaskSelected</name>
-        <prototype>function IsTaskSelected(const Tasks: String): Boolean;</prototype>
-        <description><p>Returns True if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Tasks parameter</link>.</p></description>
-        <example><pre>begin
-  if IsTaskSelected('desktopicon') then
-    // the 'desktopicon' task is selected
-end;</pre></example>
       </function>
     </subcategory>
     <subcategory>

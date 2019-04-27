@@ -2,7 +2,7 @@ unit ScriptFunc_R;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -963,9 +963,9 @@ function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSS
 var
   PStart: Cardinal;
   MinVersion, OnlyBelowVersion: TSetupVersionData;
-  WizardComponents, WizardTasks: TStringList;
+  StringList: TStringList;
   S: String;
-  Suppressible: Boolean;
+  Components, Suppressible: Boolean;
   Default: Integer;
   Arr: TPSVariantIFC;
   N, I: Integer;
@@ -980,29 +980,25 @@ begin
     Stack.SetClass(PStart, GetMainForm);
   end else if Proc.Name = 'ACTIVELANGUAGE' then begin
     Stack.SetString(PStart, ExpandConst('{language}'));
-  end else if Proc.Name = 'ISCOMPONENTSELECTED' then begin
+  end else if (Proc.Name = 'WIZARDISCOMPONENTSELECTED') or (Proc.Name = 'ISCOMPONENTSELECTED') or
+              (Proc.Name = 'WIZARDISTASKSELECTED') or (Proc.Name = 'ISTASKSELECTED') then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    WizardComponents := TStringList.Create();
+    StringList := TStringList.Create();
     try
-      GetWizardForm.GetSelectedComponents(WizardComponents, False, False);
+      Components := (Proc.Name = 'WIZARDISCOMPONENTSELECTED') or (Proc.Name = 'ISCOMPONENTSELECTED');
+      if Components then
+        GetWizardForm.GetSelectedComponents(StringList, False, False)
+      else
+        GetWizardForm.GetSelectedTasks(StringList, False, False, False);
       S := Stack.GetString(PStart-1);
       StringChange(S, '/', '\');
-      Stack.SetBool(PStart, ShouldProcessEntry(WizardComponents, nil, S, '', '', ''));
+      if Components then
+        Stack.SetBool(PStart, ShouldProcessEntry(StringList, nil, S, '', '', ''))
+      else
+        Stack.SetBool(PStart, ShouldProcessEntry(nil, StringList, '', S, '', ''));
     finally
-      WizardComponents.Free();
-    end;
-  end else if Proc.Name = 'ISTASKSELECTED' then begin
-    if IsUninstaller then
-      NoUninstallFuncError(Proc.Name);
-    WizardTasks := TStringList.Create();
-    try
-      GetWizardForm.GetSelectedTasks(WizardTasks, False, False, False);
-      S := Stack.GetString(PStart-1);
-      StringChange(S, '/', '\');
-      Stack.SetBool(PStart, ShouldProcessEntry(nil, WizardTasks, '', S, '', ''));
-    finally
-      WizardTasks.Free();
+      StringList.Free();
     end;
   end else if Proc.Name = 'EXPANDCONSTANT' then begin
     Stack.SetString(PStart, ExpandConst(Stack.GetString(PStart-1)));

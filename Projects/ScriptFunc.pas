@@ -2,7 +2,7 @@ unit ScriptFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -180,13 +180,15 @@ const
   );
 
   { Main }
-  MainTable: array [0..26] of AnsiString =
+  MainTable: array [0..28] of AnsiString =
   (
     'function GetWizardForm: TWizardForm;',
     'function GetMainForm: TMainForm;',
     'function ActiveLanguage: String;',
-    'function IsComponentSelected(const Components: String): Boolean;',
-    'function IsTaskSelected(const Tasks: String): Boolean;',
+    'function WizardIsComponentSelected(const Components: String): Boolean;',
+    'function IsComponentSelected(const Components: String): Boolean;', { old name of WizardIsComponentSelected }
+    'function WizardIsTaskSelected(const Tasks: String): Boolean;',
+    'function IsTaskSelected(const Tasks: String): Boolean;', { old name of WizardIsTaskSelected }
     'function ExpandConstant(const S: String): String;',
     'function ExpandConstantEx(const S: String; const CustomConst, CustomValue: String): String;',
     'function ExitSetupMsgBox: Boolean;',
