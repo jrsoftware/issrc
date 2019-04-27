@@ -1790,22 +1790,15 @@ begin
     end
     else
       Stack.SetString(PStart, '');
-  end else if Proc.Name = 'WIZARDSELECTEDCOMPONENTS' then begin
+  end else if (Proc.Name = 'WIZARDSELECTEDCOMPONENTS') or (Proc.Name = 'WIZARDSELECTEDTASKS') then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
     StringList := TStringList.Create();
     try
-      GetWizardForm.GetSelectedComponents(StringList, Stack.GetBool(PStart-1), False);
-      Stack.SetString(PStart, StringsToCommaString(StringList));
-    finally
-      StringList.Free();
-    end;
-  end else if Proc.Name = 'WIZARDSELECTEDTASKS' then begin
-    if IsUninstaller then
-      NoUninstallFuncError(Proc.Name);
-    StringList := TStringList.Create();
-    try
-      GetWizardForm.GetSelectedTasks(StringList, Stack.GetBool(PStart-1), False, False);
+      if Proc.Name = 'WIZARDSELECTEDCOMPONENTS' then
+        GetWizardForm.GetSelectedComponents(StringList, Stack.GetBool(PStart-1), False)
+      else
+        GetWizardForm.GetSelectedTasks(StringList, Stack.GetBool(PStart-1), False, False);
       Stack.SetString(PStart, StringsToCommaString(StringList));
     finally
       StringList.Free();
