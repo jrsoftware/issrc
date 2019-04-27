@@ -1757,7 +1757,8 @@ var
   PStart: Cardinal;
   TypeEntry: PSetupTypeEntry;
   StringList: TStringList;
-  S: AnsiString;
+  S: String;
+  AnsiS: AnsiString;
   Arr: TPSVariantIFC;
 begin
   PStart := Stack.Count-1;
@@ -1800,6 +1801,21 @@ begin
       else
         GetWizardForm.GetSelectedTasks(StringList, Stack.GetBool(PStart-1), False, False);
       Stack.SetString(PStart, StringsToCommaString(StringList));
+    finally
+      StringList.Free();
+    end;
+  end else if (Proc.Name = 'WIZARDSELECTCOMPONENTS') or (Proc.Name = 'WIZARDSELECTTASKS') then begin
+    if IsUninstaller then
+      NoUninstallFuncError(Proc.Name);
+    StringList := TStringList.Create();
+    try
+      S := Stack.GetString(PStart);
+      StringChange(S, '/', '\');
+      SetStringsFromCommaString(StringList, S);
+      if Proc.Name = 'WIZARDSELECTCOMPONENTS' then
+        GetWizardForm.SelectComponents(StringList, nil, False)
+      else
+        GetWizardForm.SelectTasks(StringList, nil);
     finally
       StringList.Free();
     end;
@@ -1849,9 +1865,9 @@ begin
   end else if Proc.Name = 'SETPREVIOUSDATA' then begin
     Stack.SetBool(PStart, SetCodePreviousData(Stack.GetInt(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3)));
   end else if Proc.Name = 'LOADSTRINGFROMFILE' then begin
-    S := StackGetAnsiString(Stack, PStart-2);
-    Stack.SetBool(PStart, LoadStringFromFile(Stack.GetString(PStart-1), S));
-    StackSetAnsiString(Stack, PStart-2, S);
+    AnsiS := StackGetAnsiString(Stack, PStart-2);
+    Stack.SetBool(PStart, LoadStringFromFile(Stack.GetString(PStart-1), AnsiS));
+    StackSetAnsiString(Stack, PStart-2, AnsiS);
   end else if Proc.Name = 'LOADSTRINGSFROMFILE' then begin
     Arr := NewTPSVariantIFC(Stack[PStart-2], True);
     Stack.SetBool(PStart, LoadStringsFromFile(Stack.GetString(PStart-1), @Arr));

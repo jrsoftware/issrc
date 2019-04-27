@@ -309,7 +309,7 @@ const
   );
 
   { Other }
-  OtherTable: array [0..28] of AnsiString =
+  OtherTable: array [0..30] of AnsiString =
   (
     'procedure BringToFrontAndRestore;',
     'function WizardDirValue: String;',
@@ -318,6 +318,8 @@ const
     'function WizardSetupType(const Description: Boolean): String;',
     'function WizardSelectedComponents(const Descriptions: Boolean): String;',
     'function WizardSelectedTasks(const Descriptions: Boolean): String;',
+    'procedure WizardSelectComponents(const Components: String);',
+    'procedure WizardSelectTasks(const Tasks: String);',
     'function WizardSilent: Boolean;',
     'function IsUninstaller: Boolean;',
     'function UninstallSilent: Boolean;',

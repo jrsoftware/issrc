@@ -102,32 +102,64 @@ end;</pre></example>
         <name>WizardSelectedComponents</name>
         <prototype>function WizardSelectedComponents(const Descriptions: Boolean): String;</prototype>
         <description><p>Returns a comma-separated list of names or descriptions of the components selected by the user.</p></description>
-        <seealso><p><link topic="isxfunc_WizardIsComponentSelected">WizardIsComponentSelected</link></p></seealso>
+        <seealso><p><link topic="isxfunc_WizardIsComponentSelected">WizardIsComponentSelected</link><br />
+<link topic="isxfunc_WizardSelectComponents">WizardSelectComponents</link></p></seealso>
       </function>
       <function>
         <name>WizardIsComponentSelected</name>
         <prototype>function WizardIsComponentSelected(const Components: String): Boolean;</prototype>
         <description><p>Returns True if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Components parameter</link>.</p></description>
-        <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link></p></seealso>
+        <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link><br />
+<link topic="isxfunc_WizardSelectComponents">WizardSelectComponents</link></p></seealso>
         <example><pre>begin
   if WizardIsComponentSelected('helpfiles') then
     // the 'helpfiles' component is selected
 end;</pre></example>
       </function>
       <function>
+        <name>WizardSelectComponents</name>
+        <prototype>procedure WizardSelectComponents(const Components: String);</prototype>
+        <description><p>Selects the specified comma separated list of component names.</p>
+<p>If a component name is prefixed with a "*" character, any child components will be selected as well (except for those that include the <tt>dontinheritcheck</tt> flag). If a component name is prefixed with a "!" character, the component will be deselected.</p>
+<p>This function does not change the state of unspecified components. This function can change the state of specified components that include the <tt>fixed</tt> flag.</p>
+</description>
+        <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link><br />
+<link topic="isxfunc_WizardIsComponentSelected">WizardIsComponentSelected</link></p></seealso>
+        <example><pre>begin
+  WizardSelectComponents('!helpfiles');
+  // the 'helpfiles' component is deselected
+end;</pre></example>
+      </function>
+      <function>
         <name>WizardSelectedTasks</name>
         <prototype>function WizardSelectedTasks(const Descriptions: Boolean): String;</prototype>
         <description><p>Returns a comma-separated list of names or descriptions of the tasks selected by the user.</p></description>
-        <seealso><p><link topic="isxfunc_WizardIsTaskSelected">WizardIsTaskSelected</link></p></seealso>
+        <seealso><p><link topic="isxfunc_WizardIsTaskSelected">WizardIsTaskSelected</link><br />
+<link topic="isxfunc_WizardSelectTasks">WizardSelectTasks</link></p></seealso>
       </function>
       <function>
         <name>WizardIsTaskSelected</name>
         <prototype>function WizardIsTaskSelected(const Tasks: String): Boolean;</prototype>
         <description><p>Returns True if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Tasks parameter</link>.</p></description>
-        <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link></p></seealso>
+        <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link><br />
+<link topic="isxfunc_WizardSelectTasks">WizardSelectTasks</link></p></seealso>
         <example><pre>begin
   if WizardIsTaskSelected('desktopicon') then
     // the 'desktopicon' task is selected
+end;</pre></example>
+      </function>
+      <function>
+        <name>WizardSelectTasks</name>
+        <prototype>procedure WizardSelectTasks(const Tasks: String);</prototype>
+        <description><p>Selects the specified comma separated list of task names.</p>
+<p>If a task name is prefixed with a "!" character, the task will be deselected.</p>
+<p>This function does not change the state of unspecified tasks.</p>
+</description>
+        <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link><br />
+<link topic="isxfunc_WizardIsTaskSelected">WizardIsTaskSelected</link></p></seealso>
+        <example><pre>begin
+  WizardSelectTasks('!desktopicon');
+  // the 'desktopicon' task is deselected
 end;</pre></example>
       </function>
       <function>

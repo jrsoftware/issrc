@@ -202,8 +202,7 @@ type
     procedure RegisterExistingPage(const ID: Integer;
      const AOuterNotebookPage, AInnerNotebookPage: TNewNotebookPage;
      const ACaption, ADescription: String);
-    procedure SetSelectedComponents(const SelectedComponents, DeselectedComponents: TStringList);
-    procedure SetSelectedComponentsFromType(const TypeName: String; OnlySelectFixedComponents: Boolean);
+    procedure SelectComponentsFromType(const TypeName: String; const OnlySelectFixedComponents: Boolean);
     function ShouldSkipPage(const PageID: Integer): Boolean;
     procedure UpdateComponentSizes;
     procedure UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: LongInt);
@@ -235,6 +234,8 @@ type
     function PageIndexFromID(const ID: Integer): Integer;
     procedure UpdateCurPageButtonVisibility;
     procedure SetCurPage(const NewPageID: Integer);
+    procedure SelectComponents(const SelectComponents, DeselectComponents: TStringList; const KeepFixedComponents: Boolean);
+    procedure SelectTasks(const SelectTasks, DeselectTasks: TStringList);
     procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
       const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean); override;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
@@ -1195,8 +1196,8 @@ begin
       TypeEntry := PSetupTypeEntry(Entries[seType][I]);
       if toIsCustom in TypeEntry.Options then begin
         TypesCombo.ItemIndex := I;
-        SetSelectedComponentsFromType(TypeEntry.Name, True);
-        SetSelectedComponents(InitComponents, nil);
+        SelectComponentsFromType(TypeEntry.Name, True);
+        SelectComponents(InitComponents, nil, True);
         Break;
       end;
     end;
@@ -1206,18 +1207,18 @@ begin
       if toIsCustom in TypeEntry.Options then begin
         //the previous setup type is a custom type: first select the default components
         //for the default type (usually the full type). needed for new components.
-        SetSelectedComponentsFromType(PSetupTypeEntry(Entries[seType][0]).Name, False);
+        SelectComponentsFromType(PSetupTypeEntry(Entries[seType][0]).Name, False);
         //then select/deselect the custom type's fixed components
-        SetSelectedComponentsFromType(TypeEntry.Name, True);
+        SelectComponentsFromType(TypeEntry.Name, True);
         //now restore the customization
-        SetSelectedComponents(PrevSelectedComponents, PrevDeselectedComponents);
+        SelectComponents(PrevSelectedComponents, PrevDeselectedComponents, True);
       end else begin
         //this is not a custom type, so just select components based on the previous type
-        SetSelectedComponentsFromType(TypeEntry.Name, False);
+        SelectComponentsFromType(TypeEntry.Name, False);
       end;
     end else if Entries[seType].Count > 0 then begin
       TypeEntry := PSetupTypeEntry(Entries[seType][0]);
-      SetSelectedComponentsFromType(TypeEntry.Name, False);
+      SelectComponentsFromType(TypeEntry.Name, False);
     end;
   end;
 
@@ -1601,15 +1602,7 @@ begin
     end;
 
     { Finally, restore any saved state from when the page was last shown }
-    for I := 0 to TasksList.Items.Count-1 do begin
-      TaskEntry := PSetupTaskEntry(TasksList.ItemObject[I]);
-      if TaskEntry <> nil then begin
-        if ListContains(SaveSelectedTasks, TaskEntry.Name) then
-          TasksList.Checked[I] := True
-        else if ListContains(SaveDeselectedTasks, TaskEntry.Name) then
-          TasksList.Checked[I] := False;
-      end;
-    end;
+    SelectTasks(SaveSelectedTasks, SaveDeselectedTasks);
   finally
     SaveDeselectedTasks.Free;
     SaveSelectedTasks.Free;
@@ -1627,7 +1620,7 @@ begin
     Result := nil;
 end;
 
-procedure TWizardForm.SetSelectedComponents(const SelectedComponents, DeselectedComponents: TStringList);
+procedure TWizardForm.SelectComponents(const SelectComponents, DeselectComponents: TStringList; const KeepFixedComponents: Boolean);
 var
   I: Integer;
   ComponentEntry: PSetupComponentEntry;
@@ -1635,32 +1628,58 @@ begin
   for I := 0 to Entries[seComponent].Count-1 do begin
     ComponentEntry := PSetupComponentEntry(Entries[seComponent][I]);
 
-    { Don't mess with fixed components }
-    if not (coFixed in ComponentEntry.Options) then begin
-      if SelectedComponents <> nil then begin
-        if ListContains(SelectedComponents, '*' + ComponentEntry.Name) then begin
+    if not (KeepFixedComponents and (coFixed in ComponentEntry.Options)) then begin
+      if SelectComponents <> nil then begin
+        if ListContains(SelectComponents, '*' + ComponentEntry.Name) then begin
           ComponentsList.CheckItem(I, coCheckWithChildren);
           Continue;
         end;
-        if ListContains(SelectedComponents, ComponentEntry.Name) then begin
+        if ListContains(SelectComponents, ComponentEntry.Name) then begin
           ComponentsList.Checked[I] := True;
           Continue;
         end;
-        if ListContains(SelectedComponents, '!' + ComponentEntry.Name) then begin
+        if ListContains(SelectComponents, '!' + ComponentEntry.Name) then begin
           ComponentsList.Checked[I] := False;
           Continue;
         end;
       end;
 
-      if DeselectedComponents <> nil then begin
-        if ListContains(DeselectedComponents, ComponentEntry.Name) then
+      if DeselectComponents <> nil then begin
+        if ListContains(DeselectComponents, ComponentEntry.Name) then
           ComponentsList.Checked[I] := False;
       end;
     end;
   end;
 end;
 
-procedure TWizardForm.SetSelectedComponentsFromType(const TypeName: String; OnlySelectFixedComponents: Boolean);
+procedure TWizardForm.SelectTasks(const SelectTasks, DeselectTasks: TStringList);
+var
+  I: Integer;
+  TaskEntry: PSetupTaskEntry;
+begin
+  for I := 0 to TasksList.Items.Count-1 do begin
+    TaskEntry := PSetupTaskEntry(TasksList.ItemObject[I]);
+    if TaskEntry <> nil then begin
+      if SelectTasks <> nil then begin
+        if ListContains(SelectTasks, TaskEntry.Name) then begin
+          TasksList.Checked[I] := True;
+          Continue;
+        end;
+        if ListContains(SelectTasks, '!' + TaskEntry.Name) then begin
+          TasksList.Checked[I] := False;
+          Continue;
+        end;
+      end;
+      
+      if DeselectTasks <> nil then begin
+        if ListContains(DeselectTasks, TaskEntry.Name) then
+          TasksList.Checked[I] := False;
+      end;
+    end;
+  end;
+end;
+
+procedure TWizardForm.SelectComponentsFromType(const TypeName: String; const OnlySelectFixedComponents: Boolean);
 var
   ComponentTypes: TStringList;
   ComponentEntry: PSetupComponentEntry;
@@ -2584,7 +2603,7 @@ begin
   //select the components for this type. if the type is custom only select
   //fixed components
   TypeEntry := PSetupTypeEntry(TypesCombo.Items.Objects[TypesCombo.ItemIndex]);
-  SetSelectedComponentsFromType(TypeEntry.Name, (toIsCustom in TypeEntry.Options));
+  SelectComponentsFromType(TypeEntry.Name, (toIsCustom in TypeEntry.Options));
 
   //if customization is possible remember the type and components that are
   //selected, so that we can reselect the setup type later if after customization
@@ -2626,7 +2645,7 @@ begin
       TypeEntry := Entries[seType][I];
       if (toIsCustom in TypeEntry.Options) then begin
         TypesCombo.ItemIndex := TypesCombo.Items.IndexOfObject(TObject(TypeEntry));
-        SetSelectedComponentsFromType(TypeEntry.Name, True);
+        SelectComponentsFromType(TypeEntry.Name, True);
         Break;
       end;
     end
