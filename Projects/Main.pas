@@ -119,7 +119,7 @@ var
   OriginalEntryIndexes: array[TEntryType] of TList;
 
   { 'Constants' }
-  SourceDir, TempInstallDir, WinDir, WinSystemDir, WinSysWow64Dir, SystemDrive,
+  SourceDir, TempInstallDir, WinDir, WinSystemDir, WinSysWow64Dir, WinSysNativeDir, SystemDrive,
     ProgramFiles32Dir, CommonFiles32Dir, ProgramFiles64Dir, CommonFiles64Dir,
     ProgramFilesUserDir, CommonFilesUserDir, CmdFilename, SysUserInfoName,
     SysUserInfoOrg, UninstallExeFilename: String;
@@ -1040,6 +1040,12 @@ begin
       Result := WinSystemDir;
     end;
   end
+  else if Cnst = 'sysnative' then begin
+    if WinSysNativeDir <> '' then
+      Result := WinSysNativeDir
+    else
+      Result := WinSystemDir;
+  end
   else if Cnst = 'src' then Result := SourceDir
   else if Cnst = 'srcexe' then Result := SetupLdrOriginalFilename
   else if Cnst = 'tmp' then Result := TempInstallDir
@@ -1314,6 +1320,7 @@ begin
   WinDir := GetWinDir;
   WinSystemDir := GetSystemDir;
   WinSysWow64Dir := GetSysWow64Dir;
+  WinSysNativeDir := GetSysNativeDir(IsWin64);
 
   { Get system drive }
   if Win32Platform = VER_PLATFORM_WIN32_NT then

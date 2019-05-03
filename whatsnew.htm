@@ -26,6 +26,18 @@ Portions Copyright &copy; 2000-2019 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
+<p><a name="6.0.2"></a><span class="ver">6.0.2 </span><span class="date">(2019-04-26)</span></p>
+<ul>
+  <li>Added new <tt>{sysnative}</tt> constant.</li>
+  <li>Pascal Scripting changes:
+  <ul>
+    <li>Added new <tt>WizardSelectComponents</tt> and <tt>WizardSelectTasks</tt> support functions.</li>
+    <li>Renamed the <tt>IsComponentSelected</tt> and <tt>IsTaskSelected</tt> support functions to <tt>WizardIsComponentSelected</tt> and <tt>WizardIsTaskSelected</tt>. The old names are still supported, but it is recommended to update your scripts to the new names and the compiler will issue a warning if you don't.</li>
+  </ul>
+  </li>
+  <li>Minor cosmetic fixes.</li>
+</ul>
+
 <p><a name="6.0.1"></a><span class="ver">6.0.1-beta </span><span class="date">(2019-03-07)</span></p>
 <ul>
   <li><i>Fix:</i> In 6.0.0 it was no longer possible to use [Setup] section directive <tt>InfoAfterFile</tt>.</li>
@@ -62,7 +74,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <ul>
   <li>The Compiler IDE's New Script Wizard now offers an option to select administrative or non administrative install mode and outputs scripts which work in both modes.</li>
   <li>Pascal Scripting change: Added new <tt>IsAdminInstallMode</tt> support function.</li>
-  <li>Added a <a href="http://www.jrsoftware.org/is6help/index.php?topic=admininstallmode">Non Administrative Install Mode</a> topic to the help file.</li>
+  <li>Added a <a href="http://www.jrsoftware.org/ishelp/index.php?topic=admininstallmode">Non Administrative Install Mode</a> topic to the help file.</li>
 </ul>
 <p><span class="head2">Overridable install mode</span></p>
 <p>Once your script is fully updated to support both administrative and non administrative install mode (for example by using the new &quot;auto&quot; constants and the new [Registry] section <tt>Root</tt> value <tt>HKA</tt>) you can then use the following:</p>
@@ -72,18 +84,18 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
     <li>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <tt>PrivilegesRequired</tt> setting: /ALLUSERS and /CURRENTUSER.</li>
     <li>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <tt>PrivilegesRequired</tt> setting using a suppressible dialog (<a href="https://i.imgur.com/up287vq.png">example</a> if <tt>PrivilegesRequired</tt> is set to <tt>admin</tt>). Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</li>
   </ul>
-  <li>Added new [Setup] section directive: <tt>UsePreviousPrivileges</tt>. If this directive is set to <tt>yes</tt> (which it is by default) and <tt>PrivilegesRequiredOverridesAllowed</tt> is set to <tt>dialog</tt>, at startup Setup will look in the registry to see if the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a> is already installed in one of the two install modes, and if so, it will use that install mode and not ask the user.</li>
+  <li>Added new [Setup] section directive: <tt>UsePreviousPrivileges</tt>. If this directive is set to <tt>yes</tt> (which it is by default) and <tt>PrivilegesRequiredOverridesAllowed</tt> is set to <tt>dialog</tt>, at startup Setup will look in the registry to see if the <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sameappnotes">same application</a> is already installed in one of the two install modes, and if so, it will use that install mode and not ask the user.</li>
 </ul>
 <ul>
   <li>The Compiler IDE's New Script Wizard now offers options to allow the <tt>commandline</tt> and <tt>dialog</tt> overrides.</li>
   <li>Inno Setup's own installer script now supports both administrative and non administrative install mode and allows the <tt>dialog</tt> override.</li>
 </ul>
 <p><span class="head2">Side-by-side installations</span></p>
-<p>Support for <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">side-by-side</a> installations has been improved:</p>
+<p>Support for <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sidebyside">side-by-side</a> installations has been improved:</p>
 <ul>
-  <li>Two separate installation runs that do not share the same administrative or non administrative install mode no longer count as the <a href="http://www.jrsoftware.org/is6help/index.php?topic=sameappnotes">same application</a>. This means you can now install these modes <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">side-by-side</a> even if the installers share the same <tt>AppId</tt> setting (or if <tt>AppId</tt> is not set, the same <tt>AppName</tt> setting) without the odd side effects you would get in previous versions.</li>
-  <li><b>Change in default behavior:</b> To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will now automatically mark the new entry with a text like &quot;Current user&quot; or &quot;64-bit&quot; when necessary during a <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">side-by-side</a> installation.</a>
-  <li>Added a <a href="http://www.jrsoftware.org/is6help/index.php?topic=sidebyside">Side-by-side installation</a> topic to the help file.</li>
+  <li>Two separate installation runs that do not share the same administrative or non administrative install mode no longer count as the <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sameappnotes">same application</a>. This means you can now install these modes <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sidebyside">side-by-side</a> even if the installers share the same <tt>AppId</tt> setting (or if <tt>AppId</tt> is not set, the same <tt>AppName</tt> setting) without the odd side effects you would get in previous versions.</li>
+  <li><b>Change in default behavior:</b> To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will now automatically mark the new entry with a text like &quot;Current user&quot; or &quot;64-bit&quot; when necessary during a <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sidebyside">side-by-side</a> installation.</a>
+  <li>Added a <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sidebyside">Side-by-side installation</a> topic to the help file.</li>
 </ul>
 <p><span class="head2">Resizable wizard window</span></p>
 <p>The wizard window is now optionally resizable:</p>
@@ -125,7 +137,7 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li><b>OS requirements change:</b> Windows 2000, XP, and Server 2003 are no longer supported. Windows Vista is now the minimum supported operating system.</li>
-  <li><b>Change in default behavior:</b> Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup. Unicode Inno Setup has been available for 9 years but in case you have not yet updated to it: please see the <a href="http://www.jrsoftware.org/is6help/index.php?topic=unicode">Unicode Inno Setup</a> topic in the help file for more information. Basically, unless you're using [Code] to make DLL calls with string parameters you shouldn't have to make any changes to your script.</li>
+  <li><b>Change in default behavior:</b> Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup. Unicode Inno Setup has been available for 9 years but in case you have not yet updated to it: please see the <a href="http://www.jrsoftware.org/ishelp/index.php?topic=unicode">Unicode Inno Setup</a> topic in the help file for more information. Basically, unless you're using [Code] to make DLL calls with string parameters you shouldn't have to make any changes to your script.</li>
 </ul>
 <ul>
   <li>Added support for 64-bit mode on Windows 10 on ARM which can be used to install ARM64 binaries. See the <i>64BitThreeArch.iss</i> example script for an example which demonstrates how to install a program built for three different architectures (x86, x64, ARM64) using a single installer.</li>
