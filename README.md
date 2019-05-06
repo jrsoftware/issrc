@@ -115,7 +115,7 @@ be found.
 Overview
 --------
 
-Inno Setup consists of seven projects:
+Inno Setup consists of six projects:
 
 **Compil32** - This is the GUI front-end for the compiler. Compil32 does not
 do the actual compilation itself; it relegates it to ISCmplr.dll. If the
