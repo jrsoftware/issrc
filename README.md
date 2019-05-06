@@ -209,7 +209,7 @@ stored in a compiled resource file.
 **Projects\Lzma2\Decoder\ISLzmaDec.obj**, **Projects\Lzma2\Decoder\ISLzma2Dec.obj** -
 See [Projects\Lzma2\Decoder\compiling.txt].
 
-**ISHelp\ISHelpGen\ISHelpGen.exe** - See [ISHelp\ISHelpGen\compile.bat].
+**ISHelp\ISHelpGen\ISHelpGen.exe** - See [ISHelp\compile.bat].
 
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe** - Compiled by Visual Studio
 2005 from the [Examples\MyProg] directory.
@@ -231,4 +231,4 @@ Inno Setup-specific editing guidelines for the help files
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\LzmaDecode\compiling.txt]: <Projects/LzmaDecode/compiling.txt>
 [Projects\Lzma2\Decoder\compiling.txt]: <Projects/Lzma2/Decoder/compiling.txt>
-[ISHelp\ISHelpGen\compile.bat]: <ISHelp/ISHelpGen/compile.bat>
+[ISHelp\compile.bat]: <ISHelp/compile.bat>
