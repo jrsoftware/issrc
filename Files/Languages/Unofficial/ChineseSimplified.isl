@@ -3,12 +3,27 @@
 ; Maintained by Zhenghan Yang
 ; Email: 847320916@QQ.com
 ; Translation based on network resource
+; The latest Translation is on https://github.com/KKKKKKi/Inno-Setup-Chinese-Simplified-Translation
 ;
 
 [LangOptions]
-LanguageName=<7B80><4F53><4E2D><6587>
+; The following three entries are very important. Be sure to read and 
+; understand the '[LangOptions] section' topic in the help file.
+LanguageName=简体中文
+; If Language Name display incorrect, uncomment next line
+; LanguageName=<7B80><4F53><4E2D><6587>
 LanguageID=$0004
 LanguageCodePage=936
+; If the language you are translating to requires special font faces or
+; sizes, uncomment any of the following entries and change them accordingly.
+;DialogFontName=
+;DialogFontSize=8
+;WelcomeFontName=Verdana
+;WelcomeFontSize=12
+;TitleFontName=Arial
+;TitleFontSize=29
+;CopyrightFontName=Arial
+;CopyrightFontSize=8
 
 [Messages]
 
@@ -23,7 +38,7 @@ InformationTitle=信息
 ConfirmTitle=确认
 ErrorTitle=错误
 
-; *** 安装错误消息
+; *** SetupLdr messages
 SetupLdrStartupMessage=现在将安装 %1。您想要继续吗？
 LdrCannotCreateTemp=不能创建临时文件。安装中断。
 LdrCannotExecTemp=不能执行临时目录中的文件。安装中断。
@@ -253,14 +268,14 @@ StatusRollback=正在撤销更改...
 ; *** 其它错误
 ErrorInternal2=内部错误: %1
 ErrorFunctionFailedNoCode=%1 失败
-ErrorFunctionFailed=%1 失败；代码 %2
-ErrorFunctionFailedWithMessage=%1 失败；代码 %2.%n%3
+ErrorFunctionFailed=%1 失败；错误代码 %2
+ErrorFunctionFailedWithMessage=%1 失败；错误代码 %2.%n%3
 ErrorExecutingProgram=不能执行文件:%n%1
 
 ; *** 注册表错误
-ErrorRegOpenKey=错误打开注册表键:%n%1\%2
-ErrorRegCreateKey=错误创建注册表键:%n%1\%2
-ErrorRegWriteKey=错误写入注册表键:%n%1\%2
+ErrorRegOpenKey=打开注册表项时出错:%n%1\%2
+ErrorRegCreateKey=创建注册表项时出错:%n%1\%2
+ErrorRegWriteKey=写入注册表项时出错:%n%1\%2
 
 ; *** INI 错误
 ErrorIniEntry=在文件“%1”创建 INI 项目错误。
@@ -268,12 +283,12 @@ ErrorIniEntry=在文件“%1”创建 INI 项目错误。
 ; *** 文件复制错误
 FileAbortRetryIgnoreSkipNotRecommended=跳过这个文件 (不推荐)(&S)
 FileAbortRetryIgnoreIgnoreNotRecommended=忽略错误并继续 (不推荐)(&I)
-SourceIsCorrupted=源文件被破坏
+SourceIsCorrupted=源文件已损坏
 SourceDoesntExist=源文件“%1”不存在
 ExistingFileReadOnly2=无法替换现有文件，因为它是只读的。
 ExistingFileReadOnlyRetry=移除只读属性并重试(&R)
 ExistingFileReadOnlyKeepExisting=保留现有文件(&K)
-ErrorReadingExistingDest=尝试读了现有的文件时发生一个错误:
+ErrorReadingExistingDest=尝试读取现有文件时发生一个错误:
 FileExists=文件已经存在。%n%n您想要安装程序覆盖它吗？
 ExistingFileNewer=现有的文件新与安装程序要安装的文件。推荐您保留现有文件。%n%n您想要保留现有的文件吗？
 ErrorChangingAttr=尝试改变下列现有的文件的属性时发生一个错误:
@@ -303,7 +318,7 @@ ErrorRestartingComputer=安装程序不能重新启动电脑，请手动重启�
 
 ; *** 卸载消息
 UninstallNotFound=文件“%1”不存在。不能卸载。
-UninstallOpenError=文件“%1”不能打开。不能卸载
+UninstallOpenError=文件“%1”不能打开。不能卸载。
 UninstallUnsupportedVer=卸载日志文件“%1”有未被这个版本的卸载器承认的格式。不能卸载
 UninstallUnknownEntry=在卸载日志中遇到一个未知的条目 (%1)
 ConfirmUninstall=您确认想要完全删除 %1 及它的所有组件吗？
@@ -343,5 +358,5 @@ AssocFileExtension=将 %2 文件扩展名与 %1 建立关联(&A)
 AssocingFileExtension=正在将 %2 文件扩展名与 %1 建立关联...
 AutoStartProgramGroupDescription=启动组:
 AutoStartProgram=自动启动 %1
-AddonHostProgramNotFound=%1无法找到您所选择的文件夹。%n%n你想继续吗？
+AddonHostProgramNotFound=%1无法找到您所选择的文件夹。%n%n您想要继续吗？
 
