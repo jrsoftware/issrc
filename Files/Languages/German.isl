@@ -2,13 +2,13 @@
 ; ***                                                ***
 ; *** Inno Setup version 6.0.0+ German messages      ***
 ; ***                                                ***
-; *** Changes 6.6.0+ Author:                         ***
+; *** Changes 6.0.0+ Author:                         ***
 ; ***                                                ***
 ; ***   Jens Brand (jens.brand@wolf-software.de)     ***
 ; ***                                                ***
-; *** Original Authors:                               ***
+; *** Original Authors:                              ***
 ; ***                                                ***
-; ***   Peter Stadler(Peter.Stadler@univie.ac.at)    ***
+; ***   Peter Stadler (Peter.Stadler@univie.ac.at)   ***
 ; ***   Michael Reitz (innosetup@assimilate.de)      ***
 ; ***                                                ***
 ; *** Contributors:                                  ***
@@ -85,11 +85,12 @@ UninstallAppRunningError=Die Deinstallation hat entdeckt, dass %1 zur Zeit ausge
 PrivilegesRequiredOverrideTitle=Installationsmodus auswählen
 PrivilegesRequiredOverrideInstruction=Bitte wählen Sie den Installationsmodus
 PrivilegesRequiredOverrideText1=%1 kann für alle Benutzer installiert werden (erfordert Administrationsrechte), oder nur für Sie.
-PrivilegesRequiredOverrideText2=%1 kann nur für Sie installiert werden, oder für alle Venutzer (erfordert Administrationsrechte).
+PrivilegesRequiredOverrideText2=%1 kann nur für Sie installiert werden, oder für alle Benutzer (erfordert Administrationsrechte).
 PrivilegesRequiredOverrideAllUsers=Installation für &alle Benutzer
 PrivilegesRequiredOverrideAllUsersRecommended=Installation für &alle Benutzer (empfohlen)
 PrivilegesRequiredOverrideCurrentUser=Installion nur für &Sie
 PrivilegesRequiredOverrideCurrentUserRecommended=Install nur für &Sie (empfohlen)
+
 ; *** Misc. errors
 ErrorCreatingDir=Das Setup konnte den Ordner "%1" nicht erstellen
 ErrorTooManyFilesInDir=Das Setup konnte eine Datei im Ordner "%1" nicht erstellen, weil er zu viele Dateien enthält
