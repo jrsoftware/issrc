@@ -2743,8 +2743,11 @@ Type: files; Name: "{win}\MYPROG.INI"
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. If it says "(u)" you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
   <ul>
-  <li>Unicode Inno Setup uses the existing ANSI .isl language files and you should not and may not convert these to Unicode or anything similar since it does so automatically during compilation using the <tt>LanguageCodePage</tt> setting of the language. However, you do need to convert existing [Messages] and [CustomMessages] entries in your .iss files to Unicode if the language used a special <tt>LanguageCodePage</tt>.</li>
-  <li>The automatic conversion is also done for any language specific plain text ANSI <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> used so you should not convert these either (but you may do so if you wish anyway, unlike ANSI .isl language files).</li>
+  <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files (but not UTF-16).</li>
+  <li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
+  <li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must to be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
+  <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>.</li>
+  <li>Any language specific plain text ANSI files used for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
   <li>The [Setup] directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li>
   <li>Existing installations of your programs done by non Unicode installers can be freely updated by Unicode installers, and vice versa.</li>
   <li>Unicode Pascal Scripting notes:
@@ -2758,8 +2761,6 @@ Type: files; Name: "{win}\MYPROG.INI"
     <li>If you want to compile an existing script that imports ANSI Windows API calls with the Unicode compiler, either upgrade to the 'W' Unicode API call or change the parameters from 'String' or 'PChar' to 'AnsiString'. The 'AnsiString' approach will make your [Code] compatible with both the Unicode and the non Unicode version.</li>
     </ul>
   </li>
-  <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files (but not UTF-16).</li>
-  <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>.</li>
   </ul>
 <p>Note: Unicode Inno Setup can only create Unicode installers and like wise the non Unicode version can only create non Unicode installers. If you want to be able to create both Unicode and non Unicode installers on one computer, you have to install both versions of Inno Setup into different folders.</p>
 
