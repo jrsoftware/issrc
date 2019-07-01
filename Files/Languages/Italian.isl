@@ -71,9 +71,9 @@ UninstallAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Seleziona modo installazione
-PrivilegesRequiredOverrideInstruction=Seleziona modo instalalzione
+PrivilegesRequiredOverrideInstruction=Seleziona modo installazione
 PrivilegesRequiredOverrideText1=%1 può essere installato per tutti gli utenti (richiede privilegi di amministratore), o solo per l'utente attuale.
-PrivilegesRequiredOverrideText2=%1 può essere installato solo per l'utente attuale, o per tutti gli utenti (richiede privilegi di amminsitratore).
+PrivilegesRequiredOverrideText2=%1 può essere installato solo per l'utente attuale, o per tutti gli utenti (richiede privilegi di amministratore).
 PrivilegesRequiredOverrideAllUsers=Inst&alla per tutti gli utenti
 PrivilegesRequiredOverrideAllUsersRecommended=Inst&alla per tutti gli utenti (suggerito)
 PrivilegesRequiredOverrideCurrentUser=Installa solo per l'&utente attuale
@@ -99,7 +99,7 @@ ButtonInstall=Inst&alla
 ButtonOK=OK
 ButtonCancel=Annulla
 ButtonYes=&Si
-ButtonYesToAll=Si a &tutto
+ButtonYesToAll=Sì a &tutto
 ButtonNo=&No
 ButtonNoToAll=N&o a tutto
 ButtonFinish=&Fine
