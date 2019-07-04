@@ -1498,7 +1498,7 @@ object WizardForm: TWizardForm
             Width = 413
             Height = 17
             Anchors = [akLeft, akTop, akRight]
-            Caption = '&Aministrative install mode (install for all users)'
+            Caption = '&Administrative install mode (install for all users)'
             TabOrder = 1
           end
           object PrivilegesRequiredLowestRadioButton: TRadioButton
