@@ -69,6 +69,7 @@ object CompileForm: TCompileForm
         Align = alClient
         BorderStyle = bsNone
         ItemHeight = 13
+        MultiSelect = True
         PopupMenu = ListPopupMenu
         TabOrder = 1
         Visible = False
@@ -83,6 +84,7 @@ object CompileForm: TCompileForm
         Align = alClient
         BorderStyle = bsNone
         ItemHeight = 13
+        MultiSelect = True
         PopupMenu = ListPopupMenu
         TabOrder = 0
         OnDrawItem = CompilerOutputListDrawItem
@@ -643,7 +645,13 @@ object CompileForm: TCompileForm
     Top = 168
     object PListCopy: TMenuItem
       Caption = '&Copy'
+      ShortCut = 16451
       OnClick = PListCopyClick
+    end
+    object PListSelectAll: TMenuItem
+      Caption = 'Select &All'
+      ShortCut = 16449
+      OnClick = PListSelectAllClick
     end
   end
   object BuildImageList: TImageList
