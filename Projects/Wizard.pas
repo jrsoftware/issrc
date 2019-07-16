@@ -1278,13 +1278,13 @@ procedure TWizardForm.FormResize(Sender: TObject);
     { BitmapImage's size is already corrected by the Anchors property but this
       doesn't keep the aspect ratio. Calculate and set new width to restore the
       aspect ratio and update all the other controls in the page for this. Don't
-      do this if [Code] made any change to BitmapImage's Align or Anchors
+      do this if [Code] made any change to BitmapImage's Visible, Align or Anchors
       signalling that it wants a custom layout. }
     if ControlsFlipped then
       ExpectedAnchors := [akTop, akRight, akBottom]
     else
       ExpectedAnchors := [akLeft, akTop, akBottom];
-    if (BitmapImage.Align = alNone) and (BitmapImage.Anchors = ExpectedAnchors) then begin
+    if BitmapImage.Visible and (BitmapImage.Align = alNone) and (BitmapImage.Anchors = ExpectedAnchors) then begin
       if BaseUnitX = 0 then
         InternalError('AnchorOuterPage: BaseUnitX = 0');
       NewWidth := MulDiv(BitmapImage.Height, ScalePixelsX(164), ScalePixelsY(314)); //164x314 is the original bitmapimage size
