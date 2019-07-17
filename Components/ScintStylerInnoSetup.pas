@@ -215,6 +215,7 @@ type
     ssSignToolMinimumTimeBetween,
     ssSignToolRetryCount,
     ssSignToolRetryDelay,
+    ssSignToolRunMinimized,
     ssSlicesPerDisk,
     ssSolidCompression,
     ssSourceDir,

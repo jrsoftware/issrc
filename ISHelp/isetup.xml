@@ -985,6 +985,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link></li>
 <li><link topic="setup_signtoolretrycount">SignToolRetryCount</link></li>
 <li><link topic="setup_signtoolretrydelay">SignToolRetryDelay</link></li>
+<li><link topic="setup_signtoolrunminimized">SignToolRunMinimized</link></li>
 <li><link topic="setup_slicesperdisk">SlicesPerDisk</link></li>
 <li><link topic="setup_solidcompression">SolidCompression</link></li>
 <li><link topic="setup_sourcedir">SourceDir</link></li>
@@ -5209,7 +5210,8 @@ SignTool=byparam format c:
 <p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <link topic="setup_diskslicesize">DiskSliceSize</link> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-1 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-1 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link><br/>
-<link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
+<link topic="setup_signtoolretrycount">SignToolRetryCount</link><br/>
+<link topic="setup_signtoolrunminimized">SignToolRunMinimized</link></p>
 </body>
 </setuptopic>
 
@@ -5248,6 +5250,19 @@ SignTool=byparam format c:
 <p><b>See also:</b><br/>
 <link topic="setup_signtool">SignTool</link><br/>
 <link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="SignToolRunMinimized">
+<keyword value="signature" />
+<keyword value="digital signature" />
+<keyword value="code signing" />
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>no</tt></setupdefault>
+<body>
+<p>When set to <tt>yes</tt>, the Setup Compiler will run Sign Tools in a minimized window.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_signtool">SignTool</link></p>
 </body>
 </setuptopic>
 
