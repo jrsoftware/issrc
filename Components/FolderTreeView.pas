@@ -135,7 +135,7 @@ implementation
 }
 
 uses
-  PathFunc, ShellApi, UxThemeISX{$IFDEF IS_D12}, Types{$ENDIF};
+  PathFunc, ShellApi, UxThemeISX, Types;
 
 const
   SHPPFW_NONE = $00000000;
