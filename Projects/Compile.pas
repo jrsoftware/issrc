@@ -7387,7 +7387,7 @@ begin
   for I := 0 to LanguageEntries.Count-1 do begin
     LangData := LangDataList[I];
     for J := Low(LangData.Messages) to High(LangData.Messages) do
-      if not LangData.MessagesDefined[J] then begin
+      if not LangData.MessagesDefined[J] and (J <> msgPrepareToInstallNeedsRestart) then begin
         { Use the message from Default.isl }
         if not (J in [msgHelpTextNote, msgTranslatorNote]) then
           WarningsList.Add(Format(SCompilerMessagesMissingMessageWarning,

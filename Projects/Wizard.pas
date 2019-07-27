@@ -1822,6 +1822,7 @@ var
   WindowDisabler: TWindowDisabler;
   CodeNeedsRestart: Boolean;
   Y: Integer;
+  S: String;
 begin
   Result := '';
   PrepareToInstallNeedsRestart := False;
@@ -1854,10 +1855,13 @@ begin
     Application.BringToFront;
   end;
   if Result <> '' then begin
-    if PrepareToInstallNeedsRestart then
+    if PrepareToInstallNeedsRestart then begin
+      S := ExpandSetupMessage(msgPrepareToInstallNeedsRestart);
+      if S = '' then
+        S := ExpandSetupMessage(msgFinishedRestartLabel);
       PreparingLabel.Caption := Result +
-        SNewLine + SNewLine + SNewLine + ExpandSetupMessage(msgFinishedRestartLabel) + SNewLine
-    else
+        SNewLine + SNewLine + SNewLine + S + SNewLine
+    end else
       PreparingLabel.Caption := Result +
         SNewLine + SNewLine + SNewLine + SetupMessages[msgCannotContinue];
     AdjustLabelHeight(PreparingLabel);

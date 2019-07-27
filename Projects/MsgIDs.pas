@@ -148,6 +148,7 @@ type
     msgPasswordLabel3,
     msgPathLabel,
     msgPowerUserPrivilegesRequired,
+    msgPrepareToInstallNeedsRestart,
     msgPreparingDesc,
     msgPreviousInstallNotCompleted,
     msgPrivilegesRequiredOverrideTitle,
