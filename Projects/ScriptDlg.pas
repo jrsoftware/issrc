@@ -37,8 +37,9 @@ type
       property Edits[Index: Integer]: TPasswordEdit read GetEdit;
       procedure Initialize(const SubCaption: String);
       property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
-      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
       property Values[Index: Integer]: String read GetValue write SetValue;
+    published
+      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
 
   TInputOptionWizardPage = class(TWizardPage)
@@ -53,11 +54,12 @@ type
     public
       function Add(const ACaption: String): Integer;
       function AddEx(const ACaption: String; const ALevel: Byte; const AExclusive: Boolean): Integer;
-      property CheckListBox: TNewCheckListBox read FCheckListBox;
       procedure Initialize(const SubCaption: String; const Exclusive, ListBox: Boolean);
       property SelectedValueIndex: Integer read GetSelectedValueIndex write SetSelectedValueIndex;
-      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
       property Values[Index: Integer]: Boolean read GetValue write SetValue;
+    published
+      property CheckListBox: TNewCheckListBox read FCheckListBox;
+      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
 
   TInputDirWizardPage = class(TWizardPage)
@@ -86,8 +88,9 @@ type
       procedure Initialize(const SubCaption: String; const AppendDir: Boolean;
         const NewFolderName: String);
       property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
-      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
       property Values[Index: Integer]: String read GetValue write SetValue;
+    published
+      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
 
   TInputFileWizardPage = class(TWizardPage)
@@ -115,9 +118,10 @@ type
       property Edits[Index: Integer]: TEdit read GetEdit;
       procedure Initialize(const SubCaption: String);
       property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
-      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
       property Values[Index: Integer]: String read GetValue write SetValue;
       property IsSaveButton[Index: Integer]: Boolean read GetIsSaveButton write SetIsSaveButton;
+    published
+      property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
 
   TOutputMsgWizardPage = class(TWizardPage)
@@ -125,6 +129,7 @@ type
       FMsgLabel: TNewStaticText;
     public
       procedure Initialize(const Msg: String);
+    published
       property MsgLabel: TNewStaticText read FMsgLabel;
   end;
 
@@ -134,6 +139,7 @@ type
       FSubCaptionLabel: TNewStaticText;
     public
       procedure Initialize(const SubCaption: String; const Msg: AnsiString);
+    published
       property RichEditViewer: TRichEditViewer read FRichEditViewer;
       property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
@@ -149,12 +155,13 @@ type
       constructor Create(AOwner: TComponent); override;
       procedure Hide;
       procedure Initialize;
-      property Msg1Label: TNewStaticText read FMsg1Label;
-      property Msg2Label: TNewStaticText read FMsg2Label;
-      property ProgressBar: TNewProgressBar read FProgressBar;
       procedure SetProgress(const Position, Max: Longint);
       procedure SetText(const Msg1, Msg2: String);
       procedure Show;
+    published
+      property Msg1Label: TNewStaticText read FMsg1Label;
+      property Msg2Label: TNewStaticText read FMsg2Label;
+      property ProgressBar: TNewProgressBar read FProgressBar;
   end;
 
 implementation
@@ -228,6 +235,7 @@ begin
       Top := FY;
       Width := SurfaceWidth;
       Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
+      Anchors := [akLeft, akTop, akRight];
       WordWrap := True;
       Caption := APrompt;
     end;
@@ -241,6 +249,7 @@ begin
     Password := APassword;
     Top := FY;
     Width := SurfaceWidth;
+    Anchors := [akLeft, akTop, akRight];
   end;
   SetCtlParent(Edit, Surface);
   Inc(FY, WizardForm.ScalePixelsY(36));
@@ -284,6 +293,7 @@ begin
     AutoSize := False;
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
+    Anchors := [akLeft, akTop, akRight];
     WordWrap := True;
     Caption := SubCaption;
     Parent := Surface;
@@ -295,6 +305,7 @@ begin
     Top := CaptionYDiff + WizardForm.ScalePixelsY(DefaultBoxTop);
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(DefaultBoxBottom) - Top;
+    Anchors := [akLeft, akTop, akRight, akBottom];
     Flat := ListBox and (shFlatComponentsList in SetupHeader.Options);
   end;
   SetCtlParent(FCheckListBox, Surface);
@@ -302,7 +313,7 @@ begin
   FExclusive := Exclusive;
   if not ListBox then begin
     FCheckListBox.BorderStyle := bsNone;
-    FCheckListBox.Color := clBtnFace;
+    FCheckListBox.Color := SurfaceColor;
     FCheckListBox.MinItemHeight := WizardForm.ScalePixelsY(22);
     FCheckListBox.WantTabs := True;
   end;
@@ -412,6 +423,7 @@ begin
     AutoSize := False;
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
+    Anchors := [akLeft, akTop, akRight];
     WordWrap := True;
     Caption := SubCaption;
     Parent := Surface;
@@ -438,6 +450,7 @@ begin
       Top := FY;
       Width := SurfaceWidth;
       Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
+      Anchors := [akLeft, akTop, akRight];
       WordWrap := True;
       Caption := APrompt;
     end;
@@ -450,6 +463,7 @@ begin
   with Edit do begin
     Top := FY;
     Width := SurfaceWidth-ButtonWidth-WizardForm.ScalePixelsX(10);
+    Anchors := [akLeft, akTop, akRight];
   end;
   SetCtlParent(Edit, Surface);
   TryEnableAutoCompleteFileSystem(Edit.Handle);
@@ -463,6 +477,7 @@ begin
     Top := Edit.Top-1;
     Width := ButtonWidth;
     Height := WizardForm.NextButton.Height;
+    Anchors := [akTop, akRight];
     if FEdits.Count = 0 then
       Caption := SetupMessages[msgButtonWizardBrowse]
     else
@@ -552,6 +567,7 @@ begin
     AutoSize := False;
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
+    Anchors := [akLeft, akTop, akRight];
     WordWrap := True;
     Caption := SubCaption;
     Parent := Surface;
@@ -576,6 +592,7 @@ begin
       Top := FY;
       Width := SurfaceWidth;
       Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
+      Anchors := [akLeft, akTop, akRight];
       WordWrap := True;
       Caption := APrompt;
     end;
@@ -588,6 +605,7 @@ begin
   with Edit do begin
     Top := FY;
     Width := SurfaceWidth-ButtonWidth-WizardForm.ScalePixelsX(10);
+    Anchors := [akLeft, akTop, akRight];
   end;
   SetCtlParent(Edit, Surface);
   TryEnableAutoCompleteFileSystem(Edit.Handle);
@@ -601,6 +619,7 @@ begin
     Top := Edit.Top-1;
     Width := ButtonWidth;
     Height := WizardForm.NextButton.Height;
+    Anchors := [akTop, akRight];
     if FButtons.Count = 0 then
       Caption := SetupMessages[msgButtonWizardBrowse]
     else
@@ -686,6 +705,7 @@ begin
       AutoSize := False;
       Width := SurfaceWidth;
       Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
+      Anchors := [akLeft, akTop, akRight];
       WordWrap := True;
       Caption := SubCaption;
       Parent := Surface;
@@ -700,6 +720,9 @@ begin
     Top := Y;
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(DefaultBoxBottom) - Y;
+    Anchors := [akLeft, akTop, akRight, akBottom];
+    BevelKind := bkFlat;
+    BorderStyle := bsNone;
     ReadOnly := True;
     ScrollBars := ssVertical;
     WantReturns := False;
@@ -726,6 +749,7 @@ begin
     AutoSize := False;
     ShowAccelChar := False;
     Width := SurfaceWidth;
+    Anchors := [akLeft, akTop, akRight];
     Height := WizardForm.StatusLabel.Height;
     WordWrap := WizardForm.StatusLabel.WordWrap;
     Parent := Surface;
@@ -739,6 +763,7 @@ begin
     Top := WizardForm.ScalePixelsY(16);
     Width := SurfaceWidth;
     Height := WizardForm.FileNameLabel.Height;
+    Anchors := [akLeft, akTop, akRight];
   end;
   SetCtlParent(FMsg2Label, Surface);
 
@@ -747,6 +772,7 @@ begin
     Top := WizardForm.ScalePixelsY(42);
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(21);
+    Anchors := [akLeft, akTop, akRight];
     Visible := False;
   end;
   SetCtlParent(FProgressBar, Surface);

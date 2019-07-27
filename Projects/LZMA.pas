@@ -6,12 +6,8 @@ unit LZMA;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Interface to the LZMA/LZMA2 compression DLL
-
-  Source code for the compression DLL can found in the lzma2/Encoder
-  subdirectory.
-
-  $jrsoftware: issrc/Projects/LZMA.pas,v 1.55 2010/09/07 03:09:36 jr Exp $
+  Interface to the LZMA/LZMA2 compression DLL and EXEs in lzma2\Encoder, used by
+  ISCmplr.
 }
 
 interface

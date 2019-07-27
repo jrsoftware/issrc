@@ -2,14 +2,17 @@ program Setup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Setup program
-
-  $jrsoftware: issrc/Projects/Setup.dpr,v 1.76 2010/08/28 20:41:24 jr Exp $
 }
+
+{$SetPEFlags 1} 
+{$SETPEOSVERSION 6.0}
+{$SETPESUBSYSVERSION 6.0}
+{$WEAKLINKRTTI ON}
 
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
@@ -68,7 +71,8 @@ uses
   ResUpdate in 'ResUpdate.pas',
   SpawnCommon in 'SpawnCommon.pas',
   SpawnServer in 'SpawnServer.pas',
-  SpawnClient in 'SpawnClient.pas';
+  SpawnClient in 'SpawnClient.pas',
+  TaskDialog in 'TaskDialog.pas';
 
 {$R *.RES}
 {$IFDEF UNICODE}
@@ -269,7 +273,7 @@ begin
     SetErrorMode(SEM_FAILCRITICALERRORS);
     DisableWindowGhosting;
     Application.HookMainWindow(TDummyClass.AntiShutdownHook);
-    SelectMode;
+    SelectMode; { Only returns if we should run as Setup }
   except
     { Halt on any exception }
     ShowExceptionMsg;

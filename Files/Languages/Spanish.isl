@@ -1,8 +1,8 @@
-; *** Inno Setup version 5.5.3+ Spanish messages ***
+; *** Inno Setup version 6.0.0+ Spanish messages ***
 ;
 ; Maintained by Jorge Andres Brugger (jbrugger@ideaworks.com.ar)
-; Spanish.isl version 1.3 (20130207)
-; Default.isl version 5.5.3
+; Spanish.isl version 1.4 (20180208)
+; Default.isl version 6.0.0
 ; 
 ; Thanks to Germán Giraldo, Jordi Latorre, Ximo Tamarit, Emiliano Llano, 
 ; Ramón Verduzco, Graciela García,  Carles Millan and Rafael Barranco-Droege
@@ -41,6 +41,7 @@ ErrorTitle=Error
 SetupLdrStartupMessage=Este programa instalará %1. ¿Desea continuar?
 LdrCannotCreateTemp=Imposible crear archivo temporal. Instalación interrumpida
 LdrCannotExecTemp=Imposible ejecutar archivo en la carpeta temporal. Instalación interrumpida
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nError %2: %3
@@ -54,13 +55,22 @@ WindowsServicePackRequired=Este programa requiere %1 Service Pack %2 o posterior
 NotOnThisPlatform=Este programa no se ejecutará en %1.
 OnlyOnThisPlatform=Este programa debe ejecutarse en %1.
 OnlyOnTheseArchitectures=Este programa sólo puede instalarse en versiones de Windows diseñadas para las siguientes arquitecturas de procesadores:%n%n%1
-MissingWOW64APIs=La versión de Windows que está utilizando no cuenta con la funcionalidad requerida por el instalador para realizar una instalación de 64 bits. Para solucionar este problema, por favor, instale el Service Pack %1.
 WinVersionTooLowError=Este programa requiere %1 versión %2 o posterior.
 WinVersionTooHighError=Este programa no puede instalarse en %1 versión %2 o posterior.
 AdminPrivilegesRequired=Debe iniciar la sesión como administrador para instalar este programa.
 PowerUserPrivilegesRequired=Debe iniciar la sesión como administrador o como miembro del grupo de Usuarios Avanzados para instalar este programa.
 SetupAppRunningError=El programa de instalación ha detectado que %1 está ejecutándose.%n%nPor favor, ciérrelo ahora, luego haga clic en Aceptar para continuar o en Cancelar para salir.
 UninstallAppRunningError=El desinstalador ha detectado que %1 está ejecutándose.%n%nPor favor, ciérrelo ahora, luego haga clic en Aceptar para continuar o en Cancelar para salir.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Selección del Modo de Instalación
+PrivilegesRequiredOverrideInstruction=Seleccione el modo de instalación
+PrivilegesRequiredOverrideText1=%1 puede ser instalado para todos los usuarios (requiere privilegios administrativos), o solo para Ud.
+PrivilegesRequiredOverrideText2=%1 puede ser instalado solo para Ud, o para todos los usuarios (requiere privilegios administrativos).
+PrivilegesRequiredOverrideAllUsers=Instalar para &todos los usuarios
+PrivilegesRequiredOverrideAllUsersRecommended=Instalar para &todos los usuarios (recomendado)
+PrivilegesRequiredOverrideCurrentUser=Instalar para &mí solamente
+PrivilegesRequiredOverrideCurrentUserRecommended=Instalar para &mí solamente (recomendado)
 
 ; *** Misc. errors
 ErrorCreatingDir=El programa de instalación no pudo crear la carpeta "%1"
@@ -92,7 +102,7 @@ ButtonNewFolder=&Crear Nueva Carpeta
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Seleccione el Idioma de la Instalación
-SelectLanguageLabel=Seleccione el idioma a utilizar durante la instalación:
+SelectLanguageLabel=Seleccione el idioma a utilizar durante la instalación.
 
 ; *** Common wizard text
 ClickNext=Haga clic en Siguiente para continuar o en Cancelar para salir de la instalación.
@@ -215,7 +225,7 @@ InstallingLabel=Por favor, espere mientras se instala [name] en su sistema.
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Completando la instalación de [name]
 FinishedLabelNoIcons=El programa completó la instalación de [name] en su sistema.
-FinishedLabel=El programa completó la instalación de [name] en su sistema. Puede ejecutar la aplicación haciendo clic sobre el icono instalado.
+FinishedLabel=El programa completó la instalación de [name] en su sistema. Puede ejecutar la aplicación utilizando los accesos directos creados.
 ClickFinish=Haga clic en Finalizar para salir del programa de instalación.
 FinishedRestartLabel=Para completar la instalación de [name], su sistema debe reiniciarse. ¿Desea reiniciarlo ahora?
 FinishedRestartMessage=Para completar la instalación de [name], su sistema debe reiniciarse.%n%n¿Desea reiniciarlo ahora?
@@ -236,7 +246,10 @@ SelectDirectoryLabel=Por favor, especifique la ubicación del siguiente disco.
 
 ; *** Installation phase messages
 SetupAborted=La instalación no se ha completado.%n%nPor favor solucione el problema y ejecute nuevamente el programa de instalación.
-EntryAbortRetryIgnore=Haga clic en Reintentar para intentarlo de nuevo, en Omitir para continuar de todas formas o en Anular para cancelar la instalación.
+AbortRetryIgnoreSelectAction=Seleccione acción
+AbortRetryIgnoreRetry=&Reintentar
+AbortRetryIgnoreIgnore=&Ignorar el error y continuar
+AbortRetryIgnoreCancel=Cancelar instalación
 
 ; *** Installation status messages
 StatusClosingApplications=Cerrando aplicaciones...
@@ -267,11 +280,13 @@ ErrorRegWriteKey=Error al escribir la clave del registro:%n%1\%2
 ErrorIniEntry=Error al crear entrada INI en el archivo "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Haga clic en Reintentar para intentarlo de nuevo, en Omitir para excluir este archivo (no recomendado) o en Anular para cancelar la instalación.
-FileAbortRetryIgnore2=Haga clic en Reintentar para intentarlo de nuevo, en Omitir para continuar de todas formas (no recomendado) o en Anular para cancelar la instalación.
+FileAbortRetryIgnoreSkipNotRecommended=&Omitir este archivo (no recomendado)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorar el error y continuar (no recomendado)
 SourceIsCorrupted=El archivo de origen está dañado
 SourceDoesntExist=El archivo de origen "%1" no existe
-ExistingFileReadOnly=El archivo existente está marcado como sólo-lectura.%n%nHaga clic en Reintentar para quitar el atributo de sólo-lectura e intentarlo de nuevo, en Omitir para excluir este archivo o en Anular para cancelar la instalación.
+ExistingFileReadOnly2=El archivo existente no puede ser reemplazado debido a que está marcado como sólo-lectura.
+ExistingFileReadOnlyRetry=&Elimine el atributo de sólo-lectura y reintente
+ExistingFileReadOnlyKeepExisting=&Mantener el archivo existente
 ErrorReadingExistingDest=Ocurrió un error mientras se intentaba leer el archivo:
 FileExists=El archivo ya existe.%n%n¿Desea sobreescribirlo?
 ExistingFileNewer=El archivo existente es más reciente que el que está tratando de instalar. Se recomienda que mantenga el archivo existente.%n%n¿Desea mantener el archivo existente?
@@ -285,6 +300,14 @@ ErrorRenamingTemp=Ocurrió un error al intentar renombrar un archivo en la carpet
 ErrorRegisterServer=Imposible registrar el DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 falló con el código de salida %1
 ErrorRegisterTypeLib=Imposible registrar la librería de tipos: %1
+
+; *** Uninstall display name markings
+UninstallDisplayNameMark=%1 (%2)
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=Todos los usuarios
+UninstallDisplayNameMarkCurrentUser=Usuario actual
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Ocurrió un error al intentar abrir el archivo LÉAME.
@@ -322,9 +345,9 @@ ShutdownBlockReasonUninstallingApp=Desinstalando %1.
 [CustomMessages]
 
 NameAndVersion=%1 versión %2
-AdditionalIcons=Iconos adicionales:
-CreateDesktopIcon=Crear un icono en el &escritorio
-CreateQuickLaunchIcon=Crear un icono de &Inicio Rápido
+AdditionalIcons=Accesos directos adicionales:
+CreateDesktopIcon=Crear un acceso directo en el &escritorio
+CreateQuickLaunchIcon=Crear un acceso directo en &Inicio Rápido
 ProgramOnTheWeb=%1 en la Web
 UninstallProgram=Desinstalar %1
 LaunchProgram=Ejecutar %1

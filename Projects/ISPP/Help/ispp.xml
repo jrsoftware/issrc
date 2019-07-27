@@ -37,8 +37,9 @@
 		<title>Introduction</title>
 		<description header="no">
 			<para>Inno Setup Preprocessor (ISPP) is a preprocessor add-on for Inno Setup.</para>
-			<para>The main purpose of ISPP is to automate compile-time tasks and decrease the probability of typos in your scripts. For example, you can declare an ISPP variable (compile-time variable) &dash; your application name, for instance &dash; and then use its value in several places of your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without ISPP, you would probably need to change all occurrences of your application name throughout the script (AppName, AppVerName, DefaultGroupName etc. <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> directives).</para>
-			<para>Another example of using ISPP would be gathering version information from your application by reading the version info of an EXE file, and using it in AppVerName <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> directive or anywhere else. Without ISPP, you would have to modify your script each time version of your application changes.</para>
+			<para>The main purpose of ISPP is to automate compile-time tasks and avoid repetition in your scripts. For example, you can declare an ISPP variable (compile-time variable) &dash; your application name, for instance &dash; and then use its value in several places of your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without ISPP, you would need to change all occurrences of your application name throughout the script (AppName, AppVerName, DefaultGroupName etc. <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> directives).</para>
+			<para>Another example of using ISPP would be gathering version information from your application at compile-time by reading the version info of an EXE file, and using it in AppVerName <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> directive or anywhere else. Without ISPP, you would have to modify your script each time the version of your application changes.</para>
+			<para>Similarly, you can use ISPP to scan your source folder and generate script lines for the found files. Without ISPP, you would have to manually maintain the list of files.</para>
 			<para>Also, conditional in- and exclusion of portions of script is made possible by ISPP: you can create one single script for different versions/levels of your applications (for example, trial versus fully functional).</para>
 			<para>Finally, ISPP makes it possible to split long lines using a line spanning symbol.</para>
 			<para>Note: ISPP works exclusively at compile-time, and has no run-time functionality.</para>
@@ -66,7 +67,7 @@
 		<topic id="directives">
 			<title>Directives</title>
  			<description header="no">
-				<para>In ISPP directives can be used in two ways: simple or inline.</para>
+				<para>There are two kinds of directives in ISPP: simple and inline.</para>
 				<para>Simple directives occupy a whole line and begin with the <synel>#</synel> symbol. For example the following defines a variable called <synel>MyAppName</synel>:</para>
 				<pre>
 					<line>#define MyAppName "My Program"</line>
@@ -81,7 +82,10 @@
 			<subtopicstitle>Available directives</subtopicstitle>
 			<topic id="define">
 				<title>#define</title>
-				<keywords><kwd>define</kwd></keywords>
+				<keywords>
+          <kwd>#:</kwd>
+          <kwd>define</kwd>
+        </keywords>
 				<syntax>
 					<define id="define-directive">
 						<variant><nt name="variable-definition"/></variant>
@@ -136,8 +140,8 @@
 				</syntax>
 				<description>
 					<para>The first syntax ("variable-definition") defines a variable named <synel>ident</synel>, or assigns a value to an element of an array named <synel>ident</synel>. If none of the <synel>public</synel>, <synel>protected</synel>, or <synel>private</synel> keywords are specified, default <link href="visibility">visibility</link> is assumed.</para>
-					<para>The second syntax ("macro-definition") defines a macro named <synel>ident</synel>. When defining a macro there must be no whitespace between macro name and opening parenthesis, otherwise it will be treated as variable declaration.</para>
-					<para>The third syntax ("default-visibility-set") sets the default <link href="visibility">visibility</link> of further variable and macro definitions in this file. If no visibility declaration occurs in a file, public visibility is assumed by default.</para>
+					<para>The second syntax ("macro-definition") defines <link href="macros">a user defined function</link> named <synel>ident</synel>. When defining a user defined function there must be no whitespace between the name and opening parenthesis, otherwise it will be treated as variable declaration.</para>
+					<para>The third syntax ("default-visibility-set") sets the default <link href="visibility">visibility</link> of further variable and user defined function definitions in this file. If no visibility declaration occurs in a file, public visibility is assumed by default.</para>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -149,12 +153,14 @@
 				</section>
 				<section title="See also">
 					<para>&dim;, &undef;, <link href="visibility"/>.</para>
+					<para><link href="macros"/>.</para>
 				</section>
 			</topic>
 			<topic id="dim">
 				<title>#dim, #redim</title>
 				<keywords>
           <kwd>dim</kwd>
+          <kwd>#redim</kwd>
           <kwd>redim</kwd>
         </keywords>
 				<syntax>
@@ -187,7 +193,10 @@
 			</topic>
 			<topic id="undef">
 				<title>#undef</title>
-				<keywords><kwd>undef</kwd></keywords>
+				<keywords>
+            <kwd>#x</kwd>
+            <kwd>undef</kwd>
+        </keywords>
 				<syntax>
 					<define id="undef-directive">
 						<group><nt name="undef-dir-name"/></group><opt><nt name="locality"/></opt><nt>ident</nt>
@@ -200,12 +209,12 @@
 					</define>
 				</syntax>
 				<description>
-					<para>Undefines (removes) a variable or macro. If no <link href="visibility">visibility</link> (<synel>public</synel>, <synel>protected</synel>, or <synel>private</synel>) is specified, ISPP first tries to remove a private variable of the given name, then protected, then public.</para>
+					<para>Undefines (removes) a variable or user defined function. If no <link href="visibility">visibility</link> (<synel>public</synel>, <synel>protected</synel>, or <synel>private</synel>) is specified, ISPP first tries to remove a private variable of the given name, then protected, then public.</para>
 				</description>
 				<section title="Examples">
 					<pre>
 						<line>#undef MyVar</line>
-						<line>#undef MyMacro</line>
+						<line>#undef MyFunction</line>
 						<line>#undef public MyVar</line>
 					</pre>
 				</section>
@@ -215,7 +224,10 @@
 			</topic>
 			<topic id="include">
 				<title>#include</title>
-				<keywords><kwd>include</kwd></keywords>
+				<keywords>
+            <kwd>#+</kwd>
+            <kwd>include</kwd>
+        </keywords>
 				<syntax>
 					<define id="include-directive">
 						<variant><group><nt name="inc-dir-name"/></group><txt>&lt;</txt><nt>filename</nt><txt>&gt;</txt></variant>
@@ -230,8 +242,8 @@
 				</syntax>
 				<description>
 					<para>Includes the &translation; of the specified file.</para>
-					<para>If the filename is enclosed in angle brackets, ISPP first searches for the file in the directory where current file resides, then in the directory where the file that included current file resides, and so on. If the file is not found, it is searched on current include path, set via &pragma;, then on the path specified by INCLUDE environment variable.</para>
-					<para>If filename is an expression or specified in quotes, it is searched on current include path only.</para>
+					<para>If the filename is enclosed in quotes, ISPP first searches for the file in the directory where current file resides, then in the directory where the file that included current file resides, and so on. If the file is not found, it is searched on current include path, set via &pragma;, then on the path specified by INCLUDE environment variable.</para>
+					<para>If filename is an expression or specified in angle brackets, it is searched on current include path only.</para>
           <para>The filename may be prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</para>
 					<para>This directive cannot be used inline.</para>
 				</description>
@@ -272,7 +284,10 @@
 			</topic>
 			<topic id="emit">
 				<title>#emit</title>
-				<keywords><kwd>emit</kwd></keywords>
+				<keywords>
+            <kwd>#=</kwd>
+            <kwd>emit</kwd>
+        </keywords>
 				<syntax>
 					<define id="emit-directive">
 						<group><nt name="emit-dir-name"/></group><nt>expr</nt>
@@ -293,7 +308,7 @@
 						<line>[Files]</line>
 						<line>#emit 'Filename: "file1.ext"; DestDir: &ob;' + MyDestDir + '&cb;'</line>
 						<line>Filename: "file2.ext"; DestDir: &ob;&ob;#MyDestDir&cb;&cb;</line>
-						<line>#emit GenerateVisualCppFilesEntries ; user defined macro</line>
+						<line>#emit GenerateVisualCppFilesEntries ; user defined function</line>
 						<line></line>
 						<line>[Code]</line>
 						<line>const</line>
@@ -306,7 +321,10 @@
 			</topic>
 			<topic id="expr">
 				<title>#expr</title>
-				<keywords><kwd>expr</kwd></keywords>
+				<keywords>
+            <kwd>#!</kwd>
+            <kwd>expr</kwd>
+        </keywords>
 				<syntax>
 					<define id="expr-directive">
 						<group><nt name="expr-dir-name"/></group><nt>expr</nt>
@@ -341,7 +359,7 @@
 				</syntax>
 				<description>
 					<para>Changes the insertion point. By default, each processed line is added to the end of the &translation;. Using &insert; the point at which the next processed line will be added to the &translation; can be changed. &insert; takes an expression which must evaluate to an integer. The insertion point will be set to this integer.</para>
-					<para>The insertion point is also always automatically incremented each time after line has been added to the &translation;, so that each new line is inserted after the one previously inserted.</para>
+					<para>The insertion point is also always automatically incremented each time after a line has been added to the &translation;, so that each new line is inserted after the one previously inserted.</para>
 					<para>It is not recommended to use script generating functions (such as <synel><link href="SetSetupSetting">SetSetupSetting</link></synel>) which may insert a line by themselves, thus shifting a part of the translation one line down, whereas insertion point is not updated. This may result in different insertion point than expected.</para>
 					<para>The <synel><link href="find">Find</link></synel> function can be used to produce values for the &insert; directive.</para>
 				</description>
@@ -375,8 +393,11 @@
 				<title>#if, #elif, #else, #endif</title>
 				<keywords>
 					<kwd>if</kwd>
+					<kwd>#elif</kwd>
 					<kwd>elif</kwd>
+					<kwd>#else</kwd>
 					<kwd>else</kwd>
+					<kwd>#endif</kwd>
 					<kwd>endif</kwd>
 				</keywords>
 				<syntax>
@@ -396,7 +417,7 @@
 				<description>
 					<para>The &if;, &elif;, &else;, and &endif; conditional directives control in- and exclusion of portions of script.</para>
 					<para>ISPP first evaluates the expressions following each &if; or &elif; directive until it finds one evaluating to non-zero. It then selects the portion of script following this directive up to its associated &elif;, &else;, or &endif;. Earlier portions which followed an &if; or &elif; which evaluated to zero, or which follows any next &elif; are not selected and thus not seen by the Inno Setup compiler.</para>
-					<para>If no expression evaluated to non-zero, the preprocessor selects the script portion after the &else; directive if present, else nothing is selected.</para>
+					<para>If no expression evaluated to non-zero, the preprocessor selects the script portion after the &else; directive if present, otherwise nothing is selected.</para>
 					<para>Finally, after selecting any script portion, ISPP preprocesses it too, so if it contains other preprocessor directives, ISPP carries out those directives as well.</para>
 					<para>Each &if; directive in a source file must be matched by a closing &endif; directive. Any number of &elif; directives can appear between the &if; and &endif; directives, but at most one &else; directive is allowed. The &else; directive, if present, must be the last directive before &endif;.</para>
 					<para>The &if;, &elif;, &else;, and &endif; directives can be nested. Each nested &else;, &elif;, or &endif; directive belongs to the closest preceding &if; directive.</para>
@@ -422,8 +443,11 @@
 				<title>#ifdef, #ifndef, #ifexist, #ifnexist</title>
 				<keywords>
 					<kwd>ifdef</kwd>
+					<kwd>#ifndef</kwd>
 					<kwd>ifndef</kwd>
+					<kwd>#ifexist</kwd>
 					<kwd>ifexist</kwd>
+					<kwd>#ifnexist</kwd>
 					<kwd>ifnexist</kwd>
 				</keywords>
 				<syntax>
@@ -493,6 +517,7 @@
 				<title>#sub, #endsub</title>
 				<keywords>
 					<kwd>sub</kwd>
+					<kwd>#endsub</kwd>
 					<kwd>endsub</kwd>
 				</keywords>
 				<syntax>
@@ -504,7 +529,7 @@
 					</define>
 				</syntax>
 				<description>
-					<para>&sub; and &endsub; directives are used to declare a user defined procedure which is a portion of script which may be included later once or several times. You make think of a user defined procedure as begin similar to an external file, and a call to a user defined procedure as being similar to inclusion of an external file, except that procedures may also be called from within expressions. Please note that it is strongly not recommended to call procedures which emit several lines to &translation; from within compound expressions or directives.</para>
+					<para>&sub; and &endsub; directives are used to declare a user defined procedure which is a portion of script which may be included later once or several times. You may think of a user defined procedure as being similar to an external file, and a call to a user defined procedure as being similar to inclusion of an external file, except that procedures may also be called from within expressions. Please note that it is strongly not recommended to call procedures which emit several lines to &translation; from within compound expressions or directives.</para>
 					<para>A procedure is called by simply specifying its identifier, with which it was declared.</para>
 					<para>A procedure is not processed in any way until it is called, so if any errors exist in its body, they will only pop up when the procedure is called.</para>
 				</description>
@@ -573,9 +598,9 @@
 					</define>
 				</syntax>
 				<description>
-					<para>&pragma; is a special directive. Please note that if ISPP fails to parse parameters of this directive (because of typo or wrong sytax), no error will occur &dash; only a warning will be issued; this is done for compatibility with other preprocessors, which can have their own sytax of &pragma; directive.</para>
+					<para>&pragma; is a special directive. Please note that if ISPP fails to parse parameters of this directive (because of typo or wrong syntax), no error will occur &dash; only a warning will be issued; this is done for compatibility with other preprocessors, which can have their own syntax of &pragma; directive.</para>
 					<para>First syntax of &pragma; directive controls the options, which ISPP uses to read the source. There are two groups of options. Each group consists of 26 flags (not all of them are meaningful and used by ISPP, though). Each flag has an assigned latin letter. You specify options by typing group name (<synel>option</synel> or <synel>parseroption</synel>),
-then the letter following the dash. After a letter a plus or minus sign shall be specified. Plus sign to turn the option on, minus to turn it off. Unrestricted number of options can be specified at once (see syntax).
+then the letter following the dash. After a letter, a plus or minus sign shall be specified. Plus sign to turn the option on, minus to turn it off. Unrestricted number of options can be specified at once (see syntax).
 The list of options is provided at the end of this topic.</para>
 					<para>First group of options (<synel>option</synel>) controls the options of the whole ISPP engine, while second group (<synel>parseroption</synel>) controls options specific to parser. The list of options is provided at the end of this topic.</para>
 					<para>Second syntax is used to specify inline directive terminators: starting and ending, respectively. After the token description keyword (<synel>inlinestart</synel> or <synel>inlineend</synel>) a string type expression must follow. It must not evaluate to an empty string. Only first seven symbols from the string are taken. It is allowed to specify the same token for both starting and ending terminators. By default, <synel>&ob;#</synel> (opening brace and a number sign) and <synel>&cb;</synel> (closing brace) are assumed.</para>
@@ -595,7 +620,7 @@ The list of options is provided at the end of this topic.</para>
 					<table>
 						<tr><td>b</td><td>Short-circuit boolean evaluation. Default state: on.</td></tr>
 						<tr><td>m</td><td>Short-circuit multiplication evaluation. (In "<code>0 * A</code>", <code>A</code> will not be evaluated, since the result of expression is known to be zero.) Default state: off.</td></tr>
-						<tr><td>p</td><td>Pascal-style string literals. In off state uses C-style string literals (with escape sequences). Default state: on.</td></tr>
+						<tr><td>p</td><td>Pascal-style string literals. In off state, uses C-style string literals (with escape sequences). Default state: on.</td></tr>
 						<tr><td>u</td><td>Allow undeclared identifiers. If an undefined identifier is encountered, ISPP will raise an error unless this option is turned on, in which case a standalone identifier (the one that does not look like a function call) will be considered void value. Default state: off.</td></tr>
 					</table>
 				</section>
@@ -622,7 +647,7 @@ The list of options is provided at the end of this topic.</para>
 					</define>
 				</syntax>
 				<description>
-					<para>Directive causes the Inno Setup compiler to issue an error message with the specified text. Unlike <synel>pragma error</synel>, text in <synel>error</synel> directive is not parsed, so it is recommended to use this directive instead of &pragma; when possible to avoid possible syntax errors that may hide real errors your script is trying to report.</para>
+					<para>Causes the Inno Setup compiler to issue an error message with the specified text. Unlike <synel>pragma error</synel>, text in <synel>error</synel> directive is not parsed, so it is recommended to use this directive instead of &pragma; when possible to avoid possible syntax errors that may hide real errors your script is trying to report.</para>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -657,8 +682,8 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para><synel>GetFileVersion</synel> function takes a string argument which must be set to the name of the file whose version information is to be queried. The function returns string composed of four decimal numbers delimited with periods. If file does not contain valid version info, the function returns an empty string.</para>
-					<para>ISPP also has <link href="GetStringFileInfo">GetStringFileInfo</link> function, which also can be used to retrieve file version (using "FileVersion" or "ProductVersion" as second parameter). The difference is that GetFileVersion takes it from fixed block of version info, unlike GetStringFileInfo, which extracts string from language specific block.</para>
+					<para>Takes a string argument which must be set to the name of the file whose version information is to be queried. Returns a string composed of four decimal numbers delimited with periods. Returns an empty string if the file does not contain valid version info.</para>
+					<para>ISPP also has <link href="GetStringFileInfo">GetStringFileInfo</link> function, which also can be used to retrieve file version (using "FileVersion" or "ProductVersion" as second parameter). The difference is that GetFileVersion takes it from the fixed block of version info, unlike GetStringFileInfo, which extracts string from the language specific block.</para>
 				</description>
 			</topic>
 			<topic id="GetStringFileInfo">
@@ -669,9 +694,9 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para><synel>GetStringFileInfo</synel> function retrieves string from specified file's (first argument) version information resource.</para>
-					<para>Second argument is the name of the version info string-value. This should be one of the predefined strings. Those strings and shortcut macros are declared in &builtins;.</para>
-					<para>Third optional argument should specify language and charset identifier. For example: 0x04BE0409 stands for "English (United States)." If this parameter is omitted, ISPP scans for all available version info blocks to find the value.</para>
+					<para>Retrieves string from specified file's (first argument) version information resource.</para>
+					<para>Second argument is the name of the version info string-value. This should be one of the predefined strings. Those strings and shortcuts are declared in &builtins;.</para>
+					<para>Third optional argument should specify the language and charset identifier. For example: 0x04BE0409 stands for "English (United States)." If this parameter is omitted, ISPP scans for all available version info blocks to find the value.</para>
 					<para>The function returns an empty string, if it was unable to retrieve the desired string-value.</para>
 				</description>
 			</topic>
@@ -683,7 +708,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Function converts an expression (first argument) to its integer representation. If the expression is an integer, the result of the function is the expression value. If the expression is void, the result is 0. If the expression is string, ISPP tries to convert it to integer; if such attempt fails, an error is raised unless second parameter specifies the default result.</para>
+					<para>Converts an expression (first argument) to its integer representation. If the expression is an integer, the result of the function is the expression value. If the expression is void, the result is 0. If the expression is string, ISPP tries to convert it to integer; if such attempt fails, an error is raised unless second parameter specifies the default result.</para>
 				</description>
 			</topic>
 			<topic id="Str">
@@ -694,7 +719,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Function converts an expression to string. If the expression is integer, the result is its string representation. If the expression is void, the result is an empty string. Otherwise the result is the value of the expression.</para>
+					<para>Converts an expression to string. If the expression is integer, the result is its string representation. If the expression is void, the result is an empty string. Otherwise the result is the value of the expression.</para>
 				</description>
 			</topic>
 			<topic id="FileExists">
@@ -717,6 +742,17 @@ The list of options is provided at the end of this topic.</para>
 				</section>
 				<description>
 					<para>Returns non-zero value if the specified directory exists.</para>
+				</description>
+			</topic>
+			<topic id="ForceDirectories">
+				<title>ForceDirectories</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> ForceDirectories(<b>str</b>)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Creates all the directories along the specified directory path all at once. If the first directories in the path do exist, but the latter ones don't, ForceDirectories creates just the ones that don't exist. Returns non-zero value if successful.</para>
 				</description>
 			</topic>
 			<topic id="FileSize">
@@ -755,7 +791,7 @@ The list of options is provided at the end of this topic.</para>
 				</section>
 				<description>
 					<para>Reads the value of the specified key in the 32-bit or 64-bit system registry. First parameter is the root key, such as HKEY_LOCAL_MACHINE (32-bit) or HKEY_LOCAL_MACHINE_64 (64-bit). Constants for use with this parameter are declared in &builtins; accompanying ISPP. Second parameter specifies a subkey. Third parameter specifies the name of the value, if this parameter is omitted, a default value is assumed. Last optional parameter may be used to specify the default value that will be returned on failure.</para>
-					<para>Note that this function can return value of any type depending on the type of actual value in registry.</para>
+					<para>Note that this function can return a value of any type depending on the type of actual value in the registry.</para>
 				</description>
 			</topic>
 			<topic id="Exec">
@@ -779,7 +815,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> Copy(<b>str</b> 1, <b>int</b> 2, <b>int</b>? 3)</line></pre>
 				</section>
 				<description>
-					<para>Function extracts a substring from a string (first argument). The 1-based index of the character from which the substring should start is specified by the second argument. The third argument specifies the number of characters to take, if it is omitted, all characters up to the end of the string are copied to the result.</para>
+					<para>Extracts a substring from a string (first argument). The 1-based index of the character from which the substring should start is specified by the second argument. The third argument specifies the number of characters to take, if it is omitted, all characters up to the end of the string are copied to the result.</para>
 				</description>
 			</topic>
 			<topic id="Pos">
@@ -788,7 +824,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> Pos(<b>str</b> 1, <b>str</b> 2)</line></pre>
 				</section>
 				<description>
-					<para><synel>Pos</synel> searches for a substring (first argument) in another string (second argument) and returns an integer value that is the 1-based index of the first character of the substring within the second string. <synel>Pos</synel> is case-sensitive. If the substring is not found, <synel>Pos</synel> returns zero.</para>
+					<para>Searches for a substring (first argument) in another string (second argument) and returns an integer value that is the 1-based index of the first character of the substring within the second string. <synel>Pos</synel> is case-sensitive. If the substring is not found, <synel>Pos</synel> returns zero.</para>
 				</description>
 			</topic>
 			<topic id="RPos">
@@ -797,7 +833,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> RPos(<b>str</b> 1, <b>str</b> 2)</line></pre>
 				</section>
 				<description>
-					<para><synel>RPos</synel> searches for a substring (first argument) in another string (second argument) and returns an integer value that is the 1-based index of the first character of the last occurrence of the substring within the second string. <synel>RPos</synel> is case-sensitive. If the substring is not found, <synel>RPos</synel> returns zero.</para>
+					<para>Searches for a substring (first argument) in another string (second argument) and returns an integer value that is the 1-based index of the first character of the last occurrence of the substring within the second string. <synel>RPos</synel> is case-sensitive. If the substring is not found, <synel>RPos</synel> returns zero.</para>
 				</description>
 			</topic>
 			<topic id="Len">
@@ -815,7 +851,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> SaveToFile(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>This function saves &curtrans; to the specified file.</para>
+					<para>Saves &curtrans; to the specified file.</para>
 				</description>
 			</topic>
 			<topic id="Find">
@@ -824,9 +860,9 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> Find(<b>int</b> 1, <b>str</b> 2, <b>int</b>? 3, <b>str</b>? 4, <b>int</b>? 5, <b>str</b>? 6, <b>int</b>? 7)</line></pre>
 				</section>
 				<description>
-					<para><synel>Find</synel> function is intended to be used with &insert; directive. Function returns the index of the line in a &translation; depending on specified criteria.</para>
+					<para>Intended to be used with &insert; directive: returns the index of the line in a &translation; depending on specified criteria.</para>
 					<para>First parameter denotes the index of the line to start the search from, usually it is set to zero.</para>
-					<para>Second, fourth, and sixth parameters should specify string(s) to search within each line. Only the second parameter must be specified whereas fourth and sixth may be omitted.</para>
+					<para>Second, fourth, and sixth parameters should specify string(s) to search within each line. Only the second parameter must be specified, whereas fourth and sixth may be omitted.</para>
 					<para>Third, fifth, and seventh parameters should specify the search flags for each string meaning that third parameter specifies flags for second, fifth for fourth, and seventh for sixth.</para>
 					<para>If any of the 'flags' parameters is omitted but the string parameter preceding it is specified, <synel>FIND_MATCH | FIND_AND</synel> (i. e. 0) is assumed.</para>
 					<para>Values for third, fifth, and seventh parameters of <synel>Find</synel> function are declared in &builtins;. See <link href="find-flags">Find flags</link> topic for the description of each value.</para>
@@ -859,7 +895,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> SetupSetting(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para><synel>SetupSetting</synel> function parses <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> in &curtrans; to find the key whose name is specified as function parameter. Function returns the value of that key if it's found, or an empty string otherwise.</para>
+					<para>Parses <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> in &curtrans; to find the key whose name is specified as function parameter. Function returns the value of that key if it's found, or an empty string otherwise.</para>
 				</description>
 			</topic>
 			<topic id="SetSetupSetting">
@@ -868,7 +904,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> SetSetupSetting(<b>str</b> 1, <b>str</b> 2)</line></pre>
 				</section>
 				<description>
-					<para><synel>SetSetupSetting</synel> function modifies or generates [Setup] section directive given the key (first parameter) and its value (second parameter).</para>
+					<para>Modifies or generates [Setup] section directive given the key (first parameter) and its value (second parameter).</para>
 					<para>If there is no [Setup] section in &curtrans; (it may happen that function is called before that section in a script), its header (as well as directive itself) is generated by this function.</para>
 					<para>Please use this function carefully &dash; it should not be called when ISPP is in insert mode (i. e. after &insert; directive).</para>
 				</description>
@@ -879,7 +915,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> LowerCase(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para><synel>LowerCase</synel> returns a string with the same text as the string passed in its parameter, but with all letters converted to lowercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</para>
+					<para>Returns a string with the same text as the string passed in its parameter, but with all letters converted to lowercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</para>
 				</description>
 			</topic>
 			<topic id="EntryCount">
@@ -888,7 +924,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> EntryCount(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>Function returns the total number of entries in specified section in &curtrans;. It does not count empty lines or comments. Function takes care of multiple sections with the same name and counts all of them.</para>
+					<para>Returns the total number of entries in specified section in &curtrans;. It does not count empty lines or comments. Function takes care of multiple sections with the same name and counts all of them.</para>
 				</description>
 			</topic>
 			<topic id="GetEnv">
@@ -897,7 +933,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> GetEnv(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>Returns the value of the environment variable whose name is specified as the parameter. Returns empty string if variable is not defined.</para>
+					<para>Returns the value of the environment variable whose name is specified as the parameter. Returns an empty string if the variable is not defined.</para>
 				</description>
 			</topic>
 			<topic id="DeleteFile">
@@ -933,7 +969,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> FindFirst(<b>str</b>, <b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para><synel>FindFirst</synel> searches the directory specified by first parameter for the first file that matches the file name implied by first parameter and the attributes specified by second parameter. If the file is found, the result is a find handle, that should be used in subsequent calls to <synel><link href="FindGetFileName">FindGetFileName</link></synel>, <synel><link href="FindNext">FindNext</link></synel>, and <synel><link href="FindClose"/></synel> functions, otherwise the return value is 0.</para>
+					<para>Searches the directory specified by first parameter for the first file that matches the file name implied by first parameter and the attributes specified by second parameter. If the file is found, the result is a find handle, that should be used in subsequent calls to <synel><link href="FindGetFileName">FindGetFileName</link></synel>, <synel><link href="FindNext">FindNext</link></synel>, and <synel><link href="FindClose"/></synel> functions, otherwise the return value is 0.</para>
 					<para>The first parameter is the directory and file name mask, including wildcard characters. For example, <synel>'.&bs;*.*'</synel> specifies all files in the current directory).</para>
 					<para>The second parameter specifies the special files to include in addition to all normal files. Choose from these file attribute constants defined in &builtins; when specifying this parameter:</para>
 					<table>
@@ -980,7 +1016,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> FindNext(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para><synel>FindNext</synel> returns the next entry that matches the name and attributes specified in a previous call to <synel><link href="FindFirst">FindFirst</link></synel>. The parameter must be find handle returned by <synel>FindFirst</synel>. The return value is non-zero if the function was successful.</para>
+					<para>Returns the next entry that matches the name and attributes specified in a previous call to <synel><link href="FindFirst">FindFirst</link></synel>. The parameter must be a find handle returned by <synel>FindFirst</synel>. The return value is non-zero if the function was successful.</para>
 				</description>
 			</topic>
 			<topic id="FindClose">
@@ -989,7 +1025,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> FindClose(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para><synel>FindClose</synel> terminates a <synel><link href="FindFirst">FindFirst</link></synel>/<synel><link href="FindNext">FindNext</link></synel> sequence. The parameter must be non-zero find handle returned by <synel>FindFirst</synel>.</para>
+					<para>Terminates a <synel><link href="FindFirst">FindFirst</link></synel>/<synel><link href="FindNext">FindNext</link></synel> sequence. The parameter must be a non-zero find handle returned by <synel>FindFirst</synel>.</para>
 					<para>This function is obsolete since 1.2. ISPP automatically frees resources allocated in a call to <synel>FindFirst</synel>.</para>
 				</description>
 			</topic>
@@ -1008,7 +1044,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> FileOpen(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>This function opens a text file for reading and returns the file handle (or zero on failure) to be used in subsequent calls to <synel>File*</synel> functions.</para>
+					<para>Opens a text file for reading and returns the file handle (or zero on failure) to be used in subsequent calls to <synel>File*</synel> functions.</para>
 					<!--para><synel>FileOpen</synel> allocates resources which must be released by calling <synel><link href="FileClose">FileClose</link></synel>.</para-->
 				</description>
 			</topic>
@@ -1018,7 +1054,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> FileRead(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function reads the next line in a text file opened with <synel><link href="FileOpen">FileOpen</link></synel>. The only parameter should be the file handle returned by <synel>FileOpen</synel>.</para>
+					<para>Reads the next line in a text file opened with <synel><link href="FileOpen">FileOpen</link></synel>. The only parameter should be the file handle returned by <synel>FileOpen</synel>.</para>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1047,7 +1083,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> FileReset(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function resets the file pointer to zero, so the subsequent call to <synel><link href="FileRead">FileRead</link></synel> will read the first line of the file. The only parameter should be the file handle returned by <synel><link href="FileOpen">FileOpen</link></synel>.</para>
+					<para>Resets the file pointer to zero, so the subsequent call to <synel><link href="FileRead">FileRead</link></synel> will read the first line of the file. The only parameter should be the file handle returned by <synel><link href="FileOpen">FileOpen</link></synel>.</para>
 				</description>
 			</topic>
 			<topic id="FileEof">
@@ -1056,7 +1092,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> FileEof(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function returns zero if the file pointer does not point to the end of the file, or non-zero otherwise. If this function returns non-zero value, subsequent calls to <synel><link href="FileRead">FileRead</link></synel> will fail. The only parameter should be the file handle returned by <synel><link href="FileOpen">FileOpen</link></synel>.</para>
+					<para>Returns zero if the file pointer does not point to the end of the file, or non-zero otherwise. If this function returns non-zero value, subsequent calls to <synel><link href="FileRead">FileRead</link></synel> will fail. The only parameter should be the file handle returned by <synel><link href="FileOpen">FileOpen</link></synel>.</para>
 				</description>
 			</topic>
 			<topic id="FileClose">
@@ -1065,8 +1101,8 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> FileClose(<b>int</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function closes open file and releases all resources allocated by a call to <synel><link href="FileOpen">FileOpen</link></synel>. After calling <synel>FileClose</synel>, the file handle becomes invalid.</para>
-					<para>This function is obsolete since 1.2. ISPP automatically frees resources allocated in a call to <synel>FileOpen</synel>.</para>
+					<para>Closes a file opened using <synel><link href="FileOpen">FileOpen</link></synel>. After calling <synel>FileClose</synel>, the file handle becomes invalid.</para>
+					<para>Note: opened files which are not closed using this function will be automatically closed after the script has been preprocessed.</para>
 				</description>
 			</topic>
 			<topic id="GetDateTimeString">
@@ -1075,7 +1111,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> GetDateTimeString(<b>str</b>, <b>str</b>, <b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function returns the current date and time as a string using the specified formatting.</para>
+					<para>Returns the current date and time as a string using the specified formatting.</para>
 					<para>The first parameter is the format string. The second and third parameters denote the DateSeparator and TimeSeparator parameters explained below.</para>
 					<para>The following format specifiers are supported:</para>
 					<table>
@@ -1121,7 +1157,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> GetFileDateTimeString(<b>str</b>, <b>str</b>, <b>str</b>, <b>str</b>)</line></pre>
 				</section>
 				<description>
-					<para>The function returns the date and time of the specified file as a string using the specified formatting.</para>
+					<para>Returns the date and time of the specified file as a string using the specified formatting.</para>
 					<para>The first parameter is the file name. The second, third and fourth parameters denote the format string, DateSeparator and TimeSeparator parameters as explained in the <link href="GetDateTimeString">GetDateTimeString</link> topic.</para>
 				</description>
 				<section title="Example">
@@ -1223,6 +1259,15 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 			</topic>
+			<topic id="IsWin64">
+				<title>IsWin64</title>
+				<section title="Prototype">
+					<pre><line><b>int</b> IsWin64()</line></pre>
+				</section>
+				<description>
+					<para>Returns non-zero if the system is running a 64-bit version of Windows that provides the API support Inno Setup requires to perform 64-bit installation tasks, or zero otherwise.</para>
+				</description>
+			</topic>
 			<topic id="Defined">
 				<title>Defined</title>
 				<section title="Prototype">
@@ -1267,7 +1312,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ParseVersion">
 				<title>ParseVersion</title>
-				<section title="ParseVersion">
+				<section title="Prototype">
 					<pre>
 						<line>#define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build)</line>
 					</pre>
@@ -1279,7 +1324,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="EncodeVer">
 				<title>EncodeVer</title>
-				<section title="EncodeVer">
+				<section title="Prototype">
 					<pre>
 						<line>#define EncodeVer(int Major, int Minor, int Revision = 0, int Build = -1)</line>
 					</pre>
@@ -1291,7 +1336,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="DecodeVer">
 				<title>DecodeVer</title>
-				<section title="DecodeVer">
+				<section title="Prototype">
 					<pre>
 						<line>#define DecodeVer(int Ver, int Digits = 3)</line>
 					</pre>
@@ -1303,31 +1348,31 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="FindSection">
 				<title>FindSection</title>
-				<section title="FindSection">
+				<section title="Prototype">
 					<pre>
 						<line>#define FindSection(str Section = "Files")</line>
 					</pre>
 				</section>
 				<description>
-					<para>Returns the index of the line following the header of the section. This macro is intended to be used with &insert; directive.</para>
+					<para>Returns the index of the line following the header of the section. This function is intended to be used with &insert; directive.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
 			<topic id="FindSectionEnd">
 				<title>FindSectionEnd</title>
-				<section title="FindSectionEnd">
+				<section title="Prototype">
 					<pre>
 						<line>#define FindSectionEnd(str Section = "Files")</line>
 					</pre>
 				</section>
 				<description>
-					<para>Returns the index of the line following last entry of the section. This macro is intended to be used with #insert directive.</para>
+					<para>Returns the index of the line following last entry of the section. This function is intended to be used with #insert directive.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
 			<topic id="FindCode">
 				<title>FindCode</title>
-				<section title="FindCode">
+				<section title="Prototype">
 					<pre>
 						<line>#define FindCode()</line>
 					</pre>
@@ -1339,7 +1384,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ExtractFilePath">
 				<title>ExtractFilePath</title>
-				<section title="ExtractFilePath">
+				<section title="Prototype">
 					<pre>
 						<line>#define ExtractFilePath(str PathName)</line>
 					</pre>
@@ -1351,7 +1396,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ExtractFileDir">
 				<title>ExtractFileDir</title>
-				<section title="ExtractFileDir">
+				<section title="Prototype">
 					<pre>
 						<line>#define ExtractFileDir(str PathName)</line>
 					</pre>
@@ -1363,7 +1408,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ExtractFileExt">
 				<title>ExtractFileExt</title>
-				<section title="ExtractFileExt">
+				<section title="Prototype">
 					<pre>
 						<line>#define ExtractFileExt(str PathName)</line>
 					</pre>
@@ -1375,7 +1420,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ExtractFileName">
 				<title>ExtractFileName</title>
-				<section title="ExtractFileName">
+				<section title="Prototype">
 					<pre>
 						<line>#define ExtractFileName(str PathName)</line>
 					</pre>
@@ -1387,7 +1432,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="ChangeFileExt">
 				<title>ChangeFileExt</title>
-				<section title="ChangeFileExt">
+				<section title="Prototype">
 					<pre>
 						<line>#define ChangeFileExt(str FileName, str NewExt)</line>
 					</pre>
@@ -1397,9 +1442,21 @@ The list of options is provided at the end of this topic.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
+			<topic id="RemoveFileExt">
+				<title>RemoveFileExt</title>
+				<section title="Prototype">
+					<pre>
+						<line>#define RemoveFileExt(str FileName)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Removes the extension in FileName.</para>
+          <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
 			<topic id="AddBackslash">
 				<title>AddBackslash</title>
-				<section title="AddBackslash">
+				<section title="Prototype">
 					<pre>
 						<line>#define AddBackslash(str S)</line>
 					</pre>
@@ -1411,7 +1468,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="RemoveBackslash">
 				<title>RemoveBackslash</title>
-				<section title="RemoveBackslash">
+				<section title="Prototype">
 					<pre>
 						<line>#define RemoveBackslash(str S)</line>
 					</pre>
@@ -1423,7 +1480,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="Delete">
 				<title>Delete</title>
-				<section title="Delete">
+				<section title="Prototype">
 					<pre>
 						<line>#define Delete(str *S, int Index, int Count = MaxInt)</line>
 					</pre>
@@ -1435,7 +1492,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="Insert2">
 				<title>Insert</title>
-				<section title="Insert">
+				<section title="Prototype">
 					<pre>
 						<line>#define Insert(str *S, int Index, str Substr)</line>
 					</pre>
@@ -1447,7 +1504,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="YesNo">
 				<title>YesNo</title>
-				<section title="YesNo">
+				<section title="Prototype">
 					<pre>
 						<line>#define YesNo(str S)</line>
 					</pre>
@@ -1459,7 +1516,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="Power">
 				<title>Power</title>
-				<section title="Power">
+				<section title="Prototype">
 					<pre>
 						<line>#define Power(int X, int P = 2)</line>
 					</pre>
@@ -1470,7 +1527,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="Min">
 				<title>Min</title>
-				<section title="Min">
+				<section title="Prototype">
 					<pre>
 						<line>#define Min(int A, int B, int C = MaxInt)</line>
 					</pre>
@@ -1481,7 +1538,7 @@ The list of options is provided at the end of this topic.</para>
 			</topic>
 			<topic id="Max">
 				<title>Max</title>
-				<section title="Max">
+				<section title="Prototype">
 					<pre>
 						<line>#define Max(int A, int B, int C = MinInt)</line>
 					</pre>
@@ -1490,6 +1547,129 @@ The list of options is provided at the end of this topic.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
+			<topic id="SameText">
+				<title>SameText</title>
+				<section title="Prototype">
+					<pre>
+						<line>#define SameText(str S1, str S2)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Returns True if the given strings are identical, ignoring case.</para>
+          <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
+			<topic id="SameStr">
+				<title>SameStr</title>
+				<section title="Prototype">
+					<pre>
+						<line>#define SameStr(str S1, str S2)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Returns True if the given strings are identical, with case-sensitivity.</para>
+          <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
+		</topic>
+    <topic id="macros">
+			<keywords>
+				<kwd>#define</kwd>
+				<kwd>define</kwd>
+				<kwd>Functions</kwd>
+				<kwd>Local</kwd>
+			</keywords>
+			<title>User Defined Functions</title>
+			<description header="no">
+				<para>You can define user defined functions.</para>
+				<para>A user defined function declaration consists of a formal parameter list and an expression. That expression is evaluated when the function is called (see below). The result of the function call is the result of the expression. The expression can contain parameter names, they are treated as usual variables.</para>
+				<para>The formal syntax of a user defined function is provided in &define; and the &builtins; contains many example functions.</para>
+        <para>Please note that there must be no space between the function name and opening parenthesis.</para>
+				<para>Actual parameters for parameters declared as by-reference must be modifiable l-values (in other words, other defined variables or expressions that evaluate to l-values). If the expression modifies by-reference parameter, the variable that is passed as this parameter gets modified. By-value parameters can also be modified by the expression (using assignment operators), but this modification doesn't affect the value of a variable which could be passed as this parameter.</para>
+				<para>Though a user defined function can only contain one expression, sequential evaluation operators (comma), assignment operators (simple and compound) and conditional operators (<synel>?:</synel>) can be used to build more complicated functions.</para>
+      </description>
+			<section title="Local array">
+        <para>In context of the expression, an additional array named <synel>Local</synel> is valid. Its elements can be used for temporary storage and reusing values in sequential expressions. Values stored in <synel>Local</synel> array are neither preserved from call to call (including recursive), nor are they accessible from anywhere except the expression.</para>
+        <pre>
+          <line>#define DeleteToFirstPeriod(str *S) /* user defined function declaration */ &bs;</line>
+          <line>&dsp;Local[1] = <link href="copy">Copy</link>(S, 1, (Local[0] = <link href="pos">Pos</link>(".", S)) - 1), &bs;</line>
+          <line>&dsp;S = Copy(S, Local[0] + 1), &bs;</line>
+          <line>&dsp;Local[1]</line>
+        </pre>
+			</section>
+		</topic>
+		<!--   EXPRESSIONS -->
+		<topic id="expressions">
+      <keywords>
+        <kwd>Data types</kwd>
+        <kwd>Types</kwd>
+        <kwd>Comments</kwd>
+      </keywords>
+      <title>Expression Syntax</title>
+			<description header="no">
+				<para>ISPP uses C/C++-like expression syntax. It supports simple and compound assignment operators, conditional operator, and sequential evaluation operator. Although ISPP is an interpreter, it does support short circuit boolean evaluation and never evaluates expressions (nor calls any user defined functions mentioned in those expressions) that should not be evaluated due to specific rules (for example, when conditional operator is used, always only 2 out of 3 operands are evaluated).</para>
+        <para>The &builtins; contains many example expressions.</para>
+			</description>
+			<section title="Differences between C and ISPP expression syntax">
+				<ul>
+					<li>ISPP does not support a number of operators (reference, dereference, namespace resolution, member selection, etc.).</li>
+					<li>ISPP treats an identifier and the equality sign as a name of an argument, if it is used in argument list.</li>
+					<li>Arithmetic division operator (slash) performs integer division, since ISPP does not support floating point math.</li>
+					<li>ISPP does not check for validity of expressions in certain cases. For example, in conditional expression, "true" operand can be of string type, whereas "false" operand can be of integer type.</li>
+					<li>String literals can be quoted by both single and double quotes (in both modes &dash; C-style or Pascal-style). If a literal begins with a single quote, it must also end with a single quote. Double quotes may be used in single quoted string without any escaping, and vice versa. Within a string, the character used to quote the string must be escaped (the manner depends on current state of "Pascal-style string literals" parser option, see &pragma;).</li>
+				</ul>
+			</section>
+			<section title="Data types">
+				<para>There are three types in ISPP: void, integer, and string. Variable of void type is declared by just specifying its name after &define; directive without any value. Such variables should be used with &ifdef; directive or <synel><link href="Defined">Defined</link></synel> function.</para>
+				<para>If "allow undeclared identifiers" parser option is off (the default state, see &pragma;), an error is raised when undefined variable is mentioned. Otherwise, it will be treated as a value of type void.</para>
+				<para>Void is compatible with integer and string in expressions. For example, you can use addition operator with void and integer operands, in this case void operand will be treated as zero. In conjunction with string, void operand is treated as an empty string.</para>
+			</section>
+			<section title="Comments">
+				<para>Comments may be embedded in expression by using a slash and an asterisk. For example:</para>
+				<pre>
+					<line>#emit Var1 /* this is a comment */ + Var2 /* this is a comment */</line>
+				</pre>
+				<para>Also, one line comments are supported. Those comments must begin with a semicolon. Whole text after the semicolon up to the end of a line is considered comment.</para>
+				<pre>
+					<line>#emit Var1 + Var2 ; this is a comment</line>
+				</pre>
+				<para>Please note that line spanning feature is triggered before any further processing, thus a comment may occupy more than one line:</para>
+				<pre>
+					<line>#emit Var1 + Var2 ; this is &bs;</line>
+					<line>&dsp;a comment</line>
+				</pre>
+			</section>
+			<section title="Extended User Defined Function Call Syntax">
+				<para>In ISPP, it is possible to use named arguments when calling user defined function. Given the declaration:</para>
+				<pre>
+					<line>#define MyFunction(int A = 2, int B = 2) A + B</line>
+				</pre>
+				<para>This function can be called specifying argument names:</para>
+				<pre>
+					<line>#emit MyFunction(A = 5, B = 10)</line>
+					<line>#emit MyFunction(B = 3)</line>
+					<line>#emit MyFunction(B = 10, A = 5)</line>
+				</pre>
+				<ul>
+					<li>If a name is specified for one argument, then all (required) arguments in the list must also be named.</li>
+					<li>The order of named arguments does not matter.</li>
+					<li>
+						<para>Because of this extension, an assignment expression must be enclosed in parentheses, if not using extended call syntax, to avoid ambiguity:</para>
+						<pre>
+							<line>#emit MyFunction((MyVar = 5), 10)</line>
+						</pre>
+						<para>In the above example, the equality sign is treated as a direct assignment operator.</para>
+						<para>Although functions do not have named arguments, it is still required to enclose assignment expressions in parentheses when calling those functions.</para>
+					</li>
+					<li>
+						<para>By standard rule, comma is used to separate actual parameters. If you need to use sequential evaluation operator, you must include the expression in parentheses:</para>
+						<pre>
+							<line>#emit MyFunction((SaveToFile("script.txt"), 5), 10)</line>
+						</pre>
+						<para>In the above example, the first comma is treated as the sequential evaluation operator, whereas the second one as the argument delimiter.</para>
+					</li>
+				</ul>
+			</section>
 		</topic>
 		<topic id="predefinedvars">
 			<title>Predefined Variables</title>
@@ -1499,18 +1679,20 @@ The list of options is provided at the end of this topic.</para>
 					<tr><td><code>__COUNTER__</code></td><td><code><b>int</b></code>. Automatically increments each time it is used (afterwards).</td></tr>
 					<tr><td><code>__FILE__</code></td><td><code><b>str</b></code>. Returns the name of the current file. Empty string for the root file.</td></tr>
 					<tr><td><code>__INCLUDE__</code></td><td><code><b>str</b></code>. Returns the current include path (or paths delimited with semicolons) set via <code>#pragma include</code>.</td></tr>
-					<tr><td><code>__LINE__</code></td><td><code><b>int</b></code>. Returns the number of the line in the current file (not a &translation;) on which the variable is used (or macro that uses this variable is called).</td></tr>
+					<tr><td><code>__LINE__</code></td><td><code><b>int</b></code>. Returns the number of the line in the current file (not a &translation;) on which the variable is used (or user defined function that uses this variable is called).</td></tr>
 					<tr><td><code>__OPT_X__</code></td><td><code><b>void</b></code>. Defined if specified option set via <code>#pragma option -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z." Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
-					<tr><td><code>__PATHFILENAME__</code></td><td><code><b>str</b></code>. Similar to __FILE__ but, returns the full pathname of the file. Empty string for the root file.</td></tr>
+					<tr><td><code>__PATHFILENAME__</code></td><td><code><b>str</b></code>. Similar to __FILE__, but returns the full pathname of the file. Empty string for the root file.</td></tr>
 					<tr><td><code>__POPT_X__</code></td><td><code><b>void</b></code>. Defined if specified parser option set via <code>#pragma parseroption -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z." Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
 					<tr><td><code>__WIN32__</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>ISPP_INVOKED</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
+					<tr><td><code>ISPPCC_INVOKED</code></td><td><code><b>void</b></code>. Defined if compilation was invoked using the console-mode compiler, ISCC.exe.</td></tr>
 					<tr><td><code>PREPROCVER</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of ISPP. Highest byte holds the major version, lowest byte holds the build number.</td></tr>
 					<tr><td><code>WINDOWS</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>UNICODE</code></td><td><code><b>void</b></code>. Always defined for Unicode ISPP. Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
 					<tr><td><code>CompilerPath</code></td><td><code><b>str</b></code>. Points to the directory where the compiler is located.</td></tr>
 					<tr><td><code>SourcePath</code></td><td><code><b>str</b></code>. Points to the directory where the current script is located, or the My Documents directory if the script has not yet been saved.</td></tr>
 					<tr><td><code>Ver</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of Inno Setup compiler. Highest byte holds the major version, lowest byte usually holds zero.</td></tr>
+					<tr><td><code>NewLine</code></td><td><code><b>str</b></code>. Returns the newline character. Declared in &builtins;.</td></tr>
 				</table>
 			</description>
 		</topic>
@@ -1532,39 +1714,10 @@ The list of options is provided at the end of this topic.</para>
         <para>Also see &builtins;.</para>
       </description>
     </topic>
-    <topic id="macros">
-			<keywords>
-				<kwd>#define</kwd>
-				<kwd>define</kwd>
-				<kwd>macros</kwd>
-			</keywords>
-			<title>User Defined Macros</title>
-			<description header="no">
-				<para>You can define so called "macros" in your scripts, these can be thought of as "user defined functions."</para>
-				<para>Macro declaration consists of formal parameter list and expression. That expression is evaluated when macro is called (see below). The result of the macro call is the result of the macro expression. Macro expression can contain parameter names, they are treated as usual variables.</para>
-				<para>The formal syntax of macro declaration is provided in &define; and the &builtins; contains many example macros.</para>
-          <para>Please note that there must be no space between macro name and opening parenthesis.</para>
-				<para>Actual parameters for parameters declared as by-reference must be modifiable l-values (in other words, other defined variables or expressions that evaluate to l-values). If macro expression modifies by-reference parameter, the variable that is passed as this parameter gets modified. By-value parameters can also be modified by macro expression (using assignment operators), but this modification doesn't affect the value of a variable which could be passed as this parameter.</para>
-				<para>Though macro can only contain one expression, it can be used as full featured user defined function, because ISPP supports sequential evaluation operator (comma), assignment operators (simple and compound) and conditional operator (<synel>?:</synel>).</para>
-      </description>
-			<subtopicstitle>See also</subtopicstitle>
-			<topic id="localarray">
-				<title>Macros' Local array</title>
-				<description header="no">
-					<para>In context of macro expression additional array named <synel>Local</synel> is valid. Its elements can be used for temporary storage and reusing values in sequential expressions. This array belongs to one context of macro call, that means that values stored in <synel>Local</synel> array are neither preserved from call to call (including recursive), nor are they accessible from anywhere except the macro expression.</para>
-					<pre>
-						<line>#define DeleteToFirstPeriod(str *S) /* macro declaration */ &bs;</line>
-						<line>&dsp;Local[1] = <link href="copy">Copy</link>(S, 1, (Local[0] = <link href="pos">Pos</link>(".", S)) - 1), &bs;</line>
-						<line>&dsp;S = Copy(S, Local[0] + 1), &bs;</line>
-						<line>&dsp;Local[1]</line>
-					</pre>
-				</description>
-			</topic>
-		</topic>
 		<topic id="builtinsiss">
 			<title>ISPPBuiltins.iss</title>
 			<description header="no">
-				<para>The ISPPBuiltins.iss file is accompanying the Inno Setup Preprocessor. It is automatically included, if it exists in the compiler directory, as if the very first line of your script contained an &include; directive for it. This file contains common declarations, such as special constants for using with functions, and some useful macros. The file is a regular Inno Setup Script file but mostly contains only ISPP directives.</para>
+				<para>The ISPPBuiltins.iss file is accompanying the Inno Setup Preprocessor. It is automatically included, if it exists in the compiler directory, as if the very first line of your script contained an &include; directive for it. This file contains common declarations, such as special constants for using with functions, and some useful user defined functions. The file is a regular Inno Setup Script file but mostly contains only ISPP directives.</para>
         <para>To learn more about the functionality provided by this file please open it with the Inno Setup Compiler, it is well commented.</para>
 			</description>
 		</topic>
@@ -1577,7 +1730,7 @@ The list of options is provided at the end of this topic.</para>
 			</keywords>
 			<title>Visibility of Identifiers</title>
 			<description header="no">
-				<para>Variables (as well as macros, read "variable or macro" anywhere it says "variable" below) can be explicitly defined as "public," "protected," or "private." To define such a variable, its name in its &define; directive should be prepended with one of the visibility keywords:</para>
+				<para>Variables (as well as user defined functions, read "variable or user defined function" anywhere it says "variable" below) can be explicitly defined as "public," "protected," or "private." To define such a variable, its name in its &define; directive should be prepended with one of the visibility keywords:</para>
 				<pre>
 					<line>#define public MyVar 12</line>
 					<line>#define protected MyVar 13</line>
@@ -1594,99 +1747,25 @@ The list of options is provided at the end of this topic.</para>
 				<pre><line>#define protected</line></pre>
 				<para>sets protected visibility by default.</para>
 				<para>The default visibility isn't used when evaluating expressions, it is only used when a variable is defined or undefined without explicitly specifying its visibility. When default visibility is not set, public is assumed by default. Setting default visibility is not propagated on included or parent files.</para>
-				<para>In macro expressions, avoid using identifiers of lower visibility than the one macro is declared in. This may cause "Undeclared identifier" errors if macro is called from another file.</para>
+				<para>In user defined function expressions, avoid using identifiers of lower visibility than the one the user defined function is declared in. This may cause "Undeclared identifier" errors if the user defined function is called from another file.</para>
 				<para>It is recommended that you use appropriate visibility when declaring variables to avoid problems with unexpected redefinition of a variable (for example in included third-party file). If no included files depend on a variable, declare it as private. If they do, but the parent file doesn't, declare it as protected. Declare it as public otherwise. If you're unsure, then protected visibility is the common case.</para>
 			</description>
 		</topic>
-		<!--   EXPRESSIONS -->
-		<topic id="expressions">
-      <keywords>
-        <kwd>Comments</kwd>
-      </keywords>
-      <title>Expression Syntax</title>
-			<description header="no">
-				<para>ISPP uses C/C++-like expression syntax. It supports simple and compound assignment operators, conditional operator, and sequential evaluation operator. Although ISPP is an interpreter, it does support short circuit boolean evaluation and never evaluates expressions (nor calls any macros mentioned in those expressions) that should not be evaluated due to specific rules (for example, when conditional operator is used, always only 2 out of 3 operands are evaluated).</para>
-        <para>The &builtins; contains many example expressions.</para>
-			</description>
-			<section title="Differences between C and ISPP expression syntax">
-				<ul>
-					<li>ISPP does not support a number of operators (reference, dereference, namespace resolution, member selection, etc.).</li>
-					<li>ISPP treats an identifier and the equality sign as a name of an argument, if it is used in argument list.</li>
-					<li>Arithmetic division operator (slash) performs integer division, since ISPP does not support floating point math.</li>
-					<li>ISPP does not check for validity of expressions is certain cases. For example, in conditional expression, "true" operand can be of string type, whereas "false" operand can be of integer type.</li>
-					<li>String literals can be quoted by both single and double quotes (in both modes &dash; C-style or Pascal-style). If a literal begins with a single quote, it must also end with a single quote. Double quotes may be used in single quoted string without any escaping, and vice versa. Within a string the character used to quote the string must be escaped (the manner depends on current state of "Pascal-style string literals" parser option, see &pragma;).</li>
-				</ul>
-			</section>
-			<section title="Data types">
-				<para>There are three types in ISPP: void, integer, and string. Variable of void type is declared by just specifying its name after &define; directive without any value. Such variables should be used with &ifdef; directive or <synel><link href="Defined">Defined</link></synel> function.</para>
-				<para>If "allow undeclared identifiers" parser option is off (the default state, see &pragma;), an error is raised when undefined variable is mentioned. Otherwise, it will be treated as a value of type void.</para>
-				<para>Void is compatible with integer and string in expressions. For example, you can use addition operator with void and integer operands, in this case void operand will be treated as zero. In conjunction with string, void operand is treated as an empty string.</para>
-			</section>
-			<section title="Comments">
-				<para>Comments may be embedded in expression by using a slash and an asterisk. For example:</para>
-				<pre>
-					<line>#emit Var1 /* this is a comment */ + Var2 /* this is a comment */</line>
-				</pre>
-				<para>Also one line comments are supported. Those comments must begin with a semicolon. Whole text after the semicolon up to the end of a line is considered comment.</para>
-				<pre>
-					<line>#emit Var1 + Var2 ; this is a comment</line>
-				</pre>
-				<para>Please note that line spanning feature is triggered before any further processing, thus a comment may occupy more than one line:</para>
-				<pre>
-					<line>#emit Var1 + Var2 ; this is &bs;</line>
-					<line>&dsp;a comment</line>
-				</pre>
-			</section>
-			<section title="Extended Macro Call Syntax">
-				<para>In ISPP it is possible to use named arguments when calling user defined macro. Given the declaration:</para>
-				<pre>
-					<line>#define MyMacro(int A = 2, int B = 2) A + B</line>
-				</pre>
-				<para>This macro can be called specifying argument names:</para>
-				<pre>
-					<line>#emit MyMacro(A = 5, B = 10)</line>
-					<line>#emit MyMacro(B = 3)</line>
-					<line>#emit MyMacro(B = 10, A = 5)</line>
-				</pre>
-				<ul>
-					<li>If a name is specified for one argument, then all (required) arguments in the list must also be named.</li>
-					<li>The order of named arguments does not matter.</li>
-					<li>
-						<para>Because of this extension, an assignment expression must be enclosed in parentheses, if not using extended call syntax, to avoid ambiguity:</para>
-						<pre>
-							<line>#emit MyMacro((MyVar = 5), 10)</line>
-						</pre>
-						<para>In the above example, the equality sign is treated as a direct assignment operator.</para>
-						<para>Although functions do not have named arguments, it is still required to enclose assignment expressions in parentheses when calling those functions.</para>
-					</li>
-					<li>
-						<para>By standard rule comma is used to separate actual parameters. If you need to use sequential evaluation operator, you must include the expression in parentheses:</para>
-						<pre>
-							<line>#emit MyMacro((SaveToFile("script.txt"), 5), 10)</line>
-						</pre>
-						<para>In the above example, the first comma is treated as the sequential evaluation operator, whereas the second one as the argument delimiter.</para>
-					</li>
-				</ul>
-			</section>
-		</topic>
 		<topic id="isppcc">
-			<title>Extended Command Line Compiler</title>
+			<title>Command Line Compiler Execution</title>
 			<description header="no">
-				<para>Inno Setup Preprocessor replaces the standard Inno Setup Command Line Compiler (ISCC.exe) by an extended version. This extended version provides extra parameters to control Inno Setup Preprocessor.</para>
-				<para>Usage: <synel>iscc [options] scriptfile.iss</synel>. Or to read from standard input: <synel>iscc [options] -</synel>.</para>
-				<para>Options are to emulate a <link href="define">define</link> or <link href="pragma">pragma</link> directive are:</para>
+				<para>If Inno Setup Preprocessor is installed the console-mode compiler ISCC.exe automatically provides extra parameters to control Inno Setup Preprocessor:</para>
 				<table>
-					<tr><td><code>/d&lt;name&gt;[=&lt;value&gt;]</code></td><td>Sets <code>#define public &lt;name&gt; &lt;value&gt;</code></td></tr>
-					<tr><td><code>/$&lt;letter&gt;(+|-)</code></td><td>Sets <code>#pragma option -&lt;letter&gt;(+|-)</code></td></tr>
-					<tr><td><code>/p&lt;letter&gt;(+|-)</code></td><td>Sets <code>#pragma parseroption -&lt;letter&gt;(+|-)</code></td></tr>
-					<tr><td><code>/i&lt;paths&gt;</code></td><td>Sets <code>#pragma include -&lt;paths&gt;</code></td></tr>
-					<tr><td><code>/{#&lt;string&gt;</code></td><td>Sets <code>#pragma inlinestart -&lt;string&gt;</code></td></tr>
-					<tr><td><code>/}&lt;string&gt;</code></td><td>Sets <code>#pragma inlineend -&lt;string&gt;</code></td></tr>
-					<tr><td><code>/v&lt;number&gt;</code></td><td>Sets <code>#pragma verboselevel -&lt;number&gt;</code></td></tr>
+					<tr><td><code>/D&lt;name&gt;[=&lt;value&gt;]</code></td><td>Emulate <code>#define public &lt;name&gt; &lt;value&gt;</code></td></tr>
+					<tr><td><code>/$&lt;letter&gt;(+|-)</code></td><td>Emulate <code>#pragma option -&lt;letter&gt;(+|-)</code></td></tr>
+					<tr><td><code>/P&lt;letter&gt;(+|-)</code></td><td>Emulate <code>#pragma parseroption -&lt;letter&gt;(+|-)</code></td></tr>
+					<tr><td><code>/I&lt;paths&gt;</code></td><td>Emulate <code>#pragma include &lt;paths&gt;</code></td></tr>
+					<tr><td><code>/J&lt;filename&gt;</code></td><td>Emulate <code>#include &lt;filename&gt;</code></td></tr>
+					<tr><td><code>/{#&lt;string&gt;</code></td><td>Emulate <code>#pragma inlinestart &lt;string&gt;</code></td></tr>
+					<tr><td><code>/}&lt;string&gt;</code></td><td>Emulate <code>#pragma inlineend &lt;string&gt;</code></td></tr>
+					<tr><td><code>/V&lt;number&gt;</code></td><td>Emulate <code>#pragma verboselevel &lt;number&gt;</code></td></tr>
 				</table>
-				<para>Other valid options are: "/O" to specify an output path (overriding any OutputDir setting in the script), "/F" to specify an output filename (overriding any OutputBaseFilename setting in the script), and "/Q[p]" for quiet compile (print only error messages, "p" will show progress info).</para>
-				<para>Example: <synel>iscc /$c- /pu+ "/dLic=Trial Lic.txt" /iC:\INC;D:\INC "c:\isetup\samples\my script.iss"</synel></para>
-				<para>ISCC will return an exit code of 0 if the compile was successful, 1 if the command line parameters were invalid or an internal error occurred, or 2 if the compile failed.</para>
+				<para>Example: <synel>iscc /$c- /Pu+ "/DLicenseFile=Trial License.txt" /Ic:\inc;d:\inc /Jdefines.iss "c:\isetup\samples\my script.iss"</synel></para>
 			</description>
 		</topic>
 		<topic id="translation" popup="yes">
@@ -1710,7 +1789,7 @@ The list of options is provided at the end of this topic.</para>
     <title>Looping</title>
     <description header="no">
       <para>ISPP allows you to call macro recursively, i. e. call it from itself. This feature can be used to emulate loop.</para>
-      <para>For example, you wish to construct a "for"-like loop. To achieve this, you'll need to declare a macro that takes one integer argument and which makes the loop "body." After that you declare "outer" loop, which used for iterating:</para>
+      <para>For example, you wish to construct a "for"-like loop. To achieve this, you'll need to declare a macro that takes one integer argument and which makes the loop "body." After that you declare "outer" loop, which is used for iterating:</para>
       <pre> 
         <line>#define LoopBody(int I) Str(I) + "th iteration&bs;n"</line>
         <line></line>

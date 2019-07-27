@@ -78,7 +78,6 @@ begin
   inherited;
 
   InitializeFont;
-  Center;
 
   Caption := SetupMessages[msgConfirmDeleteSharedFileTitle];
   BodyLabel.Caption := SetupMessages[msgConfirmDeleteSharedFile2];
@@ -88,6 +87,8 @@ begin
   YesToAllButton.Caption := SetupMessages[msgButtonYesToAll];
   NoButton.Caption := SetupMessages[msgButtonNo];
   NoToAllButton.Caption := SetupMessages[msgButtonNoToAll];
+
+  KeepSizeY := True;
 end;
 
 procedure TUninstSharedFileForm.CreateParams(var Params: TCreateParams);

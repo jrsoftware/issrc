@@ -46,7 +46,7 @@ procedure FreeHtmlHelpLibrary;
 implementation
 
 uses
-  Messages, SysUtils;
+  Messages, SysUtils, CmnFunc2, PathFunc;
 
 var
   HHCtrl: THandle;
@@ -54,7 +54,7 @@ var
 procedure InitHtmlHelpLibrary;
 begin
   if HHCtrl = 0 then begin
-    HHCtrl := LoadLibrary('hhctrl.ocx');
+    HHCtrl := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'hhctrl.ocx'));
     if HHCtrl <> 0 then
       HtmlHelp := GetProcAddress(HHCtrl, {$IFDEF UNICODE}'HtmlHelpW'{$ELSE}'HtmlHelpA'{$ENDIF})
     else
@@ -75,7 +75,7 @@ function CloseHtmlHelpWindowsEnumProc(Wnd: HWND; lParam: LPARAM): BOOL; stdcall;
 var
   PID: DWORD;
   ClassName: array[0..31] of Char;
-  MsgResult: DWORD;
+  MsgResult: DWORD_PTR;
 begin
   if (GetWindowThreadProcessId(Wnd, @PID) <> 0) and
      (PID = GetCurrentProcessId) then begin
@@ -85,7 +85,7 @@ begin
         because it's waiting on a modal dialog (e.g. Properties) then it's
         probably not safe to close it. }
       if IsWindowEnabled(Wnd) then
-        SendMessageTimeout(Wnd, WM_CLOSE, 0, 0, SMTO_BLOCK, 7500, MsgResult);
+        SendMessageTimeout(Wnd, WM_CLOSE, 0, 0, SMTO_BLOCK, 7500, @MsgResult);
     end;
   end;
   Result := True;

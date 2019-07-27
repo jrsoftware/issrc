@@ -21,7 +21,7 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
 			<DCC_DependencyCheckOutputName>ISCC.exe</DCC_DependencyCheckOutputName>
-			<DCC_UnitSearchPath>..\components;..\components\ps\source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\components;..\components\unips\source;ispp;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_ConsoleTarget>true</DCC_ConsoleTarget>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
@@ -76,6 +76,7 @@
 						<Parameters Name="UseLauncher">False</Parameters>
 						<Parameters Name="LoadAllSymbols">True</Parameters>
 						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+						<Parameters Name="RunParams">../other/test.iss /jtest2.iss /jtest3.iss</Parameters>
 					</Parameters>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
@@ -97,7 +98,7 @@
 						<VersionInfoKeys Name="FileDescription">Inno Setup Command-Line Compiler</VersionInfoKeys>
 						<VersionInfoKeys Name="FileVersion">0.0.0.0</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName"/>
-						<VersionInfoKeys Name="LegalCopyright">Copyright (C) 1997-2008 Jordan Russell. Portions Copyright (C) 2000-2008 Martijn Laan.</VersionInfoKeys>
+						<VersionInfoKeys Name="LegalCopyright">Copyright (C) 1997-2016 Jordan Russell. Portions Copyright (C) 2000-2016 Martijn Laan.</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalTrademarks"/>
 						<VersionInfoKeys Name="OriginalFilename"/>
 						<VersionInfoKeys Name="ProductName">Inno Setup</VersionInfoKeys>

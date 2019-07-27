@@ -72,17 +72,15 @@ type
   end;
 
 const
-  DestRootDirs: array[0..8] of TConstant =
+  DestRootDirs: array[0..6] of TConstant =
   (
     ( Constant: '{app}'; Description: 'Application directory'),
-    ( Constant: '{pf}'; Description: 'Program Files directory'),
-    ( Constant: '{cf}'; Description: 'Common Files directory'),
+    ( Constant: '{autopf}'; Description: 'Program Files directory'),
+    ( Constant: '{autocf}'; Description: 'Common Files directory'),
     ( Constant: '{win}'; Description: 'Windows directory'),
     ( Constant: '{sys}'; Description: 'Windows system directory'),
     ( Constant: '{src}'; Description: 'Setup source directory'),
-    ( Constant: '{sd}'; Description: 'System drive root directory'),
-    ( Constant: '{commonstartup}'; Description: 'Common Startup folder'),
-    ( Constant: '{userstartup}'; Description: 'User Startup folder')
+    ( Constant: '{sd}'; Description: 'System drive root directory')
   );
 
 procedure TWizardFileForm.SetWizardFile(WizardFile: PWizardFile);

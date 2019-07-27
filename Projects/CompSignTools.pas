@@ -39,6 +39,9 @@ type
     procedure SetSignTools(SignTools: TStringList);
     function InputSignTool(var SignToolName, SignToolCommand: String;
       ExistingIndex: Integer): Boolean;
+  protected
+    procedure CreateWnd; override;
+    procedure CreateParams(var Params: TCreateParams); override;
   public
     property SignTools: TStringList read FSignTools write SetSignTools;
   end;
@@ -76,6 +79,20 @@ procedure TSignToolsForm.FormCreate(Sender: TObject);
 begin
   FSignTools := TStringList.Create();
   InitFormFont(Self);
+end;
+
+{ This and CreateParams make bsSizeable (which has an unwanted icon) look like bsDialog, see:
+  https://stackoverflow.com/questions/32096482/delphi-resizable-bsdialog-form/32098633 }
+procedure TSignToolsForm.CreateWnd;
+begin
+  inherited;
+  SendMessage(Handle, WM_SETICON, ICON_BIG, 0);
+end;
+
+procedure TSignToolsForm.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  Params.ExStyle := Params.ExStyle or WS_EX_DLGMODALFRAME or WS_EX_WINDOWEDGE;
 end;
 
 procedure TSignToolsForm.FormDestroy(Sender: TObject);

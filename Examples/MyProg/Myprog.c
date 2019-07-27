@@ -5,6 +5,8 @@
 	#define ARCHNOTE TEXT("")
 #elif defined(_AMD64_)
 	#define ARCHNOTE TEXT("\n\n(This EXE was compiled for the x64 architecture.)")
+#elif defined(_M_ARM64)
+	#define ARCHNOTE TEXT("\n\n(This EXE was compiled for the ARM64 architecture.)")
 #elif defined(_IA64_)
 	#define ARCHNOTE TEXT("\n\n(This EXE was compiled for the Itanium architecture.)")
 #else

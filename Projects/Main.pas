@@ -2,7 +2,7 @@ unit Main;
 
 {
   Inno Setup
-  Copyright (C) 1997-2014 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -102,14 +102,16 @@ var
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
   InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
-    InitNoCloseApplications, InitRestartApplications, InitNoRestartApplications,
-    InitNoCancel: Boolean;
+    InitNoCloseApplications, InitForceCloseApplications, InitNoForceCloseApplications,
+    InitRestartApplications, InitNoRestartApplications, InitNoCancel: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
   InitDeselectAllTasks: Boolean;
   InitPassword: String;
   InitRestartExitCode: Integer;
+  InitPrivilegesRequired: TSetupPrivilegesRequired;
+  HasInitPrivilegesRequired: Boolean;
   InitSuppressMsgBoxes: Boolean;
   DetachedUninstMsgFile: Boolean;
 
@@ -117,7 +119,7 @@ var
   OriginalEntryIndexes: array[TEntryType] of TList;
 
   { 'Constants' }
-  SourceDir, TempInstallDir, WinDir, WinSystemDir, WinSysWow64Dir, SystemDrive,
+  SourceDir, TempInstallDir, WinDir, WinSystemDir, WinSysWow64Dir, WinSysNativeDir, SystemDrive,
     ProgramFiles32Dir, CommonFiles32Dir, ProgramFiles64Dir, CommonFiles64Dir,
     ProgramFilesUserDir, CommonFilesUserDir, CmdFilename, SysUserInfoName,
     SysUserInfoOrg, UninstallExeFilename: String;
@@ -131,8 +133,8 @@ var
   SetupHeader: TSetupHeader;
   LangOptions: TSetupLanguageEntry;
   Entries: array[TEntryType] of TList;
-  WizardImage: TBitmap;
-  WizardSmallImage: TBitmap;
+  WizardImages: TList;
+  WizardSmallImages: TList;
   CloseApplicationsFilterList: TStringList;
 
   { User options }
@@ -144,7 +146,7 @@ var
   WizardComponents, WizardDeselectedComponents, WizardTasks, WizardDeselectedTasks: TStringList;
   NeedToAbortInstall: Boolean;
 
-  { Check/BeforeInstall/AfterInstall 'contants' }
+  { Check/BeforeInstall/AfterInstall 'constants' }
   CheckOrInstallCurrentFilename, CheckOrInstallCurrentSourceFilename: String;
 
   { RestartManager API state.
@@ -156,7 +158,7 @@ var
   { Other }
   ShowLanguageDialog: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
-  HasIcons, IsNT, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin,
+  HasIcons, IsNT, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem,
     IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress: Boolean;
   InstallDefaultDisableFsRedir, ScriptFuncDisableFsRedir: Boolean;
@@ -177,9 +179,12 @@ var
 {$IFDEF IS_D12}
   TaskbarButtonHidden: Boolean;
 {$ENDIF}
+  InstallModeRootKey: HKEY;
 
   CodeRunner: TScriptRunner;
 
+procedure CodeRunnerOnLog(const S: String);
+procedure CodeRunnerOnLogFmt(const S: String; const Args: array of const);
 function CodeRunnerOnDebug(const Position: LongInt;
   var ContinueStepOver: Boolean): Boolean;
 function CodeRunnerOnDebugIntermediate(const Position: LongInt;
@@ -196,14 +201,15 @@ function ExpandConstEx2(const S: String; const CustomConsts: array of String;
   const DoExpandIndividualConst: Boolean): String;
 function ExpandConstIfPrefixed(const S: String): String;
 function GetCustomMessageValue(const AName: String; var AValue: String): Boolean;
-function GetRealShellFolder(const Common: Boolean; const ID: TShellFolderID;
-  ReadOnly: Boolean): String;
-function GetShellFolder(Common: Boolean; const ID: TShellFolderID;
+function GetShellFolder(const Common: Boolean; const ID: TShellFolderID;
   ReadOnly: Boolean): String;
 function GetShellFolderByCSIDL(Folder: Integer; const Create: Boolean): String;
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
+function GetUninstallRegSubkeyName(const UninstallRegKeyBaseName: String): String;
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
-procedure Initialize64BitInstallMode(const A64Bit: Boolean);
+procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
+procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
+procedure Log64BitInstallMode;
 procedure InitializeCommonVars;
 procedure InitializeSetup;
 procedure InitMainNonSHFolderConsts;
@@ -215,6 +221,9 @@ function LoggedAppMessageBox(const Text, Caption: PChar; const Flags: Longint;
   const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
+function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
+  const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
+  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer): Integer;
 procedure LogWindowsVersion;
 procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
@@ -250,7 +259,8 @@ uses
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
   Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
   {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
-  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion;
+  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion, BitmapImage,
+  TaskDialog;
 
 {$R *.DFM}
 
@@ -324,28 +334,25 @@ begin
   end;
 end;
 
+function GetUninstallRegSubkeyName(const UninstallRegKeyBaseName: String): String;
+begin
+  Result := Format('%s\%s_is1', [NEWREGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName]);
+end;
+
 { Based on FindPreviousData in Wizard.pas }
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
-const
-  RootKeys: array[0..1] of HKEY = (HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE);
 var
-  I: Integer;
   H: HKEY;
-  UninstallRegKeyBaseName: String;
 begin
   Result := DefaultValueData;
   if ExpandedAppId <> '' then begin
-    UninstallRegKeyBaseName := GetUninstallRegKeyBaseName(ExpandedAppId);
-    for I := 0 to 1 do begin
-      if RegOpenKeyExView(InstallDefaultRegView, RootKeys[I],
-         PChar(Format('%s\%s_is1', [NEWREGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName])),
-         0, KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
-        try
-          RegQueryStringValue (H, PChar(ValueName), Result);
-        finally
-          RegCloseKey (H);
-        end;
-        Break;
+    if RegOpenKeyExView(InstallDefaultRegView, InstallModeRootKey,
+       PChar(GetUninstallRegSubkeyName(GetUninstallRegKeyBaseName(ExpandedAppId))),
+       0, KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
+      try
+        RegQueryStringValue (H, PChar(ValueName), Result);
+      finally
+        RegCloseKey (H);
       end;
     end;
   end;
@@ -643,6 +650,8 @@ begin
   InitNoRestart := GetIniBool(Section, 'NoRestart', InitNoRestart, FileName);
   InitCloseApplications := GetIniBool(Section, 'CloseApplications', InitCloseApplications, FileName);
   InitNoCloseApplications := GetIniBool(Section, 'NoCloseApplications', InitNoCloseApplications, FileName);
+  InitForceCloseApplications := GetIniBool(Section, 'ForceCloseApplications', InitForceCloseApplications, FileName);
+  InitNoForceCloseApplications := GetIniBool(Section, 'NoForceCloseApplications', InitNoForceCloseApplications, FileName);
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
@@ -689,13 +698,25 @@ begin
   end;
 end;
 
-function ExpandIndividualConst(const Cnst: String;
+function ExpandIndividualConst(Cnst: String;
   const CustomConsts: array of String): String;
 { Cnst must be the name of a single constant, without the braces.
   For example: app
   IsPath is set to True if the result is a path which needs special trailing-
   backslash handling. }
-
+  
+  procedure HandleAutoConstants(var Cnst: String);
+  const
+    Actual: array [Boolean] of String = ('user', 'common');
+  begin
+    if Copy(Cnst, 1, 4) = 'auto' then begin
+      StringChange(Cnst, 'auto', Actual[IsAdminInstallMode]);
+      if (Cnst = 'userpf32') or (Cnst = 'userpf64') or
+         (Cnst = 'usercf32') or (Cnst = 'usercf64') then
+        Delete(Cnst, Length(Cnst)-1, 2);
+    end;
+  end;
+  
   procedure NoUninstallConstError(const C: String);
   begin
     InternalError(Format('Cannot evaluate "%s" constant during Uninstall', [C]));
@@ -729,7 +750,8 @@ function ExpandIndividualConst(const Cnst: String;
       KeyConst: HKEY;
     end;
   const
-    KeyNameConsts: array[0..4] of TKeyNameConst = (
+    KeyNameConsts: array[0..5] of TKeyNameConst = (
+      (KeyName: 'HKA';  KeyConst: HKEY_AUTO),
       (KeyName: 'HKCR'; KeyConst: HKEY_CLASSES_ROOT),
       (KeyName: 'HKCU'; KeyConst: HKEY_CURRENT_USER),
       (KeyName: 'HKLM'; KeyConst: HKEY_LOCAL_MACHINE),
@@ -766,6 +788,8 @@ function ExpandIndividualConst(const Cnst: String;
         for J := Low(KeyNameConsts) to High(KeyNameConsts) do
           if CompareText(KeyNameConsts[J].KeyName, Z) = 0 then begin
             RootKey := KeyNameConsts[J].KeyConst;
+            if RootKey = HKEY_AUTO then
+              RootKey := InstallModeRootKey;
             Break;
           end;
         if RootKey <> 0 then begin
@@ -970,34 +994,38 @@ function ExpandIndividualConst(const Cnst: String;
 const
   FolderConsts: array[Boolean, TShellFolderID] of String =
     (('userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
-      'sendto', 'fonts', 'userappdata', 'userdocs', 'usertemplates',
+      'usersendto', 'fonts', 'userappdata', 'userdocs', 'usertemplates',
       'userfavorites', 'localappdata'),
      ('commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
-      'sendto', 'fonts', 'commonappdata', 'commondocs', 'commontemplates',
-      'commonfavorites', 'localappdata'));
+      'usersendto', 'fonts', 'commonappdata', 'commondocs', 'commontemplates',
+      'commonfavorites' { not accepted anymore by the compiler }, 'localappdata'));
   NoUninstallConsts: array[0..6] of String =
     ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'hwnd',
      'wizardhwnd');
 var
-  Z: String;
-  B: Boolean;
-  SF: TShellFolderID;
-  K: Integer;
+  OriginalCnst, ShellFolder: String;
+  Common: Boolean;
+  ShellFolderID: TShellFolderID;
+  I: Integer;
 begin
+  OriginalCnst := Cnst;
+  HandleRenamedConstants(Cnst, nil);
+  HandleAutoConstants(Cnst);
+
   if IsUninstaller then
-    for K := Low(NoUninstallConsts) to High(NoUninstallConsts) do
-      if NoUninstallConsts[K] = Cnst then
-        NoUninstallConstError(NoUninstallConsts[K]);
+    for I := Low(NoUninstallConsts) to High(NoUninstallConsts) do
+      if NoUninstallConsts[I] = Cnst then
+        NoUninstallConstError(NoUninstallConsts[I]);
 
   if Cnst = '\' then Result := '\'
   else if Cnst = 'app' then begin
     if IsUninstaller then begin
       if UninstallExpandedApp = '' then
-        InternalError('An attempt was made to expand the "app" constant but Setup didn''t create the "app" dir');
+        InternalError('An attempt was made to expand the "' + OriginalCnst + '" constant but Setup didn''t create the "app" dir');
       Result := UninstallExpandedApp;
     end else begin
       if WizardDirValue = '' then
-        InternalError('An attempt was made to expand the "app" constant before it was initialized');
+        InternalError('An attempt was made to expand the "' + OriginalCnst + '" constant before it was initialized');
       Result := WizardDirValue;
     end;
   end
@@ -1008,9 +1036,15 @@ begin
       Result := WinSysWow64Dir
     else begin
       if IsWin64 then  { sanity check }
-        InternalError('Cannot expand "syswow64" constant because there is no SysWOW64 directory');
+        InternalError('Cannot expand "' + OriginalCnst + '" constant because there is no SysWOW64 directory');
       Result := WinSystemDir;
     end;
+  end
+  else if Cnst = 'sysnative' then begin
+    if WinSysNativeDir <> '' then
+      Result := WinSysNativeDir
+    else
+      Result := WinSystemDir;
   end
   else if Cnst = 'src' then Result := SourceDir
   else if Cnst = 'srcexe' then Result := SetupLdrOriginalFilename
@@ -1022,7 +1056,7 @@ begin
     else
       Result := ExpandConst('{localappdata}\Programs'); { supply default, same as Window 7 and newer }
   end
-  else if Cnst = 'pf' then begin
+  else if Cnst = 'commonpf' then begin
     if Is64BitInstallMode then
       Result := ProgramFiles64Dir
     else
@@ -1034,25 +1068,25 @@ begin
     else
       Result := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Window 7 and newer }
   end
-  else if Cnst = 'cf' then begin
+  else if Cnst = 'commoncf' then begin
     if Is64BitInstallMode then
       Result := CommonFiles64Dir
     else
       Result := CommonFiles32Dir;
   end
-  else if Cnst = 'pf32' then Result := ProgramFiles32Dir
-  else if Cnst = 'cf32' then Result := CommonFiles32Dir
-  else if Cnst = 'pf64' then begin
+  else if Cnst = 'commonpf32' then Result := ProgramFiles32Dir
+  else if Cnst = 'commoncf32' then Result := CommonFiles32Dir
+  else if Cnst = 'commonpf64' then begin
     if IsWin64 then
       Result := ProgramFiles64Dir
     else
-      InternalError('Cannot expand "pf64" constant on this version of Windows');
+      InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
-  else if Cnst = 'cf64' then begin
+  else if Cnst = 'commoncf64' then begin
     if IsWin64 then
       Result := CommonFiles64Dir
     else
-      InternalError('Cannot expand "cf64" constant on this version of Windows');
+      InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
   else if Cnst = 'dao' then Result := ExpandConst('{cf}\Microsoft Shared\DAO')
   else if Cnst = 'cmd' then Result := CmdFilename
@@ -1061,12 +1095,12 @@ begin
   else if Cnst = 'groupname' then begin
     if IsUninstaller then begin
       if UninstallExpandedGroupName = '' then
-        InternalError('Cannot expand "groupname" constant because it was not available at install time');
+        InternalError('Cannot expand "' + OriginalCnst + '" constant because it was not available at install time');
       Result := UninstallExpandedGroupName;
     end
     else begin
       if WizardGroupValue = '' then
-        InternalError('An attempt was made to expand the "groupname" constant before it was initialized');
+        InternalError('An attempt was made to expand the "' + OriginalCnst + '" constant before it was initialized');
       Result := WizardGroupValue;
     end;
   end
@@ -1079,17 +1113,17 @@ begin
   else if Cnst = 'group' then begin
     if IsUninstaller then begin
       if UninstallExpandedGroup = '' then
-        InternalError('Cannot expand "group" constant because it was not available at install time');
+        InternalError('Cannot expand "' + OriginalCnst + '" constant because it was not available at install time');
       Result := UninstallExpandedGroup;
     end
     else begin
       if WizardGroupValue = '' then
-        InternalError('An attempt was made to expand the "group" constant before it was initialized');
-      Z := GetShellFolder(not(shAlwaysUsePersonalGroup in SetupHeader.Options),
+        InternalError('An attempt was made to expand the "' + OriginalCnst + '" constant before it was initialized');
+      ShellFolder := GetShellFolder(not(shAlwaysUsePersonalGroup in SetupHeader.Options) and IsAdminInstallMode,
         sfPrograms, False);
-      if Z = '' then
-        InternalError('Failed to expand "group" constant');
-      Result := AddBackslash(Z) + WizardGroupValue;
+      if ShellFolder = '' then
+        InternalError('Failed to expand "' + OriginalCnst + '" constant');
+      Result := AddBackslash(ShellFolder) + WizardGroupValue;
     end;
   end
   else if Cnst = 'language' then begin
@@ -1118,7 +1152,7 @@ begin
     if IsWin64 then
       Result := GetDotNetVersionRoot(rv64Bit, dt20)
     else
-      InternalError('Cannot expand "dotnet2064" constant on this version of Windows');
+      InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
   else if Cnst = 'dotnet40' then Result := GetDotNetVersionRoot(InstallDefaultRegView, dt40)
   else if Cnst = 'dotnet4032' then Result := GetDotNetVersionRoot(rv32Bit, dt40)
@@ -1126,7 +1160,7 @@ begin
     if IsWin64 then
       Result := GetDotNetVersionRoot(rv64Bit, dt40)
     else
-      InternalError('Cannot expand "dotnet4064" constant on this version of Windows');
+      InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
   else if (Cnst <> '') and (Cnst[1] = '%') then Result := ExpandEnvConst(Cnst)
   else if StrLComp(PChar(Cnst), 'reg:', 4) = 0 then Result := ExpandRegConst(Cnst)
@@ -1137,28 +1171,28 @@ begin
   else if StrLComp(PChar(Cnst), 'cm:', 3) = 0 then Result := ExpandCustomMessageConst(Cnst)
   else begin
     { Shell folder constants }
-    for B := False to True do
-      for SF := Low(SF) to High(SF) do
-        if Cnst = FolderConsts[B, SF] then begin
-          Z := GetShellFolder(B, SF, False);
-          if Z = '' then
-            InternalError(Format('Failed to expand shell folder constant "%s"', [Cnst]));
-          Result := Z;
+    for Common := False to True do
+      for ShellFolderID := Low(ShellFolderID) to High(ShellFolderID) do
+        if Cnst = FolderConsts[Common, ShellFolderID] then begin
+          ShellFolder := GetShellFolder(Common, ShellFolderID, False);
+          if ShellFolder = '' then
+            InternalError(Format('Failed to expand shell folder constant "%s"', [OriginalCnst]));
+          Result := ShellFolder;
           Exit;
         end;
     { Custom constants }
     if Cnst <> '' then begin
-      K := 0;
-      while K < High(CustomConsts) do begin
-        if Cnst = CustomConsts[K] then begin
-          Result := CustomConsts[K+1];
+      I := 0;
+      while I < High(CustomConsts) do begin
+        if Cnst = CustomConsts[I] then begin
+          Result := CustomConsts[I+1];
           Exit;
         end;
-        Inc(K, 2);
+        Inc(I, 2);
       end;
     end;
     { Unknown constant }
-    InternalError(Format('Unknown constant "%s"', [Cnst]));
+    InternalError(Format('Unknown constant "%s"', [OriginalCnst]));
   end;
 end;
 
@@ -1286,6 +1320,7 @@ begin
   WinDir := GetWinDir;
   WinSystemDir := GetSystemDir;
   WinSysWow64Dir := GetSysWow64Dir;
+  WinSysNativeDir := GetSysNativeDir(IsWin64);
 
   { Get system drive }
   if Win32Platform = VER_PLATFORM_WIN32_NT then
@@ -1336,7 +1371,7 @@ begin
       end;
     end;
   end;
-
+  
   { Get path of command interpreter }
   if IsNT then
     CmdFilename := AddBackslash(WinSystemDir) + 'cmd.exe'
@@ -1458,27 +1493,29 @@ end;
 procedure LoadSHFolderDLL;
 var
   Filename: String;
-  ExistingFileVersion, NewFileVersion: TFileVersionNumbers;
+  ExistingFileIsOk: Boolean;
+  ExistingFileVersion: TFileVersionNumbers;
 const
   shfolder = 'shfolder.dll';
+  _shfoldrMS = $50032;    //must match the version numbers of the DLL image in _shfoldr.res
+  _shfoldrLS = $12C708FC; //
 begin
-  Filename := AddBackslash(TempInstallDir) + '_isetup\_shfoldr.dll';
-  {$R _shfoldr.res}  { Link in the .res file containing the DLL image }
-  SaveResourceToTempFile('SHFOLDERDLL', Filename);
-  if not GetVersionNumbers(Filename, NewFileVersion) then
-    InternalError('Failed to get version numbers of _shfoldr.dll');
-  { Does the system already have the same version or a newer version of
-    shfolder.dll? If so, use it instead of the one we just extracted. }
-  if GetVersionNumbers(shfolder, ExistingFileVersion) and
-     (((ExistingFileVersion.MS > NewFileVersion.MS) or
-       ((ExistingFileVersion.MS = NewFileVersion.MS) and
-        (ExistingFileVersion.LS > NewFileVersion.LS)))) or
-      ((ExistingFileVersion.MS = NewFileVersion.MS) and
-       (ExistingFileVersion.LS = NewFileVersion.LS)) then
-    Filename := shfolder;
+  Filename := AddBackslash(GetSystemDir) + shfolder;
+  ExistingFileIsOk :=
+    GetVersionNumbers(Filename, ExistingFileVersion) and
+    (((ExistingFileVersion.MS > _shfoldrMS) or
+      ((ExistingFileVersion.MS = _shfoldrMS) and
+       (ExistingFileVersion.LS > _shfoldrLS)))) or
+     ((ExistingFileVersion.MS = _shfoldrMS) and
+      (ExistingFileVersion.LS = _shfoldrLS));
+  if not ExistingFileIsOk then begin
+    Filename := AddBackslash(TempInstallDir) + '_isetup\_shfoldr.dll';
+    {$R _shfoldr.res}  { Link in the .res file containing the DLL image }
+    SaveResourceToTempFile('SHFOLDERDLL', Filename);
+  end;
   { Ensure shell32.dll is pre-loaded so it isn't loaded/freed for each
     individual SHGetFolderPath call }
-  SafeLoadLibrary(shell32, SEM_NOOPENFILEERRORBOX);
+  SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32, SEM_NOOPENFILEERRORBOX);
   SHFolderDLLHandle := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
   if SHFolderDLLHandle = 0 then
     InternalError(Format('Failed to load DLL "%s"', [Filename]));
@@ -1534,64 +1571,40 @@ begin
   end;
 end;
 
-function GetRealShellFolder(const Common: Boolean; const ID: TShellFolderID;
+function GetShellFolder(const Common: Boolean; const ID: TShellFolderID;
   ReadOnly: Boolean): String;
-
-  procedure GetFolder(const Common: Boolean);
-  const
-    CSIDL_COMMON_STARTMENU = $0016;
-    CSIDL_COMMON_PROGRAMS = $0017;
-    CSIDL_COMMON_STARTUP = $0018;
-    CSIDL_COMMON_DESKTOPDIRECTORY = $0019;
-    CSIDL_APPDATA = $001A;
-    CSIDL_LOCAL_APPDATA = $001C;
-    CSIDL_COMMON_FAVORITES = $001F;
-    CSIDL_COMMON_APPDATA = $0023;
-    CSIDL_COMMON_TEMPLATES = $002D;
-    CSIDL_COMMON_DOCUMENTS = $002E;
-    FolderIDs: array[Boolean, TShellFolderID] of Integer = (
-      { User }
-      (CSIDL_DESKTOPDIRECTORY, CSIDL_STARTMENU, CSIDL_PROGRAMS, CSIDL_STARTUP,
-       CSIDL_SENDTO, CSIDL_FONTS, CSIDL_APPDATA, CSIDL_PERSONAL,
-       CSIDL_TEMPLATES, CSIDL_FAVORITES, CSIDL_LOCAL_APPDATA),
-      { Common }
-      (CSIDL_COMMON_DESKTOPDIRECTORY, CSIDL_COMMON_STARTMENU, CSIDL_COMMON_PROGRAMS, CSIDL_COMMON_STARTUP,
-       CSIDL_SENDTO, CSIDL_FONTS, CSIDL_COMMON_APPDATA, CSIDL_COMMON_DOCUMENTS,
-       CSIDL_COMMON_TEMPLATES, CSIDL_COMMON_FAVORITES, CSIDL_LOCAL_APPDATA));
-  var
-    Z: String;
-  begin
-    if not ShellFoldersRead[Common, ID] then begin
-      { Note: Must pass Create=True or else SHGetFolderPath fails if the
-        specified CSIDL is valid but doesn't currently exist. }
-      Z := GetShellFolderByCSIDL(FolderIDs[Common, ID], not ReadOnly);
-      ShellFolders[Common, ID] := Z;
-      if not ReadOnly or (Z <> '') then
-        ShellFoldersRead[Common, ID] := True;
-    end;
-    Result := ShellFolders[Common, ID];
+const
+  CSIDL_COMMON_STARTMENU = $0016;
+  CSIDL_COMMON_PROGRAMS = $0017;
+  CSIDL_COMMON_STARTUP = $0018;
+  CSIDL_COMMON_DESKTOPDIRECTORY = $0019;
+  CSIDL_APPDATA = $001A;
+  CSIDL_LOCAL_APPDATA = $001C;
+  CSIDL_COMMON_FAVORITES = $001F;
+  CSIDL_COMMON_APPDATA = $0023;
+  CSIDL_COMMON_TEMPLATES = $002D;
+  CSIDL_COMMON_DOCUMENTS = $002E;
+  FolderIDs: array[Boolean, TShellFolderID] of Integer = (
+    { User }
+    (CSIDL_DESKTOPDIRECTORY, CSIDL_STARTMENU, CSIDL_PROGRAMS, CSIDL_STARTUP,
+     CSIDL_SENDTO, CSIDL_FONTS, CSIDL_APPDATA, CSIDL_PERSONAL,
+     CSIDL_TEMPLATES, CSIDL_FAVORITES, CSIDL_LOCAL_APPDATA),
+    { Common }
+    (CSIDL_COMMON_DESKTOPDIRECTORY, CSIDL_COMMON_STARTMENU, CSIDL_COMMON_PROGRAMS, CSIDL_COMMON_STARTUP,
+     CSIDL_SENDTO, CSIDL_FONTS, CSIDL_COMMON_APPDATA, CSIDL_COMMON_DOCUMENTS,
+     CSIDL_COMMON_TEMPLATES, CSIDL_COMMON_FAVORITES, CSIDL_LOCAL_APPDATA));
+var
+  ShellFolder: String;
+begin
+  if not ShellFoldersRead[Common, ID] then begin
+    { Note: Must pass Create=True or else SHGetFolderPath fails if the
+      specified CSIDL is valid but doesn't currently exist. }
+    ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], not ReadOnly);
+    ShellFolders[Common, ID] := ShellFolder;
+    if not ReadOnly or (ShellFolder <> '') then
+      ShellFoldersRead[Common, ID] := True;
   end;
-
-begin
-  Result := '';
-  GetFolder(Common);
-  if (Result = '') and Common then
-    { If it failed to get the path of a Common CSIDL, try getting the
-      User version of the CSIDL instead. (Many of the Common CSIDLS are
-      unsupported by Win9x.) }
-    GetFolder(False);
-end;
-
-function GetShellFolder(Common: Boolean; const ID: TShellFolderID;
-  ReadOnly: Boolean): String;
-begin
-  { If the user isn't an administrator, or is running Windows 9x, always fall
-    back to user folders, except in the case of sfAppData (which is writable
-    by Users on XP) and sfDocs (which is writable by Users on 2000 & XP) }
-  if Common and (not IsAdmin or (SetupHeader.PrivilegesRequired = prLowest) or not IsNT) and
-     not(ID in [sfAppData, sfDocs]) then
-    Common := False;
-  Result := GetRealShellFolder(Common, ID, ReadOnly);
+  Result := ShellFolders[Common, ID];
 end;
 
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;
@@ -1993,7 +2006,7 @@ begin
       AllowCodeRegisterExtraCloseApplicationsResource := True;
       try
         try
-          CodeRunner.RunProcedure('RegisterExtraCloseApplicationsResources', [''], False);
+          CodeRunner.RunProcedures('RegisterExtraCloseApplicationsResources', [''], False);
         except
           Log('RegisterExtraCloseApplicationsResources raised an exception.');
           Application.HandleException(nil);
@@ -2032,6 +2045,16 @@ begin
     Exit;
   end;
   DebugNotify(Kind, Integer(OriginalEntryIndexes[EntryType][Number]), B);
+end;
+
+procedure CodeRunnerOnLog(const S: String);
+begin
+  Log(S);
+end;
+
+procedure CodeRunnerOnLogFmt(const S: String; const Args: array of const);
+begin
+  LogFmt(S, Args);
 end;
 
 procedure CodeRunnerOnDllImport(var DllName: String; var ForceDelayLoad: Boolean);
@@ -2255,6 +2278,15 @@ begin
   end;
 end;
 
+procedure LogCompatibilityMode;
+var
+  S: String;
+begin
+  S := GetEnv('__COMPAT_LAYER');
+  if S <> '' then
+    LogFmt('Compatibility mode: %s (%s)', [SYesNo[True], S]);
+end;
+
 procedure LogWindowsVersion;
 var
   SP: String;
@@ -2362,6 +2394,24 @@ begin
   end;
 end;
 
+function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
+  const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
+  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer): Integer;
+begin
+  if InitSuppressMsgBoxes and Suppressible then begin
+    LogSuppressedMessageBox(PChar(Text), Buttons, Default);
+    Result := Default;
+  end else begin
+    LogMessageBox(PChar(Text), Buttons);
+    Result := TaskDialogMsgBox(Icon, Instruction, Text,
+      Caption, Typ, Buttons, ButtonLabels, ShieldButton);
+    if Result <> 0 then
+      LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
+    else
+      Log('TaskDialogMsgBox failed.');
+  end;
+end;
+
 procedure RestartComputerFromThisProcess;
 begin
   RestartInitiatedByThisProcess := True;
@@ -2455,17 +2505,32 @@ begin
   Randomize;
 end;
 
-procedure Initialize64BitInstallMode(const A64Bit: Boolean);
+procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
+{ Initializes IsAdminInstallMode and other global variables that depend on it }
+const
+  RootKeys: array[Boolean] of HKEY = (HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE);
+begin
+  LogFmt('Administrative install mode: %s', [SYesNo[AAdminInstallMode]]);
+  IsAdminInstallMode := AAdminInstallMode;
+  InstallModeRootKey := RootKeys[AAdminInstallMode];
+  LogFmt('Install mode root key: %s', [GetRegRootKeyName(InstallModeRootKey)]);
+end;
+
+procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 { Initializes Is64BitInstallMode and other global variables that depend on it }
 begin
-  LogFmt('64-bit install mode: %s', [SYesNo[A64Bit]]);
-  Is64BitInstallMode := A64Bit;
-  InstallDefaultDisableFsRedir := A64Bit;
-  ScriptFuncDisableFsRedir := A64Bit;
-  if A64Bit then
+  Is64BitInstallMode := A64BitInstallMode;
+  InstallDefaultDisableFsRedir := A64BitInstallMode;
+  ScriptFuncDisableFsRedir := A64BitInstallMode;
+  if A64BitInstallMode then
     InstallDefaultRegView := rv64Bit
   else
     InstallDefaultRegView := rv32Bit;
+end;
+
+procedure Log64BitInstallMode;
+begin
+  LogFmt('64-bit install mode: %s', [SYesNo[Is64BitInstallMode]]);
 end;
 
 procedure InitializeSetup;
@@ -2547,7 +2612,7 @@ var
     end;
   end;
 
-  procedure ReadWizardImage(var WizardImage: TBitmap; const R: TCompressedBlockReader);
+  function ReadWizardImage(const R: TCompressedBlockReader): TBitmap;
   var
     MemStream: TMemoryStream;
   begin
@@ -2555,8 +2620,9 @@ var
     try
       ReadFileIntoStream(MemStream, R);
       MemStream.Seek(0, soFromBeginning);
-      WizardImage := TBitmap.Create;
-      WizardImage.LoadFromStream(MemStream);
+      Result := TBitmap.Create;
+      Result.AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
+      Result.LoadFromStream(MemStream);
     finally
       MemStream.Free;
     end;
@@ -2656,7 +2722,7 @@ var
       if shPassword in SetupHeader.Options then
         PasswordOk := TestPassword(S);
       if not PasswordOk and (CodeRunner <> nil) then
-        PasswordOk := CodeRunner.RunBooleanFunction('CheckPassword', [S], False, PasswordOk);
+        PasswordOk := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, PasswordOk);
 
       if PasswordOk then begin
         Result := False;
@@ -2730,11 +2796,97 @@ var
       end;
     end;
   end;
+  
+  { Also see Install.pas }
+  function ExistingInstallationAt(const RootKey: HKEY; const SubkeyName: String): Boolean;
+  var
+    K: HKEY;
+  begin
+    if RegOpenKeyExView(InstallDefaultRegView, RootKey, PChar(SubkeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+      Result := True;
+      RegCloseKey(K);
+    end else
+      Result := False;
+  end;
+
+  procedure HandlePrivilegesRequiredOverrides(var ExtraRespawnParam: String);
+  var
+    ExistingAtAdminInstallMode, ExistingAtNonAdminInstallMode, DesireAnInstallMode, DesireAdminInstallMode: Boolean;
+    SubkeyName, AppName: String;
+  begin
+    if HasInitPrivilegesRequired and (proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed) then begin
+      SetupHeader.PrivilegesRequired := InitPrivilegesRequired;
+      { We don't need to set ExtraRespawnParam since the existing command line
+        already contains the needed parameters and it will automatically be
+        passed on to any respawned Setup(Ldr). }
+    end else if proDialog in SetupHeader.PrivilegesRequiredOverridesAllowed then begin
+      if shUsePreviousPrivileges in SetupHeader.Options then begin
+        { Note: if proDialog is used and UsePreviousPrivileges is set to "yes"
+          then the compiler does not allow AppId to include constants but we
+          should still call ExpandConst to handle any '{{'. }
+        SubkeyName := GetUninstallRegSubkeyName(GetUninstallRegKeyBaseName(ExpandConst(SetupHeader.AppID)));
+        ExistingAtAdminInstallMode := ExistingInstallationAt(HKEY_LOCAL_MACHINE, SubkeyName);
+        ExistingAtNonAdminInstallMode := ExistingInstallationAt(HKEY_CURRENT_USER, SubkeyName);
+      end else begin
+        ExistingAtAdminInstallMode := False;
+        ExistingAtNonAdminInstallMode := False;
+      end;
+
+      DesireAnInstallMode := True;
+      DesireAdminInstallMode := False; { Silence compiler }
+
+      if ExistingAtAdminInstallMode and not ExistingAtNonAdminInstallMode then
+        DesireAdminInstallMode := True
+      else if not ExistingAtAdminInstallMode and ExistingAtNonAdminInstallMode then
+        DesireAdminInstallMode := False
+      else if not InitSuppressMsgBoxes then begin
+        { Ask user. Doesn't log since logging hasn't started yet. Also doesn't
+          use ExpandedAppName since it isn't set yet. Afterwards we need to tell
+          any respawned Setup(Ldr) about the user choice (and avoid asking again).
+          Will use the command line parameter for this. Allowing proDialog forces
+          allowing proCommandLine, so we can count on the parameter to work. }
+        if shAppNameHasConsts in SetupHeader.Options then
+          AppName := PathChangeExt(PathExtractName(SetupLdrOriginalFilename), '')
+        else
+          AppName := SetupHeader.AppName;
+        if SetupHeader.PrivilegesRequired = prLowest then begin
+          case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideText2, [AppName]),
+                 SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
+                 [SetupMessages[msgPrivilegesRequiredOverrideCurrentUserRecommended], SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO) of
+            IDYES: DesireAdminInstallMode := False;
+            IDNO: DesireAdminInstallMode := True;
+            IDCANCEL: Abort;
+            end;
+        end else begin
+          case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+                 FmtSetupMessage(msgPrivilegesRequiredOverrideText1, [AppName]),
+                 SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
+                 [SetupMessages[msgPrivilegesRequiredOverrideAllUsersRecommended], SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES) of
+            IDYES: DesireAdminInstallMode := True;
+            IDNO: DesireAdminInstallMode := False;
+            IDCANCEL: Abort;
+          end;
+        end;
+      end else
+        DesireAnInstallMode := False; { No previous found and msgboxes are suppressed, just keep things as they are. }
+
+      if DesireAnInstallMode then begin
+        if DesireAdminInstallMode then begin
+          SetupHeader.PrivilegesRequired := prAdmin;
+          ExtraRespawnParam := '/ALLUSERS';
+        end else begin
+          SetupHeader.PrivilegesRequired := prLowest;
+          ExtraRespawnParam := '/CURRENTUSER';
+        end;
+      end;
+    end;
+  end;
 
 var
   ParamName, ParamValue: String;
   StartParam: Integer;
-  I: Integer;
+  I, N: Integer;
   IsRespawnedProcess, EnableLogging, WantToSuppressMsgBoxes, Res: Boolean;
   DebugWndValue: HWND;
   LogFilename: String;
@@ -2746,6 +2898,7 @@ var
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
   MinimumTypeSpace: Integer64;
   SourceWildcard: String;
+  ExpandedSetupMutex, ExtraRespawnParam, RespawnParams: String;
 begin
   InitializeCommonVars;
 
@@ -2800,6 +2953,12 @@ begin
     else
     if CompareText(ParamName, '/NoCloseApplications') = 0 then
       InitNoCloseApplications := True
+    else
+    if CompareText(ParamName, '/ForceCloseApplications') = 0 then
+      InitForceCloseApplications := True
+    else
+    if CompareText(ParamName, '/NoForceCloseApplications') = 0 then
+      InitNoForceCloseApplications := True
     else
     if CompareText(ParamName, '/RestartApplications') = 0 then
       InitRestartApplications := True
@@ -2873,7 +3032,17 @@ begin
       EnterSpawnServerDebugMode  { does not return }
     else
     if CompareText(ParamName, '/DEBUGWND=') = 0 then
-      DebugWndValue := StrToInt(ParamValue);
+      DebugWndValue := StrToInt(ParamValue)
+    else     
+    if CompareText(ParamName, '/ALLUSERS') = 0 then begin
+      InitPrivilegesRequired := prAdmin;
+      HasInitPrivilegesRequired := True;
+    end
+    else     
+    if CompareText(ParamName, '/CURRENTUSER') = 0 then begin
+      InitPrivilegesRequired := prLowest;
+      HasInitPrivilegesRequired := True;
+    end;
   end;
 
   if InitLoadInf <> '' then
@@ -2923,6 +3092,22 @@ begin
           Integer(@PSetupTypeEntry(nil).OnlyBelowVersion));
 
         ActivateDefaultLanguage;
+        
+        { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
+          one on which a "64-bit mode" install should be performed. Doing this early
+          so that UsePreviousPrivileges knows where to look. Will log later. }
+        if ProcessorArchitecture in SetupHeader.ArchitecturesInstallIn64BitMode then begin
+          if not IsWin64 then begin
+            { A 64-bit processor was detected and 64-bit install mode was requested,
+              but IsWin64 is False, indicating required WOW64 APIs are not present }
+            AbortInit(msgWindowsVersionNotSupported);
+          end;
+          Initialize64BitInstallMode(True);
+        end
+        else
+          Initialize64BitInstallMode(False);
+          
+        HandlePrivilegesRequiredOverrides(ExtraRespawnParam);
 
         { Start a new, elevated Setup(Ldr) process if needed }
         if not IsRespawnedProcess and
@@ -2930,7 +3115,10 @@ begin
              SetupHeader.PrivilegesRequired <> prLowest) then begin
           FreeAndNil(Reader);
           FreeAndNil(SetupFile);
-          RespawnSetupElevated(GetCmdTailEx(StartParam));
+          RespawnParams := GetCmdTailEx(StartParam);
+          if ExtraRespawnParam <> '' then
+            RespawnParams := RespawnParams + ' ' + ExtraRespawnParam;
+          RespawnSetupElevated(RespawnParams);
           { Note: RespawnSetupElevated does not return; it either calls Halt
             or raises an exception. }
         end;
@@ -2959,6 +3147,7 @@ begin
         Log('Setup version: ' + SetupTitle + ' version ' + SetupVersion);
         Log('Original Setup EXE: ' + SetupLdrOriginalFilename);
         Log('Setup command line: ' + GetCmdTail);
+        LogCompatibilityMode;
         LogWindowsVersion;
 
         NeedPassword := shPassword in SetupHeader.Options;
@@ -3009,8 +3198,13 @@ begin
           Integer(@PSetupRunEntry(nil).OnlyBelowVersion));
 
         { Wizard image }
-        ReadWizardImage(WizardImage, Reader);
-        ReadWizardImage(WizardSmallImage, Reader);
+
+        Reader.Read(N, SizeOf(LongInt));
+        for I := 0 to N-1 do
+          WizardImages.Add(ReadWizardImage(Reader));
+        Reader.Read(N, SizeOf(LongInt));
+        for I := 0 to N-1 do
+          WizardSmallImages.Add(ReadWizardImage(Reader));
         { Decompressor DLL }
         DecompressorDLL := nil;
         if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
@@ -3041,19 +3235,10 @@ begin
   finally
     SetupFile.Free;
   end;
+  
+  InitializeAdminInstallMode(IsAdmin and (SetupHeader.PrivilegesRequired <> prLowest));
 
-  { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
-    one on which a "64-bit mode" install should be performed }
-  if ProcessorArchitecture in SetupHeader.ArchitecturesInstallIn64BitMode then begin
-    if not IsWin64 then begin
-      { A 64-bit processor was detected and 64-bit install mode was requested,
-        but IsWin64 is False, indicating required WOW64 APIs are not present }
-      AbortInitFmt1(msgMissingWOW64APIs, '1');
-    end;
-    Initialize64BitInstallMode(True);
-  end
-  else
-    Initialize64BitInstallMode(False);
+  Log64BitInstallMode;
 
   { Show "Select Language" dialog if necessary - requires "64-bit mode" to be
     initialized else it might query the previous language from the wrong registry
@@ -3086,13 +3271,13 @@ begin
       if not IsAdmin then AbortInit(msgAdminPrivilegesRequired);
   end;
 
-  { Init main constants, not depending on _shfoldr.dll }
+  { Init main constants, not depending on shfolder.dll/_shfoldr.dll }
   InitMainNonSHFolderConsts;
 
   { Create temporary directory and extract 64-bit helper EXE if necessary }
   CreateTempInstallDir;
 
-  { Extract "_shfoldr.dll" to TempInstallDir, and load it }
+  { Load system's "shfolder.dll" or extract "_shfoldr.dll" to TempInstallDir, and load it }
   LoadSHFolderDLL;
 
   { Extract "_isdecmp.dll" to TempInstallDir, and load it }
@@ -3124,23 +3309,26 @@ begin
   if SetupHeader.CompiledCodeText <> '' then begin
     CodeRunner := TScriptRunner.Create();
     try
+      CodeRunner.NamingAttribute := 'Event';
+      CodeRunner.OnLog := CodeRunnerOnLog;
+      CodeRunner.OnLogFmt := CodeRunnerOnLogFmt;
       CodeRunner.OnDllImport := CodeRunnerOnDllImport;
       CodeRunner.OnDebug := CodeRunnerOnDebug;
       CodeRunner.OnDebugIntermediate := CodeRunnerOnDebugIntermediate;
       CodeRunner.OnException := CodeRunnerOnException;
       CodeRunner.LoadScript(SetupHeader.CompiledCodeText, DebugClientCompiledCodeDebugInfo);
       if not NeedPassword then
-        NeedPassword := CodeRunner.FunctionExists('CheckPassword');
+        NeedPassword := CodeRunner.FunctionExists('CheckPassword', True);
       NeedPassword := HandleInitPassword(NeedPassword);
       if not NeedSerial then
-        NeedSerial := CodeRunner.FunctionExists('CheckSerial');
+        NeedSerial := CodeRunner.FunctionExists('CheckSerial', True);
     except
       { Don't let DeinitSetup see a partially-initialized CodeRunner }
       FreeAndNil(CodeRunner);
       raise;
     end;
     try
-      Res := CodeRunner.RunBooleanFunction('InitializeSetup', [''], False, True);
+      Res := CodeRunner.RunBooleanFunctions('InitializeSetup', [''], bcFalse, False, True);
     except
       Log('InitializeSetup raised an exception (fatal).');
       raise;
@@ -3166,6 +3354,7 @@ begin
   end;
   ExpandedAppCopyright := ExpandConst(SetupHeader.AppCopyright);
   ExpandedAppMutex := ExpandConst(SetupHeader.AppMutex);
+  ExpandedSetupMutex := ExpandConst(SetupHeader.SetupMutex);
 
   { Update the shutdown block reason now that we have ExpandedAppName. }
   ShutdownBlockReasonCreate(Application.Handle,
@@ -3176,6 +3365,13 @@ begin
     if LoggedMsgBox(FmtSetupMessage1(msgSetupAppRunningError, ExpandedAppName),
        SetupMessages[msgSetupAppTitle], mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
       Abort;
+
+  { Check if Setup is running and if not create mutexes }
+  while CheckForMutexes(ExpandedSetupMutex) do
+    if LoggedMsgBox(FmtSetupMessage1(msgSetupAppRunningError, SetupMessages[msgSetupAppTitle]),
+       SetupMessages[msgSetupAppTitle], mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
+      Abort;
+  CreateMutexes(ExpandedSetupMutex);
 
   { Remove types that fail their 'languages' or 'check'. Can't do this earlier
     because the InitializeSetup call above can't be done earlier. }
@@ -3308,15 +3504,15 @@ begin
   if Assigned(CodeRunner) then begin
     if AllowCustomSetupExitCode then begin
       try
-        SetupExitCode := CodeRunner.RunIntegerFunction('GetCustomSetupExitCode',
-          [''], False, SetupExitCode);
+        SetupExitCode := CodeRunner.RunIntegerFunctions('GetCustomSetupExitCode',
+          [''], bcNonZero, False, SetupExitCode);
       except
         Log('GetCustomSetupExitCode raised an exception.');
         Application.HandleException(nil);
       end;
     end;
     try
-      CodeRunner.RunProcedure('DeinitializeSetup', [''], False);
+      CodeRunner.RunProcedures('DeinitializeSetup', [''], False);
     except
       Log('DeinitializeSetup raised an exception.');
       Application.HandleException(nil);
@@ -3455,7 +3651,10 @@ begin
     Application.ShowMainForm := False;
   end;
 
-  Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
+  if shDisableWelcomePage in SetupHeader.Options then
+    Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppVerName)
+  else
+    Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
 
   { Append the 'About Setup' item to the system menu }
   SystemMenu := GetSystemMenu(Handle, False);
@@ -3584,8 +3783,8 @@ begin
   S := SetupTitle + ' version ' + SetupVersion + SNewLine;
   if SetupTitle <> 'Inno Setup' then
     S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
-  S := S + ('Copyright (C) 1997-2014 Jordan Russell' + SNewLine +
-    'Portions Copyright (C) 2000-2014 Martijn Laan' + SNewLine +
+  S := S + ('Copyright (C) 1997-2019 Jordan Russell' + SNewLine +
+    'Portions Copyright (C) 2000-2019 Martijn Laan' + SNewLine +
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
     'http://www.innosetup.com/');
@@ -3622,7 +3821,7 @@ begin
   CurStep := AStep;
   if CodeRunner <> nil then begin
     try
-      CodeRunner.RunProcedure('CurStepChanged', [Ord(CurStep)], False);
+      CodeRunner.RunProcedures('CurStepChanged', [Ord(CurStep)], False);
     except
       if HandleExceptions then begin
         Log('CurStepChanged raised an exception.');
@@ -3641,13 +3840,13 @@ begin
   WizardForm := TWizardForm.Create(Application);
   if CodeRunner <> nil then begin
     try
-      CodeRunner.RunProcedure('InitializeWizard', [''], False);
+      CodeRunner.RunProcedures('InitializeWizard', [''], False);
     except
       Log('InitializeWizard raised an exception (fatal).');
       raise;
     end;
   end;
-  WizardForm.FlipControlsIfNeeded;
+  WizardForm.FlipSizeAndCenterIfNeeded(shWindowVisible in SetupHeader.Options, MainForm, True);
   WizardForm.SetCurPage(wpWelcome);
   if InstallMode = imNormal then begin
     WizardForm.ClickToStartPage; { this won't go past wpReady  }
@@ -3842,7 +4041,7 @@ function TMainForm.Install: Boolean;
   end;
 
 var
-  Succeeded: Boolean;
+  Succeeded, ChangesEnvironment, ChangesAssociations: Boolean;
   S: String;
 begin
   Result := False;
@@ -3870,8 +4069,11 @@ begin
     WizardForm.Update;
 
     SetStep(ssInstall, False);
+    
+    ChangesEnvironment := EvalDirectiveCheck(SetupHeader.ChangesEnvironment);
+    ChangesAssociations := EvalDirectiveCheck(SetupHeader.ChangesAssociations);
 
-    PerformInstall(Succeeded);
+    PerformInstall(Succeeded, ChangesEnvironment, ChangesAssociations);
     if not Succeeded then begin
       { The user canceled the install or there was a fatal error }
       TerminateApp;
@@ -3891,9 +4093,9 @@ begin
 
     { Notify Windows of assocations/environment changes *after* ssPostInstall
       since user might set more stuff there }
-    if shChangesAssociations in SetupHeader.Options then
+    if ChangesAssociations then
       SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);
-    if shChangesEnvironment in SetupHeader.Options then
+    if ChangesEnvironment then
       RefreshEnvironment;
 
     if InstallMode <> imNormal then
@@ -4030,10 +4232,13 @@ begin
               RestartSystem := WizardForm.YesRadio.Checked;
           imSilent:
             begin
-              if FromPreparingPage then
+              if FromPreparingPage then begin
+                S := ExpandSetupMessage(msgPrepareToInstallNeedsRestart);
+                if S = '' then
+                  S := ExpandSetupMessage(msgFinishedRestartMessage);
                 S := WizardForm.PrepareToInstallFailureMessage + SNewLine +
-                  SNewLine + SNewLine + ExpandSetupMessage(msgFinishedRestartMessage)
-              else
+                  SNewLine + SNewLine + S
+              end else
                 S := ExpandSetupMessage(msgFinishedRestartMessage);
               RestartSystem :=
                 LoggedMsgBox(S, '', mbConfirmation, MB_YESNO, True, IDYES) = IDYES;
@@ -4173,49 +4378,76 @@ const
   PROCESSOR_ARCHITECTURE_INTEL = 0;
   PROCESSOR_ARCHITECTURE_IA64 = 6;
   PROCESSOR_ARCHITECTURE_AMD64 = 9;
+  PROCESSOR_ARCHITECTURE_ARM64 = 12;
+  IMAGE_FILE_MACHINE_I386 = $014c;
+  IMAGE_FILE_MACHINE_IA64 = $0200;
+  IMAGE_FILE_MACHINE_AMD64 = $8664;
+  IMAGE_FILE_MACHINE_ARM64 = $AA64;
 var
   KernelModule: HMODULE;
   GetNativeSystemInfoFunc: procedure(var lpSystemInfo: TSystemInfo); stdcall;
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
+  IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
+  ProcessMachine, NativeMachine: USHORT;
   Wow64Process: BOOL;
   SysInfo: TSystemInfo;
 begin
   { The system is considered a "Win64" system if all of the following
     conditions are true:
-    1. GetNativeSystemInfo is available.
-    2. IsWow64Process is available, and returns True for the current process.
-    3. Wow64DisableWow64FsRedirection is available.
-    4. Wow64RevertWow64FsRedirection is available.
-    5. GetSystemWow64DirectoryA is available.
-    6. RegDeleteKeyExA is available.
+    1. One of the following two is true:
+       a. IsWow64Process2 is available, and returns True for the current process.
+       b. GetNativeSystemInfo is available +
+          IsWow64Process is available, and returns True for the current process.
+    2. Wow64DisableWow64FsRedirection is available.
+    3. Wow64RevertWow64FsRedirection is available.
+    4. GetSystemWow64DirectoryA is available.
+    5. RegDeleteKeyExA is available.
     The system does not have to be one of the known 64-bit architectures
-    (AMD64, IA64) to be considered a "Win64" system. }
+    (AMD64, IA64, ARM64) to be considered a "Win64" system. }
 
   IsWin64 := False;
   KernelModule := GetModuleHandle(kernel32);
-  GetNativeSystemInfoFunc := GetProcAddress(KernelModule, 'GetNativeSystemInfo');
-  if Assigned(GetNativeSystemInfoFunc) then begin
-    GetNativeSystemInfoFunc(SysInfo);
-    IsWow64ProcessFunc := GetProcAddress(KernelModule, 'IsWow64Process');
-    if Assigned(IsWow64ProcessFunc) and
-       IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
-       Wow64Process then begin
-      if AreFsRedirectionFunctionsAvailable and
-         (GetProcAddress(KernelModule, 'GetSystemWow64DirectoryA') <> nil) and
-         (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil) then
-        IsWin64 := True;
-    end;
-  end
-  else
-    GetSystemInfo(SysInfo);
 
-  case SysInfo.wProcessorArchitecture of
-    PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
-    PROCESSOR_ARCHITECTURE_IA64: ProcessorArchitecture := paIA64;
-    PROCESSOR_ARCHITECTURE_AMD64: ProcessorArchitecture := paX64;
-  else
-    ProcessorArchitecture := paUnknown;
+  IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
+  if Assigned(IsWow64Process2Func) and
+     IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) and
+     (ProcessMachine <> IMAGE_FILE_MACHINE_UNKNOWN) then begin
+    IsWin64 := True;
+    case NativeMachine of
+      IMAGE_FILE_MACHINE_I386: ProcessorArchitecture := paX86;
+      IMAGE_FILE_MACHINE_IA64: ProcessorArchitecture := paIA64;
+      IMAGE_FILE_MACHINE_AMD64: ProcessorArchitecture := paX64;
+      IMAGE_FILE_MACHINE_ARM64: ProcessorArchitecture := paARM64;
+    else
+      ProcessorArchitecture := paUnknown;
+    end;
+  end else begin
+    GetNativeSystemInfoFunc := GetProcAddress(KernelModule, 'GetNativeSystemInfo');
+    if Assigned(GetNativeSystemInfoFunc) then begin
+      GetNativeSystemInfoFunc(SysInfo);
+      IsWow64ProcessFunc := GetProcAddress(KernelModule, 'IsWow64Process');
+      if Assigned(IsWow64ProcessFunc) and
+         IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
+         Wow64Process then
+        IsWin64 := True;
+    end else
+      GetSystemInfo(SysInfo);
+
+    case SysInfo.wProcessorArchitecture of
+      PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
+      PROCESSOR_ARCHITECTURE_IA64: ProcessorArchitecture := paIA64;
+      PROCESSOR_ARCHITECTURE_AMD64: ProcessorArchitecture := paX64;
+      PROCESSOR_ARCHITECTURE_ARM64: ProcessorArchitecture := paARM64;
+    else
+      ProcessorArchitecture := paUnknown;
+    end;
   end;
+
+  if IsWin64 and
+     not (AreFsRedirectionFunctionsAvailable and
+          (GetProcAddress(KernelModule, 'GetSystemWow64DirectoryA') <> nil) and
+          (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil)) then
+    IsWin64 := False;
 end;
 
 procedure InitWindowsVersion;
@@ -4335,6 +4567,18 @@ begin
   end;
 end;
 
+procedure FreeWizardImages;
+var
+  I: Integer;
+begin
+  for I := WizardImages.Count-1 downto 0 do
+    TBitmap(WizardImages[I]).Free;
+  FreeAndNil(WizardImages);
+  for I := WizardSmallImages.Count-1 downto 0 do
+    TBitmap(WizardSmallImages[I]).Free;
+  FreeAndNil(WizardSmallImages);
+end;
+
 initialization
   IsNT := UsingWinNT;
   InitIsWin64AndProcessorArchitecture;
@@ -4352,12 +4596,13 @@ initialization
   DeleteFilesAfterInstallList := TStringList.Create;
   DeleteDirsAfterInstallList := TStringList.Create;
   CloseApplicationsFilterList := TStringList.Create;
-  SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(shell32,
+  WizardImages := TList.Create;
+  WizardSmallImages := TList.Create;
+  SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
     SEM_NOOPENFILEERRORBOX), 'SHGetKnownFolderPath');
 
 finalization
-  FreeAndNil(WizardImage);
-  FreeAndNil(WizardSmallImage);
+  FreeWizardImages;
   FreeAndNil(CloseApplicationsFilterList);
   FreeAndNil(DeleteDirsAfterInstallList);
   FreeAndNil(DeleteFilesAfterInstallList);

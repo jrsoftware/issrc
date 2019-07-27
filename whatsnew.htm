@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>Inno Setup 5 Revision History</title>
+<title>Inno Setup 6 Revision History</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <style type="text/css">
     body         { font: small verdana, arial, sans-serif; color: black; background-color: white }
@@ -19,1204 +19,196 @@
 </head>
 <body>
 
-<div class="bluehead"><span class="head1">Inno Setup 5</span><br /><span class="head2">Revision History</span></div>
+<div class="bluehead"><span class="head1">Inno Setup 6</span><br /><span class="head2">Revision History</span></div>
 
-<p>Copyright &copy; 1997-2014 <a href="http://www.jrsoftware.org/">Jordan Russell</a>. All rights reserved.<br />
-Portions Copyright &copy; 2000-2014 Martijn Laan. All rights reserved.<br />
+<p>Copyright &copy; 1997-2019 <a href="http://www.jrsoftware.org/">Jordan Russell</a>. All rights reserved.<br />
+Portions Copyright &copy; 2000-2019 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="http://www.jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
-<p><a name="5.5.6"></a><span class="ver">5.5.6-dev </span><span class="date">(?)</span></p>
+<p><a name="6.0.3"></a><span class="ver">6.0.3-dev </span><span class="date">(?)</span></p>
 <ul>
-<li>Added the Windows 10 "compatibility" section to the various manifest resources used by Inno Setup.</li>
-<li>Added new [Setup] section directive: <tt>SignToolRetryCount</tt>, which defaults to <tt>2</tt>. Specifies the number of times the Setup Compiler should automatically retry digital signing on any errors.</li>
-<li><i>Fix:</i> Console-mode compiler (ISCC) change: Renamed /DO and /EO command line parameters to /O- and /O+ to avoid possible conflicts with /D.</li>
-<li>Pascal Scripting change: Unicode Inno Setup: Added new function <tt>VarIsClear</tt>.</li>
-<li>Unicode [Code] based on RemObjects Pascal Script Git commit db0d6f521113a31b34a76aeefd79fb148a9c4bfd.</li>
-<li>Various documentation improvements. Contributed by <a href="https://github.com/jogo-" target="_blank">jogo-</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-<li>Minor tweaks.</li>
+  <li>/LOG: Now logs Windows compatibility mode when this is activated by the user.</li>
+  <li>Added new [Setup] section directive: <tt>SignToolRunMinimized</tt>.</li>
+  <li>Compiler IDE change: The "Compiler Output" and "Debug Output" views now support multi selection, an extra <i>Select All</i> popup menu item and <i>Ctrl+C</i> and </i>Ctrl+A</i> keyboard shortcuts. The <i>Copy</i> action now only copies the selected lines instead of all lines.</li>
+  <li>A message has been added in this version: PrepareToInstallNeedsRestart. This message is used by the <i>Preparing to Install</i> wizard page if a restart is needed. If this message is not set by a translation, Setup will instead use FinishedRestartLabel and FinishedRestartMessage as before. (<a href="https://github.com/jrsoftware/issrc/commit/bee9623f6680662ae280a7a38919b1f913f23834">View difference in Default.isl</a>.)</li>
+  <li>Added official Slovak translation.</li>
+  <li>Minor tweaks.</li>
 </ul>
 
-<p><a name="5.5.5"></a><span class="ver">5.5.5 </span><span class="date">(2014-07-09)</span></p>
+<p><a name="6.0.2"></a><span class="ver">6.0.2 </span><span class="date">(2019-04-26)</span></p>
 <ul>
-<li>/LOG: Now logs INI entries. Also improved logging of icon entries.</li>
-<li>Added new [Setup] section directive: <tt>Output</tt>, which defaults to <tt>yes</tt>. If set to <tt>no</tt> the Setup Compiler will only check the script for errors and skip creating setup files.</li>
-<li>Console-mode compiler (ISCC) changes:
-<ul>
-  <li>Added new command line parameters /DO and /EO. These can be used to disable or enable output, overriding the <tt>Output</tt> directive.</li>
-  <li>Added new command line parameter /Qp. Can be used to enable quiet compile while still displaying progress. Contributed by <a href="https://github.com/KngStr" target="_blank">KngStr</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-  <li>ISCC now automatically specifies any Sign Tools configured using the IDE, eliminating the need to specify these using the /S command line parameter. Also contributed by <a href="https://github.com/KngStr" target="_blank">KngStr</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-</ul>
-<li>Pascal Scripting changes:
-<ul>
-  <li>Added new function <tt>CurrentSourceFileName</tt>, which returns the source file name of the [Files] entry that is currently being processed. The returned name may include constants. <i>Note:</i> Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a [Files] entry with the <tt>external</tt> flag.</li>
-  <li>The already-existing <tt>StrToFloat</tt> and <tt>FloatToStr</tt> functions are now documented.</li>
-  <li>Strings and numbers are now highlighted. Based on contribution by <a href="https://github.com/maldoinc" target="_blank">maldoinc</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-  <li>Unicode Inno Setup: Added new class <tt>TStringStream</tt>.</li>
-</ul>
-</li>
-<li>Inno Setup Preprocessor (ISPP) changes:
-<ul>
-  <li>Added function <tt>DeleteFileNow</tt>.</li>
-  <li>Added 64-bit support to function <tt>ReadReg</tt>.</li>
-</ul>
-</li>
-<li>Added official Scottish Gaelic and Turkish translations.</li>
-<li><i>Fix:</i> [Setup] section directive <tt>UsePreviousLanguage</tt> was not working when Setup was running in 64-bit mode.</li>
-<li>Unicode [Code] based on RemObjects Pascal Script Git commit 97eefc260b41ba51328d95b4ed43669f38655720.</li>
-<li>Various documentation improvements. Contributed by <a href="https://github.com/jogo-" target="_blank">jogo-</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-</ul>
-
-<p><a name="5.5.4"></a><span class="ver">5.5.4 </span><span class="date">(2013-10-13)</span></p>
-<ul>
-<li>Added the Windows 8.1 "compatibility" section to the various manifest resources used by Inno Setup. This enables any check for the operating system version to get the real version number (6.3) instead of getting the same version number as it did in Windows 8 (6.2).</li>
-<li>Compiler IDE: Added new option: <i>Show line numbers in gutter</i> (default: off).</li>
-<li>Pascal Scripting changes:
-<ul>
-  <li>Added new event function <tt>CurInstallProgressChanged</tt>, which you can use to monitor progress while Setup is extracting files, creating shortcuts, creating INI entries, and creating registry entries. See the help file and the <i>CodeExample1.iss</i> example script for more information. Contributed by <a href="https://github.com/tlama" target="_blank">TLama</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-  <li><tt>WizardForm.BeveledLabel</tt> visibility is now automatically handled even if its caption was set from [Code].</li>
-</ul>
-<li>Unicode [Code] based on RemObjects Pascal Script Git commit 538905910852bcbeef646f26592a973d15d3d5ec.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.5.3"></a><span class="ver">5.5.3 </span><span class="date">(2013-01-30)</span></p>
-<ul>
-<li>Windows 8 change: [Icons] section flag <tt>excludefromshowinnewinstall</tt> now additionally prevents the new shortcut from being automatically pinned the Start screen.</li>
-<li>Added new command line parameters supported by Setup: /HELP and /?. Causes Setup to display the list of accepted command line parameters in a message box, exiting with exit code 0 afterwards. Ignored if the <tt>UseSetupLdr</tt> [Setup] section directive was set to <tt>no</tt>.</li>
-<li>Added new command line parameter supported by Inno Setup's own installer: /PORTABLE=1. Causes Inno Setup's own installer to not create an uninstaller nor an entry in the <i>Add/Remove Programs</i> Control Panel applet. Also supported by QuickStart Pack's installer.</li>
-<li>Added workaround for bug in 64-bit Windows which in some cases would cause Windows to display an error message when a user tries to change the icon of an installed shortcut.</li>
-<li>Updated the compiler and document icons, created by Motaz Alnuweiri.</li>
-<li>Restart Manager: If Setup is not running silently and is unable to close all applications using files that need to be updated, it will now ask the user to abort, retry, or ignore. Previously it always ignored.</li>
-<li>A message has been added in this version.
-  (<a href="https://github.com/jrsoftware/issrc/commit/4e2a3c21dcb0a8ecf591d628062e317e8a2fc0e3">View differences in Default.isl</a>)
+  <li>Added new <tt>{sysnative}</tt> constant.</li>
+  <li>Pascal Scripting changes:
   <ul>
-    <li><b>New message:</b> ErrorCloseApplications.</li>
+    <li>Added new <tt>WizardSelectComponents</tt> and <tt>WizardSelectTasks</tt> support functions.</li>
+    <li>Renamed the <tt>IsComponentSelected</tt> and <tt>IsTaskSelected</tt> support functions to <tt>WizardIsComponentSelected</tt> and <tt>WizardIsTaskSelected</tt>. The old names are still supported, but it is recommended to update your scripts to the new names and the compiler will issue a warning if you don't.</li>
   </ul>
-</li>
-<li>Added official Corsican and Nepali translations. The Nepali translation requires Unicode Inno Setup.</li>
-<li>Inno Setup Preprocessor (ISPP) changes:
-  <ul>
-  <li>Added directive <tt>#redim</tt> to increase or decrease the dimension of an existing array variable.</li>
-  <li>Added function <tt>DimOf</tt>. Returns the dimension of the specified identifier.</li>
-  </ul>
-</li>
-<li>Pascal Scripting changes:
-<ul>
-  <li>Added new function: <tt>ExtractTemporaryFiles</tt>. This function is like <tt>ExtractTemporaryFile</tt> but supports wildcards and doesn't ignore directory information.</li>
-  <li>When <tt>ExtractTemporaryFile</tt> or <tt>ExtractTemporaryFiles</tt> extracts a file, this is now logged.</li>
-  <li>Unicode Inno Setup: Now has an <tt>Int64</tt> type, supported by <tt>IntToStr</tt>. Also added new <tt>StrToInt64</tt>, <tt>StrToInt64Def</tt>, and <tt>GetSpaceOnDisk64</tt> support functions.</li>
-</ul>
-</li>
-<li>If the <tt>Flags</tt> parameter of a [Files] entry includes <tt>isreadme</tt> and the entry also has a <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> parameter, the <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> functions will now only be called when the file is installed and no longer a second time when the file is viewed after the installation has completed.</li>
-<li>[Setup] section directive <tt>VersionInfoProductTextVersion</tt>, which sets the textual product version value, is now truncated at 50 characters instead of 20. Contributed by <a href="https://github.com/lukas-ais" target="_blank">Lukas G (AIS)</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-<li>The Inno Setup help file source code has been moved into the main Inno Setup source code repository.</li>
-<li><i>Fix:</i> [Setup] section directive <tt>CloseApplicationsFilter</tt> was partially case sensitive.</li>
-<li>Unicode [Code] based on RemObjects Pascal Script Git commit 31abd2925837d85a6965b5325e8fb7835ca73ea8.</li>
-<li>QuickStart Pack: No longer offers to download and install InnoIDE (which is no longer maintained by its author) unless /ALLOWINNOIDE=1 is specified on the command line. If you're still using InnoIDE it is recommended you switch to <a href="https://www.kymoto.org/inno-script-studio" target="_blank">Inno Script Studio</a> (which QuickStart pack can download and install).</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.5.2"></a><span class="ver">5.5.2 </span><span class="date">(2012-10-08)</span></p>
-<ul>
-<li>Added the Windows 8 "compatibility" section to the various manifest resources used by Inno Setup.</li>
-<li>Added constants <tt>{userpf}</tt> and <tt>{usercf}</tt>. Only Windows 7 and later supports <tt>{userpf}</tt> and <tt>{usercf}</tt>; if used on previous Windows versions, they will translate to the same directories as <tt>{localappdata}\Programs</tt> and <tt>{localappdata}\Programs\Common</tt>.</li>
-<li>Pascal Scripting: Added new <tt>RegisterExtraCloseApplicationsResources</tt> event function and also added new <tt>RegisterExtraCloseApplicationsResource</tt> support function. These functions can be used to register extra files which Setup should check for being in-use.</li>
-<li>Added new command line parameters supported by Setup: /CLOSEAPPLICATIONS and /RESTARTAPPLICATIONS. These can be used to override the <tt>CloseApplications</tt> and <tt>RestartApplications</tt> directives.</li>
-<li>Decreased Unicode Inno Setup's size slightly. Contributed by <a href="https://github.com/ahausladen" target="_blank">Andreas Hausladen</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-<li>Unicode [Code] based on RemObjects Pascal Script Git commit 52291ffbfc14f3cf1a445f3e88c6902e13fbdf78.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.5.1"></a><span class="ver">5.5.1 </span><span class="date">(2012-07-09)</span></p>
-<ul>
-<li>Added official Greek translation.</li>
-<li>Updated the official Catalan, Czech, Danish, Finnish, French (Standard), German, Hebrew, Hungarian, Italian, Japanese, Norwegian (Bokmal), Polish, Portuguese (Brazil), Portuguese (Portugal), Russian, Serbian (Cyrillic), Serbian (Latin), Slovenian, Spanish, and Ukrainian translations for the changes introduced by the previous version.</li>
-<li>Demoted the official <a href="http://jrsoftware.org/files/istrans/Basque-1/Basque-1-5.1.11.isl">Basque</a> and <a href="http://jrsoftware.org/files/istrans/Slovak-6/Slovak-6-5.1.11.isl">Slovak</a> translations to unofficial because of a lack of updates by the maintainers. To send updates yourself, see <a href="http://news.jrsoftware.org/read/article.php?id=2295&amp;group=jrsoftware.innosetup.translations#2295">this post</a> for what needs updating and use <a href="http://www.jrsoftware.org/files/istrans/send2.php">this form</a> to send updates (or use <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>). See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.</li>
-<li><i>Fix:</i> The <i>Preparing to Install</i> wizard page's detection of files that need to be updated but are in use or queued (by some other installation) to be replaced or deleted on the next restart did not work for [Files] and [InstallDelete] entries with a <tt>Components</tt> or <tt>Tasks</tt> parameter.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.5.0"></a><span class="ver">5.5.0 </span><span class="date">(2012-05-29)</span></p>
-<ul>
-<li>Non-Unicode Inno Setup <b>OS requirements change</b>: Windows 95, 98, Me, and NT 4.0 are no longer supported. Like the Unicode version, Windows 2000 is now the minimum supported operating system.</li>
-<li>The <tt>MinVersion</tt> and <tt>OnlyBelowVersion</tt> directives and parameters now require only a single version number. For example: <tt>MinVersion=5.1</tt>. For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may still be specified, but these aren't used anymore.</li>
-<li>On Windows Vista and newer, Setup now supports the Windows <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa373524.aspx" target="_blank">Restart Manager</a> API to close and restart applications using files that need to be updated:
-  <ul>
-  <li>Added new [Setup] section directive: <tt>CloseApplications</tt>, which defaults to <tt>yes</tt>. If set to <tt>yes</tt> and Setup is not running silently, Setup will now pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the [Files] or [InstallDelete] section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed. If set to <tt>yes</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line (see below).</li>
-  <li>Added new [Setup] section directive: <tt>CloseApplicationsFilter</tt>, which defaults to <tt>*.exe,*.dll,*.chm</tt>. Controls which files Setup will check for being in use. Setting this to <tt>*.*</tt> can provide better checking at the expense of speed.</li>
-  <li>Added new [Setup] section directive: <tt>RestartApplications</tt>, which defaults to <tt>yes</tt>. Note: for Setup to be able to restart an application after the installation has completed, the application needs to be using the Windows <tt>RegisterApplicationRestart</tt> API function.</li>
-  <li>Added new command line parameters supported by Setup: /NOCLOSEAPPLICATIONS and /NORESTARTAPPLICATIONS. These can be used to override the new <tt>CloseApplications</tt> and <tt>RestartApplications</tt> directives.</li>
-  <li>Added new [Code] support function: <tt>RmSessionStarted</tt>.</li>
-  <li>TWizardForm: Added new <tt>PreparingMemo</tt> property.</li>
-  </ul>
-</li>
-<li>The <i>Preparing to Install</i> wizard page now also checks if one or more files specified in the [InstallDelete] section were queued (by some other installation) to be replaced or deleted on the next restart, making Setup stop on the page if it does. Previously it only checked files specified in the [Files] section.</li>
-<li>Setup now additionally hides the <i>Back</i> and <i>Next</i> buttons while the <tt>PrepareToInstall</tt> [Code] event function is running. Previously it only disabled itself.</li>
-<li>Added new [Setup] section directive: <tt>AllowNetworkDrive</tt>, which defaults to <tt>yes</tt>. If set to <tt>no</tt>, the user will not be allowed to enter a network drive on the <i>Select Destination Location</i> page of the wizard. Note: to fully disallow installation to network locations, you must also set <tt>AllowUNCPath</tt> to <tt>no</tt>.</li>
-<li>Windows 7 changes:
-  <ul>
-  <li>Added new [Icons] section flag: <tt>preventpinning</tt>. Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions. Contributed by <a href="https://github.com/miniak" target="_blank">Milan Burda</a> via <a href="https://github.com/jrsoftware" target="_blank">GitHub</a>.</li>
-  <li>Windows 7 SP1 fixed the issue with <tt>EstimatedSize</tt> values in the Uninstall registry key and on Windows 7 SP1 or newer Setup now sets <tt>EstimatedSize</tt> even for sizes of 4GB or more.</li>
-  </ul>
-</li>
-<li>Improved the "auto-retry" feature of the [Files] section: it now automatically retries even if the <tt>restartreplace</tt> [Files] section flag is used.</li>
-<li>Pascal Scripting: Changed the <tt>InstallOnThisVersion</tt> support function to return a Boolean value. If an invalid version string is passed, an exception will be raised.</li>
-<li>Added 128x128 and 256x256 sizes to the compiler and document icons, created by Motaz Alnuweiri.</li>
-<li>Some messages have been added and removed in this version.
-  (<a href="https://github.com/jrsoftware/issrc/commit/0769551f461e66ad58436cc9b31580d4fa70fe62">View differences in Default.isl</a>)
-  <ul>
-    <li><b>New messages:</b> ApplicationsFound, ApplicationsFound2, CannotInstallToNetworkDrive, CannotInstallToUNCPath, CloseApplications, DontCloseApplications, InvalidParameter, SetupAlreadyRunning, ShutdownBlockReasonInstallingApp, ShutdownBlockReasonUninstallingApp, StatusClosingApplications, StatusRestartingApplications, WindowsServicePackRequired, WindowsVersionNotSupported.</li>
-    <li><b>New custom messages:</b> AutoStartProgramGroupDescription, AutoStartProgram, AddonHostProgramNotFound.</li>
-    <li><b>Removed messages:</b> ToUNCPathname.</li>
-  </ul>
-  Note: only the official English and Dutch (Netherlands) translations have been updated for these changes at this moment. See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.<br />
-</li>
-<li>Inno Setup Preprocessor (ISPP) changes:
-  <ul>
-  <li>Added function <tt>DirExists</tt>.</li>
-  <li>The ISPP source code has been moved into the main Inno Setup source code repository.</li>
-  </ul>
-</li>
-<li>Unicode [Code] based on RemObjects Pascal Script Git commit e5a93a963f785e89810e61e3eb5e2b6ee3efd3e7.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<hr />
-
-<p><a name="5.4.3"></a><span class="ver">5.4.3 </span><span class="date">(2011-12-20)</span></p>
-<ul>
-<li>QuickStart Pack: Now offers to download and install <a href="https://www.kymoto.org/inno-script-studio" target="_blank">Inno Script Studio</a> besides <a href="http://www.innoide.org/" target="_blank">InnoIDE</a>.</li>
-<li>Setup now only allows the "Don't create a Start Menu folder" check box to suppress the creation of shortcuts under <tt>{group}</tt>. Previously, it would also suppress the creation of shortcuts in other locations, such as <tt>{userstartup}</tt>, on entries that lacked a Tasks parameter.</li>
-<li>Setup now doesn't count files with <tt>Tasks</tt>/<tt>Check</tt> parameters when calculating the disk space shown at the bottom of the <i>Select Components</i> page.</li>
-<li>Improved throughput of external file copying on some devices.</li>
-<li>On Unicode, Setup now supports Rich Edit 4.1 when available.</li>
-<li>Inno Setup Preprocessor (ISPP) changes:
-  <ul>
-  <li>Documentation improvements: Added the functions available from <i>ISPPBuiltins.iss</i> to the help file.</li>
-  <li><tt>#ifexist</tt>/<tt>#ifnexist</tt>: For consistency with ISPP functions, prepend SourcePath if the filename is relative, and also support prefix expansion.</li>
-  <li><tt>ReadReg</tt>: Now only requests KEY_QUERY_VALUE access on the key. Previously, it requested KEY_ALL_ACCESS.</li>
-  </ul>
-</li>
-<li>The Inno Setup source code is now also available as a Git repository at <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>. This should make it easier to contribute to Inno Setup, see <a href="http://help.github.com/fork-a-repo/">GitHub Help - Fork A Repo</a> for more info.</li>
-<li>Added official Serbian (both Latin and Cyrillic) and Ukrainian translations.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.4.2"></a><span class="ver">5.4.2 </span><span class="date">(2011-03-17)</span></p>
-<ul>
-<li>Windows 7 change:
-  <ul>
-  <li>Added new [Icons] section flag: <tt>excludefromshowinnewinstall</tt>. Prevents the Start menu entry for the new shortcut from receiving a highlight on Windows 7. Ignored on earlier Windows versions.</li>
-  </ul>
-</li>
-<li>Compiler IDE change:
-  <ul>
-  <li>Changed shortcut for <i>Edit | Complete Word</i> to Alt+Right (but still recognize Ctrl+Space). Reportedly, Ctrl+Space conflicts with the Chinese IME.</li>
-  </ul>
-</li>
-<li><i>Fixes:</i>
-  <ul>
-  <li>Inno Setup Preprocessor: <tt>#include</tt> handling of <tt>'.\'</tt> and <tt>'..\'</tt> now treats such filenames as relative to the directory containing the current file, not to the current directory (which is undefined).</li>
-  <li>On the 5.4.1 Unicode compiler, trying to build a multi-language installer while running under a DBCS code page could unexpectedly result in "Illegal null character" errors.</li>
-  <li>On Unicode, string-type parameters passed to <tt>BeforeInstall</tt> and <tt>AfterInstall</tt> functions were being converted to ANSI.</li>
-  </ul>
-</li>
-</ul>
-
-<p><a name="5.4.1"></a><span class="ver">5.4.1 </span><span class="date">(2011-02-09)</span></p>
-<ul>
-<li>Inno Setup Preprocessor (ISPP) changes:
-  <ul>
-  <li>ISPP is now an official part of Inno Setup and is included in the standard Inno Setup installer instead of only being included in the QuickStart Pack installer.</li>
-  <li>It is now possible to enable ISPP preprocessing on .isl files by adding a line saying <tt>#preproc ispp</tt> at the top of the .isl file.</li>
-  <li>With the exception of <tt>Exec</tt>, <tt>ReadIni</tt>, and <tt>WriteIni</tt>, all ISPP functions that take filenames have been changed to interpret the filenames as relative to <tt>SourcePath</tt> instead of the current directory. Additionally, these functions, the <tt>#include</tt> directive, and the <tt>#file</tt> directive now support prefix expansion (e.g. 'compiler:') in filenames.</li>
-  <li>The <tt>#include</tt> directive no longer searches the current directory.</li>
-  <li><i>Builtins.iss</i> has been renamed to <i>ISPPBuiltins.iss</i>.</li>
-  <li>The Compiler IDE no longer displays a separate ISPP version number in its title bar.</li>
-  </ul>
-</li>
-<li>Compiler IDE changes:
-  <ul>
-  <li>The <i>Edit | Replace | Replace All</i> command now actually replaces all occurrences, instead of doing a Delphi-style "From Cursor" replacement. Also it now counts all replacements as a single undo action and shows how many occurrences were replaced.</li>
-  <li>Unicode change: Added a new <i>File | Save Encoding</i> submenu. It now defaults to preserving the UTF-8 BOM of existing files, even if the UTF-8 encoding isn't really needed.</li>
-  </ul>
-</li>
-<li>Unicode change: Added support for Unicode characters in DLL filenames (not specified directly in the script, but returned by constants like <tt>{app}</tt>). This fixes the "Cannot Import" error seen with for example the <i>CodeDll.iss</i> example script when uninstalling from an <tt>{app}</tt> path containing non-ANSI characters.</li>
-<li>Two new Setup exit codes related to the <i>Preparing to Install</i> stage were added. See the help file for more information.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.4.0"></a><span class="ver">5.4.0 </span><span class="date">(2010-10-31)</span></p>
-<ul>
-<li>Compiler IDE changes:
-  <ul>
-  <li>The editor component has been changed from SynEdit to <a href="http://www.scintilla.org/" target="_blank">Scintilla</a>.</li>
-  <li>Autocompletion support has been added to all sections except for <tt>[Messages]</tt>, <tt>[CustomMessages]</tt>, and <tt>[Code]</tt>.</li>
-  <li>Brace highlighting has been added to all sections.</li>
-  <li>Syntax errors are now underlined during editing. (Support for the <tt>[Code]</tt> section is limited.)</li>
-  <li>Constants are now highlighted.</li>
-  <li>Variable-pitch fonts may now be selected as the editor font.</li>
-  <li>ISPP inline directives (<tt>{#...}</tt>) are now consistently highlighted in all contexts.</li>
-  <li>Zooming is now supported.</li>
-  <li>Added new options: <i>Word wrap</i> (default: off), <i>Auto indent mode</i> (default: on), <i>Show indentation guides</i> (default: off), <i>Invoke autocomplete automatically</i> (default: on), <i>Underline syntax errors</i> (default: on), and <i>Use tab character</i> (default: off).</li>
-  </ul>
-</li>
-<li>Setup now instructs edit controls which are used to input a file or folder name to use AutoComplete to help complete file system paths.</li>
-<li>On disk space checks, Setup now queries the nearest volume mount point rather than the root.</li>
-<li>The default directory and Start Menu folder names specified via the <tt>/DIR=</tt>, <tt>/GROUP=</tt>, and <tt>/LOADINF=</tt> command line parameters now may include an "expand:" prefix which instructs Setup to expand any constants in the name. For example: <tt>/DIR="expand:{pf}\My Program"</tt>.</li>
-<li>Pascal Scripting changes:
-  <ul>
-  <li>TNewProgressBar: Added new <tt>Style</tt> and <tt>State</tt> properties. See the <i>CodeClasses.iss</i> example script for an example.</li>
-  <li>TBitmapImage: Added new <tt>OnClick</tt> and <tt>OnDblClick</tt> properties. See the <i>CodeClasses.iss</i> example script for an example.</li>
-  </ul>
-</li>
-<li>Dropped Itanium-specific 64-bit support for the [Files] section's <tt>regtypelib</tt> flag and the [Registry] section's <tt>Permissions</tt> parameter. These features depended on an Itanium-specific "helper" binary, which we no longer have the ability to test or build. (x64 support for these features is unaffected.)</li>
-<li>Updated bzip2 library to version 1.0.6.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<hr />
-
-<p><a name="5.3.11"></a><span class="ver">5.3.11 </span><span class="date">(2010-09-17)</span></p>
-<ul>
-<li>QuickStart Pack: Now offers to download and install <a href="http://www.innoide.org/" target="_blank">InnoIDE</a> instead of ISTool. InnoIDE is an easy to use Inno Setup Script editor by Graham Murt and meant as a replacement of the standard Compiler IDE that comes with Inno Setup. Using InnoIDE is especially recommended for new users. Note: unlike ISTool, InnoIDE supports Unicode scripts.</li>
-<li>Unicode changes:
-  <ul>
-  <li>Previously, if a Unicode installer included translations for both Traditional Chinese and Simplified Chinese using the language IDs $0404 (Taiwan) and $0804 (PRC), a user running under another Traditional Chinese language ID&mdash;such as $0C04 (Hong Kong)&mdash;could have incorrectly received the Simplified Chinese translation by default if it was listed first in the script's [Languages] section. Now, like the ANSI version of Setup, Traditional Chinese and Simplified Chinese are treated as completely separate languages. Thus, provided other options are available, Simplified Chinese will not be considered for selection as the default language on Traditional Chinese systems, and vice versa.</li>
-  <li>Compiler IDE editor updated to the latest UniSynEdit version. This fixes the extra empty line appearing at the end of scripts when first saved.</li>
-  <li>Ctrl+V/Esc/etc. are no longer intercepted by the Compiler IDE's main window while the Find dialog has the focus.</li>
-  <li>Based on RemObjects Pascal Script SVN code revision 233. This fixes <tt>GetExceptionMessage</tt> always returning "(There is no current exception)" on Unicode.</li>
-  </ul>
-</li>
-<li>Compiler IDE: Added new <i>Build | Open Output Folder</i> command.</li>
-<li>In certain cases, applications started via <tt>postinstall</tt> <tt>nowait</tt> [Run] entries did not come to the foreground (top of the Z-order) as expected. This could occur if Setup exited before the spawned process(es) were able to initialize, causing Windows to bring the window that was underneath Setup in the Z-order to the foreground instead. Now, when <tt>postinstall</tt> <tt>nowait</tt> [Run] entries are processed, Setup will wait briefly (up to one second) before exiting for another process to bump Setup from the foreground.</li>
-<li>To help protect applications against potential <a href="http://msdn.microsoft.com/en-us/library/ff919712.aspx">DLL preloading attacks</a>, Setup now always specifies a working directory on shortcuts it creates. If a <tt>WorkingDir</tt> parameter is not specified or is blank, Setup will try to extract a directory name from the <tt>Filename</tt> parameter. If for some reason that fails, the working directory will be set to <tt>{sys}</tt>.</li>
-<li>To help protect installers against potential DLL/EXE preloading attacks, Setup/Uninstall now calls SetDllDirectory to remove the current directory from the DLL search order, and SetSearchPathMode to prevent SearchPath and CreateProcess from searching the current directory before system directories.</li>
-<li>If the <tt>Filename</tt> parameter of a [Run]/[UninstallRun] entry or <tt>Exec</tt>/<tt>ShellExec</tt> call does not include a path, and a <tt>WorkingDir</tt> value is not provided, Setup/Uninstall will now specify a known-safe default (currently <tt>{sys}</tt>) for the process's initial current directory, instead of allowing the process to inherit Setup/Uninstall's current directory. You should not rely on this behavior, however; it is best to always specify a path in the <tt>Filename</tt> parameter.</li>
-<li>When an Open or Save common dialog is dismissed, the current directory is now restored to its original value.</li>
-<li>Updated bzip2 library to version 1.0.5.</li>
-<li>QuickStart Pack: Any ISPP function that uses the system's DLL search path such as <tt>GetFileVersion</tt> will no longer search the current directory.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.3.10"></a><span class="ver">5.3.10 </span><span class="date">(2010-06-11)</span></p>
-<ul>
-<li>Added .NET Framework 4.0 support:
-  <ul>
-  <li>Added constants <tt>{dotnet40}</tt>, <tt>{dotnet4032}</tt>, and <tt>{dotnet4064}</tt>. An exception will be raised if an attempt is made to expand these constants on a system with no .NET Framework version 4.0 present.</li>
-  <li>[Files] section flag <tt>gacinstall</tt> can now be used on .NET Framework 4.0 assemblies too.</li>
-  </ul>
-</li>
-<li>Windows 7 changes:
-  <ul>
-  <li>[Icons] section flag <tt>foldershortcut</tt> is now ignored when running on Windows 7 (or later), as folder shortcuts do not expand properly on the Start Menu anymore.</li>
-  </ul>
-</li>
-<li>[Setup] section directive changes:
-  <ul>
-  <li>When <tt>SignedUninstaller</tt> is set to <tt>yes</tt>, any temporary self-copies used by Setup are now digitally signed too.</li>
-  <li><tt>Uninstallable</tt> may now be set to a boolean expression, which may contain calls to check functions. For example: <tt>Uninstallable=not IsTaskSelected('portablemode')</tt>. See the <tt>Uninstallable</tt> documentation for details.</li>
-  <li><tt>AppVerName</tt> is no longer required if <tt>AppVersion</tt> is specified. It will now effectively default to: <tt>{cm:NameAndVersion,[AppName],[AppVersion]}</tt>. The Compiler IDE's New Script Wizard now also asks for an <tt>AppVersion</tt> instead of an <tt>AppVerName</tt>.</li>
-  <li>If a text <tt>VersionInfo*</tt> directive is set to an empty string (as opposed to not being specified), then the version info field is really set to an empty string now, instead of forcing a default value.</li>
-  <li><tt>VersionInfoProductTextVersion</tt> now defaults to <tt>VersionInfoProductVersion</tt> if set, else <tt>AppVersion</tt> if <tt>AppVersion</tt> is set and does not include constants, else <tt>VersionInfoTextVersion</tt>.</li>
-  </ul>
-</li>
-<li>Unicode Inno Setup: An issue with the taskbar button re-appearing on /VERYSILENT installs has been fixed.</li>
-<li>Unicode [Code] based on RemObjects Pascal Script SVN code revision 228.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.3.9"></a><span class="ver">5.3.9 </span><span class="date">(2010-04-10)</span></p>
-<ul>
-<li>For better appearance on Windows 7 and Vista when ClearType is enabled, Tahoma is the new default font used by Setup and Uninstall. A new [Setup] section directive <tt>DefaultDialogFontName</tt> has also been added to make it easy to override the default dialog font for all languages that do not have a custom <tt>DialogFontName</tt> setting. If you would like to revert to the dialog font used in previous versions of Inno Setup (Microsoft Sans Serif if available, else MS Sans Serif), set <tt>DefaultDialogFontName</tt> to an empty string (<tt>DefaultDialogFontName=</tt>).</li>
-<li>Added new [Setup] section directive: <tt>DisableWelcomePage</tt> to hide the <i>Welcome</i> wizard page. Doing so is recommended by the Aero wizard guidelines. Additionally, the <tt>ShouldSkipPage</tt> event function is now also called for <tt>wpWelcome</tt>.</li>
-<li>When Setup is not running silently, the <i>Ready To Install</i> wizard page now ignores attempts to skip it when no other wizard page before it has been shown yet.</li>
-<li>Added LZMA2 compression support:
-  <ul>
-  <li>Updated the <a href="http://www.7-zip.org/sdk.html">LZMA SDK</a> compression code to version 9.10 which adds support for LZMA2 compression. LZMA2 is a modified version of LZMA that offers a better compression ratio for uncompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio. LZMA2 compression may be activated by setting the <tt>Compression</tt> [Setup] section directive to <tt>lzma2</tt>, and <tt>lzma2</tt> is now also the default value.</li>
-  </ul>
-</li>
-<li>Added various new [Setup] section directives with names that start with <tt>LZMA</tt> to fine-tune LZMA and LZMA2 compression parameters, including <tt>LZMADictionarySize</tt> which allows the LZMA dictionary size to be increased up to 256 MB from the previous maximum of 64 MB. Review the memory requirements listed in the <tt>Compression</tt> topic before using.</li>
-<li>Tweaked the JMP/CALL instruction optimization algorithm for slightly better compression of executable files. (On Inno Setup's own installer, this saved about 2 KB.)</li>
-<li>Improved compression of x64 executable files: just like for x86 executable files, JMP/CALL instruction optimization is now performed for x64 executable files. On average, this will reduce the compressed size of x64 executable files by 2-3%.</li>
-<li>[Setup] section directive <tt>DiskSliceSize</tt> can now be set to <tt>max</tt>, and <tt>max</tt> is now also the default value.</li>
-<li>Windows 7 change: The Compiler IDE is now pinnable. Also, files that are opened via the Welcome dialog, MRU list, and drag &amp; drop now get added to the Jump List.</li>
-<li>Windows 7 and Vista changes:
-  <ul>
-  <li>Before deleting a pinned shortcut, Uninstall now automatically removes it from the current user's Start menu pinned list and on Windows 7 also from the taskbar.</li>
-  <li>Changed the icon that is shown on <i>Select Start Menu Folder</i> wizard page. Previously, it used the same icon as the preceding <i>Select Destination Location</i> page, but that was never really the intention.</li>
-  <li>When Setup and Uninstall respawn for elevation, any SUBST'ed drives in the EXE filename are now expanded before the respawn, since the elevated user will not retain the original user's SUBST mappings. Fixes error seen when starting Setup from a SUBST'ed drive.</li>
-  </ul>
-</li>
-<li>Setup now uses the SHA-1 algorithm instead of MD5 for file checksums and various internally-used hashes.</li>
-<li>Pascal Scripting: Added support functions <tt>GetSHA1OfString</tt>, <tt>GetSHA1OfUnicodeString</tt>, and <tt>GetSHA1OfFile</tt>.</li>
-<li>QuickStart Pack: Added ISPP functions <tt>GetSHA1OfString</tt>, <tt>GetSHA1OfUnicodeString</tt>, and <tt>GetSHA1OfFile</tt>.</li>
-<li>[Icons] section parameter <tt>AppUserModelID</tt> is now also used on Windows Server 2008 R2.</li>
-<li>In Setup's version info text fields, "(C)" is now automatically replaced with real copyright symbols ("&copy;").</li>
-<li>Unicode Inno Setup: Added workaround for upstream Delphi bug that could cause Setup (versions 5.3.6 to 5.3.8) to display a "Stream read error" error message at startup on Windows 2000 systems that did not have Service Pack 4 installed.</li>
-<li>Compiler IDE change: the <i>Tools | Configure Sign Tools...</i> dialog now allows editing of existing Sign Tools.</li>
-<li>The uninstall program's version is now 51.(10)52.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.3.8"></a><span class="ver">5.3.8 </span><span class="date">(2010-02-18)</span></p>
-<ul>
-<li>Added new [Setup] section directive: <tt>UsePreviousLanguage</tt>. When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the same application is already installed, and if so, it will use the language of the previous installation as the default language selected in the list of available languages on the <i>Select Language</i> dialog. Note that this directive does not change the language used by the <i>Select Language</i> dialog itself because it cannot assume that the current user understands the same languages as the previous user. <tt>UsePreviousLanguage</tt> must be set to <tt>no</tt> when <tt>AppId</tt> includes constants.</li>
-<li>On Windows Vista and newer, Uninstall no longer blocks system shutdown until the uninstallation has actually started. This should make the Windows 7 Logo Kit (which wrongly tests any .exe in the application directory including the uninstaller) happy when it tries to shutdown an Uninstall sitting on its confirmation prompt.</li>
-<li>On Windows NT and newer, <tt>PrivilegesRequired=lowest</tt> now has an additional effect: the uninstall info root key will always be HKEY_CURRENT_USER, and the "common" forms of the Shell Folder constants are always mapped to the "user" forms, even if administrative privileges are available.</li>
-<li>[Setup] section directive <tt>CreateUninstallRegKey</tt> may now be set to a boolean expression, which may contain calls to check functions. For example: <tt>CreateUninstallRegKey=not IsTaskSelected('portablemode')</tt>. See the <tt>CreateUninstallRegKey</tt> documentation for details.</li>
-<li>The <i>Preparing to Install</i> wizard page now offers the user an option to directly reboot instead of just saying a reboot is needed. To trigger this option from a <tt>PrepareToInstall</tt> event function set its new <tt>NeedsRestart</tt> parameter to True.</li>
-<li>In the <tt>MinVersion</tt> and <tt>OnlyBelowVersion</tt> directives and parameters, <tt>.x</tt> is now treated the same as <tt>.0x</tt> when a major version of 5 or higher is specified. Thus, you now have the option of using either <tt>5.01</tt> or <tt>5.1</tt> to specify Windows XP. However, to maintain compatibility with existing scripts, <tt>4.x</tt> will still be interpreted as <tt>4.x0</tt>.</li>
-<li>Pascal Scripting: Added new <tt>PageIndexFromID</tt> support function.</li>
-<li>The online documentation available at <a href="http://www.jrsoftware.org/ishelp/">http://www.jrsoftware.org/ishelp/</a> now has an index and is searchable.</li>
-<li>QuickStart Pack changes:
-  <ul>
-  <li>Added ISPP function <tt>StringChange</tt>.</li>
-  <li>The ISPP documentation is now available online at <a href="http://www.jrsoftware.org/ispphelp/">http://www.jrsoftware.org/ispphelp/</a>.</li>
-  </ul>
-</li>
-<li>The uninstall program's version is now 51.(10)51.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.3.7"></a><span class="ver">5.3.7 </span><span class="date">(2010-01-06)</span></p>
-<ul>
-<li>The <tt>PrivilegesRequired</tt> [Setup] section directive can now be set to <tt>lowest</tt>. On Windows Vista and later this instructs Setup to not request elevated rights (via a User Account Control dialog) even if it was started by a member of the Administrators group. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts. If you were using <tt>PrivilegesRequired=none</tt> before, it is recommended to switch to <tt>PrivilegesRequired=lowest</tt>.</li>
-<li>Added new Compiler IDE option: <i>Autosave before compiling</i>.</li>
-<li>[Tasks] section flags <tt>checkedonce</tt> and <tt>unchecked</tt> may now be combined. This combination specifies the task to be unchecked by default on the first install, and always unchecked by default on subsequent installs as well.</li>
-<li>A problem with "Not Implemented" errors when Setup or Uninstall was run on Windows 7 under special conditions such as from a non-interactive service was fixed.</li>
-<li>Changed the <i>CodePrepareToInstall.iss</i> example script to use the RunOnce registry key instead of a shortcut placed in <tt>{commonstartup}</tt>.</li>
-<li>Pascal Scripting: the Non Unicode compiler now has a <tt>PAnsiChar</tt> type just like the Unicode compiler.</li>
-<li>Added official Japanese translation.</li>
-<li>Unicode [Code] based on RemObjects Pascal Script SVN code revision 197.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.3.6"></a><span class="ver">5.3.6 </span><span class="date">(2009-11-14)</span></p>
-<ul>
-<li>Windows 7 change:
-  <ul>
-  <li>Added new [Setup] section directive: <tt>UninstallDisplaySize</tt>. On Windows 7 and newer, Setup uses this directive to set the <tt>EstimatedSize</tt> value in the Uninstall registry key when possible since the Windows 7 <i>Add/Remove Programs</i> Control Panel (called <i>Program and Features</i>) no longer automatically calculates it. If an <tt>UninstallDisplaySize</tt> is not set, Setup estimates the size itself by taking the size of all files installed and adding any <tt>ExtraDiskSpaceRequired</tt> values set. Note: Windows 7 only supports the display of values smaller than 4 GB.</li>
-  </ul>
-</li>
-<li>Pascal Scripting now supports <tt>IUnknown</tt> based COM. Previously it only supported <tt>IDispatch</tt> based COM but a growing number of Windows API functions are COM based without implementing the <tt>IDispatch</tt> interface, and you can now use these as well. See the new <i>CodeAutomation2.iss</i> example script for an example. Note: this is only supported by Unicode Inno Setup at the moment, because of Delphi 2's limitations (Delphi 2 is used to compile Non Unicode Inno Setup):
-  <ul>
-  <li>Added <tt>StringToGUID</tt>, <tt>CreateComObject</tt>, and <tt>OleCheck</tt> support functions.</li>
-  <li>Added <tt>HResult</tt>, <tt>TGUID</tt>, <tt>TCLSID</tt>, and <tt>TIID</tt> support types.</li>
-  </ul>
-</li>
-<li>The compiler no longer allows a single <tt>LanguageCodePage</tt> directive to be applied to multiple languages at once. If you were using this to force Non Unicode Setup to allow the user to select any language regardless of the system code page, set [Setup] section directive <tt>ShowUndisplayableLanguages</tt> to <tt>yes</tt> instead.</li>
-<li>Added new <i>CodePrepareToInstall.iss</i> example script.</li>
-<li><i>Fix:</i> Unicode Pascal scripting: passing a very long string to <tt>Format</tt> caused an error.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.3.5"></a><span class="ver">5.3.5 </span><span class="date">(2009-09-23)</span></p>
-<ul>
-<li>Windows 7 changes:
-  <ul>
-  <li>Setup, Uninstall and custom <tt>TOutputProgressWizardPage</tt> pages now make use of the new Windows 7 taskbar functionality to display progress, pause and error indicators on their taskbar buttons.</li>
-  <li>Added new [Icons] section parameter: <tt>AppUserModelID</tt>. Specifies the Windows 7 Application User Model ID for the shortcut. Ignored on earlier Windows versions and on server versions. This parameter can include constants.</li>
-  </ul>
-</li>
-<li>Windows 7 and Vista changes:
-  <ul>
-  <li>Setup, Uninstall and custom <tt>TOutputProgressWizardPage</tt> pages now display pause and error indicators on their progress bars.</li>
-  <li>Setup and Uninstall now call the Windows API function <tt>ShutdownBlockReasonCreate</tt> to set the shutdown block reason string to be displayed to the user if system shutdown is initiated. Note: this change is purely cosmetic, the fact that Setup and Uninstall block system shutdown is not new.</li>
-  </ul>
-</li>
-<li>Pascal Scripting changes:
-  <ul>
-  <li>TWinControl: Added new <tt>ParentBackground</tt> property. By setting this to False, you can ensure the background of a TPanel will always display the color assigned to its <tt>Color</tt> property, instead of it becoming transparent under certain conditions. See the <i>CodeClasses.iss</i> example script for an example.</li>
-  </ul>
-</li>
-<li>The Unicode compiler now behaves identical to the Non Unicode compiler if a language uses more than one .isl file (it no longer requires the <tt>LanguageCodePage</tt> to be set in each file), or if a languages <tt>LanguageCodePage</tt> is overwritten from the .iss file (it no longer ignores this), or if any language specific plain text ANSI <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> is used (it now converts these to Unicode using the languages <tt>LanguageCodePage</tt> at compile-time, instead of using the system codepage at run-time).</li>
-<li><i>Fix:</i> Pascal scripting: passing a Unicode string to some built-in functions like <tt>Copy</tt> caused the string to be converted to ANSI.</li>
-<li>The uninstall program's version is now 51.(10)50.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.3.4"></a><span class="ver">5.3.4 </span><span class="date">(2009-08-15)</span></p>
-<ul>
-<li>On Windows 7 the Compiler IDE now makes use of the new Windows 7 taskbar functionality to display progress, pause and error indicators on its taskbar button.</li>
-<li>Pascal Scripting: Documented function <tt>IDispatchInvoke</tt>, which can be used to access a COM Automation property or method whose name is a reserved word.</li>
-<li><i>Fix:</i> Unicode [Registry] section entries with <tt>ValueType</tt> set to <tt>binary</tt> did not set the correct value.</li>
-<li><i>Fix:</i> Pascal scripting: setting a COM Automation property or method parameter to a Unicode string variable caused an 'Invalid Type' error.</li>
-</ul>
-
-<p><a name="5.3.3"></a><span class="ver">5.3.3 </span><span class="date">(2009-08-01)</span></p>
-<ul>
-<li>[Setup] section directives <tt>VersionInfoProductVersion</tt> now sets the binary product version value instead of the textual product version value.</li>
-<li>Added new [Setup] section directive: <tt>VersionInfoProductTextVersion</tt>, which sets the textual product version value. Its default value is <tt>VersionInfoProductVersion</tt> if set, else <tt>VersionInfoVersion</tt>.</li>
-<li>[Setup] section directives <tt>DisableDirPage</tt> and <tt>DisableProgramGroupPage</tt> can now be set to <tt>auto</tt>. If they are, at startup Setup will look in the registry to see if the same application is already installed, and if so, it will hide the pages automatically.</li>
-<li>Pascal Scripting changes:
-  <ul>
-  <li><tt>WizardForm.PrevAppDir</tt> is now available and returns the directory of the previous installation. Returns an empty string if there's no previous installation or if  <tt>UsePreviousAppDir</tt> is set to <tt>no</tt> or if <tt>Uninstallable</tt> was previously set to <tt>no</tt>.</li>
-  <li>While running any <tt>PrepareToInstall</tt> event function Setup now displays the <i>Preparing to Install</i> wizard page instead of the <i>Ready to Install</i> page and disables itself.</li>
-  </ul>
-</li>
-<li>Added the Windows 7 "compatibility" section to the various manifest resources used by Inno Setup.</li>
-<li>Documentation improvements.</li>
-</ul>
-
-<p><a name="5.3.2"></a><span class="ver">5.3.2-beta </span><span class="date">(2009-05-29)</span></p>
-<ul>
-<li>Replaced constant <tt>{regasmexe}</tt> with <tt>{dotnet11}</tt> and <tt>{dotnet20}</tt>.</li>
-<li>Pascal Scripting: Added new <tt>PrepareToInstall</tt> event function. Return a non empty string from this function to instruct Setup to stop at the <i>Preparing to Install</i> wizard page showing the returned string as the error message.</li>
-<li>Minor fixes and tweaks.</li>
-</ul>
-
-<p><a name="5.3.1"></a><span class="ver">5.3.1-beta </span><span class="date">(2009-05-15)</span></p>
-<ul>
-<li>[Setup] directive <tt>AppMutex</tt> and support function <tt>CheckForMutexes</tt> change: to specify a mutex name containing a comma you can now escape the comma with a backslash.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.3.0"></a><span class="ver">5.3.0-beta </span><span class="date">(2009-04-22)</span></p>
-<ul>
-<li>Added .NET support (these cause an internal error if used on a system with no .NET Framework present):
-  <ul>
-  <li>Added new [Files] section flag: <tt>gacinstall</tt>.</li>
-  <li>Added new [Files] section parameter: <tt>StrongAssemblyName</tt>.</li>
-  <li>Added new constants: <tt>{regasmexe}</tt>, <tt>{regasmexe32}</tt>, <tt>{regasmexe64}</tt>.</li>
-  </ul>
-</li>
-<li><tt>MinVersion</tt> parameter/directive change: if you leave one of the versions empty then it will use the default <tt>MinVersion</tt> for that platform.</li>
-<li>Pascal Scripting: Added new <tt>MinimizePathName</tt> support function.</li>
-<li>Added Unicode support: there's now a second version of Inno Setup available called Unicode Inno Setup. Key features of this version are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames. Notes:
-  <ul>
-  <li>Unicode Inno Setup uses the existing ANSI .isl language files and you should not and may not convert these to Unicode or anything similar since it does so automatically during compilation using the <tt>LanguageCodePage</tt> setting listed inside the language's .isl file. However, you do need to convert existing [Messages] and [CustomMessages] entries in your .iss files to Unicode if the language used a special <tt>LanguageCodePage</tt>.</li>
-  <li>The [Setup] directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li>
-  <li>Unicode Inno Setup is compiled with Delphi 2009 instead of Delphi 2 and 3, leading to slightly larger files. The source code however is still compatible with Delphi 2 and 3, and a non Unicode version will remain available.</li>
-  <li>Unicode Inno Setup and installers created by it require Windows 2000/XP or newer. The non Unicode version still works on NT/9x.</li>
-  <li>Existing installations of your programs done by non Unicode installers can be freely updated by Unicode installers, and vice versa.</li>
-  <li>Unicode Pascal Scripting notes:
-    <ul>
-    <li>The Unicode compiler sees type 'String' as a Unicode string, and 'Char' as a Unicode character. Its 'AnsiString' type hasn't changed and still is an ANSI string. Its 'PChar' type has been renamed to 'PAnsiChar'.</li>
-    <li>The Unicode compiler is more strict about correct ';' usage: it no longer accepts certain missing ';' characters.</li>
-    <li>The new RemObjects PascalScript version used by the Unicode compiler supports Unicode, but not for its input source. This means it does use Unicode string types as said, but any literal Unicode characters in the script will be converted to ANSI. This doesn't mean you can't display Unicode strings: you can for example instead use encoded Unicode characters to build Unicode strings (like <tt>S := #$0100 + #$0101 + 'Aa';</tt>), or load the string from a file using <tt>LoadStringsFromFile</tt>.</li>
-    <li>Some support functions had their prototype changed: some parameters of <tt>CreateOutputMsgMemoPage</tt>, <tt>RegQueryBinaryValue</tt>, <tt>RegWriteBinaryValue</tt>, <tt>OemToCharBuff</tt>, <tt>CharToOemBuff</tt>, <tt>LoadStringFromfile</tt>, <tt>SaveStringToFile</tt>, and <tt>GetMD5OfString</tt> are of type AnsiString now instead of String.</li>
-    <li>Added new <tt>SaveStringsToUTF8File</tt>, and <tt>GetMD5OfUnicodeString</tt> support functions.</li>
-    <li>If you want to compile an existing script that imports ANSI Windows API calls with the Unicode compiler, either upgrade to the 'W' Unicode API call or change the parameters from 'String' or 'PChar' to 'AnsiString'. The 'AnsiString' approach will make your [Code] compatible with both the Unicode and the non Unicode version.</li>
-    </ul>
   </li>
-  <li>Unicode Inno Setup supports UTF-8 encoded .iss files (but not UTF-16).</li>
-  <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>.</li>
-  <li>QuickStart Pack: added ISPP predefined variable <tt>UNICODE</tt>.</li>
-  </ul>
-</li>
-<li>Thanks to Carlo Kok and Evgeny Karpov of RemObjects Software for their help related to Unicode support.</li>
-<li>QuickStart Pack: added ISPP functions <tt>Trim</tt>, and <tt>GetMD5OfUnicodeString</tt>.</li>
+  <li>Minor cosmetic fixes.</li>
 </ul>
 
-<hr />
-
-<p><a name="5.2.4"></a><span class="ver">5.2.4 </span><span class="date">(2009-03-16)</span></p>
+<p><a name="6.0.1"></a><span class="ver">6.0.1-beta </span><span class="date">(2019-03-07)</span></p>
 <ul>
-<li>Added new [Registry] section <tt>ValueType</tt>: <tt>qword</tt>.</li>
-<li>Added new [Setup] section directive: <tt>SignTool</tt>, which makes it possible to further automate digital signing of Setup and Uninstall. See the help file for more information.</li>
-<li>The value of the <tt>AppVersion</tt> directive is now also used to set the <tt>MajorVersion</tt> and <tt>MinorVersion</tt> values in the Uninstall registry key when possible.</li>
-<li>/LOG: Now logs exit codes on [UninstallRun] entries.</li>
-<li>Compiler IDE changes:
+  <li><i>Fix:</i> In 6.0.0 it was no longer possible to use [Setup] section directive <tt>InfoAfterFile</tt>.</li>
+  <li>Pascal Scripting changes:
   <ul>
-  <li>Added new <i>Tools | Configure Sign Tools...</i> command.</li>
+    <li><i>Fix:</i> Added <tt>Anchors</tt> properties to all controls created by the <tt>Create...Page</tt> support functions to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt>.</li>
+    <li>Updated the <i>AllPagesExample.iss</i> example script with examples of all <tt>Create...Page</tt> support functions.</li>
+    <li>The multi-line edit control created by the <tt>CreateOutputMsgMemoPage</tt> support function now has a more modern look.</li>
   </ul>
-</li>
-<li>Command line compiler changes:
-  <ul>
-  <li>Added new "/S" parameter to specify a Sign Tool.</li>
-  </ul>
-</li>
-<li>Added new [Files] section flag: <tt>sortfilesbyname</tt>.</li>
-</ul>
-
-<p><a name="5.2.3"></a><span class="ver">5.2.3 </span><span class="date">(2008-03-10)</span></p>
-<ul>
-<li>Improved support for right-to-left languages (Arabic and Hebrew):<br />Added new [LangOptions] section directive: <tt>RightToLeft</tt>. If set to <tt>yes</tt>, text alignment and reading order will be reversed (with some intentional exceptions), and controls will be arranged from right to left ("flipped").</li>
-<li>Added new [Setup] section directives: <tt>VersionInfoProductName</tt> and <tt>VersionInfoProductVersion</tt>.</li>
-<li>Changed the fixed Language field in Setup's version info from "English (United States)" to "Language Neutral".</li>
-<li>Uninstall now supports custom message constants (<tt>{cm:...}</tt>) like Setup.</li>
-<li>Right-to-left-related Pascal Scripting changes:
-  <ul>
-  <li>The control flipping that is performed when <tt>RightToLeft=yes</tt> is mostly transparent, normally requiring no changes to existing code. Controls created on custom wizard pages will be flipped automatically after the <tt>InitializeWizard</tt> event function returns, and controls created on custom forms will, by default, be flipped the first time the form is shown.</li>
-  <li>Changes to TSetupForm (the class used for custom forms):
-    <ul>
-    <li>Added <tt>RightToLeft</tt> Boolean property (read-only): True if right-to-left text alignment and reading order is enabled on the form. The <tt>RightToLeft</tt> [LangOptions] directive determines the value of this property.</li>
-    <li>Added <tt>FlipControlsOnShow</tt> Boolean property: If True (the default setting if <tt>RightToLeft</tt> is True), controls on the form will be flipped the next time the form is shown. After the form has been shown, the property is reset to <tt>False</tt> automatically.</li>
-    <li>Added <tt>ControlsFlipped</tt> Boolean property (read-only): True if the controls have been flipped.</li>
-    <li>Added <tt>FlipControlsIfNeeded</tt> method. This flips the controls immediately if <tt>FlipControlsOnShow</tt> is True, then resets <tt>FlipControlsOnShow</tt> to False.</li>
-    </ul>
   </li>
-  <li>Added new classes: TNewEdit, TNewMemo, TNewComboBox, TNewButton, TNewCheckBox, TNewRadioButton, and TNewListBox. On these classes, right-to-left text alignment and reading order is used when the parent TSetupForm's <tt>RightToLeft</tt> property is True.</li>
-  <li>TNewStaticText: Added <tt>ForceLTRReading</tt> property. If set to True, the text will always be rendered with left-to-right reading order, overriding the parent form's <tt>RightToLeft</tt> setting.</li>
-  </ul>
-</li>
-<li>Other Pascal Scripting changes:
+  <li>Added official German translation.</li>
+  <li>Demoted the official <a href="https://raw.github.com/jrsoftware/issrc/master/Files/Languages/Unofficial/Greek.isl">Greek</a>, <a href="https://raw.github.com/jrsoftware/issrc/master/Files/Languages/Unofficial/Hungarian.isl">Hungarian</a>, and <a href="https://raw.github.com/jrsoftware/issrc/master/Files/Languages/Unofficial/ScottishGaelic.isl">Scottish Gealic</a> translations to unofficial because of a no longer available maintainer. To send updates yourself, see <a href="http://news.jrsoftware.org/read/article.php?id=2514&amp;group=jrsoftware.innosetup.translations#2514">this post</a> for what needs updating and use <a href="http://www.jrsoftware.org/files/istrans/send2.php">this form</a> to send updates (or use <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>). See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.</li>
+  <li>Other documentation improvements.</li>
+</ul>
+
+<p><a name="6.0.0"></a><span class="ver">6.0.0-beta </span><span class="date">(2019-02-11)</span></p>
+<p>Inno Setup 6 introduces a large number of changes:</p>
+<p><span class="head2">Administrative vs. non administrative install mode</span></p>
+<p>A number of changes have been made to the administrative vs. non administrative install mode functionality:</p>
+<ul>
+  <li>Added new &quot;auto&quot; constants which automatically map to their &quot;common&quot; form unless the installation is running in non administrative install mode, in which case they map to their &quot;user&quot; form. It is recommended to update your scripts to use these "auto" constants as much as possible to avoid mistakes. The list of added &quot;auto&quot; constants is: <tt>{autoappdata}</tt>, <tt>{autocf}</tt>, <tt>{autocf32}</tt>, <tt>{autocf64}</tt>, <tt>{autodesktop}</tt>, <tt>{autodocs}</tt>, <tt>{autopf}</tt>, <tt>{autopf32}</tt>, <tt>{autopf64}</tt>, <tt>{autoprograms}</tt>, <tt>{autostartmenu}</tt><tt>, {autostartup}</tt>, and <tt>{autotemplates}</tt>.</li>
+  <li>Updated all examples and the Compiler IDE's New Script Wizard to use <tt>{autopf}</tt> instead of <tt>{pf}</tt>, etc.</li>
+  <li><b>Change in default behavior:</b> The &quot;common&quot; shell folder constants are no longer mapped to their "user" form if the installation is running in non administrative install mode. Instead they simply return the requested common directory. The list of affected &quot;common&quot; constants is: <tt>{commonappdata}</tt>, <tt>{commondesktop}</tt>, <tt>{commondocs}</tt>, <tt>{commonprograms}</tt>, <tt>{commonstartmenu}</tt><tt>, {commonstartup}</tt>, and <tt>{commontemplates}</tt>.</li>
+  <li>The <tt>{pf}</tt> and <tt>{cf}</tt> constants have been renamed to <tt>{commonpf}</tt> and <tt>{commoncf}</tt>. This includes <tt>{pf32}</tt> to <tt>{commonpf32}</tt>, etc. The old names are still supported, but it is recommended to update your scripts to the new names and the compiler will issue a warning if you don't.</tt>
+  <li>The <tt>{commonfavorites}</tt> constant has been removed: this directory doesn't exist anymore in Windows.</li>
+  <li>The <tt>{userpf}</tt>, <tt>{usercf}</tt>, and <tt>{username}</tt> constants and the <tt>AlwaysUsePersonalGroup</tt> [Setup] section directive can now correctly trigger a <a href="http://www.jrsoftware.org/files/is5-whatsnew.htm#useduserareaswarnings">used user areas warning</a>.</li>
+  <li>Pascal Scripting change: Removed the <tt>GetShellFolder</tt> support function. As the help file already recommended, use <tt>ExpandConstant</tt> instead.</li>
+</ul>
+<ul>
+  <li>Added new [Registry] section <tt>Root</tt> value <tt>HKA</tt>. Equals <tt>HKLM</tt> in administrative install mode, and <tt>HKCU</tt> otherwise. Also supported by <tt>{reg:...}</tt> constants and <tt>HKA32</tt>/<tt>HKA64</tt> are also supported. Note: <tt>HKA</tt> (like <tt>HKCU</tt>) should only be used for settings which are compatible with roaming profiles.</li>
+  <li>Using [Registry] section <tt>Root</tt> value <tt>HKCR</tt> is no longer recommended, use <tt>HKA</tt> with the <tt>Subkey</tt> parameter set to &quot;Software\Classes&quot; instead.</li>
+  <li>Pascal Scripting change: Added <tt>HKA</tt> and <tt>HKEY_AUTO</tt> constants. <tt>HKA32</tt>, <tt>HKA64</tt>, <tt>HKEY_AUTO_32</tt>, and <tt>HKEY_AUTO_64</tt> are also supported.</li>
+</ul>
+<ul>
+  <li>The Compiler IDE's New Script Wizard now offers an option to select administrative or non administrative install mode and outputs scripts which work in both modes.</li>
+  <li>Pascal Scripting change: Added new <tt>IsAdminInstallMode</tt> support function.</li>
+  <li>Added a <a href="http://www.jrsoftware.org/ishelp/index.php?topic=admininstallmode">Non Administrative Install Mode</a> topic to the help file.</li>
+</ul>
+<p><span class="head2">Overridable install mode</span></p>
+<p>Once your script is fully updated to support both administrative and non administrative install mode (for example by using the new &quot;auto&quot; constants and the new [Registry] section <tt>Root</tt> value <tt>HKA</tt>) you can then use the following:</p>
+<ul>
+  <li>Added new [Setup] section directive: <tt>PrivilegesRequiredOverridesAllowed</tt>, which can be set to one or more overrides which allow the end user to override the script's default <tt>PrivilegesRequired</tt> setting. The following overrides are supported: <tt>commandline</tt> and <tt>dialog</tt>.</li>
   <ul>
-  <li>TNewStaticText: Added <tt>AdjustHeight</tt> method. This adjusts the value of the <tt>Height</tt> property to fit the text. Only useful when <tt>AutoSize</tt> is set to False.</li>
-  <li>Added new object <tt>UninstallProgressForm</tt> of class <tt>TUninstallProgressForm</tt>. Also added new event function <tt>InitializeUninstallProgressForm</tt>, which is called after the Uninstall progress form has been created and before it is shown. See the help file and the <i>CodeClasses.iss</i> example script for more information.</li>
+    <li>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <tt>PrivilegesRequired</tt> setting: /ALLUSERS and /CURRENTUSER.</li>
+    <li>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <tt>PrivilegesRequired</tt> setting using a suppressible dialog (<a href="https://i.imgur.com/up287vq.png">example</a> if <tt>PrivilegesRequired</tt> is set to <tt>admin</tt>). Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</li>
   </ul>
-</li>
-<li>Added workaround for bug in Windows Vista (still present in SP1): With UAC turned off, launching an uninstaller from the <i>Programs and Features</i> Control Panel applet and answering No at the confirmation message box would cause a "This program might not have uninstalled correctly" dialog to be displayed, even though the uninstaller includes a proper "Vista-aware" manifest.</li>
-<li>Compiler IDE changes:
+  <li>Added new [Setup] section directive: <tt>UsePreviousPrivileges</tt>. If this directive is set to <tt>yes</tt> (which it is by default) and <tt>PrivilegesRequiredOverridesAllowed</tt> is set to <tt>dialog</tt>, at startup Setup will look in the registry to see if the <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sameappnotes">same application</a> is already installed in one of the two install modes, and if so, it will use that install mode and not ask the user.</li>
+</ul>
+<ul>
+  <li>The Compiler IDE's New Script Wizard now offers options to allow the <tt>commandline</tt> and <tt>dialog</tt> overrides.</li>
+  <li>Inno Setup's own installer script now supports both administrative and non administrative install mode and allows the <tt>dialog</tt> override.</li>
+</ul>
+<p><span class="head2">Side-by-side installations</span></p>
+<p>Support for <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sidebyside">side-by-side</a> installations has been improved:</p>
+<ul>
+  <li>Two separate installation runs that do not share the same administrative or non administrative install mode no longer count as the <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sameappnotes">same application</a>. This means you can now install these modes <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sidebyside">side-by-side</a> even if the installers share the same <tt>AppId</tt> setting (or if <tt>AppId</tt> is not set, the same <tt>AppName</tt> setting) without the odd side effects you would get in previous versions.</li>
+  <li><b>Change in default behavior:</b> To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will now automatically mark the new entry with a text like &quot;Current user&quot; or &quot;64-bit&quot; when necessary during a <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sidebyside">side-by-side</a> installation.</a>
+  <li>Added a <a href="http://www.jrsoftware.org/ishelp/index.php?topic=sidebyside">Side-by-side installation</a> topic to the help file.</li>
+</ul>
+<p><span class="head2">Resizable wizard window</span></p>
+<p>The wizard window is now optionally resizable:</p>
+<ul>
+  <li>Added new [Setup] section directive: <tt>WizardResizable</tt>. If this directive is set to <tt>yes</tt>, the user will be able to resize the main Setup wizard window.</li>
+  <li>Added new [Setup] section directive: <tt>WizardSizePercent</tt>, which can be used to increase the default size of all Setup and Uninstall wizard windows without increasing the font size.</li>
+  <li>Pascal Scripting changes:
   <ul>
-  <li>The New Script Wizard now generates random unique <tt>AppId</tt> [Setup] section directives.</li>
-  <li>Added new <i>Tools | Generate GUID</i> command.</li>
+    <li>Added new <tt>Anchors</tt> property to all controls and new <tt>KeepSizeY</tt> property to <tt>TSetupForm</tt> which allows you to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls, custom wizard pages and <tt>TSetupForm</tt> forms if you have any. See the <i>CodeClasses.iss</i> example script for an example. This example also shows other changes done to <tt>TSetupForm</tt>.</li>
+    <li>Added new <tt>Constraints</tt> property to the <tt>TForm</tt> support class.</li>
   </ul>
-</li>
-<li>QuickStart Pack: added ISPP functions <tt>GetMD5OfFile</tt>, <tt>GetMD5OfString</tt> and <tt>GetFileDateTimeString</tt>.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.2.2"></a><span class="ver">5.2.2 </span><span class="date">(2007-10-22)</span></p>
-<ul>
-<li>The Setup loader now extracts the Setup program executable file with a ".tmp" extension. Versions 5.2.0 and 5.2.1 used a ".exe.tmp" extension, which reportedly, in some cases, caused an "Unable to execute file in temporary directory" error message on systems with a certain antivirus program installed. We were unable to reproduce the error in our own tests, however; it is suspected that this may have only impacted users with custom filename blocking rules defined in their antivirus configuration.</li>
-<li>Pascal Scripting: Added new <tt>GetSaveFileName</tt> support function.</li>
-<li><i>Fix:</i> The compiler could fail with an "Out of memory" error on script files containing more than ~100,000 lines, due to a heap fragmentation issue.</li>
-</ul>
-
-<p><a name="5.2.1"></a><span class="ver">5.2.1 </span><span class="date">(2007-10-13)</span></p>
-<ul>
-<li>Added new [Setup] section directive: <tt>SignedUninstaller</tt>, which makes it possible to attach a digital signature to the uninstaller program (unins???.exe). When the uninstaller has a valid digital signature, Windows Vista users will not see an "unidentified program" warning when launching it from outside of Control Panel.</li>
-<li>Added new [Setup] section directive: <tt>SignedUninstallerDir</tt>.</li>
-<li><tt>Check</tt> functions associated with [Tasks] entries are now called when the <i>Select Tasks</i> wizard page is entered. Previously, they were called prior to the wizard being shown, which meant they couldn't depend on the user's selections in preceding wizard pages. (There are plans to make the same change to [Components] in the future.)</li>
-<li>Brought back the pre-5.1.13 duplicate [Components]/[Tasks] entry semantics. For example, in the following case:
-<blockquote><tt>
-[Tasks]<br />
-Name: foo; Description: "foo #1"; Components: bar<br />
-Name: foo; Description: "foo #2"; Components: not bar<br />
-Name: foo\child; Description: "foo\child"
-</tt></blockquote>
-"foo\child" will now, once again, be shown regardless of which "foo" is conditionally created.
-</li>
-<li>Pascal Scripting: "files:" function imports may now include multiple filenames. "files:A.dll,B.dll" will cause both A.dll and B.dll to be extracted before A.dll is loaded.</li>
-<li>On Windows Vista, Setup no longer alters the uninstaller program's manifest resource to request elevation, because this would invalidate a digital signature. Instead, the uninstaller now respawns itself when elevation is required, much like Setup does beginning with version 5.2.0.</li>
-<li>The uninstall program's version is now 51.49.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.2.0"></a><span class="ver">5.2.0 </span><span class="date">(2007-09-19)</span></p>
-<ul>
-<li>On Windows Vista, [Run] section entries with the <tt>postinstall</tt> flag no longer inherit Setup's elevated privileges by default, and instead now execute with the (normally non-elevated) credentials of the user that started Setup initially. (There are some exceptions; see the <tt>runasoriginaluser</tt> flag documentation for details.)</li>
-<li>Added new [Run] section flags: <tt>runascurrentuser</tt> and <tt>runasoriginaluser</tt>. These control which user credentials are used on Windows Vista when spawning processes. (<tt>runasoriginaluser</tt> is the default when the <tt>postinstall</tt> flag is used; <tt>runascurrentuser</tt> is the default otherwise.)</li>
-<li>Improved compression of x86 executable files. (This reduced the size of Inno Setup's own installer by approximately 10 KB.)</li>
-<li>Added new [Files] section parameter: <tt>ExternalSize</tt>.</li>
-<li>Added new constant: <tt>{log}</tt>. Translates to the log file name, or an empty string if logging is not enabled.</li>
-<li>Added new [Files] and [Dirs] sections flags: <tt>setntfscompression</tt> and <tt>unsetntfscompression</tt>. These flags instruct Setup to enable or disable NTFS compression on the file or directory.</li>
-<li>Pascal Scripting:
-  <ul>
-  <li>Added new <tt>ExecAsOriginalUser</tt>, <tt>ShellExecAsOriginalUser</tt>, and <tt>SetNTFSCompression</tt> support functions.</li>
-  <li>Now supports new DLL loading flag <tt>loadwithalteredsearchpath</tt> to load DLLs with the Windows flag LOAD_WITH_ALTERED_SEARCH_PATH.</li>
-  </ul>
-</li>
-<li>The Setup loader now uses the original Setup EXE filename + .tmp as the filename for the extracted Setup executable instead of a name comprised of random letters and numbers, which may have seemed suspicious to firewall users.</li>
-<li>In a multilingual installation, Setup now waits until after the <i>Select Language</i> dialog is shown to display any error messages concerning the user's Windows version or privilege level.</li>
-<li>QuickStart Pack: added ISPP function <tt>GetDateTimeString</tt>.</li>
-<li><i>Fix:</i> On Windows Vista, AutoPlay wasn't being suppressed when the user swapped out discs in a disk-spanned install.</li>
-<li><i>Fix:</i> When the <tt>waituntilidle</tt> flag was used in the [UninstallRun] section, it behaved like <tt>waituntilterminated</tt>.</li>
-<li>Based on RemObjects Pascal Script SVN code revision 1045a.</li>
-<li>The uninstall program's version is now 51.48.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<hr />
-
-<p><a name="5.1.14"></a><span class="ver">5.1.14 </span><span class="date">(2007-08-07)</span></p>
-<ul>
-<li>Updated the <a href="http://www.7-zip.org/sdk.html">LZMA SDK</a> compression code to version 4.49. This version adds support for multi-threading, which can speed up the compression process by 50% or more on systems with multiple processor cores, and 20% or more on systems with single-core Intel processors featuring Hyper-Threading Technology.</li>
-<li>Added new <tt>CompressionThreads</tt> [Setup] section directive.</li>
-<li><i>Fix:</i> When cleaning the output directory, the compiler would not only delete files matching <tt><i>OutputBaseFilename</i></tt>-*.bin, but files matching <tt><i>OutputBaseFilename</i></tt>-*-*.bin as well.</li>
-</ul>
-
-<p><a name="5.1.13"></a><span class="ver">5.1.13 </span><span class="date">(2007-07-22)</span></p>
-<ul>
-<li>Added new <tt>lzma/ultra64</tt> compression level. Same as <tt>lzma/ultra</tt>, but uses a dictionary size that is twice as large (64 MB).</li>
-<li>Added new <tt>SetupLogging</tt> [Setup] section directive. If set to <tt>yes</tt>, Setup will always create a log file (equivalent to passing /LOG on the command line).</li>
-<li>Added new <tt>AppSupportPhone</tt> [Setup] section directive.</li>
-<li>Added new [Files] section flag: <tt>solidbreak</tt>.</li>
-<li>Added new [Run] and [UninstallRun] sections parameter: <tt>Verb</tt>. When used with the <tt>shellexec</tt> flag, specifies the action to be performed on the file.</li>
-<li>When the <tt>shellexec</tt> flag is used in the [Run] and [UninstallRun] sections, it now uses the default verb for the file type instead of hardcoding "open". (If necessary, you can override this by adding a <tt>Verb</tt> parameter.)</li>
-<li>Setup now supports a /TYPE parameter to override the default setup type.</li>
-<li>Components/tasks-related changes:
-  <ul>
-  <li>/COMPONENTS &amp; /TASKS: When a parent component/task is specified, it no longer automatically checks every child component/task. To achieve the old behavior, prefix the name of the parent component/task with a "*" character, or list each child component/task individually.</li>
-  <li>/COMPONENTS: It is now possible to force a child component to be deselected by including its name in the list with a "!" prefix. (/TASKS already supports this.)</li>
-  <li>/COMPONENTS is now ignored if no custom type is defined.</li>
-  <li>/SAVEINF now writes the selected setup type in the INF file. Previously, using /LOADINF would always select a custom type.</li>
-  <li>/SAVEINF now writes the selected tasks in the INF file.</li>
-  <li>When a <tt>MinVersion</tt>/<tt>OnlyBelowVersion</tt>/<tt>Languages</tt>/<tt>Check</tt>/<tt>Components</tt> parameter causes a parent component/task to be hidden from view, child items will now be hidden as well. (Previously, it was necessary to include the same conditions on every child item in order for them to be hidden along with the parent item.)</li>
-  <li><i>Fix:</i> When new child components/tasks were introduced in a new install, they would always be selected by default if the parent component/task was selected in the previous installation.</li>
-  <li><i>Fix:</i> /LOADINF would select child components that weren't selected during the initial install.</li>
-  <li><i>Fix:</i> In a /COMPONENTS parameter, it is no longer necessary to list <tt>fixed</tt> components in order for them to be selected.</li>
-  </ul>
-</li>
-<li>Pascal Scripting changes:
-  <ul>
-  <li>FindFirst/FindNext: Add <tt>CreationTime</tt>, <tt>LastAccessTime</tt>, <tt>LastWriteTime</tt>, <tt>AlternateName</tt> fields to TFindRec.</li>
-  <li>TInputFileWizardPage: Added new <tt>IsSaveButton</tt> property. This can be used to make a button open a <i>Save As</i> dialog instead of the default <i>Open</i> dialog.</li>
-  <li>TNewCheckListBox: Setting <tt>Checked[]</tt> to True will no longer automatically check an item's child check boxes. To do that now, call the new <tt>CheckItem</tt> method with <tt>coCheckWithChildren</tt> in the <tt>AOperation</tt> parameter.</li>
-  <li>ParamStr/ParamCount: Empty parameters ("") are no longer skipped.</li>
-  </ul>
-</li>
-<li>/LOG: Logged times now include milliseconds.</li>
-<li>Compiler IDE changes:
-  <ul>
-  <li>During the compression phase of a compile, the status bar now shows the estimated time remaining and KB compressed/second.</li>
-  <li>The <i>Edit | Redo</i> shortcut is now Ctrl+Y. The previous shortcut (Shift+Ctrl+Z) still works too.</li>
-  </ul>
-</li>
-<li><i>Fix:</i> In the [INI] section, if <tt>Filename</tt> was blank, the <tt>uninsdelete*</tt> flags didn't actually delete anything.</li>
-<li>The uninstall program's version is now 51.47.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.12"></a><span class="ver">5.1.12 </span><span class="date">(2007-04-24)</span></p>
-<ul>
-<li><i>Fix:</i> On Windows Vista, attempting to expand a shell folder constant that mapped to the root directory of a drive would fail with an error message. This was due to a bug in Vista's SHGetFolderPath API. A workaround for the problem has been implemented.</li>
-<li>On Browse dialogs, the <tt>BrowseDialogLabel</tt> message text may now span multiple lines.</li>
-<li>The <tt>OnlyOnThisPlatform</tt> message is no longer used. Now, when a Windows 95/98/Me user attempts to run an installation with a <tt>MinVersion</tt> setting that blocks installation on non-NT platforms, Setup will display the <tt>WinVersionTooLowError</tt> message, which is a bit more helpful as it mentions the required version number.</li>
-<li>Corrected some trivial one-pixel-off issues when non-default dialog fonts or font sizes were used.</li>
-<li>Added official Hebrew translation.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.11"></a><span class="ver">5.1.11 </span><span class="date">(2007-03-01)</span></p>
-<ul>
-<li>On Windows 2000 and later, it now uses Windows' own regsvr32.exe to handle DLL registration/unregistration instead of an internal program. This should address errors seen on Windows Vista when registering certain older DLLs. (Windows Vista applies a compatibility fix known as "WRP Mitigation" to regsvr32.exe, which allows it to successfully register DLLs that attempt to write to system registry keys in violation of Windows Resource Protection.)</li>
-<li>Some messages have been added and removed in this version.
-  (<a href="http://cvs.jrsoftware.org/view/issrc/Files/Default.isl?r1=1.68&amp;r2=1.69">View differences in Default.isl</a>)
-  <ul>
-    <li><b>New messages:</b> ErrorRegSvr32Failed.</li>
-    <li><b>Removed messages:</b> ErrorRegisterServerMissingExport.</li>
-  </ul>
-</li>
-<li>The uninstall program's version is now 51.46.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.10"></a><span class="ver">5.1.10 </span><span class="date">(2007-02-17)</span></p>
-<ul>
-<li>Added two new [Run]/[UninstallRun] section flags: <tt>32bit</tt> and <tt>64bit</tt>. Similar to the [Files] section flags of the same name, these override the install mode and affect which System directory the <tt>{sys}</tt> constant maps to on 64-bit Windows.</li>
-<li>Pascal Scripting:
-  <ul>
-  <li>Added new <tt>EnableFsRedirection</tt> support function.</li>
-  <li>On the <tt>Exec</tt> function, you can now pass <tt>'&gt;'</tt> in the <tt>Filename</tt> parameter and it will use the value of the <tt>Params</tt> parameter as the full command line. This feature can come in handy when executing command lines obtained from UninstallString registry values; no longer is it necessary to separate strings into filename and parameter components manually.</li>
-  <li><i>Fix:</i> <tt>IsComponentSelected</tt> and <tt>IsTaskSelected</tt> didn't accept forward slashes.</li>
-  </ul>
-</li>
-<li>Improved Setup's folder tree view control (seen when a <i>Browse</i> button is clicked):
-  <ul>
-  <li>On Windows Vista, it now uses the same theme as Windows Explorer.</li>
-  <li>On Windows Vista, for consistency with Explorer, single-clicking in a node's text area no longer causes the node to expand.</li>
-  <li>Like Windows Explorer, folder nodes now use the shell's "display names", as opposed to the actual directory names. This matters on localized versions of Windows Vista, where the on-disk names of system folders are always in English.</li>
-  <li>The system "icon" font is now used instead of the default dialog font. This font defaults to Segoe UI on Windows Vista, and typically Tahoma or MS Sans Serif on earlier versions of Windows.</li>
-  <li>Disconnected network drives are now listed; expanding one will restore the connection (on Windows 2000, Me, and later).</li>
-  </ul>
-</li>
-<li>On the <i>Select Destination Location</i> wizard page (as well as custom directory selection pages created using the <tt>CreateInputDirPage</tt> support function), if the letter of a disconnected network drive is entered, and the user is running Windows XP or later, it will now attempt to restore the connection automatically when <i>Next</i> is clicked. (It also does this on silent installs.)</li>
-<li>On Windows Vista, eliminated the flickering on Setup's progress bar (purely a cosmetic issue).</li>
-<li>On Windows Vista, Setup now calls SetProcessDPIAware to avoid bitmap scaling when Windows is configured to use Large Fonts and the "Use Windows XP style DPI scaling" option is unchecked (not the default setting).</li>
-<li>Compiler IDE changes:
-  <ul>
-  <li>Added new option: <i>Always launch Setup/Uninstall as different user</i>. This forces the IDE to display a "Run as" dialog when launching Setup/Uninstall.</li>
-  <li>The <i>Stop Compile</i> command now displays a confirmation message box.</li>
-  </ul>
-</li>
-<li>Added a "Vista-aware" manifest resource to ISCC so it doesn't request elevation on Windows Vista.</li>
-<li><i>Fix:</i> ISCC didn't always print error messages when standard output was redirected to a file.</li>
-<li>When Setup fails to set the permissions on files, directories, or registry keys, the error code is now included in the log output.</li>
-<li>When Setup fails to expand a shell folder constant, a warning message containing the error code is now logged.</li>
-<li>Changed the way version information is read from VXD files to be more compliant with the MSDN docs.</li>
-<li>The uninstall program's version is now 51.45.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.9"></a><span class="ver">5.1.9 </span><span class="date">(2006-12-10)</span></p>
-<ul>
-<li><b>Change in default behavior:</b> The <tt>PrivilegesRequired</tt> [Setup] section directive now defaults to <tt>admin</tt>. The default in all previous versions was <tt>none</tt>. More often than not, installations do need administrative privileges to run successfully; therefore, <tt>none</tt> should not be used unless you have actually tested your installation on unprivileged accounts.</li>
-<li>On Windows Vista, the setting of the <tt>PrivilegesRequired</tt> directive now influences whether elevated rights are requested when the installation is started under a user account that does not have administrative privileges. Installations built with previous versions of Inno Setup always requested elevation on Vista. Beginning with this version, elevation will not be requested if the user is unprivileged and <tt>PrivilegesRequired</tt> is set to <tt>none</tt>.</li>
-<li>On Windows Vista, the uninstaller will no longer request elevation when Setup was never run with administrative privileges.</li>
-<li>URLs (web site addresses) may now be specified in the <tt>Filename</tt> parameter of [Icons] section entries. When a URL is detected, Setup will create an Internet Shortcut (.url) file instead of a regular shortcut.<br />
-(Note: While you could sometimes get away with specifying URLs in previous versions of Inno Setup, it was never recommended because the shortcuts would fail to resolve on Windows 95 or NT 4.0. Internet Shortcuts, on the other hand, will work on any version of Windows, as long as Internet Explorer is installed.)</li>
-<li>Added workaround for bug in the 64-bit version of Windows Vista: The fields on the <i>User Information</i> wizard page would default to "Microsoft".</li>
-<li>Pascal Scripting: Added new <tt>FontExists</tt> support function.</li>
-<li>The uninstall program's version is now 51.44.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.8"></a><span class="ver">5.1.8 </span><span class="date">(2006-10-11)</span></p>
-<ul>
-<li>Converted the documentation to HTML Help format for compatibility with Windows Vista, which does not support WinHelp-based help files at all (as of RC2). HTML Help is also said to work better with screen readers. Much of the conversion process was done by hand, so there may be some mistakes. Please report any problems you encounter.</li>
-<li>Updated the <a href="http://www.7-zip.org/sdk.html">LZMA SDK</a> compression/decompression code to version 4.43. Compression is noticably faster in this version. (Compiling Inno Setup's own installer used to take 7 seconds; now it takes 4.)</li>
-<li>Added a "requestedExecutionLevel" setting to Setup's manifest resource to disable Windows Vista's legacy application compatibility hacks. Now you should no longer see bogus "This program might not have installed correctly" dialogs when cancelling installations or after running installations that do not create an Uninstall key.<br />
-<i>Note:</i> It is possible that you were unwittingly relying on some of these application compatibility hacks, so it is recommended that you re-test your installations on Windows Vista after upgrading to this version.</li>
-<li>When deleting a .chm file, the uninstaller will now automatically delete any corresponding .chw file as well.</li>
-<li>Paths that are accessed at compile time may now include a "userdocs:" prefix, which is replaced with the path of your My Documents folder. For a usage example, see any of the example scripts.</li>
-<li>Setup now creates an "InstallDate" value in the Uninstall key so that Vista's <i>Programs and Features</i> Control Panel applet doesn't have to guess the "Installed on" date.</li>
-<li>Pascal Scripting changes/improvements:
-  <ul>
-  <li>The <tt>StringChange</tt> function now returns an Integer indicating the number of changes made. Performance was also improved.</li>
-  <li>Introduced new <tt>StringChangeEx</tt> function, which adds support for strings containing double-byte characters (used in Chinese, Japanese, and Korean languages). Unless you require binary safety, this function should be used instead of <tt>StringChange</tt>, especially if you're working with strings containing paths or filenames.</li>
-  </ul>
-</li>
-<li>IDE changes:
-  <ul>
-  <li>The <i>Open</i> and <i>Save As</i> dialogs now permit sizing and include a places bar.</li>
-  <li>On Windows Vista, the IDE no longer requests administrative privileges when started. (You will, however, still see UAC popups when launching compiled installations from within the IDE.)</li>
-  <li>When you compile an unsaved script, the output is now placed under your My Documents folder (instead of the current directory). It asks if you want to save the script first, though.</li>
-  </ul>
-</li>
-<li>Updated bzip2 library to version 1.0.3.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.7"></a><span class="ver">5.1.7 </span><span class="date">(2006-08-18)</span></p>
-<ul>
-<li>New [Setup] section directive: <tt>TerminalServicesAware</tt>. If set to <tt>yes</tt> (the default), the "Terminal Services aware" flag will be set in the headers of the Setup and Uninstall programs. Most notably, this ensures that the <tt>{win}</tt> constant consistently returns the system's real Windows directory on systems with Terminal Services installed in application mode. Refer to the help file for details.</li>
-<li>The program Setup internally uses to register/unregister DLLs/OCXs is now compiled with the "Terminal Services aware" flag set, like Microsoft's regsvr32.exe.</li>
-<li>When determining which language to select by default, Setup now checks the <tt>LanguageCodePage</tt> values of each language in addition to <tt>LanguageID</tt>. Previously, Traditional Chinese could be auto-selected on a Simplified Chinese system due to both languages having the same primary language ID. This resulted in unreadable text as they use completely different character sets (code pages).</li>
-<li>New [Setup] section directive: <tt>ShowUndisplayableLanguages</tt>. If set to <tt>yes</tt>, all languages will be listed in the <i>Select Language</i> dialog, including those that cannot be displayed properly on the user's system. If you were using the <tt>LanguageCodePage=0</tt> trick in your script before, you should replace it with this to avoid the above-mentioned problem with Chinese languages.</li>
-<li>A unique value is now appended to unins*.exe files so that uninstallers from different applications won't have the same hash.</li>
-<li>The compiler now flags MSCOREE.DLL as an "unsafe" file.</li>
-<li><i>Fix:</i> The <tt>createallsubdirs</tt> [Files] section flag didn't properly escape directory names containing "{" characters.</li>
-<li><i>Fix:</i> The text on the <i>Finished</i> wizard page wasn't initialized when a restart was needed and /NORESTART was used without /SILENT.</li>
-<li>Pascal Scripting: Defined new DWORD_PTR, UINT_PTR, and INT_PTR types for completeness.</li>
-<li>Added official Basque and Spanish translations.</li>
-<li>The uninstall program's version is now 51.43.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.6"></a><span class="ver">5.1.6 </span><span class="date">(2005-11-18)</span></p>
-<ul>
-<li>Registration and unregistration of 32-bit DLLs is now performed in an external process. This change was primarily made to ensure that a buggy DLL cannot bring down the entire Setup/Uninstall process by, for example, corrupting its memory.</li>
-<li>Pascal Scripting changes/improvements:
-  <ul>
-  <li>The already-existing <tt>AnsiUppercase</tt> and <tt>AnsiLowercase</tt> functions are now documented. Unlike their non-<tt>Ansi</tt> counterparts, these can handle non-ASCII characters (e.g. accented letters).</li>
-  <li>TNewCheckListBox: Added new <tt>ItemCaption</tt> property. This can be used to change the caption of an already-created item. (Setting an item's caption through the <tt>Items</tt> property is not supported by TNewCheckListBox.)</li>
-  </ul>
-</li>
-<li>OLE is now initialized before registering a 64-bit DLL.</li>
-<li>While Setup is waiting for a 64-bit DLL to register, it now processes messages.</li>
-<li>On CD/DVD-spanned installs, fixed issue with AutoPlay not being suppressed if you clicked OK too quickly on the <i>Setup Needs the Next Disk</i> dialog after swapping CDs/DVDs.</li>
-<li>When <tt>WindowVisible=yes</tt>, the gradient background now uses 256 colors instead of 64, resulting in a smoother appearance when running in 24- or 32-bit color mode.</li>
-<li>In the documentation for the <tt>Excludes</tt> [Files] section parameter, mention that a simple Unix-style pattern matching routine is used, which exhibits some differences from the DOS/Windows-style pattern matching used in the <tt>Source</tt> parameter.</li>
-<li>Added official Slovak translation.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.5"></a><span class="ver">5.1.5 </span><span class="date">(2005-08-17)</span></p>
-<ul>
-<li>Added new <tt>VersionInfoCopyright</tt> [Setup] section directive, which allows you to set the Copyright field in Setup's version info.</li>
-<li>Pascal Scripting changes/improvements:
-  <ul>
-  <li>New functions: <tt>CustomMessage</tt>, <tt>FmtMessage</tt>.</li>
-  <li>The <tt>FileExists</tt> function no longer strips off any trailing backslash from the specified filename. Previously, <tt>FileExists('c:\filename\')</tt> could return True.</li>
-  <li>TNewCheckListBox: Add new <tt>RequireRadioSelection</tt> Boolean property, which defaults to False. The "require a selection on top-level radio button groups" behavior introduced in 5.1.4 is now optional and disabled by default on user-created TNewCheckListBoxes.</li>
-  </ul>
-</li>
-<li>Now handles values with surrounding quotes consistently across all [Setup] and [LangOptions] directives. Previously, only certain directives would strip surrounding quotes; now they all do. If you were relying on the old, inconsistent behavior, it may be necessary to tweak your scripts.</li>
-<li>On [INI] section entries whose filenames include paths, it now checks if the directories exist and creates them if necessary.</li>
-<li>For consistency with regsvr32, FPU exceptions are now masked while registering/unregistering 32-bit DLLs.</li>
-<li>/LOG: When processing a [Files] entry that has the <tt>32bit</tt> or <tt>64bit</tt> flag, it now logs a message to that effect.</li>
-<li>Added official Finnish translation.</li>
-<li>SetupLdr's internal data is now stored in a resource instead of in the DOS header. This should address compatibility issues with third-party apps that replace the DOS header.</li>
-<li>Updated zlib library to version 1.2.3.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.4"></a><span class="ver">5.1.4 </span><span class="date">(2005-05-30)</span></p>
-<ul>
-<li>New command line parameters supported by Setup: /TASKS and /MERGETASKS. These can be used to initially select/deselect tasks.</li>
-<li>Pascal Scripting: Added new <tt>GetWindowsVersionEx</tt> function, which returns extended information about the user's version of Windows, including the service pack level and product edition (e.g. Professional or Home, Standard or Enterprise Server).</li>
-<li>Using /COMPONENTS= with an empty components list now deselects all components. Ditto for "Components=" in a .INF file (loaded via /LOADINF). Previously, it would keep the default selection in these cases.</li>
-<li>On the <i>Select Tasks</i> wizard page, when the list of tasks has to be reinitialized due to the user going back and changing the component selection, it now restores the checked state of the items from when the page was last shown.</li>
-<li>It should no longer be possible for a top-level, <tt>exclusive</tt> group of components or tasks to have no selection. If the script specifies that all items in the group are to be unchecked, Setup will check the first item automatically.</li>
-<li>Removed 1024-character limit on .INI-file values read via the <tt>{ini:...}</tt> constant or <tt>GetIniString</tt> support function. Now, values can be up to 64 KB in length, or the maximum length supported by the operating system, whichever is smaller.</li>
-<li><i>Fix:</i> The <tt>CreateOleObject</tt> and <tt>GetActiveOleObject</tt> support functions leaked references in some cases.</li>
-<li><i>Fix:</i> Setup would crash or fail to start if passed a command line parameter more than 255 characters in length. (This was due to a buffer overflow bug in a Delphi run-time library function.)</li>
-<li>Based on RemObjects Pascal Script SVN code revision 1045.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.3"></a><span class="ver">5.1.3-beta </span><span class="date">(2005-05-03)</span></p>
-<ul>
-<li>Pascal Scripting:
-  <ul>
-  <li>When Setup/Uninstall is running in 64-bit mode, most of the support functions that access files now disable WOW64 file system redirection, meaning they are now capable of working with files located in the 64-bit System directory. Some, however, still do not. See the <i>64-bit Installation Limitations</i> topic in the help file for specifics.</li>
-  <li>Replaced <tt>FileSearch</tt> function with a new implementation that properly supports MBCS, and doesn't search the current directory unless it is told to (e.g. by including "." in the directory list).</li>
-  </ul>
-</li>
-<li>Uninstaller: Now hides the taskbar button when the /VERYSILENT switch is used.</li>
-<li>IDE change: Added an option to the New Script Wizard to specify that the application doesn't have a main executable file.</li>
-<li>Based on RemObjects Pascal Script SVN code revision 1039.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.2"></a><span class="ver">5.1.2-beta </span><span class="date">(2005-04-14)</span></p>
-<ul>
-<li>Addressed some 64-bit limitations in previous betas:
-  <ul>
-  <li>Setup is now capable of registering 64-bit DLLs/OCXs and 64-bit type libraries. When Setup is running in 64-bit mode, the <tt>regserver</tt> and <tt>regtypelib</tt> [Files] section flags assume that files are 64-bit by default. If you need to register a 32-bit file in a 64-bit mode install, include the new <tt>32bit</tt> flag.</li>
-  <li>Setup is now capable of setting permissions on 64-bit registry keys and on files located in the 64-bit System directory.</li>
-  </ul>
-</li>
-<li>Added two new [Files] section flags: <tt>32bit</tt> and <tt>64bit</tt>. These override the install mode and affect which System directory the <tt>{sys}</tt> constant maps to, whether the <tt>regserver</tt> and <tt>regtypelib</tt> flags treat the file as 32-bit or 64-bit, and which SharedDLLs key the <tt>sharedfile</tt> flag updates.</li>
-<li>Pascal Scripting: Added new <tt>Is64Bit</tt> parameters to the following functions: <tt>IncrementSharedCount</tt>, <tt>DecrementSharedCount</tt>, <tt>RegisterServer</tt>, <tt>UnregisterServer</tt>, <tt>RegisterTypeLibrary</tt>, <tt>UnregisterTypeLibrary</tt>. See the documentation for details.</li>
-<li>Setup will now only append to existing uninstall logs created by installs done in the same bit mode (32- or 64-bit).</li>
-<li>When an error occurs while registering a DLL/OCX/type library after a restart, it now displays an error message, provided the <tt>noregerror</tt> flag isn't used. Before, it was silent.</li>
-<li>Constants may now be used in the <tt>AppMutex</tt> [Setup] section directive.</li>
-<li>Added official Brazilian Portuguese, Danish, Hungarian, and Italian translations.</li>
-<li>Renamed official Standard Portuguese translation file from <i>PortugueseStd.isl</i> to <i>Portuguese.isl</i>.</li>
-<li>Various minor fixes to the 64-bit functionality.</li>
-<li>Updated the LZMA SDK compression/decompression code to version 4.16. The new version incorporates some fixes and a minor speed improvement.</li>
-<li>Based on RemObjects Pascal Script SVN code revision 1033.</li>
-<li>The uninstall program's version is now 51.42.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.1"></a><span class="ver">5.1.1-beta </span><span class="date">(2005-03-24)</span></p>
-<ul>
-<li>When Setup is running in 64-bit mode, it is now possible to install files to the 64-bit System directory, and execute programs located there.<br />
-The <tt>{sys}</tt> constant now maps to the 64-bit System directory when used in the [Dirs], [Files], [InstallDelete], [Run], [UninstallDelete], and [UninstallRun] sections. Elsewhere, the <tt>{sys}</tt> constant still maps to the 32-bit System directory. See the <i>Install Mode: 32-bit vs. 64-bit</i> and <i>64-bit Installation Limitations</i> topics in the help file for details.</li>
-<li>Added workaround for bug in the 64-bit editions of Windows prior to Windows Server 2003 SP1 RC2 which caused the <tt>restartreplace</tt> [Files] section flag to fail when used on files installed to <tt>{sys}</tt>. (Specifically, Windows would try to replace the file in the <i>64-bit</i> System directory instead of the 32-bit one.)</li>
-<li>Compiler: A warning is now emitted instead of an error when a custom message isn't defined for all languages.</li>
-<li><i>Fix:</i> The /COMPONENTS command line parameter supported by Setup didn't accept forward slashes in component names -- only backslashes.</li>
-<li><i>Fix:</i> The compiler no longer automatically strips any trailing slashes/backslashes from the <tt>Subkey</tt> parameter of [Registry] entries. Versions 5.0.8 and 5.1.0-beta stripped forward slashes. This was wrong because valid registry key names can include forward slashes.</li>
-<li><i>Fix:</i> When files were deleted by an [InstallDelete]/[UninstallDelete] section entry or <tt>DelTree</tt> function call, it also inappropriately stripped the read-only attribute from directories that matched the wildcard.</li>
-<li><i>Fix:</i> An "internal error" message was displayed if the user removed all contents from the <i>Select Start Menu Folder</i> wizard page's edit control and also checked the <i>Don't create a Start Menu folder</i> check box.</li>
-<li>Based on RemObjects Pascal Script SVN code revision 1032.</li>
-<li>The uninstall program's version is now 51.41.0.0.</li>
-<li>Minor tweaks.</li>
-</ul>
-
-<p><a name="5.1.0"></a><span class="ver">5.1.0-beta </span><span class="date">(2005-03-01)</span></p>
-<ul>
-<li>Inno Setup now has initial support for the installation of 64-bit applications on 64-bit versions of Windows:<br />
-  <br />
-  <ul>
-  <li>Setup can run in one of two modes: 32-bit or 64-bit. 64-bit mode is selected if the user is running a 64-bit version of Windows and the system's processor architecture is included in the value of the new <tt>ArchitecturesInstallIn64BitMode</tt> [Setup] section directive. Otherwise, 32-bit mode is used.<br />How do the two modes of installation differ? Primarily, the differences lie in where things are installed by default. For example, 64-bit applications have their own Program Files directory, and their own isolated view of the registry. See the <i>Install Mode: 32-bit vs. 64-bit</i> topic in the help file for details.</li>
-  <li>Added new [Setup] section directive <tt>ArchitecturesAllowed</tt>. When set, it specifies which processor architecture(s) Setup is allowed to run on.</li>
-  <li>Even when running in 32-bit mode, Setup is capable of installing files and creating registry keys in 64-bit locations, and vice versa. New options have been added that override the default locations:
-    <ul>
-    <li>New constants: <tt>{pf32}</tt>, <tt>{pf64}</tt>, <tt>{cf32}</tt>, <tt>{cf64}</tt>.</li>
-    <li>Root key names used in the [Registry] section, <tt>{reg:...}</tt> constants, and the <tt>Reg*</tt> [Code] support functions may now include <tt>32</tt> or <tt>64</tt> suffixes to specify either the 32-bit or the 64-bit view of the registry respectively.</li>
-    </ul>
   </li>
-  <li>To allow "multi-architecture" installations, new [Code] support functions have been added: <tt>IsWin64</tt>, <tt>Is64BitInstallMode</tt>, <tt>ProcessorArchitecture</tt>.</li>
-  <li>Added new <tt>{syswow64}</tt> constant and <tt>GetSysWow64Dir</tt> support function.</li>
-  <li>Added new example scripts: 64Bit.iss, 64BitTwoArch.iss, and 64BitThreeArch.iss.</li>
-  <li><b>Note:</b> There are some limitations to be aware of when utilizing the 64-bit installation features. See the <i>64-bit Installation Limitations</i> topic in the help file for details. There are plans to address these limitations in the near future, where possible.</li>
-  </ul>
-  <br />
-  <i>Purchase of the necessary 64-bit development hardware has been made possible by our kind donators, many thanks to them!</i><br />
-  <br />
-</li>
-<li>Pascal Scripting: New <tt>Format</tt> support function, which replaces the old <tt>Format1</tt>, <tt>Format2</tt>, <tt>Format3</tt>, and <tt>Format4</tt> functions. Unlike those functions, <tt>Format</tt> accepts a variable number of arguments, and supports argument types other than strings.</li>
-<li>Compiler: A warning is now emitted instead of an error when an unrecognized message name in a [Messages] section is encountered.</li>
-<li>IDE changes: The New Script Wizard now allows you to specify the Setup languages.</li>
-<li>/LOG improvement: The parameters of programs spawned in the [Run] and [UninstallRun] sections are now logged.</li>
-<li>'&amp;' characters in the BeveledLabel message no longer need to be escaped using another '&amp;'.</li>
-<li>Some messages have been added and removed in this version.
-  (<a href="http://cvs.jrsoftware.org/view/issrc/Files/Default.isl?r1=1.61&amp;r2=1.66">View differences in Default.isl</a>)
-  <ul>
-    <li><b>New messages:</b> OnlyOnTheseArchitectures, MissingWOW64APIs, TranslatorNote, UninstallOnlyOnWin64.</li>
-    <li><b>Removed messages:</b> NoIconsCheck.</li>
-  </ul>
-</li>
-<li>Based on RemObjects Pascal Script SVN code revision 1024.</li>
-<li>The uninstall program's version is now 51.40.0.0.</li>
-<li>Minor tweaks.</li>
 </ul>
-
-<hr />
-
-<p><a name="5.0.8"></a><span class="ver">5.0.8 </span><span class="date">(2005-02-17)</span></p>
+<p><span class="head2">New modern wizard style</span></p>
+<p>The wizard window now supports a more modern look:</p>
 <ul>
-<li>IDE changes:
-  <ul>
-  <li>Added support for setting breakpoints (<i>Run | Toggle Breakpoint</i>).</li>
-  <li>The dots in the editor's gutter now shift properly when you insert/remove lines while debugging. (Note, however, that any changes you make while debugging won't take effect until you re-compile.)</li>
-  </ul>
-</li>
-<li>Uninstaller: When a DLL/OCX was installed multiple times by separate installations of the same application, the uninstaller would unregister the DLL/OCX once for each install. As an optimization, it will now unregister the DLL/OCX only once.</li>
-<li>Compiler: Using outdated .isl files that are missing some messages no longer results in a fatal compiler error. Now, warnings will be printed, and the missing messages will be pulled from Default.isl.</li>
-<li>Various improvements/fixes to the parsing of pathnames. For example, <tt>ExtractFilePath('\\server\share')</tt> now returns <tt>\\server\share</tt> rather than <tt>\\server</tt>, and <tt>ExtractFileDir('path\\')</tt> now returns <tt>path</tt> rather than <tt>path\\</tt>.</li>
-<li>When recursively deleting directories (for example, from an [InstallDelete] entry or a call to <tt>DelTree</tt>), it no longer recurses into reparse points.</li>
-<li>The value of the <tt>NoProgramGroupCheck2</tt> message is now always used as the caption of the "no icons" check box on the <i>Select Start Menu Folder</i> page of the wizard. Previously, it used either <tt>NoIconsCheck</tt> or <tt>NoProgramGroupCheck2</tt> depending on whether an installation had [Icons] entries with Tasks parameters.</li>
-<li><tt>exclusive</tt> [Tasks] items that have no visible siblings are no longer automatically converted into check boxes. (If you really want check boxes, then you shouldn't use the <tt>exclusive</tt> flag.)</li>
-<li>Based on RemObjects Pascal Script SVN code revision 1022.</li>
-<li>Minor tweaks.</li>
+  <li>Added new [Setup] section directive: <tt>WizardStyle</tt>. If this directive is set to <tt>modern</tt>, Setup and Uninstall will show a more modern look and also the defaults for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> change to respectively <tt>yes</tt> and <tt>120,120</tt>.</li>
+  <li><b>Change in default behavior:</b> Earlier versions of Inno Setup also supported <tt>WizardStyle</tt> and if you still have <tt>WizardStyle=modern</tt> in your script (which was allowed for backward compatibility but didn't actually change anything) and don't want to new modern look, you should remove this line or change it to <tt>WizardStyle=classic</tt>.</li>
+  <li>Updated all examples and the Compiler IDE's New Script Wizard to use <tt>WizardStyle=modern</tt>.</li>
+  <li>Pascal Scripting change: Added new <tt>SurfaceColor</tt> property to the <tt>TWizardPage</tt> support class.</li>
 </ul>
-
-<p><a name="5.0.7"></a><span class="ver">5.0.7 </span><span class="date">(2005-01-19)</span></p>
+<p>A few elements now always have a more modern look regardless of the <tt>WizardStyle</tt> setting:</p>
 <ul>
-<li>When <tt>AllowNoIcons</tt> and <tt>UsePreviousGroup</tt> are set to <tt>yes</tt>, the <i>Don't create any icons</i> setting is now preserved between installs.</li>
-<li>Both Setup and Uninstall now support a /SUPPRESSMSGBOXES command line parameter to suppress message boxes. This parameter only has an effect when combined with /SILENT or /VERYSILENT. See the help file for more details.</li>
-<li>IDE changes:
-  <ul>
-  <li>Various enhancements to the New Script Wizard.</li>
-  <li>Added a new <i>Tools</i> menu with a command that opens the <i>Add/Remove Programs</i> Control Panel applet.</li>
-  <li>When stepping through code, the IDE now uses a different method of bringing Setup to the foreground, and vice versa. Previously, if for some reason Setup hung it was possible for the IDE to hang as well.</li>
-  </ul>
-</li>
-<li>/LOG changes:
-  <ul>
-  <li>Now logs the contents of message boxes.</li>
-  <li>On NT platforms, the OS service pack level is now logged, as well as the privilege level of the user (Administrative, Power User, or None).</li>
-  <li>Now doesn't skip the replacement of a protected system file until <i>after</i> the version numbers of the new and existing files are logged.</li>
-  </ul>
-</li>
-<li>Pascal Scripting changes/improvements:
-  <ul>
-  <li>Added new <tt>CharLength</tt>, <tt>DLLGetLastError</tt>, <tt>RegWriteExpandStringValue</tt> and <tt>SuppressibleMsgBox</tt> functions.</li>
-  <li><tt>GetSpaceOnDisk</tt> no longer requires that a root directory be specified, or that a trailing backslash be included.</li>
-  </ul>
-</li>
-<li>Removed the requirement that Windows NT 4.0 users have SP6 installed, which was added in version 5.0.1-beta. Setup <i>should</i> run on previous service pack levels but no guarantees can be made as I generally only test with SP6. Therefore I recommend setting <tt>MinVersion</tt> to at least <tt>4.0,4.0sp6</tt> if possible.</li>
-<li>Removed legacy code that searched for and deleted Uninstall keys with suffixes of _is2 and higher. Only Inno Setup 1.08 (from 1998) created such keys.</li>
-<li>Reverted the change in 5.0.4-beta that made it automatically expand relative paths specified in [Icons] section because it didn't work when the paths contained environment-variable strings (e.g. <tt>%SystemRoot%\...</tt>).</li>
-<li><i>Fix:</i> In 5.0.6, if you clicked Back on the <i>Select Tasks</i> wizard page and changed component settings causing a different set of tasks to be activated, the new tasks would show up with the wrong item type when you returned to the <i>Select Tasks</i> wizard page. (If you do not have tasks with <tt>Components</tt> parameters, then this bug did not affect you.)</li>
-<li><i>Fix:</i> In rare cases, component and task items with multi-line captions were painted incorrectly (strictly a cosmetic issue).</li>
-<li><i>Fix:</i> The <tt>UninstallSilent</tt> support function always returned False.</li>
-<li><i>Fix:</i> Even though they were not being installed, files with the <tt>dontcopy</tt> flag were being displayed on the installation progress page and included in the required disk space figure(s).</li>
-<li>Tweaked wording of the ExitSetupMessage message.
-  (<a href="http://cvs.jrsoftware.org/view/issrc/Files/Default.isl?r1=1.58&amp;r2=1.59">View differences in Default.isl</a>)</li>
-<li>Based on RemObjects Pascal Script SVN code revision 1017.</li>
-<li>Minor tweaks.</li>
+  <li>The <i>Select Language</i> dialog now has more modern look, consistent with Windows 10 task dialogs and message boxes (<a href="https://i.imgur.com/4xWv5tw.png">example</a>).</li>
+  <li>Flattened a few elements of Setup's interface for a more modern look.</li>
 </ul>
-
-<p><a name="5.0.6"></a><span class="ver">5.0.6 </span><span class="date">(2004-12-24)</span></p>
+<p><span class="head2">Compiler IDE updates</span></p>
+<p>The look and feel of the Compiler IDE has been updated:</p>
 <ul>
-<li>This version introduces a new Inno Setup logo, new icons for the Inno Setup IDE, and new wizard images for the Inno Setup installer, created by <a href="http://www.glyfx.com/" target="_blank">glyFX</a>.</li>
-<li>New [Files] section flag: <tt>createallsubdirs</tt>. By default the compiler skips empty directories when it recurses subdirectories searching for the <tt>Source</tt> filename/wildcard. The <tt>createallsubdirs</tt> flag causes these directories to be created at install time (just like if you created [Dirs] entries for them). Must be combined with <tt>recursesubdirs</tt>.</li>
-<li>New flag supported by the [Components] and [Tasks] sections: <tt>checkablealone</tt>. This flag specifies that the component/task can be checked when none of its children are. By default, if no <tt>Components</tt>/<tt>Tasks</tt> parameter directly references the component/task, unchecking all of the component/task's children will cause the component/task to become unchecked.</li>
-<li>Pascal Scripting changes/improvements:
-  <ul>
-  <li>An <tt>AddEx</tt> function has been added to <tt>TInputOptionWizardPage</tt> to allow the addition of subitems.</li>
-  <li>Various properties have been added to the <tt>TInput...WizardPage</tt> classes to allow access to the wizard page controls.</li>
-  <li>Event function <tt>NeedRestart</tt> is now called near the end of the installation process instead of at the beginning.</li>
-  <li>In DLL function imports, new options 'setuponly' and 'uninstallonly' are supported, which cause a DLL to be loaded only when the script is running from Setup or Uninstall, respectively.</li>
-  <li>Added new <tt>UnloadDLL</tt> and <tt>GetShellFolderByCSIDL</tt> functions.</li>
-  </ul>
-</li>
-<li>/LOG changes:
-  <ul>
-  <li>No longer (automatically) logs when the event functions <tt>InitializeSetup</tt>, <tt>InitializeWizard</tt>, <tt>GetCustomSetupExitCode</tt>, and <tt>DeinitializeSetup</tt> are called successfully -- only if they raise exceptions, and in the case of <tt>InitializeSetup</tt>, if False is returned.</li>
-  <li>Now logs the function name when the <tt>NeedRestart</tt>, <tt>RegisterPreviousData</tt>, <tt>InitializeUninstall</tt>, <tt>DeinitializeUninstall</tt>, <tt>CurUninstallStepChanged</tt>, and <tt>UninstallNeedRestart</tt> event functions raise exceptions.</li>
-  </ul>
-</li>
-<li>Compiler IDE changes/improvements:
-  <ul>
-  <li>New "Debug Output" view that shows log messages from Setup/Uninstall in real time. (These are the same messages seen in the log file produced when Setup/Uninstall is run with the /LOG switch.)</li>
-  <li>New <i>Pause on exceptions</i> option (accessible via <i>View | Options</i>). Unchecking this will prevent the debugger from pausing when an exception is raised from [Code].</li>
-  <li>Now preserves the position of the splitter when you close the IDE.</li>
-  </ul>
-</li>
-<li>Console-mode compiler (ISCC.exe): A new /F switch is supported which can be used to specify a new output filename, overriding any <tt>OutputBaseFilename</tt> setting in the script.</li>
-<li>Improved Setup load time on installations containing hundreds of components at varying levels.</li>
-<li>Updated zlib library to version 1.2.2.</li>
-<li><i>Fix:</i> When multiple patterns were specified in a [Files] section <tt>Excludes</tt> parameter, patterns that included backslashes were handled incorrectly.</li>
-<li><i>Fix:</i> [Components]: If you had two child radio buttons and one had children of its own, then unchecking &amp; rechecking the top-level item would cause both radio buttons to be checked.</li>
-<li>Based on RemObjects Pascal Script SVN code revision 1000.</li>
-<li>Minor tweaks.</li>
+    <li>Updated all toolbar icons and flattened the interface of the Compiler IDE for a more modern look.</li>
+    <li>The Compiler IDE now supports three themes: Light (<a href="https://i.imgur.com/NVhZ0ml.png">example</a>), Dark (<a href="https://i.imgur.com/J4LMPAa.png">example</a>) and Classic (<a href="https://i.imgur.com/x513SpW.png">example</a>). The Light theme is the new default theme, unless the system is running Windows 10 and dark mode is enabled in which case the Dark theme is the default theme. The active theme can be changed in the options.</li>
+    <li>The Compiler IDE now uses per-monitor DPI awareness mode and also allows the "Segoe UI" font for its interface elements.</li>
+    <li>The "Compiler Output" view is now colorized. This can be turned off in the options.</li>
+    <li>The "Debug Output" view now uses bold text for any entry lines such as '-- File entry --'.</li>
+    <li>Options button <i>Associate .iss files with this compiler</i> can now associate for the current user instead of displaying an error if administrative privileges are not available.</li>
+    <li>Options <i>Allow Undo after save</i> and <i>Show indentation guides</i> are now on by default for new installations.</li>
+    <li>The "Configure Sign Tools" window is now wider by default and also resizable.</li>
 </ul>
-
-<p><a name="5.0.5"></a><span class="ver">5.0.5-beta </span><span class="date">(2004-11-14)</span></p>
+<p><span class="head2">Other changes</span></p>
 <ul>
-<li>New [Setup] section directive: <tt>OutputManifestFile</tt>. When set, the compiler will create a text file detailing information about the files compiled into Setup.</li>
-<li>Pascal Scripting changes/improvements:
-  <ul>
-  <li>Added new exception-related functions: <tt>GetExceptionMessage</tt>, <tt>RaiseException</tt>, and <tt>ShowExceptionMessage</tt>.</li>
-  <li>The <tt>ExtractTemporaryFile</tt> support function now raises an exception with a descriptive error message when it fails, instead of returning a Boolean indicating success/failure.</li>
-  <li><tt>GetSpaceOnDisk</tt>: Added new <tt>InMegabytes</tt> parameter. By setting it to False, you can get figures in bytes (capped at 2 GB-1).</li>
-  <li><tt>RegWriteMultiStringValue</tt>: When writing values, it now appends two null terminators automatically, like [Registry] does when writing <tt>multisz</tt>-type values.</li>
-  </ul>
-</li>
-<li>Console-mode compiler (ISCC.exe) improvements:
-  <ul>
-  <li>A new /O switch is supported which can be used to specify a new output path, overriding any <tt>OutputDir</tt> setting in the script.</li>
-  <li>A new /Q switch is supported which causes it to compile quietly, printing only error messages.</li>
-  <li>Error messages are now written to standard error instead of standard output.<br /><i>Note:</i> If you were previously redirecting all compiler messages to a file using <tt>&gt;filename</tt> you will now need to use <tt>&gt;filename 2&gt;&amp;1</tt> to capture standard error as well. If you wish to redirect only standard error, use <tt>2&gt;filename</tt>.</li>
-  </ul>
-</li>
-<li>When <tt>ChangesAssociations=yes</tt> and/or <tt>ChangesEnvironment=yes</tt> are used, it now notifies Windows of the changes <i>after</i> any [Run] section entries are processed and the <tt>CurStepChanged(ssPostInstall)</tt> event function is called.</li>
-<li>Reverted one of the small image placement changes in 5.0.4: horizontally centering has been restored.</li>
-<li><i>Fix:</i> When the <tt>ExpandConstant</tt> support function was called at uninstall time, <tt>{common*}</tt> constants always mapped to their <tt>{user*}</tt> equivalents even if the user had administrative privileges.</li>
-<li><i>Fix:</i> <tt>ChangesEnvironment=yes</tt> worked on Windows NT 4.0 and 2000 but had no effect on Windows XP.</li>
-<li><i>Fix:</i> When writing empty REG_MULTI_SZ values, it should only append 1 null terminator, not 2.</li>
-<li>Based on RemObjects Pascal Script SVN code revision 983.</li>
-<li>The uninstall program's version is now 51.34.0.0.</li>
-<li>Minor tweaks.</li>
+  <li><b>OS requirements change:</b> Windows 2000, XP, and Server 2003 are no longer supported. Windows Vista is now the minimum supported operating system.</li>
+  <li><b>Change in default behavior:</b> Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup. Unicode Inno Setup has been available for 9 years but in case you have not yet updated to it: please see the <a href="http://www.jrsoftware.org/ishelp/index.php?topic=unicode">Unicode Inno Setup</a> topic in the help file for more information. Basically, unless you're using [Code] to make DLL calls with string parameters you shouldn't have to make any changes to your script.</li>
 </ul>
-
-<p><a name="5.0.4"></a><span class="ver">5.0.4-beta </span><span class="date">(2004-10-06)</span></p>
 <ul>
-<li>New [Setup] section directive: <tt>ChangesEnvironment</tt>. When set to <tt>yes</tt>, at the end of the installation Setup will notify other running applications (notably Windows Explorer) that they should reload their environment variables from the registry.</li>
-<li>Pascal Scripting changes/improvements:
-  <ul>
-  <li>The support functions <tt>CreateCustomForm</tt>, <tt>ScaleX</tt>, and <tt>ScaleY</tt> may now be called at uninstall time.</li>
-  <li><tt>TRichEditViewer</tt> support class improvement: The <tt>Color</tt> property is now respected.</li>
-  </ul>
-</li>
-<li>/LOG improvements:
-  <ul>
-  <li>It's now possible to specify a fixed path/filename to use for the log file via /LOG="<i>filename</i>".</li>
-  <li>Now logs when various event functions are called, and in the case of <tt>InitializeSetup</tt> it also logs the return value of the function.</li>
-  <li>Now logs when DLL/OCX/type library registration fails, even if the <tt>noregerror</tt> flag is specified.</li>
-  </ul>
-</li>
-<li>Stretching of the small wizard image (specified by <tt>WizardSmallImage</tt>) now only occurs if the image is larger than the default size, or if the user is running larger-than-normal fonts. Previously, it always attempted to stretch the image.</li>
-<li>The <tt>WizardSmallImageBackColor</tt> [Setup] section directive is now deprecated and ignored. Any unused space around the small wizard image is now filled with the standard window color (usually white).</li>
-<li>Relative paths specified in [Icons] section entries are now converted into absolute paths automatically.</li>
-<li><i>Fix:</i> On Windows XP, folder shortcuts (which were introduced in 5.0.3-beta) showed ".lnk" at the end of them.</li>
-<li>Based on RemObjects Pascal Script SVN code revision 960.</li>
-<li>The uninstall program's version is now 51.33.0.0.</li>
-<li>Minor tweaks.</li>
+  <li>Added support for 64-bit mode on Windows 10 on ARM which can be used to install ARM64 binaries. See the <i>64BitThreeArch.iss</i> example script for an example which demonstrates how to install a program built for three different architectures (x86, x64, ARM64) using a single installer.</li>
 </ul>
-
-<p><a name="5.0.3"></a><span class="ver">5.0.3-beta </span><span class="date">(2004-08-16)</span></p>
 <ul>
-<li>New supported [Files] section flag <tt>uninsnosharedfileprompt</tt>, which tells the uninstaller to automatically remove the shared file when its reference count reaches zero instead of asking the user. Must be combined with the <tt>sharedfile</tt> flag to have an effect.</li>
-<li>New supported [Icons] section flag <tt>foldershortcut</tt>, which creates a special type of shortcut known as a "Folder Shortcut". Normally, when a shortcut to a folder is present on the Start Menu, clicking the item causes a separate Explorer window to open showing the target folder's contents. In contrast, a "folder shortcut" will show the contents of the target folder as a submenu instead of opening a separate window.<br />
-Folder shortcuts are only supported by Windows 2000, Me, and later. On earlier versions of Windows, Setup will fall back to creating a normal shortcut when this flag is used.</li>
-<li>Pascal Scripting changes/improvements:
-  <ul>
-  <li>The return value of the <tt>CreateShellLink</tt> function has changed from a Boolean to a String. Now, any failure results in an exception being raised.</li>
-  </ul>
-</li>
-<li>The uninstaller is now capable of removing directories that have the read-only attribute set. (No special flags are needed; this is the default behavior.)</li>
-<li>Based on RemObjects Pascal Script SVN code revision 948.</li>
-<li>The uninstall program's version is now 51.32.0.0.</li>
-<li>Minor tweaks.</li>
+  <li>The Abort/Retry/Ignore dialogs shown by Setup now display task dialogs. These task dialogs are much more user friendly than the message boxes previously used (example: <a href="https://i.imgur.com/NfbJAsS.png">task dialog</a> versus <a href="https://i.imgur.com/n7wh2UC.png">message box</a>).</li>
+  <li>Added new [Setup] section directive: <tt>VersionInfoOriginalFileName</tt>, which sets the original filename version value.</li>
+  <li>The <tt>Permissions</tt> parameter supported by [Files], [Dirs] and [Registry] entries now also allows you to grant permission to the Guests group, the Local Service account, the Network Service account, and to the Creator Owner.</li>
+  <li>Added new special-purpose <i>HelpTextNote</i> message that can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing /HELP on the command line. This message defaults to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use it.</li>
+  <li>The compiler now supports UTF-8 encoded .isl files without requiring a special extension. Translators should still always set <tt>LanguageCodePage</tt> when possible.</li>
+  <li>The compiler will now throw an error if the $f sequence is missing in a Sign Tool command instead of executing it anyway.</li>
+  <li>Fix: The compiler now checks <tt>OutputBaseFileName</tt> and <tt>OutputManifestFile</tt> for bad characters even if <tt>Output</tt> is set to <tt>no</tt>.</li>
+  <li>/LOG: Now logs some additional information about Restart Manager.</li>
 </ul>
-
-<p><a name="5.0.2"></a><span class="ver">5.0.2-beta </span><span class="date">(2004-08-05)</span></p>
 <ul>
-<li>Pascal Scripting changes/improvements:
+  <li>Pascal Scripting changes:
   <ul>
-  <li>New <tt>GetUILanguage</tt> support function.</li>
+    <li>Using event attributes it is now possible to have multiple implementations of the same event function in your script. This is especially useful in included scripts implementing an event function to avoid conflicts with the main script. See the help file for more information and the <i>CodeExample1.iss</i> example script for an example.</li>
+    <li>Added new <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> support functions which display a message box using a task dialog (<a href="https://i.imgur.com/hU4RQP2.png">example</a>). See the help file for more information and the <i>CodeClasses.iss</i> example script for an example.</li>
+    <li>Added new <tt>CreateCallback</tt> support function which allows you to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script. See the help file and the <i>CodeDll.iss</i> example script for an example.</li>
+    <li>[Setup] section directives <tt>ChangesAssociations</tt> and <tt>ChangesEnvironment</tt> may now be set to a boolean expression, which may contain calls to check functions.</li>
+    <li>Many properties which did not support mouseover evaluation from the Compiler IDE now do.</li>
+    <li>To enable mouseover evaluation of their properties from the Compiler IDE, support objects <tt>MainForm</tt>, <tt>WizardForm</tt>, and <tt>UninstallProgressForm</tt> no longer raise an internal error if you try to access them before the forms are created. To get the old behaviour use new support functions <tt>GetMainForm</tt>, <tt>GetWizardForm</tt>, and <tt>GetUninstallProgressForm</tt> instead.</li>
+    <li>Added new <tt>BevelKind</tt> property to the <tt>TPanel</tt> support class and new <tt>BevelKind</tt> and <tt>BorderStyle</tt> properties to the <tt>TRichEditViewer</tt> support class, allowing you to enable a flatter interface for a more modern look. See the <i>CodeClasses.iss</i> example script for an example.</li>
+    <li>Added new <tt>SameStr</tt> and <tt>SameText</tt> support functions.</li>
+    <li>Renamed the <tt>IsAdminLoggedOn</tt> support function to <tt>IsAdmin</tt>. The old name is still supported, but it is recommended to update your scripts to the new name and the compiler will issue a warning if you don't. Also consider using <tt>IsAdminInstallMode</tt> instead.</li>
+    <li>Removed the <tt>TAlphaBitmap</tt> support class. Its functionality is now provided directly by <tt>TBitmap</tt>.</li>
+    <li>Fix: On Windows 10 on ARM, the <tt>IsWin64</tt> support function now correctly returns <tt>True</tt>, and the <tt>ProcessorArchitecture</tt> support function now correctly returns <tt>paARM64</tt>.</li>
   </ul>
-</li>
-<li>Compiler IDE: When a file has been modified outside the editor, offer to reload it.</li>
-<li><i>Fix:</i> The per-page event functions introduced in 5.0.1 that returned Boolean values didn't work properly.</li>
-<li><i>Fix:</i> When the <tt>overwritereadonly</tt> [Files] section flag was used and Setup was unable to remove the read-only attribute from a file (e.g. due to ACL restrictions), it would get stuck in an infinite loop.</li>
-<li>Based on RemObjects Pascal Script SVN code revision 947.</li>
+  </li>
 </ul>
-
-<p><a name="5.0.1"></a><span class="ver">5.0.1-beta </span><span class="date">(2004-08-02)</span></p>
 <ul>
-<li>Compiler IDE: the toolbar now uses a modern looking set of images kindly donated by <a href="http://www.glyfx.com/" target="_blank">glyFX</a>.</li>
-<li>Setup/Uninstall can now wait on processes spawned using [Run]/[UninstallRun] entries that have the <tt>shellexec</tt> flag. Combine <tt>shellexec</tt> with either the new <tt>waituntilterminated</tt> flag (the default behavior when <tt>shellexec</tt> <i>isn't</i> specified) or the <tt>waituntilidle</tt> flag.</li>
-<li>When Setup is running on Windows NT 4.0, Service Pack 6 is now required. This change shouldn't impact any significant number of users; SP6 was released five years ago, and almost all other programs that still support NT 4.0 nowadays have the same requirement.</li>
-<li>Pascal Scripting changes/improvements:
+  <li>Inno Setup Preprocessor (ISPP) changes:
   <ul>
-  <li>Added new supported event function <tt>CancelButtonClick</tt>, which is called when the user clicks the Cancel button.</li>
-  <li>The prototype of the <tt>CurStepChanged</tt> function has changed, as has the names of the CurStep values passed to it. See the help file for details.</li>
-  <li>The names of the values passed to the <tt>CurUninstallStepChanged</tt> function have changed. See the help file for details.</li>
-  <li>Per-page event functions are now supported. TWizardPage and its descendants now include these properties: <tt>OnActivate</tt>, <tt>OnBackButtonClick</tt>, <tt>OnCancelButtonClick</tt>, <tt>OnNextButtonClick</tt>, <tt>OnShouldSkipPage</tt>. See the <i>Support Classes Reference</i> topic in the help file for the prototypes of these event functions.</li>
-  <li>Replaced the <tt>InstExec</tt> function with a new function named <tt>Exec</tt>. The new function offers the same functionality as the old one, but uses a slightly different prototype. The <tt>WaitUntilTerminated</tt> and <tt>WaitUntilIdle</tt> parameters have been replaced with a single <tt>Wait</tt> parameter.</li>
-  <li>Replaced the <tt>InstShellExec</tt> function with a new function named <tt>ShellExec</tt>. The new function adds <tt>Verb</tt> and <tt>Wait</tt> parameters. To get <tt>ShellExec</tt> to behave the same way as the old function, specify <tt>'open'</tt> in the <tt>Verb</tt> parameter and <tt>ewNoWait</tt> in the <tt>Wait</tt> parameter.</li>
-  <li>Replaced the <tt>FindFirst</tt> and <tt>FindNext</tt> support functions with new versions that return more information about found files and can handle nested searches. Any existing scripts that called these functions will need updating. There is also a new <tt>FindClose</tt> function that you should call at the end of a find sequence.</li>
-  <li>Replaced the confusingly-named <tt>ShouldProcessEntry</tt> support function with new functions named <tt>IsComponentSelected</tt> and <tt>IsTaskSelected</tt>.</li>
-  <li>The <tt>Wizard*</tt> support functions now raise exceptions if you call them before the wizard has been initialized, instead of returning empty strings.</li>
+     <li>Inno Setup Preprocessor is now always installed.</li>
+     <li>Added new predefined variable <tt>NewLine</tt>.</li>
+     <li>Added new <tt>IsWin64</tt>, <tt>SameStr</tt> and <tt>SameText</tt> support functions.</li>
   </ul>
-</li>
-<li>On a file that has the <tt>uninsrestartdelete</tt> flag the containing directory will now also be removed at uninstall time.</li>
-<li>When extracting files, Setup now sets just the modification times instead of the creation and modification times.</li>
-<li>/LOG improvement: Now logs permission setting on files/directories/registry keys.</li>
-<li>The compiler now flags UXTHEME.DLL as an "unsafe" file.</li>
-<li>Dropped the obsolete WizModernImage2.bmp and WizModernSmallImage2.bmp images.</li>
-<li>Based on RemObjects Pascal Script SVN code revision 945.</li>
-<li>The uninstall program's version is now 51.31.0.0.</li>
-<li>Minor tweaks.</li>
+  </li>
 </ul>
-
-<p><a name="5.0.0"></a><span class="ver">5.0.0-beta </span><span class="date">(2004-07-14)</span></p>
 <ul>
-<li>The size of compiled installations has decreased by 22-26 KB from Inno Setup 4.2.7, primarily due to the merging of Setup and Uninstall into a single binary.<br /><br /></li>
-<li>Pascal Scripting can now be used to customize Uninstall:<br />
-  <br />
-  <ul>
-    <li>Added Uninstall specific event functions <tt>InitializeUninstall</tt>, <tt>DeinitializeUninstall</tt>, <tt>CurUninstallStepChanged</tt> and <tt>UninstallNeedRestart</tt>.</li>
-    <li>Added support functions <tt>IsUninstaller</tt> and <tt>UninstallSilent</tt>.</li>
-  </ul>
-  <br />
-  Furthermore, the compiler IDE now supports Uninstall debugging. To debug Uninstall, first run Setup from the IDE, install your application, select <i>Target Uninstall</i> in the <i>Run</i> menu and finally use the debugger functions as normal.<br />
-  See the help file and the <i>UninstallCodeExample1.iss</i> example script for more information.<br />
-  <br />
-</li>
-<li>The custom wizard page support has been completely redesigned from the ground up. The new design uses an event-driven model just like standard wizard pages; no longer do you have to write complicated loops to handle sequences of custom pages.<br />
-Any existing code utilizing custom wizard pages will need updating; all of the old functions have been replaced. Please see the new <i>Using Custom Wizard Pages</i> topic in the help file and the <i>CodeDlg.iss</i> and <i>CodeClasses.iss</i> example scripts for examples of how to use the new custom wizard page model.<br />
-<br />
-</li>
-<li>Besides space separated lists, you may now also use boolean expressions as <tt>Components</tt>, <tt>Tasks</tt>, <tt>Languages</tt> and <tt>Check</tt> parameters. Supported operators include <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>. For example:
-<blockquote><div><tt>
-[Components]<br />
-Name: a; Description: a<br />
-Name: b; Description: b<br />
-<br />
-[Tasks]<br />
-Name: p; Description: a or b; Components: a or b<br />
-Name: q; Description: a and b; Components: a and b<br />
-Name: r; Description: not a or b; Components: not a or b<br />
-Name: s; Description: not (a or b); Components: not (a or b)<br />
-Name: t; Description: a or b - old style; Components: a b
-</tt></div></blockquote>
-</li>
-<li>This syntax of function parameters in <tt>Check</tt>, <tt>BeforeInstall</tt> and <tt>AfterInstall</tt> parameters has changed to allow a list of multiple, comma separated, parameters and the use of Integer and Boolean parameter types besides String types. For example, you may now use:
-<blockquote><div><tt>
-[Files]<br />
-Source: MyProg.exe; DestDir: {app}; Check: MyCheck(1, True, 'Some text')<br />
-<br />
-[Code]<br />
-function MyCheck(I: Integer; B: Boolean; S: String): Boolean;<br />
-begin<br />
-&nbsp;&nbsp;Result := (I &gt; 0) and B and (S &lt;&gt; '');<br />
-end;<br />
-</tt></div></blockquote>
-Also, there's one support function that may be called from within a parameter list: <tt>ExpandConstant</tt>. For example:
-<blockquote><div><tt>
-[Files]<br />
-Source: MyProg.exe; DestDir: {app}; Check: MyCheck(1, True, ExpandConstant('{app}'))<br />
-</tt></div></blockquote>
-Existing scripts using function parameters will need to be updated.<br />
-<br />
-</li>
-<li>The functions specified by <tt>{code:...}</tt> constants and by <tt>Check</tt>, <tt>BeforeInstall</tt> and <tt>AfterInstall</tt> parameters may now refer to support functions too, for example:
-<blockquote><div><tt>
-[Components]<br />
-Name: adminonly; Description: My Admin Only Component; Check: IsAdminLoggedOn<br />
-<br />
-[Files]<br />
-Source: MyProg.exe; DestDir: {app}; BeforeInstall: Log('About to install MyProg.exe')<br />
-Source: MyProg.hlp; DestDir: {app}\Help; Check: DirExists(ExpandConstant('{app}\Help'))<br />
-<br />
-[INI]<br />
-FileName: {app}\MyIni.ini; Section: MySettings; Key: ShortApp; String: {code:GetShortName|{app}}<br />
-FileName: {app}\MyIni.ini; Section: MySettings; Key: AppDrive; String: {code:ExtractFileDrive|{app}}
-</tt></div></blockquote>
-</li>
-<li>Wizard-related event functions such as <tt>NextButtonClick</tt> are now called on silent installs as well. In fact, silent installs now function almost identically to non-silent ones with the exception that the Next button is automatically "clicked".</li>
-<li>Logging improvements:
-  <ul>
-    <li>The filenames of programs spawned in the [Run] section are now logged.</li>
-    <li>The /LOG parameter is now also supported by Uninstall, which causes Uninstall to create a log file in the user's TEMP directory detailing file uninstallation and [UninstallRun] actions taken during the uninstallation process. This can be a helpful debugging aid. See the <i>Uninstall Command Line Parameters</i> topic in the help file for further details.</li>
-  </ul>
-</li>
-<li>A new <tt>ShouldSkipPage</tt> event function has been added, which replaces <tt>SkipCurPage</tt>. Existing scripts that contain a <tt>SkipCurPage</tt> function will need to be updated. Note that unlike the old <tt>SkipCurPage</tt> event function, the page passed to the <tt>ShouldSkipPage</tt> function is not the current page.</li>
-<li>Added support function <tt>Abort</tt>. Calling <tt>Abort</tt> throws an exception to abort the current operation. It does not terminate Setup or Uninstall unless it's still starting up.</li>
-<li>When extracting a file, Setup now pre-allocates all of the bytes in the destination file on disk. This allows the system to know what the final size of the file will be before extraction begins, and avoid fragmenting it.</li>
-<li>The compiler now fully supports script files that use Unix-style line breaks (LF only).</li>
-<li>The Setup section directive <tt>UninstallIconFile</tt> is now deprecated and ignored. As Setup and Uninstall have been merged into a single executable, setting a custom icon for Uninstall is no longer possible.</li>
-<li>The Setup section directive <tt>UninstallStyle</tt> is now deprecated and ignored. Only the "modern" uninstaller style is supported now.</li>
-<li>Based on RemObjects Pascal Script SVN code revision 933.</li>
-<li>The uninstall program's version is now 51.30.0.0.</li>
-<li>A very large number of minor tweaks.</li>
-<li>This version is derived from Inno Setup 4.2.7, and therefore includes all of the features and fixes from that version.</li>
+  <li>Added new <i>AllPagesExample.iss</i> example script which shows all the wizard pages Setup may potentially display.</li>
+  <li>All documentation referring to the Power Users group has been removed: this group is not special anymore in Windows.</li>
+  <li>Other documentation and examples improvements.</li>
+  <li>Added official Icelandic translation.</li>
+  <li>Delphi compiler updated from Delphi 2009 to Delphi 10.3 Rio. This change increases the size of Setup but decreases development, testing and deployment times. It also makes it easier to compile Inno Setup yourself using the free Delphi Community Edition.</li>
+  <li>Minor tweaks.</li>
 </ul>
 
-<p><a href="http://www.jrsoftware.org/files/is4.2-whatsnew.htm">Inno Setup 4.2 &amp; 4.1 Revision History</a></p>
+<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to jogo-, Martin Prikryl, dscharrer, Kleuter, Gavin Lambert, Stef&aacute;n &Ouml;rvar Sigmundsson, DRON, Kevin Puetz, and Sherlock Software for their contributions.</p>
+
+<p>Some messages have been added and changed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/1d6d6869b225c73cde4d3e0541b87264c36f3954">View differences in Default.isl</a>).</p>
+<ul>
+  <li><b>New messages:</b> AbortRetryIgnoreSelectAction, AbortRetryIgnoreRetry, AbortRetryIgnoreIgnore, AbortRetryIgnoreCancel, ExistingFileReadOnly2, ExistingFileReadOnlyRetry, ExistingFileReadOnlyKeepExisting, FileAbortRetryIgnoreIgnoreNotRecommended, FileAbortRetryIgnoreSkipNotRecommended, PrivilegesRequiredOverrideTitle, PrivilegesRequiredOverrideInstruction, PrivilegesRequiredOverrideText1, PrivilegesRequiredOverrideText2, PrivilegesRequiredOverrideAllUsers, PrivilegesRequiredOverrideAllUsersRecommended, PrivilegesRequiredOverrideCurrentUser, PrivilegesRequiredOverrideCurrentUserRecommended, UninstallDisplayNameMark, UninstallDisplayNameMarks, UninstallDisplayNameMark32Bit, UninstallDisplayNameMark64Bit, UninstallDisplayNameMarkAllUsers, UninstallDisplayNameCurrentUser.</li>
+  <li><b>Changed message:</b> SelectLanguageLabel.</li>
+  <li><b>Removed messages:</b> EntryAbortRetryIgnore, ExistingFileReadOnly, ExistingFileReadOnlyAbortRetryIgnore, FileAbortRetryIgnore, FileAbortRetryIgnore2, MissingWOW64APIs.</li>
+</ul>
+
+<p>Note: Not all official translations have been updated for these changes at this moment. Demoted the official <a href="https://raw.github.com/jrsoftware/issrc/master/Files/Languages/Unofficial/German.isl">German</a>, <a href="https://raw.github.com/jrsoftware/issrc/master/Files/Languages/Unofficial/Nepali.islu">Nepali</a>, <a href="https://raw.github.com/jrsoftware/issrc/master/Files/Languages/Unofficial/SerbianCyrillic.isl">Serbian (Cyrillic)</a> and <a href="https://raw.github.com/jrsoftware/issrc/master/Files/Languages/Unofficial/SerbianLatin.isl">Serbian (Latin)</a> translations to unofficial because of a no longer available maintainer. To send updates yourself, see <a href="http://news.jrsoftware.org/read/article.php?id=2514&amp;group=jrsoftware.innosetup.translations#2514">this post</a> for what needs updating and use <a href="http://www.jrsoftware.org/files/istrans/send2.php">this form</a> to send updates (or use <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>). See the <a href="http://www.jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information.</li>
+
+<p><a href="http://www.jrsoftware.org/files/is5-whatsnew.htm">Inno Setup 5.6 Revision History</a></p>
 
 </body>
 </html>

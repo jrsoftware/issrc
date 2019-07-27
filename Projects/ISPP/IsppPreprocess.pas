@@ -26,46 +26,11 @@ var
 
 procedure ReadScript(const Params: TPreprocessScriptParams;
   const Preprocessor: TPreprocessor);
-
-  procedure BuiltIns;
-
-    function Escape(const S: string): string;
-    var
-      I: Integer;
-    begin
-      Result := '';
-      for I := 1 to Length(S) do
-      begin
-        Result := Result + S[I];
-        if S[I] = '\' then Result := Result + '\';
-      end;
-    end;
-
-  const
-    SBuiltins = 'ISPPBuiltins.iss';
-  var
-    BuiltinsFileName: string;
-  begin
-    if FileExists(BuiltinsDir + SBuiltins) then
-    begin
-      BuiltinsFileName := BuiltinsDir + SBuiltins;
-      if not GetOption(Preprocessor.FOptions.ParserOptions.Options, 'P') then
-        BuiltinsFileName := Escape(BuiltinsFileName);
-      Preprocessor.IncludeFile(BuiltinsFileName, False);
-      //Preprocessor.IncludeFile('D:\PROGRA~1\INNOSE~1\BUILTINS.ISS', False);
-      {TPreprocProtectedMethods(Preprocessor).InternalAddLine
-        (Format('#include "%s"', [BuiltinsFileName]), 0, Word(-1), False)}
-    end
-    else
-      Preprocessor.IssueMessage(SBuiltins + ' file was not found', imtWarning);
-  end;
-
 var
   I: Integer;
   LineText: PChar;
   LineTextStr: String;
 begin
-  BuiltIns;
   I := 0;
   while True do
   begin
@@ -110,7 +75,7 @@ const
       InlineStart: '{#'; InlineEnd: '}'; SpanSymbol: #0);
 var
   ISPPOptions: TIsppOptions;
-  IncludePath, Definitions: string;
+  Definitions, IncludePath, IncludeFiles: String;
   Preprocessor: TPreprocessor;
   V: TIsppVariant;
 
@@ -127,10 +92,12 @@ var
       ISPPOptions.InlineStart := AnsiString(OptValue)
     else if OptName = 'ISPP:InlineEnd' then
       ISPPOptions.InlineEnd := AnsiString(OptValue)
-    else if OptName = 'ISPP:IncludePath' then
-      IncludePath := OptValue
     else if OptName = 'ISPP:Definitions' then
       Definitions := OptValue
+    else if OptName = 'ISPP:IncludePath' then
+      IncludePath := OptValue
+    else if OptName = 'ISPP:IncludeFiles' then
+      IncludeFiles := OptValue
     else
       Result := False;
   end;
@@ -159,7 +126,7 @@ var
     end;
   end;
 
-  procedure ParseDefinitions(Definitions: PChar; VarMan: TIdentManager);
+  function ParseDefinitions(Definitions: PChar; VarMan: TIdentManager): Boolean;
 
     procedure ParseDefinition(const S: string);
     var
@@ -181,31 +148,73 @@ var
       VarMan.DefineVariable(Name, -1, Value, dsPublic);
     end;
 
-  const
-    QuoteChar = Char('"');
-    Delimiter = Char(';');
   var
-    P: PChar;
-    S: string;
+    DelimPos: PChar;
+    N: Integer;
+    Definition: string;
   begin
-    if Definitions = nil then Exit;
-    while CharInSet(Definitions^, [#1..' ']) do Inc(Definitions);
-    while Definitions^ <> #0 do
-    begin
-      if Definitions^ = QuoteChar then
-        S := AnsiExtractQuotedStr(Definitions, QuoteChar)
-      else
-      begin
-        P := Definitions;
-        while (Definitions^ > ' ') and (Definitions^ <> Delimiter) do Inc(Definitions);
-        SetString(S, P, Definitions - P);
+    Result := True;
+    while Definitions^ <> #0 do begin
+      DelimPos := StrScan(Definitions, #1);
+      if DelimPos = nil then begin
+        Result := False;
+        Break;
       end;
-      ParseDefinition(S);
-      while CharInSet(Definitions^, [#1..' ']) do Inc(Definitions);
-      if Definitions^ = Delimiter then
-      repeat
-        Inc(Definitions);
-      until not CharInSet(Definitions^, [#1..' ']);
+      N := DelimPos - Definitions;
+      if N > 0 then begin
+        SetString(Definition, Definitions, N);
+        ParseDefinition(Definition);
+      end;
+      Inc(Definitions, N + 1);
+    end;
+  end;
+
+  function IncludeBuiltinsAndParseIncludeFiles(IncludeFiles: PChar; Options: TOptions): Boolean;
+
+    function Escape(const S: string): string;
+    var
+      I: Integer;
+    begin
+      Result := '';
+      for I := 1 to Length(S) do
+      begin
+        Result := Result + S[I];
+        if S[I] = '\' then Result := Result + '\';
+      end;
+    end;
+
+    procedure Include(FileName: String);
+    begin
+      if not GetOption(Options, 'P') then
+        FileName := Escape(FileName);
+      Preprocessor.IncludeFile(FileName, False, True);
+    end;
+
+  const
+    SBuiltins = 'ISPPBuiltins.iss';
+  var
+    DelimPos: PChar;
+    N: Integer;
+    IncludeFile: String;
+  begin
+    Result := True;
+    IncludeFile := BuiltinsDir + SBuiltins;
+    if FileExists(IncludeFile) then
+      Include(IncludeFile)
+    else
+      Preprocessor.IssueMessage(SBuiltins + ' file was not found', imtWarning);
+    while IncludeFiles^ <> #0 do begin
+      DelimPos := StrScan(IncludeFiles, #1);
+      if DelimPos = nil then begin
+        Result := False;
+        Break;
+      end;
+      N := DelimPos - IncludeFiles;
+      if N > 0 then begin
+        SetString(IncludeFile, IncludeFiles, N);
+        Include(IncludeFile);
+      end;
+      Inc(IncludeFiles, N + 1);
     end;
   end;
 
@@ -224,8 +233,9 @@ begin
   CompilerPath := Params.CompilerPath;
 
   ISPPOptions := DefaultOptions;
-  IncludePath := RemoveBackslashUnlessRoot(CompilerPath);
   Definitions := '';
+  IncludePath := RemoveBackslashUnlessRoot(CompilerPath);
+  IncludeFiles := '';
   if not ParseOptions(Params.Options) then
   begin
     Result := ispeInvalidParam;
@@ -252,7 +262,13 @@ begin
       MakeInt(V, Params.CompilerBinVersion);
       Preprocessor.VarMan.DefineVariable('Ver', -1, V, dsPublic);
 
-      ParseDefinitions(PChar(Definitions), Preprocessor.VarMan);
+      if not ParseDefinitions(PChar(Definitions), Preprocessor.VarMan) or
+         not IncludeBuiltinsAndParseIncludeFiles(PChar(IncludeFiles),
+           Preprocessor.FOptions.ParserOptions.Options) then
+      begin
+        Result := ispeInvalidParam;
+        Exit;
+      end;
 
       ReadScript(Params, Preprocessor);
       Preprocessor.Stack.Resolved;

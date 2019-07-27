@@ -2,7 +2,7 @@ unit InstFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -49,7 +49,8 @@ type
   TDetermineDefaultLanguageResult = (ddNoMatch, ddMatch, ddMatchLangParameter);
   TGetLanguageEntryProc = function(Index: Integer; var Entry: PSetupLanguageEntry): Boolean;
 
-function CheckForMutexes(Mutexes: String): Boolean;
+function CheckForMutexes(const Mutexes: String): Boolean;
+procedure CreateMutexes(const Mutexes: String);
 function CreateTempDir: String;
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
@@ -116,7 +117,7 @@ function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
 implementation
 
 uses
-  Messages, ShellApi, PathFunc, Msgs, MsgIDs, FileClass, RedirFunc;
+  Messages, ShellApi, PathFunc, Msgs, MsgIDs, FileClass, RedirFunc, SetupTypes;
 
 procedure InternalError(const Id: String);
 begin
@@ -154,6 +155,7 @@ end;
 function GetRegRootKeyName(const RootKey: HKEY): String;
 begin
   case RootKey of
+    HKEY_AUTO: InternalError('GetRegRootKeyName called for HKEY_AUTO');
     HKEY_CLASSES_ROOT: Result := 'HKEY_CLASSES_ROOT';
     HKEY_CURRENT_USER: Result := 'HKEY_CURRENT_USER';
     HKEY_LOCAL_MACHINE: Result := 'HKEY_LOCAL_MACHINE';
@@ -921,7 +923,7 @@ begin
     HandleProcessWait(Info.hProcess, Wait, ProcessMessagesProc, ResultCode);
 end;
 
-function CheckForMutexes(Mutexes: String): Boolean;
+function CheckForOrCreateMutexes(Mutexes: String; const Create: Boolean): Boolean;
 
   function MutexPos(const S: String): Integer;
   var
@@ -937,7 +939,7 @@ function CheckForMutexes(Mutexes: String): Boolean;
   end;
 
 { Returns True if any of the mutexes in the comma-separated Mutexes string
-  exist }
+  exist and Create is False }
 var
   I: Integer;
   M: String;
@@ -950,15 +952,29 @@ begin
     M := Trim(Copy(Mutexes, 1, I-1));
     if M <> '' then begin
       StringChange(M, '\,', ',');
-      H := OpenMutex(SYNCHRONIZE, False, PChar(M));
-      if H <> 0 then begin
-        CloseHandle(H);
-        Result := True;
-        Break;
+      if Create then begin
+        CreateMutex(M)
+      end else begin
+        H := OpenMutex(SYNCHRONIZE, False, PChar(M));
+        if H <> 0 then begin
+          CloseHandle(H);
+          Result := True;
+          Break;
+        end;
       end;
     end;
     Delete(Mutexes, 1, I);
   until Mutexes = '';
+end;
+
+function CheckForMutexes(const Mutexes: String): Boolean;
+begin
+  Result := CheckForOrCreateMutexes(Mutexes, False);
+end;
+
+procedure CreateMutexes(const Mutexes: String);
+begin
+  CheckForOrCreateMutexes(Mutexes, True);
 end;
 
 function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;
@@ -1320,7 +1336,7 @@ procedure RefreshEnvironment;
   changed. Based on code from KB article 104011.
   Note: Win9x's Explorer ignores this message. }
 var
-  MsgResult: DWORD;
+  MsgResult: DWORD_PTR;
 begin
   { Note: We originally used SendNotifyMessage to broadcast the message but it
     turned out that while it worked fine on NT 4 and 2000 it didn't work on XP
@@ -1329,7 +1345,7 @@ begin
     in the KB article 104011. It isn't as elegant since it could cause us to
     be delayed if another app is hung, but it'll have to do. }
   SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
-    LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, MsgResult);
+    LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, @MsgResult);
 end;
 
 procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);

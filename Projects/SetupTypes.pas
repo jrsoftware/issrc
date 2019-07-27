@@ -2,7 +2,7 @@ unit SetupTypes;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -42,18 +42,23 @@ type
 
   TInstallOnThisVersionResult = (irInstall, irNotOnThisPlatform,
     irVersionTooLow, irServicePackTooLow, irVerTooHigh);
+    
+  TRenamedConstantCallBack = procedure(const Cnst, CnstRenamed: String) of object;
 
 const
   crHand = 1;
-
+  
   CodeRootKeyFlagMask  = $7F000000;
   CodeRootKeyFlag32Bit = $01000000;
   CodeRootKeyFlag64Bit = $02000000;
   CodeRootKeyValidFlags = CodeRootKeyFlag32Bit or CodeRootKeyFlag64Bit;
 
+  HKEY_AUTO = 1; { Any value will work as long as it isn't 0 and doesn't match a predefined key handle (8xxxxxxx) nor includes any of the CodeRootKeyValidFlags flags. }
+
 function StringsToCommaString(const Strings: TStrings): String;
 procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
 function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): Boolean;
+procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback: TRenamedConstantCallback);
 
 implementation
 
@@ -262,6 +267,34 @@ begin
       Result := False
     else
       raise;
+  end;
+end;
+
+procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback: TRenamedConstantCallback);
+var
+  CnstRenamed: String;
+begin
+  if Cnst = 'sendto' then
+    CnstRenamed := 'usersendto'
+  else if Cnst = 'pf' then
+    CnstRenamed := 'commonpf'
+  else if Cnst = 'pf32' then
+    CnstRenamed := 'commonpf32'
+  else if Cnst = 'pf64' then
+    CnstRenamed := 'commonpf64'
+  else if Cnst = 'cf' then
+    CnstRenamed := 'commoncf'
+  else if Cnst = 'cf32' then
+    CnstRenamed := 'commoncf32'
+  else if Cnst = 'cf64' then
+    CnstRenamed := 'commoncf64'
+  else
+    CnstRenamed := '';
+
+  if CnstRenamed <> '' then begin
+    if Assigned(RenamedConstantCallback) then
+      RenamedConstantCallback(Cnst, CnstRenamed);
+    Cnst := CnstRenamed;
   end;
 end;
 
