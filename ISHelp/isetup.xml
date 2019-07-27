@@ -100,7 +100,7 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <ul>
 
-<li>Support for every Windows release since 2006, including: Windows 10, Windows 10 on ARM, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Server 2008, and Windows Vista. (No service packs are required.)</li>
+<li>Support for every Windows release since 2006, including: Windows 10, Windows 10 on ARM, Windows Server 2016, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Server 2008, and Windows Vista. (No service packs are required.)</li>
 
 <li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are all supported.</li>
 
@@ -5469,7 +5469,7 @@ SignTool=byparam format c:
 <tr><td>6.3.9600</td><td>Windows 8.1 with Update 1</td></tr>
 <tr><td>10.0.10240</td><td>Windows 10 Version 1507</td></tr>
 <tr><td>10.0.10586</td><td>Windows 10 Version 1511 (November Update)</td></tr>
-<tr><td>10.0.14393</td><td>Windows 10 Version 1607 (Anniversary Update)</td></tr>
+<tr><td>10.0.14393</td><td>Windows 10 Version 1607 (Anniversary Update)<br/>or Windows Server 2016</td></tr>
 <tr><td>10.0.15063</td><td>Windows 10 Version 1703 (Creators Update)</td></tr>
 <tr><td>10.0.16299</td><td>Windows 10 Version 1709 (Fall Creators Update)</td></tr>
 <tr><td>10.0.17134</td><td>Windows 10 Version 1803 (April 2018 Update)</td></tr>
