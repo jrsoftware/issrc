@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.6.0+ Russian messages ***
+; *** Inno Setup version 6.0.3+ Russian messages ***
 ;
 ; Translated from English by Dmitry Kann, http://yktoo.com/
 ;
@@ -204,6 +204,7 @@ ApplicationsFound2=Следующие приложения используют файлы, которые программа уста
 CloseApplications=&Автоматически закрыть эти приложения
 DontCloseApplications=&Не закрывать эти приложения
 ErrorCloseApplications=Программе установки не удалось автоматически закрыть все приложения. Рекомендуется закрыть все приложения, которые используют подлежащие обновлению файлы, прежде чем продолжить установку.
+PrepareToInstallNeedsRestart=Программе установки требуется перезагрузить ваш компьютер. Когда перезагрузка завершится, пожалуйста, запустите программу установки вновь, чтобы завершить процесс установки [name].%n%nПроизвести перезагрузку сейчас?
 
 ; *** "Installing" wizard page
 WizardInstalling=Установка...
