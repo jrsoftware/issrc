@@ -1690,6 +1690,7 @@ The list of options is provided at the end of this topic.</para>
 					<kwd>SourcePath</kwd>
 					<kwd>Ver</kwd>
 					<kwd>NewLine</kwd>
+					<kwd>Tab</kwd>
         </keywords>
 			<title>Predefined Variables</title>
 			<description header="no">
@@ -1712,6 +1713,7 @@ The list of options is provided at the end of this topic.</para>
 					<tr><td><code>SourcePath</code></td><td><code><b>str</b></code>. Points to the directory where the current script is located, or the My Documents directory if the script has not yet been saved.</td></tr>
 					<tr><td><code>Ver</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of Inno Setup compiler. Highest byte holds the major version, lowest byte the minor version.</td></tr>
 					<tr><td><code>NewLine</code></td><td><code><b>str</b></code>. Returns the newline character. Declared in &builtins;.</td></tr>
+					<tr><td><code>Tab</code></td><td><code><b>str</b></code>. Returns the tab character. Declared in &builtins;.</td></tr>
 				</table>
 			</description>
 		</topic>

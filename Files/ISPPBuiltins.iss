@@ -50,10 +50,11 @@
 #else
 # pragma parseroption -p-
 #endif
-
-#define NewLine "\n"
+//
+#define NewLine            "\n"
+#define Tab                "\t"
+//
 #pragma parseroption -p+
-
 //
 #pragma spansymbol "\"
 //
