@@ -1672,6 +1672,25 @@ The list of options is provided at the end of this topic.</para>
 			</section>
 		</topic>
 		<topic id="predefinedvars">
+				<keywords>
+					<kwd>__COUNTER__</kwd>
+					<kwd>__FILE__</kwd>
+					<kwd>__INCLUDE__</kwd>
+					<kwd>__LINE__</kwd>
+					<kwd>__OPT_X__</kwd>
+					<kwd>__PATHFILENAME__</kwd>
+					<kwd>__POPT_X__</kwd>
+					<kwd>__WIN32__</kwd>
+					<kwd>ISPP_INVOKED</kwd>
+					<kwd>ISPPCC_INVOKED</kwd>
+					<kwd>PREPROCVER</kwd>
+					<kwd>WINDOWS</kwd>
+					<kwd>UNICODE</kwd>
+					<kwd>CompilerPath</kwd>
+					<kwd>SourcePath</kwd>
+					<kwd>Ver</kwd>
+					<kwd>NewLine</kwd>
+        </keywords>
 			<title>Predefined Variables</title>
 			<description header="no">
 				<para>There are a number of predefined variables provided ISPP:</para>
@@ -1688,10 +1707,10 @@ The list of options is provided at the end of this topic.</para>
 					<tr><td><code>ISPPCC_INVOKED</code></td><td><code><b>void</b></code>. Defined if compilation was invoked using the console-mode compiler, ISCC.exe.</td></tr>
 					<tr><td><code>PREPROCVER</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of ISPP. Highest byte holds the major version, lowest byte holds the build number.</td></tr>
 					<tr><td><code>WINDOWS</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
-					<tr><td><code>UNICODE</code></td><td><code><b>void</b></code>. Always defined for Unicode ISPP. Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
+					<tr><td><code>UNICODE</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>CompilerPath</code></td><td><code><b>str</b></code>. Points to the directory where the compiler is located.</td></tr>
 					<tr><td><code>SourcePath</code></td><td><code><b>str</b></code>. Points to the directory where the current script is located, or the My Documents directory if the script has not yet been saved.</td></tr>
-					<tr><td><code>Ver</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of Inno Setup compiler. Highest byte holds the major version, lowest byte usually holds zero.</td></tr>
+					<tr><td><code>Ver</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of Inno Setup compiler. Highest byte holds the major version, lowest byte the minor version.</td></tr>
 					<tr><td><code>NewLine</code></td><td><code><b>str</b></code>. Returns the newline character. Declared in &builtins;.</td></tr>
 				</table>
 			</description>
