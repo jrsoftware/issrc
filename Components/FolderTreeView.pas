@@ -135,7 +135,7 @@ implementation
 }
 
 uses
-  PathFunc, ShellApi, UxThemeISX, Types;
+  PathFunc, ShellApi, UxTheme, Types;
 
 const
   SHPPFW_NONE = $00000000;

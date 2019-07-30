@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, UxThemeISX;
+  StdCtrls, UxTheme;
 
 const
   WM_UPDATEUISTATE = $0128;
@@ -198,7 +198,7 @@ procedure Register;
 implementation
 
 uses
-  TmSchemaISX, PathFunc, ActiveX, BidiUtils, Types;
+  TmSchema, PathFunc, ActiveX, BidiUtils, Types;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';

@@ -25,7 +25,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors,
-  DebugStruct, CompInt, UxThemeISX, System.ImageList, ImgList, ToolWin,
+  DebugStruct, CompInt, UxTheme, System.ImageList, ImgList, ToolWin,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
 const
@@ -454,7 +454,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, CommDlg, Consts, Types,
-  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchemaISX, BrowseFunc,
+  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes;
