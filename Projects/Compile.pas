@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings,
+  CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, DebugStruct, VerInfo, ResUpdate, CompResUpdate,
@@ -160,6 +160,7 @@ type
     ssSignToolMinimumTimeBetween,
     ssSignToolRetryCount,
     ssSignToolRetryDelay,
+    ssSignToolRunMinimized,
     ssSlicesPerDisk,
     ssSolidCompression,
     ssSourceDir,
@@ -364,6 +365,7 @@ type
     SignToolList: TList;
     SignTools, SignToolsParams: TStringList;
     SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween: Integer;
+    SignToolRunMinimized: Boolean;
     LastSignCommandStartTick: DWORD;
 
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
@@ -517,7 +519,7 @@ type
     procedure SeparateDirective(const Line: PChar; var Key, Value: String);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
     procedure Sign(AExeFilename: String);
-    procedure SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer);
+    procedure SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer; const RunMinimized: Boolean);
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
@@ -4268,6 +4270,9 @@ begin
           Invalid;
         SignToolRetryDelay := I;
       end;
+    ssSignToolRunMinimized: begin
+        SignToolRunMinimized := StrToBool(Value);
+      end;
     ssSlicesPerDisk: begin
         I := StrToIntDef(Value, -1);
         if (I < 1) or (I > 26) then
@@ -7382,7 +7387,7 @@ begin
   for I := 0 to LanguageEntries.Count-1 do begin
     LangData := LangDataList[I];
     for J := Low(LangData.Messages) to High(LangData.Messages) do
-      if not LangData.MessagesDefined[J] then begin
+      if not LangData.MessagesDefined[J] and (J <> msgPrepareToInstallNeedsRestart) then begin
         { Use the message from Default.isl }
         if not (J in [msgHelpTextNote, msgTranslatorNote]) then
           WarningsList.Add(Format(SCompilerMessagesMissingMessageWarning,
@@ -7589,11 +7594,11 @@ begin
   for I := 0 to SignTools.Count - 1 do begin
     SignToolIndex := FindSignToolIndexByName(SignTools[I]); //can't fail, already checked
     SignTool := TSignTool(SignToolList[SignToolIndex]);
-    SignCommand(SignTool.Name, SignTool.Command, SignToolsParams[I], AExeFilename, SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween);
+    SignCommand(SignTool.Name, SignTool.Command, SignToolsParams[I], AExeFilename, SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween, SignToolRunMinimized);
   end;
 end;
 
-procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer);
+procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer; const RunMinimized: Boolean);
 
   function FmtCommand(S: PChar; const AParams, AFileName: String; var AFileNameSequenceFound: Boolean): String;
   var
@@ -7655,7 +7660,7 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
     FillChar(StartupInfo, SizeOf(StartupInfo), 0);
     StartupInfo.cb := SizeOf(StartupInfo);
     StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
-    StartupInfo.wShowWindow := SW_SHOW;
+    StartupInfo.wShowWindow := IfThen(RunMinimized, SW_SHOWMINNOACTIVE, SW_SHOW);
     
     if not CreateProcess(nil, PChar(AFormattedCommand), nil, nil, False,
        CREATE_DEFAULT_ERROR_MODE, nil, PChar(CompilerDir), StartupInfo, ProcessInfo) then begin

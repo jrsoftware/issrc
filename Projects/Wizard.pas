@@ -1278,13 +1278,13 @@ procedure TWizardForm.FormResize(Sender: TObject);
     { BitmapImage's size is already corrected by the Anchors property but this
       doesn't keep the aspect ratio. Calculate and set new width to restore the
       aspect ratio and update all the other controls in the page for this. Don't
-      do this if [Code] made any change to BitmapImage's Align or Anchors
+      do this if [Code] made any change to BitmapImage's Visible, Align or Anchors
       signalling that it wants a custom layout. }
     if ControlsFlipped then
       ExpectedAnchors := [akTop, akRight, akBottom]
     else
       ExpectedAnchors := [akLeft, akTop, akBottom];
-    if (BitmapImage.Align = alNone) and (BitmapImage.Anchors = ExpectedAnchors) then begin
+    if BitmapImage.Visible and (BitmapImage.Align = alNone) and (BitmapImage.Anchors = ExpectedAnchors) then begin
       if BaseUnitX = 0 then
         InternalError('AnchorOuterPage: BaseUnitX = 0');
       NewWidth := MulDiv(BitmapImage.Height, ScalePixelsX(164), ScalePixelsY(314)); //164x314 is the original bitmapimage size
@@ -1822,6 +1822,7 @@ var
   WindowDisabler: TWindowDisabler;
   CodeNeedsRestart: Boolean;
   Y: Integer;
+  S: String;
 begin
   Result := '';
   PrepareToInstallNeedsRestart := False;
@@ -1854,10 +1855,13 @@ begin
     Application.BringToFront;
   end;
   if Result <> '' then begin
-    if PrepareToInstallNeedsRestart then
+    if PrepareToInstallNeedsRestart then begin
+      S := ExpandSetupMessage(msgPrepareToInstallNeedsRestart);
+      if S = '' then
+        S := ExpandSetupMessage(msgFinishedRestartLabel);
       PreparingLabel.Caption := Result +
-        SNewLine + SNewLine + SNewLine + ExpandSetupMessage(msgFinishedRestartLabel) + SNewLine
-    else
+        SNewLine + SNewLine + SNewLine + S + SNewLine
+    end else
       PreparingLabel.Caption := Result +
         SNewLine + SNewLine + SNewLine + SetupMessages[msgCannotContinue];
     AdjustLabelHeight(PreparingLabel);

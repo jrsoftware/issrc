@@ -46,7 +46,7 @@
 
 { Simplified by Martijn Laan for Inno Setup and Delphi 2 }
 
-unit TmSchemaISX;
+unit TmSchema;
 
 interface
 

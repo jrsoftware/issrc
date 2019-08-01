@@ -25,7 +25,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors,
-  DebugStruct, CompInt, UxThemeISX, System.ImageList, ImgList, ToolWin,
+  DebugStruct, CompInt, UxTheme, System.ImageList, ImgList, ToolWin,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
 const
@@ -173,6 +173,7 @@ type
     TerminateButton: TToolButton;
     ToolBarImageCollection: TImageCollection;
     ToolBarVirtualImageList: TVirtualImageList;
+    PListSelectAll: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenClick(Sender: TObject);
@@ -253,6 +254,7 @@ type
       Rect: TRect; State: TOwnerDrawState);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
+    procedure PListSelectAllClick(Sender: TObject);
   private
     { Private declarations }
     FCompilerVersion: PCompilerVersionInfo;
@@ -452,7 +454,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, CommDlg, Consts, Types,
-  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchemaISX, BrowseFunc,
+  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes;
@@ -896,7 +898,7 @@ begin
   SetFakeShortCutText(VZoomOut, SmkcCtrl + 'Num -');
   SetFakeShortCutText(VZoomReset, SmkcCtrl + 'Num /');
   { Use fake Esc shortcut for Stop Compile so it doesn't conflict with the
-    editor's autocompletion list } 
+    editor's autocompletion list }
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
 
 {$IFNDEF IS_D103RIO}
@@ -3874,8 +3876,44 @@ begin
 end;
 
 procedure TCompileForm.PListCopyClick(Sender: TObject);
+var
+  ListBox: TListBox;
+  Text: String;
+  I: Integer;
 begin
-  Clipboard.AsText := (ListPopupMenu.PopupComponent as TListBox).Items.Text;
+  if CompilerOutputList.Visible then
+    ListBox := CompilerOutputList
+  else
+    ListBox := DebugOutputList;
+  Text := '';
+  if ListBox.SelCount > 0 then begin
+    for I := 0 to ListBox.Items.Count-1 do begin
+      if ListBox.Selected[I] then begin
+        if Text <> '' then
+          Text := Text + SNewLine;
+        Text := Text + ListBox.Items[I];
+      end;
+    end;
+  end;
+  Clipboard.AsText := Text;
+end;
+
+procedure TCompileForm.PListSelectAllClick(Sender: TObject);
+var
+  ListBox: TListBox;
+  I: Integer;
+begin
+  if CompilerOutputList.Visible then
+    ListBox := CompilerOutputList
+  else
+    ListBox := DebugOutputList;
+  ListBox.Items.BeginUpdate;
+  try
+    for I := 0 to ListBox.Items.Count-1 do
+      ListBox.Selected[I] := True;
+  finally
+    ListBox.Items.EndUpdate;
+  end;
 end;
 
 procedure TCompileForm.AppOnIdle(Sender: TObject; var Done: Boolean);

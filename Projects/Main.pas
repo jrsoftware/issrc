@@ -2278,6 +2278,15 @@ begin
   end;
 end;
 
+procedure LogCompatibilityMode;
+var
+  S: String;
+begin
+  S := GetEnv('__COMPAT_LAYER');
+  if S <> '' then
+    LogFmt('Compatibility mode: %s (%s)', [SYesNo[True], S]);
+end;
+
 procedure LogWindowsVersion;
 var
   SP: String;
@@ -3138,6 +3147,7 @@ begin
         Log('Setup version: ' + SetupTitle + ' version ' + SetupVersion);
         Log('Original Setup EXE: ' + SetupLdrOriginalFilename);
         Log('Setup command line: ' + GetCmdTail);
+        LogCompatibilityMode;
         LogWindowsVersion;
 
         NeedPassword := shPassword in SetupHeader.Options;
@@ -4222,10 +4232,13 @@ begin
               RestartSystem := WizardForm.YesRadio.Checked;
           imSilent:
             begin
-              if FromPreparingPage then
+              if FromPreparingPage then begin
+                S := ExpandSetupMessage(msgPrepareToInstallNeedsRestart);
+                if S = '' then
+                  S := ExpandSetupMessage(msgFinishedRestartMessage);
                 S := WizardForm.PrepareToInstallFailureMessage + SNewLine +
-                  SNewLine + SNewLine + ExpandSetupMessage(msgFinishedRestartMessage)
-              else
+                  SNewLine + SNewLine + S
+              end else
                 S := ExpandSetupMessage(msgFinishedRestartMessage);
               RestartSystem :=
                 LoggedMsgBox(S, '', mbConfirmation, MB_YESNO, True, IDYES) = IDYES;

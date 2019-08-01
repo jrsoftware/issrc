@@ -100,7 +100,7 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <ul>
 
-<li>Support for every Windows release since 2006, including: Windows 10, Windows 10 on ARM, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Server 2008, and Windows Vista. (No service packs are required.)</li>
+<li>Support for every Windows release since 2006, including: Windows 10, Windows 10 on ARM, Windows Server 2019, Windows Server 2016, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Server 2008, and Windows Vista. (No service packs are required.)</li>
 
 <li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are all supported.</li>
 
@@ -985,6 +985,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link></li>
 <li><link topic="setup_signtoolretrycount">SignToolRetryCount</link></li>
 <li><link topic="setup_signtoolretrydelay">SignToolRetryDelay</link></li>
+<li><link topic="setup_signtoolrunminimized">SignToolRunMinimized</link></li>
 <li><link topic="setup_slicesperdisk">SlicesPerDisk</link></li>
 <li><link topic="setup_solidcompression">SolidCompression</link></li>
 <li><link topic="setup_sourcedir">SourceDir</link></li>
@@ -5209,7 +5210,8 @@ SignTool=byparam format c:
 <p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <link topic="setup_diskslicesize">DiskSliceSize</link> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-1 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-1 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link><br/>
-<link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
+<link topic="setup_signtoolretrycount">SignToolRetryCount</link><br/>
+<link topic="setup_signtoolrunminimized">SignToolRunMinimized</link></p>
 </body>
 </setuptopic>
 
@@ -5248,6 +5250,19 @@ SignTool=byparam format c:
 <p><b>See also:</b><br/>
 <link topic="setup_signtool">SignTool</link><br/>
 <link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="SignToolRunMinimized">
+<keyword value="signature" />
+<keyword value="digital signature" />
+<keyword value="code signing" />
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>no</tt></setupdefault>
+<body>
+<p>When set to <tt>yes</tt>, the Setup Compiler will run Sign Tools in a minimized window.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_signtool">SignTool</link></p>
 </body>
 </setuptopic>
 
@@ -5454,11 +5469,11 @@ SignTool=byparam format c:
 <tr><td>6.3.9600</td><td>Windows 8.1 with Update 1</td></tr>
 <tr><td>10.0.10240</td><td>Windows 10 Version 1507</td></tr>
 <tr><td>10.0.10586</td><td>Windows 10 Version 1511 (November Update)</td></tr>
-<tr><td>10.0.14393</td><td>Windows 10 Version 1607 (Anniversary Update)</td></tr>
+<tr><td>10.0.14393</td><td>Windows 10 Version 1607 (Anniversary Update)<br/>or Windows Server 2016</td></tr>
 <tr><td>10.0.15063</td><td>Windows 10 Version 1703 (Creators Update)</td></tr>
 <tr><td>10.0.16299</td><td>Windows 10 Version 1709 (Fall Creators Update)</td></tr>
 <tr><td>10.0.17134</td><td>Windows 10 Version 1803 (April 2018 Update)</td></tr>
-<tr><td>10.0.17763</td><td>Windows 10 Version 1809 (October 2018 Update)</td></tr>
+<tr><td>10.0.17763</td><td>Windows 10 Version 1809 (October 2018 Update)<br/>or Windows Server 2019</td></tr>
 <tr><td>10.0.18362</td><td>Windows 10 Version 1903 (May 2019 Update)</td></tr>
 </table>
 <p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
