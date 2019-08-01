@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.0+ Lithuanian messages ***
+; *** Inno Setup version 6.0.3+ Lithuanian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -9,7 +9,7 @@
 ; two periods being displayed).
 ; Translated by Robertas Rimas (Loptar AT takas DOT lt)
 ; Corrected and updated by Rolandas Rudomanskis (rolandasr AT gmail DOT com)
-; Corrected and updated to version 6.0.0+ by Dalius Guzauskas (aka Tichij) (tichij AT mail DOT com)
+; Corrected and updated to version 6.0.3+ by Dalius Guzauskas (aka Tichij) (tichij AT mail DOT com)
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -221,6 +221,7 @@ ApplicationsFound2=Ðios programos naudoja failus, kurie turi bûti perraðyti dieg
 CloseApplications=&Automatiðkai uþdaryti programas
 DontCloseApplications=&Neuþdarinëti programø
 ErrorCloseApplications=Diegimo programai nepavyko automatiðkai uþdaryti visø programø. Prieð tæsiant diegimà, rekomeduojama uþdaryti visas programas, naudojanèias failus, kurie turi bûti perraðyti diegimo metu.
+PrepareToInstallNeedsRestart=Diegimo programai reikia perkrauti kompiuterá. Po perkovimo, vël paleiskite diegimo programà „[name]“ diegimo uþbaigimui.%n%nNorite perkrauti já dabar?
 
 ; *** "Installing" wizard page
 WizardInstalling=Vyksta diegimas
@@ -231,8 +232,8 @@ FinishedHeadingLabel=„[name]“ diegimas baigtas
 FinishedLabelNoIcons=Diegimo programa baigë „[name]“ diegimà Jûsø kompiuteryje.
 FinishedLabel=Diegimo programa baigë „[name]“ diegimà Jûsø kompiuteryje. Programa gali bûti paleista pasirinkus atitinkamas nuorodas.
 ClickFinish=Spauskite „Pabaiga“, kad uþdarytumëte diegimo programà.
-FinishedRestartLabel=Sëkmingam „[name]“ diegimui, reikëtø perkrauti kompiuterá. Norite perkrauti já dabar?
-FinishedRestartMessage=Sëkmingam „[name]“ diegimui, reikëtø perkrauti kompiuterá.%n%nNorite perkrauti já dabar?
+FinishedRestartLabel=„[name]“ diegimo uþbaigimui, reikia perkrauti kompiuterá. Norite perkrauti já dabar?
+FinishedRestartMessage=„[name]“ diegimo uþbaigimui, reikia perkrauti kompiuterá.%n%nNorite perkrauti já dabar?
 ShowReadmeCheck=Taip, að norëèiau perskaityti „README“ failà
 YesRadio=&Taip, að noriu perkrauti kompiuterá dabar
 NoRadio=&Ne, að perkrausiu kompiuterá vëliau
