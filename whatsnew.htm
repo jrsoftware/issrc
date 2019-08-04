@@ -33,7 +33,12 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Checkboxes displayed by lists now look better on high DPI systems.</li>
   <li>Compiler IDE change: The "Compiler Output" and "Debug Output" views now support multi selection, an extra <i>Select All</i> popup menu item and <i>Ctrl+C</i> and </i>Ctrl+A</i> keyboard shortcuts. The <i>Copy</i> action now only copies the selected lines instead of all lines.</li>
   <li>Inno Setup Preprocessor (ISPP) change: Added new predefined variable <tt>Tab</tt>.</li>
-  <li>A message has been added in this version: PrepareToInstallNeedsRestart. This message is used by the <i>Preparing to Install</i> wizard page if a restart is needed. If this message is not set by a translation, Setup will instead use FinishedRestartLabel and FinishedRestartMessage as before. (<a href="https://github.com/jrsoftware/issrc/commit/bee9623f6680662ae280a7a38919b1f913f23834">View difference in Default.isl</a>.)</li>
+  <li>Some messages have been added in this version: (<a href="https://github.com/jrsoftware/issrc/commit/dfdf02aef168be458b64e77afb20ae53a5b4f2ec">View differences in Default.isl</a>).
+  <ul>
+    <li>PrepareToInstallNeedsRestart: This message is used by the <i>Preparing to Install</i> wizard page if a restart is needed. If this message is not set by a translation, Setup will instead use FinishedRestartLabel and FinishedRestartMessage as before.</li>
+    <li>ComponentsDiskSpaceGBLabel and DiskSpaceGBLabel: These messages are used by Setup to display required disk spaces of 1000.0 MB or more in gigabytes instead of in megabytes. If these messages are not set by a translation, Setup will instead use ComponentsDiskSpaceMBLabel and DiskSpaceMBLabel as before.</li>
+  </ul>
+  </li>
   <li>Added official Slovak translation.</li>
   <li>Minor tweaks.</li>
 </ul>
