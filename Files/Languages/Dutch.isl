@@ -134,6 +134,7 @@ WizardSelectDir=Kies de doelmap
 SelectDirDesc=Waar moet [name] geïnstalleerd worden?
 SelectDirLabel3=Setup zal [name] in de volgende map installeren.
 SelectDirBrowseLabel=Klik op Volgende om door te gaan. Klik op Bladeren om een andere map te kiezen.
+DiskSpaceGBLabel=Er is ten minste [gb] GB vrije schijfruimte vereist.
 DiskSpaceMBLabel=Er is ten minste [mb] MB vrije schijfruimte vereist.
 CannotInstallToNetworkDrive=Setup kan niet installeren naar een netwerkstation.
 CannotInstallToUNCPath=Setup kan niet installeren naar een UNC-pad.
@@ -160,6 +161,7 @@ NoUninstallWarningTitle=Component bestaat
 NoUninstallWarning=Setup heeft gedetecteerd dat de volgende componenten al geïnstalleerd zijn op uw computer:%n%n%1%n%nAls u de selectie van deze componenten ongedaan maakt, worden ze niet verwijderd.%n%nWilt u toch doorgaan?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=De huidige selectie vereist ten minste [gb] GB vrije schijfruimte.
 ComponentsDiskSpaceMBLabel=De huidige selectie vereist ten minste [mb] MB vrije schijfruimte.
 
 ; *** "Select Additional Tasks" wizard page

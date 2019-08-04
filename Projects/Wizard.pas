@@ -365,11 +365,22 @@ function IntToMBStr(const I: Integer64): String;
 var
   X: Extended;
 begin
-  X := (Comp(I) / 1048576) * 10;
+  X := (Comp(I) / 1048576) * 10; { * 10 to include a decimal }
   if Frac(X) > 0 then
     X := Int(X) + 1;  { always round up }
   X := X / 10;
   Result := Format('%.1n', [X]);
+end;
+
+function IntToGBStr(const I: Integer64): String;
+var
+  X: Extended;
+begin
+  X := (Comp(I) / 1073741824) * 100; { * 100 to include 2 decimals }
+  if Frac(X) > 0 then
+    X := Int(X) + 1;  { always round up }
+  X := X / 100;
+  Result := Format('%.2n', [X]);
 end;
 
 function ExpandSetupMessageEx(const ID: TSetupMessageID;
@@ -381,6 +392,19 @@ begin
   StringChange(Result, '[name/ver]', ExpandedAppVerName);
   StringChange(Result, '[kb]', IntToKBStr(Space));
   StringChange(Result, '[mb]', IntToMBStr(Space));
+  StringChange(Result, '[gb]', IntToGBStr(Space));
+end;
+
+function ExpandMBOrGBSetupMessage(const MBID, GBID: TSetupMessageID;
+  const Space: Integer64): String;
+begin
+  if (SetupMessages[GBID] <> '') and (Comp(Space) > 1048471142) then begin
+    { Don't allow it to display 1000.0 MB or more. Takes the 'always round up' into account:
+      1048471142 bytes = 999.8999996185303 MB = '999.9 MB',
+      1048471143 bytes = 999.9000005722046 MB = '1,000.0 MB'. }
+    Result := ExpandSetupMessageEx(GBID, Space)
+  end else
+    Result := ExpandSetupMessageEx(MBID, Space);
 end;
 
 function ExpandSetupMessage(const ID: TSetupMessageID): String;
@@ -560,8 +584,8 @@ begin
 
   SelectedComponents.Free();
 
-  ComponentsDiskSpaceLabel.Caption := ExpandSetupMessageEx(msgComponentsDiskSpaceMBLabel,
-    CurrentComponentsSpace);
+  ComponentsDiskSpaceLabel.Caption := ExpandMBOrGBSetupMessage(
+    msgComponentsDiskSpaceMBLabel, msgComponentsDiskSpaceGBLabel, CurrentComponentsSpace);
 end;
 
 procedure TWizardForm.UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: LongInt);
@@ -986,7 +1010,8 @@ begin
   DirBrowseButton.SetBounds(InnerNotebook.Width - X,
     DirBrowseButton.Top + I, X, DirBrowseButton.Height);
   DirEdit.Width := DirBrowseButton.Left - ScalePixelsX(10) - DirEdit.Left;
-  DiskSpaceLabel.Caption := ExpandSetupMessage(msgDiskSpaceMBLabel);
+  DiskSpaceLabel.Caption := ExpandMBOrGBSetupMessage(
+    msgDiskSpaceMBLabel, msgDiskSpaceGBLabel, MinimumSpace);
   DiskSpaceLabel.Top := DiskSpaceLabel.Top - AdjustLabelHeight(DiskSpaceLabel);
 
   { Initialize wpSelectComponents page }
@@ -996,7 +1021,8 @@ begin
   I := AdjustLabelHeight(SelectComponentsLabel);
   TypesCombo.Top := TypesCombo.Top + I;
   IncTopDecHeight(ComponentsList, I);
-  ComponentsDiskSpaceLabel.Caption := ExpandSetupMessage(msgComponentsDiskSpaceMBLabel);
+  ComponentsDiskSpaceLabel.Caption := ExpandMBOrGBSetupMessage(
+    msgComponentsDiskSpaceMBLabel, msgComponentsDiskSpaceGBLabel, MinimumSpace);
   AdjustLabelHeight(ComponentsDiskSpaceLabel);
 
   if HasCustomType and (Entries[seType].Count = 1) then begin

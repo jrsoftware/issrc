@@ -151,6 +151,7 @@ WizardSelectDir=Select Destination Location
 SelectDirDesc=Where should [name] be installed?
 SelectDirLabel3=Setup will install [name] into the following folder.
 SelectDirBrowseLabel=To continue, click Next. If you would like to select a different folder, click Browse.
+DiskSpaceGBLabel=At least [gb] GB of free disk space is required.
 DiskSpaceMBLabel=At least [mb] MB of free disk space is required.
 CannotInstallToNetworkDrive=Setup cannot install to a network drive.
 CannotInstallToUNCPath=Setup cannot install to a UNC path.
@@ -178,6 +179,7 @@ NoUninstallWarningTitle=Components Exist
 NoUninstallWarning=Setup has detected that the following components are already installed on your computer:%n%n%1%n%nDeselecting these components will not uninstall them.%n%nWould you like to continue anyway?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Current selection requires at least [gb] GB of disk space.
 ComponentsDiskSpaceMBLabel=Current selection requires at least [mb] MB of disk space.
 
 ; *** "Select Additional Tasks" wizard page
