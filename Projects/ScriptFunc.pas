@@ -224,10 +224,12 @@ const
   );
 
   { System }
-  SystemTable: array [0..1] of AnsiString =
+  SystemTable: array [0..3] of AnsiString =
   (
     'function Random(const Range: Integer): Integer;',
-    'function FileSize(const Name: String; var Size: Integer): Boolean;'
+    'function FileSize(const Name: String; var Size: Integer): Boolean;',
+    'procedure Set8087CW(NewCW: Word);',
+    'function Get8087CW: Word;'
   );
 
   { SysUtils }

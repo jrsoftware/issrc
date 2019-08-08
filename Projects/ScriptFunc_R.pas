@@ -1134,6 +1134,10 @@ begin
     except
       Stack.SetBool(PStart, False);
     end;
+  end else if Proc.Name = 'SET8087CW' then begin
+    Set8087CW(Stack.GetInt(PStart));
+  end else if Proc.Name = 'GET8087CW' then begin
+    Stack.SetInt(PStart, Get8087CW);
   end else
     Result := False;
 end;

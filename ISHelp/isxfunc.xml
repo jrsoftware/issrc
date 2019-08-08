@@ -2611,6 +2611,17 @@ end;</pre></example>
         <description><p>Beeps.</p></description>
         <example><pre>Beep; //Beeps</pre></example>
       </function>
+      <function>
+        <name>Set8087CW</name>
+        <prototype>procedure Set8087CW(NewCW: Word);</prototype>
+        <description><p>Sets the FPU control word.</p></description>
+        <example><pre>Set8087CW($133f); //Disables all fpu exceptions }</pre></example>
+      </function>
+      <function>
+        <name>Get8087CW</name>
+        <prototype>function Get8087CW: Word;</prototype>
+        <description><p>Returns the current value of the FPU control word.</p></description>
+      </function>
     </subcategory>
     <subcategory>
       <function>
