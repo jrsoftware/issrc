@@ -60,6 +60,21 @@ object CompileForm: TCompileForm
       FullRepaint = False
       TabOrder = 0
       Visible = False
+      object DebugCallStackList: TListBox
+        Left = 0
+        Top = 0
+        Width = 361
+        Height = 83
+        Style = lbOwnerDrawFixed
+        Align = alClient
+        BorderStyle = bsNone
+        ItemHeight = 13
+        MultiSelect = True
+        PopupMenu = ListPopupMenu
+        TabOrder = 2
+        Visible = False
+        OnDrawItem = DebugCallStackListDrawItem
+      end
       object DebugOutputList: TListBox
         Left = 0
         Top = 0
@@ -98,7 +113,8 @@ object CompileForm: TCompileForm
         TabIndex = 0
         Tabs.Strings = (
           'Compiler Output'
-          'Debug Output')
+          'Debug Output'
+          'Debug Call Stack')
         OnClick = TabSetClick
       end
     end
@@ -435,6 +451,11 @@ object CompileForm: TCompileForm
         Caption = '&Debug Output'
         RadioItem = True
         OnClick = VDebugOutputClick
+      end
+      object VDebugCallStack: TMenuItem
+        Caption = 'Debug &Call Stack'
+        RadioItem = True
+        OnClick = VDebugCallStackClick
       end
       object VHide: TMenuItem
         Caption = '&Hide Bottom Pane'
