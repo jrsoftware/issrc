@@ -1470,7 +1470,7 @@ type
 procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Cardinal);
 var
   ST: TSystemTime;
-  LineNumber: Integer;
+  LineNumber: Cardinal;
 
   procedure AddLine(S: String);
   var
