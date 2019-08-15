@@ -679,8 +679,7 @@ end;
 
 function TScriptRunner.GetCallStack(var CallStackCount: Cardinal): String;
 begin
-  CallStackCount := FPSExec.GetCallStackCount;
-  Result := FPSExec.GetCallStack;
+  Result := FPSExec.GetCallStack(CallStackCount);
 end;
 
 end.
