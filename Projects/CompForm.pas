@@ -174,6 +174,8 @@ type
     ToolBarImageCollection: TImageCollection;
     ToolBarVirtualImageList: TVirtualImageList;
     PListSelectAll: TMenuItem;
+    DebugCallStackList: TListBox;
+    VDebugCallStack: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenClick(Sender: TObject);
@@ -255,6 +257,9 @@ type
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
     procedure PListSelectAllClick(Sender: TObject);
+    procedure DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
+      State: TOwnerDrawState);
+    procedure VDebugCallStackClick(Sender: TObject);
   private
     { Private declarations }
     FCompilerVersion: PCompilerVersionInfo;
@@ -324,10 +329,11 @@ type
     FProgress, FProgressMax: Cardinal;
     FProgressThemeData: HTHEME;
     FProgressChunkSize, FProgressSpaceSize: Integer;
-    FDebugLogListTimeWidth: Integer;
+    FDebugLogListTimestampsWidth: Integer;
     FBreakPoints: TList;
     FOnPendingSquiggly: Boolean;
     FPendingSquigglyCaretPos: Integer;
+    FCallStackCount: Cardinal;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -339,6 +345,7 @@ type
     function ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
     procedure DebuggingStopped(const WaitForTermination: Boolean);
     procedure DebugLogMessage(const S: String);
+    procedure DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
     procedure DestroyDebugInfo;
     procedure DetachDebugger;
     function EvaluateConstant(const S: String; var Output: String): Integer;
@@ -392,7 +399,7 @@ type
     procedure UpdateEditModePanel;
     procedure UpdateLineMarkers(const Line: Integer);
     procedure UpdateNewButtons;
-    procedure UpdateOutputListsItemHeightAndDebugTimeWidth;
+    procedure UpdateTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateTargetMenu;
     procedure UpdateTheme;
@@ -408,6 +415,7 @@ type
     procedure WMDebuggerSteppedIntermediate(var Message: TMessage); message WM_Debugger_SteppedIntermediate;
     procedure WMDebuggerException(var Message: TMessage); message WM_Debugger_Exception;
     procedure WMDebuggerSetForegroundWindow(var Message: TMessage); message WM_Debugger_SetForegroundWindow;
+    procedure WMDebuggerCallStackCount(var Message: TMessage); message WM_Debugger_CallStackCount;
     procedure WMStartCommandLineCompile(var Message: TMessage); message WM_StartCommandLineCompile;
     procedure WMStartCommandLineWizard(var Message: TMessage); message WM_StartCommandLineWizard;
     procedure WMStartNormally(var Message: TMessage); message WM_StartNormally;
@@ -473,6 +481,7 @@ const
   { Tab set indexes }
   tiCompilerOutput = 0;
   tiDebugOutput = 1;
+  tiDebugCallStack = 2;
 
   { Memo marker numbers }
   mmIconHasEntry = 0;        { grey dot }
@@ -941,7 +950,7 @@ begin
 
   FBreakPoints := TList.Create;
 
-  UpdateOutputListsItemHeightAndDebugTimeWidth;
+  UpdateTabSetListsItemHeightAndDebugTimeWidth;
 
   Application.HintShortPause := 0;
   Application.OnException := AppOnException;
@@ -1041,7 +1050,7 @@ end;
 procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
-  UpdateOutputListsItemHeightAndDebugTimeWidth;
+  UpdateTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
 end;
 
@@ -1073,6 +1082,7 @@ begin
       case TabSet.TabIndex of
         tiCompilerOutput: ActiveControl := CompilerOutputList;
         tiDebugOutput: ActiveControl := DebugOutputList;
+        tiDebugCallStack: ActiveControl := DebugCallStackList;
       end;
     end;
   end;
@@ -1454,73 +1464,53 @@ begin
   end;
 end;
 
-procedure TCompileForm.StatusMessage(const Kind: TStatusMessageKind; const S: String);
-var
-  DC: HDC;
-  Size: TSize;
-begin
-  with CompilerOutputList do begin
-    try
-      TopIndex := Items.AddObject(S, TObject(Kind));
-    except
-      on EOutOfResources do begin
-        Clear;
-        SendMessage(Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-        Items.Add(SCompilerStatusReset);
-        TopIndex := Items.Add(S);
-      end;
-    end;
-    DC := GetDC(0);
-    try
-      SelectObject(DC, Font.Handle);
-      GetTextExtentPoint(DC, PChar(S), Length(S), Size);
-    finally
-      ReleaseDC(0, DC);
-    end;
-    Inc(Size.cx, 5);
-    if Size.cx > SendMessage(Handle, LB_GETHORIZONTALEXTENT, 0, 0) then
-      SendMessage(Handle, LB_SETHORIZONTALEXTENT, Size.cx, 0);
-    Update;
-  end;
-end;
+type
+  TAddLinesPrefix = (alpNone, alpTimestamp, alpCountdown);
 
-procedure TCompileForm.DebugLogMessage(const S: String);
+procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Cardinal);
 var
   ST: TSystemTime;
-  FirstLine: Boolean;
+  LineNumber: Cardinal;
 
   procedure AddLine(S: String);
   var
-    StartsWithTab: Boolean;
+    TimestampPrefixTab: Boolean;
     DC: HDC;
     Size: TSize;
   begin
-    if FirstLine then begin
-      FirstLine := False;
-      { Don't forget about DebugOutputListDrawItem if you change the format of the following timestamp. }
-      Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
-        ST.wMinute, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, ST.wSecond, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator,
-        ST.wMilliseconds]), S, 1);
-      StartsWithTab := False;
-    end
-    else begin
-      Insert(#9, S, 1);
-      StartsWithTab := True;
+    TimestampPrefixTab := False;
+    case Prefix of
+      alpTimestamp:
+        begin
+          if LineNumber = 0 then begin
+            { Don't forget about ListBox's DrawItem if you change the format of the following timestamp. }
+            Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
+              ST.wMinute, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, ST.wSecond, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator,
+              ST.wMilliseconds]), S, 1);
+          end else begin
+            Insert(#9, S, 1); { Not actually painted - just for Ctrl+C }
+            TimestampPrefixTab := True;
+          end;
+        end;
+      alpCountdown:
+        begin
+          Insert(Format('[%.2d]   ', [PrefixParam-LineNumber]), S, 1);
+        end;
     end;
     try
-      DebugOutputList.TopIndex := DebugOutputList.Items.Add(S);
+      ListBox.TopIndex := ListBox.Items.AddObject(S, AObject);
     except
       on EOutOfResources do begin
-        DebugOutputList.Clear;
-        SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-        DebugOutputList.Items.Add(SCompilerStatusReset);
-        DebugOutputList.TopIndex := DebugOutputList.Items.Add(S);
+        ListBox.Clear;
+        SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+        ListBox.Items.Add(SCompilerStatusReset);
+        ListBox.TopIndex := ListBox.Items.Add(S);
       end;
     end;
     DC := GetDC(0);
     try
-      SelectObject(DC, DebugOutputList.Font.Handle);
-      if StartsWithTab then
+      SelectObject(DC, ListBox.Font.Handle);
+      if TimestampPrefixTab then
         GetTextExtentPoint(DC, PChar(S)+1, Length(S)-1, Size)
       else
         GetTextExtentPoint(DC, PChar(S), Length(S), Size);
@@ -1528,10 +1518,11 @@ var
       ReleaseDC(0, DC);
     end;
     Inc(Size.cx, 5);
-    if StartsWithTab then
-      Inc(Size.cx, FDebugLogListTimeWidth);
-    if Size.cx > SendMessage(DebugOutputList.Handle, LB_GETHORIZONTALEXTENT, 0, 0) then
-      SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, Size.cx, 0);
+    if TimestampPrefixTab then
+      Inc(Size.cx, PrefixParam);
+    if Size.cx > SendMessage(ListBox.Handle, LB_GETHORIZONTALEXTENT, 0, 0) then
+      SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, Size.cx, 0);
+    Inc(LineNumber);
   end;
 
 var
@@ -1539,27 +1530,49 @@ var
   LastWasCR: Boolean;
 begin
   GetLocalTime(ST);
-  FirstLine := True;
-  LineStart := 1;
-  LastWasCR := False;
-  { Call AddLine for each line. CR, LF, and CRLF line breaks are supported. }
-  for I := 1 to Length(S) do begin
-    if S[I] = #13 then begin
-      AddLine(Copy(S, LineStart, I - LineStart));
-      LineStart := I + 1;
-      LastWasCR := True;
-    end
-    else begin
-      if S[I] = #10 then begin
-        if not LastWasCR then
-          AddLine(Copy(S, LineStart, I - LineStart));
+  if LineBreaks then begin
+    LineNumber := 0;
+    LineStart := 1;
+    LastWasCR := False;
+    { Call AddLine for each line. CR, LF, and CRLF line breaks are supported. }
+    for I := 1 to Length(S) do begin
+      if S[I] = #13 then begin
+        AddLine(Copy(S, LineStart, I - LineStart));
         LineStart := I + 1;
+        LastWasCR := True;
+      end
+      else begin
+        if S[I] = #10 then begin
+          if not LastWasCR then
+            AddLine(Copy(S, LineStart, I - LineStart));
+          LineStart := I + 1;
+        end;
+        LastWasCR := False;
       end;
-      LastWasCR := False;
     end;
-  end;
-  AddLine(Copy(S, LineStart, Maxint));
+    AddLine(Copy(S, LineStart, Maxint));
+  end else
+    AddLine(S);
+end;
+
+procedure TCompileForm.StatusMessage(const Kind: TStatusMessageKind; const S: String);
+begin
+  AddLines(CompilerOutputList, S, TObject(Kind), False, alpNone, 0);
+  CompilerOutputList.Update;
+end;
+
+procedure TCompileForm.DebugLogMessage(const S: String);
+begin
+  AddLines(DebugOutputList, S, nil, True, alpTimestamp, FDebugLogListTimestampsWidth);
   DebugOutputList.Update;
+end;
+
+procedure TCompileForm.DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
+begin
+  DebugCallStackList.Clear;
+  AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, FCallStackCount-1);
+  DebugCallStackList.Items.Insert(0, '*** [Code] Call Stack');
+  DebugCallStackList.Update;
 end;
 
 type
@@ -1734,6 +1747,8 @@ begin
     SendMessage(CompilerOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
     DebugOutputList.Clear;
     SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugCallStackList.Clear;
+    SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
     TabSet.TabIndex := tiCompilerOutput;
     SetStatusPanelVisible(True);
 
@@ -2050,6 +2065,7 @@ begin
   VHide.Checked := not StatusPanel.Visible;
   VCompilerOutput.Checked := StatusPanel.Visible and (TabSet.TabIndex = tiCompilerOutput);
   VDebugOutput.Checked := StatusPanel.Visible and (TabSet.TabIndex = tiDebugOutput);
+  VDebugCallStack.Checked := StatusPanel.Visible and (TabSet.TabIndex = tiDebugCallStack);
 end;
 
 procedure TCompileForm.VZoomInClick(Sender: TObject);
@@ -2116,6 +2132,12 @@ end;
 procedure TCompileForm.VDebugOutputClick(Sender: TObject);
 begin
   TabSet.TabIndex := tiDebugOutput;
+  SetStatusPanelVisible(True);
+end;
+
+procedure TCompileForm.VDebugCallStackClick(Sender: TObject);
+begin
+  TabSet.TabIndex := tiDebugCallStack;
   SetStatusPanelVisible(True);
 end;
 
@@ -2489,14 +2511,17 @@ begin
   StatusPanel.Height := H;
 end;
 
-procedure TCompileForm.UpdateOutputListsItemHeightAndDebugTimeWidth;
+procedure TCompileForm.UpdateTabSetListsItemHeightAndDebugTimeWidth;
 begin
   CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
   CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
 
   DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
-  FDebugLogListTimeWidth := DebugOutputList.Canvas.TextWidth(Format('[00%s00%s00%s000]   ', [FormatSettings.TimeSeparator, FormatSettings.TimeSeparator, FormatSettings.DecimalSeparator]));
+  FDebugLogListTimestampsWidth := DebugOutputList.Canvas.TextWidth(Format('[00%s00%s00%s000]   ', [FormatSettings.TimeSeparator, FormatSettings.TimeSeparator, FormatSettings.DecimalSeparator]));
   DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0');
+
+  DebugCallStackList.Canvas.Font.Assign(DebugCallStackList.Font);
+  DebugCallStackList.ItemHeight := DebugCallStackList.Canvas.TextHeight('0');
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
@@ -3316,6 +3341,11 @@ begin
   SetForegroundWindow(HWND(Message.WParam));
 end;
 
+procedure TCompileForm.WMDebuggerCallStackCount(var Message: TMessage);
+begin
+  FCallStackCount := Message.WParam;
+end;
+
 procedure TCompileForm.WMCopyData(var Message: TWMCopyData);
 var
   S: String;
@@ -3354,6 +3384,11 @@ begin
           S := '';
         FTempDir := S;
         Message.Result := 1;
+      end;
+    CD_Debugger_CallStackW: begin
+        SetString(S, PChar(Message.CopyDataStruct.lpData),
+          Message.CopyDataStruct.cbData div SizeOf(Char));
+        DebugShowCallStack(S, FCallStackCount);
       end;
   end;
 end;
@@ -3593,6 +3628,9 @@ begin
   DebugOutputList.Font.Color := FTheme.Colors[tcFore];
   DebugOutputList.Color := FTheme.Colors[tcBack];
   DebugOutputList.Invalidate;
+  DebugCallStackList.Font.Color := FTheme.Colors[tcFore];
+  DebugCallStackList.Color := FTheme.Colors[tcBack];
+  DebugCallStackList.Invalidate;
 end;
 
 procedure TCompileForm.UpdateThemeData(const Close, Open: Boolean);
@@ -3643,7 +3681,10 @@ begin
   ResetLineState;
   DebugOutputList.Clear;
   SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-  TabSet.TabIndex := tiDebugOutput;
+  DebugCallStackList.Clear;
+  SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+  if not (TabSet.TabIndex in [tiDebugOutput, tiDebugCallStack]) then
+    TabSet.TabIndex := tiDebugOutput;
   SetStatusPanelVisible(True);
 
   FillChar(Info, SizeOf(Info), 0);
@@ -3729,6 +3770,11 @@ begin
       FPaused := False;
       UpdateRunMenu;
       UpdateCaption;
+      if DebugCallStackList.Items.Count > 0 then begin
+        DebugCallStackList.Clear;
+        SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+        DebugCallStackList.Update;
+      end;
       { Tell it to continue }
       SendNotifyMessage(FDebugClientWnd, WM_DebugClient_Continue,
         Ord(AStepMode = smStepOver), 0);
@@ -3883,8 +3929,10 @@ var
 begin
   if CompilerOutputList.Visible then
     ListBox := CompilerOutputList
+  else if DebugOutputList.Visible then
+    ListBox := DebugOutputList
   else
-    ListBox := DebugOutputList;
+    ListBox := DebugCallStackList;
   Text := '';
   if ListBox.SelCount > 0 then begin
     for I := 0 to ListBox.Items.Count-1 do begin
@@ -3905,8 +3953,10 @@ var
 begin
   if CompilerOutputList.Visible then
     ListBox := CompilerOutputList
+  else if DebugOutputList.Visible then
+    ListBox := DebugOutputList
   else
-    ListBox := DebugOutputList;
+    ListBox := DebugCallStackList;
   ListBox.Items.BeginUpdate;
   try
     for I := 0 to ListBox.Items.Count-1 do
@@ -4129,16 +4179,30 @@ begin
   Canvas.FillRect(Rect);
   Inc(Rect.Left, 2);
   if (S <> '') and (S[1] = #9) then
-    Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth, Rect.Top, Copy(S, 2, Maxint))
+    Canvas.TextOut(Rect.Left + FDebugLogListTimestampsWidth, Rect.Top, Copy(S, 2, Maxint))
   else begin
     if (Length(S) > 20) and (S[18] = '-') and (S[19] = '-') and (S[20] = ' ') then begin
       { Draw lines that begin with '-- ' (like '-- File entry --') in bold }
       Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, 17));
       Canvas.Font.Style := [fsBold];
-      Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth, Rect.Top, Copy(S, 18, Maxint));
+      Canvas.TextOut(Rect.Left + FDebugLogListTimestampsWidth, Rect.Top, Copy(S, 18, Maxint));
     end else
       Canvas.TextOut(Rect.Left, Rect.Top, S);
   end;
+end;
+
+procedure TCompileForm.DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
+  State: TOwnerDrawState);
+var
+  Canvas: TCanvas;
+  S: String;
+begin
+  Canvas := DebugCallStackList.Canvas;
+  S := DebugCallStackList.Items[Index];
+
+  Canvas.FillRect(Rect);
+  Inc(Rect.Left, 2);
+  Canvas.TextOut(Rect.Left, Rect.Top, S);
 end;
 
 procedure TCompileForm.TabSetClick(Sender: TObject);
@@ -4149,12 +4213,21 @@ begin
         CompilerOutputList.BringToFront;
         CompilerOutputList.Visible := True;
         DebugOutputList.Visible := False;
+        DebugCallStackList.Visible := False;
       end;
     tiDebugOutput:
       begin
         DebugOutputList.BringToFront;
         DebugOutputList.Visible := True;
         CompilerOutputList.Visible := False;
+        DebugCallStackList.Visible := False;
+      end;
+    tiDebugCallStack:
+      begin
+        DebugCallStackList.BringToFront;
+        DebugCallStackList.Visible := True;
+        CompilerOutputList.Visible := False;
+        DebugOutputList.Visible := False;
       end;
   end;
 end;

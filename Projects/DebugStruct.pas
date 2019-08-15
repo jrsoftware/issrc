@@ -23,12 +23,14 @@ const
   WM_Debugger_Exception = WM_USER + $704;
   WM_Debugger_SetForegroundWindow = WM_USER + $705;
   WM_Debugger_QueryVersion = WM_USER + $706;
+  WM_Debugger_CallStackCount = WM_USER + $707;
   { Debug client -> debugger WM_COPYDATA messages }
   CD_Debugger_ReplyW = $700;
   CD_Debugger_ExceptionW = $701;
   CD_Debugger_UninstExeW = $702;
   CD_Debugger_LogMessageW = $703;
   CD_Debugger_TempDirW = $704;
+  CD_Debugger_CallStackW = $705;
 
   { Debugger -> debug client messages }
   WM_DebugClient_Detach = WM_USER + $800;

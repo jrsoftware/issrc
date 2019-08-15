@@ -59,6 +59,7 @@ type
       function RunStringFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: String): String;
       function RunStringFunctions(const Name: AnsiString; const Parameters: array of Const; const BreakCondition: TBreakCondition; const MustExist: Boolean; Default: String): String;
       function EvaluateUsedVariable(const Param1, Param2, Param3: LongInt; const Param4: AnsiString): String;
+      function GetCallStack(var CallStackCount: Cardinal): String;
       property NamingAttribute: String write FNamingAttribute;
       property OnLog: TScriptRunnerOnLog read FOnLog write FOnLog;
       property OnLogFmt: TScriptRunnerOnLogFmt read FOnLogFmt write FOnLogFmt;
@@ -674,6 +675,11 @@ begin
           Result := '';
       end;
   end;
+end;
+
+function TScriptRunner.GetCallStack(var CallStackCount: Cardinal): String;
+begin
+  Result := FPSExec.GetCallStack(CallStackCount);
 end;
 
 end.

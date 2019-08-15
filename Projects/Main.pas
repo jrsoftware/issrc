@@ -2119,7 +2119,7 @@ end;
 function CodeRunnerOnDebug(const Position: LongInt;
   var ContinueStepOver: Boolean): Boolean;
 begin
-  Result := DebugNotify(deCodeLine, Position, ContinueStepOver);
+  Result := DebugNotify(deCodeLine, Position, ContinueStepOver, CodeRunner.GetCallStack);
 end;
 
 function CodeRunnerOnDebugIntermediate(const Position: LongInt;
