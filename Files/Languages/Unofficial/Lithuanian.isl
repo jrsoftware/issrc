@@ -154,6 +154,7 @@ WizardSelectDir=Pasirinkite diegimo katalogà
 SelectDirDesc=Kur turi bûti ádiegta „[name]“?
 SelectDirLabel3=Diegimo programa ádiegs „[name]“ á nurodytà katalogà.
 SelectDirBrowseLabel=Norëdami tæsti diegimà spauskite „Pirmyn“. Jei norite pasirinkti kità katalogà, spauskite „Nurodyti“.
+DiskSpaceGBLabel=Reikia maþiausiai [gb] GB laisvos vietos kietajame diske.
 DiskSpaceMBLabel=Reikia maþiausiai [mb] MB laisvos vietos kietajame diske.
 CannotInstallToNetworkDrive=Diegimo programa negali diegti á tinkliná diskà.
 CannotInstallToUNCPath=Diegimo programa negali diegti á UNC tipo katalogà.
@@ -181,6 +182,7 @@ NoUninstallWarningTitle=Komponentai egzistuoja
 NoUninstallWarning=Diegimo programa aptiko, kad ðie komponentai jau ádiegti Jûsø kompiuteryje:%n%n%1%n%nJei nuimsite þymes nuo ðiø komponentø, jie vis tiek nebus iðtrinti.%n%nVis tiek norite tæsti diegimà?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Dabartinis Jûsø pasirinkimas reikalauja [gb] GB laisvos vietos diske.
 ComponentsDiskSpaceMBLabel=Dabartinis Jûsø pasirinkimas reikalauja [mb] MB laisvos vietos diske.
 
 ; *** "Select Additional Tasks" wizard page
