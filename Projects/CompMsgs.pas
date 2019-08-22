@@ -2,7 +2,7 @@ unit CompMsgs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -42,12 +42,14 @@ const
   SWizardAppFilesSubDirsMessage = 'Should files in subfolders of "%s" also be included?';
   SWizardAppExeFilter = 'Application files (*.exe)|*.exe|All Files|*.*';
   SWizardAppExeDefaultExt = 'exe';
-  SWizardAppIcons = 'Application Icons';
-  SWizardAppIcons2 = 'Please specify which icons should be created for your application.';
+  SWizardAppIcons = 'Application Shortcuts';
+  SWizardAppIcons2 = 'Please specify which shortcuts should be created for your application.';
   SWizardAppDocs = 'Application Documentation';
   SWizardAppDocs2 = 'Please specify which documentation files should be shown by Setup during installation.';
   SWizardAppDocsFilter = 'Documentation files (*.rtf,*.txt)|*.rtf;*.txt|All Files|*.*';
   SWizardAppDocsDefaultExt = 'rtf';
+  SWizardPrivilegesRequired = 'Setup Install Mode';
+  SWizardPrivilegesRequired2 = 'Please specify in which install mode Setup should run.';
   SWizardLanguages = 'Setup Languages';
   SWizardLanguages2 = 'Please specify which Setup languages should be included.';
   SWizardCompiler = 'Compiler Settings';
@@ -57,7 +59,7 @@ const
   SWizardCompilerOutputDir = 'Please specify the folder.';
   SWizardISPP = 'Inno Setup Preprocessor';
   SWizardISPP2 = 'Please specify whether Inno Setup Preprocessor should be used.';
-  SWizardISPPLabel = 'The [name] has detected the presence of Inno Setup Preprocessor (ISPP) and can therefore use #define compiler directives to simplify your script. Although this is not necessary, it will make it easier to manually change the script later.' + SNewLine2 + 'Do you want the [name] to use #define compiler directives?';
+  SWizardISPPLabel = 'The [name] can use #define compiler directives to simplify your script. Although this is not necessary, it will make it easier to manually change the script later.' + SNewLine2 + 'Do you want the [name] to use #define compiler directives?';
   SWizardISPPCheck = '&Yes, use #define compiler directives';
   SWizardFinished = 'Finished';
 
@@ -103,6 +105,7 @@ const
   SCompilerStatusFilesVerInfo = '   Reading version info: %s';
   SCompilerStatusReadingFile = 'Reading file (%s)';
   SCompilerStatusPreparingSetupExe = 'Preparing Setup program executable';
+  SCompilerStatusSkippingPreparingSetupExe = 'Skipping preparing Setup program executable, output is disabled';
   SCompilerStatusSignedUninstallerNew = '   Creating new signed uninstaller file: %s';
   SCompilerStatusSignedUninstallerExisting = '   Using existing signed uninstaller file: %s';
   SCompilerStatusDeterminingCodePages = 'Determining language code pages';
@@ -114,10 +117,13 @@ const
   SCompilerStatusReadingInFile = '   File: %s';
   SCompilerStatusReadingInScriptMsgs = '   Messages in script file';
   SCompilerStatusCreateSetupFiles = 'Creating setup files';
+  SCompilerStatusSkippingCreateSetupFiles = 'Skipping creating setup files, output is disabled';
   SCompilerStatusCreateManifestFile = 'Creating manifest file';
   SCompilerStatusFilesInitEncryption = '   Initializing encryption';
   SCompilerStatusFilesCompressing = '   Compressing: %s';
   SCompilerStatusFilesCompressingVersion = '   Compressing: %s   (%u.%u.%u.%u)';
+  SCompilerStatusFilesStoring = '   Storing: %s';
+  SCompilerStatusFilesStoringVersion = '   Storing: %s   (%u.%u.%u.%u)';
   SCompilerStatusCompressingSetupExe = '   Compressing Setup program executable';
   SCompilerStatusUpdatingVersionInfo = '   Updating version info';
   SCompilerStatusUpdatingIcons = '   Updating icons (%s)';
@@ -128,7 +134,11 @@ const
   SCompilerStatusReset = '*** Log size limit reached, list reset.';
   SCompilerStatusWarning = 'Warning: ';
   SCompilerStatusSigningSetup = '   Signing Setup program executable';
-  SCompilerStatusSigning = '   Running Sign Tool command: %s';
+  SCompilerStatusSigningSourceFile = '   Signing: %s';
+  SCompilerStatusSourceFileAlreadySigned = '   Skipping signing, already signed: %s';
+  SCompilerStatusSigning = '   Running Sign Tool %s: %s';
+  SCompilerStatusSigningWithDelay = '   Running Sign Tool %s in %d milliseconds: %s';
+  SCompilerStatusWillRetrySigning = '   Sign Tool command failed (%s). Will retry (%d tries left).';
 
   SCompilerSuccessfulMessage2 = 'The setup images were successfully created ' +
     'in the output directory:' + SNewLine +
@@ -136,7 +146,8 @@ const
     SNewLine +
     'Would you like to test the installation now?';
   SCompilerSuccessfulTitle = 'Compile Successful';
-  SCompilerNeedUninstExe = 'Cannot target Uninstall as this time. Please run Setup successfully to completion first';
+  SCompilerNeedCompiledExe = 'Cannot run Setup at this time. Please compile Setup successfully to completion first, with output enabled';
+  SCompilerNeedUninstExe = 'Cannot run Uninstall at this time. Please run Setup successfully to completion first';
   SCompilerExecuteSetupError2 = 'Error executing "%s":' + SNewLine2 + '%d: %s';
 
   SCompilerAborted = 'Compile aborted. Please correct the problem and try again.';
@@ -167,7 +178,7 @@ const
   SCompilerEntryAlreadySpecified = '[%s] section directive "%s" already specified';
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
   SCompilerMinVersionWinMustBeZero = 'Minimum Windows version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
-  SCompilerMinVersionNTTooLow = 'Minimum NT version specified by MinVersion must be at least %s';
+  SCompilerMinVersionNTTooLow = 'Minimum NT version specified by MinVersion must be at least %s. (Windows 2000/XP/Server 2003 are no longer supported.)';
   SCompilerDiskSliceSizeInvalid = 'DiskSliceSize must be between %d and %d, or "max"';
   SCompilerDiskClusterSizeInvalid = 'DiskClusterSize must be between 1 and 32768';
   SCompilerInstallModeObsolete = 'The [%s] section directive "%s" is obsolete and ignored in this version of Inno Setup. Use command line parameters instead.';
@@ -176,9 +187,11 @@ const
   SCompilerDirectiveRequiresWindows2000 = 'The [%s] section directive "%s" may not be used when compiling on Windows 95/98/Me/NT4';
   SCompilerMustUseDisableStartupPrompt = 'DisableStartupPrompt must be set to "yes" when AppName includes constants';
   SCompilerMustNotUsePreviousLanguage = 'UsePreviousLanguage must be set to "no" when AppId includes constants';
+  SCompilerMustNotUsePreviousPrivileges = 'UsePreviousPrivileges must be set to "no" when AppId includes constants and PrivilegesRequiredOverridesAllowed allows "dialog"';
   SCompilerDirectiveNotUsingDefault = 'The [Setup] section directive "%s" is not assuming a default value because %s includes constants.';
   SCompilerDirectiveNotUsingPreferredDefault = 'The [Setup] section directive "%s" is defaulting to %s because %s includes constants.';
-  SCompilerDirectiveCloseApplicationsFilterTooLong = 'The [Setup] section directive "CloseApplicationsFilter" contains a pattern that is too long';
+  SCompilerDirectivePatternTooLong = 'The [Setup] section directive "%s" contains a pattern that is too long';
+  SCompilerOutputBaseFileNameSetup = 'Setting the [Setup] section "OutputBaseFileName" to "setup" is not recommended, all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll.' + ' These DLLs are loaded unsafely by Windows and can be hijacked. Use a different name, for example "mysetup".';
 
   { Signing }
   SCompilerSignatureNeeded = 'Signed uninstaller mode is enabled. Using ' +
@@ -194,10 +207,11 @@ const
     SNewLine2 + '%s' + SNewLine2 + 'differ unexpectedly from the original ' +
     'file';
   SCompilerNoSetupLdrSignError = 'The SignTool and SignedUninstaller directives may not be set when UseSetupLdr is set to "no"';
-  SCompilerSignToolCreateProcessFailed = 'Failed to execute Sign Tool.' +
+  SCompilerSignToolFileNameSequenceNotFound = 'Unable to run Sign Tool %s: $f sequence is missing.'; 
+  SCompilerSignToolCreateProcessFailed = 'Failed to execute Sign Tool command.' +
     SNewLine2 + 'Error %d: %s'; 
-  SCompilerSignToolNonZeroExitCode = 'Sign Tool failed with exit code 0x%x';
-  SCompilerSignToolSucceededButNoSignature = 'The Sign Tool returned an ' +
+  SCompilerSignToolNonZeroExitCode = 'Sign Tool command failed with exit code 0x%x';
+  SCompilerSignToolSucceededButNoSignature = 'The Sign Tool command returned an ' +
     'exit code of 0, but the file does not have a digital signature';
 
   { Line parsing }
@@ -230,6 +244,13 @@ const
   SCompilerBadDriveConst = 'Invalid drive constant "%s"';
   SCompilerBadCustomMessageConst = 'Invalid custom message constant "%s"';
   SCompilerBadBoolConst = 'Invalid boolean constant "%s"';
+  SCompilerConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead.';
+  SCompilerCommonConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead or consider using its "auto" form.';
+
+  { Area checks }
+  SCompilerUsedUserAreasWarning = 'The [%s] section directive "%s" is set to "%s" but per-user areas (%s) are used by the script. ' +
+    'Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. ' +
+    'See the "UsedUserAreasWarning" topic in help file for more information.';
 
   { Directive parsing }
   SCompilerDirectiveNameMissing = 'Missing directive name';
@@ -272,6 +293,8 @@ const
 
   { [Code] }
   SCompilerCodeUnsupportedEventFunction = 'Event function named "%s" is no longer supported. Create a "%s" function instead';
+  SCompilerCodeFunctionRenamed = 'Support function "%s" has been renamed. Use "%s" instead.';
+  SCompilerCodeFunctionRenamedWithAlternative = 'Support function "%s" has been renamed. Use "%s" instead or consider using "%s".';
 
   { [Types] }
   SCompilerTypesCustomTypeAlreadyDefined = 'A custom type has already been defined';
@@ -303,9 +326,6 @@ const
   SCompilerUnknownLanguage = 'Unknown language name "%s"';
   SCompilerCantSpecifyLanguage = 'A language name may not be specified in a messages file';
   SCompilerCantSpecifyLangOption = 'Language option "%s" cannot be applied to all languages';
-  SCompilerLanguageNameNotAscii = 'LanguageName should not contain non-ASCII characters; ' +
-    'such characters will be interpreted as being from the ISO-8859-1 character set by a non Unicode Setup. ' +
-    'Use "<nnnn>" to embed Unicode characters, where "nnnn" is the 4-digit hexadecimal Unicode character code.';
 
   { [Files] }
   SCompilerFilesTmpBadFlag = 'Parameter "Flags" cannot have the "%s" flag on ' +

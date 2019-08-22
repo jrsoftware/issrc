@@ -2,16 +2,16 @@ unit SelLangForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2006 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   "Select Language" form
-
-  $jrsoftware: issrc/Projects/SelLangForm.pas,v 1.18 2010/01/13 17:48:52 mlaan Exp $
 }
 
 interface
+
+{$I VERSION.INC}
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
@@ -24,6 +24,8 @@ type
     OKButton: TNewButton;
     CancelButton: TNewButton;
     IconBitmapImage: TBitmapImage;
+    MainPanel: TPanel;
+    Bevel: TBevel;
   private
     { Private declarations }
   public
@@ -112,6 +114,9 @@ begin
    { If there's multiple languages, select the previous language, if available }
     if (shUsePreviousLanguage in SetupHeader.Options) and
        (LangForm.LangCombo.Items.Count > 1) then begin
+      { Note: if UsePreviousLanguage is set to "yes" then the compiler does not
+        allow AppId to include constants but we should still call ExpandConst
+        to handle any '{{'. }
       { do not localize or change the following string }
       PrevLang := GetPreviousData(ExpandConst(SetupHeader.AppId), 'Inno Setup: Language', '');
 
@@ -154,20 +159,25 @@ constructor TSelectLanguageForm.Create(AOwner: TComponent);
 begin
   inherited;
 
+{$IFDEF IS_D7}
+  MainPanel.ParentBackground := False;
+{$ENDIF}
+
   InitializeFont;
-  Center;
 
   Caption := SetupMessages[msgSelectLanguageTitle];
   SelectLabel.Caption := SetupMessages[msgSelectLanguageLabel];
   OKButton.Caption := SetupMessages[msgButtonOK];
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 
-  IconBitmapImage.Bitmap.Canvas.Brush.Color := Color;
+  IconBitmapImage.Bitmap.Canvas.Brush.Color := MainPanel.Color;
   IconBitmapImage.Bitmap.Width := Application.Icon.Width;
   IconBitmapImage.Bitmap.Height := Application.Icon.Height;
   IconBitmapImage.Bitmap.Canvas.Draw(0, 0, Application.Icon);
   IconBitmapImage.Width := IconBitmapImage.Bitmap.Width;
   IconBitmapImage.Height := IconBitmapImage.Bitmap.Height;
+
+  KeepSizeY := True;
 end;
 
 end.

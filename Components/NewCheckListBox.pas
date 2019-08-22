@@ -1,7 +1,6 @@
 unit NewCheckListBox;
 
-{ TNewCheckListBox by Martijn Laan for My Inno Setup Extensions
-  See http://isx.wintax.nl/ for more information
+{ TNewCheckListBox by Martijn Laan for Inno Setup
 
   Based on TPBCheckListBox by Patrick Brisacier and TCheckListBox by Borland
 
@@ -10,22 +9,13 @@ unit NewCheckListBox;
 
   Note: TNewCheckListBox uses Items.Objects to store the item state. Don't use
   Item.Objects yourself, use ItemObject instead.
-
-  $jrsoftware: issrc/Components/NewCheckListBox.pas,v 1.57 2009/03/25 11:47:32 mlaan Exp $
 }
-
-{$IFDEF VER90}
-  {$DEFINE DELPHI2}
-{$ENDIF}
-{$IFDEF VER200}
-  {$DEFINE DELPHI2009}
-{$ENDIF}
 
 interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, UxThemeISX;
+  StdCtrls, UxTheme;
 
 const
   WM_UPDATEUISTATE = $0128;
@@ -163,6 +153,7 @@ type
     property State[Index: Integer]: TCheckBoxState read GetState;
   published
     property Align;
+    property Anchors;
     property BorderStyle;
     property Color;
     property Ctl3D;
@@ -207,7 +198,7 @@ procedure Register;
 implementation
 
 uses
-  TmSchemaISX, {$IFDEF DELPHI2} Ole2 {$ELSE} ActiveX {$ENDIF}, BidiUtils{$IFDEF DELPHI2009}, Types{$ENDIF};
+  TmSchema, PathFunc, ActiveX, BidiUtils, Types;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';
@@ -356,11 +347,20 @@ var
     const riidInterface: TGUID; var ppvObject: Pointer): HRESULT; stdcall;
 
 function InitializeOleAcc: Boolean;
+
+  function GetSystemDir: String;
+  var
+    Buf: array[0..MAX_PATH-1] of Char;
+  begin
+    GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+    Result := StrPas(Buf);
+  end;
+
 var
   M: HMODULE;
 begin
   if not OleAccInited then begin
-    M := LoadLibrary('oleacc.dll');
+    M := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'oleacc.dll'));
     if M <> 0 then begin
       LresultFromObjectFunc := GetProcAddress(M, 'LresultFromObject');
       CreateStdAccessibleObjectFunc := GetProcAddress(M, 'CreateStdAccessibleObject');
@@ -755,6 +755,7 @@ var
   UIState: DWORD;
   SubItemWidth: Integer;
   PartId, StateId: Integer;
+  Size: TSize;
 begin
   if FShowLines and not FThreadsUpToDate then begin
     UpdateThreads;
@@ -835,6 +836,13 @@ begin
           StateId := ButtonStateIds[ItemState.State][cb2Hot]
         else
           StateId := ButtonStateIds[ItemState.State][cb2Normal];
+        GetThemePartSize(FThemeData, Handle, PartId, StateId, @CheckRect, TS_TRUE, Size);
+        if (Size.cx <> FCheckWidth) or (Size.cy <> FCheckHeight) then begin
+          CheckRect := Bounds(Rect.Left - (Size.cx + FOffset),
+            Rect.Top + ((Rect.Bottom - Rect.Top - Size.cy) div 2),
+            Size.cx, Size.cy);
+          FlipRect(CheckRect, SavedClientRect, FUseRightToLeft);
+        end;
         //if IsThemeBackgroundPartiallyTransparent(FThemeData, PartId, StateId) then
         //  DrawThemeParentBackground(Self.Handle, Handle, @CheckRect);
         DrawThemeBackGround(FThemeData, Handle, PartId, StateId, CheckRect, @CheckRect);
@@ -1564,7 +1572,8 @@ var
 begin
   for I := 0 to Items.Count - 1 do
   begin
-    ItemStates[I].ThreadCache := [];
+    ItemStates[I].ThreadCache := [0];       //Doing ':= []' causes a "F2084 Internal Error: C21846" compiler error on Delphi 10.3 Rio }
+    Exclude(ItemStates[I].ThreadCache, 0);  //
     ItemStates[I].IsLastChild := False;
   end;
   for I := 0 to Items.Count - 1 do

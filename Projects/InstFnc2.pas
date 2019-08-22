@@ -220,7 +220,7 @@ begin
       fine because it *also* stores the original 'non replaced' path in the
       shortcut. } 
       if IsWin64 then
-        StringChangeEx(IconFileName, ExpandConst('{pf32}\'), '%ProgramFiles(x86)%\', True);
+        StringChangeEx(IconFileName, ExpandConst('{commonpf32}\'), '%ProgramFiles(x86)%\', True);
       SL.SetIconLocation(PChar(IconFilename), IconIndex);
     end;
     SL.SetShowCmd(ShowCmd);
@@ -613,7 +613,7 @@ end;
 
 initialization
   InitOle;
-  SHCreateItemFromParsingNameFunc := GetProcAddress(SafeLoadLibrary(shell32,
+  SHCreateItemFromParsingNameFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
     SEM_NOOPENFILEERRORBOX), 'SHCreateItemFromParsingName');
 
 finalization

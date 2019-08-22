@@ -6,12 +6,8 @@ unit LZMADecompSmall;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Interface to the older, size-optimized LZMA SDK 4.43 decompression OBJ
-
-  Source code for the "small" decompression OBJ can found in the LzmaDecode
-  subdirectory.
-
-  $jrsoftware: issrc/Projects/LZMADecompSmall.pas,v 1.1 2010/04/05 20:06:10 jr Exp $
+  Interface to the older, size-optimized LZMA SDK 4.43 decompression OBJ in
+  LzmaDecode, used by SetupLdr.
 }
 
 interface

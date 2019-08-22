@@ -17,6 +17,9 @@ implementation
 
 uses SysUtils, IniFiles, Registry, IsppConsts, IsppBase, IsppIdentMan,
   IsppSessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2;
+  
+var
+  IsWin64: Boolean;
 
 function PrependPath(const Ext: Longint; const Filename: String): String;
 var
@@ -165,6 +168,21 @@ begin
   end;
 end;
 
+function ForceDirectoriesFunc(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+      MakeBool(ResPtr^, ForceDirectories(PrependPath(Ext, Get(0).AsStr)));
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 {FileSize(<filename>)}
 function FileSize(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
@@ -246,16 +264,48 @@ end;
 {ReadReg(<root:int>,<key:str>,[<name:str>,<default:str>])}
 function ReadReg(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+const
+  ISPPRootKeyFlagMask  = $7F000000;
+  ISPPRootKeyFlag64Bit = $02000000;
+  ISPPRootKeyValidFlags = ISPPRootKeyFlag64Bit;
+
+  procedure CrackISPPRootKey(const ISPPRootKey: Longint; var RegView64: Boolean;
+    var RootKey: HKEY);
+  begin
+    { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
+      open keys because they might have our special flag bits set.
+      Also reject unknown flags which may have a meaning in the future. }
+    if (ISPPRootKey shr 31 <> 1) or
+       ((ISPPRootKey and ISPPRootKeyFlagMask) and not ISPPRootKeyValidFlags <> 0) then
+      raise Exception.Create('Invalid root key value');
+
+    if ISPPRootKey and ISPPRootKeyFlag64Bit <> 0 then begin
+      if not IsWin64 then
+        raise Exception.Create('Cannot access 64-bit registry keys on this version of Windows');
+      RegView64 := True
+    end
+    else
+      RegView64 := False;
+    RootKey := ISPPRootKey and not ISPPRootKeyFlagMask;
+  end;
+
 var
   Name: string;
   Default: TIsppVariant;
+  RegView64: Boolean;
+  ARootKey: HKEY;
+  AAccess: LongWord;
 begin
   if CheckParams(Params, [evInt, evStr, evStr, evSpecial], 2, Result) then
   try
-    with IInternalFuncParams(Params) do
-      with TRegistry.Create(KEY_QUERY_VALUE) do
+    with IInternalFuncParams(Params) do begin
+      CrackISPPRootKey(Get(0).AsInt, RegView64, ARootKey);
+      AAccess := KEY_QUERY_VALUE;
+      if RegView64 then
+        AAccess := AAccess or KEY_WOW64_64KEY;
+      with TRegistry.Create(AAccess) do
       try
-        RootKey := Get(0).AsInt;
+        RootKey := ARootKey;
         if GetCount < 3 then Name := '' else Name := Get(2).AsStr;
         if GetCount < 4 then Default := NULL else Default := Get(3)^;
         if OpenKey(Get(1).AsStr, False) and ((Name = '') or ValueExists(Name)) then
@@ -270,6 +320,7 @@ begin
       finally
         Free
       end;
+    end;
   except
     on E: Exception do
     begin
@@ -312,7 +363,7 @@ function SetupSetting(Ext: Longint; const Params: IIsppFuncParams;
     with L do
       for I := 0 to Count - 1 do
       begin
-        if Strings[I] = '' then Continue;
+        if Trim(Strings[I]) = '' then Continue;
         if InSetupSection then
         begin
           if (Trim(Strings[I])[1] = '[') then
@@ -366,7 +417,7 @@ function SetSetupSetting(Ext: Longint; const Params: IIsppFuncParams;
     begin
       for I := 0 to Count - 1 do
       begin
-        if Strings[I] = '' then Continue;
+        if Trim(Strings[I]) = '' then Continue;
         if InSetupSection then
         begin
           if (Trim(Strings[I])[1] = '[') then
@@ -937,6 +988,25 @@ begin
   end;
 end;
 
+function DelFileNowFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      DeleteFile(PChar(PrependPath(Ext, Get(0).AsStr)));
+      ResPtr^.Typ := evNull;
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 function CopyFileFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
@@ -1338,19 +1408,19 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      OldDateSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator;
-      OldTimeSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator;
+      OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
+      OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
       try
         NewDateSeparatorString := Get(1).AsStr;
         NewTimeSeparatorString := Get(2).AsStr;
         if NewDateSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
         if NewTimeSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
         MakeStr(ResPtr^, FormatDateTime(Get(0).AsStr, Now()));
       finally
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
       end;
     end;
   except
@@ -1373,23 +1443,23 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      OldDateSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator;
-      OldTimeSeparator := {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator;
+      OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
+      OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
       try
         NewDateSeparatorString := Get(2).AsStr;
         NewTimeSeparatorString := Get(3).AsStr;
         if NewDateSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
         if NewTimeSeparatorString <> '' then
-          {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
+          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
         if not FileAge(PrependPath(Ext, Get(0).AsStr), Age) then begin
           FuncResult.Error('Invalid file name');
           Result.Error := ISPPFUNC_FAIL
         end else
           MakeStr(ResPtr^, FormatDateTime(Get(1).AsStr, Age));
       finally
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
-        {$IFDEF IS_DXE2}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
       end;
     end;
   except
@@ -1605,6 +1675,24 @@ begin
   end;
 end;
 
+function IsWin64Func(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [], 0, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      MakeBool(ResPtr^, IsWin64);
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 procedure Register(Preproc: TPreprocessor);
 begin
   with Preproc do
@@ -1615,6 +1703,7 @@ begin
     RegisterFunction('Str', Str, -1);
     RegisterFunction('FileExists', FileExists, -1);
     RegisterFunction('DirExists', DirExists, -1);
+    RegisterFunction('ForceDirectories', ForceDirectoriesFunc, -1);
     RegisterFunction('FileSize', FileSize, -1);
     RegisterFunction('ReadIni', ReadIni, -1);
     RegisterFunction('WriteIni', WriteIni, -1);
@@ -1634,6 +1723,7 @@ begin
     RegisterFunction('EntryCount', EntryCountFunc, -1);
     RegisterFunction('GetEnv', GetEnvFunc, -1);
     RegisterFunction('DeleteFile', DelFileFunc, -1);
+    RegisterFunction('DeleteFileNow', DelFileNowFunc, -1);
     RegisterFunction('CopyFile', CopyFileFunc, -1);
     RegisterFunction('ReadEnv', GetEnvFunc, -1);
     RegisterFunction('FindFirst', FindFirstFunc, -1);
@@ -1659,8 +1749,23 @@ begin
     RegisterFunction('GetSHA1OfUnicodeString', GetSHA1OfUnicodeString, -1);
     RegisterFunction('Trim', TrimFunc, -1);
     RegisterFunction('StringChange', StringChangeFunc, -1);
+    RegisterFunction('IsWin64', IsWin64Func, -1);
   end;
 end;
+
+procedure InitIsWin64;
+var
+  IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
+  Wow64Process: BOOL;
+begin
+  IsWow64ProcessFunc := GetProcAddress(GetModuleHandle(kernel32), 'IsWow64Process');
+  IsWin64 := Assigned(IsWow64ProcessFunc) and
+             IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
+             Wow64Process;
+end;
+
+initialization
+  InitIsWin64;
 
 end.
 

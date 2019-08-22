@@ -1,6 +1,6 @@
 ; *******************************************************
 ; ***                                                 ***
-; *** Inno Setup version 5.5.3+ Czech messages        ***
+; *** Inno Setup version 6.0.0+ Czech messages        ***
 ; ***                                                 ***
 ; *** Original Author:                                ***
 ; ***                                                 ***
@@ -12,14 +12,6 @@
 ; ***   Vitezslav Svejdar (vitezslav.svejdar@cuni.cz) ***
 ; ***                                                 ***
 ; *******************************************************
-;
-; Copyright (C) 1997-2012 Jordan Russell. All rights reserved.
-; Translations (C) 2002-2012 Original Author and Contributors. All rights reserved.
-;
-; The contents of this file are subject to the Inno Setup License (the "License").
-; You may obtain a copy of the License at http://www.jrsoftware.org/files/is/license.txt
-;
-; $jrsoftware: issrc/Files/Languages/Czech.isl,v 1.18 2007/02/27 18:22:41 jr Exp $
 
 [LangOptions]
 LanguageName=<010C>e<0161>tina
@@ -43,6 +35,7 @@ ErrorTitle=Chyba
 SetupLdrStartupMessage=Vítá Vás prùvodce instalací produktu %1. Chcete pokraèovat?
 LdrCannotCreateTemp=Nelze vytvoøit doèasnı soubor. Prùvodce instalací bude ukonèen
 LdrCannotExecTemp=Nelze spustit soubor v doèasné sloce. Prùvodce instalací bude ukonèen
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nChyba %2: %3
@@ -56,13 +49,22 @@ WindowsServicePackRequired=Tento produkt vyaduje %1 Service Pack %2 nebo vyšší.
 NotOnThisPlatform=Tento produkt nelze spustit ve %1.
 OnlyOnThisPlatform=Tento produkt musí bıt spuštìn ve %1.
 OnlyOnTheseArchitectures=Tento produkt lze nainstalovat pouze ve verzích MS Windows s podporou architektury procesorù:%n%n%1
-MissingWOW64APIs=Aktuální verze MS Windows postrádá funkce, které vyaduje prùvodce instalací pro 64-bitovou instalaci. Opravte prosím tuto chybu nainstalováním aktualizace Service Pack %1.
 WinVersionTooLowError=Tento produkt vyaduje %1 verzi %2 nebo vyšší.
 WinVersionTooHighError=Tento produkt nelze nainstalovat ve %1 verzi %2 nebo vyšší.
 AdminPrivilegesRequired=K instalaci tohoto produktu musíte bıt pøihlášeni s právy administrátora.
 PowerUserPrivilegesRequired=K instalaci tohoto produktu musíte bıt pøihlášeni s právy administrátora nebo èlena skupiny Power Users.
 SetupAppRunningError=Prùvodce instalací zjistil, e produkt %1 je nyní spuštìn.%n%nZavøete prosím všechny instance tohoto produktu a pak pokraèujte klepnutím na tlaèítko OK, nebo ukonèete instalaci tlaèítkem Storno.
 UninstallAppRunningError=Prùvodce odinstalací zjistil, e produkt %1 je nyní spuštìn.%n%nZavøete prosím všechny instance tohoto produktu a pak pokraèujte klepnutím na tlaèítko OK, nebo ukonèete odinstalaci tlaèítkem Storno.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Vıbìr reimu prùvodce instalací
+PrivilegesRequiredOverrideInstruction=Zvolte reim instalace
+PrivilegesRequiredOverrideText1=Produkt %1 lze nainstalovat pro všechny uivatele (musíte bıt pøihlášeni s právy administrátora), nebo pouze pro Vás.
+PrivilegesRequiredOverrideText2=Produkt %1 lze nainstalovat pouze pro Vás, nebo pro všechny uivatele (musíte bıt pøihlášeni s právy administrátora).
+PrivilegesRequiredOverrideAllUsers=Nainstalovat pro &všechny uivatele
+PrivilegesRequiredOverrideAllUsersRecommended=Nainstalovat pro &všechny uivatele (doporuèuje se)
+PrivilegesRequiredOverrideCurrentUser=Nainstalovat pouze pro &mì
+PrivilegesRequiredOverrideCurrentUserRecommended=Nainstalovat pouze pro &mì (doporuèuje se)
 
 ; *** Misc. errors
 ErrorCreatingDir=Prùvodci instalací se nepodaøilo vytvoøit sloku "%1"
@@ -94,7 +96,7 @@ ButtonNewFolder=&Vytvoøit novou sloku
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Vıbìr jazyka prùvodce instalací
-SelectLanguageLabel=Zvolte jazyk, kterı se má pouít bìhem instalace:
+SelectLanguageLabel=Zvolte jazyk, kterı se má pouít bìhem instalace.
 
 ; *** Common wizard text
 ClickNext=Pokraèujte klepnutím na tlaèítko Další, nebo ukonèete prùvodce instalací tlaèítkem Storno.
@@ -238,7 +240,10 @@ SelectDirectoryLabel=Specifikujte prosím umístìní dalšího disku.
 
 ; *** Installation phase messages
 SetupAborted=Instalace nebyla zcela dokonèena.%n%nOpravte prosím chybu a spuste prùvodce instalací znovu.
-EntryAbortRetryIgnore=Akci zopakujete klepnutím na tlaèítko Opakovat. Tento krok vynecháte klepnutím na tlaèítko Pøeskoèit. Instalaci stornujete klepnutím na tlaèítko Pøerušit.
+AbortRetryIgnoreSelectAction=Zvolte akci
+AbortRetryIgnoreRetry=&Zopakovat akci
+AbortRetryIgnoreIgnore=&Ignorovat chybu a pokraèovat
+AbortRetryIgnoreCancel=Zrušit instalaci
 
 ; *** Installation status messages
 StatusClosingApplications=Zavírají se aplikace...
@@ -269,11 +274,13 @@ ErrorRegWriteKey=Došlo k chybì pøi zápisu do klíèe systémového registru:%n%1\%2
 ErrorIniEntry=Došlo k chybì pøi vytváøení záznamu v inicializaèním souboru "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Akci zopakujete klepnutím na tlaèítko Opakovat. Tento soubor pøeskoèíte klepnutím na tlaèítko Pøeskoèit (nedoporuèuje se). Instalaci stornujete klepnutím na tlaèítko Pøerušit.
-FileAbortRetryIgnore2=Akci zopakujete klepnutím na tlaèítko Opakovat. Pokraèujete klepnutím na tlaèítko Pøeskoèit (nedoporuèuje se). Instalaci stornujete klepnutím na tlaèítko Pøerušit.
+FileAbortRetryIgnoreSkipNotRecommended=&Pøeskoèit tento soubor (nedoporuèuje se)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorovat chybu a pokraèovat (nedoporuèuje se)
 SourceIsCorrupted=Zdrojovı soubor je poškozen
 SourceDoesntExist=Zdrojovı soubor "%1" neexistuje
-ExistingFileReadOnly=Existující soubor je urèen pouze pro ètení.%n%nAtribut "pouze pro ètení" odstraníte a akci zopakujete klepnutím na tlaèítko Opakovat. Tento soubor pøeskoèíte klepnutím na tlaèítko Pøeskoèit. Instalaci stornujete klepnutím na tlaèítko Pøerušit.
+ExistingFileReadOnly2=Nelze nahradit existující soubor, protoe je urèen pouze pro ètení.
+ExistingFileReadOnlyRetry=&Odstranit atribut "pouze pro ètení" a zopakovat akci
+ExistingFileReadOnlyKeepExisting=&Ponechat existující soubor
 ErrorReadingExistingDest=Došlo k chybì pøi pokusu o ètení existujícího souboru:
 FileExists=Soubor ji existuje.%n%nMá bıt prùvodcem instalace pøepsán?
 ExistingFileNewer=Existující soubor je novìjší ne ten, kterı se prùvodce instalací pokouší nainstalovat. Doporuèuje se ponechat existující soubor.%n%nChcete jej ponechat?
@@ -287,6 +294,16 @@ ErrorRenamingTemp=Došlo k chybì pøi pokusu o pøejmenování souboru v cílové sloc
 ErrorRegisterServer=Nelze zaregistrovat DLL/OCX: %1
 ErrorRegSvr32Failed=Volání RegSvr32 selhalo s návratovım kódem %1
 ErrorRegisterTypeLib=Nelze zaregistrovat typovou knihovnu: %1
+
+; *** Uninstall display name markings
+; used for example as 'My Program (32-bit)'
+UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32bitovı
+UninstallDisplayNameMark64Bit=64bitovı
+UninstallDisplayNameMarkAllUsers=Všichni uivatelé
+UninstallDisplayNameMarkCurrentUser=Aktuální uivatel
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Došlo k chybì pøi pokusu o otevøení dokumentu "ÈTIMNE".

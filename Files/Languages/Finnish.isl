@@ -1,8 +1,8 @@
-; *** Inno Setup version 5.5.3+ Finnish messages ***
+; *** Inno Setup version 6.0.0+ Finnish messages ***
 ;
 ; Finnish translation by Antti Karttunen
 ; E-mail: antti.j.karttunen@iki.fi
-; Last modification date: 2012-12-15
+; Last modification date: 2019-01-22
 
 [LangOptions]
 LanguageName=Suomi
@@ -39,13 +39,22 @@ WindowsServicePackRequired=Tämä ohjelma vaatii %1 Service Pack %2 -päivityksen t
 NotOnThisPlatform=Tämä ohjelma ei toimi %1-käyttöjärjestelmässä.
 OnlyOnThisPlatform=Tämä ohjelma toimii vain %1-käyttöjärjestelmässä.
 OnlyOnTheseArchitectures=Tämä ohjelma voidaan asentaa vain niihin Windowsin versioihin, jotka on suunniteltu seuraaville prosessorityypeille:%n%n%1
-MissingWOW64APIs=Tämä Windowsin versio ei sisällä ominaisuuksia, joita Asennus tarvitsee suorittaakseen 64-bittisen asennuksen. Korjaa ongelma asentamalla Service Pack %1.
 WinVersionTooLowError=Tämä ohjelma vaatii version %2 tai myöhemmän %1-käyttöjärjestelmästä.
 WinVersionTooHighError=Tätä ohjelmaa ei voi asentaa %1-käyttöjärjestelmän versioon %2 tai myöhempään.
 AdminPrivilegesRequired=Sinun täytyy kirjautua sisään järjestelmänvalvojana asentaaksesi tämän ohjelman.
 PowerUserPrivilegesRequired=Sinun täytyy kirjautua sisään järjestelmänvalvojana tai tehokäyttäjänä asentaaksesi tämän ohjelman.
 SetupAppRunningError=Asennus löysi käynnissä olevan kopion ohjelmasta %1.%n%nSulje kaikki käynnissä olevat kopiot ohjelmasta ja valitse OK jatkaaksesi, tai valitse Peruuta poistuaksesi.
 UninstallAppRunningError=Asennuksen poisto löysi käynnissä olevan kopion ohjelmasta %1.%n%nSulje kaikki käynnissä olevat kopiot ohjelmasta ja valitse OK jatkaaksesi, tai valitse Peruuta poistuaksesi.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Valitse asennustapa
+PrivilegesRequiredOverrideInstruction=Valitse, kenen käyttöön ohjelma asennetaan
+PrivilegesRequiredOverrideText1=%1 voidaan asentaa kaikille käyttäjille (vaatii järjestelmänvalvojan oikeudet) tai vain sinun käyttöösi.
+PrivilegesRequiredOverrideText2=%1 voidaan asentaa vain sinun käyttöösi tai kaikille käyttäjille (vaatii järjestelmänvalvojan oikeudet).
+PrivilegesRequiredOverrideAllUsers=Asenna &kaikille käyttäjille
+PrivilegesRequiredOverrideAllUsersRecommended=Asenna &kaikille käyttäjille (suositus)
+PrivilegesRequiredOverrideCurrentUser=Asenna vain &minun käyttööni
+PrivilegesRequiredOverrideCurrentUserRecommended=Asenna vain &minun käyttööni (suositus)
 
 ; *** Misc. errors
 ErrorCreatingDir=Asennus ei voinut luoda hakemistoa "%1"
@@ -58,7 +67,7 @@ AboutSetupMenuItem=&Tietoja Asennuksesta...
 AboutSetupTitle=Tietoja Asennuksesta
 AboutSetupMessage=%1 versio %2%n%3%n%n%1 -ohjelman kotisivu:%n%4
 AboutSetupNote=
-TranslatorNote=Suomenkielinen käännös: Antti Karttunen (antti.karttunen@joensuu.fi)
+TranslatorNote=Suomenkielinen käännös: Antti Karttunen (antti.j.karttunen@iki.fi)
 
 ; *** Buttons
 ButtonBack=< &Takaisin
@@ -77,7 +86,7 @@ ButtonNewFolder=&Luo uusi kansio
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Valitse Asennuksen kieli
-SelectLanguageLabel=Valitse asentamisen aikana käytettävä kieli:
+SelectLanguageLabel=Valitse asentamisen aikana käytettävä kieli.
 
 ; *** Common wizard text
 ClickNext=Valitse Seuraava jatkaaksesi tai Peruuta poistuaksesi.
@@ -218,7 +227,10 @@ SelectDirectoryLabel=Määritä seuraavan levykkeen sisällön sijainti.
 
 ; *** Installation phase messages
 SetupAborted=Asennusta ei suoritettu loppuun.%n%nKorjaa ongelma ja suorita Asennus uudelleen.
-EntryAbortRetryIgnore=Valitse Uudelleen yrittääksesi uudelleen, Ohita jatkaaksesi kaikesta huolimatta tai Hylkää peruuttaaksesi asennuksen.
+AbortRetryIgnoreSelectAction=Valitse toiminto
+AbortRetryIgnoreRetry=&Yritä uudelleen
+AbortRetryIgnoreIgnore=&Jatka virheestä huolimatta
+AbortRetryIgnoreCancel=Peruuta asennus
 
 ; *** Installation status messages
 StatusClosingApplications=Suljetaan sovellukset...
@@ -253,11 +265,13 @@ ErrorRegWriteKey=Virhe kirjoitettaessa rekisteriavaimeen%n%1\%2
 ErrorIniEntry=Virhe luotaessa INI-merkintää tiedostoon "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Valitse Uudelleen yrittääksesi uudelleen, Ohita ohittaaksesi tämän tiedoston (ei suositeltavaa) tai Hylkää peruuttaaksesi asennuksen.
-FileAbortRetryIgnore2=Valitse Uudelleen yrittääksesi uudelleen, Ohita jatkaaksesi kaikesta huolimatta (ei suositeltavaa) tai Hylkää peruuttaaksesi asennuksen.
+FileAbortRetryIgnoreSkipNotRecommended=&Ohita tämä tiedosto (ei suositeltavaa)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Jatka virheestä huolimatta (ei suositeltavaa)
 SourceIsCorrupted=Lähdetiedosto on vaurioitunut
 SourceDoesntExist=Lähdetiedostoa "%1" ei ole olemassa
-ExistingFileReadOnly=Nykyinen tiedosto on Vain luku -tiedosto.%n%nValitse Uudelleen poistaaksesi Vain luku -määritteen uudelleenyritystä varten, Ohita ohittaaksesi tämän tiedoston tai Hylkää peruuttaaksesi asennuksen.
+ExistingFileReadOnly2=Nykyistä tiedostoa ei voitu korvata, koska se on Vain luku -tiedosto.
+ExistingFileReadOnlyRetry=&Poista Vain luku -asetus ja yritä uudelleen
+ExistingFileReadOnlyKeepExisting=&Säilytä nykyinen tiedosto
 ErrorReadingExistingDest=Virhe luettaessa nykyistä tiedostoa:
 FileExists=Tiedosto on jo olemassa.%n%nKorvataanko se?
 ExistingFileNewer=Nykyinen tiedosto on uudempi kuin asennettava tiedosto. Nykyisen tiedoston säilyttäminen on suositeltavaa.n%nHaluatko säilyttää nykyisen tiedoston?
@@ -271,6 +285,14 @@ ErrorRenamingTemp=Virhe uudelleennimettäessä tiedostoa kohdehakemistossa:
 ErrorRegisterServer=DLL/OCX -laajennuksen rekisteröinti epäonnistui: %1
 ErrorRegSvr32Failed=RegSvr32-toiminto epäonnistui. Virhekoodi: %1
 ErrorRegisterTypeLib=Tyyppikirjaston rekisteröiminen epäonnistui: %1
+
+; *** Uninstall display name markings
+UninstallDisplayNameMark=%1 (%2)
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bittinen
+UninstallDisplayNameMark64Bit=64-bittinen
+UninstallDisplayNameMarkAllUsers=Kaikki käyttäjät
+UninstallDisplayNameMarkCurrentUser=Tämänhetkinen käyttäjä
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Virhe avattaessa LUEMINUT-tiedostoa.

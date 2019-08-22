@@ -1,21 +1,23 @@
-; *** Inno Setup version 5.5.3+ Corsican messages ***
+; *** Inno Setup version 6.0.0+ Corsican messages ***
 ;
-; To download user-contributed translations of this file, go to :
-;   http ://www.jrsoftware.org/files/istrans/
+; To download user-contributed translations of this file, go to:
+;   http://www.jrsoftware.org/files/istrans/
 ;
-; Note : When translating this text, do not add periods (.) to the end of
+; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
+
+; Created and maintained by Patriccollu di Santa Maria è Sichè
 ;
-; Created and maintained by Patriccollu di Santa Maria Sichè
+; E-mail: Patrick.Santa-Maria[at]LaPoste.Net
 ;
-; E-mail: Patrick.Santa-Maria@LaPoste.Net
-;
-; Changes :
-; January 3, 2013 : update to version 5.5.3+
-; August 8, 2012 : update to version 5.5.0+
-; September 17, 2011 : creation for version 5.1.11
+; Changes:
+; January 20, 2019 - Update to version 6.0.0+
+; April 9, 2016 - Changes to current version 5.5.3+
+; January 3, 2013 - Update to version 5.5.3+
+; August 8, 2012 - Update to version 5.5.0+
+; September 17, 2011 - Creation for version 5.1.11
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -37,290 +39,313 @@ LanguageCodePage=1252
 [Messages]
 
 ; *** Application titles
-SetupAppTitle=Installazione
-SetupWindowTitle=Installazione di %1
-UninstallAppTitle=Disinstallazione
+SetupAppTitle=Assistente d’installazione
+SetupWindowTitle=Assistente d’installazione - %1
+UninstallAppTitle=Disinstallà
 UninstallAppFullTitle=Disinstallazione di %1
 
 ; *** Misc. common
 InformationTitle=Infurmazione
 ConfirmTitle=Cunfirmà
-ErrorTitle=Errore
+ErrorTitle=Sbagliu
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Site prontu à installà %1 ?
-LdrCannotCreateTemp=Ùn hè micca pussibule di creà unu schedariu timpurariu. Installazione cancellata
-LdrCannotExecTemp=Ùn hè micca pussibule di eseguisce unu schedariu in lu cartulare timpurariu. Installazione cancellata
+SetupLdrStartupMessage=St’assistente hà da installà %1. Vulete cuntinuà ?
+LdrCannotCreateTemp=Impussibule di creà un cartulare timpurariu. Assistente d’installazione interrottu
+LdrCannotExecTemp=Impussibule d’eseguisce u schedariu in u cartulare timpurariu. Assistente d’installazione interrottu
+HelpTextNote=
 
 ; *** Startup error messages
-LastErrorMessage=%1.%n%nErrore %2 : %3
-SetupFileMissing=U schedariu %1 ùn hè micca in u cartulare di l'installazione. Ci vole à curreghje stu prublemu o riceve una nova copia di u programmu.
-SetupFileCorrupt=I schedarii di setup sò alterati. Ci vole à riceve una nova copia di u programmu.
-SetupFileCorruptOrWrongVer=I schedarii di setup sò alterati, o sò incompatibili cù sta versione di u prugrammu d'installazione. Ci vole à curreghje stu prublemu o riceve una nova copia di u programmu.
-InvalidParameter=Unu parametru micca validu hè statu passatu nantu à a linea di cumanda :%n%n%1
-SetupAlreadyRunning=U prucessu d'installazione hè dighià in funzione.
-WindowsVersionNotSupported=Stu prugrammu ùn supporta micca a versione di Windows installata nantu à st'urdinatore.
-WindowsServicePackRequired=Stu prugrammu richiede %1 Service Pack %2 o più ricente.
-NotOnThisPlatform=Stu prugrammu ùn funziona micca cù %1.
-OnlyOnThisPlatform=Stu prugrammu deve funzionà cù %1.
-OnlyOnTheseArchitectures=Stu prugrammu pò esse installatu solu nantu à i versioni di Windows chì funzionanu cù st'architetture di prucessore :%n%n%1
-MissingWOW64APIs=A versione di Windows uduprata ùn hà micca i funzioni per fà una installazione 64-bit. Per curreghje stu prublemu, ci vole à installà u Service Pack %1.
-WinVersionTooLowError=Stu programmu richiede a versione %2 o più recente di %1.
-WinVersionTooHighError=Stu programmu ùn pò micca esse installatu nantu à a versione %2 o più recente di %1.
-AdminPrivilegesRequired=Ci vole à esse amministratore per installà stu prugrammu.
-PowerUserPrivilegesRequired=Ci vole à esse amministratore o membru di u gruppu di i "Power Users" per installà stu prugrammu.
-SetupAppRunningError=%1 hè dighjà in esecuzione.%n%nChjode avà tutte l'istanze di stu prugrammu è sciglite OK per continuà, osinnò Cancellà per abbandunà l'installazione.
-UninstallAppRunningError=%1 hè dighjà in esecuzione.%n%nChjode avà tutte l'istanze di stu prugrammu è sciglite OK per continuà, osinnò Cancellà per abbandunà a disinstallazione.
+LastErrorMessage=%1.%n%nSbagliu %2 : %3
+SetupFileMissing=U schedariu %1 manca in u cartulare d’installazione. Ci vole à currege u penseru o ottene una nova copia di u prugramma.
+SetupFileCorrupt=I schedarii d’installazione sò alterati. Ci vole à ottene una nova copia di u prugramma.
+SetupFileCorruptOrWrongVer=I schedarii d’installazione sò alterati, o sò incumpatibule cù sta versione di l’assistente. Ci vole à currege u penseru o ottene una nova copia di u prugramma.
+InvalidParameter=Un parametru micca accettevule hè statu passatu in a linea di cumanda :%n%n%1
+SetupAlreadyRunning=L’assistente d’installazione hè dighjà in corsu.
+WindowsVersionNotSupported=Stu prugramma ùn pò micca funziunà cù a versione di Windows installata nant’à st’ordinatore.
+WindowsServicePackRequired=Stu prugramma richiede %1 Service Pack %2 o più recente.
+NotOnThisPlatform=Stu prugramma ùn funzionerà micca cù %1.
+OnlyOnThisPlatform=Stu prugramma deve funzionà cù %1.
+OnlyOnTheseArchitectures=Stu prugramma pò solu esse installatu nant’à e versioni di Windows fatte apposta per st’architetture di prucessore :%n%n%1
+WinVersionTooLowError=Stu prugramma richiede %1 versione %2 o più recente.
+WinVersionTooHighError=Stu prugramma ùn pò micca esse installatu nant’à %1 version %2 o più recente.
+AdminPrivilegesRequired=Ci vole à esse cunnettu cum’è un amministratore quandu voi installate stu prugramma.
+PowerUserPrivilegesRequired=Ci vole à esse cunnettu cum’è un amministratore o fà parte di u gruppu « Utilizatori cù putere » quandu voi installate stu prugramma.
+SetupAppRunningError=L’assistente hà vistu chì %1 era dighjà in corsu.%n%nCi vole à chjode tutte e so finestre avà, po sceglie Vai per cuntinuà, o Abbandunà per compie.
+UninstallAppRunningError=A disinstallazione hà vistu chì %1 era dighjà in corsu.%n%nCi vole à chjode tutte e so finestre avà, po sceglie Vai per cuntinuà, o Abbandunà per compie.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Selezziunà u modu d’installazione di l’assistente
+PrivilegesRequiredOverrideInstruction=Selezziunà u modu d’installazione
+PrivilegesRequiredOverrideText1=%1 pò esse installatu per tutti l’utilizatore (richiede i diritti d’amministratore), o solu per voi.
+PrivilegesRequiredOverrideText2=%1 pò esse installatu solu per voi, o per tutti l’utilizatore (richiede i diritti d’amministratore).
+PrivilegesRequiredOverrideAllUsers=Installazione per &tutti l’utilizatori
+PrivilegesRequiredOverrideAllUsersRecommended=Installazione per &tutti l’utilizatori (ricumandatu)
+PrivilegesRequiredOverrideCurrentUser=Installazione solu per &mè
+PrivilegesRequiredOverrideCurrentUserRecommended=Installazione solu per &mè (ricumandatu)
 
 ; *** Misc. errors
-ErrorCreatingDir=Impussibule di creà u cartulare "%1"
-ErrorTooManyFilesInDir=Impussibule di creà unu schedariu in u cartulare "%1" perchè ci sò dighjà troppu di schedarii
+ErrorCreatingDir=L’assistente ùn hà micca pussutu creà u cartulare « %1 »
+ErrorTooManyFilesInDir=Impussibule di creà un schedariu in u cartulare « %1 » perchè ellu ne cuntene troppu
 
 ; *** Setup common messages
-ExitSetupTitle=Esce di l'installazione
-ExitSetupMessage=L'installazione ùn hè micca compia. S'è voi escite l'installazione avà, u prugrammu ùn serà micca installatu.%n%nCi vulerà à ripiglià l'installazione più tardi per compiella.%n%nEsce di l'installazione ?
-AboutSetupMenuItem=&Apprupositu di l'Assistente d'Installazione...
-AboutSetupTitle=Apprupositu di l'Assistente d'Installazione
-AboutSetupMessage=%1 versione %2%n%3%n%nPagina d'accolta %1 :%n%4
+ExitSetupTitle=Compie l’assistente
+ExitSetupMessage=L’assistente ùn hè micca compiu bè. S’è voi escite avà, u prugramma ùn serà micca installatu.%n%nPudete impiegà l’assistente torna un altra volta per compie l’installazione.%n%nCompie l’assistente ?
+AboutSetupMenuItem=&Apprupositu di l’assistente…
+AboutSetupTitle=Apprupositu di l’assistente
+AboutSetupMessage=%1 versione %2%n%3%n%n%1 pagina d’accolta :%n%4
 AboutSetupNote=
-TranslatorNote=Traduzzione corsa da Patriccollu di Santa Maria Sichè
+TranslatorNote=Traduzzione corsa da Patriccollu di Santa Maria è Sichè
 
 ; *** Buttons
-ButtonBack=< &Antecedente
+ButtonBack=< &Precedente
 ButtonNext=&Seguente >
-ButtonInstall=In&stallà
-ButtonOK=OK
-ButtonCancel=Cancellà
+ButtonInstall=&Installà
+ButtonOK=Vai
+ButtonCancel=Abbandunà
 ButtonYes=&Iè
 ButtonYesToAll=Iè per &tutti
 ButtonNo=I&nnò
-ButtonNoToAll=Inn&ò per tutti
+ButtonNoToAll=Innò per t&utti
 ButtonFinish=&Piantà
-ButtonBrowse=&Sfuglià...
-ButtonWizardBrowse=S&fuglià...
-ButtonNewFolder=&Creà novu cartulare
+ButtonBrowse=&Sfuglià…
+ButtonWizardBrowse=&Sfuglià…
+ButtonNewFolder=&Creà un novu cartulare
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Lingua di l'Assistente d'Installazione
-SelectLanguageLabel=Sceglie a lingua à aduprà durante l'installazione :
+SelectLanguageTitle=Definisce a lingua di l’assistente
+SelectLanguageLabel=Selezziunà a lingua à impiegà per l’installazione.
 
 ; *** Common wizard text
-ClickNext=Sceglie Seguente per cuntinuà, o Cancellà per compie l'installazione.
+ClickNext=Sceglie Seguente per cuntinuà, o Abbandunà per compie l’assistente.
 BeveledLabel=
-BrowseDialogTitle=Sfuglià i cartulari
-BrowseDialogLabel=Sceglite unu cartulare nantu à a lista inghjò, eppò OK.
+BrowseDialogTitle=Sfuglià u cartulare
+BrowseDialogLabel=Selezziunà un cartulare in a lista inghjò, po sceglie Vai.
 NewFolderName=Novu cartulare
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Benvenutu in l'Assistente d'Installazione di [name]
-WelcomeLabel2=St'Assistente hè prontu à installà [name/ver] nantu à u vostru urdinatore.%n%nHè ricummendatu di chjode tutti l'altri appiecazioni nanzu à cuntinuà.
+WelcomeLabel1=Benvenuta in l’assistente d’installazione di [name]
+WelcomeLabel2=Quessu installerà [name/ver] nant’à l’ordinatore.%n%nHè ricumandatu di chjode tutte l’altre appiecazioni nanzu di cuntinuà.
 
 ; *** "Password" wizard page
-WizardPassword=Parolla d'intrata
-PasswordLabel1=St'installazione hè prutetta cù una parolla d'intrata.
-PasswordLabel3=Entrite a parolla d'intrata, eppò sceglite Seguente per cuntinuà. Fate casu di rispettà e minuscule è maiuscule in e parolle d'intrata.
-PasswordEditLabel=&Parolla d'intrata :
-IncorrectPassword=A parolla d'intrata hè falsa. Pruvate un'altra volta.
+WizardPassword=Parolla d’entrata
+PasswordLabel1=L’installazione hè prutetta da una parolla d’entrata.
+PasswordLabel3=Ci vole à pruvede a parolla d’entrata, po sceglie Seguente per cuntinuà. Sfarenzià maiuscule è minuscule in e parolle d’entrata.
+PasswordEditLabel=&Parolla d’entrata :
+IncorrectPassword=A parolla d’entrata pruvista ùn hè micca curretta. Ci vole à pruvà torna.
 
 ; *** "License Agreement" wizard page
-WizardLicense=Cuntrattu d'Utilizazione
-LicenseLabel=L'infurmazioni chì seguitanu sò impurtentissimi. Ci vole à leghjelli nanzu à cuntinuà.
-LicenseLabel3=Per piacè leghjite u Cuntrattu d'Utilizazione chì seguita. Ci vole à esse d'accunsentu cù tutti i vucabuli di stu cuntrattu per pudè cuntinuà l'installazione.
-LicenseAccepted=Capiscu è sò d'&accunsentu cù tutti i vucabuli di u cuntrattu
-LicenseNotAccepted=Ùn sò &micca d'accunsentu cù stu cuntrattu
+WizardLicense=Cuntrattu di licenza
+LicenseLabel=Ci vole à leghje l’infurmazione impurtante chì seguiteghja nanzu di cuntinuà.
+LicenseLabel3=Ci vole à leghje u cuntrattu di licenza chì seguiteghja. Duvete accettà i termini di stu cuntrattu nanzu di cuntinuà l’installazione.
+LicenseAccepted=Sò d’&accunsentu cù u cuntrattu
+LicenseNotAccepted=Ùn sò &micca d’accunsentu cù u cuntrattu
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Infurmazione
-InfoBeforeLabel=L'infurmazioni chì seguitanu sò impurtentissimi. Ci vole à leghjelli nanzu à cuntinuà.
-InfoBeforeClickLabel=Quandu site prontu à cuntinuà, sceglite Seguente.
+InfoBeforeLabel=Ci vole à leghje l’infurmazione impurtante chì seguiteghja nanzu di cuntinuà.
+InfoBeforeClickLabel=Quandu site prontu à cuntinuà cù l’assistente, sciglite Seguente.
 WizardInfoAfter=Infurmazione
-InfoAfterLabel=L'infurmazioni chì seguitanu sò impurtentissimi. Ci vole à leghjelli nanzu à cuntinuà.
-InfoAfterClickLabel=Quandu site prontu à cuntinuà, sceglite Seguente.
+InfoAfterLabel=Ci vole à leghje l’infurmazione impurtante chì seguiteghja nanzu di cuntinuà.
+InfoAfterClickLabel=Quandu site prontu à cuntinuà cù l’assistente, sciglite Seguente.
 
 ; *** "User Information" wizard page
-WizardUserInfo=Infurmazione Utilizatore
-UserInfoDesc=Entrite i vostri infurmazioni.
-UserInfoName=&Nome di l'utilizatore :
+WizardUserInfo=Infurmazioni di l’utilizatore
+UserInfoDesc=Ci vole à scrive e vostre infurmazioni.
+UserInfoName=&Nome d’utilizatore :
 UserInfoOrg=&Urganismu :
-UserInfoSerial=Numeru di &seria :
-UserInfoNameRequired=Ci vole à entre unu nome.
+UserInfoSerial=&Numeru di Seria :
+UserInfoNameRequired=Ci vole à scrive un nome.
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=Selezziunà u cartulare d'installazione
-SelectDirDesc=Induve ci vole à installà [name] ?
-SelectDirLabel3=L'Assistente hà da installà [name] in stu cartulare.
-SelectDirBrowseLabel=Per cuntinuà, sceglite Seguente. S'è voi preferite un'altru cartulare, sceglite Sfuglià.
-DiskSpaceMBLabel=U prugrammu hà bisognu d'al menu [mb] Mo di spaziu liberu nantu à u dischettu duru.
-CannotInstallToNetworkDrive=Ùn hè micca pussibule di fà l'installazione nantu à unu dischettu di a reta.
-CannotInstallToUNCPath=Ùn hè micca pussibule d'impiegà unu caminu UNC. S'è voi vulete installà nantu à a reta, ci vole à cunnettà, primu, u lettore di reta.
-InvalidPath=Ci vole à entre unu caminu cumplettu ; per indettu :%n%nC :\APP%n%è micca unu caminu UNC di a forma :%n%n\\server\share
-InvalidDrive=L'unità o u caminu UNC selezziunatu ùn esiste o ùn hè micca dispunibule. Per piacà, sceglite un'altru.
-DiskSpaceWarningTitle=Spaziu nantu à u dischettu duru ùn hè micca abbastanza
-DiskSpaceWarning=L'Assistente richiede almenu %1 Ko di spaziu liberu per l'installazione, ma l'unità selezziunata hà solu %2 Ko dispunibule.%n%nVulete cuntinuà quantunque ?
-DirNameTooLong=U nome di u cartulare o u caminu hè troppu longu.
-InvalidDirName=U nome di u cartulare ùn hè micca leghjittimu.
-BadDirName32=U nome di u cartulare ùn pò micca cuntene sti caratteri :%n%n%1
+WizardSelectDir=Selezziunà u locu di destinazione
+SelectDirDesc=Induve [name] deve esse installatu ?
+SelectDirLabel3=L’assistente installerà [name] in stu cartulare.
+SelectDirBrowseLabel=Per cuntinuà, sceglie Seguente. S’è voi preferisce selezziunà un altru cartulare, sciglite Sfuglià.
+DiskSpaceMBLabel=Hè richiestu almenu [mb] Mo di spaziu liberu di discu.
+CannotInstallToNetworkDrive=L’assistente ùn pò micca installà nant’à un discu di a reta.
+CannotInstallToUNCPath=L’assistente ùn pò micca installà in un passeghju UNC.
+InvalidPath=Ci vole à scrive un passeghju cumplettu cù a lettera di u lettore ; per indettu :%n%nC:\APP%n%no un passeghju UNC in a forma :%n%n\\servu\spartu
+InvalidDrive=U lettore o u passeghju UNC spartu ùn esiste micca o ùn hè micca accessibule. Ci vole à selezziunà un altru.
+DiskSpaceWarningTitle=Ùn basta u spaziu discu
+DiskSpaceWarning=L’assistente richiede almenu %1 Ko di spaziu liberu per installà, ma u lettore selezziunatu hà solu %2 Ko dispunibule.%n%nVulete cuntinuà quantunque ?
+DirNameTooLong=U nome di cartulare o u passeghju hè troppu longu.
+InvalidDirName=U nome di cartulare ùn hè micca accettevule.
+BadDirName32=I nomi di cartulare ùn ponu micca cuntene sti caratteri :%n%n%1
 DirExistsTitle=Cartulare esistente
 DirExists=U cartulare :%n%n%1%n%nesiste dighjà. Vulete installà in stu cartulare quantunque ?
 DirDoesntExistTitle=Cartulare inesistente
-DirDoesntExist=U cartulare :%n%n%1%n%nùn esiste micca. Vulete creà stu cartulare ?
+DirDoesntExist=U cartulare :%n%n%1%n%nùn esiste micca. Vulete chì stu cartulare sia creatu ?
 
 ; *** "Select Components" wizard page
-WizardSelectComponents=Selezziunà i cumpunenti
-SelectComponentsDesc=Chì cumpunenti vulete installà ?
-SelectComponentsLabel2=Selezziunate i cumpunenti chì ci vole à installà ; deselezziunate quelli ch'ùn ci vole micca à installà. Quandu site prontu à cuntinuà, sceglite Seguente.
-FullInstallation=Installazione cumpleta
+WizardSelectComponents=Selezzione di cumpunenti
+SelectComponentsDesc=Chì cumpunenti devenu esse installati ?
+SelectComponentsLabel2=Selezziunà i cumpunenti à installà ; deselezziunà quelli ch’ùn devenu micca esse installati. Sceglie Seguente quandu site prontu à cuntinuà.
+FullInstallation=Installazione sana
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
-CompactInstallation=Installazione strinta
+CompactInstallation=Installazione cumpatta
 CustomInstallation=Installazione persunalizata
 NoUninstallWarningTitle=Cumpunenti esistenti
-NoUninstallWarning=L'Assistente hà trovu sti cumpunenti dighjà installati nantu à l'urdinatore :%n%n%1%n%nDeselezziunà sti cumpunenti ùn i disinstallerà micca.%n%nVulete cuntinuà ?
+NoUninstallWarning=L’assistente hà vistu chì sti cumpunenti sò dighjà installati nant’à l’ordinatore :%n%n%1%n%nDeselezziunà sti cumpunenti ùn i disinstallerà micca.%n%nVulete cuntinuà quantunque ?
 ComponentSize1=%1 Ko
 ComponentSize2=%1 Mo
-ComponentsDiskSpaceMBLabel=A selezzione currente richiede al menu [mb] Mo di spaziu liberu nantu à u dischettu duru.
+ComponentsDiskSpaceMBLabel=A selezzione attuale richiede almenu [mb] Mo di spaziu liberu nant’à u discu.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Selezziunà trattamenti addizziunali
 SelectTasksDesc=Chì trattamenti addizziunali vulete fà ?
-SelectTasksLabel2=Selezziunate i trattamenti addizziunali chì l'Assistente hà da fà durante l'installazione di [name], eppò sceglite Seguente.
+SelectTasksLabel2=Selezziunà i trattamenti addizziunali chì l’assistente deve fà durante l’installazione di [name], po sceglie Seguente.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Selezzione di u cartulare di u Menu Démarrer (Start)
-SelectStartMenuFolderDesc=Induve l'Assistente hà da mette l'accurtatoghji di u prugrammu ?
-SelectStartMenuFolderLabel3=L'Assistente hà da mette l'accurtatoghji di u prugrammu in u Menu Démarrer (Start).
-SelectStartMenuFolderBrowseLabel=Per cuntinuà, sceglite Seguente. S'è voi preferite un'altru cartulare,sceglite Sfuglià.
-MustEnterGroupName=Ci vole à entre unu nome di cartulare.
-GroupNameTooLong=U nome di u cartulare o u caminu hè troppu longu.
-InvalidGroupName=U nome di u cartulare ùn hè micca leghjittimu.
-BadGroupName=U nome di u cartulare ùn pò micca cuntene sti caratteri :%n%n%1
-NoProgramGroupCheck2=Ù&n creà micca di cartulare in u Menu Démarrer (Start)
+WizardSelectProgramGroup=Selezzione di u cartulare di u « Menu Démarrer »
+SelectStartMenuFolderDesc=Induve l’assistente deve piazzà l’accurtatoghji di u prugramma ?
+SelectStartMenuFolderLabel3=L’assistente piazzerà l’accurtatoghji di u prugramma in stu cartulare di u « Menu Démarrer ».
+SelectStartMenuFolderBrowseLabel=Per cuntinuà, sceglie Seguente. S’è voi preferisce selezziunà un altru cartulare, sciglite Sfuglià.
+MustEnterGroupName=Ci vole à scrive un nome di cartulare.
+GroupNameTooLong=U nome di cartulare o u passeghju hè troppu longu.
+InvalidGroupName=U nome di cartulare ùn hè micca accettevule.
+BadGroupName=U nome di u cartulare ùn pò micca cuntene alcunu di sti caratteri :%n%n%1
+NoProgramGroupCheck2=Ùn creà &micca di cartulare in u « Menu Démarrer »
 
 ; *** "Ready to Install" wizard page
 WizardReady=Prontu à Installà
-ReadyLabel1=Avà l'Assistente hè prontu à principià l'installazione di [name] nantu à u vostru urdinatore.
-ReadyLabel2a=Sceglite Installà per cuntinuà l'installazione, o sceglite Antecedente per rivede o cambià l'ozzioni.
-ReadyLabel2b=Sceglite Installà per cuntinuà l'installazione.
-ReadyMemoUserInfo=Infurmazione Utilizatore :
-ReadyMemoDir=Cartulare d'installazione :
-ReadyMemoType=Tipu d'installazione :
+ReadyLabel1=Avà l’assistente hè prontu à principià l’installazione di [name] nant’à l’ordinatore.
+ReadyLabel2a=Sceglie Installà per cuntinuà l’installazione, o nant’à Precedente per rivede o cambià qualchì preferenza.
+ReadyLabel2b=Sceglie Installà per cuntinuà l’installazione.
+ReadyMemoUserInfo=Infurmazioni di l’utilizatore :
+ReadyMemoDir=Cartulare d’installazione :
+ReadyMemoType=Tipu d’installazione :
 ReadyMemoComponents=Cumpunenti selezziunati :
-ReadyMemoGroup=Cartulare di u Menu Démarrer (Start) :
+ReadyMemoGroup=Cartulare di u « Menu Démarrer » :
 ReadyMemoTasks=Trattamenti addizziunali :
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=Preparazione di l'installazione
-PreparingDesc=L'Assistente appronta l'installazione di [name] nantu à u vostru urdinatore.
-PreviousInstallNotCompleted=L'installazione/suppressione precedente di u prugrammu ùn hè micca compia bè. Ci vulerà à dimarrà torna l'urdinatore per cumpie st'installazione.%n%nDopu ci vulerà à rilancià l'Assistente per cumpie l'installazione di [name].
-CannotContinue=L'Assistente ùn pò micca cuntinuà. Sceglite Cancellà per esce.
-ApplicationsFound=St'applicazioni impieganu schedarii chì devenu esse mudificati da l'installazione. Seria più faciule di permette à u prucessu di chjode autumaticamente st'applicazioni.
-ApplicationsFound2=St'applicazioni impieganu schedarii chì devenu esse mudificati da l'installazione. Seria più faciule di permette à u prucessu di chjode autumaticamente st'applicazioni. S'è l'installazione si compie bè, u prucessu pruverà di rilancià l'applicazioni.
-CloseApplications=Chjode &autumaticamente l'applicazioni
-DontCloseApplications=&Ùn chjode micca l'applicazioni
-ErrorCloseApplications=L'Assistente ùn hà micca pussutu chjode autumaticamente tutti l'applicazioni. Hè ricummandatu di chjode tutti l'applicazioni chì impieganu schedarii chì devenu esse mudificati da l'Assistente durante l'installazione nanzu à cuntinuà.
+WizardPreparing=Preparazione di l’installazione
+PreparingDesc=L’assistente appronta l’installazione di [name] nant’à l’ordinatore.
+PreviousInstallNotCompleted=L’installazione/cacciatura di un prugramma precedente ùn hè micca compia bè. Ci vulerà à spenghje l’ordinatore è ridimarrallu per compie st’installazione.%n%nDopu, ci vulerà à rilancià l’assistente per compie l’installazione di [name].
+CannotContinue=L’assistente ùn pò micca cuntinuà. Sceglie Abbandunà per esce.
+ApplicationsFound=St’appiecazioni impieganu schedarii chì devenu esse mudificati da l’assistente. Hè ricumandatu di permette à l’assistente di chjode autumaticamente st’appiecazioni.
+ApplicationsFound2=St’appiecazioni impieganu schedarii chì devenu esse mudificati da l’assistente. Hè ricumandatu di permette à l’assistente di chjode autumaticamente st’appiecazioni. S’è l’installazione si compie bè, l’assistente pruverà di rilancià l’appiecazioni.
+CloseApplications=Chjode &autumaticamente l’appiecazioni
+DontCloseApplications=Ùn chjode &micca l’appiecazioni
+ErrorCloseApplications=L’assistente ùn hà micca pussutu chjode autumaticamente tutti l’appiecazioni. Nanzu di cuntinuà, hè ricumandatu di chjode tutti l’appiecazioni chì impieganu schedarii chì devenu esse mudificati da l’assistente durante l’installazione.
 
 ; *** "Installing" wizard page
 WizardInstalling=Installazione in corsu
-InstallingLabel=Aspittate per piacè mentre l'installazione di [name] nantu à u vostru urdinatore.
+InstallingLabel=Ci vole à aspettà durante l’installazione di [name] nant’à l’ordinatore.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=Cunclusione di l'installazione di [name]
-FinishedLabelNoIcons=L'Assistente hà compiu l'installazione di [name] nantu à u vostru urdinatore.
-FinishedLabel=L'Assistente hà compiu l'installazione di [name] nantu à u vostru urdinatore. L'applicazione pò esse lampata grazia à l'icone installate.
-ClickFinish=Sceglite Piantà per compie l'Assistente.
-FinishedRestartLabel=Per cumpie l'installazione di [name], l'Assistente hà da dimarrà torna u vostru urdinatore. Site d'accunsentu per fallu avà ?
-FinishedRestartMessage=Per cumpie l'installazione di [name], l'Assistente hà da dimarrà torna u vostru urdinatore.%n%nSite d'accunsentu per fallu avà ?
+FinishedHeadingLabel=Fine di l’installazione di [name]
+FinishedLabelNoIcons=L’installazione di [name] nant’à l’ordinatore hè compia.
+FinishedLabel=L’installazione di [name] nant’à l’ordinatore hè compia. L’appiecazione pò esse lamciata selezziunendu l’accurtatoghji installati.
+ClickFinish=Sceglie Piantà per compie l’assistente.
+FinishedRestartLabel=Per compie l’installazione di [name], l’assistente deve spenghje l’ordinatore è ridimarrallu. Vulete spenghje l’ordinatore è ridimarrallu avà ?
+FinishedRestartMessage=Per compie l’installazione di [name], l’assistente deve spenghje l’ordinatore è ridimarrallu.%n%nVulete spenghje l’ordinatore è ridimarrallu avà ?
 ShowReadmeCheck=Iè, vogliu leghje u schedariu LISEZMOI o README
-YesRadio=&Iè, dimarrà l'urdinatore avà
-NoRadio=I&nnò, preferiscu dimarrà l'urdinatore più tardi
+YesRadio=&Iè, spenghje l’ordinatore è ridimarrallu avà
+NoRadio=I&nnò, preferiscu spenghje l’ordinatore è ridimarrallu dopu
 ; used for example as 'Run MyProg.exe'
 RunEntryExec=Eseguisce %1
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Fighjà %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=L'Assistente hà bisogniu di u dischettu seguente
-SelectDiskLabel2=Mittite u dischettu %1 è sceglite OK.%n%nS'è i schedarii di stu dischettu si trovanu in un'altru cartulare chì quellu indicatu inghjò, intruducite u caminu currettu o sceglite Sfuglià.
-PathLabel=&Caminu :
-FileNotInDir2=U schedariu "%1" ùn si truva micca in "%2". Mittite u dischettu curretu o sceglite un'altru cartulare.
-SelectDirectoryLabel=Ci vole à dì induve si truva u dischettu seguente.
+ChangeDiskTitle=L’assistente hà bisogniu di u discu seguente
+SelectDiskLabel2=Mette u discu %1 è sceglie Vai.%n%nS’è i schedarii di stu discu si trovanu in un’altru cartulare chì quellu indicatu inghjò, scrive u passeghju currettu o sceglie Sfuglià.
+PathLabel=&Passeghju :
+FileNotInDir2=U schedariu « %1 » ùn si truva micca in « %2 ». Mette u discu curretu o sceglie un’altru cartulare.
+SelectDirectoryLabel=Ci vole à specificà induve si trova u discu seguente.
 
 ; *** Installation phase messages
-SetupAborted=L'installazione ùn hè micca compia.%n%nCi vole à curreghje u prublemu è eseguisce l'installazione un'altra volta.
-EntryAbortRetryIgnore=Sceglite Réessayer per pruvà torna, Ignorer per cuntinuà quantunque, o Abandonner per cancellà l'installazione.
+SetupAborted=L’installazione ùn hè micca compia bè.%n%nCi vole à currege u penseru è eseguisce l’assistente torna.
+AbortRetryIgnoreSelectAction=Selezziunate un’azzione
+AbortRetryIgnoreRetry=&Pruvà torna
+AbortRetryIgnoreIgnore=&Ignurà u sbagliu è cuntinuà
+AbortRetryIgnoreCancel=Abbandunà l’installazione
 
 ; *** Installation status messages
-StatusClosingApplications=Chjudendu l'applicazioni…
-StatusCreateDirs=Creazione di i cartulari...
-StatusExtractFiles=Estrazzione di i schedarii...
-StatusCreateIcons=Creazione di l'accurtatoghji...
-StatusCreateIniEntries=Creazione di l'elementi INI...
-StatusCreateRegistryEntries=Creazione di l'elementi di u registru...
-StatusRegisterFiles=Arregistramentu di i schedarii...
-StatusSavingUninstall=Cunservazione di l'informazioni di disinstallazione...
-StatusRunProgram=Cumpiera di l'installazione...
-StatusRestartingApplications=Relanciendu l'applicazioni...
-StatusRollback=Annulazione di i mudificazioni...
+StatusClosingApplications=Chjusura di l’appiecazioni…
+StatusCreateDirs=Creazione di i cartulari…
+StatusExtractFiles=Estrazzione di i schedarii…
+StatusCreateIcons=Creazione di l’accurtatoghji…
+StatusCreateIniEntries=Creazione di l’elementi INI…
+StatusCreateRegistryEntries=Creazione di l’elementi di u registru…
+StatusRegisterFiles=Arregistramentu di i schedarii…
+StatusSavingUninstall=Cunservazione di l’informazioni di disinstallazione…
+StatusRunProgram=Cumpiera di l’installazione…
+StatusRestartingApplications=Relanciu di l’appiecazioni…
+StatusRollback=Annulazione di i mudificazioni…
 
 ; *** Misc. errors
-ErrorInternal2=Errore internu : %1
+ErrorInternal2=Sbagliu internu : %1
 ErrorFunctionFailedNoCode=Fiascu di %1
 ErrorFunctionFailed=Fiascu di %1 ; codice %2
 ErrorFunctionFailedWithMessage=Fiascu di %1 ; codice %2.%n%3
-ErrorExecutingProgram=Impussibule di eseguisce u schedariu :%n%1
+ErrorExecutingProgram=Impussibule d’eseguisce u schedariu :%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=Errore durente l'apertura di a chjave di registru :%n%1\%2
-ErrorRegCreateKey=Errore durente a creazione di a chjave di registru :%n%1\%2
-ErrorRegWriteKey=Errore durente a scrittura di a chjave di registru :%n%1\%2
+ErrorRegOpenKey=Sbagliu durante l’apertura di a chjave di registru :%n%1\%2
+ErrorRegCreateKey=Sbagliu durante a creazione di a chjave di registru :%n%1\%2
+ErrorRegWriteKey=Sbagliu durante a scrittura di a chjave di registru :%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Errore durente a creazione di l'elementu INI in u schedariu "%1".
+ErrorIniEntry=Sbagliu durante a creazione di l’elementu INI in u schedariu « %1 ».
 
 ; *** File copying errors
-FileAbortRetryIgnore=Sceglite Réessayer per pruvà torna, Ignorer per saltà stu schedariu (scunsigliatu), o Abandonner per cancellà l'installazione.
-FileAbortRetryIgnore2=Sceglite Réessayer per pruvà torna, Ignorer per cuntinuà quantunque (scunsigliatu), o Abandonner per cancellà l'installazione.
-SourceIsCorrupted=U schedariu surghjente hè alteratu
-SourceDoesntExist=U schedariu surghjente "%1" ùn esista micca
-ExistingFileReadOnly=U schedariu esistente hà unu attributu di lettura-sola.%n%nSceglite Réessayer per caccià st'attributu è pruvà torna, Ignorer per saltà stu schedariu, o Abandonner per cancellà l'installazione.
-ErrorReadingExistingDest=Un'errore hè affacatu durante a lettura di u schedariu esistente :
-FileExists=U schedariu esiste dighjà.%n%nVulite chì l'Assistente u rimpiazza ?
-ExistingFileNewer=U schedariu esistente hè più ricente chì quellu chì l'Assistente prova d'installà. Hè ricummendatu di cunservà u schedariu esistente.%n%nVulite cunservà u schedariu esistente ?
-ErrorChangingAttr=Un'errore hè affacatu pruvendu di cambià l'attributi of u schedariu esistente :
-ErrorCreatingTemp=Un'errore hè affacatu pruvendu di creà unu schedariu in u cartelaru d'installazione :
-ErrorReadingSource=Un'errore hè affacatu pruvendu di leghje u schedariu surghjente :
-ErrorCopying=Un'errore hè affacatu pruvendu di cupià unu schedariu :
-ErrorReplacingExistingFile=Un'errore hè affacatu pruvendu di rimpiazzà u schedariu esistente :
-ErrorRestartReplace=Fiascu di Ridimarrà/Rimpiazzà :
-ErrorRenamingTemp=Un'errore hè affacatu pruvendu di cambià u nome di unu schedariu in u cartelaru d'installazione :
-ErrorRegisterServer=Impussibule d'arregistrà a bibliuteca DLL/OCX : %1
-ErrorRegSvr32Failed=Fiascu di RegSvr32 cù u codice di uscita %1
-ErrorRegisterTypeLib=Impussibule d'arregistrà a bibliuteca di tipu : %1
+FileAbortRetryIgnoreSkipNotRecommended=Ignurà stu &schedariu (micca ricumandatu)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Ignurà u sbagliu è cuntinuà (micca ricumandatu)
+SourceIsCorrupted=U schedariu d’urigine hè alteratu
+SourceDoesntExist=U schedariu d’urigine « %1 » ùn esiste micca
+ExistingFileReadOnly2=U schedariu esistente hà un attributu di lettura-sola è ùn pò micca esse rimpiazzatu.
+ExistingFileReadOnlyRetry=&Caccià l’attributu di lettura-sola è pruvà torna
+ExistingFileReadOnlyKeepExisting=Cunservà u schedariu &esistente
+ErrorReadingExistingDest=Un sbagliu hè accadutu pruvendu di leghje u schedariu esistente :
+FileExists=U schedariu esiste dighjà.%n%nVulete chì l’assistente u rimpiazzi ?
+ExistingFileNewer=U schedariu esistente hè più recente chì quellu chì l’assistente prova d’installà. Hè ricumandatu di cunservà u schedariu esistente.%n%nVulete cunservà u schedariu esistente ?
+ErrorChangingAttr=Un sbagliu hè accadutu pruvendu di cambià l’attributi di u schedariu esistente :
+ErrorCreatingTemp=Un sbagliu hè accadutu pruvendu di creà un schedariu in u cartulare di destinazione :
+ErrorReadingSource=Un sbagliu hè accadutu pruvendu di leghje u schedariu d’urigine :
+ErrorCopying=Un sbagliu hè accadutu pruvendu di cupià un schedariu :
+ErrorReplacingExistingFile=Un sbagliu hè accadutu pruvendu di rimpiazzà u schedariu esistente :
+ErrorRestartReplace=Fiascu di Rimpiazzamentu di schedariu à u riavviu di l’ordinatore :
+ErrorRenamingTemp=Un sbagliu hè accadutu pruvendu di rinumà un schedariu in u cartulare di destinazione :
+ErrorRegisterServer=Impussibule d’arregistrà a bibliuteca DLL/OCX : %1
+ErrorRegSvr32Failed=Fiascu di RegSvr32 cù codice d’esciuta %1
+ErrorRegisterTypeLib=Impussibule d’arregistrà a bibliuteca di tipu : %1
+
+; *** Uninstall display name markings
+UninstallDisplayNameMark=%1 (%2)
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=Tutti l’utilizatori
+UninstallDisplayNameMarkCurrentUser=L’utilizatore attuale
 
 ; *** Post-installation errors
-ErrorOpeningReadme=Un'errore hè affacatu pruvendu di leghje u schedariu LISEZMOI/README.
-ErrorRestartingComputer=L'Assistente ùn pò micca ridimarrà l'urdinatore. Ci vole à fallu manualmente.
+ErrorOpeningReadme=Un sbagliu hè accadutu pruvendu d’apre u schedariu LISEZMOI o README.
+ErrorRestartingComputer=L’assistente ùn hà micca pussutu ridimarrà l’ordinatore. Ci vole à fallu manualmente.
 
 ; *** Uninstaller messages
-UninstallNotFound=U schedariu "%1" ùn esista micca. Impussibule di disinstallà.
-UninstallOpenError=U schedariu "%1" ùn pò micca esse apertu. Impussibule di disinstallà
-UninstallUnsupportedVer=U schedariu ghjurnale 'log' "%1" si trova in una forma micca ricunnisciuta da sta versione di l'Assistente di disinstallazione. Impussibule di disinstallà
-UninstallUnknownEntry=Una infurmazione scunisciuta (%1) si trova in u schedariu ghjurnale 'log' di disinstallazione
-ConfirmUninstall=Site sicuru di vulè scaccià tutalmente %1 è tutti i so cumpunenti ?
-UninstallOnlyOnWin64=A disinstallazione di stu prugrammu si pò fà solu cù una versione  64-bit di Windows.
-OnlyAdminCanUninstall=A disinstallazione di stu prugrammu si pò fà solu da unu utilisatore di u gruppu di l'Amministratori.
-UninstallStatusLabel=Aspittate per piacè fin'à chì %1 hè scacciatu da u vostru urdinatore.
-UninstalledAll=%1 hà statu scacciatu bè da u vostru urdinatore.
-UninstalledMost=A disinstallazione di %1 hè compia.%n%nQualchì elementu ùn pò micca esse scacciatu. Ci vole à scacciallu manualmente.
-UninstalledAndNeedsRestart=Per cumpie a disinstallazione di %1, ci vole à dimarrà torna u vostru urdinatore.%n%nSite d'accunsentu per fallu avà ?
-UninstallDataCorrupted=U schedariu "%1" hè alteratu. Impussibule di disinstallà
+UninstallNotFound=U schedariu « %1 » ùn esiste micca. Impussibule di disinstallà.
+UninstallOpenError=U schedariu« %1 » ùn pò micca esse apertu. Impussibule di disinstallà
+UninstallUnsupportedVer=U ghjurnale di disinstallazione « %1 » hè in una forma scunnisciuta da sta versione di l’assistente di disinstallazione. Impussibule di disinstallà
+UninstallUnknownEntry=Un elementu scunisciutu (%1) hè statu trovu in u ghjurnale di disinstallazione
+ConfirmUninstall=Site sicuru di vulè caccià cumpletamente %1 è tutti i so cumpunenti ?
+UninstallOnlyOnWin64=St’appiecazione pò esse disinstallata solu cù una versione 64-bit di Windows.
+OnlyAdminCanUninstall=St’appiecazione pò esse disinstallata solu da un utilizatore di u gruppu d’amministratori.
+UninstallStatusLabel=Ci vole à aspettà chì %1 sia cacciatu di l’ordinatore.
+UninstalledAll=%1 hè statu cacciatu bè da l’ordinatore.
+UninstalledMost=A disinstallazione di %1 hè compia.%n%nQualchì elementu ùn pò micca esse cacciatu. Ci vole à cacciallu manualmente.
+UninstalledAndNeedsRestart=Per compie a disinstallazione di %1, l’ordinatore deve esse spentu è ridimarratu.%n%nVulete spenghje l’ordinatore è ridimarrallu avà ?
+UninstallDataCorrupted=U schedariu « %1 » hè alteratu. Impussibule di disinstallà
 
 ; *** Uninstallation phase messages
-ConfirmDeleteSharedFileTitle=Scaccià i schedarii cundivisi ?
-ConfirmDeleteSharedFile2=U sistemu indica chì i schedarii cundivisi ùn sò più aduprati d'alcunu programmu. Vulite scaccià i schedarii cundivisi ?%n%nS'è qualchì programmu sempre adupra sti schedarii è quessi sò scacciati, ùn puderà funziunà currettamente. Se ùn site micca sicuru, sceglite No. Lascià sti schedarii nantu à u sistemu ùn pò micca pruduce danni.
-SharedFileNameLabel=Nome di u schedariu :
+ConfirmDeleteSharedFileTitle=Caccià i schedarii sparti ?
+ConfirmDeleteSharedFile2=U sistema indica chì u schedariu spartu ùn hè più impiegatu da nisunu prugramma. Vulete chì a disinstallazione cacci stu schedariu spartu ?%n%nS’è qualchì prugramma impiega sempre stu schedariu è ch’ellu hè cacciatu, quellu prugramma ùn puderà funziunà currettamente. S’è ùn site micca sicuru, sceglie Innò. Lascià stu schedariu nant’à u sistema ùn pò micca pruduce danni.
+SharedFileNameLabel=Nome di schedariu :
 SharedFileLocationLabel=Lucalizazione :
-WizardUninstalling=Statu di a disinstallazione
-StatusUninstalling=Disinstallazione di %1 in corsu...
+WizardUninstalling=Statu di disinstallazione
+StatusUninstalling=Disinstallazione di %1…
 
 ; *** Shutdown block reasons
 ShutdownBlockReasonInstallingApp=Installazione di %1.
@@ -332,14 +357,14 @@ ShutdownBlockReasonUninstallingApp=Disinstallazione di %1.
 [CustomMessages]
 
 NameAndVersion=%1 versione %2
-AdditionalIcons=Addizziunale icone :
-CreateDesktopIcon=Creà una icona nantu à u &Scagnu (Bureau)
-CreateQuickLaunchIcon=Creà una icona nantu à a barra di &Lanciu rapidu
-ProgramOnTheWeb=%1 nantu à u Web
-UninstallProgram=Desinstallà %1
-LaunchProgram=Dimarrà %1
-AssocFileExtension=&Assucià %1 cù l'estensione di u schedariu %2
-AssocingFileExtension=Assuciazion di %1 cù l'estensione di u schedariu %2...
-AutoStartProgramGroupDescription=Relancia autumatica :
-AutoStartProgram=Relancià automaticamente %1
-AddonHostProgramNotFound=Impussibule di truvà %1 in u cartulare selezziunatu.%n%nVulete cuntinuà l'installazione quantunque ?
+AdditionalIcons=Accurtatoghji addizziunali :
+CreateDesktopIcon=Creà un accurtatoghju nant’à u &scagnu
+CreateQuickLaunchIcon=Creà un accurtatoghju nant’à a barra di &lanciu prontu
+ProgramOnTheWeb=%1 nant’à u Web
+UninstallProgram=Disinstallà %1
+LaunchProgram=Lancià %1
+AssocFileExtension=&Assucià %1 cù l’estensione di schedariu %2
+AssocingFileExtension=Associu di %1 cù l’estensione di schedariu %2…
+AutoStartProgramGroupDescription=Lanciu autumaticu :
+AutoStartProgram=Lanciu autumaticu di %1
+AddonHostProgramNotFound=Impussibule di truvà %1 in u cartulare selezziunatu.%n%nVulete cuntinuà l’installazione quantunque ?

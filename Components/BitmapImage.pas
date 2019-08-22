@@ -2,13 +2,11 @@ unit BitmapImage;
 
 {
   Inno Setup
-  Copyright (C) 1997-2004 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   A TImage-like component for bitmaps without the TPicture bloat
-
-  $jrsoftware: issrc/Components/BitmapImage.pas,v 1.6 2009/03/23 14:57:40 mlaan Exp $
 }
 
 interface
@@ -35,15 +33,17 @@ type
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
+    function GetBitmap: TBitmap;
   protected
     function GetPalette: HPALETTE; override;
     procedure Paint; override;
-    procedure SetAutoSize(Value: Boolean); {$IFDEF UNICODE}override;{$ENDIF}
+    procedure SetAutoSize(Value: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
     property Align;
+    property Anchors;
     property AutoSize: Boolean read FAutoSize write SetAutoSize default False;
     property BackColor: TColor read FBackColor write SetBackColor default clBtnFace;
     property Center: Boolean read FCenter write SetCenter default False;
@@ -51,7 +51,7 @@ type
     property DragMode;
     property Enabled;
     property ParentShowHint;
-    property Bitmap: TBitmap read FBitmap write SetBitmap;
+    property Bitmap: TBitmap read GetBitmap write SetBitmap;
     property PopupMenu;
     property ShowHint;
     property Stretch: Boolean read FStretch write SetStretch default False;
@@ -72,6 +72,9 @@ type
 procedure Register;
 
 implementation
+
+uses
+  Resample;
 
 procedure Register;
 begin
@@ -163,6 +166,11 @@ begin
   end;
 end;
 
+function TBitmapImage.GetBitmap: TBitmap;
+begin
+  Result := FBitmap;
+end;
+
 function TBitmapImage.GetPalette: HPALETTE;
 begin
   Result := FBitmap.Palette;
@@ -172,31 +180,45 @@ procedure TBitmapImage.Paint;
 var
   R: TRect;
   Bmp: TBitmap;
-  X, Y: Integer;
+  X, Y, W, H: Integer;
+  Is32bit: Boolean;
 begin
   with Canvas do begin
     R := ClientRect;
+    Is32bit := (FBitmap.PixelFormat = pf32bit) and
+      (FBitmap.AlphaFormat in [afDefined, afPremultiplied]);
 
     if Stretch then begin
-      if not FStretchedBitmapValid or (FStretchedBitmap.Width <> R.Right) or
-         (FStretchedBitmap.Height <> R.Bottom) then begin
+      W := R.Right;
+      H := R.Bottom;
+      Bmp := FStretchedBitmap;
+      if not FStretchedBitmapValid or (FStretchedBitmap.Width <> W) or
+         (FStretchedBitmap.Height <> H) then begin
         FStretchedBitmapValid := True;
-        if (FBitmap.Width = R.Right) and (FBitmap.Height = R.Bottom) then
+        if (FBitmap.Width = W) and (FBitmap.Height = H) then
           FStretchedBitmap.Assign(FBitmap)
         else begin
           FStretchedBitmap.Assign(nil);
-          FStretchedBitmap.Palette := CopyPalette(FBitmap.Palette);
-          FStretchedBitmap.Width := R.Right;
-          FStretchedBitmap.Height := R.Bottom;
-          FStretchedBitmap.Canvas.StretchDraw(R, FBitmap);
+          if not StretchBmp(FBitmap, FStretchedBitmap, W, H, Is32bit) then begin
+            if Is32bit then begin
+              FStretchedBitmapValid := False;
+              Bmp := FBitmap;
+            end else begin
+              FStretchedBitmap.Palette := CopyPalette(FBitmap.Palette);
+              FStretchedBitmap.Width := W;
+              FStretchedBitmap.Height := H;
+              FStretchedBitmap.Canvas.StretchDraw(R, FBitmap);
+            end;
+          end;
         end;
       end;
-      Bmp := FStretchedBitmap;
-    end
-    else
+    end else begin
       Bmp := FBitmap;
+      W := Bmp.Width;
+      H := Bmp.Height;
+    end;
 
-    if (FBackColor <> clNone) and (Bmp.Width < Width) or (Bmp.Height < Height) then begin
+    if (FBackColor <> clNone) and (Is32Bit or (Bmp.Width < Width) or (Bmp.Height < Height)) then begin
       Brush.Style := bsSolid;
       Brush.Color := FBackColor;
       FillRect(R);
@@ -209,10 +231,10 @@ begin
     end;
 
     if Center then begin
-      X := R.Left + ((R.Right - R.Left) - Bmp.Width) div 2;
+      X := R.Left + ((R.Right - R.Left) - W) div 2;
       if X < 0 then
         X := 0;
-      Y := R.Top + ((R.Bottom - R.Top) - Bmp.Height) div 2;
+      Y := R.Top + ((R.Bottom - R.Top) - H) div 2;
       if Y < 0 then
         Y := 0;
     end else begin
@@ -220,9 +242,9 @@ begin
       Y := 0;
     end;
 
-    if (FReplaceColor <> clNone) and (FReplaceWithColor <> clNone) then begin
+    if not Is32bit and (FReplaceColor <> clNone) and (FReplaceWithColor <> clNone) then begin
       Brush.Color := FReplaceWithColor;
-      BrushCopy(Rect(X, Y, X + Bmp.Width, Y + Bmp.Height), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), FReplaceColor);
+      BrushCopy(Rect(X, Y, X + W, Y + H), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), FReplaceColor);
     end else
       Draw(X, Y, Bmp);
   end;

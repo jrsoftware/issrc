@@ -2,13 +2,11 @@ unit CompInt;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2018 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler interface
-
-  $jrsoftware: issrc/Projects/CompInt.pas,v 1.16 2011/06/15 14:37:46 mlaan Exp $
 }
 
 interface
@@ -62,7 +60,8 @@ type
                                 same pointer each time). }
 
       iscbNotifyStatus: (
-        StatusMsg: PChar);    { [in] Contents of status message. }
+        StatusMsg: PChar;     { [in] Contents of status message. }
+        Warning: BOOL);       { [in] Warning indicator (new in 6.0.0) }
 
       iscbNotifyIdle: (
         CompressProgress: Cardinal;     { [in] Amount compressed so far
@@ -75,7 +74,9 @@ type
                                                per second (new in 5.1.13) }
 
       iscbNotifySuccess: (
-        OutputExeFilename: PChar;  { [in] The name of the resulting setup.exe }
+        OutputExeFilename: PChar;  { [in] The name of the resulting setup.exe,
+                                          or empty if output was disabled
+                                          (latter new in 5.5.5) }
         DebugInfo: Pointer;        { [in] Debug info (new in 3.0.0.1) }
         DebugInfoSize: Cardinal);  { [in] Size of debug info (new in 3.0.0.1) }
 
@@ -117,6 +118,8 @@ type
 
                             Currently supported options:
 
+                            Output=(0|no|false|1|yes|true)
+                              Enables or disables output.
                             OutputBaseFilename=[filename]
                               Overrides any OutputBaseFilename setting in the
                               script; causes the compiler to use [filename]

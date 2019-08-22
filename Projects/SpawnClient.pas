@@ -109,7 +109,6 @@ begin
     InternalErrorFmt('CallSpawnServer: Unexpected response: $%x', [MsgResult]);
   SequenceNumber := Word(MsgResult);
 
-  Status := 0;  { avoid compiler warning }
   LastQueryTime := GetTickCount;
   repeat
     ProcessMessagesProc;

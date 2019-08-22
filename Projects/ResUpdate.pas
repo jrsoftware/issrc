@@ -2,13 +2,11 @@ unit ResUpdate;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2016 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Resource update functions used by both Setup and the compiler
-
-  $jrsoftware: issrc/Projects/ResUpdate.pas,v 1.4 2009/03/20 13:49:17 mlaan Exp $
 }
 
 interface
@@ -19,6 +17,8 @@ uses
   Windows, SysUtils, FileClass;
 
 function ReadSignatureAndChecksumFields(const F: TCustomFile;
+  var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
+function ReadSignatureAndChecksumFields64(const F: TCustomFile;
   var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
 function SeekToResourceData(const F: TCustomFile; const ResType, ResId: Cardinal): Cardinal;
 function UpdateSignatureAndChecksumFields(const F: TCustomFile;
@@ -34,6 +34,7 @@ uses
 const
   IMAGE_NT_SIGNATURE = $00004550;
   IMAGE_NT_OPTIONAL_HDR32_MAGIC = $10b;
+  IMAGE_NT_OPTIONAL_HDR64_MAGIC = $20b;
   IMAGE_NUMBEROF_DIRECTORY_ENTRIES = 16;
   IMAGE_SIZEOF_SHORT_NAME = 8;
   IMAGE_DIRECTORY_ENTRY_RESOURCE = 2;
@@ -87,6 +88,41 @@ type
     SizeOfStackCommit: DWORD;
     SizeOfHeapReserve: DWORD;
     SizeOfHeapCommit: DWORD;
+    LoaderFlags: DWORD;
+    NumberOfRvaAndSizes: DWORD;
+    DataDirectory: packed array[0..IMAGE_NUMBEROF_DIRECTORY_ENTRIES-1] of TImageDataDirectory;
+  end;
+  PImageOptionalHeader64 = ^TImageOptionalHeader64;
+  TImageOptionalHeader64 = packed record
+    { Standard fields. }
+    Magic: Word;
+    MajorLinkerVersion: Byte;
+    MinorLinkerVersion: Byte;
+    SizeOfCode: DWORD;
+    SizeOfInitializedData: DWORD;
+    SizeOfUninitializedData: DWORD;
+    AddressOfEntryPoint: DWORD;
+    BaseOfCode: DWORD;
+    { NT additional fields. }
+    ImageBase: Integer64;
+    SectionAlignment: DWORD;
+    FileAlignment: DWORD;
+    MajorOperatingSystemVersion: Word;
+    MinorOperatingSystemVersion: Word;
+    MajorImageVersion: Word;
+    MinorImageVersion: Word;
+    MajorSubsystemVersion: Word;
+    MinorSubsystemVersion: Word;
+    Win32VersionValue: DWORD;
+    SizeOfImage: DWORD;
+    SizeOfHeaders: DWORD;
+    CheckSum: DWORD;
+    Subsystem: Word;
+    DllCharacteristics: Word;
+    SizeOfStackReserve: Integer64;
+    SizeOfStackCommit: Integer64;
+    SizeOfHeapReserve: Integer64;
+    SizeOfHeapCommit: Integer64;
     LoaderFlags: DWORD;
     NumberOfRvaAndSizes: DWORD;
     DataDirectory: packed array[0..IMAGE_NUMBEROF_DIRECTORY_ENTRIES-1] of TImageDataDirectory;
@@ -167,6 +203,23 @@ begin
       OptHeaderOffset := F.Position;
       if F.Read(OptHeader, SizeOf(OptHeader)) = SizeOf(OptHeader) then
         if OptHeader.Magic = IMAGE_NT_OPTIONAL_HDR32_MAGIC then
+          Result := True;
+    end;
+  end;
+end;
+
+function SeekToAndReadPEOptionalHeader64(const F: TCustomFile;
+  var OptHeader: TImageOptionalHeader64; var OptHeaderOffset: Integer64): Boolean;
+var
+  Header: TImageFileHeader;
+begin
+  Result := False;
+  if SeekToPEHeader(F) then begin
+    if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) and
+       (Header.SizeOfOptionalHeader = SizeOf(OptHeader)) then begin
+      OptHeaderOffset := F.Position;
+      if F.Read(OptHeader, SizeOf(OptHeader)) = SizeOf(OptHeader) then
+        if OptHeader.Magic = IMAGE_NT_OPTIONAL_HDR64_MAGIC then
           Result := True;
     end;
   end;
@@ -313,7 +366,7 @@ end;
 function ReadSignatureAndChecksumFields(const F: TCustomFile;
   var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
 { Reads the signature and checksum fields in the specified file's header.
-  If the file is not a valid PE executable, False is returned. }
+  If the file is not a valid PE32 executable, False is returned. }
 var
   OptHeader: TImageOptionalHeader;
   OptHeaderOffset: Integer64;
@@ -326,10 +379,26 @@ begin
   end;
 end;
 
+function ReadSignatureAndChecksumFields64(const F: TCustomFile;
+  var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
+{ Reads the signature and checksum fields in the specified file's header.
+  If the file is not a valid PE32+ executable, False is returned. }
+var
+  OptHeader: TImageOptionalHeader64;
+  OptHeaderOffset: Integer64;
+begin
+  Result := SeekToAndReadPEOptionalHeader64(F, OptHeader, OptHeaderOffset);
+  if Result then begin
+    ASignatureAddress := OptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress;
+    ASignatureSize := OptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size;
+    AChecksum := OptHeader.CheckSum;
+  end;
+end;
+
 function UpdateSignatureAndChecksumFields(const F: TCustomFile;
   const ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
 { Sets the signature and checksum fields in the specified file's header.
-  If the file is not a valid PE executable, False is returned. }
+  If the file is not a valid PE32 executable, False is returned. }
 var
   OptHeader: TImageOptionalHeader;
   OptHeaderOffset: Integer64;

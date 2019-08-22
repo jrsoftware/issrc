@@ -21,7 +21,8 @@
 [Setup]
 AppName={#AppName}
 AppVersion={#AppVersion}
-DefaultDirName={pf}\{#AppName}
+WizardStyle=modern
+DefaultDirName={autopf}\{#AppName}
 DefaultGroupName={#AppName}
 UninstallDisplayIcon={app}\MyProg.exe
 LicenseFile={#file AddBackslash(SourcePath) + "ISPPExample1License.txt"}
@@ -40,5 +41,6 @@ Source: "Readme.txt"; DestDir: "{app}"; \
 Name: "{group}\{#AppName}"; Filename: "{app}\MyProg.exe"
 
 #ifdef Debug
-  #expr SaveToFile(AddBackslash(SourcePath) + "Preprocessed.iss")
+  #expr SaveToFile(AddBackslash(SourcePath) + "Preprocessed.iss"), \
+        Exec(AddBackslash(CompilerPath) + "Compil32.exe", """" + AddBackslash(SourcePath) + "Preprocessed.iss""")
 #endif

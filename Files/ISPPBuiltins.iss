@@ -1,15 +1,12 @@
 ; BEGIN ISPPBUILTINS.ISS
 //
-// Inno Setup Preprocessor 5
+// Inno Setup Preprocessor
 //
 // Copyright (C) 2001-2004 Alex Yackimoff. All Rights Reserved.
 // Portions by Martijn Laan.
-// http://ispp.sourceforge.net
 //
-// Inno Setup (C) 1997-2009 Jordan Russell. All Rights Reserved.
+// Inno Setup (C) 1997-2019 Jordan Russell. All Rights Reserved.
 // Portions by Martijn Laan.
-//
-// $Id: ISPPBuiltins.iss,v 1.3 2010/12/29 15:20:26 mlaan Exp $
 //
 #if defined(ISPP_INVOKED) && !defined(_BUILTINS_ISS_)
 //
@@ -43,15 +40,21 @@
 // 6 - conditional inclusion acknowledgements
 // 7 - reserved
 // 8 - show strings emitted with #emit directive
-// 9 - macro and functions successfull call acknowledgements
+// 9 - macro and functions successful call acknowledgements
 //10 - Local macro array allocation acknowledgements
 //
 //#pragma verboselevel 0
 //
 #ifndef __POPT_P__
 # define private CStrings
-# pragma parseroption -p+
+#else
+# pragma parseroption -p-
 #endif
+//
+#define NewLine            "\n"
+#define Tab                "\t"
+//
+#pragma parseroption -p+
 //
 #pragma spansymbol "\"
 //
@@ -88,11 +91,23 @@
 #define HKEY_CURRENT_USER  0x80000001UL
 #define HKEY_LOCAL_MACHINE 0x80000002UL
 #define HKEY_USERS         0x80000003UL
+#define HKEY_CURRENT_CONFIG     0x80000005UL
+#define HKEY_CLASSES_ROOT_64    0x82000000UL
+#define HKEY_CURRENT_USER_64    0x82000001UL
+#define HKEY_LOCAL_MACHINE_64   0x82000002UL
+#define HKEY_USERS_64           0x82000003UL
+#define HKEY_CURRENT_CONFIG_64  0x82000005UL
 //
 #define HKCR               HKEY_CLASSES_ROOT
 #define HKCU               HKEY_CURRENT_USER
 #define HKLM               HKEY_LOCAL_MACHINE
 #define HKU                HKEY_USERS
+#define HKCC               HKEY_CURRENT_CONFIG
+#define HKCR64             HKEY_CLASSES_ROOT_64
+#define HKCU64             HKEY_CURRENT_USER_64
+#define HKLM64             HKEY_LOCAL_MACHINE_64
+#define HKU64              HKEY_USERS_64
+#define HKCC64             HKEY_CURRENT_CONFIG_64
 //
 // Exec constants
 //
@@ -149,10 +164,11 @@
 // GetStringFileInfo helpers
 //
 #define GetFileCompany(str FileName) GetStringFileInfo(FileName, COMPANY_NAME)
-#define GetFileCopyright(str FileName) GetStringFileInfo(FileName, LEGAL_COPYRIGHT)
 #define GetFileDescription(str FileName) GetStringFileInfo(FileName, FILE_DESCRIPTION)
-#define GetFileProductVersion(str FileName) GetStringFileInfo(FileName, PRODUCT_VERSION)
 #define GetFileVersionString(str FileName) GetStringFileInfo(FileName, FILE_VERSION)
+#define GetFileCopyright(str FileName) GetStringFileInfo(FileName, LEGAL_COPYRIGHT)
+#define GetFileOriginalFilename(str FileName) GetStringFileInfo(FileName, ORIGINAL_FILENAME)
+#define GetFileProductVersion(str FileName) GetStringFileInfo(FileName, PRODUCT_VERSION)
 //
 // ParseVersion
 //
@@ -273,6 +289,15 @@
     FileName + "." + NewExt : \
     Copy(FileName, 1, Local[0]) + NewExt
 //
+// RemoveFileExt
+//
+// Removes extension in FileName.
+//
+#define RemoveFileExt(str FileName) \
+  !(Local[0] = RPos(".", FileName)) ? \
+  FileName : \
+  Copy(FileName, 1, Local[0] - 1)
+//
 // AddBackslash
 //
 // Adds a backslash to the string, if it's not already there.
@@ -335,6 +360,20 @@
 //
 #define Max(int A, int B, int C = MinInt)  \
   A > B ? A > C ? Int(A) : Int(C) : Int(B)
+//
+// SameText
+//
+// Returns True if the given strings are identical, ignoring case.
+// 
+#define SameText(str S1, str S2) \
+  LowerCase(S1) == LowerCase(S2)
+// 
+// SameStr
+//
+// Returns True if the given strings are identical, with case-sensitivity.
+//
+#define SameStr(str S1, str S2) \
+  S1 == S2
 //
 
 #ifdef CStrings

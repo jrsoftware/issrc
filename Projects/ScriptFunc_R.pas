@@ -2,7 +2,7 @@ unit ScriptFunc_R;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -25,9 +25,9 @@ uses
   Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo,
   {$IFNDEF Delphi3orHigher} Ole2, {$ELSE} ActiveX, {$ENDIF}
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
-  Install, InstFunc, InstFnc2, Msgs, MsgIDs, BrowseFunc, Wizard, VerInfo,
+  Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
-  SpawnClient, UninstProgressForm;
+  SpawnClient, UninstProgressForm, ASMInline;
 
 var
   ScaleBaseUnitsInitialized: Boolean;
@@ -101,6 +101,17 @@ begin
     InternalError('An attempt was made to access UninstallProgressForm before it has been created'); 
 end;
 
+function GetMsgBoxCaption: String;
+var
+  ID: TSetupMessageID;
+begin
+  if IsUninstaller then
+    ID := msgUninstallAppTitle
+  else
+    ID := msgSetupAppTitle;
+  Result := SetupMessages[ID];
+end;
+
 procedure InitializeScaleBaseUnits;
 var
   Font: TFont;
@@ -122,28 +133,6 @@ end;
 
 { ScriptDlg }
 function ScriptDlgProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
-
-  function ArrayToStringList(Arr: PPSVariantIFC): TStringList;
-  var
-    StringList: TStringList;
-    I, N: Integer;
-  begin
-    StringList := TStringList.Create();
-    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
-    for I := 0 to N-1 do
-      StringList.Append(VNGetString(PSGetArrayField(Arr^, I)));
-    Result := StringList;
-  end;
-
-  procedure StringListToArray(StringList: TStringList; Arr: PPSVariantIFC);
-  var
-    I, N: Integer;
-  begin
-    N := StringList.Count;
-    for I := 0 to N-1 do
-      VNSetString(PSGetArrayField(Arr^, I), StringList[I]);
-  end;
-
 var
   PStart: Cardinal;
   NewPage: TWizardPage;
@@ -307,6 +296,23 @@ function NewDiskProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: T
 var
   PStart: Cardinal;
   S: String;
+begin
+  PStart := Stack.Count-1;
+  Result := True;
+
+  if Proc.Name = 'SELECTDISK' then begin
+    S := Stack.GetString(PStart-3);
+    Stack.SetBool(PStart, SelectDisk(Stack.GetInt(PStart-1), Stack.GetString(PStart-2), S));
+    Stack.SetString(PStart-3, S);
+  end else
+    Result := False;
+end;
+
+{ BrowseFunc }
+function BrowseFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+var
+  PStart: Cardinal;
+  S: String;
   ParentWnd: HWND;
 begin
   PStart := Stack.Count-1;
@@ -328,6 +334,12 @@ begin
     S := Stack.GetString(PStart-2);
     Stack.SetBool(PStart, NewGetOpenFileName(Stack.GetString(PStart-1), S, Stack.GetString(PStart-3), Stack.GetString(PStart-4), Stack.GetString(PStart-5), ParentWnd));
     Stack.SetString(PStart-2, S);
+  end else if Proc.Name = 'GETOPENFILENAMEMULTI' then begin
+    if Assigned(WizardForm) then
+      ParentWnd := WizardForm.Handle
+    else
+      ParentWnd := 0;
+    Stack.SetBool(PStart, NewGetOpenFileNameMulti(Stack.GetString(PStart-1), TStrings(Stack.GetClass(PStart-2)), Stack.GetString(PStart-3), Stack.GetString(PStart-4), Stack.GetString(PStart-5), ParentWnd));
   end else if Proc.Name = 'GETSAVEFILENAME' then begin
     if Assigned(WizardForm) then
       ParentWnd := WizardForm.Handle
@@ -344,18 +356,11 @@ end;
 function CmnFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
-  ID: TSetupMessageID;
 begin
   PStart := Stack.Count-1;
   Result := True;
 
-  if Proc.Name = 'MSGBOX' then begin
-    if IsUninstaller then
-      ID := msgUninstallAppTitle
-    else
-      ID := msgSetupAppTitle;
-    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), SetupMessages[ID], TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), False, 0));
-  end else if Proc.Name = 'MINIMIZEPATHNAME' then begin
+  if Proc.Name = 'MINIMIZEPATHNAME' then begin
     Stack.SetString(PStart, MinimizePathName(Stack.GetString(PStart-1), TFont(Stack.GetClass(PStart-2)), Stack.GetInt(PStart-3)));
   end else
     Result := False;
@@ -364,16 +369,21 @@ end;
 { CmnFunc2 }
 function CmnFunc2Proc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
-  procedure CrackCodeRootKey(const CodeRootKey: Longint; var RegView: TRegView;
+  procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
     var RootKey: HKEY);
   begin
-    { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
-      open keys because they might have our special flag bits set.
-      Also reject unknown flags which may have a meaning in the future. }
-    if (CodeRootKey shr 31 <> 1) or
-       ((CodeRootKey and CodeRootKeyFlagMask) and not CodeRootKeyValidFlags <> 0) then
-      InternalError('Invalid RootKey value');
-
+    if (CodeRootKey and not CodeRootKeyValidFlags) = HKEY_AUTO then begin
+      { Change HKA to HKLM or HKCU, keeping our special flag bits. }
+      CodeRootKey := (CodeRootKey and CodeRootKeyValidFlags) or InstallModeRootKey;
+    end else begin
+      { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
+        open keys because they might have our special flag bits set.
+        Also reject unknown flags which may have a meaning in the future. }
+      if (CodeRootKey shr 31 <> 1) or
+         ((CodeRootKey and CodeRootKeyFlagMask) and not CodeRootKeyValidFlags <> 0) then
+        InternalError('Invalid RootKey value');
+    end;
+    
     if CodeRootKey and CodeRootKeyFlag32Bit <> 0 then
       RegView := rv32Bit
     else if CodeRootKey and CodeRootKeyFlag64Bit <> 0 then begin
@@ -565,12 +575,12 @@ begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     Arr := NewTPSVariantIFC(Stack[PStart-3], True);
     Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
-      Stack.GetString(PStart-2), @Arr, True));
+    Stack.GetString(PStart-2), @Arr, True));
   end else if Proc.Name = 'REGGETVALUENAMES' then begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     Arr := NewTPSVariantIFC(Stack[PStart-3], True);
     Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
-      Stack.GetString(PStart-2), @Arr, False));
+    Stack.GetString(PStart-2), @Arr, False));
   end else if Proc.Name = 'REGQUERYSTRINGVALUE' then begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     S := Stack.GetString(PStart-2);
@@ -612,9 +622,9 @@ begin
     S := Stack.GetString(PStart-2);
     if RegOpenKeyExView(RegView, RootKey, PChar(S), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
       N := Stack.GetString(PStart-3);
-      if (RegQueryValueEx(K, PChar(N), nil, @Typ, nil, @Size) = ERROR_SUCCESS) and (Typ = REG_BINARY) then begin
+      if RegQueryValueEx(K, PChar(N), nil, @Typ, nil, @Size) = ERROR_SUCCESS then begin
         SetLength(DataS, Size);
-        if (RegQueryValueEx(K, PChar(N), nil, @Typ, @DataS[1], @Size) = ERROR_SUCCESS) and (Typ = REG_BINARY) then begin
+        if RegQueryValueEx(K, PChar(N), nil, @Typ, @DataS[1], @Size) = ERROR_SUCCESS then begin
           StackSetAnsiString(Stack, PStart-4, DataS);
           Stack.SetBool(PStart, True);
         end else
@@ -699,10 +709,12 @@ begin
       RegCloseKey(K);
     end else
       Stack.SetBool(PStart, False);
-  end else if Proc.Name = 'ISADMINLOGGEDON' then begin
-    Stack.SetBool(PStart, IsAdminLoggedOn());
+  end else if (Proc.Name = 'ISADMIN') or (Proc.Name = 'ISADMINLOGGEDON') then begin
+    Stack.SetBool(PStart, IsAdmin);
   end else if Proc.Name = 'ISPOWERUSERLOGGEDON' then begin
     Stack.SetBool(PStart, IsPowerUserLoggedOn());
+  end else if Proc.Name= 'ISADMININSTALLMODE' then begin
+    Stack.SetBool(PStart, IsAdminInstallMode);
   end else if Proc.Name = 'FONTEXISTS' then begin
     Stack.SetBool(PStart, FontExists(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'GETUILANGUAGE' then begin
@@ -713,6 +725,12 @@ begin
     Stack.SetInt(PStart, PathCharLength(Stack.GetString(PStart-1), Stack.GetInt(PStart-2)));
   end else if Proc.Name = 'SETNTFSCOMPRESSION' then begin
     Stack.SetBool(PStart, SetNTFSCompressionRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetBool(PStart-2)));
+  end else if Proc.Name = 'ISWILDCARD' then begin
+    Stack.SetBool(PStart, IsWildcard(Stack.GetString(PStart-1)));
+  end else if Proc.Name = 'WILDCARDMATCH' then begin
+    S := Stack.GetString(PStart-1);
+    N := Stack.GetString(PStart-2);
+    Stack.SetBool(PStart, WildcardMatch(PChar(S), PChar(N)));
   end else
     Result := False;
 end;
@@ -927,6 +945,8 @@ begin
     except
       Stack.SetBool(PStart, False);
     end;
+  end else if Proc.Name = 'UNPINSHELLLINK' then begin
+    Stack.SetBool(PStart, UnpinShellLink(Stack.GetString(PStart-1)));
   end else
     Result := False;
 end;
@@ -943,42 +963,42 @@ function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSS
 var
   PStart: Cardinal;
   MinVersion, OnlyBelowVersion: TSetupVersionData;
-  WizardComponents, WizardTasks: TStringList;
-  ID: TSetupMessageID;
+  StringList: TStringList;
   S: String;
+  Components, Suppressible: Boolean;
+  Default: Integer;
+  Arr: TPSVariantIFC;
+  N, I: Integer;
+  ButtonLabels: array of String;
 begin
   PStart := Stack.Count-1;
   Result := True;
 
-  if Proc.Name = 'WIZARDFORM' then begin
+  if Proc.Name = 'GETWIZARDFORM' then begin
     Stack.SetClass(PStart, GetWizardForm);
-  end else if Proc.Name = 'MAINFORM' then begin
+  end else if Proc.Name = 'GETMAINFORM' then begin
     Stack.SetClass(PStart, GetMainForm);
   end else if Proc.Name = 'ACTIVELANGUAGE' then begin
     Stack.SetString(PStart, ExpandConst('{language}'));
-  end else if Proc.Name = 'ISCOMPONENTSELECTED' then begin
+  end else if (Proc.Name = 'WIZARDISCOMPONENTSELECTED') or (Proc.Name = 'ISCOMPONENTSELECTED') or
+              (Proc.Name = 'WIZARDISTASKSELECTED') or (Proc.Name = 'ISTASKSELECTED') then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    WizardComponents := TStringList.Create();
+    StringList := TStringList.Create();
     try
-      GetWizardForm.GetSelectedComponents(WizardComponents, False, False);
+      Components := (Proc.Name = 'WIZARDISCOMPONENTSELECTED') or (Proc.Name = 'ISCOMPONENTSELECTED');
+      if Components then
+        GetWizardForm.GetSelectedComponents(StringList, False, False)
+      else
+        GetWizardForm.GetSelectedTasks(StringList, False, False, False);
       S := Stack.GetString(PStart-1);
       StringChange(S, '/', '\');
-      Stack.SetBool(PStart, ShouldProcessEntry(WizardComponents, nil, S, '', '', ''));
+      if Components then
+        Stack.SetBool(PStart, ShouldProcessEntry(StringList, nil, S, '', '', ''))
+      else
+        Stack.SetBool(PStart, ShouldProcessEntry(nil, StringList, '', S, '', ''));
     finally
-      WizardComponents.Free();
-    end;
-  end else if Proc.Name = 'ISTASKSELECTED' then begin
-    if IsUninstaller then
-      NoUninstallFuncError(Proc.Name);
-    WizardTasks := TStringList.Create();
-    try
-      GetWizardForm.GetSelectedTasks(WizardTasks, False, False, False);
-      S := Stack.GetString(PStart-1);
-      StringChange(S, '/', '\');
-      Stack.SetBool(PStart, ShouldProcessEntry(nil, WizardTasks, '', S, '', ''));
-    finally
-      WizardTasks.Free();
+      StringList.Free();
     end;
   end else if Proc.Name = 'EXPANDCONSTANT' then begin
     Stack.SetString(PStart, ExpandConst(Stack.GetString(PStart-1)));
@@ -986,8 +1006,6 @@ begin
     Stack.SetString(PStart, ExpandConstEx(Stack.GetString(PStart-1), [Stack.GetString(PStart-2), Stack.GetString(PStart-3)]));
   end else if Proc.Name = 'EXITSETUPMSGBOX' then begin
     Stack.SetBool(PStart, ExitSetupMsgBox());
-  end else if Proc.Name = 'GETSHELLFOLDER' then begin
-    Stack.SetString(PStart, GetShellFolder(Stack.GetBool(PStart-1), TShellFolderID(Stack.GetInt(PStart-2)), False));
   end else if Proc.Name = 'GETSHELLFOLDERBYCSIDL' then begin
     Stack.SetString(PStart, GetShellFolderByCSIDL(Stack.GetInt(PStart-1), Stack.GetBool(PStart-2)));
   end else if Proc.Name = 'INSTALLONTHISVERSION' then begin
@@ -1002,18 +1020,43 @@ begin
   end else if Proc.Name = 'GETWINDOWSVERSIONSTRING' then begin
     Stack.SetString(PStart, Format('%u.%.2u.%u', [WindowsVersion shr 24,
       (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF]));
-  end else if Proc.Name = 'SUPPRESSIBLEMSGBOX' then begin
-    if IsUninstaller then
-      ID := msgUninstallAppTitle
-    else
-      ID := msgSetupAppTitle;
-    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), SetupMessages[ID], TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), True, Stack.GetInt(PStart-4)));
+  end else if (Proc.Name = 'MSGBOX') or (Proc.Name = 'SUPPRESSIBLEMSGBOX') then begin
+    if Proc.Name = 'MSGBOX' then begin
+      Suppressible := False;
+      Default := 0;
+    end else begin
+      Suppressible := True;
+      Default := Stack.GetInt(PStart-4);
+    end;
+    Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), Suppressible, Default));
+  end else if (Proc.Name = 'TASKDIALOGMSGBOX') or (Proc.Name = 'SUPPRESSIBLETASKDIALOGMSGBOX') then begin
+    if Proc.Name = 'TASKDIALOGMSGBOX' then begin
+      Suppressible := False;
+      Default := 0;
+    end else begin
+      Suppressible := True;
+      Default := Stack.GetInt(PStart-7);
+    end;
+    Arr := NewTPSVariantIFC(Stack[PStart-5], True);
+    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
+    SetLength(ButtonLabels, N);
+    for I := 0 to N-1 do
+      ButtonLabels[I] := VNGetString(PSGetArrayField(Arr, I));
+    Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-3)), Stack.GetInt(PStart-4), ButtonLabels, Stack.GetInt(PStart-6), Suppressible, Default));
   end else if Proc.Name = 'ISWIN64' then begin
     Stack.SetBool(PStart, IsWin64);
   end else if Proc.Name = 'IS64BITINSTALLMODE' then begin
     Stack.SetBool(PStart, Is64BitInstallMode);
   end else if Proc.Name = 'PROCESSORARCHITECTURE' then begin
     Stack.SetInt(PStart, Integer(ProcessorArchitecture));
+  end else if Proc.Name = 'ISX86' then begin
+    Stack.SetBool(PStart, ProcessorArchitecture = paX86);
+  end else if Proc.Name = 'ISX64' then begin
+    Stack.SetBool(PStart, ProcessorArchitecture = paX64);
+  end else if Proc.Name = 'ISIA64' then begin
+    Stack.SetBool(PStart, ProcessorArchitecture = paIA64);
+  end else if Proc.Name = 'ISARM64' then begin
+    Stack.SetBool(PStart, ProcessorArchitecture = paARM64);
   end else if Proc.Name = 'CUSTOMMESSAGE' then begin
     Stack.SetString(PStart, CustomMessage(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'RMSESSIONSTARTED' then begin
@@ -1091,6 +1134,10 @@ begin
     except
       Stack.SetBool(PStart, False);
     end;
+  end else if Proc.Name = 'SET8087CW' then begin
+    Set8087CW(Stack.GetInt(PStart));
+  end else if Proc.Name = 'GET8087CW' then begin
+    Stack.SetInt(PStart, Get8087CW);
   end else
     Result := False;
 end;
@@ -1268,20 +1315,24 @@ begin
     Stack.SetInt(PStart, CompareStr(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
   end else if Proc.Name = 'COMPARETEXT' then begin
     Stack.SetInt(PStart, CompareText(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
+  end else if Proc.Name = 'SAMESTR' then begin
+    Stack.SetBool(PStart, CompareStr(Stack.GetString(PStart-1), Stack.GetString(PStart-2)) = 0);
+  end else if Proc.Name = 'SAMETEXT' then begin
+    Stack.SetBool(PStart, CompareText(Stack.GetString(PStart-1), Stack.GetString(PStart-2)) = 0);
   end else if Proc.Name = 'GETDATETIMESTRING' then begin
-    OldDateSeparator := DateSeparator;
-    OldTimeSeparator := TimeSeparator;
+    OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
+    OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
     try
       NewDateSeparator := Stack.GetString(PStart-2)[1];
       NewTimeSeparator := Stack.GetString(PStart-3)[1];
       if NewDateSeparator <> #0 then
-        DateSeparator := NewDateSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparator;
       if NewTimeSeparator <> #0 then
-        TimeSeparator := NewTimeSeparator;
+        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparator;
       Stack.SetString(PStart, FormatDateTime(Stack.GetString(PStart-1), Now()));
     finally
-      TimeSeparator := OldTimeSeparator;
-      DateSeparator := OldDateSeparator;
+      {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
+      {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
     end;
   end else if Proc.Name = 'SYSERRORMESSAGE' then begin
     Stack.SetString(PStart, Win32ErrorString(Stack.GetInt(PStart-1)));
@@ -1453,7 +1504,7 @@ begin
   end else if Proc.Name = 'FREEDLL' then begin
     Stack.SetBool(PStart, FreeLibrary(Stack.GetInt(PStart-1)));
   end else if Proc.Name = 'CREATEMUTEX' then begin
-    CreateMutex(nil, False, PChar(Stack.GetString(PStart)));
+    Windows.CreateMutex(nil, False, PChar(Stack.GetString(PStart)));
   end else if Proc.Name = 'OEMTOCHARBUFF' then begin
     S := StackGetAnsiString(Stack, PStart);
     OemToCharBuffA(PAnsiChar(S), PAnsiChar(S), Length(S));
@@ -1492,6 +1543,9 @@ begin
 end;
 
 { Other }
+var
+  ASMInliners: array of Pointer;
+
 function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
   function GetExceptionMessage: String;
@@ -1635,12 +1689,80 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
       Result := False;
     end;
   end;
+  
+  function CreateCallback(P: PPSVariantProcPtr): LongWord;
+  var
+    ProcRec: TPSInternalProcRec;
+    Method: TMethod;
+    Inliner: TASMInline;
+    ParamCount, SwapFirst, SwapLast: Integer;
+    S: tbtstring;
+  begin
+    { Calculate parameter count of our proc, will need this later. }
+    ProcRec := Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
+    S := ProcRec.ExportDecl;
+    GRFW(S);
+    ParamCount := 0;
+    while S <> '' do begin
+      Inc(ParamCount);
+      GRFW(S);
+    end;
+
+    { Turn our proc into a callable TMethod - its Code will point to
+      ROPS' MyAllMethodsHandler and its Data to a record identifying our proc.
+      When called, MyAllMethodsHandler will use the record to call our proc. }
+    Method := MkMethod(Caller, P.ProcNo);
+
+    { Wrap our TMethod with a dynamically generated stdcall callback which will
+      do two things:
+      -Remember the Data pointer which MyAllMethodsHandler needs.
+      -Handle the calling convention mismatch.
+
+      Based on InnoCallback by Sherlock Software, see
+      http://www.sherlocksoftware.org/page.php?id=54 and
+      https://github.com/thenickdude/InnoCallback. }
+    Inliner := TASMInline.create;
+    try
+      Inliner.Pop(EAX); //get the retptr off the stack
+
+      SwapFirst := 2;
+      SwapLast := ParamCount-1;
+
+      //Reverse the order of parameters from param3 onwards in the stack
+      while SwapLast > SwapFirst do begin
+        Inliner.Mov(ECX, Inliner.Addr(ESP, SwapFirst * 4)); //load the first item of the pair
+        Inliner.Mov(EDX, Inliner.Addr(ESP, SwapLast * 4)); //load the last item of the pair
+        Inliner.Mov(Inliner.Addr(ESP, SwapFirst * 4), EDX);
+        Inliner.Mov(Inliner.Addr(ESP, SwapLast * 4), ECX);
+        Inc(SwapFirst);
+        Dec(SwapLast);
+      end;
+
+      if ParamCount >= 1 then
+        Inliner.Pop(EDX); //load param1
+      if ParamCount >= 2 then
+        Inliner.Pop(ECX); //load param2
+
+      Inliner.Push(EAX); //put the retptr back onto the stack
+
+      Inliner.Mov(EAX, LongWord(Method.Data)); //Load the self ptr
+
+      Inliner.Jmp(Method.Code); //jump to the wrapped proc
+
+      SetLength(ASMInliners, Length(ASMInliners) + 1);
+      ASMInliners[High(ASMInliners)] := Inliner.SaveAsMemory;
+      Result := LongWord(ASMInliners[High(ASMInliners)]);
+    finally
+      Inliner.Free;
+    end;
+  end;
 
 var
   PStart: Cardinal;
   TypeEntry: PSetupTypeEntry;
   StringList: TStringList;
-  S: AnsiString;
+  S: String;
+  AnsiS: AnsiString;
   Arr: TPSVariantIFC;
 begin
   PStart := Stack.Count-1;
@@ -1673,23 +1795,31 @@ begin
     end
     else
       Stack.SetString(PStart, '');
-  end else if Proc.Name = 'WIZARDSELECTEDCOMPONENTS' then begin
+  end else if (Proc.Name = 'WIZARDSELECTEDCOMPONENTS') or (Proc.Name = 'WIZARDSELECTEDTASKS') then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
     StringList := TStringList.Create();
     try
-      GetWizardForm.GetSelectedComponents(StringList, Stack.GetBool(PStart-1), False);
+      if Proc.Name = 'WIZARDSELECTEDCOMPONENTS' then
+        GetWizardForm.GetSelectedComponents(StringList, Stack.GetBool(PStart-1), False)
+      else
+        GetWizardForm.GetSelectedTasks(StringList, Stack.GetBool(PStart-1), False, False);
       Stack.SetString(PStart, StringsToCommaString(StringList));
     finally
       StringList.Free();
     end;
-  end else if Proc.Name = 'WIZARDSELECTEDTASKS' then begin
+  end else if (Proc.Name = 'WIZARDSELECTCOMPONENTS') or (Proc.Name = 'WIZARDSELECTTASKS') then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
     StringList := TStringList.Create();
     try
-      GetWizardForm.GetSelectedTasks(StringList, Stack.GetBool(PStart-1), False, False);
-      Stack.SetString(PStart, StringsToCommaString(StringList));
+      S := Stack.GetString(PStart);
+      StringChange(S, '/', '\');
+      SetStringsFromCommaString(StringList, S);
+      if Proc.Name = 'WIZARDSELECTCOMPONENTS' then
+        GetWizardForm.SelectComponents(StringList, nil, False)
+      else
+        GetWizardForm.SelectTasks(StringList, nil);
     finally
       StringList.Free();
     end;
@@ -1706,10 +1836,17 @@ begin
   end else if Proc.Name = 'CURRENTFILENAME' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    if CheckOrInstallCurrentFileName <> '' then
-      Stack.SetString(PStart, CheckOrInstallCurrentFileName)
+    if CheckOrInstallCurrentFilename <> '' then
+      Stack.SetString(PStart, CheckOrInstallCurrentFilename)
     else
-      InternalError('An attempt was made to call the "CurrentFileName" function from outside a "Check", "BeforeInstall" or "AfterInstall" event function belonging to a "[Files]" entry');
+      InternalError('An attempt was made to call the "CurrentFilename" function from outside a "Check", "BeforeInstall" or "AfterInstall" event function belonging to a "[Files]" entry');
+  end else if Proc.Name = 'CURRENTSOURCEFILENAME' then begin
+    if IsUninstaller then
+      NoUninstallFuncError(Proc.Name);
+    if CheckOrInstallCurrentSourceFilename <> '' then
+      Stack.SetString(PStart, CheckOrInstallCurrentSourceFilename)
+    else
+      InternalError('An attempt was made to call the "CurrentSourceFilename" function from outside a "Check", "BeforeInstall" or "AfterInstall" event function belonging to a "[Files]" entry with flag "external"');
   end else if Proc.Name = 'CASTSTRINGTOINTEGER' then begin
     Stack.SetInt(PStart, Integer(PChar(Stack.GetString(PStart-1))));
   end else if Proc.Name = 'CASTINTEGERTOSTRING' then begin
@@ -1732,9 +1869,9 @@ begin
   end else if Proc.Name = 'SETPREVIOUSDATA' then begin
     Stack.SetBool(PStart, SetCodePreviousData(Stack.GetInt(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3)));
   end else if Proc.Name = 'LOADSTRINGFROMFILE' then begin
-    S := StackGetAnsiString(Stack, PStart-2);
-    Stack.SetBool(PStart, LoadStringFromFile(Stack.GetString(PStart-1), S));
-    StackSetAnsiString(Stack, PStart-2, S);
+    AnsiS := StackGetAnsiString(Stack, PStart-2);
+    Stack.SetBool(PStart, LoadStringFromFile(Stack.GetString(PStart-1), AnsiS));
+    StackSetAnsiString(Stack, PStart-2, AnsiS);
   end else if Proc.Name = 'LOADSTRINGSFROMFILE' then begin
     Arr := NewTPSVariantIFC(Stack[PStart-2], True);
     Stack.SetBool(PStart, LoadStringsFromFile(Stack.GetString(PStart-1), @Arr));
@@ -1755,8 +1892,10 @@ begin
         InternalError('Cannot disable FS redirection on this version of Windows');
       ScriptFuncDisableFsRedir := True;
     end;
-  end else if Proc.Name = 'UNINSTALLPROGRESSFORM' then begin
+  end else if Proc.Name = 'GETUNINSTALLPROGRESSFORM' then begin
     Stack.SetClass(PStart, GetUninstallProgressForm);
+  end else if Proc.Name = 'CREATECALLBACK' then begin
+   Stack.SetInt(PStart, CreateCallback(Stack.Items[PStart-1]));
   end else
     Result := False;
 end;
@@ -1799,6 +1938,7 @@ procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
 begin
   RegisterFunctionTable(ScriptDlgTable, @ScriptDlgProc);
   RegisterFunctionTable(NewDiskTable, @NewDiskProc);
+  RegisterFunctionTable(BrowseFuncTable, @BrowseFuncProc);
   RegisterFunctionTable(CmnFuncTable, @CmnFuncProc);
   RegisterFunctionTable(CmnFunc2Table, @CmnFunc2Proc);
   RegisterFunctionTable(InstallTable, @InstallProc);
@@ -1822,4 +1962,16 @@ begin
   ScriptInterpreter.RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx', cdRegister); 
 end;
 
+procedure FreeASMInliners;
+var
+  I: Integer;
+begin
+  for I := 0 to High(ASMInliners) do
+    FreeMem(ASMInliners[I]);
+  SetLength(ASMInliners, 0);
+end;
+
+initialization
+finalization
+  FreeASMInliners;
 end.

@@ -338,5 +338,5 @@ LaunchProgram=Bernameya %1 Bixebitîne
 AssocFileExtension=Direjeyên dosya %2 ê ji %1 va hev bîne
 AssocingFileExtension=Direjeyên dosya %2 ê ji %1 va têyî hevhanîn...
 AutoStartProgramGroupDescription = Destpêk:
-AutoStartProgram = % 1 otomatîk dikarî dest pê bikî
-AddonHostProgramNotFound =% 1 peldanka bijartî cîh tune.% N% nDîsajî dixwazî bidomînî?
+AutoStartProgram = %1 otomatîk dikarî dest pê bikî
+AddonHostProgramNotFound =%1 peldanka bijartî cîh tune.% N% nDîsajî dixwazî bidomînî?

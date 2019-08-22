@@ -2,7 +2,7 @@ unit D2009Win2kFix;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,22 +12,12 @@ unit D2009Win2kFix;
 
   This should be at the top of the .dpr's "uses" clause to ensure it runs
   before any VCL code.
-
-  $jrsoftware: issrc/Projects/D2009Win2kFix.pas,v 1.2 2010/03/05 08:42:04 mlaan Exp $
 }
 
 interface
 
 implementation
 
-{$IFDEF VER200}
-  {$DEFINE Delphi2009Or2010}
-{$ENDIF}
-{$IFDEF VER210}
-  {$DEFINE Delphi2009Or2010}
-{$ENDIF}
-
-{$IFDEF Delphi2009Or2010}   { Only Delphi 2009/2010 }
 uses
   Windows, SysUtils;
 
@@ -44,7 +34,7 @@ uses
   only supported beginning with Windows 2000 SP4 and Windows XP. On Windows
   2000 with no SP, MultiByteToWideChar() fails with ERROR_INVALID_FLAGS.
 
-  In Delphi 2010 Update 1 this change is still present.
+  In Delphi 10.3 Rio this change is still present.
 
   This code changes TEncoding.UTF8's private FMBToWCharFlags field from
   MB_ERR_INVALID_CHARS back to 0 when Windows 2000 (5.0) with SP<4 is
@@ -89,5 +79,5 @@ end;
 initialization
   if NeedWin2kFix then
     ApplyWin2kFix;
-{$ENDIF}
+
 end.

@@ -1,8 +1,6 @@
 /*
   LzmaDecodeInno.c = LzmaDecodeSize.c + additional helper functions used by
-  Inno Setup's LZMA.pas
-
-  $jrsoftware: issrc/Projects/LzmaDecode/LzmaDecodeInno.c,v 1.1 2006/09/05 01:34:28 jr Exp $
+  Inno Setup's LZMADecompSmall.pas
 */
 
 #include "LzmaDecodeSize.c"

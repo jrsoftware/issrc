@@ -1,8 +1,9 @@
-; *** Inno Setup version 5.5.3+ Hebrew messages (stilgar(at)divrei-tora.com) ***
+; *** Inno Setup version 6.0.0+ Hebrew messages (stilgar(at)divrei-tora.com) ***
 ;
 ;
-;	Translated by s_h (s_h(at)enativ.com) (c) 2005
+;	Translated by s_h (s_h@enativ.com) (c) 2005
 ;
+
 
 [LangOptions]
 LanguageName=<05E2><05D1><05E8><05D9><05EA>
@@ -50,13 +51,22 @@ WindowsServicePackRequired=התוכנה דורשת שיהיה מותקן %1 חבילת עדכונים %2 או יותר.
 NotOnThisPlatform=תוכנה זו לא תפעל על %1.
 OnlyOnThisPlatform=תוכנה זו חייבת לפעול על %1.
 OnlyOnTheseArchitectures=ניתן להתקין תוכנה זו רק על גירסאות של 'חלונות' שתוכננות לארכיטקטורות מעבד אלו:%n%n%1
-MissingWOW64APIs=הגירסה של 'חלונות' עליה אתה עובד לא מכילה את הפונקציונליות הדרושה להתקנת 64-ביט. כדי לתקן שגיאה זו, אנא התקן ערכת שירות %1.
 WinVersionTooLowError=תוכנה זו מצריכה %1 לפחות בגרסה %2.
 WinVersionTooHighError=לא ניתן להתקין תוכנה זו על %1 בגירסה %2 או מאוחרת יותר
 AdminPrivilegesRequired=אתה חייב להתחבר כמנהל המחשב כדי להתקין תוכנה זו.
 PowerUserPrivilegesRequired=עליך להתחבר כמנהל המחשב, או כחבר של קבוצת 'משתמשי על' כדי להתקין תוכנה זו.
 SetupAppRunningError=תוכנת ההתקנה איבחנה כי %1 כרגע פועלת ברקע.%n%nאנא סגור את כל החלונות שלה, ולחץ על 'אישור' להמשך, או 'ביטול' ליציאה.
 UninstallAppRunningError=תוכנת ההסרה איבחנה כי %1 כרגע פועלת ברקע.%n%nאנא סגור את כל החלונות שלה, ולחץ על 'אישור' להמשך, או 'ביטול' ליציאה.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=בחר את מצה ההתקנה
+PrivilegesRequiredOverrideInstruction=בחר מצב התקנה
+PrivilegesRequiredOverrideText1=%1 יכול להיות מותקן עבור כל המשתמשים (נדרש הרשאות מנהל), או עבורך בלבד.
+PrivilegesRequiredOverrideText2=%1 יכול להיות מותקן עבורך בלבד, או עבור על המשתמשים (נדרש הרשאות מנהל).
+PrivilegesRequiredOverrideAllUsers=התקן עבור &כל המשתמשים
+PrivilegesRequiredOverrideAllUsersRecommended=התקן עבור &כל המשתמשים (מומלץ)
+PrivilegesRequiredOverrideCurrentUser=התקן רק &עבורי
+PrivilegesRequiredOverrideCurrentUserRecommended=התקן רק &עבורי (מומלץ)
 
 ; *** Misc. errors
 ErrorCreatingDir=תוכנת ההתקנה לא הצליחה ליצור את התיקיה "%1"
@@ -88,7 +98,7 @@ ButtonNewFolder=&צור תיקיה חדשה
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=בחר שפת התקנה
-SelectLanguageLabel=בחר את שפת ההתקנה של תוכנת ההתקנה:
+SelectLanguageLabel=בחר את שפת ההתקנה של תוכנת ההתקנה.
 
 ; *** Common wizard text
 ClickNext=לחץ על 'הבא' כדי להמשיך בתהליך ההתקנה, או 'ביטול' ליציאה.
@@ -202,7 +212,7 @@ ApplicationsFound=היישומים הבאים עושים שימוש בקבצים שצריכים להתעדכן על ידי תוכנת
 ApplicationsFound2=היישומים הבאים עושים שימוש בקבצים שצריכים להתעדכן על ידי תוכנת ההתקנה. מומלץ שתאפשר לתוכנת ההתקנה לסגור יישומים אלו אוטומטית. לאחר שההתקנה תסתיים, תוכנית ההתקנה תנסה לפתוח מחדש את אותם יישומים.
 CloseApplications=&סגור יישומים אוטומטית
 DontCloseApplications=&אל תסגור יישומים אלו
-ErrorCloseApplications=אשף ההתקנה לא מצליח לסגור את היישומים אוטומטית. מומלץ שתסגור בעצמך את כל התוכניות שמשתמשות בקבצים שמתעדכנים על ידי תוכנית ההתקנה לפני שתמשיך.
+ErrorCloseApplications=המתקין אינו יכול לסגור אוטומטית את התהליכים. מומלץ שתסגור את כל התוכניות שעושות שימוש בקבצים שנדרשים לעדכון על ידי תהליך ההתקנה ולאחר מכן תמשיך בהתקנה.
 
 ; *** "Installing" wizard page
 WizardInstalling=מתקין
@@ -232,7 +242,10 @@ SelectDirectoryLabel=אנא בחר את מיקומו של הדיסק הבא.
 
 ; *** Installation phase messages
 SetupAborted=תהליך ההתקנה לא הושלם.%n%nאנא תקן את הבעיה והפעל את תהליך ההתקנה שוב.
-EntryAbortRetryIgnore=לחץ על 'נסה שוב' לנסות שוב, 'התעלם' כדי להמשיך בכל מקרה או 'ביטול' כדי לבטל את ההתקנה.
+AbortRetryIgnoreSelectAction=בחר פעולה
+AbortRetryIgnoreRetry=&נסה שוב
+AbortRetryIgnoreIgnore=&התעלם מהשגיאה והמשך בהתקנה
+AbortRetryIgnoreCancel=בטל התקנה
 
 ; *** Installation status messages
 StatusClosingApplications=סוגר יישומים...
@@ -263,11 +276,13 @@ ErrorRegWriteKey=שגיאה בעת כתיבה למפתח רישום:%n%1\%2
 ErrorIniEntry=שגיאה בעת כתיבת רשומת INI לקובץ "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=לחץ על 'נסה שוב' כדי לנסות שוב, 'התעלם' כדי לדלג על הקובץ הזה (לא מומלץ), או 'ביטול' כדי לבטל את ההתקנה.
-FileAbortRetryIgnore2=לחץ על 'נסה שוב' כדי לנסות שוב, 'התעלם' כדי להמשיך בכל אופן (לא מומלץ), או 'ביטול' כדי לבטל את ההתקנה.
+FileAbortRetryIgnoreSkipNotRecommended=&דלג על קובץ זה (לא מומלץ)
+FileAbortRetryIgnoreIgnoreNotRecommended=&התעלם מהשגיאה והמשך (לא מומלץ)
 SourceIsCorrupted=קובץ המקור קטוע
 SourceDoesntExist=קובץ המקור "%1" אינו קיים
-ExistingFileReadOnly=הקובץ הקיים מסומן כקובץ לקריאה בלבד.%n%nלחץ על 'נסה שוב' כדי להוריד את תכונת הקריאה בלבד ולנסות שוב, 'התעלם' כדי לדלג על קובץ זה, או 'ביטול' כדי לבטל את ההתקנה.
+ExistingFileReadOnly2=לא ניתן לשכתב את הקובץ הקיים כיון שהוא מוגדר לקריאה בלבד.
+ExistingFileReadOnlyRetry=&הסר את תוכנת קריאה בלבד ונסה שוב
+ExistingFileReadOnlyKeepExisting=&השאר את הקובץ הקיים
 ErrorReadingExistingDest=שגיאה בעת נסיון לקרוא את הקובץ הקיים:
 FileExists=הקובץ כבר קיים.%n%nהאם ברצונך שתוכנת ההתקנה תשכתב אותו?
 ExistingFileNewer=הקובץ הקיים חדש יותר מהקובץ שתוכנת ההתקנה רוצה להתקין. המלצתנו היא שתשמור על הקובץ הקיים.%n%nהאם ברצונך לשמור את הקובץ הקיים?
@@ -281,6 +296,14 @@ ErrorRenamingTemp=שגיאה בעת נסיון לשנות שם קובץ בתיקיית היעד:
 ErrorRegisterServer=שגיאה בעת רישום DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 כשל עם קוד יציאה %1
 ErrorRegisterTypeLib=לא ניתן לרשום את ספריית הטיפוס: %1
+
+; *** Uninstall display name markings
+UninstallDisplayNameMark=%1 (%2)
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=כל המשתמשים
+UninstallDisplayNameMarkCurrentUser=משתמש נוכחי
 
 ; *** Post-installation errors
 ErrorOpeningReadme=שגיאה בנסיון פתיחת קובץ 'קרא אותי'.
