@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 5.5.3+ Scottish Gaelic messages ***
+﻿; *** Inno Setup version 6.0.0+ Scottish Gaelic messages ***
 ;
 ; Translation by GunChleoc <fios@foramnagaidhlig.net>
 ;
