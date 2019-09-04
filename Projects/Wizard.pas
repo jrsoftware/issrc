@@ -1896,9 +1896,11 @@ begin
     if PrepareToInstallNeedsRestart then begin
       Y := PreparingLabel.Top + PreparingLabel.Height;
       PreparingYesRadio.Top := Y;
+      PreparingYesRadio.Anchors := [akLeft, akTop, akRight];
       PreparingYesRadio.Caption := SetupMessages[msgYesRadio];
       PreparingYesRadio.Visible := True;
       PreparingNoRadio.Top := Y + ScalePixelsY(22);
+      PreparingNoRadio.Anchors := [akLeft, akTop, akRight];
       PreparingNoRadio.Caption := SetupMessages[msgNoRadio];
       PreparingNoRadio.Visible := True;
     end;
@@ -2019,9 +2021,11 @@ begin
     PreparingMemo.Visible := True;
     Y := PreparingMemo.Top + PreparingMemo.Height + ScalePixelsY(12);
     PreparingYesRadio.Top := Y;
+    PreparingYesRadio.Anchors := [akLeft, akRight, akBottom];
     PreparingYesRadio.Caption := SetupMessages[msgCloseApplications];
     PreparingYesRadio.Visible := True;
     PreparingNoRadio.Top := Y + ScalePixelsY(22);
+    PreparingNoRadio.Anchors := [akLeft, akRight, akBottom];
     PreparingNoRadio.Caption := SetupMessages[msgDontCloseApplications];
     PreparingNoRadio.Visible := True;
   end;
