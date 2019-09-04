@@ -233,8 +233,8 @@ PreviousInstallNotCompleted=Eine vorherige Installation/Deinstallation eines Pro
 CannotContinue=Das Setup kann nicht fortfahren. Bitte klicken Sie auf "Abbrechen" zum Verlassen.
 ApplicationsFound=Die folgenden Anwendungen benutzen Dateien, die aktualisiert werden m¸ssen. Es wird empfohlen, Setup zu erlauben, diese Anwendungen zu schlieﬂen.
 ApplicationsFound2=Die folgenden Anwendungen benutzen Dateien, die aktualisiert werden m¸ssen. Es wird empfohlen, Setup zu erlauben, diese Anwendungen zu schlieﬂen. Nachdem die Installation fertiggestellt wurde, versucht Setup diese Anwendungen wieder zu starten.
-CloseApplications=&Schlieﬂe automatisch die Anwendungen
-DontCloseApplications=&Schlieﬂe die Anwendungen nicht
+CloseApplications=&Schlieﬂe die Anwendungen automatisch
+DontCloseApplications=Schlieﬂe die A&nwendungen nicht
 ErrorCloseApplications=Das Setup konnte nicht alle Anwendungen automatisch schlieﬂen. Es wird empfohlen, alle Anwendungen zu schlieﬂen, die Dateien benutzen, die vom Setup vor einer Fortsetzung aktualisiert werden m¸ssen.  
 
 ; *** "Installing" wizard page
