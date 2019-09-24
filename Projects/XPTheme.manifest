@@ -6,18 +6,26 @@
     version="1.0.0.0"
     type="win32"/>
 <description>Inno Setup</description>
-<dependency>
-    <dependentAssembly>
-        <assemblyIdentity
-            type="win32"
-            name="Microsoft.Windows.Common-Controls"
-            version="6.0.0.0"
-            processorArchitecture="x86"
-            publicKeyToken="6595b64144ccf1df"
-            language="*"
-        />
-    </dependentAssembly>
-</dependency>
+<file name="version.dll"  loadFrom="%SystemRoot%\System32\" />
+<file name="netapi32.dll" loadFrom="%SystemRoot%\System32\" />
+<file name="netutils.dll" loadFrom="%SystemRoot%\System32\" />
+<file name="netmsg.dll"   loadFrom="%SystemRoot%\System32\" />
+<file name="mpr.dll"      loadFrom="%SystemRoot%\System32\" />
+<file name="msimg32.dll"  loadFrom="%SystemRoot%\System32\" />
+<file name="ncrypt.dll"   loadFrom="%SystemRoot%\System32\" />
+<file name="bcrypt.dll"   loadFrom="%SystemRoot%\System32\" />
+<file name="shfolder.dll" loadFrom="%SystemRoot%\System32\" />
+<file name="oleaccrc.dll" loadFrom="%SystemRoot%\System32\" />
+<file name="srvcli.dll"   loadFrom="%SystemRoot%\System32\" />
+<file name="wkscli.dll"   loadFrom="%SystemRoot%\System32\" />
+<file name="profapi.dll"  loadFrom="%SystemRoot%\System32\" />
+<file name="wtsapi32.dll" loadFrom="%SystemRoot%\System32\" />
+<file name="winsta.dll"   loadFrom="%SystemRoot%\System32\" />
+<file name="mscms.dll"    loadFrom="%SystemRoot%\System32\" />
+<file name="sspicli.dll"  loadFrom="%SystemRoot%\System32\" />
+<file name="sfc_os.dll"   loadFrom="%SystemRoot%\System32\" />
+<file name="devrtl.dll"   loadFrom="%SystemRoot%\System32\" />
+<file name="comctl32.dll" loadFrom="%SystemRoot%\System32\" />
 <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
     <security>
         <requestedPrivileges>

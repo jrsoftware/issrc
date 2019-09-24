@@ -241,13 +241,65 @@ begin
   Filename := FN;
 end;
 
+function GetSafeTempDir: String;
+var
+  RetDir, WinDir, TempInstDir, TempWinDir : String;
+  ErrorCode: DWORD;
+begin
+  {
+    InnoSetup's IsAdminLoggedOn only checks if User is a member of Admin Group,
+    not if the process has been elevated by UAC
+    (possible to use IsAdminInstallMode instead?)
+
+    Default to the normal TEMP dir to maximize compatibility
+
+
+    Note - To completely fix DLL hijacking, two additional changes may be made to Delphi system PAS files:
+
+    The following locale changes should also be applied to Delphi's System.pas file as well:
+      Comment out this line so that resource locale DLLs are NOT loaded for InnoSetup
+      Result := LoadLanguageList(FileNameBody, GetUILanguages(0));
+      Result := '';
+
+    Optionally, the "delayed" keyword may be added to the following Delphi files:
+      Winapi.Windows.pas, Winapi.CommCtrl.pas, Winapi.Nb30.pas, System.SysUtils.pas
+    Here is a small example sed script:
+      sed -i '/delayed/! s/\(^function.*external.*\);/\1 delayed;/g'  Winapi.Windows.dcu
+
+  }
+  RetDir := GetTempDir;
+
+  if (IsAdminLoggedOn) then begin
+    WinDir := GetWinDir;
+    TempInstDir := AddBackslash(WinDir) + 'TempInst';
+
+    { if I can create a dir in \WINDOWS, I must be Admin }
+    if CreateDirectory(PChar(TempInstDir), nil) then begin
+      RetDir := TempInstDir;
+    end else begin
+      ErrorCode := GetLastError;
+      { if the main TEMP dir already exists in WINDOWS,
+        try another dir as a test }
+      if ERROR_ALREADY_EXISTS = ErrorCode then begin
+        TempWinDir := GenerateUniqueName(False, WinDir, '.tmp');
+        if CreateDirectory(PChar(TempWinDir), nil) then begin
+          RemoveDirectory (PChar(TempWinDir));
+          RetDir := TempInstDir;
+        end;
+      end;
+    end;
+  end;
+
+  Result := RetDir;
+end;
+
 function CreateTempDir: String;
 var
   Dir: String;
   ErrorCode: DWORD;
 begin
   while True do begin
-    Dir := GenerateUniqueName(False, GetTempDir, '.tmp');
+    Dir := GenerateUniqueName(False, GetSafeTempDir, '.tmp');
     if CreateDirectory(PChar(Dir), nil) then
       Break;
     ErrorCode := GetLastError;
