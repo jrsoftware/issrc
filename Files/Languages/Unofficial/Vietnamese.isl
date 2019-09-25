@@ -1,6 +1,5 @@
-﻿;leduyquang753@gmail.com
-; *** Inno Setup version 5.5.3+ Vietnamese messages ***
-;
+﻿; *** Inno Setup version 6.0.0+ Vietnamese messages ***
+; Translated by Vu Khac Hiep (email: vukhachiep@gmail.com)
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
 ;
@@ -8,8 +7,6 @@
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
-
-;Credits: Le Duy Quang (facebook.com/leduyquang753)
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -19,15 +16,14 @@ LanguageID=$042A
 LanguageCodePage=0
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
-DialogFontName=Segoe UI
-DialogFontSize=9
-WelcomeFontName=Segoe UI Light
-WelcomeFontSize=13
-TitleFontName=Segoe UI Light
-TitleFontSize=29
-CopyrightFontName=Segoe UI
-CopyrightFontSize=9
-;I want the Setup to display the font scheme as Windows 7+...
+;DialogFontName=
+;DialogFontSize=8
+;WelcomeFontName=Verdana
+;WelcomeFontSize=12
+;TitleFontName=Arial
+;TitleFontSize=29
+;CopyrightFontName=Arial
+;CopyrightFontSize=8
 
 [Messages]
 
@@ -46,6 +42,7 @@ ErrorTitle=Lỗi
 SetupLdrStartupMessage=Chương trình này sẽ cài đặt %1. Bạn có muốn tiếp tục không?
 LdrCannotCreateTemp=Không thể tạo tệp tạm thời. Cài đặt bị hủy bỏ
 LdrCannotExecTemp=Không thể chạy tệp trong thư mục tạm thời. Cài đặt bị hủy bỏ
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nLỗi %2: %3
@@ -59,13 +56,22 @@ WindowsServicePackRequired=Chương trình này yêu cầu %1 Service Pack %2 ho
 NotOnThisPlatform=Chương trình này sẽ không chạy trên %1.
 OnlyOnThisPlatform=Chương trình này phải chạy trên %1.
 OnlyOnTheseArchitectures=Chương trình này chỉ có thể được cài đặt trên phiên bản Windows được thiết kế cho các hệ vi xử lí:%n%n%1
-MissingWOW64APIs=Phiên bản Windows bạn đang chạy không bao gồm các tính năng mà cài đặt yêu cầu để thực hiện một cài đặt 64 bit. Để sửa lỗi, hãy cài đặt Service Pack %1.
 WinVersionTooLowError=Chương trình này yêu cầu %1 phiên bản %2 hoặc mới hơn.
 WinVersionTooHighError=Chương trình này không thể được cài đặt trên %1 phiên bản %2 hoặc mới hơn.
 AdminPrivilegesRequired=Bạn phải được đăng nhập như người quản trị khi cài đặt chương trình này.
 PowerUserPrivilegesRequired=Bạn phải được đăng nhập như người quản trị hoặc thành viên trong nhóm Người dùng mạnh khi cài đặt chương trình này.
 SetupAppRunningError=Cài đặt phát hiện %1 đang chạy.%n%nHãy đóng tất cả các tiến trình của nó ngay, rồi click OK để tiếp tục, hoặc Hủy để thoát.
 UninstallAppRunningError=Gỡ cài đặt phát hiện %1 đang chạy.%n%nHãy đóng tất cả các tiến trình của nó ngay, rồi click OK để tiếp tục, hoặc Hủy để thoát.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Select Setup Install Mode
+PrivilegesRequiredOverrideInstruction=Select install mode
+PrivilegesRequiredOverrideText1=%1 can be installed for all users (requires administrative privileges), or for you only.
+PrivilegesRequiredOverrideText2=%1 can be installed for you only, or for all users (requires administrative privileges).
+PrivilegesRequiredOverrideAllUsers=Install for &all users
+PrivilegesRequiredOverrideAllUsersRecommended=Install for &all users (recommended)
+PrivilegesRequiredOverrideCurrentUser=Install for &me only
+PrivilegesRequiredOverrideCurrentUserRecommended=Install for &me only (recommended)
 
 ; *** Misc. errors
 ErrorCreatingDir=Cài đặt không thể tạo ra thư mục "%1"
@@ -78,7 +84,7 @@ AboutSetupMenuItem=&Về trình cài đặt...
 AboutSetupTitle=Về trình cài đặt
 AboutSetupMessage=%1 phiên bản %2%n%3%n%n%1 trang chủ:%n%4
 AboutSetupNote=
-TranslatorNote=Giao diện người dùng tiếng Việt bởi: Lê Duy Quang (facebook.com/leduyquang753).
+TranslatorNote=Giao diện người dùng tiếng Việt bởi: Vũ Khắc Hiệp
 
 ; *** Buttons
 ButtonBack=< &Trước
@@ -241,7 +247,10 @@ SelectDirectoryLabel=Hãy chọn vị trí của đĩa tiếp theo.
 
 ; *** Installation phase messages
 SetupAborted=Cài đặt không được hoàn thành.%n%nHãy sửa lỗi và chạy Cài đặt lại.
-EntryAbortRetryIgnore=Click Thử lại, Bỏ qua để tiếp tục bằng mọi giá, hoặc Hủy để hủy cài đặt.
+AbortRetryIgnoreSelectAction=Chọn hành động
+AbortRetryIgnoreRetry=&Thử lại
+AbortRetryIgnoreIgnore=&Bỏ qua lỗi và tiếp tục
+AbortRetryIgnoreCancel=Hủy
 
 ; *** Installation status messages
 StatusClosingApplications=Đang đóng các chương trình...
@@ -272,11 +281,13 @@ ErrorRegWriteKey=Lỗi khi viết registry:%n%1\%2
 ErrorIniEntry=Lỗi tạo đầu vào INI cho tệp "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Click Thử lại, Bỏ qua tệp này (không khuyến nghị), hoặc Hủy bỏ để hủy cài đặt.
-FileAbortRetryIgnore2=Click Thử lại, Bỏ qua để tiếp tục bằng mọi giá (không khuyến nghị), hoặc Hủy bỏ để hủy cài đặt.
+FileAbortRetryIgnoreSkipNotRecommended=&Bỏ qua tệp này (không khuyến nghị)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Bỏ qua để tiếp tục bằng mọi giá (không khuyến nghị)
 SourceIsCorrupted=Tệp nguồn bị hỏng
 SourceDoesntExist=Tệp nguồn "%1" không tồn tại
-ExistingFileReadOnly=Tệp đã tồn tại với đánh dấu chỉ đọc.%n%nClick Thử lại để bỏ đánh dấu đó và thử lại, Bỏ qua tệp này, Hoặc Hủy để hủy cài đặt.
+ExistingFileReadOnly2=Tệp đã tồn tại với đánh dấu chỉ đọc.
+ExistingFileReadOnlyRetry=&Xóa thuộc tính chỉ đọc và thử lại
+ExistingFileReadOnlyKeepExisting=&Giữ tập tin hiện có
 ErrorReadingExistingDest=Một lỗi đã xảy ra khi đọc tệp:
 FileExists=Tệp đã tồn tại.%n%nBạn muốn Cài đặt thay thế nó không?
 ExistingFileNewer=Tệp này mới hơn tệp mà Cài đặt muốn cài. Chúng tôi khuyên bạn giữ lại tệp này.%n%nBạn có muốn giữ lại tệp này?
@@ -290,6 +301,16 @@ ErrorRenamingTemp=Một lỗi đã xảy ra khi đổi tên tệp trong thư m�
 ErrorRegisterServer=Không thể đăng kí DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 thất bại với mã thoát %1
 ErrorRegisterTypeLib=Không thể đăng kí thư viện kiểu: %1
+
+; *** Uninstall display name markings
+; used for example as 'My Program (32-bit)'
+UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=All users
+UninstallDisplayNameMarkCurrentUser=Current user
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Một lỗi đã xảy ra khi mở tệp README.
@@ -326,7 +347,8 @@ ShutdownBlockReasonUninstallingApp=Đang gỡ cài đặt %1.
 
 [CustomMessages]
 
-NameAndVersion=%1 phiên bản %2
+;NameAndVersion=%1 phiên bản %2
+NameAndVersion=%1
 AdditionalIcons=Các lối tắt bổ sung:
 CreateDesktopIcon=Tạo một &lối tắt trên Desktop
 CreateQuickLaunchIcon=Tạo một lối tắt &Khởi động nhanh
