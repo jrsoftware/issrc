@@ -156,7 +156,7 @@ var
   RmSessionKey: array[0..CCH_RM_SESSION_KEY] of WideChar;
 
   { Other }
-  ShowLanguageDialog: Boolean;
+  ShowLanguageDialog, MatchedLangParameter: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
   HasIcons, IsNT, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem,
@@ -207,6 +207,7 @@ function GetShellFolderByCSIDL(Folder: Integer; const Create: Boolean): String;
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
 function GetUninstallRegSubkeyName(const UninstallRegKeyBaseName: String): String;
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
+function GetPreviousLanguage(const ExpandedAppID: String): Integer;
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
 procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 procedure Log64BitInstallMode;
@@ -356,6 +357,26 @@ begin
       end;
     end;
   end;
+end;
+
+function GetPreviousLanguage(const ExpandedAppID: String): Integer;
+var
+  PrevLang: String;
+  I: Integer;
+begin
+  { do not localize or change the following string }
+  PrevLang := GetPreviousData(ExpandConst(SetupHeader.AppId), 'Inno Setup: Language', '');
+
+  if PrevLang <> '' then begin
+    for I := 0 to Entries[seLanguage].Count-1 do begin
+      if CompareText(PrevLang, PSetupLanguageEntry(Entries[seLanguage][I]).Name) = 0 then begin
+        Result := I;
+        Exit;
+      end;
+    end;
+  end;
+  
+  Result := -1;
 end;
 
 function TestPassword(const Password: String): Boolean;
@@ -2233,18 +2254,22 @@ end;
 
 procedure ActivateDefaultLanguage;
 { Auto-detects the most appropriate language and activates it.
-  Also initializes the ShowLanguageDialog variable.
+  Also initializes the ShowLanguageDialog and MatchedLangParameter variables.
   Note: A like-named version of this function is also present in SetupLdr.dpr. }
 var
   I: Integer;
 begin
+  MatchedLangParameter := False;
   case DetermineDefaultLanguage(GetLanguageEntryProc,
      SetupHeader.LanguageDetectionMethod, InitLang, I) of
     ddNoMatch: ShowLanguageDialog := (SetupHeader.ShowLanguageDialog <> slNo);
     ddMatch: ShowLanguageDialog := (SetupHeader.ShowLanguageDialog = slYes);
   else
-    { ddMatchLangParameter }
-    ShowLanguageDialog := False;
+    begin
+      { ddMatchLangParameter }
+      ShowLanguageDialog := False;
+      MatchedLangParameter := True;
+    end;
   end;
   SetActiveLanguage(I);
 end;
@@ -3243,12 +3268,21 @@ begin
   { Show "Select Language" dialog if necessary - requires "64-bit mode" to be
     initialized else it might query the previous language from the wrong registry
     view }
-  if ShowLanguageDialog and (Entries[seLanguage].Count > 1) and
-     not InitSilent and not InitVerySilent then begin
-    if not AskForLanguage then
-      Abort;
+  if Entries[seLanguage].Count > 1 then begin
+    if ShowLanguageDialog and not InitSilent and not InitVerySilent then begin
+      if not AskForLanguage then
+        Abort;
+    end else if not MatchedLangParameter and (shUsePreviousLanguage in SetupHeader.Options) then begin
+      { Replicate the dialog's UsePreviousLanguage functionality. }
+      { Note: if UsePreviousLanguage is set to "yes" then the compiler does not
+        allow AppId to include constants but we should still call ExpandConst
+        to handle any '{{'. }
+      I := GetPreviousLanguage(ExpandConst(SetupHeader.AppId));
+      if I <> -1 then
+        SetActiveLanguage(I);
+    end;
   end;
-
+  
   { Check processor architecture }
   if (SetupHeader.ArchitecturesAllowed <> []) and
      not(ProcessorArchitecture in SetupHeader.ArchitecturesAllowed) then

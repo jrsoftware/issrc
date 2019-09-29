@@ -4573,8 +4573,8 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the language of the previous installation as the default language selected in the list of available languages on the <i>Select Language</i> dialog.</p>
-<p>Note that this directive does not change the language used by the <i>Select Language</i> dialog itself because it cannot assume that the current user understands the same languages as the previous user. See the <link topic="languagessection">[Languages] section</link> help topic for details on which language the <i>Select Language</i> dialog uses by default.</p>
+<p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the language of the previous installation as the default language presented to the user in the wizard.</p>
+<p>Note that this directive does not change the language used by the <i>Select Language</i> dialog itself. See the <link topic="languagessection">[Languages] section</link> help topic for details on which language the <i>Select Language</i> dialog uses by default.</p>
 <p>Also note that Setup cannot re-use settings from a previous installation that had <tt>Uninstallable</tt> set to <tt>no</tt>, since the registry entries it looks for are not created when <tt>Uninstallable</tt> is <tt>no</tt>.</p>
 <p><tt>UsePreviousLanguage</tt> must be set to <tt>no</tt> when <tt>AppId</tt> includes constants.</p>
 </body>
