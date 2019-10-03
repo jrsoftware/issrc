@@ -165,7 +165,7 @@
         </keywords>
 				<syntax>
 					<define id="dim-directive">
-						<txt>dim</txt><opt><nt name="locality"/></opt><nt>ident</nt><nt name="index-spec"/>
+						<txt>dim</txt><opt><nt name="locality"/></opt><nt>ident</nt><nt name="index-spec"/><opt><nt name="initializers-spec"/></opt>
 					</define>
 					<define id="redim-directive">
 						<txt>redim</txt><opt><nt name="locality"/></opt><nt>ident</nt><nt name="index-spec"/>
@@ -173,9 +173,12 @@
 					<define id="index-spec" inline="yes">
 						<txt>[</txt><nt>expr</nt><txt>]</txt>
 					</define>
+					<define id="initializers-spec" inline="yes">
+						<txt>{</txt><nt>expr</nt><opt repeated="yes"><txt>,</txt><nt>expr</nt></opt><txt>}</txt>
+					</define>
 				</syntax>
 				<description>
-					<para>Use &dim; to declare an array variable and set its dimension. All elements of the array are initialized to null (void). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</para>
+					<para>Use &dim; to declare an array variable, set its dimension and optionally intialize it. All unitialized elements of the array are initialized to null (void). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</para>
 					<para>Use &redim; to increase or decrease the dimension of an existing array variable. All new elements of the array are initialized to null (void) and existing elements are left unchanged. Identical to &dim; if <synel>ident</synel> isn't an existing array variable.</para>
 				</description>
 				<section title="Examples">
@@ -185,6 +188,7 @@
 						<line>#redim MyArray[20]</line>
 						<line>#define MyArray[10] 30</line>
 						<line>#redim MyArray[10]</line>
+						<line>#dim MyArray2[3] {1, '2', 3}</line>
 					</pre>
 				</section>
 				<section title="See also">
