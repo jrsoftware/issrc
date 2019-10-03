@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.0+ Polish messages ***
+; *** Inno Setup version 6.0.3+ Polish messages ***
 ; Krzysztof Cynarski <krzysztof at cynarski.net>
 ; Proofreading, corrections and 6.0.0+ updates:
 ; £ukasz Abramczuk <lukasz.abramczuk at gmail.com>
@@ -9,7 +9,7 @@
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
-; last update: 2019/02/25 
+; last update: 2019/10/03 
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -145,7 +145,8 @@ WizardSelectDir=Lokalizacja docelowa
 SelectDirDesc=Gdzie ma zostaæ zainstalowana aplikacja [name]?
 SelectDirLabel3=Instalator zainstaluje aplikacjê [name] do wskazanego poni¿ej folderu.
 SelectDirBrowseLabel=Kliknij przycisk Dalej, aby kontynuowaæ. Jeœli chcesz wskazaæ inny folder, kliknij przycisk Przegl¹daj.
-DiskSpaceMBLabel=Wymagane jest przynajmniej [mb] MB wolnego miejsca na dysku.
+DiskSpaceGBLabel=Instalacja wymaga przynajmniej [gb] GB wolnego miejsca na dysku.
+DiskSpaceMBLabel=Instalacja wymaga przynajmniej [mb] MB wolnego miejsca na dysku.
 CannotInstallToNetworkDrive=Instalator nie mo¿e zainstalowaæ aplikacji na dysku sieciowym.
 CannotInstallToUNCPath=Instalator nie mo¿e zainstalowaæ aplikacji w œcie¿ce UNC.
 InvalidPath=Nale¿y wprowadziæ pe³n¹ œcie¿kê wraz z liter¹ dysku, np.:%n%nC:\PROGRAM%n%nlub œcie¿kê sieciow¹ (UNC) w formacie:%n%n\\serwer\udzia³
@@ -172,6 +173,7 @@ NoUninstallWarningTitle=Zainstalowane komponenty
 NoUninstallWarning=Instalator wykry³, ¿e na komputerze s¹ ju¿ zainstalowane nastêpuj¹ce komponenty:%n%n%1%n%nOdznaczenie któregokolwiek z nich nie spowoduje ich dezinstalacji.%n%nCzy pomimo tego chcesz kontynuowaæ?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Wybrane komponenty wymagaj¹ co najmniej [gb] GB na dysku.
 ComponentsDiskSpaceMBLabel=Wybrane komponenty wymagaj¹ co najmniej [mb] MB na dysku.
 
 ; *** "Select Additional Tasks" wizard page
@@ -212,7 +214,8 @@ ApplicationsFound2=Poni¿sze aplikacje u¿ywaj¹ plików, które musz¹ zostaæ uaktual
 CloseApplications=&Automatycznie zamknij aplikacje
 DontCloseApplications=&Nie zamykaj aplikacji
 ErrorCloseApplications=Instalator nie by³ w stanie automatycznie zamkn¹æ wymaganych aplikacji. Zalecane jest zamkniêcie wszystkich aplikacji, które aktualnie u¿ywaj¹ uaktualnianych przez program instalacyjny plików.
- 
+PrepareToInstallNeedsRestart=Instalator wymaga ponownego uruchomienia komputera. Po zrestartowaniu komputera uruchom instalator ponownie, by dokoñczyæ proces instalacji aplikacji [name].%n%nCzy chcesz teraz uruchomiæ komputer ponownie?
+
 ; *** "Installing" wizard page
 WizardInstalling=Instalacja
 InstallingLabel=Poczekaj, a¿ instalator zainstaluje aplikacjê [name] na komputerze.
