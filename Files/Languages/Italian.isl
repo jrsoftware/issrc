@@ -1,5 +1,5 @@
-﻿; bovirus@gmail.com
-; *** Inno Setup version 6.0.0+ Italian messages ***
+; bovirus@gmail.com
+; *** Inno Setup version 6.0.3+ Italian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 04.02.2019  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 03.10.2019  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -157,7 +157,8 @@ WizardSelectDir=Selezione cartella di installazione
 SelectDirDesc=Dove vuoi installare [name]?
 SelectDirLabel3=[name] sarà installato nella seguente cartella.
 SelectDirBrowseLabel=Per continuare seleziona "Avanti".%nPer scegliere un'altra cartella seleziona "Sfoglia".
-DiskSpaceMBLabel=Sono richiesti almeno [mb] MB di spazio nel disco.
+DiskSpaceGBLabel=Sono richiesti almeno [gb] GB di sapzio libero nel disco.
+DiskSpaceMBLabel=Sono richiesti almeno [mb] MB di spazio libero nel disco.
 CannotInstallToNetworkDrive=Non è possibile effettuare l'installazione in un disco in rete.
 CannotInstallToUNCPath=Non è possibile effettuare l'installazione in un percorso UNC.
 InvalidPath=Va inserito un percorso completo di lettera di unità; per esempio:%n%nC:\APP%n%no un percorso di rete nella forma:%n%n\\server\condivisione
@@ -184,6 +185,7 @@ NoUninstallWarningTitle=Componente esistente
 NoUninstallWarning=I seguenti componenti sono già installati nel computer:%n%n%1%n%nDeselezionando questi componenti essi non verranno rimossi.%n%nVuoi continuare comunque?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=La selezione attuale richiede almeno [gb] GB di spazio nel disco.
 ComponentsDiskSpaceMBLabel=La selezione attuale richiede almeno [mb] MB di spazio nel disco.
 
 ; *** "Select Additional Tasks" wizard page
@@ -224,6 +226,7 @@ ApplicationsFound2=Le seguenti applicazioni stanno usando file che devono essere
 CloseApplications=Chiudi &automaticamente le applicazioni
 DontCloseApplications=&Non chiudere le applicazioni
 ErrorCloseApplications=L'installazione non è riuscita a chiudere automaticamente tutte le applicazioni.%n%nPrima di proseguire ti raccomandiamo di chiudere tutte le applicazioni che usano file che devono essere aggiornati durante l'installazione.
+PrepareToInstallNeedsRestart=Il programma di installazione deve riavviare il computer.%nDopo aver riavviato il computer esegui di nuovo il programma di installazione per completare l'installazione di [name].%n%nVuoi riavviare il computer ora?
 
 ; *** "Installing" wizard page
 WizardInstalling=Installazione in corso
