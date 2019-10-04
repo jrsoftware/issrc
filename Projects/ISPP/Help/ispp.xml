@@ -188,7 +188,7 @@
 						<line>#redim MyArray[20]</line>
 						<line>#define MyArray[10] 30</line>
 						<line>#redim MyArray[10]</line>
-						<line>#dim MyArray2[3] {1, '2', 3}</line>
+						<line>#dim MyArray2[3] {1, 2, 3}</line>
 					</pre>
 				</section>
 				<section title="See also">
