@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.0+ Turkish messages ***
+; *** Inno Setup version 6.0.3+ Turkish messages ***
 ; Language	"Turkce" Turkish Translate by "Ceviren"	Kaya Zeren kayazeren@gmail.com
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -150,7 +150,8 @@ UserInfoNameRequired=Bir ad yazmalýsýnýz.
 WizardSelectDir=Hedef Konumunu Seçin
 SelectDirDesc=[name] nereye kurulsun?
 SelectDirLabel3=[name] uygulamasý þu klasöre kurulacak.
-SelectDirBrowseLabel=Devam etmek icin Sonraki üzerine týklayýn. Farklý bir klasör seçmek için Gözatýn düðmesine týklayýn.
+SelectDirBrowseLabel=Devam etmek icin Sonraki üzerine týklayýn. Farklý bir klasör seçmek için Gözat üzerine týklayýn.
+DiskSpaceGBLabel=En az [gb] GB disk alaný gereklidir.
 DiskSpaceMBLabel=En az [mb] MB disk alaný gereklidir.
 CannotInstallToNetworkDrive=Uygulama bir að sürücüsü üzerine kurulamaz.
 CannotInstallToUNCPath=Uygulama bir UNC yolu üzerine (\\yol gibi) kurulamaz.
@@ -174,10 +175,11 @@ FullInstallation=Tam Kurulum
 ; Mümkünse 'Compact' ifadesini kendi dilinizde 'Minimal' anlamýnda çevirmeyin
 CompactInstallation=Normal kurulum
 CustomInstallation=Özel kurulum
-NoUninstallWarningTitle=Var Olan Bileþenler
-NoUninstallWarning=Kur þu bileþenlerin bilgisayarýnýza zaten kurulmuþ olduðunu algýladý:%n%n%1%n%n Bu bileþenlerin iþaretlerinin kaldýrýlmasý bileþenleri kaldýrmaz.%n%nGene de devam etmek istiyor musunuz?
+NoUninstallWarningTitle=Bileþenler Zaten Var
+NoUninstallWarning=Þu bileþenlerin bilgisayarýnýzda zaten kurulu olduðu algýlandý:%n%n%1%n%n Bu bileþenlerin iþaretlerinin kaldýrýlmasý bileþenleri kaldýrmaz.%n%nGene de devam etmek istiyor musunuz?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Seçili bileþenler için diskte en az [gb] GB boþ alan gerekli.
 ComponentsDiskSpaceMBLabel=Seçili bileþenler için diskte en az [mb] MB boþ alan gerekli.
 
 ; *** "Ek Ýþlemleri Seçin" sayfasý
@@ -218,6 +220,7 @@ ApplicationsFound2=Kurulum tarafýndan güncellenmesi gereken dosyalar, þu uygulam
 CloseApplications=&Uygulamalar kapatýlsýn
 DontCloseApplications=Uygulamalar &kapatýlmasýn
 ErrorCloseApplications=Kurulum, uygulamalarý kapatamadý. Kurulum tarafýndan güncellenmesi gereken dosyalarý kullanan uygulamalarý el ile kapatmanýz önerilir.
+PrepareToInstallNeedsRestart=Kurulumun tamamlanmasý için bilgisayarýnýzýn yeniden baþlatýlmasý gerekiyor. Bilgisayarýnýzý yeniden baþlattýktan sonra [name] kurulumunu tamamlamak için kurulum yardýmcýsýný yeniden çalýþtýrýn.%n%nÞimdi yeniden baþlatmak ister misiniz?
 
 ; *** "Kuruluyor" sayfasý
 WizardInstalling=Kuruluyor
@@ -252,7 +255,7 @@ AbortRetryIgnoreRetry=&Yeniden denensin
 AbortRetryIgnoreIgnore=&Sorun yok sayýlýp devam edilsin
 AbortRetryIgnoreCancel=Kurulum iptal edilsin
 
-; *** Kurulum durum iletileri
+; *** Kurulum durumu iletileri
 StatusClosingApplications=Uygulamalar kapatýlýyor...
 StatusCreateDirs=Klasörler oluþturuluyor...
 StatusExtractFiles=Dosyalar ayýklanýyor...
@@ -303,7 +306,9 @@ ErrorRegSvr32Failed=RegSvr32 iþlemi þu kod ile tamamlanamadý: %1
 ErrorRegisterTypeLib=Tür kitaplýðý kayýt defterine eklenemedi: %1
 
 ; *** Kaldýrma sýrasýnda görüntülenecek ad iþaretleri
+; used for example as 'My Program (32-bit)'
 UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
 UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32-bit
 UninstallDisplayNameMark64Bit=64-bit
