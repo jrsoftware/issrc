@@ -71,7 +71,7 @@ procedure TStartupForm.UpdateImages;
 
   function GetBitmap(const Button: TToolButton; const WH: Integer): TBitmap;
   begin
-    Result := CompileForm.ToolBarImageCollection.GetBitmap(Button.ImageIndex, WH, WH)
+    Result := CompileForm.LightToolBarImageCollection.GetBitmap(Button.ImageIndex, WH, WH)
   end;
 
 var
