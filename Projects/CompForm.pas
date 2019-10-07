@@ -171,11 +171,13 @@ type
     Bevel1: TBevel;
     BuildImageList: TImageList;
     TerminateButton: TToolButton;
-    ToolBarImageCollection: TImageCollection;
+    LightToolBarImageCollection: TImageCollection;
+    DarkToolBarImageCollection: TImageCollection;
     ToolBarVirtualImageList: TVirtualImageList;
     PListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
+    ToolBarPanel: TPanel;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenClick(Sender: TObject);
@@ -3619,7 +3621,13 @@ begin
   FTheme.Typ := FOptions.ThemeType;
   Memo.UpdateThemeColors;
   Memo.UpdateStyleAttributes;
-  Bevel1.Visible := FTheme.Colors[tcMarginBack] = ToolBar.Color;
+  ToolBarPanel.ParentBackground := False;
+  ToolBarPanel.Color := FTheme.Colors[tcMarginBack];
+  if FTheme.Dark then
+    ToolBarVirtualImageList.ImageCollection := DarkToolBarImageCollection
+  else
+    ToolBarVirtualImageList.ImageCollection := LightToolBarImageCollection;
+  Bevel1.Visible := FTheme.Colors[tcMarginBack] = ToolBarPanel.Color;
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
   CompilerOutputList.Font.Color := FTheme.Colors[tcFore];
