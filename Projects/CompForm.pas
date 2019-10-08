@@ -24,8 +24,8 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
-  ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet,
-  DebugStruct, CompInt, UxThemeISX, System.ImageList, ImgList, ToolWin,
+  ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors,
+  DebugStruct, CompInt, UxTheme, System.ImageList, ImgList, ToolWin,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
 const
@@ -171,8 +171,13 @@ type
     Bevel1: TBevel;
     BuildImageList: TImageList;
     TerminateButton: TToolButton;
-    ToolBarImageCollection: TImageCollection;
+    LightToolBarImageCollection: TImageCollection;
+    DarkToolBarImageCollection: TImageCollection;
     ToolBarVirtualImageList: TVirtualImageList;
+    PListSelectAll: TMenuItem;
+    DebugCallStackList: TListBox;
+    VDebugCallStack: TMenuItem;
+    ToolBarPanel: TPanel;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenClick(Sender: TObject);
@@ -253,6 +258,10 @@ type
       Rect: TRect; State: TOwnerDrawState);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
+    procedure PListSelectAllClick(Sender: TObject);
+    procedure DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
+      State: TOwnerDrawState);
+    procedure VDebugCallStackClick(Sender: TObject);
   private
     { Private declarations }
     FCompilerVersion: PCompilerVersionInfo;
@@ -282,8 +291,10 @@ type
       IndentationGuides: Boolean;
       LowPriorityDuringCompile: Boolean;
       GutterLineNumbers: Boolean;
+      ThemeType: TThemeType;
     end;
     FOptionsLoaded: Boolean;
+    FTheme: TTheme;
     FSignTools: TStringList;
     FCompiling: Boolean;
     FCompileWantAbort: Boolean;
@@ -320,10 +331,11 @@ type
     FProgress, FProgressMax: Cardinal;
     FProgressThemeData: HTHEME;
     FProgressChunkSize, FProgressSpaceSize: Integer;
-    FDebugLogListTimeWidth: Integer;
+    FDebugLogListTimestampsWidth: Integer;
     FBreakPoints: TList;
     FOnPendingSquiggly: Boolean;
     FPendingSquigglyCaretPos: Integer;
+    FCallStackCount: Cardinal;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -335,6 +347,7 @@ type
     function ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
     procedure DebuggingStopped(const WaitForTermination: Boolean);
     procedure DebugLogMessage(const S: String);
+    procedure DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
     procedure DestroyDebugInfo;
     procedure DetachDebugger;
     function EvaluateConstant(const S: String; var Output: String): Integer;
@@ -388,9 +401,10 @@ type
     procedure UpdateEditModePanel;
     procedure UpdateLineMarkers(const Line: Integer);
     procedure UpdateNewButtons;
-    procedure UpdateOutputListsItemHeightAndDebugTimeWidth;
+    procedure UpdateTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateTargetMenu;
+    procedure UpdateTheme;
     procedure UpdateThemeData(const Close, Open: Boolean);
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
@@ -403,9 +417,11 @@ type
     procedure WMDebuggerSteppedIntermediate(var Message: TMessage); message WM_Debugger_SteppedIntermediate;
     procedure WMDebuggerException(var Message: TMessage); message WM_Debugger_Exception;
     procedure WMDebuggerSetForegroundWindow(var Message: TMessage); message WM_Debugger_SetForegroundWindow;
+    procedure WMDebuggerCallStackCount(var Message: TMessage); message WM_Debugger_CallStackCount;
     procedure WMStartCommandLineCompile(var Message: TMessage); message WM_StartCommandLineCompile;
     procedure WMStartCommandLineWizard(var Message: TMessage); message WM_StartCommandLineWizard;
     procedure WMStartNormally(var Message: TMessage); message WM_StartNormally;
+    procedure WMSettingChange(var Message: TMessage); message WM_SETTINGCHANGE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
 {$IFDEF IS_D4}
   protected
@@ -423,8 +439,13 @@ type
   end;
 
   TISScintEdit = class(TScintEdit)
+  private
+    FTheme: TTheme;
   protected
     procedure CreateWnd; override;
+  public
+    property Theme: TTheme read FTheme write FTheme;
+    procedure UpdateThemeColors;
   end;
 
 var
@@ -443,7 +464,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, CommDlg, Consts, Types,
-  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchemaISX, BrowseFunc,
+  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes;
@@ -462,6 +483,7 @@ const
   { Tab set indexes }
   tiCompilerOutput = 0;
   tiDebugOutput = 1;
+  tiDebugCallStack = 2;
 
   { Memo marker numbers }
   mmIconHasEntry = 0;        { grey dot }
@@ -575,6 +597,20 @@ begin
   Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
 end;
 
+function GetDefaultThemeType: TThemeType;
+var
+  K: HKEY;
+  Size, AppsUseLightTheme: DWORD;
+begin
+  Result := ttModernLight;
+  if (Win32MajorVersion >= 10) and (RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS) then begin
+    Size := SizeOf(AppsUseLightTheme);
+    if (RegQueryValueEx(K, 'AppsUseLightTheme', nil, nil, @AppsUseLightTheme, @Size) = ERROR_SUCCESS) and (AppsUseLightTheme = 0) then
+      Result := ttModernDark;
+    RegCloseKey(K);
+  end;
+end;
+
 { TISScintEdit }
 
 procedure TISScintEdit.CreateWnd;
@@ -666,7 +702,7 @@ begin
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
   Call(SCI_INDICSETSTYLE, inSquiggly, INDIC_SQUIGGLE);
-  Call(SCI_INDICSETFORE, inSquiggly, clRed);
+  Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwitten by UpdateThemeColors }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
@@ -692,6 +728,16 @@ begin
   Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
+end;
+
+procedure TISScintEdit.UpdateThemeColors;
+begin
+  if FTheme <> nil then begin
+    Font.Color := FTheme.Colors[tcFore];
+    Color := FTheme.Colors[tcBack];
+    Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
+    Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
+  end;
 end;
 
 { TCompileFormMemoPopupMenu }
@@ -724,6 +770,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
   var
     Ini: TConfigIniFile;
     WindowPlacement: TWindowPlacement;
+    I: Integer;
   begin
     Ini := TConfigIniFile.Create;
     try
@@ -752,6 +799,9 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.AutoIndent := Ini.ReadBool('Options', 'AutoIndent', True);
       FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', True);
       FOptions.GutterLineNumbers := Ini.ReadBool('Options', 'GutterLineNumbers', False);
+      I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
+      if (I >= 0) and (I <= Ord(High(TThemeType))) then
+        FOptions.ThemeType := TThemeType(I);
       if GetACP = 932 then begin
         { Default to MS Gothic font on CP 932 (Japanese), as Courier New is
           only capable of displaying Japanese characters on XP and later. }
@@ -777,6 +827,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       Memo.Zoom := Ini.ReadInteger('Options', 'Zoom', 0);
       SyncEditorOptions;
       UpdateNewButtons;
+      UpdateTheme;
 
       { Window state }
       WindowPlacement.length := SizeOf(WindowPlacement);
@@ -858,7 +909,7 @@ begin
   SetFakeShortCutText(VZoomOut, SmkcCtrl + 'Num -');
   SetFakeShortCutText(VZoomReset, SmkcCtrl + 'Num /');
   { Use fake Esc shortcut for Stop Compile so it doesn't conflict with the
-    editor's autocompletion list } 
+    editor's autocompletion list }
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
 
 {$IFNDEF IS_D103RIO}
@@ -895,9 +946,13 @@ begin
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.Parent := BodyPanel;
 
+  FTheme := TTheme.Create;
+  Memo.Theme := FTheme;
+  MemoStyler.Theme := FTheme;
+
   FBreakPoints := TList.Create;
 
-  UpdateOutputListsItemHeightAndDebugTimeWidth;
+  UpdateTabSetListsItemHeightAndDebugTimeWidth;
 
   Application.HintShortPause := 0;
   Application.OnException := AppOnException;
@@ -945,6 +1000,9 @@ destructor TCompileForm.Destroy;
   begin
     Ini := TConfigIniFile.Create;
     try
+      { Theme state }
+      Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType));  { Also see TOptionsClick }
+
       { Menu check boxes state }
       Ini.WriteBool('Options', 'ShowToolbar', Toolbar.Visible);
       Ini.WriteBool('Options', 'ShowStatusBar', StatusBar.Visible);
@@ -959,7 +1017,7 @@ destructor TCompileForm.Destroy;
       Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
       Ini.WriteBool('State', 'WindowMaximized', WindowState = wsMaximized);
       Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
-      
+
       { Zoom state }
       Ini.WriteInteger('Options', 'Zoom', Memo.Zoom);
     finally
@@ -976,6 +1034,7 @@ begin
   if FOptionsLoaded and not (CommandLineCompile or CommandLineWizard) then
     SaveConfig;
 
+  FTheme.Free;
   FBreakPoints.Free;
   DestroyDebugInfo;
   FSignTools.Free;
@@ -993,7 +1052,7 @@ end;
 procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
-  UpdateOutputListsItemHeightAndDebugTimeWidth;
+  UpdateTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
 end;
 
@@ -1025,6 +1084,7 @@ begin
       case TabSet.TabIndex of
         tiCompilerOutput: ActiveControl := CompilerOutputList;
         tiDebugOutput: ActiveControl := DebugOutputList;
+        tiDebugCallStack: ActiveControl := DebugCallStackList;
       end;
     end;
   end;
@@ -1406,73 +1466,53 @@ begin
   end;
 end;
 
-procedure TCompileForm.StatusMessage(const Kind: TStatusMessageKind; const S: String);
-var
-  DC: HDC;
-  Size: TSize;
-begin
-  with CompilerOutputList do begin
-    try
-      TopIndex := Items.AddObject(S, TObject(Kind));
-    except
-      on EOutOfResources do begin
-        Clear;
-        SendMessage(Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-        Items.Add(SCompilerStatusReset);
-        TopIndex := Items.Add(S);
-      end;
-    end;
-    DC := GetDC(0);
-    try
-      SelectObject(DC, Font.Handle);
-      GetTextExtentPoint(DC, PChar(S), Length(S), Size);
-    finally
-      ReleaseDC(0, DC);
-    end;
-    Inc(Size.cx, 5);
-    if Size.cx > SendMessage(Handle, LB_GETHORIZONTALEXTENT, 0, 0) then
-      SendMessage(Handle, LB_SETHORIZONTALEXTENT, Size.cx, 0);
-    Update;
-  end;
-end;
+type
+  TAddLinesPrefix = (alpNone, alpTimestamp, alpCountdown);
 
-procedure TCompileForm.DebugLogMessage(const S: String);
+procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Cardinal);
 var
   ST: TSystemTime;
-  FirstLine: Boolean;
+  LineNumber: Cardinal;
 
   procedure AddLine(S: String);
   var
-    StartsWithTab: Boolean;
+    TimestampPrefixTab: Boolean;
     DC: HDC;
     Size: TSize;
   begin
-    if FirstLine then begin
-      FirstLine := False;
-      { Don't forget about DebugOutputListDrawItem if you change the format of the following timestamp. }
-      Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
-        ST.wMinute, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, ST.wSecond, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator,
-        ST.wMilliseconds]), S, 1);
-      StartsWithTab := False;
-    end
-    else begin
-      Insert(#9, S, 1);
-      StartsWithTab := True;
+    TimestampPrefixTab := False;
+    case Prefix of
+      alpTimestamp:
+        begin
+          if LineNumber = 0 then begin
+            { Don't forget about ListBox's DrawItem if you change the format of the following timestamp. }
+            Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
+              ST.wMinute, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, ST.wSecond, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator,
+              ST.wMilliseconds]), S, 1);
+          end else begin
+            Insert(#9, S, 1); { Not actually painted - just for Ctrl+C }
+            TimestampPrefixTab := True;
+          end;
+        end;
+      alpCountdown:
+        begin
+          Insert(Format('[%.2d]   ', [PrefixParam-LineNumber]), S, 1);
+        end;
     end;
     try
-      DebugOutputList.TopIndex := DebugOutputList.Items.Add(S);
+      ListBox.TopIndex := ListBox.Items.AddObject(S, AObject);
     except
       on EOutOfResources do begin
-        DebugOutputList.Clear;
-        SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-        DebugOutputList.Items.Add(SCompilerStatusReset);
-        DebugOutputList.TopIndex := DebugOutputList.Items.Add(S);
+        ListBox.Clear;
+        SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+        ListBox.Items.Add(SCompilerStatusReset);
+        ListBox.TopIndex := ListBox.Items.Add(S);
       end;
     end;
     DC := GetDC(0);
     try
-      SelectObject(DC, DebugOutputList.Font.Handle);
-      if StartsWithTab then
+      SelectObject(DC, ListBox.Font.Handle);
+      if TimestampPrefixTab then
         GetTextExtentPoint(DC, PChar(S)+1, Length(S)-1, Size)
       else
         GetTextExtentPoint(DC, PChar(S), Length(S), Size);
@@ -1480,10 +1520,11 @@ var
       ReleaseDC(0, DC);
     end;
     Inc(Size.cx, 5);
-    if StartsWithTab then
-      Inc(Size.cx, FDebugLogListTimeWidth);
-    if Size.cx > SendMessage(DebugOutputList.Handle, LB_GETHORIZONTALEXTENT, 0, 0) then
-      SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, Size.cx, 0);
+    if TimestampPrefixTab then
+      Inc(Size.cx, PrefixParam);
+    if Size.cx > SendMessage(ListBox.Handle, LB_GETHORIZONTALEXTENT, 0, 0) then
+      SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, Size.cx, 0);
+    Inc(LineNumber);
   end;
 
 var
@@ -1491,27 +1532,49 @@ var
   LastWasCR: Boolean;
 begin
   GetLocalTime(ST);
-  FirstLine := True;
-  LineStart := 1;
-  LastWasCR := False;
-  { Call AddLine for each line. CR, LF, and CRLF line breaks are supported. }
-  for I := 1 to Length(S) do begin
-    if S[I] = #13 then begin
-      AddLine(Copy(S, LineStart, I - LineStart));
-      LineStart := I + 1;
-      LastWasCR := True;
-    end
-    else begin
-      if S[I] = #10 then begin
-        if not LastWasCR then
-          AddLine(Copy(S, LineStart, I - LineStart));
+  if LineBreaks then begin
+    LineNumber := 0;
+    LineStart := 1;
+    LastWasCR := False;
+    { Call AddLine for each line. CR, LF, and CRLF line breaks are supported. }
+    for I := 1 to Length(S) do begin
+      if S[I] = #13 then begin
+        AddLine(Copy(S, LineStart, I - LineStart));
         LineStart := I + 1;
+        LastWasCR := True;
+      end
+      else begin
+        if S[I] = #10 then begin
+          if not LastWasCR then
+            AddLine(Copy(S, LineStart, I - LineStart));
+          LineStart := I + 1;
+        end;
+        LastWasCR := False;
       end;
-      LastWasCR := False;
     end;
-  end;
-  AddLine(Copy(S, LineStart, Maxint));
+    AddLine(Copy(S, LineStart, Maxint));
+  end else
+    AddLine(S);
+end;
+
+procedure TCompileForm.StatusMessage(const Kind: TStatusMessageKind; const S: String);
+begin
+  AddLines(CompilerOutputList, S, TObject(Kind), False, alpNone, 0);
+  CompilerOutputList.Update;
+end;
+
+procedure TCompileForm.DebugLogMessage(const S: String);
+begin
+  AddLines(DebugOutputList, S, nil, True, alpTimestamp, FDebugLogListTimestampsWidth);
   DebugOutputList.Update;
+end;
+
+procedure TCompileForm.DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
+begin
+  DebugCallStackList.Clear;
+  AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, FCallStackCount-1);
+  DebugCallStackList.Items.Insert(0, '*** [Code] Call Stack');
+  DebugCallStackList.Update;
 end;
 
 type
@@ -1686,6 +1749,8 @@ begin
     SendMessage(CompilerOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
     DebugOutputList.Clear;
     SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugCallStackList.Clear;
+    SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
     TabSet.TabIndex := tiCompilerOutput;
     SetStatusPanelVisible(True);
 
@@ -2002,6 +2067,7 @@ begin
   VHide.Checked := not StatusPanel.Visible;
   VCompilerOutput.Checked := StatusPanel.Visible and (TabSet.TabIndex = tiCompilerOutput);
   VDebugOutput.Checked := StatusPanel.Visible and (TabSet.TabIndex = tiDebugOutput);
+  VDebugCallStack.Checked := StatusPanel.Visible and (TabSet.TabIndex = tiDebugCallStack);
 end;
 
 procedure TCompileForm.VZoomInClick(Sender: TObject);
@@ -2068,6 +2134,12 @@ end;
 procedure TCompileForm.VDebugOutputClick(Sender: TObject);
 begin
   TabSet.TabIndex := tiDebugOutput;
+  SetStatusPanelVisible(True);
+end;
+
+procedure TCompileForm.VDebugCallStackClick(Sender: TObject);
+begin
+  TabSet.TabIndex := tiDebugCallStack;
   SetStatusPanelVisible(True);
 end;
 
@@ -2441,14 +2513,17 @@ begin
   StatusPanel.Height := H;
 end;
 
-procedure TCompileForm.UpdateOutputListsItemHeightAndDebugTimeWidth;
+procedure TCompileForm.UpdateTabSetListsItemHeightAndDebugTimeWidth;
 begin
   CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
   CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
 
   DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
-  FDebugLogListTimeWidth := DebugOutputList.Canvas.TextWidth(Format('[00%s00%s00%s000]   ', [FormatSettings.TimeSeparator, FormatSettings.TimeSeparator, FormatSettings.DecimalSeparator]));
+  FDebugLogListTimestampsWidth := DebugOutputList.Canvas.TextWidth(Format('[00%s00%s00%s000]   ', [FormatSettings.TimeSeparator, FormatSettings.TimeSeparator, FormatSettings.DecimalSeparator]));
   DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0');
+
+  DebugCallStackList.Canvas.Font.Assign(DebugCallStackList.Font);
+  DebugCallStackList.ItemHeight := DebugCallStackList.Canvas.TextHeight('0');
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
@@ -2562,7 +2637,10 @@ begin
     OptionsForm.AutoIndentCheck.Checked := FOptions.AutoIndent;
     OptionsForm.IndentationGuidesCheck.Checked := FOptions.IndentationGuides;
     OptionsForm.GutterLineNumbersCheck.Checked := FOptions.GutterLineNumbers;
+    OptionsForm.ThemeComboBox.ItemIndex := Ord(FOptions.ThemeType);
     OptionsForm.FontPanel.Font.Assign(Memo.Font);
+    OptionsForm.FontPanel.ParentBackground := False;
+    OptionsForm.FontPanel.Color := Memo.Color;
 
     if OptionsForm.ShowModal <> mrOK then
       Exit;
@@ -2586,6 +2664,7 @@ begin
     FOptions.AutoIndent := OptionsForm.AutoIndentCheck.Checked;
     FOptions.IndentationGuides := OptionsForm.IndentationGuidesCheck.Checked;
     FOptions.GutterLineNumbers := OptionsForm.GutterLineNumbersCheck.Checked;
+    FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
     UpdateCaption;
     { Move caret to start of line to ensure it doesn't end up in the middle
       of a double-byte character if the code page changes from SBCS to DBCS }
@@ -2593,6 +2672,7 @@ begin
     Memo.Font.Assign(OptionsForm.FontPanel.Font);
     SyncEditorOptions;
     UpdateNewButtons;
+    UpdateTheme;
 
     { Save new options }
     Ini := TConfigIniFile.Create;
@@ -2616,6 +2696,7 @@ begin
       Ini.WriteBool('Options', 'AutoIndent', FOptions.AutoIndent);
       Ini.WriteBool('Options', 'IndentationGuides', FOptions.IndentationGuides);
       Ini.WriteBool('Options', 'GutterLineNumbers', FOptions.GutterLineNumbers);
+      Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
       Ini.WriteString('Options', 'EditorFontName', Memo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', Memo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', Memo.Font.Charset);
@@ -3204,7 +3285,7 @@ begin
   if (FStepMode = smStepInto) or
      ((FStepMode = smStepOver) and not Intermediate) or
      ((FStepMode = smRunToCursor) and
-      (FRunToCursorPoint.Kind = Message.WParam) and
+      (FRunToCursorPoint.Kind = Integer(Message.WParam)) and
       (FRunToCursorPoint.Index = Message.LParam)) or
      (FBreakPoints.IndexOf(Pointer(LineNumber)) <> -1) then begin
     MoveCaret(LineNumber, True);
@@ -3262,6 +3343,11 @@ begin
   SetForegroundWindow(HWND(Message.WParam));
 end;
 
+procedure TCompileForm.WMDebuggerCallStackCount(var Message: TMessage);
+begin
+  FCallStackCount := Message.WParam;
+end;
+
 procedure TCompileForm.WMCopyData(var Message: TWMCopyData);
 var
   S: String;
@@ -3300,6 +3386,11 @@ begin
           S := '';
         FTempDir := S;
         Message.Result := 1;
+      end;
+    CD_Debugger_CallStackW: begin
+        SetString(S, PChar(Message.CopyDataStruct.lpData),
+          Message.CopyDataStruct.cbData div SizeOf(Char));
+        DebugShowCallStack(S, FCallStackCount);
       end;
   end;
 end;
@@ -3525,6 +3616,31 @@ begin
   end;
 end;
 
+procedure TCompileForm.UpdateTheme;
+begin
+  FTheme.Typ := FOptions.ThemeType;
+  Memo.UpdateThemeColors;
+  Memo.UpdateStyleAttributes;
+  ToolBarPanel.ParentBackground := False;
+  ToolBarPanel.Color := FTheme.Colors[tcMarginBack];
+  if FTheme.Dark then
+    ToolBarVirtualImageList.ImageCollection := DarkToolBarImageCollection
+  else
+    ToolBarVirtualImageList.ImageCollection := LightToolBarImageCollection;
+  Bevel1.Visible := FTheme.Colors[tcMarginBack] = ToolBarPanel.Color;
+  SplitPanel.ParentBackground := False;
+  SplitPanel.Color := FTheme.Colors[tcSplitterBack];
+  CompilerOutputList.Font.Color := FTheme.Colors[tcFore];
+  CompilerOutputList.Color := FTheme.Colors[tcBack];
+  CompilerOutputList.Invalidate;
+  DebugOutputList.Font.Color := FTheme.Colors[tcFore];
+  DebugOutputList.Color := FTheme.Colors[tcBack];
+  DebugOutputList.Invalidate;
+  DebugCallStackList.Font.Color := FTheme.Colors[tcFore];
+  DebugCallStackList.Color := FTheme.Colors[tcBack];
+  DebugCallStackList.Invalidate;
+end;
+
 procedure TCompileForm.UpdateThemeData(const Close, Open: Boolean);
 begin
   if Close then begin
@@ -3573,7 +3689,10 @@ begin
   ResetLineState;
   DebugOutputList.Clear;
   SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-  TabSet.TabIndex := tiDebugOutput;
+  DebugCallStackList.Clear;
+  SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+  if not (TabSet.TabIndex in [tiDebugOutput, tiDebugCallStack]) then
+    TabSet.TabIndex := tiDebugOutput;
   SetStatusPanelVisible(True);
 
   FillChar(Info, SizeOf(Info), 0);
@@ -3659,6 +3778,11 @@ begin
       FPaused := False;
       UpdateRunMenu;
       UpdateCaption;
+      if DebugCallStackList.Items.Count > 0 then begin
+        DebugCallStackList.Clear;
+        SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+        DebugCallStackList.Update;
+      end;
       { Tell it to continue }
       SendNotifyMessage(FDebugClientWnd, WM_DebugClient_Continue,
         Ord(AStepMode = smStepOver), 0);
@@ -3806,8 +3930,48 @@ begin
 end;
 
 procedure TCompileForm.PListCopyClick(Sender: TObject);
+var
+  ListBox: TListBox;
+  Text: String;
+  I: Integer;
 begin
-  Clipboard.AsText := (ListPopupMenu.PopupComponent as TListBox).Items.Text;
+  if CompilerOutputList.Visible then
+    ListBox := CompilerOutputList
+  else if DebugOutputList.Visible then
+    ListBox := DebugOutputList
+  else
+    ListBox := DebugCallStackList;
+  Text := '';
+  if ListBox.SelCount > 0 then begin
+    for I := 0 to ListBox.Items.Count-1 do begin
+      if ListBox.Selected[I] then begin
+        if Text <> '' then
+          Text := Text + SNewLine;
+        Text := Text + ListBox.Items[I];
+      end;
+    end;
+  end;
+  Clipboard.AsText := Text;
+end;
+
+procedure TCompileForm.PListSelectAllClick(Sender: TObject);
+var
+  ListBox: TListBox;
+  I: Integer;
+begin
+  if CompilerOutputList.Visible then
+    ListBox := CompilerOutputList
+  else if DebugOutputList.Visible then
+    ListBox := DebugOutputList
+  else
+    ListBox := DebugCallStackList;
+  ListBox.Items.BeginUpdate;
+  try
+    for I := 0 to ListBox.Items.Count-1 do
+      ListBox.Selected[I] := True;
+  finally
+    ListBox.Items.EndUpdate;
+  end;
 end;
 
 procedure TCompileForm.AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -3918,6 +4082,14 @@ begin
   end;
 end;
 
+procedure TCompileForm.WMSettingChange(var Message: TMessage);
+begin
+  if (FTheme.Typ <> ttClassic) and (Win32MajorVersion >= 10) and (Message.LParam <> 0) and (StrIComp(PChar(Message.LParam), 'ImmersiveColorSet') = 0) then begin
+    FOptions.ThemeType := GetDefaultThemeType;
+    UpdateTheme;
+  end;
+end;
+
 procedure TCompileForm.WMThemeChanged(var Message: TMessage);
 begin
   { Don't Run to Cursor into this function, it will interrupt up the theme change }
@@ -3985,20 +4157,21 @@ end;
 procedure TCompileForm.CompilerOutputListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 const
-  Colors: array [TStatusMessageKind] of TColor = (clGreen, clWindowText, clOlive, clRed);
+  ThemeColors: array [TStatusMessageKind] of TThemeColor = (tcGreen, tcFore, tcOrange, tcRed);
 var
   Canvas: TCanvas;
   S: String;
-  Color: TColor;
+  StatusMessageKind: TStatusMessageKind;
 begin
   Canvas := CompilerOutputList.Canvas;
   S := CompilerOutputList.Items[Index];
-  Color := Colors[TStatusMessageKind(CompilerOutputList.Items.Objects[Index])];
 
   Canvas.FillRect(Rect);
   Inc(Rect.Left, 2);
-  if FOptions.ColorizeCompilerOutput and not (odSelected in State) then
-    Canvas.Font.Color := Color;
+  if FOptions.ColorizeCompilerOutput and not (odSelected in State) then begin
+    StatusMessageKind := TStatusMessageKind(CompilerOutputList.Items.Objects[Index]);
+    Canvas.Font.Color := FTheme.Colors[ThemeColors[StatusMessageKind]];
+  end;
   Canvas.TextOut(Rect.Left, Rect.Top, S);
 end;
 
@@ -4014,16 +4187,30 @@ begin
   Canvas.FillRect(Rect);
   Inc(Rect.Left, 2);
   if (S <> '') and (S[1] = #9) then
-    Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth, Rect.Top, Copy(S, 2, Maxint))
+    Canvas.TextOut(Rect.Left + FDebugLogListTimestampsWidth, Rect.Top, Copy(S, 2, Maxint))
   else begin
     if (Length(S) > 20) and (S[18] = '-') and (S[19] = '-') and (S[20] = ' ') then begin
       { Draw lines that begin with '-- ' (like '-- File entry --') in bold }
       Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, 17));
       Canvas.Font.Style := [fsBold];
-      Canvas.TextOut(Rect.Left + FDebugLogListTimeWidth, Rect.Top, Copy(S, 18, Maxint));
+      Canvas.TextOut(Rect.Left + FDebugLogListTimestampsWidth, Rect.Top, Copy(S, 18, Maxint));
     end else
       Canvas.TextOut(Rect.Left, Rect.Top, S);
   end;
+end;
+
+procedure TCompileForm.DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
+  State: TOwnerDrawState);
+var
+  Canvas: TCanvas;
+  S: String;
+begin
+  Canvas := DebugCallStackList.Canvas;
+  S := DebugCallStackList.Items[Index];
+
+  Canvas.FillRect(Rect);
+  Inc(Rect.Left, 2);
+  Canvas.TextOut(Rect.Left, Rect.Top, S);
 end;
 
 procedure TCompileForm.TabSetClick(Sender: TObject);
@@ -4034,12 +4221,21 @@ begin
         CompilerOutputList.BringToFront;
         CompilerOutputList.Visible := True;
         DebugOutputList.Visible := False;
+        DebugCallStackList.Visible := False;
       end;
     tiDebugOutput:
       begin
         DebugOutputList.BringToFront;
         DebugOutputList.Visible := True;
         CompilerOutputList.Visible := False;
+        DebugCallStackList.Visible := False;
+      end;
+    tiDebugCallStack:
+      begin
+        DebugCallStackList.BringToFront;
+        DebugCallStackList.Visible := True;
+        CompilerOutputList.Visible := False;
+        DebugOutputList.Visible := False;
       end;
   end;
 end;

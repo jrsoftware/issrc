@@ -346,7 +346,7 @@ procedure ProcessCommandLine;
 
   procedure ShowBanner;
   begin
-    WriteStdOut('Inno Setup 5 Command-Line Compiler');
+    WriteStdOut('Inno Setup 6 Command-Line Compiler');
     WriteStdOut('Copyright (C) 1997-2019 Jordan Russell. All rights reserved.');
     WriteStdOut('Portions Copyright (C) 2000-2019 Martijn Laan');
     if IsppMode then begin

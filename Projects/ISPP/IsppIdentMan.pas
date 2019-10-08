@@ -95,7 +95,7 @@ type
     procedure DefineVariable(const Name: string; Index: Integer;
       const Value: TIsppVariant; Scope: TDefineScope);
     procedure Delete(const Name: string; Scope: TDefineScope);
-    procedure DimVariable(const Name: string; Length: Integer; Scope: TDefineScope; ReDim: Boolean);
+    procedure DimVariable(const Name: string; Length: Integer; Scope: TDefineScope; var ReDim: Boolean);
     function GetIdent(const Name: string; out CallContext: ICallContext): TIdentType;
     function TypeOf(const Name: string): Byte;
     function DimOf(const Name: String): Integer;
@@ -830,7 +830,7 @@ begin
 end;
 
 procedure TIdentManager.DimVariable(const Name: string; Length: Integer;
-  Scope: TDefineScope; ReDim: Boolean);
+  Scope: TDefineScope; var ReDim: Boolean);
 var
   V, VOld: PVariable;
   I, ReDimIndex: Integer;
@@ -845,6 +845,7 @@ begin
          ((PIdent(FVarMan[ReDimIndex]).IdentType <> itVariable) or
           (PVariable(FVarMan[ReDimIndex]).Dim = 0)) then
         ReDimIndex := -1; //not a variable or not an array, #dim normally
+      ReDim := ReDimIndex <> -1;
     end else
       ReDimIndex := -1;
 

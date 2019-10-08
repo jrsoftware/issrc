@@ -2,13 +2,11 @@ unit DebugClient;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Debug info stuff
-
-  $jrsoftware: issrc/Projects/DebugClient.pas,v 1.29 2010/10/30 19:50:37 jr Exp $
 }
 
 interface
@@ -21,8 +19,11 @@ var
   DebugClientCompiledCodeText: AnsiString;
   DebugClientCompiledCodeDebugInfo: AnsiString;
 
+type
+  TDebugNotifyGetCallStack = function(var CallStackCount: Cardinal): String of object;
+
 function DebugNotify(Kind: TDebugEntryKind; Index: Integer;
-  var ADebugContinueStepOver: Boolean): Boolean;
+  var ADebugContinueStepOver: Boolean; const GetCallStack: TDebugNotifyGetCallStack = nil): Boolean;
 procedure DebugNotifyException(Exception: String; Kind: TDebugEntryKind; Index: Integer);
 function DebugNotifyIntermediate(Kind: TDebugEntryKind; Index: Integer;
   var ADebugContinueStepOver: Boolean): Boolean;
@@ -93,14 +94,16 @@ begin
 end;
 
 function InternalDebugNotify(DebuggerMsg: UINT; Kind: TDebugEntryKind;
-  Index: Integer; var ADebugContinueStepOver: Boolean): Boolean;
+  Index: Integer; var ADebugContinueStepOver: Boolean;
+  const GetCallStack: TDebugNotifyGetCallStack = nil; const GetCallStackData: Pointer = nil): Boolean;
 { Returns True if the debugger paused. ADebugContinueStepOver is set to True
   if the debugger paused and the user resumed via Step Over, False otherwise. }
 var
-  SaveAppTitle: String;
+  SaveAppTitle, CallStack: String;
   WindowList: Pointer;
   Msg: TMsg;
   TopWindow: HWND;
+  CallStackCount: Cardinal;
 begin
   Result := False;
   ADebugContinueStepOver := False;
@@ -113,6 +116,13 @@ begin
     { Don't pause }
     Exit;
   end;
+
+  if Assigned(GetCallStack) then begin
+    CallStack := GetCallStack(CallStackCount);
+    SendMessage(DebugWnd, WM_Debugger_CallStackCount, CallStackCount, 0);
+    SendCopyDataMessageStr(DebugWnd, DebugClientWnd, CD_Debugger_CallStackW, CallStack);
+  end;
+
   Result := True;
 
   { Wait until we get clearance to continue }
@@ -157,17 +167,18 @@ begin
 end;
 
 function DebugNotify(Kind: TDebugEntryKind; Index: Integer;
-  var ADebugContinueStepOver: Boolean): Boolean;
+  var ADebugContinueStepOver: Boolean;
+  const GetCallStack: TDebugNotifyGetCallStack = nil): Boolean;
 begin
   Result := InternalDebugNotify(WM_Debugger_Stepped, Kind, Index,
-    ADebugContinueStepOver);
+    ADebugContinueStepOver, GetCallStack);
 end;
 
 function DebugNotifyIntermediate(Kind: TDebugEntryKind; Index: Integer;
   var ADebugContinueStepOver: Boolean): Boolean;
 begin
   Result := InternalDebugNotify(WM_Debugger_SteppedIntermediate, Kind, Index,
-    ADebugContinueStepOver);
+    ADebugContinueStepOver, nil);
 end;
 
 procedure DebugNotifyException(Exception: String; Kind: TDebugEntryKind; Index: Integer);

@@ -92,7 +92,7 @@ function toggle_node(id)
 	objContent.style.display = expanding ? "" : "none";
 
 	document.getElementById("nodeimg_" + id).src =
-		expanding ? "images/contentsheadopen.gif" : "images/contentsheadclosed.gif";
+		expanding ? "images/contentsheadopen.png" : "images/contentsheadclosed.png";
 
 	if (expanding) {
 		// Scroll expanded items into view. This is similar to calling scrollIntoView() but

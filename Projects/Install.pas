@@ -537,8 +537,8 @@ var
     begin
       { Check opposite administrative install mode. }
       ExistingAtOppositeAdminInstallMode := ExistingInstallationAt(RegView, OppositeRootKey);
-      if RootKeyIsHKLM then begin
-        { Opposite (HKCU) is shared for 32-bit and 64-bit so don't log bitness. }
+      if RootKeyIsHKLM or not IsWin64 then begin
+        { Opposite (HKCU) is shared for 32-bit and 64-bit so don't log bitness. Also don't log bitness on a 32-bit system. }
         LogFmt('Detected previous %s install? %s',
           [AdminInstallModeNames[OppositeRootKeyIsHKLM {always False}], SYesNo[ExistingAtOppositeAdminInstallMode]])
       end else begin
@@ -547,23 +547,26 @@ var
           [AdminInstallModeNames[OppositeRootKeyIsHKLM {always True}], BitInstallModeNames[RegViewIs64Bit], SYesNo[ExistingAtOppositeAdminInstallMode]]);
       end;
 
-      { Check opposite 32-bit or 64-bit install mode. }
-      if RootKeyIsHKLM then begin
-        { HKLM is not shared for 32-bit and 64-bit so check it for opposite 32-bit or 64-bit install mode. Not checking HKCU
-          since HKCU is shared for 32-bit and 64-bit mode and we already checked HKCU above. }
-        ExistingAtOpposite64BitInstallMode := ExistingInstallationAt(OppositeRegView, RootKey {always HKLM});
-        LogFmt('Detected previous %s %s install? %s',
-          [AdminInstallModeNames[RootKeyIsHKLM {always True}], BitInstallModeNames[OppositeRegViewIs64Bit], SYesNo[ExistingAtOpposite64BitInstallMode]]);
-      end else begin
-        { HKCU is shared for 32-bit and 64-bit so not checking it but we do still need to check HKLM for opposite 32-bit or
-          64-bit install mode since we haven't already done that. }
-        ExistingAtOpposite64BitInstallMode := ExistingInstallationAt(OppositeRegView, OppositeRootKey {always HKLM});
-        if ExistingAtOpposite64BitInstallMode then
-          ExistingAtOppositeAdminInstallMode := True;
-        LogFmt('Detected previous %s %s install? %s',
-          [AdminInstallModeNames[OppositeRootKeyIsHKLM {always True}], BitInstallModeNames[OppositeRegViewIs64Bit], SYesNo[ExistingAtOpposite64BitInstallMode]]);
-      end;
-
+      if IsWin64 then begin
+        { Check opposite 32-bit or 64-bit install mode. }
+        if RootKeyIsHKLM then begin
+          { HKLM is not shared for 32-bit and 64-bit so check it for opposite 32-bit or 64-bit install mode. Not checking HKCU
+            since HKCU is shared for 32-bit and 64-bit mode and we already checked HKCU above. }
+          ExistingAtOpposite64BitInstallMode := ExistingInstallationAt(OppositeRegView, RootKey {always HKLM});
+          LogFmt('Detected previous %s %s install? %s',
+            [AdminInstallModeNames[RootKeyIsHKLM {always True}], BitInstallModeNames[OppositeRegViewIs64Bit], SYesNo[ExistingAtOpposite64BitInstallMode]]);
+        end else begin
+          { HKCU is shared for 32-bit and 64-bit so not checking it but we do still need to check HKLM for opposite 32-bit or
+            64-bit install mode since we haven't already done that. }
+          ExistingAtOpposite64BitInstallMode := ExistingInstallationAt(OppositeRegView, OppositeRootKey {always HKLM});
+          if ExistingAtOpposite64BitInstallMode then
+            ExistingAtOppositeAdminInstallMode := True;
+          LogFmt('Detected previous %s %s install? %s',
+            [AdminInstallModeNames[OppositeRootKeyIsHKLM {always True}], BitInstallModeNames[OppositeRegViewIs64Bit], SYesNo[ExistingAtOpposite64BitInstallMode]]);
+        end;
+      end else
+        ExistingAtOpposite64BitInstallMode := False;
+      
       { Mark new display name if needed. Note: currently we don't attempt to mark existing display names as well. }
       if ExistingAtOppositeAdminInstallMode or ExistingAtOpposite64BitInstallMode then begin
         if ExistingAtOppositeAdminInstallMode and ExistingAtOpposite64BitInstallMode then

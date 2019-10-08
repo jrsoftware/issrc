@@ -2,13 +2,11 @@ unit DropListBox;
 
 {
   Inno Setup
-  Copyright (C) 1997-2004 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   This unit provides a listbox with drop files support.
-
-  $jrsoftware: issrc/Components/DropListBox.pas,v 1.1 2004/06/05 16:07:10 mlaan Exp $
 }
 
 interface
@@ -30,6 +28,7 @@ type
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;
   published
     property Align;
+    property Anchors;
     property BorderStyle;
     property Color;
     property Columns;

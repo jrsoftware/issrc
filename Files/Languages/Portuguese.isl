@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.3+ Portuguese (Portugal) messages ***
+; *** Inno Setup version 6.0.3+ Portuguese (Portugal) messages ***
 ;
 ; Maintained by Nuno Silva (nars AT gmx.net)
 
@@ -24,6 +24,7 @@ ErrorTitle=Erro
 SetupLdrStartupMessage=Irá ser instalado o %1. Deseja continuar?
 LdrCannotCreateTemp=Não foi possível criar um ficheiro temporário. Instalação cancelada
 LdrCannotExecTemp=Não foi possível executar um ficheiro na directoria temporária. Instalação cancelada
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nErro %2: %3
@@ -37,13 +38,22 @@ WindowsServicePackRequired=Este programa necessita de %1 Service Pack %2 ou mais
 NotOnThisPlatform=Este programa não pode ser executado no %1.
 OnlyOnThisPlatform=Este programa deve ser executado no %1.
 OnlyOnTheseArchitectures=Este programa só pode ser instalado em versões do Windows preparadas para as seguintes arquitecturas:%n%n%1
-MissingWOW64APIs=A versão do Windows que está a utilizar não dispõe das funcionalidades necessárias para o Assistente de Instalação poder realizar uma instalação de 64-bit's. Para corrigir este problema, por favor instale o Service Pack %1.
 WinVersionTooLowError=Este programa necessita do %1 versão %2 ou mais recente.
 WinVersionTooHighError=Este programa não pode ser instalado no %1 versão %2 ou mais recente.
 AdminPrivilegesRequired=Deve iniciar sessão como administrador para instalar este programa.
 PowerUserPrivilegesRequired=Deve iniciar sessão como administrador ou membro do grupo de Super Utilizadores para instalar este programa.
 SetupAppRunningError=O Assistente de Instalação detectou que o %1 está em execução. Feche-o e de seguida clique em OK para continuar, ou clique em Cancelar para cancelar a instalação.
 UninstallAppRunningError=O Assistente de Desinstalação detectou que o %1 está em execução. Feche-o e de seguida clique em OK para continuar, ou clique em Cancelar para cancelar a desinstalação.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Seleccione o Modo de Instalação
+PrivilegesRequiredOverrideInstruction=Seleccione o Modo de Instalação
+PrivilegesRequiredOverrideText1=%1 pode ser instalado para todos os utilizadores (necessita de privilégios administrativos), ou só para si.
+PrivilegesRequiredOverrideText2=%1 pode ser instalado só para si, ou para todos os utilizadores (necessita de privilégios administrativos).
+PrivilegesRequiredOverrideAllUsers=Instalar para &todos os utilizadores
+PrivilegesRequiredOverrideAllUsersRecommended=Instalar para &todos os utilizadores (recomendado)
+PrivilegesRequiredOverrideCurrentUser=Instalar apenas para &mim
+PrivilegesRequiredOverrideCurrentUserRecommended=Instalar apenas para &mim (recomendado)
 
 ; *** Misc. errors
 ErrorCreatingDir=O Assistente de Instalação não consegue criar a directoria "%1"
@@ -75,7 +85,7 @@ ButtonNewFolder=&Criar Nova Pasta
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Seleccione o Idioma do Assistente de Instalação
-SelectLanguageLabel=Seleccione o idioma para usar durante a Instalação:
+SelectLanguageLabel=Seleccione o idioma para usar durante a Instalação.
 
 ; *** Common wizard text
 ClickNext=Clique em Seguinte para continuar ou em Cancelar para cancelar a instalação.
@@ -123,6 +133,7 @@ WizardSelectDir=Seleccione a localização de destino
 SelectDirDesc=Onde deverá ser instalado o [name]?
 SelectDirLabel3=O [name] será instalado na seguinte pasta.
 SelectDirBrowseLabel=Para continuar, clique em Seguinte. Se desejar seleccionar uma pasta diferente, clique em Procurar.
+DiskSpaceGBLabel=É necessário pelo menos [gb] GB de espaço livre em disco.
 DiskSpaceMBLabel=É necessário pelo menos [mb] MB de espaço livre em disco.
 CannotInstallToNetworkDrive=O Assistente de Instalação não pode instalar numa unidade de rede.
 CannotInstallToUNCPath=O Assistente de Instalação não pode instalar num caminho UNC.
@@ -150,6 +161,7 @@ NoUninstallWarningTitle=Componentes Encontrados
 NoUninstallWarning=O Assistente de Instalação detectou que os seguintes componentes estão instalados no seu computador:%n%n%1%n%nSe desseleccionar estes componentes eles não serão desinstalados.%n%nDeseja continuar?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=A selecção actual necessita de pelo menos [gb] GB de espaço em disco.
 ComponentsDiskSpaceMBLabel=A selecção actual necessita de pelo menos [mb] MB de espaço em disco.
 
 ; *** "Select Additional Tasks" wizard page
@@ -190,6 +202,7 @@ ApplicationsFound2=As seguintes aplicações estão a utilizar ficheiros que necess
 CloseApplications=&Fechar as aplicações automaticamente
 DontCloseApplications=&Não fechar as aplicações
 ErrorCloseApplications=O Assistente de Instalação não conseguiu fechar todas as aplicações automaticamente. Antes de continuar é recomendado que feche todas as aplicações que utilizem ficheiros que necessitem de ser actualizados pelo Assistente de Instalação.
+PrepareToInstallNeedsRestart=O Assistente de Instalação necessita reiniciar o seu computador. Depois de reiniciar o computador, execute novamente o Assistente de Instalação para completar a instalação do [name].%n%nDeseja reiniciar agora?
 
 ; *** "Installing" wizard page
 WizardInstalling=A instalar
@@ -198,7 +211,7 @@ InstallingLabel=Aguarde enquanto o Assistente de Instalação instala o [name] no 
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Instalação do [name] concluída
 FinishedLabelNoIcons=O Assistente de Instalação concluiu a instalação do [name] no seu computador.
-FinishedLabel=O Assistente de Instalação concluiu a instalação do [name] no seu computador. A aplicação pode ser iniciada através dos ícones instalados.
+FinishedLabel=O Assistente de Instalação concluiu a instalação do [name] no seu computador. A aplicação pode ser iniciada através dos ícones de atalho instalados.
 ClickFinish=Clique em Concluir para finalizar o Assistente de Instalação.
 FinishedRestartLabel=Para completar a instalação do [name], o Assistente de Instalação deverá reiniciar o seu computador. Deseja reiniciar agora?
 FinishedRestartMessage=Para completar a instalação do [name], o Assistente de Instalação deverá reiniciar o seu computador.%n%nDeseja reiniciar agora?
@@ -219,7 +232,10 @@ SelectDirectoryLabel=Indique a localização do disco seguinte.
 
 ; *** Installation phase messages
 SetupAborted=A instalação não está completa.%n%nCorrija o problema e execute o Assistente de Instalação novamente.
-EntryAbortRetryIgnore=Clique em Repetir para tentar novamente, Ignorar para continuar de qualquer forma, ou Abortar para cancelar a instalação.
+AbortRetryIgnoreSelectAction=Seleccione uma acção
+AbortRetryIgnoreRetry=&Tentar novamente
+AbortRetryIgnoreIgnore=&Ignorar o erro e continuar
+AbortRetryIgnoreCancel=Cancelar a instalação
 
 ; *** Installation status messages
 StatusClosingApplications=A fechar aplicações...
@@ -250,11 +266,13 @@ ErrorRegWriteKey=Erro ao escrever na chave de registo:%n%1\%2
 ErrorIniEntry=Erro ao criar entradas em INI no ficheiro "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Clique em Repetir para tentar novamente, Ignorar para ignorar este ficheiro (não recomendado), ou Abortar para cancelar a instalação.
-FileAbortRetryIgnore2=Clique em Repetir para tentar novamente, Ignorar para continuar de qualquer forma (não recomendado), ou Abortar para cancelar a instalação.
+FileAbortRetryIgnoreSkipNotRecommended=&Ignorar este ficheiro (não recomendado)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorar este erro e continuar (não recomendado)
 SourceIsCorrupted=O ficheiro de origem está corrompido
 SourceDoesntExist=O ficheiro de origem "%1" não existe
-ExistingFileReadOnly=O ficheiro existente tem o atributo "só de leitura".%n%nClique em Repetir para remover o atributo "só de leitura" e tentar novamente, Ignorar para ignorar este ficheiro, ou Abortar para cancelar a instalação.
+ExistingFileReadOnly2=O ficheiro existente não pode ser substituído porque tem o atributo "só de leitura".
+ExistingFileReadOnlyRetry=&Remover o atributo "só de leitura" e tentar novamente
+ExistingFileReadOnlyKeepExisting=&Manter o ficheiro existente
 ErrorReadingExistingDest=Ocorreu um erro ao tentar ler o ficheiro existente:
 FileExists=O ficheiro já existe.%n%nDeseja substituí-lo?
 ExistingFileNewer=O ficheiro existente é mais recente que o que está a ser instalado. É recomendado que mantenha o ficheiro existente.%n%nDeseja manter o ficheiro existente?
@@ -268,6 +286,16 @@ ErrorRenamingTemp=Ocorreu um erro ao tentar mudar o nome de um ficheiro na direc
 ErrorRegisterServer=Não é possível registar o DLL/OCX: %1
 ErrorRegSvr32Failed=O RegSvr32 falhou com o código de saída %1
 ErrorRegisterTypeLib=Não foi possível registar a livraria de tipos: %1
+
+; *** Uninstall display name markings
+; used for example as 'My Program (32-bit)'
+UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=Todos os utilizadores
+UninstallDisplayNameMarkCurrentUser=Utilizador actual
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Ocorreu um erro ao tentar abrir o ficheiro LEIAME.
@@ -305,9 +333,9 @@ ShutdownBlockReasonUninstallingApp=A desinstalar %1.
 [CustomMessages]
 
 NameAndVersion=%1 versão %2
-AdditionalIcons=Ícones adicionais:
-CreateDesktopIcon=Criar ícone no Ambiente de &Trabalho
-CreateQuickLaunchIcon=&Criar ícone na barra de Iniciação Rápida
+AdditionalIcons=Atalhos adicionais:
+CreateDesktopIcon=Criar atalho no Ambiente de &Trabalho
+CreateQuickLaunchIcon=&Criar atalho na barra de Iniciação Rápida
 ProgramOnTheWeb=%1 na Web
 UninstallProgram=Desinstalar o %1
 LaunchProgram=Executar o %1

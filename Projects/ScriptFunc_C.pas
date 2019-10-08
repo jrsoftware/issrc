@@ -2,7 +2,7 @@ unit ScriptFunc_C;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -151,6 +151,8 @@ begin
   RegisterFunctionTable(InstFuncTable);
   RegisterFunctionTable(InstFnc2Table);
   RegisterFunctionTable(MainTable);
+  ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));
+  ObsoleteFunctionWarnings.Add('IsTaskSelected', Format(SCompilerCodeFunctionRenamed, ['IsTaskSelected', 'WizardIsTaskSelected']));
   RegisterFunctionTable(MsgsTable);
   RegisterDelphiFunctionTable(MsgsDelphiTable);
   RegisterFunctionTable(SystemTable);

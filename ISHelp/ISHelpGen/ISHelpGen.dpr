@@ -405,7 +405,7 @@ begin
           if Pos('ms-its:', S) = 1 then
             Result := Result + Format('<a href="%s">%s</a>', [S, ParseFormattedText(Node)])
           else
-            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.gif" alt=" [external link]" />',
+            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.png" alt=" [external link]" />',
               [S, S, ParseFormattedText(Node)]);
         end;
       elHeading:
@@ -701,7 +701,7 @@ var
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
-    SL.Add(Format('<tr><td><img src="images/contentstopic.gif" alt="" /></td>' +
+    SL.Add(Format('<tr><td><img src="images/contentstopic.png" alt="" /></td>' +
       '<td><a href="%s" target="bodyframe">%s</a></td></tr>',
       [EscapeHTML(GenerateTopicLink(TopicName, '')), EscapeHTML(Title)]));
   end;
@@ -728,7 +728,7 @@ var
           elContentsHeading:
             begin
               Inc(CurHeadingID);
-              SL.Add(Format('<tr id="nodecaption_%d"><td><img id="nodeimg_%d" src="images/contentsheadopen.gif" alt="&gt;&nbsp;" onclick="toggle_node(%d);" /></td>' +
+              SL.Add(Format('<tr id="nodecaption_%d"><td><img id="nodeimg_%d" src="images/contentsheadopen.png" alt="&gt;&nbsp;" onclick="toggle_node(%d);" /></td>' +
                 '<td><a href="javascript:toggle_node(%d);">%s</a></td></tr>',
                 [CurHeadingID, CurHeadingID, CurHeadingID, CurHeadingID, EscapeHTML(Node.Attributes['title'])]));
               SL.Add(Format('<tr id="nodecontent_%d"><td></td><td>', [CurHeadingID]));

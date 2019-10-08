@@ -1,16 +1,16 @@
-; *** Inno Setup version 6.0.0+ Ukrainian messages ***
-; Author: Dmitry Onischuk
+; *** Inno Setup version 6.0.3+ Ukrainian messages ***
+; Author: Dmytro Onyshchuk
 ; E-Mail: mr.lols@yandex.ua
 ; Web: http://counter-strike.com.ua/
 ; Please report all spelling/grammar errors, and observations.
-; Version 2019.01.21
+; Version 2019.10.04
 
-; *** Український переклад Inno Setup для версії 6.0.0 та вище***
+; *** Український переклад Inno Setup для версії 6.0.3 та вище***
 ; Автор перекладу: Дмитро Онищук
 ; E-Mail: mr.lols@yandex.ua
 ; Сайт: http://counter-strike.com.ua/
 ; Будь ласка, повідомляйте про всі знайдені помилки та зауваження.
-; Версія перекладу 2019.01.21
+; Версія перекладу 2019.10.04
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -60,7 +60,6 @@ WindowsServicePackRequired=Ця програма вимагає %1 Service Pack %2 або більш пізн
 NotOnThisPlatform=Ця програма не буде працювати під %1.
 OnlyOnThisPlatform=Ця програма повинна бути відкрита під %1.
 OnlyOnTheseArchitectures=Ця програма може бути встановлена лише на комп'ютерах під управлінням Windows для наступних архітектур процесорів:%n%n%1
-MissingWOW64APIs=В вашій версії Windows відсутні функції для виконання 64-бітного встановлення. Щоб усунути цю проблему встановіть пакет оновлень Service Pack %1.
 WinVersionTooLowError=Ця програма вимагає %1 версії %2 або більш пізню версію.
 WinVersionTooHighError=Ця програма не може бути встановлена на %1 версії %2 або більш пізню версію.
 AdminPrivilegesRequired=Щоб встановити цю програму ви повинні увійти до системи як адміністратор.
@@ -156,6 +155,7 @@ WizardSelectDir=Вибір шляху встановлення
 SelectDirDesc=Куди ви бажаєте встановити [name]?
 SelectDirLabel3=Програма встановить [name] у наступну папку.
 SelectDirBrowseLabel=Натисніть «Далі», щоб продовжити. Якщо ви бажаєте вибрати іншу папку, натисніть «Огляд».
+DiskSpaceGBLabel=Необхідно як мінімум [gb] Гб вільного дискового простору.
 DiskSpaceMBLabel=Необхідно як мінімум [mb] Mб вільного дискового простору.
 CannotInstallToNetworkDrive=Встановлення не може проводитися на мережевий диск.
 CannotInstallToUNCPath=Встановлення не може проводитися по мережевому шляху.
@@ -183,6 +183,7 @@ NoUninstallWarningTitle=Компоненти існують
 NoUninstallWarning=Виявлено, що наступні компоненти вже встановленні на вашому комп’ютері:%n%n%1%n%nВідміна вибору цих компонентів не видалить їх.%n%nВи бажаєте продовжити?
 ComponentSize1=%1 Kб
 ComponentSize2=%1 Mб
+ComponentsDiskSpaceGBLabel=Даний вибір вимагає як мінімум [gb] Гб дискового простору.
 ComponentsDiskSpaceMBLabel=Даний вибір вимагає як мінімум [mb] Mб дискового простору.
 
 ; *** Сторінка "Вибір додаткових завдань"
@@ -223,6 +224,7 @@ ApplicationsFound2=Наступні програми використовують файли, які повинні бути онов
 CloseApplications=&Автоматично закрити програми
 DontCloseApplications=&Не закривати програми
 ErrorCloseApplications=Програма встановлення не може автоматично закрити всі програми. Рекомендується закрити всі програми, що використовують файли, які повинні бути оновлені програмою встановлення, перш ніж продовжити.
+PrepareToInstallNeedsRestart=Програмі встановлення необхідно перезавантажити ваш ПК. Після перезавантаження ПК, запустіть встановлення знову для завершення встановлення [name]%n%nВи бажаєте перезавантажити зараз?
 
 ; *** Сторінка "Встановлення"
 WizardInstalling=Встановлення

@@ -102,11 +102,65 @@ end;</pre></example>
         <name>WizardSelectedComponents</name>
         <prototype>function WizardSelectedComponents(const Descriptions: Boolean): String;</prototype>
         <description><p>Returns a comma-separated list of names or descriptions of the components selected by the user.</p></description>
+        <seealso><p><link topic="isxfunc_WizardIsComponentSelected">WizardIsComponentSelected</link><br />
+<link topic="isxfunc_WizardSelectComponents">WizardSelectComponents</link></p></seealso>
+      </function>
+      <function>
+        <name>WizardIsComponentSelected</name>
+        <prototype>function WizardIsComponentSelected(const Components: String): Boolean;</prototype>
+        <description><p>Returns True if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Components parameter</link>.</p></description>
+        <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link><br />
+<link topic="isxfunc_WizardSelectComponents">WizardSelectComponents</link></p></seealso>
+        <example><pre>begin
+  if WizardIsComponentSelected('helpfiles') then
+    // the 'helpfiles' component is selected
+end;</pre></example>
+      </function>
+      <function>
+        <name>WizardSelectComponents</name>
+        <prototype>procedure WizardSelectComponents(const Components: String);</prototype>
+        <description><p>Selects the specified comma separated list of component names.</p>
+<p>If a component name is prefixed with a "*" character, any child components will be selected as well (except for those that include the <tt>dontinheritcheck</tt> flag). If a component name is prefixed with a "!" character, the component will be deselected.</p>
+<p>This function does not change the state of unspecified components. This function can change the state of specified components that include the <tt>fixed</tt> flag.</p>
+</description>
+        <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link><br />
+<link topic="isxfunc_WizardIsComponentSelected">WizardIsComponentSelected</link></p></seealso>
+        <example><pre>begin
+  WizardSelectComponents('!helpfiles');
+  // the 'helpfiles' component is deselected
+end;</pre></example>
       </function>
       <function>
         <name>WizardSelectedTasks</name>
         <prototype>function WizardSelectedTasks(const Descriptions: Boolean): String;</prototype>
         <description><p>Returns a comma-separated list of names or descriptions of the tasks selected by the user.</p></description>
+        <seealso><p><link topic="isxfunc_WizardIsTaskSelected">WizardIsTaskSelected</link><br />
+<link topic="isxfunc_WizardSelectTasks">WizardSelectTasks</link></p></seealso>
+      </function>
+      <function>
+        <name>WizardIsTaskSelected</name>
+        <prototype>function WizardIsTaskSelected(const Tasks: String): Boolean;</prototype>
+        <description><p>Returns True if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Tasks parameter</link>.</p></description>
+        <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link><br />
+<link topic="isxfunc_WizardSelectTasks">WizardSelectTasks</link></p></seealso>
+        <example><pre>begin
+  if WizardIsTaskSelected('desktopicon') then
+    // the 'desktopicon' task is selected
+end;</pre></example>
+      </function>
+      <function>
+        <name>WizardSelectTasks</name>
+        <prototype>procedure WizardSelectTasks(const Tasks: String);</prototype>
+        <description><p>Selects the specified comma separated list of task names.</p>
+<p>If a task name is prefixed with a "!" character, the task will be deselected.</p>
+<p>This function does not change the state of unspecified tasks.</p>
+</description>
+        <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link><br />
+<link topic="isxfunc_WizardIsTaskSelected">WizardIsTaskSelected</link></p></seealso>
+        <example><pre>begin
+  WizardSelectTasks('!desktopicon');
+  // the 'desktopicon' task is deselected
+end;</pre></example>
       </function>
       <function>
         <name>WizardSilent</name>
@@ -152,26 +206,6 @@ end;</pre></example>
         <prototype>function ExpandConstantEx(const S: String; const CustomConst, CustomValue: String): String;</prototype>
         <description><p>Changes all constants in S to their values. Additionally, any constant equal to CustomConst will be changed to CustomValue.</p>
 <p>An exception will be raised if there was an error expanding the constants.</p></description>
-      </function>
-    </subcategory>
-    <subcategory>
-      <function>
-        <name>IsComponentSelected</name>
-        <prototype>function IsComponentSelected(const Components: String): Boolean;</prototype>
-        <description><p>Returns True if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Components parameter</link>.</p></description>
-        <example><pre>begin
-  if IsComponentSelected('helpfiles') then
-    // the 'helpfiles' component is selected
-end;</pre></example>
-      </function>
-      <function>
-        <name>IsTaskSelected</name>
-        <prototype>function IsTaskSelected(const Tasks: String): Boolean;</prototype>
-        <description><p>Returns True if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Tasks parameter</link>.</p></description>
-        <example><pre>begin
-  if IsTaskSelected('desktopicon') then
-    // the 'desktopicon' task is selected
-end;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -2129,8 +2163,8 @@ Page := CreateInputQueryPage(wpWelcome,
   'Please specify your name and the company for whom you work, then click Next.');
 
 // Add items (False means it's not a password edit)
-Page.Add('Name:', False);
-Page.Add('Company:', False);
+Page.Add('&amp;Name:', False);
+Page.Add('&amp;Company:', False);
 
 // Set initial values (optional)
 Page.Values[0] := ExpandConstant('{sysuserinfoname}');
@@ -2141,7 +2175,8 @@ Page.Values[1] := ExpandConstant('{sysuserinfoorg}');
 // Read values into variables
 UserName := Page.Values[0];
 UserCompany := Page.Values[1];
-</pre></example>
+</pre>
+<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TInputQueryWizardPage">TInputQueryWizardPage</link></p></seealso>
       </function>
       <function>
@@ -2163,7 +2198,7 @@ Page := CreateInputOptionPage(wpWelcome,
   False, False);
 
 // Add items
-Page.Add('I am a registered user');
+Page.Add('&amp;I am a registered user');
 
 // Set initial values (optional)
 Page.Values[0] := False;
@@ -2172,7 +2207,8 @@ Page.Values[0] := False;
 
 // Read values into variables
 IsRegisteredUser := Page.Values[0];
-</pre></example>
+</pre>
+<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TInputOptionWizardPage">TInputOptionWizardPage</link></p></seealso>
       </function>
       <function>
@@ -2203,7 +2239,8 @@ Page.Values[0] := ExpandConstant('{userappdata}\My Company\My Program');
 
 // Read value into variable
 DataDir := Page.Values[0];
-</pre></example>
+</pre>
+<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TInputDirWizardPage">TInputDirWizardPage</link></p></seealso>
       </function>
       <function>
@@ -2224,7 +2261,7 @@ Page := CreateInputFilePage(wpWelcome,
   'Select where Notepad is located, then click Next.');
 
 // Add item
-Page.Add('Location of notepad.exe:',         // caption
+Page.Add('&amp;Location of notepad.exe:',        // caption
   'Executable files|*.exe|All files|*.*',    // filters
   '.exe');                                   // default extension
 
@@ -2235,7 +2272,8 @@ Page.Values[0] := ExpandConstant('{win}\notepad.exe');
 
 // Read value into variable
 NotepadLocation := Page.Values[0];
-</pre></example>
+</pre>
+<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TInputFileWizardPage">TInputFileWizardPage</link></p></seealso>
       </function>
       <function>
@@ -2251,7 +2289,8 @@ NotepadLocation := Page.Values[0];
 Page := CreateOutputMsgPage(wpWelcome,
   'Information', 'Please read the following important information before continuing.',
   'Blah blah blah.');
-</pre></example>
+</pre>
+<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TOutputMsgWizardPage">TOutputMsgWizardPage</link></p></seealso>
       </function>
       <function>
@@ -2268,7 +2307,8 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
   'Information', 'Please read the following important information before continuing.',
   'When you are ready to continue with Setup, click Next.',
   'Blah blah blah.');
-</pre></example>
+</pre>
+<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TOutputMsgMemoWizardPage">TOutputMsgMemoWizardPage</link></p></seealso>
       </function>
       <function>
@@ -2281,14 +2321,14 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To set the text on the page, call the <tt>SetText</tt> method. <tt>SetText</tt> takes two string parameters: use the first to tell the user what you're doing, and the second to display a file or directory name. Either parameter may be blank.</p>
 <p>To display or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.
 </p></remarks>
-        <example><p>See <i>CodeDlg.iss</i> for an example.</p></example>
+        <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> for examples.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link></p></seealso>
       </function>
       <function>
         <name>CreateCustomPage</name>
         <prototype>function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;</prototype>
         <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their Parent properties to the Surface property of the <link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link> instance returned by this function).</p></description>
-        <example><p>See <i>CodeClasses.iss</i> for an example.</p></example>
+        <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> for examples.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></p></seealso>
       </function>
     </subcategory>
@@ -2570,6 +2610,17 @@ end;</pre></example>
         <prototype>procedure Beep;</prototype>
         <description><p>Beeps.</p></description>
         <example><pre>Beep; //Beeps</pre></example>
+      </function>
+      <function>
+        <name>Set8087CW</name>
+        <prototype>procedure Set8087CW(NewCW: Word);</prototype>
+        <description><p>Sets the FPU control word.</p></description>
+        <example><pre>Set8087CW($133f); //Disables all fpu exceptions }</pre></example>
+      </function>
+      <function>
+        <name>Get8087CW</name>
+        <prototype>function Get8087CW: Word;</prototype>
+        <description><p>Returns the current value of the FPU control word.</p></description>
       </function>
     </subcategory>
     <subcategory>

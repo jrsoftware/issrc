@@ -30,14 +30,15 @@ uses
   CompWizard in 'CompWizard.pas' {WizardForm},
   CompWizardFile in 'CompWizardFile.pas' {WizardFileForm},
   CompFileAssoc in 'CompFileAssoc.pas',
-  TmSchemaISX in '..\Components\TmSchemaISX.pas',
-  UxThemeISX in '..\Components\UxThemeISX.pas',
+  TmSchema in '..\Components\TmSchema.pas',
+  UxTheme in '..\Components\UxTheme.pas',
   DebugStruct in 'DebugStruct.pas',
   BrowseFunc in 'BrowseFunc.pas',
   CompSignTools in 'CompSignTools.pas' {SignToolsForm},
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
-  ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas';
+  ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas',
+  ModernColors in '..\Components\ModernColors.pas';
 
 {$R *.res}
 {$R Compil32.manifest.res}

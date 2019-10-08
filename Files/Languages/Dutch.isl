@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.0.0+ Dutch messages ***
+﻿; *** Inno Setup version 6.0.3+ Dutch messages ***
 ;
 ; This file is based on user-contributed translations by various authors
 ;
@@ -134,6 +134,7 @@ WizardSelectDir=Kies de doelmap
 SelectDirDesc=Waar moet [name] geïnstalleerd worden?
 SelectDirLabel3=Setup zal [name] in de volgende map installeren.
 SelectDirBrowseLabel=Klik op Volgende om door te gaan. Klik op Bladeren om een andere map te kiezen.
+DiskSpaceGBLabel=Er is ten minste [gb] GB vrije schijfruimte vereist.
 DiskSpaceMBLabel=Er is ten minste [mb] MB vrije schijfruimte vereist.
 CannotInstallToNetworkDrive=Setup kan niet installeren naar een netwerkstation.
 CannotInstallToUNCPath=Setup kan niet installeren naar een UNC-pad.
@@ -160,6 +161,7 @@ NoUninstallWarningTitle=Component bestaat
 NoUninstallWarning=Setup heeft gedetecteerd dat de volgende componenten al geïnstalleerd zijn op uw computer:%n%n%1%n%nAls u de selectie van deze componenten ongedaan maakt, worden ze niet verwijderd.%n%nWilt u toch doorgaan?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=De huidige selectie vereist ten minste [gb] GB vrije schijfruimte.
 ComponentsDiskSpaceMBLabel=De huidige selectie vereist ten minste [mb] MB vrije schijfruimte.
 
 ; *** "Select Additional Tasks" wizard page
@@ -193,13 +195,14 @@ ReadyMemoTasks=Extra taken:
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Bezig met het voorbereiden van de installatie
 PreparingDesc=Setup is bezig met het voorbereiden van de installatie van [name].
-PreviousInstallNotCompleted=De installatie/verwijdering van een vorig programma is niet voltooid. U moet uw computer opnieuw opstarten om die installatie te voltooien.%n%nStart [name] Setup nogmaals als uw computer opnieuw is opgestart.
+PreviousInstallNotCompleted=De installatie/verwijdering van een vorig programma is niet voltooid. U moet uw computer opnieuw opstarten om die installatie te voltooien.%n%nStart Setup nogmaals nadat uw computer opnieuw is opgestart om de installatie van [name] te voltooien.
 CannotContinue=Setup kan niet doorgaan. Klik op annuleren om af te sluiten.
 ApplicationsFound=De volgende programma's gebruiken bestanden die moeten worden bijgewerkt door Setup. U wordt aanbevolen Setup toe te staan om automatisch deze programma's af te sluiten.
 ApplicationsFound2=De volgende programma's gebruiken bestanden die moeten worden bijgewerkt door Setup. U wordt aanbevolen Setup toe te staan om automatisch deze programma's af te sluiten. Nadat de installatie is voltooid zal Setup proberen de applicaties opnieuw op te starten.
 CloseApplications=&Programma's automatisch afsluiten
 DontCloseApplications=Programma's &niet afsluiten
 ErrorCloseApplications=Setup kon niet alle programma's automatisch afsluiten. U wordt aanbevolen alle programma's die bestanden gebruiken die moeten worden bijgewerkt door Setup af te sluiten voordat u verder gaat.
+PrepareToInstallNeedsRestart=Setup moet uw computer opnieuw opstarten. Start Setup nogmaals nadat uw computer opnieuw is opgestart om de installatie van [name] te voltooien.%n%nWilt u nu opnieuw opstarten?
 
 ; *** "Installing" wizard page
 WizardInstalling=Bezig met installeren

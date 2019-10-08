@@ -40,11 +40,71 @@ Name: "component"; Description: "Component";
 Name: "task"; Description: "Task";
 
 [Code]
+var
+  OutputProgressWizardPage: TOutputProgressWizardPage;
+  OutputProgressWizardPageAfterID: Integer;
+
 procedure InitializeWizard;
+var
+  InputQueryWizardPage: TInputQueryWizardPage;
+  InputOptionWizardPage: TInputOptionWizardPage;
+  InputDirWizardPage: TInputDirWizardPage;
+  InputFileWizardPage: TInputFileWizardPage;
+  OutputMsgWizardPage: TOutputMsgWizardPage;
+  OutputMsgMemoWizardPage: TOutputMsgMemoWizardPage;
+  AfterID: Integer;
 begin
   WizardForm.PasswordEdit.Text := '{#Password}';
+
+  AfterID := wpSelectTasks;
   
-  CreateCustomPage(wpSelectTasks, 'Empty Custom Page', 'This is an empty custom page.'); 
+  AfterID := CreateCustomPage(AfterID, 'CreateCustomPage', 'ADescription').ID;
+  
+  InputQueryWizardPage := CreateInputQueryPage(AfterID, 'CreateInputQueryPage', 'ADescription', 'ASubCaption');
+  InputQueryWizardPage.Add('&APrompt:', False);
+  AfterID := InputQueryWizardPage.ID;
+  
+  InputOptionWizardPage := CreateInputOptionPage(AfterID, 'CreateInputOptionPage', 'ADescription', 'ASubCaption', False, False);
+  InputOptionWizardPage.Add('&AOption');
+  AfterID := InputOptionWizardPage.ID;
+
+  InputDirWizardPage := CreateInputDirPage(AfterID, 'CreateInputDirPage', 'ADescription', 'ASubCaption', False, 'ANewFolderName');
+  InputDirWizardPage.Add('&APrompt:');
+  InputDirWizardPage.Values[0] := 'C:\';
+  AfterID := InputDirWizardPage.ID;
+
+  InputFileWizardPage := CreateInputFilePage(AfterID, 'CreateInputFilePage', 'ADescription', 'ASubCaption');
+  InputFileWizardPage.Add('&APrompt:', 'Executable files|*.exe|All files|*.*', '.exe');
+  AfterID := InputFileWizardPage.ID;
+
+  OutputMsgWizardPage := CreateOutputMsgPage(AfterID, 'CreateOutputMsgPage', 'ADescription', 'AMsg');
+  AfterID := OutputMsgWizardPage.ID;
+
+  OutputMsgMemoWizardPage := CreateOutputMsgMemoPage(AfterID, 'CreateOutputMsgMemoPage', 'ADescription', 'ASubCaption', 'AMsg');
+  AfterID := OutputMsgMemoWizardPage.ID;
+
+  OutputProgressWizardPage := CreateOutputProgressPage('CreateOutputProgressPage', 'ADescription');
+  OutputProgressWizardPageAfterID := AfterID;
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  Position, Max: Integer;
+begin
+  if CurPageID = OutputProgressWizardPageAfterID then begin
+    try
+      Max := 25;
+      for Position := 0 to Max do begin
+        OutputProgressWizardPage.SetProgress(Position, Max);
+        if Position = 0 then
+          OutputProgressWizardPage.Show;
+        Sleep(2000 div Max);
+      end;
+    finally
+      OutputProgressWizardPage.Hide;
+    end;
+  end;
+  Result := True;
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;

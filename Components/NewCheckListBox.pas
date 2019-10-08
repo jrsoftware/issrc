@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, UxThemeISX;
+  StdCtrls, UxTheme;
 
 const
   WM_UPDATEUISTATE = $0128;
@@ -198,7 +198,7 @@ procedure Register;
 implementation
 
 uses
-  TmSchemaISX, PathFunc, ActiveX, BidiUtils, Types;
+  TmSchema, PathFunc, ActiveX, BidiUtils, Types;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';
@@ -755,6 +755,7 @@ var
   UIState: DWORD;
   SubItemWidth: Integer;
   PartId, StateId: Integer;
+  Size: TSize;
 begin
   if FShowLines and not FThreadsUpToDate then begin
     UpdateThreads;
@@ -835,6 +836,13 @@ begin
           StateId := ButtonStateIds[ItemState.State][cb2Hot]
         else
           StateId := ButtonStateIds[ItemState.State][cb2Normal];
+        GetThemePartSize(FThemeData, Handle, PartId, StateId, @CheckRect, TS_TRUE, Size);
+        if (Size.cx <> FCheckWidth) or (Size.cy <> FCheckHeight) then begin
+          CheckRect := Bounds(Rect.Left - (Size.cx + FOffset),
+            Rect.Top + ((Rect.Bottom - Rect.Top - Size.cy) div 2),
+            Size.cx, Size.cy);
+          FlipRect(CheckRect, SavedClientRect, FUseRightToLeft);
+        end;
         //if IsThemeBackgroundPartiallyTransparent(FThemeData, PartId, StateId) then
         //  DrawThemeParentBackground(Self.Handle, Handle, @CheckRect);
         DrawThemeBackGround(FThemeData, Handle, PartId, StateId, CheckRect, @CheckRect);

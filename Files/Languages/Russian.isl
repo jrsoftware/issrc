@@ -1,6 +1,6 @@
-; *** Inno Setup version 5.5.3+ Russian messages ***
+; *** Inno Setup version 6.0.3+ Russian messages ***
 ;
-; Translated from English by Dmitry Kann, http://yktoo.com/
+; Translated from English by Dmitry Kann, yktooo at gmail.com
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -42,13 +42,22 @@ WindowsServicePackRequired=Эта программа требует %1 Service Pack %2 или более по
 NotOnThisPlatform=Эта программа не будет работать в %1.
 OnlyOnThisPlatform=Эту программу можно запускать только в %1.
 OnlyOnTheseArchitectures=Установка этой программы возможна только в версиях Windows для следующих архитектур процессоров:%n%n%1
-MissingWOW64APIs=В версии Windows, в которой вы работаете, отсутствуют функции, необходимые для выполнения 64-битной установки. Чтобы устранить эту проблему, вам необходимо установить пакет обновления (Service Pack) %1.
 WinVersionTooLowError=Эта программа требует %1 версии %2 или выше.
 WinVersionTooHighError=Программа не может быть установлена в %1 версии %2 или выше.
 AdminPrivilegesRequired=Чтобы установить данную программу, вы должны выполнить вход в систему как Администратор.
 PowerUserPrivilegesRequired=Чтобы установить эту программу, вы должны выполнить вход в систему как Администратор или член группы «Опытные пользователи» (Power Users).
 SetupAppRunningError=Обнаружен запущенный экземпляр %1.%n%nПожалуйста, закройте все экземпляры приложения, затем нажмите «OK», чтобы продолжить, или «Отмена», чтобы выйти.
 UninstallAppRunningError=Деинсталлятор обнаружил запущенный экземпляр %1.%n%nПожалуйста, закройте все экземпляры приложения, затем нажмите «OK», чтобы продолжить, или «Отмена», чтобы выйти.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Выбор режима установки
+PrivilegesRequiredOverrideInstruction=Выберите режим установки
+PrivilegesRequiredOverrideText1=%1 может быть установлена либо для всех пользователей (требуются привилегии администратора), либо только для вас.
+PrivilegesRequiredOverrideText2=%1 может быть установлена либо только для вас, либо для всех пользователей (требуются привилегии администратора).
+PrivilegesRequiredOverrideAllUsers=Установить для &всех пользователей
+PrivilegesRequiredOverrideAllUsersRecommended=Установить для &всех пользователей (рекомендуется)
+PrivilegesRequiredOverrideCurrentUser=Установить только для &меня
+PrivilegesRequiredOverrideCurrentUserRecommended=Установить только для &меня (рекомендуется)
 
 ; *** Misc. errors
 ErrorCreatingDir=Невозможно создать папку "%1"
@@ -80,7 +89,7 @@ ButtonNewFolder=&Создать папку
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Выберите язык установки
-SelectLanguageLabel=Выберите язык, который будет использован в  процессе установки:
+SelectLanguageLabel=Выберите язык, который будет использован в  процессе установки.
 
 ; *** Common wizard text
 ClickNext=Нажмите «Далее», чтобы продолжить, или «Отмена», чтобы выйти из программы установки.
@@ -195,6 +204,7 @@ ApplicationsFound2=Следующие приложения используют файлы, которые программа уста
 CloseApplications=&Автоматически закрыть эти приложения
 DontCloseApplications=&Не закрывать эти приложения
 ErrorCloseApplications=Программе установки не удалось автоматически закрыть все приложения. Рекомендуется закрыть все приложения, которые используют подлежащие обновлению файлы, прежде чем продолжить установку.
+PrepareToInstallNeedsRestart=Программе установки требуется перезагрузить ваш компьютер. Когда перезагрузка завершится, пожалуйста, запустите программу установки вновь, чтобы завершить процесс установки [name].%n%nПроизвести перезагрузку сейчас?
 
 ; *** "Installing" wizard page
 WizardInstalling=Установка...
@@ -224,7 +234,10 @@ SelectDirectoryLabel=Пожалуйста, укажите путь к следующему диску.
 
 ; *** Installation phase messages
 SetupAborted=Установка не была завершена.%n%nПожалуйста, устраните проблему и запустите установку снова.
-EntryAbortRetryIgnore=Нажмите «Повтор», чтобы повторить попытку, «Пропустить», чтобы пропустить файл, или «Прервать» для отмены установки.
+AbortRetryIgnoreSelectAction=Выберите действие
+AbortRetryIgnoreRetry=Попробовать &снова
+AbortRetryIgnoreIgnore=&Игнорировать ошибку и продолжить
+AbortRetryIgnoreCancel=Отменить установку
 
 ; *** Installation status messages
 StatusClosingApplications=Закрытие приложений...
@@ -255,11 +268,13 @@ ErrorRegWriteKey=Ошибка записи в ключ реестра:%n%1\%2
 ErrorIniEntry=Ошибка создания записи в INI-файле "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Нажмите «Повтор», чтобы повторить, «Пропустить», чтобы пропустить файл (не рекомендуется) или «Прервать» для выхода.
-FileAbortRetryIgnore2=Нажмите «Повтор», чтобы повторить, «Пропустить», чтобы игнорировать ошибку (не рекомендуется) или «Прервать» для выхода.
+FileAbortRetryIgnoreSkipNotRecommended=&Пропустить этот файл (не рекомендуется)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Игнорировать ошибку и продолжить (не рекомендуется)
 SourceIsCorrupted=Исходный файл поврежден
 SourceDoesntExist=Исходный файл "%1" не существует
-ExistingFileReadOnly=Существующий файл помечен как «файл только для чтения».%n%nНажмите «Повтор» для удаления атрибута «только для чтения», «Пропустить», чтобы пропустить файл или «Прервать» для выхода.
+ExistingFileReadOnly2=Невозможно заменить существующий файл, так как он помечен как «файл только для чтения».
+ExistingFileReadOnlyRetry=&Удалить атрибут «только для чтения» и повторить попытку
+ExistingFileReadOnlyKeepExisting=&Оставить файл на месте
 ErrorReadingExistingDest=Произошла ошибка при попытке чтения существующего файла:
 FileExists=Файл уже существует.%n%nПерезаписать его?
 ExistingFileNewer=Существующий файл более новый, чем устанавливаемый. Рекомендуется сохранить существующий файл.%n%nВы хотите сохранить существующий файл?
@@ -273,6 +288,14 @@ ErrorRenamingTemp=Произошла ошибка при попытке переименования файла в папке назн
 ErrorRegisterServer=Невозможно зарегистрировать DLL/OCX: %1
 ErrorRegSvr32Failed=Ошибка при выполнении RegSvr32, код возврата %1
 ErrorRegisterTypeLib=Невозможно зарегистрировать библиотеку типов (Type Library): %1
+
+; *** Uninstall display name markings
+UninstallDisplayNameMark=%1 (%2)
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32 бита
+UninstallDisplayNameMark64Bit=64 бита
+UninstallDisplayNameMarkAllUsers=Все пользователи
+UninstallDisplayNameMarkCurrentUser=Текущий пользователь
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Произошла ошибка при попытке открытия файла README.

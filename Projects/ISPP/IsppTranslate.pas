@@ -607,18 +607,41 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
 
   procedure ParseDim(Parser: TParserAccess; ReDim: Boolean);
   var
-    V: string;
-    N: Integer;
+    Name: string;
+    N, NValues, I: Integer;
     Scope: TDefineScope;
+    Values: array of TIsppVariant;
   begin
     with Parser do
     try
       Scope := GetScope(Parser);
-      V := CheckReservedIdent(TokenString);
+      Name := CheckReservedIdent(TokenString);
       NextTokenExpect([tkOpenBracket]);
       N := IntExpr(True);
+      NValues := 0;
       NextTokenExpect([tkCloseBracket]);
-      FIdentManager.DimVariable(V, N, Scope, ReDim);
+      if PeekAtNextToken = tkOpenBrace then
+        begin
+          NextToken;
+          SetLength(Values, N);
+          NValues := 0;
+          while True do begin
+            if NValues >= N then
+              raise EIdentError.CreateFmt(SIndexIsOutOfArraySize, [NValues, Name]);
+            Values[NValues] := Expr(True);
+            MakeRValue(Values[NValues]);
+            Inc(NValues);
+            if PeekAtNextToken <> tkComma then
+              Break;
+            NextToken;
+          end;
+          NextTokenExpect([tkCloseBrace]);
+        end;
+      FIdentManager.DimVariable(Name, N, Scope, ReDim);
+      if ReDim and (NValues <> 0) then
+        Error('Initializers not allowed on #redim of existing array');
+      for I := 0 to NValues-1 do
+        FIdentManager.DefineVariable(Name, I, Values[I], Scope);
     finally
       //Free
     end;
@@ -1825,11 +1848,14 @@ begin
 end;
 
 procedure TProcCallContext.UpdateScope;
+var
+  ReDim: Boolean;
 begin
   if not FScopeUpdated then
   begin
     FPreproc.FIdentManager.BeginLocal;
-    FPreproc.FIdentManager.DimVariable(SLocal, 16, dsPrivate, False);
+    ReDim := False;
+    FPreproc.FIdentManager.DimVariable(SLocal, 16, dsPrivate, ReDim);
     FScopeUpdated := True;
   end;
 end;
