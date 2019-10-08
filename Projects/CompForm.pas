@@ -3622,7 +3622,7 @@ begin
   Memo.UpdateThemeColors;
   Memo.UpdateStyleAttributes;
   ToolBarPanel.ParentBackground := False;
-  ToolBarPanel.Color := FTheme.Colors[tcMarginBack];
+  ToolBarPanel.Color := FTheme.Colors[tcToolBack];
   if FTheme.Dark then
     ToolBarVirtualImageList.ImageCollection := DarkToolBarImageCollection
   else
