@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.0+ Japanese messages ***
+; *** Inno Setup version 6.0.3+ Japanese messages ***
 ;
 ; Maintained by Koichi Shirasuka (shirasuka@eugrid.co.jp)
 ;
@@ -136,6 +136,7 @@ WizardSelectDir=ƒCƒ“ƒXƒg[ƒ‹æ‚Ìw’è
 SelectDirDesc=[name] ‚ÌƒCƒ“ƒXƒg[ƒ‹æ‚ğw’è‚µ‚Ä‚­‚¾‚³‚¢B
 SelectDirLabel3=[name] ‚ğƒCƒ“ƒXƒg[ƒ‹‚·‚éƒtƒHƒ‹ƒ_‚ğw’è‚µ‚ÄAuŸ‚Öv‚ğƒNƒŠƒbƒN‚µ‚Ä‚­‚¾‚³‚¢B
 SelectDirBrowseLabel=‘±‚¯‚é‚É‚ÍuŸ‚Öv‚ğƒNƒŠƒbƒN‚µ‚Ä‚­‚¾‚³‚¢B•Ê‚ÌƒtƒHƒ‹ƒ_[‚ğ‘I‘ğ‚·‚é‚É‚ÍuQÆv‚ğƒNƒŠƒbƒN‚µ‚Ä‚­‚¾‚³‚¢B
+DiskSpaceGBLabel=‚±‚ÌƒvƒƒOƒ‰ƒ€‚ÍÅ’á [gb] GB ‚ÌƒfƒBƒXƒN‹ó‚«—Ìˆæ‚ğ•K—v‚Æ‚µ‚Ü‚·B
 DiskSpaceMBLabel=‚±‚ÌƒvƒƒOƒ‰ƒ€‚ÍÅ’á [mb] MB ‚ÌƒfƒBƒXƒN‹ó‚«—Ìˆæ‚ğ•K—v‚Æ‚µ‚Ü‚·B
 CannotInstallToNetworkDrive=ƒlƒbƒgƒ[ƒNƒhƒ‰ƒCƒu‚ÉƒCƒ“ƒXƒg[ƒ‹‚·‚é‚±‚Æ‚Í‚Å‚«‚Ü‚¹‚ñB
 CannotInstallToUNCPath=UNC ƒpƒX‚ÉƒCƒ“ƒXƒg[ƒ‹‚·‚é‚±‚Æ‚Í‚Å‚«‚Ü‚¹‚ñB
@@ -163,6 +164,7 @@ NoUninstallWarningTitle=Šù‘¶‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
 NoUninstallWarning=ƒZƒbƒgƒAƒbƒv‚ÍˆÈ‰º‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŠù‚ÉƒCƒ“ƒXƒg[ƒ‹‚³‚ê‚Ä‚¢‚é‚±‚Æ‚ğŒŸo‚µ‚Ü‚µ‚½B%n%n%1%n%n‚±‚ê‚ç‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚Ì‘I‘ğ‚ğ‰ğœ‚µ‚Ä‚àƒAƒ“ƒCƒ“ƒXƒg[ƒ‹‚Í‚³‚ê‚Ü‚¹‚ñB%n%n‚±‚Ì‚Ü‚Ü‘±s‚µ‚Ü‚·‚©H
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Œ»İ‚Ì‘I‘ğ‚ÍÅ’á [gb] GB ‚ÌƒfƒBƒXƒN‹ó‚«—Ìˆæ‚ğ•K—v‚Æ‚µ‚Ü‚·B
 ComponentsDiskSpaceMBLabel=Œ»İ‚Ì‘I‘ğ‚ÍÅ’á [mb] MB ‚ÌƒfƒBƒXƒN‹ó‚«—Ìˆæ‚ğ•K—v‚Æ‚µ‚Ü‚·B
 
 ; *** "Select Additional Tasks" wizard page
@@ -203,6 +205,7 @@ ApplicationsFound2=ˆÈ‰º‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ªƒZƒbƒgƒAƒbƒv‚É•K—v‚Èƒtƒ@ƒCƒ‹‚ğg—p‚µ‚
 CloseApplications=©“®“I‚ÉƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ğI—¹‚·‚é(&A)
 DontCloseApplications=ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ğI—¹‚µ‚È‚¢(&D)
 ErrorCloseApplications=ƒZƒbƒgƒAƒbƒv‚Í‚·‚×‚Ä‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ğ©“®“I‚ÉI—¹‚·‚é‚±‚Æ‚ª‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½BƒZƒbƒgƒAƒbƒv‚ğ‘±s‚·‚é‘O‚ÉAXV‚Ì•K—v‚Èƒtƒ@ƒCƒ‹‚ğg—p‚µ‚Ä‚¢‚é‚·‚×‚Ä‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ğI—¹‚·‚é‚±‚Æ‚ğ„§‚µ‚Ü‚·B
+PrepareToInstallNeedsRestart=ƒZƒbƒgƒAƒbƒv‚ÍƒRƒ“ƒsƒ…[ƒ^[‚ğÄ‹N“®‚·‚é•K—v‚ª‚ ‚è‚Ü‚·BƒRƒ“ƒsƒ…[ƒ^[‚ğÄ‹N“®‚µ‚½ŒãAƒZƒbƒgƒAƒbƒv‚ğÄ“xÀs‚µ‚Ä [name] ‚ÌƒCƒ“ƒXƒg[ƒ‹‚ğŠ®—¹‚µ‚Ä‚­‚¾‚³‚¢B%n%n‚·‚®‚ÉÄ‹N“®‚µ‚Ü‚·‚©H?
 
 ; *** "Installing" wizard page
 WizardInstalling=ƒCƒ“ƒXƒg[ƒ‹ó‹µ
