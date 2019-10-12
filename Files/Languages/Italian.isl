@@ -1,4 +1,4 @@
-; bovirus@gmail.com
+﻿; bovirus@gmail.com
 ; *** Inno Setup version 6.0.3+ Italian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
@@ -157,12 +157,12 @@ WizardSelectDir=Selezione cartella di installazione
 SelectDirDesc=Dove vuoi installare [name]?
 SelectDirLabel3=[name] sarà installato nella seguente cartella.
 SelectDirBrowseLabel=Per continuare seleziona "Avanti".%nPer scegliere un'altra cartella seleziona "Sfoglia".
-DiskSpaceGBLabel=Sono richiesti almeno [gb] GB di sapzio libero nel disco.
+DiskSpaceGBLabel=Sono richiesti almeno [gb] GB di spazio libero nel disco.
 DiskSpaceMBLabel=Sono richiesti almeno [mb] MB di spazio libero nel disco.
 CannotInstallToNetworkDrive=Non è possibile effettuare l'installazione in un disco in rete.
 CannotInstallToUNCPath=Non è possibile effettuare l'installazione in un percorso UNC.
 InvalidPath=Va inserito un percorso completo di lettera di unità; per esempio:%n%nC:\APP%n%no un percorso di rete nella forma:%n%n\\server\condivisione
-InvalidDrive=L'unità o il percorso di rete selezionato non esiste o non è accessibile.%n%nSelezionane un'altro.
+InvalidDrive=L'unità o il percorso di rete selezionato non esiste o non è accessibile.%n%nSelezionane un altro.
 DiskSpaceWarningTitle=Spazio su disco insufficiente
 DiskSpaceWarning=L'installazione richiede per eseguire l'installazione almeno %1 KB di spazio libero, ma l'unità selezionata ha solo %2 KB disponibili.%n%nVuoi continuare comunque?
 DirNameTooLong=Il nome della cartella o il percorso sono troppo lunghi.
@@ -299,7 +299,7 @@ ExistingFileReadOnlyRetry=&Rimuovi attributo di sola lettura e riprova
 ExistingFileReadOnlyKeepExisting=&Mantieni il file esistente
 ErrorReadingExistingDest=Si è verificato un errore durante la lettura del file esistente:
 FileExists=Il file esiste già.%n%nVuoi sovrascrivere il file?
-ExistingFileNewer=Il file esistente è più recente di quello che si stà installando.%n%nTi raccomandiamo di mantenere il file esistente.%n%nVuoi mantenere il file esistente?
+ExistingFileNewer=Il file esistente è più recente di quello che si sta installando.%n%nTi raccomandiamo di mantenere il file esistente.%n%nVuoi mantenere il file esistente?
 ErrorChangingAttr=Si è verificato un errore durante il tentativo di modifica dell'attributo del file esistente:
 ErrorCreatingTemp=Si è verificato un errore durante la creazione di un file nella cartella di installazione:
 ErrorReadingSource=Si è verificato un errore durante la lettura del file sorgente:
