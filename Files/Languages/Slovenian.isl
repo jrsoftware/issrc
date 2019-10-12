@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.0+ Slovenian messages ***
+; *** Inno Setup version 6.0.3+ Slovenian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/is3rdparty.php
@@ -143,6 +143,7 @@ WizardSelectDir=Izbira ciljnega mesta
 SelectDirDesc=Kam želite namestiti program [name]?
 SelectDirLabel3=Program [name] bo namešèen v naslednjo mapo.
 SelectDirBrowseLabel=Za nadaljevanje kliknite Naprej. Èe želite izbrati drugo mapo, kliknite Prebrskaj.
+DiskSpaceGBLabel=Na disku mora biti vsaj [gb] GB prostora.
 DiskSpaceMBLabel=Na disku mora biti vsaj [mb] MB prostora.
 CannotInstallToNetworkDrive=Programa ni mogoèe namestiti na mrežni pogon.
 CannotInstallToUNCPath=Programa ni mogoèe namestiti v UNC pot.
@@ -170,6 +171,7 @@ NoUninstallWarningTitle=Komponente že obstajajo
 NoUninstallWarning=Namestitveni program je ugotovil, da so naslednje komponente že namešèene v raèunalniku:%n%n%1%n%nNamestitveni program teh že namešèenih komponent ne bo odstranil.%n%nŽelite vseeno nadaljevati?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Za izbrano namestitev potrebujete vsaj [gb] GB prostora na disku.
 ComponentsDiskSpaceMBLabel=Za izbrano namestitev potrebujete vsaj [mb] MB prostora na disku.
 
 ; *** "Select Additional Tasks" wizard page
@@ -212,6 +214,7 @@ ApplicationsFound2=Naslednji programi uporabljajo datoteke, ki jih mora namestit
 CloseApplications=S&amodejno zapri programe
 DontCloseApplications=&Ne zapri programov
 ErrorCloseApplications=Namestitvenemu programu ni uspelo samodejno zapreti vseh programov. Priporoèljivo je, da pred nadaljevanjem zaprete vse programe, ki uporabljajo datoteke, katere mora namestitev posodobiti.
+PrepareToInstallNeedsRestart=Namestitveni program mora znova zagnati vaš raèunalnik. Za dokonèanje namestitve programa [name], po ponovnem zagonu znova zaženite namestitveni program.%n%nAli želite zdaj znova zagnati raèunalnik?
 
 WizardInstalling=Namešèanje
 InstallingLabel=Poèakajte, da bo program [name] namešèen v vaš raèunalnik.
