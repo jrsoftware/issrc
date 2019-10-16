@@ -168,6 +168,7 @@ const
   SCompilerCompileCodeError = 'An error occurred while trying to compile the [Code] section:' + SNewLine2 + '%s';
   SCompilerISCryptMissing = 'Cannot use encryption because ISCrypt.dll is missing.' + SNewLine2 +
     'Note: This file is not installed with Inno Setup. A link to obtain it can be found on the Inno Setup web site';
+  SCompilerFunctionFailedWithCode = '%s failed. Error %d: %s';
 
   { [Setup] }
   SCompilerUnknownDirective = 'Unrecognized [%s] section directive "%s"';

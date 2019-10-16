@@ -1094,16 +1094,16 @@ begin
     if not CryptAcquireContext(CryptProv, nil, nil, PROV_RSA_FULL,
        CRYPT_VERIFYCONTEXT) then begin
       ErrorCode := GetLastError;
-      raise Exception.CreateFmt('CryptAcquireContext failed with code 0x%.8x: %s',
-        [ErrorCode, Win32ErrorString(ErrorCode)]);
+      raise Exception.CreateFmt(SCompilerFunctionFailedWithCode,
+        ['CryptAcquireContext', ErrorCode, Win32ErrorString(ErrorCode)]);
     end;
     { Note: CryptProv is released in the 'finalization' section of this unit }
   end;
   FillChar(Buffer, Bytes, 0);
   if not CryptGenRandom(CryptProv, Bytes, @Buffer) then begin
     ErrorCode := GetLastError;
-    raise Exception.CreateFmt('CryptGenRandom failed with code 0x%.8x: %s',
-      [ErrorCode, Win32ErrorString(ErrorCode)]);
+    raise Exception.CreateFmt(SCompilerFunctionFailedWithCode,
+      ['CryptGenRandom', ErrorCode, Win32ErrorString(ErrorCode)]);
   end;
 end;
 
@@ -8134,7 +8134,7 @@ var
     FT: TFileTime;
     SourceFile: TFile;
     SignatureAddress, SignatureSize: Cardinal;
-    HdrChecksum: DWORD;
+    HdrChecksum, ErrorCode: DWORD;
   begin
     if (SetupHeader.CompressMethod in [cmLZMA, cmLZMA2]) and
        (CompressProps.WorkerProcessFilename <> '') then
@@ -8229,8 +8229,11 @@ var
           FL.ChunkSuboffset := CH.ChunkBytesRead;
           FL.OriginalSize := SourceFile.Size;
 
-          if not GetFileTime(SourceFile.Handle, nil, nil, @FT) then
-            AbortCompile('CompressFiles: GetFileTime failed');
+          if not GetFileTime(SourceFile.Handle, nil, nil, @FT) then begin
+            ErrorCode := GetLastError;
+            AbortCompileFmt(SCompilerFunctionFailedWithCode,
+              ['CompressFiles: GetFileTime', ErrorCode, Win32ErrorString(ErrorCode)]);
+          end;
           if TimeStampsInUTC then begin
             FL.SourceTimeStamp := FT;
             Include(FL.Flags, foTimeStampInUTC);
