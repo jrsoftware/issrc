@@ -1,9 +1,9 @@
-﻿; *** Inno Setup version 6.0.0+ Chinese Simplified messages ***
+﻿; *** Inno Setup version 6.0.3+ Chinese Simplified messages ***
 ;
 ; Maintained by Zhenghan Yang
 ; Email: 847320916@QQ.com
 ; Translation based on network resource
-; The latest Translation is on https://github.com/KKKKKKi/Inno-Setup-Chinese-Simplified-Translation
+; The latest Translation is on https://github.com/kira-96/Inno-Setup-Chinese-Simplified-Translation
 ;
 
 [LangOptions]
@@ -12,7 +12,7 @@
 LanguageName=简体中文
 ; If Language Name display incorrect, uncomment next line
 ; LanguageName=<7B80><4F53><4E2D><6587>
-LanguageID=$0004
+LanguageID=$0804
 LanguageCodePage=936
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
@@ -63,7 +63,7 @@ PowerUserPrivilegesRequired=在安装这个程序时您必须以管理员身份�
 SetupAppRunningError=安装程序发现 %1 当前正在运行。%n%n请先关闭所有运行的窗口，然后单击“确定”继续，或按“取消”退出。
 UninstallAppRunningError=卸载程序发现 %1 当前正在运行。%n%n请先关闭所有运行的窗口，然后单击“确定”继续，或按“取消”退出。
 
-; *** Startup questions
+; *** 启动问题
 PrivilegesRequiredOverrideTitle=选择安装程序模式
 PrivilegesRequiredOverrideInstruction=选择安装模式
 PrivilegesRequiredOverrideText1=%1 可以为所有用户安装(需要管理员权限)，或仅为您安装。
@@ -103,7 +103,7 @@ ButtonNewFolder=新建文件夹(&M)
 
 ; *** “选择语言”对话框消息
 SelectLanguageTitle=选择安装语言
-SelectLanguageLabel=选择安装时要使用的语言:
+SelectLanguageLabel=选择安装时要使用的语言。
 
 ; *** 公共向导文字
 ClickNext=单击“下一步”继续，或单击“取消”退出安装程序。
@@ -151,6 +151,7 @@ WizardSelectDir=选择目标位置
 SelectDirDesc=您想将 [name] 安装在什么地方？
 SelectDirLabel3=安装程序将安装 [name] 到下列文件夹中。
 SelectDirBrowseLabel=单击“下一步”继续。如果您想选择其它文件夹，单击“浏览”。
+DiskSpaceGBLabel=至少需要有 [gb] GB 的可用磁盘空间。
 DiskSpaceMBLabel=至少需要有 [mb] MB 的可用磁盘空间。
 CannotInstallToNetworkDrive=安装程序无法安装到一个网络驱动器。
 CannotInstallToUNCPath=安装程序无法安装到一个UNC路径。
@@ -178,6 +179,7 @@ NoUninstallWarningTitle=组件存在
 NoUninstallWarning=安装程序侦测到下列组件已在您的电脑中安装。:%n%n%1%n%n取消选定这些组件将不能卸载它们。%n%n您一定要继续吗？
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=当前选择的组件至少需要 [gb] GB 的磁盘空间。
 ComponentsDiskSpaceMBLabel=当前选择的组件至少需要 [mb] MB 的磁盘空间。
 
 ; *** “选择附加任务”向导页
@@ -218,6 +220,7 @@ ApplicationsFound2=下列应用程序正在使用的文件需要更新设置。�
 CloseApplications=自动关闭该应用程序(&A)
 DontCloseApplications=不要关闭该应用程序(D)
 ErrorCloseApplications=安装程序无法自动关闭所有应用程序。在继续之前，我们建议您关闭所有使用需要更新的安装程序文件。
+PrepareToInstallNeedsRestart=安装程序必须重新启动计算机。重新启动计算机后，请再次运行安装程序以完成 [name] 的安装。%n%n是否立即重新启动？
 
 ; *** “正在安装”向导页
 WizardInstalling=正在安装
@@ -302,7 +305,7 @@ ErrorRegisterServer=不能注册 DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 失败；退出代码 %1
 ErrorRegisterTypeLib=不能注册类型库: %1
 
-; *** Uninstall display name markings
+; *** 卸载显示名字标记
 ; used for example as 'My Program (32-bit)'
 UninstallDisplayNameMark=%1 (%2)
 ; used for example as 'My Program (32-bit, All users)'
