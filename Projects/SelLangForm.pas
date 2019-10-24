@@ -71,7 +71,6 @@ var
   ClassInfo: TWndClassW;
   N: String;
 {$ENDIF}
-  PrevLang: String;
 begin
   LangForm := TSelectLanguageForm.Create(Application);
   try
@@ -117,17 +116,9 @@ begin
       { Note: if UsePreviousLanguage is set to "yes" then the compiler does not
         allow AppId to include constants but we should still call ExpandConst
         to handle any '{{'. }
-      { do not localize or change the following string }
-      PrevLang := GetPreviousData(ExpandConst(SetupHeader.AppId), 'Inno Setup: Language', '');
-
-      if PrevLang <> '' then begin
-        for I := 0 to Entries[seLanguage].Count-1 do begin
-          if CompareText(PrevLang, PSetupLanguageEntry(Entries[seLanguage][I]).Name) = 0 then begin
-            LangForm.LangCombo.ItemIndex := LangForm.LangCombo.Items.IndexOfObject(TObject(I));
-            Break;
-          end;
-        end;
-      end;
+      I := GetPreviousLanguage(ExpandConst(SetupHeader.AppId));
+      if I <> -1 then
+        LangForm.LangCombo.ItemIndex := LangForm.LangCombo.Items.IndexOfObject(TObject(I));
     end;
 
     { Select the active language if no previous language was selected }

@@ -1,5 +1,5 @@
 ﻿; bovirus@gmail.com
-; *** Inno Setup version 6.0.0+ Italian messages ***
+; *** Inno Setup version 6.0.3+ Italian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 04.02.2019  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 03.10.2019  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -71,9 +71,9 @@ UninstallAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Seleziona modo installazione
-PrivilegesRequiredOverrideInstruction=Seleziona modo instalalzione
+PrivilegesRequiredOverrideInstruction=Seleziona modo installazione
 PrivilegesRequiredOverrideText1=%1 può essere installato per tutti gli utenti (richiede privilegi di amministratore), o solo per l'utente attuale.
-PrivilegesRequiredOverrideText2=%1 può essere installato solo per l'utente attuale, o per tutti gli utenti (richiede privilegi di amminsitratore).
+PrivilegesRequiredOverrideText2=%1 può essere installato solo per l'utente attuale, o per tutti gli utenti (richiede privilegi di amministratore).
 PrivilegesRequiredOverrideAllUsers=Inst&alla per tutti gli utenti
 PrivilegesRequiredOverrideAllUsersRecommended=Inst&alla per tutti gli utenti (suggerito)
 PrivilegesRequiredOverrideCurrentUser=Installa solo per l'&utente attuale
@@ -99,7 +99,7 @@ ButtonInstall=Inst&alla
 ButtonOK=OK
 ButtonCancel=Annulla
 ButtonYes=&Si
-ButtonYesToAll=Si a &tutto
+ButtonYesToAll=Sì a &tutto
 ButtonNo=&No
 ButtonNoToAll=N&o a tutto
 ButtonFinish=&Fine
@@ -157,11 +157,12 @@ WizardSelectDir=Selezione cartella di installazione
 SelectDirDesc=Dove vuoi installare [name]?
 SelectDirLabel3=[name] sarà installato nella seguente cartella.
 SelectDirBrowseLabel=Per continuare seleziona "Avanti".%nPer scegliere un'altra cartella seleziona "Sfoglia".
-DiskSpaceMBLabel=Sono richiesti almeno [mb] MB di spazio nel disco.
+DiskSpaceGBLabel=Sono richiesti almeno [gb] GB di spazio libero nel disco.
+DiskSpaceMBLabel=Sono richiesti almeno [mb] MB di spazio libero nel disco.
 CannotInstallToNetworkDrive=Non è possibile effettuare l'installazione in un disco in rete.
 CannotInstallToUNCPath=Non è possibile effettuare l'installazione in un percorso UNC.
 InvalidPath=Va inserito un percorso completo di lettera di unità; per esempio:%n%nC:\APP%n%no un percorso di rete nella forma:%n%n\\server\condivisione
-InvalidDrive=L'unità o il percorso di rete selezionato non esiste o non è accessibile.%n%nSelezionane un'altro.
+InvalidDrive=L'unità o il percorso di rete selezionato non esiste o non è accessibile.%n%nSelezionane un altro.
 DiskSpaceWarningTitle=Spazio su disco insufficiente
 DiskSpaceWarning=L'installazione richiede per eseguire l'installazione almeno %1 KB di spazio libero, ma l'unità selezionata ha solo %2 KB disponibili.%n%nVuoi continuare comunque?
 DirNameTooLong=Il nome della cartella o il percorso sono troppo lunghi.
@@ -184,6 +185,7 @@ NoUninstallWarningTitle=Componente esistente
 NoUninstallWarning=I seguenti componenti sono già installati nel computer:%n%n%1%n%nDeselezionando questi componenti essi non verranno rimossi.%n%nVuoi continuare comunque?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=La selezione attuale richiede almeno [gb] GB di spazio nel disco.
 ComponentsDiskSpaceMBLabel=La selezione attuale richiede almeno [mb] MB di spazio nel disco.
 
 ; *** "Select Additional Tasks" wizard page
@@ -224,6 +226,7 @@ ApplicationsFound2=Le seguenti applicazioni stanno usando file che devono essere
 CloseApplications=Chiudi &automaticamente le applicazioni
 DontCloseApplications=&Non chiudere le applicazioni
 ErrorCloseApplications=L'installazione non è riuscita a chiudere automaticamente tutte le applicazioni.%n%nPrima di proseguire ti raccomandiamo di chiudere tutte le applicazioni che usano file che devono essere aggiornati durante l'installazione.
+PrepareToInstallNeedsRestart=Il programma di installazione deve riavviare il computer.%nDopo aver riavviato il computer esegui di nuovo il programma di installazione per completare l'installazione di [name].%n%nVuoi riavviare il computer ora?
 
 ; *** "Installing" wizard page
 WizardInstalling=Installazione in corso
@@ -296,7 +299,7 @@ ExistingFileReadOnlyRetry=&Rimuovi attributo di sola lettura e riprova
 ExistingFileReadOnlyKeepExisting=&Mantieni il file esistente
 ErrorReadingExistingDest=Si è verificato un errore durante la lettura del file esistente:
 FileExists=Il file esiste già.%n%nVuoi sovrascrivere il file?
-ExistingFileNewer=Il file esistente è più recente di quello che si stà installando.%n%nTi raccomandiamo di mantenere il file esistente.%n%nVuoi mantenere il file esistente?
+ExistingFileNewer=Il file esistente è più recente di quello che si sta installando.%n%nTi raccomandiamo di mantenere il file esistente.%n%nVuoi mantenere il file esistente?
 ErrorChangingAttr=Si è verificato un errore durante il tentativo di modifica dell'attributo del file esistente:
 ErrorCreatingTemp=Si è verificato un errore durante la creazione di un file nella cartella di installazione:
 ErrorReadingSource=Si è verificato un errore durante la lettura del file sorgente:

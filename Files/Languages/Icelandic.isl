@@ -1,8 +1,8 @@
-﻿; *** Inno Setup version 6.0.0+ Icelandic messages ***
+﻿; *** Inno Setup version 6.0.3+ Icelandic messages ***
 ;
 ; Translator: Stefán Örvar Sigmundsson, eMedia Intellect
 ; Contact: emi@emi.is
-; Date: 2019-03-06
+; Date: 2019-10-03
 
 [LangOptions]
 LanguageName=<00CD>slenska
@@ -134,6 +134,7 @@ WizardSelectDir=Velja staðsetningu
 SelectDirDesc=Hvar ætti [name] að vera uppsettur?
 SelectDirLabel3=Uppsetning mun uppsetja [name] í hina eftirfarandi möppu.
 SelectDirBrowseLabel=Til að halda áfram, smelltu á Næst. Ef þú vilt velja aðra möppu, smelltu á Vafra.
+DiskSpaceGBLabel=Að minnsta kosti [gb] GB af lausu diskplássi er krafist.
 DiskSpaceMBLabel=Að minnsta kosti [mb] MB af lausu diskplássi er krafist.
 CannotInstallToNetworkDrive=Uppsetning getur ekki uppsett á netdrif.
 CannotInstallToUNCPath=Uppsetning getur ekki uppsett á UNC-slóð.
@@ -160,6 +161,7 @@ NoUninstallWarningTitle=Atriði eru til
 NoUninstallWarning=Uppsetning hefur greint það að eftirfarandi atriði eru nú þegar uppsett á tölvunni þinni:%n%n%1%n%nAð afvelja þessi atriði mun ekki niðurtaka þau.%n%nVilt þú halda áfram hvort sem er?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Núverandi val krefst að minnsta kosti [gb] GB af diskplássi.
 ComponentsDiskSpaceMBLabel=Núverandi val krefst að minnsta kosti [mb] MB af diskplássi.
 
 ; *** "Select Additional Tasks" wizard page
@@ -200,6 +202,7 @@ ApplicationsFound2=Eftirfarandi hugbúnaður er notandi skrár sem þurfa að ve
 CloseApplications=&Sjálfvirkt loka hugbúnaðinum
 DontCloseApplications=&Ekki loka hugbúnaðinum
 ErrorCloseApplications=Uppsetningu var ófært um að sjálfvirkt loka öllum hugbúnaði. Það er ráðlagt að þú lokir öllum hugbúnaði notandi skrár sem þurfa að vera uppfærðar af Uppsetningu áður en haldið er áfram.
+PrepareToInstallNeedsRestart=Þú verður að endurræsa tölvuna þína. Eftir að hafa endurræst tölvuna þína, keyrðu Uppsetningu aftur til að ljúka uppsetningu [name].%n%nVilt þú endurræsa núna?
 
 ; *** "Installing" wizard page
 WizardInstalling=Uppsetjandi

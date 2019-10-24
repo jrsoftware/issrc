@@ -119,7 +119,7 @@ var
   OriginalEntryIndexes: array[TEntryType] of TList;
 
   { 'Constants' }
-  SourceDir, TempInstallDir, WinDir, WinSystemDir, WinSysWow64Dir, SystemDrive,
+  SourceDir, TempInstallDir, WinDir, WinSystemDir, WinSysWow64Dir, WinSysNativeDir, SystemDrive,
     ProgramFiles32Dir, CommonFiles32Dir, ProgramFiles64Dir, CommonFiles64Dir,
     ProgramFilesUserDir, CommonFilesUserDir, CmdFilename, SysUserInfoName,
     SysUserInfoOrg, UninstallExeFilename: String;
@@ -156,7 +156,7 @@ var
   RmSessionKey: array[0..CCH_RM_SESSION_KEY] of WideChar;
 
   { Other }
-  ShowLanguageDialog: Boolean;
+  ShowLanguageDialog, MatchedLangParameter: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
   HasIcons, IsNT, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem,
@@ -207,6 +207,7 @@ function GetShellFolderByCSIDL(Folder: Integer; const Create: Boolean): String;
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
 function GetUninstallRegSubkeyName(const UninstallRegKeyBaseName: String): String;
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
+function GetPreviousLanguage(const ExpandedAppID: String): Integer;
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
 procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 procedure Log64BitInstallMode;
@@ -356,6 +357,26 @@ begin
       end;
     end;
   end;
+end;
+
+function GetPreviousLanguage(const ExpandedAppID: String): Integer;
+var
+  PrevLang: String;
+  I: Integer;
+begin
+  { do not localize or change the following string }
+  PrevLang := GetPreviousData(ExpandConst(SetupHeader.AppId), 'Inno Setup: Language', '');
+
+  if PrevLang <> '' then begin
+    for I := 0 to Entries[seLanguage].Count-1 do begin
+      if CompareText(PrevLang, PSetupLanguageEntry(Entries[seLanguage][I]).Name) = 0 then begin
+        Result := I;
+        Exit;
+      end;
+    end;
+  end;
+  
+  Result := -1;
 end;
 
 function TestPassword(const Password: String): Boolean;
@@ -1040,6 +1061,12 @@ begin
       Result := WinSystemDir;
     end;
   end
+  else if Cnst = 'sysnative' then begin
+    if WinSysNativeDir <> '' then
+      Result := WinSysNativeDir
+    else
+      Result := WinSystemDir;
+  end
   else if Cnst = 'src' then Result := SourceDir
   else if Cnst = 'srcexe' then Result := SetupLdrOriginalFilename
   else if Cnst = 'tmp' then Result := TempInstallDir
@@ -1314,6 +1341,7 @@ begin
   WinDir := GetWinDir;
   WinSystemDir := GetSystemDir;
   WinSysWow64Dir := GetSysWow64Dir;
+  WinSysNativeDir := GetSysNativeDir(IsWin64);
 
   { Get system drive }
   if Win32Platform = VER_PLATFORM_WIN32_NT then
@@ -2112,7 +2140,7 @@ end;
 function CodeRunnerOnDebug(const Position: LongInt;
   var ContinueStepOver: Boolean): Boolean;
 begin
-  Result := DebugNotify(deCodeLine, Position, ContinueStepOver);
+  Result := DebugNotify(deCodeLine, Position, ContinueStepOver, CodeRunner.GetCallStack);
 end;
 
 function CodeRunnerOnDebugIntermediate(const Position: LongInt;
@@ -2226,18 +2254,22 @@ end;
 
 procedure ActivateDefaultLanguage;
 { Auto-detects the most appropriate language and activates it.
-  Also initializes the ShowLanguageDialog variable.
+  Also initializes the ShowLanguageDialog and MatchedLangParameter variables.
   Note: A like-named version of this function is also present in SetupLdr.dpr. }
 var
   I: Integer;
 begin
+  MatchedLangParameter := False;
   case DetermineDefaultLanguage(GetLanguageEntryProc,
      SetupHeader.LanguageDetectionMethod, InitLang, I) of
     ddNoMatch: ShowLanguageDialog := (SetupHeader.ShowLanguageDialog <> slNo);
     ddMatch: ShowLanguageDialog := (SetupHeader.ShowLanguageDialog = slYes);
   else
-    { ddMatchLangParameter }
-    ShowLanguageDialog := False;
+    begin
+      { ddMatchLangParameter }
+      ShowLanguageDialog := False;
+      MatchedLangParameter := True;
+    end;
   end;
   SetActiveLanguage(I);
 end;
@@ -2269,6 +2301,15 @@ begin
       SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
         SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_SHOWWINDOW);
   end;
+end;
+
+procedure LogCompatibilityMode;
+var
+  S: String;
+begin
+  S := GetEnv('__COMPAT_LAYER');
+  if S <> '' then
+    LogFmt('Compatibility mode: %s (%s)', [SYesNo[True], S]);
 end;
 
 procedure LogWindowsVersion;
@@ -3131,6 +3172,7 @@ begin
         Log('Setup version: ' + SetupTitle + ' version ' + SetupVersion);
         Log('Original Setup EXE: ' + SetupLdrOriginalFilename);
         Log('Setup command line: ' + GetCmdTail);
+        LogCompatibilityMode;
         LogWindowsVersion;
 
         NeedPassword := shPassword in SetupHeader.Options;
@@ -3226,12 +3268,21 @@ begin
   { Show "Select Language" dialog if necessary - requires "64-bit mode" to be
     initialized else it might query the previous language from the wrong registry
     view }
-  if ShowLanguageDialog and (Entries[seLanguage].Count > 1) and
-     not InitSilent and not InitVerySilent then begin
-    if not AskForLanguage then
-      Abort;
+  if Entries[seLanguage].Count > 1 then begin
+    if ShowLanguageDialog and not InitSilent and not InitVerySilent then begin
+      if not AskForLanguage then
+        Abort;
+    end else if not MatchedLangParameter and (shUsePreviousLanguage in SetupHeader.Options) then begin
+      { Replicate the dialog's UsePreviousLanguage functionality. }
+      { Note: if UsePreviousLanguage is set to "yes" then the compiler does not
+        allow AppId to include constants but we should still call ExpandConst
+        to handle any '{{'. }
+      I := GetPreviousLanguage(ExpandConst(SetupHeader.AppId));
+      if I <> -1 then
+        SetActiveLanguage(I);
+    end;
   end;
-
+  
   { Check processor architecture }
   if (SetupHeader.ArchitecturesAllowed <> []) and
      not(ProcessorArchitecture in SetupHeader.ArchitecturesAllowed) then
@@ -4215,10 +4266,13 @@ begin
               RestartSystem := WizardForm.YesRadio.Checked;
           imSilent:
             begin
-              if FromPreparingPage then
+              if FromPreparingPage then begin
+                S := ExpandSetupMessage(msgPrepareToInstallNeedsRestart);
+                if S = '' then
+                  S := ExpandSetupMessage(msgFinishedRestartMessage);
                 S := WizardForm.PrepareToInstallFailureMessage + SNewLine +
-                  SNewLine + SNewLine + ExpandSetupMessage(msgFinishedRestartMessage)
-              else
+                  SNewLine + SNewLine + S
+              end else
                 S := ExpandSetupMessage(msgFinishedRestartMessage);
               RestartSystem :=
                 LoggedMsgBox(S, '', mbConfirmation, MB_YESNO, True, IDYES) = IDYES;

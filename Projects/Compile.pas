@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings,
+  CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, DebugStruct, VerInfo, ResUpdate, CompResUpdate,
@@ -160,6 +160,7 @@ type
     ssSignToolMinimumTimeBetween,
     ssSignToolRetryCount,
     ssSignToolRetryDelay,
+    ssSignToolRunMinimized,
     ssSlicesPerDisk,
     ssSolidCompression,
     ssSourceDir,
@@ -364,6 +365,7 @@ type
     SignToolList: TList;
     SignTools, SignToolsParams: TStringList;
     SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween: Integer;
+    SignToolRunMinimized: Boolean;
     LastSignCommandStartTick: DWORD;
 
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
@@ -517,7 +519,7 @@ type
     procedure SeparateDirective(const Line: PChar; var Key, Value: String);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
     procedure Sign(AExeFilename: String);
-    procedure SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer);
+    procedure SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer; const RunMinimized: Boolean);
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
@@ -1092,16 +1094,16 @@ begin
     if not CryptAcquireContext(CryptProv, nil, nil, PROV_RSA_FULL,
        CRYPT_VERIFYCONTEXT) then begin
       ErrorCode := GetLastError;
-      raise Exception.CreateFmt('CryptAcquireContext failed with code 0x%.8x: %s',
-        [ErrorCode, Win32ErrorString(ErrorCode)]);
+      raise Exception.CreateFmt(SCompilerFunctionFailedWithCode,
+        ['CryptAcquireContext', ErrorCode, Win32ErrorString(ErrorCode)]);
     end;
     { Note: CryptProv is released in the 'finalization' section of this unit }
   end;
   FillChar(Buffer, Bytes, 0);
   if not CryptGenRandom(CryptProv, Bytes, @Buffer) then begin
     ErrorCode := GetLastError;
-    raise Exception.CreateFmt('CryptGenRandom failed with code 0x%.8x: %s',
-      [ErrorCode, Win32ErrorString(ErrorCode)]);
+    raise Exception.CreateFmt(SCompilerFunctionFailedWithCode,
+      ['CryptGenRandom', ErrorCode, Win32ErrorString(ErrorCode)]);
   end;
 end;
 
@@ -2887,13 +2889,13 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
 const
   UserConsts: array[0..2] of String = (
     'userpf', 'usercf', 'username');
-  Consts: array[0..41] of String = (
+  Consts: array[0..42] of String = (
     'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts', 'hwnd',
     'commonpf', 'commonpf32', 'commonpf64', 'commoncf', 'commoncf32', 'commoncf64',
     'autopf', 'autopf32', 'autopf64', 'autocf', 'autocf32', 'autocf64',
     'computername', 'dao', 'cmd', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
-    'language', 'syswow64', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
+    'language', 'syswow64', 'sysnative', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
     'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064');
   UserShellFolderConsts: array[0..8] of String = (
     'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
@@ -4267,6 +4269,9 @@ begin
         if I < 0 then
           Invalid;
         SignToolRetryDelay := I;
+      end;
+    ssSignToolRunMinimized: begin
+        SignToolRunMinimized := StrToBool(Value);
       end;
     ssSlicesPerDisk: begin
         I := StrToIntDef(Value, -1);
@@ -7382,7 +7387,8 @@ begin
   for I := 0 to LanguageEntries.Count-1 do begin
     LangData := LangDataList[I];
     for J := Low(LangData.Messages) to High(LangData.Messages) do
-      if not LangData.MessagesDefined[J] then begin
+      if not LangData.MessagesDefined[J] and
+         not (J in [msgComponentsDiskSpaceGBLabel, msgDiskSpaceGBLabel, msgPrepareToInstallNeedsRestart]) then begin
         { Use the message from Default.isl }
         if not (J in [msgHelpTextNote, msgTranslatorNote]) then
           WarningsList.Add(Format(SCompilerMessagesMissingMessageWarning,
@@ -7589,11 +7595,11 @@ begin
   for I := 0 to SignTools.Count - 1 do begin
     SignToolIndex := FindSignToolIndexByName(SignTools[I]); //can't fail, already checked
     SignTool := TSignTool(SignToolList[SignToolIndex]);
-    SignCommand(SignTool.Name, SignTool.Command, SignToolsParams[I], AExeFilename, SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween);
+    SignCommand(SignTool.Name, SignTool.Command, SignToolsParams[I], AExeFilename, SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween, SignToolRunMinimized);
   end;
 end;
 
-procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer);
+procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer; const RunMinimized: Boolean);
 
   function FmtCommand(S: PChar; const AParams, AFileName: String; var AFileNameSequenceFound: Boolean): String;
   var
@@ -7655,7 +7661,7 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
     FillChar(StartupInfo, SizeOf(StartupInfo), 0);
     StartupInfo.cb := SizeOf(StartupInfo);
     StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
-    StartupInfo.wShowWindow := SW_SHOW;
+    StartupInfo.wShowWindow := IfThen(RunMinimized, SW_SHOWMINNOACTIVE, SW_SHOW);
     
     if not CreateProcess(nil, PChar(AFormattedCommand), nil, nil, False,
        CREATE_DEFAULT_ERROR_MODE, nil, PChar(CompilerDir), StartupInfo, ProcessInfo) then begin
@@ -8128,7 +8134,7 @@ var
     FT: TFileTime;
     SourceFile: TFile;
     SignatureAddress, SignatureSize: Cardinal;
-    HdrChecksum: DWORD;
+    HdrChecksum, ErrorCode: DWORD;
   begin
     if (SetupHeader.CompressMethod in [cmLZMA, cmLZMA2]) and
        (CompressProps.WorkerProcessFilename <> '') then
@@ -8223,8 +8229,11 @@ var
           FL.ChunkSuboffset := CH.ChunkBytesRead;
           FL.OriginalSize := SourceFile.Size;
 
-          if not GetFileTime(SourceFile.Handle, nil, nil, @FT) then
-            AbortCompile('CompressFiles: GetFileTime failed');
+          if not GetFileTime(SourceFile.Handle, nil, nil, @FT) then begin
+            ErrorCode := GetLastError;
+            AbortCompileFmt(SCompilerFunctionFailedWithCode,
+              ['CompressFiles: GetFileTime', ErrorCode, Win32ErrorString(ErrorCode)]);
+          end;
           if TimeStampsInUTC then begin
             FL.SourceTimeStamp := FT;
             Include(FL.Flags, foTimeStampInUTC);

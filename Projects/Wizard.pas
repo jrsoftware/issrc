@@ -189,6 +189,7 @@ type
     DoneWithWizard: Boolean;
     PrepareToInstallNeedsRestart: Boolean;
     EnableAnchorOuterPagesOnResize: Boolean;
+    EnableAdjustReadyLabelHeightOnResize: Boolean;
     procedure AdjustFocus;
     procedure CalcCurrentComponentsSpace;
     procedure ChangeReadyLabel(const S: String);
@@ -201,8 +202,7 @@ type
     procedure RegisterExistingPage(const ID: Integer;
      const AOuterNotebookPage, AInnerNotebookPage: TNewNotebookPage;
      const ACaption, ADescription: String);
-    procedure SetSelectedComponents(const SelectedComponents, DeselectedComponents: TStringList);
-    procedure SetSelectedComponentsFromType(const TypeName: String; OnlySelectFixedComponents: Boolean);
+    procedure SelectComponentsFromType(const TypeName: String; const OnlySelectFixedComponents: Boolean);
     function ShouldSkipPage(const PageID: Integer): Boolean;
     procedure UpdateComponentSizes;
     procedure UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: LongInt);
@@ -234,6 +234,8 @@ type
     function PageIndexFromID(const ID: Integer): Integer;
     procedure UpdateCurPageButtonVisibility;
     procedure SetCurPage(const NewPageID: Integer);
+    procedure SelectComponents(const SelectComponents, DeselectComponents: TStringList; const KeepFixedComponents: Boolean);
+    procedure SelectTasks(const SelectTasks, DeselectTasks: TStringList);
     procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
       const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean); override;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
@@ -363,11 +365,22 @@ function IntToMBStr(const I: Integer64): String;
 var
   X: Extended;
 begin
-  X := (Comp(I) / 1048576) * 10;
+  X := (Comp(I) / 1048576) * 10; { * 10 to include a decimal }
   if Frac(X) > 0 then
     X := Int(X) + 1;  { always round up }
   X := X / 10;
   Result := Format('%.1n', [X]);
+end;
+
+function IntToGBStr(const I: Integer64): String;
+var
+  X: Extended;
+begin
+  X := (Comp(I) / 1073741824) * 100; { * 100 to include 2 decimals }
+  if Frac(X) > 0 then
+    X := Int(X) + 1;  { always round up }
+  X := X / 100;
+  Result := Format('%.2n', [X]);
 end;
 
 function ExpandSetupMessageEx(const ID: TSetupMessageID;
@@ -379,6 +392,19 @@ begin
   StringChange(Result, '[name/ver]', ExpandedAppVerName);
   StringChange(Result, '[kb]', IntToKBStr(Space));
   StringChange(Result, '[mb]', IntToMBStr(Space));
+  StringChange(Result, '[gb]', IntToGBStr(Space));
+end;
+
+function ExpandMBOrGBSetupMessage(const MBID, GBID: TSetupMessageID;
+  const Space: Integer64): String;
+begin
+  if (SetupMessages[GBID] <> '') and (Comp(Space) > 1048471142) then begin
+    { Don't allow it to display 1000.0 MB or more. Takes the 'always round up' into account:
+      1048471142 bytes = 999.8999996185303 MB = '999.9 MB',
+      1048471143 bytes = 999.9000005722046 MB = '1,000.0 MB'. }
+    Result := ExpandSetupMessageEx(GBID, Space)
+  end else
+    Result := ExpandSetupMessageEx(MBID, Space);
 end;
 
 function ExpandSetupMessage(const ID: TSetupMessageID): String;
@@ -558,8 +584,8 @@ begin
 
   SelectedComponents.Free();
 
-  ComponentsDiskSpaceLabel.Caption := ExpandSetupMessageEx(msgComponentsDiskSpaceMBLabel,
-    CurrentComponentsSpace);
+  ComponentsDiskSpaceLabel.Caption := ExpandMBOrGBSetupMessage(
+    msgComponentsDiskSpaceMBLabel, msgComponentsDiskSpaceGBLabel, CurrentComponentsSpace);
 end;
 
 procedure TWizardForm.UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: LongInt);
@@ -984,7 +1010,8 @@ begin
   DirBrowseButton.SetBounds(InnerNotebook.Width - X,
     DirBrowseButton.Top + I, X, DirBrowseButton.Height);
   DirEdit.Width := DirBrowseButton.Left - ScalePixelsX(10) - DirEdit.Left;
-  DiskSpaceLabel.Caption := ExpandSetupMessage(msgDiskSpaceMBLabel);
+  DiskSpaceLabel.Caption := ExpandMBOrGBSetupMessage(
+    msgDiskSpaceMBLabel, msgDiskSpaceGBLabel, MinimumSpace);
   DiskSpaceLabel.Top := DiskSpaceLabel.Top - AdjustLabelHeight(DiskSpaceLabel);
 
   { Initialize wpSelectComponents page }
@@ -994,7 +1021,8 @@ begin
   I := AdjustLabelHeight(SelectComponentsLabel);
   TypesCombo.Top := TypesCombo.Top + I;
   IncTopDecHeight(ComponentsList, I);
-  ComponentsDiskSpaceLabel.Caption := ExpandSetupMessage(msgComponentsDiskSpaceMBLabel);
+  ComponentsDiskSpaceLabel.Caption := ExpandMBOrGBSetupMessage(
+    msgComponentsDiskSpaceMBLabel, msgComponentsDiskSpaceGBLabel, MinimumSpace);
   AdjustLabelHeight(ComponentsDiskSpaceLabel);
 
   if HasCustomType and (Entries[seType].Count = 1) then begin
@@ -1194,8 +1222,8 @@ begin
       TypeEntry := PSetupTypeEntry(Entries[seType][I]);
       if toIsCustom in TypeEntry.Options then begin
         TypesCombo.ItemIndex := I;
-        SetSelectedComponentsFromType(TypeEntry.Name, True);
-        SetSelectedComponents(InitComponents, nil);
+        SelectComponentsFromType(TypeEntry.Name, True);
+        SelectComponents(InitComponents, nil, True);
         Break;
       end;
     end;
@@ -1205,18 +1233,18 @@ begin
       if toIsCustom in TypeEntry.Options then begin
         //the previous setup type is a custom type: first select the default components
         //for the default type (usually the full type). needed for new components.
-        SetSelectedComponentsFromType(PSetupTypeEntry(Entries[seType][0]).Name, False);
+        SelectComponentsFromType(PSetupTypeEntry(Entries[seType][0]).Name, False);
         //then select/deselect the custom type's fixed components
-        SetSelectedComponentsFromType(TypeEntry.Name, True);
+        SelectComponentsFromType(TypeEntry.Name, True);
         //now restore the customization
-        SetSelectedComponents(PrevSelectedComponents, PrevDeselectedComponents);
+        SelectComponents(PrevSelectedComponents, PrevDeselectedComponents, True);
       end else begin
         //this is not a custom type, so just select components based on the previous type
-        SetSelectedComponentsFromType(TypeEntry.Name, False);
+        SelectComponentsFromType(TypeEntry.Name, False);
       end;
     end else if Entries[seType].Count > 0 then begin
       TypeEntry := PSetupTypeEntry(Entries[seType][0]);
-      SetSelectedComponentsFromType(TypeEntry.Name, False);
+      SelectComponentsFromType(TypeEntry.Name, False);
     end;
   end;
 
@@ -1276,13 +1304,13 @@ procedure TWizardForm.FormResize(Sender: TObject);
     { BitmapImage's size is already corrected by the Anchors property but this
       doesn't keep the aspect ratio. Calculate and set new width to restore the
       aspect ratio and update all the other controls in the page for this. Don't
-      do this if [Code] made any change to BitmapImage's Align or Anchors
+      do this if [Code] made any change to BitmapImage's Visible, Align or Anchors
       signalling that it wants a custom layout. }
     if ControlsFlipped then
       ExpectedAnchors := [akTop, akRight, akBottom]
     else
       ExpectedAnchors := [akLeft, akTop, akBottom];
-    if (BitmapImage.Align = alNone) and (BitmapImage.Anchors = ExpectedAnchors) then begin
+    if BitmapImage.Visible and (BitmapImage.Align = alNone) and (BitmapImage.Anchors = ExpectedAnchors) then begin
       if BaseUnitX = 0 then
         InternalError('AnchorOuterPage: BaseUnitX = 0');
       NewWidth := MulDiv(BitmapImage.Height, ScalePixelsX(164), ScalePixelsY(314)); //164x314 is the original bitmapimage size
@@ -1306,6 +1334,8 @@ begin
     AnchorOuterPage(WelcomePage, WizardBitmapImage);
     AnchorOuterPage(FinishedPage, WizardBitmapImage2);
   end;
+  if EnableAdjustReadyLabelHeightOnResize then
+    IncTopDecHeight(ReadyMemo, AdjustLabelHeight(ReadyLabel));
 end;
 
 procedure TWizardForm.FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
@@ -1449,6 +1479,7 @@ procedure TWizardForm.ChangeReadyLabel(const S: String);
 begin
   ReadyLabel.Caption := S;
   IncTopDecHeight(ReadyMemo, AdjustLabelHeight(ReadyLabel));
+  EnableAdjustReadyLabelHeightOnResize := True;
 end;
 
 procedure TWizardForm.ChangeFinishedLabel(const S: String);
@@ -1597,15 +1628,7 @@ begin
     end;
 
     { Finally, restore any saved state from when the page was last shown }
-    for I := 0 to TasksList.Items.Count-1 do begin
-      TaskEntry := PSetupTaskEntry(TasksList.ItemObject[I]);
-      if TaskEntry <> nil then begin
-        if ListContains(SaveSelectedTasks, TaskEntry.Name) then
-          TasksList.Checked[I] := True
-        else if ListContains(SaveDeselectedTasks, TaskEntry.Name) then
-          TasksList.Checked[I] := False;
-      end;
-    end;
+    SelectTasks(SaveSelectedTasks, SaveDeselectedTasks);
   finally
     SaveDeselectedTasks.Free;
     SaveSelectedTasks.Free;
@@ -1623,7 +1646,7 @@ begin
     Result := nil;
 end;
 
-procedure TWizardForm.SetSelectedComponents(const SelectedComponents, DeselectedComponents: TStringList);
+procedure TWizardForm.SelectComponents(const SelectComponents, DeselectComponents: TStringList; const KeepFixedComponents: Boolean);
 var
   I: Integer;
   ComponentEntry: PSetupComponentEntry;
@@ -1631,32 +1654,58 @@ begin
   for I := 0 to Entries[seComponent].Count-1 do begin
     ComponentEntry := PSetupComponentEntry(Entries[seComponent][I]);
 
-    { Don't mess with fixed components }
-    if not (coFixed in ComponentEntry.Options) then begin
-      if SelectedComponents <> nil then begin
-        if ListContains(SelectedComponents, '*' + ComponentEntry.Name) then begin
+    if not (KeepFixedComponents and (coFixed in ComponentEntry.Options)) then begin
+      if SelectComponents <> nil then begin
+        if ListContains(SelectComponents, '*' + ComponentEntry.Name) then begin
           ComponentsList.CheckItem(I, coCheckWithChildren);
           Continue;
         end;
-        if ListContains(SelectedComponents, ComponentEntry.Name) then begin
+        if ListContains(SelectComponents, ComponentEntry.Name) then begin
           ComponentsList.Checked[I] := True;
           Continue;
         end;
-        if ListContains(SelectedComponents, '!' + ComponentEntry.Name) then begin
+        if ListContains(SelectComponents, '!' + ComponentEntry.Name) then begin
           ComponentsList.Checked[I] := False;
           Continue;
         end;
       end;
 
-      if DeselectedComponents <> nil then begin
-        if ListContains(DeselectedComponents, ComponentEntry.Name) then
+      if DeselectComponents <> nil then begin
+        if ListContains(DeselectComponents, ComponentEntry.Name) then
           ComponentsList.Checked[I] := False;
       end;
     end;
   end;
 end;
 
-procedure TWizardForm.SetSelectedComponentsFromType(const TypeName: String; OnlySelectFixedComponents: Boolean);
+procedure TWizardForm.SelectTasks(const SelectTasks, DeselectTasks: TStringList);
+var
+  I: Integer;
+  TaskEntry: PSetupTaskEntry;
+begin
+  for I := 0 to TasksList.Items.Count-1 do begin
+    TaskEntry := PSetupTaskEntry(TasksList.ItemObject[I]);
+    if TaskEntry <> nil then begin
+      if SelectTasks <> nil then begin
+        if ListContains(SelectTasks, TaskEntry.Name) then begin
+          TasksList.Checked[I] := True;
+          Continue;
+        end;
+        if ListContains(SelectTasks, '!' + TaskEntry.Name) then begin
+          TasksList.Checked[I] := False;
+          Continue;
+        end;
+      end;
+      
+      if DeselectTasks <> nil then begin
+        if ListContains(DeselectTasks, TaskEntry.Name) then
+          TasksList.Checked[I] := False;
+      end;
+    end;
+  end;
+end;
+
+procedure TWizardForm.SelectComponentsFromType(const TypeName: String; const OnlySelectFixedComponents: Boolean);
 var
   ComponentTypes: TStringList;
   ComponentEntry: PSetupComponentEntry;
@@ -1799,6 +1848,7 @@ var
   WindowDisabler: TWindowDisabler;
   CodeNeedsRestart: Boolean;
   Y: Integer;
+  S: String;
 begin
   Result := '';
   PrepareToInstallNeedsRestart := False;
@@ -1831,10 +1881,13 @@ begin
     Application.BringToFront;
   end;
   if Result <> '' then begin
-    if PrepareToInstallNeedsRestart then
+    if PrepareToInstallNeedsRestart then begin
+      S := ExpandSetupMessage(msgPrepareToInstallNeedsRestart);
+      if S = '' then
+        S := ExpandSetupMessage(msgFinishedRestartLabel);
       PreparingLabel.Caption := Result +
-        SNewLine + SNewLine + SNewLine + ExpandSetupMessage(msgFinishedRestartLabel) + SNewLine
-    else
+        SNewLine + SNewLine + SNewLine + S + SNewLine
+    end else
       PreparingLabel.Caption := Result +
         SNewLine + SNewLine + SNewLine + SetupMessages[msgCannotContinue];
     AdjustLabelHeight(PreparingLabel);
@@ -1843,9 +1896,11 @@ begin
     if PrepareToInstallNeedsRestart then begin
       Y := PreparingLabel.Top + PreparingLabel.Height;
       PreparingYesRadio.Top := Y;
+      PreparingYesRadio.Anchors := [akLeft, akTop, akRight];
       PreparingYesRadio.Caption := SetupMessages[msgYesRadio];
       PreparingYesRadio.Visible := True;
       PreparingNoRadio.Top := Y + ScalePixelsY(22);
+      PreparingNoRadio.Anchors := [akLeft, akTop, akRight];
       PreparingNoRadio.Caption := SetupMessages[msgNoRadio];
       PreparingNoRadio.Visible := True;
     end;
@@ -1966,9 +2021,11 @@ begin
     PreparingMemo.Visible := True;
     Y := PreparingMemo.Top + PreparingMemo.Height + ScalePixelsY(12);
     PreparingYesRadio.Top := Y;
+    PreparingYesRadio.Anchors := [akLeft, akRight, akBottom];
     PreparingYesRadio.Caption := SetupMessages[msgCloseApplications];
     PreparingYesRadio.Visible := True;
     PreparingNoRadio.Top := Y + ScalePixelsY(22);
+    PreparingNoRadio.Anchors := [akLeft, akRight, akBottom];
     PreparingNoRadio.Caption := SetupMessages[msgDontCloseApplications];
     PreparingNoRadio.Visible := True;
   end;
@@ -2580,7 +2637,7 @@ begin
   //select the components for this type. if the type is custom only select
   //fixed components
   TypeEntry := PSetupTypeEntry(TypesCombo.Items.Objects[TypesCombo.ItemIndex]);
-  SetSelectedComponentsFromType(TypeEntry.Name, (toIsCustom in TypeEntry.Options));
+  SelectComponentsFromType(TypeEntry.Name, (toIsCustom in TypeEntry.Options));
 
   //if customization is possible remember the type and components that are
   //selected, so that we can reselect the setup type later if after customization
@@ -2622,7 +2679,7 @@ begin
       TypeEntry := Entries[seType][I];
       if (toIsCustom in TypeEntry.Options) then begin
         TypesCombo.ItemIndex := TypesCombo.Items.IndexOfObject(TObject(TypeEntry));
-        SetSelectedComponentsFromType(TypeEntry.Name, True);
+        SelectComponentsFromType(TypeEntry.Name, True);
         Break;
       end;
     end

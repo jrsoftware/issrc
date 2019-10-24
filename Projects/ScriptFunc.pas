@@ -2,7 +2,7 @@ unit ScriptFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2019 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -180,13 +180,15 @@ const
   );
 
   { Main }
-  MainTable: array [0..26] of AnsiString =
+  MainTable: array [0..28] of AnsiString =
   (
     'function GetWizardForm: TWizardForm;',
     'function GetMainForm: TMainForm;',
     'function ActiveLanguage: String;',
-    'function IsComponentSelected(const Components: String): Boolean;',
-    'function IsTaskSelected(const Tasks: String): Boolean;',
+    'function WizardIsComponentSelected(const Components: String): Boolean;',
+    'function IsComponentSelected(const Components: String): Boolean;', { old name of WizardIsComponentSelected }
+    'function WizardIsTaskSelected(const Tasks: String): Boolean;',
+    'function IsTaskSelected(const Tasks: String): Boolean;', { old name of WizardIsTaskSelected }
     'function ExpandConstant(const S: String): String;',
     'function ExpandConstantEx(const S: String; const CustomConst, CustomValue: String): String;',
     'function ExitSetupMsgBox: Boolean;',
@@ -222,10 +224,12 @@ const
   );
 
   { System }
-  SystemTable: array [0..1] of AnsiString =
+  SystemTable: array [0..3] of AnsiString =
   (
     'function Random(const Range: Integer): Integer;',
-    'function FileSize(const Name: String; var Size: Integer): Boolean;'
+    'function FileSize(const Name: String; var Size: Integer): Boolean;',
+    'procedure Set8087CW(NewCW: Word);',
+    'function Get8087CW: Word;'
   );
 
   { SysUtils }
@@ -307,7 +311,7 @@ const
   );
 
   { Other }
-  OtherTable: array [0..28] of AnsiString =
+  OtherTable: array [0..30] of AnsiString =
   (
     'procedure BringToFrontAndRestore;',
     'function WizardDirValue: String;',
@@ -316,6 +320,8 @@ const
     'function WizardSetupType(const Description: Boolean): String;',
     'function WizardSelectedComponents(const Descriptions: Boolean): String;',
     'function WizardSelectedTasks(const Descriptions: Boolean): String;',
+    'procedure WizardSelectComponents(const Components: String);',
+    'procedure WizardSelectTasks(const Tasks: String);',
     'function WizardSilent: Boolean;',
     'function IsUninstaller: Boolean;',
     'function UninstallSilent: Boolean;',

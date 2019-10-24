@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.0+ Catalan messages ***
+; *** Inno Setup version 6.0.3+ Catalan messages ***
 ;
 ; Translated by Carles Millan (email: carles@carlesmillan.cat)
 
@@ -134,6 +134,7 @@ WizardSelectDir=Trieu Carpeta de Destinació
 SelectDirDesc=On s'ha d'instal·lar [name]?
 SelectDirLabel3=El programa d'instal·lació instal·larà [name] a la carpeta següent.
 SelectDirBrowseLabel=Per a continuar, premeu Següent. Si desitgeu triar una altra capeta, premeu Cerca.
+DiskSpaceGBLabel=Aquest programa necessita un mínim de [gb] GB d'espai a disc.
 DiskSpaceMBLabel=Aquest programa necessita un mínim de [mb] MB d'espai a disc.
 CannotInstallToNetworkDrive=La instal·lació no es pot fer en un disc de xarxa.
 CannotInstallToUNCPath=La instal·lació no es pot fer a una ruta UNC.
@@ -161,6 +162,7 @@ NoUninstallWarningTitle=Els components Existeixen
 NoUninstallWarning=El programa d'instal·lació ha detectat que els components següents ja es troben al vostre ordinador:%n%n%1%n%nSi no estan seleccionats no seran desinstal·lats.%n%nVoleu continuar igualment?
 ComponentSize1=%1 Kb
 ComponentSize2=%1 Mb
+ComponentsDiskSpaceGBLabel=Aquesta selecció requereix un mínim de [gb] GB d'espai al disc.
 ComponentsDiskSpaceMBLabel=Aquesta selecció requereix un mínim de [mb] Mb d'espai al disc.
 
 ; *** "Select Additional Tasks" wizard page
@@ -201,6 +203,7 @@ ApplicationsFound2=Les següents aplicacions estan fent servir fitxers que necess
 CloseApplications=&Tanca automàticament les aplicacions
 DontCloseApplications=&No tanquis les aplicacions
 ErrorCloseApplications=El programa d'instal·lació no ha pogut tancar automàticament totes les aplicacions. Es recomana que abans de continuar tanqueu totes les aplicacions que estan usant fitxers que han de ser actualitzats pel programa d'instal·lació.
+PrepareToInstallNeedsRestart=El programa d'instal·lació ha de reiniciar l'ordinador. Després del reinici, executeu de nou l'instal·lador per tal de completar la instal·lació de [name].%n%nVoleu reiniciar-lo ara? 
 
 ; *** "Installing" wizard page
 WizardInstalling=Instal·lant

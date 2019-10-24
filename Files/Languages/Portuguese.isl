@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.0+ Portuguese (Portugal) messages ***
+; *** Inno Setup version 6.0.3+ Portuguese (Portugal) messages ***
 ;
 ; Maintained by Nuno Silva (nars AT gmx.net)
 
@@ -133,6 +133,7 @@ WizardSelectDir=Seleccione a localização de destino
 SelectDirDesc=Onde deverá ser instalado o [name]?
 SelectDirLabel3=O [name] será instalado na seguinte pasta.
 SelectDirBrowseLabel=Para continuar, clique em Seguinte. Se desejar seleccionar uma pasta diferente, clique em Procurar.
+DiskSpaceGBLabel=É necessário pelo menos [gb] GB de espaço livre em disco.
 DiskSpaceMBLabel=É necessário pelo menos [mb] MB de espaço livre em disco.
 CannotInstallToNetworkDrive=O Assistente de Instalação não pode instalar numa unidade de rede.
 CannotInstallToUNCPath=O Assistente de Instalação não pode instalar num caminho UNC.
@@ -160,6 +161,7 @@ NoUninstallWarningTitle=Componentes Encontrados
 NoUninstallWarning=O Assistente de Instalação detectou que os seguintes componentes estão instalados no seu computador:%n%n%1%n%nSe desseleccionar estes componentes eles não serão desinstalados.%n%nDeseja continuar?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=A selecção actual necessita de pelo menos [gb] GB de espaço em disco.
 ComponentsDiskSpaceMBLabel=A selecção actual necessita de pelo menos [mb] MB de espaço em disco.
 
 ; *** "Select Additional Tasks" wizard page
@@ -200,6 +202,7 @@ ApplicationsFound2=As seguintes aplicações estão a utilizar ficheiros que necess
 CloseApplications=&Fechar as aplicações automaticamente
 DontCloseApplications=&Não fechar as aplicações
 ErrorCloseApplications=O Assistente de Instalação não conseguiu fechar todas as aplicações automaticamente. Antes de continuar é recomendado que feche todas as aplicações que utilizem ficheiros que necessitem de ser actualizados pelo Assistente de Instalação.
+PrepareToInstallNeedsRestart=O Assistente de Instalação necessita reiniciar o seu computador. Depois de reiniciar o computador, execute novamente o Assistente de Instalação para completar a instalação do [name].%n%nDeseja reiniciar agora?
 
 ; *** "Installing" wizard page
 WizardInstalling=A instalar
@@ -285,7 +288,9 @@ ErrorRegSvr32Failed=O RegSvr32 falhou com o código de saída %1
 ErrorRegisterTypeLib=Não foi possível registar a livraria de tipos: %1
 
 ; *** Uninstall display name markings
+; used for example as 'My Program (32-bit)'
 UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
 UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32-bit
 UninstallDisplayNameMark64Bit=64-bit

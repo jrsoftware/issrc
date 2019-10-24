@@ -1,6 +1,6 @@
 ; *******************************************************
 ; ***                                                 ***
-; *** Inno Setup version 6.0.0+ Czech messages        ***
+; *** Inno Setup version 6.0.3+ Czech messages        ***
 ; ***                                                 ***
 ; *** Original Author:                                ***
 ; ***                                                 ***
@@ -144,6 +144,7 @@ WizardSelectDir=Zvolte cílové umístìní
 SelectDirDesc=Kam má bıt produkt [name] nainstalován?
 SelectDirLabel3=Prùvodce nainstaluje produkt [name] do následující sloky.
 SelectDirBrowseLabel=Pokraèujte klepnutím na tlaèítko Další. Chcete-li zvolit jinou sloku, klepnìte na tlaèítko Procházet.
+DiskSpaceGBLabel=Instalace vyaduje nejménì [gb] MB volného místa na disku.
 DiskSpaceMBLabel=Instalace vyaduje nejménì [mb] MB volného místa na disku.
 CannotInstallToNetworkDrive=Prùvodce instalací nemùe instalovat do síové jednotky.
 CannotInstallToUNCPath=Prùvodce instalací nemùe instalovat do cesty UNC.
@@ -171,6 +172,7 @@ NoUninstallWarningTitle=Souèásti existují
 NoUninstallWarning=Prùvodce instalací zjistil, e následující souèásti jsou ji na Vašem poèítaèi nainstalovány:%n%n%1%n%nNezahrnete-li tyto souèásti do vıbìru, nebudou nyní odinstalovány.%n%nChcete pøesto pokraèovat?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Vybrané souèásti vyadují nejménì [gb] MB místa na disku.
 ComponentsDiskSpaceMBLabel=Vybrané souèásti vyadují nejménì [mb] MB místa na disku.
 
 ; *** "Select Additional Tasks" wizard page
@@ -211,6 +213,7 @@ ApplicationsFound2=Následující aplikace pøistupují k souborùm, které je tøeba bì
 CloseApplications=&Zavøít aplikace automaticky
 DontCloseApplications=&Nezavírat aplikace
 ErrorCloseApplications=Prùvodci instalací se nepodaøilo automaticky zavøít všechny aplikace. Døíve ne budete pokraèovat, doporuèuje se zavøít veškeré aplikace pøistupující k souborùm, které je tøeba bìhem instalace aktualizovat.
+PrepareToInstallNeedsRestart=Prùvodce instalací musí restartovat Váš poèítaè. Po restartování Vašeho poèítaèe spuste prùvodce instalací znovu, aby bylo moné dokonèit instalaci produktu [name].%n%nChcete jej restartovat nyní?
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalování
@@ -221,8 +224,8 @@ FinishedHeadingLabel=Dokonèuje se instalace produktu [name]
 FinishedLabelNoIcons=Prùvodce instalací dokonèil instalaci produktu [name] na Váš poèítaè.
 FinishedLabel=Prùvodce instalací dokonèil instalaci produktu [name] na Váš poèítaè. Produkt lze spustit pomocí nainstalovanıch zástupcù.
 ClickFinish=Ukonèete prùvodce instalací klepnutím na tlaèítko Dokonèit.
-FinishedRestartLabel=K dokonèení instalace produktu [name] je nezbytné, aby prùvodce instalací restartoval Váš poèítaè. Chcete jej nyní restartovat?
-FinishedRestartMessage=K dokonèení instalace produktu [name] je nezbytné, aby prùvodce instalací restartoval Váš poèítaè.%n%nChcete jej nyní restartovat?
+FinishedRestartLabel=K dokonèení instalace produktu [name] je nezbytné, aby prùvodce instalací restartoval Váš poèítaè. Chcete jej restartovat nyní?
+FinishedRestartMessage=K dokonèení instalace produktu [name] je nezbytné, aby prùvodce instalací restartoval Váš poèítaè.%n%nChcete jej restartovat nyní?
 ShowReadmeCheck=Ano, chci zobrazit dokument "ÈTIMNE"
 YesRadio=&Ano, chci nyní restartovat poèítaè
 NoRadio=&Ne, poèítaè restartuji pozdìji
@@ -320,7 +323,7 @@ OnlyAdminCanUninstall=K odinstalaci tohoto produktu musíte bıt pøihlášeni s práv
 UninstallStatusLabel=Èekejte prosím, dokud produkt %1 nebude odinstalován z Vašeho poèítaèe.
 UninstalledAll=Produkt %1 byl z Vašeho poèítaèe úspìšnì odinstalován.
 UninstalledMost=Produkt %1 byl odinstalován.%n%nNìkteré jeho souèásti se odinstalovat nepodaøilo. Mùete je však odstranit ruènì.
-UninstalledAndNeedsRestart=K dokonèení odinstalace produktu %1 je nezbytné, aby prùvodce odinstalací restartoval Váš poèítaè.%n%nChcete jej nyní restartovat?
+UninstalledAndNeedsRestart=K dokonèení odinstalace produktu %1 je nezbytné, aby prùvodce odinstalací restartoval Váš poèítaè.%n%nChcete jej restartovat nyní?
 UninstallDataCorrupted=Soubor "%1" je poškozen. Produkt nelze odinstalovat
 
 ; *** Uninstallation phase messages

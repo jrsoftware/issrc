@@ -86,7 +86,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.0.1-beta</b><br/>
+<b>Inno Setup version 6.0.3</b><br/>
 <b>Copyright &copy; 1997-2019 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2019 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
@@ -100,9 +100,9 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <ul>
 
-<li>Support for every Windows release since 2006, including: Windows 10, Windows 10 on ARM, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Server 2008, and Windows Vista. (No service packs are required.)</li>
+<li>Support for every Windows release since 2006, including: Windows 10, Windows 10 on ARM, Windows Server 2019, Windows Server 2016, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Server 2008, and Windows Vista. (No service packs are required.)</li>
 
-<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are supported.</li>
+<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are all supported.</li>
 
 <li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link> installations.</li>
 
@@ -371,6 +371,7 @@ This " contains " embedded " quotes
 <keyword value="{src}" anchor="src" />
 <keyword value="{srcexe}" anchor="srcexe" />
 <keyword value="{sys}" anchor="sys" />
+<keyword value="{sysnative}" anchor="sysnative" />
 <keyword value="{sysuserinfoname}" anchor="sysuserinfoname" />
 <keyword value="{sysuserinfoorg}" anchor="sysuserinfoorg" />
 <keyword value="{syswow64}" anchor="syswow64" />
@@ -427,9 +428,14 @@ For example: If you used <tt>{sys}\CTL3D32.DLL</tt> on an entry and the system's
 <p>On 64-bit Windows, by default, the System32 path returned by this constant maps to the directory containing 32-bit system files, just like on 32-bit Windows. (This can be overridden by enabling <link topic="32vs64bitinstalls">64-bit install mode</link>.)</p>
 </dd>
 
+<dt><b><a name="sysnative">{sysnative}</a></b></dt>
+<dd>
+<p>On 64-bit Windows, the directory containing 64-bit system files. On 32-bit Windows, the directory containing 32-bit system files.</p>
+</dd>
+
 <dt><b><a name="syswow64">{syswow64}</a></b></dt>
 <dd>
-<p>On 64-bit Windows, the system's SysWOW64 directory, typically "C:\WINDOWS\SysWOW64". This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files reside in "System32" or "System", not in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
+<p>On 64-bit Windows, the system's SysWOW64 directory, typically "C:\WINDOWS\SysWOW64". This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files do not reside in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
 <p>Do not use this constant unless you have a specific need to obtain the name of the actual directory in which 32-bit system files reside. Gratuitously using <tt>{syswow64}</tt> in places where <tt>{sys}</tt> will suffice may cause problems. (See the documentation for the <link topic="filessection">[Files]</link> section's <tt>sharedfile</tt> flag for one example.)</p>
 </dd>
 
@@ -614,11 +620,12 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <heading>Auto Constants</heading>
 
-<p>Besides the "common" and "user" constants, Inno Setup also supports "auto" constants. These automatically map to their "common" form unless the installation is running in <link topic="admininstallmode">non administrative install mode</link>, in which case they map to their "user" form. It is recommended you always use these "auto" constants when possible to avoid mistakes.</p>
+<p>Besides the "common" and "user" constants, Inno Setup also supports "auto" constants. These automatically map to their "common" form unless the installation is running in <link topic="admininstallmode">non administrative install mode</link>, in which case they map to their "user" form.</p>
+<p>It is recommended you always use these "auto" constants when possible to avoid mistakes.</p>
 
 <indent>
 <table>
-<tr><td></td><td><u>Administrative</u></td><td><u>Not administrative</u></td></tr>
+<tr><td></td><td><u>Administrative</u></td><td><u>Non administrative</u></td></tr>
 <tr><td><tt><a name="autoappdata">autoappdata</a></tt></td><td><tt>commonappdata</tt></td><td><tt>userappdata</tt></td></tr>
 <tr><td><tt><a name="autocf">autocf</a></tt></td><td><tt>commoncf</tt></td><td><tt>usercf</tt></td></tr>
 <tr><td><tt><a name="autocf32">autocf32</a></tt></td><td><tt>commoncf32</tt></td><td><tt>usercf</tt></td></tr>
@@ -978,6 +985,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link></li>
 <li><link topic="setup_signtoolretrycount">SignToolRetryCount</link></li>
 <li><link topic="setup_signtoolretrydelay">SignToolRetryDelay</link></li>
+<li><link topic="setup_signtoolrunminimized">SignToolRunMinimized</link></li>
 <li><link topic="setup_slicesperdisk">SlicesPerDisk</link></li>
 <li><link topic="setup_solidcompression">SolidCompression</link></li>
 <li><link topic="setup_sourcedir">SourceDir</link></li>
@@ -2736,8 +2744,11 @@ Type: files; Name: "{win}\MYPROG.INI"
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. If it says "(u)" you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
   <ul>
-  <li>Unicode Inno Setup uses the existing ANSI .isl language files and you should not and may not convert these to Unicode or anything similar since it does so automatically during compilation using the <tt>LanguageCodePage</tt> setting of the language. However, you do need to convert existing [Messages] and [CustomMessages] entries in your .iss files to Unicode if the language used a special <tt>LanguageCodePage</tt>.</li>
-  <li>The automatic conversion is also done for any language specific plain text ANSI <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> used so you should not convert these either (but you may do so if you wish anyway, unlike ANSI .isl language files).</li>
+  <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files (but not UTF-16).</li>
+  <li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
+  <li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must to be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
+  <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>.</li>
+  <li>Any language specific plain text ANSI files used for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
   <li>The [Setup] directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li>
   <li>Existing installations of your programs done by non Unicode installers can be freely updated by Unicode installers, and vice versa.</li>
   <li>Unicode Pascal Scripting notes:
@@ -2751,8 +2762,6 @@ Type: files; Name: "{win}\MYPROG.INI"
     <li>If you want to compile an existing script that imports ANSI Windows API calls with the Unicode compiler, either upgrade to the 'W' Unicode API call or change the parameters from 'String' or 'PChar' to 'AnsiString'. The 'AnsiString' approach will make your [Code] compatible with both the Unicode and the non Unicode version.</li>
     </ul>
   </li>
-  <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files (but not UTF-16).</li>
-  <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>.</li>
   </ul>
 <p>Note: Unicode Inno Setup can only create Unicode installers and like wise the non Unicode version can only create non Unicode installers. If you want to be able to create both Unicode and non Unicode installers on one computer, you have to install both versions of Inno Setup into different folders.</p>
 
@@ -4564,8 +4573,8 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the language of the previous installation as the default language selected in the list of available languages on the <i>Select Language</i> dialog.</p>
-<p>Note that this directive does not change the language used by the <i>Select Language</i> dialog itself because it cannot assume that the current user understands the same languages as the previous user. See the <link topic="languagessection">[Languages] section</link> help topic for details on which language the <i>Select Language</i> dialog uses by default.</p>
+<p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the language of the previous installation as the default language presented to the user in the wizard.</p>
+<p>Note that this directive does not change the language used by the <i>Select Language</i> dialog itself. See the <link topic="languagessection">[Languages] section</link> help topic for details on which language the <i>Select Language</i> dialog uses by default.</p>
 <p>Also note that Setup cannot re-use settings from a previous installation that had <tt>Uninstallable</tt> set to <tt>no</tt>, since the registry entries it looks for are not created when <tt>Uninstallable</tt> is <tt>no</tt>.</p>
 <p><tt>UsePreviousLanguage</tt> must be set to <tt>no</tt> when <tt>AppId</tt> includes constants.</p>
 </body>
@@ -5201,7 +5210,8 @@ SignTool=byparam format c:
 <p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <link topic="setup_diskslicesize">DiskSliceSize</link> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-1 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-1 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link><br/>
-<link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
+<link topic="setup_signtoolretrycount">SignToolRetryCount</link><br/>
+<link topic="setup_signtoolrunminimized">SignToolRunMinimized</link></p>
 </body>
 </setuptopic>
 
@@ -5240,6 +5250,19 @@ SignTool=byparam format c:
 <p><b>See also:</b><br/>
 <link topic="setup_signtool">SignTool</link><br/>
 <link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="SignToolRunMinimized">
+<keyword value="signature" />
+<keyword value="digital signature" />
+<keyword value="code signing" />
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>no</tt></setupdefault>
+<body>
+<p>When set to <tt>yes</tt>, the Setup Compiler will run Sign Tools in a minimized window.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_signtool">SignTool</link></p>
 </body>
 </setuptopic>
 
@@ -5446,11 +5469,12 @@ SignTool=byparam format c:
 <tr><td>6.3.9600</td><td>Windows 8.1 with Update 1</td></tr>
 <tr><td>10.0.10240</td><td>Windows 10 Version 1507</td></tr>
 <tr><td>10.0.10586</td><td>Windows 10 Version 1511 (November Update)</td></tr>
-<tr><td>10.0.14393</td><td>Windows 10 Version 1607 (Anniversary Update)</td></tr>
+<tr><td>10.0.14393</td><td>Windows 10 Version 1607 (Anniversary Update)<br/>or Windows Server 2016</td></tr>
 <tr><td>10.0.15063</td><td>Windows 10 Version 1703 (Creators Update)</td></tr>
 <tr><td>10.0.16299</td><td>Windows 10 Version 1709 (Fall Creators Update)</td></tr>
 <tr><td>10.0.17134</td><td>Windows 10 Version 1803 (April 2018 Update)</td></tr>
-<tr><td>10.0.17763</td><td>Windows 10 Version 1809 (October 2018 Update)</td></tr>
+<tr><td>10.0.17763</td><td>Windows 10 Version 1809 (October 2018 Update)<br/>or Windows Server 2019</td></tr>
+<tr><td>10.0.18362</td><td>Windows 10 Version 1903 (May 2019 Update)</td></tr>
 </table>
 <p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>
@@ -5462,7 +5486,7 @@ SignTool=byparam format c:
 <table>
 <tr><td><tt>admins</tt></td><td>Administrators group</td></tr>
 <tr><td><tt>authusers</tt></td><td>Authenticated Users group</td></tr>
-<tr><td><tt>createowner</tt></td><td>Creator Owner</td></tr>
+<tr><td><tt>creatorowner</tt></td><td>Creator Owner</td></tr>
 <tr><td><tt>everyone</tt></td><td>Everyone group</td></tr>
 <tr><td><tt>guests</tt></td><td>Guests group</td></tr>
 <tr><td><tt>networkservice</tt></td><td>Network service account</td></tr>

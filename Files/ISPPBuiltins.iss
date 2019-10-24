@@ -1,12 +1,11 @@
 ; BEGIN ISPPBUILTINS.ISS
 //
-// Inno Setup Preprocessor 5
+// Inno Setup Preprocessor
 //
 // Copyright (C) 2001-2004 Alex Yackimoff. All Rights Reserved.
 // Portions by Martijn Laan.
-// http://ispp.sourceforge.net
 //
-// Inno Setup (C) 1997-2018 Jordan Russell. All Rights Reserved.
+// Inno Setup (C) 1997-2019 Jordan Russell. All Rights Reserved.
 // Portions by Martijn Laan.
 //
 #if defined(ISPP_INVOKED) && !defined(_BUILTINS_ISS_)
@@ -51,10 +50,11 @@
 #else
 # pragma parseroption -p-
 #endif
-
-#define NewLine "\n"
+//
+#define NewLine            "\n"
+#define Tab                "\t"
+//
 #pragma parseroption -p+
-
 //
 #pragma spansymbol "\"
 //
