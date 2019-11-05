@@ -88,6 +88,8 @@ const
   ecPrepareToInstallFailedRestartNeeded = 8;
                                  { Stopped on Preparing to Install page;
                                    restart needed. }
+                                   
+  CodeRunnerNamingAttribute = 'Event';
 
 var
   MainForm: TMainForm;
@@ -3343,7 +3345,7 @@ begin
   if SetupHeader.CompiledCodeText <> '' then begin
     CodeRunner := TScriptRunner.Create();
     try
-      CodeRunner.NamingAttribute := 'Event';
+      CodeRunner.NamingAttribute := CodeRunnerNamingAttribute;
       CodeRunner.OnLog := CodeRunnerOnLog;
       CodeRunner.OnLogFmt := CodeRunnerOnLogFmt;
       CodeRunner.OnDllImport := CodeRunnerOnDllImport;
