@@ -1,6 +1,6 @@
-; *** Inno Setup version 6.0.0+ Hungarian messages ***
-;	Based on the translation of Kornél Pál, kornelpal@gmail.com
-;	István Szabó, E-mail: istvanszabo890629@gmail.com
+;Inno Setup version 6.0.3+ Hungarian messages
+;Based on the translation of Kornél Pál, kornelpal@gmail.com
+;István Szabó, E-mail: istvanszabo890629@gmail.com
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -22,9 +22,9 @@ LanguageCodePage=1250
 ;DialogFontSize=8
 ;WelcomeFontName=Verdana
 ;WelcomeFontSize=12
-;TitleFontName=Arial
+;TitleFontName=Arial CE
 ;TitleFontSize=29
-;CopyrightFontName=Arial
+;CopyrightFontName=Arial CE
 ;CopyrightFontSize=8
 
 [Messages]
@@ -43,7 +43,7 @@ ErrorTitle=Hiba
 ; *** SetupLdr messages
 SetupLdrStartupMessage=%1 telepítve lesz. Szeretné folytatni?
 LdrCannotCreateTemp=Átmeneti fájl létrehozása nem lehetséges. A telepítés megszakítva
-LdrCannotExecTemp=Fájl futtatása nem lehetséges az átmeneti könyvtárban. A telepítés megszakítva
+LdrCannotExecTemp=Fájl futattása nem lehetséges az átmeneti könyvtárban. A telepítés megszakítva
 HelpTextNote=
 
 ; *** Startup error messages
@@ -104,7 +104,7 @@ ButtonWizardBrowse=T&allózás...
 ButtonNewFolder=Új &könyvtár
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Telepítõ nyelvi beállítása
+SelectLanguageTitle=Telepítõ nyelvi beállítás
 SelectLanguageLabel=Válassza ki a telepítés alatt használt nyelvet.
 
 ; *** Common wizard text
@@ -153,6 +153,7 @@ WizardSelectDir=Válasszon célkönyvtárat
 SelectDirDesc=Hova települjön a(z) [name]?
 SelectDirLabel3=A(z) [name] az alábbi könyvtárba lesz telepítve. 
 SelectDirBrowseLabel=A folytatáshoz, kattintson a 'Tovább'-ra. Ha másik könyvtárat választana, kattintson a 'Tallózás'-ra.
+DiskSpaceGBLabel=At least [gb] GB szabad területre van szükség.
 DiskSpaceMBLabel=Legalább [mb] MB szabad területre van szükség.
 CannotInstallToNetworkDrive=A Telepítõ nem tud hálózati meghajtóra telepíteni.
 CannotInstallToUNCPath=A Telepítõ nem tud hálózati UNC elérési útra telepíteni.
@@ -180,6 +181,7 @@ NoUninstallWarningTitle=Létezõ összetevõ
 NoUninstallWarning=A telepítõ úgy találta, hogy a következõ összetevõk már telepítve vannak a számítógépre:%n%n%1%n%nEzen összetevõk kijelölésének törlése, nem távolítja el azokat a számítógéprõl.%n%nMindenképpen folytatja?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceMBLabel=A jelenlegi kijelölés legalább [gb] GB lemezterületet igényel.
 ComponentsDiskSpaceMBLabel=A jelenlegi kijelölés legalább [mb] MB lemezterületet igényel.
 
 ; *** "Select Additional Tasks" wizard page
@@ -220,6 +222,7 @@ ApplicationsFound2=A következõ alkalmazások olyan fájlokat használnak, amelyeket
 CloseApplications=&Alkalmazások automatikus bezárása
 DontCloseApplications=&Ne zárja be az alkalmazásokat
 ErrorCloseApplications=A Telepítõ nem tudott minden alkalmazást automatikusan bezárni. A folytatás elõtt ajánlott minden, a Telepítõ által frissítendõ fájlokat használó alkalmazást bezárni.
+PrepareToInstallNeedsRestart=A telepítõnek újra kell indítania a számítógépet. Újaindítást követõen, futassa újból a telepítõt, a [name] telepítésének befejezéséhez .%n%nÚjra szeretné indítani most a számítógépet?
 
 ; *** "Installing" wizard page
 WizardInstalling=Telepítés
@@ -280,7 +283,7 @@ ErrorRegCreateKey=Nem hozható létre a rendszerleíró kulcs:%n%1\%2
 ErrorRegWriteKey=Nem módosítható a rendszerleíró kulcs:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Hiba történt az INI bejegyzés során ebben a fájlban: "%1".
+ErrorIniEntry=Bejegyzés létrehozása sikertelen a következõ INI fájlban: "%1".
 
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=&Fájl kihagyása (nem ajánlott)
@@ -328,7 +331,7 @@ UninstallOnlyOnWin64=Ezt a telepítést csak 64-bites Windowson lehet eltávolítani
 OnlyAdminCanUninstall=Ezt a telepítést csak adminisztrációs jogokkal rendelkezõ felhasználó távolíthatja el.
 UninstallStatusLabel=Legyen türelemmel, amíg a(z) %1 számítógépérõl történõ eltávolítása befejezõdik.
 UninstalledAll=A(z) %1 sikeresen el lett távolítva a számítógéprõl.
-UninstalledMost=A(z) %1 eltávolítása befejezõdött.%n%nNéhány elemet nem lehetett eltávolítani. Törölje kézileg.
+UninstalledMost=A(z) %1 eltávolítása befejezõdött.%n%nNéhány elemet nem lehetetett eltávolítani. Törölje kézileg.
 UninstalledAndNeedsRestart=A(z) %1 eltávolításának befejezéséhez újra kell indítania a számítógépét.%n%nÚjraindítja most?
 UninstallDataCorrupted=A(z) "%1" fájl sérült. Nem távolítható el.
 
