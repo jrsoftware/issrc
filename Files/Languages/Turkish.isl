@@ -28,10 +28,10 @@ LanguageCodePage=1254
 [Messages]
 
 ; *** Uygulama baþlýklarý
-SetupAppTitle=Kurulum
-SetupWindowTitle=%1 - Kurulumu
-UninstallAppTitle=Kaldýrma
-UninstallAppFullTitle=%1 Kaldýrma
+SetupAppTitle=Kurulum Yardýmcýsý
+SetupWindowTitle=%1 - Kurulum Yardýmcýsý
+UninstallAppTitle=Kaldýrma Yardýmcýsý
+UninstallAppFullTitle=%1 Kaldýrma Yardýmcýsý
 
 ; *** Çeþitli ortak metinler
 InformationTitle=Bilgi
@@ -48,9 +48,9 @@ HelpTextNote=
 LastErrorMessage=%1.%n%nHata %2: %3
 SetupFileMissing=Kurulum klasöründe %1 dosyasý eksik. Lütfen sorunu çözün ya da uygulamanýn yeni bir kopyasýyla yeniden deneyin.
 SetupFileCorrupt=Kurulum dosyalarý bozulmuþ. Lütfen uygulamanýn yeni bir kopyasýyla yeniden kurmayý deneyin.
-SetupFileCorruptOrWrongVer=Kurulum dosyalarý bozulmuþ ya da bu kurulum sürümü ile uyumlu deðil. Lütfen sorunu çözün ya da uygulamanýn yeni bir kopyasýyla yeniden kurmayý deneyin.
+SetupFileCorruptOrWrongVer=Kurulum dosyalarý bozulmuþ ya da bu kurulum yardýmcýsý sürümü ile uyumlu deðil. Lütfen sorunu çözün ya da uygulamanýn yeni bir kopyasýyla yeniden kurmayý deneyin.
 InvalidParameter=Komut satýrýnda geçersiz bir parametre yazýlmýþ:%n%n%1
-SetupAlreadyRunning=Kurulum zaten çalýþýyor.
+SetupAlreadyRunning=Kurulum yardýmcýsý zaten çalýþýyor.
 WindowsVersionNotSupported=Bu uygulama, bilgisayarýnýzda yüklü olan Windows sürümü ile uyumlu deðil.
 WindowsServicePackRequired=Bu uygulama, %1 Hizmet Paketi %2 ve üzerindeki sürümler ile çalýþýr.
 NotOnThisPlatform=Bu uygulama, %1 üzerinde çalýþmaz.
@@ -60,26 +60,26 @@ WinVersionTooLowError=Bu uygulama için %1 sürüm %2 ya da üzeri gereklidir.
 WinVersionTooHighError=Bu uygulama, '%1' sürüm '%2' ya da üzerine kurulamaz.
 AdminPrivilegesRequired=Bu uygulamayý kurmak için Yönetici olarak oturum açýlmýþ olmasý gereklidir.
 PowerUserPrivilegesRequired=Bu uygulamayý kurarken, Yönetici ya da Güçlü Kullanýcýlar grubunun bir üyesi olarak oturum açýlmýþ olmasý gereklidir.
-SetupAppRunningError=Kurulum %1 uygulamasýnýn çalýþmakta olduðunu algýladý.%n%nLütfen uygulamanýn çalýþan tüm kopyalarýný kapatýp, devam etmek için Tamam, kurulumdan çýkmak için Ýptal üzerine týklayýn.
-UninstallAppRunningError=Kaldýrma, %1 uygulamasýnýn çalýþmakta olduðunu algýladý.%n%nLütfen uygulamanýn çalýþan tüm kopyalarýný kapatýp, devam etmek için Tamam ya da kaldýrmadan çýkmak için Ýptal üzerine týklayýn.
+SetupAppRunningError=Kurulum yardýmcýsý %1 uygulamasýnýn çalýþmakta olduðunu algýladý.%n%nLütfen uygulamanýn çalýþan tüm kopyalarýný kapatýp, devam etmek için Tamam, kurulum yardýmcýsýndan çýkmak için Ýptal üzerine týklayýn.
+UninstallAppRunningError=Kaldýrma yardýmcýsý, %1 uygulamasýnýn çalýþmakta olduðunu algýladý.%n%nLütfen uygulamanýn çalýþan tüm kopyalarýný kapatýp, devam etmek için Tamam ya da kaldýrma yardýmcýsýndan çýkmak için Ýptal üzerine týklayýn.
 
 ; *** Baþlangýç sorularý
 PrivilegesRequiredOverrideTitle=Kurulum Kipini Seçin
 PrivilegesRequiredOverrideInstruction=Kurulum kipini seçin
-PrivilegesRequiredOverrideText1=%1 tüm kullanýcýlar için (yönetici izinleri gereklidir) ya da yalnýz sizin hesabýnýz için kurulabilir.
-PrivilegesRequiredOverrideText2=%1 yalnýz sizin hesabýnýz için ya da tüm kullanýcýlar için (yönetici izinleri gereklidir) kurulabilir.
+PrivilegesRequiredOverrideText1=%1 tüm kullanýcýlar için (yönetici izinleri gerekir) ya da yalnýz sizin hesabýnýz için kurulabilir.
+PrivilegesRequiredOverrideText2=%1 yalnýz sizin hesabýnýz için ya da tüm kullanýcýlar için (yönetici izinleri gerekir) kurulabilir.
 PrivilegesRequiredOverrideAllUsers=&Tüm kullanýcýlar için kurulsun
 PrivilegesRequiredOverrideAllUsersRecommended=&Tüm kullanýcýlar için kurulsun (önerilir)
-PrivilegesRequiredOverrideCurrentUser=&Yalnýz benim için kurulsun
-PrivilegesRequiredOverrideCurrentUserRecommended=&Yalnýz benim için kurulsun (önerilir)
+PrivilegesRequiredOverrideCurrentUser=&Yalnýz benim kullanýcým için kurulsun
+PrivilegesRequiredOverrideCurrentUserRecommended=&Yalnýz benim kullanýcým için kurulsun (önerilir)
 
 ; *** Çeþitli hata metinleri
-ErrorCreatingDir=Kurulum "%1" klasörünü oluþturamadý.
+ErrorCreatingDir=Kurulum yardýmcýsý "%1" klasörünü oluþturamadý.
 ErrorTooManyFilesInDir="%1" klasörü içinde çok sayýda dosya olduðundan bir dosya oluþturulamadý
 
 ; *** Ortak kurulum iletileri
-ExitSetupTitle=Kurulumdan Çýk
-ExitSetupMessage=Kurulum tamamlanmadý. Þimdi çýkarsanýz, uygulama kurulmayacak.%n%nKurulumu tamamlamak için istediðiniz zaman kurulum programýný yeniden çalýþtýrabilirsiniz.%n%nKurulumdan çýkýlsýn mý?
+ExitSetupTitle=Kurulum Yardýmcýsýndan Çýk
+ExitSetupMessage=Kurulum tamamlanmadý. Þimdi çýkarsanýz, uygulama kurulmayacak.%n%nKurulumu tamamlamak için istediðiniz zaman kurulum yardýmcýsýný yeniden çalýþtýrabilirsiniz.%n%nKurulum yardýmcýsýndan çýkýlsýn mý?
 AboutSetupMenuItem=Kurulum H&akkýnda...
 AboutSetupTitle=Kurulum Hakkýnda
 AboutSetupMessage=%1 %2 sürümü%n%3%n%n%1 ana sayfa:%n%4
@@ -102,7 +102,7 @@ ButtonWizardBrowse=Göza&t...
 ButtonNewFolder=Ye&ni Klasör Oluþtur
 
 ; *** "Kurulum Dilini Seçin" sayfasý iletileri
-SelectLanguageTitle=Kurulum Dilini Seçin
+SelectLanguageTitle=Kurulum Yardýmcýsý Dilini Seçin
 SelectLanguageLabel=Kurulum süresince kullanýlacak dili seçin.
 
 ; *** Ortak metinler
@@ -151,13 +151,13 @@ WizardSelectDir=Hedef Konumunu Seçin
 SelectDirDesc=[name] nereye kurulsun?
 SelectDirLabel3=[name] uygulamasý þu klasöre kurulacak.
 SelectDirBrowseLabel=Devam etmek icin Sonraki üzerine týklayýn. Farklý bir klasör seçmek için Gözat üzerine týklayýn.
-DiskSpaceGBLabel=En az [gb] GB disk alaný gereklidir.
-DiskSpaceMBLabel=En az [mb] MB disk alaný gereklidir.
+DiskSpaceGBLabel=En az [gb] GB boþ disk alaný gereklidir.
+DiskSpaceMBLabel=En az [mb] MB boþ disk alaný gereklidir.
 CannotInstallToNetworkDrive=Uygulama bir að sürücüsü üzerine kurulamaz.
 CannotInstallToUNCPath=Uygulama bir UNC yolu üzerine (\\yol gibi) kurulamaz.
 InvalidPath=Sürücü adý ile tam yolu yazmalýsýnýz; örneðin: %n%nC:\APP%n%n ya da þu þekilde bir UNC yolu:%n%n\\sunucu\paylaþým
 InvalidDrive=Sürücü ya da UNC paylaþýmý yok ya da eriþilemiyor. Lütfen baþka bir tane seçin.
-DiskSpaceWarningTitle=Yeterli Disk Alaný Yok
+DiskSpaceWarningTitle=Yeterli Boþ Disk Alaný Yok
 DiskSpaceWarning=Kurulum için %1 KB boþ alan gerekli, ancak seçilmiþ sürücüde yalnýz %2 KB boþ alan var.%n%nGene de devam etmek istiyor musunuz?
 DirNameTooLong=Klasör adý ya da yol çok uzun.
 InvalidDirName=Klasör adý geçersiz.
@@ -179,18 +179,18 @@ NoUninstallWarningTitle=Bileþenler Zaten Var
 NoUninstallWarning=Þu bileþenlerin bilgisayarýnýzda zaten kurulu olduðu algýlandý:%n%n%1%n%n Bu bileþenlerin iþaretlerinin kaldýrýlmasý bileþenleri kaldýrmaz.%n%nGene de devam etmek istiyor musunuz?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=Seçili bileþenler için diskte en az [gb] GB boþ alan gerekli.
-ComponentsDiskSpaceMBLabel=Seçili bileþenler için diskte en az [mb] MB boþ alan gerekli.
+ComponentsDiskSpaceGBLabel=Seçili bileþenler için diskte en az [gb] GB boþ alan bulunmasý gerekli.
+ComponentsDiskSpaceMBLabel=Seçili bileþenler için diskte en az [mb] MB boþ alan bulunmasý gerekli.
 
 ; *** "Ek Ýþlemleri Seçin" sayfasý
 WizardSelectTasks=Ek Ýþlemleri Seçin
 SelectTasksDesc=Baþka hangi iþlemler yapýlsýn?
-SelectTasksLabel2=[name] kurulum sýrasýnda yapýlmasýný istediðiniz ek iþleri seçin ve Sonraki üzerine týklayýn.
+SelectTasksLabel2=[name] kurulumu sýrasýnda yapýlmasýný istediðiniz ek iþleri seçin ve Sonraki üzerine týklayýn.
 
 ; *** "Baþlat Menüsü Klasörünü Seçin" sayfasý
 WizardSelectProgramGroup=Baþlat Menüsü Klasörünü Seçin
 SelectStartMenuFolderDesc=Uygulamanýn kýsayollarý nereye eklensin?
-SelectStartMenuFolderLabel3=Kurulum uygulama kýsayollarýný aþaðýdaki Baþlat Menüsü klasörüne ekleyecek.
+SelectStartMenuFolderLabel3=Kurulum yardýmcýsý uygulama kýsayollarýný aþaðýdaki Baþlat Menüsü klasörüne ekleyecek.
 SelectStartMenuFolderBrowseLabel=Devam etmek için Sonraki üzerine týklayýn. Farklý bir klasör seçmek için Gözat üzerine týklayýn.
 MustEnterGroupName=Bir klasör adý yazmalýsýnýz.
 GroupNameTooLong=Klasör adý ya da yol çok uzun.
@@ -213,14 +213,14 @@ ReadyMemoTasks=Ek iþlemler:
 ; *** "Kuruluma Hazýrlanýlýyor" sayfasý
 WizardPreparing=Kuruluma Hazýrlanýlýyor
 PreparingDesc=[name] bilgisayarýnýza kurulmaya hazýrlanýyor.
-PreviousInstallNotCompleted=Önceki uygulama kurulumu ya da kaldýrýlmasý tamamlanmamýþ. Bu kurulumun tamamlanmasý için bilgisayarýnýzý yeniden baþlatmalýsýnýz.%n%nBilgisayarýnýzý yeniden baþlattýktan sonra iþlemi tamamlamak için [name] kurulumunu yeniden çalýþtýrýn.
+PreviousInstallNotCompleted=Önceki uygulama kurulumu ya da kaldýrýlmasý tamamlanmamýþ. Bu kurulumun tamamlanmasý için bilgisayarýnýzý yeniden baþlatmalýsýnýz.%n%nBilgisayarýnýzý yeniden baþlattýktan sonra iþlemi tamamlamak için [name] kurulum yardýmcýsýný yeniden çalýþtýrýn.
 CannotContinue=Kuruluma devam edilemiyor. Çýkmak için Ýptal üzerine týklayýn.
-ApplicationsFound=Kurulum tarafýndan güncellenmesi gereken dosyalar, þu uygulamalar tarafýndan kullanýyor. Kurulumun bu uygulamalarý otomatik olarak kapatmasýna izin vermeniz önerilir.
-ApplicationsFound2=Kurulum tarafýndan güncellenmesi gereken dosyalar, þu uygulamalar tarafýndan kullanýyor. Kurulumun bu uygulamalarý otomatik olarak kapatmasýna izin vermeniz önerilir. Kurulum tamamlandýktan sonra, uygulamalar yeniden baþlatýlmaya çalýþýlacak.
+ApplicationsFound=Kurulum yardýmcýsý tarafýndan güncellenmesi gereken dosyalar, þu uygulamalar tarafýndan kullanýyor. Kurulum yardýmcýsýnýn bu uygulamalarý otomatik olarak kapatmasýna izin vermeniz önerilir.
+ApplicationsFound2=Kurulum yardýmcýsý tarafýndan güncellenmesi gereken dosyalar, þu uygulamalar tarafýndan kullanýyor. Kurulum yardýmcýsýnýn bu uygulamalarý otomatik olarak kapatmasýna izin vermeniz önerilir. Kurulum tamamlandýktan sonra, uygulamalar yeniden baþlatýlmaya çalýþýlacak.
 CloseApplications=&Uygulamalar kapatýlsýn
 DontCloseApplications=Uygulamalar &kapatýlmasýn
-ErrorCloseApplications=Kurulum, uygulamalarý kapatamadý. Kurulum tarafýndan güncellenmesi gereken dosyalarý kullanan uygulamalarý el ile kapatmanýz önerilir.
-PrepareToInstallNeedsRestart=Kurulumun tamamlanmasý için bilgisayarýnýzýn yeniden baþlatýlmasý gerekiyor. Bilgisayarýnýzý yeniden baþlattýktan sonra [name] kurulumunu tamamlamak için kurulum yardýmcýsýný yeniden çalýþtýrýn.%n%nÞimdi yeniden baþlatmak ister misiniz?
+ErrorCloseApplications=Kurulum yardýmcýsý uygulamalarý kapatamadý. Kurulum yardýmcýsý tarafýndan güncellenmesi gereken dosyalarý kullanan uygulamalarý el ile kapatmanýz önerilir.
+PrepareToInstallNeedsRestart=Kurulum için bilgisayarýn yeniden baþlatýlmasý gerekiyor. Bilgisayarý yeniden baþlattýktan sonra [name] kurulumunu tamamlamak için kurulum yardýmcýsýný yeniden çalýþtýrýn.%n%nBilgisayarý þimdi yeniden baþlatmak ister misiniz?
 
 ; *** "Kuruluyor" sayfasý
 WizardInstalling=Kuruluyor
@@ -230,7 +230,7 @@ InstallingLabel=Lütfen [name] bilgisayarýnýza kurulurken bekleyin.
 FinishedHeadingLabel=[name] kurulum yardýmcýsý tamamlanýyor
 FinishedLabelNoIcons=Bilgisayarýnýza [name] kurulumu tamamlandý.
 FinishedLabel=Bilgisayarýnýza [name] kurulumu tamamlandý. Simgeleri yüklemeyi seçtiyseniz, simgelere týklayarak uygulamayý baþlatabilirsiniz.
-ClickFinish=Kurulumdan çýkmak için Bitti üzerine týklayýn.
+ClickFinish=Kurulum yardýmcýsýndan çýkmak için Bitti üzerine týklayýn.
 FinishedRestartLabel=[name] kurulumunun tamamlanmasý için, bilgisayarýnýz yeniden baþlatýlmalý. Þimdi yeniden baþlatmak ister misiniz?
 FinishedRestartMessage=[name] kurulumunun tamamlanmasý için, bilgisayarýnýz yeniden baþlatýlmalý.%n%nÞimdi yeniden baþlatmak ister misiniz?
 ShowReadmeCheck=Evet README dosyasý görüntülensin
@@ -242,14 +242,14 @@ RunEntryExec=%1 çalýþtýrýlsýn
 RunEntryShellExec=%1 görüntülensin
 
 ; *** "Kurulum için Sýradaki Disk Gerekli" iletileri
-ChangeDiskTitle=Kurulum için Sýradaki Disk Gerekli
-SelectDiskLabel2=Lütfen %1. diski takýp Tamam üzerine týklayýn.%n%nDiskteki dosyalar aþaðýdakinden farklý bir klasörde bulunuyorsa, doðru yolu yazýn ya da Gözat üzerine týklayarak doðru klasörü seçin.
+ChangeDiskTitle=Kurulum Yardýmcýsý Sýradaki Diske Gerek Duyuyor
+SelectDiskLabel2=Lütfen %1 numaralý diski takýp Tamam üzerine týklayýn.%n%nDiskteki dosyalar aþaðýdakinden farklý bir klasörde bulunuyorsa, doðru yolu yazýn ya da Gözat üzerine týklayarak doðru klasörü seçin.
 PathLabel=&Yol:
 FileNotInDir2="%1" dosyasý "%2" içinde bulunamadý. Lütfen doðru diski takýn ya da baþka bir klasör seçin.
 SelectDirectoryLabel=Lütfen sonraki diskin konumunu belirtin.
 
 ; *** Kurulum aþamasý iletileri
-SetupAborted=Kurulum tamamlanamadý.%n%nLütfen sorunu düzelterek kurulumu yeniden çalýþtýrýn.
+SetupAborted=Kurulum tamamlanamadý.%n%nLütfen sorunu düzelterek kurulum yardýmcýsýný yeniden çalýþtýrýn.
 AbortRetryIgnoreSelectAction=Yapýlacak iþlemi seçin
 AbortRetryIgnoreRetry=&Yeniden denensin
 AbortRetryIgnoreIgnore=&Sorun yok sayýlýp devam edilsin
@@ -289,18 +289,18 @@ FileAbortRetryIgnoreIgnoreNotRecommended=&Sorun yok sayýlýp devam edilsin (öneri
 SourceIsCorrupted=Kaynak dosya bozulmuþ
 SourceDoesntExist="%1" kaynak dosyasý bulunamadý
 ExistingFileReadOnly2=Var olan dosya salt okunabilir olarak iþaretlenmiþ olduðundan üzerine yazýlamadý.
-ExistingFileReadOnlyRetry=&Salt okunur iþaretini kaldýrýp yeniden deneyin
+ExistingFileReadOnlyRetry=&Salt okunur iþareti kaldýrýlýp yeniden denensin
 ExistingFileReadOnlyKeepExisting=&Var olan dosya korunsun
 ErrorReadingExistingDest=Var olan dosya okunmaya çalýþýlýrken bir sorun çýktý.
-FileExists=Dosya zaten var.%n%nKurulum bu dosyanýn üzerine yazsýn mý?
-ExistingFileNewer=Var olan dosya, kurulum tarafýndan yazýlmaya çalýþýlandan daha yeni. Var olan dosyayý korumanýz önerilir %n%nVar olan dosya korunsun mu?
+FileExists=Dosya zaten var.%n%nKurulum yardýmcýsý bu dosyanýn üzerine yazsýn mý?
+ExistingFileNewer=Var olan dosya, kurulum yardýmcýsý tarafýndan yazýlmaya çalýþýlandan daha yeni. Var olan dosyayý korumanýz önerilir %n%nVar olan dosya korunsun mu?
 ErrorChangingAttr=Var olan dosyanýn öznitelikleri deðiþtirilirken bir sorun çýktý:
-ErrorCreatingTemp=Hedef klasörde dosya oluþturulurken bir sorun çýktý:
+ErrorCreatingTemp=Hedef klasörde bir dosya oluþturulurken sorun çýktý:
 ErrorReadingSource=Kaynak dosya okunurken bir sorun çýktý:
 ErrorCopying=Dosya kopyalanýrken bir sorun çýktý:
 ErrorReplacingExistingFile=Var olan dosya deðiþtirilirken bir sorun çýktý:
-ErrorRestartReplace=Yeniden baþlatmada deðiþtirilemedi :
-ErrorRenamingTemp=Hedef klasördeki dosyanýn adý deðiþtirilirken bir sorun çýktý:
+ErrorRestartReplace=Yeniden baþlatmada üzerine yazýlamadý:
+ErrorRenamingTemp=Hedef klasördeki bir dosyanýn adý deðiþtirilirken sorun çýktý:
 ErrorRegisterServer=DLL/OCX kayýt edilemedi: %1
 ErrorRegSvr32Failed=RegSvr32 iþlemi þu kod ile tamamlanamadý: %1
 ErrorRegisterTypeLib=Tür kitaplýðý kayýt defterine eklenemedi: %1
@@ -310,27 +310,27 @@ ErrorRegisterTypeLib=Tür kitaplýðý kayýt defterine eklenemedi: %1
 UninstallDisplayNameMark=%1 (%2)
 ; used for example as 'My Program (32-bit, All users)'
 UninstallDisplayNameMarks=%1 (%2, %3)
-UninstallDisplayNameMark32Bit=32-bit
-UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMark32Bit=32 bit
+UninstallDisplayNameMark64Bit=64 bit
 UninstallDisplayNameMarkAllUsers=Tüm kullanýcýlar
 UninstallDisplayNameMarkCurrentUser=Geçerli kullanýcý
 
 ; *** Kurulum sonrasý hatalarý
 ErrorOpeningReadme=README dosyasý açýlýrken bir sorun çýktý.
-ErrorRestartingComputer=Kurulum bilgisayarýnýzý yeniden baþlatamýyor. Lütfen bilgisayarýnýzý yeniden baþlatýn.
+ErrorRestartingComputer=Kurulum yardýmcýsý bilgisayarýnýzý yeniden baþlatamýyor. Lütfen bilgisayarýnýzý yeniden baþlatýn.
 
-; *** Kaldýrýcý iletileri
+; *** Kaldýrma yardýmcýsý iletileri
 UninstallNotFound="%1" dosyasý bulunamadý. Uygulama kaldýrýlamýyor.
 UninstallOpenError="%1" dosyasý açýlamadý. Uygulama kaldýrýlamýyor.
-UninstallUnsupportedVer="%1" uygulama kaldýrma günlük dosyasýnýn biçimi, bu kaldýrýcý sürümü tarafýndan anlaþýlamadý. Uygulama kaldýrýlamýyor.
+UninstallUnsupportedVer="%1" uygulama kaldýrma günlük dosyasýnýn biçimi, bu kaldýrma yardýmcýsý sürümü tarafýndan anlaþýlamadý. Uygulama kaldýrýlamýyor.
 UninstallUnknownEntry=Kaldýrma günlüðünde bilinmeyen bir kayýt (%1) bulundu.
 ConfirmUninstall=%1 uygulamasýný tüm bileþenleri ile birlikte tamamen kaldýrmak istediðinize emin misiniz?
-UninstallOnlyOnWin64=Bu kurulum yalnýz 64-bit Windows üzerinden kaldýrýlabilir.
+UninstallOnlyOnWin64=Bu kurulum yalnýz 64 bit Windows üzerinden kaldýrýlabilir.
 OnlyAdminCanUninstall=Bu kurulum yalnýz yönetici haklarýna sahip bir kullanýcý tarafýndan kaldýrýlabilir.
 UninstallStatusLabel=Lütfen %1 uygulamasý bilgisayarýnýzdan kaldýrýlýrken bekleyin.
 UninstalledAll=%1 uygulamasý bilgisayarýnýzdan kaldýrýldý.
 UninstalledMost=%1 uygulamasý kaldýrýldý.%n%nBazý bileþenler kaldýrýlamadý. Bunlarý el ile silebilirsiniz.
-UninstalledAndNeedsRestart=%1 kaldýrma iþlemini tamamlamak için bilgisayarýnýzýn yeniden baþlatýlmasý gerekli.%n%nÞimdi yeniden baþlatmak ister misiniz?
+UninstalledAndNeedsRestart=%1 kaldýrma iþleminin tamamlanmasý için bilgisayarýnýzýn yeniden baþlatýlmasý gerekli.%n%nÞimdi yeniden baþlatmak ister misiniz?
 UninstallDataCorrupted="%1" dosyasý bozulmuþ. Kaldýrýlamýyor.
 
 ; *** Kaldýrma aþamasý iletileri
