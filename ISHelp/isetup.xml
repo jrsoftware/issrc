@@ -3775,8 +3775,8 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 <p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
 <example><pre>AppMutex=MyProgramsMutexName</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_setupmutex">SetupMutex</link>
-</p>
+<link topic="setup_setupmutex">SetupMutex</link><br/>
+<link topic="setup_closeapplications">CloseApplications</link></p>
 </body>
 </setuptopic>
 
@@ -5353,7 +5353,8 @@ SignTool=byparam format c:
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
 <link topic="scriptevents" anchor="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</link><br/>
-<link topic="setup_restartapplications">RestartApplications</link></p>
+<link topic="setup_restartapplications">RestartApplications</link><br/>
+<link topic="setup_appmutex">AppMutex</link></p>
 </body>
 </setuptopic>
 
