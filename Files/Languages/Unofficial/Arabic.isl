@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.0.0+ arabic messages ***
+﻿; *** Inno Setup version 6.0.3+ arabic messages ***
 ;
 ; Translated by nacer baaziz (nacerstile@gmail.com)
 ;   http://www.jrsoftware.org/files/istrans/
@@ -151,6 +151,7 @@ WizardSelectDir=تحديد موقع الوِجْهة
 SelectDirDesc=أين يجب تثبيت [name]؟
 SelectDirLabel3=سيقوم معالج التثبيت بتثبيت  [name] في المجلد التالي.
 SelectDirBrowseLabel=للمتابعة، انقر فوق التالي. إذا كنت ترغب في تحديد مجلد آخر، انقر فوق استعراض.
+DiskSpaceGBLabel=تحتاج على الأقل [gb] GB من المساحة لتثبيت البرنامج. 
 DiskSpaceMBLabel=تحتاج على الأقل [mb] MB من المساحة لتثبيت البرنامج.
 CannotInstallToNetworkDrive=يتعذر على برنامج الإعداد التثبيت على محرك أقراص شبكة اتصال.
 CannotInstallToUNCPath=يتعذر على برنامج الإعداد تثبيت مسار UNC.
@@ -178,6 +179,7 @@ NoUninstallWarningTitle=مكونات موجودة
 NoUninstallWarning=اكتشف برنامج الإعداد أن المكونات التالية مثبتة بالفعل على جهاز الكمبيوتر الخاص بك: %n%n%1%n%nلن يؤدي إلغاء تحديد هذه المكونات إلى إزالة تثبيتها.%n%nهل ترغب في الاستمرار على أي حال?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=الاختيار الحالي يتطلب على الأقل [gb] GB من مساحة القرص.
 ComponentsDiskSpaceMBLabel=الاختيار الحالي يتطلب على الأقل [mb] MB من مساحة القرص.
 
 ; *** "Select Additional Tasks" wizard page
@@ -218,6 +220,7 @@ ApplicationsFound2=تستخدم التطبيقات التالية الملفات
 CloseApplications=أغلق التطبيقات &تلقائيًا
 DontCloseApplications=&لا تغلق التطبيقات
 ErrorCloseApplications=لم يتمكن الإعداد من إغلاق جميع التطبيقات تلقائيًا. يوصى بإغلاق جميع التطبيقات التي تستخدم الملفات التي تحتاج إلى تحديث بواسطة برنامج الإعداد قبل المتابعة.
+PrepareToInstallNeedsRestart=برنامج الإعداد يجب أن يقوم بإعادة تشغيل الجهاز. بعد إعادة تشغيل جهازك, قم بتشغيل برنامج الإعداد مرة أخرى لإكمال تثبيت [name].%n%nهل تحب إعادة التشغيل الآن?
 
 ; *** "Installing" wizard page
 WizardInstalling=جاري التثبيت
