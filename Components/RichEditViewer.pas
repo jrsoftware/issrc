@@ -78,7 +78,8 @@ const
   EN_LINK = $070b;
 
 type
-  TRichEditOleCallback = class(TInterfacedObject, IRichEditOleCallback)
+ { Basic implementation of IRichEditOleCallback to enable the viewing of images and other objects. }
+  TBasicRichEditOleCallback = class(TInterfacedObject, IRichEditOleCallback)
   public
     function GetNewStorage(out stg: IStorage): HResult; stdcall;
     function GetInPlaceContext(out Frame: IOleInPlaceFrame;
@@ -162,9 +163,9 @@ begin
   end;
 end;
 
-{ TRichEditOleCallback }
+{ TBasicRichEditOleCallback }
 
-function TRichEditOleCallback.GetNewStorage(out stg: IStorage): HResult; stdcall;
+function TBasicRichEditOleCallback.GetNewStorage(out stg: IStorage): HResult; stdcall;
 var
   LockBytes: ILockBytes;
 begin
@@ -178,55 +179,55 @@ begin
   end;
 end;
 
-function TRichEditOleCallback.GetInPlaceContext(out Frame: IOleInPlaceFrame;
+function TBasicRichEditOleCallback.GetInPlaceContext(out Frame: IOleInPlaceFrame;
   out Doc: IOleInPlaceUIWindow; lpFrameInfo: POleInPlaceFrameInfo): HResult;
 begin
   Result := E_NOTIMPL;
 end;
 
-function TRichEditOleCallback.ShowContainerUI(fShow: BOOL): HResult;
+function TBasicRichEditOleCallback.ShowContainerUI(fShow: BOOL): HResult;
 begin
   Result := E_NOTIMPL;
 end;
 
-function TRichEditOleCallback.QueryInsertObject(const clsid: TCLSID; const stg: IStorage;
+function TBasicRichEditOleCallback.QueryInsertObject(const clsid: TCLSID; const stg: IStorage;
   cp: Longint): HResult;
 begin
   Result := S_OK;
 end;
 
-function TRichEditOleCallback.DeleteObject(const oleobj: IOleObject): HResult;
+function TBasicRichEditOleCallback.DeleteObject(const oleobj: IOleObject): HResult;
 begin
   if Assigned(oleobj) then
     oleobj.Close(OLECLOSE_NOSAVE);
   Result := S_OK;
 end;
 
-function TRichEditOleCallback.QueryAcceptData(const dataobj: IDataObject;
+function TBasicRichEditOleCallback.QueryAcceptData(const dataobj: IDataObject;
   var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
   hMetaPict: HGLOBAL): HResult;
 begin
   Result := S_OK;
 end;
 
-function TRichEditOleCallback.ContextSensitiveHelp(fEnterMode: BOOL): HResult;
+function TBasicRichEditOleCallback.ContextSensitiveHelp(fEnterMode: BOOL): HResult;
 begin
   Result := S_OK;
 end;
 
-function TRichEditOleCallback.GetClipboardData(const chrg: TCharRange; reco: DWORD;
+function TBasicRichEditOleCallback.GetClipboardData(const chrg: TCharRange; reco: DWORD;
   out dataobj: IDataObject): HResult;
 begin
   Result := E_NOTIMPL;
 end;
 
-function TRichEditOleCallback.GetDragDropEffect(fDrag: BOOL; grfKeyState: DWORD;
+function TBasicRichEditOleCallback.GetDragDropEffect(fDrag: BOOL; grfKeyState: DWORD;
   var dwEffect: DWORD): HResult;
 begin
   Result := E_NOTIMPL;
 end;
 
-function TRichEditOleCallback.GetContextMenu(seltype: Word;
+function TBasicRichEditOleCallback.GetContextMenu(seltype: Word;
   const oleobj: IOleObject; const chrg: TCharRange; out Menu: HMENU): HResult;
 begin
   Result := E_NOTIMPL;
@@ -238,7 +239,7 @@ constructor TRichEditViewer.Create(AOwner: TComponent);
 begin
   inherited;
   FUseRichEdit := True;
-  FCallback := TRichEditOleCallback.Create;
+  FCallback := TBasicRichEditOleCallback.Create;
 end;
 
 destructor TRichEditViewer.Destroy;
