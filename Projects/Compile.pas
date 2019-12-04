@@ -8840,10 +8840,12 @@ begin
     if not FixedOutputDir then
       OutputDir := PrependSourceDirName(OutputDir);
     OutputDir := RemoveBackslashUnlessRoot(PathExpand(OutputDir));
+    LineNumber := SetupDirectiveLines[ssOutputDir];
     if not DirExists(OutputDir) then begin
       AddStatus(Format(SCompilerStatusCreatingOutputDir, [OutputDir]));
       MkDirs(OutputDir);
     end;
+    LineNumber := 0;
     OutputDir := AddBackslash(OutputDir);
 
     if SignedUninstallerDir = '' then
