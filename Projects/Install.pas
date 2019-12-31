@@ -2023,9 +2023,6 @@ var
           UninstLog.Add(utDeleteFile, [PifFilename], utDeleteFile_CallChangeNotify);
         end;
       end;
-
-      { Increment progress meter }
-      IncProgress(1000);
     end;
 
     function ExpandAppPath(const Filename: String): String;
@@ -2071,6 +2068,10 @@ var
                 ioPreventPinning in Options)
             else
               Log('Skipping due to "createonlyiffileexists" flag.');
+
+            { Increment progress meter }
+            IncProgress(1000);
+            
             NotifyAfterInstallEntry(AfterInstall);
           end;
         end;
