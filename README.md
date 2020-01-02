@@ -38,7 +38,7 @@ Getting Started
 
 2. **Install Embarcadero Delphi**
 
-   We compile all of Inno Setup's projects under Delphi 10.3 Rio.
+   We compile all of Inno Setup's projects under Delphi 10.3.3 Rio.
 
    If you do not have access to this version of Delphi, you should be
    able to compile the projects on later versions, however complete
@@ -106,6 +106,9 @@ additionally install the following components.
 
 - DropListBox
 - NewTabSet
+
+The Components directory contains a Components project which you can use to
+install all these components.
 
 If you only want to edit code, then you may skip installation of the
 components, and choose "Cancel" if the Delphi IDE tells you a class can't
