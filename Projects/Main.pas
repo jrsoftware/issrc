@@ -123,7 +123,7 @@ var
   { 'Constants' }
   SourceDir, TempInstallDir, WinDir, WinSystemDir, WinSysWow64Dir, WinSysNativeDir, SystemDrive,
     ProgramFiles32Dir, CommonFiles32Dir, ProgramFiles64Dir, CommonFiles64Dir,
-    ProgramFilesUserDir, CommonFilesUserDir, CmdFilename, SysUserInfoName,
+    ProgramFilesUserDir, CommonFilesUserDir, SavedGamesUserDir, CmdFilename, SysUserInfoName,
     SysUserInfoOrg, UninstallExeFilename: String;
 
   { Uninstall 'constants' }
@@ -1111,6 +1111,7 @@ begin
     else
       InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
+  else if Cnst = 'usersavedgames' then Result := SavedGamesUserDir
   else if Cnst = 'dao' then Result := ExpandConst('{cf}\Microsoft Shared\DAO')
   else if Cnst = 'cmd' then Result := CmdFilename
   else if Cnst = 'computername' then Result := GetComputerNameString
@@ -1335,6 +1336,7 @@ procedure InitMainNonSHFolderConsts;
 const
   FOLDERID_UserProgramFiles: TGUID = (D1:$5CD7AEE2; D2:$2219; D3:$4A67; D4:($B8,$5D,$6C,$9C,$E1,$56,$60,$CB));
   FOLDERID_UserProgramFilesCommon: TGUID = (D1:$BCBD3057; D2:$CA5C; D3:$4622; D4:($B4,$2D,$BC,$56,$DB,$0A,$E5,$16));
+  FOLDERID_SavedGames: TGUID = (D1:$4C5C32FF; D2:$BB9D; D3:$43B0; D4:($B5,$B4,$2D,$72,$E5,$4E,$AA,$A4));
   KF_FLAG_CREATE = $00008000;
 var
   Path: PWideChar;
@@ -1375,20 +1377,25 @@ begin
       InternalError('Failed to get path of 64-bit Common Files directory');
   end;
 
-  { Get per-user Program Files and Common Files dirs. Requires Windows 7 or
-    later but trying it on Vista too in case some update adds support for the
-    folders later (like we saw with CSIDLs in the old days). }
+  { Get dirs which have no CSIDL equivalent and cannot be retrieved using SHGetFolderPath. }
   if Assigned(SHGetKnownFolderPathFunc) and (WindowsVersion shr 16 >= $0600) then begin
-    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFiles, KF_FLAG_CREATE, 0, Path) = S_OK then begin
+    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFiles {Windows 7+}, KF_FLAG_CREATE, 0, Path) = S_OK then begin
       try
         ProgramFilesUserDir := WideCharToString(Path);
       finally
         CoTaskMemFree(Path);
       end;
     end;
-    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFilesCommon, KF_FLAG_CREATE, 0, Path) = S_OK then begin
+    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFilesCommon {Windows 7+}, KF_FLAG_CREATE, 0, Path) = S_OK then begin
       try
         CommonFilesUserDir := WideCharToString(Path);
+      finally
+        CoTaskMemFree(Path);
+      end;
+    end;
+    if SHGetKnownFolderPathFunc(FOLDERID_SavedGames {Vista+}, KF_FLAG_CREATE, 0, Path) = S_OK then begin
+      try
+        SavedGamesUserDir := WideCharToString(Path);
       finally
         CoTaskMemFree(Path);
       end;

@@ -2887,8 +2887,8 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
 const
-  UserConsts: array[0..2] of String = (
-    'userpf', 'usercf', 'username');
+  UserConsts: array[0..3] of String = (
+    'userpf', 'usercf', 'usersavedgames', 'username');
   Consts: array[0..42] of String = (
     'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts', 'hwnd',
     'commonpf', 'commonpf32', 'commonpf64', 'commoncf', 'commoncf32', 'commoncf64',
