@@ -347,12 +347,10 @@ procedure ProcessCommandLine;
   procedure ShowBanner;
   begin
     WriteStdOut('Inno Setup 6 Command-Line Compiler');
-    WriteStdOut('Copyright (C) 1997-2019 Jordan Russell. All rights reserved.');
-    WriteStdOut('Portions Copyright (C) 2000-2019 Martijn Laan');
-    if IsppMode then begin
-      WriteStdOut('Inno Setup Preprocessor');
-      WriteStdOut('Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
-    end;
+    WriteStdOut('Copyright (C) 1997-2020 Jordan Russell. All rights reserved.');
+    WriteStdOut('Portions Copyright (C) 2000-2020 Martijn Laan. All rights reserved.');
+    if IsppMode then
+      WriteStdOut('Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
     WriteStdOut('');
   end;
 

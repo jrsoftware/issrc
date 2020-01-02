@@ -2,11 +2,9 @@
 //
 // Inno Setup Preprocessor
 //
-// Copyright (C) 2001-2004 Alex Yackimoff. All Rights Reserved.
-// Portions by Martijn Laan.
-//
-// Inno Setup (C) 1997-2019 Jordan Russell. All Rights Reserved.
-// Portions by Martijn Laan.
+// Inno Setup (C) 1997-2020 Jordan Russell. All Rights Reserved.
+// Portions Copyright (C) 2000-2020 Martijn Laan. All Rights Reserved.
+// Portions Copyright (C) 2001-2004 Alex Yackimoff. All Rights Reserved.
 //
 #if defined(ISPP_INVOKED) && !defined(_BUILTINS_ISS_)
 //

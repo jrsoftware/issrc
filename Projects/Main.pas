@@ -2,7 +2,7 @@ unit Main;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -3810,8 +3810,8 @@ begin
   S := SetupTitle + ' version ' + SetupVersion + SNewLine;
   if SetupTitle <> 'Inno Setup' then
     S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
-  S := S + ('Copyright (C) 1997-2019 Jordan Russell' + SNewLine +
-    'Portions Copyright (C) 2000-2019 Martijn Laan' + SNewLine +
+  S := S + ('Copyright (C) 1997-2020 Jordan Russell' + SNewLine +
+    'Portions Copyright (C) 2000-2020 Martijn Laan' + SNewLine +
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
     'http://www.innosetup.com/');
