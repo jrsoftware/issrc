@@ -922,6 +922,15 @@ The list of options is provided at the end of this topic.</para>
 					<para>Returns a string with the same text as the string passed in its parameter, but with all letters converted to lowercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</para>
 				</description>
 			</topic>
+			<topic id="UpperCase">
+				<title>UpperCase</title>
+				<section title="Prototype">
+					<pre><line><b>str</b> UpperCase(<b>str</b>)</line></pre>
+				</section>
+				<description>
+					<para>Returns a string with the same text as the string passed in its parameter, but with all letters converted to uppercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</para>
+				</description>
+			</topic>
 			<topic id="EntryCount">
 				<title>EntryCount</title>
 				<section title="Prototype">

@@ -820,6 +820,22 @@ begin
   end;
 end;
 
+function UpperCaseFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+      MakeStr(ResPtr^, UpperCase(Get(0).AsStr));
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 function RPosFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
@@ -1720,6 +1736,7 @@ begin
     RegisterFunction('SetupSetting', SetupSetting, -1);
     RegisterFunction('SetSetupSetting', SetSetupSetting, -1);
     RegisterFunction('LowerCase', LowerCaseFunc, -1);
+    RegisterFunction('UpperCase', UpperCaseFunc, -1);
     RegisterFunction('EntryCount', EntryCountFunc, -1);
     RegisterFunction('GetEnv', GetEnvFunc, -1);
     RegisterFunction('DeleteFile', DelFileFunc, -1);
