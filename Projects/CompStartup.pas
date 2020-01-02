@@ -45,6 +45,9 @@ type
     FResultFileName: TFileName;
     procedure SetMRUList(const MRUList: TStringList);
     procedure UpdateImages;
+  protected
+    procedure CreateWnd; override;
+    procedure CreateParams(var Params: TCreateParams); override;
   public
     property MRUList: TStringList write SetMRUList;
     property Result: TStartupFormResult read FResult;
@@ -102,6 +105,20 @@ begin
   OpenListBox.ItemIndex := 0;
   UpdateHorizontalExtent(OpenListBox);
   ActiveControl := OpenRadioButton;
+end;
+
+{ This and CreateParams make bsSizeable (which has an unwanted icon) look like bsDialog, see:
+  https://stackoverflow.com/questions/32096482/delphi-resizable-bsdialog-form/32098633 }
+procedure TStartupForm.CreateWnd;
+begin
+  inherited;
+  SendMessage(Handle, WM_SETICON, ICON_BIG, 0);
+end;
+
+procedure TStartupForm.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  Params.ExStyle := Params.ExStyle or WS_EX_DLGMODALFRAME or WS_EX_WINDOWEDGE;
 end;
 
 procedure TStartupForm.RadioButtonClick(Sender: TObject);

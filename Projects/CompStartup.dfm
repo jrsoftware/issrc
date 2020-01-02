@@ -2,10 +2,9 @@ object StartupForm: TStartupForm
   Left = 328
   Top = 174
   BorderIcons = [biSystemMenu]
-  BorderStyle = bsDialog
   Caption = 'Welcome'
-  ClientHeight = 329
-  ClientWidth = 389
+  ClientHeight = 419
+  ClientWidth = 579
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,13 +15,17 @@ object StartupForm: TStartupForm
   Position = poScreenCenter
   OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCreate = FormCreate
+  DesignSize = (
+    579
+    419)
   PixelsPerInch = 96
   TextHeight = 13
   object OKButton: TButton
-    Left = 228
-    Top = 297
+    Left = 418
+    Top = 387
     Width = 73
     Height = 23
+    Anchors = [akRight, akBottom]
     Caption = 'OK'
     Default = True
     ModalResult = 1
@@ -30,10 +33,11 @@ object StartupForm: TStartupForm
     OnClick = OKButtonClick
   end
   object CancelButton: TButton
-    Left = 308
-    Top = 297
+    Left = 498
+    Top = 387
     Width = 73
     Height = 23
+    Anchors = [akRight, akBottom]
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
@@ -42,10 +46,14 @@ object StartupForm: TStartupForm
   object GroupBox1: TGroupBox
     Left = 8
     Top = 8
-    Width = 373
+    Width = 563
     Height = 61
+    Anchors = [akLeft, akTop, akRight]
     Caption = ' New file '
     TabOrder = 0
+    DesignSize = (
+      563
+      61)
     object NewImage: TImage
       Left = 12
       Top = 16
@@ -57,8 +65,9 @@ object StartupForm: TStartupForm
     object EmptyRadioButton: TRadioButton
       Left = 40
       Top = 16
-      Width = 321
+      Width = 511
       Height = 17
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Create a new &empty script file'
       TabOrder = 0
       OnClick = RadioButtonClick
@@ -67,8 +76,9 @@ object StartupForm: TStartupForm
     object WizardRadioButton: TRadioButton
       Left = 40
       Top = 36
-      Width = 321
+      Width = 511
       Height = 17
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Create a new script file using the &Script Wizard'
       TabOrder = 1
       OnClick = RadioButtonClick
@@ -78,10 +88,14 @@ object StartupForm: TStartupForm
   object GroupBox2: TGroupBox
     Left = 8
     Top = 76
-    Width = 373
-    Height = 213
+    Width = 563
+    Height = 303
+    Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = ' Open file '
     TabOrder = 1
+    DesignSize = (
+      563
+      303)
     object OpenImage: TImage
       Left = 12
       Top = 19
@@ -93,8 +107,9 @@ object StartupForm: TStartupForm
     object OpenRadioButton: TRadioButton
       Left = 40
       Top = 20
-      Width = 321
+      Width = 511
       Height = 17
+      Anchors = [akLeft, akTop, akRight]
       Caption = 'Open an e&xisting script file'
       TabOrder = 0
       OnClick = RadioButtonClick
@@ -103,8 +118,9 @@ object StartupForm: TStartupForm
     object OpenListBox: TListBox
       Left = 44
       Top = 44
-      Width = 317
-      Height = 157
+      Width = 507
+      Height = 247
+      Anchors = [akLeft, akTop, akRight, akBottom]
       ItemHeight = 13
       TabOrder = 1
       OnClick = OpenListBoxClick
@@ -113,10 +129,11 @@ object StartupForm: TStartupForm
   end
   object StartupCheck: TCheckBox
     Left = 8
-    Top = 300
-    Width = 189
+    Top = 394
+    Width = 379
     Height = 17
     TabStop = False
+    Anchors = [akLeft, akRight, akBottom]
     Caption = '&Don'#39't show this dialog again'
     TabOrder = 4
   end
