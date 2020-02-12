@@ -1933,7 +1933,7 @@ var
 begin
   Filename := AFilename;
 
-  { First: check filter. }
+  { First: check filter and self. }
   if Filename <> '' then begin
     CheckFilter := Boolean(Param);
     if CheckFilter then begin
@@ -1949,6 +1949,10 @@ begin
         Result := True;
         Exit;
       end;
+    end;
+    if PathCompare(Filename, SetupLdrOriginalFilename) = 0 then begin
+      Result := True;
+      Exit;
     end;
   end;
 
