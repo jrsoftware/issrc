@@ -64,10 +64,10 @@ HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nFehler %2: %3
-SetupFileMissing=Die Datei %1 fehlt im Installations-Ordner. Bitte beheben Sie das Problem, oder besorgen Sie sich eine neue Kopie des Programms.
+SetupFileMissing=Die Datei %1 fehlt im Installationsordner. Bitte beheben Sie das Problem oder besorgen Sie sich eine neue Kopie des Programms.
 SetupFileCorrupt=Die Setup-Dateien sind beschädigt. Besorgen Sie sich bitte eine neue Kopie des Programms.
-SetupFileCorruptOrWrongVer=Die Setup-Dateien sind beschädigt oder inkompatibel zu dieser Version des Setups. Bitte beheben Sie das Problem, oder besorgen Sie sich eine neue Kopie des Programms.
-InvalidParameter=Ein ungültiger Paramter wurde auf der Kommandozeile übergeben:%n%n%1
+SetupFileCorruptOrWrongVer=Die Setup-Dateien sind beschädigt oder inkompatibel zu dieser Version des Setups. Bitte beheben Sie das Problem oder besorgen Sie sich eine neue Kopie des Programms.
+InvalidParameter=Ein ungültiger Parameter wurde auf der Kommandozeile übergeben:%n%n%1
 SetupAlreadyRunning=Setup läuft bereits.
 WindowsVersionNotSupported=Dieses Programm unterstützt die auf Ihrem Computer installierte Windows-Version nicht.
 WindowsServicePackRequired=Dieses Programm benötigt %1 Service Pack %2 oder höher.
@@ -78,29 +78,29 @@ WinVersionTooLowError=Dieses Programm benötigt %1 Version %2 oder höher.
 WinVersionTooHighError=Dieses Programm kann nicht unter %1 Version %2 oder höher installiert werden.
 AdminPrivilegesRequired=Sie müssen als Administrator angemeldet sein, um dieses Programm installieren zu können.
 PowerUserPrivilegesRequired=Sie müssen als Administrator oder als Mitglied der Hauptbenutzer-Gruppe angemeldet sein, um dieses Programm installieren zu können.
-SetupAppRunningError=Das Setup hat entdeckt, dass %1 zur Zeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen, und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
-UninstallAppRunningError=Die Deinstallation hat entdeckt, dass %1 zur Zeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen, und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
+SetupAppRunningError=Das Setup hat entdeckt, dass %1 zur Zeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
+UninstallAppRunningError=Die Deinstallation hat entdeckt, dass %1 zur Zeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Installationsmodus auswählen
 PrivilegesRequiredOverrideInstruction=Bitte wählen Sie den Installationsmodus
-PrivilegesRequiredOverrideText1=%1 kann für alle Benutzer installiert werden (erfordert Administrationsrechte), oder nur für Sie.
-PrivilegesRequiredOverrideText2=%1 kann nur für Sie installiert werden, oder für alle Benutzer (erfordert Administrationsrechte).
+PrivilegesRequiredOverrideText1=%1 kann für alle Benutzer (erfordert Administrationsrechte) oder nur für Sie installiert werden.
+PrivilegesRequiredOverrideText2=%1 kann nur für Sie oder für alle Benutzer (erfordert Administrationsrechte) installiert werden.
 PrivilegesRequiredOverrideAllUsers=Installation für &alle Benutzer
 PrivilegesRequiredOverrideAllUsersRecommended=Installation für &alle Benutzer (empfohlen)
-PrivilegesRequiredOverrideCurrentUser=Installion nur für &Sie
-PrivilegesRequiredOverrideCurrentUserRecommended=Install nur für &Sie (empfohlen)
+PrivilegesRequiredOverrideCurrentUser=Installation nur für &Sie
+PrivilegesRequiredOverrideCurrentUserRecommended=Installation nur für &Sie (empfohlen)
 
 ; *** Misc. errors
-ErrorCreatingDir=Das Setup konnte den Ordner "%1" nicht erstellen
-ErrorTooManyFilesInDir=Das Setup konnte eine Datei im Ordner "%1" nicht erstellen, weil er zu viele Dateien enthält
+ErrorCreatingDir=Das Setup konnte den Ordner "%1" nicht erstellen.
+ErrorTooManyFilesInDir=Das Setup konnte eine Datei im Ordner "%1" nicht erstellen, weil er zu viele Dateien enthält.
 
 ; *** Setup common messages
 ExitSetupTitle=Setup verlassen
 ExitSetupMessage=Das Setup ist noch nicht abgeschlossen. Wenn Sie jetzt beenden, wird das Programm nicht installiert.%n%nSie können das Setup zu einem späteren Zeitpunkt nochmals ausführen, um die Installation zu vervollständigen.%n%nSetup verlassen?
 AboutSetupMenuItem=&Über das Setup ...
 AboutSetupTitle=Über das Setup
-AboutSetupMessage=%1 Version %2%n%3%n%n%1 Internet-Seite:%n%4
+AboutSetupMessage=%1 Version %2%n%3%n%n%1 Webseite:%n%4
 AboutSetupNote=
 TranslatorNote=German translation maintained by Jens Brand (jens.brand@wolf-software.de)
 
@@ -127,7 +127,7 @@ SelectLanguageLabel=Wählen Sie die Sprache aus, die während der Installation b
 ClickNext="Weiter" zum Fortfahren, "Abbrechen" zum Verlassen.
 BeveledLabel=
 BrowseDialogTitle=Ordner suchen
-BrowseDialogLabel=Wählen Sie einen Ordner aus, und klicken Sie danach auf "OK".
+BrowseDialogLabel=Wählen Sie einen Ordner aus und klicken Sie danach auf "OK".
 NewFolderName=Neuer Ordner
 
 ; *** "Welcome" wizard page
@@ -137,24 +137,24 @@ WelcomeLabel2=Dieser Assistent wird jetzt [name/ver] auf Ihrem Computer installi
 ; *** "Password" wizard page
 WizardPassword=Passwort
 PasswordLabel1=Diese Installation wird durch ein Passwort geschützt.
-PasswordLabel3=Bitte geben Sie das Passwort ein, und klicken Sie danach auf "Weiter". Achten Sie auf korrekte Groß-/Kleinschreibung.
+PasswordLabel3=Bitte geben Sie das Passwort ein und klicken Sie danach auf "Weiter". Achten Sie auf korrekte Groß-/Kleinschreibung.
 PasswordEditLabel=&Passwort:
 IncorrectPassword=Das eingegebene Passwort ist nicht korrekt. Bitte versuchen Sie es noch einmal.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Lizenzvereinbarung
-LicenseLabel=Lesen Sie bitte folgende, wichtige Informationen bevor Sie fortfahren.
+LicenseLabel=Lesen Sie bitte folgende wichtige Informationen, bevor Sie fortfahren.
 LicenseLabel3=Lesen Sie bitte die folgenden Lizenzvereinbarungen. Benutzen Sie bei Bedarf die Bildlaufleiste oder drücken Sie die "Bild Ab"-Taste.
 LicenseAccepted=Ich &akzeptiere die Vereinbarung
 LicenseNotAccepted=Ich &lehne die Vereinbarung ab
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Information
-InfoBeforeLabel=Lesen Sie bitte folgende, wichtige Informationen bevor Sie fortfahren.
-InfoBeforeClickLabel=Klicken Sie auf "Weiter", sobald Sie bereit sind mit dem Setup fortzufahren.
+InfoBeforeLabel=Lesen Sie bitte folgende wichtige Informationen, bevor Sie fortfahren.
+InfoBeforeClickLabel=Klicken Sie auf "Weiter", sobald Sie bereit sind, mit dem Setup fortzufahren.
 WizardInfoAfter=Information
-InfoAfterLabel=Lesen Sie bitte folgende, wichtige Informationen bevor Sie fortfahren.
-InfoAfterClickLabel=Klicken Sie auf "Weiter", sobald Sie bereit sind mit dem Setup fortzufahren.
+InfoAfterLabel=Lesen Sie bitte folgende wichtige Informationen, bevor Sie fortfahren.
+InfoAfterClickLabel=Klicken Sie auf "Weiter", sobald Sie bereit sind, mit dem Setup fortzufahren.
 
 ; *** "User Information" wizard page
 WizardUserInfo=Benutzerinformationen
@@ -173,7 +173,7 @@ DiskSpaceGBLabel=Mindestens [gb] GB freier Speicherplatz ist erforderlich.
 DiskSpaceMBLabel=Mindestens [mb] MB freier Speicherplatz ist erforderlich.
 CannotInstallToNetworkDrive=Das Setup kann nicht in einen Netzwerk-Pfad installieren.
 CannotInstallToUNCPath=Das Setup kann nicht in einen UNC-Pfad installieren. Wenn Sie auf ein Netzlaufwerk installieren möchten, müssen Sie dem Netzwerkpfad einen Laufwerksbuchstaben zuordnen.
-InvalidPath=Sie müssen einen vollständigen Pfad mit einem Laufwerksbuchstaben angeben; z.B.:%n%nC:\Beispiel%n%noder einen UNC-Pfad in der Form:%n%n\\Server\Freigabe
+InvalidPath=Sie müssen einen vollständigen Pfad mit einem Laufwerksbuchstaben angeben, z. B.:%n%nC:\Beispiel%n%noder einen UNC-Pfad in der Form:%n%n\\Server\Freigabe
 InvalidDrive=Das angegebene Laufwerk bzw. der UNC-Pfad existiert nicht oder es kann nicht darauf zugegriffen werden. Wählen Sie bitte einen anderen Ordner.
 DiskSpaceWarningTitle=Nicht genug freier Speicherplatz
 DiskSpaceWarning=Das Setup benötigt mindestens %1 KB freien Speicherplatz zum Installieren, aber auf dem ausgewählten Laufwerk sind nur %2 KB verfügbar.%n%nMöchten Sie trotzdem fortfahren?
@@ -188,7 +188,7 @@ DirDoesntExist=Der Ordner:%n%n%1%n%nist nicht vorhanden. Soll der Ordner erstell
 ; *** "Select Components" wizard page
 WizardSelectComponents=Komponenten auswählen
 SelectComponentsDesc=Welche Komponenten sollen installiert werden?
-SelectComponentsLabel2=Wählen Sie die Komponenten aus, die Sie installieren möchten. Klicken Sie auf "Weiter", wenn Sie bereit sind fortzufahren.
+SelectComponentsLabel2=Wählen Sie die Komponenten aus, die Sie installieren möchten. Klicken Sie auf "Weiter", wenn Sie bereit sind, fortzufahren.
 FullInstallation=Vollständige Installation
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Kompakte Installation
@@ -197,8 +197,8 @@ NoUninstallWarningTitle=Komponenten vorhanden
 NoUninstallWarning=Das Setup hat festgestellt, dass die folgenden Komponenten bereits auf Ihrem Computer installiert sind:%n%n%1%n%nDiese nicht mehr ausgewählten Komponenten werden nicht vom Computer entfernt.%n%nMöchten Sie trotzdem fortfahren?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=Die aktuelle Auswahl erfordert min. [gb] GB Speicherplatz.
-ComponentsDiskSpaceMBLabel=Die aktuelle Auswahl erfordert min. [mb] MB Speicherplatz.
+ComponentsDiskSpaceGBLabel=Die aktuelle Auswahl erfordert mindestens [gb] GB Speicherplatz.
+ComponentsDiskSpaceMBLabel=Die aktuelle Auswahl erfordert mindestens [mb] MB Speicherplatz.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Zusätzliche Aufgaben auswählen
@@ -230,15 +230,15 @@ ReadyMemoTasks=Zusätzliche Aufgaben:
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Vorbereitung der Installation
-PreparingDesc=Das Setup bereitet die Installation von [name] auf diesen Computer vor.
+PreparingDesc=Das Setup bereitet die Installation von [name] auf diesem Computer vor.
 PreviousInstallNotCompleted=Eine vorherige Installation/Deinstallation eines Programms wurde nicht abgeschlossen. Der Computer muss neu gestartet werden, um die Installation/Deinstallation zu beenden.%n%nStarten Sie das Setup nach dem Neustart Ihres Computers erneut, um die Installation von [name] durchzuführen.
 CannotContinue=Das Setup kann nicht fortfahren. Bitte klicken Sie auf "Abbrechen" zum Verlassen.
 ApplicationsFound=Die folgenden Anwendungen benutzen Dateien, die aktualisiert werden müssen. Es wird empfohlen, Setup zu erlauben, diese Anwendungen zu schließen.
-ApplicationsFound2=Die folgenden Anwendungen benutzen Dateien, die aktualisiert werden müssen. Es wird empfohlen, Setup zu erlauben, diese Anwendungen zu schließen. Nachdem die Installation fertiggestellt wurde, versucht Setup diese Anwendungen wieder zu starten.
+ApplicationsFound2=Die folgenden Anwendungen benutzen Dateien, die aktualisiert werden müssen. Es wird empfohlen, Setup zu erlauben, diese Anwendungen zu schließen. Nachdem die Installation fertiggestellt wurde, versucht Setup, diese Anwendungen wieder zu starten.
 CloseApplications=&Schließe die Anwendungen automatisch
 DontCloseApplications=Schließe die A&nwendungen nicht
 ErrorCloseApplications=Das Setup konnte nicht alle Anwendungen automatisch schließen. Es wird empfohlen, alle Anwendungen zu schließen, die Dateien benutzen, die vom Setup vor einer Fortsetzung aktualisiert werden müssen.  
-PrepareToInstallNeedsRestart=Setup must restart your computer. After restarting your computer, run Setup again to complete the installation of [name].%n%nWould you like to restart now?
+PrepareToInstallNeedsRestart=Das Setup muss Ihren Computer neu starten. Führen Sie nach dem Neustart Setup erneut aus, um die Installation von [name] abzuschließen.%n%nWollen Sie jetzt neu starten? 
 
 ; *** "Installing" wizard page
 WizardInstalling=Installiere ...
@@ -261,29 +261,29 @@ RunEntryShellExec=%1 anzeigen
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=Nächsten Datenträger einlegen
-SelectDiskLabel2=Legen Sie bitte Datenträger %1 ein, und klicken Sie auf "OK".%n%nWenn sich die Dateien von diesem Datenträger in einem anderen als dem angezeigten Ordner befinden, dann geben Sie bitte den korrekten Pfad ein oder klicken auf "Durchsuchen".
+SelectDiskLabel2=Legen Sie bitte Datenträger %1 ein und klicken Sie auf "OK".%n%nWenn sich die Dateien von diesem Datenträger in einem anderen als dem angezeigten Ordner befinden, dann geben Sie bitte den korrekten Pfad ein oder klicken auf "Durchsuchen".
 PathLabel=&Pfad:
 FileNotInDir2=Die Datei "%1" befindet sich nicht in "%2". Bitte Ordner ändern oder richtigen Datenträger einlegen.
 SelectDirectoryLabel=Geben Sie bitte an, wo der nächste Datenträger eingelegt wird.
 
 ; *** Installation phase messages
-SetupAborted=Das Setup konnte nicht abgeschlossen werden.%n%nBeheben Sie bitte das Problem, und starten Sie das Setup erneut.
+SetupAborted=Das Setup konnte nicht abgeschlossen werden.%n%nBeheben Sie bitte das Problem und starten Sie das Setup erneut.
 AbortRetryIgnoreSelectAction=Bitte auswählen
 AbortRetryIgnoreRetry=&Nochmals versuchen
 AbortRetryIgnoreIgnore=&Den Fehler ignorieren und fortfahren
 AbortRetryIgnoreCancel=Installation abbrechen
 
 ; *** Installation status messages
-StatusClosingApplications=Anwendungen werden geschlossen...
+StatusClosingApplications=Anwendungen werden geschlossen ...
 StatusCreateDirs=Ordner werden erstellt ...
 StatusExtractFiles=Dateien werden entpackt ...
 StatusCreateIcons=Verknüpfungen werden erstellt ...
 StatusCreateIniEntries=INI-Einträge werden erstellt ...
 StatusCreateRegistryEntries=Registry-Einträge werden erstellt ...
 StatusRegisterFiles=Dateien werden registriert ...
-StatusSavingUninstall=Deinstallations-Informationen werden gespeichert ...
+StatusSavingUninstall=Deinstallationsinformationen werden gespeichert ...
 StatusRunProgram=Installation wird beendet ...
-StatusRestartingApplications=Neustart der Anwendungen...
+StatusRestartingApplications=Neustart der Anwendungen ...
 StatusRollback=Änderungen werden rückgängig gemacht ...
 
 ; *** Misc. errors
@@ -306,12 +306,12 @@ FileAbortRetryIgnoreSkipNotRecommended=Diese Datei &überspringen (nicht empfohl
 FileAbortRetryIgnoreIgnoreNotRecommended=Den Fehler &ignorieren und fortfahren (nicht empfohlen)
 SourceIsCorrupted=Die Quelldatei ist beschädigt
 SourceDoesntExist=Die Quelldatei "%1" existiert nicht
-ExistingFileReadOnly2=Die vorhandene Datei kann nicht ersetzt werden, das sie schreibgeschützt ist
+ExistingFileReadOnly2=Die vorhandene Datei kann nicht ersetzt werden, da sie schreibgeschützt ist.
 ExistingFileReadOnlyRetry=&Den Schreibschutz entfernen und noch einmal versuchen
 ExistingFileReadOnlyKeepExisting=Die &vorhandene Datei behalten
 ErrorReadingExistingDest=Lesefehler in Datei:
 FileExists=Die Datei ist bereits vorhanden.%n%nSoll sie überschrieben werden?
-ExistingFileNewer=Die vorhandene Datei ist neuer als die Datei, die installiert werden soll. Es wird empfohlen die vorhandene Datei beizubehalten.%n%n Möchten Sie die vorhandene Datei beibehalten?
+ExistingFileNewer=Die vorhandene Datei ist neuer als die Datei, die installiert werden soll. Es wird empfohlen, die vorhandene Datei beizubehalten.%n%n Möchten Sie die vorhandene Datei beibehalten?
 ErrorChangingAttr=Fehler beim Ändern der Datei-Attribute:
 ErrorCreatingTemp=Fehler beim Erstellen einer Datei im Ziel-Ordner:
 ErrorReadingSource=Fehler beim Lesen der Quelldatei:
@@ -324,12 +324,12 @@ ErrorRegSvr32Failed=RegSvr32-Aufruf scheiterte mit Exit-Code %1
 ErrorRegisterTypeLib=Typen-Bibliothek konnte nicht registriert werden: %1
 
 ; *** Uninstall display name markings
-; used for example as 'Mein Programm (32-bit)'
+; used for example as 'Mein Programm (32 Bit)'
 UninstallDisplayNameMark=%1 (%2)
-; used for example as 'Mein Programm (32-bit, Alle Benutzer)'
+; used for example as 'Mein Programm (32 Bit, Alle Benutzer)'
 UninstallDisplayNameMarks=%1 (%2, %3)
-UninstallDisplayNameMark32Bit=32-bit
-UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMark32Bit=32 Bit
+UninstallDisplayNameMark64Bit=64 Bit
 UninstallDisplayNameMarkAllUsers=Alle Benutzer
 UninstallDisplayNameMarkCurrentUser=Aktueller Benutzer
 
@@ -340,10 +340,10 @@ ErrorRestartingComputer=Das Setup konnte den Computer nicht neu starten. Bitte f
 ; *** Uninstaller messages
 UninstallNotFound=Die Datei "%1" existiert nicht. Entfernen der Anwendung fehlgeschlagen.
 UninstallOpenError=Die Datei "%1" konnte nicht geöffnet werden. Entfernen der Anwendung fehlgeschlagen.
-UninstallUnsupportedVer=Das Format der Deinstallations-Datei "%1" konnte nicht erkannt werden. Entfernen der Anwendung fehlgeschlagen
-UninstallUnknownEntry=In der Deinstallations-Datei wurde ein unbekannter Eintrag (%1) gefunden
+UninstallUnsupportedVer=Das Format der Deinstallationsdatei "%1" konnte nicht erkannt werden. Entfernen der Anwendung fehlgeschlagen.
+UninstallUnknownEntry=In der Deinstallationsdatei wurde ein unbekannter Eintrag (%1) gefunden.
 ConfirmUninstall=Sind Sie sicher, dass Sie %1 und alle zugehörigen Komponenten entfernen möchten?
-UninstallOnlyOnWin64=Diese Installation kann nur unter 64-bit Windows-Versionen entfernt werden.
+UninstallOnlyOnWin64=Diese Installation kann nur unter 64-Bit-Windows-Versionen entfernt werden.
 OnlyAdminCanUninstall=Diese Installation kann nur von einem Benutzer mit Administrator-Rechten entfernt werden.
 UninstallStatusLabel=Warten Sie bitte, während %1 von Ihrem Computer entfernt wird.
 UninstalledAll=%1 wurde erfolgreich von Ihrem Computer entfernt.
@@ -353,7 +353,7 @@ UninstallDataCorrupted="%1"-Datei ist beschädigt. Entfernen der Anwendung fehlg
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Gemeinsame Datei entfernen?
-ConfirmDeleteSharedFile2=Das System zeigt an, dass die folgende gemeinsame Datei von keinem anderen Programm mehr benutzt wird. Möchten Sie diese Datei entfernen lassen?%nSollte es doch noch Programme geben, die diese Datei benutzen, und sie wird entfernt, funktionieren diese Programme vielleicht nicht mehr richtig. Wenn Sie unsicher sind, wählen Sie "Nein" um die Datei im System zu belassen. Es schadet Ihrem System nicht, wenn Sie die Datei behalten.
+ConfirmDeleteSharedFile2=Das System zeigt an, dass die folgende gemeinsame Datei von keinem anderen Programm mehr benutzt wird. Möchten Sie diese Datei entfernen lassen?%nSollte es doch noch Programme geben, die diese Datei benutzen und sie wird entfernt, funktionieren diese Programme vielleicht nicht mehr richtig. Wenn Sie unsicher sind, wählen Sie "Nein", um die Datei im System zu belassen. Es schadet Ihrem System nicht, wenn Sie die Datei behalten.
 SharedFileNameLabel=Dateiname:
 SharedFileLocationLabel=Ordner:
 WizardUninstalling=Entfernen (Status)
