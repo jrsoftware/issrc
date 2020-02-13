@@ -105,7 +105,8 @@ var
   InitLoadInf, InitSaveInf: String;
   InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
     InitNoCloseApplications, InitForceCloseApplications, InitNoForceCloseApplications,
-    InitRestartApplications, InitNoRestartApplications, InitNoCancel: Boolean;
+    InitLogCloseApplications, InitRestartApplications, InitNoRestartApplications,
+    InitNoCancel: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -676,6 +677,7 @@ begin
   InitNoCloseApplications := GetIniBool(Section, 'NoCloseApplications', InitNoCloseApplications, FileName);
   InitForceCloseApplications := GetIniBool(Section, 'ForceCloseApplications', InitForceCloseApplications, FileName);
   InitNoForceCloseApplications := GetIniBool(Section, 'NoForceCloseApplications', InitNoForceCloseApplications, FileName);
+  InitLogCloseApplications := GetIniBool(Section, 'LogCloseApplications', InitLogCloseApplications, FileName);
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
@@ -1981,6 +1983,9 @@ begin
     if DisableFsRedir then
       Filename := ReplaceSystemDirWithSysNative(Filename, IsWin64);
 
+    if InitLogCloseApplications then
+      LogFmt('Found a file to register with RestartManager: %s', [Filename]);
+
     Len := Length(Filename);
     GetMem(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount], (Len + 1) * SizeOf(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount][0]));
     {$IFNDEF UNICODE}
@@ -2985,6 +2990,9 @@ begin
     else
     if CompareText(ParamName, '/NoForceCloseApplications') = 0 then
       InitNoForceCloseApplications := True
+    else
+    if CompareText(ParamName, '/LogCloseApplications') = 0 then
+      InitLogCloseApplications := True
     else
     if CompareText(ParamName, '/RestartApplications') = 0 then
       InitRestartApplications := True

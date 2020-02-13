@@ -324,6 +324,12 @@ begin
           'Instructs Setup to close applications using files that need to be updated.' + SNewLine +
           '/NOCLOSEAPPLICATIONS' + SNewLine +
           'Prevents Setup from closing applications using files that need to be updated.' + SNewLine +
+          '/FORCECLOSEAPPLICATIONS' + SNewLine +
+          'Instructs Setup to force close when closing applications.' + SNewLine +
+          '/FORCENOCLOSEAPPLICATIONS' + SNewLine +
+          'Prevents Setup from force closing when closing applications.' + SNewLine +
+          '/LOGCLOSEAPPLICATIONS' + SNewLine +
+          'Instructs Setup to create extra logging when closing applications for debugging purposes.' + SNewLine +
           '/RESTARTAPPLICATIONS' + SNewLine +
           'Instructs Setup to restart applications.' + SNewLine +
           '/NORESTARTAPPLICATIONS' + SNewLine +

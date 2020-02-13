@@ -3162,6 +3162,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="/NOCLOSEAPPLICATIONS" anchor="NOCLOSEAPPLICATIONS" />
 <keyword value="/FORCECLOSEAPPLICATIONS" anchor="FORCECLOSEAPPLICATIONS" />
 <keyword value="/NOFORCECLOSEAPPLICATIONS" anchor="NOFORCECLOSEAPPLICATIONS" />
+<keyword value="/LOGCLOSEAPPLICATIONS" anchor="LOGCLOSEAPPLICATIONS" />
 <keyword value="/RESTARTAPPLICATIONS" anchor="RESTARTAPPLICATIONS" />
 <keyword value="/NORESTARTAPPLICATIONS" anchor="NORESTARTAPPLICATIONS" />
 <keyword value="/LOADINF=" anchor="LOADINF" />
@@ -3286,9 +3287,14 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Prevents Setup from force closing when closing applications. If /FORCECLOSEAPPLICATIONS was also used, this command line parameter is ignored.</p>
 </dd>
 
+<dt><b><a name="LOGCLOSEAPPLICATIONS">/LOGCLOSEAPPLICATIONS</a></b></dt>
+<dd>
+<p>Instructs Setup to create extra logging when closing applications for debugging purposes.</p>
+</dd>
+
 <dt><b><a name="RESTARTAPPLICATIONS">/RESTARTAPPLICATIONS</a></b></dt>
 <dd>
-<p>Instructs Setup to restart applications if possible. Only has an effect when combined with '/CLOSEAPPLICATIONS'.</p>
+<p>Instructs Setup to restart applications if possible.</p>
 </dd>
 
 <dt><b><a name="NORESTARTAPPLICATIONS">/NORESTARTAPPLICATIONS</a></b></dt>
