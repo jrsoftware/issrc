@@ -156,6 +156,7 @@ var
   RmSessionStarted, RmFoundApplications, RmDoRestart: Boolean;
   RmSessionHandle: DWORD;
   RmSessionKey: array[0..CCH_RM_SESSION_KEY] of WideChar;
+  RmRegisteredFilesCount: Integer;
 
   { Other }
   ShowLanguageDialog, MatchedLangParameter: Boolean;
@@ -1921,8 +1922,8 @@ type
   PArrayOfPWideChar = ^TArrayOfPWideChar;
 
 var
-  RegisterFileFilenames: PArrayOfPWideChar;
-  RegisterFileFilenamesMax, RegisterFileFilenamesCount: Integer;
+  RegisterFileBatchFilenames: PArrayOfPWideChar;
+  RegisterFileFilenamesBatchMax, RegisterFileFilenamesBatchCount: Integer;
 
 function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
   const Param: Pointer): Boolean;
@@ -1958,12 +1959,12 @@ begin
 
   { Secondly: check if we need to register this batch, either because the batch is full
     or because we're done scanning and have leftovers. }
-  if ((Filename <> '') and (RegisterFileFilenamesCount = RegisterFileFilenamesMax)) or
-     ((Filename = '') and (RegisterFileFilenamesCount > 0)) then begin
-    if RmRegisterResources(RmSessionHandle, RegisterFileFilenamesCount, RegisterFileFilenames, 0, nil, 0, nil) = ERROR_SUCCESS then begin
-      for I := 0 to RegisterFileFilenamesCount-1 do
-        FreeMem(RegisterFileFilenames[I]);
-      RegisterFileFilenamesCount := 0;
+  if ((Filename <> '') and (RegisterFileFilenamesBatchCount = RegisterFileFilenamesBatchMax)) or
+     ((Filename = '') and (RegisterFileFilenamesBatchCount > 0)) then begin
+    if RmRegisterResources(RmSessionHandle, RegisterFileFilenamesBatchCount, RegisterFileBatchFilenames, 0, nil, 0, nil) = ERROR_SUCCESS then begin
+      for I := 0 to RegisterFileFilenamesBatchCount-1 do
+        FreeMem(RegisterFileBatchFilenames[I]);
+      RegisterFileFilenamesBatchCount := 0;
     end else begin
       RmEndSession(RmSessionHandle);
       RmSessionStarted := False;
@@ -1981,13 +1982,15 @@ begin
       Filename := ReplaceSystemDirWithSysNative(Filename, IsWin64);
 
     Len := Length(Filename);
-    GetMem(RegisterFileFilenames[RegisterFileFilenamesCount], (Len + 1) * SizeOf(RegisterFileFilenames[RegisterFileFilenamesCount][0]));
+    GetMem(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount], (Len + 1) * SizeOf(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount][0]));
     {$IFNDEF UNICODE}
       RegisterFileFilenames[RegisterFileFilenamesCount][MultiByteToWideChar(CP_ACP, 0, PChar(Filename), Len, RegisterFileFilenames[RegisterFileFilenamesCount], Len)] := #0;
     {$ELSE}
-      StrPCopy(RegisterFileFilenames[RegisterFileFilenamesCount], Filename);
+      StrPCopy(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount], Filename);
     {$ENDIF}
-    Inc(RegisterFileFilenamesCount);
+    Inc(RegisterFileFilenamesBatchCount);
+
+    Inc(RmRegisteredFilesCount);
   end;
 
   Result := RmSessionStarted; { Break the enum if there was an error, else continue. }
@@ -2014,10 +2017,11 @@ var
 begin
   { Note: MSDN says we shouldn't call RmRegisterResources for each file because of speed, but calling
     it once for all files adds extra memory usage, so calling it in batches. }
-  RegisterFileFilenamesMax := 1000;
-  GetMem(RegisterFileFilenames, RegisterFileFilenamesMax * SizeOf(RegisterFileFilenames[0]));
+  RegisterFileFilenamesBatchMax := 1000;
+  GetMem(RegisterFileBatchFilenames, RegisterFileFilenamesBatchMax * SizeOf(RegisterFileBatchFilenames[0]));
   try
     { Register our files. }
+    RmRegisteredFilesCount := 0;
     EnumFiles(RegisterFile, WizardComponents, WizardTasks, Pointer(True));
     { Ask [Code] for more files. }
     if CodeRunner <> nil then begin
@@ -2037,9 +2041,9 @@ begin
     if RmSessionStarted then
       RegisterFile(False, '', nil);
   finally
-    for I := 0 to RegisterFileFilenamesCount-1 do
-      FreeMem(RegisterFileFilenames[I]);
-    FreeMem(RegisterFileFilenames);
+    for I := 0 to RegisterFileFilenamesBatchCount-1 do
+      FreeMem(RegisterFileBatchFilenames[I]);
+    FreeMem(RegisterFileBatchFilenames);
   end;
 end;
 

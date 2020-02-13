@@ -1907,9 +1907,6 @@ begin
   end;
 end;
 
-var
-  DidRegisterResources: Boolean;
-
 function TWizardForm.QueryRestartManager(const WizardComponents, WizardTasks: TStringList): String;
 
   procedure CheckAndAddRebootReasonToString(var S: String; const RebootReasons, RebootReason: Integer; const RebootReasonString: String);
@@ -1952,56 +1949,57 @@ var
 begin
   { Clear existing registered resources if we get here a second time (user clicked Back after first time). There
     doesn't seem to be function to do this directly, so restart the session instead. }
-  if DidRegisterResources then begin
+  if RmRegisteredFilesCount <> 0 then begin
     RmEndSession(RmSessionHandle);
     if RmStartSession(@RmSessionHandle, 0, RmSessionKey) <> ERROR_SUCCESS then
       RmSessionStarted := False;
   end;
 
-  if RmSessionStarted then begin
-    RegisterResourcesWithRestartManager(WizardComponents, WizardTasks);
-    DidRegisterResources := True;
-  end;
+  if RmSessionStarted then
+    RegisterResourcesWithRestartManager(WizardComponents, WizardTasks); { This will update RmSessionStarted and RmRegisteredFilesCount }
 
   if RmSessionStarted then begin
-    ProcessInfosCount := 0;
-    ProcessInfosCountNeeded := 5; { Start with 5 to hopefully avoid a realloc }
-    ProcessInfos := nil;
-    try
-      Log('Calling RestartManager''s RmGetList.');
-      while ProcessInfosCount < ProcessInfosCountNeeded do begin
+    LogFmt('Found %d files to register with RestartManager.', [RmRegisteredFilesCount]);
+    if RmRegisteredFilesCount > 0 then begin
+      ProcessInfosCount := 0;
+      ProcessInfosCountNeeded := 5; { Start with 5 to hopefully avoid a realloc }
+      ProcessInfos := nil;
+      try
+        Log('Calling RestartManager''s RmGetList.');
+        while ProcessInfosCount < ProcessInfosCountNeeded do begin
+          if ProcessInfos <> nil then
+            FreeMem(ProcessInfos);
+          GetMem(ProcessInfos, ProcessInfosCountNeeded * SizeOf(ProcessInfos[0]));
+          ProcessInfosCount := ProcessInfosCountNeeded;
+
+          if not RmGetList(RmSessionHandle, @ProcessInfosCountNeeded, @ProcessInfosCount, ProcessInfos, @RebootReasons) in [ERROR_SUCCESS, ERROR_MORE_DATA] then begin
+            RmEndSession(RmSessionHandle);
+            RmSessionStarted := False;
+            Break;
+          end;
+        end;
+
+        if RmSessionStarted then begin
+          Log('RmGetList finished successfully.');
+          if ProcessInfosCount > 0 then begin
+            for I := 0 to ProcessInfosCount-1 do begin
+              AppName := WideCharToString(ProcessInfos[I].strAppName);
+              LogFmt('RestartManager found an application using one of our files: %s', [AppName]);
+              if RebootReasons = RmRebootReasonNone then begin
+                if Result <> '' then
+                  Result := Result + #13#10;
+                Result := Result + AppName;
+              end;
+            end;
+            LogFmt('Can use RestartManager to avoid reboot? %s (%s)', [SYesNo[RebootReasons = RmRebootReasonNone], RebootReasonsToString(RebootReasons)]);
+          end else
+            Log('RestartManager found no applications using one of our files.');
+        end else
+          Log('RmGetList failed.');
+      finally
         if ProcessInfos <> nil then
           FreeMem(ProcessInfos);
-        GetMem(ProcessInfos, ProcessInfosCountNeeded * SizeOf(ProcessInfos[0]));
-        ProcessInfosCount := ProcessInfosCountNeeded;
-
-        if not RmGetList(RmSessionHandle, @ProcessInfosCountNeeded, @ProcessInfosCount, ProcessInfos, @RebootReasons) in [ERROR_SUCCESS, ERROR_MORE_DATA] then begin
-          RmEndSession(RmSessionHandle);
-          RmSessionStarted := False;
-          Break;
-        end;
       end;
-
-      if RmSessionStarted then begin
-        Log('RmGetList finished successfully.');
-        if ProcessInfosCount > 0 then begin
-          for I := 0 to ProcessInfosCount-1 do begin
-            AppName := WideCharToString(ProcessInfos[I].strAppName);
-            LogFmt('RestartManager found an application using one of our files: %s', [AppName]);
-            if RebootReasons = RmRebootReasonNone then begin
-              if Result <> '' then
-                Result := Result + #13#10;
-              Result := Result + AppName;
-            end;
-          end;
-          LogFmt('Can use RestartManager to avoid reboot? %s (%s)', [SYesNo[RebootReasons = RmRebootReasonNone], RebootReasonsToString(RebootReasons)]);
-        end else
-          Log('RestartManager found no applications using one of our files.');
-      end else
-        Log('RmGetList failed.');
-    finally
-      if ProcessInfos <> nil then
-        FreeMem(ProcessInfos);
     end;
   end;
 

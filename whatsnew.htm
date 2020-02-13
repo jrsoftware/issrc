@@ -36,6 +36,8 @@ For conditions of distribution and use, see <a href="http://www.jrsoftware.org/f
   <li>Restart Manager changes:
   <ul>
     <li>Setup now ignores attempts by the script to register Setup itself with Restart Manager for a being in use check.</li>
+    <li>If all files are excluded by [Setup] section directive <tt>CloseApplicationsFilter</tt>, Setup now no longer calls Restart Manager's RmGetList asking it to check 0 files.</li>
+    <li>/LOG: Now logs how many files Setup asked Restart Manager's RmGetList to check.</li>
   </ul>
   </li>
   <li>Minor tweaks.</li>
