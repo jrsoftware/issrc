@@ -5374,7 +5374,7 @@ SignTool=byparam format c:
 <setupvalid>A list of file name wildcards, separated by commas</setupvalid>
 <setupdefault><tt>*.exe,*.dll,*.chm</tt></setupdefault>
 <body>
-<p>Controls which files Setup will check for being in use.</p>
+<p>Limits which [Files] and [InstallDelete] entries Setup will check for being in use. Only files matching one of the wildcards will be checked.</p>
 <p>Setting this to <tt>*.*</tt> can provide better checking at the expense of speed.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplications">CloseApplications</link><br/>
