@@ -97,7 +97,7 @@ Type: files; Name: "{app}\Languages\*.isl"
 
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "ishelp\Staging\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 #ifndef isccexe
@@ -165,7 +165,7 @@ Source: "Examples\MyDll\C#\MyDll.sln"; DestDir: "{app}\Examples\MyDll\C#"; Flags
 Source: "Examples\MyDll\C#\packages.config"; DestDir: "{app}\Examples\MyDll\C#"; Flags: ignoreversion touch
 Source: "Examples\MyDll\C#\Properties\AssemblyInfo.cs"; DestDir: "{app}\Examples\MyDll\C#\Properties"; Flags: ignoreversion touch
 Source: "Examples\MyDll\Delphi\MyDll.dpr"; DestDir: "{app}\Examples\MyDll\Delphi"; Flags: ignoreversion touch
-Source: "Projects\ISPP\Help\Staging\ISPP.chm"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\ISPP.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 #ifndef isppdll
   #define isppdll "ispp.dll"
 #endif

@@ -43,6 +43,9 @@ if not exist Staging\isetup.chm goto failed
 rem  HHC leaves behind a temporary file each time it runs...
 if exist "%TEMP%\~hh*.tmp" del /q "%TEMP%\~hh*.tmp"
 
+copy Staging\isetup.chm ..\Files\ISetup.chm
+if not exist ..\Files\ISetup.chm goto failed
+
 echo Success!
 exit /b 0
 
