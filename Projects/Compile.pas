@@ -8407,23 +8407,31 @@ var
   procedure PrepareSetupE32(var M: TMemoryFile);
   var
     TempFilename, E32Filename, ConvertFilename: String;
+    ConvertFile: TFile;
   begin
     TempFilename := '';
     try
       E32Filename := CompilerDir + 'SETUP.E32';
+      { make a copy and update icons and version info }
+      ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
+      CopyFileOrAbort(E32Filename, ConvertFilename);
+      SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
+      TempFilename := ConvertFilename;
       if SetupIconFilename <> '' then begin
-        { make a copy and update icons }
-        ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
-        CopyFileOrAbort(E32Filename, ConvertFilename);
-        SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
-        TempFilename := ConvertFilename;
         AddStatus(Format(SCompilerStatusUpdatingIcons, ['SETUP.E32']));
         LineNumber := SetupDirectiveLines[ssSetupIconFile];
         UpdateIcons(ConvertFileName, PrependSourceDirName(SetupIconFilename));
         LineNumber := 0;
-      end else
-        ConvertFilename := E32Filename;
-
+      end;
+      AddStatus(Format(SCompilerStatusUpdatingVersionInfo, ['SETUP.E32']));
+      ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
+      try
+        UpdateVersionInfo(ConvertFile, TFileVersionNumbers(nil^), VersionInfoProductVersion, VersionInfoCompany,
+          '', '', VersionInfoCopyright, VersionInfoProductName, VersionInfoProductTextVersion, VersionInfoOriginalFileName,
+          False);
+      finally
+        ConvertFile.Free;
+      end;
       M := TMemoryFile.Create(ConvertFilename);
       UpdateSetupPEHeaderFields(M, TerminalServicesAware, DEPCompatible, ASLRCompatible);
       if shSignedUninstaller in SetupHeader.Options then
@@ -9213,10 +9221,11 @@ begin
             ExeFile.WriteBuffer(SetupLdrOffsetTable, SizeOf(SetupLdrOffsetTable));
 
             { Update version info }
-            AddStatus(SCompilerStatusUpdatingVersionInfo);
+            AddStatus(Format(SCompilerStatusUpdatingVersionInfo, ['SETUP.EXE']));
             UpdateVersionInfo(ExeFile, VersionInfoVersion, VersionInfoProductVersion, VersionInfoCompany,
               VersionInfoDescription, VersionInfoTextVersion,
-              VersionInfoCopyright, VersionInfoProductName, VersionInfoProductTextVersion, VersionInfoOriginalFileName);
+              VersionInfoCopyright, VersionInfoProductName, VersionInfoProductTextVersion, VersionInfoOriginalFileName,
+              True);
 
             { For some reason, on Win95 the date/time of the EXE sometimes
               doesn't get updated after it's been written to so it has to

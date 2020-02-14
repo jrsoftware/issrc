@@ -4920,7 +4920,6 @@ DiskSliceSize=1457664
 <setupdefault><link topic="setup_apppublisher">AppPublisher</link> if <link topic="setup_apppublisher">AppPublisher</link> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the company name value for the Setup version info.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -4928,7 +4927,6 @@ DiskSliceSize=1457664
 <setupdefault><link topic="setup_appcopyright">AppCopyright</link> if <link topic="setup_appcopyright">AppCopyright</link> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the copyright value for the Setup version info.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -4943,7 +4941,6 @@ DiskSliceSize=1457664
 <setuptopic directive="VersionInfoOriginalFileName">
 <body>
 <p>Specifies the original file name value for the Setup version info.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -4951,7 +4948,6 @@ DiskSliceSize=1457664
 <setupdefault><link topic="setup_appname">AppName</link> if <link topic="setup_appname">AppName</link> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the product name value for the Setup version info.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -4959,7 +4955,6 @@ DiskSliceSize=1457664
 <setupdefault><link topic="setup_versioninfoproductversion">VersionInfoProductVersion</link> if set, else <link topic="setup_appversion">AppVersion</link> if set and does not include constants, else <link topic="setup_versioninfotextversion">VersionInfoTextVersion</link></setupdefault>
 <body>
 <p>Specifies the textual product version value for the Setup version info.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -4970,7 +4965,6 @@ DiskSliceSize=1457664
 <p>Specifies the binary product version value for the Setup version info.</p>
 <p>Partial version numbers are allowed. Missing numbers will be appended as zero's.</p>
 <p>Note that this value is only known to be displayed by Explorer on Windows Vista SP2. Other versions display the textual product version value (<link topic="setup_versioninfoproducttextversion">VersionInfoProductTextVersion</link>) instead.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 

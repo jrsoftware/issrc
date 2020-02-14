@@ -22,6 +22,12 @@ BEGIN
             VALUE "FileDescription", "Setup/Uninstall\0"
             VALUE "FileVersion", "51.52.0.0\0"
                   // NOTE: Be sure to keep FILEVERSION in sync!
+            VALUE "Comments", "This installation was built with Inno Setup.\0"
+            VALUE "CompanyName", "                                                            \0"
+            VALUE "LegalCopyright", "                                                                                                    \0"
+            VALUE "OriginalFileName", "                                                  \0"
+            VALUE "ProductName", "                                                            \0"
+            VALUE "ProductVersion", "                                                  \0"
         END
     END
     BLOCK "VarFileInfo"
