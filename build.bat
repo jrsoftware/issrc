@@ -26,6 +26,8 @@ echo.
 
 cd /d %~dp0
 
+if "%1%"=="setup" goto setup
+
 cd projects\ispp\help
 if errorlevel 1 goto failed
 call .\compile.bat
@@ -49,6 +51,7 @@ if errorlevel 1 goto failed
 echo Compiling Inno Setup done
 pause
 
+:setup
 echo - Setup.exe
 if exist .\setup-sign.bat (
   call .\setup-sign.bat
