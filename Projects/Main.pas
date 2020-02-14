@@ -1949,11 +1949,13 @@ begin
         end;
       end;
       if not Match then begin
+        { No match with filter so exit but don't return an error. }
         Result := True;
         Exit;
       end;
     end;
     if PathCompare(Filename, SetupLdrOriginalFilename) = 0 then begin
+      { Don't allow self to be registered but don't return an error. }
       Result := True;
       Exit;
     end;
