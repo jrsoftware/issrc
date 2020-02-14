@@ -199,6 +199,8 @@ by Visual Studio 2005 from the [Projects\Lzma2\Encoder] directory.
 **Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintilla 2.22 source
 code with scintilla-2.22-patch.txt applied.
 
+Other files in the **Files** directory - Compiled by build.bat.
+
 **Projects\Helper\x64\Release\Helper.exe**, **Projects\HelperEXEs.res** -
 Compiled by Visual Studio 2005 from the [Projects\Helper] directory and then
 stored in a compiled resource file.
