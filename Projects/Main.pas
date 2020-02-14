@@ -1856,13 +1856,13 @@ begin
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
               if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, True,
-                 DummyDeleteDirProc, EnumFilesProc, nil) then begin
+                 DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
               end;
             dfDirIfEmpty:
               if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, True,
-                 DummyDeleteDirProc, EnumFilesProc, nil) then begin
+                 DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
               end;
