@@ -3630,6 +3630,10 @@ begin
   Bevel1.Visible := FTheme.Colors[tcMarginBack] = ToolBarPanel.Color;
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
+  if FTheme.Dark then
+    TabSet.Theme := FTheme
+  else
+    TabSet.Theme := nil;
   CompilerOutputList.Font.Color := FTheme.Colors[tcFore];
   CompilerOutputList.Color := FTheme.Colors[tcBack];
   CompilerOutputList.Invalidate;
