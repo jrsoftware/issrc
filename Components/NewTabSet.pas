@@ -2,7 +2,7 @@ unit NewTabSet;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -274,7 +274,7 @@ begin
 
   { Background fill }
   if FTheme <> nil then
-    Canvas.Brush.COlor := FTheme.Colors[tcMarginBack]
+    Canvas.Brush.Color := FTheme.Colors[tcMarginBack]
   else if HighColorMode then
     Canvas.Brush.Color := LightenColor(ColorToRGB(clBtnFace), 35)
   else
