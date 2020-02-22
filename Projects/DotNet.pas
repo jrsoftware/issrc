@@ -219,14 +219,6 @@ function IsDotNetInstalled(const RegView: TRegView; const MinVersion: TDotNetVer
       Result := False;
   end;
 
-// Indicates whether the specified version and service pack of the .NET Framework is installed.
-//
-// version -- Specify one of these strings for the required .NET Framework version:
-
-//
-// service -- Specify any non-negative integer for the required service pack level:
-//    0               No service packs required
-//    1, 2, etc.      Service pack 1, 2, etc. required
 var
   VersionString, VersionKey, SubKey: String;
   Install, InstalledRelease, InstalledServicePack, RequiredRelease: DWORD;
