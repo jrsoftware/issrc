@@ -3636,13 +3636,13 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Creators of <extlink href="http://www.scintilla.org/">Scintilla</extlink>: The syntax-highlighting editor used in the Compiler (5.4).</li>
 
-<li>Motaz Alnuweiri: 128x128 and 256x256 sizes of the compiler and document icons.</li>
-
 <li>Zaher Dirkey: Initial work on improved right-to-left languages support (5.2.3).</li>
 
-<li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support (5.3.0).</li>
+<li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support (5.3).</li>
 
-<li>DRON: Code for the improved image stretching (5.6.0).</li>
+<li>Motaz Alnuweiri: 128x128 and 256x256 sizes of the compiler and document icons (5.5.3).</li>
+
+<li>DRON: Code for the improved image stretching (5.6).</li>
 
 <li>Sherlock Software: Most of the code for the <tt>CreateCallback</tt> support function (6.0).</li>
 
