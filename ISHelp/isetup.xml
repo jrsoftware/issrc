@@ -348,6 +348,7 @@ This " contains " embedded " quotes
 <keyword value="{dotnet2032}" anchor="dotnet2032" />
 <keyword value="{dotnet2064}" anchor="dotnet2064" />
 <keyword value="{dotnet40}" anchor="dotnet40" />
+<keyword value=".NET install root" anchor="dotnet40" />
 <keyword value="{dotnet4032}" anchor="dotnet4032" />
 <keyword value="{dotnet4064}" anchor="dotnet4064" />
 <keyword value="{drive:...}" anchor="drive" />
@@ -498,43 +499,44 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="dotnet11">{dotnet11}</a></b></dt>
 <dd>
-<p>32-bit .NET Framework version 1.1 root directory.</p>
+<p>32-bit .NET Framework version 1.1 install root directory.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 1.1 present.</p>
 </dd>
 
 <dt><b><a name="dotnet20">{dotnet20}</a></b></dt>
 <dd>
-<p>.NET Framework version 2.0-3.5 root directory. <tt>{dotnet20}</tt> is equivalent to <tt>{dotnet2032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{dotnet2064}</tt>.</p>
+<p>.NET Framework version 2.0-3.5 install root directory. <tt>{dotnet20}</tt> is equivalent to <tt>{dotnet2032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{dotnet2064}</tt>.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0-3.5 present.</p>
 </dd>
 
 <dt><b><a name="dotnet2032">{dotnet2032}</a></b></dt>
 <dd>
-<p>32-bit .NET Framework version 2.0-3.5 root directory.</p>
+<p>32-bit .NET Framework version 2.0-3.5 install root directory.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0-3.5 present.</p>
 </dd>
 
 <dt><b><a name="dotnet2064">{dotnet2064}</a></b></dt>
 <dd>
-<p>64-bit Windows only: 64-bit .NET Framework version 2.0-3.5 root directory.</p>
+<p>64-bit Windows only: 64-bit .NET Framework version 2.0-3.5 install root directory.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0-3.5 present.</p>
 </dd>
 
 <dt><b><a name="dotnet40">{dotnet40}</a></b></dt>
 <dd>
-<p>.NET Framework version 4.0 and later root directory. <tt>{dotnet40}</tt> is equivalent to <tt>{dotnet4032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{dotnet4064}</tt>.</p>
+<p>.NET Framework version 4.0 and later install root directory. <tt>{dotnet40}</tt> is equivalent to <tt>{dotnet4032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{dotnet4064}</tt>.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 or later present.</p>
+<p>Also see <link topic="isxfunc_IsDotNetInstalled">IsDotNetInstalled</link>.</p>
 </dd>
 
 <dt><b><a name="dotnet4032">{dotnet4032}</a></b></dt>
 <dd>
-<p>32-bit .NET Framework version 4.0 and later root directory.</p>
+<p>32-bit .NET Framework version 4.0 and install later root directory.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 or later present.</p>
 </dd>
 
 <dt><b><a name="dotnet4064">{dotnet4064}</a></b></dt>
 <dd>
-<p>64-bit Windows only: 64-bit .NET Framework version 4.0 and later root directory.</p>
+<p>64-bit Windows only: 64-bit .NET Framework version 4.0 and later install root directory.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 or later present.</p>
 </dd>
 
@@ -3624,7 +3626,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Martijn Laan: Rich Edit 2.0 &amp; URL detection support (1.3.13); Silent uninstallation (1.3.25); System image list support in drive and directory lists (1.3.25); Silent installation (2.0); The <tt>[Types]</tt>, <tt>[Components]</tt> and <tt>[Tasks]</tt> sections (2.0); The <tt>postinstall</tt> flag (2.0); The <tt>[Code]</tt> section (4.0); Subcomponents and subtasks support (4.0); Many other features after 4.0.</li>
 
-<li>Alex Yackimoff: Portions of <link topic="scriptclasses" anchor="TNewCheckListBox">TNewCheckListBox</link> (4.0).</li>
+<li>Alex Yackimoff: Portions of <link topic="scriptclasses" anchor="TNewCheckListBox">TNewCheckListBox</link> (4.0); ISPP (5.4.1).</li>
 
 <li>Carlo Kok: <extlink href="http://www.remobjects.com/ps">RemObjects Pascal Script</extlink> (4.0).</li>
 
@@ -3636,13 +3638,17 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Motaz Alnuweiri: 128x128 and 256x256 sizes of the compiler and document icons.</li>
 
-<li>Zaher Dirkey: Initial work on improved right-to-left languages support.</li>
+<li>Zaher Dirkey: Initial work on improved right-to-left languages support (5.2.3).</li>
 
-<li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support.</li>
+<li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support (5.3.0).</li>
 
 <li>DRON: Code for the improved image stretching (5.6.0).</li>
 
 <li>Sherlock Software: Most of the code for the <tt>CreateCallback</tt> support function (6.0).</li>
+
+<li>Vizit0r: Code for the "Debug Call Stack" view (6.0.3).</li>
+
+<li>Cristoph Nahr: Code for the .NET version detection (6.0.4).</li>
 
 </ul>
 

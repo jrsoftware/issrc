@@ -264,7 +264,7 @@ uses
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
   Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
   {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
-  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion, BitmapImage,
+  SimpleExpression, Helper, SpawnClient, SpawnServer, DotNet, BitmapImage,
   TaskDialog;
 
 {$R *.DFM}
@@ -1172,20 +1172,20 @@ begin
       Result := '0';
   end
   else if Cnst = 'log' then Result := GetLogFileName
-  else if Cnst = 'dotnet11' then Result := GetDotNetVersionRoot(rv32Bit, dt11)
-  else if Cnst = 'dotnet20' then Result := GetDotNetVersionRoot(InstallDefaultRegView, dt20)
-  else if Cnst = 'dotnet2032' then Result := GetDotNetVersionRoot(rv32Bit, dt20)
+  else if Cnst = 'dotnet11' then Result := GetDotNetVersionInstallRoot(rv32Bit, netbase11)
+  else if Cnst = 'dotnet20' then Result := GetDotNetVersionInstallRoot(InstallDefaultRegView, netbase20)
+  else if Cnst = 'dotnet2032' then Result := GetDotNetVersionInstallRoot(rv32Bit, netbase20)
   else if Cnst = 'dotnet2064' then begin
     if IsWin64 then
-      Result := GetDotNetVersionRoot(rv64Bit, dt20)
+      Result := GetDotNetVersionInstallRoot(rv64Bit, netbase20)
     else
       InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
-  else if Cnst = 'dotnet40' then Result := GetDotNetVersionRoot(InstallDefaultRegView, dt40)
-  else if Cnst = 'dotnet4032' then Result := GetDotNetVersionRoot(rv32Bit, dt40)
+  else if Cnst = 'dotnet40' then Result := GetDotNetVersionInstallRoot(InstallDefaultRegView, netbase40)
+  else if Cnst = 'dotnet4032' then Result := GetDotNetVersionInstallRoot(rv32Bit, netbase40)
   else if Cnst = 'dotnet4064' then begin
     if IsWin64 then
-      Result := GetDotNetVersionRoot(rv64Bit, dt40)
+      Result := GetDotNetVersionInstallRoot(rv64Bit, netbase40)
     else
       InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end

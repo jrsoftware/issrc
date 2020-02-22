@@ -2,7 +2,7 @@ unit Undo;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -160,7 +160,7 @@ implementation
 uses
   Messages, ShlObj, AnsiStrings,
   PathFunc, Struct, Msgs, MsgIDs, InstFunc, InstFnc2, RedirFunc, Compress,
-  Logging, RegDLL, Helper, LibFusion;
+  Logging, RegDLL, Helper, DotNet;
 
 type
   { Note: TUninstallLogHeader should stay <= 512 bytes in size, so that it

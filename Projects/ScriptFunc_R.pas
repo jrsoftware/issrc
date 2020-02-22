@@ -2,7 +2,7 @@ unit ScriptFunc_R;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -27,7 +27,7 @@ uses
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
   Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
-  SpawnClient, UninstProgressForm, ASMInline;
+  SpawnClient, UninstProgressForm, ASMInline, DotNet;
 
 var
   ScaleBaseUnitsInitialized: Boolean;
@@ -1896,6 +1896,8 @@ begin
     Stack.SetClass(PStart, GetUninstallProgressForm);
   end else if Proc.Name = 'CREATECALLBACK' then begin
    Stack.SetInt(PStart, CreateCallback(Stack.Items[PStart-1]));
+  end else if Proc.Name = 'ISDOTNETINSTALLED' then begin
+   Stack.SetBool(PStart, IsDotNetInstalled(InstallDefaultRegView, TDotNetVersion(Stack.GetInt(PStart-1)), Stack.GetInt(PStart-2)));
   end else
     Result := False;
 end;

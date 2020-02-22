@@ -2,7 +2,7 @@ unit Install;
 
 {
   Inno Setup
-  Copyright (C) 1997-2011 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -26,7 +26,7 @@ uses
   InstFunc, InstFnc2, SecurityFunc, Msgs, Main, Logging, Extract, FileClass,
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
-  ResUpdate, LibFusion, TaskbarProgressFunc, NewProgressBar, RestartManager;
+  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager;
 
 type
   TSetupUninstallLog = class(TUninstallLog)

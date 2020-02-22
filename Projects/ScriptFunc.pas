@@ -2,7 +2,7 @@ unit ScriptFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -311,7 +311,7 @@ const
   );
 
   { Other }
-  OtherTable: array [0..30] of AnsiString =
+  OtherTable: array [0..31] of AnsiString =
   (
     'procedure BringToFrontAndRestore;',
     'function WizardDirValue: String;',
@@ -343,7 +343,8 @@ const
     'function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function EnableFsRedirection(const Enable: Boolean): Boolean;',
     'function GetUninstallProgressForm: TUninstallProgressForm;',
-    'function CreateCallback(Method: AnyMethod): Longword;'
+    'function CreateCallback(Method: AnyMethod): Longword;',
+    'function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;'
   );
 
 implementation
