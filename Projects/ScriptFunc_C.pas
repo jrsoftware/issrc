@@ -117,7 +117,7 @@ begin
   RegisterRealEnum('TDotNetVersion', TypeInfo(TDotNetVersion));
 
   RegisterType('TExecWait', '(ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle)');
-  
+
   ScriptCompiler.AddTypeS('TFindRec',
     'record' +
     '  Name: String;' +

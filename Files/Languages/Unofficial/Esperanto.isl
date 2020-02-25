@@ -1,11 +1,11 @@
 ; *** Inno Setup version 5.5.3+ Esperanto messages ***
-;       
+;
 ;       Author: Alexander Gritchin   (E-mail - alexgrimo@mail.ru)
 ;
 ;       Au`toro: Alexander Gritc`in  (E-mail - alexgrimo@mail.ru)
 ;       Versio del traduko -  15.06.08
-; 
-;  
+;
+;
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -13,7 +13,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Esperanto
 LanguageID=$0
@@ -29,7 +29,7 @@ LanguageCodePage=0
 ;CopyrightFontName=Arial
 ;CopyrightFontSize=8
 
-  
+
 
 [Messages]
 
@@ -37,7 +37,7 @@ LanguageCodePage=0
 SetupAppTitle=Instalado
 SetupWindowTitle=Instalado de - %1
 UninstallAppTitle=Forigado
-UninstallAppFullTitle=Forigado de %1 
+UninstallAppFullTitle=Forigado de %1
 
 ; *** Misc. common
 InformationTitle=Informacio
@@ -74,7 +74,7 @@ ErrorCreatingDir=La Majstro ne povas krei dosierujon "%1"
 ErrorTooManyFilesInDir=Estas nepoveble krei dosieron en dosierujo "%1" pro tio ke g`i havas tro multe da dosierojn
 
 ; *** Setup common messages
-ExitSetupTitle=S`topo Majstron 
+ExitSetupTitle=S`topo Majstron
 ExitSetupMessage=La instalado ne estas plena. Se vi eliros nun, la programo ne estos instalita.%n%nPor vi bezonas s`alti Majstron denove en alia tempo por plenumi instaladon.%n%nC`u fini la Majstron?
 AboutSetupMenuItem=&Pri instalo...
 AboutSetupTitle=Pri instalo
@@ -109,7 +109,7 @@ BrowseDialogLabel=Elektu la dosierujon en listo malalte, kaj kliku Jes.
 NewFolderName=Nova dosierujo
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Bonvenon al Majstro de instalado de [name] 
+WelcomeLabel1=Bonvenon al Majstro de instalado de [name]
 WelcomeLabel2=Nun komencos instalado de [name/ver] en via komputilo.%n%nEstas rekomendite ke vi s`topu c`iajn viajn programojn antau` komenco.
 
 ; *** "Password" wizard page
@@ -213,7 +213,7 @@ ApplicationsFound=Sekvaj aplikaj`oj uzas dosierojn kiajn bezonas renovigi per In
 ApplicationsFound2=Sekvaj aplikaj`oj uzas dosierojn kiajn bezonas renovigi per Instalado. Estas rekomendite ke vi permesu al Majstro automate fermi tiajn aplikaj`ojn. Poste de instalado Majstro provos relanc`i aplikaj`ojn.
 CloseApplications=&Automate fermi aplikaj`ojn
 DontCloseApplications=Ne fermu aplikaj`ojn
-ErrorCloseApplications=Majstro estis nepovebla au`tomate fermi c`iajn aplikaj`ojn. Estas rekomendite ke vi fermu c`iajn aplikaj`ojn, uzantaj dosierojn, kiaj estas bezonatajn por renovigo per la Majstro antau` kontinui. 
+ErrorCloseApplications=Majstro estis nepovebla au`tomate fermi c`iajn aplikaj`ojn. Estas rekomendite ke vi fermu c`iajn aplikaj`ojn, uzantaj dosierojn, kiaj estas bezonatajn por renovigo per la Majstro antau` kontinui.
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalado
@@ -226,7 +226,7 @@ FinishedLabel=La Majstro finigis instaladon [name] en via komputilo. La aplikaj`
 ClickFinish=  Kliku  Fino  por finigi instaladon.
 FinishedRestartLabel=Por plenumigi instaladon de [name], Majstro devas relanc`i vian komputilon. C`u vi volas relanc`i nun?
 FinishedRestartMessage=Por plenumigi instaladon de [name], Majstro devas relanc`i vian komputilon.%n%nC`u vi volas relanc`i nun?
-ShowReadmeCheck=Jes, mi volas rigardi dosieron README 
+ShowReadmeCheck=Jes, mi volas rigardi dosieron README
 YesRadio=&Jes, relanc`u komputilon nun
 NoRadio=&Ne, mi volas relanc`i komputilon poste
 ; used for example as 'Run MyProg.exe'

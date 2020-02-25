@@ -36,7 +36,7 @@ type
     function GetContextMenu(seltype: Word; const oleobj: IOleObject;
       const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
   end;
-  
+
   TRichEditViewer = class(TMemo)
   private
     FUseRichEdit: Boolean;

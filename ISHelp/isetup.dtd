@@ -9,8 +9,8 @@
   Document Type Definition for isetup.xml
 -->
 
-<!ENTITY nbsp "&#160;"> 
-<!ENTITY copy "&#169;"> 
+<!ENTITY nbsp "&#160;">
+<!ENTITY copy "&#169;">
 
 <!ENTITY % _inlineExceptLink "b | br | i | tt | u">
 <!ENTITY % _inline "%_inlineExceptLink; | link | extlink | a | anchorlink">
@@ -39,7 +39,7 @@
 <!ATTLIST setuptopic directive CDATA #REQUIRED title CDATA #IMPLIED>
 <!ELEMENT setupformat %Inline;>
 <!ELEMENT setupvalid %Inline;>
-<!ELEMENT setupdefault %Inline;> 
+<!ELEMENT setupdefault %Inline;>
 
 <!ELEMENT body %Block;>
 

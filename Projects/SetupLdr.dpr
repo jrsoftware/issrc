@@ -9,7 +9,7 @@ program SetupLdr;
   Setup Loader
 }
 
-{$SetPEFlags 1} 
+{$SetPEFlags 1}
 {$SETPEOSVERSION 6.0}
 {$SETPESUBSYSVERSION 6.0}
 {$WEAKLINKRTTI ON}
@@ -291,7 +291,7 @@ var
   PrNote, Help: String;
 begin
   { do not localize }
-  
+
   if proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed then begin
     PrNote := '/ALLUSERS' + SNewLine +
               'Instructs Setup to install in administrative install mode.' + SNewLine +
@@ -383,14 +383,14 @@ begin
     RunImageLocally(HInstance);
 
     ProcessCommandLine;
-    
+
     SelfFilename := NewParamStr(0);
     SourceF := TFile.Create(SelfFilename, fdOpenExisting, faRead, fsRead);
     try
       OffsetTable := GetSetupLdrOffsetTable;
       { Note: We don't check the OffsetTable.ID here because it would put a
         copy of the ID in the data section, and that would confuse external
-        programs that search for the offset table by ID. } 
+        programs that search for the offset table by ID. }
       if (OffsetTable.Version <> SetupLdrOffsetTableVersion) or
          (GetCRC32(OffsetTable^, SizeOf(OffsetTable^) - SizeOf(OffsetTable.TableCRC)) <> OffsetTable.TableCRC) or
          ((SourceF.Size.Hi = 0) and (SourceF.Size.Lo < OffsetTable.TotalSize)) then
@@ -418,7 +418,7 @@ begin
         on ECompressDataError do
           SetupCorruptError;
       end;
-      
+
       ActivateDefaultLanguage;
 
       if InitShowHelp then begin
@@ -496,7 +496,7 @@ begin
           SelfFilename + '" ' + GetCmdTail, SetupLdrExitCode);
 
         { Synchronize our active language with Setup's, in case we need to
-          display any messages below } 
+          display any messages below }
         if PendingNewLanguage <> -1 then
           SetActiveLanguage(PendingNewLanguage);
       end;

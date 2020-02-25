@@ -88,7 +88,7 @@ const
   ecPrepareToInstallFailedRestartNeeded = 8;
                                  { Stopped on Preparing to Install page;
                                    restart needed. }
-                                   
+
   CodeRunnerNamingAttribute = 'Event';
 
 var
@@ -379,7 +379,7 @@ begin
       end;
     end;
   end;
-  
+
   Result := -1;
 end;
 
@@ -730,7 +730,7 @@ function ExpandIndividualConst(Cnst: String;
   For example: app
   IsPath is set to True if the result is a path which needs special trailing-
   backslash handling. }
-  
+
   procedure HandleAutoConstants(var Cnst: String);
   const
     Actual: array [Boolean] of String = ('user', 'common');
@@ -742,7 +742,7 @@ function ExpandIndividualConst(Cnst: String;
         Delete(Cnst, Length(Cnst)-1, 2);
     end;
   end;
-  
+
   procedure NoUninstallConstError(const C: String);
   begin
     InternalError(Format('Cannot evaluate "%s" constant during Uninstall', [C]));
@@ -786,7 +786,7 @@ function ExpandIndividualConst(Cnst: String;
   var
     Z, Subkey, Value, Default: String;
     I, J, L: Integer;
-    RegView: TRegView; 
+    RegView: TRegView;
     RootKey: HKEY;
     K: HKEY;
   begin
@@ -1404,7 +1404,7 @@ begin
       end;
     end;
   end;
-  
+
   { Get path of command interpreter }
   if IsNT then
     CmdFilename := AddBackslash(WinSystemDir) + 'cmd.exe'
@@ -2451,7 +2451,7 @@ begin
   { Note: Depending on the OS, RestartComputer may not return if successful }
   if not RestartComputer then begin
     { Hack for when called from RespawnSetupElevated: re-show the
-      application's taskbar button } 
+      application's taskbar button }
     ShowWindow(Application.Handle, SW_SHOW);
     { If another app denied the shutdown, we probably lost the foreground;
       try to take it back. (Note: Application.BringToFront can't be used
@@ -2829,7 +2829,7 @@ var
       end;
     end;
   end;
-  
+
   { Also see Install.pas }
   function ExistingInstallationAt(const RootKey: HKEY; const SubkeyName: String): Boolean;
   var
@@ -3069,12 +3069,12 @@ begin
     else
     if CompareText(ParamName, '/DEBUGWND=') = 0 then
       DebugWndValue := StrToInt(ParamValue)
-    else     
+    else
     if CompareText(ParamName, '/ALLUSERS') = 0 then begin
       InitPrivilegesRequired := prAdmin;
       HasInitPrivilegesRequired := True;
     end
-    else     
+    else
     if CompareText(ParamName, '/CURRENTUSER') = 0 then begin
       InitPrivilegesRequired := prLowest;
       HasInitPrivilegesRequired := True;
@@ -3128,7 +3128,7 @@ begin
           Integer(@PSetupTypeEntry(nil).OnlyBelowVersion));
 
         ActivateDefaultLanguage;
-        
+
         { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
           one on which a "64-bit mode" install should be performed. Doing this early
           so that UsePreviousPrivileges knows where to look. Will log later. }
@@ -3142,7 +3142,7 @@ begin
         end
         else
           Initialize64BitInstallMode(False);
-          
+
         HandlePrivilegesRequiredOverrides(ExtraRespawnParam);
 
         { Start a new, elevated Setup(Ldr) process if needed }
@@ -3271,7 +3271,7 @@ begin
   finally
     SetupFile.Free;
   end;
-  
+
   InitializeAdminInstallMode(IsAdmin and (SetupHeader.PrivilegesRequired <> prLowest));
 
   Log64BitInstallMode;
@@ -3293,7 +3293,7 @@ begin
         SetActiveLanguage(I);
     end;
   end;
-  
+
   { Check processor architecture }
   if (SetupHeader.ArchitecturesAllowed <> []) and
      not(ProcessorArchitecture in SetupHeader.ArchitecturesAllowed) then
@@ -4114,7 +4114,7 @@ begin
     WizardForm.Update;
 
     SetStep(ssInstall, False);
-    
+
     ChangesEnvironment := EvalDirectiveCheck(SetupHeader.ChangesEnvironment);
     ChangesAssociations := EvalDirectiveCheck(SetupHeader.ChangesAssociations);
 
@@ -4523,7 +4523,7 @@ procedure InitWindowsVersion;
   begin
     if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, 'System\CurrentControlSet\Control\ProductOptions',
        0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-      { See MS KB article 152078 for details on this key } 
+      { See MS KB article 152078 for details on this key }
       if RegQueryStringValue(K, 'ProductType', S) then begin
         if CompareText(S, 'WinNT') = 0 then
           WindowsProductType := VER_NT_WORKSTATION

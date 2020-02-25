@@ -1,8 +1,8 @@
 Inno Setup
 ==========
 
-Copyright (C) 1997-2020 Jordan Russell. All rights reserved.  
-Portions Copyright (C) 2000-2020 Martijn Laan. All rights reserved.  
+Copyright (C) 1997-2020 Jordan Russell. All rights reserved.
+Portions Copyright (C) 2000-2020 Martijn Laan. All rights reserved.
 For conditions of distribution and use, see LICENSE.TXT.
 
 Source code README
@@ -45,7 +45,7 @@ Getting Started
    compatibility is NOT guaranteed. We try to make Inno Setup compilable on
    the later versions when possible, but do not have the resources to test
    every change on every Delphi version.
-  
+
    There's a free version of Delphi available called the Community Edition.
    See https://www.embarcadero.com/products/delphi/starter/free-download
 

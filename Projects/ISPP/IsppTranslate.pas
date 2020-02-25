@@ -1650,7 +1650,7 @@ begin
     FCurrentFile := 0;
     FCurrentLine := 0;
   end;
-  
+
   { Expand any prefix on the filename (e.g. 'compiler:') }
   FileName := PrependDirName(FileName, '');
 

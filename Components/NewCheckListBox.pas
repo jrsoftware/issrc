@@ -39,7 +39,7 @@ type
     MeasuredHeight: Integer;
   end;
 
-  TCheckItemOperation = (coUncheck, coCheck, coCheckWithChildren); 
+  TCheckItemOperation = (coUncheck, coCheck, coCheckWithChildren);
   TEnumChildrenProc = procedure(Index: Integer; HasChildren: Boolean; Ext: Longint) of object;
 
   TNewCheckListBox = class (TCustomListBox)

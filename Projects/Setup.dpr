@@ -9,7 +9,7 @@ program Setup;
   Setup program
 }
 
-{$SetPEFlags 1} 
+{$SetPEFlags 1}
 {$SETPEOSVERSION 6.0}
 {$SETPESUBSYSVERSION 6.0}
 {$WEAKLINKRTTI ON}

@@ -445,7 +445,7 @@ begin
         begin
           Result := Result + '<pre';
           { Special handling for <pre> inside example boxes: Don't include a
-            bottom margin if <pre> is the last element } 
+            bottom margin if <pre> is the last element }
           if (ElementFromNode(Node.ParentNode) in [elExample, elExamples]) and
              IsLastNonWhitespaceNode(Node) then
             Result := Result + ' class="nomargin"';

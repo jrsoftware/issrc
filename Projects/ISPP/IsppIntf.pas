@@ -9,7 +9,7 @@ unit IsppIntf;
 interface
 
 type
-  
+
   TOptionID = 0..25;
 
   TOptions = packed set of TOptionID;

@@ -891,7 +891,7 @@ begin
     Constraints.MaxHeight := MulDiv(Height, 150, 100);
     Constraints.MaxWidth := MulDiv(Width, 150, 100);
   end;
-  
+
   { Position the buttons, and scale their size }
   W1 := CalculateButtonWidth([msgButtonBack, msgButtonCancel, msgButtonFinish,
     msgButtonInstall, msgButtonNext]);  { width of each button }
@@ -1696,7 +1696,7 @@ begin
           Continue;
         end;
       end;
-      
+
       if DeselectTasks <> nil then begin
         if ListContains(DeselectTasks, TaskEntry.Name) then
           TasksList.Checked[I] := False;
@@ -2826,7 +2826,7 @@ begin
   else begin
     { Check if there's at least one backslash at least one character past the
       initial '\\' }
-    P := @PChar(Pointer(T))[2];  { the casts avoid a UniqueString call... }  
+    P := @PChar(Pointer(T))[2];  { the casts avoid a UniqueString call... }
     if PathStrScan(P, '\') <= P then begin
       LoggedMsgBox(SetupMessages[msgInvalidPath], '', mbError, MB_OK, True, IDOK);
       Exit;

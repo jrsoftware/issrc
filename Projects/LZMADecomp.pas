@@ -229,7 +229,7 @@ procedure TLZMA1Decompressor.ProcessHeader;
 var
   Props: packed record  { size = LZMA_PROPS_SIZE (5) }
     Misc: Byte;
-    DictionarySize: LongWord;  { little endian, unaligned }  
+    DictionarySize: LongWord;  { little endian, unaligned }
   end;
 begin
   { Read header fields }

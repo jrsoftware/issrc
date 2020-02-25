@@ -272,7 +272,7 @@ begin
   TriggerMessageBoxCallbackFunc(Flags, False);
   try
     { If the application window isn't currently visible, show the message box
-      with no owner window so it'll get a taskbar button } 
+      with no owner window so it'll get a taskbar button }
     if IsIconic(Application.Handle) or
        (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or
        (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then begin

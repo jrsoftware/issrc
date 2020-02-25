@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  SetupForm, StdCtrls, FolderTreeView, NewStaticText, BidiCtrls; 
+  SetupForm, StdCtrls, FolderTreeView, NewStaticText, BidiCtrls;
 
 type
   TSelectFolderForm = class(TSetupForm)

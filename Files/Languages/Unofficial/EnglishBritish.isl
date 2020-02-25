@@ -3,7 +3,7 @@
 ; Translated by Boris Kotov <doctor.z01db3rg@gmail.com>
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=English (British)
 LanguageID=$0809

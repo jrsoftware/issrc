@@ -273,7 +273,7 @@
             <td>
             <i><xsl:value-of select="@id"/>
             <xsl:text>:</xsl:text></i></td>
-            <td>  
+            <td>
               <xsl:apply-templates select="variant[position()=1]"/>
             </td>
             </tr>

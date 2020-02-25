@@ -256,7 +256,7 @@ const
     TMT_FIRSTFONT = TMT_CAPTIONFONT;
     TMT_LASTFONT  = TMT_ICONTITLEFONT;
   {$endif BCB}
-  
+
   //---- theme metrics: bools ----
 
   TMT_FLATMENUS = 1001;
@@ -265,7 +265,7 @@ const
     TMT_FIRSTBOOL = TMT_FLATMENUS;
     TMT_LASTBOOL  = TMT_FLATMENUS;
   {$endif BCB}
-  
+
   //---- theme metrics: sizes ----
 
   TMT_SIZINGBORDERWIDTH = 1201;
@@ -282,7 +282,7 @@ const
     TMT_FIRSTSIZE  = TMT_SIZINGBORDERWIDTH;
     TMT_LASTSIZE  = TMT_MENUBARHEIGHT;
   {$endif BCB}
-  
+
   //---- theme metrics: ints ----
 
   TMT_MINCOLORDEPTH = 1301;
@@ -291,7 +291,7 @@ const
     TMT_FIRSTINT = TMT_MINCOLORDEPTH;
     TMT_LASTINT  = TMT_MINCOLORDEPTH;
   {$endif BCB}
-  
+
   //---- theme metrics: strings ----
 
   TMT_CSSNAME = 1401;

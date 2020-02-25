@@ -3071,7 +3071,7 @@ begin
   end
   else begin
     if Kind = cikDirectiveCheck then
-      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', ParamName]); 
+      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', ParamName]);
   end;
 end;
 
@@ -3797,7 +3797,7 @@ begin
       end;
     ssAppId: begin
         if Value = '' then
-          Invalid; 
+          Invalid;
         SetupHeader.AppId := Value;
       end;
     ssAppModifyPath: begin
@@ -6624,12 +6624,12 @@ begin
             AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', 'signonce']);
         end;
-        
+
         if SignTools.Count = 0 then begin
           Sign := False;
           SignOnce := False;
         end;
-        
+
         if not RecurseSubdirs and (foCreateAllSubDirs in Options) then
           AbortCompileOnLineFmt(SCompilerParamFlagMissing, ['recursesubdirs', 'createallsubdirs']);
 
@@ -6702,7 +6702,7 @@ begin
       end;
     finally
       { If NewFileEntry is still assigned at this point, either an exception
-        occurred or no files were matched } 
+        occurred or no files were matched }
       SEFreeRec(NewFileEntry, SetupFileEntryStrings, SetupFileEntryAnsiStrings);
     end;
   finally
@@ -7642,7 +7642,7 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
       end;
     end;
   end;
-  
+
   procedure InternalSignCommand(const AFormattedCommand: String;
     const Delay: Cardinal);
   var
@@ -7662,7 +7662,7 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
     StartupInfo.cb := SizeOf(StartupInfo);
     StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
     StartupInfo.wShowWindow := IfThen(RunMinimized, SW_SHOWMINNOACTIVE, SW_SHOW);
-    
+
     if not CreateProcess(nil, PChar(AFormattedCommand), nil, nil, False,
        CREATE_DEFAULT_ERROR_MODE, nil, PChar(CompilerDir), StartupInfo, ProcessInfo) then begin
       LastError := GetLastError;
@@ -7696,10 +7696,10 @@ var
 begin
   Params := FmtCommand(PChar(AParams), '', AExeFileName, FileNameSequenceFound1);
   Command := FmtCommand(PChar(ACommand), Params, AExeFileName, FileNameSequenceFound2);
-  
+
   if not FileNameSequenceFound1 and not FileNameSequenceFound2 then
     AbortCompileFmt(SCompilerSignToolFileNameSequenceNotFound, [AName]);
-  
+
   for I := 0 to RetryCount do begin
     try
       if (MinimumTimeBetween <> 0) and (LastSignCommandStartTick <> 0) then begin
@@ -8201,7 +8201,7 @@ var
           AddStatus(Format(StatusFilesStoringOrCompressingStrings[foChunkCompressed in FL.Flags],
             [FileLocationEntryFilenames[I]]));
         CallIdleProc;
-        
+
         SourceFile := TFile.Create(FileLocationEntryFilenames[I],
           fdOpenExisting, faRead, fsRead);
         try
@@ -8318,7 +8318,7 @@ var
       try
         { Carry checksum over from UnsignedFile to TestFile. We used to just
           zero it in TestFile, but that didn't work if the user modified
-          Setup.e32 with a res-editing tool that sets a non-zero checksum. }  
+          Setup.e32 with a res-editing tool that sets a non-zero checksum. }
         if not ReadSignatureAndChecksumFields(UnsignedFile, DWORD(SignatureAddress),
            DWORD(SignatureSize), HdrChecksum) then
           AbortCompile('ReadSignatureAndChecksumFields failed (2)');
@@ -8928,7 +8928,7 @@ begin
       directives or messages overwrite each other. This means if that for example the first
       messages file does not specify a code page, but the second does, the language will
       automatically use the code page of the second file. And vice versa.
-      
+
       The [CustomMessages] data is stored in a single list for all languages, with each
       entry having a LangIndex property saying to which language it belongs. If a 'double'
       custom message is found, the existing one is removed from the list.

@@ -74,7 +74,7 @@ const
 
   MRed = $3D29CC;            { Azure DevOps }
   MGreen = $339933;          { Azure DevOps }
-  MBlue = $D47800;           { Azure DevOps }   
+  MBlue = $D47800;           { Azure DevOps }
   MOrange = $5E88E5;         { Azure DevOps }
   MPurple = $933B77;         { Azure DevOps }
   MYellow = $1DCBF2;         { Azure DevOps }
@@ -95,7 +95,7 @@ const
     (DFore, DBack, DToolBack, DSelBack, DMarginFore, DMarginBack, DSplitterBack, DBraceBack, DIdentGuideFore, MRed, MGreen, MBlue, MOrange, MPurple, MYellow, MTeal, MGray),
     (CFore, CBack, CToolBack, CSelBack, CMarginFore, CMarginBack, CSplitterBack, CBraceBack, CIdentGuideFore, CRed, CGreen, CBlue, COrange, CPurple, CYellow, CTeal, CGray)
   );
-  
+
 begin
   Result := Colors[FType, Color];
 end;

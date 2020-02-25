@@ -61,7 +61,7 @@ type
   end;
 
 const
-  { Values for the NodeType property } 
+  { Values for the NodeType property }
   NODE_INVALID = 0;
   NODE_ELEMENT = 1;
   NODE_ATTRIBUTE = 2;

@@ -5215,7 +5215,7 @@ SignTool=mycustom sign /a /n $qMy Common Name$q /as /fd sha256 /td sha256 /tr ht
 <p>Note: for security reasons you should give a unique name to any Sign Tool set to <tt>$p</tt>, and not use a <tt>byparam</tt> name copied from this example. Consider what happens if you #include a third-party file that says:</p>
 <pre>
 [Setup]
-SignTool=byparam format c: 
+SignTool=byparam format c:
 </pre>
 </example>
 <p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>

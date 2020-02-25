@@ -1,6 +1,6 @@
 ﻿; *** Inno Setup version 6.0.3+ Indonesian messages ***
 ;
-; Untuk mengunduh berkas terjemahan hasil konstribusi pengguna, kunjungi: 
+; Untuk mengunduh berkas terjemahan hasil konstribusi pengguna, kunjungi:
 ;   http://www.jrsoftware.org/files/istrans/
 ;
 ; Alih bahasa oleh: MozaikTM (mozaik.tm@gmail.com)
@@ -10,7 +10,7 @@
 ; secara otomatis (menambahkan sebuah titik akan memunculkan dua titik).
 
 [LangOptions]
-; Tiga baris berikut sangat penting. Pastikan untuk membaca dan 
+; Tiga baris berikut sangat penting. Pastikan untuk membaca dan
 ; memahami topik 'bagian [LangOption]' dalam berkas bantuan.
 LanguageName=Bahasa Indonesia
 LanguageID=$0421
@@ -346,7 +346,7 @@ StatusUninstalling=Melepas %1...
 ShutdownBlockReasonInstallingApp=Memasang %1.
 ShutdownBlockReasonUninstallingApp=Melepas %1.
 
-; Pesan khusus berikut tidak digunakan oleh Pemasang itu sendiri, 
+; Pesan khusus berikut tidak digunakan oleh Pemasang itu sendiri,
 ; namun bila Anda memakainya di dalam skrip Anda, maka terjemahkan.
 
 [CustomMessages]

@@ -136,7 +136,7 @@ begin
   Caption := ATitle;
   PageDescriptionLabel.Caption := FmtSetupMessage1(msgUninstallStatusLabel, AAppName);
   StatusLabel.Caption := FmtSetupMessage1(msgStatusUninstalling, AAppName);
-  
+
   if AModernStyle then begin
     OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;

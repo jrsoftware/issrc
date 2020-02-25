@@ -169,7 +169,7 @@ const
     //procedure Win32ErrorMsg(const FunctionName: String);
     'function ForceDirectories(Dir: string): Boolean;'
   );
-  
+
   { InstFnc2 }
   InstFnc2Table: array [0..3] of AnsiString =
   (

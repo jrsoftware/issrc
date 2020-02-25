@@ -1,6 +1,6 @@
 { Original file taken from "Windows 7 Controls for Delphi" by Daniel Wischnewski
   http://www.gumpi.com/Blog/2009/01/20/Alpha1OfWindows7ControlsForDelphi.aspx
-  MPL licensed } 
+  MPL licensed }
 
 { D2/D3 support and correct IID consts added by Martijn Laan for Inno Setup }
 

@@ -42,12 +42,12 @@ type
 
   TInstallOnThisVersionResult = (irInstall, irNotOnThisPlatform,
     irVersionTooLow, irServicePackTooLow, irVerTooHigh);
-    
+
   TRenamedConstantCallBack = procedure(const Cnst, CnstRenamed: String) of object;
 
 const
   crHand = 1;
-  
+
   CodeRootKeyFlagMask  = $7F000000;
   CodeRootKeyFlag32Bit = $01000000;
   CodeRootKeyFlag64Bit = $02000000;

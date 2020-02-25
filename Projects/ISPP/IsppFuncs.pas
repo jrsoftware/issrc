@@ -17,7 +17,7 @@ implementation
 
 uses SysUtils, IniFiles, Registry, IsppConsts, IsppBase, IsppIdentMan,
   IsppSessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2;
-  
+
 var
   IsWin64: Boolean;
 

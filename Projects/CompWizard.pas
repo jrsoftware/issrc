@@ -282,7 +282,7 @@ begin
   FLanguages := TStringList.Create;
   FLanguages.Sorted := True;
   FLanguages.Duplicates := dupIgnore; { Some systems also return .islu files when searching for *.isl }
-  AddLanguages('isl'); 
+  AddLanguages('isl');
   AddLanguages('islu');
   FLanguages.Sorted := False;
   FLanguages.Insert(0, LanguagesDefaultIsl);

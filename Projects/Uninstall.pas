@@ -630,7 +630,7 @@ begin
           if LoggedMessageBoxFmt1(msgUninstallAppRunningError, UninstLog.AppName, Title,
              MB_OKCANCEL or MB_ICONEXCLAMATION, True, IDCANCEL) <> IDOK then
             Abort;
-   
+
         { Check for active WM_QUERYENDSESSION/WM_ENDSESSION }
         while AcceptedQueryEndSessionInProgress do begin
           Sleep(10);

@@ -1039,7 +1039,7 @@ begin
   DestroyDebugInfo;
   FSignTools.Free;
   FMRUList.Free;
- 
+
   inherited;
 end;
 
@@ -1111,7 +1111,7 @@ begin
           if (CtlType = ODT_MENU) and not IsMenu(hwndItem) then
             CtlType := ODT_STATIC;
     end;
-  inherited 
+  inherited
 end;
 {$ENDIF}
 
@@ -3542,7 +3542,7 @@ var
 begin
   if WaitForTermination then begin
     { Give the initial process time to fully terminate so we can successfully
-      get its exit code }  
+      get its exit code }
     WaitForSingleObject(FProcessHandle, 5000);
   end;
   FDebugging := False;

@@ -49,7 +49,7 @@ begin
     if RightToLeft then
       Config.dwFlags := Config.dwFlags or TDF_RTL_LAYOUT;
     { If the application window isn't currently visible, show the task dialog
-      with no owner window so it'll get a taskbar button } 
+      with no owner window so it'll get a taskbar button }
     Config.hInstance := HInstance;
     if IsIconic(Application.Handle) or
        (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or

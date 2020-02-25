@@ -1333,7 +1333,7 @@ begin
   else if E is Exception then
     Result := AddPeriod(Exception(E).Message)   { usual case }
   else
-    Result := E.ClassName;   { shouldn't get here under normal circumstances } 
+    Result := E.ClassName;   { shouldn't get here under normal circumstances }
 end;
 
 function GetPreferredUIFont: String;

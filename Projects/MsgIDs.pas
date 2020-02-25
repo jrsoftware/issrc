@@ -112,7 +112,7 @@ type
     msgFinishedLabel,
     msgFinishedLabelNoIcons,
     msgFinishedRestartLabel,
-    msgFinishedRestartMessage, 
+    msgFinishedRestartMessage,
     msgFullInstallation,
     msgGroupNameTooLong,
     msgHelpTextNote,
@@ -141,7 +141,7 @@ type
     msgNoRadio,
     msgNotOnThisPlatform,
     msgNoUninstallWarning,
-    msgNoUninstallWarningTitle, 
+    msgNoUninstallWarningTitle,
     msgOnlyAdminCanUninstall,
     msgOnlyOnTheseArchitectures,
     msgOnlyOnThisPlatform,
@@ -164,8 +164,8 @@ type
     msgReadyLabel1,
     msgReadyLabel2a,
     msgReadyLabel2b,
-    msgReadyMemoComponents, 
-    msgReadyMemoDir, 
+    msgReadyMemoComponents,
+    msgReadyMemoDir,
     msgReadyMemoGroup,
     msgReadyMemoTasks,
     msgReadyMemoType,
@@ -259,7 +259,7 @@ type
     msgWizardUninstalling,
     msgWizardUserInfo,
     msgYesRadio);
-    
+
 implementation
 
 end.

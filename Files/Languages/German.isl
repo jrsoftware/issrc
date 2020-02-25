@@ -27,7 +27,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Deutsch
 LanguageID=$0407
@@ -237,8 +237,8 @@ ApplicationsFound=Die folgenden Anwendungen benutzen Dateien, die aktualisiert w
 ApplicationsFound2=Die folgenden Anwendungen benutzen Dateien, die aktualisiert werden müssen. Es wird empfohlen, Setup zu erlauben, diese Anwendungen zu schließen. Nachdem die Installation fertiggestellt wurde, versucht Setup, diese Anwendungen wieder zu starten.
 CloseApplications=&Schließe die Anwendungen automatisch
 DontCloseApplications=Schließe die A&nwendungen nicht
-ErrorCloseApplications=Das Setup konnte nicht alle Anwendungen automatisch schließen. Es wird empfohlen, alle Anwendungen zu schließen, die Dateien benutzen, die vom Setup vor einer Fortsetzung aktualisiert werden müssen.  
-PrepareToInstallNeedsRestart=Das Setup muss Ihren Computer neu starten. Führen Sie nach dem Neustart Setup erneut aus, um die Installation von [name] abzuschließen.%n%nWollen Sie jetzt neu starten? 
+ErrorCloseApplications=Das Setup konnte nicht alle Anwendungen automatisch schließen. Es wird empfohlen, alle Anwendungen zu schließen, die Dateien benutzen, die vom Setup vor einer Fortsetzung aktualisiert werden müssen.
+PrepareToInstallNeedsRestart=Das Setup muss Ihren Computer neu starten. Führen Sie nach dem Neustart Setup erneut aus, um die Installation von [name] abzuschließen.%n%nWollen Sie jetzt neu starten?
 
 ; *** "Installing" wizard page
 WizardInstalling=Installiere ...

@@ -9,7 +9,7 @@ unit SafeDLLPath;
   To provide protection against "DLL preloading" attacks, this unit calls
   SetDefaultDllDirectories. SetDefaultDllDirectories is available on Windows 8
   and newer, and on previous versions that have the KB2533623 update installed.
-  
+
   If SetDefaultDllDirectories is not available:
   -It calls SetDllDirectory('') to prevent LoadLibrary from searching the current
    directory for DLLs. (Has no effect on Windows versions prior to XP SP1.)
@@ -62,7 +62,7 @@ var
   SetDllDirectoryFunc: function(lpPathName: PWideChar): BOOL; stdcall;
   SetSearchPathModeFunc: function(Flags: DWORD): BOOL; stdcall;
   SetProcessDEPPolicyFunc: function(dwFlags: DWORD): BOOL; stdcall;
-  
+
 function StrPas(Str: PChar): string;
 begin
   Result := Str;
@@ -104,7 +104,7 @@ initialization
     if Assigned(SetDefaultDllDirectoriesFunc) then
       DidSetDefaultDllDirectories := SetDefaultDllDirectoriesFunc(LOAD_LIBRARY_SEARCH_SYSTEM32);
   end;
-    
+
   if not DidSetDefaultDllDirectories then begin
     SetDllDirectoryFunc := GetProcAddress(KernelModule, PAnsiChar('SetDllDirectoryW'));
     if Assigned(SetDllDirectoryFunc) then
@@ -131,8 +131,8 @@ initialization
       // NSIS: Win7 without KB2533623: OleInitialize ... RPCRT4.UuidCreate ... RPCRT4.GenerateRandomNumber
       // Mail: oleaut32.dll -> rpcrt4.dll -> cryptbase.dll
       SafeLoadLibrary(SystemDir + 'cryptbase.dll');
-      // NSIS: Vista: SHFileOperation ... SHELL32.CProgressDialogUI::_Setup ... SHELL32.GetRoleTextW        
-      SafeLoadLibrary(SystemDir + 'oleacc.dll');    
+      // NSIS: Vista: SHFileOperation ... SHELL32.CProgressDialogUI::_Setup ... SHELL32.GetRoleTextW
+      SafeLoadLibrary(SystemDir + 'oleacc.dll');
       // Mail: Windows 7 SP1: oleaut32.dll -> ole32.dll -> crypt32.dll -> version.dll
       // WIX3: required by Burn
       SafeLoadLibrary(SystemDir + 'version.dll');
@@ -158,7 +158,7 @@ initialization
       SafeLoadLibrary(SystemDir + 'crypt32.dll');
       // WIX3: unsafely loaded by DecryptFile()
       SafeLoadLibrary(SystemDir + 'feclient.dll');
-}      
+}
     end;
   end;
 

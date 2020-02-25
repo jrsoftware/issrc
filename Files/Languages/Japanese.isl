@@ -51,7 +51,7 @@ UninstallAppRunningError=ƒAƒ“ƒCƒ“ƒXƒg[ƒ‹‚ÍÀs’†‚Ì %1 ‚ğŒŸo‚µ‚Ü‚µ‚½B%n%nŠJ‚¢‚
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=ƒCƒ“ƒXƒg[ƒ‹ƒ‚[ƒh‚Ì‘I‘ğ
 PrivilegesRequiredOverrideInstruction=ƒCƒ“ƒXƒg[ƒ‹ƒ‚[ƒh‚ğ‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢
-PrivilegesRequiredOverrideText1=%1 ‚Í‚·‚×‚Ä‚Ìƒ†[ƒU[ (ŠÇ—ÒŒ ŒÀ‚ª•K—v‚Å‚·) ‚Ü‚½‚ÍŒ»İ‚Ìƒ†[ƒU[—p‚ÉƒCƒ“ƒXƒg[ƒ‹‚Å‚«‚Ü‚·B 
+PrivilegesRequiredOverrideText1=%1 ‚Í‚·‚×‚Ä‚Ìƒ†[ƒU[ (ŠÇ—ÒŒ ŒÀ‚ª•K—v‚Å‚·) ‚Ü‚½‚ÍŒ»İ‚Ìƒ†[ƒU[—p‚ÉƒCƒ“ƒXƒg[ƒ‹‚Å‚«‚Ü‚·B
 PrivilegesRequiredOverrideText2=%1 ‚ÍŒ»İ‚Ìƒ†[ƒU[‚Ü‚½‚Í‚·‚×‚Ä‚Ìƒ†[ƒU[—p (ŠÇ—ÒŒ ŒÀ‚ª•K—v‚Å‚·) ‚ÉƒCƒ“ƒXƒg[ƒ‹‚Å‚«‚Ü‚·B
 PrivilegesRequiredOverrideAllUsers=‚·‚×‚Ä‚Ìƒ†[ƒU[—p‚ÉƒCƒ“ƒXƒg[ƒ‹(&A)
 PrivilegesRequiredOverrideAllUsersRecommended=‚·‚×‚Ä‚Ìƒ†[ƒU[—p‚ÉƒCƒ“ƒXƒg[ƒ‹(&A) („§)

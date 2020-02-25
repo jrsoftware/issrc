@@ -89,7 +89,7 @@ const
   utDeleteDirOrFiles_CallChangeNotify = 16;
   utDeleteDirOrFiles_DisableFsRedir = 32;
   utIniDeleteSection_OnlyIfEmpty = 1;
-  utReg_KeyHandleMask = $80FFFFFF; 
+  utReg_KeyHandleMask = $80FFFFFF;
   utReg_64BitKey = $01000000;
   utDecrementSharedCount_64BitKey = 1;
 
@@ -617,7 +617,7 @@ var
     { Automatically unpin shortcuts }
     if CompareText(PathExtractExt(Filename), '.lnk') = 0 then
       UnpinShellLink(Filename);
-      
+
     if NewFileExistsRedir(DisableFsRedir, Filename) then begin
       LogFmt('Deleting file: %s', [FileName]);
       if RemoveReadOnly then begin
@@ -1021,7 +1021,7 @@ begin
             end;
           utDeleteGroupOrItem: ;   { dummy - no longer supported }
           utIniDeleteEntry: begin
-              DeleteIniEntry(CurRecData[1], CurRecData[2], CurRecData[0]); 
+              DeleteIniEntry(CurRecData[1], CurRecData[2], CurRecData[0]);
             end;
           utIniDeleteSection: begin
               if (CurRec^.ExtraData and utIniDeleteSection_OnlyIfEmpty = 0) or

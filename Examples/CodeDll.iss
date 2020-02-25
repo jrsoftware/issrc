@@ -67,7 +67,7 @@ begin
   // Call our function just before the actual uninstall process begins.
   if CurUninstallStep = usUninstall then begin
     MyDllFuncUninstall(0, 'Hello from custom DLL function', 'MyDllFunc', MB_OK or MB_ICONINFORMATION);
-    
+
     // Now that we're finished with it, unload MyDll.dll from memory.
     // We have to do this so that the uninstaller will be able to remove the DLL and the {app} directory.
     UnloadDLL(ExpandConstant('{app}\MyDll.dll'));

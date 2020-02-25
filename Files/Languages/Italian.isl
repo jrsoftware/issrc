@@ -16,7 +16,7 @@
 ; Based on previous translations of Rinaldo M. aka Whiteshark (based on ale5000 5.1.11+ translation)
 ;
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Italiano
 LanguageID=$0410
@@ -133,7 +133,7 @@ IncorrectPassword=La password inserita non è corretta. Riprova.
 WizardLicense=Contratto di licenza
 LicenseLabel=Prima di procedere leggi con attenzione le informazioni che seguono.
 LicenseLabel3=Leggi il seguente contratto di licenza.%nPer procedere con l'installazione è necessario accettare tutti i termini del contratto.
-LicenseAccepted=Accetto i termini del &contratto di licenza 
+LicenseAccepted=Accetto i termini del &contratto di licenza
 LicenseNotAccepted=&Non accetto i termini del contratto di licenza
 
 ; *** "Information" wizard pages

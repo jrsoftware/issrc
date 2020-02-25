@@ -295,7 +295,7 @@ OnlyAdminCanUninstall=Ova instalacija može biti uklonjena samo od korisnika sa a
 UninstallStatusLabel=Molimo prièekajte dok %1 ne bude uklonjen s vašeg raèunara.
 UninstalledAll=Program %1 je uspješno uklonjen sa vašeg raèunara.
 UninstalledMost=Deinstalacija programa %1 je završena.%n%nNeke elemente nije bilo moguæe ukloniti. Molimo vas da to uèinite ruèno.
-UninstalledAndNeedsRestart=Da bi završili deinstalaciju %1, Vaš raèunar morate restartati%n%nŽelite li to uèiniti sada? 
+UninstalledAndNeedsRestart=Da bi završili deinstalaciju %1, Vaš raèunar morate restartati%n%nŽelite li to uèiniti sada?
 UninstallDataCorrupted="%1" datoteka je ošteæena. Deinstalacija nije moguæa.
 
 ; *** Uninstallation phase messages

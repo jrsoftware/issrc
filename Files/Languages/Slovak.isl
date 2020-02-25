@@ -17,7 +17,7 @@
 ; ***                                                ***
 ; ******************************************************
 ;
-; 
+;
 
 [LangOptions]
 LanguageName=Sloven<010D>ina
@@ -284,7 +284,7 @@ AdditionalIcons=œalöÌ z·stupcovia:
 CreateDesktopIcon=Vytvoriù z·stupcu na &ploche
 CreateQuickLaunchIcon=Vytvoriù z·stupcu na paneli &R˝chle spustenie
 ProgramOnTheWeb=Aplik·cia %1 na internete
-UninstallProgram=Odinötalovaù aplik·ciu %1 
+UninstallProgram=Odinötalovaù aplik·ciu %1
 LaunchProgram=Spustiù aplik·ciu %1
 AssocFileExtension=Vytvoriù &asoci·ciu medzi s˙bormi typu %2 a aplik·ciou %1
 AssocingFileExtension=Vytv·ra sa asoci·cia medzi s˙bormi typu %2 a aplik·ciou %1...

@@ -13,7 +13,7 @@
 <!ELEMENT kwd       (#PCDATA)*>
 
 <!ELEMENT description (para|pre|table)*>
-<!ATTLIST description 
+<!ATTLIST description
   header (yes|no)   "yes">
 
 <!ELEMENT section (para|pre|table|ul)*>
@@ -38,7 +38,7 @@
 <!ELEMENT syntax (define)*>
 
 <!ELEMENT define (variant|cases|opt|txt|nt|group)*>
-<!ATTLIST define 
+<!ATTLIST define
   id    ID      #IMPLIED
   inline (yes|no) "no">
 

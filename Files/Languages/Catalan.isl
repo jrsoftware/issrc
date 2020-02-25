@@ -203,7 +203,7 @@ ApplicationsFound2=Les següents aplicacions estan fent servir fitxers que necess
 CloseApplications=&Tanca automàticament les aplicacions
 DontCloseApplications=&No tanquis les aplicacions
 ErrorCloseApplications=El programa d'instal·lació no ha pogut tancar automàticament totes les aplicacions. Es recomana que abans de continuar tanqueu totes les aplicacions que estan usant fitxers que han de ser actualitzats pel programa d'instal·lació.
-PrepareToInstallNeedsRestart=El programa d'instal·lació ha de reiniciar l'ordinador. Després del reinici, executeu de nou l'instal·lador per tal de completar la instal·lació de [name].%n%nVoleu reiniciar-lo ara? 
+PrepareToInstallNeedsRestart=El programa d'instal·lació ha de reiniciar l'ordinador. Després del reinici, executeu de nou l'instal·lador per tal de completar la instal·lació de [name].%n%nVoleu reiniciar-lo ara?
 
 ; *** "Installing" wizard page
 WizardInstalling=Instal·lant

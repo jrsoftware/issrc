@@ -11,7 +11,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Magyar
 LanguageID=$040E
@@ -110,7 +110,7 @@ SelectLanguageLabel=Válassza ki a telepítés alatt használt nyelvet.
 ; *** Common wizard text
 ClickNext=A folytatáshoz kattintson a 'Tovább'-ra, a kilépéshez a 'Mégse'-re.
 BeveledLabel=
-BrowseDialogTitle=Válasszon könyvtárt 
+BrowseDialogTitle=Válasszon könyvtárt
 BrowseDialogLabel=Válasszon egy könyvtárat az alábbi listából, majd kattintson az 'OK'-ra.
 NewFolderName=Új könyvtár
 
@@ -151,7 +151,7 @@ UserInfoNameRequired=Meg kell adnia egy nevet.
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Válasszon célkönyvtárat
 SelectDirDesc=Hova települjön a(z) [name]?
-SelectDirLabel3=A(z) [name] az alábbi könyvtárba lesz telepítve. 
+SelectDirLabel3=A(z) [name] az alábbi könyvtárba lesz telepítve.
 SelectDirBrowseLabel=A folytatáshoz, kattintson a 'Tovább'-ra. Ha másik könyvtárat választana, kattintson a 'Tallózás'-ra.
 DiskSpaceGBLabel=At least [gb] GB szabad területre van szükség.
 DiskSpaceMBLabel=Legalább [mb] MB szabad területre van szükség.
@@ -291,7 +291,7 @@ FileAbortRetryIgnoreIgnoreNotRecommended=&Hiba elvetése és folytatás (nem ajánlo
 SourceIsCorrupted=A forrásfájl megsérült
 SourceDoesntExist=A(z) "%1" forrásfájl nem létezik
 ExistingFileReadOnly2=A fájl csak olvashatóként van jelölve.
-ExistingFileReadOnlyRetry=Csak &olvasható tulajdonság eltávolítása és újra próbálkozás 
+ExistingFileReadOnlyRetry=Csak &olvasható tulajdonság eltávolítása és újra próbálkozás
 ExistingFileReadOnlyKeepExisting=&Létezõ fájl megtartása
 ErrorReadingExistingDest=Hiba lépett fel a fájl olvasása közben:
 FileExists=A fájl már létezik.%n%nFelül kívánja írni?

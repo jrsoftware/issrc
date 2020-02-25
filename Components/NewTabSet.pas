@@ -220,7 +220,7 @@ var
         else
           Canvas.Brush.Color := clBtnFace;
         Canvas.FillRect(R);
-        
+
         if FTheme <> nil then
           Canvas.Font.Color := FTheme.Colors[tcFore]
         else

@@ -9,7 +9,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=T<00FC>rk<00E7>e
 LanguageID=$041f
@@ -110,7 +110,7 @@ ClickNext=Devam etmek için Sonraki, çýkmak için Ýptal üzerine týklayýn.
 BeveledLabel=
 BrowseDialogTitle=Klasöre Gözat
 BrowseDialogLabel=Aþaðýdaki listeden bir klasör seçip, Tamam üzerine týklayýn.
-NewFolderName=Yeni Klasör 
+NewFolderName=Yeni Klasör
 
 ; *** "Hoþ geldiniz" sayfasý
 WelcomeLabel1=[name] Kurulum Yardýmcýsýna Hoþgeldiniz.

@@ -9,7 +9,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=arabic
 LanguageID=$0401
@@ -151,7 +151,7 @@ WizardSelectDir=تحديد موقع الوِجْهة
 SelectDirDesc=أين يجب تثبيت [name]؟
 SelectDirLabel3=سيقوم معالج التثبيت بتثبيت  [name] في المجلد التالي.
 SelectDirBrowseLabel=للمتابعة، انقر فوق التالي. إذا كنت ترغب في تحديد مجلد آخر، انقر فوق استعراض.
-DiskSpaceGBLabel=تحتاج على الأقل [gb] GB من المساحة لتثبيت البرنامج. 
+DiskSpaceGBLabel=تحتاج على الأقل [gb] GB من المساحة لتثبيت البرنامج.
 DiskSpaceMBLabel=تحتاج على الأقل [mb] MB من المساحة لتثبيت البرنامج.
 CannotInstallToNetworkDrive=يتعذر على برنامج الإعداد التثبيت على محرك أقراص شبكة اتصال.
 CannotInstallToUNCPath=يتعذر على برنامج الإعداد تثبيت مسار UNC.

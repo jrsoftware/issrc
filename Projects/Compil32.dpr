@@ -9,7 +9,7 @@ program Compil32;
   Compiler
 }
 
-{$SetPEFlags 1} 
+{$SetPEFlags 1}
 {$SETPEOSVERSION 6.0}
 {$SETPESUBSYSVERSION 6.0}
 {$WEAKLINKRTTI ON}
@@ -85,7 +85,7 @@ begin
       if CommandLineCompile then
         CommandLine := '/CC ' + CommandLine;
     end;
-    
+
     if Length(CommandLine) > RESTART_MAX_CMD_LINE then
       CommandLine := '';
 

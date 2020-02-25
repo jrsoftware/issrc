@@ -11,7 +11,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Euskara
 LanguageID=$042d
@@ -68,7 +68,7 @@ SetupAppRunningError=Ezartzaileak %1 ekinean dagoela atzeman du.%n%nMesedez itxi
 UninstallAppRunningError=Kentzaileak %1 ekinean dagoela atzeman du.%n%nMesedez itxi bere eskabide guztiak orain, orduan klikatu Ongi jarritzeko, edo Ezeztatu irtetzeko.
 
 ; *** Misc. errors
-ErrorCreatingDir=Ezartzaileak ezin izan du zuzenbidea sortu "%1" 
+ErrorCreatingDir=Ezartzaileak ezin izan du zuzenbidea sortu "%1"
 ErrorTooManyFilesInDir=Ezinezkoa agiri bat sortzea "%1" zuzenbidean agiri gehiegi dituelako
 
 ; *** Setup common messages

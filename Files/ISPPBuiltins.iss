@@ -130,7 +130,7 @@
 #define FIND_BEGINS        0x01
 #define FIND_ENDS          0x02
 #define FIND_CONTAINS      0x03
-#define FIND_CASESENSITIVE 0x04 
+#define FIND_CASESENSITIVE 0x04
 #define FIND_SENSITIVE     FIND_CASESENSITIVE
 #define FIND_AND           0x00
 #define FIND_OR            0x08
@@ -362,10 +362,10 @@
 // SameText
 //
 // Returns True if the given strings are identical, ignoring case.
-// 
+//
 #define SameText(str S1, str S2) \
   LowerCase(S1) == LowerCase(S2)
-// 
+//
 // SameStr
 //
 // Returns True if the given strings are identical, with case-sensitivity.

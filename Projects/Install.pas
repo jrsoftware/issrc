@@ -566,7 +566,7 @@ var
         end;
       end else
         ExistingAtOpposite64BitInstallMode := False;
-      
+
       { Mark new display name if needed. Note: currently we don't attempt to mark existing display names as well. }
       if ExistingAtOppositeAdminInstallMode or ExistingAtOpposite64BitInstallMode then begin
         if ExistingAtOppositeAdminInstallMode and ExistingAtOpposite64BitInstallMode then
@@ -629,10 +629,10 @@ var
       0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, H2, nil);
     if ErrorCode <> ERROR_SUCCESS then
       RegError(reRegCreateKeyEx, RootKey, SubkeyName, ErrorCode);
- 
+
     try
       Log('Writing uninstall key values.');
-    
+
       { do not localize or change any of the following strings }
       SetStringValue(H2, 'Inno Setup: Setup Version', SetupVersion);
       if shCreateAppDir in SetupHeader.Options then
@@ -2071,7 +2071,7 @@ var
 
             { Increment progress meter }
             IncProgress(1000);
-            
+
             NotifyAfterInstallEntry(AfterInstall);
           end;
         end;
@@ -2167,7 +2167,7 @@ var
   end;
 
   procedure CreateRegistryEntries;
-  
+
     function IsDeletableSubkey(const S: String): Boolean;
     { A sanity check to prevent people from shooting themselves in the foot by
       using
@@ -2428,7 +2428,7 @@ var
               end;
             end;
           until not NeedToRetry;
-          
+
           if roUninsDeleteEntireKey in Options then
             if IsDeletableSubkey(S) then
               UninstLog.AddReg(utRegDeleteEntireKey, RV, RK, [S]);

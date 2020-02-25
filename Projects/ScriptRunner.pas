@@ -382,7 +382,7 @@ begin
 
   { Locate main implementation. Will add later. }
   MainProcNo := FPSExec.GetProc(Name);
-  
+
   { Locate other implementations using attributes. }
   if CheckNamingAttribute and (FNamingAttribute <> '') then begin
     for ProcNo := 0 to FPSExec.GetProcCount-1 do begin

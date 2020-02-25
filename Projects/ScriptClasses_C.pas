@@ -651,7 +651,7 @@ begin
   RegisterOutputProgressWizardPage_C(Cl);
 
   RegisterHandCursor_C(Cl);
-  
+
   AddImportedClassVariable(Cl, 'WizardForm', 'TWizardForm');
   AddImportedClassVariable(Cl, 'MainForm', 'TMainForm');
   AddImportedClassVariable(Cl, 'UninstallProgressForm', 'TUninstallProgressForm');

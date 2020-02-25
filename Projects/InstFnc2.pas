@@ -218,7 +218,7 @@ begin
       which is wrong. This causes an error when the user tries to change the
       icon of the installed shortcut. Note that the icon does actually display
       fine because it *also* stores the original 'non replaced' path in the
-      shortcut. } 
+      shortcut. }
       if IsWin64 then
         StringChangeEx(IconFileName, ExpandConst('{commonpf32}\'), '%ProgramFiles(x86)%\', True);
       SL.SetIconLocation(PChar(IconFilename), IconIndex);
@@ -336,7 +336,7 @@ begin
       which is wrong. This causes an error when the user tries to change the
       icon of the installed shortcut. Note that the icon does actually display
       fine because it *also* stores the original 'non replaced' path in the
-      shortcut. } 
+      shortcut. }
     if IsWin64 then
       StringChangeEx(IconFileName, ExpandConst('{pf32}\'), '%ProgramFiles(x86)%\', True);
     SL.SetIconLocation(PChar(IconFilename), IconIndex);

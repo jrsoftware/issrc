@@ -454,7 +454,7 @@ begin
 {$ELSE}
  Result := DoReadLine;
 {$ENDIF}
-end; 
+end;
 
 {$IFDEF UNICODE}
 function TTextFileReader.ReadAnsiLine: AnsiString;

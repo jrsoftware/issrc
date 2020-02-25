@@ -74,7 +74,7 @@ type
 
 {---}
 
-function PSPascalCompilerOnExternalProc(Sender: TPSPascalCompiler; Decl: TPSParametersDecl; const Name, FExternal: tbtstring): TPSRegProc; 
+function PSPascalCompilerOnExternalProc(Sender: TPSPascalCompiler; Decl: TPSParametersDecl; const Name, FExternal: tbtstring): TPSRegProc;
 var
   S: String;
   P: Integer;
@@ -144,7 +144,7 @@ begin
             SetCustomPos(TPSInternalProcedure(aProc).DeclarePos, TPSInternalProcedure(aProc).DeclareRow, TPSInternalProcedure(aProc).DeclareCol);
           Result := False;
         end else begin
-          { The name from the attribute is not ok. } 
+          { The name from the attribute is not ok. }
           with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" invalid', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
             SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
           Result := False;
@@ -211,7 +211,7 @@ begin
 
   I := ScriptCompiler.FindExport(String(Proc.Name), String(Procdecl), -1);
   if I <> -1 then begin
-    { The function name is a matche and the function prototype is ok. }    
+    { The function name is a matche and the function prototype is ok. }
     ScriptExport := ScriptCompiler.FExports[I];
     ScriptExport.Exported := True;
     Result := True;

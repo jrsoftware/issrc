@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 5.5.3+ Uyghur messages *** 
+﻿; *** Inno Setup version 5.5.3+ Uyghur messages ***
 ; Translated by Irshat ghalib [ uqkun09@msn.cn ]
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -9,7 +9,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 
 LanguageName=ئۇيغۇرچە

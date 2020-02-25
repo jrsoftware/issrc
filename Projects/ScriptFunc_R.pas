@@ -84,21 +84,21 @@ function GetMainForm: TMainForm;
 begin
   Result := MainForm;
   if Result = nil then
-    InternalError('An attempt was made to access MainForm before it has been created'); 
+    InternalError('An attempt was made to access MainForm before it has been created');
 end;
 
 function GetWizardForm: TWizardForm;
 begin
   Result := WizardForm;
   if Result = nil then
-    InternalError('An attempt was made to access WizardForm before it has been created'); 
+    InternalError('An attempt was made to access WizardForm before it has been created');
 end;
 
 function GetUninstallProgressForm: TUninstallProgressForm;
 begin
   Result := UninstallProgressForm;
   if Result = nil then
-    InternalError('An attempt was made to access UninstallProgressForm before it has been created'); 
+    InternalError('An attempt was made to access UninstallProgressForm before it has been created');
 end;
 
 function GetMsgBoxCaption: String;
@@ -383,7 +383,7 @@ function CmnFunc2Proc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: 
          ((CodeRootKey and CodeRootKeyFlagMask) and not CodeRootKeyValidFlags <> 0) then
         InternalError('Invalid RootKey value');
     end;
-    
+
     if CodeRootKey and CodeRootKeyFlag32Bit <> 0 then
       RegView := rv32Bit
     else if CodeRootKey and CodeRootKeyFlag64Bit <> 0 then begin
@@ -1689,7 +1689,7 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
       Result := False;
     end;
   end;
-  
+
   function CreateCallback(P: PPSVariantProcPtr): LongWord;
   var
     ProcRec: TPSInternalProcRec;
@@ -1961,7 +1961,7 @@ begin
   ScriptInterpreter.RegisterDelphiFunction(@_FindClose, 'FindClose', cdRegister);
   ScriptInterpreter.RegisterDelphiFunction(@_FmtMessage, 'FmtMessage', cdRegister);
   ScriptInterpreter.RegisterDelphiFunction({$IFNDEF IS_D7} @_Format {$ELSE} @Format {$ENDIF}, 'Format', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx', cdRegister); 
+  ScriptInterpreter.RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx', cdRegister);
 end;
 
 procedure FreeASMInliners;

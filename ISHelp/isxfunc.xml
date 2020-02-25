@@ -646,7 +646,7 @@ begin
   if not Result then
     SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.6.2']), mbCriticalError, MB_OK, IDOK);
 end;</pre></example>
-      </function>    
+      </function>
     </subcategory>
     <subcategory>
       <function>
@@ -2449,7 +2449,7 @@ end;</pre></example>
 <p><tt>IDOK, IDCANCEL, IDRETRY, IDYES, IDNO, IDABORT, IDIGNORE</tt></p></remarks>
         <example><pre>begin
   case TaskDialogMsgBox('Choose A or B',
-                        'You can choose A or B.',   
+                        'You can choose A or B.',
                         mbInformation,
                         MB_YESNOCANCEL, ['I choose &amp;A'#13#10'A will be chosen.', 'I choose &amp;B'#13#10'B will be chosen.'],
                         IDYES) of

@@ -930,7 +930,7 @@ object WizardForm: TWizardForm
         Height = 57
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
-        Caption = 
+        Caption =
           'This wizard will guide you through the process of creating a new' +
           ' Inno Setup script file. The results will be used to generate a ' +
           'new script file which can be compiled directly or saved on disk ' +
@@ -946,7 +946,7 @@ object WizardForm: TWizardForm
         Height = 77
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
-        Caption = 
+        Caption =
           'Not all features of Inno Setup are covered by this wizard. See t' +
           'he documentation for details on creating Inno Setup script files' +
           '.'#13#13'Click Next to continue, or Cancel to exit this wizard.'
@@ -1344,7 +1344,7 @@ object WizardForm: TWizardForm
             Width = 421
             Height = 17
             Anchors = [akLeft, akTop, akRight]
-            Caption = 
+            Caption =
               'Allow user to create a &Quick Launch shortcut on older versions ' +
               'of Windows'
             TabOrder = 9
@@ -1374,7 +1374,7 @@ object WizardForm: TWizardForm
             Width = 425
             Height = 17
             Anchors = [akLeft, akTop, akRight]
-            Caption = 
+            Caption =
               '&Create a shortcut to the main executable in the common Start Me' +
               'nu Programs folder'
             TabOrder = 0
@@ -1837,7 +1837,7 @@ object WizardForm: TWizardForm
         Height = 121
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
-        Caption = 
+        Caption =
           'You have successfully completed the [name].'#13#13'To close this wizar' +
           'd and generate the new script file, click Finish.'
         ShowAccelChar = False

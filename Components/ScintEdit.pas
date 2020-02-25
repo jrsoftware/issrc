@@ -1593,13 +1593,13 @@ begin
     PixelWidth := 4 + CallStr(SCI_TEXTWIDTH, STYLE_LINENUMBER, AnsiString(Nines));
   end else
     PixelWidth := 0;
-  
+
   Call(SCI_SETMARGINWIDTHN, 0, PixelWidth);
 end;
 
 procedure TScintEdit.UpdateStyleAttributes;
 var
-  DefaultAttr: TScintStyleAttributes; 
+  DefaultAttr: TScintStyleAttributes;
 
   procedure SetStyleAttr(const StyleNumber: Integer;
     const Attr: TScintStyleAttributes; const Force: Boolean);

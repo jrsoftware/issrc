@@ -57,13 +57,13 @@ begin
   WizardForm.PasswordEdit.Text := '{#Password}';
 
   AfterID := wpSelectTasks;
-  
+
   AfterID := CreateCustomPage(AfterID, 'CreateCustomPage', 'ADescription').ID;
-  
+
   InputQueryWizardPage := CreateInputQueryPage(AfterID, 'CreateInputQueryPage', 'ADescription', 'ASubCaption');
   InputQueryWizardPage.Add('&APrompt:', False);
   AfterID := InputQueryWizardPage.ID;
-  
+
   InputOptionWizardPage := CreateInputOptionPage(AfterID, 'CreateInputOptionPage', 'ADescription', 'ASubCaption', False, False);
   InputOptionWizardPage.Add('&AOption');
   AfterID := InputOptionWizardPage.ID;

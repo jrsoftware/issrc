@@ -18,7 +18,7 @@ implementation
 
 uses
   Windows, SysUtils, PathFunc, ShlObj, CmnFunc, CmnFunc2;
-  
+
 function GetRootkey: HKEY;
 begin
   if IsAdminLoggedOn then
@@ -59,7 +59,7 @@ var
 begin
   Rootkey := GetRootkey;
   AllUsers := Rootkey = HKEY_LOCAL_MACHINE;
-  
+
   Result := AllUsers or not AllowInteractive or
             (MsgBox('Unable to associate for all users without administrative privileges. Do you want to associate only for yourself instead?',
               'Associate', mbConfirmation, MB_YESNO) = IDYES);

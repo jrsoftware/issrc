@@ -8,7 +8,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=<049A><0430><0437><0430><049B>
 LanguageID=$043f
@@ -17,11 +17,11 @@ LanguageCodePage=0
 ; sizes, uncomment any of the following entries and change them accordingly.
 DialogFontName=Tahoma
 DialogFontSize=8
-WelcomeFontName=Tahoma 
-WelcomeFontSize=12 
-TitleFontName=Tahoma 
-TitleFontSize=29 
-CopyrightFontName=Tahoma 
+WelcomeFontName=Tahoma
+WelcomeFontSize=12
+TitleFontName=Tahoma
+TitleFontSize=29
+CopyrightFontName=Tahoma
 CopyrightFontSize=8
 
 [Messages]

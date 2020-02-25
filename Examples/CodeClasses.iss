@@ -93,7 +93,7 @@ begin
   { TaskDialogMsgBox isn't a class but showing it anyway since it fits with the theme }
 
   case TaskDialogMsgBox('Choose A or B',
-                        'You can choose A or B.',   
+                        'You can choose A or B.',
                         mbInformation,
                         MB_YESNOCANCEL, ['I choose &A'#13#10'A will be chosen.', 'I choose &B'#13#10'B will be chosen.'],
                         IDYES) of
@@ -258,7 +258,7 @@ begin
   ProgressBar3.Parent := Page.Surface;
   { Note: TNewProgressBar.Style property only has an effect on Windows XP and newer }
   ProgressBar3.Style := npbstMarquee;
-  
+
   { TNewCheckListBox }
 
   Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TNewCheckListBox');
@@ -402,7 +402,7 @@ begin
   { Custom wizard pages }
 
   CreateTheWizardPages;
-  
+
   { Custom controls }
 
   CreateAboutButtonAndURLLabel(WizardForm, WizardForm.CancelButton);
