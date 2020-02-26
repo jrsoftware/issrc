@@ -300,6 +300,7 @@ begin
   Top := WizardForm.WelcomeLabel2.Top + WizardForm.WelcomeLabel2.Height - 4*TopInc;
 
   CreateButton(Left, Top, '&SQLDMO...', @SQLDMOButtonOnClick);
+  Top := Top + TopInc;
   CreateButton(Left + LeftInc, Top, '&Firewall...', @FirewallButtonOnClick);
   Top := Top + TopInc;
   CreateButton(Left, Top, '&IIS...', @IISButtonOnClick);
