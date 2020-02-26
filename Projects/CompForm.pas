@@ -2275,7 +2275,7 @@ end;
 
 procedure TCompileForm.HDonateClick(Sender: TObject);
 begin
-  ShellExecute(Application.Handle, 'open', 'http://www.jrsoftware.org/isdonate.php', nil,
+  ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/isdonate.php', nil,
     nil, SW_SHOW);
 end;
 

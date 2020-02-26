@@ -89,7 +89,7 @@
 <b>Inno Setup version 6.0.4</b><br/>
 <b>Copyright &copy; 1997-2020 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2020 Martijn Laan. All rights reserved.</b><br/>
-<extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
+<extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
 </p>
 
 <p><br/>
@@ -2788,7 +2788,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 
 <p>The Frequently Asked Questions is now located in a separate document. Please click the "Inno Setup FAQ" shortcut created in the Start Menu when you installed Inno Setup, or open the "isfaq.url" file in your Inno Setup directory.</p>
 
-<p>For the most recent Frequently Asked Questions, go to <extlink href="http://www.jrsoftware.org/isfaq.php">http://www.jrsoftware.org/isfaq.php</extlink></p>
+<p>For the most recent Frequently Asked Questions, go to <extlink href="https://jrsoftware.org/isfaq.php">https://jrsoftware.org/isfaq.php</extlink></p>
 
 </body>
 </topic>
@@ -3079,7 +3079,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <li>Inno Setup's own installers accept an additional /PORTABLE=1 command line parameter to enable portable mode which causes the installers to not create an uninstaller nor an entry in the Add/Remove Programs Control Panel applet.</li>
 
-<li>The Inno Setup backup website can be found at <extlink href="http://www.innosetup.nl/">www.innosetup.nl</extlink>. Normally this link will simply redirect you to the main website at <extlink href="http://www.jrsoftware.org/">www.jrsoftware.org</extlink> but in case of emergencies this redirect will be disabled.</li>
+<li>The Inno Setup backup website can be found at <extlink href="http://www.innosetup.nl/">www.innosetup.nl</extlink>. Normally this link will simply redirect you to the main website at <extlink href="https://jrsoftware.org/">jrsoftware.org</extlink> but in case of emergencies this redirect will be disabled.</li>
 
 </ul>
 
@@ -3662,7 +3662,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <body>
 
 <p>To support Inno Setup, go to this page:<br/>
-<extlink href="http://www.jrsoftware.org/isdonate.php">http://www.jrsoftware.org/isdonate.php</extlink></p>
+<extlink href="https://jrsoftware.org/isdonate.php">https://jrsoftware.org/isdonate.php</extlink></p>
 
 </body>
 </topic>
@@ -5042,7 +5042,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using ARCFOUR encryption, with a 160-bit key derived from the value of the <link topic="setup_password">Password</link> [Setup] section directive.</p>
-<p>Because of encryption import/export laws in some countries, encryption support is not included in the main Inno Setup installer and must be downloaded and installed separately if you wish to use it. See the <extlink href="http://www.jrsoftware.org/isdl.php">Inno Setup Downloads</extlink> page for more information.</p>
+<p>Because of encryption import/export laws in some countries, encryption support is not included in the main Inno Setup installer and must be downloaded and installed separately if you wish to use it. See the <extlink href="https://jrsoftware.org/isdl.php">Inno Setup Downloads</extlink> page for more information.</p>
 <p>If encryption is enabled and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
 <p>The key used for encryption is a 160-bit SHA-1 hash of 64-bit random salt plus the value of <link topic="setup_password">Password</link>.</p>
 </body>

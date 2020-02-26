@@ -359,7 +359,7 @@ begin
           PrNote +
           CustomNote +
           SNewLine +
-          'For more detailed information, please visit http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline';
+          'For more detailed information, please visit https://jrsoftware.org/ishelp/index.php?topic=setupcmdline';
 
   MessageBox(0, PChar(Help), 'Setup', MB_OK or MB_ICONSTOP);
 end;

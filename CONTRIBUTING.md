@@ -8,7 +8,7 @@ For conditions of distribution and use, see LICENSE.TXT.
 Contributing issues
 -------------------
 
-To report bugs or request new features use the [newsgroups](http://www.jrsoftware.org/newsgroups.php) (web-based interface available).
+To report bugs or request new features use the [newsgroups](https://jrsoftware.org/forums.php) (web-based interface available).
 
 Contributing new code or documentation updates
 ----------------------------------------------
@@ -54,7 +54,7 @@ http://git-scm.com/
 Contributing translations
 -------------------------
 
-To contribute translations please see http://jrsoftware.org/files/istrans/send.php.
+To contribute translations please see https://jrsoftware.org/files/istrans/send.php.
 
 Please do NOT use GitHub's web editor to edit ANSI translations and create pull
 requests. This editor doesn't work since it automatically turns ANSI files into
