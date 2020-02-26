@@ -57,6 +57,7 @@
     <contentstopic title="Using COM Automation objects" topic="scriptautomation" />
   </contentsheading>
   <contentsheading title="Other Information">
+    <contentstopic title="Support Inno Setup" topic="donate" />
     <contentstopic title="Unicode Inno Setup" topic="unicode" />
     <contentstopic title="Non Administrative Install Mode" topic="admininstallmode" />
     <contentstopic title="64-bit Install Mode" topic="32vs64bitinstalls" />
@@ -73,7 +74,6 @@
     <contentstopic title="Example Scripts" topic="examples" />
     <contentstopic title="Frequently Asked Questions" topic="faq" />
     <contentstopic title="Contributors" topic="credits" />
-    <contentstopic title="Support Inno Setup" topic="donate" />
   </contentsheading>
 </contents>
 
@@ -3663,6 +3663,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <p>To support Inno Setup, go to this page:<br/>
 <extlink href="https://jrsoftware.org/isdonate.php">https://jrsoftware.org/isdonate.php</extlink></p>
+<p>Thank you in advance for your support!</p>
 
 </body>
 </topic>
