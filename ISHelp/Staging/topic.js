@@ -74,7 +74,7 @@ function topic_loaded()
 	var matches;
 
 	if (window == window.top &&
-	    (window.location.protocol == "http:" || window.location.protocol == "http:") &&
+	    (window.location.protocol == "http:" || window.location.protocol == "https:") &&
 	    (window.location.hostname == "jrsoftware.org" || window.location.hostname == "www.jrsoftware.org") &&
 	    (matches = window.location.pathname.match(/^(\/.+\/)topic_([a-z0-9_\-]+)\.htm$/)) &&
 	    window.location.hash != "#noredir") {
