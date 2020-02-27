@@ -1,6 +1,5 @@
-*.hlp
-*.cnt
-*.gid
+*.chm
+*.chw
 *.e32
 *.dll
 *.exe
