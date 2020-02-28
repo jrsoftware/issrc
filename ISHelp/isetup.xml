@@ -530,7 +530,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="dotnet4032">{dotnet4032}</a></b></dt>
 <dd>
-<p>32-bit .NET Framework version 4.0 and install later root directory.</p>
+<p>32-bit .NET Framework version 4.0 and later install root directory.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 or later present.</p>
 </dd>
 
