@@ -3617,10 +3617,22 @@ begin
 end;
 
 procedure TCompileForm.UpdateTheme;
+
+  procedure SetControlTheme(const WinControl: TWinControl);
+  begin
+    if UseThemes then begin
+      if FTheme.Dark then
+        SetWindowTheme(WinControl.Handle, 'DarkMode_Explorer', nil)
+      else
+        SetWindowTheme(WinControl.Handle, nil, nil);
+    end;
+  end;
+
 begin
   FTheme.Typ := FOptions.ThemeType;
   Memo.UpdateThemeColors;
   Memo.UpdateStyleAttributes;
+  SetControlTheme(Memo);
   ToolBarPanel.ParentBackground := False;
   ToolBarPanel.Color := FTheme.Colors[tcToolBack];
   if FTheme.Dark then
@@ -3637,12 +3649,15 @@ begin
   CompilerOutputList.Font.Color := FTheme.Colors[tcFore];
   CompilerOutputList.Color := FTheme.Colors[tcBack];
   CompilerOutputList.Invalidate;
+  SetControlTheme(CompilerOutputList);
   DebugOutputList.Font.Color := FTheme.Colors[tcFore];
   DebugOutputList.Color := FTheme.Colors[tcBack];
   DebugOutputList.Invalidate;
+  SetControlTheme(DebugOutputList);
   DebugCallStackList.Font.Color := FTheme.Colors[tcFore];
   DebugCallStackList.Color := FTheme.Colors[tcBack];
   DebugCallStackList.Invalidate;
+  SetControlTheme(DebugCallStackList);
 end;
 
 procedure TCompileForm.UpdateThemeData(const Close, Open: Boolean);
