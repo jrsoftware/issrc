@@ -125,7 +125,7 @@ const
   SCompilerStatusFilesStoring = '   Storing: %s';
   SCompilerStatusFilesStoringVersion = '   Storing: %s   (%u.%u.%u.%u)';
   SCompilerStatusCompressingSetupExe = '   Compressing Setup program executable';
-  SCompilerStatusUpdatingVersionInfo = '   Updating version info';
+  SCompilerStatusUpdatingVersionInfo = '   Updating version info (%s)';
   SCompilerStatusUpdatingIcons = '   Updating icons (%s)';
   SCompilerStatusCreatingDisk = '   Creating disk %d';
   SCompilerStatusFinished = '*** Finished.  [%s, %s elapsed]';
