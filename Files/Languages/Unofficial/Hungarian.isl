@@ -43,7 +43,7 @@ ErrorTitle=Hiba
 ; *** SetupLdr messages
 SetupLdrStartupMessage=%1 telepítve lesz. Szeretné folytatni?
 LdrCannotCreateTemp=Átmeneti fájl létrehozása nem lehetséges. A telepítés megszakítva
-LdrCannotExecTemp=Fájl futattása nem lehetséges az átmeneti könyvtárban. A telepítés megszakítva
+LdrCannotExecTemp=Fájl futtatása nem lehetséges az átmeneti könyvtárban. A telepítés megszakítva
 HelpTextNote=
 
 ; *** Startup error messages
@@ -222,7 +222,7 @@ ApplicationsFound2=A következõ alkalmazások olyan fájlokat használnak, amelyeket
 CloseApplications=&Alkalmazások automatikus bezárása
 DontCloseApplications=&Ne zárja be az alkalmazásokat
 ErrorCloseApplications=A Telepítõ nem tudott minden alkalmazást automatikusan bezárni. A folytatás elõtt ajánlott minden, a Telepítõ által frissítendõ fájlokat használó alkalmazást bezárni.
-PrepareToInstallNeedsRestart=A telepítõnek újra kell indítania a számítógépet. Újaindítást követõen, futassa újból a telepítõt, a [name] telepítésének befejezéséhez .%n%nÚjra szeretné indítani most a számítógépet?
+PrepareToInstallNeedsRestart=A telepítõnek újra kell indítania a számítógépet. Újraindítást követõen, futtassa újból a telepítõt, a [name] telepítésének befejezéséhez .%n%nÚjra szeretné indítani most a számítógépet?
 
 ; *** "Installing" wizard page
 WizardInstalling=Telepítés
@@ -323,7 +323,7 @@ ErrorRestartingComputer=A Telepítõ nem tudta újraindítani a számítógépet. Indíts
 
 ; *** Uninstaller messages
 UninstallNotFound=A(z) "%1" fájl nem létezik. Nem távolítható el.
-UninstallOpenError=A(z) "%1" fájl nem nyitható meg. Nem távolítható el
+UninstallOpenError=A(z) "%1" fájl nem nyitható meg. Nem távolítható el.
 UninstallUnsupportedVer=A(z) "%1" eltávolítási naplófájl formátumát nem tudja felismerni az eltávolító jelen verziója. Az eltávolítás nem folytatható
 UninstallUnknownEntry=Egy ismeretlen bejegyzés (%1) található az eltávolítási naplófájlban
 ConfirmUninstall=Biztosan el kívánja távolítani a(z) %1 programot és minden összetevõjét?
@@ -331,7 +331,7 @@ UninstallOnlyOnWin64=Ezt a telepítést csak 64-bites Windowson lehet eltávolítani
 OnlyAdminCanUninstall=Ezt a telepítést csak adminisztrációs jogokkal rendelkezõ felhasználó távolíthatja el.
 UninstallStatusLabel=Legyen türelemmel, amíg a(z) %1 számítógépérõl történõ eltávolítása befejezõdik.
 UninstalledAll=A(z) %1 sikeresen el lett távolítva a számítógéprõl.
-UninstalledMost=A(z) %1 eltávolítása befejezõdött.%n%nNéhány elemet nem lehetetett eltávolítani. Törölje kézileg.
+UninstalledMost=A(z) %1 eltávolítása befejezõdött.%n%nNéhány elemet nem lehetett eltávolítani. Törölje kézileg.
 UninstalledAndNeedsRestart=A(z) %1 eltávolításának befejezéséhez újra kell indítania a számítógépét.%n%nÚjraindítja most?
 UninstallDataCorrupted=A(z) "%1" fájl sérült. Nem távolítható el.
 
@@ -355,7 +355,7 @@ ShutdownBlockReasonUninstallingApp=%1 eltávolítása.
 NameAndVersion=%1, verzió: %2
 AdditionalIcons=További parancsikonok:
 CreateDesktopIcon=&Asztali ikon létrehozása
-CreateQuickLaunchIcon=&Gyorsindítás parancsikon létrehozása
+CreateQuickLaunchIcon=&Gyorsindító parancsikon létrehozása
 ProgramOnTheWeb=%1 az interneten
 UninstallProgram=Eltávolítás - %1
 LaunchProgram=Indítás %1
