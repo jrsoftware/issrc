@@ -259,7 +259,7 @@ begin
       else
         InternalError('IsDotNetDetected: Invalid VersionString');
     end else
-      VersionKey := Version;
+      VersionKey := VersionString;
   end;
 
   SubKey := 'SOFTWARE\Microsoft\NET Framework Setup\NDP\' + VersionKey;
