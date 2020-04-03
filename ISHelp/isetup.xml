@@ -3792,7 +3792,7 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 <p>Note that mutex name comparison in Windows is <i>case sensitive.</i></p>
 <p>To specify a mutex name containing a comma, escape the comma with a backslash.</p>
 <p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
-<example><pre>AppMutex=MyProgramsMutexName</pre></example>
+<example><pre>AppMutex=MyProgramsMutexName,Global\MyProgramsMutexName</pre></example>
 <p><b>See also:</b><br/>
 <link topic="setup_setupmutex">SetupMutex</link><br/>
 <link topic="setup_closeapplications">CloseApplications</link></p>
