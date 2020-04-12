@@ -178,6 +178,7 @@ type
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
     ToolBarPanel: TPanel;
+    HMailingList: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenClick(Sender: TObject);
@@ -262,6 +263,7 @@ type
     procedure DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
       State: TOwnerDrawState);
     procedure VDebugCallStackClick(Sender: TObject);
+    procedure HMailingListClick(Sender: TObject);
   private
     { Private declarations }
     FCompilerVersion: PCompilerVersionInfo;
@@ -2257,7 +2259,13 @@ end;
 
 procedure TCompileForm.HWebsiteClick(Sender: TObject);
 begin
-  ShellExecute(Application.Handle, 'open', 'http://www.innosetup.com/', nil,
+  ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/isinfo.php', nil,
+    nil, SW_SHOW);
+end;
+
+procedure TCompileForm.HMailingListClick(Sender: TObject);
+begin
+  ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/ismail.php', nil,
     nil, SW_SHOW);
 end;
 

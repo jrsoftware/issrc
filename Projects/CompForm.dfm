@@ -622,6 +622,10 @@ object CompileForm: TCompileForm
         Caption = 'Inno Setup &Web Site'
         OnClick = HWebsiteClick
       end
+      object HMailingList: TMenuItem
+        Caption = 'Inno Setup &Mailing List'
+        OnClick = HMailingListClick
+      end
       object N12: TMenuItem
         Caption = '-'
       end
