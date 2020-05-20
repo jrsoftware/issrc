@@ -1204,6 +1204,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Readln(F^, S);
       {$I+}
@@ -1231,11 +1233,13 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Reset(F^);
       {$I+}
       if IOResult <> 0 then
-        FuncResult.Error('Failed to reset a file')
+        raise Exception.Create('Failed to reset a file')
       else
         ResPtr^ := NULL
     end;
@@ -1259,6 +1263,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       IsEof := Eof(F^);
       {$I+}
@@ -1286,6 +1292,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Close(F^);
       {$I+}
@@ -1294,11 +1302,6 @@ begin
       TPreprocessor(Ext).UncollectGarbage(Pointer(F));
     end;
   except
-    on E: EAccessViolation do
-    begin
-      FuncResult.Error('Invalid file handle');
-      Result.Error := ISPPFUNC_FAIL
-    end;
     on E: Exception do
     begin
       FuncResult.Error(PChar(E.Message));
