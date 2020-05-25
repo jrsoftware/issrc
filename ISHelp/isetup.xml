@@ -2748,7 +2748,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 <body>
 
 <p>Prior to Inno Setup 6 two versions of Inno Setup were available: Non Unicode Inno Setup and Unicode Inno Setup. Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup.</p>
-<p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames. One could consider Unicode Inno Setup as the new standard Inno Setup and Non Unicode Inno Setup as an old special Inno Setup for those who want the very smallest size possible.</p>
+<p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames.</p>
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. If it says "(u)" you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
   <ul>
