@@ -202,7 +202,9 @@ type
     procedure RegisterExistingPage(const ID: Integer;
      const AOuterNotebookPage, AInnerNotebookPage: TNewNotebookPage;
      const ACaption, ADescription: String);
+    procedure SelectComponents(const SelectComponents, DeselectComponents: TStringList; const KeepFixedComponents: Boolean); overload;
     procedure SelectComponentsFromType(const TypeName: String; const OnlySelectFixedComponents: Boolean);
+    procedure SelectTasks(const SelectTasks, DeselectTasks: TStringList); overload;
     function ShouldSkipPage(const PageID: Integer): Boolean;
     procedure UpdateComponentSizes;
     procedure UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: LongInt);
@@ -234,8 +236,8 @@ type
     function PageIndexFromID(const ID: Integer): Integer;
     procedure UpdateCurPageButtonVisibility;
     procedure SetCurPage(const NewPageID: Integer);
-    procedure SelectComponents(const SelectComponents, DeselectComponents: TStringList; const KeepFixedComponents: Boolean);
-    procedure SelectTasks(const SelectTasks, DeselectTasks: TStringList);
+    procedure SelectComponents(const ASelectComponents: TStringList); overload;
+    procedure SelectTasks(const ASelectTasks: TStringList); overload;
     procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
       const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean); override;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
@@ -1248,8 +1250,8 @@ begin
     end;
   end;
 
-  UpdateComponentSizes();
-  CalcCurrentComponentsSpace();
+  UpdateComponentSizes;
+  CalcCurrentComponentsSpace;
 
   //Show or hide the components list based on the selected type
   if HasCustomType then begin
@@ -1678,6 +1680,13 @@ begin
   end;
 end;
 
+procedure TWizardForm.SelectComponents(const ASelectComponents: TStringList);
+begin
+  SelectComponents(ASelectComponents, nil, False);
+  UpdateComponentSizes;
+  CalcCurrentComponentsSpace;
+end;
+
 procedure TWizardForm.SelectTasks(const SelectTasks, DeselectTasks: TStringList);
 var
   I: Integer;
@@ -1703,6 +1712,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TWizardForm.SelectTasks(const ASelectTasks: TStringList);
+begin
+  SelectTasks(ASelectTasks, nil);
 end;
 
 procedure TWizardForm.SelectComponentsFromType(const TypeName: String; const OnlySelectFixedComponents: Boolean);
@@ -2650,8 +2664,8 @@ begin
     end;
   end;
 
-  UpdateComponentSizes();
-  CalcCurrentComponentsSpace();
+  UpdateComponentSizes;
+  CalcCurrentComponentsSpace;
 end;
 
 procedure TWizardForm.ComponentsListClickCheck(Sender: TObject);
@@ -2683,8 +2697,8 @@ begin
     end
   end;
 
-  UpdateComponentSizes();
-  CalcCurrentComponentsSpace();
+  UpdateComponentSizes;
+  CalcCurrentComponentsSpace;
 end;
 
 procedure TWizardForm.NoIconsCheckClick(Sender: TObject);

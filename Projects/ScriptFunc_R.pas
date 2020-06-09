@@ -1817,9 +1817,9 @@ begin
       StringChange(S, '/', '\');
       SetStringsFromCommaString(StringList, S);
       if Proc.Name = 'WIZARDSELECTCOMPONENTS' then
-        GetWizardForm.SelectComponents(StringList, nil, False)
+        GetWizardForm.SelectComponents(StringList)
       else
-        GetWizardForm.SelectTasks(StringList, nil);
+        GetWizardForm.SelectTasks(StringList);
     finally
       StringList.Free();
     end;
