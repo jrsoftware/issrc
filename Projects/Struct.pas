@@ -2,7 +2,7 @@ unit Struct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -336,7 +336,7 @@ type
     Wait: (rwWaitUntilTerminated, rwNoWait, rwWaitUntilIdle);
     Options: set of (roShellExec, roSkipIfDoesntExist,
       roPostInstall, roUnchecked, roSkipIfSilent, roSkipIfNotSilent,
-      roHideWizard, roRun32Bit, roRun64Bit, roRunAsOriginalUser);
+      roHideWizard, roRun32Bit, roRun64Bit, roRunAsOriginalUser, roDontLogParameters);
   end;
 
 const

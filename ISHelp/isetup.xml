@@ -2603,6 +2603,9 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 <p>This flag can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: IsWin64</tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
 <p>This flag cannot be combined with the <tt>shellexec</tt> flag.</p>
 </flag>
+<flag name="dontlogparameters">
+<p>If this flag is specified, the command line parameters for the program will not be included in the log file.</p>
+</flag>
 <flag name="hidewizard">
 <p>If this flag is specified, the wizard will be hidden while the program is running.</p>
 </flag>

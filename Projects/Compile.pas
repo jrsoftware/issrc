@@ -6748,12 +6748,12 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..17] of PChar = (
+  Flags: array[0..18] of PChar = (
     'nowait', 'waituntilidle', 'shellexec', 'skipifdoesntexist',
     'runminimized', 'runmaximized', 'showcheckbox', 'postinstall',
     'unchecked', 'skipifsilent', 'skipifnotsilent', 'hidewizard',
     'runhidden', 'waituntilterminated', '32bit', '64bit', 'runasoriginaluser',
-    'runascurrentuser');
+    'runascurrentuser', 'dontlogparameters');
 var
   Values: array[TParam] of TParamValue;
   NewRunEntry: PSetupRunEntry;
@@ -6833,6 +6833,7 @@ begin
                RunAsOriginalUser := True;
              end;
           17: RunAsCurrentUser := True;
+          18: Include(Options, roDontLogParameters);
         end;
 
       if not WaitFlagSpecified then begin

@@ -3936,7 +3936,7 @@ begin
     ExpandedFilename := ExpandConst(RunEntry.Name);
     Log('Filename: ' + ExpandedFilename);
     ExpandedParameters := ExpandConst(RunEntry.Parameters);
-    if ExpandedParameters <> '' then
+    if not(roDontLogParameters in RunEntry.Options) and (ExpandedParameters <> '') then
       Log('Parameters: ' + ExpandedParameters);
 
     Wait := ewWaitUntilTerminated;

@@ -2756,6 +2756,8 @@ var
           SW_SHOWMAXIMIZED: Flags := Flags or utRun_RunMaximized;
           SW_HIDE: Flags := Flags or utRun_RunHidden;
         end;
+        if roDontLogParameters in RunEntry.Options then
+          Flags := Flags or utRun_DontLogParameters;
         UninstLog.Add(utRun, [ExpandConst(RunEntry.Name),
           ExpandConst(RunEntry.Parameters), ExpandConst(RunEntry.WorkingDir),
           ExpandConst(RunEntry.RunOnceId), ExpandConst(RunEntry.Verb)],

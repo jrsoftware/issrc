@@ -69,6 +69,7 @@ const
   utRun_RunHidden = 64;
   utRun_ShellExecRespectWaitFlags = 128;
   utRun_DisableFsRedir = 256;
+  utRun_DontLogParameters = 512;
   utDeleteFile_ExistedBeforeInstall = 1;
   utDeleteFile_Extra = 2;
   utDeleteFile_IsFont = 4;
@@ -830,7 +831,7 @@ begin
                 function of Main.pas }
               if CurRec^.ExtraData and utRun_ShellExec = 0 then begin
                 Log('Running Exec filename: ' + CurRecData[0]);
-                if CurRecData[1] <> '' then
+                if (CurRec^.ExtraData and utRun_DontLogParameters = 0) and (CurRecData[1] <> '') then
                   Log('Running Exec parameters: ' + CurRecData[1]);
                 if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
                    NewFileExistsRedir(CurRec^.ExtraData and utRun_DisableFsRedir <> 0, CurRecData[0]) then begin
@@ -849,7 +850,7 @@ begin
               end
               else begin
                 Log('Running ShellExec filename: ' + CurRecData[0]);
-                if CurRecData[1] <> '' then
+                if (CurRec^.ExtraData and utRun_DontLogParameters = 0) and (CurRecData[1] <> '') then
                   Log('Running ShellExec parameters: ' + CurRecData[1]);
                 if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
                    FileOrDirExists(CurRecData[0]) then begin
