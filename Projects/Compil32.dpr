@@ -156,6 +156,15 @@ begin
       end;
       Halt;
     end
+    else if CompareText(S, '/ASSOCISSTUDIO') = 0 then begin
+      try
+        RegisterISPathToISStudio;
+      except
+        MessageBox(0, PChar(GetExceptMessage), nil, MB_OK or MB_ICONSTOP);
+        Halt(2);
+      end;
+      Halt;
+    end
     else if (S = '') or (S[1] = '/') or (CommandLineFilename <> '') then
       Error
     else
