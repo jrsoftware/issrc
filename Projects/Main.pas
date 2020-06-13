@@ -3832,7 +3832,7 @@ begin
     'Portions Copyright (C) 2000-2020 Martijn Laan' + SNewLine +
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
-    'http://www.innosetup.com/');
+    'https://www.innosetup.com/');
   S := S + SNewLine2 + 'RemObjects Pascal Script home page:' + SNewLine +
     'http://www.remobjects.com/ps';
   if SetupMessages[msgAboutSetupNote] <> '' then

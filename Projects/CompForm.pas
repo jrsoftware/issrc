@@ -2303,7 +2303,7 @@ begin
     'Portions Copyright (C) 2000-2020 Martijn Laan' + SNewLine +
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
-    'http://www.innosetup.com/' + SNewLine2 +
+    'https://www.innosetup.com/' + SNewLine2 +
     'RemObjects Pascal Script home page:' + SNewLine +
     'http://www.remobjects.com/ps' + SNewLine2 +
     'Refer to LICENSE.TXT for conditions of distribution and use.');
