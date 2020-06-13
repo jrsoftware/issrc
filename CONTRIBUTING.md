@@ -17,7 +17,7 @@ To contribute new code or documentation updates to Inno Setup clone your own
 fork instead of cloning the main Inno Setup repository, commit your work on topic
 branches and make pull requests. In detail:
 
-1. [Fork](http://help.github.com/fork-a-repo/) the project.
+1. [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the project.
 
 2. Clone your fork (`git clone https://github.com/<your-username>/issrc.git`).
 
@@ -41,7 +41,7 @@ branches and make pull requests. In detail:
 8. Push your topic branch up to your fork (`git push origin
    <topic-branch-name>`).
 
-9. [Open a Pull Request](http://help.github.com/send-pull-requests/) with a
+9. [Open a Pull Request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) with a
     clear title and description. Please include your name and email address if
 	  you are contributing a translation.
 
@@ -49,7 +49,7 @@ branches and make pull requests. In detail:
 
 If you don't have the Git client (`git`), get it from:
 
-http://git-scm.com/
+https://git-scm.com/
 
 Contributing translations
 -------------------------

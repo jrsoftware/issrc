@@ -2305,7 +2305,7 @@ begin
     'Inno Setup home page:' + SNewLine +
     'https://www.innosetup.com/' + SNewLine2 +
     'RemObjects Pascal Script home page:' + SNewLine +
-    'http://www.remobjects.com/ps' + SNewLine2 +
+    'https://www.remobjects.com/ps' + SNewLine2 +
     'Refer to LICENSE.TXT for conditions of distribution and use.');
   MsgBox(S, 'About ' + FCompilerVersion.Title, mbInformation, MB_OK);
 end;

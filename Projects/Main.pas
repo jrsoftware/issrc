@@ -3834,7 +3834,7 @@ begin
     'Inno Setup home page:' + SNewLine +
     'https://www.innosetup.com/');
   S := S + SNewLine2 + 'RemObjects Pascal Script home page:' + SNewLine +
-    'http://www.remobjects.com/ps';
+    'https://www.remobjects.com/ps';
   if SetupMessages[msgAboutSetupNote] <> '' then
     S := S + SNewLine2 + SetupMessages[msgAboutSetupNote];
   if SetupMessages[msgTranslatorNote] <> '' then
