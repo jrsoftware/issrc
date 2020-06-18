@@ -899,7 +899,8 @@ var
 
   procedure ProcessFileEntry(const CurFile: PSetupFileEntry;
     const DisableFsRedir: Boolean; ASourceFile, ADestName: String;
-    const FileLocationFilenames: TStringList; const AExternalSize: Integer64);
+    const FileLocationFilenames: TStringList; const AExternalSize: Integer64;
+    var OverwriteAll, KeepAll: Boolean);
 
     procedure InstallFont(const Filename, FontName: String;
       const AddToFontTableNow: Boolean);
@@ -1057,6 +1058,8 @@ var
     LastError: DWORD;
     DestF, SourceF: TFile;
     Flags: TMakeDirFlags;
+    VerificationFlagChecked: BOOL;
+    Overwrite: Boolean;
   label Retry, Skip;
   begin
     Log('-- File entry --');
@@ -1301,13 +1304,25 @@ var
             goto Skip;
           end;
 
-          { If file already exists and foConfirmOverwrite is in Options, ask
-            the user if it's OK to overwrite }
-          if (foConfirmOverwrite in CurFile^.Options) and
-             (LoggedMsgBox(DestFile + SNewLine2 + SetupMessages[msgFileExists],
-              '', mbConfirmation, MB_YESNO, True, IDNO) <> IDYES) then begin
-            Log('User opted not to overwrite the existing file. Skipping.');
-            goto Skip;
+          { If file already exists and foConfirmOverwrite is in Options and the user didn't already
+            say it's OK to overwrite all, ask the user if it's OK to overwrite unless the user
+            already said to keep (=not overwrite) all }
+          if (foConfirmOverwrite in CurFile^.Options) and not OverwriteAll then begin
+            if not KeepAll then begin
+          //   (LoggedMsgBox(DestFile + SNewLine2 + SetupMessages[msgFileExists],
+              //'', mbConfirmation, MB_YESNO, True, IDNO) <> IDYES) then begin
+              Overwrite := LoggedTaskDialogMsgBox('', 'Select action', DestFile + SNewLine2 + 'The file already exists.', '', mbConfirmation, MB_YESNO, ['&Overwrite the existing file', '&Keep the existing file'], 0, True, IDNO, '&Do this for the next conflicts', @VerificationFlagChecked) = IDYES;
+              if VerificationFlagChecked then begin
+                if Overwrite then
+                  OverwriteAll := True
+                else
+                  KeepAll := True;
+              end;
+            end;
+            if KeepAll or not Overwrite then begin
+              Log('User opted not to overwrite the existing file. Skipping.');
+              goto Skip;
+            end;
           end;
 
           { Check if existing file is read-only }
@@ -1683,7 +1698,7 @@ var
     function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
       const SearchBaseDir, SearchSubDir, SearchWildcard: String; const SourceIsWildcard: Boolean;
       const CurFile: PSetupFileEntry; const FileLocationFilenames: TStringList;
-      var ExpectedBytesLeft: Integer64): Boolean;
+      var ExpectedBytesLeft: Integer64; var OverwriteAll, KeepAll: Boolean): Boolean;
     var
       SearchFullPath, FileName, SourceFile, DestName: String;
       H: THandle;
@@ -1723,7 +1738,7 @@ var
                 Size := ExpectedBytesLeft;
               end;
               ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestName,
-                FileLocationFilenames, Size);
+                FileLocationFilenames, Size, OverwriteAll, KeepAll);
               Dec6464(ExpectedBytesLeft, Size);
             end;
           until not FindNextFile(H, FindData);
@@ -1741,7 +1756,7 @@ var
                 Result := RecurseExternalCopyFiles(DisableFsRedir, SearchBaseDir,
                   SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                   SourceIsWildcard, CurFile, FileLocationFileNames,
-                  ExpectedBytesLeft) or Result;
+                  ExpectedBytesLeft, OverwriteAll, KeepAll) or Result;
             until not FindNextFile(H, FindData);
           finally
             Windows.FindClose(H);
@@ -1781,7 +1796,11 @@ var
     SourceWildcard: String;
     ProgressBefore, ExpectedBytesLeft: Integer64;
     DisableFsRedir, FoundFiles: Boolean;
+    OverwriteAll, KeepAll: Boolean;
   begin
+    OverwriteAll := False;
+    KeepAll := False;
+
     FileLocationFilenames := TStringList.Create;
     try
       for I := 0 to Entries[seFileLocation].Count-1 do
@@ -1805,7 +1824,7 @@ var
           if CurFile^.LocationEntry <> -1 then begin
             ExternalSize.Hi := 0;  { not used... }
             ExternalSize.Lo := 0;
-            ProcessFileEntry(CurFile, DisableFsRedir, '', '', FileLocationFilenames, ExternalSize);
+            ProcessFileEntry(CurFile, DisableFsRedir, '', '', FileLocationFilenames, ExternalSize, OverwriteAll, KeepAll);
           end
           else begin
             { File is an 'external' file }
@@ -1823,7 +1842,7 @@ var
               FoundFiles := RecurseExternalCopyFiles(DisableFsRedir,
                 PathExtractPath(SourceWildcard), '', PathExtractName(SourceWildcard),
                 IsWildcard(SourceWildcard), CurFile, FileLocationFileNames,
-                ExpectedBytesLeft);
+                ExpectedBytesLeft, OverwriteAll, KeepAll);
             until FoundFiles or
                   (foSkipIfSourceDoesntExist in CurFile^.Options) or
                   AbortRetryIgnoreTaskDialogMsgBox(
