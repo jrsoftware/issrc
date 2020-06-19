@@ -23,6 +23,17 @@ type
     MS, LS: LongWord;
   end;
 
+  {This makes some layout assumptions, but it's similar to LARGE_INTEGER}
+  TVersion = record
+    constructor Create(Version: TFileVersionNumbers);
+    function Compare(const Other: TVersion): Integer;
+    function ToStr(): String;
+  case Integer of
+    0: (Value: Int64);
+    1: (LS, MS: LongWord);
+    2: (Build, Revision, Minor, Major: Word);
+  end;
+
 function GetVersionInfo(const Filename: String;
   var VersionInfo: TVSFixedFileInfo): Boolean;
 function GetVersionNumbers(const Filename: String;
@@ -32,6 +43,24 @@ implementation
 
 uses
   CmnFunc2, FileClass;
+
+constructor TVersion.Create(Version: TFileVersionNumbers);
+begin
+  MS := Version.MS;
+  LS := Version.LS;
+end;
+
+function TVersion.Compare(const Other: TVersion): Integer;
+begin
+  if Value < Other.Value then Result := -1
+  else if Value > Other.Value then Result := 1
+  else Result := 0;
+end;
+
+function TVersion.ToStr(): String;
+begin
+  Result := Format('%u.%u.%u.%u', [Major, Minor, Revision, Build]);
+end;
 
 function GetVXDVersionInfo(const Filename: String;
   var VersionInfo: TVSFixedFileInfo): Boolean;

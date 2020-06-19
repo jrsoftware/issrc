@@ -25,6 +25,25 @@ uses
   uPSC_std, uPSC_classes, uPSC_graphics, uPSC_controls, uPSC_stdctrls,
   uPSC_forms, uPSC_extctrls, uPSC_comobj;
 
+procedure RegisterVersion_C(Cl: TPSPascalCompiler);
+begin
+  with Cl.AddClassN(Cl.FindClass('TObject'), 'TVersion') do
+  begin
+    RegisterProperty('Major', 'Word', iptrw);
+    RegisterProperty('Minor', 'Word', iptrw);
+    RegisterProperty('Revision', 'Word', iptrw);
+    RegisterProperty('Build', 'Word', iptrw);
+    RegisterProperty('MS', 'Cardinal', iptrw);
+    RegisterProperty('LS', 'Cardinal', iptrw);
+    RegisterProperty('Value', 'Int64', iptrw);
+    RegisterMethod('constructor Create(Major, Minor, Revision, Build: Word);');
+    RegisterMethod('constructor CreateFromNumbers(MS, LS: Cardinal);');
+    RegisterMethod('constructor CreateFromValue(Value: Int64);');
+    RegisterMethod('function ToStr(): String;');
+    RegisterMethod('function Compare(Other: TVersion): Integer;');
+  end;
+end;
+
 procedure RegisterWinControl_C(Cl: TPSPascalCompiler);
 begin
   SIRegisterTWinControl(Cl);
@@ -621,6 +640,7 @@ begin
   { ComObj }
   SIRegister_ComObj(Cl);
 
+  RegisterVersion_C(Cl);
   RegisterNewStaticText_C(Cl);
   RegisterNewCheckListBox_C(Cl);
   RegisterNewProgressBar_C(Cl);

@@ -27,11 +27,60 @@ uses
   uPSR_stdctrls, uPSR_extctrls, uPSR_comobj, {$IFNDEF UNICODE} uPSUtils, {$ENDIF}
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
   ExtCtrls, UIStateForm, SetupForm, Main, Wizard, SetupTypes, PasswordEdit,
-  FolderTreeView, BitmapImage, NewNotebook, ScriptDlg, BidiCtrls,
+  FolderTreeView, BitmapImage, NewNotebook, ScriptDlg, BidiCtrls, VerInfo,
   UninstProgressForm;
 
 type
   TWinControlAccess = class(TWinControl);
+  TVersionObj = class
+    Version: TVersion;
+    constructor Create(Major, Minor, Revision, Build: Word);
+    constructor CreateFromNumbers(MS, LS: Cardinal);
+    constructor CreateFromValue(Value: Int64);
+    function ToStr(): String;
+    function Compare(Other: TVersionObj): Integer;
+  end;
+
+constructor TVersionObj.Create(Major: Word; Minor: Word; Revision: Word; Build: Word);
+begin Version.Major := Major; Version.Minor := Minor; Version.Revision := Revision; Version.Build := Build; end;
+constructor TVersionObj.CreateFromNumbers(MS: Cardinal; LS: Cardinal);
+begin Version.MS := MS; Version.LS := LS; end;
+constructor TVersionObj.CreateFromValue(Value: Int64); begin Version.Value := Value; end;
+function TVersionObj.ToStr(): String; begin Result := Version.ToStr(); end;
+function TVersionObj.Compare(Other: TVersionObj): Integer; begin Result := Version.Compare(Other.Version); end;
+procedure TVersionMajor_R(Self: TVersionObj; var T: Word); begin T := Self.Version.Major; end;
+procedure TVersionMajor_W(Self: TVersionObj; const T: Word); begin Self.Version.Major := T; end;
+procedure TVersionMinor_R(Self: TVersionObj; var T: Word); begin T := Self.Version.Minor; end;
+procedure TVersionMinor_W(Self: TVersionObj; const T: Word); begin Self.Version.Minor := T; end;
+procedure TVersionRevision_R(Self: TVersionObj; var T: Word); begin T := Self.Version.Revision; end;
+procedure TVersionRevision_W(Self: TVersionObj; const T: Word); begin Self.Version.Revision := T; end;
+procedure TVersionBuild_R(Self: TVersionObj; var T: Word); begin T := Self.Version.Build; end;
+procedure TVersionBuild_W(Self: TVersionObj; const T: Word); begin Self.Version.Build := T; end;
+procedure TVersionMS_R(Self: TVersionObj; var T: Cardinal); begin T := Self.Version.MS; end;
+procedure TVersionMS_W(Self: TVersionObj; const T: Cardinal); begin Self.Version.MS := T; end;
+procedure TVersionLS_R(Self: TVersionObj; var T: Cardinal); begin T := Self.Version.LS; end;
+procedure TVersionLS_W(Self: TVersionObj; const T: Cardinal); begin Self.Version.LS := T; end;
+procedure TVersionValue_R(Self: TVersionObj; var T: Int64); begin T := Self.Version.Value; end;
+procedure TVersionValue_W(Self: TVersionObj; const T: Int64); begin Self.Version.Value := T; end;
+
+procedure RegisterVersion_R(Cl: TPSRuntimeClassImporter);
+begin
+  with Cl.Add2(TVersionObj, 'TVersion') do
+  begin
+    RegisterPropertyHelper(@TVersionMajor_R, @TVersionMajor_W, 'Major');
+    RegisterPropertyHelper(@TVersionMinor_R, @TVersionMinor_W, 'Minor');
+    RegisterPropertyHelper(@TVersionRevision_R, @TVersionRevision_W, 'Revision');
+    RegisterPropertyHelper(@TVersionBuild_R, @TVersionBuild_W, 'Build');
+    RegisterPropertyHelper(@TVersionMS_R, @TVersionMS_W, 'MS');
+    RegisterPropertyHelper(@TVersionLS_R, @TVersionLS_W, 'LS');
+    RegisterPropertyHelper(@TVersionValue_R, @TVersionValue_W, 'Value');
+    RegisterConstructor(@TVersionObj.Create, 'Create');
+    RegisterConstructor(@TVersionObj.CreateFromNumbers, 'CreateFromNumbers');
+    RegisterConstructor(@TVersionObj.CreateFromValue, 'CreateFromValue');
+    RegisterMethod(@TVersionObj.ToStr, 'ToStr');
+    RegisterMethod(@TVersionObj.Compare, 'Compare');
+  end;
+end;
 
 procedure TWinControlParentBackground_R(Self: TWinControl; var T: Boolean); begin {$IFDEF IS_D7} T := TWinControlAccess(Self).ParentBackground {$ELSE} T := False {$ENDIF}; end;
 procedure TWinControlParentBackground_W(Self: TWinControl; const T: Boolean); begin {$IFDEF IS_D7} TWinControlAccess(Self).ParentBackground := T; {$ENDIF} end;
@@ -387,6 +436,7 @@ begin
     { ComObj }
     RIRegister_ComObj(ScriptInterpreter);
 
+    RegisterVersion_R(Cl);
     RegisterNewStaticText_R(Cl);
     RegisterNewCheckListBox_R(Cl);
     RegisterNewProgressBar_R(Cl);
