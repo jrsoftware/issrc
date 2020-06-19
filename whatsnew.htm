@@ -32,7 +32,12 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 <ul>
   <li>Added new [Run] and [UninstallRun] sections flag: <tt>dontlogparameters</tt>. If this flag is specified, the command line parameters for the program will not be included in the log file.</li>
   <li>Compiler IDE change: <a href="https://i.imgur.com/wHoJ3FG.png">Improved highlighting</a> for the [CustomMessages] and [Messages] sections.</li>
-  <li>Pascal Scripting change: <i>Fix:</i> Support function <tt>WizardSelectComponents</tt> now also updates component sizes and the current selection's required disk space.</li>
+  <li>Pascal Scripting changes:
+  <ul>
+    <li>Added several functions to pack/unpack version numbers to simplify comparisons: <tt>PackVersionNumbers</tt>, <tt>PackVersionComponents</tt>, <tt>UnpackVersionNumbers</tt>, <tt>UnpackVersionComponents</tt>, and <tt>VersionToStr</tt>.</li>
+    <li><i>Fix:</i> Support function <tt>WizardSelectComponents</tt> now also updates component sizes and the current selection's required disk space.</li>
+  </ul>
+  </li>
   <li>QuickStart Pack: Now registers the Inno Setup compiler path in the Inno Script Studio options so that it will find the Inno Setup compiler automatically. Required because Inno Script Studio doesn't officially support Inno Setup 6.</li> 
   <li>Minor tweaks.</li>
 </ul>
