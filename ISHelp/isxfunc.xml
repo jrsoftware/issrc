@@ -1956,9 +1956,9 @@ end;</pre>
         <prototype>function VersionToStr(const Version: Int64): String;</prototype>
         <description><p>Gets the string (in "0.0.0.0" format) representing the given packed version.</p></description>
         <remarks><p>This is intended mainly for logging/debugging purposes; when displaying versions to the user you should prefer using the version text resource directly rather than formatting the numeric version, as the application's preferred version formatting may be different from the default.</p></remarks>
-      </function>
         <seealso><p><link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
 <link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
+      </function>
     </subcategory>
   </category>
   <category>
