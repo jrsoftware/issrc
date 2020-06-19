@@ -1449,6 +1449,29 @@ begin
       Stack.SetBool(PStart, True);
     end else
       Stack.SetBool(PStart, False);
+  end else if Proc.Name = 'PACKVERSIONNUMBERS' then begin
+    Stack.SetInt64(PStart, Int64((UInt64(Stack.GetUInt(PStart-1)) shl 32) or Stack.GetUInt(PStart-2)));
+  end else if Proc.Name = 'PACKVERSIONCOMPONENTS' then begin
+    VersionNumbers.MS := (Stack.GetUInt(PStart-1) shl 16) or (Stack.GetUInt(PStart-2) and $FFFF);
+    VersionNumbers.LS := (Stack.GetUInt(PStart-3) shl 16) or (Stack.GetUInt(PStart-4) and $FFFF);
+    Stack.SetInt64(PStart, Int64((UInt64(VersionNumbers.MS) shl 32) or VersionNumbers.LS));
+  end else if Proc.Name = 'UNPACKVERSIONNUMBERS' then begin
+    VersionNumbers.MS := UInt64(Stack.GetInt64(PStart)) shr 32;
+    VersionNumbers.LS := UInt64(Stack.GetInt64(PStart)) and $FFFFFFFF;
+    Stack.SetUInt(PStart-1, VersionNumbers.MS);
+    Stack.SetUInt(PStart-2, VersionNumbers.LS);
+  end else if Proc.Name = 'UNPACKVERSIONCOMPONENTS' then begin
+    VersionNumbers.MS := UInt64(Stack.GetInt64(PStart)) shr 32;
+    VersionNumbers.LS := UInt64(Stack.GetInt64(PStart)) and $FFFFFFFF;
+    Stack.SetUInt(PStart-1, VersionNumbers.MS shr 16);
+    Stack.SetUInt(PStart-2, VersionNumbers.MS and $FFFF);
+    Stack.SetUInt(PStart-3, VersionNumbers.LS shr 16);
+    Stack.SetUInt(PStart-4, VersionNumbers.LS and $FFFF);
+  end else if Proc.Name = 'VERSIONTOSTR' then begin
+    VersionNumbers.MS := UInt64(Stack.GetInt64(PStart-1)) shr 32;
+    VersionNumbers.LS := UInt64(Stack.GetInt64(PStart-1)) and $FFFFFFFF;
+    Stack.SetString(PStart, Format('%u.%u.%u.%u', [VersionNumbers.MS shr 16,
+      VersionNumbers.MS and $FFFF, VersionNumbers.LS shr 16, VersionNumbers.LS and $FFFF]));
   end else
     Result := False;
 end;

@@ -1323,6 +1323,48 @@ The list of options is provided at the end of this topic.</para>
 					<para>&dim;, &redim;.</para>
 				</section>
 			</topic>
+			<topic id="PackVersionComponents">
+				<title>PackVersionComponents</title>
+				<section title="Prototype">
+					<pre>
+						<line>#define PackVersionComponents(int Major, int Minor, int Rev, int Build, *MS, *LS)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Packs individual version components into MS/LS values compatible with <synel>GetVersionNumbers</synel>. The results are stored in by-reference parameters MS and LS.</para>
+					<pre>
+						<line>#define MyAppMS</line>
+						<line>#define MyAppLS</line>
+						<line>#expr PackVersionComponents(15, 2, 12345, 7, MyAppMS, MyAppLS)</line>
+					</pre>
+					<para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="ParseVersionPacked">ParseVersionPacked</link></synel>, <synel><link href="UnpackVersionComponents">UnpackVersionComponents</link></synel></para>
+				</section>
+			</topic>
+			<topic id="UnpackVersionComponents">
+				<title>UnpackVersionComponents</title>
+				<section title="Prototype">
+					<pre>
+						<line>#define UnpackVersionComponents(int MS, int LS, *Major, *Minor, *Rev, *Build)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Unpacks individual version components from MS/LS values compatible with <synel>GetVersionNumbers</synel>. The results are stored in by-reference parameters Major, Minor, Rev, and Build.</para>
+					<pre>
+						<line>#define MyMajor</line>
+						<line>#define MyMinor</line>
+						<line>#define MyRev</line>
+						<line>#define MyBuild</line>
+						<line>#expr UnpackVersionComponents(MyAppMS, MyAppLS, MyMajor, MyMinor, MyRev, MyBuild)</line>
+					</pre>
+					<para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
+				</section>
+			</topic>
 			<topic id="ParseVersion">
 				<title>ParseVersion</title>
 				<section title="Prototype">
@@ -1334,6 +1376,27 @@ The list of options is provided at the end of this topic.</para>
 					<para>Calls the <synel><link href="GetFileVersion">GetFileVersion</link></synel> function and parses the string returned by that function (in form "0.0.0.0"). All four version elements are stored in by-reference parameters Major, Minor, Rev, and Build. Returns the string returned by GetFileVersion.</para>
           <para>Declared in &builtins;.</para>
 				</description>
+			</topic>
+			<topic id="ParseVersionPacked">
+				<title>ParseVersionPacked</title>
+				<section title="Prototype">
+					<pre>
+						<line>#define ParseVersionPacked(str FileName, *MS, *LS)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Calls the <synel><link href="GetFileVersion">GetFileVersion</link></synel> function and parses the string returned by that function (in form "0.0.0.0"). The version elements are then packed back into the by-reference parameters MS and LS. Returns the string returned by GetFileVersion.</para>
+					<pre>
+						<line>#define MyAppMS</line>
+						<line>#define MyAppLS</line>
+						<line>#expr ParseVersionPacked("MyApp.exe", MyAppMS, MyAppLS)</line>
+					</pre>
+					<para>This can be combined at install-time with <synel>PackVersionNumbers</synel> to perform comparisons against installed files or registry versions.</para>
+					<para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
+				</section>
 			</topic>
 			<topic id="EncodeVer">
 				<title>EncodeVer</title>

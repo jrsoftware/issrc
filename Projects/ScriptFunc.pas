@@ -271,10 +271,15 @@ const
   );
 
   { VerInfo }
-  VerInfoTable: array [0..1] of AnsiString =
+  VerInfoTable: array [0..6] of AnsiString =
   (
     'function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;',
-    'function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;'
+    'function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;',
+    'function PackVersionNumbers(const VersionMS, VersionLS: Cardinal): Int64;',
+    'function PackVersionComponents(const Major, Minor, Revision, Build: Word): Int64;',
+    'procedure UnpackVersionNumbers(const Version: Int64; var VersionMS, VersionLS: Cardinal);',
+    'procedure UnpackVersionComponents(const Version: Int64; var Major, Minor, Revision, Build: Word);',
+    'function VersionToStr(const Version: Int64): String;'
   );
 
   { Windows }

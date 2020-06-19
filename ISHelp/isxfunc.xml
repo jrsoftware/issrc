@@ -1592,18 +1592,6 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
-        <name>GetVersionNumbers</name>
-        <prototype>function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;</prototype>
-        <description><p>Gets the file version numbers of the specified file.</p></description>
-      </function>
-      <function>
-        <name>GetVersionNumbersString</name>
-        <prototype>function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;</prototype>
-        <description><p>Gets the file version numbers of the specified file, as a string.</p></description>
-      </function>
-    </subcategory>
-    <subcategory>
-      <function>
         <name>IsProtectedSystemFile</name>
         <prototype>function IsProtectedSystemFile(const Filename: String): Boolean;</prototype>
         <description><p>Returns True if the specified file is protected by Windows File Protection (and therefore can't be replaced).</p></description>
@@ -1912,6 +1900,65 @@ end;</pre>
         <prototype>function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;</prototype>
         <description><p>Changes the "Close on exit" setting of a .pif file. Returns True if it was able to make the change.</p></description>
       </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>File Version</p></description>
+    <subcategory>
+      <function>
+        <name>GetVersionNumbers</name>
+        <prototype>function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;</prototype>
+        <description><p>Gets the file version numbers of the specified file.</p></description>
+        <seealso><p><link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
+      </function>
+      <function>
+        <name>GetVersionNumbersString</name>
+        <prototype>function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;</prototype>
+        <description><p>Gets the file version numbers of the specified file, as a string.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>PackVersionNumbers</name>
+        <prototype>function PackVersionNumbers(const VersionMS, VersionLS: Cardinal): Int64;</prototype>
+        <description><p>Packs version numbers (from <link topic="isxfunc_GetVersionNumbers">GetVersionNumbers</link>, ISPP's <tt>PackVersionComponents</tt>, or similar) into a single value.</p></description>
+        <remarks><p>You can directly compare two packed version numbers with the normal comparison operators (<tt>=</tt>, <tt>&lt;&gt;</tt>, <tt>&lt;</tt>, and <tt>&gt;</tt>).</p></remarks>
+        <seealso><p><link topic="isxfunc_PackVersionComponents">PackVersionComponents</link><br />
+<link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link><br />
+<link topic="isxfunc_VersionToStr">VersionToStr</link></p></seealso>
+      </function>
+      <function>
+        <name>PackVersionComponents</name>
+        <prototype>function PackVersionComponents(const Major, Minor, Revision, Build: Word): Int64;</prototype>
+        <description><p>Packs individual version components (from ISPP's <tt>ParseVersion</tt> or similar) into a single value.</p></description>
+        <remarks><p>You can directly compare two packed version numbers with the normal comparison operators (<tt>=</tt>, <tt>&lt;&gt;</tt>, <tt>&lt;</tt>, and <tt>&gt;</tt>).</p></remarks>
+        <seealso><p><link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
+<link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>UnpackVersionNumbers</name>
+        <prototype>procedure UnpackVersionNumbers(const Version: Int64; var VersionMS, VersionLS: Cardinal);</prototype>
+        <description><p>Unpacks a packed version (for example, from <link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link>) into MS/LS numbers compatible with <link topic="isxfunc_GetVersionNumbers">GetVersionNumbers</link>.</p></description>
+        <seealso><p><link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
+      </function>
+      <function>
+        <name>UnpackVersionComponents</name>
+        <prototype>procedure UnpackVersionComponents(const Version: Int64; var Major, Minor, Revision, Build: Word);</prototype>
+        <description><p>Unpacks a packed version (for example, from <link topic="isxfunc_PackVersionComponents">PackVersionComponents</link>) into individual version components, suitable for display.</p></description>
+        <seealso><p><link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>VersionToStr</name>
+        <prototype>function VersionToStr(const Version: Int64): String;</prototype>
+        <description><p>Gets the string (in "0.0.0.0" format) representing the given packed version.</p></description>
+        <remarks><p>This is intended mainly for logging/debugging purposes; when displaying versions to the user you should prefer using the version text resource directly rather than formatting the numeric version, as the application's preferred version formatting may be different from the default.</p></remarks>
+      </function>
+        <seealso><p><link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
+<link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
     </subcategory>
   </category>
   <category>
