@@ -24,7 +24,7 @@ branches and make pull requests. In detail:
 3. Add an `upstream` remote (`git remote add upstream
    https://github.com/jrsoftware/issrc.git`).
 
-4. Get the latest changes from upstream (e.g. `git pull upstream master`).
+4. Get the latest changes from upstream (e.g. `git pull upstream main`).
 
 5. Create a new topic branch to contain your feature, change, or fix (`git
    checkout -b <topic-branch-name>`).
