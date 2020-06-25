@@ -1320,16 +1320,16 @@ var
             say it's OK to overwrite all, ask the user if it's OK to overwrite unless the user
             already said to keep (=not overwrite) all }
           if (foConfirmOverwrite in CurFile^.Options) and not(ConfirmOverwriteAll = ynYes) then begin
-            if not(ConfirmOverwriteAll = ynNo) then begin
-              if SetupMessages[msgFileExists2] = '' then begin
-                Overwrite := LoggedMsgBox(DestFile + SNewLine2 + SetupMessages[msgFileExists], '',
-                  mbConfirmation, MB_YESNO, True, IDNO) = IDYES;
-                VerificationFlagChecked := False;
-              end else
-                Overwrite := LoggedTaskDialogMsgBox('', SetupMessages[msgFileExistsSelectAction],
-                  DestFile + SNewLine2 + SetupMessages[msgFileExists2], '', mbConfirmation, MB_YESNO,
-                  [SetupMessages[msgFileExistsOverwriteExisting], SetupMessages[msgFileExistsKeepExisting]],
-                  0, True, IDNO, SetupMessages[msgFileExistsOverwriteOrKeepAll], @VerificationFlagChecked) = IDYES;
+            if ConfirmOverwriteAll = ynNo then
+              Overwrite := False
+            else if (SetupMessages[msgFileExists2] = '') then
+              Overwrite := LoggedMsgBox(DestFile + SNewLine2 + SetupMessages[msgFileExists], '',
+                mbConfirmation, MB_YESNO, True, IDNO) = IDYES
+            else begin
+              Overwrite := LoggedTaskDialogMsgBox('', SetupMessages[msgFileExistsSelectAction],
+                DestFile + SNewLine2 + SetupMessages[msgFileExists2], '', mbConfirmation, MB_YESNO,
+                [SetupMessages[msgFileExistsOverwriteExisting], SetupMessages[msgFileExistsKeepExisting]],
+                0, True, IDNO, SetupMessages[msgFileExistsOverwriteOrKeepAll], @VerificationFlagChecked) = IDYES;
               if VerificationFlagChecked then begin
                 if Overwrite then
                   ConfirmOverwriteAll := ynYes
@@ -1337,7 +1337,7 @@ var
                   ConfirmOverwriteAll := ynNo;
               end;
             end;
-            if (ConfirmOverwriteAll = ynNo) or not Overwrite then begin
+            if not Overwrite then begin
               Log('User opted not to overwrite the existing file. Skipping.');
               goto Skip;
             end;
