@@ -59,9 +59,9 @@
 				</table>
 			</section>
 			<section title="Function prototypes documenting conventions">
-				<para>Function prototypes are shown as function result type, function name and list of formal arguments in parentheses.</para>
-				<para>Words <synel>int</synel>, <synel>str</synel>, <synel>any</synel>, and <synel>void</synel> are used to specify integer type, string type, any type, or null type (also referred to as nothing, void), respectively. Null type as function result means that function does not return any value.</para>
-				<para>Question mark (<synel>?</synel>) after the type of an argument means that this argument is optional.</para>
+				<para>Function prototypes show the function result type, function name and list of formal arguments in parentheses.</para>
+				<para>Keywords <synel>int</synel>, <synel>str</synel>, <synel>any</synel>, and <synel>void</synel> respectively specify the (signed 64-bit) integer type, the string type, any type, or the null type (also referred to as nothing, void). When the null type is specified as a function result type then the function does not return a value.</para>
+				<para>A question mark (<synel>?</synel>) after the type of an argument means that this argument is optional.</para>
 			</section>
 		</topic>
 		<topic id="directives">
@@ -767,7 +767,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Returns size, in bytes, of the specified file. If the file does not exist, the result is -1. Beware of ISPP supporting only signed 32 bit integers: for files larger than 2 GB (and smaller than 4 GB) the result is negative.</para>
+					<para>Returns size, in bytes, of the specified file. If the file does not exist, the result is -1.</para>
 				</description>
 			</topic>
 			<topic id="ReadIni">

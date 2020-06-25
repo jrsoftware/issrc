@@ -38,7 +38,13 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
     <li><i>Fix:</i> Support function <tt>WizardSelectComponents</tt> now also updates component sizes and the current selection's required disk space.</li>
   </ul>
   </li>
-  <li>Inno Setup Preprocessor (ISPP) change: Added new <tt>PackVersionComponents</tt>, <tt>UnpackVersionComponents</tt>, and <tt>ParseVersionPacked</tt> support functions.</li>
+  <li>Inno Setup Preprocessor (ISPP) changes:
+  <ul>
+    <li>The <tt>int</tt> type is now a signed 64-bit integer type.</tt>
+    <li>Support function <tt>FileSize</tt> now supports 64-bit file sizes.</li>
+    <li>Added new <tt>PackVersionComponents</tt>, <tt>UnpackVersionComponents</tt>, and <tt>ParseVersionPacked</tt> support functions.</li>
+  </ul>
+  </li>
   <li>Some messages have been added in this version: (<a href="https://github.com/jrsoftware/issrc/commit/812a27664fbd767ad870c5c2456df9e4f43676d9#diff-cd0edf55eb9daa93e632d6d4d86a91d8">View differences in Default.isl</a>).
   <ul>
     <li>FileExistsSelectAction, FileExists2, FileExistsOverwriteExisting, FileExistsKeepExisting, FileExistsOverwriteOrKeepAll: If the FileExists2 message is set by a translation, Setup will instead use these messages instead of the FileExist message to show <a href="https://i.imgur.com/AnF6qo8.png">more user friendly prompts</a> to overwrite or keep existing files if the <tt>confirmoverwrite</tt> flag is set.</li>

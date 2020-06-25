@@ -1,6 +1,11 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
+
+  Inno Setup
+  Copyright (C) 1997-2010 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
 unit IsppBase;
@@ -19,7 +24,7 @@ type
     AsStr: string;
     AsCallContext: ICallContext;
     case TIsppVarType of
-      evInt: (AsInt: Longint);
+      evInt: (AsInt: Int64);
       evLValue: (AsPtr: PIsppVariant);
   end;
 
