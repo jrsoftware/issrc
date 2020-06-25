@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.0.3+ Dutch messages ***
+﻿; *** Inno Setup version 6.0.6+ Dutch messages ***
 ;
 ; This file is based on user-contributed translations by various authors
 ;
@@ -272,7 +272,12 @@ ExistingFileReadOnly2=Het bestaande bestand kon niet vervangen worden omdat het 
 ExistingFileReadOnlyRetry=&Verwijder de alleen-lezen markering en probeer het opnieuw
 ExistingFileReadOnlyKeepExisting=&Behoud het bestaande bestand
 ErrorReadingExistingDest=Er is een fout opgetreden bij het lezen van het bestaande bestand:
+FileExistsSelectAction=Selecteer actie
 FileExists=Het bestand bestaat al.%n%nWilt u dat Setup het overschrijft?
+FileExists2=Het bestand bestaat al.
+FileExistsOverwriteExisting=&Overschrijf het bestaande bestand
+FileExistsKeepExisting=&Behoud het bestaande bestand
+FileExistsOverwriteOrKeepAll=&Dit voor de volgende conflicten uitvoeren
 ExistingFileNewer=Het bestaande bestand is nieuwer dan het bestand dat Setup probeert te installeren. U wordt aanbevolen het bestaande bestand te behouden.%n%nWilt u het bestaande bestand behouden?
 ErrorChangingAttr=Er is een fout opgetreden bij het wijzigen van de kenmerken van het bestaande bestand:
 ErrorCreatingTemp=Er is een fout opgetreden bij het maken van een bestand in de doelmap:

@@ -2,7 +2,7 @@ unit MsgIDs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -106,7 +106,12 @@ type
     msgExitSetupTitle,
     msgFileAbortRetryIgnoreSkipNotRecommended,
     msgFileAbortRetryIgnoreIgnoreNotRecommended,
+    msgFileExistsSelectAction,
     msgFileExists,
+    msgFileExists2,
+    msgFileExistsOverwriteExisting,
+    msgFileExistsKeepExisting,
+    msgFileExistsOverwriteOrKeepAll,
     msgFileNotInDir2,
     msgFinishedHeadingLabel,
     msgFinishedLabel,

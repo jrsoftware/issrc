@@ -228,7 +228,8 @@ function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
-  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer): Integer;
+  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer;
+  const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
 procedure LogWindowsVersion;
 procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
@@ -2429,7 +2430,8 @@ end;
 
 function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
-  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer): Integer;
+  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer;
+  const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin
     LogSuppressedMessageBox(PChar(Text), Buttons, Default);
@@ -2437,10 +2439,12 @@ begin
   end else begin
     LogMessageBox(PChar(Text), Buttons);
     Result := TaskDialogMsgBox(Icon, Instruction, Text,
-      Caption, Typ, Buttons, ButtonLabels, ShieldButton);
-    if Result <> 0 then
-      LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
-    else
+      Caption, Typ, Buttons, ButtonLabels, ShieldButton, VerificationText, pfVerificationFlagChecked);
+    if Result <> 0 then begin
+      LogFmt('User chose %s.', [GetMessageBoxResultText(Result)]);
+      if pfVerificationFlagChecked <> nil then
+        LogFmt('User chose %s for the verification.', [SYesNo[pfVerificationFlagChecked^]]);
+    end else
       Log('TaskDialogMsgBox failed.');
   end;
 end;
