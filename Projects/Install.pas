@@ -898,12 +898,12 @@ var
   end;
 
   type
-    TOverwriteAll = (oaNone, oaOverwrite, oaKeep);
+    TYesOrNoToAll = (ynNone, ynYes, ynNo);
 
   procedure ProcessFileEntry(const CurFile: PSetupFileEntry;
     const DisableFsRedir: Boolean; ASourceFile, ADestName: String;
     const FileLocationFilenames: TStringList; const AExternalSize: Integer64;
-    var ConfirmOverwriteAll: TOverwriteAll);
+    var ConfirmOverwriteAll: TYesOrNoToAll);
 
     procedure InstallFont(const Filename, FontName: String;
       const AddToFontTableNow: Boolean);
@@ -1209,17 +1209,17 @@ var
                  ((ExistingVersionInfo.MS > CurFileVersionInfo.MS) or
                   ((ExistingVersionInfo.MS = CurFileVersionInfo.MS) and
                    (ExistingVersionInfo.LS > CurFileVersionInfo.LS))) then begin
-                if not(foPromptIfOlder in CurFile^.Options) or
-                   IsProtectedFile then begin
-                  Log('Existing file is a newer version. Skipping.');
-                  goto Skip;
-                end else begin
+                { Existing file is newer, ask user what to do unless we shouldn't }
+                if (foPromptIfOlder in CurFile^.Options) and not IsProtectedFile then begin
                   Overwrite := LoggedMsgBox(DestFile + SNewLine2 + SetupMessages[msgExistingFileNewer],
                       '', mbError, MB_YESNO, True, IDYES) = IDNO;
                   if not Overwrite then begin
                     Log('User opted not to overwrite the existing file. Skipping.');
                     goto Skip;
                   end;
+                end else begin
+                  Log('Existing file is a newer version. Skipping.');
+                  goto Skip;
                 end;
               end
               else begin
@@ -1291,18 +1291,17 @@ var
               goto Skip;
             end;
             if CompareFileTime(ExistingFileDate, CurFileDate) > 0 then begin
-              { Existing file has a later time stamp }
-              if not(foPromptIfOlder in CurFile^.Options) or
-                 IsProtectedFile then begin
-                Log('Existing file has a later time stamp. Skipping.');
-                goto Skip;
-              end else begin
+              { Existing file has a later time stamp, ask user what to do unless we shouldn't }
+              if (foPromptIfOlder in CurFile^.Options) and not IsProtectedFile then begin
                 Overwrite := LoggedMsgBox(DestFile + SNewLine2 + SetupMessages[msgExistingFileNewer],
                     '', mbError, MB_YESNO, True, IDYES) = IDNO;
                 if not Overwrite then begin
                   Log('User opted not to overwrite the existing file. Skipping.');
                   goto Skip;
                 end;
+              end else begin
+                Log('Existing file has a later time stamp. Skipping.');
+                goto Skip;
               end;
             end;
           end;
@@ -1320,8 +1319,8 @@ var
           { If file already exists and foConfirmOverwrite is in Options and the user didn't already
             say it's OK to overwrite all, ask the user if it's OK to overwrite unless the user
             already said to keep (=not overwrite) all }
-          if (foConfirmOverwrite in CurFile^.Options) and not(ConfirmOverwriteAll = oaOverwrite) then begin
-            if not(ConfirmOverwriteAll = oaKeep) then begin
+          if (foConfirmOverwrite in CurFile^.Options) and not(ConfirmOverwriteAll = ynYes) then begin
+            if not(ConfirmOverwriteAll = ynNo) then begin
               if SetupMessages[msgFileExists2] = '' then begin
                 Overwrite := LoggedMsgBox(DestFile + SNewLine2 + SetupMessages[msgFileExists], '',
                   mbConfirmation, MB_YESNO, True, IDNO) = IDYES;
@@ -1333,12 +1332,12 @@ var
                   0, True, IDNO, SetupMessages[msgFileExistsOverwriteOrKeepAll], @VerificationFlagChecked) = IDYES;
               if VerificationFlagChecked then begin
                 if Overwrite then
-                  ConfirmOverwriteAll := oaOverwrite
+                  ConfirmOverwriteAll := ynYes
                 else
-                  ConfirmOverwriteAll := oaKeep;
+                  ConfirmOverwriteAll := ynNo;
               end;
             end;
-            if (ConfirmOverwriteAll = oaKeep) or not Overwrite then begin
+            if (ConfirmOverwriteAll = ynNo) or not Overwrite then begin
               Log('User opted not to overwrite the existing file. Skipping.');
               goto Skip;
             end;
@@ -1717,7 +1716,7 @@ var
     function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
       const SearchBaseDir, SearchSubDir, SearchWildcard: String; const SourceIsWildcard: Boolean;
       const CurFile: PSetupFileEntry; const FileLocationFilenames: TStringList;
-      var ExpectedBytesLeft: Integer64; var ConfirmOverwriteAll: TOverwriteAll): Boolean;
+      var ExpectedBytesLeft: Integer64; var ConfirmOverwriteAll: TYesOrNoToAll): Boolean;
     var
       SearchFullPath, FileName, SourceFile, DestName: String;
       H: THandle;
@@ -1815,9 +1814,9 @@ var
     SourceWildcard: String;
     ProgressBefore, ExpectedBytesLeft: Integer64;
     DisableFsRedir, FoundFiles: Boolean;
-    ConfirmOverwriteAll: TOverwriteAll;
+    ConfirmOverwriteAll: TYesOrNoToAll;
   begin
-    ConfirmOverwriteAll := oaNone;
+    ConfirmOverwriteAll := ynNone;
 
     FileLocationFilenames := TStringList.Create;
     try
