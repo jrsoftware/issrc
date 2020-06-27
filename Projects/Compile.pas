@@ -7365,7 +7365,8 @@ procedure TSetupCompiler.ReadMessagesFromScript;
 
 const
   OptionalMessages: set of TSetupMessageID = [msgComponentsDiskSpaceGBLabel, msgDiskSpaceGBLabel, msgPrepareToInstallNeedsRestart,
-    msgFileExistsSelectAction, msgFileExists2, msgFileExistsOverwriteExisting, msgFileExistsKeepExisting, msgFileExistsOverwriteOrKeepAll];
+    msgFileExistsSelectAction, msgFileExists2, msgFileExistsOverwriteExisting, msgFileExistsKeepExisting, msgFileExistsOverwriteOrKeepAll,
+    msgExistingFileNewerSelectAction, msgExistingFileNewer2, msgExistingFileNewerOverwriteExisting, msgExistingFileNewerKeepExisting, msgExistingFileNewerOverwriteOrKeepAll];
 var
   I: Integer;
   LangData: TLangData;
