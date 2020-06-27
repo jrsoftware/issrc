@@ -5,7 +5,7 @@
 ;
 ; Setup script
 
-#include "donate.iss"
+#include "isdonateandmail.iss"
 
 [Setup]
 AppName=Inno Setup
