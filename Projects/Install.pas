@@ -1039,17 +1039,18 @@ var
     end;
 
     function AskOverwrite(const DestFile, Instruction, Caption, Caption2: string; const ButtonLabels: array of String;
-      const VerificationText: String; const Default, Overwrite: Integer; var OverwriteAll: TOverwriteAll): Boolean;
+      const VerificationText: String; const Typ: TMsgBoxType; const Default, Overwrite: Integer;
+      var OverwriteAll: TOverwriteAll): Boolean;
     var
       VerificationFlagChecked: BOOL;
     begin
       if OverwriteAll = oaKeep then
         Result := False { The user already said to keep (=not overwrite) all }
       else if (Caption2 = '') then
-        Result := LoggedMsgBox(DestFile + SNewLine2 + Caption, '', mbError, MB_YESNO, True, Default) = Overwrite
+        Result := LoggedMsgBox(DestFile + SNewLine2 + Caption, '', Typ, MB_YESNO, True, Default) = Overwrite
       else begin
         Result := LoggedTaskDialogMsgBox('', Instruction, DestFile + SNewLine2 + Caption2, '',
-          mbConfirmation, MB_YESNO, ButtonLabels, 0, True, Default, VerificationText, @VerificationFlagChecked) = Overwrite;
+          Typ, MB_YESNO, ButtonLabels, 0, True, Default, VerificationText, @VerificationFlagChecked) = Overwrite;
         if VerificationFlagChecked then begin
           if Result then
             OverwriteAll := oaOverwrite
@@ -1236,7 +1237,7 @@ var
                       SetupMessages[msgExistingFileNewer], SetupMessages[msgExistingFileNewer2],
                       [SetupMessages[msgExistingFileNewerKeepExisting], SetupMessages[msgExistingFileNewerOverwriteExisting]],
                       SetupMessages[msgExistingFileNewerOverwriteOrKeepAll],
-                      IDYES, IDNO, PromptIfOlderOverwriteAll);
+                     mbError, IDYES, IDNO, PromptIfOlderOverwriteAll);
                     if not Overwrite then begin
                       Log('User opted not to overwrite the existing file. Skipping.');
                       goto Skip;
@@ -1323,7 +1324,7 @@ var
                     SetupMessages[msgExistingFileNewer], SetupMessages[msgExistingFileNewer2],
                     [SetupMessages[msgExistingFileNewerKeepExisting], SetupMessages[msgExistingFileNewerOverwriteExisting]],
                     SetupMessages[msgExistingFileNewerOverwriteOrKeepAll],
-                    IDYES, IDNO, PromptIfOlderOverwriteAll);
+                    mbError, IDYES, IDNO, PromptIfOlderOverwriteAll);
                   if not Overwrite then begin
                     Log('User opted not to overwrite the existing file. Skipping.');
                     goto Skip;
@@ -1353,7 +1354,7 @@ var
                 SetupMessages[msgFileExists], SetupMessages[msgFileExists2],
                 [SetupMessages[msgFileExistsOverwriteExisting], SetupMessages[msgFileExistsKeepExisting]],
                 SetupMessages[msgFileExistsOverwriteOrKeepAll],
-                IDNO, IDYES, ConfirmOverwriteOverwriteAll);
+                mbConfirmation, IDNO, IDYES, ConfirmOverwriteOverwriteAll);
               if not Overwrite then begin
                 Log('User opted not to overwrite the existing file. Skipping.');
                 goto Skip;
