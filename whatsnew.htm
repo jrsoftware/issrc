@@ -45,9 +45,10 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
     <li>Added new <tt>PackVersionComponents</tt>, <tt>UnpackVersionComponents</tt>, and <tt>ParseVersionPacked</tt> support functions.</li>
   </ul>
   </li>
-  <li>Some messages have been added in this version: (<a href="https://github.com/jrsoftware/issrc/commit/812a27664fbd767ad870c5c2456df9e4f43676d9#diff-cd0edf55eb9daa93e632d6d4d86a91d8">View differences in Default.isl</a>).
+  <li>Some messages have been added in this version: (<a href="https://github.com/jrsoftware/issrc/commit/66df4cb6478ffe3bde4ff94f901089366b0358ec">View differences in Default.isl</a>).
   <ul>
     <li>FileExistsSelectAction, FileExists2, FileExistsOverwriteExisting, FileExistsKeepExisting, FileExistsOverwriteOrKeepAll: If the FileExists2 message is set by a translation, Setup will instead use these messages instead of the FileExist message to show <a href="https://i.imgur.com/AnF6qo8.png">more user friendly prompts</a> to overwrite or keep existing files if the <tt>confirmoverwrite</tt> flag is set.</li>
+    <li>ExistingFileNewerSelectAction, ExistingFileNewer2, ExistingFileNewerOverwriteExisting, ExistingFileNewerKeepExisting, ExistingFileNewerOverwriteOrKeepAll: If the ExistingFileNewer2 message is set by a translation, Setup will instead use these messages instead of the ExistingFileNewer message to show <a href="https://i.imgur.com/VBDuZ7U.png">more user friendly prompts</a> to keep or overwrite existing files if the <tt>promptifolder</tt> flag is set.</li>
   </ul>
   </li>
   <li>QuickStart Pack: Now registers the Inno Setup compiler path in the Inno Script Studio options so that it will find the Inno Setup compiler automatically. Required because Inno Script Studio doesn't officially support Inno Setup 6.</li> 
