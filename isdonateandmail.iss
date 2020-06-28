@@ -5,6 +5,11 @@
 Source: "isdonate.bmp"; Flags: dontcopy
 Source: "ismail.bmp"; Flags: dontcopy
 
+[CustomMessages]
+; No need to localize: The IS website is in English only
+IsDonateAndMailDonateHint=Support Inno Setup. Thank you!
+IsDonateAndMailMailHint=Be notified by e-mail of new Inno Setup releases
+
 [Code]
 procedure DonateImageOnClick(Sender: TObject);
 var
@@ -21,7 +26,7 @@ begin
 end;
 
 <event('InitializeWizard')>
-procedure DonateAndMailImagesInitializeWizard;
+procedure IsDonateAndMailInitializeWizard;
 var
   ImageFileName: String;
   DonateImage, MailImage: TBitmapImage;
@@ -33,6 +38,8 @@ begin
   DonateImage := TBitmapImage.Create(WizardForm);
   DonateImage.AutoSize := True;
   DonateImage.Bitmap.LoadFromFile(ImageFileName);
+  DonateImage.Hint := CustomMessage('IsDonateAndMailDonateHint');
+  DonateImage.ShowHint := True;
   DonateImage.Anchors := [akLeft, akBottom];
   BevelTop := WizardForm.Bevel.Top;
   DonateImage.Top := BevelTop + (WizardForm.ClientHeight - BevelTop - DonateImage.Bitmap.Height) div 2;
@@ -47,8 +54,9 @@ begin
   MailImage := TBitmapImage.Create(WizardForm);
   MailImage.AutoSize := True;
   MailImage.Bitmap.LoadFromFile(ImageFileName);
+  MailImage.Hint := CustomMessage('IsDonateAndMailMailHint');
+  MailImage.ShowHint := True;
   MailImage.Anchors := [akLeft, akBottom];
-  BevelTop := WizardForm.Bevel.Top;
   MailImage.Top := DonateImage.Top
   MailImage.Left := DonateImage.Left + DonateImage.Width + ScaleX(8);
   MailImage.Cursor := crHand;
