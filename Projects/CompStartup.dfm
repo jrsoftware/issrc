@@ -129,7 +129,7 @@ object StartupForm: TStartupForm
   end
   object StartupCheck: TCheckBox
     Left = 8
-    Top = 394
+    Top = 390
     Width = 379
     Height = 17
     TabStop = False
