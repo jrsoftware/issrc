@@ -461,6 +461,8 @@ function GenerateGuid: String;
 function ISPPInstalled: Boolean;
 function ISCryptInstalled: Boolean;
 procedure InitFormFont(Form: TForm);
+procedure OpenDonateSite;
+procedure OpenMailingListSite;
 
 implementation
 
@@ -2263,10 +2265,15 @@ begin
     nil, SW_SHOW);
 end;
 
-procedure TCompileForm.HMailingListClick(Sender: TObject);
+procedure OpenMailingListSite;
 begin
   ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/ismail.php', nil,
     nil, SW_SHOW);
+end;
+
+procedure TCompileForm.HMailingListClick(Sender: TObject);
+begin
+  OpenMailingListSite;
 end;
 
 procedure TCompileForm.HPSWebsiteClick(Sender: TObject);
@@ -2281,10 +2288,15 @@ begin
     HtmlHelp(GetDesktopWindow, PChar(GetHelpFile + '::/hh_isppredirect.xhtm'), HH_DISPLAY_TOPIC, 0);
 end;
 
-procedure TCompileForm.HDonateClick(Sender: TObject);
+procedure OpenDonateSite;
 begin
   ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/isdonate.php', nil,
     nil, SW_SHOW);
+end;
+
+procedure TCompileForm.HDonateClick(Sender: TObject);
+begin
+  OpenDonateSite;
 end;
 
 procedure TCompileForm.HAboutClick(Sender: TObject);

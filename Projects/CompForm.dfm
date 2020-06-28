@@ -602,6 +602,13 @@ object CompileForm: TCompileForm
     object HMenu: TMenuItem
       Caption = '&Help'
       OnClick = HMenuClick
+      object HDonate: TMenuItem
+        Caption = 'D&onate - Thank you!'
+        OnClick = HDonateClick
+      end
+      object N14: TMenuItem
+        Caption = '-'
+      end
       object HDoc: TMenuItem
         Caption = 'Inno Setup &Documentation'
         OnClick = HDocClick
@@ -641,13 +648,6 @@ object CompileForm: TCompileForm
         OnClick = HPSWebsiteClick
       end
       object N6: TMenuItem
-        Caption = '-'
-      end
-      object HDonate: TMenuItem
-        Caption = 'D&onate'
-        OnClick = HDonateClick
-      end
-      object N14: TMenuItem
         Caption = '-'
       end
       object HAbout: TMenuItem

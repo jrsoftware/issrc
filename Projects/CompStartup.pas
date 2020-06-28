@@ -33,6 +33,8 @@ type
     StartupCheck: TCheckBox;
     NewImage: TImage;
     OpenImage: TImage;
+    DonateImage: TImage;
+    MailingListImage: TImage;
     procedure RadioButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure DblClick_(Sender: TObject);
@@ -40,6 +42,8 @@ type
     procedure OKButtonClick(Sender: TObject);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
+    procedure DonateImageClick(Sender: TObject);
+    procedure MailingListImageClick(Sender: TObject);
   private
     FResult: TStartupFormResult;
     FResultFileName: TFileName;
@@ -143,6 +147,16 @@ end;
 procedure TStartupForm.OpenListBoxClick(Sender: TObject);
 begin
   OpenRadioButton.Checked := True;
+end;
+
+procedure TStartupForm.DonateImageClick(Sender: TObject);
+begin
+  OpenDonateSite;
+end;
+
+procedure TStartupForm.MailingListImageClick(Sender: TObject);
+begin
+  OpenMailingListSite;
 end;
 
 procedure TStartupForm.OKButtonClick(Sender: TObject);
