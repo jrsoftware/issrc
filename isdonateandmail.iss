@@ -7,7 +7,7 @@ Source: "ismail.bmp"; Flags: dontcopy
 
 [CustomMessages]
 ; No need to localize: The IS website is in English only
-IsDonateAndMailDonateHint=Support Inno Setup. Thank you!
+IsDonateAndMailDonateHint=Support Inno Setup - Thank you!
 IsDonateAndMailMailHint=Be notified by e-mail of new Inno Setup releases
 
 [Code]
