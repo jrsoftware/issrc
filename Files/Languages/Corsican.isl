@@ -1,7 +1,7 @@
-﻿; *** Inno Setup version 6.0.3+ Corsican messages ***
+; *** Inno Setup version 6.0.6+ Corsican messages ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -13,6 +13,7 @@
 ; E-mail: Patrick.Santa-Maria[at]LaPoste.Net
 ;
 ; Changes:
+; July 1st, 2020 - Update to version 6.0.6+
 ; October 6th, 2019 - Update to version 6.0.3+
 ; January 20th, 2019 - Update to version 6.0.0+
 ; April 9th, 2016 - Changes to current version 5.5.3+
@@ -304,8 +305,18 @@ ExistingFileReadOnly2=U schedariu esistente hà un attributu di lettura-sola è 
 ExistingFileReadOnlyRetry=&Caccià l’attributu di lettura-sola è pruvà torna
 ExistingFileReadOnlyKeepExisting=Cunservà u schedariu &esistente
 ErrorReadingExistingDest=Un sbagliu hè accadutu pruvendu di leghje u schedariu esistente :
+FileExistsSelectAction=Selezziunate un’azzione
 FileExists=U schedariu esiste dighjà.%n%nVulete chì l’assistente u rimpiazzi ?
+FileExists2=U schedariu esiste dighjà.
+FileExistsOverwriteExisting=&Rimpiazzà u schedariu chì esiste
+FileExistsKeepExisting=Cunservà u schedariu &esistente
+FileExistsOverwriteOrKeepAll=&Fà què per l’altri cunflitti
+ExistingFileNewerSelectAction=Selezziunate un’azzione
 ExistingFileNewer=U schedariu esistente hè più recente chì quellu chì l’assistente prova d’installà. Hè ricumandatu di cunservà u schedariu esistente.%n%nVulete cunservà u schedariu esistente ?
+ExistingFileNewer2=U schedariu esistente hè più recente chì quellu chì l’assistente prova d’installà.
+ExistingFileNewerOverwriteExisting=&Rimpiazzà u schedariu chì esiste
+ExistingFileNewerKeepExisting=Cunservà u schedariu &esistente (ricumandatu)
+ExistingFileNewerOverwriteOrKeepAll=&Fà què per l’altri cunflitti
 ErrorChangingAttr=Un sbagliu hè accadutu pruvendu di cambià l’attributi di u schedariu esistente :
 ErrorCreatingTemp=Un sbagliu hè accadutu pruvendu di creà un schedariu in u cartulare di destinazione :
 ErrorReadingSource=Un sbagliu hè accadutu pruvendu di leghje u schedariu d’urigine :
