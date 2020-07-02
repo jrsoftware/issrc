@@ -38,7 +38,8 @@ uses
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
   ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas',
-  ModernColors in '..\Components\ModernColors.pas';
+  ModernColors in '..\Components\ModernColors.pas',
+  MessageBoxInsert in 'MessageBoxInsert.pas' {MBDForm};
 
 {$R *.res}
 {$R Compil32.manifest.res}
