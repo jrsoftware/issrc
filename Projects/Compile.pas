@@ -2100,6 +2100,7 @@ begin
 
   Lines := TLowFragStringList.Create;
   try
+    Data.Compiler.AddStatus(Format(SCompilerStatusReadingInFile, [FileName]));
     F := TTextFileReader.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
       F.CodePage := Data.AnsiConvertCodePage;
