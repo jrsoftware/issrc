@@ -903,35 +903,48 @@ var
   procedure ProcessFileEntry(const CurFile: PSetupFileEntry;
     const DisableFsRedir: Boolean; ASourceFile, ADestName: String;
     const FileLocationFilenames: TStringList; const AExternalSize: Integer64;
-    var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll);
+    var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
+    var WarnedPerUserFonts: Boolean);
 
     procedure InstallFont(const Filename, FontName: String;
-      const AddToFontTableNow: Boolean);
+      const PerUserFont, AddToFontTableNow: Boolean; var WarnedPerUserFonts: Boolean);
     const
       FontsKeys: array[Boolean] of PChar =
         (NEWREGSTR_PATH_SETUP + '\Fonts',
          'Software\Microsoft\Windows NT\CurrentVersion\Fonts');
     var
-      K: HKEY;
+      RootKey, K: HKEY;
     begin
-      { 64-bit Windows note: The Fonts key is evidently exempt from registry
-        redirection. When a 32-bit app writes to the Fonts key, it's the main
-        64-bit key that is modified. (There is actually a Fonts key under
-        Wow6432Node but it appears it's never used or updated.)
-        Also: We don't bother with any FS redirection stuff here. I'm not sure
-        it's safe to disable FS redirection when calling AddFontResource, or
-        if it would even work. Users should be installing their fonts to the
-        Fonts directory instead of the System directory anyway. }
-      if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, FontsKeys[IsNT], 0,
-         KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
-        if RegSetValueEx(K, PChar(FontName), 0, REG_SZ, PChar(Filename),
-           (Length(Filename)+1)*SizeOf(Filename[1])) <> ERROR_SUCCESS then
-          Log('Failed to set value in Fonts registry key.');
-        RegCloseKey(K);
-      end
-      else
-        Log('Failed to open Fonts registry key.');
-
+      if PerUserFont and (WindowsVersion < Cardinal($0A0042EE)) then begin
+        { Per-user fonts require Windows 10 Version 1803 (10.0.17134) or newer. }
+        if not WarnedPerUserFonts then begin
+          Log('Failed to set value in Fonts registry key: per-user fonts are not supported by this version of Windows.');
+          WarnedPerUserFonts := True;
+        end;
+      end else begin
+        { 64-bit Windows note: The Fonts key is evidently exempt from registry
+          redirection. When a 32-bit app writes to the Fonts key, it's the main
+          64-bit key that is modified. (There is actually a Fonts key under
+          Wow6432Node but it appears it's never used or updated.)
+          Also: We don't bother with any FS redirection stuff here. I'm not sure
+          it's safe to disable FS redirection when calling AddFontResource, or
+          if it would even work. Users should be installing their fonts to the
+          Fonts directory instead of the System directory anyway. }
+        if PerUserFont then
+          RootKey := HKEY_CURRENT_USER
+        else
+          RootKey := HKEY_LOCAL_MACHINE;
+        if RegOpenKeyExView(rvDefault, RootKey, FontsKeys[IsNT], 0,
+           KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
+          if RegSetValueEx(K, PChar(FontName), 0, REG_SZ, PChar(Filename),
+             (Length(Filename)+1)*SizeOf(Filename[1])) <> ERROR_SUCCESS then
+            Log('Failed to set value in Fonts registry key.');
+          RegCloseKey(K);
+        end
+        else
+          Log('Failed to open Fonts registry key.');
+      end;
+      
       if AddToFontTableNow then begin
         repeat
           { Note: AddFontResource doesn't set the thread's last error code }
@@ -1083,7 +1096,7 @@ var
     LastError: DWORD;
     DestF, SourceF: TFile;
     Flags: TMakeDirFlags;
-    Overwrite: Boolean;
+    Overwrite, PerUserFont: Boolean;
   label Retry, Skip;
   begin
     Log('-- File entry --');
@@ -1578,8 +1591,11 @@ var
         if CurFile^.InstallFontName <> '' then begin
           LastOperation := '';
           LogFmt('Registering file as a font ("%s")', [CurFile^.InstallFontName]);
-          InstallFont(FontFilename, CurFile^.InstallFontName, not ReplaceOnRestart);
+          PerUserFont := not IsAdminInstallMode;
+          InstallFont(FontFilename, CurFile^.InstallFontName, PerUserFont, not ReplaceOnRestart, WarnedPerUserFonts);
           DeleteFlags := DeleteFlags or utDeleteFile_IsFont;
+          if PerUserFont then
+            DeleteFlags := DeleteFlags or utDeleteFile_PerUserFont;
         end;
 
         { There were no errors so add the uninstall log entry, unless the file
@@ -1735,7 +1751,8 @@ var
     function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
       const SearchBaseDir, SearchSubDir, SearchWildcard: String; const SourceIsWildcard: Boolean;
       const CurFile: PSetupFileEntry; const FileLocationFilenames: TStringList;
-      var ExpectedBytesLeft: Integer64; var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll): Boolean;
+      var ExpectedBytesLeft: Integer64; var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
+      var WarnedPerUserFonts: Boolean): Boolean;
     var
       SearchFullPath, FileName, SourceFile, DestName: String;
       H: THandle;
@@ -1775,7 +1792,8 @@ var
                 Size := ExpectedBytesLeft;
               end;
               ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestName,
-                FileLocationFilenames, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll);
+                FileLocationFilenames, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                WarnedPerUserFonts);
               Dec6464(ExpectedBytesLeft, Size);
             end;
           until not FindNextFile(H, FindData);
@@ -1793,7 +1811,8 @@ var
                 Result := RecurseExternalCopyFiles(DisableFsRedir, SearchBaseDir,
                   SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                   SourceIsWildcard, CurFile, FileLocationFileNames,
-                  ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll) or Result;
+                  ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                  WarnedPerUserFonts) or Result;
             until not FindNextFile(H, FindData);
           finally
             Windows.FindClose(H);
@@ -1834,9 +1853,11 @@ var
     ProgressBefore, ExpectedBytesLeft: Integer64;
     DisableFsRedir, FoundFiles: Boolean;
     ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
+    WarnedPerUserFonts: Boolean;
   begin
     ConfirmOverwriteOverwriteAll := oaUnknown;
     PromptIfOlderOverwriteAll := oaUnknown;
+    WarnedPerUserFonts := False;
 
     FileLocationFilenames := TStringList.Create;
     try
@@ -1862,7 +1883,7 @@ var
             ExternalSize.Hi := 0;  { not used... }
             ExternalSize.Lo := 0;
             ProcessFileEntry(CurFile, DisableFsRedir, '', '', FileLocationFilenames, ExternalSize,
-              ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll);
+              ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll, WarnedPerUserFonts);
           end
           else begin
             { File is an 'external' file }
@@ -1880,7 +1901,8 @@ var
               FoundFiles := RecurseExternalCopyFiles(DisableFsRedir,
                 PathExtractPath(SourceWildcard), '', PathExtractName(SourceWildcard),
                 IsWildcard(SourceWildcard), CurFile, FileLocationFileNames,
-                ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll);
+                ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                WarnedPerUserFonts);
             until FoundFiles or
                   (foSkipIfSourceDoesntExist in CurFile^.Options) or
                   AbortRetryIgnoreTaskDialogMsgBox(

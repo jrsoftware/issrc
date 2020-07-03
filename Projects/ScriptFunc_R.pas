@@ -907,7 +907,7 @@ begin
       Stack.SetBool(PStart, False);
     end;
   end else if Proc.Name = 'UNREGISTERFONT' then begin
-    UnregisterFont(Stack.GetString(PStart), Stack.GetString(PStart-1));
+    UnregisterFont(Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
   end else if Proc.Name = 'RESTARTREPLACE' then begin
     RestartReplace(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1));
   end else if Proc.Name = 'FORCEDIRECTORIES' then begin

@@ -1892,7 +1892,7 @@ end;</pre>
       </function>
       <function>
         <name>UnregisterFont</name>
-        <prototype>procedure UnregisterFont(const FontName, FontFilename: String);</prototype>
+        <prototype>procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);</prototype>
         <description><p>Unregisters the font with the specified face and filename.</p></description>
       </function>
       <function>
