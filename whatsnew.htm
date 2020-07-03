@@ -29,6 +29,17 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 <p><b>Want to be notified by e-mail of updates?</b> Then <a href="https://jrsoftware.org/ismail.php">click here to subscribe</a> to the Inno Setup announcements mailing list.<br /><b>If you subscribed before October 2019, please resubscribe.</b></p>
 
 <p><a name="6.0.6"></a><span class="ver">6.0.6-dev </span><span class="date">(?)</span></p>
+<p><span class="head2">Per-user fonts</span></p>
+<p>Per-user fonts are now supported if Setup is running on Windows 10 Version 1803 and later:</p>
+<ul>
+  <li>[Files] section parameter <tt>FontInstall</tt> can now be used in <a href="https://jrsoftware.org/ishelp/index.php?topic=admininstallmode">non administrative installs</a>. Requires Windows 10 Version 1803 or later to successfully install a font.</li>
+  <li>The <tt>{fonts}</tt> constant has been renamed to <tt>{commonfonts}</tt>.  The old name is still supported, but it is recommended to update your scripts to the new names and the compiler will issue a warning if you don't.</tt>
+  <li>Added new <tt>{userfonts}</tt> constant. Only Windows 10 Version 1803 and later supports <tt>{userfonts}</tt>. Same directory as <tt>{localappdata}\Microsoft\Windows\Fonts</tt>.</li>
+  <li>Added new <tt>{autofonts}</tt> constant which automatically maps to <tt>{commonfonts}</tt> unless the installation is running in non administrative install mode, in which case it maps to <tt>{userfonts}</tt>. It is recommended to update your scripts to use <tt>{autofonts}</tt> as much as possible to avoid mistakes.</li>
+  <li>Updated all examples to use <tt>{autofonts}</tt> instead of <tt>{fonts}</tt>.</li>
+  <li>Pascal Scripting change: The <tt>UnregisterFont</tt> support function now has an extra parameter.</li>
+</ul>
+<p><span class="head2">Other changes</span></p>
 <ul>
   <li>Added new [Run] and [UninstallRun] sections flag: <tt>dontlogparameters</tt>. If this flag is specified, the command line parameters for the program will not be included in the log file.</li>
   <li>Compiler IDE change: <a href="https://i.imgur.com/wHoJ3FG.png">Improved highlighting</a> for the [CustomMessages] and [Messages] sections.</li>
@@ -51,7 +62,6 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
     <li>ExistingFileNewerSelectAction, ExistingFileNewer2, ExistingFileNewerOverwriteExisting, ExistingFileNewerKeepExisting, ExistingFileNewerOverwriteOrKeepAll: If the ExistingFileNewer2 message is set by a translation, Setup will instead use these messages instead of the ExistingFileNewer message to show <a href="https://i.imgur.com/VBDuZ7U.png">more user friendly prompts</a> to keep or overwrite existing files if the <tt>promptifolder</tt> flag is set.</li>
   </ul>
   </li>
-  <li>QuickStart Pack: Now registers the Inno Setup compiler path in the Inno Script Studio options so that it will find the Inno Setup compiler automatically. Required because Inno Script Studio doesn't officially support Inno Setup 6.</li> 
   <li>Minor tweaks.</li>
 </ul>
 

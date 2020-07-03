@@ -83,6 +83,7 @@ const
   utDeleteFile_SharedFileIn64BitKey = 1024;
   utDeleteFile_DisableFsRedir = 2048;  { also determines whether file was registered as 64-bit }
   utDeleteFile_GacInstalled = 4096;
+  utDeleteFile_PerUserFont = 8192;
   utDeleteDirOrFiles_Extra = 1;
   utDeleteDirOrFiles_IsDir = 2;
   utDeleteDirOrFiles_DeleteFiles = 4;
@@ -931,7 +932,7 @@ begin
               end;
               if CurRec^.ExtraData and utDeleteFile_IsFont <> 0 then begin
                 LogFmt('Unregistering font: %s', [CurRecData[2]]);
-                UnregisterFont(CurRecData[2], CurRecData[3]);
+                UnregisterFont(CurRecData[2], CurRecData[3], CurRec^.ExtraData and utDeleteFile_PerUserFont <> 0);
               end;
               if CurRec^.ExtraData and utDeleteFile_GacInstalled <> 0 then
                 DoUninstallAssembly(CurRecData[4]);

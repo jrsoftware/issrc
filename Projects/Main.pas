@@ -1021,10 +1021,10 @@ function ExpandIndividualConst(Cnst: String;
 const
   FolderConsts: array[Boolean, TShellFolderID] of String =
     (('userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
-      'usersendto', 'fonts', 'userappdata', 'userdocs', 'usertemplates',
+      'usersendto', 'commonfonts', 'userappdata', 'userdocs', 'usertemplates',
       'userfavorites', 'localappdata'),
      ('commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
-      'usersendto', 'fonts', 'commonappdata', 'commondocs', 'commontemplates',
+      'usersendto', 'commonfonts', 'commonappdata', 'commondocs', 'commontemplates',
       'commonfavorites' { not accepted anymore by the compiler }, 'localappdata'));
   NoUninstallConsts: array[0..6] of String =
     ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'hwnd',
@@ -1116,6 +1116,7 @@ begin
       InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
   else if Cnst = 'usersavedgames' then Result := SavedGamesUserDir
+  else if Cnst = 'userfonts' then Result := ExpandConst('{localappdata}\Microsoft\Windows\Fonts') { supported by Windows 10 Version 1803 and newer. doesn't have a KNOWNFOLDERID. }
   else if Cnst = 'dao' then Result := ExpandConst('{cf}\Microsoft Shared\DAO')
   else if Cnst = 'cmd' then Result := CmdFilename
   else if Cnst = 'computername' then Result := GetComputerNameString

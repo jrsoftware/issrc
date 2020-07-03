@@ -7,16 +7,12 @@ unit CompFileAssoc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Functions for registering/unregistering the .iss file association
-
-  Also a function register the compiler path to Inno Script Studio
 }
 
 interface
 
 function RegisterISSFileAssociation(const AllowInteractive: Boolean; var AllUsers: Boolean): Boolean;
 procedure UnregisterISSFileAssociation;
-
-procedure RegisterISPathToISStudio;
 
 implementation
 
@@ -185,33 +181,6 @@ end;
 procedure UnregisterISSFileAssociation;
 begin
   UnregisterISSFileAssociationDo(GetRootkey, True);
-end;
-
-procedure RegisterISPathToISStudio;
-
-  procedure TrySetKeyValue(const Rootkey: HKEY; const Subkey, ValueName: PChar; const Data: String);
-  var
-    K: HKEY;
-    Disp: DWORD;
-  begin
-    if RegCreateKeyExView(rvDefault, Rootkey, Subkey, 0, nil, 0, KEY_SET_VALUE,
-      nil, K, @Disp) = ERROR_SUCCESS then
-    try
-      RegSetValueEx(K, ValueName, 0, REG_SZ, PChar(Data), (Length(Data)+1)*SizeOf(Data[1]));
-    finally
-      RegCloseKey(K);
-    end;
-  end;
-
-var
-  SelfName: String;
-  Rootkey: HKEY;
-begin
-  Rootkey := HKEY_CURRENT_USER;
-
-  SelfName := NewParamStr(0);
-
-  TrySetKeyValue(Rootkey, 'Software\Kymoto Solutions\Inno Script Studio 2\Options\Compiler', 'InnoCompilerPath', PathExtractDir(SelfName));
 end;
 
 end.

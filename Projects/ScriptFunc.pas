@@ -163,7 +163,7 @@ const
     'function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;',
     'procedure RegisterServer(const Is64Bit: Boolean; const Filename: String; const FailCriticalErrors: Boolean);',
     'function UnregisterServer(const Is64Bit: Boolean; const Filename: String; const FailCriticalErrors: Boolean): Boolean;',
-    'procedure UnregisterFont(const FontName, FontFilename: String);',
+    'procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);',
     //procedure RestartComputer;
     'procedure RestartReplace(const TempFile, DestFile: String);',
     //procedure Win32ErrorMsg(const FunctionName: String);

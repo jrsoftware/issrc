@@ -1,11 +1,12 @@
+; -- Setup.iss --
+; Inno Setup's own Setup script
+
 ; Inno Setup
 ; Copyright (C) 1997-2020 Jordan Russell. All rights reserved.
 ; Portions Copyright (C) 2000-2020 Martijn Laan. All rights reserved.
 ; For conditions of distribution and use, see LICENSE.TXT.
-;
-; Setup script
 
-#include "donate.iss"
+#include "isdonateandmail.iss"
 
 [Setup]
 AppName=Inno Setup
