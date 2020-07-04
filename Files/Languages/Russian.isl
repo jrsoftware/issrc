@@ -89,7 +89,7 @@ ButtonNewFolder=&Создать папку
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Выберите язык установки
-SelectLanguageLabel=Выберите язык, который будет использован в  процессе установки.
+SelectLanguageLabel=Выберите язык, который будет использован в процессе установки.
 
 ; *** Common wizard text
 ClickNext=Нажмите «Далее», чтобы продолжить, или «Отмена», чтобы выйти из программы установки.

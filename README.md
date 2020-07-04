@@ -140,7 +140,7 @@ performs all (un)installation-related tasks.
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." and /HELP message boxes.
 
-**ISPP\ISPP** - This is a DLL implementing Inno Setup's preprocessor interface
+**ISPP\ISPP** - This is a DLL implementing Inno Setup's preprocessor interface.
 
 How do the projects link together?
 
@@ -179,7 +179,7 @@ Source code tips
   data block in SETUP.EXE so it knows it's in "single EXE" form.
 
 - For compiler debugging purposes define ``STATICCOMPILER`` in CompForm.pas
-  and ``STATICPREPROC`` in Compile.pas.
+  and for preprocessor debugging also ``STATICPREPROC`` in Compile.pas.
 
 - To debug the uninstaller first run Setup.exe to completion with the
   ``/DETACHEDMSG`` command line parameter set. Afterwards copy uninst000.dat and
@@ -193,7 +193,7 @@ Source code tips
 Precompiled executables and libraries
 -------------------------------------
 
-The source code contains several precompiled executables and libraries:
+The source code contains several precompiled and signed executables and libraries:
 
 **Files\isbunzip.dll**, **Files\isbzip.dll** - Compiled by Visual Studio 2005
 from the bzlib directory in the Iscompress repository.
