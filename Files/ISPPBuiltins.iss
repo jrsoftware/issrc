@@ -61,8 +61,8 @@
 #define Yes                True
 #define No								 False
 //
-#define MaxInt             0x7FFFFFFFL
-#define MinInt             0x80000000L
+#define MaxInt             0x7FFFFFFFFFFFFFFFL
+#define MinInt             0x8000000000000000L
 //
 #define NULL
 #define void
