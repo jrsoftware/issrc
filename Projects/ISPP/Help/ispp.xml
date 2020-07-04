@@ -632,7 +632,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre>
 						<line>#pragma parseroption -b- -u+</line>
 						<line>#pragma option -c-</line>
-						<line>#pragma warning "Variable value is: " + MyVar</line>
+						<line>#pragma warning "Variable value is: " + Str(MyVar)</line>
 						<line>#pragma option -v+</line>
 						<line>#pragma verboselevel 9</line>
 						<line>#pragma inlinestart "$("</line>
