@@ -1012,12 +1012,12 @@ end;</pre></example>
       <function>
         <name>StrToInt64Def</name>
         <prototype>function StrToInt64Def(s: string; def: Int64): Int64;</prototype>
-        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt returns the 64-bit number passed in Def.</p><p>Requires Unicode Inno Setup.</p></description>
+        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt returns the 64-bit number passed in Def.</p></description>
       </function>
       <function>
         <name>StrToInt64</name>
         <prototype>function StrToInt64(s: string): Int64;</prototype>
-        <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number.</p><p>Requires Unicode Inno Setup.</p></description>
+        <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number.</p></description>
         <remarks><p>Use of <link topic="isxfunc_StrToInt64Def">StrToInt64Def</link> instead of StrToInt64 is recommended.</p></remarks>
       </function>
       <function>
@@ -1028,12 +1028,12 @@ end;</pre></example>
       <function>
         <name>IntToStr</name>
         <prototype>function IntToStr(i: Int64): String;</prototype>
-        <description><p>The IntToStr function converts an 32-bit or 64-bit number into a string.</p><p>64-bit numbers require Unicode Inno Setup.</p></description>
+        <description><p>The IntToStr function converts a 64-bit number into a string.</p></description>
       </function>
       <function>
         <name>FloatToStr</name>
         <prototype>function FloatToStr(e: extended): String;</prototype>
-        <description><p>The FloatToStr function converts a floating point number into a string.</p><p>Unicode Inno Setup: the character used for the decimal point will always be a dot. Non-Unicode Inno Setup: the character used for the decimal point is locale-dependant.</p></description>
+        <description><p>The FloatToStr function converts a floating point number into a string.</p><p>The character used for the decimal point will always be a dot.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -1307,14 +1307,13 @@ end;
       <function>
         <name>VarIsEmpty</name>
         <prototype>function VarIsEmpty(const V: Variant): Boolean;</prototype>
-        <description><p>Non Unicode Inno Setup: Returns True if the specified variant's value is undefined. Unicode Inno Setup: Returns True if the specified variant is unassigned.</p></description>
+        <description><p>Returns True if the specified variant is unassigned.</p></description>
         <seealso><p><link topic="isxfunc_VarIsClear">VarIsClear</link></p></seealso>
       </function>
       <function>
         <name>VarIsClear</name>
         <prototype>function VarIsClear(const V: Variant): Boolean;</prototype>
         <description><p>Returns True if the specified variant's value is undefined.</p></description>
-        <remarks><p>Requires Unicode Inno Setup.</p></remarks>
         <seealso><p><link topic="isxfunc_VarIsEmpty">VarIsEmpty</link></p></seealso>
       </function>
       <function>
@@ -1408,7 +1407,6 @@ end;</pre></example>
         <name>GetSpaceOnDisk64</name>
         <prototype>function GetSpaceOnDisk64(const Path: String; var Free, Total: Int64): Boolean;</prototype>
         <description><p>Returns the number of free and total bytes on a drive. Path specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. Returns True if successful, False otherwise.</p></description>
-        <remarks><p>Requires Unicode Inno Setup.</p></remarks>
         <example><pre>var
   Path: String;
   FreeBytes, TotalBytes: Int64;
