@@ -1116,6 +1116,7 @@ function SystemProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TP
 var
   PStart: Cardinal;
   F: TFile;
+  FileSize: Integer64;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -1134,6 +1135,21 @@ begin
     except
       Stack.SetBool(PStart, False);
     end;
+{$IFNDEF PS_NOINT64}
+  end else if Proc.Name = 'FILESIZE64' then begin
+    try
+      F := TFileRedir.Create(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
+      try
+        FileSize := F.Size;
+        Stack.SetInt64(PStart-2, Int64(FileSize.Hi) shl 32 + FileSize.Lo);
+        Stack.SetBool(PStart, True);
+      finally
+        F.Free;
+      end;
+    except
+      Stack.SetBool(PStart, False);
+    end;
+{$ENDIF}
   end else if Proc.Name = 'SET8087CW' then begin
     Set8087CW(Stack.GetInt(PStart));
   end else if Proc.Name = 'GET8087CW' then begin

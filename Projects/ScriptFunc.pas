@@ -224,10 +224,17 @@ const
   );
 
   { System }
+{$IFNDEF PS_NOINT64}
+  SystemTable: array [0..4] of AnsiString =
+{$ELSE}
   SystemTable: array [0..3] of AnsiString =
+{$ENDIF}
   (
     'function Random(const Range: Integer): Integer;',
     'function FileSize(const Name: String; var Size: Integer): Boolean;',
+{$IFNDEF PS_NOINT64}
+    'function FileSize64(const Name: String; var Size: Int64): Boolean;',
+{$ENDIF}
     'procedure Set8087CW(NewCW: Word);',
     'function Get8087CW: Word;'
   );

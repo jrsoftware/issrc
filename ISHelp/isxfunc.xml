@@ -1375,7 +1375,12 @@ const
       <function>
         <name>FileSize</name>
         <prototype>function FileSize(const Name: String; var Size: Integer): Boolean;</prototype>
-        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise. Only supports file sizes smaller than 2 GB. To get all 64 bits of the file size, use <link topic="isxfunc_FindFirst">FindFirst</link>/<link topic="isxfunc_FindClose">FindClose</link> instead.</p></description>
+        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise. Only supports file sizes smaller than 2 GB. To get all 64 bits of the file size, use <link topic="isxfunc_FileSize64">FileSize64</link> instead.</p></description>
+      </function>
+      <function>
+        <name>FileSize64</name>
+        <prototype>function FileSize64(const Name: String; var Size: Int64): Boolean;</prototype>
+        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise.</p></description>
       </function>
       <function>
         <name>GetSpaceOnDisk</name>
