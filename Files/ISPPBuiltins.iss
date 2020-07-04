@@ -227,7 +227,7 @@
 // each element, i.e. elements must be within 0...255 range).
 //
 #define EncodeVer(int Major, int Minor, int Revision = 0, int Build = -1) \
-  Major << 24 | (Minor & 0xFF) << 16 | (Revision & 0xFF) << 8 | (Build >= 0 ? Build & 0xFF : 0)
+  (Major & 0xFF) << 24 | (Minor & 0xFF) << 16 | (Revision & 0xFF) << 8 | (Build >= 0 ? Build & 0xFF : 0)
 //
 // DecodeVer
 //
@@ -236,11 +236,11 @@
 // is 0, it won't be shown anyway).
 //
 #define DecodeVer(int Ver, int Digits = 3) \
-  Str(Ver >> 0x18 & 0xFF) + (Digits > 1 ? "." : "") + \
+  Str(Ver >> 24 & 0xFF) + (Digits > 1 ? "." : "") + \
   (Digits > 1 ? \
-    Str(Ver >> 0x10 & 0xFF) + (Digits > 2 ? "." : "") : "") + \
+    Str(Ver >> 16 & 0xFF) + (Digits > 2 ? "." : "") : "") + \
   (Digits > 2 ? \
-    Str(Ver >> 0x08 & 0xFF) + (Digits > 3 && (Local = Ver & 0xFF) ? "." : "") : "") + \
+    Str(Ver >> 8 & 0xFF) + (Digits > 3 && (Local = Ver & 0xFF) ? "." : "") : "") + \
   (Digits > 3 && Local ? \
     Str(Ver & 0xFF) : "")
 //
