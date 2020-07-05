@@ -3530,6 +3530,47 @@ begin
 end;
 
 function DownloadTemporaryFile(const Url, BaseName: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+
+  function URLDownloadToFileResultToString(H: HResult): String;
+  begin
+    case H of
+      E_OUTOFMEMORY: Result := 'E_OUTOFMEMORY';
+      INET_E_DOWNLOAD_FAILURE: Result := 'INET_E_DOWNLOAD_FAILURE';
+      { The following are not documented as possible return values but it for example returns
+        INET_E_OBJECT_NOT_FOUND on a 404 Not Found and INET_E_INVALID_CERTIFICATE on a self-signed
+        certificate. }
+      INET_E_INVALID_URL: Result := 'INET_E_INVALID_URL';
+      INET_E_NO_SESSION: Result := 'INET_E_NO_SESSION';
+      INET_E_CANNOT_CONNECT: Result := 'INET_E_CANNOT_CONNECT';
+      INET_E_RESOURCE_NOT_FOUND: Result := 'INET_E_RESOURCE_NOT_FOUND';
+      INET_E_OBJECT_NOT_FOUND: Result := 'INET_E_OBJECT_NOT_FOUND';
+      INET_E_DATA_NOT_AVAILABLE: Result := 'INET_E_DATA_NOT_AVAILABLE';
+      INET_E_AUTHENTICATION_REQUIRED: Result := 'INET_E_AUTHENTICATION_REQUIRED';
+      INET_E_NO_VALID_MEDIA: Result := 'INET_E_NO_VALID_MEDIA';
+      INET_E_CONNECTION_TIMEOUT: Result := 'INET_E_CONNECTION_TIMEOUT';
+      INET_E_INVALID_REQUEST: Result := 'INET_E_INVALID_REQUEST';
+      INET_E_UNKNOWN_PROTOCOL: Result := 'INET_E_UNKNOWN_PROTOCOL';
+      INET_E_SECURITY_PROBLEM: Result := 'INET_E_SECURITY_PROBLEM';
+      INET_E_CANNOT_LOAD_DATA: Result := 'INET_E_CANNOT_LOAD_DATA';
+      INET_E_CANNOT_INSTANTIATE_OBJECT: Result := 'INET_E_CANNOT_INSTANTIATE_OBJECT';
+      INET_E_INVALID_CERTIFICATE: Result := 'INET_E_INVALID_CERTIFICATE';
+      INET_E_REDIRECT_FAILED: Result := 'INET_E_REDIRECT_FAILED';
+      INET_E_REDIRECT_TO_DIR: Result := 'INET_E_REDIRECT_TO_DIR';
+      INET_E_CANNOT_LOCK_REQUEST: Result := 'INET_E_CANNOT_LOCK_REQUEST';
+      INET_E_USE_EXTEND_BINDING: Result := 'INET_E_USE_EXTEND_BINDING';
+      INET_E_TERMINATED_BIND: Result := 'INET_E_TERMINATED_BIND';
+      INET_E_BLOCKED_REDIRECT_XSECURITYID: Result := 'INET_E_BLOCKED_REDIRECT_XSECURITYID';
+      INET_E_CODE_DOWNLOAD_DECLINED: Result := 'INET_E_CODE_DOWNLOAD_DECLINED';
+      INET_E_RESULT_DISPATCHED: Result := 'INET_E_RESULT_DISPATCHED';
+      INET_E_CANNOT_REPLACE_SFP_FILE: Result := 'INET_E_CANNOT_REPLACE_SFP_FILE';
+      INET_E_CODE_INSTALL_SUPPRESSED: Result := 'INET_E_CODE_INSTALL_SUPPRESSED';
+      INET_E_CODE_INSTALL_BLOCKED_BY_HASH_POLICY: Result := 'INET_E_CODE_INSTALL_BLOCKED_BY_HASH_POLICY';
+      INET_E_DOWNLOAD_BLOCKED_BY_INPRIVATE: Result := 'INET_E_DOWNLOAD_BLOCKED_BY_INPRIVATE';
+    else
+      Result := '0x' + IntToHex(H);
+    end;
+  end;
+
 var
   DisableFsRedir: Boolean;
   DestFile: String;
@@ -3564,7 +3605,7 @@ begin
 
   { Sanity check everything }
   if Res <> S_OK then begin
-    LogFmt('Download failed: URLDownloadToFile returned error %d', [Res]);
+    LogFmt('Download failed: URLDownloadToFile returned error %s', [URLDownloadToFileResultToString(Res)]);
     Result := -1;
   end else if BasicBindStatusCallback.Progress <> BasicBindStatusCallback.ProgressMax then begin
     LogFmt('Download failed: URLDownloadToFile returned invalid progress: %d of %d', [BasicBindStatusCallback.Progress, BasicBindStatusCallback.ProgressMax]);
