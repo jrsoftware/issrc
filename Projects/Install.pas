@@ -3573,6 +3573,7 @@ function DownloadTemporaryFile(const Url, BaseName: String; const OnDownloadProg
 
 var
   DisableFsRedir: Boolean;
+  PrevState: TPreviousFsRedirectionState;
   DestFile: String;
   BasicBindStatusCallback: TBasicBindStatusCallback;
   Res: HResult;
@@ -3601,7 +3602,15 @@ begin
   BasicBindStatusCallback.BaseName := BaseName;
   BasicBindStatusCallback.OnDownloadProgress := OnDownloadProgress;
 
-  Res := URLDownloadToFile(nil, PChar(Url), PChar(DestFile), 0, BasicBindStatusCallback);
+  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
+    Result := -1;
+    Exit;
+  end;
+  try
+    Res := URLDownloadToFile(nil, PChar(Url), PChar(DestFile), 0, BasicBindStatusCallback);
+  finally
+    RestoreFsRedirection(PrevState);
+  end;
 
   { Sanity check everything }
   if Res <> S_OK then begin
@@ -3612,7 +3621,7 @@ begin
     Result := -1;
   end else begin
     try
-      F := TFileRedir.Create(ScriptFuncDisableFsRedir, DestFile, fdOpenExisting, faRead, fsReadWrite);
+      F := TFileRedir.Create(DisableFsRedir, DestFile, fdOpenExisting, faRead, fsReadWrite);
       try
         FileSize := Int64(F.Size.Hi) shl 32 + F.Size.Lo;
         if BasicBindStatusCallback.ProgressMax <> FileSize then begin
