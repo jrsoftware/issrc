@@ -1658,7 +1658,8 @@ end;</pre></example>
         <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
 <p>Use <tt>Flags: noencryption</tt> in the [Files] section if encryption is enabled and you call the ExtractTemporaryFile function prior to the user entering the correct password.</p>
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
-        <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link></p></seealso>
+        <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link><br />
+<link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link></p></seealso>
         <example><pre>[Files]
 Source: "Readme.txt"; Flags: dontcopy noencryption
 
@@ -1710,6 +1711,29 @@ begin
     SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
 
   Result := True;
+end;</pre></example>
+      </function>
+      <function>
+        <name>DownloadTemporaryFile</name>
+        <prototype>function DownloadTemporaryFile(const Url, FileName: String; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
+        <description><p>Downloads the file from the specified URL to a temporary directory using the specified name. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+<p>Returns the number of bytes downloaded if successful, -1 otherwise.</p>
+<p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
+        <remarks><p>TOnDownloadProgress is defined as:</p>
+<p><tt>TOnDownloadProgress = function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;;</tt></p>
+<p>Return True to allow the download to continue, False otherwise.</p></remarks>
+        <seealso><p><link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+        <example><pre>
+[Code]
+function OnDownloadProgress(const Url, Filename: string; const Progress, ProgressMax: Int64): Boolean;
+begin
+  Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]));
+  Result := True;
+end;
+
+function InitializeSetup: Boolean;
+begin
+  Result := DownloadTemporaryFile('https://jrsoftware.org/download.php/is.exe', 'is.exe', @OnDownloadProgress) > 0;
 end;</pre></example>
       </function>
     </subcategory>
