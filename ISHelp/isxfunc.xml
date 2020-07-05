@@ -1717,6 +1717,7 @@ end;</pre></example>
         <name>DownloadTemporaryFile</name>
         <prototype>function DownloadTemporaryFile(const Url, FileName: String; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
         <description><p>Downloads the file from the specified URL to a temporary directory using the specified name. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+<p>Supports HTTPS (but not self-signed certificates) and HTTP. Redirects are automatically followed. FTP is also supported but this is subject to change and should be avoided.</p>
 <p>Returns the number of bytes downloaded if successful, -1 otherwise.</p>
 <p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnDownloadProgress is defined as:</p>
