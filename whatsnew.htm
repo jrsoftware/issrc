@@ -46,7 +46,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   <li>Pascal Scripting changes:
   <ul>
     <li>Added several new support functions to pack/unpack version numbers to simplify comparisons: <tt>PackVersionNumbers</tt>, <tt>PackVersionComponents</tt>, <tt>UnpackVersionNumbers</tt>, <tt>UnpackVersionComponents</tt>, and <tt>VersionToStr</tt>.</li>
-    <li>Added new support functions <tt>DownloadTemporaryFile</tt> and <tt>FileSize64</tt>.</li>
+    <li>Added new <tt>DownloadTemporaryFile</tt> and <tt>FileSize64</tt> support functions.</li>
     <li><i>Fix:</i> Support function <tt>WizardSelectComponents</tt> now also updates component sizes and the current selection's required disk space.</li>
   </ul>
   </li>
@@ -57,6 +57,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
     <li>ExistingFileNewerSelectAction, ExistingFileNewer2, ExistingFileNewerOverwriteExisting, ExistingFileNewerKeepExisting, ExistingFileNewerOverwriteOrKeepAll: If the ExistingFileNewer2 message is set by a translation, Setup will instead use these messages instead of the ExistingFileNewer message to show <a href="https://i.imgur.com/VBDuZ7U.png">more user friendly prompts</a> to keep or overwrite existing files if the <tt>promptifolder</tt> flag is set.</li>
   </ul>
   </li>
+  <li>Inno Setup QuickStart Pack Setup change: Now uses the new <tt>DownloadTemporaryFile</tt> support function to download extra files instead of using a third-party tool.</li>
   <li>Minor tweaks.</li>
 </ul>
 
