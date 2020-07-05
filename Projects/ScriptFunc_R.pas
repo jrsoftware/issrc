@@ -1735,6 +1735,10 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
     ParamCount, SwapFirst, SwapLast: Integer;
     S: tbtstring;
   begin
+    { ProcNo 0 means nil was passed by the script }
+    if P.ProcNo = 0 then
+      InternalError('Invalid Method value');
+
     { Calculate parameter count of our proc, will need this later. }
     ProcRec := Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
     S := ProcRec.ExportDecl;
