@@ -4,7 +4,7 @@ object MBDForm: TMBDForm
   BorderStyle = bsDialog
   Caption = 'MessageBox Designer'
   ClientHeight = 380
-  ClientWidth = 503
+  ClientWidth = 548
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,7 +15,7 @@ object MBDForm: TMBDForm
   Position = poMainFormCenter
   OnCreate = FormCreate
   DesignSize = (
-    503
+    548
     380)
   PixelsPerInch = 96
   TextHeight = 13
@@ -25,7 +25,15 @@ object MBDForm: TMBDForm
     Width = 57
     Height = 14
     Caption = 'Instruction:'
-    TabOrder = 7
+    TabOrder = 11
+  end
+  object TaskInstructionText: TEdit
+    Left = 89
+    Top = 10
+    Width = 449
+    Height = 21
+    Anchors = [akLeft, akTop, akRight]
+    TabOrder = 1
   end
   object TaskMesssageLabel: TNewStaticText
     Left = 18
@@ -33,7 +41,15 @@ object MBDForm: TMBDForm
     Width = 52
     Height = 14
     Caption = 'Messsage:'
-    TabOrder = 8
+    TabOrder = 12
+  end
+  object TaskMesssageText: TEdit
+    Left = 89
+    Top = 36
+    Width = 449
+    Height = 21
+    Anchors = [akLeft, akTop, akRight]
+    TabOrder = 2
   end
   object Button1Label: TNewStaticText
     Left = 18
@@ -43,6 +59,13 @@ object MBDForm: TMBDForm
     Caption = 'Text Button1:'
     TabOrder = 13
   end
+  object Button1Text: TEdit
+    Left = 89
+    Top = 62
+    Width = 159
+    Height = 21
+    TabOrder = 3
+  end
   object Button2Label: TNewStaticText
     Left = 258
     Top = 67
@@ -51,42 +74,129 @@ object MBDForm: TMBDForm
     Caption = 'Text Button2:'
     TabOrder = 14
   end
-  object TaskInstructionText: TEdit
-    Left = 89
-    Top = 10
-    Width = 404
-    Height = 21
-    TabOrder = 9
-  end
-  object TaskMesssageText: TEdit
-    Left = 89
-    Top = 36
-    Width = 404
-    Height = 21
-    TabOrder = 10
-  end
-  object Button1Text: TEdit
-    Left = 89
-    Top = 62
-    Width = 159
-    Height = 21
-    TabOrder = 11
-  end
   object Button2Text: TEdit
     Left = 334
     Top = 62
-    Width = 159
+    Width = 204
     Height = 21
-    TabOrder = 12
+    Anchors = [akLeft, akTop, akRight]
+    TabOrder = 4
+  end
+  object GroupBox1: TGroupBox
+    Left = 8
+    Top = 8
+    Width = 532
+    Height = 81
+    Anchors = [akLeft, akTop, akRight]
+    Caption = ' Message '
+    TabOrder = 0
+    DesignSize = (
+      532
+      81)
+    object MSGText: TMemo
+      Left = 7
+      Top = 20
+      Width = 519
+      Height = 53
+      Anchors = [akLeft, akTop, akRight, akBottom]
+      ScrollBars = ssVertical
+      TabOrder = 0
+    end
+  end
+  object GroupBox6: TGroupBox
+    Left = 8
+    Top = 93
+    Width = 240
+    Height = 60
+    Caption = ' Type'
+    TabOrder = 5
+    object cb_Suppressible: TCheckBox
+      Left = 14
+      Top = 24
+      Width = 86
+      Height = 17
+      Caption = 'Suppressible'
+      TabOrder = 0
+      OnClick = cb_SuppressibleClick
+    end
+    object cb_MsgBox: TRadioButton
+      Left = 115
+      Top = 13
+      Width = 115
+      Height = 17
+      Caption = 'MsgBox'
+      Checked = True
+      TabOrder = 1
+      TabStop = True
+      OnClick = cb_MsgBoxClick
+    end
+    object cb_TaskDialogMsgBox: TRadioButton
+      Left = 115
+      Top = 36
+      Width = 115
+      Height = 17
+      Caption = 'TaskDialogMsgBox'
+      TabOrder = 2
+      TabStop = True
+      OnClick = cb_TaskDialogMsgBoxClick
+    end
+  end
+  object GroupBox5: TGroupBox
+    Left = 258
+    Top = 93
+    Width = 282
+    Height = 60
+    Anchors = [akLeft, akTop, akRight]
+    Caption = ' Flags '
+    TabOrder = 6
+    object NewStaticText1: TNewStaticText
+      Left = 14
+      Top = 26
+      Width = 75
+      Height = 14
+      Caption = 'Default button:'
+      TabOrder = 3
+    end
+    object NewEdit1: TEdit
+      Left = 95
+      Top = 22
+      Width = 23
+      Height = 21
+      Alignment = taRightJustify
+      NumbersOnly = True
+      ReadOnly = True
+      TabOrder = 0
+      Text = '1'
+    end
+    object UpDown1: TUpDown
+      Left = 118
+      Top = 22
+      Width = 16
+      Height = 21
+      Associate = NewEdit1
+      Min = 1
+      Max = 3
+      Position = 1
+      TabOrder = 1
+      OnChanging = UpDown1Changing
+    end
+    object cb_MB_SETFOREGROUND: TCheckBox
+      Left = 146
+      Top = 24
+      Width = 128
+      Height = 17
+      Caption = 'MB_SETFOREGROUND'
+      TabOrder = 2
+    end
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 95
+    Top = 157
     Width = 160
     Height = 174
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = [akLeft, akTop, akBottom]
     Caption = ' Icon '
-    TabOrder = 1
+    TabOrder = 7
     DesignSize = (
       160
       174)
@@ -253,6 +363,7 @@ object MBDForm: TMBDForm
       Caption = 'mbInformation'
       Checked = True
       TabOrder = 0
+      TabStop = True
     end
     object rb_mbConfirmation: TRadioButton
       Left = 53
@@ -262,6 +373,7 @@ object MBDForm: TMBDForm
       Anchors = [akLeft, akTop, akRight]
       Caption = 'mbConfirmation'
       TabOrder = 1
+      TabStop = True
     end
     object rb_mbError: TRadioButton
       Left = 53
@@ -271,6 +383,7 @@ object MBDForm: TMBDForm
       Anchors = [akLeft, akTop, akRight]
       Caption = 'mbError'
       TabOrder = 2
+      TabStop = True
     end
     object rb_mbCriticalError: TRadioButton
       Left = 53
@@ -280,69 +393,17 @@ object MBDForm: TMBDForm
       Anchors = [akLeft, akTop, akRight]
       Caption = 'mbCriticalError'
       TabOrder = 3
-    end
-  end
-  object Panel1: TPanel
-    Left = 0
-    Top = 338
-    Width = 503
-    Height = 42
-    Align = alBottom
-    BevelOuter = bvNone
-    TabOrder = 2
-    DesignSize = (
-      503
-      42)
-    object Bevel1: TBevel
-      Left = 0
-      Top = 0
-      Width = 503
-      Height = 3
-      Align = alTop
-      Shape = bsBottomLine
-      ExplicitLeft = 168
-      ExplicitWidth = 50
-    end
-    object MBDButtonCancel: TButton
-      Left = 418
-      Top = 11
-      Width = 75
-      Height = 25
-      Anchors = [akRight, akBottom]
-      Caption = 'Cancel'
-      ModalResult = 2
-      TabOrder = 1
-    end
-    object MBDButtonOK: TButton
-      Left = 334
-      Top = 11
-      Width = 75
-      Height = 25
-      Anchors = [akRight, akBottom]
-      Caption = 'OK'
-      ModalResult = 1
-      TabOrder = 0
-      OnClick = MBDButtonOKClick
-    end
-    object MBDButtonPreview: TButton
-      Left = 10
-      Top = 11
-      Width = 80
-      Height = 25
-      Anchors = [akLeft, akBottom]
-      Caption = 'Preview'
-      TabOrder = 2
-      OnClick = MBDButtonPreviewClick
+      TabStop = True
     end
   end
   object GroupBox3: TGroupBox
-    Left = 180
-    Top = 95
+    Left = 179
+    Top = 157
     Width = 169
     Height = 174
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = [akLeft, akTop, akBottom]
     Caption = ' Buttons '
-    TabOrder = 3
+    TabOrder = 8
     DesignSize = (
       169
       174)
@@ -355,6 +416,7 @@ object MBDForm: TMBDForm
       Caption = 'MB_OK'
       Checked = True
       TabOrder = 0
+      TabStop = True
       OnClick = rbMB_OKClick
     end
     object rbMB_OKCANCEL: TRadioButton
@@ -365,6 +427,7 @@ object MBDForm: TMBDForm
       Anchors = [akLeft, akTop, akRight]
       Caption = 'MB_OKCANCEL'
       TabOrder = 1
+      TabStop = True
       OnClick = rbMB_OKCANCELClick
     end
     object rbMB_YESNO: TRadioButton
@@ -375,6 +438,7 @@ object MBDForm: TMBDForm
       Anchors = [akLeft, akTop, akRight]
       Caption = 'MB_YESNO'
       TabOrder = 2
+      TabStop = True
       OnClick = rbMB_YESNOClick
     end
     object rbMB_YESNOCANCEL: TRadioButton
@@ -385,6 +449,7 @@ object MBDForm: TMBDForm
       Anchors = [akLeft, akTop, akRight]
       Caption = 'MB_YESNOCANCEL'
       TabOrder = 3
+      TabStop = True
       OnClick = rbMB_YESNOCANCELClick
     end
     object rbMB_RETRYCANCEL: TRadioButton
@@ -395,6 +460,7 @@ object MBDForm: TMBDForm
       Anchors = [akLeft, akTop, akRight]
       Caption = 'MB_RETRYCANCEL'
       TabOrder = 4
+      TabStop = True
       OnClick = rbMB_RETRYCANCELClick
     end
     object rbMB_ABORTRETRYIGNORE: TRadioButton
@@ -405,17 +471,18 @@ object MBDForm: TMBDForm
       Anchors = [akLeft, akTop, akRight]
       Caption = 'MB_ABORTRETRYIGNORE'
       TabOrder = 5
+      TabStop = True
       OnClick = rbMB_ABORTRETRYIGNOREClick
     end
   end
   object GroupBox4: TGroupBox
-    Left = 361
-    Top = 95
-    Width = 132
+    Left = 359
+    Top = 157
+    Width = 181
     Height = 174
-    Anchors = [akLeft, akTop, akRight]
-    Caption = ' Return value '
-    TabOrder = 4
+    Anchors = [akLeft, akTop, akBottom]
+    Caption = ' Return values '
+    TabOrder = 9
     object cb_IDOK: TCheckBox
       Left = 16
       Top = 23
@@ -535,104 +602,121 @@ object MBDForm: TMBDForm
       Visible = False
       OnClick = rb_IDIGNOREClick
     end
-  end
-  object GroupBox5: TGroupBox
-    Left = 180
-    Top = 275
-    Width = 313
-    Height = 58
-    Anchors = [akLeft, akTop, akRight]
-    Caption = ' Flags '
-    TabOrder = 5
-    object cb_MB_SETFOREGROUND: TCheckBox
-      Left = 174
-      Top = 24
-      Width = 129
+    object cb_DefIDOK: TRadioButton
+      Left = 147
+      Top = 23
+      Width = 17
       Height = 17
-      Caption = 'MB_SETFOREGROUND'
-      TabOrder = 0
-    end
-    object NewStaticText1: TNewStaticText
-      Left = 10
-      Top = 26
-      Width = 75
-      Height = 14
-      Caption = 'Default button:'
-      TabOrder = 1
-    end
-    object NewEdit1: TEdit
-      Left = 91
-      Top = 22
-      Width = 23
-      Height = 21
-      Alignment = taRightJustify
-      NumbersOnly = True
-      ReadOnly = True
-      TabOrder = 2
-      Text = '1'
-    end
-    object UpDown1: TUpDown
-      Left = 114
-      Top = 22
-      Width = 16
-      Height = 21
-      Associate = NewEdit1
-      Min = 1
-      Max = 3
-      Position = 1
-      TabOrder = 3
-      OnChanging = UpDown1Changing
-    end
-  end
-  object GroupBox6: TGroupBox
-    Left = 8
-    Top = 275
-    Width = 160
-    Height = 58
-    Anchors = [akLeft, akTop, akRight]
-    Caption = ' Type'
-    TabOrder = 6
-    object cb_MsgBox: TRadioButton
-      Left = 16
-      Top = 17
-      Width = 136
-      Height = 17
-      Caption = 'MsgBox'
-      Checked = True
-      TabOrder = 0
+      TabOrder = 14
       TabStop = True
-      OnClick = cb_MsgBoxClick
+      Visible = False
     end
-    object cb_TaskDialogMsgBox: TRadioButton
-      Left = 16
-      Top = 35
-      Width = 136
+    object cb_DefIDCANCEL: TRadioButton
+      Left = 147
+      Top = 42
+      Width = 17
       Height = 17
-      Caption = 'TaskDialogMsgBox'
-      TabOrder = 1
+      TabOrder = 15
       TabStop = True
-      OnClick = cb_TaskDialogMsgBoxClick
+      Visible = False
+    end
+    object cb_DefIDYES: TRadioButton
+      Left = 147
+      Top = 62
+      Width = 17
+      Height = 17
+      TabOrder = 16
+      TabStop = True
+      Visible = False
+    end
+    object cb_DefIDNO: TRadioButton
+      Left = 147
+      Top = 82
+      Width = 17
+      Height = 17
+      TabOrder = 17
+      TabStop = True
+      Visible = False
+    end
+    object cb_DefIDABORT: TRadioButton
+      Left = 147
+      Top = 102
+      Width = 17
+      Height = 17
+      TabOrder = 18
+      TabStop = True
+      Visible = False
+    end
+    object cb_DefIDRETRY: TRadioButton
+      Left = 147
+      Top = 122
+      Width = 17
+      Height = 17
+      TabOrder = 19
+      TabStop = True
+      Visible = False
+    end
+    object cb_DefIDIGNORE: TRadioButton
+      Left = 147
+      Top = 142
+      Width = 17
+      Height = 17
+      TabOrder = 20
+      TabStop = True
+      Visible = False
     end
   end
-  object GroupBox1: TGroupBox
-    Left = 8
-    Top = 8
-    Width = 487
-    Height = 81
-    Anchors = [akLeft, akTop, akRight]
-    Caption = ' Message '
-    TabOrder = 0
+  object Panel1: TPanel
+    Left = 0
+    Top = 338
+    Width = 548
+    Height = 42
+    Align = alBottom
+    BevelOuter = bvNone
+    TabOrder = 10
     DesignSize = (
-      487
-      81)
-    object MSGText: TMemo
-      Left = 7
-      Top = 20
-      Width = 474
-      Height = 53
-      Anchors = [akLeft, akTop, akRight, akBottom]
-      ScrollBars = ssVertical
+      548
+      42)
+    object Bevel1: TBevel
+      Left = 0
+      Top = 0
+      Width = 548
+      Height = 3
+      Align = alTop
+      Shape = bsBottomLine
+      ExplicitLeft = 168
+      ExplicitWidth = 50
+    end
+    object MBDButtonPreview: TButton
+      Left = 10
+      Top = 11
+      Width = 80
+      Height = 25
+      Anchors = [akLeft, akBottom]
+      Caption = 'Preview'
       TabOrder = 0
+      OnClick = MBDButtonPreviewClick
+    end
+    object MBDButtonOK: TButton
+      Left = 379
+      Top = 11
+      Width = 75
+      Height = 25
+      Anchors = [akRight, akBottom]
+      Caption = 'OK'
+      ModalResult = 1
+      TabOrder = 1
+      OnClick = MBDButtonOKClick
+    end
+    object MBDButtonCancel: TButton
+      Left = 463
+      Top = 11
+      Width = 75
+      Height = 25
+      Anchors = [akRight, akBottom]
+      Caption = 'Cancel'
+      ModalResult = 2
+      TabOrder = 2
     end
   end
 end
