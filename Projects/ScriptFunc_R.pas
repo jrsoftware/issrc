@@ -739,6 +739,8 @@ end;
 function InstallProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
+  P: PPSVariantProcPtr;
+  OnDownloadProgress: TOnDownloadProgress;
 begin
   if IsUninstaller then
     NoUninstallFuncError(Proc.Name);
@@ -750,6 +752,16 @@ begin
     ExtractTemporaryFile(Stack.GetString(PStart));
   end else if Proc.Name = 'EXTRACTTEMPORARYFILES' then begin
     Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
+{$IFNDEF PS_NOINT64}
+  end else if Proc.Name = 'DOWNLOADTEMPORARYFILE' then begin
+    P := Stack.Items[PStart-3];
+    { ProcNo 0 means nil was passed by the script }
+    if P.ProcNo <> 0 then
+      OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
+    else
+      OnDownloadProgress := nil;
+    Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), OnDownloadProgress));
+{$ENDIF}
   end else
     Result := False;
 end;

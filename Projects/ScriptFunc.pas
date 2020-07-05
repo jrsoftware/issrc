@@ -120,10 +120,17 @@ const
   );
 
   { Install }
+{$IFNDEF PS_NOINT64}
+  InstallTable: array [0..2] of AnsiString =
+{$ELSE}
   InstallTable: array [0..1] of AnsiString =
+{$ENDIF}
   (
     'procedure ExtractTemporaryFile(const FileName: String);',
-    'function ExtractTemporaryFiles(const Pattern: String): Integer;'
+    'function ExtractTemporaryFiles(const Pattern: String): Integer;',
+{$IFNDEF PS_NOINT64}
+    'function DownloadTemporaryFile(const Url, FileName: String; const OnDownloadProgress: TOnDownloadProgress): Int64;'
+{$ENDIF}
   );
 
   { InstFunc }

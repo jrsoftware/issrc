@@ -16,8 +16,13 @@ interface
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
   ChangesAssociations: Boolean);
 
+
+type
+  TOnDownloadProgress = function(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean of object;
+
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
+function DownloadTemporaryFile(const Url, BaseName: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
 
 implementation
 
@@ -26,7 +31,7 @@ uses
   InstFunc, InstFnc2, SecurityFunc, Msgs, Main, Logging, Extract, FileClass,
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
-  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager;
+  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager, UrlMon, ActiveX;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -3431,6 +3436,159 @@ begin
 
   if Result = 0 then
     InternalError(Format('ExtractTemporaryFiles: No files matching "%s" found', [Pattern]));
+end;
+
+type
+  TBasicBindStatusCallback = class(TInterfacedObject, IBindStatusCallback)
+  private
+    FUrl: String;
+    FBaseName: String;
+    FOnDownloadProgress: TOnDownloadProgress;
+    FProgress: Int64;
+    FProgressMax: Int64;
+  public
+    property Url: String write FUrl;
+    property BaseName: String write FBaseName;
+    property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
+    property Progress: Int64 read FProgress;
+    property ProgressMax: Int64 read FProgressMax;
+    function OnStartBinding(dwReserved: DWORD; pib: IBinding): HResult; stdcall;
+    function GetPriority(out nPriority): HResult; stdcall;
+    function OnLowResource(reserved: DWORD): HResult; stdcall;
+    function OnProgress(ulProgress, ulProgressMax, ulStatusCode: ULONG;
+      szStatusText: LPCWSTR): HResult; stdcall;
+    function OnStopBinding(hresult: HResult; szError: LPCWSTR): HResult; stdcall;
+    function GetBindInfo(out grfBINDF: DWORD; var bindinfo: TBindInfo): HResult; stdcall;
+    function OnDataAvailable(grfBSCF: DWORD; dwSize: DWORD; formatetc: PFormatEtc;
+      stgmed: PStgMedium): HResult; stdcall;
+    function OnObjectAvailable(const iid: TGUID; punk: IUnknown): HResult; stdcall;
+  end;
+
+function TBasicBindStatusCallback.OnStartBinding(dwReserved: DWORD; pib: IBinding): HResult; stdcall;
+begin
+  Result := E_NOTIMPL;
+end;
+
+function TBasicBindStatusCallback.GetPriority(out nPriority): HResult; stdcall;
+begin
+  Result := E_NOTIMPL;
+end;
+
+function TBasicBindStatusCallback.OnLowResource(reserved: DWORD): HResult; stdcall;
+begin
+  Result := S_OK;
+end;
+
+function TBasicBindStatusCallback.OnProgress(ulProgress, ulProgressMax, ulStatusCode: ULONG;
+  szStatusText: LPCWSTR): HResult; stdcall;
+var
+  P: Integer;
+begin
+  { On BINDSTATUS_64BIT_PROGRESS the progress is actually encoded in szStatusText. }
+  if ulStatusCode = BINDSTATUS_64BIT_PROGRESS then begin
+    P := Pos(',', szStatusText);
+    if P <> 0 then begin
+      ulProgress := StrToInt64(Copy(szStatusText, 1, P-1));
+      ulProgressMax := StrToInt64(Copy(szStatusText, P+1, MaxInt));
+    end;
+  end;
+
+  { If the maximum is unknown it will either report 0, or report the current progress as the max. Make this consistent. }
+  if FProgressMax = 0 then
+    FProgress := FProgressMax;
+
+  Result := S_OK;
+
+  if (ulProgress <> FProgress) or (ulProgressMax <> ulProgressMax) then begin
+    FProgress := ulProgress;
+    FProgressMax := ulProgressMax;
+    if Assigned(FOnDownloadProgress) then
+      if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
+        Result := E_ABORT;
+  end;
+end;
+
+function TBasicBindStatusCallback.OnStopBinding(hresult: HResult; szError: LPCWSTR): HResult; stdcall;
+begin
+  Result := E_NOTIMPL;
+end;
+
+function TBasicBindStatusCallback.GetBindInfo(out grfBINDF: DWORD; var bindinfo: TBindInfo): HResult; stdcall;
+begin
+  Result := E_NOTIMPL;
+end;
+
+function TBasicBindStatusCallback.OnDataAvailable(grfBSCF: DWORD; dwSize: DWORD; formatetc: PFormatEtc;
+  stgmed: PStgMedium): HResult; stdcall;
+begin
+  Result := E_NOTIMPL;
+end;
+
+function TBasicBindStatusCallback.OnObjectAvailable(const iid: TGUID; punk: IUnknown): HResult; stdcall;
+begin
+  Result := E_NOTIMPL;
+end;
+
+function DownloadTemporaryFile(const Url, BaseName: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+var
+  DisableFsRedir: Boolean;
+  DestFile: String;
+  BasicBindStatusCallback: TBasicBindStatusCallback;
+  Res: HResult;
+  F: TFile;
+  FileSize: Int64;
+begin
+  if Url = '' then
+    InternalError('DownloadTemporaryFile: Invalid Url value');
+  if BaseName = '' then
+    InternalError('DownloadTemporaryFile: Invalid BaseName value');
+
+  DestFile := AddBackslash(TempInstallDir) + BaseName;
+
+  LogFmt('Downloading temporary file from %s: %s', [Url, DestFile]);
+
+  DisableFsRedir := InstallDefaultDisableFsRedir;
+
+  if FileExists(DestFile) then begin
+    SetFileAttributesRedir(DisableFsRedir, DestFile, GetFileAttributesRedir(DisableFsRedir, DestFile) and not FILE_ATTRIBUTE_READONLY);
+    DelayDeleteFile(DisableFsRedir, DestFile, 13, 50, 250);
+  end else
+    ForceDirectories(DisableFsRedir, PathExtractPath(DestFile));
+
+  BasicBindStatusCallback := TBasicBindStatusCallback.Create;
+  BasicBindStatusCallback.Url := Url;
+  BasicBindStatusCallback.BaseName := BaseName;
+  BasicBindStatusCallback.OnDownloadProgress := OnDownloadProgress;
+
+  Res := URLDownloadToFile(nil, PChar(Url), PChar(DestFile), 0, BasicBindStatusCallback);
+
+  { Sanity check everything }
+  if Res <> S_OK then begin
+    LogFmt('Download failed: URLDownloadToFile returned error %d', [Res]);
+    Result := -1;
+  end else if BasicBindStatusCallback.Progress <> BasicBindStatusCallback.ProgressMax then begin
+    LogFmt('Download failed: URLDownloadToFile returned invalid progress: %d of %d', [BasicBindStatusCallback.Progress, BasicBindStatusCallback.ProgressMax]);
+    Result := -1;
+  end else begin
+    try
+      F := TFileRedir.Create(ScriptFuncDisableFsRedir, DestFile, fdOpenExisting, faRead, fsReadWrite);
+      try
+        FileSize := Int64(F.Size.Hi) shl 32 + F.Size.Lo;
+        if BasicBindStatusCallback.ProgressMax <> FileSize then begin
+          LogFmt('Download failed: Invalid file size: expected %d, found %d', [BasicBindStatusCallback.ProgressMax, FileSize]);
+          Result := -1;
+        end else
+          Result := FileSize;
+      finally
+        F.Free;
+      end;
+    except on E: Exception do
+      begin
+        LogFmt('Download failed: File size check failed: %s', [E.Message]);
+        Result := -1;
+      end;
+    end;
+  end;
 end;
 
 end.
