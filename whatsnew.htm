@@ -46,7 +46,8 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   <li>Pascal Scripting changes:
   <ul>
     <li>Added several new support functions to pack/unpack version numbers to simplify comparisons: <tt>PackVersionNumbers</tt>, <tt>PackVersionComponents</tt>, <tt>UnpackVersionNumbers</tt>, <tt>UnpackVersionComponents</tt>, and <tt>VersionToStr</tt>.</li>
-    <li>Added new <tt>DownloadTemporaryFile</tt> and <tt>FileSize64</tt> support functions.</li>
+    <li>Added new <tt>DownloadTemporaryFile</tt> support function. Allows you to show the download progress to the user, see <a href="https://github.com/jrsoftware/ispack/commit/73722888b34f1067dde4da1235b31eae029dc0a8?diff=split">this comparison</a> for an example.</li>
+    <li>Added new <tt>FileSize64</tt> support function.</li>
     <li><i>Fix:</i> Support function <tt>WizardSelectComponents</tt> now also updates component sizes and the current selection's required disk space.</li>
   </ul>
   </li>
