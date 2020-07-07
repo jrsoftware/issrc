@@ -2891,21 +2891,21 @@ const
   UserConsts: array[0..3] of String = (
     'userpf', 'usercf', 'usersavedgames', 'username');
   Consts: array[0..42] of String = (
-    'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'fonts', 'hwnd',
+    'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'commonfonts', 'hwnd',
     'commonpf', 'commonpf32', 'commonpf64', 'commoncf', 'commoncf32', 'commoncf64',
     'autopf', 'autopf32', 'autopf64', 'autocf', 'autocf32', 'autocf64',
     'computername', 'dao', 'cmd', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
     'language', 'syswow64', 'sysnative', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
     'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064');
-  UserShellFolderConsts: array[0..8] of String = (
+  UserShellFolderConsts: array[0..9] of String = (
     'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
-    'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto');
-  ShellFolderConsts: array[0..16] of String = (
+    'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto', 'userfonts');
+  ShellFolderConsts: array[0..17] of String = (
     'group', 'commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
     'commonappdata', 'commondocs', 'commontemplates', 'localappdata',
     'autodesktop', 'autostartmenu', 'autoprograms', 'autostartup',
-    'autoappdata', 'autodocs', 'autotemplates', 'autofavorites');
+    'autoappdata', 'autodocs', 'autotemplates', 'autofavorites', 'autofonts');
   AllowedConstsNames: array[TAllowedConst] of String = (
     'olddata', 'break');
 var

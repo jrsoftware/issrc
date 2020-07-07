@@ -102,7 +102,7 @@ begin
   RegisterType('UINT_PTR', 'LongWord');
   RegisterType('INT_PTR', 'Longint');
 
-  ScriptCompiler.AddTypeS('TFileTime',
+  RegisterType('TFileTime',
     'record' +
     '  dwLowDateTime: DWORD;' +
     '  dwHighDateTime: DWORD;' +
@@ -118,7 +118,7 @@ begin
 
   RegisterType('TExecWait', '(ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle)');
   
-  ScriptCompiler.AddTypeS('TFindRec',
+  RegisterType('TFindRec',
     'record' +
     '  Name: String;' +
     '  Attributes: LongWord;' +
@@ -130,7 +130,7 @@ begin
     '  AlternateName: String;' +
     '  FindHandle: THandle;' +
     'end');
-  ScriptCompiler.AddTypeS('TWindowsVersion',
+  RegisterType('TWindowsVersion',
     'record' +
     '  Major: Cardinal;' +
     '  Minor: Cardinal;' +

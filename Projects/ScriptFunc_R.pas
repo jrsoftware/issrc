@@ -810,6 +810,16 @@ begin
 {$ELSE}
     NoNonUnicodeFuncError(Proc.Name);
 {$ENDIF}
+  end else if Proc.Name = 'GETSHA256OFFILE' then begin
+    Stack.SetString(PStart, GetSHA256OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+  end else if Proc.Name = 'GETSHA256OFSTRING' then begin
+    Stack.SetString(PStart, GetSHA256OfAnsiString(StackGetAnsiString(Stack, PStart-1)));
+  end else if Proc.Name = 'GETSHA256OFUNICODESTRING' then begin
+{$IFDEF UNICODE}
+    Stack.SetString(PStart, GetSHA256OfUnicodeString(Stack.GetString(PStart-1)));
+{$ELSE}
+    NoNonUnicodeFuncError(Proc.Name);
+{$ENDIF}
   end else if Proc.Name = 'GETSPACEONDISK' then begin
     if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
       if Stack.GetBool(PStart-2) then begin
@@ -907,7 +917,7 @@ begin
       Stack.SetBool(PStart, False);
     end;
   end else if Proc.Name = 'UNREGISTERFONT' then begin
-    UnregisterFont(Stack.GetString(PStart), Stack.GetString(PStart-1));
+    UnregisterFont(Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
   end else if Proc.Name = 'RESTARTREPLACE' then begin
     RestartReplace(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1));
   end else if Proc.Name = 'FORCEDIRECTORIES' then begin
@@ -1134,6 +1144,20 @@ begin
     except
       Stack.SetBool(PStart, False);
     end;
+{$IFNDEF PS_NOINT64}
+  end else if Proc.Name = 'FILESIZE64' then begin
+    try
+      F := TFileRedir.Create(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
+      try
+        Stack.SetInt64(PStart-2, Int64(F.Size.Hi) shl 32 + F.Size.Lo);
+        Stack.SetBool(PStart, True);
+      finally
+        F.Free;
+      end;
+    except
+      Stack.SetBool(PStart, False);
+    end;
+{$ENDIF}
   end else if Proc.Name = 'SET8087CW' then begin
     Set8087CW(Stack.GetInt(PStart));
   end else if Proc.Name = 'GET8087CW' then begin
@@ -1721,6 +1745,10 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
     ParamCount, SwapFirst, SwapLast: Integer;
     S: tbtstring;
   begin
+    { ProcNo 0 means nil was passed by the script }
+    if P.ProcNo = 0 then
+      InternalError('Invalid Method value');
+
     { Calculate parameter count of our proc, will need this later. }
     ProcRec := Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
     S := ProcRec.ExportDecl;

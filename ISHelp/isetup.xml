@@ -86,7 +86,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.0.6</b><br/>
+<b>Inno Setup version 6.1.0</b><br/>
 <b>Copyright &copy; 1997-2020 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2020 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -320,6 +320,7 @@ This " contains " embedded " quotes
 <keyword value="{autocf64}" anchor="autocf64" />
 <keyword value="{autodesktop}" anchor="autodesktop" />
 <keyword value="{autodocs}" anchor="autodocs" />
+<keyword value="{autofonts}" anchor="autofonts" />
 <keyword value="{autopf}" anchor="autopf" />
 <keyword value="{autopf32}" anchor="autopf32" />
 <keyword value="{autopf64}" anchor="autopf64" />
@@ -352,6 +353,7 @@ This " contains " embedded " quotes
 <keyword value="{dotnet4032}" anchor="dotnet4032" />
 <keyword value="{dotnet4064}" anchor="dotnet4064" />
 <keyword value="{drive:...}" anchor="drive" />
+<keyword value="{commonfonts}" anchor="commonfonts" />
 <keyword value="{fonts}" anchor="fonts" />
 <keyword value="{group}" anchor="group" />
 <keyword value="{groupname}" anchor="groupname" />
@@ -383,6 +385,7 @@ This " contains " embedded " quotes
 <keyword value="{userdesktop}" anchor="userdesktop" />
 <keyword value="{userdocs}" anchor="userdocs" />
 <keyword value="{userfavorites}" anchor="userfavorites" />
+<keyword value="{userfonts}" anchor="userfonts" />
 <keyword value="{userinfoname}" anchor="userinfoname" />
 <keyword value="{userinfoorg}" anchor="userinfoorg" />
 <keyword value="{userinfoserial}" anchor="userinfoserial" />
@@ -487,9 +490,9 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's TEMP environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like "C:\WINDOWS\TEMP\IS-xxxxx.tmp"). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the [Run] section but aren't needed after the installation.</p>
 </dd>
 
-<dt><b><a name="fonts">{fonts}</a></b></dt>
+<dt><b><a name="commonfonts">{commonfonts}</a></b></dt>
 <dd>
-<p>Fonts directory. Normally named "FONTS" under the Windows directory.</p>
+<p>Fonts directory. Normally named "Fonts" under the Windows directory.</p>
 </dd>
 
 <dt><b><a name="dao">{dao}</a></b></dt>
@@ -589,6 +592,11 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>The path to the current user's Favorites folder. (There is no common Favorites folder.)</p>
 </dd>
 
+<dt><b><a name="userfonts">{userfonts}</a></b></dt>
+<dd>
+<p>The path to the current user's Fonts folder. Only Windows 10 Version 1803 and later supports <tt>{userfonts}</tt>. Same directory as <tt>{localappdata}\Microsoft\Windows\Fonts</tt>.</p>
+</dd>
+
 <dt><b><a name="userpf">{userpf}</a></b></dt>
 <dd>
 <p>The path to the current user's Program Files directory. Only Windows 7 and later supports <tt>{userpf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs</tt>.</p>
@@ -640,6 +648,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <tr><td><tt><a name="autocf64">autocf64</a></tt></td><td><tt>commoncf64</tt></td><td><tt>usercf</tt></td></tr>
 <tr><td><tt><a name="autodesktop">autodesktop</a></tt></td><td><tt>commondesktop</tt></td><td><tt>userdesktop</tt></td></tr>
 <tr><td><tt><a name="autodocs">autodocs</a></tt></td><td><tt>commondocs</tt></td><td><tt>userdocs</tt></td></tr>
+<tr><td><tt><a name="autofonts">autofonts</a></tt></td><td><tt>commonfonts</tt></td><td><tt>userfonts</tt></td></tr>
 <tr><td><tt><a name="autopf">autopf</a></tt></td><td><tt>commonpf</tt></td><td><tt>userpf</tt></td></tr>
 <tr><td><tt><a name="autopf32">autopf32</a></tt></td><td><tt>commonpf32</tt></td><td><tt>userpf</tt></td></tr>
 <tr><td><tt><a name="autopf64">autopf64</a></tt></td><td><tt>commonpf64</tt></td><td><tt>userpf</tt></td></tr>
@@ -660,6 +669,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <tr><td><tt><a name="cf">cf</a></tt></td><td><tt>commoncf</tt></td></tr>
 <tr><td><tt><a name="cf32">cf32</a></tt></td><td><tt>commoncf32</tt></td></tr>
 <tr><td><tt><a name="cf64">cf64</a></tt></td><td><tt>commoncf64</tt></td></tr>
+<tr><td><tt><a name="fonts">fonts</a></tt></td><td><tt>commonfonts</tt></td></tr>
 <tr><td><tt><a name="pf">pf</a></tt></td><td><tt>commonpf</tt></td></tr>
 <tr><td><tt><a name="pf32">pf32</a></tt></td><td><tt>commonpf32</tt></td></tr>
 <tr><td><tt><a name="pf64">pf64</a></tt></td><td><tt>commonpf64</tt></td></tr>
@@ -1624,11 +1634,11 @@ ExternalSize: 1048576; Flags: external
 <param name="FontInstall">
 <p>Tells Setup the file is a font that needs to be installed. The value of this parameter is the name of the font as stored in the registry or WIN.INI. This must be exactly the same name as you see when you double-click the font file in Explorer. Note that Setup will automatically append " (TrueType)" to the end of the name.</p>
 <p>If the file is not a TrueType font, you must specify the flag <tt>fontisnttruetype</tt> in the Flags parameter.</p>
-<p>It's recommended that you use the flags <tt>onlyifdoesntexist</tt> and <tt>uninsneveruninstall</tt> when installing fonts to the {fonts} directory.</p>
-<p>To successfully install a font, the user must be a member of the Administrators groups.</p>
-<p>For compatibility with 64-bit Windows, fonts should not be installed to the <tt>{sys}</tt> directory. Use <tt>{fonts}</tt> as the destination directory instead.</p>
+<p>It's recommended that you use the flags <tt>onlyifdoesntexist</tt> and <tt>uninsneveruninstall</tt> when installing fonts to the {autofonts} directory.</p>
+<p>If the installation is running in <link topic="admininstallmode">non administrative install mode</link>, Windows 10 Version 1803 or later is required successfully install a font.</p>
+<p>For compatibility with 64-bit Windows, fonts should not be installed to the <tt>{sys}</tt> directory. Use <tt>{autofonts}</tt> as the destination directory instead.</p>
 <example>
-<pre>Source: "OZHANDIN.TTF"; DestDir: "{fonts}"; FontInstall: "Oz Handicraft BT"; Flags: onlyifdoesntexist uninsneveruninstall</pre>
+<pre>Source: "OZHANDIN.TTF"; DestDir: "{autofonts}"; FontInstall: "Oz Handicraft BT"; Flags: onlyifdoesntexist uninsneveruninstall</pre>
 </example>
 </param>
 

@@ -1,14 +1,14 @@
 Inno Setup
 ==========
 
-Copyright (C) 1997-2018 Jordan Russell. All rights reserved.  
-Portions Copyright (C) 2000-2018 Martijn Laan. All rights reserved.  
+Copyright (C) 1997-2020 Jordan Russell. All rights reserved.  
+Portions Copyright (C) 2000-2020 Martijn Laan. All rights reserved.  
 For conditions of distribution and use, see LICENSE.TXT.
 
 Contributing issues
 -------------------
 
-To report bugs or request new features use the [newsgroups](https://jrsoftware.org/forums.php) (web-based interface available).
+To report bugs or request new features use the [forum](https://jrsoftware.org/forums.php).
 
 Contributing new code or documentation updates
 ----------------------------------------------

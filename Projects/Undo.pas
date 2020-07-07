@@ -23,7 +23,7 @@ const
   { Each time the format of the uninstall log changes (usually a new entry type
     is added), HighestSupportedVersion and the file version number of Setup
     are incremented to match (51.x). Do NOT do this yourself; doing so could cause
-    incompatibilies with future Inno Setup releases. It's recommended that you
+    incompatibilities with future Inno Setup releases. It's recommended that you
     use the "utUserDefined" log entry type if you wish to implement your own
     custom uninstall log entries; see below for more information.
 
@@ -36,7 +36,7 @@ const
   { Values for TUninstallRecTyp.
     If you wish to define your own custom uninstall entry type, you should use
     "utUserDefined". (Do NOT define your own ut* constants; this could cause
-    incompatibilies with future Inno Setup releases.) The first field in a
+    incompatibilities with future Inno Setup releases.) The first field in a
     utUserDefined record must be a string which specifies a unique name for
     the record type. Example:
     UninstLog.Add(utUserDefined, ['MyRecordType', ... ], 0);
@@ -83,6 +83,7 @@ const
   utDeleteFile_SharedFileIn64BitKey = 1024;
   utDeleteFile_DisableFsRedir = 2048;  { also determines whether file was registered as 64-bit }
   utDeleteFile_GacInstalled = 4096;
+  utDeleteFile_PerUserFont = 8192;
   utDeleteDirOrFiles_Extra = 1;
   utDeleteDirOrFiles_IsDir = 2;
   utDeleteDirOrFiles_DeleteFiles = 4;
@@ -931,7 +932,7 @@ begin
               end;
               if CurRec^.ExtraData and utDeleteFile_IsFont <> 0 then begin
                 LogFmt('Unregistering font: %s', [CurRecData[2]]);
-                UnregisterFont(CurRecData[2], CurRecData[3]);
+                UnregisterFont(CurRecData[2], CurRecData[3], CurRec^.ExtraData and utDeleteFile_PerUserFont <> 0);
               end;
               if CurRec^.ExtraData and utDeleteFile_GacInstalled <> 0 then
                 DoUninstallAssembly(CurRecData[4]);

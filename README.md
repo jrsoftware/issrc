@@ -140,7 +140,7 @@ performs all (un)installation-related tasks.
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." and /HELP message boxes.
 
-**ISPP\ISPP** - This is a DLL implementing Inno Setup's preprocessor interface
+**ISPP\ISPP** - This is a DLL implementing Inno Setup's preprocessor interface.
 
 How do the projects link together?
 
@@ -168,7 +168,7 @@ Source code tips
   ``OutputBaseFilename=setup`` in your script, and copy the resulting setup-*.bin
   files to the source code directory. This way you can simulate an actual
   installation while running under the Delphi debugger.
-
+  
 - All of the forms in the Setup project, with the exception of Main.dfm, have
   Scaled set to False. This is because they dynamically scale themselves at
   run-time by calling a function named InitializeFont.
@@ -179,13 +179,21 @@ Source code tips
   data block in SETUP.EXE so it knows it's in "single EXE" form.
 
 - For compiler debugging purposes define ``STATICCOMPILER`` in CompForm.pas
-  and ``STATICPREPROC`` in Compile.pas.
+  and for preprocessor debugging also ``STATICPREPROC`` in Compile.pas.
+
+- To debug the uninstaller first run Setup.exe to completion with the
+  ``/DETACHEDMSG`` command line parameter set. Afterwards copy uninst000.dat and
+  uninst000.msg as setup.dat and setup.msg to the Projects directory in your
+  issrc path. Then open the Setup project and set the command line parameters to
+  ``/UNINSTMODE "/SECONDPHASE=<your issrc path\Projects\Setup.exe"`` and start
+  debugging. Note: each time setup.dat and setup.msg will be deleted if you
+  allow the uninstaller to complete so make sure to keep copies.
 
 
 Precompiled executables and libraries
 -------------------------------------
 
-The source code contains several precompiled executables and libraries:
+The source code contains several precompiled and signed executables and libraries:
 
 **Files\isbunzip.dll**, **Files\isbzip.dll** - Compiled by Visual Studio 2005
 from the bzlib directory in the Iscompress repository.

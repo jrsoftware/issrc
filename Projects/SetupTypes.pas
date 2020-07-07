@@ -274,7 +274,9 @@ procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback
 var
   CnstRenamed: String;
 begin
-  if Cnst = 'sendto' then
+  if Cnst = 'fonts' then
+    CnstRenamed := 'commonfonts'
+  else if Cnst = 'sendto' then
     CnstRenamed := 'usersendto'
   else if Cnst = 'pf' then
     CnstRenamed := 'commonpf'

@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.6+ Russian messages ***
+; *** Inno Setup version 6.1.0+ Russian messages ***
 ;
 ; Translated from English by Dmitry Kann, yktooo at gmail.com
 ;
@@ -89,7 +89,7 @@ ButtonNewFolder=&Создать папку
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Выберите язык установки
-SelectLanguageLabel=Выберите язык, который будет использован в  процессе установки.
+SelectLanguageLabel=Выберите язык, который будет использован в процессе установки.
 
 ; *** Common wizard text
 ClickNext=Нажмите «Далее», чтобы продолжить, или «Отмена», чтобы выйти из программы установки.
