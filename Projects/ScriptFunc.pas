@@ -129,7 +129,7 @@ const
     'procedure ExtractTemporaryFile(const FileName: String);',
     'function ExtractTemporaryFiles(const Pattern: String): Integer;',
 {$IFNDEF PS_NOINT64}
-    'function DownloadTemporaryFile(const Url, FileName: String; const OnDownloadProgress: TOnDownloadProgress): Int64;'
+    'function DownloadTemporaryFile(const Url, FileName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;'
 {$ENDIF}
   );
 

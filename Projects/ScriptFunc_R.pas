@@ -754,13 +754,13 @@ begin
     Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
 {$IFNDEF PS_NOINT64}
   end else if Proc.Name = 'DOWNLOADTEMPORARYFILE' then begin
-    P := Stack.Items[PStart-3];
+    P := Stack.Items[PStart-4];
     { ProcNo 0 means nil was passed by the script }
     if P.ProcNo <> 0 then
       OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
     else
       OnDownloadProgress := nil;
-    Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), OnDownloadProgress));
+    Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), OnDownloadProgress));
 {$ENDIF}
   end else
     Result := False;

@@ -22,7 +22,7 @@ type
 
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
-function DownloadTemporaryFile(const Url, BaseName: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
 
 implementation
 
@@ -3529,7 +3529,7 @@ begin
   Result := E_NOTIMPL;
 end;
 
-function DownloadTemporaryFile(const Url, BaseName: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
 
   function URLDownloadToFileResultToString(H: HResult): String;
   begin
@@ -3579,6 +3579,7 @@ var
   Res: HResult;
   F: TFile;
   FileSize: Int64;
+  SHA256OfFile: String;
 begin
   if Url = '' then
     InternalError('DownloadTemporaryFile: Invalid Url value');
@@ -3612,23 +3613,15 @@ begin
     RestoreFsRedirection(PrevState);
   end;
 
-  { Sanity check everything }
   if Res <> S_OK then begin
     LogFmt('Download failed: URLDownloadToFile returned error %s', [URLDownloadToFileResultToString(Res)]);
     Result := -1;
-  end else if BasicBindStatusCallback.Progress <> BasicBindStatusCallback.ProgressMax then begin
-    LogFmt('Download failed: URLDownloadToFile returned invalid progress: %d of %d', [BasicBindStatusCallback.Progress, BasicBindStatusCallback.ProgressMax]);
-    Result := -1;
   end else begin
+    { Get file size }
     try
       F := TFileRedir.Create(DisableFsRedir, DestFile, fdOpenExisting, faRead, fsReadWrite);
       try
         FileSize := Int64(F.Size.Hi) shl 32 + F.Size.Lo;
-        if BasicBindStatusCallback.ProgressMax <> FileSize then begin
-          LogFmt('Download failed: Invalid file size: expected %d, found %d', [BasicBindStatusCallback.ProgressMax, FileSize]);
-          Result := -1;
-        end else
-          Result := FileSize;
       finally
         F.Free;
       end;
@@ -3636,7 +3629,34 @@ begin
       begin
         LogFmt('Download failed: File size check failed: %s', [E.Message]);
         Result := -1;
+        Exit;
       end;
+    end;
+
+    { Check hash if specified, otherwise check everything else we can check }
+    if RequiredSHA256OfFile <> '' then begin
+      try
+        SHA256OfFile := GetSHA256OfFile(DisableFsRedir, DestFile);
+        if RequiredSHA256OfFile <> SHA256OfFile then begin
+          LogFmt('Download failed: Invalid file hash: expected %s, found %s', [RequiredSHA256OfFile, SHA256OfFile]);
+          Result := -1;
+        end else
+          Result := FileSize;
+      except on E: Exception do
+        begin
+          LogFmt('Download failed: File hash check failed: %s', [E.Message]);
+          Result := -1;
+        end;
+      end;
+    end else begin
+      if BasicBindStatusCallback.Progress <> BasicBindStatusCallback.ProgressMax then begin
+        LogFmt('Download failed: URLDownloadToFile returned invalid progress: %d of %d', [BasicBindStatusCallback.Progress, BasicBindStatusCallback.ProgressMax]);
+        Result := -1;
+      end else if BasicBindStatusCallback.ProgressMax <> FileSize then begin
+        LogFmt('Download failed: Invalid file size: expected %d, found %d', [BasicBindStatusCallback.ProgressMax, FileSize]);
+        Result := -1;
+      end else
+        Result := FileSize;
     end;
   end;
 end;
