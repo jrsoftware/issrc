@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.3+ English messages ***
+﻿; *** Inno Setup version 6.1.0+ English messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -292,8 +292,18 @@ ExistingFileReadOnly2=The existing file could not be replaced because it is mark
 ExistingFileReadOnlyRetry=&Remove the read-only attribute and try again
 ExistingFileReadOnlyKeepExisting=&Keep the existing file
 ErrorReadingExistingDest=An error occurred while trying to read the existing file:
+FileExistsSelectAction=Select action
 FileExists=The file already exists.%n%nWould you like Setup to overwrite it?
+FileExists2=The file already exists.
+FileExistsOverwriteExisting=&Overwrite the existing file
+FileExistsKeepExisting=&Keep the existing file
+FileExistsOverwriteOrKeepAll=&Do this for the next conflicts
+ExistingFileNewerSelectAction=Select action
 ExistingFileNewer=The existing file is newer than the one Setup is trying to install. It is recommended that you keep the existing file.%n%nDo you want to keep the existing file?
+ExistingFileNewer2=The existing file is newer than the one Setup is trying to install.
+ExistingFileNewerOverwriteExisting=&Overwrite the existing file
+ExistingFileNewerKeepExisting=&Keep the existing file (recommended)
+ExistingFileNewerOverwriteOrKeepAll=&Do this for the next conflicts
 ErrorChangingAttr=An error occurred while trying to change the attributes of the existing file:
 ErrorCreatingTemp=An error occurred while trying to create a file in the destination directory:
 ErrorReadingSource=An error occurred while trying to read the source file:
