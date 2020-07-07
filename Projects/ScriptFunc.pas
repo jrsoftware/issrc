@@ -128,9 +128,9 @@ const
 
   { InstFunc }
 {$IFNDEF PS_NOINT64}
-  InstFuncTable: array [0..27] of AnsiString =
+  InstFuncTable: array [0..30] of AnsiString =
 {$ELSE}
-  InstFuncTable: array [0..26] of AnsiString =
+  InstFuncTable: array [0..29] of AnsiString =
 {$ENDIF}
   (
     'function CheckForMutexes(Mutexes: String): Boolean;',
@@ -146,6 +146,9 @@ const
     'function GetSHA1OfFile(const Filename: String): String;',
     'function GetSHA1OfString(const S: AnsiString): String;',
     'function GetSHA1OfUnicodeString(const S: String): String;',
+    'function GetSHA256OfFile(const Filename: String): String;',
+    'function GetSHA256OfString(const S: AnsiString): String;',
+    'function GetSHA256OfUnicodeString(const S: String): String;',
     'function GetSpaceOnDisk(const DriveRoot: String; const InMegabytes: Boolean; var Free, Total: Cardinal): Boolean;',
 {$IFNDEF PS_NOINT64}
     'function GetSpaceOnDisk64(const DriveRoot: String; var Free, Total: Int64): Boolean;',
@@ -224,10 +227,17 @@ const
   );
 
   { System }
+{$IFNDEF PS_NOINT64}
+  SystemTable: array [0..4] of AnsiString =
+{$ELSE}
   SystemTable: array [0..3] of AnsiString =
+{$ENDIF}
   (
     'function Random(const Range: Integer): Integer;',
     'function FileSize(const Name: String; var Size: Integer): Boolean;',
+{$IFNDEF PS_NOINT64}
+    'function FileSize64(const Name: String; var Size: Int64): Boolean;',
+{$ENDIF}
     'procedure Set8087CW(NewCW: Word);',
     'function Get8087CW: Word;'
   );

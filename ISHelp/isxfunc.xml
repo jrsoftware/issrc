@@ -210,71 +210,6 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
-        <name>ExtractTemporaryFile</name>
-        <prototype>procedure ExtractTemporaryFile(const FileName: String);</prototype>
-        <description><p>Extracts the specified file from the [Files] section to a temporary directory. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
-<p>The extracted files are automatically deleted when Setup exits.</p>
-<p>An exception will be raised if the file wasn't extracted successfully, if the file wasn't found, or if the file was found but couldn't be processed because of its MinVersion and/or OnlyBelowVersion parameters.</p></description>
-        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
-<p>Use <tt>Flags: noencryption</tt> in the [Files] section if encryption is enabled and you call the ExtractTemporaryFile function prior to the user entering the correct password.</p>
-<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
-        <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link></p></seealso>
-        <example><pre>[Files]
-Source: "Readme.txt"; Flags: dontcopy noencryption
-
-[Code]
-function InitializeSetup: Boolean;
-var
-  S: AnsiString;
-begin
-  // Show the contents of Readme.txt (non Unicode) in a message box
-  ExtractTemporaryFile('Readme.txt');
-  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
-  begin
-    MsgBox(S, mbInformation, MB_OK);
-  end;
-
-  Result := True;
-end;</pre></example>
-      </function>
-      <function>
-        <name>ExtractTemporaryFiles</name>
-        <prototype>function ExtractTemporaryFiles(const Pattern: String): Integer;</prototype>
-        <description><p>Extracts the files matching the wildcard specified by Pattern from the [Files] section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
-<p>The extracted files are automatically deleted when Setup exits.</p>
-<p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their MinVersion and/or OnlyBelowVersion parameters.</p></description>
-        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
-<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
-        <seealso><p><link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
-        <example><pre>[Files]
-Source: "Readme.txt"; Flags: dontcopy
-Source: "MyProg.exe"; DestDir: "{app}"
-Source: "MyProg.chm"; DestDir: "{app}"
-
-[Code]
-function InitializeSetup: Boolean;
-var
-  S: AnsiString;
-  ResultCode: Integer;
-begin
-  // Show the contents of Readme.txt (non Unicode) in a message box
-  ExtractTemporaryFiles('{tmp}\Readme.txt');
-  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
-  begin
-    MsgBox(S, mbInformation, MB_OK);
-  end;
-
-  // Extract all MyProg files and launch it. Note how {app} is left unexpanded.
-  ExtractTemporaryFiles('{app}\MyProg.*');
-  ExecAsOriginalUser(ExpandConstant('{tmp}\')+'{app}\MyProg.exe', '', '',
-    SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
-
-  Result := True;
-end;</pre></example>
-      </function>
-    </subcategory>
-    <subcategory>
-      <function>
         <name>GetPreviousData</name>
         <prototype>function GetPreviousData(const ValueName, DefaultValueData: String): String;</prototype>
         <description><p>Gets a value that was previously stored using SetPreviousData.</p></description>
@@ -1012,12 +947,12 @@ end;</pre></example>
       <function>
         <name>StrToInt64Def</name>
         <prototype>function StrToInt64Def(s: string; def: Int64): Int64;</prototype>
-        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt returns the 64-bit number passed in Def.</p><p>Requires Unicode Inno Setup.</p></description>
+        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt returns the 64-bit number passed in Def.</p></description>
       </function>
       <function>
         <name>StrToInt64</name>
         <prototype>function StrToInt64(s: string): Int64;</prototype>
-        <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number.</p><p>Requires Unicode Inno Setup.</p></description>
+        <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number.</p></description>
         <remarks><p>Use of <link topic="isxfunc_StrToInt64Def">StrToInt64Def</link> instead of StrToInt64 is recommended.</p></remarks>
       </function>
       <function>
@@ -1028,12 +963,12 @@ end;</pre></example>
       <function>
         <name>IntToStr</name>
         <prototype>function IntToStr(i: Int64): String;</prototype>
-        <description><p>The IntToStr function converts an 32-bit or 64-bit number into a string.</p><p>64-bit numbers require Unicode Inno Setup.</p></description>
+        <description><p>The IntToStr function converts a 64-bit number into a string.</p></description>
       </function>
       <function>
         <name>FloatToStr</name>
         <prototype>function FloatToStr(e: extended): String;</prototype>
-        <description><p>The FloatToStr function converts a floating point number into a string.</p><p>Unicode Inno Setup: the character used for the decimal point will always be a dot. Non-Unicode Inno Setup: the character used for the decimal point is locale-dependant.</p></description>
+        <description><p>The FloatToStr function converts a floating point number into a string.</p><p>The character used for the decimal point will always be a dot.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -1222,7 +1157,7 @@ end;
       <function>
         <name>GetMD5OfUnicodeString</name>
         <prototype>function GetMD5OfUnicodeString(const S: String): String;</prototype>
-        <description><p>Gets the MD5 sum of the specified string, as a string.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <description><p>Gets the MD5 sum of the specified string, as a string.</p></description>
         <example><pre>var
   MD5: String;
 begin
@@ -1246,12 +1181,36 @@ end;
       <function>
         <name>GetSHA1OfUnicodeString</name>
         <prototype>function GetSHA1OfUnicodeString(const S: String): String;</prototype>
-        <description><p>Gets the SHA-1 hash of the specified string, as a string.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <description><p>Gets the SHA-1 hash of the specified string, as a string.</p></description>
         <example><pre>var
   SHA1: String;
 begin
   SHA1 := GetSHA1OfUnicodeString('Test');
   // SHA1 = '9ab696a37604d665dc97134dbee44cfe70451b1a'
+end;
+</pre></example>
+      </function>
+      <function>
+        <name>GetSHA256OfString</name>
+        <prototype>function GetSHA256OfString(const S: AnsiString): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified string, as a string.</p></description>
+        <example><pre>var
+  SHA256: String;
+begin
+  SHA256 := GetSHA256OfString('Test');
+  // SHA256 = '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+end;
+</pre></example>
+      </function>
+      <function>
+        <name>GetSHA256OfUnicodeString</name>
+        <prototype>function GetSHA256OfUnicodeString(const S: String): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified string, as a string.</p></description>
+        <example><pre>var
+  SHA256: String;
+begin
+  SHA256 := GetSHA256OfUnicodeString('Test');
+  // SHA256 = 'fe520676b1a1d93dabab2319eea03674f3632eaeeb163d1e88244f5eb1de10eb'
 end;
 </pre></example>
       </function>
@@ -1307,14 +1266,13 @@ end;
       <function>
         <name>VarIsEmpty</name>
         <prototype>function VarIsEmpty(const V: Variant): Boolean;</prototype>
-        <description><p>Non Unicode Inno Setup: Returns True if the specified variant's value is undefined. Unicode Inno Setup: Returns True if the specified variant is unassigned.</p></description>
+        <description><p>Returns True if the specified variant is unassigned.</p></description>
         <seealso><p><link topic="isxfunc_VarIsClear">VarIsClear</link></p></seealso>
       </function>
       <function>
         <name>VarIsClear</name>
         <prototype>function VarIsClear(const V: Variant): Boolean;</prototype>
         <description><p>Returns True if the specified variant's value is undefined.</p></description>
-        <remarks><p>Requires Unicode Inno Setup.</p></remarks>
         <seealso><p><link topic="isxfunc_VarIsEmpty">VarIsEmpty</link></p></seealso>
       </function>
       <function>
@@ -1375,7 +1333,12 @@ const
       <function>
         <name>FileSize</name>
         <prototype>function FileSize(const Name: String; var Size: Integer): Boolean;</prototype>
-        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise. Only supports file sizes smaller than 2 GB. To get all 64 bits of the file size, use <link topic="isxfunc_FindFirst">FindFirst</link>/<link topic="isxfunc_FindClose">FindClose</link> instead.</p></description>
+        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise. Only supports file sizes smaller than 2 GB. To get all 64 bits of the file size, use <link topic="isxfunc_FileSize64">FileSize64</link> instead.</p></description>
+      </function>
+      <function>
+        <name>FileSize64</name>
+        <prototype>function FileSize64(const Name: String; var Size: Int64): Boolean;</prototype>
+        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise.</p></description>
       </function>
       <function>
         <name>GetSpaceOnDisk</name>
@@ -1403,7 +1366,6 @@ end;</pre></example>
         <name>GetSpaceOnDisk64</name>
         <prototype>function GetSpaceOnDisk64(const Path: String; var Free, Total: Int64): Boolean;</prototype>
         <description><p>Returns the number of free and total bytes on a drive. Path specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. Returns True if successful, False otherwise.</p></description>
-        <remarks><p>Requires Unicode Inno Setup.</p></remarks>
         <example><pre>var
   Path: String;
   FreeBytes, TotalBytes: Int64;
@@ -1608,6 +1570,11 @@ end;</pre></example>
         <prototype>function GetSHA1OfFile(const Filename: String): String;</prototype>
         <description><p>Gets the SHA-1 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
       </function>
+      <function>
+        <name>GetSHA256OfFile</name>
+        <prototype>function GetSHA256OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+      </function>
     </subcategory>
     <subcategory>
       <function>
@@ -1712,6 +1679,71 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
+        <name>ExtractTemporaryFile</name>
+        <prototype>procedure ExtractTemporaryFile(const FileName: String);</prototype>
+        <description><p>Extracts the specified file from the [Files] section to a temporary directory. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+<p>The extracted files are automatically deleted when Setup exits.</p>
+<p>An exception will be raised if the file wasn't extracted successfully, if the file wasn't found, or if the file was found but couldn't be processed because of its MinVersion and/or OnlyBelowVersion parameters.</p></description>
+        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
+<p>Use <tt>Flags: noencryption</tt> in the [Files] section if encryption is enabled and you call the ExtractTemporaryFile function prior to the user entering the correct password.</p>
+<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
+        <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link></p></seealso>
+        <example><pre>[Files]
+Source: "Readme.txt"; Flags: dontcopy noencryption
+
+[Code]
+function InitializeSetup: Boolean;
+var
+  S: AnsiString;
+begin
+  // Show the contents of Readme.txt (non Unicode) in a message box
+  ExtractTemporaryFile('Readme.txt');
+  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
+  begin
+    MsgBox(S, mbInformation, MB_OK);
+  end;
+
+  Result := True;
+end;</pre></example>
+      </function>
+      <function>
+        <name>ExtractTemporaryFiles</name>
+        <prototype>function ExtractTemporaryFiles(const Pattern: String): Integer;</prototype>
+        <description><p>Extracts the files matching the wildcard specified by Pattern from the [Files] section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+<p>The extracted files are automatically deleted when Setup exits.</p>
+<p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their MinVersion and/or OnlyBelowVersion parameters.</p></description>
+        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
+<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
+        <seealso><p><link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+        <example><pre>[Files]
+Source: "Readme.txt"; Flags: dontcopy
+Source: "MyProg.exe"; DestDir: "{app}"
+Source: "MyProg.chm"; DestDir: "{app}"
+
+[Code]
+function InitializeSetup: Boolean;
+var
+  S: AnsiString;
+  ResultCode: Integer;
+begin
+  // Show the contents of Readme.txt (non Unicode) in a message box
+  ExtractTemporaryFiles('{tmp}\Readme.txt');
+  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
+  begin
+    MsgBox(S, mbInformation, MB_OK);
+  end;
+
+  // Extract all MyProg files and launch it. Note how {app} is left unexpanded.
+  ExtractTemporaryFiles('{app}\MyProg.*');
+  ExecAsOriginalUser(ExpandConstant('{tmp}\')+'{app}\MyProg.exe', '', '',
+    SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
+
+  Result := True;
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
         <name>RenameFile</name>
         <prototype>function RenameFile(const OldName, NewName: string): Boolean;</prototype>
         <description><p>Attempts to change the name of the file or directory specified by OldFile to NewFile. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
@@ -1765,7 +1797,7 @@ end;</pre></example>
       <function>
         <name>SaveStringsToUTF8File</name>
         <prototype>function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
-        <description><p>Saves the specified string array to the specified file with UTF8 encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <description><p>Saves the specified string array to the specified file with UTF8 encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
         <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link></p></seealso>
       </function>
     </subcategory>
