@@ -186,19 +186,20 @@ end;
 {FileSize(<filename>)}
 function FileSize(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
-  F: file of byte;
+  SearchRec: TSearchRec;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      {$I-}
-      FileMode := fmOpenRead;
-      AssignFile(F, PrependPath(Ext, Get(0).AsStr));
-      Reset(F);
-      MakeInt(ResPtr^, System.FileSize(F));
-      CloseFile(F);
-      {$I-}
+      if FindFirst(PrependPath(Ext, Get(0).AsStr), faAnyFile, SearchRec) = 0 then begin
+        try
+          MakeInt(ResPtr^, SearchRec.Size);
+        finally
+          FindClose(SearchRec);
+        end;
+      end else
+        MakeInt(ResPtr^, -1);
     end
   except
     on E: Exception do
@@ -1334,7 +1335,7 @@ begin
         New(FileDate);
         FileDate^ := Age;
         TPreprocessor(Ext).CollectGarbage(FileDate, GarbageReleaseDateTime);
-        MakeInt(ResPtr^, Integer(FileDate));
+        MakeInt(ResPtr^, Int64(FileDate));
       end
       else
         MakeInt(ResPtr^, -1);
@@ -1360,7 +1361,7 @@ begin
       New(DateTime);
       DateTime^ := Now;
       TPreprocessor(Ext).CollectGarbage(DateTime, GarbageReleaseDateTime);
-      MakeInt(ResPtr^, Integer(DateTime));
+      MakeInt(ResPtr^, Int64(DateTime));
     end;
   except
     on E: Exception do
