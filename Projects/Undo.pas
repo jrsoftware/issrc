@@ -23,7 +23,7 @@ const
   { Each time the format of the uninstall log changes (usually a new entry type
     is added), HighestSupportedVersion and the file version number of Setup
     are incremented to match (51.x). Do NOT do this yourself; doing so could cause
-    incompatibilies with future Inno Setup releases. It's recommended that you
+    incompatibilities with future Inno Setup releases. It's recommended that you
     use the "utUserDefined" log entry type if you wish to implement your own
     custom uninstall log entries; see below for more information.
 
@@ -36,7 +36,7 @@ const
   { Values for TUninstallRecTyp.
     If you wish to define your own custom uninstall entry type, you should use
     "utUserDefined". (Do NOT define your own ut* constants; this could cause
-    incompatibilies with future Inno Setup releases.) The first field in a
+    incompatibilities with future Inno Setup releases.) The first field in a
     utUserDefined record must be a string which specifies a unique name for
     the record type. Example:
     UninstLog.Add(utUserDefined, ['MyRecordType', ... ], 0);
