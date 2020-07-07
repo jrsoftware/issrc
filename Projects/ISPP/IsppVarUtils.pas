@@ -1,7 +1,11 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppVarUtils.pas,v 1.1 2004/02/26 22:24:19 mlaan Exp $
+
+  Inno Setup
+  Copyright (C) 1997-2010 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
 unit IsppVarUtils;
@@ -14,7 +18,7 @@ function SimplifyLValue(var Src: TIsppVariant): Boolean;
 procedure MakeRValue(var Src: TIsppVariant);
 function GetRValue(const Src: TIsppVariant): TIsppVariant;
 procedure CopyExpVar(Src: TIsppVariant; var Dest: TIsppVariant);
-procedure MakeInt(var Op: TIsppVariant; Value: Integer);
+procedure MakeInt(var Op: TIsppVariant; Value: Int64);
 procedure MakeStr(var Op: TIsppVariant; const Value: string);
 procedure MakeBool(var Op: TIsppVariant; Value: Boolean);
 function TryStrToInt(Str: string; var Int: Integer): Boolean;
@@ -59,7 +63,7 @@ begin
     Move(Src, Dest, SizeOf(TIsppVariant));
 end;
 
-procedure MakeInt(var Op: TIsppVariant; Value: Integer);
+procedure MakeInt(var Op: TIsppVariant; Value: Int64);
 begin
   Op.Typ := evInt;
   Op.AsInt := Value;
@@ -75,7 +79,7 @@ end;
 
 procedure MakeBool(var Op: TIsppVariant; Value: Boolean);
 begin
-  MakeInt(Op, Integer(Value));
+  MakeInt(Op, Int64(Value));
 end;
 
 function TryStrToInt(Str: string; var Int: Integer): Boolean;

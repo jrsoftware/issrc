@@ -1157,7 +1157,7 @@ end;
       <function>
         <name>GetMD5OfUnicodeString</name>
         <prototype>function GetMD5OfUnicodeString(const S: String): String;</prototype>
-        <description><p>Gets the MD5 sum of the specified string, as a string.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <description><p>Gets the MD5 sum of the specified string, as a string.</p></description>
         <example><pre>var
   MD5: String;
 begin
@@ -1181,12 +1181,36 @@ end;
       <function>
         <name>GetSHA1OfUnicodeString</name>
         <prototype>function GetSHA1OfUnicodeString(const S: String): String;</prototype>
-        <description><p>Gets the SHA-1 hash of the specified string, as a string.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <description><p>Gets the SHA-1 hash of the specified string, as a string.</p></description>
         <example><pre>var
   SHA1: String;
 begin
   SHA1 := GetSHA1OfUnicodeString('Test');
   // SHA1 = '9ab696a37604d665dc97134dbee44cfe70451b1a'
+end;
+</pre></example>
+      </function>
+      <function>
+        <name>GetSHA256OfString</name>
+        <prototype>function GetSHA256OfString(const S: AnsiString): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified string, as a string.</p></description>
+        <example><pre>var
+  SHA256: String;
+begin
+  SHA256 := GetSHA256OfString('Test');
+  // SHA256 = '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+end;
+</pre></example>
+      </function>
+      <function>
+        <name>GetSHA256OfUnicodeString</name>
+        <prototype>function GetSHA256OfUnicodeString(const S: String): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified string, as a string.</p></description>
+        <example><pre>var
+  SHA256: String;
+begin
+  SHA256 := GetSHA256OfUnicodeString('Test');
+  // SHA256 = 'fe520676b1a1d93dabab2319eea03674f3632eaeeb163d1e88244f5eb1de10eb'
 end;
 </pre></example>
       </function>
@@ -1546,6 +1570,11 @@ end;</pre></example>
         <prototype>function GetSHA1OfFile(const Filename: String): String;</prototype>
         <description><p>Gets the SHA-1 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
       </function>
+      <function>
+        <name>GetSHA256OfFile</name>
+        <prototype>function GetSHA256OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+      </function>
     </subcategory>
     <subcategory>
       <function>
@@ -1793,7 +1822,7 @@ end;</pre></example>
       <function>
         <name>SaveStringsToUTF8File</name>
         <prototype>function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
-        <description><p>Saves the specified string array to the specified file with UTF8 encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <description><p>Saves the specified string array to the specified file with UTF8 encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
         <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link></p></seealso>
       </function>
     </subcategory>
