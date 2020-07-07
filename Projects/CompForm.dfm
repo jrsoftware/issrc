@@ -339,7 +339,7 @@ object CompileForm: TCompileForm
       object N1: TMenuItem
         Caption = '-'
       end
-      object FMRUSep: TMenuItem
+      object FMRUFilesSep: TMenuItem
         Caption = '-'
         Visible = False
       end
