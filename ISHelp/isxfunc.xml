@@ -1190,6 +1190,30 @@ begin
 end;
 </pre></example>
       </function>
+      <function>
+        <name>GetSHA256OfString</name>
+        <prototype>function GetSHA256OfString(const S: AnsiString): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified string, as a string.</p></description>
+        <example><pre>var
+  SHA256: String;
+begin
+  SHA256 := GetSHA256OfString('Test');
+  // SHA256 = '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+end;
+</pre></example>
+      </function>
+      <function>
+        <name>GetSHA256OfUnicodeString</name>
+        <prototype>function GetSHA256OfUnicodeString(const S: String): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified string, as a string.</p></description>
+        <example><pre>var
+  SHA256: String;
+begin
+  SHA256 := GetSHA256OfUnicodeString('Test');
+  // SHA256 = 'fe520676b1a1d93dabab2319eea03674f3632eaeeb163d1e88244f5eb1de10eb'
+end;
+</pre></example>
+      </function>
     </subcategory>
     <subcategory>
       <function>
@@ -1545,6 +1569,11 @@ end;</pre></example>
         <name>GetSHA1OfFile</name>
         <prototype>function GetSHA1OfFile(const Filename: String): String;</prototype>
         <description><p>Gets the SHA-1 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+      </function>
+      <function>
+        <name>GetSHA256OfFile</name>
+        <prototype>function GetSHA256OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
       </function>
     </subcategory>
     <subcategory>

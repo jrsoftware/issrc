@@ -810,6 +810,16 @@ begin
 {$ELSE}
     NoNonUnicodeFuncError(Proc.Name);
 {$ENDIF}
+  end else if Proc.Name = 'GETSHA256OFFILE' then begin
+    Stack.SetString(PStart, GetSHA256OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+  end else if Proc.Name = 'GETSHA256OFSTRING' then begin
+    Stack.SetString(PStart, GetSHA256OfAnsiString(StackGetAnsiString(Stack, PStart-1)));
+  end else if Proc.Name = 'GETSHA256OFUNICODESTRING' then begin
+{$IFDEF UNICODE}
+    Stack.SetString(PStart, GetSHA256OfUnicodeString(Stack.GetString(PStart-1)));
+{$ELSE}
+    NoNonUnicodeFuncError(Proc.Name);
+{$ENDIF}
   end else if Proc.Name = 'GETSPACEONDISK' then begin
     if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
       if Stack.GetBool(PStart-2) then begin
