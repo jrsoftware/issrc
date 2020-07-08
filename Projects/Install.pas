@@ -3482,29 +3482,37 @@ end;
 function TBasicBindStatusCallback.OnProgress(ulProgress, ulProgressMax, ulStatusCode: ULONG;
   szStatusText: LPCWSTR): HResult; stdcall;
 var
+  NewProgress, NewProgressMax: Int64;
   P: Integer;
 begin
-  { On BINDSTATUS_64BIT_PROGRESS the progress is actually encoded in szStatusText. }
-  if ulStatusCode = BINDSTATUS_64BIT_PROGRESS then begin
-    P := Pos(',', szStatusText);
-    if P <> 0 then begin
-      ulProgress := StrToInt64(Copy(szStatusText, 1, P-1));
-      ulProgressMax := StrToInt64(Copy(szStatusText, P+1, MaxInt));
+  try
+    NewProgress := ulProgress;
+    NewProgressMax := ulProgressMax;
+
+    { On BINDSTATUS_64BIT_PROGRESS the progress is actually encoded in szStatusText. }
+    if ulStatusCode = BINDSTATUS_64BIT_PROGRESS then begin
+      P := Pos(',', szStatusText);
+      if P <> 0 then begin
+        NewProgress := StrToInt64(Copy(szStatusText, 1, P-1));
+        NewProgressMax := StrToInt64(Copy(szStatusText, P+1, MaxInt));
+      end;
     end;
-  end;
 
-  { If the maximum is unknown it will either report 0, or report the current progress as the max. Make this consistent. }
-  if FProgressMax = 0 then
-    FProgress := FProgressMax;
+    { If the maximum is unknown it will either report 0, or report the current progress as the max. Make this consistent. }
+    if NewProgressMax = 0 then
+      NewProgressMax := NewProgress;
 
-  Result := S_OK;
+    Result := S_OK;
 
-  if (ulProgress <> FProgress) or (ulProgressMax <> ulProgressMax) then begin
-    FProgress := ulProgress;
-    FProgressMax := ulProgressMax;
-    if Assigned(FOnDownloadProgress) then
-      if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
-        Result := E_ABORT;
+    if (NewProgress <> FProgress) or (NewProgressMax <> FProgressMax) then begin
+      FProgress := NewProgress;
+      FProgressMax := NewProgressMax;
+      if Assigned(FOnDownloadProgress) then
+        if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
+          Result := E_ABORT;
+    end;
+  except
+    Result := E_ABORT;
   end;
 end;
 
@@ -3578,6 +3586,7 @@ var
   BasicBindStatusCallback: TBasicBindStatusCallback;
   Res: HResult;
   F: TFile;
+  TmpFileSize: Integer64;
   FileSize: Int64;
   SHA256OfFile: String;
 begin
@@ -3621,7 +3630,8 @@ begin
     try
       F := TFileRedir.Create(DisableFsRedir, DestFile, fdOpenExisting, faRead, fsReadWrite);
       try
-        FileSize := Int64(F.Size.Hi) shl 32 + F.Size.Lo;
+        TmpFileSize := F.Size; { Make sure we access F.Size only once }
+        FileSize := Int64(TmpFileSize.Hi) shl 32 + TmpFileSize.Lo;
       finally
         F.Free;
       end;
