@@ -339,7 +339,7 @@ object CompileForm: TCompileForm
       object N1: TMenuItem
         Caption = '-'
       end
-      object FMRUSep: TMenuItem
+      object FMRUFilesSep: TMenuItem
         Caption = '-'
         Visible = False
       end
@@ -583,6 +583,11 @@ object CompileForm: TCompileForm
         Caption = 'Generate &GUID'
         ShortCut = 24647
         OnClick = TGenerateGUIDClick
+      end
+      object TInsertMsgBox: TMenuItem
+        Caption = '&MessageBox Designer...'
+        ShortCut = 24653
+        OnClick = TInsertMsgBoxClick
       end
       object N7: TMenuItem
         Caption = '-'
