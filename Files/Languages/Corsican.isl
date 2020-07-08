@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.6+ Corsican messages ***
+; *** Inno Setup version 6.1.0+ Corsican messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
