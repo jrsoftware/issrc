@@ -179,6 +179,7 @@ type
     PListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
+    TInsertMsgBox: TMenuItem;
     ToolBarPanel: TPanel;
     HMailingList: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -266,6 +267,7 @@ type
       State: TOwnerDrawState);
     procedure VDebugCallStackClick(Sender: TObject);
     procedure HMailingListClick(Sender: TObject);
+    procedure TInsertMsgBoxClick(Sender: TObject);
   private
     { Private declarations }
     FCompilerVersion: PCompilerVersionInfo;
@@ -460,7 +462,7 @@ type
 
 var
   CompileForm: TCompileForm;
-
+  MSGTextInsert: TStringList;
   CommandLineFilename, CommandLineWizardName: String;
   CommandLineCompile: Boolean;
   CommandLineWizard: Boolean;
@@ -479,7 +481,7 @@ uses
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo;
+  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMessageBoxDesigner;
 
 {$R *.DFM}
 
@@ -2632,6 +2634,21 @@ begin
   if MsgBox('The generated GUID will be inserted into the editor at the cursor position. Continue?',
      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
     Memo.SelText := GenerateGuid;
+end;
+
+procedure TCompileForm.TInsertMsgBoxClick(Sender: TObject);
+var
+  MsgBoxForm: TMBDForm;
+begin
+  MsgBoxForm := TMBDForm.Create(Application);
+  MSGTextInsert := TStringList.Create;
+  try
+    if MsgBoxForm.ShowModal = mrOk then
+      Memo.SelText := MSGTextInsert.GetText;
+  finally
+    MSGTextInsert.Free;
+    MsgBoxForm.Free;
+  end;
 end;
 
 procedure TCompileForm.TSignToolsClick(Sender: TObject);

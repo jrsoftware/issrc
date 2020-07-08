@@ -584,6 +584,11 @@ object CompileForm: TCompileForm
         ShortCut = 24647
         OnClick = TGenerateGUIDClick
       end
+      object TInsertMsgBox: TMenuItem
+        Caption = '&MessageBox Designer...'
+        ShortCut = 24653
+        OnClick = TInsertMsgBoxClick
+      end
       object N7: TMenuItem
         Caption = '-'
       end

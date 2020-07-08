@@ -3663,6 +3663,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Cristoph Nahr: Code for the .NET version detection (6.0.4).</li>
 
+<li>leserg73: Code for the Compiler IDE's MessageBox Designer (6.1.0).<li>
+
 </ul>
 
 </body>
