@@ -66,11 +66,8 @@ uses
 {$R *.DFM}
 
 procedure TStartupForm.SetMRUFilesList(const MRUFilesList: TStringList);
-var
-  I: Integer;
 begin
-  for I := 0 to MRUFilesList.Count-1 do
-    OpenListBox.Items.Add(MRUFilesList[I]);
+  OpenListBox.Items := MRUFilesList;
   UpdateHorizontalExtent(OpenListBox);
 end;
 
