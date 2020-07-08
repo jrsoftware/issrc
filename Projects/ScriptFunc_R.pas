@@ -1126,6 +1126,7 @@ function SystemProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TP
 var
   PStart: Cardinal;
   F: TFile;
+  TmpFileSize: Integer64;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -1149,7 +1150,8 @@ begin
     try
       F := TFileRedir.Create(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
       try
-        Stack.SetInt64(PStart-2, Int64(F.Size.Hi) shl 32 + F.Size.Lo);
+        TmpFileSize := F.Size; { Make sure we access F.Size only once }
+        Stack.SetInt64(PStart-2, Int64(TmpFileSize.Hi) shl 32 + TmpFileSize.Lo);
         Stack.SetBool(PStart, True);
       finally
         F.Free;
