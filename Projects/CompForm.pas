@@ -479,7 +479,7 @@ uses
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes;
+  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo;
 
 {$R *.DFM}
 
@@ -3890,8 +3890,9 @@ end;
 
 procedure TCompileForm.RParametersClick(Sender: TObject);
 begin
-  InputQuery('Run Parameters', 'Command line parameters for ' + DebugTargetStrings[dtSetup] +
-    ' and ' + DebugTargetStrings[dtUninstall] + ':', FRunParameters);
+  ReadMRUParametersList;
+  InputQueryCombo('Run Parameters', 'Command line parameters for ' + DebugTargetStrings[dtSetup] +
+    ' and ' + DebugTargetStrings[dtUninstall] + ':', FRunParameters, FMRUParametersList);
   if FRunParameters <> '' then
     ModifyMRUParametersList(FRunParameters, True);
 end;
