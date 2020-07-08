@@ -9,10 +9,10 @@ object MBDForm: TMBDForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
-  Position = poMainFormCenter
+  Position = poScreenCenter
   OnCreate = FormCreate
   DesignSize = (
     548
@@ -22,9 +22,9 @@ object MBDForm: TMBDForm
   object TaskInstructionLabel: TNewStaticText
     Left = 18
     Top = 14
-    Width = 57
+    Width = 50
     Height = 14
-    Caption = 'Instruction:'
+    Caption = 'Instruction'
     TabOrder = 11
   end
   object TaskInstructionText: TEdit
@@ -38,9 +38,9 @@ object MBDForm: TMBDForm
   object TaskMesssageLabel: TNewStaticText
     Left = 18
     Top = 40
-    Width = 52
+    Width = 49
     Height = 14
-    Caption = 'Messsage:'
+    Caption = 'Messsage'
     TabOrder = 12
   end
   object TaskMesssageText: TEdit
@@ -54,9 +54,9 @@ object MBDForm: TMBDForm
   object Button1Label: TNewStaticText
     Left = 18
     Top = 66
-    Width = 68
+    Width = 62
     Height = 14
-    Caption = 'Text Button1:'
+    Caption = 'Text Button1'
     TabOrder = 13
   end
   object Button1Text: TEdit
@@ -69,9 +69,9 @@ object MBDForm: TMBDForm
   object Button2Label: TNewStaticText
     Left = 258
     Top = 67
-    Width = 68
+    Width = 62
     Height = 14
-    Caption = 'Text Button2:'
+    Caption = 'Text Button2'
     TabOrder = 14
   end
   object Button2Text: TEdit
@@ -101,6 +101,7 @@ object MBDForm: TMBDForm
       Anchors = [akLeft, akTop, akRight, akBottom]
       ScrollBars = ssVertical
       TabOrder = 0
+      OnKeyPress = MSGTextKeyPress
     end
   end
   object GroupBox6: TGroupBox
@@ -152,15 +153,15 @@ object MBDForm: TMBDForm
     object NewStaticText1: TNewStaticText
       Left = 14
       Top = 26
-      Width = 75
+      Width = 68
       Height = 14
-      Caption = 'Default button:'
+      Caption = 'Default button'
       TabOrder = 3
     end
     object NewEdit1: TEdit
-      Left = 95
+      Left = 97
       Top = 22
-      Width = 23
+      Width = 21
       Height = 21
       Alignment = taRightJustify
       NumbersOnly = True
@@ -181,9 +182,9 @@ object MBDForm: TMBDForm
       OnChanging = UpDown1Changing
     end
     object cb_MB_SETFOREGROUND: TCheckBox
-      Left = 146
+      Left = 140
       Top = 24
-      Width = 128
+      Width = 135
       Height = 17
       Caption = 'MB_SETFOREGROUND'
       TabOrder = 2
@@ -693,7 +694,7 @@ object MBDForm: TMBDForm
       Width = 80
       Height = 25
       Anchors = [akLeft, akBottom]
-      Caption = 'Preview'
+      Caption = '&Preview'
       TabOrder = 0
       OnClick = MBDButtonPreviewClick
     end
@@ -704,6 +705,7 @@ object MBDForm: TMBDForm
       Height = 25
       Anchors = [akRight, akBottom]
       Caption = 'OK'
+      Default = True
       ModalResult = 1
       TabOrder = 1
       OnClick = MBDButtonOKClick
@@ -714,6 +716,7 @@ object MBDForm: TMBDForm
       Width = 75
       Height = 25
       Anchors = [akRight, akBottom]
+      Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 2

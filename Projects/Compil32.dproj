@@ -80,7 +80,7 @@
 			<DCCReference Include="CompInputQueryCombo.pas">
 				<Form>InputQueryCombo</Form>
 			</DCCReference>
-			<DCCReference Include="MessageBoxInsert.pas">
+			<DCCReference Include="CompMessageBoxDesigner.pas">
 				<Form>MBDForm</Form>
 			</DCCReference>
 			<DCCReference Include="..\Components\ScintInt.pas"/>

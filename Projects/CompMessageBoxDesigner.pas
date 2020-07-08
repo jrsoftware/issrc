@@ -1,4 +1,15 @@
-unit MessageBoxInsert;
+unit CompMessageBoxDesigner;
+
+{
+  Inno Setup
+  Copyright (C) 1997-2020 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+
+  MessageBox Designer form
+  
+  Originally contributed by leserg73
+}
 
 interface
 
@@ -91,6 +102,7 @@ type
     procedure rb_IDABORTClick(Sender: TObject);
     procedure MBDButtonOKClick(Sender: TObject);
     procedure cb_SuppressibleClick(Sender: TObject);
+    procedure MSGTextKeyPress(Sender: TObject; var Key: Char);
   private
     procedure CreateScriptMSG;
   public
@@ -106,21 +118,12 @@ uses
 
 procedure TMBDForm.FormCreate(Sender: TObject);
 begin
-  cb_Suppressible.Checked := False;
-  rb_mbInformation.Checked := True;
-  rbMB_OK.Checked := True;
-  MSGText.Lines.Clear;
+  InitFormFont(Self);
+
+  cb_Suppressible.Checked := True;
   MSGText.Lines[MSGText.CaretPos.Y] := '<Enter your text here...>';
   MSGText.SelStart := MSGText.Perform(EM_LINEINDEX, 0, 0);
   MSGText.SelLength := Length(MSGText.Lines[0]);
-  cb_IDOK.Checked := False;
-  cb_IDCANCEL.Checked := False;
-  cb_IDABORT.Checked := False;
-  cb_IDRETRY.Checked := False;
-  cb_IDIGNORE.Checked := False;
-  cb_IDYES.Checked := False;
-  cb_IDNO.Checked := False;
-  cb_IDOK.Enabled := False;
   cb_IDCANCEL.Enabled := False;
   cb_IDABORT.Enabled := False;
   cb_IDRETRY.Enabled := False;
@@ -138,10 +141,6 @@ begin
   Button2Text.Visible := False;
   Button1Label.Visible := False;
   Button2Label.Visible := False;
-  TaskInstructionText.Text := '';
-  TaskMesssageText.Text := '';
-  Button1Text.Text := '';
-  Button2Text.Text := '';
 end;
 
 procedure TMBDForm.rbMB_OKClick(Sender: TObject);
@@ -840,7 +839,14 @@ begin
                       ButtonLabelsArray,
                       ShieldFlag);
   end;
+end;
 
+procedure TMBDForm.MSGTextKeyPress(Sender: TObject; var Key: Char);
+begin
+	if Key = #27 then begin
+  	MBDButtonCancel.Click;
+    Key := #0;
+  end;
 end;
 
 procedure TMBDForm.CreateScriptMSG;

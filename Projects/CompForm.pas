@@ -481,7 +481,7 @@ uses
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, MessageBoxInsert;
+  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMessageBoxDesigner;
 
 {$R *.DFM}
 
@@ -2643,12 +2643,11 @@ begin
   MsgBoxForm := TMBDForm.Create(Application);
   MSGTextInsert := TStringList.Create;
   try
-    if MsgBoxForm.ShowModal <> mrOK then
-      Exit;
-    Memo.SelText := MSGTextInsert.GetText;
+    if MsgBoxForm.ShowModal = mrOk then
+      Memo.SelText := MSGTextInsert.GetText;
   finally
-    MsgBoxForm.Free;
     MSGTextInsert.Free;
+    MsgBoxForm.Free;
   end;
 end;
 
