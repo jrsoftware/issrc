@@ -77,6 +77,9 @@
 			<DCCReference Include="CompSignTools.pas">
 				<Form>SignToolsForm</Form>
 			</DCCReference>
+			<DCCReference Include="CompInputQueryCombo.pas">
+				<Form>InputQueryCombo</Form>
+			</DCCReference>
 			<DCCReference Include="..\Components\ScintInt.pas"/>
 			<DCCReference Include="..\Components\ScintEdit.pas"/>
 			<DCCReference Include="..\Components\ScintStylerInnoSetup.pas"/>
