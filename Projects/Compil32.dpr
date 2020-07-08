@@ -35,6 +35,7 @@ uses
   DebugStruct in 'DebugStruct.pas',
   BrowseFunc in 'BrowseFunc.pas',
   CompSignTools in 'CompSignTools.pas' {SignToolsForm},
+  CompInputQueryCombo in 'CompInputQueryCombo.pas' {InputQueryCombo},
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
   ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas',

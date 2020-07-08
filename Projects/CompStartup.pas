@@ -47,13 +47,13 @@ type
   private
     FResult: TStartupFormResult;
     FResultFileName: TFileName;
-    procedure SetMRUList(const MRUList: TStringList);
+    procedure SetMRUFilesList(const MRUFilesList: TStringList);
     procedure UpdateImages;
   protected
     procedure CreateWnd; override;
     procedure CreateParams(var Params: TCreateParams); override;
   public
-    property MRUList: TStringList write SetMRUList;
+    property MRUFilesList: TStringList write SetMRUFilesList;
     property Result: TStartupFormResult read FResult;
     property ResultFileName: TFileName read FResultFileName;
   end;
@@ -65,12 +65,9 @@ uses
 
 {$R *.DFM}
 
-procedure TStartupForm.SetMRUList(const MRUList: TStringList);
-var
-  I: Integer;
+procedure TStartupForm.SetMRUFilesList(const MRUFilesList: TStringList);
 begin
-  for I := 0 to MRUList.Count-1 do
-    OpenListBox.Items.Add(MRUList[I]);
+  OpenListBox.Items := MRUFilesList;
   UpdateHorizontalExtent(OpenListBox);
 end;
 

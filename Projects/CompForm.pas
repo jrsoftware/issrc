@@ -54,6 +54,8 @@ type
 
   TStatusMessageKind = (smkStartEnd, smkNormal, smkWarning, smkError);
 
+  TMRUItemCompareProc = function(const S1, S2: String): Integer;
+
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -82,7 +84,7 @@ type
     HDoc: TMenuItem;
     N6: TMenuItem;
     HAbout: TMenuItem;
-    FMRUSep: TMenuItem;
+    FMRUFilesSep: TMenuItem;
     VCompilerOutput: TMenuItem;
     FindDialog: TFindDialog;
     ReplaceDialog: TReplaceDialog;
@@ -272,8 +274,9 @@ type
     FFilename: String;
     FFileLastWriteTime: TFileTime;
     FSaveInUTF8Encoding: Boolean;
-    FMRUMenuItems: array[0..MRUListMaxCount-1] of TMenuItem;
-    FMRUList: TStringList;
+    FMRUFilesMenuItems: array[0..MRUListMaxCount-1] of TMenuItem;
+    FMRUFilesList: TStringList;
+    FMRUParametersList: TStringList;
     FOptions: record
       ShowStartupForm: Boolean;
       UseWizard: Boolean;
@@ -376,14 +379,19 @@ type
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject);
-    procedure ModifyMRUList(const AFilename: String; const AddNewItem: Boolean);
+    procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
+      const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
+    procedure ModifyMRUFilesList(const AFilename: String; const AddNewItem: Boolean);
+    procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
     procedure MoveCaret(const LineNumber: Integer; const AlwaysResetColumn: Boolean);
     procedure NewFile;
     procedure NewWizardFile;
     procedure OpenFile(AFilename: String; const AddToRecentDocs: Boolean);
     procedure OpenMRUFile(const AFilename: String);
     procedure ParseDebugInfo(DebugInfo: Pointer);
-    procedure ReadMRUList;
+    procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
+    procedure ReadMRUFilesList;
+    procedure ReadMRUParametersList;
     procedure ResetLineState;
     procedure StartProcess;
     function SaveFile(const SaveAs: Boolean): Boolean;
@@ -473,7 +481,7 @@ uses
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, MessageBoxInsert;
+  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, MessageBoxInsert;
 
 {$R *.DFM}
 
@@ -965,13 +973,14 @@ begin
   Application.OnActivate := AppOnActivate;
   Application.OnIdle := AppOnIdle;
 
-  FMRUList := TStringList.Create;
-  for I := 0 to High(FMRUMenuItems) do begin
+  FMRUFilesList := TStringList.Create;
+  for I := 0 to High(FMRUFilesMenuItems) do begin
     NewItem := TMenuItem.Create(Self);
     NewItem.OnClick := FMRUClick;
-    FMenu.Insert(FMenu.IndexOf(FMRUSep), NewItem);
-    FMRUMenuItems[I] := NewItem;
+    FMenu.Insert(FMenu.IndexOf(FMRUFilesSep), NewItem);
+    FMRUFilesMenuItems[I] := NewItem;
   end;
+  FMRUParametersList := TStringList.Create;
 
   FSignTools := TStringList.Create;
 
@@ -1044,8 +1053,9 @@ begin
   FBreakPoints.Free;
   DestroyDebugInfo;
   FSignTools.Free;
-  FMRUList.Free;
- 
+  FMRUParametersList.Free;
+  FMRUFilesList.Free;
+
   inherited;
 end;
 
@@ -1261,7 +1271,7 @@ begin
   Memo.ClearUndo;
   FFilename := AFilename;
   UpdateCaption;
-  ModifyMRUList(AFilename, True);
+  ModifyMRUFilesList(AFilename, True);
   if AddToRecentDocs then
     AddFileToRecentDocs(AFilename);
 end;
@@ -1276,7 +1286,7 @@ begin
     Application.HandleException(Self);
     if MsgBoxFmt('There was an error opening the file. Remove it from the list?',
        [AFilename], SCompilerFormCaption, mbError, MB_YESNO) = IDYES then
-      ModifyMRUList(AFilename, False);
+      ModifyMRUFilesList(AFilename, False);
   end;
 end;
 
@@ -1372,7 +1382,7 @@ begin
   if not FOptions.UndoAfterSave then
     Memo.ClearUndo;
   Result := True;
-  ModifyMRUList(FFilename, True);
+  ModifyMRUFilesList(FFilename, True);
 end;
 
 function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
@@ -1404,8 +1414,8 @@ begin
   end;
 end;
 
-procedure TCompileForm.ReadMRUList;
-{ Loads the list of MRU items from the registry }
+procedure TCompileForm.ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
+{ Loads a list of MRU items from the registry }
 var
   Ini: TConfigIniFile;
   I: Integer;
@@ -1414,53 +1424,49 @@ begin
   try
     Ini := TConfigIniFile.Create;
     try
-      FMRUList.Clear;
-      for I := 0 to High(FMRUMenuItems) do begin
-        S := Ini.ReadString('ScriptFileHistoryNew', 'History' + IntToStr(I), '');
-        if S <> '' then FMRUList.Add(S);
+      MRUList.Clear;
+      for I := 0 to MRUListMaxCount-1 do begin
+        S := Ini.ReadString(Section, Ident + IntToStr(I), '');
+        if S <> '' then MRUList.Add(S);
       end;
     finally
       Ini.Free;
     end;
   except
-    { Ignore any exceptions; don't want to hold up the display of the
-      File menu. }
+    { Ignore any exceptions. }
   end;
 end;
 
-procedure TCompileForm.ModifyMRUList(const AFilename: String;
-  const AddNewItem: Boolean);
+procedure TCompileForm.ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
+  const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
 var
   I: Integer;
   Ini: TConfigIniFile;
   S: String;
 begin
   try
-    { Load most recent items first, just in case they've changed }
-    ReadMRUList;
-
     I := 0;
-    while I < FMRUList.Count do begin
-      if PathCompare(FMRUList[I], AFilename) = 0 then
-        FMRUList.Delete(I)
+    while I < MRUList.Count do begin
+      if CompareProc(MRUList[I], AItem) = 0 then
+        MRUList.Delete(I)
       else
         Inc(I);
     end;
     if AddNewItem then
-      FMRUList.Insert(0, AFilename);
-    while FMRUList.Count > High(FMRUMenuItems)+1 do
-      FMRUList.Delete(FMRUList.Count-1);
+      MRUList.Insert(0, AItem);
+    while MRUList.Count > MRUListMaxCount do
+      MRUList.Delete(MRUList.Count-1);
 
     { Save new MRU items }
     Ini := TConfigIniFile.Create;
     try
       { MRU list }
-      for I := 0 to High(FMRUMenuItems) do begin
-        if I < FMRUList.Count then
-          S := FMRUList[I]
+      for I := 0 to MRUListMaxCount-1 do begin
+        if I < MRUList.Count then
+          S := MRUList[I]
         else
           S := '';
-        Ini.WriteString('ScriptFileHistoryNew', 'History' + IntToStr(I), S);
+        Ini.WriteString(Section, Ident + IntToStr(I), S);
       end;
     finally
       Ini.Free;
@@ -1470,6 +1476,32 @@ begin
       a fatal error. }
     Application.HandleException(Self);
   end;
+end;
+
+procedure TCompileForm.ReadMRUFilesList;
+begin
+  ReadMRUList(FMRUFilesList, 'ScriptFileHistoryNew', 'History');
+end;
+
+procedure TCompileForm.ModifyMRUFilesList(const AFilename: String;
+  const AddNewItem: Boolean);
+begin
+  { Load most recent items first, just in case they've changed }
+  ReadMRUFilesList;
+  ModifyMRUList(FMRUFilesList, 'ScriptFileHistoryNew', 'History', AFileName, AddNewItem, @PathCompare);
+end;
+
+procedure TCompileForm.ReadMRUParametersList;
+begin
+  ReadMRUList(FMRUParametersList, 'ParameterHistory', 'History');
+end;
+
+procedure TCompileForm.ModifyMRUParametersList(const AParameter: String;
+  const AddNewItem: Boolean);
+begin
+  { Load most recent items first, just in case they've changed }
+  ReadMRUParametersList;
+  ModifyMRUList(FMRUParametersList, 'ParameterHistory', 'History', AParameter, AddNewItem, @CompareText);
 end;
 
 type
@@ -1925,13 +1957,13 @@ var
 begin
   FSaveEncodingAuto.Checked := not FSaveInUTF8Encoding;
   FSaveEncodingUTF8.Checked := FSaveInUTF8Encoding;
-  ReadMRUList;
-  FMRUSep.Visible := FMRUList.Count <> 0;
-  for I := 0 to High(FMRUMenuItems) do
-    with FMRUMenuItems[I] do begin
-      if I < FMRUList.Count then begin
+  ReadMRUFilesList;
+  FMRUFilesSep.Visible := FMRUFilesList.Count <> 0;
+  for I := 0 to High(FMRUFilesMenuItems) do
+    with FMRUFilesMenuItems[I] do begin
+      if I < FMRUFilesList.Count then begin
         Visible := True;
-        Caption := '&' + IntToStr((I+1) mod 10) + ' ' + DoubleAmp(FMRUList[I]);
+        Caption := '&' + IntToStr((I+1) mod 10) + ' ' + DoubleAmp(FMRUFilesList[I]);
       end
       else
         Visible := False;
@@ -1992,9 +2024,9 @@ var
   I: Integer;
 begin
   if ConfirmCloseFile(True) then
-    for I := 0 to High(FMRUMenuItems) do
-      if FMRUMenuItems[I] = Sender then begin
-        OpenMRUFile(FMRUList[I]);
+    for I := 0 to High(FMRUFilesMenuItems) do
+      if FMRUFilesMenuItems[I] = Sender then begin
+        OpenMRUFile(FMRUFilesList[I]);
         Break;
       end;
 end;
@@ -2366,10 +2398,10 @@ procedure TCompileForm.WMStartNormally(var Message: TMessage);
     StartupForm: TStartupForm;
     Ini: TConfigIniFile;
   begin
-    ReadMRUList;
+    ReadMRUFilesList;
     StartupForm := TStartupForm.Create(Application);
     try
-      StartupForm.MRUList := FMRUList;
+      StartupForm.MRUFilesList := FMRUFilesList;
       StartupForm.StartupCheck.Checked := not FOptions.ShowStartupForm;
       if StartupForm.ShowModal = mrOK then begin
         if FOptions.ShowStartupForm <> not StartupForm.StartupCheck.Checked then begin
@@ -3876,8 +3908,11 @@ end;
 
 procedure TCompileForm.RParametersClick(Sender: TObject);
 begin
-  InputQuery('Run Parameters', 'Command line parameters for ' + DebugTargetStrings[dtSetup] +
-    ' and ' + DebugTargetStrings[dtUninstall] + ':', FRunParameters);
+  ReadMRUParametersList;
+  InputQueryCombo('Run Parameters', 'Command line parameters for ' + DebugTargetStrings[dtSetup] +
+    ' and ' + DebugTargetStrings[dtUninstall] + ':', FRunParameters, FMRUParametersList);
+  if FRunParameters <> '' then
+    ModifyMRUParametersList(FRunParameters, True);
 end;
 
 procedure TCompileForm.RPauseClick(Sender: TObject);
