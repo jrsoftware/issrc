@@ -3515,7 +3515,7 @@ begin
     HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
 
     if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then
-      InternalError('DownloadTemporaryFile: DisableFsRedirectionIf failed.');
+      raise Exception.Create('DisableFsRedirectionIf failed');
     try
       DestF := TFileStream.Create(DestFile, fmCreate);
     finally
@@ -3528,13 +3528,11 @@ begin
       To test basic authentication: https://guest:guest@jigsaw.w3.org/HTTP/Basic/ }
 
     HTTPResponse := HTTPClient.Get(Url, DestF);
-    if HTTPDataReceiver.Aborted then begin
-      raise Exception.Create('Download aborted.');
-      Result := 0; { Silence compiler }
-    end else if HTTPResponse.StatusCode <> 200 then begin
-      raise Exception.CreateFmt('Download failed with status code %d', [HTTPResponse.StatusCode]);
-      Result := 0; { Silence compiler }
-    end else begin
+    if HTTPDataReceiver.Aborted then
+      raise Exception.Create('Download aborted')
+    else if HTTPResponse.StatusCode <> 200 then
+      raise Exception.CreateFmt('Download failed with status code %d', [HTTPResponse.StatusCode])
+    else begin
       Result := DestF.Size;
       FreeAndNil(DestF);
 
@@ -3543,15 +3541,15 @@ begin
         try
           SHA256OfFile := GetSHA256OfFile(DisableFsRedir, DestFile);
           if RequiredSHA256OfFile <> SHA256OfFile then
-            InternalErrorFmt('DownloadTemporaryFile: Invalid file hash: expected %s, found %s', [RequiredSHA256OfFile, SHA256OfFile]);
+            raise Exception.CreateFmt('Invalid file hash: expected %s, found %s', [RequiredSHA256OfFile, SHA256OfFile]);
         except on E: Exception do
-          InternalErrorFmt('DownloadTemporaryFile: File hash check failed: %s', [E.Message]);
+          raise Exception.CreateFmt('File hash check failed: %s', [E.Message]);
         end;
       end else begin
         if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
-          InternalErrorFmt('DownloadTemporaryFile: HTTPClient.Get returned invalid progress: %d of %d', [HTTPDataReceiver.Progress, HTTPDataReceiver.ProgressMax])
+          raise Exception.CreateFmt('HTTPClient.Get returned invalid progress: %d of %d', [HTTPDataReceiver.Progress, HTTPDataReceiver.ProgressMax])
         else if HTTPDataReceiver.ProgressMax <> Result then
-          InternalErrorFmt('DownloadTemporaryFile: Invalid file size: expected %d, found %d', [HTTPDataReceiver.ProgressMax, Result]);
+          raise Exception.CreateFmt('Invalid file size: expected %d, found %d', [HTTPDataReceiver.ProgressMax, Result]);
       end;
     end;
   finally
