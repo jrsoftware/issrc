@@ -3443,11 +3443,13 @@ type
   private
     FBaseName, FUrl: String;
     FOnDownloadProgress: TOnDownloadProgress;
+    FAborted: Boolean;
     FProgress, FProgressMax: Int64;
   public
     property BaseName: String write FBaseName;
     property Url: String write FUrl;
     property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
+    property Aborted: Boolean read FAborted;
     property Progress: Int64 read FProgress;
     property ProgressMax: Int64 read FProgressMax;
     procedure OnReceiveData(const Sender: TObject; AContentLength: Int64; AReadCount: Int64; var Abort: Boolean);
@@ -3467,6 +3469,9 @@ begin
       if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
         Abort := True;
   end;
+
+  if Abort then
+    FAborted := True
 end;
 
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
@@ -3523,8 +3528,11 @@ begin
       To test basic authentication: https://guest:guest@jigsaw.w3.org/HTTP/Basic/ }
 
     HTTPResponse := HTTPClient.Get(Url, DestF);
-    if HTTPResponse.StatusCode <> 200 then begin
-      InternalErrorFmt('DownloadTemporaryFile: HTTPClient.Get returned status code %d', [HTTPResponse.StatusCode]);
+    if HTTPDataReceiver.Aborted then begin
+      raise Exception.Create('Download aborted.');
+      Result := 0; { Silence compiler }
+    end else if HTTPResponse.StatusCode <> 200 then begin
+      raise Exception.CreateFmt('Download failed with status code %d', [HTTPResponse.StatusCode]);
       Result := 0; { Silence compiler }
     end else begin
       Result := DestF.Size;
