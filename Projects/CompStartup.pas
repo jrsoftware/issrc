@@ -67,7 +67,7 @@ uses
 
 procedure TStartupForm.SetMRUFilesList(const MRUFilesList: TStringList);
 begin
-  OpenListBox.Items := MRUFilesList;
+  OpenListBox.Items.AddStrings(MRUFilesList);
   UpdateHorizontalExtent(OpenListBox);
 end;
 
