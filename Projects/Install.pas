@@ -31,7 +31,7 @@ uses
   InstFunc, InstFnc2, SecurityFunc, Msgs, Main, Logging, Extract, FileClass,
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
-  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager, UrlMon, ActiveX;
+  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager, Net.HTTPClient;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -3401,7 +3401,7 @@ begin
       Exit;
     end;
   end;
-  InternalError(Format('ExtractTemporaryFile: The file "%s" was not found', [BaseName]));
+  InternalErrorFmt('ExtractTemporaryFile: The file "%s" was not found', [BaseName]);
 end;
 
 function ExtractTemporaryFiles(const Pattern: String): Integer;
@@ -3435,159 +3435,49 @@ begin
   end;
 
   if Result = 0 then
-    InternalError(Format('ExtractTemporaryFiles: No files matching "%s" found', [Pattern]));
+    InternalErrorFmt('ExtractTemporaryFiles: No files matching "%s" found', [Pattern]);
 end;
 
 type
-  TBasicBindStatusCallback = class(TInterfacedObject, IBindStatusCallback)
+  THTTPDataReceiver = class
   private
-    FUrl: String;
-    FBaseName: String;
+    FBaseName, FUrl: String;
     FOnDownloadProgress: TOnDownloadProgress;
-    FProgress: Int64;
-    FProgressMax: Int64;
+    FProgress, FProgressMax: Int64;
   public
-    property Url: String write FUrl;
     property BaseName: String write FBaseName;
+    property Url: String write FUrl;
     property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
     property Progress: Int64 read FProgress;
     property ProgressMax: Int64 read FProgressMax;
-    function OnStartBinding(dwReserved: DWORD; pib: IBinding): HResult; stdcall;
-    function GetPriority(out nPriority): HResult; stdcall;
-    function OnLowResource(reserved: DWORD): HResult; stdcall;
-    function OnProgress(ulProgress, ulProgressMax, ulStatusCode: ULONG;
-      szStatusText: LPCWSTR): HResult; stdcall;
-    function OnStopBinding(hresult: HResult; szError: LPCWSTR): HResult; stdcall;
-    function GetBindInfo(out grfBINDF: DWORD; var bindinfo: TBindInfo): HResult; stdcall;
-    function OnDataAvailable(grfBSCF: DWORD; dwSize: DWORD; formatetc: PFormatEtc;
-      stgmed: PStgMedium): HResult; stdcall;
-    function OnObjectAvailable(const iid: TGUID; punk: IUnknown): HResult; stdcall;
+    procedure OnReceiveData(const Sender: TObject; AContentLength: Int64; AReadCount: Int64; var Abort: Boolean);
   end;
 
-function TBasicBindStatusCallback.OnStartBinding(dwReserved: DWORD; pib: IBinding): HResult; stdcall;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TBasicBindStatusCallback.GetPriority(out nPriority): HResult; stdcall;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TBasicBindStatusCallback.OnLowResource(reserved: DWORD): HResult; stdcall;
-begin
-  Result := S_OK;
-end;
-
-function TBasicBindStatusCallback.OnProgress(ulProgress, ulProgressMax, ulStatusCode: ULONG;
-  szStatusText: LPCWSTR): HResult; stdcall;
+procedure THTTPDataReceiver.OnReceiveData(const Sender: TObject; AContentLength: Int64; AReadCount: Int64; var Abort: Boolean);
 var
   NewProgress, NewProgressMax: Int64;
-  P: Integer;
 begin
-  try
-    NewProgress := ulProgress;
-    NewProgressMax := ulProgressMax;
+  NewProgress := AReadCount;
+  NewProgressMax := AContentLength;
 
-    { On BINDSTATUS_64BIT_PROGRESS the progress is actually encoded in szStatusText. }
-    if ulStatusCode = BINDSTATUS_64BIT_PROGRESS then begin
-      P := Pos(',', szStatusText);
-      if P <> 0 then begin
-        NewProgress := StrToInt64(Copy(szStatusText, 1, P-1));
-        NewProgressMax := StrToInt64(Copy(szStatusText, P+1, MaxInt));
-      end;
-    end;
-
-    { If the maximum is unknown it will either report 0, or report the current progress as the max. Make this consistent. }
-    if NewProgressMax = 0 then
-      NewProgressMax := NewProgress;
-
-    Result := S_OK;
-
-    if (NewProgress <> FProgress) or (NewProgressMax <> FProgressMax) then begin
-      FProgress := NewProgress;
-      FProgressMax := NewProgressMax;
-      if Assigned(FOnDownloadProgress) then
-        if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
-          Result := E_ABORT;
-    end;
-  except
-    Result := E_ABORT;
+  if (NewProgress <> FProgress) or (NewProgressMax <> FProgressMax) then begin
+    FProgress := NewProgress;
+    FProgressMax := NewProgressMax;
+    if Assigned(FOnDownloadProgress) then
+      if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
+        Abort := True;
   end;
-end;
-
-function TBasicBindStatusCallback.OnStopBinding(hresult: HResult; szError: LPCWSTR): HResult; stdcall;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TBasicBindStatusCallback.GetBindInfo(out grfBINDF: DWORD; var bindinfo: TBindInfo): HResult; stdcall;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TBasicBindStatusCallback.OnDataAvailable(grfBSCF: DWORD; dwSize: DWORD; formatetc: PFormatEtc;
-  stgmed: PStgMedium): HResult; stdcall;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TBasicBindStatusCallback.OnObjectAvailable(const iid: TGUID; punk: IUnknown): HResult; stdcall;
-begin
-  Result := E_NOTIMPL;
 end;
 
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
-
-  function URLDownloadToFileResultToString(H: HResult): String;
-  begin
-    case H of
-      E_OUTOFMEMORY: Result := 'E_OUTOFMEMORY';
-      INET_E_DOWNLOAD_FAILURE: Result := 'INET_E_DOWNLOAD_FAILURE';
-      { The following are not documented as possible return values but it for example returns
-        INET_E_OBJECT_NOT_FOUND on a 404 Not Found and INET_E_INVALID_CERTIFICATE on a self-signed
-        certificate. }
-      INET_E_INVALID_URL: Result := 'INET_E_INVALID_URL';
-      INET_E_NO_SESSION: Result := 'INET_E_NO_SESSION';
-      INET_E_CANNOT_CONNECT: Result := 'INET_E_CANNOT_CONNECT';
-      INET_E_RESOURCE_NOT_FOUND: Result := 'INET_E_RESOURCE_NOT_FOUND';
-      INET_E_OBJECT_NOT_FOUND: Result := 'INET_E_OBJECT_NOT_FOUND';
-      INET_E_DATA_NOT_AVAILABLE: Result := 'INET_E_DATA_NOT_AVAILABLE';
-      INET_E_AUTHENTICATION_REQUIRED: Result := 'INET_E_AUTHENTICATION_REQUIRED';
-      INET_E_NO_VALID_MEDIA: Result := 'INET_E_NO_VALID_MEDIA';
-      INET_E_CONNECTION_TIMEOUT: Result := 'INET_E_CONNECTION_TIMEOUT';
-      INET_E_INVALID_REQUEST: Result := 'INET_E_INVALID_REQUEST';
-      INET_E_UNKNOWN_PROTOCOL: Result := 'INET_E_UNKNOWN_PROTOCOL';
-      INET_E_SECURITY_PROBLEM: Result := 'INET_E_SECURITY_PROBLEM';
-      INET_E_CANNOT_LOAD_DATA: Result := 'INET_E_CANNOT_LOAD_DATA';
-      INET_E_CANNOT_INSTANTIATE_OBJECT: Result := 'INET_E_CANNOT_INSTANTIATE_OBJECT';
-      INET_E_INVALID_CERTIFICATE: Result := 'INET_E_INVALID_CERTIFICATE';
-      INET_E_REDIRECT_FAILED: Result := 'INET_E_REDIRECT_FAILED';
-      INET_E_REDIRECT_TO_DIR: Result := 'INET_E_REDIRECT_TO_DIR';
-      INET_E_CANNOT_LOCK_REQUEST: Result := 'INET_E_CANNOT_LOCK_REQUEST';
-      INET_E_USE_EXTEND_BINDING: Result := 'INET_E_USE_EXTEND_BINDING';
-      INET_E_TERMINATED_BIND: Result := 'INET_E_TERMINATED_BIND';
-      INET_E_BLOCKED_REDIRECT_XSECURITYID: Result := 'INET_E_BLOCKED_REDIRECT_XSECURITYID';
-      INET_E_CODE_DOWNLOAD_DECLINED: Result := 'INET_E_CODE_DOWNLOAD_DECLINED';
-      INET_E_RESULT_DISPATCHED: Result := 'INET_E_RESULT_DISPATCHED';
-      INET_E_CANNOT_REPLACE_SFP_FILE: Result := 'INET_E_CANNOT_REPLACE_SFP_FILE';
-      INET_E_CODE_INSTALL_SUPPRESSED: Result := 'INET_E_CODE_INSTALL_SUPPRESSED';
-      INET_E_CODE_INSTALL_BLOCKED_BY_HASH_POLICY: Result := 'INET_E_CODE_INSTALL_BLOCKED_BY_HASH_POLICY';
-      INET_E_DOWNLOAD_BLOCKED_BY_INPRIVATE: Result := 'INET_E_DOWNLOAD_BLOCKED_BY_INPRIVATE';
-    else
-      Result := '0x' + IntToHex(H);
-    end;
-  end;
-
 var
   DisableFsRedir: Boolean;
   PrevState: TPreviousFsRedirectionState;
   DestFile: String;
-  BasicBindStatusCallback: TBasicBindStatusCallback;
-  Res: HResult;
-  F: TFile;
-  TmpFileSize: Integer64;
-  FileSize: Int64;
+  DestF: TFileStream;
+  HTTPDataReceiver: THTTPDataReceiver;
+  HTTPClient: THTTPClient;
+  HTTPResponse: IHTTPResponse;
   SHA256OfFile: String;
 begin
   if Url = '' then
@@ -3607,67 +3497,54 @@ begin
   end else
     ForceDirectories(DisableFsRedir, PathExtractPath(DestFile));
 
-  BasicBindStatusCallback := TBasicBindStatusCallback.Create;
-  BasicBindStatusCallback.Url := Url;
-  BasicBindStatusCallback.BaseName := BaseName;
-  BasicBindStatusCallback.OnDownloadProgress := OnDownloadProgress;
-
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := -1;
-    Exit;
-  end;
+  HTTPDataReceiver := nil;
+  HTTPClient := nil;
+  DestF := nil;
   try
-    Res := URLDownloadToFile(nil, PChar(Url), PChar(DestFile), 0, BasicBindStatusCallback);
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
+    HTTPDataReceiver := THTTPDataReceiver.Create;
+    HTTPDataReceiver.BaseName := BaseName;
+    HTTPDataReceiver.Url := Url;
+    HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
 
-  if Res <> S_OK then begin
-    LogFmt('Download failed: URLDownloadToFile returned error %s', [URLDownloadToFileResultToString(Res)]);
-    Result := -1;
-  end else begin
-    { Get file size }
+    HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
+    HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
+
+    if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then
+      InternalError('DownloadTemporaryFile: DisableFsRedirectionIf failed.');
     try
-      F := TFileRedir.Create(DisableFsRedir, DestFile, fdOpenExisting, faRead, fsReadWrite);
-      try
-        TmpFileSize := F.Size; { Make sure we access F.Size only once }
-        FileSize := Int64(TmpFileSize.Hi) shl 32 + TmpFileSize.Lo;
-      finally
-        F.Free;
-      end;
-    except on E: Exception do
-      begin
-        LogFmt('Download failed: File size check failed: %s', [E.Message]);
-        Result := -1;
-        Exit;
-      end;
+      DestF := TFileStream.Create(DestFile, fmCreate);
+    finally
+      RestoreFsRedirection(PrevState);
     end;
 
-    { Check hash if specified, otherwise check everything else we can check }
-    if RequiredSHA256OfFile <> '' then begin
-      try
-        SHA256OfFile := GetSHA256OfFile(DisableFsRedir, DestFile);
-        if RequiredSHA256OfFile <> SHA256OfFile then begin
-          LogFmt('Download failed: Invalid file hash: expected %s, found %s', [RequiredSHA256OfFile, SHA256OfFile]);
-          Result := -1;
-        end else
-          Result := FileSize;
-      except on E: Exception do
-        begin
-          LogFmt('Download failed: File hash check failed: %s', [E.Message]);
-          Result := -1;
-        end;
-      end;
+    HTTPResponse := HTTPClient.Get(Url, DestF);
+    if HTTPResponse.StatusCode <> 200 then begin
+      InternalErrorFmt('DownloadTemporaryFile: HTTPClient.Get returned status code %d', [HTTPResponse.StatusCode]);
+      Result := 0; { Silence compiler }
     end else begin
-      if BasicBindStatusCallback.Progress <> BasicBindStatusCallback.ProgressMax then begin
-        LogFmt('Download failed: URLDownloadToFile returned invalid progress: %d of %d', [BasicBindStatusCallback.Progress, BasicBindStatusCallback.ProgressMax]);
-        Result := -1;
-      end else if BasicBindStatusCallback.ProgressMax <> FileSize then begin
-        LogFmt('Download failed: Invalid file size: expected %d, found %d', [BasicBindStatusCallback.ProgressMax, FileSize]);
-        Result := -1;
-      end else
-        Result := FileSize;
+      Result := DestF.Size;
+      FreeAndNil(DestF);
+
+      { Check hash if specified, otherwise check everything else we can check }
+      if RequiredSHA256OfFile <> '' then begin
+        try
+          SHA256OfFile := GetSHA256OfFile(DisableFsRedir, DestFile);
+          if RequiredSHA256OfFile <> SHA256OfFile then
+            InternalErrorFmt('DownloadTemporaryFile: Invalid file hash: expected %s, found %s', [RequiredSHA256OfFile, SHA256OfFile]);
+        except on E: Exception do
+          InternalErrorFmt('DownloadTemporaryFile: File hash check failed: %s', [E.Message]);
+        end;
+      end else begin
+        if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
+          InternalErrorFmt('DownloadTemporaryFile: HTTPClient.Get returned invalid progress: %d of %d', [HTTPDataReceiver.Progress, HTTPDataReceiver.ProgressMax])
+        else if HTTPDataReceiver.ProgressMax <> Result then
+          InternalErrorFmt('DownloadTemporaryFile: Invalid file size: expected %d, found %d', [HTTPDataReceiver.ProgressMax, Result]);
+      end;
     end;
+  finally
+    DestF.Free;
+    HTTPClient.Free;
+    HTTPDataReceiver.Free;
   end;
 end;
 
