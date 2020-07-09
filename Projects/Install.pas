@@ -31,8 +31,7 @@ uses
   InstFunc, InstFnc2, SecurityFunc, Msgs, Main, Logging, Extract, FileClass,
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
-  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager, Net.HTTPClient,
-  uHTTPStatus;
+  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager, Net.HTTPClient;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -3547,7 +3546,7 @@ begin
     if HTTPDataReceiver.Aborted then
       raise Exception.Create('Download aborted')
     else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
-      raise Exception.CreateFmt('Download failed: %d %s', [HTTPResponse.StatusCode, StatusText(HTTPResponse.StatusCode)])
+      raise Exception.CreateFmt('Download failed: %d %s', [HTTPResponse.StatusCode, HTTPResponse.StatusText])
     else begin
       Result := DestF.Size;
       FreeAndNil(DestF);
