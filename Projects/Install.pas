@@ -3529,7 +3529,9 @@ begin
     { To test redirects: https://jrsoftware.org/download.php/is.exe
       To test expired certificates: https://expired.badssl.com/
       To test self-signed certificates: https://self-signed.badssl.com/
-      To test basic authentication: https://guest:guest@jigsaw.w3.org/HTTP/Basic/ }
+      To test basic authentication: https://guest:guest@jigsaw.w3.org/HTTP/Basic/
+      To test 100 MB file: https://speed.hetzner.de/100MB.bin
+      To test 1 GB file: https://speed.hetzner.de/1GB.bin }
 
     HTTPResponse := HTTPClient.Get(Url, DestF);
     if HTTPDataReceiver.Aborted then
@@ -3544,11 +3546,11 @@ begin
       if RequiredSHA256OfFile <> '' then begin
         try
           SHA256OfFile := GetSHA256OfFile(DisableFsRedir, DestFile);
-          if RequiredSHA256OfFile <> SHA256OfFile then
-            raise Exception.CreateFmt('Invalid file hash: expected %s, found %s', [RequiredSHA256OfFile, SHA256OfFile]);
         except on E: Exception do
-          raise Exception.CreateFmt('File hash check failed: %s', [E.Message]);
+          raise Exception.CreateFmt('File hash failed: %s', [E.Message]);
         end;
+        if RequiredSHA256OfFile <> SHA256OfFile then
+          raise Exception.CreateFmt('Invalid file hash: expected %s, found %s', [RequiredSHA256OfFile, SHA256OfFile]);
       end else begin
         if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
           raise Exception.CreateFmt('Invalid progress: %d of %d', [HTTPDataReceiver.Progress, HTTPDataReceiver.ProgressMax])
