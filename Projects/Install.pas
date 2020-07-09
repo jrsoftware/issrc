@@ -3446,6 +3446,7 @@ type
     FOnDownloadProgress: TOnDownloadProgress;
     FAborted: Boolean;
     FProgress, FProgressMax: Int64;
+    FLastReportedProgress, FLastReportedProgressMax: Int64;
   public
     property BaseName: String write FBaseName;
     property Url: String write FUrl;
@@ -3457,18 +3458,27 @@ type
   end;
 
 procedure THTTPDataReceiver.OnReceiveData(const Sender: TObject; AContentLength: Int64; AReadCount: Int64; var Abort: Boolean);
-var
-  NewProgress, NewProgressMax: Int64;
 begin
-  NewProgress := AReadCount;
-  NewProgressMax := AContentLength;
+  FProgress := AReadCount;
+  FProgressMax := AContentLength;
 
-  if (NewProgress <> FProgress) or (NewProgressMax <> FProgressMax) then begin
-    FProgress := NewProgress;
-    FProgressMax := NewProgressMax;
-    if Assigned(FOnDownloadProgress) then
-      if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
-        Abort := True;
+  if Assigned(FOnDownloadProgress) then begin
+    { Make sure script isn't called crazy often because that would slow the download significantly. Only report:
+      -At start or finish
+      -Or if somehow Progress decreased or Max changed
+      -Or if at least 512 KB progress was made since last report
+    }
+    if (FProgress = 0) or (FProgress = FProgressMax) or
+       (FProgress < FLastReportedProgress) or (FProgressMax <> FLastReportedProgressMax) or
+       ((FProgress - FLastReportedProgress) > 524288) then begin
+      try
+        if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
+          Abort := True;
+      finally
+        FLastReportedProgress := FProgress;
+        FLastReportedProgressMax := FProgressMax;
+      end;
+    end;
   end;
 
   if not Abort and DownloadTemporaryFileAllowProcessMessages then
