@@ -23,6 +23,7 @@ type
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+function DownloadTemporaryFileSize(const Url: String): Int64;
 
 implementation
 
@@ -3571,6 +3572,28 @@ begin
     DestF.Free;
     HTTPClient.Free;
     HTTPDataReceiver.Free;
+  end;
+end;
+
+function DownloadTemporaryFileSize(const Url: String): Int64;
+var
+  HTTPClient: THTTPClient;
+  HTTPResponse: IHTTPResponse;
+begin
+  if Url = '' then
+    InternalError('DownloadTemporaryFileSize: Invalid Url value');
+
+  LogFmt('Getting size of %s', [Url]);
+
+  HTTPClient := THTTPClient.Create;
+  try
+    HTTPResponse := HTTPClient.Head(Url);
+    if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
+      raise Exception.CreateFmt('Getting size failed: %d %s', [HTTPResponse.StatusCode, HTTPResponse.StatusText])
+    else
+      Result := HTTPResponse.ContentLength; { Could be -1 }
+  finally
+    HTTPClient.Free;
   end;
 end;
 

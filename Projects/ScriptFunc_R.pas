@@ -761,6 +761,8 @@ begin
     else
       OnDownloadProgress := nil;
     Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), OnDownloadProgress));
+  end else if Proc.Name = 'DOWNLOADTEMPORARYFILESIZE' then begin
+    Stack.SetInt64(PStart, DownloadTemporaryFileSize(Stack.GetString(PStart-1)));
 {$ENDIF}
   end else
     Result := False;
