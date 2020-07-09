@@ -3547,7 +3547,7 @@ begin
         end;
       end else begin
         if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
-          raise Exception.CreateFmt('HTTPClient.Get returned invalid progress: %d of %d', [HTTPDataReceiver.Progress, HTTPDataReceiver.ProgressMax])
+          raise Exception.CreateFmt('Invalid progress: %d of %d', [HTTPDataReceiver.Progress, HTTPDataReceiver.ProgressMax])
         else if HTTPDataReceiver.ProgressMax <> Result then
           raise Exception.CreateFmt('Invalid file size: expected %d, found %d', [HTTPDataReceiver.ProgressMax, Result]);
       end;
