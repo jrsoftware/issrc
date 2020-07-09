@@ -87,7 +87,7 @@ procedure DownloadFiles;
 begin
   try
     DownloadStatusLabel.Visible := True;
-    DownloadStatusLabel.Caption := 'Downloading extra files...';
+    DownloadStatusLabel.Caption := 'Downloading additional files...';
     DownloadStatusLabel.Update;
     DownloadFilenameLabel.Visible := True;
     DownloadProgressBar.Visible := True;
