@@ -1768,8 +1768,16 @@ end;
 
 function InitializeSetup: Boolean;
 begin
-  Result := DownloadTemporaryFile('https://jrsoftware.org/download.php/is.exe', 'is.exe', @OnDownloadProgress) > 0;
-end;</pre></example>
+  try
+    DownloadTemporaryFile('https://jrsoftware.org/download.php/is.exe', 'innosetup-latest.exe', '', @OnDownloadProgress);
+    DownloadTemporaryFile('https://jrsoftware.org/download.php/iscrypt.dll', 'ISCrypt.dll', '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc', @OnDownloadProgress);
+    Result := True;
+  except
+    Log(GetExceptionMessage);
+    Result := False;
+  end;
+end;</pre>
+<p>See <i>CodeDownloadFiles.iss</i> for another example.</p></example>
       </function>
     </subcategory>
     <subcategory>

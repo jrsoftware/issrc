@@ -50,7 +50,16 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 <p><span class="head2">Built-in download support for [Code]</span></p>
 <p>Pascal Scripting now supports downloading files and checking SHA-256 hashes:</p>
 <ul>
-  <li>Added new <tt>DownloadTemporaryFile</tt> support function to download files. Allows you <a href="https://i.imgur.com/diBUvLn.png">show the download progress</a> to the user, see <a href="https://github.com/jrsoftware/ispack/commit/9c3ce4b45900d4d22228037ee6af0813aa24fa8d?diff=split">this comparison</a> for an example.</li>
+  <li>Added new <tt>DownloadTemporaryFile</tt> support function to download files without using a third-party tool:
+  <ul>
+    <li>Allows you <a href="https://i.imgur.com/diBUvLn.png">show the download progress</a> to the user. See the new <i>CodeDownloadFiles.iss</i> example script for an example.</li>
+    <li>Supports HTTPS (but not expired or self-signed certificates) and HTTP.</li>
+    <li>Redirects are automatically followed and proxy settings are automatically used.</li>
+    <li>Safe to use from services unlike existing third-party tools.</li>
+    <li>Supports SHA-256 hash checking of the downloaded file.</li>
+    <li>Supports basic authentication.</li>
+  </ul>
+  </li>
   <li>Added new <tt>GetSHA256OfFile</tt>, <tt>GetSHA256OfString</tt>, and <tt>GetSHA256OfUnicodeString</tt> support functions.</li>
 </ul>
 <p><span class="head2">Inno Setup Preprocessor (ISPP) updates</span></p>
