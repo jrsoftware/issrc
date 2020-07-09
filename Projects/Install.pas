@@ -3517,6 +3517,11 @@ begin
       RestoreFsRedirection(PrevState);
     end;
 
+    { To test redirects: https://jrsoftware.org/download.php/is.exe
+      To test expired certificates: https://expired.badssl.com/
+      To test self-signed certificates: https://self-signed.badssl.com/
+      To test basic authentication: https://guest:guest@jigsaw.w3.org/HTTP/Basic/ }
+
     HTTPResponse := HTTPClient.Get(Url, DestF);
     if HTTPResponse.StatusCode <> 200 then begin
       InternalErrorFmt('DownloadTemporaryFile: HTTPClient.Get returned status code %d', [HTTPResponse.StatusCode]);
