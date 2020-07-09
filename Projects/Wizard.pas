@@ -1885,10 +1885,12 @@ begin
     WizardForm.Update;
     WindowDisabler := TWindowDisabler.Create;
     try
+      DownloadTemporaryFileAllowProcessMessages := True;
       CodeNeedsRestart := False;
       Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
       PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
     finally
+      DownloadTemporaryFileAllowProcessMessages := False;
       WindowDisabler.Free;
       UpdateCurPageButtonVisibility;
     end;
