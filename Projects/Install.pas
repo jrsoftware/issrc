@@ -3473,7 +3473,7 @@ begin
   if not Abort and DownloadTemporaryFileAllowProcessMessages then
     Application.ProcessMessages;
 
-	if Abort then
+  if Abort then
     FAborted := True
 end;
 
