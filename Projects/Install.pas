@@ -316,6 +316,13 @@ begin
       Result := PathExtractName(Result);
 end;
 
+function LastErrorIndicatesPossiblyInUse(const LastError: DWORD; const CheckAlreadyExists: Boolean): Boolean;
+begin
+  Result := (LastError = ERROR_ACCESS_DENIED) or
+            (LastError = ERROR_SHARING_VIOLATION) or
+            (CheckAlreadyExists and (LastError = ERROR_ALREADY_EXISTS));
+end;
+
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
   ChangesAssociations: Boolean);
 type
@@ -1513,8 +1520,7 @@ var
             if LastError = ERROR_FILE_NOT_FOUND then
               Break;
             { Does the error code indicate that it is possibly in use? }
-            if (LastError = ERROR_ACCESS_DENIED) or
-               (LastError = ERROR_SHARING_VIOLATION) then begin
+            if LastErrorIndicatesPossiblyInUse(LastError, False) then begin
               DoHandleFailedDeleteOrMoveFileTry('DeleteFile', TempFile, DestFile,
                 LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
                 DoBreak, DoContinue);
@@ -1539,15 +1545,13 @@ var
                 ((CurFile^.FileType = ftUninstExe) and DestFileExistedBefore)) then begin
           LastOperation := SetupMessages[msgErrorRenamingTemp];
           { Since the DeleteFile above succeeded you would expect the rename to
-            also always succeed, but if it doesn't anyway. }
+            also always succeed, but if it doesn't retry anyway. }
           RetriesLeft := 4;
           while not MoveFileRedir(DisableFsRedir, TempFile, DestFile) do begin
             { Couldn't rename the temporary file... }
             LastError := GetLastError;
             { Does the error code indicate that it is possibly in use? }
-            if (LastError = ERROR_ACCESS_DENIED) or
-               (LastError = ERROR_SHARING_VIOLATION) or
-               (LastError = ERROR_ALREADY_EXISTS) then begin
+            if LastErrorIndicatesPossiblyInUse(LastError, True) then begin
               DoHandleFailedDeleteOrMoveFileTry('MoveFile', TempFile, DestFile,
                 LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
                 DoBreak, DoContinue);
@@ -2969,8 +2973,7 @@ var
         Break;
       LastError := GetLastError;
       { Does the error code indicate that the file is possibly in use? }
-      if (LastError = ERROR_ACCESS_DENIED) or
-         (LastError = ERROR_SHARING_VIOLATION) then begin
+      if LastErrorIndicatesPossiblyInUse(LastError, False) then begin
         if RetriesLeft > 0 then begin
           LogFmt('The existing file appears to be in use (%d). ' +
             'Retrying.', [LastError]);
@@ -3492,12 +3495,14 @@ function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String
 var
   DisableFsRedir: Boolean;
   PrevState: TPreviousFsRedirectionState;
-  DestFile: String;
-  DestF: TFileStream;
+  DestFile, TempFile: String;
+  TempF: TFileStream;
   HTTPDataReceiver: THTTPDataReceiver;
   HTTPClient: THTTPClient;
   HTTPResponse: IHTTPResponse;
   SHA256OfFile: String;
+  RetriesLeft: Integer;
+  LastError: DWORD;
 begin
   if Url = '' then
     InternalError('DownloadTemporaryFile: Invalid Url value');
@@ -3510,7 +3515,13 @@ begin
 
   DisableFsRedir := InstallDefaultDisableFsRedir;
 
+  { Prepare directory }
   if FileExists(DestFile) then begin
+    if (RequiredSHA256OfFile <> '') and (RequiredSHA256OfFile = GetSHA256OfFile(DisableFsRedir, DestFile)) then begin
+      Log('  File already downloaded.');
+      Result := 0;
+      Exit;
+    end;    
     SetFileAttributesRedir(DisableFsRedir, DestFile, GetFileAttributesRedir(DisableFsRedir, DestFile) and not FILE_ATTRIBUTE_READONLY);
     DelayDeleteFile(DisableFsRedir, DestFile, 13, 50, 250);
   end else
@@ -3518,8 +3529,9 @@ begin
 
   HTTPDataReceiver := nil;
   HTTPClient := nil;
-  DestF := nil;
+  TempF := nil;
   try
+    { Setup downloader }
     HTTPDataReceiver := THTTPDataReceiver.Create;
     HTTPDataReceiver.BaseName := BaseName;
     HTTPDataReceiver.Url := Url;
@@ -3528,10 +3540,12 @@ begin
     HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
     HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
 
+    { Create temporary file }
+    TempFile := GenerateUniqueName(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
     if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then
       raise Exception.Create('DisableFsRedirectionIf failed');
     try
-      DestF := TFileStream.Create(DestFile, fmCreate);
+      TempF := TFileStream.Create(TempFile, fmCreate);
     finally
       RestoreFsRedirection(PrevState);
     end;
@@ -3543,19 +3557,21 @@ begin
       To test 100 MB file: https://speed.hetzner.de/100MB.bin
       To test 1 GB file: https://speed.hetzner.de/1GB.bin }
 
-    HTTPResponse := HTTPClient.Get(Url, DestF);
+    { Download to temporary file}
+    HTTPResponse := HTTPClient.Get(Url, TempF);
     if HTTPDataReceiver.Aborted then
       raise Exception.Create('Download aborted')
     else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
       raise Exception.CreateFmt('Download failed: %d %s', [HTTPResponse.StatusCode, HTTPResponse.StatusText])
     else begin
-      Result := DestF.Size;
-      FreeAndNil(DestF);
+      { Download completed, get temporary file size and close it }
+      Result := TempF.Size;
+      FreeAndNil(TempF);
 
       { Check hash if specified, otherwise check everything else we can check }
       if RequiredSHA256OfFile <> '' then begin
         try
-          SHA256OfFile := GetSHA256OfFile(DisableFsRedir, DestFile);
+          SHA256OfFile := GetSHA256OfFile(DisableFsRedir, TempFile);
         except on E: Exception do
           raise Exception.CreateFmt('File hash failed: %s', [E.Message]);
         end;
@@ -3567,9 +3583,29 @@ begin
         else if HTTPDataReceiver.ProgressMax <> Result then
           raise Exception.CreateFmt('Invalid file size: expected %d, found %d', [HTTPDataReceiver.ProgressMax, Result]);
       end;
+
+      { Rename the temporary file to the new name now, with retries if needed }
+      RetriesLeft := 4;
+      while not MoveFileRedir(DisableFsRedir, TempFile, DestFile) do begin
+        { Couldn't rename the temporary file... }
+        LastError := GetLastError;
+        { Does the error code indicate that it is possibly in use? }
+        if LastErrorIndicatesPossiblyInUse(LastError, True) then begin
+          LogFmt('  The existing file appears to be in use (%d). ' +
+            'Retrying.', [LastError]);
+          Dec(RetriesLeft);
+          Sleep(1000);
+          if RetriesLeft > 0 then
+            Continue;
+        end;
+        { Some other error occurred, or we ran out of tries }
+        SetLastError(LastError);
+        Win32ErrorMsg('MoveFile'); { Throws an exception }
+      end;
+
     end;
   finally
-    DestF.Free;
+    TempF.Free;
     HTTPClient.Free;
     HTTPDataReceiver.Free;
   end;
@@ -3583,7 +3619,7 @@ begin
   if Url = '' then
     InternalError('DownloadTemporaryFileSize: Invalid Url value');
 
-  LogFmt('Getting size of %s', [Url]);
+  LogFmt('Getting size of %s.', [Url]);
 
   HTTPClient := THTTPClient.Create;
   try
