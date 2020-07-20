@@ -843,8 +843,8 @@ end;
 
 procedure TMBDForm.MSGTextKeyPress(Sender: TObject; var Key: Char);
 begin
-	if Key = #27 then begin
-  	MBDButtonCancel.Click;
+  if Key = #27 then begin
+    MBDButtonCancel.Click;
     Key := #0;
   end;
 end;

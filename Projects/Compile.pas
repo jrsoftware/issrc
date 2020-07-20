@@ -4153,7 +4153,7 @@ begin
     ssOutput: begin
         if not FixedOutput then
           Output := StrToBool(Value);
-		end;
+    end;
     ssOutputBaseFilename: begin
         if not FixedOutputBaseFilename then
           OutputBaseFilename := Value;
