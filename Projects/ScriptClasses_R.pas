@@ -187,6 +187,7 @@ procedure RegisterSetupForm_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TSetupForm) do
   begin
+    RegisterMethod(@TSetupForm.CalculateButtonWidth, 'CalculateButtonWidth');
     RegisterMethod(@TSetupForm.ShouldSizeX, 'ShouldSizeX');
     RegisterMethod(@TSetupForm.ShouldSizeY, 'ShouldSizeY');
     RegisterMethod(@TSetupForm.FlipSizeAndCenterIfNeeded, 'FlipSizeAndCenterIfNeeded');

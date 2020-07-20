@@ -279,7 +279,7 @@ end;
 
 procedure CreateButton(ALeft, ATop: Integer; ACaption: String; ANotifyEvent: TNotifyEvent);
 begin
-  with TButton.Create(WizardForm) do begin
+  with TNewButton.Create(WizardForm) do begin
     Left := ALeft;
     Top := ATop;
     Width := WizardForm.CancelButton.Width;

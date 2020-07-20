@@ -441,7 +441,7 @@ var
   Edit: TEdit;
   Button: TNewButton;
 begin
-  ButtonWidth := WizardForm.CalculateButtonWidth([msgButtonWizardBrowse]);
+  ButtonWidth := WizardForm.CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
 
   if APrompt <> '' then begin
     PromptLabel := TNewStaticText.Create(Self);
@@ -583,7 +583,7 @@ var
   Edit: TEdit;
   Button: TNewButton;
 begin
-  ButtonWidth := WizardForm.CalculateButtonWidth([msgButtonWizardBrowse]);
+  ButtonWidth := WizardForm.CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
 
   if APrompt <> '' then begin
     PromptLabel := TNewStaticText.Create(Self);

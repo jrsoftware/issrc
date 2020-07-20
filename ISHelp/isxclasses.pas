@@ -732,6 +732,7 @@ TUIStateForm = class(TForm)
 end;
 
 TSetupForm = class(TUIStateForm)
+  function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
   function ShouldSizeX: Boolean;
   function ShouldSizeY: Boolean;
   procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
