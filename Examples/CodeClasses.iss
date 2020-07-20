@@ -37,6 +37,7 @@ var
   Form: TSetupForm;
   Edit: TNewEdit;
   OKButton, CancelButton: TNewButton;
+  W: Integer;
 begin
   Form := CreateCustomForm();
   try
@@ -55,25 +56,27 @@ begin
 
     OKButton := TNewButton.Create(Form);
     OKButton.Parent := Form;
+    OKButton.Caption := 'OK';
     OKButton.Left := Form.ClientWidth - ScaleX(75 + 6 + 75 + 10);
     OKButton.Top := Form.ClientHeight - ScaleY(23 + 10);
-    OKButton.Width := ScaleX(75);
     OKButton.Height := ScaleY(23);
     OKButton.Anchors := [akRight, akBottom]
-    OKButton.Caption := 'OK';
     OKButton.ModalResult := mrOk;
     OKButton.Default := True;
 
     CancelButton := TNewButton.Create(Form);
     CancelButton.Parent := Form;
+    CancelButton.Caption := 'Cancel';
     CancelButton.Left := Form.ClientWidth - ScaleX(75 + 10);
     CancelButton.Top := Form.ClientHeight - ScaleY(23 + 10);
-    CancelButton.Width := ScaleX(75);
     CancelButton.Height := ScaleY(23);
     CancelButton.Anchors := [akRight, akBottom]
-    CancelButton.Caption := 'Cancel';
     CancelButton.ModalResult := mrCancel;
     CancelButton.Cancel := True;
+
+    W := Form.CalculateButtonWidth([OKButton.Caption, CancelButton.Caption]);
+    OKButton.Width := W;
+    CancelButton.Width := W;
 
     Form.ActiveControl := Edit;
     { Keep the form from sizing vertically since we don't have any controls which can size vertically }
@@ -126,9 +129,9 @@ begin
   Page := CreateCustomPage(wpWelcome, 'Custom wizard page controls', 'TButton and others');
 
   Button := TNewButton.Create(Page);
-  Button.Width := ScaleX(75);
-  Button.Height := ScaleY(23);
   Button.Caption := 'TNewButton';
+  Button.Width := WizardForm.CalculateButtonWidth([Button.Caption]);
+  Button.Height := ScaleY(23);
   Button.OnClick := @ButtonOnClick;
   Button.Parent := Page.Surface;
 
@@ -176,21 +179,21 @@ begin
   Memo.Parent := Page.Surface;
 
   FormButton := TNewButton.Create(Page);
+  FormButton.Caption := 'TSetupForm';
   FormButton.Top := Memo.Top + Memo.Height + ScaleY(8);
-  FormButton.Width := ScaleX(75);
+  FormButton.Width := WizardForm.CalculateButtonWidth([FormButton.Caption]);
   FormButton.Height := ScaleY(23);
   FormButton.Anchors := [akLeft, akBottom];
-  FormButton.Caption := 'TSetupForm';
   FormButton.OnClick := @FormButtonOnClick;
   FormButton.Parent := Page.Surface;
 
   TaskDialogButton := TNewButton.Create(Page);
+  TaskDialogButton.Caption := 'TaskDialogMsgBox';
   TaskDialogButton.Top := FormButton.Top;
   TaskDialogButton.Left := FormButton.Left + FormButton.Width + ScaleX(8);
-  TaskDialogButton.Width := ScaleX(110);
+  TaskDialogButton.Width := WizardForm.CalculateButtonWidth([TaskDialogButton.Caption]);
   TaskDialogButton.Height := ScaleY(23);
   TaskDialogButton.Anchors := [akLeft, akBottom];
-  TaskDialogButton.Caption := 'TaskDialogMsgBox';
   TaskDialogButton.OnClick := @TaskDialogButtonOnClick;
   TaskDialogButton.Parent := Page.Surface;
 

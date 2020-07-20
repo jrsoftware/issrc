@@ -895,8 +895,9 @@ begin
   end;
   
   { Position the buttons, and scale their size }
-  W1 := CalculateButtonWidth([msgButtonBack, msgButtonCancel, msgButtonFinish,
-    msgButtonInstall, msgButtonNext]);  { width of each button }
+  W1 := CalculateButtonWidth([SetupMessages[msgButtonBack], SetupMessages[msgButtonCancel],
+    SetupMessages[msgButtonFinish], SetupMessages[msgButtonInstall],
+    SetupMessages[msgButtonNext]]);  { width of each button }
   W2 := ScalePixelsX(10);  { margin, and space between Next & Cancel }
 
   BackButton.Width := W1;
@@ -1008,7 +1009,7 @@ begin
   DirEdit.Top := DirEdit.Top + I;
   TryEnableAutoCompleteFileSystem(DirEdit.Handle);
   DirBrowseButton.Caption := SetupMessages[msgButtonWizardBrowse];
-  X := CalculateButtonWidth([msgButtonWizardBrowse]);
+  X := CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
   DirBrowseButton.SetBounds(InnerNotebook.Width - X,
     DirBrowseButton.Top + I, X, DirBrowseButton.Height);
   DirEdit.Width := DirBrowseButton.Left - ScalePixelsX(10) - DirEdit.Left;
@@ -1053,7 +1054,7 @@ begin
   Inc(I, AdjustLabelHeight(SelectStartMenuFolderBrowseLabel));
   GroupEdit.Top := GroupEdit.Top + I;
   GroupBrowseButton.Caption := SetupMessages[msgButtonWizardBrowse];
-  X := CalculateButtonWidth([msgButtonWizardBrowse]);
+  X := CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
   GroupBrowseButton.SetBounds(InnerNotebook.Width - X,
     GroupBrowseButton.Top + I, X, GroupBrowseButton.Height);
   GroupEdit.Width := GroupBrowseButton.Left - ScalePixelsX(10) - GroupEdit.Left;

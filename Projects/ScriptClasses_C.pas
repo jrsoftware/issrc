@@ -295,6 +295,7 @@ procedure RegisterSetupForm_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(Cl.FindClass('TUIStateForm'), 'TSetupForm') do
   begin
+    RegisterMethod('function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;');
     RegisterMethod('function ShouldSizeX: Boolean;');
     RegisterMethod('function ShouldSizeY: Boolean;');
     RegisterMethod('procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean)');
