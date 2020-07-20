@@ -3491,6 +3491,12 @@ begin
     FAborted := True
 end;
 
+procedure SetSecureProtocols(const AHTTPClient: THTTPClient);
+begin
+  { TLS 1.2 isn't enabled by default on older versions of Windows }
+  AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12];
+end;
+
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
 var
   DisableFsRedir: Boolean;
@@ -3540,6 +3546,7 @@ begin
     HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
 
     HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
+    SetSecureProtocols(HTTPClient);
     HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
 
     { Create temporary file }
@@ -3628,6 +3635,7 @@ begin
 
   HTTPClient := THTTPClient.Create;
   try
+    SetSecureProtocols(HTTPClient);
     HTTPResponse := HTTPClient.Head(Url);
     if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
       raise Exception.CreateFmt('Getting size failed: %d %s', [HTTPResponse.StatusCode, HTTPResponse.StatusText])
