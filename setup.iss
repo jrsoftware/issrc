@@ -137,6 +137,7 @@ Source: "Examples\CodeAutomation2.iss"; DestDir: "{app}\Examples"; Flags: ignore
 Source: "Examples\CodeClasses.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodeDlg.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodeDll.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
+Source: "Examples\CodeDownloadFiles.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodeExample1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodePrepareToInstall.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Components.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch

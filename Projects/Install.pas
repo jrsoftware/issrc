@@ -16,8 +16,14 @@ interface
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
   ChangesAssociations: Boolean);
 
+
+type
+  TOnDownloadProgress = function(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean of object;
+
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
+function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+function DownloadTemporaryFileSize(const Url: String): Int64;
 
 implementation
 
@@ -26,7 +32,7 @@ uses
   InstFunc, InstFnc2, SecurityFunc, Msgs, Main, Logging, Extract, FileClass,
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
-  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager;
+  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager, Net.HTTPClient;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -308,6 +314,13 @@ begin
   if FontDir <> '' then
     if PathCompare(PathExtractDir(Result), FontDir) = 0 then
       Result := PathExtractName(Result);
+end;
+
+function LastErrorIndicatesPossiblyInUse(const LastError: DWORD; const CheckAlreadyExists: Boolean): Boolean;
+begin
+  Result := (LastError = ERROR_ACCESS_DENIED) or
+            (LastError = ERROR_SHARING_VIOLATION) or
+            (CheckAlreadyExists and (LastError = ERROR_ALREADY_EXISTS));
 end;
 
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
@@ -1507,8 +1520,7 @@ var
             if LastError = ERROR_FILE_NOT_FOUND then
               Break;
             { Does the error code indicate that it is possibly in use? }
-            if (LastError = ERROR_ACCESS_DENIED) or
-               (LastError = ERROR_SHARING_VIOLATION) then begin
+            if LastErrorIndicatesPossiblyInUse(LastError, False) then begin
               DoHandleFailedDeleteOrMoveFileTry('DeleteFile', TempFile, DestFile,
                 LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
                 DoBreak, DoContinue);
@@ -1533,15 +1545,13 @@ var
                 ((CurFile^.FileType = ftUninstExe) and DestFileExistedBefore)) then begin
           LastOperation := SetupMessages[msgErrorRenamingTemp];
           { Since the DeleteFile above succeeded you would expect the rename to
-            also always succeed, but if it doesn't anyway. }
+            also always succeed, but if it doesn't retry anyway. }
           RetriesLeft := 4;
           while not MoveFileRedir(DisableFsRedir, TempFile, DestFile) do begin
             { Couldn't rename the temporary file... }
             LastError := GetLastError;
             { Does the error code indicate that it is possibly in use? }
-            if (LastError = ERROR_ACCESS_DENIED) or
-               (LastError = ERROR_SHARING_VIOLATION) or
-               (LastError = ERROR_ALREADY_EXISTS) then begin
+            if LastErrorIndicatesPossiblyInUse(LastError, True) then begin
               DoHandleFailedDeleteOrMoveFileTry('MoveFile', TempFile, DestFile,
                 LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
                 DoBreak, DoContinue);
@@ -2963,8 +2973,7 @@ var
         Break;
       LastError := GetLastError;
       { Does the error code indicate that the file is possibly in use? }
-      if (LastError = ERROR_ACCESS_DENIED) or
-         (LastError = ERROR_SHARING_VIOLATION) then begin
+      if LastErrorIndicatesPossiblyInUse(LastError, False) then begin
         if RetriesLeft > 0 then begin
           LogFmt('The existing file appears to be in use (%d). ' +
             'Retrying.', [LastError]);
@@ -3396,7 +3405,7 @@ begin
       Exit;
     end;
   end;
-  InternalError(Format('ExtractTemporaryFile: The file "%s" was not found', [BaseName]));
+  InternalErrorFmt('ExtractTemporaryFile: The file "%s" was not found', [BaseName]);
 end;
 
 function ExtractTemporaryFiles(const Pattern: String): Integer;
@@ -3430,7 +3439,211 @@ begin
   end;
 
   if Result = 0 then
-    InternalError(Format('ExtractTemporaryFiles: No files matching "%s" found', [Pattern]));
+    InternalErrorFmt('ExtractTemporaryFiles: No files matching "%s" found', [Pattern]);
+end;
+
+type
+  THTTPDataReceiver = class
+  private
+    FBaseName, FUrl: String;
+    FOnDownloadProgress: TOnDownloadProgress;
+    FAborted: Boolean;
+    FProgress, FProgressMax: Int64;
+    FLastReportedProgress, FLastReportedProgressMax: Int64;
+  public
+    property BaseName: String write FBaseName;
+    property Url: String write FUrl;
+    property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
+    property Aborted: Boolean read FAborted;
+    property Progress: Int64 read FProgress;
+    property ProgressMax: Int64 read FProgressMax;
+    procedure OnReceiveData(const Sender: TObject; AContentLength: Int64; AReadCount: Int64; var Abort: Boolean);
+  end;
+
+procedure THTTPDataReceiver.OnReceiveData(const Sender: TObject; AContentLength: Int64; AReadCount: Int64; var Abort: Boolean);
+begin
+  FProgress := AReadCount;
+  FProgressMax := AContentLength;
+
+  if Assigned(FOnDownloadProgress) then begin
+    { Make sure script isn't called crazy often because that would slow the download significantly. Only report:
+      -At start or finish
+      -Or if somehow Progress decreased or Max changed
+      -Or if at least 512 KB progress was made since last report
+    }
+    if (FProgress = 0) or (FProgress = FProgressMax) or
+       (FProgress < FLastReportedProgress) or (FProgressMax <> FLastReportedProgressMax) or
+       ((FProgress - FLastReportedProgress) > 524288) then begin
+      try
+        if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
+          Abort := True;
+      finally
+        FLastReportedProgress := FProgress;
+        FLastReportedProgressMax := FProgressMax;
+      end;
+    end;
+  end;
+
+  if not Abort and DownloadTemporaryFileAllowProcessMessages then
+    Application.ProcessMessages;
+
+  if Abort then
+    FAborted := True
+end;
+
+procedure SetSecureProtocols(const AHTTPClient: THTTPClient);
+begin
+  { TLS 1.2 isn't enabled by default on older versions of Windows }
+  AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12];
+end;
+
+function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+var
+  DisableFsRedir: Boolean;
+  PrevState: TPreviousFsRedirectionState;
+  DestFile, TempFile: String;
+  TempF: TFileStream;
+  TempFileLeftOver: Boolean;
+  HTTPDataReceiver: THTTPDataReceiver;
+  HTTPClient: THTTPClient;
+  HTTPResponse: IHTTPResponse;
+  SHA256OfFile: String;
+  RetriesLeft: Integer;
+  LastError: DWORD;
+begin
+  if Url = '' then
+    InternalError('DownloadTemporaryFile: Invalid Url value');
+  if BaseName = '' then
+    InternalError('DownloadTemporaryFile: Invalid BaseName value');
+
+  DestFile := AddBackslash(TempInstallDir) + BaseName;
+
+  LogFmt('Downloading temporary file from %s: %s', [Url, DestFile]);
+
+  DisableFsRedir := InstallDefaultDisableFsRedir;
+
+  { Prepare directory }
+  if FileExists(DestFile) then begin
+    if (RequiredSHA256OfFile <> '') and (RequiredSHA256OfFile = GetSHA256OfFile(DisableFsRedir, DestFile)) then begin
+      Log('  File already downloaded.');
+      Result := 0;
+      Exit;
+    end;    
+    SetFileAttributesRedir(DisableFsRedir, DestFile, GetFileAttributesRedir(DisableFsRedir, DestFile) and not FILE_ATTRIBUTE_READONLY);
+    DelayDeleteFile(DisableFsRedir, DestFile, 13, 50, 250);
+  end else
+    ForceDirectories(DisableFsRedir, PathExtractPath(DestFile));
+
+  HTTPDataReceiver := nil;
+  HTTPClient := nil;
+  TempF := nil;
+  TempFileLeftOver := False;
+  try
+    { Setup downloader }
+    HTTPDataReceiver := THTTPDataReceiver.Create;
+    HTTPDataReceiver.BaseName := BaseName;
+    HTTPDataReceiver.Url := Url;
+    HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
+
+    HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
+    SetSecureProtocols(HTTPClient);
+    HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
+
+    { Create temporary file }
+    TempFile := GenerateUniqueName(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
+    if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then
+      raise Exception.Create('DisableFsRedirectionIf failed');
+    try
+      TempF := TFileStream.Create(TempFile, fmCreate);
+      TempFileLeftOver := True;
+    finally
+      RestoreFsRedirection(PrevState);
+    end;
+
+    { To test redirects: https://jrsoftware.org/download.php/is.exe
+      To test expired certificates: https://expired.badssl.com/
+      To test self-signed certificates: https://self-signed.badssl.com/
+      To test basic authentication: https://guest:guest@jigsaw.w3.org/HTTP/Basic/
+      To test 100 MB file: https://speed.hetzner.de/100MB.bin
+      To test 1 GB file: https://speed.hetzner.de/1GB.bin }
+
+    { Download to temporary file}
+    HTTPResponse := HTTPClient.Get(Url, TempF);
+    if HTTPDataReceiver.Aborted then
+      raise Exception.Create('Download aborted')
+    else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
+      raise Exception.CreateFmt('Download failed: %d %s', [HTTPResponse.StatusCode, HTTPResponse.StatusText])
+    else begin
+      { Download completed, get temporary file size and close it }
+      Result := TempF.Size;
+      FreeAndNil(TempF);
+
+      { Check hash if specified, otherwise check everything else we can check }
+      if RequiredSHA256OfFile <> '' then begin
+        try
+          SHA256OfFile := GetSHA256OfFile(DisableFsRedir, TempFile);
+        except on E: Exception do
+          raise Exception.CreateFmt('File hash failed: %s', [E.Message]);
+        end;
+        if RequiredSHA256OfFile <> SHA256OfFile then
+          raise Exception.CreateFmt('Invalid file hash: expected %s, found %s', [RequiredSHA256OfFile, SHA256OfFile]);
+      end else begin
+        if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
+          raise Exception.CreateFmt('Invalid progress: %d of %d', [HTTPDataReceiver.Progress, HTTPDataReceiver.ProgressMax])
+        else if HTTPDataReceiver.ProgressMax <> Result then
+          raise Exception.CreateFmt('Invalid file size: expected %d, found %d', [HTTPDataReceiver.ProgressMax, Result]);
+      end;
+
+      { Rename the temporary file to the new name now, with retries if needed }
+      RetriesLeft := 4;
+      while not MoveFileRedir(DisableFsRedir, TempFile, DestFile) do begin
+        { Couldn't rename the temporary file... }
+        LastError := GetLastError;
+        { Does the error code indicate that it is possibly in use? }
+        if LastErrorIndicatesPossiblyInUse(LastError, True) then begin
+          LogFmt('  The existing file appears to be in use (%d). ' +
+            'Retrying.', [LastError]);
+          Dec(RetriesLeft);
+          Sleep(1000);
+          if RetriesLeft > 0 then
+            Continue;
+        end;
+        { Some other error occurred, or we ran out of tries }
+        SetLastError(LastError);
+        Win32ErrorMsg('MoveFile'); { Throws an exception }
+      end;
+      TempFileLeftOver := False;
+    end;
+  finally
+    TempF.Free;
+    HTTPClient.Free;
+    HTTPDataReceiver.Free;
+    if TempFileLeftOver then
+      DeleteFileRedir(DisableFsRedir, TempFile);
+  end;
+end;
+
+function DownloadTemporaryFileSize(const Url: String): Int64;
+var
+  HTTPClient: THTTPClient;
+  HTTPResponse: IHTTPResponse;
+begin
+  if Url = '' then
+    InternalError('DownloadTemporaryFileSize: Invalid Url value');
+
+  LogFmt('Getting size of %s.', [Url]);
+
+  HTTPClient := THTTPClient.Create;
+  try
+    SetSecureProtocols(HTTPClient);
+    HTTPResponse := HTTPClient.Head(Url);
+    if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
+      raise Exception.CreateFmt('Getting size failed: %d %s', [HTTPResponse.StatusCode, HTTPResponse.StatusText])
+    else
+      Result := HTTPResponse.ContentLength; { Could be -1 }
+  finally
+    HTTPClient.Free;
+  end;
 end;
 
 end.

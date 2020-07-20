@@ -1687,7 +1687,8 @@ end;</pre></example>
         <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
 <p>Use <tt>Flags: noencryption</tt> in the [Files] section if encryption is enabled and you call the ExtractTemporaryFile function prior to the user entering the correct password.</p>
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
-        <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link></p></seealso>
+        <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link><br />
+<link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link></p></seealso>
         <example><pre>[Files]
 Source: "Readme.txt"; Flags: dontcopy noencryption
 
@@ -1740,6 +1741,51 @@ begin
 
   Result := True;
 end;</pre></example>
+      </function>
+      <function>
+        <name>DownloadTemporaryFile</name>
+        <prototype>function DownloadTemporaryFile(const Url, FileName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
+        <description><p>Downloads the file from the specified URL to a temporary directory using the specified name. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+<p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded.</p>
+<p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
+<p>If RequiredSHA256OfFile is not empty it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
+<p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
+        <remarks><p>TOnDownloadProgress is defined as:</p>
+<p><tt>TOnDownloadProgress = function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;</tt></p>
+<p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p>
+<p>For basic authentication use a special URL format like this: http://username:password@example.com/</p></remarks>
+        <seealso><p><link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
+<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+        <example><pre>
+[Code]
+function OnDownloadProgress(const Url, Filename: string; const Progress, ProgressMax: Int64): Boolean;
+begin
+  if ProgressMax &lt;&gt; 0 then
+    Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
+  else
+    Log(Format('  %d bytes done.', [Progress]));
+  Result := True;
+end;
+
+function InitializeSetup: Boolean;
+begin
+  try
+    DownloadTemporaryFile('https://jrsoftware.org/download.php/is.exe', 'innosetup-latest.exe', '', @OnDownloadProgress);
+    DownloadTemporaryFile('https://jrsoftware.org/download.php/iscrypt.dll', 'ISCrypt.dll', '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc', @OnDownloadProgress);
+    Result := True;
+  except
+    Log(GetExceptionMessage);
+    Result := False;
+  end;
+end;</pre>
+<p>See <i>CodeDownloadFiles.iss</i> for another example.</p></example>
+      </function>
+      <function>
+        <name>DownloadTemporaryFileSize</name>
+        <prototype>function DownloadTemporaryFileSize(const Url): Int64;</prototype>
+        <description><p>Returns the size of the file from the specified URL, without downloading the file. If the server does not provide the file size, -1 will be returned.</p>
+<p>An exception will be raised if there was an error.</p>
+<p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
       </function>
     </subcategory>
     <subcategory>

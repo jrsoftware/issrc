@@ -208,6 +208,7 @@ type
     function ShouldSkipPage(const PageID: Integer): Boolean;
     procedure UpdateComponentSizes;
     procedure UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: LongInt);
+    procedure UpdateCurPageButtonState;
     procedure UpdatePage(const PageID: Integer);
     procedure UpdateSelectTasksPage;
     procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
@@ -234,7 +235,6 @@ type
     procedure IncTopDecHeight(const AControl: TControl; const Amount: Integer);
     function PageFromID(const ID: Integer): TWizardPage;
     function PageIndexFromID(const ID: Integer): Integer;
-    procedure UpdateCurPageButtonVisibility;
     procedure SetCurPage(const NewPageID: Integer);
     procedure SelectComponents(const ASelectComponents: TStringList); overload;
     procedure SelectTasks(const ASelectTasks: TStringList); overload;
@@ -1860,7 +1860,6 @@ end;
 
 function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStringList): String;
 var
-  WindowDisabler: TWindowDisabler;
   CodeNeedsRestart: Boolean;
   Y: Integer;
   S: String;
@@ -1879,19 +1878,20 @@ begin
     SetCurPage(wpPreparing);
     BackButton.Visible := False;
     NextButton.Visible := False;
+    CancelButton.Enabled := False;
     if InstallMode = imSilent then begin
       SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
       WizardForm.Show;
     end;
     WizardForm.Update;
-    WindowDisabler := TWindowDisabler.Create;
     try
+      DownloadTemporaryFileAllowProcessMessages := True;
       CodeNeedsRestart := False;
       Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
       PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
     finally
-      WindowDisabler.Free;
-      UpdateCurPageButtonVisibility;
+      DownloadTemporaryFileAllowProcessMessages := False;
+      UpdateCurPageButtonState;
     end;
     Application.BringToFront;
   end;
@@ -2193,7 +2193,7 @@ begin
   Result := -1;
 end;
 
-procedure TWizardForm.UpdateCurPageButtonVisibility;
+procedure TWizardForm.UpdateCurPageButtonState;
 var
   PageIndex: Integer;
   Page: TWizardPage;
@@ -2249,7 +2249,7 @@ begin
     not(CurPageID in [wpWelcome, wpFinished]);
 
   { Set button visibility and captions }
-  UpdateCurPageButtonVisibility;
+  UpdateCurPageButtonState;
 
   BackButton.Caption := SetupMessages[msgButtonBack];
   if CurPageID = wpReady then begin
@@ -2573,7 +2573,7 @@ begin
                 if RmFoundApplications then
                   Break;  { stop on the page }
               finally
-                UpdateCurPageButtonVisibility;
+                UpdateCurPageButtonState;
               end;
             end;
           finally
