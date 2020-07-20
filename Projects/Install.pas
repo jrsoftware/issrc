@@ -3497,6 +3497,7 @@ var
   PrevState: TPreviousFsRedirectionState;
   DestFile, TempFile: String;
   TempF: TFileStream;
+  TempFileLeftOver: Boolean;
   HTTPDataReceiver: THTTPDataReceiver;
   HTTPClient: THTTPClient;
   HTTPResponse: IHTTPResponse;
@@ -3530,6 +3531,7 @@ begin
   HTTPDataReceiver := nil;
   HTTPClient := nil;
   TempF := nil;
+  TempFileLeftOver := False;
   try
     { Setup downloader }
     HTTPDataReceiver := THTTPDataReceiver.Create;
@@ -3546,6 +3548,7 @@ begin
       raise Exception.Create('DisableFsRedirectionIf failed');
     try
       TempF := TFileStream.Create(TempFile, fmCreate);
+      TempFileLeftOver := True;
     finally
       RestoreFsRedirection(PrevState);
     end;
@@ -3602,12 +3605,14 @@ begin
         SetLastError(LastError);
         Win32ErrorMsg('MoveFile'); { Throws an exception }
       end;
-
+      TempFileLeftOver := False;
     end;
   finally
     TempF.Free;
     HTTPClient.Free;
     HTTPDataReceiver.Free;
+    if TempFileLeftOver then
+      DeleteFileRedir(DisableFsRedir, TempFile);
   end;
 end;
 
