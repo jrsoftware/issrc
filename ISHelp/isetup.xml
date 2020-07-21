@@ -139,7 +139,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Full source code is available from <extlink href="https://github.com/jrsoftware/issrc">GitHub</extlink>.</li>
 
-<li>Tiny footprint: only about 1.3 mB overhead with all features included.</li>
+<li>Tiny footprint: only about 1.5 mB overhead with all features included.</li>
 
 <li>All features are fully documented.</li>
 
@@ -1634,7 +1634,7 @@ ExternalSize: 1048576; Flags: external
 <param name="FontInstall">
 <p>Tells Setup the file is a font that needs to be installed. The value of this parameter is the name of the font as stored in the registry or WIN.INI. This must be exactly the same name as you see when you double-click the font file in Explorer. Note that Setup will automatically append " (TrueType)" to the end of the name.</p>
 <p>If the file is not a TrueType font, you must specify the flag <tt>fontisnttruetype</tt> in the Flags parameter.</p>
-<p>It's recommended that you use the flags <tt>onlyifdoesntexist</tt> and <tt>uninsneveruninstall</tt> when installing fonts to the {autofonts} directory.</p>
+<p>It's recommended that you use the flags <tt>onlyifdoesntexist</tt> and <tt>uninsneveruninstall</tt> when installing fonts to the <tt>{autofonts}</tt> directory.</p>
 <p>If the installation is running in <link topic="admininstallmode">non administrative install mode</link>, Windows 10 Version 1803 or later is required to successfully install a font.</p>
 <p>For compatibility with 64-bit Windows, fonts should not be installed to the <tt>{sys}</tt> directory. Use <tt>{autofonts}</tt> as the destination directory instead.</p>
 <example>
@@ -2979,14 +2979,14 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <ul>
 <li>The <tt>{group}</tt> folder is created in the <i>All Users</i> profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "common" form.</li>
-<li>The <link topic="registrysection">HKA</link> and uninstall info root keys will be HKEY_LOCAL_MACHINE.</li>
+<li>The <link topic="registrysection">HKA</link>, uninstall info, and font install root keys will be HKEY_LOCAL_MACHINE.</li>
 </ul>
 
 <p>In non administrative install mode:</p>
 <ul>
 <li>The <tt>{group}</tt> folder is created in the current user's profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "user" form.</li>
-<li>The <link topic="registrysection">HKA</link> and uninstall info root keys will be HKEY_CURRENT_USER.</li>
+<li>The <link topic="registrysection">HKA</link>, uninstall info, and font install root keys will be HKEY_CURRENT_USER.</li>
 </ul>
 
 <p><b>Notes:</b></p>
