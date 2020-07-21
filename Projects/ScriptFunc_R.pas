@@ -953,7 +953,7 @@ begin
       Stack.GetString(PStart-2), Stack.GetString(PStart-3),
       Stack.GetString(PStart-4), Stack.GetString(PStart-5),
       Stack.GetString(PStart-6), Stack.GetInt(PStart-7),
-      Stack.GetInt(PStart-8), 0, False, '', False, False));
+      Stack.GetInt(PStart-8), 0, False, '', nil, False, False));
   end else if Proc.Name = 'REGISTERTYPELIBRARY' then begin
     if Stack.GetBool(PStart) then
       HelperRegisterTypeLibrary(False, Stack.GetString(PStart-1))

@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.0.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.1.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.0.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
@@ -272,13 +272,14 @@ type
     IconName, Filename, Parameters, WorkingDir, IconFilename, Comment: String;
     Components, Tasks, Languages, Check, AfterInstall, BeforeInstall: String;
     AppUserModelID: String;
+    AppUserModelToastActivatorCLSID: TGUID;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     IconIndex, ShowCmd: Integer;
     CloseOnExit: TSetupIconCloseOnExit;
     HotKey: Word;
     Options: set of (ioUninsNeverUninstall, ioCreateOnlyIfFileExists,
       ioUseAppPaths, ioFolderShortcut, ioExcludeFromShowInNewInstall,
-      ioPreventPinning);
+      ioPreventPinning, ioHasAppUserModelToastActivatorCLSID);
   end;
 const
   SetupIniEntryStrings = 10;

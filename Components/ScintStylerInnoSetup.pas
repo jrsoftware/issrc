@@ -343,9 +343,10 @@ const
     (Name: 'StrongAssemblyName'),
     (Name: 'Tasks'));
 
-  IconsSectionParameters: array[0..17] of TInnoSetupStylerParamInfo = (
+  IconsSectionParameters: array[0..18] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'AppUserModelID'),
+    (Name: 'AppUserModelToastActivatorCLSID'),
     (Name: 'BeforeInstall'),
     (Name: 'Check'),
     (Name: 'Comment'),

@@ -5187,8 +5187,8 @@ procedure TSetupCompiler.EnumIconsProc(const Line: PChar; const Ext: Integer);
 
 type
   TParam = (paFlags, paName, paFilename, paParameters, paWorkingDir, paHotKey,
-    paIconFilename, paIconIndex, paComment, paAppUserModelID, paComponents, paTasks,
-    paLanguages, paCheck, paBeforeInstall, paAfterInstall, paMinVersion,
+    paIconFilename, paIconIndex, paComment, paAppUserModelID, paAppUserModelToastActivatorCLSID,
+    paComponents, paTasks, paLanguages, paCheck, paBeforeInstall, paAfterInstall, paMinVersion,
     paOnlyBelowVersion);
 const
   ParamIconsName = 'Name';
@@ -5200,6 +5200,7 @@ const
   ParamIconsIconIndex = 'IconIndex';
   ParamIconsComment = 'Comment';
   ParamIconsAppUserModelID = 'AppUserModelID';
+  ParamIconsAppUserModelToastActivatorCLSID = 'AppUserModelToastActivatorCLSID';
   ParamInfo: array[TParam] of TParamInfo = (
     (Name: ParamCommonFlags; Flags: []),
     (Name: ParamIconsName; Flags: [piRequired, piNoEmpty, piNoQuotes]),
@@ -5211,6 +5212,7 @@ const
     (Name: ParamIconsIconIndex; Flags: []),
     (Name: ParamIconsComment; Flags: []),
     (Name: ParamIconsAppUserModelID; Flags: []),
+    (Name: ParamIconsAppUserModelToastActivatorCLSID; Flags: []),
     (Name: ParamCommonComponents; Flags: []),
     (Name: ParamCommonTasks; Flags: []),
     (Name: ParamCommonLanguages; Flags: []),
@@ -5291,8 +5293,13 @@ begin
       { Comment }
       Comment := Values[paComment].Data;
 
-      { AppUserModelID }
+      { AppUserModel }
       AppUserModelID := Values[paAppUserModelID].Data;
+      S := Values[paAppUserModelToastActivatorCLSID].Data;
+      if S <> '' then begin
+        AppUserModelToastActivatorCLSID := StringToGUID('{' + S + '}');
+        Include(Options, ioHasAppUserModelToastActivatorCLSID);
+      end;
 
       { Common parameters }
       ProcessExpressionParameter(ParamCommonComponents, Values[paComponents].Data, EvalComponentIdentifier, True, Components);
@@ -5312,13 +5319,12 @@ begin
       if (IconIndex <> 0) and (IconFilename = '') then
         IconFilename := Filename;
 
-      S := IconName;
-      if Copy(S, 1, 8) = '{group}\' then
-        Delete(S, 1, 8);
-
       CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
       CheckCheckOrInstall(ParamCommonBeforeInstall, BeforeInstall, cikInstall);
       CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
+      S := IconName;
+      if Copy(S, 1, 8) = '{group}\' then
+        Delete(S, 1, 8);
       CheckConst(S, MinVersion, []);
       CheckConst(Filename, MinVersion, []);
       CheckConst(Parameters, MinVersion, []);

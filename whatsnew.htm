@@ -79,6 +79,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li>Added new [Run] and [UninstallRun] sections flag: <tt>dontlogparameters</tt>. If this flag is specified, the command line parameters for the program will not be included in the log file.</li>
+  <li>Added new [Icons] section parameter: <tt>AppUserModelToastActivatorCLSID</tt>. Specifies the Windows 10 Application User Model Toast Activator CLSID for the shortcut. Ignored on earlier Windows versions.</li>
   <li>Setup's prompts to overwrite or keep existing files have been made more user friendly:
   <ul>
     <li>If the new FileExists2 message is set by a translation, Setup will use it to show <a href="https://i.imgur.com/AnF6qo8.png">more user friendly prompts</a> to overwrite or keep existing files if the <tt>confirmoverwrite</tt> flag is set.</li>

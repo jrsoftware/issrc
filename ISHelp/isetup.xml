@@ -1938,6 +1938,13 @@ Filename: "http://www.example.com/"
 </example>
 </param>
 
+<param name="AppUserModelToastActivatorCLSID">
+<p>Specifies the Windows 10 (or later) Application User Model Toast Activator CLSID for the shortcut. Ignored on earlier Windows versions.</p>
+<example>
+<pre>AppUserModelToastActivatorCLSID: "B784B1A4-D682-4FE6-BDBA-21EDDAE42795"</pre>
+</example>
+</param>
+
 <param name="Flags">
 <p>This parameter is a set of extra options. Multiple options may be used by separating them by spaces. The following options are supported:</p>
 

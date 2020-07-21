@@ -2002,8 +2002,8 @@ var
       WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
       const NeverUninstall: Boolean; const CloseOnExit: TSetupIconCloseOnExit;
       const HotKey: Word; FolderShortcut: Boolean;
-      const AppUserModelID: String; const ExcludeFromShowInNewInstall: Boolean;
-      const PreventPinning: Boolean);
+      const AppUserModelID: String; const AppUserModelToastActivatorCLSID: PGUID;
+      const ExcludeFromShowInNewInstall, PreventPinning: Boolean);
     var
       BeginsWithGroup: Boolean;
       LinkFilename, PifFilename, UrlFilename, DirFilename, ProbableFilename,
@@ -2059,8 +2059,8 @@ var
           environment-variable strings (e.g. %SystemRoot%\...) }
         ResultingFilename := CreateShellLink(LinkFilename, Description, Path,
           Parameters, WorkingDir, IconFilename, IconIndex, ShowCmd, HotKey,
-          FolderShortcut, AppUserModelID, ExcludeFromShowInNewInstall,
-          PreventPinning);
+          FolderShortcut, AppUserModelID, @AppUserModelToastActivatorCLSID,
+          ExcludeFromShowInNewInstall, PreventPinning);
         FolderShortcutCreated := FolderShortcut and DirExists(ResultingFilename);
 
         { If a .pif file was created, apply the "Close on exit" setting }
@@ -2135,6 +2135,7 @@ var
     CurIconNumber: Integer;
     CurIcon: PSetupIconEntry;
     FN: String;
+    TACLSID: PGUID;
   begin
     for CurIconNumber := 0 to Entries[seIcon].Count-1 do begin
       try
@@ -2147,15 +2148,19 @@ var
             FN := ExpandConst(Filename);
             if ioUseAppPaths in Options then
               FN := ExpandAppPath(FN);
-            if not(ioCreateOnlyIfFileExists in Options) or NewFileExistsRedir(IsWin64, FN) then
+            if not(ioCreateOnlyIfFileExists in Options) or NewFileExistsRedir(IsWin64, FN) then begin
+              if ioHasAppUserModelToastActivatorCLSID in Options then
+                TACLSID := @AppUserModelToastActivatorCLSID
+              else
+                TACLSID := nil;
               CreateAnIcon(IconName, ExpandConst(Comment), FN,
                 ExpandConst(Parameters), ExpandConst(WorkingDir),
                 ExpandConst(IconFilename), IconIndex, ShowCmd,
                 ioUninsNeverUninstall in Options, CloseOnExit, HotKey,
-                ioFolderShortcut in Options, ExpandConst(AppUserModelID),
+                ioFolderShortcut in Options, ExpandConst(AppUserModelID), TACLSID,
                 ioExcludeFromShowInNewInstall in Options,
                 ioPreventPinning in Options)
-            else
+            end else
               Log('Skipping due to "createonlyiffileexists" flag.');
 
             { Increment progress meter }
