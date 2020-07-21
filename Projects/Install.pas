@@ -2059,7 +2059,7 @@ var
           environment-variable strings (e.g. %SystemRoot%\...) }
         ResultingFilename := CreateShellLink(LinkFilename, Description, Path,
           Parameters, WorkingDir, IconFilename, IconIndex, ShowCmd, HotKey,
-          FolderShortcut, AppUserModelID, @AppUserModelToastActivatorCLSID,
+          FolderShortcut, AppUserModelID, AppUserModelToastActivatorCLSID,
           ExcludeFromShowInNewInstall, PreventPinning);
         FolderShortcutCreated := FolderShortcut and DirExists(ResultingFilename);
 
