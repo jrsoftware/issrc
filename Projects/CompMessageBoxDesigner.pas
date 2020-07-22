@@ -15,8 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewStaticText, Vcl.ComCtrls,
-  Vcl.Imaging.pngimage;
+  UIStateForm, StdCtrls, ExtCtrls, NewStaticText, ComCtrls, pngimage;
 
 type
   TMBDForm = class(TUIStateForm)
