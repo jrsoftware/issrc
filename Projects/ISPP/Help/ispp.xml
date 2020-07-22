@@ -310,8 +310,8 @@
 				<section title="Examples">
 					<pre>
 						<line>[Files]</line>
-						<line>#emit 'Filename: "file1.ext"; DestDir: &ob;' + MyDestDir + '&cb;'</line>
-						<line>Filename: "file2.ext"; DestDir: &ob;&ob;#MyDestDir&cb;&cb;</line>
+						<line>#emit 'Source: "file1.ext"; DestDir: &ob;' + MyDestDir + '&cb;'</line>
+						<line>Source: "file2.ext"; DestDir: &ob;#MyDestDir&cb;</line>
 						<line>#emit GenerateVisualCppFilesEntries ; user defined function</line>
 						<line></line>
 						<line>[Code]</line>
