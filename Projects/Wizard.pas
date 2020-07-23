@@ -332,7 +332,8 @@ type
 var
   WizardForm: TWizardForm;
 
-function ExpandSetupMessage(const ID: TSetupMessageID): String;
+function ExpandSetupMessage(const Msg: String): String; overload;
+function ExpandSetupMessage(const ID: TSetupMessageID): String; overload;
 function ListContains(const List: TStringList; const S: String): Boolean;
 procedure TidyUpDirName(var Path: String);
 procedure TidyUpGroupName(var Path: String);
@@ -385,16 +386,20 @@ begin
   Result := Format('%.2n', [X]);
 end;
 
-function ExpandSetupMessageEx(const ID: TSetupMessageID;
-  const Space: Integer64): String;
+function ExpandSetupMessageEx(const Msg: String; const Space: Integer64): String; overload;
 begin
-  Result := SetupMessages[ID];
+  Result := Msg;
   {don't localize these}
   StringChange(Result, '[name]', ExpandedAppName);
   StringChange(Result, '[name/ver]', ExpandedAppVerName);
   StringChange(Result, '[kb]', IntToKBStr(Space));
   StringChange(Result, '[mb]', IntToMBStr(Space));
   StringChange(Result, '[gb]', IntToGBStr(Space));
+end;
+
+function ExpandSetupMessageEx(const ID: TSetupMessageID; const Space: Integer64): String; overload;
+begin
+  Result := ExpandSetupMessageEx(SetupMessages[ID], Space);
 end;
 
 function ExpandMBOrGBSetupMessage(const MBID, GBID: TSetupMessageID;
@@ -409,7 +414,12 @@ begin
     Result := ExpandSetupMessageEx(MBID, Space);
 end;
 
-function ExpandSetupMessage(const ID: TSetupMessageID): String;
+function ExpandSetupMessage(const Msg: String): String; overload;
+begin
+  Result := ExpandSetupMessageEx(Msg, MinimumSpace);
+end;
+
+function ExpandSetupMessage(const ID: TSetupMessageID): String; overload;
 begin
   Result := ExpandSetupMessageEx(ID, MinimumSpace);
 end;
@@ -696,13 +706,13 @@ end;
 
 procedure TWizardPage.SetCaption(const Value: String);
 begin
-  FCaption := Value;
+  FCaption := ExpandSetupMessage(Value);
   SyncCaptionAndDescription;
 end;
 
 procedure TWizardPage.SetDescription(const Value: String);
 begin
-  FDescription := Value;
+  FDescription := ExpandSetupMessage(Value);
   SyncCaptionAndDescription;
 end;
 
