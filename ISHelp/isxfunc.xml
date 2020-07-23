@@ -1746,14 +1746,14 @@ end;</pre></example>
         <name>DownloadTemporaryFile</name>
         <prototype>function DownloadTemporaryFile(const Url, FileName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
         <description><p>Downloads the file from the specified URL to a temporary directory using the specified name. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
-<p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded.</p>
+<p>If RequiredSHA256OfFile is set it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
+<p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded. Returns 0 if RequiredSHA256OfFile is set and the file was already downloaded.</p>
 <p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
-<p>If RequiredSHA256OfFile is not empty it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
+<p>For basic authentication use a special URL format like this: http://username:password@example.com/</p>
 <p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnDownloadProgress is defined as:</p>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;</tt></p>
-<p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p>
-<p>For basic authentication use a special URL format like this: http://username:password@example.com/</p></remarks>
+<p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p></remarks>
         <seealso><p><link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
 <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
         <example><pre>
