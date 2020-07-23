@@ -1885,12 +1885,12 @@ begin
     end;
     WizardForm.Update;
     try
-      DownloadTemporaryFileAllowProcessMessages := True;
+      DownloadTemporaryFileProcessMessages := True;
       CodeNeedsRestart := False;
       Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
       PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
     finally
-      DownloadTemporaryFileAllowProcessMessages := False;
+      DownloadTemporaryFileProcessMessages := False;
       UpdateCurPageButtonState;
     end;
     Application.BringToFront;

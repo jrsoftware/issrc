@@ -179,7 +179,7 @@ var
   DisableCodeConsts: Integer;
   SetupExitCode: Integer;
   CreatedIcon: Boolean;
-  RestartInitiatedByThisProcess, DownloadTemporaryFileAllowProcessMessages: Boolean;
+  RestartInitiatedByThisProcess, DownloadTemporaryFileProcessMessages: Boolean;
 {$IFDEF IS_D12}
   TaskbarButtonHidden: Boolean;
 {$ENDIF}

@@ -3489,7 +3489,7 @@ begin
     end;
   end;
 
-  if not Abort and DownloadTemporaryFileAllowProcessMessages then
+  if not Abort and DownloadTemporaryFileProcessMessages then
     Application.ProcessMessages;
 
   if Abort then
