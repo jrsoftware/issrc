@@ -537,6 +537,19 @@ begin
   end;
 end;
 
+{$IFNDEF PS_NOINT64}
+procedure RegisterDownloadWizardPage_C(Cl: TPSPascalCompiler);
+begin
+  with CL.AddClassN(Cl.FindClass('TOutputProgressWizardPage'),'TDownloadWizardPage') do
+  begin
+    RegisterProperty('AbortButton', 'TNewButton', iptr);
+    RegisterMethod('procedure Add(const Url, BaseName, RequiredSHA256OfFile: String)');
+    RegisterMethod('procedure Clear');
+    RegisterMethod('function Download: Int64');
+  end;
+end;
+{$ENDIF}
+
 procedure RegisterHandCursor_C(Cl: TPSPascalCompiler);
 begin
   cl.AddConstantN('crHand', 'Integer').Value.ts32 := crHand;
@@ -650,6 +663,9 @@ begin
   RegisterOutputMsgWizardPage_C(Cl);
   RegisterOutputMsgMemoWizardPage_C(Cl);
   RegisterOutputProgressWizardPage_C(Cl);
+{$IFNDEF PS_NOINT64}
+  RegisterDownloadWizardPage_C(Cl);
+{$ENDIF}
 
   RegisterHandCursor_C(Cl);
   

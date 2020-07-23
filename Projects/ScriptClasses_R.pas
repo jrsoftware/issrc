@@ -314,6 +314,18 @@ begin
   end;
 end;
 
+{$IFNDEF PS_NOINT64}
+procedure RegisterDownloadWizardPage_R(CL: TPSRuntimeClassImporter);
+begin
+  with CL.Add(TDownloadWizardPage) do
+  begin
+    RegisterMethod(@TDownloadWizardPage.Add, 'Add');
+    RegisterMethod(@TDownloadWizardPage.Clear, 'Clear');
+    RegisterMethod(@TDownloadWizardPage.Download, 'Download');
+  end;
+end;
+{$ENDIF}
+
 procedure RegisterHandCursor_R(Cl: TPSRuntimeClassImporter);
 const
   IDC_HAND = MakeIntResource(32649);
@@ -416,6 +428,9 @@ begin
     RegisterOutputMsgWizardPage_R(Cl);
     RegisterOutputMsgMemoWizardPage_R(Cl);
     RegisterOutputProgressWizardPage_R(Cl);
+{$IFNDEF PS_NOINT64}
+    RegisterDownloadWizardPage_R(Cl);
+{$ENDIF}
 
     RegisterHandCursor_R(Cl);
 

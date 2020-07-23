@@ -143,6 +143,11 @@ var
   NewOutputMsgPage: TOutputMsgWizardPage;
   NewOutputMsgMemoPage: TOutputMsgMemoWizardPage;
   NewOutputProgressPage: TOutputProgressWizardPage;
+{$IFNDEF PS_NOINT64}
+  NewDownloadPage: TDownloadWizardPage;
+  P: PPSVariantProcPtr;
+  OnDownloadProgress: TOnDownloadProgress;
+{$ENDIF}
   NewSetupForm: TSetupForm;
 begin
   PStart := Stack.Count-1;
@@ -270,6 +275,29 @@ begin
       raise;
     end;
     Stack.SetClass(PStart, NewOutputProgressPage);
+{$IFNDEF PS_NOINT64}
+  end else if Proc.Name = 'CREATEDOWNLOADPAGE' then begin
+    if IsUninstaller then
+      NoUninstallFuncError(Proc.Name);
+    P := Stack.Items[PStart-3];
+    { ProcNo 0 means nil was passed by the script }
+    if P.ProcNo <> 0 then
+      OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
+    else
+      OnDownloadProgress := nil;
+    NewDownloadPage := TDownloadWizardPage.Create(GetWizardForm);
+    try
+      NewDownloadPage.Caption := Stack.GetString(PStart-1);
+      NewDownloadPage.Description := Stack.GetString(PStart-2);
+      GetWizardForm.AddPage(NewDownloadPage, -1);
+      NewDownloadPage.Initialize;
+      NewDownloadPage.OnDownloadProgress := OnDownloadProgress;
+    except
+      NewDownloadPage.Free;
+      raise;
+    end;
+    Stack.SetClass(PStart, NewDownloadPage);
+{$ENDIF}
   end else if Proc.Name = 'SCALEX' then begin
     InitializeScaleBaseUnits;
     Stack.SetInt(PStart, MulDiv(Stack.GetInt(PStart-1), ScaleBaseUnitX, OrigBaseUnitX));
