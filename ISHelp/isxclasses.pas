@@ -150,9 +150,12 @@ TGraphic = class(TPersistent)
   property OnChange: TNotifyEvent; read write;
 end;
 
+TAlphaFormat = (afIgnored, afDefined, afPremultiplied);
+
 TBitmap = class(TGraphic)
   procedure LoadFromStream(Stream: TStream);
   procedure SaveToStream(Stream: TStream);
+  property AlphaFormat: TAlphaFormat; read write;
   property Canvas: TCanvas; read write;
   property Handle: HBITMAP; read write;
 end;
@@ -623,8 +626,6 @@ TStartMenuFolderTreeView = class(TCustomFolderTreeView)
   property OnChange: TNotifyEvent; read write;
   property OnRename: TFolderRenameEvent; read write;
 end;
-
-TAlphaFormat = (afIgnored, afDefined, afPremultiplied);
 
 TBitmapImage = class(TGraphicControl)
   property Anchors: TAnchors; read write;
