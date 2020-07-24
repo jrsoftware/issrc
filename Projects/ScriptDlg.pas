@@ -166,10 +166,6 @@ type
   end;
 
 {$IFNDEF PS_NOINT64}
-  TDownloadFile = class
-    Url, BaseName, RequiredSHA256OfFile: String;
-  end;
-
   TDownloadWizardPage = class(TOutputProgressWizardPage)
     private
       FFiles: TObjectList;
@@ -890,6 +886,11 @@ end;
 
 {--- OutputDownload ---}
 
+type
+  TDownloadFile = class
+    Url, BaseName, RequiredSHA256OfFile: String;
+  end;
+
 procedure TDownloadWizardPage.AbortButtonClick(Sender: TObject);
 begin
   FNeedToAbortDownload := LoggedMsgBox('Are you sure you want to stop the download?', '', mbConfirmation, MB_YESNO, True, ID_YES) = IDYES;
@@ -927,6 +928,7 @@ end;
 constructor TDownloadWizardPage.Create(AOwner: TComponent);
 begin
   inherited;
+  FUseMarqueeStyle := True;
   FFiles := TObjectList.Create;
 end;
 
@@ -941,8 +943,6 @@ begin
   inherited;
 
   FMsg1Label.Caption := 'Downloading additional files...';
-
-  FUseMarqueeStyle := True;
 
   FAbortButton := TNewButton.Create(Self);
   with FAbortButton do begin
