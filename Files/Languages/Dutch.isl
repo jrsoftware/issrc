@@ -192,6 +192,18 @@ ReadyMemoComponents=Geselecteerde componenten:
 ReadyMemoGroup=Menu Start map:
 ReadyMemoTasks=Extra taken:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Bezig met het downloaden van extra bestanden...
+ButtonStopDownload=&Stop download
+StopDownload=Weet u zeker dat u de download wilt stoppen?
+ErrorDownloadAborted=Download afgebroken
+ErrorDownloadFailed=Download mislukt: %d %s
+ErrorDownloadSizeFailed=Ophalen grootte mislukt: %d %s
+ErrorFileHash1=Bestand hashing mislukt: %s
+ErrorFileHash2=Ongeldige bestandshash: %s verwacht, %s gevonden
+ErrorProgress=Ongeldige voortgang: %d van %d
+ErrorFileSize=Ongeldige bestandsgrootte: %d verwacht, %d gevonden
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Bezig met het voorbereiden van de installatie
 PreparingDesc=Setup is bezig met het voorbereiden van de installatie van [name].
@@ -273,13 +285,11 @@ ExistingFileReadOnlyRetry=&Verwijder de alleen-lezen markering en probeer het op
 ExistingFileReadOnlyKeepExisting=&Behoud het bestaande bestand
 ErrorReadingExistingDest=Er is een fout opgetreden bij het lezen van het bestaande bestand:
 FileExistsSelectAction=Selecteer actie
-FileExists=Het bestand bestaat al.%n%nWilt u dat Setup het overschrijft?
 FileExists2=Het bestand bestaat al.
 FileExistsOverwriteExisting=&Overschrijf het bestaande bestand
 FileExistsKeepExisting=&Behoud het bestaande bestand
 FileExistsOverwriteOrKeepAll=&Dit voor de volgende conflicten uitvoeren
 ExistingFileNewerSelectAction=Selecteer actie
-ExistingFileNewer=Het bestaande bestand is nieuwer dan het bestand dat Setup probeert te installeren. U wordt aanbevolen het bestaande bestand te behouden.%n%nWilt u het bestaande bestand behouden?
 ExistingFileNewer2=Het bestaande bestand is nieuwer dan het bestand dat Setup probeert te installeren.
 ExistingFileNewerOverwriteExisting=&Overschrijf het bestaande bestand
 ExistingFileNewerKeepExisting=&Behoud het bestaande bestand (aanbevolen)
