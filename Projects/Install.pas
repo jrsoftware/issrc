@@ -3557,7 +3557,7 @@ begin
     { Create temporary file }
     TempFile := GenerateUniqueName(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
     if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then
-      raise Exception.Create('DisableFsRedirectionIf failed');
+      InternalError('DisableFsRedirectionIf failed');
     try
       TempF := TFileStream.Create(TempFile, fmCreate);
       TempFileLeftOver := True;
@@ -3575,9 +3575,9 @@ begin
     { Download to temporary file}
     HTTPResponse := HTTPClient.Get(Url, TempF);
     if HTTPDataReceiver.Aborted then
-      raise Exception.Create('Download aborted')
+      raise Exception.Create(SetupMessages[msgErrorDownloadAborted])
     else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
-      raise Exception.CreateFmt('Download failed: %d %s', [HTTPResponse.StatusCode, HTTPResponse.StatusText])
+      raise Exception.CreateFmt(SetupMessages[msgErrorDownloadFailed], [HTTPResponse.StatusCode, HTTPResponse.StatusText])
     else begin
       { Download completed, get temporary file size and close it }
       Result := TempF.Size;
@@ -3588,15 +3588,15 @@ begin
         try
           SHA256OfFile := GetSHA256OfFile(DisableFsRedir, TempFile);
         except on E: Exception do
-          raise Exception.CreateFmt('File hash failed: %s', [E.Message]);
+          raise Exception.CreateFmt(SetupMessages[msgErrorFileHash1], [E.Message]);
         end;
         if RequiredSHA256OfFile <> SHA256OfFile then
-          raise Exception.CreateFmt('Invalid file hash: expected %s, found %s', [RequiredSHA256OfFile, SHA256OfFile]);
+          raise Exception.CreateFmt(SetupMessages[msgErrorFileHash2], [RequiredSHA256OfFile, SHA256OfFile]);
       end else begin
         if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
-          raise Exception.CreateFmt('Invalid progress: %d of %d', [HTTPDataReceiver.Progress, HTTPDataReceiver.ProgressMax])
+          raise Exception.CreateFmt(SetupMessages[msgErrorProgress], [HTTPDataReceiver.Progress, HTTPDataReceiver.ProgressMax])
         else if HTTPDataReceiver.ProgressMax <> Result then
-          raise Exception.CreateFmt('Invalid file size: expected %d, found %d', [HTTPDataReceiver.ProgressMax, Result]);
+          raise Exception.CreateFmt(SetupMessages[msgErrorFileSize], [HTTPDataReceiver.ProgressMax, Result]);
       end;
 
       { Rename the temporary file to the new name now, with retries if needed }
@@ -3643,7 +3643,7 @@ begin
     SetSecureProtocols(HTTPClient);
     HTTPResponse := HTTPClient.Head(Url);
     if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
-      raise Exception.CreateFmt('Getting size failed: %d %s', [HTTPResponse.StatusCode, HTTPResponse.StatusText])
+      raise Exception.CreateFmt(SetupMessages[msgErrorDownloadSizeFailed], [HTTPResponse.StatusCode, HTTPResponse.StatusText])
     else
       Result := HTTPResponse.ContentLength; { Could be -1 }
   finally

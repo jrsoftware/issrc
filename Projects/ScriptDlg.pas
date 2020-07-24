@@ -893,7 +893,7 @@ type
 
 procedure TDownloadWizardPage.AbortButtonClick(Sender: TObject);
 begin
-  FNeedToAbortDownload := LoggedMsgBox('Are you sure you want to stop the download?', '', mbConfirmation, MB_YESNO, True, ID_YES) = IDYES;
+  FNeedToAbortDownload := LoggedMsgBox(SetupMessages[msgStopDownload], '', mbConfirmation, MB_YESNO, True, ID_YES) = IDYES;
 end;
 
 function TDownloadWizardPage.InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
@@ -942,11 +942,11 @@ procedure TDownloadWizardPage.Initialize;
 begin
   inherited;
 
-  FMsg1Label.Caption := 'Downloading additional files...';
+  FMsg1Label.Caption := SetupMessages[msgDownloadingLabel];
 
   FAbortButton := TNewButton.Create(Self);
   with FAbortButton do begin
-    Caption := '&Stop download';
+    Caption := SetupMessages[msgButtonStopDownload];
     Top := FProgressBar.Top + FProgressBar.Height + WizardForm.ScalePixelsY(8);
     Width := WizardForm.CalculateButtonWidth([Caption]);
     Anchors := [akLeft, akTop];

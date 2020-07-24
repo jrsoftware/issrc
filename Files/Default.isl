@@ -210,6 +210,18 @@ ReadyMemoComponents=Selected components:
 ReadyMemoGroup=Start Menu folder:
 ReadyMemoTasks=Additional tasks:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Downloading additional files...
+ButtonStopDownload=&Stop download
+StopDownload=Are you sure you want to stop the download?
+ErrorDownloadAborted=Download aborted
+ErrorDownloadFailed=Download failed: %d %s
+ErrorDownloadSizeFailed=Getting size failed: %d %s
+ErrorFileHash1=File hash failed: %s
+ErrorFileHash2=Invalid file hash: expected %s, found %s
+ErrorProgress=Invalid progress: %d of %d
+ErrorFileSize=Invalid file size: expected %d, found %d
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparing to Install
 PreparingDesc=Setup is preparing to install [name] on your computer.

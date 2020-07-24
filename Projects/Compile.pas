@@ -7370,10 +7370,14 @@ procedure TSetupCompiler.ReadMessagesFromScript;
     ReadMessagesFromFiles('compiler:Default.isl', LanguageEntries.Count-1);
   end;
 
-const
-  OptionalMessages: set of TSetupMessageID = [msgComponentsDiskSpaceGBLabel, msgDiskSpaceGBLabel, msgPrepareToInstallNeedsRestart,
-    msgFileExistsSelectAction, msgFileExists2, msgFileExistsOverwriteExisting, msgFileExistsKeepExisting, msgFileExistsOverwriteOrKeepAll,
-    msgExistingFileNewerSelectAction, msgExistingFileNewer2, msgExistingFileNewerOverwriteExisting, msgExistingFileNewerKeepExisting, msgExistingFileNewerOverwriteOrKeepAll];
+  function IsOptional(const MessageID: TSetupMessageID): Boolean;
+  begin
+    Result := MessageID in [msgComponentsDiskSpaceGBLabel, msgDiskSpaceGBLabel, msgPrepareToInstallNeedsRestart,
+      msgFileExistsSelectAction, msgFileExists2, msgFileExistsOverwriteExisting, msgFileExistsKeepExisting,
+      msgFileExistsOverwriteOrKeepAll, msgExistingFileNewerSelectAction, msgExistingFileNewer2,
+      msgExistingFileNewerOverwriteExisting, msgExistingFileNewerKeepExisting, msgExistingFileNewerOverwriteOrKeepAll];
+  end;
+
 var
   I: Integer;
   LangData: TLangData;
@@ -7399,7 +7403,7 @@ begin
   for I := 0 to LanguageEntries.Count-1 do begin
     LangData := LangDataList[I];
     for J := Low(LangData.Messages) to High(LangData.Messages) do
-      if not LangData.MessagesDefined[J] and not (J in OptionalMessages) then begin
+      if not LangData.MessagesDefined[J] and not IsOptional(J) then begin
         { Use the message from Default.isl }
         if not (J in [msgHelpTextNote, msgTranslatorNote]) then
           WarningsList.Add(Format(SCompilerMessagesMissingMessageWarning,
