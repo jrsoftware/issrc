@@ -1064,7 +1064,7 @@ var
       end;
     end;
 
-    function AskOverwrite(const DestFile, Instruction, Caption, Caption2: string; const ButtonLabels: array of String;
+    function AskOverwrite(const DestFile, Instruction, Caption: string; const ButtonLabels: array of String;
       const VerificationText: String; const Typ: TMsgBoxType; const Default, Overwrite: Integer;
       var OverwriteAll: TOverwriteAll): Boolean;
     var
@@ -1072,10 +1072,8 @@ var
     begin
       if OverwriteAll = oaKeep then
         Result := False { The user already said to keep (=not overwrite) all }
-      else if (Caption2 = '') then
-        Result := LoggedMsgBox(DestFile + SNewLine2 + Caption, '', Typ, MB_YESNO, True, Default) = Overwrite
       else begin
-        Result := LoggedTaskDialogMsgBox('', Instruction, DestFile + SNewLine2 + Caption2, '',
+        Result := LoggedTaskDialogMsgBox('', Instruction, DestFile + SNewLine2 + Caption, '',
           Typ, MB_YESNO, ButtonLabels, 0, True, Default, VerificationText, @VerificationFlagChecked) = Overwrite;
         if VerificationFlagChecked then begin
           if Result then
@@ -1260,7 +1258,7 @@ var
                 if (foPromptIfOlder in CurFile^.Options) and not IsProtectedFile then begin
                   if PromptIfOlderOverwriteAll <> oaOverwrite then begin
                     Overwrite := AskOverwrite(DestFile, SetupMessages[msgExistingFileNewerSelectAction],
-                      SetupMessages[msgExistingFileNewer], SetupMessages[msgExistingFileNewer2],
+                      SetupMessages[msgExistingFileNewer2],
                       [SetupMessages[msgExistingFileNewerKeepExisting], SetupMessages[msgExistingFileNewerOverwriteExisting]],
                       SetupMessages[msgExistingFileNewerOverwriteOrKeepAll],
                      mbError, IDYES, IDNO, PromptIfOlderOverwriteAll);
@@ -1347,7 +1345,7 @@ var
               if (foPromptIfOlder in CurFile^.Options) and not IsProtectedFile then begin
                 if PromptIfOlderOverwriteAll <> oaOverwrite then begin
                   Overwrite := AskOverwrite(DestFile, SetupMessages[msgExistingFileNewerSelectAction],
-                    SetupMessages[msgExistingFileNewer], SetupMessages[msgExistingFileNewer2],
+                    SetupMessages[msgExistingFileNewer2],
                     [SetupMessages[msgExistingFileNewerKeepExisting], SetupMessages[msgExistingFileNewerOverwriteExisting]],
                     SetupMessages[msgExistingFileNewerOverwriteOrKeepAll],
                     mbError, IDYES, IDNO, PromptIfOlderOverwriteAll);
@@ -1377,7 +1375,7 @@ var
           if foConfirmOverwrite in CurFile^.Options then begin
             if ConfirmOverwriteOverwriteAll <> oaOverwrite then begin
               Overwrite := AskOverwrite(DestFile, SetupMessages[msgFileExistsSelectAction],
-                SetupMessages[msgFileExists], SetupMessages[msgFileExists2],
+                SetupMessages[msgFileExists2],
                 [SetupMessages[msgFileExistsOverwriteExisting], SetupMessages[msgFileExistsKeepExisting]],
                 SetupMessages[msgFileExistsOverwriteOrKeepAll],
                 mbConfirmation, IDNO, IDYES, ConfirmOverwriteOverwriteAll);

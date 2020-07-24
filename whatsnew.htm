@@ -82,9 +82,8 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   <li>Added new [Icons] section parameter: <tt>AppUserModelToastActivatorCLSID</tt>. Specifies the Windows 10 Application User Model Toast Activator CLSID for the shortcut. Ignored on earlier Windows versions.</li>
   <li>Setup's prompts to overwrite or keep existing files have been made more user friendly:
   <ul>
-    <li>If the new FileExists2 message is set by a translation, Setup will use it to show <a href="https://i.imgur.com/AnF6qo8.png">more user friendly prompts</a> to overwrite or keep existing files if the <tt>confirmoverwrite</tt> flag is set.</li>
-    <li>If the ExistingFileNewer2 message is set by a translation, Setup will use it to show <a href="https://i.imgur.com/VBDuZ7U.png">more user friendly prompts</a> to keep or overwrite existing files if the <tt>promptifolder</tt> flag is set.</li>
-    <li>These new prompts also use other new messages: <a href="https://github.com/jrsoftware/issrc/commit/e5ccbc5e0b1e2327a3608b1c69d016613c88df7e">View differences in Default.isl</a> for a complete list.</li>
+    <li>Setup now shows <a href="https://i.imgur.com/AnF6qo8.png">more user friendly prompts</a> to overwrite or keep existing files if the <tt>confirmoverwrite</tt> flag is set.</li>
+    <li>Setup now shows <a href="https://i.imgur.com/VBDuZ7U.png">more user friendly prompts</a> to keep or overwrite existing files if the <tt>promptifolder</tt> flag is set.</li>
   </ul>
   </li>
   <li>Pascal Scripting changes:
@@ -102,9 +101,18 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 
 <p>Some messages have been added and changed in this version: (<a href=" todo ">View differences in Default.isl</a>).</p>
 <ul>
-  <li><b>New messages:</b> DownloadingLabel, ButtonStopDownload, StopDownload, ErrorDownloadAborted, ErrorDownloadFailed, ErrorDownloadSizeFailed, ErrorFileHash1, ErrorFileHash2, ErrorProgress, ErrorFileSize.</li>
-<!--   <li><b>Changed message:</b> SelectLanguageLabel.</li> -->
-<!--   <li><b>Removed messages:</b> EntryAbortRetryIgnore, ExistingFileReadOnly, ExistingFileReadOnlyAbortRetryIgnore, FileAbortRetryIgnore, FileAbortRetryIgnore2, MissingWOW64APIs.</li> -->
+  <li><b>New messages:</b>
+  <ul>
+    <li>DownloadingLabel, ButtonStopDownload, StopDownload, ErrorDownloadAborted, ErrorDownloadFailed, ErrorDownloadSizeFailed, ErrorFileHash1, ErrorFileHash2, ErrorProgress, ErrorFileSize.</li>
+    <li>ExistingFileNewerSelectAction, ExistingFileNewer2, ExistingFileNewerOverwriteExisting, ExistingFileNewerKeepExisting, ExistingFileNewerOverwriteOrKeepAll.</li>
+    <li>FileExistsSelectAction, FileExists2, FileExistsOverwriteExisting, FileExistsKeepExisting, FileExistsOverwriteOrKeepAll.</li>
+  </ul>
+  </li>
+  <li><b>Removed messages:</b>
+  <ul>
+    <li>ExistingFileNewer, FileExists.</li>
+  </ul>
+  </li>
 </ul>
 
 <p>Note: Not all official translations have been updated for these changes at this moment. <!-- Demoted the official <a href="https://raw.github.com/jrsoftware/issrc/main/Files/Languages/Unofficial/German.isl">German</a>, <a href="https://raw.github.com/jrsoftware/issrc/main/Files/Languages/Unofficial/Nepali.islu">Nepali</a>, <a href="https://raw.github.com/jrsoftware/issrc/main/Files/Languages/Unofficial/SerbianCyrillic.isl">Serbian (Cyrillic)</a> and <a href="https://raw.github.com/jrsoftware/issrc/main/Files/Languages/Unofficial/SerbianLatin.isl">Serbian (Latin)</a> translations to unofficial because of a no longer available maintainer. To send updates yourself, see <a href="http://news.jrsoftware.org/read/article.php?id=2514&amp;group=jrsoftware.innosetup.translations#2514">this post</a> for what needs updating and use <a href="https://jrsoftware.org/files/istrans/send2.php">this form</a> to send updates (or use <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>). See the <a href="https://jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information. --></li>

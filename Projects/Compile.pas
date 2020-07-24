@@ -7372,10 +7372,7 @@ procedure TSetupCompiler.ReadMessagesFromScript;
 
   function IsOptional(const MessageID: TSetupMessageID): Boolean;
   begin
-    Result := MessageID in [msgComponentsDiskSpaceGBLabel, msgDiskSpaceGBLabel, msgPrepareToInstallNeedsRestart,
-      msgFileExistsSelectAction, msgFileExists2, msgFileExistsOverwriteExisting, msgFileExistsKeepExisting,
-      msgFileExistsOverwriteOrKeepAll, msgExistingFileNewerSelectAction, msgExistingFileNewer2,
-      msgExistingFileNewerOverwriteExisting, msgExistingFileNewerKeepExisting, msgExistingFileNewerOverwriteOrKeepAll];
+    Result := MessageID in [msgComponentsDiskSpaceGBLabel, msgDiskSpaceGBLabel, msgPrepareToInstallNeedsRestart];
   end;
 
 var
