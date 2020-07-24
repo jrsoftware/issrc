@@ -7372,7 +7372,7 @@ procedure TSetupCompiler.ReadMessagesFromScript;
 
   function IsOptional(const MessageID: TSetupMessageID): Boolean;
   begin
-    Result := MessageID in [msgComponentsDiskSpaceGBLabel, msgDiskSpaceGBLabel, msgPrepareToInstallNeedsRestart];
+    Result := False; { Currently there are no optional messages }
   end;
 
 var

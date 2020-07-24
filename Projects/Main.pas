@@ -4282,13 +4282,10 @@ begin
               RestartSystem := WizardForm.YesRadio.Checked;
           imSilent:
             begin
-              if FromPreparingPage then begin
-                S := ExpandSetupMessage(msgPrepareToInstallNeedsRestart);
-                if S = '' then
-                  S := ExpandSetupMessage(msgFinishedRestartMessage);
+              if FromPreparingPage then
                 S := WizardForm.PrepareToInstallFailureMessage + SNewLine +
-                  SNewLine + SNewLine + S
-              end else
+                  SNewLine + SNewLine + ExpandSetupMessage(msgPrepareToInstallNeedsRestart)
+              else
                 S := ExpandSetupMessage(msgFinishedRestartMessage);
               RestartSystem :=
                 LoggedMsgBox(S, '', mbConfirmation, MB_YESNO, True, IDYES) = IDYES;

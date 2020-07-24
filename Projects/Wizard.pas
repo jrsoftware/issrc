@@ -405,7 +405,7 @@ end;
 function ExpandMBOrGBSetupMessage(const MBID, GBID: TSetupMessageID;
   const Space: Integer64): String;
 begin
-  if (SetupMessages[GBID] <> '') and (Comp(Space) > 1048471142) then begin
+  if Comp(Space) > 1048471142 then begin
     { Don't allow it to display 1000.0 MB or more. Takes the 'always round up' into account:
       1048471142 bytes = 999.8999996185303 MB = '999.9 MB',
       1048471143 bytes = 999.9000005722046 MB = '1,000.0 MB'. }
@@ -1872,7 +1872,6 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
 var
   CodeNeedsRestart: Boolean;
   Y: Integer;
-  S: String;
 begin
   Result := '';
   PrepareToInstallNeedsRestart := False;
@@ -1906,13 +1905,10 @@ begin
     Application.BringToFront;
   end;
   if Result <> '' then begin
-    if PrepareToInstallNeedsRestart then begin
-      S := ExpandSetupMessage(msgPrepareToInstallNeedsRestart);
-      if S = '' then
-        S := ExpandSetupMessage(msgFinishedRestartLabel);
+    if PrepareToInstallNeedsRestart then
       PreparingLabel.Caption := Result +
-        SNewLine + SNewLine + SNewLine + S + SNewLine
-    end else
+        SNewLine + SNewLine + SNewLine + ExpandSetupMessage(msgPrepareToInstallNeedsRestart) + SNewLine
+    else
       PreparingLabel.Caption := Result +
         SNewLine + SNewLine + SNewLine + SetupMessages[msgCannotContinue];
     AdjustLabelHeight(PreparingLabel);
