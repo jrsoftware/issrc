@@ -729,6 +729,13 @@ TOutputProgressWizardPage = class(TWizardPage)
   procedure Show;
 end;
 
+TDownloadWizardPage = class(TOutputProgressWizardPage)
+  property AbortButton: TNewButton; read;
+  procedure Add(const Url, BaseName, RequiredSHA256OfFile: String);
+  procedure Clear;
+  function Download: Int64;
+end;
+
 TUIStateForm = class(TForm)
 end;
 

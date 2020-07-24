@@ -1755,6 +1755,7 @@ end;</pre></example>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p></remarks>
         <seealso><p><link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
+<link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
 <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
         <example><pre>
 [Code]
@@ -1778,7 +1779,7 @@ begin
     Result := False;
   end;
 end;</pre>
-<p>See <i>CodeDownloadFiles.iss</i> for another example.</p></example>
+<p>See <i>CodeDownloadFiles.iss</i> for another example which uses <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link> instead.</p></example>
       </function>
       <function>
         <name>DownloadTemporaryFileSize</name>
@@ -2461,6 +2462,22 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 </p></remarks>
         <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> for examples.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link></p></seealso>
+      </function>
+      <function>
+        <name>CreateDownloadPage</name>
+        <prototype>function CreateDownloadPage(const ACaption, ADescription: String; const OnDownloadProgress: TOnDownloadProgress): TDownloadWizardPage;</prototype>
+        <description><p>Creates a wizard page to download files and show progress.</p>
+<p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
+<p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
+        <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
+<p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
+<p>To add a new file to download, call the <tt>Add</tt> method. Always call the <tt>Clear</tt> method before adding the first file.</p>
+<p>To start the download, call the <tt>Download</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Download</tt> returns the number of bytes downloaded.</p>
+<p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p></remarks>
+        <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p></example>
+        <seealso><p><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link><br />
+<link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
+<link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
       </function>
       <function>
         <name>CreateCustomPage</name>
