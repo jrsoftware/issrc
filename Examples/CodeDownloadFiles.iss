@@ -52,7 +52,7 @@ begin
         DownloadPage.Download;
         Result := True;
       except
-        SuppressibleMsgBox(GetExceptionMessage, mbCriticalError, MB_OK, IDOK);
+        SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbCriticalError, MB_OK, IDOK);
         Result := False;
       end;
     finally
