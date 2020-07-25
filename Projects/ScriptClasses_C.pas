@@ -546,6 +546,7 @@ begin
     RegisterMethod('procedure Add(const Url, BaseName, RequiredSHA256OfFile: String)');
     RegisterMethod('procedure Clear');
     RegisterMethod('function Download: Int64');
+    RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }
   end;
 end;
 {$ENDIF}

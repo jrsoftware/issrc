@@ -158,7 +158,7 @@ type
       procedure Initialize; virtual;
       procedure SetProgress(const Position, Max: Longint);
       procedure SetText(const Msg1, Msg2: String);
-      procedure Show;
+      procedure Show; virtual;
     published
       property Msg1Label: TNewStaticText read FMsg1Label;
       property Msg2Label: TNewStaticText read FMsg2Label;
@@ -174,6 +174,7 @@ type
       FShowProgressControlsOnNextProgress, FNeedToAbortDownload: Boolean;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
+      procedure ShowProgressControls(const AVisible: Boolean);
     public
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
@@ -182,6 +183,7 @@ type
       procedure Clear;
       function Download: Int64;
       property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
+      procedure Show; override;
     published
       property AbortButton: TNewButton read FAbortButton;
   end;
@@ -911,9 +913,7 @@ begin
     SetProgress(Progress, ProgressMax); { This will process messages which we need for the abort button to work }
 
     if FShowProgressControlsOnNextProgress then begin
-      FMsg2Label.Visible := True;
-      FProgressBar.Visible := True;
-      FAbortButton.Visible := True;
+      ShowProgressControls(True);
       FShowProgressControlsOnNextProgress := False;
       ProcessMsgs;
     end;
@@ -956,6 +956,22 @@ begin
   SetCtlParent(FAbortButton, Surface);
 end;
 
+procedure TDownloadWizardPage.Show;
+begin
+  if WizardForm.CurPageID <> ID then begin
+    ShowProgressControls(False);
+    FShowProgressControlsOnNextProgress := True;
+  end;
+  inherited;
+end;
+
+procedure TDownloadWizardPage.ShowProgressControls(const AVisible: Boolean);
+begin
+  FMsg2Label.Visible := AVisible;
+  FProgressBar.Visible := AVisible;
+  FAbortButton.Visible := AVisible;
+end;
+
 procedure TDownloadWizardPage.Add(const Url, BaseName, RequiredSHA256OfFile: String);
 var
   F: TDownloadFile;
@@ -977,13 +993,6 @@ var
   F: TDownloadFile;
   I: Integer;
 begin
-  FMsg2Label.Caption := '';
-  FMsg2Label.Visible := False;
-  FProgressBar.Position := 0;
-  FProgressBar.Visible := False;
-  FAbortButton.Visible := False;
-  FShowProgressControlsOnNextProgress := True;
-
   FNeedToAbortDownload := False;
   
   Result := 0;

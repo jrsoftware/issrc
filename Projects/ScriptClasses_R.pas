@@ -322,6 +322,7 @@ begin
     RegisterMethod(@TDownloadWizardPage.Add, 'Add');
     RegisterMethod(@TDownloadWizardPage.Clear, 'Clear');
     RegisterMethod(@TDownloadWizardPage.Download, 'Download');
+    RegisterMethod(@TDownloadWizardPage.Show, 'Show');
   end;
 end;
 {$ENDIF}
