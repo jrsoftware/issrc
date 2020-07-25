@@ -37,7 +37,7 @@ uses
   CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
-  MsgIDs, DebugStruct, VerInfo, ResUpdate, CompResUpdate,
+  MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, CompResUpdate,
 {$IFDEF STATICPREPROC}
   IsppPreprocess,
 {$ENDIF}
@@ -54,177 +54,6 @@ type
   end;
 
   TEnumIniSectionProc = procedure(const Line: PChar; const Ext: Integer) of object;
-
-  TSetupSectionDirectives = (
-    ssAllowCancelDuringInstall,
-    ssAllowNetworkDrive,
-    ssAllowNoIcons,
-    ssAllowRootDirectory,
-    ssAllowUNCPath,
-    ssAlwaysRestart,
-    ssAlwaysShowComponentsList,
-    ssAlwaysShowDirOnReadyPage,
-    ssAlwaysShowGroupOnReadyPage,
-    ssAlwaysUsePersonalGroup,
-    ssAppCopyright,
-    ssAppendDefaultDirName,
-    ssAppendDefaultGroupName,
-    ssAppComments,
-    ssAppContact,
-    ssAppId,
-    ssAppModifyPath,
-    ssAppMutex,
-    ssAppName,
-    ssAppPublisher,
-    ssAppPublisherURL,
-    ssAppReadmeFile,
-    ssAppSupportPhone,
-    ssAppSupportURL,
-    ssAppUpdatesURL,
-    ssAppVerName,
-    ssAppVersion,
-    ssArchitecturesAllowed,
-    ssArchitecturesInstallIn64BitMode,
-    ssASLRCompatible,
-    ssBackColor,
-    ssBackColor2,
-    ssBackColorDirection,
-    ssBackSolid,
-    ssChangesAssociations,
-    ssChangesEnvironment,
-    ssCloseApplications,
-    ssCloseApplicationsFilter,
-    ssCompression,
-    ssCompressionThreads,
-    ssCreateAppDir,
-    ssCreateUninstallRegKey,
-    ssDefaultDialogFontName,
-    ssDefaultDirName,
-    ssDefaultGroupName,
-    ssDefaultUserInfoName,
-    ssDefaultUserInfoOrg,
-    ssDefaultUserInfoSerial,
-    ssDEPCompatible,
-    ssDirExistsWarning,
-    ssDisableDirPage,
-    ssDisableFinishedPage,
-    ssDisableProgramGroupPage,
-    ssDisableReadyMemo,
-    ssDisableReadyPage,
-    ssDisableStartupPrompt,
-    ssDisableWelcomePage,
-    ssDiskClusterSize,
-    ssDiskSliceSize,
-    ssDiskSpanning,
-    ssDontMergeDuplicateFiles,
-    ssEnableDirDoesntExistWarning,
-    ssEncryption,
-    ssExtraDiskSpaceRequired,
-    ssFlatComponentsList,
-    ssInfoAfterFile,
-    ssInfoBeforeFile,
-    ssInternalCompressLevel,
-    ssLanguageDetectionMethod,
-    ssLicenseFile,
-    ssLZMAAlgorithm,
-    ssLZMABlockSize,
-    ssLZMADictionarySize,
-    ssLZMAMatchFinder,
-    ssLZMANumBlockThreads,
-    ssLZMANumFastBytes,
-    ssLZMAUseSeparateProcess,
-    ssMergeDuplicateFiles,
-    ssMessagesFile,
-    ssMinVersion,
-    ssOnlyBelowVersion,
-    ssOutput,
-    ssOutputBaseFilename,
-    ssOutputDir,
-    ssOutputManifestFile,
-    ssPassword,
-    ssPrivilegesRequired,
-    ssPrivilegesRequiredOverridesAllowed,
-    ssReserveBytes,
-    ssRestartApplications,
-    ssRestartIfNeededByRun,
-    ssSetupIconFile,
-    ssSetupLogging,
-    ssSetupMutex,
-    ssShowComponentSizes,
-    ssShowLanguageDialog,
-    ssShowTasksTreeLines,
-    ssShowUndisplayableLanguages,
-    ssSignedUninstaller,
-    ssSignedUninstallerDir,
-    ssSignTool,
-    ssSignToolMinimumTimeBetween,
-    ssSignToolRetryCount,
-    ssSignToolRetryDelay,
-    ssSignToolRunMinimized,
-    ssSlicesPerDisk,
-    ssSolidCompression,
-    ssSourceDir,
-    ssTerminalServicesAware,
-    ssTimeStampRounding,
-    ssTimeStampsInUTC,
-    ssTouchDate,
-    ssTouchTime,
-    ssUpdateUninstallLogAppName,
-    ssUninstallable,
-    ssUninstallDisplayIcon,
-    ssUninstallDisplayName,
-    ssUninstallDisplaySize,
-    ssUninstallFilesDir,
-    ssUninstallIconFile,
-    ssUninstallLogMode,
-    ssUninstallRestartComputer,
-    ssUninstallStyle,
-    ssUsedUserAreasWarning,
-    ssUsePreviousAppDir,
-    ssUsePreviousGroup,
-    ssUsePreviousLanguage,
-    ssUsePreviousPrivileges,
-    ssUsePreviousSetupType,
-    ssUsePreviousTasks,
-    ssUsePreviousUserInfo,
-    ssUseSetupLdr,
-    ssUserInfoPage,
-    ssVersionInfoCompany,
-    ssVersionInfoCopyright,
-    ssVersionInfoDescription,
-    ssVersionInfoOriginalFileName,
-    ssVersionInfoProductName,
-    ssVersionInfoProductVersion,
-    ssVersionInfoProductTextVersion,
-    ssVersionInfoTextVersion,
-    ssVersionInfoVersion,
-    ssWindowResizable,
-    ssWindowShowCaption,
-    ssWindowStartMaximized,
-    ssWindowVisible,
-    ssWizardImageAlphaFormat,
-    ssWizardImageBackColor,
-    ssWizardImageFile,
-    ssWizardImageStretch,
-    ssWizardResizable,
-    ssWizardSmallImageBackColor,
-    ssWizardSmallImageFile,
-    ssWizardSizePercent,
-    ssWizardStyle);
-  TLangOptionsSectionDirectives = (
-    lsCopyrightFontName,
-    lsCopyrightFontSize,
-    lsDialogFontName,
-    lsDialogFontSize,
-    lsDialogFontStandardHeight,
-    lsLanguageCodePage,
-    lsLanguageID,
-    lsLanguageName,
-    lsRightToLeft,
-    lsTitleFontName,
-    lsTitleFontSize,
-    lsWelcomeFontName,
-    lsWelcomeFontSize);
 
   TAllowedConst = (acOldData, acBreak);
   TAllowedConsts = set of TAllowedConst;
@@ -386,7 +215,7 @@ type
 
     SetupHeader: TSetupHeader;
 
-    SetupDirectiveLines: array[TSetupSectionDirectives] of Integer;
+    SetupDirectiveLines: array[TSetupSectionDirective] of Integer;
     UseSetupLdr, DiskSpanning, BackSolid, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
     DiskSliceSize, DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile, WizardImageFile: String;
@@ -3536,7 +3365,7 @@ procedure TSetupCompiler.EnumSetupProc(const Line: PChar; const Ext: Integer);
 var
   KeyName, Value: String;
   I: Integer;
-  Directive: TSetupSectionDirectives;
+  Directive: TSetupSectionDirective;
 
   procedure Invalid;
   begin
@@ -3743,10 +3572,10 @@ begin
 
   if KeyName = '' then
     Exit;
-  I := GetEnumValue(TypeInfo(TSetupSectionDirectives), 'ss' + KeyName);
+  I := GetEnumValue(TypeInfo(TSetupSectionDirective), 'ss' + KeyName);
   if I = -1 then
     AbortCompileOnLineFmt(SCompilerUnknownDirective, ['Setup', KeyName]);
-  Directive := TSetupSectionDirectives(I);
+  Directive := TSetupSectionDirective(I);
   if (Directive <> ssSignTool) and (SetupDirectiveLines[Directive] <> 0) then
     AbortCompileOnLineFmt(SCompilerEntryAlreadySpecified, ['Setup', KeyName]);
   SetupDirectiveLines[Directive] := LineNumber;
@@ -4513,7 +4342,7 @@ procedure TSetupCompiler.EnumLangOptionsPreProc(const Line: PChar; const Ext: In
     const PreLangData: TPreLangData; const AffectsMultipleLangs: Boolean);
   var
     I: Integer;
-    Directive: TLangOptionsSectionDirectives;
+    Directive: TLangOptionsSectionDirective;
 
     procedure Invalid;
     begin
@@ -4530,10 +4359,10 @@ procedure TSetupCompiler.EnumLangOptionsPreProc(const Line: PChar; const Ext: In
     end;
 
   begin
-    I := GetEnumValue(TypeInfo(TLangOptionsSectionDirectives), 'ls' + KeyName);
+    I := GetEnumValue(TypeInfo(TLangOptionsSectionDirective), 'ls' + KeyName);
     if I = -1 then
       AbortCompileOnLineFmt(SCompilerUnknownDirective, ['LangOptions', KeyName]);
-    Directive := TLangOptionsSectionDirectives(I);
+    Directive := TLangOptionsSectionDirective(I);
     case Directive of
       lsLanguageCodePage: begin
           if AffectsMultipleLangs then
@@ -4567,7 +4396,7 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
     var LangOptions: TSetupLanguageEntry; const AffectsMultipleLangs: Boolean);
   var
     I: Integer;
-    Directive: TLangOptionsSectionDirectives;
+    Directive: TLangOptionsSectionDirective;
 
     procedure Invalid;
     begin
@@ -4615,10 +4444,10 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
     end;
 
   begin
-    I := GetEnumValue(TypeInfo(TLangOptionsSectionDirectives), 'ls' + KeyName);
+    I := GetEnumValue(TypeInfo(TLangOptionsSectionDirective), 'ls' + KeyName);
     if I = -1 then
       AbortCompileOnLineFmt(SCompilerUnknownDirective, ['LangOptions', KeyName]);
-    Directive := TLangOptionsSectionDirectives(I);
+    Directive := TLangOptionsSectionDirective(I);
     case Directive of
       lsCopyrightFontName: begin
           LangOptions.CopyrightFontName := Trim(Value);
