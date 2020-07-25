@@ -29,6 +29,7 @@ ErrorTitle=Ошибка
 SetupLdrStartupMessage=Данная программа установит %1 на ваш компьютер, продолжить?
 LdrCannotCreateTemp=Невозможно создать временный файл. Установка прервана
 LdrCannotExecTemp=Невозможно выполнить файл во временном каталоге. Установка прервана
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nОшибка %2: %3
@@ -196,6 +197,18 @@ ReadyMemoComponents=Выбранные компоненты:
 ReadyMemoGroup=Папка в меню «Пуск»:
 ReadyMemoTasks=Дополнительные задачи:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Загрузка дополнительных файлов...
+ButtonStopDownload=&Прервать загрузку
+StopDownload=Вы действительно хотите прекратить загрузку?
+ErrorDownloadAborted=Загрузка прервана
+ErrorDownloadFailed=Ошибка загрузки: %d %s
+ErrorDownloadSizeFailed=Ошибка получения размера: %d %s
+ErrorFileHash1=Ошибка хэша файла: %s
+ErrorFileHash2=Неверный хэш файла: ожидался %s, получен %s
+ErrorProgress=Ошибка выполнения: %d из %d
+ErrorFileSize=Неверный размер файла: ожидался %d, получен %d
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Подготовка к установке
 PreparingDesc=Программа установки подготавливается к установке [name] на ваш компьютер.
@@ -279,13 +292,11 @@ ExistingFileReadOnlyRetry=&Удалить атрибут «только для чтения» и повторить попыт
 ExistingFileReadOnlyKeepExisting=&Оставить файл на месте
 ErrorReadingExistingDest=Произошла ошибка при попытке чтения существующего файла:
 FileExistsSelectAction=Выберите действие
-FileExists=Файл уже существует.%n%nПерезаписать его?
 FileExists2=Файл уже существует.
 FileExistsOverwriteExisting=&Заменить существующий файл
 FileExistsKeepExisting=&Сохранить существующий файл
 FileExistsOverwriteOrKeepAll=&Повторить действие для всех последующих конфликтов
 ExistingFileNewerSelectAction=Выберите действие
-ExistingFileNewer=Существующий файл более новый, чем устанавливаемый. Рекомендуется сохранить существующий файл.%n%nВы хотите сохранить существующий файл?
 ExistingFileNewer2=Существующий файл более новый, чем устанавливаемый.
 ExistingFileNewerOverwriteExisting=&Заменить существующий файл
 ExistingFileNewerKeepExisting=&Сохранить существующий файл (рекомендуется)
