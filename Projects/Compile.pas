@@ -186,7 +186,7 @@ type
     FileLocationEntryFilenames: THashStringList;
     WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
-    UsedUserAreasWarning: Boolean;
+    MissingRunOnceIdsWarning, MissingRunOnceIds, UsedUserAreasWarning: Boolean;
     UsedUserAreas: TStringList;
 
     DefaultLangData: TLangData;
@@ -3975,6 +3975,9 @@ begin
         if SetupHeader.MinVersion.NTVersion < $06000000 then
           AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, ['6.0']);
       end;
+    ssMissingRunOnceIdsWarning: begin
+        MissingRunOnceIdsWarning := StrToBool(Value);
+      end;
     ssOnlyBelowVersion: begin
         if not StrToVersionNumbers(Value, SetupHeader.OnlyBelowVersion) then
           Invalid;
@@ -6696,8 +6699,11 @@ begin
       WorkingDir := Values[paWorkingDir].Data;
 
       { RunOnceId }
-      if (Ext = 0) and (Values[paRunOnceId].Data <> '') then
-        AbortCompileOnLine(SCompilerRunCantUseRunOnceId);
+      if Values[paRunOnceId].Data <> '' then begin
+        if Ext = 0 then
+          AbortCompileOnLine(SCompilerRunCantUseRunOnceId);
+      end else
+        MissingRunOnceIds := True;
       RunOnceId := Values[paRunOnceId].Data;
 
       { Description }
@@ -8490,6 +8496,7 @@ begin
     SignToolRetryDelay := 500;
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
     SetupHeader.WizardImageAlphaFormat := afIgnored;
+    MissingRunOnceIdsWarning := True;
     UsedUserAreasWarning := True;
     SetupHeader.WizardStyle := wsClassic;
 
@@ -8904,6 +8911,9 @@ begin
     { Read [UninstallRun] section }
     EnumIniSection(EnumRunProc, 'UninstallRun', 1, True, True, '', False, False);
     CallIdleProc;
+
+    if MissingRunOnceIdsWarning and MissingRunOnceIds then
+      WarningsList.Add(Format(SCompilerMissingRunOnceIdsWarning, ['UninstallRun', 'RunOnceId']));
 
     { Read [Files] section }
     if not TryStrToBoolean(SetupHeader.Uninstallable, Uninstallable) or Uninstallable then

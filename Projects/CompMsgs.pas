@@ -248,7 +248,10 @@ const
   SCompilerConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead.';
   SCompilerCommonConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead or consider using its "auto" form.';
 
-  { Area checks }
+  { Special warnings }
+  SCompilerMissingRunOnceIdsWarning = 'There are [%s] section entries without a %s parameter. '+
+    'By assigning a string to %1:s, you can ensure that a particular [%0:s] entry will only be executed once during uninstallation. ' +
+    'See the "[%0:s]" topic in help file for more information.';
   SCompilerUsedUserAreasWarning = 'The [%s] section directive "%s" is set to "%s" but per-user areas (%s) are used by the script. ' +
     'Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. ' +
     'See the "UsedUserAreasWarning" topic in help file for more information.';

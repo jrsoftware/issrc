@@ -992,6 +992,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_lzmanumfastbytes">LZMANumFastBytes</link></li>
 <li><link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link></li>
 <li><link topic="setup_mergeduplicatefiles">MergeDuplicateFiles</link></li>
+<li><link topic="setup_missingrunonceidswarning">MissingRunOnceIdsWarning</link></li>
 <li><link topic="setup_output">Output</link></li>
 <li><link topic="setup_outputbasefilename">OutputBaseFilename</link></li>
 <li><link topic="setup_outputdir">OutputDir</link></li>
@@ -2594,7 +2595,7 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 </param>
 
 <param name="RunOnceId">
-<p>Valid only in an <tt>[UninstallRun]</tt> section. If the <link topic="sameappnotes">same application</link> is installed more than once, "run" entries will be duplicated in the uninstall log file. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular <tt>[UninstallRun]</tt> entry will only be executed once during uninstallation. For example, if two or more "run" entries in the uninstall log have a <tt>RunOnceId</tt> setting of "DelService", only the latest entry with a <tt>RunOnceId</tt> setting of "DelService" will be executed; the rest will be ignored. Note that <tt>RunOnceId</tt> comparisons are case-sensitive.</p>
+<p>Valid only in an <tt>[UninstallRun]</tt> section. If the <link topic="sameappnotes">same application</link> is installed more than once, "run" entries will be duplicated in the uninstall log file. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular <tt>[UninstallRun]</tt> entry will only be executed once during uninstallation. For example, if two or more "run" entries in the uninstall log have a <tt>RunOnceId</tt> setting of "DelService", only the latest entry with a <tt>RunOnceId</tt> setting of "DelService" will be executed; the rest will be ignored. Note that <tt>RunOnceId</tt> comparisons are case-sensitive. If you don't assign a string to <tt>RunOnceId</tt>, the compiler will warn you about this, which can be disabled using <link topic="setup_missingrunonceidswarning">MissingRunOnceIdsWarning</link>.</p>
 <example>
 <pre>RunOnceId: "DelService"</pre>
 </example>
@@ -3983,6 +3984,14 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software <i>will not</i> run on. Specifying "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>This directive is essentially the opposite of <link topic="setup_minversion">MinVersion</link>.</p>
 <p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>OnlyBelowVersion=0,6.2</tt>. The Windows 95/98/Me version number (the first number) isn't used, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="MissingRunOnceIdsWarning">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>This directive lets you disable the missing RunOnceIds warning. See <link topic="runsection" anchor="RunOnceId">RunOnceId</link> for more information.</p>
 </body>
 </setuptopic>
 
