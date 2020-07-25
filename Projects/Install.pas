@@ -3494,8 +3494,9 @@ begin
     FAborted := True
 end;
 
-procedure SetSecureProtocols(const AHTTPClient: THTTPClient);
+procedure SetUserAgentAndSecureProtocols(const AHTTPClient: THTTPClient);
 begin
+  AHTTPClient.UserAgent := SetupTitle + ' ' + SetupVersion;
   { TLS 1.2 isn't enabled by default on older versions of Windows }
   AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12];
 end;
@@ -3549,7 +3550,7 @@ begin
     HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
 
     HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
-    SetSecureProtocols(HTTPClient);
+    SetUserAgentAndSecureProtocols(HTTPClient);
     HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
 
     { Create temporary file }
@@ -3638,7 +3639,7 @@ begin
 
   HTTPClient := THTTPClient.Create;
   try
-    SetSecureProtocols(HTTPClient);
+    SetUserAgentAndSecureProtocols(HTTPClient);
     HTTPResponse := HTTPClient.Head(Url);
     if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
       raise Exception.CreateFmt(SetupMessages[msgErrorDownloadSizeFailed], [HTTPResponse.StatusCode, HTTPResponse.StatusText])
