@@ -75,31 +75,29 @@ end;
 procedure WriteStdOut(const S: String; const Warning: Boolean = False);
 var
   CSBI: TConsoleScreenBufferInfo;
+  DidSetColor: Boolean;
 begin
-  if Warning then begin
-    GetConsoleScreenBufferInfo(StdErrHandle, CSBI);
-    SetConsoleTextAttribute(StdErrHandle, FOREGROUND_INTENSITY or FOREGROUND_RED or FOREGROUND_GREEN);
-  end;
+  DidSetColor := Warning and GetConsoleScreenBufferInfo(StdOutHandle, CSBI) and
+                 SetConsoleTextAttribute(StdOutHandle, FOREGROUND_INTENSITY or FOREGROUND_RED or FOREGROUND_GREEN);
   try
     WriteToStdHandle(StdOutHandle, AnsiString(S));
   finally
-    if Warning then
-      SetConsoleTextAttribute(StdErrHandle, CSBI.wAttributes);
+    if DidSetColor then
+      SetConsoleTextAttribute(StdOutHandle, CSBI.wAttributes);
   end;
 end;
 
 procedure WriteStdErr(const S: String; const Error: Boolean = False);
 var
   CSBI: TConsoleScreenBufferInfo;
+  DidSetColor: Boolean;
 begin
-  if Error then begin
-    GetConsoleScreenBufferInfo(StdErrHandle, CSBI);
-    SetConsoleTextAttribute(StdErrHandle, FOREGROUND_INTENSITY or FOREGROUND_RED);
-  end;
+  DidSetColor := Error and GetConsoleScreenBufferInfo(StdErrHandle, CSBI) and
+                 SetConsoleTextAttribute(StdErrHandle, FOREGROUND_INTENSITY or FOREGROUND_RED);
   try
     WriteToStdHandle(StdErrHandle, AnsiString(S));
   finally
-    if Error then
+    if DidSetColor then
       SetConsoleTextAttribute(StdErrHandle, CSBI.wAttributes);
   end;
 end;

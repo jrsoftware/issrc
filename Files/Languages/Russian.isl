@@ -202,12 +202,12 @@ DownloadingLabel=Загрузка дополнительных файлов...
 ButtonStopDownload=&Прервать загрузку
 StopDownload=Вы действительно хотите прекратить загрузку?
 ErrorDownloadAborted=Загрузка прервана
-ErrorDownloadFailed=Ошибка загрузки: %d %s
-ErrorDownloadSizeFailed=Ошибка получения размера: %d %s
-ErrorFileHash1=Ошибка хэша файла: %s
-ErrorFileHash2=Неверный хэш файла: ожидался %s, получен %s
-ErrorProgress=Ошибка выполнения: %d из %d
-ErrorFileSize=Неверный размер файла: ожидался %d, получен %d
+ErrorDownloadFailed=Ошибка загрузки: %1 %2
+ErrorDownloadSizeFailed=Ошибка получения размера: %1 %2
+ErrorFileHash1=Ошибка хэша файла: %1
+ErrorFileHash2=Неверный хэш файла: ожидался %1, получен %2
+ErrorProgress=Ошибка выполнения: %1 из %2
+ErrorFileSize=Неверный размер файла: ожидался %1, получен %2
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Подготовка к установке

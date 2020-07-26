@@ -197,12 +197,12 @@ DownloadingLabel=Bezig met het downloaden van extra bestanden...
 ButtonStopDownload=&Stop download
 StopDownload=Weet u zeker dat u de download wilt stoppen?
 ErrorDownloadAborted=Download afgebroken
-ErrorDownloadFailed=Download mislukt: %d %s
-ErrorDownloadSizeFailed=Ophalen grootte mislukt: %d %s
-ErrorFileHash1=Bestand hashing mislukt: %s
-ErrorFileHash2=Ongeldige bestandshash: %s verwacht, %s gevonden
-ErrorProgress=Ongeldige voortgang: %d van %d
-ErrorFileSize=Ongeldige bestandsgrootte: %d verwacht, %d gevonden
+ErrorDownloadFailed=Download mislukt: %1 %2
+ErrorDownloadSizeFailed=Ophalen grootte mislukt: %1 %2
+ErrorFileHash1=Bestand hashing mislukt: %1
+ErrorFileHash2=Ongeldige bestandshash: %1 verwacht, %2 gevonden
+ErrorProgress=Ongeldige voortgang: %1 van %2
+ErrorFileSize=Ongeldige bestandsgrootte: %1 verwacht, %2 gevonden
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Bezig met het voorbereiden van de installatie

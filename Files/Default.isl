@@ -215,12 +215,12 @@ DownloadingLabel=Downloading additional files...
 ButtonStopDownload=&Stop download
 StopDownload=Are you sure you want to stop the download?
 ErrorDownloadAborted=Download aborted
-ErrorDownloadFailed=Download failed: %d %s
-ErrorDownloadSizeFailed=Getting size failed: %d %s
-ErrorFileHash1=File hash failed: %s
-ErrorFileHash2=Invalid file hash: expected %s, found %s
-ErrorProgress=Invalid progress: %d of %d
-ErrorFileSize=Invalid file size: expected %d, found %d
+ErrorDownloadFailed=Download failed: %1 %2
+ErrorDownloadSizeFailed=Getting size failed: %1 %2
+ErrorFileHash1=File hash failed: %1
+ErrorFileHash2=Invalid file hash: expected %1, found %2
+ErrorProgress=Invalid progress: %1 of %2
+ErrorFileSize=Invalid file size: expected %1, found %2
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparing to Install

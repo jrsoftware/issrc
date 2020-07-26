@@ -199,12 +199,12 @@ DownloadingLabel=Niðurhlaðandi aukalegum skrám…
 ButtonStopDownload=&Stöðva niðurhleðslu
 StopDownload=Ert þú viss um að þú viljir stöðva niðurhleðsluna?
 ErrorDownloadAborted=Niðurhleðslu hætt
-ErrorDownloadFailed=Niðurhleðsla mistókst: %d %s
-ErrorDownloadSizeFailed=Mistókst að sækja stærð: %d %s
-ErrorFileHash1=Skráarhakk mistókst: %s
-ErrorFileHash2=Ógilt skráarhakk: bjóst við %s, fékk %s
-ErrorProgress=Ógild framvinda: %d of %d
-ErrorFileSize=Ógild skráarstærð: bjóst við %d, fékk %d
+ErrorDownloadFailed=Niðurhleðsla mistókst: %1 %2
+ErrorDownloadSizeFailed=Mistókst að sækja stærð: %1 %2
+ErrorFileHash1=Skráarhakk mistókst: %1
+ErrorFileHash2=Ógilt skráarhakk: bjóst við %1, fékk %2
+ErrorProgress=Ógild framvinda: %1 of %2
+ErrorFileSize=Ógild skráarstærð: bjóst við %1, fékk %2
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Undirbúandi uppsetningu

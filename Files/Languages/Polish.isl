@@ -208,12 +208,12 @@ DownloadingLabel=Pobieranie dodatkowych plików...
 ButtonStopDownload=&Zatrzymaj pobieranie
 StopDownload=Czy na pewno chcesz zatrzymaæ pobieranie?
 ErrorDownloadAborted=Pobieranie przerwane
-ErrorDownloadFailed=B³¹d pobierania: %d %s
-ErrorDownloadSizeFailed=Pobieranie informacji o rozmiarze nie powiod³o siê: %d %s
-ErrorFileHash1=B³¹d sumy kontrolnej pliku: %s
-ErrorFileHash2=Nieprawid³owa suma kontrolna pliku: oczekiwano %s, otrzymano %s
-ErrorProgress=Nieprawid³owy postêp: %d z %d
-ErrorFileSize=Nieprawid³owy rozmiar pliku: oczekiwano %d, otrzymano %d
+ErrorDownloadFailed=B³¹d pobierania: %1 %2
+ErrorDownloadSizeFailed=Pobieranie informacji o rozmiarze nie powiod³o siê: %1 %2
+ErrorFileHash1=B³¹d sumy kontrolnej pliku: %1
+ErrorFileHash2=Nieprawid³owa suma kontrolna pliku: oczekiwano %1, otrzymano %2
+ErrorProgress=Nieprawid³owy postêp: %1 z %2
+ErrorFileSize=Nieprawid³owy rozmiar pliku: oczekiwano %1, otrzymano %2
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Przygotowanie do instalacji
