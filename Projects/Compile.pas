@@ -6702,7 +6702,7 @@ begin
       if Values[paRunOnceId].Data <> '' then begin
         if Ext = 0 then
           AbortCompileOnLine(SCompilerRunCantUseRunOnceId);
-      end else
+      end else if Ext = 1 then
         MissingRunOnceIds := True;
       RunOnceId := Values[paRunOnceId].Data;
 
