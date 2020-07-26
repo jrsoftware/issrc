@@ -3576,7 +3576,7 @@ begin
     if HTTPDataReceiver.Aborted then
       raise Exception.Create(SetupMessages[msgErrorDownloadAborted])
     else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
-      raise Exception.CreateFmt(SetupMessages[msgErrorDownloadFailed], [HTTPResponse.StatusCode, HTTPResponse.StatusText])
+      raise Exception.Create(FmtSetupMessage(msgErrorDownloadFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
     else begin
       { Download completed, get temporary file size and close it }
       Result := TempF.Size;
@@ -3587,15 +3587,15 @@ begin
         try
           SHA256OfFile := GetSHA256OfFile(DisableFsRedir, TempFile);
         except on E: Exception do
-          raise Exception.CreateFmt(SetupMessages[msgErrorFileHash1], [E.Message]);
+          raise Exception.Create(FmtSetupMessage(msgErrorFileHash1, [E.Message]));
         end;
         if RequiredSHA256OfFile <> SHA256OfFile then
-          raise Exception.CreateFmt(SetupMessages[msgErrorFileHash2], [RequiredSHA256OfFile, SHA256OfFile]);
+          raise Exception.Create(FmtSetupMessage(msgErrorFileHash2, [RequiredSHA256OfFile, SHA256OfFile]));
       end else begin
         if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
-          raise Exception.CreateFmt(SetupMessages[msgErrorProgress], [HTTPDataReceiver.Progress, HTTPDataReceiver.ProgressMax])
+          raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
         else if HTTPDataReceiver.ProgressMax <> Result then
-          raise Exception.CreateFmt(SetupMessages[msgErrorFileSize], [HTTPDataReceiver.ProgressMax, Result]);
+          raise Exception.Create(FmtSetupMessage(msgErrorFileSize, [IntToStr(HTTPDataReceiver.ProgressMax), IntToStr(Result)]));
       end;
 
       { Rename the temporary file to the new name now, with retries if needed }
@@ -3642,7 +3642,7 @@ begin
     SetUserAgentAndSecureProtocols(HTTPClient);
     HTTPResponse := HTTPClient.Head(Url);
     if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
-      raise Exception.CreateFmt(SetupMessages[msgErrorDownloadSizeFailed], [HTTPResponse.StatusCode, HTTPResponse.StatusText])
+      raise Exception.Create(FmtSetupMessage(msgErrorDownloadSizeFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
     else
       Result := HTTPResponse.ContentLength; { Could be -1 }
   finally

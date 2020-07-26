@@ -229,12 +229,12 @@ DownloadingLabel=Scaricamentu di i schedarii addiziunali…
 ButtonStopDownload=&Piantà u scaricamentu
 StopDownload=Site sicuru di vulè piantà u scaricamentu ?
 ErrorDownloadAborted=Scaricamentu interrottu
-ErrorDownloadFailed=Scaricamentu fiascu : %d %s
-ErrorDownloadSizeFailed=Fiascu per ottene a dimensione : %d %s
-ErrorFileHash1=Fiascu di u tazzeghju di u schedariu : %s
-ErrorFileHash2=Tazzeghju di u schedariu inaccettevule : aspettatu %s, trovu %s
-ErrorProgress=Prugressione inaccettevule : %d di %d
-ErrorFileSize=Dimensione di u schedariu inaccettevule : aspettatu %d, trovu %d
+ErrorDownloadFailed=Scaricamentu fiascu : %1 %2
+ErrorDownloadSizeFailed=Fiascu per ottene a dimensione : %1 %2
+ErrorFileHash1=Fiascu di u tazzeghju di u schedariu : %1
+ErrorFileHash2=Tazzeghju di u schedariu inaccettevule : aspettatu %1, trovu %2
+ErrorProgress=Prugressione inaccettevule : %1 di %2
+ErrorFileSize=Dimensione di u schedariu inaccettevule : aspettatu %1, trovu %2
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione di l’installazione

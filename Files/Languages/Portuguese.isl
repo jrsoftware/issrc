@@ -197,12 +197,12 @@ DownloadingLabel=A transferir ficheiros adicionais...
 ButtonStopDownload=&Parar transferência
 StopDownload=Tem a certeza que deseja parar a transferência?
 ErrorDownloadAborted=Transferência cancelada
-ErrorDownloadFailed=Falha na transferência: %d %s
-ErrorDownloadSizeFailed=Falha ao obter tamanho: %d %s
-ErrorFileHash1=Falha de verificação do ficheiro: %s
-ErrorFileHash2=Hash do ficheiro inválida: experado %s, encontrado %s
-ErrorProgress=Progresso inválido: %d de %d
-ErrorFileSize=Tamanho de ficheiro inválido: experado %d, encontrado %d
+ErrorDownloadFailed=Falha na transferência: %1 %2
+ErrorDownloadSizeFailed=Falha ao obter tamanho: %1 %2
+ErrorFileHash1=Falha de verificação do ficheiro: %1
+ErrorFileHash2=Hash do ficheiro inválida: experado %2, encontrado %2
+ErrorProgress=Progresso inválido: %1 de %2
+ErrorFileSize=Tamanho de ficheiro inválido: experado %1, encontrado %2
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparando-se para instalar

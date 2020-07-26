@@ -205,12 +205,12 @@ DownloadingLabel=Prenašam dodatne datoteke...
 ButtonStopDownload=Prekini preno&s
 StopDownload=Ali res želite prekiniti prenos?
 ErrorDownloadAborted=Prenos prekinjen
-ErrorDownloadFailed=Prenos ni uspel: %d %s
-ErrorDownloadSizeFailed=Pridobivanje velikosti ni uspelo: %d %s
-ErrorFileHash1=Pridobivanje zgošèene vrednosti ni uspelo: %s
-ErrorFileHash2=Neveljavna zgošèena vrednost: prièakovana %s, dobljena %s
-ErrorProgress=Neveljaven potek: %d od %d
-ErrorFileSize=Neveljavna velikost datoteke: prièakovana %d, dobljena %d
+ErrorDownloadFailed=Prenos ni uspel: %1 %2
+ErrorDownloadSizeFailed=Pridobivanje velikosti ni uspelo: %1 %2
+ErrorFileHash1=Pridobivanje zgošèene vrednosti ni uspelo: %1
+ErrorFileHash2=Neveljavna zgošèena vrednost: prièakovana %1, dobljena %2
+ErrorProgress=Neveljaven potek: %1 od %2
+ErrorFileSize=Neveljavna velikost datoteke: prièakovana %1, dobljena %2
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pripravljam za namestitev
