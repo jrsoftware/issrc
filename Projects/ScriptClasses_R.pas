@@ -187,6 +187,7 @@ procedure RegisterSetupForm_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TSetupForm) do
   begin
+    RegisterMethod(@TSetupForm.CalculateButtonWidth, 'CalculateButtonWidth');
     RegisterMethod(@TSetupForm.ShouldSizeX, 'ShouldSizeX');
     RegisterMethod(@TSetupForm.ShouldSizeY, 'ShouldSizeY');
     RegisterMethod(@TSetupForm.FlipSizeAndCenterIfNeeded, 'FlipSizeAndCenterIfNeeded');
@@ -313,6 +314,19 @@ begin
   end;
 end;
 
+{$IFNDEF PS_NOINT64}
+procedure RegisterDownloadWizardPage_R(CL: TPSRuntimeClassImporter);
+begin
+  with CL.Add(TDownloadWizardPage) do
+  begin
+    RegisterMethod(@TDownloadWizardPage.Add, 'Add');
+    RegisterMethod(@TDownloadWizardPage.Clear, 'Clear');
+    RegisterMethod(@TDownloadWizardPage.Download, 'Download');
+    RegisterMethod(@TDownloadWizardPage.Show, 'Show');
+  end;
+end;
+{$ENDIF}
+
 procedure RegisterHandCursor_R(Cl: TPSRuntimeClassImporter);
 const
   IDC_HAND = MakeIntResource(32649);
@@ -415,6 +429,9 @@ begin
     RegisterOutputMsgWizardPage_R(Cl);
     RegisterOutputMsgMemoWizardPage_R(Cl);
     RegisterOutputProgressWizardPage_R(Cl);
+{$IFNDEF PS_NOINT64}
+    RegisterDownloadWizardPage_R(Cl);
+{$ENDIF}
 
     RegisterHandCursor_R(Cl);
 

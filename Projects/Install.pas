@@ -2,7 +2,7 @@ unit Install;
 
 {
   Inno Setup
-  Copyright (C) 1997-2011 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -16,8 +16,14 @@ interface
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
   ChangesAssociations: Boolean);
 
+
+type
+  TOnDownloadProgress = function(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean of object;
+
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
+function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+function DownloadTemporaryFileSize(const Url: String): Int64;
 
 implementation
 
@@ -26,7 +32,7 @@ uses
   InstFunc, InstFnc2, SecurityFunc, Msgs, Main, Logging, Extract, FileClass,
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
-  ResUpdate, LibFusion, TaskbarProgressFunc, NewProgressBar, RestartManager;
+  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager, Net.HTTPClient;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -308,6 +314,13 @@ begin
   if FontDir <> '' then
     if PathCompare(PathExtractDir(Result), FontDir) = 0 then
       Result := PathExtractName(Result);
+end;
+
+function LastErrorIndicatesPossiblyInUse(const LastError: DWORD; const CheckAlreadyExists: Boolean): Boolean;
+begin
+  Result := (LastError = ERROR_ACCESS_DENIED) or
+            (LastError = ERROR_SHARING_VIOLATION) or
+            (CheckAlreadyExists and (LastError = ERROR_ALREADY_EXISTS));
 end;
 
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
@@ -897,37 +910,54 @@ var
     F.WriteBuffer(UninstallerMsgTail, SizeOf(UninstallerMsgTail));
   end;
 
+  type
+    TOverwriteAll = (oaUnknown, oaOverwrite, oaKeep);
+
   procedure ProcessFileEntry(const CurFile: PSetupFileEntry;
     const DisableFsRedir: Boolean; ASourceFile, ADestName: String;
-    const FileLocationFilenames: TStringList; const AExternalSize: Integer64);
+    const FileLocationFilenames: TStringList; const AExternalSize: Integer64;
+    var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
+    var WarnedPerUserFonts: Boolean);
 
     procedure InstallFont(const Filename, FontName: String;
-      const AddToFontTableNow: Boolean);
+      const PerUserFont, AddToFontTableNow: Boolean; var WarnedPerUserFonts: Boolean);
     const
       FontsKeys: array[Boolean] of PChar =
         (NEWREGSTR_PATH_SETUP + '\Fonts',
          'Software\Microsoft\Windows NT\CurrentVersion\Fonts');
     var
-      K: HKEY;
+      RootKey, K: HKEY;
     begin
-      { 64-bit Windows note: The Fonts key is evidently exempt from registry
-        redirection. When a 32-bit app writes to the Fonts key, it's the main
-        64-bit key that is modified. (There is actually a Fonts key under
-        Wow6432Node but it appears it's never used or updated.)
-        Also: We don't bother with any FS redirection stuff here. I'm not sure
-        it's safe to disable FS redirection when calling AddFontResource, or
-        if it would even work. Users should be installing their fonts to the
-        Fonts directory instead of the System directory anyway. }
-      if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, FontsKeys[IsNT], 0,
-         KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
-        if RegSetValueEx(K, PChar(FontName), 0, REG_SZ, PChar(Filename),
-           (Length(Filename)+1)*SizeOf(Filename[1])) <> ERROR_SUCCESS then
-          Log('Failed to set value in Fonts registry key.');
-        RegCloseKey(K);
-      end
-      else
-        Log('Failed to open Fonts registry key.');
-
+      if PerUserFont and (WindowsVersion < Cardinal($0A0042EE)) then begin
+        { Per-user fonts require Windows 10 Version 1803 (10.0.17134) or newer. }
+        if not WarnedPerUserFonts then begin
+          Log('Failed to set value in Fonts registry key: per-user fonts are not supported by this version of Windows.');
+          WarnedPerUserFonts := True;
+        end;
+      end else begin
+        { 64-bit Windows note: The Fonts key is evidently exempt from registry
+          redirection. When a 32-bit app writes to the Fonts key, it's the main
+          64-bit key that is modified. (There is actually a Fonts key under
+          Wow6432Node but it appears it's never used or updated.)
+          Also: We don't bother with any FS redirection stuff here. I'm not sure
+          it's safe to disable FS redirection when calling AddFontResource, or
+          if it would even work. Users should be installing their fonts to the
+          Fonts directory instead of the System directory anyway. }
+        if PerUserFont then
+          RootKey := HKEY_CURRENT_USER
+        else
+          RootKey := HKEY_LOCAL_MACHINE;
+        if RegOpenKeyExView(rvDefault, RootKey, FontsKeys[IsNT], 0,
+           KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
+          if RegSetValueEx(K, PChar(FontName), 0, REG_SZ, PChar(Filename),
+             (Length(Filename)+1)*SizeOf(Filename[1])) <> ERROR_SUCCESS then
+            Log('Failed to set value in Fonts registry key.');
+          RegCloseKey(K);
+        end
+        else
+          Log('Failed to open Fonts registry key.');
+      end;
+      
       if AddToFontTableNow then begin
         repeat
           { Note: AddFontResource doesn't set the thread's last error code }
@@ -1034,6 +1064,26 @@ var
       end;
     end;
 
+    function AskOverwrite(const DestFile, Instruction, Caption: string; const ButtonLabels: array of String;
+      const VerificationText: String; const Typ: TMsgBoxType; const Default, Overwrite: Integer;
+      var OverwriteAll: TOverwriteAll): Boolean;
+    var
+      VerificationFlagChecked: BOOL;
+    begin
+      if OverwriteAll = oaKeep then
+        Result := False { The user already said to keep (=not overwrite) all }
+      else begin
+        Result := LoggedTaskDialogMsgBox('', Instruction, DestFile + SNewLine2 + Caption, '',
+          Typ, MB_YESNO, ButtonLabels, 0, True, Default, VerificationText, @VerificationFlagChecked) = Overwrite;
+        if VerificationFlagChecked then begin
+          if Result then
+            OverwriteAll := oaOverwrite
+          else
+            OverwriteAll := oaKeep;
+        end;
+      end;
+    end;
+
   var
     ProgressUpdated: Boolean;
     PreviousProgress: Integer64;
@@ -1057,6 +1107,7 @@ var
     LastError: DWORD;
     DestF, SourceF: TFile;
     Flags: TMakeDirFlags;
+    Overwrite, PerUserFont: Boolean;
   label Retry, Skip;
   begin
     Log('-- File entry --');
@@ -1203,10 +1254,20 @@ var
                  ((ExistingVersionInfo.MS > CurFileVersionInfo.MS) or
                   ((ExistingVersionInfo.MS = CurFileVersionInfo.MS) and
                    (ExistingVersionInfo.LS > CurFileVersionInfo.LS))) then begin
-                if not(foPromptIfOlder in CurFile^.Options) or
-                   IsProtectedFile or
-                   (LoggedMsgBox(DestFile + SNewLine2 + SetupMessages[msgExistingFileNewer],
-                    '', mbError, MB_YESNO, True, IDYES) <> IDNO) then begin
+                { Existing file is newer, ask user what to do unless we shouldn't }
+                if (foPromptIfOlder in CurFile^.Options) and not IsProtectedFile then begin
+                  if PromptIfOlderOverwriteAll <> oaOverwrite then begin
+                    Overwrite := AskOverwrite(DestFile, SetupMessages[msgExistingFileNewerSelectAction],
+                      SetupMessages[msgExistingFileNewer2],
+                      [SetupMessages[msgExistingFileNewerKeepExisting], SetupMessages[msgExistingFileNewerOverwriteExisting]],
+                      SetupMessages[msgExistingFileNewerOverwriteOrKeepAll],
+                     mbError, IDYES, IDNO, PromptIfOlderOverwriteAll);
+                    if not Overwrite then begin
+                      Log('User opted not to overwrite the existing file. Skipping.');
+                      goto Skip;
+                    end;
+                  end;
+                end else begin
                   Log('Existing file is a newer version. Skipping.');
                   goto Skip;
                 end;
@@ -1280,11 +1341,20 @@ var
               goto Skip;
             end;
             if CompareFileTime(ExistingFileDate, CurFileDate) > 0 then begin
-              { Existing file has a later time stamp }
-              if not(foPromptIfOlder in CurFile^.Options) or
-                 IsProtectedFile or
-                 (LoggedMsgBox(DestFile + SNewLine2 + SetupMessages[msgExistingFileNewer],
-                  '', mbError, MB_YESNO, True, IDYES) <> IDNO) then begin
+              { Existing file has a later time stamp, ask user what to do unless we shouldn't }
+              if (foPromptIfOlder in CurFile^.Options) and not IsProtectedFile then begin
+                if PromptIfOlderOverwriteAll <> oaOverwrite then begin
+                  Overwrite := AskOverwrite(DestFile, SetupMessages[msgExistingFileNewerSelectAction],
+                    SetupMessages[msgExistingFileNewer2],
+                    [SetupMessages[msgExistingFileNewerKeepExisting], SetupMessages[msgExistingFileNewerOverwriteExisting]],
+                    SetupMessages[msgExistingFileNewerOverwriteOrKeepAll],
+                    mbError, IDYES, IDNO, PromptIfOlderOverwriteAll);
+                  if not Overwrite then begin
+                    Log('User opted not to overwrite the existing file. Skipping.');
+                    goto Skip;
+                  end;
+                end;
+              end else begin
                 Log('Existing file has a later time stamp. Skipping.');
                 goto Skip;
               end;
@@ -1301,13 +1371,19 @@ var
             goto Skip;
           end;
 
-          { If file already exists and foConfirmOverwrite is in Options, ask
-            the user if it's OK to overwrite }
-          if (foConfirmOverwrite in CurFile^.Options) and
-             (LoggedMsgBox(DestFile + SNewLine2 + SetupMessages[msgFileExists],
-              '', mbConfirmation, MB_YESNO, True, IDNO) <> IDYES) then begin
-            Log('User opted not to overwrite the existing file. Skipping.');
-            goto Skip;
+          { If file already exists and foConfirmOverwrite is in Options, ask the user what to do }
+          if foConfirmOverwrite in CurFile^.Options then begin
+            if ConfirmOverwriteOverwriteAll <> oaOverwrite then begin
+              Overwrite := AskOverwrite(DestFile, SetupMessages[msgFileExistsSelectAction],
+                SetupMessages[msgFileExists2],
+                [SetupMessages[msgFileExistsOverwriteExisting], SetupMessages[msgFileExistsKeepExisting]],
+                SetupMessages[msgFileExistsOverwriteOrKeepAll],
+                mbConfirmation, IDNO, IDYES, ConfirmOverwriteOverwriteAll);
+              if not Overwrite then begin
+                Log('User opted not to overwrite the existing file. Skipping.');
+                goto Skip;
+              end;
+            end;
           end;
 
           { Check if existing file is read-only }
@@ -1442,8 +1518,7 @@ var
             if LastError = ERROR_FILE_NOT_FOUND then
               Break;
             { Does the error code indicate that it is possibly in use? }
-            if (LastError = ERROR_ACCESS_DENIED) or
-               (LastError = ERROR_SHARING_VIOLATION) then begin
+            if LastErrorIndicatesPossiblyInUse(LastError, False) then begin
               DoHandleFailedDeleteOrMoveFileTry('DeleteFile', TempFile, DestFile,
                 LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
                 DoBreak, DoContinue);
@@ -1468,15 +1543,13 @@ var
                 ((CurFile^.FileType = ftUninstExe) and DestFileExistedBefore)) then begin
           LastOperation := SetupMessages[msgErrorRenamingTemp];
           { Since the DeleteFile above succeeded you would expect the rename to
-            also always succeed, but if it doesn't anyway. }
+            also always succeed, but if it doesn't retry anyway. }
           RetriesLeft := 4;
           while not MoveFileRedir(DisableFsRedir, TempFile, DestFile) do begin
             { Couldn't rename the temporary file... }
             LastError := GetLastError;
             { Does the error code indicate that it is possibly in use? }
-            if (LastError = ERROR_ACCESS_DENIED) or
-               (LastError = ERROR_SHARING_VIOLATION) or
-               (LastError = ERROR_ALREADY_EXISTS) then begin
+            if LastErrorIndicatesPossiblyInUse(LastError, True) then begin
               DoHandleFailedDeleteOrMoveFileTry('MoveFile', TempFile, DestFile,
                 LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
                 DoBreak, DoContinue);
@@ -1526,8 +1599,11 @@ var
         if CurFile^.InstallFontName <> '' then begin
           LastOperation := '';
           LogFmt('Registering file as a font ("%s")', [CurFile^.InstallFontName]);
-          InstallFont(FontFilename, CurFile^.InstallFontName, not ReplaceOnRestart);
+          PerUserFont := not IsAdminInstallMode;
+          InstallFont(FontFilename, CurFile^.InstallFontName, PerUserFont, not ReplaceOnRestart, WarnedPerUserFonts);
           DeleteFlags := DeleteFlags or utDeleteFile_IsFont;
+          if PerUserFont then
+            DeleteFlags := DeleteFlags or utDeleteFile_PerUserFont;
         end;
 
         { There were no errors so add the uninstall log entry, unless the file
@@ -1683,7 +1759,8 @@ var
     function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
       const SearchBaseDir, SearchSubDir, SearchWildcard: String; const SourceIsWildcard: Boolean;
       const CurFile: PSetupFileEntry; const FileLocationFilenames: TStringList;
-      var ExpectedBytesLeft: Integer64): Boolean;
+      var ExpectedBytesLeft: Integer64; var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
+      var WarnedPerUserFonts: Boolean): Boolean;
     var
       SearchFullPath, FileName, SourceFile, DestName: String;
       H: THandle;
@@ -1723,7 +1800,8 @@ var
                 Size := ExpectedBytesLeft;
               end;
               ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestName,
-                FileLocationFilenames, Size);
+                FileLocationFilenames, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                WarnedPerUserFonts);
               Dec6464(ExpectedBytesLeft, Size);
             end;
           until not FindNextFile(H, FindData);
@@ -1741,7 +1819,8 @@ var
                 Result := RecurseExternalCopyFiles(DisableFsRedir, SearchBaseDir,
                   SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                   SourceIsWildcard, CurFile, FileLocationFileNames,
-                  ExpectedBytesLeft) or Result;
+                  ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                  WarnedPerUserFonts) or Result;
             until not FindNextFile(H, FindData);
           finally
             Windows.FindClose(H);
@@ -1781,7 +1860,13 @@ var
     SourceWildcard: String;
     ProgressBefore, ExpectedBytesLeft: Integer64;
     DisableFsRedir, FoundFiles: Boolean;
+    ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
+    WarnedPerUserFonts: Boolean;
   begin
+    ConfirmOverwriteOverwriteAll := oaUnknown;
+    PromptIfOlderOverwriteAll := oaUnknown;
+    WarnedPerUserFonts := False;
+
     FileLocationFilenames := TStringList.Create;
     try
       for I := 0 to Entries[seFileLocation].Count-1 do
@@ -1805,7 +1890,8 @@ var
           if CurFile^.LocationEntry <> -1 then begin
             ExternalSize.Hi := 0;  { not used... }
             ExternalSize.Lo := 0;
-            ProcessFileEntry(CurFile, DisableFsRedir, '', '', FileLocationFilenames, ExternalSize);
+            ProcessFileEntry(CurFile, DisableFsRedir, '', '', FileLocationFilenames, ExternalSize,
+              ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll, WarnedPerUserFonts);
           end
           else begin
             { File is an 'external' file }
@@ -1823,7 +1909,8 @@ var
               FoundFiles := RecurseExternalCopyFiles(DisableFsRedir,
                 PathExtractPath(SourceWildcard), '', PathExtractName(SourceWildcard),
                 IsWildcard(SourceWildcard), CurFile, FileLocationFileNames,
-                ExpectedBytesLeft);
+                ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                WarnedPerUserFonts);
             until FoundFiles or
                   (foSkipIfSourceDoesntExist in CurFile^.Options) or
                   AbortRetryIgnoreTaskDialogMsgBox(
@@ -1913,8 +2000,8 @@ var
       WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
       const NeverUninstall: Boolean; const CloseOnExit: TSetupIconCloseOnExit;
       const HotKey: Word; FolderShortcut: Boolean;
-      const AppUserModelID: String; const ExcludeFromShowInNewInstall: Boolean;
-      const PreventPinning: Boolean);
+      const AppUserModelID: String; const AppUserModelToastActivatorCLSID: PGUID;
+      const ExcludeFromShowInNewInstall, PreventPinning: Boolean);
     var
       BeginsWithGroup: Boolean;
       LinkFilename, PifFilename, UrlFilename, DirFilename, ProbableFilename,
@@ -1970,8 +2057,8 @@ var
           environment-variable strings (e.g. %SystemRoot%\...) }
         ResultingFilename := CreateShellLink(LinkFilename, Description, Path,
           Parameters, WorkingDir, IconFilename, IconIndex, ShowCmd, HotKey,
-          FolderShortcut, AppUserModelID, ExcludeFromShowInNewInstall,
-          PreventPinning);
+          FolderShortcut, AppUserModelID, AppUserModelToastActivatorCLSID,
+          ExcludeFromShowInNewInstall, PreventPinning);
         FolderShortcutCreated := FolderShortcut and DirExists(ResultingFilename);
 
         { If a .pif file was created, apply the "Close on exit" setting }
@@ -2023,9 +2110,6 @@ var
           UninstLog.Add(utDeleteFile, [PifFilename], utDeleteFile_CallChangeNotify);
         end;
       end;
-
-      { Increment progress meter }
-      IncProgress(1000);
     end;
 
     function ExpandAppPath(const Filename: String): String;
@@ -2049,6 +2133,7 @@ var
     CurIconNumber: Integer;
     CurIcon: PSetupIconEntry;
     FN: String;
+    TACLSID: PGUID;
   begin
     for CurIconNumber := 0 to Entries[seIcon].Count-1 do begin
       try
@@ -2061,16 +2146,24 @@ var
             FN := ExpandConst(Filename);
             if ioUseAppPaths in Options then
               FN := ExpandAppPath(FN);
-            if not(ioCreateOnlyIfFileExists in Options) or NewFileExistsRedir(IsWin64, FN) then
+            if not(ioCreateOnlyIfFileExists in Options) or NewFileExistsRedir(IsWin64, FN) then begin
+              if ioHasAppUserModelToastActivatorCLSID in Options then
+                TACLSID := @AppUserModelToastActivatorCLSID
+              else
+                TACLSID := nil;
               CreateAnIcon(IconName, ExpandConst(Comment), FN,
                 ExpandConst(Parameters), ExpandConst(WorkingDir),
                 ExpandConst(IconFilename), IconIndex, ShowCmd,
                 ioUninsNeverUninstall in Options, CloseOnExit, HotKey,
-                ioFolderShortcut in Options, ExpandConst(AppUserModelID),
+                ioFolderShortcut in Options, ExpandConst(AppUserModelID), TACLSID,
                 ioExcludeFromShowInNewInstall in Options,
                 ioPreventPinning in Options)
-            else
+            end else
               Log('Skipping due to "createonlyiffileexists" flag.');
+
+            { Increment progress meter }
+            IncProgress(1000);
+            
             NotifyAfterInstallEntry(AfterInstall);
           end;
         end;
@@ -2755,6 +2848,8 @@ var
           SW_SHOWMAXIMIZED: Flags := Flags or utRun_RunMaximized;
           SW_HIDE: Flags := Flags or utRun_RunHidden;
         end;
+        if roDontLogParameters in RunEntry.Options then
+          Flags := Flags or utRun_DontLogParameters;
         UninstLog.Add(utRun, [ExpandConst(RunEntry.Name),
           ExpandConst(RunEntry.Parameters), ExpandConst(RunEntry.WorkingDir),
           ExpandConst(RunEntry.RunOnceId), ExpandConst(RunEntry.Verb)],
@@ -2881,8 +2976,7 @@ var
         Break;
       LastError := GetLastError;
       { Does the error code indicate that the file is possibly in use? }
-      if (LastError = ERROR_ACCESS_DENIED) or
-         (LastError = ERROR_SHARING_VIOLATION) then begin
+      if LastErrorIndicatesPossiblyInUse(LastError, False) then begin
         if RetriesLeft > 0 then begin
           LogFmt('The existing file appears to be in use (%d). ' +
             'Retrying.', [LastError]);
@@ -3314,7 +3408,7 @@ begin
       Exit;
     end;
   end;
-  InternalError(Format('ExtractTemporaryFile: The file "%s" was not found', [BaseName]));
+  InternalErrorFmt('ExtractTemporaryFile: The file "%s" was not found', [BaseName]);
 end;
 
 function ExtractTemporaryFiles(const Pattern: String): Integer;
@@ -3348,7 +3442,212 @@ begin
   end;
 
   if Result = 0 then
-    InternalError(Format('ExtractTemporaryFiles: No files matching "%s" found', [Pattern]));
+    InternalErrorFmt('ExtractTemporaryFiles: No files matching "%s" found', [Pattern]);
+end;
+
+type
+  THTTPDataReceiver = class
+  private
+    FBaseName, FUrl: String;
+    FOnDownloadProgress: TOnDownloadProgress;
+    FAborted: Boolean;
+    FProgress, FProgressMax: Int64;
+    FLastReportedProgress, FLastReportedProgressMax: Int64;
+  public
+    property BaseName: String write FBaseName;
+    property Url: String write FUrl;
+    property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
+    property Aborted: Boolean read FAborted;
+    property Progress: Int64 read FProgress;
+    property ProgressMax: Int64 read FProgressMax;
+    procedure OnReceiveData(const Sender: TObject; AContentLength: Int64; AReadCount: Int64; var Abort: Boolean);
+  end;
+
+procedure THTTPDataReceiver.OnReceiveData(const Sender: TObject; AContentLength: Int64; AReadCount: Int64; var Abort: Boolean);
+begin
+  FProgress := AReadCount;
+  FProgressMax := AContentLength;
+
+  if Assigned(FOnDownloadProgress) then begin
+    { Make sure script isn't called crazy often because that would slow the download significantly. Only report:
+      -At start or finish
+      -Or if somehow Progress decreased or Max changed
+      -Or if at least 512 KB progress was made since last report
+    }
+    if (FProgress = 0) or (FProgress = FProgressMax) or
+       (FProgress < FLastReportedProgress) or (FProgressMax <> FLastReportedProgressMax) or
+       ((FProgress - FLastReportedProgress) > 524288) then begin
+      try
+        if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
+          Abort := True;
+      finally
+        FLastReportedProgress := FProgress;
+        FLastReportedProgressMax := FProgressMax;
+      end;
+    end;
+  end;
+
+  if not Abort and DownloadTemporaryFileProcessMessages then
+    Application.ProcessMessages;
+
+  if Abort then
+    FAborted := True
+end;
+
+procedure SetUserAgentAndSecureProtocols(const AHTTPClient: THTTPClient);
+begin
+  AHTTPClient.UserAgent := SetupTitle + ' ' + SetupVersion;
+  { TLS 1.2 isn't enabled by default on older versions of Windows }
+  AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12];
+end;
+
+function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+var
+  DisableFsRedir: Boolean;
+  PrevState: TPreviousFsRedirectionState;
+  DestFile, TempFile: String;
+  TempF: TFileStream;
+  TempFileLeftOver: Boolean;
+  HTTPDataReceiver: THTTPDataReceiver;
+  HTTPClient: THTTPClient;
+  HTTPResponse: IHTTPResponse;
+  SHA256OfFile: String;
+  RetriesLeft: Integer;
+  LastError: DWORD;
+begin
+  if Url = '' then
+    InternalError('DownloadTemporaryFile: Invalid Url value');
+  if BaseName = '' then
+    InternalError('DownloadTemporaryFile: Invalid BaseName value');
+
+  DestFile := AddBackslash(TempInstallDir) + BaseName;
+
+  LogFmt('Downloading temporary file from %s: %s', [Url, DestFile]);
+
+  DisableFsRedir := InstallDefaultDisableFsRedir;
+
+  { Prepare directory }
+  if FileExists(DestFile) then begin
+    if (RequiredSHA256OfFile <> '') and (RequiredSHA256OfFile = GetSHA256OfFile(DisableFsRedir, DestFile)) then begin
+      Log('  File already downloaded.');
+      Result := 0;
+      Exit;
+    end;    
+    SetFileAttributesRedir(DisableFsRedir, DestFile, GetFileAttributesRedir(DisableFsRedir, DestFile) and not FILE_ATTRIBUTE_READONLY);
+    DelayDeleteFile(DisableFsRedir, DestFile, 13, 50, 250);
+  end else
+    ForceDirectories(DisableFsRedir, PathExtractPath(DestFile));
+
+  HTTPDataReceiver := nil;
+  HTTPClient := nil;
+  TempF := nil;
+  TempFileLeftOver := False;
+  try
+    { Setup downloader }
+    HTTPDataReceiver := THTTPDataReceiver.Create;
+    HTTPDataReceiver.BaseName := BaseName;
+    HTTPDataReceiver.Url := Url;
+    HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
+
+    HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
+    SetUserAgentAndSecureProtocols(HTTPClient);
+    HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
+
+    { Create temporary file }
+    TempFile := GenerateUniqueName(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
+    if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then
+      InternalError('DisableFsRedirectionIf failed');
+    try
+      TempF := TFileStream.Create(TempFile, fmCreate);
+      TempFileLeftOver := True;
+    finally
+      RestoreFsRedirection(PrevState);
+    end;
+
+    { To test redirects: https://jrsoftware.org/download.php/is.exe
+      To test expired certificates: https://expired.badssl.com/
+      To test self-signed certificates: https://self-signed.badssl.com/
+      To test basic authentication: https://guest:guest@jigsaw.w3.org/HTTP/Basic/
+      To test 100 MB file: https://speed.hetzner.de/100MB.bin
+      To test 1 GB file: https://speed.hetzner.de/1GB.bin }
+
+    { Download to temporary file}
+    HTTPResponse := HTTPClient.Get(Url, TempF);
+    if HTTPDataReceiver.Aborted then
+      raise Exception.Create(SetupMessages[msgErrorDownloadAborted])
+    else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
+      raise Exception.CreateFmt(SetupMessages[msgErrorDownloadFailed], [HTTPResponse.StatusCode, HTTPResponse.StatusText])
+    else begin
+      { Download completed, get temporary file size and close it }
+      Result := TempF.Size;
+      FreeAndNil(TempF);
+
+      { Check hash if specified, otherwise check everything else we can check }
+      if RequiredSHA256OfFile <> '' then begin
+        try
+          SHA256OfFile := GetSHA256OfFile(DisableFsRedir, TempFile);
+        except on E: Exception do
+          raise Exception.CreateFmt(SetupMessages[msgErrorFileHash1], [E.Message]);
+        end;
+        if RequiredSHA256OfFile <> SHA256OfFile then
+          raise Exception.CreateFmt(SetupMessages[msgErrorFileHash2], [RequiredSHA256OfFile, SHA256OfFile]);
+      end else begin
+        if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
+          raise Exception.CreateFmt(SetupMessages[msgErrorProgress], [HTTPDataReceiver.Progress, HTTPDataReceiver.ProgressMax])
+        else if HTTPDataReceiver.ProgressMax <> Result then
+          raise Exception.CreateFmt(SetupMessages[msgErrorFileSize], [HTTPDataReceiver.ProgressMax, Result]);
+      end;
+
+      { Rename the temporary file to the new name now, with retries if needed }
+      RetriesLeft := 4;
+      while not MoveFileRedir(DisableFsRedir, TempFile, DestFile) do begin
+        { Couldn't rename the temporary file... }
+        LastError := GetLastError;
+        { Does the error code indicate that it is possibly in use? }
+        if LastErrorIndicatesPossiblyInUse(LastError, True) then begin
+          LogFmt('  The existing file appears to be in use (%d). ' +
+            'Retrying.', [LastError]);
+          Dec(RetriesLeft);
+          Sleep(1000);
+          if RetriesLeft > 0 then
+            Continue;
+        end;
+        { Some other error occurred, or we ran out of tries }
+        SetLastError(LastError);
+        Win32ErrorMsg('MoveFile'); { Throws an exception }
+      end;
+      TempFileLeftOver := False;
+    end;
+  finally
+    TempF.Free;
+    HTTPClient.Free;
+    HTTPDataReceiver.Free;
+    if TempFileLeftOver then
+      DeleteFileRedir(DisableFsRedir, TempFile);
+  end;
+end;
+
+function DownloadTemporaryFileSize(const Url: String): Int64;
+var
+  HTTPClient: THTTPClient;
+  HTTPResponse: IHTTPResponse;
+begin
+  if Url = '' then
+    InternalError('DownloadTemporaryFileSize: Invalid Url value');
+
+  LogFmt('Getting size of %s.', [Url]);
+
+  HTTPClient := THTTPClient.Create;
+  try
+    SetUserAgentAndSecureProtocols(HTTPClient);
+    HTTPResponse := HTTPClient.Head(Url);
+    if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
+      raise Exception.CreateFmt(SetupMessages[msgErrorDownloadSizeFailed], [HTTPResponse.StatusCode, HTTPResponse.StatusText])
+    else
+      Result := HTTPResponse.ContentLength; { Could be -1 }
+  finally
+    HTTPClient.Free;
+  end;
 end;
 
 end.

@@ -17,7 +17,6 @@ program Setup;
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
   XPTheme in 'XPTheme.pas',
-  D2009Win2kFix in 'D2009Win2kFix.pas',
   Forms,
   Windows,
   SysUtils,

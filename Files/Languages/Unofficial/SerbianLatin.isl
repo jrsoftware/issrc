@@ -1,9 +1,9 @@
-; *** Inno Setup version 5.5.3+ Serbian (Latin) messages ***
+; *** Inno Setup version 6.0.3+ Serbian (Latin) messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
 ;
-; Translated by Rancher (theranchcowboy@gmail.com).
+; Translated by Rancher (theranchcowboy@gmail.com) and Davor (davornik@yahoo.com).
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -44,6 +44,7 @@ ErrorTitle=Greška
 SetupLdrStartupMessage=Instaliraæete %1. Želite li da nastavite?
 LdrCannotCreateTemp=Ne mogu da napravim privremenu datoteku. Instalacija je prekinuta.
 LdrCannotExecTemp=Ne mogu da pokrenem datoteku u privremenoj fascikli. Instalacija je prekinuta.
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nGreška %2: %3
@@ -52,18 +53,27 @@ SetupFileCorrupt=Instalacione datoteke su ošteæene. Nabavite novi primerak progr
 SetupFileCorruptOrWrongVer=Instalacione datoteke su ošteæene ili nisu saglasne s ovom verzijom instalacije. Ispravite problem ili nabavite novi primerak programa.
 InvalidParameter=Neispravan parametar je prenet na komandnu liniju: %n%n%1
 SetupAlreadyRunning=Instalacija je veæ pokrenuta.
-WindowsVersionNotSupported=Program ne podržava izdanje vindousa koje koristite.
+WindowsVersionNotSupported=Program ne podržava izdanje Windows-a koje koristite.
 WindowsServicePackRequired=Program zahteva %1 servisni paket %2 ili noviji.
 NotOnThisPlatform=Program neæe raditi na %1.
 OnlyOnThisPlatform=Program æe raditi na %1.
-OnlyOnTheseArchitectures=Program se može instalirati samo na izdanjima vindousa koji rade na sledeæim arhitekturama procesora:%n%n%1
-MissingWOW64APIs=Izdanje vindousa koje koristite ne sadrži funkcionalnost potrebnu za izvršavanje 64-bitnih instalacija. Instalirajte servisni paket %1 da biste rešili ovaj problem.
+OnlyOnTheseArchitectures=Program se može instalirati samo na izdanjima Windows-a koji rade na sledeæim arhitekturama procesora:%n%n%1
 WinVersionTooLowError=Program zahteva %1, izdanje %2 ili novije.
 WinVersionTooHighError=Program ne možete instalirati na %1 izdanju %2 ili novijem.
 AdminPrivilegesRequired=Morate biti prijavljeni kao administrator da biste instalirali program.
 PowerUserPrivilegesRequired=Morate biti prijavljeni kao administrator ili ovlašæeni korisnik da biste instalirali program.
 SetupAppRunningError=Program %1 je trenutno pokrenut.%n%nZatvorite ga i kliknite na dugme „U redu“ da nastavite ili „Otkaži“ da napustite instalaciju.
 UninstallAppRunningError=Program %1 je trenutno pokrenut.%n%nZatvorite ga i kliknite na dugme „U redu“ da nastavite ili „Otkaži“ da napustite instalaciju.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=Odaberite naèin instalacije
+PrivilegesRequiredOverrideInstruction=Odaberite naèin instalacije
+PrivilegesRequiredOverrideText1=%1 može biti instaliran za sve korisnike (zahteva administrativne privilegije) ili samo za vas.
+PrivilegesRequiredOverrideText2=%1 može da se instalira samo za vas ili za sve korisnike (zahteva administrativne privilegije).
+PrivilegesRequiredOverrideAllUsers=Instaliraj za &sve korisnike
+PrivilegesRequiredOverrideAllUsersRecommended=Instaliraj za &sve korisnike (preporuèeno)
+PrivilegesRequiredOverrideCurrentUser=Instaliraj samo za &mene
+PrivilegesRequiredOverrideCurrentUserRecommended=Instaliraj samo za &mene (preporuèeno)
 
 ; *** Misc. errors
 ErrorCreatingDir=Ne mogu da napravim fasciklu „%1“.
@@ -74,9 +84,9 @@ ExitSetupTitle=Napuštanje instalacije
 ExitSetupMessage=Instalacija nije završena. Ako sada izaðete, program neæe biti instaliran.%n%nInstalaciju možete pokrenuti i dovršiti nekom dugom prilikom.%n%nŽelite li da je zatvorite?
 AboutSetupMenuItem=&O programu
 AboutSetupTitle=Podaci o programu
-AboutSetupMessage=%1 verzija %2%n%3%n%n%1 matièna stranica:%n%4
+AboutSetupMessage=%1 verzija %2%n%3%n%n%1 internet stranica:%n%4
 AboutSetupNote=
-TranslatorNote=Serbian translation by Rancher.
+TranslatorNote=
 
 ; *** Buttons
 ButtonBack=< &Nazad
@@ -89,13 +99,13 @@ ButtonYesToAll=D&a za sve
 ButtonNo=&Ne
 ButtonNoToAll=N&e za sve
 ButtonFinish=&Završi
-ButtonBrowse=&Potraži…
-ButtonWizardBrowse=&Potraži…
+ButtonBrowse=&Pretraži…
+ButtonWizardBrowse=&Pretraži…
 ButtonNewFolder=&Napravi fasciklu
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Odabir jezika
-SelectLanguageLabel=Izaberite jezik tokom instalacije:
+SelectLanguageLabel=Izaberite jezik za korišæenje tokom instalacije:
 
 ; *** Common wizard text
 ClickNext=Kliknite na „Dalje“ da nastavite ili „Otkaži“ da napustite instalaciju.
@@ -143,6 +153,7 @@ WizardSelectDir=Odabir odredišne fascikle
 SelectDirDesc=Izaberite mesto na kom želite da instalirate [name].
 SelectDirLabel3=Program æe instalirati [name] u sledeæu fasciklu.
 SelectDirBrowseLabel=Kliknite na „Dalje“ da nastavite. Ako želite da izaberete drugu fasciklu, kliknite na „Potraži…“.
+DiskSpaceGBLabel=Potrebno je najmanje [gb] GB slobodnog prostora na disku.
 DiskSpaceMBLabel=Potrebno je najmanje [mb] MB slobodnog prostora na disku.
 CannotInstallToNetworkDrive=Ne mogu da instaliram na mrežnu jedinicu.
 CannotInstallToUNCPath=Ne mogu da instaliram na UNC putanju.
@@ -170,6 +181,7 @@ NoUninstallWarningTitle=Komponente veæ postoje
 NoUninstallWarning=Sledeæe komponente veæ postoje na raèunaru:%n%n%1%n%nDeštrikliranje ovih komponenti ih neæe ukloniti.%n%nŽelite li da nastavite?
 ComponentSize1=%1 kB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Izabrane stavke zahtevaju najmanje [gb] GB slobodnog prostora.
 ComponentsDiskSpaceMBLabel=Izabrane stavke zahtevaju najmanje [mb] MB slobodnog prostora.
 
 ; *** "Select Additional Tasks" wizard page
@@ -210,6 +222,7 @@ ApplicationsFound2=Sledeæi programi koriste datoteke koje treba da ažurira insta
 CloseApplications=&Zatvori programe
 DontCloseApplications=&Ne zatvaraj programe
 ErrorCloseApplications=Ne mogu da zatvorim sve programe. Pre nego što nastavite, preporuèujemo vam da zatvorite sve programe koji koriste datoteke koje treba da ažurira instalacioni program.
+PrepareToInstallNeedsRestart=Instalacija mora da ponovo pokrene raèunar. Nakon ponovnog pokretanja raèunara, ponovo pokrenite instalaciju da biste dovršili instalaciju [name].%n%nŽelite li da ponovo pokrenete raèunar sada?
 
 ; *** "Installing" wizard page
 WizardInstalling=Instaliranje
@@ -239,7 +252,10 @@ SelectDirectoryLabel=Izaberite mesto sledeæeg diska.
 
 ; *** Installation phase messages
 SetupAborted=Instalacija nije završena.%n%nIspravite problem i pokrenite je ponovo.
-EntryAbortRetryIgnore=Kliknite na „Pokušaj opet“ da ponovite radnju, „Zanemari“ da nastavite u svakom sluèaju ili „Prekini“ da obustavite instalaciju.
+AbortRetryIgnoreSelectAction=Odaberite radnju
+AbortRetryIgnoreRetry=&Pokušaj opet
+AbortRetryIgnoreIgnore=&Zanemari grešku i nastavi
+AbortRetryIgnoreCancel=Prekini instalaciju
 
 ; *** Installation status messages
 StatusClosingApplications=Zatvaram programe…
@@ -270,11 +286,13 @@ ErrorRegWriteKey=Greška pri upisivanju unosa u registar:%n%1\%2
 ErrorIniEntry=Greška pri stvaranju INI unosa u datoteci „%1“.
 
 ; *** File copying errors
-FileAbortRetryIgnore=Kliknite na „Pokušaj opet“ da ponovite radnju, „Zanemari“ da preskoèite datoteku (ne preporuèuje se) ili „Prekini“ da obustavite instalaciju.
-FileAbortRetryIgnore2=Kliknite na „Pokušaj opet“ da ponovite radnju, „Zanemari“ da nastavite u svakom sluèaju (ne preporuèuje se) ili „Prekini“ da obustavite instalaciju.
+FileAbortRetryIgnoreSkipNotRecommended=&Preskoèite ovu datoteku (ne preporuèuje se)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Zanemari grešku i nastavi (ne preporuèuje se)
 SourceIsCorrupted=Izvorna datoteka je ošteæena
 SourceDoesntExist=Izvorna datoteka „%1“ ne postoji
-ExistingFileReadOnly=Postojeæa datoteka je samo za èitanje.%n%nKliknite na „Pokušaj opet“ da uklonite osobinu „samo za èitanje“ i ponovite radnju, „Zanemari“ da preskoèite datoteku ili „Prekini“ da obustavite instalaciju.
+ExistingFileReadOnly2=Postojeæa datoteka ne može da se zameni jer je samo za èitanje.
+ExistingFileReadOnlyRetry=&Uklonite atribut samo za èitanje i pokušajte ponovo
+ExistingFileReadOnlyKeepExisting=&Zadržite postojeæu datoteku
 ErrorReadingExistingDest=Došlo je do greške pri pokušaju èitanja postojeæe datoteke:
 FileExists=Datoteka veæ postoji.%n%nŽelite li da je zamenite?
 ExistingFileNewer=Postojeæa datoteka je novija od one koju treba postaviti. Preporuèujemo vam da zadržite postojeæu datoteku.%n%nŽelite li to da uradite?
@@ -288,6 +306,16 @@ ErrorRenamingTemp=Došlo je do greške pri preimenovanju datoteke u odredišnoj fas
 ErrorRegisterServer=Ne mogu da upišem DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 nije uspeo. Greška %1
 ErrorRegisterTypeLib=Ne mogu da upišem biblioteku tipova: %1
+
+; *** Uninstall display name markings
+; used for example as 'My Program (32-bit)'
+UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
+UninstallDisplayNameMarks=%1 (%2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=Svi korisnici
+UninstallDisplayNameMarkCurrentUser=Trenutni korisnik
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Došlo je do greške pri otvaranju tekstualne datoteke.

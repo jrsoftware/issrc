@@ -1,6 +1,6 @@
-; *** Inno Setup version 6.0.0+ Hungarian messages ***
-;	Based on the translation of Kornél Pál, kornelpal@gmail.com
-;	István Szabó, E-mail: istvanszabo890629@gmail.com
+;Inno Setup version 6.0.3+ Hungarian messages
+;Based on the translation of Kornél Pál, kornelpal@gmail.com
+;István Szabó, E-mail: istvanszabo890629@gmail.com
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -22,9 +22,9 @@ LanguageCodePage=1250
 ;DialogFontSize=8
 ;WelcomeFontName=Verdana
 ;WelcomeFontSize=12
-;TitleFontName=Arial
+;TitleFontName=Arial CE
 ;TitleFontSize=29
-;CopyrightFontName=Arial
+;CopyrightFontName=Arial CE
 ;CopyrightFontSize=8
 
 [Messages]
@@ -104,7 +104,7 @@ ButtonWizardBrowse=T&allózás...
 ButtonNewFolder=Új &könyvtár
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Telepítõ nyelvi beállítása
+SelectLanguageTitle=Telepítõ nyelvi beállítás
 SelectLanguageLabel=Válassza ki a telepítés alatt használt nyelvet.
 
 ; *** Common wizard text
@@ -153,6 +153,7 @@ WizardSelectDir=Válasszon célkönyvtárat
 SelectDirDesc=Hova települjön a(z) [name]?
 SelectDirLabel3=A(z) [name] az alábbi könyvtárba lesz telepítve. 
 SelectDirBrowseLabel=A folytatáshoz, kattintson a 'Tovább'-ra. Ha másik könyvtárat választana, kattintson a 'Tallózás'-ra.
+DiskSpaceGBLabel=At least [gb] GB szabad területre van szükség.
 DiskSpaceMBLabel=Legalább [mb] MB szabad területre van szükség.
 CannotInstallToNetworkDrive=A Telepítõ nem tud hálózati meghajtóra telepíteni.
 CannotInstallToUNCPath=A Telepítõ nem tud hálózati UNC elérési útra telepíteni.
@@ -180,6 +181,7 @@ NoUninstallWarningTitle=Létezõ összetevõ
 NoUninstallWarning=A telepítõ úgy találta, hogy a következõ összetevõk már telepítve vannak a számítógépre:%n%n%1%n%nEzen összetevõk kijelölésének törlése, nem távolítja el azokat a számítógéprõl.%n%nMindenképpen folytatja?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceMBLabel=A jelenlegi kijelölés legalább [gb] GB lemezterületet igényel.
 ComponentsDiskSpaceMBLabel=A jelenlegi kijelölés legalább [mb] MB lemezterületet igényel.
 
 ; *** "Select Additional Tasks" wizard page
@@ -220,6 +222,7 @@ ApplicationsFound2=A következõ alkalmazások olyan fájlokat használnak, amelyeket
 CloseApplications=&Alkalmazások automatikus bezárása
 DontCloseApplications=&Ne zárja be az alkalmazásokat
 ErrorCloseApplications=A Telepítõ nem tudott minden alkalmazást automatikusan bezárni. A folytatás elõtt ajánlott minden, a Telepítõ által frissítendõ fájlokat használó alkalmazást bezárni.
+PrepareToInstallNeedsRestart=A telepítõnek újra kell indítania a számítógépet. Újraindítást követõen, futtassa újból a telepítõt, a [name] telepítésének befejezéséhez .%n%nÚjra szeretné indítani most a számítógépet?
 
 ; *** "Installing" wizard page
 WizardInstalling=Telepítés
@@ -280,7 +283,7 @@ ErrorRegCreateKey=Nem hozható létre a rendszerleíró kulcs:%n%1\%2
 ErrorRegWriteKey=Nem módosítható a rendszerleíró kulcs:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Hiba történt az INI bejegyzés során ebben a fájlban: "%1".
+ErrorIniEntry=Bejegyzés létrehozása sikertelen a következõ INI fájlban: "%1".
 
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=&Fájl kihagyása (nem ajánlott)
@@ -320,7 +323,7 @@ ErrorRestartingComputer=A Telepítõ nem tudta újraindítani a számítógépet. Indíts
 
 ; *** Uninstaller messages
 UninstallNotFound=A(z) "%1" fájl nem létezik. Nem távolítható el.
-UninstallOpenError=A(z) "%1" fájl nem nyitható meg. Nem távolítható el
+UninstallOpenError=A(z) "%1" fájl nem nyitható meg. Nem távolítható el.
 UninstallUnsupportedVer=A(z) "%1" eltávolítási naplófájl formátumát nem tudja felismerni az eltávolító jelen verziója. Az eltávolítás nem folytatható
 UninstallUnknownEntry=Egy ismeretlen bejegyzés (%1) található az eltávolítási naplófájlban
 ConfirmUninstall=Biztosan el kívánja távolítani a(z) %1 programot és minden összetevõjét?
@@ -352,7 +355,7 @@ ShutdownBlockReasonUninstallingApp=%1 eltávolítása.
 NameAndVersion=%1, verzió: %2
 AdditionalIcons=További parancsikonok:
 CreateDesktopIcon=&Asztali ikon létrehozása
-CreateQuickLaunchIcon=&Gyorsindítás parancsikon létrehozása
+CreateQuickLaunchIcon=&Gyorsindító parancsikon létrehozása
 ProgramOnTheWeb=%1 az interneten
 UninstallProgram=Eltávolítás - %1
 LaunchProgram=Indítás %1

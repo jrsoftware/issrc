@@ -1,15 +1,15 @@
-; bovirus@gmail.com
-; *** Inno Setup version 6.0.3+ Italian messages ***
+﻿; bovirus@gmail.com
+; *** Inno Setup version 6.1.0+ Italian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;    https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 03.10.2019  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 25.07.2020  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -157,12 +157,12 @@ WizardSelectDir=Selezione cartella di installazione
 SelectDirDesc=Dove vuoi installare [name]?
 SelectDirLabel3=[name] sarà installato nella seguente cartella.
 SelectDirBrowseLabel=Per continuare seleziona "Avanti".%nPer scegliere un'altra cartella seleziona "Sfoglia".
-DiskSpaceGBLabel=Sono richiesti almeno [gb] GB di sapzio libero nel disco.
+DiskSpaceGBLabel=Sono richiesti almeno [gb] GB di spazio libero nel disco.
 DiskSpaceMBLabel=Sono richiesti almeno [mb] MB di spazio libero nel disco.
 CannotInstallToNetworkDrive=Non è possibile effettuare l'installazione in un disco in rete.
 CannotInstallToUNCPath=Non è possibile effettuare l'installazione in un percorso UNC.
 InvalidPath=Va inserito un percorso completo di lettera di unità; per esempio:%n%nC:\APP%n%no un percorso di rete nella forma:%n%n\\server\condivisione
-InvalidDrive=L'unità o il percorso di rete selezionato non esiste o non è accessibile.%n%nSelezionane un'altro.
+InvalidDrive=L'unità o il percorso di rete selezionato non esiste o non è accessibile.%n%nSelezionane un altro.
 DiskSpaceWarningTitle=Spazio su disco insufficiente
 DiskSpaceWarning=L'installazione richiede per eseguire l'installazione almeno %1 KB di spazio libero, ma l'unità selezionata ha solo %2 KB disponibili.%n%nVuoi continuare comunque?
 DirNameTooLong=Il nome della cartella o il percorso sono troppo lunghi.
@@ -215,6 +215,18 @@ ReadyMemoType=Tipo di installazione:
 ReadyMemoComponents=Componenti selezionati:
 ReadyMemoGroup=Cartella del menu Avvio/Start:
 ReadyMemoTasks=Processi aggiuntivi:
+
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Download file aggiuntivi...
+ButtonStopDownload=&Stop download
+StopDownload=Sei sicuro di voler interrompere il download?
+ErrorDownloadAborted=Download annullato
+ErrorDownloadFailed=Download fallito: %d %s
+ErrorDownloadSizeFailed=Rilevamento dimensione fallito: %d %s
+ErrorFileHash1=Errore hash file: %s
+ErrorFileHash2=Hash file non valido: atteso %s, trovato %s
+ErrorProgress=Progresso non valido: %d di %d
+ErrorFileSize=Dimensione file non valida: attesa %d, trovata %d
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione all'installazione
@@ -298,8 +310,16 @@ ExistingFileReadOnly2=Il file esistente non può essere sostituito in quanto seg
 ExistingFileReadOnlyRetry=&Rimuovi attributo di sola lettura e riprova
 ExistingFileReadOnlyKeepExisting=&Mantieni il file esistente
 ErrorReadingExistingDest=Si è verificato un errore durante la lettura del file esistente:
-FileExists=Il file esiste già.%n%nVuoi sovrascrivere il file?
-ExistingFileNewer=Il file esistente è più recente di quello che si stà installando.%n%nTi raccomandiamo di mantenere il file esistente.%n%nVuoi mantenere il file esistente?
+FileExistsSelectAction=Seleziona azione
+FileExists2=Il file esiste già.
+FileExistsOverwriteExisting=S&ovrascrivi il file esistente
+FileExistsKeepExisting=&Mantieni il file esistente
+FileExistsOverwriteOrKeepAll=&Applica questa azione per i prossimi conflitti
+ExistingFileNewerSelectAction=Seleziona azione
+ExistingFileNewer2=Il file esistente è più recente del file che si sta cercando di installare.
+ExistingFileNewerOverwriteExisting=S&ovrascrivi il file esistente
+ExistingFileNewerKeepExisting=&Mantieni il file esistente (suggerito)
+ExistingFileNewerOverwriteOrKeepAll=&Applica questa azione per i prossimi conflitti
 ErrorChangingAttr=Si è verificato un errore durante il tentativo di modifica dell'attributo del file esistente:
 ErrorCreatingTemp=Si è verificato un errore durante la creazione di un file nella cartella di installazione:
 ErrorReadingSource=Si è verificato un errore durante la lettura del file sorgente:

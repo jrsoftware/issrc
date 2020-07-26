@@ -1,15 +1,13 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
-
-  $jrsoftware: ishelp/Staging/contents.js,v 1.12 2010/04/26 19:37:55 jr Exp $
 
   JavaScript code used by contents.htm
 */
 
-var searchTabBaseUrl = "http://www.jrsoftware.org/ishelp/";
+var searchTabBaseUrl = "https://jrsoftware.org/ishelp/";
 
 function get_absolute_top(obj)
 {

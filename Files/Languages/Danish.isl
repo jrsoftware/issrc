@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.0+ Danish messages ***
+; *** Inno Setup version 6.0.3+ Danish messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -8,7 +8,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; ID: Danish.isl,v 6.0.0+ 2019/01/20 Thomas Vedel, thomas@veco.dk
+; ID: Danish.isl,v 6.0.3+ 2019/10/06 Thomas Vedel, thomas@veco.dk
 ; Parts by scootergrisen, 2015
 
 [LangOptions]
@@ -152,6 +152,7 @@ WizardSelectDir=Vælg installationsmappe
 SelectDirDesc=Hvor skal [name] installeres?
 SelectDirLabel3=Installationsprogrammet installerer [name] i følgende mappe.
 SelectDirBrowseLabel=Klik på Næste for at fortsætte. Klik på Gennemse, hvis du vil vælge en anden mappe.
+DiskSpaceGBLabel=Der skal være mindst [gb] GB fri diskplads.
 DiskSpaceMBLabel=Der skal være mindst [mb] MB fri diskplads.
 CannotInstallToNetworkDrive=Guiden kan ikke installere programmet på et netværksdrev.
 CannotInstallToUNCPath=Guiden kan ikke installere programmet til en UNC-sti.
@@ -179,6 +180,7 @@ NoUninstallWarningTitle=Komponenterne er installeret
 NoUninstallWarning=Installationsprogrammet har registreret at følgende komponenter allerede er installeret på computeren:%n%n%1%n%nKomponenterne bliver ikke afinstalleret hvis de fravælges.%n%nFortsæt alligevel?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=De nuværende valg kræver mindst [gb] GB ledig diskplads.
 ComponentsDiskSpaceMBLabel=De nuværende valg kræver mindst [mb] MB ledig diskplads.
 
 ; *** "Select Additional Tasks" wizard page
@@ -219,6 +221,7 @@ ApplicationsFound2=Følgende programmer bruger filer som skal opdateres. Det anbe
 CloseApplications=&Luk programmerne automatisk
 DontCloseApplications=Luk &ikke programmerne
 ErrorCloseApplications=Installationsprogrammet kunne ikke lukke alle programmerne automatisk. Det anbefales at du lukker alle programmer som bruger filer der skal opdateres, inden installationsprogrammet fortsætter.
+PrepareToInstallNeedsRestart=Installationsprogrammet er nødt til at genstarte computeren. Efter genstarten skal du køre installationsprogrammet igen for at færdiggøre installation af [name].%n%nVil du at genstarte nu?
 
 ; *** "Installing" wizard page
 WizardInstalling=Installerer

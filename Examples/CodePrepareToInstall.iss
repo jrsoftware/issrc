@@ -14,6 +14,9 @@ UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
 
 [Files]
+; Place any prerequisite files here, for example:
+; Source: "MyProg-Prerequisite-setup.exe"; Flags: dontcopy
+; Place any regular files here, so *after* all your prerequisites.
 Source: "MyProg.exe"; DestDir: "{app}";
 Source: "MyProg.chm"; DestDir: "{app}";
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme;
@@ -46,10 +49,11 @@ end;
 
 function DetectAndInstallPrerequisites: Boolean;
 begin
-  (*** Place your prerequisite detection and installation code below. ***)
+  (*** Place your prerequisite detection and extraction+installation code below. ***)
   (*** Return False if missing prerequisites were detected but their installation failed, else return True. ***)
 
   //<your code here>
+  //extraction example: ExtractTemporaryFile('MyProg-Prerequisite-setup.exe');
 
   Result := True;
 

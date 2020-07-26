@@ -16,7 +16,7 @@ uses
 
 type
   TThemeType = (ttModernLight, ttModernDark, ttClassic);
-  TThemeColor = (tcFore, tcBack, tcSelBack, tcMarginFore, tcMarginBack, tcSplitterBack, tcBraceBack, tcIdentGuideFore,
+  TThemeColor = (tcFore, tcBack, tcToolBack, tcSelBack, tcMarginFore, tcMarginBack, tcSplitterBack, tcBraceBack, tcIdentGuideFore,
                  tcRed, tcGreen, tcBlue, tcOrange, tcPurple, tcYellow, tcTeal, tcGray);
 
   TTheme = class
@@ -40,6 +40,7 @@ const
 
   DFore = clWhite;
   DBack = $2E2A2D;           { Monokai Pro }
+  DToolBack = $413E40;       { Monokai Pro }
   DSelBack = $413E40;        { Monokai Pro }
   DMarginFore = $716F71;     { Monokai Pro }
   DMarginBack = $413E40;     { Monokai Pro }
@@ -50,6 +51,7 @@ const
 
   LFore = clBlack;
   LBack = clWhite;
+  LToolBack = clBtnFace;
   LSelBack = $C0C0C0;        { Scintilla }
   LMarginFore = $716F71;     { Monokai Pro }
   LMarginBack = $F9FBFB;     { Monokai Pro }
@@ -59,6 +61,7 @@ const
 
   CFore = clBlack;
   CBack = clWhite;
+  CToolBack = clBtnFace;
   CSelBack = $C0C0C0;        { Scintilla }
   CMarginFore = clWindowText;
   CMarginBack = clBtnFace;
@@ -88,9 +91,9 @@ const
   CGray = $707070;           { Inno Setup 5 }
 
   Colors: array [TThemeType, TThemeColor] of TColor = (
-    (LFore, LBack, LSelBack, LMarginFore, LMarginBack, LSplitterBack, LBraceBack, LIdentGuideFore, MRed, MGreen, MBlue, MOrange, MPurple, MYellow, MTeal, MGray),
-    (DFore, DBack, DSelBack, DMarginFore, DMarginBack, DSplitterBack, DBraceBack, DIdentGuideFore, MRed, MGreen, MBlue, MOrange, MPurple, MYellow, MTeal, MGray),
-    (CFore, CBack, CSelBack, CMarginFore, CMarginBack, CSplitterBack, CBraceBack, CIdentGuideFore, CRed, CGreen, CBlue, COrange, CPurple, CYellow, CTeal, CGray)
+    (LFore, LBack, LToolBack, LSelBack, LMarginFore, LMarginBack, LSplitterBack, LBraceBack, LIdentGuideFore, MRed, MGreen, MBlue, MOrange, MPurple, MYellow, MTeal, MGray),
+    (DFore, DBack, DToolBack, DSelBack, DMarginFore, DMarginBack, DSplitterBack, DBraceBack, DIdentGuideFore, MRed, MGreen, MBlue, MOrange, MPurple, MYellow, MTeal, MGray),
+    (CFore, CBack, CToolBack, CSelBack, CMarginFore, CMarginBack, CSplitterBack, CBraceBack, CIdentGuideFore, CRed, CGreen, CBlue, COrange, CPurple, CYellow, CTeal, CGray)
   );
   
 begin

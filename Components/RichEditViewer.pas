@@ -1,31 +1,47 @@
 unit RichEditViewer;
 
-{ TRichEditViewer v1.12 by Jordan Russell and Martijn Laan
+{ TRichEditViewer by Jordan Russell and Martijn Laan
 
   Known problem:
   If, after assigning rich text to a TRichEditViewer component, you change
   a property that causes the component's handle to be recreated, all text
-  formatting will be lost. In the interests of code size, I do not intend
-  to work around this.
-
-  $jrsoftware: issrc/Components/RichEditViewer.pas,v 1.12 2011/06/08 10:44:25 mlaan Exp $
+  formatting will be lost (in the interests of code size).
 }
-
-{$IFDEF VER90}
-  {$DEFINE DELPHI2}
-{$ENDIF}
 
 interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls;
+  StdCtrls, RichEdit, ActiveX;
 
 type
+  IRichEditOleCallback = interface(IUnknown)
+    ['{00020d03-0000-0000-c000-000000000046}']
+    function GetNewStorage(out stg: IStorage): HResult; stdcall;
+    function GetInPlaceContext(out Frame: IOleInPlaceFrame;
+      out Doc: IOleInPlaceUIWindow;
+      lpFrameInfo: POleInPlaceFrameInfo): HResult; stdcall;
+    function ShowContainerUI(fShow: BOOL): HResult; stdcall;
+    function QueryInsertObject(const clsid: TCLSID; const stg: IStorage;
+      cp: Longint): HResult; stdcall;
+    function DeleteObject(const oleobj: IOleObject): HResult; stdcall;
+    function QueryAcceptData(const dataobj: IDataObject;
+      var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
+      hMetaPict: HGLOBAL): HResult; stdcall;
+    function ContextSensitiveHelp(fEnterMode: BOOL): HResult; stdcall;
+    function GetClipboardData(const chrg: TCharRange; reco: DWORD;
+      out dataobj: IDataObject): HResult; stdcall;
+    function GetDragDropEffect(fDrag: BOOL; grfKeyState: DWORD;
+      var dwEffect: DWORD): HResult; stdcall;
+    function GetContextMenu(seltype: Word; const oleobj: IOleObject;
+      const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
+  end;
+  
   TRichEditViewer = class(TMemo)
   private
     FUseRichEdit: Boolean;
     FRichEditLoaded: Boolean;
+    FCallback: IRichEditOleCallback;
     procedure SetRTFTextProp(const Value: AnsiString);
     procedure SetUseRichEdit(Value: Boolean);
     procedure UpdateBackgroundColor;
@@ -49,7 +65,7 @@ procedure Register;
 implementation
 
 uses
-  RichEdit, ShellApi, BidiUtils, PathFunc;
+  ShellApi, BidiUtils, PathFunc, ComObj;
 
 const
   { Note: There is no 'W' 1.0 class }
@@ -62,6 +78,29 @@ const
   EN_LINK = $070b;
 
 type
+ { Basic implementation of IRichEditOleCallback to enable the viewing of images and other objects. }
+  TBasicRichEditOleCallback = class(TInterfacedObject, IRichEditOleCallback)
+  public
+    function GetNewStorage(out stg: IStorage): HResult; stdcall;
+    function GetInPlaceContext(out Frame: IOleInPlaceFrame;
+      out Doc: IOleInPlaceUIWindow;
+      lpFrameInfo: POleInPlaceFrameInfo): HResult; stdcall;
+    function ShowContainerUI(fShow: BOOL): HResult; stdcall;
+    function QueryInsertObject(const clsid: TCLSID; const stg: IStorage;
+      cp: Longint): HResult; stdcall;
+    function DeleteObject(const oleobj: IOleObject): HResult; stdcall;
+    function QueryAcceptData(const dataobj: IDataObject;
+      var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
+      hMetaPict: HGLOBAL): HResult; stdcall;
+    function ContextSensitiveHelp(fEnterMode: BOOL): HResult; stdcall;
+    function GetClipboardData(const chrg: TCharRange; reco: DWORD;
+      out dataobj: IDataObject): HResult; stdcall;
+    function GetDragDropEffect(fDrag: BOOL; grfKeyState: DWORD;
+      var dwEffect: DWORD): HResult; stdcall;
+    function GetContextMenu(seltype: Word; const oleobj: IOleObject;
+      const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
+  end;
+
   PEnLink = ^TEnLink;
   TENLink = record
     nmhdr: TNMHdr;
@@ -124,12 +163,83 @@ begin
   end;
 end;
 
+{ TBasicRichEditOleCallback }
+
+function TBasicRichEditOleCallback.GetNewStorage(out stg: IStorage): HResult; stdcall;
+var
+  LockBytes: ILockBytes;
+begin
+  try
+    OleCheck(CreateILockBytesOnHGlobal(0, True, LockBytes));
+    OleCheck(StgCreateDocfileOnILockBytes(LockBytes, STGM_READWRITE
+      or STGM_SHARE_EXCLUSIVE or STGM_CREATE, 0, stg));
+    Result := S_OK;
+  except
+    Result := E_OUTOFMEMORY;
+  end;
+end;
+
+function TBasicRichEditOleCallback.GetInPlaceContext(out Frame: IOleInPlaceFrame;
+  out Doc: IOleInPlaceUIWindow; lpFrameInfo: POleInPlaceFrameInfo): HResult;
+begin
+  Result := E_NOTIMPL;
+end;
+
+function TBasicRichEditOleCallback.ShowContainerUI(fShow: BOOL): HResult;
+begin
+  Result := E_NOTIMPL;
+end;
+
+function TBasicRichEditOleCallback.QueryInsertObject(const clsid: TCLSID; const stg: IStorage;
+  cp: Longint): HResult;
+begin
+  Result := S_OK;
+end;
+
+function TBasicRichEditOleCallback.DeleteObject(const oleobj: IOleObject): HResult;
+begin
+  if Assigned(oleobj) then
+    oleobj.Close(OLECLOSE_NOSAVE);
+  Result := S_OK;
+end;
+
+function TBasicRichEditOleCallback.QueryAcceptData(const dataobj: IDataObject;
+  var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
+  hMetaPict: HGLOBAL): HResult;
+begin
+  Result := S_OK;
+end;
+
+function TBasicRichEditOleCallback.ContextSensitiveHelp(fEnterMode: BOOL): HResult;
+begin
+  Result := S_OK;
+end;
+
+function TBasicRichEditOleCallback.GetClipboardData(const chrg: TCharRange; reco: DWORD;
+  out dataobj: IDataObject): HResult;
+begin
+  Result := E_NOTIMPL;
+end;
+
+function TBasicRichEditOleCallback.GetDragDropEffect(fDrag: BOOL; grfKeyState: DWORD;
+  var dwEffect: DWORD): HResult;
+begin
+  Result := E_NOTIMPL;
+end;
+
+function TBasicRichEditOleCallback.GetContextMenu(seltype: Word;
+  const oleobj: IOleObject; const chrg: TCharRange; out Menu: HMENU): HResult;
+begin
+  Result := E_NOTIMPL;
+end;
+
 { TRichEditViewer }
 
 constructor TRichEditViewer.Create(AOwner: TComponent);
 begin
   inherited;
   FUseRichEdit := True;
+  FCallback := TBasicRichEditOleCallback.Create;
 end;
 
 destructor TRichEditViewer.Destroy;
@@ -177,10 +287,13 @@ var
 begin
   inherited;
   UpdateBackgroundColor;
-  if FUseRichEdit and (RichEditVersion >= 2) then begin
-    Mask := ENM_LINK or SendMessage(Handle, EM_GETEVENTMASK, 0, 0);
-    SendMessage(Handle, EM_SETEVENTMASK, 0, LPARAM(Mask));
-    SendMessage(Handle, EM_AUTOURLDETECT, WPARAM(True), 0);
+  if FUseRichEdit then begin
+    if RichEditVersion >= 2 then begin
+      Mask := ENM_LINK or SendMessage(Handle, EM_GETEVENTMASK, 0, 0);
+      SendMessage(Handle, EM_SETEVENTMASK, 0, LPARAM(Mask));
+      SendMessage(Handle, EM_AUTOURLDETECT, WPARAM(True), 0);
+    end;
+    SendMessage(Handle, EM_SETOLECALLBACK, 0, LPARAM(FCallback));
   end;
 end;
 
@@ -227,10 +340,6 @@ end;
 function TRichEditViewer.SetRTFText(const Value: AnsiString): Integer;
 
   function StreamIn(AFormat: WPARAM): Integer;
-{$IFDEF DELPHI2}
-  const
-    SF_UNICODE = $0010;
-{$ENDIF}
   var
     Data: TStreamLoadData;
     EditStream: TEditStream;

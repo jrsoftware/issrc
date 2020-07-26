@@ -202,10 +202,13 @@ type
     procedure RegisterExistingPage(const ID: Integer;
      const AOuterNotebookPage, AInnerNotebookPage: TNewNotebookPage;
      const ACaption, ADescription: String);
+    procedure SelectComponents(const SelectComponents, DeselectComponents: TStringList; const KeepFixedComponents: Boolean); overload;
     procedure SelectComponentsFromType(const TypeName: String; const OnlySelectFixedComponents: Boolean);
+    procedure SelectTasks(const SelectTasks, DeselectTasks: TStringList); overload;
     function ShouldSkipPage(const PageID: Integer): Boolean;
     procedure UpdateComponentSizes;
     procedure UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: LongInt);
+    procedure UpdateCurPageButtonState;
     procedure UpdatePage(const PageID: Integer);
     procedure UpdateSelectTasksPage;
     procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
@@ -232,10 +235,9 @@ type
     procedure IncTopDecHeight(const AControl: TControl; const Amount: Integer);
     function PageFromID(const ID: Integer): TWizardPage;
     function PageIndexFromID(const ID: Integer): Integer;
-    procedure UpdateCurPageButtonVisibility;
     procedure SetCurPage(const NewPageID: Integer);
-    procedure SelectComponents(const SelectComponents, DeselectComponents: TStringList; const KeepFixedComponents: Boolean);
-    procedure SelectTasks(const SelectTasks, DeselectTasks: TStringList);
+    procedure SelectComponents(const ASelectComponents: TStringList); overload;
+    procedure SelectTasks(const ASelectTasks: TStringList); overload;
     procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
       const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean); override;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
@@ -330,7 +332,8 @@ type
 var
   WizardForm: TWizardForm;
 
-function ExpandSetupMessage(const ID: TSetupMessageID): String;
+function ExpandSetupMessage(const Msg: String): String; overload;
+function ExpandSetupMessage(const ID: TSetupMessageID): String; overload;
 function ListContains(const List: TStringList; const S: String): Boolean;
 procedure TidyUpDirName(var Path: String);
 procedure TidyUpGroupName(var Path: String);
@@ -383,10 +386,9 @@ begin
   Result := Format('%.2n', [X]);
 end;
 
-function ExpandSetupMessageEx(const ID: TSetupMessageID;
-  const Space: Integer64): String;
+function ExpandSetupMessageEx(const Msg: String; const Space: Integer64): String; overload;
 begin
-  Result := SetupMessages[ID];
+  Result := Msg;
   {don't localize these}
   StringChange(Result, '[name]', ExpandedAppName);
   StringChange(Result, '[name/ver]', ExpandedAppVerName);
@@ -395,10 +397,15 @@ begin
   StringChange(Result, '[gb]', IntToGBStr(Space));
 end;
 
+function ExpandSetupMessageEx(const ID: TSetupMessageID; const Space: Integer64): String; overload;
+begin
+  Result := ExpandSetupMessageEx(SetupMessages[ID], Space);
+end;
+
 function ExpandMBOrGBSetupMessage(const MBID, GBID: TSetupMessageID;
   const Space: Integer64): String;
 begin
-  if (SetupMessages[GBID] <> '') and (Comp(Space) > 1048471142) then begin
+  if Comp(Space) > 1048471142 then begin
     { Don't allow it to display 1000.0 MB or more. Takes the 'always round up' into account:
       1048471142 bytes = 999.8999996185303 MB = '999.9 MB',
       1048471143 bytes = 999.9000005722046 MB = '1,000.0 MB'. }
@@ -407,7 +414,12 @@ begin
     Result := ExpandSetupMessageEx(MBID, Space);
 end;
 
-function ExpandSetupMessage(const ID: TSetupMessageID): String;
+function ExpandSetupMessage(const Msg: String): String; overload;
+begin
+  Result := ExpandSetupMessageEx(Msg, MinimumSpace);
+end;
+
+function ExpandSetupMessage(const ID: TSetupMessageID): String; overload;
 begin
   Result := ExpandSetupMessageEx(ID, MinimumSpace);
 end;
@@ -694,13 +706,13 @@ end;
 
 procedure TWizardPage.SetCaption(const Value: String);
 begin
-  FCaption := Value;
+  FCaption := ExpandSetupMessage(Value);
   SyncCaptionAndDescription;
 end;
 
 procedure TWizardPage.SetDescription(const Value: String);
 begin
-  FDescription := Value;
+  FDescription := ExpandSetupMessage(Value);
   SyncCaptionAndDescription;
 end;
 
@@ -893,8 +905,9 @@ begin
   end;
   
   { Position the buttons, and scale their size }
-  W1 := CalculateButtonWidth([msgButtonBack, msgButtonCancel, msgButtonFinish,
-    msgButtonInstall, msgButtonNext]);  { width of each button }
+  W1 := CalculateButtonWidth([SetupMessages[msgButtonBack], SetupMessages[msgButtonCancel],
+    SetupMessages[msgButtonFinish], SetupMessages[msgButtonInstall],
+    SetupMessages[msgButtonNext]]);  { width of each button }
   W2 := ScalePixelsX(10);  { margin, and space between Next & Cancel }
 
   BackButton.Width := W1;
@@ -1006,7 +1019,7 @@ begin
   DirEdit.Top := DirEdit.Top + I;
   TryEnableAutoCompleteFileSystem(DirEdit.Handle);
   DirBrowseButton.Caption := SetupMessages[msgButtonWizardBrowse];
-  X := CalculateButtonWidth([msgButtonWizardBrowse]);
+  X := CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
   DirBrowseButton.SetBounds(InnerNotebook.Width - X,
     DirBrowseButton.Top + I, X, DirBrowseButton.Height);
   DirEdit.Width := DirBrowseButton.Left - ScalePixelsX(10) - DirEdit.Left;
@@ -1051,7 +1064,7 @@ begin
   Inc(I, AdjustLabelHeight(SelectStartMenuFolderBrowseLabel));
   GroupEdit.Top := GroupEdit.Top + I;
   GroupBrowseButton.Caption := SetupMessages[msgButtonWizardBrowse];
-  X := CalculateButtonWidth([msgButtonWizardBrowse]);
+  X := CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
   GroupBrowseButton.SetBounds(InnerNotebook.Width - X,
     GroupBrowseButton.Top + I, X, GroupBrowseButton.Height);
   GroupEdit.Width := GroupBrowseButton.Left - ScalePixelsX(10) - GroupEdit.Left;
@@ -1248,8 +1261,8 @@ begin
     end;
   end;
 
-  UpdateComponentSizes();
-  CalcCurrentComponentsSpace();
+  UpdateComponentSizes;
+  CalcCurrentComponentsSpace;
 
   //Show or hide the components list based on the selected type
   if HasCustomType then begin
@@ -1678,6 +1691,13 @@ begin
   end;
 end;
 
+procedure TWizardForm.SelectComponents(const ASelectComponents: TStringList);
+begin
+  SelectComponents(ASelectComponents, nil, False);
+  UpdateComponentSizes;
+  CalcCurrentComponentsSpace;
+end;
+
 procedure TWizardForm.SelectTasks(const SelectTasks, DeselectTasks: TStringList);
 var
   I: Integer;
@@ -1703,6 +1723,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TWizardForm.SelectTasks(const ASelectTasks: TStringList);
+begin
+  SelectTasks(ASelectTasks, nil);
 end;
 
 procedure TWizardForm.SelectComponentsFromType(const TypeName: String; const OnlySelectFixedComponents: Boolean);
@@ -1845,10 +1870,8 @@ end;
 
 function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStringList): String;
 var
-  WindowDisabler: TWindowDisabler;
   CodeNeedsRestart: Boolean;
   Y: Integer;
-  S: String;
 begin
   Result := '';
   PrepareToInstallNeedsRestart := False;
@@ -1864,30 +1887,28 @@ begin
     SetCurPage(wpPreparing);
     BackButton.Visible := False;
     NextButton.Visible := False;
+    CancelButton.Enabled := False;
     if InstallMode = imSilent then begin
       SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
       WizardForm.Show;
     end;
     WizardForm.Update;
-    WindowDisabler := TWindowDisabler.Create;
     try
+      DownloadTemporaryFileProcessMessages := True;
       CodeNeedsRestart := False;
       Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
       PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
     finally
-      WindowDisabler.Free;
-      UpdateCurPageButtonVisibility;
+      DownloadTemporaryFileProcessMessages := False;
+      UpdateCurPageButtonState;
     end;
     Application.BringToFront;
   end;
   if Result <> '' then begin
-    if PrepareToInstallNeedsRestart then begin
-      S := ExpandSetupMessage(msgPrepareToInstallNeedsRestart);
-      if S = '' then
-        S := ExpandSetupMessage(msgFinishedRestartLabel);
+    if PrepareToInstallNeedsRestart then
       PreparingLabel.Caption := Result +
-        SNewLine + SNewLine + SNewLine + S + SNewLine
-    end else
+        SNewLine + SNewLine + SNewLine + ExpandSetupMessage(msgPrepareToInstallNeedsRestart) + SNewLine
+    else
       PreparingLabel.Caption := Result +
         SNewLine + SNewLine + SNewLine + SetupMessages[msgCannotContinue];
     AdjustLabelHeight(PreparingLabel);
@@ -1906,9 +1927,6 @@ begin
     end;
   end;
 end;
-
-var
-  DidRegisterResources: Boolean;
 
 function TWizardForm.QueryRestartManager(const WizardComponents, WizardTasks: TStringList): String;
 
@@ -1952,56 +1970,57 @@ var
 begin
   { Clear existing registered resources if we get here a second time (user clicked Back after first time). There
     doesn't seem to be function to do this directly, so restart the session instead. }
-  if DidRegisterResources then begin
+  if RmRegisteredFilesCount <> 0 then begin
     RmEndSession(RmSessionHandle);
     if RmStartSession(@RmSessionHandle, 0, RmSessionKey) <> ERROR_SUCCESS then
       RmSessionStarted := False;
   end;
 
-  if RmSessionStarted then begin
-    RegisterResourcesWithRestartManager(WizardComponents, WizardTasks);
-    DidRegisterResources := True;
-  end;
+  if RmSessionStarted then
+    RegisterResourcesWithRestartManager(WizardComponents, WizardTasks); { This will update RmSessionStarted and RmRegisteredFilesCount }
 
   if RmSessionStarted then begin
-    ProcessInfosCount := 0;
-    ProcessInfosCountNeeded := 5; { Start with 5 to hopefully avoid a realloc }
-    ProcessInfos := nil;
-    try
-      Log('Calling RestartManager''s RmGetList.');
-      while ProcessInfosCount < ProcessInfosCountNeeded do begin
+    LogFmt('Found %d files to register with RestartManager.', [RmRegisteredFilesCount]);
+    if RmRegisteredFilesCount > 0 then begin
+      ProcessInfosCount := 0;
+      ProcessInfosCountNeeded := 5; { Start with 5 to hopefully avoid a realloc }
+      ProcessInfos := nil;
+      try
+        Log('Calling RestartManager''s RmGetList.');
+        while ProcessInfosCount < ProcessInfosCountNeeded do begin
+          if ProcessInfos <> nil then
+            FreeMem(ProcessInfos);
+          GetMem(ProcessInfos, ProcessInfosCountNeeded * SizeOf(ProcessInfos[0]));
+          ProcessInfosCount := ProcessInfosCountNeeded;
+
+          if not RmGetList(RmSessionHandle, @ProcessInfosCountNeeded, @ProcessInfosCount, ProcessInfos, @RebootReasons) in [ERROR_SUCCESS, ERROR_MORE_DATA] then begin
+            RmEndSession(RmSessionHandle);
+            RmSessionStarted := False;
+            Break;
+          end;
+        end;
+
+        if RmSessionStarted then begin
+          Log('RmGetList finished successfully.');
+          if ProcessInfosCount > 0 then begin
+            for I := 0 to ProcessInfosCount-1 do begin
+              AppName := WideCharToString(ProcessInfos[I].strAppName);
+              LogFmt('RestartManager found an application using one of our files: %s', [AppName]);
+              if RebootReasons = RmRebootReasonNone then begin
+                if Result <> '' then
+                  Result := Result + #13#10;
+                Result := Result + AppName;
+              end;
+            end;
+            LogFmt('Can use RestartManager to avoid reboot? %s (%s)', [SYesNo[RebootReasons = RmRebootReasonNone], RebootReasonsToString(RebootReasons)]);
+          end else
+            Log('RestartManager found no applications using one of our files.');
+        end else
+          Log('RmGetList failed.');
+      finally
         if ProcessInfos <> nil then
           FreeMem(ProcessInfos);
-        GetMem(ProcessInfos, ProcessInfosCountNeeded * SizeOf(ProcessInfos[0]));
-        ProcessInfosCount := ProcessInfosCountNeeded;
-
-        if not RmGetList(RmSessionHandle, @ProcessInfosCountNeeded, @ProcessInfosCount, ProcessInfos, @RebootReasons) in [ERROR_SUCCESS, ERROR_MORE_DATA] then begin
-          RmEndSession(RmSessionHandle);
-          RmSessionStarted := False;
-          Break;
-        end;
       end;
-
-      if RmSessionStarted then begin
-        Log('RmGetList finished successfully.');
-        if ProcessInfosCount > 0 then begin
-          for I := 0 to ProcessInfosCount-1 do begin
-            AppName := WideCharToString(ProcessInfos[I].strAppName);
-            LogFmt('RestartManager found an application using one of our files: %s', [AppName]);
-            if RebootReasons = RmRebootReasonNone then begin
-              if Result <> '' then
-                Result := Result + #13#10;
-              Result := Result + AppName;
-            end;
-          end;
-          LogFmt('Can use RestartManager to avoid reboot? %s (%s)', [SYesNo[RebootReasons = RmRebootReasonNone], RebootReasonsToString(RebootReasons)]);
-        end else
-          Log('RestartManager found no applications using one of our files.');
-      end else
-        Log('RmGetList failed.');
-    finally
-      if ProcessInfos <> nil then
-        FreeMem(ProcessInfos);
     end;
   end;
 
@@ -2180,7 +2199,7 @@ begin
   Result := -1;
 end;
 
-procedure TWizardForm.UpdateCurPageButtonVisibility;
+procedure TWizardForm.UpdateCurPageButtonState;
 var
   PageIndex: Integer;
   Page: TWizardPage;
@@ -2236,7 +2255,7 @@ begin
     not(CurPageID in [wpWelcome, wpFinished]);
 
   { Set button visibility and captions }
-  UpdateCurPageButtonVisibility;
+  UpdateCurPageButtonState;
 
   BackButton.Caption := SetupMessages[msgButtonBack];
   if CurPageID = wpReady then begin
@@ -2560,7 +2579,7 @@ begin
                 if RmFoundApplications then
                   Break;  { stop on the page }
               finally
-                UpdateCurPageButtonVisibility;
+                UpdateCurPageButtonState;
               end;
             end;
           finally
@@ -2652,8 +2671,8 @@ begin
     end;
   end;
 
-  UpdateComponentSizes();
-  CalcCurrentComponentsSpace();
+  UpdateComponentSizes;
+  CalcCurrentComponentsSpace;
 end;
 
 procedure TWizardForm.ComponentsListClickCheck(Sender: TObject);
@@ -2685,8 +2704,8 @@ begin
     end
   end;
 
-  UpdateComponentSizes();
-  CalcCurrentComponentsSpace();
+  UpdateComponentSizes;
+  CalcCurrentComponentsSpace;
 end;
 
 procedure TWizardForm.NoIconsCheckClick(Sender: TObject);

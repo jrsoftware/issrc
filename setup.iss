@@ -1,21 +1,22 @@
-; Inno Setup
-; Copyright (C) 1997-2019 Jordan Russell. All rights reserved.
-; Portions by Martijn Laan
-; For conditions of distribution and use, see LICENSE.TXT.
-;
-; Setup script
+; -- Setup.iss --
+; Inno Setup's own Setup script
 
-#include "donate.iss"
+; Inno Setup
+; Copyright (C) 1997-2020 Jordan Russell. All rights reserved.
+; Portions Copyright (C) 2000-2020 Martijn Laan. All rights reserved.
+; For conditions of distribution and use, see LICENSE.TXT.
+
+#include "isdonateandmail.iss"
 
 [Setup]
 AppName=Inno Setup
 AppId=Inno Setup 6
-AppVersion=6.0.3
+AppVersion=6.1.0-dev
 AppPublisher=jrsoftware.org
-AppPublisherURL=http://www.innosetup.com/
-AppSupportURL=http://www.innosetup.com/
-AppUpdatesURL=http://www.innosetup.com/
-VersionInfoCopyright=Copyright (C) 1997-2019 Jordan Russell. Portions Copyright (C) 2000-2019 Martijn Laan.
+AppPublisherURL=https://www.innosetup.com/
+AppSupportURL=https://www.innosetup.com/
+AppUpdatesURL=https://www.innosetup.com/
+VersionInfoCopyright=Copyright (C) 1997-2020 Jordan Russell. Portions Copyright (C) 2000-2020 Martijn Laan.
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
 WizardStyle=modern
@@ -97,7 +98,7 @@ Type: files; Name: "{app}\Languages\*.isl"
 
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "ishelp\Staging\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 #ifndef isccexe
@@ -136,6 +137,7 @@ Source: "Examples\CodeAutomation2.iss"; DestDir: "{app}\Examples"; Flags: ignore
 Source: "Examples\CodeClasses.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodeDlg.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodeDll.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
+Source: "Examples\CodeDownloadFiles.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodeExample1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodePrepareToInstall.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Components.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
@@ -165,7 +167,7 @@ Source: "Examples\MyDll\C#\MyDll.sln"; DestDir: "{app}\Examples\MyDll\C#"; Flags
 Source: "Examples\MyDll\C#\packages.config"; DestDir: "{app}\Examples\MyDll\C#"; Flags: ignoreversion touch
 Source: "Examples\MyDll\C#\Properties\AssemblyInfo.cs"; DestDir: "{app}\Examples\MyDll\C#\Properties"; Flags: ignoreversion touch
 Source: "Examples\MyDll\Delphi\MyDll.dpr"; DestDir: "{app}\Examples\MyDll\Delphi"; Flags: ignoreversion touch
-Source: "Projects\ISPP\Help\Staging\ISPP.chm"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\ISPP.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 #ifndef isppdll
   #define isppdll "ispp.dll"
 #endif
@@ -173,7 +175,7 @@ Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignor
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
 
 [INI]
-Filename: "{app}\isfaq.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://www.jrsoftware.org/isfaq.php" 
+Filename: "{app}\isfaq.url"; Section: "InternetShortcut"; Key: "URL"; String: "https://jrsoftware.org/isfaq.php" 
 
 [UninstallDelete]
 Type: files; Name: "{app}\isfaq.url"

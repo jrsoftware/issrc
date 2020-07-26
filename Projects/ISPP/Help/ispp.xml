@@ -59,9 +59,9 @@
 				</table>
 			</section>
 			<section title="Function prototypes documenting conventions">
-				<para>Function prototypes are shown as function result type, function name and list of formal arguments in parentheses.</para>
-				<para>Words <synel>int</synel>, <synel>str</synel>, <synel>any</synel>, and <synel>void</synel> are used to specify integer type, string type, any type, or null type (also referred to as nothing, void), respectively. Null type as function result means that function does not return any value.</para>
-				<para>Question mark (<synel>?</synel>) after the type of an argument means that this argument is optional.</para>
+				<para>Function prototypes show the function result type, function name and list of formal arguments in parentheses.</para>
+				<para>Keywords <synel>int</synel>, <synel>str</synel>, <synel>any</synel>, and <synel>void</synel> respectively specify the (signed 64-bit) integer type, the string type, any type, or the null type (also referred to as nothing, void). When the null type is specified as a function result type then the function does not return a value.</para>
+				<para>A question mark (<synel>?</synel>) after the type of an argument means that this argument is optional.</para>
 			</section>
 		</topic>
 		<topic id="directives">
@@ -188,7 +188,7 @@
 						<line>#redim MyArray[20]</line>
 						<line>#define MyArray[10] 30</line>
 						<line>#redim MyArray[10]</line>
-						<line>#dim MyArray2[3] {1, '2', 3}</line>
+						<line>#dim MyArray2[3] {1, 2, 3}</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -310,8 +310,8 @@
 				<section title="Examples">
 					<pre>
 						<line>[Files]</line>
-						<line>#emit 'Filename: "file1.ext"; DestDir: &ob;' + MyDestDir + '&cb;'</line>
-						<line>Filename: "file2.ext"; DestDir: &ob;&ob;#MyDestDir&cb;&cb;</line>
+						<line>#emit 'Source: "file1.ext"; DestDir: &ob;' + MyDestDir + '&cb;'</line>
+						<line>Source: "file2.ext"; DestDir: &ob;#MyDestDir&cb;</line>
 						<line>#emit GenerateVisualCppFilesEntries ; user defined function</line>
 						<line></line>
 						<line>[Code]</line>
@@ -632,7 +632,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre>
 						<line>#pragma parseroption -b- -u+</line>
 						<line>#pragma option -c-</line>
-						<line>#pragma warning "Variable value is: " + MyVar</line>
+						<line>#pragma warning "Variable value is: " + Str(MyVar)</line>
 						<line>#pragma option -v+</line>
 						<line>#pragma verboselevel 9</line>
 						<line>#pragma inlinestart "$("</line>
@@ -767,7 +767,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Returns size, in bytes, of the specified file. If the file does not exist, the result is -1. Beware of ISPP supporting only signed 32 bit integers: for files larger than 2 GB (and smaller than 4 GB) the result is negative.</para>
+					<para>Returns size, in bytes, of the specified file. If the file does not exist, the result is -1.</para>
 				</description>
 			</topic>
 			<topic id="ReadIni">
@@ -920,6 +920,15 @@ The list of options is provided at the end of this topic.</para>
 				</section>
 				<description>
 					<para>Returns a string with the same text as the string passed in its parameter, but with all letters converted to lowercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</para>
+				</description>
+			</topic>
+			<topic id="UpperCase">
+				<title>UpperCase</title>
+				<section title="Prototype">
+					<pre><line><b>str</b> UpperCase(<b>str</b>)</line></pre>
+				</section>
+				<description>
+					<para>Returns a string with the same text as the string passed in its parameter, but with all letters converted to uppercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</para>
 				</description>
 			</topic>
 			<topic id="EntryCount">
@@ -1314,11 +1323,53 @@ The list of options is provided at the end of this topic.</para>
 					<para>&dim;, &redim;.</para>
 				</section>
 			</topic>
+			<topic id="PackVersionComponents">
+				<title>PackVersionComponents</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> PackVersionComponents(<b>int</b> Major, <b>int</b> Minor, <b>int</b> Rev, <b>int</b> Build, <b>int</b> *MS, <b>int</b> *LS)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Packs individual version components into MS/LS values compatible with <synel>GetVersionNumbers</synel>. The results are stored in by-reference parameters MS and LS.</para>
+					<pre>
+						<line>#define MyAppMS</line>
+						<line>#define MyAppLS</line>
+						<line>#expr PackVersionComponents(15, 2, 12345, 7, MyAppMS, MyAppLS)</line>
+					</pre>
+					<para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="ParseVersionPacked">ParseVersionPacked</link></synel>, <synel><link href="UnpackVersionComponents">UnpackVersionComponents</link></synel></para>
+				</section>
+			</topic>
+			<topic id="UnpackVersionComponents">
+				<title>UnpackVersionComponents</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> UnpackVersionComponents(<b>int</b> MS, <b>int</b> LS, <b>int</b> *Major, <b>int</b> *Minor, <b>int</b> *Rev, <b>int</b> *Build)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Unpacks individual version components from MS/LS values compatible with <synel>GetVersionNumbers</synel>. The results are stored in by-reference parameters Major, Minor, Rev, and Build.</para>
+					<pre>
+						<line>#define MyMajor</line>
+						<line>#define MyMinor</line>
+						<line>#define MyRev</line>
+						<line>#define MyBuild</line>
+						<line>#expr UnpackVersionComponents(MyAppMS, MyAppLS, MyMajor, MyMinor, MyRev, MyBuild)</line>
+					</pre>
+					<para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
+				</section>
+			</topic>
 			<topic id="ParseVersion">
 				<title>ParseVersion</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build)</line>
+						<line><b>str</b> ParseVersion(<b>str</b> FileName, <b>int</b> *Major, <b>int</b> *Minor, <b>int</b> *Rev, <b>int</b> *Build)</line>
 					</pre>
 				</section>
 				<description>
@@ -1326,11 +1377,32 @@ The list of options is provided at the end of this topic.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
+			<topic id="ParseVersionPacked">
+				<title>ParseVersionPacked</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> ParseVersionPacked(<b>str</b> FileName, <b>int</b> *MS, <b>int</b> *LS)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Calls the <synel><link href="GetFileVersion">GetFileVersion</link></synel> function and parses the string returned by that function (in form "0.0.0.0"). The version elements are then packed back into the by-reference parameters MS and LS. Returns the string returned by GetFileVersion.</para>
+					<pre>
+						<line>#define MyAppMS</line>
+						<line>#define MyAppLS</line>
+						<line>#expr ParseVersionPacked("MyApp.exe", MyAppMS, MyAppLS)</line>
+					</pre>
+					<para>This can be combined at install-time with <synel>PackVersionNumbers</synel> to perform comparisons against installed files or registry versions.</para>
+					<para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
+				</section>
+			</topic>
 			<topic id="EncodeVer">
 				<title>EncodeVer</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define EncodeVer(int Major, int Minor, int Revision = 0, int Build = -1)</line>
+						<line><b>int</b> EncodeVer(<b>int</b> Major, <b>int</b> Minor, <b>int</b> Revision = 0, <b>int</b> Build = -1)</line>
 					</pre>
 				</section>
 				<description>
@@ -1342,7 +1414,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>DecodeVer</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define DecodeVer(int Ver, int Digits = 3)</line>
+						<line><b>str</b> DecodeVer(<b>int</b> Ver, <b>int</b> Digits = 3)</line>
 					</pre>
 				</section>
 				<description>
@@ -1354,7 +1426,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>FindSection</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define FindSection(str Section = "Files")</line>
+						<line><b>int</b> FindSection(<b>str</b> Section = "Files")</line>
 					</pre>
 				</section>
 				<description>
@@ -1366,7 +1438,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>FindSectionEnd</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define FindSectionEnd(str Section = "Files")</line>
+						<line><b>int</b> FindSectionEnd(<b>str</b> Section = "Files")</line>
 					</pre>
 				</section>
 				<description>
@@ -1378,7 +1450,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>FindCode</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define FindCode()</line>
+						<line><b>int</b> FindCode()</line>
 					</pre>
 				</section>
 				<description>
@@ -1390,7 +1462,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>ExtractFilePath</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define ExtractFilePath(str PathName)</line>
+						<line><b>str</b> ExtractFilePath(<b>str</b> PathName)</line>
 					</pre>
 				</section>
 				<description>
@@ -1402,7 +1474,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>ExtractFileDir</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define ExtractFileDir(str PathName)</line>
+						<line><b>str</b> ExtractFileDir(<b>str</b> PathName)</line>
 					</pre>
 				</section>
 				<description>
@@ -1414,7 +1486,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>ExtractFileExt</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define ExtractFileExt(str PathName)</line>
+						<line><b>str</b> ExtractFileExt(<b>str</b> PathName)</line>
 					</pre>
 				</section>
 				<description>
@@ -1426,7 +1498,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>ExtractFileName</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define ExtractFileName(str PathName)</line>
+						<line><b>str</b> ExtractFileName(<b>str</b> PathName)</line>
 					</pre>
 				</section>
 				<description>
@@ -1438,7 +1510,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>ChangeFileExt</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define ChangeFileExt(str FileName, str NewExt)</line>
+						<line><b>str</b> ChangeFileExt(<b>str</b> FileName, <b>str</b> NewExt)</line>
 					</pre>
 				</section>
 				<description>
@@ -1450,7 +1522,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>RemoveFileExt</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define RemoveFileExt(str FileName)</line>
+						<line><b>void</b> RemoveFileExt(<b>str</b> FileName)</line>
 					</pre>
 				</section>
 				<description>
@@ -1462,11 +1534,11 @@ The list of options is provided at the end of this topic.</para>
 				<title>AddBackslash</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define AddBackslash(str S)</line>
+						<line><b>str</b> AddBackslash(<b>str</b> S)</line>
 					</pre>
 				</section>
 				<description>
-					<para>Appends a backslash to the string, if it's not already there.</para>
+					<para>Appends a backslash to the string, if it's not already there, and returns the result.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
@@ -1474,11 +1546,11 @@ The list of options is provided at the end of this topic.</para>
 				<title>RemoveBackslash</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define RemoveBackslash(str S)</line>
+						<line><b>str</b> RemoveBackslash(<b>str</b> S)</line>
 					</pre>
 				</section>
 				<description>
-					<para>Removes the trailing backslash from the string unless the string points to a root directory.</para>
+					<para>Removes the trailing backslash from the string unless the string points to a root directory, and returns the result.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
@@ -1486,7 +1558,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>Delete</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define Delete(str *S, int Index, int Count = MaxInt)</line>
+						<line><b>void</b> Delete(<b>str</b> *S, <b>int</b> Index, <b>int</b> Count = MaxInt)</line>
 					</pre>
 				</section>
 				<description>
@@ -1498,7 +1570,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>Insert</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define Insert(str *S, int Index, str Substr)</line>
+						<line><b>void</b> Insert(<b>str</b> *S, <b>int</b> Index, <b>str</b> Substr)</line>
 					</pre>
 				</section>
 				<description>
@@ -1510,7 +1582,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>YesNo</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define YesNo(str S)</line>
+						<line><b>int</b> YesNo(<b>str</b> S)</line>
 					</pre>
 				</section>
 				<description>
@@ -1522,7 +1594,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>Power</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define Power(int X, int P = 2)</line>
+						<line><b>int</b> Power(<b>int</b> X, <b>int</b> P = 2)</line>
 					</pre>
 				</section>
 				<description>
@@ -1533,7 +1605,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>Min</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define Min(int A, int B, int C = MaxInt)</line>
+						<line><b>int</b> Min(<b>int</b> A, <b>int</b> B, <b>int</b> C = MaxInt)</line>
 					</pre>
 				</section>
 				<description>
@@ -1544,7 +1616,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>Max</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define Max(int A, int B, int C = MinInt)</line>
+						<line><b>int</b> Max(<b>int</b> A, <b>int</b> B, <b>int</b> C = MinInt)</line>
 					</pre>
 				</section>
 				<description>
@@ -1555,7 +1627,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>SameText</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define SameText(str S1, str S2)</line>
+						<line><b>int</b> SameText(<b>str</b> S1, <b>str</b> S2)</line>
 					</pre>
 				</section>
 				<description>
@@ -1567,7 +1639,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>SameStr</title>
 				<section title="Prototype">
 					<pre>
-						<line>#define SameStr(str S1, str S2)</line>
+						<line><b>int</b> SameStr(<b>str</b> S1, <b>str</b> S2)</line>
 					</pre>
 				</section>
 				<description>

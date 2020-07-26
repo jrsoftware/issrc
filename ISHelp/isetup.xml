@@ -3,7 +3,7 @@
 
 <!--
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 -->
@@ -57,6 +57,7 @@
     <contentstopic title="Using COM Automation objects" topic="scriptautomation" />
   </contentsheading>
   <contentsheading title="Other Information">
+    <contentstopic title="Support Inno Setup" topic="donate" />
     <contentstopic title="Unicode Inno Setup" topic="unicode" />
     <contentstopic title="Non Administrative Install Mode" topic="admininstallmode" />
     <contentstopic title="64-bit Install Mode" topic="32vs64bitinstalls" />
@@ -73,7 +74,6 @@
     <contentstopic title="Example Scripts" topic="examples" />
     <contentstopic title="Frequently Asked Questions" topic="faq" />
     <contentstopic title="Contributors" topic="credits" />
-    <contentstopic title="Support Inno Setup" topic="donate" />
   </contentsheading>
 </contents>
 
@@ -86,10 +86,10 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.0.3</b><br/>
-<b>Copyright &copy; 1997-2019 Jordan Russell. All rights reserved.</b><br/>
-<b>Portions Copyright &copy; 2000-2019 Martijn Laan. All rights reserved.</b><br/>
-<extlink href="http://www.jrsoftware.org/">Inno Setup home page</extlink>
+<b>Inno Setup version 6.1.0</b><br/>
+<b>Copyright &copy; 1997-2020 Jordan Russell. All rights reserved.</b><br/>
+<b>Portions Copyright &copy; 2000-2020 Martijn Laan. All rights reserved.</b><br/>
+<extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
 </p>
 
 <p><br/>
@@ -139,7 +139,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Full source code is available from <extlink href="https://github.com/jrsoftware/issrc">GitHub</extlink>.</li>
 
-<li>Tiny footprint: only about 1.3 mB overhead with all features included.</li>
+<li>Tiny footprint: only about 1.5 mB overhead with all features included.</li>
 
 <li>All features are fully documented.</li>
 
@@ -320,6 +320,7 @@ This " contains " embedded " quotes
 <keyword value="{autocf64}" anchor="autocf64" />
 <keyword value="{autodesktop}" anchor="autodesktop" />
 <keyword value="{autodocs}" anchor="autodocs" />
+<keyword value="{autofonts}" anchor="autofonts" />
 <keyword value="{autopf}" anchor="autopf" />
 <keyword value="{autopf32}" anchor="autopf32" />
 <keyword value="{autopf64}" anchor="autopf64" />
@@ -348,9 +349,11 @@ This " contains " embedded " quotes
 <keyword value="{dotnet2032}" anchor="dotnet2032" />
 <keyword value="{dotnet2064}" anchor="dotnet2064" />
 <keyword value="{dotnet40}" anchor="dotnet40" />
+<keyword value=".NET install root" anchor="dotnet40" />
 <keyword value="{dotnet4032}" anchor="dotnet4032" />
 <keyword value="{dotnet4064}" anchor="dotnet4064" />
 <keyword value="{drive:...}" anchor="drive" />
+<keyword value="{commonfonts}" anchor="commonfonts" />
 <keyword value="{fonts}" anchor="fonts" />
 <keyword value="{group}" anchor="group" />
 <keyword value="{groupname}" anchor="groupname" />
@@ -382,12 +385,14 @@ This " contains " embedded " quotes
 <keyword value="{userdesktop}" anchor="userdesktop" />
 <keyword value="{userdocs}" anchor="userdocs" />
 <keyword value="{userfavorites}" anchor="userfavorites" />
+<keyword value="{userfonts}" anchor="userfonts" />
 <keyword value="{userinfoname}" anchor="userinfoname" />
 <keyword value="{userinfoorg}" anchor="userinfoorg" />
 <keyword value="{userinfoserial}" anchor="userinfoserial" />
 <keyword value="{username}" anchor="username" />
 <keyword value="{userpf}" anchor="userpf" />
 <keyword value="{userprograms}" anchor="userprograms" />
+<keyword value="{usersavedgames}" anchor="usersavedgames" />
 <keyword value="{usersendto}" anchor="usersendto" />
 <keyword value="{sendto}" anchor="usersendto" />
 <keyword value="{userstartmenu}" anchor="userstartmenu" />
@@ -485,9 +490,9 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's TEMP environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like "C:\WINDOWS\TEMP\IS-xxxxx.tmp"). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the [Run] section but aren't needed after the installation.</p>
 </dd>
 
-<dt><b><a name="fonts">{fonts}</a></b></dt>
+<dt><b><a name="commonfonts">{commonfonts}</a></b></dt>
 <dd>
-<p>Fonts directory. Normally named "FONTS" under the Windows directory.</p>
+<p>Fonts directory. Normally named "Fonts" under the Windows directory.</p>
 </dd>
 
 <dt><b><a name="dao">{dao}</a></b></dt>
@@ -497,43 +502,44 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="dotnet11">{dotnet11}</a></b></dt>
 <dd>
-<p>32-bit .NET Framework version 1.1 root directory.</p>
+<p>32-bit .NET Framework version 1.1 install root directory.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 1.1 present.</p>
 </dd>
 
 <dt><b><a name="dotnet20">{dotnet20}</a></b></dt>
 <dd>
-<p>.NET Framework version 2.0-3.5 root directory. <tt>{dotnet20}</tt> is equivalent to <tt>{dotnet2032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{dotnet2064}</tt>.</p>
+<p>.NET Framework version 2.0-3.5 install root directory. <tt>{dotnet20}</tt> is equivalent to <tt>{dotnet2032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{dotnet2064}</tt>.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0-3.5 present.</p>
 </dd>
 
 <dt><b><a name="dotnet2032">{dotnet2032}</a></b></dt>
 <dd>
-<p>32-bit .NET Framework version 2.0-3.5 root directory.</p>
+<p>32-bit .NET Framework version 2.0-3.5 install root directory.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0-3.5 present.</p>
 </dd>
 
 <dt><b><a name="dotnet2064">{dotnet2064}</a></b></dt>
 <dd>
-<p>64-bit Windows only: 64-bit .NET Framework version 2.0-3.5 root directory.</p>
+<p>64-bit Windows only: 64-bit .NET Framework version 2.0-3.5 install root directory.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 2.0-3.5 present.</p>
 </dd>
 
 <dt><b><a name="dotnet40">{dotnet40}</a></b></dt>
 <dd>
-<p>.NET Framework version 4.0 and later root directory. <tt>{dotnet40}</tt> is equivalent to <tt>{dotnet4032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{dotnet4064}</tt>.</p>
+<p>.NET Framework version 4.0 and later install root directory. <tt>{dotnet40}</tt> is equivalent to <tt>{dotnet4032}</tt> unless the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, in which case it is equivalent to <tt>{dotnet4064}</tt>.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 or later present.</p>
+<p>Also see <link topic="isxfunc_IsDotNetInstalled">IsDotNetInstalled</link>.</p>
 </dd>
 
 <dt><b><a name="dotnet4032">{dotnet4032}</a></b></dt>
 <dd>
-<p>32-bit .NET Framework version 4.0 and later root directory.</p>
+<p>32-bit .NET Framework version 4.0 and later install root directory.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 or later present.</p>
 </dd>
 
 <dt><b><a name="dotnet4064">{dotnet4064}</a></b></dt>
 <dd>
-<p>64-bit Windows only: 64-bit .NET Framework version 4.0 and later root directory.</p>
+<p>64-bit Windows only: 64-bit .NET Framework version 4.0 and later install root directory.</p>
 <p>An exception will be raised if an attempt is made to expand this constant on a system with no .NET Framework version 4.0 or later present.</p>
 </dd>
 
@@ -586,6 +592,11 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <p>The path to the current user's Favorites folder. (There is no common Favorites folder.)</p>
 </dd>
 
+<dt><b><a name="userfonts">{userfonts}</a></b></dt>
+<dd>
+<p>The path to the current user's Fonts folder. Only Windows 10 Version 1803 and later supports <tt>{userfonts}</tt>. Same directory as <tt>{localappdata}\Microsoft\Windows\Fonts</tt>.</p>
+</dd>
+
 <dt><b><a name="userpf">{userpf}</a></b></dt>
 <dd>
 <p>The path to the current user's Program Files directory. Only Windows 7 and later supports <tt>{userpf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs</tt>.</p>
@@ -594,6 +605,11 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <dt><b><a name="userprograms">{userprograms}</a></b> &amp; <b><a name="commonprograms">{commonprograms}</a></b></dt>
 <dd>
 <p>The path to the Programs folder on the Start Menu.</p>
+</dd>
+
+<dt><b><a name="usersavedgames">{usersavedgames}</a></b></dt>
+<dd>
+<p>The path to the current user's Saved Games directory.</p>
 </dd>
 
 <dt><b><a name="usersendto">{usersendto}</a></b></dt>
@@ -632,6 +648,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <tr><td><tt><a name="autocf64">autocf64</a></tt></td><td><tt>commoncf64</tt></td><td><tt>usercf</tt></td></tr>
 <tr><td><tt><a name="autodesktop">autodesktop</a></tt></td><td><tt>commondesktop</tt></td><td><tt>userdesktop</tt></td></tr>
 <tr><td><tt><a name="autodocs">autodocs</a></tt></td><td><tt>commondocs</tt></td><td><tt>userdocs</tt></td></tr>
+<tr><td><tt><a name="autofonts">autofonts</a></tt></td><td><tt>commonfonts</tt></td><td><tt>userfonts</tt></td></tr>
 <tr><td><tt><a name="autopf">autopf</a></tt></td><td><tt>commonpf</tt></td><td><tt>userpf</tt></td></tr>
 <tr><td><tt><a name="autopf32">autopf32</a></tt></td><td><tt>commonpf32</tt></td><td><tt>userpf</tt></td></tr>
 <tr><td><tt><a name="autopf64">autopf64</a></tt></td><td><tt>commonpf64</tt></td><td><tt>userpf</tt></td></tr>
@@ -652,6 +669,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <tr><td><tt><a name="cf">cf</a></tt></td><td><tt>commoncf</tt></td></tr>
 <tr><td><tt><a name="cf32">cf32</a></tt></td><td><tt>commoncf32</tt></td></tr>
 <tr><td><tt><a name="cf64">cf64</a></tt></td><td><tt>commoncf64</tt></td></tr>
+<tr><td><tt><a name="fonts">fonts</a></tt></td><td><tt>commonfonts</tt></td></tr>
 <tr><td><tt><a name="pf">pf</a></tt></td><td><tt>commonpf</tt></td></tr>
 <tr><td><tt><a name="pf32">pf32</a></tt></td><td><tt>commonpf32</tt></td></tr>
 <tr><td><tt><a name="pf64">pf64</a></tt></td><td><tt>commonpf64</tt></td></tr>
@@ -974,6 +992,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_lzmanumfastbytes">LZMANumFastBytes</link></li>
 <li><link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link></li>
 <li><link topic="setup_mergeduplicatefiles">MergeDuplicateFiles</link></li>
+<li><link topic="setup_missingrunonceidswarning">MissingRunOnceIdsWarning</link></li>
 <li><link topic="setup_output">Output</link></li>
 <li><link topic="setup_outputbasefilename">OutputBaseFilename</link></li>
 <li><link topic="setup_outputdir">OutputDir</link></li>
@@ -1616,11 +1635,11 @@ ExternalSize: 1048576; Flags: external
 <param name="FontInstall">
 <p>Tells Setup the file is a font that needs to be installed. The value of this parameter is the name of the font as stored in the registry or WIN.INI. This must be exactly the same name as you see when you double-click the font file in Explorer. Note that Setup will automatically append " (TrueType)" to the end of the name.</p>
 <p>If the file is not a TrueType font, you must specify the flag <tt>fontisnttruetype</tt> in the Flags parameter.</p>
-<p>It's recommended that you use the flags <tt>onlyifdoesntexist</tt> and <tt>uninsneveruninstall</tt> when installing fonts to the {fonts} directory.</p>
-<p>To successfully install a font, the user must be a member of the Administrators groups.</p>
-<p>For compatibility with 64-bit Windows, fonts should not be installed to the <tt>{sys}</tt> directory. Use <tt>{fonts}</tt> as the destination directory instead.</p>
+<p>It's recommended that you use the flags <tt>onlyifdoesntexist</tt> and <tt>uninsneveruninstall</tt> when installing fonts to the <tt>{autofonts}</tt> directory.</p>
+<p>If the installation is running in <link topic="admininstallmode">non administrative install mode</link>, Windows 10 Version 1803 or later is required to successfully install a font.</p>
+<p>For compatibility with 64-bit Windows, fonts should not be installed to the <tt>{sys}</tt> directory. Use <tt>{autofonts}</tt> as the destination directory instead.</p>
 <example>
-<pre>Source: "OZHANDIN.TTF"; DestDir: "{fonts}"; FontInstall: "Oz Handicraft BT"; Flags: onlyifdoesntexist uninsneveruninstall</pre>
+<pre>Source: "OZHANDIN.TTF"; DestDir: "{autofonts}"; FontInstall: "Oz Handicraft BT"; Flags: onlyifdoesntexist uninsneveruninstall</pre>
 </example>
 </param>
 
@@ -1917,6 +1936,13 @@ Filename: "http://www.example.com/"
 <p>Specifies the Windows 7 (or later) Application User Model ID for the shortcut. Ignored on earlier Windows versions. This parameter can include constants.</p>
 <example>
 <pre>AppUserModelID: "MyCompany.MyProg"</pre>
+</example>
+</param>
+
+<param name="AppUserModelToastActivatorCLSID">
+<p>Specifies the Windows 10 (or later) Application User Model Toast Activator CLSID for the shortcut. Ignored on earlier Windows versions.</p>
+<example>
+<pre>AppUserModelToastActivatorCLSID: "B784B1A4-D682-4FE6-BDBA-21EDDAE42795"</pre>
 </example>
 </param>
 
@@ -2569,7 +2595,7 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 </param>
 
 <param name="RunOnceId">
-<p>Valid only in an <tt>[UninstallRun]</tt> section. If the <link topic="sameappnotes">same application</link> is installed more than once, "run" entries will be duplicated in the uninstall log file. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular <tt>[UninstallRun]</tt> entry will only be executed once during uninstallation. For example, if two or more "run" entries in the uninstall log have a <tt>RunOnceId</tt> setting of "DelService", only the latest entry with a <tt>RunOnceId</tt> setting of "DelService" will be executed; the rest will be ignored. Note that <tt>RunOnceId</tt> comparisons are case-sensitive.</p>
+<p>Valid only in an <tt>[UninstallRun]</tt> section. If the <link topic="sameappnotes">same application</link> is installed more than once, "run" entries will be duplicated in the uninstall log file. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular <tt>[UninstallRun]</tt> entry will only be executed once during uninstallation. For example, if two or more "run" entries in the uninstall log have a <tt>RunOnceId</tt> setting of "DelService", only the latest entry with a <tt>RunOnceId</tt> setting of "DelService" will be executed; the rest will be ignored. Note that <tt>RunOnceId</tt> comparisons are case-sensitive. If you don't assign a string to <tt>RunOnceId</tt>, the compiler will warn you about this, which can be disabled using <link topic="setup_missingrunonceidswarning">MissingRunOnceIdsWarning</link>.</p>
 <example>
 <pre>RunOnceId: "DelService"</pre>
 </example>
@@ -2594,6 +2620,9 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 <p>Causes the <tt>{sys}</tt> constant to map to the 64-bit System directory when used in the <tt>Filename</tt> and <tt>WorkingDir</tt> parameters. This is the default behavior in <link topic="32vs64bitinstalls">64-bit install mode</link> install.</p>
 <p>This flag can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: IsWin64</tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
 <p>This flag cannot be combined with the <tt>shellexec</tt> flag.</p>
+</flag>
+<flag name="dontlogparameters">
+<p>If this flag is specified, the command line parameters for the program will not be included in the log file.</p>
 </flag>
 <flag name="hidewizard">
 <p>If this flag is specified, the wizard will be hidden while the program is running.</p>
@@ -2740,7 +2769,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 <body>
 
 <p>Prior to Inno Setup 6 two versions of Inno Setup were available: Non Unicode Inno Setup and Unicode Inno Setup. Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup.</p>
-<p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames. One could consider Unicode Inno Setup as the new standard Inno Setup and Non Unicode Inno Setup as an old special Inno Setup for those who want the very smallest size possible.</p>
+<p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames.</p>
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. If it says "(u)" you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
   <ul>
@@ -2780,7 +2809,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 
 <p>The Frequently Asked Questions is now located in a separate document. Please click the "Inno Setup FAQ" shortcut created in the Start Menu when you installed Inno Setup, or open the "isfaq.url" file in your Inno Setup directory.</p>
 
-<p>For the most recent Frequently Asked Questions, go to <extlink href="http://www.jrsoftware.org/isfaq.php">http://www.jrsoftware.org/isfaq.php</extlink></p>
+<p>For the most recent Frequently Asked Questions, go to <extlink href="https://jrsoftware.org/isfaq.php">https://jrsoftware.org/isfaq.php</extlink></p>
 
 </body>
 </topic>
@@ -2951,14 +2980,14 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <ul>
 <li>The <tt>{group}</tt> folder is created in the <i>All Users</i> profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "common" form.</li>
-<li>The <link topic="registrysection">HKA</link> and uninstall info root keys will be HKEY_LOCAL_MACHINE.</li>
+<li>The <link topic="registrysection">HKA</link>, uninstall info, and font install root keys will be HKEY_LOCAL_MACHINE.</li>
 </ul>
 
 <p>In non administrative install mode:</p>
 <ul>
 <li>The <tt>{group}</tt> folder is created in the current user's profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "user" form.</li>
-<li>The <link topic="registrysection">HKA</link> and uninstall info root keys will be HKEY_CURRENT_USER.</li>
+<li>The <link topic="registrysection">HKA</link>, uninstall info, and font install root keys will be HKEY_CURRENT_USER.</li>
 </ul>
 
 <p><b>Notes:</b></p>
@@ -3071,7 +3100,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <li>Inno Setup's own installers accept an additional /PORTABLE=1 command line parameter to enable portable mode which causes the installers to not create an uninstaller nor an entry in the Add/Remove Programs Control Panel applet.</li>
 
-<li>The Inno Setup backup website can be found at <extlink href="http://www.innosetup.nl/">www.innosetup.nl</extlink>. Normally this link will simply redirect you to the main website at <extlink href="http://www.jrsoftware.org/">www.jrsoftware.org</extlink> but in case of emergencies this redirect will be disabled.</li>
+<li>The Inno Setup backup website can be found at <extlink href="http://www.innosetup.nl/">www.innosetup.nl</extlink>. Normally this link will simply redirect you to the main website at <extlink href="https://jrsoftware.org/">jrsoftware.org</extlink> but in case of emergencies this redirect will be disabled.</li>
 
 </ul>
 
@@ -3156,6 +3185,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="/NOCLOSEAPPLICATIONS" anchor="NOCLOSEAPPLICATIONS" />
 <keyword value="/FORCECLOSEAPPLICATIONS" anchor="FORCECLOSEAPPLICATIONS" />
 <keyword value="/NOFORCECLOSEAPPLICATIONS" anchor="NOFORCECLOSEAPPLICATIONS" />
+<keyword value="/LOGCLOSEAPPLICATIONS" anchor="LOGCLOSEAPPLICATIONS" />
 <keyword value="/RESTARTAPPLICATIONS" anchor="RESTARTAPPLICATIONS" />
 <keyword value="/NORESTARTAPPLICATIONS" anchor="NORESTARTAPPLICATIONS" />
 <keyword value="/LOADINF=" anchor="LOADINF" />
@@ -3280,9 +3310,14 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Prevents Setup from force closing when closing applications. If /FORCECLOSEAPPLICATIONS was also used, this command line parameter is ignored.</p>
 </dd>
 
+<dt><b><a name="LOGCLOSEAPPLICATIONS">/LOGCLOSEAPPLICATIONS</a></b></dt>
+<dd>
+<p>Instructs Setup to create extra logging when closing applications for debugging purposes.</p>
+</dd>
+
 <dt><b><a name="RESTARTAPPLICATIONS">/RESTARTAPPLICATIONS</a></b></dt>
 <dd>
-<p>Instructs Setup to restart applications if possible. Only has an effect when combined with '/CLOSEAPPLICATIONS'.</p>
+<p>Instructs Setup to restart applications if possible.</p>
 </dd>
 
 <dt><b><a name="NORESTARTAPPLICATIONS">/NORESTARTAPPLICATIONS</a></b></dt>
@@ -3612,7 +3647,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Martijn Laan: Rich Edit 2.0 &amp; URL detection support (1.3.13); Silent uninstallation (1.3.25); System image list support in drive and directory lists (1.3.25); Silent installation (2.0); The <tt>[Types]</tt>, <tt>[Components]</tt> and <tt>[Tasks]</tt> sections (2.0); The <tt>postinstall</tt> flag (2.0); The <tt>[Code]</tt> section (4.0); Subcomponents and subtasks support (4.0); Many other features after 4.0.</li>
 
-<li>Alex Yackimoff: Portions of <link topic="scriptclasses" anchor="TNewCheckListBox">TNewCheckListBox</link> (4.0).</li>
+<li>Alex Yackimoff: Portions of <link topic="scriptclasses" anchor="TNewCheckListBox">TNewCheckListBox</link> (4.0); ISPP (5.4.1).</li>
 
 <li>Carlo Kok: <extlink href="http://www.remobjects.com/ps">RemObjects Pascal Script</extlink> (4.0).</li>
 
@@ -3622,15 +3657,21 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Creators of <extlink href="http://www.scintilla.org/">Scintilla</extlink>: The syntax-highlighting editor used in the Compiler (5.4).</li>
 
-<li>Motaz Alnuweiri: 128x128 and 256x256 sizes of the compiler and document icons.</li>
+<li>Zaher Dirkey: Initial work on improved right-to-left languages support (5.2.3).</li>
 
-<li>Zaher Dirkey: Initial work on improved right-to-left languages support.</li>
+<li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support (5.3).</li>
 
-<li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support.</li>
+<li>Motaz Alnuweiri: 128x128 and 256x256 sizes of the compiler and document icons (5.5.3).</li>
 
-<li>DRON: Code for the improved image stretching (5.6.0).</li>
+<li>DRON: Code for the improved image stretching (5.6).</li>
 
 <li>Sherlock Software: Most of the code for the <tt>CreateCallback</tt> support function (6.0).</li>
+
+<li>Vizit0r: Code for the "Debug Call Stack" view (6.0.3).</li>
+
+<li>Cristoph Nahr: Code for the .NET version detection (6.0.4).</li>
+
+<li>Sergii Leonov: Code for the Compiler IDE's MessageBox Designer (6.1.0).</li>
 
 </ul>
 
@@ -3644,7 +3685,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <body>
 
 <p>To support Inno Setup, go to this page:<br/>
-<extlink href="http://www.jrsoftware.org/isdonate.php">http://www.jrsoftware.org/isdonate.php</extlink></p>
+<extlink href="https://jrsoftware.org/isdonate.php">https://jrsoftware.org/isdonate.php</extlink></p>
+<p>Thank you in advance for your support!</p>
 
 </body>
 </topic>
@@ -3773,10 +3815,10 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 <p>Note that mutex name comparison in Windows is <i>case sensitive.</i></p>
 <p>To specify a mutex name containing a comma, escape the comma with a backslash.</p>
 <p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
-<example><pre>AppMutex=MyProgramsMutexName</pre></example>
+<example><pre>AppMutex=MyProgramsMutexName,Global\MyProgramsMutexName</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_setupmutex">SetupMutex</link>
-</p>
+<link topic="setup_setupmutex">SetupMutex</link><br/>
+<link topic="setup_closeapplications">CloseApplications</link></p>
 </body>
 </setuptopic>
 
@@ -3942,6 +3984,14 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software <i>will not</i> run on. Specifying "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>This directive is essentially the opposite of <link topic="setup_minversion">MinVersion</link>.</p>
 <p>For compatibility with previous versions of Inno Setup, separate Windows 95/98/Me and Windows NT version numbers may be specified, separated by a comma. Example: <tt>OnlyBelowVersion=0,6.2</tt>. The Windows 95/98/Me version number (the first number) isn't used, however, as Inno Setup no longer supports Windows 95/98/Me.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="MissingRunOnceIdsWarning">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>This directive lets you disable the missing RunOnceIds warning. See <link topic="runsection" anchor="RunOnceId">RunOnceId</link> for more information.</p>
 </body>
 </setuptopic>
 
@@ -4908,7 +4958,6 @@ DiskSliceSize=1457664
 <setupdefault><link topic="setup_apppublisher">AppPublisher</link> if <link topic="setup_apppublisher">AppPublisher</link> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the company name value for the Setup version info.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -4916,7 +4965,6 @@ DiskSliceSize=1457664
 <setupdefault><link topic="setup_appcopyright">AppCopyright</link> if <link topic="setup_appcopyright">AppCopyright</link> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the copyright value for the Setup version info.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -4931,7 +4979,6 @@ DiskSliceSize=1457664
 <setuptopic directive="VersionInfoOriginalFileName">
 <body>
 <p>Specifies the original file name value for the Setup version info.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -4939,7 +4986,6 @@ DiskSliceSize=1457664
 <setupdefault><link topic="setup_appname">AppName</link> if <link topic="setup_appname">AppName</link> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the product name value for the Setup version info.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -4947,7 +4993,6 @@ DiskSliceSize=1457664
 <setupdefault><link topic="setup_versioninfoproductversion">VersionInfoProductVersion</link> if set, else <link topic="setup_appversion">AppVersion</link> if set and does not include constants, else <link topic="setup_versioninfotextversion">VersionInfoTextVersion</link></setupdefault>
 <body>
 <p>Specifies the textual product version value for the Setup version info.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -4958,7 +5003,6 @@ DiskSliceSize=1457664
 <p>Specifies the binary product version value for the Setup version info.</p>
 <p>Partial version numbers are allowed. Missing numbers will be appended as zero's.</p>
 <p>Note that this value is only known to be displayed by Explorer on Windows Vista SP2. Other versions display the textual product version value (<link topic="setup_versioninfoproducttextversion">VersionInfoProductTextVersion</link>) instead.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -5030,7 +5074,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using ARCFOUR encryption, with a 160-bit key derived from the value of the <link topic="setup_password">Password</link> [Setup] section directive.</p>
-<p>Because of encryption import/export laws in some countries, encryption support is not included in the main Inno Setup installer and must be downloaded and installed separately if you wish to use it. See the <extlink href="http://www.jrsoftware.org/isdl.php">Inno Setup Downloads</extlink> page for more information.</p>
+<p>Because of encryption import/export laws in some countries, encryption support is not included in the main Inno Setup installer and must be downloaded and installed separately if you wish to use it. See the <extlink href="https://jrsoftware.org/isdl.php">Inno Setup Downloads</extlink> page for more information.</p>
 <p>If encryption is enabled and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
 <p>The key used for encryption is a 160-bit SHA-1 hash of 64-bit random salt plus the value of <link topic="setup_password">Password</link>.</p>
 </body>
@@ -5138,7 +5182,7 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies whether the uninstaller program (unins???.exe) should be deployed with a digital signature attached. When the uninstaller has a valid digital signature, users will not see an "unknown publisher" warning when launching it.</p>
 <p>The first time you compile a script with this directive set to <tt>yes</tt>, a uniquely-named copy of the uninstaller EXE file will be created in the directory specified by the <link topic="setup_signeduninstallerdir">SignedUninstallerDir</link> directive (which defaults to the <link topic="setup_outputdir">output directory</link>). Depending on the <link topic="setup_signtool">SignTool</link> setting, you will either then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's signtool.exe) or the file will be automatically signed on the fly. On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers.</p>
-<p>Upgrading to a newer version of Inno Setup, or changing certain [Setup] section directives that affect the contents of the uninstaller EXE file (such as <link topic="setup_setupiconfile">SetupIconFile</link>), will cause a new file to be created under a different name.</p>
+<p>Upgrading to a newer version of Inno Setup, or changing certain [Setup] section directives that affect the contents of the uninstaller EXE file (such as <link topic="setup_setupiconfile">SetupIconFile</link> and VersionInfo directives), will cause a new file to be created under a different name.</p>
 <p>If a file generated by this directive is deleted, it will be recreated automatically if necessary on the next compile.</p>
 <p>When the uninstaller has a digital signature, Setup will write the messages from the active language into a separate file (unins???.msg). It cannot embed the messages into the EXE file because doing so would invalidate the digital signature.</p>
 <p>When set to <tt>yes</tt>, any temporary self-copies used by Setup are digitally signed too.</p>
@@ -5353,7 +5397,8 @@ SignTool=byparam format c:
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
 <link topic="scriptevents" anchor="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</link><br/>
-<link topic="setup_restartapplications">RestartApplications</link></p>
+<link topic="setup_restartapplications">RestartApplications</link><br/>
+<link topic="setup_appmutex">AppMutex</link></p>
 </body>
 </setuptopic>
 
@@ -5361,7 +5406,7 @@ SignTool=byparam format c:
 <setupvalid>A list of file name wildcards, separated by commas</setupvalid>
 <setupdefault><tt>*.exe,*.dll,*.chm</tt></setupdefault>
 <body>
-<p>Controls which files Setup will check for being in use.</p>
+<p>Limits which [Files] and [InstallDelete] entries Setup will check for being in use. Only files matching one of the wildcards will be checked.</p>
 <p>Setting this to <tt>*.*</tt> can provide better checking at the expense of speed.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplications">CloseApplications</link><br/>
@@ -5475,6 +5520,8 @@ SignTool=byparam format c:
 <tr><td>10.0.17134</td><td>Windows 10 Version 1803 (April 2018 Update)</td></tr>
 <tr><td>10.0.17763</td><td>Windows 10 Version 1809 (October 2018 Update)<br/>or Windows Server 2019</td></tr>
 <tr><td>10.0.18362</td><td>Windows 10 Version 1903 (May 2019 Update)</td></tr>
+<tr><td>10.0.18363</td><td>Windows 10 Version 1909 (November 2019 Update)</td></tr>
+<tr><td>10.0.19041</td><td>Windows 10 Version 2004 (May 2020 Update)</td></tr>
 </table>
 <p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>

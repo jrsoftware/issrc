@@ -14,8 +14,8 @@ interface
 {$I VERSION.INC}
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls,
-  Wizard,
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs,
+  Wizard, Install,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
   BidiCtrls, TaskbarProgressFunc;
 
@@ -149,26 +149,51 @@ type
       FMsg1Label: TNewStaticText;
       FMsg2Label: TNewStaticText;
       FProgressBar: TNewProgressBar;
+      FUseMarqueeStyle: Boolean;
       FSavePageID: Integer;
       procedure ProcessMsgs;
     public
       constructor Create(AOwner: TComponent); override;
       procedure Hide;
-      procedure Initialize;
+      procedure Initialize; virtual;
       procedure SetProgress(const Position, Max: Longint);
       procedure SetText(const Msg1, Msg2: String);
-      procedure Show;
+      procedure Show; virtual;
     published
       property Msg1Label: TNewStaticText read FMsg1Label;
       property Msg2Label: TNewStaticText read FMsg2Label;
       property ProgressBar: TNewProgressBar read FProgressBar;
   end;
 
+{$IFNDEF PS_NOINT64}
+  TDownloadWizardPage = class(TOutputProgressWizardPage)
+    private
+      FFiles: TObjectList;
+      FOnDownloadProgress: TOnDownloadProgress;
+      FAbortButton: TNewButton;
+      FShowProgressControlsOnNextProgress, FNeedToAbortDownload: Boolean;
+      procedure AbortButtonClick(Sender: TObject);
+      function InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
+      procedure ShowProgressControls(const AVisible: Boolean);
+    public
+      constructor Create(AOwner: TComponent); override;
+      destructor Destroy; override;
+      procedure Initialize; override;
+      procedure Add(const Url, BaseName, RequiredSHA256OfFile: String);
+      procedure Clear;
+      function Download: Int64;
+      property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
+      procedure Show; override;
+    published
+      property AbortButton: TNewButton read FAbortButton;
+  end;
+{$ENDIF}
+  
 implementation
 
 uses
   Struct, Main, SelFolderForm, Msgs, MsgIDs, PathFunc, CmnFunc, CmnFunc2,
-  BrowseFunc;
+  BrowseFunc, Logging;
 
 const
   DefaultLabelHeight = 14;
@@ -441,7 +466,7 @@ var
   Edit: TEdit;
   Button: TNewButton;
 begin
-  ButtonWidth := WizardForm.CalculateButtonWidth([msgButtonWizardBrowse]);
+  ButtonWidth := WizardForm.CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
 
   if APrompt <> '' then begin
     PromptLabel := TNewStaticText.Create(Self);
@@ -583,7 +608,7 @@ var
   Edit: TEdit;
   Button: TNewButton;
 begin
-  ButtonWidth := WizardForm.CalculateButtonWidth([msgButtonWizardBrowse]);
+  ButtonWidth := WizardForm.CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
 
   if APrompt <> '' then begin
     PromptLabel := TNewStaticText.Create(Self);
@@ -800,14 +825,17 @@ end;
 procedure TOutputProgressWizardPage.SetProgress(const Position, Max: Longint);
 begin
   if Max > 0 then begin
+    FProgressBar.Style := npbstNormal;
     FProgressBar.Max := Max;
     FProgressBar.Position := Position;
     FProgressBar.Visible := True;
     SetAppTaskbarProgressState(tpsNormal);
     SetAppTaskbarProgressValue(Position, Max);
-  end
-  else begin
-    FProgressBar.Visible := False;
+  end else begin
+    if FUseMarqueeStyle then
+      FProgressBar.Style := npbstMarquee
+    else
+      FProgressBar.Visible := False;
     SetAppTaskbarProgressState(tpsNoProgress);
   end;
   ProcessMsgs;
@@ -855,5 +883,126 @@ begin
     ProcessMsgs;
   end;
 end;
+
+{$IFNDEF PS_NOINT64}
+
+{--- OutputDownload ---}
+
+type
+  TDownloadFile = class
+    Url, BaseName, RequiredSHA256OfFile: String;
+  end;
+
+procedure TDownloadWizardPage.AbortButtonClick(Sender: TObject);
+begin
+  FNeedToAbortDownload := LoggedMsgBox(SetupMessages[msgStopDownload], '', mbConfirmation, MB_YESNO, True, ID_YES) = IDYES;
+end;
+
+function TDownloadWizardPage.InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
+begin
+  if FNeedToAbortDownload then begin
+    Log('Need to abort download.');
+    Result := False;
+  end else begin
+    if ProgressMax <> 0 then
+      Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
+    else
+      Log(Format('  %d bytes done.', [Progress]));
+
+    FMsg2Label.Caption := Url;
+    SetProgress(Progress, ProgressMax); { This will process messages which we need for the abort button to work }
+
+    if FShowProgressControlsOnNextProgress then begin
+      ShowProgressControls(True);
+      FShowProgressControlsOnNextProgress := False;
+      ProcessMsgs;
+    end;
+
+    if Assigned(FOnDownloadProgress) then
+      Result := FOnDownloadProgress(Url, BaseName, Progress, ProgressMax)
+    else
+      Result := True;
+  end;
+end;
+
+constructor TDownloadWizardPage.Create(AOwner: TComponent);
+begin
+  inherited;
+  FUseMarqueeStyle := True;
+  FFiles := TObjectList.Create;
+end;
+
+destructor TDownloadWizardPage.Destroy;
+begin
+  FFiles.Free;
+  inherited;
+end;
+
+procedure TDownloadWizardPage.Initialize;
+begin
+  inherited;
+
+  FMsg1Label.Caption := SetupMessages[msgDownloadingLabel];
+
+  FAbortButton := TNewButton.Create(Self);
+  with FAbortButton do begin
+    Caption := SetupMessages[msgButtonStopDownload];
+    Top := FProgressBar.Top + FProgressBar.Height + WizardForm.ScalePixelsY(8);
+    Width := WizardForm.CalculateButtonWidth([Caption]);
+    Anchors := [akLeft, akTop];
+    Height := WizardForm.CancelButton.Height;
+    OnClick := AbortButtonClick;
+  end;
+  SetCtlParent(FAbortButton, Surface);
+end;
+
+procedure TDownloadWizardPage.Show;
+begin
+  if WizardForm.CurPageID <> ID then begin
+    ShowProgressControls(False);
+    FShowProgressControlsOnNextProgress := True;
+  end;
+  inherited;
+end;
+
+procedure TDownloadWizardPage.ShowProgressControls(const AVisible: Boolean);
+begin
+  FMsg2Label.Visible := AVisible;
+  FProgressBar.Visible := AVisible;
+  FAbortButton.Visible := AVisible;
+end;
+
+procedure TDownloadWizardPage.Add(const Url, BaseName, RequiredSHA256OfFile: String);
+var
+  F: TDownloadFile;
+begin
+  F := TDownloadFile.Create;
+  F.Url := Url;
+  F.BaseName := BaseName;
+  F.RequiredSHA256OfFile := RequiredSHA256OfFile;
+  FFiles.Add(F);
+end;
+
+procedure TDownloadWizardPage.Clear;
+begin
+  FFiles.Clear;
+end;
+
+function TDownloadWizardPage.Download: Int64;
+var
+  F: TDownloadFile;
+  I: Integer;
+begin
+  FNeedToAbortDownload := False;
+  
+  Result := 0;
+  for I := 0 to FFiles.Count-1 do begin
+    F := TDownloadFile(FFiles[I]);
+    { Don't need to set DownloadTemporaryFileProcessMessages before downloading since we already process messages ourselves. }
+    Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile, InternalOnDownloadProgress);
+  end;
+end;
+
+{$ENDIF}
 
 end.

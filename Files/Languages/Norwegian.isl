@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.0+ Norwegian (bokmål) messages ***
+; *** Inno Setup version 6.0.3+ Norwegian (bokmål) messages ***
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -144,6 +144,7 @@ WizardSelectDir=Velg mappen hvor filene skal installeres:
 SelectDirDesc=Hvor skal [name] installeres?
 SelectDirLabel3=Installasjonsprogrammet vil installere [name] i følgende mappe.
 SelectDirBrowseLabel=Klikk på Neste for å fortsette. Klikk på Bla gjennom hvis du vil velge en annen mappe.
+DiskSpaceGBLabel=Programmet krever minst [gb] MB med diskplass.
 DiskSpaceMBLabel=Programmet krever minst [mb] MB med diskplass.
 CannotInstallToNetworkDrive=Kan ikke installere på en nettverksstasjon.
 CannotInstallToUNCPath=Kan ikke installere på en UNC-bane. Du må tilordne nettverksstasjonen hvis du vil installere i et nettverk.
@@ -171,6 +172,7 @@ NoUninstallWarningTitle=Komponenter eksisterer
 NoUninstallWarning=Installasjonsprogrammet har funnet ut at følgende komponenter allerede er på din maskin:%n%n%1%n%nDisse komponentene avinstalleres ikke selv om du ikke velger dem.%n%nVil du likevel fortsette?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Valgte alternativer krever minst [gb] GB med diskplass.
 ComponentsDiskSpaceMBLabel=Valgte alternativer krever minst [mb] MB med diskplass.
 
 ; *** "Select Additional Tasks" wizard page
@@ -211,6 +213,7 @@ ApplicationsFound2=Disse applikasjonene bruker filer som vil oppdateres av insta
 CloseApplications=Lukk applikasjonene &automatisk
 DontCloseApplications=&Ikke lukk applikasjonene
 ErrorCloseApplications=Installasjonsprogrammet kunne ikke lukke alle applikasjonene &automatisk. Det anbefales å lukke alle applikasjoner som bruker filer som installasjonsprogrammet trenger å oppdatere før du fortsetter installasjonen.
+PrepareToInstallNeedsRestart=Installasjonsprogrammet må gjøre omstart av maskinen. Etter omstart av maskinen, kjør installasjonsprogrammet på nytt for å ferdigstille installasjonen av [name].%n%nVil du gjøre omstart av maskinen nå?
 
 ; *** "Installing" wizard page
 WizardInstalling=Installerer

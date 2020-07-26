@@ -1,6 +1,6 @@
 ; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 6.0.0+ Slovak messages      ***
+; *** Inno Setup version 6.0.3+ Slovak messages      ***
 ; ***                                                ***
 ; *** Original Author:                               ***
 ; ***                                                ***
@@ -13,7 +13,7 @@
 ; ***   Tomas Falb (tomasf AT pobox.sk)              ***
 ; ***   Slappy (slappy AT pobox.sk)                  ***
 ; ***                                                ***
-; *** Update: 18.02.2019                             ***
+; *** Update: 24.10.2019                             ***
 ; ***                                                ***
 ; ******************************************************
 ;
@@ -121,6 +121,7 @@ WizardSelectDir=Vyberte cie¾ovı adresár
 SelectDirDesc=Kam má by produkt [name] nainštalovanı?
 SelectDirLabel3=Sprievodca nainštaluje produkt [name] do nasledujúceho adresára.
 SelectDirBrowseLabel=Pokraèujte kliknutím na tlaèidlo Ïalej. Ak chcete vybra inı adresár, kliknite na tlaèidlo Prechádza.
+DiskSpaceGBLabel=Inštalácia vyaduje najmenej [gb] GB miesta na disku.
 DiskSpaceMBLabel=Inštalácia vyaduje najmenej [mb] MB miesta na disku.
 CannotInstallToNetworkDrive=Inštalátor nemôe inštalova na sieovú jednotku.
 CannotInstallToUNCPath=Inštalátor nemôe inštalova na UNC cestu.
@@ -145,6 +146,7 @@ NoUninstallWarningTitle=Komponenty existujú
 NoUninstallWarning=Sprievodca inštaláciou zistil, e nasledujúce komponenty sú u na Vašom poèítaèi nainštalované:%n%n%1%n%nAk ich teraz nezahrniete do vıberu, nebudú neskôr odinštalované.%n%nPrajete si napriek tomu pokraèova?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Vybrané komponenty vyadujú najmenej [gb] GB miesta na disku.
 ComponentsDiskSpaceMBLabel=Vybrané komponenty vyadujú najmenej [mb] MB miesta na disku.
 WizardSelectTasks=Vyberte ïalšie úlohy
 SelectTasksDesc=Ktoré ïalšie úlohy majú by vykonané?
@@ -177,6 +179,7 @@ ApplicationsFound2=Nasledujúce aplikácie pracujú so súbormi, ktoré musí inštalát
 CloseApplications=&Automaticky ukonèi aplikácie
 DontCloseApplications=&Neukonèova aplikácie
 ErrorCloseApplications=Sprievodca nemohol automaticky zatvori všetky aplikácie. Odporúèame Vám, aby ste ruène uzavreli všetky aplikácie, ktoré pouívajú súbory, ktoré má Sprievodca aktualizova.
+PrepareToInstallNeedsRestart=Sprievodca potrebuje reštartova Váš poèítaè. Po reštartovaní spuste tohto Sprievodcu opä, aby sa inštalácia [name] dokonèila.%n%nChcete reštartova teraz?
 WizardInstalling=Inštalujem
 InstallingLabel=Poèkajte prosím, kım sprievodca inštaláciou nedokonèí inštaláciu produktu [name] na Váš poèítaè.
 FinishedHeadingLabel=Dokonèuje sa inštalácia produktu [name]

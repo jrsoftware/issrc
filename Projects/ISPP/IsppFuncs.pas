@@ -186,19 +186,20 @@ end;
 {FileSize(<filename>)}
 function FileSize(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
-  F: file of byte;
+  SearchRec: TSearchRec;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      {$I-}
-      FileMode := fmOpenRead;
-      AssignFile(F, PrependPath(Ext, Get(0).AsStr));
-      Reset(F);
-      MakeInt(ResPtr^, System.FileSize(F));
-      CloseFile(F);
-      {$I-}
+      if FindFirst(PrependPath(Ext, Get(0).AsStr), faAnyFile, SearchRec) = 0 then begin
+        try
+          MakeInt(ResPtr^, SearchRec.Size);
+        finally
+          FindClose(SearchRec);
+        end;
+      end else
+        MakeInt(ResPtr^, -1);
     end
   except
     on E: Exception do
@@ -820,6 +821,22 @@ begin
   end;
 end;
 
+function UpperCaseFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+      MakeStr(ResPtr^, UpperCase(Get(0).AsStr));
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 function RPosFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
@@ -1188,6 +1205,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Readln(F^, S);
       {$I+}
@@ -1215,11 +1234,13 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Reset(F^);
       {$I+}
       if IOResult <> 0 then
-        FuncResult.Error('Failed to reset a file')
+        raise Exception.Create('Failed to reset a file')
       else
         ResPtr^ := NULL
     end;
@@ -1243,6 +1264,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       IsEof := Eof(F^);
       {$I+}
@@ -1270,6 +1293,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Close(F^);
       {$I+}
@@ -1278,11 +1303,6 @@ begin
       TPreprocessor(Ext).UncollectGarbage(Pointer(F));
     end;
   except
-    on E: EAccessViolation do
-    begin
-      FuncResult.Error('Invalid file handle');
-      Result.Error := ISPPFUNC_FAIL
-    end;
     on E: Exception do
     begin
       FuncResult.Error(PChar(E.Message));
@@ -1315,7 +1335,7 @@ begin
         New(FileDate);
         FileDate^ := Age;
         TPreprocessor(Ext).CollectGarbage(FileDate, GarbageReleaseDateTime);
-        MakeInt(ResPtr^, Integer(FileDate));
+        MakeInt(ResPtr^, Int64(FileDate));
       end
       else
         MakeInt(ResPtr^, -1);
@@ -1341,7 +1361,7 @@ begin
       New(DateTime);
       DateTime^ := Now;
       TPreprocessor(Ext).CollectGarbage(DateTime, GarbageReleaseDateTime);
-      MakeInt(ResPtr^, Integer(DateTime));
+      MakeInt(ResPtr^, Int64(DateTime));
     end;
   except
     on E: Exception do
@@ -1720,6 +1740,7 @@ begin
     RegisterFunction('SetupSetting', SetupSetting, -1);
     RegisterFunction('SetSetupSetting', SetSetupSetting, -1);
     RegisterFunction('LowerCase', LowerCaseFunc, -1);
+    RegisterFunction('UpperCase', UpperCaseFunc, -1);
     RegisterFunction('EntryCount', EntryCountFunc, -1);
     RegisterFunction('GetEnv', GetEnvFunc, -1);
     RegisterFunction('DeleteFile', DelFileFunc, -1);

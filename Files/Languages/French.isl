@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.0.0+ French messages ***
+﻿; *** Inno Setup version 6.0.3+ French messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -169,6 +169,7 @@ WizardSelectDir=Dossier de destination
 SelectDirDesc=Où [name] doit-il être installé ?
 SelectDirLabel3=L'assistant va installer [name] dans le dossier suivant.
 SelectDirBrowseLabel=Pour continuer, cliquez sur Suivant. Si vous souhaitez choisir un dossier différent, cliquez sur Parcourir.
+DiskSpaceGBLabel=Le programme requiert au moins [gb] Go d'espace disque disponible.
 DiskSpaceMBLabel=Le programme requiert au moins [mb] Mo d'espace disque disponible.
 CannotInstallToNetworkDrive=L'assistant ne peut pas installer sur un disque réseau.
 CannotInstallToUNCPath=L'assistant ne peut pas installer sur un chemin UNC.
@@ -196,6 +197,7 @@ NoUninstallWarningTitle=Composants existants
 NoUninstallWarning=L'assistant d'installation a détecté que les composants suivants sont déjà installés sur votre système :%n%n%1%n%nDésélectionner ces composants ne les désinstallera pas pour autant.%n%nVoulez-vous continuer malgré tout ?
 ComponentSize1=%1 Ko
 ComponentSize2=%1 Mo
+ComponentsDiskSpaceGBLabel=Les composants sélectionnés nécessitent au moins [gb] Go d'espace disponible.
 ComponentsDiskSpaceMBLabel=Les composants sélectionnés nécessitent au moins [mb] Mo d'espace disponible.
 
 ; *** "Select Additional Tasks" wizard page
@@ -236,6 +238,7 @@ ApplicationsFound2=Les applications suivantes utilisent des fichiers qui doivent
 CloseApplications=&Arrêter les applications automatiquement
 DontCloseApplications=&Ne pas arrêter les applications
 ErrorCloseApplications=L'assistant d'installation n'a pas pu arrêter toutes les applications automatiquement. Nous vous recommandons de fermer toutes les applications qui utilisent des fichiers devant être mis à jour par l'assistant d'installation avant de continuer.
+PrepareToInstallNeedsRestart=L'assistant d'installation doit redémarrer votre ordinateur. Une fois votre ordinateur redémarré, veuillez relancer cet assistant d'installation pour terminer l'installation de [name].%n%nVoulez-vous redémarrer votre ordinateur maintenant ?
 
 ; *** "Installing" wizard page
 WizardInstalling=Installation en cours

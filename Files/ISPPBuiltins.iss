@@ -2,11 +2,9 @@
 //
 // Inno Setup Preprocessor
 //
-// Copyright (C) 2001-2004 Alex Yackimoff. All Rights Reserved.
-// Portions by Martijn Laan.
-//
-// Inno Setup (C) 1997-2019 Jordan Russell. All Rights Reserved.
-// Portions by Martijn Laan.
+// Inno Setup (C) 1997-2020 Jordan Russell. All Rights Reserved.
+// Portions Copyright (C) 2000-2020 Martijn Laan. All Rights Reserved.
+// Portions Copyright (C) 2001-2004 Alex Yackimoff. All Rights Reserved.
 //
 #if defined(ISPP_INVOKED) && !defined(_BUILTINS_ISS_)
 //
@@ -63,8 +61,8 @@
 #define Yes                True
 #define No								 False
 //
-#define MaxInt             0x7FFFFFFFL
-#define MinInt             0x80000000L
+#define MaxInt             0x7FFFFFFFFFFFFFFFL
+#define MinInt             0x8000000000000000L
 //
 #define NULL
 #define void
@@ -170,6 +168,26 @@
 #define GetFileOriginalFilename(str FileName) GetStringFileInfo(FileName, ORIGINAL_FILENAME)
 #define GetFileProductVersion(str FileName) GetStringFileInfo(FileName, PRODUCT_VERSION)
 //
+// PackVersionComponents
+//
+// Packs individual version components into MS/LS values compatible with GetVersionNumbers.
+//
+#define PackVersionComponents(int Major, int Minor, int Rev, int Build, *MS, *LS) \
+  MS = (Major & 0xFFFF) << 16 | (Minor & 0xFFFF), \
+  LS = (Rev & 0xFFFF) << 16 | (Build & 0xFFFF), \
+  MS
+//
+// UnpackVersionComponents
+//
+// Unpacks individual version components from MS/LS values compatible with GetVersionNumbers.
+//
+#define UnpackVersionComponents(int MS, int LS, *Major, *Minor, *Rev, *Build) \
+  Major = MS >> 16, \
+  Minor = MS & 0xFFFF, \
+  Rev   = LS >> 16, \
+  Build = LS & 0xFFFF, \
+  Major
+//
 // ParseVersion
 //
 // Macro internally calls GetFileVersion function and parses string returned
@@ -191,13 +209,25 @@
     Build   = Int(Local[1]), \
   Local[0])
 //
+// ParseVersionPacked
+//
+// Macro internally calls GetFileVersion function and parses string returned
+// by that function (in form "0.0.0.0"). The version elements are then packed
+// back into the by-reference parameters MS and LS. Macro returns string
+// returned by GetFileVersion.
+//
+#define ParseVersionPacked(str FileName, *MS, *LS) \
+  Local[0] = ParseVersion(FileName, Local[1], Local[2], Local[3], Local[4]), \
+  PackVersionComponents(Local[1], Local[2], Local[3], Local[4], MS, LS), \
+  Local[0]
+//
 // EncodeVer
 //
 // Encodes given four version elements to a 32 bit integer number (8 bits for
 // each element, i.e. elements must be within 0...255 range).
 //
 #define EncodeVer(int Major, int Minor, int Revision = 0, int Build = -1) \
-  Major << 24 | (Minor & 0xFF) << 16 | (Revision & 0xFF) << 8 | (Build >= 0 ? Build & 0xFF : 0)
+  (Major & 0xFF) << 24 | (Minor & 0xFF) << 16 | (Revision & 0xFF) << 8 | (Build >= 0 ? Build & 0xFF : 0)
 //
 // DecodeVer
 //
@@ -206,11 +236,11 @@
 // is 0, it won't be shown anyway).
 //
 #define DecodeVer(int Ver, int Digits = 3) \
-  Str(Ver >> 0x18 & 0xFF) + (Digits > 1 ? "." : "") + \
+  Str(Ver >> 24 & 0xFF) + (Digits > 1 ? "." : "") + \
   (Digits > 1 ? \
-    Str(Ver >> 0x10 & 0xFF) + (Digits > 2 ? "." : "") : "") + \
+    Str(Ver >> 16 & 0xFF) + (Digits > 2 ? "." : "") : "") + \
   (Digits > 2 ? \
-    Str(Ver >> 0x08 & 0xFF) + (Digits > 3 && (Local = Ver & 0xFF) ? "." : "") : "") + \
+    Str(Ver >> 8 & 0xFF) + (Digits > 3 && (Local = Ver & 0xFF) ? "." : "") : "") + \
   (Digits > 3 && Local ? \
     Str(Ver & 0xFF) : "")
 //

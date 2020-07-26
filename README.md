@@ -1,8 +1,8 @@
 Inno Setup
 ==========
 
-Copyright (C) 1997-2019 Jordan Russell. All rights reserved.  
-Portions Copyright (C) 2000-2019 Martijn Laan. All rights reserved.  
+Copyright (C) 1997-2020 Jordan Russell. All rights reserved.  
+Portions Copyright (C) 2000-2020 Martijn Laan. All rights reserved.  
 For conditions of distribution and use, see LICENSE.TXT.
 
 Source code README
@@ -23,7 +23,7 @@ Getting Started
 
     If you don't have the Git client (`git`), get it from:
 
-    http://git-scm.com/
+    https://git-scm.com/
 
     To update your sources from the command line do:
     ```
@@ -38,7 +38,7 @@ Getting Started
 
 2. **Install Embarcadero Delphi**
 
-   We compile all of Inno Setup's projects under Delphi 10.3 Rio.
+   We compile all of Inno Setup's projects under Delphi 10.3.3 Rio.
 
    If you do not have access to this version of Delphi, you should be
    able to compile the projects on later versions, however complete
@@ -53,7 +53,7 @@ Getting Started
 3. **Install Microsoft MSXML**
 
    Install Microsoft MSXML 4.0 SP2 if you haven't already done so.
-   See http://www.microsoft.com/en-us/download/details.aspx?id=19662
+   See https://www.microsoft.com/en-us/download/details.aspx?id=19662
 
    If you are not sure whether you have MSXML 4.0 SP2 already, check for a
    file named msxml4.dll in your Windows System directory with a version number
@@ -65,7 +65,7 @@ Getting Started
 4. **Install Microsoft HTML Help Workshop**
 
    Install Microsoft HTML Help Workshop if you haven't already done so.
-   See http://www.microsoft.com/en-us/download/details.aspx?id=21138
+   See https://www.microsoft.com/en-us/download/details.aspx?id=21138
 
    Note: Microsoft HTML Help Workshop is only needed to be able to compile the
    help files.
@@ -107,6 +107,9 @@ additionally install the following components.
 - DropListBox
 - NewTabSet
 
+The Components directory contains a Components project which you can use to
+install all these components.
+
 If you only want to edit code, then you may skip installation of the
 components, and choose "Cancel" if the Delphi IDE tells you a class can't
 be found.
@@ -137,7 +140,7 @@ performs all (un)installation-related tasks.
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." and /HELP message boxes.
 
-**ISPP\ISPP** - This is a DLL implementing Inno Setup's preprocessor interface
+**ISPP\ISPP** - This is a DLL implementing Inno Setup's preprocessor interface.
 
 How do the projects link together?
 
@@ -165,7 +168,7 @@ Source code tips
   ``OutputBaseFilename=setup`` in your script, and copy the resulting setup-*.bin
   files to the source code directory. This way you can simulate an actual
   installation while running under the Delphi debugger.
-
+  
 - All of the forms in the Setup project, with the exception of Main.dfm, have
   Scaled set to False. This is because they dynamically scale themselves at
   run-time by calling a function named InitializeFont.
@@ -176,13 +179,21 @@ Source code tips
   data block in SETUP.EXE so it knows it's in "single EXE" form.
 
 - For compiler debugging purposes define ``STATICCOMPILER`` in CompForm.pas
-  and ``STATICPREPROC`` in Compile.pas.
+  and for preprocessor debugging also ``STATICPREPROC`` in Compile.pas.
+
+- To debug the uninstaller first run Setup.exe to completion with the
+  ``/DETACHEDMSG`` command line parameter set. Afterwards copy uninst000.dat and
+  uninst000.msg as setup.dat and setup.msg to the Projects directory in your
+  issrc path. Then open the Setup project and set the command line parameters to
+  ``/UNINSTMODE "/SECONDPHASE=<your issrc path\Projects\Setup.exe"`` and start
+  debugging. Note: each time setup.dat and setup.msg will be deleted if you
+  allow the uninstaller to complete so make sure to keep copies.
 
 
 Precompiled executables and libraries
 -------------------------------------
 
-The source code contains several precompiled executables and libraries:
+The source code contains several precompiled and signed executables and libraries:
 
 **Files\isbunzip.dll**, **Files\isbzip.dll** - Compiled by Visual Studio 2005
 from the bzlib directory in the Iscompress repository.
@@ -195,10 +206,6 @@ by Visual Studio 2005 from the [Projects\Lzma2\Encoder] directory.
 
 **Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintilla 2.22 source
 code with scintilla-2.22-patch.txt applied.
-
-**Projects\\_shfolder.res** - shfolder.dll from a fresh install of IE 5.5 SP2 on
-NT 4.0 stored in a compiled resource file. Note: this file is normally not
-actually used by Setup.
 
 **Projects\Helper\x64\Release\Helper.exe**, **Projects\HelperEXEs.res** -
 Compiled by Visual Studio 2005 from the [Projects\Helper] directory and then

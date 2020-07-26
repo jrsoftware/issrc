@@ -128,8 +128,8 @@ begin
   FFolderTreeView.Top := FFolderTreeView.Top + YDiff;
   NewFolderButton.Caption := SetupMessages[msgButtonNewFolder];
   NewFolderButton.Top := NewFolderButton.Top + YDiff;
-  NewFolderButton.Width := CalculateButtonWidth([msgButtonNewFolder]);
-  W := CalculateButtonWidth([msgButtonOK, msgButtonCancel]);
+  NewFolderButton.Width := CalculateButtonWidth([SetupMessages[msgButtonNewFolder]]);
+  W := CalculateButtonWidth([SetupMessages[msgButtonOK], SetupMessages[msgButtonCancel]]);
   CancelButton.Caption := SetupMessages[msgButtonCancel];
   CancelButton.SetBounds(CancelButton.Left + CancelButton.Width - W,
     CancelButton.Top + YDiff, W, CancelButton.Height);

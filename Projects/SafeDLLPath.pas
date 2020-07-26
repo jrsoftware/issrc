@@ -83,16 +83,11 @@ var
 begin
   SaveErrorMode := SetErrorMode(SEM_NOOPENFILEERRORBOX);
   try
-    asm
-      FNSTCW SaveFPUControlWord
-    end;
+    SaveFPUControlWord := Get8087Cw;
     try
       Result := LoadLibrary(PChar(Filename));
     finally
-      asm
-        FNCLEX
-        FLDCW SaveFPUControlWord
-      end;
+      Set8087Cw(SaveFPUControlWord);
     end;
   finally
     SetErrorMode(SaveErrorMode);

@@ -1,7 +1,11 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppIntf.pas,v 1.2 2009/04/02 14:20:59 mlaan Exp $
+
+  Inno Setup
+  Copyright (C) 1997-2020 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
 unit IsppIntf;
@@ -32,12 +36,12 @@ type
 
   IIsppFuncParam = interface
     function GetType: TIsppVarType; stdcall;
-    function GetAsInt: Integer; stdcall;
+    function GetAsInt: Int64; stdcall;
     function GetAsString(Buf: PChar; BufSize: Integer): Integer; stdcall;
   end;
 
   IIsppFuncResult = interface
-    procedure SetAsInt(Value: Integer); stdcall;
+    procedure SetAsInt(Value: Int64); stdcall;
     procedure SetAsString(Value: PChar); stdcall;
     procedure SetAsNull; stdcall;
     procedure Error(Message: PChar); stdcall;
@@ -58,7 +62,7 @@ type
     const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   IPreprocessor = interface
-    procedure DefineVariable(Name: PChar; Typ: TIsppVarType; Value: Longint);
+    procedure DefineVariable(Name: PChar; Typ: TIsppVarType; Value: Int64);
     procedure QueueLine(Line: PChar);
   end;
 

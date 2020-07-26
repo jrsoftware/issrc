@@ -85,6 +85,8 @@ begin
 
   OutputProgressWizardPage := CreateOutputProgressPage('CreateOutputProgressPage', 'ADescription');
   OutputProgressWizardPageAfterID := AfterID;
+
+  { See CodeDownloadFiles.iss for a CreateDownloadPage example }
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
