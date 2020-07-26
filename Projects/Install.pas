@@ -3504,9 +3504,9 @@ end;
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
 var
   DisableFsRedir: Boolean;
-  PrevState: TPreviousFsRedirectionState;
   DestFile, TempFile: String;
-  TempF: TFileStream;
+  TempF: TFileRedir;
+  HandleStream: THandleStream;
   TempFileLeftOver: Boolean;
   HTTPDataReceiver: THTTPDataReceiver;
   HTTPClient: THTTPClient;
@@ -3542,6 +3542,7 @@ begin
   HTTPClient := nil;
   TempF := nil;
   TempFileLeftOver := False;
+  HandleStream := nil;
   try
     { Setup downloader }
     HTTPDataReceiver := THTTPDataReceiver.Create;
@@ -3555,14 +3556,8 @@ begin
 
     { Create temporary file }
     TempFile := GenerateUniqueName(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
-    if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then
-      InternalError('DisableFsRedirectionIf failed');
-    try
-      TempF := TFileStream.Create(TempFile, fmCreate);
-      TempFileLeftOver := True;
-    finally
-      RestoreFsRedirection(PrevState);
-    end;
+    TempF := TFileRedir.Create(DisableFsRedir, TempFile, fdCreateAlways, faWrite, fsNone);
+    TempFileLeftOver := True;
 
     { To test redirects: https://jrsoftware.org/download.php/is.exe
       To test expired certificates: https://expired.badssl.com/
@@ -3572,14 +3567,16 @@ begin
       To test 1 GB file: https://speed.hetzner.de/1GB.bin }
 
     { Download to temporary file}
-    HTTPResponse := HTTPClient.Get(Url, TempF);
+    HandleStream := THandleStream.Create(TempF.Handle);
+    HTTPResponse := HTTPClient.Get(Url, HandleStream);
     if HTTPDataReceiver.Aborted then
       raise Exception.Create(SetupMessages[msgErrorDownloadAborted])
     else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
       raise Exception.Create(FmtSetupMessage(msgErrorDownloadFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
     else begin
       { Download completed, get temporary file size and close it }
-      Result := TempF.Size;
+      Result := HandleStream.Size;
+      FreeAndNil(HandleStream);
       FreeAndNil(TempF);
 
       { Check hash if specified, otherwise check everything else we can check }
@@ -3619,6 +3616,7 @@ begin
       TempFileLeftOver := False;
     end;
   finally
+    HandleStream.Free;
     TempF.Free;
     HTTPClient.Free;
     HTTPDataReceiver.Free;
