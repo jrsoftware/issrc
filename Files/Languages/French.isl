@@ -238,7 +238,7 @@ ErrorDownloadFailed=Le téléchargement a échoué : %1 %2
 ErrorDownloadSizeFailed=La récupération de la taille du fichier a échouée : %1 %2
 ErrorFileHash1=Le calcul de l'empreinte du fichier a échoué : %1
 ErrorFileHash2=Empreinte du fichier invalide : attendue %1, trouvée %2
-ErrorProgress=Progression invaliide : %1 sur %2
+ErrorProgress=Progression invalide : %1 sur %2
 ErrorFileSize=Taille du fichier invalide : attendue %1, trouvée %2
 
 ; *** "Preparing to Install" wizard page
