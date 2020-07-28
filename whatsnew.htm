@@ -78,6 +78,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 </ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
+  <li>Inno Setup's version number doesn't display &quot;(u)&quot; at the end anymore since the Unicode version has been the only version for quite some time now.</li>
   <li>Added new [Run] and [UninstallRun] sections flag: <tt>dontlogparameters</tt>. If this flag is specified, the command line parameters for the program will not be included in the log file.</li>
   <li>If there are [UninstallRun] section entries without a <tt>RunOnceId</tt> parameter the compiler will now warn you about this. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular [UninstallRun] entry will only be executed once during uninstallation. The warning can be disabled using new [Setup] section directive <tt>MissingRunOnceIdsWarning</tt>.</li>
   <li>Added new [Icons] section parameter: <tt>AppUserModelToastActivatorCLSID</tt>. Specifies the Windows 10 Application User Model Toast Activator CLSID for the shortcut. Ignored on earlier Windows versions.</li>
