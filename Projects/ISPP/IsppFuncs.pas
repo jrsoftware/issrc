@@ -864,7 +864,7 @@ begin
   end;
 end;
 
-function GetFileVersion(Ext: Longint; const Params: IIsppFuncParams;
+function GetVersionNumbersString(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Filename: string;
@@ -1733,7 +1733,8 @@ begin
     RegisterFunction('Pos', PosFunc, -1);
     RegisterFunction('RPos', RPosFunc, -1);
     RegisterFunction('Len', LenFunc, -1);
-    RegisterFunction('GetFileVersion', GetFileVersion, -1);
+    RegisterFunction('GetVersionNumbersString', GetVersionNumbersString, -1);
+    RegisterFunction('GetFileVersion', GetVersionNumbersString, -1); { The old name of GetVersionNumbersString }
     RegisterFunction('GetStringFileInfo', GetFileVersionInfoItem, -1);
     RegisterFunction('SaveToFile', IsppFuncs.SaveToFile, -1);
     RegisterFunction('Find', FindLine, -1);

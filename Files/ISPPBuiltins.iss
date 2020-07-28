@@ -190,10 +190,10 @@
 //
 // ParseVersion
 //
-// Macro internally calls GetFileVersion function and parses string returned
+// Macro internally calls GetVersionNumbersString function and parses string returned
 // by that function (in form "0.0.0.0"). All four version elements are stored
 // in by-reference parameters Major, Minor, Rev, and Build. Macro returns
-// string returned by GetFileVersion.
+// string returned by GetVersionNumbersString.
 //
 #define DeleteToFirstPeriod(str *S) \
   Local[1] = Copy(S, 1, (Local[0] = Pos(".", S)) - 1), \
@@ -201,7 +201,7 @@
   Local[1]
 //
 #define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build) \
-  Local[1]  = Local[0] = GetFileVersion(FileName), \
+  Local[1]  = Local[0] = GetVersionNumbersString(FileName), \
   Local[1] == "" ? "" : ( \
     Major   = Int(DeleteToFirstPeriod(Local[1])), \
     Minor   = Int(DeleteToFirstPeriod(Local[1])), \
@@ -211,10 +211,10 @@
 //
 // GetVersionNumbers
 //
-// Macro internally calls GetFileVersion function and parses string returned
+// Macro internally calls ParseVersion function and parses string returned
 // by that function (in form "0.0.0.0"). The version elements are then packed
 // back into the by-reference parameters MS and LS. Macro returns string
-// returned by GetFileVersion.
+// returned by ParseVersion.
 //
 #define GetVersionNumbers(str FileName, *MS, *LS) \
   Local[0] = ParseVersion(FileName, Local[1], Local[2], Local[3], Local[4]), \
