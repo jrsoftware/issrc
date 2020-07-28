@@ -170,7 +170,7 @@
 //
 // PackVersionComponents
 //
-// Packs individual version components into MS/LS values compatible with GetVersionNumbers.
+// Packs individual version components into MS/LS values.
 //
 #define PackVersionComponents(int Major, int Minor, int Rev, int Build, *MS, *LS) \
   MS = (Major & 0xFFFF) << 16 | (Minor & 0xFFFF), \
@@ -179,7 +179,7 @@
 //
 // UnpackVersionComponents
 //
-// Unpacks individual version components from MS/LS values compatible with GetVersionNumbers.
+// Unpacks individual version components from MS/LS values.
 //
 #define UnpackVersionComponents(int MS, int LS, *Major, *Minor, *Rev, *Build) \
   Major = MS >> 16, \
@@ -209,14 +209,14 @@
     Build   = Int(Local[1]), \
   Local[0])
 //
-// ParseVersionPacked
+// GetVersionNumbers
 //
 // Macro internally calls GetFileVersion function and parses string returned
 // by that function (in form "0.0.0.0"). The version elements are then packed
 // back into the by-reference parameters MS and LS. Macro returns string
 // returned by GetFileVersion.
 //
-#define ParseVersionPacked(str FileName, *MS, *LS) \
+#define GetVersionNumbers(str FileName, *MS, *LS) \
   Local[0] = ParseVersion(FileName, Local[1], Local[2], Local[3], Local[4]), \
   PackVersionComponents(Local[1], Local[2], Local[3], Local[4], MS, LS), \
   Local[0]

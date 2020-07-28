@@ -1331,7 +1331,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Packs individual version components into MS/LS values compatible with <synel>GetVersionNumbers</synel>. The results are stored in by-reference parameters MS and LS.</para>
+					<para>Packs individual version components into MS/LS values. The results are stored in by-reference parameters MS and LS.</para>
 					<pre>
 						<line>#define MyAppMS</line>
 						<line>#define MyAppLS</line>
@@ -1340,7 +1340,7 @@ The list of options is provided at the end of this topic.</para>
 					<para>Declared in &builtins;.</para>
 				</description>
 				<section title="See also">
-					<para><synel><link href="ParseVersionPacked">ParseVersionPacked</link></synel>, <synel><link href="UnpackVersionComponents">UnpackVersionComponents</link></synel></para>
+					<para><synel><link href="GetVersionNumbers">GetVersionNumbers</link></synel>, <synel><link href="UnpackVersionComponents">UnpackVersionComponents</link></synel></para>
 				</section>
 			</topic>
 			<topic id="UnpackVersionComponents">
@@ -1351,7 +1351,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Unpacks individual version components from MS/LS values compatible with <synel>GetVersionNumbers</synel>. The results are stored in by-reference parameters Major, Minor, Rev, and Build.</para>
+					<para>Unpacks individual version components from MS/LS values. The results are stored in by-reference parameters Major, Minor, Rev, and Build.</para>
 					<pre>
 						<line>#define MyMajor</line>
 						<line>#define MyMinor</line>
@@ -1377,11 +1377,11 @@ The list of options is provided at the end of this topic.</para>
           <para>Declared in &builtins;.</para>
 				</description>
 			</topic>
-			<topic id="ParseVersionPacked">
-				<title>ParseVersionPacked</title>
+			<topic id="GetVersionNumbers">
+				<title>GetVersionNumbers</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>str</b> ParseVersionPacked(<b>str</b> FileName, <b>int</b> *MS, <b>int</b> *LS)</line>
+						<line><b>str</b> GetVersionNumbers(<b>str</b> FileName, <b>int</b> *MS, <b>int</b> *LS)</line>
 					</pre>
 				</section>
 				<description>
@@ -1389,7 +1389,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre>
 						<line>#define MyAppMS</line>
 						<line>#define MyAppLS</line>
-						<line>#expr ParseVersionPacked("MyApp.exe", MyAppMS, MyAppLS)</line>
+						<line>#expr GetVersionNumbers("MyApp.exe", MyAppMS, MyAppLS)</line>
 					</pre>
 					<para>This can be combined at install-time with <synel>PackVersionNumbers</synel> to perform comparisons against installed files or registry versions.</para>
 					<para>Declared in &builtins;.</para>
