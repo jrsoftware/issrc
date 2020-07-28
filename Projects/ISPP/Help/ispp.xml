@@ -1365,11 +1365,11 @@ The list of options is provided at the end of this topic.</para>
 					<para><synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
 				</section>
 			</topic>
-			<topic id="ParseVersion">
-				<title>ParseVersion</title>
+			<topic id="GetVersionComponents">
+				<title>GetVersionComponents</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>str</b> ParseVersion(<b>str</b> FileName, <b>int</b> *Major, <b>int</b> *Minor, <b>int</b> *Rev, <b>int</b> *Build)</line>
+						<line><b>str</b> GetVersionComponents(<b>str</b> FileName, <b>int</b> *Major, <b>int</b> *Minor, <b>int</b> *Rev, <b>int</b> *Build)</line>
 					</pre>
 				</section>
 				<description>
@@ -1385,7 +1385,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Calls the <synel><link href="ParseVersion">ParseVersion</link></synel> function and parses the string returned by that function (in form "0.0.0.0"). The version elements are then packed back into the by-reference parameters MS and LS. Returns the string returned by ParseVersion.</para>
+					<para>Calls the <synel><link href="GetVersionComponents">GetVersionComponents</link></synel> function and packs the version elements back into the by-reference parameters MS and LS. Returns the string returned by GetVersionComponents.</para>
 					<pre>
 						<line>#define MyAppMS</line>
 						<line>#define MyAppLS</line>
