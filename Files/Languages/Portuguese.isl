@@ -200,7 +200,7 @@ ErrorDownloadAborted=Transferência cancelada
 ErrorDownloadFailed=Falha na transferência: %1 %2
 ErrorDownloadSizeFailed=Falha ao obter tamanho: %1 %2
 ErrorFileHash1=Falha de verificação do ficheiro: %1
-ErrorFileHash2=Hash do ficheiro inválida: experado %2, encontrado %2
+ErrorFileHash2=Hash do ficheiro inválida: experado %1, encontrado %2
 ErrorProgress=Progresso inválido: %1 de %2
 ErrorFileSize=Tamanho de ficheiro inválido: experado %1, encontrado %2
 
