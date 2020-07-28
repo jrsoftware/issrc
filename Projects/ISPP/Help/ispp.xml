@@ -1391,7 +1391,21 @@ The list of options is provided at the end of this topic.</para>
 						<line>#define MyAppLS</line>
 						<line>#expr GetVersionNumbers("MyApp.exe", MyAppMS, MyAppLS)</line>
 					</pre>
-					<para>This can be combined at install-time with <synel>PackVersionNumbers</synel> to perform comparisons against installed files or registry versions.</para>
+					<para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
+				</section>
+			</topic>
+			<topic id="VersionToStr">
+				<title>VersionToStr</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>void</b> VersionToStr(<b>int</b> Version)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Gets the string (in "0.0.0.0" format) representing the given packed version.</para>
 					<para>Declared in &builtins;.</para>
 				</description>
 				<section title="See also">

@@ -224,6 +224,14 @@
   PackVersionComponents(Local[1], Local[2], Local[3], Local[4], MS, LS), \
   Local[0]
 //
+// VersionToStr
+//
+// Gets the string (in "0.0.0.0" format) representing the given packed version
+//
+#define VersionToStr(int Version) \
+  Str(Ver >> 48 & 0xFFFF) + "." + Str(Ver >> 32 & 0xFFFF) + "." + \
+  Str(Ver >> 16 & 0xFFFF) + "." + Str(Ver & 0xFFFF)
+//
 // EncodeVer
 //
 // Encodes given four version elements to a 32 bit integer number (8 bits for
