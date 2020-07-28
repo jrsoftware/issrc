@@ -1,8 +1,8 @@
-; *** Inno Setup version 6.0.0+ Spanish messages ***
+; *** Inno Setup version 6.1.0+ Spanish messages ***
 ;
 ; Maintained by Jorge Andres Brugger (jbrugger@ideaworks.com.ar)
-; Spanish.isl version 1.4 (20180208)
-; Default.isl version 6.0.0
+; Spanish.isl version 1.5 (20200727)
+; Default.isl version 6.1.0
 ; 
 ; Thanks to Germán Giraldo, Jordi Latorre, Ximo Tamarit, Emiliano Llano, 
 ; Ramón Verduzco, Graciela García,  Carles Millan and Rafael Barranco-Droege
@@ -150,6 +150,7 @@ WizardSelectDir=Seleccione la Carpeta de Destino
 SelectDirDesc=¿Dónde debe instalarse [name]?
 SelectDirLabel3=El programa instalará [name] en la siguiente carpeta.
 SelectDirBrowseLabel=Para continuar, haga clic en Siguiente. Si desea seleccionar una carpeta diferente, haga clic en Examinar.
+DiskSpaceGBLabel=Se requieren al menos [gb] GB de espacio libre en el disco.
 DiskSpaceMBLabel=Se requieren al menos [mb] MB de espacio libre en el disco.
 CannotInstallToNetworkDrive=El programa de instalación no puede realizar la instalación en una unidad de red.
 CannotInstallToUNCPath=El programa de instalación no puede realizar la instalación en una ruta de acceso UNC.
@@ -177,6 +178,7 @@ NoUninstallWarningTitle=Componentes Encontrados
 NoUninstallWarning=El programa de instalación ha detectado que los siguientes componentes ya están instalados en su sistema:%n%n%1%n%nDesmarcar estos componentes no los desinstalará.%n%n¿Desea continuar de todos modos?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=La selección actual requiere al menos [gb] GB de espacio en disco.
 ComponentsDiskSpaceMBLabel=La selección actual requiere al menos [mb] MB de espacio en disco.
 
 ; *** "Select Additional Tasks" wizard page
@@ -207,6 +209,18 @@ ReadyMemoComponents=Componentes Seleccionados:
 ReadyMemoGroup=Carpeta del Menú Inicio:
 ReadyMemoTasks=Tareas Adicionales:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Descargando archivos adicionales...
+ButtonStopDownload=&Detener descarga
+StopDownload=¿Está seguiro que desea detener la descarga?
+ErrorDownloadAborted=Descarga cancelada
+ErrorDownloadFailed=Falló descarga: %1 %2
+ErrorDownloadSizeFailed=Falló obtención de tamaño: %1 %2
+ErrorFileHash1=Falló hash del archivo: %1
+ErrorFileHash2=Hash de archivo no válido: esperado %1, encontrado %2
+ErrorProgress=Progreso no válido: %1 de %2
+ErrorFileSize=Tamaño de archivo no válido: esperado %1, encontrado %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparándose para Instalar
 PreparingDesc=El programa de instalación está preparándose para instalar [name] en su sistema.
@@ -217,6 +231,7 @@ ApplicationsFound2=Las siguientes aplicaciones están usando archivos que necesit
 CloseApplications=&Cerrar automáticamente las aplicaciones
 DontCloseApplications=&No cerrar las aplicaciones
 ErrorCloseApplications=El programa de instalación no pudo cerrar de forma automática todas las aplicaciones. Se recomienda que, antes de continuar, cierre todas las aplicaciones que utilicen archivos que necesitan ser actualizados por el programa de instalación.
+PrepareToInstallNeedsRestart=El programa de instalación necesita reiniciar el sistema. Una vez que se haya reiniciado ejecute nuevamente el programa de instalación para completar la instalación de [name].%n%n¿Desea reiniciar el sistema ahora?
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalando
@@ -288,8 +303,16 @@ ExistingFileReadOnly2=El archivo existente no puede ser reemplazado debido a que
 ExistingFileReadOnlyRetry=&Elimine el atributo de sólo-lectura y reintente
 ExistingFileReadOnlyKeepExisting=&Mantener el archivo existente
 ErrorReadingExistingDest=Ocurrió un error mientras se intentaba leer el archivo:
-FileExists=El archivo ya existe.%n%n¿Desea sobreescribirlo?
-ExistingFileNewer=El archivo existente es más reciente que el que está tratando de instalar. Se recomienda que mantenga el archivo existente.%n%n¿Desea mantener el archivo existente?
+FileExistsSelectAction=Seleccione acción
+FileExists2=El archivo ya existe.
+FileExistsOverwriteExisting=&Sobreescribir el archivo existente
+FileExistsKeepExisting=&Mantener el archivo existente
+FileExistsOverwriteOrKeepAll=&Hacer lo mimso para lo siguientes conflictos
+ExistingFileNewerSelectAction=Seleccione acción
+ExistingFileNewer2=El archivo existente es más reciente que el que se está tratando de instalar.
+ExistingFileNewerOverwriteExisting=&Sobreescribir el archivo existente
+ExistingFileNewerKeepExisting=&Mantener el archivo existente (recomendado)
+ExistingFileNewerOverwriteOrKeepAll=&Hacer lo mimso para lo siguientes conflictos
 ErrorChangingAttr=Ocurrió un error al intentar cambiar los atributos del archivo:
 ErrorCreatingTemp=Ocurrió un error al intentar crear un archivo en la carpeta de destino:
 ErrorReadingSource=Ocurrió un error al intentar leer el archivo de origen:
@@ -302,7 +325,9 @@ ErrorRegSvr32Failed=RegSvr32 falló con el código de salida %1
 ErrorRegisterTypeLib=Imposible registrar la librería de tipos: %1
 
 ; *** Uninstall display name markings
+; used for example as 'My Program (32-bit)'
 UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
 UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32-bit
 UninstallDisplayNameMark64Bit=64-bit
