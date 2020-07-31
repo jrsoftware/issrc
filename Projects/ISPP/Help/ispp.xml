@@ -1311,6 +1311,45 @@ The list of options is provided at the end of this topic.</para>
 					<para>&dim;, &redim;.</para>
 				</section>
 			</topic>
+			<topic id="GetVersionNumbers">
+				<title>GetVersionNumbers</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> GetVersionNumbers(<b>str</b> FileName, <b>int</b> *MS, <b>int</b> *LS)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Calls the <synel><link href="GetVersionComponents">GetVersionComponents</link></synel> function and packs the version elements back into the by-reference parameters MS and LS. Returns the string returned by GetVersionComponents.</para>
+					<para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
+				</section>
+			</topic>
+			<topic id="GetVersionComponents">
+				<title>GetVersionComponents</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> GetVersionComponents(<b>str</b> FileName, <b>int</b> *Major, <b>int</b> *Minor, <b>int</b> *Rev, <b>int</b> *Build)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Calls the <synel><link href="GetVersionNumbersString">GetVersionNumbersString</link></synel> function and parses the string returned by that function (in form "0.0.0.0"). All four version elements are stored in by-reference parameters Major, Minor, Rev, and Build. Returns the string returned by GetVersionNumbersString.</para>
+          <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
+			<topic id="GetVersionNumbersString">
+				<title>GetVersionNumbersString</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> GetVersionNumbersString(<b>str</b>)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Takes a string argument which must be set to the name of the file whose version information is to be queried. Returns a string composed of four decimal numbers delimited with periods. Returns an empty string if the file does not contain valid version info.</para>
+					<para>ISPP also has <link href="GetStringFileInfo">GetStringFileInfo</link> function, which also can be used to retrieve file version (using "FileVersion" or "ProductVersion" as second parameter). The difference is that GetVersionNumbersString takes it from the fixed block of version info, unlike GetStringFileInfo, which extracts string from the language specific block.</para>
+				</description>
+			</topic>
 			<topic id="PackVersionNumbers">
 				<title>PackVersionNumbers</title>
 				<section title="Prototype">
@@ -1370,45 +1409,6 @@ The list of options is provided at the end of this topic.</para>
 				<section title="See also">
 					<para><synel><link href="UnpackVersionNumbers">UnpackVersionNumbers</link></synel>, <synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
 				</section>
-			</topic>
-			<topic id="GetVersionComponents">
-				<title>GetVersionComponents</title>
-				<section title="Prototype">
-					<pre>
-						<line><b>str</b> GetVersionComponents(<b>str</b> FileName, <b>int</b> *Major, <b>int</b> *Minor, <b>int</b> *Rev, <b>int</b> *Build)</line>
-					</pre>
-				</section>
-				<description>
-					<para>Calls the <synel><link href="GetVersionNumbersString">GetVersionNumbersString</link></synel> function and parses the string returned by that function (in form "0.0.0.0"). All four version elements are stored in by-reference parameters Major, Minor, Rev, and Build. Returns the string returned by GetVersionNumbersString.</para>
-          <para>Declared in &builtins;.</para>
-				</description>
-			</topic>
-			<topic id="GetVersionNumbers">
-				<title>GetVersionNumbers</title>
-				<section title="Prototype">
-					<pre>
-						<line><b>str</b> GetVersionNumbers(<b>str</b> FileName, <b>int</b> *MS, <b>int</b> *LS)</line>
-					</pre>
-				</section>
-				<description>
-					<para>Calls the <synel><link href="GetVersionComponents">GetVersionComponents</link></synel> function and packs the version elements back into the by-reference parameters MS and LS. Returns the string returned by GetVersionComponents.</para>
-					<para>Declared in &builtins;.</para>
-				</description>
-				<section title="See also">
-					<para><synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
-				</section>
-			</topic>
-			<topic id="GetVersionNumbersString">
-				<title>GetVersionNumbersString</title>
-				<section title="Prototype">
-					<pre>
-						<line><b>str</b> GetVersionNumbersString(<b>str</b>)</line>
-					</pre>
-				</section>
-				<description>
-					<para>Takes a string argument which must be set to the name of the file whose version information is to be queried. Returns a string composed of four decimal numbers delimited with periods. Returns an empty string if the file does not contain valid version info.</para>
-					<para>ISPP also has <link href="GetStringFileInfo">GetStringFileInfo</link> function, which also can be used to retrieve file version (using "FileVersion" or "ProductVersion" as second parameter). The difference is that GetVersionNumbersString takes it from the fixed block of version info, unlike GetStringFileInfo, which extracts string from the language specific block.</para>
-				</description>
 			</topic>
 			<topic id="VersionToStr">
 				<title>VersionToStr</title>
