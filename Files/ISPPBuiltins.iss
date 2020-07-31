@@ -170,22 +170,20 @@
 //
 // PackVersionComponents
 //
-// Packs individual version components into MS/LS values.
+// Packs individual version components into a single value.
 //
-#define PackVersionComponents(int Major, int Minor, int Rev, int Build, *MS, *LS) \
-  MS = (Major & 0xFFFF) << 16 | (Minor & 0xFFFF), \
-  LS = (Rev & 0xFFFF) << 16 | (Build & 0xFFFF), \
-  MS
+#define PackVersionComponents(int Major, int Minor, int Rev, int Build) \
+  Major << 48 | (Minor & 0xFFFF)) < 32 |  (Rev & 0xFFFF) << 16 | (Build & 0xFFFF)
 //
 // UnpackVersionComponents
 //
-// Unpacks individual version components from MS/LS values.
+// Unpacks a packed version into individual version components.
 //
-#define UnpackVersionComponents(int MS, int LS, *Major, *Minor, *Rev, *Build) \
-  Major = MS >> 16, \
-  Minor = MS & 0xFFFF, \
-  Rev   = LS >> 16, \
-  Build = LS & 0xFFFF, \
+#define UnpackVersionComponents(int Version, *Major, *Minor, *Rev, *Build) \
+  Major = Version >> 48, \
+  Minor = (Version >> 32) & 0xFFFF, \
+  Rev   = (Version >> 16) & 0xFFFF, \
+  Build = Version & 0xFFFF, \
   Major
 //
 // GetVersionComponents
