@@ -678,18 +678,6 @@ The list of options is provided at the end of this topic.</para>
         </pre>
       </description>
 			<subtopicstitle>Available functions</subtopicstitle>
-			<topic id="GetVersionNumbersString">
-				<title>GetVersionNumbersString</title>
-				<section title="Prototype">
-					<pre>
-						<line><b>str</b> GetVersionNumbersString(<b>str</b>)</line>
-					</pre>
-				</section>
-				<description>
-					<para>Takes a string argument which must be set to the name of the file whose version information is to be queried. Returns a string composed of four decimal numbers delimited with periods. Returns an empty string if the file does not contain valid version info.</para>
-					<para>ISPP also has <link href="GetStringFileInfo">GetStringFileInfo</link> function, which also can be used to retrieve file version (using "FileVersion" or "ProductVersion" as second parameter). The difference is that GetVersionNumbersString takes it from the fixed block of version info, unlike GetStringFileInfo, which extracts string from the language specific block.</para>
-				</description>
-			</topic>
 			<topic id="GetStringFileInfo">
 				<title>GetStringFileInfo</title>
 				<section title="Prototype">
@@ -1323,46 +1311,64 @@ The list of options is provided at the end of this topic.</para>
 					<para>&dim;, &redim;.</para>
 				</section>
 			</topic>
+			<topic id="PackVersionNumbers">
+				<title>PackVersionNumbers</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> PackVersionNumbers(<b>int</b> VersionMS, <b>int</b> VersionLS)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Packs version numbers into a single value.</para>
+					<para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="GetVersionNumbers">GetVersionNumbers</link></synel>, <synel><link href="PackVersionComponents">PackVersionComponents</link></synel>, <synel><link href="UnpackVersionNumbers">UnpackVersionNumbers</link></synel></para>
+				</section>
+			</topic>
 			<topic id="PackVersionComponents">
 				<title>PackVersionComponents</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>int</b> PackVersionComponents(<b>int</b> Major, <b>int</b> Minor, <b>int</b> Rev, <b>int</b> Build, <b>int</b> *MS, <b>int</b> *LS)</line>
+						<line><b>int</b> PackVersionComponents(<b>int</b> Major, <b>int</b> Minor, <b>int</b> Rev, <b>int</b> Build)</line>
 					</pre>
 				</section>
 				<description>
-					<para>Packs individual version components into MS/LS values. The results are stored in by-reference parameters MS and LS.</para>
-					<pre>
-						<line>#define MyAppMS</line>
-						<line>#define MyAppLS</line>
-						<line>#expr PackVersionComponents(15, 2, 12345, 7, MyAppMS, MyAppLS)</line>
-					</pre>
+					<para>Packs individual version components into a single value.</para>
 					<para>Declared in &builtins;.</para>
 				</description>
 				<section title="See also">
-					<para><synel><link href="GetVersionNumbers">GetVersionNumbers</link></synel>, <synel><link href="UnpackVersionComponents">UnpackVersionComponents</link></synel></para>
+					<para><synel><link href="GetVersionNumbers">GetVersionNumbers</link></synel>, <synel><link href="PackVersionNumbers">PackVersionNumbers</link></synel>, <synel><link href="UnpackVersionComponents">UnpackVersionComponents</link></synel></para>
+				</section>
+			</topic>
+			<topic id="UnpackVersionNumbers">
+				<title>UnpackVersionNumbers</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>void</b> UnpackVersionNumbers(<b>int</b> Version, <b>int</b> *VersionMS, <b>int</b> *VersionLS)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Unpacks a packed version into version numbers.</para>
+					<para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="UnpackVersionComponents">UnpackVersionComponents</link></synel>, <synel><link href="PackVersionNumbers">PackVersionNumbers</link></synel></para>
 				</section>
 			</topic>
 			<topic id="UnpackVersionComponents">
 				<title>UnpackVersionComponents</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>int</b> UnpackVersionComponents(<b>int</b> MS, <b>int</b> LS, <b>int</b> *Major, <b>int</b> *Minor, <b>int</b> *Rev, <b>int</b> *Build)</line>
+						<line><b>void</b> UnpackVersionComponents(<b>int</b> Version, <b>int</b> *Major, <b>int</b> *Minor, <b>int</b> *Rev, <b>int</b> *Build)</line>
 					</pre>
 				</section>
 				<description>
-					<para>Unpacks individual version components from MS/LS values. The results are stored in by-reference parameters Major, Minor, Rev, and Build.</para>
-					<pre>
-						<line>#define MyMajor</line>
-						<line>#define MyMinor</line>
-						<line>#define MyRev</line>
-						<line>#define MyBuild</line>
-						<line>#expr UnpackVersionComponents(MyAppMS, MyAppLS, MyMajor, MyMinor, MyRev, MyBuild)</line>
-					</pre>
+					<para>Unpacks a packed version into individual version components.</para>
 					<para>Declared in &builtins;.</para>
 				</description>
 				<section title="See also">
-					<para><synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
+					<para><synel><link href="UnpackVersionNumbers">UnpackVersionNumbers</link></synel>, <synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
 				</section>
 			</topic>
 			<topic id="GetVersionComponents">
@@ -1386,16 +1392,23 @@ The list of options is provided at the end of this topic.</para>
 				</section>
 				<description>
 					<para>Calls the <synel><link href="GetVersionComponents">GetVersionComponents</link></synel> function and packs the version elements back into the by-reference parameters MS and LS. Returns the string returned by GetVersionComponents.</para>
-					<pre>
-						<line>#define MyAppMS</line>
-						<line>#define MyAppLS</line>
-						<line>#expr GetVersionNumbers("MyApp.exe", MyAppMS, MyAppLS)</line>
-					</pre>
 					<para>Declared in &builtins;.</para>
 				</description>
 				<section title="See also">
 					<para><synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
 				</section>
+			</topic>
+			<topic id="GetVersionNumbersString">
+				<title>GetVersionNumbersString</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> GetVersionNumbersString(<b>str</b>)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Takes a string argument which must be set to the name of the file whose version information is to be queried. Returns a string composed of four decimal numbers delimited with periods. Returns an empty string if the file does not contain valid version info.</para>
+					<para>ISPP also has <link href="GetStringFileInfo">GetStringFileInfo</link> function, which also can be used to retrieve file version (using "FileVersion" or "ProductVersion" as second parameter). The difference is that GetVersionNumbersString takes it from the fixed block of version info, unlike GetStringFileInfo, which extracts string from the language specific block.</para>
+				</description>
 			</topic>
 			<topic id="VersionToStr">
 				<title>VersionToStr</title>

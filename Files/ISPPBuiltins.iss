@@ -168,12 +168,23 @@
 #define GetFileOriginalFilename(str FileName) GetStringFileInfo(FileName, ORIGINAL_FILENAME)
 #define GetFileProductVersion(str FileName) GetStringFileInfo(FileName, PRODUCT_VERSION)
 //
+// PackVersionNumbers
+//
+#define PackVersionNumbers(int VersionMS, int VersionLS) \
+  VersionMS << 32 | (VersionLS & 0xFFFFFFFF)
+//
 // PackVersionComponents
 //
 // Packs individual version components into a single value.
 //
 #define PackVersionComponents(int Major, int Minor, int Rev, int Build) \
   Major << 48 | (Minor & 0xFFFF)) < 32 |  (Rev & 0xFFFF) << 16 | (Build & 0xFFFF)
+//
+// UnpackVersionNumbers
+//
+#define UnpackVersionNumbers(int Version, *VersionMS, *VersionLS) \
+  VersionMS = Version >> 32, \
+  VersionLS = Version & 0xFFFFFFFF
 //
 // UnpackVersionComponents
 //
@@ -183,8 +194,7 @@
   Major = Version >> 48, \
   Minor = (Version >> 32) & 0xFFFF, \
   Rev   = (Version >> 16) & 0xFFFF, \
-  Build = Version & 0xFFFF, \
-  Major
+  Build = Version & 0xFFFF
 //
 // GetVersionComponents
 //
