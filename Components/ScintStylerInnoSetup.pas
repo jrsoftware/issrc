@@ -2,13 +2,13 @@ unit ScintStylerInnoSetup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   TInnoSetupStyler: styler for Inno Setup scripts
   
-  Requires MsgIDs.pas from the Inno Setup source code
+  Requires LangOptions+SetupSectionDirectives and MsgIDs from the Inno Setup source code
 }
 
 interface

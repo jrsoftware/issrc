@@ -29,41 +29,21 @@
  <!ENTITY expr    '<synel>expr</synel>'> <!-- not a directive -->
  <!ENTITY curtrans '<link href="current-translation" popup="yes">current translation</link>'>
  <!ENTITY translation '<link href="translation" popup="yes">translation</link>'>
- <!ENTITY builtins '<link href="builtinsiss">ISPPBuiltins.iss file</link>'>
+ <!ENTITY builtins '<link href="builtinsiss">ISPPBuiltins.iss</link>'>
  <!ENTITY dash "&#8211;">
 ]>
 <yasyx>
 	<topic id="isppoverview">
 		<title>Introduction</title>
 		<description header="no">
-			<para>Inno Setup Preprocessor (ISPP) is a preprocessor add-on for Inno Setup.</para>
-			<para>The main purpose of ISPP is to automate compile-time tasks and avoid repetition in your scripts. For example, you can declare an ISPP variable (compile-time variable) &dash; your application name, for instance &dash; and then use its value in several places of your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without ISPP, you would need to change all occurrences of your application name throughout the script (AppName, AppVerName, DefaultGroupName etc. <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> directives).</para>
-			<para>Another example of using ISPP would be gathering version information from your application at compile-time by reading the version info of an EXE file, and using it in AppVerName <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> directive or anywhere else. Without ISPP, you would have to modify your script each time the version of your application changes.</para>
-			<para>Similarly, you can use ISPP to scan your source folder and generate script lines for the found files. Without ISPP, you would have to manually maintain the list of files.</para>
-			<para>Also, conditional in- and exclusion of portions of script is made possible by ISPP: you can create one single script for different versions/levels of your applications (for example, trial versus fully functional).</para>
+			<para>The main purpose of Inno Setup Preprocessor (ISPP) is to automate compile-time tasks and avoid repetition in your scripts. For example, you can declare a compile-time ISPP variable &dash; containing your application name, for instance &dash; and then use its value in several places of your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without ISPP, you would need to change all occurrences of your application name throughout the script.</para>
+			<para>Another example of using ISPP would be gathering version information from your application at compile-time by reading the version info of an EXE file, and using it in your <extlink href="ms-its:isetup.chm::/topic_setup_appvername.htm">AppVerName</extlink> [Setup] section directive or anywhere else. Without ISPP, you would have to modify your script each time the version of your application changes.</para>
+			<para>ISPP can even scan your source folder and generate script lines for the found files. Without ISPP, you would have to manually maintain the list of files.</para>
+			<para>Conditional in- and exclusion of portions of script is also possible by using ISPP: you can create one single script for different versions/levels of your applications (for example, trial versus fully functional). Without ISPP, you would need multiple scripts.</para>
 			<para>Finally, ISPP makes it possible to split long lines using a line spanning symbol.</para>
 			<para>Note: ISPP works exclusively at compile-time, and has no run-time functionality.</para>
     </description>
 		<subtopicstitle>All topics</subtopicstitle>
-		<topic id="docconv">
-			<title>Documentation Conventions</title>
-			<section title="Directive syntax documenting conventions">
-				<para>Directive usage syntax uses the following conventions.</para>
-				<table>
-					<tr><td><code>()</code></td><td>Group of tokens.</td></tr>
-					<tr><td><code>[]</code></td><td>Optional token or group of tokens.</td></tr>
-					<tr><td><code>|</code></td><td>Mutually exclusive tokens.</td></tr>
-					<tr><td><code>...</code></td><td>Previous token or group of tokens can be repeated.</td></tr>
-					<tr><td><code><b>token</b></code></td><td>Reserved word or symbol(s). Must be typed exactly as shown.</td></tr>
-					<tr><td><code>&lt;token&gt;</code></td><td>Non-terminal. Its syntax is either shown before, or explained.</td></tr>
-				</table>
-			</section>
-			<section title="Function prototypes documenting conventions">
-				<para>Function prototypes show the function result type, function name and list of formal arguments in parentheses.</para>
-				<para>Keywords <synel>int</synel>, <synel>str</synel>, <synel>any</synel>, and <synel>void</synel> respectively specify the (signed 64-bit) integer type, the string type, any type, or the null type (also referred to as nothing, void). When the null type is specified as a function result type then the function does not return a value.</para>
-				<para>A question mark (<synel>?</synel>) after the type of an argument means that this argument is optional.</para>
-			</section>
-		</topic>
 		<topic id="directives">
 			<title>Directives</title>
  			<description header="no">
@@ -79,6 +59,17 @@
 				</pre>
 				<para>As seen in the above example it is not necessary to specify the name of the &emit; directive when it is used inline, so <synel>{#MyAppName}</synel> is short for <synel>{#emit MyAppName}</synel>.</para>
 			</description>
+			<section title="Directive syntax documenting conventions">
+				<para>Directive usage syntax uses the following conventions.</para>
+				<table>
+					<tr><td><code>()</code></td><td>Group of tokens.</td></tr>
+					<tr><td><code>[]</code></td><td>Optional token or group of tokens.</td></tr>
+					<tr><td><code>|</code></td><td>Mutually exclusive tokens.</td></tr>
+					<tr><td><code>...</code></td><td>Previous token or group of tokens can be repeated.</td></tr>
+					<tr><td><code><b>token</b></code></td><td>Reserved word or symbol(s). Must be typed exactly as shown.</td></tr>
+					<tr><td><code>&lt;token&gt;</code></td><td>Non-terminal. Its syntax is either shown before, or explained.</td></tr>
+				</table>
+			</section>
 			<subtopicstitle>Available directives</subtopicstitle>
 			<topic id="define">
 				<title>#define</title>
@@ -669,7 +660,7 @@ The list of options is provided at the end of this topic.</para>
 		<topic id="funcs">
 			<title>Functions</title>
 			<description header="no">
-				<para>There are a number of predefined functions provided by ISPP which you can use to perform compile-time actions and/or change your script. For example the following reads version info from an EXE and uses the return value of the function to change the script:</para>
+				<para>There are a number of predefined functions provided by ISPP which you can use to perform compile-time actions and/or change your script. For example the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <extlink href="ms-its:isetup.chm::/topic_setup_appvername.htm">AppVerName</extlink> [Setup] section directive using ISPP directive &emit;:</para>
         <pre>
           <line>#define MyAppVer GetVersionNumbersString(AddBackslash(SourcePath) + "MyProg.exe")</line>
           <line></line>
@@ -677,6 +668,11 @@ The list of options is provided at the end of this topic.</para>
           <line>AppVerName=MyProg version {#MyAppVer}</line>
         </pre>
       </description>
+			<section title="Function prototypes documenting conventions">
+				<para>Function prototypes show the function result type, name, and arguments.</para>
+				<para>Return and argument types <synel>int</synel>, <synel>str</synel>, <synel>any</synel>, and <synel>void</synel> respectively specify the integer type, the string type, any type, and the null type. The integer type is a signed 64-bit integer. When the null type is specified as a function result type then the function does not return a value.</para>
+				<para>A question mark (<synel>?</synel>) after an argument type means that the argument is optional.</para>
+      </section>
 			<subtopicstitle>Available functions</subtopicstitle>
 			<topic id="GetStringFileInfo">
 				<title>GetStringFileInfo</title>
@@ -1844,8 +1840,7 @@ The list of options is provided at the end of this topic.</para>
 		<topic id="builtinsiss">
 			<title>ISPPBuiltins.iss</title>
 			<description header="no">
-				<para>The ISPPBuiltins.iss file is accompanying the Inno Setup Preprocessor. It is automatically included, if it exists in the compiler directory, as if the very first line of your script contained an &include; directive for it. This file contains common declarations, such as special constants for using with functions, and some useful user defined functions. The file is a regular Inno Setup Script file but mostly contains only ISPP directives.</para>
-        <para>To learn more about the functionality provided by this file please open it with the Inno Setup Compiler, it is well commented.</para>
+				<para>The ISPPBuiltins.iss file is part of Inno Setup Preprocessor and is automatically installed to root of your Inno Setup folder. This file is automatically included at the start of preprocessing: some of ISPP's functions are actually implemented by this file instead of being built-in. It also contains common declarations such as special constants. The file is a regular Inno Setup Script file so you can use all of its techniques in your own script as well.</para>
 			</description>
 		</topic>
 		<topic id="visibility">
