@@ -14,7 +14,6 @@
 
 <contents>
   <contentstopic title="What is Inno Setup?" topic="whatisinnosetup" />
-  <contentstopic title="Documentation Conventions" topic="conventions" />
   <contentstopic title="Creating Installations" topic="creatinginstallations" />
   <contentstopic title="Script Format Overview" topic="scriptformatoverview" />
   <contentstopic title="Parameters in Sections" topic="params" />
@@ -153,22 +152,6 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <p>Yes, it may be used completely free of charge, even when deploying commercial applications.</p>
 
 <p>(Note: "Completely free of charge" must not be confused with "completely free". Inno Setup is copyrighted software, <i>not</i> public domain software. There are some restrictions on distribution and use; see the LICENSE.TXT file for details.)</p>
-
-</body>
-</topic>
-
-
-
-<topic name="conventions" title="Documentation Conventions">
-<keyword value="Documentation Conventions" />
-<body>
-
-<table>
-<tr>
-  <td><tt>monospaced text</tt></td>
-  <td><p>When you see monospaced text in the documentation, it refers to text you would type in a <link topic="creatinginstallations">script</link> file.</p></td>
-</tr>
-</table>
 
 </body>
 </topic>
