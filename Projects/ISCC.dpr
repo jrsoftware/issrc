@@ -371,6 +371,7 @@ procedure ProcessCommandLine;
     WriteStdOut('Portions Copyright (C) 2000-2020 Martijn Laan. All rights reserved.');
     if IsppMode then
       WriteStdOut('Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
+    WriteStdOut('https://www.innosetup.com');
     WriteStdOut('');
   end;
 
