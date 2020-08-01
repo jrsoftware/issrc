@@ -767,7 +767,7 @@ function CopyFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   S: string;
-  B, C: Integer;
+  B, C: Int64;
 begin
   if CheckParams(Params, [evStr, evInt, evInt], 2, Result) then
   try
@@ -776,7 +776,19 @@ begin
       S := Get(0).AsStr;
       B := Get(1).AsInt;
       if GetCount > 2 then C := Get(2).AsInt else C := MaxInt;
-      MakeStr(ResPtr^, Copy(S, B, C));
+
+      { Constrain 64-bit arguments to 32 bits without truncating them }
+      if B < 1 then
+        B := 1;
+      if C > Maxint then
+        C := Maxint;
+      if (B > Maxint) or (C < 0) then begin
+        { Result should be empty in these cases }
+        B := 1;
+        C := 0;
+      end;
+
+      MakeStr(ResPtr^, Copy(S, Integer(B), Integer(C)));
     end;
   except
     on E: Exception do
