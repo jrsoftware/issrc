@@ -28,5 +28,5 @@ applications, and to alter and redistribute it, provided that the following cond
 
 
 Jordan Russell
-jr-2010 AT jrsoftware.org
+jr-2020 AT jrsoftware.org
 https://jrsoftware.org/
