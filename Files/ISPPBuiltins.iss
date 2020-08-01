@@ -158,17 +158,19 @@
   VersionMS << 32 | (VersionLS & 0xFFFFFFFF)
 
 #define PackVersionComponents(int Major, int Minor, int Rev, int Build) \
-  Major << 48 | (Minor & 0xFFFF)) < 32 |  (Rev & 0xFFFF) << 16 | (Build & 0xFFFF)
+  Major << 48 | (Minor & 0xFFFF) << 32 | (Rev & 0xFFFF) << 16 | (Build & 0xFFFF)
 
 #define UnpackVersionNumbers(int Version, *VersionMS, *VersionLS) \
   VersionMS = Version >> 32, \
-  VersionLS = Version & 0xFFFFFFFF
+  VersionLS = Version & 0xFFFFFFFF, \
+  void
 
 #define UnpackVersionComponents(int Version, *Major, *Minor, *Rev, *Build) \
   Major = Version >> 48, \
   Minor = (Version >> 32) & 0xFFFF, \
   Rev   = (Version >> 16) & 0xFFFF, \
-  Build = Version & 0xFFFF
+  Build = Version & 0xFFFF, \
+  void
 
 #define DeleteToFirstPeriod(str *S) \
   Local[1] = Copy(S, 1, (Local[0] = Pos(".", S)) - 1), \
