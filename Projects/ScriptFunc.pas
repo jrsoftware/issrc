@@ -296,9 +296,10 @@ const
   );
 
   { VerInfo }
-  VerInfoTable: array [0..6] of AnsiString =
+  VerInfoTable: array [0..7] of AnsiString =
   (
     'function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;',
+    'function GetVersionComponents(const Filename: String; var Major, Minor, Revision, Build: Word): Boolean;',
     'function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;',
     'function PackVersionNumbers(const VersionMS, VersionLS: Cardinal): Int64;',
     'function PackVersionComponents(const Major, Minor, Revision, Build: Word): Int64;',

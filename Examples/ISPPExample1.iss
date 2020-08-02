@@ -16,7 +16,7 @@
   #define AppName "My Program"
 #endif
 
-#define AppVersion GetFileVersion(AddBackslash(SourcePath) + "MyProg.exe")
+#define AppVersion GetVersionNumbersString(AddBackslash(SourcePath) + "MyProg.exe")
 
 [Setup]
 AppName={#AppName}

@@ -1510,6 +1510,15 @@ begin
       Stack.SetBool(PStart, True);
     end else
       Stack.SetBool(PStart, False);
+  end else if Proc.Name = 'GETVERSIONCOMPONENTS' then begin
+    if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
+      Stack.SetUInt(PStart-2, VersionNumbers.MS shr 16);
+      Stack.SetUInt(PStart-3, VersionNumbers.MS and $FFFF);
+      Stack.SetUInt(PStart-4, VersionNumbers.LS shr 16);
+      Stack.SetUInt(PStart-5, VersionNumbers.LS and $FFFF);
+      Stack.SetBool(PStart, True);
+    end else
+      Stack.SetBool(PStart, False);
   end else if Proc.Name = 'GETVERSIONNUMBERSSTRING' then begin
     if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
       Stack.SetString(PStart-2, Format('%u.%u.%u.%u', [VersionNumbers.MS shr 16,

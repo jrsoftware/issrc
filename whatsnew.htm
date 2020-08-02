@@ -69,12 +69,13 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 <ul>
   <li>ISPP's <tt>int</tt> type is now a signed 64-bit integer type.</tt>
   <li>Support function <tt>FileSize</tt> now supports 64-bit file sizes.</li>
-  <li>Added new <tt>PackVersionComponents</tt>, <tt>UnpackVersionComponents</tt>, and <tt>ParseVersionPacked</tt> support functions.</li>
+  <li>Added new <tt>PackVersionNumbers</tt>, <tt>PackVersionComponents</tt>, <tt>UnpackVersionNumbers</tt>, <tt>UnpackVersionComponents</tt>, and <tt>VersionToStr</tt> support functions.</li>
+  <li>Support function <tt>GetFileVersion</tt> and <tt>ParseVersion</tt> have been renamed to <tt>GetVersionNumbersString</tt> and <tt>GetVersionComponents</tt> respectively. The old names are still supported, but it is recommended to update your scripts to the new names.</li>
 </ul>
-<p>Similar Pascal Scripting changes have been done:</p>
+<p>Similar Pascal Scripting changes have been done for [Code]:</p>
 <ul>
   <li>Added new <tt>FileSize64</tt> support function.</li>
-  <li>Added new <tt>PackVersionNumbers</tt>, <tt>PackVersionComponents</tt>, <tt>UnpackVersionNumbers</tt>, <tt>UnpackVersionComponents</tt>, and <tt>VersionToStr</tt> support functions.</li>
+  <li>Added new <tt>PackVersionNumbers</tt>, <tt>PackVersionComponents</tt>, <tt>UnpackVersionNumbers</tt>, <tt>UnpackVersionComponents</tt>, <tt>GetVersionComponents</tt>, and <tt>VersionToStr</tt> support functions. This makes ISPP and [Code] support the same list of version related functions.</li>
 </ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
