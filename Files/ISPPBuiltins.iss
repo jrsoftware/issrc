@@ -190,7 +190,8 @@
 
 #define GetVersionNumbers(str FileName, *MS, *LS) \
   Local[0] = GetVersionComponents(FileName, Local[1], Local[2], Local[3], Local[4]), \
-  PackVersionComponents(Local[1], Local[2], Local[3], Local[4], MS, LS), \
+  Local[5] = PackVersionComponents(Local[1], Local[2], Local[3], Local[4]), \
+  UnpackVersionNumbers(Local[5], MS, LS), \
   Local[0]
 
 #define VersionToStr(int Version) \
