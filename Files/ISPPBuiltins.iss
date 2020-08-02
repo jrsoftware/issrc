@@ -154,24 +154,6 @@
 #define GetFileOriginalFilename(str FileName) GetStringFileInfo(FileName, ORIGINAL_FILENAME)
 #define GetFileProductVersion(str FileName) GetStringFileInfo(FileName, PRODUCT_VERSION)
 //
-#define PackVersionNumbers(int VersionMS, int VersionLS) \
-  VersionMS << 32 | (VersionLS & 0xFFFFFFFF)
-//
-#define PackVersionComponents(int Major, int Minor, int Rev, int Build) \
-  Major << 48 | (Minor & 0xFFFF) << 32 | (Rev & 0xFFFF) << 16 | (Build & 0xFFFF)
-//
-#define UnpackVersionNumbers(int Version, *VersionMS, *VersionLS) \
-  VersionMS = Version >> 32, \
-  VersionLS = Version & 0xFFFFFFFF, \
-  void
-//
-#define UnpackVersionComponents(int Version, *Major, *Minor, *Rev, *Build) \
-  Major = Version >> 48, \
-  Minor = (Version >> 32) & 0xFFFF, \
-  Rev   = (Version >> 16) & 0xFFFF, \
-  Build = Version & 0xFFFF, \
-  void
-//
 #define DeleteToFirstPeriod(str *S) \
   Local[1] = Copy(S, 1, (Local[0] = Pos(".", S)) - 1), \
   S = Copy(S, Local[0] + 1), \
@@ -195,6 +177,24 @@
   Local[5] = PackVersionComponents(Local[1], Local[2], Local[3], Local[4]), \
   UnpackVersionNumbers(Local[5], MS, LS), \
   Local[0]
+//
+#define PackVersionNumbers(int VersionMS, int VersionLS) \
+  VersionMS << 32 | (VersionLS & 0xFFFFFFFF)
+//
+#define PackVersionComponents(int Major, int Minor, int Rev, int Build) \
+  Major << 48 | (Minor & 0xFFFF) << 32 | (Rev & 0xFFFF) << 16 | (Build & 0xFFFF)
+//
+#define UnpackVersionNumbers(int Version, *VersionMS, *VersionLS) \
+  VersionMS = Version >> 32, \
+  VersionLS = Version & 0xFFFFFFFF, \
+  void
+//
+#define UnpackVersionComponents(int Version, *Major, *Minor, *Rev, *Build) \
+  Major = Version >> 48, \
+  Minor = (Version >> 32) & 0xFFFF, \
+  Rev   = (Version >> 16) & 0xFFFF, \
+  Build = Version & 0xFFFF, \
+  void
 //
 #define VersionToStr(int Version) \
   Str(Version >> 48 & 0xFFFF) + "." + Str(Version >> 32 & 0xFFFF) + "." + \
