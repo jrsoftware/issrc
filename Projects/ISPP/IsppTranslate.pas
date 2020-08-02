@@ -843,10 +843,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         else if P = 'warning' then
           Warning(StrPragma(True), [])
         else if P = 'message' then
-        begin
-          IssueMessage(
-            Format('%s(%d): %s', [string(GetFileName(-1)), GetLineNumber(-1), StrPragma(True)]), imtStatus)
-        end
+          SendMsg(StrPragma(True), imtStatus)
         else if P = 'error' then
         begin
           ErrorMsg := StrPragma(True);
