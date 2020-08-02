@@ -923,21 +923,6 @@ begin
   end;
 end;
 
-function GetFileVersionFunc(Ext: Longint; const Params: IIsppFuncParams;
-  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-begin
-  try
-    TPreprocessor(Ext).Warning('Function "%s" has been renamed. Use "%s" instead.', ['GetFileVersion', 'GetVersionNumbersString']);
-    Result := GetVersionNumbersStringFunc(Ext, Params, FuncResult);
-  except
-    on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
-  end;
-end;
-
 function ComparePackedVersionFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
@@ -1864,7 +1849,6 @@ begin
     RegisterFunction('RPos', RPosFunc, -1);
     RegisterFunction('Len', LenFunc, -1);
     RegisterFunction('GetVersionNumbersString', GetVersionNumbersStringFunc, -1);
-    RegisterFunction('GetFileVersion', GetFileVersionFunc, -1);
     RegisterFunction('ComparePackedVersion', ComparePackedVersionFunc, -1);
     RegisterFunction('SamePackedVersion', SamePackedVersionFunc, -1);
     RegisterFunction('GetStringFileInfo', GetFileVersionInfoItem, -1);

@@ -168,10 +168,6 @@
     Build   = Int(Local[1]), \
   Local[0])
 //
-#define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build) \
-  Warning("Function ""ParseVersion"" has been renamed. Use ""GetVersionComponents"" instead."), \
-  GetVersionComponents(FileName, Major, Minor, Rev, Build)
-//
 #define GetPackedVersion(str FileName, *Version) \
   Local[0] = GetVersionComponents(FileName, Local[1], Local[2], Local[3], Local[4]), \
   Version = PackVersionComponents(Local[1], Local[2], Local[3], Local[4]), \
@@ -308,6 +304,16 @@
 #define SameStr(str S1, str S2) \
   S1 == S2
 //
+#define WarnRenamedVersion(str OldName, str NewName) \
+  Warning("Function """ + OldName + """ has been renamed. Use """ + NewName + "GetVersionComponents"" instead.")
+//
+#define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build) \
+  WarnRenamedVersion("ParseVersion", "GetVersionComponents"), \
+  GetVersionComponents(FileName, Major, Minor, Rev, Build)
+//
+#define GetFileVersion(str FileName) \
+  WarnRenamedVersion("GetFileVersion", "GetVersionNumbersString"), \
+  GetVersionNumbersString(FileName)
 //
 #ifdef CStrings
 # pragma parseroption -p-
