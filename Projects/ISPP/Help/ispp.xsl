@@ -24,8 +24,8 @@
   <contents>
     <contentsheading title="Inno Setup Preprocessor">
       <contentstopic title="Introduction" topic="isppoverview" />
-      <contentstopic title="Directives" topic="directives" />
-      <contentstopic title="Functions" topic="funcs" />
+      <contentstopic title="Directives Reference" topic="directives" />
+      <contentstopic title="Support Functions Reference" topic="funcs" />
       <contentstopic title="User Defined Functions" topic="macros" />
       <contentstopic title="Expression Syntax" topic="expressions" />
       <contentstopic title="Predefined Variables" topic="predefinedvars" />

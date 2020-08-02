@@ -45,7 +45,7 @@
     </description>
 		<subtopicstitle>All topics</subtopicstitle>
 		<topic id="directives">
-			<title>Directives</title>
+			<title>Directives Reference</title>
  			<description header="no">
 				<para>There are two kinds of directives in ISPP: simple and inline.</para>
 				<para>Simple directives occupy a whole line and begin with the <synel>#</synel> symbol. For example the following defines a variable called <synel>MyAppName</synel>:</para>
@@ -661,9 +661,9 @@ The list of options is provided at the end of this topic.</para>
 		</topic>
 		<!--   FUNCTIONS -->
 		<topic id="funcs">
-			<title>Functions</title>
+			<title>Support Functions Reference</title>
 			<description header="no">
-				<para>There are a number of predefined functions provided by ISPP which you can use to perform compile-time actions and/or change your script. For example the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <extlink href="ms-its:isetup.chm::/topic_setup_appvername.htm">AppVerName</extlink> [Setup] section directive using ISPP directive &emit;:</para>
+				<para>There are a number of built-in support functions which you can use to perform compile-time actions and/or change your script. For example the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <extlink href="ms-its:isetup.chm::/topic_setup_appvername.htm">AppVerName</extlink> [Setup] section directive using ISPP directive &emit;:</para>
         <pre>
           <line>#define MyAppVer GetVersionNumbersString(AddBackslash(SourcePath) + "MyProg.exe")</line>
           <line></line>
