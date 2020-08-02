@@ -1721,7 +1721,7 @@ The list of options is provided at the end of this topic.</para>
 			<description header="no">
 				<para>You can define user defined functions.</para>
 				<para>A user defined function declaration consists of a formal parameter list and an expression. That expression is evaluated when the function is called (see below). The result of the function call is the result of the expression. The expression can contain parameter names, they are treated as usual variables.</para>
-				<para>The formal syntax of a user defined function is provided in &define; and the &builtins; contains many example functions.</para>
+				<para>The formal syntax of a user defined function is provided in &define; and &builtins; contains many example functions.</para>
         <para>Please note that there must be no space between the function name and opening parenthesis.</para>
 				<para>Actual parameters for parameters declared as by-reference must be modifiable l-values (in other words, other defined variables or expressions that evaluate to l-values). If the expression modifies by-reference parameter, the variable that is passed as this parameter gets modified. By-value parameters can also be modified by the expression (using assignment operators), but this modification doesn't affect the value of a variable which could be passed as this parameter.</para>
 				<para>Though a user defined function can only contain one expression, sequential evaluation operators (comma), assignment operators (simple and compound) and conditional operators (<synel>?:</synel>) can be used to build more complicated functions.</para>
@@ -1746,7 +1746,7 @@ The list of options is provided at the end of this topic.</para>
       <title>Expression Syntax</title>
 			<description header="no">
 				<para>ISPP uses C/C++-like expression syntax. It supports simple and compound assignment operators, conditional operator, and sequential evaluation operator. Although ISPP is an interpreter, it does support short circuit boolean evaluation and never evaluates expressions (nor calls any user defined functions mentioned in those expressions) that should not be evaluated due to specific rules (for example, when conditional operator is used, always only 2 out of 3 operands are evaluated).</para>
-        <para>The &builtins; contains many example expressions.</para>
+        <para>&builtins; contains many example expressions.</para>
 			</description>
 			<section title="Differences between C and ISPP expression syntax">
 				<ul>
