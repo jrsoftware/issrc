@@ -186,7 +186,9 @@
     Build   = Int(Local[1]), \
   Local[0])
 //
-#define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build) GetVersionComponents(FileName, Major, Minor, Rev, Build)
+#define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build) \
+  Warning("Function ""ParseVersion"" has been renamed. Use ""GetVersionComponents"" instead."), \
+  GetVersionComponents(FileName, Major, Minor, Rev, Build)
 //
 #define GetVersionNumbers(str FileName, *MS, *LS) \
   Local[0] = GetVersionComponents(FileName, Local[1], Local[2], Local[3], Local[4]), \

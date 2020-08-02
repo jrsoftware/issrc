@@ -632,6 +632,9 @@ The list of options is provided at the end of this topic.</para>
 						<line>#pragma spansymbol "_"</line>
 					</pre>
 				</section>
+				<section title="See also">
+					<para><synel><link href="Message">Message</link></synel>, <synel><link href="Warning">Warning</link></synel>, <synel><link href="Error2">Error</link></synel>.</para>
+				</section>
 			</topic>
 			<topic id="error">
 				<title>#error</title>
@@ -652,7 +655,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<section title="See also">
-					<para>&pragma;, &if;.</para>
+					<para>&pragma;, &if;, <synel><link href="Error2">Error</link></synel>.</para>
 				</section>
 			</topic>
 		</topic>
@@ -1671,6 +1674,39 @@ The list of options is provided at the end of this topic.</para>
 				<description>
 					<para>Returns True if the given strings are identical, with case-sensitivity.</para>
           <para>Declared in &builtins;.</para>
+				</description>
+			</topic>
+			<topic id="Message">
+				<title>Message</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>void</b> Message(<b>str</b> S)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Functional version of <synel><link href="pragma">pragma message</link></synel>.</para>
+				</description>
+			</topic>
+			<topic id="Warning">
+				<title>Warning</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>void</b> Warning(<b>str</b> S)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Functional version of <synel><link href="pragma">pragma warning</link></synel>.</para>
+				</description>
+			</topic>
+			<topic id="Error2">
+				<title>Error</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>void</b> Error(<b>str</b> S)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Functional version of &error;.</para>
 				</description>
 			</topic>
 		</topic>

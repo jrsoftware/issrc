@@ -92,7 +92,6 @@ type
     procedure PushFile(const FileName: string);
     procedure PopFile;
     function CheckFile(const FileName: string): Boolean;
-    procedure SendMsg(const Msg: string; Typ: TIsppMessageType);
     function EmitDestination: TStringList;
   protected
     function GetDefaultScope: TDefineScope;
@@ -121,13 +120,14 @@ type
     destructor Destroy; override;
     procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);
     procedure Warning(const Msg: string; const Args: array of const);
+    procedure IssueMessage(const Message: string; MsgType: TIsppMessageType);
+    procedure SendMsg(const Msg: string; Typ: TIsppMessageType);
     procedure AddLine(const LineRead: string);
     function GetFileName(Code: Integer): string;
     function GetLineNumber(Code: Integer): Word;
     function GetNext(var LineFilename: string; var LineNumber: Integer;
       var LineText: string): Boolean;
     procedure IncludeFile(FileName: string; UseIncludePathOnly, ResetCurrentFile: Boolean);
-    procedure IssueMessage(const Message: string; MsgType: TIsppMessageType);
     procedure QueueLine(const LineRead: string);
     function PrependDirName(const FileName, Dir: string): string;
     procedure RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: Longint);
@@ -840,12 +840,14 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
           FOptions.VerboseLevel := IntExpr(True);
           EndOfExpr;
         end
-        else if P = 'warning' then
+        else if P = 'warning' then begin
+          { Also see WarningFunc in IsppFuncs }
           Warning(StrPragma(True), [])
-        else if P = 'message' then
+        end else if P = 'message' then begin
+          { Also see MessageFunc in IsppFuncs }
           SendMsg(StrPragma(True), imtStatus)
-        else if P = 'error' then
-        begin
+        end else if P = 'error' then begin
+          { Also see ErrorFunc in IsppFuncs }
           ErrorMsg := StrPragma(True);
           if ErrorMsg = '' then ErrorMsg := 'Error';
           CatchException := False;
@@ -1012,6 +1014,7 @@ begin
       pcInclude: IncludeFile(Params);
       pcErrorDir:
         begin
+          { Also see ErrorFunc in IsppFuncs }
           if Params = '' then Params := 'Error';
           RaiseError(Params);
         end;

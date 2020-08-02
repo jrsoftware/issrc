@@ -876,7 +876,7 @@ begin
   end;
 end;
 
-function GetVersionNumbersString(Ext: Longint; const Params: IIsppFuncParams;
+function GetVersionNumbersStringFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Filename: string;
@@ -912,6 +912,21 @@ begin
         end;
       end
     end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function GetFileVersionFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  try
+    TPreprocessor(Ext).Warning('Function "%s" has been renamed. Use "%s" instead.', ['GetFileVersion', 'GetVersionNumbersString']);
+    Result := GetVersionNumbersStringFunc(Ext, Params, FuncResult);
   except
     on E: Exception do
     begin
@@ -1725,6 +1740,72 @@ begin
   end;
 end;
 
+function MessageFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do begin
+      { Also see Pragma in IsppTranslate }
+      TPreprocessor(Ext).SendMsg(Get(0).AsStr, imtStatus);
+      ResPtr^ := NULL;
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function WarningFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do begin
+      { Also see Pragma in IsppTranslate }
+      TPreprocessor(Ext).Warning(Get(0).AsStr, []);
+      ResPtr^ := NULL;
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function ErrorFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+var
+  CatchException: Boolean;
+  ErrorMsg: String;
+begin
+  CatchException := True;
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do begin
+      { Also see Pragma and pcErrorDir in IsppTranslate }
+      ErrorMsg := Get(0).AsStr;
+      if ErrorMsg = '' then ErrorMsg := 'Error';
+      CatchException := False;
+      TPreprocessor(Ext).RaiseError(ErrorMsg);
+    end;
+  except
+    on E: Exception do
+    begin
+      if CatchException then begin
+        FuncResult.Error(PChar(E.Message));
+        Result.Error := ISPPFUNC_FAIL
+      end else
+        raise;
+    end;
+  end;
+end;
+
 procedure Register(Preproc: TPreprocessor);
 begin
   with Preproc do
@@ -1745,8 +1826,8 @@ begin
     RegisterFunction('Pos', PosFunc, -1);
     RegisterFunction('RPos', RPosFunc, -1);
     RegisterFunction('Len', LenFunc, -1);
-    RegisterFunction('GetVersionNumbersString', GetVersionNumbersString, -1);
-    RegisterFunction('GetFileVersion', GetVersionNumbersString, -1); { The old name of GetVersionNumbersString }
+    RegisterFunction('GetVersionNumbersString', GetVersionNumbersStringFunc, -1);
+    RegisterFunction('GetFileVersion', GetFileVersionFunc, -1);
     RegisterFunction('GetStringFileInfo', GetFileVersionInfoItem, -1);
     RegisterFunction('SaveToFile', IsppFuncs.SaveToFile, -1);
     RegisterFunction('Find', FindLine, -1);
@@ -1784,6 +1865,9 @@ begin
     RegisterFunction('Trim', TrimFunc, -1);
     RegisterFunction('StringChange', StringChangeFunc, -1);
     RegisterFunction('IsWin64', IsWin64Func, -1);
+    RegisterFunction('Message', MessageFunc, -1);
+    RegisterFunction('Warning', WarningFunc, -1);
+    RegisterFunction('Error', ErrorFunc, -1);
   end;
 end;
 
