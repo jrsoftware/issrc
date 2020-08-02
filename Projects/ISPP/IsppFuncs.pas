@@ -9,14 +9,16 @@ interface
 
 {$I ..\Version.inc}
 
-uses Windows, Classes, IsppVarUtils, IsppIntf, IsppTranslate, IsppParser;
+uses
+  Windows, Classes, IsppVarUtils, IsppIntf, IsppTranslate, IsppParser;
 
 procedure Register(Preproc: TPreprocessor);
 
 implementation
 
-uses SysUtils, IniFiles, Registry, IsppConsts, IsppBase, IsppIdentMan,
-  IsppSessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2;
+uses
+  SysUtils, IniFiles, Registry, IsppConsts, IsppBase, IsppIdentMan,
+  IsppSessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2, Int64Em;
   
 var
   IsWin64: Boolean;
@@ -936,6 +938,41 @@ begin
   end;
 end;
 
+function ComparePackedVersionFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evInt, evInt], 2, Result) then
+  try
+    with IInternalFuncParams(Params) do
+      MakeInt(ResPtr^, Compare64(Integer64(Get(0).AsInt), Integer64(Get(1).AsInt)));
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function SamePackedVersionFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evInt, evInt], 2, Result) then
+  try
+    with IInternalFuncParams(Params) do
+      if Compare64(Integer64(Get(0).AsInt), Integer64(Get(1).AsInt)) = 0 then
+        MakeInt(ResPtr^, 1)
+      else
+        MakeInt(ResPtr^, 0)
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 {str GetStringFileInfo(str FileName, str StringName, int Lang)}
 function GetFileVersionInfoItem(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
@@ -1828,6 +1865,8 @@ begin
     RegisterFunction('Len', LenFunc, -1);
     RegisterFunction('GetVersionNumbersString', GetVersionNumbersStringFunc, -1);
     RegisterFunction('GetFileVersion', GetFileVersionFunc, -1);
+    RegisterFunction('ComparePackedVersion', ComparePackedVersionFunc, -1);
+    RegisterFunction('SamePackedVersion', SamePackedVersionFunc, -1);
     RegisterFunction('GetStringFileInfo', GetFileVersionInfoItem, -1);
     RegisterFunction('SaveToFile', IsppFuncs.SaveToFile, -1);
     RegisterFunction('Find', FindLine, -1);

@@ -1526,12 +1526,22 @@ begin
       Stack.SetBool(PStart, True);
     end else
       Stack.SetBool(PStart, False);
+  end else if Proc.Name = 'GETPACKEDVERSION' then begin
+    if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
+      Stack.SetInt64(PStart-2, (Int64(VersionNumbers.MS) shl 32) or VersionNumbers.LS);
+      Stack.SetBool(PStart, True);
+    end else
+      Stack.SetBool(PStart, False);
   end else if Proc.Name = 'PACKVERSIONNUMBERS' then begin
     Stack.SetInt64(PStart, Int64((UInt64(Stack.GetUInt(PStart-1)) shl 32) or Stack.GetUInt(PStart-2)));
   end else if Proc.Name = 'PACKVERSIONCOMPONENTS' then begin
     VersionNumbers.MS := (Stack.GetUInt(PStart-1) shl 16) or (Stack.GetUInt(PStart-2) and $FFFF);
     VersionNumbers.LS := (Stack.GetUInt(PStart-3) shl 16) or (Stack.GetUInt(PStart-4) and $FFFF);
     Stack.SetInt64(PStart, Int64((UInt64(VersionNumbers.MS) shl 32) or VersionNumbers.LS));
+  end else if Proc.Name = 'COMPAREPACKEDVERSION' then begin
+    Stack.SetInt(PStart, Compare64(Integer64(Stack.GetInt64(PStart-1)), Integer64(Stack.GetInt64(PStart-2))));
+  end else if Proc.Name = 'SAMEPACKEDVERSION' then begin
+    Stack.SetBool(PStart, Compare64(Integer64(Stack.GetInt64(PStart-1)), Integer64(Stack.GetInt64(PStart-2))) = 0);
   end else if Proc.Name = 'UNPACKVERSIONNUMBERS' then begin
     VersionNumbers.MS := UInt64(Stack.GetInt64(PStart)) shr 32;
     VersionNumbers.LS := UInt64(Stack.GetInt64(PStart)) and $FFFFFFFF;

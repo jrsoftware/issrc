@@ -296,13 +296,16 @@ const
   );
 
   { VerInfo }
-  VerInfoTable: array [0..7] of AnsiString =
+  VerInfoTable: array [0..10] of AnsiString =
   (
     'function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;',
     'function GetVersionComponents(const Filename: String; var Major, Minor, Revision, Build: Word): Boolean;',
     'function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;',
+    'function GetPackedVersion(const Filename: String; var Version: Int64): Boolean;',
     'function PackVersionNumbers(const VersionMS, VersionLS: Cardinal): Int64;',
     'function PackVersionComponents(const Major, Minor, Revision, Build: Word): Int64;',
+    'function ComparePackedVersion(const Version1, Version2: Int64): Integer;',
+    'function SamePackedVersion(const Version1, Version2: Int64): Boolean;',
     'procedure UnpackVersionNumbers(const Version: Int64; var VersionMS, VersionLS: Cardinal);',
     'procedure UnpackVersionComponents(const Version: Int64; var Major, Minor, Revision, Build: Word);',
     'function VersionToStr(const Version: Int64): String;'

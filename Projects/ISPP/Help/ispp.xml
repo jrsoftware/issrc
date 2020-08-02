@@ -1352,6 +1352,22 @@ The list of options is provided at the end of this topic.</para>
 					<para>Also see <link href="GetStringFileInfo">GetStringFileInfo</link>, which can also be used to retrieve file versions using "FileVersion" or "ProductVersion" as the second parameter. The difference is that GetVersionNumbersString takes it from the fixed block of version info, unlike GetStringFileInfo which extracts string from the language specific block.</para>
 				</description>
 			</topic>
+			<topic id="GetPackedVersion">
+				<title>GetPackedVersion</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> GetPackedVersion(<b>str</b> Filename, <b>int</b> *Version)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Gets the packed version of the specified file. Returns the version as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</para>
+          <para>Always use <synel><link href="ComparePackedVersion">ComparePackedVersion</link></synel> or <synel><link href="SamePackedVersion">SamePackedVersion</link></synel> to compare packed versions.</para>
+          <para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
+				</section>
+			</topic>
 			<topic id="PackVersionNumbers">
 				<title>PackVersionNumbers</title>
 				<section title="Prototype">
@@ -1361,6 +1377,7 @@ The list of options is provided at the end of this topic.</para>
 				</section>
 				<description>
 					<para>Packs version numbers into a single value.</para>
+          <para>Always use <synel><link href="ComparePackedVersion">ComparePackedVersion</link></synel> or <synel><link href="SamePackedVersion">SamePackedVersion</link></synel> to compare packed versions.</para>
 					<para>Declared in &builtins;.</para>
 				</description>
 				<section title="See also">
@@ -1376,11 +1393,34 @@ The list of options is provided at the end of this topic.</para>
 				</section>
 				<description>
 					<para>Packs individual version components into a single value.</para>
+          <para>Always use <synel><link href="ComparePackedVersion">ComparePackedVersion</link></synel> or <synel><link href="SamePackedVersion">SamePackedVersion</link></synel> to compare packed versions.</para>
 					<para>Declared in &builtins;.</para>
 				</description>
 				<section title="See also">
 					<para><synel><link href="GetVersionComponents">GetVersionComponents</link></synel>, <synel><link href="PackVersionNumbers">PackVersionNumbers</link></synel>, <synel><link href="UnpackVersionComponents">UnpackVersionComponents</link></synel></para>
 				</section>
+			</topic>
+			<topic id="ComparePackedVersion">
+				<title>ComparePackedVersion</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> ComparePackedVersion(<b>int</b> Version1, <b>int</b> Version2)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Compares Version1 to Version2. The return value is less than 0 if Version1 is less than Version2, 0 if Version1 equals Version2, or greater than 0 if Version1 is greater than Version2.</para>
+				</description>
+			</topic>
+			<topic id="SamePackedVersion">
+				<title>SamePackedVersion</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> SamePackedVersion(<b>int</b> Version1, <b>int</b> Version2)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Compares the packed versions Version1 and Version2 and returns True if they are equal.</para>
+				</description>
 			</topic>
 			<topic id="UnpackVersionNumbers">
 				<title>UnpackVersionNumbers</title>

@@ -2001,12 +2001,20 @@ end;</pre>
         <prototype>function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;</prototype>
         <description><p>Gets the version of the specified file as a string (in "0.0.0.0" format). Returns True if successful, False otherwise.</p></description>
       </function>
+      <function>
+        <name>GetPackedVersion</name>
+        <prototype>function GetPackedVersion(const Filename: String; var Version: Int64): Boolean;</prototype>
+        <description><p>Gets the packed version of the specified file. Returns True if successful, False otherwise.</p>
+<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
+        <seealso><p><link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
+      </function>
     </subcategory>
     <subcategory>
       <function>
         <name>PackVersionNumbers</name>
         <prototype>function PackVersionNumbers(const VersionMS, VersionLS: Cardinal): Int64;</prototype>
-        <description><p>Packs version numbers into a single value.</p></description>
+        <description><p>Packs version numbers into a single value.</p>
+<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
         <seealso><p><link topic="isxfunc_GetVersionNumbers">GetVersionNumbers</link><br />
 <link topic="isxfunc_PackVersionComponents">PackVersionComponents</link><br />
 <link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link></p></seealso>
@@ -2014,10 +2022,23 @@ end;</pre>
       <function>
         <name>PackVersionComponents</name>
         <prototype>function PackVersionComponents(const Major, Minor, Revision, Build: Word): Int64;</prototype>
-        <description><p>Packs individual version components into a single value.</p></description>
+        <description><p>Packs individual version components into a single value.</p>
+<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
         <seealso><p><link topic="isxfunc_GetVersionComponents">GetVersionComponents</link><br />
 <link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
 <link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>ComparePackedVersion</name>
+        <prototype>function ComparePackedVersion(const Version1, Version2: Int64): Integer;</prototype>
+        <description><p>Compares Version1 to Version2. The return value is less than 0 if Version1 is less than Version2, 0 if Version1 equals Version2, or greater than 0 if Version1 is greater than Version2.</p></description>
+      </function>
+      <function>
+        <name>SamePackedVersion</name>
+        <prototype>function SamePackedVersion(const Version1, Version2: Int64): Boolean;</prototype>
+        <description><p>Compares the packed versions Version1 and Version2 and returns True if they are equal.</p></description>
       </function>
     </subcategory>
     <subcategory>
