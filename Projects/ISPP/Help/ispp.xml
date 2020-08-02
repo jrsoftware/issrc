@@ -1440,7 +1440,7 @@ The list of options is provided at the end of this topic.</para>
 				<title>DecodeVer</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>str</b> DecodeVer(<b>int</b> Ver, <b>int</b> Digits = 3)</line>
+						<line><b>str</b> DecodeVer(<b>int</b> Version, <b>int</b> Digits = 3)</line>
 					</pre>
 				</section>
 				<description>

@@ -195,20 +195,20 @@
   Local[0]
 //
 #define VersionToStr(int Version) \
-  Str(Ver >> 48 & 0xFFFF) + "." + Str(Ver >> 32 & 0xFFFF) + "." + \
-  Str(Ver >> 16 & 0xFFFF) + "." + Str(Ver & 0xFFFF)
+  Str(Version >> 48 & 0xFFFF) + "." + Str(Version >> 32 & 0xFFFF) + "." + \
+  Str(Version >> 16 & 0xFFFF) + "." + Str(Version & 0xFFFF)
 //
 #define EncodeVer(int Major, int Minor, int Revision = 0, int Build = -1) \
   (Major & 0xFF) << 24 | (Minor & 0xFF) << 16 | (Revision & 0xFF) << 8 | (Build >= 0 ? Build & 0xFF : 0)
 //
-#define DecodeVer(int Ver, int Digits = 3) \
-  Str(Ver >> 24 & 0xFF) + (Digits > 1 ? "." : "") + \
+#define DecodeVer(int Version, int Digits = 3) \
+  Str(Version >> 24 & 0xFF) + (Digits > 1 ? "." : "") + \
   (Digits > 1 ? \
-    Str(Ver >> 16 & 0xFF) + (Digits > 2 ? "." : "") : "") + \
+    Str(Version >> 16 & 0xFF) + (Digits > 2 ? "." : "") : "") + \
   (Digits > 2 ? \
-    Str(Ver >> 8 & 0xFF) + (Digits > 3 && (Local = Ver & 0xFF) ? "." : "") : "") + \
+    Str(Version >> 8 & 0xFF) + (Digits > 3 && (Local = Version & 0xFF) ? "." : "") : "") + \
   (Digits > 3 && Local ? \
-    Str(Ver & 0xFF) : "")
+    Str(Version & 0xFF) : "")
 //
 #define FindSection(str Section = "Files") \
   Find(0, "[" + Section + "]", FIND_MATCH | FIND_TRIM) + 1
