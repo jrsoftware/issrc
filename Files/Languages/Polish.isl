@@ -1,15 +1,15 @@
-; *** Inno Setup version 6.0.3+ Polish messages ***
+; *** Inno Setup version 6.1.0+ Polish messages ***
 ; Krzysztof Cynarski <krzysztof at cynarski.net>
-; Proofreading, corrections and 6.0.0+ updates:
+; Proofreading, corrections and 5.5.7-6.1.0+ updates:
 ; £ukasz Abramczuk <lukasz.abramczuk at gmail.com>
 ; To download user-contributed translations of this file, go to:
-; http://www.jrsoftware.org/is3rdparty.php
+;   https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
-; last update: 2019/10/03 
+; last update: 2020/07/26 
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -17,10 +17,9 @@
 LanguageName=Polski
 LanguageID=$0415
 LanguageCodePage=1250
- 
 
 [Messages]
-  
+
 ; *** Application titles
 SetupAppTitle=Instalator
 SetupWindowTitle=Instalacja - %1
@@ -69,7 +68,7 @@ PrivilegesRequiredOverrideCurrentUserRecommended=Zainstaluj dla &bie¿¹cego u¿ytk
 
 ; *** Misc. errors
 ErrorCreatingDir=Instalator nie móg³ utworzyæ katalogu "%1"
-ErrorTooManyFilesInDir=Nie mo¿na utworzyæ pliku w katalogu %1, poniewa¿ zawiera on zbyt wiele plików
+ErrorTooManyFilesInDir=Nie mo¿na utworzyæ pliku w katalogu "%1", poniewa¿ zawiera on zbyt wiele plików
 
 ; *** Setup common messages
 ExitSetupTitle=Zakoñcz instalacjê
@@ -78,7 +77,7 @@ AboutSetupMenuItem=&O instalatorze...
 AboutSetupTitle=O instalatorze
 AboutSetupMessage=%1 wersja %2%n%3%n%n Strona domowa %1:%n%4
 AboutSetupNote=
-TranslatorNote=Wersja polska: Krzysztof Cynarski%n<krzysztof at cynarski.net>%nKorekta: £ukasz Abramczuk%n<lukasz.abramczuk at gmail.com>
+TranslatorNote=Wersja polska: Krzysztof Cynarski%n<krzysztof at cynarski.net>%nOd wersji 5.5.7: £ukasz Abramczuk%n<lukasz.abramczuk at gmail.com>
 
 ; *** Buttons
 ButtonBack=< &Wstecz
@@ -94,7 +93,7 @@ ButtonFinish=&Zakoñcz
 ButtonBrowse=&Przegl¹daj...
 ButtonWizardBrowse=P&rzegl¹daj...
 ButtonNewFolder=&Utwórz nowy folder
- 
+
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Jêzyk instalacji
 SelectLanguageLabel=Wybierz jêzyk u¿ywany podczas instalacji:
@@ -191,7 +190,7 @@ GroupNameTooLong=Nazwa folderu lub œcie¿ki jest za d³uga.
 InvalidGroupName=Niepoprawna nazwa folderu.
 BadGroupName=Nazwa folderu nie mo¿e zawieraæ ¿adnego z nastêpuj¹cych znaków:%n%n%1
 NoProgramGroupCheck2=&Nie twórz folderu w Menu Start
-	
+
 ; *** "Ready to Install" wizard page
 WizardReady=Gotowy do rozpoczêcia instalacji
 ReadyLabel1=Instalator jest ju¿ gotowy do rozpoczêcia instalacji aplikacji [name] na komputerze.
@@ -203,7 +202,19 @@ ReadyMemoType=Rodzaj instalacji:
 ReadyMemoComponents=Wybrane komponenty:
 ReadyMemoGroup=Folder w Menu Start:
 ReadyMemoTasks=Dodatkowe zadania:
-  
+
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Pobieranie dodatkowych plików...
+ButtonStopDownload=&Zatrzymaj pobieranie
+StopDownload=Czy na pewno chcesz zatrzymaæ pobieranie?
+ErrorDownloadAborted=Pobieranie przerwane
+ErrorDownloadFailed=B³¹d pobierania: %1 %2
+ErrorDownloadSizeFailed=Pobieranie informacji o rozmiarze nie powiod³o siê: %1 %2
+ErrorFileHash1=B³¹d sumy kontrolnej pliku: %1
+ErrorFileHash2=Nieprawid³owa suma kontrolna pliku: oczekiwano %1, otrzymano %2
+ErrorProgress=Nieprawid³owy postêp: %1 z %2
+ErrorFileSize=Nieprawid³owy rozmiar pliku: oczekiwano %1, otrzymano %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Przygotowanie do instalacji
 PreparingDesc=Instalator przygotowuje instalacjê aplikacji [name] na komputerze.
@@ -214,12 +225,12 @@ ApplicationsFound2=Poni¿sze aplikacje u¿ywaj¹ plików, które musz¹ zostaæ uaktual
 CloseApplications=&Automatycznie zamknij aplikacje
 DontCloseApplications=&Nie zamykaj aplikacji
 ErrorCloseApplications=Instalator nie by³ w stanie automatycznie zamkn¹æ wymaganych aplikacji. Zalecane jest zamkniêcie wszystkich aplikacji, które aktualnie u¿ywaj¹ uaktualnianych przez program instalacyjny plików.
-PrepareToInstallNeedsRestart=Instalator wymaga ponownego uruchomienia komputera. Po zrestartowaniu komputera uruchom instalator ponownie, by dokoñczyæ proces instalacji aplikacji [name].%n%nCzy chcesz teraz uruchomiæ komputer ponownie?
+PrepareToInstallNeedsRestart=Instalator wymaga ponownego uruchomienia komputera. Po restarcie komputera uruchom instalator ponownie, by dokoñczyæ proces instalacji aplikacji [name].%n%nCzy chcesz teraz uruchomiæ komputer ponownie?
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalacja
 InstallingLabel=Poczekaj, a¿ instalator zainstaluje aplikacjê [name] na komputerze.
- 
+
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Zakoñczono instalacjê aplikacji [name]
 FinishedLabelNoIcons=Instalator zakoñczy³ instalacjê aplikacji [name] na komputerze.
@@ -234,21 +245,21 @@ NoRadio=&Nie, uruchomiê ponownie póŸniej
 RunEntryExec=Uruchom aplikacjê %1
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Wyœwietl plik %1
- 
+
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=Instalator potrzebuje kolejnego archiwum
 SelectDiskLabel2=Proszê w³o¿yæ dysk %1 i klikn¹æ przycisk OK.%n%nJeœli wymieniony poni¿ej folder nie okreœla po³o¿enia plików z tego dysku, proszê wprowadziæ poprawn¹ œcie¿kê lub klikn¹æ przycisk Przegl¹daj.
 PathLabel=Œ&cie¿ka:
 FileNotInDir2=Œcie¿ka "%2" nie zawiera pliku "%1". Proszê w³o¿yæ w³aœciwy dysk lub wybraæ inny folder.
 SelectDirectoryLabel=Proszê okreœliæ lokalizacjê kolejnego archiwum instalatora.
-  
+
 ; *** Installation phase messages
 SetupAborted=Instalacja nie zosta³a zakoñczona.%n%nProszê rozwi¹zaæ problem i ponownie rozpocz¹æ instalacjê.
 AbortRetryIgnoreSelectAction=Wybierz operacjê
 AbortRetryIgnoreRetry=Spróbuj &ponownie
 AbortRetryIgnoreIgnore=Z&ignoruj b³¹d i kontynuuj
 AbortRetryIgnoreCancel=Przerwij instalacjê
-  
+
 ; *** Installation status messages
 StatusClosingApplications=Zamykanie aplikacji...
 StatusCreateDirs=Tworzenie folderów...
@@ -261,7 +272,7 @@ StatusSavingUninstall=Zapisywanie informacji o dezinstalacji...
 StatusRunProgram=Koñczenie instalacji...
 StatusRestartingApplications=Ponowne uruchamianie aplikacji...
 StatusRollback=Cofanie zmian...
- 
+
 ; *** Misc. errors
 ErrorInternal2=Wewnêtrzny b³¹d: %1
 ErrorFunctionFailedNoCode=B³¹d podczas wykonywania %1
@@ -273,10 +284,10 @@ ErrorExecutingProgram=Nie mo¿na uruchomiæ:%n%1
 ErrorRegOpenKey=B³¹d podczas otwierania klucza rejestru:%n%1\%2
 ErrorRegCreateKey=B³¹d podczas tworzenia klucza rejestru:%n%1\%2
 ErrorRegWriteKey=B³¹d podczas zapisu do klucza rejestru:%n%1\%2
- 
+
 ; *** INI errors
 ErrorIniEntry=B³¹d podczas tworzenia pozycji w pliku INI: "%1".
- 
+
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=&Pomiñ plik (niezalecane)
 FileAbortRetryIgnoreIgnoreNotRecommended=Z&ignoruj b³¹d i kontynuuj (niezalecane)
@@ -286,8 +297,16 @@ ExistingFileReadOnly2=Istniej¹cy plik nie mo¿e zostaæ zast¹piony, gdy¿ jest ozna
 ExistingFileReadOnlyRetry=&Usuñ atrybut "Tylko do odczytu" i spróbuj ponownie
 ExistingFileReadOnlyKeepExisting=&Zachowaj istniej¹cy plik
 ErrorReadingExistingDest=Wyst¹pi³ b³¹d podczas próby odczytu istniej¹cego pliku:
-FileExists=Plik ju¿ istnieje.%n%nCzy chcesz, aby instalator nadpisa³ go w³asn¹ wersj¹?
-ExistingFileNewer=Istniej¹cy plik jest nowszy ni¿ ten, który instalator próbuje skopiowaæ. Zalecanym jest zachowanie istniej¹cego pliku.%n%nCzy chcesz zachowaæ istniej¹cy plik?
+FileExistsSelectAction=Wybierz czynnoœæ
+FileExists2=Plik ju¿ istnieje.
+FileExistsOverwriteExisting=&Nadpisz istniej¹cy plik
+FileExistsKeepExisting=&Zachowaj istniej¹cy plik
+FileExistsOverwriteOrKeepAll=&Wykonaj tê czynnoœæ dla kolejnych przypadków
+ExistingFileNewerSelectAction=Wybierz czynnoœæ
+ExistingFileNewer2=Istniej¹cy plik jest nowszy ni¿ ten, który instalator próbuje skopiowaæ.
+ExistingFileNewerOverwriteExisting=&Nadpisz istniej¹cy plik
+ExistingFileNewerKeepExisting=&Zachowaj istniej¹cy plik (zalecane)
+ExistingFileNewerOverwriteOrKeepAll=&Wykonaj tê czynnoœæ dla kolejnych przypadków
 ErrorChangingAttr=Wyst¹pi³ b³¹d podczas próby zmiany atrybutów pliku docelowego:
 ErrorCreatingTemp=Wyst¹pi³ b³¹d podczas próby utworzenia pliku w folderze docelowym:
 ErrorReadingSource=Wyst¹pi³ b³¹d podczas próby odczytu pliku Ÿród³owego:
@@ -338,10 +357,10 @@ StatusUninstalling=Dezinstalacja aplikacji %1...
 ; *** Shutdown block reasons
 ShutdownBlockReasonInstallingApp=Instalacja aplikacji %1.
 ShutdownBlockReasonUninstallingApp=Dezinstalacja aplikacji %1.
- 
+
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
- 
+
 [CustomMessages]
 
 NameAndVersion=%1 (wersja %2)

@@ -47,7 +47,7 @@ type
     {$ELSE}
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
     {$ENDIF}
-    function CalculateButtonWidth(const ButtonCaptions: array of TSetupMessageID): Integer;
+    function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
     procedure InitializeFont;
     function ScalePixelsX(const N: Integer): Integer;
     function ScalePixelsY(const N: Integer): Integer;
@@ -316,7 +316,7 @@ begin
   inherited;
 end;
 
-function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of TSetupMessageID): Integer;
+function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
 var
   DC: HDC;
   I, W: Integer;
@@ -327,7 +327,7 @@ begin
   try
     SelectObject(DC, Font.Handle);
     for I := Low(ButtonCaptions) to High(ButtonCaptions) do begin
-      W := GetTextWidth(DC, SetupMessages[ButtonCaptions[I]], True) + ScalePixelsX(20);
+      W := GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
       if Result < W then
         Result := W;
     end;

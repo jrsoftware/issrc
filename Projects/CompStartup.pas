@@ -33,6 +33,8 @@ type
     StartupCheck: TCheckBox;
     NewImage: TImage;
     OpenImage: TImage;
+    DonateImage: TImage;
+    MailingListImage: TImage;
     procedure RadioButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure DblClick_(Sender: TObject);
@@ -40,16 +42,18 @@ type
     procedure OKButtonClick(Sender: TObject);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
+    procedure DonateImageClick(Sender: TObject);
+    procedure MailingListImageClick(Sender: TObject);
   private
     FResult: TStartupFormResult;
     FResultFileName: TFileName;
-    procedure SetMRUList(const MRUList: TStringList);
+    procedure SetMRUFilesList(const MRUFilesList: TStringList);
     procedure UpdateImages;
   protected
     procedure CreateWnd; override;
     procedure CreateParams(var Params: TCreateParams); override;
   public
-    property MRUList: TStringList write SetMRUList;
+    property MRUFilesList: TStringList write SetMRUFilesList;
     property Result: TStartupFormResult read FResult;
     property ResultFileName: TFileName read FResultFileName;
   end;
@@ -61,12 +65,9 @@ uses
 
 {$R *.DFM}
 
-procedure TStartupForm.SetMRUList(const MRUList: TStringList);
-var
-  I: Integer;
+procedure TStartupForm.SetMRUFilesList(const MRUFilesList: TStringList);
 begin
-  for I := 0 to MRUList.Count-1 do
-    OpenListBox.Items.Add(MRUList[I]);
+  OpenListBox.Items.AddStrings(MRUFilesList);
   UpdateHorizontalExtent(OpenListBox);
 end;
 
@@ -143,6 +144,16 @@ end;
 procedure TStartupForm.OpenListBoxClick(Sender: TObject);
 begin
   OpenRadioButton.Checked := True;
+end;
+
+procedure TStartupForm.DonateImageClick(Sender: TObject);
+begin
+  OpenDonateSite;
+end;
+
+procedure TStartupForm.MailingListImageClick(Sender: TObject);
+begin
+  OpenMailingListSite;
 end;
 
 procedure TStartupForm.OKButtonClick(Sender: TObject);

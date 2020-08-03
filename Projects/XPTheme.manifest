@@ -39,4 +39,8 @@
         <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
     </application>
 </compatibility>
+<file name="mpr.dll" loadFrom="%SystemRoot%\system32\" />
+<file name="netapi32.dll" loadFrom="%SystemRoot%\system32\" />
+<file name="netutils.dll" loadFrom="%SystemRoot%\system32\" />
+<file name="version.dll" loadFrom="%SystemRoot%\system32\" />
 </assembly>

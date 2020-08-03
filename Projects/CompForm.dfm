@@ -339,7 +339,7 @@ object CompileForm: TCompileForm
       object N1: TMenuItem
         Caption = '-'
       end
-      object FMRUSep: TMenuItem
+      object FMRUFilesSep: TMenuItem
         Caption = '-'
         Visible = False
       end
@@ -584,6 +584,11 @@ object CompileForm: TCompileForm
         ShortCut = 24647
         OnClick = TGenerateGUIDClick
       end
+      object TInsertMsgBox: TMenuItem
+        Caption = '&MessageBox Designer...'
+        ShortCut = 24653
+        OnClick = TInsertMsgBoxClick
+      end
       object N7: TMenuItem
         Caption = '-'
       end
@@ -602,6 +607,13 @@ object CompileForm: TCompileForm
     object HMenu: TMenuItem
       Caption = '&Help'
       OnClick = HMenuClick
+      object HDonate: TMenuItem
+        Caption = 'D&onate - Thank you!'
+        OnClick = HDonateClick
+      end
+      object N14: TMenuItem
+        Caption = '-'
+      end
       object HDoc: TMenuItem
         Caption = 'Inno Setup &Documentation'
         OnClick = HDocClick
@@ -613,6 +625,10 @@ object CompileForm: TCompileForm
       object HFaq: TMenuItem
         Caption = 'Inno Setup &FAQ'
         OnClick = HFaqClick
+      end
+      object HMailingList: TMenuItem
+        Caption = 'Inno Setup &Mailing List'
+        OnClick = HMailingListClick
       end
       object HWhatsNew: TMenuItem
         Caption = 'Inno Setup &Revision History'
@@ -637,13 +653,6 @@ object CompileForm: TCompileForm
         OnClick = HPSWebsiteClick
       end
       object N6: TMenuItem
-        Caption = '-'
-      end
-      object HDonate: TMenuItem
-        Caption = 'D&onate'
-        OnClick = HDonateClick
-      end
-      object N14: TMenuItem
         Caption = '-'
       end
       object HAbout: TMenuItem

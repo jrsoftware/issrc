@@ -9,14 +9,16 @@ interface
 
 {$I ..\Version.inc}
 
-uses Windows, Classes, IsppVarUtils, IsppIntf, IsppTranslate, IsppParser;
+uses
+  Windows, Classes, IsppVarUtils, IsppIntf, IsppTranslate, IsppParser;
 
 procedure Register(Preproc: TPreprocessor);
 
 implementation
 
-uses SysUtils, IniFiles, Registry, IsppConsts, IsppBase, IsppIdentMan,
-  IsppSessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2;
+uses
+  SysUtils, IniFiles, Registry, IsppConsts, IsppBase, IsppIdentMan,
+  IsppSessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2, Int64Em;
   
 var
   IsWin64: Boolean;
@@ -186,19 +188,20 @@ end;
 {FileSize(<filename>)}
 function FileSize(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
-  F: file of byte;
+  SearchRec: TSearchRec;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      {$I-}
-      FileMode := fmOpenRead;
-      AssignFile(F, PrependPath(Ext, Get(0).AsStr));
-      Reset(F);
-      MakeInt(ResPtr^, System.FileSize(F));
-      CloseFile(F);
-      {$I-}
+      if FindFirst(PrependPath(Ext, Get(0).AsStr), faAnyFile, SearchRec) = 0 then begin
+        try
+          MakeInt(ResPtr^, SearchRec.Size);
+        finally
+          FindClose(SearchRec);
+        end;
+      end else
+        MakeInt(ResPtr^, -1);
     end
   except
     on E: Exception do
@@ -766,7 +769,7 @@ function CopyFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   S: string;
-  B, C: Integer;
+  B, C: Int64;
 begin
   if CheckParams(Params, [evStr, evInt, evInt], 2, Result) then
   try
@@ -775,7 +778,19 @@ begin
       S := Get(0).AsStr;
       B := Get(1).AsInt;
       if GetCount > 2 then C := Get(2).AsInt else C := MaxInt;
-      MakeStr(ResPtr^, Copy(S, B, C));
+
+      { Constrain 64-bit arguments to 32 bits without truncating them }
+      if B < 1 then
+        B := 1;
+      if C > Maxint then
+        C := Maxint;
+      if (B > Maxint) or (C < 0) then begin
+        { Result should be empty in these cases }
+        B := 1;
+        C := 0;
+      end;
+
+      MakeStr(ResPtr^, Copy(S, Integer(B), Integer(C)));
     end;
   except
     on E: Exception do
@@ -863,7 +878,7 @@ begin
   end;
 end;
 
-function GetFileVersion(Ext: Longint; const Params: IIsppFuncParams;
+function GetVersionNumbersStringFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Filename: string;
@@ -899,6 +914,41 @@ begin
         end;
       end
     end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function ComparePackedVersionFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evInt, evInt], 2, Result) then
+  try
+    with IInternalFuncParams(Params) do
+      MakeInt(ResPtr^, Compare64(Integer64(Get(0).AsInt), Integer64(Get(1).AsInt)));
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function SamePackedVersionFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evInt, evInt], 2, Result) then
+  try
+    with IInternalFuncParams(Params) do
+      if Compare64(Integer64(Get(0).AsInt), Integer64(Get(1).AsInt)) = 0 then
+        MakeInt(ResPtr^, 1)
+      else
+        MakeInt(ResPtr^, 0)
   except
     on E: Exception do
     begin
@@ -1204,6 +1254,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Readln(F^, S);
       {$I+}
@@ -1231,11 +1283,13 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Reset(F^);
       {$I+}
       if IOResult <> 0 then
-        FuncResult.Error('Failed to reset a file')
+        raise Exception.Create('Failed to reset a file')
       else
         ResPtr^ := NULL
     end;
@@ -1259,6 +1313,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       IsEof := Eof(F^);
       {$I+}
@@ -1286,6 +1342,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Close(F^);
       {$I+}
@@ -1294,11 +1352,6 @@ begin
       TPreprocessor(Ext).UncollectGarbage(Pointer(F));
     end;
   except
-    on E: EAccessViolation do
-    begin
-      FuncResult.Error('Invalid file handle');
-      Result.Error := ISPPFUNC_FAIL
-    end;
     on E: Exception do
     begin
       FuncResult.Error(PChar(E.Message));
@@ -1331,7 +1384,7 @@ begin
         New(FileDate);
         FileDate^ := Age;
         TPreprocessor(Ext).CollectGarbage(FileDate, GarbageReleaseDateTime);
-        MakeInt(ResPtr^, Integer(FileDate));
+        MakeInt(ResPtr^, Int64(FileDate));
       end
       else
         MakeInt(ResPtr^, -1);
@@ -1357,7 +1410,7 @@ begin
       New(DateTime);
       DateTime^ := Now;
       TPreprocessor(Ext).CollectGarbage(DateTime, GarbageReleaseDateTime);
-      MakeInt(ResPtr^, Integer(DateTime));
+      MakeInt(ResPtr^, Int64(DateTime));
     end;
   except
     on E: Exception do
@@ -1709,6 +1762,72 @@ begin
   end;
 end;
 
+function MessageFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do begin
+      { Also see Pragma in IsppTranslate }
+      TPreprocessor(Ext).SendMsg(Get(0).AsStr, imtStatus);
+      ResPtr^ := NULL;
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function WarningFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do begin
+      { Also see Pragma in IsppTranslate }
+      TPreprocessor(Ext).Warning(Get(0).AsStr, []);
+      ResPtr^ := NULL;
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function ErrorFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+var
+  CatchException: Boolean;
+  ErrorMsg: String;
+begin
+  CatchException := True;
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do begin
+      { Also see Pragma and pcErrorDir in IsppTranslate }
+      ErrorMsg := Get(0).AsStr;
+      if ErrorMsg = '' then ErrorMsg := 'Error';
+      CatchException := False;
+      TPreprocessor(Ext).RaiseError(ErrorMsg);
+    end;
+  except
+    on E: Exception do
+    begin
+      if CatchException then begin
+        FuncResult.Error(PChar(E.Message));
+        Result.Error := ISPPFUNC_FAIL
+      end else
+        raise;
+    end;
+  end;
+end;
+
 procedure Register(Preproc: TPreprocessor);
 begin
   with Preproc do
@@ -1729,7 +1848,9 @@ begin
     RegisterFunction('Pos', PosFunc, -1);
     RegisterFunction('RPos', RPosFunc, -1);
     RegisterFunction('Len', LenFunc, -1);
-    RegisterFunction('GetFileVersion', GetFileVersion, -1);
+    RegisterFunction('GetVersionNumbersString', GetVersionNumbersStringFunc, -1);
+    RegisterFunction('ComparePackedVersion', ComparePackedVersionFunc, -1);
+    RegisterFunction('SamePackedVersion', SamePackedVersionFunc, -1);
     RegisterFunction('GetStringFileInfo', GetFileVersionInfoItem, -1);
     RegisterFunction('SaveToFile', IsppFuncs.SaveToFile, -1);
     RegisterFunction('Find', FindLine, -1);
@@ -1767,6 +1888,9 @@ begin
     RegisterFunction('Trim', TrimFunc, -1);
     RegisterFunction('StringChange', StringChangeFunc, -1);
     RegisterFunction('IsWin64', IsWin64Func, -1);
+    RegisterFunction('Message', MessageFunc, -1);
+    RegisterFunction('Warning', WarningFunc, -1);
+    RegisterFunction('Error', ErrorFunc, -1);
   end;
 end;
 

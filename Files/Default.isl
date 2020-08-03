@@ -1,7 +1,7 @@
-﻿; *** Inno Setup version 6.0.3+ English messages ***
+﻿; *** Inno Setup version 6.1.0+ English messages ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -210,6 +210,18 @@ ReadyMemoComponents=Selected components:
 ReadyMemoGroup=Start Menu folder:
 ReadyMemoTasks=Additional tasks:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Downloading additional files...
+ButtonStopDownload=&Stop download
+StopDownload=Are you sure you want to stop the download?
+ErrorDownloadAborted=Download aborted
+ErrorDownloadFailed=Download failed: %1 %2
+ErrorDownloadSizeFailed=Getting size failed: %1 %2
+ErrorFileHash1=File hash failed: %1
+ErrorFileHash2=Invalid file hash: expected %1, found %2
+ErrorProgress=Invalid progress: %1 of %2
+ErrorFileSize=Invalid file size: expected %1, found %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparing to Install
 PreparingDesc=Setup is preparing to install [name] on your computer.
@@ -292,8 +304,16 @@ ExistingFileReadOnly2=The existing file could not be replaced because it is mark
 ExistingFileReadOnlyRetry=&Remove the read-only attribute and try again
 ExistingFileReadOnlyKeepExisting=&Keep the existing file
 ErrorReadingExistingDest=An error occurred while trying to read the existing file:
-FileExists=The file already exists.%n%nWould you like Setup to overwrite it?
-ExistingFileNewer=The existing file is newer than the one Setup is trying to install. It is recommended that you keep the existing file.%n%nDo you want to keep the existing file?
+FileExistsSelectAction=Select action
+FileExists2=The file already exists.
+FileExistsOverwriteExisting=&Overwrite the existing file
+FileExistsKeepExisting=&Keep the existing file
+FileExistsOverwriteOrKeepAll=&Do this for the next conflicts
+ExistingFileNewerSelectAction=Select action
+ExistingFileNewer2=The existing file is newer than the one Setup is trying to install.
+ExistingFileNewerOverwriteExisting=&Overwrite the existing file
+ExistingFileNewerKeepExisting=&Keep the existing file (recommended)
+ExistingFileNewerOverwriteOrKeepAll=&Do this for the next conflicts
 ErrorChangingAttr=An error occurred while trying to change the attributes of the existing file:
 ErrorCreatingTemp=An error occurred while trying to create a file in the destination directory:
 ErrorReadingSource=An error occurred while trying to read the source file:

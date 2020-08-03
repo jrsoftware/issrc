@@ -295,6 +295,7 @@ procedure RegisterSetupForm_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(Cl.FindClass('TUIStateForm'), 'TSetupForm') do
   begin
+    RegisterMethod('function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;');
     RegisterMethod('function ShouldSizeX: Boolean;');
     RegisterMethod('function ShouldSizeY: Boolean;');
     RegisterMethod('procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean)');
@@ -536,6 +537,20 @@ begin
   end;
 end;
 
+{$IFNDEF PS_NOINT64}
+procedure RegisterDownloadWizardPage_C(Cl: TPSPascalCompiler);
+begin
+  with CL.AddClassN(Cl.FindClass('TOutputProgressWizardPage'),'TDownloadWizardPage') do
+  begin
+    RegisterProperty('AbortButton', 'TNewButton', iptr);
+    RegisterMethod('procedure Add(const Url, BaseName, RequiredSHA256OfFile: String)');
+    RegisterMethod('procedure Clear');
+    RegisterMethod('function Download: Int64');
+    RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }
+  end;
+end;
+{$ENDIF}
+
 procedure RegisterHandCursor_C(Cl: TPSPascalCompiler);
 begin
   cl.AddConstantN('crHand', 'Integer').Value.ts32 := crHand;
@@ -649,6 +664,9 @@ begin
   RegisterOutputMsgWizardPage_C(Cl);
   RegisterOutputMsgMemoWizardPage_C(Cl);
   RegisterOutputProgressWizardPage_C(Cl);
+{$IFNDEF PS_NOINT64}
+  RegisterDownloadWizardPage_C(Cl);
+{$ENDIF}
 
   RegisterHandCursor_C(Cl);
   

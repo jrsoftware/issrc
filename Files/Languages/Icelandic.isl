@@ -1,15 +1,17 @@
-﻿; *** Inno Setup version 6.0.3+ Icelandic messages ***
+﻿; *** Inno Setup version 6.1.0+ Icelandic messages ***
 ;
 ; Translator: Stefán Örvar Sigmundsson, eMedia Intellect
 ; Contact: emi@emi.is
-; Date: 2019-10-03
+; Date: 2020-07-25
 
 [LangOptions]
+
 LanguageName=<00CD>slenska
 LanguageID=$040F
 LanguageCodePage=1252
 
 [Messages]
+
 ; *** Application titles
 SetupAppTitle=Uppsetning
 SetupWindowTitle=Uppsetning - %1
@@ -192,6 +194,18 @@ ReadyMemoComponents=Valin atriði:
 ReadyMemoGroup=Upphafsvalmyndarmappa:
 ReadyMemoTasks=Aukaleg verk:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Niðurhlaðandi aukalegum skrám…
+ButtonStopDownload=&Stöðva niðurhleðslu
+StopDownload=Ert þú viss um að þú viljir stöðva niðurhleðsluna?
+ErrorDownloadAborted=Niðurhleðslu hætt
+ErrorDownloadFailed=Niðurhleðsla mistókst: %1 %2
+ErrorDownloadSizeFailed=Mistókst að sækja stærð: %1 %2
+ErrorFileHash1=Skráarhakk mistókst: %1
+ErrorFileHash2=Ógilt skráarhakk: bjóst við %1, fékk %2
+ErrorProgress=Ógild framvinda: %1 of %2
+ErrorFileSize=Ógild skráarstærð: bjóst við %1, fékk %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Undirbúandi uppsetningu
 PreparingDesc=Uppsetning er undirbúandi uppsetningu [name] á tölvuna þína.
@@ -272,8 +286,16 @@ ExistingFileReadOnly2=Hina gildandi skrá var ekki hægt að yfirrita því hún
 ExistingFileReadOnlyRetry=&Fjarlægja lesa-einungis eigindi og reyna aftur
 ExistingFileReadOnlyKeepExisting=&Halda gildandi skrá
 ErrorReadingExistingDest=Villa kom upp meðan reynt var að lesa gildandi skrána:
-FileExists=Skráin er nú þegar til.%n%nVilt þú að Uppsetning yfirriti hana?
-ExistingFileNewer=Hin gildandi skrá er nýrri en sú sem Uppsetning er reynandi að uppsetja. Það er ráðlagt að þú haldir hinni gildandi skrá.%n%nVilt þú halda hinni gildandi skrá?
+FileExistsSelectAction=Velja aðgerð
+FileExists2=Skráin er nú þegar til.
+FileExistsOverwriteExisting=&Yfirrita hina gildandi skrá
+FileExistsKeepExisting=&Halda hinni gildandi skrá
+FileExistsOverwriteOrKeepAll=&Gera þetta við næstu ósamstæður
+ExistingFileNewerSelectAction=Velja aðgerð
+ExistingFileNewer2=Hin gildandi skrá er nýrri en sú sem Uppsetning er að reyna að uppsetja.
+ExistingFileNewerOverwriteExisting=&Yfirrita hina gildandi skrá
+ExistingFileNewerKeepExisting=&Halda hinni gildandi skrá (ráðlagt)
+ExistingFileNewerOverwriteOrKeepAll=&Gera þetta við næstu ósamstæður
 ErrorChangingAttr=Villa kom upp meðan reynt var að breyta eigindum gildandi skráarinnar:
 ErrorCreatingTemp=Villa kom upp meðan reynt var að skapa skrá í staðsetningarskráasafninu:
 ErrorReadingSource=Villa kom upp meðan reynt var að lesa upprunaskrána:
@@ -324,6 +346,7 @@ ShutdownBlockReasonInstallingApp=Uppsetjandi %1.
 ShutdownBlockReasonUninstallingApp=Niðurtakandi %1.
 
 [CustomMessages]
+
 NameAndVersion=%1 útgáfa %2
 AdditionalIcons=Aukalegir skyndivísir:
 CreateDesktopIcon=Skapa &skjáborðsskyndivísi

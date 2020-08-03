@@ -2,11 +2,13 @@ unit ScintStylerInnoSetup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   TInnoSetupStyler: styler for Inno Setup scripts
+  
+  Requires LangOptions+SetupSectionDirectives and MsgIDs from the Inno Setup source code
 }
 
 interface
@@ -101,7 +103,7 @@ type
 implementation
 
 uses
-  TypInfo;
+  TypInfo, MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives;
 
 type
   TInnoSetupStylerLineState = record
@@ -109,178 +111,6 @@ type
     SpanState: TInnoSetupStylerSpanState;
     OpenCompilerDirectivesCount: ShortInt;
   end;
-
-  TSetupSectionDirective = (
-    ssAllowCancelDuringInstall,
-    ssAllowNetworkDrive,
-    ssAllowNoIcons,
-    ssAllowRootDirectory,
-    ssAllowUNCPath,
-    ssAlwaysRestart,
-    ssAlwaysShowComponentsList,
-    ssAlwaysShowDirOnReadyPage,
-    ssAlwaysShowGroupOnReadyPage,
-    ssAlwaysUsePersonalGroup,
-    ssAppCopyright,
-    ssAppendDefaultDirName,
-    ssAppendDefaultGroupName,
-    ssAppComments,
-    ssAppContact,
-    ssAppId,
-    ssAppModifyPath,
-    ssAppMutex,
-    ssAppName,
-    ssAppPublisher,
-    ssAppPublisherURL,
-    ssAppReadmeFile,
-    ssAppSupportPhone,
-    ssAppSupportURL,
-    ssAppUpdatesURL,
-    ssAppVerName,
-    ssAppVersion,
-    ssArchitecturesAllowed,
-    ssArchitecturesInstallIn64BitMode,
-    ssASLRCompatible,
-    ssBackColor,
-    ssBackColor2,
-    ssBackColorDirection,
-    ssBackSolid,
-    ssChangesAssociations,
-    ssChangesEnvironment,
-    ssCloseApplications,
-    ssCloseApplicationsFilter,
-    ssCompression,
-    ssCompressionThreads,
-    ssCreateAppDir,
-    ssCreateUninstallRegKey,
-    ssDefaultDialogFontName,
-    ssDefaultDirName,
-    ssDefaultGroupName,
-    ssDefaultUserInfoName,
-    ssDefaultUserInfoOrg,
-    ssDefaultUserInfoSerial,
-    ssDEPCompatible,
-    ssDirExistsWarning,
-    ssDisableDirPage,
-    ssDisableFinishedPage,
-    ssDisableProgramGroupPage,
-    ssDisableReadyMemo,
-    ssDisableReadyPage,
-    ssDisableStartupPrompt,
-    ssDisableWelcomePage,
-    ssDiskClusterSize,
-    ssDiskSliceSize,
-    ssDiskSpanning,
-    ssDontMergeDuplicateFiles,
-    ssEnableDirDoesntExistWarning,
-    ssEncryption,
-    ssExtraDiskSpaceRequired,
-    ssFlatComponentsList,
-    ssInfoAfterFile,
-    ssInfoBeforeFile,
-    ssInternalCompressLevel,
-    ssLanguageDetectionMethod,
-    ssLicenseFile,
-    ssLZMAAlgorithm,
-    ssLZMABlockSize,
-    ssLZMADictionarySize,
-    ssLZMAMatchFinder,
-    ssLZMANumBlockThreads,
-    ssLZMANumFastBytes,
-    ssLZMAUseSeparateProcess,
-    ssMergeDuplicateFiles,
-    ssMessagesFile,
-    ssMinVersion,
-    ssOnlyBelowVersion,
-    ssOutput,
-    ssOutputBaseFilename,
-    ssOutputDir,
-    ssOutputManifestFile,
-    ssPassword,
-    ssPrivilegesRequired,
-    ssPrivilegesRequiredOverridesAllowed,
-    ssReserveBytes,
-    ssRestartApplications,
-    ssRestartIfNeededByRun,
-    ssSetupIconFile,
-    ssSetupLogging,
-    ssSetupMutex,
-    ssShowComponentSizes,
-    ssShowLanguageDialog,
-    ssShowTasksTreeLines,
-    ssShowUndisplayableLanguages,
-    ssSignedUninstaller,
-    ssSignedUninstallerDir,
-    ssSignTool,
-    ssSignToolMinimumTimeBetween,
-    ssSignToolRetryCount,
-    ssSignToolRetryDelay,
-    ssSignToolRunMinimized,
-    ssSlicesPerDisk,
-    ssSolidCompression,
-    ssSourceDir,
-    ssTerminalServicesAware,
-    ssTimeStampRounding,
-    ssTimeStampsInUTC,
-    ssTouchDate,
-    ssTouchTime,
-    ssUpdateUninstallLogAppName,
-    ssUninstallable,
-    ssUninstallDisplayIcon,
-    ssUninstallDisplayName,
-    ssUninstallDisplaySize,
-    ssUninstallFilesDir,
-    ssUninstallIconFile,
-    ssUninstallLogMode,
-    ssUninstallRestartComputer,
-    ssUninstallStyle,
-    ssUsedUserAreasWarning,
-    ssUsePreviousAppDir,
-    ssUsePreviousGroup,
-    ssUsePreviousLanguage,
-    ssUsePreviousPrivileges,
-    ssUsePreviousSetupType,
-    ssUsePreviousTasks,
-    ssUsePreviousUserInfo,
-    ssUseSetupLdr,
-    ssUserInfoPage,
-    ssVersionInfoCompany,
-    ssVersionInfoCopyright,
-    ssVersionInfoDescription,
-    ssVersionInfoOriginalFileName,
-    ssVersionInfoProductName,
-    ssVersionInfoProductVersion,
-    ssVersionInfoProductTextVersion,
-    ssVersionInfoTextVersion,
-    ssVersionInfoVersion,
-    ssWindowResizable,
-    ssWindowShowCaption,
-    ssWindowStartMaximized,
-    ssWindowVisible,
-    ssWizardImageAlphaFormat,
-    ssWizardImageBackColor,
-    ssWizardImageFile,
-    ssWizardImageStretch,
-    ssWizardResizable,
-    ssWizardSmallImageBackColor,
-    ssWizardSmallImageFile,
-    ssWizardSizePercent,
-    ssWizardStyle);
-
-  TLangOptionsSectionDirective = (
-    lsCopyrightFontName,
-    lsCopyrightFontSize,
-    lsDialogFontName,
-    lsDialogFontSize,
-    lsDialogFontStandardHeight,
-    lsLanguageCodePage,
-    lsLanguageID,
-    lsLanguageName,
-    lsRightToLeft,
-    lsTitleFontName,
-    lsTitleFontSize,
-    lsWelcomeFontName,
-    lsWelcomeFontSize);
 
 const
   ComponentsSectionParameters: array[0..8] of TInnoSetupStylerParamInfo = (
@@ -341,9 +171,10 @@ const
     (Name: 'StrongAssemblyName'),
     (Name: 'Tasks'));
 
-  IconsSectionParameters: array[0..17] of TInnoSetupStylerParamInfo = (
+  IconsSectionParameters: array[0..18] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'AppUserModelID'),
+    (Name: 'AppUserModelToastActivatorCLSID'),
     (Name: 'BeforeInstall'),
     (Name: 'Check'),
     (Name: 'Comment'),
@@ -1205,8 +1036,12 @@ begin
   end;
 
   case Section of
+    scCustomMessages:
+      I := 0;
     scLangOptions:
       I := GetEnumValue(TypeInfo(TLangOptionsSectionDirective), 'ls' + S);
+    scMessages:
+      I := GetEnumValue(TypeInfo(TSetupMessageID), 'msg' + S);
     scSetup:
       I := GetEnumValue(TypeInfo(TSetupSectionDirective), 'ss' + S);
   else
@@ -1215,7 +1050,7 @@ begin
   if I <> -1 then
     CommitStyle(stKeyword)
   else begin
-    if Section in [scLangOptions, scSetup] then
+    if Section in [scLangOptions, scMessages, scSetup] then
       CommitStyleSqPending(stDefault)
     else
       CommitStyle(stDefault);

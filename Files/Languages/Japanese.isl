@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.3+ Japanese messages ***
+; *** Inno Setup version 6.1.0+ Japanese messages ***
 ;
 ; Maintained by Koichi Shirasuka (shirasuka@eugrid.co.jp)
 ;
@@ -195,6 +195,18 @@ ReadyMemoComponents=選択コンポーネント:
 ReadyMemoGroup=スタートメニューフォルダー:
 ReadyMemoTasks=追加タスク一覧:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=追加のファイルをダウンロードしています...
+ButtonStopDownload=ダウンロードを中止(&S)
+StopDownload=ダウンロードを中止してもよろしいですか？
+ErrorDownloadAborted=ダウンロードを中止しました
+ErrorDownloadFailed=ダウンロードに失敗しました: %1 %2
+ErrorDownloadSizeFailed=サイズの取得に失敗しました: %1 %2
+ErrorFileHash1=ファイルのハッシュに失敗しました: %1
+ErrorFileHash2=無効なファイルハッシュ: 予期された値 %1, 実際の値 %2
+ErrorProgress=無効な進行状況: %1 / %2
+ErrorFileSize=無効なファイルサイズ: 予期された値 %1, 実際の値 %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=インストール準備中
 PreparingDesc=ご使用のコンピューターへ [name] をインストールする準備をしています。
@@ -277,8 +289,16 @@ ExistingFileReadOnly2=既存のファイルは読み取り専用のため置き換えできません。
 ExistingFileReadOnlyRetry=読み取り専用属性を解除してもう一度やりなおす(&R)
 ExistingFileReadOnlyKeepExisting=既存のファイルを残す(&K)
 ErrorReadingExistingDest=既存のファイルを読み込み中にエラーが発生しました:
-FileExists=ファイルは既に存在します。%n%n上書きしますか？
-ExistingFileNewer=インストールしようとしているファイルよりも新しいファイルが存在します。既存のファイルを残すことをお奨めします。%n%n既存のファイルを残しますか？
+FileExistsSelectAction=アクションを選択してください
+FileExists2=ファイルは既に存在します。
+FileExistsOverwriteExisting=既存のファイルを上書きする(&O)
+FileExistsKeepExisting=既存のファイルを維持する(&K)
+FileExistsOverwriteOrKeepAll=以降の競合に同じ処理を行う(&D)
+ExistingFileNewerSelectAction=アクションを選択してください
+ExistingFileNewer2=セットアップがインストールしようとしているものよりも新しいファイルがあります。
+ExistingFileNewerOverwriteExisting=既存のファイルを上書きする(&O)
+ExistingFileNewerKeepExisting=既存のファイルを維持する(&K) (推奨)
+ExistingFileNewerOverwriteOrKeepAll=以降の競合に同じ処理を行う(&D)
 ErrorChangingAttr=既存ファイルの属性を変更中にエラーが発生しました:
 ErrorCreatingTemp=コピー先のフォルダーにファイルを作成中にエラーが発生しました:
 ErrorReadingSource=コピー元のファイルを読み込み中にエラーが発生しました:

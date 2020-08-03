@@ -105,7 +105,8 @@ var
   InitLoadInf, InitSaveInf: String;
   InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
     InitNoCloseApplications, InitForceCloseApplications, InitNoForceCloseApplications,
-    InitRestartApplications, InitNoRestartApplications, InitNoCancel: Boolean;
+    InitLogCloseApplications, InitRestartApplications, InitNoRestartApplications,
+    InitNoCancel: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -156,6 +157,7 @@ var
   RmSessionStarted, RmFoundApplications, RmDoRestart: Boolean;
   RmSessionHandle: DWORD;
   RmSessionKey: array[0..CCH_RM_SESSION_KEY] of WideChar;
+  RmRegisteredFilesCount: Integer;
 
   { Other }
   ShowLanguageDialog, MatchedLangParameter: Boolean;
@@ -177,7 +179,7 @@ var
   DisableCodeConsts: Integer;
   SetupExitCode: Integer;
   CreatedIcon: Boolean;
-  RestartInitiatedByThisProcess: Boolean;
+  RestartInitiatedByThisProcess, DownloadTemporaryFileProcessMessages: Boolean;
 {$IFDEF IS_D12}
   TaskbarButtonHidden: Boolean;
 {$ENDIF}
@@ -226,7 +228,8 @@ function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
-  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer): Integer;
+  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer;
+  const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
 procedure LogWindowsVersion;
 procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
@@ -262,7 +265,7 @@ uses
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
   Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
   {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
-  SimpleExpression, Helper, SpawnClient, SpawnServer, LibFusion, BitmapImage,
+  SimpleExpression, Helper, SpawnClient, SpawnServer, DotNet, BitmapImage,
   TaskDialog;
 
 {$R *.DFM}
@@ -675,6 +678,7 @@ begin
   InitNoCloseApplications := GetIniBool(Section, 'NoCloseApplications', InitNoCloseApplications, FileName);
   InitForceCloseApplications := GetIniBool(Section, 'ForceCloseApplications', InitForceCloseApplications, FileName);
   InitNoForceCloseApplications := GetIniBool(Section, 'NoForceCloseApplications', InitNoForceCloseApplications, FileName);
+  InitLogCloseApplications := GetIniBool(Section, 'LogCloseApplications', InitLogCloseApplications, FileName);
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
@@ -1017,10 +1021,10 @@ function ExpandIndividualConst(Cnst: String;
 const
   FolderConsts: array[Boolean, TShellFolderID] of String =
     (('userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
-      'usersendto', 'fonts', 'userappdata', 'userdocs', 'usertemplates',
+      'usersendto', 'commonfonts', 'userappdata', 'userdocs', 'usertemplates',
       'userfavorites', 'localappdata'),
      ('commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
-      'usersendto', 'fonts', 'commonappdata', 'commondocs', 'commontemplates',
+      'usersendto', 'commonfonts', 'commonappdata', 'commondocs', 'commontemplates',
       'commonfavorites' { not accepted anymore by the compiler }, 'localappdata'));
   NoUninstallConsts: array[0..6] of String =
     ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'hwnd',
@@ -1112,6 +1116,7 @@ begin
       InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
   else if Cnst = 'usersavedgames' then Result := SavedGamesUserDir
+  else if Cnst = 'userfonts' then Result := ExpandConst('{localappdata}\Microsoft\Windows\Fonts') { supported by Windows 10 Version 1803 and newer. doesn't have a KNOWNFOLDERID. }
   else if Cnst = 'dao' then Result := ExpandConst('{cf}\Microsoft Shared\DAO')
   else if Cnst = 'cmd' then Result := CmdFilename
   else if Cnst = 'computername' then Result := GetComputerNameString
@@ -1169,20 +1174,20 @@ begin
       Result := '0';
   end
   else if Cnst = 'log' then Result := GetLogFileName
-  else if Cnst = 'dotnet11' then Result := GetDotNetVersionRoot(rv32Bit, dt11)
-  else if Cnst = 'dotnet20' then Result := GetDotNetVersionRoot(InstallDefaultRegView, dt20)
-  else if Cnst = 'dotnet2032' then Result := GetDotNetVersionRoot(rv32Bit, dt20)
+  else if Cnst = 'dotnet11' then Result := GetDotNetVersionInstallRoot(rv32Bit, netbase11)
+  else if Cnst = 'dotnet20' then Result := GetDotNetVersionInstallRoot(InstallDefaultRegView, netbase20)
+  else if Cnst = 'dotnet2032' then Result := GetDotNetVersionInstallRoot(rv32Bit, netbase20)
   else if Cnst = 'dotnet2064' then begin
     if IsWin64 then
-      Result := GetDotNetVersionRoot(rv64Bit, dt20)
+      Result := GetDotNetVersionInstallRoot(rv64Bit, netbase20)
     else
       InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
-  else if Cnst = 'dotnet40' then Result := GetDotNetVersionRoot(InstallDefaultRegView, dt40)
-  else if Cnst = 'dotnet4032' then Result := GetDotNetVersionRoot(rv32Bit, dt40)
+  else if Cnst = 'dotnet40' then Result := GetDotNetVersionInstallRoot(InstallDefaultRegView, netbase40)
+  else if Cnst = 'dotnet4032' then Result := GetDotNetVersionInstallRoot(rv32Bit, netbase40)
   else if Cnst = 'dotnet4064' then begin
     if IsWin64 then
-      Result := GetDotNetVersionRoot(rv64Bit, dt40)
+      Result := GetDotNetVersionInstallRoot(rv64Bit, netbase40)
     else
       InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
@@ -1853,13 +1858,13 @@ begin
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
               if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, True,
-                 DummyDeleteDirProc, EnumFilesProc, nil) then begin
+                 DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
               end;
             dfDirIfEmpty:
               if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, True,
-                 DummyDeleteDirProc, EnumFilesProc, nil) then begin
+                 DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
               end;
@@ -1921,8 +1926,8 @@ type
   PArrayOfPWideChar = ^TArrayOfPWideChar;
 
 var
-  RegisterFileFilenames: PArrayOfPWideChar;
-  RegisterFileFilenamesMax, RegisterFileFilenamesCount: Integer;
+  RegisterFileBatchFilenames: PArrayOfPWideChar;
+  RegisterFileFilenamesBatchMax, RegisterFileFilenamesBatchCount: Integer;
 
 function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
   const Param: Pointer): Boolean;
@@ -1933,7 +1938,7 @@ var
 begin
   Filename := AFilename;
 
-  { First: check filter. }
+  { First: check filter and self. }
   if Filename <> '' then begin
     CheckFilter := Boolean(Param);
     if CheckFilter then begin
@@ -1946,20 +1951,26 @@ begin
         end;
       end;
       if not Match then begin
+        { No match with filter so exit but don't return an error. }
         Result := True;
         Exit;
       end;
+    end;
+    if PathCompare(Filename, SetupLdrOriginalFilename) = 0 then begin
+      { Don't allow self to be registered but don't return an error. }
+      Result := True;
+      Exit;
     end;
   end;
 
   { Secondly: check if we need to register this batch, either because the batch is full
     or because we're done scanning and have leftovers. }
-  if ((Filename <> '') and (RegisterFileFilenamesCount = RegisterFileFilenamesMax)) or
-     ((Filename = '') and (RegisterFileFilenamesCount > 0)) then begin
-    if RmRegisterResources(RmSessionHandle, RegisterFileFilenamesCount, RegisterFileFilenames, 0, nil, 0, nil) = ERROR_SUCCESS then begin
-      for I := 0 to RegisterFileFilenamesCount-1 do
-        FreeMem(RegisterFileFilenames[I]);
-      RegisterFileFilenamesCount := 0;
+  if ((Filename <> '') and (RegisterFileFilenamesBatchCount = RegisterFileFilenamesBatchMax)) or
+     ((Filename = '') and (RegisterFileFilenamesBatchCount > 0)) then begin
+    if RmRegisterResources(RmSessionHandle, RegisterFileFilenamesBatchCount, RegisterFileBatchFilenames, 0, nil, 0, nil) = ERROR_SUCCESS then begin
+      for I := 0 to RegisterFileFilenamesBatchCount-1 do
+        FreeMem(RegisterFileBatchFilenames[I]);
+      RegisterFileFilenamesBatchCount := 0;
     end else begin
       RmEndSession(RmSessionHandle);
       RmSessionStarted := False;
@@ -1976,14 +1987,19 @@ begin
     if DisableFsRedir then
       Filename := ReplaceSystemDirWithSysNative(Filename, IsWin64);
 
+    if InitLogCloseApplications then
+      LogFmt('Found a file to register with RestartManager: %s', [Filename]);
+
     Len := Length(Filename);
-    GetMem(RegisterFileFilenames[RegisterFileFilenamesCount], (Len + 1) * SizeOf(RegisterFileFilenames[RegisterFileFilenamesCount][0]));
+    GetMem(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount], (Len + 1) * SizeOf(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount][0]));
     {$IFNDEF UNICODE}
       RegisterFileFilenames[RegisterFileFilenamesCount][MultiByteToWideChar(CP_ACP, 0, PChar(Filename), Len, RegisterFileFilenames[RegisterFileFilenamesCount], Len)] := #0;
     {$ELSE}
-      StrPCopy(RegisterFileFilenames[RegisterFileFilenamesCount], Filename);
+      StrPCopy(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount], Filename);
     {$ENDIF}
-    Inc(RegisterFileFilenamesCount);
+    Inc(RegisterFileFilenamesBatchCount);
+
+    Inc(RmRegisteredFilesCount);
   end;
 
   Result := RmSessionStarted; { Break the enum if there was an error, else continue. }
@@ -2010,10 +2026,11 @@ var
 begin
   { Note: MSDN says we shouldn't call RmRegisterResources for each file because of speed, but calling
     it once for all files adds extra memory usage, so calling it in batches. }
-  RegisterFileFilenamesMax := 1000;
-  GetMem(RegisterFileFilenames, RegisterFileFilenamesMax * SizeOf(RegisterFileFilenames[0]));
+  RegisterFileFilenamesBatchMax := 1000;
+  GetMem(RegisterFileBatchFilenames, RegisterFileFilenamesBatchMax * SizeOf(RegisterFileBatchFilenames[0]));
   try
     { Register our files. }
+    RmRegisteredFilesCount := 0;
     EnumFiles(RegisterFile, WizardComponents, WizardTasks, Pointer(True));
     { Ask [Code] for more files. }
     if CodeRunner <> nil then begin
@@ -2033,9 +2050,9 @@ begin
     if RmSessionStarted then
       RegisterFile(False, '', nil);
   finally
-    for I := 0 to RegisterFileFilenamesCount-1 do
-      FreeMem(RegisterFileFilenames[I]);
-    FreeMem(RegisterFileFilenames);
+    for I := 0 to RegisterFileFilenamesBatchCount-1 do
+      FreeMem(RegisterFileBatchFilenames[I]);
+    FreeMem(RegisterFileBatchFilenames);
   end;
 end;
 
@@ -2414,7 +2431,8 @@ end;
 
 function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
-  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer): Integer;
+  const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer;
+  const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin
     LogSuppressedMessageBox(PChar(Text), Buttons, Default);
@@ -2422,10 +2440,12 @@ begin
   end else begin
     LogMessageBox(PChar(Text), Buttons);
     Result := TaskDialogMsgBox(Icon, Instruction, Text,
-      Caption, Typ, Buttons, ButtonLabels, ShieldButton);
-    if Result <> 0 then
-      LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
-    else
+      Caption, Typ, Buttons, ButtonLabels, ShieldButton, VerificationText, pfVerificationFlagChecked);
+    if Result <> 0 then begin
+      LogFmt('User chose %s.', [GetMessageBoxResultText(Result)]);
+      if pfVerificationFlagChecked <> nil then
+        LogFmt('User chose %s for the verification.', [SYesNo[pfVerificationFlagChecked^]]);
+    end else
       Log('TaskDialogMsgBox failed.');
   end;
 end;
@@ -2977,6 +2997,9 @@ begin
     else
     if CompareText(ParamName, '/NoForceCloseApplications') = 0 then
       InitNoForceCloseApplications := True
+    else
+    if CompareText(ParamName, '/LogCloseApplications') = 0 then
+      InitLogCloseApplications := True
     else
     if CompareText(ParamName, '/RestartApplications') = 0 then
       InitRestartApplications := True
@@ -3814,9 +3837,9 @@ begin
     'Portions Copyright (C) 2000-2020 Martijn Laan' + SNewLine +
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
-    'http://www.innosetup.com/');
+    'https://www.innosetup.com/');
   S := S + SNewLine2 + 'RemObjects Pascal Script home page:' + SNewLine +
-    'http://www.remobjects.com/ps';
+    'https://www.remobjects.com/ps';
   if SetupMessages[msgAboutSetupNote] <> '' then
     S := S + SNewLine2 + SetupMessages[msgAboutSetupNote];
   if SetupMessages[msgTranslatorNote] <> '' then
@@ -3918,7 +3941,7 @@ begin
     ExpandedFilename := ExpandConst(RunEntry.Name);
     Log('Filename: ' + ExpandedFilename);
     ExpandedParameters := ExpandConst(RunEntry.Parameters);
-    if ExpandedParameters <> '' then
+    if not(roDontLogParameters in RunEntry.Options) and (ExpandedParameters <> '') then
       Log('Parameters: ' + ExpandedParameters);
 
     Wait := ewWaitUntilTerminated;
@@ -4259,13 +4282,10 @@ begin
               RestartSystem := WizardForm.YesRadio.Checked;
           imSilent:
             begin
-              if FromPreparingPage then begin
-                S := ExpandSetupMessage(msgPrepareToInstallNeedsRestart);
-                if S = '' then
-                  S := ExpandSetupMessage(msgFinishedRestartMessage);
+              if FromPreparingPage then
                 S := WizardForm.PrepareToInstallFailureMessage + SNewLine +
-                  SNewLine + SNewLine + S
-              end else
+                  SNewLine + SNewLine + ExpandSetupMessage(msgPrepareToInstallNeedsRestart)
+              else
                 S := ExpandSetupMessage(msgFinishedRestartMessage);
               RestartSystem :=
                 LoggedMsgBox(S, '', mbConfirmation, MB_YESNO, True, IDYES) = IDYES;

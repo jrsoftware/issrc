@@ -1,7 +1,7 @@
-﻿; *** Inno Setup version 6.0.3+ Corsican messages ***
+; *** Inno Setup version 6.1.0+ Corsican messages ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -13,6 +13,8 @@
 ; E-mail: Patrick.Santa-Maria[at]LaPoste.Net
 ;
 ; Changes:
+; July 25th, 2020 - Update to version 6.1.0+
+; July 1st, 2020 - Update to version 6.0.6+
 ; October 6th, 2019 - Update to version 6.0.3+
 ; January 20th, 2019 - Update to version 6.0.0+
 ; April 9th, 2016 - Changes to current version 5.5.3+
@@ -21,7 +23,7 @@
 ; September 17th, 2011 - Creation for version 5.1.11
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and
+; The following three entries are very important. Be sure to read and 
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Corsu
 LanguageID=$0483
@@ -91,7 +93,7 @@ ErrorTooManyFilesInDir=Impussibule di creà un schedariu in u cartulare « %1 »
 
 ; *** Setup common messages
 ExitSetupTitle=Compie l’assistente
-ExitSetupMessage=L’assistente ùn hè micca compiu. S’è voi escite avà, u prugramma ùn serà micca installatu.%n%nPudete impiegà l’assistente torna un altra volta per compie l’installazione.%n%nCompie l’assistente ?
+ExitSetupMessage=L’assistente ùn hè micca compiu bè. S’è voi escite avà, u prugramma ùn serà micca installatu.%n%nPudete impiegà l’assistente torna un altra volta per compie l’installazione.%n%nCompie l’assistente ?
 AboutSetupMenuItem=&Apprupositu di l’assistente…
 AboutSetupTitle=Apprupositu di l’assistente
 AboutSetupMessage=%1 versione %2%n%3%n%n%1 pagina d’accolta :%n%4
@@ -163,15 +165,15 @@ WizardSelectDir=Selezziunà u locu di destinazione
 SelectDirDesc=Induve [name] deve esse installatu ?
 SelectDirLabel3=L’assistente installerà [name] in stu cartulare.
 SelectDirBrowseLabel=Per cuntinuà, sceglie Seguente. S’è voi preferisce selezziunà un altru cartulare, sciglite Sfuglià.
-DiskSpaceGBLabel=Hè richiestu almenu [gb] Go di spaziu liberu di discu.
-DiskSpaceMBLabel=Hè richiestu almenu [mb] Mo di spaziu liberu di discu.
+DiskSpaceGBLabel=Hè richiestu omancu [gb] Go di spaziu liberu di discu.
+DiskSpaceMBLabel=Hè richiestu omancu [mb] Mo di spaziu liberu di discu.
 CannotInstallToNetworkDrive=L’assistente ùn pò micca installà nant’à un discu di a reta.
-CannotInstallToUNCPath=L’assistente ùn pò micca installà in un passeghju UNC.
-InvalidPath=Ci vole à scrive un passeghju cumplettu cù a lettera di u lettore ; per indettu :%n%nC:\APP%n%no un passeghju UNC in a forma :%n%n\\servu\spartu
-InvalidDrive=U lettore o u passeghju UNC spartu ùn esiste micca o ùn hè micca accessibule. Ci vole à selezziunane un altru.
+CannotInstallToUNCPath=L’assistente ùn pò micca installà in un chjassu UNC.
+InvalidPath=Ci vole à scrive un chjassu cumplettu cù a lettera di u lettore ; per indettu :%n%nC:\APP%n%no un chjassu UNC in a forma :%n%n\\servitore\spartu
+InvalidDrive=U lettore o u chjassu UNC spartu ùn esiste micca o ùn hè micca accessibule. Ci vole à selezziunane un altru.
 DiskSpaceWarningTitle=Ùn basta u spaziu discu
-DiskSpaceWarning=L’assistente richiede almenu %1 Ko di spaziu liberu per installà, ma u lettore selezziunatu hà solu %2 Ko dispunibule.%n%nVulete cuntinuà quantunque ?
-DirNameTooLong=U nome di cartulare o u passeghju hè troppu longu.
+DiskSpaceWarning=L’assistente richiede omancu %1 Ko di spaziu liberu per installà, ma u lettore selezziunatu hà solu %2 Ko dispunibule.%n%nVulete cuntinuà quantunque ?
+DirNameTooLong=U nome di cartulare o u chjassu hè troppu longu.
 InvalidDirName=U nome di cartulare ùn hè micca accettevule.
 BadDirName32=I nomi di cartulare ùn ponu micca cuntene sti caratteri :%n%n%1
 DirExistsTitle=Cartulare esistente
@@ -191,8 +193,8 @@ NoUninstallWarningTitle=Cumpunenti esistenti
 NoUninstallWarning=L’assistente hà vistu chì sti cumpunenti sò dighjà installati nant’à l’urdinatore :%n%n%1%n%nDeselezziunà sti cumpunenti ùn i disinstallerà micca.%n%nVulete cuntinuà quantunque ?
 ComponentSize1=%1 Ko
 ComponentSize2=%1 Mo
-ComponentsDiskSpaceGBLabel=A selezzione attuale richiede almenu [gb] Go di spaziu liberu nant’à u discu.
-ComponentsDiskSpaceMBLabel=A selezzione attuale richiede almenu [mb] Mo di spaziu liberu nant’à u discu.
+ComponentsDiskSpaceGBLabel=A selezzione attuale richiede omancu [gb] Go di spaziu liberu nant’à u discu.
+ComponentsDiskSpaceMBLabel=A selezzione attuale richiede omancu [mb] Mo di spaziu liberu nant’à u discu.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Selezziunà trattamenti addizziunali
@@ -205,7 +207,7 @@ SelectStartMenuFolderDesc=Induve l’assistente deve piazzà l’accurtatoghji d
 SelectStartMenuFolderLabel3=L’assistente piazzerà l’accurtatoghji di u prugramma in stu cartulare di u listinu « Démarrer ».
 SelectStartMenuFolderBrowseLabel=Per cuntinuà, sceglie Seguente. S’è voi preferisce selezziunà un altru cartulare, sciglite Sfuglià.
 MustEnterGroupName=Ci vole à scrive un nome di cartulare.
-GroupNameTooLong=U nome di cartulare o u passeghju hè troppu longu.
+GroupNameTooLong=U nome di cartulare o u chjassu hè troppu longu.
 InvalidGroupName=U nome di cartulare ùn hè micca accettevule.
 BadGroupName=U nome di u cartulare ùn pò micca cuntene alcunu di sti caratteri :%n%n%1
 NoProgramGroupCheck2=Ùn creà &micca di cartulare in u listinu « Démarrer »
@@ -222,10 +224,22 @@ ReadyMemoComponents=Cumpunenti selezziunati :
 ReadyMemoGroup=Cartulare di u listinu « Démarrer » :
 ReadyMemoTasks=Trattamenti addizziunali :
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Scaricamentu di i schedarii addiziunali…
+ButtonStopDownload=&Piantà u scaricamentu
+StopDownload=Site sicuru di vulè piantà u scaricamentu ?
+ErrorDownloadAborted=Scaricamentu interrottu
+ErrorDownloadFailed=Scaricamentu fiascu : %1 %2
+ErrorDownloadSizeFailed=Fiascu per ottene a dimensione : %1 %2
+ErrorFileHash1=Fiascu di u tazzeghju di u schedariu : %1
+ErrorFileHash2=Tazzeghju di u schedariu inaccettevule : aspettatu %1, trovu %2
+ErrorProgress=Prugressione inaccettevule : %1 di %2
+ErrorFileSize=Dimensione di u schedariu inaccettevule : aspettatu %1, trovu %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione di l’installazione
 PreparingDesc=L’assistente appronta l’installazione di [name] nant’à l’urdinatore.
-PreviousInstallNotCompleted=L’installazione/A cacciatura di un prugramma precedente ùn s’hè micca compia bè. Ci vulerà à ridimarrà l’urdinatore per compie st’installazione.%n%nDopu, ci vulerà à rilancià l’assistente per compie l’installazione di [name].
+PreviousInstallNotCompleted=L’installazione o a cacciatura di un prugramma precedente ùn s’hè micca compia bè. Ci vulerà à ridimarrà l’urdinatore per compie st’installazione.%n%nDopu, ci vulerà à rilancià l’assistente per compie l’installazione di [name].
 CannotContinue=L’assistente ùn pò micca cuntinuà. Sceglie Abbandunà per esce.
 ApplicationsFound=St’appiecazioni impieganu schedarii chì devenu esse mudificati da l’assistente. Hè ricumandatu di permette à l’assistente di chjode autumaticamente st’appiecazioni.
 ApplicationsFound2=St’appiecazioni impieganu schedarii chì devenu esse mudificati da l’assistente. Hè ricumandatu di permette à l’assistente di chjode autumaticamente st’appiecazioni. S’è l’installazione si compie bè, l’assistente pruverà di rilancià l’appiecazioni.
@@ -240,8 +254,8 @@ InstallingLabel=Ci vole à aspettà durante l’installazione di [name] nant’�
 
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Fine di l’installazione di [name]
-FinishedLabelNoIcons=L’installazione di [name] nant’à l’urdinatore hè compia.
-FinishedLabel=L’assistente hà compiu linstallazione di [name] nant’à l’urdinatore. L’appiecazione pò esse lanciata selezziunendu l’accurtatoghji installati.
+FinishedLabelNoIcons=L’assistente hà compiu l’installazione di [name] nant’à l’urdinatore.
+FinishedLabel=L’assistente hà compiu l’installazione di [name] nant’à l’urdinatore. L’appiecazione pò esse lanciata selezziunendu l’accurtatoghji installati.
 ClickFinish=Sceglie Piantà per compie l’assistente.
 FinishedRestartLabel=Per compie l’installazione di [name], l’assistente deve ridimarrà l’urdinatore. Vulete ridimarrà l’urdinatore subitu ?
 FinishedRestartMessage=Per compie l’installazione di [name], l’assistente deve ridimarrà l’urdinatore.%n%nVulete ridimarrà l’urdinatore subitu ?
@@ -255,8 +269,8 @@ RunEntryShellExec=Fighjà %1
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=L’assistente hà bisogniu di u discu seguente
-SelectDiskLabel2=Mette u discu %1 è sceglie Vai.%n%nS’è i schedarii di stu discu si trovanu in un’altru cartulare chì quellu indicatu inghjò, scrive u passeghju currettu o sceglie Sfuglià.
-PathLabel=&Passeghju :
+SelectDiskLabel2=Mette u discu %1 è sceglie Vai.%n%nS’è i schedarii di stu discu si trovanu in un’altru cartulare chì quellu indicatu inghjò, scrive u chjassu currettu o sceglie Sfuglià.
+PathLabel=&Chjassu :
 FileNotInDir2=U schedariu « %1 » ùn si truva micca in « %2 ». Mette u discu curretu o sceglie un’altru cartulare.
 SelectDirectoryLabel=Ci vole à specificà induve si trova u discu seguente.
 
@@ -304,8 +318,16 @@ ExistingFileReadOnly2=U schedariu esistente hà un attributu di lettura-sola è 
 ExistingFileReadOnlyRetry=&Caccià l’attributu di lettura-sola è pruvà torna
 ExistingFileReadOnlyKeepExisting=Cunservà u schedariu &esistente
 ErrorReadingExistingDest=Un sbagliu hè accadutu pruvendu di leghje u schedariu esistente :
-FileExists=U schedariu esiste dighjà.%n%nVulete chì l’assistente u rimpiazzi ?
-ExistingFileNewer=U schedariu esistente hè più recente chì quellu chì l’assistente prova d’installà. Hè ricumandatu di cunservà u schedariu esistente.%n%nVulete cunservà u schedariu esistente ?
+FileExistsSelectAction=Selezziunate un’azzione
+FileExists2=U schedariu esiste dighjà.
+FileExistsOverwriteExisting=&Rimpiazzà u schedariu chì esiste
+FileExistsKeepExisting=Cunservà u schedariu &esistente
+FileExistsOverwriteOrKeepAll=&Fà què per l’altri cunflitti
+ExistingFileNewerSelectAction=Selezziunate un’azzione
+ExistingFileNewer2=U schedariu esistente hè più recente chì quellu chì l’assistente prova d’installà.
+ExistingFileNewerOverwriteExisting=&Rimpiazzà u schedariu chì esiste
+ExistingFileNewerKeepExisting=Cunservà u schedariu &esistente (ricumandatu)
+ExistingFileNewerOverwriteOrKeepAll=&Fà què per l’altri cunflitti
 ErrorChangingAttr=Un sbagliu hè accadutu pruvendu di cambià l’attributi di u schedariu esistente :
 ErrorCreatingTemp=Un sbagliu hè accadutu pruvendu di creà un schedariu in u cartulare di destinazione :
 ErrorReadingSource=Un sbagliu hè accadutu pruvendu di leghje u schedariu d’urigine :

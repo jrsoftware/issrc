@@ -2,7 +2,7 @@ unit ScriptFunc_R;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -27,7 +27,7 @@ uses
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
   Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
-  SpawnClient, UninstProgressForm, ASMInline;
+  SpawnClient, UninstProgressForm, ASMInline, DotNet;
 
 var
   ScaleBaseUnitsInitialized: Boolean;
@@ -143,6 +143,11 @@ var
   NewOutputMsgPage: TOutputMsgWizardPage;
   NewOutputMsgMemoPage: TOutputMsgMemoWizardPage;
   NewOutputProgressPage: TOutputProgressWizardPage;
+{$IFNDEF PS_NOINT64}
+  NewDownloadPage: TDownloadWizardPage;
+  P: PPSVariantProcPtr;
+  OnDownloadProgress: TOnDownloadProgress;
+{$ENDIF}
   NewSetupForm: TSetupForm;
 begin
   PStart := Stack.Count-1;
@@ -270,6 +275,29 @@ begin
       raise;
     end;
     Stack.SetClass(PStart, NewOutputProgressPage);
+{$IFNDEF PS_NOINT64}
+  end else if Proc.Name = 'CREATEDOWNLOADPAGE' then begin
+    if IsUninstaller then
+      NoUninstallFuncError(Proc.Name);
+    P := Stack.Items[PStart-3];
+    { ProcNo 0 means nil was passed by the script }
+    if P.ProcNo <> 0 then
+      OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
+    else
+      OnDownloadProgress := nil;
+    NewDownloadPage := TDownloadWizardPage.Create(GetWizardForm);
+    try
+      NewDownloadPage.Caption := Stack.GetString(PStart-1);
+      NewDownloadPage.Description := Stack.GetString(PStart-2);
+      GetWizardForm.AddPage(NewDownloadPage, -1);
+      NewDownloadPage.Initialize;
+      NewDownloadPage.OnDownloadProgress := OnDownloadProgress;
+    except
+      NewDownloadPage.Free;
+      raise;
+    end;
+    Stack.SetClass(PStart, NewDownloadPage);
+{$ENDIF}
   end else if Proc.Name = 'SCALEX' then begin
     InitializeScaleBaseUnits;
     Stack.SetInt(PStart, MulDiv(Stack.GetInt(PStart-1), ScaleBaseUnitX, OrigBaseUnitX));
@@ -739,6 +767,8 @@ end;
 function InstallProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
+  P: PPSVariantProcPtr;
+  OnDownloadProgress: TOnDownloadProgress;
 begin
   if IsUninstaller then
     NoUninstallFuncError(Proc.Name);
@@ -750,6 +780,18 @@ begin
     ExtractTemporaryFile(Stack.GetString(PStart));
   end else if Proc.Name = 'EXTRACTTEMPORARYFILES' then begin
     Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
+{$IFNDEF PS_NOINT64}
+  end else if Proc.Name = 'DOWNLOADTEMPORARYFILE' then begin
+    P := Stack.Items[PStart-4];
+    { ProcNo 0 means nil was passed by the script }
+    if P.ProcNo <> 0 then
+      OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
+    else
+      OnDownloadProgress := nil;
+    Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), OnDownloadProgress));
+  end else if Proc.Name = 'DOWNLOADTEMPORARYFILESIZE' then begin
+    Stack.SetInt64(PStart, DownloadTemporaryFileSize(Stack.GetString(PStart-1)));
+{$ENDIF}
   end else
     Result := False;
 end;
@@ -807,6 +849,16 @@ begin
   end else if Proc.Name = 'GETSHA1OFUNICODESTRING' then begin
 {$IFDEF UNICODE}
     Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfUnicodeString(Stack.GetString(PStart-1))));
+{$ELSE}
+    NoNonUnicodeFuncError(Proc.Name);
+{$ENDIF}
+  end else if Proc.Name = 'GETSHA256OFFILE' then begin
+    Stack.SetString(PStart, GetSHA256OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+  end else if Proc.Name = 'GETSHA256OFSTRING' then begin
+    Stack.SetString(PStart, GetSHA256OfAnsiString(StackGetAnsiString(Stack, PStart-1)));
+  end else if Proc.Name = 'GETSHA256OFUNICODESTRING' then begin
+{$IFDEF UNICODE}
+    Stack.SetString(PStart, GetSHA256OfUnicodeString(Stack.GetString(PStart-1)));
 {$ELSE}
     NoNonUnicodeFuncError(Proc.Name);
 {$ENDIF}
@@ -907,7 +959,7 @@ begin
       Stack.SetBool(PStart, False);
     end;
   end else if Proc.Name = 'UNREGISTERFONT' then begin
-    UnregisterFont(Stack.GetString(PStart), Stack.GetString(PStart-1));
+    UnregisterFont(Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
   end else if Proc.Name = 'RESTARTREPLACE' then begin
     RestartReplace(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1));
   end else if Proc.Name = 'FORCEDIRECTORIES' then begin
@@ -929,7 +981,7 @@ begin
       Stack.GetString(PStart-2), Stack.GetString(PStart-3),
       Stack.GetString(PStart-4), Stack.GetString(PStart-5),
       Stack.GetString(PStart-6), Stack.GetInt(PStart-7),
-      Stack.GetInt(PStart-8), 0, False, '', False, False));
+      Stack.GetInt(PStart-8), 0, False, '', nil, False, False));
   end else if Proc.Name = 'REGISTERTYPELIBRARY' then begin
     if Stack.GetBool(PStart) then
       HelperRegisterTypeLibrary(False, Stack.GetString(PStart-1))
@@ -1116,6 +1168,7 @@ function SystemProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TP
 var
   PStart: Cardinal;
   F: TFile;
+  TmpFileSize: Integer64;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -1134,6 +1187,21 @@ begin
     except
       Stack.SetBool(PStart, False);
     end;
+{$IFNDEF PS_NOINT64}
+  end else if Proc.Name = 'FILESIZE64' then begin
+    try
+      F := TFileRedir.Create(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
+      try
+        TmpFileSize := F.Size; { Make sure we access F.Size only once }
+        Stack.SetInt64(PStart-2, Int64(TmpFileSize.Hi) shl 32 + TmpFileSize.Lo);
+        Stack.SetBool(PStart, True);
+      finally
+        F.Free;
+      end;
+    except
+      Stack.SetBool(PStart, False);
+    end;
+{$ENDIF}
   end else if Proc.Name = 'SET8087CW' then begin
     Set8087CW(Stack.GetInt(PStart));
   end else if Proc.Name = 'GET8087CW' then begin
@@ -1442,6 +1510,15 @@ begin
       Stack.SetBool(PStart, True);
     end else
       Stack.SetBool(PStart, False);
+  end else if Proc.Name = 'GETVERSIONCOMPONENTS' then begin
+    if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
+      Stack.SetUInt(PStart-2, VersionNumbers.MS shr 16);
+      Stack.SetUInt(PStart-3, VersionNumbers.MS and $FFFF);
+      Stack.SetUInt(PStart-4, VersionNumbers.LS shr 16);
+      Stack.SetUInt(PStart-5, VersionNumbers.LS and $FFFF);
+      Stack.SetBool(PStart, True);
+    end else
+      Stack.SetBool(PStart, False);
   end else if Proc.Name = 'GETVERSIONNUMBERSSTRING' then begin
     if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
       Stack.SetString(PStart-2, Format('%u.%u.%u.%u', [VersionNumbers.MS shr 16,
@@ -1449,6 +1526,39 @@ begin
       Stack.SetBool(PStart, True);
     end else
       Stack.SetBool(PStart, False);
+  end else if Proc.Name = 'GETPACKEDVERSION' then begin
+    if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
+      Stack.SetInt64(PStart-2, (Int64(VersionNumbers.MS) shl 32) or VersionNumbers.LS);
+      Stack.SetBool(PStart, True);
+    end else
+      Stack.SetBool(PStart, False);
+  end else if Proc.Name = 'PACKVERSIONNUMBERS' then begin
+    Stack.SetInt64(PStart, Int64((UInt64(Stack.GetUInt(PStart-1)) shl 32) or Stack.GetUInt(PStart-2)));
+  end else if Proc.Name = 'PACKVERSIONCOMPONENTS' then begin
+    VersionNumbers.MS := (Stack.GetUInt(PStart-1) shl 16) or (Stack.GetUInt(PStart-2) and $FFFF);
+    VersionNumbers.LS := (Stack.GetUInt(PStart-3) shl 16) or (Stack.GetUInt(PStart-4) and $FFFF);
+    Stack.SetInt64(PStart, Int64((UInt64(VersionNumbers.MS) shl 32) or VersionNumbers.LS));
+  end else if Proc.Name = 'COMPAREPACKEDVERSION' then begin
+    Stack.SetInt(PStart, Compare64(Integer64(Stack.GetInt64(PStart-1)), Integer64(Stack.GetInt64(PStart-2))));
+  end else if Proc.Name = 'SAMEPACKEDVERSION' then begin
+    Stack.SetBool(PStart, Compare64(Integer64(Stack.GetInt64(PStart-1)), Integer64(Stack.GetInt64(PStart-2))) = 0);
+  end else if Proc.Name = 'UNPACKVERSIONNUMBERS' then begin
+    VersionNumbers.MS := UInt64(Stack.GetInt64(PStart)) shr 32;
+    VersionNumbers.LS := UInt64(Stack.GetInt64(PStart)) and $FFFFFFFF;
+    Stack.SetUInt(PStart-1, VersionNumbers.MS);
+    Stack.SetUInt(PStart-2, VersionNumbers.LS);
+  end else if Proc.Name = 'UNPACKVERSIONCOMPONENTS' then begin
+    VersionNumbers.MS := UInt64(Stack.GetInt64(PStart)) shr 32;
+    VersionNumbers.LS := UInt64(Stack.GetInt64(PStart)) and $FFFFFFFF;
+    Stack.SetUInt(PStart-1, VersionNumbers.MS shr 16);
+    Stack.SetUInt(PStart-2, VersionNumbers.MS and $FFFF);
+    Stack.SetUInt(PStart-3, VersionNumbers.LS shr 16);
+    Stack.SetUInt(PStart-4, VersionNumbers.LS and $FFFF);
+  end else if Proc.Name = 'VERSIONTOSTR' then begin
+    VersionNumbers.MS := UInt64(Stack.GetInt64(PStart-1)) shr 32;
+    VersionNumbers.LS := UInt64(Stack.GetInt64(PStart-1)) and $FFFFFFFF;
+    Stack.SetString(PStart, Format('%u.%u.%u.%u', [VersionNumbers.MS shr 16,
+      VersionNumbers.MS and $FFFF, VersionNumbers.LS shr 16, VersionNumbers.LS and $FFFF]));
   end else
     Result := False;
 end;
@@ -1698,6 +1808,10 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
     ParamCount, SwapFirst, SwapLast: Integer;
     S: tbtstring;
   begin
+    { ProcNo 0 means nil was passed by the script }
+    if P.ProcNo = 0 then
+      InternalError('Invalid Method value');
+
     { Calculate parameter count of our proc, will need this later. }
     ProcRec := Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
     S := ProcRec.ExportDecl;
@@ -1817,9 +1931,9 @@ begin
       StringChange(S, '/', '\');
       SetStringsFromCommaString(StringList, S);
       if Proc.Name = 'WIZARDSELECTCOMPONENTS' then
-        GetWizardForm.SelectComponents(StringList, nil, False)
+        GetWizardForm.SelectComponents(StringList)
       else
-        GetWizardForm.SelectTasks(StringList, nil);
+        GetWizardForm.SelectTasks(StringList);
     finally
       StringList.Free();
     end;
@@ -1896,6 +2010,8 @@ begin
     Stack.SetClass(PStart, GetUninstallProgressForm);
   end else if Proc.Name = 'CREATECALLBACK' then begin
    Stack.SetInt(PStart, CreateCallback(Stack.Items[PStart-1]));
+  end else if Proc.Name = 'ISDOTNETINSTALLED' then begin
+   Stack.SetBool(PStart, IsDotNetInstalled(InstallDefaultRegView, TDotNetVersion(Stack.GetInt(PStart-1)), Stack.GetInt(PStart-2)));
   end else
     Result := False;
 end;

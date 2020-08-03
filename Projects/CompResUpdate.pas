@@ -2,13 +2,11 @@ unit CompResUpdate;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Resource update functions used by the compiler only
-
-  $jrsoftware: issrc/Projects/CompResUpdate.pas,v 1.25 2010/04/05 20:53:41 jr Exp $
 }
 
 interface
@@ -22,7 +20,8 @@ procedure UpdateIcons(const FileName, IcoFileName: String);
 procedure UpdateVersionInfo(const F: TFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
-  NewProductName, NewTextProductVersion, NewOriginalFileName: String);
+  NewProductName, NewTextProductVersion, NewOriginalFileName: String;
+  const SetFileVersionAndDescription: Boolean);
 
 implementation
 
@@ -42,7 +41,8 @@ end;
 procedure UpdateVersionInfo(const F: TFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
-  NewProductName, NewTextProductVersion, NewOriginalFileName: String);
+  NewProductName, NewTextProductVersion, NewOriginalFileName: String;
+  const SetFileVersionAndDescription: Boolean);
 
   function WideStrsEqual(P1, P2: PWideChar): Boolean;
 
@@ -147,7 +147,9 @@ procedure UpdateVersionInfo(const F: TFile;
     ReplaceWithRealCopyrightSymbols(Value);
   end;
 
-  procedure UpdateFixedFileInfo(P: Pointer; const Path: PWideChar; NewFileVersion, NewProductVersion: TFileVersionNumbers);
+  procedure UpdateFixedFileInfo(P: Pointer; const Path: PWideChar;
+    const NewFileVersion, NewProductVersion: TFileVersionNumbers;
+    const SetFileVersion: Boolean);
   var
     FixedFileInfo: PVSFixedFileInfo;
     ValueLen: Cardinal;
@@ -156,8 +158,10 @@ procedure UpdateVersionInfo(const F: TFile;
       Error('Unexpected version resource format (2)');
     if FixedFileInfo.dwSignature <> $FEEF04BD then
       Error('Unexpected version resource format (3)');
-    FixedFileInfo.dwFileVersionLS := NewFileVersion.LS;
-    FixedFileInfo.dwFileVersionMS := NewFileVersion.MS;
+    if SetFileVersion then begin
+      FixedFileInfo.dwFileVersionLS := NewFileVersion.LS;
+      FixedFileInfo.dwFileVersionMS := NewFileVersion.MS;
+    end;
     FixedFileInfo.dwProductVersionLS := NewProductVersion.LS;
     FixedFileInfo.dwProductVersionMS := NewProductVersion.MS;
   end;
@@ -177,13 +181,15 @@ begin
 
     { Update the resource }
     UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'CompanyName'#0, NewCompanyName);
-    UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'FileDescription'#0, NewFileDescription);
-    UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'FileVersion'#0, NewTextFileVersion);
+    if SetFileVersionAndDescription then begin
+      UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'FileDescription'#0, NewFileDescription);
+      UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'FileVersion'#0, NewTextFileVersion);
+    end;
     UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'LegalCopyright'#0, NewLegalCopyright);
     UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'ProductName'#0, NewProductName);
     UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'OriginalFileName'#0, NewOriginalFileName);
     UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'ProductVersion'#0, NewTextProductVersion);
-    UpdateFixedFileInfo(VersRes, 'VS_VERSION_INFO'#0, NewBinaryFileVersion, NewBinaryProductVersion);
+    UpdateFixedFileInfo(VersRes, 'VS_VERSION_INFO'#0, NewBinaryFileVersion, NewBinaryProductVersion, SetFileVersionAndDescription);
 
     { Write the updated resource }
     F.Seek(ResOffset);
@@ -310,7 +316,7 @@ begin
       if M = 0 then
         ErrorWithLastError('LoadLibraryEx failed (1)');
       try
-      	{ Load the 'MAINICON' group icon resource }
+        { Load the 'MAINICON' group icon resource }
         R := FindResource(M, 'MAINICON', RT_GROUP_ICON);
         if R = 0 then
           ErrorWithLastError('FindResource failed (1)');

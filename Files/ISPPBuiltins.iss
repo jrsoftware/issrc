@@ -1,10 +1,10 @@
-; BEGIN ISPPBUILTINS.ISS
-//
 // Inno Setup Preprocessor
 //
 // Inno Setup (C) 1997-2020 Jordan Russell. All Rights Reserved.
 // Portions Copyright (C) 2000-2020 Martijn Laan. All Rights Reserved.
 // Portions Copyright (C) 2001-2004 Alex Yackimoff. All Rights Reserved.
+//
+// See the ISPP help file for more documentation of the functions defined by this file
 //
 #if defined(ISPP_INVOKED) && !defined(_BUILTINS_ISS_)
 //
@@ -14,21 +14,7 @@
 //
 #define _BUILTINS_ISS_
 //
-// ===========================================================================
-//
-// Default states for options.
-//
-//#pragma parseroption -b+ ; short circuit boolean evaluation: on
-//#pragma parseroption -m- ; short circuit multiplication evaluation (0 * A will not eval A): off
-//#pragma parseroption -p+ ; string literals without escape sequences: on
-//#pragma parseroption -u- ; allow undeclared identifiers: off
-//#pragma option -c+       ; pass script to the compiler: on
-//#pragma option -e-       ; emit empty lines to translation: off
-//#pragma option -v-       ; verbose mode: off
-//
-// ---------------------------------------------------------------------------
-//
-// Verbose levels:
+// Verbose levels: 
 // 0 - #include and #file acknowledgements
 // 1 - information about any temp files created by #file
 // 2 - #insert and #append acknowledgements
@@ -61,8 +47,8 @@
 #define Yes                True
 #define No								 False
 //
-#define MaxInt             0x7FFFFFFFL
-#define MinInt             0x80000000L
+#define MaxInt             0x7FFFFFFFFFFFFFFFL
+#define MinInt             0x8000000000000000L
 //
 #define NULL
 #define void
@@ -168,20 +154,13 @@
 #define GetFileOriginalFilename(str FileName) GetStringFileInfo(FileName, ORIGINAL_FILENAME)
 #define GetFileProductVersion(str FileName) GetStringFileInfo(FileName, PRODUCT_VERSION)
 //
-// ParseVersion
-//
-// Macro internally calls GetFileVersion function and parses string returned
-// by that function (in form "0.0.0.0"). All four version elements are stored
-// in by-reference parameters Major, Minor, Rev, and Build. Macro returns
-// string returned by GetFileVersion.
-//
 #define DeleteToFirstPeriod(str *S) \
   Local[1] = Copy(S, 1, (Local[0] = Pos(".", S)) - 1), \
   S = Copy(S, Local[0] + 1), \
   Local[1]
 //
-#define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build) \
-  Local[1]  = Local[0] = GetFileVersion(FileName), \
+#define GetVersionComponents(str FileName, *Major, *Minor, *Rev, *Build) \
+  Local[1]  = Local[0] = GetVersionNumbersString(FileName), \
   Local[1] == "" ? "" : ( \
     Major   = Int(DeleteToFirstPeriod(Local[1])), \
     Minor   = Int(DeleteToFirstPeriod(Local[1])), \
@@ -189,41 +168,52 @@
     Build   = Int(Local[1]), \
   Local[0])
 //
-// EncodeVer
+#define GetPackedVersion(str FileName, *Version) \
+  Local[0] = GetVersionComponents(FileName, Local[1], Local[2], Local[3], Local[4]), \
+  Version = PackVersionComponents(Local[1], Local[2], Local[3], Local[4]), \
+  Local[0]
 //
-// Encodes given four version elements to a 32 bit integer number (8 bits for
-// each element, i.e. elements must be within 0...255 range).
+#define GetVersionNumbers(str FileName, *MS, *LS) \
+  Local[0] = GetPackedVersion(FileName, Local[1]), \
+  UnpackVersionNumbers(Local[1], MS, LS), \
+  Local[0]
+//
+#define PackVersionNumbers(int VersionMS, int VersionLS) \
+  VersionMS << 32 | (VersionLS & 0xFFFFFFFF)
+//
+#define PackVersionComponents(int Major, int Minor, int Rev, int Build) \
+  Major << 48 | (Minor & 0xFFFF) << 32 | (Rev & 0xFFFF) << 16 | (Build & 0xFFFF)
+//
+#define UnpackVersionNumbers(int Version, *VersionMS, *VersionLS) \
+  VersionMS = Version >> 32, \
+  VersionLS = Version & 0xFFFFFFFF, \
+  void
+//
+#define UnpackVersionComponents(int Version, *Major, *Minor, *Rev, *Build) \
+  Major = Version >> 48, \
+  Minor = (Version >> 32) & 0xFFFF, \
+  Rev   = (Version >> 16) & 0xFFFF, \
+  Build = Version & 0xFFFF, \
+  void
+//
+#define VersionToStr(int Version) \
+  Str(Version >> 48 & 0xFFFF) + "." + Str(Version >> 32 & 0xFFFF) + "." + \
+  Str(Version >> 16 & 0xFFFF) + "." + Str(Version & 0xFFFF)
 //
 #define EncodeVer(int Major, int Minor, int Revision = 0, int Build = -1) \
-  Major << 24 | (Minor & 0xFF) << 16 | (Revision & 0xFF) << 8 | (Build >= 0 ? Build & 0xFF : 0)
+  (Major & 0xFF) << 24 | (Minor & 0xFF) << 16 | (Revision & 0xFF) << 8 | (Build >= 0 ? Build & 0xFF : 0)
 //
-// DecodeVer
-//
-// Decodes given 32 bit integer encoded version to its string representation,
-// Digits parameter indicates how many elements to show (if the fourth element
-// is 0, it won't be shown anyway).
-//
-#define DecodeVer(int Ver, int Digits = 3) \
-  Str(Ver >> 0x18 & 0xFF) + (Digits > 1 ? "." : "") + \
+#define DecodeVer(int Version, int Digits = 3) \
+  Str(Version >> 24 & 0xFF) + (Digits > 1 ? "." : "") + \
   (Digits > 1 ? \
-    Str(Ver >> 0x10 & 0xFF) + (Digits > 2 ? "." : "") : "") + \
+    Str(Version >> 16 & 0xFF) + (Digits > 2 ? "." : "") : "") + \
   (Digits > 2 ? \
-    Str(Ver >> 0x08 & 0xFF) + (Digits > 3 && (Local = Ver & 0xFF) ? "." : "") : "") + \
+    Str(Version >> 8 & 0xFF) + (Digits > 3 && (Local = Version & 0xFF) ? "." : "") : "") + \
   (Digits > 3 && Local ? \
-    Str(Ver & 0xFF) : "")
-//
-// FindSection
-//
-// Returns index of the line following the header of the section. This macro
-// is intended to be used with #insert directive.
+    Str(Version & 0xFF) : "")
 //
 #define FindSection(str Section = "Files") \
   Find(0, "[" + Section + "]", FIND_MATCH | FIND_TRIM) + 1
-//
-// FindSectionEnd
-//
-// Returns index of the line following last entry of the section. This macro
-// is intended to be used with #insert directive.
 //
 #if VER >= 0x03000000
 # define FindNextSection(int Line) \
@@ -235,21 +225,10 @@
     FindSection(Section) + EntryCount(Section)
 #endif
 //
-// FindCode
-//
-// Returns index of the line (of translation) following either [Code] section
-// header, or "program" keyword, if any.
-//
 #define FindCode() \
     Local[1] = FindSection("Code"), \
     Local[0] = Find(Local[1] - 1, "program", FIND_BEGINS, ";", FIND_ENDS | FIND_AND), \
     (Local[0] < 0 ? Local[1] : Local[0] + 1)
-//
-// ExtractFilePath
-//
-// Returns directory portion of the given filename without backslash (unless
-// it is a root directory). If PathName doesn't contain directory portion,
-// the result is an empty string.
 //
 #define ExtractFilePath(str PathName) \
   (Local[0] = \
@@ -260,53 +239,31 @@
     ((Local[2] = Len(Local[0])) == 2 && Copy(Local[0], Local[2]) == ":" ? \
       "\" : \
       "")
+//
 #define ExtractFileDir(str PathName) \
   RemoveBackslash(ExtractFilePath(PathName))
-
+//
 #define ExtractFileExt(str PathName) \
   Local[0] = RPos(".", PathName), \
   Copy(PathName, Local[0] + 1)
-//
-// ExtractFileName
-//
-// Returns name portion of the given filename. If PathName ends with
-// a backslash, the result is an empty string.
 //
 #define ExtractFileName(str PathName) \
   !(Local[0] = RPos("\", PathName)) ? \
     PathName : \
     Copy(PathName, Local[0] + 1)
 //
-// ChangeFileExt
-//
-// Changes extension in FileName with NewExt. NewExt must not contain
-// period.
-//
 #define ChangeFileExt(str FileName, str NewExt) \
   !(Local[0] = RPos(".", FileName)) ? \
     FileName + "." + NewExt : \
     Copy(FileName, 1, Local[0]) + NewExt
-//
-// RemoveFileExt
-//
-// Removes extension in FileName.
 //
 #define RemoveFileExt(str FileName) \
   !(Local[0] = RPos(".", FileName)) ? \
   FileName : \
   Copy(FileName, 1, Local[0] - 1)
 //
-// AddBackslash
-//
-// Adds a backslash to the string, if it's not already there.
-//
 #define AddBackslash(str S) \
   Copy(S, Len(S)) == "\" ? S : S + "\"
-//
-// RemoveBackslash
-//
-// Removes trailing backslash from the string unless the string points to
-// a root directory.
 //
 #define RemoveBackslash(str S) \
   Local[0] = Len(S), \
@@ -318,37 +275,19 @@
       S : \
     ""
 //
-// Delete
-//
-// Deletes specified number of characters beginning with Index from S. S is
-// passed by reference (therefore is modified). Acts like Delete function in
-// Delphi (from System unit).
-//
 #define Delete(str *S, int Index, int Count = MaxInt) \
   S = Copy(S, 1, Index - 1) + Copy(S, Index + Count)
-//
-// Insert
-//
-// Inserts specified Substr at Index'th character into S. S is passed by
-// reference (therefore is modified).
 //
 #define Insert(str *S, int Index, str Substr) \
   Index > Len(S) + 1 ? \
     S : \
     S = Copy(S, 1, Index - 1) + SubStr + Copy(S, Index)
 //
-// YesNo, IsDirSet
-//
-// Returns nonzero value if given string is "yes", "true" or "1". Intended to
-// be used with SetupSetting function. This macro replaces YesNo function
-// available in previous releases.
-//
 #define YesNo(str S) \
   (S = LowerCase(S)) == "yes" || S == "true" || S == "1"
 //
 #define IsDirSet(str SetupDirective) \
   YesNo(SetupSetting(SetupDirective))
-//
 //
 #define Power(int X, int P = 2) \
   !P ? 1 : X * Power(X, P - 1)
@@ -359,24 +298,24 @@
 #define Max(int A, int B, int C = MinInt)  \
   A > B ? A > C ? Int(A) : Int(C) : Int(B)
 //
-// SameText
-//
-// Returns True if the given strings are identical, ignoring case.
-// 
 #define SameText(str S1, str S2) \
   LowerCase(S1) == LowerCase(S2)
-// 
-// SameStr
-//
-// Returns True if the given strings are identical, with case-sensitivity.
 //
 #define SameStr(str S1, str S2) \
   S1 == S2
 //
-
+#define WarnRenamedVersion(str OldName, str NewName) \
+  Warning("Function """ + OldName + """ has been renamed. Use """ + NewName + "GetVersionComponents"" instead.")
+//
+#define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build) \
+  WarnRenamedVersion("ParseVersion", "GetVersionComponents"), \
+  GetVersionComponents(FileName, Major, Minor, Rev, Build)
+//
+#define GetFileVersion(str FileName) \
+  WarnRenamedVersion("GetFileVersion", "GetVersionNumbersString"), \
+  GetVersionNumbersString(FileName)
+//
 #ifdef CStrings
 # pragma parseroption -p-
 #endif
 #endif
-; END ISPPBUILTINS.ISS
-

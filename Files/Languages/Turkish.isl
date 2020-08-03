@@ -1,7 +1,7 @@
-; *** Inno Setup version 6.0.3+ Turkish messages ***
-; Language	"Turkce" Turkish Translate by "Ceviren"	Kaya Zeren kayazeren@gmail.com
+; *** Inno Setup version 6.1.0+ Turkish messages ***
+; Language	"Turkce" Turkish Translate by "Ceviren"	Kaya Zeren translator@zeron.net
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://www.jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -210,6 +210,18 @@ ReadyMemoComponents=Seçilmiþ bileþenler:
 ReadyMemoGroup=Baþlat Menüsü klasörü:
 ReadyMemoTasks=Ek iþlemler:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Ek dosyalar indiriliyor...
+ButtonStopDownload=Ýndirmeyi &durdur
+StopDownload=Ýndirmeyi durdurmak istediðinize emin misiniz?
+ErrorDownloadAborted=Ýndirme durduruldu
+ErrorDownloadFailed=Ýndirilemedi: %1 %2
+ErrorDownloadSizeFailed=Boyut alýnamadý: %1 %2
+ErrorFileHash1=Dosya karmasý doðrulanamadý: %1
+ErrorFileHash2=Dosya karmasý geçersiz: %1 olmasý gerekirken %2
+ErrorProgress=Adým geçersiz: %1 / %2
+ErrorFileSize=Dosya boyutu geçersiz: %1 olmasý gerekirken %2
+
 ; *** "Kuruluma Hazýrlanýlýyor" sayfasý
 WizardPreparing=Kuruluma Hazýrlanýlýyor
 PreparingDesc=[name] bilgisayarýnýza kurulmaya hazýrlanýyor.
@@ -292,10 +304,18 @@ ExistingFileReadOnly2=Var olan dosya salt okunabilir olarak iþaretlenmiþ olduðun
 ExistingFileReadOnlyRetry=&Salt okunur iþareti kaldýrýlýp yeniden denensin
 ExistingFileReadOnlyKeepExisting=&Var olan dosya korunsun
 ErrorReadingExistingDest=Var olan dosya okunmaya çalýþýlýrken bir sorun çýktý.
-FileExists=Dosya zaten var.%n%nKurulum yardýmcýsý bu dosyanýn üzerine yazsýn mý?
-ExistingFileNewer=Var olan dosya, kurulum yardýmcýsý tarafýndan yazýlmaya çalýþýlandan daha yeni. Var olan dosyayý korumanýz önerilir %n%nVar olan dosya korunsun mu?
+FileExistsSelectAction=Yapýlacak iþlemi seçin
+FileExists2=Dosya zaten var.
+FileExists=&Var olan osyanýn üzerine yazýlsýn
+FileExistsKeepExisting=Var &olan dosya korunsun
+FileExistsOverwriteOrKeepAll=&Sonraki çakýþmalarda da bu iþlem yapýlsýn
+ExistingFileNewerSelectAction=Yapýlacak iþlemi seçin
+ExistingFileNewer2=Var olan dosya, kurulum yardýmcýsý tarafýndan yazýlmaya çalýþýlandan daha yeni.
+ExistingFileNewerOverwriteExisting=&Var olan dosyanýn üzerine yazýlsýn
+ExistingFileNewerKeepExisting=Var &olan dosya korunsun (önerilir)
+ExistingFileNewerOverwriteOrKeepAll=&Sonraki çakýþmalarda bu iþlem yapýlsýn
 ErrorChangingAttr=Var olan dosyanýn öznitelikleri deðiþtirilirken bir sorun çýktý:
-ErrorCreatingTemp=Hedef klasörde bir dosya oluþturulurken sorun çýktý:
+ErrorCreatingTemp=Hedef klasörde bir dosya oluþturulurken bir sorun çýktý:
 ErrorReadingSource=Kaynak dosya okunurken bir sorun çýktý:
 ErrorCopying=Dosya kopyalanýrken bir sorun çýktý:
 ErrorReplacingExistingFile=Var olan dosya deðiþtirilirken bir sorun çýktý:

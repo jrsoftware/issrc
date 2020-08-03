@@ -72,14 +72,34 @@ begin
   WriteFile(H, S[1], Length(S), BytesWritten, nil);
 end;
 
-procedure WriteStdOut(const S: String);
+procedure WriteStdOut(const S: String; const Warning: Boolean = False);
+var
+  CSBI: TConsoleScreenBufferInfo;
+  DidSetColor: Boolean;
 begin
-  WriteToStdHandle(StdOutHandle, AnsiString(S));
+  DidSetColor := Warning and GetConsoleScreenBufferInfo(StdOutHandle, CSBI) and
+                 SetConsoleTextAttribute(StdOutHandle, FOREGROUND_INTENSITY or FOREGROUND_RED or FOREGROUND_GREEN);
+  try
+    WriteToStdHandle(StdOutHandle, AnsiString(S));
+  finally
+    if DidSetColor then
+      SetConsoleTextAttribute(StdOutHandle, CSBI.wAttributes);
+  end;
 end;
 
-procedure WriteStdErr(const S: String);
+procedure WriteStdErr(const S: String; const Error: Boolean = False);
+var
+  CSBI: TConsoleScreenBufferInfo;
+  DidSetColor: Boolean;
 begin
-  WriteToStdHandle(StdErrHandle, AnsiString(S));
+  DidSetColor := Error and GetConsoleScreenBufferInfo(StdErrHandle, CSBI) and
+                 SetConsoleTextAttribute(StdErrHandle, FOREGROUND_INTENSITY or FOREGROUND_RED);
+  try
+    WriteToStdHandle(StdErrHandle, AnsiString(S));
+  finally
+    if DidSetColor then
+      SetConsoleTextAttribute(StdErrHandle, CSBI.wAttributes);
+  end;
 end;
 
 function GetCursorPos: TPoint;
@@ -222,7 +242,7 @@ begin
       end;
     iscbNotifyStatus:
       if not Quiet then
-        WriteStdOut(Data.StatusMsg)
+        WriteStdOut(Data.StatusMsg, Data.Warning)
       else if ShowProgress then
         PrintProgress(Trim(Data.StatusMsg));
     iscbNotifySuccess: begin
@@ -250,7 +270,7 @@ begin
         else if ScriptFilename <> '' then
           S := S + ' in ' + ScriptFilename;
         S := S + ': ' + Data.ErrorMsg;
-        WriteStdErr(S);
+        WriteStdErr(S, True);
       end;
     iscbNotifyIdle:
       if ShowProgress and (Data.CompressProgress <> 0) then begin
@@ -351,6 +371,7 @@ procedure ProcessCommandLine;
     WriteStdOut('Portions Copyright (C) 2000-2020 Martijn Laan. All rights reserved.');
     if IsppMode then
       WriteStdOut('Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
+    WriteStdOut('https://www.innosetup.com');
     WriteStdOut('');
   end;
 
@@ -411,7 +432,7 @@ begin
       else if GetParam(S, 'S') then begin
         if Pos('=', S) = 0 then begin
           ShowBanner;
-          WriteStdErr('Invalid option: ' + S);
+          WriteStdErr('Invalid option: ' + S, True);
           Halt(1);
         end;
         SignTools.Add(S);
@@ -443,7 +464,7 @@ begin
       end
       else begin
         ShowBanner;
-        WriteStdErr('Unknown option: ' + S);
+        WriteStdErr('Unknown option: ' + S, True);
         Halt(1);
       end;
     end
@@ -451,7 +472,7 @@ begin
       { Not a switch; must be the script filename }
       if ScriptFilename <> '' then begin
         ShowBanner;
-        WriteStdErr('You may not specify more than one script filename.');
+        WriteStdErr('You may not specify more than one script filename.', True);
         Halt(1);
       end;
       ScriptFilename := S;
@@ -528,7 +549,7 @@ begin
   {$ENDIF}
   if Ver.BinVersion < $05000500 then begin
     { 5.0.5 or later is required since we use TCompileScriptParamsEx }
-    WriteStdErr('Incompatible compiler engine version.');
+    WriteStdErr('Incompatible compiler engine version.', True);
     Halt(1);
   end;
 
@@ -592,12 +613,12 @@ begin
       isceNoError: ;
       isceCompileFailure: begin
           ExitCode := 2;
-          WriteStdErr('Compile aborted.');
+          WriteStdErr('Compile aborted.', True);
         end;
     else
       ExitCode := 1;
       WriteStdErr(Format('Internal error: ISDllCompileScript returned ' +
-        'unexpected result (%d).', [Res]));
+        'unexpected result (%d).', [Res]), True);
     end;
   finally
     FreeScriptLines;
@@ -619,7 +640,7 @@ begin
     except
       { Show a friendlier exception message. (By default, Delphi prints out
         the exception class and address.) }
-      WriteStdErr(GetExceptMessage);
+      WriteStdErr(GetExceptMessage, True);
       Halt(2);
     end;
   finally
