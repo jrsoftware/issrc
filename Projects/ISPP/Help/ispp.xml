@@ -597,10 +597,10 @@
 					<para>First syntax of &pragma; directive controls the options, which ISPP uses to read the source. There are two groups of options. Each group consists of 26 flags (not all of them are meaningful and used by ISPP, though). Each flag has an assigned latin letter. You specify options by typing group name (<synel>option</synel> or <synel>parseroption</synel>),
 then the letter following the dash. After a letter, a plus or minus sign shall be specified. Plus sign to turn the option on, minus to turn it off. Unrestricted number of options can be specified at once (see syntax).
 The list of options is provided at the end of this topic.</para>
-					<para>First group of options (<synel>option</synel>) controls the options of the whole ISPP engine, while second group (<synel>parseroption</synel>) controls options specific to parser. The list of options is provided at the end of this topic.</para>
+					<para>The first group of options (<synel>option</synel>) controls the general options, while the second group (<synel>parseroption</synel>) controls options specific to parser. The list of options is provided at the end of this topic.</para>
 					<para>Second syntax is used to specify inline directive terminators: starting and ending, respectively. After the token description keyword (<synel>inlinestart</synel> or <synel>inlineend</synel>) a string type expression must follow. It must not evaluate to an empty string. Only first seven symbols from the string are taken. It is allowed to specify the same token for both starting and ending terminators. By default, <synel>&ob;#</synel> (opening brace and a number sign) and <synel>&cb;</synel> (closing brace) are assumed.</para>
 					<para>Third syntax of &pragma; directive issues a message of the type specified by the keyword following the directive name. Messages and warnings are sent to the messages window of the compiler. Errors are shown (by the compiler) using message boxes. Expression must be of type string. Also see the &error; directive.</para>
-					<para>Fourth syntax sets the level of verbosity. When the verbose mode is on (see below), this syntax controls the level of importance of messages. Least important messages will show up only when highest verbose level (9) is set.</para>
+					<para>Fourth syntax turns on verbose mode and sets the level of verbosity which controls the importance of messages (see below). Least important messages will show up only when highest verbose level is set.</para>
 					<para>Fifth syntax sets the include path. Expression may specify multiple paths delimited with semicolons. The list of these directories is used when ISPP tries to find a file, mentioned in &include; directive.</para>
 					<para>The last syntax sets the symbol used to span multiple lines together. Expression must not evaluate to an empty string. Only first symbol in string is taken.</para>
 				</description>
@@ -617,6 +617,18 @@ The list of options is provided at the end of this topic.</para>
 						<tr><td>m</td><td>Short-circuit multiplication evaluation. (In "<code>0 * A</code>", <code>A</code> will not be evaluated, since the result of expression is known to be zero.) Default state: off.</td></tr>
 						<tr><td>p</td><td>Pascal-style string literals. In off state, uses C-style string literals (with escape sequences). Default state: on.</td></tr>
 						<tr><td>u</td><td>Allow undeclared identifiers. If an undefined identifier is encountered, ISPP will raise an error unless this option is turned on, in which case a standalone identifier (the one that does not look like a function call) will be considered void value. Default state: off.</td></tr>
+					</table>
+				</section>
+				<section title="Verbose levels">
+					<table>
+						<tr><td>0</td><td>#include and #file messages</td></tr>
+						<tr><td>1</td><td>messages about any temporary files created by #file</td></tr>
+						<tr><td>2</td><td>#insert and #append messages</td></tr>
+						<tr><td>4</td><td>#dim, #define and #undef messages</td></tr>
+						<tr><td>6</td><td>conditional inclusion messages</td></tr>
+						<tr><td>8</td><td>#emit messages</td></tr>
+						<tr><td>9</td><td>macro and functions call messages</td></tr>
+						<tr><td>10</td><td><code>Local</code> macro array allocation messages</td></tr>
 					</table>
 				</section>
 				<section title="Examples">

@@ -14,21 +14,6 @@
 //
 #define _BUILTINS_ISS_
 //
-// Verbose levels: 
-// 0 - #include and #file acknowledgements
-// 1 - information about any temp files created by #file
-// 2 - #insert and #append acknowledgements
-// 3 - reserved
-// 4 - #dim, #define and #undef acknowledgements
-// 5 - reserved
-// 6 - conditional inclusion acknowledgements
-// 7 - reserved
-// 8 - show strings emitted with #emit directive
-// 9 - macro and functions successful call acknowledgements
-//10 - Local macro array allocation acknowledgements
-//
-//#pragma verboselevel 0
-//
 #ifndef __POPT_P__
 # define private CStrings
 #else

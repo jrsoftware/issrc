@@ -837,6 +837,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
           OptionPragma(FOptions.Options)
         else if P = 'verboselevel' then
         begin
+          Include(FOptions.Options, optVerbose);
           FOptions.VerboseLevel := IntExpr(True);
           EndOfExpr;
         end

@@ -3,7 +3,6 @@
 ; This script shows various basic things you can achieve using Inno Setup Preprocessor (ISPP).
 ; To enable commented #define's, either remove the ';' or use ISCC with the /D switch.
 
-#pragma option -v+
 #pragma verboselevel 9
 
 ;#define Debug
