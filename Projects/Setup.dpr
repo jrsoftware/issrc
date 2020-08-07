@@ -2,7 +2,7 @@ program Setup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -10,8 +10,8 @@ program Setup;
 }
 
 {$SetPEFlags 1} 
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
 uses

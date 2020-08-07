@@ -751,12 +751,14 @@ begin
 end;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
-  const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
+  const IsVistaCompatible, IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
 const
   IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE = $0040;
   IMAGE_DLLCHARACTERISTICS_NX_COMPAT = $0100;
   IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = $8000;
+  OffsetOfOperatingSystemVersion = $28;
   OffsetOfImageVersion = $2C;
+  OffsetOfSubsystemVersion = $30;
   OffsetOfDllCharacteristics = $46;
 var
   Header: TImageFileHeader;
@@ -772,6 +774,16 @@ begin
       Ofs := F.Position.Lo;
       if (F.Read(OptMagic, SizeOf(OptMagic)) = SizeOf(OptMagic)) and
          (OptMagic = IMAGE_NT_OPTIONAL_HDR32_MAGIC) then begin
+        if IsVistaCompatible then begin
+          { Update OS/Subsystem version }
+          ImageVersion.Major := 6;
+          ImageVersion.Minor := 0;
+          F.Seek(Ofs + OffsetOfOperatingSystemVersion);
+          F.WriteBuffer(ImageVersion, SizeOf(ImageVersion));
+          F.Seek(Ofs + OffsetOfSubsystemVersion);
+          F.WriteBuffer(ImageVersion, SizeOf(ImageVersion));
+        end;
+
         { Update MajorImageVersion and MinorImageVersion to 6.0.
           Works around apparent bug in Vista (still present in Vista SP1;
           not reproducible on Server 2008): When UAC is turned off,
@@ -8251,7 +8263,7 @@ var
     end;
   end;
 
-  procedure PrepareSetupE32(var M: TMemoryFile);
+  procedure PrepareSetupE32(var M: TMemoryFile; const RemoveManifestDllHijackProtection: Boolean);
   var
     TempFilename, E32Filename, ConvertFilename: String;
     ConvertFile: TFile;
@@ -8259,7 +8271,7 @@ var
     TempFilename := '';
     try
       E32Filename := CompilerDir + 'SETUP.E32';
-      { make a copy and update icons and version info }
+      { make a copy and update icons, version info and if needed manifest }
       ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
       CopyFileOrAbort(E32Filename, ConvertFilename);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
@@ -8276,11 +8288,21 @@ var
         UpdateVersionInfo(ConvertFile, TFileVersionNumbers(nil^), VersionInfoProductVersion, VersionInfoCompany,
           '', '', VersionInfoCopyright, VersionInfoProductName, VersionInfoProductTextVersion, VersionInfoOriginalFileName,
           False);
+        if RemoveManifestDllHijackProtection then begin
+          AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.E32']));
+          CompResUpdate.RemoveManifestDllHijackProtection(ConvertFile, False);
+        end else begin
+          { Use the oppertunity to check that the manifest is correctly prepared for removing the
+            protection, without actually removing it. Doing this only once per compile since there's
+            only one source manifest. }
+          CompResUpdate.RemoveManifestDllHijackProtection(ConvertFile, True);
+        end;
       finally
         ConvertFile.Free;
       end;
       M := TMemoryFile.Create(ConvertFilename);
-      UpdateSetupPEHeaderFields(M, TerminalServicesAware, DEPCompatible, ASLRCompatible);
+      UpdateSetupPEHeaderFields(M, RemoveManifestDllHijackProtection, TerminalServicesAware,
+        DEPCompatible, ASLRCompatible);
       if shSignedUninstaller in SetupHeader.Options then
         SignSetupE32(M);
     finally
@@ -8416,7 +8438,7 @@ var
   SetupE32: TMemoryFile;
   I: Integer;
   AppNameHasConsts, AppVersionHasConsts, AppPublisherHasConsts,
-    AppCopyrightHasConsts, AppIdHasConsts, Uninstallable: Boolean;
+    AppCopyrightHasConsts, AppIdHasConsts, Uninstallable, RemoveManifestDllHijackProtection: Boolean;
   PrivilegesRequiredValue: String;
 begin
   { Sanity check: A single TSetupCompiler instance cannot be used to do
@@ -8465,7 +8487,7 @@ begin
     ReserveBytes := 0;
     TimeStampRounding := 2;
     SetupHeader.MinVersion.WinVersion := 0;
-    SetupHeader.MinVersion.NTVersion := $06000000;
+    SetupHeader.MinVersion.NTVersion := $06010000;
     SetupHeader.Options := [shDisableStartupPrompt, shCreateAppDir,
       shWindowStartMaximized, shWindowShowCaption, shWindowResizable,
       shUsePreviousAppDir, shUsePreviousGroup,
@@ -8746,9 +8768,15 @@ begin
     { Prepare Setup executable & signed uninstaller data }
     if Output then begin
       AddStatus(SCompilerStatusPreparingSetupExe);
-      PrepareSetupE32(SetupE32);
-    end else
+      { The manifest block protecting special DLLs breaks Vista compatibilty }
+      RemoveManifestDllHijackProtection := SetupHeader.MinVersion.NTVersion < $06010000;
+      if RemoveManifestDllHijackProtection then
+        WarningsList.Add(Format(SCompilerRemoveManifestDllHijackProtection, ['6.1']));
+      PrepareSetupE32(SetupE32, RemoveManifestDllHijackProtection);
+    end else begin
       AddStatus(SCompilerStatusSkippingPreparingSetupExe);
+      RemoveManifestDllHijackProtection := False; { silence compiler }
+    end;
 
     { Read languages:
 
@@ -9019,7 +9047,8 @@ begin
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);
           try
-            UpdateSetupPEHeaderFields(SetupFile, TerminalServicesAware, DEPCompatible, ASLRCompatible);
+            UpdateSetupPEHeaderFields(SetupFile, RemoveManifestDllHijackProtection,
+              TerminalServicesAware, DEPCompatible, ASLRCompatible);
             SizeOfExe := SetupFile.Size.Lo;
           finally
             SetupFile.Free;
@@ -9077,6 +9106,12 @@ begin
               VersionInfoDescription, VersionInfoTextVersion,
               VersionInfoCopyright, VersionInfoProductName, VersionInfoProductTextVersion, VersionInfoOriginalFileName,
               True);
+
+            { Update manifest if needed }
+            if RemoveManifestDllHijackProtection then begin
+              AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.EXE']));
+              CompResUpdate.RemoveManifestDllHijackProtection(ExeFile, False);
+            end;
 
             { For some reason, on Win95 the date/time of the EXE sometimes
               doesn't get updated after it's been written to so it has to
