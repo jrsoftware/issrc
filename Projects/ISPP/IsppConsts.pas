@@ -51,16 +51,16 @@ const
 
   { Verbose messages }
 
+  SChangedVerboseLevel = 'Changed level of verbosity: %d';
   SChangingInsertionPointToLine = 'Changing insertion point to line %d';
-  SFinishedProcessingOfExternalFile = 'Finished processing of external file "%s"';
-  SFinishingConditionalInclusion = 'Finishing conditional inclusion (''endif'')';
-  SFinishingProcessingFile = '*** Finishing processing file "%s"';
-  SIncludingFile = '*** Including file "%s"';
-  SLineEmitted = 'Line emitted: "%s"';
-  SProcessingExternalFile = 'Processing external file "%s"';
+  SFinishedProcessingOfFile = 'Finished preprocessing of %s';
+  SFinishedConditionalInclusion = 'Finished conditional inclusion (''endif'')';
+  SIncludingFile = 'Including file: %s';
+  SLineEmitted = 'Emitted line: %s';
+  SProcessingExternalFile = 'Processing file: %s';
   SResettingInsertionPoint = 'Resetting insertion point';
   SStartingConditionalInclusionIf = 'Starting conditional inclusion (''if'')';
-  STemporaryFileCreated = 'Temporary file created: "%s"';
+  STemporaryFileCreated = 'Created temporary file: %s';
   SUpdatingConditionalInclusionElif = 'Updating conditional inclusion (''elif'')';
   SUpdatingConditionalInclusionElse = 'Updating conditional inclusion (''else'')';
 

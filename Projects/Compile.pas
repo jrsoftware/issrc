@@ -1210,6 +1210,7 @@ var
           should have already called ErrorProc itself }
         RaiseError(LineFilename, LineNumber, 'PrependDirNameProc failed');
       end;
+      Params.StatusProc(Params.CompilerData, PChar(Format(SBuiltinPreprocessStatusIncludingFile, [IncludeFilename])));
       ProcessLinesFromFile(LineFilename, LineNumber, PathExpand(IncludeFilename));
     end
     else
@@ -2015,7 +2016,7 @@ var
   Data: PPreCompilerData;
 begin
   Data := CompilerData;
-  Data.Compiler.AddStatus(StatusMsg);
+  Data.Compiler.AddStatus(Format(SCompilerStatusPreprocessorStatus, [StatusMsg]));
 end;
 
 procedure PreErrorProc(CompilerData: TPreprocCompilerData; ErrorMsg: PChar;
@@ -2151,6 +2152,8 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
       ResultCode := ispePreprocessError;
       if FileLoaded then begin
         PreProc := SelectPreprocessor(TLowFragStringList(Data.InFiles.Objects[0]));
+        if Filename = '' then
+          AddStatus(SCompilerStatusPreprocessing);
         ResultCode := PreProc(Params);
         if Filename = '' then begin
           { Defer cleanup of main script until after compilation }

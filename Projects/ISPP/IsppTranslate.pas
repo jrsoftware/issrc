@@ -59,7 +59,7 @@ type
 
   TDropGarbageProc = procedure(Item: Pointer);
 
-  TIsppMessageType = (imtBlank, imtStatus, imtWarning, imtVerbose);
+  TIsppMessageType = (imtStatus, imtWarning);
 
   TPreprocessor = class(TObject, IIdentManager)
   private
@@ -839,6 +839,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         begin
           Include(FOptions.Options, optVerbose);
           FOptions.VerboseLevel := IntExpr(True);
+          VerboseMsg(0, SChangedVerboseLevel, [FOptions.VerboseLevel]);
           EndOfExpr;
         end
         else if P = 'warning' then begin
@@ -876,7 +877,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
     if FileExists(FileName) then
     begin
       Result := GetTempFileName(ExtractFileName(FileName));
-      VerboseMsg(0, SProcessingExternalFile, [ExtractFileName(FileName)]);
+      VerboseMsg(0, SProcessingExternalFile, [FileName]);
       NewOptions := FOptions;
       Preprocessor := TPreprocessor.Create(FCompilerParams, FIdentManager,
         NewOptions, FSourcePath, FCompilerPath, FileName);
@@ -896,7 +897,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       finally
         Preprocessor.Free;
       end;
-      VerboseMsg(0, SFinishedProcessingOfExternalFile, [ExtractFileName(FileName)]);
+      VerboseMsg(0, SFinishedProcessingOfFile, [ExtractFileName(FileName)]);
     end
     else
       RaiseError(Format(SFileNotFound, [FileName]));
@@ -1121,7 +1122,7 @@ procedure TPreprocessor.VerboseMsg(Level: Byte; const Msg: string;
   const Args: array of const);
 begin
   if (optVerbose in FOptions.Options) and (FOptions.VerboseLevel >= Level) then
-    SendMsg(Format(Msg, Args), imtVerbose);
+    SendMsg(Format(Msg, Args), imtStatus);
 end;
 
 procedure TPreprocessor.Warning(const Msg: string; const Args: array of const);
@@ -1133,7 +1134,7 @@ procedure TPreprocessor.IssueMessage(const Message: string;
   MsgType: TIsppMessageType);
 const
   MsgFormats: array[TIsppMessageType] of string =
-    ('', '[ISPP] %s.', '[ISPP Warning] %s.', '[ISPP Message] %s.');
+    ('%s', 'Warning: %s');
 begin
   FCompilerParams.StatusProc(FCompilerParams.CompilerData,
     PChar(Format(MsgFormats[MsgType], [Message])));
@@ -1143,7 +1144,11 @@ procedure TPreprocessor.SendMsg(const Msg: string; Typ: TIsppMessageType);
 var
   S: string;
 begin
-  S := Format('%s(%d): %s', [GetFileName(-1), GetLineNumber(-1), Msg]);
+  S := GetFileName(-1);
+  if S <> '' then
+    S := Format('Line %d of %s: %s', [GetLineNumber(-1), PathExtractName(S), Msg])
+  else
+    S := Format('Line %d: %s', [GetLineNumber(-1), Msg]);
   IssueMessage(S, Typ);
 end;
 
@@ -1295,7 +1300,7 @@ begin
     cvmElse: M := SUpdatingConditionalInclusionElse;
   else
     begin
-      FPreproc.VerboseMsg(6, SFinishingConditionalInclusion, []);
+      FPreproc.VerboseMsg(6, SFinishedConditionalInclusion, []);
       Exit;
     end;
   end;
@@ -1716,7 +1721,7 @@ begin
     finally
       PopFile;
     end;
-    VerboseMsg(0, SFinishingProcessingFile, [FullFileName]);
+    VerboseMsg(0, SFinishedProcessingOfFile, [ExtractFileName(FullFileName)]);
   end
   else
     RaiseError(Format(SFileNotFound, [FileName]));

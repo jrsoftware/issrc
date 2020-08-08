@@ -97,6 +97,9 @@ const
 
   { Status messages }
   SCompilerStatusStarting = '*** Starting compile.  [%s]';
+  SCompilerStatusPreprocessing = 'Preprocessing';
+  SCompilerStatusPreprocessorStatus = '   %s';
+  SBuiltinPreprocessStatusIncludingFile = 'Including file: %s';
   SCompilerStatusCreatingOutputDir = 'Creating output directory: %s';
   SCompilerStatusCreatingSignedUninstallerDir = 'Creating signed uninstaller directory: %s';
   SCompilerStatusDeletingPrevious = 'Deleting %s from output directory';
@@ -114,7 +117,7 @@ const
   SCompilerStatusParsingMessages = 'Parsing [LangOptions], [Messages], and [CustomMessages] sections';
   SCompilerStatusReadingCode = 'Reading [Code] section';
   SCompilerStatusCompilingCode = 'Compiling [Code] section';
-  SCompilerStatusReadingInFile = '   File: %s';
+  SCompilerStatusReadingInFile = '   Reading file: %s';
   SCompilerStatusReadingInScriptMsgs = '   Messages in script file';
   SCompilerStatusCreateSetupFiles = 'Creating setup files';
   SCompilerStatusSkippingCreateSetupFiles = 'Skipping creating setup files, output is disabled';

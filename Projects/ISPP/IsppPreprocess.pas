@@ -249,8 +249,6 @@ begin
     Preprocessor := TPreprocessor.Create(Params, nil, ISPPOptions, SourcePath,
       CompilerPath, Params.Filename);
     try
-      Preprocessor.IssueMessage('Preprocessing', imtStatus);
-
       Preprocessor.IncludePath := IncludePath;
 
       MakeStr(V, SourcePath);
@@ -272,8 +270,6 @@ begin
 
       ReadScript(Params, Preprocessor);
       Preprocessor.Stack.Resolved;
-      Preprocessor.IssueMessage('Preprocessed', imtStatus);
-      Preprocessor.IssueMessage('', imtBlank);
 
       if not GetOption(Preprocessor.FOptions.Options, 'C') then
         Result := ispeSilentAbort
