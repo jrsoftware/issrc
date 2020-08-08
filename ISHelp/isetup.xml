@@ -3608,9 +3608,10 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <topic name="credits" title="Contributers">
 <keyword value="Contributers" />
+<keyword value="Credits" />
 <body>
 
-<p>Inno Setup was created by Jordan Russell and is currently (since 5.4.3, released in 2011) maintained by Martijn Laan.</p>
+<p>Inno Setup was created by Jordan Russell and is currently maintained by Martijn Laan (since 5.4.3, released in 2011).</p>
 
 <p>The following is a list of those who have contributed significant code to the Inno Setup project, or otherwise deserve special recognition:</p>
 
@@ -3657,6 +3658,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <li>Sergii Leonov: Code for the Compiler IDE's MessageBox Designer (6.1.0).</li>
 
 </ul>
+
+<p>Special thanks to everyone answering questions on the forum and on Stack Overflow, especially: Gavin Lambert, Deanna Hants, Jernej Simon&#269;i&#269;, Martin Prikryl and TLama.</p>
 
 </body>
 </topic>
