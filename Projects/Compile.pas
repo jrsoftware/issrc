@@ -1911,9 +1911,8 @@ type
 procedure PreErrorProc(CompilerData: TPreprocCompilerData; ErrorMsg: PChar;
   ErrorFilename: PChar; ErrorLine: Integer; ErrorColumn: Integer); stdcall; forward;
 
-function PreLoadFileProc(CompilerData: TPreprocCompilerData; AFilename: PChar;
-  ErrorFilename: PChar; ErrorLine: Integer; ErrorColumn: Integer): TPreprocFileHandle;
-  stdcall;
+function LoadFile(CompilerData: TPreprocCompilerData; AFilename: PChar;
+  ErrorFilename: PChar; ErrorLine: Integer; ErrorColumn: Integer; FromPreProcessor: Boolean): TPreprocFileHandle;
 var
   Data: PPreCompilerData;
   Filename: String;
@@ -1941,7 +1940,8 @@ begin
 
   Lines := TLowFragStringList.Create;
   try
-    Data.Compiler.AddStatus(Format(SCompilerStatusReadingInFile, [FileName]));
+    if FromPreProcessor then
+      Data.Compiler.AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
     F := TTextFileReader.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
       F.CodePage := Data.AnsiConvertCodePage;
@@ -1963,6 +1963,13 @@ begin
     Exit;
   end;
   Result := Data.InFiles.AddObject(Filename, Lines);
+end;
+
+function PreLoadFileProc(CompilerData: TPreprocCompilerData; AFilename: PChar;
+  ErrorFilename: PChar; ErrorLine: Integer; ErrorColumn: Integer): TPreprocFileHandle;
+  stdcall;
+begin
+  Result := LoadFile(CompilerData, AFilename, ErrorFilename, ErrorLine, ErrorColumn, True);
 end;
 
 function PreLineInProc(CompilerData: TPreprocCompilerData;
@@ -2134,8 +2141,8 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
         FileLoaded := True;
       end
       else
-        FileLoaded := (PreLoadFileProc(Params.CompilerData, PChar(Filename),
-          PChar(LineFilename), LineNumber, 0) = 0);
+        FileLoaded := (LoadFile(Params.CompilerData, PChar(Filename),
+          PChar(LineFilename), LineNumber, 0, False) = 0);
 
       ResultCode := ispePreprocessError;
       if FileLoaded then begin
