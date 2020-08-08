@@ -2,7 +2,7 @@ unit CompMsgs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -126,6 +126,7 @@ const
   SCompilerStatusFilesStoringVersion = '   Storing: %s   (%u.%u.%u.%u)';
   SCompilerStatusCompressingSetupExe = '   Compressing Setup program executable';
   SCompilerStatusUpdatingVersionInfo = '   Updating version info (%s)';
+  SCompilerStatusUpdatingManifest = '   Updating manifest (%s)';
   SCompilerStatusUpdatingIcons = '   Updating icons (%s)';
   SCompilerStatusCreatingDisk = '   Creating disk %d';
   SCompilerStatusFinished = '*** Finished.  [%s, %s elapsed]';
@@ -192,7 +193,9 @@ const
   SCompilerDirectiveNotUsingDefault = 'The [Setup] section directive "%s" is not assuming a default value because %s includes constants.';
   SCompilerDirectiveNotUsingPreferredDefault = 'The [Setup] section directive "%s" is defaulting to %s because %s includes constants.';
   SCompilerDirectivePatternTooLong = 'The [Setup] section directive "%s" contains a pattern that is too long';
-  SCompilerOutputBaseFileNameSetup = 'Setting the [Setup] section "OutputBaseFileName" to "setup" is not recommended, all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll.' + ' These DLLs are loaded unsafely by Windows and can be hijacked. Use a different name, for example "mysetup".';
+  SCompilerOutputBaseFileNameSetup = 'Setting the [Setup] section directive "OutputBaseFileName" to "setup" is not recommended: all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll.' + ' These DLLs are loaded unsafely by Windows and can be hijacked. Use a different name, for example "mysetup".';
+  SCompilerRemoveManifestDllHijackProtection = 'Setting the [Setup] section directive "MinVersion" below %s is not recommended: Windows Vista doesn''t support some of Setup''s security measures against potential DLL preloading attacks so these have been' + ' removed by the compiler making your installer less secure on all versions of Windows.';
+  SCompilerDidntRemoveManifestDllHijackProtection = 'Setup will not run on Windows Vista: MinVersion must be below %s.';
 
   { Signing }
   SCompilerSignatureNeeded = 'Signed uninstaller mode is enabled. Using ' +

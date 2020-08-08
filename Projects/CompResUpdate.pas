@@ -17,16 +17,17 @@ uses
 {$I VERSION.INC}
 
 procedure UpdateIcons(const FileName, IcoFileName: String);
-procedure UpdateVersionInfo(const F: TFile;
+procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
   NewProductName, NewTextProductVersion, NewOriginalFileName: String;
   const SetFileVersionAndDescription: Boolean);
+procedure RemoveManifestDllHijackProtection(const F: TCustomFile; const TestBlockOnly: Boolean);
 
 implementation
 
 uses
-  ResUpdate{$IFDEF UNICODE}, Math{$ENDIF};
+  ResUpdate{$IFDEF UNICODE}, Math{$ENDIF}, Int64Em;
 
 procedure Error(const Msg: String);
 begin
@@ -38,7 +39,7 @@ begin
   Error(Msg + ' (' + IntToStr(GetLastError) + ')');
 end;
 
-procedure UpdateVersionInfo(const F: TFile;
+procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
   NewProductName, NewTextProductVersion, NewOriginalFileName: String;
@@ -377,6 +378,35 @@ begin
   finally
     FreeMem(Ico);
   end;
+end;
+
+procedure RemoveManifestDllHijackProtection(const F: TCustomFile; const TestBlockOnly: Boolean);
+const
+  BlockStartText: AnsiString = '<file name="';
+  BlockLength = 250;
+var
+  S: AnsiString;
+  Offset: Integer64;
+  P: Integer;
+begin
+  { Read the manifest resource into a string }
+  SetString(S, nil, SeekToResourceData(F, 24, 1));
+  Offset := F.Position;
+  F.ReadBuffer(S[1], Length(S));
+
+  { Locate and update the block with file elements }
+  P := Pos(BlockStartText, S);
+  if P = 0 then
+    Error('Block not found');
+  if Copy(S, P+BlockLength, 11) <> '</assembly>' then
+    Error('Block too short');
+
+  if TestBlockOnly then
+    Exit;
+
+  Inc64(Offset, P-1);
+  F.Seek64(Offset);
+  F.WriteAnsiString(AnsiString(Format('%*s', [BlockLength, ' '])));
 end;
 
 end.
