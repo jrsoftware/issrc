@@ -758,7 +758,8 @@ type
     OpenCountChange: ShortInt;
   end;
 const
-  ISPPDirectives: array[0..22] of TISPPDirective = (
+  ISPPDirectives: array[0..23] of TISPPDirective = (
+    (Name: 'preproc'; RequiresParameter: True; OpenCountChange: 0),
     (Name: 'define'; RequiresParameter: True; OpenCountChange: 0),
     (Name: 'dim'; RequiresParameter: True; OpenCountChange: 0),
     (Name: 'redim'; RequiresParameter: True; OpenCountChange: 0),
