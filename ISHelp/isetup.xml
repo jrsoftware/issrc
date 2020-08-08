@@ -3952,7 +3952,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="MinVersion">
 <setupformat><tt><i>major</i>.<i>minor</i></tt></setupformat>
-<setupdefault><tt>6.1</tt></setupdefault>
+<setupdefault><tt>6.1sp1</tt> (Windows 7 with Service Pack 1 or Windows Server 2008 R2 with Service Pack 1)</setupdefault>
 <body>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software runs on. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>If the user's system does not meet the minimum version requirement, Setup will give an error message and exit.</p>
