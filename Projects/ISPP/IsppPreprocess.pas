@@ -17,7 +17,7 @@ implementation
 
 uses
   SysUtils, CmnFunc2, PathFunc,
-  IsppBase, IsppTranslate, IsppSessions, IsppIntf, IsppIdentMan, IsppVarUtils;
+  IsppBase, IsppTranslate, IsppSessions, IsppIntf, IsppIdentMan, IsppVarUtils, IsppConsts;
 
 //type TPreprocProtectedMethods = class(TPreprocessor);
 
@@ -183,11 +183,11 @@ var
       end;
     end;
 
-    procedure Include(FileName: String);
+    procedure Include(FileName: String; Builtins: Boolean);
     begin
       if not GetOption(Options, 'P') then
         FileName := Escape(FileName);
-      Preprocessor.IncludeFile(FileName, False, True);
+      Preprocessor.IncludeFile(FileName, Builtins, False, True);
     end;
 
   const
@@ -200,9 +200,9 @@ var
     Result := True;
     IncludeFile := BuiltinsDir + SBuiltins;
     if FileExists(IncludeFile) then
-      Include(IncludeFile)
+      Include(IncludeFile, True)
     else
-      Preprocessor.IssueMessage(SBuiltins + ' file was not found', imtWarning);
+      Preprocessor.WarningMsg(SFileNotFound, [SBuiltins]);
     while IncludeFiles^ <> #0 do begin
       DelimPos := StrScan(IncludeFiles, #1);
       if DelimPos = nil then begin
@@ -212,7 +212,7 @@ var
       N := DelimPos - IncludeFiles;
       if N > 0 then begin
         SetString(IncludeFile, IncludeFiles, N);
-        Include(IncludeFile);
+        Include(IncludeFile, False);
       end;
       Inc(IncludeFiles, N + 1);
     end;

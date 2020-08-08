@@ -1769,7 +1769,7 @@ begin
   try
     with IInternalFuncParams(Params) do begin
       { Also see Pragma in IsppTranslate }
-      TPreprocessor(Ext).SendMsg(Get(0).AsStr, imtStatus);
+      TPreprocessor(Ext).StatusMsg(Get(0).AsStr, []);
       ResPtr^ := NULL;
     end;
   except
@@ -1788,7 +1788,7 @@ begin
   try
     with IInternalFuncParams(Params) do begin
       { Also see Pragma in IsppTranslate }
-      TPreprocessor(Ext).Warning(Get(0).AsStr, []);
+      TPreprocessor(Ext).WarningMsg(Get(0).AsStr, []);
       ResPtr^ := NULL;
     end;
   except

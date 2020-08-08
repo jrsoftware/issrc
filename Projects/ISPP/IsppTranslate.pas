@@ -93,6 +93,7 @@ type
     procedure PopFile;
     function CheckFile(const FileName: string): Boolean;
     function EmitDestination: TStringList;
+    procedure SendMsg(const Msg: string; Typ: TIsppMessageType);
   protected
     function GetDefaultScope: TDefineScope;
     procedure SetDefaultScope(Scope: TDefineScope);
@@ -119,15 +120,14 @@ type
       const SourcePath: string; const CompilerPath: string; const FileName: string = '');
     destructor Destroy; override;
     procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);
-    procedure Warning(const Msg: string; const Args: array of const);
-    procedure IssueMessage(const Message: string; MsgType: TIsppMessageType);
-    procedure SendMsg(const Msg: string; Typ: TIsppMessageType);
+    procedure StatusMsg(const Msg: string; const Args: array of const);
+    procedure WarningMsg(const Msg: string; const Args: array of const);
     procedure AddLine(const LineRead: string);
     function GetFileName(Code: Integer): string;
     function GetLineNumber(Code: Integer): Word;
     function GetNext(var LineFilename: string; var LineNumber: Integer;
       var LineText: string): Boolean;
-    procedure IncludeFile(FileName: string; UseIncludePathOnly, ResetCurrentFile: Boolean);
+    procedure IncludeFile(FileName: string; Builtins, UseIncludePathOnly, ResetCurrentFile: Boolean);
     procedure QueueLine(const LineRead: string);
     function PrependDirName(const FileName, Dir: string): string;
     procedure RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: Longint);
@@ -779,7 +779,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       IncludePathOnly := False;
     end;
 
-    Self.IncludeFile(FileName, IncludePathOnly, False);
+    Self.IncludeFile(FileName, False, IncludePathOnly, False);
   end;
 
   procedure Pragma(Parser: TParserAccess);
@@ -844,10 +844,10 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         end
         else if P = 'warning' then begin
           { Also see WarningFunc in IsppFuncs }
-          Warning(StrPragma(True), [])
+          WarningMsg(StrPragma(True), [])
         end else if P = 'message' then begin
           { Also see MessageFunc in IsppFuncs }
-          SendMsg(StrPragma(True), imtStatus)
+          StatusMsg(StrPragma(True), [])
         end else if P = 'error' then begin
           { Also see ErrorFunc in IsppFuncs }
           ErrorMsg := StrPragma(True);
@@ -856,11 +856,11 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
           RaiseError(ErrorMsg)
         end
         else
-          Warning(SFailedToParsePragmaDirective, []);
+          WarningMsg(SFailedToParsePragmaDirective, []);
       end;
     except
       if CatchException then
-        Warning(SFailedToParsePragmaDirective, [])
+        WarningMsg(SFailedToParsePragmaDirective, [])
       else
         raise
     end;
@@ -877,7 +877,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
     if FileExists(FileName) then
     begin
       Result := GetTempFileName(ExtractFileName(FileName));
-      VerboseMsg(0, SProcessingExternalFile, [FileName]);
+      StatusMsg(SProcessingExternalFile, [FileName]);
       NewOptions := FOptions;
       Preprocessor := TPreprocessor.Create(FCompilerParams, FIdentManager,
         NewOptions, FSourcePath, FCompilerPath, FileName);
@@ -897,7 +897,6 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       finally
         Preprocessor.Free;
       end;
-      VerboseMsg(0, SFinishedProcessingOfFile, [ExtractFileName(FileName)]);
     end
     else
       RaiseError(Format(SFileNotFound, [FileName]));
@@ -984,7 +983,7 @@ begin
             evInt: Result := IfCondition.AsInt <> 0;
             evStr: Result := IfCondition.AsStr <> ''
           else
-            Warning(SSpecifiedConditionEvalatedToVoid, []);
+            WarningMsg(SSpecifiedConditionEvalatedToVoid, []);
             Result := False
           end;
         end;
@@ -997,12 +996,12 @@ begin
             itFunc:
             begin
               Result := Command = pcIfDef;
-              Warning(SFuncIdentForIfdef, []);
+              WarningMsg(SFuncIdentForIfdef, []);
             end;
             else
             begin
               Result := Command = pcIfNDef;
-              Warning(SSpecFuncIdentForIfdef, []);
+              WarningMsg(SSpecFuncIdentForIfdef, []);
             end;
           end;
           EndOfExpr;
@@ -1036,7 +1035,7 @@ begin
       pcProcedure: BeginProcDecl(Parser);
       pcEndProc: EndProcDecl;
     else
-      Warning(SDirectiveNotYetSupported, [PreprocCommands[Command]])
+      WarningMsg(SDirectiveNotYetSupported, [PreprocCommands[Command]])
     end;
   finally
     Free
@@ -1122,25 +1121,23 @@ procedure TPreprocessor.VerboseMsg(Level: Byte; const Msg: string;
   const Args: array of const);
 begin
   if (optVerbose in FOptions.Options) and (FOptions.VerboseLevel >= Level) then
-    SendMsg(Format(Msg, Args), imtStatus);
+    StatusMsg(Msg, Args);
 end;
 
-procedure TPreprocessor.Warning(const Msg: string; const Args: array of const);
+procedure TPreprocessor.StatusMsg(const Msg: string; const Args: array of const);
+begin
+  SendMsg(Format(Msg, Args), imtStatus);
+end;
+
+procedure TPreprocessor.WarningMsg(const Msg: string; const Args: array of const);
 begin
   SendMsg(Format(Msg, Args), imtWarning);
 end;
 
-procedure TPreprocessor.IssueMessage(const Message: string;
-  MsgType: TIsppMessageType);
+procedure TPreprocessor.SendMsg(const Msg: string; Typ: TIsppMessageType);
 const
   MsgFormats: array[TIsppMessageType] of string =
     ('%s', 'Warning: %s');
-begin
-  FCompilerParams.StatusProc(FCompilerParams.CompilerData,
-    PChar(Format(MsgFormats[MsgType], [Message])));
-end;
-
-procedure TPreprocessor.SendMsg(const Msg: string; Typ: TIsppMessageType);
 var
   S: string;
 begin
@@ -1149,7 +1146,8 @@ begin
     S := Format('Line %d of %s: %s', [GetLineNumber(-1), PathExtractName(S), Msg])
   else
     S := Format('Line %d: %s', [GetLineNumber(-1), Msg]);
-  IssueMessage(S, Typ);
+  FCompilerParams.StatusProc(FCompilerParams.CompilerData,
+    PChar(Format(MsgFormats[Typ], [S])));
 end;
 
 function TPreprocessor.DimOf(const Name: String): Integer;
@@ -1605,7 +1603,7 @@ begin
 end;
 
 procedure TPreprocessor.IncludeFile(FileName: string;
-  UseIncludePathOnly, ResetCurrentFile: Boolean);
+  Builtins, UseIncludePathOnly, ResetCurrentFile: Boolean);
 
   function IsDotRelativePath(const Filename: String): Boolean;
   begin
@@ -1693,7 +1691,8 @@ begin
   begin
     if not CheckFile(FullFileName) then
       RaiseError(Format(SFileIsAlreadyBeingIncluded, [FullFileName]));
-    VerboseMsg(0, SIncludingFile, [FullFileName]);
+    if not Builtins then
+      StatusMsg(SIncludingFile, [FullFileName]);
     PushFile(FullFileName);
     try
       FileHandle := FCompilerParams.LoadFileProc(FCompilerParams.CompilerData,
@@ -1721,7 +1720,6 @@ begin
     finally
       PopFile;
     end;
-    VerboseMsg(0, SFinishedProcessingOfFile, [ExtractFileName(FullFileName)]);
   end
   else
     RaiseError(Format(SFileNotFound, [FileName]));

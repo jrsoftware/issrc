@@ -12,7 +12,7 @@ uses IsppTranslate;
 procedure PushPreproc(APreproc: TPreprocessor);
 function PopPreproc: TPreprocessor;
 function PeekPreproc: TPreprocessor;
-procedure Warning(const Msg: string; const Args: array of const);
+procedure WarningMsg(const Msg: string; const Args: array of const);
 procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);
 procedure QueueFileForDeletion(const FileName: string);
 
@@ -22,13 +22,13 @@ implementation
 
 uses SysUtils, Classes, IsppStacks {$IFDEF IS_D12}, Windows{$ENDIF};
 
-procedure Warning(const Msg: string; const Args: array of const);
+procedure WarningMsg(const Msg: string; const Args: array of const);
 var
   P: TPreprocessor;
 begin
   P := PeekPreproc;
   if Assigned(P) then
-    P.Warning(Msg, Args)
+    P.WarningMsg(Msg, Args)
 end;
 
 procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);

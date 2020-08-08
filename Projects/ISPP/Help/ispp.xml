@@ -629,13 +629,13 @@ The list of options is provided at the end of this topic.</para>
 				</section>
 				<section title="Verbose levels">
 					<table>
-						<tr><td>0</td><td>#include, #file and level verbosity messages</td></tr>
-						<tr><td>1</td><td>messages about any temporary files created by #file</td></tr>
+						<tr><td>0</td><td>Verbosity level messages</td></tr>
+						<tr><td>1</td><td>Messages about any temporary files created by #file</td></tr>
 						<tr><td>2</td><td>#insert and #append messages</td></tr>
 						<tr><td>4</td><td>#dim, #define and #undef messages</td></tr>
-						<tr><td>6</td><td>conditional inclusion messages</td></tr>
+						<tr><td>6</td><td>Conditional inclusion messages</td></tr>
 						<tr><td>8</td><td>#emit messages</td></tr>
-						<tr><td>9</td><td>macro and functions call messages</td></tr>
+						<tr><td>9</td><td>Macro and functions call messages</td></tr>
 						<tr><td>10</td><td><code>Local</code> macro array allocation messages</td></tr>
 					</table>
 				</section>

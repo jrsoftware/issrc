@@ -231,7 +231,7 @@ begin
               (PeekAtNextToken in [tkOpenParen, tkOpenBracket, tkOpenBrace]) then
             begin
               Result.Typ := evNull;
-              Warning(SUndeclaredIdentifier, [TokenString]);
+              WarningMsg(SUndeclaredIdentifier, [TokenString]);
             end
             else
               ErrorFmt(SUndeclaredIdentifier, [TokenString]);

@@ -27,14 +27,14 @@ const
   SElseWithoutIf = '''else'' without ''if''';
   SEndifExpected = '''endif'' expected';
   SEndifWithoutIf = '''endif'' without ''if''';
-  SErrorWhileOpeningFile = 'Error %d while opening file "%s"';
-  SErrorWhileReadingFile = 'Error %d while reading file "%s"';
+  SErrorWhileOpeningFile = 'Error %d while opening file %s';
+  SErrorWhileReadingFile = 'Error %d while reading file %s';
   SFileDirectiveCanBeOnlyInline = '''file'' directive can be only inline';
-  SFileIsAlreadyBeingIncluded = 'File "%s" is already being included';
-  SFileNotFound = 'File not found: "%s"';
+  SFileIsAlreadyBeingIncluded = 'File %s is already being included';
+  SFileNotFound = 'File not found: %s';
   SInsertLineNoTooBig = 'Line number %d is out of current translation';
   SInvalidOptionName = 'Invalid option name';
-  SInvalidTypeId = 'Invalid type identifier: "%s"';
+  SInvalidTypeId = 'Invalid type identifier: %s';
   SMacroExpressionExpected = 'Macro expression expected';
   SNonEmptyStringExpected = 'Non empty string expected';
   STooManyFormalParams = 'Too many formal parameters';
@@ -49,15 +49,17 @@ const
   SSpecFuncIdentForIfdef = 'Special function identifier passed to ''ifdef''/''ifndef'' directive, result is undefined';
   SSpecifiedConditionEvalatedToVoid = 'Specified condition evalated to void, to test variable for existance use "defined" function';
 
+  { Status messages }
+
+  SIncludingFile = 'Including file: %s';
+  SProcessingExternalFile = 'Processing file: %s';
+
   { Verbose messages }
 
   SChangedVerboseLevel = 'Changed level of verbosity: %d';
   SChangingInsertionPointToLine = 'Changing insertion point to line %d';
-  SFinishedProcessingOfFile = 'Finished preprocessing of %s';
   SFinishedConditionalInclusion = 'Finished conditional inclusion (''endif'')';
-  SIncludingFile = 'Including file: %s';
   SLineEmitted = 'Emitted line: %s';
-  SProcessingExternalFile = 'Processing file: %s';
   SResettingInsertionPoint = 'Resetting insertion point';
   SStartingConditionalInclusionIf = 'Starting conditional inclusion (''if'')';
   STemporaryFileCreated = 'Created temporary file: %s';
@@ -67,11 +69,11 @@ const
   { Ident manager errors }
 
   SAllocatingMacroLocalArrayUpToEle = 'Allocating macro %s Local array up to element %d';
-  SArrayDeclared = '%s array declared: "%s"';
-  SArrayReDimmed = '%s array redimensioned: "%s"';
+  SArrayDeclared = '%s array declared: %s';
+  SArrayReDimmed = '%s array redimensioned: %s';
   SErrorExecutingMacro = 'Error at %1:d:%d in macro %0:s:'#13#10#13#10'%3:s';
   SErrorExecutingMacroFile = 'Error in %1:s at %d:%d in macro %0:s:'#13#10#13#10'%4:s';
-  SErrorExecutingMacroUnexpected = 'Error executing macro %s: "%s"';
+  SErrorExecutingMacroUnexpected = 'Error executing macro %s: %s';
   SFuncError = 'Unexpected error when calling function %s';
   SFuncsNoSupportNamedParams = 'Functions do not support named parameters';
   SIndexIsOutOfArraySize = 'Index %d is out of array %s size';
@@ -79,17 +81,17 @@ const
   SInsufficientParams = 'Insufficient parameters';
   SLocalArraysIndexError = 'Local arrays can have up to 16 elements (0 to 15)';
   SLValueRequiredForByRefParam = 'L-value required for by-reference parameter %s';
-  SMacroDefined = '%s macro defined: "%s"';
+  SMacroDefined = '%s macro defined: %s';
   SParameterlessVariable = 'Variable does not expect any parameters';
   SParamSpecifiedTwice = 'Parameter %s specified twice';
-  SRedeclaredIdentifier = 'Identifier redeclared: "%s"';
+  SRedeclaredIdentifier = 'Identifier redeclared: %s';
   SRequiredParamMissing = 'Required parameter %s missing';
   SSuccessfullyCalledFunction = 'Successfully called function %s';
   SSuccessfullyCalledMacro = 'Successfully called macro %s';
   STooManyActualParams = 'Too many actual parameters';
-  SUndefined = '%s %s undefined: "%s"';
-  SUnknownParam = 'Unknown parameter: "%s"';
-  SVariableDefined = '%s variable defined: "%s"';
+  SUndefined = '%s %s undefined: %s';
+  SUnknownParam = 'Unknown parameter: %s';
+  SVariableDefined = '%s variable defined: %s';
   SWrongParamType = 'Actual parameter %s is not of the declared type';
   SBadLength = 'Bad dimension';
 
@@ -103,7 +105,7 @@ const
   SLValueRequired = 'Left side cannot be assigned to (expression is not an l-value)';
   SOperatorNotApplicableToThisOpera = 'Operator not applicable to this operand type';
   SStringExpressionExpected = 'String expression expected';
-  SUndeclaredIdentifier = 'Undeclared identifier: "%s"';
+  SUndeclaredIdentifier = 'Undeclared identifier: %s';
   SWrongUnaryOperator = 'Wrong unary operator';
 
 implementation
