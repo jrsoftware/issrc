@@ -9178,6 +9178,7 @@ begin
       Inno Setup license agreement; see LICENSE.TXT. }
   finally
     CallPreprocessorCleanupProc;
+    UsedUserAreas.Clear;
     WarningsList.Clear;
     { Free all the data }
     DecryptionDLL.Free;
