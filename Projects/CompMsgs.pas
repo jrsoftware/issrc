@@ -195,6 +195,7 @@ const
   SCompilerDirectivePatternTooLong = 'The [Setup] section directive "%s" contains a pattern that is too long';
   SCompilerOutputBaseFileNameSetup = 'Setting the [Setup] section directive "OutputBaseFileName" to "setup" is not recommended: all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll.' + ' These DLLs are loaded unsafely by Windows and can be hijacked. Use a different name, for example "mysetup".';
   SCompilerRemoveManifestDllHijackProtection = 'Setting the [Setup] section directive "MinVersion" below %s is not recommended: Windows Vista doesn''t support some of Setup''s security measures against potential DLL preloading attacks so these have been' + ' removed by the compiler making your installer less secure on all versions of Windows.';
+  SCompilerDidntRemoveManifestDllHijackProtection = 'Setup will not run on Windows Vista: MinVersion must be below %s.';
 
   { Signing }
   SCompilerSignatureNeeded = 'Signed uninstaller mode is enabled. Using ' +

@@ -8440,6 +8440,8 @@ var
   AppNameHasConsts, AppVersionHasConsts, AppPublisherHasConsts,
     AppCopyrightHasConsts, AppIdHasConsts, Uninstallable, RemoveManifestDllHijackProtection: Boolean;
   PrivilegesRequiredValue: String;
+  OSVersionInfo: TOSVersionInfo;
+  WindowsVersion: Cardinal;
 begin
   { Sanity check: A single TSetupCompiler instance cannot be used to do
     multiple compiles. A separate instance must be used for each compile,
@@ -8771,7 +8773,16 @@ begin
       { The manifest block protecting special DLLs breaks Vista compatibilty }
       RemoveManifestDllHijackProtection := SetupHeader.MinVersion.NTVersion < $06010000;
       if RemoveManifestDllHijackProtection then
-        WarningsList.Add(Format(SCompilerRemoveManifestDllHijackProtection, ['6.1']));
+        WarningsList.Add(Format(SCompilerRemoveManifestDllHijackProtection, ['6.1']))
+      else begin
+        OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
+        if GetVersionEx(OSVersionInfo) then begin
+          WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or
+            (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
+          if WindowsVersion < Cardinal($06010000) then
+            WarningsList.Add(Format(SCompilerDidntRemoveManifestDllHijackProtection, ['6.1']))
+        end;
+      end;
       PrepareSetupE32(SetupE32, RemoveManifestDllHijackProtection);
     end else begin
       AddStatus(SCompilerStatusSkippingPreparingSetupExe);
