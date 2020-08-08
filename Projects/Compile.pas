@@ -187,7 +187,7 @@ type
     WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
     MissingRunOnceIdsWarning, MissingRunOnceIds, UsedUserAreasWarning: Boolean;
-    UsedUserAreas: TStringList;
+    UsedUserAreas, PreprocIncludedFilenames: TStringList;
 
     DefaultLangData: TLangData;
     {$IFDEF UNICODE} PreLangDataList, {$ENDIF} LangDataList: TList;
@@ -1603,6 +1603,7 @@ begin
   UsedUserAreas := TStringList.Create;
   UsedUserAreas.Sorted := True;
   UsedUserAreas.Duplicates := dupIgnore;
+  PreprocIncludedFilenames := TStringList.Create;
   DefaultLangData := TLangData.Create;
 {$IFDEF UNICODE}
   PreLangDataList := TLowFragList.Create;
@@ -1643,6 +1644,7 @@ begin
   PreLangDataList.Free;
 {$ENDIF}
   DefaultLangData.Free;
+  PreprocIncludedFilenames.Free;
   UsedUserAreas.Free;
   ExpectedCustomMessageNames.Free;
   WarningsList.Free;
@@ -1940,8 +1942,10 @@ begin
 
   Lines := TLowFragStringList.Create;
   try
-    if FromPreProcessor then
+    if FromPreProcessor then begin
       Data.Compiler.AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
+      Data.Compiler.PreprocIncludedFilenames.Add(Filename);
+    end;
     F := TTextFileReader.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
       F.CodePage := Data.AnsiConvertCodePage;
@@ -8472,6 +8476,7 @@ begin
     Finalize(SetupHeader);
     FillChar(SetupHeader, SizeOf(SetupHeader), 0);
     InitDebugInfo;
+    PreprocIncludedFilenames.Clear;
 
     { Initialize defaults }
     OriginalSourceDir := AddBackslash(PathExpand(SourceDir));
@@ -9233,7 +9238,7 @@ var
   P: PChar;
   Data: TCompilerCallbackData;
   S: String;
-  P2: Integer;
+  P2, I: Integer;
 begin
   if ((Params.Size <> SizeOf(Params)) and
       (Params.Size <> SizeOf(TCompileScriptParams))) or
@@ -9323,6 +9328,10 @@ begin
     Data.OutputExeFilename := PChar(SetupCompiler.ExeFilename);
     Data.DebugInfo := SetupCompiler.DebugInfo.Memory;
     Data.DebugInfoSize := SetupCompiler.DebugInfo.Size;
+    S := '';
+    for I := 0 to SetupCompiler.PreprocIncludedFilenames.Count-1 do
+     S := S + SetupCompiler.PreprocIncludedFilenames[I] + #0;
+    Data.IncludedFilenames := PChar(S);
     Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
   finally
     SetupCompiler.Free;

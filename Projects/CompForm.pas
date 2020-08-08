@@ -22,7 +22,7 @@ unit CompForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs,
   UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors,
   DebugStruct, CompInt, UxTheme, ImageList, ImgList, ToolWin,
@@ -55,6 +55,12 @@ type
   TStatusMessageKind = (smkStartEnd, smkNormal, smkWarning, smkError);
 
   TMRUItemCompareProc = function(const S1, S2: String): Integer;
+
+  TIncludedFile = class
+    Filename: String;
+    LastWriteTime: TFileTime;
+    HasLastWriteTime: Boolean;
+  end;
 
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
@@ -321,6 +327,7 @@ type
     FProcessHandle, FDebugClientProcessHandle: THandle;
     FDebugTarget: TDebugTarget;
     FCompiledExe, FUninstExe, FTempDir: String;
+    FIncludedFiles: TObjectList;
     FDebugging: Boolean;
     FStepMode: TStepMode;
     FPaused: Boolean;
@@ -983,6 +990,7 @@ begin
   FMRUParametersList := TStringList.Create;
 
   FSignTools := TStringList.Create;
+  FIncludedFiles := TObjectList.Create;
 
   FDebugTarget := dtSetup;
   UpdateTargetMenu;
@@ -1052,6 +1060,7 @@ begin
   FTheme.Free;
   FBreakPoints.Free;
   DestroyDebugInfo;
+  FIncludedFiles.Free;
   FSignTools.Free;
   FMRUParametersList.Free;
   FMRUFilesList.Free;
@@ -1199,6 +1208,7 @@ begin
   FSaveInUTF8Encoding := False;
   Memo.Lines.Clear;
   FModifiedSinceLastCompile := True;
+  FIncludedFiles.Clear;
   Memo.ClearUndo;
 end;
 
@@ -1623,6 +1633,7 @@ type
     CurLineNumber: Integer;
     CurLine: String;
     OutputExe: String;
+    IncludedFiles: TObjectList;
     ErrorMsg: String;
     ErrorFilename: String;
     ErrorLine: Integer;
@@ -1631,6 +1642,24 @@ type
 
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer; stdcall;
+
+  procedure ParseIncludedFilenames(P: PChar; IncludedFiles: TObjectList);
+  var
+    IncludedFile: TIncludedFile;
+  begin
+    IncludedFiles.Clear;
+    if P = nil then
+      Exit;
+    while P^ <> #0 do begin
+      IncludedFile := TIncludedFile.Create;
+      IncludedFile.Filename := P;
+      IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
+        IncludedFile.LastWriteTime);
+      IncludedFiles.Add(IncludedFile);
+      Inc(P, StrLen(P) + 1);
+    end;
+  end;
+
 begin
   Result := iscrSuccess;
   with PAppData(AppData)^ do
@@ -1679,6 +1708,7 @@ begin
           OutputExe := Data.OutputExeFilename;
           if Form.FCompilerVersion.BinVersion >= $3000001 then
             Form.ParseDebugInfo(Data.DebugInfo);
+          ParseIncludedFilenames(Data.IncludedFilenames, IncludedFiles); { Also stores last write time }
         end;
       iscbNotifyError:
         begin
@@ -1771,6 +1801,7 @@ begin
 
   DestroyDebugInfo;
   AppData.Lines := TStringList.Create;
+  AppData.IncludedFiles := FIncludedFiles;
   try
     FBuildAnimationFrame := 0;
     FProgress := 0;
@@ -3836,10 +3867,29 @@ begin
 end;
 
 procedure TCompileForm.CompileIfNecessary;
+
+  function IncludedFileModifiedSinceLastCompile: Boolean;
+  var
+    IncludedFile: TIncludedFile;
+    NewTime: TFileTime;
+    I: Integer;
+  begin
+    Result := False;
+    for I := 0 to FIncludedFiles.Count-1 do begin
+      IncludedFile := TIncludedFile(FIncludedFiles[I]);
+      if IncludedFile.HasLastWriteTime and
+         GetLastWriteTimeOfFile(IncludedFile.Filename, NewTime) and
+         (CompareFileTime(IncludedFile.LastWriteTime, NewTime) <> 0) then begin
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
+
 begin
   CheckIfTerminated;
 
-  { Display warning if the user modified the script while running }
+  { Display warning if the user modified the script while running - does not support included files  }
   if FDebugging and FModifiedSinceLastCompileAndGo then begin
     if MsgBox('The changes you made will not take effect until you ' +
        're-compile.' + SNewLine2 + 'Continue running anyway?',
@@ -3851,7 +3901,7 @@ begin
     CheckIfTerminated;
   end;
 
-  if not FDebugging and FModifiedSinceLastCompile then
+  if not FDebugging and (FModifiedSinceLastCompile or IncludedFileModifiedSinceLastCompile) then
     CompileFile('', False);
 end;
 

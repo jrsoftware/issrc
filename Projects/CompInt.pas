@@ -2,7 +2,7 @@ unit CompInt;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -78,7 +78,11 @@ type
                                           or empty if output was disabled
                                           (latter new in 5.5.5) }
         DebugInfo: Pointer;        { [in] Debug info (new in 3.0.0.1) }
-        DebugInfoSize: Cardinal);  { [in] Size of debug info (new in 3.0.0.1) }
+        DebugInfoSize: Cardinal;   { [in] Size of debug info (new in 3.0.0.1) }
+        IncludedFilenames: PChar); { [in] Names of #included files. Each name is
+                                          a null-terminated string, and the final
+                                          name is followed by an additional null
+                                          character (new in 6.1.0) }
 
       iscbNotifyError: (
         ErrorMsg: PChar;      { [in] The error message, or NULL if compilation
