@@ -8292,7 +8292,7 @@ var
           AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.E32']));
           CompResUpdate.RemoveManifestDllHijackProtection(ConvertFile, False);
         end else begin
-          { Use the oppertunity to check that the manifest is correctly prepared for removing the
+          { Use the opportunity to check that the manifest is correctly prepared for removing the
             protection, without actually removing it. Doing this only once per compile since there's
             only one source manifest. }
           CompResUpdate.RemoveManifestDllHijackProtection(ConvertFile, True);
@@ -8770,7 +8770,7 @@ begin
     { Prepare Setup executable & signed uninstaller data }
     if Output then begin
       AddStatus(SCompilerStatusPreparingSetupExe);
-      { The manifest block protecting special DLLs breaks Vista compatibilty }
+      { The manifest block protecting special DLLs breaks Vista compatibility }
       RemoveManifestDllHijackProtection := SetupHeader.MinVersion.NTVersion < $06010000;
       if RemoveManifestDllHijackProtection then
         WarningsList.Add(Format(SCompilerRemoveManifestDllHijackProtection, ['6.1']))
