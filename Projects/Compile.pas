@@ -764,7 +764,7 @@ var
   Header: TImageFileHeader;
   Ofs: Cardinal;
   OptMagic, DllChars, OrigDllChars: Word;
-  ImageVersion: packed record
+  VersionRecord: packed record
     Major, Minor: Word;
   end;
 begin
@@ -776,12 +776,12 @@ begin
          (OptMagic = IMAGE_NT_OPTIONAL_HDR32_MAGIC) then begin
         if IsVistaCompatible then begin
           { Update OS/Subsystem version }
-          ImageVersion.Major := 6;
-          ImageVersion.Minor := 0;
+          VersionRecord.Major := 6;
+          VersionRecord.Minor := 0;
           F.Seek(Ofs + OffsetOfOperatingSystemVersion);
-          F.WriteBuffer(ImageVersion, SizeOf(ImageVersion));
+          F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
           F.Seek(Ofs + OffsetOfSubsystemVersion);
-          F.WriteBuffer(ImageVersion, SizeOf(ImageVersion));
+          F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
         end;
 
         { Update MajorImageVersion and MinorImageVersion to 6.0.
@@ -795,10 +795,10 @@ begin
           (notepad.exe), the dialog does not appear. (This is reproducible
           with notepad.exe too if its image version is changed to anything
           other than 6.0 exactly.) }
+        VersionRecord.Major := 6;
+        VersionRecord.Minor := 0;
         F.Seek(Ofs + OffsetOfImageVersion);
-        ImageVersion.Major := 6;
-        ImageVersion.Minor := 0;
-        F.WriteBuffer(ImageVersion, SizeOf(ImageVersion));
+        F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
 
         { Update DllCharacteristics }
         F.Seek(Ofs + OffsetOfDllCharacteristics);

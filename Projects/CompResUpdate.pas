@@ -397,9 +397,9 @@ begin
   { Locate and update the block with file elements }
   P := Pos(BlockStartText, S);
   if P = 0 then
-    Error('Element not found');
+    Error('Block not found');
   if Copy(S, P+BlockLength, 11) <> '</assembly>' then
-    Error('File block too short');
+    Error('Block too short');
   if TestBlockOnly then
     Exit;
   Inc64(Offset, P-1);
