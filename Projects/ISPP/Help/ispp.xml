@@ -548,7 +548,15 @@
 			</topic>
 			<topic id="pragma">
 				<title>#pragma</title>
-				<keywords><kwd>pragma</kwd></keywords>
+				<keywords>
+          <kwd>pragma</kwd>
+          <kwd>option</kwd>
+          <kwd>parseroption</kwd>
+          <kwd>inlinestart</kwd>
+          <kwd>inlineend</kwd>
+          <kwd>verboselevel</kwd>
+          <kwd>spansymbol</kwd>
+        </keywords>
 				<syntax>
 					<define id="pragma-directive">
 						<variant><nt name="pragma-option"/></variant>
