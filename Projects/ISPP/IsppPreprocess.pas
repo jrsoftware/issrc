@@ -286,7 +286,7 @@ begin
   except
     on E: EPreprocError do {preprocessor (syntax most likely) error}
     begin
-      Params.ErrorProc(Params.CompilerData, PChar('[ISPP] ' + E.Message),
+      Params.ErrorProc(Params.CompilerData, PChar(E.Message),
         PChar(E.FileName), E.LineNumber, E.ColumnNumber);
       Result := ispePreprocessError;
     end;
