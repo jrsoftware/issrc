@@ -7055,7 +7055,7 @@ begin
 end;
 
 procedure TSetupCompiler.CheckCustomMessageReferences;
-{ Checks existance of expected custom message constants }
+{ Checks existence of expected custom message constants }
 var
   LineInfo: TLineInfo;
   Found: Boolean;
@@ -9017,7 +9017,7 @@ begin
       AddDefaultSetupType(DefaultTypeEntryNames[2], [toIsCustom], ttDefaultCustom);
     end;
 
-    { Check existance of expected custom message constants }
+    { Check existence of expected custom message constants }
     CheckCustomMessageReferences;
 
     { Compile CodeText }
