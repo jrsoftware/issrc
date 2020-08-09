@@ -93,7 +93,7 @@ type
     procedure PopFile;
     function CheckFile(const FileName: string): Boolean;
     function EmitDestination: TStringList;
-    procedure SendMsg(const Msg: string; Typ: TIsppMessageType);
+    procedure SendMsg(Msg: string; Typ: TIsppMessageType);
   protected
     function GetDefaultScope: TDefineScope;
     procedure SetDefaultScope(Scope: TDefineScope);
@@ -1134,18 +1134,25 @@ begin
   SendMsg(Format(Msg, Args), imtWarning);
 end;
 
-procedure TPreprocessor.SendMsg(const Msg: string; Typ: TIsppMessageType);
+procedure TPreprocessor.SendMsg(Msg: string; Typ: TIsppMessageType);
 const
   MsgPrefixes: array[TIsppMessageType] of string = ('', 'Warning: ');
 var
-  S: string;
+  LineNumber: Word;
+  FileName: String;
 begin
-  S := GetFileName(-1);
-  if S <> '' then
-    S := Format('Line %d of %s: %s%s', [GetLineNumber(-1), PathExtractName(S), MsgPrefixes[Typ], Msg])
-  else
-    S := Format('Line %d: %s%s', [GetLineNumber(-1), MsgPrefixes[Typ], Msg]);
-  FCompilerParams.StatusProc(FCompilerParams.CompilerData, PChar(S), Typ = imtWarning);
+  Msg := Format('%s%s', [MsgPrefixes[Typ], Msg]);
+
+  LineNumber := GetLineNumber(-1);
+  if LineNumber <> 0 then begin
+    FileName := GetFileName(-1);
+    if FileName <> '' then
+      Msg := Format('Line %d of %s: %s', [LineNumber, PathExtractName(FileName), Msg])
+    else
+      Msg := Format('Line %d: %s', [LineNumber, Msg]);
+  end;
+
+  FCompilerParams.StatusProc(FCompilerParams.CompilerData, PChar(Msg), Typ = imtWarning);
 end;
 
 function TPreprocessor.DimOf(const Name: String): Integer;
