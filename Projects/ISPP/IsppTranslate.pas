@@ -1136,18 +1136,16 @@ end;
 
 procedure TPreprocessor.SendMsg(const Msg: string; Typ: TIsppMessageType);
 const
-  MsgFormats: array[TIsppMessageType] of string =
-    ('%s', 'Warning: %s');
+  MsgPrefixes: array[TIsppMessageType] of string = ('', 'Warning: ');
 var
   S: string;
 begin
   S := GetFileName(-1);
   if S <> '' then
-    S := Format('Line %d of %s: %s', [GetLineNumber(-1), PathExtractName(S), Msg])
+    S := Format('Line %d of %s: %s%s', [GetLineNumber(-1), PathExtractName(S), MsgPrefixes[Typ], Msg])
   else
-    S := Format('Line %d: %s', [GetLineNumber(-1), Msg]);
-  FCompilerParams.StatusProc(FCompilerParams.CompilerData,
-    PChar(Format(MsgFormats[Typ], [S])));
+    S := Format('Line %d: %s%s', [GetLineNumber(-1), MsgPrefixes[Typ], Msg]);
+  FCompilerParams.StatusProc(FCompilerParams.CompilerData, PChar(S), Typ = imtWarning);
 end;
 
 function TPreprocessor.DimOf(const Name: String): Integer;

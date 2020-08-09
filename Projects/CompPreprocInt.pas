@@ -2,16 +2,17 @@ unit CompPreprocInt;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler preprocessor interface
-
-  $jrsoftware: issrc/Projects/CompPreprocInt.pas,v 1.4 2010/12/10 05:14:33 jr Exp $
 }
 
 interface
+
+uses
+  Windows;
 
 const
   ispeSuccess = 0;
@@ -36,7 +37,7 @@ type
     procedure(CompilerData: TPreprocCompilerData; ErrorMsg: PChar;
       ErrorFilename: PChar; ErrorLine: Integer; ErrorColumn: Integer); stdcall;
   TPreprocStatusProc =
-    procedure(CompilerData: TPreprocCompilerData; StatusMsg: PChar); stdcall;
+    procedure(CompilerData: TPreprocCompilerData; StatusMsg: PChar; Warning: BOOL); stdcall;
   TPreprocPrependDirNameProc =
     function(CompilerData: TPreprocCompilerData; Filename: PChar; Dir: PChar;
       ErrorFilename: PChar; ErrorLine: Integer; ErrorColumn: Integer): PChar; stdcall;

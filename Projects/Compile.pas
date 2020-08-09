@@ -1210,7 +1210,8 @@ var
           should have already called ErrorProc itself }
         RaiseError(LineFilename, LineNumber, 'PrependDirNameProc failed');
       end;
-      Params.StatusProc(Params.CompilerData, PChar(Format(SBuiltinPreprocessStatusIncludingFile, [IncludeFilename])));
+      Params.StatusProc(Params.CompilerData,
+        PChar(Format(SBuiltinPreprocessStatusIncludingFile, [IncludeFilename])), False);
       ProcessLinesFromFile(LineFilename, LineNumber, PathExpand(IncludeFilename));
     end
     else
@@ -2011,12 +2012,12 @@ begin
 end;
 
 procedure PreStatusProc(CompilerData: TPreprocCompilerData;
-  StatusMsg: PChar); stdcall;
+  StatusMsg: PChar; Warning: BOOL); stdcall;
 var
   Data: PPreCompilerData;
 begin
   Data := CompilerData;
-  Data.Compiler.AddStatus(Format(SCompilerStatusPreprocessorStatus, [StatusMsg]));
+  Data.Compiler.AddStatus(Format(SCompilerStatusPreprocessorStatus, [StatusMsg]), Warning);
 end;
 
 procedure PreErrorProc(CompilerData: TPreprocCompilerData; ErrorMsg: PChar;
