@@ -95,7 +95,7 @@ begin
         F := TTextFileWriter.Create(Filename, fdCreateNew, faWrite, fsRead);
       except
         on E: EFileError do begin
-          { Don't propogate ERROR_FILE_EXISTS errors; just try again.
+          { Don't propagate ERROR_FILE_EXISTS errors; just try again.
             (Yes, we already checked if the file existed first, but this helps
             to make it race-proof.) }
           if E.ErrorCode <> ERROR_FILE_EXISTS then
