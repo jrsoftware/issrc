@@ -729,7 +729,7 @@ end;
 constructor TWizardForm.Create(AOwner: TComponent);
 { Do all initialization of the wizard form. We're overriding Create instead of
   using the FormCreate event, because if an exception is raised in FormCreate
-  it's not propogated out. }
+  it's not propagated out. }
 
   procedure LoadSelectDirAndGroupImages;
 
@@ -3038,7 +3038,7 @@ begin
       if NextButton.CanFocus then
         NextButton.Click;
     except
-      { Mustn't propogate post-install exceptions }
+      { Mustn't propagate post-install exceptions }
       if MainForm.CurStep <= ssInstall then
         raise
       else
