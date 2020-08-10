@@ -397,7 +397,7 @@ var
   begin
     N := Length(CompiledCodeText);
     if N mod 2 = 1 then
-      Inc(N); { This will lead to 1 extra byte being moved but that's ok since its the #0 }
+      Inc(N); { This will lead to 1 extra byte being moved but that's ok since it is the #0 }
     N := N div 2;
     SetString(Result, PChar(Pointer(CompiledCodeText)), N);
 {$ELSE}
