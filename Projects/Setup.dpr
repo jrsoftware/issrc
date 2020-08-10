@@ -300,7 +300,7 @@ begin
     try
       DeinitSetup(False);
     except
-      { don't propogate any exceptions, so that Halt is always called }
+      { don't propagate any exceptions, so that Halt is always called }
       ShowExceptionMsg;
     end;
     if SetupExitCode <> 0 then
