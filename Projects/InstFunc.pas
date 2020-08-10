@@ -648,7 +648,7 @@ begin
           end;
       end;
     except
-      { don't propogate exceptions (e.g. from StrToInt) }
+      { don't propagate exceptions (e.g. from StrToInt) }
     end;
     { If we failed to read the count, or it's in some type we don't recognize,
       don't touch it }
@@ -1196,7 +1196,7 @@ begin
       end;
     end;
   except
-    { don't propogate exceptions }
+    { don't propagate exceptions }
   end;
   Result := MD5Final(Context);
 end;
