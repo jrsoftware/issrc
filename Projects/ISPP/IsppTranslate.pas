@@ -1141,7 +1141,7 @@ var
   LineNumber: Word;
   FileName: String;
 begin
-  Msg := Format('%s%s', [MsgPrefixes[Typ], Msg]);
+  Msg := MsgPrefixes[Typ] + Msg;
 
   LineNumber := GetLineNumber(-1);
   if LineNumber <> 0 then begin

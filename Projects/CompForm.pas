@@ -396,7 +396,7 @@ type
     procedure OpenFile(AFilename: String; const AddToRecentDocs: Boolean);
     procedure OpenMRUFile(const AFilename: String);
     procedure ParseDebugInfo(DebugInfo: Pointer);
-    procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
+    class procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
     procedure ReadMRUFilesList;
     procedure ReadMRUParametersList;
     procedure ResetLineState;
@@ -469,7 +469,6 @@ type
 
 var
   CompileForm: TCompileForm;
-  MSGTextInsert: TStringList;
   CommandLineFilename, CommandLineWizardName: String;
   CommandLineCompile: Boolean;
   CommandLineWizard: Boolean;
@@ -1424,7 +1423,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
+class procedure TCompileForm.ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
 { Loads a list of MRU items from the registry }
 var
   Ini: TConfigIniFile;
@@ -2672,12 +2671,10 @@ var
   MsgBoxForm: TMBDForm;
 begin
   MsgBoxForm := TMBDForm.Create(Application);
-  MSGTextInsert := TStringList.Create;
   try
     if MsgBoxForm.ShowModal = mrOk then
-      Memo.SelText := MSGTextInsert.GetText;
+      Memo.SelText := MsgBoxForm.Text;
   finally
-    MSGTextInsert.Free;
     MsgBoxForm.Free;
   end;
 end;

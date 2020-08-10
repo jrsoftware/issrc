@@ -99,13 +99,12 @@ type
     procedure rb_IDRETRYClick(Sender: TObject);
     procedure rb_IDIGNOREClick(Sender: TObject);
     procedure rb_IDABORTClick(Sender: TObject);
-    procedure MBDButtonOKClick(Sender: TObject);
     procedure cb_SuppressibleClick(Sender: TObject);
     procedure MSGTextKeyPress(Sender: TObject; var Key: Char);
   private
-    procedure CreateScriptMSG;
+    function GetText: String;
   public
-    { Public declarations }
+    property Text: string read GetText;
   end;
 
 implementation
@@ -739,11 +738,6 @@ begin
    end;
 end;
 
-procedure TMBDForm.MBDButtonOKClick(Sender: TObject);
-begin
-  CreateScriptMSG;
-end;
-
 procedure TMBDForm.MBDButtonPreviewClick(Sender: TObject);
 var
   ButtonsBtn : Cardinal;
@@ -848,7 +842,7 @@ begin
   end;
 end;
 
-procedure TMBDForm.CreateScriptMSG;
+function TMBDForm.GetText: String;
 
    { MsgBox / SuppressibleMsgBox }
    function TextMsg(M: Integer; a, b, c, d, e, f: String): String;
@@ -906,11 +900,11 @@ const
   remarka = '// Display a message box';
 
 var
+  MSGTextInsert: TStringList;
   ButtonBtn, TextMsgIf, IconTypes : String;
   IDButton, IDButton2, IDButton3 : String;
   TypeMsg, ModeMsg : Integer;
   BtnTextArr, ShieldFlg, BtnSupprDef : String;
-
 begin
   { default value }
   ButtonBtn := 'MB_OK';
@@ -919,9 +913,6 @@ begin
   TypeMsg := 0;
   ModeMsg := 0;
   BtnSupprDef := '';
-
-  MSGTextInsert.Clear;
-  MSGTextInsert.Add(remarka);
 
   { make a string with DefBtn for Suppressible }
   if cb_Suppressible.Checked then begin
@@ -947,6 +938,7 @@ begin
   if rb_mbCriticalError.Checked then begin
      IconTypes := 'mbCriticalError';
   end;
+
   { button type set }
   if rbMB_OK.Checked then ButtonBtn := 'MB_OK';
   if rbMB_OKCANCEL.Checked then ButtonBtn := 'MB_OKCANCEL';
@@ -955,305 +947,314 @@ begin
   if rbMB_RETRYCANCEL.Checked then ButtonBtn := 'MB_RETRYCANCEL';
   if rbMB_ABORTRETRYIGNORE.Checked then ButtonBtn := 'MB_ABORTRETRYIGNORE';
 
-  if cb_MsgBox.Checked then begin
-     { MsgBox(Text, Typ, Buttons); }
-     ModeMsg := 0;
+  MSGTextInsert := TStringList.Create;
+  try
+    MSGTextInsert.Add(remarka);
 
-     // rbMB_OK.Checked
-     { MessageBox with DefButton }
-     { MessageBox with DefButton and Flag MB_SETFOREGROUND }
-     if (rbMB_OK.Checked) and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_OK or MB_SETFOREGROUND';
+    if cb_MsgBox.Checked then begin
+       { MsgBox(Text, Typ, Buttons); }
+       ModeMsg := 0;
 
-     // rbMB_OKCANCEL
-     { MessageBox with DefButton }
-     if (rbMB_OKCANCEL.Checked) and (NewEdit1.Text = '2') then
-        ButtonBtn := 'MB_OKCANCEL or MB_DEFBUTTON2';
-     { MessageBox with DefButton and Flag MB_SETFOREGROUND }
-     if (rbMB_OKCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_OKCANCEL or MB_SETFOREGROUND';
-     if (rbMB_OKCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_OKCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
+       // rbMB_OK.Checked
+       { MessageBox with DefButton }
+       { MessageBox with DefButton and Flag MB_SETFOREGROUND }
+       if (rbMB_OK.Checked) and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_OK or MB_SETFOREGROUND';
 
-     // rbMB_YESNO
-     { MessageBox with DefButton }
-     if (rbMB_YESNO.Checked) and (NewEdit1.Text = '2') then
-        ButtonBtn := 'MB_YESNO or MB_DEFBUTTON2';
-     { MessageBox with DefButton and Flag MB_SETFOREGROUND }
-     if (rbMB_YESNO.Checked) and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_YESNO or MB_SETFOREGROUND';
-     if (rbMB_YESNO.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_YESNO or MB_DEFBUTTON2 or MB_SETFOREGROUND';
+       // rbMB_OKCANCEL
+       { MessageBox with DefButton }
+       if (rbMB_OKCANCEL.Checked) and (NewEdit1.Text = '2') then
+          ButtonBtn := 'MB_OKCANCEL or MB_DEFBUTTON2';
+       { MessageBox with DefButton and Flag MB_SETFOREGROUND }
+       if (rbMB_OKCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_OKCANCEL or MB_SETFOREGROUND';
+       if (rbMB_OKCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_OKCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
 
-     // rbMB_RETRYCANCEL
-     { MessageBox with DefButton }
-     if (rbMB_RETRYCANCEL.Checked) and (NewEdit1.Text = '2') then
-        ButtonBtn := 'MB_RETRYCANCEL or MB_DEFBUTTON2';
-     { MessageBox with DefButton and Flag MB_SETFOREGROUND }
-     if (rbMB_RETRYCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_RETRYCANCEL or MB_SETFOREGROUND';
-     if (rbMB_RETRYCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_RETRYCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
+       // rbMB_YESNO
+       { MessageBox with DefButton }
+       if (rbMB_YESNO.Checked) and (NewEdit1.Text = '2') then
+          ButtonBtn := 'MB_YESNO or MB_DEFBUTTON2';
+       { MessageBox with DefButton and Flag MB_SETFOREGROUND }
+       if (rbMB_YESNO.Checked) and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_YESNO or MB_SETFOREGROUND';
+       if (rbMB_YESNO.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_YESNO or MB_DEFBUTTON2 or MB_SETFOREGROUND';
 
-     // rbMB_YESNOCANCEL
-     { MessageBox with DefButton }
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '2') then
-        ButtonBtn := 'MB_YESNOCANCEL or MB_DEFBUTTON2';
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '3') then
-        ButtonBtn := 'MB_YESNOCANCEL or MB_DEFBUTTON3';
-     { MessageBox with DefButton and Flag MB_SETFOREGROUND }
-     if (rbMB_YESNOCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_YESNOCANCEL or MB_SETFOREGROUND';
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_YESNOCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_YESNOCANCEL or MB_DEFBUTTON3 or MB_SETFOREGROUND';
+       // rbMB_RETRYCANCEL
+       { MessageBox with DefButton }
+       if (rbMB_RETRYCANCEL.Checked) and (NewEdit1.Text = '2') then
+          ButtonBtn := 'MB_RETRYCANCEL or MB_DEFBUTTON2';
+       { MessageBox with DefButton and Flag MB_SETFOREGROUND }
+       if (rbMB_RETRYCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_RETRYCANCEL or MB_SETFOREGROUND';
+       if (rbMB_RETRYCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_RETRYCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
 
-     // rbMB_ABORTRETRYIGNORE
-     { MessageBox with DefButton }
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '2') then
-        ButtonBtn := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON2';
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '3') then
-        ButtonBtn := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON3';
-     { MessageBox with DefButton and Flag MB_SETFOREGROUND }
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_ABORTRETRYIGNORE or MB_SETFOREGROUND';
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON2 or MB_SETFOREGROUND';
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
-        ButtonBtn := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON3 or MB_SETFOREGROUND';
+       // rbMB_YESNOCANCEL
+       { MessageBox with DefButton }
+       if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '2') then
+          ButtonBtn := 'MB_YESNOCANCEL or MB_DEFBUTTON2';
+       if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '3') then
+          ButtonBtn := 'MB_YESNOCANCEL or MB_DEFBUTTON3';
+       { MessageBox with DefButton and Flag MB_SETFOREGROUND }
+       if (rbMB_YESNOCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_YESNOCANCEL or MB_SETFOREGROUND';
+       if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_YESNOCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
+       if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_YESNOCANCEL or MB_DEFBUTTON3 or MB_SETFOREGROUND';
 
-     { Suppressible msg }
-     if cb_Suppressible.Checked then ButtonBtn := ButtonBtn + BtnSupprDef;
+       // rbMB_ABORTRETRYIGNORE
+       { MessageBox with DefButton }
+       if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '2') then
+          ButtonBtn := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON2';
+       if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '3') then
+          ButtonBtn := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON3';
+       { MessageBox with DefButton and Flag MB_SETFOREGROUND }
+       if (rbMB_ABORTRETRYIGNORE.Checked) and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_ABORTRETRYIGNORE or MB_SETFOREGROUND';
+       if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON2 or MB_SETFOREGROUND';
+       if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
+          ButtonBtn := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON3 or MB_SETFOREGROUND';
 
-     { replace in a message string escape /r/n }
-     TextMsgIf := StringReplace(MSGText.Lines.GetText, SNewLine, '''#13#10''', [rfReplaceAll]);
+       { Suppressible msg }
+       if cb_Suppressible.Checked then ButtonBtn := ButtonBtn + BtnSupprDef;
+
+       { replace in a message string escape /r/n }
+       TextMsgIf := StringReplace(MSGText.Lines.GetText, SNewLine, '''#13#10''', [rfReplaceAll]);
+    end;
+
+    if cb_TaskDialogMsgBox.Checked then begin
+       { TaskDialogMsgBox(TaskInstructionText.Text, TaskMesssageText.Text, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg) }
+       ModeMsg := 1;
+
+       { create ButtonLabels array }
+       if rbMB_YESNO.Checked or rbMB_YESNOCANCEL.Checked then
+          BtnTextArr :=  Button1Text.Text + ''', ''' + Button2Text.Text
+       else if rbMB_ABORTRETRYIGNORE.Checked then
+          BtnTextArr := 'Retry'', ''Ignore'', ''Abort'
+       else
+          BtnTextArr := Button1Text.Text;
+
+       { get Shield Flag value }
+       if rbMB_OK.Checked and rb_IDOK.Checked then ShieldFlg := 'IDOK';
+       if rbMB_OKCANCEL.Checked and rb_IDOK.Checked then ShieldFlg := 'IDOK';
+       if rbMB_OKCANCEL.Checked and rb_IDCANCEL.Checked then ShieldFlg := 'IDCANCEL';
+       if rbMB_YESNO.Checked and rb_IDYES.Checked then ShieldFlg := 'IDYES';
+       if rbMB_YESNO.Checked and rb_IDNO.Checked then ShieldFlg := 'IDNO';
+       if rbMB_YESNOCANCEL.Checked and rb_IDYES.Checked then ShieldFlg := 'IDYES';
+       if rbMB_YESNOCANCEL.Checked and rb_IDNO.Checked then ShieldFlg := 'IDNO';
+       if rbMB_YESNOCANCEL.Checked and rb_IDCANCEL.Checked then ShieldFlg := 'IDCANCEL';
+       if rbMB_RETRYCANCEL.Checked and rb_IDRETRY.Checked then ShieldFlg := 'IDRETRY';
+       if rbMB_RETRYCANCEL.Checked and rb_IDCANCEL.Checked then ShieldFlg := 'IDCANCEL';
+       if rbMB_ABORTRETRYIGNORE.Checked and rb_IDRETRY.Checked then ShieldFlg := 'IDRETRY';
+       if rbMB_ABORTRETRYIGNORE.Checked and rb_IDABORT.Checked then ShieldFlg := 'IDABORT';
+       if rbMB_ABORTRETRYIGNORE.Checked and rb_IDIGNORE.Checked then ShieldFlg := 'IDIGNORE';
+
+       { Suppressible msg }
+       if cb_Suppressible.Checked then ShieldFlg := ShieldFlg + BtnSupprDef;
+
+       TextMsgIf := TaskInstructionText.Text + ''', ''' + TaskMesssageText.Text;
+    end;
+
+    { selected button OK }
+    if (cb_IDOK.Checked and not cb_IDCANCEL.Checked) then begin
+       IDButton := 'IDOK';
+       TypeMsg := 1;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
+       end;
+    end
+
+    { selected button CANCEL }
+    else if (cb_IDCANCEL.Checked and not cb_IDOK.Checked and not cb_IDRETRY.Checked and not cb_IDYES.Checked and not cb_IDNO.Checked and not cb_IDABORT.Checked and not cb_IDIGNORE.Checked) then begin
+       IDButton := 'IDCANCEL';
+       TypeMsg := 1;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
+       end;
+    end
+
+    { selected button OK and CANCEL }
+    else if (cb_IDCANCEL.Checked and cb_IDOK.Checked and not cb_IDRETRY.Checked and not cb_IDYES.Checked and not cb_IDNO.Checked) then begin
+       IDButton := 'IDOK';
+       IDButton2 := 'IDCANCEL';
+       TypeMsg := 2;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
+       end;
+    end
+
+    { selected button YES }
+    else if (cb_IDYES.Checked and not cb_IDNO.Checked and not cb_IDCANCEL.Checked) then begin
+       IDButton := 'IDYES';
+       TypeMsg := 1;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
+       end;
+    end
+
+    { selected button NO }
+    else if (cb_IDNO.Checked and not cb_IDYES.Checked and not cb_IDCANCEL.Checked) then begin
+       IDButton := 'IDNO';
+       TypeMsg := 1;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
+       end;
+    end
+
+    { selected button YES and NO }
+    else if (cb_IDYES.Checked and cb_IDNO.Checked and not cb_IDCANCEL.Checked) then begin
+       IDButton := 'IDYES';
+       IDButton2 := 'IDNO';
+       TypeMsg := 2;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
+       end;
+    end
+
+    { selected button YES and CANCEL }
+    else if (cb_IDYES.Checked and not cb_IDNO.Checked and cb_IDCANCEL.Checked) then begin
+       IDButton := 'IDYES';
+       IDButton2 := 'IDCANCEL';
+       TypeMsg := 2;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
+       end;
+    end
+
+    { selected button NO and CANCEL }
+    else if (cb_IDNO.Checked and not cb_IDYES.Checked and cb_IDCANCEL.Checked) then begin
+       IDButton := 'IDNO';
+       IDButton2 := 'IDCANCEL';
+       TypeMsg := 2;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
+       end;
+    end
+
+    { selected button YES, NO and CANCEL }
+    else if (cb_IDYES.Checked and cb_IDNO.Checked and cb_IDCANCEL.Checked) then begin
+       IDButton := 'IDYES';
+       IDButton2 := 'IDNO';
+       IDButton3 := 'IDCANCEL';
+       TypeMsg := 3;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, IDButton3);
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, IDButton3);
+       end;
+    end
+
+    { selected button RETRY }
+    else if (cb_IDRETRY.Checked and not cb_IDCANCEL.Checked and not cb_IDABORT.Checked and not cb_IDIGNORE.Checked) then begin
+       IDButton := 'IDRETRY';
+       TypeMsg := 1;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
+       end;
+    end
+
+    { selected button RETRY and CANCEL }
+    else if (cb_IDRETRY.Checked and cb_IDCANCEL.Checked and not cb_IDABORT.Checked and not cb_IDIGNORE.Checked) then begin
+       IDButton := 'IDRETRY';
+       IDButton2 := 'IDCANCEL';
+       TypeMsg := 2;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
+       end;
+    end
+
+    { selected button IGNORE }
+    else if (cb_IDIGNORE.Checked and not cb_IDCANCEL.Checked and not cb_IDABORT.Checked and not cb_IDRETRY.Checked) then begin
+       IDButton := 'IDIGNORE';
+       TypeMsg := 1;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
+       end;
+    end
+
+    { selected button ABORT }
+    else if (cb_IDABORT.Checked and not cb_IDCANCEL.Checked and not cb_IDRETRY.Checked and not cb_IDIGNORE.Checked) then begin
+       IDButton := 'IDABORT';
+       TypeMsg := 1;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
+       end;
+    end
+
+    { selected button RETRY and IGNORE }
+    else if (cb_IDRETRY.Checked and not cb_IDCANCEL.Checked and not cb_IDABORT.Checked and cb_IDIGNORE.Checked) then begin
+       IDButton := 'IDRETRY';
+       IDButton2 := 'IDIGNORE';
+       TypeMsg := 2;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
+       end;
+    end
+
+    { selected button RETRY and ABORT }
+    else if (cb_IDRETRY.Checked and not cb_IDCANCEL.Checked and cb_IDABORT.Checked and not cb_IDIGNORE.Checked) then begin
+       IDButton := 'IDRETRY';
+       IDButton2 := 'IDABORT';
+       TypeMsg := 2;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
+       end;
+    end
+
+    { selected button IGNORE and ABORT }
+    else if (not cb_IDRETRY.Checked and not cb_IDCANCEL.Checked and cb_IDABORT.Checked and cb_IDIGNORE.Checked) then begin
+       IDButton := 'IDIGNORE';
+       IDButton2 := 'IDABORT';
+       TypeMsg := 2;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
+       end;
+    end
+
+    { selected button RETRY, IGNORE and ABORT }
+    else if (cb_IDRETRY.Checked and not cb_IDCANCEL.Checked and cb_IDABORT.Checked and cb_IDIGNORE.Checked) then begin
+       IDButton := 'IDRETRY';
+       IDButton2 := 'IDIGNORE';
+       IDButton3 := 'IDABORT';
+       TypeMsg := 3;
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, IDButton3);
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, IDButton3);
+       end;
+    end
+
+    { no selected buttons }
+    else begin
+       case ModeMsg of
+          0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, '', '', '');
+          1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, '', '', '');
+       end;
+    end;
+
+    MSGTextInsert.Add(TextMsgIf);
+
+    Result := MSGTextInsert.Text;
+  finally
+    MSGTextInsert.Free;
   end;
-
-  if cb_TaskDialogMsgBox.Checked then begin
-     { TaskDialogMsgBox(TaskInstructionText.Text, TaskMesssageText.Text, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg) }
-     ModeMsg := 1;
-
-     { create ButtonLabels array }
-     if rbMB_YESNO.Checked or rbMB_YESNOCANCEL.Checked then
-        BtnTextArr :=  Button1Text.Text + ''', ''' + Button2Text.Text
-     else if rbMB_ABORTRETRYIGNORE.Checked then
-        BtnTextArr := 'Retry'', ''Ignore'', ''Abort'
-     else
-        BtnTextArr := Button1Text.Text;
-
-     { get Shield Flag value }
-     if rbMB_OK.Checked and rb_IDOK.Checked then ShieldFlg := 'IDOK';
-     if rbMB_OKCANCEL.Checked and rb_IDOK.Checked then ShieldFlg := 'IDOK';
-     if rbMB_OKCANCEL.Checked and rb_IDCANCEL.Checked then ShieldFlg := 'IDCANCEL';
-     if rbMB_YESNO.Checked and rb_IDYES.Checked then ShieldFlg := 'IDYES';
-     if rbMB_YESNO.Checked and rb_IDNO.Checked then ShieldFlg := 'IDNO';
-     if rbMB_YESNOCANCEL.Checked and rb_IDYES.Checked then ShieldFlg := 'IDYES';
-     if rbMB_YESNOCANCEL.Checked and rb_IDNO.Checked then ShieldFlg := 'IDNO';
-     if rbMB_YESNOCANCEL.Checked and rb_IDCANCEL.Checked then ShieldFlg := 'IDCANCEL';
-     if rbMB_RETRYCANCEL.Checked and rb_IDRETRY.Checked then ShieldFlg := 'IDRETRY';
-     if rbMB_RETRYCANCEL.Checked and rb_IDCANCEL.Checked then ShieldFlg := 'IDCANCEL';
-     if rbMB_ABORTRETRYIGNORE.Checked and rb_IDRETRY.Checked then ShieldFlg := 'IDRETRY';
-     if rbMB_ABORTRETRYIGNORE.Checked and rb_IDABORT.Checked then ShieldFlg := 'IDABORT';
-     if rbMB_ABORTRETRYIGNORE.Checked and rb_IDIGNORE.Checked then ShieldFlg := 'IDIGNORE';
-
-     { Suppressible msg }
-     if cb_Suppressible.Checked then ShieldFlg := ShieldFlg + BtnSupprDef;
-
-     TextMsgIf := TaskInstructionText.Text + ''', ''' + TaskMesssageText.Text;
-  end;
-
-  { selected button OK }
-  if (cb_IDOK.Checked and not cb_IDCANCEL.Checked) then begin
-     IDButton := 'IDOK';
-     TypeMsg := 1;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
-     end;
-  end
-
-  { selected button CANCEL }
-  else if (cb_IDCANCEL.Checked and not cb_IDOK.Checked and not cb_IDRETRY.Checked and not cb_IDYES.Checked and not cb_IDNO.Checked and not cb_IDABORT.Checked and not cb_IDIGNORE.Checked) then begin
-     IDButton := 'IDCANCEL';
-     TypeMsg := 1;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
-     end;
-  end
-
-  { selected button OK and CANCEL }
-  else if (cb_IDCANCEL.Checked and cb_IDOK.Checked and not cb_IDRETRY.Checked and not cb_IDYES.Checked and not cb_IDNO.Checked) then begin
-     IDButton := 'IDOK';
-     IDButton2 := 'IDCANCEL';
-     TypeMsg := 2;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
-     end;
-  end
-
-  { selected button YES }
-  else if (cb_IDYES.Checked and not cb_IDNO.Checked and not cb_IDCANCEL.Checked) then begin
-     IDButton := 'IDYES';
-     TypeMsg := 1;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
-     end;
-  end
-
-  { selected button NO }
-  else if (cb_IDNO.Checked and not cb_IDYES.Checked and not cb_IDCANCEL.Checked) then begin
-     IDButton := 'IDNO';
-     TypeMsg := 1;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
-     end;
-  end
-
-  { selected button YES and NO }
-  else if (cb_IDYES.Checked and cb_IDNO.Checked and not cb_IDCANCEL.Checked) then begin
-     IDButton := 'IDYES';
-     IDButton2 := 'IDNO';
-     TypeMsg := 2;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
-     end;
-  end
-
-  { selected button YES and CANCEL }
-  else if (cb_IDYES.Checked and not cb_IDNO.Checked and cb_IDCANCEL.Checked) then begin
-     IDButton := 'IDYES';
-     IDButton2 := 'IDCANCEL';
-     TypeMsg := 2;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
-     end;
-  end
-
-  { selected button NO and CANCEL }
-  else if (cb_IDNO.Checked and not cb_IDYES.Checked and cb_IDCANCEL.Checked) then begin
-     IDButton := 'IDNO';
-     IDButton2 := 'IDCANCEL';
-     TypeMsg := 2;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
-     end;
-  end
-
-  { selected button YES, NO and CANCEL }
-  else if (cb_IDYES.Checked and cb_IDNO.Checked and cb_IDCANCEL.Checked) then begin
-     IDButton := 'IDYES';
-     IDButton2 := 'IDNO';
-     IDButton3 := 'IDCANCEL';
-     TypeMsg := 3;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, IDButton3);
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, IDButton3);
-     end;
-  end
-
-  { selected button RETRY }
-  else if (cb_IDRETRY.Checked and not cb_IDCANCEL.Checked and not cb_IDABORT.Checked and not cb_IDIGNORE.Checked) then begin
-     IDButton := 'IDRETRY';
-     TypeMsg := 1;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
-     end;
-  end
-
-  { selected button RETRY and CANCEL }
-  else if (cb_IDRETRY.Checked and cb_IDCANCEL.Checked and not cb_IDABORT.Checked and not cb_IDIGNORE.Checked) then begin
-     IDButton := 'IDRETRY';
-     IDButton2 := 'IDCANCEL';
-     TypeMsg := 2;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
-     end;
-  end
-
-  { selected button IGNORE }
-  else if (cb_IDIGNORE.Checked and not cb_IDCANCEL.Checked and not cb_IDABORT.Checked and not cb_IDRETRY.Checked) then begin
-     IDButton := 'IDIGNORE';
-     TypeMsg := 1;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
-     end;
-  end
-
-  { selected button ABORT }
-  else if (cb_IDABORT.Checked and not cb_IDCANCEL.Checked and not cb_IDRETRY.Checked and not cb_IDIGNORE.Checked) then begin
-     IDButton := 'IDABORT';
-     TypeMsg := 1;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, '', '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, '', '');
-     end;
-  end
-
-  { selected button RETRY and IGNORE }
-  else if (cb_IDRETRY.Checked and not cb_IDCANCEL.Checked and not cb_IDABORT.Checked and cb_IDIGNORE.Checked) then begin
-     IDButton := 'IDRETRY';
-     IDButton2 := 'IDIGNORE';
-     TypeMsg := 2;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
-     end;
-  end
-
-  { selected button RETRY and ABORT }
-  else if (cb_IDRETRY.Checked and not cb_IDCANCEL.Checked and cb_IDABORT.Checked and not cb_IDIGNORE.Checked) then begin
-     IDButton := 'IDRETRY';
-     IDButton2 := 'IDABORT';
-     TypeMsg := 2;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
-     end;
-  end
-
-  { selected button IGNORE and ABORT }
-  else if (not cb_IDRETRY.Checked and not cb_IDCANCEL.Checked and cb_IDABORT.Checked and cb_IDIGNORE.Checked) then begin
-     IDButton := 'IDIGNORE';
-     IDButton2 := 'IDABORT';
-     TypeMsg := 2;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, '');
-     end;
-  end
-
-  { selected button RETRY, IGNORE and ABORT }
-  else if (cb_IDRETRY.Checked and not cb_IDCANCEL.Checked and cb_IDABORT.Checked and cb_IDIGNORE.Checked) then begin
-     IDButton := 'IDRETRY';
-     IDButton2 := 'IDIGNORE';
-     IDButton3 := 'IDABORT';
-     TypeMsg := 3;
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, IDButton, IDButton2, IDButton3);
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, IDButton, IDButton2, IDButton3);
-     end;
-  end
-
-  { no selected buttons }
-  else begin
-     case ModeMsg of
-        0: TextMsgIf := TextMsg(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, '', '', '');
-        1: TextMsgIf := TextTask(TypeMsg, TextMsgIf, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg, '', '', '');
-     end;
-  end;
-
-  MSGTextInsert.Add(TextMsgIf);
 end;
 
 end.
