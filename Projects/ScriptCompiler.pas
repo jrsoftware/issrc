@@ -211,7 +211,7 @@ begin
 
   I := ScriptCompiler.FindExport(String(Proc.Name), String(Procdecl), -1);
   if I <> -1 then begin
-    { The function name is a matche and the function prototype is ok. }    
+    { The function name is a match and the function prototype is ok. }    
     ScriptExport := ScriptCompiler.FExports[I];
     ScriptExport.Exported := True;
     Result := True;

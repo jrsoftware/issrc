@@ -87,9 +87,9 @@ type
       iscbNotifyError: (
         ErrorMsg: PChar;      { [in] The error message, or NULL if compilation
                                 was aborted by the application. }
-        ErrorFilename: PChar; { [in] Filename in which the error occured. This
+        ErrorFilename: PChar; { [in] Filename in which the error occurred. This
                                 is NULL if the file is the main script. }
-        ErrorLine: Integer);  { [in] The line number the error occured on.
+        ErrorLine: Integer);  { [in] The line number the error occurred on.
                                 Zero if the error doesn't apply to any
                                 particular line. }
   end;

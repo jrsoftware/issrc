@@ -723,7 +723,7 @@ begin
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
   Call(SCI_INDICSETSTYLE, inSquiggly, INDIC_SQUIGGLE);
-  Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwitten by UpdateThemeColors }
+  Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColors }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
@@ -1863,7 +1863,7 @@ begin
       StatusMessage(smkError, SCompilerStatusErrorAborted);
       if not ReadFromFile and (AppData.ErrorLine > 0) and
          (AppData.ErrorFilename = '') then begin
-        { Move the caret to the line number the error occured on }
+        { Move the caret to the line number the error occurred on }
         MoveCaret(AppData.ErrorLine - 1, False);
         SetErrorLine(AppData.ErrorLine - 1);
       end;

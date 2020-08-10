@@ -47,7 +47,7 @@ const
   SFailedToParsePragmaDirective = 'Failed to parse ''pragma'' directive';
   SFuncIdentForIfdef = 'Function identifier passed to ''ifdef''/''ifndef'' directive';
   SSpecFuncIdentForIfdef = 'Special function identifier passed to ''ifdef''/''ifndef'' directive, result is undefined';
-  SSpecifiedConditionEvalatedToVoid = 'Specified condition evalated to void, to test variable for existance use "defined" function';
+  SSpecifiedConditionEvalatedToVoid = 'Specified condition evaluated to void, to test variable for existence use "defined" function';
 
   { Status messages }
 
