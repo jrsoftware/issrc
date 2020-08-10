@@ -1863,7 +1863,7 @@ begin
       StatusMessage(smkError, SCompilerStatusErrorAborted);
       if not ReadFromFile and (AppData.ErrorLine > 0) and
          (AppData.ErrorFilename = '') then begin
-        { Move the caret to the line number the error occured on }
+        { Move the caret to the line number the error occurred on }
         MoveCaret(AppData.ErrorLine - 1, False);
         SetErrorLine(AppData.ErrorLine - 1);
       end;
