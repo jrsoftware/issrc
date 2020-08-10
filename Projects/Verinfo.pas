@@ -165,7 +165,7 @@ begin
       F.Free;
     end;
   except
-    { don't propogate exceptions }
+    { don't propagate exceptions }
   end;
 end;
 
