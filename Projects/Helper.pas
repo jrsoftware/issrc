@@ -410,7 +410,7 @@ begin
     try
       InternalCall(REQUEST_PING, 0, False);
     except
-      { Don't propogate any exception; just log it and restart the helper }
+      { Don't propagate any exception; just log it and restart the helper }
       Log('Ping failed; helper seems to have died.');
       Stop(True);
       Start;
