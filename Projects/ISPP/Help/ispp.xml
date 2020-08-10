@@ -615,7 +615,7 @@ The list of options is provided at the end of this topic.</para>
 				<section title="ISPP options">
 					<table>
 						<tr><td>c</td><td>Indicates that the &translation; should be sent to the compiler after preprocessing is done. Default state: on.</td></tr>
-						<tr><td>e</td><td>Specifies whether empty lines from the source should be emitted to the &translation;, as well as lines with ISPP directives should be replaced with empty lines. Default state: off.</td></tr>
+						<tr><td>e</td><td>Specifies whether empty lines from the source should be emitted to the &translation;, as well as lines with ISPP directives should be replaced with empty lines. Default state: on.</td></tr>
 						<tr><td>v</td><td>Turns on/off the verbose mode. Default state: off.</td></tr>
 					</table>
 				</section>
