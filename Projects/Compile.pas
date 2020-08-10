@@ -3906,7 +3906,7 @@ begin
     ssDiskSpanning: begin
         DiskSpanning := StrToBool(Value);
       end;
-    ssDontMergeDuplicateFiles: begin  { obsolete; superceded by "MergeDuplicateFiles" }
+    ssDontMergeDuplicateFiles: begin  { obsolete; superseded by "MergeDuplicateFiles" }
         if SetupDirectiveLines[ssMergeDuplicateFiles] = 0 then
           DontMergeDuplicateFiles := StrToBool(Value);
         WarningsList.Add(Format(SCompilerEntrySuperseded2, ['Setup', KeyName,
