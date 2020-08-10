@@ -31,7 +31,7 @@ begin
     ModInfo := GetLocationInfo(ExceptAddr);
     mmLog.Lines.Add('');
     mmLog.Lines.Add(Format(
-      '  Exception occured at $%p (%s.%s@%d)',
+      '  Exception occurred at $%p (%s.%s@%d)',
       [ModInfo.Address,
        ModInfo.UnitName,
        ModInfo.ProcedureName,
