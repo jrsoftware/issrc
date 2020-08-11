@@ -1,6 +1,6 @@
 ; *******************************************************
 ; ***                                                 ***
-; *** Inno Setup version 6.0.3+ Czech messages        ***
+; *** Inno Setup version 6.1.0+ Czech messages        ***
 ; ***                                                 ***
 ; *** Original Author:                                ***
 ; ***                                                 ***
@@ -203,6 +203,18 @@ ReadyMemoComponents=Vybrané souèásti:
 ReadyMemoGroup=Složka v nabídce Start:
 ReadyMemoTasks=Další úlohy:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Stahují se další soubory...
+ButtonStopDownload=&Zastavit stahování
+StopDownload=Urèitì chcete stahování zastavit?
+ErrorDownloadAborted=Stahování pøerušeno
+ErrorDownloadFailed=Stahování selhalo: %1 %2
+ErrorDownloadSizeFailed=Nepodaøilo se zjistit velikost: %1 %2
+ErrorFileHash1=Nepodaøilo se urèit kontrolní souèet souboru: %1
+ErrorFileHash2=Neplatný kontrolní souèet souboru: oèekáváno %1, nalezeno %2
+ErrorProgress=Neplatný prùbìh: %1 of %2
+ErrorFileSize=Neplatná velikost souboru: oèekáváno %1, nalezeno %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pøíprava k instalaci
 PreparingDesc=Prùvodce instalací pøipravuje instalaci produktu [name] na Váš poèítaè.
@@ -285,8 +297,16 @@ ExistingFileReadOnly2=Nelze nahradit existující soubor, protože je urèen pouze p
 ExistingFileReadOnlyRetry=&Odstranit atribut "pouze pro ètení" a zopakovat akci
 ExistingFileReadOnlyKeepExisting=&Ponechat existující soubor
 ErrorReadingExistingDest=Došlo k chybì pøi pokusu o ètení existujícího souboru:
-FileExists=Soubor již existuje.%n%nMá být prùvodcem instalace pøepsán?
-ExistingFileNewer=Existující soubor je novìjší než ten, který se prùvodce instalací pokouší nainstalovat. Doporuèuje se ponechat existující soubor.%n%nChcete jej ponechat?
+FileExistsSelectAction=Zvolte akci
+FileExists2=Soubor již existuje.
+FileExistsOverwriteExisting=&Nahradit existující soubor
+FileExistsKeepExisting=&Ponechat existující soubor
+FileExistsOverwriteOrKeepAll=&Zachovat se stejnì u dalších konfliktù
+ExistingFileNewerSelectAction=Zvolte akci
+ExistingFileNewer2=Existující soubor je novìjší než ten, který se prùvodce instalací pokouší instalovat.
+ExistingFileNewerOverwriteExisting=&Nahradit existující soubor
+ExistingFileNewerKeepExisting=&Ponechat existující soubor (doporuèuje se)
+ExistingFileNewerOverwriteOrKeepAll=&Zachovat se stejnì u dalších konfliktù
 ErrorChangingAttr=Došlo k chybì pøi pokusu o zmìnu atributù existujícího souboru:
 ErrorCreatingTemp=Došlo k chybì pøi pokusu o vytvoøení souboru v cílové složce:
 ErrorReadingSource=Došlo k chybì pøi pokusu o ètení zdrojového souboru:
@@ -317,7 +337,7 @@ UninstallNotFound=Soubor "%1" neexistuje. Produkt nelze odinstalovat.
 UninstallOpenError=Soubor "%1" nelze otevøít. Produkt nelze odinstalovat.
 UninstallUnsupportedVer=Formát souboru se záznamy k odinstalaci produktu "%1" nebyl touto verzí prùvodce odinstalací rozpoznán. Produkt nelze odinstalovat
 UninstallUnknownEntry=V souboru obsahujícím informace k odinstalaci produktu byla zjištìna neznámá položka (%1)
-ConfirmUninstall=Jste si opravdu jisti, že chcete produkt %1 a všechny jeho souèásti odinstalovat?
+ConfirmUninstall=Urèitì chcete produkt %1 a všechny jeho souèásti odinstalovat?
 UninstallOnlyOnWin64=Tento produkt lze odinstalovat pouze v 64-bitových verzích MS Windows.
 OnlyAdminCanUninstall=K odinstalaci tohoto produktu musíte být pøihlášeni s právy administrátora.
 UninstallStatusLabel=Èekejte prosím, dokud produkt %1 nebude odinstalován z Vašeho poèítaèe.
