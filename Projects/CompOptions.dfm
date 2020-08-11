@@ -100,6 +100,14 @@ object OptionsForm: TOptionsForm
       Caption = 'Colori&ze "Compiler Output" view'
       TabOrder = 8
     end
+    object OpenIncludedFilesCheck: TCheckBox
+      Left = 8
+      Top = 196
+      Width = 265
+      Height = 17
+      Caption = 'Open #include-ed files after compilation'
+      TabOrder = 9
+    end
   end
   object GroupBox2: TGroupBox
     Left = 8

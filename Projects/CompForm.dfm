@@ -30,16 +30,16 @@ object CompileForm: TCompileForm
   end
   object BodyPanel: TPanel
     Left = 0
-    Top = 30
+    Top = 51
     Width = 361
-    Height = 215
+    Height = 194
     Align = alClient
     BevelOuter = bvNone
     FullRepaint = False
     TabOrder = 0
     object SplitPanel: TPanel
       Left = 0
-      Top = 107
+      Top = 86
       Width = 361
       Height = 4
       Cursor = crSizeNS
@@ -52,7 +52,7 @@ object CompileForm: TCompileForm
     end
     object StatusPanel: TPanel
       Left = 0
-      Top = 111
+      Top = 90
       Width = 361
       Height = 104
       Align = alBottom
@@ -294,6 +294,18 @@ object CompileForm: TCompileForm
         OnClick = HDocClick
       end
     end
+  end
+  object IncludedFilesTabSet: TNewTabSet
+    Left = 0
+    Top = 30
+    Width = 361
+    Height = 21
+    Align = alTop
+    TabIndex = 0
+    Tabs.Strings = (
+      'Main Script')
+    TabPosition = tpTop
+    OnClick = IncludedFilesTabSetClick
   end
   object MainMenu1: TMainMenu
     Left = 8

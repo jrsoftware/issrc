@@ -49,6 +49,7 @@ type
     ColorizeCompilerOutputCheck: TCheckBox;
     Label3: TNewStaticText;
     ThemeComboBox: TComboBox;
+    OpenIncludedFilesCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
