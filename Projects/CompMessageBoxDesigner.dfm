@@ -708,7 +708,6 @@ object MBDForm: TMBDForm
       Default = True
       ModalResult = 1
       TabOrder = 1
-      OnClick = MBDButtonOKClick
     end
     object MBDButtonCancel: TButton
       Left = 463
