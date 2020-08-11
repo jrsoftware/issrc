@@ -23,7 +23,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
+  Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors,
   DebugStruct, CompInt, UxTheme, ImageList, ImgList, ToolWin,
   VirtualImageList, BaseImageCollection, ImageCollection;
@@ -61,6 +61,8 @@ type
     LastWriteTime: TFileTime;
     HasLastWriteTime: Boolean;
   end;
+
+  TIncludedFiles = TObjectList<TIncludedFile>;
 
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
@@ -327,7 +329,7 @@ type
     FProcessHandle, FDebugClientProcessHandle: THandle;
     FDebugTarget: TDebugTarget;
     FCompiledExe, FUninstExe, FTempDir: String;
-    FIncludedFiles: TObjectList;
+    FIncludedFiles: TIncludedFiles;
     FDebugging: Boolean;
     FStepMode: TStepMode;
     FPaused: Boolean;
@@ -989,7 +991,7 @@ begin
   FMRUParametersList := TStringList.Create;
 
   FSignTools := TStringList.Create;
-  FIncludedFiles := TObjectList.Create;
+  FIncludedFiles := TIncludedFiles.Create;
 
   FDebugTarget := dtSetup;
   UpdateTargetMenu;
@@ -1632,7 +1634,7 @@ type
     CurLineNumber: Integer;
     CurLine: String;
     OutputExe: String;
-    IncludedFiles: TObjectList;
+    IncludedFiles: TIncludedFiles;
     ErrorMsg: String;
     ErrorFilename: String;
     ErrorLine: Integer;
@@ -1642,7 +1644,7 @@ type
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer; stdcall;
 
-  procedure ParseIncludedFilenames(P: PChar; IncludedFiles: TObjectList);
+  procedure ParseIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles);
   var
     IncludedFile: TIncludedFile;
   begin
@@ -3869,11 +3871,9 @@ procedure TCompileForm.CompileIfNecessary;
   var
     IncludedFile: TIncludedFile;
     NewTime: TFileTime;
-    I: Integer;
   begin
     Result := False;
-    for I := 0 to FIncludedFiles.Count-1 do begin
-      IncludedFile := TIncludedFile(FIncludedFiles[I]);
+    for IncludedFile in FIncludedFiles do begin
       if IncludedFile.HasLastWriteTime and
          GetLastWriteTimeOfFile(IncludedFile.Filename, NewTime) and
          (CompareFileTime(IncludedFile.LastWriteTime, NewTime) <> 0) then begin
