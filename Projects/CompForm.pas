@@ -57,6 +57,15 @@ type
 
   TMRUItemCompareProc = function(const S1, S2: String): Integer;
 
+  TIncludedFile = class
+    Filename: String;
+    LastWriteTime: TFileTime;
+    HasLastWriteTime: Boolean;
+    Memo: TISScintEdit;
+  end;
+
+  TIncludedFiles = TObjectList<TIncludedFile>;
+
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -329,7 +338,7 @@ type
     FProcessHandle, FDebugClientProcessHandle: THandle;
     FDebugTarget: TDebugTarget;
     FCompiledExe, FUninstExe, FTempDir: String;
-    FIncludedFiles: TObjectList;
+    FIncludedFiles: TIncludedFiles;
     FDebugging: Boolean;
     FStepMode: TStepMode;
     FPaused: Boolean;
@@ -468,13 +477,6 @@ type
   public
     property Theme: TTheme read FTheme write FTheme;
     procedure UpdateThemeColors;
-  end;
-
-  TIncludedFile = class
-    Filename: String;
-    LastWriteTime: TFileTime;
-    HasLastWriteTime: Boolean;
-    Memo: TScintEdit;
   end;
 
 var
@@ -1014,7 +1016,7 @@ begin
 
   FSignTools := TStringList.Create;
 
-  FIncludedFiles := TObjectList.Create;
+  FIncludedFiles := TIncludedFiles.Create;
   UpdateIncludedFiles;
 
   FDebugTarget := dtSetup;
@@ -1662,7 +1664,7 @@ type
     CurLineNumber: Integer;
     CurLine: String;
     OutputExe: String;
-    IncludedFiles: TObjectList;
+    IncludedFiles: TIncludedFiles;
     ErrorMsg: String;
     ErrorFilename: String;
     ErrorLine: Integer;
@@ -1672,7 +1674,7 @@ type
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer; stdcall;
 
-  procedure ParseIncludedFilenames(P: PChar; IncludedFiles: TObjectList);
+  procedure ParseIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles);
   var
     IncludedFile: TIncludedFile;
   begin
@@ -2936,7 +2938,7 @@ begin
     try
       NewTabs.Add(IncludedFilesTabSet.Tabs[0]);
       for I := 1 to FIncludedFiles.Count-1 do begin
-        IncludedFile := TIncludedFile(FIncludedFiles[I]);
+        IncludedFile := FIncludedFiles[I];
         NewTabs.Add(PathExtractName(IncludedFile.Filename));
         IncludedFile.Memo := FMemos[I];
         OpenFile(IncludedFile.Memo, IncludedFile.Filename, False);
@@ -2954,10 +2956,8 @@ begin
   end else begin
     for I := 1 to FMemos.Count-1 do
       FMemos[I].Visible := False;
-    for I := 1 to FIncludedFiles.Count-1 do begin
-      IncludedFile := TIncludedFile(FIncludedFiles[I]);
-      IncludedFile.Memo := nil;
-    end;
+    for I := 1 to FIncludedFiles.Count-1 do
+      FIncludedFiles[I].Memo := nil;
     IncludedFilesTabSet.Visible := False;
   end;
   
@@ -3965,11 +3965,9 @@ procedure TCompileForm.CompileIfNecessary;
   var
     IncludedFile: TIncludedFile;
     NewTime: TFileTime;
-    I: Integer;
   begin
     Result := False;
-    for I := 0 to FIncludedFiles.Count-1 do begin
-      IncludedFile := TIncludedFile(FIncludedFiles[I]);
+    for IncludedFile in FIncludedFiles do begin
       if (IncludedFile.Memo = nil) and IncludedFile.HasLastWriteTime and
          GetLastWriteTimeOfFile(IncludedFile.Filename, NewTime) and
          (CompareFileTime(IncludedFile.LastWriteTime, NewTime) <> 0) then begin
