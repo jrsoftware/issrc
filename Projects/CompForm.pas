@@ -23,7 +23,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
+  Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors,
   DebugStruct, CompInt, UxTheme, ImageList, ImgList, ToolWin,
   VirtualImageList, BaseImageCollection, ImageCollection;
@@ -273,7 +273,7 @@ type
     procedure IncludedFilesTabSetClick(Sender: TObject);
   private
     { Private declarations }
-    FMemos: TList;
+    FMemos: TList<TISScintEdit>;
     FMainMemo: TISScintEdit;
     FActiveMemo: TISScintEdit;
     FMemosStyler: TInnoSetupStyler;
@@ -986,7 +986,7 @@ begin
   FMemosStyler := TInnoSetupStyler.Create(Self);
   FMemosStyler.IsppInstalled := IsppInstalled;
   FTheme := TTheme.Create;
-  FMemos := TList.Create;
+  FMemos := TList<TISScintEdit>.Create;
   for I := 0 to MaxMemos-1 do
     FMemos.Add(CreateMemo(PopupMenu));
   FMainMemo := FMemos[0];
@@ -2510,7 +2510,7 @@ var
   I: Integer;
 begin
   for I := 0 to IncludedFilesTabSet.Tabs.Count-1 do begin
-    Memo := TISScintEdit(FMemos[I]);
+    Memo := FMemos[I];
     Memo.Visible := (I = IncludedFilesTabSet.TabIndex);
     if Memo.Visible then begin
       FActiveMemo := Memo;
@@ -2945,7 +2945,7 @@ begin
       end;
       { Hide any remaining memos }
       for I := FIncludedFiles.Count to FMemos.Count-1 do
-        TScintEdit(FMemos[I]).Visible := False;
+        FMemos[I].Visible := False;
       IncludedFilesTabSet.Tabs := NewTabs;
     finally
       NewTabs.Free;
@@ -2953,7 +2953,7 @@ begin
     IncludedFilesTabSet.Visible := True;
   end else begin
     for I := 1 to FMemos.Count-1 do
-      TScintEdit(FMemos[I]).Visible := False;
+      FMemos[I].Visible := False;
     for I := 1 to FIncludedFiles.Count-1 do begin
       IncludedFile := TIncludedFile(FIncludedFiles[I]);
       IncludedFile.Memo := nil;
