@@ -328,6 +328,8 @@ end;
 procedure TNewTabSet.SetTabs(Value: TStrings);
 begin
   FTabs.Assign(Value);
+  if FTabIndex >= FTabs.Count then
+    SetTabIndex(FTabs.Count-1);
 end;
 
 procedure TNewTabSet.SetTheme(Value: TTheme);
