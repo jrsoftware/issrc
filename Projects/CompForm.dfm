@@ -181,19 +181,19 @@ object CompileForm: TCompileForm
       ShowHint = True
       TabOrder = 0
       Transparent = True
-      object NewButton: TToolButton
+      object NewMainFileButton: TToolButton
         Left = 0
         Top = 0
-        Hint = 'New (Ctrl+N)'
+        Hint = 'New Main Script (Ctrl+N)'
         ImageIndex = 0
-        OnClick = FNewClick
+        OnClick = FNewMainFileClick
       end
-      object OpenButton: TToolButton
+      object OpenMainFileButton: TToolButton
         Left = 23
         Top = 0
-        Hint = 'Open (Ctrl+O)'
+        Hint = 'Open Main Script (Ctrl+O)'
         ImageIndex = 1
-        OnClick = FOpenClick
+        OnClick = FOpenMainFileClick
       end
       object SaveButton: TToolButton
         Left = 46
@@ -313,15 +313,15 @@ object CompileForm: TCompileForm
     object FMenu: TMenuItem
       Caption = '&File'
       OnClick = FMenuClick
-      object FNew: TMenuItem
+      object FNewMainFile: TMenuItem
         Caption = '&New'
         ShortCut = 16462
-        OnClick = FNewClick
+        OnClick = FNewMainFileClick
       end
-      object FOpen: TMenuItem
+      object FOpenMainFile: TMenuItem
         Caption = '&Open...'
         ShortCut = 16463
-        OnClick = FOpenClick
+        OnClick = FOpenMainFileClick
       end
       object N19: TMenuItem
         Caption = '-'
@@ -351,7 +351,7 @@ object CompileForm: TCompileForm
       object N1: TMenuItem
         Caption = '-'
       end
-      object FMRUFilesSep: TMenuItem
+      object FMRUMainFilesSep: TMenuItem
         Caption = '-'
         Visible = False
       end

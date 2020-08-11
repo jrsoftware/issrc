@@ -34,7 +34,7 @@ const
   WM_StartNormally = WM_USER + $1002;
 
   MRUListMaxCount = 10;
-  MaxMemos = 11;
+  MaxMemos = 11; { Includes the main memo }
 
 type
   TLineState = (lnUnknown, lnHasEntry, lnEntryProcessed);
@@ -51,7 +51,7 @@ const
   DebugTargetStrings: array[TDebugTarget] of String = ('Setup', 'Uninstall');
 
 type
-  TISScintEdit = class;
+  TCompScintEdit = class;
 
   TStatusMessageKind = (smkStartEnd, smkNormal, smkWarning, smkError);
 
@@ -61,7 +61,7 @@ type
     Filename: String;
     LastWriteTime: TFileTime;
     HasLastWriteTime: Boolean;
-    Memo: TISScintEdit;
+    Memo: TCompScintEdit;
   end;
 
   TIncludedFiles = TObjectList<TIncludedFile>;
@@ -69,8 +69,8 @@ type
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
-    FNew: TMenuItem;
-    FOpen: TMenuItem;
+    FNewMainFile: TMenuItem;
+    FOpenMainFile: TMenuItem;
     FSave: TMenuItem;
     FSaveAs: TMenuItem;
     N1: TMenuItem;
@@ -94,7 +94,7 @@ type
     HDoc: TMenuItem;
     N6: TMenuItem;
     HAbout: TMenuItem;
-    FMRUFilesSep: TMenuItem;
+    FMRUMainFilesSep: TMenuItem;
     VCompilerOutput: TMenuItem;
     FindDialog: TFindDialog;
     ReplaceDialog: TReplaceDialog;
@@ -166,8 +166,8 @@ type
     FSaveEncodingAuto: TMenuItem;
     FSaveEncodingUTF8: TMenuItem;
     ToolBar: TToolBar;
-    NewButton: TToolButton;
-    OpenButton: TToolButton;
+    NewMainFileButton: TToolButton;
+    OpenMainFileButton: TToolButton;
     SaveButton: TToolButton;
     ToolButton4: TToolButton;
     CompileButton: TToolButton;
@@ -195,7 +195,7 @@ type
     IncludedFilesTabSet: TNewTabSet;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
-    procedure FOpenClick(Sender: TObject);
+    procedure FOpenMainFileClick(Sender: TObject);
     procedure EUndoClick(Sender: TObject);
     procedure EMenuClick(Sender: TObject);
     procedure ECutClick(Sender: TObject);
@@ -204,8 +204,8 @@ type
     procedure EDeleteClick(Sender: TObject);
     procedure FSaveClick(Sender: TObject);
     procedure ESelectAllClick(Sender: TObject);
-    procedure FNewClick(Sender: TObject);
-    procedure FNewWizardClick(Sender: TObject);
+    procedure FNewMainFileClick(Sender: TObject);
+    procedure FNewMainFileUserWizardClick(Sender: TObject);
     procedure FSaveAsClick(Sender: TObject);
     procedure HDocClick(Sender: TObject);
     procedure BCompileClick(Sender: TObject);
@@ -282,16 +282,15 @@ type
     procedure IncludedFilesTabSetClick(Sender: TObject);
   private
     { Private declarations }
-    FMemos: TList<TISScintEdit>;
-    FMainMemo: TISScintEdit;
-    FActiveMemo: TISScintEdit;
+    FMemos: TList<TCompScintEdit>; { Memos[0] is always the main memo }
+    FMainMemo: TCompScintEdit;
+    FActiveMemo: TCompScintEdit;
     FMemosStyler: TInnoSetupStyler;
     FCompilerVersion: PCompilerVersionInfo;
-    FMainFilename: String;
+    FMainFilename: String;         //fixme per memo
     FFileLastWriteTime: TFileTime; //fixme per memo
-    FSaveInUTF8Encoding: Boolean; //fixme per memo
-    FMRUFilesMenuItems: array[0..MRUListMaxCount-1] of TMenuItem;
-    FMRUFilesList: TStringList;
+    FMRUMainFilesMenuItems: array[0..MRUListMaxCount-1] of TMenuItem;
+    FMRUMainFilesList: TStringList;
     FMRUParametersList: TStringList;
     FOptions: record
       ShowStartupForm: Boolean;
@@ -338,7 +337,7 @@ type
     FProcessHandle, FDebugClientProcessHandle: THandle;
     FDebugTarget: TDebugTarget;
     FCompiledExe, FUninstExe, FTempDir: String;
-    FIncludedFiles: TIncludedFiles;
+    FIncludedFiles: TIncludedFiles; { FIncludedFiles[0] is always ISPPBuiltins.iss }
     FDebugging: Boolean;
     FStepMode: TStepMode;
     FPaused: Boolean;
@@ -367,7 +366,7 @@ type
     function AskToDetachDebugger: Boolean;
     procedure BringToForeground;
     procedure CheckIfTerminated;
-    function CreateMemo(const PopupMenu: TPopupMenu): TISScintEdit;
+    function CreateMemo(const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
     function ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
@@ -400,16 +399,16 @@ type
     procedure MemoUpdateUI(Sender: TObject);
     procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
       const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
-    procedure ModifyMRUFilesList(const AFilename: String; const AddNewItem: Boolean);
+    procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
     procedure MoveCaret(const LineNumber: Integer; const AlwaysResetColumn: Boolean);
-    procedure NewFile;
-    procedure NewWizardFile;
-    procedure OpenFile(AMemo: TScintEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
-    procedure OpenMRUFile(const AFilename: String);
+    procedure NewMainFile;
+    procedure NewMainFileUsingWizard;
+    procedure OpenFile(AMemo: TCompScintEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
+    procedure OpenMRUMainFile(const AFilename: String);
     procedure ParseDebugInfo(DebugInfo: Pointer);
     class procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
-    procedure ReadMRUFilesList;
+    procedure ReadMRUMainFilesList;
     procedure ReadMRUParametersList;
     procedure ResetLineState;
     procedure StartProcess;
@@ -420,7 +419,7 @@ type
     procedure SetLowPriority(ALowPriority: Boolean);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(ALine: Integer);
-    procedure ShowOpenDialog(const Examples: Boolean);
+    procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
     function ToCurrentPPI(const XY: Integer): Integer;
@@ -433,7 +432,7 @@ type
     procedure UpdateEditModePanel;
     procedure UpdateIncludedFiles;
     procedure UpdateLineMarkers(const Line: Integer);
-    procedure UpdateNewButtons;
+    procedure UpdateNewMainFileButtons;
     procedure UpdateTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateTargetMenu;
@@ -469,12 +468,14 @@ type
 {$ENDIF}
   end;
 
-  TISScintEdit = class(TScintEdit)
+  TCompScintEdit = class(TScintEdit)
   private
     FTheme: TTheme;
+    FSaveInUTF8Encoding: Boolean;
   protected
     procedure CreateWnd; override;
   public
+    property SaveInUTF8Encoding: Boolean read FSaveInUTF8Encoding write FSaveInUTF8Encoding;
     property Theme: TTheme read FTheme write FTheme;
     procedure UpdateThemeColors;
   end;
@@ -534,24 +535,17 @@ const
 
   LineStateGrowAmount = 4000;
 
+function IncludedFileIndexToMemoIndex(const Index: Integer): Integer;
+begin
+  { Memo[0] is the main memo and IncludedFiles[0] is ISPPBuiltins.iss so there's a direct match }
+  Result := Index;
+end;
+
 procedure InitFormFont(Form: TForm);
 var
   FontName: String;
   Metrics: TNonClientMetrics;
 begin
-{$IFNDEF UNICODE}
-  if Win32MajorVersion < 5 then begin
-    { On pre-2000 Windows, just use MS Sans Serif always, except on Japanese }
-    if DefFontData.Charset = SHIFTJIS_CHARSET then begin
-      { MS Sans Serif can't display Japanese characters, so revert to the
-        default Japanese font (requires D3+) }
-      Form.Font.Handle := 0;
-      Exit;
-    end;
-    FontName := GetPreferredUIFont;
-  end
-  else
-{$ENDIF}
   begin
     Metrics.cbSize := SizeOf(Metrics);
     if SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SizeOf(Metrics),
@@ -598,9 +592,7 @@ procedure AddFileToRecentDocs(const Filename: String);
   a file is being opened. Files opened through Explorer or common dialogs get
   added to the Jump List automatically. }
 begin
-  SHAddToRecentDocs(
-    {$IFDEF UNICODE} SHARD_PATHW {$ELSE} SHARD_PATHA {$ENDIF},
-    PChar(Filename));
+  SHAddToRecentDocs(SHARD_PATHW, PChar(Filename));
 end;
 
 function GenerateGuid: String;
@@ -643,9 +635,9 @@ begin
   end;
 end;
 
-{ TISScintEdit }
+{ TCompScintEdit }
 
-procedure TISScintEdit.CreateWnd;
+procedure TCompScintEdit.CreateWnd;
 const
   PixmapHasEntry: array[0..8] of PAnsiChar = (
     '5 5 2 1',
@@ -718,7 +710,7 @@ const
     '==ooooo==',
     nil);
 const
-  SC_MARK_BACKFORE = 3030;  { new marker type added in my Scintilla build }
+  SC_MARK_BACKFORE = 3030;  { new marker type added in Inno Setup's Scintilla build }
 begin
   inherited;
 
@@ -762,7 +754,7 @@ begin
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
 end;
 
-procedure TISScintEdit.UpdateThemeColors;
+procedure TCompScintEdit.UpdateThemeColors;
 begin
   if FTheme <> nil then begin
     Font.Color := FTheme.Colors[tcFore];
@@ -789,11 +781,11 @@ begin
   TrackPopupMenu(Form.EMenu.Handle, TPM_RIGHTBUTTON, X, Y, 0, Form.Handle, nil);
 end;
 
-function TCompileForm.CreateMemo(const PopupMenu: TPopupMenu): TISScintEdit;
+function TCompileForm.CreateMemo(const PopupMenu: TPopupMenu): TCompScintEdit;
 var
-  Memo: TISScintEdit;
+  Memo: TCompScintEdit;
 begin
-  Memo := TISScintEdit.Create(Self);
+  Memo := TCompScintEdit.Create(Self);
   Memo.AcceptDroppedFiles := True;
   Memo.Align := alClient;
   Memo.AutoCompleteFontName := Font.Name;
@@ -821,18 +813,14 @@ end;
 
 { TCompileForm }
 
-constructor TCompileForm.Create(AOwner: TComponent);
+{ok}constructor TCompileForm.Create(AOwner: TComponent);
 
   procedure ReadConfig;
-{$IFNDEF UNICODE}
-  const
-    { "MS Gothic" in Japanese (CP 932) }
-    SMSGothicLocalized = #$82'l'#$82'r '#$83'S'#$83'V'#$83'b'#$83'N';
-{$ENDIF}
   var
     Ini: TConfigIniFile;
     WindowPlacement: TWindowPlacement;
     I: Integer;
+    Memo: TCompScintEdit;
   begin
     Ini := TConfigIniFile.Create;
     try
@@ -868,19 +856,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       if GetACP = 932 then begin
         { Default to MS Gothic font on CP 932 (Japanese), as Courier New is
           only capable of displaying Japanese characters on XP and later. }
-{$IFNDEF UNICODE}
-        { Use the English name if it's supported on this version of Windows
-          (I believe it was first added in Windows 2000), because the CP 932
-          localized Japanese name will no longer be valid if the user later
-          switches out of CP 932. }
-        if FontExists('MS Gothic') then
-          Memo.Font.Name := 'MS Gothic'
-        else
-          Memo.Font.Name := SMSGothicLocalized;
-{$ELSE}
-        { UNICODE requires 2000+, so we can just use the English name }
         FMainMemo.Font.Name := 'MS Gothic';
-{$ENDIF}
         FMainMemo.Font.Size := 9;
         FMainMemo.Font.Charset := SHIFTJIS_CHARSET;
       end;
@@ -888,8 +864,14 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
       FMainMemo.Font.Charset := Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
       FMainMemo.Zoom := Ini.ReadInteger('Options', 'Zoom', 0);
+      for Memo in FMemos do begin
+        if Memo <> FMainMemo then begin
+          Memo.Font := FMainMemo.Font;
+          Memo.Zoom := FMainMemo.Zoom;
+        end;
+      end;
       SyncEditorOptions;
-      UpdateNewButtons;
+      UpdateNewMainFileButtons;
       UpdateTheme;
 
       { Window state }
@@ -954,10 +936,6 @@ begin
     'poDefault' Position setting }
   AutoScroll := False;
 
-{$IFNDEF UNICODE}
-  FSaveEncoding.Visible := False;
-{$ENDIF}
-
   { Append the shortcut key text to the Edit items. Don't actually set the
     ShortCut property because we don't want the key combinations having an
     effect when Memo doesn't have the focus. }
@@ -969,7 +947,7 @@ begin
   SetFakeShortCut(ESelectAll, Ord('A'), [ssCtrl]);
   SetFakeShortCut(EDelete, VK_DELETE, []);
   SetFakeShortCut(ECompleteWord, VK_RIGHT, [ssAlt]);
-  SetFakeShortCutText(VZoomIn, SmkcCtrl + 'Num +');
+  SetFakeShortCutText(VZoomIn, SmkcCtrl + 'Num +');    { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
   SetFakeShortCutText(VZoomOut, SmkcCtrl + 'Num -');
   SetFakeShortCutText(VZoomReset, SmkcCtrl + 'Num /');
   { Use fake Esc shortcut for Stop Compile so it doesn't conflict with the
@@ -988,7 +966,7 @@ begin
   FMemosStyler := TInnoSetupStyler.Create(Self);
   FMemosStyler.IsppInstalled := IsppInstalled;
   FTheme := TTheme.Create;
-  FMemos := TList<TISScintEdit>.Create;
+  FMemos := TList<TCompScintEdit>.Create;
   for I := 0 to MaxMemos-1 do
     FMemos.Add(CreateMemo(PopupMenu));
   FMainMemo := FMemos[0];
@@ -1005,12 +983,12 @@ begin
   Application.OnActivate := AppOnActivate;
   Application.OnIdle := AppOnIdle;
 
-  FMRUFilesList := TStringList.Create;
-  for I := 0 to High(FMRUFilesMenuItems) do begin
+  FMRUMainFilesList := TStringList.Create;
+  for I := 0 to High(FMRUMainFilesMenuItems) do begin
     NewItem := TMenuItem.Create(Self);
     NewItem.OnClick := FMRUClick;
-    FMenu.Insert(FMenu.IndexOf(FMRUFilesSep), NewItem);
-    FMRUFilesMenuItems[I] := NewItem;
+    FMenu.Insert(FMenu.IndexOf(FMRUMainFilesSep), NewItem);
+    FMRUMainFilesMenuItems[I] := NewItem;
   end;
   FMRUParametersList := TStringList.Create;
 
@@ -1041,7 +1019,7 @@ begin
   end;
 end;
 
-destructor TCompileForm.Destroy;
+{ok}destructor TCompileForm.Destroy;
 
   procedure SaveConfig;
   var
@@ -1069,7 +1047,7 @@ destructor TCompileForm.Destroy;
       Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
 
       { Zoom state }
-      Ini.WriteInteger('Options', 'Zoom', FMainMemo.Zoom);
+      Ini.WriteInteger('Options', 'Zoom', FMainMemo.Zoom); { Only saves the main memo's zoom }
     finally
       Ini.Free;
     end;
@@ -1090,7 +1068,7 @@ begin
   FIncludedFiles.Free;
   FSignTools.Free;
   FMRUParametersList.Free;
-  FMRUFilesList.Free;
+  FMRUMainFilesList.Free;
 
   inherited;
 end;
@@ -1208,18 +1186,18 @@ begin
     Application.Title := NewCaption;
 end;
 
-procedure TCompileForm.UpdateNewButtons;
+{ok}procedure TCompileForm.UpdateNewMainFileButtons;
 begin
   if FOptions.UseWizard then begin
-    FNew.OnClick := FNewWizardClick;
-    NewButton.OnClick := FNewWizardClick;
+    FNewMainFile.OnClick := FNewMainFileUserWizardClick;
+    NewMainFileButton.OnClick := FNewMainFileUserWizardClick;
   end else begin
-    FNew.OnClick := FNewClick;
-    NewButton.OnClick := FNewClick;
+    FNewMainFile.OnClick := FNewMainFileClick;
+    NewMainFileButton.OnClick := FNewMainFileClick;
   end;
 end;
 
-procedure TCompileForm.NewFile;
+{ok}procedure TCompileForm.NewMainFile;
 begin
   HideError;
   FUninstExe := '';
@@ -1232,7 +1210,7 @@ begin
 
   FMainFilename := '';
   UpdateCaption;
-  FSaveInUTF8Encoding := False;
+  FMainMemo.SaveInUTF8Encoding := False;
   FMainMemo.Lines.Clear;
   FModifiedSinceLastCompile := True;
   FIncludedFiles.Clear;
@@ -1240,7 +1218,7 @@ begin
   FMainMemo.ClearUndo;
 end;
 
-procedure TCompileForm.NewWizardFile;
+{ok}procedure TCompileForm.NewMainFileUsingWizard;
 var
   WizardForm: TWizardForm;
   SaveEnabled: Boolean;
@@ -1264,7 +1242,7 @@ begin
     if CommandLineWizard then begin
       SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, False);
     end else begin
-      NewFile;
+      NewMainFile;
       FMainMemo.Lines.Text := WizardForm.ResultScript;
       FMainMemo.ClearUndo;
       if WizardForm.Result = wrComplete then begin
@@ -1278,7 +1256,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.OpenFile(AMemo: TScintEdit; AFilename: String;
+procedure TCompileForm.OpenFile(AMemo: TCompScintEdit; AFilename: String;
   const MainMemoAddToRecentDocs: Boolean);
 
   function IsStreamUTF8Encoded(const Stream: TStream): Boolean;
@@ -1299,9 +1277,9 @@ begin
   Stream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
   try
     if AMemo = FMainMemo then
-      NewFile;
+      NewMainFile;
     GetFileTime(Stream.Handle, nil, nil, @FFileLastWriteTime);
-    FSaveInUTF8Encoding := IsStreamUTF8Encoded(Stream);
+    AMemo.SaveInUTF8Encoding := IsStreamUTF8Encoded(Stream);
     Stream.Seek(0, soFromBeginning);
     AMemo.Lines.LoadFromStream(Stream);
   finally
@@ -1311,13 +1289,13 @@ begin
   if AMemo = FMainMemo then begin
     FMainFilename := AFilename;
     UpdateCaption;
-    ModifyMRUFilesList(AFilename, True);
+    ModifyMRUMainFilesList(AFilename, True);
     if MainMemoAddToRecentDocs then
       AddFileToRecentDocs(AFilename);
   end;
 end;
 
-procedure TCompileForm.OpenMRUFile(const AFilename: String);
+{ok}procedure TCompileForm.OpenMRUMainFile(const AFilename: String);
 { Same as OpenFile, but offers to remove the file from the MRU list if it
   cannot be opened }
 begin
@@ -1327,35 +1305,29 @@ begin
     Application.HandleException(Self);
     if MsgBoxFmt('There was an error opening the file. Remove it from the list?',
        [AFilename], SCompilerFormCaption, mbError, MB_YESNO) = IDYES then
-      ModifyMRUFilesList(AFilename, False);
+      ModifyMRUMainFilesList(AFilename, False);
   end;
 end;
 
 class procedure TCompileForm.SaveTextToFile(const Filename: String;
   const S: String; const ForceUTF8Encoding: Boolean);
 var
-{$IFDEF UNICODE}
   AnsiMode: Boolean;
   AnsiStr: AnsiString;
-{$ENDIF}
   F: TTextFileWriter;
 begin
-{$IFDEF UNICODE}
   AnsiMode := False;
   if not ForceUTF8Encoding then begin
     AnsiStr := AnsiString(S);
     if S = String(AnsiStr) then
       AnsiMode := True;
   end;
-{$ENDIF}
 
   F := TTextFileWriter.Create(Filename, fdCreateAlways, faWrite, fsNone);
   try
-{$IFDEF UNICODE}
     if AnsiMode then
       F.WriteAnsi(AnsiStr)
     else
-{$ENDIF}
       F.Write(S);
   finally
     F.Free;
@@ -1377,7 +1349,7 @@ function TCompileForm.SaveFile(const SaveAs: Boolean): Boolean;
         [GetLastError]);
     TempFN := Buf;
     try
-      SaveTextToFile(TempFN, FMainMemo.Lines.Text, FSaveInUTF8Encoding);
+      SaveTextToFile(TempFN, FMainMemo.Lines.Text, FMainMemo.SaveInUTF8Encoding);
 
       { Back up existing file if needed }
       if FOptions.MakeBackups and NewFileExists(FN) then begin
@@ -1408,6 +1380,9 @@ function TCompileForm.SaveFile(const SaveAs: Boolean): Boolean;
 var
   FN: String;
 begin
+  if SaveAs and (FActiveMemo <> FMainMemo) then
+    raise Exception.Create('Internal error: SaveAs called but main memo isn''t active');
+
   Result := False;
   if SaveAs or (FMainFilename = '') then begin
     FN := FMainFilename;
@@ -1423,7 +1398,7 @@ begin
   if not FOptions.UndoAfterSave then
     FMainMemo.ClearUndo;
   Result := True;
-  ModifyMRUFilesList(FMainFilename, True);
+  ModifyMRUMainFilesList(FMainFilename, True);
 end;
 
 function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
@@ -1519,25 +1494,25 @@ begin
   end;
 end;
 
-procedure TCompileForm.ReadMRUFilesList;
+{ok}procedure TCompileForm.ReadMRUMainFilesList;
 begin
-  ReadMRUList(FMRUFilesList, 'ScriptFileHistoryNew', 'History');
+  ReadMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History');
 end;
 
-procedure TCompileForm.ModifyMRUFilesList(const AFilename: String;
+{ok}procedure TCompileForm.ModifyMRUMainFilesList(const AFilename: String;
   const AddNewItem: Boolean);
 begin
   { Load most recent items first, just in case they've changed }
-  ReadMRUFilesList;
-  ModifyMRUList(FMRUFilesList, 'ScriptFileHistoryNew', 'History', AFileName, AddNewItem, @PathCompare);
+  ReadMRUMainFilesList;
+  ModifyMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History', AFileName, AddNewItem, @PathCompare);
 end;
 
-procedure TCompileForm.ReadMRUParametersList;
+{ok}procedure TCompileForm.ReadMRUParametersList;
 begin
   ReadMRUList(FMRUParametersList, 'ParameterHistory', 'History');
 end;
 
-procedure TCompileForm.ModifyMRUParametersList(const AParameter: String;
+{ok}procedure TCompileForm.ModifyMRUParametersList(const AParameter: String;
   const AddNewItem: Boolean);
 begin
   { Load most recent items first, just in case they've changed }
@@ -1957,46 +1932,37 @@ end;
 function TranslateCharsetInfo(lpSrc: PDWORD; var lpCs: TCharsetInfo;
   dwFlags: DWORD): BOOL; stdcall; external gdi32;
 
-procedure TCompileForm.SyncEditorOptions;
+{ok}procedure TCompileForm.SyncEditorOptions;
 const
   SquigglyStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_SQUIGGLE);
-{$IFNDEF UNICODE}
 var
-  CharsetInfo: TCharsetInfo;
-{$ENDIF}
+  Memo: TCompScintEdit;
 begin
-  FMainMemo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
-  FMainMemo.Call(SCI_INDICSETSTYLE, inSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
+  for Memo in FMemos do begin
+    Memo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
+    Memo.Call(SCI_INDICSETSTYLE, inSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
 
-  if FOptions.CursorPastEOL then
-    FMainMemo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible]
-  else
-    FMainMemo.VirtualSpaceOptions := [];
-  FMainMemo.FillSelectionToEdge := FOptions.CursorPastEOL;
+    if FOptions.CursorPastEOL then
+      Memo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible]
+    else
+      Memo.VirtualSpaceOptions := [];
+    Memo.FillSelectionToEdge := FOptions.CursorPastEOL;
 
-  FMainMemo.TabWidth := FOptions.TabWidth;
-  FMainMemo.UseTabCharacter := FOptions.UseTabCharacter;
+    Memo.TabWidth := FOptions.TabWidth;
+    Memo.UseTabCharacter := FOptions.UseTabCharacter;
 
-  FMainMemo.WordWrap := FOptions.WordWrap;
+    Memo.WordWrap := FOptions.WordWrap;
 
-  if FOptions.IndentationGuides then
-    FMainMemo.IndentationGuides := sigLookBoth
-  else
-    FMainMemo.IndentationGuides := sigNone;
+    if FOptions.IndentationGuides then
+      Memo.IndentationGuides := sigLookBoth
+    else
+      Memo.IndentationGuides := sigNone;
 
-  FMainMemo.LineNumbers := FOptions.GutterLineNumbers;
-
-{$IFNDEF UNICODE}
-  { Try to set the editor's code page to match the font's character set }
-  if (Memo.Font.Charset <> DEFAULT_CHARSET) and
-     TranslateCharsetInfo(PDWORD(Memo.Font.Charset), CharsetInfo, TCI_SRCCHARSET) then
-    Memo.CodePage := CharsetInfo.ciACP
-  else
-    Memo.CodePage := 0;
-{$ENDIF}
+    Memo.LineNumbers := FOptions.GutterLineNumbers;
+  end;
 end;
 
-procedure TCompileForm.FMenuClick(Sender: TObject);
+{ok}procedure TCompileForm.FMenuClick(Sender: TObject);
 
   function DoubleAmp(const S: String): String;
   var
@@ -2018,34 +1984,35 @@ procedure TCompileForm.FMenuClick(Sender: TObject);
 var
   I: Integer;
 begin
-  FSaveEncodingAuto.Checked := not FSaveInUTF8Encoding;
-  FSaveEncodingUTF8.Checked := FSaveInUTF8Encoding;
-  ReadMRUFilesList;
-  FMRUFilesSep.Visible := FMRUFilesList.Count <> 0;
-  for I := 0 to High(FMRUFilesMenuItems) do
-    with FMRUFilesMenuItems[I] do begin
-      if I < FMRUFilesList.Count then begin
+  FSaveAs.Enabled := FActiveMemo = FMainMemo;
+  FSaveEncodingAuto.Checked := not FActiveMemo.SaveInUTF8Encoding;
+  FSaveEncodingUTF8.Checked := FActiveMemo.SaveInUTF8Encoding;
+  ReadMRUMainFilesList;
+  FMRUMainFilesSep.Visible := FMRUMainFilesList.Count <> 0;
+  for I := 0 to High(FMRUMainFilesMenuItems) do
+    with FMRUMainFilesMenuItems[I] do begin
+      if I < FMRUMainFilesList.Count then begin
         Visible := True;
-        Caption := '&' + IntToStr((I+1) mod 10) + ' ' + DoubleAmp(FMRUFilesList[I]);
+        Caption := '&' + IntToStr((I+1) mod 10) + ' ' + DoubleAmp(FMRUMainFilesList[I]);
       end
       else
         Visible := False;
     end;
 end;
 
-procedure TCompileForm.FNewClick(Sender: TObject);
+{ok}procedure TCompileForm.FNewMainFileClick(Sender: TObject);
 begin
   if ConfirmCloseFile(True) then
-    NewFile;
+    NewMainFile;
 end;
 
-procedure TCompileForm.FNewWizardClick(Sender: TObject);
+{ok}procedure TCompileForm.FNewMainFileUserWizardClick(Sender: TObject);
 begin
   if ConfirmCloseFile(True) then
-    NewWizardFile;
+    NewMainFileUsingWizard;
 end;
 
-procedure TCompileForm.ShowOpenDialog(const Examples: Boolean);
+procedure TCompileForm.ShowOpenMainFileDialog(const Examples: Boolean);
 var
   InitialDir, FileName: String;
 begin
@@ -2062,9 +2029,9 @@ begin
       OpenFile(FMainMemo, Filename, False);
 end;
 
-procedure TCompileForm.FOpenClick(Sender: TObject);
+{ok}procedure TCompileForm.FOpenMainFileClick(Sender: TObject);
 begin
-  ShowOpenDialog(False);
+  ShowOpenMainFileDialog(False);
 end;
 
 procedure TCompileForm.FSaveClick(Sender: TObject);
@@ -2077,19 +2044,19 @@ begin
   SaveFile(True);
 end;
 
-procedure TCompileForm.FSaveEncodingItemClick(Sender: TObject);
+{ok}procedure TCompileForm.FSaveEncodingItemClick(Sender: TObject);
 begin
-  FSaveInUTF8Encoding := (Sender = FSaveEncodingUTF8);
+  FActiveMemo.SaveInUTF8Encoding := (Sender = FSaveEncodingUTF8);
 end;
 
-procedure TCompileForm.FMRUClick(Sender: TObject);
+{ok}procedure TCompileForm.FMRUClick(Sender: TObject);
 var
   I: Integer;
 begin
   if ConfirmCloseFile(True) then
-    for I := 0 to High(FMRUFilesMenuItems) do
-      if FMRUFilesMenuItems[I] = Sender then begin
-        OpenMRUFile(FMRUFilesList[I]);
+    for I := 0 to High(FMRUMainFilesMenuItems) do
+      if FMRUMainFilesMenuItems[I] = Sender then begin
+        OpenMRUMainFile(FMRUMainFilesList[I]);
         Break;
       end;
 end;
@@ -2174,19 +2141,28 @@ begin
 end;
 
 {ok}procedure TCompileForm.VZoomInClick(Sender: TObject);
+var
+  Memo: TCompScintEdit;
 begin
-  FActiveMemo.ZoomIn;
+  for Memo in FMemos do
+    Memo.ZoomIn;
 end;
 
 {ok}procedure TCompileForm.VZoomOutClick(Sender: TObject);
+var
+  Memo: TCompScintEdit;
 begin
-  FActiveMemo.ZoomOut;
+  for Memo in FMemos do
+    Memo.ZoomOut;
 end;
 
 {ok}
 procedure TCompileForm.VZoomResetClick(Sender: TObject);
+var
+  Memo: TCompScintEdit;
 begin
-  FActiveMemo.Zoom := 0;
+  for Memo in FMemos do
+    Memo.Zoom := 0;
 end;
 
 {ok}procedure TCompileForm.VToolbarClick(Sender: TObject);
@@ -2447,7 +2423,7 @@ begin
   Code := 0;
   try
     try
-      NewWizardFile;
+      NewMainFileUsingWizard;
     except
       Code := 2;
       Application.HandleException(Self);
@@ -2464,10 +2440,10 @@ procedure TCompileForm.WMStartNormally(var Message: TMessage);
     StartupForm: TStartupForm;
     Ini: TConfigIniFile;
   begin
-    ReadMRUFilesList;
+    ReadMRUMainFilesList;
     StartupForm := TStartupForm.Create(Application);
     try
-      StartupForm.MRUFilesList := FMRUFilesList;
+      StartupForm.MRUFilesList := FMRUMainFilesList;
       StartupForm.StartupCheck.Checked := not FOptions.ShowStartupForm;
       if StartupForm.ShowModal = mrOK then begin
         if FOptions.ShowStartupForm <> not StartupForm.StartupCheck.Checked then begin
@@ -2481,16 +2457,16 @@ procedure TCompileForm.WMStartNormally(var Message: TMessage);
         end;
         case StartupForm.Result of
           srEmpty:
-            FNewClick(Self);
+            FNewMainFileClick(Self);
           srWizard:
-            FNewWizardClick(Self);
+            FNewMainFileUserWizardClick(Self);
           srOpenFile:
             if ConfirmCloseFile(True) then
-              OpenMRUFile(StartupForm.ResultFileName);
+              OpenMRUMainFile(StartupForm.ResultFileName);
           srOpenDialog:
-            ShowOpenDialog(False);
+            ShowOpenMainFileDialog(False);
           srOpenDialogExamples:
-            ShowOpenDialog(True);
+            ShowOpenMainFileDialog(True);
         end;
       end;
     finally
@@ -2508,11 +2484,11 @@ end;
 
 procedure TCompileForm.IncludedFilesTabSetClick(Sender: TObject);
 var
-  Memo: TISScintEdit;
+  Memo: TCompScintEdit;
   I: Integer;
 begin
   for I := 0 to IncludedFilesTabSet.Tabs.Count-1 do begin
-    Memo := FMemos[I];
+    Memo := FMemos[IncludedFileIndexToMemoIndex(I)];
     Memo.Visible := (I = IncludedFilesTabSet.TabIndex);
     if Memo.Visible then begin
       FActiveMemo := Memo;
@@ -2822,7 +2798,7 @@ begin
     FMainMemo.CaretLine := FMainMemo.CaretLine;
     FMainMemo.Font.Assign(OptionsForm.FontPanel.Font);
     SyncEditorOptions;
-    UpdateNewButtons;
+    UpdateNewMainFileButtons;
     UpdateTheme;
 
     { Save new options }
@@ -2931,24 +2907,30 @@ var
   NewTabs: TStringList;
   IncludedFile: TIncludedFile;
   I: Integer;
+  SaveTabName: String;
 begin
   { Open included files if requested, except for ISPPBuiltins.iss which is always the first include }
   if FOptions.OpenIncludedFiles and (FIncludedFiles.Count > 1) then begin
     NewTabs := TStringList.Create;
     try
-      NewTabs.Add(IncludedFilesTabSet.Tabs[0]);
+      NewTabs.Add(IncludedFilesTabSet.Tabs[0]); { 'Main Script' }
       for I := 1 to FIncludedFiles.Count-1 do begin
         IncludedFile := FIncludedFiles[I];
         NewTabs.Add(PathExtractName(IncludedFile.Filename));
-        IncludedFile.Memo := FMemos[I];
+        IncludedFile.Memo := FMemos[IncludedFileIndexToMemoIndex(I)];
         OpenFile(IncludedFile.Memo, IncludedFile.Filename, False);
-        if I+1 = FMemos.Count then
-          Break;
+        if IncludedFileIndexToMemoIndex(I+1) = FMemos.Count then
+          Break; { We're out of memos :( }
       end;
       { Hide any remaining memos }
-      for I := FIncludedFiles.Count to FMemos.Count-1 do
+      for I := IncludedFileIndexToMemoIndex(FIncludedFiles.Count) to FMemos.Count-1 do
         FMemos[I].Visible := False;
+      { Set new tabs, try keep same file open }
+      SaveTabName := IncludedFilesTabSet.Tabs[IncludedFilesTabSet.TabIndex];
       IncludedFilesTabSet.Tabs := NewTabs;
+      I := IncludedFilesTabSet.Tabs.IndexOf(SaveTabName);
+      if I <> -1 then
+         IncludedFilesTabSet.TabIndex := I;
     finally
       NewTabs.Free;
     end;
@@ -2959,6 +2941,7 @@ begin
     for I := 1 to FIncludedFiles.Count-1 do
       FIncludedFiles[I].Memo := nil;
     IncludedFilesTabSet.Visible := False;
+    IncludedFilesTabSet.TabIndex := 0; { For next time }
   end;
   
   UpdateBevel1;
@@ -3254,7 +3237,6 @@ procedure TCompileForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
   end;
 
   function GetCodeColumnFromPosition(const Pos: Integer): Integer;
-{$IFDEF UNICODE}
   var
     LinePos: Integer;
     S: TScintRawString;
@@ -3270,11 +3252,6 @@ procedure TCompileForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     U := FMainMemo.ConvertRawStringToString(S);
     Result := Length(U);
   end;
-{$ELSE}
-  begin
-    Result := Memo.GetColumnFromPosition(Pos);
-  end;
-{$ENDIF}
 
   function FindConstRange(const Pos: Integer): TScintRange;
   var
@@ -3806,7 +3783,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.UpdateTheme;
+{ok}procedure TCompileForm.UpdateTheme;
 
   procedure SetControlTheme(const WinControl: TWinControl);
   begin
@@ -3818,11 +3795,15 @@ procedure TCompileForm.UpdateTheme;
     end;
   end;
 
+var
+  Memo: TCompScintEdit;
 begin
   FTheme.Typ := FOptions.ThemeType;
-  FMainMemo.UpdateThemeColors;
-  FMainMemo.UpdateStyleAttributes;
-  SetControlTheme(FMainMemo);
+  for Memo in FMemos do begin
+    Memo.UpdateThemeColors;
+    Memo.UpdateStyleAttributes;
+    SetControlTheme(Memo);
+  end;
   ToolBarPanel.ParentBackground := False;
   ToolBarPanel.Color := FTheme.Colors[tcToolBack];
   if FTheme.Dark then
@@ -3853,7 +3834,7 @@ begin
   SetControlTheme(DebugCallStackList);
 end;
 
-procedure TCompileForm.UpdateThemeData(const Close, Open: Boolean);
+{ok}procedure TCompileForm.UpdateThemeData(const Close, Open: Boolean);
 begin
   if Close then begin
     if FProgressThemeData <> 0 then begin
@@ -4664,16 +4645,8 @@ begin
   Result := MulDiv(XY, 96, CurrentPPI);
 end;
 
-{$IFNDEF UNICODE}
-var
-  Compil32LeadBytes: TLeadByteSet;
-{$ENDIF}
 
 initialization
-{$IFNDEF UNICODE}
-  GetLeadBytes(Compil32LeadBytes);
-  ConstLeadBytes := @Compil32LeadBytes;
-{$ENDIF}
   InitThemeLibrary;
   InitHtmlHelpLibrary;
   { For ClearType support, try to make the default font Microsoft Sans Serif }

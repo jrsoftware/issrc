@@ -83,8 +83,8 @@ var
 begin
  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
   WH := MulDiv(16, CurrentPPI, 96);
-  NewImage.Picture.Bitmap := GetBitmap(CompileForm.NewButton, WH);
-  OpenImage.Picture.Bitmap := GetBitmap(CompileForm.OpenButton, WH);
+  NewImage.Picture.Bitmap := GetBitmap(CompileForm.NewMainFileButton, WH);
+  OpenImage.Picture.Bitmap := GetBitmap(CompileForm.OpenMainFileButton, WH);
 end;
 
 procedure TStartupForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
