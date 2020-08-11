@@ -134,7 +134,7 @@ type
     N15: TMenuItem;
     RTargetSetup: TMenuItem;
     RTargetUninstall: TMenuItem;
-    TabSet: TNewTabSet;
+    OutputTabSet: TNewTabSet;
     DebugOutputList: TListBox;
     VDebugOutput: TMenuItem;
     VHide: TMenuItem;
@@ -246,7 +246,7 @@ type
     procedure RTargetClick(Sender: TObject);
     procedure DebugOutputListDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
-    procedure TabSetClick(Sender: TObject);
+    procedure OutputTabSetClick(Sender: TObject);
     procedure VHideClick(Sender: TObject);
     procedure VDebugOutputClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -500,7 +500,7 @@ const
   spCompileProgress = 4;
   spExtraStatus = 5;
 
-  { Tab set indexes }
+  { Output tab set indexes }
   tiCompilerOutput = 0;
   tiDebugOutput = 1;
   tiDebugCallStack = 2;
@@ -870,7 +870,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
         current form height, which hasn't been finalized yet }
 
       StatusPanel.Height := ToCurrentPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
-        (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(TabSet.Height)));
+        (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(OutputTabSet.Height)));
     finally
       Ini.Free;
     end;
@@ -1105,7 +1105,7 @@ begin
     if ActiveControl <> Memo then
       ActiveControl := Memo
     else if StatusPanel.Visible then begin
-      case TabSet.TabIndex of
+      case OutputTabSet.TabIndex of
         tiCompilerOutput: ActiveControl := CompilerOutputList;
         tiDebugOutput: ActiveControl := DebugOutputList;
         tiDebugCallStack: ActiveControl := DebugCallStackList;
@@ -1819,7 +1819,7 @@ begin
     SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
     DebugCallStackList.Clear;
     SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-    TabSet.TabIndex := tiCompilerOutput;
+    OutputTabSet.TabIndex := tiCompilerOutput;
     SetStatusPanelVisible(True);
 
     if AFilename <> '' then
@@ -2133,9 +2133,9 @@ begin
   VToolbar.Checked := Toolbar.Visible;
   VStatusBar.Checked := StatusBar.Visible;
   VHide.Checked := not StatusPanel.Visible;
-  VCompilerOutput.Checked := StatusPanel.Visible and (TabSet.TabIndex = tiCompilerOutput);
-  VDebugOutput.Checked := StatusPanel.Visible and (TabSet.TabIndex = tiDebugOutput);
-  VDebugCallStack.Checked := StatusPanel.Visible and (TabSet.TabIndex = tiDebugCallStack);
+  VCompilerOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiCompilerOutput);
+  VDebugOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugOutput);
+  VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
 end;
 
 procedure TCompileForm.VZoomInClick(Sender: TObject);
@@ -2195,19 +2195,19 @@ end;
 
 procedure TCompileForm.VCompilerOutputClick(Sender: TObject);
 begin
-  TabSet.TabIndex := tiCompilerOutput;
+  OutputTabSet.TabIndex := tiCompilerOutput;
   SetStatusPanelVisible(True);
 end;
 
 procedure TCompileForm.VDebugOutputClick(Sender: TObject);
 begin
-  TabSet.TabIndex := tiDebugOutput;
+  OutputTabSet.TabIndex := tiDebugOutput;
   SetStatusPanelVisible(True);
 end;
 
 procedure TCompileForm.VDebugCallStackClick(Sender: TObject);
 begin
-  TabSet.TabIndex := tiDebugCallStack;
+  OutputTabSet.TabIndex := tiDebugCallStack;
   SetStatusPanelVisible(True);
 end;
 
@@ -2590,7 +2590,7 @@ procedure TCompileForm.UpdateStatusPanelHeight(H: Integer);
 var
   MinHeight, MaxHeight: Integer;
 begin
-  MinHeight := (3 * DebugOutputList.ItemHeight + ToCurrentPPI(4)) + TabSet.Height;
+  MinHeight := (3 * DebugOutputList.ItemHeight + ToCurrentPPI(4)) + OutputTabSet.Height;
   MaxHeight := BodyPanel.ClientHeight - ToCurrentPPI(48) - SplitPanel.Height;
   if H > MaxHeight then H := MaxHeight;
   if H < MinHeight then H := MinHeight;
@@ -3740,9 +3740,9 @@ begin
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
   if FTheme.Dark then
-    TabSet.Theme := FTheme
+    OutputTabSet.Theme := FTheme
   else
-    TabSet.Theme := nil;
+    OutputTabSet.Theme := nil;
   CompilerOutputList.Font.Color := FTheme.Colors[tcFore];
   CompilerOutputList.Color := FTheme.Colors[tcBack];
   CompilerOutputList.Invalidate;
@@ -3807,8 +3807,8 @@ begin
   SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
   DebugCallStackList.Clear;
   SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-  if not (TabSet.TabIndex in [tiDebugOutput, tiDebugCallStack]) then
-    TabSet.TabIndex := tiDebugOutput;
+  if not (OutputTabSet.TabIndex in [tiDebugOutput, tiDebugCallStack]) then
+    OutputTabSet.TabIndex := tiDebugOutput;
   SetStatusPanelVisible(True);
 
   FillChar(Info, SizeOf(Info), 0);
@@ -4351,9 +4351,9 @@ begin
   Canvas.TextOut(Rect.Left, Rect.Top, S);
 end;
 
-procedure TCompileForm.TabSetClick(Sender: TObject);
+procedure TCompileForm.OutputTabSetClick(Sender: TObject);
 begin
-  case TabSet.TabIndex of
+  case OutputTabSet.TabIndex of
     tiCompilerOutput:
       begin
         CompilerOutputList.BringToFront;

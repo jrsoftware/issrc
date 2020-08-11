@@ -104,7 +104,7 @@ object CompileForm: TCompileForm
         TabOrder = 0
         OnDrawItem = CompilerOutputListDrawItem
       end
-      object TabSet: TNewTabSet
+      object OutputTabSet: TNewTabSet
         Left = 0
         Top = 83
         Width = 361
@@ -115,7 +115,7 @@ object CompileForm: TCompileForm
           'Compiler Output'
           'Debug Output'
           'Debug Call Stack')
-        OnClick = TabSetClick
+        OnClick = OutputTabSetClick
       end
     end
   end
