@@ -15,16 +15,20 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, ModernColors;
 
 type
+  TTabPosition = (tpTop, tpBottom);
+
   TNewTabSet = class(TCustomControl)
   private
     FTheme: TTheme;
     FTabs: TStrings;
     FTabIndex: Integer;
+    FTabPosition: TTabPosition;
     function GetTabRect(Index: Integer): TRect;
     procedure InvalidateTab(Index: Integer);
     procedure ListChanged(Sender: TObject);
     procedure SetTabs(Value: TStrings);
     procedure SetTabIndex(Value: Integer);
+    procedure SetTabPosition(Value: TTabPosition);
     procedure SetTheme(Value: TTheme);
   protected
     procedure CreateParams(var Params: TCreateParams); override;
@@ -40,6 +44,7 @@ type
     property ParentFont;
     property TabIndex: Integer read FTabIndex write SetTabIndex;
     property Tabs: TStrings read FTabs write SetTabs;
+    property TabPosition: TTabPosition read FTabPosition write SetTabPosition default tpBottom;
     property OnClick;
   end;
 
@@ -132,6 +137,7 @@ begin
   inherited;
   FTabs := TStringList.Create;
   TStringList(FTabs).OnChange := ListChanged;
+  FTabPosition := tpBottom;
   ControlStyle := ControlStyle + [csOpaque];
   Width := 129;
   Height := 21;
@@ -152,15 +158,22 @@ end;
 
 function TNewTabSet.GetTabRect(Index: Integer): TRect;
 var
-  I: Integer;
+  CR: TRect;
+  I, SizeX, SizeY: Integer;
   Size: TSize;
 begin
+  CR := ClientRect;
   Canvas.Font.Assign(Font);
+  if FTabPosition = tpBottom then
+    Result.Top := 0;
   Result.Right := 4;
   for I := 0 to FTabs.Count-1 do begin
     Size := Canvas.TextExtent(FTabs[I]);
-    Result := Bounds(Result.Right, 0, Size.cx + (TabPaddingX * 2) + TabSpacing,
-      Size.cy + (TabPaddingY * 2));
+    SizeX := Size.cx + (TabPaddingX * 2) + TabSpacing;
+    SizeY := Size.cy + (TabPaddingY * 2);
+    if FTabPosition = tpTop then
+      Result.Top := CR.Bottom - SizeY;
+    Result := Bounds(Result.Right, Result.Top, SizeX, SizeY);
     if Index = I then
       Exit;
   end;
@@ -264,13 +277,18 @@ begin
   { Selected tab }
   DrawTabs(True);
 
-  { Top line }
+  { Top or bottom line }
   if FTheme <> nil then
     Canvas.Pen.Color := FTheme.Colors[tcBack]
   else
     Canvas.Pen.Color := clBtnFace;
-  Canvas.MoveTo(0, 0);
-  Canvas.LineTo(CR.Right, 0);
+  if FTabPosition = tpBottom then begin
+    Canvas.MoveTo(0, 0);
+    Canvas.LineTo(CR.Right, 0);
+  end else begin
+    Canvas.MoveTo(0, CR.Bottom-1);
+    Canvas.LineTo(CR.Right, CR.Bottom-1);
+  end;
 
   { Background fill }
   if FTheme <> nil then
@@ -279,7 +297,10 @@ begin
     Canvas.Brush.Color := LightenColor(ColorToRGB(clBtnFace), 35)
   else
     Canvas.Brush.Color := clBtnShadow;
-  Inc(CR.Top);
+  if FTabPosition = tpBottom then
+    Inc(CR.Top)
+  else
+    Dec(CR.Bottom);
   Canvas.FillRect(CR);
 
   { Non-selected tabs }
@@ -293,6 +314,14 @@ begin
     FTabIndex := Value;
     InvalidateTab(Value);
     Click;
+  end;
+end;
+
+procedure TNewTabSet.SetTabPosition(Value: TTabPosition);
+begin
+  if FTabPosition <> Value then begin
+    FTabPosition := Value;
+    Invalidate;
   end;
 end;
 
