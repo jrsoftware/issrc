@@ -6,7 +6,7 @@ unit CompSignTools;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler SignTools form
+  Compiler IDE SignTools form
 }
 
 interface

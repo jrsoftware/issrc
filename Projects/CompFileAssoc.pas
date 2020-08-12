@@ -6,7 +6,7 @@ unit CompFileAssoc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Functions for registering/unregistering the .iss file association
+  Compiler IDE's functions for registering/unregistering the .iss file association
 }
 
 interface

@@ -2,11 +2,11 @@ unit CompOptions;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler Options form
+  Compiler IDE Options form
 }
 
 interface
