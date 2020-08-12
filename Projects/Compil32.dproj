@@ -70,8 +70,8 @@
 				<Form>WizardFileForm</Form>
 			</DCCReference>
 			<DCCReference Include="CompFileAssoc.pas"/>
-			<DCCReference Include="..\Components\TmSchemaISX.pas"/>
-			<DCCReference Include="..\Components\UxThemeISX.pas"/>
+			<DCCReference Include="..\Components\TmSchema.pas"/>
+			<DCCReference Include="..\Components\UxTheme.pas"/>
 			<DCCReference Include="DebugStruct.pas"/>
 			<DCCReference Include="BrowseFunc.pas"/>
 			<DCCReference Include="CompSignTools.pas">

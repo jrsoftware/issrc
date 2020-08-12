@@ -2,11 +2,11 @@ unit CompWizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler Script Wizard form
+  Compiler IDE Script Wizard form
 }
 
 interface

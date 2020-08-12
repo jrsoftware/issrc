@@ -37,7 +37,7 @@ uses
   CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
-  MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, CompResUpdate,
+  MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, CompExeUpdate,
 {$IFDEF STATICPREPROC}
   IsppPreprocess,
 {$ENDIF}
@@ -663,28 +663,6 @@ type
     Characteristics: Word;
   end;
 
-function SeekToPEHeader(const F: TCustomFile): Boolean;
-var
-  DosHeader: packed record
-    Sig: array[0..1] of AnsiChar;
-    Other: array[0..57] of Byte;
-    PEHeaderOffset: LongWord;
-  end;
-  Sig: DWORD;
-begin
-  Result := False;
-  F.Seek(0);
-  if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
-    if (DosHeader.Sig[0] = 'M') and (DosHeader.Sig[1] = 'Z') and
-       (DosHeader.PEHeaderOffset <> 0) then begin
-      F.Seek(DosHeader.PEHeaderOffset);
-      if F.Read(Sig, SizeOf(Sig)) = SizeOf(Sig) then
-        if Sig = IMAGE_NT_SIGNATURE then
-          Result := True;
-    end;
-  end;
-end;
-
 function IsX86OrX64Executable(const F: TFile): Boolean;
 const
   IMAGE_FILE_MACHINE_I386 = $014C;
@@ -748,87 +726,6 @@ begin
   finally
     F.Free;
   end;
-end;
-
-procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
-  const IsVistaCompatible, IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
-const
-  IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE = $0040;
-  IMAGE_DLLCHARACTERISTICS_NX_COMPAT = $0100;
-  IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = $8000;
-  OffsetOfOperatingSystemVersion = $28;
-  OffsetOfImageVersion = $2C;
-  OffsetOfSubsystemVersion = $30;
-  OffsetOfDllCharacteristics = $46;
-var
-  Header: TImageFileHeader;
-  Ofs: Cardinal;
-  OptMagic, DllChars, OrigDllChars: Word;
-  VersionRecord: packed record
-    Major, Minor: Word;
-  end;
-begin
-  if SeekToPEHeader(F) then begin
-    if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) and
-       (Header.SizeOfOptionalHeader = 224) then begin
-      Ofs := F.Position.Lo;
-      if (F.Read(OptMagic, SizeOf(OptMagic)) = SizeOf(OptMagic)) and
-         (OptMagic = IMAGE_NT_OPTIONAL_HDR32_MAGIC) then begin
-        if IsVistaCompatible then begin
-          { Update OS/Subsystem version }
-          VersionRecord.Major := 6;
-          VersionRecord.Minor := 0;
-          F.Seek(Ofs + OffsetOfOperatingSystemVersion);
-          F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
-          F.Seek(Ofs + OffsetOfSubsystemVersion);
-          F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
-        end;
-
-        { Update MajorImageVersion and MinorImageVersion to 6.0.
-          Works around apparent bug in Vista (still present in Vista SP1;
-          not reproducible on Server 2008): When UAC is turned off,
-          launching an uninstaller (as admin) from ARP and answering No at the
-          ConfirmUninstall message box causes a "This program might not have
-          uninstalled correctly" dialog to be displayed, even if the EXE
-          has a proper "Vista-aware" manifest. I discovered that if the EXE's
-          image version is set to 6.0, like the EXEs that ship with Vista
-          (notepad.exe), the dialog does not appear. (This is reproducible
-          with notepad.exe too if its image version is changed to anything
-          other than 6.0 exactly.) }
-        VersionRecord.Major := 6;
-        VersionRecord.Minor := 0;
-        F.Seek(Ofs + OffsetOfImageVersion);
-        F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
-
-        { Update DllCharacteristics }
-        F.Seek(Ofs + OffsetOfDllCharacteristics);
-        if F.Read(DllChars, SizeOf(DllChars)) = SizeOf(DllChars) then begin
-          OrigDllChars := DllChars;
-          if IsTSAware then
-            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
-          else
-            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE;
-          if IsDEPCompatible then
-            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_NX_COMPAT
-          else
-            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
-          { Note: because we stripped relocations from Setup(Ldr).e32 during
-            compilation IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE won't actually
-            enable ASLR, but allow setting it anyway to make checkers happy. }
-          if IsASLRCompatible then
-            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
-          else
-            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE;
-          if DllChars <> OrigDllChars then begin
-            F.Seek(Ofs + OffsetOfDllCharacteristics);
-            F.WriteBuffer(DllChars, SizeOf(DllChars));
-          end;
-          Exit;
-        end;
-      end;
-    end;
-  end;
-  raise Exception.Create('UpdateSetupPEHeaderFields failed');
 end;
 
 function CountChars(const S: String; C: Char): Integer;
@@ -8305,12 +8202,12 @@ var
           False);
         if RemoveManifestDllHijackProtection then begin
           AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.E32']));
-          CompResUpdate.RemoveManifestDllHijackProtection(ConvertFile, False);
+          CompExeUpdate.RemoveManifestDllHijackProtection(ConvertFile, False);
         end else begin
           { Use the opportunity to check that the manifest is correctly prepared for removing the
             protection, without actually removing it. Doing this only once per compile since there's
             only one source manifest. }
-          CompResUpdate.RemoveManifestDllHijackProtection(ConvertFile, True);
+          CompExeUpdate.RemoveManifestDllHijackProtection(ConvertFile, True);
         end;
       finally
         ConvertFile.Free;
@@ -9140,7 +9037,7 @@ begin
             { Update manifest if needed }
             if RemoveManifestDllHijackProtection then begin
               AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.EXE']));
-              CompResUpdate.RemoveManifestDllHijackProtection(ExeFile, False);
+              CompExeUpdate.RemoveManifestDllHijackProtection(ExeFile, False);
             end;
 
             { For some reason, on Win95 the date/time of the EXE sometimes
