@@ -50,6 +50,15 @@ const
 type
   TStatusMessageKind = (smkStartEnd, smkNormal, smkWarning, smkError);
 
+  TCompMainScintEdit = class(TCompScintEdit)
+  private
+    ErrorLine, StepLine: Integer;
+    ErrorCaretPosition: Integer;
+    BreakPoints: TList;
+    LineState: PLineStateArray;
+    LineStateCapacity, LineStateCount: Integer;
+  end;
+
   TIncludedFile = class
     Filename: String;
     LastWriteTime: TFileTime;
@@ -65,7 +74,7 @@ type
     FNewMainFile: TMenuItem;
     FOpenMainFile: TMenuItem;
     FSave: TMenuItem;
-    FSaveAs: TMenuItem;
+    FSaveMainFileAs: TMenuItem;
     N1: TMenuItem;
     BCompile: TMenuItem;
     N2: TMenuItem;
@@ -199,7 +208,6 @@ type
     procedure ESelectAllClick(Sender: TObject);
     procedure FNewMainFileClick(Sender: TObject);
     procedure FNewMainFileUserWizardClick(Sender: TObject);
-    procedure FSaveAsClick(Sender: TObject);
     procedure HDocClick(Sender: TObject);
     procedure BCompileClick(Sender: TObject);
     procedure FMenuClick(Sender: TObject);
@@ -276,7 +284,7 @@ type
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>; { FMemos[0] is always the main memo }
-    FMainMemo: TCompScintEdit;
+    FMainMemo: TCompMainScintEdit;
     FActiveMemo: TCompScintEdit;
     FMemosStyler: TInnoSetupStyler;
     FCompilerVersion: PCompilerVersionInfo;
@@ -313,8 +321,6 @@ type
     FCompiling: Boolean;
     FCompileWantAbort: Boolean;
     FBecameIdle: Boolean;
-    FErrorLine, FStepLine: Integer;
-    FErrorCaretPosition: Integer;
     FModifiedSinceLastCompile, FModifiedSinceLastCompileAndGo: Boolean;
     FDebugEntries: PDebugEntryArray;
     FDebugEntriesCount: Integer;
@@ -322,13 +328,12 @@ type
     FVariableDebugEntriesCount: Integer;
     FCompiledCodeText: AnsiString;
     FCompiledCodeDebugInfo: AnsiString;
-    FLineState: PLineStateArray;
-    FLineStateCapacity, FLineStateCount: Integer;
     FDebugClientWnd: HWND;
     FProcessHandle, FDebugClientProcessHandle: THandle;
     FDebugTarget: TDebugTarget;
     FCompiledExe, FUninstExe, FTempDir: String;
     FIncludedFiles: TIncludedFiles;
+    FLoadingIncludedFiles: Boolean;
     FDebugging: Boolean;
     FStepMode: TStepMode;
     FPaused: Boolean;
@@ -347,7 +352,6 @@ type
     FProgressThemeData: HTHEME;
     FProgressChunkSize, FProgressSpaceSize: Integer;
     FDebugLogListTimestampsWidth: Integer;
-    FBreakPoints: TList;
     FOnPendingSquiggly: Boolean;
     FPendingSquigglyCaretPos: Integer;
     FCallStackCount: Cardinal;
@@ -357,7 +361,6 @@ type
     function AskToDetachDebugger: Boolean;
     procedure BringToForeground;
     procedure CheckIfTerminated;
-    function CreateMemo(const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
     function ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
@@ -372,25 +375,27 @@ type
     procedure FindNext;
     function FromCurrentPPI(const XY: Integer): Integer;
     procedure Go(AStepMode: TStepMode);
-    procedure HideError;
+    procedure HideMainMemoError;
     procedure InitializeFindText(Dlg: TFindDialog);
+    function InitializeMainMemo(const Memo: TCompMainScintEdit; const PopupMenu: TPopupMenu): TCompMainScintEdit;
+    function InitializeMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure InvalidateStatusPanel(const Index: Integer);
     procedure MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
     procedure MemoCharAdded(Sender: TObject; Ch: AnsiChar);
     procedure MemoDropFiles(Sender: TObject; X, Y: Integer; AFiles: TStrings);
-    procedure MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
+    procedure MainMemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     procedure MemoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MemoKeyPress(Sender: TObject; var Key: Char);
-    procedure MemoLinesDeleted(FirstLine, Count, FirstAffectedLine: Integer);
-    procedure MemoLinesInserted(FirstLine, Count: integer);
-    procedure MemoMarginClick(Sender: TObject; MarginNumber: Integer;
+    procedure MainMemoLinesDeleted(FirstLine, Count, FirstAffectedLine: Integer);
+    procedure MainMemoLinesInserted(FirstLine, Count: integer);
+    procedure MainMemoMarginClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
-    procedure MoveCaret(const LineNumber: Integer; const AlwaysResetColumn: Boolean);
+    procedure MoveMainMemoCaret(const LineNumber: Integer; const AlwaysResetColumn: Boolean);
     procedure NewMainFile;
     procedure NewMainFileUsingWizard;
     procedure OpenFile(AMemo: TCompScintEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
@@ -398,26 +403,28 @@ type
     procedure ParseDebugInfo(DebugInfo: Pointer);
     procedure ReadMRUMainFilesList;
     procedure ReadMRUParametersList;
-    procedure ResetLineState;
+    procedure ResetMainMemoLineState;
     procedure StartProcess;
-    function SaveFile(const SaveAs: Boolean): Boolean;
-    procedure SetErrorLine(ALine: Integer);
+    function SaveFile(const AMemo: TCompScintEdit; const SaveAs: Boolean): Boolean;
+    procedure SetMainMemoErrorLine(ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
-    procedure SetStepLine(ALine: Integer);
+    procedure SetMainMemoStepLine(ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
     procedure SyncZoom;
     function ToCurrentPPI(const XY: Integer): Integer;
-    procedure ToggleBreakPoint(Line: Integer);
-    procedure UpdateAllLineMarkers;
+    procedure MainMemoToggleBreakPoint(Line: Integer);
+    procedure UpdateAllMainMemoLineMarkers;
     procedure UpdateBevel1;
     procedure UpdateCaption;
+    procedure UpdateCaretPosPanel;
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
     procedure UpdateIncludedFiles;
-    procedure UpdateLineMarkers(const Line: Integer);
+    procedure UpdateMainMemoLineMarkers(const Line: Integer);
+    procedure UpdateModifiedPanel;
     procedure UpdateNewMainFileButtons;
     procedure UpdateTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
@@ -479,7 +486,7 @@ const
   { Status bar panel indexes }
   spCaretPos = 0;
   spModified = 1;
-  spInsertMode = 2;
+  spEditMode = 2;
   spCompileIcon = 3;
   spCompileProgress = 4;
   spExtraStatus = 5;
@@ -508,11 +515,8 @@ begin
   TrackPopupMenu(Form.EMenu.Handle, TPM_RIGHTBUTTON, X, Y, 0, Form.Handle, nil);
 end;
 
-function TCompileForm.CreateMemo(const PopupMenu: TPopupMenu): TCompScintEdit;
-var
-  Memo: TCompScintEdit;
+function TCompileForm.InitializeMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
 begin
-  Memo := TCompScintEdit.Create(Self);
   Memo.AcceptDroppedFiles := True;
   Memo.Align := alClient;
   Memo.AutoCompleteFontName := Font.Name;
@@ -520,21 +524,27 @@ begin
   Memo.CodePage := CP_UTF8;
   Memo.Font.Name := 'Courier New';
   Memo.Font.Size := 10;
-  Memo.ShowHint := True;
   Memo.Styler := FMemosStyler;
   Memo.PopupMenu := PopupMenu;
   Memo.OnChange := MemoChange;
   Memo.OnCharAdded := MemoCharAdded;
   Memo.OnDropFiles := MemoDropFiles;
-  Memo.OnHintShow := MemoHintShow;
   Memo.OnKeyDown := MemoKeyDown;
   Memo.OnKeyPress := MemoKeyPress;
-  Memo.OnMarginClick := MemoMarginClick;
   Memo.OnModifiedChange := MemoModifiedChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.Parent := BodyPanel;
   Memo.Theme := FTheme;
   Memo.Visible := False;
+  Result := Memo;
+end;
+
+function TCompileForm.InitializeMainMemo(const Memo: TCompMainScintEdit; const PopupMenu: TPopupMenu): TCompMainScintEdit;
+begin
+  InitializeMemo(Memo, PopupMenu);
+  Memo.ShowHint := True;
+  Memo.OnMarginClick := MainMemoMarginClick;
+  Memo.OnHintShow := MainMemoHintShow;
   Result := Memo;
 end;
 
@@ -642,10 +652,8 @@ begin
   FCompilerVersion := ISGetVersion;
   {$ENDIF}
 
-  FErrorLine := -1;
-  FStepLine := -1;
   FModifiedSinceLastCompile := True;
-
+  
   InitFormFont(Self);
 
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
@@ -683,14 +691,21 @@ begin
   FMemosStyler.IsppInstalled := IsppInstalled;
   FTheme := TTheme.Create;
   FMemos := TList<TCompScintEdit>.Create;
-  for I := 0 to MaxMemos-1 do
-    FMemos.Add(CreateMemo(PopupMenu));
-  FMainMemo := FMemos[0];
+  FMainMemo := InitializeMainMemo(TCompMainScintEdit.Create(Self), PopupMenu);
+  for I := 0 to MaxMemos-1 do begin
+    if I = 0 then
+      FMemos.Add(FMainMemo)
+    else
+      FMemos.Add(InitializeMemo(TCompScintEdit.Create(Self), PopupMenu));
+  end;
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
   FMemosStyler.Theme := FTheme;
 
-  FBreakPoints := TList.Create;
+  FMainMemo.ErrorLine := -1;
+  FMainMemo.StepLine := -1;
+
+  FMainMemo.BreakPoints := TList.Create;
 
   UpdateTabSetListsItemHeightAndDebugTimeWidth;
 
@@ -779,7 +794,7 @@ begin
     SaveConfig;
 
   FTheme.Free;
-  FBreakPoints.Free;
+  FMainMemo.BreakPoints.Free;
   DestroyDebugInfo;
   FIncludedFiles.Free;
   FSignTools.Free;
@@ -814,7 +829,7 @@ begin
     CanClose := False;
 end;
 
-procedure TCompileForm.FormKeyDown(Sender: TObject; var Key: Word;
+{ok}procedure TCompileForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if ShortCut(Key, Shift) = VK_ESCAPE then begin
@@ -824,8 +839,8 @@ begin
   else if (Key = VK_F6) and not(ssAlt in Shift) then begin
     { Toggle focus between panes }
     Key := 0;
-    if ActiveControl <> FMainMemo then
-      ActiveControl := FMainMemo
+    if ActiveControl <> FActiveMemo then
+      ActiveControl := FActiveMemo
     else if StatusPanel.Visible then begin
       case OutputTabSet.TabIndex of
         tiCompilerOutput: ActiveControl := CompilerOutputList;
@@ -917,13 +932,13 @@ end;
 
 {ok}procedure TCompileForm.NewMainFile;
 begin
-  HideError;
+  HideMainMemoError;
   FUninstExe := '';
   if FDebugTarget <> dtSetup then begin
     FDebugTarget := dtSetup;
     UpdateTargetMenu;
   end;
-  FBreakPoints.Clear;
+  FMainMemo.BreakPoints.Clear;
   DestroyDebugInfo;
 
   FMainMemo.Filename := '';
@@ -1027,9 +1042,9 @@ begin
   end;
 end;
 
-function TCompileForm.SaveFile(const SaveAs: Boolean): Boolean;
+{ok}function TCompileForm.SaveFile(const AMemo: TCompScintEdit; const SaveAs: Boolean): Boolean;
 
-  procedure SaveTo(const FN: String);
+  procedure SaveMemoTo(const FN: String);
   var
     TempFN, BackupFN: String;
     Buf: array[0..4095] of Char;
@@ -1042,7 +1057,7 @@ function TCompileForm.SaveFile(const SaveAs: Boolean): Boolean;
         [GetLastError]);
     TempFN := Buf;
     try
-      SaveTextToFile(TempFN, FMainMemo.Lines.Text, FMainMemo.SaveInUTF8Encoding);
+      SaveTextToFile(TempFN, AMemo.Lines.Text, AMemo.SaveInUTF8Encoding);
 
       { Back up existing file if needed }
       if FOptions.MakeBackups and NewFileExists(FN) then begin
@@ -1067,38 +1082,56 @@ function TCompileForm.SaveFile(const SaveAs: Boolean): Boolean;
     if not RenameFile(TempFN, FN) then
       raise Exception.CreateFmt('Error renaming temporary file (code %d). Could not save file',
         [GetLastError]);
-    GetLastWriteTimeOfFile(FN, @FMainMemo.FileLastWriteTime);
+    GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
   end;
 
 var
   FN: String;
 begin
-  if SaveAs and (FActiveMemo <> FMainMemo) then
-    raise Exception.Create('Internal error: SaveAs called but main memo isn''t active');
-
   Result := False;
-  if SaveAs or (FMainMemo.Filename = '') then begin
-    FN := FMainMemo.Filename;
+  if SaveAs or (AMemo.Filename = '') then begin
+    if AMemo <> FMainMemo then
+      raise Exception.Create('Internal error: AMemo <> FMainMemo');
+    FN := AMemo.Filename;
     if not NewGetSaveFileName('', FN, '', SCompilerOpenFilter, 'iss', Handle) then Exit;
     FN := PathExpand(FN);
-    SaveTo(FN);
-    FMainMemo.Filename := FN;
+    SaveMemoTo(FN);
+    AMemo.Filename := FN;
     UpdateCaption;
-  end
-  else
-    SaveTo(FMainMemo.Filename);
-  FMainMemo.SetSavePoint;
+  end else
+    SaveMemoTo(AMemo.Filename);
+  AMemo.SetSavePoint;
   if not FOptions.UndoAfterSave then
-    FMainMemo.ClearUndo;
+    AMemo.ClearUndo;
   Result := True;
-  ModifyMRUMainFilesList(FMainMemo.Filename, True);
+  if AMemo = FMainMemo then
+    ModifyMRUMainFilesList(AMemo.Filename, True);
 end;
 
-function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
+{ok}function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
+
+  function PromptToSaveMemo(const AMemo: TCompScintEdit): Boolean;
 var
   FileTitle: String;
+  begin
+    Result := True;
+    if AMemo.Modified then begin
+      FileTitle := AMemo.Filename;
+      if FileTitle = '' then FileTitle := 'Untitled';
+      case MsgBox('The text in the ' + FileTitle + ' file has changed.'#13#10#13#10 +
+         'Do you want to save the changes?', SCompilerFormCaption, mbError,
+         MB_YESNOCANCEL) of
+        IDYES: Result := SaveFile(AMemo, False);
+        IDNO: ;
+      else
+        Result := False;
+      end;
+    end;
+  end;
+
+var
+  Memo: TCompScintEdit;
 begin
-  Result := True;
   if FCompiling then begin
     MsgBox('Please stop the compile process before performing this command.',
       SCompilerFormCaption, mbError, MB_OK);
@@ -1109,16 +1142,12 @@ begin
     Result := False;
     Exit;
   end;
-  if PromptToSave and FMainMemo.Modified then begin
-    FileTitle := FMainMemo.Filename;
-    if FileTitle = '' then FileTitle := 'Untitled';
-    case MsgBox('The text in the ' + FileTitle + ' file has changed.'#13#10#13#10 +
-       'Do you want to save the changes?', SCompilerFormCaption, mbError,
-       MB_YESNOCANCEL) of
-      IDYES: Result := SaveFile(False);
-      IDNO: ;
-    else
-      Result := False;
+  Result := True;
+  if PromptToSave then begin
+    for Memo in FMemos do begin
+      Result := PromptToSaveMemo(Memo);
+      if not Result then
+        Exit;
     end;
   end;
 end;
@@ -1177,19 +1206,19 @@ begin
   end;
 end;
 
-procedure TCompileForm.StatusMessage(const Kind: TStatusMessageKind; const S: String);
+{ok}procedure TCompileForm.StatusMessage(const Kind: TStatusMessageKind; const S: String);
 begin
   AddLines(CompilerOutputList, S, TObject(Kind), False, alpNone, 0);
   CompilerOutputList.Update;
 end;
 
-procedure TCompileForm.DebugLogMessage(const S: String);
+{ok}procedure TCompileForm.DebugLogMessage(const S: String);
 begin
   AddLines(DebugOutputList, S, nil, True, alpTimestamp, FDebugLogListTimestampsWidth);
   DebugOutputList.Update;
 end;
 
-procedure TCompileForm.DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
+{ok}procedure TCompileForm.DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
 begin
   DebugCallStackList.Clear;
   AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, FCallStackCount-1);
@@ -1292,12 +1321,12 @@ begin
             Aborted := True;
           ErrorFilename := Data.ErrorFilename;
           ErrorLine := Data.ErrorLine;
+          ParseIncludedFilenames(Data.IncludedFilenamesSoFar, IncludedFiles); { Also stores last write time }
         end;
     end;
 end;
 
-procedure TCompileForm.CompileFile(AFilename: String;
-  const ReadFromFile: Boolean);
+procedure TCompileForm.CompileFile(AFilename: String; const ReadFromFile: Boolean);
 
   procedure ReadScriptLines(const ALines: TStringList);
 
@@ -1335,8 +1364,8 @@ procedure TCompileForm.CompileFile(AFilename: String;
     for I := 0 to ALines.Count-1 do begin
       if ContainsNullChar(ALines[I]) then begin
         if not ReadFromFile then begin
-          MoveCaret(I, False);
-          SetErrorLine(I);
+          MoveMainMemoCaret(I, False);
+          SetMainMemoErrorLine(I);
         end;
         raise Exception.CreateFmt(SCompilerIllegalNullChar, [I + 1]);
       end;
@@ -1349,6 +1378,7 @@ var
   AppData: TAppData;
   StartTime, ElapsedTime, ElapsedSeconds: DWORD;
   I: Integer;
+  Memo: TCompScintEdit;
 begin
   if FCompiling then begin
     { Shouldn't get here, but just in case... }
@@ -1357,14 +1387,15 @@ begin
   end;
 
   if not ReadFromFile then begin
+    { Regular compile instead of a command line compile }
     if FOptions.Autosave and FMainMemo.Modified then begin
-      if not SaveFile(False) then Abort;
+      if not SaveFile(FMainMemo, False) then Abort;
     end else if FMainMemo.Filename = '' then begin
       case MsgBox('Would you like to save the script before compiling?' +
          SNewLine2 + 'If you answer No, the compiled installation will be ' +
          'placed under your My Documents folder by default.',
          SCompilerFormCaption, mbConfirmation, MB_YESNOCANCEL) of
-        IDYES: if not SaveFile(False) then Abort;
+        IDYES: if not SaveFile(FMainMemo, False) then Abort;
         IDNO: ;
       else
         Abort;
@@ -1385,9 +1416,10 @@ begin
     FMainMemo.Cursor := crAppStart;
     FMainMemo.SetCursorID(999);  { hack to keep it from overriding Cursor }
     CompilerOutputList.Cursor := crAppStart;
-    FMainMemo.ReadOnly := True;
+    for Memo in FMemos do
+      Memo.ReadOnly := True;
     UpdateEditModePanel;
-    HideError;
+    HideMainMemoError;
     CompilerOutputList.Clear;
     SendMessage(CompilerOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
     DebugOutputList.Clear;
@@ -1438,8 +1470,8 @@ begin
       if not ReadFromFile and (AppData.ErrorLine > 0) and
          (AppData.ErrorFilename = '') then begin
         { Move the caret to the line number the error occurred on }
-        MoveCaret(AppData.ErrorLine - 1, False);
-        SetErrorLine(AppData.ErrorLine - 1);
+        MoveMainMemoCaret(AppData.ErrorLine - 1, False);
+        SetMainMemoErrorLine(AppData.ErrorLine - 1);
       end;
       if not AppData.Aborted then begin
         S := '';
@@ -1465,7 +1497,8 @@ begin
     FMainMemo.Cursor := crDefault;
     FMainMemo.SetCursorID(SC_CURSORNORMAL);
     CompilerOutputList.Cursor := crDefault;
-    FMainMemo.ReadOnly := False;
+    for Memo in FMemos do
+      Memo.ReadOnly := False;
     UpdateEditModePanel;
     UpdateRunMenu;
     UpdateCaption;
@@ -1479,9 +1512,6 @@ begin
   FModifiedSinceLastCompile := False;
   FModifiedSinceLastCompileAndGo := False;
 end;
-
-function TranslateCharsetInfo(lpSrc: PDWORD; var lpCs: TCharsetInfo;
-  dwFlags: DWORD): BOOL; stdcall; external gdi32;
 
 {ok}procedure TCompileForm.SyncEditorOptions;
 const
@@ -1535,7 +1565,7 @@ end;
 var
   I: Integer;
 begin
-  FSaveAs.Enabled := FActiveMemo = FMainMemo;
+  FSaveMainFileAs.Enabled := FActiveMemo = FMainMemo;
   FSaveEncodingAuto.Checked := not FActiveMemo.SaveInUTF8Encoding;
   FSaveEncodingUTF8.Checked := FActiveMemo.SaveInUTF8Encoding;
   ReadMRUMainFilesList;
@@ -1563,7 +1593,7 @@ begin
     NewMainFileUsingWizard;
 end;
 
-procedure TCompileForm.ShowOpenMainFileDialog(const Examples: Boolean);
+{ok}procedure TCompileForm.ShowOpenMainFileDialog(const Examples: Boolean);
 var
   InitialDir, FileName: String;
 begin
@@ -1585,14 +1615,9 @@ begin
   ShowOpenMainFileDialog(False);
 end;
 
-procedure TCompileForm.FSaveClick(Sender: TObject);
+{ok}procedure TCompileForm.FSaveClick(Sender: TObject);
 begin
-  SaveFile(False);
-end;
-
-procedure TCompileForm.FSaveAsClick(Sender: TObject);
-begin
-  SaveFile(True);
+  SaveFile(FActiveMemo, Sender = FSaveMainFileAs);
 end;
 
 {ok}procedure TCompileForm.FSaveEncodingItemClick(Sender: TObject);
@@ -1646,8 +1671,7 @@ begin
   FActiveMemo.Redo;
 end;
 
-{ok}
-procedure TCompileForm.ECutClick(Sender: TObject);
+{ok}procedure TCompileForm.ECutClick(Sender: TObject);
 begin
   FActiveMemo.CutToClipboard;
 end;
@@ -1720,8 +1744,7 @@ begin
     Memo.ZoomOut;
 end;
 
-{ok}
-procedure TCompileForm.VZoomResetClick(Sender: TObject);
+{ok}procedure TCompileForm.VZoomResetClick(Sender: TObject);
 var
   Memo: TCompScintEdit;
 begin
@@ -1787,18 +1810,18 @@ begin
   SetStatusPanelVisible(True);
 end;
 
-procedure TCompileForm.BMenuClick(Sender: TObject);
+{ok}procedure TCompileForm.BMenuClick(Sender: TObject);
 begin
   BLowPriority.Checked := FOptions.LowPriorityDuringCompile;
   BOpenOutputFolder.Enabled := (FCompiledExe <> '');
 end;
 
-procedure TCompileForm.BCompileClick(Sender: TObject);
+{ok}procedure TCompileForm.BCompileClick(Sender: TObject);
 begin
   CompileFile('', False);
 end;
 
-procedure TCompileForm.BStopCompileClick(Sender: TObject);
+{ok}procedure TCompileForm.BStopCompileClick(Sender: TObject);
 begin
   SetAppTaskbarProgressState(tpsPaused);
   try
@@ -1810,7 +1833,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.BLowPriorityClick(Sender: TObject);
+{ok}procedure TCompileForm.BLowPriorityClick(Sender: TObject);
 begin
   FOptions.LowPriorityDuringCompile := not FOptions.LowPriorityDuringCompile;
   { If a compile is already in progress, change the priority now }
@@ -1818,7 +1841,7 @@ begin
     SetLowPriority(FOptions.LowPriorityDuringCompile, FSavePriorityClass);
 end;
 
-procedure TCompileForm.BOpenOutputFolderClick(Sender: TObject);
+{ok}procedure TCompileForm.BOpenOutputFolderClick(Sender: TObject);
 var
   Dir: String;
 begin
@@ -1827,13 +1850,13 @@ begin
     PChar(Format('/select,"%s"', [FCompiledExe])), PChar(Dir), SW_SHOW);
 end;
 
-procedure TCompileForm.HMenuClick(Sender: TObject);
+{ok}procedure TCompileForm.HMenuClick(Sender: TObject);
 begin
   HISPPDoc.Visible := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ispp.chm');
   HISPPSep.Visible := HISPPDoc.Visible;
 end;
 
-procedure TCompileForm.HDocClick(Sender: TObject);
+{ok}procedure TCompileForm.HDocClick(Sender: TObject);
 var
   HelpFile: String;
 begin
@@ -1842,7 +1865,7 @@ begin
     HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
 end;
 
-procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
+{ok}procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
   S, HelpFile: String;
@@ -1868,7 +1891,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.MemoKeyPress(Sender: TObject; var Key: Char);
+{ok}procedure TCompileForm.MemoKeyPress(Sender: TObject; var Key: Char);
 begin
   if (Key = ' ') and (GetKeyState(VK_CONTROL) < 0) then begin
     InitiateAutoComplete(#0);
@@ -1876,53 +1899,53 @@ begin
   end;
 end;
 
-procedure TCompileForm.HExamplesClick(Sender: TObject);
+{ok}procedure TCompileForm.HExamplesClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open',
     PChar(PathExtractPath(NewParamStr(0)) + 'Examples'), nil, nil, SW_SHOW);
 end;
 
-procedure TCompileForm.HFaqClick(Sender: TObject);
+{ok}procedure TCompileForm.HFaqClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open',
     PChar(PathExtractPath(NewParamStr(0)) + 'isfaq.url'), nil, nil, SW_SHOW);
 end;
 
-procedure TCompileForm.HWhatsNewClick(Sender: TObject);
+{ok}procedure TCompileForm.HWhatsNewClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open',
     PChar(PathExtractPath(NewParamStr(0)) + 'whatsnew.htm'), nil, nil, SW_SHOW);
 end;
 
-procedure TCompileForm.HWebsiteClick(Sender: TObject);
+{ok}procedure TCompileForm.HWebsiteClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/isinfo.php', nil,
     nil, SW_SHOW);
 end;
 
-procedure TCompileForm.HMailingListClick(Sender: TObject);
+{ok}procedure TCompileForm.HMailingListClick(Sender: TObject);
 begin
   OpenMailingListSite;
 end;
 
-procedure TCompileForm.HPSWebsiteClick(Sender: TObject);
+{ok}procedure TCompileForm.HPSWebsiteClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open', 'http://www.remobjects.com/ps', nil,
     nil, SW_SHOW);
 end;
 
-procedure TCompileForm.HISPPDocClick(Sender: TObject);
+{ok}procedure TCompileForm.HISPPDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
     HtmlHelp(GetDesktopWindow, PChar(GetHelpFile + '::/hh_isppredirect.xhtm'), HH_DISPLAY_TOPIC, 0);
 end;
 
-procedure TCompileForm.HDonateClick(Sender: TObject);
+{ok}procedure TCompileForm.HDonateClick(Sender: TObject);
 begin
   OpenDonateSite;
 end;
 
-procedure TCompileForm.HAboutClick(Sender: TObject);
+{ok}procedure TCompileForm.HAboutClick(Sender: TObject);
 var
   S: String;
 begin
@@ -1945,7 +1968,7 @@ begin
   MsgBox(S, 'About ' + FCompilerVersion.Title, mbInformation, MB_OK);
 end;
 
-procedure TCompileForm.WMStartCommandLineCompile(var Message: TMessage);
+{ok}procedure TCompileForm.WMStartCommandLineCompile(var Message: TMessage);
 var
   Code: Integer;
 begin
@@ -1963,7 +1986,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.WMStartCommandLineWizard(var Message: TMessage);
+{ok}procedure TCompileForm.WMStartCommandLineWizard(var Message: TMessage);
 var
   Code: Integer;
 begin
@@ -1980,7 +2003,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.WMStartNormally(var Message: TMessage);
+{ok}procedure TCompileForm.WMStartNormally(var Message: TMessage);
 
   procedure ShowStartupForm;
   var
@@ -2009,7 +2032,7 @@ procedure TCompileForm.WMStartNormally(var Message: TMessage);
             FNewMainFileUserWizardClick(Self);
           srOpenFile:
             if ConfirmCloseFile(True) then
-              OpenMRUMainFile(StartupForm.ResultFileName);
+              OpenMRUMainFile(StartupForm.ResultMainFileName);
           srOpenDialog:
             ShowOpenMainFileDialog(False);
           srOpenDialogExamples:
@@ -2029,7 +2052,7 @@ begin
     OpenFile(FMainMemo, CommandLineFilename, False);
 end;
 
-procedure TCompileForm.MemosTabSetClick(Sender: TObject);
+{ok}procedure TCompileForm.MemosTabSetClick(Sender: TObject);
 var
   Memo: TCompScintEdit;
   I: Integer;
@@ -2042,20 +2065,25 @@ begin
       ActiveControl := Memo;
     end;
   end;
+  RToggleBreakPoint.Enabled := FActiveMemo = FMainMemo;
+  UpdateRunMenu;
+  UpdateCaretPosPanel;
+  UpdateEditModePanel;
+  UpdateModifiedPanel;
 end;
 
-procedure TCompileForm.InitializeFindText(Dlg: TFindDialog);
+{ok}procedure TCompileForm.InitializeFindText(Dlg: TFindDialog);
 var
   S: String;
 begin
-  S := FMainMemo.SelText;
+  S := FActiveMemo.SelText;
   if (S <> '') and (Pos(#13, S) = 0) and (Pos(#10, S) = 0) then
     Dlg.FindText := S
   else
     Dlg.FindText := FLastFindText;
 end;
 
-procedure TCompileForm.EFindClick(Sender: TObject);
+{ok}procedure TCompileForm.EFindClick(Sender: TObject);
 begin
   ReplaceDialog.CloseDialog;
   if FindDialog.Handle = 0 then
@@ -2063,7 +2091,7 @@ begin
   FindDialog.Execute;
 end;
 
-procedure TCompileForm.EFindNextClick(Sender: TObject);
+{ok}procedure TCompileForm.EFindNextClick(Sender: TObject);
 begin
   if FLastFindText = '' then
     EFindClick(Sender)
@@ -2071,28 +2099,28 @@ begin
     FindNext;
 end;
 
-procedure TCompileForm.FindNext;
+{ok}procedure TCompileForm.FindNext;
 var
   StartPos, EndPos: Integer;
   Range: TScintRange;
 begin
   if frDown in FLastFindOptions then begin
-    StartPos := FMainMemo.Selection.EndPos;
-    EndPos := FMainMemo.RawTextLength;
+    StartPos := FActiveMemo.Selection.EndPos;
+    EndPos := FActiveMemo.RawTextLength;
   end
   else begin
-    StartPos := FMainMemo.Selection.StartPos;
+    StartPos := FActiveMemo.Selection.StartPos;
     EndPos := 0;
   end;
-  if FMainMemo.FindText(StartPos, EndPos, FLastFindText,
+  if FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
      FindOptionsToSearchOptions(FLastFindOptions), Range) then
-    FMainMemo.Selection := Range
+    FActiveMemo.Selection := Range
   else
     MsgBoxFmt('Cannot find "%s"', [FLastFindText], SCompilerFormCaption,
       mbInformation, MB_OK);
 end;
 
-procedure TCompileForm.FindDialogFind(Sender: TObject);
+{ok}procedure TCompileForm.FindDialogFind(Sender: TObject);
 begin
   { this event handler is shared between FindDialog & ReplaceDialog }
   with Sender as TFindDialog do begin
@@ -2104,7 +2132,7 @@ begin
   FindNext;
 end;
 
-procedure TCompileForm.EReplaceClick(Sender: TObject);
+{ok}procedure TCompileForm.EReplaceClick(Sender: TObject);
 begin
   FindDialog.CloseDialog;
   if ReplaceDialog.Handle = 0 then begin
@@ -2114,7 +2142,7 @@ begin
   ReplaceDialog.Execute;
 end;
 
-procedure TCompileForm.ReplaceDialogReplace(Sender: TObject);
+{ok}procedure TCompileForm.ReplaceDialogReplace(Sender: TObject);
 var
   ReplaceCount, Pos: Integer;
   Range, NewRange: TScintRange;
@@ -2125,17 +2153,17 @@ begin
 
   if frReplaceAll in FLastFindOptions then begin
     ReplaceCount := 0;
-    FMainMemo.BeginUndoAction;
+    FActiveMemo.BeginUndoAction;
     try
       Pos := 0;
-      while FMainMemo.FindText(Pos, FMainMemo.RawTextLength, FLastFindText,
+      while FActiveMemo.FindText(Pos, FActiveMemo.RawTextLength, FLastFindText,
          FindOptionsToSearchOptions(FLastFindOptions), Range) do begin
-        NewRange := FMainMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText);
+        NewRange := FActiveMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText);
         Pos := NewRange.EndPos;
         Inc(ReplaceCount);
       end;
     finally
-      FMainMemo.EndUndoAction;
+      FActiveMemo.EndUndoAction;
     end;
     if ReplaceCount = 0 then
       MsgBoxFmt('Cannot find "%s"', [FLastFindText], SCompilerFormCaption,
@@ -2145,13 +2173,13 @@ begin
         mbInformation, MB_OK);
   end
   else begin
-    if FMainMemo.SelTextEquals(FLastFindText, frMatchCase in FLastFindOptions) then
-      FMainMemo.SelText := FLastReplaceText;
+    if FActiveMemo.SelTextEquals(FLastFindText, frMatchCase in FLastFindOptions) then
+      FActiveMemo.SelText := FLastReplaceText;
     FindNext;
   end;
 end;
 
-procedure TCompileForm.UpdateStatusPanelHeight(H: Integer);
+{ok}procedure TCompileForm.UpdateStatusPanelHeight(H: Integer);
 var
   MinHeight, MaxHeight: Integer;
 begin
@@ -2162,7 +2190,7 @@ begin
   StatusPanel.Height := H;
 end;
 
-procedure TCompileForm.UpdateTabSetListsItemHeightAndDebugTimeWidth;
+{ok}procedure TCompileForm.UpdateTabSetListsItemHeightAndDebugTimeWidth;
 begin
   CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
   CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
@@ -2175,7 +2203,7 @@ begin
   DebugCallStackList.ItemHeight := DebugCallStackList.Canvas.TextHeight('0');
 end;
 
-procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
+{ok}procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
   if (ssLeft in Shift) and StatusPanel.Visible then begin
@@ -2185,32 +2213,32 @@ begin
   end;
 end;
 
-procedure TCompileForm.TAddRemoveProgramsClick(Sender: TObject);
+{ok}procedure TCompileForm.TAddRemoveProgramsClick(Sender: TObject);
 begin
   StartAddRemovePrograms;
 end;
 
-procedure TCompileForm.TGenerateGUIDClick(Sender: TObject);
+{ok}procedure TCompileForm.TGenerateGUIDClick(Sender: TObject);
 begin
   if MsgBox('The generated GUID will be inserted into the editor at the cursor position. Continue?',
      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
-    FMainMemo.SelText := GenerateGuid;
+    FActiveMemo.SelText := GenerateGuid;
 end;
 
-procedure TCompileForm.TInsertMsgBoxClick(Sender: TObject);
+{ok}procedure TCompileForm.TInsertMsgBoxClick(Sender: TObject);
 var
   MsgBoxForm: TMBDForm;
 begin
   MsgBoxForm := TMBDForm.Create(Application);
   try
     if MsgBoxForm.ShowModal = mrOk then
-      FMainMemo.SelText := MsgBoxForm.Text;
+      FActiveMemo.SelText := MsgBoxForm.Text;
   finally
     MsgBoxForm.Free;
   end;
 end;
 
-procedure TCompileForm.TSignToolsClick(Sender: TObject);
+{ok}procedure TCompileForm.TSignToolsClick(Sender: TObject);
 var
   SignToolsForm: TSignToolsForm;
   Ini: TConfigIniFile;
@@ -2340,7 +2368,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.MoveCaret(const LineNumber: Integer;
+{ok}procedure TCompileForm.MoveMainMemoCaret(const LineNumber: Integer;
   const AlwaysResetColumn: Boolean);
 var
   Pos: Integer;
@@ -2356,54 +2384,68 @@ begin
       (FMainMemo.LinesInWindow div 2);
 
   FMainMemo.CaretPosition := Pos;
-  ActiveControl := FMainMemo;
+  MemosTabSet.TabIndex := FMemos.IndexOf(FMainMemo);
 end;
 
-procedure TCompileForm.SetErrorLine(ALine: Integer);
+{ok}procedure TCompileForm.SetMainMemoErrorLine(ALine: Integer);
 var
   OldLine: Integer;
 begin
-  if FErrorLine <> ALine then begin
-    OldLine := FErrorLine;
-    FErrorLine := ALine;
+  if FMainMemo.ErrorLine <> ALine then begin
+    OldLine := FMainMemo.ErrorLine;
+    FMainMemo.ErrorLine := ALine;
     if OldLine >= 0 then
-      UpdateLineMarkers(OldLine);
-    if FErrorLine >= 0 then begin
-      FErrorCaretPosition := FMainMemo.CaretPosition;
-      UpdateLineMarkers(FErrorLine);
+      UpdateMainMemoLineMarkers(OldLine);
+    if FMainMemo.ErrorLine >= 0 then begin
+      FMainMemo.ErrorCaretPosition := FMainMemo.CaretPosition;
+      UpdateMainMemoLineMarkers(FMainMemo.ErrorLine);
     end;
   end;
 end;
 
-procedure TCompileForm.SetStepLine(ALine: Integer);
+{ok}procedure TCompileForm.SetMainMemoStepLine(ALine: Integer);
 var
   OldLine: Integer;
 begin
-  if FStepLine <> ALine then begin
-    OldLine := FStepLine;
-    FStepLine := ALine;
+  if FMainMemo.StepLine <> ALine then begin
+    OldLine := FMainMemo.StepLine;
+    FMainMemo.StepLine := ALine;
     if OldLine >= 0 then
-      UpdateLineMarkers(OldLine);
-    if FStepLine >= 0 then
-      UpdateLineMarkers(FStepLine);
+      UpdateMainMemoLineMarkers(OldLine);
+    if FMainMemo.StepLine >= 0 then
+      UpdateMainMemoLineMarkers(FMainMemo.StepLine);
   end;
 end;
 
-procedure TCompileForm.HideError;
+{ok}procedure TCompileForm.HideMainMemoError;
 begin
-  SetErrorLine(-1);
+  SetMainMemoErrorLine(-1);
   if not FCompiling then
     StatusBar.Panels[spExtraStatus].Text := '';
 end;
 
-procedure TCompileForm.UpdateEditModePanel;
+{ok}procedure TCompileForm.UpdateCaretPosPanel;
+begin
+  StatusBar.Panels[spCaretPos].Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
+    FActiveMemo.CaretColumnExpanded + 1]);
+end;
+
+{ok}procedure TCompileForm.UpdateEditModePanel;
 const
   InsertText: array[Boolean] of String = ('Overwrite', 'Insert');
 begin
-  if FMainMemo.ReadOnly then
-    StatusBar.Panels[spInsertMode].Text := 'Read only'
+  if FActiveMemo.ReadOnly then
+    StatusBar.Panels[spEditMode].Text := 'Read only'
   else
-    StatusBar.Panels[spInsertMode].Text := InsertText[FMainMemo.InsertMode];
+    StatusBar.Panels[spEditMode].Text := InsertText[FActiveMemo.InsertMode];
+end;
+
+{ok}procedure TCompileForm.UpdateModifiedPanel;
+begin
+  if FActiveMemo.Modified then
+    StatusBar.Panels[spModified].Text := 'Modified'
+  else
+    StatusBar.Panels[spModified].Text := '';
 end;
 
 procedure TCompileForm.UpdateIncludedFiles;
@@ -2418,14 +2460,19 @@ begin
     try
       NewTabs.Add(MemosTabSet.Tabs[0]); { 'Main Script' }
       NextMemoIndex := FirstIncludedFilesMemoIndex;
-      for I := 0 to FIncludedFiles.Count-1 do begin
-        IncludedFile := FIncludedFiles[I];
-        NewTabs.Add(PathExtractName(IncludedFile.Filename));
-        IncludedFile.Memo := FMemos[NextMemoIndex];
-        OpenFile(IncludedFile.Memo, IncludedFile.Filename, False);
-        Inc(NextMemoIndex);
-        if NextMemoIndex = FMemos.Count then
-          Break; { We're out of memos :( }
+      FLoadingIncludedFiles := True;
+      try
+        for I := 0 to FIncludedFiles.Count-1 do begin
+          IncludedFile := FIncludedFiles[I];
+          NewTabs.Add(PathExtractName(IncludedFile.Filename));
+          IncludedFile.Memo := FMemos[NextMemoIndex];
+          OpenFile(IncludedFile.Memo, IncludedFile.Filename, False);
+          Inc(NextMemoIndex);
+          if NextMemoIndex = FMemos.Count then
+            Break; { We're out of memos :( }
+        end;
+      finally
+        FLoadingIncludedFiles := False;
       end;
       { Hide any remaining memos }
       for I := NextMemoIndex to FMemos.Count-1 do
@@ -2514,26 +2561,22 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
   end;
 
 begin
-  if (FErrorLine < 0) or (FMainMemo.CaretPosition <> FErrorCaretPosition) then
-    HideError;
-  StatusBar.Panels[spCaretPos].Text := Format('%4d:%4d', [FMainMemo.CaretLine + 1,
-    FMainMemo.CaretColumnExpanded + 1]);
+  if (FMainMemo.ErrorLine < 0) or (FMainMemo.CaretPosition <> FMainMemo.ErrorCaretPosition) then
+    HideMainMemoError;
+  UpdateCaretPosPanel;
   UpdatePendingSquiggly;
   UpdateBraceHighlighting;
   UpdateEditModePanel;
 end;
 
-procedure TCompileForm.MemoModifiedChange(Sender: TObject);
+{ok}procedure TCompileForm.MemoModifiedChange(Sender: TObject);
 begin
-  if FMainMemo.Modified then
-    StatusBar.Panels[spModified].Text := 'Modified'
-  else
-    StatusBar.Panels[spModified].Text := '';
+  UpdateModifiedPanel;
 end;
 
 procedure TCompileForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
 
-  procedure LinesInsertedOrDeleted;
+  procedure MainMemoLinesInsertedOrDeleted;
   var
     FirstAffectedLine, Line, LinePos: Integer;
   begin
@@ -2547,30 +2590,32 @@ procedure TCompileForm.MemoChange(Sender: TObject; const Info: TScintEditChangeI
     if Info.StartPos > LinePos then
       Inc(Line);
     if Info.LinesDelta > 0 then
-      MemoLinesInserted(Line, Info.LinesDelta)
+      MainMemoLinesInserted(Line, Info.LinesDelta)
     else
-      MemoLinesDeleted(Line, -Info.LinesDelta, FirstAffectedLine);
+      MainMemoLinesDeleted(Line, -Info.LinesDelta, FirstAffectedLine);
   end;
 
 begin
   FModifiedSinceLastCompile := True;
   if FDebugging then
     FModifiedSinceLastCompileAndGo := True
-  else begin
-    { Modified while not debugging; free the debug info and clear the dots }
+  else if not FLoadingIncludedFiles then begin
+    { Modified while not debugging or loading included files; free the debug info and clear the dots }
     DestroyDebugInfo;
   end;
 
-  if Info.LinesDelta <> 0 then
-    LinesInsertedOrDeleted;
+  if FActiveMemo = FMainMemo then begin
+    if Info.LinesDelta <> 0 then
+      MainMemoLinesInsertedOrDeleted;
 
-  { When the Delete key is pressed, the caret doesn't move, so reset
-    FErrorCaretPosition to ensure that OnUpdateUI calls HideError }
-  FErrorCaretPosition := -1;
+    { When the Delete key is pressed, the caret doesn't move, so reset
+      FErrorCaretPosition to ensure that OnUpdateUI calls HideError }
+    FMainMemo.ErrorCaretPosition := -1;
+  end;
 
   { The change should trigger restyling. Allow the styler to see the current
     caret position in case it wants to set a pending squiggly indicator. }
-  FMainMemo.ReportCaretPositionToStyler := True;
+  FActiveMemo.ReportCaretPositionToStyler := True;
 end;
 
 procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
@@ -2722,7 +2767,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
+procedure TCompileForm.MainMemoHintShow(Sender: TObject; var Info: TScintHintInfo);
 
   function GetCodeVariableDebugEntryFromLineCol(Line, Col: Integer): PVariableDebugEntry;
   var
@@ -2948,10 +2993,10 @@ begin
   if LineNumber < 0 then
     Exit;
 
-  if (LineNumber < FLineStateCount) and
-     (FLineState[LineNumber] <> lnEntryProcessed) then begin
-    FLineState[LineNumber] := lnEntryProcessed;
-    UpdateLineMarkers(LineNumber);
+  if (LineNumber < FMainMemo.LineStateCount) and
+     (FMainMemo.LineState[LineNumber] <> lnEntryProcessed) then begin
+    FMainMemo.LineState[LineNumber] := lnEntryProcessed;
+    UpdateMainMemoLineMarkers(LineNumber);
   end;
 
   if (FStepMode = smStepInto) or
@@ -2959,10 +3004,10 @@ begin
      ((FStepMode = smRunToCursor) and
       (FRunToCursorPoint.Kind = Integer(Message.WParam)) and
       (FRunToCursorPoint.Index = Message.LParam)) or
-     (FBreakPoints.IndexOf(Pointer(LineNumber)) <> -1) then begin
-    MoveCaret(LineNumber, True);
-    HideError;
-    SetStepLine(LineNumber);
+     (FMainMemo.BreakPoints.IndexOf(Pointer(LineNumber)) <> -1) then begin
+    MoveMainMemoCaret(LineNumber, True);
+    HideMainMemoError;
+    SetMainMemoStepLine(LineNumber);
     BringToForeground;
     { Tell Setup to pause }
     Message.Result := 1;
@@ -2990,9 +3035,9 @@ begin
     LineNumber := GetLineNumberFromEntry(Message.WParam, Message.LParam);
 
     if (LineNumber >= 0) then begin
-      MoveCaret(LineNumber, True);
-      SetStepLine(-1);
-      SetErrorLine(LineNumber);
+      MoveMainMemoCaret(LineNumber, True);
+      SetMainMemoStepLine(-1);
+      SetMainMemoErrorLine(LineNumber);
     end;
 
     BringToForeground;
@@ -3071,12 +3116,12 @@ procedure TCompileForm.DestroyDebugInfo;
 var
   HadDebugInfo: Boolean;
 begin
-  HadDebugInfo := Assigned(FLineState);
+  HadDebugInfo := Assigned(FMainMemo.LineState);
 
-  FLineStateCapacity := 0;
-  FLineStateCount := 0;
-  FreeMem(FLineState);
-  FLineState := nil;
+  FMainMemo.LineStateCapacity := 0;
+  FMainMemo.LineStateCount := 0;
+  FreeMem(FMainMemo.LineState);
+  FMainMemo.LineState := nil;
 
   FDebugEntriesCount := 0;
   FreeMem(FDebugEntries);
@@ -3091,7 +3136,7 @@ begin
 
   { Clear all dots and reset breakpoint icons (unless exiting; no point) }
   if HadDebugInfo and not(csDestroying in ComponentState) then
-    UpdateAllLineMarkers;
+    UpdateAllMainMemoLineMarkers;
 end;
 
 procedure TCompileForm.ParseDebugInfo(DebugInfo: Pointer);
@@ -3110,9 +3155,9 @@ begin
 
   try
     I := FMainMemo.Lines.Count;
-    FLineState := AllocMem(SizeOf(TLineState) * (I + LineStateGrowAmount));
-    FLineStateCapacity := I + LineStateGrowAmount;
-    FLineStateCount := I;
+    FMainMemo.LineState := AllocMem(SizeOf(TLineState) * (I + LineStateGrowAmount));
+    FMainMemo.LineStateCapacity := I + LineStateGrowAmount;
+    FMainMemo.LineStateCount := I;
 
     Inc(Cardinal(DebugInfo), SizeOf(Header^));
 
@@ -3137,27 +3182,27 @@ begin
 
     for I := 0 to FDebugEntriesCount-1 do begin
       if (FDebugEntries[I].LineNumber >= 0) and
-         (FDebugEntries[I].LineNumber < FLineStateCount) then begin
-        if FLineState[FDebugEntries[I].LineNumber] = lnUnknown then
-          FLineState[FDebugEntries[I].LineNumber] := lnHasEntry;
+         (FDebugEntries[I].LineNumber < FMainMemo.LineStateCount) then begin
+        if FMainMemo.LineState[FDebugEntries[I].LineNumber] = lnUnknown then
+          FMainMemo.LineState[FDebugEntries[I].LineNumber] := lnHasEntry;
       end;
     end;
-    UpdateAllLineMarkers;
+    UpdateAllMainMemoLineMarkers;
   except
     DestroyDebugInfo;
     raise;
   end;
 end;
 
-procedure TCompileForm.ResetLineState;
+procedure TCompileForm.ResetMainMemoLineState;
 { Changes green dots back to grey dots }
 var
   I: Integer;
 begin
-  for I := 0 to FLineStateCount-1 do
-    if FLineState[I] = lnEntryProcessed then begin
-      FLineState[I] := lnHasEntry;
-      UpdateLineMarkers(I);
+  for I := 0 to FMainMemo.LineStateCount-1 do
+    if FMainMemo.LineState[I] = lnEntryProcessed then begin
+      FMainMemo.LineState[I] := lnHasEntry;
+      UpdateMainMemoLineMarkers(I);
     end;
 end;
 
@@ -3228,8 +3273,8 @@ begin
   FProcessHandle := 0;
   FTempDir := '';
   CheckIfRunningTimer.Enabled := False;
-  HideError;
-  SetStepLine(-1);
+  HideMainMemoError;
+  SetMainMemoStepLine(-1);
   UpdateRunMenu;
   UpdateCaption;
   DebugLogMessage('*** ' + ExitCodeText);
@@ -3269,7 +3314,7 @@ begin
   RunButton.Enabled := RRun.Enabled;
   RPause.Enabled := FDebugging and not FPaused;
   PauseButton.Enabled := RPause.Enabled;
-  RRunToCursor.Enabled := RRun.Enabled;
+  RRunToCursor.Enabled := (FActiveMemo = FMainMemo) and RRun.Enabled;
   RStepInto.Enabled := RRun.Enabled;
   RStepOver.Enabled := RRun.Enabled;
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
@@ -3384,7 +3429,7 @@ begin
   end;
   RunParameters := Format('/DEBUGWND=$%x ', [Handle]) + FRunParameters;
 
-  ResetLineState;
+  ResetMainMemoLineState;
   DebugOutputList.Clear;
   SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
   DebugCallStackList.Clear;
@@ -3486,8 +3531,8 @@ procedure TCompileForm.Go(AStepMode: TStepMode);
 begin
   CompileIfNecessary;
   FStepMode := AStepMode;
-  HideError;
-  SetStepLine(-1);
+  HideMainMemoError;
+  SetMainMemoStepLine(-1);
   if FDebugging then begin
     if FPaused then begin
       FPaused := False;
@@ -3958,26 +4003,26 @@ begin
   end;
 end;
 
-procedure TCompileForm.ToggleBreakPoint(Line: Integer);
+{ok}procedure TCompileForm.MainMemoToggleBreakPoint(Line: Integer);
 var
   I: Integer;
 begin
-  I := FBreakPoints.IndexOf(Pointer(Line));
+  I := FMainMemo.BreakPoints.IndexOf(Pointer(Line));
   if I = -1 then
-    FBreakPoints.Add(Pointer(Line))
+    FMainMemo.BreakPoints.Add(Pointer(Line))
   else
-    FBreakPoints.Delete(I);
-  UpdateLineMarkers(Line);
+    FMainMemo.BreakPoints.Delete(I);
+  UpdateMainMemoLineMarkers(Line);
 end;
 
-procedure TCompileForm.MemoMarginClick(Sender: TObject; MarginNumber: Integer;
+{ok}procedure TCompileForm.MainMemoMarginClick(Sender: TObject; MarginNumber: Integer;
   Line: Integer);
 begin
   if MarginNumber = 1 then
-    ToggleBreakPoint(Line);
+    MainMemoToggleBreakPoint(Line);
 end;
 
-procedure TCompileForm.MemoLinesInserted(FirstLine, Count: integer);
+{ok}procedure TCompileForm.MainMemoLinesInserted(FirstLine, Count: integer);
 var
   I, Line: Integer;
 begin
@@ -3985,36 +4030,36 @@ begin
     if FDebugEntries[I].LineNumber >= FirstLine then
       Inc(FDebugEntries[I].LineNumber, Count);
 
-  if Assigned(FLineState) and (FirstLine < FLineStateCount) then begin
+  if Assigned(FMainMemo.LineState) and (FirstLine < FMainMemo.LineStateCount) then begin
     { Grow FStateLine if necessary }
-    I := (FLineStateCount + Count) - FLineStateCapacity;
+    I := (FMainMemo.LineStateCount + Count) - FMainMemo.LineStateCapacity;
     if I > 0 then begin
       if I < LineStateGrowAmount then
         I := LineStateGrowAmount;
-      ReallocMem(FLineState, SizeOf(TLineState) * (FLineStateCapacity + I));
-      Inc(FLineStateCapacity, I);
+      ReallocMem(FMainMemo.LineState, SizeOf(TLineState) * (FMainMemo.LineStateCapacity + I));
+      Inc(FMainMemo.LineStateCapacity, I);
     end;
     { Shift existing line states and clear the new ones }
-    for I := FLineStateCount-1 downto FirstLine do
-      FLineState[I + Count] := FLineState[I];
+    for I := FMainMemo.LineStateCount-1 downto FirstLine do
+      FMainMemo.LineState[I + Count] := FMainMemo.LineState[I];
     for I := FirstLine to FirstLine + Count - 1 do
-      FLineState[I] := lnUnknown;
-    Inc(FLineStateCount, Count);
+      FMainMemo.LineState[I] := lnUnknown;
+    Inc(FMainMemo.LineStateCount, Count);
   end;
 
-  if FStepLine >= FirstLine then
-    Inc(FStepLine, Count);
-  if FErrorLine >= FirstLine then
-    Inc(FErrorLine, Count);
+  if FMainMemo.StepLine >= FirstLine then
+    Inc(FMainMemo.StepLine, Count);
+  if FMainMemo.ErrorLine >= FirstLine then
+    Inc(FMainMemo.ErrorLine, Count);
 
-  for I := 0 to FBreakPoints.Count-1 do begin
-    Line := Integer(FBreakPoints[I]);
+  for I := 0 to FMainMemo.BreakPoints.Count-1 do begin
+    Line := Integer(FMainMemo.BreakPoints[I]);
     if Line >= FirstLine then
-      FBreakPoints[I] := Pointer(Line + Count);
+      FMainMemo.BreakPoints[I] := Pointer(Line + Count);
   end;
 end;
 
-procedure TCompileForm.MemoLinesDeleted(FirstLine, Count,
+{ok}procedure TCompileForm.MainMemoLinesDeleted(FirstLine, Count,
   FirstAffectedLine: Integer);
 var
   I, Line: Integer;
@@ -4030,42 +4075,42 @@ begin
     end;
   end;
 
-  if Assigned(FLineState) then begin
+  if Assigned(FMainMemo.LineState) then begin
     { Shift existing line states }
-    if FirstLine < FLineStateCount - Count then begin
-      for I := FirstLine to FLineStateCount - Count - 1 do
-        FLineState[I] := FLineState[I + Count];
-      Dec(FLineStateCount, Count);
+    if FirstLine < FMainMemo.LineStateCount - Count then begin
+      for I := FirstLine to FMainMemo.LineStateCount - Count - 1 do
+        FMainMemo.LineState[I] := FMainMemo.LineState[I + Count];
+      Dec(FMainMemo.LineStateCount, Count);
     end
     else begin
       { There's nothing to shift because the last line(s) were deleted, or
         line(s) past FLineStateCount }
-      if FLineStateCount > FirstLine then
-        FLineStateCount := FirstLine;
+      if FMainMemo.LineStateCount > FirstLine then
+        FMainMemo.LineStateCount := FirstLine;
     end;
   end;
 
-  if FStepLine >= FirstLine then begin
-    if FStepLine < FirstLine + Count then
-      FStepLine := -1
+  if FMainMemo.StepLine >= FirstLine then begin
+    if FMainMemo.StepLine < FirstLine + Count then
+      FMainMemo.StepLine := -1
     else
-      Dec(FStepLine, Count);
+      Dec(FMainMemo.StepLine, Count);
   end;
-  if FErrorLine >= FirstLine then begin
-    if FErrorLine < FirstLine + Count then
-      FErrorLine := -1
+  if FMainMemo.ErrorLine >= FirstLine then begin
+    if FMainMemo.ErrorLine < FirstLine + Count then
+      FMainMemo.ErrorLine := -1
     else
-      Dec(FErrorLine, Count);
+      Dec(FMainMemo.ErrorLine, Count);
   end;
 
-  for I := FBreakPoints.Count-1 downto 0 do begin
-    Line := Integer(FBreakPoints[I]);
+  for I := FMainMemo.BreakPoints.Count-1 downto 0 do begin
+    Line := Integer(FMainMemo.BreakPoints[I]);
     if Line >= FirstLine then begin
       if Line < FirstLine + Count then begin
-        FBreakPoints.Delete(I);
+        FMainMemo.BreakPoints.Delete(I);
       end else begin
         Line := Line - Count;
-        FBreakPoints[I] := Pointer(Line);
+        FMainMemo.BreakPoints[I] := Pointer(Line);
       end;
     end;
   end;
@@ -4076,10 +4121,10 @@ begin
     having two conflicting markers (or two of the same marker). There's no
     way to stop it from doing that, or to easily tell which markers came from
     which lines, so we simply delete and re-create all markers on the line. }
-  UpdateLineMarkers(FirstAffectedLine);
+  UpdateMainMemoLineMarkers(FirstAffectedLine);
 end;
 
-procedure TCompileForm.UpdateLineMarkers(const Line: Integer);
+{ok}procedure TCompileForm.UpdateMainMemoLineMarkers(const Line: Integer);
 var
   NewMarker: Integer;
 begin
@@ -4087,17 +4132,17 @@ begin
     Exit;
 
   NewMarker := -1;
-  if FBreakPoints.IndexOf(Pointer(Line)) <> -1 then begin
-    if FLineState = nil then
+  if FMainMemo.BreakPoints.IndexOf(Pointer(Line)) <> -1 then begin
+    if FMainMemo.LineState = nil then
       NewMarker := mmIconBreakpoint
-    else if (Line < FLineStateCount) and (FLineState[Line] <> lnUnknown) then
+    else if (Line < FMainMemo.LineStateCount) and (FMainMemo.LineState[Line] <> lnUnknown) then
       NewMarker := mmIconBreakpointGood
     else
       NewMarker := mmIconBreakpointBad;
   end
   else begin
-    if Line < FLineStateCount then begin
-      case FLineState[Line] of
+    if Line < FMainMemo.LineStateCount then begin
+      case FMainMemo.LineState[Line] of
         lnHasEntry: NewMarker := mmIconHasEntry;
         lnEntryProcessed: NewMarker := mmIconEntryProcessed;
       end;
@@ -4112,9 +4157,9 @@ begin
   if NewMarker <> -1 then
     FMainMemo.AddMarker(Line, NewMarker);
 
-  if FStepLine = Line then
+  if FMainMemo.StepLine = Line then
     FMainMemo.AddMarker(Line, mmLineStep)
-  else if FErrorLine = Line then
+  else if FMainMemo.ErrorLine = Line then
     FMainMemo.AddMarker(Line, mmLineError)
   else if NewMarker in [mmIconBreakpoint, mmIconBreakpointGood] then
     FMainMemo.AddMarker(Line, mmLineBreakpoint)
@@ -4122,12 +4167,12 @@ begin
     FMainMemo.AddMarker(Line, mmLineBreakpointBad);
 end;
 
-procedure TCompileForm.UpdateAllLineMarkers;
+{ok}procedure TCompileForm.UpdateAllMainMemoLineMarkers;
 var
   Line: Integer;
 begin
   for Line := 0 to FMainMemo.Lines.Count-1 do
-    UpdateLineMarkers(Line);
+    UpdateMainMemoLineMarkers(Line);
 end;
 
 procedure TCompileForm.UpdateBevel1;
@@ -4137,7 +4182,7 @@ end;
 
 procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);
 begin
-  ToggleBreakPoint(FMainMemo.CaretLine);
+  MainMemoToggleBreakPoint(FMainMemo.CaretLine);
 end;
 
 function TCompileForm.ToCurrentPPI(const XY: Integer): Integer;

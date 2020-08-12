@@ -331,9 +331,9 @@ object CompileForm: TCompileForm
         ShortCut = 16467
         OnClick = FSaveClick
       end
-      object FSaveAs: TMenuItem
+      object FSaveMainFileAs: TMenuItem
         Caption = 'Save &As...'
-        OnClick = FSaveAsClick
+        OnClick = FSaveClick
       end
       object FSaveEncoding: TMenuItem
         Caption = 'Save &Encoding'

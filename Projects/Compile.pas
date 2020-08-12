@@ -9134,12 +9134,24 @@ end;
 
 function ISCompileScript(const Params: TCompileScriptParamsEx;
   const PropagateExceptions: Boolean): Integer;
+
+  function GetIncludedFilenames(SetupCompiler: TSetupCompiler): String;
+  var
+    S: String;
+    I: Integer;
+  begin
+    S := '';
+    for I := 0 to SetupCompiler.PreprocIncludedFilenames.Count-1 do
+     S := S + SetupCompiler.PreprocIncludedFilenames[I] + #0;
+    Result := S;
+  end;
+
 var
   SetupCompiler: TSetupCompiler;
   P: PChar;
   Data: TCompilerCallbackData;
   S: String;
-  P2, I: Integer;
+  P2: Integer;
 begin
   if ((Params.Size <> SizeOf(Params)) and
       (Params.Size <> SizeOf(TCompileScriptParams))) or
@@ -9220,6 +9232,7 @@ begin
           pointer if the string is empty }
         Data.ErrorFilename := Pointer(SetupCompiler.ParseFilename);
         Data.ErrorLine := SetupCompiler.LineNumber;
+        Data.IncludedFilenamesSoFar := PChar(GetIncludedFilenames(SetupCompiler));
       end;
       Params.CallbackProc(iscbNotifyError, Data, Params.AppData);
       if PropagateExceptions then
@@ -9229,10 +9242,7 @@ begin
     Data.OutputExeFilename := PChar(SetupCompiler.ExeFilename);
     Data.DebugInfo := SetupCompiler.DebugInfo.Memory;
     Data.DebugInfoSize := SetupCompiler.DebugInfo.Size;
-    S := '';
-    for I := 0 to SetupCompiler.PreprocIncludedFilenames.Count-1 do
-     S := S + SetupCompiler.PreprocIncludedFilenames[I] + #0;
-    Data.IncludedFilenames := PChar(S);
+    Data.IncludedFilenames := PChar(GetIncludedFilenames(SetupCompiler));
     Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
   finally
     SetupCompiler.Free;

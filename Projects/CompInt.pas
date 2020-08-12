@@ -89,9 +89,10 @@ type
                                 was aborted by the application. }
         ErrorFilename: PChar; { [in] Filename in which the error occurred. This
                                 is NULL if the file is the main script. }
-        ErrorLine: Integer);  { [in] The line number the error occurred on.
+        ErrorLine: Integer;   { [in] The line number the error occurred on.
                                 Zero if the error doesn't apply to any
                                 particular line. }
+        IncludedFilenamesSoFar: PChar); { [in] See IncludedFilenames above (new in 6.1.0) }
   end;
 
   TCompilerCallbackProc = function(Code: Integer;

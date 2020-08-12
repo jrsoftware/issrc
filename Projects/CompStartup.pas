@@ -44,7 +44,7 @@ type
     procedure MailingListImageClick(Sender: TObject);
   private
     FResult: TStartupFormResult;
-    FResultFileName: TFileName;
+    FResultMainFileName: TFileName;
     procedure SetMRUFilesList(const MRUFilesList: TStringList);
     procedure UpdateImages;
   protected
@@ -53,7 +53,7 @@ type
   public
     property MRUFilesList: TStringList write SetMRUFilesList;
     property Result: TStartupFormResult read FResult;
-    property ResultFileName: TFileName read FResultFileName;
+    property ResultMainFileName: TFileName read FResultMainFileName;
   end;
 
 implementation
@@ -165,7 +165,7 @@ begin
       FResult := srOpenDialogExamples
     else if OpenListBox.ItemIndex > 1 then begin
       FResult := srOpenFile;
-      FResultFileName := OpenListBox.Items[OpenListBox.ItemIndex];
+      FResultMainFileName := OpenListBox.Items[OpenListBox.ItemIndex];
     end else
       FResult := srOpenDialog;
   end;
