@@ -295,7 +295,7 @@ object CompileForm: TCompileForm
       end
     end
   end
-  object IncludedFilesTabSet: TNewTabSet
+  object MemosTabSet: TNewTabSet
     Left = 0
     Top = 30
     Width = 361
@@ -305,7 +305,7 @@ object CompileForm: TCompileForm
     Tabs.Strings = (
       'Main Script')
     TabPosition = tpTop
-    OnClick = IncludedFilesTabSetClick
+    OnClick = MemosTabSetClick
   end
   object MainMenu1: TMainMenu
     Left = 8

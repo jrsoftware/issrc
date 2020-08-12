@@ -46,7 +46,7 @@ type
 implementation
 
 uses
-  Windows, Messages, CompForm, CmnFunc, Dialogs, SysUtils;
+  Windows, Messages, CmnFunc, CompFunc, Dialogs, SysUtils;
 
 {$R *.DFM}
 

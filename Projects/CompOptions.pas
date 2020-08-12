@@ -63,7 +63,7 @@ type
 implementation
 
 uses
-  CmnFunc, CmnFunc2, CompForm, CompFileAssoc;
+  CmnFunc, CmnFunc2, CompFunc, CompFileAssoc;
 
 {$R *.DFM}
 

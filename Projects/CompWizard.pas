@@ -180,8 +180,8 @@ implementation
 
 uses
   SysUtils, ShlObj, ActiveX, UITypes,
-  PathFunc, CmnFunc, CmnFunc2, VerInfo, BrowseFunc,
-  CompMsgs, CompWizardFile, CompForm;
+  PathFunc, CmnFunc, CmnFunc2, CompFunc, VerInfo, BrowseFunc,
+  CompMsgs, CompWizardFile;
 
 type
   TConstant = record

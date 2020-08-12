@@ -55,6 +55,7 @@
 			</DCCReference>
 			<DCCReference Include="CmnFunc.pas"/>
 			<DCCReference Include="CmnFunc2.pas"/>
+			<DCCReference Include="CompFunc.pas"/>
 			<DCCReference Include="CompMsgs.pas"/>
 			<DCCReference Include="CompInt.pas"/>
 			<DCCReference Include="CompOptions.pas">

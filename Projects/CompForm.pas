@@ -25,16 +25,13 @@ uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs,
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors, CompScintEdit,
-  DebugStruct, CompInt, UxTheme, ImageList, ImgList, ToolWin,
+  DebugStruct, CompInt, UxTheme, ImageList, ImgList, ToolWin, CompFunc,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
 const
   WM_StartCommandLineCompile = WM_USER + $1000;
   WM_StartCommandLineWizard = WM_USER + $1001;
   WM_StartNormally = WM_USER + $1002;
-
-  MRUListMaxCount = 10;
-  MaxMemos = 11; { Includes the main memo }
 
 type
   TLineState = (lnUnknown, lnHasEntry, lnEntryProcessed);
@@ -52,8 +49,6 @@ const
 
 type
   TStatusMessageKind = (smkStartEnd, smkNormal, smkWarning, smkError);
-
-  TMRUItemCompareProc = function(const S1, S2: String): Integer;
 
   TIncludedFile = class
     Filename: String;
@@ -190,7 +185,7 @@ type
     TInsertMsgBox: TMenuItem;
     ToolBarPanel: TPanel;
     HMailingList: TMenuItem;
-    IncludedFilesTabSet: TNewTabSet;
+    MemosTabSet: TNewTabSet;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -277,7 +272,7 @@ type
     procedure VDebugCallStackClick(Sender: TObject);
     procedure HMailingListClick(Sender: TObject);
     procedure TInsertMsgBoxClick(Sender: TObject);
-    procedure IncludedFilesTabSetClick(Sender: TObject);
+    procedure MemosTabSetClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>; { FMemos[0] is always the main memo }
@@ -333,7 +328,7 @@ type
     FProcessHandle, FDebugClientProcessHandle: THandle;
     FDebugTarget: TDebugTarget;
     FCompiledExe, FUninstExe, FTempDir: String;
-    FIncludedFiles: TIncludedFiles; { FIncludedFiles[0] is always ISPPBuiltins.iss }
+    FIncludedFiles: TIncludedFiles;
     FDebugging: Boolean;
     FStepMode: TStepMode;
     FPaused: Boolean;
@@ -393,8 +388,6 @@ type
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject);
-    procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
-      const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
     procedure MoveCaret(const LineNumber: Integer; const AlwaysResetColumn: Boolean);
@@ -403,16 +396,12 @@ type
     procedure OpenFile(AMemo: TCompScintEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
     procedure OpenMRUMainFile(const AFilename: String);
     procedure ParseDebugInfo(DebugInfo: Pointer);
-    class procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
     procedure ReadMRUMainFilesList;
     procedure ReadMRUParametersList;
     procedure ResetLineState;
     procedure StartProcess;
     function SaveFile(const SaveAs: Boolean): Boolean;
-    class procedure SaveTextToFile(const Filename: String; const S: String;
-      const ForceUTF8Encoding: Boolean);
     procedure SetErrorLine(ALine: Integer);
-    procedure SetLowPriority(ALowPriority: Boolean);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
@@ -471,17 +460,10 @@ var
   CommandLineCompile: Boolean;
   CommandLineWizard: Boolean;
 
-function GenerateGuid: String;
-function ISPPInstalled: Boolean;
-function ISCryptInstalled: Boolean;
-procedure InitFormFont(Form: TForm);
-procedure OpenDonateSite;
-procedure OpenMailingListSite;
-
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, CommDlg, Consts, Types,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -490,6 +472,10 @@ uses
 {$R *.DFM}
 
 const
+  { Memos }
+  MaxMemos = 11; { Includes the main memo }
+  FirstIncludedFilesMemoIndex = 1;
+
   { Status bar panel indexes }
   spCaretPos = 0;
   spModified = 1;
@@ -504,107 +490,6 @@ const
   tiDebugCallStack = 2;
 
   LineStateGrowAmount = 4000;
-
-function IncludedFileIndexToMemoIndex(const Index: Integer): Integer;
-begin
-  { FMemos[0] is the main memo and FIncludedFiles[0] is ISPPBuiltins.iss
-    so both start at 1 for included files. }
-  Result := Index;
-end;
-
-procedure InitFormFont(Form: TForm);
-var
-  FontName: String;
-  Metrics: TNonClientMetrics;
-begin
-  begin
-    Metrics.cbSize := SizeOf(Metrics);
-    if SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SizeOf(Metrics),
-       @Metrics, 0) then
-      FontName := Metrics.lfMessageFont.lfFaceName;
-    { Only allow fonts that we know will fit the text correctly }
-    if not SameText(FontName, 'Microsoft Sans Serif') and
-       not SameText(FontName, 'Segoe UI') then
-      FontName := 'Tahoma';
-  end;
-  Form.Font.Name := FontName;
-  Form.Font.Size := 8;
-end;
-
-function GetDisplayFilename(const Filename: String): String;
-var
-  Buf: array[0..MAX_PATH-1] of Char;
-begin
-  if GetFileTitle(PChar(Filename), Buf, SizeOf(Buf)) = 0 then
-    Result := Buf
-  else
-    Result := Filename;
-end;
-
-function GetLastWriteTimeOfFile(const Filename: String;
-  LastWriteTime: PFileTime): Boolean;
-var
-  H: THandle;
-begin
-  H := CreateFile(PChar(Filename), 0, FILE_SHARE_READ or FILE_SHARE_WRITE,
-    nil, OPEN_EXISTING, 0, 0);
-  if H <> INVALID_HANDLE_VALUE then begin
-    Result := GetFileTime(H, nil, nil, LastWriteTime);
-    CloseHandle(H);
-  end
-  else
-    Result := False;
-end;
-
-procedure AddFileToRecentDocs(const Filename: String);
-{ Notifies the shell that a document has been opened. On Windows 7, this will
-  add the file to the Recent section of the app's Jump List.
-  It is only necessary to call this function when the shell is unaware that
-  a file is being opened. Files opened through Explorer or common dialogs get
-  added to the Jump List automatically. }
-begin
-  SHAddToRecentDocs(SHARD_PATHW, PChar(Filename));
-end;
-
-function GenerateGuid: String;
-var
-  Guid: TGUID;
-  P: PWideChar;
-begin
-  if CoCreateGuid(Guid) <> S_OK then
-    raise Exception.Create('CoCreateGuid failed');
-  if StringFromCLSID(Guid, P) <> S_OK then
-    raise Exception.Create('StringFromCLSID failed');
-  try
-    Result := P;
-  finally
-    CoTaskMemFree(P);
-  end;
-end;
-
-function ISPPInstalled: Boolean;
-begin
-  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
-end;
-
-function ISCryptInstalled: Boolean;
-begin
-  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
-end;
-
-function GetDefaultThemeType: TThemeType;
-var
-  K: HKEY;
-  Size, AppsUseLightTheme: DWORD;
-begin
-  Result := ttModernLight;
-  if (Win32MajorVersion >= 10) and (RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS) then begin
-    Size := SizeOf(AppsUseLightTheme);
-    if (RegQueryValueEx(K, 'AppsUseLightTheme', nil, nil, @AppsUseLightTheme, @Size) = ERROR_SUCCESS) and (AppsUseLightTheme = 0) then
-      Result := ttModernDark;
-    RegCloseKey(K);
-  end;
-end;
 
 { TCompileFormMemoPopupMenu }
 
@@ -742,17 +627,6 @@ end;
       Ini.Free;
     end;
     FOptionsLoaded := True;
-  end;
-
-  procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
-  begin
-    MenuItem.Caption := MenuItem.Caption + #9 + S;
-  end;
-
-  procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
-    const Shift: TShiftState);
-  begin
-    SetFakeShortCutText(MenuItem, ShortCutToText(ShortCut(Key, Shift)));
   end;
 
 var
@@ -1031,9 +905,11 @@ end;
 {ok}procedure TCompileForm.UpdateNewMainFileButtons;
 begin
   if FOptions.UseWizard then begin
+    FNewMainFile.Caption := '&New...';
     FNewMainFile.OnClick := FNewMainFileUserWizardClick;
     NewMainFileButton.OnClick := FNewMainFileUserWizardClick;
   end else begin
+    FNewMainFile.Caption := '&New';
     FNewMainFile.OnClick := FNewMainFileClick;
     NewMainFileButton.OnClick := FNewMainFileClick;
   end;
@@ -1151,31 +1027,6 @@ begin
   end;
 end;
 
-class procedure TCompileForm.SaveTextToFile(const Filename: String;
-  const S: String; const ForceUTF8Encoding: Boolean);
-var
-  AnsiMode: Boolean;
-  AnsiStr: AnsiString;
-  F: TTextFileWriter;
-begin
-  AnsiMode := False;
-  if not ForceUTF8Encoding then begin
-    AnsiStr := AnsiString(S);
-    if S = String(AnsiStr) then
-      AnsiMode := True;
-  end;
-
-  F := TTextFileWriter.Create(Filename, fdCreateAlways, faWrite, fsNone);
-  try
-    if AnsiMode then
-      F.WriteAnsi(AnsiStr)
-    else
-      F.Write(S);
-  finally
-    F.Free;
-  end;
-end;
-
 function TCompileForm.SaveFile(const SaveAs: Boolean): Boolean;
 
   procedure SaveTo(const FN: String);
@@ -1272,63 +1123,26 @@ begin
   end;
 end;
 
-class procedure TCompileForm.ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
-{ Loads a list of MRU items from the registry }
-var
-  Ini: TConfigIniFile;
-  I: Integer;
-  S: String;
+{ok}procedure TCompileForm.ReadMRUMainFilesList;
 begin
   try
-    Ini := TConfigIniFile.Create;
-    try
-      MRUList.Clear;
-      for I := 0 to MRUListMaxCount-1 do begin
-        S := Ini.ReadString(Section, Ident + IntToStr(I), '');
-        if S <> '' then MRUList.Add(S);
-      end;
-    finally
-      Ini.Free;
-    end;
+    ReadMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History');
   except
     { Ignore any exceptions. }
   end;
 end;
 
-procedure TCompileForm.ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
-  const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
-var
-  I: Integer;
-  Ini: TConfigIniFile;
-  S: String;
+{ok}procedure TCompileForm.ModifyMRUMainFilesList(const AFilename: String;
+  const AddNewItem: Boolean);
 begin
+  { Load most recent items first, just in case they've changed }
   try
-    I := 0;
-    while I < MRUList.Count do begin
-      if CompareProc(MRUList[I], AItem) = 0 then
-        MRUList.Delete(I)
-      else
-        Inc(I);
-    end;
-    if AddNewItem then
-      MRUList.Insert(0, AItem);
-    while MRUList.Count > MRUListMaxCount do
-      MRUList.Delete(MRUList.Count-1);
-
-    { Save new MRU items }
-    Ini := TConfigIniFile.Create;
-    try
-      { MRU list }
-      for I := 0 to MRUListMaxCount-1 do begin
-        if I < MRUList.Count then
-          S := MRUList[I]
-        else
-          S := '';
-        Ini.WriteString(Section, Ident + IntToStr(I), S);
-      end;
-    finally
-      Ini.Free;
-    end;
+    ReadMRUMainFilesList;
+  except
+    { Ignore any exceptions. }
+  end;
+  try
+    ModifyMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History', AFileName, AddNewItem, @PathCompare);
   except
     { Handle exceptions locally; failure to save the MRU list should not be
       a fatal error. }
@@ -1336,121 +1150,31 @@ begin
   end;
 end;
 
-{ok}procedure TCompileForm.ReadMRUMainFilesList;
-begin
-  ReadMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History');
-end;
-
-{ok}procedure TCompileForm.ModifyMRUMainFilesList(const AFilename: String;
-  const AddNewItem: Boolean);
-begin
-  { Load most recent items first, just in case they've changed }
-  ReadMRUMainFilesList;
-  ModifyMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History', AFileName, AddNewItem, @PathCompare);
-end;
-
 {ok}procedure TCompileForm.ReadMRUParametersList;
 begin
-  ReadMRUList(FMRUParametersList, 'ParameterHistory', 'History');
+  try
+    ReadMRUList(FMRUParametersList, 'ParameterHistory', 'History');
+  except
+    { Ignore any exceptions. }
+  end;
 end;
 
 {ok}procedure TCompileForm.ModifyMRUParametersList(const AParameter: String;
   const AddNewItem: Boolean);
 begin
   { Load most recent items first, just in case they've changed }
-  ReadMRUParametersList;
-  ModifyMRUList(FMRUParametersList, 'ParameterHistory', 'History', AParameter, AddNewItem, @CompareText);
-end;
-
-type
-  TAddLinesPrefix = (alpNone, alpTimestamp, alpCountdown);
-
-procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Cardinal);
-var
-  ST: TSystemTime;
-  LineNumber: Cardinal;
-
-  procedure AddLine(S: String);
-  var
-    TimestampPrefixTab: Boolean;
-    DC: HDC;
-    Size: TSize;
-  begin
-    TimestampPrefixTab := False;
-    case Prefix of
-      alpTimestamp:
-        begin
-          if LineNumber = 0 then begin
-            { Don't forget about ListBox's DrawItem if you change the format of the following timestamp. }
-            Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
-              ST.wMinute, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, ST.wSecond, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator,
-              ST.wMilliseconds]), S, 1);
-          end else begin
-            Insert(#9, S, 1); { Not actually painted - just for Ctrl+C }
-            TimestampPrefixTab := True;
-          end;
-        end;
-      alpCountdown:
-        begin
-          Insert(Format('[%.2d]   ', [PrefixParam-LineNumber]), S, 1);
-        end;
-    end;
-    try
-      ListBox.TopIndex := ListBox.Items.AddObject(S, AObject);
-    except
-      on EOutOfResources do begin
-        ListBox.Clear;
-        SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-        ListBox.Items.Add(SCompilerStatusReset);
-        ListBox.TopIndex := ListBox.Items.Add(S);
-      end;
-    end;
-    DC := GetDC(0);
-    try
-      SelectObject(DC, ListBox.Font.Handle);
-      if TimestampPrefixTab then
-        GetTextExtentPoint(DC, PChar(S)+1, Length(S)-1, Size)
-      else
-        GetTextExtentPoint(DC, PChar(S), Length(S), Size);
-    finally
-      ReleaseDC(0, DC);
-    end;
-    Inc(Size.cx, 5);
-    if TimestampPrefixTab then
-      Inc(Size.cx, PrefixParam);
-    if Size.cx > SendMessage(ListBox.Handle, LB_GETHORIZONTALEXTENT, 0, 0) then
-      SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, Size.cx, 0);
-    Inc(LineNumber);
+  try
+    ReadMRUParametersList;
+  except
+    { Ignore any exceptions. }
   end;
-
-var
-  LineStart, I: Integer;
-  LastWasCR: Boolean;
-begin
-  GetLocalTime(ST);
-  if LineBreaks then begin
-    LineNumber := 0;
-    LineStart := 1;
-    LastWasCR := False;
-    { Call AddLine for each line. CR, LF, and CRLF line breaks are supported. }
-    for I := 1 to Length(S) do begin
-      if S[I] = #13 then begin
-        AddLine(Copy(S, LineStart, I - LineStart));
-        LineStart := I + 1;
-        LastWasCR := True;
-      end
-      else begin
-        if S[I] = #10 then begin
-          if not LastWasCR then
-            AddLine(Copy(S, LineStart, I - LineStart));
-          LineStart := I + 1;
-        end;
-        LastWasCR := False;
-      end;
-    end;
-    AddLine(Copy(S, LineStart, Maxint));
-  end else
-    AddLine(S);
+  try
+    ModifyMRUList(FMRUParametersList, 'ParameterHistory', 'History', AParameter, AddNewItem, @CompareText);
+  except
+    { Handle exceptions locally; failure to save the MRU list should not be
+      a fatal error. }
+    Application.HandleException(Self);
+  end;
 end;
 
 procedure TCompileForm.StatusMessage(const Kind: TStatusMessageKind; const S: String);
@@ -1499,11 +1223,13 @@ type
     if P = nil then
       Exit;
     while P^ <> #0 do begin
-      IncludedFile := TIncludedFile.Create;
-      IncludedFile.Filename := P;
-      IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
-        @IncludedFile.LastWriteTime);
-      IncludedFiles.Add(IncludedFile);
+      if not IsISPPBuiltins(P) then begin
+        IncludedFile := TIncludedFile.Create;
+        IncludedFile.Filename := P;
+        IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
+          @IncludedFile.LastWriteTime);
+        IncludedFiles.Add(IncludedFile);
+      end;
       Inc(P, StrLen(P) + 1);
     end;
   end;
@@ -1702,7 +1428,7 @@ begin
     FCompileWantAbort := False;
     UpdateRunMenu;
     UpdateCaption;
-    SetLowPriority(FOptions.LowPriorityDuringCompile);
+    SetLowPriority(FOptions.LowPriorityDuringCompile, FSavePriorityClass);
     {$IFNDEF STATICCOMPILER}
     if ISDllCompileScript(Params) <> isceNoError then begin
     {$ELSE}
@@ -1735,7 +1461,7 @@ begin
   finally
     AppData.Lines.Free;
     FCompiling := False;
-    SetLowPriority(False);
+    SetLowPriority(False, FSavePriorityClass);
     FMainMemo.Cursor := crDefault;
     FMainMemo.SetCursorID(SC_CURSORNORMAL);
     CompilerOutputList.Cursor := crDefault;
@@ -1752,23 +1478,6 @@ begin
   FCompiledExe := AppData.OutputExe;
   FModifiedSinceLastCompile := False;
   FModifiedSinceLastCompileAndGo := False;
-end;
-
-procedure TCompileForm.SetLowPriority(ALowPriority: Boolean);
-begin
-  if ALowPriority then begin
-    { Save current priority and change to 'low' }
-    if FSavePriorityClass = 0 then
-      FSavePriorityClass := GetPriorityClass(GetCurrentProcess);
-    SetPriorityClass(GetCurrentProcess, IDLE_PRIORITY_CLASS);
-  end
-  else begin
-    { Restore original priority }
-    if FSavePriorityClass <> 0 then begin
-      SetPriorityClass(GetCurrentProcess, FSavePriorityClass);
-      FSavePriorityClass := 0;
-    end;
-  end;
 end;
 
 function TranslateCharsetInfo(lpSrc: PDWORD; var lpCs: TCharsetInfo;
@@ -2106,7 +1815,7 @@ begin
   FOptions.LowPriorityDuringCompile := not FOptions.LowPriorityDuringCompile;
   { If a compile is already in progress, change the priority now }
   if FCompiling then
-    SetLowPriority(FOptions.LowPriorityDuringCompile);
+    SetLowPriority(FOptions.LowPriorityDuringCompile, FSavePriorityClass);
 end;
 
 procedure TCompileForm.BOpenOutputFolderClick(Sender: TObject);
@@ -2122,11 +1831,6 @@ procedure TCompileForm.HMenuClick(Sender: TObject);
 begin
   HISPPDoc.Visible := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ispp.chm');
   HISPPSep.Visible := HISPPDoc.Visible;
-end;
-
-function GetHelpFile: String;
-begin
-  Result := PathExtractPath(NewParamStr(0)) + 'isetup.chm';
 end;
 
 procedure TCompileForm.HDocClick(Sender: TObject);
@@ -2196,12 +1900,6 @@ begin
     nil, SW_SHOW);
 end;
 
-procedure OpenMailingListSite;
-begin
-  ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/ismail.php', nil,
-    nil, SW_SHOW);
-end;
-
 procedure TCompileForm.HMailingListClick(Sender: TObject);
 begin
   OpenMailingListSite;
@@ -2217,12 +1915,6 @@ procedure TCompileForm.HISPPDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
     HtmlHelp(GetDesktopWindow, PChar(GetHelpFile + '::/hh_isppredirect.xhtm'), HH_DISPLAY_TOPIC, 0);
-end;
-
-procedure OpenDonateSite;
-begin
-  ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/isdonate.php', nil,
-    nil, SW_SHOW);
 end;
 
 procedure TCompileForm.HDonateClick(Sender: TObject);
@@ -2337,14 +2029,14 @@ begin
     OpenFile(FMainMemo, CommandLineFilename, False);
 end;
 
-procedure TCompileForm.IncludedFilesTabSetClick(Sender: TObject);
+procedure TCompileForm.MemosTabSetClick(Sender: TObject);
 var
   Memo: TCompScintEdit;
   I: Integer;
 begin
-  for I := 0 to IncludedFilesTabSet.Tabs.Count-1 do begin
-    Memo := FMemos[IncludedFileIndexToMemoIndex(I)];
-    Memo.Visible := (I = IncludedFilesTabSet.TabIndex);
+  for I := 0 to MemosTabSet.Tabs.Count-1 do begin
+    Memo := FMemos[I];
+    Memo.Visible := (I = MemosTabSet.TabIndex);
     if Memo.Visible then begin
       FActiveMemo := Memo;
       ActiveControl := Memo;
@@ -2377,15 +2069,6 @@ begin
     EFindClick(Sender)
   else
     FindNext;
-end;
-
-function FindOptionsToSearchOptions(const FindOptions: TFindOptions): TScintFindOptions;
-begin
-  Result := [];
-  if frMatchCase in FindOptions then
-    Include(Result, sfoMatchCase);
-  if frWholeWord in FindOptions then
-    Include(Result, sfoWholeWord);
 end;
 
 procedure TCompileForm.FindNext;
@@ -2503,42 +2186,8 @@ begin
 end;
 
 procedure TCompileForm.TAddRemoveProgramsClick(Sender: TObject);
-var
-  Dir: String;
-  Wow64DisableWow64FsRedirectionFunc: function(var OldValue: Pointer): BOOL; stdcall;
-  Wow64RevertWow64FsRedirectionFunc: function(OldValue: Pointer): BOOL; stdcall;
-  RedirDisabled: Boolean;
-  RedirOldValue: Pointer;
-  StartupInfo: TStartupInfo;
-  ProcessInfo: TProcessInformation;
 begin
-  if Win32Platform = VER_PLATFORM_WIN32_NT then
-    Dir := GetSystemDir
-  else
-    Dir := GetWinDir;
-
-  FillChar(StartupInfo, SizeOf(StartupInfo), 0);
-  StartupInfo.cb := SizeOf(StartupInfo);
-  { Have to disable file system redirection because the 32-bit version of
-    appwiz.cpl is buggy on XP x64 RC2 -- it doesn't show any Change/Remove
-    buttons on 64-bit MSI entries, and it doesn't list non-MSI 64-bit apps
-    at all. }
-  Wow64DisableWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
-    'Wow64DisableWow64FsRedirection');
-  Wow64RevertWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
-    'Wow64RevertWow64FsRedirection');
-  RedirDisabled := Assigned(Wow64DisableWow64FsRedirectionFunc) and
-    Assigned(Wow64RevertWow64FsRedirectionFunc) and
-    Wow64DisableWow64FsRedirectionFunc(RedirOldValue);
-  try
-    Win32Check(CreateProcess(nil, PChar('"' + AddBackslash(Dir) + 'control.exe" appwiz.cpl'),
-       nil, nil, False, 0, nil, PChar(Dir), StartupInfo, ProcessInfo));
-  finally
-    if RedirDisabled then
-      Wow64RevertWow64FsRedirectionFunc(RedirOldValue);
-  end;
-  CloseHandle(ProcessInfo.hProcess);
-  CloseHandle(ProcessInfo.hThread);
+  StartAddRemovePrograms;
 end;
 
 procedure TCompileForm.TGenerateGUIDClick(Sender: TObject);
@@ -2761,42 +2410,43 @@ procedure TCompileForm.UpdateIncludedFiles;
 var
   NewTabs: TStringList;
   IncludedFile: TIncludedFile;
-  I: Integer;
+  I, NextMemoIndex: Integer;
   SaveTabName: String;
 begin
-  { Open included files if requested, except for ISPPBuiltins.iss which is always the first include }
-  if FOptions.OpenIncludedFiles and (FIncludedFiles.Count > 1) then begin
+  if FOptions.OpenIncludedFiles and (FIncludedFiles.Count > 0) then begin
     NewTabs := TStringList.Create;
     try
-      NewTabs.Add(IncludedFilesTabSet.Tabs[0]); { 'Main Script' }
-      for I := 1 to FIncludedFiles.Count-1 do begin
+      NewTabs.Add(MemosTabSet.Tabs[0]); { 'Main Script' }
+      NextMemoIndex := FirstIncludedFilesMemoIndex;
+      for I := 0 to FIncludedFiles.Count-1 do begin
         IncludedFile := FIncludedFiles[I];
         NewTabs.Add(PathExtractName(IncludedFile.Filename));
-        IncludedFile.Memo := FMemos[IncludedFileIndexToMemoIndex(I)];
+        IncludedFile.Memo := FMemos[NextMemoIndex];
         OpenFile(IncludedFile.Memo, IncludedFile.Filename, False);
-        if IncludedFileIndexToMemoIndex(I+1) = FMemos.Count then
+        Inc(NextMemoIndex);
+        if NextMemoIndex = FMemos.Count then
           Break; { We're out of memos :( }
       end;
       { Hide any remaining memos }
-      for I := IncludedFileIndexToMemoIndex(FIncludedFiles.Count) to FMemos.Count-1 do
+      for I := NextMemoIndex to FMemos.Count-1 do
         FMemos[I].Visible := False;
       { Set new tabs, try keep same file open }
-      SaveTabName := IncludedFilesTabSet.Tabs[IncludedFilesTabSet.TabIndex];
-      IncludedFilesTabSet.Tabs := NewTabs;
-      I := IncludedFilesTabSet.Tabs.IndexOf(SaveTabName);
+      SaveTabName := MemosTabSet.Tabs[MemosTabSet.TabIndex];
+      MemosTabSet.Tabs := NewTabs;
+      I := MemosTabSet.Tabs.IndexOf(SaveTabName);
       if I <> -1 then
-         IncludedFilesTabSet.TabIndex := I;
+         MemosTabSet.TabIndex := I;
     finally
       NewTabs.Free;
     end;
-    IncludedFilesTabSet.Visible := True;
+    MemosTabSet.Visible := True;
   end else begin
-    for I := 1 to FMemos.Count-1 do
+    for I := FirstIncludedFilesMemoIndex to FMemos.Count-1 do
       FMemos[I].Visible := False;
-    for I := 1 to FIncludedFiles.Count-1 do
+    for I := 0 to FIncludedFiles.Count-1 do
       FIncludedFiles[I].Memo := nil;
-    IncludedFilesTabSet.Visible := False;
-    IncludedFilesTabSet.TabIndex := 0; { For next time }
+    MemosTabSet.Visible := False;
+    MemosTabSet.TabIndex := 0; { For next time }
   end;
   
   UpdateBevel1;
@@ -3203,14 +2853,14 @@ begin
   end;
 end;
 
-procedure TCompileForm.MemoDropFiles(Sender: TObject; X, Y: Integer;
+{ok}procedure TCompileForm.MemoDropFiles(Sender: TObject; X, Y: Integer;
   AFiles: TStrings);
 begin
   if (AFiles.Count > 0) and ConfirmCloseFile(True) then
-    OpenFile(FMainMemo, AFiles[0], True);
+    OpenFile(FActiveMemo, AFiles[0], True);
 end;
 
-procedure TCompileForm.StatusBarResize(Sender: TObject);
+{ok}procedure TCompileForm.StatusBarResize(Sender: TObject);
 begin
   { Without this, on Windows XP with themes, the status bar's size grip gets
     corrupted as the form is resized }
@@ -3218,7 +2868,7 @@ begin
     InvalidateRect(StatusBar.Handle, nil, True);
 end;
 
-procedure TCompileForm.WMDebuggerQueryVersion(var Message: TMessage);
+{ok}procedure TCompileForm.WMDebuggerQueryVersion(var Message: TMessage);
 begin
   Message.Result := FCompilerVersion.BinVersion;
 end;
@@ -3249,7 +2899,7 @@ begin
   UpdateRunMenu;
 end;
 
-procedure TCompileForm.WMDebuggerGoodbye(var Message: TMessage);
+{ok}procedure TCompileForm.WMDebuggerGoodbye(var Message: TMessage);
 begin
   ReplyMessage(0);
   DebuggingStopped(True);
@@ -3669,10 +3319,10 @@ begin
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
   if FTheme.Dark then begin
-    IncludedFilesTabSet.Theme := FTheme;
+    MemosTabSet.Theme := FTheme;
     OutputTabSet.Theme := FTheme;
   end else begin
-    IncludedFilesTabSet.Theme := nil;
+    MemosTabSet.Theme := nil;
     OutputTabSet.Theme := nil;
   end;
   CompilerOutputList.Font.Color := FTheme.Colors[tcFore];
@@ -4482,7 +4132,7 @@ end;
 
 procedure TCompileForm.UpdateBevel1;
 begin
-  Bevel1.Visible := (FTheme.Colors[tcMarginBack] = ToolBarPanel.Color) and not IncludedFilesTabSet.Visible;
+  Bevel1.Visible := (FTheme.Colors[tcMarginBack] = ToolBarPanel.Color) and not MemosTabSet.Visible;
 end;
 
 procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);
@@ -4499,7 +4149,6 @@ function TCompileForm.FromCurrentPPI(const XY: Integer): Integer;
 begin
   Result := MulDiv(XY, 96, CurrentPPI);
 end;
-
 
 initialization
   InitThemeLibrary;

@@ -23,6 +23,7 @@ uses
   CompForm in 'CompForm.pas' {CompileForm},
   CmnFunc in 'CmnFunc.pas',
   CmnFunc2 in 'CmnFunc2.pas',
+  CompFunc in 'CompFunc.pas',
   CompMsgs in 'CompMsgs.pas',
   CompInt in 'CompInt.pas',
   CompOptions in 'CompOptions.pas' {OptionsForm},
