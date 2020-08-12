@@ -35,12 +35,13 @@ uses
   DebugStruct in 'DebugStruct.pas',
   BrowseFunc in 'BrowseFunc.pas',
   CompSignTools in 'CompSignTools.pas' {SignToolsForm},
-  CompInputQueryCombo in 'CompInputQueryCombo.pas' {InputQueryCombo},
+  CompInputQueryCombo in 'CompInputQueryCombo.pas',
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
   ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas',
   ModernColors in '..\Components\ModernColors.pas',
-  CompMessageBoxDesigner in 'CompMessageBoxDesigner.pas' {MBDForm};
+  CompMessageBoxDesigner in 'CompMessageBoxDesigner.pas' {MBDForm},
+  CompScintEdit in 'CompScintEdit.pas';
 
 {$R *.res}
 {$R Compil32.manifest.res}

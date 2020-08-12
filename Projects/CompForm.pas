@@ -24,7 +24,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs,
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
-  ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors,
+  ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors, CompScintEdit,
   DebugStruct, CompInt, UxTheme, ImageList, ImgList, ToolWin,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
@@ -51,8 +51,6 @@ const
   DebugTargetStrings: array[TDebugTarget] of String = ('Setup', 'Uninstall');
 
 type
-  TCompScintEdit = class;
-
   TStatusMessageKind = (smkStartEnd, smkNormal, smkWarning, smkError);
 
   TMRUItemCompareProc = function(const S1, S2: String): Integer;
@@ -282,13 +280,11 @@ type
     procedure IncludedFilesTabSetClick(Sender: TObject);
   private
     { Private declarations }
-    FMemos: TList<TCompScintEdit>; { Memos[0] is always the main memo }
+    FMemos: TList<TCompScintEdit>; { FMemos[0] is always the main memo }
     FMainMemo: TCompScintEdit;
     FActiveMemo: TCompScintEdit;
     FMemosStyler: TInnoSetupStyler;
     FCompilerVersion: PCompilerVersionInfo;
-    FMainFilename: String;         //fixme per memo
-    FFileLastWriteTime: TFileTime; //fixme per memo
     FMRUMainFilesMenuItems: array[0..MRUListMaxCount-1] of TMenuItem;
     FMRUMainFilesList: TStringList;
     FMRUParametersList: TStringList;
@@ -422,6 +418,7 @@ type
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
+    procedure SyncZoom;
     function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
     procedure UpdateAllLineMarkers;
@@ -468,18 +465,6 @@ type
 {$ENDIF}
   end;
 
-  TCompScintEdit = class(TScintEdit)
-  private
-    FTheme: TTheme;
-    FSaveInUTF8Encoding: Boolean;
-  protected
-    procedure CreateWnd; override;
-  public
-    property SaveInUTF8Encoding: Boolean read FSaveInUTF8Encoding write FSaveInUTF8Encoding;
-    property Theme: TTheme read FTheme write FTheme;
-    procedure UpdateThemeColors;
-  end;
-
 var
   CompileForm: TCompileForm;
   CommandLineFilename, CommandLineWizardName: String;
@@ -518,26 +503,12 @@ const
   tiDebugOutput = 1;
   tiDebugCallStack = 2;
 
-  { Memo marker numbers }
-  mmIconHasEntry = 0;        { grey dot }
-  mmIconEntryProcessed = 1;  { green dot }
-  mmIconBreakpoint = 2;      { stop sign }
-  mmIconBreakpointGood = 3;  { stop sign + check }
-  mmIconBreakpointBad = 4;   { stop sign + X }
-  mmLineError = 10;          { red line highlight }
-  mmLineBreakpoint = 11;     { red line highlight }
-  mmLineBreakpointBad = 12;  { ugly olive line highlight }
-  mmLineStep = 13;           { blue line highlight }
-
-  { Memo indicator numbers (also in ScintStylerInnoSetup) }
-  inSquiggly = 0;
-  inPendingSquiggly = 1;
-
   LineStateGrowAmount = 4000;
 
 function IncludedFileIndexToMemoIndex(const Index: Integer): Integer;
 begin
-  { Memo[0] is the main memo and IncludedFiles[0] is ISPPBuiltins.iss so there's a direct match }
+  { FMemos[0] is the main memo and FIncludedFiles[0] is ISPPBuiltins.iss
+    so both start at 1 for included files. }
   Result := Index;
 end;
 
@@ -571,14 +542,14 @@ begin
 end;
 
 function GetLastWriteTimeOfFile(const Filename: String;
-  var LastWriteTime: TFileTime): Boolean;
+  LastWriteTime: PFileTime): Boolean;
 var
   H: THandle;
 begin
   H := CreateFile(PChar(Filename), 0, FILE_SHARE_READ or FILE_SHARE_WRITE,
     nil, OPEN_EXISTING, 0, 0);
   if H <> INVALID_HANDLE_VALUE then begin
-    Result := GetFileTime(H, nil, nil, @LastWriteTime);
+    Result := GetFileTime(H, nil, nil, LastWriteTime);
     CloseHandle(H);
   end
   else
@@ -632,135 +603,6 @@ begin
     if (RegQueryValueEx(K, 'AppsUseLightTheme', nil, nil, @AppsUseLightTheme, @Size) = ERROR_SUCCESS) and (AppsUseLightTheme = 0) then
       Result := ttModernDark;
     RegCloseKey(K);
-  end;
-end;
-
-{ TCompScintEdit }
-
-procedure TCompScintEdit.CreateWnd;
-const
-  PixmapHasEntry: array[0..8] of PAnsiChar = (
-    '5 5 2 1',
-    'o c #808080',
-    '. c #c0c0c0',
-    'ooooo',
-    'o...o',
-    'o...o',
-    'o...o',
-    'ooooo',
-    nil);
-  PixmapEntryProcessed: array[0..8] of PAnsiChar = (
-    '5 5 2 1',
-    'o c #008000',
-    '. c #00ff00',
-    'ooooo',
-    'o...o',
-    'o...o',
-    'o...o',
-    'ooooo',
-    nil);
-  PixmapBreakpoint: array[0..14] of PAnsiChar = (
-    '9 10 3 1',
-    '= c none',
-    'o c #000000',
-    '. c #ff0000',
-    '=========',
-    '==ooooo==',
-    '=o.....o=',
-    'o.......o',
-    'o.......o',
-    'o.......o',
-    'o.......o',
-    'o.......o',
-    '=o.....o=',
-    '==ooooo==',
-    nil);
-  PixmapBreakpointGood: array[0..15] of PAnsiChar = (
-    '9 10 4 1',
-    '= c none',
-    'o c #000000',
-    '. c #ff0000',
-    '* c #00ff00',
-    '======oo=',
-    '==oooo**o',
-    '=o....*o=',
-    'o....**.o',
-    'o....*..o',
-    'o...**..o',
-    'o**.*...o',
-    'o.***...o',
-    '=o.*...o=',
-    '==ooooo==',
-    nil);
-  PixmapBreakpointBad: array[0..15] of PAnsiChar = (
-    '9 10 4 1',
-    '= c none',
-    'o c #000000',
-    '. c #ff0000',
-    '* c #ffff00',
-    '=========',
-    '==ooooo==',
-    '=o.....o=',
-    'o.*...*.o',
-    'o.**.**.o',
-    'o..***..o',
-    'o.**.**.o',
-    'o.*...*.o',
-    '=o.....o=',
-    '==ooooo==',
-    nil);
-const
-  SC_MARK_BACKFORE = 3030;  { new marker type added in Inno Setup's Scintilla build }
-begin
-  inherited;
-
-  Call(SCI_SETCARETWIDTH, 2, 0);
-  Call(SCI_AUTOCSETAUTOHIDE, 0, 0);
-  Call(SCI_AUTOCSETCANCELATSTART, 0, 0);
-  Call(SCI_AUTOCSETDROPRESTOFWORD, 1, 0);
-  Call(SCI_AUTOCSETIGNORECASE, 1, 0);
-  Call(SCI_AUTOCSETMAXHEIGHT, 7, 0);
-
-  Call(SCI_ASSIGNCMDKEY, Ord('Z') or ((SCMOD_SHIFT or SCMOD_CTRL) shl 16), SCI_REDO);
-
-  Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
-
-  Call(SCI_INDICSETSTYLE, inSquiggly, INDIC_SQUIGGLE);
-  Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColors }
-  Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
-
-  Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINWIDTHN, 1, 21);
-  Call(SCI_SETMARGINSENSITIVEN, 1, 1);
-  Call(SCI_SETMARGINCURSORN, 1, SC_CURSORARROW);
-  Call(SCI_SETMARGINLEFT, 0, 2);
-
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconHasEntry, LPARAM(@PixmapHasEntry));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconEntryProcessed, LPARAM(@PixmapEntryProcessed));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpoint, LPARAM(@PixmapBreakpoint));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpointGood, LPARAM(@PixmapBreakpointGood));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpointBad, LPARAM(@PixmapBreakpointBad));
-  Call(SCI_MARKERDEFINE, mmLineError, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mmLineError, clWhite);
-  Call(SCI_MARKERSETBACK, mmLineError, clMaroon);
-  Call(SCI_MARKERDEFINE, mmLineBreakpoint, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mmLineBreakpoint, clWhite);
-  Call(SCI_MARKERSETBACK, mmLineBreakpoint, clRed);
-  Call(SCI_MARKERDEFINE, mmLineBreakpointBad, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mmLineBreakpointBad, clLime);
-  Call(SCI_MARKERSETBACK, mmLineBreakpointBad, clOlive);
-  Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
-  Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
-end;
-
-procedure TCompScintEdit.UpdateThemeColors;
-begin
-  if FTheme <> nil then begin
-    Font.Color := FTheme.Colors[tcFore];
-    Color := FTheme.Colors[tcBack];
-    Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
-    Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
   end;
 end;
 
@@ -1163,13 +1005,13 @@ procedure TCompileForm.UpdateCaption;
 var
   NewCaption: String;
 begin
-  if FMainFilename = '' then
+  if FMainMemo.Filename = '' then
     NewCaption := 'Untitled'
   else begin
     if FOptions.FullPathInTitleBar then
-      NewCaption := FMainFilename
+      NewCaption := FMainMemo.Filename
     else
-      NewCaption := GetDisplayFilename(FMainFilename);
+      NewCaption := GetDisplayFilename(FMainMemo.Filename);
   end;
   NewCaption := NewCaption + ' - ' + SCompilerFormCaption + ' ' +
     String(FCompilerVersion.Version);
@@ -1208,7 +1050,7 @@ begin
   FBreakPoints.Clear;
   DestroyDebugInfo;
 
-  FMainFilename := '';
+  FMainMemo.Filename := '';
   UpdateCaption;
   FMainMemo.SaveInUTF8Encoding := False;
   FMainMemo.Lines.Clear;
@@ -1256,7 +1098,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.OpenFile(AMemo: TCompScintEdit; AFilename: String;
+{ok}procedure TCompileForm.OpenFile(AMemo: TCompScintEdit; AFilename: String;
   const MainMemoAddToRecentDocs: Boolean);
 
   function IsStreamUTF8Encoded(const Stream: TStream): Boolean;
@@ -1278,7 +1120,7 @@ begin
   try
     if AMemo = FMainMemo then
       NewMainFile;
-    GetFileTime(Stream.Handle, nil, nil, @FFileLastWriteTime);
+    GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
     AMemo.SaveInUTF8Encoding := IsStreamUTF8Encoded(Stream);
     Stream.Seek(0, soFromBeginning);
     AMemo.Lines.LoadFromStream(Stream);
@@ -1286,8 +1128,8 @@ begin
     Stream.Free;
   end;
   AMemo.ClearUndo;
+  AMemo.Filename := AFilename;
   if AMemo = FMainMemo then begin
-    FMainFilename := AFilename;
     UpdateCaption;
     ModifyMRUMainFilesList(AFilename, True);
     if MainMemoAddToRecentDocs then
@@ -1374,7 +1216,7 @@ function TCompileForm.SaveFile(const SaveAs: Boolean): Boolean;
     if not RenameFile(TempFN, FN) then
       raise Exception.CreateFmt('Error renaming temporary file (code %d). Could not save file',
         [GetLastError]);
-    GetLastWriteTimeOfFile(FN, FFileLastWriteTime);
+    GetLastWriteTimeOfFile(FN, @FMainMemo.FileLastWriteTime);
   end;
 
 var
@@ -1384,21 +1226,21 @@ begin
     raise Exception.Create('Internal error: SaveAs called but main memo isn''t active');
 
   Result := False;
-  if SaveAs or (FMainFilename = '') then begin
-    FN := FMainFilename;
+  if SaveAs or (FMainMemo.Filename = '') then begin
+    FN := FMainMemo.Filename;
     if not NewGetSaveFileName('', FN, '', SCompilerOpenFilter, 'iss', Handle) then Exit;
     FN := PathExpand(FN);
     SaveTo(FN);
-    FMainFilename := FN;
+    FMainMemo.Filename := FN;
     UpdateCaption;
   end
   else
-    SaveTo(FMainFilename);
+    SaveTo(FMainMemo.Filename);
   FMainMemo.SetSavePoint;
   if not FOptions.UndoAfterSave then
     FMainMemo.ClearUndo;
   Result := True;
-  ModifyMRUMainFilesList(FMainFilename, True);
+  ModifyMRUMainFilesList(FMainMemo.Filename, True);
 end;
 
 function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
@@ -1417,7 +1259,7 @@ begin
     Exit;
   end;
   if PromptToSave and FMainMemo.Modified then begin
-    FileTitle := FMainFilename;
+    FileTitle := FMainMemo.Filename;
     if FileTitle = '' then FileTitle := 'Untitled';
     case MsgBox('The text in the ' + FileTitle + ' file has changed.'#13#10#13#10 +
        'Do you want to save the changes?', SCompilerFormCaption, mbError,
@@ -1646,7 +1488,7 @@ type
     Aborted: Boolean;
   end;
 
-function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
+{ok}function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer; stdcall;
 
   procedure ParseIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles);
@@ -1660,7 +1502,7 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
       IncludedFile := TIncludedFile.Create;
       IncludedFile.Filename := P;
       IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
-        IncludedFile.LastWriteTime);
+        @IncludedFile.LastWriteTime);
       IncludedFiles.Add(IncludedFile);
       Inc(P, StrLen(P) + 1);
     end;
@@ -1791,7 +1633,7 @@ begin
   if not ReadFromFile then begin
     if FOptions.Autosave and FMainMemo.Modified then begin
       if not SaveFile(False) then Abort;
-    end else if FMainFilename = '' then begin
+    end else if FMainMemo.Filename = '' then begin
       case MsgBox('Would you like to save the script before compiling?' +
          SNewLine2 + 'If you answer No, the compiled installation will be ' +
          'placed under your My Documents folder by default.',
@@ -1802,7 +1644,7 @@ begin
         Abort;
       end;
     end;
-    AFilename := FMainFilename;
+    AFilename := FMainMemo.Filename;
   end;
 
   DestroyDebugInfo;
@@ -2021,7 +1863,7 @@ begin
     Filename := PathExtractPath(NewParamStr(0)) + 'Examples\Example1.iss';
   end
   else begin
-    InitialDir := PathExtractDir(FMainFilename);
+    InitialDir := PathExtractDir(FMainMemo.Filename);
     Filename := '';
   end;
   if ConfirmCloseFile(True) then
@@ -2140,10 +1982,22 @@ begin
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
 end;
 
+{ok}procedure TCompileForm.SyncZoom;
+var
+  Memo: TCompScintEdit;
+begin
+  { The zoom shortcuts are handled by Scintilla and may cause different zoom levels per memo. This
+    function sets the zoom of all memo's to the zoom of the active memo to make zoom in synch again. }
+  for Memo in FMemos do
+    if Memo <> FActiveMemo then
+      Memo.Zoom := FActiveMemo.Zoom;
+end;
+
 {ok}procedure TCompileForm.VZoomInClick(Sender: TObject);
 var
   Memo: TCompScintEdit;
 begin
+  SyncZoom;
   for Memo in FMemos do
     Memo.ZoomIn;
 end;
@@ -2152,6 +2006,7 @@ end;
 var
   Memo: TCompScintEdit;
 begin
+  SyncZoom;
   for Memo in FMemos do
     Memo.ZoomOut;
 end;
@@ -3950,7 +3805,7 @@ procedure TCompileForm.CompileIfNecessary;
     Result := False;
     for IncludedFile in FIncludedFiles do begin
       if (IncludedFile.Memo = nil) and IncludedFile.HasLastWriteTime and
-         GetLastWriteTimeOfFile(IncludedFile.Filename, NewTime) and
+         GetLastWriteTimeOfFile(IncludedFile.Filename, @NewTime) and
          (CompareFileTime(IncludedFile.LastWriteTime, NewTime) <> 0) then begin
         Result := True;
         Exit;
@@ -4337,14 +4192,14 @@ var
   NewTime: TFileTime;
   Changed: Boolean;
 begin
-  if FMainFilename = '' then
+  if FMainMemo.Filename = '' then
     Exit;
 
   { See if the file has been modified outside the editor }
   Changed := False;
-  if GetLastWriteTimeOfFile(FMainFilename, NewTime) then begin
-    if CompareFileTime(FFileLastWriteTime, NewTime) <> 0 then begin
-      FFileLastWriteTime := NewTime;
+  if GetLastWriteTimeOfFile(FMainMemo.Filename, @NewTime) then begin
+    if CompareFileTime(FMainMemo.FileLastWriteTime, NewTime) <> 0 then begin
+      FMainMemo.FileLastWriteTime := NewTime;
       Changed := True;
     end;
   end;
@@ -4352,15 +4207,15 @@ begin
   { If it has been, offer to reload it }
   if Changed then begin
     if IsWindowEnabled(Application.Handle) then begin
-      if MsgBox(FMainFilename + SNewLine2 + ReloadMessages[FMainMemo.Modified],
+      if MsgBox(FMainMemo.Filename + SNewLine2 + ReloadMessages[FMainMemo.Modified],
          SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
         if ConfirmCloseFile(False) then
-          OpenFile(FMainMemo, FMainFilename, False);
+          OpenFile(FMainMemo, FMainMemo.Filename, False);
     end
     else begin
       { When a modal dialog is up, don't offer to reload the file. Probably
         not a good idea since the dialog might be manipulating the file. }
-      MsgBox(FMainFilename + SNewLine2 + 'The file has been modified outside ' +
+      MsgBox(FMainMemo.Filename + SNewLine2 + 'The file has been modified outside ' +
         'of the source editor. You might want to reload it.',
         SCompilerFormCaption, mbInformation, MB_OK);
     end;

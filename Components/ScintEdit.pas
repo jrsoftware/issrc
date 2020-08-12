@@ -260,6 +260,7 @@ type
     property AutoCompleteFontSize: Integer read FAutoCompleteFontSize
       write SetAutoCompleteFontSize default 0;
     property CodePage: Integer read FCodePage write SetCodePage default 0;
+    property Color;
     property FillSelectionToEdge: Boolean read FFillSelectionToEdge write SetFillSelectionToEdge
       default False;
     property Font;
