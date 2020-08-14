@@ -8403,7 +8403,7 @@ begin
     TimeStampRounding := 2;
     SetupHeader.MinVersion.WinVersion := 0;
     SetupHeader.MinVersion.NTVersion := $06010000;
-    SetupHeader.MinVersion.NTServicePack := 1;
+    SetupHeader.MinVersion.NTServicePack := $100;
     SetupHeader.Options := [shDisableStartupPrompt, shCreateAppDir,
       shWindowStartMaximized, shWindowShowCaption, shWindowResizable,
       shUsePreviousAppDir, shUsePreviousGroup,
@@ -8627,7 +8627,7 @@ begin
     end;
     if (SetupDirectiveLines[ssWizardResizable] = 0) and (SetupHeader.WizardStyle = wsModern) then
       Include(SetupHeader.Options, shWizardResizable);
-    if (SetupHeader.MinVersion.NTVersion = $06010000) and (SetupHeader.MinVersion.NTServicePack = 0) then
+    if (SetupHeader.MinVersion.NTVersion shr 16 = $0601) and (SetupHeader.MinVersion.NTServicePack < $100) then
       WarningsList.Add(Format(SCompilerMinVersionRecommendation, ['6.1', '6.1sp1']));
 
     LineNumber := 0;
