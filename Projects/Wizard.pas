@@ -3015,7 +3015,7 @@ begin
     if (CurPageID = wpPreparing) and (PrepareToInstallFailureMessage <> '') and not (PrepareToInstallNeedsRestart and not InitNoRestart) then begin
       { Special handling needed for wpPreparing since it displays its error
         message inline on the wizard. Since the wizard isn't currently visible,
-        we have to display the messsage in a message box if it won't be displayed
+        we have to display the message in a message box if it won't be displayed
         by a reboot confirmation message box later on. }
       LoggedMsgBox(PrepareToInstallFailureMessage, '',
         mbCriticalError, MB_OK, True, IDOK);
