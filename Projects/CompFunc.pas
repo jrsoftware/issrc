@@ -6,7 +6,7 @@ unit CompFunc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Common Compiler IDE functions
+  Additional Compiler IDE functions
 }
 
 {$I VERSION.INC}
@@ -54,6 +54,9 @@ procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
 function GetHelpFile: String;
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions): TScintFindOptions;
 procedure StartAddRemovePrograms;
+function GetSourcePath(const AFilename: String): String;
+function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
+  const ReadFromFileFilename: String; const NotReadFromFileMemo: TScintEdit): Integer;
 
 implementation
 
@@ -420,6 +423,61 @@ begin
   end;
   CloseHandle(ProcessInfo.hProcess);
   CloseHandle(ProcessInfo.hThread);
+end;
+
+function GetSourcePath(const AFilename: String): String;
+begin
+  if AFilename <> '' then
+    Result := PathExtractPath(AFilename)
+  else begin
+    { If the script was not saved, default to My Documents }
+    Result := GetShellFolderPath(CSIDL_PERSONAL);
+    if Result = '' then
+      raise Exception.Create('GetShellFolderPath failed');
+  end;
+end;
+
+function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
+  const ReadFromFileFilename: String; const NotReadFromFileMemo: TScintEdit): Integer;
+
+  function ContainsNullChar(const S: String): Boolean;
+  var
+    I: Integer;
+  begin
+    Result := False;
+    for I := 1 to Length(S) do
+      if S[I] = #0 then begin
+        Result := True;
+        Break;
+      end;
+  end;
+
+var
+  F: TTextFileReader;
+  I: Integer;
+begin
+  if ReadFromFile then begin
+    F := TTextFileReader.Create(ReadFromFileFilename, fdOpenExisting, faRead, fsRead);
+    try
+      while not F.Eof do
+        ALines.Add(F.ReadLine);
+    finally
+      F.Free;
+    end;
+  end
+  else begin
+    ALines.Capacity := NotReadFromFileMemo.Lines.Count;
+    ALines.Assign(NotReadFromFileMemo.Lines);
+  end;
+
+  { Check for null characters }
+  for I := 0 to ALines.Count-1 do begin
+    if ContainsNullChar(ALines[I]) then begin
+      Result := I;
+      Exit;
+    end;
+  end;
+  Result := -1;
 end;
 
 end.

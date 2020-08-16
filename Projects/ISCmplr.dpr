@@ -52,6 +52,7 @@ type
     LastLineRead: String;
   end;
 
+{ Does not support iscbNotifyIncludedFiles }
 function WrapperCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer;
 stdcall;

@@ -1309,14 +1309,13 @@ begin
           if Form.FCompileWantAbort then
             Result := iscrRequestAbort;
         end;
+      iscbNotifyIncludedFiles:
+        ParseIncludedFilenames(Data.IncludedFilenames, IncludedFiles); { Also stores last write time }
       iscbNotifySuccess:
         begin
           OutputExe := Data.OutputExeFilename;
-          if Form.FCompilerVersion.BinVersion >= $3000001 then begin
+          if Form.FCompilerVersion.BinVersion >= $3000001 then
             Form.ParseDebugInfo(Data.DebugInfo);
-            if Form.FCompilerVersion.BinVersion >= $6010000 then
-              ParseIncludedFilenames(Data.IncludedFilenames, IncludedFiles); { Also stores last write time }
-          end;
         end;
       iscbNotifyError:
         begin
@@ -1326,58 +1325,11 @@ begin
             Aborted := True;
           ErrorFilename := Data.ErrorFilename;
           ErrorLine := Data.ErrorLine;
-          if Form.FCompilerVersion.BinVersion >= $6010000 then
-            ParseIncludedFilenames(Data.IncludedFilenamesSoFar, IncludedFiles); { Also stores last write time }
         end;
     end;
 end;
 
 {ok}procedure TCompileForm.CompileFile(AFilename: String; const ReadFromFile: Boolean);
-
-  procedure ReadScriptLines(const ALines: TStringList);
-
-    function ContainsNullChar(const S: String): Boolean;
-    var
-      I: Integer;
-    begin
-      Result := False;
-      for I := 1 to Length(S) do
-        if S[I] = #0 then begin
-          Result := True;
-          Break;
-        end;
-    end;
-
-  var
-    F: TTextFileReader;
-    I: Integer;
-  begin
-    if ReadFromFile then begin
-      F := TTextFileReader.Create(AFilename, fdOpenExisting, faRead, fsRead);
-      try
-        while not F.Eof do
-          ALines.Add(F.ReadLine);
-      finally
-        F.Free;
-      end;
-    end
-    else begin
-      ALines.Capacity := FMainMemo.Lines.Count;
-      ALines.Assign(FMainMemo.Lines);
-    end;
-
-    { Check for null characters }
-    for I := 0 to ALines.Count-1 do begin
-      if ContainsNullChar(ALines[I]) then begin
-        if not ReadFromFile then begin
-          MoveMainMemoCaret(I, False);
-          SetMainMemoErrorLine(I);
-        end;
-        raise Exception.CreateFmt(SCompilerIllegalNullChar, [I + 1]);
-      end;
-    end;
-  end;
-
 var
   SourcePath, S, Options: String;
   Params: TCompileScriptParamsEx;
@@ -1434,7 +1386,6 @@ begin
 
   DestroyDebugInfo;
   AppData.Lines := TStringList.Create;
-  AppData.IncludedFiles := FIncludedFiles;
   try
     FBuildAnimationFrame := 0;
     FProgress := 0;
@@ -1457,14 +1408,8 @@ begin
     OutputTabSet.TabIndex := tiCompilerOutput;
     SetStatusPanelVisible(True);
 
-    if AFilename <> '' then
-      SourcePath := PathExtractPath(AFilename)
-    else begin
-      { If the script was not saved, default to My Documents }
-      SourcePath := GetShellFolderPath(CSIDL_PERSONAL);
-      if SourcePath = '' then
-        raise Exception.Create('GetShellFolderPath failed');
-    end;
+    SourcePath := GetSourcePath(AFilename);
+
     FillChar(Params, SizeOf(Params), 0);
     Params.Size := SizeOf(Params);
     Params.CompilerPath := nil;
@@ -1479,7 +1424,14 @@ begin
     AppData.Form := Self;
     AppData.CurLineNumber := 0;
     AppData.Aborted := False;
-    ReadScriptLines(AppData.Lines);
+    I := ReadScriptLines(AppData.Lines, ReadFromFile, AFilename, FMainMemo);
+    if I <> -1 then begin
+      if not ReadFromFile then begin
+        MoveMainMemoCaret(I, False);
+        SetMainMemoErrorLine(I);
+      end;
+      raise Exception.CreateFmt(SCompilerIllegalNullChar, [I + 1]);
+    end;
 
     StartTime := GetTickCount;
     StatusMessage(smkStartEnd, Format(SCompilerStatusStarting, [TimeToStr(Time)]));
@@ -1489,6 +1441,9 @@ begin
     UpdateRunMenu;
     UpdateCaption;
     SetLowPriority(FOptions.LowPriorityDuringCompile, FSavePriorityClass);
+
+    AppData.IncludedFiles := FIncludedFiles;
+
     {$IFNDEF STATICCOMPILER}
     if ISDllCompileScript(Params) <> isceNoError then begin
     {$ELSE}

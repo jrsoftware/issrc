@@ -9129,45 +9129,56 @@ begin
   end;
 end;
 
+{ Interface helper functions }
+
+function CheckParams(const Params: TCompileScriptParamsEx): Boolean;
+begin
+  Result := ((Params.Size = SizeOf(Params)) or
+             (Params.Size = SizeOf(TCompileScriptParams))) and
+            Assigned(Params.CallbackProc);
+end;
+
+procedure InitializeSetupCompiler(const SetupCompiler: TSetupCompiler;
+  const Params: TCompileScriptParamsEx);
+begin
+  SetupCompiler.AppData := Params.AppData;
+  SetupCompiler.CallbackProc := Params.CallbackProc;
+  if Assigned(Params.CompilerPath) then
+    SetupCompiler.CompilerDir := Params.CompilerPath
+  else
+    SetupCompiler.CompilerDir := PathExtractPath(GetSelfFilename);
+  SetupCompiler.SourceDir := Params.SourcePath;
+end;
+
+function GetIncludedFilenames(SetupCompiler: TSetupCompiler): String;
+var
+  S: String;
+  I: Integer;
+begin
+  S := '';
+  for I := 0 to SetupCompiler.PreprocIncludedFilenames.Count-1 do
+   S := S + SetupCompiler.PreprocIncludedFilenames[I] + #0;
+  Result := S;
+end;
 
 { Interface functions }
 
 function ISCompileScript(const Params: TCompileScriptParamsEx;
   const PropagateExceptions: Boolean): Integer;
-
-  function GetIncludedFilenames(SetupCompiler: TSetupCompiler): String;
-  var
-    S: String;
-    I: Integer;
-  begin
-    S := '';
-    for I := 0 to SetupCompiler.PreprocIncludedFilenames.Count-1 do
-     S := S + SetupCompiler.PreprocIncludedFilenames[I] + #0;
-    Result := S;
-  end;
-
 var
   SetupCompiler: TSetupCompiler;
   P: PChar;
   Data: TCompilerCallbackData;
-  S, S2: String;
+  S: String;
   P2: Integer;
 begin
-  if ((Params.Size <> SizeOf(Params)) and
-      (Params.Size <> SizeOf(TCompileScriptParams))) or
-     not Assigned(Params.CallbackProc) then begin
+  if not CheckParams(Params) then begin
     Result := isceInvalidParam;
     Exit;
   end;
   SetupCompiler := TSetupCompiler.Create(nil);
   try
-    SetupCompiler.AppData := Params.AppData;
-    SetupCompiler.CallbackProc := Params.CallbackProc;
-    if Assigned(Params.CompilerPath) then
-      SetupCompiler.CompilerDir := Params.CompilerPath
-    else
-      SetupCompiler.CompilerDir := PathExtractPath(GetSelfFilename);
-    SetupCompiler.SourceDir := Params.SourcePath;
+    InitializeSetupCompiler(SetupCompiler, Params);
 
     { Parse Options (only present in TCompileScriptParamsEx) }
     if (Params.Size <> SizeOf(TCompileScriptParams)) and Assigned(Params.Options) then begin
@@ -9222,6 +9233,9 @@ begin
       SetupCompiler.Compile;
     except
       Result := isceCompileFailure;
+      S := GetIncludedFilenames(SetupCompiler);
+      Data.IncludedFilenames := PChar(S);
+      Params.CallbackProc(iscbNotifyIncludedFiles, Data, Params.AppData);
       Data.ErrorMsg := nil;
       Data.ErrorFilename := nil;
       Data.ErrorLine := 0;
@@ -9232,19 +9246,18 @@ begin
           pointer if the string is empty }
         Data.ErrorFilename := Pointer(SetupCompiler.ParseFilename);
         Data.ErrorLine := SetupCompiler.LineNumber;
-        S2 := GetIncludedFilenames(SetupCompiler);
-        Data.IncludedFilenamesSoFar := PChar(S2);
       end;
       Params.CallbackProc(iscbNotifyError, Data, Params.AppData);
       if PropagateExceptions then
         raise;
       Exit;
     end;
+    S := GetIncludedFilenames(SetupCompiler);
+    Data.IncludedFilenames := PChar(S);
+    Params.CallbackProc(iscbNotifyIncludedFiles, Data, Params.AppData);
     Data.OutputExeFilename := PChar(SetupCompiler.ExeFilename);
     Data.DebugInfo := SetupCompiler.DebugInfo.Memory;
     Data.DebugInfoSize := SetupCompiler.DebugInfo.Size;
-    S := GetIncludedFilenames(SetupCompiler);
-    Data.IncludedFilenames := PChar(S);
     Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
   finally
     SetupCompiler.Free;
