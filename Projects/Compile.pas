@@ -1140,7 +1140,7 @@ var
 
 begin
   if (Params.Size <> SizeOf(Params)) or
-     (Params.InterfaceVersion <> 1) then begin
+     (Params.InterfaceVersion <> 2) then begin
     Result := ispeInvalidParam;
     Exit;
   end;
@@ -2019,7 +2019,7 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
     LCompilerPath := CompilerDir;
     FillChar(Params, SizeOf(Params), 0);
     Params.Size := SizeOf(Params);
-    Params.InterfaceVersion := 1;
+    Params.InterfaceVersion := 2;
     Params.CompilerBinVersion := SetupBinVersion;
     Params.Filename := PChar(Filename);
     Params.SourcePath := PChar(LSourcePath);
