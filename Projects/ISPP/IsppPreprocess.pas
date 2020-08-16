@@ -223,7 +223,7 @@ var
   LineNumber: Integer;
 begin
   if (Params.Size <> SizeOf(Params)) or
-     (Params.InterfaceVersion <> 1) then
+     (Params.InterfaceVersion <> 2) then
   begin
     Result := ispeInvalidParam;
     Exit;

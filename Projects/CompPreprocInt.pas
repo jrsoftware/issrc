@@ -17,7 +17,7 @@ uses
 const
   ispeSuccess = 0;
   ispeInvalidParam = 1;
-  ispePreprocessError = 2;
+  ispePreprocessError =  2;
   ispeSilentAbort = 3;
 
 type
@@ -48,7 +48,7 @@ type
     Size: Cardinal;                { [in] Set to SizeOf(TPreprocessScriptParams).
                                      Preprocessor must return ispeInvalidParam
                                      if value is not recognized. }
-    InterfaceVersion: Cardinal;    { [in] Currently set to 1.
+    InterfaceVersion: Cardinal;    { [in] Currently set to 2.
                                      Preprocessor must return ispeInvalidParam
                                      if value is not recognized. }
     CompilerBinVersion: Cardinal;  { [in] Compiler version as an integer }
