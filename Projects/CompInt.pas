@@ -32,10 +32,10 @@ const
                              TCompilerCallbackData; the compiler will ignore
                              them.) }
 
-  { Return values for ISDllCompileScript }
+  { Return values for ISDllCompileScript and ISDllScanScript }
   isceNoError = 0;         { Successful }
   isceInvalidParam = 1;    { Bad parameters passed to function }
-  isceCompileFailure = 2;  { There was an error compiling or it was aborted
+  isceError = 2;           { There was an error compiling or it was aborted
                              by the application }
 
 type
@@ -116,9 +116,9 @@ type
                             to read the script and for status notification. }
     AppData: Longint;     { [in] Application-defined. AppData is passed to the
                             callback function. }
-    Options: PChar;       { [in] Additional options. Each option is a
-                            null-terminated string, and the final option is
-                            followed by an additional null character.
+    Options: PChar;       { [in] Additional options for ISDllCompileScript.
+                            Each option is a null-terminated string, and the final
+                            option is followed by an additional null character.
                             If you do not wish to specify any options, set this
                             field to NULL or to point to a single null
                             character.
@@ -166,7 +166,14 @@ const
   description of the TCompileScriptParams record. Return value is one of the
   isce* constants. }
 function ISDllCompileScript(const Params: TCompileScriptParamsEx): Integer;
-  stdcall; external ISCmplrDLL{$IFDEF UNICODE} name 'ISDllCompileScriptW'{$ENDIF};
+  stdcall; external ISCmplrDLL name 'ISDllCompileScriptW';
+
+{ The ISDllScanScript function begins scanning of a script. See the above
+  description of the TCompileScriptParams record. Return value is one of the
+  isce* constants. Only passes iscbReadScript and iscbNotifyIncludedFiles in
+  Code parameter of callback function. }
+function ISDllScanScript(const Params: TCompileScriptParamsEx): Integer;
+  stdcall; external ISCmplrDLL name 'ISDllScanScriptW';
 
 { The ISDllGetVersion returns a pointer to a TCompilerVersionInfo record which
   contains information about the compiler version. }

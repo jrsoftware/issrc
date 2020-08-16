@@ -44,6 +44,12 @@ begin
   Result := ISCompileScript(Params, False);
 end;
 
+function ISDllScanScript(const Params: TCompileScriptParamsEx): Integer;
+stdcall;
+begin
+  Result := ISScanScript(Params, False);
+end;
+
 {$IFDEF UNICODE}
 type
   PWrapperData = ^TWrapperData;
@@ -155,6 +161,7 @@ exports
 {$IFDEF UNICODE}
   ISDllCompileScriptA name 'ISDllCompileScript',
 {$ENDIF}
+  ISDllScanScript name 'ISDllScanScriptW',
   ISDllGetVersion;
 
 begin

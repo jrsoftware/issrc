@@ -46,67 +46,67 @@ object OptionsForm: TOptionsForm
     end
     object AutosaveCheck: TCheckBox
       Left = 8
-      Top = 56
-      Width = 265
-      Height = 17
-      Caption = 'Automatically sa&ve before compiling'
-      TabOrder = 2
-    end
-    object BackupCheck: TCheckBox
-      Left = 8
       Top = 76
       Width = 265
       Height = 17
-      Caption = 'Create &backups when saving'
+      Caption = 'Automatically sa&ve before compiling'
       TabOrder = 3
     end
-    object UndoAfterSaveCheck: TCheckBox
+    object BackupCheck: TCheckBox
       Left = 8
       Top = 96
       Width = 265
       Height = 17
-      Caption = 'Allow &Undo after save'
+      Caption = 'Create &backups when saving'
       TabOrder = 4
     end
-    object FullPathCheck: TCheckBox
+    object UndoAfterSaveCheck: TCheckBox
       Left = 8
       Top = 116
       Width = 265
       Height = 17
-      Caption = 'Display &full path in title bar'
+      Caption = 'Allow &Undo after save'
       TabOrder = 5
     end
-    object PauseOnDebuggerExceptionsCheck: TCheckBox
+    object FullPathCheck: TCheckBox
       Left = 8
       Top = 136
       Width = 265
       Height = 17
-      Caption = '&Pause on exceptions'
+      Caption = 'Display &full path in title bar'
       TabOrder = 6
     end
-    object RunAsDifferentUserCheck: TCheckBox
+    object PauseOnDebuggerExceptionsCheck: TCheckBox
       Left = 8
       Top = 156
       Width = 265
       Height = 17
-      Caption = '*'
+      Caption = '&Pause on exceptions'
       TabOrder = 7
     end
-    object ColorizeCompilerOutputCheck: TCheckBox
+    object RunAsDifferentUserCheck: TCheckBox
       Left = 8
       Top = 176
       Width = 265
       Height = 17
-      Caption = 'Colori&ze "Compiler Output" view'
+      Caption = '*'
       TabOrder = 8
     end
-    object OpenIncludedFilesCheck: TCheckBox
+    object ColorizeCompilerOutputCheck: TCheckBox
       Left = 8
       Top = 196
       Width = 265
       Height = 17
-      Caption = 'Open #include-ed files after compilation'
+      Caption = 'Colori&ze "Compiler Output" view'
       TabOrder = 9
+    end
+    object OpenIncludedFilesCheck: TCheckBox
+      Left = 8
+      Top = 56
+      Width = 265
+      Height = 17
+      Caption = 'Automatically open #include files'
+      TabOrder = 2
     end
   end
   object GroupBox2: TGroupBox
