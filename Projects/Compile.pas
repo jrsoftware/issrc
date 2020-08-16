@@ -9150,7 +9150,7 @@ var
   SetupCompiler: TSetupCompiler;
   P: PChar;
   Data: TCompilerCallbackData;
-  S: String;
+  S, S2: String;
   P2: Integer;
 begin
   if ((Params.Size <> SizeOf(Params)) and
@@ -9232,7 +9232,8 @@ begin
           pointer if the string is empty }
         Data.ErrorFilename := Pointer(SetupCompiler.ParseFilename);
         Data.ErrorLine := SetupCompiler.LineNumber;
-        Data.IncludedFilenamesSoFar := PChar(GetIncludedFilenames(SetupCompiler));
+        S2 := GetIncludedFilenames(SetupCompiler);
+        Data.IncludedFilenamesSoFar := PChar(S2);
       end;
       Params.CallbackProc(iscbNotifyError, Data, Params.AppData);
       if PropagateExceptions then
@@ -9242,7 +9243,8 @@ begin
     Data.OutputExeFilename := PChar(SetupCompiler.ExeFilename);
     Data.DebugInfo := SetupCompiler.DebugInfo.Memory;
     Data.DebugInfoSize := SetupCompiler.DebugInfo.Size;
-    Data.IncludedFilenames := PChar(GetIncludedFilenames(SetupCompiler));
+    S := GetIncludedFilenames(SetupCompiler);
+    Data.IncludedFilenames := PChar(S);
     Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
   finally
     SetupCompiler.Free;

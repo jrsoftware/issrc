@@ -383,7 +383,7 @@ type
     procedure InvalidateStatusPanel(const Index: Integer);
     procedure MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
     procedure MemoCharAdded(Sender: TObject; Ch: AnsiChar);
-    procedure MemoDropFiles(Sender: TObject; X, Y: Integer; AFiles: TStrings);
+    procedure MainMemoDropFiles(Sender: TObject; X, Y: Integer; AFiles: TStrings);
     procedure MainMemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     procedure MemoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MemoKeyPress(Sender: TObject; var Key: Char);
@@ -422,7 +422,7 @@ type
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
-    procedure UpdateIncludedFiles;
+    procedure UpdateIncludedFilesMemos;
     procedure UpdateMainMemoLineMarkers(const Line: Integer);
     procedure UpdateModifiedPanel;
     procedure UpdateNewMainFileButtons;
@@ -517,7 +517,6 @@ end;
 
 function TCompileForm.InitializeMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
 begin
-  Memo.AcceptDroppedFiles := True;
   Memo.Align := alClient;
   Memo.AutoCompleteFontName := Font.Name;
   Memo.AutoCompleteFontSize := Font.Size;
@@ -528,7 +527,6 @@ begin
   Memo.PopupMenu := PopupMenu;
   Memo.OnChange := MemoChange;
   Memo.OnCharAdded := MemoCharAdded;
-  Memo.OnDropFiles := MemoDropFiles;
   Memo.OnKeyDown := MemoKeyDown;
   Memo.OnKeyPress := MemoKeyPress;
   Memo.OnModifiedChange := MemoModifiedChange;
@@ -542,7 +540,9 @@ end;
 function TCompileForm.InitializeMainMemo(const Memo: TCompMainScintEdit; const PopupMenu: TPopupMenu): TCompMainScintEdit;
 begin
   InitializeMemo(Memo, PopupMenu);
+  Memo.AcceptDroppedFiles := True;
   Memo.ShowHint := True;
+  Memo.OnDropFiles := MainMemoDropFiles;
   Memo.OnMarginClick := MainMemoMarginClick;
   Memo.OnHintShow := MainMemoHintShow;
   Result := Memo;
@@ -726,7 +726,7 @@ begin
   FSignTools := TStringList.Create;
 
   FIncludedFiles := TIncludedFiles.Create;
-  UpdateIncludedFiles;
+  UpdateIncludedFilesMemos;
 
   FDebugTarget := dtSetup;
   UpdateTargetMenu;
@@ -794,7 +794,8 @@ begin
     SaveConfig;
 
   FTheme.Free;
-  FMainMemo.BreakPoints.Free;
+  if FMainMemo <> nil then
+    FMainMemo.BreakPoints.Free;
   DestroyDebugInfo;
   FIncludedFiles.Free;
   FSignTools.Free;
@@ -947,7 +948,7 @@ begin
   FMainMemo.Lines.Clear;
   FModifiedAnySinceLastCompile := True;
   FIncludedFiles.Clear;
-  UpdateIncludedFiles;
+  UpdateIncludedFilesMemos;
   FMainMemo.ClearUndo;
 end;
 
@@ -1311,9 +1312,11 @@ begin
       iscbNotifySuccess:
         begin
           OutputExe := Data.OutputExeFilename;
-          if Form.FCompilerVersion.BinVersion >= $3000001 then
+          if Form.FCompilerVersion.BinVersion >= $3000001 then begin
             Form.ParseDebugInfo(Data.DebugInfo);
-          ParseIncludedFilenames(Data.IncludedFilenames, IncludedFiles); { Also stores last write time }
+            if Form.FCompilerVersion.BinVersion >= $6010000 then
+              ParseIncludedFilenames(Data.IncludedFilenames, IncludedFiles); { Also stores last write time }
+          end;
         end;
       iscbNotifyError:
         begin
@@ -1323,7 +1326,8 @@ begin
             Aborted := True;
           ErrorFilename := Data.ErrorFilename;
           ErrorLine := Data.ErrorLine;
-          ParseIncludedFilenames(Data.IncludedFilenamesSoFar, IncludedFiles); { Also stores last write time }
+          if Form.FCompilerVersion.BinVersion >= $6010000 then
+            ParseIncludedFilenames(Data.IncludedFilenamesSoFar, IncludedFiles); { Also stores last write time }
         end;
     end;
 end;
@@ -1392,28 +1396,34 @@ begin
     { Included files must always be saved since they're not read from the editor by the compiler }
     for Memo in FMemos do begin
       if (Memo <> FMainMemo) and Memo.Visible and Memo.Modified then begin
-        if FOptions.Autosave then
-          if not SaveFile(Memo, False) then Abort
-        else begin
+        if FOptions.Autosave then begin
+          if not SaveFile(Memo, False) then
+            Abort;
+        end else begin
           case MsgBox('The text in the ' + Memo.Filename + ' file has changed and must be saved before compiling.'#13#10#13#10 +
              'Save the changes and continue?', SCompilerFormCaption, mbError,
              MB_YESNO) of
-            IDYES: if not SaveFile(Memo, False) then Abort;
+            IDYES:
+              if not SaveFile(Memo, False) then
+                Abort;
           else
-            Abort
+            Abort;
           end;
         end;
       end;
     end;
     { Save main file if requested }
     if FOptions.Autosave and FMainMemo.Modified then begin
-      if not SaveFile(FMainMemo, False) then Abort;
+      if not SaveFile(FMainMemo, False) then
+        Abort;
     end else if FMainMemo.Filename = '' then begin
       case MsgBox('Would you like to save the script before compiling?' +
          SNewLine2 + 'If you answer No, the compiled installation will be ' +
          'placed under your My Documents folder by default.',
          SCompilerFormCaption, mbConfirmation, MB_YESNOCANCEL) of
-        IDYES: if not SaveFile(FMainMemo, False) then Abort;
+        IDYES:
+          if not SaveFile(FMainMemo, False) then
+            Abort;
         IDNO: ;
       else
         Abort;
@@ -1520,7 +1530,7 @@ begin
     UpdateEditModePanel;
     UpdateRunMenu;
     UpdateCaption;
-    UpdateIncludedFiles;
+    UpdateIncludedFilesMemos;
     InvalidateStatusPanel(spCompileIcon);
     InvalidateStatusPanel(spCompileProgress);
     SetAppTaskbarProgressState(tpsNoProgress);
@@ -2342,7 +2352,7 @@ begin
     FOptions.OpenIncludedFiles := OptionsForm.OpenIncludedFilesCheck.Checked;
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
     UpdateCaption;
-    UpdateIncludedFiles;
+    UpdateIncludedFilesMemos;
     { Move caret to start of line to ensure it doesn't end up in the middle
       of a double-byte character if the code page changes from SBCS to DBCS }
     FMainMemo.CaretLine := FMainMemo.CaretLine;
@@ -2466,7 +2476,7 @@ begin
     StatusBar.Panels[spModified].Text := '';
 end;
 
-procedure TCompileForm.UpdateIncludedFiles;
+procedure TCompileForm.UpdateIncludedFilesMemos;
 var
   NewTabs: TStringList;
   IncludedFile: TIncludedFile;
@@ -2482,15 +2492,22 @@ begin
       try
         for I := 0 to FIncludedFiles.Count-1 do begin
           IncludedFile := FIncludedFiles[I];
-          NewTabs.Add(PathExtractName(IncludedFile.Filename));
           IncludedFile.Memo := FMemos[NextMemoIndex];
-          if not SameText(IncludedFile.Memo.Filename, IncludedFile.Filename) then begin
-            OpenFile(IncludedFile.Memo, IncludedFile.Filename, False);
-            IncludedFile.Memo.Filename := IncludedFile.Filename;
+          try
+            if PathCompare(IncludedFile.Memo.Filename, IncludedFile.Filename) <> 0 then begin
+              OpenFile(IncludedFile.Memo, IncludedFile.Filename, False);
+              IncludedFile.Memo.Filename := IncludedFile.Filename;
+            end;
+            NewTabs.Add(PathExtractName(IncludedFile.Filename));
+            Inc(NextMemoIndex);
+            if NextMemoIndex = FMemos.Count then
+              Break; { We're out of memos :( }
+          except on E: Exception do
+            begin
+              StatusMessage(smkWarning, 'Failed to open included file: ' + E.Message);
+              IncludedFile.Memo := nil;
+            end;
           end;
-          Inc(NextMemoIndex);
-          if NextMemoIndex = FMemos.Count then
-            Break; { We're out of memos :( }
         end;
       finally
         FLoadingIncludedFiles := False;
@@ -2921,7 +2938,7 @@ begin
   end;
 end;
 
-{ok}procedure TCompileForm.MemoDropFiles(Sender: TObject; X, Y: Integer;
+{ok}procedure TCompileForm.MainMemoDropFiles(Sender: TObject; X, Y: Integer;
   AFiles: TStrings);
 begin
   if (AFiles.Count > 0) and ConfirmCloseFile(True, True) then begin
