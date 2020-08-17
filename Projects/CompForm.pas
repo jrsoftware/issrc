@@ -1338,37 +1338,35 @@ var
   Params: TCompileScriptParamsEx;
   AppData: TAppData;
 begin
-  if FOptions.OpenIncludedFiles then begin
-    AppData.Lines := TStringList.Create;
-    try
-      SourcePath := GetSourcePath(FMainMemo.Filename);
+  AppData.Lines := TStringList.Create;
+  try
+    SourcePath := GetSourcePath(FMainMemo.Filename);
 
-      FillChar(Params, SizeOf(Params), 0);
-      Params.Size := SizeOf(Params);
-      Params.CompilerPath := nil;
-      Params.SourcePath := PChar(SourcePath);
-      Params.CallbackProc := CompilerCallbackProc;
-      Pointer(Params.AppData) := @AppData;
-      Params.Options := nil;
+    FillChar(Params, SizeOf(Params), 0);
+    Params.Size := SizeOf(Params);
+    Params.CompilerPath := nil;
+    Params.SourcePath := PChar(SourcePath);
+    Params.CallbackProc := CompilerCallbackProc;
+    Pointer(Params.AppData) := @AppData;
+    Params.Options := nil;
 
-      AppData.Form := Self;
-      AppData.CurLineNumber := 0;
-      AppData.Aborted := False;
-      if ReadScriptLines(AppData.Lines, False, FMainMemo.Filename, FMainMemo) <> -1 then
-        Exit;
+    AppData.Form := Self;
+    AppData.CurLineNumber := 0;
+    AppData.Aborted := False;
+    if ReadScriptLines(AppData.Lines, False, FMainMemo.Filename, FMainMemo) <> -1 then
+      Exit;
 
-      AppData.IncludedFiles := FIncludedFiles;
+    AppData.IncludedFiles := FIncludedFiles;
 
-      {$IFNDEF STATICCOMPILER}
-      ISDllScanScript(Params);
-      {$ELSE}
-      ISScanScript(Params, False);
-      {$ENDIF}
+    {$IFNDEF STATICCOMPILER}
+    ISDllScanScript(Params);
+    {$ELSE}
+    ISScanScript(Params, False);
+    {$ENDIF}
 
-      UpdateIncludedFilesMemos;
-    finally
-      AppData.Lines.Free;
-    end;
+    UpdateIncludedFilesMemos;
+  finally
+    AppData.Lines.Free;
   end;
 end;
 
