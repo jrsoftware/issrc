@@ -2497,8 +2497,10 @@ begin
           IncludedFile := FIncludedFiles[I];
           IncludedFile.Memo := FMemos[NextMemoIndex];
           try
-            if PathCompare(IncludedFile.Memo.Filename, IncludedFile.Filename) <> 0 then begin
-              OpenFile(IncludedFile.Memo, IncludedFile.Filename, False);
+            if (PathCompare(IncludedFile.Memo.Filename, IncludedFile.Filename) <> 0) or
+               not IncludedFile.HasLastWriteTime or
+               (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0) then begin
+              OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
               IncludedFile.Memo.Filename := IncludedFile.Filename;
             end;
             NewTabs.Add(PathExtractName(IncludedFile.Filename));
