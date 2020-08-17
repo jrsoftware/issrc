@@ -1353,7 +1353,7 @@ begin
     AppData.Form := Self;
     AppData.CurLineNumber := 0;
     AppData.Aborted := False;
-    if ReadScriptLines(AppData.Lines, False, FMainMemo.Filename, FMainMemo) <> -1 then
+    if ReadScriptLines(AppData.Lines, False, '', FMainMemo) <> -1 then
       Exit;
 
     AppData.IncludedFiles := FIncludedFiles;
