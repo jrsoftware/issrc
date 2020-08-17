@@ -9206,14 +9206,14 @@ begin
   SetupCompiler.SourceDir := Params.SourcePath;
 end;
 
-function GetIncludedFilenames(SetupCompiler: TSetupCompiler): String;
+function EncodeIncludedFilenames(const IncludedFilenames: TStringList): String;
 var
   S: String;
   I: Integer;
 begin
   S := '';
-  for I := 0 to SetupCompiler.PreprocIncludedFilenames.Count-1 do
-   S := S + SetupCompiler.PreprocIncludedFilenames[I] + #0;
+  for I := 0 to IncludedFilenames.Count-1 do
+   S := S + IncludedFilenames[I] + #0;
   Result := S;
 end;
 
@@ -9289,7 +9289,7 @@ begin
       SetupCompiler.Compile;
     except
       Result := isceError;
-      S := GetIncludedFilenames(SetupCompiler);
+      S := EncodeIncludedFilenames(SetupCompiler.PreprocIncludedFilenames);
       Data.IncludedFilenames := PChar(S);
       Params.CallbackProc(iscbNotifyIncludedFiles, Data, Params.AppData);
       Data.ErrorMsg := nil;
@@ -9308,7 +9308,7 @@ begin
         raise;
       Exit;
     end;
-    S := GetIncludedFilenames(SetupCompiler);
+    S := EncodeIncludedFilenames(SetupCompiler.PreprocIncludedFilenames);
     Data.IncludedFilenames := PChar(S);
     Params.CallbackProc(iscbNotifyIncludedFiles, Data, Params.AppData);
     Data.OutputExeFilename := PChar(SetupCompiler.ExeFilename);
@@ -9344,7 +9344,7 @@ begin
         raise;
       Exit;
     end;
-    S := GetIncludedFilenames(SetupCompiler);
+    S := EncodeIncludedFilenames(SetupCompiler.PreprocIncludedFilenames);
     Data.IncludedFilenames := PChar(S);
     Params.CallbackProc(iscbNotifyIncludedFiles, Data, Params.AppData);
   finally

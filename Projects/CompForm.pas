@@ -1250,7 +1250,7 @@ type
 {ok}function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer; stdcall;
 
-  procedure ParseIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles);
+  procedure DecodeIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles);
   var
     IncludedFile: TIncludedFile;
   begin
@@ -1313,7 +1313,7 @@ begin
             Result := iscrRequestAbort;
         end;
       iscbNotifyIncludedFiles:
-        ParseIncludedFilenames(Data.IncludedFilenames, IncludedFiles); { Also stores last write time }
+        DecodeIncludedFilenames(Data.IncludedFilenames, IncludedFiles); { Also stores last write time }
       iscbNotifySuccess:
         begin
           OutputExe := Data.OutputExeFilename;
