@@ -2,7 +2,7 @@ library ISCmplr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -44,7 +44,12 @@ begin
   Result := ISCompileScript(Params, False);
 end;
 
-{$IFDEF UNICODE}
+function ISDllScanScript(const Params: TCompileScriptParamsEx): Integer;
+stdcall;
+begin
+  Result := ISScanScript(Params, False);
+end;
+
 type
   PWrapperData = ^TWrapperData;
   TWrapperData = record
@@ -143,7 +148,6 @@ begin
     FreeMem(WrapperParams);
   end;
 end;
-{$ENDIF}
 
 function ISDllGetVersion: PCompilerVersionInfo; stdcall;
 begin
@@ -151,10 +155,9 @@ begin
 end;
 
 exports
-  ISDllCompileScript{$IFDEF UNICODE} name 'ISDllCompileScriptW'{$ENDIF},
-{$IFDEF UNICODE}
+  ISDllCompileScript name 'ISDllCompileScriptW',
   ISDllCompileScriptA name 'ISDllCompileScript',
-{$ENDIF}
+  ISDllScanScript name 'ISDllScanScriptW',
   ISDllGetVersion;
 
 begin

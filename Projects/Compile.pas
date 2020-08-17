@@ -26,6 +26,8 @@ uses
 
 function ISCompileScript(const Params: TCompileScriptParamsEx;
   const PropagateExceptions: Boolean): Integer;
+function ISScanScript(const Params: TCompileScriptParamsEx;
+  const PropagateExceptions: Boolean): Integer;
 function ISGetVersion: PCompilerVersionInfo;
 
 type
@@ -325,6 +327,7 @@ type
     procedure ProcessWildcardsParameter(const ParamData: String;
       const AWildcards: TStringList; const TooLongMsg: String);
     procedure ReadDefaultMessages;
+    function ReadMainScriptLines: TLowFragStringList;
 {$IFDEF UNICODE}
     procedure ReadMessagesFromFilesPre(const AFiles: String; const ALangIndex: Integer);
 {$ENDIF}
@@ -361,6 +364,7 @@ type
     destructor Destroy; override;
     procedure AddSignTool(const Name, Command: String);
     procedure Compile;
+    procedure Scan;
   end;
 
 var
@@ -1046,17 +1050,19 @@ end;
 type
   EBuiltinPreprocessScriptError = class(Exception);
 
-function BuiltinPreprocessScript(var Params: TPreprocessScriptParams): Integer; stdcall;
+function BuiltinPreprocessScriptEx(var Params: TPreprocessScriptParams; const Scanning: Boolean): Integer; stdcall;
 var
   IncludeStack: TStringList;
 
-  procedure RaiseError(const LineFilename: String; const LineNumber: Integer;
+  procedure RaiseErrorIfNotScanning(const LineFilename: String; const LineNumber: Integer;
     const Msg: String);
   begin
-    Params.ErrorProc(Params.CompilerData, PChar(Msg), PChar(LineFilename),
-      LineNumber, 0);
-    { Note: This exception is caught and translated into ispePreprocessError }
-    raise EBuiltinPreprocessScriptError.Create('BuiltinPreprocessScript error');
+    if not Scanning then begin
+      Params.ErrorProc(Params.CompilerData, PChar(Msg), PChar(LineFilename),
+        LineNumber, 0);
+      { Note: This exception is caught and translated into ispePreprocessError }
+      raise EBuiltinPreprocessScriptError.Create('BuiltinPreprocessScript error');
+    end;
   end;
 
   procedure ProcessLines(const Filename: String; const FileHandle: TPreprocFileHandle);
@@ -1069,17 +1075,21 @@ var
     FileHandle: TPreprocFileHandle;
   begin
     { Check if it's a recursive include }
-    for I := 0 to IncludeStack.Count-1 do
-      if PathCompare(IncludeStack[I], IncludeFilename) = 0 then
-        RaiseError(LineFilename, LineNumber, Format(SCompilerRecursiveInclude,
-          [IncludeFilename]));
+    for I := 0 to IncludeStack.Count-1 do begin
+      if PathCompare(IncludeStack[I], IncludeFilename) = 0 then begin
+          RaiseErrorIfNotScanning(LineFilename, LineNumber, Format(SCompilerRecursiveInclude,
+            [IncludeFilename]));
+          Exit;
+      end;
+    end;
 
     FileHandle := Params.LoadFileProc(Params.CompilerData,
       PChar(IncludeFilename), PChar(LineFilename), LineNumber, 0);
     if FileHandle < 0 then begin
       { Note: The message here shouldn't be seen as LoadFileProc should have
         already called ErrorProc itself }
-      RaiseError(LineFilename, LineNumber, 'LoadFileProc failed');
+      RaiseErrorIfNotScanning(LineFilename, LineNumber, 'LoadFileProc failed');
+      Exit;
     end;
     ProcessLines(IncludeFilename, FileHandle);
   end;
@@ -1089,13 +1099,18 @@ var
   var
     Dir, IncludeFilename: String;
   begin
+    { Note: SelectPreprocessor blanks any #preproc lines }
     if Copy(D, 1, Length('include')) = 'include' then begin
       Delete(D, 1, Length('include'));
-      if (D = '') or (D[1] > ' ') then
-        RaiseError(LineFilename, LineNumber, SCompilerInvalidDirective);
+      if (D = '') or (D[1] > ' ') then begin
+        RaiseErrorIfNotScanning(LineFilename, LineNumber, SCompilerInvalidDirective);
+        Exit;
+      end;
       D := TrimLeft(D);
-      if (Length(D) < 3) or (D[1] <> '"') or (PathLastChar(D)^ <> '"') then
-        RaiseError(LineFilename, LineNumber, SCompilerInvalidDirective);
+      if (Length(D) < 3) or (D[1] <> '"') or (PathLastChar(D)^ <> '"') then begin
+        RaiseErrorIfNotScanning(LineFilename, LineNumber, SCompilerInvalidDirective);
+        Exit;
+      end;
       if LineFilename = '' then
         Dir := Params.SourcePath
       else
@@ -1105,14 +1120,16 @@ var
       if IncludeFilename = '' then begin
         { Note: The message here shouldn't be seen as PrependDirNameProc
           should have already called ErrorProc itself }
-        RaiseError(LineFilename, LineNumber, 'PrependDirNameProc failed');
+        RaiseErrorIfNotScanning(LineFilename, LineNumber, 'PrependDirNameProc failed');
+        Exit;
       end;
-      Params.StatusProc(Params.CompilerData,
-        PChar(Format(SBuiltinPreprocessStatusIncludingFile, [IncludeFilename])), False);
+      if Assigned(Params.StatusProc) then
+        Params.StatusProc(Params.CompilerData,
+          PChar(Format(SBuiltinPreprocessStatusIncludingFile, [IncludeFilename])), False);
       ProcessLinesFromFile(LineFilename, LineNumber, PathExpand(IncludeFilename));
     end
     else
-      RaiseError(LineFilename, LineNumber, SCompilerInvalidDirective);
+      RaiseErrorIfNotScanning(LineFilename, LineNumber, SCompilerInvalidDirective);
   end;
 
   procedure ProcessLines(const Filename: String; const FileHandle: TPreprocFileHandle);
@@ -1130,7 +1147,7 @@ var
       SkipWhitespace(L);
       if L^ = '#' then
         ProcessDirective(Filename, I + 1, L + 1)
-      else
+      else if Assigned(Params.LineOutProc) then
         Params.LineOutProc(Params.CompilerData, PChar(Filename), I + 1,
           LineText);
       Inc(I);
@@ -1158,6 +1175,11 @@ begin
     if not(ExceptObject is EBuiltinPreprocessScriptError) then
       raise;
   end;
+end;
+
+function BuiltinPreprocessScript(var Params: TPreprocessScriptParams): Integer; stdcall;
+begin
+  Result := BuiltinPreprocessScriptEx(Params, False);
 end;
 
 { TCompressionHandler }
@@ -1799,6 +1821,7 @@ type
   PPreCompilerData = ^TPreCompilerData;
   TPreCompilerData = record
     Compiler: TSetupCompiler;
+    Scanning: Boolean;
     InFiles: TStringList;
     OutLines: TScriptFileLines;
     AnsiConvertCodePage: Cardinal;
@@ -1842,7 +1865,8 @@ begin
   Lines := TLowFragStringList.Create;
   try
     if FromPreProcessor then begin
-      Data.Compiler.AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
+      if not Data.Scanning then
+        Data.Compiler.AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
       Data.Compiler.PreprocIncludedFilenames.Add(Filename);
     end;
     F := TTextFileReader.Create(Filename, fdOpenExisting, faRead, fsRead);
@@ -1950,31 +1974,31 @@ begin
   end;
 end;
 
+function TSetupCompiler.ReadMainScriptLines: TLowFragStringList;
+var
+  Reset: Boolean;
+  Data: TCompilerCallbackData;
+begin
+  Result := TLowFragStringList.Create;
+  try
+    Reset := True;
+    while True do begin
+      Data.Reset := Reset;
+      Data.LineRead := nil;
+      DoCallback(iscbReadScript, Data);
+      if Data.LineRead = nil then
+        Break;
+      Result.Add(Data.LineRead);
+      Reset := False;
+    end;
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
 function TSetupCompiler.ReadScriptFile(const Filename: String;
   const UseCache: Boolean; const AnsiConvertCodePage: Cardinal): TScriptFileLines;
-
-  function ReadMainScriptLines: TLowFragStringList;
-  var
-    Reset: Boolean;
-    Data: TCompilerCallbackData;
-  begin
-    Result := TLowFragStringList.Create;
-    try
-      Reset := True;
-      while True do begin
-        Data.Reset := Reset;
-        Data.LineRead := nil;
-        DoCallback(iscbReadScript, Data);
-        if Data.LineRead = nil then
-          Break;
-        Result.Add(Data.LineRead);
-        Reset := False;
-      end;
-    except
-      Result.Free;
-      raise;
-    end;
-  end;
 
   function SelectPreprocessor(const Lines: TLowFragStringList): TPreprocessScriptProc;
   var
@@ -9129,6 +9153,38 @@ begin
   end;
 end;
 
+procedure TSetupCompiler.Scan;
+var
+  Params: TPreprocessScriptParams;
+  Data: TPreCompilerData;
+  I: Integer;
+begin
+  FillChar(Params, SizeOf(Params), 0);
+  Params.Size := SizeOf(Params);
+  Params.InterfaceVersion := 2;
+  Params.CompilerBinVersion := SetupBinVersion;
+  Params.Filename := '';
+  Params.SourcePath := PChar(SourceDir);
+  Params.CompilerPath := PChar(CompilerDir);
+  Params.CompilerData := @Data;
+  Params.LoadFileProc := PreLoadFileProc;
+  Params.LineInProc := PreLineInProc;
+  Params.PrependDirNameProc := PrePrependDirNameProc;
+
+  FillChar(Data, SizeOf(Data), 0);
+  Data.Compiler := Self;
+  Data.Scanning := True;
+  Data.InFiles := TStringList.Create;
+  try
+    Data.InFiles.AddObject('', ReadMainScriptLines);
+    BuiltinPreprocessScriptEx(Params, True);
+  finally
+    for I := Data.InFiles.Count-1 downto 0 do
+      Data.InFiles.Objects[I].Free;
+    Data.InFiles.Free;
+  end;
+end;
+
 { Interface helper functions }
 
 function CheckParams(const Params: TCompileScriptParamsEx): Boolean;
@@ -9232,7 +9288,7 @@ begin
     try
       SetupCompiler.Compile;
     except
-      Result := isceCompileFailure;
+      Result := isceError;
       S := GetIncludedFilenames(SetupCompiler);
       Data.IncludedFilenames := PChar(S);
       Params.CallbackProc(iscbNotifyIncludedFiles, Data, Params.AppData);
@@ -9259,6 +9315,38 @@ begin
     Data.DebugInfo := SetupCompiler.DebugInfo.Memory;
     Data.DebugInfoSize := SetupCompiler.DebugInfo.Size;
     Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
+  finally
+    SetupCompiler.Free;
+  end;
+end;
+
+function ISScanScript(const Params: TCompileScriptParamsEx;
+  const PropagateExceptions: Boolean): Integer;
+var
+  SetupCompiler: TSetupCompiler;
+  Data: TCompilerCallbackData;
+  S: String;
+begin
+  if not CheckParams(Params) then begin
+    Result := isceInvalidParam;
+    Exit;
+  end;
+  SetupCompiler := TSetupCompiler.Create(nil);
+  try
+    InitializeSetupCompiler(SetupCompiler, Params);
+
+    Result := isceNoError;
+    try
+      SetupCompiler.Scan;
+    except
+      Result := isceError;
+      if PropagateExceptions then
+        raise;
+      Exit;
+    end;
+    S := GetIncludedFilenames(SetupCompiler);
+    Data.IncludedFilenames := PChar(S);
+    Params.CallbackProc(iscbNotifyIncludedFiles, Data, Params.AppData);
   finally
     SetupCompiler.Free;
   end;
