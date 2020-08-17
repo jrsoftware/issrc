@@ -17,7 +17,7 @@ uses
 const
   ispeSuccess = 0;
   ispeInvalidParam = 1;
-  ispePreprocessError =  2;
+  ispePreprocessError = 2;
   ispeSilentAbort = 3;
 
 type
