@@ -2946,11 +2946,8 @@ end;
 procedure TCompileForm.MainMemoDropFiles(Sender: TObject; X, Y: Integer;
   AFiles: TStrings);
 begin
-  if (AFiles.Count > 0) and ConfirmCloseFile(True, True) then begin
-    OpenFile(FActiveMemo, AFiles[0], True);
-    if FActiveMemo <> FMainMemo then
-      FActiveMemo.ForceModifiedState;
-  end;
+  if (AFiles.Count > 0) and ConfirmCloseFile(True, True) then
+    OpenFile(FMainMemo, AFiles[0], True);
 end;
 
 procedure TCompileForm.StatusBarResize(Sender: TObject);
