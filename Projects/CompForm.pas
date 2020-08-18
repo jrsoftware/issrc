@@ -56,6 +56,9 @@ type
     BreakPoints: TList;
     LineState: PLineStateArray;
     LineStateCapacity, LineStateCount: Integer;
+  public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
   TIncludedFile = class
@@ -364,7 +367,7 @@ type
     procedure CheckIfTerminated;
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
-    function ConfirmCloseFile(const PromptToSave: Boolean; const OnlyActiveMemo: Boolean): Boolean;
+    function ConfirmCloseFile(const PromptToSave: Boolean; const OnlyMainMemo: Boolean): Boolean;
     procedure DebuggingStopped(const WaitForTermination: Boolean);
     procedure DebugLogMessage(const S: String);
     procedure DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
@@ -500,6 +503,20 @@ const
 
   LineStateGrowAmount = 4000;
 
+{ TCompMainScintEdit }
+
+constructor TCompMainScintEdit.Create;
+begin
+  inherited;
+  BreakPoints := TList.Create;
+end;
+
+destructor TCompMainScintEdit.Destroy;
+begin
+  BreakPoints.Free;
+  inherited;
+end;
+
 { TCompileFormMemoPopupMenu }
 
 type
@@ -516,6 +533,8 @@ begin
   Form := Owner as TCompileForm;
   TrackPopupMenu(Form.EMenu.Handle, TPM_RIGHTBUTTON, X, Y, 0, Form.Handle, nil);
 end;
+
+{ TCompileForm }
 
 function TCompileForm.InitializeMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
 begin
@@ -552,8 +571,6 @@ begin
   Memo.Used := True;
   Result := Memo;
 end;
-
-{ TCompileForm }
 
 constructor TCompileForm.Create(AOwner: TComponent);
 
@@ -697,18 +714,13 @@ begin
   FTheme := TTheme.Create;
   FMemos := TList<TCompScintEdit>.Create;
   FMainMemo := InitializeMainMemo(TCompMainScintEdit.Create(Self), PopupMenu);
-  for I := 0 to MaxMemos-1 do begin
-    if I = 0 then
-      FMemos.Add(FMainMemo)
-    else
-      FMemos.Add(InitializeMemo(TCompScintEdit.Create(Self), PopupMenu));
-  end;
+  FMemos.Add(FMainMemo);
+  for I := 1 to MaxMemos-1 do
+    FMemos.Add(InitializeMemo(TCompScintEdit.Create(Self), PopupMenu));
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
   FErrorMemo := FMainMemo;
   FMemosStyler.Theme := FTheme;
-
-  FMainMemo.BreakPoints := TList.Create;
 
   UpdateTabSetListsItemHeightAndDebugTimeWidth;
 
@@ -797,13 +809,12 @@ begin
     SaveConfig;
 
   FTheme.Free;
-  if FMainMemo <> nil then
-    FMainMemo.BreakPoints.Free;
   DestroyDebugInfo;
   FIncludedFiles.Free;
   FSignTools.Free;
   FMRUParametersList.Free;
   FMRUMainFilesList.Free;
+  FMemos.Free;
 
   inherited;
 end;
@@ -1114,11 +1125,11 @@ begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
 end;
 
-function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean; const OnlyActiveMemo: Boolean): Boolean;
+function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean; const OnlyMainMemo: Boolean): Boolean;
 
   function PromptToSaveMemo(const AMemo: TCompScintEdit): Boolean;
-var
-  FileTitle: String;
+  var
+    FileTitle: String;
   begin
     Result := True;
     if AMemo.Modified then begin
@@ -1151,7 +1162,7 @@ begin
   Result := True;
   if PromptToSave then begin
     for Memo in FMemos do begin
-      if (not OnlyActiveMemo or (Memo = FActiveMemo)) and Memo.Used then begin
+      if (not OnlyMainMemo or (Memo = FMainMemo)) and Memo.Used then begin
         Result := PromptToSaveMemo(Memo);
         if not Result then
           Exit;
@@ -1399,7 +1410,7 @@ var
   AppData: TAppData;
   StartTime, ElapsedTime, ElapsedSeconds: DWORD;
   I: Integer;
-  Memo: TCompScintEdit;
+  Memo, OldActiveMemo: TCompScintEdit;
 begin
   if FCompiling then begin
     { Shouldn't get here, but just in case... }
@@ -1450,15 +1461,16 @@ begin
   end; {else: Command line compile, AFilename already set. }
 
   DestroyDebugInfo;
+  OldActiveMemo := FActiveMemo;
   AppData.Lines := TStringList.Create;
   try
     FBuildAnimationFrame := 0;
     FProgress := 0;
     FProgressMax := 0;
 
-    FMainMemo.CancelAutoComplete;
-    FMainMemo.Cursor := crAppStart;
-    FMainMemo.SetCursorID(999);  { hack to keep it from overriding Cursor }
+    FActiveMemo.CancelAutoComplete;
+    FActiveMemo.Cursor := crAppStart;
+    FActiveMemo.SetCursorID(999);  { hack to keep it from overriding Cursor }
     CompilerOutputList.Cursor := crAppStart;
     for Memo in FMemos do
       Memo.ReadOnly := True;
@@ -1544,8 +1556,8 @@ begin
     AppData.Lines.Free;
     FCompiling := False;
     SetLowPriority(False, FSavePriorityClass);
-    FMainMemo.Cursor := crDefault;
-    FMainMemo.SetCursorID(SC_CURSORNORMAL);
+    OldActiveMemo.Cursor := crDefault;
+    OldActiveMemo.SetCursorID(SC_CURSORNORMAL);
     CompilerOutputList.Cursor := crDefault;
     for Memo in FMemos do
       Memo.ReadOnly := False;
@@ -1935,7 +1947,7 @@ begin
     HelpFile := GetHelpFile;
     if Assigned(HtmlHelp) then begin
       HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
-      S := FMainMemo.WordAtCursor;
+      S := FActiveMemo.WordAtCursor;
       if S <> '' then begin
         FillChar(KLink, SizeOf(KLink), 0);
         KLink.cbStruct := SizeOf(KLink);
@@ -2117,6 +2129,7 @@ var
   Memo: TCompScintEdit;
   I: Integer;
 begin
+  FActiveMemo.CancelAutoComplete;
   for I := 0 to MemosTabSet.Tabs.Count-1 do begin
     Memo := FMemos[I];
     Memo.Visible := (I = MemosTabSet.TabIndex);
@@ -2332,6 +2345,7 @@ var
   OptionsForm: TOptionsForm;
   Ini: TConfigIniFile;
   OldOpenIncludedFiles: Boolean;
+  Memo: TCompScintEdit;
 begin
   OptionsForm := TOptionsForm.Create(Application);
   try
@@ -2392,10 +2406,12 @@ begin
       ScanIncludedFiles
     else
       UpdateIncludedFilesMemos;
-    { Move caret to start of line to ensure it doesn't end up in the middle
+    for Memo in FMemos do begin
+      { Move caret to start of line to ensure it doesn't end up in the middle
       of a double-byte character if the code page changes from SBCS to DBCS }
-    FMainMemo.CaretLine := FMainMemo.CaretLine;
-    FMainMemo.Font.Assign(OptionsForm.FontPanel.Font);
+      Memo.CaretLine := FMainMemo.CaretLine;
+      Memo.Font.Assign(OptionsForm.FontPanel.Font);
+    end;
     SyncEditorOptions;
     UpdateNewMainFileButtons;
     UpdateTheme;
@@ -3983,10 +3999,10 @@ var
   NewTime: TFileTime;
   Changed: Boolean;
 begin
-  if FMainMemo.Filename = '' then
-    Exit;
-
   for Memo in FMemos do begin
+    if (Memo.Filename = '') or not Memo.Used then
+      Continue;
+
     { See if the file has been modified outside the editor }
     Changed := False;
     if GetLastWriteTimeOfFile(Memo.Filename, @NewTime) then begin
