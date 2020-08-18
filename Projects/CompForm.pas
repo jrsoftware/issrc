@@ -3923,44 +3923,50 @@ begin
   UpdateTargetMenu;
 end;
 
-{todo}procedure TCompileForm.AppOnActivate(Sender: TObject);
+procedure TCompileForm.AppOnActivate(Sender: TObject);
 const
   ReloadMessages: array[Boolean] of String = (
-    'The file has been modified outside of the source editor.' + SNewLine2 +
+    'The %s file has been modified outside of the source editor.' + SNewLine2 +
       'Do you want to reload the file?',
-    'The file has been modified outside of the source editor. Changes have ' +
+    'The %s file has been modified outside of the source editor. Changes have ' +
       'also been made in the source editor.' + SNewLine2 + 'Do you want to ' +
       'reload the file and lose the changes made in the source editor?');
 var
+  Memo: TCompScintEdit;
   NewTime: TFileTime;
   Changed: Boolean;
 begin
   if FMainMemo.Filename = '' then
     Exit;
 
-  { See if the file has been modified outside the editor }
-  Changed := False;
-  if GetLastWriteTimeOfFile(FMainMemo.Filename, @NewTime) then begin
-    if CompareFileTime(FMainMemo.FileLastWriteTime, NewTime) <> 0 then begin
-      FMainMemo.FileLastWriteTime := NewTime;
-      Changed := True;
+  for Memo in FMemos do begin
+    { See if the file has been modified outside the editor }
+    Changed := False;
+    if GetLastWriteTimeOfFile(Memo.Filename, @NewTime) then begin
+      if CompareFileTime(Memo.FileLastWriteTime, NewTime) <> 0 then begin
+        Memo.FileLastWriteTime := NewTime;
+        Changed := True;
+      end;
     end;
-  end;
 
-  { If it has been, offer to reload it }
-  if Changed then begin
-    if IsWindowEnabled(Application.Handle) then begin
-      if MsgBox(FMainMemo.Filename + SNewLine2 + ReloadMessages[FMainMemo.Modified],
-         SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
-        if ConfirmCloseFile(False, False) then
-          OpenFile(FMainMemo, FMainMemo.Filename, False);
-    end
-    else begin
-      { When a modal dialog is up, don't offer to reload the file. Probably
-        not a good idea since the dialog might be manipulating the file. }
-      MsgBox(FMainMemo.Filename + SNewLine2 + 'The file has been modified outside ' +
-        'of the source editor. You might want to reload it.',
-        SCompilerFormCaption, mbInformation, MB_OK);
+    { If it has been, offer to reload it }
+    if Changed then begin
+      if IsWindowEnabled(Application.Handle) then begin
+        if MsgBox(Format(ReloadMessages[Memo.Modified], [Memo.Filename]),
+           SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
+          if ConfirmCloseFile(False, False) then begin
+            OpenFile(Memo, Memo.Filename, False);
+            if Memo = FMainMemo then
+              Break; { Reloading the main script will also reload all include files }
+          end;
+      end
+      else begin
+        { When a modal dialog is up, don't offer to reload the file. Probably
+          not a good idea since the dialog might be manipulating the file. }
+        MsgBox('The ' + Memo.Filename + ' file has been modified outside ' +
+          'of the source editor. You might want to reload it.',
+          SCompilerFormCaption, mbInformation, MB_OK);
+      end;
     end;
   end;
 end;
