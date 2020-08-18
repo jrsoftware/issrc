@@ -37,13 +37,16 @@ type
     FFileLastWriteTime: TFileTime;
     FSaveInUTF8Encoding: Boolean;
     FTheme: TTheme;
+    FUsed: Boolean;
   protected
     procedure CreateWnd; override;
   public
+    ErrorLine, ErrorCaretPosition: Integer;
     property Filename: String read FFileName write FFileName;
     property FileLastWriteTime: TFileTime read FFileLastWriteTime write FFileLastWriteTime;
     property SaveInUTF8Encoding: Boolean read FSaveInUTF8Encoding write FSaveInUTF8Encoding;
     property Theme: TTheme read FTheme write FTheme;
+    property Used: Boolean read FUsed write FUsed;
     procedure UpdateThemeColors;
   end;
 
