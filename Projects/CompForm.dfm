@@ -348,6 +348,11 @@ object CompileForm: TCompileForm
           OnClick = FSaveEncodingItemClick
         end
       end
+      object FSaveAll: TMenuItem
+        Caption = 'Sa&ve All'
+        ShortCut = 24659
+        OnClick = FSaveAllClick
+      end
       object N1: TMenuItem
         Caption = '-'
       end

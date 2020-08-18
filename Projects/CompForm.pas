@@ -195,6 +195,7 @@ type
     ToolBarPanel: TPanel;
     HMailingList: TMenuItem;
     MemosTabSet: TNewTabSet;
+    FSaveAll: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -281,6 +282,7 @@ type
     procedure HMailingListClick(Sender: TObject);
     procedure TInsertMsgBoxClick(Sender: TObject);
     procedure MemosTabSetClick(Sender: TObject);
+    procedure FSaveAllClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>; { FMemos[0] is always the main memo }
@@ -1592,6 +1594,7 @@ begin
   FSaveMainFileAs.Enabled := FActiveMemo = FMainMemo;
   FSaveEncodingAuto.Checked := not FActiveMemo.SaveInUTF8Encoding;
   FSaveEncodingUTF8.Checked := FActiveMemo.SaveInUTF8Encoding;
+  FSaveAll.Visible := FOptions.OpenIncludedFiles;
   ReadMRUMainFilesList;
   FMRUMainFilesSep.Visible := FMRUMainFilesList.Count <> 0;
   for I := 0 to High(FMRUMainFilesMenuItems) do
@@ -1647,6 +1650,15 @@ end;
 procedure TCompileForm.FSaveEncodingItemClick(Sender: TObject);
 begin
   FActiveMemo.SaveInUTF8Encoding := (Sender = FSaveEncodingUTF8);
+end;
+
+procedure TCompileForm.FSaveAllClick(Sender: TObject);
+var
+  Memo: TCompScintEdit;
+begin
+  for Memo in FMemos do
+    if Memo.Visible then
+      SaveFile(Memo, False);
 end;
 
 procedure TCompileForm.FMRUClick(Sender: TObject);
