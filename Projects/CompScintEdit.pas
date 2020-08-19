@@ -44,6 +44,7 @@ type
     procedure SetFilename(const AFilename: String); virtual;
   public
     ErrorLine, ErrorCaretPosition: Integer;
+    StepLine: Integer;
     property Filename: String read FFileName write SetFilename;
     property DebugEntriesFilenameHash: TMurmur3Hash32 read FDebugEntriesFilenameHash;
     property FileLastWriteTime: TFileTime read FFileLastWriteTime write FFileLastWriteTime;

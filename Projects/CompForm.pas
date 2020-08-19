@@ -52,7 +52,6 @@ type
 
   TCompMainScintEdit = class(TCompScintEdit)
   private
-    StepLine: Integer;
     BreakPoints: TList;
     LineState: PLineStateArray;
     LineStateCapacity, LineStateCount: Integer;
@@ -291,7 +290,7 @@ type
     { Private declarations }
     FMemos: TList<TCompScintEdit>; { FMemos[0] is always the main memo }
     FMainMemo: TCompMainScintEdit;
-    FActiveMemo, FErrorMemo: TCompScintEdit;
+    FActiveMemo, FErrorMemo, FStepMemo: TCompScintEdit;
     FMemosStyler: TInnoSetupStyler;
     FCompilerVersion: PCompilerVersionInfo;
     FMRUMainFilesMenuItems: array[0..MRUListMaxCount-1] of TMenuItem;
@@ -415,7 +414,7 @@ type
     procedure ScanIncludedFiles;
     procedure SetErrorLine(const AMemo: TCompScintEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
-    procedure SetMainMemoStepLine(ALine: Integer);
+    procedure SetStepLine(const AMemo: TCompScintEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
@@ -554,6 +553,7 @@ begin
   Memo.ErrorLine := -1;
   Memo.Font.Name := 'Courier New';
   Memo.Font.Size := 10;
+  Memo.StepLine := -1;
   Memo.Styler := FMemosStyler;
   Memo.PopupMenu := PopupMenu;
   Memo.OnChange := MemoChange;
@@ -573,7 +573,6 @@ begin
   InitializeMemo(Memo, PopupMenu);
   Memo.AcceptDroppedFiles := True;
   Memo.ShowHint := True;
-  Memo.StepLine := -1;
   Memo.OnDropFiles := MainMemoDropFiles;
   Memo.OnMarginClick := MainMemoMarginClick;
   Memo.OnHintShow := MainMemoHintShow;
@@ -729,6 +728,7 @@ begin
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
   FErrorMemo := FMainMemo;
+  FStepMemo := FMainMemo;
   FMemosStyler.Theme := FTheme;
 
   UpdateTabSetListsItemHeightAndDebugTimeWidth;
@@ -2503,17 +2503,22 @@ begin
   end;
 end;
 
-procedure TCompileForm.SetMainMemoStepLine(ALine: Integer);
+procedure TCompileForm.SetStepLine(const AMemo: TCompScintEdit; ALine: Integer);
 var
   OldLine: Integer;
 begin
-  if FMainMemo.StepLine <> ALine then begin
-    OldLine := FMainMemo.StepLine;
-    FMainMemo.StepLine := ALine;
+  if AMemo <> FStepMemo then begin
+    SetStepLine(FStepMemo, -1);
+    FStepMemo := AMemo;
+  end;
+
+  if FStepMemo.StepLine <> ALine then begin
+    OldLine := FStepMemo.StepLine;
+    FStepMemo.StepLine := ALine;
     if OldLine >= 0 then
-      UpdateLineMarkers(FMainMemo, OldLine);
-    if FMainMemo.StepLine >= 0 then
-      UpdateLineMarkers(FMainMemo, FMainMemo.StepLine);
+      UpdateLineMarkers(FStepMemo, OldLine);
+    if FStepMemo.StepLine >= 0 then
+      UpdateLineMarkers(FStepMemo, FStepMemo.StepLine);
   end;
 end;
 
@@ -3148,8 +3153,7 @@ begin
      ((Memo = FMainMemo) and (FMainMemo.BreakPoints.IndexOf(Pointer(LineNumber)) <> -1)) then begin
     MoveCaretAndActivateMemo(Memo, LineNumber, True);
     HideError;
-    if Memo = FMainMemo then
-      SetMainMemoStepLine(LineNumber);
+    SetStepLine(Memo, LineNumber);
     BringToForeground;
     { Tell Setup to pause }
     Message.Result := 1;
@@ -3180,10 +3184,8 @@ begin
 
     if (Memo <> nil) and (LineNumber >= 0) then begin
       MoveCaretAndActivateMemo(Memo, LineNumber, True);
-      if Memo = FMainMemo then begin
-        SetMainMemoStepLine(-1);
-        SetErrorLine(FMainMemo, LineNumber);
-      end;
+      SetStepLine(Memo, -1);
+      SetErrorLine(Memo, LineNumber);
     end;
 
     BringToForeground;
@@ -3424,7 +3426,7 @@ begin
   FTempDir := '';
   CheckIfRunningTimer.Enabled := False;
   HideError;
-  SetMainMemoStepLine(-1);
+  SetStepLine(FStepMemo, -1);
   UpdateRunMenu;
   UpdateCaption;
   DebugLogMessage('*** ' + ExitCodeText);
@@ -3682,7 +3684,7 @@ begin
   CompileIfNecessary;
   FStepMode := AStepMode;
   HideError;
-  SetMainMemoStepLine(-1);
+  SetStepLine(FStepMemo, -1);
   if FDebugging then begin
     if FPaused then begin
       FPaused := False;
@@ -4338,7 +4340,9 @@ begin
     else if NewMarker = mmIconBreakpointBad then
       FMainMemo.AddMarker(Line, mmLineBreakpointBad);
   end else begin
-    if AMemo.ErrorLine = Line then
+    if AMemo.StepLine = Line then
+      AMemo.AddMarker(Line, mmLineStep)
+    else if AMemo.ErrorLine = Line then
       AMemo.AddMarker(Line, mmLineError);
   end;
 end;
