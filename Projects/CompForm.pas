@@ -443,7 +443,7 @@ type
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
     procedure WMDebuggerGoodbye(var Message: TMessage); message WM_Debugger_Goodbye;
     procedure WMDebuggerQueryVersion(var Message: TMessage); message WM_Debugger_QueryVersion;
-    function GetMainFileLineNumberFromEntry(Kind, Index: Integer): Integer;
+    procedure GetMemoAndLineNumberFromEntry(Kind, Index: Integer; var Memo: TCompScintEdit; var LineNumber: Integer);
     procedure DebuggerStepped(var Message: TMessage; const Intermediate: Boolean);
     procedure WMDebuggerStepped(var Message: TMessage); message WM_Debugger_Stepped;
     procedure WMDebuggerSteppedIntermediate(var Message: TMessage); message WM_Debugger_SteppedIntermediate;
@@ -3070,19 +3070,33 @@ begin
   DebuggingStopped(True);
 end;
 
-function TCompileForm.GetMainFileLineNumberFromEntry(Kind, Index: Integer): Integer;
+procedure TCompileForm.GetMemoAndLineNumberFromEntry(Kind, Index: Integer; var Memo: TCompScintEdit; var LineNumber: Integer);
+
+  function GetMemoFromDebugEntryFilenameHash(const FilenameHash: TMurmur3Hash32): TCompScintEdit;
+  var
+    Memo: TCompScintEdit;
+  begin
+    for Memo in FMemos do begin
+      if Memo.Used and (Memo.DebugEntriesFilenameHash = FilenameHash) then begin
+        Result := Memo;
+        Exit;
+      end;
+    end;
+    Result := nil;
+  end;
+
 var
   I: Integer;
 begin
-  Result := -1;
   for I := 0 to FDebugEntriesCount-1 do begin
-    if (FDebugEntries[I].FilenameHash = FMainMemo.DebugEntriesFilenameHash) and
-       (FDebugEntries[I].Kind = Kind) and
-       (FDebugEntries[I].Index = Index) then begin
-      Result := FDebugEntries[I].LineNumber;
-      Break;
+    if (FDebugEntries[I].Kind = Kind) and (FDebugEntries[I].Index = Index) then begin
+      Memo := GetMemoFromDebugEntryFilenameHash(FDebugEntries[I].FilenameHash);
+      LineNumber := FDebugEntries[I].LineNumber;
+      Exit;
     end;
   end;
+  Memo := nil;
+  LineNumber := -1;
 end;
 
 procedure TCompileForm.BringToForeground;
@@ -3108,10 +3122,11 @@ end;
 
 procedure TCompileForm.DebuggerStepped(var Message: TMessage; const Intermediate: Boolean);
 var
+  Memo: TCompScintEdit;
   LineNumber: Integer;
 begin
-  LineNumber := GetMainFileLineNumberFromEntry(Message.WParam, Message.LParam);
-  if LineNumber < 0 then
+  GetMemoAndLineNumberFromEntry(Message.WParam, Message.LParam, Memo, LineNumber);
+  if (Memo <> FMainMemo) or (LineNumber < 0) then
     Exit;
 
   if (LineNumber < FMainMemo.LineStateCount) and
@@ -3150,12 +3165,14 @@ end;
 
 procedure TCompileForm.WMDebuggerException(var Message: TMessage);
 var
+  Memo: TCompScintEdit;
   LineNumber: Integer;
+  S: String;
 begin
   if FOptions.PauseOnDebuggerExceptions then begin
-    LineNumber := GetMainFileLineNumberFromEntry(Message.WParam, Message.LParam);
+    GetMemoAndLineNumberFromEntry(Message.WParam, Message.LParam, Memo, LineNumber);
 
-    if (LineNumber >= 0) then begin
+    if (Memo = FMainMemo) and (LineNumber >= 0) then begin
       MoveCaretAndActivateMemo(FMainMemo, LineNumber, True);
       SetMainMemoStepLine(-1);
       SetErrorLine(FMainMemo, LineNumber);
@@ -3169,9 +3186,12 @@ begin
     UpdateCaption;
 
     ReplyMessage(Message.Result);  { so that Setup enters a paused state now }
-    if LineNumber >= 0 then
-      MsgBox(Format('Line %d:' + SNewLine + '%s.', [LineNumber + 1, FDebuggerException]), 'Runtime Error', mbCriticalError, mb_Ok)
-    else
+    if LineNumber >= 0 then begin
+      S := Format('Line %d:' + SNewLine + '%s.', [LineNumber + 1, FDebuggerException]);
+      if (Memo <> nil) and (Memo.Filename <> '') then
+        S := Memo.Filename + SNewLine2 + S;
+      MsgBox(S, 'Runtime Error', mbCriticalError, mb_Ok)
+    end else
       MsgBox(FDebuggerException + '.', 'Runtime Error', mbCriticalError, mb_Ok);
   end;
 end;
