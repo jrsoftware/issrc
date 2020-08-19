@@ -38,7 +38,7 @@ implementation
 uses
   CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
-  FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
+  FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1, MurmurHash,
   MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, CompExeUpdate,
 {$IFDEF STATICPREPROC}
   IsppPreprocess,
@@ -1701,14 +1701,23 @@ begin
   CryptInitialized := True;
 end;
 
+var
+  GotPrevLineFilename: Boolean;
+  PrevLineFilename: String;
+  PrevLineFilenameHash: TMurmur3Hash32;
+
 procedure TSetupCompiler.WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
 var
   Rec: TDebugEntry;
 begin
-  if LineFilename = '' then
-    Rec.LineNumber := LineNumber
-  else
-    Rec.LineNumber := 0;
+  if not GotPrevLineFilename or (PathCompare(LineFilename, PrevLineFilename) <> 0) then begin
+    { Note that LineFilename is an empty sting when the compiler compiles main script from the IDE's main memo. }
+    PrevLineFilenameHash := TMurmur3.HashString32(LineFilename);
+    PrevLineFilename := LineFilename;
+    GotPrevLineFilename := True;
+  end;
+  Rec.FilenameHash := PrevLineFilenameHash;
+  Rec.LineNumber := LineNumber;
   Rec.Kind := Ord(Kind);
   Rec.Index := Index;
   DebugInfo.WriteBuffer(Rec, SizeOf(Rec));

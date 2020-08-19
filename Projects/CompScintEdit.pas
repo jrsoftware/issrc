@@ -12,7 +12,7 @@ unit CompScintEdit;
 interface
 
 uses
-  Windows, Graphics, ScintEdit, ModernColors;
+  Windows, Graphics, ScintEdit, ModernColors, MurmurHash;
 
 const
   { Memo marker numbers }
@@ -39,10 +39,13 @@ type
     FTheme: TTheme;
     FUsed: Boolean;
   protected
+    FDebugEntriesFilenameHash: TMurmur3Hash32;
     procedure CreateWnd; override;
+    procedure SetFilename(const AFilename: String); virtual;
   public
     ErrorLine, ErrorCaretPosition: Integer;
-    property Filename: String read FFileName write FFileName;
+    property Filename: String read FFileName write SetFilename;
+    property DebugEntriesFilenameHash: TMurmur3Hash32 read FDebugEntriesFilenameHash;
     property FileLastWriteTime: TFileTime read FFileLastWriteTime write FFileLastWriteTime;
     property SaveInUTF8Encoding: Boolean read FSaveInUTF8Encoding write FSaveInUTF8Encoding;
     property Theme: TTheme read FTheme write FTheme;
@@ -170,6 +173,12 @@ begin
   Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
+end;
+
+procedure TCompScintEdit.SetFilename(const AFilename: String);
+begin
+  FFilename := AFilename;
+  FDebugEntriesFilenameHash := TMurmur3.HashString32(FFilename);
 end;
 
 procedure TCompScintEdit.UpdateThemeColors;

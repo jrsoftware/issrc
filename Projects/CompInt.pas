@@ -84,7 +84,7 @@ type
         OutputExeFilename: PChar;  { [in] The name of the resulting setup.exe,
                                           or empty if output was disabled
                                           (latter new in 5.5.5) }
-        DebugInfo: Pointer;        { [in] Debug info (new in 3.0.0.1) }
+        DebugInfo: Pointer;        { [in] Debug info (changed in 6.1.0) }
         DebugInfoSize: Cardinal);  { [in] Size of debug info (new in 3.0.0.1) }
 
       iscbNotifyError: (

@@ -56,6 +56,8 @@ type
     BreakPoints: TList;
     LineState: PLineStateArray;
     LineStateCapacity, LineStateCount: Integer;
+  protected
+    procedure SetFilename(const AFilename: String); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -326,8 +328,8 @@ type
     FCompileWantAbort: Boolean;
     FBecameIdle: Boolean;
     FModifiedAnySinceLastCompile, FModifiedAnySinceLastCompileAndGo: Boolean;
-    FMainFileDebugEntries: PDebugEntryArray;
-    FMainFileDebugEntriesCount: Integer;
+    FDebugEntries: PDebugEntryArray;
+    FDebugEntriesCount: Integer;
     FMainFileVariableDebugEntries: PVariableDebugEntryArray;
     FMainFileVariableDebugEntriesCount: Integer;
     FCompiledCodeText: AnsiString;
@@ -476,7 +478,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types,
-  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
+  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc, MurmurHash,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMessageBoxDesigner;
@@ -515,6 +517,13 @@ destructor TCompMainScintEdit.Destroy;
 begin
   BreakPoints.Free;
   inherited;
+end;
+
+procedure TCompMainScintEdit.SetFileName(const AFilename: String);
+begin
+  inherited;
+  { When compiling from the memo the compiler always uses '' as the filename. }
+  FDebugEntriesFilenameHash := TMurmur3.HashString32('');
 end;
 
 { TCompileFormMemoPopupMenu }
@@ -1330,7 +1339,7 @@ begin
       iscbNotifySuccess:
         begin
           OutputExe := Data.OutputExeFilename;
-          if Form.FCompilerVersion.BinVersion >= $3000001 then
+          if Form.FCompilerVersion.BinVersion >= $6010000 then
             Form.ParseDebugInfo(Data.DebugInfo);
         end;
       iscbNotifyError:
@@ -3066,10 +3075,11 @@ var
   I: Integer;
 begin
   Result := -1;
-  for I := 0 to FMainFileDebugEntriesCount-1 do begin
-    if (FMainFileDebugEntries[I].Kind = Kind) and
-       (FMainFileDebugEntries[I].Index = Index) then begin
-      Result := FMainFileDebugEntries[I].LineNumber;
+  for I := 0 to FDebugEntriesCount-1 do begin
+    if (FDebugEntries[I].FilenameHash = FMainMemo.DebugEntriesFilenameHash) and
+       (FDebugEntries[I].Kind = Kind) and
+       (FDebugEntries[I].Index = Index) then begin
+      Result := FDebugEntries[I].LineNumber;
       Break;
     end;
   end;
@@ -3234,9 +3244,9 @@ begin
   FreeMem(FMainMemo.LineState);
   FMainMemo.LineState := nil;
 
-  FMainFileDebugEntriesCount := 0;
-  FreeMem(FMainFileDebugEntries);
-  FMainFileDebugEntries := nil;
+  FDebugEntriesCount := 0;
+  FreeMem(FDebugEntries);
+  FDebugEntries := nil;
 
   FMainFileVariableDebugEntriesCount := 0;
   FreeMem(FMainFileVariableDebugEntries);
@@ -3272,12 +3282,12 @@ begin
 
     Inc(Cardinal(DebugInfo), SizeOf(Header^));
 
-    FMainFileDebugEntriesCount := Header.DebugEntryCount;
-    Size := FMainFileDebugEntriesCount * SizeOf(TDebugEntry);
-    GetMem(FMainFileDebugEntries, Size);
-    Move(DebugInfo^, FMainFileDebugEntries^, Size);
-    for I := 0 to FMainFileDebugEntriesCount-1 do
-      Dec(FMainFileDebugEntries[I].LineNumber);
+    FDebugEntriesCount := Header.DebugEntryCount;
+    Size := FDebugEntriesCount * SizeOf(TDebugEntry);
+    GetMem(FDebugEntries, Size);
+    Move(DebugInfo^, FDebugEntries^, Size);
+    for I := 0 to FDebugEntriesCount-1 do
+      Dec(FDebugEntries[I].LineNumber);
     Inc(Cardinal(DebugInfo), Size);
 
     FMainFileVariableDebugEntriesCount := Header.VariableDebugEntryCount;
@@ -3291,11 +3301,12 @@ begin
 
     SetString(FCompiledCodeDebugInfo, PAnsiChar(DebugInfo), Header.CompiledCodeDebugInfoLength);
 
-    for I := 0 to FMainFileDebugEntriesCount-1 do begin
-      if (FMainFileDebugEntries[I].LineNumber >= 0) and
-         (FMainFileDebugEntries[I].LineNumber < FMainMemo.LineStateCount) then begin
-        if FMainMemo.LineState[FMainFileDebugEntries[I].LineNumber] = lnUnknown then
-          FMainMemo.LineState[FMainFileDebugEntries[I].LineNumber] := lnHasEntry;
+    for I := 0 to FDebugEntriesCount-1 do begin
+      if (FDebugEntries[I].FilenameHash = FMainMemo.DebugEntriesFilenameHash) and
+         (FDebugEntries[I].LineNumber >= 0) and
+         (FDebugEntries[I].LineNumber < FMainMemo.LineStateCount) then begin
+        if FMainMemo.LineState[FDebugEntries[I].LineNumber] = lnUnknown then
+          FMainMemo.LineState[FDebugEntries[I].LineNumber] := lnHasEntry;
       end;
     end;
     UpdateAllMainMemoLineMarkers;
@@ -3718,9 +3729,10 @@ procedure TCompileForm.RRunToCursorClick(Sender: TObject);
     I: Integer;
   begin
     Result := False;
-    for I := 0 to FMainFileDebugEntriesCount-1 do begin
-      if FMainFileDebugEntries[I].LineNumber = LineNumber then begin
-        DebugEntry := FMainFileDebugEntries[I];
+    for I := 0 to FDebugEntriesCount-1 do begin
+      if (FDebugEntries[I].FilenameHash = FMainMemo.DebugEntriesFilenameHash) and
+         (FDebugEntries[I].LineNumber = LineNumber) then begin
+        DebugEntry := FDebugEntries[I];
         Result := True;
         Break;
       end;
@@ -4143,9 +4155,10 @@ procedure TCompileForm.MainMemoLinesInserted(FirstLine, Count: integer);
 var
   I, Line: Integer;
 begin
-  for I := 0 to FMainFileDebugEntriesCount-1 do
-    if FMainFileDebugEntries[I].LineNumber >= FirstLine then
-      Inc(FMainFileDebugEntries[I].LineNumber, Count);
+  for I := 0 to FDebugEntriesCount-1 do
+    if (FDebugEntries[I].FilenameHash = FMainMemo.DebugEntriesFilenameHash) and
+       (FDebugEntries[I].LineNumber >= FirstLine) then
+      Inc(FDebugEntries[I].LineNumber, Count);
 
   if Assigned(FMainMemo.LineState) and (FirstLine < FMainMemo.LineStateCount) then begin
     { Grow FStateLine if necessary }
@@ -4182,9 +4195,10 @@ var
   I, Line: Integer;
   DebugEntry: PDebugEntry;
 begin
-  for I := 0 to FMainFileDebugEntriesCount-1 do begin
-    DebugEntry := @FMainFileDebugEntries[I];
-    if DebugEntry.LineNumber >= FirstLine then begin
+  for I := 0 to FDebugEntriesCount-1 do begin
+    DebugEntry := @FDebugEntries[I];
+    if (DebugEntry.FilenameHash = FMainMemo.DebugEntriesFilenameHash) and
+       (DebugEntry.LineNumber >= FirstLine) then begin
       if DebugEntry.LineNumber < FirstLine + Count then
         DebugEntry.LineNumber := -1
       else

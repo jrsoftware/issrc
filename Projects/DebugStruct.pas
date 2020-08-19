@@ -2,7 +2,7 @@ unit DebugStruct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit DebugStruct;
 interface
 
 uses
-  Windows, Messages, SysUtils;
+  Windows, Messages, SysUtils, MurmurHash;
 
 const
   { Debug client -> debugger messages }
@@ -76,11 +76,12 @@ type
     CompiledCodeDebugInfoLength: Integer;
   end;
 
-  { TDebugEntrys associate section entries with line numbers }
+  { TDebugEntrys associate section entries with files and line numbers }
   TDebugEntryKind = (deDir, deFile, deIcon, deIni, deRegistry, deInstallDelete,
     deUninstallDelete, deRun, deUninstallRun, deCodeLine);
   PDebugEntry = ^TDebugEntry;
   TDebugEntry = packed record
+    FilenameHash: TMurmur3Hash32;
     LineNumber: Integer;
     Kind: Integer;  { TDebugEntryKind }
     Index: Integer;
