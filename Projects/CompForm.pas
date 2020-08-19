@@ -391,8 +391,8 @@ type
     procedure MainMemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     procedure MemoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MemoKeyPress(Sender: TObject; var Key: Char);
-    procedure MainMemoLinesDeleted(FirstLine, Count, FirstAffectedLine: Integer);
-    procedure MainMemoLinesInserted(FirstLine, Count: integer);
+    procedure MemoLinesDeleted(Memo: TCompScintEdit; FirstLine, Count, FirstAffectedLine: Integer);
+    procedure MemoLinesInserted(Memo: TCompScintEdit; FirstLine, Count: integer);
     procedure MainMemoMarginClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
@@ -2687,12 +2687,12 @@ end;
 
 procedure TCompileForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
 
-  procedure MainMemoLinesInsertedOrDeleted;
+  procedure MemoLinesInsertedOrDeleted(Memo: TCompScintEdit);
   var
     FirstAffectedLine, Line, LinePos: Integer;
   begin
-    Line := FMainMemo.GetLineFromPosition(Info.StartPos);
-    LinePos := FMainMemo.GetPositionFromLine(Line);
+    Line := Memo.GetLineFromPosition(Info.StartPos);
+    LinePos := Memo.GetPositionFromLine(Line);
     FirstAffectedLine := Line;
     { If the deletion/insertion does not start on the first character of Line,
       then we consider the first deleted/inserted line to be the following
@@ -2701,12 +2701,16 @@ procedure TCompileForm.MemoChange(Sender: TObject; const Info: TScintEditChangeI
     if Info.StartPos > LinePos then
       Inc(Line);
     if Info.LinesDelta > 0 then
-      MainMemoLinesInserted(Line, Info.LinesDelta)
+      MemoLinesInserted(Memo, Line, Info.LinesDelta)
     else
-      MainMemoLinesDeleted(Line, -Info.LinesDelta, FirstAffectedLine);
+      MemoLinesDeleted(Memo, Line, -Info.LinesDelta, FirstAffectedLine);
   end;
 
+var
+  Memo: TCompScintEdit;
 begin
+  Memo := Sender as TCompScintEdit;
+
   FModifiedAnySinceLastCompile := True;
   if FDebugging then
     FModifiedAnySinceLastCompileAndGo := True
@@ -2715,18 +2719,18 @@ begin
     DestroyDebugInfo;
   end;
 
-  if (Sender = FMainMemo) and (Info.LinesDelta <> 0) then
-    MainMemoLinesInsertedOrDeleted;
+  if Info.LinesDelta <> 0 then
+    MemoLinesInsertedOrDeleted(Memo);
 
-  if Sender = FErrorMemo then begin
+  if Memo = FErrorMemo then begin
     { When the Delete key is pressed, the caret doesn't move, so reset
       FErrorCaretPosition to ensure that OnUpdateUI calls HideError }
-    FMainMemo.ErrorCaretPosition := -1;
+    Memo.ErrorCaretPosition := -1;
   end;
 
   { The change should trigger restyling. Allow the styler to see the current
     caret position in case it wants to set a pending squiggly indicator. }
-  TCompScintEdit(Sender).ReportCaretPositionToStyler := True;
+  Memo.ReportCaretPositionToStyler := True;
 end;
 
 procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
@@ -4139,95 +4143,105 @@ begin
     MainMemoToggleBreakPoint(Line);
 end;
 
-procedure TCompileForm.MainMemoLinesInserted(FirstLine, Count: integer);
+procedure TCompileForm.MemoLinesInserted(Memo: TCompScintEdit; FirstLine, Count: integer);
 var
   I, Line: Integer;
 begin
-  for I := 0 to FMainFileDebugEntriesCount-1 do
-    if FMainFileDebugEntries[I].LineNumber >= FirstLine then
-      Inc(FMainFileDebugEntries[I].LineNumber, Count);
+  if Memo = FMainMemo then begin
+    for I := 0 to FMainFileDebugEntriesCount-1 do
+      if FMainFileDebugEntries[I].LineNumber >= FirstLine then
+        Inc(FMainFileDebugEntries[I].LineNumber, Count);
 
-  if Assigned(FMainMemo.LineState) and (FirstLine < FMainMemo.LineStateCount) then begin
-    { Grow FStateLine if necessary }
-    I := (FMainMemo.LineStateCount + Count) - FMainMemo.LineStateCapacity;
-    if I > 0 then begin
-      if I < LineStateGrowAmount then
-        I := LineStateGrowAmount;
-      ReallocMem(FMainMemo.LineState, SizeOf(TLineState) * (FMainMemo.LineStateCapacity + I));
-      Inc(FMainMemo.LineStateCapacity, I);
+    if Assigned(FMainMemo.LineState) and (FirstLine < FMainMemo.LineStateCount) then begin
+      { Grow FStateLine if necessary }
+      I := (FMainMemo.LineStateCount + Count) - FMainMemo.LineStateCapacity;
+      if I > 0 then begin
+        if I < LineStateGrowAmount then
+          I := LineStateGrowAmount;
+        ReallocMem(FMainMemo.LineState, SizeOf(TLineState) * (FMainMemo.LineStateCapacity + I));
+        Inc(FMainMemo.LineStateCapacity, I);
+      end;
+      { Shift existing line states and clear the new ones }
+      for I := FMainMemo.LineStateCount-1 downto FirstLine do
+        FMainMemo.LineState[I + Count] := FMainMemo.LineState[I];
+      for I := FirstLine to FirstLine + Count - 1 do
+        FMainMemo.LineState[I] := lnUnknown;
+      Inc(FMainMemo.LineStateCount, Count);
     end;
-    { Shift existing line states and clear the new ones }
-    for I := FMainMemo.LineStateCount-1 downto FirstLine do
-      FMainMemo.LineState[I + Count] := FMainMemo.LineState[I];
-    for I := FirstLine to FirstLine + Count - 1 do
-      FMainMemo.LineState[I] := lnUnknown;
-    Inc(FMainMemo.LineStateCount, Count);
+
+    if FMainMemo.StepLine >= FirstLine then
+      Inc(FMainMemo.StepLine, Count);
   end;
 
-  if FMainMemo.StepLine >= FirstLine then
-    Inc(FMainMemo.StepLine, Count);
-  if FMainMemo.ErrorLine >= FirstLine then
-    Inc(FMainMemo.ErrorLine, Count);
+  if Memo.ErrorLine >= FirstLine then
+    Inc(Memo.ErrorLine, Count);
 
-  for I := 0 to FMainMemo.BreakPoints.Count-1 do begin
-    Line := Integer(FMainMemo.BreakPoints[I]);
-    if Line >= FirstLine then
-      FMainMemo.BreakPoints[I] := Pointer(Line + Count);
+  if Memo = FMainMemo then begin
+    for I := 0 to FMainMemo.BreakPoints.Count-1 do begin
+      Line := Integer(FMainMemo.BreakPoints[I]);
+      if Line >= FirstLine then
+        FMainMemo.BreakPoints[I] := Pointer(Line + Count);
+    end;
   end;
 end;
 
-procedure TCompileForm.MainMemoLinesDeleted(FirstLine, Count,
+procedure TCompileForm.MemoLinesDeleted(Memo: TCompScintEdit; FirstLine, Count,
   FirstAffectedLine: Integer);
 var
   I, Line: Integer;
   DebugEntry: PDebugEntry;
 begin
-  for I := 0 to FMainFileDebugEntriesCount-1 do begin
-    DebugEntry := @FMainFileDebugEntries[I];
-    if DebugEntry.LineNumber >= FirstLine then begin
-      if DebugEntry.LineNumber < FirstLine + Count then
-        DebugEntry.LineNumber := -1
+  if Memo = FMainMemo then begin
+    for I := 0 to FMainFileDebugEntriesCount-1 do begin
+      DebugEntry := @FMainFileDebugEntries[I];
+      if DebugEntry.LineNumber >= FirstLine then begin
+        if DebugEntry.LineNumber < FirstLine + Count then
+          DebugEntry.LineNumber := -1
+        else
+          Dec(DebugEntry.LineNumber, Count);
+      end;
+    end;
+
+    if Assigned(FMainMemo.LineState) then begin
+      { Shift existing line states }
+      if FirstLine < FMainMemo.LineStateCount - Count then begin
+        for I := FirstLine to FMainMemo.LineStateCount - Count - 1 do
+          FMainMemo.LineState[I] := FMainMemo.LineState[I + Count];
+        Dec(FMainMemo.LineStateCount, Count);
+      end
+      else begin
+        { There's nothing to shift because the last line(s) were deleted, or
+          line(s) past FLineStateCount }
+        if FMainMemo.LineStateCount > FirstLine then
+          FMainMemo.LineStateCount := FirstLine;
+      end;
+    end;
+
+    if FMainMemo.StepLine >= FirstLine then begin
+      if FMainMemo.StepLine < FirstLine + Count then
+        FMainMemo.StepLine := -1
       else
-        Dec(DebugEntry.LineNumber, Count);
+        Dec(FMainMemo.StepLine, Count);
     end;
   end;
 
-  if Assigned(FMainMemo.LineState) then begin
-    { Shift existing line states }
-    if FirstLine < FMainMemo.LineStateCount - Count then begin
-      for I := FirstLine to FMainMemo.LineStateCount - Count - 1 do
-        FMainMemo.LineState[I] := FMainMemo.LineState[I + Count];
-      Dec(FMainMemo.LineStateCount, Count);
-    end
-    else begin
-      { There's nothing to shift because the last line(s) were deleted, or
-        line(s) past FLineStateCount }
-      if FMainMemo.LineStateCount > FirstLine then
-        FMainMemo.LineStateCount := FirstLine;
-    end;
+  if Memo.ErrorLine >= FirstLine then begin
+    if Memo.ErrorLine < FirstLine + Count then
+      Memo.ErrorLine := -1
+    else
+      Dec(Memo.ErrorLine, Count);
   end;
 
-  if FMainMemo.StepLine >= FirstLine then begin
-    if FMainMemo.StepLine < FirstLine + Count then
-      FMainMemo.StepLine := -1
-    else
-      Dec(FMainMemo.StepLine, Count);
-  end;
-  if FMainMemo.ErrorLine >= FirstLine then begin
-    if FMainMemo.ErrorLine < FirstLine + Count then
-      FMainMemo.ErrorLine := -1
-    else
-      Dec(FMainMemo.ErrorLine, Count);
-  end;
-
-  for I := FMainMemo.BreakPoints.Count-1 downto 0 do begin
-    Line := Integer(FMainMemo.BreakPoints[I]);
-    if Line >= FirstLine then begin
-      if Line < FirstLine + Count then begin
-        FMainMemo.BreakPoints.Delete(I);
-      end else begin
-        Line := Line - Count;
-        FMainMemo.BreakPoints[I] := Pointer(Line);
+  if Memo = FMainMemo then begin
+    for I := FMainMemo.BreakPoints.Count-1 downto 0 do begin
+      Line := Integer(FMainMemo.BreakPoints[I]);
+      if Line >= FirstLine then begin
+        if Line < FirstLine + Count then begin
+          FMainMemo.BreakPoints.Delete(I);
+        end else begin
+          Line := Line - Count;
+          FMainMemo.BreakPoints[I] := Pointer(Line);
+        end;
       end;
     end;
   end;
@@ -4238,7 +4252,7 @@ begin
     having two conflicting markers (or two of the same marker). There's no
     way to stop it from doing that, or to easily tell which markers came from
     which lines, so we simply delete and re-create all markers on the line. }
-  UpdateLineMarkers(FMainMemo, FirstAffectedLine);
+  UpdateLineMarkers(Memo, FirstAffectedLine);
 end;
 
 procedure TCompileForm.UpdateLineMarkers(const AMemo: TCompScintEdit; const Line: Integer);
@@ -4257,8 +4271,8 @@ begin
         NewMarker := mmIconBreakpointGood
       else
         NewMarker := mmIconBreakpointBad;
-  end
-  else begin
+    end
+    else begin
       if Line < FMainMemo.LineStateCount then begin
         case FMainMemo.LineState[Line] of
           lnHasEntry: NewMarker := mmIconHasEntry;
