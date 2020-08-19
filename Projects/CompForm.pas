@@ -3126,10 +3126,11 @@ var
   LineNumber: Integer;
 begin
   GetMemoAndLineNumberFromEntry(Message.WParam, Message.LParam, Memo, LineNumber);
-  if (Memo <> FMainMemo) or (LineNumber < 0) then
+  if (Memo = nil) or (LineNumber < 0) then
     Exit;
 
-  if (LineNumber < FMainMemo.LineStateCount) and
+  if (Memo = FMainMemo) and
+     (LineNumber < FMainMemo.LineStateCount) and
      (FMainMemo.LineState[LineNumber] <> lnEntryProcessed) then begin
     FMainMemo.LineState[LineNumber] := lnEntryProcessed;
     UpdateLineMarkers(FMainMemo, LineNumber);
@@ -3140,10 +3141,11 @@ begin
      ((FStepMode = smRunToCursor) and
       (FRunToCursorPoint.Kind = Integer(Message.WParam)) and
       (FRunToCursorPoint.Index = Message.LParam)) or
-     (FMainMemo.BreakPoints.IndexOf(Pointer(LineNumber)) <> -1) then begin
-    MoveCaretAndActivateMemo(FMainMemo, LineNumber, True);
+     ((Memo = FMainMemo) and (FMainMemo.BreakPoints.IndexOf(Pointer(LineNumber)) <> -1)) then begin
+    MoveCaretAndActivateMemo(Memo, LineNumber, True);
     HideError;
-    SetMainMemoStepLine(LineNumber);
+    if Memo = FMainMemo then
+      SetMainMemoStepLine(LineNumber);
     BringToForeground;
     { Tell Setup to pause }
     Message.Result := 1;
@@ -3172,10 +3174,12 @@ begin
   if FOptions.PauseOnDebuggerExceptions then begin
     GetMemoAndLineNumberFromEntry(Message.WParam, Message.LParam, Memo, LineNumber);
 
-    if (Memo = FMainMemo) and (LineNumber >= 0) then begin
-      MoveCaretAndActivateMemo(FMainMemo, LineNumber, True);
-      SetMainMemoStepLine(-1);
-      SetErrorLine(FMainMemo, LineNumber);
+    if (Memo <> nil) and (LineNumber >= 0) then begin
+      MoveCaretAndActivateMemo(Memo, LineNumber, True);
+      if Memo = FMainMemo then begin
+        SetMainMemoStepLine(-1);
+        SetErrorLine(FMainMemo, LineNumber);
+      end;
     end;
 
     BringToForeground;
@@ -3456,7 +3460,7 @@ begin
   RunButton.Enabled := RRun.Enabled;
   RPause.Enabled := FDebugging and not FPaused;
   PauseButton.Enabled := RPause.Enabled;
-  RRunToCursor.Enabled := (FActiveMemo = FMainMemo) and RRun.Enabled;
+  RRunToCursor.Enabled := RRun.Enabled;
   RStepInto.Enabled := RRun.Enabled;
   RStepOver.Enabled := RRun.Enabled;
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
@@ -3743,14 +3747,14 @@ end;
 
 procedure TCompileForm.RRunToCursorClick(Sender: TObject);
 
-  function GetDebugEntryFromMainFileLineNumber(LineNumber: Integer;
+  function GetDebugEntryFromMemoAndLineNumber(Memo: TCompScintEdit; LineNumber: Integer;
     var DebugEntry: TDebugEntry): Boolean;
   var
     I: Integer;
   begin
     Result := False;
     for I := 0 to FDebugEntriesCount-1 do begin
-      if (FDebugEntries[I].FilenameHash = FMainMemo.DebugEntriesFilenameHash) and
+      if (FDebugEntries[I].FilenameHash = Memo.DebugEntriesFilenameHash) and
          (FDebugEntries[I].LineNumber = LineNumber) then begin
         DebugEntry := FDebugEntries[I];
         Result := True;
@@ -3761,7 +3765,7 @@ procedure TCompileForm.RRunToCursorClick(Sender: TObject);
 
 begin
   CompileIfNecessary;
-  if not GetDebugEntryFromMainFileLineNumber(FMainMemo.CaretLine, FRunToCursorPoint) then begin
+  if not GetDebugEntryFromMemoAndLineNumber(FActiveMemo, FActiveMemo.CaretLine, FRunToCursorPoint) then begin
     MsgBox('No code was generated for the current line.', SCompilerFormCaption,
       mbError, MB_OK);
     Exit;
