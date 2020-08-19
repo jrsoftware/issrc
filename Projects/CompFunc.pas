@@ -143,7 +143,7 @@ end;
 
 function IsISPPBuiltins(const Filename: String): Boolean;
 begin
-  Result := SameText(PathExtractName(Filename), 'ISPPBuiltins.iss');
+  Result := PathCompare(PathExtractName(Filename), 'ISPPBuiltins.iss') = 0;
 end;
 
 function ISCryptInstalled: Boolean;

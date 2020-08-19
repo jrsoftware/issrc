@@ -307,7 +307,6 @@ type
     procedure InitLZMADLL;
     procedure InitPreprocessor;
     procedure InitZipDLL;
-    function ParseFilename: String;
     procedure PopulateLanguageEntryData;
     procedure ProcessMinVersionParameter(const ParamValue: TParamValue;
       var AMinVersion: TSetupVersionData);
@@ -1702,16 +1701,11 @@ begin
   CryptInitialized := True;
 end;
 
-function TSetupCompiler.ParseFilename: String;
-begin
-  Result := LineFilename;
-end;
-
 procedure TSetupCompiler.WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
 var
   Rec: TDebugEntry;
 begin
-  if ParseFilename = '' then
+  if LineFilename = '' then
     Rec.LineNumber := LineNumber
   else
     Rec.LineNumber := 0;
@@ -2212,12 +2206,12 @@ var
             Continue;  { not on the right section }
           end;
           if Verbose then begin
-            if ParseFilename = '' then
+            if LineFilename = '' then
               AddStatus(Format(SCompilerStatusParsingSectionLine,
                 [SectionName, LineNumber]))
             else
               AddStatus(Format(SCompilerStatusParsingSectionLineFile,
-                [SectionName, LineNumber, ParseFilename]));
+                [SectionName, LineNumber, LineFilename]));
           end;
           EnumProc(PChar(Line.LineText), Ext);
         end;
@@ -2592,7 +2586,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
     ScriptFunc := Z;
     if ConvertConstPercentStr(ScriptFunc) and ConvertConstPercentStr(Param) then begin
       CheckConst(Param, MinVersion, AllowedConsts);
-      CodeCompiler.AddExport(ScriptFunc, 'String @String', False, True, ParseFileName, LineNumber);
+      CodeCompiler.AddExport(ScriptFunc, 'String @String', False, True, LineFileName, LineNumber);
       Result := True;
       Exit;
     end;
@@ -2657,7 +2651,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
     end;
     if not Found then begin
       LineInfo := TLineInfo.Create;
-      LineInfo.FileName := ParseFileName;
+      LineInfo.FileName := LineFileName;
       LineInfo.FileLineNumber := LineNumber;
       ExpectedCustomMessageNames.AddObject(MsgName, LineInfo);
     end;
@@ -2811,7 +2805,7 @@ begin
       raise Exception.Create('Internal Error: unknown parameter type');
   end;
 
-  CodeCompiler.AddExport(Name, Decl, False, True, ParseFileName, LineNumber);
+  CodeCompiler.AddExport(Name, Decl, False, True, LineFileName, LineNumber);
 
   Result := True; { Result doesn't matter }
 end;
@@ -6834,11 +6828,11 @@ begin
   if ID = -1 then begin
     if LangIndex = -2 then
       AbortCompileOnLineFmt(SCompilerMessagesNotRecognizedDefault, [N]);
-    if ParseFilename = '' then
+    if LineFilename = '' then
       WarningsList.Add(Format(SCompilerMessagesNotRecognizedWarning, [N]))
     else
       WarningsList.Add(Format(SCompilerMessagesNotRecognizedInFileWarning,
-        [N, ParseFilename]));
+        [N, LineFilename]));
     Exit;
   end;
   Inc(P);
@@ -7244,7 +7238,7 @@ var
   CodeTextLineInfo: TLineInfo;
 begin
   CodeTextLineInfo := TLineInfo.Create;
-  CodeTextLineInfo.Filename := ParseFilename;
+  CodeTextLineInfo.Filename := LineFilename;
   CodeTextLineInfo.FileLineNumber := LineNumber;
   CodeText.AddObject(Line, CodeTextLineInfo);
 end;
@@ -9288,7 +9282,7 @@ begin
     try
       SetupCompiler.Compile;
     except
-      Result := isceError;
+      Result := isceFailure;
       S := EncodeIncludedFilenames(SetupCompiler.PreprocIncludedFilenames);
       Data.IncludedFilenames := PChar(S);
       Params.CallbackProc(iscbNotifyIncludedFiles, Data, Params.AppData);
@@ -9300,7 +9294,7 @@ begin
         Data.ErrorMsg := PChar(S);
         { use a Pointer cast instead of PChar so that we'll get a null
           pointer if the string is empty }
-        Data.ErrorFilename := Pointer(SetupCompiler.ParseFilename);
+        Data.ErrorFilename := Pointer(SetupCompiler.LineFilename);
         Data.ErrorLine := SetupCompiler.LineNumber;
       end;
       Params.CallbackProc(iscbNotifyError, Data, Params.AppData);
@@ -9339,7 +9333,7 @@ begin
     try
       SetupCompiler.Scan;
     except
-      Result := isceError;
+      Result := isceFailure;
       if PropagateExceptions then
         raise;
       Exit;

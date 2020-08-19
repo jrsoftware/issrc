@@ -441,7 +441,7 @@ type
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
     procedure WMDebuggerGoodbye(var Message: TMessage); message WM_Debugger_Goodbye;
     procedure WMDebuggerQueryVersion(var Message: TMessage); message WM_Debugger_QueryVersion;
-    function GetLineNumberFromEntry(Kind, Index: Integer): Integer;
+    function GetMainFileLineNumberFromEntry(Kind, Index: Integer): Integer;
     procedure DebuggerStepped(var Message: TMessage; const Intermediate: Boolean);
     procedure WMDebuggerStepped(var Message: TMessage); message WM_Debugger_Stepped;
     procedure WMDebuggerSteppedIntermediate(var Message: TMessage); message WM_Debugger_SteppedIntermediate;
@@ -3061,7 +3061,7 @@ begin
   DebuggingStopped(True);
 end;
 
-function TCompileForm.GetLineNumberFromEntry(Kind, Index: Integer): Integer;
+function TCompileForm.GetMainFileLineNumberFromEntry(Kind, Index: Integer): Integer;
 var
   I: Integer;
 begin
@@ -3100,7 +3100,7 @@ procedure TCompileForm.DebuggerStepped(var Message: TMessage; const Intermediate
 var
   LineNumber: Integer;
 begin
-  LineNumber := GetLineNumberFromEntry(Message.WParam, Message.LParam);
+  LineNumber := GetMainFileLineNumberFromEntry(Message.WParam, Message.LParam);
   if LineNumber < 0 then
     Exit;
 
@@ -3143,7 +3143,7 @@ var
   LineNumber: Integer;
 begin
   if FOptions.PauseOnDebuggerExceptions then begin
-    LineNumber := GetLineNumberFromEntry(Message.WParam, Message.LParam);
+    LineNumber := GetMainFileLineNumberFromEntry(Message.WParam, Message.LParam);
 
     if (LineNumber >= 0) then begin
       MoveCaretAndActivateMemo(FMainMemo, LineNumber, True);

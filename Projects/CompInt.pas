@@ -35,7 +35,7 @@ const
   { Return values for ISDllCompileScript and ISDllScanScript }
   isceNoError = 0;         { Successful }
   isceInvalidParam = 1;    { Bad parameters passed to function }
-  isceError = 2;           { There was an error or compiling/scanning was aborted
+  isceFailure = 2;         { There was an error or compiling/scanning was aborted
                              by the application }
 
 type

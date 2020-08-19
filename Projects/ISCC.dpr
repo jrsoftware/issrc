@@ -611,7 +611,7 @@ begin
     {$ENDIF}
     case Res of
       isceNoError: ;
-      isceError: begin
+      isceFailure: begin
           ExitCode := 2;
           WriteStdErr('Compile aborted.', True);
         end;
