@@ -7273,16 +7273,18 @@ end;
 
 procedure TSetupCompiler.CodeCompilerOnUsedLine(const Filename: String; const Line, Position: LongInt);
 var
+  OldLineFilename: String;
   OldLineNumber: Integer;
 begin
-  if FileName = '' then begin
-    OldLineNumber := LineNumber;
-    try
-      LineNumber := Line;
-      WriteDebugEntry(deCodeLine, Position);
-    finally
-      LineNumber := OldLineNumber;
-    end;
+  OldLineFilename := LineFilename;
+  OldLineNumber := LineNumber;
+  try
+    LineFilename := Filename;
+    LineNumber := Line;
+    WriteDebugEntry(deCodeLine, Position);
+  finally
+    LineFilename := OldLineFilename;
+    LineNumber := OldLineNumber;
   end;
 end;
 
