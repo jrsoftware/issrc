@@ -2539,16 +2539,17 @@ begin
           IncludedFile := FIncludedFiles[I];
           IncludedFile.Memo := FMemos[NextMemoIndex];
           try
-            if (PathCompare(IncludedFile.Memo.Filename, IncludedFile.Filename) <> 0) or
-               not IncludedFile.HasLastWriteTime or
-               (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0) then begin
+            if not IncludedFile.Memo.Used or
+              ((PathCompare(IncludedFile.Memo.Filename, IncludedFile.Filename) <> 0) or
+                not IncludedFile.HasLastWriteTime or
+                (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0)) then begin
               IncludedFile.Memo.Filename := IncludedFile.Filename;
               IncludedFile.Memo.BreakPoints.Clear;
               OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
+              IncludedFile.Memo.Used := True;
             end;
             NewTabs.Add(PathExtractName(IncludedFile.Filename));
-            IncludedFile.Memo.Used := True;
-            
+
             Inc(NextMemoIndex);
             if NextMemoIndex = FMemos.Count then
               Break; { We're out of memos :( }
