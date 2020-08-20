@@ -1336,7 +1336,7 @@ begin
       iscbNotifySuccess:
         begin
           OutputExe := Data.OutputExeFilename;
-          if Form.FCompilerVersion.BinVersion >= $6010000 then
+          if Form.FCompilerVersion.BinVersion >= $3000001 then
             Form.ParseDebugInfo(Data.DebugInfo);
         end;
       iscbNotifyError:

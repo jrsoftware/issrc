@@ -63,7 +63,7 @@ const
 
 const
   DebugInfoHeaderID = $64787369;
-  DebugInfoHeaderVersion = 4;
+  DebugInfoHeaderVersion = 5;
 
 type
   PDebugInfoHeader = ^TDebugInfoHeader;
