@@ -2526,8 +2526,8 @@ begin
             if (PathCompare(IncludedFile.Memo.Filename, IncludedFile.Filename) <> 0) or
                not IncludedFile.HasLastWriteTime or
                (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0) then begin
-              OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
               IncludedFile.Memo.Filename := IncludedFile.Filename;
+              OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
             end;
             NewTabs.Add(PathExtractName(IncludedFile.Filename));
             IncludedFile.Memo.Used := True;
