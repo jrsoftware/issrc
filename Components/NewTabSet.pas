@@ -19,18 +19,21 @@ type
 
   TNewTabSet = class(TCustomControl)
   private
-    FTheme: TTheme;
+    FHints: TStrings;
     FTabs: TStrings;
     FTabIndex: Integer;
     FTabPosition: TTabPosition;
+    FTheme: TTheme;
     function GetTabRect(Index: Integer): TRect;
     procedure InvalidateTab(Index: Integer);
-    procedure ListChanged(Sender: TObject);
+    procedure TabsListChanged(Sender: TObject);
     procedure SetTabs(Value: TStrings);
     procedure SetTabIndex(Value: Integer);
     procedure SetTabPosition(Value: TTabPosition);
     procedure SetTheme(Value: TTheme);
+    procedure SetHints(const Value: TStrings);
   protected
+    procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure CreateParams(var Params: TCreateParams); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure Paint; override;
@@ -41,6 +44,7 @@ type
   published
     property Align;
     property Font;
+    property Hints: TStrings read FHints write SetHints;
     property ParentFont;
     property TabIndex: Integer read FTabIndex write SetTabIndex;
     property Tabs: TStrings read FTabs write SetTabs;
@@ -136,8 +140,9 @@ constructor TNewTabSet.Create(AOwner: TComponent);
 begin
   inherited;
   FTabs := TStringList.Create;
-  TStringList(FTabs).OnChange := ListChanged;
+  TStringList(FTabs).OnChange := TabsListChanged;
   FTabPosition := tpBottom;
+  FHints := TStringList.Create;
   ControlStyle := ControlStyle + [csOpaque];
   Width := 129;
   Height := 21;
@@ -154,6 +159,26 @@ destructor TNewTabSet.Destroy;
 begin
   FTabs.Free;
   inherited;
+end;
+
+procedure TNewTabSet.CMHintShow(var Message: TCMHintShow);
+var
+  I: Integer;
+  R: TRect;
+begin
+  inherited;
+  if Message.HintInfo.HintControl = Self then begin
+    for I := 0 to FTabs.Count-1 do begin
+      if I >= FHints.Count then
+        Break;
+      R := GetTabRect(I);
+      if PtInRect(R, Message.HintInfo.CursorPos) then begin
+        Message.HintInfo.HintStr := FHints[I];
+        Message.HintInfo.CursorRect := R;
+        Break;
+      end;
+    end;
+  end;
 end;
 
 function TNewTabSet.GetTabRect(Index: Integer): TRect;
@@ -193,7 +218,7 @@ begin
   end;
 end;
 
-procedure TNewTabSet.ListChanged(Sender: TObject);
+procedure TNewTabSet.TabsListChanged(Sender: TObject);
 begin
   Invalidate;
 end;
@@ -305,6 +330,12 @@ begin
 
   { Non-selected tabs }
   DrawTabs(False);
+end;
+
+procedure TNewTabSet.SetHints(const Value: TStrings);
+begin
+  FHints.Assign(Value);
+  ShowHint := FHints.Count > 0;
 end;
 
 procedure TNewTabSet.SetTabIndex(Value: Integer);
