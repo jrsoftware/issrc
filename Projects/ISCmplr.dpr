@@ -44,12 +44,6 @@ begin
   Result := ISCompileScript(Params, False);
 end;
 
-function ISDllScanScript(const Params: TCompileScriptParamsEx): Integer;
-stdcall;
-begin
-  Result := ISScanScript(Params, False);
-end;
-
 type
   PWrapperData = ^TWrapperData;
   TWrapperData = record
@@ -157,7 +151,6 @@ end;
 exports
   ISDllCompileScript name 'ISDllCompileScriptW',
   ISDllCompileScriptA name 'ISDllCompileScript',
-  ISDllScanScript name 'ISDllScanScriptW',
   ISDllGetVersion;
 
 begin
