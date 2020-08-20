@@ -22,6 +22,7 @@ const
   iscbNotifySuccess = 4;   { Sent when compilation succeeds }
   iscbNotifyError = 5;     { Sent when compilation fails or is aborted by the
                              application }
+  iscbNotifyIncludedFiles = 6; { Sent to notify the application of included files }
 
   { Return values for callback function }
   iscrSuccess = 0;         { Return this for compiler to continue }
@@ -73,16 +74,18 @@ type
         BytesCompressedPerSecond: Cardinal); { [in] Average bytes compressed
                                                per second (new in 5.1.13) }
 
+      iscbNotifyIncludedFiles: (
+        IncludedFilenames: PChar); { [in] Names of #included files. Each name is
+                                          a null-terminated string, and the final
+                                          name is followed by an additional null
+                                          character (new in 6.1.0) }
+
       iscbNotifySuccess: (
         OutputExeFilename: PChar;  { [in] The name of the resulting setup.exe,
                                           or empty if output was disabled
                                           (latter new in 5.5.5) }
         DebugInfo: Pointer;        { [in] Debug info (new in 3.0.0.1) }
-        DebugInfoSize: Cardinal;   { [in] Size of debug info (new in 3.0.0.1) }
-        IncludedFilenames: PChar); { [in] Names of #included files. Each name is
-                                          a null-terminated string, and the final
-                                          name is followed by an additional null
-                                          character (new in 6.1.0) }
+        DebugInfoSize: Cardinal);  { [in] Size of debug info (new in 3.0.0.1) }
 
       iscbNotifyError: (
         ErrorMsg: PChar;      { [in] The error message, or NULL if compilation
@@ -163,7 +166,7 @@ const
   description of the TCompileScriptParams record. Return value is one of the
   isce* constants. }
 function ISDllCompileScript(const Params: TCompileScriptParamsEx): Integer;
-  stdcall; external ISCmplrDLL{$IFDEF UNICODE} name 'ISDllCompileScriptW'{$ENDIF};
+  stdcall; external ISCmplrDLL name 'ISDllCompileScriptW';
 
 { The ISDllGetVersion returns a pointer to a TCompilerVersionInfo record which
   contains information about the compiler version. }

@@ -44,7 +44,7 @@ type
     procedure MailingListImageClick(Sender: TObject);
   private
     FResult: TStartupFormResult;
-    FResultFileName: TFileName;
+    FResultMainFileName: TFileName;
     procedure SetMRUFilesList(const MRUFilesList: TStringList);
     procedure UpdateImages;
   protected
@@ -53,13 +53,13 @@ type
   public
     property MRUFilesList: TStringList write SetMRUFilesList;
     property Result: TStartupFormResult read FResult;
-    property ResultFileName: TFileName read FResultFileName;
+    property ResultMainFileName: TFileName read FResultMainFileName;
   end;
 
 implementation
 
 uses
-  CompMsgs, CmnFunc, CmnFunc2, CompForm, ComCtrls;
+  CompMsgs, CmnFunc, CmnFunc2, CompFunc, CompForm, ComCtrls;
 
 {$R *.DFM}
 
@@ -81,8 +81,8 @@ var
 begin
  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
   WH := MulDiv(16, CurrentPPI, 96);
-  NewImage.Picture.Bitmap := GetBitmap(CompileForm.NewButton, WH);
-  OpenImage.Picture.Bitmap := GetBitmap(CompileForm.OpenButton, WH);
+  NewImage.Picture.Bitmap := GetBitmap(CompileForm.NewMainFileButton, WH);
+  OpenImage.Picture.Bitmap := GetBitmap(CompileForm.OpenMainFileButton, WH);
 end;
 
 procedure TStartupForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
@@ -165,7 +165,7 @@ begin
       FResult := srOpenDialogExamples
     else if OpenListBox.ItemIndex > 1 then begin
       FResult := srOpenFile;
-      FResultFileName := OpenListBox.Items[OpenListBox.ItemIndex];
+      FResultMainFileName := OpenListBox.Items[OpenListBox.ItemIndex];
     end else
       FResult := srOpenDialog;
   end;

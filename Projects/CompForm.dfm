@@ -30,16 +30,16 @@ object CompileForm: TCompileForm
   end
   object BodyPanel: TPanel
     Left = 0
-    Top = 30
+    Top = 51
     Width = 361
-    Height = 215
+    Height = 194
     Align = alClient
     BevelOuter = bvNone
     FullRepaint = False
     TabOrder = 0
     object SplitPanel: TPanel
       Left = 0
-      Top = 107
+      Top = 86
       Width = 361
       Height = 4
       Cursor = crSizeNS
@@ -52,7 +52,7 @@ object CompileForm: TCompileForm
     end
     object StatusPanel: TPanel
       Left = 0
-      Top = 111
+      Top = 90
       Width = 361
       Height = 104
       Align = alBottom
@@ -181,19 +181,19 @@ object CompileForm: TCompileForm
       ShowHint = True
       TabOrder = 0
       Transparent = True
-      object NewButton: TToolButton
+      object NewMainFileButton: TToolButton
         Left = 0
         Top = 0
-        Hint = 'New (Ctrl+N)'
+        Hint = 'New Main Script (Ctrl+N)'
         ImageIndex = 0
-        OnClick = FNewClick
+        OnClick = FNewMainFileClick
       end
-      object OpenButton: TToolButton
+      object OpenMainFileButton: TToolButton
         Left = 23
         Top = 0
-        Hint = 'Open (Ctrl+O)'
+        Hint = 'Open Main Script (Ctrl+O)'
         ImageIndex = 1
-        OnClick = FOpenClick
+        OnClick = FOpenMainFileClick
       end
       object SaveButton: TToolButton
         Left = 46
@@ -295,21 +295,33 @@ object CompileForm: TCompileForm
       end
     end
   end
+  object MemosTabSet: TNewTabSet
+    Left = 0
+    Top = 30
+    Width = 361
+    Height = 21
+    Align = alTop
+    TabIndex = 0
+    Tabs.Strings = (
+      'Main Script')
+    TabPosition = tpTop
+    OnClick = MemosTabSetClick
+  end
   object MainMenu1: TMainMenu
     Left = 8
     Top = 48
     object FMenu: TMenuItem
       Caption = '&File'
       OnClick = FMenuClick
-      object FNew: TMenuItem
+      object FNewMainFile: TMenuItem
         Caption = '&New'
         ShortCut = 16462
-        OnClick = FNewClick
+        OnClick = FNewMainFileClick
       end
-      object FOpen: TMenuItem
+      object FOpenMainFile: TMenuItem
         Caption = '&Open...'
         ShortCut = 16463
-        OnClick = FOpenClick
+        OnClick = FOpenMainFileClick
       end
       object N19: TMenuItem
         Caption = '-'
@@ -319,9 +331,9 @@ object CompileForm: TCompileForm
         ShortCut = 16467
         OnClick = FSaveClick
       end
-      object FSaveAs: TMenuItem
+      object FSaveMainFileAs: TMenuItem
         Caption = 'Save &As...'
-        OnClick = FSaveAsClick
+        OnClick = FSaveClick
       end
       object FSaveEncoding: TMenuItem
         Caption = 'Save &Encoding'
@@ -336,10 +348,15 @@ object CompileForm: TCompileForm
           OnClick = FSaveEncodingItemClick
         end
       end
+      object FSaveAll: TMenuItem
+        Caption = 'Sa&ve All'
+        ShortCut = 24659
+        OnClick = FSaveAllClick
+      end
       object N1: TMenuItem
         Caption = '-'
       end
-      object FMRUFilesSep: TMenuItem
+      object FMRUMainFilesSep: TMenuItem
         Caption = '-'
         Visible = False
       end
