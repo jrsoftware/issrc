@@ -54,12 +54,11 @@ type
   private
     LineState: PLineStateArray;
     LineStateCapacity, LineStateCount: Integer;
-  protected
-    procedure SetFilename(const AFilename: String); override;
   end;
 
   TIncludedFile = class
     Filename: String;
+    CompilerFileIndex: Integer;
     LastWriteTime: TFileTime;
     HasLastWriteTime: Boolean;
     Memo: TCompScintEdit;
@@ -474,7 +473,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types,
-  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc, MurmurHash,
+  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMessageBoxDesigner;
@@ -501,15 +500,6 @@ const
 
   LineStateGrowAmount = 4000;
 
-{ TCompMainScintEdit }
-
-procedure TCompMainScintEdit.SetFileName(const AFilename: String);
-begin
-  inherited;
-  { When compiling from the memo the compiler always uses '' as the filename. }
-  FDebugEntriesFilenameHash := TMurmur3.HashString32('');
-end;
-
 { TCompileFormMemoPopupMenu }
 
 type
@@ -535,6 +525,7 @@ begin
   Memo.AutoCompleteFontName := Font.Name;
   Memo.AutoCompleteFontSize := Font.Size;
   Memo.CodePage := CP_UTF8;
+  Memo.CompilerFileIndex := -2; { Just some invalid value, should never be seen while running }
   Memo.ErrorLine := -1;
   Memo.Font.Name := 'Courier New';
   Memo.Font.Size := 10;
@@ -558,6 +549,7 @@ function TCompileForm.InitializeMainMemo(const Memo: TCompMainScintEdit; const P
 begin
   InitializeMemo(Memo, PopupMenu);
   Memo.AcceptDroppedFiles := True;
+  Memo.CompilerFileIndex := -1;
   Memo.ShowHint := True;
   Memo.OnDropFiles := MainMemoDropFiles;
   Memo.OnHintShow := MainMemoHintShow;
@@ -1277,19 +1269,23 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   procedure DecodeIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles);
   var
     IncludedFile: TIncludedFile;
+    I: Integer;
   begin
     IncludedFiles.Clear;
     if P = nil then
       Exit;
+    I := 0;
     while P^ <> #0 do begin
       if not IsISPPBuiltins(P) then begin
         IncludedFile := TIncludedFile.Create;
         IncludedFile.Filename := P;
+        IncludedFile.CompilerFileIndex := I;
         IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
           @IncludedFile.LastWriteTime);
         IncludedFiles.Add(IncludedFile);
       end;
       Inc(P, StrLen(P) + 1);
+      Inc(I);
     end;
   end;
 
@@ -2544,6 +2540,7 @@ begin
                 not IncludedFile.HasLastWriteTime or
                 (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0)) then begin
               IncludedFile.Memo.Filename := IncludedFile.Filename;
+              IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
               IncludedFile.Memo.BreakPoints.Clear;
               OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
               IncludedFile.Memo.Used := True;
@@ -3056,13 +3053,13 @@ end;
 
 procedure TCompileForm.GetMemoAndLineNumberFromEntry(Kind, Index: Integer; var Memo: TCompScintEdit; var LineNumber: Integer);
 
-  function GetMemoFromDebugEntryFilenameHash(const FilenameHash: TMurmur3Hash32): TCompScintEdit;
+  function GetMemoFromDebugEntryFileIndex(const FileIndex: Integer): TCompScintEdit;
   var
     Memo: TCompScintEdit;
   begin
     if FOptions.OpenIncludedFiles then begin
       for Memo in FMemos do begin
-        if Memo.Used and (Memo.DebugEntriesFilenameHash = FilenameHash) then begin
+        if Memo.Used and (Memo.CompilerFileIndex = FileIndex) then begin
           Result := Memo;
           Exit;
         end;
@@ -3076,7 +3073,7 @@ var
 begin
   for I := 0 to FDebugEntriesCount-1 do begin
     if (FDebugEntries[I].Kind = Kind) and (FDebugEntries[I].Index = Index) then begin
-      Memo := GetMemoFromDebugEntryFilenameHash(FDebugEntries[I].FilenameHash);
+      Memo := GetMemoFromDebugEntryFileIndex(FDebugEntries[I].FileIndex);
       LineNumber := FDebugEntries[I].LineNumber;
       Exit;
     end;
@@ -3309,7 +3306,7 @@ begin
     SetString(FCompiledCodeDebugInfo, PAnsiChar(DebugInfo), Header.CompiledCodeDebugInfoLength);
 
     for I := 0 to FDebugEntriesCount-1 do begin
-      if (FDebugEntries[I].FilenameHash = FMainMemo.DebugEntriesFilenameHash) and
+      if (FDebugEntries[I].FileIndex = FMainMemo.CompilerFileIndex) and
          (FDebugEntries[I].LineNumber >= 0) and
          (FDebugEntries[I].LineNumber < FMainMemo.LineStateCount) then begin
         if FMainMemo.LineState[FDebugEntries[I].LineNumber] = lnUnknown then
@@ -3737,7 +3734,7 @@ procedure TCompileForm.RRunToCursorClick(Sender: TObject);
   begin
     Result := False;
     for I := 0 to FDebugEntriesCount-1 do begin
-      if (FDebugEntries[I].FilenameHash = Memo.DebugEntriesFilenameHash) and
+      if (FDebugEntries[I].FileIndex = Memo.CompilerFileIndex) and
          (FDebugEntries[I].LineNumber = LineNumber) then begin
         DebugEntry := FDebugEntries[I];
         Result := True;
@@ -4163,7 +4160,7 @@ var
   I, Line: Integer;
 begin
   for I := 0 to FDebugEntriesCount-1 do
-    if (FDebugEntries[I].FilenameHash = Memo.DebugEntriesFilenameHash) and
+    if (FDebugEntries[I].FileIndex = Memo.CompilerFileIndex) and
        (FDebugEntries[I].LineNumber >= FirstLine) then
       Inc(FDebugEntries[I].LineNumber, Count);
 
@@ -4206,7 +4203,7 @@ var
 begin
   for I := 0 to FDebugEntriesCount-1 do begin
     DebugEntry := @FDebugEntries[I];
-    if (DebugEntry.FilenameHash = Memo.DebugEntriesFilenameHash) and
+    if (DebugEntry.FileIndex = Memo.CompilerFileIndex) and
        (DebugEntry.LineNumber >= FirstLine) then begin
       if DebugEntry.LineNumber < FirstLine + Count then
         DebugEntry.LineNumber := -1

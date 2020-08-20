@@ -81,9 +81,9 @@ type
     deUninstallDelete, deRun, deUninstallRun, deCodeLine);
   PDebugEntry = ^TDebugEntry;
   TDebugEntry = packed record
-    FilenameHash: TMurmur3Hash32;
-    LineNumber: Integer;
-    Kind: Integer;  { TDebugEntryKind }
+    FileIndex: Integer;  { -1: Main script, >=0: Include file index }
+    LineNumber: Integer; { Starts at 1 }
+    Kind: Integer;       { TDebugEntryKind }
     Index: Integer;
   end;
 

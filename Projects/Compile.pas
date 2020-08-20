@@ -36,7 +36,7 @@ implementation
 uses
   CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
-  FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1, MurmurHash,
+  FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, CompExeUpdate,
 {$IFDEF STATICPREPROC}
   IsppPreprocess,
@@ -1682,19 +1682,28 @@ end;
 var
   GotPrevLineFilename: Boolean;
   PrevLineFilename: String;
-  PrevLineFilenameHash: TMurmur3Hash32;
+  PrevFileIndex: Integer;
 
 procedure TSetupCompiler.WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
 var
   Rec: TDebugEntry;
 begin
   if not GotPrevLineFilename or (PathCompare(LineFilename, PrevLineFilename) <> 0) then begin
-    { Note that LineFilename is an empty sting when the compiler compiles main script from the IDE's main memo. }
-    PrevLineFilenameHash := TMurmur3.HashString32(LineFilename);
+    { LineFilename is non-empty when an include file is being read or when the compiler is reading
+      CustomMessages/LangOptions/Messages sections from a messages file. Since these sections don't
+      generate debug entries we treat an empty LineFileName as the main script and a non-empty
+      LineFilename as an include file. This works even when command-line compilation is used. }
+    if LineFilename = '' then
+      PrevFileIndex := -1
+    else begin
+      PrevFileIndex := PreprocIncludedFilenames.IndexOf(LineFilename);
+      if PrevFileIndex = -1 then
+        AbortCompileFmt('Failed to write debug entry (%s/%d/%d)', [LineFilename, Ord(Kind), Index]);
+    end;
     PrevLineFilename := LineFilename;
     GotPrevLineFilename := True;
   end;
-  Rec.FilenameHash := PrevLineFilenameHash;
+  Rec.FileIndex := PrevFileIndex;
   Rec.LineNumber := LineNumber;
   Rec.Kind := Ord(Kind);
   Rec.Index := Index;

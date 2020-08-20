@@ -34,23 +34,22 @@ type
   TCompScintEdit = class(TScintEdit)
   private
     FBreakPoints: TList<Integer>;
+    FCompilerFileIndex: Integer;
     FFilename: String;
     FFileLastWriteTime: TFileTime;
     FSaveInUTF8Encoding: Boolean;
     FTheme: TTheme;
     FUsed: Boolean;
   protected
-    FDebugEntriesFilenameHash: TMurmur3Hash32;
     procedure CreateWnd; override;
-    procedure SetFilename(const AFilename: String); virtual;
   public
     ErrorLine, ErrorCaretPosition: Integer;
     StepLine: Integer;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property BreakPoints: TList<Integer> read FBreakPoints;
-    property Filename: String read FFileName write SetFilename;
-    property DebugEntriesFilenameHash: TMurmur3Hash32 read FDebugEntriesFilenameHash;
+    property Filename: String read FFileName write FFilename;
+    property CompilerFileIndex: Integer read FCompilerFileIndex write FCompilerFileIndex;
     property FileLastWriteTime: TFileTime read FFileLastWriteTime write FFileLastWriteTime;
     property SaveInUTF8Encoding: Boolean read FSaveInUTF8Encoding write FSaveInUTF8Encoding;
     property Theme: TTheme read FTheme write FTheme;
@@ -190,12 +189,6 @@ begin
   Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
-end;
-
-procedure TCompScintEdit.SetFilename(const AFilename: String);
-begin
-  FFilename := AFilename;
-  FDebugEntriesFilenameHash := TMurmur3.HashString32(FFilename);
 end;
 
 procedure TCompScintEdit.UpdateThemeColors;
