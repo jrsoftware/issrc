@@ -34,9 +34,6 @@ const
   WM_StartNormally = WM_USER + $1002;
 
 type
-  TLineState = (lnUnknown, lnHasEntry, lnEntryProcessed);
-  PLineStateArray = ^TLineStateArray;
-  TLineStateArray = array[0..0] of TLineState;
   PDebugEntryArray = ^TDebugEntryArray;
   TDebugEntryArray = array[0..0] of TDebugEntry;
   PVariableDebugEntryArray = ^TVariableDebugEntryArray;
@@ -50,19 +47,9 @@ const
 type
   TStatusMessageKind = (smkStartEnd, smkNormal, smkWarning, smkError);
 
-  TCompMainScintEdit = class(TCompScintEdit)
-  private
-    StepLine: Integer;
-    BreakPoints: TList;
-    LineState: PLineStateArray;
-    LineStateCapacity, LineStateCount: Integer;
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-  end;
-
   TIncludedFile = class
     Filename: String;
+    CompilerFileIndex: Integer;
     LastWriteTime: TFileTime;
     HasLastWriteTime: Boolean;
     Memo: TCompScintEdit;
@@ -288,8 +275,7 @@ type
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>; { FMemos[0] is always the main memo }
-    FMainMemo: TCompMainScintEdit;
-    FActiveMemo, FErrorMemo: TCompScintEdit;
+    FMainMemo, FActiveMemo, FErrorMemo, FStepMemo: TCompScintEdit;
     FMemosStyler: TInnoSetupStyler;
     FCompilerVersion: PCompilerVersionInfo;
     FMRUMainFilesMenuItems: array[0..MRUListMaxCount-1] of TMenuItem;
@@ -326,10 +312,10 @@ type
     FCompileWantAbort: Boolean;
     FBecameIdle: Boolean;
     FModifiedAnySinceLastCompile, FModifiedAnySinceLastCompileAndGo: Boolean;
-    FMainFileDebugEntries: PDebugEntryArray;
-    FMainFileDebugEntriesCount: Integer;
-    FMainFileVariableDebugEntries: PVariableDebugEntryArray;
-    FMainFileVariableDebugEntriesCount: Integer;
+    FDebugEntries: PDebugEntryArray;
+    FDebugEntriesCount: Integer;
+    FVariableDebugEntries: PVariableDebugEntryArray;
+    FVariableDebugEntriesCount: Integer;
     FCompiledCodeText: AnsiString;
     FCompiledCodeDebugInfo: AnsiString;
     FDebugClientWnd: HWND;
@@ -381,7 +367,7 @@ type
     procedure Go(AStepMode: TStepMode);
     procedure HideError;
     procedure InitializeFindText(Dlg: TFindDialog);
-    function InitializeMainMemo(const Memo: TCompMainScintEdit; const PopupMenu: TPopupMenu): TCompMainScintEdit;
+    function InitializeMainMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     function InitializeMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure InvalidateStatusPanel(const Index: Integer);
@@ -389,12 +375,12 @@ type
     procedure MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
     procedure MemoCharAdded(Sender: TObject; Ch: AnsiChar);
     procedure MainMemoDropFiles(Sender: TObject; X, Y: Integer; AFiles: TStrings);
-    procedure MainMemoHintShow(Sender: TObject; var Info: TScintHintInfo);
+    procedure MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     procedure MemoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MemoKeyPress(Sender: TObject; var Key: Char);
     procedure MemoLinesDeleted(Memo: TCompScintEdit; FirstLine, Count, FirstAffectedLine: Integer);
     procedure MemoLinesInserted(Memo: TCompScintEdit; FirstLine, Count: integer);
-    procedure MainMemoMarginClick(Sender: TObject; MarginNumber: Integer;
+    procedure MemoMarginClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject);
@@ -408,20 +394,20 @@ type
     procedure ParseDebugInfo(DebugInfo: Pointer);
     procedure ReadMRUMainFilesList;
     procedure ReadMRUParametersList;
-    procedure ResetMainMemoLineState;
+    procedure ResetAllMemosLineState;
     procedure StartProcess;
     function SaveFile(const AMemo: TCompScintEdit; const SaveAs: Boolean): Boolean;
     procedure SaveKnownIncludedFiles;
     procedure SetErrorLine(const AMemo: TCompScintEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
-    procedure SetMainMemoStepLine(ALine: Integer);
+    procedure SetStepLine(const AMemo: TCompScintEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
     procedure SyncZoom;
     function ToCurrentPPI(const XY: Integer): Integer;
-    procedure MainMemoToggleBreakPoint(Line: Integer);
-    procedure UpdateAllMainMemoLineMarkers;
+    procedure ToggleBreakPoint(Line: Integer);
+    procedure UpdateAllMemosLineMarkers;
     procedure UpdateBevel1;
     procedure UpdateCaption;
     procedure UpdateCaretPosPanel;
@@ -442,7 +428,7 @@ type
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
     procedure WMDebuggerGoodbye(var Message: TMessage); message WM_Debugger_Goodbye;
     procedure WMDebuggerQueryVersion(var Message: TMessage); message WM_Debugger_QueryVersion;
-    function GetMainFileLineNumberFromEntry(Kind, Index: Integer): Integer;
+    procedure GetMemoAndLineNumberFromEntry(Kind, Index: Integer; var Memo: TCompScintEdit; var LineNumber: Integer);
     procedure DebuggerStepped(var Message: TMessage; const Intermediate: Boolean);
     procedure WMDebuggerStepped(var Message: TMessage); message WM_Debugger_Stepped;
     procedure WMDebuggerSteppedIntermediate(var Message: TMessage); message WM_Debugger_SteppedIntermediate;
@@ -504,20 +490,6 @@ const
 
   LineStateGrowAmount = 4000;
 
-{ TCompMainScintEdit }
-
-constructor TCompMainScintEdit.Create;
-begin
-  inherited;
-  BreakPoints := TList.Create;
-end;
-
-destructor TCompMainScintEdit.Destroy;
-begin
-  BreakPoints.Free;
-  inherited;
-end;
-
 { TCompileFormMemoPopupMenu }
 
 type
@@ -543,15 +515,20 @@ begin
   Memo.AutoCompleteFontName := Font.Name;
   Memo.AutoCompleteFontSize := Font.Size;
   Memo.CodePage := CP_UTF8;
+  Memo.CompilerFileIndex := -2; { Just some invalid value, should never be seen while running }
   Memo.ErrorLine := -1;
   Memo.Font.Name := 'Courier New';
   Memo.Font.Size := 10;
+  Memo.ShowHint := True;
+  Memo.StepLine := -1;
   Memo.Styler := FMemosStyler;
   Memo.PopupMenu := PopupMenu;
   Memo.OnChange := MemoChange;
   Memo.OnCharAdded := MemoCharAdded;
+  Memo.OnHintShow := MemoHintShow;
   Memo.OnKeyDown := MemoKeyDown;
   Memo.OnKeyPress := MemoKeyPress;
+  Memo.OnMarginClick := MemoMarginClick;
   Memo.OnModifiedChange := MemoModifiedChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.Parent := BodyPanel;
@@ -560,15 +537,12 @@ begin
   Result := Memo;
 end;
 
-function TCompileForm.InitializeMainMemo(const Memo: TCompMainScintEdit; const PopupMenu: TPopupMenu): TCompMainScintEdit;
+function TCompileForm.InitializeMainMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
 begin
   InitializeMemo(Memo, PopupMenu);
   Memo.AcceptDroppedFiles := True;
-  Memo.ShowHint := True;
-  Memo.StepLine := -1;
+  Memo.CompilerFileIndex := -1;
   Memo.OnDropFiles := MainMemoDropFiles;
-  Memo.OnMarginClick := MainMemoMarginClick;
-  Memo.OnHintShow := MainMemoHintShow;
   Memo.Used := True;
   Result := Memo;
 end;
@@ -714,13 +688,14 @@ begin
   FMemosStyler.IsppInstalled := IsppInstalled;
   FTheme := TTheme.Create;
   FMemos := TList<TCompScintEdit>.Create;
-  FMainMemo := InitializeMainMemo(TCompMainScintEdit.Create(Self), PopupMenu);
+  FMainMemo := InitializeMainMemo(TCompScintEdit.Create(Self), PopupMenu);
   FMemos.Add(FMainMemo);
   for I := 1 to MaxMemos-1 do
     FMemos.Add(InitializeMemo(TCompScintEdit.Create(Self), PopupMenu));
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
   FErrorMemo := FMainMemo;
+  FStepMemo := FMainMemo;
   FMemosStyler.Theme := FTheme;
 
   UpdateTabSetListsItemHeightAndDebugTimeWidth;
@@ -947,6 +922,8 @@ begin
 end;
 
 procedure TCompileForm.NewMainFile;
+var
+  Memo: TCompScintEdit;
 begin
   HideError;
   FUninstExe := '';
@@ -954,7 +931,9 @@ begin
     FDebugTarget := dtSetup;
     UpdateTargetMenu;
   end;
-  FMainMemo.BreakPoints.Clear;
+  for Memo in FMemos do
+    if Memo.Used then
+      Memo.BreakPoints.Clear;
   DestroyDebugInfo;
 
   FMainMemo.Filename := '';
@@ -1266,6 +1245,7 @@ type
     CurLineNumber: Integer;
     CurLine: String;
     OutputExe: String;
+    DebugInfo: Pointer;
     IncludedFiles: TIncludedFiles;
     ErrorMsg: String;
     ErrorFilename: String;
@@ -1279,19 +1259,23 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   procedure DecodeIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles);
   var
     IncludedFile: TIncludedFile;
+    I: Integer;
   begin
     IncludedFiles.Clear;
     if P = nil then
       Exit;
+    I := 0;
     while P^ <> #0 do begin
       if not IsISPPBuiltins(P) then begin
         IncludedFile := TIncludedFile.Create;
         IncludedFile.Filename := P;
+        IncludedFile.CompilerFileIndex := I;
         IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
           @IncludedFile.LastWriteTime);
         IncludedFiles.Add(IncludedFile);
       end;
       Inc(P, StrLen(P) + 1);
+      Inc(I);
     end;
   end;
 
@@ -1347,8 +1331,11 @@ begin
       iscbNotifySuccess:
         begin
           OutputExe := Data.OutputExeFilename;
-          if Form.FCompilerVersion.BinVersion >= $3000001 then
-            Form.ParseDebugInfo(Data.DebugInfo);
+          if Form.FCompilerVersion.BinVersion >= $3000001 then begin
+            DebugInfo := AllocMem(Data.DebugInfoSize);
+            Move(Data.DebugInfo^, DebugInfo^, Data.DebugInfoSize);
+          end else
+            DebugInfo := nil;
         end;
       iscbNotifyError:
         begin
@@ -1545,6 +1532,10 @@ begin
     UpdateRunMenu;
     UpdateCaption;
     UpdateIncludedFilesMemos;
+    if AppData.DebugInfo <> nil then begin
+      ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
+      FreeMem(AppData.DebugInfo);
+    end;
     InvalidateStatusPanel(spCompileIcon);
     InvalidateStatusPanel(spCompileProgress);
     SetAppTaskbarProgressState(tpsNoProgress);
@@ -2118,7 +2109,6 @@ begin
       ActiveControl := Memo;
     end;
   end;
-  RToggleBreakPoint.Enabled := FActiveMemo = FMainMemo;
   UpdateRunMenu;
   UpdateCaretPosPanel;
   UpdateEditModePanel;
@@ -2474,17 +2464,22 @@ begin
   end;
 end;
 
-procedure TCompileForm.SetMainMemoStepLine(ALine: Integer);
+procedure TCompileForm.SetStepLine(const AMemo: TCompScintEdit; ALine: Integer);
 var
   OldLine: Integer;
 begin
-  if FMainMemo.StepLine <> ALine then begin
-    OldLine := FMainMemo.StepLine;
-    FMainMemo.StepLine := ALine;
+  if AMemo <> FStepMemo then begin
+    SetStepLine(FStepMemo, -1);
+    FStepMemo := AMemo;
+  end;
+
+  if FStepMemo.StepLine <> ALine then begin
+    OldLine := FStepMemo.StepLine;
+    FStepMemo.StepLine := ALine;
     if OldLine >= 0 then
-      UpdateLineMarkers(FMainMemo, OldLine);
-    if FMainMemo.StepLine >= 0 then
-      UpdateLineMarkers(FMainMemo, FMainMemo.StepLine);
+      UpdateLineMarkers(FStepMemo, OldLine);
+    if FStepMemo.StepLine >= 0 then
+      UpdateLineMarkers(FStepMemo, FStepMemo.StepLine);
   end;
 end;
 
@@ -2545,8 +2540,10 @@ begin
               ((PathCompare(IncludedFile.Memo.Filename, IncludedFile.Filename) <> 0) or
                 not IncludedFile.HasLastWriteTime or
                 (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0)) then begin
-              OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
               IncludedFile.Memo.Filename := IncludedFile.Filename;
+              IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
+              IncludedFile.Memo.BreakPoints.Clear;
+              OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
               IncludedFile.Memo.Used := True;
             end;
             NewTabs.Add(PathExtractName(IncludedFile.Filename));
@@ -2567,6 +2564,7 @@ begin
       end;
       { Hide any remaining memos }
       for I := NextMemoIndex to FMemos.Count-1 do begin
+        FMemos[I].BreakPoints.Clear;
         FMemos[I].Used := False;
         FMemos[I].Visible := False;
       end;
@@ -2584,6 +2582,7 @@ begin
     MemosTabSet.Visible := True;
   end else begin
     for I := FirstIncludedFilesMemoIndex to FMemos.Count-1 do begin
+      FMemos[I].BreakPoints.Clear;
       FMemos[I].Used := False;
       FMemos[I].Visible := False;
     end;
@@ -2873,9 +2872,9 @@ begin
   end;
 end;
 
-procedure TCompileForm.MainMemoHintShow(Sender: TObject; var Info: TScintHintInfo);
+procedure TCompileForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
 
-  function GetCodeVariableDebugEntryFromLineCol(Line, Col: Integer): PVariableDebugEntry;
+  function GetCodeVariableDebugEntryFromFileLineCol(FileIndex, Line, Col: Integer): PVariableDebugEntry;
   var
     I: Integer;
   begin
@@ -2883,10 +2882,11 @@ procedure TCompileForm.MainMemoHintShow(Sender: TObject; var Info: TScintHintInf
     Inc(Line);
     Inc(Col);
     Result := nil;
-    for I := 0 to FMainFileVariableDebugEntriesCount-1 do begin
-      if (FMainFileVariableDebugEntries[I].LineNumber = Line) and
-         (FMainFileVariableDebugEntries[I].Col = Col) then begin
-        Result := @FMainFileVariableDebugEntries[I];
+    for I := 0 to FVariableDebugEntriesCount-1 do begin
+      if (FVariableDebugEntries[I].FileIndex = FileIndex) and
+         (FVariableDebugEntries[I].LineNumber = Line) and
+         (FVariableDebugEntries[I].Col = Col) then begin
+        Result := @FVariableDebugEntries[I];
         Break;
       end;
     end;
@@ -2903,9 +2903,9 @@ procedure TCompileForm.MainMemoHintShow(Sender: TObject; var Info: TScintHintInf
       column number discrepancies between Scintilla and ROPS. This code
       simulates the conversion to try to find out where ROPS thinks a Pos
       resides. }
-    LinePos := FMainMemo.GetPositionFromLine(FMainMemo.GetLineFromPosition(Pos));
-    S := FMainMemo.GetRawTextRange(LinePos, Pos);
-    U := FMainMemo.ConvertRawStringToString(S);
+    LinePos := FActiveMemo.GetPositionFromLine(FActiveMemo.GetLineFromPosition(Pos));
+    S := FActiveMemo.GetRawTextRange(LinePos, Pos);
+    U := FActiveMemo.ConvertRawStringToString(S);
     Result := Length(U);
   end;
 
@@ -2918,15 +2918,15 @@ procedure TCompileForm.MainMemoHintShow(Sender: TObject; var Info: TScintHintInf
     Result.EndPos := 0;
     BraceLevel := 0;
     ConstStartPos := -1;
-    Line := FMainMemo.GetLineFromPosition(Pos);
-    LineEndPos := FMainMemo.GetLineEndPosition(Line);
-    I := FMainMemo.GetPositionFromLine(Line);
+    Line := FActiveMemo.GetLineFromPosition(Pos);
+    LineEndPos := FActiveMemo.GetLineEndPosition(Line);
+    I := FActiveMemo.GetPositionFromLine(Line);
     while I < LineEndPos do begin
       if (I > Pos) and (BraceLevel = 0) then
         Break;
-      C := FMainMemo.GetCharAtPosition(I);
+      C := FActiveMemo.GetCharAtPosition(I);
       if C = '{' then begin
-        if FMainMemo.GetCharAtPosition(I + 1) = '{' then
+        if FActiveMemo.GetCharAtPosition(I + 1) = '{' then
           Inc(I)
         else begin
           if BraceLevel = 0 then
@@ -2945,7 +2945,7 @@ procedure TCompileForm.MainMemoHintShow(Sender: TObject; var Info: TScintHintInf
           ConstStartPos := -1;
         end;
       end;
-      I := FMainMemo.GetPositionAfter(I);
+      I := FActiveMemo.GetPositionAfter(I);
     end;
   end;
 
@@ -2957,19 +2957,19 @@ var
 begin
   if FDebugClientWnd = 0 then
     Exit;
-  Pos := FMainMemo.GetPositionFromPoint(Info.CursorPos, True, True);
+  Pos := FActiveMemo.GetPositionFromPoint(Info.CursorPos, True, True);
   if Pos < 0 then
     Exit;
-  Line := FMainMemo.GetLineFromPosition(Pos);
+  Line := FActiveMemo.GetLineFromPosition(Pos);
 
   { Check if cursor is over a [Code] variable }
-  if FMemosStyler.GetSectionFromLineState(FMainMemo.Lines.State[Line]) = scCode then begin
+  if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode then begin
     { Note: The '+ 1' is needed so that when the mouse is over a '.'
       between two words, it won't match the word to the left of the '.' }
-    I := FMainMemo.GetWordStartPosition(Pos + 1, True);
-    J := FMainMemo.GetWordEndPosition(Pos, True);
+    I := FActiveMemo.GetWordStartPosition(Pos + 1, True);
+    J := FActiveMemo.GetWordEndPosition(Pos, True);
     if J > I then begin
-      DebugEntry := GetCodeVariableDebugEntryFromLineCol(Line,
+      DebugEntry := GetCodeVariableDebugEntryFromFileLineCol(FActiveMemo.CompilerFileIndex, Line,
         GetCodeColumnFromPosition(I));
       if DebugEntry <> nil then begin
         case EvaluateVariableEntry(DebugEntry, Output) of
@@ -2978,9 +2978,9 @@ begin
         else
           Info.HintStr := 'Unknown error';
         end;
-        Info.CursorRect.TopLeft := FMainMemo.GetPointFromPosition(I);
-        Info.CursorRect.BottomRight := FMainMemo.GetPointFromPosition(J);
-        Info.CursorRect.Bottom := Info.CursorRect.Top + FMainMemo.LineHeight;
+        Info.CursorRect.TopLeft := FActiveMemo.GetPointFromPosition(I);
+        Info.CursorRect.BottomRight := FActiveMemo.GetPointFromPosition(J);
+        Info.CursorRect.Bottom := Info.CursorRect.Top + FActiveMemo.LineHeight;
         Info.HideTimeout := High(Integer);  { infinite }
         Exit;
       end;
@@ -2990,16 +2990,16 @@ begin
   { Check if cursor is over a constant }
   ConstRange := FindConstRange(Pos);
   if ConstRange.EndPos > ConstRange.StartPos then begin
-    Info.HintStr := FMainMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
+    Info.HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
     case EvaluateConstant(Info.HintStr, Output) of
       1: Info.HintStr := Info.HintStr + ' = "' + Output + '"';
       2: Info.HintStr := Info.HintStr + ' = Exception: ' + Output;
     else
       Info.HintStr := Info.HintStr + ' = Unknown error';
     end;
-    Info.CursorRect.TopLeft := FMainMemo.GetPointFromPosition(ConstRange.StartPos);
-    Info.CursorRect.BottomRight := FMainMemo.GetPointFromPosition(ConstRange.EndPos);
-    Info.CursorRect.Bottom := Info.CursorRect.Top + FMainMemo.LineHeight;
+    Info.CursorRect.TopLeft := FActiveMemo.GetPointFromPosition(ConstRange.StartPos);
+    Info.CursorRect.BottomRight := FActiveMemo.GetPointFromPosition(ConstRange.EndPos);
+    Info.CursorRect.Bottom := Info.CursorRect.Top + FActiveMemo.LineHeight;
     Info.HideTimeout := High(Integer);  { infinite }
   end;
 end;
@@ -3056,18 +3056,36 @@ begin
   DebuggingStopped(True);
 end;
 
-function TCompileForm.GetMainFileLineNumberFromEntry(Kind, Index: Integer): Integer;
+procedure TCompileForm.GetMemoAndLineNumberFromEntry(Kind, Index: Integer; var Memo: TCompScintEdit; var LineNumber: Integer);
+
+  function GetMemoFromDebugEntryFileIndex(const FileIndex: Integer): TCompScintEdit;
+  var
+    Memo: TCompScintEdit;
+  begin
+    Result := nil;
+    if FOptions.OpenIncludedFiles then begin
+      for Memo in FMemos do begin
+        if Memo.Used and (Memo.CompilerFileIndex = FileIndex) then begin
+          Result := Memo;
+          Exit;
+        end;
+      end;
+    end else if FMainMemo.CompilerFileIndex = FileIndex then
+      Result := FMainMemo;
+  end;
+
 var
   I: Integer;
 begin
-  Result := -1;
-  for I := 0 to FMainFileDebugEntriesCount-1 do begin
-    if (FMainFileDebugEntries[I].Kind = Kind) and
-       (FMainFileDebugEntries[I].Index = Index) then begin
-      Result := FMainFileDebugEntries[I].LineNumber;
-      Break;
+  for I := 0 to FDebugEntriesCount-1 do begin
+    if (FDebugEntries[I].Kind = Kind) and (FDebugEntries[I].Index = Index) then begin
+      Memo := GetMemoFromDebugEntryFileIndex(FDebugEntries[I].FileIndex);
+      LineNumber := FDebugEntries[I].LineNumber;
+      Exit;
     end;
   end;
+  Memo := nil;
+  LineNumber := -1;
 end;
 
 procedure TCompileForm.BringToForeground;
@@ -3093,16 +3111,17 @@ end;
 
 procedure TCompileForm.DebuggerStepped(var Message: TMessage; const Intermediate: Boolean);
 var
+  Memo: TCompScintEdit;
   LineNumber: Integer;
 begin
-  LineNumber := GetMainFileLineNumberFromEntry(Message.WParam, Message.LParam);
-  if LineNumber < 0 then
+  GetMemoAndLineNumberFromEntry(Message.WParam, Message.LParam, Memo, LineNumber);
+  if (Memo = nil) or (LineNumber < 0) then
     Exit;
 
-  if (LineNumber < FMainMemo.LineStateCount) and
-     (FMainMemo.LineState[LineNumber] <> lnEntryProcessed) then begin
-    FMainMemo.LineState[LineNumber] := lnEntryProcessed;
-    UpdateLineMarkers(FMainMemo, LineNumber);
+  if (LineNumber < Memo.LineStateCount) and
+     (Memo.LineState[LineNumber] <> lnEntryProcessed) then begin
+    Memo.LineState[LineNumber] := lnEntryProcessed;
+    UpdateLineMarkers(Memo, LineNumber);
   end;
 
   if (FStepMode = smStepInto) or
@@ -3110,10 +3129,10 @@ begin
      ((FStepMode = smRunToCursor) and
       (FRunToCursorPoint.Kind = Integer(Message.WParam)) and
       (FRunToCursorPoint.Index = Message.LParam)) or
-     (FMainMemo.BreakPoints.IndexOf(Pointer(LineNumber)) <> -1) then begin
-    MoveCaretAndActivateMemo(FMainMemo, LineNumber, True);
+     (Memo.BreakPoints.IndexOf(LineNumber) <> -1) then begin
+    MoveCaretAndActivateMemo(Memo, LineNumber, True);
     HideError;
-    SetMainMemoStepLine(LineNumber);
+    SetStepLine(Memo, LineNumber);
     BringToForeground;
     { Tell Setup to pause }
     Message.Result := 1;
@@ -3135,15 +3154,17 @@ end;
 
 procedure TCompileForm.WMDebuggerException(var Message: TMessage);
 var
+  Memo: TCompScintEdit;
   LineNumber: Integer;
+  S: String;
 begin
   if FOptions.PauseOnDebuggerExceptions then begin
-    LineNumber := GetMainFileLineNumberFromEntry(Message.WParam, Message.LParam);
+    GetMemoAndLineNumberFromEntry(Message.WParam, Message.LParam, Memo, LineNumber);
 
-    if (LineNumber >= 0) then begin
-      MoveCaretAndActivateMemo(FMainMemo, LineNumber, True);
-      SetMainMemoStepLine(-1);
-      SetErrorLine(FMainMemo, LineNumber);
+    if (Memo <> nil) and (LineNumber >= 0) then begin
+      MoveCaretAndActivateMemo(Memo, LineNumber, True);
+      SetStepLine(Memo, -1);
+      SetErrorLine(Memo, LineNumber);
     end;
 
     BringToForeground;
@@ -3154,9 +3175,12 @@ begin
     UpdateCaption;
 
     ReplyMessage(Message.Result);  { so that Setup enters a paused state now }
-    if LineNumber >= 0 then
-      MsgBox(Format('Line %d:' + SNewLine + '%s.', [LineNumber + 1, FDebuggerException]), 'Runtime Error', mbCriticalError, mb_Ok)
-    else
+    if LineNumber >= 0 then begin
+      S := Format('Line %d:' + SNewLine + '%s.', [LineNumber + 1, FDebuggerException]);
+      if (Memo <> nil) and (Memo.Filename <> '') then
+        S := Memo.Filename + SNewLine2 + S;
+      MsgBox(S, 'Runtime Error', mbCriticalError, mb_Ok)
+    end else
       MsgBox(FDebuggerException + '.', 'Runtime Error', mbCriticalError, mb_Ok);
   end;
 end;
@@ -3221,34 +3245,62 @@ end;
 procedure TCompileForm.DestroyDebugInfo;
 var
   HadDebugInfo: Boolean;
+  Memo: TCompScintEdit;
 begin
-  HadDebugInfo := Assigned(FMainMemo.LineState);
+  HadDebugInfo := False;
+  for Memo in FMemos do begin
+    if Assigned(Memo.LineState) then begin
+      Memo.LineStateCapacity := 0;
+      Memo.LineStateCount := 0;
+      FreeMem(Memo.LineState);
+      Memo.LineState := nil;
+      HadDebugInfo := True;
+    end;
+  end;
 
-  FMainMemo.LineStateCapacity := 0;
-  FMainMemo.LineStateCount := 0;
-  FreeMem(FMainMemo.LineState);
-  FMainMemo.LineState := nil;
+  FDebugEntriesCount := 0;
+  FreeMem(FDebugEntries);
+  FDebugEntries := nil;
 
-  FMainFileDebugEntriesCount := 0;
-  FreeMem(FMainFileDebugEntries);
-  FMainFileDebugEntries := nil;
-
-  FMainFileVariableDebugEntriesCount := 0;
-  FreeMem(FMainFileVariableDebugEntries);
-  FMainFileVariableDebugEntries := nil;
+  FVariableDebugEntriesCount := 0;
+  FreeMem(FVariableDebugEntries);
+  FVariableDebugEntries := nil;
 
   FCompiledCodeText := '';
   FCompiledCodeDebugInfo := '';
 
   { Clear all dots and reset breakpoint icons (unless exiting; no point) }
   if HadDebugInfo and not(csDestroying in ComponentState) then
-    UpdateAllMainMemoLineMarkers;
+    UpdateAllMemosLineMarkers;
 end;
 
+var
+  PrevCompilerFileIndex: Integer;
+  PrevMemo: TCompScintEdit;
+
 procedure TCompileForm.ParseDebugInfo(DebugInfo: Pointer);
-{ This creates and fills the DebugEntries and FLineState arrays }
+
+  function GetMemoFromCompilerFileIndex(const CompilerFileIndex: Integer): TCompScintEdit;
+  var
+    Memo: TCompScintEdit;
+  begin
+    if (PrevCompilerFileIndex <> CompilerFileIndex) then begin
+      PrevMemo := nil;
+      for Memo in FMemos do begin
+        if Memo.Used and (Memo.CompilerFileIndex = CompilerFileIndex) then begin
+          PrevMemo := Memo;
+          Break;
+        end;
+      end;
+      PrevCompilerFileIndex := CompilerFileIndex;
+    end;
+    Result := PrevMemo;
+  end;
+
+{ This creates and fills the DebugEntries and Memo LineState arrays }
 var
   Header: PDebugInfoHeader;
+  Memo: TCompScintEdit;
   Size: Cardinal;
   I: Integer;
 begin
@@ -3260,25 +3312,29 @@ begin
     raise Exception.Create('Unrecognized debug info format');
 
   try
-    I := FMainMemo.Lines.Count;
-    FMainMemo.LineState := AllocMem(SizeOf(TLineState) * (I + LineStateGrowAmount));
-    FMainMemo.LineStateCapacity := I + LineStateGrowAmount;
-    FMainMemo.LineStateCount := I;
+    for Memo in FMemos do begin
+      if Memo.Used then begin
+        I := Memo.Lines.Count;
+        Memo.LineState := AllocMem(SizeOf(TLineState) * (I + LineStateGrowAmount));
+        Memo.LineStateCapacity := I + LineStateGrowAmount;
+        Memo.LineStateCount := I;
+      end;
+    end;
 
     Inc(Cardinal(DebugInfo), SizeOf(Header^));
 
-    FMainFileDebugEntriesCount := Header.DebugEntryCount;
-    Size := FMainFileDebugEntriesCount * SizeOf(TDebugEntry);
-    GetMem(FMainFileDebugEntries, Size);
-    Move(DebugInfo^, FMainFileDebugEntries^, Size);
-    for I := 0 to FMainFileDebugEntriesCount-1 do
-      Dec(FMainFileDebugEntries[I].LineNumber);
+    FDebugEntriesCount := Header.DebugEntryCount;
+    Size := FDebugEntriesCount * SizeOf(TDebugEntry);
+    GetMem(FDebugEntries, Size);
+    Move(DebugInfo^, FDebugEntries^, Size);
+    for I := 0 to FDebugEntriesCount-1 do
+      Dec(FDebugEntries[I].LineNumber);
     Inc(Cardinal(DebugInfo), Size);
 
-    FMainFileVariableDebugEntriesCount := Header.VariableDebugEntryCount;
-    Size := FMainFileVariableDebugEntriesCount * SizeOf(TVariableDebugEntry);
-    GetMem(FMainFileVariableDebugEntries, Size);
-    Move(DebugInfo^, FMainFileVariableDebugEntries^, Size);
+    FVariableDebugEntriesCount := Header.VariableDebugEntryCount;
+    Size := FVariableDebugEntriesCount * SizeOf(TVariableDebugEntry);
+    GetMem(FVariableDebugEntries, Size);
+    Move(DebugInfo^, FVariableDebugEntries^, Size);
     Inc(Cardinal(DebugInfo), Size);
 
     SetString(FCompiledCodeText, PAnsiChar(DebugInfo), Header.CompiledCodeTextLength);
@@ -3286,30 +3342,40 @@ begin
 
     SetString(FCompiledCodeDebugInfo, PAnsiChar(DebugInfo), Header.CompiledCodeDebugInfoLength);
 
-    for I := 0 to FMainFileDebugEntriesCount-1 do begin
-      if (FMainFileDebugEntries[I].LineNumber >= 0) and
-         (FMainFileDebugEntries[I].LineNumber < FMainMemo.LineStateCount) then begin
-        if FMainMemo.LineState[FMainFileDebugEntries[I].LineNumber] = lnUnknown then
-          FMainMemo.LineState[FMainFileDebugEntries[I].LineNumber] := lnHasEntry;
+    PrevCompilerFileIndex := -2; { Just some invalid value }
+
+    for I := 0 to FDebugEntriesCount-1 do begin
+      if FDebugEntries[I].LineNumber >= 0 then begin
+        Memo := GetMemoFromCompilerFileIndex(FDebugEntries[I].FileIndex);
+        if (Memo <> nil) and (FDebugEntries[I].LineNumber < Memo.LineStateCount) then begin
+          if Memo.LineState[FDebugEntries[I].LineNumber] = lnUnknown then
+            Memo.LineState[FDebugEntries[I].LineNumber] := lnHasEntry;
+        end;
       end;
     end;
-    UpdateAllMainMemoLineMarkers;
+    UpdateAllMemosLineMarkers;
   except
     DestroyDebugInfo;
     raise;
   end;
 end;
 
-procedure TCompileForm.ResetMainMemoLineState;
+procedure TCompileForm.ResetAllMemosLineState;
 { Changes green dots back to grey dots }
 var
+  Memo: TCompScintEdit;
   I: Integer;
 begin
-  for I := 0 to FMainMemo.LineStateCount-1 do
-    if FMainMemo.LineState[I] = lnEntryProcessed then begin
-      FMainMemo.LineState[I] := lnHasEntry;
-      UpdateLineMarkers(FMainMemo, I);
+  for Memo in FMemos do begin
+    if Memo.Used and Assigned(Memo.LineState) then begin
+      for I := 0 to Memo.LineStateCount-1 do begin
+        if Memo.LineState[I] = lnEntryProcessed then begin
+          Memo.LineState[I] := lnHasEntry;
+          UpdateLineMarkers(Memo, I);
+        end;
+      end;
     end;
+  end;
 end;
 
 procedure TCompileForm.CheckIfTerminated;
@@ -3380,7 +3446,7 @@ begin
   FTempDir := '';
   CheckIfRunningTimer.Enabled := False;
   HideError;
-  SetMainMemoStepLine(-1);
+  SetStepLine(FStepMemo, -1);
   UpdateRunMenu;
   UpdateCaption;
   DebugLogMessage('*** ' + ExitCodeText);
@@ -3420,7 +3486,7 @@ begin
   RunButton.Enabled := RRun.Enabled;
   RPause.Enabled := FDebugging and not FPaused;
   PauseButton.Enabled := RPause.Enabled;
-  RRunToCursor.Enabled := (FActiveMemo = FMainMemo) and RRun.Enabled;
+  RRunToCursor.Enabled := RRun.Enabled;
   RStepInto.Enabled := RRun.Enabled;
   RStepOver.Enabled := RRun.Enabled;
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
@@ -3535,7 +3601,7 @@ begin
   end;
   RunParameters := Format('/DEBUGWND=$%x ', [Handle]) + FRunParameters;
 
-  ResetMainMemoLineState;
+  ResetAllMemosLineState;
   DebugOutputList.Clear;
   SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
   DebugCallStackList.Clear;
@@ -3638,7 +3704,7 @@ begin
   CompileIfNecessary;
   FStepMode := AStepMode;
   HideError;
-  SetMainMemoStepLine(-1);
+  SetStepLine(FStepMemo, -1);
   if FDebugging then begin
     if FPaused then begin
       FPaused := False;
@@ -3661,6 +3727,7 @@ end;
 function TCompileForm.EvaluateConstant(const S: String;
   var Output: String): Integer;
 begin
+  { This is about evaluating constants like 'app' and not [Code] variables }
   FReplyString := '';
   Result := SendCopyDataMessageStr(FDebugClientWnd, Handle,
     CD_DebugClient_EvaluateConstantW, S);
@@ -3707,15 +3774,16 @@ end;
 
 procedure TCompileForm.RRunToCursorClick(Sender: TObject);
 
-  function GetDebugEntryFromMainFileLineNumber(LineNumber: Integer;
+  function GetDebugEntryFromMemoAndLineNumber(Memo: TCompScintEdit; LineNumber: Integer;
     var DebugEntry: TDebugEntry): Boolean;
   var
     I: Integer;
   begin
     Result := False;
-    for I := 0 to FMainFileDebugEntriesCount-1 do begin
-      if FMainFileDebugEntries[I].LineNumber = LineNumber then begin
-        DebugEntry := FMainFileDebugEntries[I];
+    for I := 0 to FDebugEntriesCount-1 do begin
+      if (FDebugEntries[I].FileIndex = Memo.CompilerFileIndex) and
+         (FDebugEntries[I].LineNumber = LineNumber) then begin
+        DebugEntry := FDebugEntries[I];
         Result := True;
         Break;
       end;
@@ -3724,7 +3792,7 @@ procedure TCompileForm.RRunToCursorClick(Sender: TObject);
 
 begin
   CompileIfNecessary;
-  if not GetDebugEntryFromMainFileLineNumber(FMainMemo.CaretLine, FRunToCursorPoint) then begin
+  if not GetDebugEntryFromMemoAndLineNumber(FActiveMemo, FActiveMemo.CaretLine, FRunToCursorPoint) then begin
     MsgBox('No code was generated for the current line.', SCompilerFormCaption,
       mbError, MB_OK);
     Exit;
@@ -4115,64 +4183,60 @@ begin
   end;
 end;
 
-procedure TCompileForm.MainMemoToggleBreakPoint(Line: Integer);
+procedure TCompileForm.ToggleBreakPoint(Line: Integer);
 var
   I: Integer;
 begin
-  I := FMainMemo.BreakPoints.IndexOf(Pointer(Line));
+  I := FActiveMemo.BreakPoints.IndexOf(Line);
   if I = -1 then
-    FMainMemo.BreakPoints.Add(Pointer(Line))
+    FActiveMemo.BreakPoints.Add(Line)
   else
-    FMainMemo.BreakPoints.Delete(I);
-  UpdateLineMarkers(FMainMemo, Line);
+    FActiveMemo.BreakPoints.Delete(I);
+  UpdateLineMarkers(FActiveMemo, Line);
 end;
 
-procedure TCompileForm.MainMemoMarginClick(Sender: TObject; MarginNumber: Integer;
+procedure TCompileForm.MemoMarginClick(Sender: TObject; MarginNumber: Integer;
   Line: Integer);
 begin
   if MarginNumber = 1 then
-    MainMemoToggleBreakPoint(Line);
+    ToggleBreakPoint(Line);
 end;
 
 procedure TCompileForm.MemoLinesInserted(Memo: TCompScintEdit; FirstLine, Count: integer);
 var
   I, Line: Integer;
 begin
-  if Memo = FMainMemo then begin
-    for I := 0 to FMainFileDebugEntriesCount-1 do
-      if FMainFileDebugEntries[I].LineNumber >= FirstLine then
-        Inc(FMainFileDebugEntries[I].LineNumber, Count);
+  for I := 0 to FDebugEntriesCount-1 do
+    if (FDebugEntries[I].FileIndex = Memo.CompilerFileIndex) and
+       (FDebugEntries[I].LineNumber >= FirstLine) then
+      Inc(FDebugEntries[I].LineNumber, Count);
 
-    if Assigned(FMainMemo.LineState) and (FirstLine < FMainMemo.LineStateCount) then begin
-      { Grow FStateLine if necessary }
-      I := (FMainMemo.LineStateCount + Count) - FMainMemo.LineStateCapacity;
-      if I > 0 then begin
-        if I < LineStateGrowAmount then
-          I := LineStateGrowAmount;
-        ReallocMem(FMainMemo.LineState, SizeOf(TLineState) * (FMainMemo.LineStateCapacity + I));
-        Inc(FMainMemo.LineStateCapacity, I);
-      end;
-      { Shift existing line states and clear the new ones }
-      for I := FMainMemo.LineStateCount-1 downto FirstLine do
-        FMainMemo.LineState[I + Count] := FMainMemo.LineState[I];
-      for I := FirstLine to FirstLine + Count - 1 do
-        FMainMemo.LineState[I] := lnUnknown;
-      Inc(FMainMemo.LineStateCount, Count);
+  if Assigned(Memo.LineState) and (FirstLine < Memo.LineStateCount) then begin
+    { Grow FStateLine if necessary }
+    I := (Memo.LineStateCount + Count) - Memo.LineStateCapacity;
+    if I > 0 then begin
+      if I < LineStateGrowAmount then
+        I := LineStateGrowAmount;
+      ReallocMem(Memo.LineState, SizeOf(TLineState) * (Memo.LineStateCapacity + I));
+      Inc(Memo.LineStateCapacity, I);
     end;
-
-    if FMainMemo.StepLine >= FirstLine then
-      Inc(FMainMemo.StepLine, Count);
+    { Shift existing line states and clear the new ones }
+    for I := Memo.LineStateCount-1 downto FirstLine do
+      Memo.LineState[I + Count] := Memo.LineState[I];
+    for I := FirstLine to FirstLine + Count - 1 do
+      Memo.LineState[I] := lnUnknown;
+    Inc(Memo.LineStateCount, Count);
   end;
 
+  if Memo.StepLine >= FirstLine then
+    Inc(Memo.StepLine, Count);
   if Memo.ErrorLine >= FirstLine then
     Inc(Memo.ErrorLine, Count);
 
-  if Memo = FMainMemo then begin
-    for I := 0 to FMainMemo.BreakPoints.Count-1 do begin
-      Line := Integer(FMainMemo.BreakPoints[I]);
-      if Line >= FirstLine then
-        FMainMemo.BreakPoints[I] := Pointer(Line + Count);
-    end;
+  for I := 0 to Memo.BreakPoints.Count-1 do begin
+    Line := Memo.BreakPoints[I];
+    if Line >= FirstLine then
+      Memo.BreakPoints[I] := Line + Count;
   end;
 end;
 
@@ -4182,40 +4246,38 @@ var
   I, Line: Integer;
   DebugEntry: PDebugEntry;
 begin
-  if Memo = FMainMemo then begin
-    for I := 0 to FMainFileDebugEntriesCount-1 do begin
-      DebugEntry := @FMainFileDebugEntries[I];
-      if DebugEntry.LineNumber >= FirstLine then begin
-        if DebugEntry.LineNumber < FirstLine + Count then
-          DebugEntry.LineNumber := -1
-        else
-          Dec(DebugEntry.LineNumber, Count);
-      end;
-    end;
-
-    if Assigned(FMainMemo.LineState) then begin
-      { Shift existing line states }
-      if FirstLine < FMainMemo.LineStateCount - Count then begin
-        for I := FirstLine to FMainMemo.LineStateCount - Count - 1 do
-          FMainMemo.LineState[I] := FMainMemo.LineState[I + Count];
-        Dec(FMainMemo.LineStateCount, Count);
-      end
-      else begin
-        { There's nothing to shift because the last line(s) were deleted, or
-          line(s) past FLineStateCount }
-        if FMainMemo.LineStateCount > FirstLine then
-          FMainMemo.LineStateCount := FirstLine;
-      end;
-    end;
-
-    if FMainMemo.StepLine >= FirstLine then begin
-      if FMainMemo.StepLine < FirstLine + Count then
-        FMainMemo.StepLine := -1
+  for I := 0 to FDebugEntriesCount-1 do begin
+    DebugEntry := @FDebugEntries[I];
+    if (DebugEntry.FileIndex = Memo.CompilerFileIndex) and
+       (DebugEntry.LineNumber >= FirstLine) then begin
+      if DebugEntry.LineNumber < FirstLine + Count then
+        DebugEntry.LineNumber := -1
       else
-        Dec(FMainMemo.StepLine, Count);
+        Dec(DebugEntry.LineNumber, Count);
     end;
   end;
 
+  if Assigned(Memo.LineState) then begin
+    { Shift existing line states }
+    if FirstLine < Memo.LineStateCount - Count then begin
+      for I := FirstLine to Memo.LineStateCount - Count - 1 do
+        Memo.LineState[I] := Memo.LineState[I + Count];
+      Dec(Memo.LineStateCount, Count);
+    end
+    else begin
+      { There's nothing to shift because the last line(s) were deleted, or
+        line(s) past FLineStateCount }
+      if Memo.LineStateCount > FirstLine then
+        Memo.LineStateCount := FirstLine;
+    end;
+  end;
+
+  if Memo.StepLine >= FirstLine then begin
+    if Memo.StepLine < FirstLine + Count then
+      Memo.StepLine := -1
+    else
+      Dec(Memo.StepLine, Count);
+  end;
   if Memo.ErrorLine >= FirstLine then begin
     if Memo.ErrorLine < FirstLine + Count then
       Memo.ErrorLine := -1
@@ -4223,16 +4285,14 @@ begin
       Dec(Memo.ErrorLine, Count);
   end;
 
-  if Memo = FMainMemo then begin
-    for I := FMainMemo.BreakPoints.Count-1 downto 0 do begin
-      Line := Integer(FMainMemo.BreakPoints[I]);
-      if Line >= FirstLine then begin
-        if Line < FirstLine + Count then begin
-          FMainMemo.BreakPoints.Delete(I);
-        end else begin
-          Line := Line - Count;
-          FMainMemo.BreakPoints[I] := Pointer(Line);
-        end;
+  for I := Memo.BreakPoints.Count-1 downto 0 do begin
+    Line := Memo.BreakPoints[I];
+    if Line >= FirstLine then begin
+      if Line < FirstLine + Count then begin
+        Memo.BreakPoints.Delete(I);
+      end else begin
+        Line := Line - Count;
+        Memo.BreakPoints[I] := Line;
       end;
     end;
   end;
@@ -4254,21 +4314,18 @@ begin
     Exit;
 
   NewMarker := -1;
-  if AMemo = FMainMemo then begin
-    if FMainMemo.BreakPoints.IndexOf(Pointer(Line)) <> -1 then begin
-      if FMainMemo.LineState = nil then
-        NewMarker := mmIconBreakpoint
-      else if (Line < FMainMemo.LineStateCount) and (FMainMemo.LineState[Line] <> lnUnknown) then
-        NewMarker := mmIconBreakpointGood
-      else
-        NewMarker := mmIconBreakpointBad;
-    end
-    else begin
-      if Line < FMainMemo.LineStateCount then begin
-        case FMainMemo.LineState[Line] of
-          lnHasEntry: NewMarker := mmIconHasEntry;
-          lnEntryProcessed: NewMarker := mmIconEntryProcessed;
-        end;
+  if AMemo.BreakPoints.IndexOf(Line) <> -1 then begin
+    if AMemo.LineState = nil then
+      NewMarker := mmIconBreakpoint
+    else if (Line < AMemo.LineStateCount) and (AMemo.LineState[Line] <> lnUnknown) then
+      NewMarker := mmIconBreakpointGood
+    else
+      NewMarker := mmIconBreakpointBad;
+  end else begin
+    if Line < AMemo.LineStateCount then begin
+      case AMemo.LineState[Line] of
+        lnHasEntry: NewMarker := mmIconHasEntry;
+        lnEntryProcessed: NewMarker := mmIconEntryProcessed;
       end;
     end;
   end;
@@ -4281,27 +4338,25 @@ begin
   if NewMarker <> -1 then
     AMemo.AddMarker(Line, NewMarker);
 
-  if AMemo = FMainMemo then begin
-    if FMainMemo.StepLine = Line then
-      FMainMemo.AddMarker(Line, mmLineStep)
-    else if FMainMemo.ErrorLine = Line then
-      FMainMemo.AddMarker(Line, mmLineError)
-    else if NewMarker in [mmIconBreakpoint, mmIconBreakpointGood] then
-      FMainMemo.AddMarker(Line, mmLineBreakpoint)
-    else if NewMarker = mmIconBreakpointBad then
-      FMainMemo.AddMarker(Line, mmLineBreakpointBad);
-  end else begin
-    if AMemo.ErrorLine = Line then
-      AMemo.AddMarker(Line, mmLineError);
-  end;
+  if AMemo.StepLine = Line then
+    AMemo.AddMarker(Line, mmLineStep)
+  else if AMemo.ErrorLine = Line then
+    AMemo.AddMarker(Line, mmLineError)
+  else if NewMarker in [mmIconBreakpoint, mmIconBreakpointGood] then
+    AMemo.AddMarker(Line, mmLineBreakpoint)
+  else if NewMarker = mmIconBreakpointBad then
+    AMemo.AddMarker(Line, mmLineBreakpointBad);
 end;
 
-procedure TCompileForm.UpdateAllMainMemoLineMarkers;
+procedure TCompileForm.UpdateAllMemosLineMarkers;
 var
+  Memo: TCompScintEdit;
   Line: Integer;
 begin
-  for Line := 0 to FMainMemo.Lines.Count-1 do
-    UpdateLineMarkers(FMainMemo, Line);
+  for Memo in FMemos do
+    if Memo.Used then
+      for Line := 0 to Memo.Lines.Count-1 do
+        UpdateLineMarkers(Memo, Line);
 end;
 
 procedure TCompileForm.UpdateBevel1;
@@ -4311,7 +4366,7 @@ end;
 
 procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);
 begin
-  MainMemoToggleBreakPoint(FMainMemo.CaretLine);
+  ToggleBreakPoint(FActiveMemo.CaretLine);
 end;
 
 function TCompileForm.ToCurrentPPI(const XY: Integer): Integer;

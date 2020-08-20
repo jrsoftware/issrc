@@ -2,7 +2,7 @@ unit DebugStruct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -63,7 +63,7 @@ const
 
 const
   DebugInfoHeaderID = $64787369;
-  DebugInfoHeaderVersion = 4;
+  DebugInfoHeaderVersion = 5;
 
 type
   PDebugInfoHeader = ^TDebugInfoHeader;
@@ -76,13 +76,14 @@ type
     CompiledCodeDebugInfoLength: Integer;
   end;
 
-  { TDebugEntrys associate section entries with line numbers }
+  { TDebugEntrys associate section entries with files and line numbers }
   TDebugEntryKind = (deDir, deFile, deIcon, deIni, deRegistry, deInstallDelete,
     deUninstallDelete, deRun, deUninstallRun, deCodeLine);
   PDebugEntry = ^TDebugEntry;
   TDebugEntry = packed record
-    LineNumber: Integer;
-    Kind: Integer;  { TDebugEntryKind }
+    FileIndex: Integer;  { -1: Main script, >=0: Include file index }
+    LineNumber: Integer; { Starts at 1 - decreased by one by the Compiler IDE on receive }
+    Kind: Integer;       { TDebugEntryKind }
     Index: Integer;
   end;
 
@@ -90,9 +91,9 @@ type
     numbers & column positions }
   PVariableDebugEntry = ^TVariableDebugEntry;
   TVariableDebugEntry = packed record
-    LineNumber, Col: Integer;
-    Param1, Param2, Param3: Integer;
-    Param4: array [0..127] of AnsiChar;
+    FileIndex, LineNumber, Col: Integer;   { Used by the Compiler IDE - also see TDebugEntry }
+    Param1, Param2, Param3: Integer;       { Used by Setup }
+    Param4: array [0..127] of AnsiChar;    { Used by Setup }
   end;
 
 function GetThreadTopWindow: HWND;

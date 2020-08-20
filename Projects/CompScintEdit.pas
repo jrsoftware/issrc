@@ -12,7 +12,7 @@ unit CompScintEdit;
 interface
 
 uses
-  Windows, Graphics, ScintEdit, ModernColors;
+  Windows, Graphics, Classes, Generics.Collections, ScintEdit, ModernColors;
 
 const
   { Memo marker numbers }
@@ -31,8 +31,14 @@ const
   inPendingSquiggly = 1;
 
 type
+  TLineState = (lnUnknown, lnHasEntry, lnEntryProcessed);
+  PLineStateArray = ^TLineStateArray;
+  TLineStateArray = array[0..0] of TLineState;
+
   TCompScintEdit = class(TScintEdit)
   private
+    FBreakPoints: TList<Integer>;
+    FCompilerFileIndex: Integer;
     FFilename: String;
     FFileLastWriteTime: TFileTime;
     FSaveInUTF8Encoding: Boolean;
@@ -42,7 +48,14 @@ type
     procedure CreateWnd; override;
   public
     ErrorLine, ErrorCaretPosition: Integer;
-    property Filename: String read FFileName write FFileName;
+    StepLine: Integer;
+    LineState: PLineStateArray;
+    LineStateCapacity, LineStateCount: Integer;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property BreakPoints: TList<Integer> read FBreakPoints;
+    property Filename: String read FFileName write FFilename;
+    property CompilerFileIndex: Integer read FCompilerFileIndex write FCompilerFileIndex;
     property FileLastWriteTime: TFileTime read FFileLastWriteTime write FFileLastWriteTime;
     property SaveInUTF8Encoding: Boolean read FSaveInUTF8Encoding write FSaveInUTF8Encoding;
     property Theme: TTheme read FTheme write FTheme;
@@ -54,6 +67,18 @@ implementation
 
 uses
   ScintInt;
+
+constructor TCompScintEdit.Create;
+begin
+  inherited;
+  FBreakPoints := TList<Integer>.Create;
+end;
+
+destructor TCompScintEdit.Destroy;
+begin
+  FBreakPoints.Free;
+  inherited;
+end;
 
 procedure TCompScintEdit.CreateWnd;
 const

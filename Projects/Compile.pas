@@ -240,6 +240,10 @@ type
     DebugEntryCount, VariableDebugEntryCount: Integer;
     CompiledCodeTextLength, CompiledCodeDebugInfoLength: Integer;
 
+    GotPrevFilename: Boolean;
+    PrevFilename: String;
+    PrevFileIndex: Integer;
+
     TotalBytesToCompress, BytesCompressedSoFar: Integer64;
     CompressionInProgress: Boolean;
     CompressionStartTick: DWORD;
@@ -343,6 +347,7 @@ type
     procedure CodeCompilerOnError(const Msg: String; const ErrorFilename: String; const ErrorLine: LongInt);
     procedure CodeCompilerOnWarning(const Msg: String);
     procedure CompileCode;
+    function FilenameToFileIndex(const AFileName: String): Integer;
     procedure ReadTextFile(const Filename: String; const LangIndex: Integer; var Text: AnsiString);
     procedure SeparateDirective(const Line: PChar; var Key, Value: String);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
@@ -1679,14 +1684,32 @@ begin
   CryptInitialized := True;
 end;
 
+function TSetupCompiler.FilenameToFileIndex(const AFilename: String): Integer;
+begin
+  if not GotPrevFilename or (PathCompare(AFilename, PrevFilename) <> 0) then begin
+    { AFilename is non-empty when an include file is being read or when the compiler is reading
+      CustomMessages/LangOptions/Messages sections from a messages file. Since these sections don't
+      generate debug entries we can treat an empty AFileName as the main script and a non-empty
+      AFilename as an include file. This works even when command-line compilation is used. }
+    if AFilename = '' then
+      PrevFileIndex := -1
+    else begin
+      PrevFileIndex := PreprocIncludedFilenames.IndexOf(AFilename);
+      if PrevFileIndex = -1 then
+        AbortCompileFmt('Failed to find index of file (%s)', [AFilename]);
+    end;
+    PrevFilename := LineFilename;
+    GotPrevFilename := True;
+  end;
+  Result := PrevFileIndex;
+end;
+
 procedure TSetupCompiler.WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
 var
   Rec: TDebugEntry;
 begin
-  if LineFilename = '' then
-    Rec.LineNumber := LineNumber
-  else
-    Rec.LineNumber := 0;
+  Rec.FileIndex := FilenameToFileIndex(LineFilename);
+  Rec.LineNumber := LineNumber;
   Rec.Kind := Ord(Kind);
   Rec.Index := Index;
   DebugInfo.WriteBuffer(Rec, SizeOf(Rec));
@@ -7240,16 +7263,18 @@ end;
 
 procedure TSetupCompiler.CodeCompilerOnUsedLine(const Filename: String; const Line, Position: LongInt);
 var
+  OldLineFilename: String;
   OldLineNumber: Integer;
 begin
-  if FileName = '' then begin
-    OldLineNumber := LineNumber;
-    try
-      LineNumber := Line;
-      WriteDebugEntry(deCodeLine, Position);
-    finally
-      LineNumber := OldLineNumber;
-    end;
+  OldLineFilename := LineFilename;
+  OldLineNumber := LineNumber;
+  try
+    LineFilename := Filename;
+    LineNumber := Line;
+    WriteDebugEntry(deCodeLine, Position);
+  finally
+    LineFilename := OldLineFilename;
+    LineNumber := OldLineNumber;
   end;
 end;
 
@@ -7257,7 +7282,8 @@ procedure TSetupCompiler.CodeCompilerOnUsedVariable(const Filename: String; cons
 var
   Rec: TVariableDebugEntry;
 begin
-  if (FileName = '') and (Length(Param4)+1 <= SizeOf(Rec.Param4)) then begin
+  if Length(Param4)+1 <= SizeOf(Rec.Param4) then begin
+    Rec.FileIndex := FilenameToFileIndex(Filename);
     Rec.LineNumber := Line;
     Rec.Col := Col;
     Rec.Param1 := Param1;
