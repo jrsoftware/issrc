@@ -911,7 +911,7 @@ var
   NewCaption: String;
 begin
   if FMainMemo.Filename = '' then
-    NewCaption := 'Untitled'
+    NewCaption := GetFileTitle(FMainMemo.Filename)
   else begin
     if FOptions.FullPathInTitleBar then
       NewCaption := FMainMemo.Filename
@@ -1146,8 +1146,7 @@ function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean; const OnlyMa
   begin
     Result := True;
     if AMemo.Modified then begin
-      FileTitle := AMemo.Filename;
-      if FileTitle = '' then FileTitle := 'Untitled';
+      FileTitle := GetFileTitle(AMemo.Filename);
       case MsgBox('The text in the ' + FileTitle + ' file has changed.'#13#10#13#10 +
          'Do you want to save the changes?', SCompilerFormCaption, mbError,
          MB_YESNOCANCEL) of
@@ -2522,15 +2521,19 @@ end;
 
 procedure TCompileForm.UpdateIncludedFilesMemos;
 var
-  NewTabs: TStringList;
+  NewTabs, NewHints: TStringList;
   IncludedFile: TIncludedFile;
   I, NextMemoIndex: Integer;
   SaveTabName: String;
 begin
   if FOptions.OpenIncludedFiles and (FIncludedFiles.Count > 0) then begin
-    NewTabs := TStringList.Create;
+    NewTabs := nil;
+    NewHints := nil;
     try
+      NewTabs := TStringList.Create;
       NewTabs.Add(MemosTabSet.Tabs[0]); { 'Main Script' }
+      NewHints := TStringList.Create;
+      NewHints.Add(GetFileTitle(FMainMemo.Filename));
       NextMemoIndex := FirstIncludedFilesMemoIndex;
       FLoadingIncludedFiles := True;
       try
@@ -2547,6 +2550,7 @@ begin
               IncludedFile.Memo.Used := True;
             end;
             NewTabs.Add(PathExtractName(IncludedFile.Filename));
+            NewHints.Add(GetFileTitle(IncludedFile.Filename));
 
             Inc(NextMemoIndex);
             if NextMemoIndex = FMemos.Count then
@@ -2569,10 +2573,12 @@ begin
       { Set new tabs, try keep same file open }
       SaveTabName := MemosTabSet.Tabs[MemosTabSet.TabIndex];
       MemosTabSet.Tabs := NewTabs;
+      MemosTabSet.Hints := NewHints;
       I := MemosTabSet.Tabs.IndexOf(SaveTabName);
       if I <> -1 then
          MemosTabSet.TabIndex := I;
     finally
+      NewHints.Free;
       NewTabs.Free;
     end;
     MemosTabSet.Visible := True;

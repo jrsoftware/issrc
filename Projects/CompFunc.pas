@@ -31,6 +31,7 @@ type
 
 procedure InitFormFont(Form: TForm);
 function GetDisplayFilename(const Filename: String): String;
+function GetFileTitle(const Filename: String): String;
 function GetLastWriteTimeOfFile(const Filename: String;
   LastWriteTime: PFileTime): Boolean;
 procedure AddFileToRecentDocs(const Filename: String);
@@ -89,8 +90,16 @@ function GetDisplayFilename(const Filename: String): String;
 var
   Buf: array[0..MAX_PATH-1] of Char;
 begin
-  if GetFileTitle(PChar(Filename), Buf, SizeOf(Buf)) = 0 then
+  if CommDlg.GetFileTitle(PChar(Filename), Buf, SizeOf(Buf)) = 0 then
     Result := Buf
+  else
+    Result := Filename;
+end;
+
+function GetFileTitle(const Filename: String): String;
+begin
+  if Filename = '' then
+    Result := 'Untitled'
   else
     Result := Filename;
 end;
