@@ -17,13 +17,16 @@ unit MurmurHash;
   
 interface
 
+const
+  DefaultSeed = 1; { Ensures an uninitialized hash isn't the same as the hash of a zero length key }
+
 type
   TMurmur3Hash32 = LongWord;
 
 	TMurmur3 = class(TObject)
 	public
-		class function HashData32(const Key; KeyLen: LongWord; const Seed: LongWord = 0): LongWord;
-		class function HashString32(const Key: String; const Seed: LongWord = 0): LongWord;
+		class function HashData32(const Key; KeyLen: LongWord; const Seed: LongWord = DefaultSeed): LongWord;
+		class function HashString32(const Key: String; const Seed: LongWord = DefaultSeed): LongWord;
 	end;
 
 implementation
