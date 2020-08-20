@@ -3037,10 +3037,12 @@ procedure TCompileForm.GetMemoAndLineNumberFromEntry(Kind, Index: Integer; var M
   var
     Memo: TCompScintEdit;
   begin
-    for Memo in FMemos do begin
-      if Memo.Used and (Memo.DebugEntriesFilenameHash = FilenameHash) then begin
-        Result := Memo;
-        Exit;
+    if FOptions.OpenIncludedFiles then begin
+      for Memo in FMemos do begin
+        if Memo.Used and (Memo.DebugEntriesFilenameHash = FilenameHash) then begin
+          Result := Memo;
+          Exit;
+        end;
       end;
     end;
     Result := nil;
@@ -4159,11 +4161,10 @@ begin
         FMainMemo.LineState[I] := lnUnknown;
       Inc(FMainMemo.LineStateCount, Count);
     end;
-
-    if FMainMemo.StepLine >= FirstLine then
-      Inc(FMainMemo.StepLine, Count);
   end;
 
+  if Memo.StepLine >= FirstLine then
+    Inc(Memo.StepLine, Count);
   if Memo.ErrorLine >= FirstLine then
     Inc(Memo.ErrorLine, Count);
 
@@ -4208,15 +4209,14 @@ begin
           FMainMemo.LineStateCount := FirstLine;
       end;
     end;
-
-    if FMainMemo.StepLine >= FirstLine then begin
-      if FMainMemo.StepLine < FirstLine + Count then
-        FMainMemo.StepLine := -1
-      else
-        Dec(FMainMemo.StepLine, Count);
-    end;
   end;
 
+  if Memo.StepLine >= FirstLine then begin
+    if Memo.StepLine < FirstLine + Count then
+      Memo.StepLine := -1
+    else
+      Dec(Memo.StepLine, Count);
+  end;
   if Memo.ErrorLine >= FirstLine then begin
     if Memo.ErrorLine < FirstLine + Count then
       Memo.ErrorLine := -1
