@@ -382,6 +382,7 @@ type
     function InitializeMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure InvalidateStatusPanel(const Index: Integer);
+    procedure LoadKnownIncludedFiles;
     procedure MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
     procedure MemoCharAdded(Sender: TObject; Ch: AnsiChar);
     procedure MainMemoDropFiles(Sender: TObject; X, Y: Integer; AFiles: TStrings);
@@ -407,6 +408,7 @@ type
     procedure ResetMainMemoLineState;
     procedure StartProcess;
     function SaveFile(const AMemo: TCompScintEdit; const SaveAs: Boolean): Boolean;
+    procedure SaveKnownIncludedFiles;
     procedure SetErrorLine(const AMemo: TCompScintEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TCompScintEdit; ALine: Integer);
@@ -962,6 +964,18 @@ begin
   FMainMemo.ClearUndo;
 end;
 
+procedure TCompileForm.LoadKnownIncludedFiles;
+begin
+  {todo}
+
+  UpdateIncludedFilesMemos;
+end;
+
+procedure TCompileForm.SaveKnownIncludedFiles;
+begin
+  {todo}
+end;
+
 procedure TCompileForm.NewMainFileUsingWizard;
 var
   WizardForm: TWizardForm;
@@ -989,6 +1003,7 @@ begin
       NewMainFile;
       FMainMemo.Lines.Text := WizardForm.ResultScript;
       FMainMemo.ClearUndo;
+      LoadKnownIncludedFiles;
       if WizardForm.Result = wrComplete then begin
         FMainMemo.ForceModifiedState;
         if MsgBox('Would you like to compile the new script now?', SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
@@ -1036,6 +1051,7 @@ begin
     ModifyMRUMainFilesList(AFilename, True);
     if MainMemoAddToRecentDocs then
       AddFileToRecentDocs(AFilename);
+    LoadKnownIncludedFiles;
   end;
 end;
 
@@ -1243,6 +1259,7 @@ type
   PAppData = ^TAppData;
   TAppData = record
     Form: TCompileForm;
+    Filename: String;
     Lines: TStringList;
     CurLineNumber: Integer;
     CurLine: String;
@@ -1320,7 +1337,11 @@ begin
             Result := iscrRequestAbort;
         end;
       iscbNotifyIncludedFiles:
-        DecodeIncludedFilenames(Data.IncludedFilenames, IncludedFiles); { Also stores last write time }
+        begin
+          DecodeIncludedFilenames(Data.IncludedFilenames, IncludedFiles); { Also stores last write time }
+          if Filename <> '' then
+            Form.SaveKnownIncludedFiles;
+        end;
       iscbNotifySuccess:
         begin
           OutputExe := Data.OutputExeFilename;
@@ -1475,6 +1496,7 @@ begin
     UpdateCaption;
     SetLowPriority(FOptions.LowPriorityDuringCompile, FSavePriorityClass);
 
+    AppData.Filename := AFilename;
     AppData.IncludedFiles := FIncludedFiles;
 
     {$IFNDEF STATICCOMPILER}
@@ -2299,6 +2321,7 @@ procedure TCompileForm.TOptionsClick(Sender: TObject);
 var
   OptionsForm: TOptionsForm;
   Ini: TConfigIniFile;
+  OldOpenIncludedFiles: Boolean;
   Memo: TCompScintEdit;
 begin
   OptionsForm := TOptionsForm.Create(Application);
@@ -2328,6 +2351,8 @@ begin
     OptionsForm.FontPanel.ParentBackground := False;
     OptionsForm.FontPanel.Color := FMainMemo.Color;
 
+    OldOpenIncludedFiles := FOptions.OpenIncludedFiles;
+
     if OptionsForm.ShowModal <> mrOK then
       Exit;
 
@@ -2352,8 +2377,12 @@ begin
     FOptions.GutterLineNumbers := OptionsForm.GutterLineNumbersCheck.Checked;
     FOptions.OpenIncludedFiles := OptionsForm.OpenIncludedFilesCheck.Checked;
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
+    
     UpdateCaption;
-    UpdateIncludedFilesMemos;
+    if not OldOpenIncludedFiles and FOptions.OpenIncludedFiles then
+      LoadKnownIncludedFiles
+    else
+      UpdateIncludedFilesMemos;
     for Memo in FMemos do begin
       { Move caret to start of line to ensure it doesn't end up in the middle
         of a double-byte character if the code page changes from SBCS to DBCS }
