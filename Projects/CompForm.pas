@@ -411,7 +411,6 @@ type
     procedure ResetMainMemoLineState;
     procedure StartProcess;
     function SaveFile(const AMemo: TCompScintEdit; const SaveAs: Boolean): Boolean;
-    procedure ScanIncludedFiles;
     procedure SetErrorLine(const AMemo: TCompScintEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TCompScintEdit; ALine: Integer);
@@ -1002,7 +1001,6 @@ begin
       NewMainFile;
       FMainMemo.Lines.Text := WizardForm.ResultScript;
       FMainMemo.ClearUndo;
-      ScanIncludedFiles;
       if WizardForm.Result = wrComplete then begin
         FMainMemo.ForceModifiedState;
         if MsgBox('Would you like to compile the new script now?', SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
@@ -1050,7 +1048,6 @@ begin
     ModifyMRUMainFilesList(AFilename, True);
     if MainMemoAddToRecentDocs then
       AddFileToRecentDocs(AFilename);
-    ScanIncludedFiles;
   end;
 end;
 
@@ -1352,44 +1349,6 @@ begin
           ErrorLine := Data.ErrorLine;
         end;
     end;
-end;
-
-procedure TCompileForm.ScanIncludedFiles;
-var
-  SourcePath: String;
-  Params: TCompileScriptParamsEx;
-  AppData: TAppData;
-begin
-  AppData.Lines := TStringList.Create;
-  try
-    SourcePath := GetSourcePath(FMainMemo.Filename);
-
-    FillChar(Params, SizeOf(Params), 0);
-    Params.Size := SizeOf(Params);
-    Params.CompilerPath := nil;
-    Params.SourcePath := PChar(SourcePath);
-    Params.CallbackProc := CompilerCallbackProc;
-    Pointer(Params.AppData) := @AppData;
-    Params.Options := nil;
-
-    AppData.Form := Self;
-    AppData.CurLineNumber := 0;
-    AppData.Aborted := False;
-    if ReadScriptLines(AppData.Lines, False, '', FMainMemo) <> -1 then
-      Exit;
-
-    AppData.IncludedFiles := FIncludedFiles;
-
-    {$IFNDEF STATICCOMPILER}
-    ISDllScanScript(Params);
-    {$ELSE}
-    ISScanScript(Params, False);
-    {$ENDIF}
-
-    UpdateIncludedFilesMemos;
-  finally
-    AppData.Lines.Free;
-  end;
 end;
 
 procedure TCompileForm.CompileFile(AFilename: String; const ReadFromFile: Boolean);
@@ -1702,7 +1661,7 @@ var
   Memo: TCompScintEdit;
 begin
   for Memo in FMemos do
-    if Memo.Used then
+    if Memo.Used and Memo.Modified then
       SaveFile(Memo, False);
 end;
 
@@ -2353,7 +2312,6 @@ procedure TCompileForm.TOptionsClick(Sender: TObject);
 var
   OptionsForm: TOptionsForm;
   Ini: TConfigIniFile;
-  OldOpenIncludedFiles: Boolean;
   Memo: TCompScintEdit;
 begin
   OptionsForm := TOptionsForm.Create(Application);
@@ -2383,8 +2341,6 @@ begin
     OptionsForm.FontPanel.ParentBackground := False;
     OptionsForm.FontPanel.Color := FMainMemo.Color;
 
-    OldOpenIncludedFiles := FOptions.OpenIncludedFiles;
-
     if OptionsForm.ShowModal <> mrOK then
       Exit;
 
@@ -2409,15 +2365,11 @@ begin
     FOptions.GutterLineNumbers := OptionsForm.GutterLineNumbersCheck.Checked;
     FOptions.OpenIncludedFiles := OptionsForm.OpenIncludedFilesCheck.Checked;
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
-
     UpdateCaption;
-    if not OldOpenIncludedFiles and FOptions.OpenIncludedFiles then
-      ScanIncludedFiles
-    else
-      UpdateIncludedFilesMemos;
+    UpdateIncludedFilesMemos;
     for Memo in FMemos do begin
       { Move caret to start of line to ensure it doesn't end up in the middle
-      of a double-byte character if the code page changes from SBCS to DBCS }
+        of a double-byte character if the code page changes from SBCS to DBCS }
       Memo.CaretLine := FMainMemo.CaretLine;
       Memo.Font.Assign(OptionsForm.FontPanel.Font);
     end;
@@ -2684,7 +2636,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
   end;
 
 begin
-  if (Sender = FErrorMemo) and (FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition) then
+  if (Sender = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then
     HideError;
   UpdateCaretPosPanel;
   UpdatePendingSquiggly;
