@@ -54,6 +54,7 @@
     <contentstopic title="Using Custom Wizard Pages" topic="scriptpages" />
     <contentstopic title="Using DLLs and .NET assemblies" topic="scriptdll" />
     <contentstopic title="Using COM Automation objects" topic="scriptautomation" />
+    <contentstopic title="Debugging" topic="scriptdebug" />
   </contentsheading>
   <contentsheading title="Other Information">
     <contentstopic title="Support Inno Setup" topic="donate" />

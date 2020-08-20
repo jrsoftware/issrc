@@ -36,7 +36,7 @@
 
 </ul>
 
-<p>An integrated run-time debugger to debug your custom Pascal script is also available.</p>
+<p>An integrated <link topic="scriptdebug">run-time debugger</link> to debug your custom Pascal script is also available.</p>
 
 <p>The scripting engine used by Inno Setup is RemObjects Pascal Script by Carlo Kok. Like Inno Setup, RemObjects Pascal Script is freely available and comes with source. See <extlink href="http://www.remobjects.com/ps">http://www.remobjects.com/ps</extlink> for more information.</p>
 
@@ -54,7 +54,8 @@
 <link topic="scriptclasses">Support Classes Reference</link><br/>
 <link topic="scriptpages">Using Custom Wizard Pages</link><br/>
 <link topic="scriptdll">Using DLLs and .NET assemblies</link><br/>
-<link topic="scriptautomation">Using COM Automation objects</link>
+<link topic="scriptautomation">Using COM Automation objects</link><br/>
+<link topic="scriptdebug">Debugging</link>
 </p>
 
 </body>
@@ -715,6 +716,53 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 </dd>
 
 </dl>
+
+</body>
+</topic>
+
+
+<topic name="scriptdebug" title="Pascal Scripting: Debugging">
+<keyword value="Pascal Scripting: Debugging" />
+<keyword value="Debugging" />
+<body>
+<p>The Compiler IDE contains an integrated run-time debugger to debug your custom Pascal script, accessed via the <i>Run</i> menu. This debugger works very much like debuggers in other IDE's and uses the following menu items:</p>
+
+<dl>
+
+<dt><i>Run To Cursor</i> (F4)</dt>
+<dd>
+<p>Runs or unpauses Setup until it reaches the line of the cursor, then pauses.</p>
+</dd>
+
+<dt><i>Step Into</i> (F7)</dt>
+<dd>
+<p>Runs or unpauses Setup until it reaches the next line, then pauses. By continually pressing F7 you can follow the entire execution flow of Setup.</p>
+</dd>
+
+<dt><i>Step Over</i> (F8)</dt>
+<dd>
+<p>Runs or unpauses Setup until it reaches the next line, then pauses. Lines inside functions calls are skipped.</p>
+</dd>
+
+<dt><i>Toggle Breakpoint</i> (F5)</dt>
+<dd>
+<p>Next time Setup reaches the line of the cursor, it pauses. There can be multiple breakpoints at once and breakpoints can be removed by pressing F5 again.</p>
+</dd>
+
+<dt><i>Pause</i></dt>
+<dd>
+<p>Next time Setup reaches any line, it pauses.</p>
+</dd>
+
+</dl>
+
+<p>When Setup is paused variables and constants can be inspected by hovering the mouse over them.</p>
+
+<p>To debug Uninstall instead of Setup first run Setup to completion then choose <i>Target Uninstall</i> (Ctrl+W) and finally use one of the above menu items.</p>
+
+<p>Lines which can be paused on are marked by a gray square in the gutter. The square turns green the first time Setup reaches the line.</p>
+
+<p>Besides lines in the Pascal script, lines in some other sections can also be paused on, again shown by a gray square in the gutter. For example, toggling a breakpoint on a line in the [Files] section will pause Setup when that file is about to be processed.</p>
 
 </body>
 </topic>
