@@ -82,7 +82,7 @@ type
   PDebugEntry = ^TDebugEntry;
   TDebugEntry = packed record
     FileIndex: Integer;  { -1: Main script, >=0: Include file index }
-    LineNumber: Integer; { Starts at 1 }
+    LineNumber: Integer; { Starts at 1 - decreased by one by the Compiler IDE on receive }
     Kind: Integer;       { TDebugEntryKind }
     Index: Integer;
   end;
@@ -91,9 +91,9 @@ type
     numbers & column positions }
   PVariableDebugEntry = ^TVariableDebugEntry;
   TVariableDebugEntry = packed record
-    LineNumber, Col: Integer;
-    Param1, Param2, Param3: Integer;
-    Param4: array [0..127] of AnsiChar;
+    FileIndex, LineNumber, Col: Integer;   { Used by the Compiler IDE - also see TDebugEntry }
+    Param1, Param2, Param3: Integer;       { Used by Setup }
+    Param4: array [0..127] of AnsiChar;    { Used by Setup }
   end;
 
 function GetThreadTopWindow: HWND;

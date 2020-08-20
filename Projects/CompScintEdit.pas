@@ -31,6 +31,10 @@ const
   inPendingSquiggly = 1;
 
 type
+  TLineState = (lnUnknown, lnHasEntry, lnEntryProcessed);
+  PLineStateArray = ^TLineStateArray;
+  TLineStateArray = array[0..0] of TLineState;
+
   TCompScintEdit = class(TScintEdit)
   private
     FBreakPoints: TList<Integer>;
@@ -45,6 +49,8 @@ type
   public
     ErrorLine, ErrorCaretPosition: Integer;
     StepLine: Integer;
+    LineState: PLineStateArray;
+    LineStateCapacity, LineStateCount: Integer;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property BreakPoints: TList<Integer> read FBreakPoints;
