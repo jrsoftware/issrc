@@ -52,14 +52,10 @@ type
 
   TCompMainScintEdit = class(TCompScintEdit)
   private
-    BreakPoints: TList;
     LineState: PLineStateArray;
     LineStateCapacity, LineStateCount: Integer;
   protected
     procedure SetFilename(const AFilename: String); override;
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
   end;
 
   TIncludedFile = class
@@ -394,7 +390,7 @@ type
     procedure MemoKeyPress(Sender: TObject; var Key: Char);
     procedure MemoLinesDeleted(Memo: TCompScintEdit; FirstLine, Count, FirstAffectedLine: Integer);
     procedure MemoLinesInserted(Memo: TCompScintEdit; FirstLine, Count: integer);
-    procedure MainMemoMarginClick(Sender: TObject; MarginNumber: Integer;
+    procedure MemoMarginClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject);
@@ -419,7 +415,7 @@ type
     procedure SyncEditorOptions;
     procedure SyncZoom;
     function ToCurrentPPI(const XY: Integer): Integer;
-    procedure MainMemoToggleBreakPoint(Line: Integer);
+    procedure ToggleBreakPoint(Line: Integer);
     procedure UpdateAllMainMemoLineMarkers;
     procedure UpdateBevel1;
     procedure UpdateCaption;
@@ -505,18 +501,6 @@ const
 
 { TCompMainScintEdit }
 
-constructor TCompMainScintEdit.Create;
-begin
-  inherited;
-  BreakPoints := TList.Create;
-end;
-
-destructor TCompMainScintEdit.Destroy;
-begin
-  BreakPoints.Free;
-  inherited;
-end;
-
 procedure TCompMainScintEdit.SetFileName(const AFilename: String);
 begin
   inherited;
@@ -559,6 +543,7 @@ begin
   Memo.OnCharAdded := MemoCharAdded;
   Memo.OnKeyDown := MemoKeyDown;
   Memo.OnKeyPress := MemoKeyPress;
+  Memo.OnMarginClick := MemoMarginClick;
   Memo.OnModifiedChange := MemoModifiedChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.Parent := BodyPanel;
@@ -573,7 +558,6 @@ begin
   Memo.AcceptDroppedFiles := True;
   Memo.ShowHint := True;
   Memo.OnDropFiles := MainMemoDropFiles;
-  Memo.OnMarginClick := MainMemoMarginClick;
   Memo.OnHintShow := MainMemoHintShow;
   Memo.Used := True;
   Result := Memo;
@@ -954,6 +938,8 @@ begin
 end;
 
 procedure TCompileForm.NewMainFile;
+var
+  Memo: TCompScintEdit;
 begin
   HideError;
   FUninstExe := '';
@@ -961,7 +947,9 @@ begin
     FDebugTarget := dtSetup;
     UpdateTargetMenu;
   end;
-  FMainMemo.BreakPoints.Clear;
+  for Memo in FMemos do
+    if Memo.Used then
+      Memo.BreakPoints.Clear;
   DestroyDebugInfo;
 
   FMainMemo.Filename := '';
@@ -2106,7 +2094,6 @@ begin
       ActiveControl := Memo;
     end;
   end;
-  RToggleBreakPoint.Enabled := FActiveMemo = FMainMemo;
   UpdateRunMenu;
   UpdateCaretPosPanel;
   UpdateEditModePanel;
@@ -2527,6 +2514,7 @@ begin
                not IncludedFile.HasLastWriteTime or
                (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0) then begin
               IncludedFile.Memo.Filename := IncludedFile.Filename;
+              IncludedFile.Memo.BreakPoints.Clear;
               OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
             end;
             NewTabs.Add(PathExtractName(IncludedFile.Filename));
@@ -2547,6 +2535,7 @@ begin
       end;
       { Hide any remaining memos }
       for I := NextMemoIndex to FMemos.Count-1 do begin
+        FMemos[I].BreakPoints.Clear;
         FMemos[I].Used := False;
         FMemos[I].Visible := False;
       end;
@@ -2562,6 +2551,7 @@ begin
     MemosTabSet.Visible := True;
   end else begin
     for I := FirstIncludedFilesMemoIndex to FMemos.Count-1 do begin
+      FMemos[I].BreakPoints.Clear;
       FMemos[I].Used := False;
       FMemos[I].Visible := False;
     end;
@@ -3107,7 +3097,7 @@ begin
      ((FStepMode = smRunToCursor) and
       (FRunToCursorPoint.Kind = Integer(Message.WParam)) and
       (FRunToCursorPoint.Index = Message.LParam)) or
-     ((Memo = FMainMemo) and (FMainMemo.BreakPoints.IndexOf(Pointer(LineNumber)) <> -1)) then begin
+     (Memo.BreakPoints.IndexOf(LineNumber) <> -1) then begin
     MoveCaretAndActivateMemo(Memo, LineNumber, True);
     HideError;
     SetStepLine(Memo, LineNumber);
@@ -4119,23 +4109,23 @@ begin
   end;
 end;
 
-procedure TCompileForm.MainMemoToggleBreakPoint(Line: Integer);
+procedure TCompileForm.ToggleBreakPoint(Line: Integer);
 var
   I: Integer;
 begin
-  I := FMainMemo.BreakPoints.IndexOf(Pointer(Line));
+  I := FActiveMemo.BreakPoints.IndexOf(Line);
   if I = -1 then
-    FMainMemo.BreakPoints.Add(Pointer(Line))
+    FActiveMemo.BreakPoints.Add(Line)
   else
-    FMainMemo.BreakPoints.Delete(I);
-  UpdateLineMarkers(FMainMemo, Line);
+    FActiveMemo.BreakPoints.Delete(I);
+  UpdateLineMarkers(FActiveMemo, Line);
 end;
 
-procedure TCompileForm.MainMemoMarginClick(Sender: TObject; MarginNumber: Integer;
+procedure TCompileForm.MemoMarginClick(Sender: TObject; MarginNumber: Integer;
   Line: Integer);
 begin
   if MarginNumber = 1 then
-    MainMemoToggleBreakPoint(Line);
+    ToggleBreakPoint(Line);
 end;
 
 procedure TCompileForm.MemoLinesInserted(Memo: TCompScintEdit; FirstLine, Count: integer);
@@ -4171,12 +4161,10 @@ begin
   if Memo.ErrorLine >= FirstLine then
     Inc(Memo.ErrorLine, Count);
 
-  if Memo = FMainMemo then begin
-    for I := 0 to FMainMemo.BreakPoints.Count-1 do begin
-      Line := Integer(FMainMemo.BreakPoints[I]);
-      if Line >= FirstLine then
-        FMainMemo.BreakPoints[I] := Pointer(Line + Count);
-    end;
+  for I := 0 to Memo.BreakPoints.Count-1 do begin
+    Line := Memo.BreakPoints[I];
+    if Line >= FirstLine then
+      Memo.BreakPoints[I] := Line + Count;
   end;
 end;
 
@@ -4227,16 +4215,14 @@ begin
       Dec(Memo.ErrorLine, Count);
   end;
 
-  if Memo = FMainMemo then begin
-    for I := FMainMemo.BreakPoints.Count-1 downto 0 do begin
-      Line := Integer(FMainMemo.BreakPoints[I]);
-      if Line >= FirstLine then begin
-        if Line < FirstLine + Count then begin
-          FMainMemo.BreakPoints.Delete(I);
-        end else begin
-          Line := Line - Count;
-          FMainMemo.BreakPoints[I] := Pointer(Line);
-        end;
+  for I := Memo.BreakPoints.Count-1 downto 0 do begin
+    Line := Memo.BreakPoints[I];
+    if Line >= FirstLine then begin
+      if Line < FirstLine + Count then begin
+        Memo.BreakPoints.Delete(I);
+      end else begin
+        Line := Line - Count;
+        Memo.BreakPoints[I] := Line;
       end;
     end;
   end;
@@ -4258,16 +4244,18 @@ begin
     Exit;
 
   NewMarker := -1;
-  if AMemo = FMainMemo then begin
-    if FMainMemo.BreakPoints.IndexOf(Pointer(Line)) <> -1 then begin
+  if AMemo.BreakPoints.IndexOf(Line) <> -1 then begin
+    if AMemo = FMainMemo then begin
       if FMainMemo.LineState = nil then
         NewMarker := mmIconBreakpoint
       else if (Line < FMainMemo.LineStateCount) and (FMainMemo.LineState[Line] <> lnUnknown) then
         NewMarker := mmIconBreakpointGood
       else
         NewMarker := mmIconBreakpointBad;
-    end
-    else begin
+    end else
+      NewMarker := mmIconBreakpoint;
+  end else begin
+    if AMemo = FMainMemo then begin
       if Line < FMainMemo.LineStateCount then begin
         case FMainMemo.LineState[Line] of
           lnHasEntry: NewMarker := mmIconHasEntry;
@@ -4285,21 +4273,14 @@ begin
   if NewMarker <> -1 then
     AMemo.AddMarker(Line, NewMarker);
 
-  if AMemo = FMainMemo then begin
-    if FMainMemo.StepLine = Line then
-      FMainMemo.AddMarker(Line, mmLineStep)
-    else if FMainMemo.ErrorLine = Line then
-      FMainMemo.AddMarker(Line, mmLineError)
-    else if NewMarker in [mmIconBreakpoint, mmIconBreakpointGood] then
-      FMainMemo.AddMarker(Line, mmLineBreakpoint)
-    else if NewMarker = mmIconBreakpointBad then
-      FMainMemo.AddMarker(Line, mmLineBreakpointBad);
-  end else begin
-    if AMemo.StepLine = Line then
-      AMemo.AddMarker(Line, mmLineStep)
-    else if AMemo.ErrorLine = Line then
-      AMemo.AddMarker(Line, mmLineError);
-  end;
+  if AMemo.StepLine = Line then
+    AMemo.AddMarker(Line, mmLineStep)
+  else if AMemo.ErrorLine = Line then
+    AMemo.AddMarker(Line, mmLineError)
+  else if NewMarker in [mmIconBreakpoint, mmIconBreakpointGood] then
+    AMemo.AddMarker(Line, mmLineBreakpoint)
+  else if NewMarker = mmIconBreakpointBad then
+    AMemo.AddMarker(Line, mmLineBreakpointBad);
 end;
 
 procedure TCompileForm.UpdateAllMainMemoLineMarkers;
@@ -4317,7 +4298,7 @@ end;
 
 procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);
 begin
-  MainMemoToggleBreakPoint(FMainMemo.CaretLine);
+  ToggleBreakPoint(FActiveMemo.CaretLine);
 end;
 
 function TCompileForm.ToCurrentPPI(const XY: Integer): Integer;

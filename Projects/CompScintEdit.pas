@@ -12,7 +12,7 @@ unit CompScintEdit;
 interface
 
 uses
-  Windows, Graphics, ScintEdit, ModernColors, MurmurHash;
+  Windows, Graphics, Classes, Generics.Collections, ScintEdit, ModernColors, MurmurHash;
 
 const
   { Memo marker numbers }
@@ -33,6 +33,7 @@ const
 type
   TCompScintEdit = class(TScintEdit)
   private
+    FBreakPoints: TList<Integer>;
     FFilename: String;
     FFileLastWriteTime: TFileTime;
     FSaveInUTF8Encoding: Boolean;
@@ -45,6 +46,9 @@ type
   public
     ErrorLine, ErrorCaretPosition: Integer;
     StepLine: Integer;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    property BreakPoints: TList<Integer> read FBreakPoints;
     property Filename: String read FFileName write SetFilename;
     property DebugEntriesFilenameHash: TMurmur3Hash32 read FDebugEntriesFilenameHash;
     property FileLastWriteTime: TFileTime read FFileLastWriteTime write FFileLastWriteTime;
@@ -58,6 +62,18 @@ implementation
 
 uses
   ScintInt;
+
+constructor TCompScintEdit.Create;
+begin
+  inherited;
+  FBreakPoints := TList<Integer>.Create;
+end;
+
+destructor TCompScintEdit.Destroy;
+begin
+  FBreakPoints.Free;
+  inherited;
+end;
 
 procedure TCompScintEdit.CreateWnd;
 const
