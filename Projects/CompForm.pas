@@ -1693,7 +1693,7 @@ var
   Memo: TCompScintEdit;
 begin
   for Memo in FMemos do
-    if Memo.Used then
+    if Memo.Used and Memo.Modified then
       SaveFile(Memo, False);
 end;
 
@@ -2670,7 +2670,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
   end;
 
 begin
-  if (Sender = FErrorMemo) and (FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition) then
+  if (Sender = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then
     HideError;
   UpdateCaretPosPanel;
   UpdatePendingSquiggly;
