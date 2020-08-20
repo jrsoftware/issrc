@@ -2677,10 +2677,13 @@ var
 begin
   Memo := Sender as TCompScintEdit;
 
+  if (Memo <> FMainMemo) and FLoadingIncludedFiles then
+    Exit;
+
   FModifiedAnySinceLastCompile := True;
   if FDebugging then
     FModifiedAnySinceLastCompileAndGo := True
-  else if not FLoadingIncludedFiles then begin
+  else begin
     { Modified while not debugging or loading included files; free the debug info and clear the dots }
     DestroyDebugInfo;
   end;
