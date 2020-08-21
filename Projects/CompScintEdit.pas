@@ -30,6 +30,9 @@ const
   inSquiggly = 0;
   inPendingSquiggly = 1;
 
+  { Just some invalid value used to indicate an unknown/uninitialized compiler FileIndex value }
+  UnknownCompilerFileIndex = -2;
+
 type
   TLineState = (lnUnknown, lnHasEntry, lnEntryProcessed);
   PLineStateArray = ^TLineStateArray;

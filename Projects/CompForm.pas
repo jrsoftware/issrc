@@ -371,7 +371,7 @@ type
     function InitializeMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure InvalidateStatusPanel(const Index: Integer);
-    procedure LoadKnownIncludedFiles;
+    procedure LoadKnownIncludedFilesAndUpdateMemos(const AFilename: String);
     procedure MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
     procedure MemoCharAdded(Sender: TObject; Ch: AnsiChar);
     procedure MainMemoDropFiles(Sender: TObject; X, Y: Integer; AFiles: TStrings);
@@ -397,7 +397,7 @@ type
     procedure ResetAllMemosLineState;
     procedure StartProcess;
     function SaveFile(const AMemo: TCompScintEdit; const SaveAs: Boolean): Boolean;
-    procedure SaveKnownIncludedFiles;
+    procedure SaveKnownIncludedFiles(const AFilename: String);
     procedure SetErrorLine(const AMemo: TCompScintEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TCompScintEdit; ALine: Integer);
@@ -515,7 +515,7 @@ begin
   Memo.AutoCompleteFontName := Font.Name;
   Memo.AutoCompleteFontSize := Font.Size;
   Memo.CodePage := CP_UTF8;
-  Memo.CompilerFileIndex := -2; { Just some invalid value, should never be seen while running }
+  Memo.CompilerFileIndex := UnknownCompilerFileIndex;
   Memo.ErrorLine := -1;
   Memo.Font.Name := 'Courier New';
   Memo.Font.Size := 10;
@@ -946,16 +946,64 @@ begin
   FMainMemo.ClearUndo;
 end;
 
-procedure TCompileForm.LoadKnownIncludedFiles;
+procedure TCompileForm.LoadKnownIncludedFilesAndUpdateMemos(const AFilename: String);
+var
+  Strings: TStringList;
+  IncludedFile: TIncludedFile;
+  I: Integer;
 begin
-  {todo}
+  if FIncludedFiles.Count <> 0 then
+    raise Exception.Create('FIncludedFiles.Count <> 0'); { NewMainFile should have been called }
 
-  UpdateIncludedFilesMemos;
+  try
+    if AFilename <> '' then begin
+      Strings := TStringList.Create;
+      try
+        LoadKnownIncludedFiles(AFilename, Strings);
+        if Strings.Count > 0 then begin
+          try
+            for I := 0 to Strings.Count-1 do begin
+              IncludedFile := TIncludedFile.Create;
+              IncludedFile.Filename := Strings[I];
+              IncludedFile.CompilerFileIndex := UnknownCompilerFileIndex;
+              IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
+                @IncludedFile.LastWriteTime);
+              FIncludedFiles.Add(IncludedFile);
+            end;
+          finally
+            UpdateIncludedFilesMemos;
+          end;
+        end;
+      finally
+        Strings.Free;
+      end;
+    end;
+  except
+    { Ignore any exceptions. }
+  end;
 end;
 
-procedure TCompileForm.SaveKnownIncludedFiles;
+procedure TCompileForm.SaveKnownIncludedFiles(const AFilename: String);
+var
+  Strings: TStringList;
+  IncludedFile: TIncludedFile;
 begin
-  {todo}
+  try
+    if AFilename <> '' then begin
+      Strings := TStringList.Create;
+      try
+        for IncludedFile in FIncludedFiles do
+          Strings.Add(IncludedFile.Filename);
+        CompFunc.SaveKnownIncludedFiles(AFilename, Strings);
+      finally
+        Strings.Free;
+      end;
+    end;
+  except
+    { Handle exceptions locally; failure to save the includes list should not be
+      a fatal error. }
+    Application.HandleException(Self);
+  end;
 end;
 
 procedure TCompileForm.NewMainFileUsingWizard;
@@ -985,7 +1033,6 @@ begin
       NewMainFile;
       FMainMemo.Lines.Text := WizardForm.ResultScript;
       FMainMemo.ClearUndo;
-      LoadKnownIncludedFiles;
       if WizardForm.Result = wrComplete then begin
         FMainMemo.ForceModifiedState;
         if MsgBox('Would you like to compile the new script now?', SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
@@ -1033,7 +1080,7 @@ begin
     ModifyMRUMainFilesList(AFilename, True);
     if MainMemoAddToRecentDocs then
       AddFileToRecentDocs(AFilename);
-    LoadKnownIncludedFiles;
+    LoadKnownIncludedFilesAndUpdateMemos(AFilename);
   end;
 end;
 
@@ -1046,8 +1093,10 @@ begin
   except
     Application.HandleException(Self);
     if MsgBoxFmt('There was an error opening the file. Remove it from the list?',
-       [AFilename], SCompilerFormCaption, mbError, MB_YESNO) = IDYES then
+       [AFilename], SCompilerFormCaption, mbError, MB_YESNO) = IDYES then begin
       ModifyMRUMainFilesList(AFilename, False);
+      DeleteKnownIncludedFiles(AFilename);
+    end;
   end;
 end;
 
@@ -1113,8 +1162,10 @@ begin
   if not FOptions.UndoAfterSave then
     AMemo.ClearUndo;
   Result := True;
-  if AMemo = FMainMemo then
+  if AMemo = FMainMemo then begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
+    SaveKnownIncludedFiles(AMemo.Filename);
+  end;
 end;
 
 function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean; const OnlyMainMemo: Boolean): Boolean;
@@ -1192,7 +1243,7 @@ end;
 procedure TCompileForm.ReadMRUParametersList;
 begin
   try
-    ReadMRUList(FMRUParametersList, 'ParameterHistory', 'History');
+    ReadMRUList(FMRUParametersList, 'ParametersHistory', 'History');
   except
     { Ignore any exceptions. }
   end;
@@ -1208,7 +1259,7 @@ begin
     { Ignore any exceptions. }
   end;
   try
-    ModifyMRUList(FMRUParametersList, 'ParameterHistory', 'History', AParameter, AddNewItem, @CompareText);
+    ModifyMRUList(FMRUParametersList, 'ParametersHistory', 'History', AParameter, AddNewItem, @CompareText);
   except
     { Handle exceptions locally; failure to save the MRU list should not be
       a fatal error. }
@@ -1246,7 +1297,6 @@ type
     CurLine: String;
     OutputExe: String;
     DebugInfo: Pointer;
-    IncludedFiles: TIncludedFiles;
     ErrorMsg: String;
     ErrorFilename: String;
     ErrorLine: Integer;
@@ -1324,9 +1374,8 @@ begin
         end;
       iscbNotifyIncludedFiles:
         begin
-          DecodeIncludedFilenames(Data.IncludedFilenames, IncludedFiles); { Also stores last write time }
-          if Filename <> '' then
-            Form.SaveKnownIncludedFiles;
+          DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
+          Form.SaveKnownIncludedFiles(Filename);
         end;
       iscbNotifySuccess:
         begin
@@ -1486,7 +1535,6 @@ begin
     SetLowPriority(FOptions.LowPriorityDuringCompile, FSavePriorityClass);
 
     AppData.Filename := AFilename;
-    AppData.IncludedFiles := FIncludedFiles;
 
     {$IFNDEF STATICCOMPILER}
     if ISDllCompileScript(Params) <> isceNoError then begin
@@ -2314,7 +2362,6 @@ procedure TCompileForm.TOptionsClick(Sender: TObject);
 var
   OptionsForm: TOptionsForm;
   Ini: TConfigIniFile;
-  OldOpenIncludedFiles: Boolean;
   Memo: TCompScintEdit;
 begin
   OptionsForm := TOptionsForm.Create(Application);
@@ -2344,8 +2391,6 @@ begin
     OptionsForm.FontPanel.ParentBackground := False;
     OptionsForm.FontPanel.Color := FMainMemo.Color;
 
-    OldOpenIncludedFiles := FOptions.OpenIncludedFiles;
-
     if OptionsForm.ShowModal <> mrOK then
       Exit;
 
@@ -2372,10 +2417,7 @@ begin
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
     
     UpdateCaption;
-    if not OldOpenIncludedFiles and FOptions.OpenIncludedFiles then
-      LoadKnownIncludedFiles
-    else
-      UpdateIncludedFilesMemos;
+    UpdateIncludedFilesMemos;
     for Memo in FMemos do begin
       { Move caret to start of line to ensure it doesn't end up in the middle
         of a double-byte character if the code page changes from SBCS to DBCS }
@@ -2532,8 +2574,7 @@ begin
       NextMemoIndex := FirstIncludedFilesMemoIndex;
       FLoadingIncludedFiles := True;
       try
-        for I := 0 to FIncludedFiles.Count-1 do begin
-          IncludedFile := FIncludedFiles[I];
+        for IncludedFile in FIncludedFiles do begin
           IncludedFile.Memo := FMemos[NextMemoIndex];
           try
             if not IncludedFile.Memo.Used or
@@ -2545,6 +2586,9 @@ begin
               IncludedFile.Memo.BreakPoints.Clear;
               OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
               IncludedFile.Memo.Used := True;
+            end else if IncludedFile.Memo.CompilerFileIndex = UnknownCompilerFileIndex then begin
+             { Previously the included file came from the history }
+              IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
             end;
             NewTabs.Add(PathExtractName(IncludedFile.Filename));
             NewHints.Add(GetFileTitle(IncludedFile.Filename));
@@ -2586,8 +2630,8 @@ begin
       FMemos[I].Used := False;
       FMemos[I].Visible := False;
     end;
-    for I := 0 to FIncludedFiles.Count-1 do
-      FIncludedFiles[I].Memo := nil;
+    for IncludedFile in FIncludedFiles do
+      IncludedFile.Memo := nil;
     MemosTabSet.Visible := False;
     MemosTabSet.TabIndex := 0; { For next time }
   end;
@@ -3342,7 +3386,7 @@ begin
 
     SetString(FCompiledCodeDebugInfo, PAnsiChar(DebugInfo), Header.CompiledCodeDebugInfoLength);
 
-    PrevCompilerFileIndex := -2; { Just some invalid value }
+    PrevCompilerFileIndex := UnknownCompilerFileIndex;
 
     for I := 0 to FDebugEntriesCount-1 do begin
       if FDebugEntries[I].LineNumber >= 0 then begin

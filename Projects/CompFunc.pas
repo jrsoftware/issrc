@@ -45,6 +45,9 @@ procedure OpenMailingListSite;
 procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
 procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
   const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
+procedure LoadKnownIncludedFiles(const AFilename: String; const IncludedFiles: TStringList);
+procedure SaveKnownIncludedFiles(const AFilename: String; const IncludedFiles: TStringList);
+procedure DeleteKnownIncludedFiles(const AFilename: String);
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
   const Shift: TShiftState);
@@ -235,6 +238,61 @@ begin
         S := '';
       Ini.WriteString(Section, Ident + IntToStr(I), S);
     end;
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure LoadKnownIncludedFiles(const AFilename: String; const IncludedFiles: TStringList);
+var
+  Ini: TConfigIniFile;
+  OldDelimiter: Char;
+begin
+  OldDelimiter := IncludedFiles.Delimiter;
+  Ini := TConfigIniFile.Create;
+  try
+    IncludedFiles.Delimiter := '*';
+    IncludedFiles.DelimitedText := Ini.ReadString('IncludedFilesHistory', AFilename, '');
+  finally
+    Ini.Free;
+    IncludedFiles.Delimiter := OldDelimiter;
+  end;
+end;
+
+procedure SaveKnownIncludedFiles(const AFilename: String; const IncludedFiles: TStringList);
+var
+  Ini: TConfigIniFile;
+  OldDelimiter: Char;
+begin
+  if IncludedFiles.Count = 0 then begin
+    DeleteKnownIncludedFiles(AFilename);
+    Exit;
+  end;
+
+  if AFilename = '' then
+    raise Exception.Create('AFilename must be set');
+
+  OldDelimiter := IncludedFiles.Delimiter;
+  Ini := TConfigIniFile.Create;
+  try
+    IncludedFiles.Delimiter := '*';
+    Ini.WriteString('IncludedFilesHistory', AFilename, IncludedFiles.DelimitedText);
+  finally
+    Ini.Free;
+    IncludedFiles.Delimiter := OldDelimiter;
+  end;
+end;
+
+procedure DeleteKnownIncludedFiles(const AFilename: String);
+var
+  Ini: TConfigIniFile;
+begin
+  if AFilename = '' then
+    raise Exception.Create('AFilename must be set');
+
+  Ini := TConfigIniFile.Create;
+  try
+    Ini.DeleteKey('IncludedFilesHistory', AFilename);
   finally
     Ini.Free;
   end;
