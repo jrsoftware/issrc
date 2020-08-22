@@ -1,6 +1,6 @@
 ; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 6.0.3+ Slovak messages      ***
+; *** Inno Setup version 6.1.0+ Slovak messages      ***
 ; ***                                                ***
 ; *** Original Author:                               ***
 ; ***                                                ***
@@ -13,7 +13,7 @@
 ; ***   Tomas Falb (tomasf AT pobox.sk)              ***
 ; ***   Slappy (slappy AT pobox.sk)                  ***
 ; ***                                                ***
-; *** Update: 24.10.2019                             ***
+; *** Update: 22.08.2020                             ***
 ; ***                                                ***
 ; ******************************************************
 ;
@@ -121,7 +121,7 @@ WizardSelectDir=Vyberte cie¾ovı adresár
 SelectDirDesc=Kam má by produkt [name] nainštalovanı?
 SelectDirLabel3=Sprievodca nainštaluje produkt [name] do nasledujúceho adresára.
 SelectDirBrowseLabel=Pokraèujte kliknutím na tlaèidlo Ïalej. Ak chcete vybra inı adresár, kliknite na tlaèidlo Prechádza.
-iskSpaceGBLabel=Inštalácia vyaduje najmenej [gb] GB miesta na disku.
+DiskSpaceGBLabel=Inštalácia vyaduje najmenej [gb] GB miesta na disku.
 DiskSpaceMBLabel=Inštalácia vyaduje najmenej [mb] MB miesta na disku.
 CannotInstallToNetworkDrive=Inštalátor nemôe inštalova na sieovú jednotku.
 CannotInstallToUNCPath=Inštalátor nemôe inštalova na UNC cestu.
@@ -170,6 +170,17 @@ ReadyMemoType=Typ inštalácie:
 ReadyMemoComponents=Vybrané komponenty:
 ReadyMemoGroup=Skupina v ponuke Štart:
 ReadyMemoTasks=Ïalšie úlohy:
+DownloadingLabel=Sahovanie dodatoènıch súborov...
+ButtonStopDownload=&Zastavi sahovanie
+StopDownload=Ste si istı, e chcete zastavi sahovanie?
+ErrorDownloadAborted=Sahovanie prerušené
+ErrorDownloadFailed=Sahovanie zlyhalo: %1 %2
+ErrorDownloadSizeFailed=Zlyhalo získanie ve¾kosti: %1 %2
+ErrorFileHash1=Kontrolná suma súbora zlyhala: %1
+ErrorFileHash2=Nesprávna kontrolná suma: oèakávalo sa %1, zistilo sa %2
+ErrorProgress=Nesprávny priebeh: %1 z %2
+ErrorFileSize=Nesprávna ve¾kos súbora: oèakávalo sa %1, zistilo sa %2
+
 WizardPreparing=Príprava inštalácie
 PreparingDesc=Sprievodca inštaláciou pripravuje inštaláciu produktu [name] na Váš poèítaè.
 PreviousInstallNotCompleted=Inštalácia/odinštalácia predošlého produktu nebola úplne dokonèená. Dokonèenie tohto procesu vyaduje reštart poèítaèa.%n%nPo reštartovaní poèítaèa spustite znovu sprievodcu inštaláciou, aby bolo moné dokonèi inštaláciu produktu [name].
@@ -234,8 +245,16 @@ ExistingFileReadOnlyRetry=&Odstráni atribút len na èítanie a skúsi znova
 ExistingFileReadOnlyKeepExisting=&Ponecha existujúci súbor
 
 ErrorReadingExistingDest=Došlo k chybe pri pokuse o èítanie existujúceho súboru:
-FileExists=Súbor u existuje.%n%nMá ho sprievodca inštaláciou prepísa?
-ExistingFileNewer=Existujúci súbor je novší ako ten, ktorı sa sprievodca inštaláciou pokúša nainštalova. Odporúèa sa ponecha existujúci súbor.%n%nPrajete si ponecha existujúci súbor?
+FileExistsSelectAction=Vyberte akciu
+FileExists2=Súbor u existuje.
+FileExistsOverwriteExisting=&Prepísa existujúci súbor
+FileExistsKeepExisting=Ponecha &existujúci súbor
+FileExistsOverwriteOrKeepAll=&Vykona pre všetky ïalšie konflikty
+ExistingFileNewerSelectAction=Vyberte akciu
+ExistingFileNewer2=Existujúci súbor je novší ako súbor, ktorı sa Sprievodca inštaláciou pokúša nainštalova.
+ExistingFileNewerOverwriteExisting=&Prepísa existujúci súbor
+ExistingFileNewerKeepExisting=Ponecha &existujúci súbor (odporúèané)
+ExistingFileNewerOverwriteOrKeepAll=&Vykona pre všetky ïalšie konflikty
 ErrorChangingAttr=Došlo k chybe pri pokuse o modifikáciu atribútov existujúceho súboru:
 ErrorCreatingTemp=Došlo k chybe pri pokuse o vytvorenie súboru v cie¾ovom adresári:
 ErrorReadingSource=Došlo k chybe pri pokuse o èítanie zdrojového súboru:
