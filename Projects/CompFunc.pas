@@ -93,7 +93,7 @@ function GetDisplayFilename(const Filename: String): String;
 var
   Buf: array[0..MAX_PATH-1] of Char;
 begin
-  if CommDlg.GetFileTitle(PChar(Filename), Buf, SizeOf(Buf)) = 0 then
+  if CommDlg.GetFileTitle(PChar(Filename), Buf, SizeOf(Buf) div SizeOf(Buf[0])) = 0 then
     Result := Buf
   else
     Result := Filename;
