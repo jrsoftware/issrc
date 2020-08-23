@@ -2414,7 +2414,7 @@ begin
     for Memo in FMemos do begin
       { Move caret to start of line to ensure it doesn't end up in the middle
         of a double-byte character if the code page changes from SBCS to DBCS }
-      Memo.CaretLine := FMainMemo.CaretLine;
+      Memo.CaretLine := Memo.CaretLine;
       Memo.Font.Assign(OptionsForm.FontPanel.Font);
     end;
     SyncEditorOptions;
