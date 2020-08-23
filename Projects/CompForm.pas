@@ -3044,7 +3044,7 @@ end;
 procedure TCompileForm.MainMemoDropFiles(Sender: TObject; X, Y: Integer;
   AFiles: TStrings);
 begin
-  if (AFiles.Count > 0) and ConfirmCloseFile(True, True) then
+  if (AFiles.Count > 0) and ConfirmCloseFile(True, False) then
     OpenFile(FMainMemo, AFiles[0], True);
 end;
 
