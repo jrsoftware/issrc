@@ -587,13 +587,6 @@ constructor TCompileForm.Create(AOwner: TComponent);
       I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
       if (I >= 0) and (I <= Ord(High(TThemeType))) then
         FOptions.ThemeType := TThemeType(I);
-      if GetACP = 932 then begin
-        { Default to MS Gothic font on CP 932 (Japanese), as Courier New is
-          only capable of displaying Japanese characters on XP and later. }
-        FMainMemo.Font.Name := 'MS Gothic';
-        FMainMemo.Font.Size := 9;
-        FMainMemo.Font.Charset := SHIFTJIS_CHARSET;
-      end;
       FMainMemo.Font.Name := Ini.ReadString('Options', 'EditorFontName', FMainMemo.Font.Name);
       FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
       FMainMemo.Font.Charset := Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
