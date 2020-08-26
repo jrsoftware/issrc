@@ -353,7 +353,7 @@ type
     procedure CheckIfTerminated;
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
-    function ConfirmCloseFile(const PromptToSave: Boolean; const OnlyMainMemo: Boolean): Boolean;
+    function ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
     procedure DebuggingStopped(const WaitForTermination: Boolean);
     procedure DebugLogMessage(const S: String);
     procedure DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
@@ -805,7 +805,7 @@ procedure TCompileForm.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   if IsWindowEnabled(Application.Handle) then
-    CanClose := ConfirmCloseFile(True, False)
+    CanClose := ConfirmCloseFile(True)
   else
     { CloseQuery is also called by the VCL when a WM_QUERYENDSESSION message
       is received. Don't display message box if a modal dialog is already
@@ -1161,7 +1161,7 @@ begin
   end;
 end;
 
-function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean; const OnlyMainMemo: Boolean): Boolean;
+function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
 
   function PromptToSaveMemo(const AMemo: TCompScintEdit): Boolean;
   var
@@ -1197,7 +1197,7 @@ begin
   Result := True;
   if PromptToSave then begin
     for Memo in FMemos do begin
-      if (not OnlyMainMemo or (Memo = FMainMemo)) and Memo.Used then begin
+      if Memo.Used then begin
         Result := PromptToSaveMemo(Memo);
         if not Result then
           Exit;
@@ -1658,13 +1658,13 @@ end;
 
 procedure TCompileForm.FNewMainFileClick(Sender: TObject);
 begin
-  if ConfirmCloseFile(True, False) then
+  if ConfirmCloseFile(True) then
     NewMainFile;
 end;
 
 procedure TCompileForm.FNewMainFileUserWizardClick(Sender: TObject);
 begin
-  if ConfirmCloseFile(True, False) then
+  if ConfirmCloseFile(True) then
     NewMainFileUsingWizard;
 end;
 
@@ -1680,7 +1680,7 @@ begin
     InitialDir := PathExtractDir(FMainMemo.Filename);
     Filename := '';
   end;
-  if ConfirmCloseFile(True, False) then
+  if ConfirmCloseFile(True) then
     if NewGetOpenFileName('', FileName, InitialDir, SCompilerOpenFilter, 'iss', Handle) then
       OpenFile(FMainMemo, Filename, False);
 end;
@@ -1713,7 +1713,7 @@ procedure TCompileForm.FMRUClick(Sender: TObject);
 var
   I: Integer;
 begin
-  if ConfirmCloseFile(True, False) then
+  if ConfirmCloseFile(True) then
     for I := 0 to High(FMRUMainFilesMenuItems) do
       if FMRUMainFilesMenuItems[I] = Sender then begin
         OpenMRUMainFile(FMRUMainFilesList[I]);
@@ -2115,7 +2115,7 @@ procedure TCompileForm.WMStartNormally(var Message: TMessage);
           srWizard:
             FNewMainFileUserWizardClick(Self);
           srOpenFile:
-            if ConfirmCloseFile(True, False) then
+            if ConfirmCloseFile(True) then
               OpenMRUMainFile(StartupForm.ResultMainFileName);
           srOpenDialog:
             ShowOpenMainFileDialog(False);
@@ -3044,7 +3044,7 @@ end;
 procedure TCompileForm.MainMemoDropFiles(Sender: TObject; X, Y: Integer;
   AFiles: TStrings);
 begin
-  if (AFiles.Count > 0) and ConfirmCloseFile(True, False) then
+  if (AFiles.Count > 0) and ConfirmCloseFile(True) then
     OpenFile(FMainMemo, AFiles[0], True);
 end;
 
@@ -4117,7 +4117,7 @@ begin
       if IsWindowEnabled(Application.Handle) then begin
         if MsgBox(Format(ReloadMessages[Memo.Modified], [Memo.Filename]),
            SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
-          if ConfirmCloseFile(False, False) then begin
+          if ConfirmCloseFile(False) then begin
             OpenFile(Memo, Memo.Filename, False);
             if Memo = FMainMemo then
               Break; { Reloading the main script will also reload all include files }
