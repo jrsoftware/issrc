@@ -19,11 +19,6 @@ uses
   SysUtils, CmnFunc2, PathFunc,
   IsppBase, IsppTranslate, IsppSessions, IsppIntf, IsppIdentMan, IsppVarUtils, IsppConsts;
 
-//type TPreprocProtectedMethods = class(TPreprocessor);
-
-var
-  BuiltinsDir: string;
-
 procedure ReadScript(const Params: TPreprocessScriptParams;
   const Preprocessor: TPreprocessor);
 var
@@ -169,7 +164,7 @@ var
     end;
   end;
 
-  function IncludeBuiltinsAndParseIncludeFiles(IncludeFiles: PChar; Options: TOptions): Boolean;
+  function IncludeBuiltinsAndParseIncludeFiles(BuiltinsDir: String; IncludeFiles: PChar; Options: TOptions): Boolean;
 
     function Escape(const S: string): string;
     var
@@ -242,7 +237,6 @@ begin
     Exit;
   end;
 
-  BuiltinsDir := Params.CompilerPath;
   { Hack: push a dummy item onto the stack to defer deletion of temp. files }
   PushPreproc(nil);
   try
@@ -261,7 +255,7 @@ begin
       Preprocessor.VarMan.DefineVariable('Ver', -1, V, dsPublic);
 
       if not ParseDefinitions(PChar(Definitions), Preprocessor.VarMan) or
-         not IncludeBuiltinsAndParseIncludeFiles(PChar(IncludeFiles),
+         not IncludeBuiltinsAndParseIncludeFiles(Params.CompilerPath, PChar(IncludeFiles),
            Preprocessor.FOptions.ParserOptions.Options) then
       begin
         Result := ispeInvalidParam;
