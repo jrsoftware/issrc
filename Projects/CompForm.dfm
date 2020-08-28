@@ -303,7 +303,8 @@ object CompileForm: TCompileForm
     Align = alTop
     TabIndex = 0
     Tabs.Strings = (
-      'Main Script')
+      'Main Script'
+      'Preprocessor Output')
     TabPosition = tpTop
     OnClick = MemosTabSetClick
   end

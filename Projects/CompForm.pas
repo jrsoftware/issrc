@@ -274,9 +274,10 @@ type
     procedure FSaveAllClick(Sender: TObject);
   private
     { Private declarations }
-    FMemos: TList<TCompScintEdit>; { FMemos[0] is always the main memo }
-    FMainMemo, FActiveMemo, FErrorMemo, FStepMemo: TCompScintEdit;
-    FMemosStyler: TInnoSetupStyler;
+    FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor memo }
+    FMainMemo, FPreprocessorMemo: TCOmpScintEdit;       { These don't change }
+    FActiveMemo, FErrorMemo, FStepMemo: TCompScintEdit; { These change depending on user input }
+    FMemosStyler: TInnoSetupStyler;                     { Single styler for all memos }
     FCompilerVersion: PCompilerVersionInfo;
     FMRUMainFilesMenuItems: array[0..MRUListMaxCount-1] of TMenuItem;
     FMRUMainFilesList: TStringList;
@@ -369,6 +370,7 @@ type
     procedure InitializeFindText(Dlg: TFindDialog);
     function InitializeMainMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     function InitializeMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
+    function InitializePreprocessedMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure InvalidateStatusPanel(const Index: Integer);
     procedure LoadKnownIncludedFilesAndUpdateMemos(const AFilename: String);
@@ -472,8 +474,8 @@ uses
 
 const
   { Memos }
-  MaxMemos = 11; { Includes the main memo }
-  FirstIncludedFilesMemoIndex = 1;
+  MaxMemos = 12; { Includes the main and preprocessor memo's }
+  FirstIncludedFilesMemoIndex = 2;
 
   { Status bar panel indexes }
   spCaretPos = 0;
@@ -543,6 +545,14 @@ begin
   Memo.AcceptDroppedFiles := True;
   Memo.CompilerFileIndex := -1;
   Memo.OnDropFiles := MainMemoDropFiles;
+  Memo.Used := True;
+  Result := Memo;
+end;
+
+function TCompileForm.InitializePreprocessedMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
+begin
+  InitializeMemo(Memo, PopupMenu);
+  Memo.ReadOnly := True;
   Memo.Used := True;
   Result := Memo;
 end;
@@ -683,7 +693,9 @@ begin
   FMemos := TList<TCompScintEdit>.Create;
   FMainMemo := InitializeMainMemo(TCompScintEdit.Create(Self), PopupMenu);
   FMemos.Add(FMainMemo);
-  for I := 1 to MaxMemos-1 do
+  FPreprocessorMemo := InitializePreprocessedMemo(TCompScintEdit.Create(Self), PopupMenu);
+  FMemos.Add(FPreprocessorMemo);
+  for I := FMemos.Count to MaxMemos-1 do
     FMemos.Add(InitializeMemo(TCompScintEdit.Create(Self), PopupMenu));
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
@@ -1486,7 +1498,8 @@ begin
     FActiveMemo.SetCursorID(999);  { hack to keep it from overriding Cursor }
     CompilerOutputList.Cursor := crAppStart;
     for Memo in FMemos do
-      Memo.ReadOnly := True;
+      if Memo <> FPreprocessorMemo then
+        Memo.ReadOnly := True;
     UpdateEditModePanel;
     HideError;
     CompilerOutputList.Clear;
@@ -1565,6 +1578,13 @@ begin
     StatusMessage(smkStartEnd, Format(SCompilerStatusFinished, [TimeToStr(Time),
       Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
         ElapsedSeconds mod 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator, ElapsedTime mod 1000])]));
+    FPreprocessorMemo.ReadOnly := False;
+    try
+      FPreprocessorMemo.Lines.Text := AppData.PreprocessedScript;
+      FPreprocessorMemo.ClearUndo;
+    finally
+      FPreprocessorMemo.ReadOnly := True;
+    end;
   finally
     AppData.Lines.Free;
     FCompiling := False;
@@ -1573,7 +1593,8 @@ begin
     OldActiveMemo.SetCursorID(SC_CURSORNORMAL);
     CompilerOutputList.Cursor := crDefault;
     for Memo in FMemos do
-      Memo.ReadOnly := False;
+      if Memo <> FPreprocessorMemo then
+        Memo.ReadOnly := False;
     UpdateEditModePanel;
     UpdateRunMenu;
     UpdateCaption;
@@ -1644,7 +1665,9 @@ procedure TCompileForm.FMenuClick(Sender: TObject);
 var
   I: Integer;
 begin
+  FSave.Enabled := FActiveMemo <> FPreprocessorMemo;
   FSaveMainFileAs.Enabled := FActiveMemo = FMainMemo;
+  FSaveEncoding.Enabled := FSave.Enabled;
   FSaveEncodingAuto.Checked := not FActiveMemo.SaveInUTF8Encoding;
   FSaveEncodingUTF8.Checked := FActiveMemo.SaveInUTF8Encoding;
   FSaveAll.Visible := FOptions.OpenIncludedFiles;
@@ -1733,21 +1756,22 @@ end;
 
 procedure TCompileForm.EMenuClick(Sender: TObject);
 var
-  MemoHasFocus: Boolean;
+  MemoHasFocus, MemoIsReadOnly: Boolean;
 begin
   MemoHasFocus := FActiveMemo.Focused;
+  MemoIsReadOnly := FActiveMemo.ReadOnly;
   EUndo.Enabled := MemoHasFocus and FActiveMemo.CanUndo;
   ERedo.Enabled := MemoHasFocus and FActiveMemo.CanRedo;
-  ECut.Enabled := MemoHasFocus and FActiveMemo.SelAvail;
+  ECut.Enabled := MemoHasFocus and not MemoIsReadOnly and FActiveMemo.SelAvail;
   ECopy.Enabled := MemoHasFocus and FActiveMemo.SelAvail;
-  EPaste.Enabled := MemoHasFocus and Clipboard.HasFormat(CF_TEXT);
+  EPaste.Enabled := MemoHasFocus and not MemoIsReadOnly and Clipboard.HasFormat(CF_TEXT);
   EDelete.Enabled := MemoHasFocus and FActiveMemo.SelAvail;
   ESelectAll.Enabled := MemoHasFocus;
   EFind.Enabled := MemoHasFocus;
   EFindNext.Enabled := MemoHasFocus;
-  EReplace.Enabled := MemoHasFocus;
+  EReplace.Enabled := MemoHasFocus and not MemoIsReadOnly;
   EGoto.Enabled := MemoHasFocus;
-  ECompleteWord.Enabled := MemoHasFocus;
+  ECompleteWord.Enabled := MemoHasFocus and not MemoIsReadOnly;
 end;
 
 procedure TCompileForm.EUndoClick(Sender: TObject);
@@ -2567,8 +2591,10 @@ begin
     try
       NewTabs := TStringList.Create;
       NewTabs.Add(MemosTabSet.Tabs[0]); { 'Main Script' }
+      NewTabs.Add(MemosTabSet.Tabs[1]); { 'Preprocessor Output' }
       NewHints := TStringList.Create;
       NewHints.Add(GetFileTitle(FMainMemo.Filename));
+      NewHints.Add('');
       NextMemoIndex := FirstIncludedFilesMemoIndex;
       FLoadingIncludedFiles := True;
       try
@@ -3528,9 +3554,10 @@ begin
   RunButton.Enabled := RRun.Enabled;
   RPause.Enabled := FDebugging and not FPaused;
   PauseButton.Enabled := RPause.Enabled;
-  RRunToCursor.Enabled := RRun.Enabled;
+  RRunToCursor.Enabled := RRun.Enabled and (FActiveMemo <> FPreprocessorMemo);
   RStepInto.Enabled := RRun.Enabled;
   RStepOver.Enabled := RRun.Enabled;
+  RToggleBreakPoint.Enabled := FActiveMemo <> FPreprocessorMemo;
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
   TerminateButton.Enabled := RTerminate.Enabled;
   REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
@@ -4240,8 +4267,13 @@ end;
 procedure TCompileForm.MemoMarginClick(Sender: TObject; MarginNumber: Integer;
   Line: Integer);
 begin
-  if MarginNumber = 1 then
+  if (MarginNumber = 1) and RToggleBreakPoint.Enabled then
     ToggleBreakPoint(Line);
+end;
+
+procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);
+begin
+  ToggleBreakPoint(FActiveMemo.CaretLine);
 end;
 
 procedure TCompileForm.MemoLinesInserted(Memo: TCompScintEdit; FirstLine, Count: integer);
@@ -4404,11 +4436,6 @@ end;
 procedure TCompileForm.UpdateBevel1;
 begin
   Bevel1.Visible := (FTheme.Colors[tcMarginBack] = ToolBarPanel.Color) and not MemosTabSet.Visible;
-end;
-
-procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);
-begin
-  ToggleBreakPoint(FActiveMemo.CaretLine);
 end;
 
 function TCompileForm.ToCurrentPPI(const XY: Integer): Integer;
