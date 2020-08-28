@@ -1290,6 +1290,7 @@ type
     CurLine: String;
     OutputExe: String;
     DebugInfo: Pointer;
+    PreprocessedScript: String;
     ErrorMsg: String;
     ErrorFilename: String;
     ErrorLine: Integer;
@@ -1378,6 +1379,10 @@ begin
             Move(Data.DebugInfo^, DebugInfo^, Data.DebugInfoSize);
           end else
             DebugInfo := nil;
+          if Form.FCompilerVersion.BinVersion >= $6010000 then
+            PreprocessedScript := Data.PreprocessedScript
+          else
+            PreprocessedScript := '';
         end;
       iscbNotifyError:
         begin

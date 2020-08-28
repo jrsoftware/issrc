@@ -85,7 +85,8 @@ type
                                           or empty if output was disabled
                                           (latter new in 5.5.5) }
         DebugInfo: Pointer;        { [in] Debug info (new in 3.0.0.1) }
-        DebugInfoSize: Cardinal);  { [in] Size of debug info (new in 3.0.0.1) }
+        DebugInfoSize: Cardinal;   { [in] Size of debug info (new in 3.0.0.1) }
+        PreprocessedScript: PChar);{ [in] Preprocessed script (new in 6.1.0) }
 
       iscbNotifyError: (
         ErrorMsg: PChar;      { [in] The error message, or NULL if compilation

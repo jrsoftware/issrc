@@ -187,7 +187,10 @@ type
     WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
     MissingRunOnceIdsWarning, MissingRunOnceIds, UsedUserAreasWarning: Boolean;
-    UsedUserAreas, PreprocIncludedFilenames: TStringList;
+    UsedUserAreas: TStringList;
+
+    PreprocIncludedFilenames: TStringList;
+    PreprocOutput: String;
 
     DefaultLangData: TLangData;
     {$IFDEF UNICODE} PreLangDataList, {$ENDIF} LangDataList: TList;
@@ -1050,9 +1053,12 @@ end;
 type
   EBuiltinPreprocessScriptError = class(Exception);
 
+var
+  LastBuiltinPreprocOutput: String;
+
 function BuiltinPreprocessScript(var Params: TPreprocessScriptParams): Integer; stdcall;
 var
-  IncludeStack: TStringList;
+  IncludeStack, Output: TStringList;
 
   procedure RaiseError(const LineFilename: String; const LineNumber: Integer;
     const Msg: String);
@@ -1134,9 +1140,11 @@ var
       SkipWhitespace(L);
       if L^ = '#' then
         ProcessDirective(Filename, I + 1, L + 1)
-      else
+      else begin
         Params.LineOutProc(Params.CompilerData, PChar(Filename), I + 1,
           LineText);
+        Output.Add(LineText);
+      end;
       Inc(I);
     end;
     IncludeStack.Delete(IncludeStack.Count-1);
@@ -1150,10 +1158,16 @@ begin
   end;
 
   try
-    IncludeStack := TStringList.Create;
+    IncludeStack := nil;
+    Output := nil;
     try
+      IncludeStack := TStringList.Create;
+      Output := TStringList.Create;
       ProcessLines(Params.Filename, 0);
+      LastBuiltinPreprocOutput := Output.Text;
+      Params.PreprocOutput := PChar(LastBuiltinPreprocOutput);
     finally
+      Output.Free;
       IncludeStack.Free;
     end;
     Result := ispeSuccess;
@@ -2074,6 +2088,7 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
           AddStatus(SCompilerStatusPreprocessing);
         ResultCode := PreProc(Params);
         if Filename = '' then begin
+          PreprocOutput := Params.PreprocOutput;
           { Defer cleanup of main script until after compilation }
           PreprocCleanupProcData := Params.PreprocCleanupProcData;
           PreprocCleanupProc := Params.PreprocCleanupProc;
@@ -9281,6 +9296,7 @@ begin
     Data.OutputExeFilename := PChar(SetupCompiler.ExeFilename);
     Data.DebugInfo := SetupCompiler.DebugInfo.Memory;
     Data.DebugInfoSize := SetupCompiler.DebugInfo.Size;
+    Data.PreprocessedScript := PChar(SetupCompiler.PreprocOutput);
     Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
   finally
     SetupCompiler.Free;
