@@ -1816,6 +1816,7 @@ type
   PPreCompilerData = ^TPreCompilerData;
   TPreCompilerData = record
     Compiler: TSetupCompiler;
+    MainScript: Boolean;
     InFiles: TStringList;
     OutLines: TScriptFileLines;
     AnsiConvertCodePage: Cardinal;
@@ -1860,7 +1861,8 @@ begin
   try
     if FromPreProcessor then begin
       Data.Compiler.AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
-      Data.Compiler.PreprocIncludedFilenames.Add(Filename);
+      if Data.MainScript then
+        Data.Compiler.PreprocIncludedFilenames.Add(Filename);
     end;
     F := TTextFileReader.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
@@ -2057,6 +2059,7 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
     Data.InFiles := TStringList.Create;
     try
       if Filename = '' then begin
+        Data.MainScript := True;
         Data.InFiles.AddObject('', ReadMainScriptLines);
         FileLoaded := True;
       end
