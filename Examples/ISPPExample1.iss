@@ -5,8 +5,6 @@
 //
 #pragma verboselevel 9
 //
-//#define Debug
-//
 //#define AppEnterprise
 //
 #ifdef AppEnterprise
@@ -38,8 +36,3 @@ Source: "Readme.txt"; DestDir: "{app}"; \
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\MyProg.exe"
-
-#ifdef Debug
-  #expr SaveToFile(AddBackslash(SourcePath) + "Preprocessed.iss"), \
-        Exec(AddBackslash(CompilerPath) + "Compil32.exe", """" + AddBackslash(SourcePath) + "Preprocessed.iss""")
-#endif
