@@ -1378,8 +1378,9 @@ begin
           if Form.FCompileWantAbort then
             Result := iscrRequestAbort;
         end;
-      iscbNotifyIncludedFiles:
+      iscbNotifyPreproc:
         begin
+          PreprocessedScript := Data.PreprocessedScript;
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
           Form.SaveKnownIncludedFiles(Filename);
         end;
@@ -1578,13 +1579,6 @@ begin
     StatusMessage(smkStartEnd, Format(SCompilerStatusFinished, [TimeToStr(Time),
       Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
         ElapsedSeconds mod 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator, ElapsedTime mod 1000])]));
-    FPreprocessorMemo.ReadOnly := False;
-    try
-      FPreprocessorMemo.Lines.Text := AppData.PreprocessedScript;
-      FPreprocessorMemo.ClearUndo;
-    finally
-      FPreprocessorMemo.ReadOnly := True;
-    end;
   finally
     AppData.Lines.Free;
     FCompiling := False;
@@ -1598,6 +1592,13 @@ begin
     UpdateEditModePanel;
     UpdateRunMenu;
     UpdateCaption;
+    FPreprocessorMemo.ReadOnly := False;
+    try
+      FPreprocessorMemo.Lines.Text := AppData.PreprocessedScript;
+      FPreprocessorMemo.ClearUndo;
+    finally
+      FPreprocessorMemo.ReadOnly := True;
+    end;
     UpdateIncludedFilesMemos;
     if AppData.DebugInfo <> nil then begin
       ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
