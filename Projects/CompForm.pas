@@ -183,7 +183,7 @@ type
     TInsertMsgBox: TMenuItem;
     ToolBarPanel: TPanel;
     HMailingList: TMenuItem;
-    MemosTabSet: TNewTabSet; { First tab is the main memo, last tab is the preprocessor memo }
+    MemosTabSet: TNewTabSet; { First tab is the main memo, last tab is the preprocessor output memo }
     FSaveAll: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
@@ -274,10 +274,10 @@ type
     procedure FSaveAllClick(Sender: TObject);
   private
     { Private declarations }
-    FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor memo - also see MemosTabSet comment above }
+    FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
     FMainMemo: TCompScintFileEdit;                      { Doesn't change }
-    FPreprocessorMemo: TCompScintEdit;                  { Doesn't change }
-    FFileMemos: TList<TCompScintFileEdit>;              { All memos except FPreprocessorMemo }
+    FPreprocessorOutputMemo: TCompScintEdit;            { Doesn't change }
+    FFileMemos: TList<TCompScintFileEdit>;              { All memos except FPreprocessorOutputMemo }
     FActiveMemo: TCompScintEdit;                        { These change depending on user input }
     FErrorMemo, FStepMemo: TCompScintFileEdit;          { These change depending on user input }
     FMemosStyler: TInnoSetupStyler;                     { Single styler for all memos }
@@ -326,7 +326,7 @@ type
     FProcessHandle, FDebugClientProcessHandle: THandle;
     FDebugTarget: TDebugTarget;
     FCompiledExe, FUninstExe, FTempDir: String;
-    FPreprocessedScript: String;
+    FPreprocessorOutput: String;
     FIncludedFiles: TIncludedFiles;
     FLoadingIncludedFiles: Boolean;
     FDebugging: Boolean;
@@ -706,8 +706,8 @@ begin
   FMemos := TList<TCompScintEdit>.Create;
   FMainMemo := InitializeMainMemo(TCompScintFileEdit.Create(Self), PopupMenu);
   FMemos.Add(FMainMemo);
-  FPreprocessorMemo := InitializePreprocessedMemo(TCompScintEdit.Create(Self), PopupMenu);
-  FMemos.Add(FPreprocessorMemo);
+  FPreprocessorOutputMemo := InitializePreprocessedMemo(TCompScintEdit.Create(Self), PopupMenu);
+  FMemos.Add(FPreprocessorOutputMemo);
   for I := FMemos.Count to MaxMemos-1 do
     FMemos.Add(InitializeFileMemo(TCompScintFileEdit.Create(Self), PopupMenu));
   FFileMemos := TList<TCompScintFileEdit>.Create;
@@ -964,7 +964,7 @@ begin
   FMainMemo.SaveInUTF8Encoding := False;
   FMainMemo.Lines.Clear;
   FModifiedAnySinceLastCompile := True;
-  FPreprocessedScript := '';
+  FPreprocessorOutput := '';
   FIncludedFiles.Clear;
   UpdatePreprocMemos;
   FMainMemo.ClearUndo;
@@ -1398,7 +1398,7 @@ begin
         end;
       iscbNotifyPreproc:
         begin
-          Form.FPreprocessedScript := Data.PreprocessedScript;
+          Form.FPreprocessorOutput := Data.PreprocessedScript;
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
           Form.SaveKnownIncludedFiles(Filename);
         end;
@@ -2178,8 +2178,8 @@ procedure TCompileForm.MemosTabSetClick(Sender: TObject);
   begin
     if TabIndex = 0 then
       Result := 0 { First tab displays the main memo which is FMemos[0] }
-    else if FPreprocessorMemo.Used and (TabIndex = MaxTabIndex) then
-      Result := 1 { Last tab displays the preprocessor memo which is FMemos[1] }
+    else if FPreprocessorOutputMemo.Used and (TabIndex = MaxTabIndex) then
+      Result := 1 { Last tab displays the preprocessor output memo which is FMemos[1] }
     else
       Result := TabIndex+1; { Other tabs display include files which start second tab but at FMemos[2] }
   end;
@@ -2591,7 +2591,7 @@ end;
 
 procedure TCompileForm.UpdateMemosTabSetVisibility;
 begin
-  MemosTabSet.Visible := FPreprocessorMemo.Used or FFileMemos[FirstIncludedFilesMemoIndex].Used;
+  MemosTabSet.Visible := FPreprocessorOutputMemo.Used or FFileMemos[FirstIncludedFilesMemoIndex].Used;
   if not MemosTabSet.Visible then
     MemosTabSet.TabIndex := 0; { For next time }
 end;
@@ -2606,22 +2606,22 @@ end;
 
 procedure TCompileForm.UpdatePreprocMemos;
 
-  procedure UpdatePreprocessorMemo(const NewTabs, NewHints: TStringList);
+  procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList);
   begin
-    if FPreprocessedScript <> '' then begin
+    if FPreprocessorOutput <> '' then begin
       NewTabs.Add('Preprocessor Output');
       NewHints.Add('');
-      FPreprocessorMemo.ReadOnly := False;
+      FPreprocessorOutputMemo.ReadOnly := False;
       try
-        FPreprocessorMemo.Lines.Text := FPreprocessedScript;
-        FPreprocessorMemo.ClearUndo;
+        FPreprocessorOutputMemo.Lines.Text := FPreprocessorOutput;
+        FPreprocessorOutputMemo.ClearUndo;
       finally
-        FPreprocessorMemo.ReadOnly := True;
+        FPreprocessorOutputMemo.ReadOnly := True;
       end;
-      FPreprocessorMemo.Used := True;
+      FPreprocessorOutputMemo.Used := True;
     end else begin
-      FPreprocessorMemo.Used := False;
-      FPreprocessorMemo.Visible := False;
+      FPreprocessorOutputMemo.Used := False;
+      FPreprocessorOutputMemo.Visible := False;
     end;
   end;
 
@@ -2696,7 +2696,7 @@ begin
     NewHints := TStringList.Create;
     NewHints.Add(GetFileTitle(FMainMemo.Filename));
 
-    UpdatePreprocessorMemo(NewTabs, NewHints);
+    UpdatePreprocessorOutputMemo(NewTabs, NewHints);
     UpdateIncludedFilesMemos(NewTabs, NewHints);
 
     { Set new tabs, try keep same file open }
@@ -3613,10 +3613,10 @@ begin
   RunButton.Enabled := RRun.Enabled;
   RPause.Enabled := FDebugging and not FPaused;
   PauseButton.Enabled := RPause.Enabled;
-  RRunToCursor.Enabled := RRun.Enabled and (FActiveMemo <> FPreprocessorMemo);
+  RRunToCursor.Enabled := RRun.Enabled and (FActiveMemo <> FPreprocessorOutputMemo);
   RStepInto.Enabled := RRun.Enabled;
   RStepOver.Enabled := RRun.Enabled;
-  RToggleBreakPoint.Enabled := FActiveMemo <> FPreprocessorMemo;
+  RToggleBreakPoint.Enabled := FActiveMemo <> FPreprocessorOutputMemo;
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
   TerminateButton.Enabled := RTerminate.Enabled;
   REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
