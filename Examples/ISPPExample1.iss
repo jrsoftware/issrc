@@ -1,22 +1,22 @@
-; -- ISPPExample1.iss --
-;
-; This script shows various basic things you can achieve using Inno Setup Preprocessor (ISPP).
-; To enable commented #define's, either remove the ';' or use ISCC with the /D switch.
-
+// -- ISPPExample1.iss --
+//
+// This script shows various basic things you can achieve using Inno Setup Preprocessor (ISPP).
+// To enable commented #define's, either remove the '//' or use ISCC with the /D switch.
+//
 #pragma verboselevel 9
-
-;#define Debug
-
-;#define AppEnterprise
-
+//
+//#define Debug
+//
+//#define AppEnterprise
+//
 #ifdef AppEnterprise
   #define AppName "My Program Enterprise Edition"
 #else
   #define AppName "My Program"
 #endif
-
+//
 #define AppVersion GetVersionNumbersString(AddBackslash(SourcePath) + "MyProg.exe")
-
+//
 [Setup]
 AppName={#AppName}
 AppVersion={#AppVersion}
