@@ -50,28 +50,28 @@ SignedUninstaller=yes
   //  Name: {#Name}; MessagesFile: "{#MessagesFile},{#CustomMessagesFile}"
   //#else
     #pragma message "Generating [Languages] entry with name " + Name + ": " + MessagesFile
-    Name: {#Name}; MessagesFile: "{#MessagesFile}"
+Name: {#Name}; MessagesFile: "{#MessagesFile}"
   //#endif
 #endsub
-
+//
 #define FindPathName
 #define FindHandle
 #define FindResult
-
+//
 #sub DoFindFiles
   #for {FindHandle = FindResult = FindFirst(FindPathName + "*.isl", 0); FindResult; FindResult = FindNext(FindHandle)} ProcessFoundLanguagesFile
   #if FindHandle
     #expr FindClose(FindHandle)
   #endif
 #endsub
-
+//
 #define FindFiles(str PathName) \
   FindPathName = PathName, \
   DoFindFiles
-
+//
 [Languages]
 Name: english; MessagesFile: "files\Default.isl"
-; Generate [Languages] entries for all official translations
+// Generate [Languages] entries for all official translations
 #expr FindFiles("files\Languages\")
 
 [Messages]
