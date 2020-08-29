@@ -307,6 +307,7 @@ type
       LowPriorityDuringCompile: Boolean;
       GutterLineNumbers: Boolean;
       ThemeType: TThemeType;
+      ShowPreprocessorOutput: Boolean;
       OpenIncludedFiles: Boolean;
     end;
     FOptionsLoaded: Boolean;
@@ -604,6 +605,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.AutoIndent := Ini.ReadBool('Options', 'AutoIndent', True);
       FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', True);
       FOptions.GutterLineNumbers := Ini.ReadBool('Options', 'GutterLineNumbers', False);
+      FOptions.ShowPreprocessorOutput := Ini.ReadBool('Options', 'ShowPreprocessorOutput', True);
       FOptions.OpenIncludedFiles := Ini.ReadBool('Options', 'OpenIncludedFiles', True);
       I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
       if (I >= 0) and (I <= Ord(High(TThemeType))) then
@@ -2490,6 +2492,7 @@ begin
       Ini.WriteBool('Options', 'AutoIndent', FOptions.AutoIndent);
       Ini.WriteBool('Options', 'IndentationGuides', FOptions.IndentationGuides);
       Ini.WriteBool('Options', 'GutterLineNumbers', FOptions.GutterLineNumbers);
+      Ini.WriteBool('Options', 'ShowPreprocessorOutput', FOptions.ShowPreprocessorOutput);
       Ini.WriteBool('Options', 'OpenIncludedFiles', FOptions.OpenIncludedFiles);
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
       Ini.WriteString('Options', 'EditorFontName', FMainMemo.Font.Name);
@@ -2606,8 +2609,15 @@ end;
 procedure TCompileForm.UpdatePreprocMemos;
 
   procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList);
+
+    function SameScript(const S1, S2: String): Boolean;
+    begin
+      Result := SameText(Trim(S1), Trim(S2));
+    end;
+
   begin
-    if FPreprocessorOutput <> '' then begin
+    if FOptions.ShowPreprocessorOutput and (FPreprocessorOutput <> '') and
+       not SameScript(FMainMemo.Lines.Text, FPreprocessorOutput) then begin
       NewTabs.Add('Preprocessor Output');
       NewHints.Add('');
       FPreprocessorOutputMemo.ReadOnly := False;
