@@ -40,15 +40,23 @@ type
 
   TCompScintEdit = class(TScintEdit)
   private
+    FTheme: TTheme;
+    FUsed: Boolean;
+  protected
+    procedure CreateWnd; override;
+  public
+    property Theme: TTheme read FTheme write FTheme;
+    property Used: Boolean read FUsed write FUsed;
+    procedure UpdateThemeColors;
+  end;
+
+  TCompScintFileEdit = class(TCompScintEdit)
+  private
     FBreakPoints: TList<Integer>;
     FCompilerFileIndex: Integer;
     FFilename: String;
     FFileLastWriteTime: TFileTime;
     FSaveInUTF8Encoding: Boolean;
-    FTheme: TTheme;
-    FUsed: Boolean;
-  protected
-    procedure CreateWnd; override;
   public
     ErrorLine, ErrorCaretPosition: Integer;
     StepLine: Integer;
@@ -61,27 +69,14 @@ type
     property CompilerFileIndex: Integer read FCompilerFileIndex write FCompilerFileIndex;
     property FileLastWriteTime: TFileTime read FFileLastWriteTime write FFileLastWriteTime;
     property SaveInUTF8Encoding: Boolean read FSaveInUTF8Encoding write FSaveInUTF8Encoding;
-    property Theme: TTheme read FTheme write FTheme;
-    property Used: Boolean read FUsed write FUsed;
-    procedure UpdateThemeColors;
   end;
 
 implementation
 
 uses
   ScintInt;
-
-constructor TCompScintEdit.Create;
-begin
-  inherited;
-  FBreakPoints := TList<Integer>.Create;
-end;
-
-destructor TCompScintEdit.Destroy;
-begin
-  FBreakPoints.Free;
-  inherited;
-end;
+  
+{ TCompScintEdit }
 
 procedure TCompScintEdit.CreateWnd;
 const
@@ -208,6 +203,20 @@ begin
     Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
     Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
   end;
+end;
+
+{ TCompScintFileEdit }
+
+constructor TCompScintFileEdit.Create;
+begin
+  inherited;
+  FBreakPoints := TList<Integer>.Create;
+end;
+
+destructor TCompScintFileEdit.Destroy;
+begin
+  FBreakPoints.Free;
+  inherited;
 end;
 
 end.
