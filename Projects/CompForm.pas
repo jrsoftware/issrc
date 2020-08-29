@@ -326,6 +326,7 @@ type
     FProcessHandle, FDebugClientProcessHandle: THandle;
     FDebugTarget: TDebugTarget;
     FCompiledExe, FUninstExe, FTempDir: String;
+    FPreprocessedScript: String;
     FIncludedFiles: TIncludedFiles;
     FLoadingIncludedFiles: Boolean;
     FDebugging: Boolean;
@@ -420,7 +421,7 @@ type
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
-    procedure UpdateIncludedFilesMemos;
+    procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateModifiedPanel;
@@ -738,7 +739,7 @@ begin
   FSignTools := TStringList.Create;
 
   FIncludedFiles := TIncludedFiles.Create;
-  UpdateIncludedFilesMemos;
+  UpdatePreprocMemos;
 
   FDebugTarget := dtSetup;
   UpdateTargetMenu;
@@ -963,8 +964,9 @@ begin
   FMainMemo.SaveInUTF8Encoding := False;
   FMainMemo.Lines.Clear;
   FModifiedAnySinceLastCompile := True;
+  FPreprocessedScript := '';
   FIncludedFiles.Clear;
-  UpdateIncludedFilesMemos;
+  UpdatePreprocMemos;
   FMainMemo.ClearUndo;
 end;
 
@@ -993,7 +995,7 @@ begin
               FIncludedFiles.Add(IncludedFile);
             end;
           finally
-            UpdateIncludedFilesMemos;
+            UpdatePreprocMemos;
           end;
         end;
       finally
@@ -1319,7 +1321,6 @@ type
     CurLine: String;
     OutputExe: String;
     DebugInfo: Pointer;
-    PreprocessedScript: String;
     ErrorMsg: String;
     ErrorFilename: String;
     ErrorLine: Integer;
@@ -1397,7 +1398,7 @@ begin
         end;
       iscbNotifyPreproc:
         begin
-          PreprocessedScript := Data.PreprocessedScript;
+          Form.FPreprocessedScript := Data.PreprocessedScript;
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
           Form.SaveKnownIncludedFiles(Filename);
         end;
@@ -1409,10 +1410,6 @@ begin
             Move(Data.DebugInfo^, DebugInfo^, Data.DebugInfoSize);
           end else
             DebugInfo := nil;
-          if Form.FCompilerVersion.BinVersion >= $6010000 then
-            PreprocessedScript := Data.PreprocessedScript
-          else
-            PreprocessedScript := '';
         end;
       iscbNotifyError:
         begin
@@ -1608,14 +1605,7 @@ begin
     UpdateEditModePanel;
     UpdateRunMenu;
     UpdateCaption;
-    FPreprocessorMemo.ReadOnly := False;
-    try
-      FPreprocessorMemo.Lines.Text := AppData.PreprocessedScript;
-      FPreprocessorMemo.ClearUndo;
-    finally
-      FPreprocessorMemo.ReadOnly := True;
-    end;
-    UpdateIncludedFilesMemos;
+    UpdatePreprocMemos;
     if AppData.DebugInfo <> nil then begin
       ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
       FreeMem(AppData.DebugInfo);
@@ -2188,7 +2178,7 @@ procedure TCompileForm.MemosTabSetClick(Sender: TObject);
   begin
     if TabIndex = 0 then
       Result := 0 { First tab displays the main memo which is FMemos[0] }
-    else if TabIndex = MaxTabIndex then
+    else if FPreprocessorMemo.Used and (TabIndex = MaxTabIndex) then
       Result := 1 { Last tab displays the preprocessor memo which is FMemos[1] }
     else
       Result := TabIndex+1; { Other tabs display include files which start second tab but at FMemos[2] }
@@ -2468,7 +2458,7 @@ begin
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
     
     UpdateCaption;
-    UpdateIncludedFilesMemos;
+    UpdatePreprocMemos;
     for Memo in FMemos do begin
       { Move caret to start of line to ensure it doesn't end up in the middle
         of a double-byte character if the code page changes from SBCS to DBCS }
@@ -2614,22 +2604,32 @@ begin
     StatusBar.Panels[spModified].Text := '';
 end;
 
-procedure TCompileForm.UpdateIncludedFilesMemos;
-var
-  NewTabs, NewHints: TStringList;
-  IncludedFile: TIncludedFile;
-  I, NextMemoIndex: Integer;
-  SaveTabName: String;
-begin
-  NewTabs := nil;
-  NewHints := nil;
-  try
-    NewTabs := TStringList.Create;
-    NewTabs.Add(MemosTabSet.Tabs[0]); { 'Main Script' }
-    NewTabs.Add('Preprocessor Output');
-    NewHints := TStringList.Create;
-    NewHints.Add(GetFileTitle(FMainMemo.Filename));
-    NewHints.Add('');
+procedure TCompileForm.UpdatePreprocMemos;
+
+  procedure UpdatePreprocessorMemo(const NewTabs, NewHints: TStringList);
+  begin
+    if FPreprocessedScript <> '' then begin
+      NewTabs.Add('Preprocessor Output');
+      NewHints.Add('');
+      FPreprocessorMemo.ReadOnly := False;
+      try
+        FPreprocessorMemo.Lines.Text := FPreprocessedScript;
+        FPreprocessorMemo.ClearUndo;
+      finally
+        FPreprocessorMemo.ReadOnly := True;
+      end;
+      FPreprocessorMemo.Used := True;
+    end else begin
+      FPreprocessorMemo.Used := False;
+      FPreprocessorMemo.Visible := False;
+    end;
+  end;
+
+  procedure UpdateIncludedFilesMemos(const NewTabs, NewHints: TStringList);
+  var
+    IncludedFile: TIncludedFile;
+    I, NextMemoIndex: Integer;
+  begin
     if FOptions.OpenIncludedFiles and (FIncludedFiles.Count > 0) then begin
       NextMemoIndex := FirstIncludedFilesMemoIndex;
       FLoadingIncludedFiles := True;
@@ -2681,13 +2681,37 @@ begin
       for IncludedFile in FIncludedFiles do
         IncludedFile.Memo := nil;
     end;
+  end;
+
+var
+  NewTabs, NewHints: TStringList;
+  I, SaveTabIndex: Integer;
+  SaveTabName: String;
+begin
+  NewTabs := nil;
+  NewHints := nil;
+  try
+    NewTabs := TStringList.Create;
+    NewTabs.Add(MemosTabSet.Tabs[0]); { 'Main Script' }
+    NewHints := TStringList.Create;
+    NewHints.Add(GetFileTitle(FMainMemo.Filename));
+
+    UpdatePreprocessorMemo(NewTabs, NewHints);
+    UpdateIncludedFilesMemos(NewTabs, NewHints);
+
     { Set new tabs, try keep same file open }
+    SaveTabIndex := MemosTabSet.TabIndex;
     SaveTabName := MemosTabSet.Tabs[MemosTabSet.TabIndex];
     MemosTabSet.Tabs := NewTabs;
     MemosTabSet.Hints := NewHints;
     I := MemosTabSet.Tabs.IndexOf(SaveTabName);
     if I <> -1 then
        MemosTabSet.TabIndex := I;
+   if MemosTabSet.TabIndex = SaveTabIndex then begin
+      { If TabIndex stayed the same then the tabset won't perform a Click but we need this to make
+       sure the right memo is visible - so trigger it ourselves }
+      MemosTabSetClick(MemosTabSet);
+   end;
   finally
     NewHints.Free;
     NewTabs.Free;
