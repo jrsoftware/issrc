@@ -1399,7 +1399,7 @@ begin
         end;
       iscbNotifyPreproc:
         begin
-          Form.FPreprocessorOutput := Data.PreprocessedScript;
+          Form.FPreprocessorOutput := Trim(Data.PreprocessedScript);
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
           Form.SaveKnownIncludedFiles(Filename);
         end;
@@ -2609,15 +2609,9 @@ end;
 procedure TCompileForm.UpdatePreprocMemos;
 
   procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList);
-
-    function SameScript(const S1, S2: String): Boolean;
-    begin
-      Result := SameText(Trim(S1), Trim(S2));
-    end;
-
   begin
     if FOptions.ShowPreprocessorOutput and (FPreprocessorOutput <> '') and
-       not SameScript(FMainMemo.Lines.Text, FPreprocessorOutput) then begin
+       not SameText(Trim(FMainMemo.Lines.Text), FPreprocessorOutput) then begin
       NewTabs.Add('Preprocessor Output');
       NewHints.Add('');
       FPreprocessorOutputMemo.ReadOnly := False;
