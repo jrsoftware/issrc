@@ -187,7 +187,10 @@ type
     WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
     MissingRunOnceIdsWarning, MissingRunOnceIds, UsedUserAreasWarning: Boolean;
-    UsedUserAreas, PreprocIncludedFilenames: TStringList;
+    UsedUserAreas: TStringList;
+
+    PreprocIncludedFilenames: TStringList;
+    PreprocOutput: String;
 
     DefaultLangData: TLangData;
     {$IFDEF UNICODE} PreLangDataList, {$ENDIF} LangDataList: TList;
@@ -1050,9 +1053,12 @@ end;
 type
   EBuiltinPreprocessScriptError = class(Exception);
 
+var
+  LastBuiltinPreprocOutput: String;
+
 function BuiltinPreprocessScript(var Params: TPreprocessScriptParams): Integer; stdcall;
 var
-  IncludeStack: TStringList;
+  Output, IncludeStack: TStringList;
 
   procedure RaiseError(const LineFilename: String; const LineNumber: Integer;
     const Msg: String);
@@ -1134,9 +1140,11 @@ var
       SkipWhitespace(L);
       if L^ = '#' then
         ProcessDirective(Filename, I + 1, L + 1)
-      else
+      else begin
         Params.LineOutProc(Params.CompilerData, PChar(Filename), I + 1,
           LineText);
+        Output.Add(LineText);
+      end;
       Inc(I);
     end;
     IncludeStack.Delete(IncludeStack.Count-1);
@@ -1150,11 +1158,16 @@ begin
   end;
 
   try
-    IncludeStack := TStringList.Create;
+    Output := TStringList.Create;
+    IncludeStack := nil;
     try
+      IncludeStack := TStringList.Create;
       ProcessLines(Params.Filename, 0);
     finally
+      LastBuiltinPreprocOutput := Output.Text;
+      Params.PreprocOutput := PChar(LastBuiltinPreprocOutput);
       IncludeStack.Free;
+      Output.Free;
     end;
     Result := ispeSuccess;
   except
@@ -2074,6 +2087,7 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
           AddStatus(SCompilerStatusPreprocessing);
         ResultCode := PreProc(Params);
         if Filename = '' then begin
+          PreprocOutput := Params.PreprocOutput;
           { Defer cleanup of main script until after compilation }
           PreprocCleanupProcData := Params.PreprocCleanupProcData;
           PreprocCleanupProc := Params.PreprocCleanupProc;
@@ -9152,47 +9166,85 @@ begin
   end;
 end;
 
-{ Interface helper functions }
-
-function CheckParams(const Params: TCompileScriptParamsEx): Boolean;
-begin
-  Result := ((Params.Size = SizeOf(Params)) or
-             (Params.Size = SizeOf(TCompileScriptParams))) and
-            Assigned(Params.CallbackProc);
-end;
-
-procedure InitializeSetupCompiler(const SetupCompiler: TSetupCompiler;
-  const Params: TCompileScriptParamsEx);
-begin
-  SetupCompiler.AppData := Params.AppData;
-  SetupCompiler.CallbackProc := Params.CallbackProc;
-  if Assigned(Params.CompilerPath) then
-    SetupCompiler.CompilerDir := Params.CompilerPath
-  else
-    SetupCompiler.CompilerDir := PathExtractPath(GetSelfFilename);
-  SetupCompiler.SourceDir := Params.SourcePath;
-end;
-
-function EncodeIncludedFilenames(const IncludedFilenames: TStringList): String;
-var
-  S: String;
-  I: Integer;
-begin
-  S := '';
-  for I := 0 to IncludedFilenames.Count-1 do
-   S := S + IncludedFilenames[I] + #0;
-  Result := S;
-end;
-
 { Interface functions }
 
 function ISCompileScript(const Params: TCompileScriptParamsEx;
   const PropagateExceptions: Boolean): Integer;
+
+  function CheckParams(const Params: TCompileScriptParamsEx): Boolean;
+  begin
+    Result := ((Params.Size = SizeOf(Params)) or
+               (Params.Size = SizeOf(TCompileScriptParams))) and
+              Assigned(Params.CallbackProc);
+  end;
+
+  procedure InitializeSetupCompiler(const SetupCompiler: TSetupCompiler;
+    const Params: TCompileScriptParamsEx);
+  begin
+    SetupCompiler.AppData := Params.AppData;
+    SetupCompiler.CallbackProc := Params.CallbackProc;
+    if Assigned(Params.CompilerPath) then
+      SetupCompiler.CompilerDir := Params.CompilerPath
+    else
+      SetupCompiler.CompilerDir := PathExtractPath(GetSelfFilename);
+    SetupCompiler.SourceDir := Params.SourcePath;
+  end;
+
+  function EncodeIncludedFilenames(const IncludedFilenames: TStringList): String;
+  var
+    S: String;
+    I: Integer;
+  begin
+    S := '';
+    for I := 0 to IncludedFilenames.Count-1 do
+     S := S + IncludedFilenames[I] + #0;
+    Result := S;
+  end;
+
+  procedure NotifyPreproc(const SetupCompiler: TSetupCompiler);
+  var
+    Data: TCompilerCallbackData;
+    S: String;
+  begin
+    Data.PreprocessedScript := PChar(SetupCompiler.PreprocOutput);
+    S := EncodeIncludedFilenames(SetupCompiler.PreprocIncludedFilenames);
+    Data.IncludedFilenames := PChar(S);
+    Params.CallbackProc(iscbNotifyPreproc, Data, Params.AppData);
+  end;
+
+  procedure NotifySuccess(const SetupCompiler: TSetupCompiler);
+  var
+    Data: TCompilerCallbackData;
+  begin
+    Data.OutputExeFilename := PChar(SetupCompiler.ExeFilename);
+    Data.DebugInfo := SetupCompiler.DebugInfo.Memory;
+    Data.DebugInfoSize := SetupCompiler.DebugInfo.Size;
+    Data.PreprocessedScript := PChar(SetupCompiler.PreprocOutput);
+    Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
+  end;
+
+  procedure NotifyError(const SetupCompiler: TSetupCompiler);
+  var
+    Data: TCompilerCallbackData;
+    S: String;
+  begin
+    Data.ErrorMsg := nil;
+    Data.ErrorFilename := nil;
+    Data.ErrorLine := 0;
+    if not(ExceptObject is EAbort) then begin
+      S := GetExceptMessage;
+      Data.ErrorMsg := PChar(S);
+      { use a Pointer cast instead of PChar so that we'll get a null
+        pointer if the string is empty }
+      Data.ErrorFilename := Pointer(SetupCompiler.LineFilename);
+      Data.ErrorLine := SetupCompiler.LineNumber;
+    end;
+    Params.CallbackProc(iscbNotifyError, Data, Params.AppData);
+  end;
+
 var
   SetupCompiler: TSetupCompiler;
   P: PChar;
-  Data: TCompilerCallbackData;
-  S: String;
   P2: Integer;
 begin
   if not CheckParams(Params) then begin
@@ -9251,37 +9303,20 @@ begin
       end;
     end;
 
-    Result := isceNoError;
     try
-      SetupCompiler.Compile;
+      try
+        SetupCompiler.Compile;
+      finally
+        NotifyPreproc(SetupCompiler);
+      end;
+      Result := isceNoError;
+      NotifySuccess(SetupCompiler);
     except
       Result := isceCompileFailure;
-      S := EncodeIncludedFilenames(SetupCompiler.PreprocIncludedFilenames);
-      Data.IncludedFilenames := PChar(S);
-      Params.CallbackProc(iscbNotifyIncludedFiles, Data, Params.AppData);
-      Data.ErrorMsg := nil;
-      Data.ErrorFilename := nil;
-      Data.ErrorLine := 0;
-      if not(ExceptObject is EAbort) then begin
-        S := GetExceptMessage;
-        Data.ErrorMsg := PChar(S);
-        { use a Pointer cast instead of PChar so that we'll get a null
-          pointer if the string is empty }
-        Data.ErrorFilename := Pointer(SetupCompiler.LineFilename);
-        Data.ErrorLine := SetupCompiler.LineNumber;
-      end;
-      Params.CallbackProc(iscbNotifyError, Data, Params.AppData);
+      NotifyError(SetupCompiler);
       if PropagateExceptions then
         raise;
-      Exit;
     end;
-    S := EncodeIncludedFilenames(SetupCompiler.PreprocIncludedFilenames);
-    Data.IncludedFilenames := PChar(S);
-    Params.CallbackProc(iscbNotifyIncludedFiles, Data, Params.AppData);
-    Data.OutputExeFilename := PChar(SetupCompiler.ExeFilename);
-    Data.DebugInfo := SetupCompiler.DebugInfo.Memory;
-    Data.DebugInfoSize := SetupCompiler.DebugInfo.Size;
-    Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
   finally
     SetupCompiler.Free;
   end;

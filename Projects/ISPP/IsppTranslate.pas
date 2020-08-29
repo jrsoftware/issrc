@@ -123,6 +123,7 @@ type
     procedure StatusMsg(const Msg: string; const Args: array of const);
     procedure WarningMsg(const Msg: string; const Args: array of const);
     procedure AddLine(const LineRead: string);
+    function GetAll: String;
     function GetFileName(Code: Integer): string;
     function GetLineNumber(Code: Integer): Word;
     function GetNext(var LineFilename: string; var LineNumber: Integer;
@@ -296,6 +297,11 @@ procedure TPreprocessor.AddLine(const LineRead: string);
 begin
   InternalAddLine(LineRead, 0, FMainCounter, False);
   Inc(FMainCounter, 1);
+end;
+
+function TPreprocessor.GetAll: String;
+begin
+  Result := FOutput.Text;
 end;
 
 function TPreprocessor.GetFileName(Code: Integer): string;

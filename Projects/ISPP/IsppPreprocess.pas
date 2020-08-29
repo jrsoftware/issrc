@@ -19,6 +19,9 @@ uses
   SysUtils, CmnFunc2, PathFunc,
   IsppBase, IsppTranslate, IsppSessions, IsppIntf, IsppIdentMan, IsppVarUtils, IsppConsts;
 
+var
+  LastPreprocOutput: string;
+
 procedure ReadScript(const Params: TPreprocessScriptParams;
   const Preprocessor: TPreprocessor);
 var
@@ -275,6 +278,8 @@ begin
         Result := ispeSuccess;
       end;
     finally
+      LastPreprocOutput := Preprocessor.GetAll;
+      Params.PreprocOutput := PChar(LastPreprocOutput);
       Preprocessor.Free;
     end;
   except
