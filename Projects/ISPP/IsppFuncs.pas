@@ -1,6 +1,11 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
+
+  Inno Setup
+  Copyright (C) 1997-2020 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
 unit IsppFuncs;
@@ -10,9 +15,9 @@ interface
 {$I ..\Version.inc}
 
 uses
-  Windows, Classes, IsppVarUtils, IsppIntf, IsppTranslate, IsppParser;
+  Windows, Classes, IsppVarUtils, IsppIntf, IsppPreprocessor, IsppParser;
 
-procedure Register(Preproc: TPreprocessor);
+procedure RegisterFunctions(Preproc: TPreprocessor);
 
 implementation
 
@@ -31,32 +36,6 @@ begin
   Result := PathExpand(Preprocessor.PrependDirName(Filename,
     Preprocessor.SourcePath));
 end;
-
-{$IF RTLVersion < 18}  { < Delphi 2006 }
-function FileAge(const FileName: string; out FileDateTime: TDateTime): Boolean;
-var
-  Handle: THandle;
-  FindData: TWin32FindData;
-  LSystemTime: TSystemTime;
-  LocalFileTime: TFileTime;
-begin
-  Result := False;
-  Handle := FindFirstFile(PChar(FileName), FindData);
-  if Handle <> INVALID_HANDLE_VALUE then
-  begin
-    Windows.FindClose(Handle);
-    if (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0 then
-    begin
-      Result := True;
-      FileTimeToLocalFileTime(FindData.ftLastWriteTime, LocalFileTime);
-      FileTimeToSystemTime(LocalFileTime, LSystemTime);
-      with LSystemTime do
-        FileDateTime := EncodeDate(wYear, wMonth, wDay) +
-          EncodeTime(wHour, wMinute, wSecond, wMilliSeconds);
-    end;
-  end;
-end;
-{$IFEND}
 
 function CheckParams(const Params: IIsppFuncParams;
   Types: array of TIsppVarType; Minimum: Byte; var Error: TIsppFuncResult): Boolean;
@@ -1768,7 +1747,7 @@ begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do begin
-      { Also see Pragma in IsppTranslate }
+      { Also see Pragma in IsppPreprocessor }
       TPreprocessor(Ext).StatusMsg(Get(0).AsStr, []);
       ResPtr^ := NULL;
     end;
@@ -1787,7 +1766,7 @@ begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do begin
-      { Also see Pragma in IsppTranslate }
+      { Also see Pragma in IsppPreprocessor }
       TPreprocessor(Ext).WarningMsg(Get(0).AsStr, []);
       ResPtr^ := NULL;
     end;
@@ -1810,7 +1789,7 @@ begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do begin
-      { Also see Pragma and pcErrorDir in IsppTranslate }
+      { Also see Pragma and pcErrorDir in IsppPreprocessor }
       ErrorMsg := Get(0).AsStr;
       if ErrorMsg = '' then ErrorMsg := 'Error';
       CatchException := False;
@@ -1828,7 +1807,7 @@ begin
   end;
 end;
 
-procedure Register(Preproc: TPreprocessor);
+procedure RegisterFunctions(Preproc: TPreprocessor);
 begin
   with Preproc do
   begin

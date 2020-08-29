@@ -1,13 +1,18 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
+
+  Inno Setup
+  Copyright (C) 1997-2020 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
 unit IsppSessions;
 
 interface
 
-uses IsppTranslate;
+uses IsppPreprocessor;
 
 procedure PushPreproc(APreproc: TPreprocessor);
 function PopPreproc: TPreprocessor;
@@ -20,7 +25,7 @@ implementation
 
 {$I ..\Version.inc}
 
-uses SysUtils, Classes, IsppStacks {$IFDEF IS_D12}, Windows{$ENDIF};
+uses SysUtils, Classes, IsppStack {$IFDEF IS_D12}, Windows{$ENDIF};
 
 procedure WarningMsg(const Msg: string; const Args: array of const);
 var

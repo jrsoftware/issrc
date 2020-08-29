@@ -1,10 +1,14 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: CParser.pas,v 1.3 2009/04/01 15:47:44 mlaan Exp $
+
+  Inno Setup
+  Copyright (C) 1997-2020 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit CParser;
+unit CTokenizer;
 
 interface
 

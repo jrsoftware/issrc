@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -12,7 +12,7 @@ unit IsppVarUtils;
 
 interface
 
-uses IsppIntf, IsppBase, IsppTranslate;
+uses IsppIntf, IsppBase, IsppPreprocessor;
 
 function SimplifyLValue(var Src: TIsppVariant): Boolean;
 procedure MakeRValue(var Src: TIsppVariant);
@@ -104,7 +104,6 @@ begin
       MakeInt(Result, I)
     else
       raise EConvertError.CreateFmt('Cannot convert "%s" to integer', [Op.AsStr])
-      //Sender.RaiseError(PChar(Format(SCannotConvert, [Op.AsStr])))
   else
     if Op.Typ = evNull then
       MakeInt(Result, 0)

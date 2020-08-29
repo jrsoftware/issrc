@@ -12,7 +12,7 @@ unit IsppParser;
 
 interface
 
-uses IsppIntf, IsppBase, IsppIdentMan, CParser;
+uses IsppIntf, IsppBase, IsppIdentMan, CTokenizer;
 
 type
 

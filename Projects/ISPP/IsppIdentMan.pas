@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -118,7 +118,7 @@ const
 
 implementation
 
-uses Windows, Types, IsppTranslate, CParser, IsppParser, IsppVarUtils, IsppConsts,
+uses Windows, Types, IsppPreprocessor, CTokenizer, IsppParser, IsppVarUtils, IsppConsts,
   IsppSessions;
 
 const

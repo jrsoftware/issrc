@@ -1,19 +1,21 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppTranslate.pas,v 1.17 2011/04/08 04:54:45 jr Exp $
+  
+  Inno Setup
+  Copyright (C) 1997-2020 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit IsppTranslate;
+unit IsppPreprocessor;
 
 interface
 
 uses Windows, SysUtils, Classes, CompPreprocInt, IniFiles, Registry, IsppIntf,
-  IsppBase, IsppStacks, IsppIdentMan, IsppParser;
+  IsppBase, IsppStack, IsppIdentMan, IsppParser;
 
 {$I ..\Version.inc}
-
-function GetTempFileName(const Original: string): string;
 
 type
 
@@ -94,6 +96,10 @@ type
     function CheckFile(const FileName: string): Boolean;
     function EmitDestination: TStringList;
     procedure SendMsg(Msg: string; Typ: TIsppMessageType);
+    function GetFileName(Code: Integer): string;
+    function GetLineNumber(Code: Integer): Word;
+    procedure RaiseErrorEx(const Message: string; Column: Integer);
+    procedure ExecProc(Body: TStrings);
   protected
     function GetDefaultScope: TDefineScope;
     procedure SetDefaultScope(Scope: TDefineScope);
@@ -122,21 +128,16 @@ type
     procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);
     procedure StatusMsg(const Msg: string; const Args: array of const);
     procedure WarningMsg(const Msg: string; const Args: array of const);
-    procedure AddLine(const LineRead: string);
-    function GetAll: String;
-    function GetFileName(Code: Integer): string;
-    function GetLineNumber(Code: Integer): Word;
-    function GetNext(var LineFilename: string; var LineNumber: Integer;
+    function GetOutput: String;
+    function GetNextOutputLine(var LineFilename: string; var LineNumber: Integer;
       var LineText: string): Boolean;
+    procedure GetNextOutputLineReset;
     procedure IncludeFile(FileName: string; Builtins, UseIncludePathOnly, ResetCurrentFile: Boolean);
     procedure QueueLine(const LineRead: string);
     function PrependDirName(const FileName, Dir: string): string;
     procedure RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: Longint);
     procedure RaiseError(const Message: string);
-    procedure RaiseErrorEx(const Message: string; Column: Integer);
-    procedure Reset;
     procedure SaveToFile(const FileName: string);
-    procedure ExecProc(Body: TStrings);
     procedure CollectGarbage(Item: Pointer; Proc: TDropGarbageProc);
     procedure UncollectGarbage(Item: Pointer);
     property IncludedFiles: TStringList read FIncludes;
@@ -147,11 +148,9 @@ type
     property VarMan: TIdentManager read FIdentManager;
   end;
 
-function GetEnv (const EnvVar: string): string;
-
 implementation
 
-uses IsppConsts, IsppFuncs, IsppVarUtils, IsppSessions, CParser, PathFunc,
+uses IsppConsts, IsppFuncs, IsppVarUtils, IsppSessions, CTokenizer, PathFunc,
   CmnFunc2, FileClass, Struct;
 
 const
@@ -164,9 +163,9 @@ const
     (#0, '?', #0, #0, #0, #0, #0, '^', '.', ':', #0, '+', #0, #0, #0, #0,
     '=', '%', #0, '!', #0, #0, #0, #0, #0, #0, #0, #0);
 
-function GetEnv (const EnvVar: String): String;
+function GetEnv(const EnvVar: String): String;
 
-  function AdjustLength (var S: String; const Res: Cardinal): Boolean;
+  function AdjustLength(var S: String; const Res: Cardinal): Boolean;
   begin
     Result := Integer(Res) < Length(S);
     SetLength (S, Res);
@@ -175,7 +174,7 @@ function GetEnv (const EnvVar: String): String;
 var
   Res: DWORD;
 begin
-  SetLength (Result, 255);
+  SetLength(Result, 255);
   repeat
     Res := GetEnvironmentVariable(PChar(EnvVar), PChar(Result), Length(Result));
     if Res = 0 then begin
@@ -183,23 +182,6 @@ begin
       Break;
     end;
   until AdjustLength(Result, Res);
-end;
-
-function GetTempFileName(const Original: string): string;
-var
-  Path: string;
-begin
-  SetLength(Path, MAX_PATH);
-  SetLength(Path, GetTempPath(MAX_PATH, PChar(Path)));
-  SetLength(Result, MAX_PATH);
-  if Windows.GetTempFileName(PChar(Path), PChar(UpperCase(Original)), 0, PChar(Result)) <> 0 then
-    SetLength(Result, StrLen(PChar(Result)))
-  else
-    {$IFDEF IS_D7}
-    RaiseLastOSError
-    {$ELSE}
-    RaiseLastWin32Error;
-    {$ENDIF}
 end;
 
 function ParsePreprocCommand(var P: PChar; ExtraTerminator: Char): TPreprocessorCommand;
@@ -274,7 +256,7 @@ begin
   FOutput := TStringList.Create;
   FProcs := TStringList.Create;
   FStack := TConditionalTranslationStack.Create(Self);
-  if VarManager = nil then IsppFuncs.Register(Self);
+  if VarManager = nil then IsppFuncs.RegisterFunctions(Self);
 end;
 
 destructor TPreprocessor.Destroy;
@@ -293,13 +275,7 @@ begin
   FIdentManager._Release;
 end;
 
-procedure TPreprocessor.AddLine(const LineRead: string);
-begin
-  InternalAddLine(LineRead, 0, FMainCounter, False);
-  Inc(FMainCounter, 1);
-end;
-
-function TPreprocessor.GetAll: String;
+function TPreprocessor.GetOutput: String;
 begin
   Result := FOutput.Text;
 end;
@@ -320,7 +296,7 @@ begin
     Result := Word(FOutput.Objects[Code]) and $FFFF
 end;
 
-function TPreprocessor.GetNext(var LineFilename: string; var LineNumber: Integer;
+function TPreprocessor.GetNextOutputLine(var LineFilename: string; var LineNumber: Integer;
   var LineText: string): Boolean;
 begin
   Result := False;
@@ -332,6 +308,11 @@ begin
     Inc(FLinePointer);
     Result := True;
   end;
+end;
+
+procedure TPreprocessor.GetNextOutputLineReset;
+begin
+  FLinePointer := 0;
 end;
 
 procedure TPreprocessor.InternalAddLine(const LineRead: string; FileIndex, LineNo: Word;
@@ -873,6 +854,24 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
   end;
 
   function DoFile(FileName: string): string;
+
+    function GetTempFileName(const Original: string): string;
+    var
+      Path: string;
+    begin
+      SetLength(Path, MAX_PATH);
+      SetLength(Path, GetTempPath(MAX_PATH, PChar(Path)));
+      SetLength(Result, MAX_PATH);
+      if Windows.GetTempFileName(PChar(Path), PChar(UpperCase(Original)), 0, PChar(Result)) <> 0 then
+        SetLength(Result, StrLen(PChar(Result)))
+      else
+        {$IFDEF IS_D7}
+        RaiseLastOSError
+        {$ELSE}
+        RaiseLastWin32Error;
+        {$ENDIF}
+    end;
+
   var
     F: TTextFileReader;
     ALine: string;
@@ -1048,7 +1047,6 @@ begin
   end;
 end;
 
-
 function TPreprocessor.InternalQueueLine(const LineRead: string;
   FileIndex, LineNo: Word; NonISS: Boolean): Integer; //how many just been added
 var
@@ -1084,11 +1082,6 @@ end;
 procedure TPreprocessor.RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: Longint);
 begin
   FIdentManager.DefineFunction(Name, Handler, Ext);
-end;
-
-procedure TPreprocessor.Reset;
-begin
-  FLinePointer := 0;
 end;
 
 procedure TPreprocessor.SaveToFile(const FileName: string);
