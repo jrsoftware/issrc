@@ -50,6 +50,7 @@ type
     Label3: TNewStaticText;
     ThemeComboBox: TComboBox;
     OpenIncludedFilesCheck: TCheckBox;
+    ShowPreprocessorOutputCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
