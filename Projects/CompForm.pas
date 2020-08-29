@@ -565,7 +565,6 @@ function TCompileForm.InitializePreprocessedMemo(const Memo: TCompScintEdit; con
 begin
   InitializeMemo(Memo, PopupMenu);
   Memo.ReadOnly := True;
-  Memo.Used := True;
   Result := Memo;
 end;
 
