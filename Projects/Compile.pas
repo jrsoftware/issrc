@@ -1158,17 +1158,16 @@ begin
   end;
 
   try
+    Output := TStringList.Create;
     IncludeStack := nil;
-    Output := nil;
     try
       IncludeStack := TStringList.Create;
-      Output := TStringList.Create;
       ProcessLines(Params.Filename, 0);
+    finally
       LastBuiltinPreprocOutput := Output.Text;
       Params.PreprocOutput := PChar(LastBuiltinPreprocOutput);
-    finally
-      Output.Free;
       IncludeStack.Free;
+      Output.Free;
     end;
     Result := ispeSuccess;
   except
@@ -9246,7 +9245,6 @@ function ISCompileScript(const Params: TCompileScriptParamsEx;
 var
   SetupCompiler: TSetupCompiler;
   P: PChar;
-  Data: TCompilerCallbackData;
   P2: Integer;
 begin
   if not CheckParams(Params) then begin

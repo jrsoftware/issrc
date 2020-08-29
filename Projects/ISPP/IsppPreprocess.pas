@@ -275,11 +275,11 @@ begin
         while Preprocessor.GetNext(LineFilename, LineNumber, LineText) do
           Params.LineOutProc(Params.CompilerData, PChar(LineFilename),
             LineNumber, PChar(LineText));
-        LastPreprocOutput := Preprocessor.GetAll;
-        Params.PreprocOutput := PChar(LastPreprocOutput);
         Result := ispeSuccess;
       end;
     finally
+      LastPreprocOutput := Preprocessor.GetAll;
+      Params.PreprocOutput := PChar(LastPreprocOutput);
       Preprocessor.Free;
     end;
   except
