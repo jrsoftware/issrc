@@ -374,8 +374,8 @@ type
     procedure InitializeFindText(Dlg: TFindDialog);
     function InitializeFileMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
     function InitializeMainMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
-    function InitializeMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
-    function InitializePreprocessedMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
+    function InitializeMemoBase(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
+    function InitializeNonFileMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure InvalidateStatusPanel(const Index: Integer);
     procedure LoadKnownIncludedFilesAndUpdateMemos(const AFilename: String);
@@ -517,7 +517,7 @@ end;
 
 { TCompileForm }
 
-function TCompileForm.InitializeMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
+function TCompileForm.InitializeMemoBase(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
 begin
   Memo.Align := alClient;
   Memo.AutoCompleteFontName := Font.Name;
@@ -544,7 +544,7 @@ end;
 
 function TCompileForm.InitializeFileMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
 begin
-  InitializeMemo(Memo, PopupMenu);
+  InitializeMemoBase(Memo, PopupMenu);
   Memo.CompilerFileIndex := UnknownCompilerFileIndex;
   Memo.ErrorLine := -1;
   Memo.StepLine := -1;
@@ -561,9 +561,9 @@ begin
   Result := Memo;
 end;
 
-function TCompileForm.InitializePreprocessedMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
+function TCompileForm.InitializeNonFileMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
 begin
-  InitializeMemo(Memo, PopupMenu);
+  InitializeMemoBase(Memo, PopupMenu);
   Memo.ReadOnly := True;
   Result := Memo;
 end;
@@ -705,7 +705,7 @@ begin
   FMemos := TList<TCompScintEdit>.Create;
   FMainMemo := InitializeMainMemo(TCompScintFileEdit.Create(Self), PopupMenu);
   FMemos.Add(FMainMemo);
-  FPreprocessorOutputMemo := InitializePreprocessedMemo(TCompScintEdit.Create(Self), PopupMenu);
+  FPreprocessorOutputMemo := InitializeNonFileMemo(TCompScintEdit.Create(Self), PopupMenu);
   FMemos.Add(FPreprocessorOutputMemo);
   for I := FMemos.Count to MaxMemos-1 do
     FMemos.Add(InitializeFileMemo(TCompScintFileEdit.Create(Self), PopupMenu));
