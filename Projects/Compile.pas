@@ -9219,7 +9219,6 @@ function ISCompileScript(const Params: TCompileScriptParamsEx;
     Data.OutputExeFilename := PChar(SetupCompiler.ExeFilename);
     Data.DebugInfo := SetupCompiler.DebugInfo.Memory;
     Data.DebugInfoSize := SetupCompiler.DebugInfo.Size;
-    Data.PreprocessedScript := PChar(SetupCompiler.PreprocOutput);
     Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
   end;
 
