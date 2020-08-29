@@ -2618,15 +2618,17 @@ begin
     end;
     MemosTabSet.Visible := True;
   end else begin
-    for I := FirstIncludedFilesMemoIndex to FMemos.Count-1 do begin
-      FMemos[I].BreakPoints.Clear;
-      FMemos[I].Used := False;
-      FMemos[I].Visible := False;
+    if MemosTabSet.Visible then begin
+      for I := FirstIncludedFilesMemoIndex to FMemos.Count-1 do begin
+        FMemos[I].BreakPoints.Clear;
+        FMemos[I].Used := False;
+        FMemos[I].Visible := False;
+      end;
+      for IncludedFile in FIncludedFiles do
+        IncludedFile.Memo := nil;
+      MemosTabSet.Visible := False;
+      MemosTabSet.TabIndex := 0; { For next time }
     end;
-    for IncludedFile in FIncludedFiles do
-      IncludedFile.Memo := nil;
-    MemosTabSet.Visible := False;
-    MemosTabSet.TabIndex := 0; { For next time }
   end;
   
   UpdateBevel1;
