@@ -38,7 +38,7 @@ type
   TDebugEntryArray = array[0..0] of TDebugEntry;
   PVariableDebugEntryArray = ^TVariableDebugEntryArray;
   TVariableDebugEntryArray = array[0..0] of TVariableDebugEntry;
-  TStepMode = (smRun, smStepInto, smStepOver, smRunToCursor);
+  TStepMode = (smRun, smStepInto, smStepOver, smStepOut, smRunToCursor);
   TDebugTarget = (dtSetup, dtUninstall);
 
 const
@@ -185,6 +185,7 @@ type
     HMailingList: TMenuItem;
     MemosTabSet: TNewTabSet; { First tab is the main memo, last tab is the preprocessor output memo }
     FSaveAll: TMenuItem;
+    RStepOut: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -272,6 +273,7 @@ type
     procedure TInsertMsgBoxClick(Sender: TObject);
     procedure MemosTabSetClick(Sender: TObject);
     procedure FSaveAllClick(Sender: TObject);
+    procedure RStepOutClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -332,7 +334,7 @@ type
     FLoadingIncludedFiles: Boolean;
     FDebugging: Boolean;
     FStepMode: TStepMode;
-    FPaused: Boolean;
+    FPaused, FPausedAtCodeLine: Boolean;
     FRunToCursorPoint: TDebugEntry;
     FReplyString: String;
     FDebuggerException: String;
@@ -437,7 +439,8 @@ type
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
     procedure WMDebuggerGoodbye(var Message: TMessage); message WM_Debugger_Goodbye;
     procedure WMDebuggerQueryVersion(var Message: TMessage); message WM_Debugger_QueryVersion;
-    procedure GetMemoAndLineNumberFromEntry(Kind, Index: Integer; var Memo: TCompScintFileEdit; var LineNumber: Integer);
+    procedure GetMemoAndDebugEntryFromMessage(Kind, Index: Integer; var Memo: TCompScintFileEdit;
+      var DebugEntry: PDebugEntry);
     procedure DebuggerStepped(var Message: TMessage; const Intermediate: Boolean);
     procedure WMDebuggerStepped(var Message: TMessage); message WM_Debugger_Stepped;
     procedure WMDebuggerSteppedIntermediate(var Message: TMessage); message WM_Debugger_SteppedIntermediate;
@@ -3189,7 +3192,7 @@ begin
   DebuggingStopped(True);
 end;
 
-procedure TCompileForm.GetMemoAndLineNumberFromEntry(Kind, Index: Integer; var Memo: TCompScintFileEdit; var LineNumber: Integer);
+procedure TCompileForm.GetMemoAndDebugEntryFromMessage(Kind, Index: Integer; var Memo: TCompScintFileEdit; var DebugEntry: PDebugEntry);
 
   function GetMemoFromDebugEntryFileIndex(const FileIndex: Integer): TCompScintFileEdit;
   var
@@ -3213,12 +3216,12 @@ begin
   for I := 0 to FDebugEntriesCount-1 do begin
     if (FDebugEntries[I].Kind = Kind) and (FDebugEntries[I].Index = Index) then begin
       Memo := GetMemoFromDebugEntryFileIndex(FDebugEntries[I].FileIndex);
-      LineNumber := FDebugEntries[I].LineNumber;
+      DebugEntry := @FDebugEntries[I];
       Exit;
     end;
   end;
   Memo := nil;
-  LineNumber := -1;
+  DebugEntry := nil;
 end;
 
 procedure TCompileForm.BringToForeground;
@@ -3245,10 +3248,16 @@ end;
 procedure TCompileForm.DebuggerStepped(var Message: TMessage; const Intermediate: Boolean);
 var
   Memo: TCompScintFileEdit;
+  DebugEntry: PDebugEntry;
   LineNumber: Integer;
 begin
-  GetMemoAndLineNumberFromEntry(Message.WParam, Message.LParam, Memo, LineNumber);
-  if (Memo = nil) or (LineNumber < 0) then
+  GetMemoAndDebugEntryFromMessage(Message.WParam, Message.LParam, Memo, DebugEntry);
+  if (Memo = nil) or (DebugEntry = nil) then
+    Exit;
+
+  LineNumber := DebugEntry.LineNumber;
+
+  if LineNumber = -1 then { UninstExe has a DebugEntry but not a line number }
     Exit;
 
   if (LineNumber < Memo.LineStateCount) and
@@ -3257,12 +3266,14 @@ begin
     UpdateLineMarkers(Memo, LineNumber);
   end;
 
-  if (FStepMode = smStepInto) or
-     ((FStepMode = smStepOver) and not Intermediate) or
-     ((FStepMode = smRunToCursor) and
-      (FRunToCursorPoint.Kind = Integer(Message.WParam)) and
-      (FRunToCursorPoint.Index = Message.LParam)) or
-     (Memo.BreakPoints.IndexOf(LineNumber) <> -1) then begin
+  if (FStepMode = smStepOut) and DebugEntry.StepOutMarker then
+    FStepMode := smStepInto { Pause on next line }
+  else if (FStepMode = smStepInto) or
+          ((FStepMode = smStepOver) and not Intermediate) or
+          ((FStepMode = smRunToCursor) and
+          (FRunToCursorPoint.Kind = Integer(Message.WParam)) and
+          (FRunToCursorPoint.Index = Message.LParam)) or
+          (Memo.BreakPoints.IndexOf(LineNumber) <> -1) then begin
     MoveCaretAndActivateMemo(Memo, LineNumber, True);
     HideError;
     SetStepLine(Memo, LineNumber);
@@ -3270,6 +3281,7 @@ begin
     { Tell Setup to pause }
     Message.Result := 1;
     FPaused := True;
+    FPausedAtCodeLine := DebugEntry.Kind = Ord(deCodeLine);
     UpdateRunMenu;
     UpdateCaption;
   end;
@@ -3288,11 +3300,17 @@ end;
 procedure TCompileForm.WMDebuggerException(var Message: TMessage);
 var
   Memo: TCompScintFileEdit;
+  DebugEntry: PDebugEntry;
   LineNumber: Integer;
   S: String;
 begin
   if FOptions.PauseOnDebuggerExceptions then begin
-    GetMemoAndLineNumberFromEntry(Message.WParam, Message.LParam, Memo, LineNumber);
+    GetMemoAndDebugEntryFromMessage(Message.WParam, Message.LParam, Memo, DebugEntry);
+
+    if DebugEntry <> nil then
+      LineNumber := DebugEntry.LineNumber
+    else
+      LineNumber := -1;
 
     if (Memo <> nil) and (LineNumber >= 0) then begin
       MoveCaretAndActivateMemo(Memo, LineNumber, True);
@@ -3304,6 +3322,7 @@ begin
     { Tell Setup to pause }
     Message.Result := 1;
     FPaused := True;
+    FPausedAtCodeLine := False;
     UpdateRunMenu;
     UpdateCaption;
 
@@ -3622,6 +3641,7 @@ begin
   RRunToCursor.Enabled := RRun.Enabled and (FActiveMemo is TCompScintFileEdit);
   RStepInto.Enabled := RRun.Enabled;
   RStepOver.Enabled := RRun.Enabled;
+  RStepOut.Enabled := FPaused;
   RToggleBreakPoint.Enabled := FActiveMemo is TCompScintFileEdit;
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
   TerminateButton.Enabled := RTerminate.Enabled;
@@ -3937,6 +3957,14 @@ end;
 procedure TCompileForm.RStepIntoClick(Sender: TObject);
 begin
   Go(smStepInto);
+end;
+
+procedure TCompileForm.RStepOutClick(Sender: TObject);
+begin
+  if FPausedAtCodeLine then
+    Go(smStepOut)
+  else
+    Go(smStepInto);
 end;
 
 procedure TCompileForm.RStepOverClick(Sender: TObject);

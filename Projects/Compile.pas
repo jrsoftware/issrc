@@ -345,7 +345,7 @@ type
     procedure EnumCodeProc(const Line: PChar; const Ext: Integer);
     procedure ReadCode;
     procedure CodeCompilerOnLineToLineInfo(const Line: LongInt; var Filename: String; var FileLine: LongInt);
-    procedure CodeCompilerOnUsedLine(const Filename: String; const Line, Position: LongInt);
+    procedure CodeCompilerOnUsedLine(const Filename: String; const Line, Position: LongInt; const IsProcExit: Boolean);
     procedure CodeCompilerOnUsedVariable(const Filename: String; const Line, Col, Param1, Param2, Param3: LongInt; const Param4: AnsiString);
     procedure CodeCompilerOnError(const Msg: String; const ErrorFilename: String; const ErrorLine: LongInt);
     procedure CodeCompilerOnWarning(const Msg: String);
@@ -356,7 +356,7 @@ type
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
     procedure Sign(AExeFilename: String);
     procedure SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer; const RunMinimized: Boolean);
-    procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
+    procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer; StepOutMarker: Boolean = False);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
     function CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TList;
@@ -1717,7 +1717,7 @@ begin
   Result := PrevFileIndex;
 end;
 
-procedure TSetupCompiler.WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer);
+procedure TSetupCompiler.WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer; StepOutMarker: Boolean = False);
 var
   Rec: TDebugEntry;
 begin
@@ -1725,6 +1725,7 @@ begin
   Rec.LineNumber := LineNumber;
   Rec.Kind := Ord(Kind);
   Rec.Index := Index;
+  Rec.StepOutMarker := StepOutMarker;
   DebugInfo.WriteBuffer(Rec, SizeOf(Rec));
   Inc(DebugEntryCount);
 end;
@@ -7278,7 +7279,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.CodeCompilerOnUsedLine(const Filename: String; const Line, Position: LongInt);
+procedure TSetupCompiler.CodeCompilerOnUsedLine(const Filename: String; const Line, Position: LongInt; const IsProcExit: Boolean);
 var
   OldLineFilename: String;
   OldLineNumber: Integer;
@@ -7288,7 +7289,7 @@ begin
   try
     LineFilename := Filename;
     LineNumber := Line;
-    WriteDebugEntry(deCodeLine, Position);
+    WriteDebugEntry(deCodeLine, Position, IsProcExit);
   finally
     LineFilename := OldLineFilename;
     LineNumber := OldLineNumber;

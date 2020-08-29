@@ -85,6 +85,7 @@ type
     LineNumber: Integer; { Starts at 1 - decreased by one by the Compiler IDE on receive }
     Kind: Integer;       { TDebugEntryKind }
     Index: Integer;
+    StepOutMarker: Boolean;
   end;
 
   { TVariableDebugEntrys associate [Code] section variable references with line
