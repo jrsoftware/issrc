@@ -410,7 +410,7 @@ type
     function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
     procedure UpdateAllMemosLineMarkers;
-    procedure UpdateBevel1;
+    procedure UpdateBevel1Visibility;
     procedure UpdateCaption;
     procedure UpdateCaretPosPanel;
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
@@ -418,6 +418,7 @@ type
     procedure UpdateEditModePanel;
     procedure UpdateIncludedFilesMemos;
     procedure UpdateLineMarkers(const AMemo: TCompScintEdit; const Line: Integer);
+    procedure UpdateMemosTabSetVisibility;
     procedure UpdateModifiedPanel;
     procedure UpdateNewMainFileButtons;
     procedure UpdateTabSetListsItemHeightAndDebugTimeWidth;
@@ -2571,6 +2572,13 @@ begin
     StatusBar.Panels[spEditMode].Text := InsertText[FActiveMemo.InsertMode];
 end;
 
+procedure TCompileForm.UpdateMemosTabSetVisibility;
+begin
+  MemosTabSet.Visible := FMemos[FirstIncludedFilesMemoIndex].Used;
+  if not MemosTabSet.Visible then
+    MemosTabSet.TabIndex := 0; { For next time }
+end;
+
 procedure TCompileForm.UpdateModifiedPanel;
 begin
   if FActiveMemo.Modified then
@@ -2648,22 +2656,18 @@ begin
       NewHints.Free;
       NewTabs.Free;
     end;
-    MemosTabSet.Visible := True;
   end else begin
-    if MemosTabSet.Visible then begin
-      for I := FirstIncludedFilesMemoIndex to FMemos.Count-1 do begin
-        FMemos[I].BreakPoints.Clear;
-        FMemos[I].Used := False;
-        FMemos[I].Visible := False;
-      end;
-      for IncludedFile in FIncludedFiles do
-        IncludedFile.Memo := nil;
-      MemosTabSet.Visible := False;
-      MemosTabSet.TabIndex := 0; { For next time }
+    for I := FirstIncludedFilesMemoIndex to FMemos.Count-1 do begin
+      FMemos[I].BreakPoints.Clear;
+      FMemos[I].Used := False;
+      FMemos[I].Visible := False;
     end;
+    for IncludedFile in FIncludedFiles do
+      IncludedFile.Memo := nil;
   end;
-  
-  UpdateBevel1;
+
+  UpdateMemosTabSetVisibility;
+  UpdateBevel1Visibility;
 end;
 
 procedure TCompileForm.MemoUpdateUI(Sender: TObject);
@@ -3604,7 +3608,7 @@ begin
     ToolBarVirtualImageList.ImageCollection := DarkToolBarImageCollection
   else
     ToolBarVirtualImageList.ImageCollection := LightToolBarImageCollection;
-  UpdateBevel1;
+  UpdateBevel1Visibility;
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
   if FTheme.Dark then begin
@@ -4436,7 +4440,7 @@ begin
         UpdateLineMarkers(Memo, Line);
 end;
 
-procedure TCompileForm.UpdateBevel1;
+procedure TCompileForm.UpdateBevel1Visibility;
 begin
   Bevel1.Visible := (FTheme.Colors[tcMarginBack] = ToolBarPanel.Color) and not MemosTabSet.Visible;
 end;
