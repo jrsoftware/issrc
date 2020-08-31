@@ -186,6 +186,9 @@ type
     MemosTabSet: TNewTabSet; { First tab is the main memo, last tab is the preprocessor output memo }
     FSaveAll: TMenuItem;
     RStepOut: TMenuItem;
+    VNextTab: TMenuItem;
+    VPreviousTab: TMenuItem;
+    N20: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -274,6 +277,9 @@ type
     procedure MemosTabSetClick(Sender: TObject);
     procedure FSaveAllClick(Sender: TObject);
     procedure RStepOutClick(Sender: TObject);
+    procedure TMenuClick(Sender: TObject);
+    procedure VNextTabClick(Sender: TObject);
+    procedure VPreviousTabClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -1833,10 +1839,32 @@ begin
   VZoomReset.Enabled := (FActiveMemo.Zoom <> 0);
   VToolbar.Checked := Toolbar.Visible;
   VStatusBar.Checked := StatusBar.Visible;
+  VNextTab.Enabled := MemosTabSet.Visible and (MemosTabSet.Tabs.Count > 1);
+  VPreviousTab.Enabled := VNextTab.Enabled;
   VHide.Checked := not StatusPanel.Visible;
   VCompilerOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiCompilerOutput);
   VDebugOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugOutput);
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
+end;
+
+procedure TCompileForm.VNextTabClick(Sender: TObject);
+var
+  NewTabIndex: Integer;
+begin
+  NewTabIndex := MemosTabSet.TabIndex+1;
+  if NewTabIndex >= MemosTabSet.Tabs.Count then
+    NewTabIndex := 0;
+  MemosTabSet.TabIndex := NewTabIndex;
+end;
+
+procedure TCompileForm.VPreviousTabClick(Sender: TObject);
+var
+  NewTabIndex: Integer;
+begin
+  NewTabIndex := MemosTabSet.TabIndex-1;
+  if NewTabIndex < 0 then
+    NewTabIndex := MemosTabSet.Tabs.Count-1;
+  MemosTabSet.TabIndex := NewTabIndex;
 end;
 
 procedure TCompileForm.SyncZoom;
@@ -2349,6 +2377,15 @@ begin
       SplitPanel.ClientToScreen(Point(0, Y)).Y +
       BodyPanel.ClientHeight - (SplitPanel.Height div 2));
   end;
+end;
+
+procedure TCompileForm.TMenuClick(Sender: TObject);
+var
+  MemoIsReadOnly: Boolean;
+begin
+  MemoIsReadOnly := FActiveMemo.ReadOnly;
+  TGenerateGUID.Enabled := not MemoIsReadOnly;
+  TInsertMsgBox.Enabled := not MemoIsReadOnly;
 end;
 
 procedure TCompileForm.TAddRemoveProgramsClick(Sender: TObject);

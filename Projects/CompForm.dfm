@@ -468,6 +468,19 @@ object CompileForm: TCompileForm
       object N11: TMenuItem
         Caption = '-'
       end
+      object VNextTab: TMenuItem
+        Caption = '&Next Tab'
+        ShortCut = 16393
+        OnClick = VNextTabClick
+      end
+      object VPreviousTab: TMenuItem
+        Caption = '&Previous Tab'
+        ShortCut = 24585
+        OnClick = VPreviousTabClick
+      end
+      object N20: TMenuItem
+        Caption = '-'
+      end
       object VCompilerOutput: TMenuItem
         Caption = '&Compiler Output'
         RadioItem = True
@@ -597,6 +610,7 @@ object CompileForm: TCompileForm
     end
     object TMenu: TMenuItem
       Caption = '&Tools'
+      OnClick = TMenuClick
       object TAddRemovePrograms: TMenuItem
         Caption = '&Add/Remove Programs'
         OnClick = TAddRemoveProgramsClick
