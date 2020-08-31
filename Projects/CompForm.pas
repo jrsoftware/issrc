@@ -3322,7 +3322,7 @@ begin
     { Tell Setup to pause }
     Message.Result := 1;
     FPaused := True;
-    FPausedAtCodeLine := False;
+    FPausedAtCodeLine := (DebugEntry <> nil) and (DebugEntry.Kind = Ord(deCodeLine));
     UpdateRunMenu;
     UpdateCaption;
 
