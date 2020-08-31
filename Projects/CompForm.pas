@@ -2175,6 +2175,7 @@ end;
 
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
 
+  { Also see MemoToTabIndex }
   function TabIndexToMemoIndex(const TabIndex, MaxTabIndex: Integer): Integer;
   begin
     if TabIndex = 0 then
@@ -2184,6 +2185,7 @@ procedure TCompileForm.MemosTabSetClick(Sender: TObject);
     else
       Result := TabIndex+1; { Other tabs display include files which start second tab but at FMemos[2] }
   end;
+
 var
   Memo: TCompScintEdit;
   TabIndex, MaxTabIndex: Integer;
@@ -2510,6 +2512,20 @@ end;
 
 procedure TCompileForm.MoveCaretAndActivateMemo(const AMemo: TCompScintEdit; const LineNumber: Integer;
   const AlwaysResetColumn: Boolean);
+
+  { Also see TabIndexToMemoIndex }
+  function MemoToTabIndex(const AMemo: TCompScintEdit): Integer;
+  begin
+    if AMemo = FMainMemo then
+      Result := 0 { First tab displays the main memo  }
+    else if AMemo = FPreprocessorOutputMemo then begin
+      if not FPreprocessorOutputMemo.Used then
+        raise Exception.Create('not FPreprocessorOutputMemo.Used');
+      Result := MemosTabSet.Tabs.Count-1 { Last tab displays the preprocessor output memo }
+    end else
+      Result := FFileMemos.IndexOf(AMemo as TCompScintFileEdit) { Other tabs display include files which start second tab }
+  end;
+
 var
   Pos: Integer;
 begin
@@ -2527,7 +2543,7 @@ begin
   AMemo.CaretPosition := Pos;
 
   { Activate memo }
-  MemosTabSet.TabIndex := FMemos.IndexOf(AMemo);
+  MemosTabSet.TabIndex := MemoToTabIndex(AMemo);
 end;
 
 procedure TCompileForm.SetErrorLine(const AMemo: TCompScintFileEdit; const ALine: Integer);
