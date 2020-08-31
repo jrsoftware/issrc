@@ -547,6 +547,11 @@ object CompileForm: TCompileForm
         ShortCut = 119
         OnClick = RStepOverClick
       end
+      object RStepOut: TMenuItem
+        Caption = 'Step Out'
+        ShortCut = 8311
+        OnClick = RStepOutClick
+      end
       object RToggleBreakPoint: TMenuItem
         Caption = 'Toggle &Breakpoint'
         ShortCut = 116

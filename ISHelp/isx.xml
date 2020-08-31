@@ -731,17 +731,22 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 
 <dt><i>Run To Cursor</i> (F4)</dt>
 <dd>
-<p>Runs or unpauses Setup until it reaches the line of the cursor, then pauses.</p>
+<p>Runs or unpauses Setup until it reaches the line of the cursor, then pauses it.</p>
 </dd>
 
 <dt><i>Step Into</i> (F7)</dt>
 <dd>
-<p>Runs or unpauses Setup until it reaches the next line, then pauses. By continually pressing F7 you can follow the entire execution flow of Setup.</p>
+<p>Runs or unpauses Setup until it reaches the next line, then pauses it. By continually pressing F7 you can follow the entire execution flow of Setup.</p>
 </dd>
 
 <dt><i>Step Over</i> (F8)</dt>
 <dd>
-<p>Runs or unpauses Setup until it reaches the next line, then pauses. Lines inside functions calls are skipped.</p>
+<p>Runs or unpauses Setup until it reaches the next line, then pauses it. Lines inside functions calls are skipped.</p>
+</dd>
+
+<dt><i>Step Out</i> (Shift+F8)</dt>
+<dd>
+<p>Unpauses Setup until it reaches the end of the current function, then pauses it on the next line.</p>
 </dd>
 
 <dt><i>Toggle Breakpoint</i> (F5)</dt>
@@ -762,7 +767,7 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 
 <p>Lines which can be paused on are marked by a gray square in the gutter. The square turns green the first time Setup reaches the line.</p>
 
-<p>Besides lines in the Pascal script, lines in some other sections can also be paused on, again shown by a gray square in the gutter. For example, toggling a breakpoint on a line in the [Files] section will pause Setup when that file is about to be processed.</p>
+<p>Besides lines in the Pascal script, lines in some other sections can also be paused on, again shown by a gray square in the gutter. For example, toggling a breakpoint on a line in the [Files] section will pause Setup when that file is about to be processed. On such lines <i>Step Over</i> and <i>Step Out</i> both act as <i>Step Into</i>.</p>
 
 </body>
 </topic>
