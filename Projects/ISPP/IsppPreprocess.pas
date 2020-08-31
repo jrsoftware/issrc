@@ -276,6 +276,7 @@ begin
         Result := ispeSilentAbort
       else
       begin
+        Preprocessor.GetNextOutputLineReset;
         while Preprocessor.GetNextOutputLine(LineFilename, LineNumber, LineText) do
           Params.LineOutProc(Params.CompilerData, PChar(LineFilename),
             LineNumber, PChar(LineText));
