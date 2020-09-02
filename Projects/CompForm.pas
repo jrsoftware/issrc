@@ -11,7 +11,8 @@ unit CompForm;
 
 {x$DEFINE STATICCOMPILER}
 { For debugging purposes, remove the 'x' to have it link the compiler code
-  into this program and not depend on ISCmplr.dll. }
+  into this program and not depend on ISCmplr.dll. Also see Compile's
+  STATICPREPROC. }
 
 {$I VERSION.INC}
 
@@ -1408,7 +1409,7 @@ begin
         end;
       iscbNotifyPreproc:
         begin
-          Form.FPreprocessorOutput := Trim(Data.PreprocessedScript);
+          Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
           Form.SaveKnownIncludedFiles(Filename);
         end;
@@ -2669,7 +2670,7 @@ procedure TCompileForm.UpdatePreprocMemos;
   procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList);
   begin
     if FOptions.ShowPreprocessorOutput and (FPreprocessorOutput <> '') and
-       not SameText(Trim(FMainMemo.Lines.Text), FPreprocessorOutput) then begin
+       not SameText(TrimRight(FMainMemo.Lines.Text), FPreprocessorOutput) then begin
       NewTabs.Add('Preprocessor Output');
       NewHints.Add('');
       FPreprocessorOutputMemo.ReadOnly := False;

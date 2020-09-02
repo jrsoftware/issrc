@@ -12,10 +12,7 @@ unit Compile;
 {x$DEFINE STATICPREPROC}
 { For debugging purposes, remove the 'x' to have it link the ISPP code
   into this program and not depend on ISPP.dll. Most useful when combined
-  with CompForm's STATICCOMPILER. Note: the ISPP source doesn't support
-  Delphi 3 which is normally used for the ANSI compiler, and the IS source
-  code doesn't support Delphi 7 which is normally used for ANSI ISPP. So
-  use Unicode. }
+  with CompForm's STATICCOMPILER. }
 
 {$I VERSION.INC}
 

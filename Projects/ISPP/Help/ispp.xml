@@ -27,8 +27,8 @@
  <!ENTITY endsub  '<synel><link href="sub">endsub</link></synel>'>
  <!ENTITY for     '<synel><link href="for">for</link></synel>'>
  <!ENTITY expr    '<synel>expr</synel>'> <!-- not a directive -->
- <!ENTITY curtrans '<link href="current-translation" popup="yes">current translation</link>'>
- <!ENTITY translation '<link href="translation" popup="yes">translation</link>'>
+ <!ENTITY curtrans '<link href="current-translation" popup="yes">current preprocessor output</link>'>
+ <!ENTITY translation '<link href="translation" popup="yes">preprocessor output</link>'>
  <!ENTITY builtins '<link href="builtinsiss">ISPPBuiltins.iss</link>'>
  <!ENTITY dash "&#8211;">
 ]>
@@ -355,7 +355,7 @@
 				<description>
 					<para>Changes the insertion point. By default, each processed line is added to the end of the &translation;. Using &insert; the point at which the next processed line will be added to the &translation; can be changed. &insert; takes an expression which must evaluate to an integer. The insertion point will be set to this integer.</para>
 					<para>The insertion point is also always automatically incremented each time after a line has been added to the &translation;, so that each new line is inserted after the one previously inserted.</para>
-					<para>It is not recommended to use script generating functions (such as <synel><link href="SetSetupSetting">SetSetupSetting</link></synel>) which may insert a line by themselves, thus shifting a part of the translation one line down, whereas insertion point is not updated. This may result in different insertion point than expected.</para>
+					<para>It is not recommended to use script generating functions (such as <synel><link href="SetSetupSetting">SetSetupSetting</link></synel>) which may insert a line by themselves, thus shifting a part of the &translation; one line down, whereas insertion point is not updated. This may result in different insertion point than expected.</para>
 					<para>The <synel><link href="find">Find</link></synel> function can be used to produce values for the &insert; directive.</para>
 				</description>
 				<section title="Examples">
@@ -524,7 +524,7 @@
 					</define>
 				</syntax>
 				<description>
-					<para>&sub; and &endsub; directives are used to declare a user defined procedure which is a portion of script which may be included later once or several times. You may think of a user defined procedure as being similar to an external file, and a call to a user defined procedure as being similar to inclusion of an external file, except that procedures may also be called from within expressions. Please note that it is strongly not recommended to call procedures which emit several lines to &translation; from within compound expressions or directives.</para>
+					<para>&sub; and &endsub; directives are used to declare a user defined procedure which is a portion of script which may be included later once or several times. You may think of a user defined procedure as being similar to an external file, and a call to a user defined procedure as being similar to inclusion of an external file, except that procedures may also be called from within expressions. Please note that it is strongly not recommended to call procedures which emit several lines to the &translation; from within compound expressions or directives.</para>
 					<para>A procedure is called by simply specifying its identifier, with which it was declared.</para>
 					<para>A procedure is not processed in any way until it is called, so if any errors exist in its body, they will only pop up when the procedure is called.</para>
 				</description>
@@ -615,7 +615,7 @@ The list of options is provided at the end of this topic.</para>
 				<section title="ISPP options">
 					<table>
 						<tr><td>c</td><td>Indicates that the &translation; should be sent to the compiler after preprocessing is done. Default state: on.</td></tr>
-						<tr><td>e</td><td>Specifies whether empty lines from the source should be emitted to the &translation;, as well as lines with ISPP directives should be replaced with empty lines. Default state: on.</td></tr>
+						<tr><td>e</td><td>Specifies whether empty lines or lines with only whitespace should be emitted to the &translation;. Default state: on.</td></tr>
 						<tr><td>v</td><td>Turns on/off the verbose mode. Default state: off.</td></tr>
 					</table>
 				</section>
@@ -871,7 +871,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> Find(<b>int</b> 1, <b>str</b> 2, <b>int</b>? 3, <b>str</b>? 4, <b>int</b>? 5, <b>str</b>? 6, <b>int</b>? 7)</line></pre>
 				</section>
 				<description>
-					<para>Intended to be used with &insert; directive: returns the index of the line in a &translation; depending on specified criteria.</para>
+					<para>Intended to be used with &insert; directive: returns the index of the line in the &translation; depending on specified criteria.</para>
 					<para>First parameter denotes the index of the line to start the search from, usually it is set to zero.</para>
 					<para>Second, fourth, and sixth parameters should specify string(s) to search within each line. Only the second parameter must be specified, whereas fourth and sixth may be omitted.</para>
 					<para>Third, fifth, and seventh parameters should specify the search flags for each string meaning that third parameter specifies flags for second, fifth for fourth, and seventh for sixth.</para>
@@ -1823,18 +1823,29 @@ The list of options is provided at the end of this topic.</para>
 				<para>Void is compatible with integer and string in expressions. For example, you can use addition operator with void and integer operands, in this case void operand will be treated as zero. In conjunction with string, void operand is treated as an empty string.</para>
 			</section>
 			<section title="Comments">
-				<para>Comments may be embedded in expression by using a slash and an asterisk. For example:</para>
+				<para>Comments may be embedded in an expression by using a slash and an asterisk. For example:</para>
 				<pre>
-					<line>#emit Var1 /* this is a comment */ + Var2 /* this is a comment */</line>
+					<line>#emit Var1 /* this is a comment */ + Var2 /* this is also a comment */</line>
 				</pre>
-				<para>Also, one line comments are supported. Those comments must begin with a semicolon. Whole text after the semicolon up to the end of a line is considered comment.</para>
+				<para>Comments may also be placed at the end of an expression by using a semicolon or two slashes. For example:</para>
 				<pre>
 					<line>#emit Var1 + Var2 ; this is a comment</line>
+					<line>#emit Var1 + Var2 // this is also comment</line>
 				</pre>
-				<para>Please note that line spanning feature is triggered before any further processing, thus a comment may occupy more than one line:</para>
+				<para>Please note that line spanning feature is triggered before any further processing, so this is also a valid comment:</para>
 				<pre>
 					<line>#emit Var1 + Var2 ; this is &bs;</line>
-					<line>&dsp;a comment</line>
+					<line>&dsp;still a comment</line>
+				</pre>
+        <para>Comments may also be placed anywhere by starting a line with two slashes. For example:</para>
+				<pre>
+					<line>// This is a comment</line>
+				</pre>
+        <para>All of the comments listed above are not included in the &translation;, unlike (non ISPP) comments using a semicolon at the start of a line. For example:</para>
+				<pre>
+					<line>#emit Var1 + Var2 ; this comment is not included</line>
+					<line>// This comment is not included</line>
+          <line>; This comment IS included</line>
 				</pre>
 			</section>
 			<section title="Extended User Defined Function Call Syntax">
@@ -1897,7 +1908,7 @@ The list of options is provided at the end of this topic.</para>
 					<tr><td><code>__COUNTER__</code></td><td><code><b>int</b></code>. Automatically increments each time it is used (afterwards).</td></tr>
 					<tr><td><code>__FILE__</code></td><td><code><b>str</b></code>. Returns the name of the current file. Empty string for the root file.</td></tr>
 					<tr><td><code>__INCLUDE__</code></td><td><code><b>str</b></code>. Returns the current include path (or paths delimited with semicolons) set via <code>#pragma include</code>.</td></tr>
-					<tr><td><code>__LINE__</code></td><td><code><b>int</b></code>. Returns the number of the line in the current file (not a &translation;) on which the variable is used (or user defined function that uses this variable is called).</td></tr>
+					<tr><td><code>__LINE__</code></td><td><code><b>int</b></code>. Returns the number of the line in the current file.</td></tr>
 					<tr><td><code>__OPT_X__</code></td><td><code><b>void</b></code>. Defined if specified option set via <code>#pragma option -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z." Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
 					<tr><td><code>__PATHFILENAME__</code></td><td><code><b>str</b></code>. Similar to __FILE__, but returns the full pathname of the file. Empty string for the root file.</td></tr>
 					<tr><td><code>__POPT_X__</code></td><td><code><b>void</b></code>. Defined if specified parser option set via <code>#pragma parseroption -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z." Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
@@ -1987,15 +1998,15 @@ The list of options is provided at the end of this topic.</para>
 			</description>
 		</topic>
 		<topic id="translation" popup="yes">
-			<title>Translation</title>
+			<title>Preprocessor output</title>
 			<description header="no">
-				<para>Translation refers to the preprocessed script.</para>
+				<para>Preprocessor output refers to the preprocessed version of the script.</para>
 			</description>
 		</topic>
 		<topic id="current-translation" popup="yes">
-			<title>Current translation</title>
+			<title>Current preprocessor output</title>
 			<description header="no">
-				<para>Current <link href="translation" popup="yes">translation</link> refers to current output of ISPP, the translated (preprocessed) part of the script up to the point (or line) which ISPP is currently processing.</para>
+				<para>Current preprocessor output refers to the &translation; up to the line which ISPP is currently processing.</para>
 			</description>
 		</topic>
 		<!--topic id="tricks">

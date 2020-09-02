@@ -392,11 +392,11 @@ begin
         if not FInProcBody and not FStack.Include then
           IncludeLine := False
         else
-          if (P^ = '/') and (P[1] = '/') or (P^ = #0) and not
-            (optEmitEmptyLines in FOptions.Options) then
+          if ((P^ = '/') and (P[1] = '/')) or
+             ((P^ = #0) and not (optEmitEmptyLines in FOptions.Options)) then //P^ is #0 if the line was all whitespace
             IncludeLine := False
           else
-            if (P^ <> ';') and not FInProcBody then
+            if (P^ <> #0) and (P^ <> ';') and not FInProcBody then
               S := PChar(ProcessInlineDirectives(P1))
             else
               S := P1;
