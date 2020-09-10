@@ -2670,7 +2670,7 @@ procedure TCompileForm.UpdatePreprocMemos;
   procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList);
   begin
     if FOptions.ShowPreprocessorOutput and (FPreprocessorOutput <> '') and
-       not SameText(TrimRight(FMainMemo.Lines.Text), FPreprocessorOutput) then begin
+       not SameStr(TrimRight(FMainMemo.Lines.Text), FPreprocessorOutput) then begin
       NewTabs.Add('Preprocessor Output');
       NewHints.Add('');
       FPreprocessorOutputMemo.ReadOnly := False;
