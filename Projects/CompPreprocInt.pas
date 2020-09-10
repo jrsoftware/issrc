@@ -103,7 +103,6 @@ type
                                          ErrorProc with a description of the
                                          error.}
 
-    PreprocOutput: PChar;              { [out] Full preprocessor output. }
     PreprocCleanupProc: TPreprocCleanupProc;
                                        { [out] Preprocessor-defined function
                                          that, if set, is called after

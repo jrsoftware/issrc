@@ -128,7 +128,6 @@ type
     procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);
     procedure StatusMsg(const Msg: string; const Args: array of const);
     procedure WarningMsg(const Msg: string; const Args: array of const);
-    function GetOutput: String;
     function GetNextOutputLine(var LineFilename: string; var LineNumber: Integer;
       var LineText: string): Boolean;
     procedure GetNextOutputLineReset;
@@ -273,11 +272,6 @@ begin
   FFileStack.Free;
   FIdentManager.EndLocal;
   FIdentManager._Release;
-end;
-
-function TPreprocessor.GetOutput: String;
-begin
-  Result := FOutput.Text;
 end;
 
 function TPreprocessor.GetFileName(Code: Integer): string;

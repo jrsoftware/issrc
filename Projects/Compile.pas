@@ -145,6 +145,7 @@ type
     FLines: TLowFragList;
     function Get(Index: Integer): PScriptFileLine;
     function GetCount: Integer;
+    function GetText: String;
   public
     constructor Create;
     destructor Destroy; override;
@@ -152,6 +153,7 @@ type
       const LineText: String);
     property Count: Integer read GetCount;
     property Lines[Index: Integer]: PScriptFileLine read Get; default;
+    property Text: String read GetText;
   end;
 
   TCheckOrInstallKind = (cikCheck, cikDirectiveCheck, cikInstall);
@@ -1045,17 +1047,45 @@ begin
   Result := FLines.Count;
 end;
 
+function TScriptFileLines.GetText: String;
+var
+  I, L, Size, Count: Integer;
+  P: PChar;
+  S, LB: string;
+begin
+  Count := GetCount;
+  Size := 0;
+  LB := sLineBreak;
+  for I := 0 to Count-1 do
+    Inc(Size, Length(Get(I).LineText) + Length(LB));
+  Dec(Size, Length(LB));
+  SetString(Result, nil, Size);
+  P := Pointer(Result);
+  for I := 0 to Count-1 do begin
+    S := Get(I).LineText;
+    L := Length(S);
+    if L <> 0 then begin
+      System.Move(Pointer(S)^, P^, L * SizeOf(Char));
+      Inc(P, L);
+    end;
+    if I < Count-1 then begin
+      L := Length(LB);
+      if L <> 0 then begin
+        System.Move(Pointer(LB)^, P^, L * SizeOf(Char));
+        Inc(P, L);
+      end;
+    end;
+  end;
+end;
+
 { Built-in preprocessor }
 
 type
   EBuiltinPreprocessScriptError = class(Exception);
 
-var
-  LastBuiltinPreprocOutput: String;
-
 function BuiltinPreprocessScript(var Params: TPreprocessScriptParams): Integer; stdcall;
 var
-  Output, IncludeStack: TStringList;
+  IncludeStack: TStringList;
 
   procedure RaiseError(const LineFilename: String; const LineNumber: Integer;
     const Msg: String);
@@ -1137,11 +1167,9 @@ var
       SkipWhitespace(L);
       if L^ = '#' then
         ProcessDirective(Filename, I + 1, L + 1)
-      else begin
+      else
         Params.LineOutProc(Params.CompilerData, PChar(Filename), I + 1,
           LineText);
-        Output.Add(LineText);
-      end;
       Inc(I);
     end;
     IncludeStack.Delete(IncludeStack.Count-1);
@@ -1155,16 +1183,12 @@ begin
   end;
 
   try
-    Output := TStringList.Create;
     IncludeStack := nil;
     try
       IncludeStack := TStringList.Create;
       ProcessLines(Params.Filename, 0);
     finally
-      LastBuiltinPreprocOutput := Output.Text;
-      Params.PreprocOutput := PChar(LastBuiltinPreprocOutput);
       IncludeStack.Free;
-      Output.Free;
     end;
     Result := ispeSuccess;
   except
@@ -2085,7 +2109,7 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
           AddStatus(SCompilerStatusPreprocessing);
         ResultCode := PreProc(Params);
         if Filename = '' then begin
-          PreprocOutput := Params.PreprocOutput;
+          PreprocOutput := Data.Outlines.Text;
           { Defer cleanup of main script until after compilation }
           PreprocCleanupProcData := Params.PreprocCleanupProcData;
           PreprocCleanupProc := Params.PreprocCleanupProc;
