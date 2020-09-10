@@ -438,6 +438,7 @@ type
     procedure UpdateNewMainFileButtons;
     procedure UpdateTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
+    procedure UpdateSaveMenuItemAndButton;
     procedure UpdateTargetMenu;
     procedure UpdateTheme;
     procedure UpdateThemeData(const Close, Open: Boolean);
@@ -1683,11 +1684,10 @@ procedure TCompileForm.FMenuClick(Sender: TObject);
 var
   I: Integer;
 begin
-  FSave.Enabled := FActiveMemo is TCompScintFileEdit;
   FSaveMainFileAs.Enabled := FActiveMemo = FMainMemo;
-  FSaveEncoding.Enabled := FSave.Enabled;
-  FSaveEncodingAuto.Checked := FSave.Enabled and not TCompScintFileEdit(FActiveMemo).SaveInUTF8Encoding;
-  FSaveEncodingUTF8.Checked := FSave.Enabled and TCompScintFileEdit(FActiveMemo).SaveInUTF8Encoding;
+  FSaveEncoding.Enabled := FSave.Enabled; { FSave.Enabled is kept up-to-date by UpdateSaveMenuItemAndButton }
+  FSaveEncodingAuto.Checked := FSaveEncoding.Enabled and not (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding;
+  FSaveEncodingUTF8.Checked := FSaveEncoding.Enabled and (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding;
   FSaveAll.Visible := FOptions.OpenIncludedFiles;
   ReadMRUMainFilesList;
   FMRUMainFilesSep.Visible := FMRUMainFilesList.Count <> 0;
@@ -1738,12 +1738,12 @@ end;
 
 procedure TCompileForm.FSaveClick(Sender: TObject);
 begin
-  SaveFile(TCompScintFileEdit(FActiveMemo), Sender = FSaveMainFileAs);
+  SaveFile((FActiveMemo as TCompScintFileEdit), Sender = FSaveMainFileAs);
 end;
 
 procedure TCompileForm.FSaveEncodingItemClick(Sender: TObject);
 begin
-  TCompScintFileEdit(FActiveMemo).SaveInUTF8Encoding := (Sender = FSaveEncodingUTF8);
+  (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding := (Sender = FSaveEncodingUTF8);
 end;
 
 procedure TCompileForm.FSaveAllClick(Sender: TObject);
@@ -2233,6 +2233,7 @@ begin
       ActiveControl := Memo;
     end;
   end;
+  UpdateSaveMenuItemAndButton;
   UpdateRunMenu;
   UpdateCaretPosPanel;
   UpdateEditModePanel;
@@ -3159,7 +3160,7 @@ begin
     I := FActiveMemo.GetWordStartPosition(Pos + 1, True);
     J := FActiveMemo.GetWordEndPosition(Pos, True);
     if J > I then begin
-      DebugEntry := GetCodeVariableDebugEntryFromFileLineCol(TCompScintFileEdit(FActiveMemo).CompilerFileIndex,
+      DebugEntry := GetCodeVariableDebugEntryFromFileLineCol((FActiveMemo as TCompScintFileEdit).CompilerFileIndex,
         Line, GetCodeColumnFromPosition(I));
       if DebugEntry <> nil then begin
         case EvaluateVariableEntry(DebugEntry, Output) of
@@ -3702,6 +3703,12 @@ begin
   REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
 end;
 
+procedure TCompileForm.UpdateSaveMenuItemAndButton;
+begin
+  FSave.Enabled := FActiveMemo is TCompScintFileEdit;
+  SaveButton.Enabled := FSave.Enabled;
+end;
+
 procedure TCompileForm.UpdateTargetMenu;
 begin
   if FDebugTarget = dtSetup then begin
@@ -4000,7 +4007,7 @@ procedure TCompileForm.RRunToCursorClick(Sender: TObject);
 
 begin
   CompileIfNecessary;
-  if not GetDebugEntryFromMemoAndLineNumber(TCompScintFileEdit(FActiveMemo), FActiveMemo.CaretLine, FRunToCursorPoint) then begin
+  if not GetDebugEntryFromMemoAndLineNumber((FActiveMemo as TCompScintFileEdit), FActiveMemo.CaretLine, FRunToCursorPoint) then begin
     MsgBox('No code was generated for the current line.', SCompilerFormCaption,
       mbError, MB_OK);
     Exit;
@@ -4404,7 +4411,7 @@ var
   Memo: TCompScintFileEdit;
   I: Integer;
 begin
-  Memo := TCompScintFileEdit(FActiveMemo);
+  Memo := FActiveMemo as TCompScintFileEdit;
   I := Memo.BreakPoints.IndexOf(Line);
   if I = -1 then
     Memo.BreakPoints.Add(Line)
