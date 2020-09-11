@@ -1183,9 +1183,8 @@ begin
   end;
 
   try
-    IncludeStack := nil;
+    IncludeStack := TStringList.Create;
     try
-      IncludeStack := TStringList.Create;
       ProcessLines(Params.Filename, 0);
     finally
       IncludeStack.Free;
