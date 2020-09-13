@@ -27,6 +27,7 @@ echo.
 cd /d %~dp0
 
 if "%1%"=="setup" goto setup
+if not "%1%"=="" goto failed
 
 cd projects\ispp\help
 if errorlevel 1 goto failed
