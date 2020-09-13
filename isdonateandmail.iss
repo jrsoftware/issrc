@@ -1,6 +1,6 @@
-; -- IsDonateAndMail.iss --
-; Include file which adds donate and subscribe buttons to Setup
-
+// -- IsDonateAndMail.iss --
+// Include file which adds donate and subscribe buttons to Setup
+//
 [Files]
 Source: "isdonate.bmp"; Flags: dontcopy
 Source: "ismail.bmp"; Flags: dontcopy
