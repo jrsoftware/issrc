@@ -725,7 +725,7 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 <keyword value="Pascal Scripting: Debugging" />
 <keyword value="Debugging" />
 <body>
-<p>The Compiler IDE contains an integrated run-time debugger to debug your custom Pascal script, accessed via the <i>Run</i> menu. This debugger works very much like debuggers in other IDE's and uses the following menu items:</p>
+<p>The Setup Compiler contains an integrated run-time debugger to debug your custom Pascal script, accessed via the <i>Run</i> menu. This debugger works very much like debuggers in other IDE's and uses the following menu items:</p>
 
 <dl>
 
