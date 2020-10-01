@@ -70,6 +70,7 @@
     <contentstopic title="Uninstaller Command Line Parameters" topic="uninstcmdline" />
     <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
+    <contentstopic title="Compiler IDE keyboard commands" topic="compformshortcuts" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />
     <contentstopic title="Frequently Asked Questions" topic="faq" />
@@ -250,6 +251,7 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 <link topic="uninstalldeletesection">[UninstallDelete] section</link><br/>
 <link topic="runsection">[UninstallRun] section</link><br/>
 <link topic="scriptintro">Pascal Scripting: Introduction</link>
+<link topic="compformshortcuts">Compiler IDE keyboard commands</link>
 </p>
 
 </body>
@@ -3093,6 +3095,98 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>The Inno Setup backup website can be found at <extlink href="http://www.innosetup.nl/">www.innosetup.nl</extlink>. Normally this link will simply redirect you to the main website at <extlink href="https://jrsoftware.org/">jrsoftware.org</extlink> but in case of emergencies this redirect will be disabled.</li>
 
 </ul>
+
+</body>
+</topic>
+
+
+
+<topic name="compformshortcuts" title="Compiler IDE keyboard commands">
+<keyword value="Compiler IDE keyboard commands" />
+<body>
+
+<p>Besides the keyboard commands listed in the menus, the Compiler IDE supports the following additional keyboard commands:</p>
+
+<table>
+<tr>
+  <td>Indent block.</td><td>Tab</td>
+</tr>
+<tr>
+  <td>Unindent block.</td><td>Shift+Tab</td>
+</tr>
+<tr>
+  <td>Delete to start of word.</td><td>Ctrl+Backspace</td>
+</tr>
+<tr>
+  <td>Delete to end of word.</td><td>Ctrl+Delete</td>
+</tr>
+<tr>
+  <td>Delete to start of line.</td><td>Ctrl+Shift+Backspace</td>
+</tr>
+<tr>
+  <td>Delete to end of line.</td><td>Ctrl+Shift+Delete</td>
+</tr>
+<tr>
+  <td>Go to start of document. Shift extends selection.</td><td>Ctrl+Home</td>
+</tr>
+<tr>
+  <td>Go to start of line.</td><td>Alt+Home</td>
+</tr>
+<tr>
+  <td>Go to end of document. Shift extends selection</td><td>Ctrl+End</td>
+</tr>
+<tr>
+  <td>Go to end of line.</td><td>Alt+End</td>
+</tr>
+<tr>
+  <td>Scroll up.</td><td>Ctrl+Up</td>
+</tr>
+<tr>
+  <td>Scroll down.</td><td>Ctrl+Down</td>
+</tr>
+<tr>
+  <td>Cut line.</td><td>Ctrl+L</td>
+</tr>
+<tr>
+  <td>Copy line.</td><td>Ctrl+Shift+T</td>
+</tr>
+<tr>
+  <td>Delete line.</td><td>Ctrl+Shift+L</td>
+</tr>
+<tr>
+  <td>Switch line with previous.</td><td>Ctrl+T</td>
+</tr>
+<tr>
+  <td>Duplicate selection or line.</td><td>Ctrl+D</td>
+</tr>
+<tr>
+  <td>Go to previous paragraph. Shift extends selection.</td><td>Ctrl+[</td>
+</tr>
+<tr>
+  <td>Go to next paragraph. Shift extends selection.</td><td>Ctrl+]</td>
+</tr>
+<tr>
+  <td>Go to previous word. Shift extends selection.</td><td>Ctrl+Left</td>
+</tr>
+<tr>
+  <td>Go to next word. Shift extends selection.</td><td>Ctrl+Right</td>
+</tr>
+<tr>
+  <td>Go to previous word part. Shift extends selection</td><td>Ctrl+/</td>
+</tr>
+<tr>
+  <td>Go to next word part. Shift extends selection.</td><td>Ctrl+\</td>
+</tr>
+<tr>
+  <td>Rectangular block selection.</td><td>Alt+Shift+Movement</td>
+</tr>
+<tr>
+  <td>Extend rectangular selection to start of line.</td><td>Alt+Shift+Home</td>
+</tr>
+<tr>
+  <td>Extend rectangular selection to end of line.</td><td>Alt+Shift+End</td>
+</tr>
+</table>
 
 </body>
 </topic>
