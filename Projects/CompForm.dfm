@@ -647,6 +647,13 @@ object CompileForm: TCompileForm
         Caption = 'D&onate - Thank you!'
         OnClick = HDonateClick
       end
+      object N21: TMenuItem
+        Caption = '-'
+      end
+      object HShortcutsDoc: TMenuItem
+        Caption = '&Keyboard commands'
+        OnClick = HShortcutsDocClick
+      end
       object N14: TMenuItem
         Caption = '-'
       end

@@ -190,6 +190,8 @@ type
     VNextTab: TMenuItem;
     VPreviousTab: TMenuItem;
     N20: TMenuItem;
+    HShortcutsDoc: TMenuItem;
+    N21: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -281,6 +283,7 @@ type
     procedure TMenuClick(Sender: TObject);
     procedure VNextTabClick(Sender: TObject);
     procedure VPreviousTabClick(Sender: TObject);
+    procedure HShortcutsDocClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -2009,13 +2012,16 @@ begin
   HISPPSep.Visible := HISPPDoc.Visible;
 end;
 
-procedure TCompileForm.HDocClick(Sender: TObject);
-var
-  HelpFile: String;
+procedure TCompileForm.HShortcutsDocClick(Sender: TObject);
 begin
-  HelpFile := GetHelpFile;
   if Assigned(HtmlHelp) then
-    HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
+    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_compformshortcuts.htm')));
+end;
+
+procedure TCompileForm.HDocClick(Sender: TObject);
+begin
+  if Assigned(HtmlHelp) then
+    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, 0);
 end;
 
 procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
