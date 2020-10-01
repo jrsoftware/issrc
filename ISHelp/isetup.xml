@@ -3203,20 +3203,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <ul>
 
 <li>
-<p>Scripts can also be compiled by the Setup Compiler from the command line. Command line usage is as follows:</p>
-
-<indent>
-<p>compil32 /cc <i>&lt;script name&gt;</i></p>
-<example>compil32 /cc "c:\isetup\samples\my script.iss"</example>
-</indent>
-
-<p>As shown in the example above, filenames that include spaces must be enclosed in quotes.</p>
-
-<p>Running the Setup Compiler from the command line does not suppress the normal progress display or any error messages. The Setup Compiler will return an exit code of 0 if the compile was successful, 1 if the command line parameters were invalid, or 2 if the compile failed.</p>
-</li>
-
-<li>
-<p>Alternatively, you can compile scripts using the console-mode compiler, ISCC.exe. Command line usage is as follows:</p>
+<p>You can compile scripts from the command line using the console-mode compiler, ISCC.exe. Command line usage is as follows:</p>
 
 <indent>
 <p>iscc <i>[options]</i> <i>&lt;script name&gt;</i></p>
@@ -3234,6 +3221,19 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </indent>
 
 <p>ISCC will return an exit code of 0 if the compile was successful, 1 if the command line parameters were invalid or an internal error occurred, or 2 if the compile failed.</p>
+</li>
+
+<li>
+<p>Alternatively, scripts can also be compiled by the Setup Compiler from the command line. Command line usage is as follows:</p>
+
+<indent>
+<p>compil32 /cc <i>&lt;script name&gt;</i></p>
+<example>compil32 /cc "c:\isetup\samples\my script.iss"</example>
+</indent>
+
+<p>As shown in the example above, filenames that include spaces must be enclosed in quotes.</p>
+
+<p>Running the Setup Compiler from the command line does not suppress the normal progress display or any error messages. The Setup Compiler will return an exit code of 0 if the compile was successful, 1 if the command line parameters were invalid, or 2 if the compile failed.</p>
 </li>
 
 <li>
