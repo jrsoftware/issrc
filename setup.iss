@@ -8,10 +8,12 @@
 
 #include "isdonateandmail.iss"
 
+#include "isportable.iss"
+
 [Setup]
 AppName=Inno Setup
-AppId=Inno Setup 6
-AppVersion=6.1.0-beta
+AppId={code:GetAppIdOrVersion|Inno Setup 6}
+AppVersion={code:GetAppIdOrVersion|6.1.0-beta}
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
@@ -20,14 +22,15 @@ VersionInfoCopyright=Copyright (C) 1997-2020 Jordan Russell. Portions Copyright 
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
 WizardStyle=modern
-DefaultDirName={autopf}\Inno Setup 6
+DefaultDirName={code:GetDefaultDirName|Inno Setup 6}
 DefaultGroupName=Inno Setup 6
-PrivilegesRequiredOverridesAllowed=dialog
+PrivilegesRequiredOverridesAllowed=commandline
 AllowNoIcons=yes
 Compression=lzma2/max
 SolidCompression=yes
 Uninstallable=not PortableCheck
 UninstallDisplayIcon={app}\Compil32.exe
+UsePreviousLanguage=no
 LicenseFile=license.txt
 TimeStampsInUTC=yes
 TouchDate=none
@@ -80,15 +83,15 @@ HelpTextNote=/PORTABLE=1%nEnable portable mode.
 english.WelcomeLabel1=Welcome to the Inno Setup%nSetup Wizard
 
 [Tasks]
-Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked
-Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"
+Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked; Check: not PortableCheck
+Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"; Check: not PortableCheck
 
 [InstallDelete]
 ; Remove old ISPP files
 Type: files; Name: "{app}\ISCmplr.dls"
 Type: files; Name: "{app}\Builtins.iss"
 ; Remove desktop icon if needed
-Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon
+Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon; Check: not PortableCheck
 ; Remove old FAQ file
 Type: files; Name: "{app}\isfaq.htm"
 ; Remove old .islu files
@@ -181,6 +184,7 @@ Filename: "{app}\isfaq.url"; Section: "InternetShortcut"; Key: "URL"; String: "h
 Type: files; Name: "{app}\isfaq.url"
 
 [Icons]
+; All these will be automatically skipped on portable mode, either because of NoIconsCheck being checked, or because of the desktopicon task being removed
 Name: "{group}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"
 Name: "{group}\Inno Setup Documentation"; Filename: "{app}\ISetup.chm"
 Name: "{group}\Inno Setup Example Scripts"; Filename: "{app}\Examples\"
@@ -189,14 +193,10 @@ Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"
 Name: "{autodesktop}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"; Tasks: desktopicon
 
 [Run]
+; The /ASSOC line will be automatically skipped on portable mode, because of the fileassoc task being removed
 Filename: "{app}\Compil32.exe"; Parameters: "/ASSOC"; StatusMsg: "{cm:AssocingFileExtension,Inno Setup,.iss}"; Tasks: fileassoc
 Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; Description: "{cm:LaunchProgram,Inno Setup}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
+; The /UNASSOC line will be automatically skipped on portable mode, because of Uninstallable begin set to no
 Filename: "{app}\Compil32.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAssoc"
-
-[Code]
-function PortableCheck: Boolean;
-begin
-  Result := ExpandConstant('{param:portable|0}') = '1';
-end;
