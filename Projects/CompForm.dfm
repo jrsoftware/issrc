@@ -410,7 +410,12 @@ object CompileForm: TCompileForm
       object EFindNext: TMenuItem
         Caption = 'Find &Next'
         ShortCut = 114
-        OnClick = EFindNextClick
+        OnClick = EFindNextOrPreviousClick
+      end
+      object EFindPrevious: TMenuItem
+        Caption = 'Find Pre&vious'
+        ShortCut = 8306
+        OnClick = EFindNextOrPreviousClick
       end
       object EReplace: TMenuItem
         Caption = 'R&eplace...'

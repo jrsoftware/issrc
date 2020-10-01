@@ -192,6 +192,7 @@ type
     N20: TMenuItem;
     HShortcutsDoc: TMenuItem;
     N21: TMenuItem;
+    EFindPrevious: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -215,7 +216,7 @@ type
     procedure FindDialogFind(Sender: TObject);
     procedure EReplaceClick(Sender: TObject);
     procedure ReplaceDialogReplace(Sender: TObject);
-    procedure EFindNextClick(Sender: TObject);
+    procedure EFindNextOrPreviousClick(Sender: TObject);
     procedure SplitPanelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure VMenuClick(Sender: TObject);
@@ -439,7 +440,7 @@ type
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateModifiedPanel;
     procedure UpdateNewMainFileButtons;
-    procedure UpdateTabSetListsItemHeightAndDebugTimeWidth;
+    procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateSaveMenuItemAndButton;
     procedure UpdateTargetMenu;
@@ -735,7 +736,7 @@ begin
   FStepMemo := FMainMemo;
   FMemosStyler.Theme := FTheme;
 
-  UpdateTabSetListsItemHeightAndDebugTimeWidth;
+  UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
 
   Application.HintShortPause := 0;
   Application.OnException := AppOnException;
@@ -842,7 +843,7 @@ end;
 procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
-  UpdateTabSetListsItemHeightAndDebugTimeWidth;
+  UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
 end;
 
@@ -1790,6 +1791,7 @@ begin
   ESelectAll.Enabled := MemoHasFocus;
   EFind.Enabled := MemoHasFocus;
   EFindNext.Enabled := MemoHasFocus;
+  EFindPrevious.Enabled := MemoHasFocus;
   EReplace.Enabled := MemoHasFocus and not MemoIsReadOnly;
   EGoto.Enabled := MemoHasFocus;
   ECompleteWord.Enabled := MemoHasFocus and not MemoIsReadOnly;
@@ -2262,15 +2264,24 @@ begin
   ReplaceDialog.CloseDialog;
   if FindDialog.Handle = 0 then
     InitializeFindText(FindDialog);
+  if (Sender = EFind) or (Sender = EFindNext) then
+    FindDialog.Options := FindDialog.Options + [frDown]
+  else
+    FindDialog.Options := FindDialog.Options - [frDown];
   FindDialog.Execute;
 end;
 
-procedure TCompileForm.EFindNextClick(Sender: TObject);
+procedure TCompileForm.EFindNextOrPreviousClick(Sender: TObject);
 begin
   if FLastFindText = '' then
     EFindClick(Sender)
-  else
+  else begin
+    if Sender = EFindNext then
+      FLastFindOptions := FLastFindOptions + [frDown]
+    else
+      FLastFindOptions := FLastFindOptions - [frDown];
     FindNext;
+  end;
 end;
 
 procedure TCompileForm.FindNext;
@@ -2364,7 +2375,7 @@ begin
   StatusPanel.Height := H;
 end;
 
-procedure TCompileForm.UpdateTabSetListsItemHeightAndDebugTimeWidth;
+procedure TCompileForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
 begin
   CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
   CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
