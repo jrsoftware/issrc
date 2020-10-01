@@ -3133,7 +3133,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Go to start of line.</td><td>Alt+Home</td>
 </tr>
 <tr>
-  <td>Go to end of document. Shift extends selection</td><td>Ctrl+End</td>
+  <td>Go to end of document. Shift extends selection.</td><td>Ctrl+End</td>
 </tr>
 <tr>
   <td>Go to end of line.</td><td>Alt+End</td>
@@ -3172,7 +3172,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Go to next word. Shift extends selection.</td><td>Ctrl+Right</td>
 </tr>
 <tr>
-  <td>Go to previous word part. Shift extends selection</td><td>Ctrl+/</td>
+  <td>Go to previous word part. Shift extends selection.</td><td>Ctrl+/</td>
 </tr>
 <tr>
   <td>Go to next word part. Shift extends selection.</td><td>Ctrl+\</td>
