@@ -7,7 +7,7 @@ begin
   Result := ExpandConstant('{param:portable|0}') = '1';
 end;
 
-function GetAppIdOrVersion(Param: String): String;
+function GetAppId(Param: String): String;
 begin
   Result := Param;
   if PortableCheck then
