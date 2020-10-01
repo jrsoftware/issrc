@@ -32,6 +32,9 @@ var
   DonateImage, MailImage: TBitmapImage;
   BevelTop: Integer;
 begin
+  if WizardSilent then
+    Exit;
+
   ImageFileName := ExpandConstant('{tmp}\isdonate.bmp');
   ExtractTemporaryFile(ExtractFileName(ImageFileName));
 
