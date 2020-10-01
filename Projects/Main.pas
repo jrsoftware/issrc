@@ -2186,6 +2186,10 @@ begin
 
   AssignSetupMessages(LangEntry.Data[1], Length(LangEntry.Data));
 
+  { Remove outdated < and > markers from the Back and Next buttons. Done here for now to avoid a Default.isl change. }
+  StringChange(SetupMessages[msgButtonBack], '< ', '');
+  StringChange(SetupMessages[msgButtonNext], ' >', '');
+
   ActiveLanguage := I;
   Finalize(LangOptions);  { prevent leak on D2 }
   LangOptions := LangEntry^;
