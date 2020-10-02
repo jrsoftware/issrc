@@ -973,7 +973,7 @@ begin
 
     { AppFiles }
     if not NotCreateAppDirCheck.Checked and not NoAppExeCheck.Checked then begin
-      Files := Files + 'Source: "' + AppExeEdit.Text + '"; DestDir: "{app}"; Flags: ignoreversion' + SNewLine;
+      Files := Files + 'Source: "' + PathExtractPath(AppExeEdit.Text) + AppExeName + '"; DestDir: "{app}"; Flags: ignoreversion' + SNewLine;
       if AppExeRunCheck.Checked then begin
         if CompareText(PathExtractExt(AppExeEdit.Text), '.exe') = 0 then
           Run := Run + 'Filename: "{app}\' + AppExeName + '"; Description: "{cm:LaunchProgram,' + AppAmpEscapedName + '}"; Flags: nowait postinstall skipifsilent' + SNewLine
