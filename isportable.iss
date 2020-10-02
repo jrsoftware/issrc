@@ -20,7 +20,7 @@ begin
     Result := '{autodesktop}'
   else
     Result := '{autopf}';
-  Result := ExpandConstant(Result + '\' + Param);
+  Result := ExpandConstant(AddBackslash(Result) + Param);
 end;
 
 <event('InitializeWizard')>
