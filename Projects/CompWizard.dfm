@@ -1273,6 +1273,61 @@ object WizardForm: TWizardForm
             OnClick = NoAppExeCheckClick
           end
         end
+        object AppAssocPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
+          object AppAssocNameEdit: TEdit
+            Left = 36
+            Top = 49
+            Width = 309
+            Height = 21
+            Anchors = [akLeft, akTop, akRight]
+            TabOrder = 2
+          end
+          object AppAssocNameLabel: TNewStaticText
+            Left = 36
+            Top = 28
+            Width = 413
+            Height = 16
+            Anchors = [akLeft, akTop, akRight]
+            AutoSize = False
+            Caption = 'Application file type &name:'
+            FocusControl = AppAssocNameEdit
+            TabOrder = 1
+            WordWrap = True
+          end
+          object CreateAssocCheck: TCheckBox
+            Left = 36
+            Top = 8
+            Width = 425
+            Height = 17
+            Anchors = [akLeft, akTop, akRight]
+            Caption = '&Associate a file type to the main executable'
+            TabOrder = 0
+            OnClick = CreateAssocCheckClick
+          end
+          object AppAssocExtLabel: TNewStaticText
+            Left = 36
+            Top = 76
+            Width = 413
+            Height = 16
+            Anchors = [akLeft, akTop, akRight]
+            AutoSize = False
+            Caption = 'Application file type &extension:'
+            FocusControl = AppAssocExtEdit
+            TabOrder = 3
+            WordWrap = True
+          end
+          object AppAssocExtEdit: TEdit
+            Left = 36
+            Top = 96
+            Width = 309
+            Height = 21
+            Anchors = [akLeft, akTop, akRight]
+            TabOrder = 4
+          end
+        end
         object AppIconsPage: TNewNotebookPage
           DesignSize = (
             485

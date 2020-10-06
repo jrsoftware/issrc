@@ -42,6 +42,8 @@ const
   SWizardAppFilesSubDirsMessage = 'Should files in subfolders of "%s" also be included?';
   SWizardAppExeFilter = 'Application files (*.exe)|*.exe|All Files|*.*';
   SWizardAppExeDefaultExt = 'exe';
+  SWizardAppAssoc = 'Application File Association';
+  SWizardAppAssoc2 = 'Please specify which file association should be created for your application.';
   SWizardAppIcons = 'Application Shortcuts';
   SWizardAppIcons2 = 'Please specify which shortcuts should be created for your application.';
   SWizardAppDocs = 'Application Documentation';
