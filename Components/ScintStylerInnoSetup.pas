@@ -60,7 +60,8 @@ type
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FKeywordList: array[TInnoSetupStylerSection] of AnsiString;
-    FIsppInstalled: Boolean;
+    FISPPKeywordList: AnsiString;
+    FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
@@ -69,6 +70,7 @@ type
       const EnumTypeInfo: Pointer);
     procedure BuildKeywordListFromParameters(const Section: TInnoSetupStylerSection;
       const Parameters: array of TInnoSetupStylerParamInfo);
+    procedure BuildKeywordListFromISPPDirectives;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
       const Squigglify: Boolean);
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
@@ -96,7 +98,8 @@ type
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     property KeywordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordList;
-    property IsppInstalled: Boolean read FIsppInstalled write FIsppInstalled;
+    property ISPPKeywordList: AnsiString read FISPPKeywordList;
+    property ISPPInstalled: Boolean read FISPPInstalled write FISPPInstalled;
     property Theme: TTheme read FTheme write FTheme;
   end;
 
@@ -269,6 +272,40 @@ const
     (Name: 'Name'),
     (Name: 'OnlyBelowVersion'));
 
+type
+  TISPPDirective = record
+    Name: TScintRawString;
+    RequiresParameter: Boolean;
+    OpenCountChange: ShortInt;
+  end;
+
+const
+  ISPPDirectives: array[0..23] of TISPPDirective = (
+    (Name: 'preproc'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'define'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'dim'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'redim'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'undef'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'include'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'file'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'emit'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'expr'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'insert'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'append'; RequiresParameter: False; OpenCountChange: 0),
+    (Name: 'if'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'elif'; RequiresParameter: False { bug in ISPP? }; OpenCountChange: 0),
+    (Name: 'else'; RequiresParameter: False; OpenCountChange: 0),
+    (Name: 'endif'; RequiresParameter: False; OpenCountChange: -1),
+    (Name: 'ifdef'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'ifndef'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'ifexist'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'ifnexist'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'for'; RequiresParameter: True; OpenCountChange: 0),
+    (Name: 'sub'; RequiresParameter: True; OpenCountChange: 1),
+    (Name: 'endsub'; RequiresParameter: False; OpenCountChange: -1),
+    (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
+    (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
+
 const
   inSquiggly = 0;
   inPendingSquiggly = 1;
@@ -396,6 +433,7 @@ begin
   BuildKeywordListFromParameters(scTypes, TypesSectionParameters);
   BuildKeywordListFromParameters(scUninstallDelete, DeleteSectionParameters);
   BuildKeywordListFromParameters(scUninstallRun, RunSectionParameters);
+  BuildKeywordListFromISPPDirectives;
 end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
@@ -475,6 +513,35 @@ begin
     SL.Free;
   end;
   FKeywordList[Section] := WordList;
+end;
+
+procedure TInnoSetupStyler.BuildKeywordListFromISPPDirectives;
+var
+  SL: TStringList;
+  I: Integer;
+  S: String;
+  A, WordList: AnsiString;
+begin
+  SL := TStringList.Create;
+  try
+    { Scintilla uses an ASCII binary search so the list must be in
+      ASCII sort order (case-insensitive). (TStringList's Sort method is
+      not suitable as it uses AnsiCompareText.) }
+    for I := 0 to High(ISPPDirectives) do begin
+      S := '#' + String(ISPPDirectives[I].Name);
+      SL.Insert(GetASCIISortedInsertPos(SL, S), S);
+    end;
+    for I := 0 to SL.Count-1 do begin
+      A := AnsiString(SL[I]);
+      if I = 0 then
+        WordList := A
+      else
+        WordList := WordList + ' ' + A;
+    end;
+  finally
+    SL.Free;
+  end;
+  FISPPKeywordList := WordList;
 end;
 
 procedure TInnoSetupStyler.CommitStyle(const Style: TInnoSetupStylerStyle);
@@ -751,38 +818,6 @@ const
     'str', 'func', 'option', 'parseroption', 'inlinestart',
     'inlineend', 'message', 'warning', 'error',
     'verboselevel', 'include', 'spansymbol');
-type
-  TISPPDirective = record
-    Name: TScintRawString;
-    RequiresParameter: Boolean;
-    OpenCountChange: ShortInt;
-  end;
-const
-  ISPPDirectives: array[0..23] of TISPPDirective = (
-    (Name: 'preproc'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'define'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'dim'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'redim'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'undef'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'include'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'file'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'emit'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'expr'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'insert'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'append'; RequiresParameter: False; OpenCountChange: 0),
-    (Name: 'if'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'elif'; RequiresParameter: False { bug in ISPP? }; OpenCountChange: 0),
-    (Name: 'else'; RequiresParameter: False; OpenCountChange: 0),
-    (Name: 'endif'; RequiresParameter: False; OpenCountChange: -1),
-    (Name: 'ifdef'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'ifndef'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'ifexist'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'ifnexist'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'for'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'sub'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'endsub'; RequiresParameter: False; OpenCountChange: -1),
-    (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
-    (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
   ISPPDirectiveShorthands: TScintRawCharSet =
     [':' {define},
      'x' {undef},
@@ -907,7 +942,7 @@ begin
     SkipWhitespace;
   end;
 
-  if NeedIspp and not IsppInstalled then begin
+  if NeedIspp and not ISPPInstalled then begin
     if InlineDirective then
       ApplyPendingSquigglyFromToIndex(StartIndex + 1, InlineDirectiveEndIndex - 1)
     else
@@ -1124,7 +1159,7 @@ begin
        not(Text[I-2] in LineEndChars) then begin
       ReplaceText(I, I, ' ');
       ApplyStyle(Ord(stSymbol), I, I);
-      if not IsppInstalled then
+      if not ISPPInstalled then
         ApplyIndicators([inSquiggly], I, I);
     end;
   end;
@@ -1227,7 +1262,7 @@ begin
     CommitStyle(stComment);
   end else if CurCharIs('/') and NextCharIs('/') then begin
     ConsumeAllRemaining;
-    CommitStyleSq(stComment, not IsppInstalled and (Section <> scCode))
+    CommitStyleSq(stComment, not ISPPInstalled and (Section <> scCode))
   end else if ConsumeChar('[') then begin
     SectionEnd := ConsumeChar('/');
     S := ConsumeString(AlphaUnderscoreChars);
