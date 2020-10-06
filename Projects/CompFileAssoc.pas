@@ -83,6 +83,8 @@ begin
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile\command', nil,
     '"' + SelfName + '" /cc "%1"');
 
+  SetKeyValue(Rootkey, PChar('Software\Classes\Applications\' + PathExtractName(SelfName) + '\SupportedTypes'), '.iss', '');
+
   { If we just associated for all users, remove our existing association for the current user if it exists. }
   if AllUsers then
     UnregisterISSFileAssociationDo(HKEY_CURRENT_USER, False);
