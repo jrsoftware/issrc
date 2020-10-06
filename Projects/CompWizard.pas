@@ -331,7 +331,7 @@ begin
   AppNameEdit.Text := 'My Program';
   AppVersionEdit.Text := '1.5';
   AppPublisherEdit.Text := 'My Company, Inc.';
-  AppURLEdit.Text := 'http://www.example.com/';
+  AppURLEdit.Text := 'https://www.example.com/';
 
   { AppDir }
   for I := Low(AppRootDirs) to High(AppRootDirs) do
