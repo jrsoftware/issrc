@@ -1125,6 +1125,21 @@ The list of options is provided at the end of this topic.</para>
 					<para>Note: opened files which are not closed using this function will be automatically closed after the script has been preprocessed.</para>
 				</description>
 			</topic>
+			<topic id="SaveStringToFile">
+				<title>SaveStringToFile</title>
+				<section title="Prototype">
+					<pre><line><b>int</b> SaveStringToFile(<b>str</b> Filename, <b>str</b> S, <b>int</b>? Append, <b>int</b>? UTF8)</line></pre>
+				</section>
+				<description>
+          <para>Saves the specified string to the specified file. If Append is True or ommitted and the specified file already exists, it will be appended to instead of overwritten. If UTF8 is True or ommitted, the string will be saved with UTF8 encoding instead of ASCII encoding. Returns True if successful, or False otherwise.</para>
+          <para>This function does not automatically write a line break before or after the string. If Append is True or ommitted and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters (using <synel><link href="predefinedvars">NewLine</link></synel>) before and/or after your string.</para>
+				</description>
+				<section title="Example">
+					<pre>
+						<line>#expr SaveStringToFile('c:\filename.txt', NewLine + 'the string' + NewLine)</line>
+					</pre>
+				</section>
+			</topic>
 			<topic id="GetDateTimeString">
 				<title>GetDateTimeString</title>
 				<section title="Prototype">
@@ -1165,9 +1180,9 @@ The list of options is provided at the end of this topic.</para>
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define MyDateTimeString GetDateTimeString('ddddd', '', '');</line>
-						<line>#define MyDateTimeString GetDateTimeString('ddddd tt', '', '');</line>
-						<line>#define MyDateTimeString GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':');</line>
+						<line>#define MyDateTimeString GetDateTimeString('ddddd', '', '')</line>
+						<line>#define MyDateTimeString GetDateTimeString('ddddd tt', '', '')</line>
+						<line>#define MyDateTimeString GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':')</line>
 					</pre>
 				</section>
 			</topic>

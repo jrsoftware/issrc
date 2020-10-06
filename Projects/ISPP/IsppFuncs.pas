@@ -634,7 +634,7 @@ begin
   end;
 end;
 
-function InstExec (const Filename, Params: String; WorkingDir: String;
+function InstExec(const Filename, Params: String; WorkingDir: String;
   const WaitUntilTerminated, WaitUntilIdle: Boolean; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; var ErrorCode: Cardinal): Boolean;
 var
@@ -1339,8 +1339,53 @@ begin
   end;
 end;
 
-type
+function SaveStringToFileFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+var
+  Filename: String;
+  F: TextFile;
+  DoAppend: Boolean;
+  CodePage: Word;
+begin
+  if CheckParams(Params, [evStr, evStr, evInt, evInt], 2, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      Filename := PrependPath(Ext, Get(0).AsStr);
+      if (GetCount < 3) or (Get(2).AsInt <> 0) then DoAppend := True else DoAppend := False;
+      if (GetCount < 4) or (Get(3).AsInt <> 0) then CodePage := CP_UTF8 else CodePage := 0;
+      DoAppend := DoAppend and NewFileExists(Filename);
+      AssignFile(F, FileName, CodePage);
+      {$I-}
+      if DoAppend then
+        Append(F)
+      else begin
+        Rewrite(F);
+        if CodePage = CP_UTF8 then
+          Write(F, #$FEFF); //UTF8 BOM as a single Unicode character
+      end;
+      {$I+}
+      if IOResult <> 0 then
+        MakeInt(ResPtr^, 0)
+      else begin
+        try
+          MakeInt(ResPtr^, 1);
+          Write(F, Get(1).AsStr);
+        finally
+          CloseFile(F);
+        end;
+      end;
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
 
+type
   PDateTime = ^TDateTime;
 
 procedure GarbageReleaseDateTime(Item: Pointer);
@@ -1852,6 +1897,7 @@ begin
     RegisterFunction('FileReset', FileResetFunc, -1);
     RegisterFunction('FileEof', FileEofFunc, -1);
     RegisterFunction('FileClose', FileCloseFunc, -1);
+    RegisterFunction('SaveStringToFile', SaveStringToFileFunc, -1);
     RegisterFunction('FileGetDateTime', FileGetDate, -1);
     RegisterFunction('Now', GetNow, -1);
     RegisterFunction('DateTimeToDate', GetDateFromDT, -1);
