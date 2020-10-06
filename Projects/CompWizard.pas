@@ -86,7 +86,6 @@ type
     AllowNoIconsCheck: TCheckBox;
     AppExeIconsLabel: TNewStaticText;
     DesktopIconCheck: TCheckBox;
-    QuickLaunchIconCheck: TCheckBox;
     CreateUninstallIconCheck: TCheckBox;
     CreateURLIconCheck: TCheckBox;
     AppLicenseFileLabel: TNewStaticText;
@@ -652,7 +651,6 @@ begin
 
   AppExeIconsLabel.Enabled := Enabled;
   DesktopIconCheck.Enabled := Enabled;
-  QuickLaunchIconCheck.Enabled := Enabled;
 
   if Enabled then
     AppExeLabel.Font.Style := AppExeLabel.Font.Style + [fsBold]
@@ -1088,12 +1086,6 @@ begin
       if DesktopIconCheck.Enabled and DesktopIconCheck.Checked then begin
         Tasks := Tasks + 'Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked' + SNewLine;
         Icons := Icons + 'Name: "{autodesktop}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: desktopicon' + SNewLine;
-      end;
-      if QuickLaunchIconCheck.Enabled and QuickLaunchIconCheck.Checked then begin
-        Setup := Setup + '; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check.' + SNewLine +
-                         'UsedUserAreasWarning=no' + SNewLine;
-        Tasks := Tasks + 'Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode' + SNewLine;
-        Icons := Icons + 'Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: quicklaunchicon' + SNewLine;
       end;
     end;
 

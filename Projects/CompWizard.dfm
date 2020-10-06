@@ -1393,18 +1393,6 @@ object WizardForm: TWizardForm
             TabOrder = 8
             OnClick = NotCreateAppDirCheckClick
           end
-          object QuickLaunchIconCheck: TCheckBox
-            Left = 36
-            Top = 200
-            Width = 421
-            Height = 17
-            Anchors = [akLeft, akTop, akRight]
-            Caption = 
-              'Allow user to create a &Quick Launch shortcut on older versions ' +
-              'of Windows'
-            TabOrder = 9
-            OnClick = NotCreateAppDirCheckClick
-          end
           object CreateUninstallIconCheck: TCheckBox
             Left = 36
             Top = 136
