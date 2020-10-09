@@ -1359,17 +1359,16 @@ begin
       {$I-}
       if DoAppend then
         Append(F)
-      else begin
+      else
         Rewrite(F);
-        if CodePage = CP_UTF8 then
-          Write(F, #$FEFF); //UTF8 BOM as a single Unicode character
-      end;
       {$I+}
       if IOResult <> 0 then
         MakeInt(ResPtr^, 0)
       else begin
         try
           MakeInt(ResPtr^, 1);
+          if not DoAppend and (CodePage = CP_UTF8) then
+            Write(F, #$FEFF); //UTF8 BOM as a single Unicode character
           Write(F, Get(1).AsStr);
         finally
           CloseFile(F);
