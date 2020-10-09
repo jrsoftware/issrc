@@ -2931,31 +2931,13 @@ begin
 end;
 
 procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
-
-  function GetWordStartPos(const LinePos, CaretPos: Integer; const AllowHash: Boolean): Integer;
-  var
-    I: Integer;
-    C: AnsiChar;
-  begin
-    Result := CaretPos;
-    while Result > LinePos do begin
-      I := FActiveMemo.GetPositionBefore(Result);
-      if I < LinePos then
-        Break;
-      C := FActiveMemo.GetCharAtPosition(I);
-      if not ((C in ['A'..'Z', 'a'..'z', '_']) or (AllowHash and (C = '#'))) then
-        Break;
-      Result := I;
-    end;
-  end;
-
 var
   CaretPos, Line, LinePos, WordStartPos, WordEndPos, CharsBefore, I,
     LangNamePos: Integer;
   Section: TInnoSetupStylerSection;
   IsParamSection: Boolean;
   WordList: AnsiString;
-  FoundSemicolon, FoundDot: Boolean;
+  IsISPPKeywordComplete, FoundSemicolon, FoundDot: Boolean;
   C: AnsiChar;
 begin
   if FActiveMemo.AutoCompleteActive or FActiveMemo.ReadOnly then
@@ -2966,7 +2948,15 @@ begin
   Line := FActiveMemo.GetLineFromPosition(CaretPos);
 
   LinePos := FActiveMemo.GetPositionFromLine(Line);
-  WordStartPos := GetWordStartPos(LinePos, CaretPos, (Key = '#') or (Key = #0));
+  WordStartPos := FActiveMemo.GetWordStartPosition(CaretPos, True);
+  IsISPPKeywordComplete := False;
+  if (Key = '#') or (Key = #0) then begin
+    I := FActiveMemo.GetPositionBefore(WordStartPos);
+    if (I >= LinePos) and (FActiveMemo.GetCharAtPosition(I) = '#') then begin
+      WordStartPos := I;
+      IsISPPKeywordComplete := True;
+    end;
+  end;
   WordEndPos := FActiveMemo.GetWordEndPosition(CaretPos, True);
   CharsBefore := CaretPos - WordStartPos;
 
@@ -2979,7 +2969,7 @@ begin
       Exit;
   end;
 
-  if FActiveMemo.GetCharAtPosition(WordStartPos) = '#' then begin
+  if IsISPPKeywordComplete then begin
     WordList := FMemosStyler.ISPPKeywordList;
     if WordList = '' then
       Exit;  { shouldn't get here }
