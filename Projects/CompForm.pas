@@ -59,8 +59,10 @@ type
   TIncludedFiles = TObjectList<TIncludedFile>;
 
   TFindResult = class
+    Filename: String;
+    Line, LineStartPos: Integer;
     Range: TScintRange;
-    PrefixStringLength, Line, LineStartPos: Integer;
+    PrefixStringLength: Integer;
   end;
 
   TFindResults = TObjectList<TFindResult>;
@@ -2388,9 +2390,10 @@ begin
         Line := Memo.GetLineFromPosition(Range.StartPos);
         Prefix := Format('  Line %d: ', [Line+1]);
         FindResult := TFindResult.Create;
-        FindResult.Range := Range;
+        FindResult.Filename := Memo.Filename;
         FindResult.Line := Line;
         FindResult.LineStartPos := Memo.GetPositionFromLine(Line);
+        FindResult.Range := Range;
         FindResult.PrefixStringLength := Length(Prefix);
         FFindResults.Add(FindResult);
         FindResultsList.Items.AddObject(Prefix + Memo.Lines[Line], FindResult);
@@ -4533,15 +4536,22 @@ end;
 procedure TCompileForm.FindResultsListDblClick(Sender: TObject);
 var
   FindResult: TFindResult;
+  Memo: TCompScintFileEdit;
   I: Integer;
 begin
   I := FindResultsList.ItemIndex;
   if I <> -1 then begin
     FindResult := FindResultsList.Items.Objects[I] as TFindResult;
     if FindResult <> nil then begin
-      MoveCaretAndActivateMemo(FActiveMemo, FindResult.Line, True);
-      FActiveMemo.Selection := FindResult.Range;
-      ActiveControl := FActiveMemo;
+      for Memo in FFileMemos do begin
+        if Memo.Used and (PathCompare(Memo.Filename, FindResult.Filename) = 0) then begin
+          MoveCaretAndActivateMemo(Memo, FindResult.Line, True);
+          Memo.Selection := FindResult.Range;
+          ActiveControl := Memo;
+          Exit;
+        end;
+      end;
+      MsgBox('File not opened.', SCompilerFormCaption, mbError, MB_OK);
     end;
   end;
 end;
