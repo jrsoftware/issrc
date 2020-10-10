@@ -58,6 +58,15 @@ type
 
   TIncludedFiles = TObjectList<TIncludedFile>;
 
+  TFindResult = class
+    Filename: String;
+    Line, LineStartPos: Integer;
+    Range: TScintRange;
+    PrefixStringLength: Integer;
+  end;
+
+  TFindResults = TObjectList<TFindResult>;
+
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -193,6 +202,10 @@ type
     HShortcutsDoc: TMenuItem;
     N21: TMenuItem;
     EFindPrevious: TMenuItem;
+    FindResultsList: TListBox;
+    VFindResults: TMenuItem;
+    EFindInFiles: TMenuItem;
+    FindInFilesDialog: TFindDialog;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -285,6 +298,12 @@ type
     procedure VNextTabClick(Sender: TObject);
     procedure VPreviousTabClick(Sender: TObject);
     procedure HShortcutsDocClick(Sender: TObject);
+    procedure VFindResultsClick(Sender: TObject);
+    procedure EFindInFilesClick(Sender: TObject);
+    procedure FindInFilesDialogFind(Sender: TObject);
+    procedure FindResultsListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
+      State: TOwnerDrawState);
+    procedure FindResultsListDblClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -326,6 +345,7 @@ type
     FOptionsLoaded: Boolean;
     FTheme: TTheme;
     FSignTools: TStringList;
+    FFindResults: TFindResults;
     FCompiling: Boolean;
     FCompileWantAbort: Boolean;
     FBecameIdle: Boolean;
@@ -383,6 +403,7 @@ type
       var Output: String): Integer;
     procedure FindNext;
     function FromCurrentPPI(const XY: Integer): Integer;
+    function SelectionToFindText: String;
     procedure Go(AStepMode: TStepMode);
     procedure HideError;
     procedure InitializeFindText(Dlg: TFindDialog);
@@ -486,7 +507,7 @@ var
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -511,6 +532,7 @@ const
   tiCompilerOutput = 0;
   tiDebugOutput = 1;
   tiDebugCallStack = 2;
+  tiFindResults = 3;
 
   LineStateGrowAmount = 4000;
 
@@ -682,7 +704,7 @@ begin
   {$ENDIF}
 
   FModifiedAnySinceLastCompile := True;
-  
+
   InitFormFont(Self);
 
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
@@ -753,6 +775,7 @@ begin
   FMRUParametersList := TStringList.Create;
 
   FSignTools := TStringList.Create;
+  FFindResults := TFindResults.Create;
 
   FIncludedFiles := TIncludedFiles.Create;
   UpdatePreprocMemos;
@@ -825,6 +848,7 @@ begin
   FTheme.Free;
   DestroyDebugInfo;
   FIncludedFiles.Free;
+  FFindResults.Free;
   FSignTools.Free;
   FMRUParametersList.Free;
   FMRUMainFilesList.Free;
@@ -876,6 +900,7 @@ begin
         tiCompilerOutput: ActiveControl := CompilerOutputList;
         tiDebugOutput: ActiveControl := DebugOutputList;
         tiDebugCallStack: ActiveControl := DebugCallStackList;
+        tiFindResults: ActiveControl := FindResultsList;
       end;
     end;
   end;
@@ -1851,6 +1876,7 @@ begin
   VCompilerOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiCompilerOutput);
   VDebugOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugOutput);
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
+  VFindResults.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiFindResults);
 end;
 
 procedure TCompileForm.VNextTabClick(Sender: TObject);
@@ -1965,6 +1991,12 @@ end;
 procedure TCompileForm.VDebugCallStackClick(Sender: TObject);
 begin
   OutputTabSet.TabIndex := tiDebugCallStack;
+  SetStatusPanelVisible(True);
+end;
+
+procedure TCompileForm.VFindResultsClick(Sender: TObject);
+begin
+  OutputTabSet.TabIndex := tiFindResults;
   SetStatusPanelVisible(True);
 end;
 
@@ -2248,14 +2280,23 @@ begin
   UpdateModifiedPanel;
 end;
 
-procedure TCompileForm.InitializeFindText(Dlg: TFindDialog);
+function TCompileForm.SelectionToFindText: String;
 var
   S: String;
 begin
   S := FActiveMemo.SelText;
   if (S <> '') and (Pos(#13, S) = 0) and (Pos(#10, S) = 0) then
-    Dlg.FindText := S
+    Result := S
   else
+    Result := ''
+end;
+
+procedure TCompileForm.InitializeFindText(Dlg: TFindDialog);
+var
+  S: String;
+begin
+  S := SelectionToFindText;
+  if S = '' then
     Dlg.FindText := FLastFindText;
 end;
 
@@ -2269,6 +2310,12 @@ begin
   else
     FindDialog.Options := FindDialog.Options - [frDown];
   FindDialog.Execute;
+end;
+
+procedure TCompileForm.EFindInFilesClick(Sender: TObject);
+begin
+  FindInFilesDialog.FindText := SelectionToFindText;
+  FindInFilesDialog.Execute;
 end;
 
 procedure TCompileForm.EFindNextOrPreviousClick(Sender: TObject);
@@ -2315,6 +2362,60 @@ begin
     FLastFindText := FindText;
   end;
   FindNext;
+end;
+
+procedure TCompileForm.FindInFilesDialogFind(Sender: TObject);
+var
+  Memo: TCompScintFileEdit;
+  Hits, FileHits, Files, StartPos, EndPos, Line: Integer;
+  Range: TScintRange;
+  FindResult: TFindResult;
+  Prefix: String;
+begin
+  FindResultsList.Clear;
+  SendMessage(FindResultsList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+  FFindResults.Clear;
+
+  Hits := 0;
+  Files := 0;
+
+  for Memo in FFileMemos do begin
+    if Memo.Used then begin
+      StartPos := 0;
+      EndPos := FActiveMemo.RawTextLength;
+      FileHits := 0;
+      while (StartPos < EndPos) and
+            Memo.FindText(StartPos, EndPos, FindInFilesDialog.FindText,
+              FindOptionsToSearchOptions(FindInFilesDialog.Options), Range) do begin
+        Line := Memo.GetLineFromPosition(Range.StartPos);
+        Prefix := Format('  Line %d: ', [Line+1]);
+        FindResult := TFindResult.Create;
+        FindResult.Filename := Memo.Filename;
+        FindResult.Line := Line;
+        FindResult.LineStartPos := Memo.GetPositionFromLine(Line);
+        FindResult.Range := Range;
+        FindResult.PrefixStringLength := Length(Prefix);
+        FFindResults.Add(FindResult);
+        FindResultsList.Items.AddObject(Prefix + Memo.Lines[Line], FindResult);
+        Inc(FileHits);
+        StartPos := Range.EndPos;
+      end;
+      Inc(Files);
+      if FileHits > 0 then begin
+        Inc(Hits, FileHits);
+        FindResultsList.Items.Insert(FindResultsList.Count-FileHits, Format('%s (%d hits):', [Memo.Filename, FileHits]));
+      end;
+    end;
+  end;
+
+  FindResultsList.Items.Insert(0, Format('Find "%s" (%d hits in %d files)', [FindInFilesDialog.FindText, Hits, Files]));
+
+  FindInFilesDialog.CloseDialog;
+
+  OutputTabSet.TabIndex := tiFindResults;
+  SetStatusPanelVisible(True);
+
+  ActiveControl := FindResultsList;
 end;
 
 procedure TCompileForm.EReplaceClick(Sender: TObject);
@@ -2378,14 +2479,17 @@ end;
 procedure TCompileForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
 begin
   CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
-  CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
+  CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0') + 1;
 
   DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
   FDebugLogListTimestampsWidth := DebugOutputList.Canvas.TextWidth(Format('[00%s00%s00%s000]   ', [FormatSettings.TimeSeparator, FormatSettings.TimeSeparator, FormatSettings.DecimalSeparator]));
-  DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0');
+  DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0') + 1;
 
   DebugCallStackList.Canvas.Font.Assign(DebugCallStackList.Font);
-  DebugCallStackList.ItemHeight := DebugCallStackList.Canvas.TextHeight('0');
+  DebugCallStackList.ItemHeight := DebugCallStackList.Canvas.TextHeight('0') + 1;
+
+  FindResultsList.Canvas.Font.Assign(FindResultsList.Font);
+  FindResultsList.ItemHeight := FindResultsList.Canvas.TextHeight('0') + 1;
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
@@ -3778,6 +3882,14 @@ procedure TCompileForm.UpdateTheme;
     end;
   end;
 
+  procedure SetListTheme(const List: TListBox);
+  begin
+    List.Font.Color := FTheme.Colors[tcFore];
+    List.Color := FTheme.Colors[tcBack];
+    List.Invalidate;
+    SetControlTheme(List);
+  end;
+
 var
   Memo: TCompScintEdit;
 begin
@@ -3803,18 +3915,10 @@ begin
     MemosTabSet.Theme := nil;
     OutputTabSet.Theme := nil;
   end;
-  CompilerOutputList.Font.Color := FTheme.Colors[tcFore];
-  CompilerOutputList.Color := FTheme.Colors[tcBack];
-  CompilerOutputList.Invalidate;
-  SetControlTheme(CompilerOutputList);
-  DebugOutputList.Font.Color := FTheme.Colors[tcFore];
-  DebugOutputList.Color := FTheme.Colors[tcBack];
-  DebugOutputList.Invalidate;
-  SetControlTheme(DebugOutputList);
-  DebugCallStackList.Font.Color := FTheme.Colors[tcFore];
-  DebugCallStackList.Color := FTheme.Colors[tcBack];
-  DebugCallStackList.Invalidate;
-  SetControlTheme(DebugCallStackList);
+  SetListTheme(CompilerOutputList);
+  SetListTheme(DebugOutputList);
+  SetListTheme(DebugCallStackList);
+  SetListTheme(FindResultsList);
 end;
 
 procedure TCompileForm.UpdateThemeData(const Close, Open: Boolean);
@@ -4145,8 +4249,10 @@ begin
     ListBox := CompilerOutputList
   else if DebugOutputList.Visible then
     ListBox := DebugOutputList
+  else if DebugCallStackList.Visible then
+    ListBox := DebugCallStackList
   else
-    ListBox := DebugCallStackList;
+    ListBox := FindResultsList;
   Text := '';
   if ListBox.SelCount > 0 then begin
     for I := 0 to ListBox.Items.Count-1 do begin
@@ -4169,8 +4275,10 @@ begin
     ListBox := CompilerOutputList
   else if DebugOutputList.Visible then
     ListBox := DebugOutputList
+  else if DebugCallStackList.Visible then
+    ListBox := DebugCallStackList
   else
-    ListBox := DebugCallStackList;
+    ListBox := FindResultsList;
   ListBox.Items.BeginUpdate;
   try
     for I := 0 to ListBox.Items.Count-1 do
@@ -4425,6 +4533,73 @@ begin
   Canvas.TextOut(Rect.Left, Rect.Top, S);
 end;
 
+procedure TCompileForm.FindResultsListDblClick(Sender: TObject);
+var
+  FindResult: TFindResult;
+  Memo: TCompScintFileEdit;
+  I: Integer;
+begin
+  I := FindResultsList.ItemIndex;
+  if I <> -1 then begin
+    FindResult := FindResultsList.Items.Objects[I] as TFindResult;
+    if FindResult <> nil then begin
+      for Memo in FFileMemos do begin
+        if Memo.Used and (PathCompare(Memo.Filename, FindResult.Filename) = 0) then begin
+          MoveCaretAndActivateMemo(Memo, FindResult.Line, True);
+          Memo.Selection := FindResult.Range;
+          ActiveControl := Memo;
+          Exit;
+        end;
+      end;
+      MsgBox('File not opened.', SCompilerFormCaption, mbError, MB_OK);
+    end;
+  end;
+end;
+
+procedure TCompileForm.FindResultsListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
+  State: TOwnerDrawState);
+var
+  Canvas: TCanvas;
+  S, S2: String;
+  FindResult: TFindResult;
+  StartI, EndI: Integer;
+  SaveColor: TColor;
+begin
+  Canvas := FindResultsList.Canvas;
+  S := FindResultsList.Items[Index];
+  FindResult := FindResultsList.Items.Objects[Index] as TFindResult;
+
+  Canvas.FillRect(Rect);
+  Inc(Rect.Left, 2);
+  if FindResult = nil then begin
+    Canvas.Font.Style := [fsBold];
+    Canvas.TextOut(Rect.Left, Rect.Top, S);
+  end else if not (odSelected in State) then begin
+    StartI := FindResult.Range.StartPos - FindResult.LineStartPos + 1 + FindResult.PrefixStringLength;
+    EndI := FindResult.Range.EndPos - FindResult.LineStartPos + 1 + FindResult.PrefixStringLength;
+    if StartI > 1 then begin
+      Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, StartI-1));
+      Rect.Left := Canvas.PenPos.X;
+    end;
+    SaveColor := Canvas.Brush.Color;
+    if FTheme.Dark then
+      Canvas.Brush.Color := FTheme.Colors[tcRed]
+    else
+      Canvas.Brush.Color := FTheme.Colors[tcSelBack];
+    S2 := Copy(S, StartI, EndI-StartI);
+    Rect.Right := Rect.Left + Canvas.TextWidth(S2);
+    Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2); { TextRect instead of TextOut to avoid a margin around the text }
+    if EndI <= Length(S) then begin
+      Canvas.Brush.Color := SaveColor;
+      S2 := Copy(S, EndI, MaxInt);
+      Rect.Left := Rect.Right;
+      Rect.Right := Rect.Left + Canvas.TextWidth(S2);
+      Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2);
+    end;
+  end else
+    Canvas.TextOut(Rect.Left, Rect.Top, S)
+end;
+
 procedure TCompileForm.OutputTabSetClick(Sender: TObject);
 begin
   case OutputTabSet.TabIndex of
@@ -4434,6 +4609,7 @@ begin
         CompilerOutputList.Visible := True;
         DebugOutputList.Visible := False;
         DebugCallStackList.Visible := False;
+        FindResultsList.Visible := False;
       end;
     tiDebugOutput:
       begin
@@ -4441,6 +4617,7 @@ begin
         DebugOutputList.Visible := True;
         CompilerOutputList.Visible := False;
         DebugCallStackList.Visible := False;
+        FindResultsList.Visible := False;
       end;
     tiDebugCallStack:
       begin
@@ -4448,6 +4625,15 @@ begin
         DebugCallStackList.Visible := True;
         CompilerOutputList.Visible := False;
         DebugOutputList.Visible := False;
+        FindResultsList.Visible := False;
+      end;
+    tiFindResults:
+      begin
+        FindResultsList.BringToFront;
+        FindResultsList.Visible := True;
+        CompilerOutputList.Visible := False;
+        DebugOutputList.Visible := False;
+        DebugCallStackList.Visible := False;
       end;
   end;
 end;

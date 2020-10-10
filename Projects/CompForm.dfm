@@ -60,6 +60,22 @@ object CompileForm: TCompileForm
       FullRepaint = False
       TabOrder = 0
       Visible = False
+      object FindResultsList: TListBox
+        Left = 0
+        Top = 0
+        Width = 361
+        Height = 83
+        Style = lbOwnerDrawFixed
+        Align = alClient
+        BorderStyle = bsNone
+        ItemHeight = 13
+        MultiSelect = True
+        PopupMenu = ListPopupMenu
+        TabOrder = 3
+        Visible = False
+        OnDblClick = FindResultsListDblClick
+        OnDrawItem = FindResultsListDrawItem
+      end
       object DebugCallStackList: TListBox
         Left = 0
         Top = 0
@@ -114,7 +130,8 @@ object CompileForm: TCompileForm
         Tabs.Strings = (
           'Compiler Output'
           'Debug Output'
-          'Debug Call Stack')
+          'Debug Call Stack'
+          'Find Results')
         OnClick = OutputTabSetClick
       end
     end
@@ -407,6 +424,11 @@ object CompileForm: TCompileForm
         ShortCut = 16454
         OnClick = EFindClick
       end
+      object EFindInFiles: TMenuItem
+        Caption = 'F&ind in Files...'
+        ShortCut = 24646
+        OnClick = EFindInFilesClick
+      end
       object EFindNext: TMenuItem
         Caption = 'Find &Next'
         ShortCut = 114
@@ -500,6 +522,11 @@ object CompileForm: TCompileForm
         Caption = 'Debug &Call Stack'
         RadioItem = True
         OnClick = VDebugCallStackClick
+      end
+      object VFindResults: TMenuItem
+        Caption = '&Find Results'
+        RadioItem = True
+        OnClick = VFindResultsClick
       end
       object VHide: TMenuItem
         Caption = '&Hide Bottom Pane'
@@ -2170,5 +2197,11 @@ object CompileForm: TCompileForm
       end>
     Left = 152
     Top = 96
+  end
+  object FindInFilesDialog: TFindDialog
+    Options = [frDown, frHideUpDown]
+    OnFind = FindInFilesDialogFind
+    Left = 136
+    Top = 152
   end
 end
