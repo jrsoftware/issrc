@@ -58,6 +58,13 @@ type
 
   TIncludedFiles = TObjectList<TIncludedFile>;
 
+  TFindResult = class
+    Range: TScintRange;
+    PrefixStringLength, Line, LineStartPos: Integer;
+  end;
+
+  TFindResults = TObjectList<TFindResult>;
+
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -294,6 +301,7 @@ type
     procedure FindInFilesDialogFind(Sender: TObject);
     procedure FindResultsListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
       State: TOwnerDrawState);
+    procedure FindResultsListDblClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -335,6 +343,7 @@ type
     FOptionsLoaded: Boolean;
     FTheme: TTheme;
     FSignTools: TStringList;
+    FFindResults: TFindResults;
     FCompiling: Boolean;
     FCompileWantAbort: Boolean;
     FBecameIdle: Boolean;
@@ -496,7 +505,7 @@ var
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -764,6 +773,7 @@ begin
   FMRUParametersList := TStringList.Create;
 
   FSignTools := TStringList.Create;
+  FFindResults := TFindResults.Create;
 
   FIncludedFiles := TIncludedFiles.Create;
   UpdatePreprocMemos;
@@ -836,6 +846,7 @@ begin
   FTheme.Free;
   DestroyDebugInfo;
   FIncludedFiles.Free;
+  FFindResults.Free;
   FSignTools.Free;
   FMRUParametersList.Free;
   FMRUMainFilesList.Free;
@@ -2356,14 +2367,16 @@ var
   Memo: TCompScintFileEdit;
   Hits, FileHits, Files, StartPos, EndPos, Line: Integer;
   Range: TScintRange;
+  FindResult: TFindResult;
+  Prefix: String;
 begin
   FindResultsList.Clear;
   SendMessage(FindResultsList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+  FFindResults.Clear;
 
   Hits := 0;
   Files := 0;
 
-  { Search all files, counting max 1 hit per line }
   for Memo in FFileMemos do begin
     if Memo.Used then begin
       StartPos := 0;
@@ -2373,9 +2386,16 @@ begin
             Memo.FindText(StartPos, EndPos, FindInFilesDialog.FindText,
               FindOptionsToSearchOptions(FindInFilesDialog.Options), Range) do begin
         Line := Memo.GetLineFromPosition(Range.StartPos);
-        FindResultsList.Items.Add(Format('  Line %d: %s', [Line+1, Memo.Lines[Line]]));
+        Prefix := Format('  Line %d: ', [Line+1]);
+        FindResult := TFindResult.Create;
+        FindResult.Range := Range;
+        FindResult.Line := Line;
+        FindResult.LineStartPos := Memo.GetPositionFromLine(Line);
+        FindResult.PrefixStringLength := Length(Prefix);
+        FFindResults.Add(FindResult);
+        FindResultsList.Items.AddObject(Prefix + Memo.Lines[Line], FindResult);
         Inc(FileHits);
-        StartPos := Memo.GetLineEndPosition(Line); { Continue with the next line }
+        StartPos := Range.EndPos;
       end;
       Inc(Files);
       if FileHits > 0 then begin
@@ -2385,7 +2405,7 @@ begin
     end;
   end;
 
-  FindResultsList.Items.Insert(0, Format('Search "%s" (%d hits in %d files)', [FindInFilesDialog.FindText, Hits, Files]));
+  FindResultsList.Items.Insert(0, Format('Find "%s" (%d hits in %d files)', [FindInFilesDialog.FindText, Hits, Files]));
 
   FindInFilesDialog.CloseDialog;
 
@@ -2456,17 +2476,17 @@ end;
 procedure TCompileForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
 begin
   CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
-  CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0');
+  CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0') + 1;
 
   DebugOutputList.Canvas.Font.Assign(DebugOutputList.Font);
   FDebugLogListTimestampsWidth := DebugOutputList.Canvas.TextWidth(Format('[00%s00%s00%s000]   ', [FormatSettings.TimeSeparator, FormatSettings.TimeSeparator, FormatSettings.DecimalSeparator]));
-  DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0');
+  DebugOutputList.ItemHeight := DebugOutputList.Canvas.TextHeight('0') + 1;
 
   DebugCallStackList.Canvas.Font.Assign(DebugCallStackList.Font);
-  DebugCallStackList.ItemHeight := DebugCallStackList.Canvas.TextHeight('0');
+  DebugCallStackList.ItemHeight := DebugCallStackList.Canvas.TextHeight('0') + 1;
 
   FindResultsList.Canvas.Font.Assign(FindResultsList.Font);
-  FindResultsList.ItemHeight := FindResultsList.Canvas.TextHeight('0');
+  FindResultsList.ItemHeight := FindResultsList.Canvas.TextHeight('0') + 1;
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
@@ -4510,20 +4530,64 @@ begin
   Canvas.TextOut(Rect.Left, Rect.Top, S);
 end;
 
+procedure TCompileForm.FindResultsListDblClick(Sender: TObject);
+var
+  FindResult: TFindResult;
+  I: Integer;
+begin
+  I := FindResultsList.ItemIndex;
+  if I <> -1 then begin
+    FindResult := FindResultsList.Items.Objects[I] as TFindResult;
+    if FindResult <> nil then begin
+      MoveCaretAndActivateMemo(FActiveMemo, FindResult.Line, True);
+      FActiveMemo.Selection := FindResult.Range;
+      ActiveControl := FActiveMemo;
+    end;
+  end;
+end;
+
 procedure TCompileForm.FindResultsListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
   State: TOwnerDrawState);
 var
   Canvas: TCanvas;
-  S: String;
+  S, S2: String;
+  FindResult: TFindResult;
+  StartI, EndI: Integer;
+  SaveColor: TColor;
 begin
   Canvas := FindResultsList.Canvas;
   S := FindResultsList.Items[Index];
+  FindResult := FindResultsList.Items.Objects[Index] as TFindResult;
 
   Canvas.FillRect(Rect);
   Inc(Rect.Left, 2);
-  if (S <> '') and (S[1] <> ' ') then
+  if FindResult = nil then begin
     Canvas.Font.Style := [fsBold];
-  Canvas.TextOut(Rect.Left, Rect.Top, S);
+    Canvas.TextOut(Rect.Left, Rect.Top, S);
+  end else if not (odSelected in State) then begin
+    StartI := FindResult.Range.StartPos - FindResult.LineStartPos + 1 + FindResult.PrefixStringLength;
+    EndI := FindResult.Range.EndPos - FindResult.LineStartPos + 1 + FindResult.PrefixStringLength;
+    if StartI > 1 then begin
+      Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, StartI-1));
+      Rect.Left := Canvas.PenPos.X;
+    end;
+    SaveColor := Canvas.Brush.Color;
+    if FTheme.Dark then
+      Canvas.Brush.Color := FTheme.Colors[tcRed]
+    else
+      Canvas.Brush.Color := FTheme.Colors[tcSelBack];
+    S2 := Copy(S, StartI, EndI-StartI);
+    Rect.Right := Rect.Left + Canvas.TextWidth(S2);
+    Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2); { TextRect instead of TextOut to avoid a margin around the text }
+    if EndI <= Length(S) then begin
+      Canvas.Brush.Color := SaveColor;
+      S2 := Copy(S, EndI, MaxInt);
+      Rect.Left := Rect.Right;
+      Rect.Right := Rect.Left + Canvas.TextWidth(S2);
+      Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2);
+    end;
+  end else
+    Canvas.TextOut(Rect.Left, Rect.Top, S)
 end;
 
 procedure TCompileForm.OutputTabSetClick(Sender: TObject);

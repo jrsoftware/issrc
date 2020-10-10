@@ -73,6 +73,7 @@ object CompileForm: TCompileForm
         PopupMenu = ListPopupMenu
         TabOrder = 3
         Visible = False
+        OnDblClick = FindResultsListDblClick
         OnDrawItem = FindResultsListDrawItem
       end
       object DebugCallStackList: TListBox
