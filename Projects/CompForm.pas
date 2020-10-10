@@ -403,7 +403,6 @@ type
       var Output: String): Integer;
     procedure FindNext;
     function FromCurrentPPI(const XY: Integer): Integer;
-    function SelectionToFindText: String;
     procedure Go(AStepMode: TStepMode);
     procedure HideError;
     procedure InitializeFindText(Dlg: TFindDialog);
@@ -2280,23 +2279,14 @@ begin
   UpdateModifiedPanel;
 end;
 
-function TCompileForm.SelectionToFindText: String;
+procedure TCompileForm.InitializeFindText(Dlg: TFindDialog);
 var
   S: String;
 begin
   S := FActiveMemo.SelText;
   if (S <> '') and (Pos(#13, S) = 0) and (Pos(#10, S) = 0) then
-    Result := S
+    Dlg.FindText := S
   else
-    Result := ''
-end;
-
-procedure TCompileForm.InitializeFindText(Dlg: TFindDialog);
-var
-  S: String;
-begin
-  S := SelectionToFindText;
-  if S = '' then
     Dlg.FindText := FLastFindText;
 end;
 
@@ -2314,7 +2304,7 @@ end;
 
 procedure TCompileForm.EFindInFilesClick(Sender: TObject);
 begin
-  FindInFilesDialog.FindText := SelectionToFindText;
+  InitializeFindText(FindInFilesDialog);
   FindInFilesDialog.Execute;
 end;
 
@@ -2372,6 +2362,8 @@ var
   FindResult: TFindResult;
   Prefix: String;
 begin
+  FLastFindText := FindInFilesDialog.FindText;
+
   FindResultsList.Clear;
   SendMessage(FindResultsList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
   FFindResults.Clear;
@@ -2385,7 +2377,7 @@ begin
       EndPos := FActiveMemo.RawTextLength;
       FileHits := 0;
       while (StartPos < EndPos) and
-            Memo.FindText(StartPos, EndPos, FindInFilesDialog.FindText,
+            Memo.FindText(StartPos, EndPos, FLastFindText,
               FindOptionsToSearchOptions(FindInFilesDialog.Options), Range) do begin
         Line := Memo.GetLineFromPosition(Range.StartPos);
         Prefix := Format('  Line %d: ', [Line+1]);
@@ -2414,8 +2406,6 @@ begin
 
   OutputTabSet.TabIndex := tiFindResults;
   SetStatusPanelVisible(True);
-
-  ActiveControl := FindResultsList;
 end;
 
 procedure TCompileForm.EReplaceClick(Sender: TObject);
