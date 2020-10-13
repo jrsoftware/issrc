@@ -70,7 +70,7 @@
     <contentstopic title="Uninstaller Command Line Parameters" topic="uninstcmdline" />
     <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
-    <contentstopic title="Setup Compiler keyboard commands" topic="compformshortcuts" />
+    <contentstopic title="Setup Compiler Keyboard Commands" topic="compformshortcuts" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />
     <contentstopic title="Frequently Asked Questions" topic="faq" />
@@ -251,7 +251,7 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 <link topic="uninstalldeletesection">[UninstallDelete] section</link><br/>
 <link topic="runsection">[UninstallRun] section</link><br/>
 <link topic="scriptintro">Pascal Scripting: Introduction</link>
-<link topic="compformshortcuts">Setup Compiler keyboard commands</link>
+<link topic="compformshortcuts">Setup Compiler Keyboard Commands</link>
 </p>
 
 </body>
@@ -3105,8 +3105,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 
 
-<topic name="compformshortcuts" title="Setup Compiler keyboard commands">
-<keyword value="Setup Compiler keyboard commands" />
+<topic name="compformshortcuts" title="Setup Compiler Keyboard Commands">
+<keyword value="Setup Compiler Keyboard Commands" />
 <body>
 
 <p>Besides the keyboard commands listed in the menus, the Setup Compiler supports the following additional keyboard commands:</p>
@@ -3189,6 +3189,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 <tr>
   <td>Extend rectangular selection to end of line.</td><td>Alt+Shift+End</td>
+</tr>
+<tr>
+  <td>Complete word.</td><td>Ctrl+Space or Alt+Right</td>
 </tr>
 </table>
 
