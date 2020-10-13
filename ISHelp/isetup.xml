@@ -164,7 +164,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <keyword value="Creating Installations" />
 <body>
 
-<p>Installations are created by means of <i>scripts</i>, which are ASCII or UTF-8 encoded text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!).</p>
+<p>Installations are created by means of <i>scripts</i>, which are ASCII or Unicode (UTF-8 encoded with a BOM) text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!).</p>
 
 <p>Scripts have an ".iss" (meaning Inno Setup Script) extension. The script controls every aspect of the installation. It specifies which files are to be installed and where, what shortcuts are to be created and what they are to be named, and so on.</p>
 
@@ -2120,6 +2120,7 @@ Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
 <p>Specifies the name(s) of the .isl file(s) to read the default messages from. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
 <p>Each message file may contain a <link topic="langoptionssection">[LangOptions] section</link>, a <link topic="messagessection">[Messages] section</link>, and a <link topic="custommessagessection">[CustomMessages] section.</link></p>
 <p>When multiple files are specified, they are read in the order they are specified, thus the last message file overrides any language options or messages from previous files. Any language options or messages in the main script override the ones from message files.</p>
+<p>If an Unicode file is used, it must be UTF-8 encoded with a BOM.</p>
 <examples>
 <pre>
 MessagesFile: "compiler:Dutch.isl"
@@ -2130,6 +2131,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 
 <param name="LicenseFile">
 <p>Specifies the name of an optional license agreement file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 or UTF-16LE encoded with a BOM.</p>
 <example>
 <pre>LicenseFile: "license-Dutch.txt"</pre>
 </example>
@@ -2137,6 +2139,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 
 <param name="InfoBeforeFile">
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 or UTF-16LE encoded with a BOM.</p>
 <example>
 <pre>InfoBeforeFile: "infobefore-Dutch.txt"</pre>
 </example>
@@ -2145,6 +2148,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 <param name="InfoAfterFile">
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the Setup Compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
 <p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 or UTF-16LE encoded with a BOM.</p>
 <example>
 <pre>InfoAfterFile: "infoafter-Dutch.txt"</pre>
 </example>
