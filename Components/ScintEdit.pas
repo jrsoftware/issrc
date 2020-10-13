@@ -2,7 +2,7 @@ unit ScintEdit;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -224,6 +224,7 @@ type
     procedure SetEmptySelection;
     procedure SetLineIndentation(const Line, Indentation: Integer);
     procedure SetSavePoint;
+    procedure SetWordChars(const S: AnsiString);
     procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
     procedure Undo;
     procedure UpdateStyleAttributes;
@@ -1364,6 +1365,11 @@ begin
     FVirtualSpaceOptions := Value;
     ApplyOptions;
   end;
+end;
+
+procedure TScintEdit.SetWordChars(const S: AnsiString);
+begin
+  CallStr(SCI_SETWORDCHARS, 0, S);
 end;
 
 procedure TScintEdit.SetWordWrap(const Value: Boolean);
