@@ -3193,6 +3193,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <tr>
   <td>Complete word.</td><td>Ctrl+Space or Alt+Right</td>
 </tr>
+<tr>
+  <td>Fillup complete word.</td><td>Tab (always) or Enter (always) or Space (for ISPP directives) or \ (for constants) or : (for section parameters) or = (for section directives).</td>
+</tr>
 </table>
 
 </body>
