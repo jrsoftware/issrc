@@ -19,6 +19,7 @@ type
     Inserting: Boolean;
     StartPos, Length, LinesDelta: Integer;
   end;
+  TScintEditOnAutoCompleteSelection = TNotifyEvent;
   TScintEditChangeEvent = procedure(Sender: TObject;
     const Info: TScintEditChangeInfo) of object;
   TScintEditCharAddedEvent = procedure(Sender: TObject; Ch: AnsiChar) of object;
@@ -65,6 +66,7 @@ type
     FLeadBytes: TScintRawCharSet;
     FLineNumbers: Boolean;
     FLines: TScintEditStrings;
+    FOnAutoCompleteSelection: TScintEditOnAutoCompleteSelection;
     FOnChange: TScintEditChangeEvent;
     FOnCharAdded: TScintEditCharAddedEvent;
     FOnDropFiles: TScintEditDropFilesEvent;
@@ -182,6 +184,7 @@ type
     procedure ForceModifiedState;
     function GetCharAtPosition(const Pos: Integer): AnsiChar;
     function GetColumnFromPosition(const Pos: Integer): Integer;
+    function GetDefaultWordChars: AnsiString;
     function GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
     function GetIndicatorsAtPosition(const Pos: Integer): TScintIndicatorNumbers;
     function GetLineEndPosition(const Line: Integer): Integer;
@@ -221,6 +224,7 @@ type
     procedure SetAutoCompleteStopChars(const StopChars: AnsiString);
     procedure SetBraceHighlighting(const Pos1, Pos2: Integer);
     procedure SetCursorID(const CursorID: Integer);
+    procedure SetDefaultWordChars;
     procedure SetEmptySelection;
     procedure SetLineIndentation(const Line, Indentation: Integer);
     procedure SetSavePoint;
@@ -282,6 +286,7 @@ type
       write SetVirtualSpaceOptions default [];
     property WordWrap: Boolean read FWordWrap write SetWordWrap default False;
     property Zoom: Integer read GetZoom write SetZoom default 0;
+    property OnAutoCompleteSelection: TScintEditOnAutoCompleteSelection read FOnAutoCompleteSelection write FOnAutoCompleteSelection;
     property OnChange: TScintEditChangeEvent read FOnChange write FOnChange;
     property OnCharAdded: TScintEditCharAddedEvent read FOnCharAdded write FOnCharAdded;
     property OnDropFiles: TScintEditDropFilesEvent read FOnDropFiles write FOnDropFiles;
@@ -619,6 +624,7 @@ begin
   if Win32Platform = VER_PLATFORM_WIN32_NT then
     Call(SCI_SETKEYSUNICODE, 1, 0);
 {$ENDIF}
+  SetDefaultWordChars;
   ApplyOptions;
   UpdateStyleAttributes;
   if FAcceptDroppedFiles then
@@ -735,6 +741,11 @@ var
 begin
   Line := GetLineFromPosition(Pos);
   Result := Pos - GetPositionFromLine(Line);
+end;
+
+function TScintEdit.GetDefaultWordChars: AnsiString;
+begin
+  Result := 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_';
 end;
 
 function TScintEdit.GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
@@ -1015,6 +1026,11 @@ end;
 procedure TScintEdit.Notify(const N: TSCNotification);
 begin
   case N.nmhdr.code of
+    SCN_AUTOCSELECTION:
+      begin
+        if Assigned(FOnAutoCompleteSelection) then
+          FOnAutoCompleteSelection(Self);
+      end;
     SCN_CHARADDED:
       begin
         if Assigned(FOnCharAdded) then
@@ -1227,6 +1243,11 @@ end;
 procedure TScintEdit.SetCursorID(const CursorID: Integer);
 begin
   Call(SCI_SETCURSOR, CursorID, 0);
+end;
+
+procedure TScintEdit.SetDefaultWordChars;
+begin
+  SetWordChars(GetDefaultWordChars);
 end;
 
 procedure TScintEdit.SetEmptySelection;

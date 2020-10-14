@@ -375,6 +375,7 @@ type
     FLastReplaceText: String;
     FLastEvaluateConstantText: String;
     FSavePriorityClass: DWORD;
+    FSaveAutoCompleteWordChars: AnsiString;
     FBuildAnimationFrame: Cardinal;
     FLastAnimationTick: DWORD;
     FProgress, FProgressMax: Cardinal;
@@ -413,6 +414,7 @@ type
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure InvalidateStatusPanel(const Index: Integer);
     procedure LoadKnownIncludedFilesAndUpdateMemos(const AFilename: String);
+    procedure MemoAutoCompleteSelection(Sender: TObject);
     procedure MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
     procedure MemoCharAdded(Sender: TObject; Ch: AnsiChar);
     procedure MainMemoDropFiles(Sender: TObject; X, Y: Integer; AFiles: TStrings);
@@ -565,6 +567,7 @@ begin
   Memo.ShowHint := True;
   Memo.Styler := FMemosStyler;
   Memo.PopupMenu := PopupMenu;
+  Memo.OnAutoCompleteSelection := MemoAutoCompleteSelection;
   Memo.OnChange := MemoChange;
   Memo.OnCharAdded := MemoCharAdded;
   Memo.OnHintShow := MemoHintShow;
@@ -2067,6 +2070,7 @@ begin
     HelpFile := GetHelpFile;
     if Assigned(HtmlHelp) then begin
       HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
+      FActiveMemo.SetWordChars(FActiveMemo.GetDefaultWordChars + '#{}');
       S := FActiveMemo.WordAtCursor;
       if S <> '' then begin
         FillChar(KLink, SizeOf(KLink), 0);
@@ -2334,6 +2338,7 @@ begin
     StartPos := FActiveMemo.Selection.StartPos;
     EndPos := 0;
   end;
+  FActiveMemo.SetDefaultWordChars;
   if FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
      FindOptionsToSearchOptions(FLastFindOptions), Range) then
     FActiveMemo.Selection := Range
@@ -2376,6 +2381,7 @@ begin
       StartPos := 0;
       EndPos := FActiveMemo.RawTextLength;
       FileHits := 0;
+      Memo.SetDefaultWordChars;
       while (StartPos < EndPos) and
             Memo.FindText(StartPos, EndPos, FLastFindText,
               FindOptionsToSearchOptions(FindInFilesDialog.Options), Range) do begin
@@ -2432,6 +2438,7 @@ begin
     FActiveMemo.BeginUndoAction;
     try
       Pos := 0;
+      FActiveMemo.SetDefaultWordChars;
       while FActiveMemo.FindText(Pos, FActiveMemo.RawTextLength, FLastFindText,
          FindOptionsToSearchOptions(FLastFindOptions), Range) do begin
         NewRange := FActiveMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText);
@@ -2973,6 +2980,14 @@ begin
     UpdateModifiedPanel;
 end;
 
+procedure TCompileForm.MemoAutoCompleteSelection(Sender: TObject);
+begin
+  { Make sure the word replacement done by the autocomplete (after this event completes) uses correct word chars }
+  if FSaveAutoCompleteWordChars = '' then
+    Exit;  { shouldn't get here }
+  (Sender as TCompScintEdit).SetWordChars(FSaveAutoCompleteWordChars);
+end;
+
 procedure TCompileForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
 
   procedure MemoLinesInsertedOrDeleted(Memo: TCompScintFileEdit);
@@ -3025,8 +3040,6 @@ begin
 end;
 
 procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
-const
-  DefaultWordChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_';
 var
   CaretPos, Line, LinePos, WordStartPos, WordEndPos, CharsBefore, I,
     LangNamePos: Integer;
@@ -3044,7 +3057,7 @@ begin
   Line := FActiveMemo.GetLineFromPosition(CaretPos);
   LinePos := FActiveMemo.GetPositionFromLine(Line);
 
-  WordChars := DefaultWordChars;
+  WordChars := FActiveMemo.GetDefaultWordChars;
   if (Key = '#') or (Key = #0) then
     WordChars := WordChars + '#';
   if (Key = '{') or (Key = #0) then
@@ -3092,7 +3105,7 @@ begin
 
         { Only allow autocompletion if the '{' isn't escaped by another '{' }
         I := WordStartPos;
-        while I > LinePos do begin
+        if I > LinePos then begin
           I := FActiveMemo.GetPositionBefore(I);
           if I < LinePos then
             Exit;  { shouldn't get here }
@@ -3155,6 +3168,7 @@ begin
       end;
   end;
   FActiveMemo.ShowAutoComplete(CharsBefore, WordList);
+  FSaveAutoCompleteWordChars := WordChars;
 end;
 
 procedure TCompileForm.MemoCharAdded(Sender: TObject; Ch: AnsiChar);
@@ -3321,6 +3335,7 @@ begin
      (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode) then begin
     { Note: The '+ 1' is needed so that when the mouse is over a '.'
       between two words, it won't match the word to the left of the '.' }
+    FActiveMemo.SetDefaultWordChars;
     I := FActiveMemo.GetWordStartPosition(Pos + 1, True);
     J := FActiveMemo.GetWordEndPosition(Pos, True);
     if J > I then begin
