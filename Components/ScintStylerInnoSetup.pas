@@ -60,7 +60,7 @@ type
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FKeywordList: array[TInnoSetupStylerSection] of AnsiString;
-    FISPPKeywordList: AnsiString;
+    FISPPDirectivesList, FConstantsList: AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
@@ -72,6 +72,7 @@ type
     procedure BuildKeywordListFromParameters(const Section: TInnoSetupStylerSection;
       const Parameters: array of TInnoSetupStylerParamInfo);
     procedure BuildKeywordListFromISPPDirectives;
+    procedure BuildKeywordListFromConstants;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
       const Squigglify: Boolean);
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
@@ -87,6 +88,7 @@ type
       const Style: TInnoSetupStylerStyle);
     procedure StyleConstsUntilChars(const Chars: TScintRawCharSet;
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
+    procedure SetISPPInstalled(const Value: Boolean);
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
     procedure GetStyleAttributes(const Style: Integer;
@@ -99,8 +101,9 @@ type
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     property KeywordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordList;
-    property ISPPKeywordList: AnsiString read FISPPKeywordList;
-    property ISPPInstalled: Boolean read FISPPInstalled write FISPPInstalled;
+    property ISPPDirectivesList: AnsiString read FISPPDirectivesList;
+    property ConstantsList: AnsiString read FConstantsList;
+    property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
     property Theme: TTheme read FTheme write FTheme;
   end;
 
@@ -307,6 +310,82 @@ const
     (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
     (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
 
+   Constants: array[0..72] of TInnoSetupStylerParamInfo = (
+    { #expr handled separately - also doesnt include constants with non words chars }
+    (Name: '{'),
+    (Name: 'app'),
+    (Name: 'win'),
+    (Name: 'sys'),
+    (Name: 'sysnative'),
+    (Name: 'syswow64'),
+    (Name: 'src'),
+    (Name: 'sd'),
+    (Name: 'commonpf'),
+    (Name: 'commonpf32'),
+    (Name: 'commonpf64'),
+    (Name: 'commoncf'),
+    (Name: 'commoncf32'),
+    (Name: 'commoncf64'),
+    (Name: 'tmp'),
+    (Name: 'commonfonts'),
+    (Name: 'dao'),
+    (Name: 'dotnet11'),
+    (Name: 'dotnet20'),
+    (Name: 'dotnet2032'),
+    (Name: 'dotnet2064'),
+    (Name: 'dotnet40'),
+    (Name: 'dotnet4032'),
+    (Name: 'dotnet4064'),
+    (Name: 'group'),
+    (Name: 'localappdata'),
+    (Name: 'userappdata'),
+    (Name: 'commonappdata'),
+    (Name: 'usercf'),
+    (Name: 'userdesktop'),
+    (Name: 'commondesktop'),
+    (Name: 'userdocs'),
+    (Name: 'commondocs'),
+    (Name: 'userfavorites'),
+    (Name: 'userfonts'),
+    (Name: 'userpf'),
+    (Name: 'userprograms'),
+    (Name: 'commonprograms'),
+    (Name: 'usersavedgames'),
+    (Name: 'usersavedgames'),
+    (Name: 'userstartmenu'),
+    (Name: 'commonstartmenu'),
+    (Name: 'userstartup'),
+    (Name: 'commonstartup'),
+    (Name: 'usertemplates'),
+    (Name: 'commontemplates'),
+    (Name: 'autoappdata'),
+    (Name: 'autocf'),
+    (Name: 'autocf32'),
+    (Name: 'autocf64'),
+    (Name: 'autodesktop'),
+    (Name: 'autodocs'),
+    (Name: 'autofonts'),
+    (Name: 'autopf'),
+    (Name: 'autopf32'),
+    (Name: 'autopf64'),
+    (Name: 'autoprograms'),
+    (Name: 'autostartmenu'),
+    (Name: 'cmd'),
+    (Name: 'computername'),
+    (Name: 'groupname'),
+    (Name: 'hwnd'),
+    (Name: 'wizardhwnd'),
+    (Name: 'language'),
+    (Name: 'srcexe'),
+    (Name: 'uninstallexe'),
+    (Name: 'sysuserinfoname'),
+    (Name: 'sysuserinfoorg'),
+    (Name: 'userinfoname'),
+    (Name: 'userinfoorg'),
+    (Name: 'userinfoserial'),
+    (Name: 'username'),
+    (Name: 'log'));
+
 const
   inSquiggly = 0;
   inPendingSquiggly = 1;
@@ -413,6 +492,7 @@ begin
   BuildKeywordListFromParameters(scUninstallDelete, DeleteSectionParameters);
   BuildKeywordListFromParameters(scUninstallRun, RunSectionParameters);
   BuildKeywordListFromISPPDirectives;
+  BuildKeywordListFromConstants;
 end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
@@ -526,7 +606,24 @@ begin
   try
     for I := 0 to High(ISPPDirectives) do
       SL.Add('#' + String(ISPPDirectives[I].Name));
-    FISPPKeywordList := BuildWordListFromWordStringList(SL);
+    FISPPDirectivesList := BuildWordListFromWordStringList(SL);
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure TInnoSetupStyler.BuildKeywordListFromConstants;
+var
+  SL: TStringList;
+  I: Integer;
+begin
+  SL := TStringList.Create;
+  try
+    for I := 0 to High(Constants) do
+      SL.Add('{' + String(Constants[I].Name) + '}');
+    if ISPPInstalled then
+      SL.Add('{#expr}');
+    FConstantsList := BuildWordListFromWordStringList(SL);
   finally
     SL.Free;
   end;
@@ -1179,6 +1276,14 @@ begin
       end else
         Inc(I);
     end;
+  end;
+end;
+
+procedure TInnoSetupStyler.SetISPPInstalled(const Value: Boolean);
+begin
+  if Value <> FISPPInstalled then begin
+    FISPPInstalled := Value;
+    BuildKeywordListFromConstants;
   end;
 end;
 
