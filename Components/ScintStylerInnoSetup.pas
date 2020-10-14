@@ -66,6 +66,7 @@ type
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
+    function BuildWordListFromWordStringList(const WordStringList: TStringList): AnsiString;
     procedure BuildKeywordListFromEnumType(const Section: TInnoSetupStylerSection;
       const EnumTypeInfo: Pointer);
     procedure BuildKeywordListFromParameters(const Section: TInnoSetupStylerSection;
@@ -350,28 +351,6 @@ begin
   Result := True;
 end;
 
-
-function GetASCIISortedInsertPos(const SL: TStringList; const S: String): Integer;
-var
-  L, H, I, C: Integer;
-begin
-  L := 0;
-  H := SL.Count - 1;
-  while L <= H do begin
-    I := (L + H) div 2;
-    C := CompareText(SL[I], S);
-    if C = 0 then begin
-      L := I;
-      Break;
-    end;
-    if C < 0 then
-      L := I + 1
-    else
-      H := I - 1;
-  end;
-  Result := L;
-end;
-
 function MapSectionNameString(const S: TScintRawString): TInnoSetupStylerSection;
 type
   TSectionMapEntry = record
@@ -454,34 +433,71 @@ begin
   ApplyIndicators([inSquiggly], StartIndex, CurIndex - 1);
 end;
 
+function TInnoSetupStyler.BuildWordListFromWordStringList(const WordStringList: TStringList): AnsiString;
+
+  function GetASCIISortedInsertPos(const SL: TStringList; const S: String): Integer;
+  var
+    L, H, I, C: Integer;
+  begin
+    L := 0;
+    H := SL.Count - 1;
+    while L <= H do begin
+      I := (L + H) div 2;
+      C := CompareText(SL[I], S);
+      if C = 0 then begin
+        L := I;
+        Break;
+      end;
+      if C < 0 then
+        L := I + 1
+      else
+        H := I - 1;
+    end;
+    Result := L;
+  end;
+
+var
+  SortedWordStringList: TStringList;
+  S: String;
+  A: AnsiString;
+  I: Integer;
+begin
+  SortedWordStringList := TStringList.Create;
+  try
+    { Scintilla uses an ASCII binary search so the list must be in
+      ASCII sort order (case-insensitive). (TStringList's Sort method is
+      not suitable as it uses AnsiCompareText.) }
+    for I := 0 to WordStringList.Count-1 do begin
+      S := WordStringList[I];
+      SortedWordStringList.Insert(GetASCIISortedInsertPos(SortedWordStringList, S), S);
+    end;
+    for I := 0 to SortedWordStringList.Count - 1 do
+    begin
+      A := AnsiString(SortedWordStringList[I]);
+      if I = 0 then
+        Result := A
+      else
+        Result:= Result + ' ' + A;
+    end;
+  finally
+    SortedWordStringList.Free;
+  end;
+end;
+
 procedure TInnoSetupStyler.BuildKeywordListFromEnumType(
   const Section: TInnoSetupStylerSection; const EnumTypeInfo: Pointer);
 var
   SL: TStringList;
   I: Integer;
-  S: String;
-  A, WordList: AnsiString;
 begin
   SL := TStringList.Create;
   try
-    { Scintilla uses an ASCII binary search so the list must be in
-      ASCII sort order (case-insensitive). (TStringList's Sort method is
-      not suitable as it uses AnsiCompareText.) }
-    for I := 0 to GetTypeData(EnumTypeInfo).MaxValue do begin
-      S := Copy(GetEnumName(EnumTypeInfo, I), 3, Maxint);
-      SL.Insert(GetASCIISortedInsertPos(SL, S), S);
-    end;
-    for I := 0 to SL.Count-1 do begin
-      A := AnsiString(SL[I]);
-      if I = 0 then
-        WordList := A
-      else
-        WordList := WordList + ' ' + A;
-    end;
+    for I := 0 to GetTypeData(EnumTypeInfo).MaxValue do
+      SL.Add(Copy(GetEnumName(EnumTypeInfo, I), 3, Maxint));
+    FKeywordList[Section] := BuildWordListFromWordStringList(SL);
   finally
     SL.Free;
   end;
-  FKeywordList[Section] := WordList;
 end;
 
 procedure TInnoSetupStyler.BuildKeywordListFromParameters(
@@ -490,58 +506,30 @@ procedure TInnoSetupStyler.BuildKeywordListFromParameters(
 var
   SL: TStringList;
   I: Integer;
-  S: String;
-  A, WordList: AnsiString;
 begin
   SL := TStringList.Create;
   try
-    { Scintilla uses an ASCII binary search so the list must be in
-      ASCII sort order (case-insensitive). (TStringList's Sort method is
-      not suitable as it uses AnsiCompareText.) }
-    for I := 0 to High(Parameters) do begin
-      S := String(Parameters[I].Name);
-      SL.Insert(GetASCIISortedInsertPos(SL, S), S);
-    end;
-    for I := 0 to SL.Count-1 do begin
-      A := AnsiString(SL[I]);
-      if I = 0 then
-        WordList := A
-      else
-        WordList := WordList + ' ' + A;
-    end;
+    for I := 0 to High(Parameters) do
+      SL.Add(String(Parameters[I].Name));
+    FKeywordList[Section] := BuildWordListFromWordStringList(SL);
   finally
     SL.Free;
   end;
-  FKeywordList[Section] := WordList;
 end;
 
 procedure TInnoSetupStyler.BuildKeywordListFromISPPDirectives;
 var
   SL: TStringList;
   I: Integer;
-  S: String;
-  A, WordList: AnsiString;
 begin
   SL := TStringList.Create;
   try
-    { Scintilla uses an ASCII binary search so the list must be in
-      ASCII sort order (case-insensitive). (TStringList's Sort method is
-      not suitable as it uses AnsiCompareText.) }
-    for I := 0 to High(ISPPDirectives) do begin
-      S := '#' + String(ISPPDirectives[I].Name);
-      SL.Insert(GetASCIISortedInsertPos(SL, S), S);
-    end;
-    for I := 0 to SL.Count-1 do begin
-      A := AnsiString(SL[I]);
-      if I = 0 then
-        WordList := A
-      else
-        WordList := WordList + ' ' + A;
-    end;
+    for I := 0 to High(ISPPDirectives) do
+      SL.Add('#' + String(ISPPDirectives[I].Name));
+    FISPPKeywordList := BuildWordListFromWordStringList(SL);
   finally
     SL.Free;
   end;
-  FISPPKeywordList := WordList;
 end;
 
 procedure TInnoSetupStyler.CommitStyle(const Style: TInnoSetupStylerStyle);
