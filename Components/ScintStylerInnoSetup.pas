@@ -16,6 +16,9 @@ interface
 uses
   SysUtils, Classes, Graphics, ScintEdit, ModernColors;
 
+const
+  InnoSetupStylerWordListSeparator = #9;
+
 type
   { Internally-used types }
   TInnoSetupStylerParamInfo = record
@@ -310,8 +313,16 @@ const
     (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
     (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
 
+   ConstantsWithParam: array[0..5] of TInnoSetupStylerParamInfo = (
+    (Name: 'cm'),
+    (Name: 'code'),
+    (Name: 'drive'),
+    (Name: 'ini'),
+    (Name: 'param'),
+    (Name: 'reg'));
+
    Constants: array[0..71] of TInnoSetupStylerParamInfo = (
-    { #expr handled separately - also doesnt include constants with non words chars }
+    { #emit and #file handled separately - also doesnt include constants with non words chars }
     (Name: '{'),
     (Name: 'app'),
     (Name: 'win'),
@@ -556,7 +567,7 @@ begin
       if I = 0 then
         Result := A
       else
-        Result:= Result + ' ' + A;
+        Result:= Result + InnoSetupStylerWordListSeparator + A;
     end;
   finally
     SortedWordStringList.Free;
@@ -620,8 +631,12 @@ begin
   try
     for I := 0 to High(Constants) do
       SL.Add('{' + String(Constants[I].Name) + '}');
-    if ISPPInstalled then
-      SL.Add('{#expr}');
+    if ISPPInstalled then begin
+      SL.Add('{#');
+      SL.Add('{#file ');
+    end;
+    for I := 0 to High(ConstantsWithParam) do
+      SL.Add('{' + String(ConstantsWithParam[I].Name));
     FConstantsList := BuildWordListFromWordStringList(SL);
   finally
     SL.Free;

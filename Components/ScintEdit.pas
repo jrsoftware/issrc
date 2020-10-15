@@ -220,6 +220,7 @@ type
     procedure SelectAll;
     function SelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     procedure SetAutoCompleteFillupChars(const FillupChars: AnsiString);
+    procedure SetAutoCompleteSeparator(const C: AnsiChar);
     procedure SetAutoCompleteSelectedItem(const S: TScintRawString);
     procedure SetAutoCompleteStopChars(const StopChars: AnsiString);
     procedure SetBraceHighlighting(const Pos1, Pos2: Integer);
@@ -396,6 +397,9 @@ uses
   ShellAPI, RTLConsts, UITypes;
 
 { TScintEdit }
+
+const
+  AUTOCSETSEPARATOR = #9;
 
 constructor TScintEdit.Create(AOwner: TComponent);
 begin
@@ -1187,6 +1191,11 @@ end;
 procedure TScintEdit.SetAutoCompleteSelectedItem(const S: TScintRawString);
 begin
   CallStr(SCI_AUTOCSELECT, 0, S);
+end;
+
+procedure TScintEdit.SetAutoCompleteSeparator(const C: AnsiChar);
+begin
+  Call(SCI_AUTOCSETSEPARATOR, WParam(C), 0);
 end;
 
 procedure TScintEdit.SetAutoCompleteStopChars(const StopChars: AnsiString);

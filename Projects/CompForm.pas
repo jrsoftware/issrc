@@ -574,6 +574,7 @@ begin
   Memo.OnModifiedChange := MemoModifiedChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.Parent := BodyPanel;
+  Memo.SetAutoCompleteSeparator(InnoSetupStylerWordListSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}');
   Memo.Theme := FTheme;
   Memo.Visible := False;
@@ -3094,7 +3095,7 @@ begin
             Exit;
         end;
 
-        FActiveMemo.SetAutoCompleteFillupChars('\');
+        FActiveMemo.SetAutoCompleteFillupChars('\:');
       end;
     else
       begin
