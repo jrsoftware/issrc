@@ -310,7 +310,7 @@ const
     (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
     (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
 
-   Constants: array[0..72] of TInnoSetupStylerParamInfo = (
+   Constants: array[0..71] of TInnoSetupStylerParamInfo = (
     { #expr handled separately - also doesnt include constants with non words chars }
     (Name: '{'),
     (Name: 'app'),
@@ -350,7 +350,6 @@ const
     (Name: 'userpf'),
     (Name: 'userprograms'),
     (Name: 'commonprograms'),
-    (Name: 'usersavedgames'),
     (Name: 'usersavedgames'),
     (Name: 'userstartmenu'),
     (Name: 'commonstartmenu'),
