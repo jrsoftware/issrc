@@ -575,7 +575,7 @@ begin
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.Parent := BodyPanel;
   Memo.SetAutoCompleteSeparator(InnoSetupStylerWordListSeparator);
-  Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}');
+  Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
   Memo.Theme := FTheme;
   Memo.Visible := False;
   Result := Memo;
@@ -3027,14 +3027,35 @@ begin
 end;
 
 procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
+
+  function CheckWhiteSpace(const Memo: TCompScintEdit; const LinePos, WordStartPos: Integer): Boolean;
+  var
+    I: Integer;
+    C: AnsiChar;
+  begin
+    { Only allow autocompletion if no non-whitespace characters exist before the current word on the line }
+    I := WordStartPos;
+    Result := False;
+    while I > LinePos do begin
+      I := FActiveMemo.GetPositionBefore(I);
+      if I < LinePos then
+        Exit;  { shouldn't get here }
+      C := FActiveMemo.GetCharAtPosition(I);
+      if C > ' ' then
+        Exit;
+    end;
+    Result := True;
+  end;
+
 var
-  CaretPos, Line, LinePos, WordStartPos, WordEndPos, CharsBefore, I,
-    LangNamePos: Integer;
+  CaretPos, Line, LinePos, WordStartPos, WordEndPos, CharsBefore,
+    PrevWordStartPos, PrevWordEndPos, I, LangNamePos: Integer;
   Section: TInnoSetupStylerSection;
   IsParamSection: Boolean;
   WordList: AnsiString;
   FoundSemicolon, FoundDot: Boolean;
   C: AnsiChar;
+  S: String;
 begin
   if FActiveMemo.AutoCompleteActive or FActiveMemo.ReadOnly then
     Exit;
@@ -3060,92 +3081,94 @@ begin
   case FActiveMemo.GetCharAtPosition(WordStartPos) of
     '#':
       begin
-        WordList := FMemosStyler.ISPPDirectivesList;
-        if WordList = '' then
-          Exit;  { shouldn't get here }
-
-        { Only allow autocompletion if no non-whitespace characters exist before
-          the current word on the line }
-        I := WordStartPos;
-        while I > LinePos do begin
-          I := FActiveMemo.GetPositionBefore(I);
-          if I < LinePos then
-            Exit;  { shouldn't get here }
-          C := FActiveMemo.GetCharAtPosition(I);
-          if C > ' ' then
-            Exit;
-        end;
-
+        if not CheckWhiteSpace(FActiveMemo, LinePos, WordStartPos) then
+          Exit;
+        WordList := FMemosStyler.ISPPDirectivesWordList;
         FActiveMemo.SetAutoCompleteFillupChars(' ');
       end;
     '{':
       begin
-        WordList := FMemosStyler.ConstantsList;
-        if WordList = '' then
-          Exit;  { shouldn't get here }
-
-        { Only allow autocompletion if the '{' isn't escaped by another '{' }
-        I := WordStartPos;
-        if I > LinePos then begin
-          I := FActiveMemo.GetPositionBefore(I);
-          if I < LinePos then
-            Exit;  { shouldn't get here }
-          C := FActiveMemo.GetCharAtPosition(I);
-          if C = '{' then
-            Exit;
-        end;
-
+        WordList := FMemosStyler.ConstantsWordList;
         FActiveMemo.SetAutoCompleteFillupChars('\:');
+      end;
+    '[':
+      begin
+        if not CheckWhiteSpace(FActiveMemo, LinePos, WordStartPos) then
+          Exit;
+        WordList := FMemosStyler.SectionsWordList;
+        FActiveMemo.SetAutoCompleteFillupChars('');
       end;
     else
       begin
         Section := FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]);
-
-        WordList := FMemosStyler.KeywordList[Section];
-        if WordList = '' then
-          Exit;
-        IsParamSection := FMemosStyler.IsParamSection(Section);
-
-        { Only allow autocompletion if no non-whitespace characters exist before
-          the current word on the line, or after the last ';' in parameterized
-          sections }
-        FoundSemicolon := False;
-        FoundDot := False;
-        I := WordStartPos;
-        while I > LinePos do begin
-          I := FActiveMemo.GetPositionBefore(I);
+        if Section = scCode then begin
+          { Only allow autocompletion if the previous word on the line is 'function' or 'procedure',
+            exactly 1 space exists between it and the current word and no non-whitespace characters
+            exist before it on the line }
+          I := FActiveMemo.GetPositionBefore(WordStartPos);
           if I < LinePos then
-            Exit;  { shouldn't get here }
-          C := FActiveMemo.GetCharAtPosition(I);
-          { Make sure it's an stSymbol ';' and not one inside a quoted string }
-          if IsParamSection and (C = ';') and
-             FMemosStyler.IsSymbolStyle(FActiveMemo.GetStyleAtPosition(I)) then begin
-            FoundSemicolon := True;
-            Break;
-          end;
-          if (Section = scLangOptions) and (C = '.') and not FoundDot then begin
-            { Verify that a word (language name) precedes the '.', then check for
-              any non-whitespace characters before the word }
-            LangNamePos := FActiveMemo.GetWordStartPosition(I, True);
-            if LangNamePos >= I then
-              Exit;
-            I := LangNamePos;
-            FoundDot := True;
-          end
-          else begin
-            if C > ' ' then
-              Exit;
-          end;
-        end;
-        { Space can only initiate autocompletion after a semicolon in a
-          parameterized section }
-        if (Key = ' ') and not FoundSemicolon then
-          Exit;
+            Exit;
+          if FActiveMemo.GetCharAtPosition(I) > ' ' then
+            Exit;
+          PrevWordEndPos := I;
+          PrevWordStartPos := FActiveMemo.GetWordStartPosition(PrevWordEndPos, True);
+          S := FActiveMemo.GetTextRange(PrevWordStartPos, PrevWordEndPos);
+          if SameText(S, 'procedure') then
+            WordList := FMemosStyler.EventFunctionsWordList[True]
+          else if SameText(S, 'function') then
+            WordList := FMemosStyler.EventFunctionsWordList[False]
+          else
+            Exit;
+          if not CheckWhiteSpace(FActiveMemo, LinePos, PrevWordStartPos) then
+            Exit;
+          FActiveMemo.SetAutoCompleteFillupChars('');
+        end else begin
+          WordList := FMemosStyler.KeywordsWordList[Section];
+          if WordList = '' then { Messages & CustomMessages }
+            Exit;
+          IsParamSection := FMemosStyler.IsParamSection(Section);
 
-        if IsParamSection then
-          FActiveMemo.SetAutoCompleteFillupChars(':')
-        else
-          FActiveMemo.SetAutoCompleteFillupChars('=');
+          { Only allow autocompletion if no non-whitespace characters exist before
+            the current word on the line, or after the last ';' in parameterized
+            sections }
+          FoundSemicolon := False;
+          FoundDot := False;
+          I := WordStartPos;
+          while I > LinePos do begin
+            I := FActiveMemo.GetPositionBefore(I);
+            if I < LinePos then
+              Exit;  { shouldn't get here }
+            C := FActiveMemo.GetCharAtPosition(I);
+            { Make sure it's an stSymbol ';' and not one inside a quoted string }
+            if IsParamSection and (C = ';') and
+               FMemosStyler.IsSymbolStyle(FActiveMemo.GetStyleAtPosition(I)) then begin
+              FoundSemicolon := True;
+              Break;
+            end;
+            if (Section = scLangOptions) and (C = '.') and not FoundDot then begin
+              { Verify that a word (language name) precedes the '.', then check for
+                any non-whitespace characters before the word }
+              LangNamePos := FActiveMemo.GetWordStartPosition(I, True);
+              if LangNamePos >= I then
+                Exit;
+              I := LangNamePos;
+              FoundDot := True;
+            end
+            else begin
+              if C > ' ' then
+                Exit;
+            end;
+          end;
+          { Space can only initiate autocompletion after a semicolon in a
+            parameterized section }
+          if (Key = ' ') and not FoundSemicolon then
+            Exit;
+
+          if IsParamSection then
+            FActiveMemo.SetAutoCompleteFillupChars(':')
+          else
+            FActiveMemo.SetAutoCompleteFillupChars('=');
+        end;
       end;
   end;
   FActiveMemo.ShowAutoComplete(CharsBefore, WordList);
@@ -3208,7 +3231,7 @@ begin
   end;
 
   case Ch of
-    'A'..'Z', 'a'..'z', '_', '#', '{':
+    'A'..'Z', 'a'..'z', '_', '#', '{', '[':
       if FOptions.AutoComplete then
         InitiateAutoComplete(Ch);
   else
