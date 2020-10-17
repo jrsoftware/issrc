@@ -3053,7 +3053,7 @@ var
   Section: TInnoSetupStylerSection;
   IsParamSection: Boolean;
   WordList: AnsiString;
-  FoundSemicolon, FoundDot: Boolean;
+  FoundSemicolon, FoundFlags, FoundDot: Boolean;
   C: AnsiChar;
   S: String;
 begin
@@ -3123,15 +3123,13 @@ begin
             Exit;
           FActiveMemo.SetAutoCompleteFillupChars('');
         end else begin
-          WordList := FMemosStyler.KeywordsWordList[Section];
-          if WordList = '' then { Messages & CustomMessages }
-            Exit;
           IsParamSection := FMemosStyler.IsParamSection(Section);
 
           { Only allow autocompletion if no non-whitespace characters exist before
-            the current word on the line, or after the last ';' in parameterized
+            the current word on the line, or after the last ';' or 'Flags:' in parameterized
             sections }
           FoundSemicolon := False;
+          FoundFlags := False;
           FoundDot := False;
           I := WordStartPos;
           while I > LinePos do begin
@@ -3139,10 +3137,17 @@ begin
             if I < LinePos then
               Exit;  { shouldn't get here }
             C := FActiveMemo.GetCharAtPosition(I);
-            { Make sure it's an stSymbol ';' and not one inside a quoted string }
-            if IsParamSection and (C = ';') and
-               FMemosStyler.IsSymbolStyle(FActiveMemo.GetStyleAtPosition(I)) then begin
-              FoundSemicolon := True;
+
+            if IsParamSection and (C in [';', ':']) and
+               FMemosStyler.IsSymbolStyle(FActiveMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string }
+              FoundSemicolon := C = ';';
+              if not FoundSemicolon then begin
+                PrevWordEndPos := I;
+                PrevWordStartPos := FActiveMemo.GetWordStartPosition(PrevWordEndPos, True);
+                S := FActiveMemo.GetTextRange(PrevWordStartPos, PrevWordEndPos);
+                FoundFlags := SameText(S, 'Flags');
+              end else
+                FoundFlags := False;
               Break;
             end;
             if (Section = scLangOptions) and (C = '.') and not FoundDot then begin
@@ -3161,13 +3166,26 @@ begin
           end;
           { Space can only initiate autocompletion after a semicolon in a
             parameterized section }
-          if (Key = ' ') and not FoundSemicolon then
+          if (Key = ' ') and not (FoundSemicolon or FoundFlags) then
             Exit;
 
-          if IsParamSection then
-            FActiveMemo.SetAutoCompleteFillupChars(':')
-          else
-            FActiveMemo.SetAutoCompleteFillupChars('=');
+          if FoundFlags then begin
+            WordList := FMemosStyler.FlagsWordList[Section];
+            if WordList = '' then
+              Exit;
+            if Key <> ' ' then  { Space initiating autocompletion also initiates a direct fillup if its a fillup char :( }
+              FActiveMemo.SetAutoCompleteFillupChars(' ')
+            else
+              FActiveMemo.SetAutoCompleteFillupChars('')
+          end else begin
+            WordList := FMemosStyler.KeywordsWordList[Section];
+            if WordList = '' then { Messages & CustomMessages }
+              Exit;
+            if IsParamSection then
+              FActiveMemo.SetAutoCompleteFillupChars(':')
+            else
+              FActiveMemo.SetAutoCompleteFillupChars('=');
+          end;
         end;
       end;
   end;

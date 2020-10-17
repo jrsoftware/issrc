@@ -64,27 +64,31 @@ type
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
-    FSectionsWordList: AnsiString;
-    FKeywordsWordList: array[TInnoSetupStylerSection] of AnsiString;
-    FISPPDirectivesWordList, FConstantsWordList: AnsiString;
     FEventFunctionsWordList: array[Boolean] of AnsiString;
+    FKeywordsWordList, FFlagsWordList: array[TInnoSetupStylerSection] of AnsiString;
+    FISPPDirectivesWordList, FConstantsWordList: AnsiString;
+    FSectionsWordList: AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
-    function BuildWordList(const WordStringList: TStringList): AnsiString;
-    procedure BuildSectionsWordList;
-    procedure BuildKeywordWordList(const Section: TInnoSetupStylerSection;
-      const EnumTypeInfo: Pointer); overload;
-    procedure BuildKeywordWordList(const Section: TInnoSetupStylerSection;
-      const Parameters: array of TInnoSetupStylerParamInfo); overload;
-    procedure BuildISPPDirectivesWordList;
     procedure BuildConstantsWordList;
     procedure BuildEventFunctionsWordList;
+    procedure BuildFlagsWordList(const Section: TInnoSetupStylerSection;
+     const Flags: array of TInnoSetupStylerParamInfo); overload;
+    procedure BuildISPPDirectivesWordList;
+    procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
+      const EnumTypeInfo: Pointer); overload;
+    procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
+      const Parameters: array of TInnoSetupStylerParamInfo); overload;
+    function BuildWordList(const WordStringList: TStringList): AnsiString;
+    procedure BuildSectionsWordList;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
       const Squigglify: Boolean);
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
+    function GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
+    function GetFlagsWordList(Section: TInnoSetupStylerSection): AnsiString;
     function GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState);
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
@@ -98,7 +102,6 @@ type
     procedure StyleConstsUntilChars(const Chars: TScintRawCharSet;
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
     procedure SetISPPInstalled(const Value: Boolean);
-    function GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
     procedure GetStyleAttributes(const Style: Integer;
@@ -110,12 +113,13 @@ type
     class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
-    property SectionsWordList: AnsiString read FSectionsWordList;
-    property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
-    property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
     property ConstantsWordList: AnsiString read FConstantsWordList;
     property EventFunctionsWordList[Procedures: Boolean]: AnsiString read GetEventFunctionsWordList;
+    property FlagsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetFlagsWordList;
+    property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
+    property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
+    property SectionsWordList: AnsiString read FSectionsWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
 
@@ -209,6 +213,48 @@ const
     (Name: 'Source'),
     (Name: 'StrongAssemblyName'),
     (Name: 'Tasks'));
+
+  FilesSectionFlags: array[0..39] of TInnoSetupStylerParamInfo = (
+    (Name: '32bit'),
+    (Name: '64bit'),
+    (Name: 'allowunsafefiles'),
+    (Name: 'comparetimestamp'),
+    (Name: 'confirmoverwrite'),
+    (Name: 'createallsubdirs'),
+    (Name: 'deleteafterinstall'),
+    (Name: 'dontcopy'),
+    (Name: 'dontverifychecksum'),
+    (Name: 'external'),
+    (Name: 'fontisnttruetype'),
+    (Name: 'gacinstall'),
+    (Name: 'ignoreversion'),
+    (Name: 'isreadme'),
+    (Name: 'nocompression'),
+    (Name: 'noencryption'),
+    (Name: 'noregerror'),
+    (Name: 'onlyifdestfileexists'),
+    (Name: 'onlyifdoesntexist'),
+    (Name: 'overwritereadonly'),
+    (Name: 'promptifolder'),
+    (Name: 'recursesubdirs'),
+    (Name: 'regserver'),
+    (Name: 'regtypelib'),
+    (Name: 'replacesameversion'),
+    (Name: 'restartreplace'),
+    (Name: 'setntfscompression'),
+    (Name: 'sharedfile'),
+    (Name: 'sign'),
+    (Name: 'signonce'),
+    (Name: 'skipifsourcedoesntexist'),
+    (Name: 'solidbreak'),
+    (Name: 'sortfilesbyextension'),
+    (Name: 'sortfilesbyname'),
+    (Name: 'touch'),
+    (Name: 'uninsnosharedfileprompt'),
+    (Name: 'uninsremovereadonly'),
+    (Name: 'uninsrestartdelete'),
+    (Name: 'uninsneveruninstall'),
+    (Name: 'unsetntfscompression'));
 
   IconsSectionParameters: array[0..18] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
@@ -503,25 +549,26 @@ end;
 constructor TInnoSetupStyler.Create(AOwner: TComponent);
 begin
   inherited;
-  BuildSectionsWordList;
-  BuildKeywordWordList(scComponents, ComponentsSectionParameters);
-  BuildKeywordWordList(scDirs, DirsSectionParameters);
-  BuildKeywordWordList(scFiles, FilesSectionParameters);
-  BuildKeywordWordList(scIcons, IconsSectionParameters);
-  BuildKeywordWordList(scINI, INISectionParameters);
-  BuildKeywordWordList(scInstallDelete, DeleteSectionParameters);
-  BuildKeywordWordList(scLangOptions, TypeInfo(TLangOptionsSectionDirective));
-  BuildKeywordWordList(scLanguages, LanguagesSectionParameters);
-  BuildKeywordWordList(scRegistry, RegistrySectionParameters);
-  BuildKeywordWordList(scRun, RunSectionParameters);
-  BuildKeywordWordList(scSetup, TypeInfo(TSetupSectionDirective));
-  BuildKeywordWordList(scTasks, TasksSectionParameters);
-  BuildKeywordWordList(scTypes, TypesSectionParameters);
-  BuildKeywordWordList(scUninstallDelete, DeleteSectionParameters);
-  BuildKeywordWordList(scUninstallRun, RunSectionParameters);
-  BuildISPPDirectivesWordList;
   BuildConstantsWordList;
   BuildEventFunctionsWordList;
+  BuildISPPDirectivesWordList;
+  BuildFlagsWordList(scFiles, FilesSectionFlags);
+  BuildKeywordsWordList(scComponents, ComponentsSectionParameters);
+  BuildKeywordsWordList(scDirs, DirsSectionParameters);
+  BuildKeywordsWordList(scFiles, FilesSectionParameters);
+  BuildKeywordsWordList(scIcons, IconsSectionParameters);
+  BuildKeywordsWordList(scINI, INISectionParameters);
+  BuildKeywordsWordList(scInstallDelete, DeleteSectionParameters);
+  BuildKeywordsWordList(scLangOptions, TypeInfo(TLangOptionsSectionDirective));
+  BuildKeywordsWordList(scLanguages, LanguagesSectionParameters);
+  BuildKeywordsWordList(scRegistry, RegistrySectionParameters);
+  BuildKeywordsWordList(scRun, RunSectionParameters);
+  BuildKeywordsWordList(scSetup, TypeInfo(TSetupSectionDirective));
+  BuildKeywordsWordList(scTasks, TasksSectionParameters);
+  BuildKeywordsWordList(scTypes, TypesSectionParameters);
+  BuildKeywordsWordList(scUninstallDelete, DeleteSectionParameters);
+  BuildKeywordsWordList(scUninstallRun, RunSectionParameters);
+  BuildSectionsWordList;
 end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
@@ -608,7 +655,7 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.BuildKeywordWordList(
+procedure TInnoSetupStyler.BuildKeywordsWordList(
   const Section: TInnoSetupStylerSection; const EnumTypeInfo: Pointer);
 var
   SL: TStringList;
@@ -624,7 +671,7 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.BuildKeywordWordList(
+procedure TInnoSetupStyler.BuildKeywordsWordList(
   const Section: TInnoSetupStylerSection;
   const Parameters: array of TInnoSetupStylerParamInfo);
 var
@@ -636,6 +683,22 @@ begin
     for I := 0 to High(Parameters) do
       SL.Add(String(Parameters[I].Name));
     FKeywordsWordList[Section] := BuildWordList(SL);
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure TInnoSetupStyler.BuildFlagsWordList(const Section: TInnoSetupStylerSection;
+  const Flags: array of TInnoSetupStylerParamInfo);
+var
+  SL: TStringList;
+  I: Integer;
+begin
+  SL := TStringList.Create;
+  try
+    for I := 0 to High(Flags) do
+      SL.Add(String(Flags[I].Name));
+    FFlagsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
   end;
@@ -725,6 +788,11 @@ end;
 function TInnoSetupStyler.GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
 begin
   Result := FEventFunctionsWordList[Procedures];
+end;
+
+function TInnoSetupStyler.GetFlagsWordList(Section: TInnoSetupStylerSection): AnsiString;
+begin
+  Result := FFlagsWordList[Section];
 end;
 
 function TInnoSetupStyler.GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;
