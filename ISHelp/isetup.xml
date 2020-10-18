@@ -3107,6 +3107,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <topic name="compformshortcuts" title="Setup Compiler Keyboard Commands">
 <keyword value="Setup Compiler Keyboard Commands" />
+<keyword value="Keyboard commands" />
 <body>
 
 <p>Besides the keyboard commands listed in the menus, the Setup Compiler supports the following additional keyboard commands:</p>
@@ -3195,6 +3196,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 <tr>
   <td>Fillup complete word.</td><td>Space (for ISPP directives) or \ (for constants) or : (for constants and section parameters) or ] (for sections) or = (for section directives) or Tab or Enter.</td>
+</tr>
+<tr>
+  <td>Cancel complete word.</td><td>Esc</td>
 </tr>
 </table>
 
