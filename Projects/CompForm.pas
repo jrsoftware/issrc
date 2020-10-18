@@ -3164,8 +3164,7 @@ begin
                 Exit;
             end;
           end;
-          { Space can only initiate autocompletion after a semicolon in a
-            parameterized section }
+          { Space can only initiate autocompletion after ';' or 'Flags:' in parameterized sections }
           if (Key = ' ') and not (FoundSemicolon or FoundFlags) then
             Exit;
 
