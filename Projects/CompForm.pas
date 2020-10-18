@@ -444,6 +444,7 @@ type
     procedure SetStepLine(const AMemo: TCompScintFileEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
+    procedure StoreLastFindOptions(Sender: TObject);
     procedure SyncEditorOptions;
     procedure SyncZoom;
     function ToCurrentPPI(const XY: Integer): Integer;
@@ -2344,15 +2345,21 @@ begin
       mbInformation, MB_OK);
 end;
 
-procedure TCompileForm.FindDialogFind(Sender: TObject);
+procedure TCompileForm.StoreLastFindOptions(Sender: TObject);
 begin
-  { this event handler is shared between FindDialog & ReplaceDialog }
   with Sender as TFindDialog do begin
-    { Save a copy of the current text so that InitializeFindText doesn't
-      mess up the operation of Edit | Find Next }
     FLastFindOptions := Options;
     FLastFindText := FindText;
   end;
+end;
+
+procedure TCompileForm.FindDialogFind(Sender: TObject);
+begin
+  { This event handler is shared between FindDialog & ReplaceDialog }
+  
+  { Save a copy of the current text so that InitializeFindText doesn't
+    mess up the operation of Edit | Find Next }
+  StoreLastFindOptions(Sender);
   FindNext;
 end;
 
@@ -2364,7 +2371,7 @@ var
   FindResult: TFindResult;
   Prefix: String;
 begin
-  FLastFindText := FindInFilesDialog.FindText;
+  StoreLastFindOptions(Sender);
 
   FindResultsList.Clear;
   SendMessage(FindResultsList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
@@ -2380,7 +2387,7 @@ begin
       FileHits := 0;
       while (StartPos < EndPos) and
             Memo.FindText(StartPos, EndPos, FLastFindText,
-              FindOptionsToSearchOptions(FindInFilesDialog.Options), Range) do begin
+              FindOptionsToSearchOptions(FLastFindOptions), Range) do begin
         Line := Memo.GetLineFromPosition(Range.StartPos);
         Prefix := Format('  Line %d: ', [Line+1]);
         FindResult := TFindResult.Create;
