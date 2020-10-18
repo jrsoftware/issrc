@@ -722,7 +722,7 @@ begin
   SetFakeShortCut(EPaste, Ord('V'), [ssCtrl]);
   SetFakeShortCut(ESelectAll, Ord('A'), [ssCtrl]);
   SetFakeShortCut(EDelete, VK_DELETE, []);
-  SetFakeShortCut(ECompleteWord, Ord(' '), [ssCtrl]);
+  SetFakeShortCut(ECompleteWord, VK_RIGHT, [ssAlt]);
   SetFakeShortCutText(VZoomIn, SmkcCtrl + 'Num +');    { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
   SetFakeShortCutText(VZoomOut, SmkcCtrl + 'Num -');
   SetFakeShortCutText(VZoomReset, SmkcCtrl + 'Num /');
