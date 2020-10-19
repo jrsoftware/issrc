@@ -27,7 +27,7 @@ uses
   ScriptCompiler in 'ScriptCompiler.pas',
   ScriptClasses_C in 'ScriptClasses_C.pas',
   ResUpdate in 'ResUpdate.pas',
-  CompResUpdate in 'CompResUpdate.pas',
+  CompExeUpdate in 'CompExeUpdate.pas',
   Compress in 'Compress.pas',
   CompressZlib in 'CompressZlib.pas',
   bzlib in 'bzlib.pas',
