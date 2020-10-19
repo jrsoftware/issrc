@@ -167,6 +167,10 @@ const
     (Name: 'OnlyBelowVersion'),
     (Name: 'Types'));
 
+  ComponentsSectionFlags: array[0..1] of TInnoSetupStylerParamInfo = (
+    (Name: 'uninsneveruninstall'),
+    (Name: 'unsetntfscompression'));
+
   DeleteSectionParameters: array[0..9] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'BeforeInstall'),
@@ -192,6 +196,13 @@ const
     (Name: 'OnlyBelowVersion'),
     (Name: 'Permissions'),
     (Name: 'Tasks'));
+
+  DirsSectionFlags: array[0..4] of TInnoSetupStylerParamInfo = (
+    (Name: 'deleteafterinstall'),
+    (Name: 'setntfscompression'),
+    (Name: 'uninsalwaysuninstall'),
+    (Name: 'uninsneveruninstall'),
+    (Name: 'unsetntfscompression'));
 
   FilesSectionParameters: array[0..18] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
@@ -277,6 +288,18 @@ const
     (Name: 'Tasks'),
     (Name: 'WorkingDir'));
 
+  IconsSectionFlags: array[0..9] of TInnoSetupStylerParamInfo = (
+    (Name: 'closeonexit'),
+    (Name: 'createonlyiffileexists'),
+    (Name: 'dontcloseonexit'),
+    (Name: 'excludefromshowinnewinstall'),
+    (Name: 'foldershortcut'),
+    (Name: 'preventpinning'),
+    (Name: 'runmaximized'),
+    (Name: 'runminimized'),
+    (Name: 'uninsneveruninstall'),
+    (Name: 'useapppaths'));
+
   INISectionParameters: array[0..12] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'BeforeInstall'),
@@ -291,6 +314,12 @@ const
     (Name: 'Section'),
     (Name: 'String'),
     (Name: 'Tasks'));
+
+  INISectionFlags: array[0..3] of TInnoSetupStylerParamInfo = (
+    (Name: 'createkeyifdoesntexist'),
+    (Name: 'uninsdeleteentry'),
+    (Name: 'uninsdeletesection'),
+    (Name: 'uninsdeletesectionifempty'));
 
   LanguagesSectionParameters: array[0..4] of TInnoSetupStylerParamInfo = (
     (Name: 'InfoAfterFile'),
@@ -316,6 +345,18 @@ const
     (Name: 'ValueName'),
     (Name: 'ValueType'));
 
+  RegistrySectionFlags: array[0..9] of TInnoSetupStylerParamInfo = (
+    (Name: 'createvalueifdoesntexist'),
+    (Name: 'deletekey'),
+    (Name: 'deletevalue'),
+    (Name: 'dontcreatekey'),
+    (Name: 'noerror'),
+    (Name: 'preservestringtype'),
+    (Name: 'uninsclearvalue'),
+    (Name: 'uninsdeletekey'),
+    (Name: 'uninsdeletekeyifempty'),
+    (Name: 'uninsdeletevalue'));
+
   RunSectionParameters: array[0..15] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'BeforeInstall'),
@@ -334,6 +375,56 @@ const
     (Name: 'Verb'),
     (Name: 'WorkingDir'));
 
+  RunSectionFlags: array[0..17] of TInnoSetupStylerParamInfo = (
+    (Name: '32bit'),
+    (Name: '64bit'),
+    (Name: 'dontlogparameters'),
+    (Name: 'hidewizard'),
+    (Name: 'nowait'),
+    (Name: 'postinstall'),
+    (Name: 'runascurrentuser'),
+    (Name: 'runasoriginaluser'),
+    (Name: 'runhidden'),
+    (Name: 'runmaximized'),
+    (Name: 'runminimized'),
+    (Name: 'shellexec'),
+    (Name: 'skipifdoesntexist'),
+    (Name: 'skipifnotsilent'),
+    (Name: 'skipifsilent'),
+    (Name: 'unchecked'),
+    (Name: 'waituntilidle'),
+    (Name: 'waituntilterminated'));
+
+  UninstallRunSectionParameters: array[0..12] of TInnoSetupStylerParamInfo = (
+    (Name: 'AfterInstall'),
+    (Name: 'BeforeInstall'),
+    (Name: 'Check'),
+    (Name: 'Components'),
+    (Name: 'Filename'),
+    (Name: 'Flags'),
+    (Name: 'Languages'),
+    (Name: 'MinVersion'),
+    (Name: 'OnlyBelowVersion'),
+    (Name: 'Parameters'),
+    (Name: 'Tasks'),
+    (Name: 'Verb'),
+    (Name: 'WorkingDir'));
+
+  UninstallRunSectionFlags: array[0..12] of TInnoSetupStylerParamInfo = (
+    (Name: '32bit'),
+    (Name: '64bit'),
+    (Name: 'dontlogparameters'),
+    (Name: 'hidewizard'),
+    (Name: 'nowait'),
+    (Name: 'runascurrentuser'),
+    (Name: 'runhidden'),
+    (Name: 'runmaximized'),
+    (Name: 'runminimized'),
+    (Name: 'shellexec'),
+    (Name: 'skipifdoesntexist'),
+    (Name: 'waituntilidle'),
+    (Name: 'waituntilterminated'));
+
   TasksSectionParameters: array[0..8] of TInnoSetupStylerParamInfo = (
     (Name: 'Check'),
     (Name: 'Components'),
@@ -345,6 +436,14 @@ const
     (Name: 'Name'),
     (Name: 'OnlyBelowVersion'));
 
+  TasksSectionFlags: array[0..5] of TInnoSetupStylerParamInfo = (
+    (Name: 'checkablealone'),
+    (Name: 'checkedonce'),
+    (Name: 'dontinheritcheck'),
+    (Name: 'exclusive'),
+    (Name: 'restart'),
+    (Name: 'unchecked'));
+
   TypesSectionParameters: array[0..6] of TInnoSetupStylerParamInfo = (
     (Name: 'Check'),
     (Name: 'Description'),
@@ -353,6 +452,9 @@ const
     (Name: 'MinVersion'),
     (Name: 'Name'),
     (Name: 'OnlyBelowVersion'));
+
+  TypesSectionFlags: array[0..0] of TInnoSetupStylerParamInfo = (
+    (Name: 'iscustom'));
 
 type
   TISPPDirective = record
@@ -547,27 +649,48 @@ end;
 { TInnoSetupStyler }
 
 constructor TInnoSetupStyler.Create(AOwner: TComponent);
+
+  procedure BuildFlagsWordLists;
+  begin
+    BuildFlagsWordList(scFiles, FilesSectionFlags);
+    BuildFlagsWordList(scComponents, ComponentsSectionFlags);
+    BuildFlagsWordList(scDirs, DirsSectionFlags);
+    BuildFlagsWordList(scFiles, FilesSectionFlags);
+    BuildFlagsWordList(scIcons, IconsSectionFlags);
+    BuildFlagsWordList(scINI, INISectionFlags);
+    BuildFlagsWordList(scRegistry, RegistrySectionFlags);
+    BuildFlagsWordList(scRun, RunSectionFlags);
+    BuildFlagsWordList(scTasks, TasksSectionFlags);
+    BuildFlagsWordList(scTypes, TypesSectionFlags);
+    BuildFlagsWordList(scUninstallRun, UninstallRunSectionFlags);
+    BuildFlagsWordList(scComponents, ComponentsSectionFlags);
+    BuildFlagsWordList(scDirs, DirsSectionFlags);
+  end;
+
+  procedure BuildKeywordsWordLists;
+  begin
+    BuildKeywordsWordList(scFiles, FilesSectionParameters);
+    BuildKeywordsWordList(scIcons, IconsSectionParameters);
+    BuildKeywordsWordList(scINI, INISectionParameters);
+    BuildKeywordsWordList(scInstallDelete, DeleteSectionParameters);
+    BuildKeywordsWordList(scLangOptions, TypeInfo(TLangOptionsSectionDirective));
+    BuildKeywordsWordList(scLanguages, LanguagesSectionParameters);
+    BuildKeywordsWordList(scRegistry, RegistrySectionParameters);
+    BuildKeywordsWordList(scRun, RunSectionParameters);
+    BuildKeywordsWordList(scSetup, TypeInfo(TSetupSectionDirective));
+    BuildKeywordsWordList(scTasks, TasksSectionParameters);
+    BuildKeywordsWordList(scTypes, TypesSectionParameters);
+    BuildKeywordsWordList(scUninstallDelete, DeleteSectionParameters);
+    BuildKeywordsWordList(scUninstallRun, UninstallRunSectionParameters);
+  end;
+
 begin
   inherited;
   BuildConstantsWordList;
   BuildEventFunctionsWordList;
+  BuildFlagsWordLists;
   BuildISPPDirectivesWordList;
-  BuildFlagsWordList(scFiles, FilesSectionFlags);
-  BuildKeywordsWordList(scComponents, ComponentsSectionParameters);
-  BuildKeywordsWordList(scDirs, DirsSectionParameters);
-  BuildKeywordsWordList(scFiles, FilesSectionParameters);
-  BuildKeywordsWordList(scIcons, IconsSectionParameters);
-  BuildKeywordsWordList(scINI, INISectionParameters);
-  BuildKeywordsWordList(scInstallDelete, DeleteSectionParameters);
-  BuildKeywordsWordList(scLangOptions, TypeInfo(TLangOptionsSectionDirective));
-  BuildKeywordsWordList(scLanguages, LanguagesSectionParameters);
-  BuildKeywordsWordList(scRegistry, RegistrySectionParameters);
-  BuildKeywordsWordList(scRun, RunSectionParameters);
-  BuildKeywordsWordList(scSetup, TypeInfo(TSetupSectionDirective));
-  BuildKeywordsWordList(scTasks, TasksSectionParameters);
-  BuildKeywordsWordList(scTypes, TypesSectionParameters);
-  BuildKeywordsWordList(scUninstallDelete, DeleteSectionParameters);
-  BuildKeywordsWordList(scUninstallRun, RunSectionParameters);
+  BuildKeywordsWordLists;
   BuildSectionsWordList;
 end;
 
@@ -1541,7 +1664,7 @@ begin
       scTasks: HandleParameterSection(TasksSectionParameters);
       scTypes: HandleParameterSection(TypesSectionParameters);
       scUninstallDelete: HandleParameterSection(DeleteSectionParameters);
-      scUninstallRun: HandleParameterSection(RunSectionParameters);
+      scUninstallRun: HandleParameterSection(UninstallRunSectionParameters);
     end;
   end;
 
