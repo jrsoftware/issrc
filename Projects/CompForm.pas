@@ -3518,7 +3518,7 @@ begin
 
   LineNumber := DebugEntry.LineNumber;
 
-  if LineNumber = -1 then { UninstExe has a DebugEntry but not a line number }
+  if LineNumber < 0 then { UninstExe has a DebugEntry but not a line number }
     Exit;
 
   if (LineNumber < Memo.LineStateCount) and
