@@ -2383,7 +2383,7 @@ begin
   for Memo in FFileMemos do begin
     if Memo.Used then begin
       StartPos := 0;
-      EndPos := FActiveMemo.RawTextLength;
+      EndPos := Memo.RawTextLength;
       FileHits := 0;
       while (StartPos < EndPos) and
             Memo.FindText(StartPos, EndPos, FLastFindText,
