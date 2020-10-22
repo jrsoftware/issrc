@@ -167,9 +167,13 @@ const
     (Name: 'OnlyBelowVersion'),
     (Name: 'Types'));
 
-  ComponentsSectionFlags: array[0..1] of TInnoSetupStylerParamInfo = (
-    (Name: 'uninsneveruninstall'),
-    (Name: 'unsetntfscompression'));
+ComponentsSectionFlags: array[0..5] of TInnoSetupStylerParamInfo = (
+    (Name: 'checkablealone'),
+    (Name: 'disablenouninstallwarning'),
+    (Name: 'dontinheritcheck'),
+    (Name: 'exclusive'),
+    (Name: 'fixed'),
+    (Name: 'restart'));
 
   DeleteSectionParameters: array[0..9] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
