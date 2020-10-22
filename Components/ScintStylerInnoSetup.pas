@@ -361,7 +361,7 @@ const
     (Name: 'uninsdeletekeyifempty'),
     (Name: 'uninsdeletevalue'));
 
-  RunSectionParameters: array[0..15] of TInnoSetupStylerParamInfo = (
+  RunSectionParameters: array[0..14] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'BeforeInstall'),
     (Name: 'Check'),
@@ -373,7 +373,6 @@ const
     (Name: 'MinVersion'),
     (Name: 'OnlyBelowVersion'),
     (Name: 'Parameters'),
-    (Name: 'RunOnceId'),
     (Name: 'StatusMsg'),
     (Name: 'Tasks'),
     (Name: 'Verb'),
@@ -399,7 +398,7 @@ const
     (Name: 'waituntilidle'),
     (Name: 'waituntilterminated'));
 
-  UninstallRunSectionParameters: array[0..12] of TInnoSetupStylerParamInfo = (
+  UninstallRunSectionParameters: array[0..13] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'BeforeInstall'),
     (Name: 'Check'),
@@ -410,6 +409,7 @@ const
     (Name: 'MinVersion'),
     (Name: 'OnlyBelowVersion'),
     (Name: 'Parameters'),
+    (Name: 'RunOnceId'),
     (Name: 'Tasks'),
     (Name: 'Verb'),
     (Name: 'WorkingDir'));
