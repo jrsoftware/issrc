@@ -167,7 +167,7 @@ const
     (Name: 'OnlyBelowVersion'),
     (Name: 'Types'));
 
-ComponentsSectionFlags: array[0..5] of TInnoSetupStylerParamInfo = (
+  ComponentsSectionFlags: array[0..5] of TInnoSetupStylerParamInfo = (
     (Name: 'checkablealone'),
     (Name: 'disablenouninstallwarning'),
     (Name: 'dontinheritcheck'),
