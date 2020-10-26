@@ -187,6 +187,11 @@ const
     (Name: 'Tasks'),
     (Name: 'Type'));
 
+  DeleteSectionTypes: array[0..2] of TInnoSetupStylerParamInfo = (
+    (Name: 'files'),
+    (Name: 'filesandordirs'),
+    (Name: 'dirifempty'));
+
   DirsSectionParameters: array[0..11] of TInnoSetupStylerParamInfo = (
     (Name: 'AfterInstall'),
     (Name: 'Attribs'),
@@ -669,6 +674,9 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     BuildFlagsWordList(scUninstallRun, UninstallRunSectionFlags);
     BuildFlagsWordList(scComponents, ComponentsSectionFlags);
     BuildFlagsWordList(scDirs, DirsSectionFlags);
+    { Bit of a trick }
+    BuildFlagsWordList(scInstallDelete, DeleteSectionTypes);
+    BuildFlagsWordList(scUninstallDelete, DeleteSectionTypes);
   end;
 
   procedure BuildKeywordsWordLists;

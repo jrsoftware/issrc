@@ -3060,7 +3060,7 @@ var
   Section: TInnoSetupStylerSection;
   IsParamSection: Boolean;
   WordList: AnsiString;
-  FoundSemicolon, FoundFlags, FoundDot: Boolean;
+  FoundSemicolon, FoundFlagsOrType, FoundDot: Boolean;
   C: AnsiChar;
   S: String;
 begin
@@ -3133,10 +3133,10 @@ begin
           IsParamSection := FMemosStyler.IsParamSection(Section);
 
           { Only allow autocompletion if no non-whitespace characters exist before
-            the current word on the line, or after the last ';' or 'Flags:' in parameterized
+            the current word on the line, or after the last ';' or 'Flags:' or 'Type:' in parameterized
             sections }
           FoundSemicolon := False;
-          FoundFlags := False;
+          FoundFlagsOrType := False;
           FoundDot := False;
           I := WordStartPos;
           while I > LinePos do begin
@@ -3152,9 +3152,10 @@ begin
                 PrevWordEndPos := I;
                 PrevWordStartPos := FActiveMemo.GetWordStartPosition(PrevWordEndPos, True);
                 S := FActiveMemo.GetTextRange(PrevWordStartPos, PrevWordEndPos);
-                FoundFlags := SameText(S, 'Flags');
+                FoundFlagsOrType := SameText(S, 'Flags') or
+                                    ((Section in [scInstallDelete, scUninstallDelete]) and SameText(S, 'Type'));
               end else
-                FoundFlags := False;
+                FoundFlagsOrType := False;
               Break;
             end;
             if (Section = scLangOptions) and (C = '.') and not FoundDot then begin
@@ -3171,11 +3172,11 @@ begin
                 Exit;
             end;
           end;
-          { Space can only initiate autocompletion after ';' or 'Flags:' in parameterized sections }
-          if (Key = ' ') and not (FoundSemicolon or FoundFlags) then
+          { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' in parameterized sections }
+          if (Key = ' ') and not (FoundSemicolon or FoundFlagsOrType) then
             Exit;
 
-          if FoundFlags then begin
+          if FoundFlagsOrType then begin
             WordList := FMemosStyler.FlagsWordList[Section];
             if WordList = '' then
               Exit;
