@@ -81,8 +81,8 @@ WinVersionTooLowError=Dieses Programm benötigt %1 Version %2 oder höher.
 WinVersionTooHighError=Dieses Programm kann nicht unter %1 Version %2 oder höher installiert werden.
 AdminPrivilegesRequired=Sie müssen als Administrator angemeldet sein, um dieses Programm installieren zu können.
 PowerUserPrivilegesRequired=Sie müssen als Administrator oder als Mitglied der Hauptbenutzer-Gruppe angemeldet sein, um dieses Programm installieren zu können.
-SetupAppRunningError=Das Setup hat entdeckt, dass %1 zur Zeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
-UninstallAppRunningError=Die Deinstallation hat entdeckt, dass %1 zur Zeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
+SetupAppRunningError=Das Setup hat entdeckt, dass %1 zurzeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
+UninstallAppRunningError=Die Deinstallation hat entdeckt, dass %1 zurzeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Installationsmodus auswählen
