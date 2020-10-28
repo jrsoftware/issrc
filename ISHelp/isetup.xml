@@ -5623,6 +5623,7 @@ SignTool=byparam format c:
 <tr><td>10.0.18362</td><td>Windows 10 Version 1903 (May 2019 Update)</td></tr>
 <tr><td>10.0.18363</td><td>Windows 10 Version 1909 (November 2019 Update)</td></tr>
 <tr><td>10.0.19041</td><td>Windows 10 Version 2004 (May 2020 Update)</td></tr>
+<tr><td>10.0.19042</td><td>Windows 10 Version 20H2 (October 2020 Update)</td></tr>
 </table>
 <p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>
