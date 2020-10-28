@@ -3096,7 +3096,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </precode>
 </li>
 
-<li>The Inno Setup backup website can be found at <extlink href="http://www.innosetup.nl/">www.innosetup.nl</extlink>. Normally this link will simply redirect you to the main website at <extlink href="https://jrsoftware.org/">jrsoftware.org</extlink> but in case of emergencies this redirect will be disabled.</li>
+<li>The Inno Setup backup domain can be found at <extlink href="https://www.innosetup.nl/">www.innosetup.nl</extlink>. There's currently no website active on this domain but in case of emergencies it will be activated.</li>
 
 </ul>
 
