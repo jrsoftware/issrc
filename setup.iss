@@ -198,5 +198,5 @@ Filename: "{app}\Compil32.exe"; Parameters: "/ASSOC"; StatusMsg: "{cm:AssocingFi
 Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; Description: "{cm:LaunchProgram,Inno Setup}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-; The /UNASSOC line will be automatically skipped on portable mode, because of Uninstallable begin set to no
+; The /UNASSOC line will be automatically skipped on portable mode, because of Uninstallable being set to no
 Filename: "{app}\Compil32.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAssoc"
