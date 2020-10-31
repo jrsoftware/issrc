@@ -295,7 +295,7 @@
   S1 == S2
 
 #define WarnRenamedVersion(str OldName, str NewName) \
-  Warning("Function """ + OldName + """ has been renamed. Use """ + NewName + "GetVersionComponents"" instead.")
+  Warning("Function """ + OldName + """ has been renamed. Use """ + NewName + """ instead.")
 
 #define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build) \
   WarnRenamedVersion("ParseVersion", "GetVersionComponents"), \
