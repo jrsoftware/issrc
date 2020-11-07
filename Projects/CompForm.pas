@@ -1824,7 +1824,7 @@ begin
   else
     HeaderMemo := FMainMemo;
   sHeader := HeaderMemo.Filename;
-  FileTitle := GetFileTitle(sHeader);
+  FileTitle := GetFileTitle(HeaderMemo.Filename);
   if HeaderMemo <> FActiveMemo then begin
     S := ' - ' + MemosTabSet.Tabs[MemoToTabIndex(FActiveMemo)];
     sHeader := Format('%s  %s', [sHeader, S]);
@@ -1836,189 +1836,189 @@ begin
   
   ZeroMemory(@pdlg, SizeOf(pdlg));
   pdlg.lStructSize := SizeOf(pdlg);
-	pdlg.hwndOwner := Handle;
-	pdlg.hInstance := hInstance;
-	pdlg.Flags := PD_USEDEVMODECOPIES or PD_ALLPAGES or PD_RETURNDC;
-	pdlg.nFromPage := 1;
-	pdlg.nToPage := 1;
-	pdlg.nMinPage := 1;
-	pdlg.nMaxPage := $ffff; // We do not know how many pages in the document until the printer is selected and the paper size is known.
-	pdlg.nCopies := 1;
-	pdlg.hDC := 0;
-	pdlg.hDevMode := FDevMode;
-	pdlg.hDevNames := FDevNames;
+  pdlg.hwndOwner := Handle;
+  pdlg.hInstance := hInstance;
+  pdlg.Flags := PD_USEDEVMODECOPIES or PD_ALLPAGES or PD_RETURNDC;
+  pdlg.nFromPage := 1;
+  pdlg.nToPage := 1;
+  pdlg.nMinPage := 1;
+  pdlg.nMaxPage := $ffff; // We do not know how many pages in the document until the printer is selected and the paper size is known.
+  pdlg.nCopies := 1;
+  pdlg.hDC := 0;
+  pdlg.hDevMode := FDevMode;
+  pdlg.hDevNames := FDevNames;
 
-	// See if a range has been selected
-	crange := FActiveMemo.Selection;
-	startPos := crange.StartPos;
-	endPos := crange.EndPos;
+  // See if a range has been selected
+  crange := FActiveMemo.Selection;
+  startPos := crange.StartPos;
+  endPos := crange.EndPos;
 
-	if startPos = endPos then
+  if startPos = endPos then
     pdlg.Flags := pdlg.Flags or PD_NOSELECTION
   else
     pdlg.Flags := pdlg.Flags or PD_SELECTION;
 
 (*
-	if (!showDialog) {
-		// Don't display dialog box, just use the default printer and options
-		pdlg.Flags |= PD_RETURNDEFAULT;
-	}
+  if (!showDialog) {
+    // Don't display dialog box, just use the default printer and options
+    pdlg.Flags |= PD_RETURNDEFAULT;
+  }
 *)
 
   if not PrintDlg(pdlg) then
     Exit;
 
-	FDevMode := pdlg.hDevMode;
-	FDevNames := pdlg.hDevNames;
+  FDevMode := pdlg.hDevMode;
+  FDevNames := pdlg.hDevNames;
 
-	hdc := pdlg.hDC;
+  hdc := pdlg.hDC;
 
-	// Get printer resolution
-	ptDpi.x := GetDeviceCaps(hdc, LOGPIXELSX);    // dpi in X direction
-	ptDpi.y := GetDeviceCaps(hdc, LOGPIXELSY);    // dpi in Y direction
+  // Get printer resolution
+  ptDpi.x := GetDeviceCaps(hdc, LOGPIXELSX);    // dpi in X direction
+  ptDpi.y := GetDeviceCaps(hdc, LOGPIXELSY);    // dpi in Y direction
 
-	// Start by getting the physical page size (in device units).
-	ptPage.x := GetDeviceCaps(hdc, PHYSICALWIDTH);   // device units
-	ptPage.y := GetDeviceCaps(hdc, PHYSICALHEIGHT);  // device units
+  // Start by getting the physical page size (in device units).
+  ptPage.x := GetDeviceCaps(hdc, PHYSICALWIDTH);   // device units
+  ptPage.y := GetDeviceCaps(hdc, PHYSICALHEIGHT);  // device units
 
-	// Get the dimensions of the unprintable
-	// part of the page (in device units).
-	rectPhysMargins.left := GetDeviceCaps(hdc, PHYSICALOFFSETX);
-	rectPhysMargins.top := GetDeviceCaps(hdc, PHYSICALOFFSETY);
+  // Get the dimensions of the unprintable
+  // part of the page (in device units).
+  rectPhysMargins.left := GetDeviceCaps(hdc, PHYSICALOFFSETX);
+  rectPhysMargins.top := GetDeviceCaps(hdc, PHYSICALOFFSETY);
 
-	// To get the right and lower unprintable area,
-	// we take the entire width and height of the paper and
-	// subtract everything else.
-	rectPhysMargins.right := ptPage.x						// total paper width
-	                         - GetDeviceCaps(hdc, HORZRES) // printable width
-	                         - rectPhysMargins.left;				// left unprintable margin
+  // To get the right and lower unprintable area,
+  // we take the entire width and height of the paper and
+  // subtract everything else.
+  rectPhysMargins.right := ptPage.x                       // total paper width
+                           - GetDeviceCaps(hdc, HORZRES)  // printable width
+                           - rectPhysMargins.left;        // left unprintable margin
 
-	rectPhysMargins.bottom := ptPage.y						// total paper height
-	                          - GetDeviceCaps(hdc, VERTRES)	// printable height
-	                          - rectPhysMargins.top;				// right unprintable margin
+  rectPhysMargins.bottom := ptPage.y                      // total paper height
+                            - GetDeviceCaps(hdc, VERTRES) // printable height
+                            - rectPhysMargins.top;        // right unprintable margin
 
-	// At this point, rectPhysMargins contains the widths of the
-	// unprintable regions on all four sides of the page in device units.
+  // At this point, rectPhysMargins contains the widths of the
+  // unprintable regions on all four sides of the page in device units.
 
 (*
-	// Take in account the page setup given by the user (if one value is not null)
-	if (pagesetupMargin.left != 0 || pagesetupMargin.right != 0 ||
-	        pagesetupMargin.top != 0 || pagesetupMargin.bottom != 0) {
-		GUI::Rectangle rectSetup;
+  // Take in account the page setup given by the user (if one value is not null)
+  if (pagesetupMargin.left != 0 || pagesetupMargin.right != 0 ||
+          pagesetupMargin.top != 0 || pagesetupMargin.bottom != 0) {
+    GUI::Rectangle rectSetup;
 
-		// Convert the hundredths of millimeters (HiMetric) or
-		// thousandths of inches (HiEnglish) margin values
-		// from the Page Setup dialog to device units.
-		// (There are 2540 hundredths of a mm in an inch.)
+    // Convert the hundredths of millimeters (HiMetric) or
+    // thousandths of inches (HiEnglish) margin values
+    // from the Page Setup dialog to device units.
+    // (There are 2540 hundredths of a mm in an inch.)
 
-		TCHAR localeInfo[3];
-		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IMEASURE, localeInfo, 3);
+    TCHAR localeInfo[3];
+    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IMEASURE, localeInfo, 3);
 
-		if (localeInfo[0] == '0') {	// Metric system. '1' is US System   *)
-			rectSetup.left := MulDiv(500 {pagesetupMargin.left}, ptDpi.x, 2540);
-			rectSetup.top := MulDiv(500 {pagesetupMargin.top}, ptDpi.y, 2540);
-			rectSetup.right	:= MulDiv(500 {pagesetupMargin.right}, ptDpi.x, 2540);
-			rectSetup.bottom	:= MulDiv(500 {pagesetupMargin.bottom}, ptDpi.y, 2540);
-		(* } else {
-			rectSetup.left	= MulDiv(pagesetupMargin.left, ptDpi.x, 1000);
-			rectSetup.top	= MulDiv(pagesetupMargin.top, ptDpi.y, 1000);
-			rectSetup.right	= MulDiv(pagesetupMargin.right, ptDpi.x, 1000);
-			rectSetup.bottom	= MulDiv(pagesetupMargin.bottom, ptDpi.y, 1000);
-		} *)
+    if (localeInfo[0] == '0') { // Metric system. '1' is US System   *)
+      rectSetup.left := MulDiv(500 {pagesetupMargin.left}, ptDpi.x, 2540);
+      rectSetup.top := MulDiv(500 {pagesetupMargin.top}, ptDpi.y, 2540);
+      rectSetup.right := MulDiv(500 {pagesetupMargin.right}, ptDpi.x, 2540);
+      rectSetup.bottom  := MulDiv(500 {pagesetupMargin.bottom}, ptDpi.y, 2540);
+    (* } else {
+      rectSetup.left  = MulDiv(pagesetupMargin.left, ptDpi.x, 1000);
+      rectSetup.top = MulDiv(pagesetupMargin.top, ptDpi.y, 1000);
+      rectSetup.right = MulDiv(pagesetupMargin.right, ptDpi.x, 1000);
+      rectSetup.bottom  = MulDiv(pagesetupMargin.bottom, ptDpi.y, 1000);
+    } *)
 
-		// Dont reduce margins below the minimum printable area
-		rectMargins.left := Max(rectPhysMargins.left, rectSetup.left);
-		rectMargins.top	:= Max(rectPhysMargins.top, rectSetup.top);
-		rectMargins.right	:= Max(rectPhysMargins.right, rectSetup.right);
-		rectMargins.bottom := Max(rectPhysMargins.bottom, rectSetup.bottom);
+    // Dont reduce margins below the minimum printable area
+    rectMargins.left := Max(rectPhysMargins.left, rectSetup.left);
+    rectMargins.top := Max(rectPhysMargins.top, rectSetup.top);
+    rectMargins.right := Max(rectPhysMargins.right, rectSetup.right);
+    rectMargins.bottom := Max(rectPhysMargins.bottom, rectSetup.bottom);
 (*
-	} else {
-		rectMargins := rectPhysMargins;
+  } else {
+    rectMargins := rectPhysMargins;
   }
 *)
 
-	// rectMargins now contains the values used to shrink the printable
-	// area of the page.
+  // rectMargins now contains the values used to shrink the printable
+  // area of the page.
 
-	// Convert device coordinates into logical coordinates
-	DPtoLP(hdc, rectMargins, 2);
-	DPtoLP(hdc, rectPhysMargins, 2);
+  // Convert device coordinates into logical coordinates
+  DPtoLP(hdc, rectMargins, 2);
+  DPtoLP(hdc, rectPhysMargins, 2);
 
-	// Convert page size to logical units and we're done!
-	DPtoLP(hdc, ptPage, 1);
+  // Convert page size to logical units and we're done!
+  DPtoLP(hdc, ptPage, 1);
 
-	headerLineHeight := MulDiv(9, ptDpi.y, 72);
-	fontHeader := CreateFont(headerLineHeight, 0, 0, 0, FW_REGULAR, 1, 0, 0, 0, 0, 0, 0, 0, PChar(FActiveMemo.Font.Name));
-	SelectObject(hdc, fontHeader);
-	GetTextMetrics(hdc, &tm);
-	headerLineHeight := tm.tmHeight + tm.tmExternalLeading;
+  headerLineHeight := MulDiv(9, ptDpi.y, 72);
+  fontHeader := CreateFont(headerLineHeight, 0, 0, 0, FW_REGULAR, 1, 0, 0, 0, 0, 0, 0, 0, PChar(FActiveMemo.Font.Name));
+  SelectObject(hdc, fontHeader);
+  GetTextMetrics(hdc, &tm);
+  headerLineHeight := tm.tmHeight + tm.tmExternalLeading;
 
-	footerLineHeight := MulDiv(9, ptDpi.y, 72);
-	fontFooter := CreateFont(footerLineHeight, 0, 0, 0, FW_REGULAR, 0, 0, 0, 0, 0, 0, 0, 0, PChar(FActiveMemo.Font.Name));
-	SelectObject(hdc, fontFooter);
-	GetTextMetrics(hdc, &tm);
-	footerLineHeight := tm.tmHeight + tm.tmExternalLeading;
+  footerLineHeight := MulDiv(9, ptDpi.y, 72);
+  fontFooter := CreateFont(footerLineHeight, 0, 0, 0, FW_REGULAR, 0, 0, 0, 0, 0, 0, 0, 0, PChar(FActiveMemo.Font.Name));
+  SelectObject(hdc, fontFooter);
+  GetTextMetrics(hdc, &tm);
+  footerLineHeight := tm.tmHeight + tm.tmExternalLeading;
 
   ZeroMemory(@di, SizeOf(di));
   di.cbSize := SizeOf(di);
-	di.lpszDocName  := PChar(FileTitle);
+  di.lpszDocName  := PChar(FileTitle);
   di.lpszOutput := nil;
-	di.lpszDatatype := nil;
-	di.fwType := 0;
+  di.lpszDatatype := nil;
+  di.fwType := 0;
 
-	if StartDoc(hdc, &di) < 0 then begin
-		DeleteDC(hdc);
-		DeleteObject(fontHeader);
-		DeleteObject(fontFooter);
+  if StartDoc(hdc, &di) < 0 then begin
+    DeleteDC(hdc);
+    DeleteObject(fontHeader);
+    DeleteObject(fontFooter);
     MsgBox('Can not start printer document.', SCompilerFormCaption, mbError, MB_OK);
-		Exit;
-	end;
+    Exit;
+  end;
 
-	lengthDoc := FActiveMemo.GetRawTextLength;
-	lengthDocMax := lengthDoc;
-	lengthPrinted := 0;
+  lengthDoc := FActiveMemo.GetRawTextLength;
+  lengthDocMax := lengthDoc;
+  lengthPrinted := 0;
 
-	// Requested to print selection
-	if (pdlg.Flags and PD_SELECTION) <> 0 then begin
-		if startPos > endPos then begin
-			lengthPrinted := endPos;
-			lengthDoc := startPos;
-		end else begin
-			lengthPrinted := startPos;
-			lengthDoc := endPos;
-		end;
+  // Requested to print selection
+  if (pdlg.Flags and PD_SELECTION) <> 0 then begin
+    if startPos > endPos then begin
+      lengthPrinted := endPos;
+      lengthDoc := startPos;
+    end else begin
+      lengthPrinted := startPos;
+      lengthDoc := endPos;
+    end;
 
-		if lengthPrinted < 0 then
-			lengthPrinted := 0;
-		if lengthDoc > lengthDocMax then
-			lengthDoc := lengthDocMax;
-	end;
+    if lengthPrinted < 0 then
+      lengthPrinted := 0;
+    if lengthDoc > lengthDocMax then
+      lengthDoc := lengthDocMax;
+  end;
 
-	// We must substract the physical margins from the printable area
-	frPrint.hdc := hdc;
-	frPrint.hdcTarget := hdc;
-	frPrint.rc.left := rectMargins.left - rectPhysMargins.left;
-	frPrint.rc.top := rectMargins.top - rectPhysMargins.top;
-	frPrint.rc.right := ptPage.x - rectMargins.right - rectPhysMargins.left;
-	frPrint.rc.bottom := ptPage.y - rectMargins.bottom - rectPhysMargins.top;
-	frPrint.rcPage.left := 0;
-	frPrint.rcPage.top := 0;
-	frPrint.rcPage.right := ptPage.x - rectPhysMargins.left - rectPhysMargins.right - 1;
-	frPrint.rcPage.bottom := ptPage.y - rectPhysMargins.top - rectPhysMargins.bottom - 1;
+  // We must substract the physical margins from the printable area
+  frPrint.hdc := hdc;
+  frPrint.hdcTarget := hdc;
+  frPrint.rc.left := rectMargins.left - rectPhysMargins.left;
+  frPrint.rc.top := rectMargins.top - rectPhysMargins.top;
+  frPrint.rc.right := ptPage.x - rectMargins.right - rectPhysMargins.left;
+  frPrint.rc.bottom := ptPage.y - rectMargins.bottom - rectPhysMargins.top;
+  frPrint.rcPage.left := 0;
+  frPrint.rcPage.top := 0;
+  frPrint.rcPage.right := ptPage.x - rectPhysMargins.left - rectPhysMargins.right - 1;
+  frPrint.rcPage.bottom := ptPage.y - rectPhysMargins.top - rectPhysMargins.bottom - 1;
   frPrint.rc.top := frPrint.rc.top + headerLineHeight + headerLineHeight div 2;
   frPrint.rc.bottom := frPrint.rc.bottom - (footerLineHeight + footerLineHeight div 2);
 
-	// Print each page
-	pageNum := 1;
+  // Print each page
+  pageNum := 1;
 
-	while lengthPrinted < lengthDoc do begin
-		printPage := ((pdlg.Flags and PD_PAGENUMS) = 0) or
-		             ((pageNum >= pdlg.nFromPage) and (pageNum <= pdlg.nToPage));
+  while lengthPrinted < lengthDoc do begin
+    printPage := ((pdlg.Flags and PD_PAGENUMS) = 0) or
+                 ((pageNum >= pdlg.nFromPage) and (pageNum <= pdlg.nToPage));
 
     sFooter := Format('- %d -', [pageNum]);
 
-		if printPage then begin
-			StartPage(hdc);
+    if printPage then begin
+      StartPage(hdc);
 
       SetTextColor(hdc, clBlack);
       SetBkColor(hdc, clWhite);
@@ -2036,14 +2036,14 @@ begin
       LineTo(hdc, frPrint.rc.right, frPrint.rc.top - headerLineHeight div 4);
       SelectObject(hdc, penOld);
       DeleteObject(pen);
-		end;
+    end;
 
-		frPrint.chrg.StartPos := lengthPrinted;
-		frPrint.chrg.EndPos := lengthDoc;
+    frPrint.chrg.StartPos := lengthPrinted;
+    frPrint.chrg.EndPos := lengthDoc;
 
-		lengthPrinted := FActiveMemo.FormatRange(printPage, @frPrint);
+    lengthPrinted := FActiveMemo.FormatRange(printPage, @frPrint);
 
-		if printPage then begin
+    if printPage then begin
       SetTextColor(hdc, clBlack);
       SetBkColor(hdc, clWhite);
       SelectObject(hdc, fontFooter);
@@ -2060,20 +2060,20 @@ begin
       SelectObject(hdc, penOld);
       DeleteObject(pen);
 
-			EndPage(hdc);
-		end;
-		Inc(pageNum);
+      EndPage(hdc);
+    end;
+    Inc(pageNum);
 
-		if ((pdlg.Flags and PD_PAGENUMS) <> 0) and (pageNum > pdlg.nToPage) then
-			Break;
-	end;
+    if ((pdlg.Flags and PD_PAGENUMS) <> 0) and (pageNum > pdlg.nToPage) then
+      Break;
+  end;
 
   FActiveMemo.FormatRange(False, nil);
 
-	EndDoc(hdc);
-	DeleteDC(hdc);
-	DeleteObject(fontHeader);
-	DeleteObject(fontFooter);
+  EndDoc(hdc);
+  DeleteDC(hdc);
+  DeleteObject(fontHeader);
+  DeleteObject(fontFooter);
 end;
 
 procedure TCompileForm.FMRUClick(Sender: TObject);
