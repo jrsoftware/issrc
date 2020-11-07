@@ -373,6 +373,14 @@ object CompileForm: TCompileForm
       object N1: TMenuItem
         Caption = '-'
       end
+      object FPrint: TMenuItem
+        Caption = '&Print...'
+        ShortCut = 16464
+        OnClick = FPrintClick
+      end
+      object N22: TMenuItem
+        Caption = '-'
+      end
       object FMRUMainFilesSep: TMenuItem
         Caption = '-'
         Visible = False
@@ -2203,5 +2211,9 @@ object CompileForm: TCompileForm
     OnFind = FindInFilesDialogFind
     Left = 136
     Top = 152
+  end
+  object PrintDialog: TPrintDialog
+    Left = 224
+    Top = 149
   end
 end

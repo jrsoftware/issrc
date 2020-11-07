@@ -15,11 +15,11 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, ScintInt;
 
 type
+  TScintEditAutoCompleteSelectionEvent = TNotifyEvent;
   TScintEditChangeInfo = record
     Inserting: Boolean;
     StartPos, Length, LinesDelta: Integer;
   end;
-  TScintEditOnAutoCompleteSelection = TNotifyEvent;
   TScintEditChangeEvent = procedure(Sender: TObject;
     const Info: TScintEditChangeInfo) of object;
   TScintEditCharAddedEvent = procedure(Sender: TObject; Ch: AnsiChar) of object;
@@ -44,9 +44,18 @@ type
   end;
   TScintRawCharSet = set of AnsiChar;
   TScintRawString = type {$IFDEF UNICODE} RawByteString {$ELSE} AnsiString {$ENDIF};
+  TScintRectangle = record
+    Left, Top, Right, Bottom: Integer;
+  end;
   TScintStyleNumber = 0..31;
   TScintVirtualSpaceOption = (svsRectangularSelection, svsUserAccessible);
   TScintVirtualSpaceOptions = set of TScintVirtualSpaceOption;
+  PScintRangeToFormat = ^TScintRangeToFormat;
+  TScintRangeToFormat = record
+    hdc, hdcTarget: UINT_PTR;
+    rc, rcPage: TScintRectangle;
+    chrg: TScintRange;
+  end;
 
   TScintEditStrings = class;
   TScintCustomStyler = class;
@@ -66,7 +75,7 @@ type
     FLeadBytes: TScintRawCharSet;
     FLineNumbers: Boolean;
     FLines: TScintEditStrings;
-    FOnAutoCompleteSelection: TScintEditOnAutoCompleteSelection;
+    FOnAutoCompleteSelection: TScintEditAutoCompleteSelectionEvent;
     FOnChange: TScintEditChangeEvent;
     FOnCharAdded: TScintEditCharAddedEvent;
     FOnDropFiles: TScintEditDropFilesEvent;
@@ -96,7 +105,6 @@ type
     function GetModified: Boolean;
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
-    function GetRawTextLength: Integer;
     function GetReadOnly: Boolean;
     function GetSelection: TScintRange;
     function GetSelText: String;
@@ -181,6 +189,8 @@ type
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
     function FindText(const StartPos, EndPos: Integer; const S: String;
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
+    function FormatRange(const Draw: Boolean;
+      const RangeToFormat: PScintRangeToFormat): Integer;
     procedure ForceModifiedState;
     function GetCharAtPosition(const Pos: Integer): AnsiChar;
     function GetColumnFromPosition(const Pos: Integer): Integer;
@@ -201,6 +211,7 @@ type
     function GetPositionFromPoint(const P: TPoint;
       const CharPosition, CloseOnly: Boolean): Integer;
     function GetPositionOfMatchingBrace(const Pos: Integer): Integer;
+    function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
     function GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
     function GetTextRange(const StartPos, EndPos: Integer): String;
@@ -287,7 +298,7 @@ type
       write SetVirtualSpaceOptions default [];
     property WordWrap: Boolean read FWordWrap write SetWordWrap default False;
     property Zoom: Integer read GetZoom write SetZoom default 0;
-    property OnAutoCompleteSelection: TScintEditOnAutoCompleteSelection read FOnAutoCompleteSelection write FOnAutoCompleteSelection;
+    property OnAutoCompleteSelection: TScintEditAutoCompleteSelectionEvent read FOnAutoCompleteSelection write FOnAutoCompleteSelection;
     property OnChange: TScintEditChangeEvent read FOnChange write FOnChange;
     property OnCharAdded: TScintEditCharAddedEvent read FOnCharAdded write FOnCharAdded;
     property OnDropFiles: TScintEditDropFilesEvent read FOnDropFiles write FOnDropFiles;
@@ -701,6 +712,12 @@ begin
     if Assigned(FOnModifiedChange) then
       FOnModifiedChange(Self);
   end;
+end;
+
+function TScintEdit.FormatRange(const Draw: Boolean;
+  const RangeToFormat: PScintRangeToFormat): Integer;
+begin
+  Result := Call(SCI_FORMATRANGE, Ord(Draw), LPARAM(RangeToFormat));
 end;
 
 function TScintEdit.GetAutoCompleteActive: Boolean;
