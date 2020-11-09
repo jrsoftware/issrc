@@ -3127,7 +3127,7 @@ procedure TCompileForm.UpdatePreprocMemos;
             NewHints.Insert(NewTabIndex, GetFileTitle(IncludedFile.Filename));
 
             Inc(NextMemoIndex);
-            if NextMemoIndex = FMemos.Count then
+            if NextMemoIndex = FFileMemos.Count then
               Break; { We're out of memos :( }
           except on E: Exception do
             begin
@@ -3180,7 +3180,7 @@ begin
     I := MemosTabSet.Tabs.IndexOf(SaveTabName);
     if I <> -1 then
        MemosTabSet.TabIndex := I;
-   if MemosTabSet.TabIndex = SaveTabIndex then begin
+    if MemosTabSet.TabIndex = SaveTabIndex then begin
       { If TabIndex stayed the same then the tabset won't perform a Click but we need this to make
        sure the right memo is visible - so trigger it ourselves }
       MemosTabSetClick(MemosTabSet);
