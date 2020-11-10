@@ -1555,7 +1555,7 @@ object WizardForm: TWizardForm
           end
           object PrivilegesRequiredOverridesAllowedCommandLineCheckbox: TCheckBox
             Left = 36
-            Top = 65
+            Top = 68
             Width = 413
             Height = 17
             Anchors = [akLeft, akTop, akRight]
