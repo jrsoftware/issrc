@@ -47,7 +47,7 @@ type
   public
     property Theme: TTheme read FTheme write FTheme;
     property Used: Boolean read FUsed write FUsed;
-    procedure UpdateThemeColors;
+    procedure UpdateThemeColorsAndStyleAttributes;
   end;
 
   TCompScintFileEdit = class(TCompScintEdit)
@@ -195,7 +195,7 @@ begin
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
 end;
 
-procedure TCompScintEdit.UpdateThemeColors;
+procedure TCompScintEdit.UpdateThemeColorsAndStyleAttributes;
 begin
   if FTheme <> nil then begin
     Font.Color := FTheme.Colors[tcFore];

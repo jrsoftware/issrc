@@ -1817,7 +1817,7 @@ procedure TCompileForm.FPrintClick(Sender: TObject);
     OldTheme := FActiveMemo.Theme;
     FActiveMemo.Styler := PrintStyler;
     FActiveMemo.Theme := PrintTheme;
-    FActiveMemo.UpdateThemeColors;
+    FActiveMemo.UpdateThemeColorsAndStyleAttributes;
   end;
 
   procedure DeinitPrintStyler(const PrintStyler: TInnoSetupStyler; const PrintTheme: TTheme;
@@ -1828,7 +1828,7 @@ procedure TCompileForm.FPrintClick(Sender: TObject);
         FActiveMemo.Styler := OldStyler;
       if OldTheme <> nil then
         FActiveMemo.Theme := OldTheme;
-      FActiveMemo.UpdateThemeColors;
+      FActiveMemo.UpdateThemeColorsAndStyleAttributes;
     end;
     PrintTheme.Free;
     PrintStyler.Free;
@@ -4292,7 +4292,7 @@ var
 begin
   FTheme.Typ := FOptions.ThemeType;
   for Memo in FMemos do begin
-    Memo.UpdateThemeColors;
+    Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlTheme(Memo);
   end;
   ToolBarPanel.ParentBackground := False;
