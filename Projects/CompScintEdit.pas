@@ -203,6 +203,7 @@ begin
     Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
     Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
   end;
+  UpdateStyleAttributes;
 end;
 
 { TCompScintFileEdit }

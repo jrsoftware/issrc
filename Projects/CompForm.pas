@@ -4242,7 +4242,6 @@ begin
   FTheme.Typ := FOptions.ThemeType;
   for Memo in FMemos do begin
     Memo.UpdateThemeColors;
-    Memo.UpdateStyleAttributes;
     SetControlTheme(Memo);
   end;
   ToolBarPanel.ParentBackground := False;
