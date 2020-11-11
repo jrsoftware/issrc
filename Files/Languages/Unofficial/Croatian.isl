@@ -1,10 +1,10 @@
-﻿; *** Inno Setup version 6.0.3+ Croatian messages ***
+﻿; *** Inno Setup version 6.1.0+ Croatian messages ***
 ; Translated by: Milo Ivir (mail@milotype.de)
 ; Based on translation by Elvis Gambiraža (el.gambo@gmail.com)
 ; Based on translation by Krunoslav Kanjuh (krunoslav.kanjuh@zg.t-com.hr)
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://www.jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -85,7 +85,7 @@ ExitSetupTitle=Prekini instalaciju
 ExitSetupMessage=Instalacija nije završena. Ako sad izađeš, program neće biti instaliran.%n%nInstalaciju možeš pokrenuti kasnije, ukoliko je želiš dovršiti.%n%nPrekinuti instalaciju?
 AboutSetupMenuItem=&O instalaciji …
 AboutSetupTitle=O instalaciji
-AboutSetupMessage=%1 verzija %2%n%3%n%n%1 početna stranica:%n%4
+AboutSetupMessage=%1 verzija %2%n%3%n%n%1 web-stranica:%n%4
 AboutSetupNote=
 TranslatorNote=Prevodioci:%n%nKrunoslav Kanjuh%n%nElvis Gambiraža%n%nMilo Ivir
 
@@ -213,6 +213,18 @@ ReadyMemoComponents=Odabrane komponente:
 ReadyMemoGroup=Mapa u "Start" izborniku:
 ReadyMemoTasks=Dodatni zadaci:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Preuzimanje dodatnih datoteka …
+ButtonStopDownload=&Prekini preuzimanje
+StopDownload=Stvarno želiš prekinuti preuzimanje?
+ErrorDownloadAborted=Preuzimanje je prekinuto
+ErrorDownloadFailed=Neuspjelo preuzimanje: %1 %2
+ErrorDownloadSizeFailed=Neuspjelo dohvaćanje veličine: %1 %2
+ErrorFileHash1=Izračunavanje kontrolnog zbroja datoteke neuspjelo: %1
+ErrorFileHash2=Neispravan kontrolni zbroj datoteke: očekivano %1, pronađeno %2
+ErrorProgress=Neispravan napredak: %1 od %2
+ErrorFileSize=Neispravna veličina datoteke: očekivano %1, pronađeno %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Priprema za instaliranje
 PreparingDesc=Instalacija se priprema za instaliranje programa [name].
@@ -295,8 +307,16 @@ ExistingFileReadOnly2=Postojeću datoteku nije bilo moguće zamijeniti, jer je o
 ExistingFileReadOnlyRetry=&Ukloni svojstvo "samo-za-čitanje" i pokušaj ponovo
 ExistingFileReadOnlyKeepExisting=&Zadrži postojeću datoteku
 ErrorReadingExistingDest=Pojavila se greška prilikom pokušaja čitanja postojeće datoteke:
-FileExists=Datoteka već postoji.%n%nŽeliš li da je instalacija prepiše?
-ExistingFileNewer=Postojeća datoteka je novija od one, koju pokušavaš instalirati. Preporučuje se da zadržiš postojeću datoteku.%n%nŽeliš li zadržati postojeću datoteku?
+FileExistsSelectAction=Odaberi radnju
+FileExists2=Datoteka već postoji.
+FileExistsOverwriteExisting=&Prepiši postojeću datoteku
+FileExistsKeepExisting=&Zadrži postojeću datoteku
+FileExistsOverwriteOrKeepAll=&Uradi to i u narednim slučajevima
+ExistingFileNewerSelectAction=Odaberi radnju
+ExistingFileNewer2=Postojeća datoteka je novija od one koja se pokušava instalirati.
+ExistingFileNewerOverwriteExisting=&Prepiši postojeću datoteku
+ExistingFileNewerKeepExisting=&Zadrži postojeću datoteku (preporučeno)
+ExistingFileNewerOverwriteOrKeepAll=&Uradi to i u narednim slučajevima
 ErrorChangingAttr=Pojavila se greška prilikom pokušaja promjene svojstva postojeće datoteke:
 ErrorCreatingTemp=Pojavila se greška prilikom pokušaja stvaranja datoteke u odredišnoj mapi:
 ErrorReadingSource=Pojavila se greška prilikom pokušaja čitanja izvorišne datoteke:
