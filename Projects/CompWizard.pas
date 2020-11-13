@@ -1047,7 +1047,6 @@ begin
     { AppAssocation }
     if CreateAssocCheck.Enabled and CreateAssocCheck.Checked then begin
       Setup := Setup + 'ChangesAssociations=yes' + SNewLine;
-      Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocExtEdit.Text + '"; ValueType: string; ValueName: ""; ValueData: "' + AppAssocKey + '"; Flags: uninsdeletevalue' + SNewLine;
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocExtEdit.Text + '\OpenWithProgids"; ValueType: string; ValueName: "' + AppAssocKey + '"; ValueData: ""; Flags: uninsdeletevalue' + SNewLine;
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '"; ValueType: string; ValueName: ""; ValueData: "' + AppAssocNameEdit.Text + '"; Flags: uninsdeletekey' + SNewLine;
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\' + AppExeName + ',0"' + SNewLine;
