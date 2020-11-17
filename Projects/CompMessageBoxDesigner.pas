@@ -674,7 +674,7 @@ begin
    Button1Label.Visible := True;
    Button2Label.Visible := True;
    TaskInstructionText.Text := 'Instruction Text';
-   TaskMesssageText.Text := 'Messsage Text';
+   TaskMesssageText.Text := 'Message Text';
    // Button1Text.Text := '';
    // Button2Text.Text := '';
    rbMB_OK.Checked := True;

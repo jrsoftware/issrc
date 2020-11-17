@@ -40,7 +40,7 @@ object MBDForm: TMBDForm
     Top = 40
     Width = 49
     Height = 14
-    Caption = 'Messsage'
+    Caption = 'Message'
     TabOrder = 12
   end
   object TaskMesssageText: TEdit
