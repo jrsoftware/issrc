@@ -2,7 +2,7 @@ unit ScriptClasses_C;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -86,6 +86,8 @@ begin
     RegisterProperty('ItemLevel', 'Byte Integer', iptr);
     RegisterProperty('ItemObject', 'TObject Integer', iptrw);
     RegisterProperty('ItemSubItem', 'String Integer', iptrw);
+    RegisterProperty('ItemFontStyle', 'TFontStyles Integer', iptrw);
+    RegisterProperty('SubItemFontStyle', 'TFontStyles Integer', iptrw);
     RegisterProperty('Flat', 'Boolean', iptrw);
     RegisterProperty('MinItemHeight', 'Integer', iptrw);
     RegisterProperty('Offset', 'Integer', iptrw);

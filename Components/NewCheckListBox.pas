@@ -37,6 +37,8 @@ type
     SubItem: string;
     ThreadCache: set of Byte;
     MeasuredHeight: Integer;
+    ItemFontStyle: TFontStyles;
+    SubItemFontStyle: TFontStyles;
   end;
 
   TCheckItemOperation = (coUncheck, coCheck, coCheckWithChildren); 
@@ -112,6 +114,8 @@ type
     function GetLevel(Index: Integer): Byte;
     function GetObject(Index: Integer): TObject;
     function GetState(Index: Integer): TCheckBoxState;
+    function GetItemFont(Index: Integer): TFontStyles;
+    function GetSubItemFont(Index: Integer): TFontStyles;
     function GetSubItem(Index: Integer): string;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
@@ -125,6 +129,8 @@ type
     procedure SetFlat(Value: Boolean);
     procedure SetItemEnabled(Index: Integer; const AEnabled: Boolean);
     procedure SetObject(Index: Integer; const AObject: TObject);
+    procedure SetItemFont(Index: Integer; const AItemFontStyle: TFontStyles);
+    procedure SetSubItemFont(Index: Integer; const ASubItemFontStyle: TFontStyles);
     procedure SetOffset(AnOffset: Integer);
     procedure SetShowLines(Value: Boolean);
     procedure SetSubItem(Index: Integer; const ASubItem: String);
@@ -151,6 +157,8 @@ type
     property ItemObject[Index: Integer]: TObject read GetObject write SetObject;
     property ItemSubItem[Index: Integer]: string read GetSubItem write SetSubItem;
     property State[Index: Integer]: TCheckBoxState read GetState;
+    property ItemFontStyle[Index: Integer]: TFontStyles read GetItemFont write SetItemFont;
+    property SubItemFontStyle[Index: Integer]: TFontStyles read GetSubItemFont write SetSubItemFont;
   published
     property Align;
     property Anchors;
@@ -756,6 +764,7 @@ var
   SubItemWidth: Integer;
   PartId, StateId: Integer;
   Size: TSize;
+  BitFStyle: Byte;
 begin
   if FShowLines and not FThreadsUpToDate then begin
     UpdateThreads;
@@ -856,6 +865,15 @@ begin
     OldColor := SetTextColor(Handle, ColorToRGB(NewTextColor));
     if ItemState.SubItem <> '' then
     begin
+
+      { Set Font Style for SubItem }
+      BitFStyle := 0;
+      if (fsBold in ItemState.SubItemFontStyle) then inc(BitFStyle, 1);
+      if (fsItalic in ItemState.SubItemFontStyle) then inc(BitFStyle, 2);
+      if (fsUnderline in ItemState.SubItemFontStyle) then inc(BitFStyle, 4);
+      if (fsStrikeOut in ItemState.SubItemFontStyle) then inc(BitFStyle, 8);
+      Font.Style := TFontStyles(BitFStyle);
+
       DrawTextFormat := DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE or DT_VCENTER;
       if FUseRightToLeft then
         DrawTextFormat := DrawTextFormat or (DT_RIGHT or DT_RTLREADING);
@@ -892,6 +910,15 @@ begin
       measuring, pass our rectangle to DrawText with DT_CALCRECT first.
       Wrapping at the same place is important because it can affect how many
       lines are drawn -- and we mustn't draw too many. }
+
+    { Set Font Style for SubItem }
+    BitFStyle := 0;
+    if (fsBold in ItemState.ItemFontStyle) then inc(BitFStyle, 1);
+    if (fsItalic in ItemState.ItemFontStyle) then inc(BitFStyle, 2);
+    if (fsUnderline in ItemState.ItemFontStyle) then inc(BitFStyle, 4);
+    if (fsStrikeOut in ItemState.ItemFontStyle) then inc(BitFStyle, 8);
+    Font.Style := TFontStyles(BitFStyle);
+
     InternalDrawText(Items[Index], Rect, DrawTextFormat or DT_CALCRECT, False);
     FlipRect(Rect, SavedClientRect, FUseRightToLeft);
     InternalDrawText(Items[Index], Rect, DrawTextFormat, FWantTabs and Disabled);
@@ -985,6 +1012,8 @@ begin
     ItemState.Obj := AObject;
     ItemState.Level := ALevel;
     ItemState.SubItem := ASubItem;
+    ItemState.ItemFontStyle := [];
+    ItemState.SubItemFontStyle := [];
     ItemState.HasInternalChildren := AHasInternalChildren;
     ItemState.CheckWhenParentChecked := ACheckWhenParentChecked;
   except
@@ -1099,6 +1128,16 @@ end;
 function TNewCheckListBox.GetState(Index: Integer): TCheckBoxState;
 begin
   Result := ItemStates[Index].State;
+end;
+
+function TNewCheckListBox.GetItemFont(Index: Integer): TFontStyles;
+begin
+  Result := ItemStates[Index].ItemFontStyle;
+end;
+
+function TNewCheckListBox.GetSubItemFont(Index: Integer): TFontStyles;
+begin
+  Result := ItemStates[Index].SubItemFontStyle;
 end;
 
 function TNewCheckListBox.GetSubItem(Index: Integer): String;
@@ -1484,6 +1523,16 @@ end;
 procedure TNewCheckListBox.SetObject(Index: Integer; const AObject: TObject);
 begin
   ItemStates[Index].Obj := AObject;
+end;
+
+procedure TNewCheckListBox.SetItemFont(Index: Integer; const AItemFontStyle: TFontStyles);
+begin
+  ItemStates[Index].ItemFontStyle := AItemFontStyle;
+end;
+
+procedure TNewCheckListBox.SetSubItemFont(Index: Integer; const ASubItemFontStyle: TFontStyles);
+begin
+  ItemStates[Index].SubItemFontStyle := ASubItemFontStyle;
 end;
 
 procedure TNewCheckListBox.SetOffset(AnOffset: Integer);
