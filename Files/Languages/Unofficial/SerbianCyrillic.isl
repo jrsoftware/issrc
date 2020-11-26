@@ -152,6 +152,7 @@ WizardSelectDir=Одабир одредишне фасцикле
 SelectDirDesc=Изаберите место на ком желите да инсталирате [name].
 SelectDirLabel3=Програм ће инсталирати [name] у следећу фасциклу.
 SelectDirBrowseLabel=Кликните на „Даље“ да наставите. Ако желите да изаберете другу фасциклу, кликните на „Потражи…“.
+DiskSpaceGBLabel=Потребно је најмање [gb] GB слободног простора на диску.
 DiskSpaceMBLabel=Потребно је најмање [mb] MB слободног простора на диску.
 CannotInstallToNetworkDrive=Не могу да инсталирам на мрежну јединицу.
 CannotInstallToUNCPath=Не могу да инсталирам на UNC путању.
