@@ -1502,8 +1502,14 @@ begin
 end;
 
 procedure TNewCheckListBox.SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
+var
+  R: TRect;
 begin
-  ItemStates[Index].ItemFontStyle := AItemFontStyle;
+  if ItemStates[Index].ItemFontStyle <> AItemFontStyle then begin
+    ItemStates[Index].ItemFontStyle := AItemFontStyle;
+    R := ItemRect(Index);
+    InvalidateRect(Handle, @R, True);
+  end;
 end;
 
 procedure TNewCheckListBox.SetObject(Index: Integer; const AObject: TObject);
@@ -1556,8 +1562,14 @@ begin
 end;
 
 procedure TNewCheckListBox.SetSubItemFontStyle(Index: Integer; const ASubItemFontStyle: TFontStyles);
+var
+  R: TRect;
 begin
-  ItemStates[Index].SubItemFontStyle := ASubItemFontStyle;
+  if ItemStates[Index].SubItemFontStyle <> ASubItemFontStyle then begin
+    ItemStates[Index].SubItemFontStyle := ASubItemFontStyle;
+    R := ItemRect(Index);
+    InvalidateRect(Handle, @R, True);
+  end;
 end;
 
 procedure TNewCheckListBox.Toggle(Index: Integer);
