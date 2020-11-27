@@ -66,9 +66,9 @@ type
     rb_IDRETRY: TCheckBox;
     rb_IDIGNORE: TCheckBox;
     TaskInstructionLabel: TNewStaticText;
-    TaskMesssageLabel: TNewStaticText;
+    TaskMessageLabel: TNewStaticText;
     TaskInstructionText: TEdit;
-    TaskMesssageText: TEdit;
+    TaskMessageText: TEdit;
     Button1Text: TEdit;
     Button2Text: TEdit;
     Button1Label: TNewStaticText;
@@ -132,9 +132,9 @@ begin
   NewEdit1.Enabled := False;
   UpDown1.Enabled := False;
   TaskInstructionLabel.Visible := False;
-  TaskMesssageLabel.Visible := False;
+  TaskMessageLabel.Visible := False;
   TaskInstructionText.Visible := False;
-  TaskMesssageText.Visible := False;
+  TaskMessageText.Visible := False;
   Button1Text.Visible := False;
   Button2Text.Visible := False;
   Button1Label.Visible := False;
@@ -563,9 +563,9 @@ begin
    rb_IDNO.Visible := False;
    rb_mbInformation.Checked := True;
    TaskInstructionLabel.Visible := False;
-   TaskMesssageLabel.Visible := False;
+   TaskMessageLabel.Visible := False;
    TaskInstructionText.Visible := False;
-   TaskMesssageText.Visible := False;
+   TaskMessageText.Visible := False;
    Button1Text.Visible := False;
    Button2Text.Visible := False;
    Button1Label.Visible := False;
@@ -666,15 +666,15 @@ begin
    rb_IDNO.Visible := True;
    rb_mbInformation.Checked := True;
    TaskInstructionLabel.Visible := True;
-   TaskMesssageLabel.Visible := True;
+   TaskMessageLabel.Visible := True;
    TaskInstructionText.Visible := True;
-   TaskMesssageText.Visible := True;
+   TaskMessageText.Visible := True;
    Button1Text.Visible := True;
    Button2Text.Visible := True;
    Button1Label.Visible := True;
    Button2Label.Visible := True;
    TaskInstructionText.Text := 'Instruction Text';
-   TaskMesssageText.Text := 'Messsage Text';
+   TaskMessageText.Text := 'Message Text';
    // Button1Text.Text := '';
    // Button2Text.Text := '';
    rbMB_OK.Checked := True;
@@ -825,7 +825,7 @@ begin
      { TaskDialogMsgBox(Icon, Instruction, Text, Caption, Typ, Buttons, ButtonLabels, ShieldButton) }
      TaskDialogMsgBox('',
                       TaskInstructionText.Text,
-                      TaskMesssageText.Text,
+                      TaskMessageText.Text,
                       CaptionMsg,
                       TypeIcon,
                       ButtonsBtn,
@@ -1027,7 +1027,7 @@ begin
     end;
 
     if cb_TaskDialogMsgBox.Checked then begin
-       { TaskDialogMsgBox(TaskInstructionText.Text, TaskMesssageText.Text, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg) }
+       { TaskDialogMsgBox(TaskInstructionText.Text, TaskMessageText.Text, IconTypes, ButtonBtn, BtnTextArr, ShieldFlg) }
        ModeMsg := 1;
 
        { create ButtonLabels array }
@@ -1056,7 +1056,7 @@ begin
        { Suppressible msg }
        if cb_Suppressible.Checked then ShieldFlg := ShieldFlg + BtnSupprDef;
 
-       TextMsgIf := TaskInstructionText.Text + ''', ''' + TaskMesssageText.Text;
+       TextMsgIf := TaskInstructionText.Text + ''', ''' + TaskMessageText.Text;
     end;
 
     { selected button OK }
