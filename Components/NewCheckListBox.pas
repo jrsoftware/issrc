@@ -111,12 +111,12 @@ type
     function GetCaption(Index: Integer): String;
     function GetChecked(Index: Integer): Boolean;
     function GetItemEnabled(Index: Integer): Boolean;
+    function GetItemFontStyle(Index: Integer): TFontStyles;
     function GetLevel(Index: Integer): Byte;
     function GetObject(Index: Integer): TObject;
     function GetState(Index: Integer): TCheckBoxState;
-    function GetItemFont(Index: Integer): TFontStyles;
-    function GetSubItemFont(Index: Integer): TFontStyles;
     function GetSubItem(Index: Integer): string;
+    function GetSubItemFontStyle(Index: Integer): TFontStyles;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -128,12 +128,12 @@ type
     procedure SetChecked(Index: Integer; const AChecked: Boolean);
     procedure SetFlat(Value: Boolean);
     procedure SetItemEnabled(Index: Integer; const AEnabled: Boolean);
+    procedure SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
     procedure SetObject(Index: Integer; const AObject: TObject);
-    procedure SetItemFont(Index: Integer; const AItemFontStyle: TFontStyles);
-    procedure SetSubItemFont(Index: Integer; const ASubItemFontStyle: TFontStyles);
     procedure SetOffset(AnOffset: Integer);
     procedure SetShowLines(Value: Boolean);
     procedure SetSubItem(Index: Integer; const ASubItem: String);
+    procedure SetSubItemFontStyle(Index: Integer; const ASubItemFontStyle: TFontStyles);
     property ItemStates[Index: Integer]: TItemState read GetItemState;
   public
     constructor Create(AOwner: TComponent); override;
@@ -153,12 +153,12 @@ type
     property Checked[Index: Integer]: Boolean read GetChecked write SetChecked;
     property ItemCaption[Index: Integer]: String read GetCaption write SetCaption;
     property ItemEnabled[Index: Integer]: Boolean read GetItemEnabled write SetItemEnabled;
+    property ItemFontStyle[Index: Integer]: TFontStyles read GetItemFontStyle write SetItemFontStyle;
     property ItemLevel[Index: Integer]: Byte read GetLevel;
     property ItemObject[Index: Integer]: TObject read GetObject write SetObject;
     property ItemSubItem[Index: Integer]: string read GetSubItem write SetSubItem;
     property State[Index: Integer]: TCheckBoxState read GetState;
-    property ItemFontStyle[Index: Integer]: TFontStyles read GetItemFont write SetItemFont;
-    property SubItemFontStyle[Index: Integer]: TFontStyles read GetSubItemFont write SetSubItemFont;
+    property SubItemFontStyle[Index: Integer]: TFontStyles read GetSubItemFontStyle write SetSubItemFontStyle;
   published
     property Align;
     property Anchors;
@@ -1094,6 +1094,11 @@ begin
   Result := ItemStates[Index].Enabled;
 end;
 
+function TNewCheckListBox.GetItemFontStyle(Index: Integer): TFontStyles;
+begin
+  Result := ItemStates[Index].ItemFontStyle;
+end;
+
 function TNewCheckListBox.GetItemState(Index: Integer): TItemState;
 begin
   Result := FStateList[Index];
@@ -1130,19 +1135,14 @@ begin
   Result := ItemStates[Index].State;
 end;
 
-function TNewCheckListBox.GetItemFont(Index: Integer): TFontStyles;
-begin
-  Result := ItemStates[Index].ItemFontStyle;
-end;
-
-function TNewCheckListBox.GetSubItemFont(Index: Integer): TFontStyles;
-begin
-  Result := ItemStates[Index].SubItemFontStyle;
-end;
-
 function TNewCheckListBox.GetSubItem(Index: Integer): String;
 begin
   Result := ItemStates[Index].SubItem;
+end;
+
+function TNewCheckListBox.GetSubItemFontStyle(Index: Integer): TFontStyles;
+begin
+  Result := ItemStates[Index].SubItemFontStyle;
 end;
 
 procedure TNewCheckListBox.InvalidateCheck(Index: Integer);
@@ -1520,19 +1520,14 @@ begin
   end;
 end;
 
-procedure TNewCheckListBox.SetObject(Index: Integer; const AObject: TObject);
-begin
-  ItemStates[Index].Obj := AObject;
-end;
-
-procedure TNewCheckListBox.SetItemFont(Index: Integer; const AItemFontStyle: TFontStyles);
+procedure TNewCheckListBox.SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
 begin
   ItemStates[Index].ItemFontStyle := AItemFontStyle;
 end;
 
-procedure TNewCheckListBox.SetSubItemFont(Index: Integer; const ASubItemFontStyle: TFontStyles);
+procedure TNewCheckListBox.SetObject(Index: Integer; const AObject: TObject);
 begin
-  ItemStates[Index].SubItemFontStyle := ASubItemFontStyle;
+  ItemStates[Index].Obj := AObject;
 end;
 
 procedure TNewCheckListBox.SetOffset(AnOffset: Integer);
@@ -1577,6 +1572,11 @@ begin
     end;
     InvalidateRect(Handle, @R, True);
   end;
+end;
+
+procedure TNewCheckListBox.SetSubItemFontStyle(Index: Integer; const ASubItemFontStyle: TFontStyles);
+begin
+  ItemStates[Index].SubItemFontStyle := ASubItemFontStyle;
 end;
 
 procedure TNewCheckListBox.Toggle(Index: Integer);
