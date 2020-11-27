@@ -35,15 +35,15 @@ object MBDForm: TMBDForm
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 1
   end
-  object TaskMesssageLabel: TNewStaticText
+  object TaskMessageLabel: TNewStaticText
     Left = 18
     Top = 40
     Width = 49
     Height = 14
-    Caption = 'Messsage'
+    Caption = 'Message'
     TabOrder = 12
   end
-  object TaskMesssageText: TEdit
+  object TaskMessageText: TEdit
     Left = 89
     Top = 36
     Width = 449
