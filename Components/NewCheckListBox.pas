@@ -764,7 +764,6 @@ var
   SubItemWidth: Integer;
   PartId, StateId: Integer;
   Size: TSize;
-  BitFStyle: Byte;
 begin
   if FShowLines and not FThreadsUpToDate then begin
     UpdateThreads;
@@ -865,19 +864,11 @@ begin
     OldColor := SetTextColor(Handle, ColorToRGB(NewTextColor));
     if ItemState.SubItem <> '' then
     begin
-
-      { Set Font Style for SubItem }
-      BitFStyle := 0;
-      if (fsBold in ItemState.SubItemFontStyle) then inc(BitFStyle, 1);
-      if (fsItalic in ItemState.SubItemFontStyle) then inc(BitFStyle, 2);
-      if (fsUnderline in ItemState.SubItemFontStyle) then inc(BitFStyle, 4);
-      if (fsStrikeOut in ItemState.SubItemFontStyle) then inc(BitFStyle, 8);
-      Font.Style := TFontStyles(BitFStyle);
-
       DrawTextFormat := DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE or DT_VCENTER;
       if FUseRightToLeft then
         DrawTextFormat := DrawTextFormat or (DT_RIGHT or DT_RTLREADING);
       SetRectEmpty(SubItemRect);
+      Font.Style := ItemState.SubItemFontStyle;
       InternalDrawText(ItemState.SubItem, SubItemRect, DrawTextFormat or
         DT_CALCRECT, False);
       SubItemWidth := SubItemRect.Right + 2 * FOffset;
@@ -901,6 +892,7 @@ begin
       DrawTextFormat := DrawTextFormat or DT_HIDEPREFIX;
     if FUseRightToLeft then
       DrawTextFormat := DrawTextFormat or (DT_RIGHT or DT_RTLREADING);
+    Font.Style := ItemState.ItemFontStyle;
     { When you call DrawText with the DT_CALCRECT flag and there's a word wider
       than the rectangle width, it increases the rectangle width and wraps
       at the new Right point. On the other hand, when you call DrawText
@@ -910,15 +902,6 @@ begin
       measuring, pass our rectangle to DrawText with DT_CALCRECT first.
       Wrapping at the same place is important because it can affect how many
       lines are drawn -- and we mustn't draw too many. }
-
-    { Set Font Style for SubItem }
-    BitFStyle := 0;
-    if (fsBold in ItemState.ItemFontStyle) then inc(BitFStyle, 1);
-    if (fsItalic in ItemState.ItemFontStyle) then inc(BitFStyle, 2);
-    if (fsUnderline in ItemState.ItemFontStyle) then inc(BitFStyle, 4);
-    if (fsStrikeOut in ItemState.ItemFontStyle) then inc(BitFStyle, 8);
-    Font.Style := TFontStyles(BitFStyle);
-
     InternalDrawText(Items[Index], Rect, DrawTextFormat or DT_CALCRECT, False);
     FlipRect(Rect, SavedClientRect, FUseRightToLeft);
     InternalDrawText(Items[Index], Rect, DrawTextFormat, FWantTabs and Disabled);
@@ -1012,8 +995,6 @@ begin
     ItemState.Obj := AObject;
     ItemState.Level := ALevel;
     ItemState.SubItem := ASubItem;
-    ItemState.ItemFontStyle := [];
-    ItemState.SubItemFontStyle := [];
     ItemState.HasInternalChildren := AHasInternalChildren;
     ItemState.CheckWhenParentChecked := ACheckWhenParentChecked;
   except
