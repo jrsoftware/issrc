@@ -3072,46 +3072,11 @@ begin
   end;
 end;
 
-function StrToVersionInfoVersionNumber(const S: String; var Version: TFileVersionNumbers): Boolean;
-
-  function SplitNextNumber(var Z: String): Word;
-  var
-    I, N: Integer;
-  begin
-    if Trim(Z) <> '' then begin
-      I := Pos('.', Z);
-      if I = 0 then
-        I := Length(Z)+1;
-      N := StrToInt(Trim(Copy(Z, 1, I-1)));
-      if (N < Low(Word)) or (N > High(Word)) then
-        Abort;
-      Result := N;
-      Z := Copy(Z, I+1, Maxint);
-    end else
-      Result := 0;
-  end;
-
-var
-  Z: String;
-  W: Word;
-begin
-  try
-    Z := S;
-    W := SplitNextNumber(Z);
-    Version.MS := (DWord(W) shl 16) or SplitNextNumber(Z);
-    W := SplitNextNumber(Z);
-    Version.LS := (DWord(W) shl 16) or SplitNextNumber(Z);
-    Result := True;
-  except
-    Result := False;
-  end;
-end;
-
 procedure TSetupCompiler.ProcessMinVersionParameter(const ParamValue: TParamValue;
   var AMinVersion: TSetupVersionData);
 begin
   if ParamValue.Found then
-    if not StrToVersionNumbers(ParamValue.Data, AMinVersion) then
+    if not StrToSetupVersionData(ParamValue.Data, AMinVersion) then
       AbortCompileParamError(SCompilerParamInvalid2, ParamCommonMinVersion);
 end;
 
@@ -3119,7 +3084,7 @@ procedure TSetupCompiler.ProcessOnlyBelowVersionParameter(const ParamValue: TPar
   var AOnlyBelowVersion: TSetupVersionData);
 begin
   if ParamValue.Found then
-    if not StrToVersionNumbers(ParamValue.Data, AOnlyBelowVersion) then
+    if not StrToSetupVersionData(ParamValue.Data, AOnlyBelowVersion) then
       AbortCompileParamError(SCompilerParamInvalid2, ParamCommonOnlyBelowVersion);
 end;
 
@@ -3947,7 +3912,7 @@ begin
         AbortCompileOnLine(SCompilerMessagesFileObsolete);
       end;
     ssMinVersion: begin
-        if not StrToVersionNumbers(Value, SetupHeader.MinVersion) then
+        if not StrToSetupVersionData(Value, SetupHeader.MinVersion) then
           Invalid;
         if SetupHeader.MinVersion.WinVersion <> 0 then
           AbortCompileOnLine(SCompilerMinVersionWinMustBeZero);
@@ -3958,7 +3923,7 @@ begin
         MissingRunOnceIdsWarning := StrToBool(Value);
       end;
     ssOnlyBelowVersion: begin
-        if not StrToVersionNumbers(Value, SetupHeader.OnlyBelowVersion) then
+        if not StrToSetupVersionData(Value, SetupHeader.OnlyBelowVersion) then
           Invalid;
       end;
     ssOutput: begin
@@ -4207,7 +4172,7 @@ begin
       end;
     ssVersionInfoProductVersion: begin
         VersionInfoProductVersionOriginalValue := Value;
-        if not StrToVersionInfoVersionNumber(Value, VersionInfoProductVersion) then
+        if not StrToVersionNumbers(Value, VersionInfoProductVersion) then
           Invalid;
       end;
     ssVersionInfoProductTextVersion: begin
@@ -4218,7 +4183,7 @@ begin
       end;
     ssVersionInfoVersion: begin
         VersionInfoVersionOriginalValue := Value;
-        if not StrToVersionInfoVersionNumber(Value, VersionInfoVersion) then
+        if not StrToVersionNumbers(Value, VersionInfoVersion) then
           Invalid;
       end;
     ssWindowResizable: begin
