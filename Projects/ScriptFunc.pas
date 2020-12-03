@@ -296,7 +296,7 @@ const
   );
 
   { VerInfo }
-  VerInfoTable: array [0..10] of AnsiString =
+  VerInfoTable: array [0..11] of AnsiString =
   (
     'function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;',
     'function GetVersionComponents(const Filename: String; var Major, Minor, Revision, Build: Word): Boolean;',
@@ -308,7 +308,8 @@ const
     'function SamePackedVersion(const Version1, Version2: Int64): Boolean;',
     'procedure UnpackVersionNumbers(const Version: Int64; var VersionMS, VersionLS: Cardinal);',
     'procedure UnpackVersionComponents(const Version: Int64; var Major, Minor, Revision, Build: Word);',
-    'function VersionToStr(const Version: Int64): String;'
+    'function VersionToStr(const Version: Int64): String;',
+    'function StrToVersion(const VersionString: String; var Version: Int64): Boolean;'
   );
 
   { Windows }
@@ -345,7 +346,7 @@ const
   );
 
   { Other }
-  OtherTable: array [0..31] of AnsiString =
+  OtherTable: array [0..32] of AnsiString =
   (
     'procedure BringToFrontAndRestore;',
     'function WizardDirValue: String;',
@@ -378,7 +379,8 @@ const
     'function EnableFsRedirection(const Enable: Boolean): Boolean;',
     'function GetUninstallProgressForm: TUninstallProgressForm;',
     'function CreateCallback(Method: AnyMethod): Longword;',
-    'function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;'
+    'function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;',
+    'function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;'
   );
 
 implementation
