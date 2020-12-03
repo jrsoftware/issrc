@@ -888,7 +888,7 @@ begin
     SLProcedures := TStringList.Create;
     for I := 0 to High(EventFunctions) do begin
       S := String(EventFunctions[I].Name);
-      if Pos(':', S) <> 0 then
+      if Pos('):', S) <> 0 then
         SLFunctions.Add(S)
       else
         SLProcedures.Add(S);
