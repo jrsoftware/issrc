@@ -277,9 +277,13 @@ begin
   CheckListBox.AddRadioButton('TNewCheckListBox', '', 1, False, True, nil);
   CheckListBox.AddCheckBox('TNewCheckListBox', '', 0, True, True, False, True, nil);
   CheckListBox.AddCheckBox('TNewCheckListBox', '', 1, True, True, False, True, nil);
-  CheckListBox.AddCheckBox('TNewCheckListBox', '', 2, True, True, False, True, nil);
-  CheckListBox.AddCheckBox('TNewCheckListBox', '', 2, False, True, False, True, nil);
+  CheckListBox.AddCheckBox('TNewCheckListBox', '123', 2, True, True, False, True, nil);
+  CheckListBox.AddCheckBox('TNewCheckListBox', '456', 2, False, True, False, True, nil);
   CheckListBox.AddCheckBox('TNewCheckListBox', '', 1, False, True, False, True, nil);
+  CheckListBox.ItemFontStyle[5] := [fsBold];
+  CheckListBox.SubItemFontStyle[5] := [fsBold];
+  CheckListBox.ItemFontStyle[6] := [fsBold, fsItalic];
+  CheckListBox.SubItemFontStyle[6] := [fsBold, fsUnderline];
 
   CheckListBox2 := TNewCheckListBox.Create(Page);
   CheckListBox2.Top := CheckListBox.Top + CheckListBox.Height + ScaleY(8);
