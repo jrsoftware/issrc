@@ -1,7 +1,10 @@
-﻿; *** Inno Setup version 6.0.3+ Galician messages ***
+﻿; *** Inno Setup version 6.1.0+ Galician messages ***
 ;
 ; Maintained by: Julio Mojon Fuentes
 ; (juliomf AT edu.xunta.gal)
+;
+; To download user-contributed translations of this file, go to:
+;   https://jrsoftware.org/files/istrans/
 
 [LangOptions]
 LanguageName=Galego
@@ -191,6 +194,18 @@ ReadyMemoComponents=Compoñentes seleccionados:
 ReadyMemoGroup=Cartafol do Menú Inicio:
 ReadyMemoTasks=Tarefas adicionais:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=A descargar arquivos adicionais...
+ButtonStopDownload=&Deter descarga
+StopDownload=Está seguro de que desexa deter a descarga?
+ErrorDownloadAborted=Descarga cancelada
+ErrorDownloadFailed=A descarga fallou: %1 %2
+ErrorDownloadSizeFailed=Non se puido determinar o tamaño: %1 %2
+ErrorFileHash1=Non se puido calcular o hash do arquivo: %1
+ErrorFileHash2=Hash do arquivo inválido: esperado %1, atopado %2
+ErrorProgress=Progreso inválido: %1 de %2
+ErrorFileSize=Tamaño de arquivo inválido: esperado %1, atopado %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=A prepararse para instalar
 PreparingDesc=O asistente de instalación está a prepararse para instalar [name] no seu computador.
@@ -271,8 +286,16 @@ ExistingFileReadOnly2=Non foi posible substituír o arquivo existente porque est
 ExistingFileReadOnlyRetry=&Eliminar o atributo de só lectura e tentar de novo
 ExistingFileReadOnlyKeepExisting=&Manter o arquivo existente
 ErrorReadingExistingDest=Ocorreu un erro ao tentar ler o arquivo existente:
-FileExists=O arquivo xa existe.%n%nDesexa que o asistente de instalación o sobrescriba?
-ExistingFileNewer=O arquivo existente é máis novo ca o que o asistente de instalación tenta instalar. Recoméndaselle que manteña o arquivo existente.%n%nDesexa manter o arquivo existente?
+FileExistsSelectAction=Seleccionar acción
+FileExists2=O arquivo xa existe.
+FileExistsOverwriteExisting=&Sobrescribir o arquivo existente
+FileExistsKeepExisting=&Manter o arquivo existente
+FileExistsOverwriteOrKeepAll=&Facer isto para os seguintes conflitos
+ExistingFileNewerSelectAction=Seleccionar acción
+ExistingFileNewer2=O arquivo existente é máis novo ca o que o asistente de instalación tenta instalar.
+ExistingFileNewerOverwriteExisting=&Sobrescribir o arquivo existente
+ExistingFileNewerKeepExisting=&Manter o arquivo existente (recomendado)
+ExistingFileNewerOverwriteOrKeepAll=&Facer isto para os seguintes conflitos
 ErrorChangingAttr=Ocorreu un erro ao tentar mudar os atributos do arquivo existente:
 ErrorCreatingTemp=Ocorreu un erro ao tentar crear un arquivo no cartafol de destino:
 ErrorReadingSource=Ocorreu un erro ao tentar ler o arquivo orixe:
