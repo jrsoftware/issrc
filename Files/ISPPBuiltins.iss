@@ -190,6 +190,14 @@
   Str(Version >> 48 & 0xFFFF) + "." + Str(Version >> 32 & 0xFFFF) + "." + \
   Str(Version >> 16 & 0xFFFF) + "." + Str(Version & 0xFFFF)
 
+#define StrToVersion(str Version) \
+  Local[0] = Version, \
+  Local[1] = Int(DeleteToFirstPeriod(Local[0])), \
+  Local[2] = Int(DeleteToFirstPeriod(Local[0])), \
+  Local[3] = Int(DeleteToFirstPeriod(Local[0])), \
+  Local[4] = Int(Local[0]), \
+  PackVersionComponents(Local[1], Local[2], Local[3], Local[4])
+  
 #define EncodeVer(int Major, int Minor, int Revision = 0, int Build = -1) \
   (Major & 0xFF) << 24 | (Minor & 0xFF) << 16 | (Revision & 0xFF) << 8 | (Build >= 0 ? Build & 0xFF : 0)
 
