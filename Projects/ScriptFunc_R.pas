@@ -27,7 +27,7 @@ uses
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
   Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
-  SpawnClient, UninstProgressForm, ASMInline, DotNet;
+  SpawnClient, UninstProgressForm, ASMInline, DotNet, Msi;
 
 var
   ScaleBaseUnitsInitialized: Boolean;
@@ -1559,6 +1559,12 @@ begin
     VersionNumbers.LS := UInt64(Stack.GetInt64(PStart-1)) and $FFFFFFFF;
     Stack.SetString(PStart, Format('%u.%u.%u.%u', [VersionNumbers.MS shr 16,
       VersionNumbers.MS and $FFFF, VersionNumbers.LS shr 16, VersionNumbers.LS and $FFFF]));
+  end else if Proc.Name = 'STRTOVERSION' then begin
+    if StrToVersionNumbers(Stack.GetString(PStart-1), VersionNumbers) then begin
+      Stack.SetInt64(PStart-2, (Int64(VersionNumbers.MS) shl 32) or VersionNumbers.LS);
+      Stack.SetBool(PStart, True);
+    end else
+      Stack.SetBool(PStart, False);
   end else
     Result := False;
 end;
@@ -1878,6 +1884,7 @@ var
   S: String;
   AnsiS: AnsiString;
   Arr: TPSVariantIFC;
+  ErrorCode: Cardinal;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -2009,9 +2016,13 @@ begin
   end else if Proc.Name = 'GETUNINSTALLPROGRESSFORM' then begin
     Stack.SetClass(PStart, GetUninstallProgressForm);
   end else if Proc.Name = 'CREATECALLBACK' then begin
-   Stack.SetInt(PStart, CreateCallback(Stack.Items[PStart-1]));
+    Stack.SetInt(PStart, CreateCallback(Stack.Items[PStart-1]));
   end else if Proc.Name = 'ISDOTNETINSTALLED' then begin
-   Stack.SetBool(PStart, IsDotNetInstalled(InstallDefaultRegView, TDotNetVersion(Stack.GetInt(PStart-1)), Stack.GetInt(PStart-2)));
+    Stack.SetBool(PStart, IsDotNetInstalled(InstallDefaultRegView, TDotNetVersion(Stack.GetInt(PStart-1)), Stack.GetInt(PStart-2)));
+  end else if Proc.Name = 'ISMSIPRODUCTINSTALLED' then begin
+    Stack.SetBool(PStart, IsMsiProductInstalled(Stack.GetString(PStart-1), Stack.GetInt64(PStart-2), ErrorCode));
+    if ErrorCode <> 0 then
+      raise Exception.Create(Win32ErrorString(ErrorCode));
   end else
     Result := False;
 end;
