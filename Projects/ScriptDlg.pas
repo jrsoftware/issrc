@@ -899,6 +899,8 @@ begin
 end;
 
 function TDownloadWizardPage.InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
+var
+  Progress32, ProgressMax32: LongInt;
 begin
   if FNeedToAbortDownload then begin
     Log('Need to abort download.');
@@ -910,7 +912,14 @@ begin
       Log(Format('  %d bytes done.', [Progress]));
 
     FMsg2Label.Caption := Url;
-    SetProgress(Progress, ProgressMax); { This will process messages which we need for the abort button to work }
+    if ProgressMax > MaxLongInt then begin
+      Progress32 := Round((Progress / ProgressMax) * MaxLongInt);
+      ProgressMax32 := MaxLongInt;
+    end else begin
+      Progress32 := Progress;
+      ProgressMax32 := ProgressMax;
+    end;
+    SetProgress(Progress32, ProgressMax32); { This will process messages which we need for the abort button to work }
 
     if FShowProgressControlsOnNextProgress then begin
       ShowProgressControls(True);
