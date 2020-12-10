@@ -249,7 +249,6 @@ begin
   ProgressBar2.Anchors := [akLeft, akRight, akBottom];
   ProgressBar2.Parent := Page.Surface;
   ProgressBar2.Position := 50;
-  { Note: TNewProgressBar.State property only has an effect on Windows Vista and newer }
   ProgressBar2.State := npbsError;
 
   ProgressBar3 := TNewProgressBar.Create(Page);
@@ -259,7 +258,6 @@ begin
   ProgressBar3.Height := ProgressBarLabel.Height + ScaleY(8);
   ProgressBar3.Anchors := [akLeft, akRight, akBottom];
   ProgressBar3.Parent := Page.Surface;
-  { Note: TNewProgressBar.Style property only has an effect on Windows XP and newer }
   ProgressBar3.Style := npbstMarquee;
   
   { TNewCheckListBox }
