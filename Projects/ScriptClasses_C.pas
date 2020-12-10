@@ -545,6 +545,7 @@ begin
   with CL.AddClassN(Cl.FindClass('TOutputProgressWizardPage'),'TDownloadWizardPage') do
   begin
     RegisterProperty('AbortButton', 'TNewButton', iptr);
+    RegisterProperty('AbortedByUser', 'Boolean', iptr);
     RegisterMethod('procedure Add(const Url, BaseName, RequiredSHA256OfFile: String)');
     RegisterMethod('procedure Clear');
     RegisterMethod('function Download: Int64');

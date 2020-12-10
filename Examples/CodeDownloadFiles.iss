@@ -52,7 +52,10 @@ begin
         DownloadPage.Download;
         Result := True;
       except
-        SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbCriticalError, MB_OK, IDOK);
+        if DownloadPage.AbortedByUser then
+          Log('Aborted by user.')
+        else
+          SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbCriticalError, MB_OK, IDOK);
         Result := False;
       end;
     finally
