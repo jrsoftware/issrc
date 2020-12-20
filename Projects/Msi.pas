@@ -65,7 +65,7 @@ begin
     Exit;
   end;
 
-  VersionStringSize := 16;
+  VersionStringSize := 24;
   SetLength(VersionString, VersionStringSize);
   ErrorCode := MsiGetProductInfoFunc(ProductCode, 'VersionString', PChar(VersionString), VersionStringSize);
   if ErrorCode = ERROR_MORE_DATA then begin
