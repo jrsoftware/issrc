@@ -171,7 +171,7 @@ type
       FFiles: TObjectList;
       FOnDownloadProgress: TOnDownloadProgress;
       FAbortButton: TNewButton;
-      FShowProgressControlsOnNextProgress, FNeedToAbortDownload: Boolean;
+      FShowProgressControlsOnNextProgress, FAbortedByUser: Boolean;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
       procedure ShowProgressControls(const AVisible: Boolean);
@@ -179,6 +179,7 @@ type
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
       procedure Initialize; override;
+      property AbortedByUser: Boolean read FAbortedByUser;
       procedure Add(const Url, BaseName, RequiredSHA256OfFile: String);
       procedure Clear;
       function Download: Int64;
@@ -895,12 +896,14 @@ type
 
 procedure TDownloadWizardPage.AbortButtonClick(Sender: TObject);
 begin
-  FNeedToAbortDownload := LoggedMsgBox(SetupMessages[msgStopDownload], '', mbConfirmation, MB_YESNO, True, ID_YES) = IDYES;
+  FAbortedByUser := LoggedMsgBox(SetupMessages[msgStopDownload], '', mbConfirmation, MB_YESNO, True, ID_YES) = IDYES;
 end;
 
 function TDownloadWizardPage.InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
+var
+  Progress32, ProgressMax32: LongInt;
 begin
-  if FNeedToAbortDownload then begin
+  if FAbortedByUser then begin
     Log('Need to abort download.');
     Result := False;
   end else begin
@@ -910,7 +913,14 @@ begin
       Log(Format('  %d bytes done.', [Progress]));
 
     FMsg2Label.Caption := Url;
-    SetProgress(Progress, ProgressMax); { This will process messages which we need for the abort button to work }
+    if ProgressMax > MaxLongInt then begin
+      Progress32 := Round((Progress / ProgressMax) * MaxLongInt);
+      ProgressMax32 := MaxLongInt;
+    end else begin
+      Progress32 := Progress;
+      ProgressMax32 := ProgressMax;
+    end;
+    SetProgress(Progress32, ProgressMax32); { This will process messages which we need for the abort button to work }
 
     if FShowProgressControlsOnNextProgress then begin
       ShowProgressControls(True);
@@ -993,7 +1003,7 @@ var
   F: TDownloadFile;
   I: Integer;
 begin
-  FNeedToAbortDownload := False;
+  FAbortedByUser := False;
   
   Result := 0;
   for I := 0 to FFiles.Count-1 do begin

@@ -733,6 +733,7 @@ end;
 
 TDownloadWizardPage = class(TOutputProgressWizardPage)
   property AbortButton: TNewButton; read;
+  property AbortedByUser: Boolean; read;
   procedure Add(const Url, BaseName, RequiredSHA256OfFile: String);
   procedure Clear;
   function Download: Int64;

@@ -1499,7 +1499,22 @@ The list of options is provided at the end of this topic.</para>
 					<para>Declared in &builtins;.</para>
 				</description>
 				<section title="See also">
-					<para><synel><link href="PackVersionNumbers">PackVersionNumbers</link></synel>, <synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
+					<para><synel><link href="StrToVersion">StrToVersion</link></synel>, <synel><link href="UnpackVersionNumbers">UnpackVersionNumbers</link></synel>, <synel><link href="UnpackVersionComponents">UnpackVersionComponents</link></synel></para>
+				</section>
+			</topic>
+			<topic id="StrToVersion">
+				<title>StrToVersion</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> StrToVersion(<b>str</b> Version)</line>
+					</pre>
+				</section>
+				<description>
+					<para>Returns the specified string (in "0.0.0.0" format) as a packed version.</para>
+					<para>Declared in &builtins;.</para>
+				</description>
+				<section title="See also">
+					<para><synel><link href="VersionToStr">VersionToStr</link></synel>, <synel><link href="PackVersionNumbers">PackVersionNumbers</link></synel>, <synel><link href="PackVersionComponents">PackVersionComponents</link></synel></para>
 				</section>
 			</topic>
 			<topic id="EncodeVer">

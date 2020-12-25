@@ -582,6 +582,19 @@ begin
     SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.6.2']), mbCriticalError, MB_OK, IDOK);
 end;</pre></example>
       </function>    
+      <function>
+        <name>IsMsiProductInstalled</name>
+        <prototype>function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;</prototype>
+        <description><p>Returns True if a MSI product with the specified UpgradeCode and PackedMinVersion is installed.</p>
+<p>If there are multiple products installed with the specified UpgradeCode only the version of the first product returned by the system is checked.</p>
+<p>An exception will be raised if an error occurs.</p></description>
+        <example><pre>function InitializeSetup: Boolean;
+begin
+  Result := IsMsiProductInstalled('{20400CF0-DE7C-327E-9AE4-F0F38D9085F8}', PackVersionComponents(12, 0, 0, 0)); //Returns True if Visual C++ 2013 Redistributable (x64) is installed
+  if not Result then
+    SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['Visual C++ 2013 Redistributable (x64)', '12.0']), mbCriticalError, MB_OK, IDOK);
+end;</pre></example>
+      </function>    
     </subcategory>
     <subcategory>
       <function>
@@ -2062,7 +2075,16 @@ end;</pre>
         <name>VersionToStr</name>
         <prototype>function VersionToStr(const Version: Int64): String;</prototype>
         <description><p>Returns the specified packed version as a string (in "0.0.0.0" format).</p></description>
-        <seealso><p><link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
+        <seealso><p><link topic="isxfunc_StrToVersion">StrToVersion</link><br />
+<link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link><br />
+<link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
+      </function>
+      <function>
+        <name>StrToVersion</name>
+        <prototype>function StrToVersion(const Version: String; var Version: Int64): Boolean;</prototype>
+        <description><p>Returns the specified string (in "0.0.0.0" format) as a packed version. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_VersionToStr">VersionToStr</link><br />
+<link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
 <link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
       </function>
     </subcategory>
