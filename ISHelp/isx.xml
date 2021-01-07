@@ -73,7 +73,7 @@
 
 <p>The "Code*.iss" and "UninstallCode*.iss" files in the "Examples" subdirectory in your Inno Setup directory contain various example <tt>[Code]</tt> sections. Please study them carefully before trying to create your own Pascal script.</p>
 
-<p>Note: to learn more the Pascal programming language you may find useful to refer to Marco Cantu's free Essential Pascal book. See <extlink href="http://www.marcocantu.com/epascal/">http://www.marcocantu.com/epascal/</extlink>.</p>
+<p>Note: to learn more about the Pascal programming language you may find useful to refer to Marco Cant&#249;'s free Essential Pascal book. See <extlink href="http://www.marcocantu.com/epascal/">http://www.marcocantu.com/epascal/</extlink> and <extlink href="https://www.marcocantu.com/epascal/EssentialPascal.zip">https://www.marcocantu.com/epascal/EssentialPascal.zip</extlink>.</p>
 
 </body>
 </topic>
