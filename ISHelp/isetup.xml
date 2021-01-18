@@ -1652,13 +1652,13 @@ ExternalSize: 1048576; Flags: external
 </flag>
 <flag name="comparetimestamp">
 <p><i>(Not recommended; see below)</i><br/>
-Instructs Setup to proceed to comparing time stamps if the file being installed already exists on the user's system, and at least one of the following conditions is true:</p>
+Instructs Setup to proceed to comparing time stamps (last write/modified time) if the file being installed already exists on the user's system, and at least one of the following conditions is true:</p>
 <ul>
 <li>Neither the existing file nor the file being installed has version info.</li>
 <li>The <tt>ignoreversion</tt> flag is also used on the entry.</li>
 <li>The <tt>replacesameversion</tt> flag isn't used, and the existing file and the file being installed have the same version number (as determined by the files' version info).</li>
 </ul>
-<p>If the existing file has an older time stamp than the file being installed, the existing file will replaced. Otherwise, it will not be replaced.</p>
+<p>If the existing file has an older time stamp (last write/modified time) than the file being installed, the existing file will replaced. Otherwise, it will not be replaced.</p>
 <p>Use of this flag is <i>not recommended</i> except as a last resort, because there is an inherent issue with it: NTFS partitions store time stamps in UTC (unlike FAT partitions), which causes local time stamps -- what Inno Setup works with by default -- to shift whenever a user changes their system's time zone or when daylight saving time goes into or out of effect. This can create a situation where files are replaced when the user doesn't expect them to be, or not replaced when the user expects them to be.</p>
 </flag>
 <flag name="confirmoverwrite">
