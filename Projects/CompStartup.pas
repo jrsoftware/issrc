@@ -2,13 +2,11 @@ unit CompStartup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2004 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler Startup form
-
-  $jrsoftware: issrc/Projects/CompStartup.pas,v 1.11 2004/07/22 19:49:39 jr Exp $
+  Compiler IDE Startup form
 }
 
 interface
@@ -33,6 +31,8 @@ type
     StartupCheck: TCheckBox;
     NewImage: TImage;
     OpenImage: TImage;
+    DonateImage: TImage;
+    MailingListImage: TImage;
     procedure RadioButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure DblClick_(Sender: TObject);
@@ -40,30 +40,32 @@ type
     procedure OKButtonClick(Sender: TObject);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
+    procedure DonateImageClick(Sender: TObject);
+    procedure MailingListImageClick(Sender: TObject);
   private
     FResult: TStartupFormResult;
-    FResultFileName: TFileName;
-    procedure SetMRUList(const MRUList: TStringList);
+    FResultMainFileName: TFileName;
+    procedure SetMRUFilesList(const MRUFilesList: TStringList);
     procedure UpdateImages;
+  protected
+    procedure CreateWnd; override;
+    procedure CreateParams(var Params: TCreateParams); override;
   public
-    property MRUList: TStringList write SetMRUList;
+    property MRUFilesList: TStringList write SetMRUFilesList;
     property Result: TStartupFormResult read FResult;
-    property ResultFileName: TFileName read FResultFileName;
+    property ResultMainFileName: TFileName read FResultMainFileName;
   end;
 
 implementation
 
 uses
-  CompMsgs, CmnFunc, CmnFunc2, CompForm, ComCtrls;
+  CompMsgs, CmnFunc, CmnFunc2, CompFunc, CompForm, ComCtrls;
 
 {$R *.DFM}
 
-procedure TStartupForm.SetMRUList(const MRUList: TStringList);
-var
-  I: Integer;
+procedure TStartupForm.SetMRUFilesList(const MRUFilesList: TStringList);
 begin
-  for I := 0 to MRUList.Count-1 do
-    OpenListBox.Items.Add(MRUList[I]);
+  OpenListBox.Items.AddStrings(MRUFilesList);
   UpdateHorizontalExtent(OpenListBox);
 end;
 
@@ -79,8 +81,8 @@ var
 begin
  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
   WH := MulDiv(16, CurrentPPI, 96);
-  NewImage.Picture.Bitmap := GetBitmap(CompileForm.NewButton, WH);
-  OpenImage.Picture.Bitmap := GetBitmap(CompileForm.OpenButton, WH);
+  NewImage.Picture.Bitmap := GetBitmap(CompileForm.NewMainFileButton, WH);
+  OpenImage.Picture.Bitmap := GetBitmap(CompileForm.OpenMainFileButton, WH);
 end;
 
 procedure TStartupForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
@@ -102,6 +104,20 @@ begin
   OpenListBox.ItemIndex := 0;
   UpdateHorizontalExtent(OpenListBox);
   ActiveControl := OpenRadioButton;
+end;
+
+{ This and CreateParams make bsSizeable (which has an unwanted icon) look like bsDialog, see:
+  https://stackoverflow.com/questions/32096482/delphi-resizable-bsdialog-form/32098633 }
+procedure TStartupForm.CreateWnd;
+begin
+  inherited;
+  SendMessage(Handle, WM_SETICON, ICON_BIG, 0);
+end;
+
+procedure TStartupForm.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  Params.ExStyle := Params.ExStyle or WS_EX_DLGMODALFRAME or WS_EX_WINDOWEDGE;
 end;
 
 procedure TStartupForm.RadioButtonClick(Sender: TObject);
@@ -128,6 +144,16 @@ begin
   OpenRadioButton.Checked := True;
 end;
 
+procedure TStartupForm.DonateImageClick(Sender: TObject);
+begin
+  OpenDonateSite;
+end;
+
+procedure TStartupForm.MailingListImageClick(Sender: TObject);
+begin
+  OpenMailingListSite;
+end;
+
 procedure TStartupForm.OKButtonClick(Sender: TObject);
 begin
   if EmptyRadioButton.Checked then
@@ -139,7 +165,7 @@ begin
       FResult := srOpenDialogExamples
     else if OpenListBox.ItemIndex > 1 then begin
       FResult := srOpenFile;
-      FResultFileName := OpenListBox.Items[OpenListBox.ItemIndex];
+      FResultMainFileName := OpenListBox.Items[OpenListBox.ItemIndex];
     end else
       FResult := srOpenDialog;
   end;

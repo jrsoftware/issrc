@@ -2,7 +2,7 @@ library ISCmplr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -27,7 +27,7 @@ uses
   ScriptCompiler in 'ScriptCompiler.pas',
   ScriptClasses_C in 'ScriptClasses_C.pas',
   ResUpdate in 'ResUpdate.pas',
-  CompResUpdate in 'CompResUpdate.pas',
+  CompExeUpdate in 'CompExeUpdate.pas',
   Compress in 'Compress.pas',
   CompressZlib in 'CompressZlib.pas',
   bzlib in 'bzlib.pas',
@@ -44,7 +44,6 @@ begin
   Result := ISCompileScript(Params, False);
 end;
 
-{$IFDEF UNICODE}
 type
   PWrapperData = ^TWrapperData;
   TWrapperData = record
@@ -52,6 +51,7 @@ type
     LastLineRead: String;
   end;
 
+{ Does not support iscbNotifyPreproc }
 function WrapperCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer;
 stdcall;
@@ -142,7 +142,6 @@ begin
     FreeMem(WrapperParams);
   end;
 end;
-{$ENDIF}
 
 function ISDllGetVersion: PCompilerVersionInfo; stdcall;
 begin
@@ -150,10 +149,8 @@ begin
 end;
 
 exports
-  ISDllCompileScript{$IFDEF UNICODE} name 'ISDllCompileScriptW'{$ENDIF},
-{$IFDEF UNICODE}
+  ISDllCompileScript name 'ISDllCompileScriptW',
   ISDllCompileScriptA name 'ISDllCompileScript',
-{$ENDIF}
   ISDllGetVersion;
 
 begin

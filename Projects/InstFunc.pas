@@ -2,7 +2,7 @@ unit InstFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -80,6 +80,11 @@ function GetSHA1OfAnsiString(const S: AnsiString): TSHA1Digest;
 {$IFDEF UNICODE}
 function GetSHA1OfUnicodeString(const S: UnicodeString): TSHA1Digest;
 {$ENDIF}
+function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): String;
+function GetSHA256OfAnsiString(const S: AnsiString): String;
+{$IFDEF UNICODE}
+function GetSHA256OfUnicodeString(const S: UnicodeString): String;
+{$ENDIF}
 function GetRegRootKeyName(const RootKey: HKEY): String;
 function GetSpaceOnDisk(const DisableFsRedir: Boolean; const DriveRoot: String;
   var FreeBytes, TotalBytes: Integer64): Boolean;
@@ -106,7 +111,7 @@ procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 procedure RefreshEnvironment;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
 function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
-procedure UnregisterFont(const FontName, FontFilename: String);
+procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
 function RestartComputer: Boolean;
 procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
 procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
@@ -117,7 +122,7 @@ function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
 implementation
 
 uses
-  Messages, ShellApi, PathFunc, Msgs, MsgIDs, FileClass, RedirFunc, SetupTypes;
+  Messages, ShellApi, PathFunc, Msgs, MsgIDs, FileClass, RedirFunc, SetupTypes, Hash, Classes;
 
 procedure InternalError(const Id: String);
 begin
@@ -643,7 +648,7 @@ begin
           end;
       end;
     except
-      { don't propogate exceptions (e.g. from StrToInt) }
+      { don't propagate exceptions (e.g. from StrToInt) }
     end;
     { If we failed to read the count, or it's in some type we don't recognize,
       don't touch it }
@@ -736,6 +741,21 @@ begin
   Result := SHA1Final(Context);
 end;
 
+function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): String;
+{ Gets SHA-256 sum as a string of the file Filename. An exception will be raised upon
+  failure. }
+var
+  PrevState: TPreviousFsRedirectionState;
+begin
+  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then
+    InternalError('GetSHA256OfFile: DisableFsRedirectionIf failed.');
+  try
+    Result := THashSHA2.GetHashStringFromFile(Filename, SHA256);
+  finally
+    RestoreFsRedirection(PrevState);
+  end;
+end;
+
 function GetMD5OfAnsiString(const S: AnsiString): TMD5Digest;
 begin
   Result := MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
@@ -757,6 +777,36 @@ end;
 function GetSHA1OfUnicodeString(const S: UnicodeString): TSHA1Digest;
 begin
   Result := SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+end;
+{$ENDIF}
+
+function GetSHA256OfAnsiString(const S: AnsiString): String;
+var
+  M: TMemoryStream;
+begin
+  M := TMemoryStream.Create;
+  try
+    M.Write(Pointer(S)^, Length(S)*SizeOf(S[1]));
+    M.Seek(0, soFromBeginning);
+    Result := THashSHA2.GetHashString(M, SHA256);
+  finally
+    M.Free;
+  end;
+end;
+
+{$IFDEF UNICODE}
+function GetSHA256OfUnicodeString(const S: UnicodeString): String;
+var
+  M: TMemoryStream;
+begin
+  M := TMemoryStream.Create;
+  try
+    M.Write(Pointer(S)^, Length(S)*SizeOf(S[1]));
+    M.Seek(0, soFromBeginning);
+    Result := THashSHA2.GetHashString(M, SHA256);
+  finally
+    M.Free;
+  end;
 end;
 {$ENDIF}
 
@@ -1146,7 +1196,7 @@ begin
       end;
     end;
   except
-    { don't propogate exceptions }
+    { don't propagate exceptions }
   end;
   Result := MD5Final(Context);
 end;
@@ -1247,15 +1297,20 @@ begin
     DoNonNT;
 end;
 
-procedure UnregisterFont(const FontName, FontFilename: String);
+procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
 const
   FontsKeys: array[Boolean] of PChar =
     (NEWREGSTR_PATH_SETUP + '\Fonts',
      'Software\Microsoft\Windows NT\CurrentVersion\Fonts');
 var
-  K: HKEY;
+  RootKey, K: HKEY;
 begin
-  if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, FontsKeys[UsingWinNT],
+  if PerUserFont then
+    RootKey := HKEY_CURRENT_USER
+  else
+    RootKey := HKEY_LOCAL_MACHINE;
+
+  if RegOpenKeyExView(rvDefault, RootKey, FontsKeys[UsingWinNT],
      0, KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
     RegDeleteValue(K, PChar(FontName));
     RegCloseKey(K);

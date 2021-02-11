@@ -2,7 +2,7 @@ unit Struct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.0.3 '{$IFDEF UNICODE}+'(u)'{$ELSE}+'(a)'{$ENDIF};
-  SetupBinVersion = (6 shl 24) + (0 shl 16) + (3 shl 8) + 0;
+  SetupVersion = '6.1.2';
+  SetupBinVersion = (6 shl 24) + (1 shl 16) + (2 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.0.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.1.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.0.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
@@ -272,13 +272,14 @@ type
     IconName, Filename, Parameters, WorkingDir, IconFilename, Comment: String;
     Components, Tasks, Languages, Check, AfterInstall, BeforeInstall: String;
     AppUserModelID: String;
+    AppUserModelToastActivatorCLSID: TGUID;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     IconIndex, ShowCmd: Integer;
     CloseOnExit: TSetupIconCloseOnExit;
     HotKey: Word;
     Options: set of (ioUninsNeverUninstall, ioCreateOnlyIfFileExists,
       ioUseAppPaths, ioFolderShortcut, ioExcludeFromShowInNewInstall,
-      ioPreventPinning);
+      ioPreventPinning, ioHasAppUserModelToastActivatorCLSID);
   end;
 const
   SetupIniEntryStrings = 10;
@@ -336,7 +337,7 @@ type
     Wait: (rwWaitUntilTerminated, rwNoWait, rwWaitUntilIdle);
     Options: set of (roShellExec, roSkipIfDoesntExist,
       roPostInstall, roUnchecked, roSkipIfSilent, roSkipIfNotSilent,
-      roHideWizard, roRun32Bit, roRun64Bit, roRunAsOriginalUser);
+      roHideWizard, roRun32Bit, roRun64Bit, roRunAsOriginalUser, roDontLogParameters);
   end;
 
 const

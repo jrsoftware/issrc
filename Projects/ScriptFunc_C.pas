@@ -2,7 +2,7 @@ unit ScriptFunc_C;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -22,7 +22,7 @@ implementation
 uses
   Windows, SysUtils, TypInfo,
   CmnFunc2, MsgIDs, Struct,
-  SetupTypes, ScriptFunc, CompMsgs;
+  SetupTypes, ScriptFunc, CompMsgs, DotNet;
 
 { This type copied from CmnFunc.pas. We don't actually 'use' CmnFunc since
   it would cause VCL units to be linked in. }
@@ -102,7 +102,7 @@ begin
   RegisterType('UINT_PTR', 'LongWord');
   RegisterType('INT_PTR', 'Longint');
 
-  ScriptCompiler.AddTypeS('TFileTime',
+  RegisterType('TFileTime',
     'record' +
     '  dwLowDateTime: DWORD;' +
     '  dwHighDateTime: DWORD;' +
@@ -114,10 +114,11 @@ begin
   RegisterRealEnum('TSetupStep', TypeInfo(TSetupStep));
   RegisterRealEnum('TUninstallStep', TypeInfo(TUninstallStep));
   RegisterRealEnum('TSetupProcessorArchitecture', TypeInfo(TSetupProcessorArchitecture));
+  RegisterRealEnum('TDotNetVersion', TypeInfo(TDotNetVersion));
 
   RegisterType('TExecWait', '(ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle)');
   
-  ScriptCompiler.AddTypeS('TFindRec',
+  RegisterType('TFindRec',
     'record' +
     '  Name: String;' +
     '  Attributes: LongWord;' +
@@ -129,7 +130,7 @@ begin
     '  AlternateName: String;' +
     '  FindHandle: THandle;' +
     'end');
-  ScriptCompiler.AddTypeS('TWindowsVersion',
+  RegisterType('TWindowsVersion',
     'record' +
     '  Major: Cardinal;' +
     '  Minor: Cardinal;' +
@@ -140,6 +141,10 @@ begin
     '  ProductType: Byte;' +
     '  SuiteMask: Word;' +
     'end');
+
+{$IFNDEF PS_NOINT64}
+  RegisterType('TOnDownloadProgress', 'function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;');
+{$ENDIF}
 
   RegisterFunctionTable(ScriptDlgTable);
   RegisterFunctionTable(NewDiskTable);

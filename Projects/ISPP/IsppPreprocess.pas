@@ -1,7 +1,11 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppPreprocess.pas,v 1.3 2010/12/30 15:26:34 mlaan Exp $
+ 
+  Inno Setup
+  Copyright (C) 1997-2020 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
 unit IsppPreprocess;
@@ -17,12 +21,7 @@ implementation
 
 uses
   SysUtils, CmnFunc2, PathFunc,
-  IsppBase, IsppTranslate, IsppSessions, IsppIntf, IsppIdentMan, IsppVarUtils;
-
-//type TPreprocProtectedMethods = class(TPreprocessor);
-
-var
-  BuiltinsDir: string;
+  IsppBase, IsppPreprocessor, IsppSessions, IsppIntf, IsppIdentMan, IsppVarUtils, IsppConsts;
 
 procedure ReadScript(const Params: TPreprocessScriptParams;
   const Preprocessor: TPreprocessor);
@@ -169,7 +168,7 @@ var
     end;
   end;
 
-  function IncludeBuiltinsAndParseIncludeFiles(IncludeFiles: PChar; Options: TOptions): Boolean;
+  function IncludeBuiltinsAndParseIncludeFiles(BuiltinsDir: String; IncludeFiles: PChar; Options: TOptions): Boolean;
 
     function Escape(const S: string): string;
     var
@@ -183,11 +182,11 @@ var
       end;
     end;
 
-    procedure Include(FileName: String);
+    procedure Include(FileName: String; Builtins: Boolean);
     begin
       if not GetOption(Options, 'P') then
         FileName := Escape(FileName);
-      Preprocessor.IncludeFile(FileName, False, True);
+      Preprocessor.IncludeFile(FileName, Builtins, False, True);
     end;
 
   const
@@ -200,9 +199,9 @@ var
     Result := True;
     IncludeFile := BuiltinsDir + SBuiltins;
     if FileExists(IncludeFile) then
-      Include(IncludeFile)
+      Include(IncludeFile, True)
     else
-      Preprocessor.IssueMessage(SBuiltins + ' file was not found', imtWarning);
+      Preprocessor.WarningMsg(SFileNotFound, [SBuiltins]);
     while IncludeFiles^ <> #0 do begin
       DelimPos := StrScan(IncludeFiles, #1);
       if DelimPos = nil then begin
@@ -212,7 +211,7 @@ var
       N := DelimPos - IncludeFiles;
       if N > 0 then begin
         SetString(IncludeFile, IncludeFiles, N);
-        Include(IncludeFile);
+        Include(IncludeFile, False);
       end;
       Inc(IncludeFiles, N + 1);
     end;
@@ -223,7 +222,7 @@ var
   LineNumber: Integer;
 begin
   if (Params.Size <> SizeOf(Params)) or
-     (Params.InterfaceVersion <> 1) then
+     (Params.InterfaceVersion <> 2) then
   begin
     Result := ispeInvalidParam;
     Exit;
@@ -242,15 +241,12 @@ begin
     Exit;
   end;
 
-  BuiltinsDir := Params.CompilerPath;
   { Hack: push a dummy item onto the stack to defer deletion of temp. files }
   PushPreproc(nil);
   try
     Preprocessor := TPreprocessor.Create(Params, nil, ISPPOptions, SourcePath,
       CompilerPath, Params.Filename);
     try
-      Preprocessor.IssueMessage('Preprocessing', imtStatus);
-
       Preprocessor.IncludePath := IncludePath;
 
       MakeStr(V, SourcePath);
@@ -263,7 +259,7 @@ begin
       Preprocessor.VarMan.DefineVariable('Ver', -1, V, dsPublic);
 
       if not ParseDefinitions(PChar(Definitions), Preprocessor.VarMan) or
-         not IncludeBuiltinsAndParseIncludeFiles(PChar(IncludeFiles),
+         not IncludeBuiltinsAndParseIncludeFiles(Params.CompilerPath, PChar(IncludeFiles),
            Preprocessor.FOptions.ParserOptions.Options) then
       begin
         Result := ispeInvalidParam;
@@ -272,14 +268,13 @@ begin
 
       ReadScript(Params, Preprocessor);
       Preprocessor.Stack.Resolved;
-      Preprocessor.IssueMessage('Preprocessed', imtStatus);
-      Preprocessor.IssueMessage('', imtBlank);
 
       if not GetOption(Preprocessor.FOptions.Options, 'C') then
         Result := ispeSilentAbort
       else
       begin
-        while Preprocessor.GetNext(LineFilename, LineNumber, LineText) do
+        Preprocessor.GetNextOutputLineReset;
+        while Preprocessor.GetNextOutputLine(LineFilename, LineNumber, LineText) do
           Params.LineOutProc(Params.CompilerData, PChar(LineFilename),
             LineNumber, PChar(LineText));
         Result := ispeSuccess;
@@ -290,7 +285,7 @@ begin
   except
     on E: EPreprocError do {preprocessor (syntax most likely) error}
     begin
-      Params.ErrorProc(Params.CompilerData, PChar('[ISPP] ' + E.Message),
+      Params.ErrorProc(Params.CompilerData, PChar(E.Message),
         PChar(E.FileName), E.LineNumber, E.ColumnNumber);
       Result := ispePreprocessError;
     end;

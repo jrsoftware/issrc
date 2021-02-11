@@ -1,13 +1,18 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
+
+  Inno Setup
+  Copyright (C) 1997-2010 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
 unit IsppParser;
 
 interface
 
-uses IsppIntf, IsppBase, IsppIdentMan, CParser;
+uses IsppIntf, IsppBase, IsppIdentMan, CTokenizer;
 
 type
 
@@ -32,13 +37,13 @@ type
       Offset: Integer; Options: PIsppParserOptions);
     function Evaluate: TIsppVariant;
     function Expr(StopOnComma: Boolean): TIsppVariant;
-    function IntExpr(StopOnComma: Boolean): Integer;
+    function IntExpr(StopOnComma: Boolean): Int64;
     function StrExpr(StopOnComma: Boolean): string;
   end;
 
 function Parse(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): TIsppVariant;
 function ParseStr(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): string;
-function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): Integer;
+function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): Int64;
 
 implementation
 
@@ -65,7 +70,7 @@ begin
   end;
 end;
 
-function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): Integer;
+function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): Int64;
 begin
   with TParser.Create(VarMan, AExpr, Offset, Options) do
   try
@@ -195,7 +200,7 @@ function TParser.Factor(DoEval: Boolean): TIsppVariant;
   end;
 
 var
-  I: Integer;
+  I: Int64;
   IdentType: TIdentType;
   CallContext: ICallContext;
   Op: TTokenKind;
@@ -226,7 +231,7 @@ begin
               (PeekAtNextToken in [tkOpenParen, tkOpenBracket, tkOpenBrace]) then
             begin
               Result.Typ := evNull;
-              Warning(SUndeclaredIdentifier, [TokenString]);
+              WarningMsg(SUndeclaredIdentifier, [TokenString]);
             end
             else
               ErrorFmt(SUndeclaredIdentifier, [TokenString]);
@@ -267,7 +272,7 @@ begin
       end;
     tkNumber:
       begin
-        if not TryStrToInt(TokenString, I) then
+        if not TryStrToInt64(TokenString, I) then
           ErrorFmt(SCannotConvertToInteger, [TokenString]);
         MakeInt(Result, I);
       end;
@@ -301,7 +306,7 @@ end;
 
 function TParser.PerformOperation(Op1, Op2: TIsppVariant; Op: TTokenKind): TIsppVariant;
 var
-  A, B: Integer;
+  A, B: Int64;
   AsBool: Boolean;
 begin
   MakeRValue(Op1);
@@ -342,7 +347,7 @@ begin
           opEqual: AsBool := A = 0;
           opNotEqual: AsBool := A <> 0;
         end;
-        AsInt := Integer(AsBool)
+        AsInt := Int64(AsBool)
       end;
     end
     else
@@ -371,7 +376,7 @@ begin
           opShr: AsInt := A shr B;
           opMod: AsInt := A mod B;
         end;
-        if Op in [opGreater..opNotEqual, opOr, opAnd] then AsInt := Integer(AsBool)
+        if Op in [opGreater..opNotEqual, opOr, opAnd] then AsInt := Int64(AsBool)
       end
   except
     on E: Exception do Error(E.Message);
@@ -380,7 +385,7 @@ end;
 
 function TParser.UnaryOperation(Op: TTokenKind; Op1: TIsppVariant): TIsppVariant;
 var
-  A: Integer;
+  A: Int64;
 begin
   MakeRValue(Op1);
   A := 0; // satisfy compiler
@@ -462,7 +467,7 @@ begin
   end;
 end;
 
-function TParser.IntExpr(StopOnComma: Boolean): Integer;
+function TParser.IntExpr(StopOnComma: Boolean): Int64;
 var
   V: TIsppVariant;
 begin

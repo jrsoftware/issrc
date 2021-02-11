@@ -2,7 +2,7 @@ unit Undo;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -23,7 +23,7 @@ const
   { Each time the format of the uninstall log changes (usually a new entry type
     is added), HighestSupportedVersion and the file version number of Setup
     are incremented to match (51.x). Do NOT do this yourself; doing so could cause
-    incompatibilies with future Inno Setup releases. It's recommended that you
+    incompatibilities with future Inno Setup releases. It's recommended that you
     use the "utUserDefined" log entry type if you wish to implement your own
     custom uninstall log entries; see below for more information.
 
@@ -36,7 +36,7 @@ const
   { Values for TUninstallRecTyp.
     If you wish to define your own custom uninstall entry type, you should use
     "utUserDefined". (Do NOT define your own ut* constants; this could cause
-    incompatibilies with future Inno Setup releases.) The first field in a
+    incompatibilities with future Inno Setup releases.) The first field in a
     utUserDefined record must be a string which specifies a unique name for
     the record type. Example:
     UninstLog.Add(utUserDefined, ['MyRecordType', ... ], 0);
@@ -69,6 +69,7 @@ const
   utRun_RunHidden = 64;
   utRun_ShellExecRespectWaitFlags = 128;
   utRun_DisableFsRedir = 256;
+  utRun_DontLogParameters = 512;
   utDeleteFile_ExistedBeforeInstall = 1;
   utDeleteFile_Extra = 2;
   utDeleteFile_IsFont = 4;
@@ -82,6 +83,7 @@ const
   utDeleteFile_SharedFileIn64BitKey = 1024;
   utDeleteFile_DisableFsRedir = 2048;  { also determines whether file was registered as 64-bit }
   utDeleteFile_GacInstalled = 4096;
+  utDeleteFile_PerUserFont = 8192;
   utDeleteDirOrFiles_Extra = 1;
   utDeleteDirOrFiles_IsDir = 2;
   utDeleteDirOrFiles_DeleteFiles = 4;
@@ -100,7 +102,7 @@ type
     ExtraData: Longint;
     DataSize: Cardinal;
     Typ: TUninstallRecTyp;
-    Data: array[0..$6FFFFFFF] of Byte;  { *must* be last field }	
+    Data: array[0..$6FFFFFFF] of Byte;  { *must* be last field }
   end;
 
   TDeleteUninstallDataFilesProc = procedure;
@@ -160,7 +162,7 @@ implementation
 uses
   Messages, ShlObj, AnsiStrings,
   PathFunc, Struct, Msgs, MsgIDs, InstFunc, InstFnc2, RedirFunc, Compress,
-  Logging, RegDLL, Helper, LibFusion;
+  Logging, RegDLL, Helper, DotNet;
 
 type
   { Note: TUninstallLogHeader should stay <= 512 bytes in size, so that it
@@ -830,7 +832,7 @@ begin
                 function of Main.pas }
               if CurRec^.ExtraData and utRun_ShellExec = 0 then begin
                 Log('Running Exec filename: ' + CurRecData[0]);
-                if CurRecData[1] <> '' then
+                if (CurRec^.ExtraData and utRun_DontLogParameters = 0) and (CurRecData[1] <> '') then
                   Log('Running Exec parameters: ' + CurRecData[1]);
                 if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
                    NewFileExistsRedir(CurRec^.ExtraData and utRun_DisableFsRedir <> 0, CurRecData[0]) then begin
@@ -849,7 +851,7 @@ begin
               end
               else begin
                 Log('Running ShellExec filename: ' + CurRecData[0]);
-                if CurRecData[1] <> '' then
+                if (CurRec^.ExtraData and utRun_DontLogParameters = 0) and (CurRecData[1] <> '') then
                   Log('Running ShellExec parameters: ' + CurRecData[1]);
                 if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
                    FileOrDirExists(CurRecData[0]) then begin
@@ -930,7 +932,7 @@ begin
               end;
               if CurRec^.ExtraData and utDeleteFile_IsFont <> 0 then begin
                 LogFmt('Unregistering font: %s', [CurRecData[2]]);
-                UnregisterFont(CurRecData[2], CurRecData[3]);
+                UnregisterFont(CurRecData[2], CurRecData[3], CurRec^.ExtraData and utDeleteFile_PerUserFont <> 0);
               end;
               if CurRec^.ExtraData and utDeleteFile_GacInstalled <> 0 then
                 DoUninstallAssembly(CurRecData[4]);

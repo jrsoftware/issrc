@@ -2,20 +2,17 @@ unit CompSignTools;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler SignTools form
-
-  $jrsoftware: issrc/Projects/CompSignTools.pas,v 1.3 2010/03/24 18:34:14 mlaan Exp $
+  Compiler IDE SignTools form
 }
 
 interface
 
 uses
-  Windows, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, UIStateForm;
+    Classes, Controls, StdCtrls, UIStateForm;
 
 type
   TSignToolsForm = class(TUIStateForm)
@@ -49,7 +46,7 @@ type
 implementation
 
 uses
-  CmnFunc, CompForm, SysUtils;
+  Windows, Messages, CompFunc, CmnFunc, Dialogs, SysUtils;
 
 {$R *.DFM}
 

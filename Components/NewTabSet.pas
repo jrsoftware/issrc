@@ -2,43 +2,53 @@ unit NewTabSet;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  TNewTabSet - modern VS-style tabs
+  TNewTabSet - modern VS-style tabs with theme support
 }
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, ModernColors;
 
 type
+  TTabPosition = (tpTop, tpBottom);
+
   TNewTabSet = class(TCustomControl)
   private
-    FFlat: Boolean;
+    FHints: TStrings;
     FTabs: TStrings;
     FTabIndex: Integer;
+    FTabPosition: TTabPosition;
+    FTheme: TTheme;
     function GetTabRect(Index: Integer): TRect;
     procedure InvalidateTab(Index: Integer);
-    procedure ListChanged(Sender: TObject);
+    procedure TabsListChanged(Sender: TObject);
     procedure SetTabs(Value: TStrings);
     procedure SetTabIndex(Value: Integer);
+    procedure SetTabPosition(Value: TTabPosition);
+    procedure SetTheme(Value: TTheme);
+    procedure SetHints(const Value: TStrings);
   protected
+    procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure CreateParams(var Params: TCreateParams); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure Paint; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    property Theme: TTheme read FTheme write SetTheme;
   published
     property Align;
-    property Flat: Boolean read FFlat write FFlat default True;
     property Font;
+    property Hints: TStrings read FHints write SetHints;
     property ParentFont;
     property TabIndex: Integer read FTabIndex write SetTabIndex;
     property Tabs: TStrings read FTabs write SetTabs;
+    property TabPosition: TTabPosition read FTabPosition write SetTabPosition default tpBottom;
     property OnClick;
   end;
 
@@ -130,9 +140,10 @@ constructor TNewTabSet.Create(AOwner: TComponent);
 begin
   inherited;
   FTabs := TStringList.Create;
-  TStringList(FTabs).OnChange := ListChanged;
+  TStringList(FTabs).OnChange := TabsListChanged;
+  FTabPosition := tpBottom;
+  FHints := TStringList.Create;
   ControlStyle := ControlStyle + [csOpaque];
-  FFlat := True;
   Width := 129;
   Height := 21;
 end;
@@ -150,17 +161,44 @@ begin
   inherited;
 end;
 
-function TNewTabSet.GetTabRect(Index: Integer): TRect;
+procedure TNewTabSet.CMHintShow(var Message: TCMHintShow);
 var
   I: Integer;
+  R: TRect;
+begin
+  inherited;
+  if Message.HintInfo.HintControl = Self then begin
+    for I := 0 to FTabs.Count-1 do begin
+      if I >= FHints.Count then
+        Break;
+      R := GetTabRect(I);
+      if PtInRect(R, Message.HintInfo.CursorPos) then begin
+        Message.HintInfo.HintStr := FHints[I];
+        Message.HintInfo.CursorRect := R;
+        Break;
+      end;
+    end;
+  end;
+end;
+
+function TNewTabSet.GetTabRect(Index: Integer): TRect;
+var
+  CR: TRect;
+  I, SizeX, SizeY: Integer;
   Size: TSize;
 begin
+  CR := ClientRect;
   Canvas.Font.Assign(Font);
+  if FTabPosition = tpBottom then
+    Result.Top := 0;
   Result.Right := 4;
   for I := 0 to FTabs.Count-1 do begin
     Size := Canvas.TextExtent(FTabs[I]);
-    Result := Bounds(Result.Right, 0, Size.cx + (TabPaddingX * 2) + TabSpacing,
-      Size.cy + (TabPaddingY * 2));
+    SizeX := Size.cx + (TabPaddingX * 2) + TabSpacing;
+    SizeY := Size.cy + (TabPaddingY * 2);
+    if FTabPosition = tpTop then
+      Result.Top := CR.Bottom - SizeY;
+    Result := Bounds(Result.Right, Result.Top, SizeX, SizeY);
     if Index = I then
       Exit;
   end;
@@ -180,7 +218,7 @@ begin
   end;
 end;
 
-procedure TNewTabSet.ListChanged(Sender: TObject);
+procedure TNewTabSet.TabsListChanged(Sender: TObject);
 begin
   Invalidate;
 end;
@@ -215,23 +253,24 @@ var
       R := GetTabRect(I);
       if SelectedTab and (FTabIndex = I) then begin
         Dec(R.Right, TabSpacing);
-        Canvas.Brush.Color := clBtnFace;
+        if FTheme <> nil then
+          Canvas.Brush.Color := FTheme.Colors[tcBack]
+        else
+          Canvas.Brush.Color := clBtnFace;
         Canvas.FillRect(R);
-        if not FFlat then begin
-          Canvas.Pen.Color := clBtnHighlight;
-          Canvas.MoveTo(R.Left, R.Top);
-          Canvas.LineTo(R.Left, R.Bottom-1);
-          Canvas.Pen.Color := clBtnText;
-          Canvas.LineTo(R.Right-1, R.Bottom-1);
-          Canvas.LineTo(R.Right-1, R.Top-1);
-        end;
-        Canvas.Font.Color := clBtnText;
+        
+        if FTheme <> nil then
+          Canvas.Font.Color := FTheme.Colors[tcFore]
+        else
+          Canvas.Font.Color := clBtnText;
         Canvas.TextOut(R.Left + TabPaddingX, R.Top + TabPaddingY, FTabs[I]);
         ExcludeClipRect(Canvas.Handle, R.Left, R.Top, R.Right, R.Bottom);
         Break;
       end;
       if not SelectedTab and (FTabIndex <> I) then begin
-        if HighColorMode and (ColorToRGB(clBtnFace) <> clBlack) then
+        if FTheme <> nil then
+          Canvas.Font.Color := FTheme.Colors[tcMarginFore]
+        else if HighColorMode and (ColorToRGB(clBtnFace) <> clBlack) then
           Canvas.Font.Color := LightenColor(ColorToRGB(clBtnShadow), -43)
         else begin
           { If the button face color is black, or if running in low color mode,
@@ -239,14 +278,6 @@ var
           Canvas.Font.Color := clBtnHighlight;
         end;
         Canvas.TextOut(R.Left + TabPaddingX, R.Top + TabPaddingY, FTabs[I]);
-        if not FFlat then begin
-          if HighColorMode then
-            Canvas.Pen.Color := clBtnShadow
-          else
-            Canvas.Pen.Color := clBtnFace;
-          Canvas.MoveTo(R.Right, R.Top+3);
-          Canvas.LineTo(R.Right, R.Bottom-2);
-        end;
       end;
     end;
   end;
@@ -271,24 +302,40 @@ begin
   { Selected tab }
   DrawTabs(True);
 
-  { Top line }
-  if FFlat then
-    Canvas.Pen.Color := clBtnFace
+  { Top or bottom line }
+  if FTheme <> nil then
+    Canvas.Pen.Color := FTheme.Colors[tcBack]
   else
-    Canvas.Pen.Color := clBtnText;
-  Canvas.MoveTo(0, 0);
-  Canvas.LineTo(CR.Right, 0);
+    Canvas.Pen.Color := clBtnFace;
+  if FTabPosition = tpBottom then begin
+    Canvas.MoveTo(0, 0);
+    Canvas.LineTo(CR.Right, 0);
+  end else begin
+    Canvas.MoveTo(0, CR.Bottom-1);
+    Canvas.LineTo(CR.Right, CR.Bottom-1);
+  end;
 
   { Background fill }
-  if HighColorMode then
+  if FTheme <> nil then
+    Canvas.Brush.Color := FTheme.Colors[tcMarginBack]
+  else if HighColorMode then
     Canvas.Brush.Color := LightenColor(ColorToRGB(clBtnFace), 35)
   else
     Canvas.Brush.Color := clBtnShadow;
-  Inc(CR.Top);
+  if FTabPosition = tpBottom then
+    Inc(CR.Top)
+  else
+    Dec(CR.Bottom);
   Canvas.FillRect(CR);
 
   { Non-selected tabs }
   DrawTabs(False);
+end;
+
+procedure TNewTabSet.SetHints(const Value: TStrings);
+begin
+  FHints.Assign(Value);
+  ShowHint := FHints.Count > 0;
 end;
 
 procedure TNewTabSet.SetTabIndex(Value: Integer);
@@ -301,9 +348,27 @@ begin
   end;
 end;
 
+procedure TNewTabSet.SetTabPosition(Value: TTabPosition);
+begin
+  if FTabPosition <> Value then begin
+    FTabPosition := Value;
+    Invalidate;
+  end;
+end;
+
 procedure TNewTabSet.SetTabs(Value: TStrings);
 begin
   FTabs.Assign(Value);
+  if FTabIndex >= FTabs.Count then
+    SetTabIndex(FTabs.Count-1);
+end;
+
+procedure TNewTabSet.SetTheme(Value: TTheme);
+begin
+  if FTheme <> Value then begin
+    FTheme := Value;
+    Invalidate;
+  end;
 end;
 
 end.

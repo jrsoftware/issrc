@@ -2,13 +2,11 @@ unit CompWizardFile;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler Script Wizard File form
-
-  $jrsoftware: issrc/Projects/CompWizardFile.pas,v 1.11 2010/03/06 22:33:02 jr Exp $
+  Compiler IDE Script Wizard File form
 }
 
 interface
@@ -62,7 +60,7 @@ type
 implementation
 
 uses
-  CompMsgs, CmnFunc, CmnFunc2, CompForm;
+  CompMsgs, CmnFunc, CmnFunc2, CompFunc;
 
 {$R *.DFM}
 

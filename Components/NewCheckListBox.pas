@@ -37,6 +37,8 @@ type
     SubItem: string;
     ThreadCache: set of Byte;
     MeasuredHeight: Integer;
+    ItemFontStyle: TFontStyles;
+    SubItemFontStyle: TFontStyles;
   end;
 
   TCheckItemOperation = (coUncheck, coCheck, coCheckWithChildren); 
@@ -109,10 +111,12 @@ type
     function GetCaption(Index: Integer): String;
     function GetChecked(Index: Integer): Boolean;
     function GetItemEnabled(Index: Integer): Boolean;
+    function GetItemFontStyle(Index: Integer): TFontStyles;
     function GetLevel(Index: Integer): Byte;
     function GetObject(Index: Integer): TObject;
     function GetState(Index: Integer): TCheckBoxState;
     function GetSubItem(Index: Integer): string;
+    function GetSubItemFontStyle(Index: Integer): TFontStyles;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -124,10 +128,12 @@ type
     procedure SetChecked(Index: Integer; const AChecked: Boolean);
     procedure SetFlat(Value: Boolean);
     procedure SetItemEnabled(Index: Integer; const AEnabled: Boolean);
+    procedure SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
     procedure SetObject(Index: Integer; const AObject: TObject);
     procedure SetOffset(AnOffset: Integer);
     procedure SetShowLines(Value: Boolean);
     procedure SetSubItem(Index: Integer; const ASubItem: String);
+    procedure SetSubItemFontStyle(Index: Integer; const ASubItemFontStyle: TFontStyles);
     property ItemStates[Index: Integer]: TItemState read GetItemState;
   public
     constructor Create(AOwner: TComponent); override;
@@ -147,10 +153,12 @@ type
     property Checked[Index: Integer]: Boolean read GetChecked write SetChecked;
     property ItemCaption[Index: Integer]: String read GetCaption write SetCaption;
     property ItemEnabled[Index: Integer]: Boolean read GetItemEnabled write SetItemEnabled;
+    property ItemFontStyle[Index: Integer]: TFontStyles read GetItemFontStyle write SetItemFontStyle;
     property ItemLevel[Index: Integer]: Byte read GetLevel;
     property ItemObject[Index: Integer]: TObject read GetObject write SetObject;
     property ItemSubItem[Index: Integer]: string read GetSubItem write SetSubItem;
     property State[Index: Integer]: TCheckBoxState read GetState;
+    property SubItemFontStyle[Index: Integer]: TFontStyles read GetSubItemFontStyle write SetSubItemFontStyle;
   published
     property Align;
     property Anchors;
@@ -859,6 +867,7 @@ begin
       DrawTextFormat := DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE or DT_VCENTER;
       if FUseRightToLeft then
         DrawTextFormat := DrawTextFormat or (DT_RIGHT or DT_RTLREADING);
+      Font.Style := ItemState.SubItemFontStyle;
       SetRectEmpty(SubItemRect);
       InternalDrawText(ItemState.SubItem, SubItemRect, DrawTextFormat or
         DT_CALCRECT, False);
@@ -883,6 +892,7 @@ begin
       DrawTextFormat := DrawTextFormat or DT_HIDEPREFIX;
     if FUseRightToLeft then
       DrawTextFormat := DrawTextFormat or (DT_RIGHT or DT_RTLREADING);
+    Font.Style := ItemState.ItemFontStyle;
     { When you call DrawText with the DT_CALCRECT flag and there's a word wider
       than the rectangle width, it increases the rectangle width and wraps
       at the new Right point. On the other hand, when you call DrawText
@@ -1065,6 +1075,11 @@ begin
   Result := ItemStates[Index].Enabled;
 end;
 
+function TNewCheckListBox.GetItemFontStyle(Index: Integer): TFontStyles;
+begin
+  Result := ItemStates[Index].ItemFontStyle;
+end;
+
 function TNewCheckListBox.GetItemState(Index: Integer): TItemState;
 begin
   Result := FStateList[Index];
@@ -1104,6 +1119,11 @@ end;
 function TNewCheckListBox.GetSubItem(Index: Integer): String;
 begin
   Result := ItemStates[Index].SubItem;
+end;
+
+function TNewCheckListBox.GetSubItemFontStyle(Index: Integer): TFontStyles;
+begin
+  Result := ItemStates[Index].SubItemFontStyle;
 end;
 
 procedure TNewCheckListBox.InvalidateCheck(Index: Integer);
@@ -1481,6 +1501,17 @@ begin
   end;
 end;
 
+procedure TNewCheckListBox.SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
+var
+  R: TRect;
+begin
+  if ItemStates[Index].ItemFontStyle <> AItemFontStyle then begin
+    ItemStates[Index].ItemFontStyle := AItemFontStyle;
+    R := ItemRect(Index);
+    InvalidateRect(Handle, @R, True);
+  end;
+end;
+
 procedure TNewCheckListBox.SetObject(Index: Integer; const AObject: TObject);
 begin
   ItemStates[Index].Obj := AObject;
@@ -1526,6 +1557,17 @@ begin
       end;
       UpdateScrollRange;
     end;
+    InvalidateRect(Handle, @R, True);
+  end;
+end;
+
+procedure TNewCheckListBox.SetSubItemFontStyle(Index: Integer; const ASubItemFontStyle: TFontStyles);
+var
+  R: TRect;
+begin
+  if ItemStates[Index].SubItemFontStyle <> ASubItemFontStyle then begin
+    ItemStates[Index].SubItemFontStyle := ASubItemFontStyle;
+    R := ItemRect(Index);
     InvalidateRect(Handle, @R, True);
   end;
 end;

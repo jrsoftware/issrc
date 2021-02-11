@@ -19,12 +19,15 @@ rem  Once done the installer can be found in Output
 
 setlocal
 
-set VER=6.0.3
+set VER=6.1.2
 
 echo Building Inno Setup %VER%...
 echo.
 
 cd /d %~dp0
+
+if "%1%"=="setup" goto setup
+if not "%1%"=="" goto failed
 
 cd projects\ispp\help
 if errorlevel 1 goto failed
@@ -49,11 +52,12 @@ if errorlevel 1 goto failed
 echo Compiling Inno Setup done
 pause
 
+:setup
 echo - Setup.exe
 if exist .\setup-sign.bat (
   call .\setup-sign.bat
 ) else (
-  files\iscc setup.iss /q
+  files\iscc setup.iss
 )
 if errorlevel 1 goto failed
 echo - Renaming files

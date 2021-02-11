@@ -2,11 +2,11 @@ unit CompFileAssoc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Functions for registering/unregistering the .iss file association
+  Compiler IDE's functions for registering/unregistering the .iss file association
 }
 
 interface
@@ -82,6 +82,8 @@ begin
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile', nil, 'Compi&le');
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile\command', nil,
     '"' + SelfName + '" /cc "%1"');
+
+  SetKeyValue(Rootkey, PChar('Software\Classes\Applications\' + PathExtractName(SelfName) + '\SupportedTypes'), '.iss', '');
 
   { If we just associated for all users, remove our existing association for the current user if it exists. }
   if AllUsers then

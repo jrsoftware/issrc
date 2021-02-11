@@ -1,6 +1,11 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
+  
+  Inno Setup
+  Copyright (C) 1997-2020 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
 library ISPP;
@@ -10,25 +15,23 @@ library ISPP;
 {$SETPESUBSYSVERSION 6.0}
 {$WEAKLINKRTTI ON}
 {$I ..\Version.inc}
-{$R *.RES}
 
 uses
   SysUtils,
-  //IsppDebug in 'IsppDebug.pas',
   Windows,
   Classes,
   CompPreprocInt in '..\CompPreprocInt.pas',
   IsppPreprocess in 'IsppPreprocess.pas',
-  IsppTranslate in 'IsppTranslate.pas',
+  IsppPreprocessor in 'IsppPreprocessor.pas',
   IsppFuncs in 'IsppFuncs.pas',
   IsppVarUtils in 'IsppVarUtils.pas',
   IsppConsts in 'IsppConsts.pas',
-  IsppStacks in 'IsppStacks.pas',
+  IsppStack in 'IsppStack.pas',
   IsppIntf in 'IsppIntf.pas',
   IsppParser in 'IsppParser.pas',
   IsppIdentMan in 'IsppIdentMan.pas',
   IsppSessions in 'IsppSessions.pas',
-  CParser in 'CParser.pas',
+  CTokenizer in 'CTokenizer.pas',
   IsppBase in 'IsppBase.pas',
   PathFunc in '..\..\Components\PathFunc.pas',
   CmnFunc2 in '..\CmnFunc2.pas',
@@ -37,11 +40,10 @@ uses
   MD5 in '..\MD5.pas',
   SHA1 in '..\SHA1.pas',
   Struct in '..\Struct.pas';
-  //IsppExceptWindow in 'IsppExceptWindow.pas' {IsppExceptWnd};
+  
+{$R *.RES}
 
-const
-  FuncNameSuffix = {$IFDEF UNICODE} 'W' {$ELSE} 'A' {$ENDIF};
 exports
-  ISPreprocessScript name 'ISPreprocessScript' + FuncNameSuffix;
+  ISPreprocessScript name 'ISPreprocessScriptW';
 
 end.

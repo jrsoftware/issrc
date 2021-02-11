@@ -251,7 +251,7 @@ begin
                   SendCopyDataMessageStr(DebugWnd, DebugClientWnd, CD_Debugger_ReplyW,
                     EvaluateResult);
                 except
-                  { don't propogate exceptions }
+                  { don't propagate exceptions }
                 end;
               end;
             CD_DebugClient_EvaluateVariableEntry: begin
@@ -270,7 +270,7 @@ begin
                   SendCopyDataMessageStr(DebugWnd, DebugClientWnd, CD_Debugger_ReplyW,
                     EvaluateResult);
                 except
-                  { don't propogate exceptions }
+                  { don't propagate exceptions }
                 end;
               end;
             CD_DebugClient_CompiledCodeTextA: begin
@@ -280,7 +280,7 @@ begin
                     TWMCopyData(Message).CopyDataStruct.cbData div SizeOf(AnsiChar));
                   Message.Result := 1;
                 except
-                  { don't propogate exceptions }
+                  { don't propagate exceptions }
                 end;
               end;
             CD_DebugClient_CompiledCodeDebugInfoA: begin
@@ -290,7 +290,7 @@ begin
                     TWMCopyData(Message).CopyDataStruct.cbData div SizeOf(AnsiChar));
                   Message.Result := 1;
                 except
-                  { don't propogate exceptions }
+                  { don't propagate exceptions }
                 end;
               end;
           end;

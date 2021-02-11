@@ -1,6 +1,11 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
+
+  Inno Setup
+  Copyright (C) 1997-2020 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
 unit IsppFuncs;
@@ -9,14 +14,16 @@ interface
 
 {$I ..\Version.inc}
 
-uses Windows, Classes, IsppVarUtils, IsppIntf, IsppTranslate, IsppParser;
+uses
+  Windows, Classes, IsppVarUtils, IsppIntf, IsppPreprocessor, IsppParser;
 
-procedure Register(Preproc: TPreprocessor);
+procedure RegisterFunctions(Preproc: TPreprocessor);
 
 implementation
 
-uses SysUtils, IniFiles, Registry, IsppConsts, IsppBase, IsppIdentMan,
-  IsppSessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2;
+uses
+  SysUtils, IniFiles, Registry, IsppConsts, IsppBase, IsppIdentMan,
+  IsppSessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2, Int64Em;
   
 var
   IsWin64: Boolean;
@@ -29,32 +36,6 @@ begin
   Result := PathExpand(Preprocessor.PrependDirName(Filename,
     Preprocessor.SourcePath));
 end;
-
-{$IF RTLVersion < 18}  { < Delphi 2006 }
-function FileAge(const FileName: string; out FileDateTime: TDateTime): Boolean;
-var
-  Handle: THandle;
-  FindData: TWin32FindData;
-  LSystemTime: TSystemTime;
-  LocalFileTime: TFileTime;
-begin
-  Result := False;
-  Handle := FindFirstFile(PChar(FileName), FindData);
-  if Handle <> INVALID_HANDLE_VALUE then
-  begin
-    Windows.FindClose(Handle);
-    if (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0 then
-    begin
-      Result := True;
-      FileTimeToLocalFileTime(FindData.ftLastWriteTime, LocalFileTime);
-      FileTimeToSystemTime(LocalFileTime, LSystemTime);
-      with LSystemTime do
-        FileDateTime := EncodeDate(wYear, wMonth, wDay) +
-          EncodeTime(wHour, wMinute, wSecond, wMilliSeconds);
-    end;
-  end;
-end;
-{$IFEND}
 
 function CheckParams(const Params: IIsppFuncParams;
   Types: array of TIsppVarType; Minimum: Byte; var Error: TIsppFuncResult): Boolean;
@@ -186,19 +167,20 @@ end;
 {FileSize(<filename>)}
 function FileSize(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
-  F: file of byte;
+  SearchRec: TSearchRec;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      {$I-}
-      FileMode := fmOpenRead;
-      AssignFile(F, PrependPath(Ext, Get(0).AsStr));
-      Reset(F);
-      MakeInt(ResPtr^, System.FileSize(F));
-      CloseFile(F);
-      {$I-}
+      if FindFirst(PrependPath(Ext, Get(0).AsStr), faAnyFile, SearchRec) = 0 then begin
+        try
+          MakeInt(ResPtr^, SearchRec.Size);
+        finally
+          FindClose(SearchRec);
+        end;
+      end else
+        MakeInt(ResPtr^, -1);
     end
   except
     on E: Exception do
@@ -652,7 +634,7 @@ begin
   end;
 end;
 
-function InstExec (const Filename, Params: String; WorkingDir: String;
+function InstExec(const Filename, Params: String; WorkingDir: String;
   const WaitUntilTerminated, WaitUntilIdle: Boolean; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; var ErrorCode: Cardinal): Boolean;
 var
@@ -766,7 +748,7 @@ function CopyFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   S: string;
-  B, C: Integer;
+  B, C: Int64;
 begin
   if CheckParams(Params, [evStr, evInt, evInt], 2, Result) then
   try
@@ -775,7 +757,19 @@ begin
       S := Get(0).AsStr;
       B := Get(1).AsInt;
       if GetCount > 2 then C := Get(2).AsInt else C := MaxInt;
-      MakeStr(ResPtr^, Copy(S, B, C));
+
+      { Constrain 64-bit arguments to 32 bits without truncating them }
+      if B < 1 then
+        B := 1;
+      if C > Maxint then
+        C := Maxint;
+      if (B > Maxint) or (C < 0) then begin
+        { Result should be empty in these cases }
+        B := 1;
+        C := 0;
+      end;
+
+      MakeStr(ResPtr^, Copy(S, Integer(B), Integer(C)));
     end;
   except
     on E: Exception do
@@ -820,6 +814,22 @@ begin
   end;
 end;
 
+function UpperCaseFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+      MakeStr(ResPtr^, UpperCase(Get(0).AsStr));
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 function RPosFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
@@ -847,7 +857,7 @@ begin
   end;
 end;
 
-function GetFileVersion(Ext: Longint; const Params: IIsppFuncParams;
+function GetVersionNumbersStringFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Filename: string;
@@ -883,6 +893,41 @@ begin
         end;
       end
     end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function ComparePackedVersionFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evInt, evInt], 2, Result) then
+  try
+    with IInternalFuncParams(Params) do
+      MakeInt(ResPtr^, Compare64(Integer64(Get(0).AsInt), Integer64(Get(1).AsInt)));
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function SamePackedVersionFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evInt, evInt], 2, Result) then
+  try
+    with IInternalFuncParams(Params) do
+      if Compare64(Integer64(Get(0).AsInt), Integer64(Get(1).AsInt)) = 0 then
+        MakeInt(ResPtr^, 1)
+      else
+        MakeInt(ResPtr^, 0)
   except
     on E: Exception do
     begin
@@ -1188,6 +1233,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Readln(F^, S);
       {$I+}
@@ -1215,11 +1262,13 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Reset(F^);
       {$I+}
       if IOResult <> 0 then
-        FuncResult.Error('Failed to reset a file')
+        raise Exception.Create('Failed to reset a file')
       else
         ResPtr^ := NULL
     end;
@@ -1243,6 +1292,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       IsEof := Eof(F^);
       {$I+}
@@ -1270,6 +1321,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Integer(F) := Get(0).AsInt;
+      if Integer(F) = 0 then
+        raise Exception.Create('Invalid file handle');
       {$I-}
       Close(F^);
       {$I+}
@@ -1278,11 +1331,51 @@ begin
       TPreprocessor(Ext).UncollectGarbage(Pointer(F));
     end;
   except
-    on E: EAccessViolation do
+    on E: Exception do
     begin
-      FuncResult.Error('Invalid file handle');
+      FuncResult.Error(PChar(E.Message));
       Result.Error := ISPPFUNC_FAIL
     end;
+  end;
+end;
+
+function SaveStringToFileFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+var
+  Filename: String;
+  F: TextFile;
+  DoAppend: Boolean;
+  CodePage: Word;
+begin
+  if CheckParams(Params, [evStr, evStr, evInt, evInt], 2, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      Filename := PrependPath(Ext, Get(0).AsStr);
+      if (GetCount < 3) or (Get(2).AsInt <> 0) then DoAppend := True else DoAppend := False;
+      if (GetCount < 4) or (Get(3).AsInt <> 0) then CodePage := CP_UTF8 else CodePage := 0;
+      DoAppend := DoAppend and NewFileExists(Filename);
+      AssignFile(F, FileName, CodePage);
+      {$I-}
+      if DoAppend then
+        Append(F)
+      else
+        Rewrite(F);
+      {$I+}
+      if IOResult <> 0 then
+        MakeInt(ResPtr^, 0)
+      else begin
+        try
+          MakeInt(ResPtr^, 1);
+          if not DoAppend and (CodePage = CP_UTF8) then
+            Write(F, #$FEFF); //UTF8 BOM as a single Unicode character
+          Write(F, Get(1).AsStr);
+        finally
+          CloseFile(F);
+        end;
+      end;
+    end;
+  except
     on E: Exception do
     begin
       FuncResult.Error(PChar(E.Message));
@@ -1292,7 +1385,6 @@ begin
 end;
 
 type
-
   PDateTime = ^TDateTime;
 
 procedure GarbageReleaseDateTime(Item: Pointer);
@@ -1315,7 +1407,7 @@ begin
         New(FileDate);
         FileDate^ := Age;
         TPreprocessor(Ext).CollectGarbage(FileDate, GarbageReleaseDateTime);
-        MakeInt(ResPtr^, Integer(FileDate));
+        MakeInt(ResPtr^, Int64(FileDate));
       end
       else
         MakeInt(ResPtr^, -1);
@@ -1341,7 +1433,7 @@ begin
       New(DateTime);
       DateTime^ := Now;
       TPreprocessor(Ext).CollectGarbage(DateTime, GarbageReleaseDateTime);
-      MakeInt(ResPtr^, Integer(DateTime));
+      MakeInt(ResPtr^, Int64(DateTime));
     end;
   except
     on E: Exception do
@@ -1693,7 +1785,73 @@ begin
   end;
 end;
 
-procedure Register(Preproc: TPreprocessor);
+function MessageFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do begin
+      { Also see Pragma in IsppPreprocessor }
+      TPreprocessor(Ext).StatusMsg(Get(0).AsStr, []);
+      ResPtr^ := NULL;
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function WarningFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do begin
+      { Also see Pragma in IsppPreprocessor }
+      TPreprocessor(Ext).WarningMsg(Get(0).AsStr, []);
+      ResPtr^ := NULL;
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function ErrorFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+var
+  CatchException: Boolean;
+  ErrorMsg: String;
+begin
+  CatchException := True;
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do begin
+      { Also see Pragma and pcErrorDir in IsppPreprocessor }
+      ErrorMsg := Get(0).AsStr;
+      if ErrorMsg = '' then ErrorMsg := 'Error';
+      CatchException := False;
+      TPreprocessor(Ext).RaiseError(ErrorMsg);
+    end;
+  except
+    on E: Exception do
+    begin
+      if CatchException then begin
+        FuncResult.Error(PChar(E.Message));
+        Result.Error := ISPPFUNC_FAIL
+      end else
+        raise;
+    end;
+  end;
+end;
+
+procedure RegisterFunctions(Preproc: TPreprocessor);
 begin
   with Preproc do
   begin
@@ -1713,13 +1871,16 @@ begin
     RegisterFunction('Pos', PosFunc, -1);
     RegisterFunction('RPos', RPosFunc, -1);
     RegisterFunction('Len', LenFunc, -1);
-    RegisterFunction('GetFileVersion', GetFileVersion, -1);
+    RegisterFunction('GetVersionNumbersString', GetVersionNumbersStringFunc, -1);
+    RegisterFunction('ComparePackedVersion', ComparePackedVersionFunc, -1);
+    RegisterFunction('SamePackedVersion', SamePackedVersionFunc, -1);
     RegisterFunction('GetStringFileInfo', GetFileVersionInfoItem, -1);
     RegisterFunction('SaveToFile', IsppFuncs.SaveToFile, -1);
     RegisterFunction('Find', FindLine, -1);
     RegisterFunction('SetupSetting', SetupSetting, -1);
     RegisterFunction('SetSetupSetting', SetSetupSetting, -1);
     RegisterFunction('LowerCase', LowerCaseFunc, -1);
+    RegisterFunction('UpperCase', UpperCaseFunc, -1);
     RegisterFunction('EntryCount', EntryCountFunc, -1);
     RegisterFunction('GetEnv', GetEnvFunc, -1);
     RegisterFunction('DeleteFile', DelFileFunc, -1);
@@ -1735,6 +1896,7 @@ begin
     RegisterFunction('FileReset', FileResetFunc, -1);
     RegisterFunction('FileEof', FileEofFunc, -1);
     RegisterFunction('FileClose', FileCloseFunc, -1);
+    RegisterFunction('SaveStringToFile', SaveStringToFileFunc, -1);
     RegisterFunction('FileGetDateTime', FileGetDate, -1);
     RegisterFunction('Now', GetNow, -1);
     RegisterFunction('DateTimeToDate', GetDateFromDT, -1);
@@ -1750,6 +1912,9 @@ begin
     RegisterFunction('Trim', TrimFunc, -1);
     RegisterFunction('StringChange', StringChangeFunc, -1);
     RegisterFunction('IsWin64', IsWin64Func, -1);
+    RegisterFunction('Message', MessageFunc, -1);
+    RegisterFunction('Warning', WarningFunc, -1);
+    RegisterFunction('Error', ErrorFunc, -1);
   end;
 end;
 

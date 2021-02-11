@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.3+ Slovenian messages ***
+; *** Inno Setup version 6.1.0+ Slovenian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/is3rdparty.php
@@ -9,8 +9,6 @@
 ; two periods being displayed).
 ;
 ; Maintained by Jernej Simoncic (jernej+s-innosetup@eternallybored.org)
-;
-; $jrsoftware: issrc/Files/Languages/Slovenian.isl,v 1.14 2007/02/27 18:22:41 jr Exp $
 
 [LangOptions]
 LanguageName=Slovenski
@@ -202,6 +200,18 @@ ReadyMemoComponents=Izbrane komponente:
 ReadyMemoGroup=Mapa v meniju »Zaèetek«:
 ReadyMemoTasks=Dodatna opravila:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Prenašam dodatne datoteke...
+ButtonStopDownload=Prekini preno&s
+StopDownload=Ali res želite prekiniti prenos?
+ErrorDownloadAborted=Prenos prekinjen
+ErrorDownloadFailed=Prenos ni uspel: %1 %2
+ErrorDownloadSizeFailed=Pridobivanje velikosti ni uspelo: %1 %2
+ErrorFileHash1=Pridobivanje zgošèene vrednosti ni uspelo: %1
+ErrorFileHash2=Neveljavna zgošèena vrednost: prièakovana %1, dobljena %2
+ErrorProgress=Neveljaven potek: %1 od %2
+ErrorFileSize=Neveljavna velikost datoteke: prièakovana %1, dobljena %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pripravljam za namestitev
 PreparingDesc=Namestitveni program je pripravljen za namestitev programa [name] v vaš raèunalnik.
@@ -286,8 +296,16 @@ ExistingFileReadOnly2=Obstojeèe datoteke ni mogoèe nadomestiti, ker ima oznako s
 ExistingFileReadOnlyRetry=Odst&rani oznako samo za branje in poizkusi ponovno
 ExistingFileReadOnlyKeepExisting=&Ohrani obstojeèo datoteko
 ErrorReadingExistingDest=Pri branju obstojeèe datoteke je prišlo do napake:
-FileExists=Datoteka že obstaja.%n%nŽelite, da jo namestitveni program prepiše?
-ExistingFileNewer=V raèunalniku je namešèena razlièica datoteke, ki je novejša, kot ta, ki je v namestitvenem programu. Priporoèljivo je, da obdržite obstojeèo datoteko.%n%nŽelite obdržati obstojeèo datoteko?
+FileExistsSelectAction=Izberite dejanje
+FileExists2=Datoteka že obstaja.
+FileExistsOverwriteExisting=&Prepiši obstojeèo datoteko
+FileExistsKeepExisting=&Ohrani trenutno datoteko
+FileExistsOverwriteOrKeepAll=&To naredite za preostale spore
+ExistingFileNewerSelectAction=Izberite dejanje
+ExistingFileNewer2=Obstojeèa datoteka je novejša, kot datoteka, ki se namešèa.
+ExistingFileNewerOverwriteExisting=&Prepiši obstojeèo datoteko
+ExistingFileNewerKeepExisting=&Ohrani trenutno datoteko (priporoèeno)
+ExistingFileNewerOverwriteOrKeepAll=&To naredite za preostale spore
 ErrorChangingAttr=Pri poskusu spremembe lastnosti datoteke je prišlo do napake:
 ErrorCreatingTemp=Pri ustvarjanju datoteke v ciljni mapi je prišlo do napake:
 ErrorReadingSource=Pri branju izvorne datoteke je prišlo do napake:

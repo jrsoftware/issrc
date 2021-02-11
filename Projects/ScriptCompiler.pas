@@ -16,7 +16,7 @@ uses
 
 type
   TScriptCompilerOnLineToLineInfo = procedure(const Line: LongInt; var Filename: String; var FileLine: LongInt) of object;
-  TScriptCompilerOnUsedLine = procedure(const Filename: String; const Line, Position: LongInt) of object;
+  TScriptCompilerOnUsedLine = procedure(const Filename: String; const Line, Position: LongInt; const IsProcExit: Boolean) of object;
   TScriptCompilerOnUsedVariable = procedure(const Filename: String; const Line, Col, Param1, Param2, Param3: LongInt; const Param4: AnsiString) of object;
   TScriptCompilerOnError = procedure(const Msg: String; const ErrorFilename: String; const ErrorLine: LongInt) of object;
   TScriptCompilerOnWarning = procedure(const Msg: String) of object;
@@ -211,7 +211,7 @@ begin
 
   I := ScriptCompiler.FindExport(String(Proc.Name), String(Procdecl), -1);
   if I <> -1 then begin
-    { The function name is a matche and the function prototype is ok. }    
+    { The function name is a match and the function prototype is ok. }    
     ScriptExport := ScriptCompiler.FExports[I];
     ScriptExport.Exported := True;
     Result := True;
@@ -257,7 +257,7 @@ begin
   end;
 end;
 
-function PSPascalCompilerOnWriteLine(Sender: TPSPascalCompiler; Position: Cardinal): Boolean;
+function PSPascalCompilerOnWriteLine2(Sender: TPSPascalCompiler; Position: Cardinal; IsProcExit: Boolean): Boolean;
 var
   ScriptCompiler: TScriptCompiler;
   Filename: String;
@@ -272,7 +272,7 @@ begin
       Filename := '';
       if Assigned(ScriptCompiler.FOnLineToLineInfo) then
         ScriptCompiler.FOnLineToLineInfo(Line, Filename, Line);
-      ScriptCompiler.FOnUsedLine(Filename, Line, Position);
+      ScriptCompiler.FOnUsedLine(Filename, Line, Position, IsProcExit);
       Result := True;
     end else
       Result := False;
@@ -494,7 +494,7 @@ begin
     PSPascalCompiler.OnBeforeOutput := PSPascalCompilerOnBeforeOutput;
     DefaultCC := ClStdCall;
     FUsedLines.Clear();
-    PSPascalCompiler.OnWriteLine := PSPascalCompilerOnWriteLine;
+    PSPascalCompiler.OnWriteLine2 := PSPascalCompilerOnWriteLine2;
     PSPascalCompiler.OnUseVariable := PSPascalCompilerOnUseVariable;
     PSPascalCompiler.OnUseRegProc := PSPascalCompilerOnUseRegProc;
 

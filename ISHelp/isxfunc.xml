@@ -2,7 +2,7 @@
 <isxhelp version="1.0">
 <copyright>
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 </copyright>
@@ -210,71 +210,6 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
-        <name>ExtractTemporaryFile</name>
-        <prototype>procedure ExtractTemporaryFile(const FileName: String);</prototype>
-        <description><p>Extracts the specified file from the [Files] section to a temporary directory. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
-<p>The extracted files are automatically deleted when Setup exits.</p>
-<p>An exception will be raised if the file wasn't extracted successfully, if the file wasn't found, or if the file was found but couldn't be processed because of its MinVersion and/or OnlyBelowVersion parameters.</p></description>
-        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
-<p>Use <tt>Flags: noencryption</tt> in the [Files] section if encryption is enabled and you call the ExtractTemporaryFile function prior to the user entering the correct password.</p>
-<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
-        <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link></p></seealso>
-        <example><pre>[Files]
-Source: "Readme.txt"; Flags: dontcopy noencryption
-
-[Code]
-function InitializeSetup: Boolean;
-var
-  S: AnsiString;
-begin
-  // Show the contents of Readme.txt (non Unicode) in a message box
-  ExtractTemporaryFile('Readme.txt');
-  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
-  begin
-    MsgBox(S, mbInformation, MB_OK);
-  end;
-
-  Result := True;
-end;</pre></example>
-      </function>
-      <function>
-        <name>ExtractTemporaryFiles</name>
-        <prototype>function ExtractTemporaryFiles(const Pattern: String): Integer;</prototype>
-        <description><p>Extracts the files matching the wildcard specified by Pattern from the [Files] section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
-<p>The extracted files are automatically deleted when Setup exits.</p>
-<p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their MinVersion and/or OnlyBelowVersion parameters.</p></description>
-        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
-<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
-        <seealso><p><link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
-        <example><pre>[Files]
-Source: "Readme.txt"; Flags: dontcopy
-Source: "MyProg.exe"; DestDir: "{app}"
-Source: "MyProg.chm"; DestDir: "{app}"
-
-[Code]
-function InitializeSetup: Boolean;
-var
-  S: AnsiString;
-  ResultCode: Integer;
-begin
-  // Show the contents of Readme.txt (non Unicode) in a message box
-  ExtractTemporaryFiles('{tmp}\Readme.txt');
-  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
-  begin
-    MsgBox(S, mbInformation, MB_OK);
-  end;
-
-  // Extract all MyProg files and launch it. Note how {app} is left unexpanded.
-  ExtractTemporaryFiles('{app}\MyProg.*');
-  ExecAsOriginalUser(ExpandConstant('{tmp}\')+'{app}\MyProg.exe', '', '',
-    SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
-
-  Result := True;
-end;</pre></example>
-      </function>
-    </subcategory>
-    <subcategory>
-      <function>
         <name>GetPreviousData</name>
         <prototype>function GetPreviousData(const ValueName, DefaultValueData: String): String;</prototype>
         <description><p>Gets a value that was previously stored using SetPreviousData.</p></description>
@@ -296,7 +231,7 @@ end;</pre></example>
       <function>
         <name>RegisterExtraCloseApplicationsResource</name>
         <prototype>function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;</prototype>
-        <description><p>Register an extra file which Setup should check for being in-use. Call RegisterExtraCloseApplicationsResource inside a RegisterExtraCloseApplicationsResources event function, once per file. Returns True if successful.</p></description>
+        <description><p>Register an extra file which Setup should check for being in-use. Call RegisterExtraCloseApplicationsResource inside a RegisterExtraCloseApplicationsResources event function, once per file. Ignores <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link>. Returns True if successful.</p></description>
       </function>
       <function>
         <name>RmSessionStarted</name>
@@ -634,6 +569,32 @@ end;</pre></example>
         <seealso><p><link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link><br />
 <link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
       </function>
+      <function>
+        <name>IsDotNetInstalled</name>
+        <prototype>function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;</prototype>
+        <description><p>Returns True if the .NET Framework with the specified MinVersion and MinServicePack parameters is installed.</p>
+<p>TDotNetVersion is defined as:</p>
+<p><tt>TDotNetVersion = (net11, net20, net30, net35, net4Client, net4Full, net45, net451, net452, net46, net461, net462, net47, net471, net472, net48);</tt></p></description>
+        <example><pre>function InitializeSetup: Boolean;
+begin
+  Result := IsDotNetInstalled(net462, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8
+  if not Result then
+    SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.6.2']), mbCriticalError, MB_OK, IDOK);
+end;</pre></example>
+      </function>    
+      <function>
+        <name>IsMsiProductInstalled</name>
+        <prototype>function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;</prototype>
+        <description><p>Returns True if a MSI product with the specified UpgradeCode and PackedMinVersion is installed.</p>
+<p>If there are multiple products installed with the specified UpgradeCode only the version of the first product returned by the system is checked.</p>
+<p>An exception will be raised if an error occurs.</p></description>
+        <example><pre>function InitializeSetup: Boolean;
+begin
+  Result := IsMsiProductInstalled('{20400CF0-DE7C-327E-9AE4-F0F38D9085F8}', PackVersionComponents(12, 0, 0, 0)); //Returns True if Visual C++ 2013 Redistributable (x64) is installed
+  if not Result then
+    SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['Visual C++ 2013 Redistributable (x64)', '12.0']), mbCriticalError, MB_OK, IDOK);
+end;</pre></example>
+      </function>    
     </subcategory>
     <subcategory>
       <function>
@@ -927,7 +888,7 @@ end;</pre></example>
       <function>
         <name>SameText</name>
         <prototype>function SameText(const S1, S2: string): Boolean;</prototype>
-        <description><p>Compares the strings S1 and S2 and returns True if they are equal.  The SameText function is not case-sensitive.</p></description>
+        <description><p>Compares the strings S1 and S2 and returns True if they are equal. The SameText function is not case-sensitive.</p></description>
       </function>
       <function>
         <name>SameStr</name>
@@ -999,12 +960,12 @@ end;</pre></example>
       <function>
         <name>StrToInt64Def</name>
         <prototype>function StrToInt64Def(s: string; def: Int64): Int64;</prototype>
-        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt returns the 64-bit number passed in Def.</p><p>Requires Unicode Inno Setup.</p></description>
+        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt returns the 64-bit number passed in Def.</p></description>
       </function>
       <function>
         <name>StrToInt64</name>
         <prototype>function StrToInt64(s: string): Int64;</prototype>
-        <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number.</p><p>Requires Unicode Inno Setup.</p></description>
+        <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number.</p></description>
         <remarks><p>Use of <link topic="isxfunc_StrToInt64Def">StrToInt64Def</link> instead of StrToInt64 is recommended.</p></remarks>
       </function>
       <function>
@@ -1015,12 +976,12 @@ end;</pre></example>
       <function>
         <name>IntToStr</name>
         <prototype>function IntToStr(i: Int64): String;</prototype>
-        <description><p>The IntToStr function converts an 32-bit or 64-bit number into a string.</p><p>64-bit numbers require Unicode Inno Setup.</p></description>
+        <description><p>The IntToStr function converts a 64-bit number into a string.</p></description>
       </function>
       <function>
         <name>FloatToStr</name>
         <prototype>function FloatToStr(e: extended): String;</prototype>
-        <description><p>The FloatToStr function converts a floating point number into a string.</p><p>Unicode Inno Setup: the character used for the decimal point will always be a dot. Non-Unicode Inno Setup: the character used for the decimal point is locale-dependant.</p></description>
+        <description><p>The FloatToStr function converts a floating point number into a string.</p><p>The character used for the decimal point will always be a dot.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -1209,7 +1170,7 @@ end;
       <function>
         <name>GetMD5OfUnicodeString</name>
         <prototype>function GetMD5OfUnicodeString(const S: String): String;</prototype>
-        <description><p>Gets the MD5 sum of the specified string, as a string.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <description><p>Gets the MD5 sum of the specified string, as a string.</p></description>
         <example><pre>var
   MD5: String;
 begin
@@ -1233,12 +1194,36 @@ end;
       <function>
         <name>GetSHA1OfUnicodeString</name>
         <prototype>function GetSHA1OfUnicodeString(const S: String): String;</prototype>
-        <description><p>Gets the SHA-1 hash of the specified string, as a string.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <description><p>Gets the SHA-1 hash of the specified string, as a string.</p></description>
         <example><pre>var
   SHA1: String;
 begin
   SHA1 := GetSHA1OfUnicodeString('Test');
   // SHA1 = '9ab696a37604d665dc97134dbee44cfe70451b1a'
+end;
+</pre></example>
+      </function>
+      <function>
+        <name>GetSHA256OfString</name>
+        <prototype>function GetSHA256OfString(const S: AnsiString): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified string, as a string.</p></description>
+        <example><pre>var
+  SHA256: String;
+begin
+  SHA256 := GetSHA256OfString('Test');
+  // SHA256 = '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+end;
+</pre></example>
+      </function>
+      <function>
+        <name>GetSHA256OfUnicodeString</name>
+        <prototype>function GetSHA256OfUnicodeString(const S: String): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified string, as a string.</p></description>
+        <example><pre>var
+  SHA256: String;
+begin
+  SHA256 := GetSHA256OfUnicodeString('Test');
+  // SHA256 = 'fe520676b1a1d93dabab2319eea03674f3632eaeeb163d1e88244f5eb1de10eb'
 end;
 </pre></example>
       </function>
@@ -1294,14 +1279,13 @@ end;
       <function>
         <name>VarIsEmpty</name>
         <prototype>function VarIsEmpty(const V: Variant): Boolean;</prototype>
-        <description><p>Non Unicode Inno Setup: Returns True if the specified variant's value is undefined. Unicode Inno Setup: Returns True if the specified variant is unassigned.</p></description>
+        <description><p>Returns True if the specified variant is unassigned.</p></description>
         <seealso><p><link topic="isxfunc_VarIsClear">VarIsClear</link></p></seealso>
       </function>
       <function>
         <name>VarIsClear</name>
         <prototype>function VarIsClear(const V: Variant): Boolean;</prototype>
         <description><p>Returns True if the specified variant's value is undefined.</p></description>
-        <remarks><p>Requires Unicode Inno Setup.</p></remarks>
         <seealso><p><link topic="isxfunc_VarIsEmpty">VarIsEmpty</link></p></seealso>
       </function>
       <function>
@@ -1362,7 +1346,12 @@ const
       <function>
         <name>FileSize</name>
         <prototype>function FileSize(const Name: String; var Size: Integer): Boolean;</prototype>
-        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise. Only supports file sizes smaller than 2 GB. To get all 64 bits of the file size, use <link topic="isxfunc_FindFirst">FindFirst</link>/<link topic="isxfunc_FindClose">FindClose</link> instead.</p></description>
+        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise. Only supports file sizes smaller than 2 GB. To get all 64 bits of the file size, use <link topic="isxfunc_FileSize64">FileSize64</link> instead.</p></description>
+      </function>
+      <function>
+        <name>FileSize64</name>
+        <prototype>function FileSize64(const Name: String; var Size: Int64): Boolean;</prototype>
+        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise.</p></description>
       </function>
       <function>
         <name>GetSpaceOnDisk</name>
@@ -1390,7 +1379,6 @@ end;</pre></example>
         <name>GetSpaceOnDisk64</name>
         <prototype>function GetSpaceOnDisk64(const Path: String; var Free, Total: Int64): Boolean;</prototype>
         <description><p>Returns the number of free and total bytes on a drive. Path specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. Returns True if successful, False otherwise.</p></description>
-        <remarks><p>Requires Unicode Inno Setup.</p></remarks>
         <example><pre>var
   Path: String;
   FreeBytes, TotalBytes: Int64;
@@ -1579,18 +1567,6 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
-        <name>GetVersionNumbers</name>
-        <prototype>function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;</prototype>
-        <description><p>Gets the file version numbers of the specified file.</p></description>
-      </function>
-      <function>
-        <name>GetVersionNumbersString</name>
-        <prototype>function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;</prototype>
-        <description><p>Gets the file version numbers of the specified file, as a string.</p></description>
-      </function>
-    </subcategory>
-    <subcategory>
-      <function>
         <name>IsProtectedSystemFile</name>
         <prototype>function IsProtectedSystemFile(const Filename: String): Boolean;</prototype>
         <description><p>Returns True if the specified file is protected by Windows File Protection (and therefore can't be replaced).</p></description>
@@ -1606,6 +1582,11 @@ end;</pre></example>
         <name>GetSHA1OfFile</name>
         <prototype>function GetSHA1OfFile(const Filename: String): String;</prototype>
         <description><p>Gets the SHA-1 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+      </function>
+      <function>
+        <name>GetSHA256OfFile</name>
+        <prototype>function GetSHA256OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -1711,6 +1692,118 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
+        <name>ExtractTemporaryFile</name>
+        <prototype>procedure ExtractTemporaryFile(const FileName: String);</prototype>
+        <description><p>Extracts the specified file from the [Files] section to a temporary directory. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+<p>The extracted files are automatically deleted when Setup exits.</p>
+<p>An exception will be raised if the file wasn't extracted successfully, if the file wasn't found, or if the file was found but couldn't be processed because of its MinVersion and/or OnlyBelowVersion parameters.</p></description>
+        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
+<p>Use <tt>Flags: noencryption</tt> in the [Files] section if encryption is enabled and you call the ExtractTemporaryFile function prior to the user entering the correct password.</p>
+<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
+        <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link><br />
+<link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link></p></seealso>
+        <example><pre>[Files]
+Source: "Readme.txt"; Flags: dontcopy noencryption
+
+[Code]
+function InitializeSetup: Boolean;
+var
+  S: AnsiString;
+begin
+  // Show the contents of Readme.txt (non Unicode) in a message box
+  ExtractTemporaryFile('Readme.txt');
+  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
+  begin
+    MsgBox(S, mbInformation, MB_OK);
+  end;
+
+  Result := True;
+end;</pre></example>
+      </function>
+      <function>
+        <name>ExtractTemporaryFiles</name>
+        <prototype>function ExtractTemporaryFiles(const Pattern: String): Integer;</prototype>
+        <description><p>Extracts the files matching the wildcard specified by Pattern from the [Files] section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+<p>The extracted files are automatically deleted when Setup exits.</p>
+<p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their MinVersion and/or OnlyBelowVersion parameters.</p></description>
+        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
+<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
+        <seealso><p><link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+        <example><pre>[Files]
+Source: "Readme.txt"; Flags: dontcopy
+Source: "MyProg.exe"; DestDir: "{app}"
+Source: "MyProg.chm"; DestDir: "{app}"
+
+[Code]
+function InitializeSetup: Boolean;
+var
+  S: AnsiString;
+  ResultCode: Integer;
+begin
+  // Show the contents of Readme.txt (non Unicode) in a message box
+  ExtractTemporaryFiles('{tmp}\Readme.txt');
+  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
+  begin
+    MsgBox(S, mbInformation, MB_OK);
+  end;
+
+  // Extract all MyProg files and launch it. Note how {app} is left unexpanded.
+  ExtractTemporaryFiles('{app}\MyProg.*');
+  ExecAsOriginalUser(ExpandConstant('{tmp}\')+'{app}\MyProg.exe', '', '',
+    SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
+
+  Result := True;
+end;</pre></example>
+      </function>
+      <function>
+        <name>DownloadTemporaryFile</name>
+        <prototype>function DownloadTemporaryFile(const Url, FileName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
+        <description><p>Downloads the file from the specified URL to a temporary directory using the specified name. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+<p>If RequiredSHA256OfFile is set it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
+<p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded. Returns 0 if RequiredSHA256OfFile is set and the file was already downloaded.</p>
+<p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
+<p>For basic authentication use a special URL format like this: http://username:password@example.com/</p>
+<p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
+        <remarks><p>TOnDownloadProgress is defined as:</p>
+<p><tt>TOnDownloadProgress = function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;</tt></p>
+<p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p></remarks>
+        <seealso><p><link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
+<link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
+<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+        <example><pre>
+[Code]
+function OnDownloadProgress(const Url, Filename: string; const Progress, ProgressMax: Int64): Boolean;
+begin
+  if ProgressMax &lt;&gt; 0 then
+    Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
+  else
+    Log(Format('  %d bytes done.', [Progress]));
+  Result := True;
+end;
+
+function InitializeSetup: Boolean;
+begin
+  try
+    DownloadTemporaryFile('https://jrsoftware.org/download.php/is.exe', 'innosetup-latest.exe', '', @OnDownloadProgress);
+    DownloadTemporaryFile('https://jrsoftware.org/download.php/iscrypt.dll', 'ISCrypt.dll', '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc', @OnDownloadProgress);
+    Result := True;
+  except
+    Log(GetExceptionMessage);
+    Result := False;
+  end;
+end;</pre>
+<p>See <i>CodeDownloadFiles.iss</i> for another example which uses <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link> instead.</p></example>
+      </function>
+      <function>
+        <name>DownloadTemporaryFileSize</name>
+        <prototype>function DownloadTemporaryFileSize(const Url): Int64;</prototype>
+        <description><p>Returns the size of the file from the specified URL, without downloading the file. If the server does not provide the file size, -1 will be returned.</p>
+<p>An exception will be raised if there was an error.</p>
+<p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
         <name>RenameFile</name>
         <prototype>function RenameFile(const OldName, NewName: string): Boolean;</prototype>
         <description><p>Attempts to change the name of the file or directory specified by OldFile to NewFile. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
@@ -1752,7 +1845,7 @@ end;</pre></example>
         <name>SaveStringToFile</name>
         <prototype>function SaveStringToFile(const FileName: String; const S: AnsiString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string to the specified file. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
-        <remarks><p>This function does not automatically write a line break before or after the string. If Append is True and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters before and after your string:</p>
+        <remarks><p>This function does not automatically write a line break before or after the string. If Append is True and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters before and/or after your string:</p>
 <p><tt>SaveStringToFile('c:\filename.txt', #13#10 + 'the string' + #13#10, True);</tt></p></remarks>
       </function>
       <function>
@@ -1764,7 +1857,7 @@ end;</pre></example>
       <function>
         <name>SaveStringsToUTF8File</name>
         <prototype>function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
-        <description><p>Saves the specified string array to the specified file with UTF8 encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p><p>Causes an internal error if called by non Unicode Setup or Uninstall.</p></description>
+        <description><p>Saves the specified string array to the specified file with UTF8 encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
         <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link></p></seealso>
       </function>
     </subcategory>
@@ -1891,13 +1984,108 @@ end;</pre>
       </function>
       <function>
         <name>UnregisterFont</name>
-        <prototype>procedure UnregisterFont(const FontName, FontFilename: String);</prototype>
+        <prototype>procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);</prototype>
         <description><p>Unregisters the font with the specified face and filename.</p></description>
       </function>
       <function>
         <name>ModifyPifFile</name>
         <prototype>function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;</prototype>
         <description><p>Changes the "Close on exit" setting of a .pif file. Returns True if it was able to make the change.</p></description>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description><p>File Version</p></description>
+    <subcategory>
+      <function>
+        <name>GetVersionNumbers</name>
+        <prototype>function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;</prototype>
+        <description><p>Gets the version numbers of the specified file. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link></p></seealso>
+      </function>
+      <function>
+        <name>GetVersionComponents</name>
+        <prototype>function GetVersionComponents(const Filename: String; var Major, Minor, Revision, Build: Word): Boolean;</prototype>
+        <description><p>Gets the individual version components of the specified file. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
+      </function>
+      <function>
+        <name>GetVersionNumbersString</name>
+        <prototype>function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;</prototype>
+        <description><p>Gets the version of the specified file as a string (in "0.0.0.0" format). Returns True if successful, False otherwise.</p></description>
+      </function>
+      <function>
+        <name>GetPackedVersion</name>
+        <prototype>function GetPackedVersion(const Filename: String; var Version: Int64): Boolean;</prototype>
+        <description><p>Gets the packed version of the specified file. Returns True if successful, False otherwise.</p>
+<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
+        <seealso><p><link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>PackVersionNumbers</name>
+        <prototype>function PackVersionNumbers(const VersionMS, VersionLS: Cardinal): Int64;</prototype>
+        <description><p>Packs version numbers into a single value.</p>
+<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
+        <seealso><p><link topic="isxfunc_GetVersionNumbers">GetVersionNumbers</link><br />
+<link topic="isxfunc_PackVersionComponents">PackVersionComponents</link><br />
+<link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link></p></seealso>
+      </function>
+      <function>
+        <name>PackVersionComponents</name>
+        <prototype>function PackVersionComponents(const Major, Minor, Revision, Build: Word): Int64;</prototype>
+        <description><p>Packs individual version components into a single value.</p>
+<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
+        <seealso><p><link topic="isxfunc_GetVersionComponents">GetVersionComponents</link><br />
+<link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
+<link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>ComparePackedVersion</name>
+        <prototype>function ComparePackedVersion(const Version1, Version2: Int64): Integer;</prototype>
+        <description><p>Compares Version1 to Version2. The return value is less than 0 if Version1 is less than Version2, 0 if Version1 equals Version2, or greater than 0 if Version1 is greater than Version2.</p></description>
+      </function>
+      <function>
+        <name>SamePackedVersion</name>
+        <prototype>function SamePackedVersion(const Version1, Version2: Int64): Boolean;</prototype>
+        <description><p>Compares the packed versions Version1 and Version2 and returns True if they are equal.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>UnpackVersionNumbers</name>
+        <prototype>procedure UnpackVersionNumbers(const Version: Int64; var VersionMS, VersionLS: Cardinal);</prototype>
+        <description><p>Unpacks a packed version into version numbers.</p></description>
+        <seealso><p><link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link><br />
+<link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link></p></seealso>
+      </function>
+      <function>
+        <name>UnpackVersionComponents</name>
+        <prototype>procedure UnpackVersionComponents(const Version: Int64; var Major, Minor, Revision, Build: Word);</prototype>
+        <description><p>Unpacks a packed version into individual version components.</p></description>
+        <seealso><p><link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link><br />
+<link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>VersionToStr</name>
+        <prototype>function VersionToStr(const Version: Int64): String;</prototype>
+        <description><p>Returns the specified packed version as a string (in "0.0.0.0" format).</p></description>
+        <seealso><p><link topic="isxfunc_StrToVersion">StrToVersion</link><br />
+<link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link><br />
+<link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
+      </function>
+      <function>
+        <name>StrToVersion</name>
+        <prototype>function StrToVersion(const Version: String; var Version: Int64): Boolean;</prototype>
+        <description><p>Returns the specified string (in "0.0.0.0" format) as a packed version. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_VersionToStr">VersionToStr</link><br />
+<link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
+<link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
       </function>
     </subcategory>
   </category>
@@ -2325,6 +2513,22 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link></p></seealso>
       </function>
       <function>
+        <name>CreateDownloadPage</name>
+        <prototype>function CreateDownloadPage(const ACaption, ADescription: String; const OnDownloadProgress: TOnDownloadProgress): TDownloadWizardPage;</prototype>
+        <description><p>Creates a wizard page to download files and show progress.</p>
+<p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
+<p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
+        <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
+<p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
+<p>To add a new file to download, call the <tt>Add</tt> method. Always call the <tt>Clear</tt> method before adding the first file.</p>
+<p>To start the download, call the <tt>Download</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Download</tt> returns the number of bytes downloaded.</p>
+<p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p></remarks>
+        <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p></example>
+        <seealso><p><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link><br />
+<link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
+<link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
+      </function>
+      <function>
         <name>CreateCustomPage</name>
         <prototype>function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;</prototype>
         <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their Parent properties to the Surface property of the <link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link> instance returned by this function).</p></description>
@@ -2680,6 +2884,10 @@ end;</pre></example>
      <values>wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelectComponents, wpSelectProgramGroup, wpSelectTasks, wpReady, wpPreparing, wpInstalling, wpInfoAfter, wpFinished</values>
   </enum>
   <enum>
+     <description>Exec and ShellExec - ShowCmd values</description>
+     <values>SW_SHOW, SW_SHOWNORMAL, SW_SHOWMAXIMIZED, SW_SHOWMINIMIZED, SW_SHOWMINNOACTIVE, SW_HIDE</values>
+  </enum>
+  <enum>
      <description>TMsgBoxType</description>
      <values>mbInformation, mbConfirmation, mbError, mbCriticalError</values>
   </enum>
@@ -2692,24 +2900,20 @@ end;</pre></example>
      <values>IDOK, IDCANCEL, IDABORT, IDRETRY, IDIGNORE, IDYES, IDNO</values>
   </enum>
   <enum>
-     <description>TShellFolderID</description>
-     <values>sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo, sfFonts, sfAppData, sfDocs, sfTemplates, sfFavorites, sfLocalAppData</values>
-  </enum>
-  <enum>
      <description>Reg* - RootKey values (also see the <link topic="registrysection" window="main">[Registry]</link> section documentation)</description>
      <values>HKEY_AUTO, HKEY_AUTO_32, HKEY_AUTO_64,<br />HKEY_CLASSES_ROOT, HKEY_CLASSES_ROOT_32, HKEY_CLASSES_ROOT_64,<br />HKEY_CURRENT_USER, HKEY_CURRENT_USER_32, HKEY_CURRENT_USER_64,<br />HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, HKEY_LOCAL_MACHINE_64,<br />HKEY_USERS, HKEY_USERS_32, HKEY_USERS_64,<br />HKEY_PERFORMANCE_DATA,<br />HKEY_CURRENT_CONFIG, HKEY_CURRENT_CONFIG_32, HKEY_CURRENT_CONFIG_64,<br />HKEY_DYN_DATA,<br />HKA, HKA32, HKA64, HKCR, HKCR32, HKCR64, HKCU, HKCU32, HKCU64, HKLM, HKLM32, HKLM64, HKU, HKU32, HKU64, HKCC, HKCC32, HKCC64</values>
   </enum>
   <enum>
-     <description>TShouldProcessEntryResult</description>
-     <values>srNo, srYes, srUnknown</values>
+     <description>TShellFolderID</description>
+     <values>sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo, sfFonts, sfAppData, sfDocs, sfTemplates, sfFavorites, sfLocalAppData</values>
   </enum>
   <enum>
      <description>TSetupMessageID</description>
      <values>Use 'msg' + the message name. Example: <i>SetupMessage(msgSetupAppTitle)</i></values>
   </enum>
   <enum>
-     <description>Exec and ShellExec - ShowCmd values</description>
-     <values>SW_SHOW, SW_SHOWNORMAL, SW_SHOWMAXIMIZED, SW_SHOWMINIMIZED, SW_SHOWMINNOACTIVE, SW_HIDE</values>
+     <description>TShouldProcessEntryResult</description>
+     <values>srNo, srYes, srUnknown</values>
   </enum>
 </isxenum>
 </isxhelp>

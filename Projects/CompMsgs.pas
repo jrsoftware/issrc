@@ -2,7 +2,7 @@ unit CompMsgs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -42,6 +42,8 @@ const
   SWizardAppFilesSubDirsMessage = 'Should files in subfolders of "%s" also be included?';
   SWizardAppExeFilter = 'Application files (*.exe)|*.exe|All Files|*.*';
   SWizardAppExeDefaultExt = 'exe';
+  SWizardAppAssoc = 'Application File Association';
+  SWizardAppAssoc2 = 'Please specify which file association should be created for your application.';
   SWizardAppIcons = 'Application Shortcuts';
   SWizardAppIcons2 = 'Please specify which shortcuts should be created for your application.';
   SWizardAppDocs = 'Application Documentation';
@@ -97,6 +99,9 @@ const
 
   { Status messages }
   SCompilerStatusStarting = '*** Starting compile.  [%s]';
+  SCompilerStatusPreprocessing = 'Preprocessing';
+  SCompilerStatusPreprocessorStatus = '   %s';
+  SBuiltinPreprocessStatusIncludingFile = 'Including file: %s';
   SCompilerStatusCreatingOutputDir = 'Creating output directory: %s';
   SCompilerStatusCreatingSignedUninstallerDir = 'Creating signed uninstaller directory: %s';
   SCompilerStatusDeletingPrevious = 'Deleting %s from output directory';
@@ -114,7 +119,7 @@ const
   SCompilerStatusParsingMessages = 'Parsing [LangOptions], [Messages], and [CustomMessages] sections';
   SCompilerStatusReadingCode = 'Reading [Code] section';
   SCompilerStatusCompilingCode = 'Compiling [Code] section';
-  SCompilerStatusReadingInFile = '   File: %s';
+  SCompilerStatusReadingInFile = '   Reading file: %s';
   SCompilerStatusReadingInScriptMsgs = '   Messages in script file';
   SCompilerStatusCreateSetupFiles = 'Creating setup files';
   SCompilerStatusSkippingCreateSetupFiles = 'Skipping creating setup files, output is disabled';
@@ -125,7 +130,8 @@ const
   SCompilerStatusFilesStoring = '   Storing: %s';
   SCompilerStatusFilesStoringVersion = '   Storing: %s   (%u.%u.%u.%u)';
   SCompilerStatusCompressingSetupExe = '   Compressing Setup program executable';
-  SCompilerStatusUpdatingVersionInfo = '   Updating version info';
+  SCompilerStatusUpdatingVersionInfo = '   Updating version info (%s)';
+  SCompilerStatusUpdatingManifest = '   Updating manifest (%s)';
   SCompilerStatusUpdatingIcons = '   Updating icons (%s)';
   SCompilerStatusCreatingDisk = '   Creating disk %d';
   SCompilerStatusFinished = '*** Finished.  [%s, %s elapsed]';
@@ -180,6 +186,7 @@ const
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
   SCompilerMinVersionWinMustBeZero = 'Minimum Windows version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
   SCompilerMinVersionNTTooLow = 'Minimum NT version specified by MinVersion must be at least %s. (Windows 2000/XP/Server 2003 are no longer supported.)';
+  SCompilerMinVersionRecommendation = 'Minimum NT version is set to %s but using %s instead (which is the default) is recommended.';
   SCompilerDiskSliceSizeInvalid = 'DiskSliceSize must be between %d and %d, or "max"';
   SCompilerDiskClusterSizeInvalid = 'DiskClusterSize must be between 1 and 32768';
   SCompilerInstallModeObsolete = 'The [%s] section directive "%s" is obsolete and ignored in this version of Inno Setup. Use command line parameters instead.';
@@ -192,7 +199,9 @@ const
   SCompilerDirectiveNotUsingDefault = 'The [Setup] section directive "%s" is not assuming a default value because %s includes constants.';
   SCompilerDirectiveNotUsingPreferredDefault = 'The [Setup] section directive "%s" is defaulting to %s because %s includes constants.';
   SCompilerDirectivePatternTooLong = 'The [Setup] section directive "%s" contains a pattern that is too long';
-  SCompilerOutputBaseFileNameSetup = 'Setting the [Setup] section "OutputBaseFileName" to "setup" is not recommended, all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll.' + ' These DLLs are loaded unsafely by Windows and can be hijacked. Use a different name, for example "mysetup".';
+  SCompilerOutputBaseFileNameSetup = 'Setting the [Setup] section directive "OutputBaseFileName" to "setup" is not recommended: all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll.' + ' These DLLs are loaded unsafely by Windows and can be hijacked. Use a different name, for example "mysetup".';
+  SCompilerRemoveManifestDllHijackProtection = 'Setting the [Setup] section directive "MinVersion" below %s is not recommended: Windows Vista doesn''t support some of Setup''s security measures against potential DLL preloading attacks so these have been' + ' removed by the compiler making your installer less secure on all versions of Windows.';
+  SCompilerDidntRemoveManifestDllHijackProtection = 'Setup will not run on Windows Vista: MinVersion must be below %s.';
 
   { Signing }
   SCompilerSignatureNeeded = 'Signed uninstaller mode is enabled. Using ' +
@@ -248,7 +257,10 @@ const
   SCompilerConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead.';
   SCompilerCommonConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead or consider using its "auto" form.';
 
-  { Area checks }
+  { Special warnings }
+  SCompilerMissingRunOnceIdsWarning = 'There are [%s] section entries without a %s parameter. '+
+    'By assigning a string to %1:s, you can ensure that a particular [%0:s] entry will only be executed once during uninstallation. ' +
+    'See the "[%0:s]" topic in help file for more information.';
   SCompilerUsedUserAreasWarning = 'The [%s] section directive "%s" is set to "%s" but per-user areas (%s) are used by the script. ' +
     'Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. ' +
     'See the "UsedUserAreasWarning" topic in help file for more information.';

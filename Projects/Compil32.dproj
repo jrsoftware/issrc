@@ -55,6 +55,7 @@
 			</DCCReference>
 			<DCCReference Include="CmnFunc.pas"/>
 			<DCCReference Include="CmnFunc2.pas"/>
+			<DCCReference Include="CompFunc.pas"/>
 			<DCCReference Include="CompMsgs.pas"/>
 			<DCCReference Include="CompInt.pas"/>
 			<DCCReference Include="CompOptions.pas">
@@ -70,16 +71,21 @@
 				<Form>WizardFileForm</Form>
 			</DCCReference>
 			<DCCReference Include="CompFileAssoc.pas"/>
-			<DCCReference Include="..\Components\TmSchemaISX.pas"/>
-			<DCCReference Include="..\Components\UxThemeISX.pas"/>
+			<DCCReference Include="..\Components\TmSchema.pas"/>
+			<DCCReference Include="..\Components\UxTheme.pas"/>
 			<DCCReference Include="DebugStruct.pas"/>
 			<DCCReference Include="BrowseFunc.pas"/>
 			<DCCReference Include="CompSignTools.pas">
 				<Form>SignToolsForm</Form>
 			</DCCReference>
+			<DCCReference Include="CompInputQueryCombo.pas"/>
+			<DCCReference Include="CompMessageBoxDesigner.pas">
+				<Form>MBDForm</Form>
+			</DCCReference>
 			<DCCReference Include="..\Components\ScintInt.pas"/>
 			<DCCReference Include="..\Components\ScintEdit.pas"/>
 			<DCCReference Include="..\Components\ScintStylerInnoSetup.pas"/>
+			<DCCReference Include="CompScintEdit.pas"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
 			</BuildConfiguration>

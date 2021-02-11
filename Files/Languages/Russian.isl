@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.3+ Russian messages ***
+; *** Inno Setup version 6.1.0+ Russian messages ***
 ;
 ; Translated from English by Dmitry Kann, yktooo at gmail.com
 ;
@@ -29,6 +29,7 @@ ErrorTitle=Ошибка
 SetupLdrStartupMessage=Данная программа установит %1 на ваш компьютер, продолжить?
 LdrCannotCreateTemp=Невозможно создать временный файл. Установка прервана
 LdrCannotExecTemp=Невозможно выполнить файл во временном каталоге. Установка прервана
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nОшибка %2: %3
@@ -89,7 +90,7 @@ ButtonNewFolder=&Создать папку
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Выберите язык установки
-SelectLanguageLabel=Выберите язык, который будет использован в  процессе установки.
+SelectLanguageLabel=Выберите язык, который будет использован в процессе установки.
 
 ; *** Common wizard text
 ClickNext=Нажмите «Далее», чтобы продолжить, или «Отмена», чтобы выйти из программы установки.
@@ -137,6 +138,7 @@ WizardSelectDir=Выбор папки установки
 SelectDirDesc=В какую папку вы хотите установить [name]?
 SelectDirLabel3=Программа установит [name] в следующую папку.
 SelectDirBrowseLabel=Нажмите «Далее», чтобы продолжить. Если вы хотите выбрать другую папку, нажмите «Обзор».
+DiskSpaceGBLabel=Требуется как минимум [gb] Гб свободного дискового пространства.
 DiskSpaceMBLabel=Требуется как минимум [mb] Мб свободного дискового пространства.
 CannotInstallToNetworkDrive=Установка не может производиться на сетевой диск.
 CannotInstallToUNCPath=Установка не может производиться в папку по UNC-пути.
@@ -161,9 +163,10 @@ FullInstallation=Полная установка
 CompactInstallation=Компактная установка
 CustomInstallation=Выборочная установка
 NoUninstallWarningTitle=Установленные компоненты
-NoUninstallWarning=Программа установки обнаружила, что следующие компоненты уже установлены на вашем компьютере:%n%n%1%n%nОтмена выбора этих компонент не удалит их.%n%nПродолжить?
+NoUninstallWarning=Программа установки обнаружила, что следующие компоненты уже установлены на вашем компьютере:%n%n%1%n%nОтмена выбора этих компонентов не удалит их.%n%nПродолжить?
 ComponentSize1=%1 Кб
 ComponentSize2=%1 Мб
+ComponentsDiskSpaceGBLabel=Текущий выбор требует не менее [gb] Гб на диске.
 ComponentsDiskSpaceMBLabel=Текущий выбор требует не менее [mb] Мб на диске.
 
 ; *** "Select Additional Tasks" wizard page
@@ -193,6 +196,18 @@ ReadyMemoType=Тип установки:
 ReadyMemoComponents=Выбранные компоненты:
 ReadyMemoGroup=Папка в меню «Пуск»:
 ReadyMemoTasks=Дополнительные задачи:
+
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Загрузка дополнительных файлов...
+ButtonStopDownload=&Прервать загрузку
+StopDownload=Вы действительно хотите прекратить загрузку?
+ErrorDownloadAborted=Загрузка прервана
+ErrorDownloadFailed=Ошибка загрузки: %1 %2
+ErrorDownloadSizeFailed=Ошибка получения размера: %1 %2
+ErrorFileHash1=Ошибка хэша файла: %1
+ErrorFileHash2=Неверный хэш файла: ожидался %1, получен %2
+ErrorProgress=Ошибка выполнения: %1 из %2
+ErrorFileSize=Неверный размер файла: ожидался %1, получен %2
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Подготовка к установке
@@ -276,8 +291,16 @@ ExistingFileReadOnly2=Невозможно заменить существующий файл, так как он помечен 
 ExistingFileReadOnlyRetry=&Удалить атрибут «только для чтения» и повторить попытку
 ExistingFileReadOnlyKeepExisting=&Оставить файл на месте
 ErrorReadingExistingDest=Произошла ошибка при попытке чтения существующего файла:
-FileExists=Файл уже существует.%n%nПерезаписать его?
-ExistingFileNewer=Существующий файл более новый, чем устанавливаемый. Рекомендуется сохранить существующий файл.%n%nВы хотите сохранить существующий файл?
+FileExistsSelectAction=Выберите действие
+FileExists2=Файл уже существует.
+FileExistsOverwriteExisting=&Заменить существующий файл
+FileExistsKeepExisting=&Сохранить существующий файл
+FileExistsOverwriteOrKeepAll=&Повторить действие для всех последующих конфликтов
+ExistingFileNewerSelectAction=Выберите действие
+ExistingFileNewer2=Существующий файл более новый, чем устанавливаемый.
+ExistingFileNewerOverwriteExisting=&Заменить существующий файл
+ExistingFileNewerKeepExisting=&Сохранить существующий файл (рекомендуется)
+ExistingFileNewerOverwriteOrKeepAll=&Повторить действие для всех последующих конфликтов
 ErrorChangingAttr=Произошла ошибка при попытке изменения атрибутов существующего файла:
 ErrorCreatingTemp=Произошла ошибка при попытке создания файла в папке назначения:
 ErrorReadingSource=Произошла ошибка при попытке чтения исходного файла:

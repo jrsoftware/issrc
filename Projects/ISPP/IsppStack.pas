@@ -1,10 +1,14 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
-  $Id: IsppStacks.pas,v 1.1 2004/02/26 22:24:19 mlaan Exp $
+  
+  Inno Setup
+  Copyright (C) 1997-2020 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit IsppStacks;
+unit IsppStack;
 
 interface
 

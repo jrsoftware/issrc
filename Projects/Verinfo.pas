@@ -2,13 +2,11 @@ unit VerInfo;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Version info functions
-
-  $jrsoftware: issrc/Projects/VerInfo.pas,v 1.10 2007/02/03 20:06:44 jr Exp $
 }
 
 interface
@@ -27,6 +25,8 @@ function GetVersionInfo(const Filename: String;
   var VersionInfo: TVSFixedFileInfo): Boolean;
 function GetVersionNumbers(const Filename: String;
   var VersionNumbers: TFileVersionNumbers): Boolean;
+function StrToVersionNumbers(const S: String;
+  var Version: TFileVersionNumbers): Boolean;
 
 implementation
 
@@ -165,7 +165,7 @@ begin
       F.Free;
     end;
   except
-    { don't propogate exceptions }
+    { don't propagate exceptions }
   end;
 end;
 
@@ -209,6 +209,41 @@ begin
   if Result then begin
     VersionNumbers.MS := VerInfo.dwFileVersionMS;
     VersionNumbers.LS := VerInfo.dwFileVersionLS;
+  end;
+end;
+
+function StrToVersionNumbers(const S: String; var Version: TFileVersionNumbers): Boolean;
+
+  function SplitNextNumber(var Z: String): Word;
+  var
+    I, N: Integer;
+  begin
+    if Trim(Z) <> '' then begin
+      I := Pos('.', Z);
+      if I = 0 then
+        I := Length(Z)+1;
+      N := StrToInt(Trim(Copy(Z, 1, I-1)));
+      if (N < Low(Word)) or (N > High(Word)) then
+        Abort;
+      Result := N;
+      Z := Copy(Z, I+1, Maxint);
+    end else
+      Result := 0;
+  end;
+
+var
+  Z: String;
+  W: Word;
+begin
+  try
+    Z := S;
+    W := SplitNextNumber(Z);
+    Version.MS := (DWord(W) shl 16) or SplitNextNumber(Z);
+    W := SplitNextNumber(Z);
+    Version.LS := (DWord(W) shl 16) or SplitNextNumber(Z);
+    Result := True;
+  except
+    Result := False;
   end;
 end;
 

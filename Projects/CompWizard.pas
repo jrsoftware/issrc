@@ -2,11 +2,11 @@ unit CompWizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler Script Wizard form
+  Compiler IDE Script Wizard form
 }
 
 interface
@@ -18,7 +18,7 @@ uses
   UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook;
 
 type
-  TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppIcons,
+  TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
                  wpAppDocs, wpPrivilegesRequired, wpLanguages, wpCompiler,
                  wpISPP, wpFinished);
 
@@ -86,7 +86,6 @@ type
     AllowNoIconsCheck: TCheckBox;
     AppExeIconsLabel: TNewStaticText;
     DesktopIconCheck: TCheckBox;
-    QuickLaunchIconCheck: TCheckBox;
     CreateUninstallIconCheck: TCheckBox;
     CreateURLIconCheck: TCheckBox;
     AppLicenseFileLabel: TNewStaticText;
@@ -125,6 +124,12 @@ type
     PrivilegesRequiredLowestRadioButton: TRadioButton;
     PrivilegesRequiredOverridesAllowedCommandLineCheckbox: TCheckBox;
     PrivilegesRequiredOverridesAllowedDialogCheckbox: TCheckBox;
+    AppAssocPage: TNewNotebookPage;
+    AppAssocNameEdit: TEdit;
+    AppAssocNameLabel: TNewStaticText;
+    CreateAssocCheck: TCheckBox;
+    AppAssocExtLabel: TNewStaticText;
+    AppAssocExtEdit: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -151,6 +156,7 @@ type
     procedure NoAppExeCheckClick(Sender: TObject);
     procedure UseCommonProgramsCheckClick(Sender: TObject);
     procedure PrivilegesRequiredOverridesAllowedDialogCheckboxClick(Sender: TObject);
+    procedure CreateAssocCheckClick(Sender: TObject);
   private
     CurPage: TWizardPage;
     FWizardName: String;
@@ -166,6 +172,7 @@ type
     procedure UpdateWizardFiles;
     procedure UpdateWizardFilesButtons;
     procedure UpdateAppExeControls;
+    procedure UpdateAppAssocControls;
     procedure UpdateAppIconsControls;
     procedure GenerateScript;
   public
@@ -180,8 +187,8 @@ implementation
 
 uses
   SysUtils, ShlObj, ActiveX, UITypes,
-  PathFunc, CmnFunc, CmnFunc2, VerInfo, BrowseFunc,
-  CompMsgs, CompWizardFile, CompForm;
+  PathFunc, CmnFunc, CmnFunc2, CompFunc, VerInfo, BrowseFunc,
+  CompMsgs, CompWizardFile;
 
 type
   TConstant = record
@@ -192,20 +199,20 @@ const
   NotebookPages: array[TWizardPage, 0..1] of Integer =
     ((0, -1), (1, 0), (1, 1), (1, 2),
      (1, 3), (1, 4), (1, 5), (1, 6),
-     (1, 7), (1, 8), (2, -1));
+     (1, 7), (1, 8), (1, 9), (2, -1));
 
   PageCaptions: array[TWizardPage] of String =
-    (SWizardWelcome, SWizardAppInfo, SWizardAppDir, SWizardAppFiles,
+    (SWizardWelcome, SWizardAppInfo, SWizardAppDir, SWizardAppFiles, SWizardAppAssoc,
      SWizardAppIcons, SWizardAppDocs, SWizardPrivilegesRequired, SWizardLanguages,
      SWizardCompiler, SWizardISPP, SWizardFinished);
 
   PageDescriptions: array[TWizardPage] of String =
-    ('', SWizardAppInfo2, SWizardAppDir2, SWizardAppFiles2,
+    ('', SWizardAppInfo2, SWizardAppDir2, SWizardAppFiles2, SWizardAppAssoc2,
          SWizardAppIcons2, SWizardAppDocs2, SWizardPrivilegesRequired2, SWizardLanguages2,
          SWizardCompiler2, SWizardISPP2, '');
 
   RequiredLabelVisibles: array[TWizardPage] of Boolean =
-    (False, True, True, True, True, False, True, True, False, False, False);
+    (False, True, True, True, True, True, False, True, True, False, False, False);
 
   AppRootDirs: array[0..0] of TConstant =
   (
@@ -282,7 +289,7 @@ begin
   FLanguages := TStringList.Create;
   FLanguages.Sorted := True;
   FLanguages.Duplicates := dupIgnore; { Some systems also return .islu files when searching for *.isl }
-  AddLanguages('isl'); 
+  AddLanguages('isl');
   AddLanguages('islu');
   FLanguages.Sorted := False;
   FLanguages.Insert(0, LanguagesDefaultIsl);
@@ -309,6 +316,8 @@ begin
   MakeBold(AppRootDirLabel);
   MakeBold(AppDirNameLabel);
   MakeBold(AppExeLabel);
+  MakeBold(AppAssocNameLabel);
+  MakeBold(AppAssocExtLabel);
   MakeBold(AppGroupNameLabel);
   MakeBold(PrivilegesRequiredLabel);
   MakeBold(LanguagesLabel);
@@ -321,7 +330,7 @@ begin
   AppNameEdit.Text := 'My Program';
   AppVersionEdit.Text := '1.5';
   AppPublisherEdit.Text := 'My Company, Inc.';
-  AppURLEdit.Text := 'http://www.example.com/';
+  AppURLEdit.Text := 'https://www.example.com/';
 
   { AppDir }
   for I := Low(AppRootDirs) to High(AppRootDirs) do
@@ -336,6 +345,10 @@ begin
   AppExeEdit.Text := PathExtractPath(NewParamStr(0)) + 'Examples\MyProg.exe';
   AppExeRunCheck.Checked := True;
   UpdateWizardFilesButtons;
+
+  { AppAssoc }
+  CreateAssocCheck.Checked := True;
+  AppAssocExtEdit.Text := '.myp';
 
   { AppIcons }
   UseCommonProgramsCheck.Checked := True;
@@ -432,6 +445,7 @@ begin
         else
           ActiveControl := AppFilesListBox;
       end;
+    wpAppAssoc: ActiveControl := CreateAssocCheck;
     wpAppIcons:
       begin
         if UseCommonProgramsCheck.Enabled then
@@ -455,7 +469,8 @@ end;
 
 function TWizardForm.SkipCurPage: Boolean;
 begin
-  if ((CurPage = wpAppIcons) and NotCreateAppDirCheck.Checked) or
+  if ((CurPage = wpAppAssoc) and not CreateAssocCheck.Enabled) or
+     ((CurPage = wpAppIcons) and NotCreateAppDirCheck.Checked) or
      ((CurPage = wpLanguages) and not (FLanguages.Count > 1)) or
      ((CurPage = wpISPP) and not ISPPInstalled) or
      (not (CurPage in [wpWelcome, wpFinished]) and EmptyCheck.Checked) then
@@ -545,7 +560,10 @@ begin
   end;
 
   repeat
-    if CurPage = wpFinished then begin
+    if CurPage = wpAppAssoc then begin
+      if (AppAssocExtEdit.Text <> '') and (AppAssocExtEdit.Text[1] <> '.') then
+        AppAssocExtEdit.Text := '.' + AppAssocExtEdit.Text;
+    end else if CurPage = wpFinished then begin
       GenerateScript;
       ModalResult := mrOk;
       Exit;
@@ -555,6 +573,7 @@ begin
     { Even if we're skipping a page, we should still update it }
     case CurPage of
       wpAppDir: if AppDirNameEdit.Text = '' then AppDirNameEdit.Text := AppNameEdit.Text;
+      wpAppAssoc: if AppAssocNameEdit.Text = '' then AppAssocNameEdit.Text := AppNameEdit.Text + ' File';
       wpAppIcons: if AppGroupNameEdit.Text = '' then AppGroupNameEdit.Text := AppNameEdit.Text;
     end;
   until not SkipCurPage;
@@ -632,12 +651,33 @@ begin
 
   AppExeIconsLabel.Enabled := Enabled;
   DesktopIconCheck.Enabled := Enabled;
-  QuickLaunchIconCheck.Enabled := Enabled;
 
   if Enabled then
     AppExeLabel.Font.Style := AppExeLabel.Font.Style + [fsBold]
   else
     AppExeLabel.Font.Style := AppExeLabel.Font.Style - [fsBold];
+end;
+
+procedure TWizardForm.UpdateAppAssocControls;
+var
+  Enabled: Boolean;
+begin
+  Enabled := not NoAppExeCheck.Checked;
+  CreateAssocCheck.Enabled := Enabled;
+
+  Enabled := Enabled and CreateAssocCheck.Checked;
+  AppAssocNameLabel.Enabled := Enabled;
+  AppAssocNameEdit.Enabled := Enabled;
+  AppAssocExtLabel.Enabled := Enabled;
+  AppAssocExtEdit.Enabled := Enabled;
+
+  if Enabled then begin
+    AppAssocNameLabel.Font.Style := AppAssocNameLabel.Font.Style + [fsBold];
+    AppAssocExtLabel.Font.Style := AppAssocExtLabel.Font.Style + [fsBold];
+  end else begin
+    AppAssocNameLabel.Font.Style := AppAssocNameLabel.Font.Style - [fsBold];
+    AppAssocExtLabel.Font.Style := AppAssocExtLabel.Font.Style - [fsBold];
+  end;
 end;
 
 procedure TWizardForm.UpdateAppIconsControls;
@@ -717,6 +757,7 @@ end;
 procedure TWizardForm.NoAppExeCheckClick(Sender: TObject);
 begin
   UpdateAppExeControls;
+  UpdateAppAssocControls;
   UpdateAppIconsControls;
 end;
 
@@ -810,6 +851,11 @@ begin
   UpdateWizardFilesButtons;
 end;
 
+procedure TWizardForm.CreateAssocCheckClick(Sender: TObject);
+begin
+  UpdateAppAssocControls;
+end;
+
 procedure TWizardForm.UseCommonProgramsCheckClick(Sender: TObject);
 begin
   UpdateAppIconsControls;
@@ -892,15 +938,16 @@ end;
 
 procedure TWizardForm.GenerateScript;
 var
-  Script, ISPP, Setup, Languages, Tasks, Files, INI, Icons, Run, UninstallDelete: String;
+  Script, ISPP, Setup, Languages, Tasks, Files, Registry, INI, Icons, Run, UninstallDelete: String;
   WizardFile: PWizardFile;
   I: Integer;
-  AppExeName, AppAmpEscapedName, LanguageName, LanguageMessagesFile: String;
+  AppExeName, AppName, AppAmpEscapedName, AppAssocKey, LanguageName, LanguageMessagesFile: String;
 begin
   Script := '';
 
   AppExeName := PathExtractName(AppExeEdit.Text);
-  AppAmpEscapedName := EscapeAmpersands(AppNameEdit.Text);
+  AppName := AppNameEdit.Text;
+  AppAmpEscapedName := EscapeAmpersands(AppName);
 
   if ISPPCheck.Checked then begin
     { Setup ISPP usage. Change the edits to reflect ISPP usage. A bit ugly but for now it works. }
@@ -930,13 +977,28 @@ begin
       ISPP := ISPP + '#define MyAppExeName "' + AppExeName + '"' + SNewLine;
       AppExeName := '{#MyAppExeName}';
     end;
-  end else
+
+    if CreateAssocCheck.Enabled and CreateAssocCheck.Checked then begin
+      if Pos(AppName, AppAssocNameEdit.Text) = 1 then
+        ISPP := ISPP + '#define MyAppAssocName MyAppName + "' + Copy(AppAssocNameEdit.Text, Length(AppName)+1, MaxInt) + '"' + SNewLine
+      else
+        ISPP := ISPP + '#define MyAppAssocName "' + AppAssocNameEdit.Text + '"' + SNewLine;
+      AppAssocNameEdit.Text := '{#MyAppAssocName}';
+      ISPP := ISPP + '#define MyAppAssocExt "' + AppAssocExtEdit.Text + '"' + SNewLine;
+      AppAssocExtEdit.Text := '{#MyAppAssocExt}';
+      ISPP := ISPP + '#define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt' + SNewLine;
+      AppAssocKey := '{#MyAppAssocKey}';
+    end;
+  end else begin
     ISPP := '';
+    AppAssocKey := StringReplace(AppAssocNameEdit.Text, ' ', '', [rfReplaceAll]) + AppAssocExtEdit.Text;
+  end;
 
   Setup := '[Setup]' + SNewLine;
   Languages := '[Languages]' + SNewLine;
   Tasks := '[Tasks]' + SNewLine;
   Files := '[Files]' + SNewLine;
+  Registry := '[Registry]' + SNewLine;
   INI := '[INI]' + SNewLine;
   Icons := '[Icons]' + SNewLine;
   Run := '[Run]' + SNewLine;
@@ -973,13 +1035,23 @@ begin
 
     { AppFiles }
     if not NotCreateAppDirCheck.Checked and not NoAppExeCheck.Checked then begin
-      Files := Files + 'Source: "' + AppExeEdit.Text + '"; DestDir: "{app}"; Flags: ignoreversion' + SNewLine;
+      Files := Files + 'Source: "' + PathExtractPath(AppExeEdit.Text) + AppExeName + '"; DestDir: "{app}"; Flags: ignoreversion' + SNewLine;
       if AppExeRunCheck.Checked then begin
         if CompareText(PathExtractExt(AppExeEdit.Text), '.exe') = 0 then
           Run := Run + 'Filename: "{app}\' + AppExeName + '"; Description: "{cm:LaunchProgram,' + AppAmpEscapedName + '}"; Flags: nowait postinstall skipifsilent' + SNewLine
         else
           Run := Run + 'Filename: "{app}\' + AppExeName + '"; Description: "{cm:LaunchProgram,' + AppAmpEscapedName + '}"; Flags: shellexec postinstall skipifsilent' + SNewLine;
       end;
+    end;
+
+    { AppAssocation }
+    if CreateAssocCheck.Enabled and CreateAssocCheck.Checked then begin
+      Setup := Setup + 'ChangesAssociations=yes' + SNewLine;
+      Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocExtEdit.Text + '\OpenWithProgids"; ValueType: string; ValueName: "' + AppAssocKey + '"; ValueData: ""; Flags: uninsdeletevalue' + SNewLine;
+      Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '"; ValueType: string; ValueName: ""; ValueData: "' + AppAssocNameEdit.Text + '"; Flags: uninsdeletekey' + SNewLine;
+      Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\' + AppExeName + ',0"' + SNewLine;
+      Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\' + AppExeName + '"" ""%1"""' + SNewLine;
+      Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\Applications\' + AppExeName + '\SupportedTypes"; ValueType: string; ValueName: ".myp"; ValueData: ""' + SNewLine;
     end;
 
     for I := 0 to FWizardFiles.Count-1 do begin
@@ -1013,12 +1085,6 @@ begin
       if DesktopIconCheck.Enabled and DesktopIconCheck.Checked then begin
         Tasks := Tasks + 'Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked' + SNewLine;
         Icons := Icons + 'Name: "{autodesktop}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: desktopicon' + SNewLine;
-      end;
-      if QuickLaunchIconCheck.Enabled and QuickLaunchIconCheck.Checked then begin
-        Setup := Setup + '; The [Icons] "quicklaunchicon" entry uses {userappdata} but its [Tasks] entry has a proper IsAdminInstallMode Check.' + SNewLine +
-                         'UsedUserAreasWarning=no' + SNewLine;
-        Tasks := Tasks + 'Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode' + SNewLine;
-        Icons := Icons + 'Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"; Tasks: quicklaunchicon' + SNewLine;
       end;
     end;
 
@@ -1088,6 +1154,8 @@ begin
       Script := Script + Files +
         '; NOTE: Don''t use "Flags: ignoreversion" on any shared system files' +
         SNewLine2;
+    if Length(Registry) > Length('[Registry]')+2 then
+      Script := Script + Registry + SNewLine;
     if Length(INI) > Length('[INI]')+2 then
       Script := Script + INI + SNewLine;
     if Length(Icons) > Length('[Icons]')+2 then

@@ -2,7 +2,7 @@ program SetupLdr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -10,8 +10,8 @@ program SetupLdr;
 }
 
 {$SetPEFlags 1} 
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
 uses
@@ -324,6 +324,12 @@ begin
           'Instructs Setup to close applications using files that need to be updated.' + SNewLine +
           '/NOCLOSEAPPLICATIONS' + SNewLine +
           'Prevents Setup from closing applications using files that need to be updated.' + SNewLine +
+          '/FORCECLOSEAPPLICATIONS' + SNewLine +
+          'Instructs Setup to force close when closing applications.' + SNewLine +
+          '/FORCENOCLOSEAPPLICATIONS' + SNewLine +
+          'Prevents Setup from force closing when closing applications.' + SNewLine +
+          '/LOGCLOSEAPPLICATIONS' + SNewLine +
+          'Instructs Setup to create extra logging when closing applications for debugging purposes.' + SNewLine +
           '/RESTARTAPPLICATIONS' + SNewLine +
           'Instructs Setup to restart applications.' + SNewLine +
           '/NORESTARTAPPLICATIONS' + SNewLine +
@@ -353,7 +359,7 @@ begin
           PrNote +
           CustomNote +
           SNewLine +
-          'For more detailed information, please visit http://www.jrsoftware.org/ishelp/index.php?topic=setupcmdline';
+          'For more detailed information, please visit https://jrsoftware.org/ishelp/index.php?topic=setupcmdline';
 
   MessageBox(0, PChar(Help), 'Setup', MB_OK or MB_ICONSTOP);
 end;

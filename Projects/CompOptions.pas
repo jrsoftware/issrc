@@ -2,11 +2,11 @@ unit CompOptions;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler Options form
+  Compiler IDE Options form
 }
 
 interface
@@ -49,6 +49,8 @@ type
     ColorizeCompilerOutputCheck: TCheckBox;
     Label3: TNewStaticText;
     ThemeComboBox: TComboBox;
+    OpenIncludedFilesCheck: TCheckBox;
+    ShowPreprocessorOutputCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -62,7 +64,7 @@ type
 implementation
 
 uses
-  CmnFunc, CmnFunc2, CompForm, CompFileAssoc;
+  CmnFunc, CmnFunc2, CompFunc, CompFileAssoc;
 
 {$R *.DFM}
 

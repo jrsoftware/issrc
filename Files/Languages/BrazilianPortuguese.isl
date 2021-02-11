@@ -1,7 +1,7 @@
-; *** Inno Setup version 6.0.0+ Brazilian Portuguese messages made by Felipe felipefplzx@gmail.com ***
+; *** Inno Setup version 6.1.0+ Brazilian Portuguese messages made by Cesar82 cesar.zanetti.82@gmail.com ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -48,7 +48,7 @@ HelpTextNote=
 LastErrorMessage=%1.%n%nErro %2: %3
 SetupFileMissing=Está faltando o arquivo %1 do diretório de instalação. Por favor corrija o problema ou obtenha uma nova cópia do programa.
 SetupFileCorrupt=Os arquivos de instalação estão corrompidos. Por favor obtenha uma nova cópia do programa.
-SetupFileCorruptOrWrongVer=Os arquivos de instalação estão corrompidos ou são incompatíveis com esta versão do Instalador. Por favor corrija o problema ou obtenha uma nova cópia do programa.
+SetupFileCorruptOrWrongVer=Os arquivos de instalação estão corrompidos ou são incompatíveis com esta versão do instalador. Por favor corrija o problema ou obtenha uma nova cópia do programa.
 InvalidParameter=Um parâmetro inválido foi passado na linha de comando:%n%n%1
 SetupAlreadyRunning=O instalador já está em execução.
 WindowsVersionNotSupported=Este programa não suporta a versão do Windows que seu computador está executando.
@@ -60,7 +60,7 @@ WinVersionTooLowError=Este programa requer a %1 versão %2 ou superior.
 WinVersionTooHighError=Este programa não pode ser instalado na %1 versão %2 ou superior.
 AdminPrivilegesRequired=Você deve estar logado como administrador quando instalar este programa.
 PowerUserPrivilegesRequired=Você deve estar logado como administrador ou como um membro do grupo de Usuários Power quando instalar este programa.
-SetupAppRunningError=O Instalador detectou que o %1 está atualmente em execução.%n%nPor favor feche todas as instâncias dele agora, então clique em OK pra continuar ou em Cancelar pra sair.
+SetupAppRunningError=O instalador detectou que o %1 está atualmente em execução.%n%nPor favor feche todas as instâncias dele agora, então clique em OK pra continuar ou em Cancelar pra sair.
 UninstallAppRunningError=O Desinstalador detectou que o %1 está atualmente em execução.%n%nPor favor feche todas as instâncias dele agora, então clique em OK pra continuar ou em Cancelar pra sair.
 
 ; *** Startup questions
@@ -74,12 +74,12 @@ PrivilegesRequiredOverrideCurrentUser=Instalar só &pra mim
 PrivilegesRequiredOverrideCurrentUserRecommended=Instalar só &pra mim (recomendado)
 
 ; *** Misc. errors
-ErrorCreatingDir=O Instalador foi incapaz de criar o diretório "%1"
+ErrorCreatingDir=O instalador foi incapaz de criar o diretório "%1"
 ErrorTooManyFilesInDir=Incapaz de criar um arquivo no diretório "%1" porque ele contém arquivos demais
 
 ; *** Setup common messages
 ExitSetupTitle=Sair do Instalador
-ExitSetupMessage=A Instalação não está completa. Se você sair agora o programa não será instalado.%n%nVocê pode executar o instalador de novo outra hora pra completar a instalação.%n%nSair do Instalador?
+ExitSetupMessage=A Instalação não está completa. Se você sair agora o programa não será instalado.%n%nVocê pode executar o instalador de novo outra hora pra completar a instalação.%n%nSair do instalador?
 AboutSetupMenuItem=&Sobre o Instalador...
 AboutSetupTitle=Sobre o Instalador
 AboutSetupMessage=%1 versão %2%n%3%n%n%1 home page:%n%4
@@ -88,7 +88,7 @@ TranslatorNote=
 
 ; *** Buttons
 ButtonBack=< &Voltar
-ButtonNext=&Próximo >
+ButtonNext=&Avançar >
 ButtonInstall=&Instalar
 ButtonOK=OK
 ButtonCancel=Cancelar
@@ -106,7 +106,7 @@ SelectLanguageTitle=Selecione o Idioma do Instalador
 SelectLanguageLabel=Selecione o idioma pra usar durante a instalação:
 
 ; *** Common wizard text
-ClickNext=Clique em Próximo pra continuar ou em Cancelar pra sair do Instalador.
+ClickNext=Clique em Avançar pra continuar ou em Cancelar pra sair do instalador.
 BeveledLabel=
 BrowseDialogTitle=Procurar Pasta
 BrowseDialogLabel=Selecione uma pasta na lista abaixo, então clique em OK.
@@ -119,7 +119,7 @@ WelcomeLabel2=Isto instalará o [name/ver] no seu computador.%n%nÉ recomendado qu
 ; *** "Password" wizard page
 WizardPassword=Senha
 PasswordLabel1=Esta instalação está protegida por senha.
-PasswordLabel3=Por favor forneça a senha, então clique em Próximo pra continuar. As senhas são caso-sensitivo.
+PasswordLabel3=Por favor forneça a senha, então clique em Avançar pra continuar. As senhas são caso-sensitivo.
 PasswordEditLabel=&Senha:
 IncorrectPassword=A senha que você inseriu não está correta. Por favor tente de novo.
 
@@ -133,10 +133,10 @@ LicenseNotAccepted=Eu &não aceito o acordo
 ; *** "Information" wizard pages
 WizardInfoBefore=Informação
 InfoBeforeLabel=Por favor leia as seguintes informações importantes antes de continuar.
-InfoBeforeClickLabel=Quando você estiver pronto pra continuar com o Instalador, clique em Próximo.
+InfoBeforeClickLabel=Quando você estiver pronto pra continuar com o instalador, clique em Avançar.
 WizardInfoAfter=Informação
 InfoAfterLabel=Por favor leia as seguintes informações importantes antes de continuar.
-InfoAfterClickLabel=Quando você estiver pronto pra continuar com o Instalador, clique em Próximo.
+InfoAfterClickLabel=Quando você estiver pronto pra continuar com o instalador, clique em Avançar.
 
 ; *** "User Information" wizard page
 WizardUserInfo=Informação do Usuário
@@ -149,15 +149,16 @@ UserInfoNameRequired=Você deve inserir um nome.
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Selecione o Local de Destino
 SelectDirDesc=Aonde o [name] deve ser instalado?
-SelectDirLabel3=O Instalador instalará o [name] na seguinte pasta.
-SelectDirBrowseLabel=Pra continuar clique em Próximo. Se você gostaria de selecionar uma pasta diferente, clique em Procurar.
+SelectDirLabel3=O instalador instalará o [name] na seguinte pasta.
+SelectDirBrowseLabel=Pra continuar clique em Avançar. Se você gostaria de selecionar uma pasta diferente, clique em Procurar.
+DiskSpaceGBLabel=Pelo menos [gb] MBs de espaço livre em disco são requeridos.
 DiskSpaceMBLabel=Pelo menos [mb] MBs de espaço livre em disco são requeridos.
 CannotInstallToNetworkDrive=O instalador não pode instalar em um drive de rede.
 CannotInstallToUNCPath=O instalador não pode instalar em um caminho UNC.
 InvalidPath=Você deve inserir um caminho completo com a letra do drive; por exemplo:%n%nC:\APP%n%não um caminho UNC no formulário:%n%n\\server\share
 InvalidDrive=O drive ou compartilhamento UNC que você selecionou não existe ou não está acessível. Por favor selecione outro.
 DiskSpaceWarningTitle=Sem Espaço em Disco o Bastante
-DiskSpaceWarning=O Instalador requer pelo menos %1 KBs de espaço livre pra instalar mas o drive selecionado só tem %2 KBs disponíveis.%n%nVocê quer continuar de qualquer maneira?
+DiskSpaceWarning=O instalador requer pelo menos %1 KBs de espaço livre pra instalar mas o drive selecionado só tem %2 KBs disponíveis.%n%nVocê quer continuar de qualquer maneira?
 DirNameTooLong=O nome ou caminho da pasta é muito longo.
 InvalidDirName=O nome da pasta não é válido.
 BadDirName32=Os nomes das pastas não pode incluir quaisquer dos seguintes caracteres:%n%n%1
@@ -169,27 +170,28 @@ DirDoesntExist=A pasta:%n%n%1%n%nnão existe. Você gostaria quer a pasta fosse cr
 ; *** "Select Components" wizard page
 WizardSelectComponents=Selecionar Componentes
 SelectComponentsDesc=Quais componentes devem ser instalados?
-SelectComponentsLabel2=Selecione os componentes que você quer instalar; desmarque os componentes que você não quer instalar. Clique em Próximo quando você estiver pronto pra continuar.
+SelectComponentsLabel2=Selecione os componentes que você quer instalar; desmarque os componentes que você não quer instalar. Clique em Avançar quando você estiver pronto pra continuar.
 FullInstallation=Instalação completa
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Instalação compacta
 CustomInstallation=Instalação personalizada
 NoUninstallWarningTitle=O Componente Existe
-NoUninstallWarning=O Instalador detectou que os seguintes componentes já estão instalados no seu computador:%n%n%1%n%nNão selecionar estes componentes não desinstalará eles.%n%nVocê gostaria de continuar de qualquer maneira?
+NoUninstallWarning=O instalador detectou que os seguintes componentes já estão instalados no seu computador:%n%n%1%n%nNão selecionar estes componentes não desinstalará eles.%n%nVocê gostaria de continuar de qualquer maneira?
 ComponentSize1=%1 KBs
 ComponentSize2=%1 MBs
+ComponentsDiskSpaceGBLabel=A seleção atual requer pelo menos [gb] MBs de espaço em disco.
 ComponentsDiskSpaceMBLabel=A seleção atual requer pelo menos [mb] MBs de espaço em disco.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Selecionar Tarefas Adicionais
 SelectTasksDesc=Quais tarefas adicionais devem ser executadas?
-SelectTasksLabel2=Selecione as tarefas adicionais que você gostaria que o Instalador executasse enquanto instala o [name], então clique em Próximo.
+SelectTasksLabel2=Selecione as tarefas adicionais que você gostaria que o instalador executasse enquanto instala o [name], então clique em Avançar.
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Selecionar a Pasta do Menu Iniciar
-SelectStartMenuFolderDesc=Aonde o Instalador deve colocar os atalhos do programa?
-SelectStartMenuFolderLabel3=O Instalador criará os atalhos do programa na seguinte pasta do Menu Iniciar.
-SelectStartMenuFolderBrowseLabel=Pra continuar clique em Próximo. Se você gostaria de selecionar uma pasta diferente, clique em Procurar.
+SelectStartMenuFolderDesc=Aonde o instalador deve colocar os atalhos do programa?
+SelectStartMenuFolderLabel3=O instalador criará os atalhos do programa na seguinte pasta do Menu Iniciar.
+SelectStartMenuFolderBrowseLabel=Pra continuar clique em Avançar. Se você gostaria de selecionar uma pasta diferente, clique em Procurar.
 MustEnterGroupName=Você deve inserir um nome de pasta.
 GroupNameTooLong=O nome ou caminho da pasta é muito longo.
 InvalidGroupName=O nome da pasta não é válido.
@@ -198,7 +200,7 @@ NoProgramGroupCheck2=&Não criar uma pasta no Menu Iniciar
 
 ; *** "Ready to Install" wizard page
 WizardReady=Pronto pra Instalar
-ReadyLabel1=O Instalador está agora pronto pra começar a instalar o [name] no seu computador.
+ReadyLabel1=O instalador está agora pronto pra começar a instalar o [name] no seu computador.
 ReadyLabel2a=Clique em Instalar pra continuar com a instalação ou clique em Voltar se você quer revisar ou mudar quaisquer configurações.
 ReadyLabel2b=Clique em Instalar pra continuar com a instalação.
 ReadyMemoUserInfo=Informação do usuário:
@@ -208,28 +210,41 @@ ReadyMemoComponents=Componentes selecionados:
 ReadyMemoGroup=Pasta do Menu Iniciar:
 ReadyMemoTasks=Tarefas adicionais:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Baixando arquivos adicionais...
+ButtonStopDownload=&Parar download
+StopDownload=Tem certeza que deseja parar o download?
+ErrorDownloadAborted=Download abortado
+ErrorDownloadFailed=Download falhou: %1 %2
+ErrorDownloadSizeFailed=Falha ao obter o tamanho: %1 %2
+ErrorFileHash1=Falha no hash do arquivo: %1
+ErrorFileHash2=Hash de arquivo inválido: esperado %1, encontrado %2
+ErrorProgress=Progresso inválido: %1 de %2
+ErrorFileSize=Tamanho de arquivo inválido: esperado %1, encontrado %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparando pra Instalar
-PreparingDesc=O Instalador está se preparando pra instalar o [name] no seu computador.
-PreviousInstallNotCompleted=A instalação/remoção de um programa anterior não foi completada. Você precisará reiniciar o computador pra completar essa instalação.%n%nApós reiniciar seu computador execute o Instalador de novo pra completar a instalação do [name].
-CannotContinue=O Instalador não pode continuar. Por favor clique em Cancelar pra sair.
-ApplicationsFound=Os aplicativos a seguir estão usando arquivos que precisam ser atualizados pelo Instalador. É recomendados que você permita ao Instalador fechar automaticamente estes aplicativos.
-ApplicationsFound2=Os aplicativos a seguir estão usando arquivos que precisam ser atualizados pelo Instalador. É recomendados que você permita ao Instalador fechar automaticamente estes aplicativos. Após a instalação ter completado, o Instalador tentará reiniciar os aplicativos.
+PreparingDesc=O instalador está se preparando pra instalar o [name] no seu computador.
+PreviousInstallNotCompleted=A instalação/remoção de um programa anterior não foi completada. Você precisará reiniciar o computador pra completar essa instalação.%n%nApós reiniciar seu computador execute o instalador de novo pra completar a instalação do [name].
+CannotContinue=O instalador não pode continuar. Por favor clique em Cancelar pra sair.
+ApplicationsFound=Os aplicativos a seguir estão usando arquivos que precisam ser atualizados pelo instalador. É recomendados que você permita ao instalador fechar automaticamente estes aplicativos.
+ApplicationsFound2=Os aplicativos a seguir estão usando arquivos que precisam ser atualizados pelo instalador. É recomendados que você permita ao instalador fechar automaticamente estes aplicativos. Após a instalação ter completado, o instalador tentará reiniciar os aplicativos.
 CloseApplications=&Fechar os aplicativos automaticamente
 DontCloseApplications=&Não fechar os aplicativos
-ErrorCloseApplications=O instalador foi incapaz de fechar automaticamente todos os aplicativos. É recomendado que você feche todos os aplicativos usando os arquivos que precisam ser atualizados pelo Instalador antes de continuar.
+ErrorCloseApplications=O instalador foi incapaz de fechar automaticamente todos os aplicativos. É recomendado que você feche todos os aplicativos usando os arquivos que precisam ser atualizados pelo instalador antes de continuar.
+PrepareToInstallNeedsRestart=A instalação deve reiniciar seu computador. Depois de reiniciar o computador, execute a Instalação novamente para concluir a instalação de [name].%n%nDeseja reiniciar agora?
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalando
-InstallingLabel=Por favor espere enquanto o Instalador instala o [name] no seu computador.
+InstallingLabel=Por favor espere enquanto o instalador instala o [name] no seu computador.
 
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Completando o Assistente do Instalador do [name]
-FinishedLabelNoIcons=O Instalador terminou de instalar o [name] no seu computador.
-FinishedLabel=O Instalador terminou de instalar o [name] no seu computador. O aplicativo pode ser iniciado selecionando os atalhos instalados.
+FinishedLabelNoIcons=O instalador terminou de instalar o [name] no seu computador.
+FinishedLabel=O instalador terminou de instalar o [name] no seu computador. O aplicativo pode ser iniciado selecionando os atalhos instalados.
 ClickFinish=Clique em Concluir pra sair do Instalador.
-FinishedRestartLabel=Pra completar a instalação do [name], o Instalador deve reiniciar seu computador. Você gostaria de reiniciar agora?
-FinishedRestartMessage=Pra completar a instalação do [name], o Instalador deve reiniciar seu computador.%n%nVocê gostaria de reiniciar agora?
+FinishedRestartLabel=Pra completar a instalação do [name], o instalador deve reiniciar seu computador. Você gostaria de reiniciar agora?
+FinishedRestartMessage=Pra completar a instalação do [name], o instalador deve reiniciar seu computador.%n%nVocê gostaria de reiniciar agora?
 ShowReadmeCheck=Sim, eu gostaria de visualizar o arquivo README
 YesRadio=&Sim, reiniciar o computador agora
 NoRadio=&Não, eu reiniciarei o computador depois
@@ -246,7 +261,7 @@ FileNotInDir2=O arquivo "%1" não pôde ser localizado em "%2". Por favor insira o
 SelectDirectoryLabel=Por favor especifique o local do próximo disco.
 
 ; *** Installation phase messages
-SetupAborted=A instalação não foi completada.%n%nPor favor corrija o problema e execute o Instalador de novo.
+SetupAborted=A instalação não foi completada.%n%nPor favor corrija o problema e execute o instalador de novo.
 AbortRetryIgnoreSelectAction=Selecionar ação
 AbortRetryIgnoreRetry=&Tentar de novo
 AbortRetryIgnoreIgnore=&Ignorar o erro e continuar
@@ -289,8 +304,16 @@ ExistingFileReadOnly2=O arquivo existente não pôde ser substituído porque está m
 ExistingFileReadOnlyRetry=&Remover o atributo somente-leitura e tentar de novo
 ExistingFileReadOnlyKeepExisting=&Manter o arquivo existente
 ErrorReadingExistingDest=Um erro ocorreu enquanto tentava ler o arquivo existente:
-FileExists=O arquivo já existe.%n%nVocê gostaria que o Instalador sobrescrevesse ele?
-ExistingFileNewer=O arquivo existente é mais novo do que o arquivo que o Instalador está tentando instalar. É recomendado que você mantenha o arquivo existente.%n%nVocê quer manter o arquivo existente?
+FileExistsSelectAction=Selecione a ação
+FileExists2=O arquivo já existe.
+FileExistsOverwriteExisting=&Sobrescrever o arquivo existente
+FileExistsKeepExisting=&Mantenha o arquivo existente
+FileExistsOverwriteOrKeepAll=&Faça isso para os próximos conflitos
+ExistingFileNewerSelectAction=Selecione a ação
+ExistingFileNewer2=O arquivo existente é mais recente do que aquele que o Setup está tentando instalar.
+ExistingFileNewerOverwriteExisting=&Sobrescrever o arquivo existente
+ExistingFileNewerKeepExisting=&Mantenha o arquivo existente (recomendado)
+ExistingFileNewerOverwriteOrKeepAll=&Faça isso para os próximos conflitos
 ErrorChangingAttr=Um erro ocorreu enquanto tentava mudar os atributos do arquivo existente:
 ErrorCreatingTemp=Um erro ocorreu enquanto tentava criar um arquivo no diretório destino:
 ErrorReadingSource=Um erro ocorreu enquanto tentava ler o arquivo de origem:
@@ -314,7 +337,7 @@ UninstallDisplayNameMarkCurrentUser=Usuário atual
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Um erro ocorreu enquanto tentava abrir o arquivo README.
-ErrorRestartingComputer=O Instalador foi incapaz de reiniciar o computador. Por favor faça isto manualmente.
+ErrorRestartingComputer=O instalador foi incapaz de reiniciar o computador. Por favor faça isto manualmente.
 
 ; *** Uninstaller messages
 UninstallNotFound=O arquivo "%1" não existe. Não consegue desinstalar.

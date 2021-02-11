@@ -2,7 +2,7 @@ unit CompInt;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -22,6 +22,7 @@ const
   iscbNotifySuccess = 4;   { Sent when compilation succeeds }
   iscbNotifyError = 5;     { Sent when compilation fails or is aborted by the
                              application }
+  iscbNotifyPreproc = 6;   { Sent to notify the application of preprocessor results }
 
   { Return values for callback function }
   iscrSuccess = 0;         { Return this for compiler to continue }
@@ -73,6 +74,13 @@ type
         BytesCompressedPerSecond: Cardinal); { [in] Average bytes compressed
                                                per second (new in 5.1.13) }
 
+      iscbNotifyPreproc: (
+        PreprocessedScript: PChar; { [in] Preprocessed script (new in 6.1.0) }
+        IncludedFilenames: PChar); { [in] Names of #included files. Each name is
+                                          a null-terminated string, and the final
+                                          name is followed by an additional null
+                                          character (new in 6.1.0) }
+
       iscbNotifySuccess: (
         OutputExeFilename: PChar;  { [in] The name of the resulting setup.exe,
                                           or empty if output was disabled
@@ -83,9 +91,9 @@ type
       iscbNotifyError: (
         ErrorMsg: PChar;      { [in] The error message, or NULL if compilation
                                 was aborted by the application. }
-        ErrorFilename: PChar; { [in] Filename in which the error occured. This
+        ErrorFilename: PChar; { [in] Filename in which the error occurred. This
                                 is NULL if the file is the main script. }
-        ErrorLine: Integer);  { [in] The line number the error occured on.
+        ErrorLine: Integer);  { [in] The line number the error occurred on.
                                 Zero if the error doesn't apply to any
                                 particular line. }
   end;
@@ -159,7 +167,7 @@ const
   description of the TCompileScriptParams record. Return value is one of the
   isce* constants. }
 function ISDllCompileScript(const Params: TCompileScriptParamsEx): Integer;
-  stdcall; external ISCmplrDLL{$IFDEF UNICODE} name 'ISDllCompileScriptW'{$ENDIF};
+  stdcall; external ISCmplrDLL name 'ISDllCompileScriptW';
 
 { The ISDllGetVersion returns a pointer to a TCompilerVersionInfo record which
   contains information about the compiler version. }

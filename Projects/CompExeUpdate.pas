@@ -1,14 +1,12 @@
-unit CompResUpdate;
+unit CompExeUpdate;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Resource update functions used by the compiler only
-
-  $jrsoftware: issrc/Projects/CompResUpdate.pas,v 1.25 2010/04/05 20:53:41 jr Exp $
+  PE header and resource update functions used by the compiler only
 }
 
 interface
@@ -18,31 +16,140 @@ uses
 
 {$I VERSION.INC}
 
+procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
+  const IsVistaCompatible, IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
 procedure UpdateIcons(const FileName, IcoFileName: String);
-procedure UpdateVersionInfo(const F: TFile;
+procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
-  NewProductName, NewTextProductVersion, NewOriginalFileName: String);
+  NewProductName, NewTextProductVersion, NewOriginalFileName: String;
+  const SetFileVersionAndDescription: Boolean);
+procedure RemoveManifestDllHijackProtection(const F: TCustomFile; const TestBlockOnly: Boolean);
 
 implementation
 
 uses
-  ResUpdate{$IFDEF UNICODE}, Math{$ENDIF};
+  ResUpdate{$IFDEF UNICODE}, Math{$ENDIF}, Int64Em;
 
-procedure Error(const Msg: String);
+procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
+  const IsVistaCompatible, IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
+
+  function SeekToPEHeader(const F: TCustomFile): Boolean;
+  var
+    DosHeader: packed record
+      Sig: array[0..1] of AnsiChar;
+      Other: array[0..57] of Byte;
+      PEHeaderOffset: LongWord;
+    end;
+    Sig: DWORD;
+  begin
+    Result := False;
+    F.Seek(0);
+    if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
+      if (DosHeader.Sig[0] = 'M') and (DosHeader.Sig[1] = 'Z') and
+         (DosHeader.PEHeaderOffset <> 0) then begin
+        F.Seek(DosHeader.PEHeaderOffset);
+        if F.Read(Sig, SizeOf(Sig)) = SizeOf(Sig) then
+          if Sig = IMAGE_NT_SIGNATURE then
+            Result := True;
+      end;
+    end;
+  end;
+
+const
+  IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE = $0040;
+  IMAGE_DLLCHARACTERISTICS_NX_COMPAT = $0100;
+  IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = $8000;
+  OffsetOfOperatingSystemVersion = $28;
+  OffsetOfImageVersion = $2C;
+  OffsetOfSubsystemVersion = $30;
+  OffsetOfDllCharacteristics = $46;
+var
+  Header: TImageFileHeader;
+  Ofs: Cardinal;
+  OptMagic, DllChars, OrigDllChars: Word;
+  VersionRecord: packed record
+    Major, Minor: Word;
+  end;
+begin
+  if SeekToPEHeader(F) then begin
+    if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) and
+       (Header.SizeOfOptionalHeader = 224) then begin
+      Ofs := F.Position.Lo;
+      if (F.Read(OptMagic, SizeOf(OptMagic)) = SizeOf(OptMagic)) and
+         (OptMagic = IMAGE_NT_OPTIONAL_HDR32_MAGIC) then begin
+        if IsVistaCompatible then begin
+          { Update OS/Subsystem version }
+          VersionRecord.Major := 6;
+          VersionRecord.Minor := 0;
+          F.Seek(Ofs + OffsetOfOperatingSystemVersion);
+          F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
+          F.Seek(Ofs + OffsetOfSubsystemVersion);
+          F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
+        end;
+
+        { Update MajorImageVersion and MinorImageVersion to 6.0.
+          Works around apparent bug in Vista (still present in Vista SP1;
+          not reproducible on Server 2008): When UAC is turned off,
+          launching an uninstaller (as admin) from ARP and answering No at the
+          ConfirmUninstall message box causes a "This program might not have
+          uninstalled correctly" dialog to be displayed, even if the EXE
+          has a proper "Vista-aware" manifest. I discovered that if the EXE's
+          image version is set to 6.0, like the EXEs that ship with Vista
+          (notepad.exe), the dialog does not appear. (This is reproducible
+          with notepad.exe too if its image version is changed to anything
+          other than 6.0 exactly.) }
+        VersionRecord.Major := 6;
+        VersionRecord.Minor := 0;
+        F.Seek(Ofs + OffsetOfImageVersion);
+        F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
+
+        { Update DllCharacteristics }
+        F.Seek(Ofs + OffsetOfDllCharacteristics);
+        if F.Read(DllChars, SizeOf(DllChars)) = SizeOf(DllChars) then begin
+          OrigDllChars := DllChars;
+          if IsTSAware then
+            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
+          else
+            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE;
+          if IsDEPCompatible then
+            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_NX_COMPAT
+          else
+            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
+          { Note: because we stripped relocations from Setup(Ldr).e32 during
+            compilation IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE won't actually
+            enable ASLR, but allow setting it anyway to make checkers happy. }
+          if IsASLRCompatible then
+            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
+          else
+            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE;
+          if DllChars <> OrigDllChars then begin
+            F.Seek(Ofs + OffsetOfDllCharacteristics);
+            F.WriteBuffer(DllChars, SizeOf(DllChars));
+          end;
+          Exit;
+        end;
+      end;
+    end;
+  end;
+  raise Exception.Create('UpdateSetupPEHeaderFields failed');
+end;
+
+procedure ResUpdateError(const Msg: String);
 begin
   raise Exception.Create('Resource update error: ' + Msg);
 end;
 
-procedure ErrorWithLastError(const Msg: String);
+procedure ResUpdateErrorWithLastError(const Msg: String);
 begin
-  Error(Msg + ' (' + IntToStr(GetLastError) + ')');
+  ResUpdateError(Msg + ' (' + IntToStr(GetLastError) + ')');
 end;
 
-procedure UpdateVersionInfo(const F: TFile;
+procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
-  NewProductName, NewTextProductVersion, NewOriginalFileName: String);
+  NewProductName, NewTextProductVersion, NewOriginalFileName: String;
+  const SetFileVersionAndDescription: Boolean);
 
   function WideStrsEqual(P1, P2: PWideChar): Boolean;
 
@@ -138,7 +245,7 @@ procedure UpdateVersionInfo(const F: TFile;
     ValueLen: Cardinal;
   begin
     if not QueryValue(P, Path, Pointer(Value), ValueLen) then
-      Error('Unexpected version resource format (1)');
+      ResUpdateError('Unexpected version resource format (1)');
 {$IFDEF UNICODE}
     Move(Pointer(NewValue)^, Value^, (Min(Length(NewValue), lstrlenW(Value)))*SizeOf(Char));
 {$ELSE}
@@ -147,17 +254,21 @@ procedure UpdateVersionInfo(const F: TFile;
     ReplaceWithRealCopyrightSymbols(Value);
   end;
 
-  procedure UpdateFixedFileInfo(P: Pointer; const Path: PWideChar; NewFileVersion, NewProductVersion: TFileVersionNumbers);
+  procedure UpdateFixedFileInfo(P: Pointer; const Path: PWideChar;
+    const NewFileVersion, NewProductVersion: TFileVersionNumbers;
+    const SetFileVersion: Boolean);
   var
     FixedFileInfo: PVSFixedFileInfo;
     ValueLen: Cardinal;
   begin
     if not QueryValue(P, Path, Pointer(FixedFileInfo), ValueLen) then
-      Error('Unexpected version resource format (2)');
+      ResUpdateError('Unexpected version resource format (2)');
     if FixedFileInfo.dwSignature <> $FEEF04BD then
-      Error('Unexpected version resource format (3)');
-    FixedFileInfo.dwFileVersionLS := NewFileVersion.LS;
-    FixedFileInfo.dwFileVersionMS := NewFileVersion.MS;
+      ResUpdateError('Unexpected version resource format (3)');
+    if SetFileVersion then begin
+      FixedFileInfo.dwFileVersionLS := NewFileVersion.LS;
+      FixedFileInfo.dwFileVersionMS := NewFileVersion.MS;
+    end;
     FixedFileInfo.dwProductVersionLS := NewProductVersion.LS;
     FixedFileInfo.dwProductVersionMS := NewProductVersion.MS;
   end;
@@ -177,13 +288,15 @@ begin
 
     { Update the resource }
     UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'CompanyName'#0, NewCompanyName);
-    UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'FileDescription'#0, NewFileDescription);
-    UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'FileVersion'#0, NewTextFileVersion);
+    if SetFileVersionAndDescription then begin
+      UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'FileDescription'#0, NewFileDescription);
+      UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'FileVersion'#0, NewTextFileVersion);
+    end;
     UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'LegalCopyright'#0, NewLegalCopyright);
     UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'ProductName'#0, NewProductName);
     UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'OriginalFileName'#0, NewOriginalFileName);
     UpdateStringValue(VersRes, 'VS_VERSION_INFO'#0'StringFileInfo'#0'000004b0'#0'ProductVersion'#0, NewTextProductVersion);
-    UpdateFixedFileInfo(VersRes, 'VS_VERSION_INFO'#0, NewBinaryFileVersion, NewBinaryProductVersion);
+    UpdateFixedFileInfo(VersRes, 'VS_VERSION_INFO'#0, NewBinaryFileVersion, NewBinaryProductVersion, SetFileVersionAndDescription);
 
     { Write the updated resource }
     F.Seek(ResOffset);
@@ -280,7 +393,7 @@ var
   NewGroupIconDirSize: LongInt;
 begin
   if Win32Platform <> VER_PLATFORM_WIN32_NT then
-    Error('Only supported on Windows NT and above');
+    ResUpdateError('Only supported on Windows NT and above');
 
   Ico := nil;
 
@@ -290,7 +403,7 @@ begin
     try
       N := F.CappedSize;
       if Cardinal(N) > Cardinal($100000) then  { sanity check }
-        Error('Icon file is too large');
+        ResUpdateError('Icon file is too large');
       GetMem(Ico, N);
       F.ReadBuffer(Ico^, N);
     finally
@@ -299,40 +412,40 @@ begin
 
     { Ensure the icon is valid }
     if not IsValidIcon(Ico, N) then
-      Error('Icon file is invalid');
+      ResUpdateError('Icon file is invalid');
 
     { Update the resources }
     H := BeginUpdateResource(PChar(FileName), False);
     if H = 0 then
-      ErrorWithLastError('BeginUpdateResource failed (1)');
+      ResUpdateErrorWithLastError('BeginUpdateResource failed (1)');
     try
       M := LoadLibraryEx(PChar(FileName), 0, LOAD_LIBRARY_AS_DATAFILE);
       if M = 0 then
-        ErrorWithLastError('LoadLibraryEx failed (1)');
+        ResUpdateErrorWithLastError('LoadLibraryEx failed (1)');
       try
-      	{ Load the 'MAINICON' group icon resource }
+        { Load the 'MAINICON' group icon resource }
         R := FindResource(M, 'MAINICON', RT_GROUP_ICON);
         if R = 0 then
-          ErrorWithLastError('FindResource failed (1)');
+          ResUpdateErrorWithLastError('FindResource failed (1)');
         Res := LoadResource(M, R);
         if Res = 0 then
-          ErrorWithLastError('LoadResource failed (1)');
+          ResUpdateErrorWithLastError('LoadResource failed (1)');
         GroupIconDir := LockResource(Res);
         if GroupIconDir = nil then
-          ErrorWithLastError('LockResource failed (1)');
+          ResUpdateErrorWithLastError('LockResource failed (1)');
 
         { Delete 'MAINICON' }
         if not GetResourceLanguage(M, RT_GROUP_ICON, 'MAINICON', wLanguage) then
-          Error('GetResourceLanguage failed (1)');
+          ResUpdateError('GetResourceLanguage failed (1)');
         if not UpdateResource(H, RT_GROUP_ICON, 'MAINICON', wLanguage, nil, 0) then
-          ErrorWithLastError('UpdateResource failed (1)');
+          ResUpdateErrorWithLastError('UpdateResource failed (1)');
 
         { Delete the RT_ICON icon resources that belonged to 'MAINICON' }
         for I := 0 to GroupIconDir.ItemCount-1 do begin
           if not GetResourceLanguage(M, RT_ICON, MakeIntResource(GroupIconDir.Items[I].Id), wLanguage) then
-            Error('GetResourceLanguage failed (2)');
+            ResUpdateError('GetResourceLanguage failed (2)');
           if not UpdateResource(H, RT_ICON, MakeIntResource(GroupIconDir.Items[I].Id), wLanguage, nil, 0) then
-            ErrorWithLastError('UpdateResource failed (2)');
+            ResUpdateErrorWithLastError('UpdateResource failed (2)');
         end;
 
         { Build the new group icon resource }
@@ -351,11 +464,11 @@ begin
           { Update 'MAINICON' }
           for I := 0 to NewGroupIconDir.ItemCount-1 do
             if not UpdateResource(H, RT_ICON, MakeIntResource(NewGroupIconDir.Items[I].Id), 1033, Pointer(DWORD(Ico) + Ico.Items[I].Offset), Ico.Items[I].Header.ImageSize) then
-              ErrorWithLastError('UpdateResource failed (3)');
+              ResUpdateErrorWithLastError('UpdateResource failed (3)');
 
           { Update the icons }
           if not UpdateResource(H, RT_GROUP_ICON, 'MAINICON', 1033, NewGroupIconDir, NewGroupIconDirSize) then
-            ErrorWithLastError('UpdateResource failed (4)');
+            ResUpdateErrorWithLastError('UpdateResource failed (4)');
         finally
           FreeMem(NewGroupIconDir);
         end;
@@ -367,10 +480,39 @@ begin
       raise;
     end;
     if not EndUpdateResource(H, False) then
-      ErrorWithLastError('EndUpdateResource failed');
+      ResUpdateErrorWithLastError('EndUpdateResource failed');
   finally
     FreeMem(Ico);
   end;
+end;
+
+procedure RemoveManifestDllHijackProtection(const F: TCustomFile; const TestBlockOnly: Boolean);
+const
+  BlockStartText: AnsiString = '<file name="';
+  BlockLength = 250;
+var
+  S: AnsiString;
+  Offset: Integer64;
+  P: Integer;
+begin
+  { Read the manifest resource into a string }
+  SetString(S, nil, SeekToResourceData(F, 24, 1));
+  Offset := F.Position;
+  F.ReadBuffer(S[1], Length(S));
+
+  { Locate and update the block with file elements }
+  P := Pos(BlockStartText, S);
+  if P = 0 then
+    ResUpdateError('Block not found');
+  if Copy(S, P+BlockLength, 11) <> '</assembly>' then
+    ResUpdateError('Block too short');
+
+  if TestBlockOnly then
+    Exit;
+
+  Inc64(Offset, P-1);
+  F.Seek64(Offset);
+  F.WriteAnsiString(AnsiString(Format('%*s', [BlockLength, ' '])));
 end;
 
 end.

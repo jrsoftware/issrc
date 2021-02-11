@@ -1,15 +1,15 @@
 ﻿; bovirus@gmail.com
-; *** Inno Setup version 6.0.3+ Italian messages ***
+; *** Inno Setup version 6.1.0+ Italian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;    https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 03.10.2019  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 25.07.2020  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -216,6 +216,18 @@ ReadyMemoComponents=Componenti selezionati:
 ReadyMemoGroup=Cartella del menu Avvio/Start:
 ReadyMemoTasks=Processi aggiuntivi:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Download file aggiuntivi...
+ButtonStopDownload=&Stop download
+StopDownload=Sei sicuro di voler interrompere il download?
+ErrorDownloadAborted=Download annullato
+ErrorDownloadFailed=Download fallito: %1 %2
+ErrorDownloadSizeFailed=Rilevamento dimensione fallito: %1 %2
+ErrorFileHash1=Errore hash file: %1
+ErrorFileHash2=Hash file non valido: atteso %1, trovato %2
+ErrorProgress=Progresso non valido: %1 di %2
+ErrorFileSize=Dimensione file non valida: attesa %1, trovata %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione all'installazione
 PreparingDesc=Preparazione all'installazione di [name] nel computer.
@@ -298,8 +310,16 @@ ExistingFileReadOnly2=Il file esistente non può essere sostituito in quanto seg
 ExistingFileReadOnlyRetry=&Rimuovi attributo di sola lettura e riprova
 ExistingFileReadOnlyKeepExisting=&Mantieni il file esistente
 ErrorReadingExistingDest=Si è verificato un errore durante la lettura del file esistente:
-FileExists=Il file esiste già.%n%nVuoi sovrascrivere il file?
-ExistingFileNewer=Il file esistente è più recente di quello che si sta installando.%n%nTi raccomandiamo di mantenere il file esistente.%n%nVuoi mantenere il file esistente?
+FileExistsSelectAction=Seleziona azione
+FileExists2=Il file esiste già.
+FileExistsOverwriteExisting=S&ovrascrivi il file esistente
+FileExistsKeepExisting=&Mantieni il file esistente
+FileExistsOverwriteOrKeepAll=&Applica questa azione per i prossimi conflitti
+ExistingFileNewerSelectAction=Seleziona azione
+ExistingFileNewer2=Il file esistente è più recente del file che si sta cercando di installare.
+ExistingFileNewerOverwriteExisting=S&ovrascrivi il file esistente
+ExistingFileNewerKeepExisting=&Mantieni il file esistente (suggerito)
+ExistingFileNewerOverwriteOrKeepAll=&Applica questa azione per i prossimi conflitti
 ErrorChangingAttr=Si è verificato un errore durante il tentativo di modifica dell'attributo del file esistente:
 ErrorCreatingTemp=Si è verificato un errore durante la creazione di un file nella cartella di installazione:
 ErrorReadingSource=Si è verificato un errore durante la lettura del file sorgente:

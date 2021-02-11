@@ -2,7 +2,7 @@ unit ScriptClasses_R;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -66,6 +66,10 @@ procedure TNewCheckListBoxItemObject_R(Self: TNewCheckListBox; var T: TObject; t
 procedure TNewCheckListBoxItemObject_W(Self: TNewCheckListBox; const T: TObject; t1: Integer); begin Self.ItemObject[t1] := T; end;
 procedure TNewCheckListBoxItemSubItem_R(Self: TNewCheckListBox; var T: String; t1: Integer); begin T := Self.ItemSubItem[t1]; end;
 procedure TNewCheckListBoxItemSubItem_W(Self: TNewCheckListBox; const T: String; t1: Integer); begin Self.ItemSubItem[t1] := T; end;
+procedure TNewCheckListBoxItemFontStyle_R(Self: TNewCheckListBox; var T: TFontStyles; const t1: Integer); begin T := Self.ItemFontStyle[t1]; end;
+procedure TNewCheckListBoxItemFontStyle_W(Self: TNewCheckListBox; const T: TFontStyles; const t1: Integer); begin Self.ItemFontStyle[t1] := T; end;
+procedure TNewCheckListBoxSubItemFontStyle_R(Self: TNewCheckListBox; var T: TFontStyles; const t1: Integer); begin T := Self.SubItemFontStyle[t1]; end;
+procedure TNewCheckListBoxSubItemFontStyle_W(Self: TNewCheckListBox; const T: TFontStyles; const t1: Integer); begin Self.SubItemFontStyle[t1] := T; end;
 
 procedure RegisterNewCheckListBox_R(Cl: TPSRuntimeClassImporter);
 begin
@@ -82,6 +86,8 @@ begin
     RegisterPropertyHelper(@TNewCheckListBoxItemLevel_R, nil, 'ItemLevel');
     RegisterPropertyHelper(@TNewCheckListBoxItemObject_R, @TNewCheckListBoxItemObject_W, 'ItemObject');
     RegisterPropertyHelper(@TNewCheckListBoxItemSubItem_R, @TNewCheckListBoxItemSubItem_W, 'ItemSubItem');
+    RegisterPropertyHelper(@TNewCheckListBoxItemFontStyle_R, @TNewCheckListBoxItemFontStyle_W, 'ItemFontStyle');
+    RegisterPropertyHelper(@TNewCheckListBoxSubItemFontStyle_R, @TNewCheckListBoxSubItemFontStyle_W, 'SubItemFontStyle');
   end;
 end;
 
@@ -187,6 +193,7 @@ procedure RegisterSetupForm_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TSetupForm) do
   begin
+    RegisterMethod(@TSetupForm.CalculateButtonWidth, 'CalculateButtonWidth');
     RegisterMethod(@TSetupForm.ShouldSizeX, 'ShouldSizeX');
     RegisterMethod(@TSetupForm.ShouldSizeY, 'ShouldSizeY');
     RegisterMethod(@TSetupForm.FlipSizeAndCenterIfNeeded, 'FlipSizeAndCenterIfNeeded');
@@ -313,6 +320,22 @@ begin
   end;
 end;
 
+{$IFNDEF PS_NOINT64}
+procedure TDownloadPageAbortedByUser_R(Self: TDownloadWizardPage; var T: Boolean); begin T := Self.AbortedByUser; end;
+
+procedure RegisterDownloadWizardPage_R(CL: TPSRuntimeClassImporter);
+begin
+  with CL.Add(TDownloadWizardPage) do
+  begin
+    RegisterPropertyHelper(@TDownloadPageAbortedByUser_R,nil,'AbortedByUser');
+    RegisterMethod(@TDownloadWizardPage.Add, 'Add');
+    RegisterMethod(@TDownloadWizardPage.Clear, 'Clear');
+    RegisterMethod(@TDownloadWizardPage.Download, 'Download');
+    RegisterMethod(@TDownloadWizardPage.Show, 'Show');
+  end;
+end;
+{$ENDIF}
+
 procedure RegisterHandCursor_R(Cl: TPSRuntimeClassImporter);
 const
   IDC_HAND = MakeIntResource(32649);
@@ -415,6 +438,9 @@ begin
     RegisterOutputMsgWizardPage_R(Cl);
     RegisterOutputMsgMemoWizardPage_R(Cl);
     RegisterOutputProgressWizardPage_R(Cl);
+{$IFNDEF PS_NOINT64}
+    RegisterDownloadWizardPage_R(Cl);
+{$ENDIF}
 
     RegisterHandCursor_R(Cl);
 

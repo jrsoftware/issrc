@@ -57,7 +57,7 @@ const
 
 function StringsToCommaString(const Strings: TStrings): String;
 procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
-function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): Boolean;
+function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData): Boolean;
 procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback: TRenamedConstantCallback);
 
 implementation
@@ -193,7 +193,7 @@ begin
   end;
 end;
 
-function StrToVersionNumbers(const S: String; var VerData: TSetupVersionData): Boolean;
+function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData): Boolean;
 
   procedure Split(const Str: String; var Ver: TSetupVersionDataVersion;
     var ServicePack: Word);
@@ -274,7 +274,9 @@ procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback
 var
   CnstRenamed: String;
 begin
-  if Cnst = 'sendto' then
+  if Cnst = 'fonts' then
+    CnstRenamed := 'commonfonts'
+  else if Cnst = 'sendto' then
     CnstRenamed := 'usersendto'
   else if Cnst = 'pf' then
     CnstRenamed := 'commonpf'

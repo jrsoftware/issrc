@@ -1,6 +1,6 @@
 ; *******************************************************
 ; ***                                                 ***
-; *** Inno Setup version 6.0.3+ Czech messages        ***
+; *** Inno Setup version 6.1.0+ Czech messages        ***
 ; ***                                                 ***
 ; *** Original Author:                                ***
 ; ***                                                 ***
@@ -10,6 +10,7 @@
 ; ***                                                 ***
 ; ***   Lubos Stanek (lubek@users.sourceforge.net)    ***
 ; ***   Vitezslav Svejdar (vitezslav.svejdar@cuni.cz) ***
+; ***   Jiri Fenz (jirifenz@gmail.com)                ***
 ; ***                                                 ***
 ; *******************************************************
 
@@ -42,7 +43,7 @@ LastErrorMessage=%1.%n%nChyba %2: %3
 SetupFileMissing=Instalaèní sloka neobsahuje soubor %1. Opravte prosím tuto chybu nebo si opatøete novou kopii tohoto produktu.
 SetupFileCorrupt=Soubory prùvodce instalací jsou poškozeny. Opatøete si prosím novou kopii tohoto produktu.
 SetupFileCorruptOrWrongVer=Soubory prùvodce instalací jsou poškozeny nebo se nesluèují s touto verzí prùvodce instalací. Opravte prosím tuto chybu nebo si opatøete novou kopii tohoto produktu.
-InvalidParameter=Pøíkazová øádka obsahuje neplatnı parametr:%n%n%1
+InvalidParameter=Pøíkazovı øádek obsahuje neplatnı parametr:%n%n%1
 SetupAlreadyRunning=Prùvodce instalací je ji spuštìn.
 WindowsVersionNotSupported=Tento produkt nepodporuje verzi MS Windows, která bìí na Vašem poèítaèi.
 WindowsServicePackRequired=Tento produkt vyaduje %1 Service Pack %2 nebo vyšší.
@@ -51,16 +52,16 @@ OnlyOnThisPlatform=Tento produkt musí bıt spuštìn ve %1.
 OnlyOnTheseArchitectures=Tento produkt lze nainstalovat pouze ve verzích MS Windows s podporou architektury procesorù:%n%n%1
 WinVersionTooLowError=Tento produkt vyaduje %1 verzi %2 nebo vyšší.
 WinVersionTooHighError=Tento produkt nelze nainstalovat ve %1 verzi %2 nebo vyšší.
-AdminPrivilegesRequired=K instalaci tohoto produktu musíte bıt pøihlášeni s právy administrátora.
-PowerUserPrivilegesRequired=K instalaci tohoto produktu musíte bıt pøihlášeni s právy administrátora nebo èlena skupiny Power Users.
-SetupAppRunningError=Prùvodce instalací zjistil, e produkt %1 je nyní spuštìn.%n%nZavøete prosím všechny instance tohoto produktu a pak pokraèujte klepnutím na tlaèítko OK, nebo ukonèete instalaci tlaèítkem Storno.
-UninstallAppRunningError=Prùvodce odinstalací zjistil, e produkt %1 je nyní spuštìn.%n%nZavøete prosím všechny instance tohoto produktu a pak pokraèujte klepnutím na tlaèítko OK, nebo ukonèete odinstalaci tlaèítkem Storno.
+AdminPrivilegesRequired=K instalaci tohoto produktu musíte bıt pøihlášeni s oprávnìními správce.
+PowerUserPrivilegesRequired=K instalaci tohoto produktu musíte bıt pøihlášeni s oprávnìními správce nebo èlena skupiny Power Users.
+SetupAppRunningError=Prùvodce instalací zjistil, e produkt %1 je nyní spuštìn.%n%nZavøete prosím všechny instance tohoto produktu a pak pokraèujte klepnutím na tlaèítko OK, nebo ukonèete instalaci tlaèítkem Zrušit.
+UninstallAppRunningError=Prùvodce odinstalací zjistil, e produkt %1 je nyní spuštìn.%n%nZavøete prosím všechny instance tohoto produktu a pak pokraèujte klepnutím na tlaèítko OK, nebo ukonèete odinstalaci tlaèítkem Zrušit.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Vıbìr reimu prùvodce instalací
 PrivilegesRequiredOverrideInstruction=Zvolte reim instalace
-PrivilegesRequiredOverrideText1=Produkt %1 lze nainstalovat pro všechny uivatele (musíte bıt pøihlášeni s právy administrátora), nebo pouze pro Vás.
-PrivilegesRequiredOverrideText2=Produkt %1 lze nainstalovat pouze pro Vás, nebo pro všechny uivatele (musíte bıt pøihlášeni s právy administrátora).
+PrivilegesRequiredOverrideText1=Produkt %1 lze nainstalovat pro všechny uivatele (musíte bıt pøihlášeni s oprávnìními správce), nebo pouze pro Vás.
+PrivilegesRequiredOverrideText2=Produkt %1 lze nainstalovat pouze pro Vás, nebo pro všechny uivatele (musíte bıt pøihlášeni s oprávnìními správce).
 PrivilegesRequiredOverrideAllUsers=Nainstalovat pro &všechny uivatele
 PrivilegesRequiredOverrideAllUsersRecommended=Nainstalovat pro &všechny uivatele (doporuèuje se)
 PrivilegesRequiredOverrideCurrentUser=Nainstalovat pouze pro &mì
@@ -77,14 +78,14 @@ AboutSetupMenuItem=&O prùvodci instalací...
 AboutSetupTitle=O prùvodci instalací
 AboutSetupMessage=%1 verze %2%n%3%n%n%1 domovská stránka:%n%4
 AboutSetupNote=
-TranslatorNote=Czech translation maintained by Ivo Bauer (bauer@ozm.cz), Lubos Stanek (lubek@users.sourceforge.net) and Vitezslav Svejdar (vitezslav.svejdar@cuni.cz)
+TranslatorNote=Czech translation maintained by Ivo Bauer (bauer@ozm.cz), Lubos Stanek (lubek@users.sourceforge.net), Vitezslav Svejdar (vitezslav.svejdar@cuni.cz) and Jiri Fenz (jirifenz@gmail.com)
 
 ; *** Buttons
 ButtonBack=< &Zpìt
 ButtonNext=&Další >
 ButtonInstall=&Instalovat
 ButtonOK=OK
-ButtonCancel=Storno
+ButtonCancel=Zrušit
 ButtonYes=&Ano
 ButtonYesToAll=Ano &všem
 ButtonNo=&Ne
@@ -99,7 +100,7 @@ SelectLanguageTitle=Vıbìr jazyka prùvodce instalací
 SelectLanguageLabel=Zvolte jazyk, kterı se má pouít bìhem instalace.
 
 ; *** Common wizard text
-ClickNext=Pokraèujte klepnutím na tlaèítko Další, nebo ukonèete prùvodce instalací tlaèítkem Storno.
+ClickNext=Pokraèujte klepnutím na tlaèítko Další, nebo ukonèete prùvodce instalací tlaèítkem Zrušit.
 BeveledLabel=
 BrowseDialogTitle=Vyhledat sloku
 BrowseDialogLabel=Z níe uvedeného seznamu vyberte sloku a klepnìte na tlaèítko OK.
@@ -119,7 +120,7 @@ IncorrectPassword=Zadané heslo není správné. Zkuste to prosím znovu.
 ; *** "License Agreement" wizard page
 WizardLicense=Licenèní smlouva
 LicenseLabel=Døíve ne budete pokraèovat, pøeètìte si prosím pozornì následující dùleité informace.
-LicenseLabel3=Pøeètìte si prosím tuto licenèní smlouvu. Musíte souhlasit s podmínkami této smlouvy, aby instalace mohla pokraèovat.
+LicenseLabel3=Pøeètìte si prosím následující licenèní smlouvu. Aby instalace mohla pokraèovat, musíte souhlasit s podmínkami této smlouvy.
 LicenseAccepted=&Souhlasím s podmínkami licenèní smlouvy
 LicenseNotAccepted=&Nesouhlasím s podmínkami licenèní smlouvy
 
@@ -144,7 +145,7 @@ WizardSelectDir=Zvolte cílové umístìní
 SelectDirDesc=Kam má bıt produkt [name] nainstalován?
 SelectDirLabel3=Prùvodce nainstaluje produkt [name] do následující sloky.
 SelectDirBrowseLabel=Pokraèujte klepnutím na tlaèítko Další. Chcete-li zvolit jinou sloku, klepnìte na tlaèítko Procházet.
-DiskSpaceGBLabel=Instalace vyaduje nejménì [gb] MB volného místa na disku.
+DiskSpaceGBLabel=Instalace vyaduje nejménì [gb] GB volného místa na disku.
 DiskSpaceMBLabel=Instalace vyaduje nejménì [mb] MB volného místa na disku.
 CannotInstallToNetworkDrive=Prùvodce instalací nemùe instalovat do síové jednotky.
 CannotInstallToUNCPath=Prùvodce instalací nemùe instalovat do cesty UNC.
@@ -172,7 +173,7 @@ NoUninstallWarningTitle=Souèásti existují
 NoUninstallWarning=Prùvodce instalací zjistil, e následující souèásti jsou ji na Vašem poèítaèi nainstalovány:%n%n%1%n%nNezahrnete-li tyto souèásti do vıbìru, nebudou nyní odinstalovány.%n%nChcete pøesto pokraèovat?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=Vybrané souèásti vyadují nejménì [gb] MB místa na disku.
+ComponentsDiskSpaceGBLabel=Vybrané souèásti vyadují nejménì [gb] GB místa na disku.
 ComponentsDiskSpaceMBLabel=Vybrané souèásti vyadují nejménì [mb] MB místa na disku.
 
 ; *** "Select Additional Tasks" wizard page
@@ -203,11 +204,23 @@ ReadyMemoComponents=Vybrané souèásti:
 ReadyMemoGroup=Sloka v nabídce Start:
 ReadyMemoTasks=Další úlohy:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Stahují se další soubory...
+ButtonStopDownload=&Zastavit stahování
+StopDownload=Urèitì chcete stahování zastavit?
+ErrorDownloadAborted=Stahování pøerušeno
+ErrorDownloadFailed=Stahování selhalo: %1 %2
+ErrorDownloadSizeFailed=Nepodaøilo se zjistit velikost: %1 %2
+ErrorFileHash1=Nepodaøilo se urèit kontrolní souèet souboru: %1
+ErrorFileHash2=Neplatnı kontrolní souèet souboru: oèekáváno %1, nalezeno %2
+ErrorProgress=Neplatnı prùbìh: %1 of %2
+ErrorFileSize=Neplatná velikost souboru: oèekáváno %1, nalezeno %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pøíprava k instalaci
 PreparingDesc=Prùvodce instalací pøipravuje instalaci produktu [name] na Váš poèítaè.
 PreviousInstallNotCompleted=Instalace/odinstalace pøedchozího produktu nebyla zcela dokonèena. Aby mohla bıt dokonèena, musíte restartovat Váš poèítaè.%n%nPo restartování Vašeho poèítaèe spuste znovu prùvodce instalací, aby bylo moné dokonèit instalaci produktu [name].
-CannotContinue=Prùvodce instalací nemùe pokraèovat. Ukonèete prosím prùvodce instalací klepnutím na tlaèítko Storno.
+CannotContinue=Prùvodce instalací nemùe pokraèovat. Ukonèete prosím prùvodce instalací klepnutím na tlaèítko Zrušit.
 ApplicationsFound=Následující aplikace pøistupují k souborùm, které je tøeba bìhem instalace aktualizovat. Doporuèuje se povolit prùvodci instalací, aby tyto aplikace automaticky zavøel.
 ApplicationsFound2=Následující aplikace pøistupují k souborùm, které je tøeba bìhem instalace aktualizovat. Doporuèuje se povolit prùvodci instalací, aby tyto aplikace automaticky zavøel. Po dokonèení instalace se prùvodce instalací pokusí aplikace restartovat.
 CloseApplications=&Zavøít aplikace automaticky
@@ -263,9 +276,9 @@ StatusRollback=Provedené zmìny se vracejí zpìt...
 
 ; *** Misc. errors
 ErrorInternal2=Interní chyba: %1
-ErrorFunctionFailedNoCode=%1 selhala
-ErrorFunctionFailed=%1 selhala; kód %2
-ErrorFunctionFailedWithMessage=%1 selhala; kód %2.%n%3
+ErrorFunctionFailedNoCode=Funkce %1 selhala
+ErrorFunctionFailed=Funkce %1 selhala; kód %2
+ErrorFunctionFailedWithMessage=Funkce %1 selhala; kód %2.%n%3
 ErrorExecutingProgram=Nelze spustit soubor:%n%1
 
 ; *** Registry errors
@@ -285,8 +298,16 @@ ExistingFileReadOnly2=Nelze nahradit existující soubor, protoe je urèen pouze p
 ExistingFileReadOnlyRetry=&Odstranit atribut "pouze pro ètení" a zopakovat akci
 ExistingFileReadOnlyKeepExisting=&Ponechat existující soubor
 ErrorReadingExistingDest=Došlo k chybì pøi pokusu o ètení existujícího souboru:
-FileExists=Soubor ji existuje.%n%nMá bıt prùvodcem instalace pøepsán?
-ExistingFileNewer=Existující soubor je novìjší ne ten, kterı se prùvodce instalací pokouší nainstalovat. Doporuèuje se ponechat existující soubor.%n%nChcete jej ponechat?
+FileExistsSelectAction=Zvolte akci
+FileExists2=Soubor ji existuje.
+FileExistsOverwriteExisting=&Nahradit existující soubor
+FileExistsKeepExisting=&Ponechat existující soubor
+FileExistsOverwriteOrKeepAll=&Zachovat se stejnì u dalších konfliktù
+ExistingFileNewerSelectAction=Zvolte akci
+ExistingFileNewer2=Existující soubor je novìjší ne ten, kterı se prùvodce instalací pokouší instalovat.
+ExistingFileNewerOverwriteExisting=&Nahradit existující soubor
+ExistingFileNewerKeepExisting=&Ponechat existující soubor (doporuèuje se)
+ExistingFileNewerOverwriteOrKeepAll=&Zachovat se stejnì u dalších konfliktù
 ErrorChangingAttr=Došlo k chybì pøi pokusu o zmìnu atributù existujícího souboru:
 ErrorCreatingTemp=Došlo k chybì pøi pokusu o vytvoøení souboru v cílové sloce:
 ErrorReadingSource=Došlo k chybì pøi pokusu o ètení zdrojového souboru:
@@ -317,9 +338,9 @@ UninstallNotFound=Soubor "%1" neexistuje. Produkt nelze odinstalovat.
 UninstallOpenError=Soubor "%1" nelze otevøít. Produkt nelze odinstalovat.
 UninstallUnsupportedVer=Formát souboru se záznamy k odinstalaci produktu "%1" nebyl touto verzí prùvodce odinstalací rozpoznán. Produkt nelze odinstalovat
 UninstallUnknownEntry=V souboru obsahujícím informace k odinstalaci produktu byla zjištìna neznámá poloka (%1)
-ConfirmUninstall=Jste si opravdu jisti, e chcete produkt %1 a všechny jeho souèásti odinstalovat?
+ConfirmUninstall=Urèitì chcete produkt %1 a všechny jeho souèásti odinstalovat?
 UninstallOnlyOnWin64=Tento produkt lze odinstalovat pouze v 64-bitovıch verzích MS Windows.
-OnlyAdminCanUninstall=K odinstalaci tohoto produktu musíte bıt pøihlášeni s právy administrátora.
+OnlyAdminCanUninstall=K odinstalaci tohoto produktu musíte bıt pøihlášeni s oprávnìními správce.
 UninstallStatusLabel=Èekejte prosím, dokud produkt %1 nebude odinstalován z Vašeho poèítaèe.
 UninstalledAll=Produkt %1 byl z Vašeho poèítaèe úspìšnì odinstalován.
 UninstalledMost=Produkt %1 byl odinstalován.%n%nNìkteré jeho souèásti se odinstalovat nepodaøilo. Mùete je však odstranit ruènì.

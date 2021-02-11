@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.0.3+ Dutch messages ***
+﻿; *** Inno Setup version 6.1.0+ Dutch messages ***
 ;
 ; This file is based on user-contributed translations by various authors
 ;
@@ -192,6 +192,18 @@ ReadyMemoComponents=Geselecteerde componenten:
 ReadyMemoGroup=Menu Start map:
 ReadyMemoTasks=Extra taken:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Bezig met het downloaden van extra bestanden...
+ButtonStopDownload=&Stop download
+StopDownload=Weet u zeker dat u de download wilt stoppen?
+ErrorDownloadAborted=Download afgebroken
+ErrorDownloadFailed=Download mislukt: %1 %2
+ErrorDownloadSizeFailed=Ophalen grootte mislukt: %1 %2
+ErrorFileHash1=Bestand hashing mislukt: %1
+ErrorFileHash2=Ongeldige bestandshash: %1 verwacht, %2 gevonden
+ErrorProgress=Ongeldige voortgang: %1 van %2
+ErrorFileSize=Ongeldige bestandsgrootte: %1 verwacht, %2 gevonden
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Bezig met het voorbereiden van de installatie
 PreparingDesc=Setup is bezig met het voorbereiden van de installatie van [name].
@@ -272,8 +284,16 @@ ExistingFileReadOnly2=Het bestaande bestand kon niet vervangen worden omdat het 
 ExistingFileReadOnlyRetry=&Verwijder de alleen-lezen markering en probeer het opnieuw
 ExistingFileReadOnlyKeepExisting=&Behoud het bestaande bestand
 ErrorReadingExistingDest=Er is een fout opgetreden bij het lezen van het bestaande bestand:
-FileExists=Het bestand bestaat al.%n%nWilt u dat Setup het overschrijft?
-ExistingFileNewer=Het bestaande bestand is nieuwer dan het bestand dat Setup probeert te installeren. U wordt aanbevolen het bestaande bestand te behouden.%n%nWilt u het bestaande bestand behouden?
+FileExistsSelectAction=Selecteer actie
+FileExists2=Het bestand bestaat al.
+FileExistsOverwriteExisting=&Overschrijf het bestaande bestand
+FileExistsKeepExisting=&Behoud het bestaande bestand
+FileExistsOverwriteOrKeepAll=&Dit voor de volgende conflicten uitvoeren
+ExistingFileNewerSelectAction=Selecteer actie
+ExistingFileNewer2=Het bestaande bestand is nieuwer dan het bestand dat Setup probeert te installeren.
+ExistingFileNewerOverwriteExisting=&Overschrijf het bestaande bestand
+ExistingFileNewerKeepExisting=&Behoud het bestaande bestand (aanbevolen)
+ExistingFileNewerOverwriteOrKeepAll=&Dit voor de volgende conflicten uitvoeren
 ErrorChangingAttr=Er is een fout opgetreden bij het wijzigen van de kenmerken van het bestaande bestand:
 ErrorCreatingTemp=Er is een fout opgetreden bij het maken van een bestand in de doelmap:
 ErrorReadingSource=Er is een fout opgetreden bij het lezen van het bronbestand:

@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.0.0+ arabic messages ***
+﻿; *** Inno Setup version 6.1.0+ arabic messages ***
 ;
 ; Translated by nacer baaziz (nacerstile@gmail.com)
 ;   http://www.jrsoftware.org/files/istrans/
@@ -14,6 +14,7 @@
 LanguageName=arabic
 LanguageID=$0401
 LanguageCodePage=0
+RightToLeft=yes
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=
@@ -70,8 +71,8 @@ PrivilegesRequiredOverrideText1=يمكن ل %1 أن يُثَبَّت على جم
 PrivilegesRequiredOverrideText2=.يمكن ل %1  أن يُثَبَّت لك فقط, أو أن يُثَبَّت على جميع المستخدمين (يتطلب إمتيازات المسؤول).
 PrivilegesRequiredOverrideAllUsers=التثبيت ل&كافة المستخدمين
 PrivilegesRequiredOverrideAllUsersRecommended=تثبيت ل&كافة المستخدمين (مستحسن)
-PrivilegesRequiredOverrideCurrentUser=تثبيت &لي فقط
-PrivilegesRequiredOverrideCurrentUserRecommended=تثبيت بالنسبة &لي فقط (مستحسن)
+PrivilegesRequiredOverrideCurrentUser=تثبيت لي &فقط
+PrivilegesRequiredOverrideCurrentUserRecommended=تثبيت بالنسبة لي &فقط (مستحسن)
 
 ; *** Misc. errors
 ErrorCreatingDir=تعذر على برنامج الإعداد إنشاء الدليل "%1"
@@ -151,6 +152,7 @@ WizardSelectDir=تحديد موقع الوِجْهة
 SelectDirDesc=أين يجب تثبيت [name]؟
 SelectDirLabel3=سيقوم معالج التثبيت بتثبيت  [name] في المجلد التالي.
 SelectDirBrowseLabel=للمتابعة، انقر فوق التالي. إذا كنت ترغب في تحديد مجلد آخر، انقر فوق استعراض.
+DiskSpaceGBLabel=تحتاج على الأقل [gb] GB من المساحة لتثبيت البرنامج. 
 DiskSpaceMBLabel=تحتاج على الأقل [mb] MB من المساحة لتثبيت البرنامج.
 CannotInstallToNetworkDrive=يتعذر على برنامج الإعداد التثبيت على محرك أقراص شبكة اتصال.
 CannotInstallToUNCPath=يتعذر على برنامج الإعداد تثبيت مسار UNC.
@@ -178,6 +180,7 @@ NoUninstallWarningTitle=مكونات موجودة
 NoUninstallWarning=اكتشف برنامج الإعداد أن المكونات التالية مثبتة بالفعل على جهاز الكمبيوتر الخاص بك: %n%n%1%n%nلن يؤدي إلغاء تحديد هذه المكونات إلى إزالة تثبيتها.%n%nهل ترغب في الاستمرار على أي حال?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=الاختيار الحالي يتطلب على الأقل [gb] GB من مساحة القرص.
 ComponentsDiskSpaceMBLabel=الاختيار الحالي يتطلب على الأقل [mb] MB من مساحة القرص.
 
 ; *** "Select Additional Tasks" wizard page
@@ -208,6 +211,18 @@ ReadyMemoComponents=المكونات المحددة:
 ReadyMemoGroup=مجلد قائمة ابدأ:
 ReadyMemoTasks=مهام إضافية:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=تحميل الملفات الإضافية...
+ButtonStopDownload=إي&قاف التحميل
+StopDownload=هل أنت متأكد من أنك ترغب في إيقاف التحميل؟
+ErrorDownloadAborted=تم إلغاء التحميل
+ErrorDownloadFailed=فشل التحميل: %1 %2
+ErrorDownloadSizeFailed=خطأ في قراءة الحجم: %1 %2
+ErrorFileHash1=خطأ في قراءة الهاش الخاص بالملف: %1
+ErrorFileHash2=خطأ في هاش الملف: كان من المتوقع أن يكن : %1, بينما تم إيجاد : %2
+ErrorProgress=خطأ في الحصول على نسبة التقدم: %1 من %2
+ErrorFileSize=خطأ في حجم الملف: المتوقع هو : %1, الحجم الذي وجدناه هو : %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=التحضير للتثبيت
 PreparingDesc=الإعداد يستعد لتثبيت [name] على جهازك.
@@ -218,6 +233,7 @@ ApplicationsFound2=تستخدم التطبيقات التالية الملفات
 CloseApplications=أغلق التطبيقات &تلقائيًا
 DontCloseApplications=&لا تغلق التطبيقات
 ErrorCloseApplications=لم يتمكن الإعداد من إغلاق جميع التطبيقات تلقائيًا. يوصى بإغلاق جميع التطبيقات التي تستخدم الملفات التي تحتاج إلى تحديث بواسطة برنامج الإعداد قبل المتابعة.
+PrepareToInstallNeedsRestart=برنامج الإعداد يجب أن يقوم بإعادة تشغيل الجهاز. بعد إعادة تشغيل جهازك, قم بتشغيل برنامج الإعداد مرة أخرى لإكمال تثبيت [name].%n%nهل تحب إعادة التشغيل الآن?
 
 ; *** "Installing" wizard page
 WizardInstalling=جاري التثبيت
@@ -289,8 +305,16 @@ ExistingFileReadOnly2=تعذر استبدال الملف الموجود لأنه
 ExistingFileReadOnlyRetry=&أزل القراءة فقط عن الملفات ثم حاول مرة أخرى
 ExistingFileReadOnlyKeepExisting=&إحتفظ بالملفات الموجودة
 ErrorReadingExistingDest=حدث خطأ أثناء محاولة قراءة الملف الموجود:
-FileExists=الملف موجود مسبقاً.%n%nهل تريد لبرنامج الإعداد أن يكتب استبداله؟
-ExistingFileNewer=الملف الموجود أحدث من الذي يحاول الإعداد تثبيته. من المستحسن الاحتفاظ بالملف الموجود.%n%nهل تريد الاحتفاظ بالملف الموجود؟
+FileExistsSelectAction=اختر إجراء
+FileExists2=الملف موجود بالفعل.
+FileExistsOverwriteExisting=&استبدال الملف الموجود
+FileExistsKeepExisting=ا&بقاء الملف الموجود
+FileExistsOverwriteOrKeepAll=ا&فعل هذا للنزاعات القادمة
+ExistingFileNewerSelectAction=اختر إجراء
+ExistingFileNewer2=الملف الموجود أحدث من الملف الذي سيقوم معالج الإعداد بتثبيته.
+ExistingFileNewerOverwriteExisting=&&استبدال الملف الموجود
+ExistingFileNewerKeepExisting=ال&ابقاء على الملف الموجود (مستحسن)
+ExistingFileNewerOverwriteOrKeepAll=ا&فعل هذا مع النزاعات القادمة
 ErrorChangingAttr=حدث خطأ أثناء محاولة تغيير سمات الملف الموجود:
 ErrorCreatingTemp=حدث خطأ أثناء محاولة إنشاء ملف في الدليل الوجهة:
 ErrorReadingSource=حدث خطأ أثناء محاولة قراءة ملف مصدر:

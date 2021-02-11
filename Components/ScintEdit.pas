@@ -2,7 +2,7 @@ unit ScintEdit;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2020 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -15,6 +15,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, ScintInt;
 
 type
+  TScintEditAutoCompleteSelectionEvent = TNotifyEvent;
   TScintEditChangeInfo = record
     Inserting: Boolean;
     StartPos, Length, LinesDelta: Integer;
@@ -43,9 +44,18 @@ type
   end;
   TScintRawCharSet = set of AnsiChar;
   TScintRawString = type {$IFDEF UNICODE} RawByteString {$ELSE} AnsiString {$ENDIF};
+  TScintRectangle = record
+    Left, Top, Right, Bottom: Integer;
+  end;
   TScintStyleNumber = 0..31;
   TScintVirtualSpaceOption = (svsRectangularSelection, svsUserAccessible);
   TScintVirtualSpaceOptions = set of TScintVirtualSpaceOption;
+  PScintRangeToFormat = ^TScintRangeToFormat;
+  TScintRangeToFormat = record
+    hdc, hdcTarget: UINT_PTR;
+    rc, rcPage: TScintRectangle;
+    chrg: TScintRange;
+  end;
 
   TScintEditStrings = class;
   TScintCustomStyler = class;
@@ -65,6 +75,7 @@ type
     FLeadBytes: TScintRawCharSet;
     FLineNumbers: Boolean;
     FLines: TScintEditStrings;
+    FOnAutoCompleteSelection: TScintEditAutoCompleteSelectionEvent;
     FOnChange: TScintEditChangeEvent;
     FOnCharAdded: TScintEditCharAddedEvent;
     FOnDropFiles: TScintEditDropFilesEvent;
@@ -94,7 +105,6 @@ type
     function GetModified: Boolean;
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
-    function GetRawTextLength: Integer;
     function GetReadOnly: Boolean;
     function GetSelection: TScintRange;
     function GetSelText: String;
@@ -179,9 +189,12 @@ type
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
     function FindText(const StartPos, EndPos: Integer; const S: String;
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
+    function FormatRange(const Draw: Boolean;
+      const RangeToFormat: PScintRangeToFormat): Integer;
     procedure ForceModifiedState;
     function GetCharAtPosition(const Pos: Integer): AnsiChar;
     function GetColumnFromPosition(const Pos: Integer): Integer;
+    function GetDefaultWordChars: AnsiString;
     function GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
     function GetIndicatorsAtPosition(const Pos: Integer): TScintIndicatorNumbers;
     function GetLineEndPosition(const Line: Integer): Integer;
@@ -198,6 +211,7 @@ type
     function GetPositionFromPoint(const P: TPoint;
       const CharPosition, CloseOnly: Boolean): Integer;
     function GetPositionOfMatchingBrace(const Pos: Integer): Integer;
+    function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
     function GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
     function GetTextRange(const StartPos, EndPos: Integer): String;
@@ -217,13 +231,16 @@ type
     procedure SelectAll;
     function SelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     procedure SetAutoCompleteFillupChars(const FillupChars: AnsiString);
+    procedure SetAutoCompleteSeparator(const C: AnsiChar);
     procedure SetAutoCompleteSelectedItem(const S: TScintRawString);
     procedure SetAutoCompleteStopChars(const StopChars: AnsiString);
     procedure SetBraceHighlighting(const Pos1, Pos2: Integer);
     procedure SetCursorID(const CursorID: Integer);
+    procedure SetDefaultWordChars;
     procedure SetEmptySelection;
     procedure SetLineIndentation(const Line, Indentation: Integer);
     procedure SetSavePoint;
+    procedure SetWordChars(const S: AnsiString);
     procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
     procedure Undo;
     procedure UpdateStyleAttributes;
@@ -260,6 +277,7 @@ type
     property AutoCompleteFontSize: Integer read FAutoCompleteFontSize
       write SetAutoCompleteFontSize default 0;
     property CodePage: Integer read FCodePage write SetCodePage default 0;
+    property Color;
     property FillSelectionToEdge: Boolean read FFillSelectionToEdge write SetFillSelectionToEdge
       default False;
     property Font;
@@ -280,6 +298,7 @@ type
       write SetVirtualSpaceOptions default [];
     property WordWrap: Boolean read FWordWrap write SetWordWrap default False;
     property Zoom: Integer read GetZoom write SetZoom default 0;
+    property OnAutoCompleteSelection: TScintEditAutoCompleteSelectionEvent read FOnAutoCompleteSelection write FOnAutoCompleteSelection;
     property OnChange: TScintEditChangeEvent read FOnChange write FOnChange;
     property OnCharAdded: TScintEditCharAddedEvent read FOnCharAdded write FOnCharAdded;
     property OnDropFiles: TScintEditDropFilesEvent read FOnDropFiles write FOnDropFiles;
@@ -389,6 +408,9 @@ uses
   ShellAPI, RTLConsts, UITypes;
 
 { TScintEdit }
+
+const
+  AUTOCSETSEPARATOR = #9;
 
 constructor TScintEdit.Create(AOwner: TComponent);
 begin
@@ -617,6 +639,7 @@ begin
   if Win32Platform = VER_PLATFORM_WIN32_NT then
     Call(SCI_SETKEYSUNICODE, 1, 0);
 {$ENDIF}
+  SetDefaultWordChars;
   ApplyOptions;
   UpdateStyleAttributes;
   if FAcceptDroppedFiles then
@@ -691,6 +714,12 @@ begin
   end;
 end;
 
+function TScintEdit.FormatRange(const Draw: Boolean;
+  const RangeToFormat: PScintRangeToFormat): Integer;
+begin
+  Result := Call(SCI_FORMATRANGE, Ord(Draw), LPARAM(RangeToFormat));
+end;
+
 function TScintEdit.GetAutoCompleteActive: Boolean;
 begin
   Result := Call(SCI_AUTOCACTIVE, 0, 0) <> 0;
@@ -733,6 +762,11 @@ var
 begin
   Line := GetLineFromPosition(Pos);
   Result := Pos - GetPositionFromLine(Line);
+end;
+
+function TScintEdit.GetDefaultWordChars: AnsiString;
+begin
+  Result := 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_';
 end;
 
 function TScintEdit.GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
@@ -1013,6 +1047,11 @@ end;
 procedure TScintEdit.Notify(const N: TSCNotification);
 begin
   case N.nmhdr.code of
+    SCN_AUTOCSELECTION:
+      begin
+        if Assigned(FOnAutoCompleteSelection) then
+          FOnAutoCompleteSelection(Self);
+      end;
     SCN_CHARADDED:
       begin
         if Assigned(FOnCharAdded) then
@@ -1171,6 +1210,11 @@ begin
   CallStr(SCI_AUTOCSELECT, 0, S);
 end;
 
+procedure TScintEdit.SetAutoCompleteSeparator(const C: AnsiChar);
+begin
+  Call(SCI_AUTOCSETSEPARATOR, WParam(C), 0);
+end;
+
 procedure TScintEdit.SetAutoCompleteStopChars(const StopChars: AnsiString);
 begin
   CallStr(SCI_AUTOCSTOPS, 0, StopChars);
@@ -1225,6 +1269,11 @@ end;
 procedure TScintEdit.SetCursorID(const CursorID: Integer);
 begin
   Call(SCI_SETCURSOR, CursorID, 0);
+end;
+
+procedure TScintEdit.SetDefaultWordChars;
+begin
+  SetWordChars(GetDefaultWordChars);
 end;
 
 procedure TScintEdit.SetEmptySelection;
@@ -1363,6 +1412,11 @@ begin
     FVirtualSpaceOptions := Value;
     ApplyOptions;
   end;
+end;
+
+procedure TScintEdit.SetWordChars(const S: AnsiString);
+begin
+  CallStr(SCI_SETWORDCHARS, 0, S);
 end;
 
 procedure TScintEdit.SetWordWrap(const Value: Boolean);

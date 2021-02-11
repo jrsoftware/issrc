@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 349
+  ClientHeight = 355
   ClientWidth = 589
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,14 +17,14 @@ object OptionsForm: TOptionsForm
   OnCreate = FormCreate
   DesignSize = (
     589
-    349)
+    355)
   PixelsPerInch = 96
   TextHeight = 13
   object GroupBox1: TGroupBox
     Left = 8
     Top = 8
     Width = 281
-    Height = 233
+    Height = 245
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Miscellaneous '
     TabOrder = 0
@@ -46,64 +46,80 @@ object OptionsForm: TOptionsForm
     end
     object AutosaveCheck: TCheckBox
       Left = 8
-      Top = 56
-      Width = 265
-      Height = 17
-      Caption = 'Automatically sa&ve before compiling'
-      TabOrder = 2
-    end
-    object BackupCheck: TCheckBox
-      Left = 8
-      Top = 76
-      Width = 265
-      Height = 17
-      Caption = 'Create &backups when saving'
-      TabOrder = 3
-    end
-    object UndoAfterSaveCheck: TCheckBox
-      Left = 8
       Top = 96
       Width = 265
       Height = 17
-      Caption = 'Allow &Undo after save'
+      Caption = 'Automatically sa&ve before compiling'
       TabOrder = 4
     end
-    object FullPathCheck: TCheckBox
+    object BackupCheck: TCheckBox
       Left = 8
       Top = 116
       Width = 265
       Height = 17
-      Caption = 'Display &full path in title bar'
+      Caption = 'Create &backups when saving'
       TabOrder = 5
     end
-    object PauseOnDebuggerExceptionsCheck: TCheckBox
+    object UndoAfterSaveCheck: TCheckBox
       Left = 8
       Top = 136
       Width = 265
       Height = 17
-      Caption = '&Pause on exceptions'
+      Caption = 'Allow &Undo after save'
       TabOrder = 6
     end
-    object RunAsDifferentUserCheck: TCheckBox
+    object FullPathCheck: TCheckBox
       Left = 8
       Top = 156
       Width = 265
       Height = 17
-      Caption = '*'
+      Caption = 'Display &full path in title bar'
       TabOrder = 7
     end
-    object ColorizeCompilerOutputCheck: TCheckBox
+    object PauseOnDebuggerExceptionsCheck: TCheckBox
       Left = 8
       Top = 176
       Width = 265
       Height = 17
-      Caption = 'Colori&ze "Compiler Output" view'
+      Caption = '&Pause on exceptions'
       TabOrder = 8
+    end
+    object RunAsDifferentUserCheck: TCheckBox
+      Left = 8
+      Top = 196
+      Width = 265
+      Height = 17
+      Caption = '*'
+      TabOrder = 9
+    end
+    object ColorizeCompilerOutputCheck: TCheckBox
+      Left = 8
+      Top = 216
+      Width = 265
+      Height = 17
+      Caption = 'Colori&ze "Compiler Output" view'
+      TabOrder = 10
+    end
+    object OpenIncludedFilesCheck: TCheckBox
+      Left = 8
+      Top = 76
+      Width = 265
+      Height = 17
+      Caption = 'Automatically open #include files'
+      TabOrder = 3
+    end
+    object ShowPreprocessorOutputCheck: TCheckBox
+      Left = 8
+      Top = 56
+      Width = 265
+      Height = 17
+      Caption = 'Automatically show preprocessor output'
+      TabOrder = 2
     end
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 248
+    Top = 254
     Width = 281
     Height = 57
     Anchors = [akLeft, akBottom]
@@ -127,7 +143,7 @@ object OptionsForm: TOptionsForm
     Left = 300
     Top = 8
     Width = 281
-    Height = 297
+    Height = 303
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Editor '
     TabOrder = 2
@@ -267,7 +283,7 @@ object OptionsForm: TOptionsForm
   end
   object OKButton: TButton
     Left = 428
-    Top = 317
+    Top = 323
     Width = 73
     Height = 23
     Anchors = [akLeft, akBottom]
@@ -278,7 +294,7 @@ object OptionsForm: TOptionsForm
   end
   object CancelButton: TButton
     Left = 508
-    Top = 317
+    Top = 323
     Width = 73
     Height = 23
     Anchors = [akLeft, akBottom]

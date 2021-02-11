@@ -1,6 +1,12 @@
-; *** Inno Setup version 6.0.3+ Catalan messages ***
+; *** Inno Setup version 6.1.0+ Catalan messages ***
 ;
 ; Translated by Carles Millan (email: carles@carlesmillan.cat)
+;
+; To download user-contributed translations of this file, go to:
+;   https://jrsoftware.org/files/istrans/
+;
+; Note: When translating this text, do not add periods (.) to the end of
+; messages that didn't have them already, because on those messages Inno
 
 [LangOptions]
 
@@ -193,6 +199,18 @@ ReadyMemoComponents=Components seleccionats:
 ReadyMemoGroup=Carpeta del Menú Inici:
 ReadyMemoTasks=Tasques addicionals:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Descarregant els fitxers addicionals...
+ButtonStopDownload=&Atura la descàrrega
+StopDownload=Esteu segur que voleu aturar la descàrrega?
+ErrorDownloadAborted=Descàrrega cancel·lada
+ErrorDownloadFailed=La descàrrega ha fallat: %1 %2
+ErrorDownloadSizeFailed=La mesura de la descàrrega ha fallat: %1 %2
+ErrorFileHash1=El hash del fitxer ha fallat: %1
+ErrorFileHash2=El hash del fitxer és invàlid: s'esperava %1, s'ha trobat %2
+ErrorProgress=Progrés invàlid: %1 de %2
+ErrorFileSize=Mida del fitxer invàlida: s'esperava %1, s'ha trobat %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparant la instal·lació
 PreparingDesc=Preparant la instal·lació de [name] al vostre ordinador.
@@ -273,10 +291,18 @@ SourceIsCorrupted=El fitxer d'origen està corromput
 SourceDoesntExist=El fitxer d'origen "%1" no existeix
 ExistingFileReadOnly2=El fitxer existent no ha pogut ser substituït perquè està marcat com a només lectura.
 ExistingFileReadOnlyRetry=&Lleveu-li l'atribut de només lectura i torneu-ho a intentar
-ExistingFileReadOnlyKeepExisting=&Manteniu el fitxer existent
+ExistingFileReadOnlyKeepExisting=&Manté el fitxer existent
 ErrorReadingExistingDest=S'ha produït un error en llegir el fitxer:
-FileExists=El fitxer ja existeix.%n%nVoleu que sigui sobre-escrit?
-ExistingFileNewer=El fitxer existent és més nou que el que s'intenta instal·lar. Es recomana mantenir el fitxer existent.%n%nVoleu mantenir-lo?
+FileExistsSelectAction=Trieu acció
+FileExists2=El fitxer ja existeix.
+FileExistsOverwriteExisting=&Sobreescriu el fitxer existent
+FileExistsKeepExisting=&Manté el fitxer existent
+FileExistsOverwriteOrKeepAll=&Fes-ho també per als propers conflictes
+ExistingFileNewerSelectAction=Trieu acció
+ExistingFileNewer2=El fitxer existent és més nou que el que s'intenta instal·lar.
+ExistingFileNewerOverwriteExisting=&Sobreescriu el fitxer existent
+ExistingFileNewerKeepExisting=&Manté el fitxer existent (recomanat)
+ExistingFileNewerOverwriteOrKeepAll=&Fes-ho també per als propers conflictes
 ErrorChangingAttr=Hi ha hagut un error en canviar els atributs del fitxer:
 ErrorCreatingTemp=Hi ha hagut un error en crear un fitxer a la carpeta de destinació:
 ErrorReadingSource=Hi ha hagut un error en llegir el fitxer d'origen:

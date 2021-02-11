@@ -196,7 +196,7 @@ begin
         EntryCount, Inheritance);
   except
     { If the helper interface (or even InternalGrantPermission) raises an
-      exception, don't propogate it. Just log it and return an error code, as
+      exception, don't propagate it. Just log it and return an error code, as
       that's what the caller is expecting on failure. }
     Log('Exception while setting permissions:' + SNewLine + GetExceptMessage);
     Result := ERROR_GEN_FAILURE;

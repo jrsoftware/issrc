@@ -16,6 +16,7 @@ interface
 function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
   WorkingDir: String; IconFilename: String; const IconIndex, ShowCmd: Integer;
   const HotKey: Word; FolderShortcut: Boolean; const AppUserModelID: String;
+  const AppUserModelToastActivatorCLSID: PGUID;
   const ExcludeFromShowInNewInstall, PreventPinning: Boolean): String;
 procedure RegisterTypeLibrary(const Filename: String);
 procedure UnregisterTypeLibrary(const Filename: String);
@@ -51,6 +52,12 @@ function IsWindows8: Boolean;
 { Returns True if running Windows 8 or later }
 begin
   Result := (WindowsVersion >= Cardinal($06020000));
+end;
+
+function IsWindows10: Boolean;
+{ Returns True if running Windows 10 or later }
+begin
+  Result := (WindowsVersion >= Cardinal($0A000000));
 end;
 
 procedure AssignWorkingDir(const SL: IShellLink; const WorkingDir: String);
@@ -156,6 +163,7 @@ type
 function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
   WorkingDir: String; IconFilename: String; const IconIndex, ShowCmd: Integer;
   const HotKey: Word; FolderShortcut: Boolean; const AppUserModelID: String;
+  const AppUserModelToastActivatorCLSID: PGUID;
   const ExcludeFromShowInNewInstall, PreventPinning: Boolean): String;
 { Creates a lnk file named Filename, with a description of Description, with a
   HotKey hotkey, which points to ShortcutTo. Filename should be a full path.
@@ -179,6 +187,9 @@ const
   PKEY_AppUserModel_StartPinOption: TPropertyKey = (
     fmtid: (D1:$9F4C2855; D2:$9F79; D3:$4B39; D4:($A8,$D0,$E1,$D4,$2D,$E1,$D5,$F3));
     pid: 12);
+  PKEY_AppUserModel_ToastActivatorCLSID: TPropertyKey = (
+    fmtid: (D1:$9F4C2855; D2:$9F79; D3:$4B39; D4:($A8,$D0,$E1,$D4,$2D,$E1,$D5,$F3));
+    pid: 26);
   APPUSERMODEL_STARTPINOPTION_NOPINONINSTALL = 1;
 
 {$IFNDEF Delphi3OrHigher}
@@ -231,7 +242,7 @@ begin
 
     { Note: Vista and newer support IPropertyStore but Vista errors if you try to
       commit a PKEY_AppUserModel_ID, so avoid setting the property on Vista. }
-    if IsWindows7 and ((AppUserModelID <> '') or ExcludeFromShowInNewInstall or PreventPinning) then begin
+    if IsWindows7 and ((AppUserModelID <> '') or (AppUserModelToastActivatorCLSID <> nil) or ExcludeFromShowInNewInstall or PreventPinning) then begin
       OleResult := SL.QueryInterface(IID_IPropertyStore, PS);
       if OleResult <> S_OK then
         RaiseOleError('IShellLink::QueryInterface(IID_IPropertyStore)', OleResult);
@@ -244,7 +255,7 @@ begin
         if OleResult <> S_OK then
           RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_PreventPinning)', OleResult);
       end;
-      if (AppUserModelID <> '') then begin
+      if AppUserModelID <> '' then begin
         PV.vt := VT_BSTR;
         PV.bstrVal := StringToOleStr(AppUserModelID);
         if PV.bstrVal = nil then
@@ -256,6 +267,13 @@ begin
         finally
           SysFreeString(PV.bstrVal);
         end;
+      end;
+      if IsWindows10 and (AppUserModelToastActivatorCLSID <> nil) then begin
+        PV.vt := VT_CLSID;
+        PV.puuid := AppUserModelToastActivatorCLSID;
+        OleResult := PS.SetValue(PKEY_AppUserModel_ToastActivatorCLSID, PV);
+        if OleResult <> S_OK then
+          RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ToastActivatorCLSID)', OleResult);
       end;
       if ExcludeFromShowInNewInstall then begin
         PV.vt := VT_BOOL;
@@ -349,7 +367,7 @@ begin
 
   { Note: Vista and newer support IPropertyStore but Vista errors if you try to
     commit a PKEY_AppUserModel_ID, so avoid setting the property on Vista. }
-  if IsWindows7 and ((AppUserModelID <> '') or ExcludeFromShowInNewInstall or PreventPinning) then begin
+  if IsWindows7 and ((AppUserModelID <> '') or (AppUserModelToastActivatorCLSID <> nil) or ExcludeFromShowInNewInstall or PreventPinning) then begin
     PS := Obj as {$IFDEF IS_D14}PropSys.{$ENDIF}IPropertyStore;
     { According to MSDN the PreventPinning property should be set before the ID property. In practice
       this doesn't seem to matter - at least not for shortcuts - but do it first anyway. }
@@ -367,6 +385,13 @@ begin
       OleResult := PS.SetValue(PKEY_AppUserModel_ID, PV);
       if OleResult <> S_OK then
         RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ID)', OleResult);
+    end;
+    if IsWindows10 and (AppUserModelToastActivatorCLSID <> nil) then begin
+      PV.vt := VT_CLSID;
+      PV.puuid := AppUserModelToastActivatorCLSID;
+      OleResult := PS.SetValue(PKEY_AppUserModel_ToastActivatorCLSID, PV);
+      if OleResult <> S_OK then
+        RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ToastActivatorCLSID)', OleResult);
     end;
     if ExcludeFromShowInNewInstall then begin
       PV.vt := VT_BOOL;

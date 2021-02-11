@@ -1,18 +1,23 @@
 {
   Inno Setup Preprocessor
   Copyright (C) 2001-2002 Alex Yackimoff
+
+  Inno Setup
+  Copyright (C) 1997-2020 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 }
 
 unit IsppSessions;
 
 interface
 
-uses IsppTranslate;
+uses IsppPreprocessor;
 
 procedure PushPreproc(APreproc: TPreprocessor);
 function PopPreproc: TPreprocessor;
 function PeekPreproc: TPreprocessor;
-procedure Warning(const Msg: string; const Args: array of const);
+procedure WarningMsg(const Msg: string; const Args: array of const);
 procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);
 procedure QueueFileForDeletion(const FileName: string);
 
@@ -20,15 +25,15 @@ implementation
 
 {$I ..\Version.inc}
 
-uses SysUtils, Classes, IsppStacks {$IFDEF IS_D12}, Windows{$ENDIF};
+uses SysUtils, Classes, IsppStack {$IFDEF IS_D12}, Windows{$ENDIF};
 
-procedure Warning(const Msg: string; const Args: array of const);
+procedure WarningMsg(const Msg: string; const Args: array of const);
 var
   P: TPreprocessor;
 begin
   P := PeekPreproc;
   if Assigned(P) then
-    P.Warning(Msg, Args)
+    P.WarningMsg(Msg, Args)
 end;
 
 procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);

@@ -30,16 +30,16 @@ object CompileForm: TCompileForm
   end
   object BodyPanel: TPanel
     Left = 0
-    Top = 30
+    Top = 51
     Width = 361
-    Height = 215
+    Height = 194
     Align = alClient
     BevelOuter = bvNone
     FullRepaint = False
     TabOrder = 0
     object SplitPanel: TPanel
       Left = 0
-      Top = 107
+      Top = 86
       Width = 361
       Height = 4
       Cursor = crSizeNS
@@ -52,7 +52,7 @@ object CompileForm: TCompileForm
     end
     object StatusPanel: TPanel
       Left = 0
-      Top = 111
+      Top = 90
       Width = 361
       Height = 104
       Align = alBottom
@@ -60,6 +60,22 @@ object CompileForm: TCompileForm
       FullRepaint = False
       TabOrder = 0
       Visible = False
+      object FindResultsList: TListBox
+        Left = 0
+        Top = 0
+        Width = 361
+        Height = 83
+        Style = lbOwnerDrawFixed
+        Align = alClient
+        BorderStyle = bsNone
+        ItemHeight = 13
+        MultiSelect = True
+        PopupMenu = ListPopupMenu
+        TabOrder = 3
+        Visible = False
+        OnDblClick = FindResultsListDblClick
+        OnDrawItem = FindResultsListDrawItem
+      end
       object DebugCallStackList: TListBox
         Left = 0
         Top = 0
@@ -104,7 +120,7 @@ object CompileForm: TCompileForm
         TabOrder = 0
         OnDrawItem = CompilerOutputListDrawItem
       end
-      object TabSet: TNewTabSet
+      object OutputTabSet: TNewTabSet
         Left = 0
         Top = 83
         Width = 361
@@ -114,8 +130,9 @@ object CompileForm: TCompileForm
         Tabs.Strings = (
           'Compiler Output'
           'Debug Output'
-          'Debug Call Stack')
-        OnClick = TabSetClick
+          'Debug Call Stack'
+          'Find Results')
+        OnClick = OutputTabSetClick
       end
     end
   end
@@ -181,19 +198,19 @@ object CompileForm: TCompileForm
       ShowHint = True
       TabOrder = 0
       Transparent = True
-      object NewButton: TToolButton
+      object NewMainFileButton: TToolButton
         Left = 0
         Top = 0
-        Hint = 'New (Ctrl+N)'
+        Hint = 'New Main Script (Ctrl+N)'
         ImageIndex = 0
-        OnClick = FNewClick
+        OnClick = FNewMainFileClick
       end
-      object OpenButton: TToolButton
+      object OpenMainFileButton: TToolButton
         Left = 23
         Top = 0
-        Hint = 'Open (Ctrl+O)'
+        Hint = 'Open Main Script (Ctrl+O)'
         ImageIndex = 1
-        OnClick = FOpenClick
+        OnClick = FOpenMainFileClick
       end
       object SaveButton: TToolButton
         Left = 46
@@ -295,21 +312,33 @@ object CompileForm: TCompileForm
       end
     end
   end
+  object MemosTabSet: TNewTabSet
+    Left = 0
+    Top = 30
+    Width = 361
+    Height = 21
+    Align = alTop
+    TabIndex = 0
+    Tabs.Strings = (
+      'Main Script')
+    TabPosition = tpTop
+    OnClick = MemosTabSetClick
+  end
   object MainMenu1: TMainMenu
     Left = 8
     Top = 48
     object FMenu: TMenuItem
       Caption = '&File'
       OnClick = FMenuClick
-      object FNew: TMenuItem
+      object FNewMainFile: TMenuItem
         Caption = '&New'
         ShortCut = 16462
-        OnClick = FNewClick
+        OnClick = FNewMainFileClick
       end
-      object FOpen: TMenuItem
+      object FOpenMainFile: TMenuItem
         Caption = '&Open...'
         ShortCut = 16463
-        OnClick = FOpenClick
+        OnClick = FOpenMainFileClick
       end
       object N19: TMenuItem
         Caption = '-'
@@ -319,9 +348,9 @@ object CompileForm: TCompileForm
         ShortCut = 16467
         OnClick = FSaveClick
       end
-      object FSaveAs: TMenuItem
+      object FSaveMainFileAs: TMenuItem
         Caption = 'Save &As...'
-        OnClick = FSaveAsClick
+        OnClick = FSaveClick
       end
       object FSaveEncoding: TMenuItem
         Caption = 'Save &Encoding'
@@ -336,10 +365,23 @@ object CompileForm: TCompileForm
           OnClick = FSaveEncodingItemClick
         end
       end
+      object FSaveAll: TMenuItem
+        Caption = 'Sa&ve All'
+        ShortCut = 24659
+        OnClick = FSaveAllClick
+      end
       object N1: TMenuItem
         Caption = '-'
       end
-      object FMRUSep: TMenuItem
+      object FPrint: TMenuItem
+        Caption = '&Print...'
+        ShortCut = 16464
+        OnClick = FPrintClick
+      end
+      object N22: TMenuItem
+        Caption = '-'
+      end
+      object FMRUMainFilesSep: TMenuItem
         Caption = '-'
         Visible = False
       end
@@ -390,10 +432,20 @@ object CompileForm: TCompileForm
         ShortCut = 16454
         OnClick = EFindClick
       end
+      object EFindInFiles: TMenuItem
+        Caption = 'F&ind in Files...'
+        ShortCut = 24646
+        OnClick = EFindInFilesClick
+      end
       object EFindNext: TMenuItem
         Caption = 'Find &Next'
         ShortCut = 114
-        OnClick = EFindNextClick
+        OnClick = EFindNextOrPreviousClick
+      end
+      object EFindPrevious: TMenuItem
+        Caption = 'Find Pre&vious'
+        ShortCut = 8306
+        OnClick = EFindNextOrPreviousClick
       end
       object EReplace: TMenuItem
         Caption = 'R&eplace...'
@@ -451,6 +503,19 @@ object CompileForm: TCompileForm
       object N11: TMenuItem
         Caption = '-'
       end
+      object VNextTab: TMenuItem
+        Caption = '&Next Tab'
+        ShortCut = 16393
+        OnClick = VNextTabClick
+      end
+      object VPreviousTab: TMenuItem
+        Caption = '&Previous Tab'
+        ShortCut = 24585
+        OnClick = VPreviousTabClick
+      end
+      object N20: TMenuItem
+        Caption = '-'
+      end
       object VCompilerOutput: TMenuItem
         Caption = '&Compiler Output'
         RadioItem = True
@@ -465,6 +530,11 @@ object CompileForm: TCompileForm
         Caption = 'Debug &Call Stack'
         RadioItem = True
         OnClick = VDebugCallStackClick
+      end
+      object VFindResults: TMenuItem
+        Caption = '&Find Results'
+        RadioItem = True
+        OnClick = VFindResultsClick
       end
       object VHide: TMenuItem
         Caption = '&Hide Bottom Pane'
@@ -530,6 +600,11 @@ object CompileForm: TCompileForm
         ShortCut = 119
         OnClick = RStepOverClick
       end
+      object RStepOut: TMenuItem
+        Caption = 'Step Out'
+        ShortCut = 8311
+        OnClick = RStepOutClick
+      end
       object RToggleBreakPoint: TMenuItem
         Caption = 'Toggle &Breakpoint'
         ShortCut = 116
@@ -575,6 +650,7 @@ object CompileForm: TCompileForm
     end
     object TMenu: TMenuItem
       Caption = '&Tools'
+      OnClick = TMenuClick
       object TAddRemovePrograms: TMenuItem
         Caption = '&Add/Remove Programs'
         OnClick = TAddRemoveProgramsClick
@@ -583,6 +659,11 @@ object CompileForm: TCompileForm
         Caption = 'Generate &GUID'
         ShortCut = 24647
         OnClick = TGenerateGUIDClick
+      end
+      object TInsertMsgBox: TMenuItem
+        Caption = '&MessageBox Designer...'
+        ShortCut = 24653
+        OnClick = TInsertMsgBoxClick
       end
       object N7: TMenuItem
         Caption = '-'
@@ -602,6 +683,20 @@ object CompileForm: TCompileForm
     object HMenu: TMenuItem
       Caption = '&Help'
       OnClick = HMenuClick
+      object HDonate: TMenuItem
+        Caption = 'D&onate - Thank you!'
+        OnClick = HDonateClick
+      end
+      object N21: TMenuItem
+        Caption = '-'
+      end
+      object HShortcutsDoc: TMenuItem
+        Caption = '&Keyboard Commands'
+        OnClick = HShortcutsDocClick
+      end
+      object N14: TMenuItem
+        Caption = '-'
+      end
       object HDoc: TMenuItem
         Caption = 'Inno Setup &Documentation'
         OnClick = HDocClick
@@ -613,6 +708,10 @@ object CompileForm: TCompileForm
       object HFaq: TMenuItem
         Caption = 'Inno Setup &FAQ'
         OnClick = HFaqClick
+      end
+      object HMailingList: TMenuItem
+        Caption = 'Inno Setup &Mailing List'
+        OnClick = HMailingListClick
       end
       object HWhatsNew: TMenuItem
         Caption = 'Inno Setup &Revision History'
@@ -637,13 +736,6 @@ object CompileForm: TCompileForm
         OnClick = HPSWebsiteClick
       end
       object N6: TMenuItem
-        Caption = '-'
-      end
-      object HDonate: TMenuItem
-        Caption = 'D&onate'
-        OnClick = HDonateClick
-      end
-      object N14: TMenuItem
         Caption = '-'
       end
       object HAbout: TMenuItem
@@ -2113,5 +2205,15 @@ object CompileForm: TCompileForm
       end>
     Left = 152
     Top = 96
+  end
+  object FindInFilesDialog: TFindDialog
+    Options = [frDown, frHideUpDown]
+    OnFind = FindInFilesDialogFind
+    Left = 136
+    Top = 152
+  end
+  object PrintDialog: TPrintDialog
+    Left = 224
+    Top = 149
   end
 end

@@ -60,7 +60,7 @@
 			<DCCReference Include="ScriptCompiler.pas"/>
 			<DCCReference Include="ScriptClasses_C.pas"/>
 			<DCCReference Include="ResUpdate.pas"/>
-			<DCCReference Include="CompResUpdate.pas"/>
+			<DCCReference Include="CompExeUpdate.pas"/>
 			<DCCReference Include="Compress.pas"/>
 			<DCCReference Include="CompressZlib.pas"/>
 			<DCCReference Include="bzlib.pas"/>
