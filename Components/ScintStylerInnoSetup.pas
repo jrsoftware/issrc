@@ -1633,6 +1633,10 @@ begin
         CommitStyle(stConstant);
     end;
   end;
+  if BraceLevel = 0 then
+    CommitStyle(NonConstStyle)
+  else
+    CommitStyleSqPending(stConstant);
 end;
 
 procedure TInnoSetupStyler.StyleNeeded;
