@@ -143,6 +143,7 @@ var
   NewOutputMsgPage: TOutputMsgWizardPage;
   NewOutputMsgMemoPage: TOutputMsgMemoWizardPage;
   NewOutputProgressPage: TOutputProgressWizardPage;
+  NewOutputMarqueeProgressPage: TOutputMarqueeProgressWizardPage;
 {$IFNDEF PS_NOINT64}
   NewDownloadPage: TDownloadWizardPage;
   P: PPSVariantProcPtr;
@@ -275,6 +276,20 @@ begin
       raise;
     end;
     Stack.SetClass(PStart, NewOutputProgressPage);
+  end else if Proc.Name = 'CREATEOUTPUTMARQUEEPROGRESSPAGE' then begin
+    if IsUninstaller then
+      NoUninstallFuncError(Proc.Name);
+    NewOutputMarqueeProgressPage := TOutputMarqueeProgressWizardPage.Create(GetWizardForm);
+    try
+      NewOutputMarqueeProgressPage.Caption := Stack.GetString(PStart-1);
+      NewOutputMarqueeProgressPage.Description := Stack.GetString(PStart-2);
+      GetWizardForm.AddPage(NewOutputMarqueeProgressPage, -1);
+      NewOutputMarqueeProgressPage.Initialize;
+    except
+      NewOutputMarqueeProgressPage.Free;
+      raise;
+    end;
+    Stack.SetClass(PStart, NewOutputMarqueeProgressPage);
 {$IFNDEF PS_NOINT64}
   end else if Proc.Name = 'CREATEDOWNLOADPAGE' then begin
     if IsUninstaller then

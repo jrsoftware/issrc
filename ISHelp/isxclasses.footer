@@ -6,6 +6,7 @@
 <tt>function <link topic="isxfunc_CreateOutputMsgPage">CreateOutputMsgPage</link>(const AfterID: Integer; const ACaption, ADescription, AMsg: String): TOutputMsgWizardPage;</tt><br />
 <tt>function <link topic="isxfunc_CreateOutputMsgMemoPage">CreateOutputMsgMemoPage</link>(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; const AMsg: AnsiString): TOutputMsgMemoWizardPage;</tt><br />
 <tt>function <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link>(const ACaption, ADescription: String): TOutputProgressWizardPage;</tt><br />
+<tt>function <link topic="isxfunc_CreateOutputMarqueeProgressPage">CreateOutputMarqueeProgressPage</link>(const ACaption, ADescription: String): TOutputMarqueeProgressWizardPage;</tt><br />
 <tt>function <link topic="isxfunc_CreateCustomPage">CreateCustomPage</link>(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;</tt><br />
 <tt>function <link topic="isxfunc_CreateCustomForm">CreateCustomForm</link>: TSetupForm;</tt><br />
 <br />

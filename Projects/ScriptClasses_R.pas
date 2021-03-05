@@ -320,6 +320,15 @@ begin
   end;
 end;
 
+procedure RegisterOutputMarqueeProgressWizardPage_R(CL: TPSRuntimeClassImporter);
+begin
+  with CL.Add(TOutputMarqueeProgressWizardPage) do
+  begin
+    RegisterMethod(@TOutputMarqueeProgressWizardPage.Animate, 'Animate');
+    RegisterMethod(@TOutputMarqueeProgressWizardPage.SetProgress, 'SetProgress');
+  end;
+end;
+
 {$IFNDEF PS_NOINT64}
 procedure TDownloadPageAbortedByUser_R(Self: TDownloadWizardPage; var T: Boolean); begin T := Self.AbortedByUser; end;
 
@@ -438,6 +447,7 @@ begin
     RegisterOutputMsgWizardPage_R(Cl);
     RegisterOutputMsgMemoWizardPage_R(Cl);
     RegisterOutputProgressWizardPage_R(Cl);
+    RegisterOutputMarqueeProgressWizardPage_R(Cl);
 {$IFNDEF PS_NOINT64}
     RegisterDownloadWizardPage_R(Cl);
 {$ENDIF}

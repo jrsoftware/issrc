@@ -15,9 +15,9 @@ const
 
   { ScriptDlg }
 {$IFNDEF PS_NOINT64}
-  ScriptDlgTable: array [0..13] of AnsiString =
+  ScriptDlgTable: array [0..14] of AnsiString =
 {$ELSE}
-  ScriptDlgTable: array [0..12] of AnsiString =
+  ScriptDlgTable: array [0..13] of AnsiString =
 {$ENDIF}
   (
     'function PageFromID(const ID: Integer): TWizardPage;',
@@ -30,6 +30,7 @@ const
     'function CreateOutputMsgPage(const AfterID: Integer; const ACaption, ADescription, AMsg: String): TOutputMsgWizardPage;',
     'function CreateOutputMsgMemoPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; const AMsg: AnsiString): TOutputMsgMemoWizardPage;',
     'function CreateOutputProgressPage(const ACaption, ADescription: String): TOutputProgressWizardPage;',
+    'function CreateOutputMarqueeProgressPage(const ACaption, ADescription: String): TOutputMarqueeProgressWizardPage;',
 {$IFNDEF PS_NOINT64}
     'function CreateDownloadPage(const ACaption, ADescription: String; const OnDownloadProgress: TOnDownloadProgress): TDownloadWizardPage;',
 {$ENDIF}

@@ -2507,10 +2507,19 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDlg.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To set the text on the page, call the <tt>SetText</tt> method. <tt>SetText</tt> takes two string parameters: use the first to tell the user what you're doing, and the second to display a file or directory name. Either parameter may be blank.</p>
-<p>To display or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.
-</p></remarks>
+<p>To show or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.</p></remarks>
         <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> for examples.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link></p></seealso>
+        <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link><br />
+<link topic="isxfunc_CreateOutputMarqueeProgressPage">CreateOutputMarqueeProgressPage</link></p></seealso>
+      </function>
+      <function>
+        <name>CreateOutputMarqueeProgressPage</name>
+        <prototype>function CreateOutputMarqueeProgressPage(const ACaption, ADescription: String): TOutputMarqueeProgressWizardPage;</prototype>
+        <description><p>Creates a wizard page containing static text as well as a marquee progress bar.</p>
+<p>See <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link> for information on how to work with progress pages.</p></description>
+        <remarks><p>To animate the progress bar, call the <tt>Animate</tt> method. Do not call the <tt>SetProgress</tt> method, it will raise an internal error.</p></remarks>
+        <example><p>See <i>AllPagesExample.iss</i> for an example.</p></example>
+        <seealso><p><link topic="scriptclasses" anchor="TOutputMarqueeProgressWizardPage">TOutputMarqueeProgressWizardPage</link></p></seealso>
       </function>
       <function>
         <name>CreateDownloadPage</name>

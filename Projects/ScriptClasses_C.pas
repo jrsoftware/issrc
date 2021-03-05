@@ -539,6 +539,15 @@ begin
   end;
 end;
 
+procedure RegisterOutputMarqueeProgressWizardPage_C(Cl: TPSPascalCompiler);
+begin
+  with CL.AddClassN(Cl.FindClass('TOutputProgressWizardPage'),'TOutputMarqueeProgressWizardPage') do
+  begin
+    RegisterMethod('procedure Animate');
+    RegisterMethod('procedure SetProgress(const Position, Max: Longint)'); { Only used to stop the script from called TOutputProgressWizardPage.SetProgress }
+  end;
+end;
+
 {$IFNDEF PS_NOINT64}
 procedure RegisterDownloadWizardPage_C(Cl: TPSPascalCompiler);
 begin
@@ -667,6 +676,7 @@ begin
   RegisterOutputMsgWizardPage_C(Cl);
   RegisterOutputMsgMemoWizardPage_C(Cl);
   RegisterOutputProgressWizardPage_C(Cl);
+  RegisterOutputMarqueeProgressWizardPage_C(Cl);
 {$IFNDEF PS_NOINT64}
   RegisterDownloadWizardPage_C(Cl);
 {$ENDIF}

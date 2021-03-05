@@ -731,6 +731,10 @@ TOutputProgressWizardPage = class(TWizardPage)
   procedure Show;
 end;
 
+TOutputMarqueeProgressWizardPage = class(TOutputProgressWizardPage)
+  procedure Animate;
+end;
+
 TDownloadWizardPage = class(TOutputProgressWizardPage)
   property AbortButton: TNewButton; read;
   property AbortedByUser: Boolean; read;

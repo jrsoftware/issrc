@@ -165,6 +165,14 @@ type
       property ProgressBar: TNewProgressBar read FProgressBar;
   end;
 
+  TOutputMarqueeProgressWizardPage = class(TOutputProgressWizardPage)
+    public
+      constructor Create(AOwner: TComponent); override;
+      procedure Animate;
+      procedure Initialize; override;
+      procedure SetProgress(const Position, Max: Longint);
+  end;
+
 {$IFNDEF PS_NOINT64}
   TDownloadWizardPage = class(TOutputProgressWizardPage)
     private
@@ -194,7 +202,7 @@ implementation
 
 uses
   Struct, Main, SelFolderForm, Msgs, MsgIDs, PathFunc, CmnFunc, CmnFunc2,
-  BrowseFunc, Logging;
+  BrowseFunc, Logging, InstFunc;
 
 const
   DefaultLabelHeight = 14;
@@ -883,6 +891,29 @@ begin
     SetMessageBoxCallbackFunc(OutputProgressWizardPageMessageBoxCallback, LongInt(Self));
     ProcessMsgs;
   end;
+end;
+
+constructor TOutputMarqueeProgressWizardPage.Create(AOwner: TComponent);
+begin
+  inherited;
+  FUseMarqueeStyle := True;
+end;
+
+procedure TOutputMarqueeProgressWizardPage.Animate;
+begin
+  ProcessMsgs;
+end;
+
+procedure TOutputMarqueeProgressWizardPage.Initialize;
+begin
+  inherited;
+  FProgressBar.Visible := True;
+  inherited SetProgress(0, 0);
+end;
+
+procedure TOutputMarqueeProgressWizardPage.SetProgress(const Position, Max: Longint);
+begin
+  InternalError('Cannot call TOutputMarqueeProgressWizardPage.SetProgress');
 end;
 
 {$IFNDEF PS_NOINT64}
