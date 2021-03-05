@@ -37,11 +37,14 @@ type
       const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
   end;
   
+  TRichEditViewerCustomShellExecute = procedure(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
+  
   TRichEditViewer = class(TMemo)
   private
     FUseRichEdit: Boolean;
     FRichEditLoaded: Boolean;
     FCallback: IRichEditOleCallback;
+    class var FCustomShellExecute: TRichEditViewerCustomShellExecute;
     procedure SetRTFTextProp(const Value: AnsiString);
     procedure SetUseRichEdit(Value: Boolean);
     procedure UpdateBackgroundColor;
@@ -56,6 +59,7 @@ type
     destructor Destroy; override;
     function SetRTFText(const Value: AnsiString): Integer;
     property RTFText: AnsiString write SetRTFTextProp;
+    class property CustomShellExecute: TRichEditViewerCustomShellExecute read FCustomShellExecute write FCustomShellExecute;
   published
     property UseRichEdit: Boolean read FUseRichEdit write SetUseRichEdit default True;
   end;
@@ -411,8 +415,12 @@ begin
             TextRange.chrg := CharRange;
             TextRange.lpstrText := PChar(URL);
             SetLength(URL, SendMessage(Handle, EM_GETTEXTRANGE, 0, LParam(@TextRange)));
-            if URL <> '' then
-              ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
+            if URL <> '' then begin
+              if Assigned(FCustomShellExecute) then
+                FCustomShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL)
+              else
+                ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
+            end;
           end;
         end;
       end;
