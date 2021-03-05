@@ -55,7 +55,9 @@ var
   OutputMsgMemoWizardPage: TOutputMsgMemoWizardPage;
   AfterID: Integer;
 begin
+  WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
+  WizardForm.UserInfoNameEdit.Text := 'Username';
 
   AfterID := wpSelectTasks;
   
