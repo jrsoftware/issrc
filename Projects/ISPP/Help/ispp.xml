@@ -137,7 +137,8 @@
 				<section title="Examples">
 					<pre>
 						<line>#define MyAppName "My Program"</line>
-						<line>#define MyAppVer <link href="GetVersionNumbersString">GetVersionNumbersString</link>("MyProg.exe")</line>
+						<line>#define MyAppExe MyAppName + ".exe"</line>
+						<line>#define MyAppVer <link href="GetVersionNumbersString">GetVersionNumbersString</link>(MyAppExe)</line>
 						<line>#define MyArray[0] 15</line>
 						<line>#define Multiply(int A, int B = 10) A * B</line>
 					</pre>
