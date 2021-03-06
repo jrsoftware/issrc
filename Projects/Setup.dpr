@@ -21,6 +21,7 @@ uses
   Windows,
   SysUtils,
   Messages,
+  RichEditViewer,
   CmnFunc in 'CmnFunc.pas',
   CmnFunc2 in 'CmnFunc2.pas',
   Main in 'Main.pas' {MainForm},
@@ -272,6 +273,7 @@ begin
     SetErrorMode(SEM_FAILCRITICALERRORS);
     DisableWindowGhosting;
     Application.HookMainWindow(TDummyClass.AntiShutdownHook);
+    TRichEditViewer.CustomShellExecute := ShellExecuteAsOriginalUser;
     SelectMode; { Only returns if we should run as Setup }
   except
     { Halt on any exception }

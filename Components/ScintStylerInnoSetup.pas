@@ -571,7 +571,7 @@ const
     (Name: 'log'));
 
   EventFunctions: array[0..22] of TInnoSetupStylerParamInfo = (
-    (Name: 'InitializeSetup: Boolean;'),
+    (Name: 'InitializeSetup(): Boolean;'), { The () is needed for the function/procedure detection }
     (Name: 'InitializeWizard;'),
     (Name: 'DeinitializeSetup;'),
     (Name: 'CurStepChanged(CurStep: TSetupStep);'),
@@ -582,14 +582,14 @@ const
     (Name: 'ShouldSkipPage(PageID: Integer): Boolean;'),
     (Name: 'CurPageChanged(CurPageID: Integer);'),
     (Name: 'CheckPassword(Password: String): Boolean;'),
-    (Name: 'NeedRestart: Boolean;'),
+    (Name: 'NeedRestart(): Boolean;'),
     (Name: 'UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;'),
     (Name: 'RegisterPreviousData(PreviousDataKey: Integer);'),
     (Name: 'CheckSerial(Serial: String): Boolean;'),
-    (Name: 'GetCustomSetupExitCode: Integer;'),
+    (Name: 'GetCustomSetupExitCode(): Integer;'),
     (Name: 'PrepareToInstall(var NeedsRestart: Boolean): String;'),
     (Name: 'RegisterExtraCloseApplicationsResources;'),
-    (Name: 'InitializeUninstall: Boolean;'),
+    (Name: 'InitializeUninstall(): Boolean;'),
     (Name: 'InitializeUninstallProgressForm;'),
     (Name: 'DeinitializeUninstall;'),
     (Name: 'CurUninstallStepChanged(CurUninstallStep: TUninstallStep);'),
@@ -889,7 +889,7 @@ begin
     for I := 0 to High(EventFunctions) do begin
       S := String(EventFunctions[I].Name);
       if Pos('):', S) <> 0 then
-        SLFunctions.Add(S)
+        SLFunctions.Add(StringReplace(S, '()', '', []))
       else
         SLProcedures.Add(S);
     end;

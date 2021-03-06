@@ -30,9 +30,12 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 
 <p><a name="6.1.3"></a><span class="ver">6.1.3-dev </span><span class="date">(?)</span></p>
 <ul>
+  <li>Links displayed by [Setup] section directives <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt> and <tt>InfoAfterFile</tt> are now executed as the original user if possible when clicked.</li>
+  <li>/LOG: Now logs more uninstaller actions.</li>
   <li>Compiler IDE change: <i>Fix:</i> Autocomplete support for event functions listed some procedures as functions.</li>
   <li>Pascal Scripting changes:
   <ul>
+    <li>Added new <tt>CreateMarqueeProgressWizardPage</tt> support function to show marquee progress to the user. See the <i><a href="https://jrsoftware.github.io/issrc/Examples/AllPagesExample.iss">AllPagesExample.iss</a></i> example script for an example.</li>
     <li>Added new <tt>ItemFontStyle</tt> and <tt>SubItemFontStyle</tt> properties to the <tt>TNewCheckListBox</tt> support class. See the <i><a href="https://jrsoftware.github.io/issrc/Examples/CodeClasses.iss">CodeClasses.iss</a></i> example script for an example.</li>
     <li>Added new <tt>IsMsiProductInstalled</tt> and <tt>StrToVersion</tt> support functions.</li>
     <li>Added new <tt>AbortedByUser</tt> property to the <tt>TDownloadWizardPage</tt> support class.</li>
@@ -40,6 +43,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   </ul>
   </li>
   <li>ISPP change: Added new <tt>StrToVersion</tt> support function.</li>
+  <li>Added official Bulgarian translation.</li>
   <li>Minor tweaks.</li>
 </ul>
 

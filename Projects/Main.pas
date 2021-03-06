@@ -242,6 +242,7 @@ procedure RemoveTempInstallDir;
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
 procedure SetTaskbarButtonVisibility(const AVisible: Boolean);
+procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
 function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
 function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
 function EvalDirectiveCheck(const Expression: String): Boolean;
@@ -3985,6 +3986,13 @@ begin
   except
     Application.HandleException(nil);
   end;
+end;
+
+procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
+var
+  ErrorCode: Integer;
+begin
+  InstShellExecEx(True, Operation, Filename, Parameters, Directory, ewNoWait, ShowCmd, ProcessMessagesProc, ErrorCode);
 end;
 
 function TMainForm.Install: Boolean;

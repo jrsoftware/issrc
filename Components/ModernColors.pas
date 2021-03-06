@@ -72,11 +72,11 @@ const
   { The Microsoft Azure DevOps work well as foreground colors on both dark and light backgrounds.
     Its red and blue also fit well with the colors used by Microsoft's VS Image Library. }
 
-  MRed = $3D29CC;            { Azure DevOps }
+  MRed = $6353D6;            { Azure DevOps, 2 tints lightened using color-hex.com }
   MGreen = $339933;          { Azure DevOps }
   MBlue = $D47800;           { Azure DevOps }   
   MOrange = $5E88E5;         { Azure DevOps }
-  MPurple = $933B77;         { Azure DevOps }
+  MPurple = $A86292;         { Azure DevOps, 2 tints lightened using color-hex.com }
   MYellow = $1DCBF2;         { Azure DevOps }
   MTeal = $B0C94E;           { Visual Studio 2017 }
   MGray = $707070;           { Inno Setup 5 }
