@@ -2,8 +2,8 @@
 ; Inno Setup's own Setup script
 
 ; Inno Setup
-; Copyright (C) 1997-2020 Jordan Russell. All rights reserved.
-; Portions Copyright (C) 2000-2020 Martijn Laan. All rights reserved.
+; Copyright (C) 1997-2021 Jordan Russell. All rights reserved.
+; Portions Copyright (C) 2000-2021 Martijn Laan. All rights reserved.
 ; For conditions of distribution and use, see LICENSE.TXT.
 
 #include "isdonateandmail.iss"
@@ -18,7 +18,7 @@ AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
 AppUpdatesURL=https://www.innosetup.com/
-VersionInfoCopyright=Copyright (C) 1997-2020 Jordan Russell. Portions Copyright (C) 2000-2020 Martijn Laan.
+VersionInfoCopyright=Copyright (C) 1997-2021 Jordan Russell. Portions Copyright (C) 2000-2021 Martijn Laan.
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
 WizardStyle=modern

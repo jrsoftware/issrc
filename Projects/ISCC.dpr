@@ -3,7 +3,7 @@ program ISCC;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2021 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -367,8 +367,8 @@ procedure ProcessCommandLine;
   procedure ShowBanner;
   begin
     WriteStdOut('Inno Setup 6 Command-Line Compiler');
-    WriteStdOut('Copyright (C) 1997-2020 Jordan Russell. All rights reserved.');
-    WriteStdOut('Portions Copyright (C) 2000-2020 Martijn Laan. All rights reserved.');
+    WriteStdOut('Copyright (C) 1997-2021 Jordan Russell. All rights reserved.');
+    WriteStdOut('Portions Copyright (C) 2000-2021 Martijn Laan. All rights reserved.');
     if IsppMode then
       WriteStdOut('Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
     WriteStdOut('https://www.innosetup.com');
