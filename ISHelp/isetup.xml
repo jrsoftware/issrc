@@ -5201,7 +5201,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using ARCFOUR encryption, with a 160-bit key derived from the value of the <link topic="setup_password">Password</link> [Setup] section directive.</p>
-<p>Because of encryption import/export laws in some countries, encryption support is not included in the main Inno Setup installer and must be downloaded and installed separately if you wish to use it. See the <extlink href="https://jrsoftware.org/isdl.php">Inno Setup Downloads</extlink> page for more information.</p>
+<p>Because of encryption import/export laws in some countries, encryption support is not included in the main Inno Setup installer but downloaded by it instead. See the <extlink href="https://jrsoftware.org/isdl.php">Inno Setup Downloads</extlink> page for more information.</p>
 <p>If encryption is enabled and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
 <p>The key used for encryption is a 160-bit SHA-1 hash of 64-bit random salt plus the value of <link topic="setup_password">Password</link>.</p>
 </body>
