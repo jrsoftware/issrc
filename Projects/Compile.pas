@@ -185,7 +185,7 @@ type
     FileLocationEntryFilenames: THashStringList;
     WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
-    MissingRunOnceIdsWarning, MissingRunOnceIds, UsedUserAreasWarning: Boolean;
+    MissingMessagesWarning, MissingRunOnceIdsWarning, MissingRunOnceIds, NotRecognizedMessagesWarning, UsedUserAreasWarning: Boolean;
     UsedUserAreas: TStringList;
 
     PreprocIncludedFilenames: TStringList;
@@ -3919,6 +3919,9 @@ begin
         if SetupHeader.MinVersion.NTVersion < $06000000 then
           AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, ['6.0']);
       end;
+    ssMissingMessagesWarning: begin
+        MissingMessagesWarning := StrToBool(Value);
+      end;
     ssMissingRunOnceIdsWarning: begin
         MissingRunOnceIdsWarning := StrToBool(Value);
       end;
@@ -4127,6 +4130,9 @@ begin
       end;
     ssUsePreviousAppDir: begin
         SetSetupHeaderOption(shUsePreviousAppDir);
+      end;
+    ssNotRecognizedMessagesWarning: begin
+        NotRecognizedMessagesWarning := StrToBool(Value);
       end;
     ssUsedUserAreasWarning: begin
         UsedUserAreasWarning := StrToBool(Value);
@@ -6829,13 +6835,17 @@ begin
   ID := GetEnumValue(TypeInfo(TSetupMessageID), 'msg' + N);
   if ID = -1 then begin
     if LangIndex = -2 then
-      AbortCompileOnLineFmt(SCompilerMessagesNotRecognizedDefault, [N]);
-    if LineFilename = '' then
-      WarningsList.Add(Format(SCompilerMessagesNotRecognizedWarning, [N]))
-    else
-      WarningsList.Add(Format(SCompilerMessagesNotRecognizedInFileWarning,
-        [N, LineFilename]));
-    Exit;
+      AbortCompileOnLineFmt(SCompilerMessagesNotRecognizedDefault, [N])
+    else begin
+      if NotRecognizedMessagesWarning then begin
+        if LineFilename = '' then
+          WarningsList.Add(Format(SCompilerMessagesNotRecognizedWarning, [N]))
+        else
+          WarningsList.Add(Format(SCompilerMessagesNotRecognizedInFileWarning,
+            [N, LineFilename]));
+      end;
+      Exit;
+    end;
   end;
   Inc(P);
   M := P;
@@ -7181,7 +7191,7 @@ begin
     for J := Low(LangData.Messages) to High(LangData.Messages) do
       if not LangData.MessagesDefined[J] and not IsOptional(J) then begin
         { Use the message from Default.isl }
-        if not (J in [msgHelpTextNote, msgTranslatorNote]) then
+        if MissingMessagesWarning and not (J in [msgHelpTextNote, msgTranslatorNote]) then
           WarningsList.Add(Format(SCompilerMessagesMissingMessageWarning,
             [Copy(GetEnumName(TypeInfo(TSetupMessageID), Ord(J)), 4, Maxint),
              PSetupLanguageEntry(LanguageEntries[I]).Name]));
@@ -8458,6 +8468,8 @@ begin
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
     SetupHeader.WizardImageAlphaFormat := afIgnored;
     MissingRunOnceIdsWarning := True;
+    MissingMessagesWarning := True;
+    NotRecognizedMessagesWarning := True;
     UsedUserAreasWarning := True;
     SetupHeader.WizardStyle := wsClassic;
 
