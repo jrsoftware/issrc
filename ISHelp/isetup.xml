@@ -228,6 +228,8 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 
 <p>By default, scripts use ISPP if available, and .isl files use the built-in preprocessor.</p>
 
+<p>If an Unicode file is used, it must be UTF-8 encoded with a BOM.</p>
+
 <p><br/><b>See also:</b><br/>
 <link topic="params">Parameters in Sections</link><br/>
 <link topic="consts">Constants</link><br/>

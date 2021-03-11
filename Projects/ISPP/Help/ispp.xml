@@ -130,7 +130,7 @@
 					</define>
 				</syntax>
 				<description>
-					<para>The first syntax ("variable-definition") defines a variable named <synel>ident</synel>, or assigns a value to an element of an array named <synel>ident</synel>. If none of the <synel>public</synel>, <synel>protected</synel>, or <synel>private</synel> keywords are specified, default <link href="visibility">visibility</link> is assumed.</para>
+					<para>The first syntax ("variable-definition") defines a variable named <synel>ident</synel>, or assigns a value to an element of an array named <synel>ident</synel> (use &dim; instead of <synel>define</synel> to define the array variable itself). If none of the <synel>public</synel>, <synel>protected</synel>, or <synel>private</synel> keywords are specified, default <link href="visibility">visibility</link> is assumed.</para>
 					<para>The second syntax ("macro-definition") defines <link href="macros">a user defined function</link> named <synel>ident</synel>. When defining a user defined function there must be no whitespace between the name and opening parenthesis, otherwise it will be treated as variable declaration.</para>
 					<para>The third syntax ("default-visibility-set") sets the default <link href="visibility">visibility</link> of further variable and user defined function definitions in this file. If no visibility declaration occurs in a file, public visibility is assumed by default.</para>
 				</description>
@@ -170,7 +170,7 @@
 					</define>
 				</syntax>
 				<description>
-					<para>Use &dim; to declare an array variable, set its dimension and optionally intialize it. All unitialized elements of the array are initialized to null (void). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</para>
+					<para>Use &dim; to define an array variable, set its dimension and optionally intialize it. All unitialized elements of the array are initialized to null (void). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</para>
 					<para>Use &redim; to increase or decrease the dimension of an existing array variable. All new elements of the array are initialized to null (void) and existing elements are left unchanged. Identical to &dim; if <synel>ident</synel> isn't an existing array variable.</para>
 				</description>
 				<section title="Examples">
@@ -237,7 +237,7 @@
 					</define>
 				</syntax>
 				<description>
-					<para>Includes the &translation; of the specified file.</para>
+					<para>Includes the &translation; of the specified file. If an Unicode file is used, it must be UTF-8 encoded with a BOM.</para>
 					<para>If the filename is enclosed in quotes, ISPP first searches for the file in the directory where current file resides, then in the directory where the file that included current file resides, and so on. If the file is not found, it is searched on current include path, set via &pragma;, then on the path specified by INCLUDE environment variable.</para>
 					<para>If filename is an expression or specified in angle brackets, it is searched on current include path only.</para>
           <para>The filename may be prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</para>
@@ -263,7 +263,7 @@
 					</define>
 				</syntax>
 				<description>
-					<para>Replaces the directive with the name of a temporary file containing the &translation; of the specified file. Upon end of compilation, the temporary file is automatically deleted.</para>
+					<para>Replaces the directive with the name of a temporary file containing the &translation; of the specified file. Upon end of compilation, the temporary file is automatically deleted. If an Unicode file is used, it must be UTF-8 encoded with a BOM.</para>
 					<para>Including a file using this directive creates a new independent instance of the preprocessor, passing it options currently in effect and all declared identifiers. If the included file modifies options in some way, they are not propagated back.</para>
 					<para>When using this directive in Inno Setup's Source parameter of the [Files] section, specify a DestName parameter too, else the file with not be installed with the original name.</para>
 					<para>This directive can only be used <link href="directives">inline</link>.</para>
