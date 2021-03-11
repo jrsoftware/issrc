@@ -78,7 +78,7 @@ Name: english; MessagesFile: "files\Default.isl"
 #expr FindFiles("files\Languages\")
 
 [Messages]
-HelpTextNote=/PORTABLE=1%nEnable portable mode.
+HelpTextNote=/PORTABLE=1%nEnable portable mode.%n/NODOWNLOAD=1%nDisable ISCrypt.dll download.
 ; Two "Setup" on the same line looks weird, so put a line break in between
 english.WelcomeLabel1=Welcome to the Inno Setup%nSetup Wizard
 
@@ -176,6 +176,7 @@ Source: "files\ISPP.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 #endif
 Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "{tmp}\ISCrypt.dll"; DestDir: "{app}"; Flags: ignoreversion external skipifsourcedoesntexist touch
 
 [INI]
 Filename: "{app}\isfaq.url"; Section: "InternetShortcut"; Key: "URL"; String: "https://jrsoftware.org/isfaq.php" 
@@ -200,3 +201,34 @@ Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; Description: "{cm:LaunchPro
 [UninstallRun]
 ; The /UNASSOC line will be automatically skipped on portable mode, because of Uninstallable being set to no
 Filename: "{app}\Compil32.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAssoc"
+
+[Code]
+const
+  ISCryptHash = '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc';
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  DownloadPage: TDownloadWizardPage;
+  ExistingFileName: String;
+begin
+  Result := True;
+  try
+    if (CurPageID = wpReady) and not (ExpandConstant('{param:nodownload|0}') = '1') then begin
+      ExistingFileName := ExpandConstant('{app}\ISCrypt.dll');
+      if not FileExists(ExistingFileName) or (GetSHA256OfFile(ExistingFileName) <> ISCryptHash) then begin;
+        if DownloadPage = nil then
+          DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), nil);
+        DownloadPage.Clear;
+        DownloadPage.Add('https://jrsoftware.org/download.php/iscrypt.dll', 'ISCrypt.dll', ISCryptHash);
+        DownloadPage.Show;
+        try
+          DownloadPage.Download;
+        finally
+          DownloadPage.Hide;
+        end;
+      end;
+    end;
+  except
+    Log(GetExceptionMessage);
+  end;
+end;
