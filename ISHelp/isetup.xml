@@ -2976,6 +2976,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <ul>
 <li>The <tt>{group}</tt> folder is created in the <i>All Users</i> profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "common" form.</li>
+<li>The "user" form of these constants should NOT be used: user-level files and settings must be handled by the application itself, and never in an administrative install mode installer.</li>
 <li>The <link topic="registrysection">HKA</link>, uninstall info, and font install root keys will be HKEY_LOCAL_MACHINE.</li>
 </ul>
 
@@ -2987,7 +2988,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </ul>
 
 <p><b>Notes:</b></p>
-<p>Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
+<p>Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: user-level files and settings must be handled by the application itself, and never in an administrative install mode installer. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
 <p>If the installation is running in non administrative install mode, but administrative privileges are available anyway then Setup or the [Code] section might still make use of these privileges. For this reason the uninstaller will always be marked as requiring administrative privileges in this case, just as if the installation was running in administrative install mode.</p>
 
 </body>
