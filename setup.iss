@@ -98,6 +98,14 @@ Type: files; Name: "{app}\isfaq.htm"
 Type: files; Name: "{app}\Languages\*.islu"
 ; Remove translations in case any got demoted
 Type: files; Name: "{app}\Languages\*.isl"
+; Remove old ispack files
+Type: files; Name: "{app}\Ispack-setup.exe"
+Type: files; Name: "{app}\Examples\Setup.iss"
+Type: files; Name: "{app}\Examples\Setup.ico"
+Type: files; Name: "{app}\Examples\IsDonateAndMail.iss"
+Type: files; Name: "{app}\Examples\IsDonate.bmp"
+Type: files; Name: "{app}\Examples\IsMail.bmp"
+Type: files; Name: "{app}\Examples\IsPortable.iss"
 
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
