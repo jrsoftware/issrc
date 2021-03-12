@@ -3,7 +3,7 @@
 
 <!--
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2021 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 -->
@@ -88,8 +88,8 @@
 
 <p>
 <b>Inno Setup version 6.1.3</b><br/>
-<b>Copyright &copy; 1997-2020 Jordan Russell. All rights reserved.</b><br/>
-<b>Portions Copyright &copy; 2000-2020 Martijn Laan. All rights reserved.</b><br/>
+<b>Copyright &copy; 1997-2021 Jordan Russell. All rights reserved.</b><br/>
+<b>Portions Copyright &copy; 2000-2021 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
 </p>
 
@@ -227,6 +227,8 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 </precode>
 
 <p>By default, scripts use ISPP if available, and .isl files use the built-in preprocessor.</p>
+
+<p>If an Unicode file is used, it must be UTF-8 encoded with a BOM.</p>
 
 <p><br/><b>See also:</b><br/>
 <link topic="params">Parameters in Sections</link><br/>
@@ -978,7 +980,9 @@ DefaultGroupName=My Program
 <li><link topic="setup_lzmanumfastbytes">LZMANumFastBytes</link></li>
 <li><link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link></li>
 <li><link topic="setup_mergeduplicatefiles">MergeDuplicateFiles</link></li>
+<li><link topic="setup_missingmessageswarning">MissingMessagesWarning</link></li>
 <li><link topic="setup_missingrunonceidswarning">MissingRunOnceIdsWarning</link></li>
+<li><link topic="setup_notrecognizedmessageswarning">NotRecognizedMessagesWarning</link></li>
 <li><link topic="setup_output">Output</link></li>
 <li><link topic="setup_outputbasefilename">OutputBaseFilename</link></li>
 <li><link topic="setup_outputdir">OutputDir</link></li>
@@ -2188,6 +2192,8 @@ ButtonNext=&amp;Forward &gt;
 en.ButtonNext=&amp;Forward &gt;
 </precode>
 
+<p>If a message is missing or not recognized for a language, the compiler will warn you about this, which can be disabled using <link topic="setup_missingmessageswarning">MissingMessagesWarning</link> and  <link topic="setup_notrecognizedmessageswarning">NotRecognizedMessagesWarning</link>.</p>
+
 <heading>Special-purpose messages</heading>
 
 <p>The <a name="BeveledLabel"><tt>BeveledLabel</tt></a> message can be used to specify a line of text that is shown in the lower left corner of the wizard window and uninstaller window. The following is an example:</p>
@@ -2970,6 +2976,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <ul>
 <li>The <tt>{group}</tt> folder is created in the <i>All Users</i> profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "common" form.</li>
+<li>The "user" form of these constants should NOT be used: user-level files and settings must be handled by the application itself, and never in an administrative install mode installer.</li>
 <li>The <link topic="registrysection">HKA</link>, uninstall info, and font install root keys will be HKEY_LOCAL_MACHINE.</li>
 </ul>
 
@@ -2981,7 +2988,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </ul>
 
 <p><b>Notes:</b></p>
-<p>Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
+<p>Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: user-level files and settings must be handled by the application itself, and never in an administrative install mode installer. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
 <p>If the installation is running in non administrative install mode, but administrative privileges are available anyway then Setup or the [Code] section might still make use of these privileges. For this reason the uninstaller will always be marked as requiring administrative privileges in this case, just as if the installation was running in administrative install mode.</p>
 
 </body>
@@ -4086,11 +4093,33 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </body>
 </setuptopic>
 
+<setuptopic directive="MissingMessagesWarning">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>This directive lets you disable warnings about messages missing for a language.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_notrecognizedmessageswarning">NotRecognizedMessagesWarning</link>
+</p>
+</body>
+</setuptopic>
+
 <setuptopic directive="MissingRunOnceIdsWarning">
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>This directive lets you disable the missing RunOnceIds warning. See <link topic="runsection" anchor="RunOnceId">RunOnceId</link> for more information.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="NotRecognizedMessagesWarning">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>This directive lets you disable warnings about messages not recognized for a language.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_missingmessageswarning">MissingMessagesWarning</link>
+</p>
 </body>
 </setuptopic>
 
@@ -5173,7 +5202,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using ARCFOUR encryption, with a 160-bit key derived from the value of the <link topic="setup_password">Password</link> [Setup] section directive.</p>
-<p>Because of encryption import/export laws in some countries, encryption support is not included in the main Inno Setup installer and must be downloaded and installed separately if you wish to use it. See the <extlink href="https://jrsoftware.org/isdl.php">Inno Setup Downloads</extlink> page for more information.</p>
+<p>Because of encryption import/export laws in some countries, encryption support is not included in the main Inno Setup installer but downloaded by it instead. See the <extlink href="https://jrsoftware.org/isdl.php">Inno Setup Downloads</extlink> page for more information.</p>
 <p>If encryption is enabled and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
 <p>The key used for encryption is a 160-bit SHA-1 hash of 64-bit random salt plus the value of <link topic="setup_password">Password</link>.</p>
 </body>

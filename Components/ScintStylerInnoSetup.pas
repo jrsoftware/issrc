@@ -1489,6 +1489,7 @@ begin
   else begin
     BraceLevel := 0;
     StyleConstsUntilChars([], stDefault, BraceLevel);
+    CommitStyle(stDefault);
   end;
 end;
 
@@ -1633,10 +1634,6 @@ begin
         CommitStyle(stConstant);
     end;
   end;
-  if BraceLevel = 0 then
-    CommitStyle(NonConstStyle)
-  else
-    CommitStyleSqPending(stConstant);
 end;
 
 procedure TInnoSetupStyler.StyleNeeded;

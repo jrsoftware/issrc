@@ -14,6 +14,8 @@ UninstallDisplayIcon={app}\MyProg.exe
 VersionInfoDescription=My Program Setup
 VersionInfoProductName=My Program
 OutputDir=userdocs:Inno Setup Examples Output
+MissingMessagesWarning=yes
+NotRecognizedMessagesWarning=yes
 ; Uncomment the following line to disable the "Select Setup Language"
 ; dialog and have it rely solely on auto-detection.
 ;ShowLanguageDialog=no

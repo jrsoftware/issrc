@@ -49,7 +49,7 @@ begin
     DownloadPage.Show;
     try
       try
-        DownloadPage.Download;
+        DownloadPage.Download; // This downloads the files to {tmp}
         Result := True;
       except
         if DownloadPage.AbortedByUser then
