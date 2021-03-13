@@ -782,7 +782,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li><i>SubkeyName, ValueName,</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{reg:HKLM\Software\My Program,Path|{autopf}\My Program}</pre>
+<pre>{reg:HKA\Software\My Program,Path|{autopf}\My Program}</pre>
 </example>
 </dd>
 
