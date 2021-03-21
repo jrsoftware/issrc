@@ -3564,7 +3564,8 @@ begin
       To test self-signed certificates: https://self-signed.badssl.com/
       To test basic authentication: https://guest:guest@jigsaw.w3.org/HTTP/Basic/
       To test 100 MB file: https://speed.hetzner.de/100MB.bin
-      To test 1 GB file: https://speed.hetzner.de/1GB.bin }
+      To test 1 GB file: https://speed.hetzner.de/1GB.bin
+      To test file without a content length: https://github.com/jrsoftware/issrc/archive/main.zip }
 
     { Download to temporary file}
     HandleStream := THandleStream.Create(TempF.Handle);
@@ -3588,7 +3589,7 @@ begin
         end;
         if RequiredSHA256OfFile <> SHA256OfFile then
           raise Exception.Create(FmtSetupMessage(msgErrorFileHash2, [RequiredSHA256OfFile, SHA256OfFile]));
-      end else begin
+      end else if HTTPDataReceiver.ProgressMax > 0 then begin
         if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
           raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
         else if HTTPDataReceiver.ProgressMax <> Result then

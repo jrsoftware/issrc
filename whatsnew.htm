@@ -31,10 +31,14 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 <p><a name="6.1.3"></a><span class="ver">6.1.3-dev </span><span class="date">(?)</span></p>
 <ul>
   <li>The QuickStart Pack installer has been removed because of a lack of added value and a lack of downloads.</li>
-  <li>The standard Inno Setup installer now always tries to download the encryption module if it's missing, like the QuickStart Pack installer could download it before. This can be disabled using a /NODOWNLOAD=1 command line parameter.</li>
+  <li>The standard Inno Setup installer now offers to download encryption support if it's missing, like the QuickStart Pack installer did before.</li>
 </ul>
 </p>
-
+<p>
+<ul>
+  <li>The content of the <a href="https://jrsoftware.org/isfaq.php">Inno Setup FAQ</a> is now <a href="https://github.com/jrsoftware/isfaq/blob/main/isfaq.html">available on GitHub</a> where you can suggest new entries or other improvements using the Edit button.</li>
+</ul>
+</p>
 <p>
 <ul>
   <li>Links displayed by [Setup] section directives <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt> and <tt>InfoAfterFile</tt> are now executed as the original user if possible when clicked.</li>
@@ -48,6 +52,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
     <li>Added new <tt>IsMsiProductInstalled</tt> and <tt>StrToVersion</tt> support functions.</li>
     <li>Added new <tt>AbortedByUser</tt> property to the <tt>TDownloadWizardPage</tt> support class.</li>
     <li><i>Fix:</i> <tt>CreateDownloadPage</tt>'s progress bar now supports files larger than 2 GB.</li>
+    <li>The built-in download support now allows the download of files for which the server does not specify the file size.</li>
   </ul>
   </li>
   <li>ISPP change: Added new <tt>StrToVersion</tt> support function.</li>
