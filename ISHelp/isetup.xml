@@ -5521,7 +5521,7 @@ SignTool=byparam format c:
 <p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is not running silently, Setup will pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the [Files] or [InstallDelete] section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed.</p>
 <p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line.</p>
 <p>If set to <tt>force</tt> Setup will force close when closing applications, unless told not to via the command line. Use with care since this may cause the user to lose unsaved work.</p>
-<p>Note: Setup uses the Windows <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa373524.aspx">Restart Manager</extlink> API to close and restart applications.</p>
+<p>Note: Setup uses Windows <extlink href="https://docs.microsoft.com/en-us/windows/win32/rstmgr/about-restart-manager">Restart Manager</extlink> to detect, close, and restart applications.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
 <link topic="scriptevents" anchor="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</link><br/>
