@@ -938,7 +938,7 @@ begin
     Log('Need to abort download.');
     Result := False;
   end else begin
-    if ProgressMax <> 0 then
+    if ProgressMax > 0 then
       Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
     else
       Log(Format('  %d bytes done.', [Progress]));
