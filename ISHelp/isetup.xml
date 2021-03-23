@@ -2175,11 +2175,11 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 
 <p>A [Messages] section is used to define the messages displayed by the Setup program and uninstaller. Normally, you need not create a [Messages] section in your script file, since all messages are, by default, pulled in from the file <a name="Default.isl"><i>Default.isl</i></a> included with Inno Setup (or whichever file is specified by a [Languages] section entry).</p>
 
-<p>However, particular messages can be overridden by creating a [Messages] section in your script file. To do this, first you will need to know the ID of the message you want to change. This can be easily found by searching Default.isl. For example, say you wanted to change the "&amp;Next &gt;" button on the wizard to read "&amp;Forward &gt;". The ID of this message is "ButtonNext", so you would create a [Messages] section like this:</p>
+<p>However, particular messages can be overridden by creating a [Messages] section in your script file. To do this, first you will need to know the ID of the message you want to change. This can be easily found by searching Default.isl. For example, say you wanted to change the "&amp;Next" button on the wizard to read "&amp;Forward". The ID of this message is "ButtonNext", so you would create a [Messages] section like this:</p>
 
 <precode>
 [Messages]
-ButtonNext=&amp;Forward &gt;
+ButtonNext=&amp;Forward
 </precode>
 
 <p>Some messages take arguments such as %1 and %2. You can rearrange the order of the arguments (i.e. move the %2 before a %1) and also duplicate arguments if needed (i.e. "%1 ... %1 %2"). On messages with arguments, use two consecutive "%" characters to embed a single "%". "%n" creates a line break.</p>
@@ -2189,7 +2189,7 @@ ButtonNext=&amp;Forward &gt;
 <p>In cases where there are multiple [Languages] section entries, specifying a [Messages] section entry in your script (as opposed to an .isl file) will by default override that message for all languages. To apply a [Messages] section entry to only one language, prefix it with the language's internal name followed by a period. For example:</p>
 
 <precode>
-en.ButtonNext=&amp;Forward &gt;
+en.ButtonNext=&amp;Forward
 </precode>
 
 <p>If a message is missing or not recognized for a language, the compiler will warn you about this, which can be disabled using <link topic="setup_missingmessageswarning">MissingMessagesWarning</link> and  <link topic="setup_notrecognizedmessageswarning">NotRecognizedMessagesWarning</link>.</p>
