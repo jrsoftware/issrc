@@ -117,6 +117,7 @@ var
   HasInitPrivilegesRequired: Boolean;
   InitSuppressMsgBoxes: Boolean;
   DetachedUninstMsgFile: Boolean;
+  NewParamsForCode: TStringList;
 
   { Debugger }
   OriginalEntryIndexes: array[TEntryType] of TList;
@@ -2928,6 +2929,7 @@ var
 
 var
   ParamName, ParamValue: String;
+  ParamIsAutomaticInternal: Boolean;
   StartParam: Integer;
   I, N: Integer;
   IsRespawnedProcess, EnableLogging, WantToSuppressMsgBoxes, Res: Boolean;
@@ -2944,6 +2946,9 @@ var
   ExpandedSetupMutex, ExtraRespawnParam, RespawnParams: String;
 begin
   InitializeCommonVars;
+
+  { NewParamsForCode will hold all params except automatic internal ones like /SL5= and /SPAWNWND= }
+  NewParamsForCode.Add(ParamStr(0));
 
   { Based on SetupLdr or not?
     Parameters for launching SetupLdr-based installation are:
@@ -2972,123 +2977,89 @@ begin
   DebugWndValue := 0;
   for I := StartParam to NewParamCount do begin
     SplitNewParamStr(I, ParamName, ParamValue);
+    ParamIsAutomaticInternal := False;
     if CompareText(ParamName, '/Log') = 0 then begin
       EnableLogging := True;
       LogFilename := '';
-    end
-    else
-    if CompareText(ParamName, '/Log=') = 0 then begin
+    end else if CompareText(ParamName, '/Log=') = 0 then begin
       EnableLogging := True;
       LogFilename := ParamValue;
-    end
-    else
-    if CompareText(ParamName, '/Silent') = 0 then
+    end else if CompareText(ParamName, '/Silent') = 0 then
       InitSilent := True
-    else
-    if CompareText(ParamName, '/VerySilent') = 0 then
+    else if CompareText(ParamName, '/VerySilent') = 0 then
       InitVerySilent := True
-    else
-    if CompareText(ParamName, '/NoRestart') = 0 then
+    else if CompareText(ParamName, '/NoRestart') = 0 then
       InitNoRestart := True
-    else
-    if CompareText(ParamName, '/CloseApplications') = 0 then
+    else if CompareText(ParamName, '/CloseApplications') = 0 then
       InitCloseApplications := True
-    else
-    if CompareText(ParamName, '/NoCloseApplications') = 0 then
+    else if CompareText(ParamName, '/NoCloseApplications') = 0 then
       InitNoCloseApplications := True
-    else
-    if CompareText(ParamName, '/ForceCloseApplications') = 0 then
+    else if CompareText(ParamName, '/ForceCloseApplications') = 0 then
       InitForceCloseApplications := True
-    else
-    if CompareText(ParamName, '/NoForceCloseApplications') = 0 then
+    else if CompareText(ParamName, '/NoForceCloseApplications') = 0 then
       InitNoForceCloseApplications := True
-    else
-    if CompareText(ParamName, '/LogCloseApplications') = 0 then
+    else if CompareText(ParamName, '/LogCloseApplications') = 0 then
       InitLogCloseApplications := True
-    else
-    if CompareText(ParamName, '/RestartApplications') = 0 then
+    else if CompareText(ParamName, '/RestartApplications') = 0 then
       InitRestartApplications := True
-    else
-    if CompareText(ParamName, '/NoRestartApplications') = 0 then
+    else if CompareText(ParamName, '/NoRestartApplications') = 0 then
       InitNoRestartApplications := True
-    else
-    if CompareText(ParamName, '/NoIcons') = 0 then
+    else if CompareText(ParamName, '/NoIcons') = 0 then
       InitNoIcons := True
-    else
-    if CompareText(ParamName, '/NoCancel') = 0 then
+    else if CompareText(ParamName, '/NoCancel') = 0 then
       InitNoCancel := True
-    else
-    if CompareText(ParamName, '/Lang=') = 0 then
+    else if CompareText(ParamName, '/Lang=') = 0 then
       InitLang := ParamValue
-    else
-    if CompareText(ParamName, '/Type=') = 0 then
+    else if CompareText(ParamName, '/Type=') = 0 then
       InitSetupType := ParamValue
-    else
-    if CompareText(ParamName, '/Components=') = 0 then begin
+    else if CompareText(ParamName, '/Components=') = 0 then begin
       InitComponentsSpecified := True;
       SetStringsFromCommaString(InitComponents, SlashesToBackslashes(ParamValue));
-    end
-    else
-    if CompareText(ParamName, '/Tasks=') = 0 then begin
+    end else if CompareText(ParamName, '/Tasks=') = 0 then begin
       InitDeselectAllTasks := True;
       SetStringsFromCommaString(InitTasks, SlashesToBackslashes(ParamValue));
-    end
-    else
-    if CompareText(ParamName, '/MergeTasks=') = 0 then begin
+    end else if CompareText(ParamName, '/MergeTasks=') = 0 then begin
       InitDeselectAllTasks := False;
       SetStringsFromCommaString(InitTasks, SlashesToBackslashes(ParamValue));
-    end
-    else
-    if CompareText(ParamName, '/LoadInf=') = 0 then
+    end else if CompareText(ParamName, '/LoadInf=') = 0 then
       InitLoadInf := PathExpand(ParamValue)
-    else
-    if CompareText(ParamName, '/SaveInf=') = 0 then
+    else if CompareText(ParamName, '/SaveInf=') = 0 then
       InitSaveInf := PathExpand(ParamValue)
-    else
-    if CompareText(ParamName, '/DIR=') = 0 then
+    else if CompareText(ParamName, '/DIR=') = 0 then
       InitDir := ParamValue
-    else
-    if CompareText(ParamName, '/GROUP=') = 0 then
+    else if CompareText(ParamName, '/GROUP=') = 0 then
       InitProgramGroup := ParamValue
-    else
-    if CompareText(ParamName, '/Password=') = 0 then
+    else if CompareText(ParamName, '/Password=') = 0 then
       InitPassword := ParamValue
-    else
-    if CompareText(ParamName, '/RestartExitCode=') = 0 then
+    else if CompareText(ParamName, '/RestartExitCode=') = 0 then
       InitRestartExitCode := StrToIntDef(ParamValue, 0)
-    else
-    if CompareText(ParamName, '/SuppressMsgBoxes') = 0 then
+    else if CompareText(ParamName, '/SuppressMsgBoxes') = 0 then
       WantToSuppressMsgBoxes := True
-    else
-    if CompareText(ParamName, '/DETACHEDMSG') = 0 then  { for debugging }
+    else if CompareText(ParamName, '/DETACHEDMSG') = 0 then  { for debugging }
       DetachedUninstMsgFile := True
-    else
-    if CompareText(ParamName, '/SPAWNWND=') = 0 then begin
+    else if CompareText(ParamName, '/SPAWNWND=') = 0 then begin
+      ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
       IsRespawnedProcess := True;
       InitializeSpawnClient(StrToInt(ParamValue));
-    end
-    else
-    if CompareText(ParamName, '/NOTIFYWND=') = 0 then begin
+    end else if CompareText(ParamName, '/NOTIFYWND=') = 0 then begin
+      ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
       { /NOTIFYWND= takes precedence over any previously set SetupNotifyWnd }
       SetupNotifyWnd := StrToInt(ParamValue);
       SetupNotifyWndPresent := True;
-    end
-    else
-    if CompareText(ParamName, '/DebugSpawnServer') = 0 then  { for debugging }
+    end else if CompareText(ParamName, '/DebugSpawnServer') = 0 then  { for debugging }
       EnterSpawnServerDebugMode  { does not return }
-    else
-    if CompareText(ParamName, '/DEBUGWND=') = 0 then
-      DebugWndValue := StrToInt(ParamValue)
-    else     
-    if CompareText(ParamName, '/ALLUSERS') = 0 then begin
+    else if CompareText(ParamName, '/DEBUGWND=') = 0 then begin
+      ParamIsAutomaticInternal := True; { sent by TCompileForm.StartProcess }
+      DebugWndValue := StrToInt(ParamValue);
+    end else if CompareText(ParamName, '/ALLUSERS') = 0 then begin
       InitPrivilegesRequired := prAdmin;
       HasInitPrivilegesRequired := True;
-    end
-    else     
-    if CompareText(ParamName, '/CURRENTUSER') = 0 then begin
+    end else if CompareText(ParamName, '/CURRENTUSER') = 0 then begin
       InitPrivilegesRequired := prLowest;
       HasInitPrivilegesRequired := True;
     end;
+    if not ParamIsAutomaticInternal then
+      NewParamsForCode.Add(NewParamStr(I));
   end;
 
   if InitLoadInf <> '' then
@@ -3138,7 +3109,7 @@ begin
           Integer(@PSetupTypeEntry(nil).OnlyBelowVersion));
 
         ActivateDefaultLanguage;
-        
+
         { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
           one on which a "64-bit mode" install should be performed. Doing this early
           so that UsePreviousPrivileges knows where to look. Will log later. }
@@ -4647,6 +4618,7 @@ initialization
 {$ENDIF}
   InitComponents := TStringList.Create();
   InitTasks := TStringList.Create();
+  NewParamsForCode := TStringList.Create();
   WizardComponents := TStringList.Create();
   WizardDeselectedComponents := TStringList.Create();
   WizardTasks := TStringList.Create();
@@ -4670,6 +4642,7 @@ finalization
   FreeAndNil(WizardTasks);
   FreeAndNil(WizardDeselectedComponents);
   FreeAndNil(WizardComponents);
+  FreeAndNil(NewParamsForCode);
   FreeAndNil(InitTasks);
   FreeAndNil(InitComponents);
 end.

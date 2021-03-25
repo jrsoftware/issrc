@@ -13,17 +13,22 @@
       <function>
         <name>GetCmdTail</name>
         <prototype>function GetCmdTail: String;</prototype>
-        <description><p>Returns all command line parameters passed to Setup or Uninstall as a single string.</p></description>
+        <description><p>Returns all command line parameters passed to Setup or Uninstall as a single string, including special internal parameters used by Setup.</p></description>
+        <seealso><p><link topic="isxfunc_ParamStr">ParamStr</link></p></seealso>
       </function>
       <function>
         <name>ParamCount</name>
         <prototype>function ParamCount: Integer;</prototype>
-        <description><p>Returns the number of command line parameters passed to Setup or Uninstall.</p></description>
+        <description><p>Returns the number of command line parameters passed to Setup or Uninstall, excluding special internal parameters used by Setup.</p></description>
+        <seealso><p><link topic="isxfunc_ParamStr">ParamStr</link><br />
+<link topic="isxfunc_GetCmdTail">GetCmdTail</link></p></seealso>
       </function>
       <function>
         <name>ParamStr</name>
         <prototype>function ParamStr(Index: Integer): String;</prototype>
-        <description><p>Returns the Index-th command line parameter passed to Setup or Uninstall.</p></description>
+        <description><p>Returns the Index-th command line parameter passed to Setup or Uninstall, excluding special internal parameters used by Setup.</p></description>
+        <seealso><p><link topic="isxfunc_ParamCount">ParamCount</link><br />
+<link topic="isxfunc_GetCmdTail">GetCmdTail</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>

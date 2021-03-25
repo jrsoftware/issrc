@@ -499,6 +499,7 @@ var
   DataS: AnsiString;
   Typ, ExistingTyp, Data, Size: DWORD;
   Arr: TPSVariantIFC;
+  I: Integer;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -534,9 +535,13 @@ begin
   end else if Proc.Name = 'GETCMDTAIL' then begin
     Stack.SetString(PStart, GetCmdTail());
   end else if Proc.Name = 'PARAMCOUNT' then begin
-    Stack.SetInt(PStart, NewParamCount());
+    Stack.SetInt(PStart, NewParamsForCode.Count);
   end else if Proc.Name = 'PARAMSTR' then begin
-    Stack.SetString(PStart, NewParamStr(Stack.GetInt(PStart-1)));
+    I := Stack.GetInt(PStart-1);
+    if I < NewParamsForCode.Count then
+      Stack.SetString(PStart, NewParamsForCode[I])
+    else
+      Stack.SetString(PStart, '');
   end else if Proc.Name = 'ADDBACKSLASH' then begin
     Stack.SetString(PStart, AddBackslash(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'REMOVEBACKSLASH' then begin
