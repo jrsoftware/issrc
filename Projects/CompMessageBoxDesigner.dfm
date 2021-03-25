@@ -704,7 +704,7 @@ object MBDForm: TMBDForm
       Width = 75
       Height = 25
       Anchors = [akRight, akBottom]
-      Caption = 'OK'
+      Caption = 'Insert'
       Default = True
       ModalResult = 1
       TabOrder = 1
