@@ -2909,6 +2909,8 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <ul>
 
+<li>If <link topic="setup_closeapplications">CloseApplications</link> was set to <tt>yes</tt>, Setup closes applications using files that need to be updated.</li>
+
 <li><link topic="installdeletesection">[InstallDelete]</link> is processed.</li>
 
 <li>The entries in <link topic="uninstalldeletesection">[UninstallDelete]</link> are stored in the uninstall log (which, at this stage, is stored in memory).</li>
@@ -2936,6 +2938,8 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 <li>The uninstaller EXE and log are finalized and saved to disk. After this is done, the user is forbidden from cancelling the install, and any subsequent errors will not cause what was installed before to be rolled back.</li>
 
 <li><link topic="runsection">[Run]</link> is processed, except for entries with the <tt>postinstall</tt> flag, which get processed after the <i>Setup Completed</i> wizard page is shown.</li>
+
+<li>If <link topic="setup_restartapplications">RestartApplications</link> was set to <tt>yes</tt>, Setup restarts closed applications which support being restarted.</li>
 
 <li>If <link topic="setup_changesassociations">ChangesAssociations</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, file associations are refreshed now.</li>
 
