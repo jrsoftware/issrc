@@ -1188,7 +1188,7 @@ Name: "custom"; Description: "Custom installation"; Flags: iscustom
 
 <flaglist>
 <flag name="iscustom">
-<p>Instructs Setup that the type is a custom type. Whenever the end user manually changes the components selection during installation, Setup will set the setup type to the custom type. Note that if you don't define a custom type, Setup will only allow the user to choose a setup type and he/she can no longer manually select/unselect components.</p>
+<p>Instructs Setup that the type is a custom type. Whenever the end user manually changes the components selection during installation, Setup will set the setup type to the custom type. Note that if you don't define a custom type, Setup will only allow the user to choose a setup type and they can no longer manually select/unselect components.</p>
 <p>Only one type may include this flag.</p>
 </flag>
 </flaglist>
@@ -1285,7 +1285,7 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 <p>Instructs Setup to ask the user to restart the system if this component is installed, regardless of whether this is necessary (for example because of [Files] section entries with the <tt>restartreplace</tt> flag). Like <link topic="setup_alwaysrestart">AlwaysRestart</link> but per component.</p>
 </flag>
 <flag name="disablenouninstallwarning">
-<p>Instructs Setup not to warn the user that this component will not be uninstalled after he/she deselected this component when it's already installed on his/her machine.</p>
+<p>Instructs Setup not to warn the user that this component will not be uninstalled after they deselected this component when it's already installed on his/her machine.</p>
 <p>Depending on the complexity of your components, you can try to use the [InstallDelete] section and this flag to automatically 'uninstall' deselected components.</p>
 </flag>
 </flaglist>
@@ -1700,7 +1700,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag should only be used on files private to your application, <i>never</i> on shared system files.</p>
 </flag>
 <flag name="isreadme">
-<p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will asked if he/she would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like .txt, .wri, or .doc.</p>
+<p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like .txt, .wri, or .doc.</p>
 <p>Note that if Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <tt>AlwaysRestart</tt> <tt>[Setup]</tt> section directive is <tt>yes</tt>), the user will not be given an option to view the README file.</p>
 </flag>
 <flag name="nocompression">
@@ -1784,7 +1784,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>When uninstalling the file, remove any read-only attribute from the file before attempting to delete it.</p>
 </flag>
 <flag name="uninsrestartdelete">
-<p>When this flag is used and the file is in use at uninstall time, the uninstaller will queue the file to be deleted when the system is restarted, and at the end of the uninstallation process ask the user if he/she wants to restart. This flag can be useful when uninstalling things like shell extensions which cannot be programmatically stopped. Note that administrative privileges are required for this flag to have an effect.</p>
+<p>When this flag is used and the file is in use at uninstall time, the uninstaller will queue the file to be deleted when the system is restarted, and at the end of the uninstallation process ask the user if they wants to restart. This flag can be useful when uninstalling things like shell extensions which cannot be programmatically stopped. Note that administrative privileges are required for this flag to have an effect.</p>
 </flag>
 <flag name="uninsneveruninstall">
 <p>Never remove the file. This flag can be useful when installing very common shared files that shouldn't be deleted under any circumstances, such as MFC DLLs.</p>
@@ -2667,7 +2667,7 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 <p>Valid only in a [Run] section. Instructs Setup to skip this entry if Setup is running (very) silent.</p>
 </flag>
 <flag name="unchecked">
-<p>Valid only in a [Run] section. Instructs Setup to initially uncheck the checkbox. The user can still check the checkbox if he/she wishes to process the entry. This flag is ignored if the <tt>postinstall</tt> flag isn't also specified.</p>
+<p>Valid only in a [Run] section. Instructs Setup to initially uncheck the checkbox. The user can still check the checkbox if they wishes to process the entry. This flag is ignored if the <tt>postinstall</tt> flag isn't also specified.</p>
 </flag>
 <flag name="waituntilidle">
 <p>If this flag is specified, it will wait until the process is waiting for user input with no input pending, instead of waiting for the process to terminate. (This calls the <i>WaitForInputIdle</i> Win32 function.) Cannot be combined with <tt>nowait</tt> or <tt>waituntilterminated</tt>.</p>
