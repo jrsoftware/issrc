@@ -142,8 +142,7 @@ var
 begin
   Result := True;
   if (CurPageID = wpReady) and (ISCryptCheckBox <> nil) and ISCryptCheckBox.Checked then begin
-    if DownloadPage = nil then
-      DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), nil);
+    DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), nil);
     DownloadPage.Clear;
     DownloadPage.Add('https://jrsoftware.org/download.php/iscrypt.dll', 'ISCrypt.dll', ISCryptHash);
     DownloadPage.Show;
