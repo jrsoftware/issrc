@@ -3587,7 +3587,7 @@ begin
         except on E: Exception do
           raise Exception.Create(FmtSetupMessage(msgErrorFileHash1, [E.Message]));
         end;
-        if RequiredSHA256OfFile <> SHA256OfFile then
+        if not SameText(RequiredSHA256OfFile, SHA256OfFile) then
           raise Exception.Create(FmtSetupMessage(msgErrorFileHash2, [RequiredSHA256OfFile, SHA256OfFile]));
       end else if HTTPDataReceiver.ProgressMax > 0 then begin
         if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
