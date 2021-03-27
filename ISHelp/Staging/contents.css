@@ -22,7 +22,7 @@ INPUT {
 #tabbar {
 	background-color: ButtonFace;
 	color: WindowText;
-	padding-top: 4px;
+	padding-top: 6px;
 	cursor: default;
 	-moz-user-select: none;
 }
