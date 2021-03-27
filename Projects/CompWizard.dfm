@@ -1411,17 +1411,17 @@ object WizardForm: TWizardForm
             Caption = 'Create an &Internet shortcut in the Start Menu folder'
             TabOrder = 5
           end
-          object UseCommonProgramsCheck: TCheckBox
+          object UseAutoProgramsCheck: TCheckBox
             Left = 36
             Top = 8
             Width = 425
             Height = 17
             Anchors = [akLeft, akTop, akRight]
             Caption = 
-              '&Create a shortcut to the main executable in the common Start Me' +
-              'nu Programs folder'
+              '&Create a shortcut to the main executable in the Start Menu Prog' +
+              'rams folder'
             TabOrder = 0
-            OnClick = UseCommonProgramsCheckClick
+            OnClick = UseAutoProgramsCheckClick
           end
         end
         object AppDocsPage: TNewNotebookPage

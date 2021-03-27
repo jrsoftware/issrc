@@ -30,7 +30,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 
 <p><a name="6.1.3"></a><span class="ver">6.1.3-dev </span><span class="date">(?)</span></p>
 <ul>
-  <li>The QuickStart Pack installer has been removed because of a lack of added value and a lack of downloads.</li>
+  <li>The QuickStart Pack installer has been removed because of a lack of added value.</li>
   <li>The standard Inno Setup installer now offers to download encryption support if it's missing, like the QuickStart Pack installer did before.</li>
 </ul>
 </p>
@@ -54,11 +54,12 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
     <li>Added new <tt>AbortedByUser</tt> property to the <tt>TDownloadWizardPage</tt> support class.</li>
     <li><i>Fix:</i> <tt>CreateDownloadPage</tt>'s progress bar now supports files larger than 2 GB.</li>
     <li>Support functions <tt>ParamCount</tt> and <tt>ParamStr</tt> now excludes special internal parameters used by Setup.</li>
-    <li>The built-in download support now allows the download of files for which the server does not specify the file size.</li>
+    <li>The built-in download support now allows the download of files for which the server does not specify the file size and its hash checking is no longer case sensitive.</li>
   </ul>
   </li>
   <li>ISPP change: Added new <tt>StrToVersion</tt> support function.</li>
   <li>Added official Bulgarian translation.</li>
+  <li>Various documentation improvements.</li>
   <li>Minor tweaks.</li>
 </ul>
 

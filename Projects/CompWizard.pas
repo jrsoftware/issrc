@@ -118,7 +118,7 @@ type
     AllLanguagesButton: TButton;
     NoLanguagesButton: TButton;
     NoAppExeCheck: TCheckBox;
-    UseCommonProgramsCheck: TCheckBox;
+    UseAutoProgramsCheck: TCheckBox;
     PrivilegesRequiredLabel: TNewStaticText;
     PrivilegesRequiredAdminRadioButton: TRadioButton;
     PrivilegesRequiredLowestRadioButton: TRadioButton;
@@ -154,7 +154,7 @@ type
     procedure AllLanguagesButtonClick(Sender: TObject);
     procedure NoLanguagesButtonClick(Sender: TObject);
     procedure NoAppExeCheckClick(Sender: TObject);
-    procedure UseCommonProgramsCheckClick(Sender: TObject);
+    procedure UseAutoProgramsCheckClick(Sender: TObject);
     procedure PrivilegesRequiredOverridesAllowedDialogCheckboxClick(Sender: TObject);
     procedure CreateAssocCheckClick(Sender: TObject);
   private
@@ -351,7 +351,7 @@ begin
   AppAssocExtEdit.Text := '.myp';
 
   { AppIcons }
-  UseCommonProgramsCheck.Checked := True;
+  UseAutoProgramsCheck.Checked := True;
   NotDisableProgramGroupPageCheck.Checked := True;
   DesktopIconCheck.Checked := True;
 
@@ -448,8 +448,8 @@ begin
     wpAppAssoc: ActiveControl := CreateAssocCheck;
     wpAppIcons:
       begin
-        if UseCommonProgramsCheck.Enabled then
-          ActiveControl := UseCommonProgramsCheck
+        if UseAutoProgramsCheck.Enabled then
+          ActiveControl := UseAutoProgramsCheck
         else
           ActiveControl := AppGroupNameEdit;
       end;
@@ -684,9 +684,9 @@ procedure TWizardForm.UpdateAppIconsControls;
 var
   Enabled: Boolean;
 begin
-  UseCommonProgramsCheck.Enabled := NoAppExeCheck.Enabled and not NoAppExeCheck.Checked;
+  UseAutoProgramsCheck.Enabled := NoAppExeCheck.Enabled and not NoAppExeCheck.Checked;
 
-  Enabled := not (UseCommonProgramsCheck.Enabled and UseCommonProgramsCheck.Checked);
+  Enabled := not (UseAutoProgramsCheck.Enabled and UseAutoProgramsCheck.Checked);
 
   AppGroupNameLabel.Enabled := Enabled;
   AppGroupNameEdit.Enabled := Enabled;
@@ -856,7 +856,7 @@ begin
   UpdateAppAssocControls;
 end;
 
-procedure TWizardForm.UseCommonProgramsCheckClick(Sender: TObject);
+procedure TWizardForm.UseAutoProgramsCheckClick(Sender: TObject);
 begin
   UpdateAppIconsControls;
 end;
@@ -1066,7 +1066,7 @@ begin
 
     { AppGroup }
     if not NotCreateAppDirCheck.Checked then begin
-      if UseCommonProgramsCheck.Enabled and UseCommonProgramsCheck.Checked then begin
+      if UseAutoProgramsCheck.Enabled and UseAutoProgramsCheck.Checked then begin
         Setup := Setup + 'DisableProgramGroupPage=yes' + SNewLine;
         Icons := Icons + 'Name: "{autoprograms}\' + AppNameEdit.Text + '"; Filename: "{app}\' + AppExeName + '"' + SNewLine;
       end else begin
