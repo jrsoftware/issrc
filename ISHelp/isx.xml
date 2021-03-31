@@ -414,7 +414,7 @@ Source: "B\MYFILE.TXT"; DestDir: "{app}"; Check: DirExists(ExpandConstant('{app}
 
 <p>A check function isn't called if Setup already determined the entry shouldn't be processed.</p>
 
-<p>A check function for a [Files] section entry using a wildcard is called once per file matching the wildcard. Use <tt>CurrentFileName</tt> to check for which file the function is called.</p>
+<p>A check function for a [Files] section entry using a wildcard but not the <tt>external</tt> flag is called once per file matching the wildcard, instead of once per entry. Use <tt>CurrentFileName</tt> to check for which file the function is called.</p>
 
 <p>Here is an example of a <tt>[Code]</tt> section containing the check functions used above. Function <tt>DirExists</tt> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
 
@@ -484,7 +484,7 @@ Source: "MYPROG.CHM"; DestDir: "{app}"; AfterInstall: Log('After MYPROG.CHM Inst
 
 <p>A <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> function isn't called if Setup already determined the entry shouldn't be processed.</p>
 
-<p>A <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> function for a [Files] section entry using a wildcard is called once per file matching the wildcard. Use <tt>CurrentFileName</tt> to check for which file the function is called.</p>
+<p>A <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> function for a [Files] section entry using a wildcard but not the <tt>external</tt> flag is called once per file matching the wildcard, instead of once per entry. Use <tt>CurrentFileName</tt> to check for which file the function is called.</p>
 
 <p>Here is an example of a <tt>[Code]</tt> section containing the functions used above. Functions <tt>CurrentFileName</tt> and <tt>Log</tt> are <link topic="scriptfunctions">support functions</link> and therefore not included in this [Code] section.</p>
 

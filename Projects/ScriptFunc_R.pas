@@ -538,7 +538,7 @@ begin
     Stack.SetInt(PStart, NewParamsForCode.Count);
   end else if Proc.Name = 'PARAMSTR' then begin
     I := Stack.GetInt(PStart-1);
-    if I < NewParamsForCode.Count then
+    if (I >= 0) and (I < NewParamsForCode.Count) then
       Stack.SetString(PStart, NewParamsForCode[I])
     else
       Stack.SetString(PStart, '');

@@ -2948,7 +2948,7 @@ begin
   InitializeCommonVars;
 
   { NewParamsForCode will hold all params except automatic internal ones like /SL5= and /SPAWNWND= }
-  NewParamsForCode.Add(ParamStr(0));
+  NewParamsForCode.Add(NewParamStr(0));
 
   { Based on SetupLdr or not?
     Parameters for launching SetupLdr-based installation are:
