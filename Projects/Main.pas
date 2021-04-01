@@ -2947,7 +2947,8 @@ var
 begin
   InitializeCommonVars;
 
-  { NewParamsForCode will hold all params except automatic internal ones like /SL5= and /SPAWNWND= }
+  { NewParamsForCode will hold all params except automatic internal ones like /SL5= and /DEBUGWND=
+    Also see Uinstall.ProcessCommandLine }
   NewParamsForCode.Add(NewParamStr(0));
 
   { Based on SetupLdr or not?
