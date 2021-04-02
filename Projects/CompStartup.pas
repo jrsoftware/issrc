@@ -71,9 +71,9 @@ end;
 
 procedure TStartupForm.UpdateImages;
 
-  function GetBitmap(const Button: TToolButton; const WH: Integer): TBitmap;
+  function GetImage(const Button: TToolButton; const WH: Integer): TWICImage;
   begin
-    Result := CompileForm.LightToolBarImageCollection.GetBitmap(Button.ImageIndex, WH, WH)
+    Result := CompileForm.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
   end;
 
 var
@@ -81,8 +81,8 @@ var
 begin
  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
   WH := MulDiv(16, CurrentPPI, 96);
-  NewImage.Picture.Bitmap := GetBitmap(CompileForm.NewMainFileButton, WH);
-  OpenImage.Picture.Bitmap := GetBitmap(CompileForm.OpenMainFileButton, WH);
+  NewImage.Picture.Graphic:= GetImage(CompileForm.NewMainFileButton, WH);
+  OpenImage.Picture.Graphic := GetImage(CompileForm.OpenMainFileButton, WH);
 end;
 
 procedure TStartupForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
