@@ -2,8 +2,14 @@
 // Include file with support functions to download encryption support
 // Must be included before adding [Files] entries
 //
+#if FileExists('iscrypt-custom.ico')
+  #define iscryptico 'iscrypt-custom.ico'
+#else
+  #define iscryptico 'iscrypt.ico'
+#endif
+//
 [Files]
-Source: "iscrypt.ico"; Flags: dontcopy
+Source: "{#iscryptico}"; DestName: "iscrypt.ico"; Flags: dontcopy
 Source: "{tmp}\ISCrypt.dll"; DestDir: "{app}"; Flags: ignoreversion external skipifsourcedoesntexist touch
 
 [Code]
