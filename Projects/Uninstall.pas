@@ -248,36 +248,38 @@ end;
 
 procedure ProcessCommandLine;
 var
-  WantToSuppressMsgBoxes: Boolean;
+  WantToSuppressMsgBoxes, ParamIsAutomaticInternal: Boolean;
   I: Integer;
   ParamName, ParamValue: String;
 begin
   WantToSuppressMsgBoxes := False;
 
+  { NewParamsForCode will hold all params except automatic internal ones like /SECONDPHASE= and /DEBUGWND=
+    Actually currently only needed in the second phase, but setting always anyway
+    Also see Main.InitializeSetup }
+  NewParamsForCode.Add(NewParamStr(0));
+
   for I := 1 to NewParamCount do begin
     SplitNewParamStr(I, ParamName, ParamValue);
+    ParamIsAutomaticInternal := False;
     if CompareText(ParamName, '/Log') = 0 then begin
       EnableLogging := True;
       LogFilename := '';
-    end
-    else
-    if CompareText(ParamName, '/Log=') = 0 then begin
+    end else if CompareText(ParamName, '/Log=') = 0 then begin
       EnableLogging := True;
       LogFilename := ParamValue;
-    end
-    else
-    if CompareText(ParamName, '/INITPROCWND=') = 0 then begin
+    end else if CompareText(ParamName, '/INITPROCWND=') = 0 then begin
+      ParamIsAutomaticInternal := True;
       DidRespawn := True;
       InitialProcessWnd := StrToInt(ParamValue);
-    end
-    else
-    if CompareText(ParamName, '/SECONDPHASE=') = 0 then begin
+    end else if CompareText(ParamName, '/SECONDPHASE=') = 0 then begin
+      ParamIsAutomaticInternal := True;
       SecondPhase := True;
       UninstExeFilename := ParamValue;
-    end
-    else if CompareText(ParamName, '/FIRSTPHASEWND=') = 0 then
+    end else if CompareText(ParamName, '/FIRSTPHASEWND=') = 0 then begin
+      ParamIsAutomaticInternal := True;
       FirstPhaseWnd := StrToInt(ParamValue)
-    else if CompareText(ParamName, '/SILENT') = 0 then
+    end else if CompareText(ParamName, '/SILENT') = 0 then
       Silent := True
     else if CompareText(ParamName, '/VERYSILENT') = 0 then
       VerySilent := True
@@ -285,8 +287,12 @@ begin
       NoRestart := True
     else if CompareText(ParamName, '/SuppressMsgBoxes') = 0 then
       WantToSuppressMsgBoxes := True
-    else if CompareText(ParamName, '/DEBUGWND=') = 0 then
+    else if CompareText(ParamName, '/DEBUGWND=') = 0 then begin
+      ParamIsAutomaticInternal := True;
       DebugWnd := StrToInt(ParamValue);
+    end;
+    if not ParamIsAutomaticInternal then
+      NewParamsForCode.Add(NewParamStr(I));
   end;
 
   if WantToSuppressMsgBoxes and (Silent or VerySilent) then

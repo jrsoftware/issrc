@@ -65,7 +65,7 @@ const
   SWizardISPPCheck = '&Yes, use #define compiler directives';
   SWizardFinished = 'Finished';
 
-  SWizardNextButton = '&Next >';
+  SWizardNextButton = '&Next';
   SWizardFinishButton = '&Finish';
   SWizardCancelMessage = 'The [name] is not complete. If you quit now, the new script file will not be generated.'#13#13'Exit the [name]?';
 

@@ -1895,7 +1895,7 @@ object WizardForm: TWizardForm
     Width = 75
     Height = 23
     Anchors = [akRight, akBottom]
-    Caption = '< &Back'
+    Caption = '&Back'
     TabOrder = 0
     OnClick = BackButtonClick
   end
