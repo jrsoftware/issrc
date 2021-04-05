@@ -359,7 +359,7 @@ type
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
     function CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
-    function CreateMemoryStreamsFromResource(const AResourceNames: array of String): TObjectList<TCustomMemoryStream>;
+    function CreateMemoryStreamsFromResources(const AResourceNames: array of String): TObjectList<TCustomMemoryStream>;
   public
     AppData: Longint;
     CallbackProc: TCompilerCallbackProc;
@@ -629,7 +629,7 @@ begin
   end;
 end;
 
-function TSetupCompiler.CreateMemoryStreamsFromResource(const AResourceNames: array of String): TObjectList<TCustomMemoryStream>;
+function TSetupCompiler.CreateMemoryStreamsFromResources(const AResourceNames: array of String): TObjectList<TCustomMemoryStream>;
 var
   I: Integer;
 begin
@@ -8721,13 +8721,13 @@ begin
     if WizardImageFile <> '' then
       WizardImages := CreateMemoryStreamsFromFiles('WizardImageFile', WizardImageFile)
     else
-      WizardImages := CreateMemoryStreamsFromResource(['WizardImage']);
+      WizardImages := CreateMemoryStreamsFromResources(['WizardImage']);
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
     if WizardSmallImageFile <> '' then
       WizardSmallImages := CreateMemoryStreamsFromFiles('WizardSmallImage', WizardSmallImageFile)
     else
-      WizardSmallImages := CreateMemoryStreamsFromResource(['WizardSmallImage']);
+      WizardSmallImages := CreateMemoryStreamsFromResources(['WizardSmallImage']);
     LineNumber := 0;
 
     { Prepare Setup executable & signed uninstaller data }
