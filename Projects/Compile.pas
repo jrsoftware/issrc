@@ -31,7 +31,7 @@ type
 implementation
 
 uses
-  CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings, Math,
+  CompPreprocInt, Commctrl, {$IFDEF IS_DXE2}Vcl.Consts{$ELSE}Consts{$ENDIF}, Classes, IniFiles, TypInfo, AnsiStrings, Math, Generics.Collections,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, CompExeUpdate,
@@ -358,7 +358,8 @@ type
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer; StepOutMarker: Boolean = False);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
-    function CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TList;
+    function CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
+    function CreateMemoryStreamsFromResource(const AResourceNames: array of String): TObjectList<TCustomMemoryStream>;
   public
     AppData: Longint;
     CallbackProc: TCompilerCallbackProc;
@@ -571,7 +572,7 @@ begin
   until (Result <> '') or (S = '');
 end;
 
-function TSetupCompiler.CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TList;
+function TSetupCompiler.CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
 
   procedure AddFile(const Filename: String);
   begin
@@ -586,7 +587,7 @@ var
   H: THandle;
   FindData: TWin32FindData;
 begin
-  Result := TList.Create;
+  Result := TObjectList<TCustomMemoryStream>.Create;
   try
     { In older versions only one file could be listed and comma's could be used so
       before treating AFiles as a list, first check if it's actually a single file
@@ -623,8 +624,20 @@ begin
       end;
     end;
   except
-    for I := Result.Count-1 downto 0 do
-      TMemoryStream(Result[I]).Free;
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TSetupCompiler.CreateMemoryStreamsFromResource(const AResourceNames: array of String): TObjectList<TCustomMemoryStream>;
+var
+  I: Integer;
+begin
+  Result := TObjectList<TCustomMemoryStream>.Create;
+  try
+    for I := 0 to Length(AResourceNames)-1 do
+      Result.Add(TResourceStream.Create(HInstance, AResourceNames[I], RT_RCDATA));
+  except
     Result.Free;
     raise;
   end;
@@ -4221,16 +4234,12 @@ begin
         SetSetupHeaderOption(shWizardImageStretch);
       end;
     ssWizardImageFile: begin
-        if Value = '' then
-          Invalid;
         WizardImageFile := Value;
       end;
     ssWizardResizable: begin
         SetSetupHeaderOption(shWizardResizable);
       end;
     ssWizardSmallImageFile: begin
-        if Value = '' then
-          Invalid;
         WizardSmallImageFile := Value;
       end;
     ssWizardSizePercent: begin
@@ -7673,8 +7682,7 @@ var
   SetupFile: TFile;
   ExeFile: TFile;
   LicenseText, InfoBeforeText, InfoAfterText: AnsiString;
-  WizardImages: TList;
-  WizardSmallImages: TList;
+  WizardImages, WizardSmallImages: TObjectList<TCustomMemoryStream>;
   DecompressorDLL, DecryptionDLL: TMemoryStream;
 
   SetupLdrOffsetTable: TSetupLdrOffsetTable;
@@ -7682,7 +7690,7 @@ var
 
   function WriteSetup0(const F: TFile): Longint;
 
-    procedure WriteStream(Stream: TMemoryStream; W: TCompressedBlockWriter);
+    procedure WriteStream(Stream: TCustomMemoryStream; W: TCompressedBlockWriter);
     var
       Size: Longint;
     begin
@@ -8460,8 +8468,6 @@ begin
     SetupHeader.ChangesEnvironment := 'no';
     SetupHeader.ChangesAssociations := 'no';
     BackSolid := False;
-    WizardImageFile := 'compiler:WIZMODERNIMAGE.BMP';
-    WizardSmallImageFile := 'compiler:WIZMODERNSMALLIMAGE.BMP';
     DefaultDialogFontName := 'Tahoma';
     SignToolRetryCount := 2;
     SignToolRetryDelay := 500;
@@ -8712,10 +8718,16 @@ begin
     { Read wizard image }
     LineNumber := SetupDirectiveLines[ssWizardImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFile']));
-    WizardImages := CreateMemoryStreamsFromFiles('WizardImageFile', WizardImageFile);
+    if WizardImageFile <> '' then
+      WizardImages := CreateMemoryStreamsFromFiles('WizardImageFile', WizardImageFile)
+    else
+      WizardImages := CreateMemoryStreamsFromResource(['WizardImage']);
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
-    WizardSmallImages := CreateMemoryStreamsFromFiles('WizardSmallImageFile', WizardSmallImageFile);
+    if WizardSmallImageFile <> '' then
+      WizardSmallImages := CreateMemoryStreamsFromFiles('WizardSmallImage', WizardSmallImageFile)
+    else
+      WizardSmallImages := CreateMemoryStreamsFromResource(['WizardSmallImage']);
     LineNumber := 0;
 
     { Prepare Setup executable & signed uninstaller data }
@@ -9125,16 +9137,8 @@ begin
     DecryptionDLL.Free;
     DecompressorDLL.Free;
     SetupE32.Free;
-    if WizardSmallImages <> nil then begin
-      for I := WizardSmallImages.Count-1 downto 0 do
-        TStream(WizardSmallImages[I]).Free;
-      WizardSmallImages.Free;
-    end;
-    if WizardImages <> nil then begin
-      for I := WizardImages.Count-1 downto 0 do
-        TStream(WizardImages[I]).Free;
-      WizardImages.Free;
-    end;
+    WizardSmallImages.Free;
+    WizardImages.Free;
     FreeListItems(LanguageEntries, SetupLanguageEntryStrings, SetupLanguageEntryAnsiStrings);
     FreeListItems(CustomMessageEntries, SetupCustomMessageEntryStrings, SetupCustomMessageEntryAnsiStrings);
     FreeListItems(PermissionEntries, SetupPermissionEntryStrings, SetupPermissionEntryAnsiStrings);
