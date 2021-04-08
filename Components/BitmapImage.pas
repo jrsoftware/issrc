@@ -41,7 +41,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure InitializeFromResource(const hInstance: HINST; const ResourceName: PChar; const AWidth, AHeight: Integer; const BkColor: TColor);
+    procedure InitializeFromIcon(const Icon: TIcon; const BkColor: TColor); overload;
+    procedure InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor); overload;
   published
     property Align;
     property Anchors;
@@ -82,16 +83,30 @@ begin
   RegisterComponents('JR', [TBitmapImage]);
 end;
 
-procedure TBitmapImage.InitializeFromResource(const hInstance: HINST; const ResourceName: PChar; const AWidth, AHeight: Integer; const BkColor: TColor);
+procedure TBitmapImage.InitializeFromIcon(const Icon: TIcon; const BkColor: TColor);
 begin
   { Set sizes (overrides any scaling) }
-  Width := AWidth;
-  Height := AHeight;
+  Width := Icon.Width;
+  Height := Icon.Height;
 
-  { Load bitmap }
-  Bitmap.Handle := LoadBitmap(hInstance, ResourceName);
-  ReplaceColor := RGB(255, 0, 255);
-  ReplaceWithColor := BkColor;
+  { Draw icon into bitmap }
+  Bitmap.Canvas.Brush.Color := BkColor;
+  Bitmap.Width := Width;
+  Bitmap.Height := Height;
+  Bitmap.Canvas.Draw(0, 0, Icon);
+end;
+
+procedure TBitmapImage.InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor);
+var
+  Icon: TIcon;
+begin
+  Icon := TIcon.Create;
+  try
+    Icon.Handle := LoadImage(hInstance, ResourceName, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+    InitializeFromIcon(Icon, BkColor);
+  finally
+    Icon.Free;
+  end;
 end;
 
 constructor TBitmapImage.Create(AOwner: TComponent);
