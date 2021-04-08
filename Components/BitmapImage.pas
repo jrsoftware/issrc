@@ -41,6 +41,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure InitializeFromResource(const hInstance: HINST; const ResourceName: PChar; const AWidth, AHeight: Integer; const BkColor: TColor);
   published
     property Align;
     property Anchors;
@@ -79,6 +80,18 @@ uses
 procedure Register;
 begin
   RegisterComponents('JR', [TBitmapImage]);
+end;
+
+procedure TBitmapImage.InitializeFromResource(const hInstance: HINST; const ResourceName: PChar; const AWidth, AHeight: Integer; const BkColor: TColor);
+begin
+  { Set sizes (overrides any scaling) }
+  Width := AWidth;
+  Height := AHeight;
+
+  { Load bitmap }
+  Bitmap.Handle := LoadBitmap(hInstance, ResourceName);
+  ReplaceColor := RGB(255, 0, 255);
+  ReplaceWithColor := BkColor;
 end;
 
 constructor TBitmapImage.Create(AOwner: TComponent);
