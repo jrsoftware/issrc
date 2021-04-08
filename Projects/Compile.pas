@@ -1744,7 +1744,7 @@ begin
       if PrevFileIndex = -1 then
         AbortCompileFmt('Failed to find index of file (%s)', [AFilename]);
     end;
-    PrevFilename := LineFilename;
+    PrevFilename := AFilename;
     GotPrevFilename := True;
   end;
   Result := PrevFileIndex;
