@@ -98,7 +98,7 @@ function GetUninstallProgressForm: TUninstallProgressForm;
 begin
   Result := UninstallProgressForm;
   if Result = nil then
-    InternalError('An attempt was made to access UninstallProgressForm before it has been created'); 
+    InternalError('An attempt was made to access UninstallProgressForm before it has been created');
 end;
 
 function GetMsgBoxCaption: String;
@@ -535,7 +535,9 @@ begin
   end else if Proc.Name = 'GETCMDTAIL' then begin
     Stack.SetString(PStart, GetCmdTail());
   end else if Proc.Name = 'PARAMCOUNT' then begin
-    Stack.SetInt(PStart, NewParamsForCode.Count);
+    if NewParamsForCode.Count = 0 then
+      InternalError('NewParamsForCode not set');
+    Stack.SetInt(PStart, NewParamsForCode.Count-1);
   end else if Proc.Name = 'PARAMSTR' then begin
     I := Stack.GetInt(PStart-1);
     if (I >= 0) and (I < NewParamsForCode.Count) then
