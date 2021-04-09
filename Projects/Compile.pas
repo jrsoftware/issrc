@@ -8232,7 +8232,8 @@ var
       if SetupIconFilename <> '' then begin
         AddStatus(Format(SCompilerStatusUpdatingIcons, ['SETUP.E32']));
         LineNumber := SetupDirectiveLines[ssSetupIconFile];
-        UpdateIcons(ConvertFileName, PrependSourceDirName(SetupIconFilename));
+        { This also deletes the UninstallImage resource. Removing it makes UninstallProgressForm use the custom icon instead. }
+        UpdateIcons(ConvertFileName, PrependSourceDirName(SetupIconFilename), True);
         LineNumber := 0;
       end;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, ['SETUP.E32']));
@@ -9016,7 +9017,7 @@ begin
             { update icons }
             AddStatus(Format(SCompilerStatusUpdatingIcons, ['SETUP.EXE']));
             LineNumber := SetupDirectiveLines[ssSetupIconFile];
-            UpdateIcons(ExeFilename, PrependSourceDirName(SetupIconFilename));
+            UpdateIcons(ExeFilename, PrependSourceDirName(SetupIconFilename), False);
             LineNumber := 0;
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);

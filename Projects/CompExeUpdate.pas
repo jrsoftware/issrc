@@ -18,7 +18,7 @@ uses
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsVistaCompatible, IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
-procedure UpdateIcons(const FileName, IcoFileName: String);
+procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallImage: Boolean);
 procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
@@ -319,7 +319,7 @@ begin
   Result := True;
 end;
 
-procedure UpdateIcons(const FileName, IcoFileName: String);
+procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallImage: Boolean);
 type
   PIcoItemHeader = ^TIcoItemHeader;
   TIcoItemHeader = packed record
@@ -379,14 +379,47 @@ type
     Result := True;
   end;
 
+  function DeleteIcon(const H: THandle; const M: HMODULE; const ResourceName: PChar): PGroupIconDir;
+  var
+    R: HRSRC;
+    Res: HGLOBAL;
+    GroupIconDir: PGroupIconDir;
+    I: Integer;
+    wLanguage: Word;
+  begin
+    { Load the group icon resource }
+    R := FindResource(M, ResourceName, RT_GROUP_ICON);
+    if R = 0 then
+      ResUpdateErrorWithLastError('FindResource failed (1)');
+    Res := LoadResource(M, R);
+    if Res = 0 then
+      ResUpdateErrorWithLastError('LoadResource failed (1)');
+    GroupIconDir := LockResource(Res);
+    if GroupIconDir = nil then
+      ResUpdateErrorWithLastError('LockResource failed (1)');
+
+    { Delete the group icon resource }
+    if not GetResourceLanguage(M, RT_GROUP_ICON, ResourceName, wLanguage) then
+      ResUpdateError('GetResourceLanguage failed (1)');
+    if not UpdateResource(H, RT_GROUP_ICON, ResourceName, wLanguage, nil, 0) then
+      ResUpdateErrorWithLastError('UpdateResource failed (1)');
+
+    { Delete the icon resources that belonged to the group }
+    for I := 0 to GroupIconDir.ItemCount-1 do begin
+      if not GetResourceLanguage(M, RT_ICON, MakeIntResource(GroupIconDir.Items[I].Id), wLanguage) then
+        ResUpdateError('GetResourceLanguage failed (2)');
+      if not UpdateResource(H, RT_ICON, MakeIntResource(GroupIconDir.Items[I].Id), wLanguage, nil, 0) then
+        ResUpdateErrorWithLastError('UpdateResource failed (2)');
+    end;
+
+    Result := GroupIconDir;
+  end;
+
 var
   H: THandle;
   M: HMODULE;
-  R: HRSRC;
-  Res: HGLOBAL;
-  GroupIconDir, NewGroupIconDir: PGroupIconDir;
+  OldGroupIconDir, NewGroupIconDir: PGroupIconDir;
   I: Integer;
-  wLanguage: Word;
   F: TFile;
   Ico: PIcoHeader;
   N: Cardinal;
@@ -423,38 +456,18 @@ begin
       if M = 0 then
         ResUpdateErrorWithLastError('LoadLibraryEx failed (1)');
       try
-        { Load the 'MAINICON' group icon resource }
-        R := FindResource(M, 'MAINICON', RT_GROUP_ICON);
-        if R = 0 then
-          ResUpdateErrorWithLastError('FindResource failed (1)');
-        Res := LoadResource(M, R);
-        if Res = 0 then
-          ResUpdateErrorWithLastError('LoadResource failed (1)');
-        GroupIconDir := LockResource(Res);
-        if GroupIconDir = nil then
-          ResUpdateErrorWithLastError('LockResource failed (1)');
-
-        { Delete 'MAINICON' }
-        if not GetResourceLanguage(M, RT_GROUP_ICON, 'MAINICON', wLanguage) then
-          ResUpdateError('GetResourceLanguage failed (1)');
-        if not UpdateResource(H, RT_GROUP_ICON, 'MAINICON', wLanguage, nil, 0) then
-          ResUpdateErrorWithLastError('UpdateResource failed (1)');
-
-        { Delete the RT_ICON icon resources that belonged to 'MAINICON' }
-        for I := 0 to GroupIconDir.ItemCount-1 do begin
-          if not GetResourceLanguage(M, RT_ICON, MakeIntResource(GroupIconDir.Items[I].Id), wLanguage) then
-            ResUpdateError('GetResourceLanguage failed (2)');
-          if not UpdateResource(H, RT_ICON, MakeIntResource(GroupIconDir.Items[I].Id), wLanguage, nil, 0) then
-            ResUpdateErrorWithLastError('UpdateResource failed (2)');
-        end;
+        { Delete default icons }
+        OldGroupIconDir := DeleteIcon(H, M, 'MAINICON');
+        if DeleteUninstallImage then
+          DeleteIcon(H, M, 'Z_UNINSTALLIMAGE');
 
         { Build the new group icon resource }
         NewGroupIconDirSize := 3*SizeOf(Word)+Ico.ItemCount*SizeOf(TGroupIconDirItem);
         GetMem(NewGroupIconDir, NewGroupIconDirSize);
         try
           { Build the new group icon resource }
-          NewGroupIconDir.Reserved := GroupIconDir.Reserved;
-          NewGroupIconDir.Typ := GroupIconDir.Typ;
+          NewGroupIconDir.Reserved := OldGroupIconDir.Reserved;
+          NewGroupIconDir.Typ := OldGroupIconDir.Typ;
           NewGroupIconDir.ItemCount := Ico.ItemCount;
           for I := 0 to NewGroupIconDir.ItemCount-1 do begin
             NewGroupIconDir.Items[I].Header := Ico.Items[I].Header;
