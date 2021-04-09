@@ -42,7 +42,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure InitializeFromIcon(const Icon: TIcon; const BkColor: TColor); overload;
-    procedure InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor); overload;
+    function InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor): Boolean; overload;
   published
     property Align;
     property Anchors;
@@ -96,17 +96,23 @@ begin
   Bitmap.Canvas.Draw(0, 0, Icon);
 end;
 
-procedure TBitmapImage.InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor);
+function TBitmapImage.InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor): Boolean;
 var
+  Handle: THandle;
   Icon: TIcon;
 begin
-  Icon := TIcon.Create;
-  try
-    Icon.Handle := LoadImage(hInstance, ResourceName, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
-    InitializeFromIcon(Icon, BkColor);
-  finally
-    Icon.Free;
-  end;
+  Handle := LoadImage(hInstance, ResourceName, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+  if Handle <> 0 then begin
+    Icon := TIcon.Create;
+    try
+      Icon.Handle := Handle;
+      InitializeFromIcon(Icon, BkColor);
+      Result := True;
+    finally
+      Icon.Free;
+    end;
+  end else
+    Result := False;
 end;
 
 constructor TBitmapImage.Create(AOwner: TComponent);
