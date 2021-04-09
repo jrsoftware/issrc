@@ -871,9 +871,9 @@ begin
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardSmallBitmapImage.Bitmap := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
-  SelectDirBitmapImage.InitializeFromIcon(HInstance, 'DIRICON', SelectDirPage.Color); {don't localize}
-  SelectGroupBitmapImage.InitializeFromIcon(HInstance, 'GROUPICON', SelectProgramGroupPage.Color); {don't localize}
-  PreparingErrorBitmapImage.InitializeFromIcon(HInstance, 'STOPICON', PreparingPage.Color); {don't localize}
+  SelectDirBitmapImage.InitializeFromIcon(HInstance, 'Z_DIRICON', SelectDirPage.Color); {don't localize}
+  SelectGroupBitmapImage.InitializeFromIcon(HInstance, 'Z_GROUPICON', SelectProgramGroupPage.Color); {don't localize}
+  PreparingErrorBitmapImage.InitializeFromIcon(HInstance, 'Z_STOPICON', PreparingPage.Color); {don't localize}
 
   { Initialize wpWelcome page }
   RegisterExistingPage(wpWelcome, WelcomePage, nil, '', '');
