@@ -359,7 +359,7 @@ type
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
     function CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
-    function CreateMemoryStreamsFromResources(const AResourceNames: array of String): TObjectList<TCustomMemoryStream>;
+    function CreateMemoryStreamsFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TObjectList<TCustomMemoryStream>;
   public
     AppData: Longint;
     CallbackProc: TCompilerCallbackProc;
@@ -629,14 +629,15 @@ begin
   end;
 end;
 
-function TSetupCompiler.CreateMemoryStreamsFromResources(const AResourceNames: array of String): TObjectList<TCustomMemoryStream>;
+function TSetupCompiler.CreateMemoryStreamsFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TObjectList<TCustomMemoryStream>;
 var
-  I: Integer;
+  I, J: Integer;
 begin
   Result := TObjectList<TCustomMemoryStream>.Create;
   try
-    for I := 0 to Length(AResourceNames)-1 do
-      Result.Add(TResourceStream.Create(HInstance, AResourceNames[I], RT_RCDATA));
+    for I := 0 to Length(AResourceNamesPrefixes)-1 do
+      for J := 0 to Length(AResourceNamesPostfixes)-1 do
+        Result.Add(TResourceStream.Create(HInstance, AResourceNamesPrefixes[I]+AResourceNamesPostfixes[J], RT_RCDATA));
   except
     Result.Free;
     raise;
@@ -8722,13 +8723,13 @@ begin
     if WizardImageFile <> '' then
       WizardImages := CreateMemoryStreamsFromFiles('WizardImageFile', WizardImageFile)
     else
-      WizardImages := CreateMemoryStreamsFromResources(['WizardImage']);
+      WizardImages := CreateMemoryStreamsFromResources(['WizardImage'], ['']);
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
     if WizardSmallImageFile <> '' then
       WizardSmallImages := CreateMemoryStreamsFromFiles('WizardSmallImage', WizardSmallImageFile)
     else
-      WizardSmallImages := CreateMemoryStreamsFromResources(['WizardSmallImage']);
+      WizardSmallImages := CreateMemoryStreamsFromResources(['WizardSmallImage'], ['100', '125', '150', '175', '200', '225', '250']);
     LineNumber := 0;
 
     { Prepare Setup executable & signed uninstaller data }
