@@ -18,7 +18,7 @@ uses
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsVistaCompatible, IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
-procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallImage: Boolean);
+procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon: Boolean);
 procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
@@ -319,7 +319,7 @@ begin
   Result := True;
 end;
 
-procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallImage: Boolean);
+procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon: Boolean);
 type
   PIcoItemHeader = ^TIcoItemHeader;
   TIcoItemHeader = packed record
@@ -458,8 +458,8 @@ begin
       try
         { Delete default icons }
         OldGroupIconDir := DeleteIcon(H, M, 'MAINICON');
-        if DeleteUninstallImage then
-          DeleteIcon(H, M, 'Z_UNINSTALLIMAGE');
+        if DeleteUninstallIcon then
+          DeleteIcon(H, M, 'Z_UNINSTALLICON');
 
         { Build the new group icon resource }
         NewGroupIconDirSize := 3*SizeOf(Word)+Ico.ItemCount*SizeOf(TGroupIconDirItem);

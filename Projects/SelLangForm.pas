@@ -161,7 +161,7 @@ begin
   OKButton.Caption := SetupMessages[msgButtonOK];
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 
-  IconBitmapImage.InitializeFromIcon(Application.Icon, MainPanel.Color);
+  IconBitmapImage.InitializeFromIcon(HInstance, 'MAINICON', MainPanel.Color, [32, 48, 64]);
 
   KeepSizeY := True;
 end;

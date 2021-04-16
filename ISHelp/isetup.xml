@@ -5082,6 +5082,7 @@ DiskSliceSize=1457664
 <setuptopic directive="SetupIconFile">
 <body>
 <p>Specifies a custom program icon to use for Setup/Uninstall. The file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
+<p>It is recommended to include at least the following sizes in your icon: 16x16, 32x32, 48x48, 64x64, and 256x256.</p>.
 <example><pre>SetupIconFile=MyProgSetup.ico</pre></example>
 </body>
 </setuptopic>

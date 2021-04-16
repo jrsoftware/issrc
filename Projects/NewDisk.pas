@@ -80,7 +80,7 @@ begin
   OKButton.Caption := SetupMessages[msgButtonOK];
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 
-  DiskBitmapImage.InitializeFromIcon(HInstance, 'Z_DISKIMAGE', Color); {don't localize}
+  DiskBitmapImage.InitializeFromIcon(HInstance, 'Z_DISKICON', Color, [48, 64]); {don't localize}
 
   TryEnableAutoCompleteFileSystem(PathEdit.Handle);
 

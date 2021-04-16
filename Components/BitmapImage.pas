@@ -41,8 +41,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure InitializeFromIcon(const Icon: TIcon; const BkColor: TColor); overload;
-    function InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor): Boolean; overload;
+    function InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
   published
     property Align;
     property Anchors;
@@ -76,37 +75,49 @@ procedure Register;
 implementation
 
 uses
-  Resample;
+  Math, Resample;
 
 procedure Register;
 begin
   RegisterComponents('JR', [TBitmapImage]);
 end;
 
-procedure TBitmapImage.InitializeFromIcon(const Icon: TIcon; const BkColor: TColor);
-begin
-  { Set sizes (overrides any scaling) }
-  Width := Icon.Width;
-  Height := Icon.Height;
-
-  { Draw icon into bitmap }
-  Bitmap.Canvas.Brush.Color := BkColor;
-  Bitmap.Width := Width;
-  Bitmap.Height := Height;
-  Bitmap.Canvas.Draw(0, 0, Icon);
-end;
-
-function TBitmapImage.InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor): Boolean;
+function TBitmapImage.InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
 var
   Handle: THandle;
   Icon: TIcon;
+  I, Size: Integer;
 begin
-  Handle := LoadImage(hInstance, ResourceName, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+  { Find the largest regular icon size smaller than the scaled image }
+  Size := 0;
+  for I := Length(AscendingTrySizes)-1 downto 0 do begin
+    if (Width >= AscendingTrySizes[I]) and (Height >= AscendingTrySizes[I]) then begin
+      Size := AscendingTrySizes[I];
+      Break;
+    end;
+  end;
+  if Size = 0 then
+    Size := Min(Width, Height);
+
+  { Load the desired icon }
+  Handle := LoadImage(hInstance, ResourceName, IMAGE_ICON, Size, Size, LR_DEFAULTCOLOR);
+  if Handle = 0 then
+    Handle := LoadImage(hInstance, ResourceName, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
   if Handle <> 0 then begin
     Icon := TIcon.Create;
     try
       Icon.Handle := Handle;
-      InitializeFromIcon(Icon, BkColor);
+
+      { Set sizes (overrides any scaling) }
+      Width := Icon.Width;
+      Height := Icon.Height;
+
+      { Draw icon into bitmap }
+      Bitmap.Canvas.Brush.Color := BkColor;
+      Bitmap.Width := Width;
+      Bitmap.Height := Height;
+      Bitmap.Canvas.Draw(0, 0, Icon);
+
       Result := True;
     finally
       Icon.Free;
