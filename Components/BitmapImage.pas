@@ -41,7 +41,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    function InitializeFromIcon(const Instance: HINST; const ResourceName: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
   published
     property Align;
     property Anchors;
@@ -82,7 +82,7 @@ begin
   RegisterComponents('JR', [TBitmapImage]);
 end;
 
-function TBitmapImage.InitializeFromIcon(const hInstance: HINST; const ResourceName: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+function TBitmapImage.InitializeFromIcon(const Instance: HINST; const ResourceName: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
 var
   Handle: THandle;
   Icon: TIcon;
@@ -100,9 +100,9 @@ begin
     Size := Min(Width, Height);
 
   { Load the desired icon }
-  Handle := LoadImage(hInstance, ResourceName, IMAGE_ICON, Size, Size, LR_DEFAULTCOLOR);
+  Handle := LoadImage(Instance, ResourceName, IMAGE_ICON, Size, Size, LR_DEFAULTCOLOR);
   if Handle = 0 then
-    Handle := LoadImage(hInstance, ResourceName, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+    Handle := LoadImage(Instance, ResourceName, IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
   if Handle <> 0 then begin
     Icon := TIcon.Create;
     try
