@@ -34,7 +34,7 @@ procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
 
   procedure RegisterType(const Name, Value: tbtstring);
   begin
-    ScriptCompiler.AddTypes(Name, Value);
+    ScriptCompiler.AddTypeS(Name, Value);
   end;
 
   procedure RegisterFunctionTable(const FunctionTable: array of tbtstring);
