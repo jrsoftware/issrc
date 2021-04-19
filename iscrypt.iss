@@ -3,9 +3,11 @@
 // Must be included before adding [Files] entries
 //
 #if FileExists('iscrypt-custom.ico')
-  #define iscryptico 'iscrypt-custom.ico'
+  #define iscryptico      'iscrypt-custom.ico'
+  #define iscrypticosizes '[32, 48, 64]'
 #else
-  #define iscryptico 'iscrypt.ico'
+  #define iscryptico      'iscrypt.ico'
+  #define iscrypticosizes '[32]'
 #endif
 //
 [Files]
@@ -20,18 +22,6 @@ var
   ISCryptPage: TWizardPage;
   ISCryptCheckBox: TCheckBox;
 
-function GetModuleHandle(lpModuleName: LongInt): LongInt;
-external 'GetModuleHandleA@kernel32.dll stdcall';
-function ExtractIcon(hInst: LongInt; lpszExeFileName: String; nIconIndex: LongInt): LongInt;
-external 'ExtractIconW@shell32.dll stdcall';
-function DrawIconEx(hdc: LongInt; xLeft, yTop: Integer; hIcon: LongInt; cxWidth, cyWidth: Integer; istepIfAniCur: LongInt; hbrFlickerFreeDraw, diFlags: LongInt): LongInt;
-external 'DrawIconEx@user32.dll stdcall';
-function DestroyIcon(hIcon: LongInt): LongInt;
-external 'DestroyIcon@user32.dll stdcall';
-
-const
-  DI_NORMAL = 3;
-  
 procedure CreateCustomOption(Page: TWizardPage; ACheckCaption: String; var CheckBox: TCheckBox; PreviousControl: TControl);
 begin
   CheckBox := TCheckBox.Create(Page);
@@ -49,41 +39,23 @@ function CreateCustomOptionPage(AAfterId: Integer; ACaption, ASubCaption, AIconF
   ACheckCaption: String; var CheckBox: TCheckBox): TWizardPage;
 var
   Page: TWizardPage;
-  Rect: TRect;
-  hIcon: LongInt;
+  BitmapImage: TBitmapImage;
   Label1, Label2: TNewStaticText;
 begin
   Page := CreateCustomPage(AAfterID, ACaption, ASubCaption);
   
-  try
-    AIconFileName := ExpandConstant('{tmp}\' + AIconFileName);
-    if not FileExists(AIconFileName) then
-      ExtractTemporaryFile(ExtractFileName(AIconFileName));
+  AIconFileName := ExpandConstant('{tmp}\' + AIconFileName);
+  if not FileExists(AIconFileName) then
+    ExtractTemporaryFile(ExtractFileName(AIconFileName));
 
-    Rect.Left := 0;
-    Rect.Top := 0;
-    Rect.Right := 32;
-    Rect.Bottom := 32;
-
-    hIcon := ExtractIcon(GetModuleHandle(0), AIconFileName, 0);
-    try
-      with TBitmapImage.Create(Page) do begin
-        with Bitmap do begin
-          Width := 32;
-          Height := 32;
-          Canvas.Brush.Color := Page.SurfaceColor;
-          Canvas.FillRect(Rect);
-          DrawIconEx(Canvas.Handle, 0, 0, hIcon, 32, 32, 0, 0, DI_NORMAL);
-        end;
-        Width := Bitmap.Width;
-        Height := Bitmap.Width;
-        Parent := Page.Surface;
-      end;
-    finally
-      DestroyIcon(hIcon);
-    end;
-  except
+  BitmapImage := TBitmapImage.Create(Page);
+  with BitmapImage do begin
+    Width := ScaleX(32);
+    Height := ScaleY(32);
+    Parent := Page.Surface;
   end;
+  
+  InitializeBitmapImageFromIcon(BitmapImage, AIconFileName, Page.SurfaceColor, {#iscrypticosizes});
 
   Label1 := TNewStaticText.Create(Page);
   with Label1 do begin
