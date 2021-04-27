@@ -2701,7 +2701,7 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 
 <p>This optional section defines any additional files or directories you want the uninstaller to delete, besides those that were installed/created using [Files] or [Dirs] section entries. Deleting .INI files created by your application is one common use for this section. The uninstaller processes these entries as the last step of uninstallation.</p>
 
-<p>Here is a example of a <tt>[UninstallDelete]</tt> section:</p>
+<p>Here is an example of a <tt>[UninstallDelete]</tt> section:</p>
 
 <precode>
 [UninstallDelete]
