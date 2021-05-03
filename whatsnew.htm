@@ -47,9 +47,15 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   <li>Updated Uninstall's default small wizard image if [Setup] section directive <tt>SetupIconFile</tt> is not set. Before it would use Setup's default application icon in this case.</li>
   <li>Updated the folder, group, and stop icons used by Setup's <i>Select Destination Location</i>, <i>Select Start Menu Folder</i>, and <i>Preparing to Install</i> wizard pages.</li>
   <li>Updated the disk icon used by Setup's <i>Setup Needs the Next Disk</i> form.</li>
-  <li>All these icon and images updates include the automatic use of larger versions on higher DPI settings. This includes new automatic use of larger icons for the icon on Setup's <i>Select Setup Language</i> form and Uninstall's small wizard image if <tt>SetupIconFile</tt> is set.</li>
   <li>Pascal Scripting change: Added new <tt>InitializeBitmapImageFromIcon</tt> support function.</li>
 </ul>
+<p>All these icon and images updates include the automatic use of higher quality versions (which were not available before) on higher DPI settings. This includes new automatic use of higher quality icons for the icon on Setup's <i>Select Setup Language</i> form and Uninstall's small wizard image if <tt>SetupIconFile</tt> is set.</p>
+<p>Example screenshots:</p>
+<ul>
+  <li>Setup wizard pages <a href="https://jrsoftware.org/images/is-welcome-org.png">Select Destination Location</a> and <a href="https://jrsoftware.org/images/is-finished-org.png">Setup Completed</a> at 100% DPI.</li>
+  <li>Setup wizard pages <a href="https://jrsoftware.org/images/is-welcome-org-175.png">Select Destination Location</a> and <a href="https://jrsoftware.org/images/is-finished-org-175.png">Setup Completed</a> at 175% DPI.</li>
+  <li>Compiler IDE themes <a href="https://jrsoftware.org/images/is-ide-org.png">Light</a> and <a href="https://jrsoftware.org/images/is-ide-dark-org.png">Dark</a> at 100% DPI.</li>
+ </ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li>Links displayed by [Setup] section directives <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt> and <tt>InfoAfterFile</tt> are now executed as the original user if possible when clicked.</li>
