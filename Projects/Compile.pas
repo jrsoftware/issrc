@@ -8723,7 +8723,7 @@ begin
     if WizardImageFile <> '' then
       WizardImages := CreateMemoryStreamsFromFiles('WizardImageFile', WizardImageFile)
     else
-      WizardImages := CreateMemoryStreamsFromResources(['WizardImage'], ['']);
+      WizardImages := CreateMemoryStreamsFromResources(['WizardImage'], ['100', '150']);
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
     if WizardSmallImageFile <> '' then
