@@ -2600,7 +2600,10 @@ end;</pre></example>
       <function>
         <name>InitializeBitmapImageFromIcon</name>
         <prototype>function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;</prototype>
-        <description><p>Initializes the given bitmap image with the given icon using the given background color for transparent parts. The bitmap image should be scaled already and then the function will load the largest fitting icon which has a size from the given array of sizes. The array must be sorted already from smallest to highest size. Returns True if the icon could be loaded, False otherwise.</p></description>
+        <description><p>Initializes the given bitmap image with an icon from the given icon file using the given background color for transparent parts.</p>
+<p>The bitmap image should be scaled already and the function will load the largest fitting icon which has a size from the given array of sizes. After loading the function will set the size of the bitmap image to the loaded size.</p>
+<p>The array must be sorted already from smallest to highest size.</p>
+<p>Returns True if the icon could be loaded, False otherwise.</p></description>
         <example><pre>procedure InitializeWizard;
 var
   Page: TWizardPage;
