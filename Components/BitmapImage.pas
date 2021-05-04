@@ -41,6 +41,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
   published
     property Align;
     property Anchors;
@@ -74,11 +75,59 @@ procedure Register;
 implementation
 
 uses
-  Resample;
+  Math, Resample;
 
 procedure Register;
 begin
   RegisterComponents('JR', [TBitmapImage]);
+end;
+
+function TBitmapImage.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+var
+  Flags: Cardinal;
+  Handle: THandle;
+  Icon: TIcon;
+  I, Size: Integer;
+begin
+  { Find the largest regular icon size smaller than the scaled image }
+  Size := 0;
+  for I := Length(AscendingTrySizes)-1 downto 0 do begin
+    if (Width >= AscendingTrySizes[I]) and (Height >= AscendingTrySizes[I]) then begin
+      Size := AscendingTrySizes[I];
+      Break;
+    end;
+  end;
+  if Size = 0 then
+    Size := Min(Width, Height);
+
+  { Load the desired icon }
+  Flags := LR_DEFAULTCOLOR;
+  if Instance = 0 then
+    Flags := Flags or LR_LOADFROMFILE;
+  Handle := LoadImage(Instance, Name, IMAGE_ICON, Size, Size, Flags);
+  if Handle = 0 then
+    Handle := LoadImage(Instance, Name, IMAGE_ICON, 0, 0, Flags);
+  if Handle <> 0 then begin
+    Icon := TIcon.Create;
+    try
+      Icon.Handle := Handle;
+
+      { Set sizes (overrides any scaling) }
+      Width := Icon.Width;
+      Height := Icon.Height;
+
+      { Draw icon into bitmap }
+      Bitmap.Canvas.Brush.Color := BkColor;
+      Bitmap.Width := Width;
+      Bitmap.Height := Height;
+      Bitmap.Canvas.Draw(0, 0, Icon);
+
+      Result := True;
+    finally
+      Icon.Free;
+    end;
+  end else
+    Result := False;
 end;
 
 constructor TBitmapImage.Create(AOwner: TComponent);

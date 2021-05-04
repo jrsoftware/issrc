@@ -731,71 +731,6 @@ constructor TWizardForm.Create(AOwner: TComponent);
   using the FormCreate event, because if an exception is raised in FormCreate
   it's not propagated out. }
 
-  procedure LoadSelectDirAndGroupImages;
-
-    procedure IconToBitmapImage(const AIcon: HICON; const Ctl: TBitmapImage; const BkColor: TColor);
-    begin
-      if AIcon <> 0 then begin
-        try
-          with Ctl.Bitmap do begin
-            Width := 32;
-            Height := 32;
-            Canvas.Brush.Color := BkColor;
-            Canvas.FillRect(Rect(0, 0, 32, 32));
-            DrawIconEx(Canvas.Handle, 0, 0, AIcon, 32, 32, 0, 0, DI_NORMAL);
-          end;
-        finally
-          DestroyIcon(AIcon);
-        end;
-      end;
-    end;
-
-  var
-    FileInfo: TSHFileInfo;
-    Path: String;
-  begin
-    { Set sizes (overrides any scaling) }
-    SelectDirBitmapImage.Width := 32;
-    SelectDirBitmapImage.Height := 32;
-    SelectGroupBitmapImage.Width := 32;
-    SelectGroupBitmapImage.Height := 32;
-
-    try
-      { We have to extract the icons ourself using ExtractIcon because the
-        icons SHGetFileInfo returns differ in size depending on whether
-        "Use large icons" is turned on, and we don't want that.
-        Note: We *could* avoid SHGetFileInfo altogether and pass 'shell32.dll'
-        and a hard-coded index directly to ExtractIcon, but I'm worried that
-        might not work in a future Windows version. }
-      if (SHGetFileInfo('c:\directory', FILE_ATTRIBUTE_DIRECTORY, FileInfo,
-          SizeOf(FileInfo), SHGFI_USEFILEATTRIBUTES or SHGFI_ICONLOCATION) <> 0) and
-         (FileInfo.szDisplayName[0] <> #0) then
-        IconToBitmapImage(ExtractIcon(HInstance, FileInfo.szDisplayName,
-          FileInfo.iIcon), SelectDirBitmapImage, SelectDirPage.Color);
-
-      if WindowsVersionAtLeast(6, 0) then begin
-        { On Windows Vista and 7, use the "Taskbar and Start Menu Properties"
-          icon as there is no longer a separate icon for Start Menu folders }
-        IconToBitmapImage(ExtractIcon(HInstance,
-          PChar(AddBackslash(WinSystemDir) + 'shell32.dll'), 39),
-          SelectGroupBitmapImage, SelectProgramGroupPage.Color);
-      end
-      else begin
-        Path := GetShellFolder(False, sfPrograms, False);
-        if Path = '' then
-          Path := GetShellFolder(True, sfPrograms, False);
-        if Path <> '' then begin
-          if (SHGetFileInfo(PChar(Path), 0, FileInfo, SizeOf(FileInfo),
-              SHGFI_ICONLOCATION) <> 0) and (FileInfo.szDisplayName[0] <> #0) then
-            IconToBitmapImage(ExtractIcon(HInstance, FileInfo.szDisplayName,
-              FileInfo.iIcon), SelectGroupBitmapImage, SelectProgramGroupPage.Color);
-        end;
-      end;
-    except
-      { ignore any exceptions }
-    end;
-  end;
-
   function SelectBestImage(WizardImages: TList; TargetWidth, TargetHeight: Integer): TBitmap;
   var
     TargetArea, Difference, SmallestDifference, I: Integer;
@@ -936,10 +871,9 @@ begin
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardSmallBitmapImage.Bitmap := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
-  PreparingErrorBitmapImage.Bitmap.Handle := LoadBitmap(HInstance, 'STOPIMAGE');
-  PreparingErrorBitmapImage.ReplaceColor := RGB(255, 0, 255);
-  PreparingErrorBitmapImage.ReplaceWithColor := PreparingPage.Color;
-  LoadSelectDirAndGroupImages;
+  SelectDirBitmapImage.InitializeFromIcon(HInstance, 'Z_DIRICON', SelectDirPage.Color, [32, 48, 64]); {don't localize}
+  SelectGroupBitmapImage.InitializeFromIcon(HInstance, 'Z_GROUPICON', SelectProgramGroupPage.Color, [32, 48, 64]); {don't localize}
+  PreparingErrorBitmapImage.InitializeFromIcon(HInstance, 'Z_STOPICON', PreparingPage.Color, [16, 24, 32]); {don't localize}
 
   { Initialize wpWelcome page }
   RegisterExistingPage(wpWelcome, WelcomePage, nil, '', '');

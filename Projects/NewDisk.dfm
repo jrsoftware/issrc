@@ -22,7 +22,7 @@ object NewDiskForm: TNewDiskForm
   TextHeight = 13
   object DiskBitmapImage: TBitmapImage
     Left = 8
-    Top = 8
+    Top = 10
     Width = 48
     Height = 48
   end

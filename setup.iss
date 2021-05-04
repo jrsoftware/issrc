@@ -15,7 +15,7 @@
 [Setup]
 AppName=Inno Setup
 AppId={code:GetAppId|Inno Setup 6}
-AppVersion=6.1.3
+AppVersion=6.2.0
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
@@ -37,8 +37,6 @@ LicenseFile=license.txt
 TimeStampsInUTC=yes
 TouchDate=none
 TouchTime=00:00
-WizardImageFile=compiler:WizModernImage-IS.bmp
-WizardSmallImageFile=compiler:WizModernSmallImage-IS.bmp
 #ifdef SIGNTOOL
 SignTool=issigntool
 SignTool=issigntool256
@@ -126,6 +124,7 @@ Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Languages\*.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
+Source: "files\SetupClassicIcon.ico"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizModernSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
