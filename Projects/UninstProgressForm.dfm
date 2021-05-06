@@ -113,8 +113,6 @@ object UninstallProgressForm: TUninstallProgressForm
           Width = 32
           Height = 32
           Anchors = [akTop, akRight]
-          BackColor = clWindow
-          Center = True
         end
         object FPageDescriptionLabel: TNewStaticText
           Left = 40
