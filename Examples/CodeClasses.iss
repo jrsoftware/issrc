@@ -19,7 +19,7 @@ PrivilegesRequired=lowest
 ;DialogFontSize=12
 
 [Files]
-Source: compiler:WizModernSmallImage.bmp; Flags: dontcopy
+Source: compiler:WizClassicSmallImage.bmp; Flags: dontcopy
 
 [Code]
 procedure ButtonOnClick(Sender: TObject);
@@ -313,7 +313,7 @@ begin
 
   Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TBitmapImage');
 
-  BitmapFileName := ExpandConstant('{tmp}\WizModernSmallImage.bmp');
+  BitmapFileName := ExpandConstant('{tmp}\WizClassicSmallImage.bmp');
   ExtractTemporaryFile(ExtractFileName(BitmapFileName));
 
   BitmapImage := TBitmapImage.Create(Page);

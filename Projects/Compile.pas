@@ -8720,15 +8720,23 @@ begin
     { Read wizard image }
     LineNumber := SetupDirectiveLines[ssWizardImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFile']));
-    if WizardImageFile <> '' then
+    if WizardImageFile <> '' then begin
+      if SameText(WizardImageFile, 'compiler:WizModernImage.bmp') then begin
+        WarningsList.Add(Format(SCompilerWizImageRenamed, [WizardImageFile, 'compiler:WizClassicImage.bmp']));
+        WizardImageFile := 'compiler:WizClassicImage.bmp';
+      end;
       WizardImages := CreateMemoryStreamsFromFiles('WizardImageFile', WizardImageFile)
-    else
+    end else
       WizardImages := CreateMemoryStreamsFromResources(['WizardImage'], ['100', '150']);
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
-    if WizardSmallImageFile <> '' then
+    if WizardSmallImageFile <> '' then begin
+      if SameText(WizardSmallImageFile, 'compiler:WizModernSmallImage.bmp') then begin
+        WarningsList.Add(Format(SCompilerWizImageRenamed, [WizardSmallImageFile, 'compiler:WizClassicSmallImage.bmp']));
+        WizardSmallImageFile := 'compiler:WizClassicSmallImage.bmp';
+      end;
       WizardSmallImages := CreateMemoryStreamsFromFiles('WizardSmallImage', WizardSmallImageFile)
-    else
+    end else
       WizardSmallImages := CreateMemoryStreamsFromResources(['WizardSmallImage'], ['100', '125', '150', '175', '200', '225', '250']);
     LineNumber := 0;
 

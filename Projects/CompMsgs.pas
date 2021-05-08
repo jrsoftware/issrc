@@ -2,7 +2,7 @@ unit CompMsgs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2021 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -202,6 +202,7 @@ const
   SCompilerOutputBaseFileNameSetup = 'Setting the [Setup] section directive "OutputBaseFileName" to "setup" is not recommended: all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll.' + ' These DLLs are loaded unsafely by Windows and can be hijacked. Use a different name, for example "mysetup".';
   SCompilerRemoveManifestDllHijackProtection = 'Setting the [Setup] section directive "MinVersion" below %s is not recommended: Windows Vista doesn''t support some of Setup''s security measures against potential DLL preloading attacks so these have been' + ' removed by the compiler making your installer less secure on all versions of Windows.';
   SCompilerDidntRemoveManifestDllHijackProtection = 'Setup will not run on Windows Vista: MinVersion must be below %s.';
+  SCompilerWizImageRenamed = 'Wizard image "%s" has been renamed. Use "%s" instead or consider removing the directive to use modern built-in wizard images.';
 
   { Signing }
   SCompilerSignatureNeeded = 'Signed uninstaller mode is enabled. Using ' +
@@ -217,9 +218,9 @@ const
     SNewLine2 + '%s' + SNewLine2 + 'differ unexpectedly from the original ' +
     'file';
   SCompilerNoSetupLdrSignError = 'The SignTool and SignedUninstaller directives may not be set when UseSetupLdr is set to "no"';
-  SCompilerSignToolFileNameSequenceNotFound = 'Unable to run Sign Tool %s: $f sequence is missing.'; 
+  SCompilerSignToolFileNameSequenceNotFound = 'Unable to run Sign Tool %s: $f sequence is missing.';
   SCompilerSignToolCreateProcessFailed = 'Failed to execute Sign Tool command.' +
-    SNewLine2 + 'Error %d: %s'; 
+    SNewLine2 + 'Error %d: %s';
   SCompilerSignToolNonZeroExitCode = 'Sign Tool command failed with exit code 0x%x';
   SCompilerSignToolSucceededButNoSignature = 'The Sign Tool command returned an ' +
     'exit code of 0, but the file does not have a digital signature';

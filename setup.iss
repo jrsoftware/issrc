@@ -106,6 +106,11 @@ Type: files; Name: "{app}\Examples\IsDonateAndMail.iss"
 Type: files; Name: "{app}\Examples\IsDonate.bmp"
 Type: files; Name: "{app}\Examples\IsMail.bmp"
 Type: files; Name: "{app}\Examples\IsPortable.iss"
+; Removed old/renamed wizard images
+Type: files; Name: "{app}\WizModernImage.bmp"
+Type: files; Name: "{app}\WizModernImage-IS.bmp"
+Type: files; Name: "{app}\WizModernSmallImage.bmp"
+Type: files; Name: "{app}\WizModernSmallImage-IS.bmp"
 
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
@@ -125,10 +130,10 @@ Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Languages\*.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\SetupClassicIcon.ico"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\WizModernImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\WizModernImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\WizModernSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\WizModernSmallImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\WizClassicImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\WizClassicImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\WizClassicSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\WizClassicSmallImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\iszlib.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isbzip.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
