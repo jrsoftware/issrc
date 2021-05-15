@@ -552,7 +552,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="localappdata">{localappdata}</a></b></dt>
 <dd>
-<p>The path to the local (nonroaming) Application Data folder.</p>
+<p>The path to the current user's local (nonroaming) Application Data folder.</p>
 </dd>
 
 <dt><b><a name="userappdata">{userappdata}</a></b> &amp; <b><a name="commonappdata">{commonappdata}</a></b></dt>
