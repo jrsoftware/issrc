@@ -37,6 +37,7 @@ uses
   VerInfo in 'VerInfo.pas';
 
 {$R *.RES}
+{$R IMAGES2.RES}
 
 function ISDllCompileScript(const Params: TCompileScriptParamsEx): Integer;
 stdcall;

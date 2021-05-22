@@ -108,13 +108,11 @@ object UninstallProgressForm: TUninstallProgressForm
           497
           58)
         object FWizardSmallBitmapImage: TBitmapImage
-          Left = 440
-          Top = 1
-          Width = 55
-          Height = 55
+          Left = 451
+          Top = 13
+          Width = 32
+          Height = 32
           Anchors = [akTop, akRight]
-          BackColor = clWindow
-          Center = True
         end
         object FPageDescriptionLabel: TNewStaticText
           Left = 40

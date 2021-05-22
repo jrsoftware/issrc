@@ -28,23 +28,44 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="https://jrsoftware.org/ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
-<p><a name="6.1.3"></a><span class="ver">6.1.3-dev </span><span class="date">(?)</span></p>
+<p><a name="6.2.0"></a><span class="ver">6.2.0-dev </span><span class="date">(?)</span></p>
+<p><span class="head2">QuickStart Pack removed</span></p>
 <ul>
   <li>The QuickStart Pack installer has been removed because of a lack of added value.</li>
   <li>The standard Inno Setup installer now offers to download encryption support if it's missing, like the QuickStart Pack installer did before.</li>
 </ul>
-</p>
-<p>
+<p><span class="head2">Inno Setup FAQ updated</span></p>
 <ul>
   <li>The content of the <a href="https://jrsoftware.org/isfaq.php">Inno Setup FAQ</a> is now <a href="https://github.com/jrsoftware/isfaq/blob/main/isfaq.html">available on GitHub</a> where you can suggest new entries or other improvements using the Edit button.</li>
   <li>The Inno Setup FAQ has been updated with updated versions of articles taken from the Inno Setup Knowledge Base which is now hidden from the website.</li>
 </ul>
-</p>
-<p>
+<p><span class="head2">Graphics modernized</span></p>
+<ul>
+  <li>Updated all Compiler IDE's toolbar icons and the wizard images used by the Compiler IDE's New Script Wizard wizard.</li>
+  <li>Updated the default application icon used by Setup and Uninstall if [Setup] section directive <tt>SetupIconFile</tt> is not set. To use the old icon again set <tt>SetupIconFile</tt> to <tt>compiler:SetupClassicIcon.ico</tt>.</li>
+  <li>[Setup] section directives <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> now default to a blank value which makes Setup use new built-in wizard images.  To use the old wizard images again set <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> to <tt>compiler:WizClassicImage.bmp</tt> and <tt>compiler:WizClassicSmallImage.bmp</tt> respectively.</li>
+  <li>Updated Uninstall's default small wizard image if [Setup] section directive <tt>SetupIconFile</tt> is not set. Before it would use Setup's default application icon in this case.</li>
+  <li>Updated the folder, group, and stop icons used by Setup's <i>Select Destination Location</i>, <i>Select Start Menu Folder</i>, and <i>Preparing to Install</i> wizard pages.</li>
+  <li>Updated the disk icon used by Setup's <i>Setup Needs the Next Disk</i> form.</li>
+  <li>Pascal Scripting change: Added new <tt>InitializeBitmapImageFromIcon</tt> support function.</li>
+</ul>
+<p>All these icon and images updates include the automatic use of higher quality versions (which were not available before) on higher DPI settings. This includes new automatic use of higher quality icons for the icon on Setup's <i>Select Setup Language</i> form and Uninstall's small wizard image if <tt>SetupIconFile</tt> is set.</p>
+<p>Example screenshots:</p>
+<ul>
+  <li>Setup wizard pages <a href="https://jrsoftware.org/images/is-welcome-org.png">Select Destination Location</a> and <a href="https://jrsoftware.org/images/is-finished-org.png">Setup Completed</a> at 100% DPI.</li>
+  <li>Setup wizard pages <a href="https://jrsoftware.org/images/is-welcome-org-175.png">Select Destination Location</a> and <a href="https://jrsoftware.org/images/is-finished-org-175.png">Setup Completed</a> at 175% DPI.</li>
+  <li>Compiler IDE themes <a href="https://jrsoftware.org/images/is-ide-org.png">Light</a> and <a href="https://jrsoftware.org/images/is-ide-dark-org.png">Dark</a> at 100% DPI.</li>
+</ul>
+<p>Comparison screenshots of the previous version:</p>
+<ul>
+  <li>Setup wizard pages <a href="https://jrsoftware.org/images/is-welcome-org-175-old.png">Select Destination Location</a> and <a href="https://jrsoftware.org/images/is-finished-org-175-old.png">Setup Completed</a> at 175% DPI in version 6.1.2.</li>
+</ul>
+<p><span class="head2">Other changes</span></p>
 <ul>
   <li>Links displayed by [Setup] section directives <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt> and <tt>InfoAfterFile</tt> are now executed as the original user if possible when clicked.</li>
   <li>Added new [Setup] section directives <tt>MissingMessagesWarning</tt> and <tt>NotRecognizedMessagesWarning</tt> to disable warnings about messages missing or not recognized for a language.</li>
   <li>/LOG: Now logs more uninstaller actions.</li>
+  <li>The <tt>{localappdata}</tt> constant can now correctly trigger a <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Compiler IDE change: <i>Fix:</i> Autocomplete support for event functions listed some procedures as functions.</li>
   <li>Pascal Scripting changes:
   <ul>
@@ -53,7 +74,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
     <li>Added new <tt>IsMsiProductInstalled</tt> and <tt>StrToVersion</tt> support functions.</li>
     <li>Added new <tt>AbortedByUser</tt> property to the <tt>TDownloadWizardPage</tt> support class.</li>
     <li><i>Fix:</i> <tt>CreateDownloadPage</tt>'s progress bar now supports files larger than 2 GB.</li>
-    <li>Support functions <tt>ParamCount</tt> and <tt>ParamStr</tt> now excludes undocumented internal parameters used by Setup.</li>
+    <li>Support functions <tt>ParamCount</tt> and <tt>ParamStr</tt> now exclude undocumented internal parameters used by Setup and Uninstall.</li>
     <li>The built-in download support now allows the download of files for which the server does not specify the file size and its hash checking is no longer case sensitive.</li>
   </ul>
   </li>
@@ -65,145 +86,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 
 <p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: <b>Thanks to Sergii Leonov and Dom Gries for their contributions.</b></p>
 
-<p><a name="6.1.2"></a><span class="ver">6.1.2 </span><span class="date">(2020-11-15)</span></p>
-<ul>
-  <li>Compiler IDE change: Added new <i>Print... (Ctrl+P)</i> menu item to the <i>File</i> menu.</li>
-  <li>Minor tweaks.</li>
-</ul>
-
-<p><a name="6.1.1"></a><span class="ver">6.1.1-beta </span><span class="date">(2020-10-29)</span></p>
-<p><span class="head2">Compiler IDE updates</span></p>
-<p>Various improvements have been made to the Compiler IDE:</p>
-<ul>
-  <li>Added new <i>Find Previous (Shift+F3)</i> menu item to the <i>Edit</i> menu. The <i>Find Next (F3)</i> menu item now always searches down.</li>
-  <li>Added new <i>Find in Files... (Shift+Ctrl+F)</i> menu item to the <i>Edit</i> menu which shows the results in a <a href="https://i.imgur.com/WeX3T4b.png">new "Find Results" view</a>.</li>
-  <li>The Compiler IDE's New Script Wizard now offers <a href="https://i.imgur.com/IyJZTZY.png">an option to create a file assocation</a>.</li>
-  <li>Added autocomplete support for <a href="https://i.imgur.com/gz4hlV8.png">constants</a>, <a href="https://i.imgur.com/6q15Ik8.png">event functions</a>, <a href="https://i.imgur.com/PpWvzxg.png">flags</a>, <a href="https://i.imgur.com/TTbESLq.png">sections</a>, and <a href="https://i.imgur.com/YSbzJ5B.png">Inno Setup Preprocessor (ISPP) directives</a>.</li>
-</ul>
-<p><span class="head2">Other changes</span></p>
-<ul>
-  <li>The /PORTABLE=1 command line parameter accepted by Inno Setup's own installers has been improved to allow side-by-side installations. For example, to quickly install a new version to the current user's desktop without affecting already installed versions use the following command line parameters: <tt>/portable=1 /silent /currentuser</tt>.</li>
-  <li>Setup's and Uninstall's Back and Next buttons no longer display outdated &quot;<&quot; and &quot;>&quot;  markers.</li>
-  <li>Added new topic to the help file listing the additional <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE keyboard commands</a> which are not listed in the menus. Added new <i>Keyboard Commands</i> menu item to the Compiler IDE's <i>Help</i> menu to open this topic.</li>
-  <li>ISPP change: Added new <tt>SaveStringToFile</tt> support function.</li>
-  <li><i>Fix:</i> Calling DLL functions which return a 64-bit integer now gives correct result values.</li>
-  <li>Minor tweaks.</li>
-</ul>
-
-<p>All official translations have now been updated for the changes in the previous version. Thanks to the maintainers for their time.</li>
-
-<p><a name="6.1.0"></a><span class="ver">6.1.0-beta </span><span class="date">(2020-09-13)</span></p>
-<p><span class="head2">Per-user fonts</span></p>
-<p>Per-user fonts are now supported if Setup is running on Windows 10 Version 1803 and later:</p>
-<ul>
-  <li>[Files] section parameter <tt>FontInstall</tt> can now be used in <a href="https://jrsoftware.org/ishelp/index.php?topic=admininstallmode">non administrative installs</a>. Requires Windows 10 Version 1803 or later to successfully install a font.</li>
-  <li>The <tt>{fonts}</tt> constant has been renamed to <tt>{commonfonts}</tt>.  The old name is still supported, but it is recommended to update your scripts to the new names and the compiler will issue a warning if you don't.</tt>
-  <li>Added new <tt>{userfonts}</tt> constant. Only Windows 10 Version 1803 and later supports <tt>{userfonts}</tt>. Same directory as <tt>{localappdata}\Microsoft\Windows\Fonts</tt>.</li>
-  <li>Added new <tt>{autofonts}</tt> constant which automatically maps to <tt>{commonfonts}</tt> unless the installation is running in non administrative install mode, in which case it maps to <tt>{userfonts}</tt>. It is recommended to update your scripts to use <tt>{autofonts}</tt> as much as possible to avoid mistakes.</li>
-  <li>Updated all examples to use <tt>{autofonts}</tt> instead of <tt>{fonts}</tt>.</li>
-  <li>Pascal Scripting change: The <tt>UnregisterFont</tt> support function now has an extra parameter.</li>
-</ul>
-<p><span class="head2">Compiler IDE updates</span></p>
-<p>Various improvements have been made to the Compiler IDE:</p>
-<ul>
-  <li>If the script uses Inno Setup Preprocessor (ISPP) functionality, the Compiler IDE now automatically <a href="https://i.imgur.com/IVI2nk3.png">shows the preprocessor output</a> in a tab so you can check it. This can be turned off in the options.</li>
-  <li>The Compiler IDE now automatically opens (up to 10) <tt>#include</tt> files in tabs which allow you to <a href="https://i.imgur.com/iDrhOSs.png">edit and debug</a> these files from within the Compiler IDE. The list of <tt>#include</tt> files is updated after opening a new main file and after each compilation. This can be turned off in the options. If the option is not turned off, a new <i>Save All</i> menu item is added to the <i>File</i> menu.</li>
-  <li>If <tt>#include</tt> files are modified since last compile, the script is now automatically re-compiled before running it. This works even if the option to automatically open <tt>#include</tt> files is turned off.</li>
-  <li>Added new <i>Next Tab</i> and <i>Previous Tab</i> menu items to the <i>View</i> menu.</li>
-  <li>Added new topic to the help file explaining the various <a href="https://jrsoftware.org/ishelp/index.php?topic=scriptdebug">integrated debugger menu items</a> in the <i>Run</i> menu which can be used to debug your [Code] section.</li>
-  <li><a href="https://i.imgur.com/wHoJ3FG.png">Improved highlighting</a> for the [CustomMessages] and [Messages] sections.</li>
-  <li>Added new <a href="https://i.imgur.com/c9wGM3M.png">MessageBox Designer</a> menu item to the <i>Tools</i> menu to design and insert <tt>MsgBox</tt> or <tt>TaskDialogMsgBox</tt> calls for the [Code] section.</li>
-  <li>Added new <i>Step Out</i> menu item to the <i>Run</i> menu to unpause Setup until it reaches the end of the current function, then pause it on the next line.</li>
-  <li>Added buttons to the Welcome dialog to <a href="https://jrsoftware.org/isdonate.php">Donate</a> to support Inno Setup (Thank you!) and to <a href="https://jrsoftware.org/ismail.php">Subscribe</a> to the Inno Setup Mailing List to be notified by e-mail of new Inno Setup releases.</li>
-  <li>The Run Parameters dialog now shows a list of most recently used parameters.</li>
-</ul>
-<p><span class="head2">Built-in download support for [Code]</span></p>
-<p>Pascal Scripting now supports downloading files and checking SHA-256 hashes:</p>
-<ul>
-  <li>Added new <tt>DownloadTemporaryFile</tt> support function to download files without using a third-party tool:
-  <ul>
-    <li>Supports HTTPS (but not expired or self-signed certificates) and HTTP.</li>
-    <li>Redirects are automatically followed and proxy settings are automatically used.</li>
-    <li>Safe to use from services unlike existing third-party tools.</li>
-    <li>Supports SHA-256 hash checking of the downloaded file.</li>
-    <li>Supports basic authentication.</li>
-  </ul>
-  </li>
-  <li>Added new <tt>CreateDownloadPage</tt> support function to easily <a href="https://i.imgur.com/deliPb8.png">show the download progress</a> to the user. See the new <i><a href="https://jrsoftware.github.io/issrc/Examples/CodeDownloadFiles.iss">CodeDownloadFiles.iss</a></i> example script for an example.</li>
-  <li>Added new <tt>DownloadTemporaryFileSize</tt> support function to get the size of a file without downloading it.</li>
-  <li>Added new <tt>GetSHA256OfFile</tt>, <tt>GetSHA256OfString</tt>, and <tt>GetSHA256OfUnicodeString</tt> support functions to calculate SHA-256 hashes.</li>
-  <li><b>Change in default behavior:</b> Setup no longer disables itself entirely while <tt>PrepareToInstall</tt> is running. Instead only the Cancel button is disabled.</li>
-</ul>
-<p><span class="head2">Inno Setup Preprocessor (ISPP) updates</span></p>
-<p>ISPP now uses 64-bit integers and has new functions to more easily compare version numbers:</p>
-<ul>
-  <li>ISPP's <tt>int</tt> type is now a signed 64-bit integer type.</tt>
-  <li>Support function <tt>FileSize</tt> now supports 64-bit file sizes.</li>
-  <li>Added new <tt>GetPackedVersion</tt>, <tt>PackVersionNumbers</tt>, <tt>PackVersionComponents</tt>, <tt>ComparePackedVersion</tt>, <tt>SamePackedVersion</tt>, <tt>UnpackVersionNumbers</tt>, <tt>UnpackVersionComponents</tt>, and <tt>VersionToStr</tt> support functions.</li>
-  <li>Support function <tt>GetFileVersion</tt> and <tt>ParseVersion</tt> have been renamed to <tt>GetVersionNumbersString</tt> and <tt>GetVersionComponents</tt> respectively. The old names are still supported, but it is recommended to update your scripts to the new names and the compiler will issue a warning if you don't.</li>
-</ul>
-<p>Similar Pascal Scripting changes have been done for [Code]:</p>
-<ul>
-  <li>Added new <tt>FileSize64</tt> support function.</li>
-  <li>Added new <tt>GetPackedVersion</tt>, <tt>PackVersionNumbers</tt>, <tt>PackVersionComponents</tt>, <tt>ComparePackedVersion</tt>, <tt>SamePackedVersion</tt>, <tt>UnpackVersionNumbers</tt>, <tt>UnpackVersionComponents</tt>, <tt>GetVersionComponents</tt>, and <tt>VersionToStr</tt> support functions. This makes ISPP and [Code] support the same list of version related functions.</li>
-</ul>
-<p><span class="head2">Other changes</span></p>
-<ul>
-  <li><i>Fix:</i> Inno Setup 6.0.5 no longer supported Windows Vista.</li>
-  <li><b>Change in default behavior:</b> [Setup] section directive <tt>MinVersion</tt> now defaults to <tt>6.1sp1</tt>, so by default Setup will not run on Windows Vista or on versions of Windows 7 and Windows Server 2008 R2 which have not been updated. Setting <tt>MinVersion</tt> to <tt>6.0</tt> to allow Setup to run on Windows Vista is supported but not recommended: Windows Vista doesn't support some of Setup's security measures against potential DLL preloading attacks so these have to be removed by the compiler if <tt>MinVersion</tt> is below <tt>6.1</tt> making your installer less secure on all versions of Windows.</li>
-  <li>Inno Setup's version number doesn't display &quot;(u)&quot; at the end anymore since the Unicode version has been the only version for quite some time now.</li>
-  <li>Added new [Run] and [UninstallRun] sections flag: <tt>dontlogparameters</tt>. If this flag is specified, the command line parameters for the program will not be included in the log file.</li>
-  <li>If there are [UninstallRun] section entries without a <tt>RunOnceId</tt> parameter the compiler will now warn you about this. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular [UninstallRun] entry will only be executed once during uninstallation. The warning can be disabled using new [Setup] section directive <tt>MissingRunOnceIdsWarning</tt>.</li>
-  <li>Added new [Icons] section parameter: <tt>AppUserModelToastActivatorCLSID</tt>. Specifies the Windows 10 Application User Model Toast Activator CLSID for the shortcut. Ignored on earlier Windows versions.</li>
-  <li>Setup's prompts to overwrite or keep existing files have been made more user friendly:
-  <ul>
-    <li>Setup now shows <a href="https://i.imgur.com/AnF6qo8.png">more user friendly prompts</a> to overwrite or keep existing files if the <tt>confirmoverwrite</tt> flag is set.</li>
-    <li>Setup now shows <a href="https://i.imgur.com/VBDuZ7U.png">more user friendly prompts</a> to keep or overwrite existing files if the <tt>promptifolder</tt> flag is set.</li>
-  </ul>
-  </li>
-  <li>Console-mode compiler (ISCC) change: Warnings and errors are now <a href="https://i.imgur.com/9VvbFGJ.png">colorized</a>.</li>
-  <li>Pascal Scripting changes:
-  <ul>
-    <li>Added new <tt>CalculateButtonWidth</tt> function to the <tt>TSetupForm</tt> support class.</li>
-    <li>The <tt>ACaption</tt> and <tt>ADescription</tt> parameters of the various <tt>Create...Page</tt> support functions may now specify Setup messages containing shorthands like <tt>[name]</tt>.</li>
-    <li><i>Fix:</i> Support function <tt>WizardSelectComponents</tt> now also updates component sizes and the current selection's required disk space.</li>
-  </ul>
-  </li>
-  <li>ISPP changes:
-  <ul>
-    <li>Using <tt>#pragma verboselevel</tt> now automatically turns on verbose mode.</li>
-    <li>Added new <tt>Message</tt>, <tt>Warning</tt>, and <tt>Error</tt> support functions.</li>
-    <li>ISPP's output is now cleaner and warnings are colorized.</li>
-  </ul>
-  <li>Various documentation improvements.</li>
-  <li>Minor tweaks.</li>
-</ul>
-
-<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: <b>Thanks to Gavin Lambert and Sergii Leonov for their contributions.</b></p>
-
-<p>Some messages have been added and changed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/9e03ea4de5b8639937d2c4024ec8582a7e63b048">View differences in Default.isl</a>).</p>
-<ul>
-  <li><b>New messages:</b>
-  <ul>
-    <li>DownloadingLabel, ButtonStopDownload, StopDownload, ErrorDownloadAborted, ErrorDownloadFailed, ErrorDownloadSizeFailed, ErrorFileHash1, ErrorFileHash2, ErrorProgress, ErrorFileSize.</li>
-    <li>ExistingFileNewerSelectAction, ExistingFileNewer2, ExistingFileNewerOverwriteExisting, ExistingFileNewerKeepExisting, ExistingFileNewerOverwriteOrKeepAll.</li>
-    <li>FileExistsSelectAction, FileExists2, FileExistsOverwriteExisting, FileExistsKeepExisting, FileExistsOverwriteOrKeepAll.</li>
-  </ul>
-  </li>
-  <li><b>Previously optional messages which must now always be set:</b>
-  <ul>
-    <li>ComponentsDiskSpaceGBLabel, DiskSpaceGBLabel, PrepareToInstallNeedsRestart.</li>
-  </ul>
-  <li><b>Removed messages:</b>
-  <ul>
-    <li>ExistingFileNewer, FileExists.</li>
-  </ul>
-  </li>
-</ul>
-
-<p>Note: Not all official translations have been updated for these changes at this moment.</li>
-
-<p><a href="https://jrsoftware.org/files/is6.0-whatsnew.htm">Inno Setup 6.0 Revision History</a></p >
+<p><a href="https://jrsoftware.org/files/is6.1-whatsnew.htm">Inno Setup 6.1 Revision History</a></p >
 
 </body>
 </html>

@@ -27,7 +27,7 @@ uses
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
   Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
-  SpawnClient, UninstProgressForm, ASMInline, DotNet, Msi;
+  SpawnClient, UninstProgressForm, ASMInline, DotNet, Msi, BitmapImage;
 
 var
   ScaleBaseUnitsInitialized: Boolean;
@@ -98,7 +98,7 @@ function GetUninstallProgressForm: TUninstallProgressForm;
 begin
   Result := UninstallProgressForm;
   if Result = nil then
-    InternalError('An attempt was made to access UninstallProgressForm before it has been created'); 
+    InternalError('An attempt was made to access UninstallProgressForm before it has been created');
 end;
 
 function GetMsgBoxCaption: String;
@@ -535,7 +535,9 @@ begin
   end else if Proc.Name = 'GETCMDTAIL' then begin
     Stack.SetString(PStart, GetCmdTail());
   end else if Proc.Name = 'PARAMCOUNT' then begin
-    Stack.SetInt(PStart, NewParamsForCode.Count);
+    if NewParamsForCode.Count = 0 then
+      InternalError('NewParamsForCode not set');
+    Stack.SetInt(PStart, NewParamsForCode.Count-1);
   end else if Proc.Name = 'PARAMSTR' then begin
     I := Stack.GetInt(PStart-1);
     if (I >= 0) and (I < NewParamsForCode.Count) then
@@ -623,12 +625,12 @@ begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     Arr := NewTPSVariantIFC(Stack[PStart-3], True);
     Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
-    Stack.GetString(PStart-2), @Arr, True));
+      Stack.GetString(PStart-2), @Arr, True));
   end else if Proc.Name = 'REGGETVALUENAMES' then begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     Arr := NewTPSVariantIFC(Stack[PStart-3], True);
     Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
-    Stack.GetString(PStart-2), @Arr, False));
+      Stack.GetString(PStart-2), @Arr, False));
   end else if Proc.Name = 'REGQUERYSTRINGVALUE' then begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     S := Stack.GetString(PStart-2);
@@ -1905,6 +1907,8 @@ var
   AnsiS: AnsiString;
   Arr: TPSVariantIFC;
   ErrorCode: Cardinal;
+  N, I: Integer;
+  AscendingTrySizes: array of Integer;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -2043,6 +2047,13 @@ begin
     Stack.SetBool(PStart, IsMsiProductInstalled(Stack.GetString(PStart-1), Stack.GetInt64(PStart-2), ErrorCode));
     if ErrorCode <> 0 then
       raise Exception.Create(Win32ErrorString(ErrorCode));
+  end else if Proc.Name = 'INITIALIZEBITMAPIMAGEFROMICON' then begin
+    Arr := NewTPSVariantIFC(Stack[PStart-4], True);
+    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
+    SetLength(AscendingTrySizes, N);
+    for I := 0 to N-1 do
+      AscendingTrySizes[I] := VNGetInt(PSGetArrayField(Arr, I));
+    Stack.SetBool(PStart, TBitmapImage(Stack.GetClass(PStart-1)).InitializeFromIcon(0, PChar(Stack.GetString(PStart-2)), Stack.GetInt(PStart-3), AscendingTrySizes));
   end else
     Result := False;
 end;

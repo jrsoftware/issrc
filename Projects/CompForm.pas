@@ -20,6 +20,10 @@ unit CompForm;
 {$WARN SYMBOL_PLATFORM OFF}
 {$ENDIF}
 
+{$IFDEF STATICCOMPILER}
+{$R IMAGES2.RES}
+{$ENDIF}
+
 interface
 
 uses

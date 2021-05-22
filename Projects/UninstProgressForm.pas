@@ -112,10 +112,8 @@ begin
 
   PageNameLabel.Font.Style := [fsBold];
   PageNameLabel.Caption := SetupMessages[msgWizardUninstalling];
-  WizardSmallBitmapImage.Bitmap.Canvas.Brush.Color := clWindow;
-  WizardSmallBitmapImage.Bitmap.Width := Application.Icon.Width;
-  WizardSmallBitmapImage.Bitmap.Height := Application.Icon.Height;
-  WizardSmallBitmapImage.Bitmap.Canvas.Draw(0, 0, Application.Icon);
+  if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, 'Z_UNINSTALLICON', MainPanel.Color, [32, 48, 64]) then {don't localize}
+    WizardSmallBitmapImage.InitializeFromIcon(HInstance, 'MAINICON', MainPanel.Color, [32, 48, 64]); {don't localize}
   if SetupMessages[msgBeveledLabel] <> '' then begin
     BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' ';
     BeveledLabel.Visible := True;
