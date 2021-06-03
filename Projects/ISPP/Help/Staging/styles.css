@@ -71,9 +71,8 @@ LI.compact {
 .topicheading {
 	background: ButtonFace;
 	color: WindowText;
-	padding: 5px 8px;
+	padding: 4px 8px;
 	margin: 0;
-	border-bottom: 1px solid ThreeDDarkShadow;
 	font-size: 120%;
 	font-weight: bold;
 }

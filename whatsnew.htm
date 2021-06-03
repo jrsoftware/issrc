@@ -28,17 +28,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="https://jrsoftware.org/ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
-<p><a name="6.2.0"></a><span class="ver">6.2.0-dev </span><span class="date">(?)</span></p>
-<p><span class="head2">QuickStart Pack removed</span></p>
-<ul>
-  <li>The QuickStart Pack installer has been removed because of a lack of added value.</li>
-  <li>The standard Inno Setup installer now offers to download encryption support if it's missing, like the QuickStart Pack installer did before.</li>
-</ul>
-<p><span class="head2">Inno Setup FAQ updated</span></p>
-<ul>
-  <li>The content of the <a href="https://jrsoftware.org/isfaq.php">Inno Setup FAQ</a> is now <a href="https://github.com/jrsoftware/isfaq/blob/main/isfaq.html">available on GitHub</a> where you can suggest new entries or other improvements using the Edit button.</li>
-  <li>The Inno Setup FAQ has been updated with updated versions of articles taken from the Inno Setup Knowledge Base which is now hidden from the website.</li>
-</ul>
+<p><a name="6.2.0"></a><span class="ver">6.2.0 </span><span class="date">(2021-06-03)</span></p>
 <p><span class="head2">Graphics modernized</span></p>
 <ul>
   <li>Updated all Compiler IDE's toolbar icons and the wizard images used by the Compiler IDE's New Script Wizard wizard.</li>
@@ -56,7 +46,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   <li>Setup wizard pages <a href="https://jrsoftware.org/images/is-welcome-org-175.png">Select Destination Location</a> and <a href="https://jrsoftware.org/images/is-finished-org-175.png">Setup Completed</a> at 175% DPI.</li>
   <li>Compiler IDE themes <a href="https://jrsoftware.org/images/is-ide-org.png">Light</a> and <a href="https://jrsoftware.org/images/is-ide-dark-org.png">Dark</a> at 100% DPI.</li>
 </ul>
-<p>Comparison screenshots of the previous version:</p>
+<p>Comparison screenshots of the *previous* version:</p>
 <ul>
   <li>Setup wizard pages <a href="https://jrsoftware.org/images/is-welcome-org-175-old.png">Select Destination Location</a> and <a href="https://jrsoftware.org/images/is-finished-org-175-old.png">Setup Completed</a> at 175% DPI in version 6.1.2.</li>
 </ul>
@@ -69,7 +59,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   <li>Compiler IDE change: <i>Fix:</i> Autocomplete support for event functions listed some procedures as functions.</li>
   <li>Pascal Scripting changes:
   <ul>
-    <li>Added new <tt>CreateMarqueeProgressWizardPage</tt> support function to show marquee progress to the user. See the <i><a href="https://jrsoftware.github.io/issrc/Examples/AllPagesExample.iss">AllPagesExample.iss</a></i> example script for an example.</li>
+    <li>Added new <tt>CreateOutputMarqueeProgressPage</tt> support function to show marquee progress to the user. See the <i><a href="https://jrsoftware.github.io/issrc/Examples/AllPagesExample.iss">AllPagesExample.iss</a></i> example script for an example.</li>
     <li>Added new <tt>ItemFontStyle</tt> and <tt>SubItemFontStyle</tt> properties to the <tt>TNewCheckListBox</tt> support class. See the <i><a href="https://jrsoftware.github.io/issrc/Examples/CodeClasses.iss">CodeClasses.iss</a></i> example script for an example.</li>
     <li>Added new <tt>IsMsiProductInstalled</tt> and <tt>StrToVersion</tt> support functions.</li>
     <li>Added new <tt>AbortedByUser</tt> property to the <tt>TDownloadWizardPage</tt> support class.</li>
@@ -82,6 +72,16 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   <li>Added official Bulgarian translation.</li>
   <li>Various documentation improvements.</li>
   <li>Minor tweaks.</li>
+</ul>
+<p><span class="head2">Inno Setup FAQ updated</span></p>
+<ul>
+  <li>The <a href="https://jrsoftware.org/isfaq.php">Inno Setup FAQ</a> has been updated with updated versions of articles taken from the Inno Setup Knowledge Base which is now hidden from the website.</li>
+  <li>The content of the FAQ is now <a href="https://github.com/jrsoftware/isfaq/blob/main/isfaq.html">available on GitHub</a> where you can suggest new entries or other improvements using the Edit button.</li>
+</ul>
+<p><span class="head2">QuickStart Pack removed</span></p>
+<ul>
+  <li>The QuickStart Pack installer has been removed because of a lack of added value.</li>
+  <li>The standard Inno Setup installer now offers to download encryption support if it's missing, like the QuickStart Pack installer did before. If you used the QuickStart Pack installer before, you can use the standard installer to update your installation.</li>
 </ul>
 
 <p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: <b>Thanks to Sergii Leonov and Dom Gries for their contributions.</b></p>
