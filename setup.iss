@@ -78,9 +78,26 @@ Name: english; MessagesFile: "files\Default.isl"
 #expr FindFiles("files\Languages\")
 
 [Messages]
-HelpTextNote=/PORTABLE=1%nEnable portable mode.%n/DOWNLOADISCRYPT=1%nEnable ISCrypt.dll download.
+english.HelpTextNote=/PORTABLE=1%nEnable portable mode.%n/DOWNLOADISCRYPT=1%nEnable ISCrypt.dll download.
 ; Two "Setup" on the same line looks weird, so put a line break in between
 english.WelcomeLabel1=Welcome to the Inno Setup%nSetup Wizard
+
+italian.HelpTextNote=/PORTABLE=1%nAbilita modo portatile.%n/DOWNLOADISCRYPT=1%nAbilita download ISCrypt.dll.
+; Two "Setup" on the same line looks weird, so put a line break in between
+italian.WelcomeLabel1=Procedura guidata installazione%nInno Setup
+
+[CustomMessages]
+english.InnoSetupCompiler=Inno Setup Compiler
+english.InnoSetupHelp=Inno Setup Help
+english.InnoSetupExampleScripts=Inno Setup Example Scripts
+english.InnoSetupFAQ=Inno Setup FAQ
+english.InnoSetupRevisionHistory=Inno Setup Revision History
+
+italian.InnoSetupCompiler=Compilatore Inno Setup
+italian.InnoSetupHelp=Guida in linea (inglese) Inno Setup
+italian.InnoSetupExampleScripts=Script esempio Inno Setup
+italian.InnoSetupFAQ=Domande frequenti (FAQ) Inno Setup
+italian.InnoSetupRevisionHistory=Cronologia revisioni Inno Setup
 
 [Tasks]
 Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked; Check: not PortableCheck
@@ -199,12 +216,12 @@ Type: files; Name: "{app}\isfaq.url"
 
 [Icons]
 ; All these will be automatically skipped on portable mode, either because of NoIconsCheck being checked, or because of the desktopicon task being removed
-Name: "{group}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"
-Name: "{group}\Inno Setup Documentation"; Filename: "{app}\ISetup.chm"
-Name: "{group}\Inno Setup Example Scripts"; Filename: "{app}\Examples\"
-Name: "{group}\Inno Setup FAQ"; Filename: "{app}\isfaq.url"
-Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"
-Name: "{autodesktop}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"; Tasks: desktopicon
+Name: "{group}\{cm:InnoSetupCompiler}"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"
+Name: "{group}\{cm:InnoSetupHelp}"; Filename: "{app}\ISetup.chm"
+Name: "{group}\{cm:InnoSetupExampleScripts}"; Filename: "{app}\Examples\"
+Name: "{group}\{cm:InnoSetupFAQ}"; Filename: "{app}\isfaq.url"
+Name: "{group}\{cm:InnoSetupRevisionHistory}"; Filename: "{app}\whatsnew.htm"
+Name: "{autodesktop}\{cm:InnoSetupCompiler}"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"; Tasks: desktopicon
 
 [Run]
 ; The /ASSOC line will be automatically skipped on portable mode, because of the fileassoc task being removed
