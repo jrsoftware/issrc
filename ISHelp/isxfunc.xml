@@ -1882,7 +1882,7 @@ end;</pre>
       <function>
         <name>RemoveDir</name>
         <prototype>function RemoveDir(const Dir: string): Boolean;</prototype>
-        <description><p>Deletes an existing empty directory. The return value is True if a new directory was successfully deleted, or False if an error occurred.</p></description>
+        <description><p>Deletes an existing empty directory. The return value is True if the empty directory was successfully deleted, or False if an error occurred.</p></description>
       </function>
       <function>
         <name>DelTree</name>
