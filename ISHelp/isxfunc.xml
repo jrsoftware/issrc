@@ -1229,7 +1229,7 @@ end;
         <example><pre>var
   SHA256: String;
 begin
-  SHA256 := GetSHA256OfUnicodeString('Test');
+  SHA256 := GetSHA256OfUnicodeString('test');
   // SHA256 = 'fe520676b1a1d93dabab2319eea03674f3632eaeeb163d1e88244f5eb1de10eb'
 end;
 </pre></example>
