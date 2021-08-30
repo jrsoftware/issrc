@@ -1,9 +1,9 @@
-﻿; *** Inno Setup version 5.5.3+ Uyghur messages *** 
-; Translated by Irshat ghalib [ uqkun09@msn.cn ]
+﻿; *** Inno Setup version 6.1.0+ Uyghur messages ***
+; Translated by Irshat Ghalip (uqkun09@msn.cn)
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://jrsoftware.org/files/istrans/
 ;
-; Note:When translating this text, do not add periods (.) to the end of
+; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
@@ -11,328 +11,375 @@
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
 ; understand the '[LangOptions] section' topic in the help file.
-
 LanguageName=ئۇيغۇرچە
 LanguageID=$0480
 LanguageCodePage=0
-
-;If the language you are translating to requires special font faces or
+RightToLeft=yes
+; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
-DialogFontName=ALKATIP
-;DialogFontSize=12
-WelcomeFontName=ALKATIP
-;WelcomeFontSize=18
-TitleFontName=ALKATIP
-;TitleFontSize=35
-CopyrightFontName=ALKATIP
-;CopyrightFontSize=11
+;DialogFontName=
+;DialogFontSize=8
+;WelcomeFontName=Verdana
+;WelcomeFontSize=12
+;TitleFontName=Arial
+;TitleFontSize=29
+;CopyrightFontName=Arial
+;CopyrightFontSize=8
 
 [Messages]
 
-; ‫*** ‫Application ‫titles
-SetupAppTitle=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى
-SetupWindowTitle=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫- ‫%1
-UninstallAppTitle=‫‮‫‫‮‫ئۆچۈرۈش ‫يېتەكچىسى
-UninstallAppFullTitle=‫‮‫‫‮‫%1 ‫ئۆچۈرۈش ‫يېتەكچىسى
+; *** Application titles
+SetupAppTitle=قاچىلاش
+SetupWindowTitle=%1 - قاچىلاش
+UninstallAppTitle=چىقىرىۋېتىش
+UninstallAppFullTitle=%1 نى چىقىرىۋېتىش
 
-; ‫*** ‫Misc. ‫common
-InformationTitle=‫‮‫‫‮‫ئۇچۇر
-ConfirmTitle=‫‮‫‫‮‫جەزىملەش
-ErrorTitle=‫‮‫‫‮‫خاتالىق
+; *** Misc. common
+InformationTitle=ئۇچۇر
+ConfirmTitle=جەزملەشتۈرۈش
+ErrorTitle=خاتالىق
 
-; ‫*** ‫SetupLdr ‫messages
-SetupLdrStartupMessage=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫سىزنىڭ ‫كومپيۇتېرىڭىزغا ‫%1نى ‫قاچىلايدۇ. ‫راستتىنلا ‫داۋاملاشتۇرامسىز؟
-LdrCannotCreateTemp=‫‮‫‫‮‫ۋاقىتلىق ‫ھۆججەت ‫قۇرالمىدى. ‫قاچىلاش ‫توختىتىلدى
-LdrCannotExecTemp=‫‮‫‫‮‫ۋاقىتلىق ‫ھۆججەت ‫قىسقۇچتىكى ‫ھۆججەت ‫ئىجرا ‫بولمىدى. ‫قاچىلاش ‫توختىتىلدى
+; *** SetupLdr messages
+SetupLdrStartupMessage=ھازىر %1 قاچىلىنىدۇ. داۋاملاشتۇرامسىز؟
+LdrCannotCreateTemp=ۋاقىتلىق ھۆججەت قۇرالمىدى. قاچىلاش توختىتىلدى
+LdrCannotExecTemp=ۋاقىتلىق مۇندەرىجىدىكى ھۆججەت ئىجرا بولمىدى. قاچىلاش توختىتىلدى
+HelpTextNote=
 
-; ‫*** ‫Startup ‫error ‫messages ‫خاتالىق ‫كۆزنىكى
-LastErrorMessage=‫‮‫‫‮‫%1.%n%n ‫خاتالىق ‫%2:%3
-SetupFileMissing=‫‮‫‫‮‫قاچىلاش ‫مۇندەرىجىسىدە ‫%1 ‫ھۆججىتى ‫يوق. ‫بۇ ‫مەسىلىنى ‫ھەل ‫قىلىڭ ‫ياكى ‫قايتىدىن ‫بىر ‫نۇسخا ‫كۆچۈرۈلمە ‫دېتالغا ‫ئېرىشىڭ.
-SetupFileCorrupt=‫‮‫‫‮‫قاچىلاش ‫ھۆججىتى ‫بۇزۇلغان. ‫قايتىدىن ‫بىر ‫نۇسخا ‫كۆچۈرۈلمە ‫دېتالغا ‫ئېرىشىڭ.
-SetupFileCorruptOrWrongVer=‫‮‫‫‮‫قاچىلاش ‫ھۆججىتى ‫بۇزۇلغان، ‫ياكى ‫بۇ ‫قاچىلاش ‫ھۆججىتى ‫مۇقىم ‫ئەمەس. ‫بۇ ‫مەسىلىنى ‫ھەل ‫قىلىڭ، ‫ياكى ‫قاچىلاش ‫ھۆججىتىنى ‫قايتىدىن ‫چۈشۈرۈڭ.
-InvalidParameter=‫‮‫‫‮‫ئۈنۈمسىز ‫بۇيرۇق ‫پارامېتىرى:%n%n%1
-SetupAlreadyRunning=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫ئىجرا ‫بولۇۋاتىدۇ.
-WindowsVersionNotSupported=‫‮‫‫‮‫دېتال ‫بۇ ‫كومپيۇتېرنىڭ ‫نەشرىنى ‫قوللىمايدۇ.
-WindowsServicePackRequired=‫‮‫‫‮‫دېتال ‫%1 ‫Service ‫Pack ‫%2 ‫ياكى ‫ئۇنىڭدىن ‫يۇقىرى ‫نەشرىنى ‫تەلەپ ‫قىلىدۇ.
-NotOnThisPlatform=‫‮‫‫‮‫دېتال ‫%1 ‫دە ‫ئىجرا ‫بولمايدۇ.
-OnlyOnThisPlatform=‫‮‫‫‮‫دېتال ‫چوقۇم ‫%1دە ‫ئىجرا ‫بولىدۇ.
-OnlyOnTheseArchitectures=‫‮‫‫‮‫دېتال ‫پەقەت ‫تۆۋەندىكى ‫CPU ‫بولغان ‫Windows ‫نەشرىگە ‫قاچىلىغىلى ‫بولىدۇ:%n%n%1
-MissingWOW64APIs=‫‮‫‫‮‫كومپيۇتېرىڭىزدا ‫Windows ‫نىڭ ‫64 ‫لىك ‫دېتاللىرى ‫ئىجرا ‫بولمايدۇ.Service ‫Pack ‫%1 ‫ئارقىلىق ‫مەسىلىڭىزنى ‫ھەل ‫قىلىڭ.
-WinVersionTooLowError=‫‮‫‫‮‫دېتال ‫%2 ‫نەشرىدىن ‫يۇقىرى ‫بولغان ‫%1 ‫نى ‫تەلەپ ‫قىلىدۇ.
-WinVersionTooHighError=‫‮‫‫‮‫دېتال ‫%2 ‫نەشرى ‫ياكى ‫%1 ‫دىن ‫يۇقىرى ‫نەشىرىدە ‫ئىجرا ‫بولىدۇ.
-AdminPrivilegesRequired=‫‮‫‫‮‫باشقۇرغۇچىلىق ‫سالاھىيتىدە ‫كىرگەندىن ‫كېيىن ‫ئاندىن ‫بۇ ‫دېتالنى ‫قاچىلالايسىز.
-PowerUserPrivilegesRequired=‫‮‫‫‮‫باشقۇرغۇچىلىق ‫سالاھىيتىدە ‫ياكى ‫ئۇنىڭدىن ‫يۇقىرى ‫سالاھىيەتتە ‫كىرگەندىن ‫كېيىن ‫ئاندىن ‫بۇ ‫دېتالنى ‫قاچىلالايسىز.
-SetupAppRunningError=‫‮‫‫‮‫دېتال ‫%1 ‫تېخى ‫ئىجرا ‫بولۇۋېتىپتۇ.%n%n ‫بارلىق ‫ئېچىلغان ‫كۆزنەكلەرنى ‫تاقىۋېتىڭ، ‫ئاندىن ‫"مۇقىملاش" ‫نى ‫چېكىپ ‫داۋاملاشتۇرۇڭ، ‫ياكى ‫"قالدۇرۇش" ‫نى ‫چېكىپ ‫چېكىنىڭ.
-UninstallAppRunningError=‫‮‫‫‮‫دېتال ‫%1 ‫تېخى ‫ئىجرا ‫بولۇۋېتىپتۇ.%n%n ‫بارلىق ‫ئېچىلغان ‫كۆزنەكلەرنى ‫تاقىۋېتىڭ، ‫ئاندىن ‫"مۇقىملاش" ‫نى ‫چېكىپ ‫داۋاملاشتۇرۇڭ، ‫ياكى ‫"قالدۇرۇش" ‫نى ‫چېكىپ ‫چېكىنىڭ.
+; *** Startup error messages
+LastErrorMessage=%1.%n%nخاتالىق %2: %3
+SetupFileMissing=قاچىلاش مۇندەرىجىسىدە %1 ھۆججىتى يوق. مەسىلىنى تۈزۈتۈڭ ياكى پىروگراممىنىڭ يېڭى نۇسخىسىغا ئېرىشىڭ.
+SetupFileCorrupt=قاچىلاش ھۆججەتلىرى بۇزۇلغان. پىروگراممىنىڭ يېڭى نۇسخىسىغا ئېرىشىڭ.
+SetupFileCorruptOrWrongVer=قاچىلاش ھۆججەتلىرى بۇزۇلغان ياكى بۇ نەشرى بىلەن ماسلاشمايدۇ. مەسىلىنى تۈزۈتۈڭ ياكى پىروگراممىنىڭ يېڭى نۇسخىسىغا ئېرىشىڭ.
+InvalidParameter=بۇيرۇق قۇرىدا ئىناۋەتسىز پارامېتىر بار:%n%n%1
+SetupAlreadyRunning=قاچىلاش پىروگراممىسى ئىجرا بولۇۋاتىدۇ.
+WindowsVersionNotSupported=بۇ پىروگرامما كومپيۇتېرىڭىزدا ئىجرا بولۇۋاتقان Windows نەشرىنى قوللىمايدۇ.
+WindowsServicePackRequired=بۇ پىروگرامما %1 مۇلازىمەت بولىقى %2 ياكى يېڭىسىنى تەلەپ قىلىدۇ.
+NotOnThisPlatform=بۇ پىروگرامما %1 دا ئىجرا بولمايدۇ.
+OnlyOnThisPlatform=بۇ پىروگرامما چوقۇم %1 دا ئىجرا قىلىنىشى كېرەك.
+OnlyOnTheseArchitectures=بۇ پىروگراممىنى پەقەت تۆۋەندىكى بىر تەرەپ قىلغۇچ قۇرۇلمىسى ئۈچۈن لايىھەلەنگەن Windows نەشرىگە قاچىلاشقا بولىدۇ:%n%n%1
+WinVersionTooLowError=بۇ پىروگرامما %1 نەشرى %2 ياكى يېڭىسىنى تەلەپ قىلىدۇ.
+WinVersionTooHighError=بۇ پىروگرامما %1 نەشرى %2 ياكى يېڭىسىغا قاچىلانمايدۇ.
+AdminPrivilegesRequired=بۇ پىروگراممىنى قاچىلىغاندا چوقۇم باشقۇرغۇچى سالاھىيىتىدە كىرىشىڭىز كېرەك.
+PowerUserPrivilegesRequired=بۇ پىروگراممىنى قاچىلىغاندا چوقۇم باشقۇرغۇچى ياكى ھوقۇقلۇق ئىشلەتكۈچىلەر گۇرۇپپىسىنىڭ ئەزاسى سالاھىيىتىدە كىرىشىڭىز كېرەك.
+SetupAppRunningError=قاچىلاش پىروگراممىسى %1 نىڭ ئىجرا بولۇۋاتقانلىقىنى بايقىدى.%n%nئۇنىڭ ھەممە جەريانلىرىنى تاقاڭ ھەمدە «ماقۇل» نى چېكىپ داۋاملاشتۇرۇڭ. ياكى «ئىناۋەتسىز» نى چېكىپ چېكىنىڭ.
+UninstallAppRunningError=چىقىرىۋېتىش پىروگراممىسى %1 نىڭ ئىجرا بولۇۋاتقانلىقىنى بايقىدى.%n%nئۇنىڭ ھەممە جەريانلىرىنى تاقاڭ ھەمدە «ماقۇل» نى چېكىپ داۋاملاشتۇرۇڭ. ياكى «ئىناۋەتسىز» نى چېكىپ چېكىنىڭ.
 
-; ‫*** ‫Misc. ‫errors
-ErrorCreatingDir=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى"%1"
-ErrorTooManyFilesInDir=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ"%1"نىڭ ‫ئىچىدە ‫ھۆججەت ‫بەك ‫كۆپكەن، ‫ئىچىگە ‫ھۆججەت ‫قۇرغىلى ‫بولمىدى
+; *** Startup questions
+PrivilegesRequiredOverrideTitle=قاچىلاش پىروگراممىسىنىڭ قاچىلاش ھالىتىنى تاللاش
+PrivilegesRequiredOverrideInstruction=قاچىلاش ھالىتىنى تاللاش
+PrivilegesRequiredOverrideText1=%1 نى بارلىق ئىشلەتكۈچىلەر (باشقۇرغۇچىلىق ھوقۇقى تەلەپ قىلىدۇ) ئۈچۈن ياكى سىز ئۈچۈنلا قاچىلاشقا بولىدۇ.
+PrivilegesRequiredOverrideText2=%1 نى سىز ئۈچۈنلا ياكى بارلىق ئىشلەتكۈچىلەر (باشقۇرغۇچىلىق ھوقۇقى تەلەپ قىلىدۇ) ئۈچۈن قاچىلاشقا بولىدۇ.
+PrivilegesRequiredOverrideAllUsers=بارلىق ئىشلەتكۈچىلەرگە قاچىلاش(&A)
+PrivilegesRequiredOverrideAllUsersRecommended=بارلىق ئىشلەتكۈچىلەرگە قاچىلاش(&A) (تەۋسىيە)
+PrivilegesRequiredOverrideCurrentUser=پەقەت مەن ئۈچۈنلا قاچىلاش(&M)
+PrivilegesRequiredOverrideCurrentUserRecommended=پەقەت مەن ئۈچۈنلا قاچىلاش(&M) (تەۋسىيە)
 
-; ‫*** ‫Setup ‫common ‫messages
-ExitSetupTitle=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسىدىن ‫چېكىنىش
-ExitSetupMessage=‫‮‫‫‮‫قاچىلاش ‫تاماملانمىدى. ‫ئەگەر ‫ھازىر ‫چېكىنسىڭىز، ‫دېتال ‫قاچىلانمايدۇ.%n%nسىز ‫كېلەر ‫قېتىمدا ‫قاچىلاش ‫يېتەكچىسىنى ‫قايتا ‫قوزغىتىپ ‫قاچىلاشنى ‫تاماملىسىڭىز ‫بولىدۇ.%n%nقاچىلاش ‫يېتەكچىسىدىن ‫راستتىنلا ‫چېكىنەمسىز؟
-AboutSetupMenuItem=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫ھەققىدە(&A)…
-AboutSetupTitle=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫ھەققىدە
-AboutSetupMessage=‫‮‫‫‮‫%1 ‫نەشرى ‫%2%n%3%n%n%1 ‫تور ‫بېكىتى:%n%4
-AboutSetupNote=‫‮‫‫‮‫
-TranslatorNote=‫‮‫‫‮‫
+; *** Misc. errors
+ErrorCreatingDir=قاچىلاش پىروگراممىسى «%1» مۇندەرىجىسىنى قۇرالمىدى
+ErrorTooManyFilesInDir=«%1» مۇندەرىجىسىگە ھۆججەت قۇرالمىدى، چۈنكى ئۇنىڭدا بەك كۆپ ھۆججەت بار
 
-; ‫*** ‫Buttons ‫كۇنۇپكىلار
-ButtonBack=<ئالدىنقى قەدەم(&B)
-ButtonNext=كېيىنكى قەدەم(&N)>
+; *** Setup common messages
+ExitSetupTitle=قاچىلاشتىن چېكىنىش
+ExitSetupMessage=قاچىلاش تاماملانمىدى. ئەگەر ھازىر چېكىنسىڭىز، پىروگرامما قاچىلانمايدۇ.%n%nقاچىلاشنى تاماملاش ئۈچۈن، كېلەر قېتىم قاچىلاش پىروگراممىسىنى قايتا ئىجرا قىلسىڭىز بولىدۇ.%n%nقاچىلاشتىن چېكىنەمسىز؟
+AboutSetupMenuItem=قاچىلاش پىروگراممىسى ھەققىدە(&A)...
+AboutSetupTitle=قاچىلاش پىروگراممىسى ھەققىدە
+AboutSetupMessage=%1 نەشرى %2%n%3%n%n%1 باش بەت:%n%4
+AboutSetupNote=
+TranslatorNote=Uyghur translation by Irshat Ghalip (uqkun09@msn.cn)
+
+; *** Buttons
+ButtonBack=< قايتىش(&B)
+ButtonNext=كېيىنكى(&N) >
 ButtonInstall=قاچىلاش(&I)
-ButtonOK=جەزىملەش
+ButtonOK=ماقۇل
 ButtonCancel=ئىناۋەتسىز
 ButtonYes=ھەئە(&Y)
-ButtonYesToAll=ھەممىنى تاللاش(&A)
+ButtonYesToAll=ھەممىگە ھەئە(&A)
 ButtonNo=ياق(&N)
-ButtonNoToAll=ھەممىنى قالدۇرۇش(&O)
+ButtonNoToAll=ھەممىگە ياق(&O)
 ButtonFinish=تامام(&F)
-ButtonBrowse=…كۆرۈش(&B)
-ButtonWizardBrowse=…كۆرۈش(&R)
-ButtonNewFolder=ھۆججەت قىسقۇچ قۇرۇش(&M)
+ButtonBrowse=كۆرۈش(&B)...
+ButtonWizardBrowse=كۆرۈش(&R)...
+ButtonNewFolder=يېڭى قىسقۇچ قۇرۇش(&M)
 
-; ‫*** ‫"Select ‫Language" ‫dialog ‫messages
-SelectLanguageTitle=‫‮‫‫‮‫تىل ‫تاللاڭ
-SelectLanguageLabel=‫‮‫‫‮‫قاچىلاش ‫جەريانىدا ‫ئىشلىتىدىغان ‫تىلنى ‫تاللاڭ:
+; *** "Select Language" dialog messages
+SelectLanguageTitle=قاچىلاش تىلىنى تاللاش
+SelectLanguageLabel=قاچىلاش جەريانىدا ئىشلىتىدىغان تىلنى تاللاڭ.
 
-; ‫*** ‫Common ‫wizard ‫text
-ClickNext=‫‮‫‫‮‫"كېيىنكى ‫قەدەم"نى ‫چېكىپ ‫داۋاملاشتۇرۇڭ ‫ياكى ‫"ئىناۋەتسىز"نى ‫چېكىپ ‫قاچىلاش ‫يېتەكچىسىدىن ‫چېكىنىڭ.
-BeveledLabel=‫‮‫‫‮‫
-BrowseDialogTitle=‫‮‫‫‮‫تاللانغان ‫ھۆججەت ‫قىسقۇچنى ‫كۆرۈش
-BrowseDialogLabel=‫‮‫‫‮‫تۆۋەندىكى ‫تىزىملىكتىن ‫ھۆججەت ‫قىسقۇچتىن ‫بىرنى ‫تاللاڭ ‫ھەمدە ‫"جەزىملەش"نى ‫چېكىڭ.
-NewFolderName=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ ‫قۇرۇش
+; *** Common wizard text
+ClickNext=«كېيىنكى» نى چېكىپ داۋاملاشتۇرۇڭ ياكى «ئىناۋەتسىز» نى چېكىپ قاچىلاشتىن چېكىنىڭ.
+BeveledLabel=
+BrowseDialogTitle=قىسقۇچ كۆرۈش
+BrowseDialogLabel=تۆۋەندىكى تىزىملىكتىن قىسقۇچ تاللاڭ ھەمدە «ماقۇل» نى چېكىڭ.
+NewFolderName=يېڭى قىسقۇچ
 
-; ‫*** ‫"Welcome" ‫wizard ‫page
-WelcomeLabel1=‫‮‫‫‮‫[name]نىڭ ‫قاچىلاش ‫يېتەكچىسىنى ‫ئىشلىتىشىڭىزنى ‫قارشى ‫ئالىمىز
-WelcomeLabel2=‫‮‫‫‮‫مەزكۇر ‫قاچىلاش ‫يېتەكچىسى ‫سىزنىڭ ‫كومپيۇتېرىڭىزغا ‫[name/ver]نى ‫قاچىلىماقچى.%n%nمەشغۇلاتنى ‫داۋاملاشتۇرۇشتىن ‫ئىلگىرى ‫باشقا ‫بارلىق ‫دېتاللارنى ‫ئۆچۈرۈۋېتىشىڭىزنى ‫تەۋسىيە ‫قىلىمىز.
+; *** "Welcome" wizard page
+WelcomeLabel1=[name] نى قاچىلاش يېتەكچىسىگە خۇش كېلىپسىز
+WelcomeLabel2=كومپيۇتېرىڭىزغا [name/ver] نى قاچىلايدۇ.%n%nداۋاملاشتۇرۇشتىن ئىلگىرى باشقا بارلىق دېتاللارنى تاقاش تەۋسىيە قىلىنىدۇ.
 
-; ‫*** ‫"Password" ‫wizard ‫page
-WizardPassword=‫‮‫‫‮‫پارول
-PasswordLabel1=‫‮‫‫‮‫مەزكۇر ‫دېتال ‫پارول ‫بىلەن ‫قوغدالغان.
-PasswordLabel3=‫‮‫‫‮‫پارولنى ‫كىرگۈزۈڭ ‫ھەمدە ‫"كېيىنكى ‫قەدەم"نى ‫چېكىڭ. ‫پارول ‫چوڭ-كىچىك ‫ھەرپنى ‫پەرقلەندۈرىدۇ.
+; *** "Password" wizard page
+WizardPassword=پارول
+PasswordLabel1=بۇ قاچىلاش پارول بىلەن قوغدالغان.
+PasswordLabel3=پارولنى كىرگۈزۈڭ ھەمدە «كېيىنكى» نى چېكىپ داۋاملاشتۇرۇڭ. پارول چوڭ-كىچىك ھەرپنى پەرقلەندۈرىدۇ.
 PasswordEditLabel=پارول(&P):
-IncorrectPassword=‫‮‫‫‮‫كىرگۈزگەن ‫پارولىڭىز ‫توغرا ‫بولمىدى. ‫قايتا ‫سىناڭ.
+IncorrectPassword=كىرگۈزگەن پارولىڭىز خاتا. قايتا سىناپ بېقىڭ.
 
-; ‫*** ‫"License ‫Agreement" ‫wizard ‫page
-WizardLicense=‫‮‫‫‮‫ئىجازەت ‫كېلىشىمنامىسى
-LicenseLabel=‫‮‫‫‮‫تۆۋەندىكى ‫ئۇچۇرلارنى ‫ئوقۇڭ، ‫ئاندىن ‫كېيىنكى ‫قەدەمگە ‫ئۆتۈڭ.
-LicenseLabel3=‫‮‫‫‮‫تۆۋەندىكى ‫ئىجازەت ‫كېلىشىمنامىسىنى ‫ئوقۇڭ. ‫سىز ‫كېلىشىمنامىدىكى ‫ماددىلارغا ‫قوشۇلغاندىلا، ‫قاچىلاشنى ‫داۋاملاشتۇرالايسىز.
+; *** "License Agreement" wizard page
+WizardLicense=ئىجازەت كېلىشىمى
+LicenseLabel=داۋاملاشتۇرۇشتىن ئىلگىرى تۆۋەندىكى مۇھىم ئۇچۇرلارنى ئوقۇڭ.
+LicenseLabel3=تۆۋەندىكى ئىجازەت كېلىشىمىنى ئوقۇڭ. قاچىلاشنى داۋاملاشتۇرۇشتىن ئىلگىرى چوقۇم بۇ كېلىشىمنىڭ ماددىلىرىغا قوشۇلۇشىڭىز كېرەك.
 LicenseAccepted=كېلىشىمگە قوشۇلىمەن(&A)
 LicenseNotAccepted=كېلىشىمگە قوشۇلمايمەن(&D)
 
-; ‫*** ‫"Information" ‫wizard ‫pages
+; *** "Information" wizard pages
 WizardInfoBefore=ئۇچۇر
-InfoBeforeLabel=‫‮‫‫‮‫تۆۋەندىكى ‫ئۇچۇرلارنى ‫ئوقۇپ، ‫كېيىنكى ‫قەدەمگە ‫ئۆتۈڭ.
-InfoBeforeClickLabel=‫‮‫‫‮‫قاچىلاشنى ‫داۋاملاشتۇرۇشقا ‫تەييارلىنىپ ‫بولۇپ، ‫"كېيىنكى ‫قەدەم"نى ‫چېكىڭ.
-WizardInfoAfter=‫‮‫‫‮‫ئۇچۇر
-InfoAfterLabel=‫‮‫‫‮‫تۆۋەندىكى ‫ئۇچۇرلارنى ‫ئوقۇپ، ‫كېيىنكى ‫قەدەمگە ‫ئۆتۈڭ.
-InfoAfterClickLabel=‫‮‫‫‮‫قاچىلاشنى ‫داۋاملاشتۇرۇشقا ‫تەييارلىنىپ ‫بولۇپ، ‫"كېيىنكى ‫قەدەم"نى ‫چېكىڭ.
+InfoBeforeLabel=داۋاملاشتۇرۇشتىن ئىلگىرى تۆۋەندىكى مۇھىم ئۇچۇرلارنى ئوقۇڭ.
+InfoBeforeClickLabel=قاچىلاشنى داۋاملاشتۇرۇشقا تەييارلانغاندا، «كېيىنكى» نى چېكىڭ.
+WizardInfoAfter=ئۇچۇر
+InfoAfterLabel=داۋاملاشتۇرۇشتىن ئىلگىرى تۆۋەندىكى مۇھىم ئۇچۇرلارنى ئوقۇڭ.
+InfoAfterClickLabel=قاچىلاشنى داۋاملاشتۇرۇشقا تەييارلانغاندا، «كېيىنكى» نى چېكىڭ.
 
-; ‫*** ‫"User ‫Information" ‫wizard ‫page
-WizardUserInfo=‫‮‫‫‮‫ئابۇنت ‫ئۇچۇرى
-UserInfoDesc=‫‮‫‫‮‫ئۇچۇرىڭىزنى ‫تولدۇرۇڭ
-UserInfoName=ئابۇنت نامى(&U):
-UserInfoOrg=ئورگان نامى(&O):
+; *** "User Information" wizard page
+WizardUserInfo=ئىشلەتكۈچى ئۇچۇرى
+UserInfoDesc=ئۇچۇرىڭىزنى كىرگۈزۈڭ.
+UserInfoName=ئىشلەتكۈچى نامى(&U):
+UserInfoOrg=ئىدارە(&O):
 UserInfoSerial=تەرتىپ نومۇرى(&S):
-UserInfoNameRequired=‫‮‫‫‮‫ئابۇنت ‫نامىنى ‫چوقۇم ‫تولدۇرىسىز
+UserInfoNameRequired=نامىنى كىرگۈزۈشىڭىز كېرەك.
 
-; ‫*** ‫"Select ‫Destination ‫Location" ‫wizard ‫page
-WizardSelectDir=‫‮‫‫‮‫قاچىلاش ‫ئورنىنى ‫تاللاڭ
-SelectDirDesc=‫‮‫‫‮‫[name]نى ‫قەيەرگە ‫قاچىلايسىز؟
-SelectDirLabel3=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫[name]نى ‫تۆۋەندىكى ‫ھۆججەت ‫قىسقۇچقا ‫قاچىلايدۇ.
-SelectDirBrowseLabel=‫‮‫‫‮‫"كېيىنكى ‫قەدەم"نى ‫چېكىپ ‫داۋاملاشتۇرۇڭ. ‫ئەگەر ‫باشقا ‫ھۆججەت ‫قىسقۇچنى ‫تاللىماقچى ‫بولسىڭىز ‫"كۆرۈش"نى ‫چېكىڭ.
-DiskSpaceMBLabel=‫‮‫‫‮‫دىسكا ‫بوشلۇقىڭىزدا ‫كەم ‫دېگەندە ‫[mb]مېگابايت(MB) ‫بوشلۇقىڭىز ‫بولۇشى ‫كېرەك.
-CannotInstallToNetworkDrive=‫‮‫‫‮‫تور ‫قوزغاتقۇچىغا ‫قاچىلىيالمايدۇ.
-CannotInstallToUNCPath=‫‮‫‫‮‫UNCيولىغا ‫قاچىلىيالايدۇ.
-InvalidPath=‫‮‫‫‮‫دىسكا ‫بەلگىسىنى ‫ئۆز ‫ئىچىگە ‫ئالغان ‫مۇكەممەل ‫يولنى ‫تولدۇرۇشىڭىز ‫كېرەك، ‫مەسىلەن:%n%nC:\دېتال%n%nياكى ‫تۆۋەندىكى ‫فورماتتىكى ‫UNCيولى:%n%n\\مۇلازىمىتېر ‫نامى\ئورتاقلاشقان ‫مۇندەرىجە ‫نامى
-InvalidDrive=‫‮‫‫‮‫سىز ‫تاللىغان ‫قوزغاتقۇچ ‫ياكى ‫UNC ‫مەۋجۇت ‫ئەمەس ‫ياكى ‫زىيارەت ‫قىلغىلى ‫بولمايدۇ.باشقا ‫بىرىنى ‫تاللاڭ.
-DiskSpaceWarningTitle=‫‮‫‫‮‫دىسكا ‫بوشلۇقى ‫يېتىشمىدى
-DiskSpaceWarning=‫‮‫‫‮‫ئاز ‫دېگەندە%1(KB) ‫بوشلۇق ‫بولغاندا ‫ئاندىن ‫قاچىلغىلى ‫بولىدۇ، ‫نۆۋەتتىكى ‫دىسكىدا%2(KB) ‫ئىشلەتكىلى ‫بولىدىغان ‫بوشلۇق ‫بار.%n%n ‫داۋاملاشتۇرامسىز؟
-DirNameTooLong=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ ‫نامى ‫ياكى ‫يولى ‫بەك ‫ئۇزۇن ‫بولۇپ ‫كەتتى.
-InvalidDirName=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ ‫نامى ‫ئۈنۈمسىز.
-BadDirName32=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ ‫نامى ‫تۆۋەندىكى ‫ھەرپ-بەلگىلەرنى ‫ئۆز ‫ئىچىگە ‫ئالالمايدۇ:%n%n%1
-DirExistsTitle=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ ‫قۇرۇلۇپ ‫بولغان
-DirExists=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ%n%n%1%n%nقۇرۇلۇپ ‫بولغان. ‫راستتىنلا ‫مۇشۇ ‫ھۆججەت ‫قىسقۇچقا ‫قاچىلامسىز؟
-DirDoesntExistTitle=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ ‫يوق
-DirDoesntExist=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ%n%n%1%n%nيوق. ‫بۇ ‫ھۆججەت ‫قىسقۇچنى ‫قۇرامسىز؟
+; *** "Select Destination Location" wizard page
+WizardSelectDir=قاچىلاش ئورنىنى تاللاش
+SelectDirDesc=[name] نى قەيەرگە قاچىلاش كېرەك؟
+SelectDirLabel3=قاچىلاش پىروگراممىسى [name] نى تۆۋەندىكى قىسقۇچقا قاچىلايدۇ.
+SelectDirBrowseLabel=«كېيىنكى» نى چېكىپ داۋاملاشتۇرۇڭ. باشقا قىسقۇچ تاللىماقچى بولسىڭىز، «كۆرۈش» نى چېكىڭ.
+DiskSpaceGBLabel=كەم دېگەندە [gb]GB بىكار دىسكا بوشلۇقى تەلەپ قىلىنىدۇ.
+DiskSpaceMBLabel=كەم دېگەندە [mb]MB بىكار دىسكا بوشلۇقى تەلەپ قىلىنىدۇ.
+CannotInstallToNetworkDrive=قاچىلاش پىروگراممىسى تور دىسكىسىغا قاچىلىيالمايدۇ.
+CannotInstallToUNCPath=قاچىلاش پىروگراممىسى UNC يولىغا قاچىلىيالمايدۇ.
+InvalidPath=دىسكا بەلگىسى بار تولۇق يولىنى كىرگۈزۈشىڭىز كېرەك؛ مەسىلەن:%n%nC:\APP%n%nياكى تۆۋەندىكىدەك UNC يولى:%n%n\\server\share
+InvalidDrive=سىز تاللىغان دىسكا ياكى UNC ئورتاقلىشىش يوق ياكى زىيارەت قىلغىلى بولمايدۇ. باشقا بىرىنى تاللاڭ.
+DiskSpaceWarningTitle=دىسكا بوشلۇقى يېتىشمىدى
+DiskSpaceWarning=قاچىلاش ئۈچۈن كەم دېگەندە %1KB بىكار بوشلۇق كېتىدۇ، بىراق تاللانغان دىسكىدا ئاران %2KB بىكار بوشلۇق بار.%n%nشۇنداقتىمۇ داۋاملاشتۇرامسىز؟
+DirNameTooLong=قىسقۇچ نامى ياكى يولى بەك ئۇزۇن.
+InvalidDirName=قىسقۇچ نامى ئىناۋەتسىز.
+BadDirName32=قىسقۇچ نامى تۆۋەندىكى ھەرپ-بەلگىلەرنى ئۆز ئىچىگە ئالالمايدۇ:%n%n%1
+DirExistsTitle=قىسقۇچ بار
+DirExists=قىسقۇچ:%n%n%1%n%nباركەن. شۇنداقتىمۇ مۇشۇ قىسقۇچقا قاچىلامسىز؟
+DirDoesntExistTitle=قىسقۇچ يوق
+DirDoesntExist=قىسقۇچ:%n%n%1%n%nيوقكەن. بۇ قىسقۇچنى قۇرامسىز؟
 
-; ‫*** ‫"Select ‫Components" ‫wizard ‫page
-WizardSelectComponents=‫‮‫‫‮‫قىستۇرما ‫تاللاش
-SelectComponentsDesc=‫‮‫‫‮‫قايسى ‫قىستۇرمىلارنى ‫قاچىلايسىز؟
-SelectComponentsLabel2=‫‮‫‫‮‫قاچىلىماقچى ‫بولغان ‫قىستۇرمىنى ‫تاللاڭ، ‫قاچىلىمايدىغان ‫قىستۇرمىلارنى ‫تازىلىۋىتىڭ. ‫تەييارلىنىپ ‫بولغاندىن ‫كېيىن ‫"كېيىنكى ‫قەدەم"نى ‫چېكىڭ.
-FullInstallation=‫‮‫‫‮‫ھەممىنى ‫قاچىلاش
-; ‫if ‫possible ‫don't ‫translate ‫'Compact' ‫as ‫'Minimal' ‫(I ‫mean ‫'Minimal' ‫in ‫your ‫language)
-CompactInstallation=‫‮‫‫‮‫ئاددىي ‫قاچىلاش
-CustomInstallation=‫‮‫‫‮‫ئۆزى ‫بەلگىلەپ ‫قاچىلاش
-NoUninstallWarningTitle=‫‮‫‫‮‫قىستۇرما ‫بار
-NoUninstallWarning=‫‮‫‫‮‫تۆۋەندىكى ‫سەپلىمىلەرنى ‫قاچىلاپ ‫بولۇپسىز:%n%n%1%n%n ‫تاللاشنى ‫بىكار ‫قىلىڭ.%n%n ‫داۋاملاشتۇرامسىز؟
-ComponentSize1=‫‮‫‫‮‫%1كىلوبايت(KB)
-ComponentSize2=‫‮‫‫‮‫%1مېگابايت(MB)
-ComponentsDiskSpaceMBLabel=‫‮‫‫‮‫بۇ ‫تۈرگە ‫ئەڭ ‫ئاز ‫بولغاندا ‫[mb](MB) ‫بوشلۇق ‫كېتىدۇ.
+; *** "Select Components" wizard page
+WizardSelectComponents=بىرىكمە تاللاش
+SelectComponentsDesc=قايسى بىرىكمىلەرنى قاچىلاش كېرەك؟
+SelectComponentsLabel2=قاچىلايدىغان بىرىكمىلەرنى تاللاڭ؛ قاچىلىمايدىغان بىرىكمىلەرنى تاللىماڭ. داۋاملاشتۇرۇشقا تەييارلانغاندا «كېيىنكى» نى چېكىڭ.
+FullInstallation=تولۇق قاچىلاش
+; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
+CompactInstallation=ئىخچام قاچىلاش
+CustomInstallation=ئىختىيارى قاچىلاش
+NoUninstallWarningTitle=بىرىكمە بار
+NoUninstallWarning=قاچىلاش پىروگراممىسى كومپيۇتېرىڭىزغا تۆۋەندىكى بىرىكمىلەرنىڭ قاچىلانغانلىقىنى بايقىدى:%n%n%1%n%nبۇ بىرىكمىلەرنى تاللىمىغاندا ئۇلارنى چىقىرىۋەتمەيدۇ.%n%nشۇنداقتىمۇ داۋاملاشتۇرامسىز؟
+ComponentSize1=%1KB
+ComponentSize2=%1MB
+ComponentsDiskSpaceGBLabel=نۆۋەتتىكى تاللاش كەم دېگەندە [gb]GB دىسكا بوشلۇقى تەلەپ قىلىدۇ.
+ComponentsDiskSpaceMBLabel=نۆۋەتتىكى تاللاش كەم دېگەندە [mb]MB دىسكا بوشلۇقى تەلەپ قىلىدۇ.
 
-; ‫*** ‫"Select ‫Additional ‫Tasks" ‫wizard ‫page
-WizardSelectTasks=‫‮‫‫‮‫قوشۇمچە ‫ۋەزىپە ‫تاللاڭ
-SelectTasksDesc=‫‮‫‫‮‫قايسى ‫قوشۇمچە ‫ۋەزىپىلەرنى ‫ئىجرا ‫قىلدۇرىسىز؟
-SelectTasksLabel2=‫‮‫‫‮‫[name]نى ‫قاچىلاۋاتقان ‫ۋاقىتتا ‫ئىجرا ‫قىلدۇرماقچى ‫بولغان ‫ۋەزىپىلەرنى ‫تاللاڭ، ‫ئاندىن ‫"كېيىنكى ‫قەدەم"نى ‫چېكىڭ.
+; *** "Select Additional Tasks" wizard page
+WizardSelectTasks=قوشۇمچە ۋەزىپىلەرنى تاللاش
+SelectTasksDesc=قايسى قوشۇمچە ۋەزىپىلەرنى قىلىش كېرەك؟
+SelectTasksLabel2=[name] نى قاچىلاۋاتقاندا قىلىدىغان ۋەزىپىلەرنى تاللاڭ ھەمدە «كېيىنكى» نى چېكىڭ.
 
-; ‫*** ‫"Select ‫Start ‫Menu ‫Folder" ‫wizard ‫page
-WizardSelectProgramGroup=‫‮‫‫‮‫باشلاش ‫تىزىملىكىدىكى ‫ھۆججەت ‫قىسقۇچنى ‫تاللاڭ
-SelectStartMenuFolderDesc=‫‮‫‫‮‫دېتالنىڭ ‫قىسقا ‫يولىنى ‫قەيەرگە ‫قۇرىسىز؟
-SelectStartMenuFolderLabel3=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫تۆۋەندىكى ‫باشلاش ‫تىزىملىكىدىكى ‫ھۆججەت ‫قىسقۇچقا ‫دېتالنىڭ ‫قىسقا ‫يولىنى ‫قۇرىدۇ.
-SelectStartMenuFolderBrowseLabel=‫‮‫‫‮‫"كېيىنكى ‫قەدەم"نى ‫چېكىپ ‫داۋاملاشتۇرۇڭ. ‫ئەگەر ‫باشقا ‫ھۆججەت ‫قىسقۇچنى ‫تاللىماقچى ‫بولسىڭىز ‫"كۆرۈش"نى ‫چېكىڭ.
-MustEnterGroupName=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچنىڭ ‫نامىنى ‫چوقۇم ‫تولدۇرۇشىڭىز ‫كېرەك
-GroupNameTooLong=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ ‫نامى ‫ياكى ‫يولى ‫بەك ‫ئۇزۇن ‫بولۇپ ‫كەتتى.
-InvalidGroupName=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ ‫نامى ‫ئۈنۈمسىز.
-BadGroupName=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ ‫نامى ‫تۆۋەندىكى ‫ھەرپ-بەلگىلەرنى ‫ئۆز ‫ئىچىگە ‫ئالالمايدۇ:%n%n%1
-NoProgramGroupCheck2=باشلاش تىزىملىكىگە ھۆججەت قىسقۇچ قۇرمايمەن(&D)
+; *** "Select Start Menu Folder" wizard page
+WizardSelectProgramGroup=باشلاش تىزىملىكىگە قىسقۇچ تاللاش
+SelectStartMenuFolderDesc=پىروگراممىنىڭ قىسقا يولىنى قەيەرگە قۇرۇش كېرەك؟
+SelectStartMenuFolderLabel3=قاچىلاش پىروگراممىسى باشلاش تىزىملىكىدىكى تۆۋەندىكى قىسقۇچقا پىروگراممىنىڭ قىسقا يولىنى قۇرىدۇ.
+SelectStartMenuFolderBrowseLabel=«كېيىنكى» نى چېكىپ داۋاملاشتۇرۇڭ. باشقا قىسقۇچ تاللىماقچى بولسىڭىز، «كۆرۈش» نى چېكىڭ.
+MustEnterGroupName=قىسقۇچ نامىنى كىرگۈزۈشىڭىز كېرەك.
+GroupNameTooLong=قىسقۇچ نامى ياكى يولى بەك ئۇزۇن.
+InvalidGroupName=قىسقۇچ نامى ئىناۋەتسىز.
+BadGroupName=قىسقۇچ نامى تۆۋەندىكى ھەرپ-بەلگىلەرنى ئۆز ئىچىگە ئالالمايدۇ:%n%n%1
+NoProgramGroupCheck2=باشلاش تىزىملىكىگە قىسقۇچ قۇرمايمەن(&D)
 
-; ‫*** ‫"Ready ‫to ‫Install" ‫wizard ‫page
-WizardReady=‫‮‫‫‮‫قاچىلاش ‫تاماملىنىشقا ‫تەييارلاندى
-ReadyLabel1=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫تاماملىنىشقا ‫تەييارلاندى، ‫سىزنىڭ ‫كومپيۇتېرىڭىزغا ‫[name]نى ‫قاچىلاشنى ‫باشلايدۇ.
-ReadyLabel2a=تەييارلىق پۈتكەن بولسا ‫‮‫‫‮‫"قاچىلاش"نى ‫چېكىپ ‫قاچىلاشنى ‫باشلاڭ. ‫ئەگەر ‫تەڭشەشنى ‫ئۆزگەرتمەكچى ‫ياكى ‫تەكشۈرمەكچى ‫بولسىڭىز ‫"ئالدىنقى ‫قەدەم"نى ‫چېكىڭ.
-ReadyLabel2b=‫‮‫‫‮‫"قاچىلاش"نى ‫چېكىپ ‫قاچىلاشنى ‫باشلاڭ.
-ReadyMemoUserInfo=‫‮‫‫‮‫ئابۇنت ‫ئۇچۇرى:
-ReadyMemoDir=‫‮‫‫‮‫قاچىلاش ‫ئورنى:
-ReadyMemoType=‫‮‫‫‮‫قاچىلاش ‫تىپى:
-ReadyMemoComponents=‫‮‫‫‮‫تاللانغان ‫قىستۇرمىلار:
-ReadyMemoGroup=‫‮‫‫‮‫باشلاش ‫تىزىملىكىدىكى ‫ھۆججەت ‫قىسقۇچ:
-ReadyMemoTasks=‫‮‫‫‮‫قوشۇمچە ‫ۋەزىپە:
+; *** "Ready to Install" wizard page
+WizardReady=قاچىلاشقا تەييارلاندى
+ReadyLabel1=قاچىلاش پىروگراممىسى كومپيۇتېرىڭىزغا [name] نى قاچىلاشقا تەييارلاندى.
+ReadyLabel2a=قاچىلاشنى داۋاملاشتۇرۇش ئۈچۈن «قاچىلاش» نى چېكىڭ. تەڭشەكلەرنى تەكشۈرمەكچى ياكى ئۆزگەرتمەكچى بولسىڭىز «قايتىش» نى چېكىڭ.
+ReadyLabel2b=قاچىلاشنى داۋاملاشتۇرۇش ئۈچۈن «قاچىلاش» نى چېكىڭ.
+ReadyMemoUserInfo=ئىشلەتكۈچى ئۇچۇرى:
+ReadyMemoDir=قاچىلاش ئورنى:
+ReadyMemoType=قاچىلاش تىپى:
+ReadyMemoComponents=تاللانغان بىرىكمىلەر:
+ReadyMemoGroup=باشلاش تىزىملىكىدىكى قىسقۇچ:
+ReadyMemoTasks=قوشۇمچە ۋەزىپىلەر:
 
-; ‫*** ‫"Preparing ‫to ‫Install" ‫wizard ‫page
-WizardPreparing=‫‮‫‫‮‫قاچىلاشقا ‫تەييارلاندى
-PreparingDesc=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫سىزنىڭ ‫كومپيۇتېرىڭىزغا ‫[name]نى ‫قاچىلاشقا ‫تەييارلىنىۋاتىدۇ.
-PreviousInstallNotCompleted=‫‮‫‫‮‫ئالدىنقى ‫قېتىملىق ‫دېتال ‫قاچىلاش/ئۆچۈرۈش ‫تاماملىنالمىدى. ‫سىز ‫كومپيۇتېرنى ‫قايتا ‫قوزغىتىپ ‫ئالدىنقى ‫قېتىملىق ‫قاچىلاشنى ‫تاماملىشىڭىز ‫كېرەك.%n%nكومپيۇتېر ‫قايتا ‫قوزغالغاندىن ‫كېيىن، ‫قاچىلاش ‫يېتەكچىسىنى ‫قايتا ‫ئىجرا ‫قىلىپ ‫[name]نى ‫قاچىلاڭ.
-CannotContinue=‫‮‫‫‮‫قاچىلاش ‫داۋاملىشالمايدۇ. ‫"ئىناۋەتسىز"نى ‫چېكىپ ‫چېكىنىڭ.
-ApplicationsFound=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫يېڭىلاشتا ‫ئىشلىتىدىغان ‫ھۆججەتنى ‫باشقا ‫دېتال ‫ئىشلىتىۋېتىپتۇ. ‫قاچىلاش ‫يېتەكچىسىنىڭ ‫بۇ ‫پىروگراممىلارنى ‫مەجبۇرىي ‫ئۆچۈرۋېتىشىگە ‫يول ‫قويىشىڭىز ‫كېرەك.
-ApplicationsFound2=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫يېڭىلاشتا ‫ئىشلىتىدىغان ‫ھۆججەتنى ‫باشقا ‫دېتال ‫ئىشلىتىۋېتىپتۇ. ‫قاچىلاش ‫يېتەكچىسىنىڭ ‫بۇ ‫پىروگراممىلارنى ‫مەجبۇرىي ‫ئۆچۈرۋېتىشىگە ‫يول ‫قويىشىڭىز ‫كېرەك. ‫قاچىلاش ‫تۈگىگەندە ‫بۇ ‫پىروگراممىلارنى ‫قايتىدىن ‫قوزغىتىدۇ.
-CloseApplications=دېتالنى ئاپتوماتىك ئۆچۈرسۇن(&A)
-DontCloseApplications=دېتالنى ئاپتوماتىك ئۆچۈرمىسۇن(&D)
-ErrorCloseApplications=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫بارلىق ‫پىروگراممىلارنى ‫ئاپتوماتىك ‫ئۆچۈرەلمىدى. ‫كېيىنكى ‫باسقۇچقا ‫ئۆتۈشتى ‫ئاۋۋال ‫بۇ ‫پىروگراممىلارنى ‫چوقۇم ‫ئۆچۈرۋېتىشىڭىز ‫كېرەك.
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=قوشۇمچە ھۆججەتلەرنى چۈشۈرۈۋاتىدۇ...
+ButtonStopDownload=چۈشۈرۈشنى توختىتىش(&S)
+StopDownload=چۈشۈرۈشنى راستتىنلا توختىتامسىز؟
+ErrorDownloadAborted=چۈشۈرۈش توختىتىلدى
+ErrorDownloadFailed=چۈشۈرەلمىدى: %1 %2
+ErrorDownloadSizeFailed=چوڭلۇقىغا ئېرىشەلمىدى: %1 %2
+ErrorFileHash1=ھۆججەت Hash نى تەكشۈرەلمىدى: %1
+ErrorFileHash2=ئىناۋەتسىز ھۆججەت Hash: كۈتكىنى %1، تېپىلغىنى %2
+ErrorProgress=ئىناۋەتسىز ئىلگىرىلەش: %1، جەمئىي: %2
+ErrorFileSize=ئىناۋەتسىز ھۆججەت چوڭلۇقى: كۈتكىنى %1، تېپىلغىنى %2
 
-; ‫*** ‫"Installing" ‫wizard ‫page
-WizardInstalling=‫‮‫‫‮‫قاچىلاۋاتىدۇ
-InstallingLabel=‫‮‫‫‮‫سەل ‫ساقلاڭ، ‫قاچىلاش ‫يېتەكچىسى ‫كومپيۇتېرىڭىزغا ‫[name]نى ‫قاچىلاۋاتىدۇ.
+; *** "Preparing to Install" wizard page
+WizardPreparing=قاچىلاشقا تەييارلىنىۋاتىدۇ
+PreparingDesc=قاچىلاش پىروگراممىسى كومپيۇتېرىڭىزغا [name] نى قاچىلاشقا تەييارلىنىۋاتىدۇ.
+PreviousInstallNotCompleted=ئالدىنقى پىروگراممىنى قاچىلاش ياكى چىقىرىۋېتىش تاماملانمىدى. قاچىلاشنى تاماملاش ئۈچۈن كومپيۇتېرىڭىزنى قايتا قوزغىتىشىڭىز كېرەك.%n%nكومپيۇتېرىڭىز قايتا قوزغالغاندىن كېيىن، قاچىلاش پىروگراممىسىنى قايتا ئىجرا قىلىپ [name] نى قاچىلاشنى تاماملاڭ.
+CannotContinue=قاچىلاش پىروگراممىسىنى داۋاملاشتۇرغىلى بولمايدۇ. چېكىنىش ئۈچۈن «ئىناۋەتسىز» نى چېكىڭ.
+ApplicationsFound=تۆۋەندىكى دېتاللار قاچىلاش پىروگراممىسى يېڭىلايدىغان ھۆججەتلەرنى ئىشلىتىۋاتىدۇ. قاچىلاش پىروگراممىسىنىڭ بۇ دېتاللارنى ئاپتوماتىك تاقىشىغا يول قويۇشىڭىز تەۋسىيە قىلىنىدۇ.
+ApplicationsFound2=تۆۋەندىكى دېتاللار قاچىلاش پىروگراممىسى يېڭىلايدىغان ھۆججەتلەرنى ئىشلىتىۋاتىدۇ. قاچىلاش پىروگراممىسىنىڭ بۇ دېتاللارنى ئاپتوماتىك تاقىشىغا يول قويۇشىڭىز تەۋسىيە قىلىنىدۇ. قاچىلاش تاماملانغاندىن كېيىن، قاچىلاش پىروگراممىسى بۇ دېتاللارنى قايتا قوزغىتىشقا ئۇرۇنىدۇ.
+CloseApplications=دېتاللارنى ئاپتوماتىك تاقاش(&A)
+DontCloseApplications=دېتاللارنى تاقىماسلىق(&D)
+ErrorCloseApplications=قاچىلاش پىروگراممىسى بارلىق دېتاللارنى ئاپتوماتىك تاقىيالمىدى. داۋاملاشتۇرۇشتىن بۇرۇن بۇ دېتاللارنى تاقاش تەۋسىيە قىلىنىدۇ.
+PrepareToInstallNeedsRestart=قاچىلاش پىروگراممىسى كومپيۇتېرىڭىزنى قايتا قوزغىتىشى كېرەك. كومپيۇتېرىڭىز قايتا قوزغالغاندىن كېيىن، قاچىلاش پىروگراممىسىنى قايتا ئىجرا قىلىپ [name] نى قاچىلاشنى تاماملاڭ.%n%nھازىرلا قايتا قوزغىتامسىز؟
 
-; ‫*** ‫"Setup ‫Completed" ‫wizard ‫page
-FinishedHeadingLabel=‫‮‫‫‮‫[name]نى ‫قاچىلاش ‫تامام
-FinishedLabelNoIcons=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫كومپيۇتېرىڭىزغا ‫[name]نى ‫قاچىلاپ ‫بولدى.
-FinishedLabel=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫كومپيۇتېرىڭىزغا ‫[name]نى ‫قاچىلاپ ‫بولدى. ‫سىز ‫قۇرىۋالغان ‫قىسقا ‫يول ‫ئارقىلىق ‫بۇ ‫دېتالنى ‫ئاچالايسىز.
-ClickFinish=‫‮‫‫‮‫"تامام"نى ‫چېكىپ ‫قاچىلاشنى ‫تاماملاڭ.
-FinishedRestartLabel=‫‮‫‫‮‫[name]نى ‫قاچىلاشنى ‫تاماملاش ‫ئۈچۈن، ‫قاچىلاش ‫يېتەكچىسى ‫كومپيۇتېرىڭىزنى ‫ ‫قايتا ‫قوزغىتىشى ‫كېرەك. ‫ھازىرلا ‫قايتا ‫قوزغىتامسىز؟
-FinishedRestartMessage=‫‮‫‫‮‫[name]نى ‫قاچىلاشنى ‫تاماملاش ‫ئۈچۈن، ‫قاچىلاش ‫يېتەكچىسى ‫كومپيۇتېرىڭىزنى ‫ ‫قايتا ‫قوزغىتىشى ‫كېرەك.%n%nھازىرلا ‫قايتا ‫قوزغىتامسىز؟
-ShowReadmeCheck=‫‮‫‫‮‫ھەئە، ‫تونۇشتۇرۇش ‫ھۆججىتىنى ‫ئوقۇيمەن
+; *** "Installing" wizard page
+WizardInstalling=قاچىلاۋاتىدۇ
+InstallingLabel=قاچىلاش پىروگراممىسى كومپيۇتېرىڭىزغا [name] نى قاچىلاۋاتىدۇ، سەل ساقلاڭ.
+
+; *** "Setup Completed" wizard page
+FinishedHeadingLabel=[name] نى قاچىلاش تامام
+FinishedLabelNoIcons=قاچىلاش پىروگراممىسى كومپيۇتېرىڭىزغا [name] نى قاچىلاپ بولدى.
+FinishedLabel=قاچىلاش پىروگراممىسى كومپيۇتېرىڭىزغا [name] نى قاچىلاپ بولدى. قاچىلانغان قىسقا يوللارنى تاللاش ئارقىلىق دېتالنى قوزغىتالايسىز.
+ClickFinish=«تامام» نى چېكىپ قاچىلاش پىروگراممىسىدىن چېكىنىڭ.
+FinishedRestartLabel=[name] نى قاچىلاشنى تاماملاش ئۈچۈن، قاچىلاش پىروگراممىسى كومپيۇتېرىڭىزنى قايتا قوزغىتىشى كېرەك. ھازىرلا قايتا قوزغىتامسىز؟
+FinishedRestartMessage=[name] نى قاچىلاشنى تاماملاش ئۈچۈن، قاچىلاش پىروگراممىسى كومپيۇتېرىڭىزنى قايتا قوزغىتىشى كېرەك.%n%nھازىرلا قايتا قوزغىتامسىز؟
+ShowReadmeCheck=ھەئە، چۈشەندۈرۈش ھۆججىتىنى ئوقۇيمەن
 YesRadio=ھەئە، كومپيۇتېرنى ھازىرلا قايتا قوزغىتىمەن(&Y)
-NoRadio=ياق، سەل تۇرۇپ ئۆزۈم قايتا قوزغىتىمەن(&N)
-; ‫used ‫for ‫example ‫as ‫'Run ‫MyProg.exe'
-RunEntryExec=‫‮‫‫‮‫%1نى ‫ئىجرا ‫قىلىش
-; ‫used ‫for ‫example ‫as ‫'View ‫Readme.txt'
-RunEntryShellExec=‫‮‫‫‮‫تەكشۈرۈۋاتىدۇ ‫%1
+NoRadio=ياق، كومپيۇتېرنى سەل تۇرۇپ قايتا قوزغىتىمەن(&N)
+; used for example as 'Run MyProg.exe'
+RunEntryExec=%1 نى ئىجرا قىلىش
+; used for example as 'View Readme.txt'
+RunEntryShellExec=%1 نى كۆرۈش
 
-; ‫*** ‫"Setup ‫Needs ‫the ‫Next ‫Disk" ‫stuff
-ChangeDiskTitle=‫‮‫‫‮‫تاللانغان ‫دىسكىنى ‫ئۆزگەرتىڭ
-SelectDiskLabel2=‫‮‫‫‮‫دىسكىنى ‫سېلىپ%1 ‫"مۇقىملاش" ‫نى ‫چېكىڭ.%n%n ‫ئەگەر ‫دىسكىدا ‫تۆۋەندىكى ‫ھۆججەت ‫قىسقۇچ ‫يوق ‫بولسا، ‫"كۆرۈش" ‫دىن ‫تاللاڭ.
-PathLabel=مۇندەرىجە(&P):
-FileNotInDir2=‫‮‫‫‮‫ھۆججەت"%1" ‫"%2"نىڭ ‫ئىچىدە ‫يوقكەن. ‫توغرا ‫بولغان ‫دىسكىنى ‫سېلىڭ ‫ياكى ‫توغرا ‫بولغان ‫ھۆججەت ‫قىسقۇچنى ‫تاللاڭ.
-SelectDirectoryLabel=‫‮‫‫‮‫بىر ‫دىسكىنى ‫تاللاڭ
+; *** "Setup Needs the Next Disk" stuff
+ChangeDiskTitle=قاچىلاش پىروگراممىسىغا كېيىنكى دىسكا لازىم
+SelectDiskLabel2=%1 دىسكىنى سېلىپ، «ماقۇل» نى چېكىڭ.%n%nئەگەر بۇ دىسكىدىكى ھۆججەتلەرنى تۆۋەندىكى قىسقۇچلاردىن باشقىسىدا تاپقىلى بولسا، توغرا يولىنى كىرگۈزۈڭ ياكى «كۆرۈش» نى چېكىڭ.
+PathLabel=يولى(&P):
+FileNotInDir2=«%1» ھۆججىتى «%2» دىن تېپىلمىدى. توغرا دىسكىنى سېلىڭ ياكى باشقا قىسقۇچنى تاللاڭ.
+SelectDirectoryLabel=كېيىنكى دىسكىنىڭ ئورنىنى بەلگىلەڭ.
 
-; ‫*** ‫Installation ‫phase ‫messages
-SetupAborted=‫‮‫‫‮‫قاچىلاش ‫تولۇق ‫تاماملانمىدى.%n%nتۆۋەندىكى ‫مەسىلىلەرنى ‫ھەل ‫قىلىپ ‫قايتا ‫قاچىلاڭ.
-EntryAbortRetryIgnore=‫‮‫‫‮‫"قايتا ‫سىناش" ‫نى ‫چېكىپ ‫قايتا ‫سىناڭ، ‫"ئۆتكۈزۋېتىش" ‫نى ‫چېكىپ ‫داۋاملاشتۇرۇڭ، ‫"ئاخىرلاشتۇرۇش" ‫نى ‫چېكىپ ‫قاچىلاشنى ‫ئاخىرلاشتۇرۇڭ.
+; *** Installation phase messages
+SetupAborted=قاچىلاش پىروگراممىسى تاماملانمىدى.%n%nمەسىلىنى تۈزىتىپ، قاچىلاش پىروگراممىسىنى قايتا ئىجرا قىلىڭ.
+AbortRetryIgnoreSelectAction=مەشغۇلات تاللاش
+AbortRetryIgnoreRetry=قايتا سىناش(&T)
+AbortRetryIgnoreIgnore=خاتالىققا پەرۋا قىلماي داۋاملاشتۇرۇش(&I)
+AbortRetryIgnoreCancel=قاچىلاشنى بىكار قىلىش
 
-; ‫*** ‫Installation ‫status ‫messages
-StatusClosingApplications=‫‮‫‫‮‫دېتالنى ‫ئۆچۈرۈۋاتىدۇ…
-StatusCreateDirs=‫‮‫‫‮‫ھۆججەت ‫قىسقۇچ ‫قۇرۇۋاتىدۇ…
-StatusExtractFiles=‫‮‫‫‮‫ھۆججەتنى ‫چىقىرىۋاتىدۇ…
-StatusCreateIcons=‫‮‫‫‮‫قىسقا ‫يولىنى ‫قۇرۇۋاتىدۇ…
-StatusCreateIniEntries=‫‮‫‫‮‫INI ‫كۆرسەتكۈچىنى ‫قۇرۇۋاتىدۇ…
-StatusCreateRegistryEntries=‫‮‫‫‮‫تىزىملاش ‫جەدۋەل ‫كۆرسەتكۈچىنى ‫قۇرۇۋاتىدۇ…
-StatusRegisterFiles=‫‮‫‫‮‫تىزىملاش ‫جەدۋەل ‫تۈرىنى ‫قۇرۇۋاتىدۇ…
-StatusSavingUninstall=‫‮‫‫‮‫ئۆچۈرۈش ‫ئۇچۇرىنى ‫ساقلاۋاتىدۇ…
-StatusRunProgram=‫‮‫‫‮‫قاچىلاشنى ‫تاماملاۋاتىدۇ…
-StatusRestartingApplications=‫‮‫‫‮‫دېتالنى ‫قايتا ‫قوزغىتىۋاتىدۇ…
-StatusRollback=‫‮‫‫‮‫ئۆزگەرتىشنى ‫بىكار ‫قىلىۋاتىدۇ…
+; *** Installation status messages
+StatusClosingApplications=دېتاللارنى تاقاۋاتىدۇ...
+StatusCreateDirs=مۇندەرىجىلەرنى قۇرۇۋاتىدۇ...
+StatusExtractFiles=ھۆججەتلەرنى يېيىۋاتىدۇ...
+StatusCreateIcons=قىسقا يوللىرىنى قۇرۇۋاتىدۇ...
+StatusCreateIniEntries=INI مەزمۇنلىرىنى قۇرۇۋاتىدۇ...
+StatusCreateRegistryEntries=تىزىملاش جەدۋىلىنى قۇرۇۋاتىدۇ...
+StatusRegisterFiles=ھۆججەتلەرنى تىزىملاۋاتىدۇ...
+StatusSavingUninstall=چىقىرىۋېتىش ئۇچۇرىنى ساقلاۋاتىدۇ...
+StatusRunProgram=قاچىلاشنى تاماملاۋاتىدۇ...
+StatusRestartingApplications=دېتاللارنى قايتا قوزغىتىۋاتىدۇ...
+StatusRollback=ئۆزگەرتىشلەرنى قايتۇرۇۋاتىدۇ...
 
-; ‫*** ‫Misc. ‫errors
-ErrorInternal2=‫‮‫‫‮‫ئىچكى ‫خاتالىق:%1
-ErrorFunctionFailedNoCode=‫‮‫‫‮‫%1 ‫مەغلۇپ ‫بولدى
-ErrorFunctionFailed=‫‮‫‫‮‫%1 ‫مەغلۇپ ‫بولدى، ‫خاتالىق ‫نومۇرى ‫%2
-ErrorFunctionFailedWithMessage=‫‮‫‫‮‫%1مەغلۇپ ‫بولدى، ‫خاتالىق ‫نومۇرى ‫%2.%n%3
-ErrorExecutingProgram=‫‮‫‫‮‫ئىجرا ‫بولمىغان ‫دېتال:%n%1
+; *** Misc. errors
+ErrorInternal2=ئىچكى خاتالىق: %1
+ErrorFunctionFailedNoCode=%1 مەغلۇپ بولدى
+ErrorFunctionFailed=%1 مەغلۇپ بولدى؛ كودى %2
+ErrorFunctionFailedWithMessage=%1 مەغلۇپ بولدى؛ كودى %2.%n%3
+ErrorExecutingProgram=ئىجرا قىلالمىغان ھۆججەت:%n%1
 
-; ‫*** ‫Registry ‫errors
-ErrorRegOpenKey=‫‮‫‫‮‫تىزىملاش ‫جەدۋىلىنى ‫ئاچقاندا ‫يۈز ‫بەرگەن ‫خاتالىق:%n%1\%2
-ErrorRegCreateKey=‫‮‫‫‮‫تىزىملاش ‫جەدۋىلىنى ‫قۇرغاندا ‫يۈز ‫بەرگەن ‫خاتالىق:%n%1\%2
-ErrorRegWriteKey=‫‮‫‫‮‫تىزىملاش ‫جەدۋىلىنى ‫يازغاندا ‫يۈز ‫بەرگەن ‫خاتالىق:%n%1\%2
+; *** Registry errors
+ErrorRegOpenKey=تىزىملاش جەدۋىلىنى ئېچىش خاتالىقى:%n%1\%2
+ErrorRegCreateKey=تىزىملاش جەدۋىلىنى قۇرۇش خاتالىقى:%n%1\%2
+ErrorRegWriteKey=تىزىملاش جەدۋىلىنى يېزىش خاتالىقى:%n%1\%2
 
-; ‫*** ‫INI ‫errors
-ErrorIniEntry=‫‮‫‫‮‫ھۆججەت"%1"نىڭINI ‫تۈرىنى ‫قۇرۇشتا ‫خاتالىق ‫كۆرۈلدى.
+; *** INI errors
+ErrorIniEntry=«%1» ھۆججىتىگە INI مەزمۇنىنى قۇرۇش خاتالىقى.
 
-; ‫*** ‫File ‫copying ‫errors
-FileAbortRetryIgnore=‫‮‫‫‮‫"قايتا ‫سىناش" ‫نى ‫چېكىپ ‫قايتا ‫سىناڭ، ‫"ئۆتكۈزۋېتىش" ‫نى ‫چېكىپ ‫داۋاملاشتۇرۇڭ(تەۋسىيە ‫قىلىنمايدۇ)، ‫"ئاخىرلاشتۇرۇش" ‫نى ‫چېكىپ ‫قاچىلاشنى ‫ئاخىرلاشتۇرۇڭ.
-FileAbortRetryIgnore2=‫‮‫‫‮‫"قايتا ‫سىناش" ‫نى ‫چېكىپ ‫قايتا ‫سىناڭ، ‫"ئۆتكۈزۋېتىش" ‫نى ‫چېكىپ ‫داۋاملاشتۇرۇڭ(تەۋسىيە ‫قىلىنمايدۇ)، ‫"ئاخىرلاشتۇرۇش" ‫نى ‫چېكىپ ‫قاچىلاشنى ‫ئاخىرلاشتۇرۇڭ.
-SourceIsCorrupted=‫‮‫‫‮‫ھۆججەت ‫بۇزۇلۇپ ‫كېتىپتۇ
-SourceDoesntExist=‫‮‫‫‮‫ھۆججەت ‫"%1" ‫مەۋجۇت ‫ئەمەسكەن
-ExistingFileReadOnly=‫‮‫‫‮‫ھازىر ‫بار ‫بولغان ‫ھۆججەتنى ‫پەقەت ‫ئوقۇغىلى ‫بولىدىكەن.%n%n ‫ھۆججەتنىڭ ‫پەقەت ‫ئوقۇغىلى ‫بولىدىغان ‫خاسلىقىنى ‫ئېلىۋېتىپ ‫"قايتا ‫سىناش" ‫نى ‫چېكىڭ, ‫ياكى ‫"ئۆتكۈزۋېتىش" ‫نى ‫چېكىپ ‫ئاتلاپ ‫ئۆتۈپ ‫كېتىڭ, ‫ياكى ‫"ئاخىرلاشتۇرۇش" ‫نى ‫چېكىپ ‫قاچىلاشنى ‫ئاخىرلاشتۇرۇڭ.
-ErrorReadingExistingDest=‫‮‫‫‮‫ھۆججەت ‫ئوقۇشتا ‫خاتالىق ‫كۆرۈلدى:
-FileExists=‫‮‫‫‮‫ھۆججەت ‫مەۋجۇتكەن.%n%n ‫باستۇرۋېتەمسىز؟
-ExistingFileNewer=‫‮‫‫‮‫ئەسلىدە ‫بار ‫ھۆججەت ‫نەشرى ‫ھازىر ‫قاچىلىماقچى ‫بولغان ‫ھۆججەت ‫نەشرىدىن ‫يېڭىكەن. ‫چوقۇم ‫ساقلاپ ‫قېلىشىڭىز ‫كېرەك.%n%nساقلاپ ‫قالامسىز؟
-ErrorChangingAttr=‫‮‫‫‮‫ھۆججەت ‫خاسلىقىنى ‫ئۆزگەرتىشتە ‫خاتالىق ‫كۆرۈلدى:
-ErrorCreatingTemp=‫‮‫‫‮‫ھۆججەت ‫قۇرۇش ‫مەغلۇپ ‫بولدى:
-ErrorReadingSource=‫‮‫‫‮‫ھۆججەت ‫ئوقۇشتا ‫خاتالىق ‫كۆرۈلدى:
-ErrorCopying=‫‮‫‫‮‫ھۆججەت ‫كۆچۈرۈشتە ‫خاتالىق ‫كۆرۈلدى:
-ErrorReplacingExistingFile=‫‮‫‫‮‫ھۆججەت ‫ئالماشتۇرۇش ‫مەغلۇپ ‫بولدى:
-ErrorRestartReplace=‫‮‫‫‮‫قايتا ‫ئالماشتۇرۇش ‫مەغلۇپ ‫بولدى:
-ErrorRenamingTemp=‫‮‫‫‮‫نىشان ‫مۇندەرىجىنىڭ ‫نامىنى ‫ئۆزگەرتىشتە ‫خاتالىق ‫كۆرۈلدى:
-ErrorRegisterServer=‫‮‫‫‮‫تىزىملاش ‫مەغلۇپ ‫بولغان ‫كونتروللار ‫(DLL/OCX):%1
-ErrorRegSvr32Failed=‫‮‫‫‮‫RegSvr32 ‫نى ‫ئىجرا ‫قىلىش ‫مەغلۇپ ‫بولدى، ‫قايتۇرغان ‫قىممەت:%1
-ErrorRegisterTypeLib=‫‮‫‫‮‫تىزىملاش ‫مەغلۇپ ‫بولغان ‫تۈرلەر:%1
+; *** File copying errors
+FileAbortRetryIgnoreSkipNotRecommended=بۇ ھۆججەتنى ئۆتكۈزۈۋېتىش(&S) (تەۋسىيە قىلىنمايدۇ)
+FileAbortRetryIgnoreIgnoreNotRecommended=خاتالىققا پەرۋا قىلماي داۋاملاشتۇرۇش(&I) (تەۋسىيە قىلىنمايدۇ)
+SourceIsCorrupted=مەنبە ھۆججەت بۇزۇلغان
+SourceDoesntExist=مەنبە ھۆججەت «%1» يوق
+ExistingFileReadOnly2=بار ھۆججەتنى پەقەت ئوقۇشقىلا بولىدىغان بولغاچقا ئالماشتۇرغىلى بولمايدۇ.
+ExistingFileReadOnlyRetry=ئوقۇشقىلا بولىدىغان خاسلىقنى چىقىرىۋېتىپ قايتا سىناش(&R)
+ExistingFileReadOnlyKeepExisting=بار ھۆججەتنى ساقلاپ قىلىش(&K)
+ErrorReadingExistingDest=بار ھۆججەتنى ئوقۇشتا خاتالىق كۆرۈلدى:
+FileExistsSelectAction=مەشغۇلات تاللاش
+FileExists2=ھۆججەت ئاللىبۇرۇن بار.
+FileExistsOverwriteExisting=بار ھۆججەتنى قاپلىۋېتىش(&O)
+FileExistsKeepExisting=بار ھۆججەتنى ساقلاپ قىلىش(&K)
+FileExistsOverwriteOrKeepAll=كېيىنكى توقۇنۇشقا بۇنى قىلىش(&D)
+ExistingFileNewerSelectAction=مەشغۇلات تاللاش
+ExistingFileNewer2=بار ھۆججەت قاچىلىماقچى بولغان ھۆججەتتىن يېڭى.
+ExistingFileNewerOverwriteExisting=بار ھۆججەتنى قاپلىۋېتىش(&O)
+ExistingFileNewerKeepExisting=بار ھۆججەتنى ساقلاپ قىلىش(&K) (تەۋسىيە)
+ExistingFileNewerOverwriteOrKeepAll=كېيىنكى توقۇنۇشقا بۇنى قىلىش(&D)
+ErrorChangingAttr=بار ھۆججەتنىڭ خاسلىقىنى ئۆزگەرتىشتە خاتالىق كۆرۈلدى:
+ErrorCreatingTemp=نىشان مۇندەرىجىگە ھۆججەت قۇرۇشتا خاتالىق كۆرۈلدى:
+ErrorReadingSource=مەنبە ھۆججەتنى ئوقۇشتا خاتالىق كۆرۈلدى:
+ErrorCopying=ھۆججەت كۆچۈرۈشتە خاتالىق كۆرۈلدى:
+ErrorReplacingExistingFile=بار ھۆججەتنى ئالماشتۇرۇشتا خاتالىق كۆرۈلدى:
+ErrorRestartReplace=قايتا ئالماشتۇرالمىدى:
+ErrorRenamingTemp=نىشان مۇندەرىجىدىكى ھۆججەتنىڭ نامىنى ئۆزگەرتىشتە خاتالىق كۆرۈلدى:
+ErrorRegisterServer=DLL/OCX نى تىزىملىتالمىدى: %1
+ErrorRegSvr32Failed=RegSvr32 مەغلۇپ بولدى، چېكىنىش كودى %1
+ErrorRegisterTypeLib=تىپ ئامبىرىنى تىزىملىتالمىدى: %1
 
-; ‫*** ‫Post-installation ‫errors
-ErrorOpeningReadme=‫‮‫‫‮‫چۈشەندۈرۈش ‫قوللانمىسىنى ‫ئېچىشتا ‫خاتالىق ‫كۆرۈلدى.
-ErrorRestartingComputer=‫‮‫‫‮‫قاچىلاش ‫يېتەكچىسى ‫كومپيۇتېرنى ‫قايتا ‫قوزغىتالمىدى. ‫قول ‫ئارقىلىق ‫قايتا ‫قوزغىتىڭ.
+; *** Uninstall display name markings
+; used for example as 'My Program (32-bit)'
+UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
+UninstallDisplayNameMarks=%1 (%2، %3)
+UninstallDisplayNameMark32Bit=32 بىت
+UninstallDisplayNameMark64Bit=64 بىت
+UninstallDisplayNameMarkAllUsers=بارلىق ئىشلەتكۈچى
+UninstallDisplayNameMarkCurrentUser=نۆۋەتتىكى ئىشلەتكۈچى
 
-; ‫*** ‫Uninstaller ‫messages
-UninstallNotFound=‫‮‫‫‮‫"%1" ‫ھۆججىتى ‫يوق. ‫ئۆچۈرەلمەيدۇ.
-UninstallOpenError=‫‮‫‫‮‫"%1" ‫ھۆججىتىنى ‫ئاچالمىدى. ‫ئۆچۈرەلمەيدۇ.
-UninstallUnsupportedVer=‫‮‫‫‮‫بۇ ‫قاچىلاش ‫يېتەكچىسى"%1" ‫شەكىلدىكى ‫ئۆچۈرۈش ‫خاتىرىسىنى ‫تونۇيالمىدى.ئۆچۈرۈش ‫مەغلۇپ ‫بولدى.
-UninstallUnknownEntry=‫‮‫‫‮‫ئۆچۈرۈش ‫خاتىرىسىدە ‫نامەلۇم ‫تۈر ‫(%1) ‫بايقالدى
-ConfirmUninstall=‫‮‫‫‮‫سىز ‫راستتىنلا ‫%1 ‫ۋە ‫بارلىق ‫قىستۇرمىلارنى ‫پاكىز ‫ئۆچۈرۈۋەتمەكچىمۇ؟
-UninstallOnlyOnWin64=‫‮‫‫‮‫بۇ ‫قاچىلانما ‫پەقەت ‫64بىتلىق ‫Windows ‫مۇھىتىدا ‫ئۆچۈرۈلىدۇ.
-OnlyAdminCanUninstall=‫‮‫‫‮‫بۇ ‫دېتالنى ‫پەقەت ‫باشقۇرغۇچىلىق ‫سالاھىيتىدىكى ‫ئىشلەتكۈچىلەرلا ‫ئۆچۈرەلەيدۇ.
-UninstallStatusLabel=‫‮‫‫‮‫سەل ‫ساقلاڭ، ‫%1نى ‫ئۆچۈرۈۋاتىدۇ.
-UninstalledAll=‫‮‫‫‮‫سىزنىڭ ‫كومپيۇتېرىڭىزدىن ‫%1نى ‫ئۆچۈرۈش ‫مۇۋەپپەقىيەتلىك ‫بولدى.
-UninstalledMost=‫‮‫‫‮‫%1 ‫ئۆچۈرۈش ‫تاماملاندى.%n%nمەلۇم ‫تۈرلەرنى ‫ئۆچۈرۈش ‫جەريانىدا ‫ئۆچۈرەلمىدى. ‫بۇلارنى ‫قولدا ‫ئۆچۈرۈۋەتسىڭىز ‫بولىدۇ.
-UninstalledAndNeedsRestart=‫‮‫‫‮‫%1نى ‫ئۆچۈرۈشنى ‫تاماملاش ‫ئۈچۈن، ‫كومپيۇتېرنى ‫قايتا ‫قوزغىتىشىڭىز ‫كېرەك. ‫%n%nھازىرلا ‫قايتا ‫قوزغىتامسىز؟
-UninstallDataCorrupted=‫‮‫‫‮‫"%1" ‫ھۆججىتى ‫بۇزۇلغان. ‫ئۆچۈرەلمەيدۇ
+; *** Post-installation errors
+ErrorOpeningReadme=چۈشەندۈرۈش ھۆججىتىنى ئېچىشتا خاتالىق كۆرۈلدى.
+ErrorRestartingComputer=قاچىلاش پىروگراممىسى كومپيۇتېرنى قايتا قوزغىتالمىدى. بۇنى ئۆزىڭىز قىلىڭ.
 
-; ‫*** ‫Uninstallation ‫phase ‫messages
-ConfirmDeleteSharedFileTitle=‫‮‫‫‮‫ئورتاقلاشقان ‫ھۆججەتنى ‫ئۆچۈرەمسىز؟
-ConfirmDeleteSharedFile2=‫‮‫‫‮‫سىستېما ‫تۆۋەندىكى ‫ئورتاق ‫ھۆججەتنى ‫ئىشلەتمەيدۇ. ‫بۇ ‫ئورتاق ‫ھۆججەتنى ‫ئۆچۈرەمسىز؟%n%nئەگەر ‫سىستېما ‫بۇ ‫ھۆججەتنى ‫ئىشلەتسە، ‫ئۆچۈرۈۋەتكەندىن ‫كېيىن ‫سىستېما ‫نورمال ‫ئىشلىمەسلىكى ‫مۇمكىن. ‫مۇقۇملاشتۇرالمىسىڭىز ‫"ياق" ‫نى ‫تاللاڭ. ‫بۇ ‫ھۆججەت ‫قېلىپ ‫قالسا ‫سىستېمىغا ‫ھېچ ‫قانداق ‫ئەكس ‫تەسىرى ‫يوق.
-SharedFileNameLabel=‫‮‫‫‮‫ھۆججەت ‫نامى:
-SharedFileLocationLabel=‫‮‫‫‮‫ئورنى:
-WizardUninstalling=‫‮‫‫‮‫ئۆچۈرۈش ‫ھالىتى
-StatusUninstalling=‫‮‫‫‮‫%1نى ‫ئۆچۈرۈۋاتىدۇ…
+; *** Uninstaller messages
+UninstallNotFound=«%1» ھۆججىتى يوق. چىقىرىۋېتەلمەيدۇ.
+UninstallOpenError=«%1» ھۆججىتىنى ئاچالمىدى. چىقىرىۋېتەلمەيدۇ
+UninstallUnsupportedVer=چىقىرىۋېتىش خاتىرە ھۆججىتى «%1» نىڭ فورماتىنى بۇ نەشرىدىكى چىقىرىۋەتكۈچ تونۇيالمىدى. چىقىرىۋېتەلمەيدۇ
+UninstallUnknownEntry=چىقىرىۋېتىش خاتىرىسىدە نامەلۇم مەزمۇنغا (%1) يولۇقتى
+ConfirmUninstall=%1 ۋە ئۇنىڭ بارلىق بىرىكمىلىرىنى پۈتۈنلەي چىقىرىۋېتەمسىز؟
+UninstallOnlyOnWin64=بۇ قاچىلاشنى پەقەت 64 بىتلىق Windows دا چىقىرىۋەتكىلى بولىدۇ.
+OnlyAdminCanUninstall=بۇ قاچىلاشنى پەقەت باشقۇرغۇچىلىق ھوقۇقى بار ئىشلەتكۈچى چىقىرىۋېتەلەيدۇ.
+UninstallStatusLabel=كومپيۇتېرىڭىزدىن %1 چىقىرىلىۋاتىدۇ، سەل ساقلاڭ.
+UninstalledAll=%1 نى كومپيۇتېرىڭىزدىن ئوڭۇشلۇق چىقىرىۋەتتى.
+UninstalledMost=%1 چىقىرىۋەتتى.%n%nبەزى ئېلېمېنتلارنى چىقىرىۋېتەلمىدى. بۇلارنى ئۆزىڭىز چىقىرىۋەتسىڭىز بولىدۇ.
+UninstalledAndNeedsRestart=%1 نى چىقىرىۋېتىش ئۈچۈن، كومپيۇتېرىڭىزنى قايتا قوزغىتىش كېرەك.%n%nھازىرلا قايتا قوزغىتامسىز؟
+UninstallDataCorrupted=«%1» ھۆججىتى بۇزۇلغان. چىقىرىۋېتەلمەيدۇ
 
-; ‫*** ‫Shutdown ‫block ‫reasons
-ShutdownBlockReasonInstallingApp=‫‮‫‫‮‫%1نى ‫قاچىلاۋاتىدۇ.
-ShutdownBlockReasonUninstallingApp=‫‮‫‫‮‫%1نى ‫ئۆچۈرۈۋاتىدۇ.
+; *** Uninstallation phase messages
+ConfirmDeleteSharedFileTitle=ئورتاقلاشقان ھۆججەتنى چىقىرىۋېتەمسىز؟
+ConfirmDeleteSharedFile2=سىستېما تۆۋەندىكى ئورتاقلاشقان ھۆججەتنى ھېچقانداق پىروگراممىنىڭ ئىشلەتمەيدىغانلىقىنى كۆرسەتتى. بۇ ئورتاقلاشقان ھۆججەتنى چىقىرىۋېتەمسىز؟%n%nئەگەر بۇ ھۆججەتنى چىقىرىۋەتكەندىن كېيىن بىرەر پىروگرامما ئىشلەتسە، شۇ پىروگراممىدا نورمالسىزلىق چىقىشى مۇمكىن. ئەگەر ئىككىلەنسىڭىز، «ياق» نى تاللاڭ. ھۆججەت سىستېمىڭىزدا قالسا ھېچقانداق زىيىنى يوق.
+SharedFileNameLabel=ھۆججەت نامى:
+SharedFileLocationLabel=ئورنى:
+WizardUninstalling=چىقىرىۋېتىش ھالىتى
+StatusUninstalling=%1 نى چىقىرىۋاتىدۇ...
 
-; ‫The ‫custom ‫messages ‫below ‫aren't ‫used ‫by ‫Setup ‫itself, ‫but ‫if ‫you ‫make
-; ‫use ‫of ‫them ‫in ‫your ‫scripts, ‫you'll ‫want ‫to ‫translate ‫them.
+; *** Shutdown block reasons
+ShutdownBlockReasonInstallingApp=%1 نى قاچىلاۋاتىدۇ.
+ShutdownBlockReasonUninstallingApp=%1 نى چىقىرىۋاتىدۇ.
+
+; The custom messages below aren't used by Setup itself, but if you make
+; use of them in your scripts, you'll want to translate them.
 
 [CustomMessages]
 
-NameAndVersion=‫‮‫‫‮‫%1نىڭ ‫%2 نەشىرى
-AdditionalIcons=‫‮‫‫‮‫قوشۇمچە ‫قىسقا ‫يولى:
+NameAndVersion=%1 نەشرى %2
+AdditionalIcons=قوشۇمچە قىسقا يولى:
 CreateDesktopIcon=ئۈستەليۈزىگە قىسقا يول قۇرۇش(&D)
-CreateQuickLaunchIcon=تېز قوزغىتىش بالدىقىغا قىسقا يول قۇرۇش(&Q)
-ProgramOnTheWeb=‫‮‫‫‮‫%1تور ‫بېكەت
-UninstallProgram=‫‮‫‫‮‫%1نى ‫ئۆچۈرۈش
-LaunchProgram=‫‮‫‫‮‫%1نى ‫ئىجرا ‫قىلىش
-AssocFileExtension=‫‮‫‫‮‫%1 ‫بىلەن ‫%2 ‫بولغان ‫ھۆججەت ‫نامىنى ‫باغلاش (&A)
-AssocingFileExtension=‫‮‫‫‮‫ھازىر%1 ‫بىلەن ‫%2 ‫بولغان ‫ھۆججەت ‫نامى ‫باغلىنىۋاتىدۇ...…
-AutoStartProgramGroupDescription=‫‮‫‫‮‫قوزغىتىش:
-AutoStartProgram=‫‮‫‫‮‫%1 ‫نى ‫ئاپتوماتىك ‫قوزغىتىش
-AddonHostProgramNotFound=‫‮‫‫‮‫سىز ‫تاللىغان ‫ھۆججەت ‫قىسقۇچتا ‫%1نى ‫تاپالمىدى.%n%nشۇنداقتىمۇ ‫داۋاملاشتۇرامسىز؟
+CreateQuickLaunchIcon=تېز قوزغىتىشقا قىسقا يول قۇرۇش(&Q)
+ProgramOnTheWeb=توردىكى %1
+UninstallProgram=%1 نى چىقىرىۋېتىش
+LaunchProgram=%1 نى قوزغىتىش
+AssocFileExtension=%1 نى %2 ھۆججەت كېڭەيتمە نامى بىلەن باغلاش(&A)
+AssocingFileExtension=%1 نى %2 ھۆججەت كېڭەيتمە نامى بىلەن باغلاۋاتىدۇ...
+AutoStartProgramGroupDescription=قوزغىتىش:
+AutoStartProgram=%1 نى ئاپتوماتىك قوزغىتىش
+AddonHostProgramNotFound=سىز تاللىغان قىسقۇچتا %1 تېپىلمىدى.%n%nشۇنداقتىمۇ داۋاملاشتۇرامسىز؟

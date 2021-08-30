@@ -742,7 +742,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li><i>Key</i> specifies the name of the key to read.</li>
 <li><i>DefaultValue</i> determines the string to embed if the specified key does not exist.</li>
 <li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
-<li><i>Filename, Section,</i> and <i>Key</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
+<li><i>Filename, Section, Key</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
 <pre>{ini:{win}\MyProg.ini,Settings,Path|{autopf}\My Program}</pre>
