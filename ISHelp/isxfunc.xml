@@ -1230,7 +1230,7 @@ end;
   SHA256: String;
 begin
   SHA256 := GetSHA256OfUnicodeString('Test');
-  // SHA256 = 'fe520676b1a1d93dabab2319eea03674f3632eaeeb163d1e88244f5eb1de10eb'
+  // SHA256 = 'e6fa3ca87b1b641ab646d3b4933bba8d0970763f030b6578a60abdeae7366247'
 end;
 </pre></example>
       </function>
