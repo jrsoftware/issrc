@@ -37,7 +37,9 @@ type
     SubItem: string;
     ThreadCache: set of Byte;
     MeasuredHeight: Integer;
+    ItemFontColor: TColor;
     ItemFontStyle: TFontStyles;
+    SubItemFontColor: TColor;
     SubItemFontStyle: TFontStyles;
   end;
 
@@ -111,11 +113,13 @@ type
     function GetCaption(Index: Integer): String;
     function GetChecked(Index: Integer): Boolean;
     function GetItemEnabled(Index: Integer): Boolean;
+    function GetItemFontColor(Index: Integer): TColor;
     function GetItemFontStyle(Index: Integer): TFontStyles;
     function GetLevel(Index: Integer): Byte;
     function GetObject(Index: Integer): TObject;
     function GetState(Index: Integer): TCheckBoxState;
     function GetSubItem(Index: Integer): string;
+    function GetSubItemFontColor(Index: Integer): TColor;
     function GetSubItemFontStyle(Index: Integer): TFontStyles;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
@@ -128,11 +132,13 @@ type
     procedure SetChecked(Index: Integer; const AChecked: Boolean);
     procedure SetFlat(Value: Boolean);
     procedure SetItemEnabled(Index: Integer; const AEnabled: Boolean);
+    procedure SetItemFontColor(Index: Integer; const AItemFontColor: TColor);
     procedure SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
     procedure SetObject(Index: Integer; const AObject: TObject);
     procedure SetOffset(AnOffset: Integer);
     procedure SetShowLines(Value: Boolean);
     procedure SetSubItem(Index: Integer; const ASubItem: String);
+    procedure SetSubItemFontColor(Index: Integer; const ASubItemFontColor: TColor);
     procedure SetSubItemFontStyle(Index: Integer; const ASubItemFontStyle: TFontStyles);
     property ItemStates[Index: Integer]: TItemState read GetItemState;
   public
@@ -153,11 +159,13 @@ type
     property Checked[Index: Integer]: Boolean read GetChecked write SetChecked;
     property ItemCaption[Index: Integer]: String read GetCaption write SetCaption;
     property ItemEnabled[Index: Integer]: Boolean read GetItemEnabled write SetItemEnabled;
+    property ItemFontColor[Index: Integer]: TColor read GetItemFontColor write SetItemFontColor;
     property ItemFontStyle[Index: Integer]: TFontStyles read GetItemFontStyle write SetItemFontStyle;
     property ItemLevel[Index: Integer]: Byte read GetLevel;
     property ItemObject[Index: Integer]: TObject read GetObject write SetObject;
     property ItemSubItem[Index: Integer]: string read GetSubItem write SetSubItem;
     property State[Index: Integer]: TCheckBoxState read GetState;
+    property SubItemFontColor[Index: Integer]: TColor read GetSubItemFontColor write SetSubItemFontColor;
     property SubItemFontStyle[Index: Integer]: TFontStyles read GetSubItemFontStyle write SetSubItemFontStyle;
   published
     property Align;
@@ -868,6 +876,14 @@ begin
       if FUseRightToLeft then
         DrawTextFormat := DrawTextFormat or (DT_RIGHT or DT_RTLREADING);
       Font.Style := ItemState.SubItemFontStyle;
+      { Set FontColor for SubItem }
+      if ItemStates[Index].SubItemFontColor <> 0 then
+         Font.Color := ItemState.SubItemFontColor
+      else
+         Font.Color := NewTextColor;
+      { Inverted Color for selected&focused SubItem when not WantTabs mode }
+      //if not FWantTabs and (odSelected in State) and Focused then
+      //   Font.Color := ColorToRGB(ItemState.SubItemFontColor) xor $00FFFFFF;
       SetRectEmpty(SubItemRect);
       InternalDrawText(ItemState.SubItem, SubItemRect, DrawTextFormat or
         DT_CALCRECT, False);
@@ -893,6 +909,14 @@ begin
     if FUseRightToLeft then
       DrawTextFormat := DrawTextFormat or (DT_RIGHT or DT_RTLREADING);
     Font.Style := ItemState.ItemFontStyle;
+    { Set FontColor for Item }
+    if ItemStates[Index].ItemFontColor <> 0 then
+       Font.Color := ItemState.ItemFontColor
+    else
+       Font.Color := NewTextColor;
+    { Inverted Color for selected&focused Item when not WantTabs mode }
+    //if not FWantTabs and (odSelected in State) and Focused then
+    //   Font.Color := ColorToRGB(ItemState.ItemFontColor) xor $00FFFFFF;
     { When you call DrawText with the DT_CALCRECT flag and there's a word wider
       than the rectangle width, it increases the rectangle width and wraps
       at the new Right point. On the other hand, when you call DrawText
@@ -1075,6 +1099,11 @@ begin
   Result := ItemStates[Index].Enabled;
 end;
 
+function TNewCheckListBox.GetItemFontColor(Index: Integer): TColor;
+begin
+  Result := ItemStates[Index].ItemFontColor;
+end;
+
 function TNewCheckListBox.GetItemFontStyle(Index: Integer): TFontStyles;
 begin
   Result := ItemStates[Index].ItemFontStyle;
@@ -1119,6 +1148,11 @@ end;
 function TNewCheckListBox.GetSubItem(Index: Integer): String;
 begin
   Result := ItemStates[Index].SubItem;
+end;
+
+function TNewCheckListBox.GetSubItemFontColor(Index: Integer): TColor;
+begin
+  Result := ItemStates[Index].SubItemFontColor;
 end;
 
 function TNewCheckListBox.GetSubItemFontStyle(Index: Integer): TFontStyles;
@@ -1501,6 +1535,17 @@ begin
   end;
 end;
 
+procedure TNewCheckListBox.SetItemFontColor(Index: Integer; const AItemFontColor: TColor);
+var
+  R: TRect;
+begin
+  if ItemStates[Index].ItemFontColor <> AItemFontColor then begin
+    ItemStates[Index].ItemFontColor := AItemFontColor;
+    R := ItemRect(Index);
+    InvalidateRect(Handle, @R, True);
+  end;
+end;
+
 procedure TNewCheckListBox.SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
 var
   R: TRect;
@@ -1557,6 +1602,17 @@ begin
       end;
       UpdateScrollRange;
     end;
+    InvalidateRect(Handle, @R, True);
+  end;
+end;
+
+procedure TNewCheckListBox.SetSubItemFontColor(Index: Integer; const ASubItemFontColor: TColor);
+var
+  R: TRect;
+begin
+  if ItemStates[Index].SubItemFontColor <> ASubItemFontColor then begin
+    ItemStates[Index].SubItemFontColor := ASubItemFontColor;
+    R := ItemRect(Index);
     InvalidateRect(Handle, @R, True);
   end;
 end;

@@ -86,7 +86,9 @@ begin
     RegisterProperty('ItemLevel', 'Byte Integer', iptr);
     RegisterProperty('ItemObject', 'TObject Integer', iptrw);
     RegisterProperty('ItemSubItem', 'String Integer', iptrw);
+    RegisterProperty('ItemFontColor', 'TColor Integer', iptrw);
     RegisterProperty('ItemFontStyle', 'TFontStyles Integer', iptrw);
+    RegisterProperty('SubItemFontColor', 'TColor Integer', iptrw);
     RegisterProperty('SubItemFontStyle', 'TFontStyles Integer', iptrw);
     RegisterProperty('Flat', 'Boolean', iptrw);
     RegisterProperty('MinItemHeight', 'Integer', iptrw);
