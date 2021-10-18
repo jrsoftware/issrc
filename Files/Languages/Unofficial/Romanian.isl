@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.3+ Romanian messages ***
+ï»¿; *** Inno Setup version 5.5.3+ Romanian messages ***
 ; Translator : Alexandru Bogdan Munteanu (muntealb@gmail.com)
 ;
 ; To download user-contributed translations of this file, go to:
@@ -14,7 +14,7 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Rom<00E2>n<0103>
 LanguageID=$0418
-LanguageCodePage=1250
+LanguageCodePage=0
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=
@@ -35,42 +35,42 @@ UninstallAppTitle=Dezinstalare
 UninstallAppFullTitle=Dezinstalare %1
 
 ; *** Misc. common
-InformationTitle=Informaşii
+InformationTitle=InformaÈ›ii
 ConfirmTitle=Confirmare
 ErrorTitle=Eroare
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Va fi instalat programul %1. Vrei sã continui?
-LdrCannotCreateTemp=Nu pot crea o filã temporarã. Instalare abandonatã
-LdrCannotExecTemp=Nu pot executa o filã din dosarul temporar. Instalare abandonatã
+SetupLdrStartupMessage=Va fi instalat programul %1. Vrei sÄƒ continui?
+LdrCannotCreateTemp=Nu pot crea o filÄƒ temporarÄƒ. Instalare abandonatÄƒ
+LdrCannotExecTemp=Nu pot executa o filÄƒ din dosarul temporar. Instalare abandonatÄƒ
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nEroarea %2: %3
-SetupFileMissing=Fila %1 lipseºte din dosarul de instalare. Corecteazã problema sau foloseºte o altã copie a programului.
-SetupFileCorrupt=Filele de instalare sînt stricate (corupte). Foloseºte o altã copie a programului.
-SetupFileCorruptOrWrongVer=Filele de instalare sînt stricate (corupte) sau sînt incompatibile cu aceastã versiune a Instalatorului. Remediazã problema sau foloseºte o altã copie a programului.
-InvalidParameter=Un parametru invalid a fost trecut cãtre linia de comandã:%n%n%1
-SetupAlreadyRunning=Instalarea ruleazã deja.
-WindowsVersionNotSupported=Acest program nu suportã versiunea de Windows care ruleazã pe calculatorul tãu.
-WindowsServicePackRequired=Acest program necesitã %1 Service Pack %2 sau mai nou.
+SetupFileMissing=Fila %1 lipseÈ™te din dosarul de instalare. CorecteazÄƒ problema sau foloseÈ™te o altÄƒ copie a programului.
+SetupFileCorrupt=Filele de instalare sunt stricate (corupte). FoloseÈ™te o altÄƒ copie a programului.
+SetupFileCorruptOrWrongVer=Filele de instalare sunt stricate (corupte) sau sunt incompatibile cu aceastÄƒ versiune a Instalatorului. RemediazÄƒ problema sau foloseÈ™te o altÄƒ copie a programului.
+InvalidParameter=Un parametru invalid a fost trecut cÄƒtre linia de comandÄƒ:%n%n%1
+SetupAlreadyRunning=Instalarea ruleazÄƒ deja.
+WindowsVersionNotSupported=Acest program nu suportÄƒ versiunea de Windows care ruleazÄƒ pe calculatorul tÄƒu.
+WindowsServicePackRequired=Acest program necesitÄƒ %1 Service Pack %2 sau mai nou.
 NotOnThisPlatform=Acest program nu va rula pe %1.
-OnlyOnThisPlatform=Acest program trebuie sã ruleze pe %1.
-OnlyOnTheseArchitectures=Acest program poate fi instalat doar pe versiuni de Windows proiectate pentru urmãtoarele arhitecturi de procesor:%n%n%1
-MissingWOW64APIs=Versiunea de Windows pe care o rulezi nu include funcşionalitatea cerutã de Instalator pentru a realiza o instalare pe 64-bişi. Pentru a corecta problema, va trebui sã instalezi Service Pack %1.
-WinVersionTooLowError=Acest program necesitã %1 versiunea %2 sau mai nouã.
-WinVersionTooHighError=Acest program nu poate fi instalat pe %1 versiunea %2 sau mai nouã.
-AdminPrivilegesRequired=Trebuie sã fii logat ca Administrator pentru instalarea acestui program.
-PowerUserPrivilegesRequired=Trebuie sã fii logat ca Administrator sau ca Membru al Grupului de Utilizatori Pricepuşi ("Power Users") pentru a instala acest program.
-SetupAppRunningError=Instalatorul a detectat cã %1 ruleazã în acest moment.%n%nÎnchide toate instanşele programului respectiv, apoi clicheazã OK pentru a continua sau Anuleazã pentru a abandona instalarea.
-UninstallAppRunningError=Dezinstalatorul a detectat cã %1 ruleazã în acest moment.%n%nÎnchide toate instanşele programului respectiv, apoi clicheazã OK pentru a continua sau Anuleazã pentru a abandona dezinstalarea.
+OnlyOnThisPlatform=Acest program trebuie sÄƒ ruleze pe %1.
+OnlyOnTheseArchitectures=Acest program poate fi instalat doar pe versiuni de Windows proiectate pentru urmÄƒtoarele arhitecturi de procesor:%n%n%1
+MissingWOW64APIs=Versiunea de Windows pe care o rulezi nu include funcÈ›ionalitatea cerutÄƒ de Instalator pentru a realiza o instalare pe 64-biÈ›i. Pentru a corecta problema, va trebui sÄƒ instalezi Service Pack %1.
+WinVersionTooLowError=Acest program necesitÄƒ %1 versiunea %2 sau mai nouÄƒ.
+WinVersionTooHighError=Acest program nu poate fi instalat pe %1 versiunea %2 sau mai nouÄƒ.
+AdminPrivilegesRequired=Trebuie sÄƒ fii logat ca Administrator pentru instalarea acestui program.
+PowerUserPrivilegesRequired=Trebuie sÄƒ fii logat ca Administrator sau ca Membru al Grupului de Utilizatori PricepuÈ›i ("Power Users") pentru a instala acest program.
+SetupAppRunningError=AplicaÈ›ia a detectat cÄƒ %1 ruleazÄƒ Ã®n acest moment.%n%nÃnchide toate instanÈ›ele programului respectiv, apoi apasÄƒ OK pentru a continua sau AnuleazÄƒ pentru a abandona instalarea.
+UninstallAppRunningError=Dezinstalatorul a detectat cÄƒ %1 ruleazÄƒ Ã®n acest moment.%n%nÃnchide toate instanÈ›ele programului respectiv, apoi apasÄƒ OK pentru a continua sau AnuleazÄƒ pentru a abandona dezinstalarea.
 
 ; *** Misc. errors
-ErrorCreatingDir=Instalatorul nu a putut crea dosarul "%1"
-ErrorTooManyFilesInDir=Nu pot crea o filã în dosarul "%1" din cauzã cã are deja prea multe file
+ErrorCreatingDir=AplicaÈ›ia nu a putut crea dosarul "%1"
+ErrorTooManyFilesInDir=Nu pot crea o filÄƒ Ã®n dosarul "%1" din cauzÄƒ cÄƒ are deja prea multe file
 
 ; *** Setup common messages
-ExitSetupTitle=Abandonarea Instalãrii
-ExitSetupMessage=Instalarea nu este terminatã. Dacã o abandonezi acum, programul nu va fi instalat.%n%nPoşi sã rulezi Instalatorul din nou altã datã pentru a termina instalarea.%n%nAbandonezi Instalarea?
+ExitSetupTitle=Abandonarea instalÄƒrii
+ExitSetupMessage=Instalarea nu este terminatÄƒ. DacÄƒ o abandonezi acum, programul nu va fi instalat.%n%nPoÈ›i sÄƒ rulezi aplicaÈ›ia din nou altÄƒ datÄƒ pentru a termina instalarea.%n%nAbandonezi instalarea?
 AboutSetupMenuItem=&Despre Instalator...
 AboutSetupTitle=Despre Instalator
 AboutSetupMessage=%1 versiunea %2%n%3%n%n%1 sit:%n%4
@@ -78,240 +78,240 @@ AboutSetupNote=
 TranslatorNote=
 
 ; *** Buttons
-ButtonBack=< Îna&poi
-ButtonNext=&Continuã >
-ButtonInstall=&Instaleazã
+ButtonBack=< Ãna&poi
+ButtonNext=&ContinuÄƒ >
+ButtonInstall=&InstaleazÄƒ
 ButtonOK=OK
-ButtonCancel=Anuleazã
+ButtonCancel=AnuleazÄƒ
 ButtonYes=&Da
 ButtonYesToAll=Da la &Tot
 ButtonNo=&Nu
 ButtonNoToAll=N&u la Tot
-ButtonFinish=&Finalizeazã
-ButtonBrowse=&Exploreazã...
-ButtonWizardBrowse=Explo&reazã...
-ButtonNewFolder=Creea&zã Dosar Nou
+ButtonFinish=&FinalizeazÄƒ
+ButtonBrowse=&ExploreazÄƒ...
+ButtonWizardBrowse=Explo&reazÄƒ...
+ButtonNewFolder=Creea&zÄƒ Dosar Nou
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Selectarea Limbii Instalatorului
-SelectLanguageLabel=Selecteazã limba folositã pentru instalare:
+SelectLanguageLabel=SelecteazÄƒ limba folositÄƒ pentru instalare:
 
 ; *** Common wizard text
-ClickNext=Clicheazã pe Continuã pentru a avansa cu instalarea sau pe Anuleazã pentru a o abandona.
+ClickNext=ApasÄƒ pe ContinuÄƒ pentru a avansa cu instalarea sau pe AnuleazÄƒ pentru a o abandona.
 BeveledLabel=
-BrowseDialogTitle=Explorare dupã Dosar
-BrowseDialogLabel=Selecteazã un dosar din lista de mai jos, apoi clicheazã pe OK.
+BrowseDialogTitle=Explorare dupÄƒ dosar
+BrowseDialogLabel=SelecteazÄƒ un dosar din lista de mai jos, apoi apasÄƒ pe OK.
 NewFolderName=Dosar Nou
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Bun venit la Instalarea [name]
-WelcomeLabel2=Programul [name/ver] va fi instalat pe calculator.%n%nEste recomandat sã închizi toate celelalte aplicaşii înainte de a continua.
+WelcomeLabel2=Programul [name/ver] va fi instalat pe calculator.%n%nEste recomandat sÄƒ Ã®nchizi toate celelalte aplicaÈ›ii Ã®nainte de a continua.
 
 ; *** "Password" wizard page
-WizardPassword=Parolã
-PasswordLabel1=Aceastã instalare este protejatã prin parolã.
-PasswordLabel3=Completeazã parola, apoi clicheazã pe Continuã pentru a merge mai departe. Tipul literelor din parolã (Majuscule/minuscule) este luat în considerare.
-PasswordEditLabel=&Parolã:
-IncorrectPassword=Parola pe care ai introdus-o nu este corectã. Reîncearcã.
+WizardPassword=ParolÄƒ
+PasswordLabel1=AceastÄƒ instalare este protejatÄƒ prin parolÄƒ.
+PasswordLabel3=CompleteazÄƒ parola, apoi apasÄƒ pe ContinuÄƒ pentru a merge mai departe. Tipul literelor din parolÄƒ (Majuscule/minuscule) este luat Ã®n considerare.
+PasswordEditLabel=&ParolÄƒ:
+IncorrectPassword=Parola pe care ai introdus-o nu este corectÄƒ. ReÃ®ncearcÄƒ.
 
 ; *** "License Agreement" wizard page
-WizardLicense=Acord de Licenşiere
-LicenseLabel=Citeºte informaşiile urmãtoare înainte de a continua, sînt importante.
-LicenseLabel3=Citeºte urmãtorul Acord de Licenşiere. Trebuie sã accepşi termenii acestui acord înainte de a continua instalarea.
-LicenseAccepted=&Accept licenşa
-LicenseNotAccepted=&Nu accept licenşa
+WizardLicense=Acord de licenÈ›iere
+LicenseLabel=CiteÈ™te informaÈ›iile urmÄƒtoare Ã®nainte de a continua, sunt importante.
+LicenseLabel3=CiteÈ™te urmÄƒtorul Acord de licenÈ›iere. Trebuie sÄƒ accepÈ›i termenii acestui acord Ã®nainte de a continua instalarea.
+LicenseAccepted=&Accept licenÈ›a
+LicenseNotAccepted=&Nu accept licenÈ›a
 
 ; *** "Information" wizard pages
-WizardInfoBefore=Informaşii
-InfoBeforeLabel=Citeºte informaşiile urmãtoare înainte de a continua, sînt importante.
-InfoBeforeClickLabel=Cînd eºti gata de a trece la Instalare, clicheazã pe Continuã.
-WizardInfoAfter=Informaşii
-InfoAfterLabel=Citeºte informaşiile urmãtoare înainte de a continua, sînt importante.
-InfoAfterClickLabel=Cînd eºti gata de a trece la Instalare, clicheazã pe Continuã.
+WizardInfoBefore=InformaÈ›ii
+InfoBeforeLabel=CiteÈ™te informaÈ›iile urmÄƒtoare Ã®nainte de a continua, sunt importante.
+InfoBeforeClickLabel=CÃ®nd eÈ™ti gata de a trece la Instalare, apasÄƒ pe ContinuÄƒ.
+WizardInfoAfter=InformaÈ›ii
+InfoAfterLabel=CiteÈ™te informaÈ›iile urmÄƒtoare Ã®nainte de a continua, sunt importante.
+InfoAfterClickLabel=CÃ®nd eÈ™ti gata de a trece la Instalare, apasÄƒ pe ContinuÄƒ.
 
 ; *** "User Information" wizard page
-WizardUserInfo=Informaşii despre Utilizator
-UserInfoDesc=Completeazã informaşiile cerute.
+WizardUserInfo=InformaÈ›ii despre Utilizator
+UserInfoDesc=CompleteazÄƒ informaÈ›iile cerute.
 UserInfoName=&Utilizator:
-UserInfoOrg=&Organizaşie:
-UserInfoSerial=Numãr de &Serie:
-UserInfoNameRequired=Trebuie sã introduci un nume.
+UserInfoOrg=&OrganizaÈ›ie:
+UserInfoSerial=NumÄƒr de &Serie:
+UserInfoNameRequired=Trebuie sÄƒ introduci un nume.
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=Selectarea Locului de Destinaşie
-SelectDirDesc=Unde vrei sã instalezi [name]?
-SelectDirLabel3=Instalatorul va pune [name] în dosarul specificat mai jos.
-SelectDirBrowseLabel=Pentru a avansa cu instalarea, clicheazã pe Continuã. Dacã vrei sã selectezi un alt dosar, clicheazã pe Exploreazã.
-DiskSpaceMBLabel=Este necesar un spaşiu liber de stocare de cel puşin [mb] MB.
-CannotInstallToNetworkDrive=Instalatorul nu poate realiza instalarea pe un dispozitiv de reşea.
-CannotInstallToUNCPath=Instalatorul nu poate realiza instalarea pe o cale în format UNC.
-InvalidPath=Trebuie sã introduci o cale completã, inclusiv litera dispozitivului; de exemplu:%n%nC:\APP%n%nsau o cale UNC de forma:%n%n\\server\share
-InvalidDrive=Dispozitivul sau partajul UNC pe care l-ai selectat nu existã sau nu este accesibil. Selecteazã altul.
-DiskSpaceWarningTitle=Spaşiu de Stocare Insuficient
-DiskSpaceWarning=Instalarea necesitã cel puşin %1 KB de spaşiu de stocare liber, dar dispozitivul selectat are doar %2 KB liberi.%n%nVrei sã continui oricum?
-DirNameTooLong=Numele dosarului sau al cãii este prea lung.
+WizardSelectDir=Selectarea locului de destinaÈ›ie
+SelectDirDesc=Unde vrei sÄƒ instalezi [name]?
+SelectDirLabel3=AplicaÈ›ia va pune [name] Ã®n dosarul specificat mai jos.
+SelectDirBrowseLabel=Pentru a avansa cu instalarea, apasÄƒ pe ContinuÄƒ. DacÄƒ vrei sÄƒ selectezi un alt dosar, apasÄƒ pe ExploreazÄƒ.
+DiskSpaceMBLabel=Este necesar un spaÈ›iu liber de stocare de cel puÈ›in [mb] MB.
+CannotInstallToNetworkDrive=AplicaÈ›ia nu poate realiza instalarea pe un dispozitiv de reÈ›ea.
+CannotInstallToUNCPath=AplicaÈ›ia nu poate realiza instalarea pe o cale Ã®n format UNC.
+InvalidPath=Trebuie sÄƒ introduci o cale completÄƒ, inclusiv litera dispozitivului; de exemplu:%n%nC:\APP%n%nsau o cale UNC de forma:%n%n\\server\share
+InvalidDrive=Dispozitivul sau partajul UNC pe care l-ai selectat nu existÄƒ sau nu este accesibil. SelecteazÄƒ altul.
+DiskSpaceWarningTitle=SpaÈ›iu de Stocare Insuficient
+DiskSpaceWarning=Instalarea necesitÄƒ cel puÈ›in %1 KB de spaÈ›iu de stocare liber, dar dispozitivul selectat are doar %2 KB liberi.%n%nVrei sÄƒ continui oricum?
+DirNameTooLong=Numele dosarului sau al cÄƒii este prea lung.
 InvalidDirName=Numele dosarului nu este valid.
-BadDirName32=Numele dosarelor nu pot include unul din urmãtoarele caractere:%n%n%1
-DirExistsTitle=Dosarul Existã
-DirExists=Dosarul:%n%n%1%n%nexistã deja. Vrei totuºi sã instalezi în acel dosar?
-DirDoesntExistTitle=Dosarul Nu Existã
-DirDoesntExist=Dosarul:%n%n%1%n%nnu existã. Vrei ca el sã fie creat?
+BadDirName32=Numele dosarelor nu pot include unul din urmÄƒtoarele caractere:%n%n%1
+DirExistsTitle=Dosarul ExistÄƒ
+DirExists=Dosarul:%n%n%1%n%nexistÄƒ deja. Vrei totuÈ™i sÄƒ instalezi Ã®n acel dosar?
+DirDoesntExistTitle=Dosarul Nu ExistÄƒ
+DirDoesntExist=Dosarul:%n%n%1%n%nnu existÄƒ. Vrei ca el sÄƒ fie creat?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=Selectarea Componentelor
 SelectComponentsDesc=Care dintre componente trebuie instalate?
-SelectComponentsLabel2=Selecteazã componentele de instalat; deselecteazã componentele care nu trebuie instalate. Clicheazã pe Continuã pentru a merge mai departe.
-FullInstallation=Instalare Completã
+SelectComponentsLabel2=SelecteazÄƒ componentele de instalat; deselecteazÄƒ componentele care nu trebuie instalate. ApasÄƒ pe ContinuÄƒ pentru a merge mai departe.
+FullInstallation=Instalare CompletÄƒ
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
-CompactInstallation=Instalare Compactã
-CustomInstallation=Instalare Personalizatã
-NoUninstallWarningTitle=Componentele Existã
-NoUninstallWarning=Instalatorul a detectat cã urmãtoarele componente sînt deja instalate pe calculator:%n%n%1%n%nDeselectarea lor nu le va dezinstala.%n%nVrei sã continui oricum?
+CompactInstallation=Instalare CompactÄƒ
+CustomInstallation=Instalare PersonalizatÄƒ
+NoUninstallWarningTitle=Componentele ExistÄƒ
+NoUninstallWarning=AplicaÈ›ia a detectat cÄƒ urmÄƒtoarele componente sunt deja instalate pe calculator:%n%n%1%n%nDeselectarea lor nu le va dezinstala.%n%nVrei sÄƒ continui oricum?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceMBLabel=Selecşia curentã necesitã cel puşin [mb] MB spaşiu de stocare.
+ComponentsDiskSpaceMBLabel=SelecÈ›ia curentÄƒ necesitÄƒ cel puÈ›in [mb] MB spaÈ›iu de stocare.
 
 ; *** "Select Additional Tasks" wizard page
-WizardSelectTasks=Selectarea Sarcinilor Suplimentare
-SelectTasksDesc=Ce sarcini suplimentare trebuie îndeplinite?
-SelectTasksLabel2=Selecteazã sarcinile suplimentare care trebuie îndeplinite în timpul instalãrii [name], apoi clicheazã pe Continuã.
+WizardSelectTasks=Selectarea sarcinilor suplimentare
+SelectTasksDesc=Ce sarcini suplimentare trebuie Ã®ndeplinite?
+SelectTasksLabel2=SelecteazÄƒ sarcinile suplimentare care trebuie Ã®ndeplinite Ã®n timpul instalÄƒrii [name], apoi apasÄƒ pe ContinuÄƒ.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Selectarea Dosarului din Meniul de Start
-SelectStartMenuFolderDesc=Unde trebuie sã fie plasate scurtãturile programului?
-SelectStartMenuFolderLabel3=Scurtãturile vor fi plasate în dosarul specificat mai jos al Meniului de Start.
-SelectStartMenuFolderBrowseLabel=Pentru a avansa cu instalarea, clicheazã pe Continuã. Dacã vrei sã selectezi un alt dosar, clicheazã pe Exploreazã.
-MustEnterGroupName=Trebuie sã introduci numele dosarului.
-GroupNameTooLong=Numele dosarului sau al cãii este prea lung.
+WizardSelectProgramGroup=Selectarea dosarului din meniul de Start
+SelectStartMenuFolderDesc=Unde trebuie sÄƒ fie plasate scurtÄƒturile programului?
+SelectStartMenuFolderLabel3=ScurtÄƒturile vor fi plasate Ã®n dosarul specificat mai jos al meniului de Start.
+SelectStartMenuFolderBrowseLabel=Pentru a avansa cu instalarea, apasÄƒ pe ContinuÄƒ. DacÄƒ vrei sÄƒ selectezi un alt dosar, apasÄƒ pe ExploreazÄƒ.
+MustEnterGroupName=Trebuie sÄƒ introduci numele dosarului.
+GroupNameTooLong=Numele dosarului sau al cÄƒii este prea lung.
 InvalidGroupName=Numele dosarului nu este valid.
-BadGroupName=Numele dosarului nu poate include unul dintre caracterele urmãtoarele:%n%n%1
-NoProgramGroupCheck2=Nu crea un &dosar în Meniul de Start
+BadGroupName=Numele dosarului nu poate include unul dintre caracterele urmÄƒtoarele:%n%n%1
+NoProgramGroupCheck2=Nu crea un &dosar Ã®n Meniul de Start
 
 ; *** "Ready to Install" wizard page
-WizardReady=Pregãtit de Instalare
-ReadyLabel1=Instalatorul e pregãtit pentru instalarea [name] pe calculator.
-ReadyLabel2a=Clicheazã pe Instaleazã pentru a continua cu instalarea, sau clicheazã pe Înapoi dacã vrei sã revezi sau sã schimbi setãrile.
-ReadyLabel2b=Clicheazã pe Instaleazã pentru a continua cu instalarea.
+WizardReady=PregÄƒtit de instalare
+ReadyLabel1=AplicaÈ›ia e pregÄƒtitÄƒ pentru instalarea [name] pe calculator.
+ReadyLabel2a=ApasÄƒ pe InstaleazÄƒ pentru a continua cu instalarea sau apasÄƒ pe Ãnapoi dacÄƒ vrei sÄƒ revezi sau sÄƒ schimbi setÄƒrile.
+ReadyLabel2b=ApasÄƒ pe InstaleazÄƒ pentru a continua cu instalarea.
 ReadyMemoUserInfo=Info Utilizator:
-ReadyMemoDir=Loc de Destinaşie:
+ReadyMemoDir=Loc de destinaÈ›ie:
 ReadyMemoType=Tip de Instalare:
 ReadyMemoComponents=Componente Selectate:
-ReadyMemoGroup=Dosarul Meniului de Start:
-ReadyMemoTasks=Sarcini Suplimentare:
+ReadyMemoGroup=Dosarul din meniul de Start:
+ReadyMemoTasks=Sarcini suplimentare:
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=Pregãtire pentru Instalare
-PreparingDesc=Instalatorul pregãteºte instalarea [name] pe calculator.
-PreviousInstallNotCompleted=Instalarea/dezinstalarea anterioarã a unui program nu a fost terminatã. Va trebui sã reporneºti calculatorul pentru a termina operaşia precedentã.%n%nDupã repornirea calculatorului, ruleazã Instalatorul din nou pentru a realiza instalarea [name].
-CannotContinue=Instalarea nu poate continua. Clicheazã pe Anuleazã pentru a o închide.
-ApplicationsFound=Aplicaşiile urmãtoare folosesc file care trebuie actualizate de cãtre Instalator. Este recomandat sã permişi Instalatorului sã închidã automat aplicaşiile respective.
-ApplicationsFound2=Aplicaşiile urmãtoare folosesc file care trebuie actualizate de cãtre Instalator. Este recomandat sã permişi Instalatorului sã închidã automat aplicaşiile respective. Dupã ce instalarea e terminatã, Instalatorul va încerca sã reporneascã aplicaşiile.
-CloseApplications=Închide &automat aplicaşiile
-DontCloseApplications=Nu închi&de aplicaşiile
-ErrorCloseApplications=Instalatorul nu a putut închide automat toate aplicaşiile. Înainte de a continua, e recomandat sã închizi manual toate aplicaşiile care folosesc file ce trebuie actualizate de Instalator.
+WizardPreparing=PregÄƒtire pentru Instalare
+PreparingDesc=AplicaÈ›ia pregÄƒteÈ™te instalarea [name] pe calculator.
+PreviousInstallNotCompleted=Instalarea/dezinstalarea anterioarÄƒ a unui program nu a fost terminatÄƒ. Va trebui sÄƒ reporneÈ™ti calculatorul pentru a termina operaÈ›ia precedentÄƒ.%n%nDupÄƒ repornirea calculatorului, ruleazÄƒ AplicaÈ›ia din nou pentru a realiza instalarea [name].
+CannotContinue=Instalarea nu poate continua. ApasÄƒ pe AnuleazÄƒ pentru a o Ã®nchide.
+ApplicationsFound=AplicaÈ›iile urmÄƒtoare folosesc file care trebuie actualizate de cÄƒtre Instalator. Este recomandat sÄƒ permiÈ›i Instalatorului sÄƒ Ã®nchidÄƒ automat aplicaÈ›iile respective.
+ApplicationsFound2=AplicaÈ›iile urmÄƒtoare folosesc file care trebuie actualizate de cÄƒtre Instalator. Este recomandat sÄƒ permiÈ›i Instalatorului sÄƒ Ã®nchidÄƒ automat aplicaÈ›iile respective. DupÄƒ ce instalarea e terminatÄƒ, AplicaÈ›ia va Ã®ncerca sÄƒ reporneascÄƒ aplicaÈ›iile.
+CloseApplications=Ãnchide &automat aplicaÈ›iile
+DontCloseApplications=Nu Ã®nchi&de aplicaÈ›iile
+ErrorCloseApplications=AplicaÈ›ia nu a putut Ã®nchide automat toate aplicaÈ›iile. Ãnainte de a continua, e recomandat sÄƒ Ã®nchizi manual toate aplicaÈ›iile care folosesc file ce trebuie actualizate de Instalator.
 
 ; *** "Installing" wizard page
-WizardInstalling=Instalare în Desfãºurare
-InstallingLabel=Aºteaptã sã se termine instalarea [name] pe calculator.
+WizardInstalling=Instalare Ã®n desfÄƒÈ™urare
+InstallingLabel=AÈ™teaptÄƒ sÄƒ se termine instalarea [name] pe calculator.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=Finalizarea Instalãrii [name]
-FinishedLabelNoIcons=Instalarea [name] pe calculator a fost terminatã.
-FinishedLabel=Instalarea [name] pe calculator a fost terminatã. Aplicaşia poate fi lansatã prin clicarea pe icoanele instalate.
-ClickFinish=Clicheazã pe Finalizeazã pentru a pãrãsi Instalatorul.
-FinishedRestartLabel=Pentru a termina instalarea [name], trebuie repornit calculatorul. Vrei sã fie repornit acum?
-FinishedRestartMessage=Pentru a termina instalarea [name], trebuie repornit calculatorul.%n%nVrei sã fie repornit acum?
-ShowReadmeCheck=Da, vreau sã vãd fila de informare (README)
-YesRadio=&Da, reporneºte calculatorul acum
-NoRadio=&Nu, voi reporni eu calculatorul mai tîrziu
+FinishedHeadingLabel=Finalizarea instalÄƒrii [name]
+FinishedLabelNoIcons=Instalarea [name] pe calculator a fost terminatÄƒ.
+FinishedLabel=Instalarea [name] pe calculator a fost terminatÄƒ. AplicaÈ›ia poate fi lansatÄƒ prin apÄƒsarea pe icoanele instalate.
+ClickFinish=ApasÄƒ pe FinalizeazÄƒ pentru a pÄƒrÄƒsi aplicaÈ›ia.
+FinishedRestartLabel=Pentru a termina instalarea [name], trebuie repornit calculatorul. Vrei sÄƒ fie repornit acum?
+FinishedRestartMessage=Pentru a termina instalarea [name], trebuie repornit calculatorul.%n%nVrei sÄƒ fie repornit acum?
+ShowReadmeCheck=Da, vreau sÄƒ vÄƒd fila de informare (README)
+YesRadio=&Da, reporneÈ™te calculatorul acum
+NoRadio=&Nu, voi reporni eu calculatorul mai tÃ®rziu
 ; used for example as 'Run MyProg.exe'
-RunEntryExec=Ruleazã %1
+RunEntryExec=RuleazÄƒ %1
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Vezi %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=Instalatorul Necesitã Discul Urmãtor
-SelectDiskLabel2=Introdu Discul %1 ºi clicheazã pe OK.%n%nDacã filele de pe acest disc pot fi gãsite într-un alt dosar decît cel afiºat mai jos, introdu calea corectã sau clicheazã pe Exploreazã.
+ChangeDiskTitle=AplicaÈ›ia NecesitÄƒ Discul UrmÄƒtor
+SelectDiskLabel2=Introdu Discul %1 È™i apasÄƒ pe OK.%n%nDacÄƒ filele de pe acest disc pot fi gÄƒsite Ã®ntr-un alt dosar decÃ®t cel afiÈ™at mai jos, introdu calea corectÄƒ sau apasÄƒ pe ExploreazÄƒ.
 PathLabel=&Cale:
-FileNotInDir2=Fila "%1" nu poate fi gãsitã în "%2". Introdu discul corect sau selecteazã alt dosar.
-SelectDirectoryLabel=Specificã locul discului urmãtor.
+FileNotInDir2=Fila "%1" nu poate fi gÄƒsitÄƒ Ã®n "%2". Introdu discul corect sau selecteazÄƒ alt dosar.
+SelectDirectoryLabel=SpecificÄƒ locul discului urmÄƒtor.
 
 ; *** Installation phase messages
-SetupAborted=Instalarea nu a fost terminatã.%n%nCorecteazã problema ºi apoi ruleazã Instalarea din nou.
-EntryAbortRetryIgnore=Clicheazã pe Reîncearcã pentru a încerca din nou, pe Ignorã pentru a continua oricum, sau pe Abandoneazã pentru a anula instalarea.
+SetupAborted=Instalarea nu a fost terminatÄƒ.%n%nCorecteazÄƒ problema È™i apoi ruleazÄƒ Instalarea din nou.
+EntryAbortRetryIgnore=ApasÄƒ pe ReÃ®ncearcÄƒ pentru a Ã®ncerca din nou, pe IgnorÄƒ pentru a continua oricum, sau pe AbandoneazÄƒ pentru a anula instalarea.
 
 ; *** Installation status messages
-StatusClosingApplications=Închid aplicaşiile...
+StatusClosingApplications=Ãnchid aplicaÈ›iile...
 StatusCreateDirs=Creez dosarele...
 StatusExtractFiles=Extrag filele...
-StatusCreateIcons=Creez scurtãturile...
-StatusCreateIniEntries=Creez intrãrile INI...
-StatusCreateRegistryEntries=Creez intrãrile în registru...
-StatusRegisterFiles=Înregistrez filele...
-StatusSavingUninstall=Salvez informaşiile de dezinstalare...
+StatusCreateIcons=Creez scurtÄƒturile...
+StatusCreateIniEntries=Creez intrÄƒrile INI...
+StatusCreateRegistryEntries=Creez intrÄƒrile Ã®n registru...
+StatusRegisterFiles=Ãnregistrez filele...
+StatusSavingUninstall=Salvez informaÈ›iile de dezinstalare...
 StatusRunProgram=Finalizez instalarea...
-StatusRestartingApplications=Repornesc aplicaşiile...
-StatusRollback=Reîntorc la starea inişialã, prin anularea modificãrilor fãcute...
+StatusRestartingApplications=Repornesc aplicaÈ›iile...
+StatusRollback=ReÃ®ntorc la starea iniÈ›ialÄƒ, prin anularea modificÄƒrilor fÄƒcute...
 
 ; *** Misc. errors
-ErrorInternal2=Eroare Internã: %1
-ErrorFunctionFailedNoCode=%1 a eºuat
-ErrorFunctionFailed=%1 a eºuat; cod %2
-ErrorFunctionFailedWithMessage=%1 a eºuat; cod %2.%n%3
+ErrorInternal2=Eroare InternÄƒ: %1
+ErrorFunctionFailedNoCode=%1 a eÈ™uat
+ErrorFunctionFailed=%1 a eÈ™uat; cod %2
+ErrorFunctionFailedWithMessage=%1 a eÈ™uat; cod %2.%n%3
 ErrorExecutingProgram=Nu pot executa fila:%n%1
 
 ; *** Registry errors
 ErrorRegOpenKey=Eroare la deschiderea cheii de registru:%n%1\%2
 ErrorRegCreateKey=Eroare la crearea cheii de registru:%n%1\%2
-ErrorRegWriteKey=Eroare la scrierea în cheia de registru:%n%1\%2
+ErrorRegWriteKey=Eroare la scrierea Ã®n cheia de registru:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Eroare la crearea intrãrii INI în fiºierul "%1".
+ErrorIniEntry=Eroare la crearea intrÄƒrii INI Ã®n fiÈ™ierul "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Clicheazã pe Reîncearcã pentru a încerca din nou, pe Ignorã pentru a sãri aceastã filã (nerecomandat), sau pe Abandoneazã pentru a anula instalarea.
-FileAbortRetryIgnore2=Clicheazã pe Reîncearcã pentru a încerca din nou, pe Ignorã pentru a continua oricum (nerecomandat), sau pe Abandoneazã pentru a anula instalarea.
-SourceIsCorrupted=Fila sursã este stricatã (coruptã)
-SourceDoesntExist=Fila sursã "%1" nu existã
-ExistingFileReadOnly=Fila deja existentã este marcatã doar-citire.%n%nClicheazã pe Reîncearcã pentru a înlãtura atributul doar-citire ºi a încerca din nou, pe Ignorã pentru a sãri aceastã filã, sau pe Abandoneazã pentru a anula instalarea.
-ErrorReadingExistingDest=A apãrut o eroare în timpul citirii filei deja existente:
-FileExists=Fila existã deja.%n%Vrei ca ea sã fie suprascrisã de Instalator?
-ExistingFileNewer=Fila deja existentã este mai nouã decît cea care trebuie instalatã. Este recomandat s-o pãstrezi pe cea existentã.%n%nVrei sã pãstrezi fila deja existentã?
-ErrorChangingAttr=A apãrut o eroare în timpul schimbãrii atributelor filei deja existente:
-ErrorCreatingTemp=A apãrut o eroare în timpul creãrii filei în dosarul de destinaşie:
-ErrorReadingSource=A apãrut o eroare în timpul citirii filei sursã:
-ErrorCopying=A apãrut o eroare în timpul copierii filei:
-ErrorReplacingExistingFile=A apãrut o eroare în timpul înlocuirii filei deja existente:
-ErrorRestartReplace=Repornirea/Înlocuirea a eºuat:
-ErrorRenamingTemp=A apãrut o eroare în timpul renumirii unei file din dosarul de destinaşie:
-ErrorRegisterServer=Nu pot înregistra DLL/OCX: %1
-ErrorRegSvr32Failed=RegSvr32 a eºuat, avînd codul de ieºire %1
-ErrorRegisterTypeLib=Nu pot înregistra biblioteca de tipuri: %1
+FileAbortRetryIgnore=ApasÄƒ pe ReÃ®ncearcÄƒ pentru a Ã®ncerca din nou, pe IgnorÄƒ pentru a sÄƒri aceastÄƒ filÄƒ (nerecomandat), sau pe AbandoneazÄƒ pentru a anula instalarea.
+FileAbortRetryIgnore2=ApasÄƒ pe ReÃ®ncearcÄƒ pentru a Ã®ncerca din nou, pe IgnorÄƒ pentru a continua oricum (nerecomandat), sau pe AbandoneazÄƒ pentru a anula instalarea.
+SourceIsCorrupted=Fila sursÄƒ este stricatÄƒ (coruptÄƒ)
+SourceDoesntExist=Fila sursÄƒ "%1" nu existÄƒ
+ExistingFileReadOnly=Fila deja existentÄƒ este marcatÄƒ doar-citire.%n%nApasÄƒ pe ReÃ®ncearcÄƒ pentru a Ã®nlÄƒtura atributul doar-citire È™i a Ã®ncerca din nou, pe IgnorÄƒ pentru a sÄƒri aceastÄƒ filÄƒ, sau pe AbandoneazÄƒ pentru a anula instalarea.
+ErrorReadingExistingDest=A apÄƒrut o eroare Ã®n timpul citirii filei deja existente:
+FileExists=Fila existÄƒ deja.%n%Vrei ca ea sÄƒ fie suprascrisÄƒ de Instalator?
+ExistingFileNewer=Fila deja existentÄƒ este mai nouÄƒ decÃ®t cea care trebuie instalatÄƒ. Este recomandat s-o pÄƒstrezi pe cea existentÄƒ.%n%nVrei sÄƒ pÄƒstrezi fila deja existentÄƒ?
+ErrorChangingAttr=A apÄƒrut o eroare Ã®n timpul schimbÄƒrii atributelor filei deja existente:
+ErrorCreatingTemp=A apÄƒrut o eroare Ã®n timpul creÄƒrii filei Ã®n dosarul de destinaÈ›ie:
+ErrorReadingSource=A apÄƒrut o eroare Ã®n timpul citirii filei sursÄƒ:
+ErrorCopying=A apÄƒrut o eroare Ã®n timpul copierii filei:
+ErrorReplacingExistingFile=A apÄƒrut o eroare Ã®n timpul Ã®nlocuirii filei deja existente:
+ErrorRestartReplace=Repornirea/Ãnlocuirea a eÈ™uat:
+ErrorRenamingTemp=A apÄƒrut o eroare Ã®n timpul renumirii unei file din dosarul de destinaÈ›ie:
+ErrorRegisterServer=Nu pot Ã®nregistra DLL/OCX: %1
+ErrorRegSvr32Failed=RegSvr32 a eÈ™uat, avÃ®nd codul de ieÈ™ire %1
+ErrorRegisterTypeLib=Nu pot Ã®nregistra biblioteca de tipuri: %1
 
 ; *** Post-installation errors
-ErrorOpeningReadme=A apãrut o eroare la deschiderea filei de informare (README).
-ErrorRestartingComputer=Instalatorul nu a putut reporni calculatorul. Va trebui sã-l reporneºti manual.
+ErrorOpeningReadme=A apÄƒrut o eroare la deschiderea filei de informare (README).
+ErrorRestartingComputer=AplicaÈ›ia nu a putut reporni calculatorul. Va trebui sÄƒ-l reporneÈ™ti manual.
 
 ; *** Uninstaller messages
-UninstallNotFound=Fila "%1" nu existã. Dezinstalarea nu poate fi fãcutã.
-UninstallOpenError=Fila "%1" nu poate fi deschisã. Dezinstalarea nu poate fi fãcutã
-UninstallUnsupportedVer=Fila "%1" ce conşine jurnalul de dezinstalare este într-un format nerecunoscut de aceastã versiune a dezinstalatorului. Dezinstalarea nu poate fi fãcutã
-UninstallUnknownEntry=A fost întîlnitã o intrare necunoscutã (%1) în jurnalul de dezinstalare
-ConfirmUninstall=Sigur vrei sã înlãturi complet %1 ºi componentele sale?
-UninstallOnlyOnWin64=Aceastã instalare poate fi dezinstalatã doar pe un sistem Windows 64-bişi.
-OnlyAdminCanUninstall=Aceastã instalare poate fi dezinstalatã doar de cãtre un utilizator cu drepturi de Administrator.
-UninstallStatusLabel=Aºteaptã ca %1 sã fie înlãturat de pe calculator.
-UninstalledAll=%1 a fost înlãturat cu succes de pe calculator.
-UninstalledMost=Dezinstalare completã a %1.%n%nAnumite elemente nu au putut fi înlãturate. Acestea pot fi înlãturate manual.
-UninstalledAndNeedsRestart=Pentru a termina dezinstalarea %1, calculatorul trebuie repornit.%n%nVrei sã fie repornit acum?
-UninstallDataCorrupted=Fila "%1" este stricatã (coruptã). Dezinstalarea nu poate fi fãcutã
+UninstallNotFound=Fila "%1" nu existÄƒ. Dezinstalarea nu poate fi fÄƒcutÄƒ.
+UninstallOpenError=Fila "%1" nu poate fi deschisÄƒ. Dezinstalarea nu poate fi fÄƒcutÄƒ
+UninstallUnsupportedVer=Fila "%1" ce conÈ›ine jurnalul de dezinstalare este Ã®ntr-un format nerecunoscut de aceastÄƒ versiune a dezinstalatorului. Dezinstalarea nu poate fi fÄƒcutÄƒ
+UninstallUnknownEntry=A fost Ã®ntÃ®lnitÄƒ o intrare necunoscutÄƒ (%1) Ã®n jurnalul de dezinstalare
+ConfirmUninstall=Sigur vrei sÄƒ Ã®nlÄƒturi complet %1 È™i componentele sale?
+UninstallOnlyOnWin64=AceastÄƒ instalare poate fi dezinstalatÄƒ doar pe un sistem Windows 64-biÈ›i.
+OnlyAdminCanUninstall=AceastÄƒ instalare poate fi dezinstalatÄƒ doar de cÄƒtre un utilizator cu drepturi de Administrator.
+UninstallStatusLabel=AÈ™teaptÄƒ ca %1 sÄƒ fie Ã®nlÄƒturat de pe calculator.
+UninstalledAll=%1 a fost Ã®nlÄƒturat cu succes de pe calculator.
+UninstalledMost=Dezinstalare completÄƒ a %1.%n%nAnumite elemente nu au putut fi Ã®nlÄƒturate. Acestea pot fi Ã®nlÄƒturate manual.
+UninstalledAndNeedsRestart=Pentru a termina dezinstalarea %1, calculatorul trebuie repornit.%n%nVrei sÄƒ fie repornit acum?
+UninstallDataCorrupted=Fila "%1" este stricatÄƒ (coruptÄƒ). Dezinstalarea nu poate fi fÄƒcutÄƒ
 
 ; *** Uninstallation phase messages
-ConfirmDeleteSharedFileTitle=ªterg Fila Partajatã?
-ConfirmDeleteSharedFile2=Sistemul indicã faptul cã fila partajatã urmãtoare pare sã nu mai fie folositã de vreun alt program. Vrei ca Dezinstalatorul sã ºteargã aceastã filã partajatã?%n%nDacã totuºi mai existã programe care folosesc fila ºi ea este ºtearsã, acele programe ar putea sã funcşioneze greºit. Dacã nu eºti sigur, alege Nu. Lãsarea filei în sistem nu va produce nici o neplãcere.
-SharedFileNameLabel=Nume Filã:
+ConfirmDeleteSharedFileTitle=Âªterg Fila PartajatÄƒ?
+ConfirmDeleteSharedFile2=Sistemul indicÄƒ faptul cÄƒ fila partajatÄƒ urmÄƒtoare pare sÄƒ nu mai fie folositÄƒ de vreun alt program. Vrei ca Dezinstalatorul sÄƒ È™teargÄƒ aceastÄƒ filÄƒ partajatÄƒ?%n%nDacÄƒ totuÈ™i mai existÄƒ programe care folosesc fila È™i ea este È™tearsÄƒ, acele programe ar putea sÄƒ funcÈ›ioneze greÈ™it. DacÄƒ nu eÈ™ti sigur, alege Nu. LÄƒsarea filei Ã®n sistem nu va produce nici o neplÄƒcere.
+SharedFileNameLabel=Nume FilÄƒ:
 SharedFileLocationLabel=Loc:
-WizardUninstalling=Starea Dezinstalãrii
+WizardUninstalling=Starea DezinstalÄƒrii
 StatusUninstalling=Dezinstalez %1...
 
 ; *** Shutdown block reasons
@@ -325,13 +325,13 @@ ShutdownBlockReasonUninstallingApp=Dezinstalez %1.
 
 NameAndVersion=%1 versiunea %2
 AdditionalIcons=Icoane suplimentare:
-CreateDesktopIcon=Creeazã o icoanã pe &Birou ("Desktop")
-CreateQuickLaunchIcon=Creeazã o icoanã în Bara de &Lansare Rapidã ("Quick Launch")
+CreateDesktopIcon=CreeazÄƒ o icoanÄƒ pe &Desktop
+CreateQuickLaunchIcon=CreeazÄƒ o icoanÄƒ Ã®n Bara de &Lansare RapidÄƒ ("Quick Launch")
 ProgramOnTheWeb=%1 pe internet
-UninstallProgram=Dezinstaleazã %1
-LaunchProgram=Lanseazã %1
-AssocFileExtension=&Asociazã %1 cu extensia de file %2
+UninstallProgram=DezinstaleazÄƒ %1
+LaunchProgram=LanseazÄƒ %1
+AssocFileExtension=&AsociazÄƒ %1 cu extensia de file %2
 AssocingFileExtension=Asociez %1 cu extensia de file %2...
 AutoStartProgramGroupDescription=Pornire:
-AutoStartProgram=Porneºte automat %1
-AddonHostProgramNotFound=%1 nu poate fi gãsit în dosarul selectat.%n%nVrei sã continui oricum?
+AutoStartProgram=PorneÈ™te automat %1
+AddonHostProgramNotFound=%1 nu poate fi gÄƒsit Ã®n dosarul selectat.%n%nVrei sÄƒ continui oricum?
