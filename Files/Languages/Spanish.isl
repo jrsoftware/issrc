@@ -1,11 +1,11 @@
 ; *** Inno Setup version 6.1.0+ Spanish messages ***
 ;
 ; Maintained by Jorge Andres Brugger (jbrugger@ideaworks.com.ar)
-; Spanish.isl version 1.5.1 (20210125)
+; Spanish.isl version 1.5.2 (20211123)
 ; Default.isl version 6.1.0
 ; 
 ; Thanks to Germán Giraldo, Jordi Latorre, Ximo Tamarit, Emiliano Llano, 
-; Ramón Verduzco, Graciela García,  Carles Millan and Rafael Barranco-Droege
+; Ramón Verduzco, Graciela García, Carles Millan and Rafael Barranco-Droege
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -307,12 +307,12 @@ FileExistsSelectAction=Seleccione acción
 FileExists2=El archivo ya existe.
 FileExistsOverwriteExisting=&Sobreescribir el archivo existente
 FileExistsKeepExisting=&Mantener el archivo existente
-FileExistsOverwriteOrKeepAll=&Hacer lo mimso para lo siguientes conflictos
+FileExistsOverwriteOrKeepAll=&Hacer lo mismo para lo siguientes conflictos
 ExistingFileNewerSelectAction=Seleccione acción
 ExistingFileNewer2=El archivo existente es más reciente que el que se está tratando de instalar.
 ExistingFileNewerOverwriteExisting=&Sobreescribir el archivo existente
 ExistingFileNewerKeepExisting=&Mantener el archivo existente (recomendado)
-ExistingFileNewerOverwriteOrKeepAll=&Hacer lo mimso para lo siguientes conflictos
+ExistingFileNewerOverwriteOrKeepAll=&Hacer lo mismo para lo siguientes conflictos
 ErrorChangingAttr=Ocurrió un error al intentar cambiar los atributos del archivo:
 ErrorCreatingTemp=Ocurrió un error al intentar crear un archivo en la carpeta de destino:
 ErrorReadingSource=Ocurrió un error al intentar leer el archivo de origen:
