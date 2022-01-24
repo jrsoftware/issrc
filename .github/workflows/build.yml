@@ -1,0 +1,40 @@
+name: build
+
+on:
+  push:
+
+jobs:
+  build:
+    # Only set the topic `has-issrc-build-env` if the secrets are available
+    if: contains(github.event.repository.topics, 'has-issrc-build-env')
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: initialize build environment
+        env:
+          ISSRC_BUILD_ENV_ZIP_PASSWORD: ${{ secrets.ISSRC_BUILD_ENV_ZIP_PASSWORD }}
+          ISSRC_BUILD_ENV_ZIP_URL: ${{ secrets.ISSRC_BUILD_ENV_ZIP_URL }}
+        run: |
+          (New-Object Net.WebClient).DownloadFile($env:ISSRC_BUILD_ENV_ZIP_URL, "issrc-build-env.zip")
+          & "C:\\Program Files\\7-Zip\\7z.exe" x -oissrc-build-env -p"$env:ISSRC_BUILD_ENV_ZIP_PASSWORD" issrc-build-env.zip
+          if (!(Test-Path issrc-build-env\bin\dcc32.exe)) {
+            Write-Host "Failed to extract dcc32.exe"
+            Exit 1
+          }
+          Remove-Item issrc-build-env.zip
+          $DELPHIXEROOT = (Get-Item .\issrc-build-env).FullName
+          "DELPHIXEROOT=$DELPHIXEROOT" |  Out-File -NoNewLine -Encoding ascii -Append "$env:GITHUB_ENV"
+      - name: build ISHelpGen
+        run: |
+          cd ISHelp\ISHelpGen
+          # Using `Out-File` to avoid UTF-16LE-encoded .bat files
+          "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii compilesettings.bat
+          .\compile.bat
+      - name: build issrc
+        run: |
+          "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii compilesettings.bat
+          "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii ISHelp\compilesettings.bat
+          "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii Projects\ISPP\Help\compilesettings.bat
+          .\build.bat
