@@ -185,7 +185,9 @@ end;
 constructor TXMLDocument.Create;
 begin
   inherited Create;
-  FDoc := CreateOleObject('MSXML2.DOMDocument.4.0');
+  FDoc := CreateOleObject('MSXML2.DOMDocument.6.0');
+  FDoc.setProperty('ProhibitDTD', False);
+  FDoc.resolveExternals := True;
   FDoc.async := False;
   FDoc.preserveWhitespace := True;
 end;
