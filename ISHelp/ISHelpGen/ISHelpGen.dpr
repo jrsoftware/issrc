@@ -209,10 +209,12 @@ end;
 procedure SaveStringToFile(const S, Filename: String);
 var
   F: TFileStream;
+  U: UTF8String;
 begin
   F := TFileStream.Create(Filename, fmCreate);
   try
-    F.WriteBuffer(S[1], Length(S));
+    U := UTF8String(S);
+    F.WriteBuffer(U[1], Length(U));
   finally
     F.Free;
   end;
