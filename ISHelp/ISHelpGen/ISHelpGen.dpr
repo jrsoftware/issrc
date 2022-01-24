@@ -422,7 +422,7 @@ begin
         Result := Result + '<ol>' + ParseFormattedText(Node) + '</ol>';
       elP:
         begin
-          if Node.Attributes['margin'] = 'no' then
+          if Node.HasAttribute('margin') and (Node.Attributes['margin'] = 'no') then
             Result := Result + '<div>' + ParseFormattedText(Node) + '</div>'
           else
             Result := Result + '<p>' + ParseFormattedText(Node) + '</p>';
@@ -483,7 +483,7 @@ begin
       elUL:
         begin
           B := CurrentListIsCompact;
-          CurrentListIsCompact := (Node.Attributes['appearance'] = 'compact');
+          CurrentListIsCompact := (Node.HasAttribute('appearance') and (Node.Attributes['appearance'] = 'compact'));
           Result := Result + '<ul>' + ParseFormattedText(Node) + '</ul>';
           CurrentListIsCompact := B;
         end;
@@ -934,7 +934,7 @@ procedure Go;
       Doc.StripComments;
 
       Node := Doc.Root;
-      if Node.Attributes['version'] <> XMLFileVersion then
+      if Node.HasAttribute('version') and (Node.Attributes['version'] <> XMLFileVersion) then
         raise Exception.CreateFmt('Unrecognized file version "%s" (expected "%s")',
           [Node.Attributes['version'], XMLFileVersion]);
       Node := Node.FirstChild;
