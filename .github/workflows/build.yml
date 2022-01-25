@@ -38,3 +38,29 @@ jobs:
           "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii ISHelp\compilesettings.bat
           "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii Projects\ISPP\Help\compilesettings.bat
           .\build.bat
+      - name: copy license.txt into all artifacts
+        run: |
+          copy license.txt Files
+          copy license.txt Output
+          copy license.txt Projects/ISPP/Help/Staging
+          copy license.txt ISHelp/Staging
+      - name: upload Files
+        uses: actions/upload-artifact@v2
+        with:
+          name: Files
+          path: Files
+      - name: upload installer
+        uses: actions/upload-artifact@v2
+        with:
+          name: Output
+          path: Output
+      - name: upload ISPP/Help
+        uses: actions/upload-artifact@v2
+        with:
+          name: Help
+          path: Projects/ISPP/Help/Staging
+      - name: upload ISHelp
+        uses: actions/upload-artifact@v2
+        with:
+          name: ISHelp
+          path: ISHelp/Staging
