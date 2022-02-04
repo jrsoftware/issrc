@@ -231,6 +231,50 @@ Inno Setup-specific editing guidelines for the help files
   surround it by `<tt></tt>` so that it's displayed in the Courier New font. This is
   a convention used throughout the help file. Example: `<tt>MinVersion</tt>`
 
+Setting up Continuous Integration
+---------------------------------
+
+Delphi is not offered for download via a public link, and while there is a
+free-of-charge community version, its license terms forbid sharing it with others, or
+even let other developers (outside your direct teammates) use it. However, what _is_
+allowed is to copy the files (or a subset thereof) to another machine for the specific
+purpose of supporting unattended builds.
+
+Inno Setup's source code includes a GitHub workflow that performs such unattended
+builds upon `push` events, it requires some setting up, though.
+
+Note: The following instructions assume that you have a correctly-licensed version
+of Delphi installed into `C:\Program Files (x86(\Embarcadero\Studio\20.0`.
+
+To generate the (encrypted) `.zip` file containing the files needed to build
+Inno Setup, use [7-Zip](https://www.7-zip.org/):
+
+```
+cd C:\Program Files (x86)\Embarcadero\Studio\20.0
+"C:\Program Files\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
+	%USERPROFILE%\issrc-build-env.zip ^
+	bin\dcc32.exe bin\rlink32.dll bin\lnk*.dll ^
+	lib/win32/release/Sys*.dcu lib/win32/release/*.res ^
+	lib/win32/release/System.*.dcu lib/win32/release/System.Generics.*.dcu ^
+	lib/win32/release/System.Internal.*.dcu lib/win32/release/System.Net.*.dcu ^
+	lib/win32/release/System.Net.HttpClient.*.dcu lib/win32/release/System.Win.*.dcu ^
+	lib/win32/release/Vcl.*.dcu lib/win32/release/Vcl.Imaging.*.dcu ^
+	lib/win32/release/Winapi.*.dcu
+```
+
+Then, upload this somewhere public, e.g. by attaching it to a comment in a
+GitHub issue. After that, add this URL as a new repository
+[secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+(at https://github.com/YOUR-USER-NAME/issrc/settings/secrets/actions), under the name
+`ISSRC_BUILD_ENV_ZIP_URL`, and the password as `ISSRC_BUILD_ENV_ZIP_PASSWORD`.
+
+Finally, indicate that your fork of the repository has those secrets, by adding the
+topic `has-issrc-build-env` (click the gear icon next to the "About" label at
+https://github.com/YOUR-USER-NAME/issrc to add the topic).
+
+Once that's done, you're set! The next time you push a branch to your fork, the
+workflow will be triggered automatically.
+
 <!-- Link references -->
 [CONTRIBUTING.md]: <CONTRIBUTING.md>
 [Projects\Lzma2\Encoder]: <Projects/Lzma2/Encoder>
