@@ -1978,7 +1978,7 @@ begin
         rectSetup.bottom  = MulDiv(pagesetupMargin.bottom, ptDpi.y, 1000);
       } *)
 
-      // Dont reduce margins below the minimum printable area
+      // Don't reduce margins below the minimum printable area
       rectMargins.left := Max(rectPhysMargins.left, rectSetup.left);
       rectMargins.top := Max(rectPhysMargins.top, rectSetup.top);
       rectMargins.right := Max(rectPhysMargins.right, rectSetup.right);
@@ -2046,7 +2046,7 @@ begin
         lengthDoc := lengthDocMax;
     end;
 
-    // We must substract the physical margins from the printable area
+    // We must subtract the physical margins from the printable area
     frPrint.hdc := hdc;
     frPrint.hdcTarget := hdc;
     frPrint.rc.left := rectMargins.left - rectPhysMargins.left;

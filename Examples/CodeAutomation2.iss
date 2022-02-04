@@ -5,7 +5,7 @@
 ; Note: some unneeded interface functions which had special types have been replaced
 ; by dummies to avoid having to define those types. Do not remove these dummies as
 ; that would change the function indices which is bad. Also, not all function
-; protoypes have been tested, only those used by this example.
+; prototypes have been tested, only those used by this example.
 
 [Setup]
 AppName=My Program
