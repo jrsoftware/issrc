@@ -126,7 +126,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Support for <link topic="languagessection">multilingual</link> installs, including right-to-left language support.</li>
 
-<li>Support for <link topic="setup_password">passworded</link> and <link topic="setup_encryption">encrypted</link> installs.</li>
+<li>Support for <link topic="setup_password">password-protected</link> and <link topic="setup_encryption">encrypted</link> installs.</li>
 
 <li>Support for <link topic="setup_signtool">digitally signed</link> installs and uninstalls, including dual signing (SHA1 &amp; SHA256).</li>
 
@@ -552,7 +552,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="localappdata">{localappdata}</a></b></dt>
 <dd>
-<p>The path to the current user's local (nonroaming) Application Data folder.</p>
+<p>The path to the current user's local (non-roaming) Application Data folder.</p>
 </dd>
 
 <dt><b><a name="userappdata">{userappdata}</a></b> &amp; <b><a name="commonappdata">{commonappdata}</a></b></dt>
@@ -1096,7 +1096,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_usepreviousappdir">UsePreviousAppDir</link></li>
 <li><link topic="setup_usepreviousgroup">UsePreviousGroup</link></li>
 <li><link topic="setup_usepreviouslanguage">UsePreviousLanguage</link></li>
-<li><link topic="setup_usepreviousprivileges">UsePreviousPrivigeles</link></li>
+<li><link topic="setup_usepreviousprivileges">UsePreviousPrivileges</link></li>
 <li><link topic="setup_useprevioussetuptype">UsePreviousSetupType</link></li>
 <li><link topic="setup_useprevioustasks">UsePreviousTasks</link></li>
 <li><link topic="setup_useprevioususerinfo">UsePreviousUserInfo</link></li>
