@@ -801,7 +801,7 @@ begin
     SL.Add('<html><head></head><body><ul>');
     for I := 0 to Keywords.Count-1 do begin
       { If a keyword is used more then once, don't use anchors: the 'Topics Found'
-        dialog displayed when clicking on such a keyword doesnt display the correct
+        dialog displayed when clicking on such a keyword doesn't display the correct
         topic titles anymore for each item with an anchor. Some HTML Help bug, see
         http://social.msdn.microsoft.com/Forums/en-US/devdocs/thread/a2ee989e-4488-4edd-b034-745ed91c19e2 }
       if not MultiKeyword(Keywords[I]) then
