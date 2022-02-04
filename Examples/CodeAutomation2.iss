@@ -115,7 +115,7 @@ type
     rgfDaysOfTheWeek: WORD;
   end;
 
-  TMonthyDate = record
+  TMonthlyDate = record
     rgfDays: DWORD;
     rgfMonths: WORD;
   end;

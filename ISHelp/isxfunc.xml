@@ -899,7 +899,7 @@ end;</pre></example>
       </function>
       <function>
         <name>SameStr</name>
-        <prototype>function SameStr(const S1, S2: string): Boolan;</prototype>
+        <prototype>function SameStr(const S1, S2: string): Boolean;</prototype>
         <description><p>Compares S1 to S2, with case-sensitivity. The return value is True if they are equal.</p></description>
       </function>
       <function>
