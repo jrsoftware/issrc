@@ -1,5 +1,6 @@
 ; *** Inno Setup version 6.0.0+ Korean messages ***
 ;
+; ▒ 6.2.0+ Translator: Logan.Hwang (logan.hwang@blueant.kr)
 ; ▒ 6.0.3+ Translator: SungDong Kim (acroedit@gmail.com)
 ; ▒ 5.5.3+ Translator: Domddol (domddol@gmail.com)
 ; ▒ Translation date: MAR 04, 2014
@@ -213,6 +214,19 @@ ReadyMemoComponents=선택한 구성 요소:
 ReadyMemoGroup=시작 메뉴 폴더:
 ReadyMemoTasks=추가 작업:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=추가 파일 다운로드중...
+ButtonStopDownload=다운로드 중지(&S)
+StopDownload=다운로드를 중지하시겠습니까?
+ErrorDownloadAborted=다운로드를 중단했습니다.
+ErrorDownloadFailed=다운로드에 실패했습니다: %1 %2
+ErrorDownloadSizeFailed=다운로드 파일의 사이즈를 알 수 없습니다: %1 %2
+ErrorFileHash1=파일 해시에 실패했습니다: %1
+ErrorFileHash2=잘못된 파일 해시: 예상 값 %1, 실제 값 %2
+ErrorProgress=잘못된 진행 상황: %1 / %2
+ErrorFileSize=잘못된 파일 크기: 예상 값 %1, 실제 값 %2
+
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=설치 준비 중
 PreparingDesc=귀하의 컴퓨터에 [name] 설치를 준비하는 중입니다.
@@ -295,8 +309,16 @@ ExistingFileReadOnly2=기존 파일은 읽기 전용이기때문에 대체할 수 없습니다.
 ExistingFileReadOnlyRetry=읽기 전용 속성을 해제하고 다시 시도하려면(&R)
 ExistingFileReadOnlyKeepExisting=기존 파일을 유지(&K)
 ErrorReadingExistingDest=기존 파일을 읽는 동안 오류 발생:
-FileExists=파일이 이미 존재합니다.%n%n파일을 덮어쓰시겠습니까?
-ExistingFileNewer=기존 파일이 설치하려고 하는 파일보다 새 파일입니다, 기존 파일을 유지하시기 바랍니다.%n%n기존 파일을 유지하시겠습니까?
+FileExistsSelectAction=처리 방법을 선택하세요.
+FileExists2=파일이 이미 존재합니다.
+FileExistsOverwriteExisting=기존 파일을 덮어씁니다(&O)
+FileExistsKeepExisting=기존 파일을 유지합니다(&K)
+FileExistsOverwriteOrKeepAll=이후의 작업에 대해 동일한 처리를 수행합니다.(&D)
+ExistingFileNewerSelectAction=처리 방법을 선택하세요.
+ExistingFileNewer2=기존 파일이 설치하려고 하는 파일보다 새 파일입니다
+ExistingFileNewerOverwriteExisting=기존 파일을 덮어씁니다(&O)
+ExistingFileNewerKeepExisting=기존 파일을 유지합니다(&K) (추천)
+ExistingFileNewerOverwriteOrKeepAll=이후의 작업에 대해 동일한 처리를 수행합니다(&D)
 ErrorChangingAttr=기존 파일의 속성을 변경하는 동안 오류 발생:
 ErrorCreatingTemp=대상 폴더에 파일을 만드는 동안 오류 발생:
 ErrorReadingSource=원본 파일을 읽는 동안 오류 발생:
