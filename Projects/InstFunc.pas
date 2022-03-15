@@ -64,7 +64,7 @@ function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryP
   var ResultIndex: Integer): TDetermineDefaultLanguageResult;
 procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesProc;
   Param: Pointer);
-function GenerateNonRandomUniqueFilename(Path: String; var Filename: String): Boolean;
+function GenerateNonRandomUniqueTempDir(Path: String; var TempDir: String): Boolean;
 function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
   const Extension: String): String;
 function GetComputerNameString: String;
@@ -210,20 +210,18 @@ begin
   Result := Filename;
 end;
 
-function GenerateNonRandomUniqueFilename(Path: String; var Filename: String): Boolean;
-{ Returns True if it overwrote an existing file. }
+function GenerateNonRandomUniqueTempDir(Path: String; var TempDir: String): Boolean;
+{ Creates a new temporary directory with a non-random name. Returns True if an
+  existing directory was re-created. }
 var
   Rand, RandOrig: Longint;
-  F: THandle;
-  Success: Boolean;
-  FN: String;
+  ErrorCode: DWORD;
 begin
   Path := AddBackslash(Path);
   RandOrig := $123456;
   Rand := RandOrig;
-  Success := False;
-  Result := False;
   repeat
+    Result := False;
     Inc(Rand);
     if Rand > $1FFFFFF then Rand := 0;
     if Rand = RandOrig then
@@ -232,18 +230,20 @@ begin
       raise Exception.Create(FmtSetupMessage1(msgErrorTooManyFilesInDir,
         RemoveBackslashUnlessRoot(Path)));
     { Generate a random name }
-    FN := Path + '_iu' + IntToBase32(Rand) + '.tmp';
-    if DirExists(FN) then Continue;
-    Success := True;
-    Result := NewFileExists(FN);
-    if Result then begin
-      F := CreateFile(PChar(FN), GENERIC_READ or GENERIC_WRITE, 0,
-        nil, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-      Success := F <> INVALID_HANDLE_VALUE;
-      if Success then CloseHandle(F);
-    end;
-  until Success;
-  Filename := FN;
+    TempDir := Path + 'iu-' + IntToBase32(Rand) + '.tmp';
+    if DirExists(TempDir) then begin
+      if not DeleteDirTree(TempDir) then continue;
+      Result := True;
+    end else if NewFileExists(TempDir) then
+      if not DeleteFile(TempDir) then continue;
+
+    if CreateDirectory(PChar(TempDir), nil) then break;
+    ErrorCode := GetLastError;
+    if ErrorCode <> ERROR_ALREADY_EXISTS then
+      raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
+        [FmtSetupMessage1(msgErrorCreatingDir, TempDir), IntToStr(ErrorCode),
+         Win32ErrorString(ErrorCode)]));
+  until False; // continue until a new directory was created
 end;
 
 function CreateTempDir: String;
