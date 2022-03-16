@@ -52,6 +52,7 @@ type
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
 function CreateTempDir: String;
+function CreateSafeDirectory(Path: PWideChar; var ErrorCode: DWORD): Boolean;
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Integer);
@@ -64,7 +65,7 @@ function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryP
   var ResultIndex: Integer): TDetermineDefaultLanguageResult;
 procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesProc;
   Param: Pointer);
-function GenerateNonRandomUniqueFilename(Path: String; var Filename: String): Boolean;
+function GenerateNonRandomUniqueTempDir(Path: String; var TempDir: String): Boolean;
 function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
   const Extension: String): String;
 function GetComputerNameString: String;
@@ -210,20 +211,18 @@ begin
   Result := Filename;
 end;
 
-function GenerateNonRandomUniqueFilename(Path: String; var Filename: String): Boolean;
-{ Returns True if it overwrote an existing file. }
+function GenerateNonRandomUniqueTempDir(Path: String; var TempDir: String): Boolean;
+{ Creates a new temporary directory with a non-random name. Returns True if an
+  existing directory was re-created. }
 var
   Rand, RandOrig: Longint;
-  F: THandle;
-  Success: Boolean;
-  FN: String;
+  ErrorCode: DWORD;
 begin
   Path := AddBackslash(Path);
   RandOrig := $123456;
   Rand := RandOrig;
-  Success := False;
-  Result := False;
   repeat
+    Result := False;
     Inc(Rand);
     if Rand > $1FFFFFF then Rand := 0;
     if Rand = RandOrig then
@@ -232,18 +231,19 @@ begin
       raise Exception.Create(FmtSetupMessage1(msgErrorTooManyFilesInDir,
         RemoveBackslashUnlessRoot(Path)));
     { Generate a random name }
-    FN := Path + '_iu' + IntToBase32(Rand) + '.tmp';
-    if DirExists(FN) then Continue;
-    Success := True;
-    Result := NewFileExists(FN);
-    if Result then begin
-      F := CreateFile(PChar(FN), GENERIC_READ or GENERIC_WRITE, 0,
-        nil, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-      Success := F <> INVALID_HANDLE_VALUE;
-      if Success then CloseHandle(F);
-    end;
-  until Success;
-  Filename := FN;
+    TempDir := Path + 'iu-' + IntToBase32(Rand) + '.tmp';
+    if DirExists(TempDir) then begin
+      if not DeleteDirTree(TempDir) then continue;
+      Result := True;
+    end else if NewFileExists(TempDir) then
+      if not DeleteFile(TempDir) then continue;
+
+    if CreateSafeDirectory(PChar(TempDir), ErrorCode) then break;
+    if ErrorCode <> ERROR_ALREADY_EXISTS then
+      raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
+        [FmtSetupMessage1(msgErrorCreatingDir, TempDir), IntToStr(ErrorCode),
+         Win32ErrorString(ErrorCode)]));
+  until False; // continue until a new directory was created
 end;
 
 function CreateTempDir: String;
@@ -253,15 +253,61 @@ var
 begin
   while True do begin
     Dir := GenerateUniqueName(False, GetTempDir, '.tmp');
-    if CreateDirectory(PChar(Dir), nil) then
+    if CreateSafeDirectory(PChar(Dir), ErrorCode) then
       Break;
-    ErrorCode := GetLastError;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
         [FmtSetupMessage1(msgErrorCreatingDir, Dir), IntToStr(ErrorCode),
          Win32ErrorString(ErrorCode)]));
   end;
   Result := Dir;
+end;
+
+function ConvertStringSecurityDescriptorToSecurityDescriptorW(
+  StringSecurityDescriptor: PWideChar;
+  StringSDRevision: DWORD; var ppSecurityDescriptor: Pointer;
+  dummy: Pointer): BOOL; stdcall; external advapi32;
+
+function CreateSafeDirectory(Path: PWideChar; var ErrorCode: DWORD): Boolean;
+const
+  SDDL_REVISION_1 = 1;
+var
+  CurrentUserSid, StringSecurityDescriptor: String;
+  pSecurityDescriptor: Pointer;
+  SecurityAttr: TSecurityAttributes;
+begin
+  CurrentUserSid := GetCurrentUserSid();
+  if CurrentUserSid = '' then
+    CurrentUserSid := 'OW'; // OW: owner rights
+  StringSecurityDescriptor :=
+    // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
+    // P: prevents DACL from being modified by inherited ACLs
+    'D:P' +
+    // A: "allow"
+    // OICI: "object and container inherit",
+    //    i.e. files and directories created within the new directory
+    //    inherit these permissions
+    // 0x001F01FF: corresponds to `FILE_ALL_ACCESS`
+    '(A;OICI;0x001F01FF;;;' + CurrentUserSid + ')' + // current user
+    '(A;OICI;0x001F01FF;;;BA)' + // BA: built-in administrator
+    '(A;OICI;0x001F01FF;;;SY)'; // SY: local SYSTEM account
+  if not ConvertStringSecurityDescriptorToSecurityDescriptorW(
+    PWideChar(StringSecurityDescriptor), SDDL_REVISION_1, pSecurityDescriptor, nil
+  ) then begin
+    ErrorCode := GetLastError;
+    Result := False;
+    Exit;
+  end;
+
+  SecurityAttr.nLength := SizeOf(SecurityAttr);
+  SecurityAttr.bInheritHandle := False;
+  SecurityAttr.lpSecurityDescriptor := pSecurityDescriptor;
+
+  Result := CreateDirectoryW(Path, @SecurityAttr);
+  if not Result then
+    ErrorCode := GetLastError;
+
+  LocalFree(pSecurityDescriptor);
 end;
 
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
