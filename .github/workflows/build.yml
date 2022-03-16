@@ -3,6 +3,9 @@ name: build
 on:
   push:
 
+env:
+  HOME: "${{github.workspace}}\\home"
+
 jobs:
   build:
     # Only set the topic `has-issrc-build-env` if the secrets are available
@@ -26,12 +29,35 @@ jobs:
           Remove-Item issrc-build-env.zip
           $DELPHIXEROOT = (Get-Item .\issrc-build-env).FullName
           "DELPHIXEROOT=$DELPHIXEROOT" |  Out-File -NoNewLine -Encoding ascii -Append "$env:GITHUB_ENV"
+      - name: Prepare home directory for code-signing
+        env:
+          CODESIGN_P12: ${{secrets.CODESIGN_P12}}
+          CODESIGN_PASS: ${{secrets.CODESIGN_PASS}}
+        if: env.CODESIGN_P12 != '' && env.CODESIGN_PASS != ''
+        shell: bash
+        run: |
+          mkdir -p home/bin &&
+          echo -n "$CODESIGN_P12" | tr % '\n' | base64 -d >home/.codesign.p12 &&
+          printf '%s ' >home/bin/run-signtool.bat \
+            '"C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe" sign' \
+            '/v /fd SHA256 /d "Inno Setup (Git for Windows edition)"' \
+            '/tr http://timestamp.comodoca.com?td=sha256 /td SHA256' \
+            '/f "${{github.workspace}}\home\.codesign.p12"' \
+            "/p \"$CODESIGN_PASS\" \"%1\"" &&
+          printf '%s\n' >setup-sign.bat \
+            'mkdir tmp-unsigned' \
+            'copy files tmp-unsigned' \
+            'tmp-unsigned\iscc /Sissigntool256="${{github.workspace}}\home\bin\run-signtool.bat $f" /DSIGNTOOL /DNOSHA1SIGNTOOL setup.iss'
       - name: build issrc
         run: |
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii compilesettings.bat
           "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii ISHelp\compilesettings.bat
           "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii Projects\ISPP\Help\compilesettings.bat
           .\build.bat
+      - name: Clean up temporary files
+        if: always()
+        shell: bash
+        run: rm -rf home setup-sign.bat
       - name: copy license.txt into all artifacts
         run: |
           copy license.txt Files

@@ -38,7 +38,9 @@ TimeStampsInUTC=yes
 TouchDate=none
 TouchTime=00:00
 #ifdef SIGNTOOL
+#ifndef NOSHA1SIGNTOOL
 SignTool=issigntool
+#endif
 SignTool=issigntool256
 SignedUninstaller=yes
 #endif
