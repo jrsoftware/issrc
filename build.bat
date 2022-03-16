@@ -20,7 +20,7 @@ rem  Once done the installer can be found in Output
 
 setlocal
 
-set VER=6.2.0
+set VER=6.2.0.1
 
 echo Building Inno Setup %VER%...
 echo.
