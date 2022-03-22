@@ -52,6 +52,7 @@ type
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
 function CreateTempDir: String;
+function CreateSafeDirectory(Path: PWideChar; var ErrorCode: DWORD): Boolean;
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Integer);
@@ -237,8 +238,7 @@ begin
     end else if NewFileExists(TempDir) then
       if not DeleteFile(TempDir) then continue;
 
-    if CreateDirectory(PChar(TempDir), nil) then break;
-    ErrorCode := GetLastError;
+    if CreateSafeDirectory(PChar(TempDir), ErrorCode) then break;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
         [FmtSetupMessage1(msgErrorCreatingDir, TempDir), IntToStr(ErrorCode),
@@ -253,15 +253,58 @@ var
 begin
   while True do begin
     Dir := GenerateUniqueName(False, GetTempDir, '.tmp');
-    if CreateDirectory(PChar(Dir), nil) then
+    if CreateSafeDirectory(PChar(Dir), ErrorCode) then
       Break;
-    ErrorCode := GetLastError;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
         [FmtSetupMessage1(msgErrorCreatingDir, Dir), IntToStr(ErrorCode),
          Win32ErrorString(ErrorCode)]));
   end;
   Result := Dir;
+end;
+
+function ConvertStringSecurityDescriptorToSecurityDescriptorW(
+  StringSecurityDescriptor: PWideChar;
+  StringSDRevision: DWORD; var ppSecurityDescriptor: Pointer;
+  dummy: Pointer): BOOL; stdcall; external advapi32;
+
+function CreateSafeDirectory(Path: PWideChar; var ErrorCode: DWORD): Boolean;
+const
+  SDDL_REVISION_1 = 1;
+var
+  StringSecurityDescriptor: PWideChar;
+  pSecurityDescriptor: Pointer;
+  SecurityAttr: TSecurityAttributes;
+begin
+  StringSecurityDescriptor :=
+    // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
+    // P: prevents DACL from being modified by inherited ACLs
+    'D:P' +
+    // A: "allow"
+    // OICI: "object and container inherit",
+    //    i.e. files and directories created within the new directory
+    //    inherit these permissions
+    // 0x001F01FF: corresponds to `FILE_ALL_ACCESS`
+    '(A;OICI;0x001F01FF;;;BA)' + // BA: built-in administrator
+    '(A;OICI;0x001F01FF;;;OW)' + // OW: owner rights
+    '(A;OICI;0x001F01FF;;;SY)'; // SY: local SYSTEM account
+  if not ConvertStringSecurityDescriptorToSecurityDescriptorW(
+    StringSecurityDescriptor, SDDL_REVISION_1, pSecurityDescriptor, nil
+  ) then begin
+    ErrorCode := GetLastError;
+    Result := False;
+    Exit;
+  end;
+
+  SecurityAttr.nLength := SizeOf(SecurityAttr);
+  SecurityAttr.bInheritHandle := False;
+  SecurityAttr.lpSecurityDescriptor := pSecurityDescriptor;
+
+  Result := CreateDirectoryW(Path, @SecurityAttr);
+  if not Result then
+    ErrorCode := GetLastError;
+
+  LocalFree(pSecurityDescriptor);
 end;
 
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
