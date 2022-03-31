@@ -1,7 +1,4 @@
 program ISHelpGen;
-{ $jrsoftware: ishelp/ISHelpGen/ISHelpGen.dpr,v 1.25 2010/05/26 05:27:57 jr Exp $ }
-
-{ Compiled under Delphi 5.01 }
 
 {$APPTYPE CONSOLE}
 
@@ -16,7 +13,7 @@ uses
   UIsxclassesParser in 'UIsxclassesParser.pas';
 
 const
-  Version = '1.12';
+  Version = '1.13';
 
   XMLFileVersion = '1';
 
@@ -124,7 +121,7 @@ begin
   if Node.NodeType = NODE_TEXT then begin
     S := Node.Text;
     for I := 1 to Length(S) do
-      if not(S[I] in [#9, #10, ' ']) then
+      if not CharInSet(S[I], [#9, #10, ' ']) then
         Exit;
     Result := True;
   end;
@@ -209,10 +206,12 @@ end;
 procedure SaveStringToFile(const S, Filename: String);
 var
   F: TFileStream;
+  U: UTF8String;
 begin
   F := TFileStream.Create(Filename, fmCreate);
   try
-    F.WriteBuffer(S[1], Length(S));
+    U := UTF8String(S);
+    F.WriteBuffer(U[1], Length(U));
   finally
     F.Free;
   end;
@@ -226,10 +225,10 @@ begin
   StringChange(Result, '>', '&gt;');
   if EscapeDoubleQuotes then
     StringChange(Result, '"', '&quot;');
-  { Also convert the UTF-8 representation of a non-breaking space into &nbsp;
+  { Also convert the Unicode representation of a non-breaking space into &nbsp;
     so it's easily to tell them apart from normal spaces when viewing the
     generated HTML source }
-  StringChange(Result, #194#160, '&nbsp;');
+  StringChange(Result, #160, '&nbsp;');
 end;
 
 procedure CheckTopicNameValidity(const TopicName: String);
@@ -240,7 +239,7 @@ begin
     raise Exception.Create('Topic name cannot be empty');
   { Security: Make sure topic names don't include slashes etc. }
   for I := 1 to Length(TopicName) do
-    if not(TopicName[I] in ['A'..'Z', 'a'..'z', '0'..'9', '_', '-']) then
+    if not CharInSet(TopicName[I], ['A'..'Z', 'a'..'z', '0'..'9', '_', '-']) then
       raise Exception.CreateFmt('Topic name "%s" includes invalid characters', [TopicName]);
 end;
 
@@ -251,7 +250,7 @@ begin
   if AnchorName = '' then
     raise Exception.Create('Anchor name cannot be empty');
   for I := 1 to Length(AnchorName) do
-    if not(AnchorName[I] in ['A'..'Z', 'a'..'z', '0'..'9', '_', '-', '.']) then
+    if not CharInSet(AnchorName[I], ['A'..'Z', 'a'..'z', '0'..'9', '_', '-', '.']) then
       raise Exception.CreateFmt('Anchor name "%s" includes invalid characters', [AnchorName]);
 end;
 
@@ -420,7 +419,7 @@ begin
         Result := Result + '<ol>' + ParseFormattedText(Node) + '</ol>';
       elP:
         begin
-          if Node.Attributes['margin'] = 'no' then
+          if Node.HasAttribute('margin') and (Node.Attributes['margin'] = 'no') then
             Result := Result + '<div>' + ParseFormattedText(Node) + '</div>'
           else
             Result := Result + '<p>' + ParseFormattedText(Node) + '</p>';
@@ -481,7 +480,7 @@ begin
       elUL:
         begin
           B := CurrentListIsCompact;
-          CurrentListIsCompact := (Node.Attributes['appearance'] = 'compact');
+          CurrentListIsCompact := (Node.HasAttribute('appearance') and (Node.Attributes['appearance'] = 'compact'));
           Result := Result + '<ul>' + ParseFormattedText(Node) + '</ul>';
           CurrentListIsCompact := B;
         end;
@@ -688,7 +687,8 @@ begin
     HandleNode(ContentsNode);
 
     SL.Add('</body></html>');
-    SL.SaveToFile(OutputDir + 'hh_generated_contents.hhc');
+    SL.WriteBOM := False;
+    SL.SaveToFile(OutputDir + 'hh_generated_contents.hhc', TEncoding.UTF8);
   finally
     SL.Free;
   end;
@@ -765,7 +765,8 @@ begin
       if StringChange(S, '%CONTENTSTABLES%' + SNewLine, SL.Text) <> 1 then
         raise Exception.Create('GenerateStaticContents: Unexpected result from StringChange');
       TemplateSL.Text := S;
-      TemplateSL.SaveToFile(OutputDir + 'contents.htm');
+      TemplateSL.WriteBOM := False;
+      TemplateSL.SaveToFile(OutputDir + 'contents.htm', TEncoding.UTF8);
     finally
       TemplateSL.Free;
     end;
@@ -817,7 +818,8 @@ begin
            Anchor))]));
     end;
     SL.Add('</ul></body></html>');
-    SL.SaveToFile(OutputDir + 'hh_generated_index.hhk');
+    SL.WriteBOM := False;
+    SL.SaveToFile(OutputDir + 'hh_generated_index.hhk', TEncoding.UTF8);
   finally
     SL.Free;
   end;
@@ -932,7 +934,7 @@ procedure Go;
       Doc.StripComments;
 
       Node := Doc.Root;
-      if Node.Attributes['version'] <> XMLFileVersion then
+      if Node.HasAttribute('version') and (Node.Attributes['version'] <> XMLFileVersion) then
         raise Exception.CreateFmt('Unrecognized file version "%s" (expected "%s")',
           [Node.Attributes['version'], XMLFileVersion]);
       Node := Node.FirstChild;

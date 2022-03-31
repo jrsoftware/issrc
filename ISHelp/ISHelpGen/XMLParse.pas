@@ -1,28 +1,11 @@
 unit XMLParse;
-{ $jrsoftware: ishelp/ISHelpGen/XMLParse.pas,v 1.5 2009/07/29 09:50:24 mlaan Exp $ }
 
-{ XML parser. Currently just calls MSXML 4.0 to do the real work. }
+{ XML parser. Currently just calls MSXML 6.0 to do the real work. }
 
 interface
 
-{$IFNDEF VER80}  { if it's not Delphi 1.0 }
-  {$IFNDEF VER90}  { if it's not Delphi 2.0 }
-    {$IFNDEF VER93}  { and it's not C++Builder 1.0 }
-      {$IFNDEF VER100}  { if it's not Delphi 3.0 }
-        {$IFNDEF VER110}  { and it's not C++Builder 3.0 }
-          {$IFNDEF VER120} {$IFNDEF VER125}  { if it's not Delphi 4 or C++Builder 4 }
-            {$IFNDEF VER130}  { if it's not Delphi 5 or C++Builder 5 }
-              {$DEFINE IS_D6}  { then it must be at least Delphi 6 or C++Builder 6 }
-            {$ENDIF}
-          {$ENDIF} {$ENDIF}
-        {$ENDIF}
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
-{$ENDIF}
-
 uses
-  Windows, SysUtils{$IFDEF IS_D6}, Variants{$ENDIF};
+  Windows, SysUtils, Variants;
 
 type
   IXMLNode = interface
@@ -119,65 +102,11 @@ begin
     Result := nil;
 end;
 
-function WideCharToUTF8String(const Src: PWideChar; const SrcLen: Integer): AnsiString;
-var
-  DestLen, I: Integer;
-  DestBuf: AnsiString;
-  DestPtr: PAnsiChar;
-  C: Word;
-begin
-  if (SrcLen < 0) or (SrcLen > High(Integer) div 3) then
-    raise Exception.Create('WideCharToUTF8String: SrcLen out of range');
-  SetString(DestBuf, nil, SrcLen * 3);
-  DestLen := 0;
-  DestPtr := PAnsiChar(DestBuf);
-  for I := 0 to SrcLen-1 do begin
-    C := Ord(Src[I]);
-    if C <= $7F then begin
-      DestPtr[DestLen] := AnsiChar(C);
-      Inc(DestLen);
-    end
-    else if C <= $7FF then begin
-      DestPtr[DestLen] := AnsiChar($C0 or (C shr 6));
-      DestPtr[DestLen+1] := AnsiChar($80 or (C and $3F));
-      Inc(DestLen, 2);
-    end
-    else begin
-      if (C >= $D800) and (C <= $DFFF) then
-        raise Exception.Create('WideCharToUTF8String: Surrogate pairs are not supported');
-      DestPtr[DestLen] := AnsiChar($E0 or (C shr 12));
-      DestPtr[DestLen+1] := AnsiChar($80 or ((C shr 6) and $3F));
-      DestPtr[DestLen+2] := AnsiChar($80 or (C and $3F));
-      Inc(DestLen, 3);
-    end;
-  end;
-  SetLength(DestBuf, DestLen);
-  Result := DestBuf;
-
-  { Following is an alternate version which uses WideCharToMultiByte.
-    Consistency across different Windows platforms is uncertain, so I prefer
-    my version. }
-  (*
-  if SrcLen = 0 then
-    Result := ''
-  else begin
-    DestLen := WideCharToMultiByte(CP_UTF8, 0, Src, SrcLen, nil, 0, nil, nil);
-    if DestLen = 0 then
-      RaiseLastWin32Error;
-    SetString(DestBuf, nil, DestLen);
-    if WideCharToMultiByte(CP_UTF8, 0, Src, SrcLen, @DestBuf[1], DestLen, nil, nil) <> DestLen then
-      raise Exception.Create('VariantToUTF8String: Unexpected result from WideCharToMultiByte');
-    Result := DestBuf;
-  end;
-  *)
-end;
-
-function VariantToUTF8String(const V: OleVariant): String;
+function VariantToString(const V: OleVariant): String;
 begin
   if VarType(V) <> varOleStr then
     raise Exception.Create('VariantToUTF8String: Expected varOleStr');
-  Result := WideCharToUTF8String(TVarData(V).VOleStr,
-    SysStringLen(TVarData(V).VOleStr));
+  Result := TVarData(V).VOleStr;
 end;
 
 { TXMLDocument }
@@ -185,7 +114,9 @@ end;
 constructor TXMLDocument.Create;
 begin
   inherited Create;
-  FDoc := CreateOleObject('MSXML2.DOMDocument.4.0');
+  FDoc := CreateOleObject('MSXML2.DOMDocument.6.0');
+  FDoc.setProperty('ProhibitDTD', False);
+  FDoc.resolveExternals := True;
   FDoc.async := False;
   FDoc.preserveWhitespace := True;
 end;
@@ -227,7 +158,7 @@ begin
   N := FRealNode.attributes.getNamedItem(AName);
   if not IsVarAssigned(N) then
     raise Exception.CreateFmt('Attribute "%s" does not exist', [AName]);
-  Result := VariantToUTF8String(N.value);
+  Result := VariantToString(N.value);
 end;
 
 function TXMLNode.GetOptionalAttribute(const AName: String): String;
@@ -238,7 +169,7 @@ begin
   if not IsVarAssigned(N) then
     Result := ''
   else
-    Result := VariantToUTF8String(N.value);
+    Result := VariantToString(N.value);
 end;
 
 function TXMLNode.GetFirstChild: IXMLNode;
@@ -248,7 +179,7 @@ end;
 
 function TXMLNode.GetNodeName: String;
 begin
-  Result := VariantToUTF8String(FRealNode.nodeName);
+  Result := VariantToString(FRealNode.nodeName);
 end;
 
 function TXMLNode.GetNextSibling: IXMLNode;
@@ -278,7 +209,7 @@ end;
 
 function TXMLNode.GetText: String;
 begin
-  Result := VariantToUTF8String(FRealNode.text);
+  Result := VariantToString(FRealNode.text);
 end;
 
 function TXMLNode.HasAttribute(const AName: String): Boolean;
@@ -288,7 +219,7 @@ end;
 
 function TXMLNode.TransformNode(const Stylesheet: IXMLNode): String;
 begin
-  Result := VariantToUTF8String(FRealNode.transformNode(Stylesheet.GetRealMSXMLNode));
+  Result := VariantToString(FRealNode.transformNode(Stylesheet.GetRealMSXMLNode));
 end;
 
 end.

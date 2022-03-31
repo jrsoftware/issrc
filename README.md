@@ -50,19 +50,7 @@ Getting Started
    See https://www.embarcadero.com/products/delphi/starter/free-download
 
 
-3. **Install Microsoft MSXML**
-
-   Install Microsoft MSXML 4.0 SP2 if you haven't already done so.
-   See https://www.microsoft.com/en-us/download/details.aspx?id=19662
-
-   If you are not sure whether you have MSXML 4.0 SP2 already, check for a
-   file named msxml4.dll in your Windows System directory with a version number
-   of 4.20.9818.0 (or later).
-
-   Note: Microsoft MSXML is only needed to be able to compile the help files.
-
-
-4. **Install Microsoft HTML Help Workshop**
+3. **Install Microsoft HTML Help Workshop**
 
    Install Microsoft HTML Help Workshop if you haven't already done so.
    See https://www.microsoft.com/en-us/download/details.aspx?id=21138
@@ -71,17 +59,19 @@ Getting Started
    help files.
 
 
-5. **Build Inno Setup**
+4. **Build Inno Setup**
 
    To build all files run **build.bat** and follow the instructions.
 
    To just compile Inno Setup run **compile.bat** and follow the instructions.
 
    To just compile the Inno Setup help file and its web version run
-   **ISHelp\compile.bat** and follow the instructions.
+   **ISHelp\ISHelpGen\compile.bat** and **ISHelp\compile.bat** and follow the
+   instructions.
 
    To just compile the Inno Setup Preprocessor help file and its web version run
-   **Projects\Ispp\Help\compile.bat** and follow the instructions.
+   **ISHelp\ISHelpGen\compile.bat** and **Projects\Ispp\Help\compile.bat** and
+   follow the instructions.
 
 
 Component Installation
@@ -216,8 +206,6 @@ stored in a compiled resource file.
 **Projects\Lzma2\Decoder\ISLzmaDec.obj**, **Projects\Lzma2\Decoder\ISLzma2Dec.obj** -
 See [Projects\Lzma2\Decoder\compiling.txt].
 
-**ISHelp\ISHelpGen\ISHelpGen.exe** - See [ISHelp\ISHelpGen\compile.bat].
-
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe** - Compiled by Visual Studio
 2005 from the [Examples\MyProg] directory.
 
@@ -231,6 +219,50 @@ Inno Setup-specific editing guidelines for the help files
   surround it by `<tt></tt>` so that it's displayed in the Courier New font. This is
   a convention used throughout the help file. Example: `<tt>MinVersion</tt>`
 
+Setting up Continuous Integration
+---------------------------------
+
+Delphi is not offered for download via a public link, and while there is a
+free-of-charge community version, its license terms forbid sharing it with others, or
+even let other developers (outside your direct teammates) use it. However, what _is_
+allowed is to copy the files (or a subset thereof) to another machine for the specific
+purpose of supporting unattended builds.
+
+Inno Setup's source code includes a GitHub workflow that performs such unattended
+builds upon `push` events, it requires some setting up, though.
+
+Note: The following instructions assume that you have a correctly-licensed version
+of Delphi installed into `C:\Program Files (x86(\Embarcadero\Studio\20.0`.
+
+To generate the (encrypted) `.zip` file containing the files needed to build
+Inno Setup, use [7-Zip](https://www.7-zip.org/):
+
+```
+cd C:\Program Files (x86)\Embarcadero\Studio\20.0
+"C:\Program Files\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
+	%USERPROFILE%\issrc-build-env.zip ^
+	bin\dcc32.exe bin\rlink32.dll bin\lnk*.dll ^
+	lib/win32/release/Sys*.dcu lib/win32/release/*.res ^
+	lib/win32/release/System.*.dcu lib/win32/release/System.Generics.*.dcu ^
+	lib/win32/release/System.Internal.*.dcu lib/win32/release/System.Net.*.dcu ^
+	lib/win32/release/System.Net.HttpClient.*.dcu lib/win32/release/System.Win.*.dcu ^
+	lib/win32/release/Vcl.*.dcu lib/win32/release/Vcl.Imaging.*.dcu ^
+	lib/win32/release/Winapi.*.dcu
+```
+
+Then, upload this somewhere public, e.g. by attaching it to a comment in a
+GitHub issue. After that, add this URL as a new repository
+[secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+(at https://github.com/YOUR-USER-NAME/issrc/settings/secrets/actions), under the name
+`ISSRC_BUILD_ENV_ZIP_URL`, and the password as `ISSRC_BUILD_ENV_ZIP_PASSWORD`.
+
+Finally, indicate that your fork of the repository has those secrets, by adding the
+topic `has-issrc-build-env` (click the gear icon next to the "About" label at
+https://github.com/YOUR-USER-NAME/issrc to add the topic).
+
+Once that's done, you're set! The next time you push a branch to your fork, the
+workflow will be triggered automatically.
+
 <!-- Link references -->
 [CONTRIBUTING.md]: <CONTRIBUTING.md>
 [Projects\Lzma2\Encoder]: <Projects/Lzma2/Encoder>
@@ -238,4 +270,3 @@ Inno Setup-specific editing guidelines for the help files
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\LzmaDecode\compiling.txt]: <Projects/LzmaDecode/compiling.txt>
 [Projects\Lzma2\Decoder\compiling.txt]: <Projects/Lzma2/Decoder/compiling.txt>
-[ISHelp\ISHelpGen\compile.bat]: <ISHelp/ISHelpGen/compile.bat>
