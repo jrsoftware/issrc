@@ -1,7 +1,4 @@
 program ISHelpGen;
-{ $jrsoftware: ishelp/ISHelpGen/ISHelpGen.dpr,v 1.25 2010/05/26 05:27:57 jr Exp $ }
-
-{ Compiled under Delphi 5.01 }
 
 {$APPTYPE CONSOLE}
 
@@ -16,7 +13,7 @@ uses
   UIsxclassesParser in 'UIsxclassesParser.pas';
 
 const
-  Version = '1.12';
+  Version = '1.13';
 
   XMLFileVersion = '1';
 
@@ -228,10 +225,10 @@ begin
   StringChange(Result, '>', '&gt;');
   if EscapeDoubleQuotes then
     StringChange(Result, '"', '&quot;');
-  { Also convert the UTF-8 representation of a non-breaking space into &nbsp;
+  { Also convert the Unicode representation of a non-breaking space into &nbsp;
     so it's easily to tell them apart from normal spaces when viewing the
     generated HTML source }
-  StringChange(Result, #194#160, '&nbsp;');
+  StringChange(Result, #160, '&nbsp;');
 end;
 
 procedure CheckTopicNameValidity(const TopicName: String);
@@ -690,7 +687,8 @@ begin
     HandleNode(ContentsNode);
 
     SL.Add('</body></html>');
-    SL.SaveToFile(OutputDir + 'hh_generated_contents.hhc');
+    SL.WriteBOM := False;
+    SL.SaveToFile(OutputDir + 'hh_generated_contents.hhc', TEncoding.UTF8);
   finally
     SL.Free;
   end;
@@ -767,7 +765,8 @@ begin
       if StringChange(S, '%CONTENTSTABLES%' + SNewLine, SL.Text) <> 1 then
         raise Exception.Create('GenerateStaticContents: Unexpected result from StringChange');
       TemplateSL.Text := S;
-      TemplateSL.SaveToFile(OutputDir + 'contents.htm');
+      TemplateSL.WriteBOM := False;
+      TemplateSL.SaveToFile(OutputDir + 'contents.htm', TEncoding.UTF8);
     finally
       TemplateSL.Free;
     end;
@@ -819,7 +818,8 @@ begin
            Anchor))]));
     end;
     SL.Add('</ul></body></html>');
-    SL.SaveToFile(OutputDir + 'hh_generated_index.hhk');
+    SL.WriteBOM := False;
+    SL.SaveToFile(OutputDir + 'hh_generated_index.hhk', TEncoding.UTF8);
   finally
     SL.Free;
   end;
