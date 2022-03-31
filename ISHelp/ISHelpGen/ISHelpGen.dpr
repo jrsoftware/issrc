@@ -124,7 +124,7 @@ begin
   if Node.NodeType = NODE_TEXT then begin
     S := Node.Text;
     for I := 1 to Length(S) do
-      if not(S[I] in [#9, #10, ' ']) then
+      if not CharInSet(S[I], [#9, #10, ' ']) then
         Exit;
     Result := True;
   end;
@@ -242,7 +242,7 @@ begin
     raise Exception.Create('Topic name cannot be empty');
   { Security: Make sure topic names don't include slashes etc. }
   for I := 1 to Length(TopicName) do
-    if not(TopicName[I] in ['A'..'Z', 'a'..'z', '0'..'9', '_', '-']) then
+    if not CharInSet(TopicName[I], ['A'..'Z', 'a'..'z', '0'..'9', '_', '-']) then
       raise Exception.CreateFmt('Topic name "%s" includes invalid characters', [TopicName]);
 end;
 
@@ -253,7 +253,7 @@ begin
   if AnchorName = '' then
     raise Exception.Create('Anchor name cannot be empty');
   for I := 1 to Length(AnchorName) do
-    if not(AnchorName[I] in ['A'..'Z', 'a'..'z', '0'..'9', '_', '-', '.']) then
+    if not CharInSet(AnchorName[I], ['A'..'Z', 'a'..'z', '0'..'9', '_', '-', '.']) then
       raise Exception.CreateFmt('Anchor name "%s" includes invalid characters', [AnchorName]);
 end;
 
