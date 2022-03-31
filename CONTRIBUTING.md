@@ -1,8 +1,8 @@
 Inno Setup
 ==========
 
-Copyright (C) 1997-2021 Jordan Russell. All rights reserved.  
-Portions Copyright (C) 2000-2021 Martijn Laan. All rights reserved.  
+Copyright (C) 1997-2022 Jordan Russell. All rights reserved.  
+Portions Copyright (C) 2000-2022 Martijn Laan. All rights reserved.  
 For conditions of distribution and use, see LICENSE.TXT.
 
 Contributing issues
