@@ -272,10 +272,13 @@ function CreateSafeDirectory(Path: PWideChar; var ErrorCode: DWORD): Boolean;
 const
   SDDL_REVISION_1 = 1;
 var
-  StringSecurityDescriptor: PWideChar;
+  CurrentUserSid, StringSecurityDescriptor: String;
   pSecurityDescriptor: Pointer;
   SecurityAttr: TSecurityAttributes;
 begin
+  CurrentUserSid := GetCurrentUserSid();
+  if CurrentUserSid = '' then
+    CurrentUserSid := 'OW'; // OW: owner rights
   StringSecurityDescriptor :=
     // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
     // P: prevents DACL from being modified by inherited ACLs
@@ -285,11 +288,11 @@ begin
     //    i.e. files and directories created within the new directory
     //    inherit these permissions
     // 0x001F01FF: corresponds to `FILE_ALL_ACCESS`
+    '(A;OICI;0x001F01FF;;;' + CurrentUserSid + ')' + // current user
     '(A;OICI;0x001F01FF;;;BA)' + // BA: built-in administrator
-    '(A;OICI;0x001F01FF;;;OW)' + // OW: owner rights
     '(A;OICI;0x001F01FF;;;SY)'; // SY: local SYSTEM account
   if not ConvertStringSecurityDescriptorToSecurityDescriptorW(
-    StringSecurityDescriptor, SDDL_REVISION_1, pSecurityDescriptor, nil
+    PWideChar(StringSecurityDescriptor), SDDL_REVISION_1, pSecurityDescriptor, nil
   ) then begin
     ErrorCode := GetLastError;
     Result := False;
