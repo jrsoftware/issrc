@@ -50,19 +50,7 @@ Getting Started
    See https://www.embarcadero.com/products/delphi/starter/free-download
 
 
-3. **Install Microsoft MSXML**
-
-   Install Microsoft MSXML 4.0 SP2 if you haven't already done so.
-   See https://www.microsoft.com/en-us/download/details.aspx?id=19662
-
-   If you are not sure whether you have MSXML 4.0 SP2 already, check for a
-   file named msxml4.dll in your Windows System directory with a version number
-   of 4.20.9818.0 (or later).
-
-   Note: Microsoft MSXML is only needed to be able to compile the help files.
-
-
-4. **Install Microsoft HTML Help Workshop**
+3. **Install Microsoft HTML Help Workshop**
 
    Install Microsoft HTML Help Workshop if you haven't already done so.
    See https://www.microsoft.com/en-us/download/details.aspx?id=21138
@@ -71,7 +59,7 @@ Getting Started
    help files.
 
 
-5. **Build Inno Setup**
+4. **Build Inno Setup**
 
    To build all files run **build.bat** and follow the instructions.
 
