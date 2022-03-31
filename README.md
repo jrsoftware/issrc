@@ -66,10 +66,12 @@ Getting Started
    To just compile Inno Setup run **compile.bat** and follow the instructions.
 
    To just compile the Inno Setup help file and its web version run
-   **ISHelp\compile.bat** and follow the instructions.
+   **ISHelp\ISHelpGen\compile.bat** and **ISHelp\compile.bat** and follow the
+   instructions.
 
    To just compile the Inno Setup Preprocessor help file and its web version run
-   **Projects\Ispp\Help\compile.bat** and follow the instructions.
+   **ISHelp\ISHelpGen\compile.bat** and **Projects\Ispp\Help\compile.bat** and
+   follow the instructions.
 
 
 Component Installation
@@ -204,8 +206,6 @@ stored in a compiled resource file.
 **Projects\Lzma2\Decoder\ISLzmaDec.obj**, **Projects\Lzma2\Decoder\ISLzma2Dec.obj** -
 See [Projects\Lzma2\Decoder\compiling.txt].
 
-**ISHelp\ISHelpGen\ISHelpGen.exe** - See [ISHelp\ISHelpGen\compile.bat].
-
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe** - Compiled by Visual Studio
 2005 from the [Examples\MyProg] directory.
 
@@ -270,4 +270,3 @@ workflow will be triggered automatically.
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\LzmaDecode\compiling.txt]: <Projects/LzmaDecode/compiling.txt>
 [Projects\Lzma2\Decoder\compiling.txt]: <Projects/Lzma2/Decoder/compiling.txt>
-[ISHelp\ISHelpGen\compile.bat]: <ISHelp/ISHelpGen/compile.bat>
