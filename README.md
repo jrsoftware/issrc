@@ -232,7 +232,7 @@ Inno Setup's source code includes a GitHub workflow that performs such unattende
 builds upon `push` events, it requires some setting up, though.
 
 Note: The following instructions assume that you have a correctly-licensed version
-of Delphi installed into `C:\Program Files (x86(\Embarcadero\Studio\20.0`.
+of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\20.0`.
 
 To generate the (encrypted) `.zip` file containing the files needed to build
 Inno Setup, use [7-Zip](https://www.7-zip.org/):
