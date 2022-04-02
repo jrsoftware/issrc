@@ -10,6 +10,7 @@ rem
 rem  Calls setup-sign.bat if it exists, else creates setup.exe without signing
 rem
 rem  This batch files does the following things:
+rem  -Compile ISHelpGen
 rem  -Compile ISPP.chm
 rem  -Compile ISetup.chm
 rem  -Compile Inno Setup
