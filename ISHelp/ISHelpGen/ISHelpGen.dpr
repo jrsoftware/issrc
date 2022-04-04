@@ -228,7 +228,7 @@ begin
   { Also convert the Unicode representation of a non-breaking space into &nbsp;
     so it's easily to tell them apart from normal spaces when viewing the
     generated HTML source }
-  StringChange(Result, #160, '&nbsp;');
+  StringChange(Result, #$00A0, '&nbsp;');
 end;
 
 procedure CheckTopicNameValidity(const TopicName: String);
