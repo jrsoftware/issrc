@@ -369,17 +369,21 @@ end;
 
 procedure RunFirstPhase;
 var
-  TempFile: String;
+  TempDir, TempFile: String;
+  TempDirExisted: Boolean;
   Wnd: HWND;
   ProcessHandle: THandle;
 begin
-  { Copy self to TEMP directory with a name like _iu14D2N.tmp. The
-    actual uninstallation process must be done from somewhere outside
-    the application directory since EXE's can't delete themselves while
-    they are running. }
-  if not GenerateNonRandomUniqueFilename(GetTempDir, TempFile) then
+  { Copy self to a subdirectory of the TEMP directory with a name like
+    _iu14D2N.tmp. The actual uninstallation process must be done from
+    somewhere outside the application directory since EXE's can't delete
+    themselves while they are running. }
+  TempDirExisted := GenerateNonRandomUniqueTempDir(GetTempDir, TempDir);
+  TempFile := AddBackslash(TempDir) + '_unins.tmp';
+  if not TempDirExisted then
     try
       RestartReplace(False, TempFile, '');
+      RestartReplace(False, TempDir, '');
     except
       { ignore exceptions }
     end;

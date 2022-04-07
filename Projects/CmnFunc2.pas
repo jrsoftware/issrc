@@ -105,6 +105,7 @@ function RegDeleteKeyView(const RegView: TRegView; const Key: HKEY; const Name: 
 function RegDeleteKeyIncludingSubkeys(const RegView: TRegView; const Key: HKEY; const Name: PChar): Longint;
 function RegDeleteKeyIfEmpty(const RegView: TRegView; const RootKey: HKEY; const SubkeyName: PChar): Longint;
 function GetShellFolderPath(const FolderID: Integer): String;
+function GetCurrentUserSid: String;
 function IsAdminLoggedOn: Boolean;
 function IsPowerUserLoggedOn: Boolean;
 function IsMultiByteString(const S: AnsiString): Boolean;
@@ -1077,6 +1078,39 @@ begin
       Result := Buffer;
     if Assigned(Malloc) then
       Malloc.Free(pidl);
+  end;
+end;
+
+function GetCurrentUserSid: String;
+var
+  Token: THandle;
+  UserInfoSize: DWORD;
+  UserInfo: PTokenUser;
+  StringSid: PWideChar;
+begin
+  Result := '';
+  if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY,
+      {$IFDEF Delphi3orHigher} Token {$ELSE} @Token {$ENDIF}) then
+    Exit;
+  UserInfo := nil;
+  try
+    UserInfoSize := 0;
+    if not GetTokenInformation(Token, TokenUser, nil, 0, UserInfoSize) and
+        (GetLastError <> ERROR_INSUFFICIENT_BUFFER) then
+      Exit;
+
+    GetMem(UserInfo, UserInfoSize);
+    if not GetTokenInformation(Token, TokenUser, UserInfo,
+        UserInfoSize, UserInfoSize) then
+      Exit;
+
+    if ConvertSidToStringSidW(UserInfo.User.Sid, StringSid) then begin
+      Result := StringSid;
+      LocalFree(StringSid);
+    end;
+  finally
+    FreeMem(UserInfo);
+    CloseHandle(Token);
   end;
 end;
 
