@@ -322,6 +322,7 @@ object CompileForm: TCompileForm
     Tabs.Strings = (
       'Main Script')
     TabPosition = tpTop
+    PopupMenu = MemosPopupMenu
     OnClick = MemosTabSetClick
   end
   object MainMenu1: TMainMenu
@@ -4299,5 +4300,14 @@ object CompileForm: TCompileForm
   object PrintDialog: TPrintDialog
     Left = 224
     Top = 149
+  end
+  object MemosPopupMenu: TPopupMenu
+    OnPopup = OnMemosPopup
+    Left = 48
+    Top = 51
+    object FMClose: TMenuItem
+      Caption = 'Close'
+      OnClick = MemoCloseClick
+    end
   end
 end

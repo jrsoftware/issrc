@@ -213,6 +213,8 @@ type
     FPrint: TMenuItem;
     N22: TMenuItem;
     PrintDialog: TPrintDialog;
+    MemosPopupMenu: TPopupMenu;
+    FMClose: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -312,12 +314,15 @@ type
       State: TOwnerDrawState);
     procedure FindResultsListDblClick(Sender: TObject);
     procedure FPrintClick(Sender: TObject);
+    procedure MemoCloseClick(Sender: TObject);
+    procedure OnMemosPopup(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
     FMainMemo: TCompScintFileEdit;                      { Doesn't change }
     FPreprocessorOutputMemo: TCompScintEdit;            { Doesn't change }
     FFileMemos: TList<TCompScintFileEdit>;              { All memos except FPreprocessorOutputMemo }
+    FHiddenFiles : TDictionary<TCompScintEdit,Integer>; { Poor man's hash set to keep track of closed tabs }
     FActiveMemo: TCompScintEdit;                        { Changes depending on user input }
     FErrorMemo, FStepMemo: TCompScintFileEdit;          { These change depending on user input }
     FMemosStyler: TInnoSetupStyler;                     { Single styler for all memos }
@@ -764,6 +769,7 @@ begin
   for Memo in FMemos do
     if Memo is TCompScintFileEdit then
       FFileMemos.Add(TCompScintFileEdit(Memo));
+  FHiddenFiles := TDictionary<TCompScintEdit,Integer>.Create;
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
   FErrorMemo := FMainMemo;
@@ -870,6 +876,7 @@ begin
   FMRUParametersList.Free;
   FMRUMainFilesList.Free;
   FFileMemos.Free;
+  FHiddenFiles.Free;
   FMemos.Free;
 
   inherited;
@@ -1012,6 +1019,7 @@ begin
     FDebugTarget := dtSetup;
     UpdateTargetMenu;
   end;
+  FHiddenFiles.Clear;
   for Memo in FFileMemos do
     if Memo.Used then
       Memo.BreakPoints.Clear;
@@ -2592,17 +2600,39 @@ begin
     OpenFile(FMainMemo, CommandLineFilename, False);
 end;
 
+procedure TCompileForm.OnMemosPopup(Sender: TObject);
+begin
+  { main and preprocessor memos can't be hidden }
+  FMClose.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
+end;
+
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
 
   { Also see MemoToTabIndex }
   function TabIndexToMemoIndex(const TabIndex, MaxTabIndex: Integer): Integer;
+  var iMemo, iTab : Integer;
   begin
     if TabIndex = 0 then
       Result := 0 { First tab displays the main memo which is FMemos[0] }
     else if FPreprocessorOutputMemo.Used and (TabIndex = MaxTabIndex) then
       Result := 1 { Last tab displays the preprocessor output memo which is FMemos[1] }
-    else
-      Result := TabIndex+1; { Other tabs display include files which start second tab but at FMemos[2] }
+    else begin
+      { only count memos not explicitly hidden by the user }
+      iTab := 0;
+      for iMemo := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
+        if not FHiddenFiles.ContainsKey(FFileMemos[iMemo]) then begin
+          Inc(iTab);
+          if iTab = TabIndex then begin
+            result := iMemo + 1;   { Other tabs display include files which start second tab but at FMemos[2] }
+            Exit;
+          end;
+        end;
+      end;
+
+      // we should never get here
+      ASSERT(FALSE);
+      Result := -1;
+    end;
   end;
 
 var
@@ -3019,6 +3049,7 @@ end;
 
 { Also see TabIndexToMemoIndex }
 function TCompileForm.MemoToTabIndex(const AMemo: TCompScintEdit): Integer;
+var iMemo : Integer;
 begin
   if AMemo = FMainMemo then
     Result := 0 { First tab displays the main memo  }
@@ -3026,9 +3057,16 @@ begin
     if not FPreprocessorOutputMemo.Used then
       raise Exception.Create('not FPreprocessorOutputMemo.Used');
     Result := MemosTabSet.Tabs.Count-1 { Last tab displays the preprocessor output memo }
-  end else
-    Result := FFileMemos.IndexOf(AMemo as TCompScintFileEdit) { Other tabs display include files which start second tab }
+  end else begin
+    Result := FFileMemos.IndexOf(AMemo as TCompScintFileEdit); { Other tabs display include files which start second tab }
+
+    // filter memos explicitly closed by the user
+    for iMemo := result-1 downto 0 do
+      if FHiddenFiles.ContainsKey(FFileMemos[iMemo]) then
+        Dec(result);
+  end;
 end;
+
 
 procedure TCompileForm.MoveCaretAndActivateMemo(const AMemo: TCompScintEdit; const LineNumber: Integer;
   const AlwaysResetColumn: Boolean);
@@ -3177,6 +3215,11 @@ procedure TCompileForm.UpdatePreprocMemos;
              { Previously the included file came from the history }
               IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
             end;
+
+            // except when it's hidden
+            if FHiddenFiles.ContainsKey(FFileMemos[NextMemoIndex]) then
+              Continue;
+
             NewTabIndex := 1+NextMemoIndex-FirstIncludedFilesMemoIndex;
             NewTabs.Insert(NewTabIndex, PathExtractName(IncludedFile.Filename));
             NewHints.Insert(NewTabIndex, GetFileTitle(IncludedFile.Filename));
@@ -4152,6 +4195,28 @@ begin
     if WaitForSingleObject(H, 0) <> WAIT_TIMEOUT then
       DebuggingStopped(True);
   end;
+end;
+
+procedure TCompileForm.MemoCloseClick(Sender: TObject);
+var
+ idx : Integer;
+begin
+  { main and preprocessor memos can't be hidden }
+  if (FActiveMemo = FMainMemo) or (FActiveMemo = FPreprocessorOutputMemo) then begin
+    ASSERT(FALSE);
+    Exit;
+  end;
+
+  { hide memo, remove associated tab+hint and mark it as hidden }
+  idx := MemoToTabIndex(FActiveMemo);
+  MemosTabSet.Tabs.Delete(idx);
+  MemosTabSet.Hints.Delete(idx);
+  FActiveMemo.Visible := FALSE;
+  FHiddenFiles.Add( FActiveMemo, 0);
+
+  { select next tab, except when we're already at the end }
+  VNextTabClick(Self);
+  VPreviousTabClick(Self);
 end;
 
 procedure TCompileForm.DebuggingStopped(const WaitForTermination: Boolean);

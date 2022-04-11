@@ -12,7 +12,7 @@ unit NewTabSet;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, ModernColors;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Menus, ModernColors;
 
 type
   TTabPosition = (tpTop, tpBottom);
@@ -49,6 +49,7 @@ type
     property TabIndex: Integer read FTabIndex write SetTabIndex;
     property Tabs: TStrings read FTabs write SetTabs;
     property TabPosition: TTabPosition read FTabPosition write SetTabPosition default tpBottom;
+    property PopupMenu;
     property OnClick;
   end;
 
