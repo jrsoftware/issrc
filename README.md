@@ -57,6 +57,8 @@ Getting Started
 
    Note: Microsoft HTML Help Workshop is only needed to be able to compile the
    help files.
+   
+   Update: Microsoft does not offer that download anymore.
 
 
 4. **Build Inno Setup**
