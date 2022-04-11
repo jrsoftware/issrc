@@ -532,7 +532,7 @@ uses
 
 const
   { Memos }
-  MaxMemos = 12; { Includes the main and preprocessor output memo's }
+  MaxMemos = 64+2; { Includes the main and preprocessor output memos }
   FirstIncludedFilesMemoIndex = 1; { This is an index into FFileMemos }
 
   { Status bar panel indexes }
