@@ -52,7 +52,6 @@ type
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
 function CreateTempDir: String;
-function CreateSafeDirectory(Path: PWideChar; var ErrorCode: DWORD): Boolean;
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Integer);
@@ -175,6 +174,62 @@ begin
   end;
 end;
 
+function ConvertStringSecurityDescriptorToSecurityDescriptorW(
+  StringSecurityDescriptor: PWideChar;
+  StringSDRevision: DWORD; var ppSecurityDescriptor: Pointer;
+  dummy: Pointer): BOOL; stdcall; external advapi32;
+
+function CreateSafeDirectory(Path: PWideChar; var ErrorCode: DWORD): Boolean;
+{ Creates a protected directory if it's a subdirectory of c:\WINDOWS\TEMP,
+  otherwise creates a normal directory. }
+const
+  SDDL_REVISION_1 = 1;
+var
+  CurrentUserSid, StringSecurityDescriptor: String;
+  pSecurityDescriptor: Pointer;
+  SecurityAttr: TSecurityAttributes;
+begin
+  if Pos(PathLowercase(AddBackslash(GetSystemWinDir) + 'TEMP\'),
+     PathLowercase(PathExpand(Path))) <> 1 then begin
+    Result := CreateDirectoryW(Path, nil);
+    if not Result then
+      ErrorCode := GetLastError;
+    Exit;
+  end;
+  CurrentUserSid := GetCurrentUserSid;
+  if CurrentUserSid = '' then
+    CurrentUserSid := 'OW'; // OW: owner rights
+  StringSecurityDescriptor :=
+    // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
+    // P: prevents DACL from being modified by inherited ACLs
+    'D:P' +
+    // A: "allow"
+    // OICI: "object and container inherit",
+    //    i.e. files and directories created within the new directory
+    //    inherit these permissions
+    // 0x001F01FF: corresponds to `FILE_ALL_ACCESS`
+    '(A;OICI;0x001F01FF;;;' + CurrentUserSid + ')' + // current user
+    '(A;OICI;0x001F01FF;;;BA)' + // BA: built-in administrator
+    '(A;OICI;0x001F01FF;;;SY)'; // SY: local SYSTEM account
+  if not ConvertStringSecurityDescriptorToSecurityDescriptorW(
+    PWideChar(StringSecurityDescriptor), SDDL_REVISION_1, pSecurityDescriptor, nil
+  ) then begin
+    ErrorCode := GetLastError;
+    Result := False;
+    Exit;
+  end;
+
+  SecurityAttr.nLength := SizeOf(SecurityAttr);
+  SecurityAttr.bInheritHandle := False;
+  SecurityAttr.lpSecurityDescriptor := pSecurityDescriptor;
+
+  Result := CreateDirectoryW(Path, @SecurityAttr);
+  if not Result then
+    ErrorCode := GetLastError;
+
+  LocalFree(pSecurityDescriptor);
+end;
+
 function IntToBase32(Number: Longint): String;
 const
   Table: array[0..31] of Char = '0123456789ABCDEFGHIJKLMNOPQRSTUV';
@@ -215,7 +270,7 @@ function GenerateNonRandomUniqueTempDir(Path: String; var TempDir: String): Bool
 { Creates a new temporary directory with a non-random name. Returns True if an
   existing directory was re-created. }
 var
-  Rand, RandOrig: Longint;
+  Rand, RandOrig: Longint; { These are acutally NOT random in any way }
   ErrorCode: DWORD;
 begin
   Path := AddBackslash(Path);
@@ -261,53 +316,6 @@ begin
          Win32ErrorString(ErrorCode)]));
   end;
   Result := Dir;
-end;
-
-function ConvertStringSecurityDescriptorToSecurityDescriptorW(
-  StringSecurityDescriptor: PWideChar;
-  StringSDRevision: DWORD; var ppSecurityDescriptor: Pointer;
-  dummy: Pointer): BOOL; stdcall; external advapi32;
-
-function CreateSafeDirectory(Path: PWideChar; var ErrorCode: DWORD): Boolean;
-const
-  SDDL_REVISION_1 = 1;
-var
-  CurrentUserSid, StringSecurityDescriptor: String;
-  pSecurityDescriptor: Pointer;
-  SecurityAttr: TSecurityAttributes;
-begin
-  CurrentUserSid := GetCurrentUserSid();
-  if CurrentUserSid = '' then
-    CurrentUserSid := 'OW'; // OW: owner rights
-  StringSecurityDescriptor :=
-    // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
-    // P: prevents DACL from being modified by inherited ACLs
-    'D:P' +
-    // A: "allow"
-    // OICI: "object and container inherit",
-    //    i.e. files and directories created within the new directory
-    //    inherit these permissions
-    // 0x001F01FF: corresponds to `FILE_ALL_ACCESS`
-    '(A;OICI;0x001F01FF;;;' + CurrentUserSid + ')' + // current user
-    '(A;OICI;0x001F01FF;;;BA)' + // BA: built-in administrator
-    '(A;OICI;0x001F01FF;;;SY)'; // SY: local SYSTEM account
-  if not ConvertStringSecurityDescriptorToSecurityDescriptorW(
-    PWideChar(StringSecurityDescriptor), SDDL_REVISION_1, pSecurityDescriptor, nil
-  ) then begin
-    ErrorCode := GetLastError;
-    Result := False;
-    Exit;
-  end;
-
-  SecurityAttr.nLength := SizeOf(SecurityAttr);
-  SecurityAttr.bInheritHandle := False;
-  SecurityAttr.lpSecurityDescriptor := pSecurityDescriptor;
-
-  Result := CreateDirectoryW(Path, @SecurityAttr);
-  if not Result then
-    ErrorCode := GetLastError;
-
-  LocalFree(pSecurityDescriptor);
 end;
 
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
