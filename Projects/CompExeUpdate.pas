@@ -471,7 +471,7 @@ begin
           NewGroupIconDir.ItemCount := Ico.ItemCount;
           for I := 0 to NewGroupIconDir.ItemCount-1 do begin
             NewGroupIconDir.Items[I].Header := Ico.Items[I].Header;
-            NewGroupIconDir.Items[I].Id := I+1; //assumes that there aren't any icons left
+            NewGroupIconDir.Items[I].Id := I+100; //start at 100 to avoid overwriting other icons that may exist
           end;
 
           { Update 'MAINICON' }
