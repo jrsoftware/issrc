@@ -53,7 +53,8 @@ Getting Started
 3. **Install Microsoft HTML Help Workshop**
 
    Install Microsoft HTML Help Workshop if you haven't already done so.
-   See https://www.microsoft.com/en-us/download/details.aspx?id=21138
+   See https://docs.microsoft.com/en-us/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads and 
+   http://web.archive.org/web/20160201063255/http://download.microsoft.com/download/0/A/9/0A939EF6-E31C-430F-A3DF-DFAE7960D564/htmlhelp.exe
 
    Note: Microsoft HTML Help Workshop is only needed to be able to compile the
    help files.
