@@ -79,6 +79,7 @@ function AddQuotes(const S: String): String;
 function RemoveQuotes(const S: String): String;
 function GetShortName(const LongName: String): String;
 function GetWinDir: String;
+function GetSystemWinDir: String;
 function GetSystemDir: String;
 function GetSysWow64Dir: String;
 function GetSysNativeDir(const IsWin64: Boolean): String;
@@ -702,6 +703,22 @@ var
   Buf: array[0..MAX_PATH-1] of Char;
 begin
   GetWindowsDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+  Result := StrPas(Buf);
+end;
+
+function GetSystemWindowsDirectoryW(lpBuffer: LPWSTR; uSize: UINT): UINT; stdcall; external kernel32;
+
+function GetSystemWinDir: String;
+{ Like get GetWinDir but uses GetSystemWindowsDirectory instead of
+  GetWindowsDirectory: With Terminal Services, the GetSystemWindowsDirectory
+  function retrieves the path of the system Windows directory, while the
+  GetWindowsDirectory function retrieves the path of a Windows directory that is
+  private for each user. On a single-user system, GetSystemWindowsDirectory is
+  the same as GetWindowsDirectory. }
+var
+  Buf: array[0..MAX_PATH-1] of Char;
+begin
+  GetSystemWindowsDirectoryW(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
   Result := StrPas(Buf);
 end;
 
