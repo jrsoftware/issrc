@@ -270,7 +270,7 @@ function GenerateNonRandomUniqueTempDir(Path: String; var TempDir: String): Bool
 { Creates a new temporary directory with a non-random name. Returns True if an
   existing directory was re-created. }
 var
-  Rand, RandOrig: Longint; { These are acutally NOT random in any way }
+  Rand, RandOrig: Longint; { These are actually NOT random in any way }
   ErrorCode: DWORD;
 begin
   Path := AddBackslash(Path);
