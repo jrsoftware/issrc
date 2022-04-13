@@ -30,7 +30,7 @@ uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs, CommDlg,
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors, CompScintEdit,
-  DebugStruct, CompInt, UxTheme, ImageList, ImgList, ToolWin, CompFunc,
+  DebugStruct, CompInt, UxTheme, ImageList, ImgList, ToolWin, CompFunc, Generics.Defaults,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
 const
@@ -215,6 +215,10 @@ type
     PrintDialog: TPrintDialog;
     MemosPopupMenu: TPopupMenu;
     FMClose: TMenuItem;
+    FMReopen: TMenuItem;
+    placeholder1: TMenuItem;
+    VCloseTab: TMenuItem;
+    VReopenTab: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -315,6 +319,7 @@ type
     procedure FindResultsListDblClick(Sender: TObject);
     procedure FPrintClick(Sender: TObject);
     procedure MemoCloseClick(Sender: TObject);
+    procedure MemoReopenClick(Sender: TObject);
     procedure OnMemosPopup(Sender: TObject);
   private
     { Private declarations }
@@ -322,7 +327,8 @@ type
     FMainMemo: TCompScintFileEdit;                      { Doesn't change }
     FPreprocessorOutputMemo: TCompScintEdit;            { Doesn't change }
     FFileMemos: TList<TCompScintFileEdit>;              { All memos except FPreprocessorOutputMemo }
-    FHiddenFiles : TDictionary<TCompScintEdit,Integer>; { Poor man's hash set to keep track of closed tabs }
+    FHiddenFiles : TDictionary<string,Integer>;         { Poor man's hash set to keep track of closed <filename>s }
+    FLastHideID : Integer;                              { used with FHiddenFiles and TMenuItem.Tag  }
     FActiveMemo: TCompScintEdit;                        { Changes depending on user input }
     FErrorMemo, FStepMemo: TCompScintFileEdit;          { These change depending on user input }
     FMemosStyler: TInnoSetupStyler;                     { Single styler for all memos }
@@ -412,12 +418,14 @@ type
     procedure DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
     procedure DestroyDebugInfo;
     procedure DetachDebugger;
+    procedure EnsureFileMemoVisible(const Memo: TCompScintFileEdit);
     function EvaluateConstant(const S: String; var Output: String): Integer;
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       var Output: String): Integer;
     procedure FindNext;
     function FromCurrentPPI(const XY: Integer): Integer;
     procedure Go(AStepMode: TStepMode);
+    function GetNextHiddenIndex : Integer;
     procedure HideError;
     procedure InitializeFindText(Dlg: TFindDialog);
     function InitializeFileMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
@@ -440,6 +448,7 @@ type
     procedure MemoModifiedChange(Sender: TObject);
     function MemoToTabIndex(const AMemo: TCompScintEdit): Integer;
     procedure MemoUpdateUI(Sender: TObject);
+    procedure MenuAppendHiddenFiles(const container : TMenuItem);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
     procedure MoveCaretAndActivateMemo(const AMemo: TCompScintEdit; const LineNumber: Integer; const AlwaysResetColumn: Boolean);
@@ -769,7 +778,7 @@ begin
   for Memo in FMemos do
     if Memo is TCompScintFileEdit then
       FFileMemos.Add(TCompScintFileEdit(Memo));
-  FHiddenFiles := TDictionary<TCompScintEdit,Integer>.Create;
+  FHiddenFiles := TDictionary<string,Integer>.Create( TIStringComparer.Ordinal); // case-insensitive, we're on Windows
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
   FErrorMemo := FMainMemo;
@@ -1020,6 +1029,7 @@ begin
     UpdateTargetMenu;
   end;
   FHiddenFiles.Clear;
+  FLastHideID := 0;
   for Memo in FFileMemos do
     if Memo.Used then
       Memo.BreakPoints.Clear;
@@ -1038,23 +1048,29 @@ end;
 
 procedure TCompileForm.LoadKnownIncludedFilesAndUpdateMemos(const AFilename: String);
 var
-  Strings: TStringList;
+  included, hidden: TStringList;
   IncludedFile: TIncludedFile;
   I: Integer;
+  s : string;
 begin
   if FIncludedFiles.Count <> 0 then
     raise Exception.Create('FIncludedFiles.Count <> 0'); { NewMainFile should have been called }
 
   try
     if AFilename <> '' then begin
-      Strings := TStringList.Create;
+      hidden := nil;
+      included := TStringList.Create;
       try
-        LoadKnownIncludedFiles(AFilename, Strings);
-        if Strings.Count > 0 then begin
+        hidden := TStringList.Create;
+        LoadKnownIncludedFiles(AFilename, included, hidden);
+        if included.Count > 0 then begin
+          for s in hidden do
+            FHiddenFiles.Add( s, GetNextHiddenIndex);
+
           try
-            for I := 0 to Strings.Count-1 do begin
+            for I := 0 to included.Count-1 do begin
               IncludedFile := TIncludedFile.Create;
-              IncludedFile.Filename := Strings[I];
+              IncludedFile.Filename := included[I];
               IncludedFile.CompilerFileIndex := UnknownCompilerFileIndex;
               IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
                 @IncludedFile.LastWriteTime);
@@ -1065,7 +1081,8 @@ begin
           end;
         end;
       finally
-        Strings.Free;
+        included.Free;
+        hidden.Free;
       end;
     end;
   except
@@ -1075,18 +1092,24 @@ end;
 
 procedure TCompileForm.SaveKnownIncludedFiles(const AFilename: String);
 var
-  Strings: TStringList;
+  included, hidden : TStringList;
   IncludedFile: TIncludedFile;
+  s : string;
 begin
   try
     if AFilename <> '' then begin
-      Strings := TStringList.Create;
+      hidden := nil;
+      included := TStringList.Create;
       try
+        hidden := TStringList.Create;
         for IncludedFile in FIncludedFiles do
-          Strings.Add(IncludedFile.Filename);
-        CompFunc.SaveKnownIncludedFiles(AFilename, Strings);
+          included.Add(IncludedFile.Filename);
+        for s in FHiddenFiles.Keys do
+          hidden.Add(s);
+        CompFunc.SaveKnownIncludedFiles(AFilename, included, hidden);
       finally
-        Strings.Free;
+        included.Free;
+        hidden.Free;
       end;
     end;
   except
@@ -1494,6 +1517,7 @@ procedure TCompileForm.CompileFile(AFilename: String; const ReadFromFile: Boolea
   function GetMemoFromErrorFilename(const ErrorFilename: String): TCompScintFileEdit;
   var
     Memo: TCompScintFileEdit;
+    sClosed : string;
   begin
     if ErrorFilename = '' then
       Result := FMainMemo
@@ -1502,6 +1526,7 @@ procedure TCompileForm.CompileFile(AFilename: String; const ReadFromFile: Boolea
         for Memo in FFileMemos do begin
           if Memo.Used and (PathCompare(Memo.Filename, ErrorFilename) = 0) then begin
             Result := Memo;
+            EnsureFileMemoVisible(Memo);
             Exit;
           end;
         end;
@@ -2227,11 +2252,18 @@ begin
   VStatusBar.Checked := StatusBar.Visible;
   VNextTab.Enabled := MemosTabSet.Visible and (MemosTabSet.Tabs.Count > 1);
   VPreviousTab.Enabled := VNextTab.Enabled;
+  VCloseTab.Enabled := MemosTabSet.Visible and (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
+  VReopenTab.Visible := (FHiddenFiles.Count > 0);
   VHide.Checked := not StatusPanel.Visible;
   VCompilerOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiCompilerOutput);
   VDebugOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugOutput);
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
   VFindResults.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiFindResults);
+
+  if VReopenTab.Visible then begin
+    VReopenTab.Clear;
+    MenuAppendHiddenFiles(VReopenTab);
+  end;
 end;
 
 procedure TCompileForm.VNextTabClick(Sender: TObject);
@@ -2600,10 +2632,39 @@ begin
     OpenFile(FMainMemo, CommandLineFilename, False);
 end;
 
+procedure TCompileForm.MenuAppendHiddenFiles(const container : TMenuItem);
+var sorted : TStringList;
+    sFile : string;
+    item : TMenuItem;
+begin
+  sorted := TStringList.Create( dupIgnore, TRUE, FALSE);
+  try
+    for sFile in FHiddenFiles.Keys do
+      sorted.Add( sFile);
+
+    for sFile in sorted do begin
+      item := TMenuItem.Create(container);
+      item.Caption := ExtractFileName( sFile);
+      item.Tag     := FHiddenFiles[sFile];
+      item.OnClick := MemoReopenClick;
+      container.Add( item);
+    end;
+
+  finally
+    sorted.Free;
+  end;
+end;
+
 procedure TCompileForm.OnMemosPopup(Sender: TObject);
 begin
   { main and preprocessor memos can't be hidden }
   FMClose.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
+
+  FMReopen.Visible := (FHiddenFiles.Count > 0);
+  if FMReopen.Visible then begin
+    FMReopen.Clear;
+    MenuAppendHiddenFiles(FMReopen);
+  end;
 end;
 
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
@@ -2620,7 +2681,7 @@ procedure TCompileForm.MemosTabSetClick(Sender: TObject);
       { only count memos not explicitly hidden by the user }
       iTab := 0;
       for iMemo := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
-        if not FHiddenFiles.ContainsKey(FFileMemos[iMemo]) then begin
+        if not FHiddenFiles.ContainsKey(FFileMemos[iMemo].Filename) then begin
           Inc(iTab);
           if iTab = TabIndex then begin
             result := iMemo + 1;   { Other tabs display include files which start second tab but at FMemos[2] }
@@ -3062,11 +3123,20 @@ begin
 
     // filter memos explicitly closed by the user
     for iMemo := result-1 downto 0 do
-      if FHiddenFiles.ContainsKey(FFileMemos[iMemo]) then
+      if FHiddenFiles.ContainsKey(FFileMemos[iMemo].Filename) then
         Dec(result);
   end;
 end;
 
+procedure TCompileForm.EnsureFileMemoVisible(const Memo: TCompScintFileEdit);
+begin
+  if (Memo = nil) or Memo.Visible or not Memo.Used then
+    Exit;
+
+  Memo.Visible := TRUE;
+  FHiddenFiles.Remove(Memo.Filename);
+  UpdatePreprocMemos;
+end;
 
 procedure TCompileForm.MoveCaretAndActivateMemo(const AMemo: TCompScintEdit; const LineNumber: Integer;
   const AlwaysResetColumn: Boolean);
@@ -3217,7 +3287,7 @@ procedure TCompileForm.UpdatePreprocMemos;
             end;
 
             // except when it's hidden
-            if FHiddenFiles.ContainsKey(FFileMemos[NextMemoIndex]) then
+            if FHiddenFiles.ContainsKey(FFileMemos[NextMemoIndex].Filename) then
               Continue;
 
             NewTabIndex := 1+NextMemoIndex-FirstIncludedFilesMemoIndex;
@@ -4197,6 +4267,12 @@ begin
   end;
 end;
 
+function TCompileForm.GetNextHiddenIndex : Integer;
+begin
+  Inc(FLastHideID);
+  result := FLastHideID;
+end;
+
 procedure TCompileForm.MemoCloseClick(Sender: TObject);
 var
  idx : Integer;
@@ -4212,12 +4288,38 @@ begin
   MemosTabSet.Tabs.Delete(idx);
   MemosTabSet.Hints.Delete(idx);
   FActiveMemo.Visible := FALSE;
-  FHiddenFiles.Add( FActiveMemo, 0);
+  FHiddenFiles.Add( (FActiveMemo as TCompScintFileEdit).Filename, GetNextHiddenIndex);
+  SaveKnownIncludedFiles(FMainMemo.Filename);
 
   { select next tab, except when we're already at the end }
   VNextTabClick(Self);
   VPreviousTabClick(Self);
 end;
+
+procedure TCompileForm.MemoReopenClick(Sender: TObject);
+var item : TMenuItem;
+    entry : TPair<string,Integer>;
+    memo : TCompScintFileEdit;
+begin
+  item := Sender as TMenuItem;
+  for entry in FHiddenFiles do begin
+    if item.Tag = entry.Value then begin
+      FHiddenFiles.Remove(entry.Key);
+      UpdatePreprocMemos;
+      SaveKnownIncludedFiles(FMainMemo.Filename);
+
+      // make it current
+      for memo in FFileMemos do begin
+        if PathCompare( memo.Filename, entry.Key) = 0 then begin
+          MemosTabSet.TabIndex := MemoToTabIndex(memo);
+          MemosTabSetClick(Self);
+          Break;
+        end;
+      end;
+    end;
+  end;
+end;
+
 
 procedure TCompileForm.DebuggingStopped(const WaitForTermination: Boolean);
 

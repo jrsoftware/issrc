@@ -514,6 +514,13 @@ object CompileForm: TCompileForm
         ShortCut = 24585
         OnClick = VPreviousTabClick
       end
+      object VCloseTab: TMenuItem
+        Caption = 'Close Tab'
+        OnClick = MemoCloseClick
+      end
+      object VReopenTab: TMenuItem
+        Caption = 'Reopen Tab'
+      end
       object N20: TMenuItem
         Caption = '-'
       end
@@ -4308,6 +4315,12 @@ object CompileForm: TCompileForm
     object FMClose: TMenuItem
       Caption = 'Close'
       OnClick = MemoCloseClick
+    end
+    object FMReopen: TMenuItem
+      Caption = 'Reopen'
+      object placeholder1: TMenuItem
+        Caption = '(placeholder)'
+      end
     end
   end
 end
