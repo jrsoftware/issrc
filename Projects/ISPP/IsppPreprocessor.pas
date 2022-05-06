@@ -362,7 +362,7 @@ begin
                 ProcessPreprocCommand(Command, S, DirectiveOffset));
             pcElseIf:
               FStack.ElseIfInstruction(FStack.Last.Fired or
-                (FStack.Include or not FStack.Last.BlockState) and
+                FStack.Include(1) and
                 ProcessPreprocCommand(Command, S, DirectiveOffset));
             pcElse: FStack.ElseInstruction;
             pcEndIf: FStack.EndIfInstruction
@@ -512,7 +512,7 @@ begin
             ProcessPreprocCommand(Command, S, DStart - LineStart));
         pcElseIf:
           LineStack.ElseIfInstruction(LineStack.Last.Fired or
-            (LineStack.Include or not LineStack.Last.BlockState) and
+            LineStack.Include(1) and
             ProcessPreprocCommand(Command, S, DStart - LineStart));
         pcElse: LineStack.ElseInstruction;
         pcEndIf: LineStack.EndIfInstruction;
@@ -1246,7 +1246,7 @@ begin
     FPreproc.RaiseError(SEndifWithoutIf);
 end;
 
-function TConditionalTranslationStack.Include: Boolean;
+function TConditionalTranslationStack.Include(SkipLastBlock : Integer = 0): Boolean;
 var
   I: Integer;
 begin
@@ -1259,7 +1259,7 @@ begin
     begin
       Result := False;
       FCache := False;
-      for I := Count - 1 downto 0 do
+      for I := Count - 1 - SkipLastBlock downto 0 do
         if not TConditionalBlockInfo(List[I]).BlockState then Exit;
     end;
     Result := True;
