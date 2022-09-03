@@ -266,7 +266,7 @@ workflow will be triggered automatically.
 
 ### Setting up code-signing with Continuous Integration
 
-InnoSetup's official releases ship with executable files that are
+Inno Setup's official releases ship with executable files that are
 [code-signed](https://en.wikipedia.org/wiki/Code_signing), to allow users to
 verify that these files come from a trusted source.
 
