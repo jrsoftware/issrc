@@ -33,7 +33,7 @@ LanguageCodePage=1250
 SetupAppTitle=Telepítő
 SetupWindowTitle=%1 - Telepítő
 UninstallAppTitle=Eltávolító
-UninstallAppFullTitle=%1 Eltávolító
+UninstallAppFullTitle=%1 - Eltávolító
 
 ; *** Misc. common
 InformationTitle=Információk
@@ -227,7 +227,7 @@ ErrorFileSize=Érvénytelen fájlméret, várt méret %1, számított: %2
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Felkészülés a telepítésre
 PreparingDesc=A Telepítő felkészül a(z) [name] számítógépre történő telepítéshez.
-PreviousInstallNotCompleted=gy korábbi program telepítése/eltávolítása nem fejeződött be. Újra kell indítania a számítógépét a másik telepítés befejezéséhez.%n%nA számítógépe újraindítása után ismét futtassa a Telepítőt a(z) [name] telepítésének befejezéséhez.
+PreviousInstallNotCompleted=Egy korábbi program telepítése/eltávolítása nem fejeződött be. Újra kell indítania a számítógépét a másik telepítés befejezéséhez.%n%nA számítógépe újraindítása után ismét futtassa a Telepítőt a(z) [name] telepítésének befejezéséhez.
 CannotContinue=A telepítés nem folytatható. A kilépéshez kattintson a 'Mégse'-re.
 ApplicationsFound=A következő alkalmazások olyan fájlokat használnak, amelyeket a Telepítőnek frissíteni kell. Ajánlott, hogy engedélyezze a Telepítőnek ezen alkalmazások automatikus bezárását.
 ApplicationsFound2=A következő alkalmazások olyan fájlokat használnak, amelyeket a Telepítőnek frissíteni kell. Ajánlott, hogy engedélyezze a Telepítőnek ezen alkalmazások automatikus bezárását. A telepítés befejezése után, a Telepítő megkísérli az alkalmazások újraindítását.
