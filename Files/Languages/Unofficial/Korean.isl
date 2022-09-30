@@ -1,6 +1,12 @@
 ; *** Inno Setup version 6.1.0+ Korean messages ***
 
-; Translator: VenusGirl (venusgirl@outlook.com)
+; ▒ 6.2.1+ Translator: VenusGirl (venusgirl@outlook.com)
+; ▒ 6.2.0+ Translator: Logan.Hwang (logan.hwang@blueant.kr)
+; ▒ 6.0.3+ Translator: SungDong Kim (acroedit@gmail.com)
+; ▒ 5.5.3+ Translator: Domddol (domddol@gmail.com)
+; ▒ Contributors: Hansoo KIM (iryna7@gmail.com), Woong-Jae An (a183393@hanmail.net)
+; ▒ Translation date: AUG 23, 2022
+; ▒ 이 번역은 새로운 한국어 맞춤법 규칙을 준수합니다.
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -69,7 +75,7 @@ UninstallAppRunningError=제거에서 %1이(가) 현재 실행 중임을 감지�
 PrivilegesRequiredOverrideTitle=설치 모드 선택
 PrivilegesRequiredOverrideInstruction=설치 모드를 선택해 주십시오
 PrivilegesRequiredOverrideText1=%1은 모든 사용자 (관리자 권한 필요) 또는 사용자용으로 설치합니다.
-PrivilegesRequiredOverrideText2=%1은 현재 사용자 또는 모든 사용자 (관리자 권한 필요) 용으로 설치합니다.
+PrivilegesRequiredOverrideText2=%1은 현재 사용자 또는 모든 사용자 (관리자 권한 필요)용으로 설치합니다.
 PrivilegesRequiredOverrideAllUsers=모든 사용자용으로 설치(&A)
 PrivilegesRequiredOverrideAllUsersRecommended=모든 사용자용으로 설치 (추천)(&A)
 PrivilegesRequiredOverrideCurrentUser=현재 사용자용으로 설치(&M)
