@@ -5666,7 +5666,8 @@ SignTool=byparam format c:
 <tr><td>10.0.19043</td><td>Windows 10 Version 21H1 (May 2021 Update)</td></tr>
 <tr><td>10.0.19044</td><td>Windows 10 Version 21H2 (November 2021 Update)</td></tr>
 <tr><td>10.0.20348</td><td>Windows Server 2022 Version 21H2</td></tr>
-<tr><td>10.0.22000</td><td>Windows 11 Version 21H2 (N/A)</td></tr>
+<tr><td>10.0.22000</td><td>Windows 11 Version 21H2 (original release)</td></tr>
+<tr><td>10.0.22621</td><td>Windows 11 Version 22H2 (2022 Update)</td></tr>
 </table>
 <p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>
