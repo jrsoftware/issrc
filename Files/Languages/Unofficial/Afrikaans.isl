@@ -151,6 +151,7 @@ WizardSelectDir=Kies bestemming
 SelectDirDesc=Waar moet [name] ge�nstalleer word?
 SelectDirLabel3=Die installeerder sal [name] installeer in die volgende vouer.
 SelectDirBrowseLabel=Om voort te gaan, kliek Volgende. Indien u 'n ander vouer wil kies, kliek Rondblaai.
+DiskSpaceGBLabel=Ten minste [gb] GG oop hardeskyfspasie word benodig.
 DiskSpaceMBLabel=Ten minste [mb] MG oop hardeskyfspasie word benodig.
 CannotInstallToNetworkDrive=Installeerder kan nie op 'n netwerk-skyf installeer word nie.
 CannotInstallToUNCPath=Installeerder kan nie na 'n UNC-roete installeer nie.
@@ -178,7 +179,7 @@ NoUninstallWarningTitle=Komponente Bestaan
 NoUninstallWarning=Die installeerder het bespeur dat die volgende komponente reeds op u rekenaar ge�nstalleer is:%n%n%1%n%nDeur die komponente te deselekteer sal hulle nie verwyder nie.%n%nWil u ten spyte daarvan voortgaan?
 ComponentSize1=%1 KG
 ComponentSize2=%1 MG
-ComponentsDiskSpaceGBLabel=uidige keuse vereis ten minste [gb] GG skyfspasie.
+ComponentsDiskSpaceGBLabel=Huidige keuse vereis ten minste [gb] GG skyfspasie.
 ComponentsDiskSpaceMBLabel=Huidige keuse vereis ten minste [mb] MG skyfspasie.
 
 ; *** "Select Additional Tasks" wizard page
