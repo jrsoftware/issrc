@@ -24,6 +24,7 @@ procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
 function DownloadTemporaryFileSize(const Url: String): Int64;
+function DownloadTemporaryFileDate(const Url: String): String;
 
 implementation
 
@@ -3498,7 +3499,35 @@ procedure SetUserAgentAndSecureProtocols(const AHTTPClient: THTTPClient);
 begin
   AHTTPClient.UserAgent := SetupTitle + ' ' + SetupVersion;
   { TLS 1.2 isn't enabled by default on older versions of Windows }
-  AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12];
+  AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
+end;
+
+function StripURL(const URL:string):string;
+var
+  AtPos,SchemePos,StartPos:integer;
+  i:integer;
+begin
+  { test for scheme in URL }
+  SchemePos := Pos('://',URL);
+  if SchemePos > 0 then
+    inc(SchemePos,2)
+  else
+    SchemePos := 1;
+  { test for username/password in URL }
+  AtPos := Pos('@',URL);
+  if AtPos > 0 then
+  begin
+    StartPos := SchemePos;
+    for i:=AtPos downto SchemePos do
+      if URL[i] = ':' then
+      begin
+        StartPos := i;
+        break;
+      end;
+    result := copy(URL,1,StartPos)+'***'+copy(URL,AtPos,length(URL));
+  end
+  else
+    result := Url;
 end;
 
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
@@ -3522,7 +3551,7 @@ begin
 
   DestFile := AddBackslash(TempInstallDir) + BaseName;
 
-  LogFmt('Downloading temporary file from %s: %s', [Url, DestFile]);
+  LogFmt('Downloading temporary file from %s: %s', [StripUrl(Url), DestFile]);
 
   DisableFsRedir := InstallDefaultDisableFsRedir;
 
@@ -3532,7 +3561,7 @@ begin
       Log('  File already downloaded.');
       Result := 0;
       Exit;
-    end;    
+    end;
     SetFileAttributesRedir(DisableFsRedir, DestFile, GetFileAttributesRedir(DisableFsRedir, DestFile) and not FILE_ATTRIBUTE_READONLY);
     DelayDeleteFile(DisableFsRedir, DestFile, 13, 50, 250);
   end else
@@ -3634,7 +3663,7 @@ begin
   if Url = '' then
     InternalError('DownloadTemporaryFileSize: Invalid Url value');
 
-  LogFmt('Getting size of %s.', [Url]);
+  LogFmt('Getting size of %s.', [StripUrl(Url)]);
 
   HTTPClient := THTTPClient.Create;
   try
@@ -3644,6 +3673,29 @@ begin
       raise Exception.Create(FmtSetupMessage(msgErrorDownloadSizeFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
     else
       Result := HTTPResponse.ContentLength; { Could be -1 }
+  finally
+    HTTPClient.Free;
+  end;
+end;
+
+function DownloadTemporaryFileDate(const Url: String): string;
+var
+  HTTPClient: THTTPClient;
+  HTTPResponse: IHTTPResponse;
+begin
+  if Url = '' then
+    InternalError('DownloadTemporaryFileDate: Invalid Url value');
+
+  LogFmt('Getting date of %s.', [StripUrl(Url)]);
+
+  HTTPClient := THTTPClient.Create;
+  try
+    SetUserAgentAndSecureProtocols(HTTPClient);
+    HTTPResponse := HTTPClient.Head(Url);
+    if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
+      raise Exception.Create(FmtSetupMessage(msgErrorDownloadSizeFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
+    else
+      Result := HTTPResponse.LastModified; { Could be -1 }
   finally
     HTTPClient.Free;
   end;
