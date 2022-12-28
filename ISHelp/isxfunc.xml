@@ -1806,7 +1806,7 @@ end;</pre>
         <name>DownloadTemporaryFileSize</name>
         <prototype>function DownloadTemporaryFileSize(const Url): Int64;</prototype>
         <description>
-          <p>Returns the size of the file from the specified URL, without downloading the file. If the server does not provide the date, '' will be returned.</p>
+          <p>Returns the size of the file from the specified URL, without downloading the file. If the server does not provide the date, -1 will be returned.</p>
           <p>An exception will be raised if there was an error.</p>
           <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p>
         </description>
@@ -1815,7 +1815,7 @@ end;</pre>
         <name>DownloadTemporaryFileDate</name>
         <prototype>function DownloadTemporaryFileDate(const Url): String;</prototype>
         <description>
-          <p>Returns the last modified date of the file from the specified URL, without downloading the file. If the server does not provide the file size, -1 will be returned.</p>
+          <p>Returns the last modified date of the file from the specified URL, without downloading the file. If the server does not provide the file size, '' will be returned.</p>
           <p>An exception will be raised if there was an error.</p>
           <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p>
         </description>
