@@ -3499,7 +3499,7 @@ procedure SetUserAgentAndSecureProtocols(const AHTTPClient: THTTPClient);
 begin
   AHTTPClient.UserAgent := SetupTitle + ' ' + SetupVersion;
   { TLS 1.2 isn't enabled by default on older versions of Windows }
-  AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
+  AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12];
 end;
 
 function StripURL(const URL:string):string;
@@ -3655,16 +3655,11 @@ begin
   end;
 end;
 
-function DownloadTemporaryFileSize(const Url: String): Int64;
+procedure DownloadTemporaryFileAttributes(const Url: String; var FileSize: Int64; var FileDate: String);
 var
   HTTPClient: THTTPClient;
   HTTPResponse: IHTTPResponse;
 begin
-  if Url = '' then
-    InternalError('DownloadTemporaryFileSize: Invalid Url value');
-
-  LogFmt('Getting size of %s.', [StripUrl(Url)]);
-
   HTTPClient := THTTPClient.Create;
   try
     SetUserAgentAndSecureProtocols(HTTPClient);
@@ -3672,33 +3667,37 @@ begin
     if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
       raise Exception.Create(FmtSetupMessage(msgErrorDownloadSizeFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
     else
-      Result := HTTPResponse.ContentLength; { Could be -1 }
+    begin
+      FileSize := HTTPResponse.ContentLength;
+      FileDate := HTTPResponse.LastModified;
+    end;
   finally
     HTTPClient.Free;
   end;
 end;
 
+function DownloadTemporaryFileSize(const Url: String): Int64;
+var
+  FileSize: Int64;
+  FileDate: String;
+begin
+  if Url = '' then
+    InternalError('DownloadTemporaryFileSize: Invalid Url value');
+  LogFmt('Getting size of %s.', [StripUrl(Url)]);
+  DownloadTemporaryFileAttributes(Url, FileSize, FileDate);
+  result := FileSize;
+end;
+
 function DownloadTemporaryFileDate(const Url: String): string;
 var
-  HTTPClient: THTTPClient;
-  HTTPResponse: IHTTPResponse;
+  FileSize: Int64;
+  FileDate: String;
 begin
   if Url = '' then
     InternalError('DownloadTemporaryFileDate: Invalid Url value');
-
-  LogFmt('Getting date of %s.', [StripUrl(Url)]);
-
-  HTTPClient := THTTPClient.Create;
-  try
-    SetUserAgentAndSecureProtocols(HTTPClient);
-    HTTPResponse := HTTPClient.Head(Url);
-    if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
-      raise Exception.Create(FmtSetupMessage(msgErrorDownloadSizeFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
-    else
-      Result := HTTPResponse.LastModified; { Could be -1 }
-  finally
-    HTTPClient.Free;
-  end;
+  LogFmt('Getting last modified date of %s.', [StripUrl(Url)]);
+  DownloadTemporaryFileAttributes(Url, FileSize, FileDate);
+  result := FileDate;
 end;
 
 end.
