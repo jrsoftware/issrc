@@ -33,7 +33,8 @@ uses
   InstFunc, InstFnc2, SecurityFunc, Msgs, Main, Logging, Extract, FileClass,
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
-  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager, Net.HTTPClient;
+  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager,
+  Net.HTTPClient, Net.URLClient, NetEncoding;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -3504,30 +3505,29 @@ end;
 
 function StripURL(const URL:string):string;
 var
-  AtPos,SchemePos,StartPos:integer;
-  i:integer;
+  Uri: TUri;
 begin
-  { test for scheme in URL }
-  SchemePos := Pos('://',URL);
-  if SchemePos > 0 then
-    inc(SchemePos,2)
-  else
-    SchemePos := 1;
-  { test for username/password in URL }
-  AtPos := Pos('@',URL);
-  if AtPos > 0 then
+  Uri := TUri.Create(URL);
+  if Uri.Password <> '' then
   begin
-    StartPos := SchemePos;
-    for i:=AtPos downto SchemePos do
-      if URL[i] = ':' then
-      begin
-        StartPos := i;
-        break;
-      end;
-    result := copy(URL,1,StartPos)+'***'+copy(URL,AtPos,length(URL));
+    Uri.Password := '***';
+    result := Uri.ToString;
   end
   else
-    result := Url;
+    result := URL;
+end;
+
+function GetCredentials(const URL: string; var User, Pass, StripUrl: string):bool;
+var
+  Uri: TUri;
+begin
+  Uri := TUri.Create(Url);
+  User := TUri.URLDecode(Uri.Username);
+  Pass := TUri.URLDecode(Uri.Password,true);
+  Uri.Username := '';
+  Uri.Password := '';
+  StripUrl := Uri.ToString;
+  result := (User <> '') and (Pass <> '');
 end;
 
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
@@ -3543,6 +3543,9 @@ var
   SHA256OfFile: String;
   RetriesLeft: Integer;
   LastError: DWORD;
+  User, Pass, SUrl: string;
+  HasCredentials : Boolean;
+  Base64: TBase64Encoding;
 begin
   if Url = '' then
     InternalError('DownloadTemporaryFile: Invalid Url value');
@@ -3572,11 +3575,14 @@ begin
   TempF := nil;
   TempFileLeftOver := False;
   HandleStream := nil;
+  Base64 := nil;
+  HasCredentials := GetCredentials(URL, User, Pass, SUrl);
+
   try
     { Setup downloader }
     HTTPDataReceiver := THTTPDataReceiver.Create;
     HTTPDataReceiver.BaseName := BaseName;
-    HTTPDataReceiver.Url := Url;
+    HTTPDataReceiver.Url := SUrl;
     HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
 
     HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
@@ -3598,7 +3604,10 @@ begin
 
     { Download to temporary file}
     HandleStream := THandleStream.Create(TempF.Handle);
-    HTTPResponse := HTTPClient.Get(Url, HandleStream);
+    Base64 := TBase64Encoding.Create(0);
+    if HasCredentials then
+      HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
+    HTTPResponse := HTTPClient.Get(SUrl, HandleStream);
     if HTTPDataReceiver.Aborted then
       raise Exception.Create(SetupMessages[msgErrorDownloadAborted])
     else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
@@ -3646,6 +3655,7 @@ begin
       TempFileLeftOver := False;
     end;
   finally
+    Base64.Free;
     HandleStream.Free;
     TempF.Free;
     HTTPClient.Free;
@@ -3659,11 +3669,18 @@ procedure DownloadTemporaryFileAttributes(const Url: String; var FileSize: Int64
 var
   HTTPClient: THTTPClient;
   HTTPResponse: IHTTPResponse;
+  User, Pass, SUrl: string;
+  HasCredentials : Boolean;
+  Base64: TBase64Encoding;
 begin
   HTTPClient := THTTPClient.Create;
+  HasCredentials := GetCredentials(URL, User, Pass, SUrl);
   try
+    Base64 := TBase64Encoding.Create(0);
+    if HasCredentials then
+      HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
     SetUserAgentAndSecureProtocols(HTTPClient);
-    HTTPResponse := HTTPClient.Head(Url);
+    HTTPResponse := HTTPClient.Head(SUrl);
     if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
       raise Exception.Create(FmtSetupMessage(msgErrorDownloadSizeFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
     else
@@ -3673,6 +3690,7 @@ begin
     end;
   finally
     HTTPClient.Free;
+    Base64.Free;
   end;
 end;
 

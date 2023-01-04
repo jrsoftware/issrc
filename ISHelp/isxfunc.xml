@@ -1769,7 +1769,7 @@ end;</pre></example>
 <p>If RequiredSHA256OfFile is set it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded. Returns 0 if RequiredSHA256OfFile is set and the file was already downloaded.</p>
 <p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
-<p>For basic authentication use a special URL format like this: http://username:password@example.com/</p>
+<p>For basic authentication use a special URL format like this: http://username:password@example.com/ Do not use URL-encoding for username and passwords (this will be done internally)!</p>
 <p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnDownloadProgress is defined as:</p>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;</tt></p>
