@@ -3604,9 +3604,11 @@ begin
 
     { Download to temporary file}
     HandleStream := THandleStream.Create(TempF.Handle);
-    Base64 := TBase64Encoding.Create(0);
     if HasCredentials then
+    begin
+      Base64 := TBase64Encoding.Create(0);
       HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
+    end;
     HTTPResponse := HTTPClient.Get(SUrl, HandleStream);
     if HTTPDataReceiver.Aborted then
       raise Exception.Create(SetupMessages[msgErrorDownloadAborted])
@@ -3674,11 +3676,14 @@ var
   Base64: TBase64Encoding;
 begin
   HTTPClient := THTTPClient.Create;
+  Base64 := nil;
   HasCredentials := GetCredentials(URL, User, Pass, SUrl);
   try
-    Base64 := TBase64Encoding.Create(0);
     if HasCredentials then
+    begin
+      Base64 := TBase64Encoding.Create(0);
       HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
+    end;
     SetUserAgentAndSecureProtocols(HTTPClient);
     HTTPResponse := HTTPClient.Head(SUrl);
     if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
