@@ -518,7 +518,7 @@ begin
   if P = 0 then
     ResUpdateError('Block not found');
   if Copy(S, P+BlockLength, 11) <> '</assembly>' then
-    ResUpdateError('Block too short');
+    ResUpdateError('Block too short (BlockLength should be '+string(IntToStr(Pos('</assembly>', string(S))-P)+'): '+string(Copy(S, P+BlockLength, 11))));
 
   if TestBlockOnly then
     Exit;
