@@ -110,6 +110,11 @@ jobs:
           ver="$(sed -n 's/^set VER=//p' <build.bat)" &&
           mt '-inputresource:Output\innosetup-'$ver.exe -out:innosetup-$ver.manifest &&
           cat innosetup-$ver.manifest &&
+          mkdir -p Output/innosetup-$ver.exe.Local &&
+          cp -R "$(cygpath -au "$SYSTEMROOT")"/WinSxS/x86_microsoft.windows.common-controls_* Output/innosetup-$ver.exe.Local/ &&
+          mkdir Output/innosetup-$ver.en-US &&
+          mkdir Output/innosetup-$ver.en &&
+          mkdir Output/innosetup-$ver.ENU &&
           mkdir -p trace &&
           echo "$ver" >trace/ver &&
           curl -LO https://download.sysinternals.com/files/ProcessMonitor.zip &&
