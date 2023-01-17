@@ -103,3 +103,13 @@ jobs:
           files/ISCC.exe setup-vista.iss &&
           mt '-inputresource:Output\mysetup-vista.exe' -out:mysetup-vista.manifest &&
           cat mysetup-vista.manifest
+      - name: verify installer
+        shell: bash
+        run: |
+          set -x &&
+          ver="$(sed -n 's/^set VER=//p' <build.bat)" &&
+          mt '-inputresource:Output\innosetup-'$ver.exe -out:innosetup-$ver.manifest &&
+          cat innosetup-$ver.manifest &&
+          ./Output/innosetup-$ver.exe //verysilent //dir=InnoSetup //noicons \
+            //tasks= //portable=1 &&
+          test -x InnoSetup/ISCC.exe
