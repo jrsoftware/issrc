@@ -502,7 +502,7 @@ end;
 procedure RemoveManifestDllHijackProtection(const F: TCustomFile; const TestBlockOnly: Boolean);
 const
   BlockStartText: AnsiString = '<file name="';
-  BlockLength = 313;
+  BlockLength = 380;
 var
   S: AnsiString;
   Offset: Integer64;
