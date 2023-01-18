@@ -85,3 +85,21 @@ jobs:
         with:
           name: ISHelp
           path: ISHelp/Staging
+      - name: find mt.exe
+        shell: bash
+        run: |
+          set -x &&
+          mt=$(ls -t /c/Program\ Files*/Windows\ Kits/10/bin/*/x64/mt.exe) &&
+          test -n "$mt" &&
+          echo "${mt%%/mt.exe*}" >>$GITHUB_PATH
+      - name: verify MinVersion=6.0 (to support Vista)
+        shell: bash
+        run: |
+          set -x &&
+          sed '/^\[Setup\]/a\
+          MinVersion=6.0\
+          OutputBaseFilename=mysetup-vista
+          ' <setup.iss >setup-vista.iss &&
+          files/ISCC.exe setup-vista.iss &&
+          mt '-inputresource:Output\mysetup-vista.exe' -out:mysetup-vista.manifest &&
+          cat mysetup-vista.manifest
