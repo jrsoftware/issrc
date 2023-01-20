@@ -25,6 +25,7 @@ function ExtractTemporaryFiles(const Pattern: String): Integer;
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
 function DownloadTemporaryFileSize(const Url: String): Int64;
 function DownloadTemporaryFileDate(const Url: String): String;
+procedure SetDownloadCredentials(const User, Pass: String);
 
 implementation
 
@@ -45,6 +46,7 @@ type
 var
   CurProgress: Integer64;
   ProgressShiftCount: Cardinal;
+  DownloadUser, DownloadPass: String;
 
 { TSetupUninstallLog }
 
@@ -3517,17 +3519,33 @@ begin
     result := URL;
 end;
 
+procedure SetDownloadCredentials(const User, Pass: String);
+begin
+  DownloadUser := User;
+  DownloadPass := Pass;
+end;
+
 function GetCredentials(const URL: string; var User, Pass, StripUrl: string):bool;
 var
   Uri: TUri;
 begin
   Uri := TUri.Create(Url);
-  User := TUri.URLDecode(Uri.Username);
-  Pass := TUri.URLDecode(Uri.Password,true);
+  if DownloadUser = '' then
+    User := TUri.URLDecode(Uri.Username)
+  else
+    User := DownloadUser;
+  if DownloadPass = '' then
+    Pass := TUri.URLDecode(Uri.Password,true)
+  else
+    Pass := DownloadPass;
   Uri.Username := '';
   Uri.Password := '';
   StripUrl := Uri.ToString;
-  result := (User <> '') and (Pass <> '');
+  result := (User <> '') or (Pass <> '');
+  if result then
+    LogFmt('Download is using basic authentication: %s, ***', [User])
+  else
+    Log('Download is not using basic authentication');
 end;
 
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;

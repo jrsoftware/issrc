@@ -129,7 +129,7 @@ const
 
   { Install }
 {$IFNDEF PS_NOINT64}
-  InstallTable: array [0..4] of AnsiString =
+  InstallTable: array [0..5] of AnsiString =
 {$ELSE}
   InstallTable: array [0..2] of AnsiString =
 {$ENDIF}
@@ -139,7 +139,8 @@ const
 {$IFNDEF PS_NOINT64}
     'function DownloadTemporaryFile(const Url, FileName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;',
     'function DownloadTemporaryFileSize(const Url: String): Int64;',
-    'function DownloadTemporaryFileDate(const Url: String): String;'
+    'function DownloadTemporaryFileDate(const Url: String): String;',
+    'procedure SetDownloadCredentials(const User, Pass: String);'
 {$ENDIF}
   );
 
