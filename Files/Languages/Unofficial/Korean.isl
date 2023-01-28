@@ -8,7 +8,7 @@
 ; ▒ Translation date: JAN 20, 2023
 ; ▒ 이 번역은 새로운 한국어 맞춤법 규칙을 준수합니다.
 ;
-; To download user-contributed translations of this file, go to:
+; 이 파일의 사용자 제공 번역을 다운로드하려면 다음으로 이동하십시오:
 ;   https://jrsoftware.org/files/istrans/
 
 ; 참고: 이 텍스트를 번역할 때는 아직 없는 메시지의 끝에
