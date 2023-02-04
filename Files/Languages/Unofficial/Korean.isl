@@ -320,7 +320,7 @@ FileExistsOverwriteOrKeepAll=다음 충돌에 대해 이 작업 수행(&D)
 ExistingFileNewerSelectAction=작업 선택
 ExistingFileNewer2=설치 프로그램에서 설치하려는 파일보다 기존 파일이 더 최신입니다.
 ExistingFileNewerOverwriteExisting=기존 파일 덮어쓰기(&O)
-ExistingFileNewerKeepExisting=기존 파일 유지 (권장)(&K) (추천)
+ExistingFileNewerKeepExisting=기존 파일 유지 (권장)(&K)
 ExistingFileNewerOverwriteOrKeepAll=다음 충돌에 대해 이 작업 수행(&D)
 ErrorChangingAttr=기존 파일의 속성을 변경하는 동안 오류 발생:
 ErrorCreatingTemp=대상 디렉터리에 파일을 만드는 동안 오류 발생:
@@ -379,7 +379,7 @@ ShutdownBlockReasonUninstallingApp=%1을(를) 제거하는 중입니다.
 [CustomMessages]
 
 NameAndVersion=%1 버전 %2
-AdditionalIcons=추가 바로 가기:
+AdditionalIcons=추가 바로가기:
 CreateDesktopIcon=바탕화면에 바로가기 만들기(&D)
 CreateQuickLaunchIcon=빠른 실행 아이콘 만들기(&Q)
 ProgramOnTheWeb=%1 웹페이지
