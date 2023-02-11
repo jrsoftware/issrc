@@ -5,16 +5,15 @@
 ; ▒ 6.0.3+ Translator: SungDong Kim (acroedit@gmail.com)
 ; ▒ 5.5.3+ Translator: Domddol (domddol@gmail.com)
 ; ▒ Contributors: Hansoo KIM (iryna7@gmail.com), Woong-Jae An (a183393@hanmail.net)
-; ▒ Translation date: JAN 20, 2023
-; ▒ 이 번역은 새로운 한국어 맞춤법 규칙을 준수합니다.
+; ▒ 이 번역은 한국어 맞춤법을 준수합니다.
 ;
 ; 이 파일의 사용자 제공 번역을 다운로드하려면 다음으로 이동하십시오:
 ;   https://jrsoftware.org/files/istrans/
 
-; 참고: 이 텍스트를 번역할 때는 아직 없는 메시지의 끝에
-; 마침표(.)를 추가하지 마십시오. 이러한 메시지에서 Inno Setup에서
-; 마침표를 자동으로 추가하기 때문입니다 (마침표를 추가하면
-; 두 개의 마침표가 표시됨).
+; 참고: 이 텍스트를 번역할 때는 InnoSetup 메시지에
+; 마침표가 자동으로 추가되므로 아직 없는 메시지의 끝에
+; 마침표(.)를 추가하지 마십시오 (마침표를 추가하면
+; 두 개의 마침표가 표시됩니다).
 
 [LangOptions]
 ; 다음 세 항목은 매우 중요합니다. 도움말 파일의
@@ -158,7 +157,7 @@ UserInfoNameRequired=이름을 입력해야 합니다.
 WizardSelectDir=대상 위치 선택
 SelectDirDesc=[name]을(를) 어디에 설치하시겠습니까?
 SelectDirLabel3=다음 폴더에 [name]을(를) 설치합니다.
-SelectDirBrowseLabel=계속하려면 다음을, 다른 폴더를 선택하려면 찾아보기를 클릭하십시오.
+SelectDirBrowseLabel=계속하려면 다음을 클릭하고, 다른 폴더를 선택하려면 찾아보기를 클릭합니다.
 DiskSpaceGBLabel=이 프로그램은 최소 [gb] GB의 디스크 여유 공간이 필요합니다.
 DiskSpaceMBLabel=이 프로그램은 최소 [mb] MB의 디스크 여유 공간이 필요합니다.
 CannotInstallToNetworkDrive=네트워크 드라이브에 설치할 수 없습니다.
@@ -171,9 +170,9 @@ DirNameTooLong=폴더 이름 또는 경로가 너무 깁니다.
 InvalidDirName=폴더 이름이 유효하지 않습니다.
 BadDirName32=폴더 이름은 다음 문자를 포함할 수 없습니다:%n%n%1
 DirExistsTitle=폴더가 존재합니다
-DirExists=폴더 %n%n%1%n%n이(가) 이미 존재합니다, 이 폴더에 설치하시겠습니까?
+DirExists=폴더 %n%n%1%n%n이(가) 이미 존재합니다, 그래도 해당 폴더에 설치하시겠습니까?
 DirDoesntExistTitle=폴더가 존재하지 않습니다
-DirDoesntExist=폴더 %n%n%1%n%n이(가) 존재하지 않습니다, 새로 폴더를 만드시겠습니까?
+DirDoesntExist=폴더 %n%n%1%n%n이(가) 존재하지 않습니다, 폴더를 만드시겠습니까?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=구성 요소 선택
@@ -198,8 +197,8 @@ SelectTasksLabel2=[name]을(를) 설치하는 동안 수행할 추가 작업을 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=시작 메뉴 폴더 선택
 SelectStartMenuFolderDesc=프로그램의 바로가기를 어디에 설치하시겠습니까?
-SelectStartMenuFolderLabel3=다음 시작 메뉴 폴더에 프로그램 바로가기를 만듭니다.
-SelectStartMenuFolderBrowseLabel=계속하려면 "다음"을 클릭하고, 다른 폴더를 선택하려면 "찾아보기"를 클릭하십시오.
+SelectStartMenuFolderLabel3=설치는 다음 시작 메뉴 폴더에 프로그램 바로가기를 만듭니다.
+SelectStartMenuFolderBrowseLabel=계속하려면 다음을 클릭하고, 다른 폴더를 선택하려면 찾아보기를 클릭합니다.
 MustEnterGroupName=폴더 이름을 입력하십시오.
 GroupNameTooLong=폴더 이름 또는 경로가 너무 깁니다.
 InvalidGroupName=폴더 이름이 유효하지 않습니다.
