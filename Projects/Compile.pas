@@ -9096,6 +9096,9 @@ begin
             if RemoveManifestDllHijackProtection then begin
               AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.EXE']));
               CompExeUpdate.RemoveManifestDllHijackProtection(ExeFile, False);
+            end else if UseSetupLdr then begin
+              AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.EXE']));
+              CompExeUpdate.PreventCOMCTL32Sideloading(ExeFile);
             end;
 
             { For some reason, on Win95 the date/time of the EXE sometimes
