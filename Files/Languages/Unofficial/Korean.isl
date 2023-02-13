@@ -110,7 +110,7 @@ ButtonNewFolder=새 폴더 만들기(&M)
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=설치 언어 선택
-SelectLanguageLabel=설치 중에 사용할 언어를 선택합니다.
+SelectLanguageLabel=설치 중에 사용할 언어를 선택하십시오.
 
 ; *** Common wizard text
 ClickNext=계속하려면 다음을 클릭하고, 설치를 종료하려면 취소를 클릭하십시오.
@@ -378,7 +378,7 @@ ShutdownBlockReasonUninstallingApp=%1을(를) 제거하는 중입니다.
 [CustomMessages]
 
 NameAndVersion=%1 버전 %2
-AdditionalIcons=추가 바로가기:
+AdditionalIcons=바로가기 추가:
 CreateDesktopIcon=바탕화면에 바로가기 만들기(&D)
 CreateQuickLaunchIcon=빠른 실행 아이콘 만들기(&Q)
 ProgramOnTheWeb=%1 웹페이지
