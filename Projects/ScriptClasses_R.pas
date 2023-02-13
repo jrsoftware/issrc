@@ -338,6 +338,7 @@ begin
   begin
     RegisterPropertyHelper(@TDownloadPageAbortedByUser_R,nil,'AbortedByUser');
     RegisterMethod(@TDownloadWizardPage.Add, 'Add');
+    RegisterMethod(@TDownloadWizardPage.AddEx, 'AddEx');
     RegisterMethod(@TDownloadWizardPage.Clear, 'Clear');
     RegisterMethod(@TDownloadWizardPage.Download, 'Download');
     RegisterMethod(@TDownloadWizardPage.Show, 'Show');

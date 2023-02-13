@@ -24,6 +24,8 @@ procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
 function DownloadTemporaryFileSize(const Url: String): Int64;
+function DownloadTemporaryFileDate(const Url: String): String;
+procedure SetDownloadCredentials(const User, Pass: String);
 
 implementation
 
@@ -32,7 +34,8 @@ uses
   InstFunc, InstFnc2, SecurityFunc, Msgs, Main, Logging, Extract, FileClass,
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
-  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager, Net.HTTPClient;
+  ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager,
+  Net.HTTPClient, Net.URLClient, NetEncoding;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -43,6 +46,7 @@ type
 var
   CurProgress: Integer64;
   ProgressShiftCount: Cardinal;
+  DownloadUser, DownloadPass: String;
 
 { TSetupUninstallLog }
 
@@ -3501,6 +3505,47 @@ begin
   AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12];
 end;
 
+function MaskPasswordInUrl(const Url: String): String;
+var
+  Uri: TUri;
+begin
+  Uri := TUri.Create(Url);
+  if Uri.Password <> '' then begin
+    Uri.Password := '***';
+    Result := Uri.ToString;
+  end else
+    Result := URL;
+end;
+
+procedure SetDownloadCredentials(const User, Pass: String);
+begin
+  DownloadUser := User;
+  DownloadPass := Pass;
+end;
+
+function GetCredentialsAndCleanUrl(const Url: String; var User, Pass, CleanUrl: String) : Boolean;
+var
+  Uri: TUri;
+begin
+  Uri := TUri.Create(Url);
+  if DownloadUser = '' then
+    User := TUri.URLDecode(Uri.Username)
+  else
+    User := DownloadUser;
+  if DownloadPass = '' then
+    Pass := TUri.URLDecode(Uri.Password,true)
+  else
+    Pass := DownloadPass;
+  Uri.Username := '';
+  Uri.Password := '';
+  CleanUrl := Uri.ToString;
+  Result := (User <> '') or (Pass <> '');
+  if Result then
+    LogFmt('Download is using basic authentication: %s, ***', [User])
+  else
+    Log('Download is not using basic authentication');
+end;
+
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
 var
   DisableFsRedir: Boolean;
@@ -3514,6 +3559,9 @@ var
   SHA256OfFile: String;
   RetriesLeft: Integer;
   LastError: DWORD;
+  User, Pass, CleanUrl: String;
+  HasCredentials : Boolean;
+  Base64: TBase64Encoding;
 begin
   if Url = '' then
     InternalError('DownloadTemporaryFile: Invalid Url value');
@@ -3522,7 +3570,7 @@ begin
 
   DestFile := AddBackslash(TempInstallDir) + BaseName;
 
-  LogFmt('Downloading temporary file from %s: %s', [Url, DestFile]);
+  LogFmt('Downloading temporary file from %s: %s', [MaskPasswordInURL(Url), DestFile]);
 
   DisableFsRedir := InstallDefaultDisableFsRedir;
 
@@ -3532,7 +3580,7 @@ begin
       Log('  File already downloaded.');
       Result := 0;
       Exit;
-    end;    
+    end;
     SetFileAttributesRedir(DisableFsRedir, DestFile, GetFileAttributesRedir(DisableFsRedir, DestFile) and not FILE_ATTRIBUTE_READONLY);
     DelayDeleteFile(DisableFsRedir, DestFile, 13, 50, 250);
   end else
@@ -3543,11 +3591,15 @@ begin
   TempF := nil;
   TempFileLeftOver := False;
   HandleStream := nil;
+  Base64 := nil;
+
   try
+    HasCredentials := GetCredentialsAndCleanUrl(URL, User, Pass, CleanUrl);
+
     { Setup downloader }
     HTTPDataReceiver := THTTPDataReceiver.Create;
     HTTPDataReceiver.BaseName := BaseName;
-    HTTPDataReceiver.Url := Url;
+    HTTPDataReceiver.Url := CleanUrl;
     HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
 
     HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
@@ -3569,7 +3621,11 @@ begin
 
     { Download to temporary file}
     HandleStream := THandleStream.Create(TempF.Handle);
-    HTTPResponse := HTTPClient.Get(Url, HandleStream);
+    if HasCredentials then begin
+      Base64 := TBase64Encoding.Create(0);
+      HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
+    end;
+    HTTPResponse := HTTPClient.Get(CleanUrl, HandleStream);
     if HTTPDataReceiver.Aborted then
       raise Exception.Create(SetupMessages[msgErrorDownloadAborted])
     else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
@@ -3617,6 +3673,7 @@ begin
       TempFileLeftOver := False;
     end;
   finally
+    Base64.Free;
     HandleStream.Free;
     TempF.Free;
     HTTPClient.Free;
@@ -3626,27 +3683,58 @@ begin
   end;
 end;
 
-function DownloadTemporaryFileSize(const Url: String): Int64;
+procedure DownloadTemporaryFileSizeAndDate(const Url: String; var FileSize: Int64; var FileDate: String);
 var
   HTTPClient: THTTPClient;
   HTTPResponse: IHTTPResponse;
+  User, Pass, CleanUrl: string;
+  HasCredentials : Boolean;
+  Base64: TBase64Encoding;
+begin
+  HTTPClient := THTTPClient.Create;
+  Base64 := nil;
+  HasCredentials := GetCredentialsAndCleanUrl(Url, User, Pass, CleanUrl);
+  try
+    if HasCredentials then begin
+      Base64 := TBase64Encoding.Create(0);
+      HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
+    end;
+    SetUserAgentAndSecureProtocols(HTTPClient);
+    HTTPResponse := HTTPClient.Head(CleanUrl);
+    if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
+      raise Exception.Create(FmtSetupMessage(msgErrorDownloadSizeFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
+    else begin
+      FileSize := HTTPResponse.ContentLength;
+      FileDate := HTTPResponse.LastModified;
+    end;
+  finally
+    Base64.Free;
+    HTTPClient.Free;
+  end;
+end;
+
+function DownloadTemporaryFileSize(const Url: String): Int64;
+var
+  FileSize: Int64;
+  FileDate: String;
 begin
   if Url = '' then
     InternalError('DownloadTemporaryFileSize: Invalid Url value');
+  LogFmt('Getting size of %s.', [MaskPasswordInUrl(Url)]);
+  DownloadTemporaryFileSizeAndDate(Url, FileSize, FileDate);
+  Result := FileSize;
+end;
 
-  LogFmt('Getting size of %s.', [Url]);
-
-  HTTPClient := THTTPClient.Create;
-  try
-    SetUserAgentAndSecureProtocols(HTTPClient);
-    HTTPResponse := HTTPClient.Head(Url);
-    if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
-      raise Exception.Create(FmtSetupMessage(msgErrorDownloadSizeFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
-    else
-      Result := HTTPResponse.ContentLength; { Could be -1 }
-  finally
-    HTTPClient.Free;
-  end;
+function DownloadTemporaryFileDate(const Url: String): String;
+var
+  FileSize: Int64;
+  FileDate: String;
+begin
+  if Url = '' then
+    InternalError('DownloadTemporaryFileDate: Invalid Url value');
+  LogFmt('Getting last modified date of %s.', [MaskPasswordInUrl(Url)]);
+  DownloadTemporaryFileSizeAndDate(Url, FileSize, FileDate);
+  Result := FileDate;
 end;
 
 end.

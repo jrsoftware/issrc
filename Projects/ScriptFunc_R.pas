@@ -811,9 +811,12 @@ begin
     else
       OnDownloadProgress := nil;
     Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), OnDownloadProgress));
+  end else if Proc.Name = 'SETDOWNLOADCREDENTIALS' then begin
+    SetDownloadCredentials(Stack.GetString(PStart),Stack.GetString(PStart-1));
   end else if Proc.Name = 'DOWNLOADTEMPORARYFILESIZE' then begin
     Stack.SetInt64(PStart, DownloadTemporaryFileSize(Stack.GetString(PStart-1)));
-{$ENDIF}
+  end else if Proc.Name = 'DOWNLOADTEMPORARYFILEDATE' then begin
+    Stack.SetString(PStart, DownloadTemporaryFileDate(Stack.GetString(PStart-1)));{$ENDIF}
   end else
     Result := False;
 end;
