@@ -12,7 +12,7 @@ jobs:
     if: contains(github.event.repository.topics, 'has-issrc-build-env')
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: initialize build environment
@@ -66,22 +66,86 @@ jobs:
           copy license.txt Projects/ISPP/Help/Staging
           copy license.txt ISHelp/Staging
       - name: upload Files
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Files
           path: Files
       - name: upload installer
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Output
           path: Output
       - name: upload ISPP/Help
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Help
           path: Projects/ISPP/Help/Staging
       - name: upload ISHelp
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ISHelp
           path: ISHelp/Staging
+      - name: find mt.exe
+        shell: bash
+        run: |
+          set -x &&
+          mt=$(ls -t /c/Program\ Files*/Windows\ Kits/10/bin/*/x64/mt.exe) &&
+          test -n "$mt" &&
+          echo "${mt%%/mt.exe*}" >>$GITHUB_PATH
+      - name: verify MinVersion=6.0 (to support Vista)
+        shell: bash
+        run: |
+          set -x &&
+          sed '/^\[Setup\]/a\
+          MinVersion=6.0\
+          OutputBaseFilename=mysetup-vista
+          ' <setup.iss >setup-vista.iss &&
+          files/ISCC.exe setup-vista.iss &&
+          mt '-inputresource:Output\mysetup-vista.exe' -out:mysetup-vista.manifest &&
+          cat mysetup-vista.manifest
+      - name: verify installer
+        shell: bash
+        run: |
+          set -x &&
+          ver="$(sed -n 's/^set VER=//p' <build.bat)" &&
+          mt '-inputresource:Output\innosetup-'$ver.exe -out:innosetup-$ver.manifest &&
+          cat innosetup-$ver.manifest &&
+          mkdir -p Output/innosetup-$ver.exe.Local &&
+          cp -R "$(cygpath -au "$SYSTEMROOT")"/WinSxS/x86_microsoft.windows.common-controls_* Output/innosetup-$ver.exe.Local/ &&
+          mkdir Output/innosetup-$ver.en-US &&
+          mkdir Output/innosetup-$ver.en &&
+          mkdir Output/innosetup-$ver.ENU &&
+          mkdir -p trace &&
+          echo "$ver" >trace/ver &&
+          curl -LO https://download.sysinternals.com/files/ProcessMonitor.zip &&
+          unzip ProcessMonitor.zip &&
+          # Need to start the background process via PowerShell because it would
+          # block for some reason if started as a Bash background process.
+          powershell -command 'start-process -NoNewWindow -FilePath .\Procmon.exe -ArgumentList "-AcceptEula -Quiet -BackingFile trace/procmon.pml -RunTime 60"' &&
+          test $? = 0 &&
+          ps -W &&
+          ./Procmon.exe -AcceptEula -WaitForIdle &&
+          ./Output/innosetup-$ver.exe //verysilent //dir=InnoSetup //noicons \
+            //tasks= //portable=1 &&
+          test -x InnoSetup/ISCC.exe &&
+          ./Procmon.exe -Terminate -Quiet &&
+          powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\procmon.pml -SaveAs trace\procmon.csv"'
+      - name: upload trace
+        uses: actions/upload-artifact@v3
+        with:
+          name: trace
+          path: trace
+      - name: check trace
+        shell: bash
+        run: |
+          set -x &&
+          curdir="$(cygpath -aw Output | sed 's/\\/&&/g')" &&
+          ver="$(sed 's/\./\\&/g' <trace/ver)" &&
+          sed -ne '/"'$curdir'\\innosetup-'$ver'\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\)"/d' -e '/"'$curdir'\\/p' \
+            trace/procmon.csv >trace/filtered.csv &&
+          if test -s trace/filtered.csv
+          then
+            echo ":error:Unexpected filesystem access" >&2
+            cat trace/filtered.csv >&2
+            exit 1
+          fi
