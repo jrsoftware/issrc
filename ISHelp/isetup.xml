@@ -3,7 +3,7 @@
 
 <!--
   Inno Setup
-  Copyright (C) 1997-2022 Jordan Russell
+  Copyright (C) 1997-2023 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 -->
@@ -88,8 +88,8 @@
 
 <p>
 <b>Inno Setup version 6.2.2</b><br/>
-<b>Copyright &copy; 1997-2022 Jordan Russell. All rights reserved.</b><br/>
-<b>Portions Copyright &copy; 2000-2022 Martijn Laan. All rights reserved.</b><br/>
+<b>Copyright &copy; 1997-2023 Jordan Russell. All rights reserved.</b><br/>
+<b>Portions Copyright &copy; 2000-2023 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
 </p>
 
