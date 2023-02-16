@@ -49,7 +49,7 @@ type
     procedure ElseIfInstruction(Eval: Boolean);
     procedure ElseInstruction;
     procedure EndIfInstruction;
-    function Include: Boolean;
+    function Include(SkipLastBlock: Integer = 0): Boolean;
     procedure Resolved;
   end;
 
@@ -1246,7 +1246,7 @@ begin
     FPreproc.RaiseError(SEndifWithoutIf);
 end;
 
-function TConditionalTranslationStack.Include(SkipLastBlock : Integer = 0): Boolean;
+function TConditionalTranslationStack.Include(SkipLastBlock: Integer): Boolean;
 var
   I: Integer;
 begin
