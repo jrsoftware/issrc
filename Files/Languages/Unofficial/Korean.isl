@@ -390,4 +390,3 @@ AssocingFileExtension=%1을 %2 파일 확장자와 연결하는 중...
 AutoStartProgramGroupDescription=시작:
 AutoStartProgram=%1 자동 시작
 AddonHostProgramNotFound=%1을(를) 선택한 폴더에서 찾을 수 없습니다.%n%n계속하시겠습니까?
-Footer
