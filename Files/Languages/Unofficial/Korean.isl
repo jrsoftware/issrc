@@ -384,8 +384,7 @@ CreateQuickLaunchIcon=빠른 실행 아이콘 만들기(&Q)
 ProgramOnTheWeb=%1 웹페이지
 UninstallProgram=
 LaunchProgram=%1 실행
-AssocFileExtensio
-n=%1을 %2 파일 확장자에 연결
+AssocFileExtension=%1을 %2 파일 확장자에 연결
 AssocingFileExtension=%1을 %2 파일 확장자와 연결하는 중...
 AutoStartProgramGroupDescription=시작:
 AutoStartProgram=%1 자동 시작
