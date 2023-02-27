@@ -1186,6 +1186,8 @@ begin
   A.Fired := Eval;
   A.HadElse := False;
   PushItem(Pointer(A));
+  if FCacheTrueCount >= (Count - 1) and Eval then
+    FCacheTrueCount := Count;
   VerboseMsg(cvmIf, Eval);
 end;
 
@@ -1246,16 +1248,8 @@ end;
 function TConditionalTranslationStack.Include(SkipLastBlock: Integer): Boolean;
 var
   I: Integer;
-  IncludeCount: Integer;
 begin
-  IncludeCount = Count - SkipLastBlock;
-  for I := FCacheTrueCount to IncludeCount - 1 do
-    if TConditionalBlockInfo(List[I]).BlockState then
-      FCacheTrueCount := I+1
-    else
-      break;
-
-  Result := (FCacheTrueCount >= IncludeCount)
+  Result := (FCacheTrueCount >= (Count - SkipLastBlock))
 end;
 
 procedure TConditionalTranslationStack.Resolved;
@@ -1271,8 +1265,11 @@ end;
 procedure TConditionalTranslationStack.UpdateLast(
   const Value: TConditionalBlockInfo);
 begin
-  if FCacheTrueCount >= Count then
-    FCacheTrueCount := Count - 1;
+  if FCacheTrueCount >= (Count - 1) then
+    if Value.BlockState then
+      FCacheTrueCount := Count
+    else
+      FCacheTrueCount := Count - 1;
   List.Items[List.Count - 1] := Pointer(Value)
 end;
 
