@@ -37,8 +37,7 @@ type
   TConditionalTranslationStack = class(TStack)
   private
     FPreproc: TPreprocessor;
-    FCache: Boolean;
-    FCacheValid: Boolean;
+    FCacheTrueCount: Integer;
     procedure VerboseMsg(Msg: TConditionalVerboseMsg; Eval: Boolean);
   protected
     function Last: TConditionalBlockInfo;
@@ -1176,7 +1175,7 @@ constructor TConditionalTranslationStack.Create(Preproc: TPreprocessor);
 begin
   inherited Create;
   FPreproc := Preproc;
-  FCache := True;
+  FCacheTrueCount := 0;
 end;
 
 procedure TConditionalTranslationStack.IfInstruction(Eval: Boolean);
@@ -1187,7 +1186,6 @@ begin
   A.Fired := Eval;
   A.HadElse := False;
   PushItem(Pointer(A));
-  FCacheValid := False;
   VerboseMsg(cvmIf, Eval);
 end;
 
@@ -1203,7 +1201,6 @@ begin
       if HadElse then FPreproc.RaiseError(SElifAfterElse);
       BlockState := not Fired and Eval;
       Fired := Fired or Eval;
-      FCacheValid := False;
     end;
     UpdateLast(A);
     VerboseMsg(cvmElif, Eval);
@@ -1225,7 +1222,6 @@ begin
       BlockState := not Fired;
       Fired := True;
       HadElse := True;
-      FCacheValid := False;
     end;
     UpdateLast(A);
     VerboseMsg(cvmElse, False);
@@ -1239,7 +1235,8 @@ begin
   if AtLeast(1) then
   begin
     PopItem;
-    FCacheValid := False;
+    if FCacheTrueCount > Count then
+      FCacheTrueCount := Count;
     VerboseMsg(cvmEndif, False);
   end
   else
@@ -1249,22 +1246,16 @@ end;
 function TConditionalTranslationStack.Include(SkipLastBlock: Integer): Boolean;
 var
   I: Integer;
+  IncludeCount: Integer;
 begin
-  if FCacheValid then
-    Result := FCache
-  else
-  begin
-    FCacheValid := True;
-    if Count > 0 then
-    begin
-      Result := False;
-      FCache := False;
-      for I := Count - 1 - SkipLastBlock downto 0 do
-        if not TConditionalBlockInfo(List[I]).BlockState then Exit;
-    end;
-    Result := True;
-    FCache := True;
-  end;
+  IncludeCount = Count - SkipLastBlock;
+  for I := FCacheTrueCount to IncludeCount - 1 do
+    if TConditionalBlockInfo(List[I]).BlockState then
+      FCacheTrueCount := I+1
+    else
+      break;
+
+  Result := (FCacheTrueCount >= IncludeCount)
 end;
 
 procedure TConditionalTranslationStack.Resolved;
@@ -1280,6 +1271,8 @@ end;
 procedure TConditionalTranslationStack.UpdateLast(
   const Value: TConditionalBlockInfo);
 begin
+  if FCacheTrueCount >= Count then
+    FCacheTrueCount := Count - 1;
   List.Items[List.Count - 1] := Pointer(Value)
 end;
 
