@@ -12,13 +12,11 @@ object CompileForm: TCompileForm
   Font.Style = []
   KeyPreview = True
   Menu = MainMenu1
-  OldCreateOrder = True
   Position = poDefault
   OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCloseQuery = FormCloseQuery
   OnKeyDown = FormKeyDown
   OnResize = FormResize
-  PixelsPerInch = 96
   TextHeight = 13
   object Bevel1: TBevel
     Left = 0
@@ -37,6 +35,8 @@ object CompileForm: TCompileForm
     BevelOuter = bvNone
     FullRepaint = False
     TabOrder = 0
+    ExplicitWidth = 355
+    ExplicitHeight = 185
     object SplitPanel: TPanel
       Left = 0
       Top = 86
@@ -49,6 +49,8 @@ object CompileForm: TCompileForm
       TabOrder = 1
       Visible = False
       OnMouseMove = SplitPanelMouseMove
+      ExplicitTop = 77
+      ExplicitWidth = 355
     end
     object StatusPanel: TPanel
       Left = 0
@@ -60,6 +62,8 @@ object CompileForm: TCompileForm
       FullRepaint = False
       TabOrder = 0
       Visible = False
+      ExplicitTop = 81
+      ExplicitWidth = 355
       object FindResultsList: TListBox
         Left = 0
         Top = 0
@@ -75,6 +79,7 @@ object CompileForm: TCompileForm
         Visible = False
         OnDblClick = FindResultsListDblClick
         OnDrawItem = FindResultsListDrawItem
+        ExplicitWidth = 355
       end
       object DebugCallStackList: TListBox
         Left = 0
@@ -90,6 +95,7 @@ object CompileForm: TCompileForm
         TabOrder = 2
         Visible = False
         OnDrawItem = DebugCallStackListDrawItem
+        ExplicitWidth = 355
       end
       object DebugOutputList: TListBox
         Left = 0
@@ -105,6 +111,7 @@ object CompileForm: TCompileForm
         TabOrder = 1
         Visible = False
         OnDrawItem = DebugOutputListDrawItem
+        ExplicitWidth = 355
       end
       object CompilerOutputList: TListBox
         Left = 0
@@ -119,6 +126,7 @@ object CompileForm: TCompileForm
         PopupMenu = ListPopupMenu
         TabOrder = 0
         OnDrawItem = CompilerOutputListDrawItem
+        ExplicitWidth = 355
       end
       object OutputTabSet: TNewTabSet
         Left = 0
@@ -133,6 +141,7 @@ object CompileForm: TCompileForm
           'Debug Call Stack'
           'Find Results')
         OnClick = OutputTabSetClick
+        ExplicitWidth = 355
       end
     end
   end
@@ -175,6 +184,8 @@ object CompileForm: TCompileForm
       end>
     OnDrawPanel = StatusBarDrawPanel
     OnResize = StatusBarResize
+    ExplicitTop = 236
+    ExplicitWidth = 355
   end
   object ToolBarPanel: TPanel
     Left = 0
@@ -184,6 +195,7 @@ object CompileForm: TCompileForm
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 2
+    ExplicitWidth = 355
     object ToolBar: TToolBar
       AlignWithMargins = True
       Left = 7
@@ -198,11 +210,13 @@ object CompileForm: TCompileForm
       ShowHint = True
       TabOrder = 0
       Transparent = True
+      ExplicitWidth = 345
       object NewMainFileButton: TToolButton
         Left = 0
         Top = 0
         Hint = 'New Main Script (Ctrl+N)'
         ImageIndex = 0
+        ImageName = 'document-new'
         OnClick = FNewMainFileClick
       end
       object OpenMainFileButton: TToolButton
@@ -210,6 +224,7 @@ object CompileForm: TCompileForm
         Top = 0
         Hint = 'Open Main Script (Ctrl+O)'
         ImageIndex = 1
+        ImageName = 'folder-open-filled-arrow-down-right'
         OnClick = FOpenMainFileClick
       end
       object SaveButton: TToolButton
@@ -217,6 +232,7 @@ object CompileForm: TCompileForm
         Top = 0
         Hint = 'Save (Ctrl+S)'
         ImageIndex = 2
+        ImageName = 'save-filled'
         OnClick = FSaveClick
       end
       object ToolButton4: TToolButton
@@ -231,6 +247,7 @@ object CompileForm: TCompileForm
         Top = 0
         Hint = 'Compile (Ctrl+F9)'
         ImageIndex = 3
+        ImageName = 'build'
         OnClick = BCompileClick
       end
       object StopCompileButton: TToolButton
@@ -239,6 +256,7 @@ object CompileForm: TCompileForm
         Hint = 'Stop Compile (Esc)'
         Enabled = False
         ImageIndex = 4
+        ImageName = 'build-cancel-2'
         OnClick = BStopCompileClick
       end
       object ToolButton7: TToolButton
@@ -253,6 +271,7 @@ object CompileForm: TCompileForm
         Top = 0
         Hint = 'Run (F9)'
         ImageIndex = 5
+        ImageName = 'debug-start-filled'
         OnClick = RRunClick
       end
       object PauseButton: TToolButton
@@ -261,6 +280,7 @@ object CompileForm: TCompileForm
         Hint = 'Pause'
         Enabled = False
         ImageIndex = 6
+        ImageName = 'debug-break-all-filled'
         OnClick = RPauseClick
       end
       object TerminateButton: TToolButton
@@ -269,6 +289,7 @@ object CompileForm: TCompileForm
         Hint = 'Terminate (Ctrl+F2)'
         Enabled = False
         ImageIndex = 10
+        ImageName = 'debug-stop-filled'
         OnClick = RTerminateClick
       end
       object ToolButton10: TToolButton
@@ -284,6 +305,7 @@ object CompileForm: TCompileForm
         Hint = 'Target Setup (Ctrl+Q)'
         Grouped = True
         ImageIndex = 7
+        ImageName = 'install'
         Style = tbsCheck
         OnClick = RTargetClick
       end
@@ -293,6 +315,7 @@ object CompileForm: TCompileForm
         Hint = 'Target Uninstall (Ctrl+W)'
         Grouped = True
         ImageIndex = 8
+        ImageName = 'uninstall'
         Style = tbsCheck
         OnClick = RTargetClick
       end
@@ -308,6 +331,7 @@ object CompileForm: TCompileForm
         Top = 0
         Hint = 'Help (F1)'
         ImageIndex = 9
+        ImageName = 'button-help'
         OnClick = HDocClick
       end
     end
@@ -323,6 +347,7 @@ object CompileForm: TCompileForm
       'Main Script')
     TabPosition = tpTop
     OnClick = MemosTabSetClick
+    ExplicitWidth = 355
   end
   object MainMenu1: TMainMenu
     Left = 8
@@ -665,7 +690,12 @@ object CompileForm: TCompileForm
         ShortCut = 24653
         OnClick = TInsertMsgBoxClick
       end
-      object N7: TMenuItem
+      object TInsertFileListField: TMenuItem
+        Caption = '&Insert File List Field'
+        ShortCut = 24649
+        OnClick = TInsertFileListFieldClick
+      end
+      object N23: TMenuItem
         Caption = '-'
       end
       object TSignTools: TMenuItem
@@ -2638,73 +2668,60 @@ object CompileForm: TCompileForm
   end
   object ToolBarVirtualImageList: TVirtualImageList
     AutoFill = True
-    DisabledGrayscale = False
-    DisabledSuffix = '_Disabled'
     Images = <
       item
         CollectionIndex = 0
         CollectionName = 'document-new'
-        Disabled = False
         Name = 'document-new'
       end
       item
         CollectionIndex = 1
         CollectionName = 'folder-open-filled-arrow-down-right'
-        Disabled = False
         Name = 'folder-open-filled-arrow-down-right'
       end
       item
         CollectionIndex = 2
         CollectionName = 'save-filled'
-        Disabled = False
         Name = 'save-filled'
       end
       item
         CollectionIndex = 3
         CollectionName = 'build'
-        Disabled = False
         Name = 'build'
       end
       item
         CollectionIndex = 4
         CollectionName = 'build-cancel-2'
-        Disabled = False
         Name = 'build-cancel-2'
       end
       item
         CollectionIndex = 5
         CollectionName = 'debug-start-filled'
-        Disabled = False
         Name = 'debug-start-filled'
       end
       item
         CollectionIndex = 6
         CollectionName = 'debug-break-all-filled'
-        Disabled = False
         Name = 'debug-break-all-filled'
       end
       item
         CollectionIndex = 7
         CollectionName = 'install'
-        Disabled = False
         Name = 'install'
       end
       item
         CollectionIndex = 8
         CollectionName = 'uninstall'
-        Disabled = False
         Name = 'uninstall'
       end
       item
         CollectionIndex = 9
         CollectionName = 'button-help'
-        Disabled = False
         Name = 'button-help'
       end
       item
         CollectionIndex = 10
         CollectionName = 'debug-stop-filled'
-        Disabled = False
         Name = 'debug-stop-filled'
       end>
     ImageCollection = LightToolBarImageCollection

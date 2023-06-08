@@ -108,7 +108,7 @@ type
     SplitPanel: TPanel;
     HWebsite: TMenuItem;
     VToolbar: TMenuItem;
-    N7: TMenuItem;
+    TInsertFileListField: TMenuItem;
     TOptions: TMenuItem;
     HFaq: TMenuItem;
     StatusBar: TStatusBar;
@@ -213,6 +213,7 @@ type
     FPrint: TMenuItem;
     N22: TMenuItem;
     PrintDialog: TPrintDialog;
+    N23: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -312,6 +313,7 @@ type
       State: TOwnerDrawState);
     procedure FindResultsListDblClick(Sender: TObject);
     procedure FPrintClick(Sender: TObject);
+    procedure TInsertFileListFieldClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -521,7 +523,8 @@ uses
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMessageBoxDesigner;
+  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo,
+  CompMessageBoxDesigner,CompFileListWin;
 
 {$R *.DFM}
 
@@ -999,6 +1002,19 @@ begin
     FNewMainFile.Caption := '&New';
     FNewMainFile.OnClick := FNewMainFileClick;
     NewMainFileButton.OnClick := FNewMainFileClick;
+  end;
+end;
+
+procedure TCompileForm.TInsertFileListFieldClick(Sender: TObject);
+var
+  CFLWForm: TCFLWForm;
+begin
+  CFLWForm := TCFLWForm.Create(Application);
+  try
+    if CFLWForm.ShowModal = mrOk then
+      FActiveMemo.SelText := CFLWForm.Text;
+  finally
+    CFLWForm.Free;
   end;
 end;
 

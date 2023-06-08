@@ -9,7 +9,7 @@ program Compil32;
   Compiler
 }
 
-{$SetPEFlags 1} 
+{$SetPEFlags 1}
 {$SETPEOSVERSION 6.0}
 {$SETPESUBSYSVERSION 6.0}
 {$WEAKLINKRTTI ON}
@@ -42,7 +42,8 @@ uses
   ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas',
   ModernColors in '..\Components\ModernColors.pas',
   CompMessageBoxDesigner in 'CompMessageBoxDesigner.pas' {MBDForm},
-  CompScintEdit in 'CompScintEdit.pas';
+  CompScintEdit in 'CompScintEdit.pas',
+  CompFileListWin in 'CompFileListWin.pas' {CFLWForm};
 
 {$R *.res}
 {$R Compil32.manifest.res}
@@ -76,24 +77,27 @@ begin
 
   Func := GetProcAddress(GetModuleHandle('kernel32.dll'),
     'RegisterApplicationRestart');
-  if Assigned(Func) then begin
+  if Assigned(Func) then
+  begin
     { Rebuild the command line, can't just use an exact copy since it might contain
       relative path names but Restart Manager doesn't restore the working
       directory. }
     if CommandLineWizard then
       CommandLine := '/WIZARD'
-    else begin
+    else
+    begin
       CommandLine := CommandLineFilename;
       if CommandLine <> '' then
         CommandLine := '"' + CommandLine + '"';
       if CommandLineCompile then
         CommandLine := '/CC ' + CommandLine;
     end;
-    
+
     if Length(CommandLine) > RESTART_MAX_CMD_LINE then
       CommandLine := '';
 
-    Func(PWideChar(CommandLine), RESTART_NO_CRASH or RESTART_NO_HANG or RESTART_NO_REBOOT);
+    Func(PWideChar(CommandLine), RESTART_NO_CRASH or RESTART_NO_HANG or
+      RESTART_NO_REBOOT);
   end;
 end;
 
@@ -109,7 +113,7 @@ const
   MutexName = 'InnoSetupCompilerAppMutex';
 begin
   CreateMutex(MutexName);
-  CreateMutex('Global\' + MutexName);  { don't localize }
+  CreateMutex('Global\' + MutexName); { don't localize }
 end;
 
 var
@@ -131,18 +135,21 @@ var
 begin
   P := NewParamCount;
   I := 1;
-  while I <= P do begin
+  while I <= P do
+  begin
     S := NewParamStr(I);
     if CompareText(S, '/CC') = 0 then
       CommandLineCompile := True
-    else if CompareText(S, '/WIZARD') = 0 then begin
+    else if CompareText(S, '/WIZARD') = 0 then
+    begin
       if I = P then
         Error;
       CommandLineWizard := True;
-      CommandLineWizardName := NewParamStr(I+1);
+      CommandLineWizardName := NewParamStr(I + 1);
       Inc(I);
     end
-    else if CompareText(S, '/ASSOC') = 0 then begin
+    else if CompareText(S, '/ASSOC') = 0 then
+    begin
       try
         RegisterISSFileAssociation(False, Dummy);
       except
@@ -151,7 +158,8 @@ begin
       end;
       Halt;
     end
-    else if CompareText(S, '/UNASSOC') = 0 then begin
+    else if CompareText(S, '/UNASSOC') = 0 then
+    begin
       try
         UnregisterISSFileAssociation;
       except
@@ -166,7 +174,8 @@ begin
       CommandLineFilename := PathExpand(PathCombine(InitialCurDir, S));
     Inc(I);
   end;
-  if (CommandLineCompile or CommandLineWizard) and (CommandLineFilename = '') then
+  if (CommandLineCompile or CommandLineWizard) and (CommandLineFilename = '')
+  then
     Error;
 end;
 
@@ -182,7 +191,8 @@ begin
   RegisterApplicationRestart;
 
   { The 'with' is so that the Delphi IDE doesn't mess with these }
-  with Application do begin
+  with Application do
+  begin
     if CommandLineWizard then
       Title := CommandLineWizardName
     else
@@ -190,5 +200,7 @@ begin
   end;
 
   Application.CreateForm(TCompileForm, CompileForm);
+  Application.CreateForm(TCFLWForm, CFLWForm);
   Application.Run;
+
 end.

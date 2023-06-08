@@ -5,3 +5,5 @@
 *.identcache
 buildtag.inc
 setup-*.bin
+__history/
+__recovery/
