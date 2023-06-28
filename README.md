@@ -49,8 +49,12 @@ Getting Started
    There's a free version of Delphi available called the Community Edition.
    See https://www.embarcadero.com/products/delphi/starter/free-download
 
+   Versions after 10.3.x (10.4 and later) no longer support commandline
+   compilation. To obtain an older version (specifically 10.3.3) visit
+   https://www.filehorse.com/download-rad-studio/45393/download/
 
-3. **Install Microsoft HTML Help Workshop**
+
+4. **Install Microsoft HTML Help Workshop**
 
    Install Microsoft HTML Help Workshop if you haven't already done so.
    See https://docs.microsoft.com/en-us/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads and 
@@ -60,7 +64,7 @@ Getting Started
    help files.
 
 
-4. **Build Inno Setup**
+5. **Build Inno Setup**
 
    To build all files run **build.bat** and follow the instructions.
 
