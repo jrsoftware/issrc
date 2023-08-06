@@ -20,7 +20,7 @@ unit DotNet;
 
   IsDotNetInstalled code based on http://www.kynosarges.de/DotNetVersion.html by Cristoph Nahr
   License:
-  // I’m placing this small bit of code in the public domain, so you may embed it in your own
+  // Iâ€™m placing this small bit of code in the public domain, so you may embed it in your own
   // projects, modify and redistribute it as you see fit.
 
   Also see https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed
@@ -53,7 +53,7 @@ type
   end;
 
   TDotNetBaseVersion = (netbase11, netbase20, netbase40, netbaseHighestKnown);
-  TDotNetVersion = (net11, net20, net30, net35, net4Client, net4Full, net45, net451, net452, net46, net461, net462, net47, net471, net472, net48);
+  TDotNetVersion = (net11, net20, net30, net35, net4Client, net4Full, net45, net451, net452, net46, net461, net462, net47, net471, net472, net48, net481);
 
 function GetDotNetInstallRoot(const RegView: TRegView): String;
 function GetDotNetVersionInstallRoot(const RegView: TRegView; const Version: TDotNetBaseVersion): String;
@@ -201,6 +201,7 @@ function IsDotNetInstalled(const RegView: TRegView; const MinVersion: TDotNetVer
       net471: Result := 'v4.7.1';
       net472: Result := 'v4.7.2';
       net48: Result := 'v4.8';
+      net481: Result := 'v4.8.1';
       else
         InternalError('IsDotNetDetected: Invalid Version');
     end;
@@ -256,6 +257,8 @@ begin
         RequiredRelease := 461808 // 461814 before Win10 April 2018 Update
       else if VersionString = 'v4.8' then
         RequiredRelease := 528040 // 528049 before Win10 May 2019 Update
+      else if VersionString = 'v4.8.1' then
+        RequiredRelease := 533320 // 533325 before Win11 2022 Update
       else
         InternalError('IsDotNetDetected: Invalid VersionString');
     end else
