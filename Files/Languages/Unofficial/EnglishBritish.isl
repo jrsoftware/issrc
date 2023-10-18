@@ -1,7 +1,7 @@
 ﻿; *** Inno Setup version 6.1.0+ English (British) messages ***
 ;
 ; Translated by Boris Kotov <doctor.z01db3rg@gmail.com>
-; Translation updated by Andrew Truckle <andrew.truckle@trucklesoft.co.uk>
+; Translation updated by Andrew Truckle <trucklesoft@outlook.com>
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
