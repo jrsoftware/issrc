@@ -162,8 +162,8 @@ DiskSpaceWarning=Kurulum için %1 KB boþ alan gerekli, ancak seçilmiþ sürücüde ya
 DirNameTooLong=Klasör adý ya da yol çok uzun.
 InvalidDirName=Klasör adý geçersiz.
 BadDirName32=Klasör adlarýnda þu karakterler bulunamaz:%n%n%1
-DirExistsTitle=Klasör zaten var"
-DirExists=Klasör:%n%n%1%n%zaten var. Kurulum için bu klasörü kullanmak ister misiniz?
+DirExistsTitle=Klasör zaten var
+DirExists=Klasör:%n%n%1%n%nzaten var. Kurulum için bu klasörü kullanmak ister misiniz?
 DirDoesntExistTitle=Klasör bulunamadý
 DirDoesntExist=Klasör:%n%n%1%n%nbulunamadý.Klasörün oluþturmasýný ister misiniz?
 
