@@ -49,6 +49,9 @@ Getting Started
    There's a free version of Delphi available called the Community Edition.
    See https://www.embarcadero.com/products/delphi/starter/free-download
 
+   Unfortunately, Embarcadero has removed command line compilation support
+   from the Community Edition, which means you cannot use the build scripts
+   mentioned below with this edition.   
 
 3. **Install Microsoft HTML Help Workshop**
 
