@@ -103,7 +103,7 @@ ButtonYes=예(&Y)
 ButtonYesToAll=모두 예(&A)
 ButtonNo=아니오(&N)
 ButtonNoToAll=모두 아니오(&O)
-ButtonFinish=종료(&F)
+ButtonFinish=마침(&F)
 ButtonBrowse=찾아보기(&B)...
 ButtonWizardBrowse=찾아보기(&R)...
 ButtonNewFolder=새 폴더 만들기(&M)
@@ -379,7 +379,7 @@ ShutdownBlockReasonUninstallingApp=%1을(를) 제거하는 중입니다.
 
 NameAndVersion=%1 버전 %2
 AdditionalIcons=바로가기 추가:
-CreateDesktopIcon=바탕화면에 바로가기 만들기(&D)
+CreateDesktopIcon=바탕 화면에 바로가기 만들기(&D)
 CreateQuickLaunchIcon=빠른 실행 아이콘 만들기(&Q)
 ProgramOnTheWeb=%1 웹페이지
 UninstallProgram=LaunchProgram=%1 실행
