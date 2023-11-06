@@ -1,6 +1,6 @@
 ; *** Inno Setup version 6.1.0+ Catalan messages ***
 ;
-; Translated by Carles Millan (email: carles@carlesmillan.cat)
+; Translated by Carles Millan (email: carles24@carlesmillan.cat)
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
