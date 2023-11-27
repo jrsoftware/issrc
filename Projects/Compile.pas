@@ -3127,7 +3127,8 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
     DOMAIN_ALIAS_RID_USERS = $00000221;
     DOMAIN_ALIAS_RID_GUESTS = $00000222;
     DOMAIN_ALIAS_RID_POWER_USERS = $00000223;
-    KnownSids: array[0..9] of TKnownSid = (
+    DOMAIN_ALIAS_RID_IIS_IUSRS = $00000238;
+    KnownSids: array[0..10] of TKnownSid = (
       (Name: 'admins';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 2;
@@ -3148,6 +3149,10 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 2;
              SubAuth: (SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_GUESTS))),
+      (Name: 'iisiusrs';
+       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
+             SubAuthCount: 2;
+             SubAuth: (SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_IIS_IUSRS))),
       (Name: 'networkservice';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 1;
