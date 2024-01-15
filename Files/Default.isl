@@ -40,8 +40,8 @@ ErrorTitle=Error
 
 ; *** SetupLdr messages
 SetupLdrStartupMessage=This will install %1. Do you wish to continue?
-LdrCannotCreateTemp=Unable to create a temporary file. Setup aborted
-LdrCannotExecTemp=Unable to execute file in the temporary directory. Setup aborted
+LdrCannotCreateTemp=Unable to create a temporary file. Setup aborted.
+LdrCannotExecTemp=Unable to execute file in the temporary directory. Setup aborted.
 HelpTextNote=
 
 ; *** Startup error messages
@@ -74,8 +74,8 @@ PrivilegesRequiredOverrideCurrentUser=Install for &me only
 PrivilegesRequiredOverrideCurrentUserRecommended=Install for &me only (recommended)
 
 ; *** Misc. errors
-ErrorCreatingDir=Setup was unable to create the directory "%1"
-ErrorTooManyFilesInDir=Unable to create a file in the directory "%1" because it contains too many files
+ErrorCreatingDir=Setup was unable to create the directory "%1".
+ErrorTooManyFilesInDir=Unable to create a file in the directory "%1" because it contains too many files.
 
 ; *** Setup common messages
 ExitSetupTitle=Exit Setup
