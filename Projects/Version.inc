@@ -59,6 +59,9 @@
                                                 {$DEFINE IS_D102TOKYO}  { then it must be at least Delphi 10.2 Tokyo }
                                                 {$IFNDEF VER320}  { if it's not Delphi 10.2 Tokyo }
                                                   {$DEFINE IS_D103RIO}  { then it must be at least Delphi 10.3 Rio }
+                                                  {$IFNDEF VER330}  { if it's not Delphi 10.3 Rio }
+                                                    {$DEFINE IS_D104SYDNEY}  { then it must be at least Delphi 10.4 Sydney }
+                                                  {$ENDIF}
                                                 {$ENDIF}
                                               {$ENDIF}
                                             {$ENDIF}

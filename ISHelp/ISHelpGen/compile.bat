@@ -14,7 +14,7 @@ if exist compilesettings.bat goto compilesettingsfound
 echo ishelp\ishelpgen\compilesettings.bat is missing or incomplete. It needs to be created
 echo with the following lines, adjusted for your system:
 echo.
-echo   set DELPHIXEROOT=C:\Program Files\Embarcadero\RAD Studio\20.0 [Path to Delphi 10.3 Rio (or later)]
+echo   set DELPHIXEROOT=C:\Program Files\Embarcadero\RAD Studio\20.0 [Path to Delphi 10.4 Sydney (or later)]
 goto failed2
 
 :compilesettingsfound
