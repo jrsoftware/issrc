@@ -30,6 +30,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 
 <p><a name="6.2.3"></a><span class="ver">6.2.3-dev </span><span class="date">(?)</span></p>
 <ul>
+  <li>If Setup was starting in administrative install mode it would ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does this because it violates the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters, contributed by Achim Stuy.</li> 
   <li>Added official Korean translation.</li>
 </ul>

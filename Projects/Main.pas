@@ -1386,21 +1386,24 @@ begin
 
   { Get dirs which have no CSIDL equivalent and cannot be retrieved using SHGetFolderPath. }
   if Assigned(SHGetKnownFolderPathFunc) and (WindowsVersion shr 16 >= $0600) then begin
-    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFiles {Windows 7+}, KF_FLAG_CREATE, 0, Path) = S_OK then begin
+    var dwFlags: DWORD := 0;
+    if not IsAdminInstallMode then
+      dwFlags := dwFlags or KF_FLAG_CREATE;
+    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFiles {Windows 7+}, dwFlags, 0, Path) = S_OK then begin
       try
         ProgramFilesUserDir := WideCharToString(Path);
       finally
         CoTaskMemFree(Path);
       end;
     end;
-    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFilesCommon {Windows 7+}, KF_FLAG_CREATE, 0, Path) = S_OK then begin
+    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFilesCommon {Windows 7+}, dwFlags, 0, Path) = S_OK then begin
       try
         CommonFilesUserDir := WideCharToString(Path);
       finally
         CoTaskMemFree(Path);
       end;
     end;
-    if SHGetKnownFolderPathFunc(FOLDERID_SavedGames {Vista+}, KF_FLAG_CREATE, 0, Path) = S_OK then begin
+    if SHGetKnownFolderPathFunc(FOLDERID_SavedGames {Vista+}, dwFlags, 0, Path) = S_OK then begin
       try
         SavedGamesUserDir := WideCharToString(Path);
       finally
