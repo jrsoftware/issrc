@@ -562,7 +562,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="usercf">{usercf}</a></b></dt>
 <dd>
-<p>The path to the current user's Common Files directory. Only Windows 7 and later supports <tt>{usercf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs\Common</tt>.</p>
+<p>The path to the current user's Common Files folder. Only Windows 7 and later supports <tt>{usercf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs\Common</tt>.</p>
 </dd>
 
 <dt><b><a name="userdesktop">{userdesktop}</a></b> &amp; <b><a name="commondesktop">{commondesktop}</a></b></dt>
@@ -587,7 +587,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="userpf">{userpf}</a></b></dt>
 <dd>
-<p>The path to the current user's Program Files directory. Only Windows 7 and later supports <tt>{userpf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs</tt>.</p>
+<p>The path to the current user's Program Files folder. Only Windows 7 and later supports <tt>{userpf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs</tt>.</p>
 </dd>
 
 <dt><b><a name="userprograms">{userprograms}</a></b> &amp; <b><a name="commonprograms">{commonprograms}</a></b></dt>
@@ -597,7 +597,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="usersavedgames">{usersavedgames}</a></b></dt>
 <dd>
-<p>The path to the current user's Saved Games directory.</p>
+<p>The path to the current user's Saved Games folder. (There is no common Saved Games folder.)</p>
 </dd>
 
 <dt><b><a name="usersendto">{usersendto}</a></b></dt>
