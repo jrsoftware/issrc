@@ -109,7 +109,6 @@ begin
     'end');
 
   RegisterRealEnum('TMsgBoxType', TypeInfo(TMsgBoxType));
-  RegisterRealEnum('TShellFolderID', TypeInfo(TShellFolderID));
   RegisterRealEnum('TSetupMessageID', TypeInfo(TSetupMessageID));
   RegisterRealEnum('TSetupStep', TypeInfo(TSetupStep));
   RegisterRealEnum('TUninstallStep', TypeInfo(TUninstallStep));

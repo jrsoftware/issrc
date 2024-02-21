@@ -52,6 +52,10 @@ type
     seTask, seDir, seFile, seFileLocation, seIcon, seIni, seRegistry,
     seInstallDelete, seUninstallDelete, seRun, seUninstallRun);
 
+  TShellFolderID = (sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo,  //these have common and user versions
+    sfFonts, sfAppData, sfDocs, sfTemplates,                                  //
+    sfFavorites, sfLocalAppData, sfUserProgramFiles, sfUserCommonFiles, sfUserSavedGames); //these only have user versions
+
 const
   EntryStrings: array[TEntryType] of Integer = (SetupLanguageEntryStrings,
     SetupCustomMessageEntryStrings, SetupPermissionEntryStrings,
@@ -125,7 +129,7 @@ var
   { 'Constants' }
   SourceDir, TempInstallDir, WinDir, WinSystemDir, WinSysWow64Dir, WinSysNativeDir, SystemDrive,
     ProgramFiles32Dir, CommonFiles32Dir, ProgramFiles64Dir, CommonFiles64Dir,
-    ProgramFilesUserDir, CommonFilesUserDir, SavedGamesUserDir, CmdFilename, SysUserInfoName,
+    CmdFilename, SysUserInfoName,
     SysUserInfoOrg, UninstallExeFilename: String;
 
   { Uninstall 'constants' }
@@ -1021,13 +1025,16 @@ function ExpandIndividualConst(Cnst: String;
   end;
 
 const
-  FolderConsts: array[Boolean, TShellFolderID] of String =
-    (('userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
-      'usersendto', 'commonfonts', 'userappdata', 'userdocs', 'usertemplates',
-      'userfavorites', 'localappdata'),
-     ('commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
-      'usersendto', 'commonfonts', 'commonappdata', 'commondocs', 'commontemplates',
-      'commonfavorites' { not accepted anymore by the compiler }, 'localappdata'));
+  FolderConsts: array[Boolean, TShellFolderID] of String = (
+    { Also see FolderIDs }
+    { User }
+    ('userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
+     'usersendto', 'commonfonts', 'userappdata', 'userdocs', 'usertemplates',
+     'userfavorites', 'localappdata', 'userpf', 'usercf', 'usersavedgames'),
+    { Common }
+    ('commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
+     'usersendto', 'commonfonts', 'commonappdata', 'commondocs', 'commontemplates',
+     'commonfavorites' { not accepted anymore by the compiler }, '', '', '', ''));
   NoUninstallConsts: array[0..6] of String =
     ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'hwnd',
      'wizardhwnd');
@@ -1079,23 +1086,11 @@ begin
   else if Cnst = 'srcexe' then Result := SetupLdrOriginalFilename
   else if Cnst = 'tmp' then Result := TempInstallDir
   else if Cnst = 'sd' then Result := SystemDrive
-  else if Cnst = 'userpf' then begin
-    if ProgramFilesUserDir <> '' then
-      Result := ProgramFilesUserDir
-    else
-      Result := ExpandConst('{localappdata}\Programs'); { supply default, same as Window 7 and newer }
-  end
   else if Cnst = 'commonpf' then begin
     if Is64BitInstallMode then
       Result := ProgramFiles64Dir
     else
       Result := ProgramFiles32Dir;
-  end
-  else if Cnst = 'usercf' then begin
-    if CommonFilesUserDir <> '' then
-      Result := CommonFilesUserDir
-    else
-      Result := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Window 7 and newer }
   end
   else if Cnst = 'commoncf' then begin
     if Is64BitInstallMode then
@@ -1117,7 +1112,6 @@ begin
     else
       InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
-  else if Cnst = 'usersavedgames' then Result := SavedGamesUserDir
   else if Cnst = 'userfonts' then Result := ExpandConst('{localappdata}\Microsoft\Windows\Fonts') { supported by Windows 10 Version 1803 and newer. doesn't have a KNOWNFOLDERID. }
   else if Cnst = 'dao' then Result := ExpandConst('{cf}\Microsoft Shared\DAO')
   else if Cnst = 'cmd' then Result := CmdFilename
@@ -1340,13 +1334,6 @@ procedure InitMainNonSHFolderConsts;
     end;
   end;
 
-const
-  FOLDERID_UserProgramFiles: TGUID = (D1:$5CD7AEE2; D2:$2219; D3:$4A67; D4:($B8,$5D,$6C,$9C,$E1,$56,$60,$CB));
-  FOLDERID_UserProgramFilesCommon: TGUID = (D1:$BCBD3057; D2:$CA5C; D3:$4622; D4:($B4,$2D,$BC,$56,$DB,$0A,$E5,$16));
-  FOLDERID_SavedGames: TGUID = (D1:$4C5C32FF; D2:$BB9D; D3:$43B0; D4:($B5,$B4,$2D,$72,$E5,$4E,$AA,$A4));
-  KF_FLAG_CREATE = $00008000;
-var
-  Path: PWideChar;
 begin
   { Read Windows and Windows System dirs }
   WinDir := GetWinDir;
@@ -1384,34 +1371,6 @@ begin
       InternalError('Failed to get path of 64-bit Common Files directory');
   end;
 
-  { Get dirs which have no CSIDL equivalent and cannot be retrieved using SHGetFolderPath. }
-  if Assigned(SHGetKnownFolderPathFunc) and (WindowsVersion shr 16 >= $0600) then begin
-    var dwFlags: DWORD := 0;
-    if not IsAdminInstallMode then
-      dwFlags := dwFlags or KF_FLAG_CREATE;
-    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFiles {Windows 7+}, dwFlags, 0, Path) = S_OK then begin
-      try
-        ProgramFilesUserDir := WideCharToString(Path);
-      finally
-        CoTaskMemFree(Path);
-      end;
-    end;
-    if SHGetKnownFolderPathFunc(FOLDERID_UserProgramFilesCommon {Windows 7+}, dwFlags, 0, Path) = S_OK then begin
-      try
-        CommonFilesUserDir := WideCharToString(Path);
-      finally
-        CoTaskMemFree(Path);
-      end;
-    end;
-    if SHGetKnownFolderPathFunc(FOLDERID_SavedGames {Vista+}, dwFlags, 0, Path) = S_OK then begin
-      try
-        SavedGamesUserDir := WideCharToString(Path);
-      finally
-        CoTaskMemFree(Path);
-      end;
-    end;
-  end;
-  
   { Get path of command interpreter }
   if IsNT then
     CmdFilename := AddBackslash(WinSystemDir) + 'cmd.exe'
@@ -1565,6 +1524,8 @@ var
   Res: HRESULT;
   Buf: array[0..MAX_PATH-1] of Char;
 begin
+  { Note: Must pass Create=True or else SHGetFolderPath fails if the
+    specified CSIDL is valid but doesn't currently exist. }
   if Create then
     Folder := Folder or CSIDL_FLAG_CREATE;
 
@@ -1595,6 +1556,27 @@ begin
   end;
 end;
 
+function GetShellFolderByGUID(Folder: TGUID; const Create: Boolean): String;
+begin
+  if Assigned(SHGetKnownFolderPathFunc) and (WindowsVersion shr 16 >= $0600) then begin
+    var dwFlags: DWORD := 0;
+    if Create then
+      dwFlags := dwFlags or KF_FLAG_CREATE;
+    var Path: PWideChar;
+    { Note: Must pass Create=True or else SHGetKnownFolderPath fails if the
+      specified GUID is valid but doesn't currently exist. }
+    var Res := SHGetKnownFolderPathFunc(Folder, dwFlags, 0, Path);
+    if Res = S_OK then begin
+      Result := WideCharToString(Path);
+      CoTaskMemFree(Path);
+    end else begin
+      Result := '';
+      LogFmt('Warning: SHGetKnownFolderPath failed with code 0x%.8x', [Res]);
+    end;
+  end else
+    Result := '';
+end;
+
 function GetShellFolder(const Common: Boolean; const ID: TShellFolderID;
   ReadOnly: Boolean): String;
 const
@@ -1609,21 +1591,34 @@ const
   CSIDL_COMMON_TEMPLATES = $002D;
   CSIDL_COMMON_DOCUMENTS = $002E;
   FolderIDs: array[Boolean, TShellFolderID] of Integer = (
+    { Values must match FolderConsts }
     { User }
     (CSIDL_DESKTOPDIRECTORY, CSIDL_STARTMENU, CSIDL_PROGRAMS, CSIDL_STARTUP,
      CSIDL_SENDTO, CSIDL_FONTS, CSIDL_APPDATA, CSIDL_PERSONAL,
-     CSIDL_TEMPLATES, CSIDL_FAVORITES, CSIDL_LOCAL_APPDATA),
+     CSIDL_TEMPLATES, CSIDL_FAVORITES, CSIDL_LOCAL_APPDATA, 0, 0, 0),
     { Common }
     (CSIDL_COMMON_DESKTOPDIRECTORY, CSIDL_COMMON_STARTMENU, CSIDL_COMMON_PROGRAMS, CSIDL_COMMON_STARTUP,
      CSIDL_SENDTO, CSIDL_FONTS, CSIDL_COMMON_APPDATA, CSIDL_COMMON_DOCUMENTS,
-     CSIDL_COMMON_TEMPLATES, CSIDL_COMMON_FAVORITES, CSIDL_LOCAL_APPDATA));
+     CSIDL_COMMON_TEMPLATES, CSIDL_COMMON_FAVORITES, 0, 0, 0, 0));
+  FOLDERID_UserProgramFiles: TGUID = (D1:$5CD7AEE2; D2:$2219; D3:$4A67; D4:($B8,$5D,$6C,$9C,$E1,$56,$60,$CB));
+  FOLDERID_UserProgramFilesCommon: TGUID = (D1:$BCBD3057; D2:$CA5C; D3:$4622; D4:($B4,$2D,$BC,$56,$DB,$0A,$E5,$16));
+  FOLDERID_SavedGames: TGUID = (D1:$4C5C32FF; D2:$BB9D; D3:$43B0; D4:($B5,$B4,$2D,$72,$E5,$4E,$AA,$A4));
 var
   ShellFolder: String;
 begin
   if not ShellFoldersRead[Common, ID] then begin
-    { Note: Must pass Create=True or else SHGetFolderPath fails if the
-      specified CSIDL is valid but doesn't currently exist. }
-    ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], not ReadOnly);
+    if ID = sfUserProgramFiles then begin
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles {Windows 7+}, not ReadOnly);
+      if ShellFolder = '' then
+        ShellFolder := ExpandConst('{localappdata}\Programs'); { supply default, same as Window 7 and newer }
+    end else if ID = sfUserCommonFiles then begin
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon {Windows 7+}, True);
+      if ShellFolder = '' then
+        ShellFolder := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Window 7 and newer }
+    end else if ID = sfUserSavedGames then
+      ShellFolder := GetShellFolderByGUID(FOLDERID_SavedGames {Vista+}, True)
+    else
+      ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], not ReadOnly);
     ShellFolders[Common, ID] := ShellFolder;
     if not ReadOnly or (ShellFolder <> '') then
       ShellFoldersRead[Common, ID] := True;
