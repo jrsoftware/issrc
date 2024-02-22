@@ -210,8 +210,7 @@ function ExpandConstEx2(const S: String; const CustomConsts: array of String;
   const DoExpandIndividualConst: Boolean): String;
 function ExpandConstIfPrefixed(const S: String): String;
 function GetCustomMessageValue(const AName: String; var AValue: String): Boolean;
-function GetShellFolder(const Common: Boolean; const ID: TShellFolderID;
-  ReadOnly: Boolean): String;
+function GetShellFolder(const Common: Boolean; const ID: TShellFolderID): String;
 function GetShellFolderByCSIDL(Folder: Integer; const Create: Boolean): String;
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
 function GetUninstallRegSubkeyName(const UninstallRegKeyBaseName: String): String;
@@ -1145,7 +1144,7 @@ begin
       if WizardGroupValue = '' then
         InternalError('An attempt was made to expand the "' + OriginalCnst + '" constant before it was initialized');
       ShellFolder := GetShellFolder(not(shAlwaysUsePersonalGroup in SetupHeader.Options) and IsAdminInstallMode,
-        sfPrograms, False);
+        sfPrograms);
       if ShellFolder = '' then
         InternalError('Failed to expand "' + OriginalCnst + '" constant');
       Result := AddBackslash(ShellFolder) + WizardGroupValue;
@@ -1199,7 +1198,7 @@ begin
     for Common := False to True do
       for ShellFolderID := Low(ShellFolderID) to High(ShellFolderID) do
         if Cnst = FolderConsts[Common, ShellFolderID] then begin
-          ShellFolder := GetShellFolder(Common, ShellFolderID, False);
+          ShellFolder := GetShellFolder(Common, ShellFolderID);
           if ShellFolder = '' then
             InternalError(Format('Failed to expand shell folder constant "%s"', [OriginalCnst]));
           Result := ShellFolder;
@@ -1577,8 +1576,7 @@ begin
     Result := '';
 end;
 
-function GetShellFolder(const Common: Boolean; const ID: TShellFolderID;
-  ReadOnly: Boolean): String;
+function GetShellFolder(const Common: Boolean; const ID: TShellFolderID): String;
 const
   CSIDL_COMMON_STARTMENU = $0016;
   CSIDL_COMMON_PROGRAMS = $0017;
@@ -1608,7 +1606,7 @@ var
 begin
   if not ShellFoldersRead[Common, ID] then begin
     if ID = sfUserProgramFiles then begin
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles {Windows 7+}, not ReadOnly);
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles {Windows 7+}, True);
       if ShellFolder = '' then
         ShellFolder := ExpandConst('{localappdata}\Programs'); { supply default, same as Window 7 and newer }
     end else if ID = sfUserCommonFiles then begin
@@ -1618,10 +1616,9 @@ begin
     end else if ID = sfUserSavedGames then
       ShellFolder := GetShellFolderByGUID(FOLDERID_SavedGames {Vista+}, True)
     else
-      ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], not ReadOnly);
+      ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], True);
     ShellFolders[Common, ID] := ShellFolder;
-    if not ReadOnly or (ShellFolder <> '') then
-      ShellFoldersRead[Common, ID] := True;
+    ShellFoldersRead[Common, ID] := True;
   end;
   Result := ShellFolders[Common, ID];
 end;
