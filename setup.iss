@@ -2,8 +2,8 @@
 ; Inno Setup's own Setup script
 
 ; Inno Setup
-; Copyright (C) 1997-2023 Jordan Russell. All rights reserved.
-; Portions Copyright (C) 2000-2023 Martijn Laan. All rights reserved.
+; Copyright (C) 1997-2024 Jordan Russell. All rights reserved.
+; Portions Copyright (C) 2000-2024 Martijn Laan. All rights reserved.
 ; For conditions of distribution and use, see LICENSE.TXT.
 
 #include "iscrypt.iss"
@@ -15,12 +15,12 @@
 [Setup]
 AppName=Inno Setup
 AppId={code:GetAppId|Inno Setup 6}
-AppVersion=6.2.2
+AppVersion=6.2.3-dev
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
 AppUpdatesURL=https://www.innosetup.com/
-VersionInfoCopyright=Copyright (C) 1997-2023 Jordan Russell. Portions Copyright (C) 2000-2023 Martijn Laan.
+VersionInfoCopyright=Copyright (C) 1997-2024 Jordan Russell. Portions Copyright (C) 2000-2024 Martijn Laan.
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
 WizardStyle=modern

@@ -1,7 +1,7 @@
 // Inno Setup Preprocessor
 //
-// Inno Setup (C) 1997-2023 Jordan Russell. All Rights Reserved.
-// Portions Copyright (C) 2000-2023 Martijn Laan. All Rights Reserved.
+// Inno Setup (C) 1997-2024 Jordan Russell. All Rights Reserved.
+// Portions Copyright (C) 2000-2024 Martijn Laan. All Rights Reserved.
 // Portions Copyright (C) 2001-2004 Alex Yackimoff. All Rights Reserved.
 //
 // See the ISPP help file for more documentation of the functions defined by this file
