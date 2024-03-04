@@ -61,6 +61,12 @@
                                                   {$DEFINE IS_D103RIO}  { then it must be at least Delphi 10.3 Rio }
                                                   {$IFNDEF VER330}  { if it's not Delphi 10.3 Rio }
                                                     {$DEFINE IS_D104SYDNEY}  { then it must be at least Delphi 10.4 Sydney }
+                                                    {$IFNDEF VER340}  { if it's not Delphi 10.4 Sydney }
+                                                      {$DEFINE IS_D11}  { then it must be at least Delphi 11 Alexandria }
+                                                      {$IFNDEF VER350}  { if it's not Delphi 11 Alexandria }
+                                                        {$DEFINE IS_D12}  { then it must be at least Delphi 12 }
+                                                      {$ENDIF}
+                                                    {$ENDIF}
                                                   {$ENDIF}
                                                 {$ENDIF}
                                               {$ENDIF}
