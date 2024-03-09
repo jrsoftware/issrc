@@ -31,9 +31,9 @@ uses
   InstFunc in 'InstFunc.pas',
   FileClass in 'FileClass.pas';
 
-{$R *.RES}
-{$R SetupLdrVersion.res}
-{$R SetupLdrOffsetTable.res}
+{$R Setup.icon.res}
+{$R SetupLdr.version.res}
+{$R SetupLdr.offsettable.res}
 
 procedure RaiseLastError(const Msg: TSetupMessageID);
 var
