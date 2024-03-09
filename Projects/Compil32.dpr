@@ -44,7 +44,7 @@ uses
   CompMessageBoxDesigner in 'CompMessageBoxDesigner.pas' {MBDForm},
   CompScintEdit in 'CompScintEdit.pas';
 
-{$R *.res}
+{$R Compil32VersionAndIcon.res}
 {$R Compil32.manifest.res}
 {$R CompDocIcon.res}
 

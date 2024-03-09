@@ -3,6 +3,9 @@
         <ProjectGuid>{C0278F77-1554-45D9-B1E9-69FB923E8771}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
+        <Projects Include="Compil32.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="ISCmplr.dproj">
             <Dependencies/>
         </Projects>
@@ -17,6 +20,15 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
+    <Target Name="Compil32">
+        <MSBuild Projects="Compil32.dproj"/>
+    </Target>
+    <Target Name="Compil32:Clean">
+        <MSBuild Projects="Compil32.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Compil32:Make">
+        <MSBuild Projects="Compil32.dproj" Targets="Make"/>
+    </Target>
     <Target Name="ISCmplr">
         <MSBuild Projects="ISCmplr.dproj"/>
     </Target>
@@ -36,13 +48,13 @@
         <MSBuild Projects="ISPP\ISPP.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="ISCmplr;ISPP"/>
+        <CallTarget Targets="Compil32;ISCmplr;ISPP"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ISCmplr:Clean;ISPP:Clean"/>
+        <CallTarget Targets="Compil32:Clean;ISCmplr:Clean;ISPP:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ISCmplr:Make;ISPP:Make"/>
+        <CallTarget Targets="Compil32:Make;ISCmplr:Make;ISPP:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
