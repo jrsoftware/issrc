@@ -41,7 +41,7 @@ uses
   SHA1 in '..\SHA1.pas',
   Struct in '..\Struct.pas';
   
-{$R *.RES}
+{$R IsppVersion.res}
 
 exports
   ISPreprocessScript name 'ISPreprocessScriptW';
