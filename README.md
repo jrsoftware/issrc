@@ -154,10 +154,6 @@ How do the projects link together?
 Source code tips
 ----------------
 
-- If you modify the Setup or SetupLdr projects and want to be able to compile
-  your installations with the new code, you'll need to copy the new EXE
-  file(s) to the Setup Compiler directory under the extension .E32.
-
 - When debugging the Setup project you should set ``UseSetupLdr=no`` and
   ``OutputBaseFilename=setup`` in your script, and copy the resulting setup-*.bin
   files to the source code directory. This way you can simulate an actual
@@ -171,9 +167,6 @@ Source code tips
   first creating the SETUP.EXE as usual, then concatenating the SETUP.0 and
   SETUP-1.BIN to the end of the SETUP.EXE, and finally modifying an internal
   data block in SETUP.EXE so it knows it's in "single EXE" form.
-
-- For compiler debugging purposes define ``STATICCOMPILER`` in CompForm.pas
-  and for preprocessor debugging also ``STATICPREPROC`` in Compile.pas.
 
 - To debug the uninstaller first run Setup.exe to completion with the
   ``/DETACHEDMSG`` command line parameter set. Afterwards copy uninst000.dat and
