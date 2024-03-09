@@ -17,10 +17,6 @@ unit FileClass;
 
 {$I VERSION.INC}
 
-{$IFDEF IS_D6}
-{$WARN SYMBOL_PLATFORM OFF}
-{$ENDIF}
-
 interface
 
 uses

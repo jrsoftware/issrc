@@ -16,12 +16,8 @@ unit CompForm;
 
 {$I VERSION.INC}
 
-{$IFDEF IS_D6}
-{$WARN SYMBOL_PLATFORM OFF}
-{$ENDIF}
-
 {$IFDEF STATICCOMPILER}
-{$R IMAGES2.RES}
+{$R ISCmplr.images.res}
 {$ENDIF}
 
 interface
