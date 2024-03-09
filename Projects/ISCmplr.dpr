@@ -36,8 +36,8 @@ uses
   ArcFour in 'ArcFour.pas',
   VerInfo in 'VerInfo.pas';
 
-{$R *.RES}
-{$R IMAGES2.RES}
+{$R Images2.RES}
+{$R ISCmplrVersion.res}
 
 function ISDllCompileScript(const Params: TCompileScriptParamsEx): Integer;
 stdcall;

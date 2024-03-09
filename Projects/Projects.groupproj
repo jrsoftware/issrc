@@ -3,6 +3,9 @@
         <ProjectGuid>{C0278F77-1554-45D9-B1E9-69FB923E8771}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
+        <Projects Include="ISCmplr.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="ISPP\ISPP.dproj">
             <Dependencies/>
         </Projects>
@@ -14,6 +17,15 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
+    <Target Name="ISCmplr">
+        <MSBuild Projects="ISCmplr.dproj"/>
+    </Target>
+    <Target Name="ISCmplr:Clean">
+        <MSBuild Projects="ISCmplr.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ISCmplr:Make">
+        <MSBuild Projects="ISCmplr.dproj" Targets="Make"/>
+    </Target>
     <Target Name="ISPP">
         <MSBuild Projects="ISPP\ISPP.dproj"/>
     </Target>
@@ -24,13 +36,13 @@
         <MSBuild Projects="ISPP\ISPP.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="ISPP"/>
+        <CallTarget Targets="ISCmplr;ISPP"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ISPP:Clean"/>
+        <CallTarget Targets="ISCmplr:Clean;ISPP:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ISPP:Make"/>
+        <CallTarget Targets="ISCmplr:Make;ISPP:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
