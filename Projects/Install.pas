@@ -3529,11 +3529,11 @@ var
 begin
   Uri := TUri.Create(Url);
   if DownloadUser = '' then
-    User := TUri.URLDecode(Uri.Username)
+    User := TNetEncoding.URL.Decode(Uri.Username)
   else
     User := DownloadUser;
   if DownloadPass = '' then
-    Pass := TUri.URLDecode(Uri.Password,true)
+    Pass := TNetEncoding.URL.Decode(Uri.Password, [TURLEncoding.TDecodeOption.PlusAsSpaces])
   else
     Pass := DownloadPass;
   Uri.Username := '';
