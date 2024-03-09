@@ -74,13 +74,9 @@ uses
   SpawnClient in 'SpawnClient.pas',
   TaskDialog in 'TaskDialog.pas';
 
-{$R *.RES}
-{$IFDEF UNICODE}
-{$R SetupVersionUnicode.res}
-{$ELSE}
-{$R SetupVersion.res}
-{$ENDIF}
-{$R IMAGES.RES}
+{$R Setup.icon.res}
+{$R Setup.images.res}
+{$R Setup.version.res}
 
 {$I VERSION.INC}
 
