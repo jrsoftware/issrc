@@ -69,7 +69,6 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
-        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
         <DCC_ExeOutput>..</DCC_ExeOutput>
         <Debugger_HostApplication>..\Compil32.exe</Debugger_HostApplication>
         <Debugger_RunParams>Debug.iss</Debugger_RunParams>
