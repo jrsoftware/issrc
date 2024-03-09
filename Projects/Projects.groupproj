@@ -21,6 +21,9 @@
         <Projects Include="SetupLdr.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="..\ISHelp\ISHelpGen\ISHelpGen.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -83,14 +86,23 @@
     <Target Name="SetupLdr:Make">
         <MSBuild Projects="SetupLdr.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ISHelpGen">
+        <MSBuild Projects="..\ISHelp\ISHelpGen\ISHelpGen.dproj"/>
+    </Target>
+    <Target Name="ISHelpGen:Clean">
+        <MSBuild Projects="..\ISHelp\ISHelpGen\ISHelpGen.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ISHelpGen:Make">
+        <MSBuild Projects="..\ISHelp\ISHelpGen\ISHelpGen.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Compil32;ISCC;ISCmplr;ISPP;Setup;SetupLdr"/>
+        <CallTarget Targets="Compil32;ISCC;ISCmplr;ISPP;Setup;SetupLdr;ISHelpGen"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Compil32:Clean;ISCC:Clean;ISCmplr:Clean;ISPP:Clean;Setup:Clean;SetupLdr:Clean"/>
+        <CallTarget Targets="Compil32:Clean;ISCC:Clean;ISCmplr:Clean;ISPP:Clean;Setup:Clean;SetupLdr:Clean;ISHelpGen:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Compil32:Make;ISCC:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupLdr:Make"/>
+        <CallTarget Targets="Compil32:Make;ISCC:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupLdr:Make;ISHelpGen:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
