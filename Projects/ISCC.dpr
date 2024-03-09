@@ -25,8 +25,8 @@ uses
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   PathFunc, CmnFunc2, CompInt, FileClass, CompTypes;
 
-{$R *.res}
 {$R ISCC.manifest.res}
+{$R ISCC.versionandicon.res}
 
 {$I VERSION.INC}
 

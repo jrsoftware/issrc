@@ -6,6 +6,9 @@
         <Projects Include="Compil32.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="ISCC.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="ISCmplr.dproj">
             <Dependencies/>
         </Projects>
@@ -34,6 +37,15 @@
     </Target>
     <Target Name="Compil32:Make">
         <MSBuild Projects="Compil32.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ISCC">
+        <MSBuild Projects="ISCC.dproj"/>
+    </Target>
+    <Target Name="ISCC:Clean">
+        <MSBuild Projects="ISCC.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ISCC:Make">
+        <MSBuild Projects="ISCC.dproj" Targets="Make"/>
     </Target>
     <Target Name="ISCmplr">
         <MSBuild Projects="ISCmplr.dproj"/>
@@ -72,13 +84,13 @@
         <MSBuild Projects="SetupLdr.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="Compil32;ISCmplr;ISPP;Setup;SetupLdr"/>
+        <CallTarget Targets="Compil32;ISCC;ISCmplr;ISPP;Setup;SetupLdr"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Compil32:Clean;ISCmplr:Clean;ISPP:Clean;Setup:Clean;SetupLdr:Clean"/>
+        <CallTarget Targets="Compil32:Clean;ISCC:Clean;ISCmplr:Clean;ISPP:Clean;Setup:Clean;SetupLdr:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Compil32:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupLdr:Make"/>
+        <CallTarget Targets="Compil32:Make;ISCC:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupLdr:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
