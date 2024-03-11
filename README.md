@@ -226,20 +226,16 @@ Inno Setup-specific editing guidelines for the help files
 Setting up Continuous Integration
 ---------------------------------
 
-Delphi is not offered for download via a public link, and while there is a
-free-of-charge community version, its license terms forbid sharing it with others, or
-even let other developers (outside your direct teammates) use it. However, what _is_
-allowed is to copy the files (or a subset thereof) to another machine for the specific
-purpose of supporting unattended builds.
-
-Inno Setup's source code includes a GitHub workflow that performs such unattended
-builds upon `push` events, it requires some setting up, though.
+Inno Setup's source code includes a GitHub workflow that performs unattended builds
+upon `push` events, it requires some setting up, though.
 
 Note: The following instructions assume that you have a correctly-licensed version
-of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\20.0`.
+of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\20.0`. Also
+ensure your current Delphi license still allows you to copy a subset of the Delphi
+files to another machine for the specific purpose of supporting unattended builds.
 
-To generate the (encrypted) `.zip` file containing the files needed to build
-Inno Setup, use [7-Zip](https://www.7-zip.org/):
+First, generate an encrypted `.zip` file containing the files needed to build
+Inno Setup using [7-Zip](https://www.7-zip.org/):
 
 ```
 cd C:\Program Files (x86)\Embarcadero\Studio\20.0
@@ -254,8 +250,8 @@ cd C:\Program Files (x86)\Embarcadero\Studio\20.0
 	lib/win32/release/Winapi.*.dcu
 ```
 
-Then, upload this somewhere public, e.g. by attaching it to a comment in a
-GitHub issue. After that, add this URL as a new repository
+Then, upload this encrypted file somewhere public, e.g. by attaching it to a comment
+in a GitHub issue. After that, add this URL as a new repository
 [secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
 (at https://github.com/YOUR-USER-NAME/issrc/settings/secrets/actions), under the name
 `ISSRC_BUILD_ENV_ZIP_URL`, and the password as `ISSRC_BUILD_ENV_ZIP_PASSWORD`.
@@ -283,10 +279,7 @@ Once these two repository secrets are set, the Continuous Integration will
 automatically pick them up and code-sign the generated executable files.
 
 Note: These repository secrets are only _used_ in the Continuous Integration,
-and will _not_ be included in the build artifacts. Meaning: You do not have to
-worry that the InnoSetup compiler that is produced by the Continuous
-Integration will automatically use your code-signing certificate
-_on its own_ to produce code-signed installers.
+and will _not_ be included in the build artifacts.
 
 <!-- Link references -->
 [CONTRIBUTING.md]: <CONTRIBUTING.md>
