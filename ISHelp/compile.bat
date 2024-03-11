@@ -26,13 +26,13 @@ if "%HHCEXE%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
-echo Generating help files:
+echo Generating help files using ISHelpGen:
 echo.
 ISHelpGen\ISHelpGen.exe .
 if errorlevel 1 goto failed
 
 echo.
-echo Running help compiler:
+echo Running HTML Help Compiler (hhc.exe):
 echo.
 if exist Staging\isetup.chm del Staging\isetup.chm
 if exist Staging\isetup.chm goto failed

@@ -38,20 +38,16 @@ Getting Started
 
 2. **Install Embarcadero Delphi**
 
-   We compile all of Inno Setup's projects under Delphi 10.4.2 Sydney.
+   We compile all of Inno Setup's projects under Delphi 11.3 Alexandria.
 
    If you do not have access to this version of Delphi, you should be
-   able to compile the projects on later versions, however complete
+   able to compile the projects on other versions, however complete
    compatibility is NOT guaranteed. We try to make Inno Setup compilable on
-   the later versions when possible, but do not have the resources to test
+   the other versions when possible, but do not have the resources to test
    every change on every Delphi version.
   
    There's a free version of Delphi available called the Community Edition.
    See https://www.embarcadero.com/products/delphi/starter/free-download
-
-   Unfortunately, Embarcadero has removed command line compilation support
-   from the Community Edition, which means you cannot use the build scripts
-   mentioned below with this edition.   
 
 3. **Install Microsoft HTML Help Workshop**
 
@@ -65,17 +61,28 @@ Getting Started
 
 4. **Build Inno Setup**
 
-   To build all files run **build.bat** and follow the instructions.
+   Unfortunately, Embarcadero has removed command line compilation support
+   from the Community Edition, which means you there's two different build 
+   scripts.
+
+   Community Edition: To build all files run **build-ce.bat** and follow the
+   instructions  
+
+   Otherwise: To build all files run **build.bat** and follow the instructions.
 
    To just compile Inno Setup run **compile.bat** and follow the instructions.
+   This batch file can not be used with the Community Edition, open
+   Projects\Projects.groupproj instead.
 
    To just compile the Inno Setup help file and its web version run
    **ISHelp\ISHelpGen\compile.bat** and **ISHelp\compile.bat** and follow the
-   instructions.
+   instructions. The former batch file can not be used with the
+   Community Edition, open Projects\Projects.groupproj instead.
 
    To just compile the Inno Setup Preprocessor help file and its web version run
    **ISHelp\ISHelpGen\compile.bat** and **Projects\Ispp\Help\compile.bat** and
-   follow the instructions.
+   follow the instructions. The former batch file can not be used with the
+   Community Edition, open Projects\Projects.groupproj instead.
 
 
 Component Installation
@@ -154,10 +161,6 @@ How do the projects link together?
 Source code tips
 ----------------
 
-- If you modify the Setup or SetupLdr projects and want to be able to compile
-  your installations with the new code, you'll need to copy the new EXE
-  file(s) to the Setup Compiler directory under the extension .E32.
-
 - When debugging the Setup project you should set ``UseSetupLdr=no`` and
   ``OutputBaseFilename=setup`` in your script, and copy the resulting setup-*.bin
   files to the source code directory. This way you can simulate an actual
@@ -171,9 +174,6 @@ Source code tips
   first creating the SETUP.EXE as usual, then concatenating the SETUP.0 and
   SETUP-1.BIN to the end of the SETUP.EXE, and finally modifying an internal
   data block in SETUP.EXE so it knows it's in "single EXE" form.
-
-- For compiler debugging purposes define ``STATICCOMPILER`` in CompForm.pas
-  and for preprocessor debugging also ``STATICPREPROC`` in Compile.pas.
 
 - To debug the uninstaller first run Setup.exe to completion with the
   ``/DETACHEDMSG`` command line parameter set. Afterwards copy uninst000.dat and

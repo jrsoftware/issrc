@@ -44,9 +44,9 @@ uses
   CompMessageBoxDesigner in 'CompMessageBoxDesigner.pas' {MBDForm},
   CompScintEdit in 'CompScintEdit.pas';
 
-{$R *.res}
+{$R Compil32.docicon.res}
 {$R Compil32.manifest.res}
-{$R CompDocIcon.res}
+{$R Compil32.versionandicon.res}
 
 procedure SetAppUserModelID;
 var
