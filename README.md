@@ -47,7 +47,7 @@ Getting Started
    every change on every Delphi version.
   
    There's a free version of Delphi available called the Community Edition.
-   See https://www.embarcadero.com/products/delphi/starter/free-download
+   See https://www.embarcadero.com/products/delphi/starter/free-download.
 
 3. **Install Microsoft HTML Help Workshop**
 
