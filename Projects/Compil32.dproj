@@ -114,6 +114,10 @@
             <Form>MBDForm</Form>
         </DCCReference>
         <DCCReference Include="CompScintEdit.pas"/>
+        <DCCReference Include="CompFileListWin.pas">
+            <Form>CFLWForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

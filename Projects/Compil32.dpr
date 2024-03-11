@@ -9,7 +9,7 @@ program Compil32;
   Compiler
 }
 
-{$SetPEFlags 1} 
+{$SetPEFlags 1}
 {$SETPEOSVERSION 6.0}
 {$SETPESUBSYSVERSION 6.0}
 {$WEAKLINKRTTI ON}
@@ -42,7 +42,8 @@ uses
   ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas',
   ModernColors in '..\Components\ModernColors.pas',
   CompMessageBoxDesigner in 'CompMessageBoxDesigner.pas' {MBDForm},
-  CompScintEdit in 'CompScintEdit.pas';
+  CompScintEdit in 'CompScintEdit.pas',
+  CompFileListWin in 'CompFileListWin.pas' {CFLWForm};
 
 {$R Compil32.docicon.res}
 {$R Compil32.manifest.res}
@@ -89,7 +90,7 @@ begin
       if CommandLineCompile then
         CommandLine := '/CC ' + CommandLine;
     end;
-    
+
     if Length(CommandLine) > RESTART_MAX_CMD_LINE then
       CommandLine := '';
 
@@ -109,7 +110,7 @@ const
   MutexName = 'InnoSetupCompilerAppMutex';
 begin
   CreateMutex(MutexName);
-  CreateMutex('Global\' + MutexName);  { don't localize }
+  CreateMutex('Global\' + MutexName); { don't localize }
 end;
 
 var
@@ -190,5 +191,6 @@ begin
   end;
 
   Application.CreateForm(TCompileForm, CompileForm);
+  Application.CreateForm(TCFLWForm, CFLWForm);
   Application.Run;
 end.

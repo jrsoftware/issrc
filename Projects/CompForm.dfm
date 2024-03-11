@@ -665,7 +665,12 @@ object CompileForm: TCompileForm
         ShortCut = 24653
         OnClick = TInsertMsgBoxClick
       end
-      object N7: TMenuItem
+      object TInsertFileListField: TMenuItem
+        Caption = '&Insert File List Field'
+        ShortCut = 24649
+        OnClick = TInsertFileListFieldClick
+      end
+      object N23: TMenuItem
         Caption = '-'
       end
       object TSignTools: TMenuItem
