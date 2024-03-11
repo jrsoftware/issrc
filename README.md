@@ -269,10 +269,6 @@ workflow will be triggered automatically.
 
 ### Setting up code-signing with Continuous Integration
 
-Inno Setup's official releases ship with executable files that are
-[code-signed](https://en.wikipedia.org/wiki/Code_signing), to allow users to
-verify that these files come from a trusted source.
-
 If you have a code-signing certificate, you can use that in the Continuous
 Integration to produce artifacts that are code-signed, too, as long as the
 certificate does not require any local-only security factor such as a USB
