@@ -237,7 +237,7 @@ Delphi files to another machine for the specific purpose of supporting unattende
 builds.
 
 First, generate an encrypted `.zip` file containing the files needed to build
-Inno Setup using [7-Zip](https://www.7-zip.org/):
+Inno Setup using [7-Zip]:
 
 ```
 cd C:\Program Files (x86)\Embarcadero\Studio\20.0
@@ -254,8 +254,7 @@ cd C:\Program Files (x86)\Embarcadero\Studio\20.0
 
 Then, upload this encrypted file somewhere public, e.g. by attaching it to a comment
 in a GitHub issue. After that, add this URL as a new repository
-[secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-(at https://github.com/YOUR-USER-NAME/issrc/settings/secrets/actions), under the name
+[secret] (at https://github.com/YOUR-USER-NAME/issrc/settings/secrets/actions), under the name
 `ISSRC_BUILD_ENV_ZIP_URL`, and the password as `ISSRC_BUILD_ENV_ZIP_PASSWORD`.
 
 Finally, indicate that your fork of the repository has those secrets, by adding the
@@ -270,9 +269,8 @@ workflow will be triggered automatically.
 If you have a code-signing certificate, you can use that in the Continuous
 Integration to produce artifacts that are code-signed, too, as long as the
 certificate does not require any local-only security factor such as a USB
-security key. To use the certificate, you first have to add the [repository
-secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository)
-`CODESIGN_P12`, using as value the base64-encoded file contents of the
+security key. To use the certificate, you first have to add the repository
+[secret] `CODESIGN_P12`, using as value the base64-encoded file contents of the
 certificate's `.p12` file (obtain this value e.g. by running `base64 -w 0
 <my-certificate.p12`). Then, add the corresponding certificate password as
 repository secret named `CODESIGN_PASS`.
@@ -290,3 +288,5 @@ and will _not_ be included in the build artifacts.
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\LzmaDecode\compiling.txt]: <Projects/LzmaDecode/compiling.txt>
 [Projects\Lzma2\Decoder\compiling.txt]: <Projects/Lzma2/Decoder/compiling.txt>
+[7-Zip]: https://www.7-zip.org/
+[secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets
