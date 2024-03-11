@@ -36,21 +36,22 @@ call :deletefile files\ispp.dll
 call :deletefile files\setup.e32
 call :deletefile files\setupldr.e32
 call :deletefile ishelp\ishelpgen\ishelpgen.exe
-goto next
 
-:deletefile
-if exist "%~1" (
-    del "%~1"
-    if exist "%~1" goto failed
-    echo Cleared %~1
-) 
-exit /b
-
-:next
 echo.
 echo Clearing compilation output done
 echo Now open Projects\Projects.groupproj and build all projects in release mode
-pause
+
+echo Waiting for files...
+call :waitforfile files\compil32.exe
+call :waitforfile files\iscc.exe
+call :waitforfile files\iscmplr.dll
+call :waitforfile files\ispp.dll
+call :waitforfile files\setup.e32
+call :waitforfile files\setupldr.e32
+call :waitforfile ishelp\ishelpgen\ishelpgen.exe
+
+echo Found all, waiting 2 seconds more...
+timeout /t 2 /nobreak >nul
 
 cd projects\ispp\help
 if errorlevel 1 goto failed
@@ -96,3 +97,19 @@ exit /b 0
 echo *** FAILED ***
 pause
 exit /b 1
+
+:deletefile
+if exist "%~1" (
+    del "%~1"
+    if exist "%~1" goto failed
+    echo Cleared %~1
+) 
+exit /b
+
+:waitforfile
+if not exist "%~1" (
+    timeout /t 1 /nobreak >nul
+    goto waitforfile
+)
+echo Found %~1
+exit /b
