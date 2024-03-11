@@ -39,7 +39,7 @@ call :deletefile ishelp\ishelpgen\ishelpgen.exe
 
 echo.
 echo Clearing compilation output done
-echo Now open Projects\Projects.groupproj and build all projects in release mode
+echo Now open Projects\Projects.groupproj and build all projects in Release mode
 
 echo Waiting for files...
 call :waitforfile files\compil32.exe
