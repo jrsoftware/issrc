@@ -9,11 +9,6 @@ program Setup;
   Setup program
 }
 
-{$SetPEFlags 1} 
-{$SETPEOSVERSION 6.1}
-{$SETPESUBSYSVERSION 6.1}
-{$WEAKLINKRTTI ON}
-
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
   XPTheme in 'XPTheme.pas',
@@ -73,6 +68,11 @@ uses
   SpawnServer in 'SpawnServer.pas',
   SpawnClient in 'SpawnClient.pas',
   TaskDialog in 'TaskDialog.pas';
+
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
+{$WEAKLINKRTTI ON}
 
 {$R Setup.icon.res}
 {$R Setup.images.res}

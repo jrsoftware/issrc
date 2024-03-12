@@ -9,11 +9,6 @@ library ISCmplr;
   Compiler DLL
 }
 
-{$IMAGEBASE $00800000}
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
-{$WEAKLINKRTTI ON}
-
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
   SysUtils,
@@ -35,6 +30,11 @@ uses
   FileClass in 'FileClass.pas',
   ArcFour in 'ArcFour.pas',
   VerInfo in 'VerInfo.pas';
+
+{$IMAGEBASE $00800000}
+{$SETPEOSVERSION 6.0}
+{$SETPESUBSYSVERSION 6.0}
+{$WEAKLINKRTTI ON}
 
 {$R ISCmplr.images.res}
 {$R ISCmplr.version.res}
