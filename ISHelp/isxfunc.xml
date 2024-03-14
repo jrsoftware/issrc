@@ -1861,7 +1861,7 @@ end;</pre>
       <function>
         <name>LoadStringsFromFile</name>
         <prototype>function LoadStringsFromFile(const FileName: String; var S: TArrayOfString): Boolean;</prototype>
-        <description><p>Loads the specified text file into the specified string array. Returns True if successful, False otherwise.</p></description>
+        <description><p>Loads the specified text file into the specified string array. UTF-8 encoded files with or without a preamble (also called BOM) are also supported. Returns True if successful, False otherwise.</p></description>
       </function>
       <function>
         <name>SaveStringToFile</name>
