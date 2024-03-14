@@ -1016,7 +1016,7 @@ begin
 
   FMainMemo.Filename := '';
   UpdateCaption;
-  FMainMemo.SaveInUTF8Encoding := False;
+  FMainMemo.SaveInUTF8Encoding := True;
   FMainMemo.SaveInUTF8EncodingNoPreamble := False;
   FMainMemo.Lines.Clear;
   FModifiedAnySinceLastCompile := True;
@@ -1108,7 +1108,7 @@ begin
     end;
 
     if CommandLineWizard then begin
-      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, False, False); //doesnt force UTF8 and always saves UTF8 with a preamble
+      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, True, False); //force UTF8 with a preamble
     end else begin
       NewMainFile;
       FMainMemo.Lines.Text := WizardForm.ResultScript;
