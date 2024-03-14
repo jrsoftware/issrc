@@ -2,7 +2,7 @@ unit CompScintEdit;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -57,6 +57,7 @@ type
     FFilename: String;
     FFileLastWriteTime: TFileTime;
     FSaveInUTF8Encoding: Boolean;
+    FSaveInUTF8EncodingNoPreamble: Boolean;
   public
     ErrorLine, ErrorCaretPosition: Integer;
     StepLine: Integer;
@@ -69,6 +70,7 @@ type
     property CompilerFileIndex: Integer read FCompilerFileIndex write FCompilerFileIndex;
     property FileLastWriteTime: TFileTime read FFileLastWriteTime write FFileLastWriteTime;
     property SaveInUTF8Encoding: Boolean read FSaveInUTF8Encoding write FSaveInUTF8Encoding;
+    property SaveInUTF8EncodingNoPreamble: Boolean read FSaveInUTF8EncodingNoPreamble write FSaveInUTF8EncodingNoPreamble;
   end;
 
 implementation

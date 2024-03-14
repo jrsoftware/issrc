@@ -203,6 +203,7 @@ object CompileForm: TCompileForm
         Top = 0
         Hint = 'New Main Script (Ctrl+N)'
         ImageIndex = 0
+        ImageName = 'document-new'
         OnClick = FNewMainFileClick
       end
       object OpenMainFileButton: TToolButton
@@ -210,6 +211,7 @@ object CompileForm: TCompileForm
         Top = 0
         Hint = 'Open Main Script (Ctrl+O)'
         ImageIndex = 1
+        ImageName = 'folder-open-filled-arrow-down-right'
         OnClick = FOpenMainFileClick
       end
       object SaveButton: TToolButton
@@ -217,6 +219,7 @@ object CompileForm: TCompileForm
         Top = 0
         Hint = 'Save (Ctrl+S)'
         ImageIndex = 2
+        ImageName = 'save-filled'
         OnClick = FSaveClick
       end
       object ToolButton4: TToolButton
@@ -231,6 +234,7 @@ object CompileForm: TCompileForm
         Top = 0
         Hint = 'Compile (Ctrl+F9)'
         ImageIndex = 3
+        ImageName = 'build'
         OnClick = BCompileClick
       end
       object StopCompileButton: TToolButton
@@ -239,6 +243,7 @@ object CompileForm: TCompileForm
         Hint = 'Stop Compile (Esc)'
         Enabled = False
         ImageIndex = 4
+        ImageName = 'build-cancel-2'
         OnClick = BStopCompileClick
       end
       object ToolButton7: TToolButton
@@ -253,6 +258,7 @@ object CompileForm: TCompileForm
         Top = 0
         Hint = 'Run (F9)'
         ImageIndex = 5
+        ImageName = 'debug-start-filled'
         OnClick = RRunClick
       end
       object PauseButton: TToolButton
@@ -261,6 +267,7 @@ object CompileForm: TCompileForm
         Hint = 'Pause'
         Enabled = False
         ImageIndex = 6
+        ImageName = 'debug-break-all-filled'
         OnClick = RPauseClick
       end
       object TerminateButton: TToolButton
@@ -269,6 +276,7 @@ object CompileForm: TCompileForm
         Hint = 'Terminate (Ctrl+F2)'
         Enabled = False
         ImageIndex = 10
+        ImageName = 'debug-stop-filled'
         OnClick = RTerminateClick
       end
       object ToolButton10: TToolButton
@@ -284,6 +292,7 @@ object CompileForm: TCompileForm
         Hint = 'Target Setup (Ctrl+Q)'
         Grouped = True
         ImageIndex = 7
+        ImageName = 'install'
         Style = tbsCheck
         OnClick = RTargetClick
       end
@@ -293,6 +302,7 @@ object CompileForm: TCompileForm
         Hint = 'Target Uninstall (Ctrl+W)'
         Grouped = True
         ImageIndex = 8
+        ImageName = 'uninstall'
         Style = tbsCheck
         OnClick = RTargetClick
       end
@@ -308,6 +318,7 @@ object CompileForm: TCompileForm
         Top = 0
         Hint = 'Help (F1)'
         ImageIndex = 9
+        ImageName = 'button-help'
         OnClick = HDocClick
       end
     end
@@ -362,6 +373,10 @@ object CompileForm: TCompileForm
         object FSaveEncodingUTF8: TMenuItem
           Caption = '&UTF-8'
           RadioItem = True
+          OnClick = FSaveEncodingItemClick
+        end
+        object FSaveEncodingUTF8NoPreamble: TMenuItem
+          Caption = 'UTF-8 without &BOM'
           OnClick = FSaveEncodingItemClick
         end
       end
@@ -2638,73 +2653,60 @@ object CompileForm: TCompileForm
   end
   object ToolBarVirtualImageList: TVirtualImageList
     AutoFill = True
-    DisabledGrayscale = False
-    DisabledSuffix = '_Disabled'
     Images = <
       item
         CollectionIndex = 0
         CollectionName = 'document-new'
-        Disabled = False
         Name = 'document-new'
       end
       item
         CollectionIndex = 1
         CollectionName = 'folder-open-filled-arrow-down-right'
-        Disabled = False
         Name = 'folder-open-filled-arrow-down-right'
       end
       item
         CollectionIndex = 2
         CollectionName = 'save-filled'
-        Disabled = False
         Name = 'save-filled'
       end
       item
         CollectionIndex = 3
         CollectionName = 'build'
-        Disabled = False
         Name = 'build'
       end
       item
         CollectionIndex = 4
         CollectionName = 'build-cancel-2'
-        Disabled = False
         Name = 'build-cancel-2'
       end
       item
         CollectionIndex = 5
         CollectionName = 'debug-start-filled'
-        Disabled = False
         Name = 'debug-start-filled'
       end
       item
         CollectionIndex = 6
         CollectionName = 'debug-break-all-filled'
-        Disabled = False
         Name = 'debug-break-all-filled'
       end
       item
         CollectionIndex = 7
         CollectionName = 'install'
-        Disabled = False
         Name = 'install'
       end
       item
         CollectionIndex = 8
         CollectionName = 'uninstall'
-        Disabled = False
         Name = 'uninstall'
       end
       item
         CollectionIndex = 9
         CollectionName = 'button-help'
-        Disabled = False
         Name = 'button-help'
       end
       item
         CollectionIndex = 10
         CollectionName = 'debug-stop-filled'
-        Disabled = False
         Name = 'debug-stop-filled'
       end>
     ImageCollection = LightToolBarImageCollection

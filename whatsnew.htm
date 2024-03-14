@@ -30,6 +30,8 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 
 <p><a name="6.2.3"></a><span class="ver">6.2.3-dev </span><span class="date">(?)</span></p>
 <ul>
+  <li>Inno Setup now supports UTF-8 encoded .iss and .isl files without an UTF-8 preamble (also called BOM.)</li>
+  <li>Compiler IDE change: Added new <i>UTF-8 without BOM</i> menu item to the <i>Save Encoding</i> submenu of the <i>File</i> menu.</li>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters, contributed by Achim Stuy.</li> 
   <li>Pascal Scripting change: type <tt>TShellFolderID</tt> was removed because it wasn't used by any support function.</a>

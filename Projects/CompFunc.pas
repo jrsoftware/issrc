@@ -2,7 +2,7 @@ unit CompFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -48,7 +48,7 @@ procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
   const Shift: TShiftState);
 procedure SaveTextToFile(const Filename: String;
-  const S: String; const ForceUTF8Encoding: Boolean);
+  const S: String; const ForceUTF8Encoding, UTF8NoPreamble: Boolean);
 procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Cardinal);
 procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
 function GetHelpFile: String;
@@ -306,7 +306,7 @@ begin
 end;
 
 procedure SaveTextToFile(const Filename: String;
-  const S: String; const ForceUTF8Encoding: Boolean);
+  const S: String; const ForceUTF8Encoding, UTF8NoPreamble: Boolean);
 var
   AnsiMode: Boolean;
   AnsiStr: AnsiString;
@@ -323,8 +323,10 @@ begin
   try
     if AnsiMode then
       F.WriteAnsi(AnsiStr)
-    else
+    else begin
+      F.UTF8NoPreamble := UTF8NoPreamble;
       F.Write(S);
+    end;
   finally
     F.Free;
   end;

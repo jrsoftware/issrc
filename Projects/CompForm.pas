@@ -209,6 +209,7 @@ type
     FPrint: TMenuItem;
     N22: TMenuItem;
     PrintDialog: TPrintDialog;
+    FSaveEncodingUTF8NoPreamble: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -513,7 +514,7 @@ var
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Math,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Math, WideStrUtils,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -1016,6 +1017,7 @@ begin
   FMainMemo.Filename := '';
   UpdateCaption;
   FMainMemo.SaveInUTF8Encoding := False;
+  FMainMemo.SaveInUTF8EncodingNoPreamble := False;
   FMainMemo.Lines.Clear;
   FModifiedAnySinceLastCompile := True;
   FPreprocessorOutput := '';
@@ -1106,7 +1108,7 @@ begin
     end;
 
     if CommandLineWizard then begin
-      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, False);
+      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, False, False); //doesnt force UTF8 and always saves UTF8 with a preamble
     end else begin
       NewMainFile;
       FMainMemo.Lines.Text := WizardForm.ResultScript;
@@ -1125,14 +1127,26 @@ end;
 procedure TCompileForm.OpenFile(AMemo: TCompScintFileEdit; AFilename: String;
   const MainMemoAddToRecentDocs: Boolean);
 
-  function IsStreamUTF8Encoded(const Stream: TStream): Boolean;
+  function GetStreamEncoding(const Stream: TStream; var UTF8NoPreamble: Boolean): TEncoding;
   var
     Buf: array[0..2] of Byte;
   begin
-    Result := False;
-    if Stream.Read(Buf, SizeOf(Buf)) = SizeOf(Buf) then
-      if (Buf[0] = $EF) and (Buf[1] = $BB) and (Buf[2] = $BF) then
-        Result := True;
+    Result := nil;
+    UTF8NoPreamble := False;
+    var Size: Integer := Stream.Size;
+    if (Size >= SizeOf(Buf)) and (Stream.Read(Buf, SizeOf(Buf)) = SizeOf(Buf)) and
+       (Buf[0] = $EF) and (Buf[1] = $BB) and (Buf[2] = $BF) then
+      Result := TEncoding.UTF8
+    else begin
+      Stream.Seek(0, soFromBeginning);
+      var S: AnsiString;
+      SetLength(S, Size);
+      Stream.Read(S[1], Size);
+      if IsUTF8String(S) then begin
+        Result := TEncoding.UTF8;
+        UTF8NoPreamble := True;
+      end;
+    end;
   end;
 
 var
@@ -1145,9 +1159,12 @@ begin
     if AMemo = FMainMemo then
       NewMainFile;
     GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
-    AMemo.SaveInUTF8Encoding := IsStreamUTF8Encoded(Stream);
+    var UTF8NoPreamble: Boolean;
+    var Encoding := GetStreamEncoding(Stream, UTF8NoPreamble);
+    AMemo.SaveInUTF8Encoding := Encoding = TEncoding.UTF8;
+    AMemo.SaveInUTF8EncodingNoPreamble := UTF8NoPreamble;
     Stream.Seek(0, soFromBeginning);
-    AMemo.Lines.LoadFromStream(Stream);
+    AMemo.Lines.LoadFromStream(Stream, Encoding);
   finally
     Stream.Free;
   end;
@@ -1193,7 +1210,7 @@ function TCompileForm.SaveFile(const AMemo: TCompScintFileEdit; const SaveAs: Bo
         [GetLastError]);
     TempFN := Buf;
     try
-      SaveTextToFile(TempFN, AMemo.Lines.Text, AMemo.SaveInUTF8Encoding);
+      SaveTextToFile(TempFN, AMemo.Lines.Text, AMemo.SaveInUTF8Encoding, AMemo.SaveInUTF8EncodingNoPreamble);
 
       { Back up existing file if needed }
       if FOptions.MakeBackups and NewFileExists(FN) then begin
@@ -1729,7 +1746,8 @@ begin
   FSaveMainFileAs.Enabled := FActiveMemo = FMainMemo;
   FSaveEncoding.Enabled := FSave.Enabled; { FSave.Enabled is kept up-to-date by UpdateSaveMenuItemAndButton }
   FSaveEncodingAuto.Checked := FSaveEncoding.Enabled and not (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding;
-  FSaveEncodingUTF8.Checked := FSaveEncoding.Enabled and (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding;
+  FSaveEncodingUTF8.Checked := FSaveEncoding.Enabled and (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding and not (FActiveMemo as TCompScintFileEdit).SaveInUTF8EncodingNoPreamble;
+  FSaveEncodingUTF8NoPreamble.Checked := FSaveEncoding.Enabled and (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding and (FActiveMemo as TCompScintFileEdit).SaveInUTF8EncodingNoPreamble;
   FSaveAll.Visible := FOptions.OpenIncludedFiles;
   ReadMRUMainFilesList;
   FMRUMainFilesSep.Visible := FMRUMainFilesList.Count <> 0;
@@ -1785,7 +1803,8 @@ end;
 
 procedure TCompileForm.FSaveEncodingItemClick(Sender: TObject);
 begin
-  (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding := (Sender = FSaveEncodingUTF8);
+  (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding := (Sender = FSaveEncodingUTF8) or (Sender = FSaveEncodingUTF8NoPreamble);
+  (FActiveMemo as TCompScintFileEdit).SaveInUTF8EncodingNoPreamble := (Sender = FSaveEncodingUTF8NoPreamble);
 end;
 
 procedure TCompileForm.FSaveAllClick(Sender: TObject);
