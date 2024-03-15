@@ -30,16 +30,16 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 
 <p><a name="6.3.0"></a><span class="ver">6.3.0-dev </span><span class="date">(?)</span></p>
 <ul>
-  <li>Inno Setup now supports UTF-8 encoded .iss and .isl files without an UTF-8 preamble (also called BOM.)</li>
+  <li>Inno Setup now supports UTF-8 encoded .iss script files and .isl messages files without an UTF-8 preamble (also called BOM.)</li>
   <li>Compiler IDE changes:
   <ul>
   <li>Added new <i>UTF-8 without BOM</i> menu item to the <i>Save Encoding</i> submenu of the <i>File</i> menu.</li>
-  <li>New files are now saved as UTF-8 with BOM by default. Existing files are still saved as they were.</li>
+  <li>New script files are now saved as UTF-8 with BOM by default. Existing files are still saved as they were.</li>
   </ul>
   </li>
   <li>Pascal Scripting changes:
   <ul>
-    <li>Support fuction <tt>LoadStringsFromFile</tt> now also supports UT8-encoded files without an UTF-8 preamble.</li>
+    <li>Support fuction <tt>LoadStringsFromFile</tt> now also supports UTF8-encoded files without an UTF-8 preamble.</li>
     <li>Added new <tt>SaveStringsToUTF8FileNoPreamble</tt> support function.</li>
   </ul>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
