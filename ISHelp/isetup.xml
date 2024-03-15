@@ -164,7 +164,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <keyword value="Creating Installations" />
 <body>
 
-<p>Installations are created by means of <i>scripts</i>, which are ASCII or Unicode (UTF-8 encoded with a BOM) text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!).</p>
+<p>Installations are created by means of <i>scripts</i>, which are ASCII or Unicode (UTF-8 encoded) text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!).</p>
 
 <p>Scripts have an ".iss" (meaning Inno Setup Script) extension. The script controls every aspect of the installation. It specifies which files are to be installed and where, what shortcuts are to be created and what they are to be named, and so on.</p>
 
@@ -228,7 +228,7 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 
 <p>By default, scripts use ISPP if available, and .isl files use the built-in preprocessor.</p>
 
-<p>If an Unicode file is used, it must be UTF-8 encoded with a BOM.</p>
+<p>If an Unicode file is used, it must be UTF-8 encoded.</p>
 
 <p><br/><b>See also:</b><br/>
 <link topic="params">Parameters in Sections</link><br/>
@@ -2124,7 +2124,7 @@ Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
 <p>Specifies the name(s) of the .isl file(s) to read the default messages from. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>Each message file may contain a <link topic="langoptionssection">[LangOptions] section</link>, a <link topic="messagessection">[Messages] section</link>, and a <link topic="custommessagessection">[CustomMessages] section.</link></p>
 <p>When multiple files are specified, they are read in the order they are specified, thus the last message file overrides any language options or messages from previous files. Any language options or messages in the main script override the ones from message files.</p>
-<p>If an Unicode file is used, it must be UTF-8 encoded with a BOM.</p>
+<p>If an Unicode file is used, it must be UTF-8 encoded.</p>
 <examples>
 <pre>
 MessagesFile: "compiler:Dutch.isl"
@@ -2769,7 +2769,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. Otherwise you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
   <ul>
-  <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files. A BOM is required. UTF-16 is not supported.</li>
+  <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files. Starting with Inno Setup 6.2.3 an UTF-8 preamble (also called BOM) is no longer required. UTF-16 is not supported.</li>
   <li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
   <li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must to be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
   <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>.</li>
