@@ -1133,7 +1133,7 @@ procedure TCompileForm.OpenFile(AMemo: TCompScintFileEdit; AFilename: String;
     Result := seAuto;
     var StreamSize := Stream.Size;
     var CappedSize: Integer;
-    if Stream.Size > High(Integer) then
+    if StreamSize > High(Integer) then
       CappedSize := High(Integer)
     else
       CappedSize := Integer(StreamSize);
