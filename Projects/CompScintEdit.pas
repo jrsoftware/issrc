@@ -37,6 +37,7 @@ type
   TLineState = (lnUnknown, lnHasEntry, lnEntryProcessed);
   PLineStateArray = ^TLineStateArray;
   TLineStateArray = array[0..0] of TLineState;
+  TSaveEncoding = (seAuto, seUTF8, seUTF8NoPreamble);
 
   TCompScintEdit = class(TScintEdit)
   private
@@ -56,8 +57,7 @@ type
     FCompilerFileIndex: Integer;
     FFilename: String;
     FFileLastWriteTime: TFileTime;
-    FSaveInUTF8Encoding: Boolean;
-    FSaveInUTF8EncodingNoPreamble: Boolean;
+    FSaveEncoding: TSaveEncoding;
   public
     ErrorLine, ErrorCaretPosition: Integer;
     StepLine: Integer;
@@ -69,8 +69,7 @@ type
     property Filename: String read FFileName write FFilename;
     property CompilerFileIndex: Integer read FCompilerFileIndex write FCompilerFileIndex;
     property FileLastWriteTime: TFileTime read FFileLastWriteTime write FFileLastWriteTime;
-    property SaveInUTF8Encoding: Boolean read FSaveInUTF8Encoding write FSaveInUTF8Encoding;
-    property SaveInUTF8EncodingNoPreamble: Boolean read FSaveInUTF8EncodingNoPreamble write FSaveInUTF8EncodingNoPreamble;
+    property SaveEncoding: TSaveEncoding read FSaveEncoding write FSaveEncoding;
   end;
 
 implementation

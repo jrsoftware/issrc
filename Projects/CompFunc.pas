@@ -16,7 +16,7 @@ interface
 uses
   Windows,
   Classes, Forms, Dialogs, Menus, StdCtrls,
-  ScintEdit, ModernColors;
+  ScintEdit, CompScintEdit, ModernColors;
 
 const
   MRUListMaxCount = 10;
@@ -48,7 +48,7 @@ procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
   const Shift: TShiftState);
 procedure SaveTextToFile(const Filename: String;
-  const S: String; const ForceUTF8Encoding, UTF8NoPreamble: Boolean);
+  const S: String; const SaveEncoding: TSaveEncoding);
 procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Cardinal);
 procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
 function GetHelpFile: String;
@@ -306,14 +306,14 @@ begin
 end;
 
 procedure SaveTextToFile(const Filename: String;
-  const S: String; const ForceUTF8Encoding, UTF8NoPreamble: Boolean);
+  const S: String; const SaveEncoding: TSaveEncoding);
 var
   AnsiMode: Boolean;
   AnsiStr: AnsiString;
   F: TTextFileWriter;
 begin
   AnsiMode := False;
-  if not ForceUTF8Encoding then begin
+  if SaveEncoding = seAuto then begin
     AnsiStr := AnsiString(S);
     if S = String(AnsiStr) then
       AnsiMode := True;
@@ -324,7 +324,7 @@ begin
     if AnsiMode then
       F.WriteAnsi(AnsiStr)
     else begin
-      F.UTF8NoPreamble := UTF8NoPreamble;
+      F.UTF8NoPreamble := SaveEncoding = seUTF8NoPreamble;
       F.Write(S);
     end;
   finally

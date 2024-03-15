@@ -64,7 +64,6 @@ type
     destructor Destroy; override;
     function Read(var Buffer; Count: Cardinal): Cardinal; override;
     procedure Seek64(Offset: Integer64); override;
-    procedure SeekToBeginning;
     procedure SeekToEnd;
     procedure Truncate;
     procedure WriteBuffer(const Buffer; Count: Cardinal); override;
@@ -287,16 +286,6 @@ procedure TFile.Seek64(Offset: Integer64);
 begin
   if (SetFilePointer(FHandle, Integer(Offset.Lo), @Offset.Hi,
       FILE_BEGIN) = $FFFFFFFF) and (GetLastError <> 0) then
-    RaiseLastError;
-end;
-
-procedure TFile.SeekToBeginning;
-var
-  DistanceHigh: Integer;
-begin
-  DistanceHigh := 0;
-  if (SetFilePointer(FHandle, 0, @DistanceHigh, FILE_BEGIN) = $FFFFFFFF) and
-     (GetLastError <> 0) then
     RaiseLastError;
 end;
 
@@ -524,10 +513,10 @@ begin
         var OldPosition := GetPosition;
         try
           var Size := CappedSize; //can't be 0
-          SeekToBeginning;
+          Seek(0);
           var S2: AnsiString;
           SetLength(S2, Size);
-          Read(S2[1], Size);
+          SetLength(S2, Read(S2[1], Size));
           if IsUTF8String(S2) then
             FCodePage := CP_UTF8;
         finally
