@@ -512,11 +512,11 @@ begin
       end else begin
         var OldPosition := GetPosition;
         try
-          var Size := CappedSize; //can't be 0
+          var CappedSize := GetCappedSize; //can't be 0
           Seek(0);
           var S2: AnsiString;
-          SetLength(S2, Size);
-          SetLength(S2, Read(S2[1], Size));
+          SetLength(S2, CappedSize);
+          SetLength(S2, Read(S2[1], CappedSize));
           if IsUTF8String(S2) then
             FCodePage := CP_UTF8;
         finally

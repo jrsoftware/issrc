@@ -1131,15 +1131,20 @@ procedure TCompileForm.OpenFile(AMemo: TCompScintFileEdit; AFilename: String;
     Buf: array[0..2] of Byte;
   begin
     Result := seAuto;
-    var Size: Integer := Stream.Size;
-    if (Size >= SizeOf(Buf)) and (Stream.Read(Buf, SizeOf(Buf)) = SizeOf(Buf)) and
+    var StreamSize := Stream.Size;
+    var CappedSize: Integer;
+    if Stream.Size > High(Integer) then
+      CappedSize := High(Integer)
+    else
+      CappedSize := Integer(StreamSize);
+    if (CappedSize >= SizeOf(Buf)) and (Stream.Read(Buf, SizeOf(Buf)) = SizeOf(Buf)) and
        (Buf[0] = $EF) and (Buf[1] = $BB) and (Buf[2] = $BF) then
       Result := seUTF8
     else begin
       Stream.Seek(0, soFromBeginning);
       var S: AnsiString;
-      SetLength(S, Size);
-      SetLength(S, Stream.Read(S[1], Size));
+      SetLength(S, CappedSize);
+      SetLength(S, Stream.Read(S[1], CappedSize));
       if IsUTF8String(S) then
         Result := seUTF8NoPreamble;
     end;
