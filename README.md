@@ -62,7 +62,7 @@ Getting Started
 4. **Build Inno Setup**
 
    Unfortunately, Embarcadero has removed command line compilation support
-   from the Community Edition, which means you there's two different build
+   from the Community Edition, which means there's two different build
    scripts.
 
    Community Edition: To build all files run **build-ce.bat** and follow the
