@@ -4132,6 +4132,9 @@ begin
     ssUninstallIconFile: begin
         WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
+    ssUninstallLogging: begin
+        SetSetupHeaderOption(shUninstallLogging);
+      end;
     ssUninstallLogMode: begin
         if CompareText(Value, 'append') = 0 then
           SetupHeader.UninstallLogMode := lmAppend

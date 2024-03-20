@@ -42,6 +42,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
     <li>Support function <tt>LoadStringsFromFile</tt> now also supports UTF8-encoded files without an UTF-8 preamble.</li>
     <li>Added new <tt>SaveStringsToUTF8FileNoPreamble</tt> support function.</li>
   </ul>
+  <li>Added new [Setup] section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters, contributed by Achim Stuy.</li> 
   <li>Pascal Scripting change: type <tt>TShellFolderID</tt> was removed because it wasn't used by any support function.</a>

@@ -691,8 +691,13 @@ var
         I := 63;
       SetStringValue(H2, 'DisplayName', Copy(Z, 1, I));
       SetStringValueUnlessEmpty(H2, 'DisplayIcon', ExpandConst(SetupHeader.UninstallDisplayIcon));
-      SetStringValue(H2, 'UninstallString', '"' + UninstallExeFilename + '"');
-      SetStringValue(H2, 'QuietUninstallString', '"' + UninstallExeFilename + '" /SILENT');
+      var ExtraUninstallString: String;
+      if shUninstallLogging in SetupHeader.Options then
+        ExtraUninstallString := ' /LOG'
+      else
+        ExtraUninstallString := '';
+      SetStringValue(H2, 'UninstallString', '"' + UninstallExeFilename + '"' + ExtraUninstallString);
+      SetStringValue(H2, 'QuietUninstallString', '"' + UninstallExeFilename + '" /SILENT' + ExtraUninstallString);
       SetStringValueUnlessEmpty(H2, 'DisplayVersion', ExpandConst(SetupHeader.AppVersion));
       SetStringValueUnlessEmpty(H2, 'Publisher', ExpandConst(SetupHeader.AppPublisher));
       SetStringValueUnlessEmpty(H2, 'URLInfoAbout', ExpandConst(SetupHeader.AppPublisherURL));

@@ -1090,6 +1090,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_uninstalldisplayname">UninstallDisplayName</link></li>
 <li><link topic="setup_uninstalldisplaysize">UninstallDisplaySize</link></li>
 <li><link topic="setup_uninstallfilesdir">UninstallFilesDir</link></li>
+<li><link topic="setup_uninstalllogging">UninstallLogging</link></li>
 <li><link topic="setup_uninstalllogmode">UninstallLogMode</link></li>
 <li><link topic="setup_uninstallrestartcomputer">UninstallRestartComputer</link></li>
 <li><link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link></li>
@@ -4496,6 +4497,15 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setuptopic directive="UninstallIconName">
 <body>
 <p><i>Obsolete in 3.0.</i> This directive is no longer supported. If you wish to create an Uninstall icon, use the new <tt>{uninstallexe}</tt> constant in the <tt>Filename</tt> parameter of an <link topic="iconssection">[Icons]</link> section entry.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="UninstallLogging">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>no</tt></setupdefault>
+<body>
+<p>If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing <link topic="uninstcmdline" anchor="LOG">/LOG</link> on the command line.</p>
+<p>This directive has no effect if <tt>CreateUninstallRegKey</tt> is not set to <tt>yes</tt>.</p>
 </body>
 </setuptopic>
 
