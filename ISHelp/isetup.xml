@@ -3321,6 +3321,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>The Setup program accepts optional command line parameters. These can be useful to system administrators, and to other programs calling the Setup program.</p>
 
+<p>Also see <link topic="uninstcmdline">Uninstaller Command Line Parameters</link>.</p>
+
 <dl>
 
 <dt><b><a name="HELP">/HELP</a>, <a name="HELP2">/?</a></b></dt>
@@ -3630,6 +3632,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <body>
 
 <p>The uninstaller program (unins???.exe) accepts optional command line parameters. These can be useful to system administrators, and to other programs calling the uninstaller program.</p>
+
+<p>Also see <link topic="setupcmdline">Setup Command Line Parameters</link>.</p>
 
 <dl>
 
