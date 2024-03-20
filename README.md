@@ -1,8 +1,8 @@
 Inno Setup
 ==========
 
-Copyright (C) 1997-2024 Jordan Russell. All rights reserved.  
-Portions Copyright (C) 2000-2024 Martijn Laan. All rights reserved.  
+Copyright (C) 1997-2024 Jordan Russell. All rights reserved.
+Portions Copyright (C) 2000-2024 Martijn Laan. All rights reserved.
 For conditions of distribution and use, see LICENSE.TXT.
 
 Source code README
@@ -52,7 +52,7 @@ Getting Started
 3. **Install Microsoft HTML Help Workshop**
 
    Install Microsoft HTML Help Workshop if you haven't already done so.
-   See https://docs.microsoft.com/en-us/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads and 
+   See https://docs.microsoft.com/en-us/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads and
    http://web.archive.org/web/20160201063255/http://download.microsoft.com/download/0/A/9/0A939EF6-E31C-430F-A3DF-DFAE7960D564/htmlhelp.exe
 
    Note: Microsoft HTML Help Workshop is only needed to be able to compile the
@@ -62,26 +62,26 @@ Getting Started
 4. **Build Inno Setup**
 
    Unfortunately, Embarcadero has removed command line compilation support
-   from the Community Edition, which means you there's two different build 
+   from the Community Edition, which means there's two different build
    scripts.
 
    Community Edition: To build all files run **build-ce.bat** and follow the
-   instructions  
+   instructions.
 
    Otherwise: To build all files run **build.bat** and follow the instructions.
 
    To just compile Inno Setup run **compile.bat** and follow the instructions.
-   This batch file can not be used with the Community Edition, open
+   This batch file cannot be used with the Community Edition, open
    Projects\Projects.groupproj instead.
 
    To just compile the Inno Setup help file and its web version run
    **ISHelp\ISHelpGen\compile.bat** and **ISHelp\compile.bat** and follow the
-   instructions. The former batch file can not be used with the
+   instructions. The former batch file cannot be used with the
    Community Edition, open Projects\Projects.groupproj instead.
 
    To just compile the Inno Setup Preprocessor help file and its web version run
    **ISHelp\ISHelpGen\compile.bat** and **Projects\Ispp\Help\compile.bat** and
-   follow the instructions. The former batch file can not be used with the
+   follow the instructions. The former batch file cannot be used with the
    Community Edition, open Projects\Projects.groupproj instead.
 
 
