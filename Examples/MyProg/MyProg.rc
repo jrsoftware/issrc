@@ -1,3 +1,5 @@
+#include "windows.h"
+
 MAINICON ICON "MyProg.ico"
 
 VS_VERSION_INFO VERSIONINFO
