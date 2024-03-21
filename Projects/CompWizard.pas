@@ -14,9 +14,9 @@ interface
 {$I VERSION.INC}
 
 uses
-  Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs,
+  Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
   UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
-  pngimage;
+  CompWizardFilesHelper;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
@@ -24,23 +24,6 @@ type
                  wpISPP, wpFinished);
 
   TWizardFormResult = (wrNone, wrEmpty, wrComplete);
-
-  TWizardFormAppFilesPageHelper = class
-    private
-      FWizardFiles: TList;
-      FHandle: HWND;
-      FNotCreateAppDirCheck: TCheckBox;
-      FAppFilesListBox: TDropListBox;
-      procedure AddWizardFile(const Source: String; const RecurseSubDirs, CreateAllSubDirs: Boolean);
-      procedure UpdateWizardFiles;
-      procedure AddButtonClick(Sender: TObject);
-    public
-      property WizardFiles: TList read FWizardFiles;
-      constructor Create(const Handle: HWND; const WizardFiles: TList;
-        const NotCreateAppDirCheck: TCheckBox; const AppFilesAddButton: TButton;
-        const AppFilesListBox: TDropListBox);
-      destructor Destroy;
-  end;
 
   TWizardForm = class(TUIStateForm)
     CancelButton: TButton;
@@ -179,7 +162,7 @@ type
     FWizardName: String;
     FWizardFiles: TList; //todo: remove?
     FLanguages: TStringList;
-    FAppFilesPageHelper: TWizardFormAppFilesPageHelper;
+    FFilesHelper: TWizardFormFilesHelper;
     FResult: TWizardFormResult;
     FResultScript: String;
     function FixLabel(const S: String): String;
@@ -312,10 +295,10 @@ begin
   FLanguages.Sorted := False;
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
-  FAppFilesPageHelper := TWizardFormAppFilesPageHelper.Create(Handle, FWizardFiles,
+  FFilesHelper := TWizardFormFilesHelper.Create(Handle, FWizardFiles,
     NotCreateAppDirCheck, AppFilesAddButton, AppFilesListBox);
 
-  FWizardFiles := FAppFilesPageHelper.WizardFiles;
+  FWizardFiles := FFilesHelper.WizardFiles;
 
   InitFormFont(Self);
   if Font.Name = 'Segoe UI' then begin
@@ -420,7 +403,7 @@ end;
 
 procedure TWizardForm.FormDestroy(Sender: TObject);
 begin
-  FAppFilesPageHelper.Free;
+  FFilesHelper.Free;
   FLanguages.Free;
 end;
 
@@ -1173,82 +1156,6 @@ begin
   end;
 
   FResultScript := FixLabel(SWizardScriptHeader) + SNewLine2 + Script;
-end;
-
-{ --- }
-
-{ TWizardFormAppFilesPageHelper }
-
-constructor TWizardFormAppFilesPageHelper.Create(const Handle: HWND;
-  const WizardFiles: TList; const NotCreateAppDirCheck: TCheckBox;
-  const AppFilesAddButton: TButton; const AppFilesListBox: TDropListBox);
-begin
-  inherited Create;
-
-  FWizardFiles := TList.Create;
-
-  FHandle := Handle;
-  FNotCreateAppDirCheck := NotCreateAppDirCheck;
-  FAppFilesListBox := AppFilesListBox;
-
-  AppFilesAddButton.OnClick := AddButtonClick;
-end;
-
-destructor TWizardFormAppFilesPageHelper.Destroy;
-begin
-  for var I := 0 to FWizardFiles.Count-1 do
-    Dispose(FWizardFiles[i]);
-  FWizardFiles.Free;
-end;
-
-procedure TWizardFormAppFilesPageHelper.AddWizardFile(const Source: String; const RecurseSubDirs, CreateAllSubDirs: Boolean);
-var
-  WizardFile: PWizardFile;
-begin
-  New(WizardFile);
-  WizardFile.Source := Source;
-  WizardFile.RecurseSubDirs := RecurseSubDirs;
-  WizardFile.CreateAllSubDirs := CreateAllSubDirs;
-  WizardFile.DestRootDirIsConstant := True;
-  if not FNotCreateAppDirCheck.Checked then
-    WizardFile.DestRootDir := '{app}'
-  else
-    WizardFile.DestRootDir := '{win}';
-  WizardFile.DestSubDir := '';
-  FWizardFiles.Add(WizardFile);
-end;
-
-procedure TWizardFormAppFilesPageHelper.UpdateWizardFiles;
-var
-  WizardFile: PWizardFile;
-  I: Integer;
-begin
-  FAppFilesListBox.Items.BeginUpdate;
-  FAppFilesListBox.Items.Clear;
-  for I := 0 to FWizardFiles.Count-1 do begin
-    WizardFile := FWizardFiles[i];
-    FAppFilesListBox.Items.Add(WizardFile.Source);
-  end;
-  FAppFilesListBox.Items.EndUpdate;
-  UpdateHorizontalExtent(FAppFilesListBox);
-end;
-
-procedure TWizardFormAppFilesPageHelper.AddButtonClick(Sender: TObject);
-var
-  FileList: TStringList;
-  I: Integer;
-begin
-  FileList := TStringList.Create;
-  try
-    if NewGetOpenFileNameMulti('', FileList, '', SWizardAllFilesFilter, '', FHandle) then begin
-      FileList.Sort;
-      for I := 0 to FileList.Count-1 do
-        AddWizardFile(FileList[I], False, False);
-      UpdateWizardFiles;
-    end;
-  finally
-    FileList.Free;
-  end
 end;
 
 end.

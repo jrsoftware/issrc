@@ -118,6 +118,7 @@
             <Form>CFLWForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="CompWizardFilesHelper.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

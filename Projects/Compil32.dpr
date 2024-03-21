@@ -38,9 +38,10 @@ uses
   ModernColors in '..\Components\ModernColors.pas',
   CompMessageBoxDesigner in 'CompMessageBoxDesigner.pas' {MBDForm},
   CompScintEdit in 'CompScintEdit.pas',
-  CompFileListWin in 'CompFileListWin.pas' {CFLWForm};
+  CompFileListWin in 'CompFileListWin.pas' {CFLWForm},
+  CompWizardFilesHelper in 'CompWizardFilesHelper.pas';
 
-{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} 
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.0}
 {$SETPESUBSYSVERSION 6.0}
 {$WEAKLINKRTTI ON}

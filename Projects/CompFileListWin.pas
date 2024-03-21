@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
   Controls, Forms, Dialogs,ExtCtrls, StdCtrls,
-  NewStaticText, DropListBox, CompWizard;
+  NewStaticText, DropListBox, CompWizard, CompWizardFilesHelper;
 
 type
   TCFLWForm = class(TForm)
@@ -30,8 +30,9 @@ type
     procedure FormDestroy(Sender: TObject);
   private
     FWizardFiles: TList; //todo: remove?
-    FAppFilesPageHelper: TWizardFormAppFilesPageHelper;
+    FFilesHelper: TWizardFormFilesHelper;
     function GetText: String;
+    //todo remove!!!
     procedure AddWizardFile(const Source: String;
       const RecurseSubDirs, CreateAllSubDirs: Boolean);
     procedure UpdateWizardFilesButtons;
@@ -166,15 +167,15 @@ end;
 
 procedure TCFLWForm.FormCreate(Sender: TObject);
 begin
-  FAppFilesPageHelper := TWizardFormAppFilesPageHelper.Create(Handle, FWizardFiles,
+  FFilesHelper := TWizardFormFilesHelper.Create(Handle, FWizardFiles,
     NotCreateAppDirCheck, AppFilesAddButton, AppFilesListBox);
 
-  FWizardFiles := FAppFilesPageHelper.WizardFiles;
+  FWizardFiles := FFilesHelper.WizardFiles;
 end;
 
 procedure TCFLWForm.FormDestroy(Sender: TObject);
 begin
-  FAppFilesPageHelper.Free;
+  FFilesHelper.Free;
 end;
 
 procedure TCFLWForm.UpdateWizardFilesButtons;
