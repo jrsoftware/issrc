@@ -248,10 +248,6 @@
     <ClCompile Include="MyProg.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="targetver.h" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="MyProg.ico" />
   </ItemGroup>
   <ItemGroup>
