@@ -10,8 +10,8 @@ uses
 type
   TCFLWForm = class(TForm)
     Panel1: TPanel;
-    CFLWButtonOK: TButton;
-    CFLWButtonCancel: TButton;
+    OkButton: TButton;
+    CancelButton: TButton;
     AppFilesEditButton: TButton;
     AppFilesRemoveButton: TButton;
     AppFilesAddDirButton: TButton;

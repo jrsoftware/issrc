@@ -30,7 +30,7 @@ object CFLWForm: TCFLWForm
     DesignSize = (
       636
       50)
-    object CFLWButtonOK: TButton
+    object OkButton: TButton
       Left = 408
       Top = 16
       Width = 75
@@ -39,7 +39,7 @@ object CFLWForm: TCFLWForm
       ModalResult = 1
       TabOrder = 0
     end
-    object CFLWButtonCancel: TButton
+    object CancelButton: TButton
       Left = 503
       Top = 16
       Width = 75
