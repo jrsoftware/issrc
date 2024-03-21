@@ -1,12 +1,10 @@
 unit CompFileListWin;
 
-{$WARN SYMBOL_PLATFORM OFF}
-
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
+  Windows, Messages, SysUtils, Variants, Classes, Graphics,
+  Controls, Forms, Dialogs,ExtCtrls, StdCtrls,
   NewStaticText, DropListBox;
 
 type
@@ -48,7 +46,7 @@ var
 implementation
 
 uses
-  CompMsgs,BrowseFunc,CmnFunc,CmnFunc2,CompWizardFile,PathFunc;
+  CompMsgs, BrowseFunc, CmnFunc, CmnFunc2, CompWizardFile, PathFunc;
 
 {$R *.dfm}
 
@@ -68,7 +66,6 @@ begin
     WizardFile.DestRootDir := '{win}';
   WizardFile.DestSubDir := '';
   FWizardFiles.Add(WizardFile);
-
 end;
 
 procedure TCFLWForm.UpdateWizardFiles;
@@ -86,8 +83,6 @@ begin
   AppFilesListBox.Items.EndUpdate;
   UpdateHorizontalExtent(AppFilesListBox);
 end;
-
-
 
 procedure TCFLWForm.AppFilesAddButtonClick(Sender: TObject);
 var
