@@ -19,7 +19,6 @@ type
     AppFilesListBox: TDropListBox;
     AppFilesLabel: TNewStaticText;
     NotCreateAppDirCheck: TCheckBox;
-    procedure AppFilesAddDirButtonClick(Sender: TObject);
     procedure AppFilesEditButtonClick(Sender: TObject);
     procedure AppFilesRemoveButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -86,29 +85,6 @@ begin
   UpdateHorizontalExtent(AppFilesListBox);
 end;
 
-procedure TCFLWForm.AppFilesAddDirButtonClick(Sender: TObject);
-var
-  Path: String;
-  Recurse: Boolean;
-begin
-  Path := '';
-  if BrowseForFolder(SWizardAppFiles3, Path, Handle, False) then
-  begin
-    case MsgBox(Format(SWizardAppFilesSubDirsMessage, [Path]), '',
-      mbConfirmation, MB_YESNOCANCEL) of
-      idYes:
-        Recurse := True;
-      IDNO:
-        Recurse := False;
-    else
-      Exit;
-    end;
-    AddWizardFile(IncludeTrailingBackslash(Path) + '*', Recurse, Recurse);
-    UpdateWizardFiles;
-  end;
-
-end;
-
 procedure TCFLWForm.AppFilesEditButtonClick(Sender: TObject);
 var
   WizardFileForm: TWizardFileForm;
@@ -168,7 +144,7 @@ end;
 procedure TCFLWForm.FormCreate(Sender: TObject);
 begin
   FFilesHelper := TWizardFormFilesHelper.Create(Handle, FWizardFiles,
-    NotCreateAppDirCheck, AppFilesAddButton, AppFilesListBox);
+    NotCreateAppDirCheck, AppFilesAddButton, AppFilesAddDirButton, AppFilesListBox);
 
   FWizardFiles := FFilesHelper.WizardFiles;
 end;

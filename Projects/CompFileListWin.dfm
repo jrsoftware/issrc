@@ -80,7 +80,6 @@ object CFLWForm: TCFLWForm
     Anchors = [akTop, akRight]
     Caption = 'Add fol&der...'
     TabOrder = 3
-    OnClick = AppFilesAddDirButtonClick
   end
   object AppFilesAddButton: TButton
     Left = 514

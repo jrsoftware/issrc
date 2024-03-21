@@ -589,7 +589,6 @@ object WizardForm: TWizardForm
             Anchors = [akTop, akRight]
             Caption = 'Add fol&der...'
             TabOrder = 8
-            OnClick = AppFilesAddDirButtonClick
           end
           object NoAppExeCheck: TCheckBox
             Left = 36

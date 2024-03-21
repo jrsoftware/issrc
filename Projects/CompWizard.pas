@@ -146,7 +146,6 @@ type
     procedure NotDisableProgramGroupPageCheckClick(Sender: TObject);
     procedure AppFilesEditButtonClick(Sender: TObject);
     procedure AppFilesRemoveButtonClick(Sender: TObject);
-    procedure AppFilesAddDirButtonClick(Sender: TObject);
     procedure AppFilesListBoxDropFile(Sender: TDropListBox;
       const FileName: String);
     procedure PasswordEditChange(Sender: TObject);
@@ -296,7 +295,7 @@ begin
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
   FFilesHelper := TWizardFormFilesHelper.Create(Handle, FWizardFiles,
-    NotCreateAppDirCheck, AppFilesAddButton, AppFilesListBox);
+    NotCreateAppDirCheck, AppFilesAddButton, AppFilesAddDirButton, AppFilesListBox);
 
   FWizardFiles := FFilesHelper.WizardFiles;
 
@@ -772,24 +771,6 @@ procedure TWizardForm.AppFilesListBoxDblClick(Sender: TObject);
 begin
   if AppFilesEditButton.Enabled then
     AppFilesEditButton.Click;
-end;
-
-procedure TWizardForm.AppFilesAddDirButtonClick(Sender: TObject);
-var
-  Path: String;
-  Recurse: Boolean;
-begin
-  Path := '';
-  if BrowseForFolder(SWizardAppFiles3, Path, Handle, False) then begin
-    case MsgBox(Format(SWizardAppFilesSubDirsMessage, [Path]), '', mbConfirmation, MB_YESNOCANCEL) of
-      IDYES: Recurse := True;
-      IDNO: Recurse := False;
-    else
-      Exit;
-    end;
-    AddWizardFile(AddBackslash(Path) + '*', Recurse, Recurse);
-    UpdateWizardFiles;
-  end;
 end;
 
 procedure TWizardForm.AppFilesListBoxDropFile(Sender: TDropListBox;
