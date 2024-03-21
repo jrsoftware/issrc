@@ -1,6 +1,10 @@
 #include "windows.h"
 
-MAINICON ICON "MyProg.ico"
+#ifdef WIN32
+MAINICON ICON "MyProg32.ico"
+#else
+MAINICON ICON "MyProg64.ico"
+#endif
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 1,5,0,0
