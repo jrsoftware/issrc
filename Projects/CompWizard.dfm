@@ -533,7 +533,6 @@ object WizardForm: TWizardForm
             Anchors = [akTop, akRight]
             Caption = '&Add file(s)...'
             TabOrder = 7
-            OnClick = AppFilesAddButtonClick
           end
           object AppFilesEditButton: TButton
             Left = 360

@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
   Controls, Forms, Dialogs,ExtCtrls, StdCtrls,
-  NewStaticText, DropListBox;
+  NewStaticText, DropListBox, CompWizard;
 
 type
   TCFLWForm = class(TForm)
@@ -19,7 +19,6 @@ type
     AppFilesListBox: TDropListBox;
     AppFilesLabel: TNewStaticText;
     NotCreateAppDirCheck: TCheckBox;
-    procedure AppFilesAddButtonClick(Sender: TObject);
     procedure AppFilesAddDirButtonClick(Sender: TObject);
     procedure AppFilesEditButtonClick(Sender: TObject);
     procedure AppFilesRemoveButtonClick(Sender: TObject);
@@ -28,8 +27,10 @@ type
     procedure AppFilesListBoxDblClick(Sender: TObject);
     procedure AppFilesListBoxDropFile(Sender: TDropListBox;
       const FileName: string);
+    procedure FormDestroy(Sender: TObject);
   private
-    FWizardFiles: TList;
+    FWizardFiles: TList; //todo: remove?
+    FAppFilesPageHelper: TWizardFormAppFilesPageHelper;
     function GetText: String;
     procedure AddWizardFile(const Source: String;
       const RecurseSubDirs, CreateAllSubDirs: Boolean);
@@ -82,26 +83,6 @@ begin
   end;
   AppFilesListBox.Items.EndUpdate;
   UpdateHorizontalExtent(AppFilesListBox);
-end;
-
-procedure TCFLWForm.AppFilesAddButtonClick(Sender: TObject);
-var
-  FileList: TStringList;
-  I: Integer;
-begin
-  FileList := TStringList.Create;
-  try
-    if NewGetOpenFileNameMulti('', FileList, '', SWizardAllFilesFilter, '',
-      Handle) then
-    begin
-      FileList.Sort;
-      for I := 0 to FileList.Count - 1 do
-        AddWizardFile(FileList[I], False, False);
-        UpdateWizardFiles;
-    end;
-  finally
-    FileList.Free;
-  end;
 end;
 
 procedure TCFLWForm.AppFilesAddDirButtonClick(Sender: TObject);
@@ -185,7 +166,15 @@ end;
 
 procedure TCFLWForm.FormCreate(Sender: TObject);
 begin
-   FWizardFiles := TList.Create;
+  FAppFilesPageHelper := TWizardFormAppFilesPageHelper.Create(Handle, FWizardFiles,
+    NotCreateAppDirCheck, AppFilesAddButton, AppFilesListBox);
+
+  FWizardFiles := FAppFilesPageHelper.WizardFiles;
+end;
+
+procedure TCFLWForm.FormDestroy(Sender: TObject);
+begin
+  FAppFilesPageHelper.Free;
 end;
 
 procedure TCFLWForm.UpdateWizardFilesButtons;

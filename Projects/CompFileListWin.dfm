@@ -13,6 +13,7 @@ object CFLWForm: TCFLWForm
   Font.Style = []
   Position = poDesktopCenter
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   DesignSize = (
     636
     458)
@@ -89,7 +90,6 @@ object CFLWForm: TCFLWForm
     Anchors = [akTop, akRight]
     Caption = '&Add file(s)...'
     TabOrder = 4
-    OnClick = AppFilesAddButtonClick
   end
   object AppFilesListBox: TDropListBox
     Left = 20
