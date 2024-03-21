@@ -87,7 +87,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.2.3</b><br/>
+<b>Inno Setup version 6.3.0</b><br/>
 <b>Copyright &copy; 1997-2024 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2024 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -164,7 +164,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <keyword value="Creating Installations" />
 <body>
 
-<p>Installations are created by means of <i>scripts</i>, which are ASCII or Unicode (UTF-8 encoded with a BOM) text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!).</p>
+<p>Installations are created by means of <i>scripts</i>, which are ASCII or Unicode (UTF-8 encoded) text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!).</p>
 
 <p>Scripts have an ".iss" (meaning Inno Setup Script) extension. The script controls every aspect of the installation. It specifies which files are to be installed and where, what shortcuts are to be created and what they are to be named, and so on.</p>
 
@@ -228,7 +228,7 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 
 <p>By default, scripts use ISPP if available, and .isl files use the built-in preprocessor.</p>
 
-<p>If an Unicode file is used, it must be UTF-8 encoded with a BOM.</p>
+<p>If an Unicode file is used, it must be UTF-8 encoded.</p>
 
 <p><br/><b>See also:</b><br/>
 <link topic="params">Parameters in Sections</link><br/>
@@ -1090,6 +1090,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_uninstalldisplayname">UninstallDisplayName</link></li>
 <li><link topic="setup_uninstalldisplaysize">UninstallDisplaySize</link></li>
 <li><link topic="setup_uninstallfilesdir">UninstallFilesDir</link></li>
+<li><link topic="setup_uninstalllogging">UninstallLogging</link></li>
 <li><link topic="setup_uninstalllogmode">UninstallLogMode</link></li>
 <li><link topic="setup_uninstallrestartcomputer">UninstallRestartComputer</link></li>
 <li><link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link></li>
@@ -2124,7 +2125,7 @@ Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
 <p>Specifies the name(s) of the .isl file(s) to read the default messages from. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>Each message file may contain a <link topic="langoptionssection">[LangOptions] section</link>, a <link topic="messagessection">[Messages] section</link>, and a <link topic="custommessagessection">[CustomMessages] section.</link></p>
 <p>When multiple files are specified, they are read in the order they are specified, thus the last message file overrides any language options or messages from previous files. Any language options or messages in the main script override the ones from message files.</p>
-<p>If an Unicode file is used, it must be UTF-8 encoded with a BOM.</p>
+<p>If an Unicode file is used, it must be UTF-8 encoded.</p>
 <examples>
 <pre>
 MessagesFile: "compiler:Dutch.isl"
@@ -2769,7 +2770,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. Otherwise you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
   <ul>
-  <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files (but not UTF-16).</li>
+  <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files. Starting with Inno Setup 6.3, a UTF-8 preamble (also called BOM) is no longer required. UTF-16 is not supported.</li>
   <li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
   <li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must to be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
   <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>.</li>
@@ -3321,6 +3322,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>The Setup program accepts optional command line parameters. These can be useful to system administrators, and to other programs calling the Setup program.</p>
 
+<p>Also see <link topic="uninstcmdline">Uninstaller Command Line Parameters</link>.</p>
+
 <dl>
 
 <dt><b><a name="HELP">/HELP</a>, <a name="HELP2">/?</a></b></dt>
@@ -3630,6 +3633,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <body>
 
 <p>The uninstaller program (unins???.exe) accepts optional command line parameters. These can be useful to system administrators, and to other programs calling the uninstaller program.</p>
+
+<p>Also see <link topic="setupcmdline">Setup Command Line Parameters</link>.</p>
 
 <dl>
 
@@ -4492,6 +4497,15 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setuptopic directive="UninstallIconName">
 <body>
 <p><i>Obsolete in 3.0.</i> This directive is no longer supported. If you wish to create an Uninstall icon, use the new <tt>{uninstallexe}</tt> constant in the <tt>Filename</tt> parameter of an <link topic="iconssection">[Icons]</link> section entry.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="UninstallLogging">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>no</tt></setupdefault>
+<body>
+<p>If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing <link topic="uninstcmdline" anchor="LOG">/LOG</link> on the command line.</p>
+<p>This directive has no effect if <tt>CreateUninstallRegKey</tt> is not set to <tt>yes</tt>.</p>
 </body>
 </setuptopic>
 

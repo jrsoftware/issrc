@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.2.3-dev';
-  SetupBinVersion = (6 shl 24) + (2 shl 16) + (3 shl 8) + 0;
+  SetupVersion = '6.3.0';
+  SetupBinVersion = (6 shl 24) + (3 shl 16) + (0 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -66,7 +66,7 @@ type
     shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
-    shWizardResizable);
+    shWizardResizable, shUninstallLogging);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;

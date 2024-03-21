@@ -1,5 +1,9 @@
+﻿; -- Debug.iss --
+; Opened when you run the Compil32.dproj project in Debug mode from the Delphi IDE
+; Use it to test the compiler or Setup or the uninstaller
+
 [Setup]
-AppName=My Program
+AppName=ɯɐɹƃoɹd ʎɯ
 AppVerName=My Program version 1.5
 DefaultDirName={autopf}\My Program
 UseSetupLdr=0

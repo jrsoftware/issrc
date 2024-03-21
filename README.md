@@ -1,8 +1,8 @@
 Inno Setup
 ==========
 
-Copyright (C) 1997-2024 Jordan Russell. All rights reserved.  
-Portions Copyright (C) 2000-2024 Martijn Laan. All rights reserved.  
+Copyright (C) 1997-2024 Jordan Russell. All rights reserved.
+Portions Copyright (C) 2000-2024 Martijn Laan. All rights reserved.
 For conditions of distribution and use, see LICENSE.TXT.
 
 Source code README
@@ -47,12 +47,12 @@ Getting Started
    every change on every Delphi version.
   
    There's a free version of Delphi available called the Community Edition.
-   See https://www.embarcadero.com/products/delphi/starter/free-download
+   See https://www.embarcadero.com/products/delphi/starter/free-download.
 
 3. **Install Microsoft HTML Help Workshop**
 
    Install Microsoft HTML Help Workshop if you haven't already done so.
-   See https://docs.microsoft.com/en-us/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads and 
+   See https://docs.microsoft.com/en-us/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads and
    http://web.archive.org/web/20160201063255/http://download.microsoft.com/download/0/A/9/0A939EF6-E31C-430F-A3DF-DFAE7960D564/htmlhelp.exe
 
    Note: Microsoft HTML Help Workshop is only needed to be able to compile the
@@ -62,26 +62,26 @@ Getting Started
 4. **Build Inno Setup**
 
    Unfortunately, Embarcadero has removed command line compilation support
-   from the Community Edition, which means you there's two different build 
+   from the Community Edition, which means there's two different build
    scripts.
 
    Community Edition: To build all files run **build-ce.bat** and follow the
-   instructions  
+   instructions.
 
    Otherwise: To build all files run **build.bat** and follow the instructions.
 
    To just compile Inno Setup run **compile.bat** and follow the instructions.
-   This batch file can not be used with the Community Edition, open
+   This batch file cannot be used with the Community Edition, open
    Projects\Projects.groupproj instead.
 
    To just compile the Inno Setup help file and its web version run
    **ISHelp\ISHelpGen\compile.bat** and **ISHelp\compile.bat** and follow the
-   instructions. The former batch file can not be used with the
+   instructions. The former batch file cannot be used with the
    Community Edition, open Projects\Projects.groupproj instead.
 
    To just compile the Inno Setup Preprocessor help file and its web version run
    **ISHelp\ISHelpGen\compile.bat** and **Projects\Ispp\Help\compile.bat** and
-   follow the instructions. The former batch file can not be used with the
+   follow the instructions. The former batch file cannot be used with the
    Community Edition, open Projects\Projects.groupproj instead.
 
 
@@ -226,20 +226,18 @@ Inno Setup-specific editing guidelines for the help files
 Setting up Continuous Integration
 ---------------------------------
 
-Delphi is not offered for download via a public link, and while there is a
-free-of-charge community version, its license terms forbid sharing it with others, or
-even let other developers (outside your direct teammates) use it. However, what _is_
-allowed is to copy the files (or a subset thereof) to another machine for the specific
-purpose of supporting unattended builds.
-
-Inno Setup's source code includes a GitHub workflow that performs such unattended
-builds upon `push` events, it requires some setting up, though.
+Inno Setup's source code includes a GitHub workflow that performs unattended builds
+upon `push` events, it requires some setting up, though.
 
 Note: The following instructions assume that you have a correctly-licensed version
-of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\20.0`.
+of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\20.0`. This may
+not be a Community Edition because it does not support command line compilation.
+Also ensure your current Delphi license still allows you to copy a subset of the
+Delphi files to another machine for the specific purpose of supporting unattended
+builds.
 
-To generate the (encrypted) `.zip` file containing the files needed to build
-Inno Setup, use [7-Zip](https://www.7-zip.org/):
+First, generate an encrypted `.zip` file containing the files needed to build
+Inno Setup using [7-Zip]:
 
 ```
 cd C:\Program Files (x86)\Embarcadero\Studio\20.0
@@ -254,10 +252,9 @@ cd C:\Program Files (x86)\Embarcadero\Studio\20.0
 	lib/win32/release/Winapi.*.dcu
 ```
 
-Then, upload this somewhere public, e.g. by attaching it to a comment in a
-GitHub issue. After that, add this URL as a new repository
-[secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-(at https://github.com/YOUR-USER-NAME/issrc/settings/secrets/actions), under the name
+Then, upload this encrypted file somewhere public, e.g. by attaching it to a comment
+in a GitHub issue. After that, add this URL as a new repository
+[secret] (at https://github.com/YOUR-USER-NAME/issrc/settings/secrets/actions), under the name
 `ISSRC_BUILD_ENV_ZIP_URL`, and the password as `ISSRC_BUILD_ENV_ZIP_PASSWORD`.
 
 Finally, indicate that your fork of the repository has those secrets, by adding the
@@ -272,9 +269,8 @@ workflow will be triggered automatically.
 If you have a code-signing certificate, you can use that in the Continuous
 Integration to produce artifacts that are code-signed, too, as long as the
 certificate does not require any local-only security factor such as a USB
-security key. To use the certificate, you first have to add the [repository
-secret](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository)
-`CODESIGN_P12`, using as value the base64-encoded file contents of the
+security key. To use the certificate, you first have to add the repository
+[secret] `CODESIGN_P12`, using as value the base64-encoded file contents of the
 certificate's `.p12` file (obtain this value e.g. by running `base64 -w 0
 <my-certificate.p12`). Then, add the corresponding certificate password as
 repository secret named `CODESIGN_PASS`.
@@ -283,10 +279,7 @@ Once these two repository secrets are set, the Continuous Integration will
 automatically pick them up and code-sign the generated executable files.
 
 Note: These repository secrets are only _used_ in the Continuous Integration,
-and will _not_ be included in the build artifacts. Meaning: You do not have to
-worry that the InnoSetup compiler that is produced by the Continuous
-Integration will automatically use your code-signing certificate
-_on its own_ to produce code-signed installers.
+and will _not_ be included in the build artifacts.
 
 <!-- Link references -->
 [CONTRIBUTING.md]: <CONTRIBUTING.md>
@@ -295,3 +288,5 @@ _on its own_ to produce code-signed installers.
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\LzmaDecode\compiling.txt]: <Projects/LzmaDecode/compiling.txt>
 [Projects\Lzma2\Decoder\compiling.txt]: <Projects/Lzma2/Decoder/compiling.txt>
+[7-Zip]: https://www.7-zip.org/
+[secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets

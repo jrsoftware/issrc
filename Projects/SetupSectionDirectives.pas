@@ -136,6 +136,7 @@ type
     ssUninstallDisplaySize,
     ssUninstallFilesDir,
     ssUninstallIconFile,
+    ssUninstallLogging,
     ssUninstallLogMode,
     ssUninstallRestartComputer,
     ssUninstallStyle,

@@ -9,11 +9,6 @@ program Compil32;
   Compiler
 }
 
-{$SetPEFlags 1}
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
-{$WEAKLINKRTTI ON}
-
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
   Windows,
@@ -44,6 +39,11 @@ uses
   CompMessageBoxDesigner in 'CompMessageBoxDesigner.pas' {MBDForm},
   CompScintEdit in 'CompScintEdit.pas',
   CompFileListWin in 'CompFileListWin.pas' {CFLWForm};
+
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} 
+{$SETPEOSVERSION 6.0}
+{$SETPESUBSYSVERSION 6.0}
+{$WEAKLINKRTTI ON}
 
 {$R Compil32.docicon.res}
 {$R Compil32.manifest.res}

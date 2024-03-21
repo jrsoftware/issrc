@@ -9,11 +9,6 @@ program SetupLdr;
   Setup Loader
 }
 
-{$SetPEFlags 1} 
-{$SETPEOSVERSION 6.1}
-{$SETPESUBSYSVERSION 6.1}
-{$WEAKLINKRTTI ON}
-
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
   XPTheme in 'XPTheme.pas',
@@ -30,6 +25,11 @@ uses
   Struct in 'Struct.pas',
   InstFunc in 'InstFunc.pas',
   FileClass in 'FileClass.pas';
+
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} 
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
+{$WEAKLINKRTTI ON}
 
 {$R Setup.icon.res}
 {$R SetupLdr.version.res}

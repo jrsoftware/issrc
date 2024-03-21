@@ -10,11 +10,6 @@ program ISCC;
   Command-line compiler
 }
 
-{$SetPEFlags 1} 
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
-{$WEAKLINKRTTI ON}
-
 {x$DEFINE STATICCOMPILER}
 { For debugging purposes, remove the 'x' to have it link the compiler code
   into this program and not depend on ISCmplr.dll. }
@@ -24,6 +19,11 @@ uses
   Windows, SysUtils, Classes,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   PathFunc, CmnFunc2, CompInt, FileClass, CompTypes;
+
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} 
+{$SETPEOSVERSION 6.0}
+{$SETPESUBSYSVERSION 6.0}
+{$WEAKLINKRTTI ON}
 
 {$R ISCC.manifest.res}
 {$R ISCC.versionandicon.res}
