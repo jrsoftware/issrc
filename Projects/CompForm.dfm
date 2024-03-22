@@ -681,7 +681,7 @@ object CompileForm: TCompileForm
         OnClick = TMsgBoxDesignerClick
       end
       object TFilesDesigner: TMenuItem
-        Caption = '[F&iles] Designer...'
+        Caption = '[F&iles] Entries Designer...'
         ShortCut = 24649
         OnClick = TFilesDesignerClick
       end
