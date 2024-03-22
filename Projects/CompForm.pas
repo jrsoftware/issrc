@@ -1002,19 +1002,6 @@ begin
   end;
 end;
 
-procedure TCompileForm.TFilesDesignerClick(Sender: TObject);
-var
-  FilesDesignerForm: TFilesDesignerForm;
-begin
-  FilesDesignerForm := TFilesDesignerForm.Create(Application);
-  try
-    if FilesDesignerForm.ShowModal = mrOk then
-      FActiveMemo.SelText := FilesDesignerForm.Text;
-  finally
-    FilesDesignerForm.Free;
-  end;
-end;
-
 procedure TCompileForm.NewMainFile;
 var
   Memo: TCompScintFileEdit;
@@ -2915,10 +2902,27 @@ var
 begin
   MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
   try
-    if MsgBoxForm.ShowModal = mrOk then
+    if (MsgBoxForm.ShowModal = mrOk) and
+       (MsgBox('The generated Pascal script will be inserted into the editor at the cursor position. Continue?',
+        SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then
       FActiveMemo.SelText := MsgBoxForm.Text;
   finally
     MsgBoxForm.Free;
+  end;
+end;
+
+procedure TCompileForm.TFilesDesignerClick(Sender: TObject);
+var
+  FilesDesignerForm: TFilesDesignerForm;
+begin
+  FilesDesignerForm := TFilesDesignerForm.Create(Application);
+  try
+    if (FilesDesignerForm.ShowModal = mrOk) and
+       (MsgBox('The generated script will be inserted into the editor at the cursor position. Continue?',
+        SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then
+      FActiveMemo.SelText := FilesDesignerForm.Text;
+  finally
+    FilesDesignerForm.Free;
   end;
 end;
 

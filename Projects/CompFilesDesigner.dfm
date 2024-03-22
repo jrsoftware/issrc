@@ -31,7 +31,7 @@ object FilesDesignerForm: TFilesDesignerForm
       Align = alTop
       Shape = bsBottomLine
     end
-    object OkButton: TButton
+    object InsertButton: TButton
       Left = 406
       Top = 11
       Width = 75
@@ -39,6 +39,7 @@ object FilesDesignerForm: TFilesDesignerForm
       Caption = 'Insert'
       ModalResult = 1
       TabOrder = 0
+      OnClick = InsertButtonClick
     end
     object CancelButton: TButton
       Left = 490

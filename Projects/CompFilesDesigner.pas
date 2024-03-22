@@ -9,7 +9,7 @@ uses
 type
   TFilesDesignerForm = class(TUIStateForm)
     Panel1: TPanel;
-    OkButton: TButton;
+    InsertButton: TButton;
     CancelButton: TButton;
     AppFilesEditButton: TButton;
     AppFilesRemoveButton: TButton;
@@ -21,6 +21,7 @@ type
     Bevel1: TBevel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure InsertButtonClick(Sender: TObject);
   private
     FFilesHelper: TWizardFormFilesHelper;
     function GetText: String;
@@ -36,7 +37,7 @@ procedure TFilesDesignerForm.FormCreate(Sender: TObject);
 begin
   FFilesHelper := TWizardFormFilesHelper.Create(Handle,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
-    AppFilesEditButton, AppFilesRemoveButton);;
+    AppFilesEditButton, AppFilesRemoveButton);
 end;
 
 procedure TFilesDesignerForm.FormDestroy(Sender: TObject);
@@ -48,6 +49,12 @@ function TFilesDesignerForm.GetText: String;
 begin
   Result := '';
   FFilesHelper.AddScript(Result);
+end;
+
+procedure TFilesDesignerForm.InsertButtonClick(Sender: TObject);
+begin
+  if FFilesHelper.FilesCount = 0 then
+    ModalResult := mrCancel;
 end;
 
 end.

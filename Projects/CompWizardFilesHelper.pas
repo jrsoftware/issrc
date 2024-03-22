@@ -16,6 +16,7 @@ type
       FEditButton: TButton;
       FRemoveButton: TButton;
       procedure AddWizardFile(const Source: String; const RecurseSubDirs, CreateAllSubDirs: Boolean);
+      function GetWizardFilesCount: Integer;
       procedure UpdateWizardFiles;
       procedure UpdateWizardFilesButtons;
       procedure FilesListBoxClick(Sender: TObject);
@@ -31,6 +32,7 @@ type
         const AddButton, AddDirButton, EditButton, RemoveButton: TButton);
       destructor Destroy; override;
       procedure AddScript(var Files: String);
+      property FilesCount: Integer read GetWizardFilesCount;
   end;
 
 implementation
@@ -87,6 +89,11 @@ begin
     WizardFile.DestRootDir := '{win}';
   WizardFile.DestSubDir := '';
   FWizardFiles.Add(WizardFile);
+end;
+
+function TWizardFormFilesHelper.GetWizardFilesCount: Integer;
+begin
+  Result := FWizardFiles.Count;
 end;
 
 procedure TWizardFormFilesHelper.UpdateWizardFiles;
