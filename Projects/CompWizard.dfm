@@ -537,7 +537,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Edit...'
+            Caption = '&Parameters...'
             TabOrder = 9
           end
           object AppFilesRemoveButton: TButton

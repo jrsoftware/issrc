@@ -58,7 +58,7 @@ object CFLWForm: TCFLWForm
     Width = 89
     Height = 23
     Anchors = [akTop, akRight]
-    Caption = '&Edit...'
+    Caption = '&Parameters...'
     TabOrder = 1
   end
   object AppFilesRemoveButton: TButton
@@ -104,7 +104,7 @@ object CFLWForm: TCFLWForm
     Height = 16
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
-    Caption = 'Other application &files:'
+    Caption = '&Files:'
     FocusControl = AppFilesListBox
     TabOrder = 6
     WordWrap = True
@@ -115,7 +115,7 @@ object CFLWForm: TCFLWForm
     Width = 257
     Height = 17
     Anchors = [akLeft, akTop, akRight]
-    Caption = 'The application doe&sn'#39't need a folder'
+    Caption = '&Script has CreateAppDir=no'
     TabOrder = 7
   end
 end
