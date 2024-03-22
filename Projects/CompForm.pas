@@ -2900,11 +2900,14 @@ procedure TCompileForm.TMsgBoxDesignerClick(Sender: TObject);
 var
   MsgBoxForm: TMsgBoxDesignerForm;
 begin
+  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scCode) and
+     (MsgBox('The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the [Code] section. Continue anyway?',
+      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
+    Exit;
+
   MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
   try
-    if (MsgBoxForm.ShowModal = mrOk) and
-       (MsgBox('The generated Pascal script will be inserted into the editor at the cursor position. Continue?',
-        SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then
+    if MsgBoxForm.ShowModal = mrOk then
       FActiveMemo.SelText := MsgBoxForm.Text;
   finally
     MsgBoxForm.Free;
@@ -2915,12 +2918,17 @@ procedure TCompileForm.TFilesDesignerClick(Sender: TObject);
 var
   FilesDesignerForm: TFilesDesignerForm;
 begin
+  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scFiles) and
+     (MsgBox('The generated script will be inserted into the editor at the start of the current line, but the cursor is not in the [Files] section. Continue anyway?',
+      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
+    Exit;
+
   FilesDesignerForm := TFilesDesignerForm.Create(Application);
   try
-    if (FilesDesignerForm.ShowModal = mrOk) and
-       (MsgBox('The generated script will be inserted into the editor at the cursor position. Continue?',
-        SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then
+    if FilesDesignerForm.ShowModal = mrOk then begin
+      FActiveMemo.CaretColumn := 0;
       FActiveMemo.SelText := FilesDesignerForm.Text;
+    end;
   finally
     FilesDesignerForm.Free;
   end;
