@@ -4,10 +4,10 @@ interface
 
 uses
   Classes, Controls, Forms, Dialogs, ExtCtrls, StdCtrls,
-  NewStaticText, DropListBox, CompWizardFilesHelper;
+  UIStateForm, NewStaticText, DropListBox, CompWizardFilesHelper;
 
 type
-  TCFLWForm = class(TForm)
+  TCFLWForm = class(TUIStateForm)
     Panel1: TPanel;
     OkButton: TButton;
     CancelButton: TButton;
