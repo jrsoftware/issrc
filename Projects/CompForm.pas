@@ -104,7 +104,7 @@ type
     SplitPanel: TPanel;
     HWebsite: TMenuItem;
     VToolbar: TMenuItem;
-    TFilesDesigner: TMenuItem;
+    N7: TMenuItem;
     TOptions: TMenuItem;
     HFaq: TMenuItem;
     StatusBar: TStatusBar;
@@ -210,7 +210,7 @@ type
     N22: TMenuItem;
     PrintDialog: TPrintDialog;
     FSaveEncodingUTF8NoPreamble: TMenuItem;
-    N23: TMenuItem;
+    TFilesDesigner: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);

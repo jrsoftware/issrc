@@ -685,7 +685,7 @@ object CompileForm: TCompileForm
         ShortCut = 24649
         OnClick = TFilesDesignerClick
       end
-      object N23: TMenuItem
+      object N7: TMenuItem
         Caption = '-'
       end
       object TSignTools: TMenuItem
