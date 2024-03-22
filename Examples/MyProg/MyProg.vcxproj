@@ -259,7 +259,8 @@
     <ClCompile Include="MyProg.c" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="MyProg.ico" />
+    <Image Include="MyProg32.ico" />
+    <Image Include="MyProg64.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MyProg.rc" />
