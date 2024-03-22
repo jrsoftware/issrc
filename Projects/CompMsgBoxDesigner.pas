@@ -1,4 +1,4 @@
-unit CompMessageBoxDesigner;
+unit CompMsgBoxDesigner;
 
 {
   Inno Setup
@@ -18,7 +18,7 @@ uses
   UIStateForm, StdCtrls, ExtCtrls, NewStaticText, ComCtrls, pngimage;
 
 type
-  TMBDForm = class(TUIStateForm)
+  TMsgBoxDesignerForm = class(TUIStateForm)
     IMGmbInformation: TImage;
     IMGmbConfirmation: TImage;
     IMGmbError: TImage;
@@ -114,7 +114,7 @@ uses
 
 {$R *.DFM}
 
-procedure TMBDForm.FormCreate(Sender: TObject);
+procedure TMsgBoxDesignerForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
 
@@ -141,7 +141,7 @@ begin
   Button2Label.Visible := False;
 end;
 
-procedure TMBDForm.rbMB_OKClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rbMB_OKClick(Sender: TObject);
 begin
   cb_IDOK.Checked := False;
   cb_IDCANCEL.Checked := False;
@@ -201,7 +201,7 @@ begin
   end;
 end;
 
-procedure TMBDForm.rbMB_YESNOClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rbMB_YESNOClick(Sender: TObject);
 begin
   cb_IDOK.Checked := False;
   cb_IDCANCEL.Checked := False;
@@ -264,7 +264,7 @@ begin
   end;
 end;
 
-procedure TMBDForm.rbMB_OKCANCELClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rbMB_OKCANCELClick(Sender: TObject);
 begin
   cb_IDOK.Checked := False;
   cb_IDCANCEL.Checked := False;
@@ -327,7 +327,7 @@ begin
   end;
 end;
 
-procedure TMBDForm.rbMB_RETRYCANCELClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rbMB_RETRYCANCELClick(Sender: TObject);
 begin
   cb_IDOK.Checked := False;
   cb_IDCANCEL.Checked := False;
@@ -390,7 +390,7 @@ begin
   end;
 end;
 
-procedure TMBDForm.rbMB_YESNOCANCELClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rbMB_YESNOCANCELClick(Sender: TObject);
 begin
   cb_IDOK.Checked := False;
   cb_IDCANCEL.Checked := False;
@@ -453,7 +453,7 @@ begin
   end;
 end;
 
-procedure TMBDForm.rbMB_ABORTRETRYIGNOREClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rbMB_ABORTRETRYIGNOREClick(Sender: TObject);
 begin
   cb_IDOK.Checked := False;
   cb_IDCANCEL.Checked := False;
@@ -516,12 +516,12 @@ begin
   end;
 end;
 
-procedure TMBDForm.UpDown1Changing(Sender: TObject; var AllowChange: Boolean);
+procedure TMsgBoxDesignerForm.UpDown1Changing(Sender: TObject; var AllowChange: Boolean);
 begin
    AllowChange := True;
 end;
 
-procedure TMBDForm.cb_MsgBoxClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.cb_MsgBoxClick(Sender: TObject);
 begin
    IMGmbConfirmation.Visible := True;
    cb_MB_SETFOREGROUND.Enabled := True;
@@ -574,7 +574,7 @@ begin
    rbMB_OKClick(Self);
 end;
 
-procedure TMBDForm.cb_SuppressibleClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.cb_SuppressibleClick(Sender: TObject);
 begin
    if cb_Suppressible.Checked then begin
      cb_DefIDOK.Visible := True;
@@ -617,7 +617,7 @@ begin
    if rbMB_ABORTRETRYIGNORE.Checked then rbMB_ABORTRETRYIGNOREClick(Self);
 end;
 
-procedure TMBDForm.cb_TaskDialogMsgBoxClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.cb_TaskDialogMsgBoxClick(Sender: TObject);
 begin
    IMGmbConfirmation.Visible := False;
    cb_MB_SETFOREGROUND.Enabled := False;
@@ -681,13 +681,13 @@ begin
    rbMB_OKClick(Self);
 end;
 
-procedure TMBDForm.rb_IDOKClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rb_IDOKClick(Sender: TObject);
 begin
    if rb_IDOK.Checked then
       rb_IDCANCEL.Checked := False;
 end;
 
-procedure TMBDForm.rb_IDCANCELClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rb_IDCANCELClick(Sender: TObject);
 begin
    if rb_IDCANCEL.Checked then begin
       rb_IDOK.Checked := False;
@@ -697,7 +697,7 @@ begin
    end;
 end;
 
-procedure TMBDForm.rb_IDYESClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rb_IDYESClick(Sender: TObject);
 begin
    if rb_IDYES.Checked then begin
       rb_IDNO.Checked := False;
@@ -705,7 +705,7 @@ begin
    end;
 end;
 
-procedure TMBDForm.rb_IDNOClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rb_IDNOClick(Sender: TObject);
 begin
    if rb_IDNO.Checked then begin
       rb_IDYES.Checked := False;
@@ -713,7 +713,7 @@ begin
    end;
 end;
 
-procedure TMBDForm.rb_IDRETRYClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rb_IDRETRYClick(Sender: TObject);
 begin
    if rb_IDRETRY.Checked then begin
       rb_IDCANCEL.Checked := False;
@@ -722,7 +722,7 @@ begin
    end;
 end;
 
-procedure TMBDForm.rb_IDIGNOREClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rb_IDIGNOREClick(Sender: TObject);
 begin
    if rb_IDIGNORE.Checked then begin
       rb_IDABORT.Checked := False;
@@ -730,7 +730,7 @@ begin
    end;
 end;
 
-procedure TMBDForm.rb_IDABORTClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.rb_IDABORTClick(Sender: TObject);
 begin
    if rb_IDABORT.Checked then begin
       rb_IDIGNORE.Checked := False;
@@ -738,7 +738,7 @@ begin
    end;
 end;
 
-procedure TMBDForm.MBDButtonPreviewClick(Sender: TObject);
+procedure TMsgBoxDesignerForm.MBDButtonPreviewClick(Sender: TObject);
 var
   ButtonsBtn : Cardinal;
   TypeIcon : TMsgBoxType;
@@ -834,7 +834,7 @@ begin
   end;
 end;
 
-procedure TMBDForm.MSGTextKeyPress(Sender: TObject; var Key: Char);
+procedure TMsgBoxDesignerForm.MSGTextKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key = #27 then begin
     MBDButtonCancel.Click;
@@ -842,7 +842,7 @@ begin
   end;
 end;
 
-function TMBDForm.GetText: String;
+function TMsgBoxDesignerForm.GetText: String;
 
    { MsgBox / SuppressibleMsgBox }
    function TextMsg(M: Integer; a, b, c, d, e, f: String): String;

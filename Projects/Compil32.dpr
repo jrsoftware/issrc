@@ -36,9 +36,9 @@ uses
   ScintEdit in '..\Components\ScintEdit.pas',
   ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas',
   ModernColors in '..\Components\ModernColors.pas',
-  CompMessageBoxDesigner in 'CompMessageBoxDesigner.pas' {MBDForm},
+  CompMsgBoxDesigner in 'CompMsgBoxDesigner.pas' {MsgBoxDesignerForm},
   CompScintEdit in 'CompScintEdit.pas',
-  CompFileListWin in 'CompFileListWin.pas' {CFLWForm},
+  CompFilesDesigner in 'CompFilesDesigner.pas' {FilesDesignerForm},
   CompWizardFilesHelper in 'CompWizardFilesHelper.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}

@@ -1,8 +1,8 @@
-object CFLWForm: TCFLWForm
+object FilesDesignerForm: TFilesDesignerForm
   Left = 624
   Top = 375
   BorderStyle = bsDialog
-  Caption = 'Insert File List Field'
+  Caption = '[Files] Entries Designer'
   ClientHeight = 403
   ClientWidth = 575
   Color = clBtnFace

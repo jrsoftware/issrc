@@ -104,7 +104,7 @@ type
     SplitPanel: TPanel;
     HWebsite: TMenuItem;
     VToolbar: TMenuItem;
-    TInsertFileListField: TMenuItem;
+    TFilesDesigner: TMenuItem;
     TOptions: TMenuItem;
     HFaq: TMenuItem;
     StatusBar: TStatusBar;
@@ -190,7 +190,7 @@ type
     PListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
-    TInsertMsgBox: TMenuItem;
+    TMsgBoxDesigner: TMenuItem;
     ToolBarPanel: TPanel;
     HMailingList: TMenuItem;
     MemosTabSet: TNewTabSet; { First tab is the main memo, last tab is the preprocessor output memo }
@@ -295,7 +295,7 @@ type
       State: TOwnerDrawState);
     procedure VDebugCallStackClick(Sender: TObject);
     procedure HMailingListClick(Sender: TObject);
-    procedure TInsertMsgBoxClick(Sender: TObject);
+    procedure TMsgBoxDesignerClick(Sender: TObject);
     procedure MemosTabSetClick(Sender: TObject);
     procedure FSaveAllClick(Sender: TObject);
     procedure RStepOutClick(Sender: TObject);
@@ -310,7 +310,7 @@ type
       State: TOwnerDrawState);
     procedure FindResultsListDblClick(Sender: TObject);
     procedure FPrintClick(Sender: TObject);
-    procedure TInsertFileListFieldClick(Sender: TObject);
+    procedure TFilesDesignerClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -521,7 +521,7 @@ uses
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo,
-  CompMessageBoxDesigner, CompFileListWin;
+  CompMsgBoxDesigner, CompFilesDesigner;
 
 {$R *.DFM}
 
@@ -1002,16 +1002,16 @@ begin
   end;
 end;
 
-procedure TCompileForm.TInsertFileListFieldClick(Sender: TObject);
+procedure TCompileForm.TFilesDesignerClick(Sender: TObject);
 var
-  CFLWForm: TCFLWForm;
+  FilesDesignerForm: TFilesDesignerForm;
 begin
-  CFLWForm := TCFLWForm.Create(Application);
+  FilesDesignerForm := TFilesDesignerForm.Create(Application);
   try
-    if CFLWForm.ShowModal = mrOk then
-      FActiveMemo.SelText := CFLWForm.Text;
+    if FilesDesignerForm.ShowModal = mrOk then
+      FActiveMemo.SelText := FilesDesignerForm.Text;
   finally
-    CFLWForm.Free;
+    FilesDesignerForm.Free;
   end;
 end;
 
@@ -2893,7 +2893,8 @@ var
 begin
   MemoIsReadOnly := FActiveMemo.ReadOnly;
   TGenerateGUID.Enabled := not MemoIsReadOnly;
-  TInsertMsgBox.Enabled := not MemoIsReadOnly;
+  TMsgBoxDesigner.Enabled := not MemoIsReadOnly;
+  TFilesDesigner.Enabled := not MemoIsReadOnly;
 end;
 
 procedure TCompileForm.TAddRemoveProgramsClick(Sender: TObject);
@@ -2908,11 +2909,11 @@ begin
     FActiveMemo.SelText := GenerateGuid;
 end;
 
-procedure TCompileForm.TInsertMsgBoxClick(Sender: TObject);
+procedure TCompileForm.TMsgBoxDesignerClick(Sender: TObject);
 var
-  MsgBoxForm: TMBDForm;
+  MsgBoxForm: TMsgBoxDesignerForm;
 begin
-  MsgBoxForm := TMBDForm.Create(Application);
+  MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
   try
     if MsgBoxForm.ShowModal = mrOk then
       FActiveMemo.SelText := MsgBoxForm.Text;

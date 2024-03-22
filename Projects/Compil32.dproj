@@ -110,12 +110,12 @@
         <DCCReference Include="..\Components\ScintEdit.pas"/>
         <DCCReference Include="..\Components\ScintStylerInnoSetup.pas"/>
         <DCCReference Include="..\Components\ModernColors.pas"/>
-        <DCCReference Include="CompMessageBoxDesigner.pas">
-            <Form>MBDForm</Form>
+        <DCCReference Include="CompMsgBoxDesigner.pas">
+            <Form>MsgBoxDesignerForm</Form>
         </DCCReference>
         <DCCReference Include="CompScintEdit.pas"/>
-        <DCCReference Include="CompFileListWin.pas">
-            <Form>CFLWForm</Form>
+        <DCCReference Include="CompFilesDesigner.pas">
+            <Form>FilesDesignerForm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="CompWizardFilesHelper.pas"/>

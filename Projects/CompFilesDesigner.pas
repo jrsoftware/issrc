@@ -1,4 +1,4 @@
-unit CompFileListWin;
+unit CompFilesDesigner;
 
 interface
 
@@ -7,7 +7,7 @@ uses
   UIStateForm, NewStaticText, DropListBox, CompWizardFilesHelper;
 
 type
-  TCFLWForm = class(TUIStateForm)
+  TFilesDesignerForm = class(TUIStateForm)
     Panel1: TPanel;
     OkButton: TButton;
     CancelButton: TButton;
@@ -32,19 +32,19 @@ implementation
 
 {$R *.dfm}
 
-procedure TCFLWForm.FormCreate(Sender: TObject);
+procedure TFilesDesignerForm.FormCreate(Sender: TObject);
 begin
   FFilesHelper := TWizardFormFilesHelper.Create(Handle,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
     AppFilesEditButton, AppFilesRemoveButton);;
 end;
 
-procedure TCFLWForm.FormDestroy(Sender: TObject);
+procedure TFilesDesignerForm.FormDestroy(Sender: TObject);
 begin
   FFilesHelper.Free;
 end;
 
-function TCFLWForm.GetText: String;
+function TFilesDesignerForm.GetText: String;
 begin
   Result := '';
   FFilesHelper.AddScript(Result);
