@@ -521,9 +521,6 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight, akBottom]
             ItemHeight = 13
             TabOrder = 6
-            OnClick = AppFilesListBoxClick
-            OnDblClick = AppFilesListBoxDblClick
-            OnDropFile = AppFilesListBoxDropFile
           end
           object AppFilesAddButton: TButton
             Left = 360
@@ -533,7 +530,6 @@ object WizardForm: TWizardForm
             Anchors = [akTop, akRight]
             Caption = '&Add file(s)...'
             TabOrder = 7
-            OnClick = AppFilesAddButtonClick
           end
           object AppFilesEditButton: TButton
             Left = 360
@@ -541,9 +537,8 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Edit...'
+            Caption = '&Parameters...'
             TabOrder = 9
-            OnClick = AppFilesEditButtonClick
           end
           object AppFilesRemoveButton: TButton
             Left = 360
@@ -553,7 +548,6 @@ object WizardForm: TWizardForm
             Anchors = [akTop, akRight]
             Caption = 'Remo&ve'
             TabOrder = 10
-            OnClick = AppFilesRemoveButtonClick
           end
           object AppExeEdit: TEdit
             Left = 36
@@ -590,7 +584,6 @@ object WizardForm: TWizardForm
             Anchors = [akTop, akRight]
             Caption = 'Add fol&der...'
             TabOrder = 8
-            OnClick = AppFilesAddDirButtonClick
           end
           object NoAppExeCheck: TCheckBox
             Left = 36

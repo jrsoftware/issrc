@@ -190,7 +190,7 @@ type
     PListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
-    TInsertMsgBox: TMenuItem;
+    TMsgBoxDesigner: TMenuItem;
     ToolBarPanel: TPanel;
     HMailingList: TMenuItem;
     MemosTabSet: TNewTabSet; { First tab is the main memo, last tab is the preprocessor output memo }
@@ -210,6 +210,7 @@ type
     N22: TMenuItem;
     PrintDialog: TPrintDialog;
     FSaveEncodingUTF8NoPreamble: TMenuItem;
+    TFilesDesigner: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -294,7 +295,7 @@ type
       State: TOwnerDrawState);
     procedure VDebugCallStackClick(Sender: TObject);
     procedure HMailingListClick(Sender: TObject);
-    procedure TInsertMsgBoxClick(Sender: TObject);
+    procedure TMsgBoxDesignerClick(Sender: TObject);
     procedure MemosTabSetClick(Sender: TObject);
     procedure FSaveAllClick(Sender: TObject);
     procedure RStepOutClick(Sender: TObject);
@@ -309,6 +310,7 @@ type
       State: TOwnerDrawState);
     procedure FindResultsListDblClick(Sender: TObject);
     procedure FPrintClick(Sender: TObject);
+    procedure TFilesDesignerClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -518,7 +520,8 @@ uses
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMessageBoxDesigner;
+  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMsgBoxDesigner,
+  CompFilesDesigner;
 
 {$R *.DFM}
 
@@ -2877,7 +2880,8 @@ var
 begin
   MemoIsReadOnly := FActiveMemo.ReadOnly;
   TGenerateGUID.Enabled := not MemoIsReadOnly;
-  TInsertMsgBox.Enabled := not MemoIsReadOnly;
+  TMsgBoxDesigner.Enabled := not MemoIsReadOnly;
+  TFilesDesigner.Enabled := not MemoIsReadOnly;
 end;
 
 procedure TCompileForm.TAddRemoveProgramsClick(Sender: TObject);
@@ -2892,16 +2896,33 @@ begin
     FActiveMemo.SelText := GenerateGuid;
 end;
 
-procedure TCompileForm.TInsertMsgBoxClick(Sender: TObject);
+procedure TCompileForm.TMsgBoxDesignerClick(Sender: TObject);
 var
-  MsgBoxForm: TMBDForm;
+  MsgBoxForm: TMsgBoxDesignerForm;
 begin
-  MsgBoxForm := TMBDForm.Create(Application);
+  MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
   try
-    if MsgBoxForm.ShowModal = mrOk then
+    if (MsgBoxForm.ShowModal = mrOk) and
+       (MsgBox('The generated Pascal script will be inserted into the editor at the cursor position. Continue?',
+        SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then
       FActiveMemo.SelText := MsgBoxForm.Text;
   finally
     MsgBoxForm.Free;
+  end;
+end;
+
+procedure TCompileForm.TFilesDesignerClick(Sender: TObject);
+var
+  FilesDesignerForm: TFilesDesignerForm;
+begin
+  FilesDesignerForm := TFilesDesignerForm.Create(Application);
+  try
+    if (FilesDesignerForm.ShowModal = mrOk) and
+       (MsgBox('The generated script will be inserted into the editor at the cursor position. Continue?',
+        SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then
+      FActiveMemo.SelText := FilesDesignerForm.Text;
+  finally
+    FilesDesignerForm.Free;
   end;
 end;
 

@@ -675,10 +675,15 @@ object CompileForm: TCompileForm
         ShortCut = 24647
         OnClick = TGenerateGUIDClick
       end
-      object TInsertMsgBox: TMenuItem
-        Caption = '&MessageBox Designer...'
+      object TMsgBoxDesigner: TMenuItem
+        Caption = '&MsgBox/TaskDialogMsgBox Designer...'
         ShortCut = 24653
-        OnClick = TInsertMsgBoxClick
+        OnClick = TMsgBoxDesignerClick
+      end
+      object TFilesDesigner: TMenuItem
+        Caption = '[F&iles] Entries Designer...'
+        ShortCut = 24649
+        OnClick = TFilesDesignerClick
       end
       object N7: TMenuItem
         Caption = '-'
