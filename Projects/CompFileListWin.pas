@@ -18,6 +18,7 @@ type
     AppFilesListBox: TDropListBox;
     AppFilesLabel: TNewStaticText;
     NotCreateAppDirCheck: TCheckBox;
+    Bevel1: TBevel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
