@@ -60,7 +60,6 @@ object CFLWForm: TCFLWForm
     Anchors = [akTop, akRight]
     Caption = '&Edit...'
     TabOrder = 1
-    OnClick = AppFilesEditButtonClick
   end
   object AppFilesRemoveButton: TButton
     Left = 514
@@ -70,7 +69,6 @@ object CFLWForm: TCFLWForm
     Anchors = [akTop, akRight]
     Caption = 'Remo&ve'
     TabOrder = 2
-    OnClick = AppFilesRemoveButtonClick
   end
   object AppFilesAddDirButton: TButton
     Left = 514
@@ -98,9 +96,6 @@ object CFLWForm: TCFLWForm
     Anchors = [akLeft, akTop, akRight, akBottom]
     ItemHeight = 15
     TabOrder = 5
-    OnClick = AppFilesListBoxClick
-    OnDblClick = AppFilesListBoxDblClick
-    OnDropFile = AppFilesListBoxDropFile
   end
   object AppFilesLabel: TNewStaticText
     Left = 20

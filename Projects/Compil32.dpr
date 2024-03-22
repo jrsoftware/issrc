@@ -192,6 +192,5 @@ begin
   end;
 
   Application.CreateForm(TCompileForm, CompileForm);
-  Application.CreateForm(TCFLWForm, CFLWForm);
   Application.Run;
 end.

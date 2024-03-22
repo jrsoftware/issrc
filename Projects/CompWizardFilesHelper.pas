@@ -13,28 +13,36 @@ type
       FHandle: HWND;
       FNotCreateAppDirCheck: TCheckBox;
       FFilesListBox: TDropListBox;
+      FEditButton: TButton;
+      FRemoveButton: TButton;
       procedure AddWizardFile(const Source: String; const RecurseSubDirs, CreateAllSubDirs: Boolean);
       procedure UpdateWizardFiles;
+      procedure UpdateWizardFilesButtons;
+      procedure FilesListBoxClick(Sender: TObject);
+      procedure FilesListBoxDblClick(Sender: TObject);
+      procedure FilesListBoxDropFile(Sender: TDropListBox; const FileName: String);
       procedure AddButtonClick(Sender: TObject);
       procedure AddDirButtonClick(Sender: TObject);
+      procedure EditButtonClick(Sender: TObject);
+      procedure RemoveButtonClick(Sender: TObject);
     public
-      property WizardFiles: TList read FWizardFiles;
-      constructor Create(const Handle: HWND; const WizardFiles: TList;
-        const NotCreateAppDirCheck: TCheckBox; const AddButton, AddDirButton: TButton;
-        const FilesListBox: TDropListBox);
+      constructor Create(const Handle: HWND;
+        const NotCreateAppDirCheck: TCheckBox; const FilesListBox: TDropListBox;
+        const AddButton, AddDirButton, EditButton, RemoveButton: TButton);
       destructor Destroy; override;
+      procedure AddScript(var Files: String);
   end;
 
 implementation
 
 uses
-  SysUtils,
-  CmnFunc, BrowseFunc, PathFunc,
+  SysUtils, Forms, UITypes,
+  CmnFunc, CmnFunc2, BrowseFunc, PathFunc,
   CompMsgs, CompWizardFile;
 
 constructor TWizardFormFilesHelper.Create(const Handle: HWND;
-  const WizardFiles: TList; const NotCreateAppDirCheck: TCheckBox;
-  const AddButton, AddDirButton: TButton; const FilesListBox: TDropListBox);
+  const NotCreateAppDirCheck: TCheckBox; const FilesListBox: TDropListBox;
+  const AddButton, AddDirButton, EditButton, RemoveButton: TButton);
 begin
   inherited Create;
 
@@ -42,10 +50,19 @@ begin
 
   FHandle := Handle;
   FNotCreateAppDirCheck := NotCreateAppDirCheck;
-  FFilesListBox :=FilesListBox;
+  FFilesListBox := FilesListBox;
+  FEditButton := EditButton;
+  FRemoveButton := RemoveButton;
 
+  FilesListBox.OnClick := FilesListBoxClick;
+  FilesListBox.OnDblClick := FilesListBoxDblClick;
+  FilesListBox.OnDropFile :=   FilesListBoxDropFile;
   AddButton.OnClick := AddButtonClick;
   AddDirButton.OnClick := AddDirButtonClick;
+  EditButton.OnClick := EditButtonClick;
+  RemoveButton.OnClick := RemoveButtonClick;
+
+  UpdateWizardFilesButtons;
 end;
 
 destructor TWizardFormFilesHelper.Destroy;
@@ -87,6 +104,37 @@ begin
   UpdateHorizontalExtent(FFilesListBox);
 end;
 
+procedure TWizardFormFilesHelper.UpdateWizardFilesButtons;
+var
+  Enabled: Boolean;
+begin
+  Enabled := FFilesListBox.ItemIndex >= 0;
+  FEditButton.Enabled := Enabled;
+  FRemoveButton.Enabled := Enabled;
+end;
+
+procedure TWizardFormFilesHelper.FilesListBoxClick(Sender: TObject);
+begin
+  UpdateWizardFilesButtons;
+end;
+
+procedure TWizardFormFilesHelper.FilesListBoxDblClick(Sender: TObject);
+begin
+  if FEditButton.Enabled then
+    FEditButton.Click;
+end;
+
+procedure TWizardFormFilesHelper.FilesListBoxDropFile(Sender: TDropListBox;
+  const FileName: String);
+begin
+  if DirExists(FileName) then
+    AddWizardFile(AddBackslash(FileName) + '*', True, True)
+  else
+    AddWizardFile(FileName, False, False);
+  UpdateWizardFiles;
+  UpdateWizardFilesButtons;
+end;
+
 procedure TWizardFormFilesHelper.AddButtonClick(Sender: TObject);
 var
   FileList: TStringList;
@@ -120,6 +168,54 @@ begin
     end;
     AddWizardFile(AddBackslash(Path) + '*', Recurse, Recurse);
     UpdateWizardFiles;
+  end;
+end;
+
+procedure TWizardFormFilesHelper.EditButtonClick(Sender: TObject);
+var
+  WizardFileForm: TWizardFileForm;
+  Index: Integer;
+begin
+  WizardFileForm := TWizardFileForm.Create(Application);
+  try
+    Index := FFilesListBox.ItemIndex;
+    WizardFileForm.AllowAppDestRootDir := not FNotCreateAppDirCheck.Checked;
+    WizardFileForm.WizardFile := FWizardFiles[Index];
+    if WizardFileForm.ShowModal = mrOk then begin
+      UpdateWizardFiles;
+      FFilesListBox.ItemIndex := Index;
+      FFilesListBox.TopIndex := Index;
+      UpdateWizardFilesButtons;
+    end;
+  finally
+    WizardFileForm.Free;
+  end;
+end;
+
+procedure TWizardFormFilesHelper.RemoveButtonClick(Sender: TObject);
+var
+  I: Integer;
+begin
+  I := FFilesListBox.ItemIndex;
+    Dispose(FWizardFiles[I]);
+  FWizardFiles.Delete(I);
+  UpdateWizardFiles;
+  UpdateWizardFilesButtons;
+end;
+
+procedure TWizardFormFilesHelper.AddScript(var Files: String);
+var
+  WizardFile: PWizardFile;
+  I: Integer;
+begin
+  for I := 0 to FWizardFiles.Count-1 do begin
+    WizardFile := FWizardFiles[I];
+    Files := Files + 'Source: "' + WizardFile.Source + '"; DestDir: "' + RemoveBackslashUnlessRoot(AddBackslash(WizardFile.DestRootDir) + WizardFile.DestSubDir) + '"; Flags: ignoreversion';
+    if WizardFile.RecurseSubDirs then
+      Files := Files + ' recursesubdirs';
+    if WizardFile.CreateAllSubDirs then
+      Files := Files + ' createallsubdirs';
+    Files := Files + SNewLine;
   end;
 end;
 
