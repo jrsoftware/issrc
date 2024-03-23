@@ -42,7 +42,7 @@ type
   TCompScintEdit = class(TScintEdit)
   private
     FTheme: TTheme;
-    FUsed: Boolean;
+    FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
   protected
     procedure CreateWnd; override;
   public
