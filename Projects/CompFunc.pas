@@ -41,8 +41,8 @@ procedure OpenMailingListSite;
 procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
 procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
   const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
-procedure LoadKnownIncludedFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
-procedure SaveKnownIncludedFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
+procedure LoadKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
+procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 procedure DeleteKnownIncludedFiles(const AFilename: String);
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
@@ -239,7 +239,7 @@ begin
   end;
 end;
 
-procedure LoadKnownIncludedFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
+procedure LoadKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 begin
   var OldIncludedFilesDelimiter := IncludedFiles.Delimiter;
   var OldHiddenFilesDelimiter := HiddenFiles.Delimiter;
@@ -258,7 +258,7 @@ begin
   end;
 end;
 
-procedure SaveKnownIncludedFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
+procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 begin
   if IncludedFiles.Count = 0 then begin
     DeleteKnownIncludedFiles(AFilename);

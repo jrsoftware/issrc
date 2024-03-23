@@ -429,7 +429,7 @@ type
     function InitializeNonFileMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure InvalidateStatusPanel(const Index: Integer);
-    procedure LoadKnownIncludedFilesAndUpdateMemos(const AFilename: String);
+    procedure LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
     procedure MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
     procedure MemoCharAdded(Sender: TObject; Ch: AnsiChar);
     procedure MainMemoDropFiles(Sender: TObject; X, Y: Integer; AFiles: TStrings);
@@ -457,7 +457,7 @@ type
     procedure ResetAllMemosLineState;
     procedure StartProcess;
     function SaveFile(const AMemo: TCompScintFileEdit; const SaveAs: Boolean): Boolean;
-    procedure SaveKnownIncludedFiles(const AFilename: String);
+    procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String);
     procedure SetErrorLine(const AMemo: TCompScintFileEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TCompScintFileEdit; ALine: Integer);
@@ -1041,7 +1041,7 @@ begin
   FMainMemo.ClearUndo;
 end;
 
-procedure TCompileForm.LoadKnownIncludedFilesAndUpdateMemos(const AFilename: String);
+procedure TCompileForm.LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
 var
   Strings: TStringList;
   IncludedFile: TIncludedFile;
@@ -1054,7 +1054,7 @@ begin
     if AFilename <> '' then begin
       Strings := TStringList.Create;
       try
-        LoadKnownIncludedFiles(AFilename, Strings, FHiddenFiles);
+        LoadKnownIncludedAndHiddenFiles(AFilename, Strings, FHiddenFiles);
         if Strings.Count > 0 then begin
           try
             for I := 0 to Strings.Count-1 do begin
@@ -1078,7 +1078,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.SaveKnownIncludedFiles(const AFilename: String);
+procedure TCompileForm.SaveKnownIncludedAndHiddenFiles(const AFilename: String);
 var
   Strings: TStringList;
   IncludedFile: TIncludedFile;
@@ -1089,7 +1089,7 @@ begin
       try
         for IncludedFile in FIncludedFiles do
           Strings.Add(IncludedFile.Filename);
-        CompFunc.SaveKnownIncludedFiles(AFilename, Strings, FHiddenFiles);
+        CompFunc.SaveKnownIncludedAndHiddenFiles(AFilename, Strings, FHiddenFiles);
       finally
         Strings.Free;
       end;
@@ -1197,7 +1197,7 @@ begin
     ModifyMRUMainFilesList(AFilename, True);
     if MainMemoAddToRecentDocs then
       AddFileToRecentDocs(AFilename);
-    LoadKnownIncludedFilesAndUpdateMemos(AFilename);
+    LoadKnownIncludedAndHiddenFilesAndUpdateMemos(AFilename);
   end;
 end;
 
@@ -1281,7 +1281,7 @@ begin
   Result := True;
   if AMemo = FMainMemo then begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
-    SaveKnownIncludedFiles(AMemo.Filename);
+    SaveKnownIncludedAndHiddenFiles(AMemo.Filename);
   end;
 end;
 
@@ -1493,7 +1493,7 @@ begin
         begin
           Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
-          Form.SaveKnownIncludedFiles(Filename);
+          Form.SaveKnownIncludedAndHiddenFiles(Filename);
         end;
       iscbNotifySuccess:
         begin
@@ -2299,7 +2299,7 @@ begin
   MemosTabSet.Hints.Delete(Index);
   FActiveMemo.Visible := False;
   FHiddenFiles.Add((FActiveMemo as TCompScintFileEdit).Filename);
-  SaveKnownIncludedFiles(FMainMemo.Filename);
+  SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
 
   { Select next tab, except when we're already at the end }
   VNextTabClick(Self);
@@ -2313,7 +2313,7 @@ begin
   var ReopenFilename := FHiddenFiles[MenuItem.Tag];
   FHiddenFiles.Delete(MenuItem.Tag);
   UpdatePreprocMemos;
-  SaveKnownIncludedFiles(FMainMemo.Filename);
+  SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
 
   { Activate the memo }
   for var Memo in FFileMemos do begin
@@ -3185,7 +3185,7 @@ begin
   if HiddenFileIndex <> -1 then begin
     FHiddenFiles.Delete(HiddenFileIndex);
     UpdatePreprocMemos;
-    SaveKnownIncludedFiles(FMainMemo.Filename);
+    SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
   end;
 
   { Move caret }
