@@ -9,11 +9,6 @@ library ISCmplr;
   Compiler DLL
 }
 
-{$IMAGEBASE $00800000}
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
-{$WEAKLINKRTTI ON}
-
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
   SysUtils,
@@ -36,8 +31,13 @@ uses
   ArcFour in 'ArcFour.pas',
   VerInfo in 'VerInfo.pas';
 
-{$R *.RES}
-{$R IMAGES2.RES}
+{$IMAGEBASE $00800000}
+{$SETPEOSVERSION 6.0}
+{$SETPESUBSYSVERSION 6.0}
+{$WEAKLINKRTTI ON}
+
+{$R ISCmplr.images.res}
+{$R ISCmplr.version.res}
 
 function ISDllCompileScript(const Params: TCompileScriptParamsEx): Integer;
 stdcall;

@@ -189,6 +189,7 @@ type
       procedure Initialize; override;
       property AbortedByUser: Boolean read FAbortedByUser;
       procedure Add(const Url, BaseName, RequiredSHA256OfFile: String);
+      procedure AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);
       procedure Clear;
       function Download: Int64;
       property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
@@ -922,7 +923,7 @@ end;
 
 type
   TDownloadFile = class
-    Url, BaseName, RequiredSHA256OfFile: String;
+    Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
   end;
 
 procedure TDownloadWizardPage.AbortButtonClick(Sender: TObject);
@@ -1014,6 +1015,11 @@ begin
 end;
 
 procedure TDownloadWizardPage.Add(const Url, BaseName, RequiredSHA256OfFile: String);
+begin
+  AddEx(Url, BaseName, RequiredSHA256OfFile, '', '');
+end;
+
+procedure TDownloadWizardPage.AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);
 var
   F: TDownloadFile;
 begin
@@ -1021,6 +1027,8 @@ begin
   F.Url := Url;
   F.BaseName := BaseName;
   F.RequiredSHA256OfFile := RequiredSHA256OfFile;
+  F.UserName := UserName;
+  F.Password := Password;
   FFiles.Add(F);
 end;
 
@@ -1040,8 +1048,10 @@ begin
   for I := 0 to FFiles.Count-1 do begin
     F := TDownloadFile(FFiles[I]);
     { Don't need to set DownloadTemporaryFileProcessMessages before downloading since we already process messages ourselves. }
+    SetDownloadCredentials(F.UserName, F.Password);
     Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile, InternalOnDownloadProgress);
   end;
+  SetDownloadCredentials('', '');
 end;
 
 {$ENDIF}

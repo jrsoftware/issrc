@@ -2,7 +2,7 @@ unit Compile;
 
 {
   Inno Setup
-  Copyright (C) 1997-2022 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -2710,8 +2710,8 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
 const
-  UserConsts: array[0..3] of String = (
-    'userpf', 'usercf', 'usersavedgames', 'username');
+  UserConsts: array[0..0] of String = (
+    'username');
   Consts: array[0..42] of String = (
     'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'commonfonts', 'hwnd',
     'commonpf', 'commonpf32', 'commonpf64', 'commoncf', 'commoncf32', 'commoncf64',
@@ -2720,10 +2720,10 @@ const
     'userinfoname', 'userinfoorg', 'userinfoserial', 'uninstallexe',
     'language', 'syswow64', 'sysnative', 'log', 'dotnet11', 'dotnet20', 'dotnet2032',
     'dotnet2064', 'dotnet40', 'dotnet4032', 'dotnet4064');
-  UserShellFolderConsts: array[0..10] of String = (
+  UserShellFolderConsts: array[0..13] of String = (
     'userdesktop', 'userstartmenu', 'userprograms', 'userstartup',
     'userappdata', 'userdocs', 'usertemplates', 'userfavorites', 'usersendto', 'userfonts',
-    'localappdata');
+    'localappdata', 'userpf', 'usercf', 'usersavedgames');
   ShellFolderConsts: array[0..16] of String = (
     'group', 'commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
     'commonappdata', 'commondocs', 'commontemplates',
@@ -3127,7 +3127,8 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
     DOMAIN_ALIAS_RID_USERS = $00000221;
     DOMAIN_ALIAS_RID_GUESTS = $00000222;
     DOMAIN_ALIAS_RID_POWER_USERS = $00000223;
-    KnownSids: array[0..9] of TKnownSid = (
+    DOMAIN_ALIAS_RID_IIS_IUSRS = $00000238;
+    KnownSids: array[0..10] of TKnownSid = (
       (Name: 'admins';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 2;
@@ -3148,6 +3149,10 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 2;
              SubAuth: (SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_GUESTS))),
+      (Name: 'iisiusrs';
+       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
+             SubAuthCount: 2;
+             SubAuth: (SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_IIS_IUSRS))),
       (Name: 'networkservice';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 1;
@@ -4126,6 +4131,9 @@ begin
       end;
     ssUninstallIconFile: begin
         WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
+      end;
+    ssUninstallLogging: begin
+        SetSetupHeaderOption(shUninstallLogging);
       end;
     ssUninstallLogMode: begin
         if CompareText(Value, 'append') = 0 then
@@ -9096,6 +9104,9 @@ begin
             if RemoveManifestDllHijackProtection then begin
               AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.EXE']));
               CompExeUpdate.RemoveManifestDllHijackProtection(ExeFile, False);
+            end else if UseSetupLdr then begin
+              AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.EXE']));
+              CompExeUpdate.PreventCOMCTL32Sideloading(ExeFile);
             end;
 
             { For some reason, on Win95 the date/time of the EXE sometimes
@@ -9136,8 +9147,8 @@ begin
     AddStatus('');
     for I := 0 to WarningsList.Count-1 do
       AddStatus(SCompilerStatusWarning + WarningsList[I], True);
-    asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2022 Jordan Russell, '
-                  db 'Portions Copyright (C) 2000-2022 Martijn Laan',0; @1: end;
+    asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2024 Jordan Russell, '
+                  db 'Portions Copyright (C) 2000-2024 Martijn Laan',0; @1: end;
     { Note: Removing or modifying the copyright text is a violation of the
       Inno Setup license agreement; see LICENSE.TXT. }
   finally

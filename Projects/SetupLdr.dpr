@@ -9,11 +9,6 @@ program SetupLdr;
   Setup Loader
 }
 
-{$SetPEFlags 1} 
-{$SETPEOSVERSION 6.1}
-{$SETPESUBSYSVERSION 6.1}
-{$WEAKLINKRTTI ON}
-
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
   XPTheme in 'XPTheme.pas',
@@ -31,9 +26,14 @@ uses
   InstFunc in 'InstFunc.pas',
   FileClass in 'FileClass.pas';
 
-{$R *.RES}
-{$R SetupLdrVersion.res}
-{$R SetupLdrOffsetTable.res}
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} 
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
+{$WEAKLINKRTTI ON}
+
+{$R Setup.icon.res}
+{$R SetupLdr.version.res}
+{$R SetupLdr.offsettable.res}
 
 procedure RaiseLastError(const Msg: TSetupMessageID);
 var

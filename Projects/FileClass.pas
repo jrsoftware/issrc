@@ -2,7 +2,7 @@ unit FileClass;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -11,15 +11,9 @@ unit FileClass;
   and uses descriptive, localized system error messages.
 
   TTextFileReader and TTextFileWriter support ANSI and UTF8 textfiles only.
-
-  $jrsoftware: issrc/Projects/FileClass.pas,v 1.31 2010/01/26 06:26:18 jr Exp $
 }
 
 {$I VERSION.INC}
-
-{$IFDEF IS_D6}
-{$WARN SYMBOL_PLATFORM OFF}
-{$ENDIF}
 
 interface
 
@@ -121,12 +115,14 @@ type
   TTextFileWriter = class(TFile)
   private
     FSeekedToEnd: Boolean;
+    FUTF8NoPreamble: Boolean;
     procedure DoWrite(const S: AnsiString{$IFDEF UNICODE}; const UTF8: Boolean{$ENDIF});
   protected
     function CreateHandle(const AFilename: String;
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
       ASharing: TFileSharing): THandle; override;
   public
+    property UTF8NoPreamble: Boolean read FUTF8NoPreamble write FUTF8NoPreamble;
     procedure Write(const S: String);
     procedure WriteLine(const S: String);
 {$IFDEF UNICODE}
@@ -159,6 +155,7 @@ type
 implementation
 
 uses
+  WideStrUtils,
   CmnFunc2;
 
 const
@@ -507,10 +504,25 @@ begin
   end;
   {$IFDEF UNICODE}
   if not FSawFirstLine then begin
-    { Handle UTF8 BOM if requested }
-    if UTF8 and (Length(S) > 2) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF) then begin
-      Delete(S, 1, 3);
-      FCodePage := CP_UTF8;
+    if UTF8 then begin
+      { Handle UTF8 as requested: check for a BOM at the start and if not found then check entire file }
+      if (Length(S) > 2) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF) then begin
+        Delete(S, 1, 3);
+        FCodePage := CP_UTF8;
+      end else begin
+        var OldPosition := GetPosition;
+        try
+          var CappedSize := GetCappedSize; //can't be 0
+          Seek(0);
+          var S2: AnsiString;
+          SetLength(S2, CappedSize);
+          SetLength(S2, Read(S2[1], CappedSize));
+          if IsUTF8String(S2) then
+            FCodePage := CP_UTF8;
+        finally
+          Seek64(OldPosition);
+        end;
+      end;
     end;
     FSawFirstLine := True;
   end;
@@ -567,7 +579,7 @@ begin
         WriteBuffer(CRLF, SizeOf(CRLF));
       end;
 {$IFDEF UNICODE}
-    end else if UTF8 then
+    end else if UTF8 and not FUTF8NoPreamble then
       WriteBuffer(UTF8Preamble, SizeOf(UTF8Preamble));
 {$ELSE}
     end;

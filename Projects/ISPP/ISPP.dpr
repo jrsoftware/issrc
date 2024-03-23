@@ -10,12 +10,6 @@
 
 library ISPP;
 
-{$IMAGEBASE $01800000}
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
-{$WEAKLINKRTTI ON}
-{$I ..\Version.inc}
-
 uses
   SysUtils,
   Windows,
@@ -41,7 +35,12 @@ uses
   SHA1 in '..\SHA1.pas',
   Struct in '..\Struct.pas';
   
-{$R *.RES}
+{$IMAGEBASE $01800000}
+{$SETPEOSVERSION 6.0}
+{$SETPESUBSYSVERSION 6.0}
+{$WEAKLINKRTTI ON}
+
+{$R ISPP.version.res}
 
 exports
   ISPreprocessScript name 'ISPreprocessScriptW';

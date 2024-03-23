@@ -26,11 +26,11 @@ LanguageID=$0804
 LanguageCodePage=936
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
-;DialogFontName=
+DialogFontName=Microsoft YaHei UI
 ;DialogFontSize=8
-;WelcomeFontName=Verdana
+WelcomeFontName=Microsoft YaHei UI
 ;WelcomeFontSize=12
-;TitleFontName=Arial
+TitleFontName=Microsoft YaHei UI
 ;TitleFontSize=29
 ;CopyrightFontName=Arial
 ;CopyrightFontSize=8
@@ -61,11 +61,11 @@ SetupFileCorrupt=安装文件已损坏。请获取程序的新副本。
 SetupFileCorruptOrWrongVer=安装文件已损坏，或是与这个安装程序的版本不兼容。请修正这个问题或获取新的程序副本。
 InvalidParameter=无效的命令行参数：%n%n%1
 SetupAlreadyRunning=安装程序正在运行。
-WindowsVersionNotSupported=这个程序不支持当前计算机运行的Windows版本。
+WindowsVersionNotSupported=这个程序不支持当前计算机运行的 Windows 版本。
 WindowsServicePackRequired=这个程序需要 %1 服务包 %2 或更高。
 NotOnThisPlatform=这个程序将不能运行于 %1。
 OnlyOnThisPlatform=这个程序必须运行于 %1。
-OnlyOnTheseArchitectures=这个程序只能在为下列处理器结构设计的Windows版本中进行安装：%n%n%1
+OnlyOnTheseArchitectures=这个程序只能在为下列处理器架构的 Windows 版本中进行安装：%n%n%1
 WinVersionTooLowError=这个程序需要 %1 版本 %2 或更高。
 WinVersionTooHighError=这个程序不能安装于 %1 版本 %2 或更高。
 AdminPrivilegesRequired=在安装这个程序时您必须以管理员身份登录。
@@ -80,8 +80,8 @@ PrivilegesRequiredOverrideText1=%1 可以为所有用户安装(需要管理员�
 PrivilegesRequiredOverrideText2=%1 只能为您安装，或为所有用户安装(需要管理员权限)。
 PrivilegesRequiredOverrideAllUsers=为所有用户安装(&A)
 PrivilegesRequiredOverrideAllUsersRecommended=为所有用户安装(&A) (建议选项)
-PrivilegesRequiredOverrideCurrentUser=只为我安装(&M)
-PrivilegesRequiredOverrideCurrentUserRecommended=只为我安装(&M) (建议选项)
+PrivilegesRequiredOverrideCurrentUser=仅为我安装(&M)
+PrivilegesRequiredOverrideCurrentUserRecommended=仅为我安装(&M) (建议选项)
 
 ; *** 其它错误
 ErrorCreatingDir=安装程序不能创建目录“%1”。
@@ -89,12 +89,12 @@ ErrorTooManyFilesInDir=不能在目录“%1”中创建文件，因为里面的�
 
 ; *** 安装程序公共消息
 ExitSetupTitle=退出安装程序
-ExitSetupMessage=安装程序还未完成安装。如果您现在退出，程序将不能安装。%n%n您可以以后再运行安装程序完成安装。%n%n现在退出安装程序吗？
+ExitSetupMessage=安装程序尚未完成安装。如果您现在退出，程序将不能安装。%n%n您可以以后再运行安装程序完成安装。%n%n现在退出安装程序吗？
 AboutSetupMenuItem=关于安装程序(&A)...
 AboutSetupTitle=关于安装程序
 AboutSetupMessage=%1 版本 %2%n%3%n%n%1 主页：%n%4
 AboutSetupNote=
-TranslatorNote=
+TranslatorNote=Translated by Zhenghan Yang.
 
 ; *** 按钮
 ButtonBack=< 上一步(&B)
@@ -138,7 +138,7 @@ WizardLicense=许可协议
 LicenseLabel=继续安装前请阅读下列重要信息。
 LicenseLabel3=请仔细阅读下列许可协议。您在继续安装前必须同意这些协议条款。
 LicenseAccepted=我同意此协议(&A)
-LicenseNotAccepted=我不同意此协议(&D)
+LicenseNotAccepted=我拒绝此协议(&D)
 
 ; *** “信息”向导页
 WizardInfoBefore=信息
@@ -204,7 +204,7 @@ SelectStartMenuFolderLabel3=安装程序现在将在下列开始菜单文件夹�
 SelectStartMenuFolderBrowseLabel=点击“下一步”继续。如果您想选择其它文件夹，点击“浏览”。
 MustEnterGroupName=您必须输入一个文件夹名。
 GroupNameTooLong=文件夹名或路径太长。
-InvalidGroupName=文件夹名是无效的。
+InvalidGroupName=文件夹名无效。
 BadGroupName=文件夹名不能包含下列任何字符：%n%n%1
 NoProgramGroupCheck2=不创建开始菜单文件夹(&D)
 
@@ -228,9 +228,9 @@ ErrorDownloadAborted=下载已中止
 ErrorDownloadFailed=下载失败：%1 %2
 ErrorDownloadSizeFailed=获取下载大小失败：%1 %2
 ErrorFileHash1=校验文件哈希失败：%1
-ErrorFileHash2=无效的文件哈希：预期 %1，实际 %2
+ErrorFileHash2=无效的文件哈希：预期为 %1，实际为 %2
 ErrorProgress=无效的进度：%1，总共%2
-ErrorFileSize=文件大小错误：预期 %1，实际 %2
+ErrorFileSize=文件大小错误：预期为 %1，实际为 %2
 
 ; *** “正在准备安装”向导页
 WizardPreparing=正在准备安装

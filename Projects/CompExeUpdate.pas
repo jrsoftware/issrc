@@ -25,6 +25,7 @@ procedure UpdateVersionInfo(const F: TCustomFile;
   NewProductName, NewTextProductVersion, NewOriginalFileName: String;
   const SetFileVersionAndDescription: Boolean);
 procedure RemoveManifestDllHijackProtection(const F: TCustomFile; const TestBlockOnly: Boolean);
+procedure PreventCOMCTL32Sideloading(const F: TCustomFile);
 
 implementation
 
@@ -502,7 +503,7 @@ end;
 procedure RemoveManifestDllHijackProtection(const F: TCustomFile; const TestBlockOnly: Boolean);
 const
   BlockStartText: AnsiString = '<file name="';
-  BlockLength = 250;
+  BlockLength = 380;
 var
   S: AnsiString;
   Offset: Integer64;
@@ -518,7 +519,7 @@ begin
   if P = 0 then
     ResUpdateError('Block not found');
   if Copy(S, P+BlockLength, 11) <> '</assembly>' then
-    ResUpdateError('Block too short');
+    ResUpdateError('Block too short (BlockLength should be '+string(IntToStr(Pos('</assembly>', string(S))-P)+'): '+string(Copy(S, P+BlockLength, 11))));
 
   if TestBlockOnly then
     Exit;
@@ -526,6 +527,43 @@ begin
   Inc64(Offset, P-1);
   F.Seek64(Offset);
   F.WriteAnsiString(AnsiString(Format('%*s', [BlockLength, ' '])));
+end;
+
+procedure PreventCOMCTL32Sideloading(const F: TCustomFile);
+const
+  DependencyStartTag: AnsiString = '<dependency>';
+  DependencyEndTag: AnsiString = '</dependency>';
+  FileStartTag: AnsiString = '<file name="';
+  COMCTL32Entry: AnsiString = '<file name="comctl32.dll" loadFrom="%SystemRoot%\system32\" />'#13#10;
+var
+  S: AnsiString;
+  Offset: Integer64;
+  P,Q,R: Integer;
+begin
+  { Read the manifest resource into a string }
+  SetString(S, nil, SeekToResourceData(F, 24, 1));
+  Offset := F.Position;
+  F.ReadBuffer(S[1], Length(S));
+
+  { Locate and update the <dependency> tag }
+  P := Pos(DependencyStartTag, S);
+  if P = 0 then
+    ResUpdateError('<dependency> tag not found');
+  Q := Pos(DependencyEndTag, S);
+  if Q <= P then
+    ResUpdateError('<dependency> end tag not found');
+  Q := Q+Length(DependencyEndTag);
+  if Length(COMCTL32Entry) > Q-P then
+    ResUpdateError('<dependency> tag shorter than replacement');
+  R := Pos(FileStartTag, S);
+  if R <= Q then
+    ResUpdateError('<dependency> end tag after <file>?');
+
+  Inc64(Offset, P-1);
+  F.Seek64(Offset);
+  F.WriteAnsiString(AnsiString(Format('%*s', [Q-P-Length(COMCTL32Entry), ' '])));
+  F.WriteAnsiString(AnsiString(Copy(S, Q, R-Q)));
+  F.WriteAnsiString(COMCTL32Entry);
 end;
 
 end.

@@ -1769,12 +1769,14 @@ end;</pre></example>
 <p>If RequiredSHA256OfFile is set it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded. Returns 0 if RequiredSHA256OfFile is set and the file was already downloaded.</p>
 <p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
-<p>For basic authentication use a special URL format like this: http://username:password@example.com/</p>
+<p>For basic authentication use <link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link>.</p>
 <p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnDownloadProgress is defined as:</p>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p></remarks>
-        <seealso><p><link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
+        <seealso><p><link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link><br />
+<link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
+<link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link><br />
 <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
 <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
         <example><pre>
@@ -1802,9 +1804,22 @@ end;</pre>
 <p>See <i>CodeDownloadFiles.iss</i> for another example which uses <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link> instead.</p></example>
       </function>
       <function>
+        <name>SetDownloadCredentials</name>
+        <prototype>procedure SetDownloadCredentials(const User, Pass: String);</prototype>
+        <description><p>Sets username and password for all following downloads. Set an empty string to delete the previous setting.</p>
+<seealso><p><link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br/><link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br/><link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link></p></seealso></description>
+      </function>
+      <function>
         <name>DownloadTemporaryFileSize</name>
         <prototype>function DownloadTemporaryFileSize(const Url): Int64;</prototype>
-        <description><p>Returns the size of the file from the specified URL, without downloading the file. If the server does not provide the file size, -1 will be returned.</p>
+        <description><p>Returns the size of the file from the specified URL, without downloading the file. If the server does not provide the size, -1 will be returned.</p>
+<p>An exception will be raised if there was an error.</p>
+<p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
+      </function>
+      <function>
+        <name>DownloadTemporaryFileDate</name>
+        <prototype>function DownloadTemporaryFileDate(const Url): String;</prototype>
+        <description><p>Returns the last modified date of the file from the specified URL, without downloading the file. If the server does not provide the last modified file date, '' will be returned.</p>
 <p>An exception will be raised if there was an error.</p>
 <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
       </function>
@@ -1846,7 +1861,7 @@ end;</pre>
       <function>
         <name>LoadStringsFromFile</name>
         <prototype>function LoadStringsFromFile(const FileName: String; var S: TArrayOfString): Boolean;</prototype>
-        <description><p>Loads the specified text file into the specified string array. Returns True if successful, False otherwise.</p></description>
+        <description><p>Loads the specified text file into the specified string array. UTF-8 encoded files with or without a preamble (also called BOM) are also supported. Returns True if successful, False otherwise.</p></description>
       </function>
       <function>
         <name>SaveStringToFile</name>
@@ -1859,13 +1874,22 @@ end;</pre>
         <name>SaveStringsToFile</name>
         <prototype>function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string array to the specified file with ASCII encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
-        <seealso><p><link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link></p></seealso>
+        <seealso><p><link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link><br />
+<link topic="isxfunc_SaveStringsToUTF8FileNoPreamble">SaveStringsToUTF8FileNoPreamble</link></p></seealso>
       </function>
       <function>
         <name>SaveStringsToUTF8File</name>
         <prototype>function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
-        <description><p>Saves the specified string array to the specified file with UTF8 encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
-        <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link></p></seealso>
+        <description><p>Saves the specified string array to the specified file with UTF-8 encoding with a preamble (also called BOM). If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link><br />
+<link topic="isxfunc_SaveStringsToUTF8FileNoPreamble">SaveStringsToUTF8FileNoPreamble</link></p></seealso>
+      </function>
+      <function>
+        <name>SaveStringsToUTF8FileNoPreamble</name>
+        <prototype>function SaveStringsToUTF8FileNoPreamble(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
+        <description><p>Saves the specified string array to the specified file with UTF-8 encoding without a preamble (also called BOM). If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link><br />
+<link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -2943,10 +2967,6 @@ end;</pre></example>
   <enum>
      <description>Reg* - RootKey values (also see the <link topic="registrysection" window="main">[Registry]</link> section documentation)</description>
      <values>HKEY_AUTO, HKEY_AUTO_32, HKEY_AUTO_64,<br />HKEY_CLASSES_ROOT, HKEY_CLASSES_ROOT_32, HKEY_CLASSES_ROOT_64,<br />HKEY_CURRENT_USER, HKEY_CURRENT_USER_32, HKEY_CURRENT_USER_64,<br />HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, HKEY_LOCAL_MACHINE_64,<br />HKEY_USERS, HKEY_USERS_32, HKEY_USERS_64,<br />HKEY_PERFORMANCE_DATA,<br />HKEY_CURRENT_CONFIG, HKEY_CURRENT_CONFIG_32, HKEY_CURRENT_CONFIG_64,<br />HKEY_DYN_DATA,<br />HKA, HKA32, HKA64, HKCR, HKCR32, HKCR64, HKCU, HKCU32, HKCU64, HKLM, HKLM32, HKLM64, HKU, HKU32, HKU64, HKCC, HKCC32, HKCC64</values>
-  </enum>
-  <enum>
-     <description>TShellFolderID</description>
-     <values>sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo, sfFonts, sfAppData, sfDocs, sfTemplates, sfFavorites, sfLocalAppData</values>
   </enum>
   <enum>
      <description>TSetupMessageID</description>

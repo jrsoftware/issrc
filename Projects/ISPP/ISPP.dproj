@@ -1,11 +1,11 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{4259E59E-2263-4FE8-8E6C-BFCBC7A6C66D}</ProjectGuid>
-        <MainSource>SetupLdr.dpr</MainSource>
+        <ProjectGuid>{7BEFDB9E-3F9B-4206-BAC1-B332E573D3F8}</ProjectGuid>
+        <MainSource>ISPP.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>1</TargetedPlatforms>
-        <AppType>Application</AppType>
+        <AppType>Library</AppType>
         <FrameworkType>None</FrameworkType>
         <ProjectVersion>19.5</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -29,16 +29,18 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_ImageBase>00400000</DCC_ImageBase>
-        <DCC_Alignment>1</DCC_Alignment>
-        <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
+        <DCC_ImageBase>01800000</DCC_ImageBase>
+        <DCC_Alignment>4</DCC_Alignment>
         <DCC_DebugInformation>1</DCC_DebugInformation>
-        <DCC_WriteableConstants>true</DCC_WriteableConstants>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
-        <DCC_UnitSearchPath>..\Components;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <SanitizedProjectName>SetupLdr</SanitizedProjectName>
-        <VerInfo_Locale>1043</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
+        <DCC_UsePackage>vcl;rtl;vclx;indy;inet;xmlrtl;vclie;inetdbbde;inetdbxpress;dbrtl;dsnap;dsnapcon;vcldb;soaprtl;VclSmp;dbexpress;dbxcds;inetdb;bdertl;vcldbx;webdsnap;websnap;adortl;ibxpress;teeui;teedb;tee;dss;visualclx;visualdbclx;vclactnband;vclshlctrls;IntrawebDB_50_70;Intraweb_50_70;Rave50CLX;Rave50VCL;dclOfficeXP;$(DCC_UsePackage)</DCC_UsePackage>
+        <GenDll>true</GenDll>
+        <SanitizedProjectName>ISPP</SanitizedProjectName>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_MajorVer>0</VerInfo_MajorVer>
+        <VerInfo_DLL>true</VerInfo_DLL>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=Jordan Russell;FileDescription=Inno Setup Preprocessor;FileVersion=0.0.0.0;InternalName=;LegalCopyright=Copyright (C) 1997-2010 Jordan Russell. Portions Copyright (C) 2000-2010 Martijn Laan. Copyright © 2001-2004 Alex Yackimoff.;LegalTrademarks=;OriginalFilename=;ProductName=Inno Setup;ProductVersion=0.0.0.0;Comments=Inno Setup home page: http://www.innosetup.com</VerInfo_Keys>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
@@ -52,37 +54,50 @@
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <Manifest_File>(None)</Manifest_File>
-        <OutputExt>e32</OutputExt>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
         <DCC_DebugInformation>0</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
-        <DCC_ExeOutput>..\Files</DCC_ExeOutput>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_ExeOutput>..\..\Files</DCC_ExeOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <DCC_ExeOutput>..</DCC_ExeOutput>
+        <Debugger_HostApplication>..\Compil32.exe</Debugger_HostApplication>
+        <Debugger_RunParams>Debug.iss</Debugger_RunParams>
+        <Debugger_CWD>..</Debugger_CWD>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="SafeDLLPath.pas"/>
-        <DCCReference Include="XPTheme.pas"/>
-        <DCCReference Include="Compress.pas"/>
-        <DCCReference Include="LZMADecompSmall.pas"/>
-        <DCCReference Include="SetupEnt.pas"/>
-        <DCCReference Include="CmnFunc2.pas"/>
-        <DCCReference Include="Msgs.pas"/>
-        <DCCReference Include="MsgIDs.pas"/>
-        <DCCReference Include="Struct.pas"/>
-        <DCCReference Include="InstFunc.pas"/>
-        <DCCReference Include="FileClass.pas"/>
+        <DCCReference Include="..\CompPreprocInt.pas"/>
+        <DCCReference Include="IsppPreprocess.pas"/>
+        <DCCReference Include="IsppPreprocessor.pas"/>
+        <DCCReference Include="IsppFuncs.pas"/>
+        <DCCReference Include="IsppVarUtils.pas"/>
+        <DCCReference Include="IsppConsts.pas"/>
+        <DCCReference Include="IsppStack.pas"/>
+        <DCCReference Include="IsppIntf.pas"/>
+        <DCCReference Include="IsppParser.pas"/>
+        <DCCReference Include="IsppIdentMan.pas"/>
+        <DCCReference Include="IsppSessions.pas"/>
+        <DCCReference Include="CTokenizer.pas"/>
+        <DCCReference Include="IsppBase.pas"/>
+        <DCCReference Include="..\..\Components\PathFunc.pas"/>
+        <DCCReference Include="..\CmnFunc2.pas"/>
+        <DCCReference Include="..\FileClass.pas"/>
+        <DCCReference Include="..\Int64Em.pas"/>
+        <DCCReference Include="..\MD5.pas"/>
+        <DCCReference Include="..\SHA1.pas"/>
+        <DCCReference Include="..\Struct.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -101,7 +116,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">SetupLdr.dpr</Source>
+                    <Source Name="MainSource">ISPP.dpr</Source>
                 </Source>
             </Delphi.Personality>
             <Platforms>

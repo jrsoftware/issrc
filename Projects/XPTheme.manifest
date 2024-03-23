@@ -42,6 +42,7 @@
 <file name="mpr.dll" loadFrom="%SystemRoot%\system32\" />
 <file name="netapi32.dll" loadFrom="%SystemRoot%\system32\" />
 <file name="netutils.dll" loadFrom="%SystemRoot%\system32\" />
+<file name="textshaping.dll" loadFrom="%SystemRoot%\system32\" />
 <file name="version.dll" loadFrom="%SystemRoot%\system32\" />
 <file name="winhttp.dll" loadFrom="%SystemRoot%\system32\" />
 </assembly>

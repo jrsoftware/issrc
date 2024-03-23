@@ -21,16 +21,51 @@
 
 <div class="bluehead"><span class="head1">Inno Setup 6</span><br /><span class="head2">Revision History</span></div>
 
-<p>Copyright &copy; 1997-2022 <a href="https://jrsoftware.org/">Jordan Russell</a>. All rights reserved.<br />
-Portions Copyright &copy; 2000-2022 Martijn Laan. All rights reserved.<br />
+<p>Copyright &copy; 1997-2024 <a href="https://jrsoftware.org/">Jordan Russell</a>. All rights reserved.<br />
+Portions Copyright &copy; 2000-2024 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="https://jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="https://jrsoftware.org/ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
-<p><a name="6.2.1"></a><span class="ver">6.2.1 </span><span class="date">(?)</span></p>
+<p><a name="6.3.0"></a><span class="ver">6.3.0-dev </span><span class="date">(?)</span></p>
 <ul>
-  <li>Changes to further help protect uninstallers against potential DLL preloading attacks when running under the SYSTEM account, contributed by Johannes Schindelin from the Git for Windows team.</li>
+  <li>Inno Setup now supports UTF-8 encoded .iss script files and .isl messages files without an UTF-8 preamble (also called BOM).</li>
+  <li>Compiler IDE changes:
+  <ul>
+  <li>Added new <i>UTF-8 without BOM</i> menu item to the <i>Save Encoding</i> submenu of the <i>File</i> menu.</li>
+  <li>New script files are now saved as UTF-8 with BOM by default. Existing files are still saved as they were.</li>
+  <li>Added new <i>[Files] Entries Designer</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the [Files] section.</li>
+  </ul>
+  </li>
+  <li>Added new [Setup] section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
+  <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
+  <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters, contributed by Achim Stuy.</li> 
+  <li>Pascal Scripting changes:
+  <ul>
+    <li>Support function <tt>LoadStringsFromFile</tt> now also supports UTF8-encoded files without an UTF-8 preamble.</li>
+    <li>Added new <tt>SaveStringsToUTF8FileNoPreamble</tt> support function.</li>
+    <li>Type <tt>TShellFolderID</tt> was removed because it wasn't used by any support function.</li>
+  </ul>
+  </li>
+  <li>Added official Korean translation.</li>
+  <li>Inno Setup is now built using Delphi 11.3 Alexandria instead of Delphi 10.3 Rio.</li>
+</ul>
+
+<p><a name="6.2.2"></a><span class="ver">6.2.2 </span><span class="date">(2023-02-15)</span></p>
+<ul>
+  <li>Changes to further help protect against potential DLL preloading attacks, contributed by Johannes Schindelin from the Git for Windows team.</li>
+  <li>Pascal Scripting changes: Improved support for downloads using basic authentication, contributed by Christian Beck.
+  <ul>
+    <li>Added new <tt>AddEx</tt> function to the <tt>TDownloadWizardPage</tt> support class.</li>
+    <li>Added new <tt>SetDownloadCredentials</tt> support function.</li>
+  </ul>
+  <li>Added official Hungarian translation.</li>
+</ul>
+
+<p><a name="6.2.1"></a><span class="ver">6.2.1 </span><span class="date">(2022-04-14)</span></p>
+<ul>
+  <li>Changes to further help protect against potential DLL preloading attacks when running installers or uninstallers under the SYSTEM account, contributed by Johannes Schindelin from the Git for Windows team.</li>
   <li>Fixed a cosmetic issue if the icon file specified by the [Setup] section directive <tt>SetupIconFile</tt> contains more than 13 icons. Thanks to Wilenty and Martin Prikryl for the initial investigation.</li>
 </ul>
 

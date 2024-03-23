@@ -37,9 +37,6 @@ const
   wpFinished = 14;
 
 type
-  TShellFolderID = (sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo,
-    sfFonts, sfAppData, sfDocs, sfTemplates, sfFavorites, sfLocalAppData);
-
   TInstallOnThisVersionResult = (irInstall, irNotOnThisPlatform,
     irVersionTooLow, irServicePackTooLow, irVerTooHigh);
     

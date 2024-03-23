@@ -3,17 +3,12 @@ program ISCC;
 
 {
   Inno Setup
-  Copyright (C) 1997-2022 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Command-line compiler
 }
-
-{$SetPEFlags 1} 
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
-{$WEAKLINKRTTI ON}
 
 {x$DEFINE STATICCOMPILER}
 { For debugging purposes, remove the 'x' to have it link the compiler code
@@ -25,8 +20,13 @@ uses
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   PathFunc, CmnFunc2, CompInt, FileClass, CompTypes;
 
-{$R *.res}
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} 
+{$SETPEOSVERSION 6.0}
+{$SETPESUBSYSVERSION 6.0}
+{$WEAKLINKRTTI ON}
+
 {$R ISCC.manifest.res}
+{$R ISCC.versionandicon.res}
 
 {$I VERSION.INC}
 
@@ -367,8 +367,8 @@ procedure ProcessCommandLine;
   procedure ShowBanner;
   begin
     WriteStdOut('Inno Setup 6 Command-Line Compiler');
-    WriteStdOut('Copyright (C) 1997-2022 Jordan Russell. All rights reserved.');
-    WriteStdOut('Portions Copyright (C) 2000-2022 Martijn Laan. All rights reserved.');
+    WriteStdOut('Copyright (C) 1997-2024 Jordan Russell. All rights reserved.');
+    WriteStdOut('Portions Copyright (C) 2000-2024 Martijn Laan. All rights reserved.');
     if IsppMode then
       WriteStdOut('Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
     WriteStdOut('https://www.innosetup.com');

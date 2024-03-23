@@ -1,8 +1,8 @@
 Inno Setup
 ==========
 
-Copyright (C) 1997-2022 Jordan Russell. All rights reserved.  
-Portions Copyright (C) 2000-2022 Martijn Laan. All rights reserved.  
+Copyright (C) 1997-2024 Jordan Russell. All rights reserved.  
+Portions Copyright (C) 2000-2024 Martijn Laan. All rights reserved.  
 For conditions of distribution and use, see LICENSE.TXT.
 
 Contributing issues
@@ -45,7 +45,7 @@ branches and make pull requests. In detail:
     clear title and description. Please include your name and email address if
 	  you are contributing a translation.
 
-10. Bask in the eternal glory of being an Inno Setup contributor :)
+10. Sign our [Contributor License Agreement](https://gist.github.com/c6a4b3ca5e370d65b49746df848e12a2) when asked.
 
 If you don't have the Git client (`git`), get it from:
 

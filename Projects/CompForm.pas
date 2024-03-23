@@ -2,7 +2,7 @@ unit CompForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2022 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -16,12 +16,8 @@ unit CompForm;
 
 {$I VERSION.INC}
 
-{$IFDEF IS_D6}
-{$WARN SYMBOL_PLATFORM OFF}
-{$ENDIF}
-
 {$IFDEF STATICCOMPILER}
-{$R IMAGES2.RES}
+{$R ISCmplr.images.res}
 {$ENDIF}
 
 interface
@@ -194,7 +190,7 @@ type
     PListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
-    TInsertMsgBox: TMenuItem;
+    TMsgBoxDesigner: TMenuItem;
     ToolBarPanel: TPanel;
     HMailingList: TMenuItem;
     MemosTabSet: TNewTabSet; { First tab is the main memo, last tab is the preprocessor output memo }
@@ -213,6 +209,8 @@ type
     FPrint: TMenuItem;
     N22: TMenuItem;
     PrintDialog: TPrintDialog;
+    FSaveEncodingUTF8NoPreamble: TMenuItem;
+    TFilesDesigner: TMenuItem;
     MemosPopupMenu: TPopupMenu;
     FMClose: TMenuItem;
     FMReopen: TMenuItem;
@@ -303,7 +301,7 @@ type
       State: TOwnerDrawState);
     procedure VDebugCallStackClick(Sender: TObject);
     procedure HMailingListClick(Sender: TObject);
-    procedure TInsertMsgBoxClick(Sender: TObject);
+    procedure TMsgBoxDesignerClick(Sender: TObject);
     procedure MemosTabSetClick(Sender: TObject);
     procedure FSaveAllClick(Sender: TObject);
     procedure RStepOutClick(Sender: TObject);
@@ -318,6 +316,7 @@ type
       State: TOwnerDrawState);
     procedure FindResultsListDblClick(Sender: TObject);
     procedure FPrintClick(Sender: TObject);
+    procedure TFilesDesignerClick(Sender: TObject);
     procedure MemoCloseClick(Sender: TObject);
     procedure MemoReopenClick(Sender: TObject);
     procedure OnMemosPopup(Sender: TObject);
@@ -531,11 +530,12 @@ var
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Math,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Math, WideStrUtils,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMessageBoxDesigner;
+  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMsgBoxDesigner,
+  CompFilesDesigner;
 
 {$R *.DFM}
 
@@ -1037,7 +1037,7 @@ begin
 
   FMainMemo.Filename := '';
   UpdateCaption;
-  FMainMemo.SaveInUTF8Encoding := False;
+  FMainMemo.SaveEncoding := seUTF8;
   FMainMemo.Lines.Clear;
   FModifiedAnySinceLastCompile := True;
   FPreprocessorOutput := '';
@@ -1141,7 +1141,7 @@ begin
     end;
 
     if CommandLineWizard then begin
-      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, False);
+      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, seUtf8);
     end else begin
       NewMainFile;
       FMainMemo.Lines.Text := WizardForm.ResultScript;
@@ -1160,14 +1160,36 @@ end;
 procedure TCompileForm.OpenFile(AMemo: TCompScintFileEdit; AFilename: String;
   const MainMemoAddToRecentDocs: Boolean);
 
-  function IsStreamUTF8Encoded(const Stream: TStream): Boolean;
+  function GetStreamSaveEncoding(const Stream: TStream): TSaveEncoding;
   var
     Buf: array[0..2] of Byte;
   begin
-    Result := False;
-    if Stream.Read(Buf, SizeOf(Buf)) = SizeOf(Buf) then
-      if (Buf[0] = $EF) and (Buf[1] = $BB) and (Buf[2] = $BF) then
-        Result := True;
+    Result := seAuto;
+    var StreamSize := Stream.Size;
+    var CappedSize: Integer;
+    if StreamSize > High(Integer) then
+      CappedSize := High(Integer)
+    else
+      CappedSize := Integer(StreamSize);
+    if (CappedSize >= SizeOf(Buf)) and (Stream.Read(Buf, SizeOf(Buf)) = SizeOf(Buf)) and
+       (Buf[0] = $EF) and (Buf[1] = $BB) and (Buf[2] = $BF) then
+      Result := seUTF8
+    else begin
+      Stream.Seek(0, soFromBeginning);
+      var S: AnsiString;
+      SetLength(S, CappedSize);
+      SetLength(S, Stream.Read(S[1], CappedSize));
+      if IsUTF8String(S) then
+        Result := seUTF8NoPreamble;
+    end;
+  end;
+
+  function GetEncoding(const SaveEncoding: TSaveEncoding): TEncoding;
+  begin
+    if SaveEncoding in [seUTF8, seUTF8NoPreamble] then
+      Result := TEncoding.UTF8
+    else
+      Result := nil;
   end;
 
 var
@@ -1180,9 +1202,9 @@ begin
     if AMemo = FMainMemo then
       NewMainFile;
     GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
-    AMemo.SaveInUTF8Encoding := IsStreamUTF8Encoded(Stream);
+    AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
     Stream.Seek(0, soFromBeginning);
-    AMemo.Lines.LoadFromStream(Stream);
+    AMemo.Lines.LoadFromStream(Stream, GetEncoding(AMemo.SaveEncoding));
   finally
     Stream.Free;
   end;
@@ -1228,7 +1250,7 @@ function TCompileForm.SaveFile(const AMemo: TCompScintFileEdit; const SaveAs: Bo
         [GetLastError]);
     TempFN := Buf;
     try
-      SaveTextToFile(TempFN, AMemo.Lines.Text, AMemo.SaveInUTF8Encoding);
+      SaveTextToFile(TempFN, AMemo.Lines.Text, AMemo.SaveEncoding);
 
       { Back up existing file if needed }
       if FOptions.MakeBackups and NewFileExists(FN) then begin
@@ -1765,8 +1787,9 @@ var
 begin
   FSaveMainFileAs.Enabled := FActiveMemo = FMainMemo;
   FSaveEncoding.Enabled := FSave.Enabled; { FSave.Enabled is kept up-to-date by UpdateSaveMenuItemAndButton }
-  FSaveEncodingAuto.Checked := FSaveEncoding.Enabled and not (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding;
-  FSaveEncodingUTF8.Checked := FSaveEncoding.Enabled and (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding;
+  FSaveEncodingAuto.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seAuto);
+  FSaveEncodingUTF8.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8);
+  FSaveEncodingUTF8NoPreamble.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8NoPreamble);
   FSaveAll.Visible := FOptions.OpenIncludedFiles;
   ReadMRUMainFilesList;
   FMRUMainFilesSep.Visible := FMRUMainFilesList.Count <> 0;
@@ -1822,7 +1845,12 @@ end;
 
 procedure TCompileForm.FSaveEncodingItemClick(Sender: TObject);
 begin
-  (FActiveMemo as TCompScintFileEdit).SaveInUTF8Encoding := (Sender = FSaveEncodingUTF8);
+  if Sender = FSaveEncodingUTF8  then
+    (FActiveMemo as TCompScintFileEdit).SaveEncoding := seUTF8
+  else if Sender = FSaveEncodingUTF8NoPreamble  then
+    (FActiveMemo as TCompScintFileEdit).SaveEncoding := seUTF8NoPreamble
+  else
+    (FActiveMemo as TCompScintFileEdit).SaveEncoding := seAuto;
 end;
 
 procedure TCompileForm.FSaveAllClick(Sender: TObject);
@@ -2537,8 +2565,8 @@ begin
     String(FCompilerVersion.Version) + SNewLine;
   if FCompilerVersion.Title <> 'Inno Setup' then
     S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
-  S := S + ('Copyright (C) 1997-2022 Jordan Russell' + SNewLine +
-    'Portions Copyright (C) 2000-2022 Martijn Laan' + SNewLine +
+  S := S + ('Copyright (C) 1997-2024 Jordan Russell' + SNewLine +
+    'Portions Copyright (C) 2000-2024 Martijn Laan' + SNewLine +
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
     'https://www.innosetup.com/' + SNewLine2 +
@@ -2943,7 +2971,8 @@ var
 begin
   MemoIsReadOnly := FActiveMemo.ReadOnly;
   TGenerateGUID.Enabled := not MemoIsReadOnly;
-  TInsertMsgBox.Enabled := not MemoIsReadOnly;
+  TMsgBoxDesigner.Enabled := not MemoIsReadOnly;
+  TFilesDesigner.Enabled := not MemoIsReadOnly;
 end;
 
 procedure TCompileForm.TAddRemoveProgramsClick(Sender: TObject);
@@ -2958,16 +2987,41 @@ begin
     FActiveMemo.SelText := GenerateGuid;
 end;
 
-procedure TCompileForm.TInsertMsgBoxClick(Sender: TObject);
+procedure TCompileForm.TMsgBoxDesignerClick(Sender: TObject);
 var
-  MsgBoxForm: TMBDForm;
+  MsgBoxForm: TMsgBoxDesignerForm;
 begin
-  MsgBoxForm := TMBDForm.Create(Application);
+  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scCode) and
+     (MsgBox('The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the [Code] section. Continue anyway?',
+      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
+    Exit;
+
+  MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
   try
     if MsgBoxForm.ShowModal = mrOk then
       FActiveMemo.SelText := MsgBoxForm.Text;
   finally
     MsgBoxForm.Free;
+  end;
+end;
+
+procedure TCompileForm.TFilesDesignerClick(Sender: TObject);
+var
+  FilesDesignerForm: TFilesDesignerForm;
+begin
+  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scFiles) and
+     (MsgBox('The generated script will be inserted into the editor at the start of the current line, but the cursor is not in the [Files] section. Continue anyway?',
+      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
+    Exit;
+
+  FilesDesignerForm := TFilesDesignerForm.Create(Application);
+  try
+    if FilesDesignerForm.ShowModal = mrOk then begin
+      FActiveMemo.CaretColumn := 0;
+      FActiveMemo.SelText := FilesDesignerForm.Text;
+    end;
+  finally
+    FilesDesignerForm.Free;
   end;
 end;
 

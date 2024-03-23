@@ -129,7 +129,7 @@ const
 
   { Install }
 {$IFNDEF PS_NOINT64}
-  InstallTable: array [0..3] of AnsiString =
+  InstallTable: array [0..5] of AnsiString =
 {$ELSE}
   InstallTable: array [0..2] of AnsiString =
 {$ENDIF}
@@ -138,7 +138,9 @@ const
     'function ExtractTemporaryFiles(const Pattern: String): Integer;',
 {$IFNDEF PS_NOINT64}
     'function DownloadTemporaryFile(const Url, FileName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;',
-    'function DownloadTemporaryFileSize(const Url: String): Int64;'
+    'function DownloadTemporaryFileSize(const Url: String): Int64;',
+    'function DownloadTemporaryFileDate(const Url: String): String;',
+    'procedure SetDownloadCredentials(const User, Pass: String);'
 {$ENDIF}
   );
 
@@ -347,7 +349,7 @@ const
   );
 
   { Other }
-  OtherTable: array [0..33] of AnsiString =
+  OtherTable: array [0..34] of AnsiString =
   (
     'procedure BringToFrontAndRestore;',
     'function WizardDirValue: String;',
@@ -377,6 +379,7 @@ const
     'function SaveStringToFile(const FileName: String; const S: AnsiString; const Append: Boolean): Boolean;',
     'function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
+    'function SaveStringsToUTF8FileNoPreamble(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function EnableFsRedirection(const Enable: Boolean): Boolean;',
     'function GetUninstallProgressForm: TUninstallProgressForm;',
     'function CreateCallback(Method: AnyMethod): Longword;',
