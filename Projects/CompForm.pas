@@ -4359,7 +4359,6 @@ begin
       for memo in FFileMemos do begin
         if PathCompare( memo.Filename, entry.Key) = 0 then begin
           MemosTabSet.TabIndex := MemoToTabIndex(memo);
-          MemosTabSetClick(Self);
           Break;
         end;
       end;
