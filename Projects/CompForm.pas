@@ -417,7 +417,6 @@ type
     procedure DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
     procedure DestroyDebugInfo;
     procedure DetachDebugger;
-    procedure EnsureFileMemoVisible(const Memo: TCompScintFileEdit);
     function EvaluateConstant(const S: String; var Output: String): Integer;
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       var Output: String): Integer;
@@ -450,7 +449,7 @@ type
     procedure MenuAppendHiddenFiles(const container : TMenuItem);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
-    procedure MoveCaretAndActivateMemo(const AMemo: TCompScintEdit; const LineNumber: Integer; const AlwaysResetColumn: Boolean);
+    procedure MoveCaretAndActivateMemo(const AMemo: TCompScintFileEdit; const LineNumber: Integer; const AlwaysResetColumn: Boolean);
     procedure NewMainFile;
     procedure NewMainFileUsingWizard;
     procedure OpenFile(AMemo: TCompScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
@@ -1539,7 +1538,6 @@ procedure TCompileForm.CompileFile(AFilename: String; const ReadFromFile: Boolea
   function GetMemoFromErrorFilename(const ErrorFilename: String): TCompScintFileEdit;
   var
     Memo: TCompScintFileEdit;
-    sClosed : string;
   begin
     if ErrorFilename = '' then
       Result := FMainMemo
@@ -1548,7 +1546,6 @@ procedure TCompileForm.CompileFile(AFilename: String; const ReadFromFile: Boolea
         for Memo in FFileMemos do begin
           if Memo.Used and (PathCompare(Memo.Filename, ErrorFilename) = 0) then begin
             Result := Memo;
-            EnsureFileMemoVisible(Memo);
             Exit;
           end;
         end;
@@ -2712,7 +2709,7 @@ procedure TCompileForm.MemosTabSetClick(Sender: TObject);
         if not FHiddenFiles.ContainsKey(FFileMemos[iMemo].Filename) then begin
           Inc(iTab);
           if iTab = TabIndex then begin
-            result := iMemo + 1;   { Other tabs display include files which start second tab but at FMemos[2] }
+            result := iMemo + 1;   { Other tabs display include files which start at second tab but at FMemos[2] }
             Exit;
           end;
         end;
@@ -3182,21 +3179,17 @@ begin
   end;
 end;
 
-procedure TCompileForm.EnsureFileMemoVisible(const Memo: TCompScintFileEdit);
-begin
-  if (Memo = nil) or Memo.Visible or not Memo.Used then
-    Exit;
-
-  Memo.Visible := TRUE;
-  FHiddenFiles.Remove(Memo.Filename);
-  UpdatePreprocMemos;
-end;
-
-procedure TCompileForm.MoveCaretAndActivateMemo(const AMemo: TCompScintEdit; const LineNumber: Integer;
+procedure TCompileForm.MoveCaretAndActivateMemo(const AMemo: TCompScintFileEdit; const LineNumber: Integer;
   const AlwaysResetColumn: Boolean);
 var
   Pos: Integer;
 begin
+  { Unhide file if needed }
+  if FHiddenFiles.ContainsKey(AMemo.Filename) then begin
+    FHiddenFiles.Remove(AMemo.Filename);
+    UpdatePreprocMemos;
+  end;
+
   { Move caret }
   if AlwaysResetColumn or (AMemo.CaretLine <> LineNumber) then
     Pos := AMemo.GetPositionFromLine(LineNumber)
@@ -3211,7 +3204,7 @@ begin
   AMemo.CaretPosition := Pos;
 
   { Activate memo }
-  MemosTabSet.TabIndex := MemoToTabIndex(AMemo);
+  MemosTabSet.TabIndex := MemoToTabIndex(AMemo); { This causes MemosTabSetClick to show the memo }
 end;
 
 procedure TCompileForm.SetErrorLine(const AMemo: TCompScintFileEdit; const ALine: Integer);
