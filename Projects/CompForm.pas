@@ -1446,6 +1446,30 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
     end;
   end;
 
+  procedure CleanHiddenFiles(const IncludedFiles: TIncludedFiles; const HiddenFiles: TStringList);
+  var
+    HiddenFileIncluded: array of Boolean;
+  begin
+    if HiddenFiles.Count > 0 then begin
+      { Clean previously hidden files which are no longer included }
+      if IncludedFiles.Count > 0 then begin
+        SetLength(HiddenFileIncluded, HiddenFiles.Count);
+        for var I := 0 to HiddenFiles.Count-1 do
+          HiddenFileIncluded[I] := False;
+        for var I := 0 to IncludedFiles.Count-1 do begin
+          var IncludedFile := IncludedFiles[I];
+          var HiddenFileIndex := HiddenFiles.IndexOf(IncludedFile.Filename);
+          if HiddenFileIndex <> -1 then
+            HiddenFileIncluded[HiddenFileIndex] := True;
+        end;
+        for var I := HiddenFiles.Count-1 downto 0 do
+          if not HiddenFileIncluded[I] then
+            HiddenFiles.Delete(I);
+      end else
+        HiddenFiles.Clear;
+    end;
+  end;
+
 begin
   Result := iscrSuccess;
   with PAppData(AppData)^ do
@@ -1493,6 +1517,7 @@ begin
         begin
           Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
+          CleanHiddenFiles(Form.FIncludedFiles, Form.FHiddenFiles);
           Form.SaveKnownIncludedAndHiddenFiles(Filename);
         end;
       iscbNotifySuccess:
