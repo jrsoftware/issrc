@@ -322,6 +322,7 @@ object CompileForm: TCompileForm
     Tabs.Strings = (
       'Main Script')
     TabPosition = tpTop
+    PopupMenu = MemosPopupMenu
     OnClick = MemosTabSetClick
   end
   object MainMenu1: TMainMenu
@@ -512,6 +513,13 @@ object CompileForm: TCompileForm
         Caption = '&Previous Tab'
         ShortCut = 24585
         OnClick = VPreviousTabClick
+      end
+      object VCloseTab: TMenuItem
+        Caption = 'Close Tab'
+        OnClick = MemoCloseClick
+      end
+      object VReopenTab: TMenuItem
+        Caption = 'Reopen Tab'
       end
       object N20: TMenuItem
         Caption = '-'
@@ -4299,5 +4307,20 @@ object CompileForm: TCompileForm
   object PrintDialog: TPrintDialog
     Left = 224
     Top = 149
+  end
+  object MemosPopupMenu: TPopupMenu
+    OnPopup = OnMemosPopup
+    Left = 48
+    Top = 51
+    object FMClose: TMenuItem
+      Caption = 'Close'
+      OnClick = MemoCloseClick
+    end
+    object FMReopen: TMenuItem
+      Caption = 'Reopen'
+      object placeholder1: TMenuItem
+        Caption = '(placeholder)'
+      end
+    end
   end
 end
