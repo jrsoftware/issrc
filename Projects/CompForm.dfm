@@ -4320,16 +4320,13 @@ object CompileForm: TCompileForm
     OnPopup = MemosTabSetPopup
     Left = 48
     Top = 51
-    object FMClose: TMenuItem
+    object VCloseTab2: TMenuItem
       Caption = 'Close Current Tab'
       ShortCut = 16499
       OnClick = VCloseTabClick
     end
-    object FMReopen: TMenuItem
+    object VReopenTab2: TMenuItem
       Caption = 'Reopen Tab'
-      object placeholder1: TMenuItem
-        Caption = '(placeholder)'
-      end
     end
   end
 end

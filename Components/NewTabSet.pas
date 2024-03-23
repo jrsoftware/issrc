@@ -2,7 +2,7 @@ unit NewTabSet;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit NewTabSet;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Menus, Math, ModernColors;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Math, ModernColors;
 
 type
   TTabPosition = (tpTop, tpBottom);
@@ -23,7 +23,7 @@ type
     FTabs: TStrings;
     FTabIndex: Integer;
     FTabPosition: TTabPosition;
-    FTabsOffset : Integer;
+    FTabsOffset: Integer;
     FTheme: TTheme;
     function GetTabRect(Index: Integer): TRect;
     procedure InvalidateTab(Index: Integer);
@@ -377,28 +377,28 @@ end;
 
 procedure TNewTabSet.EnsureCurrentTabIsFullyVisible;
 var
-  rcTab, rcCtl, rcLast : TRect;
-  iExtra, iDelta, iNewOffset : Integer;
+  rcTab, rcCtl, rcLast: TRect;
+  iExtra, iDelta, iNewOffset: Integer;
 begin
   rcCtl := ClientRect;
   rcTab := GetTabRect(FTabIndex);
 
-  { check and modify tabs offset so everything fits }
-  iExtra := Min( rcCtl.Width div 2, rcTab.Width * 4);  { arbitrary value, adjust as needed }
-  iDelta := rcTab.Width div 2;                         { arbitrary value, adjust as needed }
+  { Check and modify tabs offset so everything fits }
+  iExtra := Min(rcCtl.Width div 2, rcTab.Width * 4);  { arbitrary value, adjust as needed }
+  iDelta := rcTab.Width div 2;                        { arbitrary value, adjust as needed }
 
-  { left side is easy, limit is always 0 }
-  if rcTab.Left < (rcCtl.Left + iDelta) then begin
-    FTabsOffset := Max( 0, FTabsOffset - (rcCtl.Left - rcTab.Left) - iExtra);
+  { Left side is easy, limit is always 0 }
+  if rcTab.Left < rcCtl.Left + iDelta then begin
+    FTabsOffset := Max(0, FTabsOffset - rcCtl.Left - rcTab.Left - iExtra);
     Invalidate;
   end;
 
-  { right side limit depends on last tab and total available space }
-  if rcTab.Right > (rcCtl.Right - iDelta) then begin
+  { Right side limit depends on last tab and total available space }
+  if rcTab.Right > rcCtl.Right - iDelta then begin
     iNewOffset := FTabsOffset + (rcTab.Right - rcCtl.Right) + iExtra;
-    FTabsOffset := 0; { we need the last tabs leftmost position w/o any offset }
+    FTabsOffset := 0; { We need the last tabs leftmost position w/o any offset }
     rcLast := GetTabRect(FTabs.Count-1);
-    FTabsOffset := Max( 0, Min( iNewOffset, rcLast.Right - rcCtl.Width + 10));
+    FTabsOffset := Max(0, Min(iNewOffset, rcLast.Right - rcCtl.Width + 10));
     Invalidate;
   end;
 end;
