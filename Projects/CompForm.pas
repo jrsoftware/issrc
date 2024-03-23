@@ -211,7 +211,7 @@ type
     PrintDialog: TPrintDialog;
     FSaveEncodingUTF8NoPreamble: TMenuItem;
     TFilesDesigner: TMenuItem;
-    MemosPopupMenu: TPopupMenu;
+    MemosTabSetPopupMenu: TPopupMenu;
     FMClose: TMenuItem;
     FMReopen: TMenuItem;
     placeholder1: TMenuItem;
@@ -317,9 +317,9 @@ type
     procedure FindResultsListDblClick(Sender: TObject);
     procedure FPrintClick(Sender: TObject);
     procedure TFilesDesignerClick(Sender: TObject);
-    procedure MemoCloseClick(Sender: TObject);
-    procedure MemoReopenClick(Sender: TObject);
-    procedure OnMemosPopup(Sender: TObject);
+    procedure VCloseTabClick(Sender: TObject);
+    procedure VReopenTabClick(Sender: TObject);
+    procedure MemosTabSetPopup(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -2311,6 +2311,52 @@ begin
   MemosTabSet.TabIndex := NewTabIndex;
 end;
 
+procedure TCompileForm.VCloseTabClick(Sender: TObject);
+var
+ idx : Integer;
+begin
+  { main and preprocessor memos can't be hidden }
+  if (FActiveMemo = FMainMemo) or (FActiveMemo = FPreprocessorOutputMemo) then begin
+    ASSERT(FALSE);
+    Exit;
+  end;
+
+  { hide memo, remove associated tab+hint and mark it as hidden }
+  idx := MemoToTabIndex(FActiveMemo);
+  MemosTabSet.Tabs.Delete(idx);
+  MemosTabSet.Hints.Delete(idx);
+  FActiveMemo.Visible := FALSE;
+  FHiddenFiles.Add( (FActiveMemo as TCompScintFileEdit).Filename, GetNextHiddenIndex);
+  SaveKnownIncludedFiles(FMainMemo.Filename);
+
+  { select next tab, except when we're already at the end }
+  VNextTabClick(Self);
+  VPreviousTabClick(Self);
+end;
+
+procedure TCompileForm.VReopenTabClick(Sender: TObject);
+var item : TMenuItem;
+    entry : TPair<string,Integer>;
+    memo : TCompScintFileEdit;
+begin
+  item := Sender as TMenuItem;
+  for entry in FHiddenFiles do begin
+    if item.Tag = entry.Value then begin
+      FHiddenFiles.Remove(entry.Key);
+      UpdatePreprocMemos;
+      SaveKnownIncludedFiles(FMainMemo.Filename);
+
+      // make it current
+      for memo in FFileMemos do begin
+        if PathCompare( memo.Filename, entry.Key) = 0 then begin
+          MemosTabSet.TabIndex := MemoToTabIndex(memo);
+          Break;
+        end;
+      end;
+    end;
+  end;
+end;
+
 procedure TCompileForm.SyncZoom;
 var
   Memo: TCompScintEdit;
@@ -2671,7 +2717,7 @@ begin
       item := TMenuItem.Create(container);
       item.Caption := ExtractFileName( sFile);
       item.Tag     := FHiddenFiles[sFile];
-      item.OnClick := MemoReopenClick;
+      item.OnClick := VReopenTabClick;
       container.Add( item);
     end;
 
@@ -2680,7 +2726,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.OnMemosPopup(Sender: TObject);
+procedure TCompileForm.MemosTabSetPopup(Sender: TObject);
 begin
   { main and preprocessor memos can't be hidden }
   FMClose.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
@@ -4319,53 +4365,6 @@ begin
   Inc(FLastHideID);
   result := FLastHideID;
 end;
-
-procedure TCompileForm.MemoCloseClick(Sender: TObject);
-var
- idx : Integer;
-begin
-  { main and preprocessor memos can't be hidden }
-  if (FActiveMemo = FMainMemo) or (FActiveMemo = FPreprocessorOutputMemo) then begin
-    ASSERT(FALSE);
-    Exit;
-  end;
-
-  { hide memo, remove associated tab+hint and mark it as hidden }
-  idx := MemoToTabIndex(FActiveMemo);
-  MemosTabSet.Tabs.Delete(idx);
-  MemosTabSet.Hints.Delete(idx);
-  FActiveMemo.Visible := FALSE;
-  FHiddenFiles.Add( (FActiveMemo as TCompScintFileEdit).Filename, GetNextHiddenIndex);
-  SaveKnownIncludedFiles(FMainMemo.Filename);
-
-  { select next tab, except when we're already at the end }
-  VNextTabClick(Self);
-  VPreviousTabClick(Self);
-end;
-
-procedure TCompileForm.MemoReopenClick(Sender: TObject);
-var item : TMenuItem;
-    entry : TPair<string,Integer>;
-    memo : TCompScintFileEdit;
-begin
-  item := Sender as TMenuItem;
-  for entry in FHiddenFiles do begin
-    if item.Tag = entry.Value then begin
-      FHiddenFiles.Remove(entry.Key);
-      UpdatePreprocMemos;
-      SaveKnownIncludedFiles(FMainMemo.Filename);
-
-      // make it current
-      for memo in FFileMemos do begin
-        if PathCompare( memo.Filename, entry.Key) = 0 then begin
-          MemosTabSet.TabIndex := MemoToTabIndex(memo);
-          Break;
-        end;
-      end;
-    end;
-  end;
-end;
-
 
 procedure TCompileForm.DebuggingStopped(const WaitForTermination: Boolean);
 
