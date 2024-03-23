@@ -3353,7 +3353,8 @@ procedure TCompileForm.UpdatePreprocMemos;
               OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
               IncludedFile.Memo.Used := True;
             end else if IncludedFile.Memo.CompilerFileIndex = UnknownCompilerFileIndex then begin
-             { Previously the included file came from the history }
+             { The file already has a memo but CompilerFileIndex is not set yet.
+               This happens if the initial load was from the history loaded by LoadKnownIncludedFiles and then the user does a compile.  }
               IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
             end;
 
