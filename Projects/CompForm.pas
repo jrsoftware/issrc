@@ -325,8 +325,8 @@ type
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
     FMainMemo: TCompScintFileEdit;                      { Doesn't change }
     FPreprocessorOutputMemo: TCompScintEdit;            { Doesn't change }
-    FFileMemos: TList<TCompScintFileEdit>;              { All memos except FPreprocessorOutputMemo, including those for hidden include files }
-    FHiddenFiles: TStringList;                          { List of hidden include files which *do* use a memo but that memo has no tab }
+    FFileMemos: TList<TCompScintFileEdit>;              { All memos except FPreprocessorOutputMemo, including those without a tab }
+    FHiddenFiles: TStringList;                          { List of files which *do* use a memo but are hidden by the user and have no tab }
     FActiveMemo: TCompScintEdit;                        { Changes depending on user input }
     FErrorMemo, FStepMemo: TCompScintFileEdit;          { These change depending on user input }
     FMemosStyler: TInnoSetupStyler;                     { Single styler for all memos }
@@ -3333,10 +3333,11 @@ procedure TCompileForm.UpdatePreprocMemos;
   procedure UpdateIncludedFilesMemos(const NewTabs, NewHints: TStringList);
   var
     IncludedFile: TIncludedFile;
-    I, NextMemoIndex, NewTabIndex: Integer;
+    I: Integer;
   begin
     if FOptions.OpenIncludedFiles and (FIncludedFiles.Count > 0) then begin
-      NextMemoIndex := FirstIncludedFilesMemoIndex;
+      var NextMemoIndex := FirstIncludedFilesMemoIndex;
+      var NextTabIndex := 1; { First tab displays the main memo  }
       FLoadingIncludedFiles := True;
       try
         for IncludedFile in FIncludedFiles do begin
@@ -3356,13 +3357,11 @@ procedure TCompileForm.UpdatePreprocMemos;
               IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
             end;
 
-            // except when it's hidden
-            if FHiddenFiles.IndexOf(FFileMemos[NextMemoIndex].Filename) <> -1 then
-              Continue;
-
-            NewTabIndex := 1+NextMemoIndex-FirstIncludedFilesMemoIndex;
-            NewTabs.Insert(NewTabIndex, PathExtractName(IncludedFile.Filename));
-            NewHints.Insert(NewTabIndex, GetFileTitle(IncludedFile.Filename));
+            if FHiddenFiles.IndexOf(IncludedFile.Filename) = -1 then begin
+              NewTabs.Insert(NextTabIndex, PathExtractName(IncludedFile.Filename));
+              NewHints.Insert(NextTabIndex, GetFileTitle(IncludedFile.Filename));
+              Inc(NextTabIndex);
+            end;
 
             Inc(NextMemoIndex);
             if NextMemoIndex = FFileMemos.Count then
