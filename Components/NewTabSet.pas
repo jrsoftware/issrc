@@ -35,7 +35,10 @@ type
     function GetTabRect(Index: Integer): TRect;
     function GetCloseButtonRect(const TabRect: TRect): TRect;
     procedure InvalidateTab(Index: Integer);
+    procedure CloseButtonsListChanged(Sender: TObject; const Item: Boolean;
+      Action: TCollectionNotification);
     procedure TabsListChanged(Sender: TObject);
+    procedure HintsListChanged(Sender: TObject);
     procedure SetCloseButtons(Value: TBoolList);
     procedure SetTabs(Value: TStrings);
     procedure SetTabIndex(Value: Integer);
@@ -161,10 +164,12 @@ constructor TNewTabSet.Create(AOwner: TComponent);
 begin
   inherited;
   FCloseButtons := TBoolList.Create;
+  FCloseButtons.OnNotify := CloseButtonsListChanged;
   FTabs := TStringList.Create;
   TStringList(FTabs).OnChange := TabsListChanged;
   FTabPosition := tpBottom;
   FHints := TStringList.Create;
+  TStringList(FHints).OnChange := HintsListChanged;
   ControlStyle := ControlStyle + [csOpaque];
   Width := 129;
   Height := 21;
@@ -262,9 +267,20 @@ begin
   end;
 end;
 
+procedure TNewTabSet.CloseButtonsListChanged(Sender: TObject; const Item: Boolean;
+  Action: TCollectionNotification);
+begin
+  Invalidate;
+end;
+
 procedure TNewTabSet.TabsListChanged(Sender: TObject);
 begin
   Invalidate;
+end;
+
+procedure TNewTabSet.HintsListChanged(Sender: TObject);
+begin
+  ShowHint := FHints.Count > 0;
 end;
 
 procedure TNewTabSet.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
@@ -406,13 +422,11 @@ begin
   FCloseButtons.Clear;
   for var V in Value do
     FCloseButtons.Add(V);
-  Invalidate;
 end;
 
 procedure TNewTabSet.SetHints(const Value: TStrings);
 begin
   FHints.Assign(Value);
-  ShowHint := FHints.Count > 0;
 end;
 
 procedure TNewTabSet.SetTabIndex(Value: Integer);
@@ -460,15 +474,12 @@ begin
     FMenuThemeData := 0;
   end;
 
-  if Open then begin
-    if UseThemes then begin
-      if (FTheme <> nil) and FTheme.Dark then
-        FMenuThemeData := OpenThemeData(Handle, 'DarkMode::Menu')
-      else
-        FMenuThemeData := OpenThemeData(Handle, 'Menu');
-    end else
-      FMenuThemeData := 0;
-  end;
+  if Open and UseThemes then begin
+    if (FTheme <> nil) and FTheme.Dark then
+      FMenuThemeData := OpenThemeData(Handle, 'DarkMode::Menu');
+    if FMenuThemeData = 0 then
+      FMenuThemeData := OpenThemeData(Handle, 'Menu');
+end;
 end;
 
 procedure TNewTabSet.EnsureCurrentTabIsFullyVisible;

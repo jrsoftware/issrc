@@ -450,7 +450,7 @@ type
     procedure UpdateReopenTabMenu(const Menu: TMenuItem);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
-    procedure MoveCaretAndActivateMemo(const AMemo: TCompScintFileEdit; const LineNumber: Integer; const AlwaysResetColumn: Boolean);
+    procedure MoveCaretAndActivateMemo(AMemo: TCompScintFileEdit; const LineNumber: Integer; const AlwaysResetColumn: Boolean);
     procedure NewMainFile;
     procedure NewMainFileUsingWizard;
     procedure OpenFile(AMemo: TCompScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
@@ -2331,12 +2331,8 @@ end;
 procedure TCompileForm.VCloseTabClick(Sender: TObject);
 begin
   var Index := MemoToTabIndex(FActiveMemo);
-  { This is dirty code which directly accesses the tabset properties without
-    it knowing and also hides the memo without calling UpdatPreprocMemos but
-     doing it more cleanly is difficult }
   MemosTabSet.Tabs.Delete(Index);
   MemosTabSet.Hints.Delete(Index);
-  MemosTabSet.ShowHint := MemosTabSet.Hints.Count > 0;
   MemosTabSet.CloseButtons.Delete(Index);
   FActiveMemo.Visible := False;
   FHiddenFiles.Add((FActiveMemo as TCompScintFileEdit).Filename);
@@ -3242,15 +3238,29 @@ begin
   end;
 end;
 
-procedure TCompileForm.MoveCaretAndActivateMemo(const AMemo: TCompScintFileEdit; const LineNumber: Integer;
+procedure TCompileForm.MoveCaretAndActivateMemo(AMemo: TCompScintFileEdit; const LineNumber: Integer;
   const AlwaysResetColumn: Boolean);
 var
   Pos: Integer;
 begin
   { Reopen tab if needed }
   var HiddenFileIndex := FHiddenFiles.IndexOf(AMemo.Filename);
-  if HiddenFileIndex <> -1 then
+  if HiddenFileIndex <> -1 then begin
+    var SaveFileName := AMemo.Filename;
     ReopenTabOrTabs(HiddenFileIndex, False);
+    { The above call to ReopenTabOrTabs will currently lead to a call to UpdateIncludedFilesMemos which
+      sets up all the memos. Currently it will keep same memo for the reopened file but in case it no
+      longer does at some point: look it up again }
+    AMemo := nil;
+    for var Memo in FFileMemos do begin
+      if Memo.Used and (PathCompare(Memo.Filename, SaveFilename) = 0) then begin
+        AMemo := Memo;
+        Break;
+      end;
+    end;
+    if AMemo = nil then
+      raise Exception.Create('AMemo MIA');
+  end;
 
   { Move caret }
   if AlwaysResetColumn or (AMemo.CaretLine <> LineNumber) then
@@ -4568,17 +4578,14 @@ begin
     FProgressThemeData := 0;
   end;
 
-  if Open then begin
-    if UseThemes then begin
-      FProgressThemeData := OpenThemeData(Handle, 'Progress');
-      if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSCHUNKSIZE, FProgressChunkSize) <> S_OK) or
-         (FProgressChunkSize <= 0) then
-        FProgressChunkSize := 6;
-      if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSSPACESIZE, FProgressSpaceSize) <> S_OK) or
-         (FProgressSpaceSize < 0) then  { ...since "OpusOS" theme returns a bogus -1 value }
-        FProgressSpaceSize := 2;
-    end else
-      FProgressThemeData := 0;
+  if Open and UseThemes then begin
+    FProgressThemeData := OpenThemeData(Handle, 'Progress');
+    if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSCHUNKSIZE, FProgressChunkSize) <> S_OK) or
+       (FProgressChunkSize <= 0) then
+      FProgressChunkSize := 6;
+    if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSSPACESIZE, FProgressSpaceSize) <> S_OK) or
+       (FProgressSpaceSize < 0) then  { ...since "OpusOS" theme returns a bogus -1 value }
+      FProgressSpaceSize := 2;
   end;
 end;
 
