@@ -12,36 +12,49 @@ unit NewTabSet;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Math, ModernColors;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Math, Generics.Collections,
+  ModernColors, UxTheme;
 
 type
   TTabPosition = (tpTop, tpBottom);
 
+  TBoolList = TList<Boolean>;
+
   TNewTabSet = class(TCustomControl)
   private
+    FCloseButtons: TBoolList;
     FHints: TStrings;
+    FMenuThemeData: HTHEME;
+    FOnCloseButtonClick: TNotifyEvent;
     FTabs: TStrings;
     FTabIndex: Integer;
     FTabPosition: TTabPosition;
     FTabsOffset: Integer;
     FTheme: TTheme;
+    FThemeDark: Boolean;
     function GetTabRect(Index: Integer): TRect;
+    function GetCloseButtonRect(const TabRect: TRect): TRect;
     procedure InvalidateTab(Index: Integer);
     procedure TabsListChanged(Sender: TObject);
+    procedure SetCloseButtons(Value: TBoolList);
     procedure SetTabs(Value: TStrings);
     procedure SetTabIndex(Value: Integer);
     procedure SetTabPosition(Value: TTabPosition);
     procedure SetTheme(Value: TTheme);
     procedure SetHints(const Value: TStrings);
+    procedure UpdateThemeData(const Open: Boolean);
     procedure EnsureCurrentTabIsFullyVisible;
   protected
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+    procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure CreateParams(var Params: TCreateParams); override;
+    procedure CreateWnd; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure Paint; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    property CloseButtons: TBoolList read FCloseButtons write SetCloseButtons;
     property Theme: TTheme read FTheme write SetTheme;
   published
     property Align;
@@ -53,11 +66,15 @@ type
     property TabPosition: TTabPosition read FTabPosition write SetTabPosition default tpBottom;
     property PopupMenu;
     property OnClick;
+    property OnCloseButtonClick: TNotifyEvent read FOnCloseButtonClick write FOnCloseButtonClick;
   end;
 
 procedure Register;
 
 implementation
+
+uses
+  WinApi.UxTheme;
 
 procedure Register;
 begin
@@ -138,10 +155,12 @@ const
   TabPaddingX = 5;
   TabPaddingY = 3;
   TabSpacing = 1;
+  CloseButtonSizeX = 12;
 
 constructor TNewTabSet.Create(AOwner: TComponent);
 begin
   inherited;
+  FCloseButtons := TBoolList.Create;
   FTabs := TStringList.Create;
   TStringList(FTabs).OnChange := TabsListChanged;
   FTabPosition := tpBottom;
@@ -158,8 +177,15 @@ begin
     style := style and not (CS_HREDRAW or CS_VREDRAW);
 end;
 
+procedure TNewTabSet.CreateWnd;
+begin
+  inherited;
+  UpdateThemeData(True);
+end;
+
 destructor TNewTabSet.Destroy;
 begin
+  UpdateThemeData(False);
   FTabs.Free;
   inherited;
 end;
@@ -184,6 +210,13 @@ begin
   end;
 end;
 
+procedure TNewTabSet.WMThemeChanged(var Message: TMessage);
+begin
+  { Don't Run to Cursor into this function, it will interrupt up the theme change }
+  UpdateThemeData(True);
+  inherited;
+end;
+
 function TNewTabSet.GetTabRect(Index: Integer): TRect;
 var
   CR: TRect;
@@ -198,6 +231,8 @@ begin
   for I := 0 to FTabs.Count-1 do begin
     Size := Canvas.TextExtent(FTabs[I]);
     SizeX := Size.cx + (TabPaddingX * 2) + TabSpacing;
+    if (I < FCloseButtons.Count) and FCloseButtons[I] then
+      Inc(SizeX, CloseButtonSizeX);
     SizeY := Size.cy + (TabPaddingY * 2);
     if FTabPosition = tpTop then
       Result.Top := CR.Bottom - SizeY;
@@ -206,6 +241,12 @@ begin
       Exit;
   end;
   SetRectEmpty(Result);
+end;
+
+function TNewTabSet.GetCloseButtonRect(const TabRect: TRect): TRect;
+begin
+  Result := TRect.Create(TabRect.Right - CloseButtonSizeX - TabPaddingX div 2,
+    TabRect.Top, TabRect.Right - TabPaddingX div 2, TabRect.Bottom);
 end;
 
 procedure TNewTabSet.InvalidateTab(Index: Integer);
@@ -236,6 +277,14 @@ begin
     for I := 0 to FTabs.Count-1 do begin
       R := GetTabRect(I);
       if (X >= R.Left) and (X < R.Right) then begin
+        if (I = TabIndex) and (I < FCloseButtons.Count) and FCloseButtons[I] then begin
+          var R2 := GetCloseButtonRect(R);
+          if PtInRect(R2, TPoint.Create(X, Y)) then begin
+            if Assigned(OnCloseButtonClick) then
+              OnCloseButtonClick(Self);
+            Break;
+          end;
+        end;
         TabIndex := I;
         Break;
       end;
@@ -267,6 +316,22 @@ var
         else
           Canvas.Font.Color := clBtnText;
         Canvas.TextOut(R.Left + TabPaddingX, R.Top + TabPaddingY, FTabs[I]);
+
+       if (I < FCloseButtons.Count) and FCloseButtons[I] then begin
+          var R2 := GetCloseButtonRect(R);
+          if FMenuThemeData <> 0 then begin
+            Inc(R2.Left, 1);
+            Inc(R2.Top, 1);
+            DrawThemeBackground(FMenuThemeData, Canvas.Handle,  MENU_SYSTEMCLOSE, MSYSC_NORMAL, R2, nil);
+          end else begin
+            InflateRect(R2, -3, -6);
+            Canvas.Pen.Color := Canvas.Font.Color;
+            Canvas.MoveTo(R2.Left, R2.Top);
+            Canvas.LineTo(R2.Right, R2.Bottom);
+            Canvas.MoveTo(R2.Left, R2.Bottom-1);
+            Canvas.LineTo(R2.Right, R2.Top-1);
+          end;
+        end;
         ExcludeClipRect(Canvas.Handle, R.Left, R.Top, R.Right, R.Bottom);
         Break;
       end;
@@ -335,6 +400,14 @@ begin
   DrawTabs(False);
 end;
 
+procedure TNewTabSet.SetCloseButtons(Value: TBoolList);
+begin
+  FCloseButtons.Clear;
+  for var V in Value do
+    FCloseButtons.Add(V);
+  Invalidate;
+end;
+
 procedure TNewTabSet.SetHints(const Value: TStrings);
 begin
   FHints.Assign(Value);
@@ -371,7 +444,29 @@ procedure TNewTabSet.SetTheme(Value: TTheme);
 begin
   if FTheme <> Value then begin
     FTheme := Value;
+    var NewThemeDark := (FTheme <> nil) and FTheme.Dark;
+    if FThemeDark <> NewThemeDark then
+      UpdateThemeData(True);
+    FThemeDark := NewThemeDark;
     Invalidate;
+  end;
+end;
+
+procedure TNewTabSet.UpdateThemeData(const Open: Boolean);
+begin
+  if FMenuThemeData <> 0 then begin
+    CloseThemeData(FMenuThemeData);
+    FMenuThemeData := 0;
+  end;
+
+  if Open then begin
+    if UseThemes then begin
+      if (FTheme <> nil) and FTheme.Dark then
+        FMenuThemeData := OpenThemeData(Handle, 'DarkMode::Menu')
+      else
+        FMenuThemeData := OpenThemeData(Handle, 'Menu');
+    end else
+      FMenuThemeData := 0;
   end;
 end;
 

@@ -319,6 +319,7 @@ type
     procedure VCloseTabClick(Sender: TObject);
     procedure VReopenTabClick(Sender: TObject);
     procedure MemosTabSetPopup(Sender: TObject);
+    procedure MemosTabSetOnCloseButtonClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -485,7 +486,7 @@ type
     procedure UpdateSaveMenuItemAndButton;
     procedure UpdateTargetMenu;
     procedure UpdateTheme;
-    procedure UpdateThemeData(const Close, Open: Boolean);
+    procedure UpdateThemeData(const Open: Boolean);
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
@@ -808,7 +809,7 @@ begin
 
   UpdateCaption;
 
-  UpdateThemeData(False, True);
+  UpdateThemeData(True);
 
   if CommandLineCompile then begin
     ReadSignTools(FSignTools);
@@ -860,7 +861,7 @@ destructor TCompileForm.Destroy;
   end;
 
 begin
-  UpdateThemeData(True, False);
+  UpdateThemeData(False);
 
   Application.OnActivate := nil;
   Application.OnIdle := nil;
@@ -2318,10 +2319,14 @@ end;
 
 procedure TCompileForm.VCloseTabClick(Sender: TObject);
 begin
-  { Hide memo, remove associated tab+hint and mark it as hidden }
   var Index := MemoToTabIndex(FActiveMemo);
+  { This is dirty code which directly accesses the tabset properties without
+    it knowing and also hides the memo without calling UpdatPreprocMemos but
+     doing it more cleanly is difficult }
   MemosTabSet.Tabs.Delete(Index);
   MemosTabSet.Hints.Delete(Index);
+  MemosTabSet.ShowHint := MemosTabSet.Hints.Count > 0;
+  MemosTabSet.CloseButtons.Delete(Index);
   FActiveMemo.Visible := False;
   FHiddenFiles.Add((FActiveMemo as TCompScintFileEdit).Filename);
   SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
@@ -2763,6 +2768,11 @@ begin
   UpdateCaretPosPanel;
   UpdateEditModePanel;
   UpdateModifiedPanel;
+end;
+
+procedure TCompileForm.MemosTabSetOnCloseButtonClick(Sender: TObject);
+begin
+  VCloseTabClick(Self);
 end;
 
 procedure TCompileForm.InitializeFindText(Dlg: TFindDialog);
@@ -3310,12 +3320,14 @@ end;
 
 procedure TCompileForm.UpdatePreprocMemos;
 
-  procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList);
+  procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList;
+    const NewCloseButtons: TBoolList);
   begin
     if FOptions.ShowPreprocessorOutput and (FPreprocessorOutput <> '') and
        not SameStr(TrimRight(FMainMemo.Lines.Text), FPreprocessorOutput) then begin
       NewTabs.Add('Preprocessor Output');
       NewHints.Add('');
+      NewCloseButtons.Add(False);
       FPreprocessorOutputMemo.ReadOnly := False;
       try
         FPreprocessorOutputMemo.Lines.Text := FPreprocessorOutput;
@@ -3330,7 +3342,8 @@ procedure TCompileForm.UpdatePreprocMemos;
     end;
   end;
 
-  procedure UpdateIncludedFilesMemos(const NewTabs, NewHints: TStringList);
+  procedure UpdateIncludedFilesMemos(const NewTabs, NewHints: TStringList;
+    const NewCloseButtons: TBoolList);
   var
     IncludedFile: TIncludedFile;
     I: Integer;
@@ -3361,6 +3374,7 @@ procedure TCompileForm.UpdatePreprocMemos;
             if FHiddenFiles.IndexOf(IncludedFile.Filename) = -1 then begin
               NewTabs.Insert(NextTabIndex, PathExtractName(IncludedFile.Filename));
               NewHints.Insert(NextTabIndex, GetFileTitle(IncludedFile.Filename));
+              NewCloseButtons.Insert(NextTabIndex, True);
               Inc(NextTabIndex);
             end;
 
@@ -3396,25 +3410,30 @@ procedure TCompileForm.UpdatePreprocMemos;
 
 var
   NewTabs, NewHints: TStringList;
+  NewCloseButtons: TBoolList;
   I, SaveTabIndex: Integer;
   SaveTabName: String;
 begin
   NewTabs := nil;
   NewHints := nil;
+  NewCloseButtons := nil;
   try
     NewTabs := TStringList.Create;
     NewTabs.Add(MemosTabSet.Tabs[0]); { 'Main Script' }
     NewHints := TStringList.Create;
     NewHints.Add(GetFileTitle(FMainMemo.Filename));
+    NewCloseButtons := TBoolList.Create;
+    NewCloseButtons.Add(False);
 
-    UpdatePreprocessorOutputMemo(NewTabs, NewHints);
-    UpdateIncludedFilesMemos(NewTabs, NewHints);
+    UpdatePreprocessorOutputMemo(NewTabs, NewHints, NewCloseButtons);
+    UpdateIncludedFilesMemos(NewTabs, NewHints, NewCloseButtons);
 
     { Set new tabs, try keep same file open }
     SaveTabIndex := MemosTabSet.TabIndex;
     SaveTabName := MemosTabSet.Tabs[MemosTabSet.TabIndex];
     MemosTabSet.Tabs := NewTabs;
     MemosTabSet.Hints := NewHints;
+    MemosTabSet.CloseButtons := NewCloseButtons;
     I := MemosTabSet.Tabs.IndexOf(SaveTabName);
     if I <> -1 then
        MemosTabSet.TabIndex := I;
@@ -3424,6 +3443,7 @@ begin
       MemosTabSetClick(MemosTabSet);
    end;
   finally
+    NewCloseButtons.Free;
     NewHints.Free;
     NewTabs.Free;
   end;
@@ -4504,13 +4524,11 @@ begin
   SetListTheme(FindResultsList);
 end;
 
-procedure TCompileForm.UpdateThemeData(const Close, Open: Boolean);
+procedure TCompileForm.UpdateThemeData(const Open: Boolean);
 begin
-  if Close then begin
-    if FProgressThemeData <> 0 then begin
-      CloseThemeData(FProgressThemeData);
-      FProgressThemeData := 0;
-    end;
+  if FProgressThemeData <> 0 then begin
+    CloseThemeData(FProgressThemeData);
+    FProgressThemeData := 0;
   end;
 
   if Open then begin
@@ -4990,7 +5008,7 @@ end;
 procedure TCompileForm.WMThemeChanged(var Message: TMessage);
 begin
   { Don't Run to Cursor into this function, it will interrupt up the theme change }
-  UpdateThemeData(True, True);
+  UpdateThemeData(True);
   inherited;
 end;
 

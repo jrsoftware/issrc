@@ -329,6 +329,7 @@ object CompileForm: TCompileForm
     Width = 361
     Height = 21
     Align = alTop
+    OnCloseButtonClick = MemosTabSetOnCloseButtonClick
     TabIndex = 0
     Tabs.Strings = (
       'Main Script')
