@@ -538,6 +538,10 @@ object CompileForm: TCompileForm
       object VReopenTab: TMenuItem
         Caption = 'Reopen Tab'
       end
+      object VReopenTabs: TMenuItem
+        Caption = 'Reopen All Tabs'
+        OnClick = VReopenTabsClick
+      end
       object N20: TMenuItem
         Caption = '-'
       end
@@ -4328,6 +4332,10 @@ object CompileForm: TCompileForm
     end
     object VReopenTab2: TMenuItem
       Caption = 'Reopen Tab'
+    end
+    object VReopenTabs2: TMenuItem
+      Caption = 'Reopen All Tabs'
+      OnClick = VReopenTabsClick
     end
   end
 end

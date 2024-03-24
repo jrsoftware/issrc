@@ -213,9 +213,11 @@ type
     TFilesDesigner: TMenuItem;
     VCloseTab: TMenuItem;
     VReopenTab: TMenuItem;
+    VReopenTabs: TMenuItem;
     MemosTabSetPopupMenu: TPopupMenu;
     VCloseTab2: TMenuItem;
     VReopenTab2: TMenuItem;
+    VReopenTabs2: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -318,6 +320,7 @@ type
     procedure TFilesDesignerClick(Sender: TObject);
     procedure VCloseTabClick(Sender: TObject);
     procedure VReopenTabClick(Sender: TObject);
+    procedure VReopenTabsClick(Sender: TObject);
     procedure MemosTabSetPopup(Sender: TObject);
     procedure MemosTabSetOnCloseButtonClick(Sender: TObject);
   private
@@ -455,6 +458,7 @@ type
     procedure ParseDebugInfo(DebugInfo: Pointer);
     procedure ReadMRUMainFilesList;
     procedure ReadMRUParametersList;
+    procedure ReopenTabOrTabs(const HiddenFileIndex: Integer);
     procedure ResetAllMemosLineState;
     procedure StartProcess;
     function SaveFile(const AMemo: TCompScintFileEdit; const SaveAs: Boolean): Boolean;
@@ -2290,6 +2294,7 @@ begin
   VReopenTab.Visible := MemosTabSet.Visible and (FHiddenFiles.Count > 0);
   if VReopenTab.Visible then
     UpdateReopenTabMenu(VReopenTab);
+  VReopenTabs.Visible := VReopenTab.Visible;
   VHide.Checked := not StatusPanel.Visible;
   VCompilerOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiCompilerOutput);
   VDebugOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugOutput);
@@ -2336,12 +2341,17 @@ begin
   VPreviousTabClick(Self);
 end;
 
-procedure TCompileForm.VReopenTabClick(Sender: TObject);
+procedure TCompileForm.ReopenTabOrTabs(const HiddenFileIndex: Integer);
 begin
-  var MenuItem := Sender as TMenuItem;
+  var ReopenFilename: String;
+  if HiddenFileIndex >= 0 then begin
+    ReopenFilename := FHiddenFiles[HiddenFileIndex];
+    FHiddenFiles.Delete(HiddenFileIndex);
+  end else begin
+    ReopenFilename := FHiddenFiles[0];
+    FHiddenFiles.Clear;
+  end;
 
-  var ReopenFilename := FHiddenFiles[MenuItem.Tag];
-  FHiddenFiles.Delete(MenuItem.Tag);
   UpdatePreprocMemos;
   SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
 
@@ -2352,6 +2362,16 @@ begin
       Break;
     end;
   end;
+end;
+
+procedure TCompileForm.VReopenTabClick(Sender: TObject);
+begin
+  ReopenTabOrTabs((Sender as TMenuItem).Tag);
+end;
+
+procedure TCompileForm.VReopenTabsClick(Sender: TObject);
+begin
+  ReopenTabOrTabs(-1);
 end;
 
 procedure TCompileForm.SyncZoom;
@@ -2720,6 +2740,7 @@ begin
   VReopenTab2.Visible := FHiddenFiles.Count > 0;
   if VReopenTab2.Visible then
     UpdateReopenTabMenu(VReopenTab2);
+  VReopenTabs2.Visible := VReopenTab2.Visible;
 end;
 
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
