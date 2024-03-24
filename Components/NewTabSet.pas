@@ -232,7 +232,7 @@ begin
     Size := Canvas.TextExtent(FTabs[I]);
     SizeX := Size.cx + (TabPaddingX * 2) + TabSpacing;
     if (I < FCloseButtons.Count) and FCloseButtons[I] then
-      Inc(SizeX, CloseButtonSizeX);
+      Inc(SizeX, MulDiv(CloseButtonSizeX, CurrentPPI, 96));
     SizeY := Size.cy + (TabPaddingY * 2);
     if FTabPosition = tpTop then
       Result.Top := CR.Bottom - SizeY;
@@ -245,7 +245,7 @@ end;
 
 function TNewTabSet.GetCloseButtonRect(const TabRect: TRect): TRect;
 begin
-  Result := TRect.Create(TabRect.Right - CloseButtonSizeX - TabPaddingX div 2,
+  Result := TRect.Create(TabRect.Right - MulDiv(CloseButtonSizeX, CurrentPPI, 96) - TabPaddingX div 2,
     TabRect.Top, TabRect.Right - TabPaddingX div 2, TabRect.Bottom);
 end;
 
@@ -320,11 +320,12 @@ var
        if (I < FCloseButtons.Count) and FCloseButtons[I] then begin
           var R2 := GetCloseButtonRect(R);
           if FMenuThemeData <> 0 then begin
-            Inc(R2.Left, 1);
-            Inc(R2.Top, 1);
+            var Offset := MulDiv(1, CurrentPPI, 96);
+            Inc(R2.Left, Offset);
+            Inc(R2.Top, Offset);
             DrawThemeBackground(FMenuThemeData, Canvas.Handle,  MENU_SYSTEMCLOSE, MSYSC_NORMAL, R2, nil);
           end else begin
-            InflateRect(R2, -3, -6);
+            InflateRect(R2, -MulDiv(3, CurrentPPI, 96), -MulDiv(6, CurrentPPI, 96));
             Canvas.Pen.Color := Canvas.Font.Color;
             Canvas.MoveTo(R2.Left, R2.Top);
             Canvas.LineTo(R2.Right, R2.Bottom);
