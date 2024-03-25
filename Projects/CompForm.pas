@@ -323,6 +323,7 @@ type
     procedure VReopenTabsClick(Sender: TObject);
     procedure MemosTabSetPopup(Sender: TObject);
     procedure MemosTabSetOnCloseButtonClick(Sender: TObject);
+    procedure StatusBarClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -688,7 +689,6 @@ constructor TCompileForm.Create(AOwner: TComponent);
       end;
       SyncEditorOptions;
       UpdateNewMainFileButtons;
-      UpdateHiddenFilesPanel;
       UpdateTheme;
 
       { Window state }
@@ -3173,6 +3173,7 @@ begin
     
     UpdateCaption;
     UpdatePreprocMemos;
+    UpdateHiddenFilesPanel;
     for Memo in FMemos do begin
       { Move caret to start of line to ensure it doesn't end up in the middle
         of a double-byte character if the code page changes from SBCS to DBCS }
@@ -3344,7 +3345,7 @@ end;
 
 procedure TCompileForm.UpdateHiddenFilesPanel;
 begin
-  if FOptions.OpenIncludedFiles and (FHiddenFiles.Count > 0) then begin
+  if MemosTabSet.Visible and (FHiddenFiles.Count > 0) then begin
     StatusBar.Panels[spHiddenFilesCount].Text := Format('Tabs closed: %d', [FHiddenFiles.Count]);
   end else
     StatusBar.Panels[spHiddenFilesCount].Text := '';
@@ -4952,6 +4953,24 @@ begin
     L := StrToIntDef(S, Low(L));
     if L <> Low(L) then
       FActiveMemo.CaretLine := L - 1;
+  end;
+end;
+
+procedure TCompileForm.StatusBarClick(Sender: TObject);
+begin
+  if MemosTabSet.Visible and (FHiddenFiles.Count > 0) then begin
+    var Point := SmallPointToPoint(TSmallPoint(DWORD(GetMessagePos)));
+    var X := StatusBar.ScreenToClient(Point).X;
+    var W := 0;
+    for var I := 0 to StatusBar.Panels.Count-1 do begin
+      Inc(W, StatusBar.Panels[I].Width);
+      if X < W then begin
+        if I = spHiddenFilesCount then
+          MemosTabSetPopupMenu.Popup(Point.X, Point.Y);
+        Break;
+      end else if I = spHiddenFilesCount then
+        Break;
+    end;
   end;
 end;
 

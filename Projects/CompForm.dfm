@@ -177,6 +177,7 @@ object CompileForm: TCompileForm
         Bevel = pbNone
         Width = 50
       end>
+    OnClick = StatusBarClick
     OnDrawPanel = StatusBarDrawPanel
     OnResize = StatusBarResize
   end
