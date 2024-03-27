@@ -161,6 +161,10 @@ object CompileForm: TCompileForm
       end
       item
         Bevel = pbNone
+        Width = 100
+      end
+      item
+        Bevel = pbNone
         Style = psOwnerDraw
         Width = 23
       end
@@ -173,6 +177,7 @@ object CompileForm: TCompileForm
         Bevel = pbNone
         Width = 50
       end>
+    OnClick = StatusBarClick
     OnDrawPanel = StatusBarDrawPanel
     OnResize = StatusBarResize
   end
@@ -329,10 +334,12 @@ object CompileForm: TCompileForm
     Width = 361
     Height = 21
     Align = alTop
+    OnCloseButtonClick = MemosTabSetOnCloseButtonClick
     TabIndex = 0
     Tabs.Strings = (
       'Main Script')
     TabPosition = tpTop
+    PopupMenu = MemosTabSetPopupMenu
     OnClick = MemosTabSetClick
   end
   object MainMenu1: TMainMenu
@@ -527,6 +534,18 @@ object CompileForm: TCompileForm
         Caption = '&Previous Tab'
         ShortCut = 24585
         OnClick = VPreviousTabClick
+      end
+      object VCloseTab: TMenuItem
+        Caption = 'Close Tab'
+        ShortCut = 16499
+        OnClick = VCloseTabClick
+      end
+      object VReopenTab: TMenuItem
+        Caption = 'Reopen Tab'
+      end
+      object VReopenTabs: TMenuItem
+        Caption = 'Reopen All Tabs'
+        OnClick = VReopenTabsClick
       end
       object N20: TMenuItem
         Caption = '-'
@@ -4306,5 +4325,22 @@ object CompileForm: TCompileForm
   object PrintDialog: TPrintDialog
     Left = 224
     Top = 149
+  end
+  object MemosTabSetPopupMenu: TPopupMenu
+    OnPopup = MemosTabSetPopup
+    Left = 48
+    Top = 51
+    object VCloseTab2: TMenuItem
+      Caption = 'Close Current Tab'
+      ShortCut = 16499
+      OnClick = VCloseTabClick
+    end
+    object VReopenTab2: TMenuItem
+      Caption = 'Reopen Tab'
+    end
+    object VReopenTabs2: TMenuItem
+      Caption = 'Reopen All Tabs'
+      OnClick = VReopenTabsClick
+    end
   end
 end

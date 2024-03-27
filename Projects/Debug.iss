@@ -2,6 +2,8 @@
 ; Opened when you run the Compil32.dproj project in Debug mode from the Delphi IDE
 ; Use it to test the compiler or Setup or the uninstaller
 
+#include "Debug2.iss"
+
 [Setup]
 AppName=ɯɐɹƃoɹd ʎɯ
 AppVerName=My Program version 1.5

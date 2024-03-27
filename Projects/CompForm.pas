@@ -211,6 +211,13 @@ type
     PrintDialog: TPrintDialog;
     FSaveEncodingUTF8NoPreamble: TMenuItem;
     TFilesDesigner: TMenuItem;
+    VCloseTab: TMenuItem;
+    VReopenTab: TMenuItem;
+    VReopenTabs: TMenuItem;
+    MemosTabSetPopupMenu: TPopupMenu;
+    VCloseTab2: TMenuItem;
+    VReopenTab2: TMenuItem;
+    VReopenTabs2: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -311,12 +318,19 @@ type
     procedure FindResultsListDblClick(Sender: TObject);
     procedure FPrintClick(Sender: TObject);
     procedure TFilesDesignerClick(Sender: TObject);
+    procedure VCloseTabClick(Sender: TObject);
+    procedure VReopenTabClick(Sender: TObject);
+    procedure VReopenTabsClick(Sender: TObject);
+    procedure MemosTabSetPopup(Sender: TObject);
+    procedure MemosTabSetOnCloseButtonClick(Sender: TObject);
+    procedure StatusBarClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
     FMainMemo: TCompScintFileEdit;                      { Doesn't change }
     FPreprocessorOutputMemo: TCompScintEdit;            { Doesn't change }
-    FFileMemos: TList<TCompScintFileEdit>;              { All memos except FPreprocessorOutputMemo }
+    FFileMemos: TList<TCompScintFileEdit>;              { All memos except FPreprocessorOutputMemo, including those without a tab }
+    FHiddenFiles: TStringList;                          { List of files which *do* use a memo but are hidden by the user and have no tab }
     FActiveMemo: TCompScintEdit;                        { Changes depending on user input }
     FErrorMemo, FStepMemo: TCompScintFileEdit;          { These change depending on user input }
     FMemosStyler: TInnoSetupStyler;                     { Single styler for all memos }
@@ -420,7 +434,7 @@ type
     function InitializeNonFileMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure InvalidateStatusPanel(const Index: Integer);
-    procedure LoadKnownIncludedFilesAndUpdateMemos(const AFilename: String);
+    procedure LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
     procedure MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
     procedure MemoCharAdded(Sender: TObject; Ch: AnsiChar);
     procedure MainMemoDropFiles(Sender: TObject; X, Y: Integer; AFiles: TStrings);
@@ -434,9 +448,10 @@ type
     procedure MemoModifiedChange(Sender: TObject);
     function MemoToTabIndex(const AMemo: TCompScintEdit): Integer;
     procedure MemoUpdateUI(Sender: TObject);
+    procedure UpdateReopenTabMenu(const Menu: TMenuItem);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
-    procedure MoveCaretAndActivateMemo(const AMemo: TCompScintEdit; const LineNumber: Integer; const AlwaysResetColumn: Boolean);
+    procedure MoveCaretAndActivateMemo(AMemo: TCompScintFileEdit; const LineNumber: Integer; const AlwaysResetColumn: Boolean);
     procedure NewMainFile;
     procedure NewMainFileUsingWizard;
     procedure OpenFile(AMemo: TCompScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
@@ -444,10 +459,11 @@ type
     procedure ParseDebugInfo(DebugInfo: Pointer);
     procedure ReadMRUMainFilesList;
     procedure ReadMRUParametersList;
+    procedure ReopenTabOrTabs(const HiddenFileIndex: Integer; const Activate: Boolean);
     procedure ResetAllMemosLineState;
     procedure StartProcess;
     function SaveFile(const AMemo: TCompScintFileEdit; const SaveAs: Boolean): Boolean;
-    procedure SaveKnownIncludedFiles(const AFilename: String);
+    procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String);
     procedure SetErrorLine(const AMemo: TCompScintFileEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TCompScintFileEdit; ALine: Integer);
@@ -465,6 +481,7 @@ type
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
+    procedure UpdateHiddenFilesPanel;
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
     procedure UpdateMemosTabSetVisibility;
@@ -475,7 +492,7 @@ type
     procedure UpdateSaveMenuItemAndButton;
     procedure UpdateTargetMenu;
     procedure UpdateTheme;
-    procedure UpdateThemeData(const Close, Open: Boolean);
+    procedure UpdateThemeData(const Open: Boolean);
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
@@ -527,16 +544,17 @@ uses
 
 const
   { Memos }
-  MaxMemos = 12; { Includes the main and preprocessor output memo's }
+  MaxMemos = 22; { Includes the main and preprocessor output memos }
   FirstIncludedFilesMemoIndex = 1; { This is an index into FFileMemos }
 
   { Status bar panel indexes }
   spCaretPos = 0;
   spModified = 1;
   spEditMode = 2;
-  spCompileIcon = 3;
-  spCompileProgress = 4;
-  spExtraStatus = 5;
+  spHiddenFilesCount = 3;
+  spCompileIcon = 4;
+  spCompileProgress = 5;
+  spExtraStatus = 6;
 
   { Output tab set indexes }
   tiCompilerOutput = 0;
@@ -764,6 +782,7 @@ begin
   for Memo in FMemos do
     if Memo is TCompScintFileEdit then
       FFileMemos.Add(TCompScintFileEdit(Memo));
+  FHiddenFiles := TStringList.Create(dupError, True, True);
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
   FErrorMemo := FMainMemo;
@@ -797,7 +816,7 @@ begin
 
   UpdateCaption;
 
-  UpdateThemeData(False, True);
+  UpdateThemeData(True);
 
   if CommandLineCompile then begin
     ReadSignTools(FSignTools);
@@ -849,7 +868,7 @@ destructor TCompileForm.Destroy;
   end;
 
 begin
-  UpdateThemeData(True, False);
+  UpdateThemeData(False);
 
   Application.OnActivate := nil;
   Application.OnIdle := nil;
@@ -870,6 +889,7 @@ begin
   FMRUParametersList.Free;
   FMRUMainFilesList.Free;
   FFileMemos.Free;
+  FHiddenFiles.Free;
   FMemos.Free;
 
   inherited;
@@ -1012,6 +1032,8 @@ begin
     FDebugTarget := dtSetup;
     UpdateTargetMenu;
   end;
+  FHiddenFiles.Clear;
+  UpdateHiddenFilesPanel;
   for Memo in FFileMemos do
     if Memo.Used then
       Memo.BreakPoints.Clear;
@@ -1028,7 +1050,7 @@ begin
   FMainMemo.ClearUndo;
 end;
 
-procedure TCompileForm.LoadKnownIncludedFilesAndUpdateMemos(const AFilename: String);
+procedure TCompileForm.LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
 var
   Strings: TStringList;
   IncludedFile: TIncludedFile;
@@ -1041,7 +1063,7 @@ begin
     if AFilename <> '' then begin
       Strings := TStringList.Create;
       try
-        LoadKnownIncludedFiles(AFilename, Strings);
+        LoadKnownIncludedAndHiddenFiles(AFilename, Strings, FHiddenFiles);
         if Strings.Count > 0 then begin
           try
             for I := 0 to Strings.Count-1 do begin
@@ -1065,7 +1087,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.SaveKnownIncludedFiles(const AFilename: String);
+procedure TCompileForm.SaveKnownIncludedAndHiddenFiles(const AFilename: String);
 var
   Strings: TStringList;
   IncludedFile: TIncludedFile;
@@ -1076,7 +1098,7 @@ begin
       try
         for IncludedFile in FIncludedFiles do
           Strings.Add(IncludedFile.Filename);
-        CompFunc.SaveKnownIncludedFiles(AFilename, Strings);
+        CompFunc.SaveKnownIncludedAndHiddenFiles(AFilename, Strings, FHiddenFiles);
       finally
         Strings.Free;
       end;
@@ -1184,7 +1206,8 @@ begin
     ModifyMRUMainFilesList(AFilename, True);
     if MainMemoAddToRecentDocs then
       AddFileToRecentDocs(AFilename);
-    LoadKnownIncludedFilesAndUpdateMemos(AFilename);
+    LoadKnownIncludedAndHiddenFilesAndUpdateMemos(AFilename);
+    UpdateHiddenFilesPanel;
   end;
 end;
 
@@ -1268,7 +1291,7 @@ begin
   Result := True;
   if AMemo = FMainMemo then begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
-    SaveKnownIncludedFiles(AMemo.Filename);
+    SaveKnownIncludedAndHiddenFiles(AMemo.Filename);
   end;
 end;
 
@@ -1433,6 +1456,30 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
     end;
   end;
 
+  procedure CleanHiddenFiles(const IncludedFiles: TIncludedFiles; const HiddenFiles: TStringList);
+  var
+    HiddenFileIncluded: array of Boolean;
+  begin
+    if HiddenFiles.Count > 0 then begin
+      { Clean previously hidden files which are no longer included }
+      if IncludedFiles.Count > 0 then begin
+        SetLength(HiddenFileIncluded, HiddenFiles.Count);
+        for var I := 0 to HiddenFiles.Count-1 do
+          HiddenFileIncluded[I] := False;
+        for var I := 0 to IncludedFiles.Count-1 do begin
+          var IncludedFile := IncludedFiles[I];
+          var HiddenFileIndex := HiddenFiles.IndexOf(IncludedFile.Filename);
+          if HiddenFileIndex <> -1 then
+            HiddenFileIncluded[HiddenFileIndex] := True;
+        end;
+        for var I := HiddenFiles.Count-1 downto 0 do
+          if not HiddenFileIncluded[I] then
+            HiddenFiles.Delete(I);
+      end else
+        HiddenFiles.Clear;
+    end;
+  end;
+
 begin
   Result := iscrSuccess;
   with PAppData(AppData)^ do
@@ -1480,7 +1527,9 @@ begin
         begin
           Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
-          Form.SaveKnownIncludedFiles(Filename);
+          CleanHiddenFiles(Form.FIncludedFiles, Form.FHiddenFiles);
+          Form.UpdateHiddenFilesPanel;
+          Form.SaveKnownIncludedAndHiddenFiles(Filename);
         end;
       iscbNotifySuccess:
         begin
@@ -2247,6 +2296,11 @@ begin
   VStatusBar.Checked := StatusBar.Visible;
   VNextTab.Enabled := MemosTabSet.Visible and (MemosTabSet.Tabs.Count > 1);
   VPreviousTab.Enabled := VNextTab.Enabled;
+  VCloseTab.Enabled := MemosTabSet.Visible and (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
+  VReopenTab.Visible := MemosTabSet.Visible and (FHiddenFiles.Count > 0);
+  if VReopenTab.Visible then
+    UpdateReopenTabMenu(VReopenTab);
+  VReopenTabs.Visible := VReopenTab.Visible;
   VHide.Checked := not StatusPanel.Visible;
   VCompilerOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiCompilerOutput);
   VDebugOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugOutput);
@@ -2272,6 +2326,59 @@ begin
   if NewTabIndex < 0 then
     NewTabIndex := MemosTabSet.Tabs.Count-1;
   MemosTabSet.TabIndex := NewTabIndex;
+end;
+
+procedure TCompileForm.VCloseTabClick(Sender: TObject);
+begin
+  var Index := MemoToTabIndex(FActiveMemo);
+  MemosTabSet.Tabs.Delete(Index);
+  MemosTabSet.Hints.Delete(Index);
+  MemosTabSet.CloseButtons.Delete(Index);
+  FActiveMemo.Visible := False;
+  FHiddenFiles.Add((FActiveMemo as TCompScintFileEdit).Filename);
+  UpdateHiddenFilesPanel;
+  SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
+
+  { Select next tab, except when we're already at the end }
+  VNextTabClick(Self);
+  VPreviousTabClick(Self);
+end;
+
+procedure TCompileForm.ReopenTabOrTabs(const HiddenFileIndex: Integer;
+  const Activate: Boolean);
+begin
+  var ReopenFilename: String;
+  if HiddenFileIndex >= 0 then begin
+    ReopenFilename := FHiddenFiles[HiddenFileIndex];
+    FHiddenFiles.Delete(HiddenFileIndex);
+  end else begin
+    ReopenFilename := FHiddenFiles[0];
+    FHiddenFiles.Clear;
+  end;
+  UpdateHiddenFilesPanel;
+
+  UpdatePreprocMemos;
+  SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
+
+  { Activate the memo if requested }
+  if Activate then begin
+    for var Memo in FFileMemos do begin
+      if Memo.Used and (PathCompare(Memo.Filename, ReopenFilename) = 0) then begin
+        MemosTabSet.TabIndex := MemoToTabIndex(memo);
+        Break;
+      end;
+    end
+  end;
+end;
+
+procedure TCompileForm.VReopenTabClick(Sender: TObject);
+begin
+  ReopenTabOrTabs((Sender as TMenuItem).Tag, True);
+end;
+
+procedure TCompileForm.VReopenTabsClick(Sender: TObject);
+begin
+  ReopenTabOrTabs(-1, True);
 end;
 
 procedure TCompileForm.SyncZoom;
@@ -2620,17 +2727,53 @@ begin
     OpenFile(FMainMemo, CommandLineFilename, False);
 end;
 
+procedure TCompileForm.UpdateReopenTabMenu(const Menu: TMenuItem);
+begin
+  Menu.Clear;
+  for var I := 0 to FHiddenFiles.Count-1 do begin
+    var MenuItem := TMenuItem.Create(Menu);
+    MenuItem.Caption := ExtractFileName(FHiddenFiles[I]);
+    MenuItem.Tag := I;
+    MenuItem.OnClick := VReopenTabClick;
+    Menu.Add(MenuItem);
+  end;
+end;
+
+procedure TCompileForm.MemosTabSetPopup(Sender: TObject);
+begin
+  { Main and preprocessor memos can't be hidden }
+  VCloseTab2.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
+
+  VReopenTab2.Visible := FHiddenFiles.Count > 0;
+  if VReopenTab2.Visible then
+    UpdateReopenTabMenu(VReopenTab2);
+  VReopenTabs2.Visible := VReopenTab2.Visible;
+end;
+
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
 
   { Also see MemoToTabIndex }
-  function TabIndexToMemoIndex(const TabIndex, MaxTabIndex: Integer): Integer;
+  function TabIndexToMemoIndex(const ATabIndex, AMaxTabIndex: Integer): Integer;
   begin
-    if TabIndex = 0 then
+    if ATabIndex = 0 then
       Result := 0 { First tab displays the main memo which is FMemos[0] }
-    else if FPreprocessorOutputMemo.Used and (TabIndex = MaxTabIndex) then
+    else if FPreprocessorOutputMemo.Used and (ATabIndex = AMaxTabIndex) then
       Result := 1 { Last tab displays the preprocessor output memo which is FMemos[1] }
-    else
-      Result := TabIndex+1; { Other tabs display include files which start second tab but at FMemos[2] }
+    else begin
+      { Only count memos not explicitly hidden by the user }
+      var TabIndex := 0;
+      for var MemoIndex := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
+        if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) = -1 then begin
+          Inc(TabIndex);
+          if TabIndex = ATabIndex then begin
+            Result := MemoIndex + 1;   { Other tabs display include files which start at second tab but at FMemos[2] }
+            Exit;
+          end;
+        end;
+      end;
+
+      raise Exception.Create('TabIndexToMemoIndex failed');
+    end;
   end;
 
 var
@@ -2653,6 +2796,11 @@ begin
   UpdateCaretPosPanel;
   UpdateEditModePanel;
   UpdateModifiedPanel;
+end;
+
+procedure TCompileForm.MemosTabSetOnCloseButtonClick(Sender: TObject);
+begin
+  VCloseTabClick(Self);
 end;
 
 procedure TCompileForm.InitializeFindText(Dlg: TFindDialog);
@@ -3025,6 +3173,7 @@ begin
     
     UpdateCaption;
     UpdatePreprocMemos;
+    UpdateHiddenFilesPanel;
     for Memo in FMemos do begin
       { Move caret to start of line to ensure it doesn't end up in the middle
         of a double-byte character if the code page changes from SBCS to DBCS }
@@ -3080,15 +3229,40 @@ begin
     if not FPreprocessorOutputMemo.Used then
       raise Exception.Create('not FPreprocessorOutputMemo.Used');
     Result := MemosTabSet.Tabs.Count-1 { Last tab displays the preprocessor output memo }
-  end else
-    Result := FFileMemos.IndexOf(AMemo as TCompScintFileEdit) { Other tabs display include files which start second tab }
+  end else begin
+    Result := FFileMemos.IndexOf(AMemo as TCompScintFileEdit); { Other tabs display include files which start second tab }
+
+   { Filter memos explicitly hidden by the user }
+    for var MemoIndex := Result-1 downto 0 do
+      if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) <> -1 then
+        Dec(Result);
+  end;
 end;
 
-procedure TCompileForm.MoveCaretAndActivateMemo(const AMemo: TCompScintEdit; const LineNumber: Integer;
+procedure TCompileForm.MoveCaretAndActivateMemo(AMemo: TCompScintFileEdit; const LineNumber: Integer;
   const AlwaysResetColumn: Boolean);
 var
   Pos: Integer;
 begin
+  { Reopen tab if needed }
+  var HiddenFileIndex := FHiddenFiles.IndexOf(AMemo.Filename);
+  if HiddenFileIndex <> -1 then begin
+    var SaveFileName := AMemo.Filename;
+    ReopenTabOrTabs(HiddenFileIndex, False);
+    { The above call to ReopenTabOrTabs will currently lead to a call to UpdateIncludedFilesMemos which
+      sets up all the memos. Currently it will keep same memo for the reopened file but in case it no
+      longer does at some point: look it up again }
+    AMemo := nil;
+    for var Memo in FFileMemos do begin
+      if Memo.Used and (PathCompare(Memo.Filename, SaveFilename) = 0) then begin
+        AMemo := Memo;
+        Break;
+      end;
+    end;
+    if AMemo = nil then
+      raise Exception.Create('AMemo MIA');
+  end;
+
   { Move caret }
   if AlwaysResetColumn or (AMemo.CaretLine <> LineNumber) then
     Pos := AMemo.GetPositionFromLine(LineNumber)
@@ -3103,7 +3277,7 @@ begin
   AMemo.CaretPosition := Pos;
 
   { Activate memo }
-  MemosTabSet.TabIndex := MemoToTabIndex(AMemo);
+  MemosTabSet.TabIndex := MemoToTabIndex(AMemo); { This causes MemosTabSetClick to show the memo }
 end;
 
 procedure TCompileForm.SetErrorLine(const AMemo: TCompScintFileEdit; const ALine: Integer);
@@ -3169,6 +3343,14 @@ begin
     StatusBar.Panels[spEditMode].Text := InsertText[FActiveMemo.InsertMode];
 end;
 
+procedure TCompileForm.UpdateHiddenFilesPanel;
+begin
+  if MemosTabSet.Visible and (FHiddenFiles.Count > 0) then begin
+    StatusBar.Panels[spHiddenFilesCount].Text := Format('Tabs closed: %d', [FHiddenFiles.Count]);
+  end else
+    StatusBar.Panels[spHiddenFilesCount].Text := '';
+end;
+
 procedure TCompileForm.UpdateMemosTabSetVisibility;
 begin
   MemosTabSet.Visible := FPreprocessorOutputMemo.Used or FFileMemos[FirstIncludedFilesMemoIndex].Used;
@@ -3186,12 +3368,14 @@ end;
 
 procedure TCompileForm.UpdatePreprocMemos;
 
-  procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList);
+  procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList;
+    const NewCloseButtons: TBoolList);
   begin
     if FOptions.ShowPreprocessorOutput and (FPreprocessorOutput <> '') and
        not SameStr(TrimRight(FMainMemo.Lines.Text), FPreprocessorOutput) then begin
       NewTabs.Add('Preprocessor Output');
       NewHints.Add('');
+      NewCloseButtons.Add(False);
       FPreprocessorOutputMemo.ReadOnly := False;
       try
         FPreprocessorOutputMemo.Lines.Text := FPreprocessorOutput;
@@ -3206,13 +3390,15 @@ procedure TCompileForm.UpdatePreprocMemos;
     end;
   end;
 
-  procedure UpdateIncludedFilesMemos(const NewTabs, NewHints: TStringList);
+  procedure UpdateIncludedFilesMemos(const NewTabs, NewHints: TStringList;
+    const NewCloseButtons: TBoolList);
   var
     IncludedFile: TIncludedFile;
-    I, NextMemoIndex, NewTabIndex: Integer;
+    I: Integer;
   begin
     if FOptions.OpenIncludedFiles and (FIncludedFiles.Count > 0) then begin
-      NextMemoIndex := FirstIncludedFilesMemoIndex;
+      var NextMemoIndex := FirstIncludedFilesMemoIndex;
+      var NextTabIndex := 1; { First tab displays the main memo  }
       FLoadingIncludedFiles := True;
       try
         for IncludedFile in FIncludedFiles do begin
@@ -3228,12 +3414,17 @@ procedure TCompileForm.UpdatePreprocMemos;
               OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
               IncludedFile.Memo.Used := True;
             end else if IncludedFile.Memo.CompilerFileIndex = UnknownCompilerFileIndex then begin
-             { Previously the included file came from the history }
+             { The file already has a memo but CompilerFileIndex is not set yet.
+               This happens if the initial load was from the history loaded by LoadKnownIncludedFiles and then the user does a compile.  }
               IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
             end;
-            NewTabIndex := 1+NextMemoIndex-FirstIncludedFilesMemoIndex;
-            NewTabs.Insert(NewTabIndex, PathExtractName(IncludedFile.Filename));
-            NewHints.Insert(NewTabIndex, GetFileTitle(IncludedFile.Filename));
+
+            if FHiddenFiles.IndexOf(IncludedFile.Filename) = -1 then begin
+              NewTabs.Insert(NextTabIndex, PathExtractName(IncludedFile.Filename));
+              NewHints.Insert(NextTabIndex, GetFileTitle(IncludedFile.Filename));
+              NewCloseButtons.Insert(NextTabIndex, True);
+              Inc(NextTabIndex);
+            end;
 
             Inc(NextMemoIndex);
             if NextMemoIndex = FFileMemos.Count then
@@ -3267,25 +3458,30 @@ procedure TCompileForm.UpdatePreprocMemos;
 
 var
   NewTabs, NewHints: TStringList;
+  NewCloseButtons: TBoolList;
   I, SaveTabIndex: Integer;
   SaveTabName: String;
 begin
   NewTabs := nil;
   NewHints := nil;
+  NewCloseButtons := nil;
   try
     NewTabs := TStringList.Create;
     NewTabs.Add(MemosTabSet.Tabs[0]); { 'Main Script' }
     NewHints := TStringList.Create;
     NewHints.Add(GetFileTitle(FMainMemo.Filename));
+    NewCloseButtons := TBoolList.Create;
+    NewCloseButtons.Add(False);
 
-    UpdatePreprocessorOutputMemo(NewTabs, NewHints);
-    UpdateIncludedFilesMemos(NewTabs, NewHints);
+    UpdatePreprocessorOutputMemo(NewTabs, NewHints, NewCloseButtons);
+    UpdateIncludedFilesMemos(NewTabs, NewHints, NewCloseButtons);
 
     { Set new tabs, try keep same file open }
     SaveTabIndex := MemosTabSet.TabIndex;
     SaveTabName := MemosTabSet.Tabs[MemosTabSet.TabIndex];
     MemosTabSet.Tabs := NewTabs;
     MemosTabSet.Hints := NewHints;
+    MemosTabSet.CloseButtons := NewCloseButtons;
     I := MemosTabSet.Tabs.IndexOf(SaveTabName);
     if I <> -1 then
        MemosTabSet.TabIndex := I;
@@ -3295,6 +3491,7 @@ begin
       MemosTabSetClick(MemosTabSet);
    end;
   finally
+    NewCloseButtons.Free;
     NewHints.Free;
     NewTabs.Free;
   end;
@@ -4375,26 +4572,21 @@ begin
   SetListTheme(FindResultsList);
 end;
 
-procedure TCompileForm.UpdateThemeData(const Close, Open: Boolean);
+procedure TCompileForm.UpdateThemeData(const Open: Boolean);
 begin
-  if Close then begin
-    if FProgressThemeData <> 0 then begin
-      CloseThemeData(FProgressThemeData);
-      FProgressThemeData := 0;
-    end;
+  if FProgressThemeData <> 0 then begin
+    CloseThemeData(FProgressThemeData);
+    FProgressThemeData := 0;
   end;
 
-  if Open then begin
-    if UseThemes then begin
-      FProgressThemeData := OpenThemeData(Handle, 'Progress');
-      if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSCHUNKSIZE, FProgressChunkSize) <> S_OK) or
-         (FProgressChunkSize <= 0) then
-        FProgressChunkSize := 6;
-      if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSSPACESIZE, FProgressSpaceSize) <> S_OK) or
-         (FProgressSpaceSize < 0) then  { ...since "OpusOS" theme returns a bogus -1 value }
-        FProgressSpaceSize := 2;
-    end else
-      FProgressThemeData := 0;
+  if Open and UseThemes then begin
+    FProgressThemeData := OpenThemeData(Handle, 'Progress');
+    if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSCHUNKSIZE, FProgressChunkSize) <> S_OK) or
+       (FProgressChunkSize <= 0) then
+      FProgressChunkSize := 6;
+    if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSSPACESIZE, FProgressSpaceSize) <> S_OK) or
+       (FProgressSpaceSize < 0) then  { ...since "OpusOS" theme returns a bogus -1 value }
+      FProgressSpaceSize := 2;
   end;
 end;
 
@@ -4764,6 +4956,24 @@ begin
   end;
 end;
 
+procedure TCompileForm.StatusBarClick(Sender: TObject);
+begin
+  if MemosTabSet.Visible and (FHiddenFiles.Count > 0) then begin
+    var Point := SmallPointToPoint(TSmallPoint(DWORD(GetMessagePos)));
+    var X := StatusBar.ScreenToClient(Point).X;
+    var W := 0;
+    for var I := 0 to StatusBar.Panels.Count-1 do begin
+      Inc(W, StatusBar.Panels[I].Width);
+      if X < W then begin
+        if I = spHiddenFilesCount then
+          MemosTabSetPopupMenu.Popup(Point.X, Point.Y);
+        Break;
+      end else if I = spHiddenFilesCount then
+        Break;
+    end;
+  end;
+end;
+
 procedure TCompileForm.StatusBarDrawPanel(StatusBar: TStatusBar;
   Panel: TStatusPanel; const Rect: TRect);
 var
@@ -4861,7 +5071,7 @@ end;
 procedure TCompileForm.WMThemeChanged(var Message: TMessage);
 begin
   { Don't Run to Cursor into this function, it will interrupt up the theme change }
-  UpdateThemeData(True, True);
+  UpdateThemeData(True);
   inherited;
 end;
 
