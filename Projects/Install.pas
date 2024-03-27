@@ -724,26 +724,24 @@ var
       { Note: Windows 7 doesn't automatically calculate sizes so set EstimatedSize ourselves. Do not set it
         on earlier Windows versions since calculated sizes are cached and clearing the cache would require
         updating an undocumented key at HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Management\ARPCache\<id>. }
-      if WindowsVersion shr 16 >= $0601 then begin
-        if (SetupHeader.UninstallDisplaySize.Hi = 0) and (SetupHeader.UninstallDisplaySize.Lo = 0) then begin
-          { Estimate the size by taking the size of all files and adding any ExtraDiskSpaceRequired. }
-          EstimatedSize := AfterInstallFilesSize;
-          Inc6464(EstimatedSize, SetupHeader.ExtraDiskSpaceRequired);
-          for I := 0 to Entries[seComponent].Count-1 do begin
-            with PSetupComponentEntry(Entries[seComponent][I])^ do begin
-              if ShouldProcessEntry(WizardComponents, nil, Name, '', Languages, '') then
-                Inc6464(EstimatedSize, ExtraDiskSpaceRequired);
-            end;
+      if (SetupHeader.UninstallDisplaySize.Hi = 0) and (SetupHeader.UninstallDisplaySize.Lo = 0) then begin
+        { Estimate the size by taking the size of all files and adding any ExtraDiskSpaceRequired. }
+        EstimatedSize := AfterInstallFilesSize;
+        Inc6464(EstimatedSize, SetupHeader.ExtraDiskSpaceRequired);
+        for I := 0 to Entries[seComponent].Count-1 do begin
+          with PSetupComponentEntry(Entries[seComponent][I])^ do begin
+            if ShouldProcessEntry(WizardComponents, nil, Name, '', Languages, '') then
+              Inc6464(EstimatedSize, ExtraDiskSpaceRequired);
           end;
-        end else
-          EstimatedSize := SetupHeader.UninstallDisplaySize;
-        { ARP on Windows 7 without SP1 only pays attention to the lower 6 bytes of EstimatedSize and
-          throws away the rest. For example putting in $4000001 (=4GB + 1KB) displays as 1 KB.
-          So we need to check for this. Already checked this is Windows 7 or newer above. }
-        if (Hi(NTServicePackLevel) > 0) or (WindowsVersion shr 16 > $0601) or (EstimatedSize.Hi = 0) then begin
-          Div64(EstimatedSize, 1024);
-          SetDWordValue(H2, 'EstimatedSize', EstimatedSize.Lo)
         end;
+      end else
+        EstimatedSize := SetupHeader.UninstallDisplaySize;
+      { ARP on Windows 7 without SP1 only pays attention to the lower 6 bytes of EstimatedSize and
+        throws away the rest. For example putting in $4000001 (=4GB + 1KB) displays as 1 KB.
+        So we need to check for this. Already checked this is Windows 7 or newer above. }
+      if (Hi(NTServicePackLevel) > 0) or (WindowsVersion shr 16 > $0601) or (EstimatedSize.Hi = 0) then begin
+        Div64(EstimatedSize, 1024);
+        SetDWordValue(H2, 'EstimatedSize', EstimatedSize.Lo)
       end;
 
       { Also see SetPreviousData in ScriptFunc.pas }

@@ -494,7 +494,7 @@ begin
     SetTaskbarButtonVisibility(False);
 
   RestartSystem := False;
-  AllowUninstallerShutdown := (WindowsVersion shr 16 >= $0600);
+  AllowUninstallerShutdown := True;
 
   try
     if DebugWnd <> 0 then

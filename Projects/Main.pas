@@ -1540,7 +1540,7 @@ end;
 
 function GetShellFolderByGUID(Folder: TGUID; const Create: Boolean): String;
 begin
-  if Assigned(SHGetKnownFolderPathFunc) and (WindowsVersion shr 16 >= $0600) then begin
+  if Assigned(SHGetKnownFolderPathFunc) then begin
     var dwFlags: DWORD := 0;
     if Create then
       dwFlags := dwFlags or KF_FLAG_CREATE;

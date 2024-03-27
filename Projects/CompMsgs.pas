@@ -185,7 +185,7 @@ const
   SCompilerEntryAlreadySpecified = '[%s] section directive "%s" already specified';
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
   SCompilerMinVersionWinMustBeZero = 'Minimum Windows version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
-  SCompilerMinVersionNTTooLow = 'Minimum NT version specified by MinVersion must be at least %s. (Windows 2000/XP/Server 2003 are no longer supported.)';
+  SCompilerMinVersionNTTooLow = 'Minimum NT version specified by MinVersion must be at least %s. (Windows Vista/Server 2008 R2 are no longer supported.)';
   SCompilerMinVersionRecommendation = 'Minimum NT version is set to %s but using %s instead (which is the default) is recommended.';
   SCompilerDiskSliceSizeInvalid = 'DiskSliceSize must be between %d and %d, or "max"';
   SCompilerDiskClusterSizeInvalid = 'DiskClusterSize must be between 1 and 32768';

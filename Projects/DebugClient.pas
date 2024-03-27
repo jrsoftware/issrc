@@ -2,7 +2,7 @@ unit DebugClient;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -71,9 +71,8 @@ begin
   if DebugClientWnd = 0 then
     InternalError('Failed to create DebugClientWnd');
 
-  { On Vista, unprivileged processes can't send messages to elevated processes
-    by default. Allow the debugger (which normally runs unprivileged) to send
-    messages to us. }
+  { Unprivileged processes can't send messages to elevated processes by default.
+    Allow the debugger (which normally runs unprivileged) to send messages to us. }
   for I := Low(DebugClientMessages) to High(DebugClientMessages) do
     AddToWindowMessageFilterEx(DebugClientWnd, DebugClientMessages[I]);
 

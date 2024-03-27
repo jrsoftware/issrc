@@ -3936,8 +3936,8 @@ begin
           Invalid;
         if SetupHeader.MinVersion.WinVersion <> 0 then
           AbortCompileOnLine(SCompilerMinVersionWinMustBeZero);
-        if SetupHeader.MinVersion.NTVersion < $06000000 then
-          AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, ['6.0']);
+        if SetupHeader.MinVersion.NTVersion < $06010000 then
+          AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, ['6.1']);
       end;
     ssMissingMessagesWarning: begin
         MissingMessagesWarning := StrToBool(Value);
