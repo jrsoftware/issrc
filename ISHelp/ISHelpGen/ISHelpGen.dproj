@@ -45,6 +45,7 @@
         <DCC_EXPLICIT_STRING_CAST_LOSS>false</DCC_EXPLICIT_STRING_CAST_LOSS>
         <DCC_IMPLICIT_INTEGER_CAST_LOSS>false</DCC_IMPLICIT_INTEGER_CAST_LOSS>
         <DCC_IMPLICIT_CONVERSION_LOSS>false</DCC_IMPLICIT_CONVERSION_LOSS>
+        <DCC_DcuOutput>Dcu\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>

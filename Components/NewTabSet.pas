@@ -2,7 +2,7 @@ unit NewTabSet;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,34 +12,52 @@ unit NewTabSet;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, ModernColors;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Math, Generics.Collections,
+  ModernColors, UxTheme;
 
 type
   TTabPosition = (tpTop, tpBottom);
 
+  TBoolList = TList<Boolean>;
+
   TNewTabSet = class(TCustomControl)
   private
+    FCloseButtons: TBoolList;
     FHints: TStrings;
+    FMenuThemeData: HTHEME;
+    FOnCloseButtonClick: TNotifyEvent;
     FTabs: TStrings;
     FTabIndex: Integer;
     FTabPosition: TTabPosition;
+    FTabsOffset: Integer;
     FTheme: TTheme;
+    FThemeDark: Boolean;
     function GetTabRect(Index: Integer): TRect;
+    function GetCloseButtonRect(const TabRect: TRect): TRect;
     procedure InvalidateTab(Index: Integer);
+    procedure CloseButtonsListChanged(Sender: TObject; const Item: Boolean;
+      Action: TCollectionNotification);
     procedure TabsListChanged(Sender: TObject);
+    procedure HintsListChanged(Sender: TObject);
+    procedure SetCloseButtons(Value: TBoolList);
     procedure SetTabs(Value: TStrings);
     procedure SetTabIndex(Value: Integer);
     procedure SetTabPosition(Value: TTabPosition);
     procedure SetTheme(Value: TTheme);
     procedure SetHints(const Value: TStrings);
+    procedure UpdateThemeData(const Open: Boolean);
+    procedure EnsureCurrentTabIsFullyVisible;
   protected
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+    procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure CreateParams(var Params: TCreateParams); override;
+    procedure CreateWnd; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure Paint; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    property CloseButtons: TBoolList read FCloseButtons write SetCloseButtons;
     property Theme: TTheme read FTheme write SetTheme;
   published
     property Align;
@@ -49,12 +67,17 @@ type
     property TabIndex: Integer read FTabIndex write SetTabIndex;
     property Tabs: TStrings read FTabs write SetTabs;
     property TabPosition: TTabPosition read FTabPosition write SetTabPosition default tpBottom;
+    property PopupMenu;
     property OnClick;
+    property OnCloseButtonClick: TNotifyEvent read FOnCloseButtonClick write FOnCloseButtonClick;
   end;
 
 procedure Register;
 
 implementation
+
+uses
+  WinApi.UxTheme;
 
 procedure Register;
 begin
@@ -135,14 +158,18 @@ const
   TabPaddingX = 5;
   TabPaddingY = 3;
   TabSpacing = 1;
+  CloseButtonSizeX = 12;
 
 constructor TNewTabSet.Create(AOwner: TComponent);
 begin
   inherited;
+  FCloseButtons := TBoolList.Create;
+  FCloseButtons.OnNotify := CloseButtonsListChanged;
   FTabs := TStringList.Create;
   TStringList(FTabs).OnChange := TabsListChanged;
   FTabPosition := tpBottom;
   FHints := TStringList.Create;
+  TStringList(FHints).OnChange := HintsListChanged;
   ControlStyle := ControlStyle + [csOpaque];
   Width := 129;
   Height := 21;
@@ -155,8 +182,15 @@ begin
     style := style and not (CS_HREDRAW or CS_VREDRAW);
 end;
 
+procedure TNewTabSet.CreateWnd;
+begin
+  inherited;
+  UpdateThemeData(True);
+end;
+
 destructor TNewTabSet.Destroy;
 begin
+  UpdateThemeData(False);
   FTabs.Free;
   inherited;
 end;
@@ -181,6 +215,13 @@ begin
   end;
 end;
 
+procedure TNewTabSet.WMThemeChanged(var Message: TMessage);
+begin
+  { Don't Run to Cursor into this function, it will interrupt up the theme change }
+  UpdateThemeData(True);
+  inherited;
+end;
+
 function TNewTabSet.GetTabRect(Index: Integer): TRect;
 var
   CR: TRect;
@@ -191,10 +232,12 @@ begin
   Canvas.Font.Assign(Font);
   if FTabPosition = tpBottom then
     Result.Top := 0;
-  Result.Right := 4;
+  Result.Right := 4 - FTabsOffset;
   for I := 0 to FTabs.Count-1 do begin
     Size := Canvas.TextExtent(FTabs[I]);
     SizeX := Size.cx + (TabPaddingX * 2) + TabSpacing;
+    if (I < FCloseButtons.Count) and FCloseButtons[I] then
+      Inc(SizeX, MulDiv(CloseButtonSizeX, CurrentPPI, 96));
     SizeY := Size.cy + (TabPaddingY * 2);
     if FTabPosition = tpTop then
       Result.Top := CR.Bottom - SizeY;
@@ -203,6 +246,12 @@ begin
       Exit;
   end;
   SetRectEmpty(Result);
+end;
+
+function TNewTabSet.GetCloseButtonRect(const TabRect: TRect): TRect;
+begin
+  Result := TRect.Create(TabRect.Right - MulDiv(CloseButtonSizeX, CurrentPPI, 96) - TabPaddingX div 2,
+    TabRect.Top, TabRect.Right - TabPaddingX div 2, TabRect.Bottom);
 end;
 
 procedure TNewTabSet.InvalidateTab(Index: Integer);
@@ -218,9 +267,20 @@ begin
   end;
 end;
 
+procedure TNewTabSet.CloseButtonsListChanged(Sender: TObject; const Item: Boolean;
+  Action: TCollectionNotification);
+begin
+  Invalidate;
+end;
+
 procedure TNewTabSet.TabsListChanged(Sender: TObject);
 begin
   Invalidate;
+end;
+
+procedure TNewTabSet.HintsListChanged(Sender: TObject);
+begin
+  ShowHint := FHints.Count > 0;
 end;
 
 procedure TNewTabSet.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
@@ -233,6 +293,14 @@ begin
     for I := 0 to FTabs.Count-1 do begin
       R := GetTabRect(I);
       if (X >= R.Left) and (X < R.Right) then begin
+        if (I = TabIndex) and (I < FCloseButtons.Count) and FCloseButtons[I] then begin
+          var R2 := GetCloseButtonRect(R);
+          if PtInRect(R2, TPoint.Create(X, Y)) then begin
+            if Assigned(OnCloseButtonClick) then
+              OnCloseButtonClick(Self);
+            Break;
+          end;
+        end;
         TabIndex := I;
         Break;
       end;
@@ -264,6 +332,23 @@ var
         else
           Canvas.Font.Color := clBtnText;
         Canvas.TextOut(R.Left + TabPaddingX, R.Top + TabPaddingY, FTabs[I]);
+
+       if (I < FCloseButtons.Count) and FCloseButtons[I] then begin
+          var R2 := GetCloseButtonRect(R);
+          if FMenuThemeData <> 0 then begin
+            var Offset := MulDiv(1, CurrentPPI, 96);
+            Inc(R2.Left, Offset);
+            Inc(R2.Top, Offset);
+            DrawThemeBackground(FMenuThemeData, Canvas.Handle,  MENU_SYSTEMCLOSE, MSYSC_NORMAL, R2, nil);
+          end else begin
+            InflateRect(R2, -MulDiv(3, CurrentPPI, 96), -MulDiv(6, CurrentPPI, 96));
+            Canvas.Pen.Color := Canvas.Font.Color;
+            Canvas.MoveTo(R2.Left, R2.Top);
+            Canvas.LineTo(R2.Right, R2.Bottom);
+            Canvas.MoveTo(R2.Left, R2.Bottom-1);
+            Canvas.LineTo(R2.Right, R2.Top-1);
+          end;
+        end;
         ExcludeClipRect(Canvas.Handle, R.Left, R.Top, R.Right, R.Bottom);
         Break;
       end;
@@ -332,10 +417,16 @@ begin
   DrawTabs(False);
 end;
 
+procedure TNewTabSet.SetCloseButtons(Value: TBoolList);
+begin
+  FCloseButtons.Clear;
+  for var V in Value do
+    FCloseButtons.Add(V);
+end;
+
 procedure TNewTabSet.SetHints(const Value: TStrings);
 begin
   FHints.Assign(Value);
-  ShowHint := FHints.Count > 0;
 end;
 
 procedure TNewTabSet.SetTabIndex(Value: Integer);
@@ -344,6 +435,7 @@ begin
     InvalidateTab(FTabIndex);
     FTabIndex := Value;
     InvalidateTab(Value);
+    EnsureCurrentTabIsFullyVisible;
     Click;
   end;
 end;
@@ -367,8 +459,56 @@ procedure TNewTabSet.SetTheme(Value: TTheme);
 begin
   if FTheme <> Value then begin
     FTheme := Value;
+    var NewThemeDark := (FTheme <> nil) and FTheme.Dark;
+    if FThemeDark <> NewThemeDark then
+      UpdateThemeData(True);
+    FThemeDark := NewThemeDark;
     Invalidate;
   end;
 end;
+
+procedure TNewTabSet.UpdateThemeData(const Open: Boolean);
+begin
+  if FMenuThemeData <> 0 then begin
+    CloseThemeData(FMenuThemeData);
+    FMenuThemeData := 0;
+  end;
+
+  if Open and UseThemes then begin
+    if (FTheme <> nil) and FTheme.Dark then
+      FMenuThemeData := OpenThemeData(Handle, 'DarkMode::Menu');
+    if FMenuThemeData = 0 then
+      FMenuThemeData := OpenThemeData(Handle, 'Menu');
+end;
+end;
+
+procedure TNewTabSet.EnsureCurrentTabIsFullyVisible;
+var
+  rcTab, rcCtl, rcLast: TRect;
+  iExtra, iDelta, iNewOffset: Integer;
+begin
+  rcCtl := ClientRect;
+  rcTab := GetTabRect(FTabIndex);
+
+  { Check and modify tabs offset so everything fits }
+  iExtra := Min(rcCtl.Width div 2, rcTab.Width * 4);  { arbitrary value, adjust as needed }
+  iDelta := rcTab.Width div 2;                        { arbitrary value, adjust as needed }
+
+  { Left side is easy, limit is always 0 }
+  if rcTab.Left < rcCtl.Left + iDelta then begin
+    FTabsOffset := Max(0, FTabsOffset - rcCtl.Left - rcTab.Left - iExtra);
+    Invalidate;
+  end;
+
+  { Right side limit depends on last tab and total available space }
+  if rcTab.Right > rcCtl.Right - iDelta then begin
+    iNewOffset := FTabsOffset + (rcTab.Right - rcCtl.Right) + iExtra;
+    FTabsOffset := 0; { We need the last tabs leftmost position w/o any offset }
+    rcLast := GetTabRect(FTabs.Count-1);
+    FTabsOffset := Max(0, Min(iNewOffset, rcLast.Right - rcCtl.Width + 10));
+    Invalidate;
+  end;
+end;
+
 
 end.

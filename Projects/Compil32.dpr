@@ -36,10 +36,12 @@ uses
   ScintEdit in '..\Components\ScintEdit.pas',
   ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas',
   ModernColors in '..\Components\ModernColors.pas',
-  CompMessageBoxDesigner in 'CompMessageBoxDesigner.pas' {MBDForm},
-  CompScintEdit in 'CompScintEdit.pas';
+  CompMsgBoxDesigner in 'CompMsgBoxDesigner.pas' {MsgBoxDesignerForm},
+  CompScintEdit in 'CompScintEdit.pas',
+  CompFilesDesigner in 'CompFilesDesigner.pas' {FilesDesignerForm},
+  CompWizardFilesHelper in 'CompWizardFilesHelper.pas';
 
-{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} 
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.0}
 {$SETPESUBSYSVERSION 6.0}
 {$WEAKLINKRTTI ON}
@@ -89,7 +91,7 @@ begin
       if CommandLineCompile then
         CommandLine := '/CC ' + CommandLine;
     end;
-    
+
     if Length(CommandLine) > RESTART_MAX_CMD_LINE then
       CommandLine := '';
 
@@ -109,7 +111,7 @@ const
   MutexName = 'InnoSetupCompilerAppMutex';
 begin
   CreateMutex(MutexName);
-  CreateMutex('Global\' + MutexName);  { don't localize }
+  CreateMutex('Global\' + MutexName); { don't localize }
 end;
 
 var

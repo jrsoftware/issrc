@@ -41,8 +41,8 @@ procedure OpenMailingListSite;
 procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
 procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
   const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
-procedure LoadKnownIncludedFiles(const AFilename: String; const IncludedFiles: TStringList);
-procedure SaveKnownIncludedFiles(const AFilename: String; const IncludedFiles: TStringList);
+procedure LoadKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
+procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 procedure DeleteKnownIncludedFiles(const AFilename: String);
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
@@ -239,26 +239,26 @@ begin
   end;
 end;
 
-procedure LoadKnownIncludedFiles(const AFilename: String; const IncludedFiles: TStringList);
-var
-  Ini: TConfigIniFile;
-  OldDelimiter: Char;
+procedure LoadKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 begin
-  OldDelimiter := IncludedFiles.Delimiter;
-  Ini := TConfigIniFile.Create;
+  var OldIncludedFilesDelimiter := IncludedFiles.Delimiter;
+  var OldHiddenFilesDelimiter := HiddenFiles.Delimiter;
+  var Ini := TConfigIniFile.Create;
   try
     IncludedFiles.Delimiter := '*';
     IncludedFiles.DelimitedText := Ini.ReadString('IncludedFilesHistory', AFilename, '');
+
+    HiddenFiles.Delimiter := '*';
+    HiddenFiles.DelimitedText := Ini.ReadString('HiddenFilesHistory', AFilename, '');
+
   finally
     Ini.Free;
-    IncludedFiles.Delimiter := OldDelimiter;
+    IncludedFiles.Delimiter := OldIncludedFilesDelimiter;
+    HiddenFiles.Delimiter := OldHiddenFilesDelimiter;
   end;
 end;
 
-procedure SaveKnownIncludedFiles(const AFilename: String; const IncludedFiles: TStringList);
-var
-  Ini: TConfigIniFile;
-  OldDelimiter: Char;
+procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 begin
   if IncludedFiles.Count = 0 then begin
     DeleteKnownIncludedFiles(AFilename);
@@ -268,14 +268,18 @@ begin
   if AFilename = '' then
     raise Exception.Create('AFilename must be set');
 
-  OldDelimiter := IncludedFiles.Delimiter;
-  Ini := TConfigIniFile.Create;
+  var OldIncludedFilesDelimiter := IncludedFiles.Delimiter;
+  var OldHiddenFilesDelimiter := HiddenFiles.Delimiter;
+  var Ini := TConfigIniFile.Create;
   try
     IncludedFiles.Delimiter := '*';
     Ini.WriteString('IncludedFilesHistory', AFilename, IncludedFiles.DelimitedText);
+    HiddenFiles.Delimiter := '*';
+    Ini.WriteString('HiddenFilesHistory', AFilename, HiddenFiles.DelimitedText);
   finally
     Ini.Free;
-    IncludedFiles.Delimiter := OldDelimiter;
+    IncludedFiles.Delimiter := OldIncludedFilesDelimiter;
+    HiddenFiles.Delimiter := OldHiddenFilesDelimiter;
   end;
 end;
 
@@ -289,6 +293,7 @@ begin
   Ini := TConfigIniFile.Create;
   try
     Ini.DeleteKey('IncludedFilesHistory', AFilename);
+    Ini.DeleteKey('HiddenFilesHistory', AFilename);
   finally
     Ini.Free;
   end;

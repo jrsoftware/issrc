@@ -14,8 +14,9 @@ interface
 {$I VERSION.INC}
 
 uses
-  Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs,
-  UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook;
+  Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
+  UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
+  CompWizardFilesHelper;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
@@ -140,15 +141,7 @@ type
     procedure AppRootDirComboBoxChange(Sender: TObject);
     procedure NotCreateAppDirCheckClick(Sender: TObject);
     procedure AppExeButtonClick(Sender: TObject);
-    procedure AppFilesListBoxClick(Sender: TObject);
-    procedure AppFilesListBoxDblClick(Sender: TObject);
-    procedure AppFilesAddButtonClick(Sender: TObject);
     procedure NotDisableProgramGroupPageCheckClick(Sender: TObject);
-    procedure AppFilesEditButtonClick(Sender: TObject);
-    procedure AppFilesRemoveButtonClick(Sender: TObject);
-    procedure AppFilesAddDirButtonClick(Sender: TObject);
-    procedure AppFilesListBoxDropFile(Sender: TDropListBox;
-      const FileName: String);
     procedure PasswordEditChange(Sender: TObject);
     procedure OutputDirButtonClick(Sender: TObject);
     procedure AllLanguagesButtonClick(Sender: TObject);
@@ -160,7 +153,7 @@ type
   private
     CurPage: TWizardPage;
     FWizardName: String;
-    FWizardFiles: TList;
+    FFilesHelper: TWizardFormFilesHelper;
     FLanguages: TStringList;
     FResult: TWizardFormResult;
     FResultScript: String;
@@ -168,9 +161,6 @@ type
     procedure SetWizardName(const WizardName: String);
     procedure CurPageChanged;
     function SkipCurPage: Boolean;
-    procedure AddWizardFile(const Source: String; const RecurseSubDirs, CreateAllSubDirs: Boolean);
-    procedure UpdateWizardFiles;
-    procedure UpdateWizardFilesButtons;
     procedure UpdateAppExeControls;
     procedure UpdateAppAssocControls;
     procedure UpdateAppIconsControls;
@@ -284,7 +274,9 @@ begin
   FResult := wrNone;
 
   FWizardName := SWizardDefaultName;
-  FWizardFiles := TList.Create;
+  FFilesHelper := TWizardFormFilesHelper.Create(Handle,
+    NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
+    AppFilesEditButton, AppFilesRemoveButton);
 
   FLanguages := TStringList.Create;
   FLanguages.Sorted := True;
@@ -344,7 +336,6 @@ begin
   { AppFiles }
   AppExeEdit.Text := PathExtractPath(NewParamStr(0)) + 'Examples\MyProg.exe';
   AppExeRunCheck.Checked := True;
-  UpdateWizardFilesButtons;
 
   { AppAssoc }
   CreateAssocCheck.Checked := True;
@@ -396,13 +387,9 @@ begin
 end;
 
 procedure TWizardForm.FormDestroy(Sender: TObject);
-var
-  I: Integer;
 begin
   FLanguages.Free;
-  for I := 0 to FWizardFiles.Count-1 do
-    Dispose(FWizardFiles[i]);
-  FWizardFiles.Free;
+  FFilesHelper.Free;
 end;
 
 { --- }
@@ -594,47 +581,6 @@ end;
 
 {---}
 
-procedure TWizardForm.AddWizardFile(const Source: String; const RecurseSubDirs, CreateAllSubDirs: Boolean);
-var
-  WizardFile: PWizardFile;
-begin
-  New(WizardFile);
-  WizardFile.Source := Source;
-  WizardFile.RecurseSubDirs := RecurseSubDirs;
-  WizardFile.CreateAllSubDirs := CreateAllSubDirs;
-  WizardFile.DestRootDirIsConstant := True;
-  if not NotCreateAppDirCheck.Checked then
-    WizardFile.DestRootDir := '{app}'
-  else
-    WizardFile.DestRootDir := '{win}';
-  WizardFile.DestSubDir := '';
-  FWizardFiles.Add(WizardFile);
-end;
-
-procedure TWizardForm.UpdateWizardFiles;
-var
-  WizardFile: PWizardFile;
-  I: Integer;
-begin
-  AppFilesListBox.Items.BeginUpdate;
-  AppFilesListBox.Items.Clear;
-  for I := 0 to FWizardFiles.Count-1 do begin
-    WizardFile := FWizardFiles[i];
-    AppFilesListBox.Items.Add(WizardFile.Source);
-  end;
-  AppFilesListBox.Items.EndUpdate;
-  UpdateHorizontalExtent(AppFilesListBox);
-end;
-
-procedure TWizardForm.UpdateWizardFilesButtons;
-var
-  Enabled: Boolean;
-begin
-  Enabled := AppFilesListBox.ItemIndex >= 0;
-  AppFilesEditButton.Enabled := Enabled;
-  AppFilesRemoveButton.Enabled := Enabled;
-end;
-
 procedure TWizardForm.UpdateAppExeControls;
 var
   Enabled: Boolean;
@@ -761,96 +707,6 @@ begin
   UpdateAppIconsControls;
 end;
 
-procedure TWizardForm.AppFilesListBoxClick(Sender: TObject);
-begin
-  UpdateWizardFilesButtons;
-end;
-
-procedure TWizardForm.AppFilesListBoxDblClick(Sender: TObject);
-begin
-  if AppFilesEditButton.Enabled then
-    AppFilesEditButton.Click;
-end;
-
-procedure TWizardForm.AppFilesAddButtonClick(Sender: TObject);
-var
-  FileList: TStringList;
-  I: Integer;
-begin
-  FileList := TStringList.Create;
-  try
-    if NewGetOpenFileNameMulti('', FileList, '', SWizardAllFilesFilter, '', Handle) then begin
-      FileList.Sort;
-      for I := 0 to FileList.Count-1 do
-        AddWizardFile(FileList[I], False, False);
-      UpdateWizardFiles;
-    end;
-  finally
-    FileList.Free;
-  end;
-end;
-
-procedure TWizardForm.AppFilesAddDirButtonClick(Sender: TObject);
-var
-  Path: String;
-  Recurse: Boolean;
-begin
-  Path := '';
-  if BrowseForFolder(SWizardAppFiles3, Path, Handle, False) then begin
-    case MsgBox(Format(SWizardAppFilesSubDirsMessage, [Path]), '', mbConfirmation, MB_YESNOCANCEL) of
-      IDYES: Recurse := True;
-      IDNO: Recurse := False;
-    else
-      Exit;
-    end;
-    AddWizardFile(AddBackslash(Path) + '*', Recurse, Recurse);
-    UpdateWizardFiles;
-  end;
-end;
-
-procedure TWizardForm.AppFilesListBoxDropFile(Sender: TDropListBox;
-  const FileName: String);
-begin
-  if DirExists(FileName) then
-    AddWizardFile(AddBackslash(FileName) + '*', True, True)
-  else
-    AddWizardFile(FileName, False, False);
-  UpdateWizardFiles;
-  UpdateWizardFilesButtons;
-end;
-
-procedure TWizardForm.AppFilesEditButtonClick(Sender: TObject);
-var
-  WizardFileForm: TWizardFileForm;
-  Index: Integer;
-begin
-  WizardFileForm := TWizardFileForm.Create(Application);
-  try
-    Index := AppFilesListBox.ItemIndex;
-    WizardFileForm.AllowAppDestRootDir := not NotCreateAppDirCheck.Checked;
-    WizardFileForm.WizardFile := FWizardFiles[Index];
-    if WizardFileForm.ShowModal = mrOK then begin
-      UpdateWizardFiles;
-      AppFilesListBox.ItemIndex := Index;
-      AppFilesListBox.TopIndex := Index;
-      UpdateWizardFilesButtons;
-    end;
-  finally
-    WizardFileForm.Free;
-  end;
-end;
-
-procedure TWizardForm.AppFilesRemoveButtonClick(Sender: TObject);
-var
-  I: Integer;
-begin
-  I := AppFilesListBox.ItemIndex;
-  Dispose(FWizardFiles[I]);
-  FWizardFiles.Delete(I);
-  UpdateWizardFiles;
-  UpdateWizardFilesButtons;
-end;
-
 procedure TWizardForm.CreateAssocCheckClick(Sender: TObject);
 begin
   UpdateAppAssocControls;
@@ -939,7 +795,6 @@ end;
 procedure TWizardForm.GenerateScript;
 var
   Script, ISPP, Setup, Languages, Tasks, Files, Registry, INI, Icons, Run, UninstallDelete: String;
-  WizardFile: PWizardFile;
   I: Integer;
   AppExeName, AppName, AppAmpEscapedName, AppAssocKey, LanguageName, LanguageMessagesFile: String;
 begin
@@ -1054,15 +909,7 @@ begin
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\Applications\' + AppExeName + '\SupportedTypes"; ValueType: string; ValueName: ".myp"; ValueData: ""' + SNewLine;
     end;
 
-    for I := 0 to FWizardFiles.Count-1 do begin
-      WizardFile := FWizardFiles[I];
-      Files := Files + 'Source: "' + WizardFile.Source + '"; DestDir: "' + RemoveBackslashUnlessRoot(AddBackslash(WizardFile.DestRootDir) + WizardFile.DestSubDir) + '"; Flags: ignoreversion';
-      if WizardFile.RecurseSubDirs then
-        Files := Files + ' recursesubdirs';
-      if WizardFile.CreateAllSubDirs then
-        Files := Files + ' createallsubdirs';
-      Files := Files + SNewLine;
-    end;
+    FFilesHelper.AddScript(Files);
 
     { AppGroup }
     if not NotCreateAppDirCheck.Checked then begin
