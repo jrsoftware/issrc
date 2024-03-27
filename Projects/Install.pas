@@ -2,7 +2,7 @@ unit Install;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -2008,15 +2008,15 @@ var
     procedure CreateAnIcon(Name: String; const Description, Path, Parameters,
       WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
       const NeverUninstall: Boolean; const CloseOnExit: TSetupIconCloseOnExit;
-      const HotKey: Word; FolderShortcut: Boolean;
-      const AppUserModelID: String; const AppUserModelToastActivatorCLSID: PGUID;
+      const HotKey: Word; const AppUserModelID: String;
+      const AppUserModelToastActivatorCLSID: PGUID;
       const ExcludeFromShowInNewInstall, PreventPinning: Boolean);
     var
       BeginsWithGroup: Boolean;
       LinkFilename, PifFilename, UrlFilename, DirFilename, ProbableFilename,
         ResultingFilename: String;
       Flags: TMakeDirFlags;
-      URLShortcut, FolderShortcutCreated: Boolean;
+      URLShortcut: Boolean;
     begin
       BeginsWithGroup := Copy(Name, 1, 8) = '{group}\';
       { Note: PathExpand removes trailing spaces, so it can't be called on
@@ -2032,12 +2032,6 @@ var
         Include(Flags, mdNoUninstall)
       else if BeginsWithGroup then
         Include(Flags, mdAlwaysUninstall);
-
-      { On Windows 7, folder shortcuts don't expand properly on the Start Menu
-        (they just show "target"), so ignore the foldershortcut flag.
-        (Windows Vista works fine.) }
-      if FolderShortcut and WindowsVersionAtLeast(6, 1) then
-        FolderShortcut := False;
 
       URLShortcut := IsPathURL(Path);
       if URLShortcut then
@@ -2066,12 +2060,11 @@ var
           environment-variable strings (e.g. %SystemRoot%\...) }
         ResultingFilename := CreateShellLink(LinkFilename, Description, Path,
           Parameters, WorkingDir, IconFilename, IconIndex, ShowCmd, HotKey,
-          FolderShortcut, AppUserModelID, AppUserModelToastActivatorCLSID,
+          AppUserModelID, AppUserModelToastActivatorCLSID,
           ExcludeFromShowInNewInstall, PreventPinning);
-        FolderShortcutCreated := FolderShortcut and DirExists(ResultingFilename);
 
         { If a .pif file was created, apply the "Close on exit" setting }
-        if (CloseOnExit <> icNoSetting) and not FolderShortcutCreated and
+        if (CloseOnExit <> icNoSetting) and
            (CompareText(PathExtractExt(ResultingFilename), '.pif') = 0) then begin
           try
             ModifyPifFile(ResultingFilename, CloseOnExit = icYes);
@@ -2084,7 +2077,6 @@ var
         { Create an Internet Shortcut (.url) file }
         CreateURLFile(UrlFilename, Path, IconFilename, IconIndex);
         ResultingFilename := UrlFilename;
-        FolderShortcutCreated := False;
       end;
 
       Log('Successfully created the icon.');
@@ -2093,24 +2085,14 @@ var
       CreatedIcon := True;
 
       { Notify shell of the change }
-      if FolderShortcutCreated then
-        SHChangeNotify(SHCNE_MKDIR, SHCNF_PATH, PChar(ResultingFilename), nil)
-      else
-        SHChangeNotify(SHCNE_CREATE, SHCNF_PATH, PChar(ResultingFilename), nil);
+      SHChangeNotify(SHCNE_CREATE, SHCNF_PATH, PChar(ResultingFilename), nil);
       SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH or SHCNF_FLUSH,
         PChar(PathExtractDir(ResultingFilename)), nil);
 
       { Add uninstall log entries }
       if not NeverUninstall then begin
-        if FolderShortcutCreated then begin
-          UninstLog.Add(utDeleteDirOrFiles, [ResultingFilename],
-            utDeleteDirOrFiles_IsDir or utDeleteDirOrFiles_CallChangeNotify);
-          UninstLog.Add(utDeleteFile, [AddBackslash(ResultingFilename) + 'target.lnk'], 0);
-          UninstLog.Add(utDeleteFile, [AddBackslash(ResultingFilename) + 'Desktop.ini'], 0);
-        end
-        else if URLShortcut then begin
-          UninstLog.Add(utDeleteFile, [ResultingFilename], utDeleteFile_CallChangeNotify);
-        end
+        if URLShortcut then
+          UninstLog.Add(utDeleteFile, [ResultingFilename], utDeleteFile_CallChangeNotify)
         else begin
           { Even though we only created one file, go ahead and try deleting
             both a .lnk and .pif file at uninstall time, in case the user
@@ -2164,7 +2146,7 @@ var
                 ExpandConst(Parameters), ExpandConst(WorkingDir),
                 ExpandConst(IconFilename), IconIndex, ShowCmd,
                 ioUninsNeverUninstall in Options, CloseOnExit, HotKey,
-                ioFolderShortcut in Options, ExpandConst(AppUserModelID), TACLSID,
+                ExpandConst(AppUserModelID), TACLSID,
                 ioExcludeFromShowInNewInstall in Options,
                 ioPreventPinning in Options)
             end else

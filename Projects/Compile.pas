@@ -5022,10 +5022,10 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..9] of PChar = (
+  Flags: array[0..8] of PChar = (
     'uninsneveruninstall', 'runminimized', 'createonlyiffileexists',
     'useapppaths', 'closeonexit', 'dontcloseonexit', 'runmaximized',
-    'foldershortcut', 'excludefromshowinnewinstall', 'preventpinning');
+    'excludefromshowinnewinstall', 'preventpinning');
 var
   Values: array[TParam] of TParamValue;
   NewIconEntry: PSetupIconEntry;
@@ -5055,9 +5055,8 @@ begin
           4: CloseOnExit := icYes;
           5: CloseOnExit := icNo;
           6: ShowCmd := SW_SHOWMAXIMIZED;
-          7: Include(Options, ioFolderShortcut);
-          8: Include(Options, ioExcludeFromShowInNewInstall);
-          9: Include(Options, ioPreventPinning);
+          7: Include(Options, ioExcludeFromShowInNewInstall);
+          8: Include(Options, ioPreventPinning);
         end;
 
       { Name }
@@ -8226,7 +8225,7 @@ var
     end;
   end;
 
-  procedure PrepareSetupE32(var M: TMemoryFile; const RemoveManifestDllHijackProtection: Boolean);
+  procedure PrepareSetupE32(var M: TMemoryFile);
   var
     TempFilename, E32Filename, ConvertFilename: String;
     ConvertFile: TFile;
@@ -8252,21 +8251,11 @@ var
         UpdateVersionInfo(ConvertFile, TFileVersionNumbers(nil^), VersionInfoProductVersion, VersionInfoCompany,
           '', '', VersionInfoCopyright, VersionInfoProductName, VersionInfoProductTextVersion, VersionInfoOriginalFileName,
           False);
-        if RemoveManifestDllHijackProtection then begin
-          AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.E32']));
-          CompExeUpdate.RemoveManifestDllHijackProtection(ConvertFile, False);
-        end else begin
-          { Use the opportunity to check that the manifest is correctly prepared for removing the
-            protection, without actually removing it. Doing this only once per compile since there's
-            only one source manifest. }
-          CompExeUpdate.RemoveManifestDllHijackProtection(ConvertFile, True);
-        end;
       finally
         ConvertFile.Free;
       end;
       M := TMemoryFile.Create(ConvertFilename);
-      UpdateSetupPEHeaderFields(M, RemoveManifestDllHijackProtection, TerminalServicesAware,
-        DEPCompatible, ASLRCompatible);
+      UpdateSetupPEHeaderFields(M, TerminalServicesAware, DEPCompatible, ASLRCompatible);
       if shSignedUninstaller in SetupHeader.Options then
         SignSetupE32(M);
     finally
@@ -8402,10 +8391,8 @@ var
   SetupE32: TMemoryFile;
   I: Integer;
   AppNameHasConsts, AppVersionHasConsts, AppPublisherHasConsts,
-    AppCopyrightHasConsts, AppIdHasConsts, Uninstallable, RemoveManifestDllHijackProtection: Boolean;
+    AppCopyrightHasConsts, AppIdHasConsts, Uninstallable: Boolean;
   PrivilegesRequiredValue: String;
-  OSVersionInfo: TOSVersionInfo;
-  WindowsVersion: Cardinal;
 begin
   { Sanity check: A single TSetupCompiler instance cannot be used to do
     multiple compiles. A separate instance must be used for each compile,
@@ -8752,24 +8739,9 @@ begin
     { Prepare Setup executable & signed uninstaller data }
     if Output then begin
       AddStatus(SCompilerStatusPreparingSetupExe);
-      { The manifest block protecting special DLLs breaks Vista compatibility }
-      RemoveManifestDllHijackProtection := SetupHeader.MinVersion.NTVersion < $06010000;
-      if RemoveManifestDllHijackProtection then
-        WarningsList.Add(Format(SCompilerRemoveManifestDllHijackProtection, ['6.1']))
-      else begin
-        OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
-        if GetVersionEx(OSVersionInfo) then begin
-          WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or
-            (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
-          if WindowsVersion < Cardinal($06010000) then
-            WarningsList.Add(Format(SCompilerDidntRemoveManifestDllHijackProtection, ['6.1']))
-        end;
-      end;
-      PrepareSetupE32(SetupE32, RemoveManifestDllHijackProtection);
-    end else begin
+      PrepareSetupE32(SetupE32);
+    end else
       AddStatus(SCompilerStatusSkippingPreparingSetupExe);
-      RemoveManifestDllHijackProtection := False; { silence compiler }
-    end;
 
     { Read languages:
 
@@ -9040,8 +9012,7 @@ begin
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);
           try
-            UpdateSetupPEHeaderFields(SetupFile, RemoveManifestDllHijackProtection,
-              TerminalServicesAware, DEPCompatible, ASLRCompatible);
+            UpdateSetupPEHeaderFields(SetupFile, TerminalServicesAware, DEPCompatible, ASLRCompatible);
             SizeOfExe := SetupFile.Size.Lo;
           finally
             SetupFile.Free;
@@ -9101,10 +9072,7 @@ begin
               True);
 
             { Update manifest if needed }
-            if RemoveManifestDllHijackProtection then begin
-              AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.EXE']));
-              CompExeUpdate.RemoveManifestDllHijackProtection(ExeFile, False);
-            end else if UseSetupLdr then begin
+            if UseSetupLdr then begin
               AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.EXE']));
               CompExeUpdate.PreventCOMCTL32Sideloading(ExeFile);
             end;

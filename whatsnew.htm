@@ -52,6 +52,11 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   <li>The tab for the selected #include file now shows a close button.</li>
   <li>Added a clickable panel to the Status Bar showing the amount of closed tabs if there are any.</li>
 </ul>
+<p><span class="head2">Support for Windows Vista and Windows Server 2008 removed</span></p>
+<ul>
+  <li><b>OS requirements change:</b> Windows Vista and Windows Server 2008 are no longer supported. Windows 7 and Windows Server 2008 R2 are now the minimum supported operating systems. [Setup] section directive <tt>MinVersion</tt> still defaults to <tt>6.1sp1</tt>, so by default Setup will still not run versions of Windows 7 and Windows Server 2008 R2 which have not been updated.</li>
+  <li>Removed [Icons] section flag <tt>foldershortcut</tt> which was already ignored except when running on Windows Vista or Windows Server 2008, as folder shortcuts do not expand properly on the Start Menu anymore.</li>
+</ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li>Compiler IDE change: Added new <i>[Files] Entries Designer</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the [Files] section.</li>

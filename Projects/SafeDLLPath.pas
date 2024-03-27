@@ -2,7 +2,7 @@ unit SafeDLLPath;
 
 {
   Inno Setup
-  Copyright (C) 1997-2016 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -55,7 +55,6 @@ const
 
 var
   KernelModule: HMODULE;
-  WinVer: WORD;
   SystemDir: String;
   SetDefaultDllDirectoriesFunc: function(DirectoryFlags: DWORD): BOOL; stdcall;
   DidSetDefaultDllDirectories: Boolean;
@@ -96,15 +95,12 @@ end;
 
 initialization
   KernelModule := GetModuleHandle(kernel32);
-  WinVer := Swap(Word(GetVersion()));
 
   DidSetDefaultDllDirectories := False;
-  if WinVer <> $0600 then begin //see NSIS link above: CoCreateInstance(CLSID_ShellLink, ...) fails on Vista if SetDefaultDllDirectories is called
-    SetDefaultDllDirectoriesFunc := GetProcAddress(KernelModule, PAnsiChar('SetDefaultDllDirectories'));
-    if Assigned(SetDefaultDllDirectoriesFunc) then
-      DidSetDefaultDllDirectories := SetDefaultDllDirectoriesFunc(LOAD_LIBRARY_SEARCH_SYSTEM32);
-  end;
-    
+  SetDefaultDllDirectoriesFunc := GetProcAddress(KernelModule, PAnsiChar('SetDefaultDllDirectories'));
+  if Assigned(SetDefaultDllDirectoriesFunc) then
+    DidSetDefaultDllDirectories := SetDefaultDllDirectoriesFunc(LOAD_LIBRARY_SEARCH_SYSTEM32);
+
   if not DidSetDefaultDllDirectories then begin
     SetDllDirectoryFunc := GetProcAddress(KernelModule, PAnsiChar('SetDllDirectoryW'));
     if Assigned(SetDllDirectoryFunc) then

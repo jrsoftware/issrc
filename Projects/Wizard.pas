@@ -2,7 +2,7 @@ unit Wizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -2703,26 +2703,18 @@ var
     pszPath: PChar; dwFlags: DWORD): HRESULT; stdcall;
 
 procedure ReconnectPath(const Path: String);
-{ Attempts to re-establish the connection to Path if it's on a network drive.
-  It is particularly important to call this on Windows Vista, where mapped
-  network drives are initially disconnected in elevated processes.
-  Only has an effect on Windows XP and later. }
+{ Attempts to re-establish the connection to Path if it's on a network drive
+  since mapped network drives are initially disconnected in elevated processes. }
 var
   WindowList: Pointer;
 begin
   { If this fails, we shouldn't display any message boxes since the install
-    might be running silently with /SUPPRESSMSGBOXES.
-    Because of that requirement, we must limit this code to Windows XP and
-    later: The SHPathPrepareForWrite documentation claims that "user interface
-    windows will not be created" when hwnd is NULL, however I found that on
-    Windows 2000, it can still display unowned "An error occurred while
-    reconnecting" message boxes (e.g. if you log in with persistently mapped
-    drives while your Local Area Connection is disabled).
-    Windows XP/2003/Vista suppress these message boxes when NULL is passed. }
-  if (WindowsVersion >= Cardinal($05010000)) and
-     Assigned(SHPathPrepareForWriteFunc) then begin
-    { "Just in case" XP and later tries to display UI (it never did in my
-      tests), disable our windows }
+    might be running silently with /SUPPRESSMSGBOXES and this is indeed so:
+    The SHPathPrepareForWrite documentation claims that "user interface
+    windows will not be created" when hwnd is NULL. }
+  if Assigned(SHPathPrepareForWriteFunc) then begin
+    { "Just in case" it tries to display UI anyway (it never did in tests),
+      disable our windows }
     WindowList := DisableTaskWindows(0);
     try
       SHPathPrepareForWriteFunc(0, nil, PChar(Path), SHPPFW_NONE);

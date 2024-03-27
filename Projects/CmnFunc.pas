@@ -2,7 +2,7 @@ unit CmnFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -429,9 +429,6 @@ begin
     FOwnerWnd := CreateWindowEx(0, WindowDisablerWndClassName, '',
       WS_POPUP or WS_DISABLED, 0, 0, 0, 0, HWND_DESKTOP, 0, HInstance, nil);
     if FOwnerWnd <> 0 then begin
-      { Note: We give the window a valid title since the user can see it in the
-        Alt+Tab list (on 2000 and XP, but not Vista, which appears to exclude
-        zero-width/height windows). }
       FFallbackWnd := CreateWindowEx(0, WindowDisablerWndClassName,
         PChar(Application.Title), WS_POPUP, 0, 0, 0, 0, FOwnerWnd, 0,
         HInstance, nil);

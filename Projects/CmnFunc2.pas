@@ -2,7 +2,7 @@ unit CmnFunc2;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -764,9 +764,8 @@ begin
   { From MSDN: 32-bit applications can access the native system directory by
     substituting %windir%\Sysnative for %windir%\System32. WOW64 recognizes
     Sysnative as a special alias used to indicate that the file system should
-    not redirect the access. The Sysnative alias was added starting
-    with Windows Vista. }
-  if IsWin64 and (Lo(GetVersion) >= 6) then
+    not redirect the access. }
+  if IsWin64 then
     { Note: Avoiding GetWinDir here as that might not return the real Windows
       directory under Terminal Services }
     Result := PathExpand(AddBackslash(GetSystemDir) + '..\Sysnative') { Do not localize }
@@ -1603,8 +1602,7 @@ var
     action: DWORD; pChangeFilterStruct: Pointer): BOOL; stdcall;
 
 procedure AddToWindowMessageFilter(const Msg: UINT);
-{ Adds a single message number to the process-wide message filter on Windows
-  Vista and later. Has no effect on prior Windows versions. }
+{ Adds a single message number to the process-wide message filter. }
 const
   MSGFLT_ADD = 1;
 begin
@@ -1618,9 +1616,9 @@ begin
 end;
 
 procedure AddToWindowMessageFilterEx(const Wnd: HWND; const Msg: UINT);
-{ Adds a single message number to Wnd's window-specific message filter, which
-  is supported on Windows 7 and later. On Windows Vista, it falls back to
-  modifying the process-wide message filter. }
+{ Adds a single message number to Wnd's window-specific message filter. Falls
+  back to modifying the process-wide message filter but in reality that should
+  never happen. }
 const
   MSGFLT_ALLOW = 1;
 begin
@@ -1635,34 +1633,18 @@ begin
     AddToWindowMessageFilter(Msg);
 end;
 
-{$IFNDEF UNICODE}
-function CharInSet(C: AnsiChar; const CharSet: TSysCharSet): Boolean;
-begin
-  Result := C in CharSet;
-end;
-{$ENDIF}
-
 function ShutdownBlockReasonCreate(Wnd: HWND; const Reason: String): Boolean;
 var
   ShutdownBlockReasonCreateFunc: function(Wnd: HWND; pwszReason: LPCWSTR): Bool; stdcall;
-{$IFNDEF UNICODE}
-  Buf: array[0..4095] of WideChar;
-{$ENDIF}
 begin
   { MSDN doesn't say whether you must call Destroy before a second Create, but it does say a Destroy
     without a previous Create is a no-op, so call Destroy for safety. }
   ShutdownBlockReasonDestroy(Wnd);
 
   ShutdownBlockReasonCreateFunc := GetProcAddress(GetModuleHandle(user32), 'ShutdownBlockReasonCreate');
-  if Assigned(ShutdownBlockReasonCreateFunc) then begin
-{$IFDEF UNICODE}
-    Result := ShutdownBlockReasonCreateFunc(Wnd, PChar(Reason));
-{$ELSE}
-    Buf[MultiByteToWideChar(CP_ACP, 0, PChar(Reason), Length(Reason), Buf,
-      (SizeOf(Buf) div SizeOf(Buf[0])) - 1)] := #0;
-    Result := ShutdownBlockReasonCreateFunc(Wnd, Buf);
-{$ENDIF}
-  end else
+  if Assigned(ShutdownBlockReasonCreateFunc) then
+    Result := ShutdownBlockReasonCreateFunc(Wnd, PChar(Reason))
+  else
     Result := False;
 end;
 

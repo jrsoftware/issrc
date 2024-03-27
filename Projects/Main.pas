@@ -1314,18 +1314,9 @@ procedure InitMainNonSHFolderConsts;
     Paths: array[Boolean] of PChar = (NEWREGSTR_PATH_SETUP,
       'SOFTWARE\Microsoft\Windows NT\CurrentVersion');
   var
-    RegView: TRegView;
     K: HKEY;
   begin
-    { Windows Vista and Server 2008 x64 are bugged: the owner and organization
-      are set to "Microsoft" on the 32-bit key. So on 64-bit Windows, read
-      from the 64-bit key. (The bug doesn't exist on 64-bit XP or Server 2003,
-      but it's safe to read the 64-bit key on those versions too.) }
-    if IsWin64 then
-      RegView := rv64Bit
-    else
-      RegView := rvDefault;
-    if RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, Paths[IsNT], 0, KEY_QUERY_VALUE,
+    if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, Paths[IsNT], 0, KEY_QUERY_VALUE,
        K) = ERROR_SUCCESS then begin
       RegQueryStringValue(K, 'RegisteredOwner', SysUserInfoName);
       RegQueryStringValue(K, 'RegisteredOrganization', SysUserInfoOrg);
@@ -1525,23 +1516,15 @@ var
 begin
   { Note: Must pass Create=True or else SHGetFolderPath fails if the
     specified CSIDL is valid but doesn't currently exist. }
-  if Create then
+  if Create then begin
+    { First try calling the function without CSIDL_FLAG_CREATE.
+      If and only if that fails, call it again with the flag.
+      Note: The calls *must* be issued in this order; if it's called with the
+      flag first, it seems to permanently cache the failure code, causing future
+      calls that don't include the flag to fail as well. }
+    Res := SHGetFolderPathFunc(0, Folder, 0, SHGFP_TYPE_CURRENT, Buf);
     Folder := Folder or CSIDL_FLAG_CREATE;
-
-  { Work around a nasty bug in Windows Vista (still present in SP1) and
-    Windows Server 2008: When a folder ID resolves to the root directory of a
-    drive ('X:\') and the CSIDL_FLAG_CREATE flag is passed, SHGetFolderPath
-    fails with code 0x80070005.
-    So on Vista only, first try calling the function without CSIDL_FLAG_CREATE.
-    If and only if that fails, call it again with the flag.
-    Note: The calls *must* be issued in this order; if it's called with the
-    flag first, it seems to permanently cache the failure code, causing future
-    calls that don't include the flag to fail as well. }
-  if (WindowsVersion shr 16 >= $0600) and
-     (Folder and CSIDL_FLAG_CREATE <> 0) then
-    Res := SHGetFolderPathFunc(0, Folder and not CSIDL_FLAG_CREATE, 0,
-      SHGFP_TYPE_CURRENT, Buf)
-  else
+  end else
     Res := E_FAIL;  { always issue the call below }
 
   if Res <> S_OK then
@@ -1606,15 +1589,15 @@ var
 begin
   if not ShellFoldersRead[Common, ID] then begin
     if ID = sfUserProgramFiles then begin
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles {Windows 7+}, True);
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles, True);
       if ShellFolder = '' then
-        ShellFolder := ExpandConst('{localappdata}\Programs'); { supply default, same as Window 7 and newer }
+        ShellFolder := ExpandConst('{localappdata}\Programs'); { supply default, same as Windows }
     end else if ID = sfUserCommonFiles then begin
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon {Windows 7+}, True);
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon, True);
       if ShellFolder = '' then
-        ShellFolder := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Window 7 and newer }
+        ShellFolder := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Windows }
     end else if ID = sfUserSavedGames then
-      ShellFolder := GetShellFolderByGUID(FOLDERID_SavedGames {Vista+}, True)
+      ShellFolder := GetShellFolderByGUID(FOLDERID_SavedGames, True)
     else
       ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], True);
     ShellFolders[Common, ID] := ShellFolder;
@@ -1979,8 +1962,7 @@ begin
     { From MSDN: "Installers should not disable file system redirection before calling
       the Restart Manager API. This means that a 32-bit installer run on 64-bit Windows
       is unable register a file in the %windir%\system32 directory." This is incorrect,
-      we can register such files by using the Sysnative alias. Note: the Sysnative alias
-      is only available on Windows Vista and newer, but so is Restart Manager. }
+      we can register such files by using the Sysnative alias. }
     if DisableFsRedir then
       Filename := ReplaceSystemDirWithSysNative(Filename, IsWin64);
 
@@ -1989,11 +1971,7 @@ begin
 
     Len := Length(Filename);
     GetMem(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount], (Len + 1) * SizeOf(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount][0]));
-    {$IFNDEF UNICODE}
-      RegisterFileFilenames[RegisterFileFilenamesCount][MultiByteToWideChar(CP_ACP, 0, PChar(Filename), Len, RegisterFileFilenames[RegisterFileFilenamesCount], Len)] := #0;
-    {$ELSE}
-      StrPCopy(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount], Filename);
-    {$ENDIF}
+    StrPCopy(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount], Filename);
     Inc(RegisterFileFilenamesBatchCount);
 
     Inc(RmRegisteredFilesCount);

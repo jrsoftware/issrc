@@ -2,7 +2,7 @@ program Compil32;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -42,8 +42,8 @@ uses
   CompWizardFilesHelper in 'CompWizardFilesHelper.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
 {$R Compil32.docicon.res}

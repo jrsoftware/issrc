@@ -2,7 +2,7 @@ program Setup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -133,8 +133,7 @@ begin
       end;
     WM_ENDSESSION: begin
         { Should only get here if RestartInitiatedByThisProcess is set or an
-          Uninstaller shutdown was allowed, or if the user forced a shutdown
-          on Vista or newer.
+          Uninstaller shutdown was allowed, or if the user forced a shutdown.
           Skip the default handling which calls Halt. No code of ours depends
           on the Halt call to clean up, and it could theoretically result in
           obscure reentrancy bugs.

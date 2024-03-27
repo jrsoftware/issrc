@@ -4636,21 +4636,18 @@ begin
   Info.lpDirectory := PChar(WorkingDir);
   Info.nShow := SW_SHOWNORMAL;
   { Disable windows so that the user can't click other things while a "Run as"
-    dialog is up on Windows 2000/XP (they aren't system modal like on Vista) }
+    dialog is up but is not system modal (which is it currently) }
   SaveFocusWindow := GetFocus;
   WindowList := DisableTaskWindows(0);
   try
     { Also temporarily remove the focus since a disabled window's children can
-      still receive keystrokes. This is needed on Vista if the UAC dialog
-      doesn't come to the foreground for some reason (e.g. if the following
-      SetActiveWindow call is removed). }
+      still receive keystrokes. This is needed if the UAC dialog doesn't come to
+      the foreground for some reason (e.g. if the following SetActiveWindow call
+      is removed). }
     Windows.SetFocus(0);
-    { On Vista, when disabling windows, we have to make the application window
-      the active window, otherwise the UAC dialog doesn't come to the
-      foreground automatically. Note: This isn't done on older versions simply
-      to avoid unnecessary title bar flicker. }
-    if Win32MajorVersion >= 6 then
-      SetActiveWindow(Application.Handle);
+    { We have to make the application window the active window, otherwise the
+      UAC dialog doesn't come to the foreground automatically. }
+    SetActiveWindow(Application.Handle);
     ShellExecuteResult := ShellExecuteEx(@Info);
     ErrorCode := GetLastError;
   finally
