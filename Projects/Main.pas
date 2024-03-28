@@ -1314,9 +1314,18 @@ procedure InitMainNonSHFolderConsts;
     Paths: array[Boolean] of PChar = (NEWREGSTR_PATH_SETUP,
       'SOFTWARE\Microsoft\Windows NT\CurrentVersion');
   var
+    RegView: TRegView;
     K: HKEY;
   begin
-    if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, Paths[IsNT], 0, KEY_QUERY_VALUE,
+    { Windows 7 (and later?) is bugged: the owner and organization
+      are set to "Microsoft" on the 32-bit key. So on 64-bit Windows, read
+      from the 64-bit key. (The bug doesn't exist on 64-bit XP or Server 2003,
+      but it's safe to read the 64-bit key on those versions too.) }
+    if IsWin64 then
+      RegView := rv64Bit
+    else
+      RegView := rvDefault;
+    if RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, Paths[IsNT], 0, KEY_QUERY_VALUE,
        K) = ERROR_SUCCESS then begin
       RegQueryStringValue(K, 'RegisteredOwner', SysUserInfoName);
       RegQueryStringValue(K, 'RegisteredOrganization', SysUserInfoOrg);
@@ -1516,15 +1525,22 @@ var
 begin
   { Note: Must pass Create=True or else SHGetFolderPath fails if the
     specified CSIDL is valid but doesn't currently exist. }
-  if Create then begin
-    { First try calling the function without CSIDL_FLAG_CREATE.
-      If and only if that fails, call it again with the flag.
-      Note: The calls *must* be issued in this order; if it's called with the
-      flag first, it seems to permanently cache the failure code, causing future
-      calls that don't include the flag to fail as well. }
-    Res := SHGetFolderPathFunc(0, Folder, 0, SHGFP_TYPE_CURRENT, Buf);
+  if Create then
     Folder := Folder or CSIDL_FLAG_CREATE;
-  end else
+
+  { Work around a nasty bug in Windows Vista and Windows Server 2008 and maybe
+    later versions also: When a folder ID resolves to the root directory of a
+    drive ('X:\') and the CSIDL_FLAG_CREATE flag is passed, SHGetFolderPath
+    fails with code 0x80070005.
+    So, first try calling the function without CSIDL_FLAG_CREATE.
+    If and only if that fails, call it again with the flag.
+    Note: The calls *must* be issued in this order; if it's called with the
+    flag first, it seems to permanently cache the failure code, causing future
+    calls that don't include the flag to fail as well. }
+  if Folder and CSIDL_FLAG_CREATE <> 0 then
+    Res := SHGetFolderPathFunc(0, Folder and not CSIDL_FLAG_CREATE, 0,
+      SHGFP_TYPE_CURRENT, Buf)
+  else
     Res := E_FAIL;  { always issue the call below }
 
   if Res <> S_OK then
@@ -1588,15 +1604,11 @@ var
   ShellFolder: String;
 begin
   if not ShellFoldersRead[Common, ID] then begin
-    if ID = sfUserProgramFiles then begin
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles, True);
-      if ShellFolder = '' then
-        ShellFolder := ExpandConst('{localappdata}\Programs'); { supply default, same as Windows }
-    end else if ID = sfUserCommonFiles then begin
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon, True);
-      if ShellFolder = '' then
-        ShellFolder := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Windows }
-    end else if ID = sfUserSavedGames then
+    if ID = sfUserProgramFiles then
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles, True)
+    else if ID = sfUserCommonFiles then
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon, True)
+    else if ID = sfUserSavedGames then
       ShellFolder := GetShellFolderByGUID(FOLDERID_SavedGames, True)
     else
       ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], True);
