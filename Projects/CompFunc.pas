@@ -119,7 +119,7 @@ begin
 end;
 
 procedure AddFileToRecentDocs(const Filename: String);
-{ Notifies the shell that a document has been opened. On Windows 7, this will
+{ Notifies the shell that a document has been opened. This will
   add the file to the Recent section of the app's Jump List.
   It is only necessary to call this function when the shell is unaware that
   a file is being opened. Files opened through Explorer or common dialogs get

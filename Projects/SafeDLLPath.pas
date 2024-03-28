@@ -25,8 +25,6 @@ unit SafeDLLPath;
   It also calls SetSearchPathMode to enable "safe search mode", which causes
   SearchPath, and callers of SearchPath such as CreateProcess, to search the
   current directory after the system directories (rather than before).
-  SetSearchPathMode is available in Windows 7 and newer, and on previous
-  versions that have the KB959426 update installed.
 
   Finally, it calls SetProcessDEPPolicy (where available) to enable DEP for
   the lifetime of the process. (This has nothing to do with search paths;

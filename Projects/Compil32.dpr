@@ -54,9 +54,9 @@ procedure SetAppUserModelID;
 var
   Func: function(AppID: PWideChar): HRESULT; stdcall;
 begin
-  { On Windows 7, for the IDE to be pinnable and show a Jump List, it is
-    necessary to explicitly assign an AppUserModelID because by default the
-    taskbar excludes applications that have "Setup" in their name. }
+  { For the IDE to be pinnable and show a Jump List, it is necessary to
+    explicitly assign an AppUserModelID because by default the taskbar excludes
+    applications that have "Setup" in their name. }
   Func := GetProcAddress(GetModuleHandle('shell32.dll'),
     'SetCurrentProcessExplicitAppUserModelID');
   if Assigned(Func) then

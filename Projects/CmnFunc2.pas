@@ -749,7 +749,6 @@ begin
     {$ELSE}
       'GetSystemWow64DirectoryA'
     {$ENDIF} );
-  { Note: This function does exist on 32-bit XP, but always returns 0 }
   if Assigned(GetSystemWow64DirectoryFunc) then begin
     Res := GetSystemWow64DirectoryFunc(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
     if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then
