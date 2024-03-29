@@ -2,7 +2,7 @@ unit ScintEdit;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -633,12 +633,6 @@ begin
   Call(SCI_SETSCROLLWIDTHTRACKING, 1, 0);
   { The default popup menu conflicts with the VCL's PopupMenu on Delphi 3 }
   Call(SCI_USEPOPUP, 0, 0);
-{$IFNDEF UNICODE}
-  { This hack is needed because non-Unicode VCL replaces the Scintilla's
-    default Unicode window proc with an ANSI one }
-  if Win32Platform = VER_PLATFORM_WIN32_NT then
-    Call(SCI_SETKEYSUNICODE, 1, 0);
-{$ENDIF}
   SetDefaultWordChars;
   ApplyOptions;
   UpdateStyleAttributes;

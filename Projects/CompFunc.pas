@@ -466,10 +466,7 @@ var
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
-  if Win32Platform = VER_PLATFORM_WIN32_NT then
-    Dir := GetSystemDir
-  else
-    Dir := GetWinDir;
+  Dir := GetSystemDir;
 
   FillChar(StartupInfo, SizeOf(StartupInfo), 0);
   StartupInfo.cb := SizeOf(StartupInfo);

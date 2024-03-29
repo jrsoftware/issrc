@@ -2,7 +2,7 @@ unit RegSvr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -53,8 +53,7 @@ end;
 
 function RenameToNonRandomTempName(const Filename: String): String;
 { Renames Filename to a name in the format: isRS-nnn.tmp. Returns the new
-  filename if successful, or '' if not.
-  Note: This is an NT-only function, as it calls MoveFileEx. }
+  filename if successful, or '' if not. Calls MoveFileEx. }
 var
   Path, NewFilename: String;
   Attribs: DWORD;
@@ -91,18 +90,14 @@ var
   SelfFilename, NewFilename: String;
 begin
   SelfFilename := NewParamStr(0);
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-    { On NT, RestartReplace will fail if the user doesn't have admin
-      privileges. We don't want to leak temporary files, so try to rename
-      ourself to a non-random name. This way, future runs should just keep
-      overwriting the same temp file. }
-    DeleteOldTempFiles(PathExtractPath(SelfFilename));
-    NewFilename := RenameToNonRandomTempName(SelfFilename);
-    if NewFilename <> '' then
-      RestartReplace(False, NewFilename, '')
-    else
-      RestartReplace(False, SelfFilename, '');
-  end
+  { RestartReplace will fail if the user doesn't have admin
+    privileges. We don't want to leak temporary files, so try to rename
+    ourself to a non-random name. This way, future runs should just keep
+    overwriting the same temp file. }
+  DeleteOldTempFiles(PathExtractPath(SelfFilename));
+  NewFilename := RenameToNonRandomTempName(SelfFilename);
+  if NewFilename <> '' then
+    RestartReplace(False, NewFilename, '')
   else
     RestartReplace(False, SelfFilename, '');
 end;

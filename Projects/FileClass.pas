@@ -629,9 +629,7 @@ const
 begin
   inherited Create;
 
-  { Dynamically import RtlNtStatusToDosError since Windows 95 doesn't have it }
-  if not Assigned(_RtlNtStatusToDosError) and
-     (Win32Platform = VER_PLATFORM_WIN32_NT) then
+  if not Assigned(_RtlNtStatusToDosError) then
     _RtlNtStatusToDosError := GetProcAddress(GetModuleHandle('ntdll.dll'),
       'RtlNtStatusToDosError');
 

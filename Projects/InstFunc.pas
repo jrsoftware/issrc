@@ -1269,8 +1269,7 @@ end;
 
 procedure RefreshEnvironment;
 { Notifies other applications (Explorer) that environment variables have
-  changed. Based on code from KB article 104011.
-  Note: Win9x's Explorer ignores this message. }
+  changed. Based on code from KB article 104011. }
 var
   MsgResult: DWORD_PTR;
 begin

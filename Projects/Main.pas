@@ -258,7 +258,6 @@ function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
   const RunEntry: PSetupRunEntry): Boolean;
 function TestPassword(const Password: String): Boolean;
 procedure UnloadSHFolderDLL;
-function WindowsVersionAtLeast(const AMajor, AMinor: Byte): Boolean;
 
 implementation
 
@@ -302,18 +301,11 @@ type
 
 { Misc. functions }
 
-function WindowsVersionAtLeast(const AMajor, AMinor: Byte): Boolean;
-begin
-  Result := (WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16)));
-end;
-
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
-{$IFDEF UNICODE}
 var
   UseAnsiCRC32: Boolean;
   S: AnsiString;
   I: Integer;
-{$ENDIF}
 begin
   { Set uninstall registry key base name }
   Result := ExpandedAppId;
@@ -325,7 +317,6 @@ begin
       resulting string is 57 characters long. On Unicode, only do this if we
       can get a CRC32 compatible with ANSI versions, else there's no point
       in shortening since Unicode doesn't run on Win95. }
-{$IFDEF UNICODE}
     UseAnsiCRC32 := True;
     for I := 1 to Length(Result) do begin
       if Ord(Result[I]) > 126 then begin
@@ -337,9 +328,6 @@ begin
       S := AnsiString(Result);
       FmtStr(Result, '%.48s~%.8x', [Result, GetCRC32(S[1], Length(S)*SizeOf(S[1]))]);
     end;
-{$ELSE}
-    FmtStr(Result, '%.48s~%.8x', [Result, GetCRC32(Result[1], Length(Result)*SizeOf(Result[1]))]);
-{$ENDIF}
   end;
 end;
 

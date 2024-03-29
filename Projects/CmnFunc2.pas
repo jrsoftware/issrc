@@ -766,13 +766,11 @@ begin
   Result := GetEnv('TEMP');
   if (Result <> '') and DirExists(Result) then
     goto 1;
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-    { Like Windows 2000's GetTempPath, return USERPROFILE when TMP and TEMP
-      are not set }
-    Result := GetEnv('USERPROFILE');
-    if (Result <> '') and DirExists(Result) then
-      goto 1;
-  end;
+  { Like Windows 2000's GetTempPath, return USERPROFILE when TMP and TEMP
+    are not set }
+  Result := GetEnv('USERPROFILE');
+  if (Result <> '') and DirExists(Result) then
+    goto 1;
   Result := GetWinDir;
 1:Result := AddBackslash(PathExpand(Result));
 end;
@@ -912,33 +910,8 @@ end;
 function RegValueExists(H: HKEY; Name: PChar): Boolean;
 { Returns True if the specified value exists. Requires KEY_QUERY_VALUE access
   to the key. }
-var
-  I: Integer;
-  EnumName: array[0..1] of Char;
-  Count: DWORD;
-  ErrorCode: Longint;
 begin
   Result := RegQueryValueEx(H, Name, nil, nil, nil, nil) = ERROR_SUCCESS;
-  if Result and ((Name = nil) or (Name^ = #0)) and
-     (Win32Platform <> VER_PLATFORM_WIN32_NT) then begin
-    { On Win9x/Me a default value always exists according to RegQueryValueEx,
-      so it must use RegEnumValue instead to check if a default value
-      really exists }
-    Result := False;
-    I := 0;
-    while True do begin
-      Count := SizeOf(EnumName) div SizeOf(EnumName[0]);
-      ErrorCode := RegEnumValue(H, I, EnumName, Count, nil, nil, nil, nil);
-      if (ErrorCode <> ERROR_SUCCESS) and (ErrorCode <> ERROR_MORE_DATA) then
-        Break;
-      { is it the default value? }
-      if (ErrorCode = ERROR_SUCCESS) and (EnumName[0] = #0) then begin
-        Result := True;
-        Break;
-      end;
-      Inc(I);
-    end;
-  end;
 end;
 
 function RegCreateKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
@@ -999,32 +972,30 @@ begin
     Result := ERROR_INVALID_PARAMETER;
     Exit;
   end;
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-    if RegOpenKeyExView(RegView, Key, Name, 0, KEY_ENUMERATE_SUB_KEYS, H) = ERROR_SUCCESS then begin
-      try
-        SetString(KeyName, nil, 256);
-        I := 0;
-        while True do begin
-          KeyNameCount := Length(KeyName);
-          ErrorCode := RegEnumKeyEx(H, I, @KeyName[1], KeyNameCount, nil, nil, nil, nil);
-          if ErrorCode = ERROR_MORE_DATA then begin
-            { Double the size of the buffer and try again }
-            if Length(KeyName) >= 65536 then begin
-              { Sanity check: If we tried a 64 KB buffer and it's still saying
-                there's more data, something must be seriously wrong. Bail. }
-              Break;
-            end;
-            SetString(KeyName, nil, Length(KeyName) * 2);
-            Continue;
-          end;
-          if ErrorCode <> ERROR_SUCCESS then
+  if RegOpenKeyExView(RegView, Key, Name, 0, KEY_ENUMERATE_SUB_KEYS, H) = ERROR_SUCCESS then begin
+    try
+      SetString(KeyName, nil, 256);
+      I := 0;
+      while True do begin
+        KeyNameCount := Length(KeyName);
+        ErrorCode := RegEnumKeyEx(H, I, @KeyName[1], KeyNameCount, nil, nil, nil, nil);
+        if ErrorCode = ERROR_MORE_DATA then begin
+          { Double the size of the buffer and try again }
+          if Length(KeyName) >= 65536 then begin
+            { Sanity check: If we tried a 64 KB buffer and it's still saying
+              there's more data, something must be seriously wrong. Bail. }
             Break;
-          if RegDeleteKeyIncludingSubkeys(RegView, H, PChar(KeyName)) <> ERROR_SUCCESS then
-            Inc(I);
+          end;
+          SetString(KeyName, nil, Length(KeyName) * 2);
+          Continue;
         end;
-      finally
-        RegCloseKey(H);
+        if ErrorCode <> ERROR_SUCCESS then
+          Break;
+        if RegDeleteKeyIncludingSubkeys(RegView, H, PChar(KeyName)) <> ERROR_SUCCESS then
+          Inc(I);
       end;
+    finally
+      RegCloseKey(H);
     end;
   end;
   Result := RegDeleteKeyView(RegView, Key, Name);
@@ -1136,22 +1107,18 @@ begin
       access token. This function eliminates potential misinterpretations of
       the active group membership if changes to access tokens are made in
       future releases." }
-    CheckTokenMembership := nil;
-    if Lo(GetVersion) >= 5 then
-      CheckTokenMembership := GetProcAddress(GetModuleHandle(advapi32),
-        'CheckTokenMembership');
+    CheckTokenMembership := GetProcAddress(GetModuleHandle(advapi32),
+      'CheckTokenMembership');
     if Assigned(CheckTokenMembership) then begin
       if CheckTokenMembership(0, Sid, IsMember) then
         Result := IsMember;
     end
-    else begin
+    else begin { Should never happen }
       GroupInfo := nil;
-      if not OpenThreadToken(GetCurrentThread, TOKEN_QUERY, True,
-         {$IFDEF Delphi3orHigher} Token {$ELSE} @Token {$ENDIF}) then begin
+      if not OpenThreadToken(GetCurrentThread, TOKEN_QUERY, True, Token) then begin
         if GetLastError <> ERROR_NO_TOKEN then
           Exit;
-        if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY,
-           {$IFDEF Delphi3orHigher} Token {$ELSE} @Token {$ENDIF}) then
+        if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY, Token) then
           Exit;
       end;
       try
@@ -1639,15 +1606,8 @@ end;
 
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 begin
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-    Result := MoveFileEx(PChar(ExistingFileName), PChar(NewFileName),
-      MOVEFILE_REPLACE_EXISTING);
-  end
-  else begin
-    Result := DeleteFile(PChar(NewFileName));
-    if Result or (GetLastError = ERROR_FILE_NOT_FOUND) then
-      Result := MoveFile(PChar(ExistingFileName), PChar(NewFileName));
-  end;
+  Result := MoveFileEx(PChar(ExistingFileName), PChar(NewFileName),
+    MOVEFILE_REPLACE_EXISTING);
 end;
 
 var
