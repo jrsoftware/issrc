@@ -35,7 +35,7 @@ uses
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
   ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager,
-  Net.HTTPClient, Net.URLClient, NetEncoding;
+  Net.HTTPClient, Net.URLClient, NetEncoding, RegStr;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -683,13 +683,9 @@ var
       else
         Z := ExpandedAppVerName;
       HandleDuplicateDisplayNames(Z);
-      { For the entry to appear in ARP, DisplayName cannot exceed 63 characters
-        on Windows 9x/NT 4.0, or 259 characters on Windows 2000 and later. }
-      if WindowsVersionAtLeast(5, 0) then
-        I := 259
-      else
-        I := 63;
-      SetStringValue(H2, 'DisplayName', Copy(Z, 1, I));
+      { For the entry to appear in ARP, DisplayName cannot exceed 259 characters
+        on Windows 2000 and later. }
+      SetStringValue(H2, 'DisplayName', Copy(Z, 1, 259));
       SetStringValueUnlessEmpty(H2, 'DisplayIcon', ExpandConst(SetupHeader.UninstallDisplayIcon));
       var ExtraUninstallString: String;
       if shUninstallLogging in SetupHeader.Options then
@@ -926,10 +922,6 @@ var
 
     procedure InstallFont(const Filename, FontName: String;
       const PerUserFont, AddToFontTableNow: Boolean; var WarnedPerUserFonts: Boolean);
-    const
-      FontsKeys: array[Boolean] of PChar =
-        (NEWREGSTR_PATH_SETUP + '\Fonts',
-         'Software\Microsoft\Windows NT\CurrentVersion\Fonts');
     var
       RootKey, K: HKEY;
     begin
@@ -952,7 +944,7 @@ var
           RootKey := HKEY_CURRENT_USER
         else
           RootKey := HKEY_LOCAL_MACHINE;
-        if RegOpenKeyExView(rvDefault, RootKey, FontsKeys[IsNT], 0,
+        if RegOpenKeyExView(rvDefault, RootKey, 'Software\Microsoft\Windows NT\CurrentVersion\Fonts', 0,
            KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
           if RegSetValueEx(K, PChar(FontName), 0, REG_SZ, PChar(Filename),
              (Length(Filename)+1)*SizeOf(Filename[1])) <> ERROR_SUCCESS then
@@ -1179,19 +1171,12 @@ var
             Log('Non-default bitness: 32-bit');
         end;
 
-        { See if it's a protected system file.
-          Note: We don't call IsProtectedSystemFile anymore on Windows Me
-          even though it supports WFP. Two users reported that installs ran
-          very slowly on 4.2.1, and with the help of one of the users, the
-          cause was narrowed down to this call. For him, it was taking 6
-          seconds per call. I have no idea what would cause it to be so
-          slow; it only took a few milliseconds in my tests on Windows Me. }
-        IsProtectedFile := False;
-        if IsNT and (WindowsVersion >= Cardinal($05000000)) then
-          if IsProtectedSystemFile(DisableFsRedir, DestFile) then begin
-            Log('Dest file is protected by Windows File Protection.');
-            IsProtectedFile := (CurFile^.FileType = ftUserFile);
-          end;
+        { See if it's a protected system file.  }
+        if IsProtectedSystemFile(DisableFsRedir, DestFile) then begin
+          Log('Dest file is protected by Windows File Protection.');
+          IsProtectedFile := (CurFile^.FileType = ftUserFile);
+        end else
+          IsProtectedFile := False;
 
         DestFileExists := NewFileExistsRedir(DisableFsRedir, DestFile);
         if not CheckedDestFileExistedBefore then begin
@@ -2100,14 +2085,12 @@ var
     end;
 
     function ExpandAppPath(const Filename: String): String;
-    const
-      AppPathsBaseKey = NEWREGSTR_PATH_SETUP + '\App Paths\';
     var
       K: HKEY;
       Found: Boolean;
     begin
       if RegOpenKeyExView(InstallDefaultRegView, HKEY_LOCAL_MACHINE,
-         PChar(AppPathsBaseKey + Filename), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+         PChar(REGSTR_PATH_APPPATHS + '\' + Filename), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
         Found := RegQueryStringValue(K, '', Result);
         RegCloseKey(K);
         if Found then
@@ -2585,7 +2568,6 @@ var
 
     const
       Chars: array[Boolean, Boolean] of Char = (('s', 't'), ('S', 'T'));
-      RunOnceKey = NEWREGSTR_PATH_SETUP + '\RunOnce';
     var
       RegSvrExeFilename: String;
       F: TTextFileWriter;
@@ -2605,8 +2587,8 @@ var
           { In case Windows directory is write protected, try the Temp directory.
             Windows directory is our first choice since some people (ignorantly)
             put things like "DELTREE C:\WINDOWS\TEMP\*.*" in their AUTOEXEC.BAT.
-            Also on Windows 2000 and later, each user has his own personal Temp
-            directory which may not be accessible by other users. }
+            Also, each user has his own personal Temp directory which may not
+            be accessible by other users. }
           RegSvrExeFilename := CreateRegSvrExe(GetTempDir);
         end;
       end
@@ -2644,11 +2626,11 @@ var
           RootKey := HKEY_LOCAL_MACHINE
         else
           RootKey := HKEY_CURRENT_USER;
-        ErrorCode := RegCreateKeyExView(rvDefault, RootKey, RunOnceKey, 0, nil,
+        ErrorCode := RegCreateKeyExView(rvDefault, RootKey, REGSTR_PATH_RUNONCE, 0, nil,
           REG_OPTION_NON_VOLATILE, KEY_SET_VALUE or KEY_QUERY_VALUE,
           nil, H, @Disp);
         if ErrorCode <> ERROR_SUCCESS then
-          RegError(reRegCreateKeyEx, RootKey, RunOnceKey, ErrorCode);
+          RegError(reRegCreateKeyEx, RootKey, REGSTR_PATH_RUNONCE, ErrorCode);
         try
           J := 0;
           while True do begin
@@ -2666,7 +2648,7 @@ var
               ErrorCode := RegSetValueEx(H, PChar(ValueName), 0, REG_SZ, PChar(Data),
                 (Length(Data)+1)*SizeOf(Data[1]));
               if ErrorCode <> ERROR_SUCCESS then
-                RegError(reRegSetValueEx, RootKey, RunOnceKey, ErrorCode);
+                RegError(reRegSetValueEx, RootKey, REGSTR_PATH_RUNONCE, ErrorCode);
               Break;
             end;
           end;

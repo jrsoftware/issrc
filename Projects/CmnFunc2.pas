@@ -18,28 +18,11 @@ interface
 uses
   Windows, SysUtils;
 
-{ Delphi 2.01's RegStr unit should never be used because it contains many
-  wrong declarations. Delphi 3's RegStr unit doesn't have this problem, but
-  for backward compatibility, it defines a few of the correct registry key
-  constants here. }
 const
-  { Do NOT localize any of these }
-  NEWREGSTR_PATH_SETUP = 'Software\Microsoft\Windows\CurrentVersion';
-  NEWREGSTR_PATH_EXPLORER = NEWREGSTR_PATH_SETUP + '\Explorer';
-  NEWREGSTR_PATH_SPECIAL_FOLDERS = NEWREGSTR_PATH_EXPLORER + '\Shell Folders';
-  NEWREGSTR_PATH_UNINSTALL = NEWREGSTR_PATH_SETUP + '\Uninstall';
-  NEWREGSTR_VAL_UNINSTALLER_DISPLAYNAME = 'DisplayName';
-  NEWREGSTR_VAL_UNINSTALLER_COMMANDLINE = 'UninstallString';
-
   KEY_WOW64_64KEY = $0100;
 
 type
-{$IFNDEF UNICODE}
-  PLeadByteSet = ^TLeadByteSet;
-  TLeadByteSet = set of AnsiChar;
-{$ENDIF}
-
-  TOneShotTimer = {$IFDEF UNICODE} record {$ELSE} object {$ENDIF}
+  TOneShotTimer = record
   private
     FLastElapsed: Cardinal;
     FStartTick: DWORD;
@@ -88,7 +71,6 @@ function StringChange(var S: String; const FromStr, ToStr: String): Integer;
 function StringChangeEx(var S: String; const FromStr, ToStr: String;
   const SupportDBCS: Boolean): Integer;
 function AdjustLength(var S: String; const Res: Cardinal): Boolean;
-function UsingWinNT: Boolean;
 function ConvertConstPercentStr(var S: String): Boolean;
 function ConvertPercentStr(var S: String): Boolean;
 function ConstPos(const Ch: Char; const S: String): Integer;
@@ -849,13 +831,6 @@ begin
   SetLength(S, Res);
 end;
 
-function UsingWinNT: Boolean;
-{ Returns True if system is running any version of Windows NT. Never returns
-  True on Windows 95 or 3.1. }
-begin
-  Result := Win32Platform = VER_PLATFORM_WIN32_NT;
-end;
-
 function InternalRegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String;
   Type1, Type2: DWORD): Boolean;
 var
@@ -1131,7 +1106,7 @@ end;
 
 function IsMemberOfGroup(const DomainAliasRid: DWORD): Boolean;
 { Returns True if the logged-on user is a member of the specified local
-  group. Always returns True on Windows 9x/Me. }
+  group. }
 const
   SECURITY_NT_AUTHORITY: TSIDIdentifierAuthority =
     (Value: (0, 0, 0, 0, 0, 5));
@@ -1148,11 +1123,6 @@ var
   GroupInfo: PTokenGroups;
   I: Integer;
 begin
-  if Win32Platform <> VER_PLATFORM_WIN32_NT then begin
-    Result := True;
-    Exit;
-  end;
-
   Result := False;
 
   if not AllocateAndInitializeSid(SECURITY_NT_AUTHORITY, 2,
@@ -1215,7 +1185,7 @@ end;
 
 function IsAdminLoggedOn: Boolean;
 { Returns True if the logged-on user is a member of the Administrators local
-  group. Always returns True on Windows 9x/Me. }
+  group. }
 const
   DOMAIN_ALIAS_RID_ADMINS = $00000220;
 begin
@@ -1224,7 +1194,7 @@ end;
 
 function IsPowerUserLoggedOn: Boolean;
 { Returns True if the logged-on user is a member of the Power Users local
-  group. Always returns True on Windows 9x/Me. }
+  group. }
 const
   DOMAIN_ALIAS_RID_POWER_USERS = $00000223;
 begin
@@ -1311,24 +1281,14 @@ begin
   GetUserDefaultUILanguage := GetProcAddress(GetModuleHandle(kernel32),
     'GetUserDefaultUILanguage');
   if Assigned(GetUserDefaultUILanguage) then
-    { This function is available on Windows 2000, Me, and later }
     Result := GetUserDefaultUILanguage
   else begin
-    if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-      { Windows NT 4.0 }
-      if RegOpenKeyExView(rvDefault, HKEY_USERS, '.DEFAULT\Control Panel\International',
-         0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-        RegQueryStringValue(K, 'Locale', S);
-        RegCloseKey(K);
-      end;
-    end
-    else begin
-      { Windows 95/98 }
-      if RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'Control Panel\Desktop\ResourceLocale',
-         0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-        RegQueryStringValue(K, '', S);
-        RegCloseKey(K);
-      end;
+    { GetUserDefaultUILanguage is available on Windows 2000, Me, and later so
+      should never get here }
+    if RegOpenKeyExView(rvDefault, HKEY_USERS, '.DEFAULT\Control Panel\International',
+       0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+      RegQueryStringValue(K, 'Locale', S);
+      RegCloseKey(K);
     end;
     Val('$' + S, Result, E);
     if E <> 0 then

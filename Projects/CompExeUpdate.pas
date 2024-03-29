@@ -396,9 +396,6 @@ var
   N: Cardinal;
   NewGroupIconDirSize: LongInt;
 begin
-  if Win32Platform <> VER_PLATFORM_WIN32_NT then
-    ResUpdateError('Only supported on Windows NT and above');
-
   Ico := nil;
 
   try

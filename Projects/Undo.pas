@@ -301,10 +301,7 @@ begin
         DirsNotRemoved.AddIfDoesntExist(DirsNotRemovedPrefix[DisableFsRedir] + DirName);
       end
       else if Assigned(RestartDeleteDirList) and
-         ListContainsPathOrSubdir(RestartDeleteDirList, DirName) and
-         (Win32Platform = VER_PLATFORM_WIN32_NT) then begin
-        { Note: This code is NT-only; I don't think it's possible to
-          restart-delete directories on Windows 9x. }
+         ListContainsPathOrSubdir(RestartDeleteDirList, DirName) then begin
         LogFmt('Failed to delete directory (%d). Will delete on restart (if empty).',
           [LastError]);
         LoggedRestartDeleteDir(DisableFsRedir, DirName);

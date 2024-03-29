@@ -82,15 +82,12 @@ begin
   Result := '';
   CurFilename := nil;
   OleResult := PF.GetCurFile(CurFilename);
-  { Note: Prior to Windows 2000/Me, GetCurFile succeeds but returns a NULL
-    pointer }
   if SUCCEEDED(OleResult) and Assigned(CurFilename) then begin
     if OleResult = S_OK then
       Result := WideCharToString(CurFilename);
     CoTaskMemFree(CurFilename);
   end;
-  { If GetCurFile didn't work (e.g. not running Windows 2000/Me or later), we
-    have no choice but to try to guess the filename }
+  { If GetCurFile didn't work, we have no choice but to try to guess the filename }
   if Result = '' then begin
     if NewFileExists(OriginalFilename) then
       Result := OriginalFilename

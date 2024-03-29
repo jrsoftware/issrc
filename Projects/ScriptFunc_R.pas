@@ -2,7 +2,7 @@ unit ScriptFunc_R;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -575,7 +575,7 @@ begin
     Stack.SetInt(PStart, StringChangeEx(S, Stack.GetString(PStart-2), Stack.GetString(PStart-3), Stack.GetBool(PStart-4)));
     Stack.SetString(PStart-1, S);
   end else if Proc.Name = 'USINGWINNT' then begin
-    Stack.SetBool(PStart, UsingWinNT());
+    Stack.SetBool(PStart, True);
   end else if Proc.Name = 'FILECOPY' then begin
     ExistingFilename := Stack.GetString(PStart-1);
     if PathCompare(ExistingFilename, SetupLdrOriginalFilename) <> 0 then
@@ -1164,7 +1164,7 @@ begin
   Version.Build := WindowsVersion and $FFFF;
   Version.ServicePackMajor := Hi(NTServicePackLevel);
   Version.ServicePackMinor := Lo(NTServicePackLevel);
-  Version.NTPlatform := IsNT;
+  Version.NTPlatform := True;
   Version.ProductType := WindowsProductType;
   Version.SuiteMask := WindowsSuiteMask;
 end;

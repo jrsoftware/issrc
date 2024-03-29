@@ -426,33 +426,8 @@ end;
 
 function PathLowercase(const S: String): String;
 { Converts the specified path name to lowercase }
-{$IFNDEF UNICODE}
-var
-  I, L: Integer;
-{$ENDIF}
 begin
-  {$IFNDEF UNICODE}
-  if (Win32Platform <> VER_PLATFORM_WIN32_NT) and
-     (GetSystemMetrics(SM_DBCSENABLED) <> 0) then begin
-    { Japanese Windows 98's handling of double-byte Roman characters in
-      filenames is case sensitive, so we can't change the case of double-byte
-      characters. (Japanese Windows NT/2000 is case insensitive, on both FAT
-      and NTFS, in my tests.) Based on code from AnsiLowerCaseFileName. }
-    Result := S;
-    L := Length(Result);
-    I := 1;
-    while I <= L do begin
-      if Result[I] in ['A'..'Z'] then begin
-        Inc(Byte(Result[I]), 32);
-        Inc(I);
-      end
-      else
-        Inc(I, PathCharLength(Result, I));
-    end;
-  end
-  else
-  {$ENDIF}
-    Result := AnsiLowerCase(S);
+  Result := AnsiLowerCase(S);
 end;
 
 function PathPos(Ch: Char; const S: String): Integer;

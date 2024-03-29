@@ -713,41 +713,6 @@ begin
   F.Seek(0);
 end;
 
-function Is64BitPEImage(const Filename: String): Boolean;
-{ Returns True if the specified file is a non-32-bit PE image, False
-  otherwise. }
-var
-  F: TFile;
-  DosHeader: packed record
-    Sig: array[0..1] of AnsiChar;
-    Other: array[0..57] of Byte;
-    PEHeaderOffset: LongWord;
-  end;
-  PESigAndHeader: packed record
-    Sig: DWORD;
-    Header: TImageFileHeader;
-    OptHeaderMagic: Word;
-  end;
-begin
-  Result := False;
-  F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
-  try
-    if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
-      if (DosHeader.Sig[0] = 'M') and (DosHeader.Sig[1] = 'Z') and
-         (DosHeader.PEHeaderOffset <> 0) then begin
-        F.Seek(DosHeader.PEHeaderOffset);
-        if F.Read(PESigAndHeader, SizeOf(PESigAndHeader)) = SizeOf(PESigAndHeader) then begin
-          if (PESigAndHeader.Sig = IMAGE_NT_SIGNATURE) and
-             (PESigAndHeader.OptHeaderMagic <> IMAGE_NT_OPTIONAL_HDR32_MAGIC) then
-            Result := True;
-        end;
-      end;
-    end;
-  finally
-    F.Free;
-  end;
-end;
-
 function CountChars(const S: String; C: Char): Integer;
 var
   I: Integer;
@@ -3920,10 +3885,6 @@ begin
           CompressProps.WorkerProcessFilename := GetLZMAExeFilename(True)
         else
           CompressProps.WorkerProcessFilename := '';
-        if (CompressProps.WorkerProcessFilename <> '') and
-           (Byte(GetVersion()) < 5) then
-          AbortCompileOnLineFmt(SCompilerDirectiveRequiresWindows2000,
-            ['Setup', KeyName]);
       end;
     ssMergeDuplicateFiles: begin
         DontMergeDuplicateFiles := not StrToBool(Value);
@@ -3999,8 +3960,6 @@ begin
         SetSetupHeaderOption(shRestartIfNeededByRun);
       end;
     ssSetupIconFile: begin
-        if (Value <> '') and (Win32Platform <> VER_PLATFORM_WIN32_NT) then
-          AbortCompileOnLineFmt(SCompilerDirectiveIsNTOnly, ['Setup', KeyName]);
         SetupIconFilename := Value;
       end;
     ssSetupLogging: begin
@@ -6002,12 +5961,6 @@ type
       if not ExternalFile and not(foIgnoreVersion in NewFileEntry^.Options) and
          (NewFileLocationEntry^.Flags * [foVersionInfoValid, foVersionInfoNotValid] = []) then begin
         AddStatus(Format(SCompilerStatusFilesVerInfo, [SourceFile]));
-        { Windows versions prior to 2000 cannot read version info on 64-bit
-          images. Throw an error rather than silently failing to read the
-          version info (which could be dangerous). }
-        if (Win32Platform <> VER_PLATFORM_WIN32_NT) or (Byte(GetVersion) < 5) then
-          if Is64BitPEImage(SourceFile) then
-            AbortCompileOnLine(SCompilerFilesCantReadVersionInfoOn64BitImage);
         if GetVersionNumbers(SourceFile, VersionNumbers) then begin
           NewFileLocationEntry^.FileVersionMS := VersionNumbers.MS;
           NewFileLocationEntry^.FileVersionLS := VersionNumbers.LS;

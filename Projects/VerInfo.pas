@@ -2,7 +2,7 @@ unit VerInfo;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -193,9 +193,8 @@ begin
     finally
       FreeMem(VersionBuf);
     end;
-  end
-  else if Win32Platform <> VER_PLATFORM_WIN32_WINDOWS then begin
-    { NT's version APIs don't support VXDs, so use our own code to handle them }
+  end else begin
+    { Windows' version APIs don't support VXDs, so use our own code to handle them }
     Result := GetVXDVersionInfo(Filename, VersionInfo);
   end;
 end;

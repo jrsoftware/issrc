@@ -684,16 +684,14 @@ begin
      (Cardinal(EExternalException(E).ExceptionRecord.NumberParameters) >= Cardinal(2)) and
      (Cardinal(EExternalException(E).ExceptionRecord.ExceptionInformation[1]) >= Cardinal(FMemory)) and
      (Cardinal(EExternalException(E).ExceptionRecord.ExceptionInformation[1]) < Cardinal(Cardinal(FMemory) + FMapSize)) then begin
-    { NT has a third parameter containing the NT status code of the error
+    { They should be a third parameter containing the NT status code of the error
       condition that caused the exception. Convert that into a Win32 error code
       and use it to generate our error message. }
     if (Cardinal(EExternalException(E).ExceptionRecord.NumberParameters) >= Cardinal(3)) and
        Assigned(_RtlNtStatusToDosError) then
       TFile.RaiseError(_RtlNtStatusToDosError(EExternalException(E).ExceptionRecord.ExceptionInformation[2]))
     else begin
-      { Windows 9x/Me doesn't have a third parameter, and 95 doesn't have
-        RtlNtStatusToDosError, so use generic "The system cannot [read|write]
-        to the specified device" errors }
+      { Use generic "The system cannot [read|write] to the specified device" errors }
       if EExternalException(E).ExceptionRecord.ExceptionInformation[0] = 0 then
         TFile.RaiseError(ERROR_READ_FAULT)
       else

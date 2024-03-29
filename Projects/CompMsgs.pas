@@ -191,8 +191,6 @@ const
   SCompilerDiskClusterSizeInvalid = 'DiskClusterSize must be between 1 and 32768';
   SCompilerInstallModeObsolete = 'The [%s] section directive "%s" is obsolete and ignored in this version of Inno Setup. Use command line parameters instead.';
   SCompilerMessagesFileObsolete = 'The MessagesFile directive is obsolete and no longer supported. Use the [Languages] section instead.';
-  SCompilerDirectiveIsNTOnly = 'The [%s] section directive "%s" may not be used when compiling on Windows 95/98/Me';
-  SCompilerDirectiveRequiresWindows2000 = 'The [%s] section directive "%s" may not be used when compiling on Windows 95/98/Me/NT4';
   SCompilerMustUseDisableStartupPrompt = 'DisableStartupPrompt must be set to "yes" when AppName includes constants';
   SCompilerMustNotUsePreviousLanguage = 'UsePreviousLanguage must be set to "no" when AppId includes constants';
   SCompilerMustNotUsePreviousPrivileges = 'UsePreviousPrivileges must be set to "no" when AppId includes constants and PrivilegesRequiredOverridesAllowed allows "dialog"';
@@ -353,8 +351,6 @@ const
   SCompilerFilesCantHaveNonExternalExternalSize = 'Parameter "ExternalSize" may only be used when ' +
     'the "external" flag is used';
   SCompilerFilesExcludeTooLong = 'Parameter "Excludes" contains a pattern that is too long';
-  SCompilerFilesCantReadVersionInfoOn64BitImage = 'In order for it to be able to read version info on 64-bit images, ' +
-    'the compiler must be run under Windows 2000 or later';
   SCompilerFilesUnsafeFile = 'Unsafe file detected: %s.' + SNewLine2 +
     'See the "Unsafe Files" topic in the help file for more information';
   SCompilerFilesSystemDirUsed = 'Attempt to deploy DLL file from own Windows System directory.' + SNewLine2 +

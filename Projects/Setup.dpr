@@ -186,8 +186,6 @@ procedure DisableWindowGhosting;
 var
   Proc: procedure; stdcall;
 begin
-  { Note: The documentation claims this function is only available in XP SP1,
-    but it's actually available on stock XP too. }
   Proc := GetProcAddress(GetModuleHandle(user32), 'DisableProcessWindowsGhosting');
   if Assigned(Proc) then
     Proc;

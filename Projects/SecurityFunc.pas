@@ -2,13 +2,11 @@ unit SecurityFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2008 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Functions for altering ACLs on files & registry keys
-
-  $jrsoftware: issrc/Projects/SecurityFunc.pas,v 1.6 2008/10/17 22:18:14 jr Exp $
 }
 
 interface
@@ -59,7 +57,7 @@ function InternalGrantPermission(const ObjectType: DWORD; const ObjectName: Stri
   const Entries: TGrantPermissionEntry; const EntryCount: Integer;
   const Inheritance: DWORD): DWORD;
 { Grants the specified access to the specified object. Returns ERROR_SUCCESS if
-  successful. Always fails on Windows 9x/Me and NT 4.0. }
+  successful. }
 type
   PPSID = ^PSID;
   PPACL = ^PACL;
@@ -95,9 +93,6 @@ var
   SetEntriesInAclW: function(cCountOfExplicitEntries: ULONG;
     const pListOfExplicitEntries: TExplicitAccessW; OldAcl: PACL;
     var NewAcl: PACL): DWORD; stdcall;
-  {$IFNDEF UNICODE}
-  WideObjectName: PWideChar;
-  {$ENDIF}
   SD: PSECURITY_DESCRIPTOR;
   Dacl, NewDacl: PACL;
   ExplicitAccess: PArrayOfExplicitAccessW;
@@ -105,13 +100,6 @@ var
   I: Integer;
   Sid: PSID;
 begin
-  { Windows 9x/Me don't support ACLs, and GetNamedSecurityInfo and
-    SetEntriesInACL are buggy on NT 4 }
-  if (Win32Platform <> VER_PLATFORM_WIN32_NT) or (Lo(GetVersion) < 5) then begin
-    Result := ERROR_INVALID_FUNCTION;
-    Exit;
-  end;
-
   AdvApiHandle := GetModuleHandle(advapi32);
   GetNamedSecurityInfoW := GetProcAddress(AdvApiHandle, PAnsiChar('GetNamedSecurityInfoW'));
   SetNamedSecurityInfoW := GetProcAddress(AdvApiHandle, PAnsiChar('SetNamedSecurityInfoW'));
@@ -122,63 +110,52 @@ begin
     Exit;
   end;
 
-  {$IFNDEF UNICODE}
-  WideObjectName := AllocWideCharStr(ObjectName);
+  ExplicitAccess := nil;
+  Result := GetNamedSecurityInfoW(PChar(ObjectName), ObjectType,
+    DACL_SECURITY_INFORMATION, nil, nil, @Dacl, nil, SD);
+  if Result <> ERROR_SUCCESS then
+    Exit;
   try
-  {$ENDIF}
-    ExplicitAccess := nil;
-    Result := GetNamedSecurityInfoW(
-      {$IFDEF UNICODE} PChar(ObjectName) {$ELSE} WideObjectName {$ENDIF},
-      ObjectType, DACL_SECURITY_INFORMATION, nil, nil, @Dacl, nil, SD);
+    { Note: Dacl will be nil if GetNamedSecurityInfo is called on a FAT partition.
+      Be careful not to dereference a nil pointer. }
+    ExplicitAccess := AllocMem(EntryCount * SizeOf(ExplicitAccess[0]));
+    E := @Entries;
+    for I := 0 to EntryCount-1 do begin
+      if not AllocateAndInitializeSid(E.Sid.Authority, E.Sid.SubAuthCount,
+         E.Sid.SubAuth[0], E.Sid.SubAuth[1], 0, 0, 0, 0, 0, 0, Sid) then begin
+        Result := GetLastError;
+        if Result = ERROR_SUCCESS then  { just in case... }
+          Result := ERROR_INVALID_PARAMETER;
+        Exit;
+      end;
+      ExplicitAccess[I].grfAccessPermissions := E.AccessMask;
+      ExplicitAccess[I].grfAccessMode := GRANT_ACCESS;
+      ExplicitAccess[I].grfInheritance := Inheritance;
+      ExplicitAccess[I].Trustee.TrusteeForm := TRUSTEE_IS_SID;
+      ExplicitAccess[I].Trustee.TrusteeType := TRUSTEE_IS_UNKNOWN;
+      PSID(ExplicitAccess[I].Trustee.ptstrName) := Sid;
+      Inc(E);
+    end;
+    Result := SetEntriesInAclW(EntryCount, ExplicitAccess[0], Dacl, NewDacl);
     if Result <> ERROR_SUCCESS then
       Exit;
     try
-      { Note: Dacl will be nil if GetNamedSecurityInfo is called on a FAT partition.
-        Be careful not to dereference a nil pointer. }
-      ExplicitAccess := AllocMem(EntryCount * SizeOf(ExplicitAccess[0]));
-      E := @Entries;
-      for I := 0 to EntryCount-1 do begin
-        if not AllocateAndInitializeSid(E.Sid.Authority, E.Sid.SubAuthCount,
-           E.Sid.SubAuth[0], E.Sid.SubAuth[1], 0, 0, 0, 0, 0, 0, Sid) then begin
-          Result := GetLastError;
-          if Result = ERROR_SUCCESS then  { just in case... }
-            Result := ERROR_INVALID_PARAMETER;
-          Exit;
-        end;
-        ExplicitAccess[I].grfAccessPermissions := E.AccessMask;
-        ExplicitAccess[I].grfAccessMode := GRANT_ACCESS;
-        ExplicitAccess[I].grfInheritance := Inheritance;
-        ExplicitAccess[I].Trustee.TrusteeForm := TRUSTEE_IS_SID;
-        ExplicitAccess[I].Trustee.TrusteeType := TRUSTEE_IS_UNKNOWN;
-        PSID(ExplicitAccess[I].Trustee.ptstrName) := Sid;
-        Inc(E);
-      end;
-      Result := SetEntriesInAclW(EntryCount, ExplicitAccess[0], Dacl, NewDacl);
-      if Result <> ERROR_SUCCESS then
-        Exit;
-      try
-        Result := SetNamedSecurityInfoW(
-          {$IFDEF UNICODE} PChar(ObjectName) {$ELSE} WideObjectName {$ENDIF},
-          ObjectType, DACL_SECURITY_INFORMATION, nil, nil, NewDacl, nil);
-      finally
-        LocalFree(HLOCAL(NewDacl));
-      end;
+      Result := SetNamedSecurityInfoW(PChar(ObjectName), ObjectType,
+        DACL_SECURITY_INFORMATION, nil, nil, NewDacl, nil);
     finally
-      if Assigned(ExplicitAccess) then begin
-        for I := EntryCount-1 downto 0 do begin
-          Sid := PSID(ExplicitAccess[I].Trustee.ptstrName);
-          if Assigned(Sid) then
-            FreeSid(Sid);
-        end;
-        FreeMem(ExplicitAccess);
-      end;
-      LocalFree(HLOCAL(SD));
+      LocalFree(HLOCAL(NewDacl));
     end;
-  {$IFNDEF UNICODE}
   finally
-    FreeMem(WideObjectName);
+    if Assigned(ExplicitAccess) then begin
+      for I := EntryCount-1 downto 0 do begin
+        Sid := PSID(ExplicitAccess[I].Trustee.ptstrName);
+        if Assigned(Sid) then
+          FreeSid(Sid);
+      end;
+      FreeMem(ExplicitAccess);
+    end;
+    LocalFree(HLOCAL(SD));
   end;
-  {$ENDIF}
 end;
 
 function GrantPermission(const Use64BitHelper: Boolean; const ObjectType: DWORD;
@@ -210,8 +187,7 @@ const
 function GrantPermissionOnFile(const DisableFsRedir: Boolean; Filename: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
 { Grants the specified access to the specified file/directory. Returns True if
-  successful. On failure, the thread's last error code is set. Always fails on
-  Windows 9x/Me and NT 4.0. }
+  successful. On failure, the thread's last error code is set. }
 const
   SE_FILE_OBJECT = 1;
 var
@@ -239,8 +215,7 @@ function GrantPermissionOnKey(const RegView: TRegView; const RootKey: HKEY;
   const Subkey: String; const Entries: TGrantPermissionEntry;
   const EntryCount: Integer): Boolean;
 { Grants the specified access to the specified registry key. Returns True if
-  successful. On failure, the thread's last error code is set. Always fails on
-  Windows 9x/Me and NT 4.0. }
+  successful. On failure, the thread's last error code is set. }
 const
   SE_REGISTRY_KEY = 4;
 var

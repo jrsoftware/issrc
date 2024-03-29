@@ -12,7 +12,7 @@ unit SafeDLLPath;
   
   If SetDefaultDllDirectories is not available:
   -It calls SetDllDirectory('') to prevent LoadLibrary from searching the current
-   directory for DLLs. (Has no effect on Windows versions prior to XP SP1.)
+   directory for DLLs.
   -It then preloads a list of system DLLs which are known to be loaded unsafely
    by older or unpatched versions of Windows.
 
