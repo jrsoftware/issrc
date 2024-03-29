@@ -93,10 +93,6 @@ function IsAdminLoggedOn: Boolean;
 function IsPowerUserLoggedOn: Boolean;
 function IsMultiByteString(const S: AnsiString): Boolean;
 function FontExists(const FaceName: String): Boolean;
-{$IFNDEF IS_D5}
-procedure FreeAndNil(var Obj);
-function SafeLoadLibrary(const Filename: String; ErrorMode: UINT): HMODULE;
-{$ENDIF}
 function GetUILanguage: LANGID;
 function RemoveAccelChar(const S: String): String;
 function GetTextWidth(const DC: HDC; S: String; const Prefix: Boolean): Integer;
@@ -107,20 +103,9 @@ function IsWildcard(const Pattern: String): Boolean;
 function WildcardMatch(const Text, Pattern: PChar): Boolean;
 function IntMax(const A, B: Integer): Integer;
 function Win32ErrorString(ErrorCode: Integer): String;
-{$IFNDEF UNICODE}
-procedure GetLeadBytes(var ALeadBytes: TLeadByteSet);
-{$ENDIF}
-{$IFNDEF IS_D3}
-function CompareMem(P1, P2: Pointer; Length: Integer): Boolean;
-{$ENDIF}
 function DeleteDirTree(const Dir: String): Boolean;
 function SetNTFSCompression(const FileOrDir: String; Compress: Boolean): Boolean;
 procedure AddToWindowMessageFilterEx(const Wnd: HWND; const Msg: UINT);
-{$IFNDEF UNICODE}
-type
-  TSysCharSet = set of AnsiChar;
-function CharInSet(C: AnsiChar; const CharSet: TSysCharSet): Boolean;
-{$ENDIF}
 function ShutdownBlockReasonCreate(Wnd: HWND; const Reason: String): Boolean;
 function ShutdownBlockReasonDestroy(Wnd: HWND): Boolean;
 function TryStrToBoolean(const S: String; var BoolResult: Boolean): Boolean;
@@ -129,17 +114,10 @@ function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
 procedure CreateMutex(const MutexName: String);
 
-{$IFNDEF UNICODE}
-var
-  ConstLeadBytes: PLeadByteSet = nil;
-{$ENDIF}
-
 implementation
 
 uses
-  {$IFNDEF Delphi3orHigher} OLE2, ShlObj, {$ENDIF} PathFunc;
-
-{$IFDEF Delphi3orHigher}
+  PathFunc;
 
 { Avoid including Variants (via ActiveX and ShlObj) in SetupLdr (SetupLdr uses CmnFunc2), saving 26 KB. }
 
@@ -176,9 +154,8 @@ function SHGetMalloc(var ppMalloc: IMalloc): HResult; stdcall; external shell32 
 function SHGetSpecialFolderLocation(hwndOwner: HWND; nFolder: Integer;
   var ppidl: PItemIDList): HResult; stdcall; external shell32 name 'SHGetSpecialFolderLocation';
 function SHGetPathFromIDList(pidl: PItemIDList; pszPath: PChar): BOOL; stdcall;
-  external shell32 name {$IFDEF UNICODE}'SHGetPathFromIDListW'{$ELSE}'SHGetPathFromIDListA'{$ENDIF};
+  external shell32 name 'SHGetPathFromIDListW';
 
-{$ENDIF}
 
 function InternalGetFileAttr(const Name: String): Integer;
 begin
@@ -574,11 +551,6 @@ begin
                    Exit;
                  end;
                end;
-        else
-          {$IFNDEF UNICODE}
-          if S[Result] in ConstLeadBytes^ then
-            Inc(Result);
-          {$ENDIF}
         end;
         Inc(Result);
       end;
@@ -623,11 +595,6 @@ begin
              Delete(S, I+1, 2);
              S[I] := Chr(C);
            end;
-    else
-      {$IFNDEF UNICODE}
-      if S[I] in ConstLeadBytes^ then
-        Inc(I);
-      {$ENDIF}
     end;
     Inc(I);
   end;
@@ -652,13 +619,8 @@ begin
       if I = 0 then
         Break;
     end
-    else begin
-      {$IFNDEF UNICODE}
-      if S[I] in ConstLeadBytes^ then
-        Inc(I);
-      {$ENDIF}
+    else
       Inc(I);
-    end;
   end;
 end;
 
@@ -719,18 +681,13 @@ function GetSysWow64Dir: String;
   Returns '' if there is no SysWow64 directory (e.g. running 32-bit Windows). }
 var
   GetSystemWow64DirectoryFunc: function(
-    lpBuffer: {$IFDEF UNICODE} PWideChar {$ELSE} PAnsiChar {$ENDIF};
-    uSize: UINT): UINT; stdcall;
+    lpBuffer: PWideChar; uSize: UINT): UINT; stdcall;
   Res: Integer;
   Buf: array[0..MAX_PATH] of Char;
 begin
   Result := '';
   GetSystemWow64DirectoryFunc := GetProcAddress(GetModuleHandle(kernel32),
-    {$IFDEF UNICODE}
-      'GetSystemWow64DirectoryW'
-    {$ELSE}
-      'GetSystemWow64DirectoryA'
-    {$ENDIF} );
+      'GetSystemWow64DirectoryW');
   if Assigned(GetSystemWow64DirectoryFunc) then begin
     Res := GetSystemWow64DirectoryFunc(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
     if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then
@@ -935,8 +892,7 @@ end;
 
 var
   RegDeleteKeyExFunc: function(hKey: HKEY;
-    lpSubKey: {$IFDEF UNICODE} PWideChar {$ELSE} PAnsiChar {$ENDIF};
-    samDesired: REGSAM; Reserved: DWORD): Longint; stdcall;
+    lpSubKey: PWideChar; samDesired: REGSAM; Reserved: DWORD): Longint; stdcall;
 
 function RegDeleteKeyView(const RegView: TRegView; const Key: HKEY;
   const Name: PChar): Longint;
@@ -946,11 +902,7 @@ begin
   else begin
     if @RegDeleteKeyExFunc = nil then
       RegDeleteKeyExFunc := GetProcAddress(GetModuleHandle(advapi32),
-        {$IFDEF UNICODE}
-          'RegDeleteKeyExW'
-        {$ELSE}
-          'RegDeleteKeyExA'
-        {$ENDIF} );
+          'RegDeleteKeyExW');
     if Assigned(RegDeleteKeyExFunc) then
       Result := RegDeleteKeyExFunc(Key, Name, KEY_WOW64_64KEY, 0)
     else
@@ -1050,8 +1002,7 @@ var
   StringSid: PWideChar;
 begin
   Result := '';
-  if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY,
-      {$IFDEF Delphi3orHigher} Token {$ELSE} @Token {$ENDIF}) then
+  if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY, Token) then
     Exit;
   UserInfo := nil;
   try
@@ -1199,42 +1150,6 @@ begin
     ReleaseDC(0, DC);
   end;
 end;
-
-{$IFNDEF IS_D5}
-procedure FreeAndNil(var Obj);
-var
-  Temp: TObject;
-begin
-  Temp := TObject(Obj);
-  Pointer(Obj) := nil;
-  Temp.Free;
-end;
-{$ENDIF}
-
-{$IFNDEF IS_D5}
-function SafeLoadLibrary(const Filename: String; ErrorMode: UINT): HMODULE;
-var
-  SaveErrorMode: UINT;
-  SaveFPUControlWord: Word;
-begin
-  SaveErrorMode := SetErrorMode(ErrorMode);
-  try
-    asm
-      FNSTCW SaveFPUControlWord
-    end;
-    try
-      Result := LoadLibrary(PChar(Filename));
-    finally
-      asm
-        FNCLEX
-        FLDCW SaveFPUControlWord
-      end;
-    end;
-  finally
-    SetErrorMode(SaveErrorMode);
-  end;
-end;
-{$ENDIF}
 
 function GetUILanguage: LANGID;
 { Platform-independent version of GetUserDefaultUILanguage. May return 0 in
@@ -1417,49 +1332,6 @@ begin
     Dec(Len);
   SetString(Result, Buffer, Len);
 end;
-
-{$IFNDEF UNICODE}
-procedure GetLeadBytes(var ALeadBytes: TLeadByteSet);
-var
-  AnsiCPInfo: TCPInfo;
-  I: Integer;
-  J: Byte;
-begin
-  ALeadBytes := [];
-  if GetCPInfo(CP_ACP, AnsiCPInfo) then
-    with AnsiCPInfo do begin
-      I := 0;
-      while (I < MAX_LEADBYTES) and ((LeadByte[I] or LeadByte[I+1]) <> 0) do begin
-        for J := LeadByte[I] to LeadByte[I+1] do
-          Include(ALeadBytes, AnsiChar(J));
-        Inc(I, 2);
-      end;
-    end;
-end;
-{$ENDIF}
-
-{$IFNDEF IS_D3}
-function CompareMem(P1, P2: Pointer; Length: Integer): Boolean;
-asm
-        PUSH    ESI
-        PUSH    EDI
-        MOV     ESI,P1
-        MOV     EDI,P2
-        MOV     EDX,ECX
-        XOR     EAX,EAX
-        AND     EDX,3
-        SHR     ECX,1
-        SHR     ECX,1
-        REPE    CMPSD
-        JNE     @@2
-        MOV     ECX,EDX
-        REPE    CMPSB
-        JNE     @@2
-@@1:    INC     EAX
-@@2:    POP     EDI
-        POP     ESI
-end;
-{$ENDIF}
 
 function DeleteDirTree(const Dir: String): Boolean;
 { Removes the specified directory including any files/subdirectories inside

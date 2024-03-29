@@ -266,8 +266,7 @@ uses
   ShellAPI, ShlObj,
   Msgs, MsgIDs, Install, InstFunc, InstFnc2, RedirFunc, PathFunc,
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
-  Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
-  {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
+  Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1, ActiveX,
   SimpleExpression, Helper, SpawnClient, SpawnServer, DotNet, BitmapImage,
   TaskDialog, RegStr;
 
@@ -1259,13 +1258,8 @@ begin
           Inc(I); { Skip closing brace }
       end;
     end
-    else begin
-{$IFNDEF UNICODE}
-      if Result[I] in ConstLeadBytes^ then
-        Inc(I);
-{$ENDIF}
+    else
       Inc(I);
-    end;
   end;
 end;
 
@@ -1484,7 +1478,7 @@ begin
   SHFolderDLLHandle := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
   if SHFolderDLLHandle = 0 then
     InternalError(Format('Failed to load DLL "%s"', [Filename]));
-  @SHGetFolderPathFunc := GetProcAddress(SHFolderDLLHandle, {$IFDEF UNICODE}'SHGetFolderPathW'{$ELSE}'SHGetFolderPathA'{$ENDIF});
+  @SHGetFolderPathFunc := GetProcAddress(SHFolderDLLHandle, 'SHGetFolderPathW');
   if @SHGetFolderPathFunc = nil then
     InternalError('Failed to get address of SHGetFolderPath function');
 end;
@@ -3737,9 +3731,7 @@ begin
     S := S + SNewLine2 + SetupMessages[msgAboutSetupNote];
   if SetupMessages[msgTranslatorNote] <> '' then
     S := S + SNewLine2 + SetupMessages[msgTranslatorNote];
-{$IFDEF UNICODE}
   StringChangeEx(S, '(C)', #$00A9, True);
-{$ENDIF}
   LoggedMsgBox(S, SetupMessages[msgAboutSetupTitle], mbInformation, MB_OK, False, 0);
 end;
 
@@ -4480,9 +4472,6 @@ end;
 initialization
   InitIsWin64AndProcessorArchitecture;
   InitWindowsVersion;
-{$IFNDEF UNICODE}
-  ConstLeadBytes := @SetupHeader.LeadBytes;
-{$ENDIF}
   InitComponents := TStringList.Create();
   InitTasks := TStringList.Create();
   NewParamsForCode := TStringList.Create();

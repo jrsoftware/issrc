@@ -61,13 +61,11 @@ type
     FileLineNumber: Integer;
   end;
 
-{$IFDEF UNICODE}
   TPreLangData = class
   public
     Name: String;
     LanguageCodePage: Integer;
   end;
-{$ENDIF}
 
   TLangData = class
   public
@@ -192,7 +190,7 @@ type
     PreprocOutput: String;
 
     DefaultLangData: TLangData;
-    {$IFDEF UNICODE} PreLangDataList, {$ENDIF} LangDataList: TList;
+    PreLangDataList, LangDataList: TList;
     SignToolList: TList;
     SignTools, SignToolsParams: TStringList;
     SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween: Integer;
@@ -282,13 +280,9 @@ type
     procedure EnumDirsProc(const Line: PChar; const Ext: Integer);
     procedure EnumIconsProc(const Line: PChar; const Ext: Integer);
     procedure EnumINIProc(const Line: PChar; const Ext: Integer);
-{$IFDEF UNICODE}
     procedure EnumLangOptionsPreProc(const Line: PChar; const Ext: Integer);
-{$ENDIF}
     procedure EnumLangOptionsProc(const Line: PChar; const Ext: Integer);
-{$IFDEF UNICODE}
     procedure EnumLanguagesPreProc(const Line: PChar; const Ext: Integer);
-{$ENDIF}
     procedure EnumLanguagesProc(const Line: PChar; const Ext: Integer);
     procedure EnumRegistryProc(const Line: PChar; const Ext: Integer);
     procedure EnumDeleteProc(const Line: PChar; const Ext: Integer);
@@ -304,9 +298,7 @@ type
     function GetLZMAExeFilename(const Allow64Bit: Boolean): String;
     procedure InitBzipDLL;
     procedure InitCryptDLL;
-{$IFDEF UNICODE}
     procedure InitPreLangData(const APreLangData: TPreLangData);
-{$ENDIF}
     procedure InitLanguageEntry(var ALanguageEntry: TSetupLanguageEntry);
     procedure InitLZMADLL;
     procedure InitPreprocessor;
@@ -330,13 +322,9 @@ type
     procedure ProcessWildcardsParameter(const ParamData: String;
       const AWildcards: TStringList; const TooLongMsg: String);
     procedure ReadDefaultMessages;
-{$IFDEF UNICODE}
     procedure ReadMessagesFromFilesPre(const AFiles: String; const ALangIndex: Integer);
-{$ENDIF}
     procedure ReadMessagesFromFiles(const AFiles: String; const ALangIndex: Integer);
-{$IFDEF UNICODE}
     procedure ReadMessagesFromScriptPre;
-{$ENDIF}
     procedure ReadMessagesFromScript;
     function ReadScriptFile(const Filename: String; const UseCache: Boolean;
       const AnsiConvertCodePage: Cardinal): TScriptFileLines;
@@ -371,9 +359,6 @@ type
   end;
 
 var
-{$IFNDEF UNICODE}
-  CompilerLeadBytes: TLeadByteSet;
-{$ENDIF}
   ZipInitialized, BzipInitialized, LZMAInitialized, CryptInitialized: Boolean;
   PreprocessorInitialized: Boolean;
   PreprocessScriptProc: TPreprocessScriptProc;
@@ -781,13 +766,8 @@ begin
       if Result[I] = '{' then
         Delete(Result, I, 1);
     end
-    else begin
-{$IFNDEF UNICODE}
-      if Result[I] in CompilerLeadBytes then
-        Inc(I);
-{$ENDIF}
+    else
       Inc(I);
-    end;
   end;
 end;
 
@@ -1520,9 +1500,7 @@ begin
   UsedUserAreas.Duplicates := dupIgnore;
   PreprocIncludedFilenames := TStringList.Create;
   DefaultLangData := TLangData.Create;
-{$IFDEF UNICODE}
   PreLangDataList := TLowFragList.Create;
-{$ENDIF}
   LangDataList := TLowFragList.Create;
   SignToolList := TLowFragList.Create;
   SignTools := TStringList.Create;
@@ -1555,9 +1533,7 @@ begin
     SignToolList.Free;
   end;
   LangDataList.Free;
-{$IFDEF UNICODE}
   PreLangDataList.Free;
-{$ENDIF}
   DefaultLangData.Free;
   PreprocIncludedFilenames.Free;
   UsedUserAreas.Free;
@@ -1586,8 +1562,6 @@ end;
 
 procedure TSetupCompiler.InitPreprocessor;
 {$IFNDEF STATICPREPROC}
-const
-  FuncNameSuffix = {$IFDEF UNICODE} 'W' {$ELSE} 'A' {$ENDIF};
 var
   Filename: String;
   Attr: DWORD;
@@ -1607,8 +1581,7 @@ begin
     if M = 0 then
       AbortCompileFmt('Failed to load preprocessor DLL "%s" (%d)',
         [Filename, GetLastError]);
-    PreprocessScriptProc := GetProcAddress(M,
-      PAnsiChar('ISPreprocessScript' + FuncNameSuffix));
+    PreprocessScriptProc := GetProcAddress(M, 'ISPreprocessScriptW');
     if not Assigned(PreprocessScriptProc) then
       AbortCompileFmt('Failed to get address of functions in "%s"', [Filename]);
   end;
@@ -2167,7 +2140,6 @@ var
 
     UseCache := not (LangSection and LangSectionPre);
     AnsiConvertCodePage := 0;
-{$IFDEF UNICODE}
     if LangSection then begin
       { During a Pre pass on an .isl file, use code page 1252 for translation.
         Previously, the system code page was used, but on DBCS that resulted in
@@ -2183,7 +2155,6 @@ var
         AnsiConvertCodePage := TPreLangData(PreLangDataList[Ext]).LanguageCodePage;
       end;
     end;
-{$ENDIF}
 
     Lines := ReadScriptFile(Filename, UseCache, AnsiConvertCodePage);
     try
@@ -2786,13 +2757,7 @@ begin
 
       1:{ Constant is OK }
       end;
-{$IFDEF UNICODE}
     end;
-{$ELSE}
-    end
-    else if S[I] in CompilerLeadBytes then
-      Inc(I);
-{$ENDIF}
     Inc(I);
   end;
 end;
@@ -2812,7 +2777,7 @@ begin
     Decl := '0';
 
   for I := Low(Parameters) to High(Parameters) do begin
-    if Parameters[I].VType = {$IFDEF UNICODE} vtUnicodeString {$ELSE} vtAnsiString {$ENDIF} then
+    if Parameters[I].VType = vtUnicodeString then
       Decl := Decl + ' @String'
     else if Parameters[I].VType = vtInteger then
       Decl := Decl + ' @LongInt'
@@ -3215,18 +3180,15 @@ procedure TSetupCompiler.ReadTextFile(const Filename: String; const LangIndex: I
 var
   F: TFile;
   Size: Cardinal;
-{$IFDEF UNICODE}
   UnicodeFile, RTFFile: Boolean;
   AnsiConvertCodePage: Integer;
   S: RawByteString;
   U: String;
-{$ENDIF}
 begin
   try
     F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
       Size := F.Size.Lo;
-{$IFDEF UNICODE}
       SetLength(S, Size);
       F.ReadBuffer(S[1], Size);
 
@@ -3250,10 +3212,6 @@ begin
           Text := S;
       end else
         Text := S;
-{$ELSE}
-      SetLength(Text, Size);
-      F.ReadBuffer(Text[1], Size);
-{$ENDIF}
     finally
       F.Free;
     end;
@@ -3983,11 +3941,7 @@ begin
         SetSetupHeaderOption(shShowTasksTreeLines);
       end;
     ssShowUndisplayableLanguages: begin
-{$IFDEF UNICODE}
         WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
-{$ELSE}
-        SetSetupHeaderOption(shShowUndisplayableLanguages);
-{$ENDIF}
       end;
     ssSignedUninstaller: begin
         SetSetupHeaderOption(shSignedUninstaller);
@@ -4231,7 +4185,6 @@ function TSetupCompiler.FindLangEntryIndexByName(const AName: String;
 var
   I: Integer;
 begin
-{$IFDEF UNICODE}
   if Pre then begin
     for I := 0 to PreLangDataList.Count-1 do begin
       if TPreLangData(PreLangDataList[I]).Name = AName then begin
@@ -4241,7 +4194,6 @@ begin
     end;
     AbortCompileOnLineFmt(SCompilerUnknownLanguage, [AName]);
   end;
-{$ENDIF}
 
   for I := 0 to LanguageEntries.Count-1 do begin
     if PSetupLanguageEntry(LanguageEntries[I]).Name = AName then begin
@@ -4266,7 +4218,6 @@ begin
   Result := -1;
 end;
 
-{$IFDEF UNICODE}
 procedure TSetupCompiler.EnumLangOptionsPreProc(const Line: PChar; const Ext: Integer);
 
   procedure ApplyToLangEntryPre(const KeyName, Value: String;
@@ -4319,7 +4270,6 @@ begin
   end else
     ApplyToLangEntryPre(KeyName, Value, TPreLangData(PreLangDataList[LangIndex]), False);
 end;
-{$ENDIF}
 
 procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integer);
 
@@ -4398,7 +4348,7 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
       lsLanguageCodePage: begin
           if AffectsMultipleLangs then
             AbortCompileOnLineFmt(SCompilerCantSpecifyLangOption, [KeyName]);
-          {$IFNDEF UNICODE}LangOptions.LanguageCodePage := {$ENDIF}StrToIntCheck(Value);
+          StrToIntCheck(Value);
         end;
       lsLanguageID: begin
           if AffectsMultipleLangs then
@@ -4834,34 +4784,13 @@ type
     mkcPgDn, mkcEnd, mkcHome, mkcLeft, mkcUp, mkcRight, mkcDown, mkcIns,
     mkcDel, mkcShift, mkcCtrl, mkcAlt);
 
-{$IFDEF Delphi3OrHigher}
 var
   MenuKeyCaps: array[TMenuKeyCap] of string = (
     SmkcBkSp, SmkcTab, SmkcEsc, SmkcEnter, SmkcSpace, SmkcPgUp,
     SmkcPgDn, SmkcEnd, SmkcHome, SmkcLeft, SmkcUp, SmkcRight,
     SmkcDown, SmkcIns, SmkcDel, SmkcShift, SmkcCtrl, SmkcAlt);
-{$ELSE}
-var
-  MenuKeyCaps: array[TMenuKeyCap] of string;
-
-const
-  MenuKeyCapIDs: array[TMenuKeyCap] of Word = (
-    SmkcBkSp, SmkcTab, SmkcEsc, SmkcEnter, SmkcSpace, SmkcPgUp,
-    SmkcPgDn, SmkcEnd, SmkcHome, SmkcLeft, SmkcUp, SmkcRight,
-    SmkcDown, SmkcIns, SmkcDel, SmkcShift, SmkcCtrl, SmkcAlt);
-{$ENDIF}
 
 procedure TSetupCompiler.EnumIconsProc(const Line: PChar; const Ext: Integer);
-
-  {$IFNDEF Delphi3OrHigher}
-  procedure LoadStrings;
-  var
-    I: TMenuKeyCap;
-  begin
-    for I := Low(TMenuKeyCap) to High(TMenuKeyCap) do
-      MenuKeyCaps[I] := LoadStr(MenuKeyCapIDs[I]);
-  end;
-  {$ENDIF}
 
   function HotKeyToText(HotKey: Word): string;
 
@@ -4990,10 +4919,6 @@ var
   NewIconEntry: PSetupIconEntry;
   S: String;
 begin
-  {$IFNDEF Delphi3OrHigher}
-  LoadStrings;
-  {$ENDIF}
-
   ExtractParameters(Line, ParamInfo, Values);
 
   NewIconEntry := AllocMem(SizeOf(TSetupIconEntry));
@@ -5565,13 +5490,7 @@ procedure TSetupCompiler.EnumFilesProc(const Line: PChar; const Ext: Integer);
       if Result[I] = '{' then begin
         Insert('{', Result, I);
         Inc(I);
-{$IFDEF UNICODE}
       end;
-{$ELSE}
-      end
-      else if Result[I] in CompilerLeadBytes then
-        Inc(I);
-{$ENDIF}
       Inc(I);
     end;
   end;
@@ -6024,32 +5943,20 @@ type
       function ComparePathStr(P1, P2: PChar): Integer;
       { Like CompareStr, but sorts backslashes correctly ('A\B' < 'AB\B') }
       var
-{$IFNDEF UNICODE}
-        LastWasLeadByte: BOOL;
-{$ENDIF}
         C1, C2: Char;
       begin
-{$IFNDEF UNICODE}
-        LastWasLeadByte := False;
-{$ENDIF}
         repeat
           C1 := P1^;
-          if (C1 = '\') {$IFNDEF UNICODE} and not LastWasLeadByte {$ENDIF} then
+          if (C1 = '\') then
             C1 := #1;
           C2 := P2^;
-          if (C2 = '\') {$IFNDEF UNICODE} and not LastWasLeadByte {$ENDIF} then
+          if (C2 = '\') then
             C2 := #1;
           Result := Ord(C1) - Ord(C2);
           if Result <> 0 then
             Break;
           if C1 = #0 then
             Break;
-{$IFNDEF UNICODE}
-          if LastWasLeadByte then
-            LastWasLeadByte := False
-          else
-            LastWasLeadByte := IsDBCSLeadByte(Ord(C1));
-{$ENDIF}
           Inc(P1);
           Inc(P2);
         until False;
@@ -6701,7 +6608,6 @@ const
     (Name: ParamLanguagesInfoBeforeFile; Flags: [piNoEmpty]),
     (Name: ParamLanguagesInfoAfterFile; Flags: [piNoEmpty]));
 
-{$IFDEF UNICODE}
 procedure TSetupCompiler.EnumLanguagesPreProc(const Line: PChar; const Ext: Integer);
 var
   Values: array[TLanguagesParam] of TParamValue;
@@ -6732,7 +6638,6 @@ begin
 
   ReadMessagesFromFilesPre(Filename, PreLangDataList.Count-1);
 end;
-{$ENDIF}
 
 procedure TSetupCompiler.EnumLanguagesProc(const Line: PChar; const Ext: Integer);
 var
@@ -6978,7 +6883,6 @@ begin
   end;
 end;
 
-{$IFDEF UNICODE}
 procedure TSetupCompiler.InitPreLangData(const APreLangData: TPreLangData);
 { Initializes a TPreLangData object with the default settings }
 begin
@@ -6987,7 +6891,6 @@ begin
     LanguageCodePage := 0;
   end;
 end;
-{$ENDIF}
 
 procedure TSetupCompiler.InitLanguageEntry(var ALanguageEntry: TSetupLanguageEntry);
 { Initializes a TSetupLanguageEntry record with the default settings }
@@ -6996,9 +6899,6 @@ begin
     Name := 'default';
     LanguageName := 'English';
     LanguageID := $0409;  { U.S. English }
-{$IFNDEF UNICODE}
-    LanguageCodePage := 0;
-{$ENDIF}
     DialogFontName := DefaultDialogFontName;
     DialogFontSize := 8;
     TitleFontName := 'Arial';
@@ -7013,7 +6913,6 @@ begin
   end;
 end;
 
-{$IFDEF UNICODE}
 procedure TSetupCompiler.ReadMessagesFromFilesPre(const AFiles: String;
   const ALangIndex: Integer);
 var
@@ -7030,7 +6929,6 @@ begin
     CallIdleProc;
   end;
 end;
-{$ENDIF}
 
 procedure TSetupCompiler.ReadMessagesFromFiles(const AFiles: String;
   const ALangIndex: Integer);
@@ -7069,7 +6967,6 @@ begin
         { ^ Copy(..., 4, Maxint) is to skip past "msg" }
 end;
 
-{$IFDEF UNICODE}
 procedure TSetupCompiler.ReadMessagesFromScriptPre;
 
   procedure CreateDefaultLanguageEntryPre;
@@ -7103,7 +7000,6 @@ begin
   EnumIniSection(EnumLangOptionsPreProc, 'LangOptions', -1, False, True, '', True, False);
   CallIdleProc;
 end;
-{$ENDIF}
 
 procedure TSetupCompiler.ReadMessagesFromScript;
 
@@ -7591,7 +7487,6 @@ procedure TSetupCompiler.Compile;
     end;
   end;
 
-{$IFDEF UNICODE}
   procedure FreePreLangData;
   var
     I: Integer;
@@ -7601,7 +7496,6 @@ procedure TSetupCompiler.Compile;
       PreLangDataList.Delete(I);
     end;
   end;
-{$ENDIF}
 
   procedure FreeLangData;
   var
@@ -7670,9 +7564,6 @@ var
 
     F.WriteBuffer(SetupID, SizeOf(SetupID));
 
-{$IFNDEF UNICODE}
-    SetupHeader.LeadBytes := CompilerLeadBytes;
-{$ENDIF}
     SetupHeader.NumLanguageEntries := LanguageEntries.Count;
     SetupHeader.NumCustomMessageEntries := CustomMessageEntries.Count;
     SetupHeader.NumPermissionEntries := PermissionEntries.Count;
@@ -8782,7 +8673,6 @@ begin
       Note: it must avoid caching the .isl files while determining the code pages, since
       the conversion is done *before* the caching. }
 
-{$IFDEF UNICODE}
     { 0. Determine final language code pages }
     AddStatus(SCompilerStatusDeterminingCodePages);
 
@@ -8793,7 +8683,6 @@ begin
 
     { 0.2. Read [LangOptions] in the script }
     ReadMessagesFromScriptPre;
-{$ENDIF}
 
     { 1. Read Default.isl messages }
     AddStatus(SCompilerStatusReadingDefaultMessages);
@@ -9101,9 +8990,7 @@ begin
     FileLocationEntryFilenames.Clear;
     FreeLineInfoList(ExpectedCustomMessageNames);
     FreeLangData;
-{$IFDEF UNICODE}
     FreePreLangData;
-{$ENDIF}
     FreeScriptFiles;
     FreeLineInfoList(CodeText);
     FreeAndNil(CompressProps);
@@ -9275,10 +9162,6 @@ begin
 end;
 
 initialization
-{$IFNDEF UNICODE}
-  GetLeadBytes(CompilerLeadBytes);
-  ConstLeadBytes := @CompilerLeadBytes;
-{$ENDIF}
 finalization
   if CryptProv <> 0 then begin
     CryptReleaseContext(CryptProv, 0);
