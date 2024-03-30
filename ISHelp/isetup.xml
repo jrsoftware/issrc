@@ -2131,7 +2131,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 
 <param name="LicenseFile">
 <p>Specifies the name of an optional license agreement file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 or UTF-16LE encoded with a BOM.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example>
 <pre>LicenseFile: "license-Dutch.txt"</pre>
 </example>
@@ -2139,7 +2139,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 
 <param name="InfoBeforeFile">
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 or UTF-16LE encoded with a BOM.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example>
 <pre>InfoBeforeFile: "infobefore-Dutch.txt"</pre>
 </example>
@@ -2148,7 +2148,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 <param name="InfoAfterFile">
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 or UTF-16LE encoded with a BOM.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example>
 <pre>InfoAfterFile: "infoafter-Dutch.txt"</pre>
 </example>
@@ -2768,7 +2768,7 @@ Type: files; Name: "{win}\MYPROG.INI"
   <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files. Starting with Inno Setup 6.3, a UTF-8 preamble (also called BOM) is no longer required. UTF-16 is not supported.</li>
   <li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
   <li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must to be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
-  <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>.</li>
+  <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>. Starting with Inno Setup 6.3, a UTF-8 preamble (also called BOM) is no longer required.</li>
   <li>Any language specific plain text ANSI files used for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
   <li>The [Setup] directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li>
   <li>Existing installations of your programs done by non Unicode installers can be freely updated by Unicode installers, and vice versa.</li>
@@ -4692,6 +4692,7 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies the name of an optional license agreement file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If the user selects a language for which the <tt>LicenseFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example><pre>LicenseFile=license.txt</pre></example>
 </body>
 </setuptopic>
@@ -4700,6 +4701,7 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If the user selects a language for which the <tt>InfoBeforeFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example><pre>InfoBeforeFile=infobefore.txt</pre></example>
 </body>
 </setuptopic>
@@ -4709,6 +4711,7 @@ DiskSliceSize=1457664
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
 <p>If the user selects a language for which the <tt>InfoAfterFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example><pre>InfoAfterFile=infoafter.txt</pre></example>
 </body>
 </setuptopic>
