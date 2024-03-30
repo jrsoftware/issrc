@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
   
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -859,11 +859,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       if Windows.GetTempFileName(PChar(Path), PChar(UpperCase(Original)), 0, PChar(Result)) <> 0 then
         SetLength(Result, StrLen(PChar(Result)))
       else
-        {$IFDEF IS_D7}
-        RaiseLastOSError
-        {$ELSE}
-        RaiseLastWin32Error;
-        {$ENDIF}
+        RaiseLastOSError;
     end;
 
   var

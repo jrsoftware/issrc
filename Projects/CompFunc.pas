@@ -354,8 +354,8 @@ var
         begin
           if LineNumber = 0 then begin
             { Don't forget about ListBox's DrawItem if you change the format of the following timestamp. }
-            Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
-              ST.wMinute, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, ST.wSecond, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator,
+            Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, FormatSettings.TimeSeparator,
+              ST.wMinute, FormatSettings.TimeSeparator, ST.wSecond, FormatSettings.DecimalSeparator,
               ST.wMilliseconds]), S, 1);
           end else begin
             Insert(#9, S, 1); { Not actually painted - just for Ctrl+C }

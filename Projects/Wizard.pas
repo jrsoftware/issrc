@@ -767,9 +767,8 @@ begin
   PrevSelectedTasks := TStringList.Create();
   PrevDeselectedTasks := TStringList.Create();
 
-{$IFDEF IS_D7}
   MainPanel.ParentBackground := False;
-{$ENDIF}
+
   { Prior to scaling the form, shrink WizardSmallBitmapImage if it's currently
     larger than WizardSmallImage. This way, stretching will not occur if the
     user specifies a smaller-than-default image and WizardImageStretch=yes,

@@ -2,7 +2,7 @@ unit Int64Em;
 
 {
   Inno Setup
-  Copyright (C) 1997-2008 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -10,8 +10,6 @@ unit Int64Em;
   integer value - and functions for manipulating Integer64's.
   (We can't use the Int64 type since it's only available in Delphi 4 and
   later.)
-
-  $jrsoftware: issrc/Projects/Int64Em.pas,v 1.14 2008/10/03 19:53:57 jr Exp $
 }
 
 interface
@@ -19,10 +17,6 @@ interface
 {$I VERSION.INC}
 
 type
-  {$IFNDEF IS_D4}
-  LongWord = Cardinal;
-  {$ENDIF}
-
   Integer64 = record
     Lo, Hi: LongWord;
   end;

@@ -154,7 +154,6 @@ begin
           AcceptedQueryEndSessionInProgress := False;
         Result := True;
       end;
-{$IFDEF IS_D12}
     WM_STYLECHANGING: begin
         { On Delphi 2009, we must suppress some of the VCL's manipulation of
           the application window styles in order to prevent the taskbar button
@@ -178,7 +177,6 @@ begin
             PStyleStruct(Message.LParam).styleNew and not WS_EX_APPWINDOW;
         end;
       end;
-{$ENDIF}
   end;
 end;
 
@@ -254,13 +252,11 @@ begin
 end;
 
 begin
-{$IFDEF IS_D12}
   { Delphi 2009 initially sets WS_EX_TOOLWINDOW on the application window.
     That will prevent our ShowWindow(Application.Handle, SW_SHOW) calls from
     actually displaying the taskbar button as intended, so clear it. }
   SetWindowLong(Application.Handle, GWL_EXSTYLE,
     GetWindowLong(Application.Handle, GWL_EXSTYLE) and not WS_EX_TOOLWINDOW);
-{$ENDIF}
 
   try
     SetErrorMode(SEM_FAILCRITICALERRORS);

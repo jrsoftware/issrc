@@ -209,62 +209,10 @@ begin
   end;
 end;
 
-{$IFNDEF IS_D4}
-function MoveAppWindowToActiveWindowMonitor(var OldRect: TRect): Boolean;
-{ This moves the application window (Application.Handle) to the same monitor
-  as the active window, so that a subsequent call to Application.MessageBox
-  displays the message box on that monitor. Based on code from D4+'s
-  TApplication.MessageBox. }
-type
-  HMONITOR = type THandle;
-  TMonitorInfo = record
-    cbSize: DWORD;
-    rcMonitor: TRect;
-    rcWork: TRect;
-    dwFlags: DWORD;
-  end;
-const
-  MONITOR_DEFAULTTONEAREST = $00000002;
-var
-  ActiveWindow: HWND;
-  Module: HMODULE;
-  MonitorFromWindow: function(hwnd: HWND; dwFlags: DWORD): HMONITOR; stdcall;
-  GetMonitorInfo: function(hMonitor: HMONITOR; var lpmi: TMonitorInfo): BOOL; stdcall;
-  MBMonitor, AppMonitor: HMONITOR;
-  Info: TMonitorInfo;
-begin
-  Result := False;
-  ActiveWindow := GetActiveWindow;
-  if ActiveWindow = 0 then Exit;
-  Module := GetModuleHandle(user32);
-  MonitorFromWindow := GetProcAddress(Module, 'MonitorFromWindow');
-  GetMonitorInfo := GetProcAddress(Module, 'GetMonitorInfoA');
-  if Assigned(MonitorFromWindow) and Assigned(GetMonitorInfo) then begin
-    MBMonitor := MonitorFromWindow(ActiveWindow, MONITOR_DEFAULTTONEAREST);
-    AppMonitor := MonitorFromWindow(Application.Handle, MONITOR_DEFAULTTONEAREST);
-    if MBMonitor <> AppMonitor then begin
-      Info.cbSize := SizeOf(Info);
-      if GetMonitorInfo(MBMonitor, Info) then begin
-        GetWindowRect(Application.Handle, OldRect);
-        SetWindowPos(Application.Handle, 0,
-          Info.rcMonitor.Left + ((Info.rcMonitor.Right - Info.rcMonitor.Left) div 2),
-          Info.rcMonitor.Top + ((Info.rcMonitor.Bottom - Info.rcMonitor.Top) div 2),
-          0, 0, SWP_NOACTIVATE or SWP_NOREDRAW or SWP_NOSIZE or SWP_NOZORDER);
-        Result := True;
-      end;
-    end;
-  end;
-end;
-{$ENDIF}
-
 function AppMessageBox(const Text, Caption: PChar; Flags: Longint): Integer;
 var
   ActiveWindow: HWND;
   WindowList: Pointer;
-{$IFNDEF IS_D4}
-  DidMove: Boolean;
-  OldRect: TRect;
-{$ENDIF}
 begin
   if MessageBoxRightToLeft then
     Flags := Flags or (MB_RTLREADING or MB_RIGHT);
@@ -289,31 +237,7 @@ begin
       Exit;
     end;
 
-{$IFDEF IS_D4}
-    { On Delphi 4+, simply call Application.MessageBox }
     Result := Application.MessageBox(Text, Caption, Flags);
-{$ELSE}
-    { Use custom implementation on Delphi 2 and 3. The Flags parameter is
-      incorrectly declared as a Word on Delphi 2's Application.MessageBox, and
-      there is no support for multiple monitors. }
-    DidMove := MoveAppWindowToActiveWindowMonitor(OldRect);
-    try
-      ActiveWindow := GetActiveWindow;
-      WindowList := DisableTaskWindows(0);
-      try
-        Result := MessageBox(Application.Handle, Text, Caption, Flags);
-      finally
-        EnableTaskWindows(WindowList);
-        SetActiveWindow(ActiveWindow);
-      end;
-    finally
-      if DidMove then
-        SetWindowPos(Application.Handle, 0,
-          OldRect.Left + ((OldRect.Right - OldRect.Left) div 2),
-          OldRect.Top + ((OldRect.Bottom - OldRect.Top) div 2),
-          0, 0, SWP_NOACTIVATE or SWP_NOREDRAW or SWP_NOSIZE or SWP_NOZORDER);
-    end;
-{$ENDIF}
   finally
     TriggerMessageBoxCallbackFunc(Flags, True);
   end;

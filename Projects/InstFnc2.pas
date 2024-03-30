@@ -26,9 +26,7 @@ implementation
 
 uses
   Windows, SysUtils, PathFunc, CmnFunc2, InstFunc, Main, Msgs, MsgIDs,
-  ActiveX, ComObj,
-  {$IFDEF IS_D14} PropSys, {$ENDIF}
-  ShellAPI, ShlObj;
+  ActiveX, ComObj, PropSys, ShellAPI, ShlObj;
 
 function IsWindows8: Boolean;
 { Returns True if running Windows 8 or later }
@@ -134,7 +132,7 @@ var
   OleResult: HRESULT;
   Obj: IUnknown;
   SL: IShellLink;
-  PS: {$IFDEF IS_D14}PropSys.{$ENDIF}IPropertyStore;
+  PS: PropSys.IPropertyStore;
   PV: TPropVariant;
   PF: IPersistFile;
   WideAppUserModelID, WideFilename: WideString;
@@ -161,7 +159,7 @@ begin
     SL.SetHotKey(HotKey);
 
   if (AppUserModelID <> '') or (AppUserModelToastActivatorCLSID <> nil) or ExcludeFromShowInNewInstall or PreventPinning then begin
-    PS := Obj as {$IFDEF IS_D14}PropSys.{$ENDIF}IPropertyStore;
+    PS := Obj as PropSys.IPropertyStore;
     { According to MSDN the PreventPinning property should be set before the ID property. In practice
       this doesn't seem to matter - at least not for shortcuts - but do it first anyway. }
     if PreventPinning then begin

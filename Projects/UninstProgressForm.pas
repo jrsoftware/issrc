@@ -106,9 +106,7 @@ begin
 
   InitializeFont;
 
-{$IFDEF IS_D7}
   MainPanel.ParentBackGround := False;
-{$ENDIF}
 
   PageNameLabel.Font.Style := [fsBold];
   PageNameLabel.Caption := SetupMessages[msgWizardUninstalling];
