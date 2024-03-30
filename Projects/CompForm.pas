@@ -3874,11 +3874,10 @@ procedure TCompileForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     S: TScintRawString;
     U: String;
   begin
-    { On the Unicode build, [Code] lines get converted from the editor's
-      UTF-8 to UTF-16 Strings when passed to the compiler. This can lead to
-      column number discrepancies between Scintilla and ROPS. This code
-      simulates the conversion to try to find out where ROPS thinks a Pos
-      resides. }
+    { [Code] lines get converted from the editor's UTF-8 to UTF-16 Strings when
+      passed to the compiler. This can lead to column number discrepancies
+      between Scintilla and ROPS. This code simulates the conversion to try to
+      find out where ROPS thinks a Pos resides. }
     LinePos := FActiveMemo.GetPositionFromLine(FActiveMemo.GetLineFromPosition(Pos));
     S := FActiveMemo.GetRawTextRange(LinePos, Pos);
     U := FActiveMemo.ConvertRawStringToString(S);

@@ -25,7 +25,7 @@ type
   TScintEditCharAddedEvent = procedure(Sender: TObject; Ch: AnsiChar) of object;
   TScintEditDropFilesEvent = procedure(Sender: TObject; X, Y: Integer;
     AFiles: TStrings) of object;
-  TScintHintInfo = {$IFDEF UNICODE} Controls. {$ENDIF} THintInfo;
+  TScintHintInfo = Controls.THintInfo;
   TScintEditHintShowEvent = procedure(Sender: TObject;
     var Info: TScintHintInfo) of object;
   TScintEditMarginClickEvent = procedure(Sender: TObject; MarginNumber: Integer;
@@ -43,7 +43,7 @@ type
     StartPos, EndPos: Integer;
   end;
   TScintRawCharSet = set of AnsiChar;
-  TScintRawString = type {$IFDEF UNICODE} RawByteString {$ELSE} AnsiString {$ENDIF};
+  TScintRawString = type RawByteString;
   TScintRectangle = record
     Left, Top, Right, Bottom: Integer;
   end;
@@ -327,9 +327,6 @@ type
   protected
     procedure CheckIndexRange(const Index: Integer);
     procedure CheckIndexRangePlusOne(const Index: Integer);
-{$IFNDEF UNICODE}
-    class procedure Error(Msg: PResStringRec; Data: Integer);
-{$ENDIF}
     function Get(Index: Integer): String; override;
     function GetCount: Integer; override;
     function GetTextStr: String; override;
@@ -552,7 +549,6 @@ begin
 end;
 
 function TScintEdit.ConvertRawStringToString(const S: TScintRawString): String;
-{$IFDEF UNICODE}
 var
   SrcLen, DestLen: Integer;
   DestStr: UnicodeString;
@@ -569,22 +565,14 @@ begin
   end;
   Result := DestStr;
 end;
-{$ELSE}
-begin
-  Result := S;
-end;
-{$ENDIF}
 
 function TScintEdit.ConvertPCharToRawString(const Text: PChar;
   const TextLen: Integer): TScintRawString;
 var
-{$IFDEF UNICODE}
   DestLen: Integer;
-{$ENDIF}
   DestStr: TScintRawString;
 begin
   if TextLen > 0 then begin
-{$IFDEF UNICODE}
     DestLen := WideCharToMultiByte(FCodePage, 0, Text, TextLen, nil, 0, nil, nil);
     if DestLen <= 0 then
       Error('WideCharToMultiByte failed');
@@ -592,20 +580,13 @@ begin
     if WideCharToMultiByte(FCodePage, 0, Text, TextLen, @DestStr[1], Length(DestStr),
        nil, nil) <> DestLen then
       Error('Unexpected result from WideCharToMultiByte');
-{$ELSE}
-    SetString(DestStr, Text, TextLen);
-{$ENDIF}
   end;
   Result := DestStr;
 end;
 
 function TScintEdit.ConvertStringToRawString(const S: String): TScintRawString;
 begin
-{$IFDEF UNICODE}
   Result := ConvertPCharToRawString(PChar(S), Length(S));
-{$ELSE}
-  Result := S;
-{$ENDIF}
 end;
 
 procedure TScintEdit.CopyToClipboard;
@@ -1015,11 +996,9 @@ end;
 procedure TScintEdit.InitRawString(var S: TScintRawString; const Len: Integer);
 begin
   SetString(S, nil, Len);
-{$IFDEF UNICODE}
   //experimental, dont need this ATM:
   if FCodePage <> 0 then
     System.SetCodePage(RawByteString(S), FCodePage, False);
-{$ENDIF}
 end;
 
 function TScintEdit.IsPositionInViewVertically(const Pos: Integer): Boolean;
@@ -1862,13 +1841,6 @@ begin
   EndPos := FEdit.GetPositionFromLine(Index + 1);
   FEdit.ReplaceRawTextRange(StartPos, EndPos, '');
 end;
-
-{$IFNDEF UNICODE}
-class procedure TScintEditStrings.Error(Msg: PResStringRec; Data: Integer);
-begin
-  TList.Error(LoadResString(Msg), Data);
-end;
-{$ENDIF}
 
 function TScintEditStrings.Get(Index: Integer): String;
 begin

@@ -2,7 +2,7 @@ unit DebugStruct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -101,11 +101,9 @@ function GetThreadTopWindow: HWND;
 function SendCopyDataMessage(DestWnd, SourceWnd: HWND; CopyDataMsg: DWORD;
   Data: Pointer; Size: Cardinal): LRESULT;
 function SendCopyDataMessageStr(DestWnd, SourceWnd: HWND; CopyDataMsg: DWORD;
-  Data: AnsiString): LRESULT;{$IFDEF UNICODE} overload;{$ENDIF}
-{$IFDEF UNICODE}
+  Data: AnsiString): LRESULT; overload;
 function SendCopyDataMessageStr(DestWnd, SourceWnd: HWND; CopyDataMsg: DWORD;
   Data: UnicodeString): LRESULT; overload;
-{$ENDIF}
 
 implementation
 

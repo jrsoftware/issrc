@@ -8589,7 +8589,22 @@ begin
 
     { Read languages:
 
-      Non Unicode:
+      0. Determine final code pages:
+      Unicode Setup uses Unicode text and does not depend on the system code page. To
+      provide Setup with Unicode text without requiring Unicode .isl files (but still
+      supporting Unicode .iss, license and info files), the compiler converts the .isl
+      files to Unicode during compilation. It also does this if it finds ANSI plain text
+      license and info files. To be able to do this it needs to know the language's code
+      page but as seen above it can't simply take this from the current .isl. And license
+      and info files do not even have a language code page setting.
+
+      This means the Unicode compiler has to do an extra phase: following the logic above
+      it first determines the final language code page for each language, storing these
+      into an extra list called PreDataList, and then it continues as normal while using
+      the final language code page for any conversions needed.
+
+      Note: it must avoid caching the .isl files while determining the code pages, since
+      the conversion is done *before* the caching.
 
       1. Read Default.isl messages:
 
@@ -8645,33 +8660,7 @@ begin
       4. Check 'language completeness' of custom message constants:
       CheckCustomMessageDefinitions is used to check for missing custom messages and
       where necessary it 'promotes' a custom message by resetting its LangIndex property
-      to -1.
-
-      5. Display the language at run time:
-      Setup checks if the system code page matches the language code page, and only shows
-      the language if it does. The system code page is then used to display all text, this
-      does not only include messages and custom messages, but also any readme and info files.
-
-      Unicode:
-
-      Unicode works exactly like above with one exception:
-
-      0. Determine final code pages:
-      Unicode Setup uses Unicode text and does not depend on the system code page. To
-      provide Setup with Unicode text without requiring Unicode .isl files (but still
-      supporting Unicode .iss, license and info files), the compiler converts the .isl
-      files to Unicode during compilation. It also does this if it finds ANSI plain text
-      license and info files. To be able to do this it needs to know the language's code
-      page but as seen above it can't simply take this from the current .isl. And license
-      and info files do not even have a language code page setting.
-
-      This means the Unicode compiler has to do an extra phase: following the logic above
-      it first determines the final language code page for each language, storing these
-      into an extra list called PreDataList, and then it continues as normal while using
-      the final language code page for any conversions needed.
-
-      Note: it must avoid caching the .isl files while determining the code pages, since
-      the conversion is done *before* the caching. }
+      to -1. }
 
     { 0. Determine final language code pages }
     AddStatus(SCompilerStatusDeterminingCodePages);
