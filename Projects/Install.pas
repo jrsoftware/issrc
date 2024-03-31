@@ -409,11 +409,6 @@ var
   var
     LeadBytesStr, ExpandedApp, ExpandedGroup, CustomMessagesStr: String;
   begin
-{$IFNDEF UNICODE}
-    SetString(LeadBytesStr, PChar(@SetupHeader.LeadBytes),
-      SizeOf(SetupHeader.LeadBytes));
-{$ENDIF}
-
     { Only use app if Setup creates one }
     if shCreateAppDir in SetupHeader.Options then
       ExpandedApp := ExpandConst('{app}')

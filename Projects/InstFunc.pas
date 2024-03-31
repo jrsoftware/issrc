@@ -1298,7 +1298,6 @@ function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryP
 { Finds the index of the language entry that most closely matches the user's
   UI language / locale. If no match is found, ResultIndex is set to 0. }
 
-{$IFDEF UNICODE}
   function GetCodePageFromLangID(const ALangID: LANGID): Integer;
   const
     LOCALE_RETURN_NUMBER = $20000000;
@@ -1311,7 +1310,6 @@ function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryP
     else
       Result := -1;
   end;
-{$ENDIF}
 
 var
   I: Integer;

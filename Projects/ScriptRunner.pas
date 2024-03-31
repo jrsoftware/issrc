@@ -207,9 +207,7 @@ const
 var
   ScriptRunner: TScriptRunner;
   S, DllName, FunctionName: AnsiString;
-{$IFDEF UNICODE}
   UnicodeDllName: String;
-{$ENDIF}
   I: Integer;
   ForceDelayLoad, DelayLoad: Boolean;
   ErrorCode: LongInt;

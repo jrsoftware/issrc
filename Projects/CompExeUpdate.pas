@@ -217,11 +217,7 @@ procedure UpdateVersionInfo(const F: TCustomFile;
   begin
     if not QueryValue(P, Path, Pointer(Value), ValueLen) then
       ResUpdateError('Unexpected version resource format (1)');
-{$IFDEF UNICODE}
     Move(Pointer(NewValue)^, Value^, (Min(Length(NewValue), lstrlenW(Value)))*SizeOf(Char));
-{$ELSE}
-    MultiByteToWideChar(CP_ACP, 0, PChar(NewValue), Length(NewValue), Value, lstrlenW(Value));
-{$ENDIF}
     ReplaceWithRealCopyrightSymbols(Value);
   end;
 
