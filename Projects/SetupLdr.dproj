@@ -35,7 +35,6 @@
         <DCC_DebugInformation>1</DCC_DebugInformation>
         <DCC_WriteableConstants>true</DCC_WriteableConstants>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
-        <DCC_UnitSearchPath>..\Components;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <SanitizedProjectName>SetupLdr</SanitizedProjectName>
         <VerInfo_Locale>1043</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
@@ -77,6 +76,7 @@
         <DCCReference Include="Compress.pas"/>
         <DCCReference Include="LZMADecompSmall.pas"/>
         <DCCReference Include="SetupEnt.pas"/>
+        <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="CmnFunc2.pas"/>
         <DCCReference Include="Msgs.pas"/>
         <DCCReference Include="MsgIDs.pas"/>
