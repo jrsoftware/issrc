@@ -3,9 +3,6 @@ unit MD5;
 {
   MD5.pas: Translated from C to Delphi by Jordan Russell on 2004-03-16.
   Still in the public domain. The original C code was taken from dpkg.
-
-  $jrsoftware: issrc/Projects/MD5.pas,v 1.2 2004/03/16 17:58:14 jr Exp $
-  (based on revision 1.15 from local 'md5' repository)
 }
 
 (*
@@ -32,20 +29,8 @@ unit MD5;
 
 interface
 
-{$IFNDEF VER80}
-{$IFNDEF VER90}
-{$IFNDEF VER93}
-{$IFNDEF VER100}
-{$IFNDEF VER110}
-  {$DEFINE MD5_D4PLUS}
-{$ENDIF}
-{$ENDIF}
-{$ENDIF}
-{$ENDIF}
-{$ENDIF}
-
 type
-  TMD5Word = {$IFDEF MD5_D4PLUS} LongWord {$ELSE} Cardinal {$ENDIF};
+  TMD5Word = LongWord;
   TMD5Buf = array[0..3] of TMD5Word;
   TMD5In = array[0..15] of TMD5Word;
   TMD5Context = record

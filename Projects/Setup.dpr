@@ -82,7 +82,8 @@ uses
   RestartManager in '..\Components\RestartManager.pas',
   Resample in '..\Components\Resample.pas',
   dwTaskbarList in '..\Components\dwTaskbarList.pas',
-  ASMInline in '..\Components\ASMInline.pas';
+  ASMInline in '..\Components\ASMInline.pas',
+  TaskbarProgressFunc in 'TaskbarProgressFunc.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}

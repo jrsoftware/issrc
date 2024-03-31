@@ -157,6 +157,7 @@
         <DCCReference Include="..\Components\Resample.pas"/>
         <DCCReference Include="..\Components\dwTaskbarList.pas"/>
         <DCCReference Include="..\Components\ASMInline.pas"/>
+        <DCCReference Include="TaskbarProgressFunc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

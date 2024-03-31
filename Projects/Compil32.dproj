@@ -78,6 +78,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="SafeDLLPath.pas"/>
+        <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="CompForm.pas">
             <Form>CompileForm</Form>
         </DCCReference>
@@ -127,6 +128,8 @@
         <DCCReference Include="..\Components\DropListBox.pas"/>
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
         <DCCReference Include="..\Components\NewNotebook.pas"/>
+        <DCCReference Include="TaskbarProgressFunc.pas"/>
+        <DCCReference Include="HtmlHelpFunc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

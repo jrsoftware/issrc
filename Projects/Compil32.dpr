@@ -46,7 +46,9 @@ uses
   BidiUtils in '..\Components\BidiUtils.pas',
   DropListBox in '..\Components\DropListBox.pas',
   NewCheckListBox in '..\Components\NewCheckListBox.pas',
-  NewNotebook in '..\Components\NewNotebook.pas';
+  NewNotebook in '..\Components\NewNotebook.pas',
+  TaskbarProgressFunc in 'TaskbarProgressFunc.pas',
+  HtmlHelpFunc in 'HtmlHelpFunc.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}

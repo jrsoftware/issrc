@@ -2,13 +2,11 @@ unit TaskbarProgressFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Wrappers for ITaskbarList3.SetProgressState & SetProgressValue
-
-  $jrsoftware: issrc/Projects/TaskbarProgressFunc.pas,v 1.1 2010/10/29 01:48:45 jr Exp $
 }
 
 interface
@@ -23,7 +21,7 @@ procedure SetAppTaskbarProgressValue(const Completed, Total: Cardinal);
 implementation
 
 uses
-  Windows, {$IFDEF VER90} OLE2 {$ELSE} ActiveX {$ENDIF}, Forms, dwTaskbarList;
+  Windows, ActiveX, Forms, dwTaskbarList;
 
 var
   TaskbarListInitialized: Boolean;
@@ -31,20 +29,15 @@ var
 
 function InitializeTaskbarList: Boolean;
 var
-  WinVer: Word;
   Intf: ITaskbarList3;
 begin
   if not TaskbarListInitialized then begin
-    WinVer := Swap(Word(GetVersion()));
-    if WinVer >= $0601 then
-      if CoCreateInstance(CLSID_TaskbarList, nil, CLSCTX_INPROC_SERVER, IID_TaskbarList3, Intf) = S_OK then
-        if Intf.HrInit = S_OK then begin
-          {$IFNDEF VER90}
-          { Safety: don't allow the instance to be destroyed at shutdown }
-          Intf._AddRef;
-          {$ENDIF}
-          TaskbarListInterface := Intf;
-        end;
+    if CoCreateInstance(CLSID_TaskbarList, nil, CLSCTX_INPROC_SERVER, IID_TaskbarList3, Intf) = S_OK then
+      if Intf.HrInit = S_OK then begin
+        { Safety: don't allow the instance to be destroyed at shutdown }
+        Intf._AddRef;
+        TaskbarListInterface := Intf;
+      end;
     TaskbarListInitialized := True;
   end;
   Result := Assigned(TaskbarListInterface);

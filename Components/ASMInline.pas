@@ -23,7 +23,7 @@ interface
   !!!! Not all special cases have been implemented in WriteRegRef().
 }
 
-uses Sysutils, windows, classes, contnrs;
+uses Sysutils, Windows, Classes, Contnrs;
 
 type
   TModMode = (mmNaked, mmDeref, mmDisp8, mmDisp32);
