@@ -1075,20 +1075,14 @@ begin
 end;
 
 procedure TPreprocessor.SaveToFile(const FileName: string);
-{$IFDEF UNICODE}
 var
   S: String;
-{$ENDIF}
 begin
-{$IFDEF UNICODE}
   S := FOutput.Text;
   if SameText(S, String(AnsiString(S))) then
     FOutput.SaveToFile(FileName)
   else
     FOutput.SaveToFile(FileName, TEncoding.UTF8);
-{$ELSE}
-  FOutput.SaveToFile(FileName)
-{$ENDIF}
 end;
 
 function TPreprocessor.CheckFile(const FileName: string): Boolean;
@@ -1404,13 +1398,8 @@ end;
 
 function LookupAlwaysDefined(const Name: string): Boolean;
 const
-{$IFDEF UNICODE}
   AlwaysDefined: array[0..3] of string =
     ('ISPP_INVOKED', 'WINDOWS', '__WIN32__', 'UNICODE');
-{$ELSE}
-  AlwaysDefined: array[0..2] of string =
-    ('ISPP_INVOKED', 'WINDOWS', '__WIN32__');
-{$ENDIF}
 var
   I: Integer;
 begin

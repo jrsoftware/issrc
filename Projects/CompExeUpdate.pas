@@ -29,7 +29,7 @@ procedure PreventCOMCTL32Sideloading(const F: TCustomFile);
 implementation
 
 uses
-  ResUpdate{$IFDEF UNICODE}, Math{$ENDIF}, Int64Em;
+  ResUpdate, Math, Int64Em;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);

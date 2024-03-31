@@ -1620,7 +1620,6 @@ end;
 
 function GetMD5OfUnicodeString(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-{$IFDEF UNICODE}
 var
   S: UnicodeString;
 begin
@@ -1639,12 +1638,6 @@ begin
     end;
   end;
 end;
-{$ELSE}
-begin
-  FuncResult.Error('Cannot call "GetMD5OfUnicodeString" function during non Unicode compilation');
-  Result.Error := ISPPFUNC_FAIL
-end;
-{$ENDIF}
 
 function GetSHA1OfFile(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
@@ -1703,7 +1696,6 @@ end;
 
 function GetSHA1OfUnicodeString(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-{$IFDEF UNICODE}
 var
   S: UnicodeString;
 begin
@@ -1722,12 +1714,6 @@ begin
     end;
   end;
 end;
-{$ELSE}
-begin
-  FuncResult.Error('Cannot call "GetSHA1OfUnicodeString" function during non Unicode compilation');
-  Result.Error := ISPPFUNC_FAIL
-end;
-{$ENDIF}
 
 function TrimFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;

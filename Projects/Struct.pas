@@ -2,7 +2,7 @@ unit Struct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -33,10 +33,10 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.3.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.3.0)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
-  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.0.0)'{$IFDEF UNICODE}+' (u)'{$ENDIF};
+  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.0.0) (u)';
   MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!001';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idska32'#26;
@@ -61,8 +61,7 @@ type
     shAllowUNCPath, shUserInfoPage, shUsePreviousUserInfo,
     shUninstallRestartComputer, shRestartIfNeededByRun, shShowTasksTreeLines,
     shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
-    shAppendDefaultGroupName, shEncryptionUsed,
-    {$IFNDEF UNICODE}shShowUndisplayableLanguages, {$ENDIF}shSetupLogging,
+    shAppendDefaultGroupName, shEncryptionUsed, shSetupLogging,
     shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
@@ -94,9 +93,6 @@ type
       AppModifyPath, CreateUninstallRegKey, Uninstallable, CloseApplicationsFilter,
       SetupMutex, ChangesEnvironment, ChangesAssociations: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
-{$IFNDEF UNICODE}
-    LeadBytes: set of AnsiChar;
-{$ENDIF}
     NumLanguageEntries, NumCustomMessageEntries, NumPermissionEntries,
       NumTypeEntries, NumComponentEntries, NumTaskEntries, NumDirEntries,
       NumFileEntries, NumFileLocationEntries, NumIconEntries, NumIniEntries,
@@ -137,13 +133,10 @@ const
 type
   PSetupLanguageEntry = ^TSetupLanguageEntry;
   TSetupLanguageEntry = packed record
-{$IFNDEF UNICODE}
-    { Note: LanguageName is Unicode }
-{$ENDIF}
     Name, LanguageName, DialogFontName, TitleFontName, WelcomeFontName,
       CopyrightFontName: String;
     Data, LicenseText, InfoBeforeText, InfoAfterText: AnsiString;
-    LanguageID{$IFNDEF UNICODE}, LanguageCodePage{$ENDIF}: Cardinal;
+    LanguageID: Cardinal;
     DialogFontSize: Integer;
     TitleFontSize: Integer;
     WelcomeFontSize: Integer;
