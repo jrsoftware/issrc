@@ -237,7 +237,7 @@
 					</define>
 				</syntax>
 				<description>
-					<para>Includes the &translation; of the specified file. If an Unicode file is used, it must be UTF-8 encoded with a BOM.</para>
+					<para>Includes the &translation; of the specified file. If an Unicode file is used, it must be UTF-8 (with or without a BOM) encoded</para>
 					<para>If the filename is enclosed in quotes, ISPP first searches for the file in the directory where current file resides, then in the directory where the file that included current file resides, and so on. If the file is not found, it is searched on current include path, set via &pragma;, then on the path specified by INCLUDE environment variable.</para>
 					<para>If filename is an expression or specified in angle brackets, it is searched on current include path only.</para>
           <para>The filename may be prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</para>
@@ -263,7 +263,7 @@
 					</define>
 				</syntax>
 				<description>
-					<para>Replaces the directive with the name of a temporary file containing the &translation; of the specified file. Upon end of compilation, the temporary file is automatically deleted. If an Unicode file is used, it must be UTF-8 encoded with a BOM.</para>
+					<para>Replaces the directive with the name of a temporary file containing the &translation; of the specified file. Upon end of compilation, the temporary file is automatically deleted. If an Unicode file is used, it must be UTF-8 (with or without a BOM) encoded.</para>
 					<para>Including a file using this directive creates a new independent instance of the preprocessor, passing it options currently in effect and all declared identifiers. If the included file modifies options in some way, they are not propagated back.</para>
 					<para>When using this directive in Inno Setup's Source parameter of the [Files] section, specify a DestName parameter too, else the file with not be installed with the original name.</para>
 					<para>This directive can only be used <link href="directives">inline</link>.</para>
