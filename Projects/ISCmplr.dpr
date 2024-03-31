@@ -29,7 +29,8 @@ uses
   LZMA in 'LZMA.pas',
   FileClass in 'FileClass.pas',
   ArcFour in 'ArcFour.pas',
-  VerInfo in 'VerInfo.pas';
+  VerInfo in 'VerInfo.pas',
+  PathFunc in '..\Components\PathFunc.pas';
 
 {$IMAGEBASE $00800000}
 {$SETPEOSVERSION 6.1}

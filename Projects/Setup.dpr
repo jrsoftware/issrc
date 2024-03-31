@@ -16,7 +16,7 @@ uses
   Windows,
   SysUtils,
   Messages,
-  RichEditViewer,
+  RichEditViewer in '..\Components\RichEditViewer.pas',
   CmnFunc in 'CmnFunc.pas',
   CmnFunc2 in 'CmnFunc2.pas',
   Main in 'Main.pas' {MainForm},
@@ -67,7 +67,22 @@ uses
   SpawnCommon in 'SpawnCommon.pas',
   SpawnServer in 'SpawnServer.pas',
   SpawnClient in 'SpawnClient.pas',
-  TaskDialog in 'TaskDialog.pas';
+  TaskDialog in 'TaskDialog.pas',
+  BidiUtils in '..\Components\BidiUtils.pas',
+  PathFunc in '..\Components\PathFunc.pas',
+  BidiCtrls in '..\Components\BidiCtrls.pas',
+  BitmapImage in '..\Components\BitmapImage.pas',
+  FolderTreeView in '..\Components\FolderTreeView.pas',
+  NewCheckListBox in '..\Components\NewCheckListBox.pas',
+  NewNotebook in '..\Components\NewNotebook.pas',
+  NewProgressBar in '..\Components\NewProgressBar.pas',
+  NewStaticText in '..\Components\NewStaticText.pas',
+  PasswordEdit in '..\Components\PasswordEdit.pas',
+  TmSchema in '..\Components\TmSchema.pas',
+  RestartManager in '..\Components\RestartManager.pas',
+  Resample in '..\Components\Resample.pas',
+  dwTaskbarList in '..\Components\dwTaskbarList.pas',
+  ASMInline in '..\Components\ASMInline.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}
@@ -284,7 +299,7 @@ begin
     Application.Initialize;
     InitializeSetup;
     Application.CreateForm(TMainForm, MainForm);
-    MainForm.InitializeWizard;
+  MainForm.InitializeWizard;
   except
     { Halt on any exception }
     ShowExceptionMsg;

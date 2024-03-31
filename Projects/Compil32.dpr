@@ -14,7 +14,7 @@ uses
   Windows,
   SysUtils,
   Forms,
-  PathFunc,
+  PathFunc in '..\Components\PathFunc.pas',
   CompForm in 'CompForm.pas' {CompileForm},
   CmnFunc in 'CmnFunc.pas',
   CmnFunc2 in 'CmnFunc2.pas',
@@ -39,7 +39,14 @@ uses
   CompMsgBoxDesigner in 'CompMsgBoxDesigner.pas' {MsgBoxDesignerForm},
   CompScintEdit in 'CompScintEdit.pas',
   CompFilesDesigner in 'CompFilesDesigner.pas' {FilesDesignerForm},
-  CompWizardFilesHelper in 'CompWizardFilesHelper.pas';
+  CompWizardFilesHelper in 'CompWizardFilesHelper.pas',
+  NewTabSet in '..\Components\NewTabSet.pas',
+  dwTaskbarList in '..\Components\dwTaskbarList.pas',
+  NewStaticText in '..\Components\NewStaticText.pas',
+  BidiUtils in '..\Components\BidiUtils.pas',
+  DropListBox in '..\Components\DropListBox.pas',
+  NewCheckListBox in '..\Components\NewCheckListBox.pas',
+  NewNotebook in '..\Components\NewNotebook.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}

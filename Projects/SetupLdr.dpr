@@ -18,7 +18,7 @@ uses
   Compress in 'Compress.pas',
   LZMADecompSmall in 'LZMADecompSmall.pas',
   SetupEnt in 'SetupEnt.pas',
-  PathFunc,
+  PathFunc in '..\Components\PathFunc.pas',
   CmnFunc2 in 'CmnFunc2.pas',
   Msgs in 'Msgs.pas',
   MsgIDs in 'MsgIDs.pas',

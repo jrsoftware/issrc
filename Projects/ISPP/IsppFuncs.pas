@@ -1368,7 +1368,7 @@ begin
         try
           MakeInt(ResPtr^, 1);
           if not DoAppend and (CodePage = CP_UTF8) then
-            Write(F, #$FEFF); //UTF8 BOM as a single Unicode character
+            Write(F, #$FEFF); //Strings are UTF-16 so this UTF-16 BOM will actually be saved as an UTF-8 BOM
           Write(F, Get(1).AsStr);
         finally
           CloseFile(F);
