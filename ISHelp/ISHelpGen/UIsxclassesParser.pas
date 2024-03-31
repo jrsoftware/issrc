@@ -23,13 +23,6 @@ uses
   Windows,
   SysUtils;
 
-{$IFNDEF UNICODE}
-function CharInSet(C: AnsiChar; const CharSet: TSysCharSet): Boolean;
-begin
-  Result := C in CharSet;
-end;
-{$ENDIF}
-
 constructor TIsxclassesParser.Create();
 begin
   inherited;

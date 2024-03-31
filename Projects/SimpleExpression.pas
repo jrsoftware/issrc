@@ -2,7 +2,7 @@ unit SimpleExpression;
 
 {
   Inno Setup
-  Copyright (C) 1997-2013 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -68,24 +68,10 @@ implementation
 uses
   SysUtils;
 
-{$IFNDEF UNICODE}
-type
-  TSysCharSet = set of AnsiChar;
-function CharInSet(C: AnsiChar; const CharSet: TSysCharSet): Boolean;
-begin
-  Result := C in CharSet;
-end;
-{$ENDIF}
-
 procedure AssignStringToVarRec(var VarRec: TVarRec; const S: String);
 begin
-{$IFDEF UNICODE}
   VarRec.VType := vtUnicodeString;
   UnicodeString(VarRec.VUnicodeString) := S;
-{$ELSE}
-  VarRec.VType := vtAnsiString;
-  AnsiString(VarRec.VAnsiString) := S;
-{$ENDIF}
 end;
 
 {---}
@@ -252,7 +238,7 @@ begin
       Result := True; { Lazy and in lazy branch, just return something }
   finally
     for I := High(Parameters) downto Low(Parameters) do
-      if Parameters[I].VType = {$IFDEF UNICODE} vtUnicodeString {$ELSE} vtAnsiString {$ENDIF} then
+      if Parameters[I].VType = vtUnicodeString then
         AssignStringToVarRec(Parameters[I], '');
   end
 end;

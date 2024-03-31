@@ -25,34 +25,6 @@ implementation
 uses
   PathFunc, Msgs, InstFunc, Logging, RedirFunc, Helper;
 
-{$IFNDEF UNICODE}
-function AllocWideCharStr(const S: String): PWideChar;
-{ Allocates a null-terminated Unicode copy of S on the heap. Use FreeMem to
-  free the returned pointer. } 
-var
-  SourceLen, DestLen: Integer;
-begin
-  SourceLen := Length(S);
-  if SourceLen = 0 then
-    DestLen := 0
-  else begin
-    DestLen := MultiByteToWideChar(CP_ACP, 0, PChar(S), SourceLen, nil, 0);
-    if (DestLen <= 0) or (DestLen >= High(Integer) div SizeOf(WideChar)) then
-      InternalError('AllocWideCharStr: MultiByteToWideChar failed');
-  end;
-  GetMem(Result, (DestLen + 1) * SizeOf(WideChar));
-  try
-    if DestLen <> 0 then
-      if MultiByteToWideChar(CP_ACP, 0, PChar(S), SourceLen, Result, DestLen) <> DestLen then
-        InternalError('AllocWideCharStr: MultiByteToWideChar failed');
-    Result[DestLen] := #0;
-  except
-    FreeMem(Result);
-    raise;
-  end;
-end;
-{$ENDIF}
-
 function InternalGrantPermission(const ObjectType: DWORD; const ObjectName: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer;
   const Inheritance: DWORD): DWORD;

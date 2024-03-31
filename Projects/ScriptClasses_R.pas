@@ -24,7 +24,7 @@ implementation
 uses
   Windows, Controls, Forms, StdCtrls, Graphics,
   uPSR_std, uPSR_classes, uPSR_graphics, uPSR_controls, uPSR_forms,
-  uPSR_stdctrls, uPSR_extctrls, uPSR_comobj, {$IFNDEF UNICODE} uPSUtils, {$ENDIF}
+  uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
   ExtCtrls, UIStateForm, SetupForm, Main, Wizard, SetupTypes, PasswordEdit,
   FolderTreeView, BitmapImage, NewNotebook, ScriptDlg, BidiCtrls,
@@ -370,9 +370,7 @@ begin
     RIRegisterTStringList(Cl);
     RIRegisterTHandleStream(Cl);
     RIRegisterTFileStream(Cl);
-{$IFDEF UNICODE}
     RIRegisterTStringStream(Cl);
-{$ENDIF}
 
     { Graphics }
     RIRegisterTGraphicsObject(Cl);

@@ -395,7 +395,6 @@ var
   end;
 
   function PackCompiledCodeTextIntoString(const CompiledCodeText: AnsiString): String;
-{$IFDEF UNICODE}
   var
     N: Integer;
   begin
@@ -404,10 +403,6 @@ var
       Inc(N); { This will lead to 1 extra byte being moved but that's ok since it is the #0 }
     N := N div 2;
     SetString(Result, PChar(Pointer(CompiledCodeText)), N);
-{$ELSE}
-  begin
-    Result := CompiledCodeText;
-{$ENDIF}
   end;
 
   procedure RecordCompiledCode;
@@ -438,7 +433,7 @@ var
     { Record [Code] even if empty to 'overwrite' old versions }
     UninstLog.Add(utCompiledCode, [PackCompiledCodeTextIntoString(SetupHeader.CompiledCodeText),
       LeadBytesStr, ExpandedApp, ExpandedGroup, WizardGroupValue,
-      ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion {$IFDEF UNICODE} or Longint($80000000) {$ENDIF});
+      ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion or Longint($80000000));
   end;
 
   type
@@ -898,11 +893,7 @@ var
       anti-spyware programs that catch all unins*.exe files with certain MD5
       sums just because some piece of spyware was deployed with Inno Setup and
       had the unins*.exe file in its directory. }
-{$IFDEF UNICODE}
     UniqueValue := GetSHA1OfUnicodeString(ExpandedAppId);
-{$ELSE}
-    UniqueValue := GetSHA1OfAnsiString(ExpandedAppId);
-{$ENDIF}
     F.WriteBuffer(UniqueValue, SizeOf(UniqueValue));
 
     UninstallerMsgTail.ID := UninstallerMsgTailID;
@@ -1953,14 +1944,10 @@ var
           'IconIndex=' + IntToStr(IconIndex) + SNewLine;
       F := TTextFileWriter.Create(Filename, fdCreateAlways, faWrite, fsNone);
       try
-{$IFDEF UNICODE}
         if SameText(S, String(AnsiString(S))) then
           F.WriteAnsi(AnsiString(S))
         else
           F.Write(S);
-{$ELSE}
-        F.Write(S);
-{$ENDIF}
       finally
         F.Free;
       end;
@@ -2281,10 +2268,8 @@ var
     NeedToRetry, DidDeleteKey: Boolean;
     ErrorCode: Longint;
     QV: Integer64;
-{$IFDEF UNICODE}
     I: Integer;
     AnsiS: AnsiString;
-{$ENDIF}
   begin
     for CurRegNumber := 0 to Entries[seRegistry].Count-1 do begin
       with PSetupRegistryEntry(Entries[seRegistry][CurRegNumber])^ do begin
@@ -2456,16 +2441,11 @@ var
                             RegError(reRegSetValueEx, RK, S, ErrorCode);
                         end;
                       rtBinary: begin
-{$IFDEF UNICODE}
                           AnsiS := '';
                           for I := 1 to Length(ValueData) do
                             AnsiS := AnsiS + AnsiChar(Ord(ValueData[I]));
                           ErrorCode := RegSetValueEx(K, PChar(N), 0, REG_BINARY,
                             PAnsiChar(AnsiS), Length(AnsiS));
-{$ELSE}
-                          ErrorCode := RegSetValueEx(K, PChar(N), 0, REG_BINARY,
-                            PChar(ValueData), Length(ValueData));
-{$ENDIF}
                           if (ErrorCode <> ERROR_SUCCESS) and
                              not(roNoError in Options) then
                             RegError(reRegSetValueEx, RK, S, ErrorCode);
@@ -3351,13 +3331,7 @@ procedure ExtractTemporaryFile(const BaseName: String);
       if Result[I] = '{' then begin
         Insert('{', Result, I);
         Inc(I);
-  {$IFDEF UNICODE}
       end;
-  {$ELSE}
-      end
-      else if Result[I] in ConstLeadBytes^ then
-        Inc(I);
-  {$ENDIF}
       Inc(I);
     end;
   end;

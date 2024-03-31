@@ -179,8 +179,7 @@ function GetFinalFileName(const Filename: String): String;
 const
   FILE_SHARE_DELETE = $00000004;
 var
-  GetFinalPathNameByHandleFunc: function(hFile: THandle;
-    lpszFilePath: {$IFDEF UNICODE} PWideChar {$ELSE} PAnsiChar {$ENDIF};
+  GetFinalPathNameByHandleFunc: function(hFile: THandle; lpszFilePath: PWideChar;
     cchFilePath: DWORD; dwFlags: DWORD): DWORD; stdcall;
   Attr, FlagsAndAttributes: DWORD;
   H: THandle;

@@ -72,19 +72,13 @@ function GetFileDateTime(const DisableFsRedir: Boolean; const Filename: String;
   var DateTime: TFileTime): Boolean;
 function GetMD5OfFile(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
 function GetMD5OfAnsiString(const S: AnsiString): TMD5Digest;
-{$IFDEF UNICODE}
 function GetMD5OfUnicodeString(const S: UnicodeString): TMD5Digest;
-{$ENDIF}
 function GetSHA1OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA1Digest;
 function GetSHA1OfAnsiString(const S: AnsiString): TSHA1Digest;
-{$IFDEF UNICODE}
 function GetSHA1OfUnicodeString(const S: UnicodeString): TSHA1Digest;
-{$ENDIF}
 function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): String;
 function GetSHA256OfAnsiString(const S: AnsiString): String;
-{$IFDEF UNICODE}
 function GetSHA256OfUnicodeString(const S: UnicodeString): String;
-{$ENDIF}
 function GetRegRootKeyName(const RootKey: HKEY): String;
 function GetSpaceOnDisk(const DisableFsRedir: Boolean; const DriveRoot: String;
   var FreeBytes, TotalBytes: Integer64): Boolean;
@@ -745,24 +739,20 @@ begin
   Result := MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
 end;
 
-{$IFDEF UNICODE}
 function GetMD5OfUnicodeString(const S: UnicodeString): TMD5Digest;
 begin
   Result := MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
 end;
-{$ENDIF}
 
 function GetSHA1OfAnsiString(const S: AnsiString): TSHA1Digest;
 begin
   Result := SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
 end;
 
-{$IFDEF UNICODE}
 function GetSHA1OfUnicodeString(const S: UnicodeString): TSHA1Digest;
 begin
   Result := SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
 end;
-{$ENDIF}
 
 function GetSHA256OfAnsiString(const S: AnsiString): String;
 var
@@ -778,7 +768,6 @@ begin
   end;
 end;
 
-{$IFDEF UNICODE}
 function GetSHA256OfUnicodeString(const S: UnicodeString): String;
 var
   M: TMemoryStream;
@@ -792,7 +781,6 @@ begin
     M.Free;
   end;
 end;
-{$ENDIF}
 
 var
   SFCInitialized: Boolean;

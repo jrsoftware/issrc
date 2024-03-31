@@ -2,7 +2,7 @@ unit Helper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -10,8 +10,6 @@ unit Helper;
 
   NOTE: These functions are NOT thread-safe. Do not call them from multiple
   threads simultaneously.
-
-  $jrsoftware: issrc/Projects/Helper.pas,v 1.14 2010/10/20 02:43:26 jr Exp $
 }
 
 interface
@@ -146,7 +144,6 @@ begin
 end;
 
 procedure FillWideCharBuffer(var Buf: array of WideChar; const S: String);
-{$IFDEF UNICODE}
 begin
   if High(Buf) <= 0 then
     InternalError('FillWideCharBuffer: Invalid Buf');
@@ -154,23 +151,6 @@ begin
     InternalError('FillWideCharBuffer: String too long');
   StrPLCopy(Buf, S, High(Buf));
 end;
-{$ELSE}
-var
-  SourceLen, DestLen: Integer;
-begin
-  if High(Buf) <= 0 then
-    InternalError('FillWideCharBuffer: Invalid Buf');
-  SourceLen := Length(S);
-  if SourceLen = 0 then
-    DestLen := 0
-  else begin
-    DestLen := MultiByteToWideChar(CP_ACP, 0, PChar(S), SourceLen, Buf, High(Buf));
-    if DestLen <= 0 then
-      InternalError('FillWideCharBuffer: MultiByteToWideChar failed');
-  end;
-  Buf[DestLen] := #0;
-end;
-{$ENDIF}
 
 { THelper }
 
