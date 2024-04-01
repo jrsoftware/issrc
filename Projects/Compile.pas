@@ -31,7 +31,8 @@ type
 implementation
 
 uses
-  CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math, Generics.Collections,
+  CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
+  Generics.Collections, WideStrUtils,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, CompExeUpdate,
@@ -3268,6 +3269,11 @@ begin
       UnicodeFile := ((Size >= 2) and (PWord(Pointer(S))^ = $FEFF)) or
                      ((Size >= 3) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF));
       RTFFile := Copy(S, 1, 6) = '{\rtf1';
+
+      if not UnicodeFile and not RTFFile and IsUTF8String(S) then begin
+        S := #$EF + #$BB + #$BF + S;
+        UnicodeFile := True;
+      end;
 
       if not UnicodeFile and not RTFFile and (LangIndex >= 0) then begin
         AnsiConvertCodePage := TPreLangData(PreLangDataList[LangIndex]).LanguageCodePage;

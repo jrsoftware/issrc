@@ -35,7 +35,7 @@
         <DCC_DebugInformation>1</DCC_DebugInformation>
         <DCC_WriteableConstants>true</DCC_WriteableConstants>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
-        <DCC_UnitSearchPath>..\Components;..\Components\UniPs\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\Components\UniPs\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Define>PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
         <SanitizedProjectName>Setup</SanitizedProjectName>
         <VerInfo_Locale>1043</VerInfo_Locale>
@@ -76,6 +76,7 @@
         </DelphiCompile>
         <DCCReference Include="SafeDLLPath.pas"/>
         <DCCReference Include="XPTheme.pas"/>
+        <DCCReference Include="..\Components\RichEditViewer.pas"/>
         <DCCReference Include="CmnFunc.pas"/>
         <DCCReference Include="CmnFunc2.pas"/>
         <DCCReference Include="Main.pas">
@@ -141,6 +142,21 @@
         <DCCReference Include="SpawnServer.pas"/>
         <DCCReference Include="SpawnClient.pas"/>
         <DCCReference Include="TaskDialog.pas"/>
+        <DCCReference Include="..\Components\BidiUtils.pas"/>
+        <DCCReference Include="..\Components\PathFunc.pas"/>
+        <DCCReference Include="..\Components\BidiCtrls.pas"/>
+        <DCCReference Include="..\Components\BitmapImage.pas"/>
+        <DCCReference Include="..\Components\FolderTreeView.pas"/>
+        <DCCReference Include="..\Components\NewCheckListBox.pas"/>
+        <DCCReference Include="..\Components\NewNotebook.pas"/>
+        <DCCReference Include="..\Components\NewProgressBar.pas"/>
+        <DCCReference Include="..\Components\NewStaticText.pas"/>
+        <DCCReference Include="..\Components\PasswordEdit.pas"/>
+        <DCCReference Include="..\Components\TmSchema.pas"/>
+        <DCCReference Include="..\Components\RestartManager.pas"/>
+        <DCCReference Include="..\Components\Resample.pas"/>
+        <DCCReference Include="..\Components\dwTaskbarList.pas"/>
+        <DCCReference Include="..\Components\ASMInline.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

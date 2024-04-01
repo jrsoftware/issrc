@@ -16,9 +16,15 @@ program ISCC;
 
 uses
   SafeDLLPath in 'SafeDLLPath.pas',
-  Windows, SysUtils, Classes,
-  {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  PathFunc, CmnFunc2, CompInt, FileClass, CompTypes;
+  Windows,
+  SysUtils,
+  Classes,
+  {$IFDEF STATICCOMPILER} Compile in 'Compile.pas', {$ENDIF}
+  PathFunc in '..\Components\PathFunc.pas',
+  CmnFunc2 in 'CmnFunc2.pas',
+  CompInt in 'CompInt.pas',
+  FileClass in 'FileClass.pas',
+  CompTypes in 'CompTypes.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} 
 {$SETPEOSVERSION 6.0}
