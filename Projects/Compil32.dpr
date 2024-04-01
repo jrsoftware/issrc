@@ -38,6 +38,7 @@ uses
   ModernColors in '..\Components\ModernColors.pas',
   CompMsgBoxDesigner in 'CompMsgBoxDesigner.pas' {MsgBoxDesignerForm},
   CompScintEdit in 'CompScintEdit.pas',
+  CompRegistryDesigner in 'CompRegistryDesigner.pas' {RegistryDesignerForm},
   CompFilesDesigner in 'CompFilesDesigner.pas' {FilesDesignerForm},
   CompWizardFilesHelper in 'CompWizardFilesHelper.pas',
   NewTabSet in '..\Components\NewTabSet.pas',
