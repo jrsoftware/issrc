@@ -36,7 +36,7 @@
         <DCC_WriteableConstants>true</DCC_WriteableConstants>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
         <DCC_UnitSearchPath>..\Components\UniPs\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <DCC_Define>PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
+        <DCC_Define>SETUPPROJ;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
         <SanitizedProjectName>Setup</SanitizedProjectName>
         <VerInfo_Locale>1043</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
@@ -96,7 +96,7 @@
             <Form>WizardForm</Form>
         </DCCReference>
         <DCCReference Include="Src\ScriptFunc_R.pas"/>
-        <DCCReference Include="Src\Src\ScriptFunc.pas"/>
+        <DCCReference Include="Src\ScriptFunc.pas"/>
         <DCCReference Include="Src\SetupTypes.pas"/>
         <DCCReference Include="Src\ScriptRunner.pas"/>
         <DCCReference Include="Src\ScriptDlg.pas"/>
@@ -158,6 +158,10 @@
         <DCCReference Include="..\Components\dwTaskbarList.pas"/>
         <DCCReference Include="..\Components\ASMInline.pas"/>
         <DCCReference Include="Src\TaskbarProgressFunc.pas"/>
+        <DCCReference Include="Src\DotNet.pas"/>
+        <DCCReference Include="Src\SetupEnt.pas"/>
+        <DCCReference Include="Src\Msi.pas"/>
+        <DCCReference Include="Src\DotNetVersion.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

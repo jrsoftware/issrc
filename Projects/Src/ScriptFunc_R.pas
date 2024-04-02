@@ -26,7 +26,7 @@ uses
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
   Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
-  SpawnClient, UninstProgressForm, ASMInline, DotNet, Msi, BitmapImage;
+  SpawnClient, UninstProgressForm, ASMInline, DotNet, DotNetVersion, Msi, BitmapImage;
 
 var
   ScaleBaseUnitsInitialized: Boolean;

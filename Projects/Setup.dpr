@@ -30,7 +30,7 @@ uses
   InstFnc2 in 'Src\InstFnc2.pas',
   Wizard in 'Src\Wizard.pas' {WizardForm},
   ScriptFunc_R in 'Src\ScriptFunc_R.pas',
-  ScriptFunc in 'Src\Src\ScriptFunc.pas',
+  ScriptFunc in 'Src\ScriptFunc.pas',
   SetupTypes in 'Src\SetupTypes.pas',
   ScriptRunner in 'Src\ScriptRunner.pas',
   ScriptDlg in 'Src\ScriptDlg.pas',
@@ -83,7 +83,11 @@ uses
   Resample in '..\Components\Resample.pas',
   dwTaskbarList in '..\Components\dwTaskbarList.pas',
   ASMInline in '..\Components\ASMInline.pas',
-  TaskbarProgressFunc in 'Src\TaskbarProgressFunc.pas';
+  TaskbarProgressFunc in 'Src\TaskbarProgressFunc.pas',
+  DotNet in 'Src\DotNet.pas',
+  SetupEnt in 'Src\SetupEnt.pas',
+  Msi in 'Src\Msi.pas',
+  DotNetVersion in 'Src\DotNetVersion.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}
@@ -94,7 +98,7 @@ uses
 {$R Setup.images.res}
 {$R Setup.version.res}
 
-{$I VERSION.INC}
+{$I Src\VERSION.INC}
 
 procedure ShowExceptionMsg;
 var

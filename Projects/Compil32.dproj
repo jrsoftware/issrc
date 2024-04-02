@@ -77,7 +77,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="SafeDLLPath.pas"/>
+        <DCCReference Include="Src\SafeDLLPath.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\CompForm.pas">
             <Form>CompileForm</Form>
@@ -129,6 +129,15 @@
         <DCCReference Include="..\Components\NewNotebook.pas"/>
         <DCCReference Include="Src\TaskbarProgressFunc.pas"/>
         <DCCReference Include="Src\HtmlHelpFunc.pas"/>
+        <DCCReference Include="Src\UIStateForm.pas"/>
+        <DCCReference Include="Src\LangOptionsSectionDirectives.pas"/>
+        <DCCReference Include="Src\MsgIDs.pas"/>
+        <DCCReference Include="Src\SetupSectionDirectives.pas"/>
+        <DCCReference Include="Src\CompTypes.pas"/>
+        <DCCReference Include="Src\FileClass.pas"/>
+        <DCCReference Include="Src\Int64Em.pas"/>
+        <DCCReference Include="Src\Compress.pas"/>
+        <DCCReference Include="Src\TaskDialog.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

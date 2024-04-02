@@ -12,7 +12,7 @@ unit IsppFuncs;
 
 interface
 
-{$I ..\Version.inc}
+{$I ..\Src\Version.inc}
 
 uses
   Windows, Classes, IsppVarUtils, IsppIntf, IsppPreprocessor, IsppParser;

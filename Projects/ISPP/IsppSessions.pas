@@ -23,7 +23,7 @@ procedure QueueFileForDeletion(const FileName: string);
 
 implementation
 
-{$I ..\Version.inc}
+{$I ..\Src\Version.inc}
 
 uses SysUtils, Classes, IsppStack, Windows;
 

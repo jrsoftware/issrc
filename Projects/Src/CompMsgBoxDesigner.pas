@@ -110,7 +110,7 @@ type
 implementation
 
 uses
-  CmnFunc, CmnFunc2, CompFunc, TaskDialog, Msgs;
+  CmnFunc, CmnFunc2, CompFunc, TaskDialog, CompMsgs;
 
 {$R *.DFM}
 

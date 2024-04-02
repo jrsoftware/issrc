@@ -35,7 +35,7 @@ uses
 {$R ISCC.manifest.res}
 {$R ISCC.versionandicon.res}
 
-{$I VERSION.INC}
+{$I Src\VERSION.INC}
 
 type
   PScriptLine = ^TScriptLine;

@@ -78,7 +78,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\CompPreprocInt.pas"/>
+        <DCCReference Include="..\Src\CompPreprocInt.pas"/>
         <DCCReference Include="IsppPreprocess.pas"/>
         <DCCReference Include="IsppPreprocessor.pas"/>
         <DCCReference Include="IsppFuncs.pas"/>
@@ -92,12 +92,12 @@
         <DCCReference Include="CTokenizer.pas"/>
         <DCCReference Include="IsppBase.pas"/>
         <DCCReference Include="..\..\Components\PathFunc.pas"/>
-        <DCCReference Include="..\CmnFunc2.pas"/>
-        <DCCReference Include="..\FileClass.pas"/>
-        <DCCReference Include="..\Int64Em.pas"/>
-        <DCCReference Include="..\MD5.pas"/>
-        <DCCReference Include="..\SHA1.pas"/>
-        <DCCReference Include="..\Struct.pas"/>
+        <DCCReference Include="..\Src\CmnFunc2.pas"/>
+        <DCCReference Include="..\Src\FileClass.pas"/>
+        <DCCReference Include="..\Src\Int64Em.pas"/>
+        <DCCReference Include="..\Src\MD5.pas"/>
+        <DCCReference Include="..\Src\SHA1.pas"/>
+        <DCCReference Include="..\Src\Struct.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

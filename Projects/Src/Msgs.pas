@@ -2,14 +2,16 @@ unit Msgs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Message file handling functions
-
-  $jrsoftware: issrc/Projects/Msgs.pas,v 1.20 2009/03/23 13:31:17 mlaan Exp $
+  Message file handling functions - only to be used by Setup(Ldr)
 }
+
+{$IF not Defined(SETUPPROJ) and not Defined(SETUPLDRPROJ) }
+  {$Message Error 'Only the Setup and SetupLdr projects should use this unit.'}
+{$IFEND}
 
 interface
 

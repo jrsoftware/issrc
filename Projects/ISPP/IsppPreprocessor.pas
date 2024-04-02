@@ -15,7 +15,7 @@ interface
 uses Windows, SysUtils, Classes, CompPreprocInt, IniFiles, Registry, IsppIntf,
   IsppBase, IsppStack, IsppIdentMan, IsppParser;
 
-{$I ..\Version.inc}
+{$I ..\Src\Version.inc}
 
 type
 

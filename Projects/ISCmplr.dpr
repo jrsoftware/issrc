@@ -30,7 +30,20 @@ uses
   FileClass in 'Src\FileClass.pas',
   ArcFour in 'Src\ArcFour.pas',
   VerInfo in 'Src\VerInfo.pas',
-  PathFunc in '..\Components\PathFunc.pas';
+  PathFunc in '..\Components\PathFunc.pas',
+  CmnFunc2 in 'Src\CmnFunc2.pas',
+  Int64Em in 'Src\Int64Em.pas',
+  SHA1 in 'Src\SHA1.pas',
+  DebugStruct in 'Src\DebugStruct.pas',
+  LangOptionsSectionDirectives in 'Src\LangOptionsSectionDirectives.pas',
+  MsgIDs in 'Src\MsgIDs.pas',
+  SetupEnt in 'Src\SetupEnt.pas',
+  SetupSectionDirectives in 'Src\SetupSectionDirectives.pas',
+  SetupTypes in 'Src\SetupTypes.pas',
+  SimpleExpression in 'Src\SimpleExpression.pas',
+  MD5 in 'Src\MD5.pas',
+  RedirFunc in 'Src\RedirFunc.pas',
+  DotNetVersion in 'Src\DotNetVersion.pas';
 
 {$IMAGEBASE $00800000}
 {$SETPEOSVERSION 6.1}

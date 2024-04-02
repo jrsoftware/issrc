@@ -10,7 +10,7 @@ program Compil32;
 }
 
 uses
-  SafeDLLPath in 'SafeDLLPath.pas',
+  SafeDLLPath in 'Src\SafeDLLPath.pas',
   Windows,
   SysUtils,
   Forms,
@@ -48,7 +48,16 @@ uses
   NewCheckListBox in '..\Components\NewCheckListBox.pas',
   NewNotebook in '..\Components\NewNotebook.pas',
   TaskbarProgressFunc in 'Src\TaskbarProgressFunc.pas',
-  HtmlHelpFunc in 'Src\HtmlHelpFunc.pas';
+  HtmlHelpFunc in 'Src\HtmlHelpFunc.pas',
+  UIStateForm in 'Src\UIStateForm.pas',
+  LangOptionsSectionDirectives in 'Src\LangOptionsSectionDirectives.pas',
+  MsgIDs in 'Src\MsgIDs.pas',
+  SetupSectionDirectives in 'Src\SetupSectionDirectives.pas',
+  CompTypes in 'Src\CompTypes.pas',
+  FileClass in 'Src\FileClass.pas',
+  Int64Em in 'Src\Int64Em.pas',
+  Compress in 'Src\Compress.pas',
+  TaskDialog in 'Src\TaskDialog.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}

@@ -55,11 +55,11 @@ echo - ISCmplr.dpr
 if errorlevel 1 goto failed
 
 echo - SetupLdr.dpr
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files SetupLdr.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files SetupLdr.dpr -DSETUPLDRPROJ
 if errorlevel 1 goto failed
 
 echo - Setup.dpr
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi;vcl -Q -B -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components\UniPs\Source" -E..\Files -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Setup.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi;vcl -Q -B -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components\UniPs\Source" -E..\Files -DSETUPPROJ;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Setup.dpr
 if errorlevel 1 goto failed
 
 echo - Renaming E32 files

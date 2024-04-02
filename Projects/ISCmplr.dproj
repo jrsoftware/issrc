@@ -99,6 +99,19 @@
         <DCCReference Include="Src\ArcFour.pas"/>
         <DCCReference Include="Src\VerInfo.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
+        <DCCReference Include="Src\CmnFunc2.pas"/>
+        <DCCReference Include="Src\Int64Em.pas"/>
+        <DCCReference Include="Src\SHA1.pas"/>
+        <DCCReference Include="Src\DebugStruct.pas"/>
+        <DCCReference Include="Src\LangOptionsSectionDirectives.pas"/>
+        <DCCReference Include="Src\MsgIDs.pas"/>
+        <DCCReference Include="Src\SetupEnt.pas"/>
+        <DCCReference Include="Src\SetupSectionDirectives.pas"/>
+        <DCCReference Include="Src\SetupTypes.pas"/>
+        <DCCReference Include="Src\SimpleExpression.pas"/>
+        <DCCReference Include="Src\MD5.pas"/>
+        <DCCReference Include="Src\RedirFunc.pas"/>
+        <DCCReference Include="Src\DotNetVersion.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
