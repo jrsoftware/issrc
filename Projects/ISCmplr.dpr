@@ -2,7 +2,7 @@ library ISCmplr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -10,26 +10,26 @@ library ISCmplr;
 }
 
 uses
-  SafeDLLPath in 'SafeDLLPath.pas',
+  SafeDLLPath in 'Src\SafeDLLPath.pas',
   SysUtils,
-  CompInt in 'CompInt.pas',
-  CompPreprocInt in 'CompPreprocInt.pas',
-  Compile in 'Compile.pas',
-  CompMsgs in 'CompMsgs.pas',
-  Struct in 'Struct.pas',
-  ScriptFunc in 'ScriptFunc.pas',
-  ScriptFunc_C in 'ScriptFunc_C.pas',
-  ScriptCompiler in 'ScriptCompiler.pas',
-  ScriptClasses_C in 'ScriptClasses_C.pas',
-  ResUpdate in 'ResUpdate.pas',
-  CompExeUpdate in 'CompExeUpdate.pas',
-  Compress in 'Compress.pas',
-  CompressZlib in 'CompressZlib.pas',
-  bzlib in 'bzlib.pas',
-  LZMA in 'LZMA.pas',
-  FileClass in 'FileClass.pas',
-  ArcFour in 'ArcFour.pas',
-  VerInfo in 'VerInfo.pas',
+  CompInt in 'Src\CompInt.pas',
+  CompPreprocInt in 'Src\CompPreprocInt.pas',
+  Compile in 'Src\Compile.pas',
+  CompMsgs in 'Src\CompMsgs.pas',
+  Struct in 'Src\Struct.pas',
+  ScriptFunc in 'Src\ScriptFunc.pas',
+  ScriptFunc_C in 'Src\ScriptFunc_C.pas',
+  ScriptCompiler in 'Src\ScriptCompiler.pas',
+  ScriptClasses_C in 'Src\ScriptClasses_C.pas',
+  ResUpdate in 'Src\ResUpdate.pas',
+  CompExeUpdate in 'Src\CompExeUpdate.pas',
+  Compress in 'Src\Compress.pas',
+  CompressZlib in 'Src\CompressZlib.pas',
+  bzlib in 'Src\bzlib.pas',
+  LZMA in 'Src\LZMA.pas',
+  FileClass in 'Src\FileClass.pas',
+  ArcFour in 'Src\ArcFour.pas',
+  VerInfo in 'Src\VerInfo.pas',
   PathFunc in '..\Components\PathFunc.pas';
 
 {$IMAGEBASE $00800000}

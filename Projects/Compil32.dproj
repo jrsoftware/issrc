@@ -79,48 +79,47 @@
         </DelphiCompile>
         <DCCReference Include="SafeDLLPath.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
-        <DCCReference Include="CompForm.pas">
+        <DCCReference Include="Src\CompForm.pas">
             <Form>CompileForm</Form>
         </DCCReference>
-        <DCCReference Include="CmnFunc.pas"/>
-        <DCCReference Include="CmnFunc2.pas"/>
-        <DCCReference Include="CompFunc.pas"/>
-        <DCCReference Include="CompMsgs.pas"/>
-        <DCCReference Include="CompInt.pas"/>
-        <DCCReference Include="CompOptions.pas">
+        <DCCReference Include="Src\CmnFunc.pas"/>
+        <DCCReference Include="Src\CmnFunc2.pas"/>
+        <DCCReference Include="Src\CompFunc.pas"/>
+        <DCCReference Include="Src\CompMsgs.pas"/>
+        <DCCReference Include="Src\CompInt.pas"/>
+        <DCCReference Include="Src\CompOptions.pas">
             <Form>OptionsForm</Form>
         </DCCReference>
-        <DCCReference Include="CompStartup.pas">
+        <DCCReference Include="Src\CompStartup.pas">
             <Form>StartupForm</Form>
         </DCCReference>
-        <DCCReference Include="CompWizard.pas">
+        <DCCReference Include="Src\CompWizard.pas">
             <Form>WizardForm</Form>
         </DCCReference>
-        <DCCReference Include="CompWizardFile.pas">
+        <DCCReference Include="Src\CompWizardFile.pas">
             <Form>WizardFileForm</Form>
         </DCCReference>
-        <DCCReference Include="CompFileAssoc.pas"/>
+        <DCCReference Include="Src\CompFileAssoc.pas"/>
         <DCCReference Include="..\Components\TmSchema.pas"/>
         <DCCReference Include="..\Components\UxTheme.pas"/>
-        <DCCReference Include="DebugStruct.pas"/>
-        <DCCReference Include="BrowseFunc.pas"/>
-        <DCCReference Include="CompSignTools.pas">
+        <DCCReference Include="Src\DebugStruct.pas"/>
+        <DCCReference Include="Src\BrowseFunc.pas"/>
+        <DCCReference Include="Src\CompSignTools.pas">
             <Form>SignToolsForm</Form>
         </DCCReference>
-        <DCCReference Include="CompInputQueryCombo.pas"/>
+        <DCCReference Include="Src\CompInputQueryCombo.pas"/>
         <DCCReference Include="..\Components\ScintInt.pas"/>
         <DCCReference Include="..\Components\ScintEdit.pas"/>
         <DCCReference Include="..\Components\ScintStylerInnoSetup.pas"/>
         <DCCReference Include="..\Components\ModernColors.pas"/>
-        <DCCReference Include="CompMsgBoxDesigner.pas">
+        <DCCReference Include="Src\CompMsgBoxDesigner.pas">
             <Form>MsgBoxDesignerForm</Form>
         </DCCReference>
-        <DCCReference Include="CompScintEdit.pas"/>
-        <DCCReference Include="CompFilesDesigner.pas">
+        <DCCReference Include="Src\CompScintEdit.pas"/>
+        <DCCReference Include="Src\CompFilesDesigner.pas">
             <Form>FilesDesignerForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="CompWizardFilesHelper.pas"/>
+        <DCCReference Include="Src\CompWizardFilesHelper.pas"/>
         <DCCReference Include="..\Components\NewTabSet.pas"/>
         <DCCReference Include="..\Components\dwTaskbarList.pas"/>
         <DCCReference Include="..\Components\NewStaticText.pas"/>
@@ -128,8 +127,8 @@
         <DCCReference Include="..\Components\DropListBox.pas"/>
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
         <DCCReference Include="..\Components\NewNotebook.pas"/>
-        <DCCReference Include="TaskbarProgressFunc.pas"/>
-        <DCCReference Include="HtmlHelpFunc.pas"/>
+        <DCCReference Include="Src\TaskbarProgressFunc.pas"/>
+        <DCCReference Include="Src\HtmlHelpFunc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

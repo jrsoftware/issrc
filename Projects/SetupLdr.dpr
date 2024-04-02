@@ -2,7 +2,7 @@ program SetupLdr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -10,23 +10,29 @@ program SetupLdr;
 }
 
 uses
-  SafeDLLPath in 'SafeDLLPath.pas',
-  XPTheme in 'XPTheme.pas',
+  SafeDLLPath in 'Src\SafeDLLPath.pas',
+  XPTheme in 'Src\XPTheme.pas',
   Windows,
   Messages,
   SysUtils,
-  Compress in 'Compress.pas',
-  LZMADecompSmall in 'LZMADecompSmall.pas',
-  SetupEnt in 'SetupEnt.pas',
+  Compress in 'Src\Compress.pas',
+  LZMADecompSmall in 'Src\LZMADecompSmall.pas',
+  SetupEnt in 'Src\SetupEnt.pas',
   PathFunc in '..\Components\PathFunc.pas',
-  CmnFunc2 in 'CmnFunc2.pas',
-  Msgs in 'Msgs.pas',
-  MsgIDs in 'MsgIDs.pas',
-  Struct in 'Struct.pas',
-  InstFunc in 'InstFunc.pas',
-  FileClass in 'FileClass.pas';
+  CmnFunc2 in 'Src\CmnFunc2.pas',
+  Msgs in 'Src\Msgs.pas',
+  MsgIDs in 'Src\MsgIDs.pas',
+  Struct in 'Src\Struct.pas',
+  InstFunc in 'Src\InstFunc.pas',
+  FileClass in 'Src\FileClass.pas',
+  Int64Em in 'Src\Int64Em.pas',
+  SHA1 in 'Src\SHA1.pas',
+  MD5 in 'Src\MD5.pas',
+  RedirFunc in 'Src\RedirFunc.pas',
+  SetupTypes in 'Src\SetupTypes.pas',
+  VerInfo in 'Src\VerInfo.pas';
 
-{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} 
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
