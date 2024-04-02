@@ -1,5 +1,14 @@
 unit CompWizardFilesHelper;
 
+{
+  Inno Setup
+  Copyright (C) 1997-2024 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+
+  Helper to avoid duplicate code between CompWizard and CompFilesDesigner
+}
+
 interface
 
 uses
