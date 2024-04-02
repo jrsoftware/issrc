@@ -177,7 +177,7 @@ implementation
 
 uses
   SysUtils, ShlObj, ActiveX, UITypes,
-  PathFunc, CmnFunc, CmnFunc2, CompFunc, VerInfo, BrowseFunc,
+  PathFunc, CmnFunc, CmnFunc2, CompFunc, BrowseFunc,
   CompMsgs, CompWizardFile;
 
 type

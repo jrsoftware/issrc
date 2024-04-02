@@ -10,8 +10,6 @@ unit RedirFunc;
 
   The *Redir functions are counterparts to common functions that offer
   built-in support for disabling FS redirection.
-
-  $jrsoftware: issrc/Projects/RedirFunc.pas,v 1.11 2007/09/10 11:59:14 mlaan Exp $
 }
 
 interface

@@ -19,7 +19,8 @@ function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const 
 implementation
 
 uses
-  Classes, StrUtils, Math, Forms, Dialogs, SysUtils, Commctrl, CmnFunc2, InstFunc, PathFunc;
+  Classes, StrUtils, Math, Forms, Dialogs, SysUtils,
+  Commctrl, CmnFunc2, {$IFDEF SETUPPROJ} InstFunc, {$ENDIF} PathFunc;
 
 var
   TaskDialogIndirectFunc: function(const pTaskConfig: TTaskDialogConfig;
@@ -99,6 +100,15 @@ begin
     Result := False;
 end;
 
+procedure DoInternalError(const Msg: String);
+begin
+  {$IFDEF SETUPPROJ}
+    InternalError(Msg);
+  {$ELSE}
+    raise Exception.Create(Msg);
+  {$ENDIF}
+end;
+
 function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
 var
   IconP: PChar;
@@ -154,19 +164,19 @@ begin
     MB_ABORTRETRYIGNORE:
       begin
         if NButtonLabelsAvailable = 0 then
-          InternalError('TaskDialogMsgBox: Invalid ButtonLabels')
+          DoInternalError('TaskDialogMsgBox: Invalid ButtonLabels')
         else
           ButtonIDs := [IDRETRY, IDIGNORE, IDABORT]; { Notice the order, abort label must be last }
         TDCommonButtons := 0;
       end;
     else
       begin
-        InternalError('TaskDialogMsgBox: Invalid Buttons');
+        DoInternalError('TaskDialogMsgBox: Invalid Buttons');
         TDCommonButtons := 0; { Silence compiler }
       end;
   end;
   if Length(ButtonIDs) <> NButtonLabelsAvailable then
-    InternalError('TaskDialogMsgBox: Invalid ButtonLabels');
+    DoInternalError('TaskDialogMsgBox: Invalid ButtonLabels');
   if not DoTaskDialog(Application.Handle, PChar(Instruction), PChar(Text),
            GetMessageBoxCaption(PChar(Caption), Typ), IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
            GetMessageBoxRightToLeft, IfThen(Typ in [mbError, mbCriticalError], MB_ICONSTOP, 0), Result, PChar(VerificationText), pfVerificationFlagChecked) then //note that MB_ICONEXCLAMATION (used by mbError) includes MB_ICONSTOP (used by mbCriticalError)

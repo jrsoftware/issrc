@@ -29,7 +29,7 @@ unit DotNet;
 interface
 
 uses
-  Ole2, SysUtils, Windows, CmnFunc2;
+  Ole2, SysUtils, Windows, CmnFunc2, DotNetVersion;
 
 type
   IAssemblyCache = class(Ole2.IUnknown)
@@ -53,7 +53,6 @@ type
   end;
 
   TDotNetBaseVersion = (netbase11, netbase20, netbase40, netbaseHighestKnown);
-  TDotNetVersion = (net11, net20, net30, net35, net4Client, net4Full, net45, net451, net452, net46, net461, net462, net47, net471, net472, net48, net481);
 
 function GetDotNetInstallRoot(const RegView: TRegView): String;
 function GetDotNetVersionInstallRoot(const RegView: TRegView; const Version: TDotNetBaseVersion): String;

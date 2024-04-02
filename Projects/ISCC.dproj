@@ -75,13 +75,14 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="SafeDLLPath.pas"/>
-        <DCCReference Include="Compile.pas"/>
+        <DCCReference Include="Src\SafeDLLPath.pas"/>
+        <DCCReference Include="Src\Compile.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
-        <DCCReference Include="CmnFunc2.pas"/>
-        <DCCReference Include="CompInt.pas"/>
-        <DCCReference Include="FileClass.pas"/>
-        <DCCReference Include="CompTypes.pas"/>
+        <DCCReference Include="Src\CmnFunc2.pas"/>
+        <DCCReference Include="Src\CompInt.pas"/>
+        <DCCReference Include="Src\FileClass.pas"/>
+        <DCCReference Include="Src\CompTypes.pas"/>
+        <DCCReference Include="Src\Int64Em.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
