@@ -2,7 +2,7 @@ unit RegDLL;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -86,11 +86,8 @@ begin
     is running }
   WindowDisabler := TWindowDisabler.Create;
   try
-    { On Windows Vista, to get the "WRP Mitigation" compatibility hack which
-      a lot of DLLs a require, we must use regsvr32.exe to handle the
-      (un)registration.
-      On Windows 2000/XP/2003, use regsvr32.exe as well for behavioral &
-      error message consistency. }
+    { To get the "WRP Mitigation" compatibility hack which a lot of DLLs
+      require, we must use regsvr32.exe to handle the (un)registration. }
     RegisterServerUsingRegSvr32(AUnregister, AIs64Bit, Filename);
   finally
     WindowDisabler.Free;

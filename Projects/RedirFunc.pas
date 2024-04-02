@@ -2,7 +2,7 @@ unit RedirFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -123,10 +123,8 @@ function DisableFsRedirectionIf(const Disable: Boolean;
   If Disable is True, the function attempts to disable WOW64 file system
   redirection, so that c:\windows\system32 goes to the 64-bit System directory
   instead of the 32-bit one.
-  Returns True if successful, False if not (which normally indicates that
-  either the user is running 32-bit Windows, or a 64-bit version prior to
-  Windows Server 2003 SP1). For extended error information when False is
-  returned, call GetLastError. }
+  Returns True if successful, False if not. For extended error information when
+  False is returned, call GetLastError. }
 begin
   PreviousState.DidDisable := False;
   if not Disable then
@@ -142,7 +140,7 @@ begin
         PreviousState.DidDisable := True;
     end
     else begin
-      { The functions do not exist prior to Windows Server 2003 SP1 }
+      { Should never happen }
       SetLastError(ERROR_INVALID_FUNCTION);
       Result := False;
     end;

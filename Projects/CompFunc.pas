@@ -119,7 +119,7 @@ begin
 end;
 
 procedure AddFileToRecentDocs(const Filename: String);
-{ Notifies the shell that a document has been opened. On Windows 7, this will
+{ Notifies the shell that a document has been opened. This will
   add the file to the Recent section of the app's Jump List.
   It is only necessary to call this function when the shell is unaware that
   a file is being opened. Files opened through Explorer or common dialogs get
@@ -354,8 +354,8 @@ var
         begin
           if LineNumber = 0 then begin
             { Don't forget about ListBox's DrawItem if you change the format of the following timestamp. }
-            Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
-              ST.wMinute, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator, ST.wSecond, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator,
+            Insert(Format('[%.2u%s%.2u%s%.2u%s%.3u]   ', [ST.wHour, FormatSettings.TimeSeparator,
+              ST.wMinute, FormatSettings.TimeSeparator, ST.wSecond, FormatSettings.DecimalSeparator,
               ST.wMilliseconds]), S, 1);
           end else begin
             Insert(#9, S, 1); { Not actually painted - just for Ctrl+C }
@@ -466,10 +466,7 @@ var
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
-  if Win32Platform = VER_PLATFORM_WIN32_NT then
-    Dir := GetSystemDir
-  else
-    Dir := GetWinDir;
+  Dir := GetSystemDir;
 
   FillChar(StartupInfo, SizeOf(StartupInfo), 0);
   StartupInfo.cb := SizeOf(StartupInfo);

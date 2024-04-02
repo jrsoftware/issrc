@@ -2,7 +2,7 @@ unit CompOptions;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -71,16 +71,6 @@ uses
 procedure TOptionsForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
-
-  { On Windows Vista, you can only select administrator accounts in a "Run as"
-    dialog. On Windows 2000/XP/2003, you can select any account. Earlier
-    versions of Windows don't support "Run as" at all, so disable the check
-    box there. }
-  if Win32MajorVersion >= 6 then
-    RunAsDifferentUserCheck.Caption := 'Always &launch Setup/Uninstall as administrator'
-  else
-    RunAsDifferentUserCheck.Caption := 'Always &launch Setup/Uninstall as different user';
-  RunAsDifferentUserCheck.Enabled := (Win32MajorVersion >= 5);
 
   { Order must match TThemeType. }
   ThemeComboBox.Items.Add('Light');

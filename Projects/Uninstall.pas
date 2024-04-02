@@ -2,7 +2,7 @@ unit Uninstall;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -48,9 +48,6 @@ var
   LogFilename: String;
   InitialProcessWnd, FirstPhaseWnd, DebugWnd: HWND;
   OldWindowProc: Pointer;
-{$IFNDEF UNICODE}
-  UninstLeadBytes: set of Char;
-{$ENDIF}
 
 procedure ShowExceptionMsg;
 var
@@ -472,11 +469,7 @@ end;
 
 function ExtractCompiledCodeText(S: String): AnsiString;
 begin
-{$IFDEF UNICODE}
   SetString(Result, PAnsiChar(Pointer(S)), Length(S)*SizeOf(S[1]));
-{$ELSE}
-  Result := S;
-{$ENDIF}
 end;
 
 procedure RunSecondPhase;
@@ -494,7 +487,7 @@ begin
     SetTaskbarButtonVisibility(False);
 
   RestartSystem := False;
-  AllowUninstallerShutdown := (WindowsVersion shr 16 >= $0600);
+  AllowUninstallerShutdown := True;
 
   try
     if DebugWnd <> 0 then
@@ -552,20 +545,12 @@ begin
     UninstDataFile := OpenUninstDataFile(faReadWrite);
 
     if not UninstLog.ExtractLatestRecData(utCompiledCode,
-         SetupBinVersion {$IFDEF UNICODE} or Longint($80000000) {$ENDIF}, CompiledCodeData) then
+         SetupBinVersion or Longint($80000000), CompiledCodeData) then
       InternalError('Cannot find utCompiledCode record for this version of the uninstaller');
     if DebugWnd <> 0 then
       CompiledCodeText := DebugClientCompiledCodeText
     else
       CompiledCodeText := ExtractCompiledCodeText(CompiledCodeData[0]);
-
-{$IFNDEF UNICODE}
-    { Initialize ConstLeadBytes }
-    if Length(CompiledCodeData[1]) <> SizeOf(UninstLeadBytes) then
-      InternalError('utCompiledCode[1] is invalid');
-    Move(Pointer(CompiledCodeData[1])^, UninstLeadBytes, SizeOf(UninstLeadBytes));
-    ConstLeadBytes := @UninstLeadBytes;
-{$ENDIF}
 
     InitializeAdminInstallMode(ufAdminInstallMode in UninstLog.Flags);
 

@@ -4,26 +4,12 @@ unit SHA1;
   SHA1.pas: SHA-1 hash implementation, based on RFC 3174 and MD5.pas
   Author: Jordan Russell, 2010-02-24
   License for SHA1.pas: Public domain, no copyright claimed
-
-  $jrsoftware: issrc/Projects/SHA1.pas,v 1.1 2010/02/25 04:57:34 jr Exp $
 }
 
 interface
 
-{$IFNDEF VER80}
-{$IFNDEF VER90}
-{$IFNDEF VER93}
-{$IFNDEF VER100}
-{$IFNDEF VER110}
-  {$DEFINE SHA1_D4PLUS}
-{$ENDIF}
-{$ENDIF}
-{$ENDIF}
-{$ENDIF}
-{$ENDIF}
-
 type
-  TSHA1Word = {$IFDEF SHA1_D4PLUS} LongWord {$ELSE} Cardinal {$ENDIF};
+  TSHA1Word = LongWord;
   TSHA1Buf = array[0..4] of TSHA1Word;
   TSHA1In = array[0..15] of TSHA1Word;
   TSHA1WArray = array[0..79] of TSHA1Word;

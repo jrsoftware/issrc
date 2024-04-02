@@ -2,7 +2,7 @@ unit UninstProgressForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -106,9 +106,7 @@ begin
 
   InitializeFont;
 
-{$IFDEF IS_D7}
   MainPanel.ParentBackGround := False;
-{$ENDIF}
 
   PageNameLabel.Font.Style := [fsBold];
   PageNameLabel.Caption := SetupMessages[msgWizardUninstalling];

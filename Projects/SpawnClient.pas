@@ -2,7 +2,7 @@ unit SpawnClient;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -10,8 +10,6 @@ unit SpawnClient;
 
   NOTE: These functions are NOT thread-safe. Do not call them from multiple
   threads simultaneously.
-
-  $jrsoftware: issrc/Projects/SpawnClient.pas,v 1.5 2007/09/05 02:07:35 jr Exp $
 }
 
 interface
@@ -60,10 +58,10 @@ procedure AllowSpawnServerToSetForegroundWindow;
   normally lasts until new input is generated (a keystroke or click, not
   simply mouse movement).
   Note: If the spawn server process has no visible windows, it seems this
-  isn't needed (on 2000 & Vista); the process can set the foreground window
-  as it pleases. If it does have a visible window, though, it definitely is
-  needed (e.g. in the /DebugSpawnServer case). Let's not rely on any
-  undocumented behavior and call AllowSetForegroundWindow unconditionally. }
+  isn't needed; the process can set the foreground window as it pleases.
+  If it does have a visible window, though, it definitely is needed (e.g. in
+  the /DebugSpawnServer case). Let's not rely on any undocumented behavior and
+  call AllowSetForegroundWindow unconditionally. }
 var
   PID: DWORD;
   AllowSetForegroundWindowFunc: function(dwProcessId: DWORD): BOOL; stdcall;

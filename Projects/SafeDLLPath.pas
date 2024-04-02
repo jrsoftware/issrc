@@ -2,7 +2,7 @@ unit SafeDLLPath;
 
 {
   Inno Setup
-  Copyright (C) 1997-2016 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit SafeDLLPath;
   
   If SetDefaultDllDirectories is not available:
   -It calls SetDllDirectory('') to prevent LoadLibrary from searching the current
-   directory for DLLs. (Has no effect on Windows versions prior to XP SP1.)
+   directory for DLLs.
   -It then preloads a list of system DLLs which are known to be loaded unsafely
    by older or unpatched versions of Windows.
 
@@ -25,8 +25,6 @@ unit SafeDLLPath;
   It also calls SetSearchPathMode to enable "safe search mode", which causes
   SearchPath, and callers of SearchPath such as CreateProcess, to search the
   current directory after the system directories (rather than before).
-  SetSearchPathMode is available in Windows 7 and newer, and on previous
-  versions that have the KB959426 update installed.
 
   Finally, it calls SetProcessDEPPolicy (where available) to enable DEP for
   the lifetime of the process. (This has nothing to do with search paths;
@@ -55,7 +53,6 @@ const
 
 var
   KernelModule: HMODULE;
-  WinVer: WORD;
   SystemDir: String;
   SetDefaultDllDirectoriesFunc: function(DirectoryFlags: DWORD): BOOL; stdcall;
   DidSetDefaultDllDirectories: Boolean;
@@ -96,15 +93,12 @@ end;
 
 initialization
   KernelModule := GetModuleHandle(kernel32);
-  WinVer := Swap(Word(GetVersion()));
 
   DidSetDefaultDllDirectories := False;
-  if WinVer <> $0600 then begin //see NSIS link above: CoCreateInstance(CLSID_ShellLink, ...) fails on Vista if SetDefaultDllDirectories is called
-    SetDefaultDllDirectoriesFunc := GetProcAddress(KernelModule, PAnsiChar('SetDefaultDllDirectories'));
-    if Assigned(SetDefaultDllDirectoriesFunc) then
-      DidSetDefaultDllDirectories := SetDefaultDllDirectoriesFunc(LOAD_LIBRARY_SEARCH_SYSTEM32);
-  end;
-    
+  SetDefaultDllDirectoriesFunc := GetProcAddress(KernelModule, PAnsiChar('SetDefaultDllDirectories'));
+  if Assigned(SetDefaultDllDirectoriesFunc) then
+    DidSetDefaultDllDirectories := SetDefaultDllDirectoriesFunc(LOAD_LIBRARY_SEARCH_SYSTEM32);
+
   if not DidSetDefaultDllDirectories then begin
     SetDllDirectoryFunc := GetProcAddress(KernelModule, PAnsiChar('SetDllDirectoryW'));
     if Assigned(SetDllDirectoryFunc) then

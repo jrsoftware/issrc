@@ -2,7 +2,7 @@ program Setup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -82,7 +82,8 @@ uses
   RestartManager in '..\Components\RestartManager.pas',
   Resample in '..\Components\Resample.pas',
   dwTaskbarList in '..\Components\dwTaskbarList.pas',
-  ASMInline in '..\Components\ASMInline.pas';
+  ASMInline in '..\Components\ASMInline.pas',
+  TaskbarProgressFunc in 'TaskbarProgressFunc.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}
@@ -148,8 +149,7 @@ begin
       end;
     WM_ENDSESSION: begin
         { Should only get here if RestartInitiatedByThisProcess is set or an
-          Uninstaller shutdown was allowed, or if the user forced a shutdown
-          on Vista or newer.
+          Uninstaller shutdown was allowed, or if the user forced a shutdown.
           Skip the default handling which calls Halt. No code of ours depends
           on the Halt call to clean up, and it could theoretically result in
           obscure reentrancy bugs.
@@ -170,7 +170,6 @@ begin
           AcceptedQueryEndSessionInProgress := False;
         Result := True;
       end;
-{$IFDEF IS_D12}
     WM_STYLECHANGING: begin
         { On Delphi 2009, we must suppress some of the VCL's manipulation of
           the application window styles in order to prevent the taskbar button
@@ -194,7 +193,6 @@ begin
             PStyleStruct(Message.LParam).styleNew and not WS_EX_APPWINDOW;
         end;
       end;
-{$ENDIF}
   end;
 end;
 
@@ -202,8 +200,6 @@ procedure DisableWindowGhosting;
 var
   Proc: procedure; stdcall;
 begin
-  { Note: The documentation claims this function is only available in XP SP1,
-    but it's actually available on stock XP too. }
   Proc := GetProcAddress(GetModuleHandle(user32), 'DisableProcessWindowsGhosting');
   if Assigned(Proc) then
     Proc;
@@ -272,13 +268,11 @@ begin
 end;
 
 begin
-{$IFDEF IS_D12}
   { Delphi 2009 initially sets WS_EX_TOOLWINDOW on the application window.
     That will prevent our ShowWindow(Application.Handle, SW_SHOW) calls from
     actually displaying the taskbar button as intended, so clear it. }
   SetWindowLong(Application.Handle, GWL_EXSTYLE,
     GetWindowLong(Application.Handle, GWL_EXSTYLE) and not WS_EX_TOOLWINDOW);
-{$ENDIF}
 
   try
     SetErrorMode(SEM_FAILCRITICALERRORS);

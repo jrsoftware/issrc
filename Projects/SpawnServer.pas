@@ -2,13 +2,11 @@ unit SpawnServer;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Spawn server
-
-  $jrsoftware: issrc/Projects/SpawnServer.pas,v 1.13 2010/04/17 19:30:25 jr Exp $
 }
 
 interface
@@ -102,89 +100,6 @@ begin
   end;
 end;
 
-type
-  TOSVersionInfoExW = record
-    dwOSVersionInfoSize: DWORD;
-    dwMajorVersion: DWORD;
-    dwMinorVersion: DWORD;
-    dwBuildNumber: DWORD;
-    dwPlatformId: DWORD;
-    szCSDVersion: array[0..127] of WideChar;
-    wServicePackMajor: Word;
-    wServicePackMinor: Word;
-    wSuiteMask: Word;
-    wProductType: Byte;
-    wReserved: Byte;
-  end;
-const
-  VER_MINORVERSION     = $0000001;
-  VER_MAJORVERSION     = $0000002;
-  VER_SERVICEPACKMINOR = $0000010;
-  VER_SERVICEPACKMAJOR = $0000020;
-  VER_GREATER_EQUAL    = 3;
-var
-  VerSetConditionMaskFunc, VerifyVersionInfoWFunc: Pointer;
-
-{ These are implemented in asm because Delphi 2 doesn't support functions that
-  take 64-bit parameters or return a 64-bit result (in EDX:EAX) }
-
-procedure CallVerSetConditionMask(var dwlConditionMask: Integer64;
-  dwTypeBitMask: DWORD; dwConditionMask: DWORD);
-asm
-  push  esi
-  mov   esi, eax                 // ESI = @dwlConditionMask
-  push  ecx                      // dwConditionMask
-  push  edx                      // dwTypeBitMask
-  push  dword ptr [esi+4]        // dwlConditionMask.Hi
-  push  dword ptr [esi]          // dwlConditionMask.Lo
-  call  VerSetConditionMaskFunc
-  mov   dword ptr [esi], eax     // write dwlConditionMask.Lo
-  mov   dword ptr [esi+4], edx   // write dwlConditionMask.Hi
-  pop   esi
-end;
-
-function CallVerifyVersionInfoW(const lpVersionInfo: TOSVersionInfoExW;
-  dwTypeMask: DWORD; const dwlConditionMask: Integer64): BOOL;
-asm
-  push  dword ptr [ecx+4]        // dwlConditionMask.Hi
-  push  dword ptr [ecx]          // dwlConditionMask.Lo
-  push  edx                      // dwTypeMask
-  push  eax                      // lpVersionInfo
-  call  VerifyVersionInfoWFunc
-end;
-
-function IsReallyVista: Boolean;
-{ Returns True if the OS is *really* Vista or later. VerifyVersionInfo is used
-  because it appears to always check the true OS version number, whereas
-  GetVersion(Ex) can return a fake version number (e.g. 5.x) if the program is
-  set to run in compatibility mode, or if it is started by a program running
-  in compatibility mode. }
-var
-  ConditionMask: Integer64;
-  VerInfo: TOSVersionInfoExW;
-begin
-  Result := False;
-  { These functions are present on Windows 2000 and later.
-    NT 4.0 SP6 has VerifyVersionInfoW, but not VerSetConditionMask.
-    Windows 9x/Me and early versions of NT 4.0 have neither. }
-  if Assigned(VerSetConditionMaskFunc) and Assigned(VerifyVersionInfoWFunc) then begin
-    ConditionMask.Lo := 0;
-    ConditionMask.Hi := 0;
-    { Docs say: "If you are testing the major version, you must also test the
-      minor version and the service pack major and minor versions." }
-    CallVerSetConditionMask(ConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
-    CallVerSetConditionMask(ConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
-    CallVerSetConditionMask(ConditionMask, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
-    CallVerSetConditionMask(ConditionMask, VER_SERVICEPACKMINOR, VER_GREATER_EQUAL);
-    FillChar(VerInfo, SizeOf(VerInfo), 0);
-    VerInfo.dwOSVersionInfoSize := SizeOf(VerInfo);
-    VerInfo.dwMajorVersion := 6;
-    Result := CallVerifyVersionInfoW(VerInfo, VER_MAJORVERSION or
-      VER_MINORVERSION or VER_SERVICEPACKMAJOR or VER_SERVICEPACKMINOR,
-      ConditionMask);
-  end;
-end;
-
 const
   TokenElevationTypeDefault = 1;  { User does not have a split token (they're
                                     not an admin, or UAC is turned off) }
@@ -194,7 +109,7 @@ const
 
 function GetTokenElevationType: DWORD;
 { Returns token elevation type (TokenElevationType* constant). In case of
-  failure (e.g. not running Vista), 0 is returned. }
+  failure, 0 is returned. }
 const
   TokenElevationType = 18;
 var
@@ -203,11 +118,9 @@ var
   ReturnLength: DWORD;
 begin
   Result := 0;
-  if OpenProcessToken(GetCurrentProcess, TOKEN_QUERY,
-     {$IFNDEF Delphi3orHigher} @ {$ENDIF} Token) then begin
+  if OpenProcessToken(GetCurrentProcess, TOKEN_QUERY, Token) then begin
     ElevationType := 0;
-    if GetTokenInformation(Token,
-       {$IFDEF Delphi3orHigher} TTokenInformationClass {$ENDIF} (TokenElevationType),
+    if GetTokenInformation(Token, TTokenInformationClass(TokenElevationType),
        @ElevationType, SizeOf(ElevationType), ReturnLength) then
       Result := ElevationType;
     CloseHandle(Token);
@@ -221,7 +134,7 @@ var
   ElevationType: DWORD;
 begin
   Result := False;
-  if IsReallyVista and not IsAdminLoggedOn then begin
+  if not IsAdminLoggedOn then begin
     if ARequireAdministrator then
       Result := True
     else if AEmulateHighestAvailable then begin
@@ -240,15 +153,14 @@ end;
 {$ELSE}
 begin
   { For debugging/testing only: }
-  Result := (Lo(GetVersion) >= 5);
+  Result := True;
 end;
 {$ENDIF}
 
 function GetFinalFileName(const Filename: String): String;
-{ Calls GetFinalPathNameByHandle (new API in Vista) to expand any SUBST'ed
-  drives, network drives, and symbolic links in Filename.
-  This is needed for elevation to succeed on Windows Vista/7 when Setup is
-  started from a SUBST'ed drive letter. }
+{ Calls GetFinalPathNameByHandle to expand any SUBST'ed drives, network drives,
+  and symbolic links in Filename. This is needed for elevation to succeed when
+  Setup is started from a SUBST'ed drive letter. }
 
   function ConvertToNormalPath(P: PChar): String;
   begin
@@ -267,8 +179,7 @@ function GetFinalFileName(const Filename: String): String;
 const
   FILE_SHARE_DELETE = $00000004;
 var
-  GetFinalPathNameByHandleFunc: function(hFile: THandle;
-    lpszFilePath: {$IFDEF UNICODE} PWideChar {$ELSE} PAnsiChar {$ENDIF};
+  GetFinalPathNameByHandleFunc: function(hFile: THandle; lpszFilePath: PWideChar;
     cchFilePath: DWORD; dwFlags: DWORD): DWORD; stdcall;
   Attr, FlagsAndAttributes: DWORD;
   H: THandle;
@@ -276,11 +187,7 @@ var
   Buf: array[0..4095] of Char;
 begin
   GetFinalPathNameByHandleFunc := GetProcAddress(GetModuleHandle(kernel32),
-    {$IFDEF UNICODE}
-      'GetFinalPathNameByHandleW'
-    {$ELSE}
-      'GetFinalPathNameByHandleA'
-    {$ENDIF} );
+    'GetFinalPathNameByHandleW');
   if Assigned(GetFinalPathNameByHandleFunc) then begin
     Attr := GetFileAttributes(PChar(Filename));
     if Attr <> $FFFFFFFF then begin
@@ -326,15 +233,13 @@ procedure RespawnSelfElevated(const AExeFilename, AParams: String;
 { Spawns a new process using the "runas" verb.
   Notes:
   1. Despite the function's name, the spawned process may not actually be
-     elevated / running as administrator on Vista. If UAC is disabled, "runas"
+     elevated / running as administrator. If UAC is disabled, "runas"
      behaves like "open". Also, if a non-admin user is a member of a special
      system group like Backup Operators, they can select their own user account
      at a UAC dialog. Therefore, it is critical that the caller include some
      kind of protection against respawning more than once.
-  2. If AExeFilename is on a network drive, Vista's ShellExecuteEx function is
-     smart enough to substitute it with a UNC path. XP does not do this, which
-     causes the function to fail with ERROR_PATH_NOT_FOUND because the new
-     user doesn't retain the original user's drive mappings. }
+  2. If AExeFilename is on a network drive, the ShellExecuteEx function is
+     smart enough to substitute it with a UNC path. }
 const
   SEE_MASK_NOZONECHECKS = $00800000;
 var
@@ -547,10 +452,4 @@ begin
   end;
 end;
 
-var
-  Kernel32Handle: HMODULE;
-initialization
-  Kernel32Handle := GetModuleHandle(kernel32);
-  VerSetConditionMaskFunc := GetProcAddress(Kernel32Handle, 'VerSetConditionMask');
-  VerifyVersionInfoWFunc := GetProcAddress(Kernel32Handle, 'VerifyVersionInfoW');
 end.

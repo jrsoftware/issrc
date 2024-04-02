@@ -101,7 +101,7 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <ul>
 
-<li>Support for every Windows release since 2006, including: Windows 11, Windows 10, Windows 10 on ARM, Windows Server 2019, Windows Server 2016, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Server 2008, and Windows Vista. (No service packs are required.)</li>
+<li>Support for every Windows release since 2009, including: Windows 11, Windows 10, Windows 10 on ARM, Windows Server 2019, Windows Server 2016, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, and Windows Server 2008 R2. (No service packs are required.)</li>
 
 <li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are all supported.</li>
 
@@ -1952,11 +1952,6 @@ Filename: "http://www.example.com/"
 </flag>
 <flag name="excludefromshowinnewinstall">
 <p>Prevents the Start menu entry for the new shortcut from receiving a highlight on Windows 7 and additionally prevents the new shortcut from being automatically pinned the Start screen on Windows 8 (or later). Ignored on earlier Windows versions.</p>
-</flag>
-<flag name="foldershortcut">
-<p>Creates a special type of shortcut known as a "Folder Shortcut". Normally, when a shortcut to a folder is present on the Start Menu, clicking the item causes a separate Explorer window to open showing the target folder's contents. In contrast, a "folder shortcut" will show the contents of the target folder as a submenu instead of opening a separate window.</p>
-<p>This flag is currently ignored when running on Windows 7 (or later), as folder shortcuts do not expand properly on the Start Menu anymore. It is not known whether this is a bug in Windows 7 or a removed feature.</p>
-<p>When this flag is used, a folder name must be specified in the <tt>Filename</tt> parameter. Specifying the name of a file will result in a non-working shortcut.</p>
 </flag>
 <flag name="preventpinning">
 <p>Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions.</p>
@@ -4144,21 +4139,10 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupvalid><tt>admin</tt>, or <tt>lowest</tt></setupvalid>
 <setupdefault><tt>admin</tt></setupdefault>
 <body>
-<!--
-<p>The effect of this directive depends on which version of Windows the user is running:</p>
-<p><b>On Windows Vista and later:</b></p>
--->
 <p>This directive affects whether elevated rights are requested (via a User Account Control dialog) when the installation is started.</p>
 <p>When set to <tt>admin</tt> (the default), Setup will always run with administrative privileges and in <link topic="admininstallmode">administrative install mode</link>. If Setup was started by an unprivileged user, Windows will ask for the password to an account that has administrative privileges, and Setup will then run under that account.</p>
 <!-- <p>When set to <tt>none</tt>, Setup will only run with administrative privileges if it was started by a member of the Administrators group. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
 <p>When set to <tt>lowest</tt>, Setup will not request to be run with administrative privileges even if it was started by a member of the Administrators group and will always run in <link topic="admininstallmode">non administrative install mode</link>. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
-<!--
-<p><b>On earlier versions of Windows:</b></p>
-<p>This directive specifies the minimum user privileges required to run the installation.</p>
-<p>When set to <tt>admin</tt> (the default), Setup will only run if the user is a member of the Administrators group and will always run in <link topic="admininstallmode">administrative install mode</link>. Otherwise, it will display the following message and exit: "You must be logged in as an administrator when installing this program."</p>
-<p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
-<p>When set to <tt>lowest</tt> Setup will not check the user's group membership and will always run in <link topic="admininstallmode">non administrative install mode</link>. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
--->
 <p><b>See also:</b><br/>
 <link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link>
 </p>
@@ -5646,15 +5630,14 @@ SignTool=byparam format c:
 <p>The versions specified in <tt>MinVersion</tt> and <tt>OnlyBelowVersion</tt> can optionally include build numbers and/or service pack levels.</p>
 <examples>
 <pre>
-5.0.2195
-5.0sp4
-5.0.2195sp4
+6.1sp1
+10.0.22000
 </pre>
 </examples>
 <p>If a build number is not specified or is zero, Setup will not check the system's build number.</p>
 <p>If a service pack level is not specified or is zero, Setup will not check the system's service pack level.</p>
-<p>When a service pack level is specified, Setup will only compare it against the system's service pack level if the specified major and minor versions match the system's version. For example, if <tt>MinVersion</tt> specifies <tt>5.0sp4</tt>, Setup will only check for SP4 on Windows 2000 (5.0) systems.</p>
-<p>In an <tt>OnlyBelowVersion</tt> parameter, if the specified version matches the system's version, then Setup will normally consider the system's version to be too high. However, when a service pack level is specified, the specified version is allowed to match the system's version. For example, on Windows 2000 SP4, values of <tt>5.0</tt> and <tt>5.0.2195</tt> will fail the <tt>OnlyBelowVersion</tt> test, but <tt>5.0sp5</tt> and <tt>5.0.2195sp5</tt> will pass (as SP4 &lt; <tt>sp5</tt>).</p>
+<p>When a service pack level is specified, Setup will only compare it against the system's service pack level if the specified major and minor versions match the system's version. For example, if <tt>MinVersion</tt> specifies <tt>6.1sp1</tt>, Setup will only check for SP1 on Windows 7 and Windows Server 2008 R2 (6.1) systems.</p>
+<p>In an <tt>OnlyBelowVersion</tt> parameter, if the specified version matches the system's version, then Setup will normally consider the system's version to be too high. However, when a service pack level is specified, the specified version is allowed to match the system's version.<!-- For example, on Windows 2000 SP4, values of <tt>5.0</tt> and <tt>5.0.2195</tt> will fail the <tt>OnlyBelowVersion</tt> test, but <tt>5.0sp5</tt> and <tt>5.0.2195sp5</tt> will pass (as SP4 &lt; <tt>sp5</tt>). --></p>
 </body>
 </topic>
 
@@ -5662,8 +5645,6 @@ SignTool=byparam format c:
 <keyword value="Windows Versions" />
 <body>
 <table>
-<tr><td>6.0.6000</td><td>Windows Vista</td></tr>
-<tr><td>6.0.6001</td><td>Windows Vista with Service Pack 1<br/>or Windows Server 2008</td></tr>
 <tr><td>6.1.7600</td><td>Windows 7<br/>or Windows Server 2008 R2</td></tr>
 <tr><td>6.1.7601</td><td>Windows 7 with Service Pack 1<br/>or Windows Server 2008 R2 with Service Pack 1</td></tr>
 <tr><td>6.2.9200</td><td>Windows 8<br/>or Windows Server 2012</td></tr>
@@ -5688,7 +5669,7 @@ SignTool=byparam format c:
 <tr><td>10.0.22621</td><td>Windows 11 Version 22H2 (2022 Update)</td></tr>
 <tr><td>10.0.22631</td><td>Windows 11 Version 23H2 (2023 Update)</td></tr>
 </table>
-<p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
+<p>Note that except for Windows 11 there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>
 </topic>
 

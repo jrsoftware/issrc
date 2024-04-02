@@ -167,7 +167,7 @@ var
   { Other }
   ShowLanguageDialog, MatchedLangParameter: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
-  HasIcons, IsNT, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
+  HasIcons, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem,
     IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress: Boolean;
   InstallDefaultDisableFsRedir, ScriptFuncDisableFsRedir: Boolean;
@@ -185,9 +185,7 @@ var
   SetupExitCode: Integer;
   CreatedIcon: Boolean;
   RestartInitiatedByThisProcess, DownloadTemporaryFileProcessMessages: Boolean;
-{$IFDEF IS_D12}
   TaskbarButtonHidden: Boolean;
-{$ENDIF}
   InstallModeRootKey: HKEY;
 
   CodeRunner: TScriptRunner;
@@ -268,10 +266,9 @@ uses
   ShellAPI, ShlObj,
   Msgs, MsgIDs, Install, InstFunc, InstFnc2, RedirFunc, PathFunc,
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
-  Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1,
-  {$IFNDEF Delphi3orHigher} OLE2, {$ELSE} ActiveX, {$ENDIF}
+  Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1, ActiveX,
   SimpleExpression, Helper, SpawnClient, SpawnServer, DotNet, BitmapImage,
-  TaskDialog;
+  TaskDialog, RegStr;
 
 {$R *.DFM}
 
@@ -310,12 +307,10 @@ begin
 end;
 
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
-{$IFDEF UNICODE}
 var
   UseAnsiCRC32: Boolean;
   S: AnsiString;
   I: Integer;
-{$ENDIF}
 begin
   { Set uninstall registry key base name }
   Result := ExpandedAppId;
@@ -327,7 +322,6 @@ begin
       resulting string is 57 characters long. On Unicode, only do this if we
       can get a CRC32 compatible with ANSI versions, else there's no point
       in shortening since Unicode doesn't run on Win95. }
-{$IFDEF UNICODE}
     UseAnsiCRC32 := True;
     for I := 1 to Length(Result) do begin
       if Ord(Result[I]) > 126 then begin
@@ -339,15 +333,12 @@ begin
       S := AnsiString(Result);
       FmtStr(Result, '%.48s~%.8x', [Result, GetCRC32(S[1], Length(S)*SizeOf(S[1]))]);
     end;
-{$ELSE}
-    FmtStr(Result, '%.48s~%.8x', [Result, GetCRC32(Result[1], Length(Result)*SizeOf(Result[1]))]);
-{$ENDIF}
   end;
 end;
 
 function GetUninstallRegSubkeyName(const UninstallRegKeyBaseName: String): String;
 begin
-  Result := Format('%s\%s_is1', [NEWREGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName]);
+  Result := Format('%s\%s_is1', [REGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName]);
 end;
 
 { Based on FindPreviousData in Wizard.pas }
@@ -1267,13 +1258,8 @@ begin
           Inc(I); { Skip closing brace }
       end;
     end
-    else begin
-{$IFNDEF UNICODE}
-      if Result[I] in ConstLeadBytes^ then
-        Inc(I);
-{$ENDIF}
+    else
       Inc(I);
-    end;
   end;
 end;
 
@@ -1299,7 +1285,7 @@ procedure InitMainNonSHFolderConsts;
   var
     H: HKEY;
   begin
-    if RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, NEWREGSTR_PATH_SETUP, 0,
+    if RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, REGSTR_PATH_SETUP, 0,
        KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
       if not RegQueryStringValue(H, Name, Result) then
         Result := '';
@@ -1310,14 +1296,11 @@ procedure InitMainNonSHFolderConsts;
   end;
 
   procedure ReadSysUserInfo;
-  const
-    Paths: array[Boolean] of PChar = (NEWREGSTR_PATH_SETUP,
-      'SOFTWARE\Microsoft\Windows NT\CurrentVersion');
   var
     RegView: TRegView;
     K: HKEY;
   begin
-    { Windows Vista and Server 2008 x64 are bugged: the owner and organization
+    { Windows 7 x64 (and later?) is bugged: the owner and organization
       are set to "Microsoft" on the 32-bit key. So on 64-bit Windows, read
       from the 64-bit key. (The bug doesn't exist on 64-bit XP or Server 2003,
       but it's safe to read the 64-bit key on those versions too.) }
@@ -1325,8 +1308,8 @@ procedure InitMainNonSHFolderConsts;
       RegView := rv64Bit
     else
       RegView := rvDefault;
-    if RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, Paths[IsNT], 0, KEY_QUERY_VALUE,
-       K) = ERROR_SUCCESS then begin
+    if RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows NT\CurrentVersion',
+       0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
       RegQueryStringValue(K, 'RegisteredOwner', SysUserInfoName);
       RegQueryStringValue(K, 'RegisteredOrganization', SysUserInfoOrg);
       RegCloseKey(K);
@@ -1341,10 +1324,7 @@ begin
   WinSysNativeDir := GetSysNativeDir(IsWin64);
 
   { Get system drive }
-  if Win32Platform = VER_PLATFORM_WIN32_NT then
-    SystemDrive := GetEnv('SystemDrive')  {don't localize}
-  else
-    SystemDrive := '';
+  SystemDrive := GetEnv('SystemDrive');  {don't localize}
   if SystemDrive = '' then begin
     SystemDrive := PathExtractDrive(WinDir);
     if SystemDrive = '' then
@@ -1371,10 +1351,7 @@ begin
   end;
 
   { Get path of command interpreter }
-  if IsNT then
-    CmdFilename := AddBackslash(WinSystemDir) + 'cmd.exe'
-  else
-    CmdFilename := AddBackslash(WinDir) + 'COMMAND.COM';
+  CmdFilename := AddBackslash(WinSystemDir) + 'cmd.exe';
 
   { Get user info from system }
   ReadSysUserInfo;
@@ -1501,7 +1478,7 @@ begin
   SHFolderDLLHandle := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
   if SHFolderDLLHandle = 0 then
     InternalError(Format('Failed to load DLL "%s"', [Filename]));
-  @SHGetFolderPathFunc := GetProcAddress(SHFolderDLLHandle, {$IFDEF UNICODE}'SHGetFolderPathW'{$ELSE}'SHGetFolderPathA'{$ENDIF});
+  @SHGetFolderPathFunc := GetProcAddress(SHFolderDLLHandle, 'SHGetFolderPathW');
   if @SHGetFolderPathFunc = nil then
     InternalError('Failed to get address of SHGetFolderPath function');
 end;
@@ -1528,17 +1505,16 @@ begin
   if Create then
     Folder := Folder or CSIDL_FLAG_CREATE;
 
-  { Work around a nasty bug in Windows Vista (still present in SP1) and
-    Windows Server 2008: When a folder ID resolves to the root directory of a
+  { Work around a nasty bug in Windows Vista and Windows Server 2008 and maybe
+    later versions also: When a folder ID resolves to the root directory of a
     drive ('X:\') and the CSIDL_FLAG_CREATE flag is passed, SHGetFolderPath
     fails with code 0x80070005.
-    So on Vista only, first try calling the function without CSIDL_FLAG_CREATE.
+    So, first try calling the function without CSIDL_FLAG_CREATE.
     If and only if that fails, call it again with the flag.
     Note: The calls *must* be issued in this order; if it's called with the
     flag first, it seems to permanently cache the failure code, causing future
     calls that don't include the flag to fail as well. }
-  if (WindowsVersion shr 16 >= $0600) and
-     (Folder and CSIDL_FLAG_CREATE <> 0) then
+  if Folder and CSIDL_FLAG_CREATE <> 0 then
     Res := SHGetFolderPathFunc(0, Folder and not CSIDL_FLAG_CREATE, 0,
       SHGFP_TYPE_CURRENT, Buf)
   else
@@ -1557,7 +1533,7 @@ end;
 
 function GetShellFolderByGUID(Folder: TGUID; const Create: Boolean): String;
 begin
-  if Assigned(SHGetKnownFolderPathFunc) and (WindowsVersion shr 16 >= $0600) then begin
+  if Assigned(SHGetKnownFolderPathFunc) then begin
     var dwFlags: DWORD := 0;
     if Create then
       dwFlags := dwFlags or KF_FLAG_CREATE;
@@ -1605,16 +1581,12 @@ var
   ShellFolder: String;
 begin
   if not ShellFoldersRead[Common, ID] then begin
-    if ID = sfUserProgramFiles then begin
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles {Windows 7+}, True);
-      if ShellFolder = '' then
-        ShellFolder := ExpandConst('{localappdata}\Programs'); { supply default, same as Window 7 and newer }
-    end else if ID = sfUserCommonFiles then begin
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon {Windows 7+}, True);
-      if ShellFolder = '' then
-        ShellFolder := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Window 7 and newer }
-    end else if ID = sfUserSavedGames then
-      ShellFolder := GetShellFolderByGUID(FOLDERID_SavedGames {Vista+}, True)
+    if ID = sfUserProgramFiles then
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles, True)
+    else if ID = sfUserCommonFiles then
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon, True)
+    else if ID = sfUserSavedGames then
+      ShellFolder := GetShellFolderByGUID(FOLDERID_SavedGames, True)
     else
       ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], True);
     ShellFolders[Common, ID] := ShellFolder;
@@ -1629,22 +1601,16 @@ var
   Ver, Ver2, MinVer, OnlyBelowVer: Cardinal;
 begin
   Ver := WindowsVersion;
-  if IsNT then begin
-    MinVer := MinVersion.NTVersion;
-    OnlyBelowVer := OnlyBelowVersion.NTVersion;
-  end
-  else begin
-    MinVer := 0;
-    OnlyBelowVer := 0;
-  end;
+  MinVer := MinVersion.NTVersion;
+  OnlyBelowVer := OnlyBelowVersion.NTVersion;
   Result := irInstall;
   if MinVer = 0 then
     Result := irNotOnThisPlatform
   else begin
     if Ver < MinVer then
       Result := irVersionTooLow
-    else if (IsNT and (LongRec(Ver).Hi = LongRec(MinVer).Hi) and
-        (NTServicePackLevel < MinVersion.NTServicePack)) then
+    else if (LongRec(Ver).Hi = LongRec(MinVer).Hi) and
+        (NTServicePackLevel < MinVersion.NTServicePack) then
       Result := irServicePackTooLow
     else begin
       if OnlyBelowVer <> 0 then begin
@@ -1652,23 +1618,17 @@ begin
         { A build number of 0 on OnlyBelowVersion means 'match any build' }
         if LongRec(OnlyBelowVer).Lo = 0 then
           Ver2 := Ver2 and $FFFF0000;  { set build number to zero on Ver2 also }
-        if not IsNT then begin
-          if Ver2 >= OnlyBelowVer then
-            Result := irVerTooHigh;
-        end
-        else begin
-          { Note: When OnlyBelowVersion includes a service pack level, the
-            version number test changes from a "<" to "<=" operation. Thus,
-            on Windows 2000 SP4, 5.0 and 5.0.2195 will fail, but 5.0sp5 and
-            5.0.2195sp5 will pass. }
-          if (Ver2 > OnlyBelowVer) or
-             ((Ver2 = OnlyBelowVer) and
-              (OnlyBelowVersion.NTServicePack = 0)) or
-             ((LongRec(Ver).Hi = LongRec(OnlyBelowVer).Hi) and
-              (OnlyBelowVersion.NTServicePack <> 0) and
-              (NTServicePackLevel >= OnlyBelowVersion.NTServicePack)) then
-            Result := irVerTooHigh;
-        end;
+        { Note: When OnlyBelowVersion includes a service pack level, the
+          version number test changes from a "<" to "<=" operation. Thus,
+          on Windows 2000 SP4, 5.0 and 5.0.2195 will fail, but 5.0sp5 and
+          5.0.2195sp5 will pass. }
+        if (Ver2 > OnlyBelowVer) or
+           ((Ver2 = OnlyBelowVer) and
+            (OnlyBelowVersion.NTServicePack = 0)) or
+           ((LongRec(Ver).Hi = LongRec(OnlyBelowVer).Hi) and
+            (OnlyBelowVersion.NTServicePack <> 0) and
+            (NTServicePackLevel >= OnlyBelowVersion.NTServicePack)) then
+          Result := irVerTooHigh;
       end;
     end;
   end;
@@ -1884,12 +1844,8 @@ var
   J: Integer;
 begin
   Filename := AFilename;
-  if IsNT then begin
-    if not DisableFsRedir then
-      Filename := ReplaceSystemDirWithSysWow64(Filename);
-  end
-  else
-    Filename := GetShortName(Filename);
+  if not DisableFsRedir then
+    Filename := ReplaceSystemDirWithSysWow64(Filename);
   Filename := PathLowercase(Filename);
   for J := 0 to CheckForFileSL.Count-1 do begin
     if CheckForFileSL[J] = Filename then begin
@@ -1979,8 +1935,7 @@ begin
     { From MSDN: "Installers should not disable file system redirection before calling
       the Restart Manager API. This means that a 32-bit installer run on 64-bit Windows
       is unable register a file in the %windir%\system32 directory." This is incorrect,
-      we can register such files by using the Sysnative alias. Note: the Sysnative alias
-      is only available on Windows Vista and newer, but so is Restart Manager. }
+      we can register such files by using the Sysnative alias. }
     if DisableFsRedir then
       Filename := ReplaceSystemDirWithSysNative(Filename, IsWin64);
 
@@ -1989,11 +1944,7 @@ begin
 
     Len := Length(Filename);
     GetMem(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount], (Len + 1) * SizeOf(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount][0]));
-    {$IFNDEF UNICODE}
-      RegisterFileFilenames[RegisterFileFilenamesCount][MultiByteToWideChar(CP_ACP, 0, PChar(Filename), Len, RegisterFileFilenames[RegisterFileFilenamesCount], Len)] := #0;
-    {$ELSE}
-      StrPCopy(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount], Filename);
-    {$ENDIF}
+    StrPCopy(RegisterFileBatchFilenames[RegisterFileFilenamesBatchCount], Filename);
     Inc(RegisterFileFilenamesBatchCount);
 
     Inc(RmRegisteredFilesCount);
@@ -2164,14 +2115,6 @@ end;
 
 procedure SetActiveLanguage(const I: Integer);
 { Activates the specified language }
-const
-{$IFDEF UNICODE}
-  { UNICODE requires 2000+, so we can just use the English name }
-  SMSPGothic = 'MS PGothic';
-{$ELSE}
-  { "MS PGothic" in Japanese (CP 932) }
-  SMSPGothic = #$82'l'#$82'r '#$82'o'#$83'S'#$83'V'#$83'b'#$83'N';
-{$ENDIF}
 var
   LangEntry: PSetupLanguageEntry;
   J: Integer;
@@ -2190,30 +2133,6 @@ begin
   ActiveLanguage := I;
   Finalize(LangOptions);  { prevent leak on D2 }
   LangOptions := LangEntry^;
-
-  { Hack for Japanese: Override the default fonts on older versions of Windows
-    that don't (fully) support font linking }
-  if (LangOptions.LanguageID = $0411) and
-{$IFNDEF UNICODE}
-     (GetACP = 932) and
-{$ENDIF}
-     (WindowsVersion < Cardinal($05010000)) and
-     FontExists(SMSPGothic) then begin
-    { Windows <= 2000: Verdana can't display Japanese }
-    LangOptions.WelcomeFontName := SMSPGothic;
-    LangOptions.WelcomeFontSize := 12;
-{$IFNDEF UNICODE}
-    if WindowsVersion < Cardinal($05000000) then begin
-      { Windows 9x/Me/NT 4.0: MS Sans Serif can't display Japanese }
-      LangOptions.DialogFontName := SMSPGothic;
-      LangOptions.DialogFontSize := 9;
-      LangOptions.TitleFontName := SMSPGothic;
-      LangOptions.TitleFontSize := 29;
-      LangOptions.CopyrightFontName := SMSPGothic;
-      LangOptions.CopyrightFontSize := 9;
-    end;
-{$ENDIF}
-  end;
 
   if LangEntry.LicenseText <> '' then
     ActiveLicenseText := LangEntry.LicenseText
@@ -2293,9 +2212,7 @@ begin
     application window. We can't simply hide the window because on D3+ the VCL
     would just show it again in TApplication.UpdateVisible when the first form
     is shown. }
-{$IFDEF IS_D12}
   TaskbarButtonHidden := not AVisible;  { see WM_STYLECHANGING hook in Setup.dpr }
-{$ENDIF}
   if (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW = 0) <> AVisible then begin
     SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
       SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_HIDEWINDOW);
@@ -2333,18 +2250,16 @@ begin
       SP := SP + '.' + IntToStr(Lo(NTServicePackLevel));
   end;
   LogFmt('Windows version: %u.%u.%u%s  (NT platform: %s)', [WindowsVersion shr 24,
-    (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF, SP, SYesNo[IsNT]]);
+    (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF, SP, SYesNo[True]]);
   LogFmt('64-bit Windows: %s', [SYesNo[IsWin64]]);
   LogFmt('Processor architecture: %s', [SetupProcessorArchitectureNames[ProcessorArchitecture]]);
 
-  if IsNT then begin
-    if IsAdmin then
-      Log('User privileges: Administrative')
-    else if IsPowerUserOrAdmin then
-      Log('User privileges: Power User')
-    else
-      Log('User privileges: None');
-  end;
+  if IsAdmin then
+    Log('User privileges: Administrative')
+  else if IsPowerUserOrAdmin then
+    Log('User privileges: Power User')
+  else
+    Log('User privileges: None');
 end;
 
 function GetMessageBoxResultText(const AResult: Integer): String;
@@ -3658,8 +3573,8 @@ begin
       BorderStyle := bsSingle;
 
     { Make the main window full-screen. If the window is resizable, limit it
-      to just the work area because on recent versions of Windows (e.g. 2000)
-      full-screen resizable windows don't cover over the taskbar. }
+      to just the work area because full-screen resizable windows don't cover
+      over the taskbar. }
     BoundsRect := GetRectOfPrimaryMonitor(BorderStyle = bsSizeable);
     { Before maximizing the window, ensure Handle is created now so the correct
       'restored' position is saved properly }
@@ -3816,9 +3731,7 @@ begin
     S := S + SNewLine2 + SetupMessages[msgAboutSetupNote];
   if SetupMessages[msgTranslatorNote] <> '' then
     S := S + SNewLine2 + SetupMessages[msgTranslatorNote];
-{$IFDEF UNICODE}
   StringChangeEx(S, '(C)', #$00A9, True);
-{$ENDIF}
   LoggedMsgBox(S, SetupMessages[msgAboutSetupTitle], mbInformation, MB_OK, False, 0);
 end;
 
@@ -4478,45 +4391,6 @@ end;
 
 procedure InitWindowsVersion;
 
-  procedure ReadServicePackFromRegistry;
-  var
-    K: HKEY;
-    Size, Typ, SP: DWORD;
-  begin
-    if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, 'System\CurrentControlSet\Control\Windows',
-       0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-      Size := SizeOf(SP);
-      if (RegQueryValueEx(K, 'CSDVersion', nil, @Typ, @SP, @Size) = ERROR_SUCCESS) and
-         (Typ = REG_DWORD) and (Size = SizeOf(SP)) then
-        NTServicePackLevel := Word(SP);
-      RegCloseKey(K);
-    end;
-  end;
-
-  procedure ReadProductTypeFromRegistry;
-  const
-    VER_NT_WORKSTATION = 1;
-    VER_NT_DOMAIN_CONTROLLER = 2;
-    VER_NT_SERVER = 3;
-  var
-    K: HKEY;
-    S: String;
-  begin
-    if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, 'System\CurrentControlSet\Control\ProductOptions',
-       0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-      { See MS KB article 152078 for details on this key } 
-      if RegQueryStringValue(K, 'ProductType', S) then begin
-        if CompareText(S, 'WinNT') = 0 then
-          WindowsProductType := VER_NT_WORKSTATION
-        else if CompareText(S, 'LanmanNT') = 0 then
-          WindowsProductType := VER_NT_DOMAIN_CONTROLLER
-        else if CompareText(S, 'ServerNT') = 0 then
-          WindowsProductType := VER_NT_SERVER;
-      end;
-      RegCloseKey(K);
-    end;
-  end;
-
 type
   TOSVersionInfoEx = packed record
     dwOSVersionInfoSize: DWORD;
@@ -4541,22 +4415,12 @@ begin
       (Byte(OSVersionInfo.dwMinorVersion) shl 16) or
       Word(OSVersionInfo.dwBuildNumber);
     { ^ Note: We MUST clip dwBuildNumber to 16 bits for Win9x compatibility }
-    if IsNT then begin
-      if OSVersionInfo.dwMajorVersion >= 5 then begin
-        { OSVERSIONINFOEX is only available starting in Windows 2000 }
-        OSVersionInfoEx.dwOSVersionInfoSize := SizeOf(OSVersionInfoEx);
-        if GetVersionEx(POSVersionInfo(@OSVersionInfoEx)^) then begin
-          NTServicePackLevel := (Byte(OSVersionInfoEx.wServicePackMajor) shl 8) or
-            Byte(OSVersionInfoEx.wServicePackMinor);
-          WindowsProductType := OSVersionInfoEx.wProductType;
-          WindowsSuiteMask := OSVersionInfoEx.wSuiteMask;
-        end;
-      end
-      else if OSVersionInfo.dwMajorVersion = 4 then begin
-        { Read from the registry on NT 4 }
-        ReadServicePackFromRegistry;
-        ReadProductTypeFromRegistry;
-      end;
+    OSVersionInfoEx.dwOSVersionInfoSize := SizeOf(OSVersionInfoEx);
+    if GetVersionEx(POSVersionInfo(@OSVersionInfoEx)^) then begin
+      NTServicePackLevel := (Byte(OSVersionInfoEx.wServicePackMajor) shl 8) or
+        Byte(OSVersionInfoEx.wServicePackMinor);
+      WindowsProductType := OSVersionInfoEx.wProductType;
+      WindowsSuiteMask := OSVersionInfoEx.wSuiteMask;
     end;
   end;
 end;
@@ -4606,12 +4470,8 @@ begin
 end;
 
 initialization
-  IsNT := UsingWinNT;
   InitIsWin64AndProcessorArchitecture;
   InitWindowsVersion;
-{$IFNDEF UNICODE}
-  ConstLeadBytes := @SetupHeader.LeadBytes;
-{$ENDIF}
   InitComponents := TStringList.Create();
   InitTasks := TStringList.Create();
   NewParamsForCode := TStringList.Create();

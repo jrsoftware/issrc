@@ -2,13 +2,11 @@ unit SelFolderForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2004 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   "Select Folder" form
-
-  $jrsoftware: issrc/Projects/SelFolderForm.pas,v 1.15 2010/10/22 10:33:26 mlaan Exp $
 }
 
 interface
@@ -60,14 +58,10 @@ begin
     Form.NewFolderButton.Visible := not AppendDir and (NewFolderName <> '');
     if StartMenu then begin
       with Form.FFolderTreeView as TStartMenuFolderTreeView do
-        if IsNT then
-          SetPaths(GetShellFolder(False, sfPrograms),
-            GetShellFolder(True, sfPrograms),
-            GetShellFolder(False, sfStartup),
-            GetShellFolder(True, sfStartup))
-        else
-          SetPaths(GetShellFolder(False, sfPrograms),
-            '', GetShellFolder(False, sfStartup), '');
+        SetPaths(GetShellFolder(False, sfPrograms),
+          GetShellFolder(True, sfPrograms),
+          GetShellFolder(False, sfStartup),
+          GetShellFolder(True, sfStartup));
       TidyUpGroupName(Path);
     end
     else

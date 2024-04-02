@@ -2,7 +2,7 @@ unit ScriptCompiler;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -363,10 +363,8 @@ begin
     LineLength := FindNewLine(FScriptText, LineStartPosition);
   end;
 
-{$IFDEF UNICODE}
   { Convert Position from the UTF8 encoded ANSI string index to a UTF-16 string index }
   Position := Length(UTF8ToString(Copy(FScriptText, LineStartPosition, Position - 1))) + 1;
-{$ENDIF}
   Col := Position;
 end;
 
@@ -465,11 +463,7 @@ var
 begin
   Result := False;
 
-{$IFDEF UNICODE}
   FScriptText := UTF8Encode(ScriptText);
-{$ELSE}
-  FScriptText := ScriptText;
-{$ENDIF}
 
   for I := 0 to FExports.Count-1 do
     TScriptExport(FExports[I]).Exported := False;
@@ -482,10 +476,8 @@ begin
     PSPascalCompiler.AllowNoBegin := True;
     PSPascalCompiler.AllowNoEnd := True;
     PSPascalCompiler.BooleanShortCircuit := True;
-{$IFDEF UNICODE}
     PSPascalCompiler.AllowDuplicateRegister := False;
     PSPascalCompiler.UTF8Decode := True;
-{$ENDIF}
     PSPascalCompiler.AttributesOpenTokenID := CSTI_Less;
     PSPascalCompiler.AttributesCloseTokenID := CSTI_Greater;
 

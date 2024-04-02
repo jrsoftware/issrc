@@ -2,7 +2,7 @@ unit CompExeUpdate;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -17,23 +17,22 @@ uses
 {$I VERSION.INC}
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
-  const IsVistaCompatible, IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
+  const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
 procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon: Boolean);
 procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
   NewProductName, NewTextProductVersion, NewOriginalFileName: String;
   const SetFileVersionAndDescription: Boolean);
-procedure RemoveManifestDllHijackProtection(const F: TCustomFile; const TestBlockOnly: Boolean);
 procedure PreventCOMCTL32Sideloading(const F: TCustomFile);
 
 implementation
 
 uses
-  ResUpdate{$IFDEF UNICODE}, Math{$ENDIF}, Int64Em;
+  ResUpdate, Math, Int64Em;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
-  const IsVistaCompatible, IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
+  const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
 
   function SeekToPEHeader(const F: TCustomFile): Boolean;
   var
@@ -69,9 +68,6 @@ var
   Header: TImageFileHeader;
   Ofs: Cardinal;
   OptMagic, DllChars, OrigDllChars: Word;
-  VersionRecord: packed record
-    Major, Minor: Word;
-  end;
 begin
   if SeekToPEHeader(F) then begin
     if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) and
@@ -79,32 +75,6 @@ begin
       Ofs := F.Position.Lo;
       if (F.Read(OptMagic, SizeOf(OptMagic)) = SizeOf(OptMagic)) and
          (OptMagic = IMAGE_NT_OPTIONAL_HDR32_MAGIC) then begin
-        if IsVistaCompatible then begin
-          { Update OS/Subsystem version }
-          VersionRecord.Major := 6;
-          VersionRecord.Minor := 0;
-          F.Seek(Ofs + OffsetOfOperatingSystemVersion);
-          F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
-          F.Seek(Ofs + OffsetOfSubsystemVersion);
-          F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
-        end;
-
-        { Update MajorImageVersion and MinorImageVersion to 6.0.
-          Works around apparent bug in Vista (still present in Vista SP1;
-          not reproducible on Server 2008): When UAC is turned off,
-          launching an uninstaller (as admin) from ARP and answering No at the
-          ConfirmUninstall message box causes a "This program might not have
-          uninstalled correctly" dialog to be displayed, even if the EXE
-          has a proper "Vista-aware" manifest. I discovered that if the EXE's
-          image version is set to 6.0, like the EXEs that ship with Vista
-          (notepad.exe), the dialog does not appear. (This is reproducible
-          with notepad.exe too if its image version is changed to anything
-          other than 6.0 exactly.) }
-        VersionRecord.Major := 6;
-        VersionRecord.Minor := 0;
-        F.Seek(Ofs + OffsetOfImageVersion);
-        F.WriteBuffer(VersionRecord, SizeOf(VersionRecord));
-
         { Update DllCharacteristics }
         F.Seek(Ofs + OffsetOfDllCharacteristics);
         if F.Read(DllChars, SizeOf(DllChars)) = SizeOf(DllChars) then begin
@@ -247,11 +217,7 @@ procedure UpdateVersionInfo(const F: TCustomFile;
   begin
     if not QueryValue(P, Path, Pointer(Value), ValueLen) then
       ResUpdateError('Unexpected version resource format (1)');
-{$IFDEF UNICODE}
     Move(Pointer(NewValue)^, Value^, (Min(Length(NewValue), lstrlenW(Value)))*SizeOf(Char));
-{$ELSE}
-    MultiByteToWideChar(CP_ACP, 0, PChar(NewValue), Length(NewValue), Value, lstrlenW(Value));
-{$ENDIF}
     ReplaceWithRealCopyrightSymbols(Value);
   end;
 
@@ -426,9 +392,6 @@ var
   N: Cardinal;
   NewGroupIconDirSize: LongInt;
 begin
-  if Win32Platform <> VER_PLATFORM_WIN32_NT then
-    ResUpdateError('Only supported on Windows NT and above');
-
   Ico := nil;
 
   try
@@ -498,35 +461,6 @@ begin
   finally
     FreeMem(Ico);
   end;
-end;
-
-procedure RemoveManifestDllHijackProtection(const F: TCustomFile; const TestBlockOnly: Boolean);
-const
-  BlockStartText: AnsiString = '<file name="';
-  BlockLength = 380;
-var
-  S: AnsiString;
-  Offset: Integer64;
-  P: Integer;
-begin
-  { Read the manifest resource into a string }
-  SetString(S, nil, SeekToResourceData(F, 24, 1));
-  Offset := F.Position;
-  F.ReadBuffer(S[1], Length(S));
-
-  { Locate and update the block with file elements }
-  P := Pos(BlockStartText, S);
-  if P = 0 then
-    ResUpdateError('Block not found');
-  if Copy(S, P+BlockLength, 11) <> '</assembly>' then
-    ResUpdateError('Block too short (BlockLength should be '+string(IntToStr(Pos('</assembly>', string(S))-P)+'): '+string(Copy(S, P+BlockLength, 11))));
-
-  if TestBlockOnly then
-    Exit;
-
-  Inc64(Offset, P-1);
-  F.Seek64(Offset);
-  F.WriteAnsiString(AnsiString(Format('%*s', [BlockLength, ' '])));
 end;
 
 procedure PreventCOMCTL32Sideloading(const F: TCustomFile);

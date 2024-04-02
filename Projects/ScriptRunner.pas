@@ -2,7 +2,7 @@ unit ScriptRunner;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -147,7 +147,6 @@ begin
           Param := CreateHeapVariant(FPSExec.FindType2(btString));
           PPSVariantAString(Param).Data := AnsiString(Parameters[I].vAnsiString);
         end;
-{$IFDEF UNICODE}
       vtWideString:
         begin
           Param := CreateHeapVariant(FPSExec.FindType2(btWideString));
@@ -158,7 +157,6 @@ begin
           Param := CreateHeapVariant(FPSExec.FindType2(btUnicodeString));
           PPSVariantUString(Param).Data := UnicodeString(Parameters[I].VUnicodeString);
         end;
-{$ENDIF}
       vtInteger:
         begin
           Param := CreateHeapVariant(FPSExec.FindType2(btS32));
@@ -190,7 +188,6 @@ end;
 
 {---}
 
-{$IFDEF UNICODE}
 function EncodeDLLFilenameForROPS(const Filename: String): AnsiString;
 begin
   Result := '';
@@ -203,7 +200,6 @@ begin
   UnloadDLL(Caller, EncodeDLLFilenameForROPS(Stack.GetString(-1)));
   Result := True;
 end;
-{$ENDIF}
 
 function PSExecOnSpecialProcImport(Sender: TPSExec; p: TPSExternalProcRec; Tag: Pointer): Boolean;
 const
@@ -211,9 +207,7 @@ const
 var
   ScriptRunner: TScriptRunner;
   S, DllName, FunctionName: AnsiString;
-{$IFDEF UNICODE}
   UnicodeDllName: String;
-{$ENDIF}
   I: Integer;
   ForceDelayLoad, DelayLoad: Boolean;
   ErrorCode: LongInt;
@@ -248,30 +242,17 @@ begin
   FunctionName := Copy(S, 1, I-1);
 
   ScriptRunner.LogFmt('Function name: %s', [FunctionName]);
-{$IFDEF UNICODE}
   UnicodeDllName := UTF8ToString(DllName);
   ScriptRunner.LogFmt('DLL name: %s', [UnicodeDllname]);
-{$ELSE}
-  ScriptRunner.LogFmt('DLL name: %s', [DllName]);
-{$ENDIF}
 
   if Assigned(ScriptRunner.FOnDllImport) then begin
-{$IFDEF UNICODE}
     ScriptRunner.FOnDllImport(UnicodeDllName, ForceDelayLoad);
     DllName := EncodeDLLFilenameForROPS(UnicodeDllName);
-{$ELSE}
-    ScriptRunner.FOnDllImport(DllName, ForceDelayLoad);
-{$ENDIF}
-
     p.Decl := AnsiString('dll:') + DllName + Copy(p.Decl, Pos(AnsiString(#0), p.Decl), MaxInt);
   end;
 
   if DllName <> '' then begin
-{$IFDEF UNICODE}
     ScriptRunner.LogFmt('Dest DLL name: %s', [UnicodeDllName]);
-{$ELSE}
-    ScriptRunner.LogFmt('Dest DLL name: %s', [DllName]);
-{$ENDIF}
     ScriptRunner.Log('Importing the DLL function.');
   end else
     ScriptRunner.Log('Skipping.'); { We're actually still going to call ProcessDllImport but this doesn't matter to the user. }
@@ -341,12 +322,8 @@ begin
   FPSExec.OnSourceLine := PSExecOnSourceLine;
   FPSExec.OnException := PSExecOnException;
 
-{$IFNDEF UNICODE}
-  RegisterDLLRuntimeEx(FPSExec, False);
-{$ELSE}
   RegisterDLLRuntimeEx(FPSExec, False, False);
   FPSExec.RegisterFunctionName('UNLOADDLL', NewUnloadDLLProc, nil, nil);
-{$ENDIF}
   FClassImporter := ScriptClassesLibraryRegister_R(FPSExec);
   ScriptFuncLibraryRegister_R(FPSExec);
 end;
@@ -391,7 +368,7 @@ begin
         if Proc.Attributes.Count > 0 then begin
           Attr := Proc.Attributes.FindAttribute(AnsiString(FNamingAttribute));
           if (Attr <> nil) and (Attr.ValueCount = 1) and
-             ({$IFDEF UNICODE} ((Attr.Value[0].FType.BaseType = btUnicodeString) and (CompareText(PPSVariantUString(Attr.Value[0]).Data, Name) = 0)) or {$ENDIF}
+             (((Attr.Value[0].FType.BaseType = btUnicodeString) and (CompareText(PPSVariantUString(Attr.Value[0]).Data, Name) = 0)) or
               ((Attr.Value[0].FType.BaseType = btString) and (CompareText(PPSVariantAString(Attr.Value[0]).Data, Name) = 0))) then begin
             if ProcNos <> nil then
               ProcNos.Add(Pointer(ProcNo));
@@ -584,20 +561,12 @@ begin
         Params := TPSList.Create();
         try
           SetPSExecParameters(Parameters, Params);
-{$IFDEF UNICODE}
           SetPSExecReturnValue(Params, btUnicodeString, Res);
-{$ELSE}
-          SetPSExecReturnValue(Params, btString, Res);
-{$ENDIF}
           FPSExec.RunProc(Params, Cardinal(ProcNos[I]));
           WriteBackParameters(Parameters, Params);
-
+          
           RaisePSExecException;
-{$IFDEF UNICODE}
           Result := PPSVariantUString(Res).Data;
-{$ELSE}
-          Result := PPSVariantAString(Res).Data;
-{$ENDIF}
           if (Result <> '') and (BreakCondition = bcNonEmpty) then
             Exit;
         finally
@@ -628,7 +597,6 @@ function TScriptRunner.EvaluateUsedVariable(const Param1, Param2, Param3: LongIn
 
   function VariantToString(const p: TPSVariantIFC; const ClassProperties: AnsiString): String;
   begin
-{$IFDEF UNICODE}
     //PSVariantToString isn't Unicode enabled, handle strings ourselves
     //doesn't handle more complex types as records, arrays and objects
     if p.Dta <> nil then begin
@@ -640,7 +608,6 @@ function TScriptRunner.EvaluateUsedVariable(const Param1, Param2, Param3: LongIn
         Result := PSVariantToString(p, ClassProperties);
       end;
     end else
-{$ENDIF}
     Result := PSVariantToString(p, ClassProperties);
   end;
 

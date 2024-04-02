@@ -2,7 +2,7 @@ unit CmnFunc2;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -18,28 +18,11 @@ interface
 uses
   Windows, SysUtils;
 
-{ Delphi 2.01's RegStr unit should never be used because it contains many
-  wrong declarations. Delphi 3's RegStr unit doesn't have this problem, but
-  for backward compatibility, it defines a few of the correct registry key
-  constants here. }
 const
-  { Do NOT localize any of these }
-  NEWREGSTR_PATH_SETUP = 'Software\Microsoft\Windows\CurrentVersion';
-  NEWREGSTR_PATH_EXPLORER = NEWREGSTR_PATH_SETUP + '\Explorer';
-  NEWREGSTR_PATH_SPECIAL_FOLDERS = NEWREGSTR_PATH_EXPLORER + '\Shell Folders';
-  NEWREGSTR_PATH_UNINSTALL = NEWREGSTR_PATH_SETUP + '\Uninstall';
-  NEWREGSTR_VAL_UNINSTALLER_DISPLAYNAME = 'DisplayName';
-  NEWREGSTR_VAL_UNINSTALLER_COMMANDLINE = 'UninstallString';
-
   KEY_WOW64_64KEY = $0100;
 
 type
-{$IFNDEF UNICODE}
-  PLeadByteSet = ^TLeadByteSet;
-  TLeadByteSet = set of AnsiChar;
-{$ENDIF}
-
-  TOneShotTimer = {$IFDEF UNICODE} record {$ELSE} object {$ENDIF}
+  TOneShotTimer = record
   private
     FLastElapsed: Cardinal;
     FStartTick: DWORD;
@@ -88,7 +71,6 @@ function StringChange(var S: String; const FromStr, ToStr: String): Integer;
 function StringChangeEx(var S: String; const FromStr, ToStr: String;
   const SupportDBCS: Boolean): Integer;
 function AdjustLength(var S: String; const Res: Cardinal): Boolean;
-function UsingWinNT: Boolean;
 function ConvertConstPercentStr(var S: String): Boolean;
 function ConvertPercentStr(var S: String): Boolean;
 function ConstPos(const Ch: Char; const S: String): Integer;
@@ -111,10 +93,6 @@ function IsAdminLoggedOn: Boolean;
 function IsPowerUserLoggedOn: Boolean;
 function IsMultiByteString(const S: AnsiString): Boolean;
 function FontExists(const FaceName: String): Boolean;
-{$IFNDEF IS_D5}
-procedure FreeAndNil(var Obj);
-function SafeLoadLibrary(const Filename: String; ErrorMode: UINT): HMODULE;
-{$ENDIF}
 function GetUILanguage: LANGID;
 function RemoveAccelChar(const S: String): String;
 function GetTextWidth(const DC: HDC; S: String; const Prefix: Boolean): Integer;
@@ -125,20 +103,9 @@ function IsWildcard(const Pattern: String): Boolean;
 function WildcardMatch(const Text, Pattern: PChar): Boolean;
 function IntMax(const A, B: Integer): Integer;
 function Win32ErrorString(ErrorCode: Integer): String;
-{$IFNDEF UNICODE}
-procedure GetLeadBytes(var ALeadBytes: TLeadByteSet);
-{$ENDIF}
-{$IFNDEF IS_D3}
-function CompareMem(P1, P2: Pointer; Length: Integer): Boolean;
-{$ENDIF}
 function DeleteDirTree(const Dir: String): Boolean;
 function SetNTFSCompression(const FileOrDir: String; Compress: Boolean): Boolean;
 procedure AddToWindowMessageFilterEx(const Wnd: HWND; const Msg: UINT);
-{$IFNDEF UNICODE}
-type
-  TSysCharSet = set of AnsiChar;
-function CharInSet(C: AnsiChar; const CharSet: TSysCharSet): Boolean;
-{$ENDIF}
 function ShutdownBlockReasonCreate(Wnd: HWND; const Reason: String): Boolean;
 function ShutdownBlockReasonDestroy(Wnd: HWND): Boolean;
 function TryStrToBoolean(const S: String; var BoolResult: Boolean): Boolean;
@@ -147,17 +114,10 @@ function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
 procedure CreateMutex(const MutexName: String);
 
-{$IFNDEF UNICODE}
-var
-  ConstLeadBytes: PLeadByteSet = nil;
-{$ENDIF}
-
 implementation
 
 uses
-  {$IFNDEF Delphi3orHigher} OLE2, ShlObj, {$ENDIF} PathFunc;
-
-{$IFDEF Delphi3orHigher}
+  PathFunc;
 
 { Avoid including Variants (via ActiveX and ShlObj) in SetupLdr (SetupLdr uses CmnFunc2), saving 26 KB. }
 
@@ -194,9 +154,8 @@ function SHGetMalloc(var ppMalloc: IMalloc): HResult; stdcall; external shell32 
 function SHGetSpecialFolderLocation(hwndOwner: HWND; nFolder: Integer;
   var ppidl: PItemIDList): HResult; stdcall; external shell32 name 'SHGetSpecialFolderLocation';
 function SHGetPathFromIDList(pidl: PItemIDList; pszPath: PChar): BOOL; stdcall;
-  external shell32 name {$IFDEF UNICODE}'SHGetPathFromIDListW'{$ELSE}'SHGetPathFromIDListA'{$ENDIF};
+  external shell32 name 'SHGetPathFromIDListW';
 
-{$ENDIF}
 
 function InternalGetFileAttr(const Name: String): Integer;
 begin
@@ -592,11 +551,6 @@ begin
                    Exit;
                  end;
                end;
-        else
-          {$IFNDEF UNICODE}
-          if S[Result] in ConstLeadBytes^ then
-            Inc(Result);
-          {$ENDIF}
         end;
         Inc(Result);
       end;
@@ -641,11 +595,6 @@ begin
              Delete(S, I+1, 2);
              S[I] := Chr(C);
            end;
-    else
-      {$IFNDEF UNICODE}
-      if S[I] in ConstLeadBytes^ then
-        Inc(I);
-      {$ENDIF}
     end;
     Inc(I);
   end;
@@ -670,13 +619,8 @@ begin
       if I = 0 then
         Break;
     end
-    else begin
-      {$IFNDEF UNICODE}
-      if S[I] in ConstLeadBytes^ then
-        Inc(I);
-      {$ENDIF}
+    else
       Inc(I);
-    end;
   end;
 end;
 
@@ -737,19 +681,13 @@ function GetSysWow64Dir: String;
   Returns '' if there is no SysWow64 directory (e.g. running 32-bit Windows). }
 var
   GetSystemWow64DirectoryFunc: function(
-    lpBuffer: {$IFDEF UNICODE} PWideChar {$ELSE} PAnsiChar {$ENDIF};
-    uSize: UINT): UINT; stdcall;
+    lpBuffer: PWideChar; uSize: UINT): UINT; stdcall;
   Res: Integer;
   Buf: array[0..MAX_PATH] of Char;
 begin
   Result := '';
   GetSystemWow64DirectoryFunc := GetProcAddress(GetModuleHandle(kernel32),
-    {$IFDEF UNICODE}
-      'GetSystemWow64DirectoryW'
-    {$ELSE}
-      'GetSystemWow64DirectoryA'
-    {$ENDIF} );
-  { Note: This function does exist on 32-bit XP, but always returns 0 }
+      'GetSystemWow64DirectoryW');
   if Assigned(GetSystemWow64DirectoryFunc) then begin
     Res := GetSystemWow64DirectoryFunc(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
     if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then
@@ -764,9 +702,8 @@ begin
   { From MSDN: 32-bit applications can access the native system directory by
     substituting %windir%\Sysnative for %windir%\System32. WOW64 recognizes
     Sysnative as a special alias used to indicate that the file system should
-    not redirect the access. The Sysnative alias was added starting
-    with Windows Vista. }
-  if IsWin64 and (Lo(GetVersion) >= 6) then
+    not redirect the access. }
+  if IsWin64 then
     { Note: Avoiding GetWinDir here as that might not return the real Windows
       directory under Terminal Services }
     Result := PathExpand(AddBackslash(GetSystemDir) + '..\Sysnative') { Do not localize }
@@ -786,13 +723,11 @@ begin
   Result := GetEnv('TEMP');
   if (Result <> '') and DirExists(Result) then
     goto 1;
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-    { Like Windows 2000's GetTempPath, return USERPROFILE when TMP and TEMP
-      are not set }
-    Result := GetEnv('USERPROFILE');
-    if (Result <> '') and DirExists(Result) then
-      goto 1;
-  end;
+  { Like Windows 2000's GetTempPath, return USERPROFILE when TMP and TEMP
+    are not set }
+  Result := GetEnv('USERPROFILE');
+  if (Result <> '') and DirExists(Result) then
+    goto 1;
   Result := GetWinDir;
 1:Result := AddBackslash(PathExpand(Result));
 end;
@@ -849,13 +784,6 @@ function AdjustLength(var S: String; const Res: Cardinal): Boolean;
 begin
   Result := Integer(Res) < Length(S);
   SetLength(S, Res);
-end;
-
-function UsingWinNT: Boolean;
-{ Returns True if system is running any version of Windows NT. Never returns
-  True on Windows 95 or 3.1. }
-begin
-  Result := Win32Platform = VER_PLATFORM_WIN32_NT;
 end;
 
 function InternalRegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String;
@@ -939,33 +867,8 @@ end;
 function RegValueExists(H: HKEY; Name: PChar): Boolean;
 { Returns True if the specified value exists. Requires KEY_QUERY_VALUE access
   to the key. }
-var
-  I: Integer;
-  EnumName: array[0..1] of Char;
-  Count: DWORD;
-  ErrorCode: Longint;
 begin
   Result := RegQueryValueEx(H, Name, nil, nil, nil, nil) = ERROR_SUCCESS;
-  if Result and ((Name = nil) or (Name^ = #0)) and
-     (Win32Platform <> VER_PLATFORM_WIN32_NT) then begin
-    { On Win9x/Me a default value always exists according to RegQueryValueEx,
-      so it must use RegEnumValue instead to check if a default value
-      really exists }
-    Result := False;
-    I := 0;
-    while True do begin
-      Count := SizeOf(EnumName) div SizeOf(EnumName[0]);
-      ErrorCode := RegEnumValue(H, I, EnumName, Count, nil, nil, nil, nil);
-      if (ErrorCode <> ERROR_SUCCESS) and (ErrorCode <> ERROR_MORE_DATA) then
-        Break;
-      { is it the default value? }
-      if (ErrorCode = ERROR_SUCCESS) and (EnumName[0] = #0) then begin
-        Result := True;
-        Break;
-      end;
-      Inc(I);
-    end;
-  end;
 end;
 
 function RegCreateKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
@@ -989,8 +892,7 @@ end;
 
 var
   RegDeleteKeyExFunc: function(hKey: HKEY;
-    lpSubKey: {$IFDEF UNICODE} PWideChar {$ELSE} PAnsiChar {$ENDIF};
-    samDesired: REGSAM; Reserved: DWORD): Longint; stdcall;
+    lpSubKey: PWideChar; samDesired: REGSAM; Reserved: DWORD): Longint; stdcall;
 
 function RegDeleteKeyView(const RegView: TRegView; const Key: HKEY;
   const Name: PChar): Longint;
@@ -1000,11 +902,7 @@ begin
   else begin
     if @RegDeleteKeyExFunc = nil then
       RegDeleteKeyExFunc := GetProcAddress(GetModuleHandle(advapi32),
-        {$IFDEF UNICODE}
-          'RegDeleteKeyExW'
-        {$ELSE}
-          'RegDeleteKeyExA'
-        {$ENDIF} );
+          'RegDeleteKeyExW');
     if Assigned(RegDeleteKeyExFunc) then
       Result := RegDeleteKeyExFunc(Key, Name, KEY_WOW64_64KEY, 0)
     else
@@ -1026,32 +924,30 @@ begin
     Result := ERROR_INVALID_PARAMETER;
     Exit;
   end;
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-    if RegOpenKeyExView(RegView, Key, Name, 0, KEY_ENUMERATE_SUB_KEYS, H) = ERROR_SUCCESS then begin
-      try
-        SetString(KeyName, nil, 256);
-        I := 0;
-        while True do begin
-          KeyNameCount := Length(KeyName);
-          ErrorCode := RegEnumKeyEx(H, I, @KeyName[1], KeyNameCount, nil, nil, nil, nil);
-          if ErrorCode = ERROR_MORE_DATA then begin
-            { Double the size of the buffer and try again }
-            if Length(KeyName) >= 65536 then begin
-              { Sanity check: If we tried a 64 KB buffer and it's still saying
-                there's more data, something must be seriously wrong. Bail. }
-              Break;
-            end;
-            SetString(KeyName, nil, Length(KeyName) * 2);
-            Continue;
-          end;
-          if ErrorCode <> ERROR_SUCCESS then
+  if RegOpenKeyExView(RegView, Key, Name, 0, KEY_ENUMERATE_SUB_KEYS, H) = ERROR_SUCCESS then begin
+    try
+      SetString(KeyName, nil, 256);
+      I := 0;
+      while True do begin
+        KeyNameCount := Length(KeyName);
+        ErrorCode := RegEnumKeyEx(H, I, @KeyName[1], KeyNameCount, nil, nil, nil, nil);
+        if ErrorCode = ERROR_MORE_DATA then begin
+          { Double the size of the buffer and try again }
+          if Length(KeyName) >= 65536 then begin
+            { Sanity check: If we tried a 64 KB buffer and it's still saying
+              there's more data, something must be seriously wrong. Bail. }
             Break;
-          if RegDeleteKeyIncludingSubkeys(RegView, H, PChar(KeyName)) <> ERROR_SUCCESS then
-            Inc(I);
+          end;
+          SetString(KeyName, nil, Length(KeyName) * 2);
+          Continue;
         end;
-      finally
-        RegCloseKey(H);
+        if ErrorCode <> ERROR_SUCCESS then
+          Break;
+        if RegDeleteKeyIncludingSubkeys(RegView, H, PChar(KeyName)) <> ERROR_SUCCESS then
+          Inc(I);
       end;
+    finally
+      RegCloseKey(H);
     end;
   end;
   Result := RegDeleteKeyView(RegView, Key, Name);
@@ -1106,8 +1002,7 @@ var
   StringSid: PWideChar;
 begin
   Result := '';
-  if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY,
-      {$IFDEF Delphi3orHigher} Token {$ELSE} @Token {$ENDIF}) then
+  if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY, Token) then
     Exit;
   UserInfo := nil;
   try
@@ -1133,7 +1028,7 @@ end;
 
 function IsMemberOfGroup(const DomainAliasRid: DWORD): Boolean;
 { Returns True if the logged-on user is a member of the specified local
-  group. Always returns True on Windows 9x/Me. }
+  group. }
 const
   SECURITY_NT_AUTHORITY: TSIDIdentifierAuthority =
     (Value: (0, 0, 0, 0, 0, 5));
@@ -1150,11 +1045,6 @@ var
   GroupInfo: PTokenGroups;
   I: Integer;
 begin
-  if Win32Platform <> VER_PLATFORM_WIN32_NT then begin
-    Result := True;
-    Exit;
-  end;
-
   Result := False;
 
   if not AllocateAndInitializeSid(SECURITY_NT_AUTHORITY, 2,
@@ -1168,22 +1058,18 @@ begin
       access token. This function eliminates potential misinterpretations of
       the active group membership if changes to access tokens are made in
       future releases." }
-    CheckTokenMembership := nil;
-    if Lo(GetVersion) >= 5 then
-      CheckTokenMembership := GetProcAddress(GetModuleHandle(advapi32),
-        'CheckTokenMembership');
+    CheckTokenMembership := GetProcAddress(GetModuleHandle(advapi32),
+      'CheckTokenMembership');
     if Assigned(CheckTokenMembership) then begin
       if CheckTokenMembership(0, Sid, IsMember) then
         Result := IsMember;
     end
-    else begin
+    else begin { Should never happen }
       GroupInfo := nil;
-      if not OpenThreadToken(GetCurrentThread, TOKEN_QUERY, True,
-         {$IFDEF Delphi3orHigher} Token {$ELSE} @Token {$ENDIF}) then begin
+      if not OpenThreadToken(GetCurrentThread, TOKEN_QUERY, True, Token) then begin
         if GetLastError <> ERROR_NO_TOKEN then
           Exit;
-        if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY,
-           {$IFDEF Delphi3orHigher} Token {$ELSE} @Token {$ENDIF}) then
+        if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY, Token) then
           Exit;
       end;
       try
@@ -1217,7 +1103,7 @@ end;
 
 function IsAdminLoggedOn: Boolean;
 { Returns True if the logged-on user is a member of the Administrators local
-  group. Always returns True on Windows 9x/Me. }
+  group. }
 const
   DOMAIN_ALIAS_RID_ADMINS = $00000220;
 begin
@@ -1226,7 +1112,7 @@ end;
 
 function IsPowerUserLoggedOn: Boolean;
 { Returns True if the logged-on user is a member of the Power Users local
-  group. Always returns True on Windows 9x/Me. }
+  group. }
 const
   DOMAIN_ALIAS_RID_POWER_USERS = $00000223;
 begin
@@ -1265,42 +1151,6 @@ begin
   end;
 end;
 
-{$IFNDEF IS_D5}
-procedure FreeAndNil(var Obj);
-var
-  Temp: TObject;
-begin
-  Temp := TObject(Obj);
-  Pointer(Obj) := nil;
-  Temp.Free;
-end;
-{$ENDIF}
-
-{$IFNDEF IS_D5}
-function SafeLoadLibrary(const Filename: String; ErrorMode: UINT): HMODULE;
-var
-  SaveErrorMode: UINT;
-  SaveFPUControlWord: Word;
-begin
-  SaveErrorMode := SetErrorMode(ErrorMode);
-  try
-    asm
-      FNSTCW SaveFPUControlWord
-    end;
-    try
-      Result := LoadLibrary(PChar(Filename));
-    finally
-      asm
-        FNCLEX
-        FLDCW SaveFPUControlWord
-      end;
-    end;
-  finally
-    SetErrorMode(SaveErrorMode);
-  end;
-end;
-{$ENDIF}
-
 function GetUILanguage: LANGID;
 { Platform-independent version of GetUserDefaultUILanguage. May return 0 in
   case of failure. }
@@ -1313,24 +1163,14 @@ begin
   GetUserDefaultUILanguage := GetProcAddress(GetModuleHandle(kernel32),
     'GetUserDefaultUILanguage');
   if Assigned(GetUserDefaultUILanguage) then
-    { This function is available on Windows 2000, Me, and later }
     Result := GetUserDefaultUILanguage
   else begin
-    if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-      { Windows NT 4.0 }
-      if RegOpenKeyExView(rvDefault, HKEY_USERS, '.DEFAULT\Control Panel\International',
-         0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-        RegQueryStringValue(K, 'Locale', S);
-        RegCloseKey(K);
-      end;
-    end
-    else begin
-      { Windows 95/98 }
-      if RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'Control Panel\Desktop\ResourceLocale',
-         0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-        RegQueryStringValue(K, '', S);
-        RegCloseKey(K);
-      end;
+    { GetUserDefaultUILanguage is available on Windows 2000, Me, and later so
+      should never get here }
+    if RegOpenKeyExView(rvDefault, HKEY_USERS, '.DEFAULT\Control Panel\International',
+       0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+      RegQueryStringValue(K, 'Locale', S);
+      RegCloseKey(K);
     end;
     Val('$' + S, Result, E);
     if E <> 0 then
@@ -1493,49 +1333,6 @@ begin
   SetString(Result, Buffer, Len);
 end;
 
-{$IFNDEF UNICODE}
-procedure GetLeadBytes(var ALeadBytes: TLeadByteSet);
-var
-  AnsiCPInfo: TCPInfo;
-  I: Integer;
-  J: Byte;
-begin
-  ALeadBytes := [];
-  if GetCPInfo(CP_ACP, AnsiCPInfo) then
-    with AnsiCPInfo do begin
-      I := 0;
-      while (I < MAX_LEADBYTES) and ((LeadByte[I] or LeadByte[I+1]) <> 0) do begin
-        for J := LeadByte[I] to LeadByte[I+1] do
-          Include(ALeadBytes, AnsiChar(J));
-        Inc(I, 2);
-      end;
-    end;
-end;
-{$ENDIF}
-
-{$IFNDEF IS_D3}
-function CompareMem(P1, P2: Pointer; Length: Integer): Boolean;
-asm
-        PUSH    ESI
-        PUSH    EDI
-        MOV     ESI,P1
-        MOV     EDI,P2
-        MOV     EDX,ECX
-        XOR     EAX,EAX
-        AND     EDX,3
-        SHR     ECX,1
-        SHR     ECX,1
-        REPE    CMPSD
-        JNE     @@2
-        MOV     ECX,EDX
-        REPE    CMPSB
-        JNE     @@2
-@@1:    INC     EAX
-@@2:    POP     EDI
-        POP     ESI
-end;
-{$ENDIF}
-
 function DeleteDirTree(const Dir: String): Boolean;
 { Removes the specified directory including any files/subdirectories inside
   it. Returns True if successful. }
@@ -1603,8 +1400,7 @@ var
     action: DWORD; pChangeFilterStruct: Pointer): BOOL; stdcall;
 
 procedure AddToWindowMessageFilter(const Msg: UINT);
-{ Adds a single message number to the process-wide message filter on Windows
-  Vista and later. Has no effect on prior Windows versions. }
+{ Adds a single message number to the process-wide message filter. }
 const
   MSGFLT_ADD = 1;
 begin
@@ -1618,9 +1414,9 @@ begin
 end;
 
 procedure AddToWindowMessageFilterEx(const Wnd: HWND; const Msg: UINT);
-{ Adds a single message number to Wnd's window-specific message filter, which
-  is supported on Windows 7 and later. On Windows Vista, it falls back to
-  modifying the process-wide message filter. }
+{ Adds a single message number to Wnd's window-specific message filter. Falls
+  back to modifying the process-wide message filter but in reality that should
+  never happen. }
 const
   MSGFLT_ALLOW = 1;
 begin
@@ -1635,34 +1431,18 @@ begin
     AddToWindowMessageFilter(Msg);
 end;
 
-{$IFNDEF UNICODE}
-function CharInSet(C: AnsiChar; const CharSet: TSysCharSet): Boolean;
-begin
-  Result := C in CharSet;
-end;
-{$ENDIF}
-
 function ShutdownBlockReasonCreate(Wnd: HWND; const Reason: String): Boolean;
 var
   ShutdownBlockReasonCreateFunc: function(Wnd: HWND; pwszReason: LPCWSTR): Bool; stdcall;
-{$IFNDEF UNICODE}
-  Buf: array[0..4095] of WideChar;
-{$ENDIF}
 begin
   { MSDN doesn't say whether you must call Destroy before a second Create, but it does say a Destroy
     without a previous Create is a no-op, so call Destroy for safety. }
   ShutdownBlockReasonDestroy(Wnd);
 
   ShutdownBlockReasonCreateFunc := GetProcAddress(GetModuleHandle(user32), 'ShutdownBlockReasonCreate');
-  if Assigned(ShutdownBlockReasonCreateFunc) then begin
-{$IFDEF UNICODE}
-    Result := ShutdownBlockReasonCreateFunc(Wnd, PChar(Reason));
-{$ELSE}
-    Buf[MultiByteToWideChar(CP_ACP, 0, PChar(Reason), Length(Reason), Buf,
-      (SizeOf(Buf) div SizeOf(Buf[0])) - 1)] := #0;
-    Result := ShutdownBlockReasonCreateFunc(Wnd, Buf);
-{$ENDIF}
-  end else
+  if Assigned(ShutdownBlockReasonCreateFunc) then
+    Result := ShutdownBlockReasonCreateFunc(Wnd, PChar(Reason))
+  else
     Result := False;
 end;
 
@@ -1698,15 +1478,8 @@ end;
 
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 begin
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-    Result := MoveFileEx(PChar(ExistingFileName), PChar(NewFileName),
-      MOVEFILE_REPLACE_EXISTING);
-  end
-  else begin
-    Result := DeleteFile(PChar(NewFileName));
-    if Result or (GetLastError = ERROR_FILE_NOT_FOUND) then
-      Result := MoveFile(PChar(ExistingFileName), PChar(NewFileName));
-  end;
+  Result := MoveFileEx(PChar(ExistingFileName), PChar(NewFileName),
+    MOVEFILE_REPLACE_EXISTING);
 end;
 
 var

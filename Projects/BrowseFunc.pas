@@ -2,13 +2,11 @@ unit BrowseFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Functions for browsing for folders/files
-
-  $jrsoftware: issrc/Projects/BrowseFunc.pas,v 1.9 2010/09/10 01:08:44 jr Exp $
 }
 
 interface
@@ -33,7 +31,7 @@ function NewGetSaveFileName(const Prompt: String; var FileName: String;
 implementation
 
 uses
-  CommDlg, ShlObj, {$IFNDEF Delphi3orHigher} Ole2, {$ELSE} ActiveX, {$ENDIF}
+  CommDlg, ShlObj, ActiveX,
   PathFunc;
 
 function BrowseCallback(Wnd: HWND; uMsg: UINT; lParam, lpData: LPARAM): Integer; stdcall;

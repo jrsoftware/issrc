@@ -2,29 +2,21 @@
   http://www.gumpi.com/Blog/2009/01/20/Alpha1OfWindows7ControlsForDelphi.aspx
   MPL licensed } 
 
-{ D2/D3 support and correct IID consts added by Martijn Laan for Inno Setup }
-
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   This unit provides the ITaskbarList3 interface for Windows 7 taskbar progress indicators.
-
-  $jrsoftware: issrc/Components/dwTaskbarList.pas,v 1.5 2010/10/21 02:14:14 jr Exp $
 }
-
-{$IFDEF VER90}
-  {$DEFINE DELPHI2}
-{$ENDIF}
 
 unit dwTaskbarList;
 
 interface
 
 uses
-  Windows {$IFDEF DELPHI2}, OLE2 {$ENDIF};
+  Windows;
 
 const
   CLSID_TaskbarList: TGUID = (
@@ -86,34 +78,6 @@ type
   end;
 
 type
-{$IFDEF DELPHI2}
-  ITaskbarList = class(IUnknown)
-    function HrInit: HRESULT; virtual; stdcall; abstract;
-    function AddTab(hwnd: Cardinal): HRESULT; virtual; stdcall; abstract;
-    function DeleteTab(hwnd: Cardinal): HRESULT; virtual; stdcall; abstract;
-    function ActivateTab(hwnd: Cardinal): HRESULT; virtual; stdcall; abstract;
-    function SetActiveAlt(hwnd: Cardinal): HRESULT; virtual; stdcall; abstract;
-  end;
-
-  ITaskbarList2 = class(ITaskbarList)
-    function MarkFullscreenWindow(hwnd: Cardinal; fFullscreen: Bool): HRESULT; virtual; stdcall; abstract;
-  end;
-
-  ITaskbarList3 = class(ITaskbarList2)
-    function SetProgressValue(hwnd: Cardinal; ullCompleted, ullTotal: dwInteger64): HRESULT; virtual; stdcall; abstract;
-    function SetProgressState(hwnd: Cardinal; tbpFlags: DWORD): HRESULT; virtual; stdcall; abstract;
-    function RegisterTab(hwndTab: Cardinal; hwndMDI: Cardinal): HRESULT; virtual; stdcall; abstract;
-    function UnregisterTab(hwndTab: Cardinal): HRESULT; virtual; stdcall; abstract;
-    function SetTabOrder(hwndTab: Cardinal; hwndInsertBefore: Cardinal): HRESULT; virtual; stdcall; abstract;
-    function SetTabActive(hwndTab: Cardinal; hwndMDI: Cardinal; tbatFlags: DWORD): HRESULT; virtual; stdcall; abstract;
-    function ThumbBarAddButtons(hwnd: Cardinal; cButtons: UINT; Button: THUMBBUTTONLIST): HRESULT; virtual; stdcall; abstract;
-    function ThumbBarUpdateButtons(hwnd: Cardinal; cButtons: UINT; pButton: THUMBBUTTONLIST): HRESULT; virtual; stdcall; abstract;
-    function ThumbBarSetImageList(hwnd: Cardinal; himl: Cardinal): HRESULT; virtual; stdcall; abstract;
-    function SetOverlayIcon(hwnd: Cardinal; hIcon: HICON; pszDescription: LPCWSTR): HRESULT; virtual; stdcall; abstract;
-    function SetThumbnailTooltip(hwnd: Cardinal; pszTip: LPCWSTR): HRESULT; virtual; stdcall; abstract;
-    function SetThumbnailClip(hwnd: Cardinal; prcClip: PRect): HRESULT; virtual; stdcall; abstract;
-  end;
-{$ELSE}
   ITaskbarList = interface
     ['{56FDF342-FD6D-11D0-958A-006097C9A090}']
     function HrInit: HRESULT; stdcall;
@@ -143,7 +107,6 @@ type
     function SetThumbnailTooltip(hwnd: Cardinal; pszTip: LPCWSTR): HRESULT; stdcall;
     function SetThumbnailClip(hwnd: Cardinal; prcClip: PRect): HRESULT; stdcall;
   end;
-{$ENDIF}
 
 implementation
 

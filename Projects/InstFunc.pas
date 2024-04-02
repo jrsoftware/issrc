@@ -2,7 +2,7 @@ unit InstFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -72,19 +72,13 @@ function GetFileDateTime(const DisableFsRedir: Boolean; const Filename: String;
   var DateTime: TFileTime): Boolean;
 function GetMD5OfFile(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
 function GetMD5OfAnsiString(const S: AnsiString): TMD5Digest;
-{$IFDEF UNICODE}
 function GetMD5OfUnicodeString(const S: UnicodeString): TMD5Digest;
-{$ENDIF}
 function GetSHA1OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA1Digest;
 function GetSHA1OfAnsiString(const S: AnsiString): TSHA1Digest;
-{$IFDEF UNICODE}
 function GetSHA1OfUnicodeString(const S: UnicodeString): TSHA1Digest;
-{$ENDIF}
 function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): String;
 function GetSHA256OfAnsiString(const S: AnsiString): String;
-{$IFDEF UNICODE}
 function GetSHA256OfUnicodeString(const S: UnicodeString): String;
-{$ENDIF}
 function GetRegRootKeyName(const RootKey: HKEY): String;
 function GetSpaceOnDisk(const DisableFsRedir: Boolean; const DriveRoot: String;
   var FreeBytes, TotalBytes: Integer64): Boolean;
@@ -122,7 +116,8 @@ function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
 implementation
 
 uses
-  Messages, ShellApi, PathFunc, Msgs, MsgIDs, FileClass, RedirFunc, SetupTypes, Hash, Classes;
+  Messages, ShellApi, PathFunc, Msgs, MsgIDs, FileClass, RedirFunc, SetupTypes,
+  Hash, Classes, RegStr;
 
 procedure InternalError(const Id: String);
 begin
@@ -347,8 +342,7 @@ begin
 end;
 
 function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
-{ If the user is running 64-bit Windows Vista or newer and Path
-  begins with 'x:\windows\system32\' it replaces it with
+{ If Path begins with 'x:\windows\system32\' it replaces it with
   'x:\windows\sysnative\' and if Path equals 'x:\windows\system32'
   it replaces it with 'x:\windows\sysnative'. Otherwise, Path is
   returned unchanged. }
@@ -384,93 +378,23 @@ end;
 procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
 { Renames TempFile to DestFile the next time Windows is started. If DestFile
   already existed, it will be overwritten. If DestFile is '' then TempFile
-  will be deleted, however this is only supported by 95/98 and NT, not
-  Windows 3.1x. }
-var
-  WinDir, WinInitFile, TempWinInitFile: String;
-  OldF: TTextFileReader;
-  NewF: TTextFileWriter;
-  L, L2: String;
-  RenameSectionFound, WriteLastLine: Boolean;
+  will be deleted.. }
 begin
   TempFile := PathExpand(TempFile);
   if DestFile <> '' then
     DestFile := PathExpand(DestFile);
 
-  if not UsingWinNT then begin
-    { Because WININIT.INI allows multiple entries with the same name,
-      it must manually parse the file instead of using
-      WritePrivateProfileString }
-    WinDir := GetWinDir;
-    WinInitFile := AddBackslash(WinDir) + 'WININIT.INI';
-    TempWinInitFile := GenerateUniqueName(False, WinDir, '.tmp');
-    try
-      OldF := nil;
-      NewF := nil;
-      try
-        { Flush Windows' cache for the file first }
-        WritePrivateProfileString(nil, nil, nil, PChar(WinInitFile));
-        OldF := TTextFileReader.Create(WinInitFile, fdOpenAlways, faRead,
-          fsRead);
-        NewF := TTextFileWriter.Create(TempWinInitFile, fdCreateAlways,
-          faWrite, fsNone);
-        RenameSectionFound := False;
-        WriteLastLine := False;
-        while not OldF.Eof do begin
-          L := OldF.ReadLine;
-          WriteLastLine := True;
-          L2 := Trim(L);
-          if (L2 <> '') and (L2[1] = '[') then begin
-            if CompareText(L2, '[rename]') = 0 then
-              RenameSectionFound := True
-            else
-            if RenameSectionFound then
-              Break;
-          end;
-          NewF.WriteLine(L);
-          WriteLastLine := False;
-        end;
-        if not RenameSectionFound then
-          NewF.WriteLine('[rename]');
-        if DestFile <> '' then
-          L2 := GetShortName(DestFile)
-        else
-          L2 := 'NUL';
-        NewF.WriteLine(L2 + '=' + GetShortName(TempFile));
-        if WriteLastLine then
-          NewF.WriteLine(L);
-        while not OldF.Eof do begin
-          L := OldF.ReadLine;
-          NewF.WriteLine(L);
-        end;
-      finally
-        NewF.Free;
-        OldF.Free;
-      end;
-      { Strip any read-only attribute }
-      SetFileAttributes(PChar(WinInitFile), FILE_ATTRIBUTE_ARCHIVE);
-      if not DeleteFile(WinInitFile) then
-        Win32ErrorMsg('DeleteFile');
-      if not MoveFile(PChar(TempWinInitFile), PChar(WinInitFile)) then
-        Win32ErrorMsg('MoveFile');
-    except
-      DeleteFile(TempWinInitFile);
-      raise;
-    end;
-  end
-  else begin
-    if not DisableFsRedir then begin
-      { Work around WOW64 bug present in the IA64 and x64 editions of Windows
-        XP (3790) and Server 2003 prior to SP1 RC2: MoveFileEx writes filenames
-        to the registry verbatim without mapping system32->syswow64. }
-      TempFile := ReplaceSystemDirWithSysWow64(TempFile);
-      if DestFile <> '' then
-        DestFile := ReplaceSystemDirWithSysWow64(DestFile);
-    end;
-    if not MoveFileExRedir(DisableFsRedir, TempFile, DestFile,
-       MOVEFILE_DELAY_UNTIL_REBOOT or MOVEFILE_REPLACE_EXISTING) then
-      Win32ErrorMsg('MoveFileEx');
+  if not DisableFsRedir then begin
+    { Work around WOW64 bug present in the IA64 and x64 editions of Windows
+      XP (3790) and Server 2003 prior to SP1 RC2: MoveFileEx writes filenames
+      to the registry verbatim without mapping system32->syswow64. }
+    TempFile := ReplaceSystemDirWithSysWow64(TempFile);
+    if DestFile <> '' then
+      DestFile := ReplaceSystemDirWithSysWow64(DestFile);
   end;
+  if not MoveFileExRedir(DisableFsRedir, TempFile, DestFile,
+     MOVEFILE_DELAY_UNTIL_REBOOT or MOVEFILE_REPLACE_EXISTING) then
+    Win32ErrorMsg('MoveFileEx');
 end;
 
 function DelTree(const DisableFsRedir: Boolean; const Path: String;
@@ -593,7 +517,7 @@ end;
 procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
   const AlreadyExisted: Boolean);
 const
-  SharedDLLsKey = NEWREGSTR_PATH_SETUP + '\SharedDLLs';  {don't localize}
+  SharedDLLsKey = REGSTR_PATH_SETUP + '\SharedDLLs';  {don't localize}
 var
   ErrorCode: Longint;
   K: HKEY;
@@ -656,7 +580,7 @@ function DecrementSharedCount(const RegView: TRegView;
 { Attempts to decrement the shared file reference count of Filename. Returns
   True if the count reached zero (meaning it's OK to delete the file). }
 const
-  SharedDLLsKey = NEWREGSTR_PATH_SETUP + '\SharedDLLs';  {don't localize}
+  SharedDLLsKey = REGSTR_PATH_SETUP + '\SharedDLLs';  {don't localize}
 var
   ErrorCode: Longint;
   K: HKEY;
@@ -815,24 +739,20 @@ begin
   Result := MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
 end;
 
-{$IFDEF UNICODE}
 function GetMD5OfUnicodeString(const S: UnicodeString): TMD5Digest;
 begin
   Result := MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
 end;
-{$ENDIF}
 
 function GetSHA1OfAnsiString(const S: AnsiString): TSHA1Digest;
 begin
   Result := SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
 end;
 
-{$IFDEF UNICODE}
 function GetSHA1OfUnicodeString(const S: UnicodeString): TSHA1Digest;
 begin
   Result := SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
 end;
-{$ENDIF}
 
 function GetSHA256OfAnsiString(const S: AnsiString): String;
 var
@@ -848,7 +768,6 @@ begin
   end;
 end;
 
-{$IFDEF UNICODE}
 function GetSHA256OfUnicodeString(const S: UnicodeString): String;
 var
   M: TMemoryStream;
@@ -862,7 +781,6 @@ begin
     M.Free;
   end;
 end;
-{$ENDIF}
 
 var
   SFCInitialized: Boolean;
@@ -875,9 +793,6 @@ function IsProtectedSystemFile(const DisableFsRedir: Boolean;
 var
   M: HMODULE;
   FN: String;
-{$IFNDEF UNICODE}
-  Buf: array[0..4095] of WideChar;
-{$ENDIF}
 begin
   if not SFCInitialized then begin
     M := SafeLoadLibrary(PChar(AddBackslash(GetSystemDir) + 'sfc.dll'),
@@ -893,18 +808,10 @@ begin
     FN := PathExpand(Filename);
     if not DisableFsRedir then
       FN := ReplaceSystemDirWithSysWow64(FN);
-{$IFDEF UNICODE}
     Result := SfcIsFileProtectedFunc(0, PChar(FN));
-{$ELSE}
-    Buf[MultiByteToWideChar(CP_ACP, 0, PChar(FN), Length(FN), Buf,
-      (SizeOf(Buf) div SizeOf(Buf[0])) - 1)] := #0;
-    Result := (Buf[0] <> #0) and SfcIsFileProtectedFunc(0, Buf);
-{$ENDIF}
   end
-  else begin
-    { Windows File Protection doesn't exist on Windows 95/98/NT4 }
-    Result := False;
-  end;
+  else
+    Result := False; { Should never happen }
 end;
 
 procedure HandleProcessWait(ProcessHandle: THandle; const Wait: TExecWait;
@@ -960,16 +867,13 @@ begin
           Filename: "c:\batch.bat"; Parameters: """abc"""
         And other Windows versions might have unknown quirks too, since
         CreateProcess isn't documented to accept .bat files in the first place. }
-      if UsingWinNT then
-        { With cmd.exe, the whole command line must be quoted for quoted
-          parameters to work. For example, this fails:
-            cmd.exe /c "z:\blah.bat" "test"
-          But this works:
-            cmd.exe /c ""z:\blah.bat" "test""
-        }
-        CmdLine := '"' + AddBackslash(GetSystemDir) + 'cmd.exe" /C "' + CmdLine + '"'
-      else
-        CmdLine := '"' + AddBackslash(GetWinDir) + 'COMMAND.COM" /C ' + CmdLine;
+      { With cmd.exe, the whole command line must be quoted for quoted
+        parameters to work. For example, this fails:
+          cmd.exe /c "z:\blah.bat" "test"
+        But this works:
+          cmd.exe /c ""z:\blah.bat" "test""
+      }
+      CmdLine := '"' + AddBackslash(GetSystemDir) + 'cmd.exe" /C "' + CmdLine + '"'
     end;
     if WorkingDir = '' then
       WorkingDir := PathExtractDir(Filename);
@@ -1141,44 +1045,35 @@ function NewAdjustTokenPrivileges(TokenHandle: THandle; DisableAllPrivileges: BO
   external advapi32 name 'AdjustTokenPrivileges';
 
 function RestartComputer: Boolean;
-{ Restarts the computer. On Windows 9x/Me, the function will NOT return if it
-  is successful. }
+{ Restarts the computer. }
 var
   Token: THandle;
   TokenPriv: TTokenPrivileges;
 const
   SE_SHUTDOWN_NAME = 'SeShutdownPrivilege';  { don't localize }
 begin
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-    if not OpenProcessToken(GetCurrentProcess, TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY,
-       {$IFNDEF Delphi3orHigher} @Token {$ELSE} Token {$ENDIF}) then begin
-      Result := False;
-      Exit;
-    end;
+  if not OpenProcessToken(GetCurrentProcess, TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY,
+     Token) then begin
+    Result := False;
+    Exit;
+  end;
 
-    LookupPrivilegeValue(nil, SE_SHUTDOWN_NAME, TokenPriv.Privileges[0].Luid);
+  LookupPrivilegeValue(nil, SE_SHUTDOWN_NAME, TokenPriv.Privileges[0].Luid);
 
-    TokenPriv.PrivilegeCount := 1;
-    TokenPriv.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
+  TokenPriv.PrivilegeCount := 1;
+  TokenPriv.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
 
-    NewAdjustTokenPrivileges(Token, False, TokenPriv, 0, nil, nil);
+  NewAdjustTokenPrivileges(Token, False, TokenPriv, 0, nil, nil);
 
-    { Cannot test the return value of AdjustTokenPrivileges. }
-    if GetLastError <> ERROR_SUCCESS then begin
-      Result := False;
-      Exit;
-    end;
+  { Cannot test the return value of AdjustTokenPrivileges. }
+  if GetLastError <> ERROR_SUCCESS then begin
+    Result := False;
+    Exit;
   end;
 
   Result := ExitWindowsEx(EWX_REBOOT, 0);
 
-  { On Windows 9x/Me:
-    ExitWindowsEx synchronously sends WM_QUERYENDSESSION messages to all
-    processes except the current process. If any WM_QUERYENDSESSION handler
-    blocks the shutdown, it returns False. Otherwise, it kills the current
-    process and does not return.
-    On NT platforms:
-    ExitWindowsEx returns True immediately. The system then asynchronously
+  { ExitWindowsEx returns True immediately. The system then asynchronously
     sends WM_QUERYENDSESSION messages to all processes, including the current
     process. The current process is not killed until it has received
     WM_QUERYENDSESSION and WM_ENDSESSION messages. }
@@ -1206,48 +1101,24 @@ end;
 
 function MakePendingFileRenameOperationsChecksum: TMD5Digest;
 { Calculates a checksum of the current PendingFileRenameOperations registry
-  value (on NT 4+ platforms) or of the current WININIT.INI file (on non-NT
-  platforms). The caller can use this checksum to determine if
-  PendingFileRenameOperations or WININIT.INI was changed (perhaps by another
-  program). }
+  value The caller can use this checksum to determine if
+  PendingFileRenameOperations was changed (perhaps by another program). }
 var
   Context: TMD5Context;
   K: HKEY;
   S: String;
-  WinInitFile: String;
-  F: TFile;
-  Buf: array[0..4095] of Byte;
-  BytesRead: Cardinal;
 begin
   MD5Init(Context);
   try
-    if UsingWinNT then begin
-      if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager',
-         0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-        if RegQueryMultiStringValue(K, 'PendingFileRenameOperations', S) then
-          MD5Update(Context, S[1], Length(S)*SizeOf(S[1]));
-        { When "PendingFileRenameOperations" is full, it spills over into
-          "PendingFileRenameOperations2" }
-        if RegQueryMultiStringValue(K, 'PendingFileRenameOperations2', S) then
-          MD5Update(Context, S[1], Length(S)*SizeOf(S[1]));
-        RegCloseKey(K);
-      end;
-    end
-    else begin
-      WinInitFile := AddBackslash(GetWinDir) + 'WININIT.INI';
-      if NewFileExists(WinInitFile) then begin
-        F := TFile.Create(WinInitFile, fdOpenExisting, faRead, fsRead);
-        try
-          while True do begin
-            BytesRead := F.Read(Buf, SizeOf(Buf));
-            if BytesRead = 0 then
-              Break;
-            MD5Update(Context, Buf, BytesRead);
-          end;
-        finally
-          F.Free;
-        end;
-      end;
+    if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager',
+       0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+      if RegQueryMultiStringValue(K, 'PendingFileRenameOperations', S) then
+        MD5Update(Context, S[1], Length(S)*SizeOf(S[1]));
+      { When "PendingFileRenameOperations" is full, it spills over into
+        "PendingFileRenameOperations2" }
+      if RegQueryMultiStringValue(K, 'PendingFileRenameOperations2', S) then
+        MD5Update(Context, S[1], Length(S)*SizeOf(S[1]));
+      RegCloseKey(K);
     end;
   except
     { don't propagate exceptions }
@@ -1261,101 +1132,46 @@ procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesPr
   registry value or WININIT.INI file. The function does not distinguish between
   source and destination filenames; it enumerates both. }
 
-  procedure DoNT;
-
-    procedure DoValue(const K: HKEY; const ValueName: PChar);
-    var
-      S: String;
-      P, PEnd: PChar;
-    begin
-      if not RegQueryMultiStringValue(K, ValueName, S) then
-        Exit;
-      P := PChar(S);
-      PEnd := P + Length(S);
-      while P < PEnd do begin
-        if P[0] = '!' then
-          { Note: '!' means that MoveFileEx was called with the
-            MOVEFILE_REPLACE_EXISTING flag }
-          Inc(P);
-        if StrLComp(P, '\??\', 4) = 0 then begin
-          Inc(P, 4);
-          if P[0] <> #0 then
-            EnumFunc(P, Param);
-        end;
-        Inc(P, StrLen(P) + 1);
-      end;
-    end;
-
+  procedure DoValue(const K: HKEY; const ValueName: PChar);
   var
-    K: HKEY;
+    S: String;
+    P, PEnd: PChar;
   begin
-    if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager',
-       0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-      try
-        DoValue(K, 'PendingFileRenameOperations');
-        { When "PendingFileRenameOperations" is full, it spills over into
-          "PendingFileRenameOperations2" }
-        DoValue(K, 'PendingFileRenameOperations2');
-      finally
-        RegCloseKey(K);
-      end;
-    end;
-  end;
-
-  procedure DoNonNT;
-  var
-    WinInitFile: String;
-    F: TTextFileReader;
-    Line, Filename: String;
-    InRenameSection: Boolean;
-    P: Integer;
-  begin
-    WinInitFile := AddBackslash(GetWinDir) + 'WININIT.INI';
-    if not NewFileExists(WinInitFile) then
+    if not RegQueryMultiStringValue(K, ValueName, S) then
       Exit;
-    try
-      F := TTextFileReader.Create(WinInitFile, fdOpenExisting, faRead, fsRead);
-      try
-        InRenameSection := False;
-        while not F.Eof do begin
-          Line := Trim(F.ReadLine);
-          if (Line = '') or (Line[1] = ';') then
-            Continue;
-          if Line[1] = '[' then begin
-            InRenameSection := (CompareText(Line, '[rename]') = 0);
-          end
-          else if InRenameSection then begin
-            P := Pos('=', Line);
-            if P > 0 then begin
-              Filename := Copy(Line, 1, P-1);
-              if (Filename <> '') and (CompareText(Filename, 'NUL') <> 0) then
-                EnumFunc(Filename, Param);
-              Filename := Copy(Line, P+1, Maxint);
-              if (Filename <> '') and (CompareText(Filename, 'NUL') <> 0) then
-                EnumFunc(Filename, Param);
-            end;
-          end;
-        end;
-      finally
-        F.Free;
+    P := PChar(S);
+    PEnd := P + Length(S);
+    while P < PEnd do begin
+      if P[0] = '!' then
+        { Note: '!' means that MoveFileEx was called with the
+          MOVEFILE_REPLACE_EXISTING flag }
+        Inc(P);
+      if StrLComp(P, '\??\', 4) = 0 then begin
+        Inc(P, 4);
+        if P[0] <> #0 then
+          EnumFunc(P, Param);
       end;
-    except
-      { ignore exceptions }
+      Inc(P, StrLen(P) + 1);
     end;
   end;
 
+var
+  K: HKEY;
 begin
-  if UsingWinNT then
-    DoNT
-  else
-    DoNonNT;
+  if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager',
+     0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+    try
+      DoValue(K, 'PendingFileRenameOperations');
+      { When "PendingFileRenameOperations" is full, it spills over into
+        "PendingFileRenameOperations2" }
+      DoValue(K, 'PendingFileRenameOperations2');
+    finally
+      RegCloseKey(K);
+    end;
+  end;
 end;
 
 procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
-const
-  FontsKeys: array[Boolean] of PChar =
-    (NEWREGSTR_PATH_SETUP + '\Fonts',
-     'Software\Microsoft\Windows NT\CurrentVersion\Fonts');
 var
   RootKey, K: HKEY;
 begin
@@ -1364,7 +1180,7 @@ begin
   else
     RootKey := HKEY_LOCAL_MACHINE;
 
-  if RegOpenKeyExView(rvDefault, RootKey, FontsKeys[UsingWinNT],
+  if RegOpenKeyExView(rvDefault, RootKey, 'Software\Microsoft\Windows NT\CurrentVersion\Fonts',
      0, KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
     RegDeleteValue(K, PChar(FontName));
     RegCloseKey(K);
@@ -1388,7 +1204,7 @@ begin
     GetDiskFreeSpaceEx, however, *does* succeed with UNC paths, so use it
     if available. }
   GetDiskFreeSpaceExFunc := GetProcAddress(GetModuleHandle(kernel32),
-    {$IFDEF UNICODE}'GetDiskFreeSpaceExW'{$ELSE}'GetDiskFreeSpaceExA'{$ENDIF});
+    'GetDiskFreeSpaceExW');
   if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
     Result := False;
     Exit;
@@ -1403,9 +1219,8 @@ begin
         DWORD(SectorsPerCluster), DWORD(BytesPerSector), DWORD(FreeClusters),
         DWORD(TotalClusters));
       if Result then begin
-        { Windows 95/98 cap the result of GetDiskFreeSpace at 2GB, but NT 4.0
-          does not, so we must use a 64-bit multiply operation to avoid an
-          overflow. }
+        { The result of GetDiskFreeSpace does not cap at 2GB, so we must use a
+          64-bit multiply operation to avoid an overflow. }
         Multiply32x32to64(BytesPerSector * SectorsPerCluster, FreeClusters,
           FreeBytes);
         Multiply32x32to64(BytesPerSector * SectorsPerCluster, TotalClusters,
@@ -1442,8 +1257,7 @@ end;
 
 procedure RefreshEnvironment;
 { Notifies other applications (Explorer) that environment variables have
-  changed. Based on code from KB article 104011.
-  Note: Win9x's Explorer ignores this message. }
+  changed. Based on code from KB article 104011. }
 var
   MsgResult: DWORD_PTR;
 begin
@@ -1484,7 +1298,6 @@ function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryP
 { Finds the index of the language entry that most closely matches the user's
   UI language / locale. If no match is found, ResultIndex is set to 0. }
 
-{$IFDEF UNICODE}
   function GetCodePageFromLangID(const ALangID: LANGID): Integer;
   const
     LOCALE_RETURN_NUMBER = $20000000;
@@ -1497,7 +1310,6 @@ function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryP
     else
       Result := -1;
   end;
-{$ENDIF}
 
 var
   I: Integer;
@@ -1532,14 +1344,9 @@ begin
     I := 0;
     while GetLanguageEntryProc(I, LangEntry) do begin
       if LangEntry.LanguageID = UILang then begin
-{$IFNDEF UNICODE}
-        if (LangEntry.LanguageCodePage = 0) or (LangEntry.LanguageCodePage = GetACP) then
-{$ENDIF}
-        begin
-          ResultIndex := I;
-          Result := ddMatch;
-          Exit;
-        end;
+        ResultIndex := I;
+        Result := ddMatch;
+        Exit;
       end;
       Inc(I);
     end;
@@ -1547,9 +1354,6 @@ begin
     I := 0;
     while GetLanguageEntryProc(I, LangEntry) do begin
       if (LangEntry.LanguageID and $3FF) = (UILang and $3FF) then begin
-{$IFNDEF UNICODE}
-        if (LangEntry.LanguageCodePage = 0) or (LangEntry.LanguageCodePage = GetACP) then
-{$ELSE}
         { On Unicode, there is no LanguageCodePage filter, so we have to check
           the language IDs to ensure we don't return Simplified Chinese on a
           Traditional Chinese system, or vice versa.
@@ -1559,7 +1363,6 @@ begin
           Traditional Chinese LANGIDs ($0404, $0C04, $1404) use CP 950 }
         if ((UILang and $3FF) <> LANG_CHINESE) or
            (GetCodePageFromLangID(LangEntry.LanguageID) = GetCodePageFromLangID(UILang)) then
-{$ENDIF}
         begin
           ResultIndex := I;
           Result := ddMatch;

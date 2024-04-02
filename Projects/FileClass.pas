@@ -96,18 +96,14 @@ type
     FBufferOffset, FBufferSize: Cardinal;
     FEof: Boolean;
     FBuffer: array[0..4095] of AnsiChar;
-{$IFDEF UNICODE}
     FSawFirstLine: Boolean;
     FCodePage: Cardinal;
-{$ENDIF}
-    function DoReadLine{$IFDEF UNICODE}(const UTF8: Boolean){$ENDIF}: AnsiString;
+    function DoReadLine(const UTF8: Boolean): AnsiString;
     function GetEof: Boolean;
     procedure FillBuffer;
   public
     function ReadLine: String;
-{$IFDEF UNICODE}
     function ReadAnsiLine: AnsiString;
-{$ENDIF}
     property CodePage: Cardinal write FCodePage;
     property Eof: Boolean read GetEof;
   end;
@@ -116,7 +112,7 @@ type
   private
     FSeekedToEnd: Boolean;
     FUTF8NoPreamble: Boolean;
-    procedure DoWrite(const S: AnsiString{$IFDEF UNICODE}; const UTF8: Boolean{$ENDIF});
+    procedure DoWrite(const S: AnsiString; const UTF8: Boolean);
   protected
     function CreateHandle(const AFilename: String;
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
@@ -125,10 +121,8 @@ type
     property UTF8NoPreamble: Boolean read FUTF8NoPreamble write FUTF8NoPreamble;
     procedure Write(const S: String);
     procedure WriteLine(const S: String);
-{$IFDEF UNICODE}
     procedure WriteAnsi(const S: AnsiString);
     procedure WriteAnsiLine(const S: AnsiString);
-{$ENDIF}
   end;
 
   TFileMapping = class
@@ -438,29 +432,21 @@ begin
 end;
 
 function TTextFileReader.ReadLine: String;
-{$IFDEF UNICODE}
 var
  S: RawByteString;
-{$ENDIF}
 begin
-{$IFDEF UNICODE}
  S := DoReadLine(True);
  if FCodePage <> 0 then
    SetCodePage(S, FCodePage, False);
  Result := String(S);
-{$ELSE}
- Result := DoReadLine;
-{$ENDIF}
 end; 
 
-{$IFDEF UNICODE}
 function TTextFileReader.ReadAnsiLine: AnsiString;
 begin
   Result := DoReadLine(False);
 end;
-{$ENDIF}
 
-function TTextFileReader.DoReadLine{$IFDEF UNICODE}(const UTF8: Boolean){$ENDIF}: AnsiString;
+function TTextFileReader.DoReadLine(const UTF8: Boolean): AnsiString;
 var
   I, L: Cardinal;
   S: AnsiString;
@@ -502,7 +488,7 @@ begin
       Break;
     end;
   end;
-  {$IFDEF UNICODE}
+
   if not FSawFirstLine then begin
     if UTF8 then begin
       { Handle UTF8 as requested: check for a BOM at the start and if not found then check entire file }
@@ -526,7 +512,7 @@ begin
     end;
     FSawFirstLine := True;
   end;
-  {$ENDIF}
+
   Result := S;
 end;
 
@@ -545,17 +531,11 @@ begin
     ASharing);
 end;
 
-{$IFDEF UNICODE}
 procedure TTextFileWriter.DoWrite(const S: AnsiString; const UTF8: Boolean);
-{$ELSE}
-procedure TTextFileWriter.DoWrite(const S: String);
-{$ENDIF}
 { Writes a string to the file, seeking to the end first if necessary }
 const
   CRLF: array[0..1] of AnsiChar = (#13, #10);
-{$IFDEF UNICODE}
   UTF8Preamble: array[0..2] of AnsiChar = (#$EF, #$BB, #$BF);
-{$ENDIF}
 var
   I: Integer64;
   C: AnsiChar;
@@ -578,12 +558,8 @@ begin
         { Otherwise, append CRLF }
         WriteBuffer(CRLF, SizeOf(CRLF));
       end;
-{$IFDEF UNICODE}
     end else if UTF8 and not FUTF8NoPreamble then
       WriteBuffer(UTF8Preamble, SizeOf(UTF8Preamble));
-{$ELSE}
-    end;
-{$ENDIF}
     FSeekedToEnd := True;
   end;
   WriteBuffer(Pointer(S)^, Length(S));
@@ -591,11 +567,7 @@ end;
 
 procedure TTextFileWriter.Write(const S: String);
 begin
-{$IFDEF UNICODE}
   DoWrite(UTF8Encode(S), True);
-{$ELSE}
-  DoWrite(S);
-{$ENDIF}
 end;
 
 procedure TTextFileWriter.WriteLine(const S: String);
@@ -603,7 +575,6 @@ begin
   Write(S + #13#10);
 end;
 
-{$IFDEF UNICODE}
 procedure TTextFileWriter.WriteAnsi(const S: AnsiString);
 begin
   DoWrite(S, False);
@@ -613,7 +584,6 @@ procedure TTextFileWriter.WriteAnsiLine(const S: AnsiString);
 begin
   WriteAnsi(S + #13#10);
 end;
-{$ENDIF}
 
 { TFileMapping }
 
@@ -629,9 +599,7 @@ const
 begin
   inherited Create;
 
-  { Dynamically import RtlNtStatusToDosError since Windows 95 doesn't have it }
-  if not Assigned(_RtlNtStatusToDosError) and
-     (Win32Platform = VER_PLATFORM_WIN32_NT) then
+  if not Assigned(_RtlNtStatusToDosError) then
     _RtlNtStatusToDosError := GetProcAddress(GetModuleHandle('ntdll.dll'),
       'RtlNtStatusToDosError');
 
@@ -684,16 +652,14 @@ begin
      (Cardinal(EExternalException(E).ExceptionRecord.NumberParameters) >= Cardinal(2)) and
      (Cardinal(EExternalException(E).ExceptionRecord.ExceptionInformation[1]) >= Cardinal(FMemory)) and
      (Cardinal(EExternalException(E).ExceptionRecord.ExceptionInformation[1]) < Cardinal(Cardinal(FMemory) + FMapSize)) then begin
-    { NT has a third parameter containing the NT status code of the error
+    { There should be a third parameter containing the NT status code of the error
       condition that caused the exception. Convert that into a Win32 error code
       and use it to generate our error message. }
     if (Cardinal(EExternalException(E).ExceptionRecord.NumberParameters) >= Cardinal(3)) and
        Assigned(_RtlNtStatusToDosError) then
       TFile.RaiseError(_RtlNtStatusToDosError(EExternalException(E).ExceptionRecord.ExceptionInformation[2]))
     else begin
-      { Windows 9x/Me doesn't have a third parameter, and 95 doesn't have
-        RtlNtStatusToDosError, so use generic "The system cannot [read|write]
-        to the specified device" errors }
+      { Use generic "The system cannot [read|write] to the specified device" errors }
       if EExternalException(E).ExceptionRecord.ExceptionInformation[0] = 0 then
         TFile.RaiseError(ERROR_READ_FAULT)
       else

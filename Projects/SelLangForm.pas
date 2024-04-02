@@ -42,24 +42,6 @@ uses
 
 {$R *.DFM}
 
-var
-  DefComboWndProcW, PrevComboWndProc: Pointer;
-
-function NewComboWndProc(Wnd: HWND; Msg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT;
-stdcall;
-begin
-  case Msg of
-    { CB_ADDSTRING must pass to the default Unicode combo box window procedure
-      since PrevWndProc is an ANSI window procedure and calling it would result
-      in Unicode->ANSI conversion. Do the same for CB_GETLBTEXT(LEN) so that
-      MSAA sees Unicode strings. }
-    CB_ADDSTRING, CB_GETLBTEXT, CB_GETLBTEXTLEN:
-      Result := CallWindowProcW(DefComboWndProcW, Wnd, Msg, wParam, lParam)
-  else
-    Result := CallWindowProcW(PrevComboWndProc, Wnd, Msg, wParam, lParam);
-  end;
-end;
-
 function AskForLanguage: Boolean;
 { Creates and shows the "Select Language" dialog. Returns True and activates
   the selected language if the user clicks OK, or False otherwise. }
@@ -67,47 +49,13 @@ var
   LangForm: TSelectLanguageForm;
   I, J: Integer;
   LangEntry: PSetupLanguageEntry;
-{$IFNDEF UNICODE}
-  ClassInfo: TWndClassW;
-  N: String;
-{$ENDIF}
 begin
   LangForm := TSelectLanguageForm.Create(Application);
   try
-{$IFNDEF UNICODE}
-    { On NT, make it possible to add Unicode strings to our ANSI combo box by
-      installing a window procedure with special CB_ADDSTRING handling.
-      Yeah, this is a hack; it's too hard to create a native Unicode control
-      in Delphi. }
-    if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-      if GetClassInfoW(0, 'COMBOBOX', ClassInfo) then begin
-        DefComboWndProcW := ClassInfo.lpfnWndProc;
-        Longint(PrevComboWndProc) := SetWindowLongW(LangForm.LangCombo.Handle,
-          GWL_WNDPROC, Longint(@NewComboWndProc));
-      end;
-    end;
-{$ENDIF}
-
     for I := 0 to Entries[seLanguage].Count-1 do begin
       LangEntry := Entries[seLanguage][I];
-{$IFDEF UNICODE}
       J := LangForm.LangCombo.Items.Add(LangEntry.LanguageName);
       LangForm.LangCombo.Items.Objects[J] := TObject(I);
-{$ELSE}
-      if (I = ActiveLanguage) or (LangEntry.LanguageCodePage = 0) or
-         (LangEntry.LanguageCodePage = GetACP) or
-         (shShowUndisplayableLanguages in SetupHeader.Options) then begin
-        { Note: LanguageName is Unicode }
-        N := LangEntry.LanguageName + #0#0;  { need wide null! }
-        if Win32Platform = VER_PLATFORM_WIN32_NT then
-          J := SendMessageW(LangForm.LangCombo.Handle, CB_ADDSTRING, 0,
-            Longint(PWideChar(Pointer(N))))
-        else
-          J := LangForm.LangCombo.Items.Add(WideCharToString(PWideChar(Pointer(N))));
-        if J >= 0 then
-          LangForm.LangCombo.Items.Objects[J] := TObject(I);
-      end;
-{$ENDIF}
     end;
 
    { If there's multiple languages, select the previous language, if available }
@@ -150,9 +98,7 @@ constructor TSelectLanguageForm.Create(AOwner: TComponent);
 begin
   inherited;
 
-{$IFDEF IS_D7}
   MainPanel.ParentBackground := False;
-{$ENDIF}
 
   InitializeFont;
 

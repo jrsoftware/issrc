@@ -2,7 +2,7 @@ program Compil32;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -46,11 +46,13 @@ uses
   BidiUtils in '..\Components\BidiUtils.pas',
   DropListBox in '..\Components\DropListBox.pas',
   NewCheckListBox in '..\Components\NewCheckListBox.pas',
-  NewNotebook in '..\Components\NewNotebook.pas';
+  NewNotebook in '..\Components\NewNotebook.pas',
+  TaskbarProgressFunc in 'TaskbarProgressFunc.pas',
+  HtmlHelpFunc in 'HtmlHelpFunc.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
 {$R Compil32.docicon.res}
@@ -61,9 +63,9 @@ procedure SetAppUserModelID;
 var
   Func: function(AppID: PWideChar): HRESULT; stdcall;
 begin
-  { On Windows 7, for the IDE to be pinnable and show a Jump List, it is
-    necessary to explicitly assign an AppUserModelID because by default the
-    taskbar excludes applications that have "Setup" in their name. }
+  { For the IDE to be pinnable and show a Jump List, it is necessary to
+    explicitly assign an AppUserModelID because by default the taskbar excludes
+    applications that have "Setup" in their name. }
   Func := GetProcAddress(GetModuleHandle('shell32.dll'),
     'SetCurrentProcessExplicitAppUserModelID');
   if Assigned(Func) then

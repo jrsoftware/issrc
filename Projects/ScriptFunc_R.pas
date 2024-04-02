@@ -2,7 +2,7 @@ unit ScriptFunc_R;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -22,8 +22,7 @@ implementation
 
 uses
   Windows, ScriptFunc,
-  Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo,
-  {$IFNDEF Delphi3orHigher} Ole2, {$ELSE} ActiveX, {$ENDIF}
+  Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo, ActiveX,
   Struct, ScriptDlg, Main, PathFunc, CmnFunc, CmnFunc2, FileClass, RedirFunc,
   Install, InstFunc, InstFnc2, Msgs, MsgIDs, NewDisk, BrowseFunc, Wizard, VerInfo,
   SetupTypes, Int64Em, MD5, SHA1, Logging, SetupForm, RegDLL, Helper,
@@ -33,17 +32,16 @@ var
   ScaleBaseUnitsInitialized: Boolean;
   ScaleBaseUnitX, ScaleBaseUnitY: Integer;
 
-procedure NoSetupFuncError(const C: AnsiString);{$IFDEF UNICODE} overload;{$ENDIF}
+procedure NoSetupFuncError(const C: AnsiString); overload;
 begin
   InternalError(Format('Cannot call "%s" function during Setup', [C]));
 end;
 
-procedure NoUninstallFuncError(const C: AnsiString);{$IFDEF UNICODE} overload;{$ENDIF}
+procedure NoUninstallFuncError(const C: AnsiString); overload;
 begin
   InternalError(Format('Cannot call "%s" function during Uninstall', [C]));
 end;
 
-{$IFDEF UNICODE}
 procedure NoSetupFuncError(const C: UnicodeString); overload;
 begin
   InternalError(Format('Cannot call "%s" function during Setup', [C]));
@@ -53,31 +51,15 @@ procedure NoUninstallFuncError(const C: UnicodeString); overload;
 begin
   InternalError(Format('Cannot call "%s" function during Uninstall', [C]));
 end;
-{$ENDIF}
-
-{$IFNDEF UNICODE}
-procedure NoNonUnicodeFuncError(const C: String);
-begin
-  InternalError(Format('Cannot call "%s" function during non Unicode Setup or Uninstall', [C]));
-end;
-{$ENDIF}
 
 function StackGetAnsiString(Stack: TPSStack; ItemNo: LongInt): AnsiString;
 begin
-{$IFDEF UNICODE}
   Result := Stack.GetAnsiString(ItemNo);
-{$ELSE}
-  Result := Stack.GetString(ItemNo);
-{$ENDIF}
 end;
 
 procedure StackSetAnsiString(Stack: TPSStack; ItemNo: LongInt; const Data: AnsiString);
 begin
-{$IFDEF UNICODE}
   Stack.SetAnsiString(ItemNo, Data);
-{$ELSE}
-  Stack.SetString(ItemNo, Data);
-{$ENDIF}
 end;
 
 function GetMainForm: TMainForm;
@@ -575,7 +557,7 @@ begin
     Stack.SetInt(PStart, StringChangeEx(S, Stack.GetString(PStart-2), Stack.GetString(PStart-3), Stack.GetBool(PStart-4)));
     Stack.SetString(PStart-1, S);
   end else if Proc.Name = 'USINGWINNT' then begin
-    Stack.SetBool(PStart, UsingWinNT());
+    Stack.SetBool(PStart, True);
   end else if Proc.Name = 'FILECOPY' then begin
     ExistingFilename := Stack.GetString(PStart-1);
     if PathCompare(ExistingFilename, SetupLdrOriginalFilename) <> 0 then
@@ -862,31 +844,19 @@ begin
   end else if Proc.Name = 'GETMD5OFSTRING' then begin
     Stack.SetString(PStart, MD5DigestToString(GetMD5OfAnsiString(StackGetAnsiString(Stack, PStart-1))));
   end else if Proc.Name = 'GETMD5OFUNICODESTRING' then begin
-{$IFDEF UNICODE}
     Stack.SetString(PStart, MD5DigestToString(GetMD5OfUnicodeString(Stack.GetString(PStart-1))));
-{$ELSE}
-    NoNonUnicodeFuncError(Proc.Name);
-{$ENDIF}
   end else if Proc.Name = 'GETSHA1OFFILE' then begin
     Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
   end else if Proc.Name = 'GETSHA1OFSTRING' then begin
     Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfAnsiString(StackGetAnsiString(Stack, PStart-1))));
   end else if Proc.Name = 'GETSHA1OFUNICODESTRING' then begin
-{$IFDEF UNICODE}
     Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfUnicodeString(Stack.GetString(PStart-1))));
-{$ELSE}
-    NoNonUnicodeFuncError(Proc.Name);
-{$ENDIF}
   end else if Proc.Name = 'GETSHA256OFFILE' then begin
     Stack.SetString(PStart, GetSHA256OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
   end else if Proc.Name = 'GETSHA256OFSTRING' then begin
     Stack.SetString(PStart, GetSHA256OfAnsiString(StackGetAnsiString(Stack, PStart-1)));
   end else if Proc.Name = 'GETSHA256OFUNICODESTRING' then begin
-{$IFDEF UNICODE}
     Stack.SetString(PStart, GetSHA256OfUnicodeString(Stack.GetString(PStart-1)));
-{$ELSE}
-    NoNonUnicodeFuncError(Proc.Name);
-{$ENDIF}
   end else if Proc.Name = 'GETSPACEONDISK' then begin
     if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
       if Stack.GetBool(PStart-2) then begin
@@ -1006,7 +976,7 @@ begin
       Stack.GetString(PStart-2), Stack.GetString(PStart-3),
       Stack.GetString(PStart-4), Stack.GetString(PStart-5),
       Stack.GetString(PStart-6), Stack.GetInt(PStart-7),
-      Stack.GetInt(PStart-8), 0, False, '', nil, False, False));
+      Stack.GetInt(PStart-8), 0, '', nil, False, False));
   end else if Proc.Name = 'REGISTERTYPELIBRARY' then begin
     if Stack.GetBool(PStart) then
       HelperRegisterTypeLibrary(False, Stack.GetString(PStart-1))
@@ -1164,7 +1134,7 @@ begin
   Version.Build := WindowsVersion and $FFFF;
   Version.ServicePackMajor := Hi(NTServicePackLevel);
   Version.ServicePackMinor := Lo(NTServicePackLevel);
-  Version.NTPlatform := IsNT;
+  Version.NTPlatform := True;
   Version.ProductType := WindowsProductType;
   Version.SuiteMask := WindowsSuiteMask;
 end;
@@ -1413,19 +1383,19 @@ begin
   end else if Proc.Name = 'SAMETEXT' then begin
     Stack.SetBool(PStart, CompareText(Stack.GetString(PStart-1), Stack.GetString(PStart-2)) = 0);
   end else if Proc.Name = 'GETDATETIMESTRING' then begin
-    OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
-    OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
+    OldDateSeparator := FormatSettings.DateSeparator;
+    OldTimeSeparator := FormatSettings.TimeSeparator;
     try
       NewDateSeparator := Stack.GetString(PStart-2)[1];
       NewTimeSeparator := Stack.GetString(PStart-3)[1];
       if NewDateSeparator <> #0 then
-        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparator;
+        FormatSettings.DateSeparator := NewDateSeparator;
       if NewTimeSeparator <> #0 then
-        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparator;
+        FormatSettings.TimeSeparator := NewTimeSeparator;
       Stack.SetString(PStart, FormatDateTime(Stack.GetString(PStart-1), Now()));
     finally
-      {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
-      {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
+      FormatSettings.TimeSeparator := OldTimeSeparator;
+      FormatSettings.DateSeparator := OldDateSeparator;
     end;
   end else if Proc.Name = 'SYSERRORMESSAGE' then begin
     Stack.SetString(PStart, Win32ErrorString(Stack.GetInt(PStart-1)));
@@ -1479,45 +1449,6 @@ begin
     FindRec.FindHandle := 0;
   end;
 end;
-
-{$IFNDEF IS_D7}
-procedure _FmtStr(var Result: string; const Format: string;
-  const Args: array of const);
-var
-  Len, BufLen: Integer;
-  Buffer: array[0..4095] of Char;
-begin
-  BufLen := SizeOf(Buffer);
-  if Length(Format) < (sizeof(Buffer) - (sizeof(Buffer) div 4)) then
-    Len := FormatBuf(Buffer, sizeof(Buffer) - 1, Pointer(Format)^, Length(Format), Args)
-  else
-  begin
-    BufLen := Length(Format);
-    Len := BufLen;
-  end;
-  if Len >= BufLen - 1 then
-  begin
-    while Len >= BufLen - 1 do
-    begin
-      Inc(BufLen, BufLen);
-      Result := '';          // prevent copying of existing data, for speed
-      SetLength(Result, BufLen);
-      Len := FormatBuf(Pointer(Result)^, BufLen - 1, Pointer(Format)^,
-      Length(Format), Args);
-    end;
-    SetLength(Result, Len);
-  end
-  else
-    SetString(Result, Buffer, Len);
-end;
-
-{ We use the Format/FmtStr functions from Delphi 7 because Delphi 2's Format
-  raises an exception if the result is more than 4096 characters. }
-function _Format(const Format: string; const Args: array of const): string;
-begin
-  _FmtStr(Result, Format, Args);
-end;
-{$ENDIF}
 
 { VerInfo }
 function VerInfoProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
@@ -1694,16 +1625,15 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
     Code: TPSError;
     E: TObject;
   begin
-    Code := Caller.{$IFDEF UNICODE} LastEx {$ELSE} ExceptionCode {$ENDIF};
+    Code := Caller.LastEx;
     if Code = erNoError then
       Result := '(There is no current exception)'
     else begin
-      E := Caller.{$IFDEF UNICODE} LastExObject {$ELSE} ExceptionObject {$ENDIF};
+      E := Caller.LastExObject;
       if Assigned(E) and (E is Exception) then
         Result := Exception(E).Message
       else
-        Result := String(PSErrorToString(Code, Caller.
-          {$IFDEF UNICODE} LastExParam {$ELSE} ExceptionString {$ENDIF}));
+        Result := String(PSErrorToString(Code, Caller.LastExParam));
     end;
   end;
 
@@ -1799,10 +1729,6 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
     I, N: Integer;
     S: String;
   begin
-{$IFNDEF UNICODE}
-    if UTF8 then
-      NoNonUnicodeFuncError('SAVESTRINGSTOUTF8FILE');
-{$ENDIF}
     try
       if Append then
         F := TTextFileWriterRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenAlways, faWrite, fsNone)
@@ -1814,14 +1740,10 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
         N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
         for I := 0 to N-1 do begin
           S := VNGetString(PSGetArrayField(Arr^, I));
-{$IFDEF UNICODE}
           if not UTF8 then
             F.WriteAnsiLine(AnsiString(S))
           else
             F.WriteLine(S);
-{$ELSE}
-          F.WriteLine(S);
-{$ENDIF}
         end;
       finally
         F.Free;
@@ -2124,7 +2046,7 @@ begin
   ScriptInterpreter.RegisterDelphiFunction(@_FindNext, 'FindNext', cdRegister);
   ScriptInterpreter.RegisterDelphiFunction(@_FindClose, 'FindClose', cdRegister);
   ScriptInterpreter.RegisterDelphiFunction(@_FmtMessage, 'FmtMessage', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction({$IFNDEF IS_D7} @_Format {$ELSE} @Format {$ENDIF}, 'Format', cdRegister);
+  ScriptInterpreter.RegisterDelphiFunction(@Format, 'Format', cdRegister);
   ScriptInterpreter.RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx', cdRegister); 
 end;
 

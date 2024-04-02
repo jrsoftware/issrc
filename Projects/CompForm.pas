@@ -511,17 +511,13 @@ type
     procedure WMStartNormally(var Message: TMessage); message WM_StartNormally;
     procedure WMSettingChange(var Message: TMessage); message WM_SETTINGCHANGE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
-{$IFDEF IS_D4}
   protected
     procedure WndProc(var Message: TMessage); override;
-{$ENDIF}
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-{$IFDEF IS_D5}
     function IsShortCut(var Message: TWMKey): Boolean; override;
-{$ENDIF}
   end;
 
 var
@@ -759,13 +755,6 @@ begin
     editor's autocompletion list }
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
 
-{$IFNDEF IS_D103RIO}
-  { TStatusBar needs manual scaling before Delphi 10.3 Rio }
-  StatusBar.Height := ToPPI(StatusBar.Height);
-  for I := 0 to StatusBar.Panels.Count-1 do
-    StatusBar.Panels[I].Width := ToPPI(StatusBar.Panels[I].Width);
-{$ENDIF}
-
   PopupMenu := TCompileFormMemoPopupMenu.Create(Self);
 
   FMemosStyler := TInnoSetupStyler.Create(Self);
@@ -951,7 +940,6 @@ begin
     UpdateStatusPanelHeight(StatusPanel.Height);
 end;
 
-{$IFDEF IS_D4}
 procedure TCompileForm.WndProc(var Message: TMessage);
 begin
   { Without this, the status bar's owner drawn panels sometimes get corrupted and show
@@ -964,11 +952,9 @@ begin
           if (CtlType = ODT_MENU) and not IsMenu(hwndItem) then
             CtlType := ODT_STATIC;
     end;
-  inherited 
+  inherited
 end;
-{$ENDIF}
 
-{$IFDEF IS_D5}
 function TCompileForm.IsShortCut(var Message: TWMKey): Boolean;
 begin
   { Key messages are forwarded by the VCL to the main form for ShortCut
@@ -980,7 +966,6 @@ begin
   else
     Result := False;
 end;
-{$ENDIF}
 
 procedure TCompileForm.UpdateCaption;
 var
@@ -1720,8 +1705,8 @@ begin
     ElapsedTime := GetTickCount - StartTime;
     ElapsedSeconds := ElapsedTime div 1000;
     StatusMessage(smkStartEnd, Format(SCompilerStatusFinished, [TimeToStr(Time),
-      Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
-        ElapsedSeconds mod 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DecimalSeparator, ElapsedTime mod 1000])]));
+      Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, FormatSettings.TimeSeparator,
+        ElapsedSeconds mod 60, FormatSettings.DecimalSeparator, ElapsedTime mod 1000])]));
   finally
     AppData.Lines.Free;
     FCompiling := False;
@@ -3889,11 +3874,10 @@ procedure TCompileForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     S: TScintRawString;
     U: String;
   begin
-    { On the Unicode build, [Code] lines get converted from the editor's
-      UTF-8 to UTF-16 Strings when passed to the compiler. This can lead to
-      column number discrepancies between Scintilla and ROPS. This code
-      simulates the conversion to try to find out where ROPS thinks a Pos
-      resides. }
+    { [Code] lines get converted from the editor's UTF-8 to UTF-16 Strings when
+      passed to the compiler. This can lead to column number discrepancies
+      between Scintilla and ROPS. This code simulates the conversion to try to
+      find out where ROPS thinks a Pos resides. }
     LinePos := FActiveMemo.GetPositionFromLine(FActiveMemo.GetLineFromPosition(Pos));
     S := FActiveMemo.GetRawTextRange(LinePos, Pos);
     U := FActiveMemo.ConvertRawStringToString(S);
@@ -4636,21 +4620,18 @@ begin
   Info.lpDirectory := PChar(WorkingDir);
   Info.nShow := SW_SHOWNORMAL;
   { Disable windows so that the user can't click other things while a "Run as"
-    dialog is up on Windows 2000/XP (they aren't system modal like on Vista) }
+    dialog is up but is not system modal (which it is currently) }
   SaveFocusWindow := GetFocus;
   WindowList := DisableTaskWindows(0);
   try
     { Also temporarily remove the focus since a disabled window's children can
-      still receive keystrokes. This is needed on Vista if the UAC dialog
-      doesn't come to the foreground for some reason (e.g. if the following
-      SetActiveWindow call is removed). }
+      still receive keystrokes. This is needed if the UAC dialog doesn't come to
+      the foreground for some reason (e.g. if the following SetActiveWindow call
+      is removed). }
     Windows.SetFocus(0);
-    { On Vista, when disabling windows, we have to make the application window
-      the active window, otherwise the UAC dialog doesn't come to the
-      foreground automatically. Note: This isn't done on older versions simply
-      to avoid unnecessary title bar flicker. }
-    if Win32MajorVersion >= 6 then
-      SetActiveWindow(Application.Handle);
+    { We have to make the application window the active window, otherwise the
+      UAC dialog doesn't come to the foreground automatically. }
+    SetActiveWindow(Application.Handle);
     ShellExecuteResult := ShellExecuteEx(@Info);
     ErrorCode := GetLastError;
   finally
@@ -5043,8 +5024,8 @@ begin
     if ASecondsRemaining >= 0 then
       StatusBar.Panels[spExtraStatus].Text := Format(
         ' Estimated time remaining: %.2d%s%.2d%s%.2d     Average KB/sec: %.0n',
-        [(ASecondsRemaining div 60) div 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
-         (ASecondsRemaining div 60) mod 60, {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator,
+        [(ASecondsRemaining div 60) div 60, FormatSettings.TimeSeparator,
+         (ASecondsRemaining div 60) mod 60, FormatSettings.TimeSeparator,
          ASecondsRemaining mod 60, ABytesCompressedPerSecond / 1024])
     else
       StatusBar.Panels[spExtraStatus].Text := '';

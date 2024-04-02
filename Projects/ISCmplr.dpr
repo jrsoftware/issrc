@@ -33,8 +33,8 @@ uses
   PathFunc in '..\Components\PathFunc.pas';
 
 {$IMAGEBASE $00800000}
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
 {$R ISCmplr.images.res}

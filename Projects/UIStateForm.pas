@@ -2,15 +2,13 @@ unit UIStateForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2004 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   TUIStateForm, a TForm descendant which correctly handles the hiding of
-  accelerator key characters and focus rectangles on Windows 2000 and later
-  when the "Hide keyboard navigation indicators" option is enabled.
-
-  $jrsoftware: issrc/Projects/UIStateForm.pas,v 1.2 2004/06/26 04:36:08 jr Exp $
+  accelerator key characters and focus rectangles when the
+  "Hide keyboard navigation indicators" option is enabled.
 }
 
 interface

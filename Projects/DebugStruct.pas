@@ -2,7 +2,7 @@ unit DebugStruct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -101,11 +101,9 @@ function GetThreadTopWindow: HWND;
 function SendCopyDataMessage(DestWnd, SourceWnd: HWND; CopyDataMsg: DWORD;
   Data: Pointer; Size: Cardinal): LRESULT;
 function SendCopyDataMessageStr(DestWnd, SourceWnd: HWND; CopyDataMsg: DWORD;
-  Data: AnsiString): LRESULT;{$IFDEF UNICODE} overload;{$ENDIF}
-{$IFDEF UNICODE}
+  Data: AnsiString): LRESULT; overload;
 function SendCopyDataMessageStr(DestWnd, SourceWnd: HWND; CopyDataMsg: DWORD;
   Data: UnicodeString): LRESULT; overload;
-{$ENDIF}
 
 implementation
 
@@ -140,29 +138,15 @@ end;
 function SendCopyDataMessageStr(DestWnd, SourceWnd: HWND; CopyDataMsg: DWORD;
   Data: AnsiString): LRESULT;
 begin
-  { Windows 95/98/Me bug workaround: Call UniqueString to ensure the string is
-    in writable memory. Amazingly enough, sending a WM_COPYDATA message with a
-    read-only buffer causes a fatal page fault error. }
-  if (Win32Platform = VER_PLATFORM_WIN32_WINDOWS) and
-     IsBadWritePtr(Pointer(Data), Length(Data)*SizeOf(Data[1])) then
-    UniqueString(Data);
   Result := SendCopyDataMessage(DestWnd, SourceWnd, CopyDataMsg,
     Pointer(Data), Length(Data)*SizeOf(Data[1]));
 end;
 
-{$IFDEF UNICODE}
 function SendCopyDataMessageStr(DestWnd, SourceWnd: HWND; CopyDataMsg: DWORD;
   Data: UnicodeString): LRESULT;
 begin
-  { Windows 95/98/Me bug workaround: Call UniqueString to ensure the string is
-    in writable memory. Amazingly enough, sending a WM_COPYDATA message with a
-    read-only buffer causes a fatal page fault error. }
-  if (Win32Platform = VER_PLATFORM_WIN32_WINDOWS) and
-     IsBadWritePtr(Pointer(Data), Length(Data)*SizeOf(Data[1])) then
-    UniqueString(Data);
   Result := SendCopyDataMessage(DestWnd, SourceWnd, CopyDataMsg,
     Pointer(Data), Length(Data)*SizeOf(Data[1]));
 end;
-{$ENDIF}
 
 end.

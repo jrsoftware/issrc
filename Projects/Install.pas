@@ -2,7 +2,7 @@ unit Install;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -35,7 +35,7 @@ uses
   Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, RedirFunc, Int64Em, MsgIDs,
   Wizard, DebugStruct, DebugClient, VerInfo, ScriptRunner, RegDLL, Helper,
   ResUpdate, DotNet, TaskbarProgressFunc, NewProgressBar, RestartManager,
-  Net.HTTPClient, Net.URLClient, NetEncoding;
+  Net.HTTPClient, Net.URLClient, NetEncoding, RegStr;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -395,7 +395,6 @@ var
   end;
 
   function PackCompiledCodeTextIntoString(const CompiledCodeText: AnsiString): String;
-{$IFDEF UNICODE}
   var
     N: Integer;
   begin
@@ -404,21 +403,12 @@ var
       Inc(N); { This will lead to 1 extra byte being moved but that's ok since it is the #0 }
     N := N div 2;
     SetString(Result, PChar(Pointer(CompiledCodeText)), N);
-{$ELSE}
-  begin
-    Result := CompiledCodeText;
-{$ENDIF}
   end;
 
   procedure RecordCompiledCode;
   var
     LeadBytesStr, ExpandedApp, ExpandedGroup, CustomMessagesStr: String;
   begin
-{$IFNDEF UNICODE}
-    SetString(LeadBytesStr, PChar(@SetupHeader.LeadBytes),
-      SizeOf(SetupHeader.LeadBytes));
-{$ENDIF}
-
     { Only use app if Setup creates one }
     if shCreateAppDir in SetupHeader.Options then
       ExpandedApp := ExpandConst('{app}')
@@ -438,7 +428,7 @@ var
     { Record [Code] even if empty to 'overwrite' old versions }
     UninstLog.Add(utCompiledCode, [PackCompiledCodeTextIntoString(SetupHeader.CompiledCodeText),
       LeadBytesStr, ExpandedApp, ExpandedGroup, WizardGroupValue,
-      ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion {$IFDEF UNICODE} or Longint($80000000) {$ENDIF});
+      ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion or Longint($80000000));
   end;
 
   type
@@ -683,13 +673,9 @@ var
       else
         Z := ExpandedAppVerName;
       HandleDuplicateDisplayNames(Z);
-      { For the entry to appear in ARP, DisplayName cannot exceed 63 characters
-        on Windows 9x/NT 4.0, or 259 characters on Windows 2000 and later. }
-      if WindowsVersionAtLeast(5, 0) then
-        I := 259
-      else
-        I := 63;
-      SetStringValue(H2, 'DisplayName', Copy(Z, 1, I));
+      { For the entry to appear in ARP, DisplayName cannot exceed 259 characters
+        on Windows 2000 and later. }
+      SetStringValue(H2, 'DisplayName', Copy(Z, 1, 259));
       SetStringValueUnlessEmpty(H2, 'DisplayIcon', ExpandConst(SetupHeader.UninstallDisplayIcon));
       var ExtraUninstallString: String;
       if shUninstallLogging in SetupHeader.Options then
@@ -721,29 +707,25 @@ var
         SetDWordValue(H2, 'VersionMajor', MajorVersion);
         SetDWordValue(H2, 'VersionMinor', MinorVersion);
       end;
-      { Note: Windows 7 doesn't automatically calculate sizes so set EstimatedSize ourselves. Do not set it
-        on earlier Windows versions since calculated sizes are cached and clearing the cache would require
-        updating an undocumented key at HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\App Management\ARPCache\<id>. }
-      if WindowsVersion shr 16 >= $0601 then begin
-        if (SetupHeader.UninstallDisplaySize.Hi = 0) and (SetupHeader.UninstallDisplaySize.Lo = 0) then begin
-          { Estimate the size by taking the size of all files and adding any ExtraDiskSpaceRequired. }
-          EstimatedSize := AfterInstallFilesSize;
-          Inc6464(EstimatedSize, SetupHeader.ExtraDiskSpaceRequired);
-          for I := 0 to Entries[seComponent].Count-1 do begin
-            with PSetupComponentEntry(Entries[seComponent][I])^ do begin
-              if ShouldProcessEntry(WizardComponents, nil, Name, '', Languages, '') then
-                Inc6464(EstimatedSize, ExtraDiskSpaceRequired);
-            end;
+      { Note: Windows 7 (and later?) doesn't automatically calculate sizes so set EstimatedSize ourselves. }
+      if (SetupHeader.UninstallDisplaySize.Hi = 0) and (SetupHeader.UninstallDisplaySize.Lo = 0) then begin
+        { Estimate the size by taking the size of all files and adding any ExtraDiskSpaceRequired. }
+        EstimatedSize := AfterInstallFilesSize;
+        Inc6464(EstimatedSize, SetupHeader.ExtraDiskSpaceRequired);
+        for I := 0 to Entries[seComponent].Count-1 do begin
+          with PSetupComponentEntry(Entries[seComponent][I])^ do begin
+            if ShouldProcessEntry(WizardComponents, nil, Name, '', Languages, '') then
+              Inc6464(EstimatedSize, ExtraDiskSpaceRequired);
           end;
-        end else
-          EstimatedSize := SetupHeader.UninstallDisplaySize;
-        { ARP on Windows 7 without SP1 only pays attention to the lower 6 bytes of EstimatedSize and
-          throws away the rest. For example putting in $4000001 (=4GB + 1KB) displays as 1 KB.
-          So we need to check for this. Already checked this is Windows 7 or newer above. }
-        if (Hi(NTServicePackLevel) > 0) or (WindowsVersion shr 16 > $0601) or (EstimatedSize.Hi = 0) then begin
-          Div64(EstimatedSize, 1024);
-          SetDWordValue(H2, 'EstimatedSize', EstimatedSize.Lo)
         end;
+      end else
+        EstimatedSize := SetupHeader.UninstallDisplaySize;
+      { ARP on Windows 7 without SP1 only pays attention to the lower 6 bytes of EstimatedSize and
+        throws away the rest. For example putting in $4000001 (=4GB + 1KB) displays as 1 KB.
+        So we need to check for this. }
+      if (Hi(NTServicePackLevel) > 0) or (WindowsVersion shr 16 > $0601) or (EstimatedSize.Hi = 0) then begin
+        Div64(EstimatedSize, 1024);
+        SetDWordValue(H2, 'EstimatedSize', EstimatedSize.Lo)
       end;
 
       { Also see SetPreviousData in ScriptFunc.pas }
@@ -906,11 +888,7 @@ var
       anti-spyware programs that catch all unins*.exe files with certain MD5
       sums just because some piece of spyware was deployed with Inno Setup and
       had the unins*.exe file in its directory. }
-{$IFDEF UNICODE}
     UniqueValue := GetSHA1OfUnicodeString(ExpandedAppId);
-{$ELSE}
-    UniqueValue := GetSHA1OfAnsiString(ExpandedAppId);
-{$ENDIF}
     F.WriteBuffer(UniqueValue, SizeOf(UniqueValue));
 
     UninstallerMsgTail.ID := UninstallerMsgTailID;
@@ -930,10 +908,6 @@ var
 
     procedure InstallFont(const Filename, FontName: String;
       const PerUserFont, AddToFontTableNow: Boolean; var WarnedPerUserFonts: Boolean);
-    const
-      FontsKeys: array[Boolean] of PChar =
-        (NEWREGSTR_PATH_SETUP + '\Fonts',
-         'Software\Microsoft\Windows NT\CurrentVersion\Fonts');
     var
       RootKey, K: HKEY;
     begin
@@ -956,7 +930,7 @@ var
           RootKey := HKEY_CURRENT_USER
         else
           RootKey := HKEY_LOCAL_MACHINE;
-        if RegOpenKeyExView(rvDefault, RootKey, FontsKeys[IsNT], 0,
+        if RegOpenKeyExView(rvDefault, RootKey, 'Software\Microsoft\Windows NT\CurrentVersion\Fonts', 0,
            KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
           if RegSetValueEx(K, PChar(FontName), 0, REG_SZ, PChar(Filename),
              (Length(Filename)+1)*SizeOf(Filename[1])) <> ERROR_SUCCESS then
@@ -1183,19 +1157,12 @@ var
             Log('Non-default bitness: 32-bit');
         end;
 
-        { See if it's a protected system file.
-          Note: We don't call IsProtectedSystemFile anymore on Windows Me
-          even though it supports WFP. Two users reported that installs ran
-          very slowly on 4.2.1, and with the help of one of the users, the
-          cause was narrowed down to this call. For him, it was taking 6
-          seconds per call. I have no idea what would cause it to be so
-          slow; it only took a few milliseconds in my tests on Windows Me. }
-        IsProtectedFile := False;
-        if IsNT and (WindowsVersion >= Cardinal($05000000)) then
-          if IsProtectedSystemFile(DisableFsRedir, DestFile) then begin
-            Log('Dest file is protected by Windows File Protection.');
-            IsProtectedFile := (CurFile^.FileType = ftUserFile);
-          end;
+        { See if it's a protected system file.  }
+        if IsProtectedSystemFile(DisableFsRedir, DestFile) then begin
+          Log('Dest file is protected by Windows File Protection.');
+          IsProtectedFile := (CurFile^.FileType = ftUserFile);
+        end else
+          IsProtectedFile := False;
 
         DestFileExists := NewFileExistsRedir(DisableFsRedir, DestFile);
         if not CheckedDestFileExistedBefore then begin
@@ -1972,14 +1939,10 @@ var
           'IconIndex=' + IntToStr(IconIndex) + SNewLine;
       F := TTextFileWriter.Create(Filename, fdCreateAlways, faWrite, fsNone);
       try
-{$IFDEF UNICODE}
         if SameText(S, String(AnsiString(S))) then
           F.WriteAnsi(AnsiString(S))
         else
           F.Write(S);
-{$ELSE}
-        F.Write(S);
-{$ENDIF}
       finally
         F.Free;
       end;
@@ -2008,15 +1971,15 @@ var
     procedure CreateAnIcon(Name: String; const Description, Path, Parameters,
       WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer;
       const NeverUninstall: Boolean; const CloseOnExit: TSetupIconCloseOnExit;
-      const HotKey: Word; FolderShortcut: Boolean;
-      const AppUserModelID: String; const AppUserModelToastActivatorCLSID: PGUID;
+      const HotKey: Word; const AppUserModelID: String;
+      const AppUserModelToastActivatorCLSID: PGUID;
       const ExcludeFromShowInNewInstall, PreventPinning: Boolean);
     var
       BeginsWithGroup: Boolean;
       LinkFilename, PifFilename, UrlFilename, DirFilename, ProbableFilename,
         ResultingFilename: String;
       Flags: TMakeDirFlags;
-      URLShortcut, FolderShortcutCreated: Boolean;
+      URLShortcut: Boolean;
     begin
       BeginsWithGroup := Copy(Name, 1, 8) = '{group}\';
       { Note: PathExpand removes trailing spaces, so it can't be called on
@@ -2032,12 +1995,6 @@ var
         Include(Flags, mdNoUninstall)
       else if BeginsWithGroup then
         Include(Flags, mdAlwaysUninstall);
-
-      { On Windows 7, folder shortcuts don't expand properly on the Start Menu
-        (they just show "target"), so ignore the foldershortcut flag.
-        (Windows Vista works fine.) }
-      if FolderShortcut and WindowsVersionAtLeast(6, 1) then
-        FolderShortcut := False;
 
       URLShortcut := IsPathURL(Path);
       if URLShortcut then
@@ -2066,12 +2023,11 @@ var
           environment-variable strings (e.g. %SystemRoot%\...) }
         ResultingFilename := CreateShellLink(LinkFilename, Description, Path,
           Parameters, WorkingDir, IconFilename, IconIndex, ShowCmd, HotKey,
-          FolderShortcut, AppUserModelID, AppUserModelToastActivatorCLSID,
+          AppUserModelID, AppUserModelToastActivatorCLSID,
           ExcludeFromShowInNewInstall, PreventPinning);
-        FolderShortcutCreated := FolderShortcut and DirExists(ResultingFilename);
 
         { If a .pif file was created, apply the "Close on exit" setting }
-        if (CloseOnExit <> icNoSetting) and not FolderShortcutCreated and
+        if (CloseOnExit <> icNoSetting) and
            (CompareText(PathExtractExt(ResultingFilename), '.pif') = 0) then begin
           try
             ModifyPifFile(ResultingFilename, CloseOnExit = icYes);
@@ -2084,7 +2040,6 @@ var
         { Create an Internet Shortcut (.url) file }
         CreateURLFile(UrlFilename, Path, IconFilename, IconIndex);
         ResultingFilename := UrlFilename;
-        FolderShortcutCreated := False;
       end;
 
       Log('Successfully created the icon.');
@@ -2093,24 +2048,14 @@ var
       CreatedIcon := True;
 
       { Notify shell of the change }
-      if FolderShortcutCreated then
-        SHChangeNotify(SHCNE_MKDIR, SHCNF_PATH, PChar(ResultingFilename), nil)
-      else
-        SHChangeNotify(SHCNE_CREATE, SHCNF_PATH, PChar(ResultingFilename), nil);
+      SHChangeNotify(SHCNE_CREATE, SHCNF_PATH, PChar(ResultingFilename), nil);
       SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH or SHCNF_FLUSH,
         PChar(PathExtractDir(ResultingFilename)), nil);
 
       { Add uninstall log entries }
       if not NeverUninstall then begin
-        if FolderShortcutCreated then begin
-          UninstLog.Add(utDeleteDirOrFiles, [ResultingFilename],
-            utDeleteDirOrFiles_IsDir or utDeleteDirOrFiles_CallChangeNotify);
-          UninstLog.Add(utDeleteFile, [AddBackslash(ResultingFilename) + 'target.lnk'], 0);
-          UninstLog.Add(utDeleteFile, [AddBackslash(ResultingFilename) + 'Desktop.ini'], 0);
-        end
-        else if URLShortcut then begin
-          UninstLog.Add(utDeleteFile, [ResultingFilename], utDeleteFile_CallChangeNotify);
-        end
+        if URLShortcut then
+          UninstLog.Add(utDeleteFile, [ResultingFilename], utDeleteFile_CallChangeNotify)
         else begin
           { Even though we only created one file, go ahead and try deleting
             both a .lnk and .pif file at uninstall time, in case the user
@@ -2122,14 +2067,12 @@ var
     end;
 
     function ExpandAppPath(const Filename: String): String;
-    const
-      AppPathsBaseKey = NEWREGSTR_PATH_SETUP + '\App Paths\';
     var
       K: HKEY;
       Found: Boolean;
     begin
       if RegOpenKeyExView(InstallDefaultRegView, HKEY_LOCAL_MACHINE,
-         PChar(AppPathsBaseKey + Filename), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+         PChar(REGSTR_PATH_APPPATHS + '\' + Filename), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
         Found := RegQueryStringValue(K, '', Result);
         RegCloseKey(K);
         if Found then
@@ -2164,7 +2107,7 @@ var
                 ExpandConst(Parameters), ExpandConst(WorkingDir),
                 ExpandConst(IconFilename), IconIndex, ShowCmd,
                 ioUninsNeverUninstall in Options, CloseOnExit, HotKey,
-                ioFolderShortcut in Options, ExpandConst(AppUserModelID), TACLSID,
+                ExpandConst(AppUserModelID), TACLSID,
                 ioExcludeFromShowInNewInstall in Options,
                 ioPreventPinning in Options)
             end else
@@ -2320,10 +2263,8 @@ var
     NeedToRetry, DidDeleteKey: Boolean;
     ErrorCode: Longint;
     QV: Integer64;
-{$IFDEF UNICODE}
     I: Integer;
     AnsiS: AnsiString;
-{$ENDIF}
   begin
     for CurRegNumber := 0 to Entries[seRegistry].Count-1 do begin
       with PSetupRegistryEntry(Entries[seRegistry][CurRegNumber])^ do begin
@@ -2495,16 +2436,11 @@ var
                             RegError(reRegSetValueEx, RK, S, ErrorCode);
                         end;
                       rtBinary: begin
-{$IFDEF UNICODE}
                           AnsiS := '';
                           for I := 1 to Length(ValueData) do
                             AnsiS := AnsiS + AnsiChar(Ord(ValueData[I]));
                           ErrorCode := RegSetValueEx(K, PChar(N), 0, REG_BINARY,
                             PAnsiChar(AnsiS), Length(AnsiS));
-{$ELSE}
-                          ErrorCode := RegSetValueEx(K, PChar(N), 0, REG_BINARY,
-                            PChar(ValueData), Length(ValueData));
-{$ENDIF}
                           if (ErrorCode <> ERROR_SUCCESS) and
                              not(roNoError in Options) then
                             RegError(reRegSetValueEx, RK, S, ErrorCode);
@@ -2607,7 +2543,6 @@ var
 
     const
       Chars: array[Boolean, Boolean] of Char = (('s', 't'), ('S', 'T'));
-      RunOnceKey = NEWREGSTR_PATH_SETUP + '\RunOnce';
     var
       RegSvrExeFilename: String;
       F: TTextFileWriter;
@@ -2627,8 +2562,8 @@ var
           { In case Windows directory is write protected, try the Temp directory.
             Windows directory is our first choice since some people (ignorantly)
             put things like "DELTREE C:\WINDOWS\TEMP\*.*" in their AUTOEXEC.BAT.
-            Also on Windows 2000 and later, each user has his own personal Temp
-            directory which may not be accessible by other users. }
+            Also, each user has his own personal Temp directory which may not
+            be accessible by other users. }
           RegSvrExeFilename := CreateRegSvrExe(GetTempDir);
         end;
       end
@@ -2666,11 +2601,11 @@ var
           RootKey := HKEY_LOCAL_MACHINE
         else
           RootKey := HKEY_CURRENT_USER;
-        ErrorCode := RegCreateKeyExView(rvDefault, RootKey, RunOnceKey, 0, nil,
+        ErrorCode := RegCreateKeyExView(rvDefault, RootKey, REGSTR_PATH_RUNONCE, 0, nil,
           REG_OPTION_NON_VOLATILE, KEY_SET_VALUE or KEY_QUERY_VALUE,
           nil, H, @Disp);
         if ErrorCode <> ERROR_SUCCESS then
-          RegError(reRegCreateKeyEx, RootKey, RunOnceKey, ErrorCode);
+          RegError(reRegCreateKeyEx, RootKey, REGSTR_PATH_RUNONCE, ErrorCode);
         try
           J := 0;
           while True do begin
@@ -2688,7 +2623,7 @@ var
               ErrorCode := RegSetValueEx(H, PChar(ValueName), 0, REG_SZ, PChar(Data),
                 (Length(Data)+1)*SizeOf(Data[1]));
               if ErrorCode <> ERROR_SUCCESS then
-                RegError(reRegSetValueEx, RootKey, RunOnceKey, ErrorCode);
+                RegError(reRegSetValueEx, RootKey, REGSTR_PATH_RUNONCE, ErrorCode);
               Break;
             end;
           end;
@@ -3391,13 +3326,7 @@ procedure ExtractTemporaryFile(const BaseName: String);
       if Result[I] = '{' then begin
         Insert('{', Result, I);
         Inc(I);
-  {$IFDEF UNICODE}
       end;
-  {$ELSE}
-      end
-      else if Result[I] in ConstLeadBytes^ then
-        Inc(I);
-  {$ENDIF}
       Inc(I);
     end;
   end;

@@ -571,15 +571,9 @@ end;
 
 procedure ScriptClassesLibraryRegister_C(Cl: TPSPascalCompiler);
 const
-  clSystemColor = {$IFDEF IS_D7} $FF000000 {$ELSE} $80000000 {$ENDIF};
+  clSystemColor = $FF000000;
   COLOR_HOTLIGHT = 26;
 begin
-{$IFNDEF UNICODE}
-  { Temporary: Currently used non Unicode ROPS version doesn't define the AnsiString/PAnsiChar types }
-  Cl.AddTypeS('AnsiString', 'String');
-  Cl.AddTypeS('PAnsiChar', 'PChar');
-{$ENDIF}
-
   { Std }
   SIRegister_Std_TypesAndConsts(Cl);
   SIRegisterTObject(Cl);
@@ -593,9 +587,7 @@ begin
   SIRegisterTStringList(Cl);
   SIRegisterTHandleStream(Cl);
   SIRegisterTFileStream(Cl);
-{$IFDEF UNICODE}
   SIRegisterTStringStream(Cl);
-{$ENDIF}
 
   { Graphics }
   SIRegister_Graphics_TypesAndConsts(Cl);

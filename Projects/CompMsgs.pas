@@ -2,7 +2,7 @@ unit CompMsgs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2021 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -184,15 +184,13 @@ const
   SCompilerEntryInvalid2 = 'Value of [%s] section directive "%s" is invalid';
   SCompilerEntryAlreadySpecified = '[%s] section directive "%s" already specified';
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
-  SCompilerMinVersionWinMustBeZero = 'Minimum Windows version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
-  SCompilerMinVersionNTTooLow = 'Minimum NT version specified by MinVersion must be at least %s. (Windows 2000/XP/Server 2003 are no longer supported.)';
-  SCompilerMinVersionRecommendation = 'Minimum NT version is set to %s but using %s instead (which is the default) is recommended.';
+  SCompilerMinVersionWinMustBeZero = 'Minimum non NT version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
+  SCompilerMinVersionNTTooLow = 'Minimum version specified by MinVersion must be at least %s. (Windows Vista/Server 2008 are no longer supported.)';
+  SCompilerMinVersionRecommendation = 'Minimum version is set to %s but using %s instead (which is the default) is recommended.';
   SCompilerDiskSliceSizeInvalid = 'DiskSliceSize must be between %d and %d, or "max"';
   SCompilerDiskClusterSizeInvalid = 'DiskClusterSize must be between 1 and 32768';
   SCompilerInstallModeObsolete = 'The [%s] section directive "%s" is obsolete and ignored in this version of Inno Setup. Use command line parameters instead.';
   SCompilerMessagesFileObsolete = 'The MessagesFile directive is obsolete and no longer supported. Use the [Languages] section instead.';
-  SCompilerDirectiveIsNTOnly = 'The [%s] section directive "%s" may not be used when compiling on Windows 95/98/Me';
-  SCompilerDirectiveRequiresWindows2000 = 'The [%s] section directive "%s" may not be used when compiling on Windows 95/98/Me/NT4';
   SCompilerMustUseDisableStartupPrompt = 'DisableStartupPrompt must be set to "yes" when AppName includes constants';
   SCompilerMustNotUsePreviousLanguage = 'UsePreviousLanguage must be set to "no" when AppId includes constants';
   SCompilerMustNotUsePreviousPrivileges = 'UsePreviousPrivileges must be set to "no" when AppId includes constants and PrivilegesRequiredOverridesAllowed allows "dialog"';
@@ -200,8 +198,6 @@ const
   SCompilerDirectiveNotUsingPreferredDefault = 'The [Setup] section directive "%s" is defaulting to %s because %s includes constants.';
   SCompilerDirectivePatternTooLong = 'The [Setup] section directive "%s" contains a pattern that is too long';
   SCompilerOutputBaseFileNameSetup = 'Setting the [Setup] section directive "OutputBaseFileName" to "setup" is not recommended: all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll.' + ' These DLLs are loaded unsafely by Windows and can be hijacked. Use a different name, for example "mysetup".';
-  SCompilerRemoveManifestDllHijackProtection = 'Setting the [Setup] section directive "MinVersion" below %s is not recommended: Windows Vista doesn''t support some of Setup''s security measures against potential DLL preloading attacks so these have been' + ' removed by the compiler making your installer less secure on all versions of Windows.';
-  SCompilerDidntRemoveManifestDllHijackProtection = 'Setup will not run on Windows Vista: MinVersion must be below %s.';
   SCompilerWizImageRenamed = 'Wizard image "%s" has been renamed. Use "%s" instead or consider removing the directive to use modern built-in wizard images.';
 
   { Signing }
@@ -355,8 +351,6 @@ const
   SCompilerFilesCantHaveNonExternalExternalSize = 'Parameter "ExternalSize" may only be used when ' +
     'the "external" flag is used';
   SCompilerFilesExcludeTooLong = 'Parameter "Excludes" contains a pattern that is too long';
-  SCompilerFilesCantReadVersionInfoOn64BitImage = 'In order for it to be able to read version info on 64-bit images, ' +
-    'the compiler must be run under Windows 2000 or later';
   SCompilerFilesUnsafeFile = 'Unsafe file detected: %s.' + SNewLine2 +
     'See the "Unsafe Files" topic in the help file for more information';
   SCompilerFilesSystemDirUsed = 'Attempt to deploy DLL file from own Windows System directory.' + SNewLine2 +

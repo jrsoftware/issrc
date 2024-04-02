@@ -2,7 +2,7 @@ unit LZMA;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -15,12 +15,8 @@ interface
 {$I VERSION.INC}
 
 uses
-  Windows, SysUtils, {$IFNDEF Delphi3orHigher} Ole2, {$ENDIF}
+  Windows, SysUtils,
   Compress, Int64Em;
-  { Note: Ole2 must be included in the 'uses' clause on D2, and after Windows,
-    because it redefines E_* constants in Windows that are incorrect.
-    E_OUTOFMEMORY, for example, is defined as $80000002 in Windows, instead
-    of $8007000E. }
 
 function LZMAInitCompressFunctions(Module: HMODULE): Boolean;
 function LZMAGetLevel(const Value: String; var Level: Integer): Boolean;

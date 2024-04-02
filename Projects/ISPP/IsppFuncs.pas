@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -1500,19 +1500,19 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
-      OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
+      OldDateSeparator := FormatSettings.DateSeparator;
+      OldTimeSeparator := FormatSettings.TimeSeparator;
       try
         NewDateSeparatorString := Get(1).AsStr;
         NewTimeSeparatorString := Get(2).AsStr;
         if NewDateSeparatorString <> '' then
-          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
+          FormatSettings.DateSeparator := NewDateSeparatorString[1];
         if NewTimeSeparatorString <> '' then
-          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
+          FormatSettings.TimeSeparator := NewTimeSeparatorString[1];
         MakeStr(ResPtr^, FormatDateTime(Get(0).AsStr, Now()));
       finally
-        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
-        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
+        FormatSettings.TimeSeparator := OldTimeSeparator;
+        FormatSettings.DateSeparator := OldDateSeparator;
       end;
     end;
   except
@@ -1535,23 +1535,23 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      OldDateSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator;
-      OldTimeSeparator := {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator;
+      OldDateSeparator := FormatSettings.DateSeparator;
+      OldTimeSeparator := FormatSettings.TimeSeparator;
       try
         NewDateSeparatorString := Get(2).AsStr;
         NewTimeSeparatorString := Get(3).AsStr;
         if NewDateSeparatorString <> '' then
-          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := NewDateSeparatorString[1];
+          FormatSettings.DateSeparator := NewDateSeparatorString[1];
         if NewTimeSeparatorString <> '' then
-          {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := NewTimeSeparatorString[1];
+          FormatSettings.TimeSeparator := NewTimeSeparatorString[1];
         if not FileAge(PrependPath(Ext, Get(0).AsStr), Age) then begin
           FuncResult.Error('Invalid file name');
           Result.Error := ISPPFUNC_FAIL
         end else
           MakeStr(ResPtr^, FormatDateTime(Get(1).AsStr, Age));
       finally
-        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}TimeSeparator := OldTimeSeparator;
-        {$IFDEF IS_DXE}FormatSettings.{$ENDIF}DateSeparator := OldDateSeparator;
+        FormatSettings.TimeSeparator := OldTimeSeparator;
+        FormatSettings.DateSeparator := OldDateSeparator;
       end;
     end;
   except
@@ -1620,7 +1620,6 @@ end;
 
 function GetMD5OfUnicodeString(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-{$IFDEF UNICODE}
 var
   S: UnicodeString;
 begin
@@ -1639,12 +1638,6 @@ begin
     end;
   end;
 end;
-{$ELSE}
-begin
-  FuncResult.Error('Cannot call "GetMD5OfUnicodeString" function during non Unicode compilation');
-  Result.Error := ISPPFUNC_FAIL
-end;
-{$ENDIF}
 
 function GetSHA1OfFile(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
@@ -1703,7 +1696,6 @@ end;
 
 function GetSHA1OfUnicodeString(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-{$IFDEF UNICODE}
 var
   S: UnicodeString;
 begin
@@ -1722,12 +1714,6 @@ begin
     end;
   end;
 end;
-{$ELSE}
-begin
-  FuncResult.Error('Cannot call "GetSHA1OfUnicodeString" function during non Unicode compilation');
-  Result.Error := ISPPFUNC_FAIL
-end;
-{$ENDIF}
 
 function TrimFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;

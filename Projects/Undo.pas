@@ -2,7 +2,7 @@ unit Undo;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -19,16 +19,13 @@ uses
   Windows, SysUtils, Int64Em, FileClass, CmnFunc2;
 
 const
-  HighestSupportedVersion = 48 {$IFDEF UNICODE} + 1000{$ENDIF};
+  HighestSupportedVersion = 1048;
   { Each time the format of the uninstall log changes (usually a new entry type
     is added), HighestSupportedVersion and the file version number of Setup
     are incremented to match (51.x). Do NOT do this yourself; doing so could cause
     incompatibilities with future Inno Setup releases. It's recommended that you
     use the "utUserDefined" log entry type if you wish to implement your own
-    custom uninstall log entries; see below for more information.
-
-    Note: the non Unicode HighestSupportedVersion may never become greater than
-    or equal to 1000. }
+    custom uninstall log entries; see below for more information. }
 
 type
   TUninstallRecTyp = type Word;
@@ -301,10 +298,7 @@ begin
         DirsNotRemoved.AddIfDoesntExist(DirsNotRemovedPrefix[DisableFsRedir] + DirName);
       end
       else if Assigned(RestartDeleteDirList) and
-         ListContainsPathOrSubdir(RestartDeleteDirList, DirName) and
-         (Win32Platform = VER_PLATFORM_WIN32_NT) then begin
-        { Note: This code is NT-only; I don't think it's possible to
-          restart-delete directories on Windows 9x. }
+         ListContainsPathOrSubdir(RestartDeleteDirList, DirName) then begin
         LogFmt('Failed to delete directory (%d). Will delete on restart (if empty).',
           [LastError]);
         LoggedRestartDeleteDir(DisableFsRedir, DirName);
@@ -378,39 +372,19 @@ procedure TUninstallLog.Add(const Typ: TUninstallRecTyp; const Data: array of St
 var
   I, L: Integer;
   S, X: AnsiString;
-{$IFDEF UNICODE}
   AData: AnsiString;
-{$ENDIF}
   NewRec: PUninstallRec;
 begin
   for I := 0 to High(Data) do begin
     L := Length(Data[I])*SizeOf(Data[I][1]);
 
-{$IFNDEF UNICODE}
-    if L < $FD then
-      S := S + AnsiChar(L)
-    else if L <= $FFFF then begin
-      SetLength(X, SizeOf(Byte) + SizeOf(Word));
-      X[1] := AnsiChar($FD);
-      Word((@X[2])^) := Word(L);
-      S := S + X;
-    end
-    else begin
-{$ENDIF}
-      SetLength(X, SizeOf(Byte) + SizeOf(Integer));
-      X[1] := AnsiChar($FE);
-      Integer((@X[2])^) := Integer({$IFDEF UNICODE}-{$ENDIF}L);
-      S := S + X;
-{$IFNDEF UNICODE}
-    end;
-{$ENDIF}
+    SetLength(X, SizeOf(Byte) + SizeOf(Integer));
+    X[1] := AnsiChar($FE);
+    Integer((@X[2])^) := Integer(-L);
+    S := S + X;
 
-{$IFDEF UNICODE}
     SetString(AData, PAnsiChar(Pointer(Data[I])), L);
     S := S + AData;
-{$ELSE}
-    S := S + Data[I];
-{$ENDIF}
   end;
   S := S + AnsiChar($FF);
 
@@ -422,12 +396,6 @@ begin
 
   if Version < HighestSupportedVersion then
     Version := HighestSupportedVersion;
-{$IFNDEF UNICODE}
-  { If the version is in Unicode range, bump it there too if needed. }
-  if (Version >= 1000) and
-     (Version < 1000 + HighestSupportedVersion) then
-    Version := 1000 + HighestSupportedVersion;
-{$ENDIF}
 end;
 
 procedure TUninstallLog.AddReg(const Typ: TUninstallRecTyp;
@@ -537,13 +505,8 @@ begin
       $FF: Break;
     end;
     if L < 0 then begin
-{$IFDEF UNICODE}
       L := -L;
       SetString(Data[I], PChar(X), L div SizeOf(Char));
-{$ELSE}
-      { Should not be possible to get here, but check anyway for safety. }
-      InternalError('ExtractRecData: Unicode data unsupported by this build');
-{$ENDIF}
     end else
       SetString(Data[I], PAnsiChar(X), L);
     Inc(X, L);
@@ -1161,12 +1124,9 @@ class function TUninstallLog.WriteSafeHeaderString(Dest: PAnsiChar;
   #1 marker. If MaxDestBytes = 0 it returns the amount of bytes needed. }
 var
   N: Integer;
-{$IFDEF UNICODE}
   I: Integer;
-{$ENDIF}
 begin
   N := Length(Source);
-{$IFDEF UNICODE}
   { Only UTF-8-encode when non-ASCII characters are present }
   for I := 1 to N do begin
     if Ord(Source[I]) > 126 then begin
@@ -1179,7 +1139,6 @@ begin
       Exit;
     end;
   end;
-{$ENDIF}
   if MaxDestBytes <> 0 then
     AnsiStrings.StrPLCopy(Dest, AnsiString(Source), MaxDestBytes - 1);
   Result := (N + 1) * SizeOf(Dest^);
@@ -1187,14 +1146,10 @@ end;
 
 class function TUninstallLog.ReadSafeHeaderString(const Source: AnsiString): String;
 begin
-{$IFDEF UNICODE}
   if (Source <> '') and (Source[1] = #1) then
     Result := UTF8ToString(Copy(Source, 2, Maxint))
   else
     Result := String(Source);
-{$ELSE}
-  Result := Source;
-{$ENDIF}
 end;
 
 procedure TUninstallLog.Save(const Filename: String;

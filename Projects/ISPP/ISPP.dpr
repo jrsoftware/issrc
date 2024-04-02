@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
   
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -36,8 +36,8 @@ uses
   Struct in '..\Struct.pas';
   
 {$IMAGEBASE $01800000}
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
 {$R ISPP.version.res}

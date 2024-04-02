@@ -2,13 +2,11 @@ unit HtmlHelpFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2006 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Functions for HTML Help
-
-  $jrsoftware: issrc/Projects/HtmlHelpFunc.pas,v 1.6 2009/03/23 23:16:44 mlaan Exp $
 }
 
 interface
@@ -56,7 +54,7 @@ begin
   if HHCtrl = 0 then begin
     HHCtrl := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'hhctrl.ocx'));
     if HHCtrl <> 0 then
-      HtmlHelp := GetProcAddress(HHCtrl, {$IFDEF UNICODE}'HtmlHelpW'{$ELSE}'HtmlHelpA'{$ENDIF})
+      HtmlHelp := GetProcAddress(HHCtrl, 'HtmlHelpW')
     else
       HtmlHelp := nil;
    end;

@@ -2,7 +2,7 @@ unit ScriptClasses_R;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -24,7 +24,7 @@ implementation
 uses
   Windows, Controls, Forms, StdCtrls, Graphics,
   uPSR_std, uPSR_classes, uPSR_graphics, uPSR_controls, uPSR_forms,
-  uPSR_stdctrls, uPSR_extctrls, uPSR_comobj, {$IFNDEF UNICODE} uPSUtils, {$ENDIF}
+  uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
   ExtCtrls, UIStateForm, SetupForm, Main, Wizard, SetupTypes, PasswordEdit,
   FolderTreeView, BitmapImage, NewNotebook, ScriptDlg, BidiCtrls,
@@ -33,8 +33,8 @@ uses
 type
   TWinControlAccess = class(TWinControl);
 
-procedure TWinControlParentBackground_R(Self: TWinControl; var T: Boolean); begin {$IFDEF IS_D7} T := TWinControlAccess(Self).ParentBackground {$ELSE} T := False {$ENDIF}; end;
-procedure TWinControlParentBackground_W(Self: TWinControl; const T: Boolean); begin {$IFDEF IS_D7} TWinControlAccess(Self).ParentBackground := T; {$ENDIF} end;
+procedure TWinControlParentBackground_R(Self: TWinControl; var T: Boolean); begin T := TWinControlAccess(Self).ParentBackground; end;
+procedure TWinControlParentBackground_W(Self: TWinControl; const T: Boolean); begin TWinControlAccess(Self).ParentBackground := T; end;
 
 procedure RegisterWinControl_R(Cl: TPSRuntimeClassImporter);
 begin
@@ -370,9 +370,7 @@ begin
     RIRegisterTStringList(Cl);
     RIRegisterTHandleStream(Cl);
     RIRegisterTFileStream(Cl);
-{$IFDEF UNICODE}
     RIRegisterTStringStream(Cl);
-{$ENDIF}
 
     { Graphics }
     RIRegisterTGraphicsObject(Cl);

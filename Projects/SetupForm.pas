@@ -2,7 +2,7 @@ unit SetupForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -42,11 +42,7 @@ type
     procedure WndProc(var Message: TMessage); override;
   public
     constructor Create(AOwner: TComponent); override;
-    {$IFNDEF IS_D4}
-    constructor CreateNew(AOwner: TComponent);
-    {$ELSE}
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
-    {$ENDIF}
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
     procedure InitializeFont;
     function ScalePixelsX(const N: Integer): Integer;
@@ -302,11 +298,7 @@ begin
     Position := poDesigned;
 end;
 
-{$IFNDEF IS_D4}
-constructor TSetupForm.CreateNew(AOwner: TComponent);
-{$ELSE}
 constructor TSetupForm.CreateNew(AOwner: TComponent; Dummy: Integer = 0);
-{$ENDIF}
 begin
   { Note: On Delphi 2 and 3, CreateNew isn't virtual, so this is only reached
     when TSetupForm.CreateNew is called explicitly }
