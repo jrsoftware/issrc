@@ -192,6 +192,7 @@ type
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
     TMsgBoxDesigner: TMenuItem;
+    TRegistryDesigner: TMenuItem;
     ToolBarPanel: TPanel;
     HMailingList: TMenuItem;
     MemosTabSet: TNewTabSet; { First tab is the main memo, last tab is the preprocessor output memo }
@@ -304,6 +305,7 @@ type
     procedure VDebugCallStackClick(Sender: TObject);
     procedure HMailingListClick(Sender: TObject);
     procedure TMsgBoxDesignerClick(Sender: TObject);
+    procedure TRegistryDesignerClick(Sender: TObject);
     procedure MemosTabSetClick(Sender: TObject);
     procedure FSaveAllClick(Sender: TObject);
     procedure RStepOutClick(Sender: TObject);
@@ -535,7 +537,7 @@ uses
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMsgBoxDesigner,
-  CompFilesDesigner;
+  CompFilesDesigner, CompRegistryDesigner;
 
 {$R *.DFM}
 
@@ -3045,6 +3047,27 @@ begin
       FActiveMemo.SelText := MsgBoxForm.Text;
   finally
     MsgBoxForm.Free;
+  end;
+end;
+
+procedure TCompileForm.TRegistryDesignerClick(Sender: TObject);
+var
+  RegistryDesignerForm: TRegistryDesignerForm;
+begin
+  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scRegistry) and
+     (MsgBox('The generated script will be inserted into the editor at the cursor position, but the cursor is not in the [Registry] section. Continue anyway?',
+      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
+    Exit;
+
+  RegistryDesignerForm := TRegistryDesignerForm.Create(Application);
+  try
+    if RegistryDesignerForm.ShowModal = mrOk then
+    begin
+      FActiveMemo.CaretColumn := 0;
+      FActiveMemo.SelText := RegistryDesignerForm.Text;
+    end;
+  finally
+    RegistryDesignerForm.Free;
   end;
 end;
 

@@ -57,7 +57,8 @@ uses
   FileClass in 'Src\FileClass.pas',
   Int64Em in 'Src\Int64Em.pas',
   Compress in 'Src\Compress.pas',
-  TaskDialog in 'Src\TaskDialog.pas';
+  TaskDialog in 'Src\TaskDialog.pas',
+  CompRegistryDesigner in 'Src\CompRegistryDesigner.pas' {RegistryDesignerForm};
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}
