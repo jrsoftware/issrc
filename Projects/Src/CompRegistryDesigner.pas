@@ -61,20 +61,13 @@ uses
 function TRegistryDesignerForm.GetText: String;
 type
   TInnoRegData = record
-    Root, SubKey, ValueName, ValueData, ValueType: String;
+    Root, Subkey, ValueName, ValueData, ValueType: String;
   end;
 
-const
-  RemarkaLine = '; [ BEGIN ] Registry data from file ';
-  RemarkaEND = '; [ END ]';
-
 var
-  InBuffer, OutBuffer: TStringList;
-  InBufStr: String;
-  i, j, poschar: Integer;
-  ISRegData: TInnoRegData;
+  OutBuffer: TStringList;
   hexb, hex2, hex7, hex0: Boolean;
-  delkey, delval: Boolean;
+  delval: Boolean;
 
   function StrIsRoot(S: String): Boolean;
   begin
@@ -211,12 +204,12 @@ var
     Result := AParam;
   end;
 
-  procedure SubKeyRecord(AReg: TInnoRegData; ADelKey: Boolean = False);
+  procedure SubkeyRecord(AReg: TInnoRegData; ADelKey: Boolean = False);
   var
     ALine: String;
   begin
     ALine := 'Root: ' + AReg.Root +
-             '; SubKey: ' + AReg.SubKey;
+             '; Subkey: ' + AReg.Subkey;
     if ADelKey then
       ALine := ALine + '; ValueType: none' +
                        '; Flags: deletekey';
@@ -224,20 +217,16 @@ var
       ALine := ALine + '; Flags: uninsdeletekey';
     if cb_FlagUnInsDelKeyIfEmpty.Checked and not ADelKey then
       ALine := ALine + '; Flags: uninsdeletekeyifempty';
-(*    if cb_FlagUnInsDelKey.Checked and ADelKey then
-      ALine := ALine + ' uninsdeletekey';
-    if cb_FlagUnInsDelKeyIfEmpty.Checked and ADelKey then
-      ALine := ALine + ' uninsdeletekeyifempty'; *)
     ALine := AddParamToStr(ALine);
     OutBuffer.Add(ALine);
   end;
 
-  procedure SubKeyParamRecord(AReg: TInnoRegData; ADelParam: Boolean = False);
+  procedure SubkeyParamRecord(AReg: TInnoRegData; ADelParam: Boolean = False);
   var
     ALine: String;
   begin
     ALine := 'Root: ' + AReg.Root +
-             '; SubKey: ' + AReg.SubKey +
+             '; Subkey: ' + AReg.Subkey +
              '; ValueType: ' + AReg.ValueType +
              '; ValueName: ' + AReg.ValueName;
     if not ADelParam then
@@ -248,12 +237,19 @@ var
       ALine := ALine.Replace('; ValueData: ""', '');
     if cb_FlagDelValue.Checked and not ADelParam then
       ALine := ALine + '; Flags: uninsdeletevalue';
-    //if cb_FlagDelValue.Checked and ADelParam then
-    //  ALine := ALine + ' uninsdeletevalue';
     ALine := AddParamToStr(ALine);
     OutBuffer.Add(ALine);
   end;
 
+const
+  RemarkaLine = '; [ BEGIN ] Registry data from file ';
+  RemarkaEND = '; [ END ]';
+var
+  InBuffer: TStringList;
+  InBufStr: String;
+  i, j, poschar: Integer;
+  ISRegData: TInnoRegData;
+  delkey: Boolean;
 begin
   InBuffer := TStringList.Create;
   OutBuffer := TStringList.Create;
@@ -278,23 +274,23 @@ begin
             ISRegData.Root := Copy(InBufStr, 1, poschar - 1);
             ISRegData.Root := StrRootRename(ISRegData.Root);
             if ISRegData.Root.Contains('HKA') then
-              ISRegData.SubKey := 'Software\Classes\'
+              ISRegData.Subkey := 'Software\Classes\'
             else
-              ISRegData.SubKey := '';
-            ISRegData.SubKey := ISRegData.SubKey + Copy(InBufStr, poschar + 1, InBufStr.Length);
-            ISRegData.SubKey := ISRegData.SubKey.Replace('{', '{{');
-            ISRegData.SubKey := ISRegData.SubKey.QuotedString('"');
-            if ISRegData.SubKey.Contains('\WOW6432Node') then
+              ISRegData.Subkey := '';
+            ISRegData.Subkey := ISRegData.Subkey + Copy(InBufStr, poschar + 1, InBufStr.Length);
+            ISRegData.Subkey := ISRegData.Subkey.Replace('{', '{{');
+            ISRegData.Subkey := ISRegData.Subkey.QuotedString('"');
+            if ISRegData.Subkey.Contains('\WOW6432Node') then
               begin
-                ISRegData.Root := ISRegData.Root + '32'; // 32-bit on Windows 64 bit
-                ISRegData.SubKey := ISRegData.SubKey.Replace('\WOW6432Node', '');
+                //ISRegData.Root := ISRegData.Root + '32'; // 32-bit on Windows 64 bit
+                ISRegData.Subkey := ISRegData.Subkey.Replace('\WOW6432Node', '');
               end;
             Inc(i);
             InBufStr := InBuffer.Strings[i];
             if (InBufStr = '') and not delkey then
-              SubKeyRecord(ISRegData);
+              SubkeyRecord(ISRegData);
             if (InBufStr = '') or (InBufStr <> '') and delkey then
-              SubKeyRecord(ISRegData, delkey);
+              SubkeyRecord(ISRegData, delkey);
             while (InBufStr <> '') and not delkey do
             begin
               poschar := Pos('=', InBufStr);
@@ -376,9 +372,9 @@ begin
                    end;
               end;
               if not delval then
-                SubKeyParamRecord(ISRegData)
+                SubkeyParamRecord(ISRegData)
               else
-                SubKeyParamRecord(ISRegData, delval);
+                SubkeyParamRecord(ISRegData, delval);
               Inc(i);
               InBufStr := InBuffer.Strings[i];
             end;

@@ -35,7 +35,9 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Width = 75
       Height = 25
       Anchors = [akRight, akBottom]
-      Caption = '&Insert'
+      Caption = 'Insert'
+      Default = True
+      ModalResult = 1
       TabOrder = 0
       OnClick = btn_InsertClick
     end
@@ -46,7 +48,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Height = 25
       Anchors = [akRight, akBottom]
       Cancel = True
-      Caption = '&Cancel'
+      Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
     end
