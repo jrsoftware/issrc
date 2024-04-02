@@ -264,23 +264,6 @@ https://github.com/YOUR-USER-NAME/issrc to add the topic).
 Once that's done, you're set! The next time you push a branch to your fork, the
 workflow will be triggered automatically.
 
-### Setting up code-signing with Continuous Integration
-
-If you have a code-signing certificate, you can use that in the Continuous
-Integration to produce artifacts that are code-signed, too, as long as the
-certificate does not require any local-only security factor such as a USB
-security key. To use the certificate, you first have to add the repository
-[secret] `CODESIGN_P12`, using as value the base64-encoded file contents of the
-certificate's `.p12` file (obtain this value e.g. by running `base64 -w 0
-<my-certificate.p12`). Then, add the corresponding certificate password as
-repository secret named `CODESIGN_PASS`.
-
-Once these two repository secrets are set, the Continuous Integration will
-automatically pick them up and code-sign the generated executable files.
-
-Note: These repository secrets are only _used_ in the Continuous Integration,
-and will _not_ be included in the build artifacts.
-
 <!-- Link references -->
 [CONTRIBUTING.md]: <CONTRIBUTING.md>
 [Projects\Lzma2\Encoder]: <Projects/Lzma2/Encoder>
