@@ -96,12 +96,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Width = 150
       Height = 17
       Caption = 'uninsdeletekey'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      ParentFont = False
       TabOrder = 0
       OnClick = cb_FlagUnInsDelKeyClick
     end
@@ -124,12 +118,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Width = 150
       Height = 17
       Caption = 'uninsdeletekeyifempty'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      ParentFont = False
       TabOrder = 1
       OnClick = cb_FlagUnInsDelKeyIfEmptyClick
     end
@@ -151,12 +139,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Width = 150
       Height = 17
       Caption = 'uninsdeletevalue'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      ParentFont = False
       TabOrder = 2
       WordWrap = True
     end
@@ -192,12 +174,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Height = 17
       Caption = 'Is64BitInstallMode'
       Enabled = False
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      ParentFont = False
       TabOrder = 4
     end
     object rb_NotIs64BitInstMod: TRadioButton
@@ -208,12 +184,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Height = 17
       Caption = 'not Is64BitInstallMode'
       Enabled = False
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      ParentFont = False
       TabOrder = 5
     end
     object cb_MinVer: TCheckBox
@@ -233,12 +203,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
       AutoSize = False
       Caption = 'MinVersion'
       Enabled = False
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'MS Sans Serif'
-      Font.Style = [fsBold]
-      ParentFont = False
       TabOrder = 8
     end
     object edt_MinVer: TEdit

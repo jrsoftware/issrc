@@ -415,10 +415,8 @@ end;
 
 procedure TRegistryDesignerForm.btn_InsertClick(Sender: TObject);
 begin
-  if FileExists(edt_PathFileReg.Text) then
-    ModalResult := mrOK
-  else
-    MsgBox('No file selected for processing!', SCompilerFormCaption, mbError, MB_OK);
+  if not FileExists(edt_PathFileReg.Text) then
+    ModalResult := mrCancel;
 end;
 
 procedure TRegistryDesignerForm.cb_FlagUnInsDelKeyClick(Sender: TObject);
