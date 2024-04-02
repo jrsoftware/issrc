@@ -37,6 +37,7 @@ object FilesDesignerForm: TFilesDesignerForm
       Width = 75
       Height = 25
       Caption = 'Insert'
+      Default = True
       ModalResult = 1
       TabOrder = 0
       OnClick = InsertButtonClick
