@@ -3033,38 +3033,33 @@ begin
 end;
 
 procedure TCompileForm.TMsgBoxDesignerClick(Sender: TObject);
-var
-  MsgBoxForm: TMsgBoxDesignerForm;
 begin
   if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scCode) and
      (MsgBox('The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the [Code] section. Continue anyway?',
       SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
     Exit;
 
-  MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
+  var MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
   try
-    if MsgBoxForm.ShowModal = mrOk then
+    if MsgBoxForm.ShowModal = mrOk then begin
       FActiveMemo.SelText := MsgBoxForm.Text;
+    end;
   finally
     MsgBoxForm.Free;
   end;
 end;
 
 procedure TCompileForm.TRegistryDesignerClick(Sender: TObject);
-var
-  RegistryDesignerForm: TRegistryDesignerForm;
 begin
-  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scRegistry) and
-     (MsgBox('The generated script will be inserted into the editor at the cursor position, but the cursor is not in the [Registry] section. Continue anyway?',
-      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
-    Exit;
-
-  RegistryDesignerForm := TRegistryDesignerForm.Create(Application);
+  var RegistryDesignerForm := TRegistryDesignerForm.Create(Application);
   try
     if RegistryDesignerForm.ShowModal = mrOk then
     begin
       FActiveMemo.CaretColumn := 0;
-      FActiveMemo.SelText := RegistryDesignerForm.Text;
+      var Text := RegistryDesignerForm.Text;
+      if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scRegistry then
+        Text := '[Registry]' + SNewLine + Text;
+      FActiveMemo.SelText := Text;
     end;
   finally
     RegistryDesignerForm.Free;
@@ -3072,19 +3067,15 @@ begin
 end;
 
 procedure TCompileForm.TFilesDesignerClick(Sender: TObject);
-var
-  FilesDesignerForm: TFilesDesignerForm;
 begin
-  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scFiles) and
-     (MsgBox('The generated script will be inserted into the editor at the start of the current line, but the cursor is not in the [Files] section. Continue anyway?',
-      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
-    Exit;
-
-  FilesDesignerForm := TFilesDesignerForm.Create(Application);
+  var FilesDesignerForm := TFilesDesignerForm.Create(Application);
   try
     if FilesDesignerForm.ShowModal = mrOk then begin
       FActiveMemo.CaretColumn := 0;
-      FActiveMemo.SelText := FilesDesignerForm.Text;
+      var Text := FilesDesignerForm.Text;
+      if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scFiles then
+        Text := '[Files]' + SNewLine + Text;
+      FActiveMemo.SelText := Text;
     end;
   finally
     FilesDesignerForm.Free;
