@@ -2,7 +2,7 @@ unit LZMADecomp;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -95,8 +95,8 @@ const
     size the compiler currently allows. }
   MaxDictionarySize = 1024 shl 20;  { 1 GB }
 
-{$L lzma2\Decoder\ISLzmaDec.obj}
-{$L lzma2\Decoder\ISLzma2Dec.obj}
+{$L Src\Lzma2\Decoder\ISLzmaDec.obj}
+{$L Src\Lzma2\Decoder\ISLzma2Dec.obj}
 
 function IS_LzmaDec_Init(var state: TLZMA1InternalDecoderState;
   stateSize: Cardinal; const props; propsSize: Cardinal;

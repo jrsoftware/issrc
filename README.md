@@ -205,10 +205,10 @@ code with scintilla-2.22-patch.txt applied.
 Compiled by Visual Studio 2005 from the [Projects\Helper] directory and then
 stored in a compiled resource file.
 
-**Projects\LzmaDecode\LzmaDecodeInno.obj** - See [Projects\LzmaDecode\compiling.txt].
+**Projects\Src\LzmaDecode\LzmaDecodeInno.obj** - See [Projects\Src\LzmaDecode\compiling.txt].
 
-**Projects\Lzma2\Decoder\ISLzmaDec.obj**, **Projects\Lzma2\Decoder\ISLzma2Dec.obj** -
-See [Projects\Lzma2\Decoder\compiling.txt].
+**Projects\Src\Lzma2\Decoder\ISLzmaDec.obj**, **Projects\Src\Lzma2\Decoder\ISLzma2Dec.obj** -
+See [Projects\Src\Lzma2\Decoder\compiling.txt].
 
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe** - Compiled by Visual Studio
 2005 from the [Examples\MyProg] directory.
