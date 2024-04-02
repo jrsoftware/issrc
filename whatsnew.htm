@@ -29,9 +29,9 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="https://jrsoftware.org/ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
 <p><a name="6.3.0"></a><span class="ver">6.3.0-dev </span><span class="date">(?)</span></p>
-<p><span class="head2">Support from UTF-8 encoded files improved</span></p>
+<p><span class="head2">Support for UTF-8 encoded files improved</span></p>
 <ul>
-  <li>Inno Setup now supports UTF-8 encoded .iss script files and .isl messages files without an UTF-8 preamble (also called BOM).</li>
+  <li>Added support for UTF-8 encoded files without an UTF-8 preamble (also called BOM) for .iss script files, .isl messages files, <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>,  <tt>InfoAfterFile</tt>, and ISPP's <tt>#file</tt>.</li>
   <li>Compiler IDE changes:
   <ul>
   <li>Added new <i>UTF-8 without BOM</i> menu item to the <i>Save Encoding</i> submenu of the <i>File</i> menu.</li>
@@ -45,16 +45,21 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   </ul>
   </li>
 </ul>
+<p><span class="head2">Support for #include files improved</span></p>
+<ul>
+  <li>The Compiler IDE now opens up to 20 #include files in tabs, instead of up to 10.</li>
+  <li>Tabs for opened #include files can now be closed: Added new <i>Close Tab (Ctrl+F4)</i>, <i>Reopen Tab</i>, and  <i>Reopen All Tabs</i> menu items to the <i>View</i> menu, also available by right clicking the tab bar.</li>
+  <li>The tab for the selected #include file now shows a close button.</li>
+  <li>Added a clickable panel to the Status Bar showing the amount of closed tabs if there are any.</li>
+</ul>
+<p><span class="head2">Support for Windows Vista and Windows Server 2008 removed</span></p>
+<ul>
+  <li><b>OS requirements change:</b> Windows Vista and Windows Server 2008 are no longer supported. Windows 7 and Windows Server 2008 R2 are now the minimum supported operating systems. [Setup] section directive <tt>MinVersion</tt> still defaults to <tt>6.1sp1</tt>, so by default Setup will still not run versions of Windows 7 and Windows Server 2008 R2 which have not been updated.</li>
+  <li>Removed [Icons] section flag <tt>foldershortcut</tt> which was already ignored except when running on Windows Vista or Windows Server 2008, as folder shortcuts do not expand properly on the Start Menu anymore.</li>
+</ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
-  <li>Compiler IDE changes:
-  <ul>
-  <li>The Compiler IDE now opens up to 20 #include files in tabs, instead of up to 10.</li>
-  <li>Tabs for #include files can now be closed: Added new <i>Close Tab (Ctrl+F4)</i>, <i>Reopen Tab</i>, and  <i>Reopen All Tabs</i> menu items to the <i>View</i> menu, also available by right clicking the tab bar. Additionally the tab for a selected #include file now shows a close button.</li>
-  <li>Added a clickable panel to the Status Bar showing the amount of closed tabs if there are any.</li>
-  <li>Added new <i>[Files] Entries Designer</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the [Files] section.</li>
-  </ul>
-  </li>
+  <li>Compiler IDE change: Added new <i>[Files] Entries Designer</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the [Files] section.</li>
   <li>Added new [Setup] section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters.</li> 
@@ -62,6 +67,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   <li>Added modern icons to the MyProg example executables, now compiled with Visual Studio 2022.</li>
   <li>Added official Korean translation.</li>
   <li>Inno Setup is now built using Delphi 11.3 Alexandria instead of Delphi 10.3 Rio.</li>
+  <li>Inno Setup's Delphi projects have been recreated as new clean projects and have been added to a <i>Projects\Projects.groupproj</i> project group. This makes it a lot easier to get started with working with the Inno Setup source code and making contributions, even with the free Delphi Community Edition.</li>
 </ul>
 
 <p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Achim Stuy, ser163, and Jens Geyer for their contributions.</p>

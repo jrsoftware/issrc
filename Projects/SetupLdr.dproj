@@ -35,7 +35,6 @@
         <DCC_DebugInformation>1</DCC_DebugInformation>
         <DCC_WriteableConstants>true</DCC_WriteableConstants>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
-        <DCC_UnitSearchPath>..\Components;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <SanitizedProjectName>SetupLdr</SanitizedProjectName>
         <VerInfo_Locale>1043</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
@@ -48,6 +47,7 @@
         <DCC_IMPLICIT_INTEGER_CAST_LOSS>false</DCC_IMPLICIT_INTEGER_CAST_LOSS>
         <DCC_IMPLICIT_CONVERSION_LOSS>false</DCC_IMPLICIT_CONVERSION_LOSS>
         <DCC_DcuOutput>Dcu\$(MainSource)</DCC_DcuOutput>
+        <DCC_Define>SETUPLDRPROJ;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -72,17 +72,24 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="SafeDLLPath.pas"/>
-        <DCCReference Include="XPTheme.pas"/>
-        <DCCReference Include="Compress.pas"/>
-        <DCCReference Include="LZMADecompSmall.pas"/>
-        <DCCReference Include="SetupEnt.pas"/>
-        <DCCReference Include="CmnFunc2.pas"/>
-        <DCCReference Include="Msgs.pas"/>
-        <DCCReference Include="MsgIDs.pas"/>
-        <DCCReference Include="Struct.pas"/>
-        <DCCReference Include="InstFunc.pas"/>
-        <DCCReference Include="FileClass.pas"/>
+        <DCCReference Include="Src\SafeDLLPath.pas"/>
+        <DCCReference Include="Src\XPTheme.pas"/>
+        <DCCReference Include="Src\Compress.pas"/>
+        <DCCReference Include="Src\LZMADecompSmall.pas"/>
+        <DCCReference Include="Src\SetupEnt.pas"/>
+        <DCCReference Include="..\Components\PathFunc.pas"/>
+        <DCCReference Include="Src\CmnFunc2.pas"/>
+        <DCCReference Include="Src\Msgs.pas"/>
+        <DCCReference Include="Src\MsgIDs.pas"/>
+        <DCCReference Include="Src\Struct.pas"/>
+        <DCCReference Include="Src\InstFunc.pas"/>
+        <DCCReference Include="Src\FileClass.pas"/>
+        <DCCReference Include="Src\Int64Em.pas"/>
+        <DCCReference Include="Src\SHA1.pas"/>
+        <DCCReference Include="Src\MD5.pas"/>
+        <DCCReference Include="Src\RedirFunc.pas"/>
+        <DCCReference Include="Src\SetupTypes.pas"/>
+        <DCCReference Include="Src\VerInfo.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -44,7 +44,7 @@
 {                                                                              }
 {******************************************************************************}
 
-{ Simplified by Martijn Laan for Inno Setup and Delphi 2 }
+{ Simplified by Martijn Laan for Inno Setup }
 
 unit UxTheme;
 
@@ -1088,19 +1088,6 @@ end;
 
 function InitThemeLibrary: Boolean;
 
-  function IsWindowsXP: Boolean;
-  var
-    Info: TOSVersionInfo;
-  begin
-    Result := False;
-    Info.dwOSVersionInfoSize := SizeOf(Info);
-    if GetVersionEx(Info) then
-      if Info.dwPlatformId = VER_PLATFORM_WIN32_NT then
-        if (Info.dwMajorVersion > 5) or
-           ((Info.dwMajorVersion = 5) and (Info.dwMinorVersion >= 1)) then
-          Result := True;
-  end;
-
   function GetSystemDir: String;
   var
     Buf: array[0..MAX_PATH-1] of Char;
@@ -1112,15 +1099,9 @@ function InitThemeLibrary: Boolean;
 begin
   Inc(ReferenceCount);
 
-  { Only attempt to load uxtheme.dll if running Windows XP or later; otherwise
-    if uxtheme.dll happens to exist on Windows 2000 (it shouldn't unless a
-    bugged installer put it there) we get a "RtlUnhandledExceptionFilter could
-    not be located in the dynamic link library ntdll.dll" error message }
-  if (ThemeLibrary = 0) and IsWindowsXP then
-  begin
+  if ThemeLibrary = 0 then begin
     ThemeLibrary := LoadLibrary(PChar(AddBackslash(GetSystemDir) + themelib));
-    if ThemeLibrary <> 0 then
-    begin
+    if ThemeLibrary <> 0 then begin
       OpenThemeData := GetProcAddress(ThemeLibrary, 'OpenThemeData');
       CloseThemeData := GetProcAddress(ThemeLibrary, 'CloseThemeData');
       DrawThemeBackground := GetProcAddress(ThemeLibrary, 'DrawThemeBackground');

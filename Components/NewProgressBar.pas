@@ -2,13 +2,13 @@ unit NewProgressBar;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   TNewProgressBar component - a smooth 32 bit TProgressBar
 
-  Note: themed Vista and newer animate progress bars and don't immediately show changes.
+  Note: themed animated progress bars and don't immediately show changes.
   This applies both to Position and State. For example if you set State while the
   progress bar is still moving towards a new Position, the new State doesnt show until
   the moving animation has finished.
@@ -59,9 +59,6 @@ implementation
 uses
   Windows, CommCtrl;
 
-var
-  XP, Vista: Boolean;
-
 procedure Register;
 begin
   RegisterComponents('JR', [TNewProgressBar]);
@@ -85,7 +82,7 @@ begin
   inherited;
   CreateSubClass(Params, PROGRESS_CLASS);
   Params.Style := Params.Style or PBS_SMOOTH;
-  if XP and (Style = npbstMarquee) then
+  if Style = npbstMarquee then
     Params.Style := Params.Style or PBS_MARQUEE;
 end;
 
@@ -97,8 +94,7 @@ begin
   SendMessage(Handle, PBM_SETRANGE, 0, MAKELPARAM(0, 65535));
   SetPosition(FPosition);
   SetState(FState);
-  if XP then
-    SendMessage(Handle, PBM_SETMARQUEE, WPARAM(FStyle = npbstMarquee), 0);
+  SendMessage(Handle, PBM_SETMARQUEE, WPARAM(FStyle = npbstMarquee), 0);
 end;
 
 procedure TNewProgressBar.SetMin(Value: LongInt);
@@ -132,16 +128,14 @@ const
   PBM_SETSTATE = WM_USER+16;
   States: array[TNewProgressBarState] of UINT = (PBST_NORMAL, PBST_ERROR, PBST_PAUSED);
 begin
-  if Vista then begin
-    FState := Value;
-    if HandleAllocated then
-      SendMessage(Handle, PBM_SETSTATE, States[Value], 0);
-  end;
+  FState := Value;
+  if HandleAllocated then
+    SendMessage(Handle, PBM_SETSTATE, States[Value], 0);
 end;
 
 procedure TNewProgressBar.SetStyle(Value: TNewProgressBarStyle);
 begin
-  if XP and (FStyle <> Value) then begin
+  if FStyle <> Value then begin
     FStyle := Value;
     RecreateWnd;
   end;
@@ -158,13 +152,4 @@ begin
   DefaultHandler(Message);
 end;
 
-var
-  OSVersionInfo: TOSVersionInfo;
-
-initialization
-  OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
-  if GetVersionEx(OSVersionInfo) then begin
-    Vista := OSVersionInfo.dwMajorVersion >= 6;
-    XP := Vista or ((OSVersionInfo.dwMajorVersion = 5) and (OSVersionInfo.dwMinorVersion >= 1));
-  end;
 end.

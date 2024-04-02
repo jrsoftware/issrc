@@ -15,20 +15,27 @@ program ISCC;
   into this program and not depend on ISCmplr.dll. }
 
 uses
-  SafeDLLPath in 'SafeDLLPath.pas',
-  Windows, SysUtils, Classes,
-  {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  PathFunc, CmnFunc2, CompInt, FileClass, CompTypes;
+  SafeDLLPath in 'Src\SafeDLLPath.pas',
+  Windows,
+  SysUtils,
+  Classes,
+  {$IFDEF STATICCOMPILER} Compile in 'Src\Compile.pas', {$ENDIF}
+  PathFunc in '..\Components\PathFunc.pas',
+  CmnFunc2 in 'Src\CmnFunc2.pas',
+  CompInt in 'Src\CompInt.pas',
+  FileClass in 'Src\FileClass.pas',
+  CompTypes in 'Src\CompTypes.pas',
+  Int64Em in 'Src\Int64Em.pas';
 
-{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED} 
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
+{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
 {$R ISCC.manifest.res}
 {$R ISCC.versionandicon.res}
 
-{$I VERSION.INC}
+{$I Src\VERSION.INC}
 
 type
   PScriptLine = ^TScriptLine;

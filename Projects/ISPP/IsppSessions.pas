@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -23,9 +23,9 @@ procedure QueueFileForDeletion(const FileName: string);
 
 implementation
 
-{$I ..\Version.inc}
+{$I ..\Src\Version.inc}
 
-uses SysUtils, Classes, IsppStack {$IFDEF IS_D12}, Windows{$ENDIF};
+uses SysUtils, Classes, IsppStack, Windows;
 
 procedure WarningMsg(const Msg: string; const Args: array of const);
 var
