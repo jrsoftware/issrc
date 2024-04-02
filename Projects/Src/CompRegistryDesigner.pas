@@ -1,5 +1,16 @@
 unit CompRegistryDesigner;
 
+{
+  Inno Setup
+  Copyright (C) 1997-2024 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+
+  Registry Designer form
+
+  Originally contributed by leserg73
+}
+
 interface
 
 uses
@@ -106,7 +117,7 @@ var
 
   function HexStrToStr(const HexStr: String): String;
   var
-    i, idx: Cardinal;
+    i, idx: Integer;
     StrAsBytes: TBytes;
   begin
     SetLength(StrAsBytes, HexStr.Length div 2);
@@ -383,27 +394,22 @@ begin
 end;
 
 procedure TRegistryDesignerForm.btn_BrowseClick(Sender: TObject);
-const
-  HeaderReg = 'Windows Registry Editor Version 5.00';
-  PromtReg = 'Select registry file (*.reg)';
-  FilterReg = 'Registry File (*.reg)|*.reg';
-var
-  FileCheck: TStringList;
-  FilePath: String;
 begin
-  FilePath := '';
-  FileCheck := TStringList.Create;
-  try
-    NewGetOpenFileName(PromtReg, FilePath, '', FilterReg, 'reg', Handle);
-    FileCheck.LoadFromFile(FilePath);
-    if (FileCheck[0] = HeaderReg) and (FileCheck[FileCheck.Count - 1] = '') then
-      begin
-        edt_PathFileReg.Text := FilePath;
-      end
-    else
-      MsgBox('Invalid file format, select another one.', SCompilerFormCaption, mbError, MB_OK);
-  finally
-     FileCheck.Free;
+  var FilePath := '';
+  if NewGetOpenFileName('', FilePath, '', SWizardAppRegFilter, SWizardAppRegDefaultExt, Handle) then begin
+    var FileCheck := TStringList.Create;
+    try
+      FileCheck.LoadFromFile(FilePath);
+      const HeaderReg = 'Windows Registry Editor Version 5.00'; { don't localize }
+      if (FileCheck[0] = HeaderReg) and (FileCheck[FileCheck.Count - 1] = '') then
+        begin
+          edt_PathFileReg.Text := FilePath;
+        end
+      else
+        MsgBox('Invalid file format, select another one.', SCompilerFormCaption, mbError, MB_OK);
+    finally
+       FileCheck.Free;
+    end;
   end;
 end;
 
