@@ -11,8 +11,9 @@ unit CompForm;
 
 {x$DEFINE STATICCOMPILER}
 { For debugging purposes, remove the 'x' to have it link the compiler code
-  into this program and not depend on ISCmplr.dll. Also see Compile's
-  STATICPREPROC. }
+  into this program and not depend on ISCmplr.dll. You will also need to add
+  the Src folder to the Delphi Compiler Search path in the project options.
+  Also see Compile's STATICPREPROC. }
 
 {$I VERSION.INC}
 

@@ -150,9 +150,9 @@ How do the projects link together?
   Struct.pas is changed, you usually will need to recompile ISCmplr, ISPP,
   Setup, and SetupLdr so that everything is in synch.
 
-- There are more units which are shared between projects. Search the 'uses'
-  clauses of the projects and units if you aren't sure if a project uses a
-  particular unit.
+- There are more units which are shared between projects. Search the .dpr
+  files of the projects if you aren't sure if a project uses a particular
+  unit.
 
 - The ISPP help file uses various copies of other Inno Setup files. To synch
   these run **synch-isfiles.bat**.
