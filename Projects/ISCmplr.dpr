@@ -50,8 +50,8 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{$R ISCmplr.images.res}
-{$R ISCmplr.version.res}
+{$R Res\ISCmplr.images.res}
+{$R Res\ISCmplr.version.res}
 
 function ISDllCompileScript(const Params: TCompileScriptParamsEx): Integer;
 stdcall;

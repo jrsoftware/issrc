@@ -32,8 +32,8 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{$R ISCC.manifest.res}
-{$R ISCC.versionandicon.res}
+{$R Res\ISCC.manifest.res}
+{$R Res\ISCC.versionandicon.res}
 
 {$I Src\VERSION.INC}
 
