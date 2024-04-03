@@ -9,19 +9,19 @@ AppName=ɯɐɹƃoɹd ʎɯ
 AppVerName=My Program version 1.5
 DefaultDirName={autopf}\My Program
 UseSetupLdr=0
-OutputDir=..\Projects
+OutputDir=.
 AppVersion=1.2.3        
-OutputBaseFilename=setup
+OutputBaseFilename=Setup
 PrivilegesRequired=lowest
 
 [Languages]
 Name: en; MessagesFile: "compiler:Default.isl"
-Name: nl; MessagesFile: "..\Files\Languages\Dutch.isl"
+Name: nl; MessagesFile: "..\..\Files\Languages\Dutch.isl"
 
 [Files]
-Source: "..\Examples\MyProg.exe"; DestDir: "{app}"
-Source: "..\Examples\MyProg.chm"; DestDir: "{app}"
-Source: "..\Examples\Readme.txt"; DestDir: "{app}"; Flags: isreadme
+Source: "..\..\Examples\MyProg.exe"; DestDir: "{app}"
+Source: "..\..\Examples\MyProg.chm"; DestDir: "{app}"
+Source: "..\..\Examples\Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Code]
 function InitializeSetup: Boolean;

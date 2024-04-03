@@ -161,10 +161,17 @@ How do the projects link together?
 Source code tips
 ----------------
 
-- When debugging the Setup project you should set ``UseSetupLdr=no`` and
-  ``OutputBaseFilename=setup`` in your script, and copy the resulting setup-*.bin
-  files to the source code directory. This way you can simulate an actual
-  installation while running under the Delphi debugger.
+- When building the projects in Debug mode it outputs to Projects\Bin and when
+  debugging it will run from within this directory. To prepare this directory
+  with some extra files you must run **Projects\Bin\synch-isfiles.bat**.
+
+- When debugging the Setup project you should first build all projects in Debug
+  mode, then run the Compil32 project and compile the Debug.iss script which
+  should open automatically, and finally open and run the Setup project.
+  This way you can simulate an actual installation while running under the
+  Delphi debugger.
+  
+- When building the projects in Release mode it outputs to Files.
   
 - All of the forms in the Setup project, with the exception of Main.dfm, have
   Scaled set to False. This is because they dynamically scale themselves at
@@ -177,9 +184,9 @@ Source code tips
 
 - To debug the uninstaller first run Setup.exe to completion with the
   ``/DETACHEDMSG`` command line parameter set. Afterwards copy uninst000.dat and
-  uninst000.msg as setup.dat and setup.msg to the Projects directory in your
+  uninst000.msg as setup.dat and setup.msg to the Projects\Bin directory in your
   issrc path. Then open the Setup project and set the command line parameters to
-  ``/UNINSTMODE "/SECONDPHASE=<your issrc path\Projects\Setup.exe"`` and start
+  ``/UNINSTMODE "/SECONDPHASE=<your issrc path\Projects\Bin\Setup.exe"`` and start
   debugging. Note: each time setup.dat and setup.msg will be deleted if you
   allow the uninstaller to complete so make sure to keep copies.
 
