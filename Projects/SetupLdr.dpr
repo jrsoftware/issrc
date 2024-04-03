@@ -37,9 +37,9 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{$R Setup.icon.res}
-{$R SetupLdr.version.res}
-{$R SetupLdr.offsettable.res}
+{$R Res\Setup.icon.res}
+{$R Res\SetupLdr.version.res}
+{$R Res\SetupLdr.offsettable.res}
 
 procedure RaiseLastError(const Msg: TSetupMessageID);
 var

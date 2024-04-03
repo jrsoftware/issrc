@@ -1,6 +1,2 @@
-*.cfg
-*.dcu
-*.dll
-*.exe
 compilesettings.bat
-Files
+!ISPP.version.res
