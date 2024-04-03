@@ -2,7 +2,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   Left = 0
   Top = 0
   BorderStyle = bsDialog
-  Caption = 'MsgBox/TaskDialogMsgBox Designer'
+  Caption = 'MsgBox/TaskDialogMsgBox Call Designer'
   ClientHeight = 380
   ClientWidth = 548
   Color = clBtnFace
