@@ -12,8 +12,6 @@ unit LZMA;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, SysUtils,
   Compress, Int64Em;

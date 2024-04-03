@@ -23,8 +23,6 @@ procedure QueueFileForDeletion(const FileName: string);
 
 implementation
 
-{$I ..\Src\Version.inc}
-
 uses SysUtils, Classes, IsppStack, Windows;
 
 procedure WarningMsg(const Msg: string; const Args: array of const);

@@ -11,8 +11,6 @@ unit ScriptFunc_R;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   uPSRuntime;
 

@@ -14,8 +14,6 @@ unit Int64Em;
 
 interface
 
-{$I VERSION.INC}
-
 type
   Integer64 = record
     Lo, Hi: LongWord;

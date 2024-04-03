@@ -15,8 +15,6 @@ unit CompForm;
   the Src folder to the Delphi Compiler Search path in the project options.
   Also see Compile's STATICPREPROC. }
 
-{$I VERSION.INC}
-
 {$IFDEF STATICCOMPILER}
 {$R ISCmplr.images.res}
 {$ENDIF}

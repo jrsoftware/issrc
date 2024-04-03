@@ -11,8 +11,6 @@ unit BrowseFunc;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms;
 

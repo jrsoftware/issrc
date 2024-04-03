@@ -14,8 +14,6 @@ interface
 uses
   Windows, SysUtils, FileClass, VerInfo;
 
-{$I VERSION.INC}
-
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
 procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon: Boolean);

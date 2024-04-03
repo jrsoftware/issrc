@@ -11,8 +11,6 @@ unit InstFnc2;
 
 interface
 
-{$I VERSION.INC}
-
 function CreateShellLink(const Filename, Description, ShortcutTo, Parameters,
   WorkingDir: String; IconFilename: String; const IconIndex, ShowCmd: Integer;
   const HotKey: Word; const AppUserModelID: String;

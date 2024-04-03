@@ -98,8 +98,6 @@ uses
 {$R Res\Setup.images.res}
 {$R Res\Setup.version.res}
 
-{$I Src\VERSION.INC}
-
 procedure ShowExceptionMsg;
 var
   S: String;

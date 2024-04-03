@@ -11,8 +11,6 @@ unit ScriptDlg;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs,
   Wizard, Install,

@@ -14,8 +14,6 @@ interface
 uses
   Windows, SysUtils, Struct, Int64Em, MD5, SHA1, CmnFunc2;
 
-{$I VERSION.INC}
-
 type
   PSimpleStringListArray = ^TSimpleStringListArray;
   TSimpleStringListArray = array[0..$1FFFFFFE] of String;

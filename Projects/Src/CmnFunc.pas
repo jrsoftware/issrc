@@ -13,8 +13,6 @@ unit CmnFunc;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, Messages, SysUtils, Forms, Graphics, Controls, StdCtrls, Classes;
 

@@ -11,8 +11,6 @@ unit Wizard;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls,
   Forms, Dialogs, StdCtrls, ExtCtrls,

@@ -12,8 +12,6 @@ unit LZMADecomp;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, SysUtils, Int64Em, Compress;
 
