@@ -155,7 +155,7 @@ How do the projects link together?
   unit.
 
 - The ISPP help file uses various copies of other Inno Setup files. To synch
-  these run **synch-isfiles.bat**.
+  these run **ISPP\Help\synch-isfiles.bat**.
 
 
 Source code tips
