@@ -16,7 +16,7 @@ unit CompForm;
   Also see Compile's STATICPREPROC. }
 
 {$IFDEF STATICCOMPILER}
-{$R ISCmplr.images.res}
+{$R ..\Res\ISCmplr.images.res}
 {$ENDIF}
 
 interface
