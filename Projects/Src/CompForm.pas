@@ -2928,7 +2928,7 @@ function TCompileForm.FindSetupDirectiveValue(const DirectiveName,
 begin
   Result := DefaultValue;
 
-  var Memo := FMainMemo; //this function only searches the main file
+  var Memo := FMainMemo; { This function only searches the main file }
   var StartPos := 0;
   var EndPos := Memo.RawTextLength;
   var Range: TScintRange;
@@ -2937,11 +2937,17 @@ begin
         Memo.FindText(StartPos, EndPos, DirectiveName, [sfoWholeWord], Range) do begin
     var Line := Memo.GetLineFromPosition(Range.StartPos);
     if FMemosStyler.GetSectionFromLineState(Memo.Lines.State[Line]) = scSetup then begin
-      var LineValue := Memo.Lines[Line].Trim; //LineValue can't be empty
+      var LineValue := Memo.Lines[Line].Trim; { LineValue can't be empty }
       if LineValue[1] <> ';' then begin
         var LineParts := LineValue.Split(['=']);
-        if (Length(LineParts) = 2) and SameText(LineParts[0].Trim, DirectiveName) then
-          Result := LineParts[1].Trim; //after this we keep looking for next for if the directive is repeated
+        if (Length(LineParts) = 2) and SameText(LineParts[0].Trim, DirectiveName) then begin
+          Result := LineParts[1].Trim;
+          { If Result is surrounded in quotes, remove them, just like TSetupCompiler.SeparateDirective }
+          if (Length(Result) >= 2) and
+             (Result[1] = '"') and (Result[Length(Result)] = '"') then
+            Result := Copy(Result, 2, Length(Result)-2);
+          { Keep looking for next since the directive might be repeated }
+        end;
       end;
     end;
     StartPos := Range.EndPos;
@@ -2951,8 +2957,9 @@ end;
 function TCompileForm.FindSetupDirectiveValue(const DirectiveName: String;
   DefaultValue: Boolean): Boolean;
 begin
- var Value := FindSetupDirectiveValue(DirectiveName, IfThen(DefaultValue, '1', '0'));
- Result := (Value = '1') or SameText(Value, 'yes') or SameText(Value, 'true');
+  var Value := FindSetupDirectiveValue(DirectiveName, IfThen(DefaultValue, '1', '0'));
+  if not TryStrToBoolean(Value, Result) then
+    Result := DefaultValue;
 end;
 
 procedure TCompileForm.EReplaceClick(Sender: TObject);
