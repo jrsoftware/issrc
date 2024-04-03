@@ -2,13 +2,11 @@ unit NewNotebookReg;
 
 {
   Inno Setup
-  Copyright (C) 1997-2005 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   TNewNotebook design-time registration
-
-  $jrsoftware: issrc/Components/NewNotebookReg.pas,v 1.3 2005/10/11 18:23:37 jr Exp $
 }
 
 interface
@@ -20,25 +18,8 @@ procedure Register;
 
 implementation
 
-{$IFNDEF VER80}  { if it's not Delphi 1.0 }
-  {$IFNDEF VER90}  { if it's not Delphi 2.0 }
-    {$IFNDEF VER93}  { and it's not C++Builder 1.0 }
-      {$IFNDEF VER100}  { if it's not Delphi 3.0 }
-        {$IFNDEF VER110}  { and it's not C++Builder 3.0 }
-          {$IFNDEF VER120} {$IFNDEF VER125}  { if it's not Delphi 4 or C++Builder 4 }
-            {$IFNDEF VER130}  { if it's not Delphi 5 or C++Builder 5 }
-              {$DEFINE IS_D6}  { then it must be at least Delphi 6 or C++Builder 6 }
-            {$ENDIF}
-          {$ENDIF} {$ENDIF}
-        {$ENDIF}
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
-{$ENDIF}
-
 uses
-  NewNotebook,
-  {$IFNDEF IS_D6} DsgnIntf {$ELSE} DesignIntf, DesignEditors {$ENDIF};
+  NewNotebook, DesignIntf, DesignEditors;
 
 { TNewNotebookEditor }
 

@@ -9,8 +9,6 @@ unit CompFunc;
   Additional Compiler IDE functions
 }
 
-{$I VERSION.INC}
-
 interface
 
 uses

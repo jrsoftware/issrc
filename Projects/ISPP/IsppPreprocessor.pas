@@ -15,8 +15,6 @@ interface
 uses Windows, SysUtils, Classes, CompPreprocInt, IniFiles, Registry, IsppIntf,
   IsppBase, IsppStack, IsppIdentMan, IsppParser;
 
-{$I ..\Src\Version.inc}
-
 type
 
   TPreprocessor = class;

@@ -34,7 +34,9 @@ type
   private
     FFilesHelper: TWizardFormFilesHelper;
     function GetText: String;
+    procedure SetCreateAppDir(const Value: Boolean);
   public
+    property CreateAppDir: Boolean write SetCreateAppDir;
     property Text: string read GetText;
   end;
 
@@ -52,6 +54,11 @@ end;
 procedure TFilesDesignerForm.FormDestroy(Sender: TObject);
 begin
   FFilesHelper.Free;
+end;
+
+procedure TFilesDesignerForm.SetCreateAppDir(const Value: Boolean);
+begin
+  NotCreateAppDirCheck.Checked := not Value;
 end;
 
 function TFilesDesignerForm.GetText: String;

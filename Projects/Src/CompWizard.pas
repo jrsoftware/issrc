@@ -11,8 +11,6 @@ unit CompWizard;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
   UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,

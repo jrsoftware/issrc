@@ -13,8 +13,6 @@ unit CmnFunc2;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, SysUtils;
 

@@ -13,8 +13,6 @@ unit Undo;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, SysUtils, Int64Em, FileClass, CmnFunc2;
 

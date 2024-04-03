@@ -14,8 +14,6 @@ unit Compile;
   into this program and not depend on ISPP.dll. Most useful when combined
   with CompForm's STATICCOMPILER. }
 
-{$I VERSION.INC}
-
 interface
 
 uses

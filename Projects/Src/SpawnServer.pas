@@ -11,8 +11,6 @@ unit SpawnServer;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, SysUtils, Messages;
 

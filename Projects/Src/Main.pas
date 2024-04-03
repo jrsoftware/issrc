@@ -11,8 +11,6 @@ unit Main;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
   SetupForm, StdCtrls, Struct, DebugStruct, Int64Em, CmnFunc, CmnFunc2,

@@ -13,8 +13,6 @@ unit FileClass;
   TTextFileReader and TTextFileWriter support ANSI and UTF8 textfiles only.
 }
 
-{$I VERSION.INC}
-
 interface
 
 uses
