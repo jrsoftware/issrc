@@ -234,22 +234,19 @@ begin
         Line := CutStrBeginEnd(Line, 1);
         var DeleteKey := Line.StartsWith('-');
         if DeleteKey then
-          Line.Remove(1, 1);
-        var BackslashPosition := Pos('\', Line);
+          Delete(Line, 1, 1);
+        var P := Pos('\', Line);
 
         var ISRegData: TInnoRegData;
-        ISRegData.Root := Copy(Line, 1, BackslashPosition - 1);
-        ISRegData.Root := StrRootRename(ISRegData.Root);
+        ISRegData.Root := StrRootRename(Copy(Line, 1, P - 1));
+        ISRegData.Subkey := Copy(Line, P + 1, MaxInt);
         if ISRegData.Root.Contains('HKA') then
-          ISRegData.Subkey := 'Software\Classes\'
-        else
-          ISRegData.Subkey := '';
-        ISRegData.Subkey := ISRegData.Subkey + Copy(Line, BackslashPosition + 1, Line.Length);
+          ISRegData.Subkey := 'Software\Classes\' + ISRegData.Subkey;
         ISRegData.Subkey := ISRegData.Subkey.Replace('\WOW6432Node', '')
                                             .Replace('{', '{{')
                                             .QuotedString('"');
 
-        { Go to the first line }
+        { Go to the first line of the section }
         Inc(LineIndex);
         Line := Lines[LineIndex];
 
@@ -258,79 +255,78 @@ begin
         if (Line = '') or (Line <> '') and DeleteKey then
           SubkeyRecord(ISRegData, DeleteKey);
         
-        { Handle first line and next line values - this reuses ISRegData each time }
+        { Handle first line value and next line values - this reuses ISRegData each time }
         while (Line <> '') and not DeleteKey do
         begin
-          BackslashPosition := Pos('=', Line);
-          ISRegData.ValueName := CutStrBeginEnd(Copy(Line, 1, BackslashPosition - 1), 1);
+          P := Pos('=', Line);
+          ISRegData.ValueName := CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
           ISRegData.ValueName := ISRegData.ValueName.Replace('\\', '\')
                                                     .Replace('{', '{{')
                                                     .QuotedString('"');
-          Line := Copy(Line, BackslashPosition + 1, Line.Length);
-          case GetValueType(Line) of
+
+          var Value := Copy(Line, P + 1, MaxInt);
+          case GetValueType(Value) of
             1: begin
                  // REG_SZ
-                 ISRegData.ValueData := CutStrBeginEnd(Line, 1);
+                 ISRegData.ValueData := CutStrBeginEnd(Value, 1);
                  ISRegData.ValueData := ISRegData.ValueData.Replace('\\', '\')
                                                            .Replace('{', '{{')
                                                            .QuotedString('"');
                  ISRegData.ValueType := 'string';
                end;
             2: begin
-                 // REG_BINARY
-                 BackslashPosition := Pos(':', Line);
-                 Line := Copy(Line, BackslashPosition + 1, Line.Length);
-                 ISRegData.ValueData := Line;
-                 // Multiline binary
-                 if Line[Line.Length] = '\' then
-                   ISRegData.ValueData := Copy(ISRegData.ValueData, 1, ISRegData.ValueData.Length - 1);
-                 while Line[Line.Length] = '\' do
+                 P := Pos(':', Value);
+                 Value := Copy(Value, P + 1, MaxInt);
+
+                 var Multiline := Value[Value.Length] = '\';
+                 if Multiline then
+                   Delete(Value, Value.Length, 1);
+                 ISRegData.ValueData := Value;
+
+                 while Multiline do
                  begin
                    Inc(LineIndex);
-                   Line := Lines[LineIndex];
-                   if Line[Line.Length] = '\' then
-                     ISRegData.ValueData := ISRegData.ValueData + Copy(Line, 1, Line.Length - 1).TrimLeft
-                   else
-                     ISRegData.ValueData := ISRegData.ValueData + Copy(Line, 1, Line.Length).TrimLeft;
+                   Value := Lines[LineIndex].TrimLeft;
+                   Multiline := Value[Value.Length] = '\';
+                   if Multiline then
+                     Delete(Value, Value.Length, 1);
+                   ISRegData.ValueData := ISRegData.ValueData + Value;
                  end;
+
                  ISRegData.ValueData := ISRegData.ValueData.Replace(',', ' ');
                  if hex2 or hex7 then
-                   begin
-                     ISRegData.ValueData := ISRegData.ValueData.Replace(' ', '');
-                     ISRegData.ValueData := HexStrToStr(ISRegData.ValueData);
-                   end;
-                 if hex2 then
-                   // REG_EXPAND_SZ
-                   begin
-                     ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '');
-                     ISRegData.ValueType := 'expandsz';
-                   end
-                 else if hex7 then
-                   // REG_MULTI_SZ
-                   begin
-                     ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '{break}');
-                     ISRegData.ValueType := 'multisz';
-                   end
-                 else
-                   // REG_BINARY
+                 begin
+                   ISRegData.ValueData := ISRegData.ValueData.Replace(' ', '');
+                   ISRegData.ValueData := HexStrToStr(ISRegData.ValueData);
+                 end;
+
+                 if hex2 then // REG_EXPAND_SZ
+                 begin
+                   ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '');
+                   ISRegData.ValueType := 'expandsz';
+                 end else if hex7 then // REG_MULTI_SZ
+                 begin
+                   ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '{break}');
+                   ISRegData.ValueType := 'multisz';
+                 end else // REG_BINARY
                    ISRegData.ValueType := 'binary';
+
                  ISRegData.ValueData := ISRegData.ValueData.QuotedString('"');
                end;
             3: begin
-                 BackslashPosition := Pos(':', Line);
-                 ISRegData.ValueData := Copy(Line, BackslashPosition + 1, Line.Length);
-                 if hexb then
-                   // REG_QWORD
-                   begin
-                     Line := ISRegData.ValueData.Replace(',', '');
-                     ISRegData.ValueData := '';
-                     for var j := 0 to Line.Length div 2 do
-                       ISRegData.ValueData := Copy(Line, (j * 2) + 1, 2) + ISRegData.ValueData;
-                     ISRegData.ValueType := 'qword';
-                   end
-                 else
-                   // REG_DWORD
+                 P := Pos(':', Value);
+                 ISRegData.ValueData := Copy(Value, P + 1, MaxInt);
+
+                 if hexb then // REG_QWORD
+                 begin
+                   Value := ISRegData.ValueData.Replace(',', '');
+                   ISRegData.ValueData := '';
+                   for var I := 0 to Value.Length div 2 do
+                     ISRegData.ValueData := Copy(Value, (I * 2) + 1, 2) + ISRegData.ValueData;
+                   ISRegData.ValueType := 'qword';
+                 end else // REG_DWORD
                    ISRegData.ValueType := 'dword';
+
                  ISRegData.ValueData := '$' + ISRegData.ValueData;
                end;
             4: begin
@@ -340,7 +336,7 @@ begin
                end;
           end;
           SubkeyParamRecord(ISRegData, DeleteValue);
-          
+
           { Go to the next line }
           Inc(LineIndex);
           Line := Lines[LineIndex];
