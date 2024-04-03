@@ -1,4 +1,9 @@
 *.dcu
 *.dll
 *.exe
+*.e32
 setup-*.bin
+Default.isl
+ISPPBuiltins.iss
+*.chm
+*.chw

@@ -219,6 +219,7 @@ type
     VCloseTab2: TMenuItem;
     VReopenTab2: TMenuItem;
     VReopenTabs2: TMenuItem;
+    N23: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);

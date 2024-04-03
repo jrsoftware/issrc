@@ -689,20 +689,23 @@ object CompileForm: TCompileForm
         Caption = '&Add/Remove Programs'
         OnClick = TAddRemoveProgramsClick
       end
+      object N23: TMenuItem
+        Caption = '-'
+      end
       object TGenerateGUID: TMenuItem
         Caption = 'Generate &GUID'
         ShortCut = 24647
         OnClick = TGenerateGUIDClick
       end
-      object TMsgBoxDesigner: TMenuItem
-        Caption = '&MsgBox/TaskDialogMsgBox Designer...'
-        ShortCut = 24653
-        OnClick = TMsgBoxDesignerClick
-      end
       object TFilesDesigner: TMenuItem
-        Caption = '[F&iles] Entries Designer...'
+        Caption = 'Generate [F&iles] Entries...'
         ShortCut = 24649
         OnClick = TFilesDesignerClick
+      end
+      object TMsgBoxDesigner: TMenuItem
+        Caption = '&Generate MsgBox/TaskDialogMsgBox Call...'
+        ShortCut = 24653
+        OnClick = TMsgBoxDesignerClick
       end
       object N7: TMenuItem
         Caption = '-'

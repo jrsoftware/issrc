@@ -94,9 +94,9 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{$R Setup.icon.res}
-{$R Setup.images.res}
-{$R Setup.version.res}
+{$R Res\Setup.icon.res}
+{$R Res\Setup.images.res}
+{$R Res\Setup.version.res}
 
 {$I Src\VERSION.INC}
 

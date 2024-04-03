@@ -1,4 +1,5 @@
 *.dsk
+*.res
 *.dproj.local
 *.groupproj.local
 *.identcache
