@@ -23,6 +23,11 @@ if "%HHCEXE%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
+echo Synching IS files:
+echo.
+call synch-isfiles.bat
+if errorlevel 1 goto failed
+
 echo Generating help files using ISHelpGen:
 echo.
 ..\..\..\ishelp\ISHelpGen\ISHelpGen.exe .

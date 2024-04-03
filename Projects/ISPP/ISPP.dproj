@@ -69,10 +69,10 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
-        <DCC_ExeOutput>..</DCC_ExeOutput>
-        <Debugger_HostApplication>..\Compil32.exe</Debugger_HostApplication>
+        <DCC_ExeOutput>..\Bin</DCC_ExeOutput>
+        <Debugger_HostApplication>..\Bin\Compil32.exe</Debugger_HostApplication>
         <Debugger_RunParams>Debug.iss</Debugger_RunParams>
-        <Debugger_CWD>..</Debugger_CWD>
+        <Debugger_CWD>..\Bin</Debugger_CWD>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

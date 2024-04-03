@@ -155,16 +155,23 @@ How do the projects link together?
   unit.
 
 - The ISPP help file uses various copies of other Inno Setup files. To synch
-  these run **synch-isfiles.bat**.
+  these run **ISPP\Help\synch-isfiles.bat**.
 
 
 Source code tips
 ----------------
 
-- When debugging the Setup project you should set ``UseSetupLdr=no`` and
-  ``OutputBaseFilename=setup`` in your script, and copy the resulting setup-*.bin
-  files to the source code directory. This way you can simulate an actual
-  installation while running under the Delphi debugger.
+- When building the projects in Debug mode it outputs to Projects\Bin and when
+  debugging it will run from within this directory. To prepare this directory
+  with some extra files you must run **Projects\Bin\synch-isfiles.bat**.
+
+- When debugging the Setup project you should first build all projects in Debug
+  mode, then run the Compil32 project and compile the Debug.iss script which
+  should open automatically, and finally open and run the Setup project.
+  This way you can simulate an actual installation while running under the
+  Delphi debugger.
+  
+- When building the projects in Release mode it outputs to Files.
   
 - All of the forms in the Setup project, with the exception of Main.dfm, have
   Scaled set to False. This is because they dynamically scale themselves at
@@ -177,9 +184,9 @@ Source code tips
 
 - To debug the uninstaller first run Setup.exe to completion with the
   ``/DETACHEDMSG`` command line parameter set. Afterwards copy uninst000.dat and
-  uninst000.msg as setup.dat and setup.msg to the Projects directory in your
+  uninst000.msg as setup.dat and setup.msg to the Projects\Bin directory in your
   issrc path. Then open the Setup project and set the command line parameters to
-  ``/UNINSTMODE "/SECONDPHASE=<your issrc path\Projects\Setup.exe"`` and start
+  ``/UNINSTMODE "/SECONDPHASE=<your issrc path\Projects\Bin\Setup.exe"`` and start
   debugging. Note: each time setup.dat and setup.msg will be deleted if you
   allow the uninstaller to complete so make sure to keep copies.
 
@@ -201,14 +208,14 @@ by Visual Studio 2005 from the [Projects\Lzma2\Encoder] directory.
 **Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintilla 2.22 source
 code with scintilla-2.22-patch.txt applied.
 
-**Projects\Helper\x64\Release\Helper.exe**, **Projects\HelperEXEs.res** -
+**Projects\Helper\x64\Release\Helper.exe**, **Projects\Src\HelperEXEs.res** -
 Compiled by Visual Studio 2005 from the [Projects\Helper] directory and then
 stored in a compiled resource file.
 
-**Projects\LzmaDecode\LzmaDecodeInno.obj** - See [Projects\LzmaDecode\compiling.txt].
+**Projects\Src\LzmaDecode\LzmaDecodeInno.obj** - See [Projects\Src\LzmaDecode\compiling.txt].
 
-**Projects\Lzma2\Decoder\ISLzmaDec.obj**, **Projects\Lzma2\Decoder\ISLzma2Dec.obj** -
-See [Projects\Lzma2\Decoder\compiling.txt].
+**Projects\Src\Lzma2\Decoder\ISLzmaDec.obj**, **Projects\Src\Lzma2\Decoder\ISLzma2Dec.obj** -
+See [Projects\Src\Lzma2\Decoder\compiling.txt].
 
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe** - Compiled by Visual Studio
 2022 from the [Examples\MyProg] directory.
@@ -263,23 +270,6 @@ https://github.com/YOUR-USER-NAME/issrc to add the topic).
 
 Once that's done, you're set! The next time you push a branch to your fork, the
 workflow will be triggered automatically.
-
-### Setting up code-signing with Continuous Integration
-
-If you have a code-signing certificate, you can use that in the Continuous
-Integration to produce artifacts that are code-signed, too, as long as the
-certificate does not require any local-only security factor such as a USB
-security key. To use the certificate, you first have to add the repository
-[secret] `CODESIGN_P12`, using as value the base64-encoded file contents of the
-certificate's `.p12` file (obtain this value e.g. by running `base64 -w 0
-<my-certificate.p12`). Then, add the corresponding certificate password as
-repository secret named `CODESIGN_PASS`.
-
-Once these two repository secrets are set, the Continuous Integration will
-automatically pick them up and code-sign the generated executable files.
-
-Note: These repository secrets are only _used_ in the Continuous Integration,
-and will _not_ be included in the build artifacts.
 
 <!-- Link references -->
 [CONTRIBUTING.md]: <CONTRIBUTING.md>

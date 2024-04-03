@@ -1,7 +1,5 @@
-*.dcu
-*.dll
+*.dsk
 *.dproj.local
-*.exe
+*.groupproj.local
 *.identcache
-buildtag.inc
-setup-*.bin
+*.tvsconfig

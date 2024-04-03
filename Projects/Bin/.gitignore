@@ -1,0 +1,4 @@
+*.dcu
+*.dll
+*.exe
+setup-*.bin
