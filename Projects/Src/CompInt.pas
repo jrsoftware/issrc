@@ -2,7 +2,7 @@ unit CompInt;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -39,6 +39,9 @@ const
                              by the application }
 
 type
+  TScriptOption = (soCreateAppDir);
+  TScriptOptions = set of TScriptOption;
+
   { TCompilerCallbackData is a record passed to the callback function. The
     fields which you may access vary depending on what Code was passed to the
     callback function. }
@@ -82,11 +85,12 @@ type
                                           character (new in 6.1.0) }
 
       iscbNotifySuccess: (
-        OutputExeFilename: PChar;  { [in] The name of the resulting setup.exe,
-                                          or empty if output was disabled
-                                          (latter new in 5.5.5) }
-        DebugInfo: Pointer;        { [in] Debug info (new in 3.0.0.1) }
-        DebugInfoSize: Cardinal);  { [in] Size of debug info (new in 3.0.0.1) }
+        OutputExeFilename: PChar;       { [in] The name of the resulting setup.exe,
+                                               or empty if output was disabled
+                                               (latter new in 5.5.5) }
+        DebugInfo: Pointer;             { [in] Debug info (new in 3.0.0.1) }
+        DebugInfoSize: Cardinal;        { [in] Size of debug info (new in 3.0.0.1) }
+        ScriptOptions: TScriptOptions); { [in] Various option values (new in 6.3.0) }
 
       iscbNotifyError: (
         ErrorMsg: PChar;      { [in] The error message, or NULL if compilation

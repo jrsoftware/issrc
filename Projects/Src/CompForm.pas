@@ -383,6 +383,7 @@ type
     FProcessHandle, FDebugClientProcessHandle: THandle;
     FDebugTarget: TDebugTarget;
     FCompiledExe, FUninstExe, FTempDir: String;
+    FCompiledCreateAppDir: Boolean;
     FPreprocessorOutput: String;
     FIncludedFiles: TIncludedFiles;
     FLoadingIncludedFiles: Boolean;
@@ -734,6 +735,8 @@ begin
   FModifiedAnySinceLastCompile := True;
 
   InitFormFont(Self);
+
+  FCompiledCreateAppDir := True;  //should match TSetupCompiler.Compile's default
 
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
     'poDefault' Position setting }
@@ -1410,6 +1413,7 @@ type
     CurLineNumber: Integer;
     CurLine: String;
     OutputExe: String;
+    CreateAppDir: Boolean;
     DebugInfo: Pointer;
     ErrorMsg: String;
     ErrorFilename: String;
@@ -1526,6 +1530,7 @@ begin
             Move(Data.DebugInfo^, DebugInfo^, Data.DebugInfoSize);
           end else
             DebugInfo := nil;
+          CreateAppDir := soCreateAppDir in Data.ScriptOptions;
         end;
       iscbNotifyError:
         begin
@@ -1732,6 +1737,7 @@ begin
     StatusBar.Panels[spExtraStatus].Text := '';
   end;
   FCompiledExe := AppData.OutputExe;
+  FCompiledCreateAppDir := AppData.CreateAppDir;
   FModifiedAnySinceLastCompile := False;
   FModifiedAnySinceLastCompileAndGo := False;
 end;
@@ -3051,6 +3057,7 @@ procedure TCompileForm.TFilesDesignerClick(Sender: TObject);
 begin
   var FilesDesignerForm := TFilesDesignerForm.Create(Application);
   try
+    FilesDesignerForm.CreateAppDir := FCompiledCreateAppDir;
     if FilesDesignerForm.ShowModal = mrOk then begin
       FActiveMemo.CaretColumn := 0;
       var Text := FilesDesignerForm.Text;
