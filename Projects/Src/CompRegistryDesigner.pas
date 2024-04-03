@@ -71,17 +71,14 @@ var
 
   function CutStrBeginEnd(S: String; CharCount: Integer): String;
   begin
-    Result := Copy(S, CharCount + 1, S.Length);
-    Result := Copy(Result, 1, S.Length - CharCount - 1);
+    Result := Copy(S, CharCount + 1, S.Length - 2 * CharCount);
   end;
 
   function StrRootRename(S: String): String;
   type
     TStrings = (HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, HKEY_CLASSES_ROOT, HKEY_USERS, HKEY_CURRENT_CONFIG);
-  var
-    ARoot: TStrings;
   begin
-    ARoot := TStrings(GetEnumValue(TypeInfo(TStrings), S));
+    var ARoot := TStrings(GetEnumValue(TypeInfo(TStrings), S));
     case ARoot of
       HKEY_CURRENT_USER:   Result := 'HKCU';
       HKEY_LOCAL_MACHINE:  Result := 'HKLM';
@@ -92,13 +89,11 @@ var
   end;
 
   function HexStrToStr(const HexStr: String): String;
-  var
-    i, idx: Integer;
-    StrAsBytes: TBytes;
   begin
+    var StrAsBytes: TBytes;
     SetLength(StrAsBytes, HexStr.Length div 2);
-    i := 1;
-    idx := 0;
+    var i := 1;
+    var idx := 0;
     while i <= HexStr.Length do
     begin
       StrAsBytes[idx] := StrToInt('$' + HexStr[i] + HexStr[i + 1]);
@@ -171,10 +166,8 @@ var
   end;
 
   function AddParamToStr(const AStr: String): String;
-  var
-   AParam: String;
   begin
-    AParam := AStr;
+    var AParam := AStr;
     if cb_MinVer.Checked then
       AParam := AParam + '; MinVersion: ' + edt_MinVer.Text;
     if cb_CheksIs64bit.Checked then
@@ -188,11 +181,9 @@ var
   end;
 
   procedure SubkeyRecord(AReg: TInnoRegData; ADelKey: Boolean = False);
-  var
-    ALine: String;
   begin
-    ALine := 'Root: ' + AReg.Root +
-             '; Subkey: ' + AReg.Subkey;
+    var ALine := 'Root: ' + AReg.Root +
+                 '; Subkey: ' + AReg.Subkey;
     if ADelKey then
       ALine := ALine + '; ValueType: none' +
                        '; Flags: deletekey';
@@ -205,13 +196,11 @@ var
   end;
 
   procedure SubkeyParamRecord(AReg: TInnoRegData; ADelParam: Boolean);
-  var
-    ALine: String;
   begin
-    ALine := 'Root: ' + AReg.Root +
-             '; Subkey: ' + AReg.Subkey +
-             '; ValueType: ' + AReg.ValueType +
-             '; ValueName: ' + AReg.ValueName;
+    var ALine := 'Root: ' + AReg.Root +
+                 '; Subkey: ' + AReg.Subkey +
+                 '; ValueType: ' + AReg.ValueType +
+                 '; ValueName: ' + AReg.ValueName;
     if not ADelParam then
       ALine := ALine + '; ValueData: ' + AReg.ValueData;
     if ADelParam then
@@ -224,37 +213,30 @@ var
     OutBuffer.Add(ALine);
   end;
 
-const
-  RemarkaLine = '; [ BEGIN ] Registry data from file ';
-  RemarkaEND = '; [ END ]';
-var
-  InBuffer: TStringList;
-  InBufStr: String;
-  i, j, poschar: Integer;
-  ISRegData: TInnoRegData;
-  delkey: Boolean;
 begin
-  InBuffer := TStringList.Create;
+  var InBuffer := TStringList.Create;
   OutBuffer := TStringList.Create;
   try
-    OutBuffer.Clear;
     InBuffer.LoadFromFile(edt_PathFileReg.Text);
-    OutBuffer.Add(RemarkaLine + ExtractFileName(edt_PathFileReg.Text));
-    i := 0;
+    OutBuffer.Add('; [ BEGIN ] Registry data from file ' + ExtractFileName(edt_PathFileReg.Text));
+    var i := 0;
     while i <= InBuffer.Count-1 do
     begin
-      InBufStr := InBuffer[i];
+      var InBufStr := InBuffer[i];
       if (Length(InBufStr) > 2) and (InBufStr[1] = '[') and (InBufStr[InBufStr.Length] = ']') then
       begin
         { Got a new root, handle the entire section }
-        delkey := False;
+        
+        { First set the root and subkey of the new entry }
+        var delkey := False;
         InBufStr := CutStrBeginEnd(InBufStr, 1);
         if InBufStr.StartsWith('-') then
           begin
             delkey := True;
             InBufStr := Copy(InBufStr, 2, InBufStr.Length);
           end;
-        poschar := Pos('\', InBufStr);
+        var poschar := Pos('\', InBufStr);
+        var ISRegData: TInnoRegData;
         ISRegData.Root := Copy(InBufStr, 1, poschar - 1);
         ISRegData.Root := StrRootRename(ISRegData.Root);
         if ISRegData.Root.Contains('HKA') then
@@ -269,12 +251,17 @@ begin
             //ISRegData.Root := ISRegData.Root + '32'; // 32-bit on Windows 64 bit
             ISRegData.Subkey := ISRegData.Subkey.Replace('\WOW6432Node', '');
           end;
+          
+        { Go to the first line }
         Inc(i);
         InBufStr := InBuffer[i];
+
         if (InBufStr = '') and not delkey then
           SubkeyRecord(ISRegData);
         if (InBufStr = '') or (InBufStr <> '') and delkey then
           SubkeyRecord(ISRegData, delkey);
+        
+        { Handle first line and next line values }
         while (InBufStr <> '') and not delkey do
         begin
           poschar := Pos('=', InBufStr);
@@ -340,8 +327,8 @@ begin
                    begin
                      InBufStr := ISRegData.ValueData.Replace(',', '');
                      ISRegData.ValueData := '';
-                     for j := 0 to (InBufStr.Length div 2) do
-                     ISRegData.ValueData := Copy(InBufStr, (j * 2) + 1, 2) + ISRegData.ValueData;
+                     for var j := 0 to InBufStr.Length div 2 do
+                       ISRegData.ValueData := Copy(InBufStr, (j * 2) + 1, 2) + ISRegData.ValueData;
                      ISRegData.ValueType := 'qword';
                    end
                  else
@@ -356,13 +343,15 @@ begin
                end;
           end;
           SubkeyParamRecord(ISRegData, delval);
+          
+          { Go to the next line }
           Inc(i);
           InBufStr := InBuffer[i];
         end;
       end;
       Inc(i);
     end;
-    OutBuffer.Add(RemarkaEND);
+    OutBuffer.Add('; [ END ]');
     Result := OutBuffer.Text;
   finally
     InBuffer.Free;
