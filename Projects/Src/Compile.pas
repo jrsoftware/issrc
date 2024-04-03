@@ -9044,9 +9044,6 @@ function ISCompileScript(const Params: TCompileScriptParamsEx;
     Data.OutputExeFilename := PChar(SetupCompiler.ExeFilename);
     Data.DebugInfo := SetupCompiler.DebugInfo.Memory;
     Data.DebugInfoSize := SetupCompiler.DebugInfo.Size;
-    Data.ScriptOptions := [];
-    if shCreateAppDir in SetupCompiler.SetupHeader.Options then
-      Include(Data.ScriptOptions, soCreateAppDir);
     Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
   end;
 

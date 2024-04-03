@@ -381,7 +381,6 @@ type
     FProcessHandle, FDebugClientProcessHandle: THandle;
     FDebugTarget: TDebugTarget;
     FCompiledExe, FUninstExe, FTempDir: String;
-    FCompiledCreateAppDir: Boolean;
     FPreprocessorOutput: String;
     FIncludedFiles: TIncludedFiles;
     FLoadingIncludedFiles: Boolean;
@@ -425,6 +424,10 @@ type
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       var Output: String): Integer;
     procedure FindNext;
+    function FindSetupDirectiveValue(const DirectiveName,
+      DefaultValue: String): String; overload;
+    function FindSetupDirectiveValue(const DirectiveName: String;
+      DefaultValue: Boolean): Boolean; overload;
     function FromCurrentPPI(const XY: Integer): Integer;
     procedure Go(AStepMode: TStepMode);
     procedure HideError;
@@ -530,7 +533,8 @@ var
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Math, WideStrUtils,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
+  Math, StrUtils, WideStrUtils,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -733,8 +737,6 @@ begin
   FModifiedAnySinceLastCompile := True;
 
   InitFormFont(Self);
-
-  FCompiledCreateAppDir := True;  //should match TSetupCompiler.Compile's default
 
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
     'poDefault' Position setting }
@@ -1411,7 +1413,6 @@ type
     CurLineNumber: Integer;
     CurLine: String;
     OutputExe: String;
-    CreateAppDir: Boolean;
     DebugInfo: Pointer;
     ErrorMsg: String;
     ErrorFilename: String;
@@ -1528,7 +1529,6 @@ begin
             Move(Data.DebugInfo^, DebugInfo^, Data.DebugInfoSize);
           end else
             DebugInfo := nil;
-          CreateAppDir := soCreateAppDir in Data.ScriptOptions;
         end;
       iscbNotifyError:
         begin
@@ -1735,7 +1735,6 @@ begin
     StatusBar.Panels[spExtraStatus].Text := '';
   end;
   FCompiledExe := AppData.OutputExe;
-  FCompiledCreateAppDir := AppData.CreateAppDir;
   FModifiedAnySinceLastCompile := False;
   FModifiedAnySinceLastCompileAndGo := False;
 end;
@@ -2876,12 +2875,6 @@ begin
 end;
 
 procedure TCompileForm.FindInFilesDialogFind(Sender: TObject);
-var
-  Memo: TCompScintFileEdit;
-  Hits, FileHits, Files, StartPos, EndPos, Line: Integer;
-  Range: TScintRange;
-  FindResult: TFindResult;
-  Prefix: String;
 begin
   StoreLastFindOptions(Sender);
 
@@ -2889,20 +2882,21 @@ begin
   SendMessage(FindResultsList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
   FFindResults.Clear;
 
-  Hits := 0;
-  Files := 0;
+  var Hits := 0;
+  var Files := 0;
 
-  for Memo in FFileMemos do begin
+  for var Memo in FFileMemos do begin
     if Memo.Used then begin
-      StartPos := 0;
-      EndPos := Memo.RawTextLength;
-      FileHits := 0;
+      var StartPos := 0;
+      var EndPos := Memo.RawTextLength;
+      var FileHits := 0;
+      var Range: TScintRange;
       while (StartPos < EndPos) and
             Memo.FindText(StartPos, EndPos, FLastFindText,
               FindOptionsToSearchOptions(FLastFindOptions), Range) do begin
-        Line := Memo.GetLineFromPosition(Range.StartPos);
-        Prefix := Format('  Line %d: ', [Line+1]);
-        FindResult := TFindResult.Create;
+        var Line := Memo.GetLineFromPosition(Range.StartPos);
+        var Prefix := Format('  Line %d: ', [Line+1]);
+        var FindResult := TFindResult.Create;
         FindResult.Filename := Memo.Filename;
         FindResult.Line := Line;
         FindResult.LineStartPos := Memo.GetPositionFromLine(Line);
@@ -2927,6 +2921,38 @@ begin
 
   OutputTabSet.TabIndex := tiFindResults;
   SetStatusPanelVisible(True);
+end;
+
+function TCompileForm.FindSetupDirectiveValue(const DirectiveName,
+  DefaultValue: String): String;
+begin
+  Result := DefaultValue;
+
+  var Memo := FMainMemo; //this function only searches the main file
+  var StartPos := 0;
+  var EndPos := Memo.RawTextLength;
+  var Range: TScintRange;
+
+  while (StartPos < EndPos) and
+        Memo.FindText(StartPos, EndPos, DirectiveName, [sfoWholeWord], Range) do begin
+    var Line := Memo.GetLineFromPosition(Range.StartPos);
+    if FMemosStyler.GetSectionFromLineState(Memo.Lines.State[Line]) = scSetup then begin
+      var LineValue := Memo.Lines[Line].Trim; //LineValue can't be empty
+      if LineValue[1] <> ';' then begin
+        var LineParts := LineValue.Split(['=']);
+        if (Length(LineParts) = 2) and SameText(LineParts[0].Trim, DirectiveName) then
+          Result := LineParts[1].Trim; //after this we keep looking for next for if the directive is repeated
+      end;
+    end;
+    StartPos := Range.EndPos;
+  end;
+end;
+
+function TCompileForm.FindSetupDirectiveValue(const DirectiveName: String;
+  DefaultValue: Boolean): Boolean;
+begin
+ var Value := FindSetupDirectiveValue(DirectiveName, IfThen(DefaultValue, '1', '0'));
+ Result := (Value = '1') or SameText(Value, 'yes') or SameText(Value, 'true');
 end;
 
 procedure TCompileForm.EReplaceClick(Sender: TObject);
@@ -3055,7 +3081,7 @@ procedure TCompileForm.TFilesDesignerClick(Sender: TObject);
 begin
   var FilesDesignerForm := TFilesDesignerForm.Create(Application);
   try
-    FilesDesignerForm.CreateAppDir := FCompiledCreateAppDir;
+    FilesDesignerForm.CreateAppDir := FindSetupDirectiveValue('CreateAppDir', True);
     if FilesDesignerForm.ShowModal = mrOk then begin
       FActiveMemo.CaretColumn := 0;
       var Text := FilesDesignerForm.Text;
