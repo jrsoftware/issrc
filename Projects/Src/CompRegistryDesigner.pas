@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls,
-  Forms, StdCtrls, TypInfo, UITypes, Vcl.ExtCtrls;
+  Forms, StdCtrls, TypInfo, UITypes, ExtCtrls;
 
 type
   TRegistryDesignerForm = class(TForm)
@@ -69,27 +69,10 @@ var
   hexb, hex2, hex7, hex0: Boolean;
   delval: Boolean;
 
-  function StrIsRoot(S: String): Boolean;
-  begin
-    Result := False;
-    if S <> '' then
-      Result := (S[1] = '[') and (S[S.Length] = ']')
-  end;
-
   function CutStrBeginEnd(S: String; CharCount: Integer): String;
   begin
     Result := Copy(S, CharCount + 1, S.Length);
     Result := Copy(Result, 1, S.Length - CharCount - 1);
-  end;
-
-  function DelSpaceChar(S: String): String;
-  var
-    i: Integer;
-  begin
-    Result := '';
-    for i := 1 to S.Length do
-      if S[i] <> ' ' then
-        Result := Result + S[i]
   end;
 
   function StrRootRename(S: String): String;
@@ -125,7 +108,7 @@ var
     Result := TEncoding.Unicode.GetString(StrAsBytes);
   end;
 
-  function getValueType(AStr: String): Integer;
+  function GetValueType(AStr: String): Integer;
   (* "Value A"="<String value data with escape characters>"
      "Value B"=hex:<Binary data (as comma-delimited list of hexadecimal values)>
      "Value C"=dword:<DWORD value integer>
@@ -195,12 +178,12 @@ var
     if cb_MinVer.Checked then
       AParam := AParam + '; MinVersion: ' + edt_MinVer.Text;
     if cb_CheksIs64bit.Checked then
-      begin
-        if rb_Is64BitInstMod.Checked then
-          AParam := AParam + '; Check: Is64BitInstallMode';
-        if rb_NotIs64BitInstMod.Checked then
-          AParam := AParam + '; Check: not Is64BitInstallMode';
-      end;
+    begin
+      if rb_Is64BitInstMod.Checked then
+        AParam := AParam + '; Check: Is64BitInstallMode';
+      if rb_NotIs64BitInstMod.Checked then
+        AParam := AParam + '; Check: not Is64BitInstallMode';
+    end;
     Result := AParam;
   end;
 
@@ -221,7 +204,7 @@ var
     OutBuffer.Add(ALine);
   end;
 
-  procedure SubkeyParamRecord(AReg: TInnoRegData; ADelParam: Boolean = False);
+  procedure SubkeyParamRecord(AReg: TInnoRegData; ADelParam: Boolean);
   var
     ALine: String;
   begin
@@ -256,132 +239,130 @@ begin
   try
     OutBuffer.Clear;
     InBuffer.LoadFromFile(edt_PathFileReg.Text);
-    OutBuffer.Add(SNewLine + RemarkaLine + ExtractFileName(edt_PathFileReg.Text));
+    OutBuffer.Add(RemarkaLine + ExtractFileName(edt_PathFileReg.Text));
     i := 0;
     while i <= InBuffer.Count-1 do
+    begin
+      InBufStr := InBuffer[i];
+      if (Length(InBufStr) > 2) and (InBufStr[1] = '[') and (InBufStr[InBufStr.Length] = ']') then
       begin
-        InBufStr := InBuffer.Strings[i];
-        if StrIsRoot(InBufStr) then
+        { Got a new root, handle the entire section }
+        delkey := False;
+        InBufStr := CutStrBeginEnd(InBufStr, 1);
+        if InBufStr.StartsWith('-') then
           begin
-            delkey := False;
-            InBufStr := CutStrBeginEnd(InBufStr, 1);
-            if InBufStr.StartsWith('-') then
-              begin
-                delkey := True;
-                InBufStr := Copy(InBufStr, 2, InBufStr.Length);
-              end;
-            poschar := Pos('\', InBufStr);
-            ISRegData.Root := Copy(InBufStr, 1, poschar - 1);
-            ISRegData.Root := StrRootRename(ISRegData.Root);
-            if ISRegData.Root.Contains('HKA') then
-              ISRegData.Subkey := 'Software\Classes\'
-            else
-              ISRegData.Subkey := '';
-            ISRegData.Subkey := ISRegData.Subkey + Copy(InBufStr, poschar + 1, InBufStr.Length);
-            ISRegData.Subkey := ISRegData.Subkey.Replace('{', '{{');
-            ISRegData.Subkey := ISRegData.Subkey.QuotedString('"');
-            if ISRegData.Subkey.Contains('\WOW6432Node') then
-              begin
-                //ISRegData.Root := ISRegData.Root + '32'; // 32-bit on Windows 64 bit
-                ISRegData.Subkey := ISRegData.Subkey.Replace('\WOW6432Node', '');
-              end;
-            Inc(i);
-            InBufStr := InBuffer.Strings[i];
-            if (InBufStr = '') and not delkey then
-              SubkeyRecord(ISRegData);
-            if (InBufStr = '') or (InBufStr <> '') and delkey then
-              SubkeyRecord(ISRegData, delkey);
-            while (InBufStr <> '') and not delkey do
-            begin
-              poschar := Pos('=', InBufStr);
-              ISRegData.ValueName := CutStrBeginEnd(Copy(InBufStr, 1, poschar - 1), 1);
-              ISRegData.ValueName := ISRegData.ValueName.Replace('\\', '\');
-              ISRegData.ValueName := ISRegData.ValueName.Replace('{', '{{');
-              ISRegData.ValueName := ISRegData.ValueName.QuotedString('"');
-              InBufStr := Copy(InBufStr, poschar + 1, InBufStr.Length);
-              case getValueType(InBufStr) of
-                1: begin
-                     // REG_SZ
-                     ISRegData.ValueData := CutStrBeginEnd(InBufStr, 1);
-                     ISRegData.ValueData := ISRegData.ValueData.Replace('\\', '\');
-                     ISRegData.ValueData := ISRegData.ValueData.Replace('{', '{{');
-                     ISRegData.ValueData := ISRegData.ValueData.QuotedString('"');
-                     ISRegData.ValueType := 'string';
-                   end;
-                2: begin
-                     // REG_BINARY
-                     poschar := Pos(':', InBufStr);
-                     InBufStr := Copy(InBufStr, poschar + 1, InBufStr.Length);
-                     ISRegData.ValueData := InBufStr;
-                     // Multiline binary
-                     if InBufStr[InBufStr.Length] = '\' then
-                       ISRegData.ValueData := Copy(ISRegData.ValueData, 1, ISRegData.ValueData.Length - 1);
-                     while InBufStr[InBufStr.Length] = '\' do
-                     begin
-                       Inc(i);
-                       InBufStr := InBuffer.Strings[i];
-                       if InBufStr[InBufStr.Length] = '\' then
-                         ISRegData.ValueData := ISRegData.ValueData + DelSpaceChar(Copy(InBufStr, 1, InBufStr.Length - 1))
-                       else
-                         ISRegData.ValueData := ISRegData.ValueData + DelSpaceChar(Copy(InBufStr, 1, InBufStr.Length))
-                     end;
-                     ISRegData.ValueData := ISRegData.ValueData.Replace(',', ' ');
-                     if hex2 or hex7 then
-                       begin
-                         ISRegData.ValueData := ISRegData.ValueData.Replace(' ', '');
-                         ISRegData.ValueData := HexStrToStr(ISRegData.ValueData);
-                       end;
-                     if hex2 then
-                       // REG_EXPAND_SZ
-                       begin
-                         ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '');
-                         ISRegData.ValueType := 'expandsz';
-                       end
-                     else if hex7 then
-                       // REG_MULTI_SZ
-                       begin
-                         ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '{break}');
-                         ISRegData.ValueType := 'multisz';
-                       end
-                     else
-                       // REG_BINARY
-                       ISRegData.ValueType := 'binary';
-                     ISRegData.ValueData := ISRegData.ValueData.QuotedString('"');
-                   end;
-                3: begin
-                     poschar := Pos(':', InBufStr);
-                     ISRegData.ValueData := Copy(InBufStr, poschar + 1, InBufStr.Length);
-                     if hexb then
-                       // REG_QWORD
-                       begin
-                         InBufStr := ISRegData.ValueData.Replace(',', '');
-                         ISRegData.ValueData := '';
-                         for j := 0 to (InBufStr.Length div 2) do
-                         ISRegData.ValueData := Copy(InBufStr, (j * 2) + 1, 2) + ISRegData.ValueData;
-                         ISRegData.ValueType := 'qword';
-                       end
-                     else
-                       // REG_DWORD
-                       ISRegData.ValueType := 'dword';
-                     ISRegData.ValueData := '$' + ISRegData.ValueData;
-                   end;
-                4: begin
-                     // REG_NONE
-                     ISRegData.ValueType := 'none';
-                     ISRegData.ValueData := '""';
-                   end;
-              end;
-              if not delval then
-                SubkeyParamRecord(ISRegData)
-              else
-                SubkeyParamRecord(ISRegData, delval);
-              Inc(i);
-              InBufStr := InBuffer.Strings[i];
-            end;
+            delkey := True;
+            InBufStr := Copy(InBufStr, 2, InBufStr.Length);
+          end;
+        poschar := Pos('\', InBufStr);
+        ISRegData.Root := Copy(InBufStr, 1, poschar - 1);
+        ISRegData.Root := StrRootRename(ISRegData.Root);
+        if ISRegData.Root.Contains('HKA') then
+          ISRegData.Subkey := 'Software\Classes\'
+        else
+          ISRegData.Subkey := '';
+        ISRegData.Subkey := ISRegData.Subkey + Copy(InBufStr, poschar + 1, InBufStr.Length);
+        ISRegData.Subkey := ISRegData.Subkey.Replace('{', '{{')
+                                            .QuotedString('"');
+        if ISRegData.Subkey.Contains('\WOW6432Node') then
+          begin
+            //ISRegData.Root := ISRegData.Root + '32'; // 32-bit on Windows 64 bit
+            ISRegData.Subkey := ISRegData.Subkey.Replace('\WOW6432Node', '');
           end;
         Inc(i);
+        InBufStr := InBuffer[i];
+        if (InBufStr = '') and not delkey then
+          SubkeyRecord(ISRegData);
+        if (InBufStr = '') or (InBufStr <> '') and delkey then
+          SubkeyRecord(ISRegData, delkey);
+        while (InBufStr <> '') and not delkey do
+        begin
+          poschar := Pos('=', InBufStr);
+          ISRegData.ValueName := CutStrBeginEnd(Copy(InBufStr, 1, poschar - 1), 1);
+          ISRegData.ValueName := ISRegData.ValueName.Replace('\\', '\')
+                                                    .Replace('{', '{{')
+                                                    .QuotedString('"');
+          InBufStr := Copy(InBufStr, poschar + 1, InBufStr.Length);
+          case GetValueType(InBufStr) of
+            1: begin
+                 // REG_SZ
+                 ISRegData.ValueData := CutStrBeginEnd(InBufStr, 1);
+                 ISRegData.ValueData := ISRegData.ValueData.Replace('\\', '\')
+                                                           .Replace('{', '{{')
+                                                           .QuotedString('"');
+                 ISRegData.ValueType := 'string';
+               end;
+            2: begin
+                 // REG_BINARY
+                 poschar := Pos(':', InBufStr);
+                 InBufStr := Copy(InBufStr, poschar + 1, InBufStr.Length);
+                 ISRegData.ValueData := InBufStr;
+                 // Multiline binary
+                 if InBufStr[InBufStr.Length] = '\' then
+                   ISRegData.ValueData := Copy(ISRegData.ValueData, 1, ISRegData.ValueData.Length - 1);
+                 while InBufStr[InBufStr.Length] = '\' do
+                 begin
+                   Inc(i);
+                   InBufStr := InBuffer[i];
+                   if InBufStr[InBufStr.Length] = '\' then
+                     ISRegData.ValueData := ISRegData.ValueData + Copy(InBufStr, 1, InBufStr.Length - 1).TrimLeft
+                   else
+                     ISRegData.ValueData := ISRegData.ValueData + Copy(InBufStr, 1, InBufStr.Length).TrimLeft;
+                 end;
+                 ISRegData.ValueData := ISRegData.ValueData.Replace(',', ' ');
+                 if hex2 or hex7 then
+                   begin
+                     ISRegData.ValueData := ISRegData.ValueData.Replace(' ', '');
+                     ISRegData.ValueData := HexStrToStr(ISRegData.ValueData);
+                   end;
+                 if hex2 then
+                   // REG_EXPAND_SZ
+                   begin
+                     ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '');
+                     ISRegData.ValueType := 'expandsz';
+                   end
+                 else if hex7 then
+                   // REG_MULTI_SZ
+                   begin
+                     ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '{break}');
+                     ISRegData.ValueType := 'multisz';
+                   end
+                 else
+                   // REG_BINARY
+                   ISRegData.ValueType := 'binary';
+                 ISRegData.ValueData := ISRegData.ValueData.QuotedString('"');
+               end;
+            3: begin
+                 poschar := Pos(':', InBufStr);
+                 ISRegData.ValueData := Copy(InBufStr, poschar + 1, InBufStr.Length);
+                 if hexb then
+                   // REG_QWORD
+                   begin
+                     InBufStr := ISRegData.ValueData.Replace(',', '');
+                     ISRegData.ValueData := '';
+                     for j := 0 to (InBufStr.Length div 2) do
+                     ISRegData.ValueData := Copy(InBufStr, (j * 2) + 1, 2) + ISRegData.ValueData;
+                     ISRegData.ValueType := 'qword';
+                   end
+                 else
+                   // REG_DWORD
+                   ISRegData.ValueType := 'dword';
+                 ISRegData.ValueData := '$' + ISRegData.ValueData;
+               end;
+            4: begin
+                 // REG_NONE
+                 ISRegData.ValueType := 'none';
+                 ISRegData.ValueData := '""';
+               end;
+          end;
+          SubkeyParamRecord(ISRegData, delval);
+          Inc(i);
+          InBufStr := InBuffer[i];
+        end;
       end;
-    OutBuffer.Add(RemarkaEND + SNewLine);
+      Inc(i);
+    end;
+    OutBuffer.Add(RemarkaEND);
     Result := OutBuffer.Text;
   finally
     InBuffer.Free;
