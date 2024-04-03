@@ -101,10 +101,8 @@ type
     procedure rb_IDABORTClick(Sender: TObject);
     procedure cb_SuppressibleClick(Sender: TObject);
     procedure MSGTextKeyPress(Sender: TObject; var Key: Char);
-  private
-    function GetText: String;
   public
-    property Text: string read GetText;
+    function GetText(TabWidth: Integer; UseTabCharacter: Boolean): String;
   end;
 
 implementation
@@ -842,7 +840,15 @@ begin
   end;
 end;
 
-function TMsgBoxDesignerForm.GetText: String;
+function TMsgBoxDesignerForm.GetText(TabWidth: Integer; UseTabCharacter: Boolean): String;
+
+   function TextTab: String;
+   begin
+    if UseTabCharacter then
+       Result := #9
+    else
+       Result := Format('%*s', [TabWidth, '']);
+   end;
 
    { MsgBox / SuppressibleMsgBox }
    function TextMsg(M: Integer; a, b, c, d, e, f: String): String;
@@ -863,9 +869,9 @@ function TMsgBoxDesignerForm.GetText: String;
      SMsg := TypeMsgBox + '(''' + a + ''', ' + b + ', ' + c + ')';
      case M of
         0: Result := SMsg + ';';
-        1: Result := 'if ' + SMsg + ' = ' + d + ' then' + SNewLine + 'begin' + SNewLine + #9 + '// user clicked ' + StringReplace(d, 'ID', '', []) + SNewLine + 'end;';
-        2: Result := 'case ' + SMsg + ' of ' + SNewLine + #9 + d +': { user clicked ' + StringReplace(d, 'ID', '', []) + ' };' + SNewLine + #9 + e +': { user clicked ' + StringReplace(e, 'ID', '', []) + ' };' + SNewLine + 'end;';
-        3: Result := 'case ' + SMsg + ' of ' + SNewLine + #9 + d +': { user clicked ' + StringReplace(d, 'ID', '', []) + ' };' + SNewLine + #9 + e +': { user clicked ' + StringReplace(e, 'ID', '', []) + ' };' + SNewLine + #9 + 'else { user clicked ' + StringReplace(f, 'ID', '', []) + ' };' + SNewLine + 'end;';
+        1: Result := 'if ' + SMsg + ' = ' + d + ' then' + SNewLine + 'begin' + SNewLine + TextTab + '// user clicked ' + StringReplace(d, 'ID', '', []) + SNewLine + 'end;';
+        2: Result := 'case ' + SMsg + ' of ' + SNewLine + TextTab + d +': { user clicked ' + StringReplace(d, 'ID', '', []) + ' };' + SNewLine + TextTab + e +': { user clicked ' + StringReplace(e, 'ID', '', []) + ' };' + SNewLine + 'end;';
+        3: Result := 'case ' + SMsg + ' of ' + SNewLine + TextTab + d +': { user clicked ' + StringReplace(d, 'ID', '', []) + ' };' + SNewLine + TextTab + e +': { user clicked ' + StringReplace(e, 'ID', '', []) + ' };' + SNewLine + TextTab + 'else { user clicked ' + StringReplace(f, 'ID', '', []) + ' };' + SNewLine + 'end;';
      end;
    end;
 
@@ -890,9 +896,9 @@ function TMsgBoxDesignerForm.GetText: String;
      STsg := TypeMsgBox + '(''' + a + ''', ' + b + ', ' + c + ', [''' + r + '''], ' + s + ')';
      case N of
         0: Result := STsg + ';';
-        1: Result := 'if ' + STsg + ' = ' + d + ' then' + SNewLine + 'begin' + SNewLine + #9 + '// user clicked ' + StringReplace(d, 'ID', '', []) + SNewLine + 'end;';
-        2: Result := 'case ' + STsg + ' of ' + SNewLine + #9 + d +': { user clicked ' + StringReplace(d, 'ID', '', []) + ' };' + SNewLine + #9 + e +': { user clicked ' + StringReplace(e, 'ID', '', []) + ' };' + SNewLine + 'end;';
-        3: Result := 'case ' + STsg + ' of ' + SNewLine + #9 + d +': { user clicked ' + StringReplace(d, 'ID', '', []) + ' };' + SNewLine + #9 + e +': { user clicked ' + StringReplace(e, 'ID', '', []) + ' };' + SNewLine + #9 + 'else { user clicked ' + StringReplace(f, 'ID', '', []) + ' };' + SNewLine + 'end;';
+        1: Result := 'if ' + STsg + ' = ' + d + ' then' + SNewLine + 'begin' + SNewLine + TextTab + '// user clicked ' + StringReplace(d, 'ID', '', []) + SNewLine + 'end;';
+        2: Result := 'case ' + STsg + ' of ' + SNewLine + TextTab + d +': { user clicked ' + StringReplace(d, 'ID', '', []) + ' };' + SNewLine + TextTab + e +': { user clicked ' + StringReplace(e, 'ID', '', []) + ' };' + SNewLine + 'end;';
+        3: Result := 'case ' + STsg + ' of ' + SNewLine + TextTab + d +': { user clicked ' + StringReplace(d, 'ID', '', []) + ' };' + SNewLine + TextTab + e +': { user clicked ' + StringReplace(e, 'ID', '', []) + ' };' + SNewLine + TextTab + 'else { user clicked ' + StringReplace(f, 'ID', '', []) + ' };' + SNewLine + 'end;';
      end;
    end;
 
@@ -1250,6 +1256,9 @@ begin
     end;
 
     MSGTextInsert.Add(TextMsgIf);
+
+    for var I := 0 to MSGTextInsert.Count-1 do
+      MSGTextInsert[I] := TextTab + MSGTextInsert[I];
 
     Result := MSGTextInsert.Text;
   finally

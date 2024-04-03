@@ -3047,7 +3047,7 @@ begin
   var MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
   try
     if MsgBoxForm.ShowModal = mrOk then
-      FActiveMemo.SelText := MsgBoxForm.Text;
+      FActiveMemo.SelText := MsgBoxForm.GetText(FOptions.TabWidth, FOptions.UseTabCharacter);
   finally
     MsgBoxForm.Free;
   end;
