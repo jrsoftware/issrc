@@ -2,7 +2,7 @@ unit LZMADecompSmall;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -82,7 +82,7 @@ end;
 
 { TLZMA1SmallDecompressor }
 
-{$L LzmaDecode\LzmaDecodeInno.obj}
+{$L Src\LzmaDecode\LzmaDecodeInno.obj}
 
 type
   TLzmaInCallback = record
