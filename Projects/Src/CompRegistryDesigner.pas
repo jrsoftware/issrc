@@ -65,9 +65,9 @@ type
   end;
 
 var
-  OutBuffer: TStringList;
+  OutLines: TStringList;
   hexb, hex2, hex7, hex0: Boolean;
-  delval: Boolean;
+  DeleteValue: Boolean;
 
   function CutStrBeginEnd(S: String; CharCount: Integer): String;
   begin
@@ -123,7 +123,7 @@ var
     hex0 := False;
     hex2 := False;
     hex7 := False;
-    delval := False;
+    DeleteValue := False;
     if Pos('"', AStr) = 0 then
       begin
         // REG_EXPAND_SZ
@@ -159,7 +159,7 @@ var
         // REG_NONE AND DELETE Value
         if AStr.StartsWith('-') then
           begin
-            delval := True;
+            DeleteValue := True;
             Result := 4; // to none data handling
           end;
       end;
@@ -180,100 +180,97 @@ var
     Result := AParam;
   end;
 
-  procedure SubkeyRecord(AReg: TInnoRegData; ADelKey: Boolean = False);
+  procedure SubkeyRecord(AReg: TInnoRegData; ADeleteKey: Boolean);
   begin
     var ALine := 'Root: ' + AReg.Root +
                  '; Subkey: ' + AReg.Subkey;
-    if ADelKey then
+    if ADeleteKey then
       ALine := ALine + '; ValueType: none' +
-                       '; Flags: deletekey';
-    if cb_FlagUnInsDelKey.Checked and not ADelKey then
-      ALine := ALine + '; Flags: uninsdeletekey';
-    if cb_FlagUnInsDelKeyIfEmpty.Checked and not ADelKey then
-      ALine := ALine + '; Flags: uninsdeletekeyifempty';
+                       '; Flags: deletekey'
+    else begin
+      if cb_FlagUnInsDelKey.Checked then
+        ALine := ALine + '; Flags: uninsdeletekey';
+      if cb_FlagUnInsDelKeyIfEmpty.Checked then
+        ALine := ALine + '; Flags: uninsdeletekeyifempty';
+    end;
     ALine := AddParamToStr(ALine);
-    OutBuffer.Add(ALine);
+    OutLines.Add(ALine);
   end;
 
-  procedure SubkeyParamRecord(AReg: TInnoRegData; ADelParam: Boolean);
+  procedure SubkeyParamRecord(AReg: TInnoRegData; ADeleteValue: Boolean);
   begin
     var ALine := 'Root: ' + AReg.Root +
                  '; Subkey: ' + AReg.Subkey +
                  '; ValueType: ' + AReg.ValueType +
                  '; ValueName: ' + AReg.ValueName;
-    if not ADelParam then
+    if ADeleteValue then
+      ALine := ALine + '; Flags: deletevalue'
+    else begin
       ALine := ALine + '; ValueData: ' + AReg.ValueData;
-    if ADelParam then
-      ALine := ALine + '; Flags: deletevalue';
-    if hex0 and not ADelParam then
-      ALine := ALine.Replace('; ValueData: ""', '');
-    if cb_FlagDelValue.Checked and not ADelParam then
-      ALine := ALine + '; Flags: uninsdeletevalue';
+      if hex0 then
+        ALine := ALine.Replace('; ValueData: ""', '');
+      if cb_FlagDelValue.Checked then
+        ALine := ALine + '; Flags: uninsdeletevalue';
+    end;
     ALine := AddParamToStr(ALine);
-    OutBuffer.Add(ALine);
+    OutLines.Add(ALine);
   end;
 
 begin
-  var InBuffer := TStringList.Create;
-  OutBuffer := TStringList.Create;
+  var Lines := TStringList.Create;
+  OutLines := TStringList.Create;
   try
-    InBuffer.LoadFromFile(edt_PathFileReg.Text);
-    OutBuffer.Add('; [ BEGIN ] Registry data from file ' + ExtractFileName(edt_PathFileReg.Text));
-    var i := 0;
-    while i <= InBuffer.Count-1 do
+    Lines.LoadFromFile(edt_PathFileReg.Text);
+    OutLines.Add('; [ BEGIN ] Registry data from file ' + ExtractFileName(edt_PathFileReg.Text));
+    var LineIndex := 0;
+    while LineIndex <= Lines.Count-1 do
     begin
-      var InBufStr := InBuffer[i];
-      if (Length(InBufStr) > 2) and (InBufStr[1] = '[') and (InBufStr[InBufStr.Length] = ']') then
+      var Line := Lines[LineIndex];
+      if (Length(Line) > 2) and (Line[1] = '[') and (Line[Line.Length] = ']') then
       begin
         { Got a new root, handle the entire section }
         
         { First set the root and subkey of the new entry }
-        var delkey := False;
-        InBufStr := CutStrBeginEnd(InBufStr, 1);
-        if InBufStr.StartsWith('-') then
-          begin
-            delkey := True;
-            InBufStr := Copy(InBufStr, 2, InBufStr.Length);
-          end;
-        var poschar := Pos('\', InBufStr);
+        Line := CutStrBeginEnd(Line, 1);
+        var DeleteKey := Line.StartsWith('-');
+        if DeleteKey then
+          Line.Remove(1, 1);
+        var BackslashPosition := Pos('\', Line);
+
         var ISRegData: TInnoRegData;
-        ISRegData.Root := Copy(InBufStr, 1, poschar - 1);
+        ISRegData.Root := Copy(Line, 1, BackslashPosition - 1);
         ISRegData.Root := StrRootRename(ISRegData.Root);
         if ISRegData.Root.Contains('HKA') then
           ISRegData.Subkey := 'Software\Classes\'
         else
           ISRegData.Subkey := '';
-        ISRegData.Subkey := ISRegData.Subkey + Copy(InBufStr, poschar + 1, InBufStr.Length);
-        ISRegData.Subkey := ISRegData.Subkey.Replace('{', '{{')
+        ISRegData.Subkey := ISRegData.Subkey + Copy(Line, BackslashPosition + 1, Line.Length);
+        ISRegData.Subkey := ISRegData.Subkey.Replace('\WOW6432Node', '')
+                                            .Replace('{', '{{')
                                             .QuotedString('"');
-        if ISRegData.Subkey.Contains('\WOW6432Node') then
-          begin
-            //ISRegData.Root := ISRegData.Root + '32'; // 32-bit on Windows 64 bit
-            ISRegData.Subkey := ISRegData.Subkey.Replace('\WOW6432Node', '');
-          end;
-          
-        { Go to the first line }
-        Inc(i);
-        InBufStr := InBuffer[i];
 
-        if (InBufStr = '') and not delkey then
-          SubkeyRecord(ISRegData);
-        if (InBufStr = '') or (InBufStr <> '') and delkey then
-          SubkeyRecord(ISRegData, delkey);
+        { Go to the first line }
+        Inc(LineIndex);
+        Line := Lines[LineIndex];
+
+        if (Line = '') and not DeleteKey then
+          SubkeyRecord(ISRegData, DeleteKey);
+        if (Line = '') or (Line <> '') and DeleteKey then
+          SubkeyRecord(ISRegData, DeleteKey);
         
-        { Handle first line and next line values }
-        while (InBufStr <> '') and not delkey do
+        { Handle first line and next line values - this reuses ISRegData each time }
+        while (Line <> '') and not DeleteKey do
         begin
-          poschar := Pos('=', InBufStr);
-          ISRegData.ValueName := CutStrBeginEnd(Copy(InBufStr, 1, poschar - 1), 1);
+          BackslashPosition := Pos('=', Line);
+          ISRegData.ValueName := CutStrBeginEnd(Copy(Line, 1, BackslashPosition - 1), 1);
           ISRegData.ValueName := ISRegData.ValueName.Replace('\\', '\')
                                                     .Replace('{', '{{')
                                                     .QuotedString('"');
-          InBufStr := Copy(InBufStr, poschar + 1, InBufStr.Length);
-          case GetValueType(InBufStr) of
+          Line := Copy(Line, BackslashPosition + 1, Line.Length);
+          case GetValueType(Line) of
             1: begin
                  // REG_SZ
-                 ISRegData.ValueData := CutStrBeginEnd(InBufStr, 1);
+                 ISRegData.ValueData := CutStrBeginEnd(Line, 1);
                  ISRegData.ValueData := ISRegData.ValueData.Replace('\\', '\')
                                                            .Replace('{', '{{')
                                                            .QuotedString('"');
@@ -281,20 +278,20 @@ begin
                end;
             2: begin
                  // REG_BINARY
-                 poschar := Pos(':', InBufStr);
-                 InBufStr := Copy(InBufStr, poschar + 1, InBufStr.Length);
-                 ISRegData.ValueData := InBufStr;
+                 BackslashPosition := Pos(':', Line);
+                 Line := Copy(Line, BackslashPosition + 1, Line.Length);
+                 ISRegData.ValueData := Line;
                  // Multiline binary
-                 if InBufStr[InBufStr.Length] = '\' then
+                 if Line[Line.Length] = '\' then
                    ISRegData.ValueData := Copy(ISRegData.ValueData, 1, ISRegData.ValueData.Length - 1);
-                 while InBufStr[InBufStr.Length] = '\' do
+                 while Line[Line.Length] = '\' do
                  begin
-                   Inc(i);
-                   InBufStr := InBuffer[i];
-                   if InBufStr[InBufStr.Length] = '\' then
-                     ISRegData.ValueData := ISRegData.ValueData + Copy(InBufStr, 1, InBufStr.Length - 1).TrimLeft
+                   Inc(LineIndex);
+                   Line := Lines[LineIndex];
+                   if Line[Line.Length] = '\' then
+                     ISRegData.ValueData := ISRegData.ValueData + Copy(Line, 1, Line.Length - 1).TrimLeft
                    else
-                     ISRegData.ValueData := ISRegData.ValueData + Copy(InBufStr, 1, InBufStr.Length).TrimLeft;
+                     ISRegData.ValueData := ISRegData.ValueData + Copy(Line, 1, Line.Length).TrimLeft;
                  end;
                  ISRegData.ValueData := ISRegData.ValueData.Replace(',', ' ');
                  if hex2 or hex7 then
@@ -320,15 +317,15 @@ begin
                  ISRegData.ValueData := ISRegData.ValueData.QuotedString('"');
                end;
             3: begin
-                 poschar := Pos(':', InBufStr);
-                 ISRegData.ValueData := Copy(InBufStr, poschar + 1, InBufStr.Length);
+                 BackslashPosition := Pos(':', Line);
+                 ISRegData.ValueData := Copy(Line, BackslashPosition + 1, Line.Length);
                  if hexb then
                    // REG_QWORD
                    begin
-                     InBufStr := ISRegData.ValueData.Replace(',', '');
+                     Line := ISRegData.ValueData.Replace(',', '');
                      ISRegData.ValueData := '';
-                     for var j := 0 to InBufStr.Length div 2 do
-                       ISRegData.ValueData := Copy(InBufStr, (j * 2) + 1, 2) + ISRegData.ValueData;
+                     for var j := 0 to Line.Length div 2 do
+                       ISRegData.ValueData := Copy(Line, (j * 2) + 1, 2) + ISRegData.ValueData;
                      ISRegData.ValueType := 'qword';
                    end
                  else
@@ -342,20 +339,20 @@ begin
                  ISRegData.ValueData := '""';
                end;
           end;
-          SubkeyParamRecord(ISRegData, delval);
+          SubkeyParamRecord(ISRegData, DeleteValue);
           
           { Go to the next line }
-          Inc(i);
-          InBufStr := InBuffer[i];
+          Inc(LineIndex);
+          Line := Lines[LineIndex];
         end;
       end;
-      Inc(i);
+      Inc(LineIndex);
     end;
-    OutBuffer.Add('; [ END ]');
-    Result := OutBuffer.Text;
+    OutLines.Add('; [ END ]');
+    Result := OutLines.Text;
   finally
-    InBuffer.Free;
-    OutBuffer.Free;
+    Lines.Free;
+    OutLines.Free;
   end;
 end;
 
