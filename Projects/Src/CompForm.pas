@@ -2948,7 +2948,7 @@ begin
           if (Length(Result) >= 2) and
              (Result[1] = '"') and (Result[Length(Result)] = '"') then
             Result := Copy(Result, 2, Length(Result)-2);
-          { Keep looking for next since the directive might be repeated }
+          Exit; { Compiler doesn't allow a directive to be specified twice so we can exit now }
         end;
       end;
     end;
