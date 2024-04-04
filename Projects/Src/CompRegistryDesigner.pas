@@ -54,6 +54,7 @@ type
 implementation
 
 uses
+  StrUtils,
   CompMsgs, BrowseFunc, CmnFunc;
 
 {$R *.dfm}
@@ -88,8 +89,10 @@ function TRegistryDesignerForm.GetText: String;
     end;
   end;
 
-  function HexStrToStr(const HexStr: String): String;
+  function HexStrToStr(HexStr: String): String;
   begin
+    if HexStr.Length mod 4 <> 0 then
+      HexStr := HexStr + '00'; { RegEdit does this as well on import }
     var StrAsBytes: TBytes;
     SetLength(StrAsBytes, HexStr.Length div 2);
     var i := 1;
@@ -104,7 +107,7 @@ function TRegistryDesignerForm.GetText: String;
   end;
 
   type
-    TValueType = (vtSz, vtExpandSz, vtMultiSz, vtBinary, vtQWord, vtDWord, vtNone, vtDelete, vtUnknown);
+    TValueType = (vtSz, vtSzAsList, vtExpandSz, vtMultiSz, vtBinary, vtQWord, vtDWord, vtNone, vtDelete, vtUnknown);
 
   function GetValueType(AStr: String): TValueType;
   { See https://en.wikipedia.org/wiki/Windows_Registry#.REG_files
@@ -133,7 +136,7 @@ function TRegistryDesignerForm.GetText: String;
     
     BTW: Missing from the article is a note about multiline lists, these use "\" to continue }
   begin
-    //todo!!: E/H/I
+    //todo!!: H/I
     if Pos('"', AStr) <> 0 then
       Result := vtSz //Value A
     else if (Pos('hex:', AStr) <> 0) or
@@ -143,6 +146,8 @@ function TRegistryDesignerForm.GetText: String;
       Result := vtDWord //Value C
     else if Pos('hex(0):', AStr) <> 0 then
       Result := vtNone //Value D
+    else if Pos('hex(1):', AStr) <> 0 then
+      Result := vtSzAsList //Value E
     else if Pos('hex(2):', AStr) <> 0 then
       Result := vtExpandSz //Value F
     else if Pos('hex(7):', AStr) <> 0 then
@@ -263,7 +268,7 @@ begin
                                                              .QuotedString('"');
                   ISRegData.ValueType := 'string';
                 end;
-              vtExpandSz, vtMultiSz, vtBinary:
+              vtSzAsList, vtExpandSz, vtMultiSz, vtBinary:
                 begin
                   P := Pos(':', Value);
                   Value := Copy(Value, P + 1, MaxInt);
@@ -283,16 +288,16 @@ begin
                   end;
 
                   ISRegData.ValueData := ISRegData.ValueData.Replace(',', ' ');
-                  if ValueType in [vtExpandSz, vtMultiSz] then
+                  if ValueType <> vtBinary then
                   begin
                     ISRegData.ValueData := ISRegData.ValueData.Replace(' ', '');
                     ISRegData.ValueData := HexStrToStr(ISRegData.ValueData);
                   end;
 
-                  if ValueType = vtExpandSz then
+                  if ValueType in [vtSzAsList, vtExpandSz] then
                   begin
                     ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '');
-                    ISRegData.ValueType := 'expandsz';
+                    ISRegData.ValueType := IfThen(ValueType = vtSzAsList, 'string', 'expandsz');
                   end else if ValueType = vtMultiSz then
                   begin
                     ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '{break}');
