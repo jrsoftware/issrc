@@ -100,12 +100,11 @@ type
     FBuffer: array[0..4095] of AnsiChar;
     FCharSize: Cardinal; { 1 = ANSI or UTF-8, 2 = UTF16-LE }
     FCodePage: Cardinal; { Only used if FCharCount = 1 }
-    function DoReadLine(const AllowUnicode: Boolean): AnsiString;
+    function DoReadLine: AnsiString;
     function GetEof: Boolean;
     procedure FillBuffer;
   public
     function ReadLine: String;
-    function ReadAnsiLine: AnsiString;
     property AnsiConvertCodePage: Cardinal write FCodePage; { Ignored if UTF-8 is detected }
     property Eof: Boolean read GetEof;
   end;
@@ -437,7 +436,7 @@ function TTextFileReader.ReadLine: String;
 var
   S: RawByteString;
 begin
-  S := DoReadLine(True);
+  S := DoReadLine;
   if FCharSize = 2 then
     Result := String(PWideChar(@S[1]))
   else begin
@@ -447,12 +446,7 @@ begin
   end;
 end; 
 
-function TTextFileReader.ReadAnsiLine: AnsiString;
-begin
-  Result := DoReadLine(False);
-end;
-
-function TTextFileReader.DoReadLine(const AllowUnicode: Boolean): AnsiString;
+function TTextFileReader.DoReadLine: AnsiString;
 var
   I, L: Cardinal;
   S: AnsiString;
@@ -468,34 +462,30 @@ begin
       end;
       Break;
     end else if FCharSize = 0 then begin
-      { We're at the start of a file with at least 1 byte }
-      if AllowUnicode then begin
-        { Check for UTF-8 or UTF16-LE BOM }
-        if (FBufferSize > 2) and (FBuffer[0] = #$EF) and (FBuffer[1] = #$BB) and (FBuffer[2] = #$BF) then begin
-          Inc(FBufferOffset, 3);
-          FCharSize := 1;
-          FCodePage := CP_UTF8;
-        end else if (FBufferSize > 1) and (FBuffer[0] = #$FF) and (FBuffer[1] = #$FE) then begin
-          Inc(FBufferOffset, 2);
-          FCharSize := 2;
-        end else begin
-          { No BOM, check entire file to see if its UTF-8 without a BOM }
-          FCharSize := 1;
-          var OldPosition := GetPosition;
-          try
-            var CappedSize := GetCappedSize; //can't be 0
-            Seek(0);
-            var S2: AnsiString;
-            SetLength(S2, CappedSize);
-            SetLength(S2, Read(S2[1], CappedSize));
-            if IsUTF8String(S2) then
-              FCodePage := CP_UTF8;
-          finally
-            Seek64(OldPosition);
-          end;
-        end;
-      end else
+      { We're at the start of a file with at least 1 byte - check for Unicode BOM }
+      if (FBufferSize > 2) and (FBuffer[0] = #$EF) and (FBuffer[1] = #$BB) and (FBuffer[2] = #$BF) then begin
+        Inc(FBufferOffset, 3);
         FCharSize := 1;
+        FCodePage := CP_UTF8;
+      end else if (FBufferSize > 1) and (FBuffer[0] = #$FF) and (FBuffer[1] = #$FE) then begin
+        Inc(FBufferOffset, 2);
+        FCharSize := 2;
+      end else begin
+        { No BOM, check entire file to see if its UTF-8 without a BOM }
+        FCharSize := 1;
+        var OldPosition := GetPosition;
+        try
+          var CappedSize := GetCappedSize; //can't be 0
+          Seek(0);
+          var S2: AnsiString;
+          SetLength(S2, CappedSize);
+          SetLength(S2, Read(S2[1], CappedSize));
+          if IsUTF8String(S2) then
+            FCodePage := CP_UTF8;
+        finally
+          Seek64(OldPosition);
+        end;
+      end;
     end;
 
     I := FBufferOffset;
