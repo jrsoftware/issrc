@@ -1851,7 +1851,7 @@ begin
     end;
     F := TTextFileReader.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
-      F.CodePage := Data.AnsiConvertCodePage;
+      F.AnsiConvertCodePage := Data.AnsiConvertCodePage;
       while not F.Eof do begin
          L := F.ReadLine;
         for I := 1 to Length(L) do

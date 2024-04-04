@@ -10,7 +10,9 @@ unit FileClass;
   Better than File and TFileStream in that does more extensive error checking
   and uses descriptive, localized system error messages.
 
-  TTextFileReader and TTextFileWriter support ANSI and UTF8 textfiles only.
+  TTextFileReader supports ANSI and UTF8 and UTF16-LE textfiles only.
+  
+  TTextFileWriter supports ANSI and UTF8 textfiles only.
 }
 
 interface
@@ -93,16 +95,18 @@ type
   private
     FBufferOffset, FBufferSize: Cardinal;
     FEof: Boolean;
+    { Size of FBuffer must be at least 3 (so we can't get a split UTF-8 BOM) and
+      must also be a multiple of 2 (so we can't get a split UTF16-LE CR or LF) }
     FBuffer: array[0..4095] of AnsiChar;
-    FSawFirstLine: Boolean;
-    FCodePage: Cardinal;
-    function DoReadLine(const UTF8: Boolean): AnsiString;
+    FCharSize: Cardinal; { 1 = ANSI or UTF-8, 2 = UTF16-LE }
+    FCodePage: Cardinal; { Only used if FCharCount = 1 }
+    function DoReadLine(const AllowUnicode: Boolean): AnsiString;
     function GetEof: Boolean;
     procedure FillBuffer;
   public
     function ReadLine: String;
     function ReadAnsiLine: AnsiString;
-    property CodePage: Cardinal write FCodePage;
+    property AnsiConvertCodePage: Cardinal write FCodePage; { Ignored if UTF-8 is detected }
     property Eof: Boolean read GetEof;
   end;
 
@@ -431,12 +435,16 @@ end;
 
 function TTextFileReader.ReadLine: String;
 var
- S: RawByteString;
+  S: RawByteString;
 begin
- S := DoReadLine(True);
- if FCodePage <> 0 then
-   SetCodePage(S, FCodePage, False);
- Result := String(S);
+  S := DoReadLine(True);
+  if FCharSize = 2 then
+    Result := String(PWideChar(@S[1]))
+  else begin
+    if FCodePage <> 0 then
+     SetCodePage(S, FCodePage, False);
+    Result := String(S);
+  end;
 end; 
 
 function TTextFileReader.ReadAnsiLine: AnsiString;
@@ -444,7 +452,7 @@ begin
   Result := DoReadLine(False);
 end;
 
-function TTextFileReader.DoReadLine(const UTF8: Boolean): AnsiString;
+function TTextFileReader.DoReadLine(const AllowUnicode: Boolean): AnsiString;
 var
   I, L: Cardinal;
   S: AnsiString;
@@ -459,13 +467,42 @@ begin
         RaiseError(ERROR_HANDLE_EOF);
       end;
       Break;
+    end else if FCharSize = 0 then begin
+      { We're at the start of a file with at least 1 byte }
+      if AllowUnicode then begin
+        { Check for UTF-8 or UTF16-LE BOM }
+        if (FBufferSize > 2) and (FBuffer[0] = #$EF) and (FBuffer[1] = #$BB) and (FBuffer[2] = #$BF) then begin
+          Inc(FBufferOffset, 3);
+          FCharSize := 1;
+          FCodePage := CP_UTF8;
+        end else if (FBufferSize > 1) and (FBuffer[0] = #$FF) and (FBuffer[1] = #$FE) then begin
+          Inc(FBufferOffset, 2);
+          FCharSize := 2;
+        end else begin
+          { No BOM, check entire file to see if its UTF-8 without a BOM }
+          FCharSize := 1;
+          var OldPosition := GetPosition;
+          try
+            var CappedSize := GetCappedSize; //can't be 0
+            Seek(0);
+            var S2: AnsiString;
+            SetLength(S2, CappedSize);
+            SetLength(S2, Read(S2[1], CappedSize));
+            if IsUTF8String(S2) then
+              FCodePage := CP_UTF8;
+          finally
+            Seek64(OldPosition);
+          end;
+        end;
+      end else
+        FCharSize := 1;
     end;
 
     I := FBufferOffset;
     while I < FBufferSize do begin
-      if FBuffer[I] in [#10, #13] then
+      if (FBuffer[I] in [#10, #13]) and ((FCharSize = 1) or (FBuffer[I+1] = #0)) then
         Break;
-      Inc(I);
+      Inc(I, FCharSize);
     end;
     L := Length(S);
     if Integer(L + (I - FBufferOffset)) < 0 then
@@ -476,39 +513,17 @@ begin
 
     if FBufferOffset < FBufferSize then begin
       { End of line reached }
-      Inc(FBufferOffset);
-      if FBuffer[FBufferOffset-1] = #13 then begin
+      Inc(FBufferOffset, FCharSize);
+      if (FBuffer[FBufferOffset-FCharSize] = #13) and
+         ((FCharSize = 1) or (FBuffer[FBufferOffset-FCharSize+1] = #0)) then begin
         { Skip #10 if it follows #13 }
         FillBuffer;
-        if (FBufferOffset < FBufferSize) and (FBuffer[FBufferOffset] = #10) then
-          Inc(FBufferOffset);
+        if (FBufferOffset < FBufferSize) and (FBuffer[FBufferOffset] = #10) and
+           ((FCharSize = 1) or (FBuffer[FBufferOffset+1] = #0)) then
+          Inc(FBufferOffset, FCharSize);
       end;
       Break;
     end;
-  end;
-
-  if not FSawFirstLine then begin
-    if UTF8 then begin
-      { Handle UTF8 as requested: check for a BOM at the start and if not found then check entire file }
-      if (Length(S) > 2) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF) then begin
-        Delete(S, 1, 3);
-        FCodePage := CP_UTF8;
-      end else begin
-        var OldPosition := GetPosition;
-        try
-          var CappedSize := GetCappedSize; //can't be 0
-          Seek(0);
-          var S2: AnsiString;
-          SetLength(S2, CappedSize);
-          SetLength(S2, Read(S2[1], CappedSize));
-          if IsUTF8String(S2) then
-            FCodePage := CP_UTF8;
-        finally
-          Seek64(OldPosition);
-        end;
-      end;
-    end;
-    FSawFirstLine := True;
   end;
 
   Result := S;
