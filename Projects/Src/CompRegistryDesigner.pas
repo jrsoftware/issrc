@@ -107,26 +107,26 @@ function TRegistryDesignerForm.GetText: String;
   end;
 
   type
-    TValueType = (vtSz, vtSzAsList, vtExpandSz, vtMultiSz, vtBinary, vtQWord, vtDWord, vtNone, vtDelete, vtUnknown);
+    TValueType = (vtSz, vtSzAsList, vtExpandSz, vtMultiSz, vtBinary, vtDWord, vtDWordAsList, vtQWord, vtNone, vtDelete, vtUnknown);
 
   function GetValueType(AStr: String): TValueType;
   { See https://en.wikipedia.org/wiki/Windows_Registry#.REG_files
   
-    Value formats: (we don't support K/L and just ignore those)
+    Value formats: (we don't support I/K/L and just ignore those)
     
-    "Value A"="<String value data with escape characters>"
-    "Value B"=hex:<Binary data (as comma-delimited list of hexadecimal values)>
-    "Value C"=dword:<DWORD value integer>
+    "Value A"="<REG_SZ String value data with escape characters>"
+    "Value B"=hex:<REG_BINARY Binary data (as comma-delimited list of hexadecimal values)>
+    "Value C"=dword:<REG_DWORD DWORD value integer>
     "Value D"=hex(0):<REG_NONE (as comma-delimited list of hexadecimal values)>
     "Value E"=hex(1):<REG_SZ (as comma-delimited list of hexadecimal values representing a UTF-16LE NUL-terminated string)>
-    "Value F"=hex(2):<Expandable string value data (as comma-delimited list of hexadecimal values representing a UTF-16LE NUL-terminated string)>
-    "Value G"=hex(3):<Binary data (as comma-delimited list of hexadecimal values)> ; equal to "Value B"
-    "Value H"=hex(4):<DWORD value (as comma-delimited list of 4 hexadecimal values, in little endian byte order)>
-    "Value I"=hex(5):<DWORD value (as comma-delimited list of 4 hexadecimal values, in big endian byte order)>
-    "Value J"=hex(7):<Multi-string value data (as comma-delimited list of hexadecimal values representing UTF-16LE NUL-terminated strings)>
+    "Value F"=hex(2):<REG_EXPAND_SZ Expandable string value data  (as comma-delimited list of hexadecimal values representing a UTF-16LE NUL-terminated string)>
+    "Value G"=hex(3):<REG_BINARY Binary data (as comma-delimited list of hexadecimal values)> ; equal to "Value B"
+    "Value H"=hex(4):<REG_DWORD DWORD value (as comma-delimited list of 4 hexadecimal values, in little endian byte order)>
+    "Value I"=hex(5):<REG_DWORD_BIG_ENDIAN DWORD value (as comma-delimited list of 4 hexadecimal values, in big endian byte order)>
+    "Value J"=hex(7):<RED_MULTISZ Multi-string value data (as comma-delimited list of hexadecimal values representing UTF-16LE NUL-terminated strings)>
     "Value K"=hex(8):<REG_RESOURCE_LIST (as comma-delimited list of hexadecimal values)>
     "Value L"=hex(a):<REG_RESOURCE_REQUIREMENTS_LIST (as comma-delimited list of hexadecimal values)>
-    "Value M"=hex(b):<QWORD value (as comma-delimited list of 8 hexadecimal values, in little endian byte order)>
+    "Value M"=hex(b):<REG_QWORD QWORD value (as comma-delimited list of 8 hexadecimal values, in little endian byte order)>
 
     Other notes from the article:
     To remove a key (and all subkeys, values and data), the key name must be preceded by a minus sign ("-")
@@ -136,7 +136,6 @@ function TRegistryDesignerForm.GetText: String;
     
     BTW: Missing from the article is a note about multiline lists, these use "\" to continue }
   begin
-    //todo!!: H/I
     if Pos('"', AStr) <> 0 then
       Result := vtSz //Value A
     else if (Pos('hex:', AStr) <> 0) or
@@ -150,6 +149,8 @@ function TRegistryDesignerForm.GetText: String;
       Result := vtSzAsList //Value E
     else if Pos('hex(2):', AStr) <> 0 then
       Result := vtExpandSz //Value F
+    else if Pos('hex(4):', AStr) <> 0 then
+      Result := vtDWordAsList //Value H
     else if Pos('hex(7):', AStr) <> 0 then
       Result := vtMultiSz //Value J
     else if Pos('hex(b):', AStr) <> 0 then
@@ -307,18 +308,21 @@ begin
 
                   ISRegData.ValueData := ISRegData.ValueData.QuotedString('"');
                end;
-              vtQWord, vtDWord:
+              vtDWord, vtDWordAsList, vtQWord:
                 begin
                   P := Pos(':', Value);
                   ISRegData.ValueData := Copy(Value, P + 1, MaxInt);
 
-                  if ValueType = vtQWord then
+                  if ValueType in [vtDWordAsList, vtQWord] then
                   begin
                     Value := ISRegData.ValueData.Replace(',', '');
+
+                    { Reverse order }
                     ISRegData.ValueData := '';
                     for var I := 0 to Value.Length div 2 do
                       ISRegData.ValueData := Copy(Value, (I * 2) + 1, 2) + ISRegData.ValueData;
-                    ISRegData.ValueType := 'qword';
+
+                    ISRegData.ValueType := IfThen(ValueType = vtDWordAsList, 'dword', 'qword');
                   end else
                     ISRegData.ValueType := 'dword';
 
