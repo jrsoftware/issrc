@@ -59,15 +59,15 @@ uses
 {$R *.dfm}
 
 function TRegistryDesignerForm.GetText: String;
-type
-  TInnoRegData = record
-    Root, Subkey, ValueName, ValueData, ValueType: String;
-  end;
 
-var
-  OutLines: TStringList;
-  hexb, hex2, hex7, hex0: Boolean;
-  DeleteValue: Boolean;
+  function NextLine(const Lines: TStrings; var LineIndex: Integer): String;
+  begin
+    Inc(LineIndex);
+    if LineIndex < Lines.Count then
+      Result := Lines[LineIndex]
+    else
+      Result := ''; { Official .reg files must end with a blank line so should never get here but we support ones without }
+  end;
 
   function CutStrBeginEnd(S: String; CharCount: Integer): String;
   begin
@@ -103,66 +103,56 @@ var
     Result := TEncoding.Unicode.GetString(StrAsBytes);
   end;
 
-  function GetValueType(AStr: String): Integer;
-  (* "Value A"="<String value data with escape characters>"
-     "Value B"=hex:<Binary data (as comma-delimited list of hexadecimal values)>
-     "Value C"=dword:<DWORD value integer>
-     "Value D"=hex(0):<REG_NONE (as comma-delimited list of hexadecimal values)>
-     "Value E"=hex(1):<REG_SZ (as comma-delimited list of hexadecimal values representing a UTF-16LE NUL-terminated string)>
-     "Value F"=hex(2):<Expandable string value data (as comma-delimited list of hexadecimal values representing a UTF-16LE NUL-terminated string)>
-     "Value G"=hex(3):<Binary data (as comma-delimited list of hexadecimal values)> ; equal to "Value B"
-     "Value H"=hex(4):<DWORD value (as comma-delimited list of 4 hexadecimal values, in little endian byte order)>
-     "Value I"=hex(5):<DWORD value (as comma-delimited list of 4 hexadecimal values, in big endian byte order)>
-     "Value J"=hex(7):<Multi-string value data (as comma-delimited list of hexadecimal values representing UTF-16LE NUL-terminated strings)>
-     "Value K"=hex(8):<REG_RESOURCE_LIST (as comma-delimited list of hexadecimal values)>
-     "Value L"=hex(a):<REG_RESOURCE_REQUIREMENTS_LIST (as comma-delimited list of hexadecimal values)>
-     "Value M"=hex(b):<QWORD value (as comma-delimited list of 8 hexadecimal values, in little endian byte order)> *)
+  type
+    TValueType = (vtSz, vtExpandSz, vtMultiSz, vtBinary, vtQWord, vtDWord, vtNone, vtDelete, vtUnknown);
+
+  function GetValueType(AStr: String): TValueType;
+  { See https://en.wikipedia.org/wiki/Windows_Registry#.REG_files
+  
+    Value formats: (we don't support K/L and just ignore those)
+    
+    "Value A"="<String value data with escape characters>"
+    "Value B"=hex:<Binary data (as comma-delimited list of hexadecimal values)>
+    "Value C"=dword:<DWORD value integer>
+    "Value D"=hex(0):<REG_NONE (as comma-delimited list of hexadecimal values)>
+    "Value E"=hex(1):<REG_SZ (as comma-delimited list of hexadecimal values representing a UTF-16LE NUL-terminated string)>
+    "Value F"=hex(2):<Expandable string value data (as comma-delimited list of hexadecimal values representing a UTF-16LE NUL-terminated string)>
+    "Value G"=hex(3):<Binary data (as comma-delimited list of hexadecimal values)> ; equal to "Value B"
+    "Value H"=hex(4):<DWORD value (as comma-delimited list of 4 hexadecimal values, in little endian byte order)>
+    "Value I"=hex(5):<DWORD value (as comma-delimited list of 4 hexadecimal values, in big endian byte order)>
+    "Value J"=hex(7):<Multi-string value data (as comma-delimited list of hexadecimal values representing UTF-16LE NUL-terminated strings)>
+    "Value K"=hex(8):<REG_RESOURCE_LIST (as comma-delimited list of hexadecimal values)>
+    "Value L"=hex(a):<REG_RESOURCE_REQUIREMENTS_LIST (as comma-delimited list of hexadecimal values)>
+    "Value M"=hex(b):<QWORD value (as comma-delimited list of 8 hexadecimal values, in little endian byte order)>
+
+    Other notes from the article:
+    To remove a key (and all subkeys, values and data), the key name must be preceded by a minus sign ("-")
+    To remove a value (and its data), the values to be removed must have a minus sign ("-") after the equal sign ("=")
+    The Default Value of a key can be edited by using "@" instead of "Value Name"
+    Lines beginning with a semicolon are considered comments
+    
+    BTW: Missing from the article is a note about multiline lists, these use "\" to continue }
   begin
-    Result := 1; // to string data handling - REG_SZ (Default)
-    hexb := False;
-    hex0 := False;
-    hex2 := False;
-    hex7 := False;
-    DeleteValue := False;
-    if Pos('"', AStr) = 0 then
-      begin
-        // REG_EXPAND_SZ
-        if Pos('hex(2):', AStr) <> 0 then
-          begin
-            hex2 := True;
-            Result := 2; // to binary data handling
-          end;
-        // REG_MULTI_SZ
-        if Pos('hex(7):', AStr) <> 0 then
-          begin
-            hex7 := True;
-            Result := 2; // to binary data handling
-          end;
-        // REG_BINARY
-        if Pos('hex:', AStr) <> 0 then
-          Result := 2; // to binary data handling
-        // REG_QWORD
-        if Pos('hex(b):', AStr) <> 0 then
-          begin
-            hexb := True;
-            Result := 3; // to DWORD/QWORD value handling
-          end;
-        // REG_DWORD
-        if Pos('dword:', AStr) <> 0 then
-          Result := 3; // to DWORD/DWORD value handling
-        // REG_NONE
-        if Pos('hex(0):', AStr) <> 0 then
-          begin
-            hex0 := True;
-            Result := 4; // to NONE data handling
-          end;
-        // REG_NONE AND DELETE Value
-        if AStr.StartsWith('-') then
-          begin
-            DeleteValue := True;
-            Result := 4; // to none data handling
-          end;
-      end;
+    //todo!!: E/H/I
+    if Pos('"', AStr) <> 0 then
+      Result := vtSz //Value A
+    else if (Pos('hex:', AStr) <> 0) or
+            (Pos('hex(3):', AStr) <> 0) then
+      Result := vtBinary //Value B or G
+    else if Pos('dword:', AStr) <> 0 then
+      Result := vtDWord //Value C
+    else if Pos('hex(0):', AStr) <> 0 then
+      Result := vtNone //Value D
+    else if Pos('hex(2):', AStr) <> 0 then
+      Result := vtExpandSz //Value F
+    else if Pos('hex(7):', AStr) <> 0 then
+      Result := vtMultiSz //Value J
+    else if Pos('hex(b):', AStr) <> 0 then
+      Result := vtQWord //Value M
+    else if AStr.StartsWith('-') then
+      Result := vtDelete
+    else
+      Result := vtUnknown;
   end;
 
   function AddParamToStr(const AStr: String): String;
@@ -179,58 +169,58 @@ var
     end;
     Result := AParam;
   end;
+  
+  type
+  TInnoRegData = record
+    Root, Subkey, ValueName, ValueData, ValueType: String;
+  end;
 
-  procedure SubkeyRecord(AReg: TInnoRegData; ADeleteKey: Boolean);
+  function SubkeyRecord(AReg: TInnoRegData; ADeleteKey: Boolean): String;
   begin
-    var ALine := 'Root: ' + AReg.Root +
-                 '; Subkey: ' + AReg.Subkey;
+    Result := 'Root: ' + AReg.Root +
+              '; Subkey: ' + AReg.Subkey;
     if ADeleteKey then
-      ALine := ALine + '; ValueType: none' +
+      Result := Result + '; ValueType: none' +
                        '; Flags: deletekey'
     else begin
       if cb_FlagUnInsDelKey.Checked then
-        ALine := ALine + '; Flags: uninsdeletekey';
+        Result := Result + '; Flags: uninsdeletekey';
       if cb_FlagUnInsDelKeyIfEmpty.Checked then
-        ALine := ALine + '; Flags: uninsdeletekeyifempty';
+        Result := Result + '; Flags: uninsdeletekeyifempty';
     end;
-    ALine := AddParamToStr(ALine);
-    OutLines.Add(ALine);
+    Result := AddParamToStr(Result);
   end;
 
-  procedure SubkeyParamRecord(AReg: TInnoRegData; ADeleteValue: Boolean);
+  function SubkeyValueRecord(AReg: TInnoRegData; AValueType: TValueType): String;
   begin
-    var ALine := 'Root: ' + AReg.Root +
-                 '; Subkey: ' + AReg.Subkey +
-                 '; ValueType: ' + AReg.ValueType +
-                 '; ValueName: ' + AReg.ValueName;
-    if ADeleteValue then
-      ALine := ALine + '; Flags: deletevalue'
+    Result := 'Root: ' + AReg.Root +
+              '; Subkey: ' + AReg.Subkey +
+              '; ValueType: ' + AReg.ValueType +
+              '; ValueName: ' + AReg.ValueName;
+    if AValueType = vtDelete then
+      Result := Result + '; Flags: deletevalue'
     else begin
-      ALine := ALine + '; ValueData: ' + AReg.ValueData;
-      if hex0 then
-        ALine := ALine.Replace('; ValueData: ""', '');
+      if AValueType <> vtNone then
+        Result := Result + '; ValueData: ' + AReg.ValueData;
       if cb_FlagDelValue.Checked then
-        ALine := ALine + '; Flags: uninsdeletevalue';
+        Result := Result + '; Flags: uninsdeletevalue';
     end;
-    ALine := AddParamToStr(ALine);
-    OutLines.Add(ALine);
+    Result := AddParamToStr(Result);
   end;
 
 begin
   var Lines := TStringList.Create;
-  OutLines := TStringList.Create;
+  var OutLines := TStringList.Create;
   try
     Lines.LoadFromFile(edt_PathFileReg.Text);
     OutLines.Add('; [ BEGIN ] Registry data from file ' + ExtractFileName(edt_PathFileReg.Text));
-    var LineIndex := 0;
+    var LineIndex := 1;
     while LineIndex <= Lines.Count-1 do
     begin
       var Line := Lines[LineIndex];
       if (Length(Line) > 2) and (Line[1] = '[') and (Line[Line.Length] = ']') then
       begin
-        { Got a new root, handle the entire section }
-        
-        { First set the root and subkey of the new entry }
+        { Got a new section, first handle the key }
         Line := CutStrBeginEnd(Line, 1);
         var DeleteKey := Line.StartsWith('-');
         if DeleteKey then
@@ -245,104 +235,105 @@ begin
         ISRegData.Subkey := ISRegData.Subkey.Replace('\WOW6432Node', '')
                                             .Replace('{', '{{')
                                             .QuotedString('"');
+        OutLines.Add(SubkeyRecord(ISRegData, DeleteKey));
 
-        { Go to the first line of the section }
-        Inc(LineIndex);
-        Line := Lines[LineIndex];
+        { Key done, handle values }
+        Line := NextLine(Lines, LineIndex);
 
-        if (Line = '') and not DeleteKey then
-          SubkeyRecord(ISRegData, DeleteKey);
-        if (Line = '') or (Line <> '') and DeleteKey then
-          SubkeyRecord(ISRegData, DeleteKey);
-        
-        { Handle first line value and next line values - this reuses ISRegData each time }
-        while (Line <> '') and not DeleteKey do
-        begin
-          P := Pos('=', Line);
-          ISRegData.ValueName := CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
-          ISRegData.ValueName := ISRegData.ValueName.Replace('\\', '\')
-                                                    .Replace('{', '{{')
-                                                    .QuotedString('"');
+        while Line <> '' do begin
+          if not DeleteKey and (Line[1] <> ';') then begin
+            P := Pos('=', Line);
+            if (P = 2) and (Line[1] = '@') then
+              ISRegData.ValueName := '""'
+            else begin
+              ISRegData.ValueName := CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
+              ISRegData.ValueName := ISRegData.ValueName.Replace('\\', '\')
+                                                        .Replace('{', '{{')
+                                                        .QuotedString('"');
+            end;
+            var Value := Copy(Line, P + 1, MaxInt);
+            var ValueType := GetValueType(Value);
+            case ValueType of
+              vtSz:
+                begin
+                  // REG_SZ
+                  ISRegData.ValueData := CutStrBeginEnd(Value, 1);
+                  ISRegData.ValueData := ISRegData.ValueData.Replace('\\', '\')
+                                                             .Replace('{', '{{')
+                                                             .QuotedString('"');
+                  ISRegData.ValueType := 'string';
+                end;
+              vtExpandSz, vtMultiSz, vtBinary:
+                begin
+                  P := Pos(':', Value);
+                  Value := Copy(Value, P + 1, MaxInt);
 
-          var Value := Copy(Line, P + 1, MaxInt);
-          case GetValueType(Value) of
-            1: begin
-                 // REG_SZ
-                 ISRegData.ValueData := CutStrBeginEnd(Value, 1);
-                 ISRegData.ValueData := ISRegData.ValueData.Replace('\\', '\')
-                                                           .Replace('{', '{{')
-                                                           .QuotedString('"');
-                 ISRegData.ValueType := 'string';
-               end;
-            2: begin
-                 P := Pos(':', Value);
-                 Value := Copy(Value, P + 1, MaxInt);
-
-                 var Multiline := Value[Value.Length] = '\';
-                 if Multiline then
+                  var Multiline := Value[Value.Length] = '\';
+                  if Multiline then
                    Delete(Value, Value.Length, 1);
-                 ISRegData.ValueData := Value;
+                  ISRegData.ValueData := Value;
 
-                 while Multiline do
-                 begin
-                   Inc(LineIndex);
-                   Value := Lines[LineIndex].TrimLeft;
-                   Multiline := Value[Value.Length] = '\';
-                   if Multiline then
-                     Delete(Value, Value.Length, 1);
-                   ISRegData.ValueData := ISRegData.ValueData + Value;
-                 end;
+                  while Multiline do
+                  begin
+                    Value := NextLine(Lines, LineIndex).TrimLeft;
+                    Multiline := Value[Value.Length] = '\';
+                    if Multiline then
+                      Delete(Value, Value.Length, 1);
+                    ISRegData.ValueData := ISRegData.ValueData + Value;
+                  end;
 
-                 ISRegData.ValueData := ISRegData.ValueData.Replace(',', ' ');
-                 if hex2 or hex7 then
-                 begin
-                   ISRegData.ValueData := ISRegData.ValueData.Replace(' ', '');
-                   ISRegData.ValueData := HexStrToStr(ISRegData.ValueData);
-                 end;
+                  ISRegData.ValueData := ISRegData.ValueData.Replace(',', ' ');
+                  if ValueType in [vtExpandSz, vtMultiSz] then
+                  begin
+                    ISRegData.ValueData := ISRegData.ValueData.Replace(' ', '');
+                    ISRegData.ValueData := HexStrToStr(ISRegData.ValueData);
+                  end;
 
-                 if hex2 then // REG_EXPAND_SZ
-                 begin
-                   ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '');
-                   ISRegData.ValueType := 'expandsz';
-                 end else if hex7 then // REG_MULTI_SZ
-                 begin
-                   ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '{break}');
-                   ISRegData.ValueType := 'multisz';
-                 end else // REG_BINARY
-                   ISRegData.ValueType := 'binary';
+                  if ValueType = vtExpandSz then
+                  begin
+                    ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '');
+                    ISRegData.ValueType := 'expandsz';
+                  end else if ValueType = vtMultiSz then
+                  begin
+                    ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '{break}');
+                    ISRegData.ValueType := 'multisz';
+                  end else
+                    ISRegData.ValueType := 'binary';
 
-                 ISRegData.ValueData := ISRegData.ValueData.QuotedString('"');
+                  ISRegData.ValueData := ISRegData.ValueData.QuotedString('"');
                end;
-            3: begin
-                 P := Pos(':', Value);
-                 ISRegData.ValueData := Copy(Value, P + 1, MaxInt);
+              vtQWord, vtDWord:
+                begin
+                  P := Pos(':', Value);
+                  ISRegData.ValueData := Copy(Value, P + 1, MaxInt);
 
-                 if hexb then // REG_QWORD
-                 begin
-                   Value := ISRegData.ValueData.Replace(',', '');
-                   ISRegData.ValueData := '';
-                   for var I := 0 to Value.Length div 2 do
-                     ISRegData.ValueData := Copy(Value, (I * 2) + 1, 2) + ISRegData.ValueData;
-                   ISRegData.ValueType := 'qword';
-                 end else // REG_DWORD
-                   ISRegData.ValueType := 'dword';
+                  if ValueType = vtQWord then
+                  begin
+                    Value := ISRegData.ValueData.Replace(',', '');
+                    ISRegData.ValueData := '';
+                    for var I := 0 to Value.Length div 2 do
+                      ISRegData.ValueData := Copy(Value, (I * 2) + 1, 2) + ISRegData.ValueData;
+                    ISRegData.ValueType := 'qword';
+                  end else
+                    ISRegData.ValueType := 'dword';
 
-                 ISRegData.ValueData := '$' + ISRegData.ValueData;
-               end;
-            4: begin
-                 // REG_NONE
-                 ISRegData.ValueType := 'none';
-                 ISRegData.ValueData := '""';
-               end;
+                  ISRegData.ValueData := '$' + ISRegData.ValueData;
+                end;
+              vtNone, vtDelete:
+                begin
+                  ISRegData.ValueType := 'none';
+                  ISRegData.ValueData := ''; { value doesn't matter }
+                end;
+            end;
+
+            if ValueType <> vtUnknown then
+              OutLines.Add(SubkeyValueRecord(ISRegData, ValueType));
           end;
-          SubkeyParamRecord(ISRegData, DeleteValue);
 
-          { Go to the next line }
-          Inc(LineIndex);
-          Line := Lines[LineIndex];
-        end;
+          Line := NextLine(Lines, LineIndex); { Go to the next line - should be the next value or a comment }
+        end; { Out of values }
       end;
-      Inc(LineIndex);
+      Inc(LineIndex); { Go to the next line - should be the next key section or a comment }
     end;
     OutLines.Add('; [ END ]');
     Result := OutLines.Text;
@@ -356,18 +347,16 @@ procedure TRegistryDesignerForm.btn_BrowseClick(Sender: TObject);
 begin
   var FilePath := '';
   if NewGetOpenFileName('', FilePath, '', SWizardAppRegFilter, SWizardAppRegDefaultExt, Handle) then begin
-    var FileCheck := TStringList.Create;
+    var SL := TStringList.Create;
     try
-      FileCheck.LoadFromFile(FilePath);
-      const HeaderReg = 'Windows Registry Editor Version 5.00'; { don't localize }
-      if (FileCheck[0] = HeaderReg) and (FileCheck[FileCheck.Count - 1] = '') then
-        begin
-          edt_PathFileReg.Text := FilePath;
-        end
+      SL.LoadFromFile(FilePath);
+      const Header = 'Windows Registry Editor Version 5.00'; { don't localize }
+      if SL[0] = Header then { Official .reg files must end with a blank line so should never get here but we support ones without }
+        edt_PathFileReg.Text := FilePath
       else
-        MsgBox('Invalid file format, select another one.', SCompilerFormCaption, mbError, MB_OK);
+        MsgBox('Invalid file format.', SCompilerFormCaption, mbError, MB_OK);
     finally
-       FileCheck.Free;
+       SL.Free;
     end;
   end;
 end;
