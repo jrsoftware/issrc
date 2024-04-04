@@ -280,10 +280,7 @@ begin
               end;
             Inc(i);
             InBufStr := InBuffer.Strings[i];
-            if not delkey then
-              SubKeyRecord(ISRegData);
-            if delkey then
-              SubKeyRecord(ISRegData, delkey);
+            SubKeyRecord(ISRegData, delkey);
             while (InBufStr <> '') and not delkey do
             begin
               poschar := Pos('=', InBufStr);
