@@ -10,9 +10,7 @@ unit FileClass;
   Better than File and TFileStream in that does more extensive error checking
   and uses descriptive, localized system error messages.
 
-  TTextFileReader supports ANSI and UTF8 and UTF16-LE textfiles only.
-  
-  TTextFileWriter supports ANSI and UTF8 textfiles only.
+  TTextFileReader and TTextFileWriter support ANSI and UTF8 and UTF16-LE textfiles only.
 }
 
 interface
@@ -99,7 +97,7 @@ type
       must also be a multiple of 2 (so we can't get a split UTF16-LE CR or LF) }
     FBuffer: array[0..4095] of AnsiChar;
     FCharSize: Cardinal; { 1 = ANSI or UTF-8, 2 = UTF16-LE }
-    FCodePage: Cardinal; { Only used if FCharCount = 1 }
+    FCodePage: Cardinal; { Only used if FCharSize = 1 }
     function DoReadLine: AnsiString;
     function GetEof: Boolean;
     procedure FillBuffer;
@@ -113,13 +111,15 @@ type
   private
     FSeekedToEnd: Boolean;
     FUTF8NoPreamble: Boolean;
-    procedure DoWrite(const S: AnsiString; const UTF8: Boolean);
+    FUTF16LE: Boolean;
+    procedure DoWrite(const S: AnsiString; const IsUTF8, IsUTF16LE: Boolean);
   protected
     function CreateHandle(const AFilename: String;
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
       ASharing: TFileSharing): THandle; override;
   public
-    property UTF8NoPreamble: Boolean read FUTF8NoPreamble write FUTF8NoPreamble;
+    property UTF8NoPreamble: Boolean write FUTF8NoPreamble;
+    property UTF16LE: Boolean write FUTF16LE;
     procedure Write(const S: String);
     procedure WriteLine(const S: String);
     procedure WriteAnsi(const S: AnsiString);
@@ -534,35 +534,59 @@ begin
     ASharing);
 end;
 
-procedure TTextFileWriter.DoWrite(const S: AnsiString; const UTF8: Boolean);
+procedure TTextFileWriter.DoWrite(const S: AnsiString; const IsUTF8, IsUTF16LE: Boolean);
+
+  procedure WriteCRLF(C: AnsiChar; CharSize: Integer); overload;
+  begin
+    WriteBuffer(C, SizeOf(C));
+    if CharSize = 2 then begin
+      C := #0;
+      WriteBuffer(C, SizeOf(C));
+    end;
+  end;
+
+  procedure WriteCRLF(Arr: array of AnsiChar; CharSize: Integer); overload;
+  begin
+    for var C in Arr do
+      WriteCRLF(C, CharSize);
+  end;
+
 { Writes a string to the file, seeking to the end first if necessary }
 const
   CRLF: array[0..1] of AnsiChar = (#13, #10);
   UTF8Preamble: array[0..2] of AnsiChar = (#$EF, #$BB, #$BF);
+  UTF16LePreamble: array[0..1] of AnsiChar = (#$FF, #$FE);
 var
   I: Integer64;
-  C: AnsiChar;
+  C, C2: AnsiChar;
 begin
   if not FSeekedToEnd then begin
     I := GetSize;
     if (I.Lo <> 0) or (I.Hi <> 0) then begin
+      var CharCount: Integer;
+      if IsUTF16LE then
+        CharCount := 2
+      else
+        CharCount := 1;
       { File is not empty. Figure out if we have to append a line break. }
-      Dec64(I, SizeOf(C));
+      Dec64(I, SizeOf(C)*CharCount);
       Seek64(I);
       ReadBuffer(C, SizeOf(C));
-      case C of
-        #10: ;  { do nothing - file ends in LF or CRLF }
-        #13: begin
-            { If the file ends in CR, make it into CRLF }
-            C := #10;
-            WriteBuffer(C, SizeOf(C));
-          end;
-      else
+      if CharCount = 2 then
+        ReadBuffer(C2, SizeOf(C2));
+      if (C = CRLF[1]) and ((CharCount = 1) or (C2 = #0)) then
+        { do nothing - file ends in LF or CRLF }
+      else if (C = CRLF[0]) and ((CharCount = 1) or (C2 = #0)) then
+        { If the file ends in CR, make it into CRLF }
+        WriteCRLF(CRLF[1], CharCount)
+      else begin
         { Otherwise, append CRLF }
-        WriteBuffer(CRLF, SizeOf(CRLF));
+        WriteCRLF(CRLF, CharCount);
       end;
-    end else if UTF8 and not FUTF8NoPreamble then
-      WriteBuffer(UTF8Preamble, SizeOf(UTF8Preamble));
+    end else if IsUTF8 and not FUTF8NoPreamble then
+      WriteBuffer(UTF8Preamble, SizeOf(UTF8Preamble))
+    else if IsUTF16LE then
+      WriteBuffer(UTF16LEPreamble, SizeOf(UTF16LEPreamble));
     FSeekedToEnd := True;
   end;
   WriteBuffer(Pointer(S)^, Length(S));
@@ -570,7 +594,15 @@ end;
 
 procedure TTextFileWriter.Write(const S: String);
 begin
-  DoWrite(UTF8Encode(S), True);
+  if FUTF16LE then begin
+    var AnsiS: AnsiString;
+    var N := Length(S) * Sizeof(S[1]);
+    SetLength(AnsiS, N);
+    if N > 0 then
+      Move(Pointer(S)^, AnsiS[1], N);
+    DoWrite(AnsiS, False, True);
+  end else
+    DoWrite(UTF8Encode(S), True, False)
 end;
 
 procedure TTextFileWriter.WriteLine(const S: String);
@@ -580,7 +612,7 @@ end;
 
 procedure TTextFileWriter.WriteAnsi(const S: AnsiString);
 begin
-  DoWrite(S, False);
+  DoWrite(S, False, False);
 end;
 
 procedure TTextFileWriter.WriteAnsiLine(const S: AnsiString);
