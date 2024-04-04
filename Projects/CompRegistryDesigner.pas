@@ -280,9 +280,9 @@ begin
               end;
             Inc(i);
             InBufStr := InBuffer.Strings[i];
-            if (InBufStr = '') and not delkey then
+            if not delkey then
               SubKeyRecord(ISRegData);
-            if (InBufStr = '') or (InBufStr <> '') and delkey then
+            if delkey then
               SubKeyRecord(ISRegData, delkey);
             while (InBufStr <> '') and not delkey do
             begin
