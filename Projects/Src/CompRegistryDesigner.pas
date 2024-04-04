@@ -177,14 +177,14 @@ function TRegistryDesignerForm.GetText: String;
   end;
   
   type
-  TInnoRegData = record
+  TRegistryEntry = record
     Root, Subkey, ValueName, ValueData, ValueType: String;
   end;
 
-  function SubkeyRecord(AReg: TInnoRegData; ADeleteKey: Boolean): String;
+  function SubkeyRecord(AEntry: TRegistryEntry; ADeleteKey: Boolean): String;
   begin
-    Result := 'Root: ' + AReg.Root +
-              '; Subkey: ' + AReg.Subkey;
+    Result := 'Root: ' + AEntry.Root +
+              '; Subkey: ' + AEntry.Subkey;
     if ADeleteKey then
       Result := Result + '; ValueType: none' +
                        '; Flags: deletekey'
@@ -197,17 +197,17 @@ function TRegistryDesignerForm.GetText: String;
     Result := AddParamToStr(Result);
   end;
 
-  function SubkeyValueRecord(AReg: TInnoRegData; AValueType: TValueType): String;
+  function SubkeyValueRecord(AEntry: TRegistryEntry; AValueType: TValueType): String;
   begin
-    Result := 'Root: ' + AReg.Root +
-              '; Subkey: ' + AReg.Subkey +
-              '; ValueType: ' + AReg.ValueType +
-              '; ValueName: ' + AReg.ValueName;
+    Result := 'Root: ' + AEntry.Root +
+              '; Subkey: ' + AEntry.Subkey +
+              '; ValueType: ' + AEntry.ValueType +
+              '; ValueName: ' + AEntry.ValueName;
     if AValueType = vtDelete then
       Result := Result + '; Flags: deletevalue'
     else begin
       if AValueType <> vtNone then
-        Result := Result + '; ValueData: ' + AReg.ValueData;
+        Result := Result + '; ValueData: ' + AEntry.ValueData;
       if cb_FlagDelValue.Checked then
         Result := Result + '; Flags: uninsdeletevalue';
     end;
@@ -233,15 +233,15 @@ begin
           Delete(Line, 1, 1);
         var P := Pos('\', Line);
 
-        var ISRegData: TInnoRegData;
-        ISRegData.Root := StrRootRename(Copy(Line, 1, P - 1));
-        ISRegData.Subkey := Copy(Line, P + 1, MaxInt);
-        if ISRegData.Root.Contains('HKA') then
-          ISRegData.Subkey := 'Software\Classes\' + ISRegData.Subkey;
-        ISRegData.Subkey := ISRegData.Subkey.Replace('\WOW6432Node', '')
+        var Entry: TRegistryEntry;
+        Entry.Root := StrRootRename(Copy(Line, 1, P - 1));
+        Entry.Subkey := Copy(Line, P + 1, MaxInt);
+        if Entry.Root.Contains('HKA') then
+          Entry.Subkey := 'Software\Classes\' + Entry.Subkey;
+        Entry.Subkey := Entry.Subkey.Replace('\WOW6432Node', '')
                                             .Replace('{', '{{')
                                             .QuotedString('"');
-        OutLines.Add(SubkeyRecord(ISRegData, DeleteKey));
+        OutLines.Add(SubkeyRecord(Entry, DeleteKey));
 
         { Key done, handle values }
         Line := NextLine(Lines, LineIndex);
@@ -250,93 +250,92 @@ begin
           if not DeleteKey and (Line[1] <> ';') then begin
             P := Pos('=', Line);
             if (P = 2) and (Line[1] = '@') then
-              ISRegData.ValueName := '""'
+              Entry.ValueName := '""'
             else begin
-              ISRegData.ValueName := CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
-              ISRegData.ValueName := ISRegData.ValueName.Replace('\\', '\')
-                                                        .Replace('{', '{{')
-                                                        .QuotedString('"');
+              Entry.ValueName := CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
+              Entry.ValueName := Entry.ValueName.Replace('\\', '\')
+                                                .Replace('{', '{{')
+                                                .QuotedString('"');
             end;
-            var Value := Copy(Line, P + 1, MaxInt);
-            var ValueType := GetValueType(Value);
+            var ValueTypeAndData := Copy(Line, P + 1, MaxInt);
+            var ValueType := GetValueType(ValueTypeAndData);
             case ValueType of
               vtSz:
                 begin
                   // REG_SZ
-                  ISRegData.ValueData := CutStrBeginEnd(Value, 1);
-                  ISRegData.ValueData := ISRegData.ValueData.Replace('\\', '\')
-                                                             .Replace('{', '{{')
-                                                             .QuotedString('"');
-                  ISRegData.ValueType := 'string';
+                  Entry.ValueData := CutStrBeginEnd(ValueTypeAndData, 1);
+                  Entry.ValueData := Entry.ValueData.Replace('\\', '\')
+                                                    .Replace('{', '{{')
+                                                    .QuotedString('"');
+                  Entry.ValueType := 'string';
                 end;
               vtSzAsList, vtExpandSz, vtMultiSz, vtBinary:
                 begin
-                  P := Pos(':', Value);
-                  Value := Copy(Value, P + 1, MaxInt);
+                  P := Pos(':', ValueTypeAndData);
+                  var ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
 
-                  var Multiline := Value[Value.Length] = '\';
-                  if Multiline then
-                   Delete(Value, Value.Length, 1);
-                  ISRegData.ValueData := Value;
+                  var HasMoreLines := ValueData[ValueData.Length] = '\';
+                  if HasMoreLines then
+                    Delete(ValueData, ValueData.Length, 1);
+                  Entry.ValueData := ValueData;
 
-                  while Multiline do
+                  while HasMoreLines do
                   begin
-                    Value := NextLine(Lines, LineIndex).TrimLeft;
-                    Multiline := Value[Value.Length] = '\';
-                    if Multiline then
-                      Delete(Value, Value.Length, 1);
-                    ISRegData.ValueData := ISRegData.ValueData + Value;
+                    ValueData := NextLine(Lines, LineIndex).TrimLeft;
+                    HasMoreLines := ValueData[ValueData.Length] = '\';
+                    if HasMoreLines then
+                      Delete(ValueData, ValueData.Length, 1);
+                    Entry.ValueData := Entry.ValueData + ValueData;
                   end;
 
-                  ISRegData.ValueData := ISRegData.ValueData.Replace(',', ' ');
+                  Entry.ValueData := Entry.ValueData.Replace(',', ' ');
                   if ValueType <> vtBinary then
                   begin
-                    ISRegData.ValueData := ISRegData.ValueData.Replace(' ', '');
-                    ISRegData.ValueData := HexStrToStr(ISRegData.ValueData);
+                    Entry.ValueData := Entry.ValueData.Replace(' ', '');
+                    Entry.ValueData := HexStrToStr(Entry.ValueData);
                   end;
 
                   if ValueType in [vtSzAsList, vtExpandSz] then
                   begin
-                    ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '');
-                    ISRegData.ValueType := IfThen(ValueType = vtSzAsList, 'string', 'expandsz');
+                    Entry.ValueData := Entry.ValueData.Replace(#0, '');
+                    Entry.ValueType := IfThen(ValueType = vtSzAsList, 'string', 'expandsz');
                   end else if ValueType = vtMultiSz then
                   begin
-                    ISRegData.ValueData := ISRegData.ValueData.Replace(#0, '{break}');
-                    ISRegData.ValueType := 'multisz';
+                    Entry.ValueData := Entry.ValueData.Replace(#0, '{break}');
+                    Entry.ValueType := 'multisz';
                   end else
-                    ISRegData.ValueType := 'binary';
+                    Entry.ValueType := 'binary';
 
-                  ISRegData.ValueData := ISRegData.ValueData.QuotedString('"');
+                  Entry.ValueData := Entry.ValueData.QuotedString('"');
                end;
               vtDWord, vtDWordAsList, vtQWord:
                 begin
-                  P := Pos(':', Value);
-                  ISRegData.ValueData := Copy(Value, P + 1, MaxInt);
+                  P := Pos(':', ValueTypeAndData);
+                  Entry.ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
 
                   if ValueType in [vtDWordAsList, vtQWord] then
                   begin
-                    Value := ISRegData.ValueData.Replace(',', '');
+                    { ValueData is in reverse order, fix this }
+                    var ReverseValueData := Entry.ValueData.Replace(',', '');
+                    Entry.ValueData := '';
+                    for var I := 0 to ReverseValueData.Length div 2 do
+                      Entry.ValueData := Copy(ReverseValueData, (I * 2) + 1, 2) + Entry.ValueData;
 
-                    { Reverse order }
-                    ISRegData.ValueData := '';
-                    for var I := 0 to Value.Length div 2 do
-                      ISRegData.ValueData := Copy(Value, (I * 2) + 1, 2) + ISRegData.ValueData;
-
-                    ISRegData.ValueType := IfThen(ValueType = vtDWordAsList, 'dword', 'qword');
+                    Entry.ValueType := IfThen(ValueType = vtDWordAsList, 'dword', 'qword');
                   end else
-                    ISRegData.ValueType := 'dword';
+                    Entry.ValueType := 'dword';
 
-                  ISRegData.ValueData := '$' + ISRegData.ValueData;
+                  Entry.ValueData := '$' + Entry.ValueData;
                 end;
               vtNone, vtDelete:
                 begin
-                  ISRegData.ValueType := 'none';
-                  ISRegData.ValueData := ''; { value doesn't matter }
+                  Entry.ValueType := 'none';
+                  Entry.ValueData := ''; { value doesn't matter }
                 end;
             end;
 
             if ValueType <> vtUnknown then
-              OutLines.Add(SubkeyValueRecord(ISRegData, ValueType));
+              OutLines.Add(SubkeyValueRecord(Entry, ValueType));
           end;
 
           Line := NextLine(Lines, LineIndex); { Go to the next line - should be the next value or a comment }
