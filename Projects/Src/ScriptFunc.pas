@@ -349,7 +349,7 @@ const
   );
 
   { Other }
-  OtherTable: array [0..34] of AnsiString =
+  OtherTable: array [0..35] of AnsiString =
   (
     'procedure BringToFrontAndRestore;',
     'function WizardDirValue: String;',
@@ -380,6 +380,7 @@ const
     'function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function SaveStringsToUTF8FileNoPreamble(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
+    'function SaveStringsToUTF16LEFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function EnableFsRedirection(const Enable: Boolean): Boolean;',
     'function GetUninstallProgressForm: TUninstallProgressForm;',
     'function CreateCallback(Method: AnyMethod): Longword;',

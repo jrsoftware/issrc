@@ -1721,7 +1721,7 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
     end;
   end;
 
-  function SaveStringsToFile(const FileName: String; const Arr: PPSVariantIFC; Append, UTF8, UTF8NoPreamble: Boolean): Boolean;
+  function SaveStringsToFile(const FileName: String; const Arr: PPSVariantIFC; Append, Unicode, UTF8NoPreamble, UTF16LE: Boolean): Boolean;
   var
     F: TTextFileWriter;
     I, N: Integer;
@@ -1733,15 +1733,17 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
       else
         F := TTextFileWriterRedir.Create(ScriptFuncDisableFsRedir, FileName, fdCreateAlways, faWrite, fsNone);
       try
-        if UTF8 and UTF8NoPreamble then
+        if Unicode then begin
           F.UTF8NoPreamble := UTF8NoPreamble;
+          F.UTF16LE := UTF16LE;
+        end;
         N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
         for I := 0 to N-1 do begin
           S := VNGetString(PSGetArrayField(Arr^, I));
-          if not UTF8 then
-            F.WriteAnsiLine(AnsiString(S))
+          if Unicode then
+            F.WriteLine(S)
           else
-            F.WriteLine(S);
+            F.WriteAnsiLine(AnsiString(S));
         end;
       finally
         F.Free;
@@ -1949,13 +1951,16 @@ begin
     Stack.SetBool(PStart, SaveStringToFile(Stack.GetString(PStart-1), StackGetAnsiString(Stack, PStart-2), Stack.GetBool(PStart-3)));
   end else if Proc.Name = 'SAVESTRINGSTOFILE' then begin
     Arr := NewTPSVariantIFC(Stack[PStart-2], True);
-    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), False, False));
+    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), False, False, False));
   end else if Proc.Name = 'SAVESTRINGSTOUTF8FILE' then begin
     Arr := NewTPSVariantIFC(Stack[PStart-2], True);
-    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), True, False));
+    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), True, False, False));
   end else if Proc.Name = 'SAVESTRINGSTOUTF8FILENOPREAMBLE' then begin
     Arr := NewTPSVariantIFC(Stack[PStart-2], True);
-    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), True, True));
+    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), True, True, False));
+  end else if Proc.Name = 'SAVESTRINGSTOUTF16LEFILE' then begin
+    Arr := NewTPSVariantIFC(Stack[PStart-2], True);
+    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), True, False, True));
   end else if Proc.Name = 'ENABLEFSREDIRECTION' then begin
     Stack.SetBool(PStart, not ScriptFuncDisableFsRedir);
     if Stack.GetBool(PStart-1) then
