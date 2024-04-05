@@ -4,7 +4,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
   BorderStyle = bsDialog
   Caption = '[Registry] Entries Designer'
   ClientHeight = 348
-  ClientWidth = 505
+  ClientWidth = 500
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,8 +15,8 @@ object RegistryDesignerForm: TRegistryDesignerForm
   TextHeight = 13
   object pnl_OKCancel: TPanel
     Left = 0
-    Top = 306
-    Width = 505
+    Top = 320
+    Width = 500
     Height = 42
     Align = alBottom
     BevelOuter = bvNone
@@ -24,13 +24,13 @@ object RegistryDesignerForm: TRegistryDesignerForm
     object Bevel1: TBevel
       Left = 0
       Top = 0
-      Width = 505
+      Width = 500
       Height = 3
       Align = alTop
       Shape = bsBottomLine
     end
     object btn_Insert: TButton
-      Left = 335
+      Left = 330
       Top = 9
       Width = 75
       Height = 25
@@ -42,7 +42,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
       OnClick = btn_InsertClick
     end
     object btn_Cancel: TButton
-      Left = 419
+      Left = 414
       Top = 9
       Width = 75
       Height = 25
@@ -52,30 +52,37 @@ object RegistryDesignerForm: TRegistryDesignerForm
       ModalResult = 2
       TabOrder = 1
     end
+    object st_PriviligesRequired: TStaticText
+      Left = 8
+      Top = 15
+      Width = 8
+      Height = 17
+      Caption = '*'
+      Enabled = False
+      TabOrder = 2
+    end
   end
   object st_Text1: TStaticText
-    Left = 13
+    Left = 8
     Top = 18
-    Width = 397
+    Width = 316
     Height = 17
-    Anchors = [akLeft, akTop, akRight]
-    AutoSize = False
     Caption = 
       'Select a Windows registry file (*.reg) to insert entries into th' +
       'e script:'
     TabOrder = 1
   end
   object edt_PathFileReg: TEdit
-    Left = 13
+    Left = 8
     Top = 38
-    Width = 397
+    Width = 392
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 2
   end
   object btn_Browse: TButton
-    Left = 419
+    Left = 414
     Top = 36
     Width = 75
     Height = 25
@@ -85,9 +92,9 @@ object RegistryDesignerForm: TRegistryDesignerForm
     OnClick = btn_BrowseClick
   end
   object gb_Settings: TGroupBox
-    Left = 13
+    Left = 8
     Top = 69
-    Width = 397
+    Width = 392
     Height = 230
     Anchors = [akLeft, akTop, akRight]
     Caption = ' Settings (common for all values and subkeys) '
@@ -104,7 +111,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     object st_uninsdelkey: TStaticText
       Left = 36
       Top = 38
-      Width = 350
+      Width = 345
       Height = 28
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
@@ -112,7 +119,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
         'Adds the Flag for delete the entire key, including all values an' +
         'd subkeys in it when the program is uninstalled (use only on key' +
         's private to your App).'
-      TabOrder = 9
+      TabOrder = 6
     end
     object cb_FlagUnInsDelKeyIfEmpty: TCheckBox
       Left = 16
@@ -126,14 +133,14 @@ object RegistryDesignerForm: TRegistryDesignerForm
     object st_uninsdelkeyifempty: TStaticText
       Left = 36
       Top = 86
-      Width = 350
+      Width = 345
       Height = 28
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
       Caption = 
         'Adds the Flag for delete the key if it has no values or subkeys ' +
         'left in it when the program is uninstalled.'
-      TabOrder = 10
+      TabOrder = 7
     end
     object cb_FlagDelValue: TCheckBox
       Left = 16
@@ -147,46 +154,14 @@ object RegistryDesignerForm: TRegistryDesignerForm
     object st_uninsdelvalue: TStaticText
       Left = 36
       Top = 134
-      Width = 350
+      Width = 345
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
       Caption = 
         'Adds the Flag for delete the value when the program is uninstall' +
         'ed.'
-      TabOrder = 11
-    end
-    object cb_CheksIs64bit: TCheckBox
-      Left = 16
-      Top = 153
-      Width = 370
-      Height = 17
-      Anchors = [akLeft, akTop, akRight]
-      Caption = 
-        'Add the Check if Setup/Uninstall is running in 64-bit install mo' +
-        'de or not:'
-      TabOrder = 3
-      OnClick = cb_CheksIs64bitClick
-    end
-    object rb_Is64BitInstMod: TRadioButton
-      Tag = 20
-      Left = 50
-      Top = 175
-      Width = 150
-      Height = 17
-      Caption = 'Is64BitInstallMode'
-      Enabled = False
-      TabOrder = 4
-    end
-    object rb_NotIs64BitInstMod: TRadioButton
-      Tag = 25
-      Left = 212
-      Top = 174
-      Width = 160
-      Height = 17
-      Caption = 'not Is64BitInstallMode'
-      Enabled = False
-      TabOrder = 5
+      TabOrder = 8
     end
     object cb_MinVer: TCheckBox
       Left = 16
@@ -194,7 +169,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Width = 185
       Height = 17
       Caption = 'Set a minimum Windows version:'
-      TabOrder = 6
+      TabOrder = 3
       OnClick = cb_MinVerClick
     end
     object st_MinVersion: TStaticText
@@ -205,7 +180,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
       AutoSize = False
       Caption = 'MinVersion'
       Enabled = False
-      TabOrder = 8
+      TabOrder = 5
     end
     object edt_MinVer: TEdit
       Left = 306
@@ -213,7 +188,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Width = 75
       Height = 21
       Enabled = False
-      TabOrder = 7
+      TabOrder = 4
       Text = '6.2'
     end
   end

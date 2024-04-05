@@ -3090,6 +3090,15 @@ procedure TCompileForm.TRegistryDesignerClick(Sender: TObject);
 begin
   var RegistryDesignerForm := TRegistryDesignerForm.Create(Application);
   try
+    var PrivilegesRequired := FindSetupDirectiveValue('PrivilegesRequired', 'admin');
+    var PrivilegesRequiredOverridesAllowed := FindSetupDirectiveValue('PrivilegesRequiredOverridesAllowed', '');
+    if PrivilegesRequiredOverridesAllowed = '' then begin
+      if SameText(PrivilegesRequired, 'admin') then
+        RegistryDesignerForm.PriviligesRequired := prAdmin
+      else
+        RegistryDesignerForm.PriviligesRequired := prLowest
+    end else
+      RegistryDesignerForm.PriviligesRequired := prDynamic;
     if RegistryDesignerForm.ShowModal = mrOk then
     begin
       FActiveMemo.CaretColumn := 0;

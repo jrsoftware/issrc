@@ -18,6 +18,8 @@ uses
   Forms, StdCtrls, TypInfo, UITypes, ExtCtrls;
 
 type
+  TPriviligesRequired = (prAdmin, prLowest, prDynamic);
+
   TRegistryDesignerForm = class(TForm)
     pnl_OKCancel: TPanel;
     Bevel1: TBevel;
@@ -33,21 +35,21 @@ type
     st_uninsdelkeyifempty: TStaticText;
     cb_FlagDelValue: TCheckBox;
     st_uninsdelvalue: TStaticText;
-    cb_CheksIs64bit: TCheckBox;
-    rb_Is64BitInstMod: TRadioButton;
-    rb_NotIs64BitInstMod: TRadioButton;
     cb_MinVer: TCheckBox;
     st_MinVersion: TStaticText;
     edt_MinVer: TEdit;
+    st_PriviligesRequired: TStaticText;
     procedure btn_BrowseClick(Sender: TObject);
     procedure btn_InsertClick(Sender: TObject);
     procedure cb_FlagUnInsDelKeyClick(Sender: TObject);
     procedure cb_FlagUnInsDelKeyIfEmptyClick(Sender: TObject);
-    procedure cb_CheksIs64bitClick(Sender: TObject);
     procedure cb_MinVerClick(Sender: TObject);
   private
+    FPriviligesRequired: TPriviligesRequired;
+    procedure SetPriviligesRequired(const Value: TPriviligesRequired);
     function GetText: String;
   public
+    property PriviligesRequired: TPriviligesRequired write SetPriviligesRequired;
     property Text: string read GetText;
   end;
 
@@ -58,6 +60,18 @@ uses
   CompMsgs, BrowseFunc, CmnFunc;
 
 {$R *.dfm}
+
+procedure TRegistryDesignerForm.SetPriviligesRequired(
+  const Value: TPriviligesRequired);
+begin
+  FPriviligesRequired := Value;
+  if FPriviligesRequired = prAdmin then
+    st_PriviligesRequired.Caption := 'Script has PriviligesRequired=admin'
+  else if FPriviligesRequired = prLowest then
+    st_PriviligesRequired.Caption := 'Script has PriviligesRequired=lowest'
+  else
+    st_PriviligesRequired.Caption := 'Script has PrivilegesRequiredOverridesAllowed set';
+end;
 
 function TRegistryDesignerForm.GetText: String;
 
@@ -83,9 +97,11 @@ function TRegistryDesignerForm.GetText: String;
     case ARoot of
       HKEY_CURRENT_USER:   Result := 'HKCU';
       HKEY_LOCAL_MACHINE:  Result := 'HKLM';
-      HKEY_CLASSES_ROOT:   Result := 'HKA'; // HKCR
+      HKEY_CLASSES_ROOT:   Result := 'HKCR';
       HKEY_USERS:          Result := 'HKU';
       HKEY_CURRENT_CONFIG: Result := 'HKCC';
+    else
+      raise Exception.CreateFmt('Unknown root %s', [S]);
     end;
   end;
 
@@ -107,7 +123,7 @@ function TRegistryDesignerForm.GetText: String;
   end;
 
   type
-    TValueType = (vtSz, vtSzAsList, vtExpandSz, vtMultiSz, vtBinary, vtDWord, vtDWordAsList, vtQWord, vtNone, vtDelete, vtUnknown);
+    TValueType = (vtSz, vtSzAsList, vtExpandSz, vtMultiSz, vtBinary, vtDWord, vtDWordAsList, vtQWord, vtNone, vtDelete, vtUnsupported);
 
   function GetValueType(AStr: String): TValueType;
   { See https://en.wikipedia.org/wiki/Windows_Registry#.REG_files
@@ -158,30 +174,37 @@ function TRegistryDesignerForm.GetText: String;
     else if AStr.StartsWith('-') then
       Result := vtDelete
     else
-      Result := vtUnknown;
+      Result := vtUnsupported;
   end;
 
-  function AddParamToStr(const AStr: String): String;
-  begin
-    var AParam := AStr;
-    if cb_MinVer.Checked then
-      AParam := AParam + '; MinVersion: ' + edt_MinVer.Text;
-    if cb_CheksIs64bit.Checked then
-    begin
-      if rb_Is64BitInstMod.Checked then
-        AParam := AParam + '; Check: Is64BitInstallMode';
-      if rb_NotIs64BitInstMod.Checked then
-        AParam := AParam + '; Check: not Is64BitInstallMode';
-    end;
-    Result := AParam;
-  end;
-  
   type
-  TRegistryEntry = record
-    Root, Subkey, ValueName, ValueData, ValueType: String;
+    TRegistryEntry = record
+      Root, Subkey, ValueName, ValueData, ValueType: String;
+    end;
+
+  function RequiresAdminInstallMode(AEntry: TRegistryEntry): Boolean;
+  begin
+    Result := (AEntry.Root = 'HKLM') or (AEntry.Root = 'HKCC') or
+              ((AEntry.Root = 'HKU') and SameText(AEntry.Subkey, '.Default'));
   end;
 
-  function SubkeyRecord(AEntry: TRegistryEntry; ADeleteKey: Boolean): String;
+   function RequiresNotAdminInstallMode(AEntry: TRegistryEntry): Boolean;
+  begin
+    Result := (AEntry.Root = 'HKCU');
+  end;
+
+  function TextCommon(AEntry: TRegistryEntry): String;
+  begin
+    Result := '';
+    if cb_MinVer.Checked then
+      Result := Result + '; MinVersion: ' + edt_MinVer.Text;
+    if (FPriviligesRequired <> prAdmin) and RequiresAdminInstallMode(AEntry) then
+      Result := Result + '; Check: IsAdminInstallMode'
+    else if (FPriviligesRequired <> prLowest) and RequiresNotAdminInstallMode(AEntry) then
+      Result := Result + '; Check: not IsAdminInstallMode';
+  end;
+
+  function TextKeyEntry(AEntry: TRegistryEntry; ADeleteKey: Boolean): String;
   begin
     Result := 'Root: ' + AEntry.Root +
               '; Subkey: ' + AEntry.Subkey;
@@ -194,10 +217,10 @@ function TRegistryDesignerForm.GetText: String;
       if cb_FlagUnInsDelKeyIfEmpty.Checked then
         Result := Result + '; Flags: uninsdeletekeyifempty';
     end;
-    Result := AddParamToStr(Result);
+    Result := Result + TextCommon(AEntry);
   end;
 
-  function SubkeyValueRecord(AEntry: TRegistryEntry; AValueType: TValueType): String;
+  function TextValueEntry(AEntry: TRegistryEntry; AValueType: TValueType): String;
   begin
     Result := 'Root: ' + AEntry.Root +
               '; Subkey: ' + AEntry.Subkey +
@@ -211,7 +234,21 @@ function TRegistryDesignerForm.GetText: String;
       if cb_FlagDelValue.Checked then
         Result := Result + '; Flags: uninsdeletevalue';
     end;
-    Result := AddParamToStr(Result);
+    Result := Result + TextCommon(AEntry);
+  end;
+
+  function TextHeader: String;
+  begin
+    Result := ';Registry data from file ' + ExtractFileName(edt_PathFileReg.Text);
+  end;
+
+  function TextFooter(const HadFilteredKeys, HadUnsupportedValueTypes: Boolean): String;
+  begin
+    Result := ';End of registry data from file ' + ExtractFileName(edt_PathFileReg.Text);
+    if HadFilteredKeys then
+      Result := Result + SNewLine + ';SOME KEYS FILTERED DUE TO PRIVILEGESREQUIRED SETTINGS!';
+    if HadUnsupportedValueTypes then
+      Result := Result + SNewLine + ';SOME VALUES WITH UNSUPPORTED TYPES SKIPPED!'
   end;
 
 begin
@@ -219,8 +256,9 @@ begin
   var OutLines := TStringList.Create;
   try
     Lines.LoadFromFile(edt_PathFileReg.Text);
-    OutLines.Add('; [ BEGIN ] Registry data from file ' + ExtractFileName(edt_PathFileReg.Text));
     var LineIndex := 1;
+    var HadFilteredKeys := False;
+    var HadUnsupportedValueTypes := False;
     while LineIndex <= Lines.Count-1 do
     begin
       var Line := Lines[LineIndex];
@@ -236,18 +274,27 @@ begin
         var Entry: TRegistryEntry;
         Entry.Root := StrRootRename(Copy(Line, 1, P - 1));
         Entry.Subkey := Copy(Line, P + 1, MaxInt);
-        if Entry.Root.Contains('HKA') then
+        if Entry.Root = 'HKCR' then begin
+          Entry.Root := 'HKA';
           Entry.Subkey := 'Software\Classes\' + Entry.Subkey;
+        end;
         Entry.Subkey := Entry.Subkey.Replace('\WOW6432Node', '')
                                             .Replace('{', '{{')
                                             .QuotedString('"');
-        OutLines.Add(SubkeyRecord(Entry, DeleteKey));
+
+        var FilterKey := ((FPriviligesRequired = prAdmin) and RequiresNotAdminInstallMode(Entry)) or
+                         ((FPriviligesRequired = prLowest) and RequiresAdminInstallMode(Entry));
+
+        if not FilterKey then
+          OutLines.Add(TextKeyEntry(Entry, DeleteKey))
+        else
+          HadFilteredKeys := True;
 
         { Key done, handle values }
         Line := NextLine(Lines, LineIndex);
 
         while Line <> '' do begin
-          if not DeleteKey and (Line[1] <> ';') then begin
+          if not FilterKey and not DeleteKey and (Line[1] <> ';') then begin
             P := Pos('=', Line);
             if (P = 2) and (Line[1] = '@') then
               Entry.ValueName := '""'
@@ -334,8 +381,10 @@ begin
                 end;
             end;
 
-            if ValueType <> vtUnknown then
-              OutLines.Add(SubkeyValueRecord(Entry, ValueType));
+            if ValueType <> vtUnsupported then
+              OutLines.Add(TextValueEntry(Entry, ValueType))
+            else
+              HadUnsupportedValueTypes := True;
           end;
 
           Line := NextLine(Lines, LineIndex); { Go to the next line - should be the next value or a comment }
@@ -343,7 +392,8 @@ begin
       end;
       Inc(LineIndex); { Go to the next line - should be the next key section or a comment }
     end;
-    OutLines.Add('; [ END ]');
+    OutLines.Insert(0, TextHeader);
+    OutLines.Add(TextFooter(HadFilteredKeys, HadUnsupportedValueTypes));
     Result := OutLines.Text;
   finally
     Lines.Free;
@@ -385,22 +435,6 @@ procedure TRegistryDesignerForm.cb_FlagUnInsDelKeyIfEmptyClick(Sender: TObject);
 begin
   if cb_FlagUnInsDelKeyIfEmpty.Checked then
     cb_FlagUnInsDelKey.Checked := False;
-end;
-
-procedure TRegistryDesignerForm.cb_CheksIs64bitClick(Sender: TObject);
-begin
-  if cb_CheksIs64bit.Checked then
-    begin
-      rb_Is64BitInstMod.Enabled := True;
-      rb_NotIs64BitInstMod.Enabled := True;
-    end
-  else
-    begin
-      rb_Is64BitInstMod.Enabled := False;
-      rb_NotIs64BitInstMod.Enabled := False;
-      rb_Is64BitInstMod.Checked := False;
-      rb_NotIs64BitInstMod.Checked := False;
-    end
 end;
 
 procedure TRegistryDesignerForm.cb_MinVerClick(Sender: TObject);
