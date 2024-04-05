@@ -12,6 +12,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Position = poScreenCenter
+  OnCreate = FormCreate
   TextHeight = 13
   object pnl_OKCancel: TPanel
     Left = 0
@@ -20,7 +21,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Height = 42
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 3
     object Bevel1: TBevel
       Left = 0
       Top = 0
@@ -51,6 +52,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
+      ExplicitLeft = 410
     end
     object st_PriviligesRequired: TStaticText
       Left = 8
@@ -70,7 +72,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Caption = 
       'Select a Windows registry file (*.reg) to insert entries into th' +
       'e script:'
-    TabOrder = 1
+    TabOrder = 4
   end
   object edt_PathFileReg: TEdit
     Left = 8
@@ -78,8 +80,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Width = 392
     Height = 21
     Anchors = [akLeft, akTop, akRight]
-    ReadOnly = True
-    TabOrder = 2
+    TabOrder = 0
   end
   object btn_Browse: TButton
     Left = 414
@@ -88,7 +89,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Height = 25
     Anchors = [akTop, akRight]
     Caption = '&Browse...'
-    TabOrder = 3
+    TabOrder = 1
     OnClick = btn_BrowseClick
   end
   object gb_Settings: TGroupBox
@@ -98,7 +99,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Height = 230
     Anchors = [akLeft, akTop, akRight]
     Caption = ' Settings (common for all values and subkeys) '
-    TabOrder = 4
+    TabOrder = 2
     object cb_FlagUnInsDelKey: TCheckBox
       Left = 16
       Top = 20

@@ -44,6 +44,7 @@ type
     procedure cb_FlagUnInsDelKeyClick(Sender: TObject);
     procedure cb_FlagUnInsDelKeyIfEmptyClick(Sender: TObject);
     procedure cb_MinVerClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     FPriviligesRequired: TPriviligesRequired;
     procedure SetPriviligesRequired(const Value: TPriviligesRequired);
@@ -57,7 +58,7 @@ implementation
 
 uses
   StrUtils,
-  CompMsgs, BrowseFunc, CmnFunc;
+  CompMsgs, BrowseFunc, CmnFunc, CmnFunc2;
 
 {$R *.dfm}
 
@@ -256,6 +257,13 @@ begin
   var OutLines := TStringList.Create;
   try
     Lines.LoadFromFile(edt_PathFileReg.Text);
+
+    { Official .reg files must have blank lines as second and last lines but we
+      don't require that so we just check for the header on the first line }
+    const Header = 'Windows Registry Editor Version 5.00'; { don't localize }
+    if (Lines.Count = 0) or (Lines[0] <> Header) then
+      raise Exception.Create('Invalid file format.');
+
     var LineIndex := 1;
     var HadFilteredKeys := False;
     var HadUnsupportedValueTypes := False;
@@ -400,22 +408,16 @@ begin
   end;
 end;
 
+procedure TRegistryDesignerForm.FormCreate(Sender: TObject);
+begin
+  TryEnableAutoCompleteFileSystem(edt_PathFileReg.Handle);
+end;
+
 procedure TRegistryDesignerForm.btn_BrowseClick(Sender: TObject);
 begin
-  var FilePath := '';
-  if NewGetOpenFileName('', FilePath, '', SWizardAppRegFilter, SWizardAppRegDefaultExt, Handle) then begin
-    var SL := TStringList.Create;
-    try
-      SL.LoadFromFile(FilePath);
-      const Header = 'Windows Registry Editor Version 5.00'; { don't localize }
-      if SL[0] = Header then { Official .reg files must end with a blank line but we support ones without }
-        edt_PathFileReg.Text := FilePath
-      else
-        MsgBox('Invalid file format.', SCompilerFormCaption, mbError, MB_OK);
-    finally
-       SL.Free;
-    end;
-  end;
+  var FileName: String := edt_PathFileReg.Text;
+  if NewGetOpenFileName('', FileName, '', SWizardAppRegFilter, SWizardAppRegDefaultExt, Handle) then
+    edt_PathFileReg.Text := FileName;
 end;
 
 procedure TRegistryDesignerForm.btn_InsertClick(Sender: TObject);
