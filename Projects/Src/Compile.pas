@@ -5143,7 +5143,7 @@ const
   ParamInfo: array[TParam] of TParamInfo = (
     (Name: ParamCommonFlags; Flags: []),
     (Name: ParamRegistryRoot; Flags: [piRequired]),
-    (Name: ParamRegistrySubkey; Flags: [piRequired]),
+    (Name: ParamRegistrySubkey; Flags: [piRequired, piNoEmpty]),
     (Name: ParamRegistryValueType; Flags: []),
     (Name: ParamRegistryValueName; Flags: []),
     (Name: ParamRegistryValueData; Flags: []),
