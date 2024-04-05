@@ -386,6 +386,10 @@ object CompileForm: TCompileForm
           Caption = 'UTF-8 without &BOM'
           OnClick = FSaveEncodingItemClick
         end
+        object FSaveEncodingUTF16LE: TMenuItem
+          Caption = 'UTF-16LE'
+          OnClick = FSaveEncodingItemClick
+        end
       end
       object FSaveAll: TMenuItem
         Caption = 'Sa&ve All'

@@ -328,6 +328,7 @@ begin
       F.WriteAnsi(AnsiStr)
     else begin
       F.UTF8NoPreamble := SaveEncoding = seUTF8NoPreamble;
+      F.UTF16LE := SaveEncoding = seUTF16LE;
       F.Write(S);
     end;
   finally

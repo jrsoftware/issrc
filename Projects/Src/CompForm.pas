@@ -165,6 +165,8 @@ type
     FSaveEncoding: TMenuItem;
     FSaveEncodingAuto: TMenuItem;
     FSaveEncodingUTF8: TMenuItem;
+    FSaveEncodingUTF8NoPreamble: TMenuItem;
+    FSaveEncodingUTF16LE: TMenuItem;
     ToolBar: TToolBar;
     NewMainFileButton: TToolButton;
     OpenMainFileButton: TToolButton;
@@ -208,7 +210,6 @@ type
     FPrint: TMenuItem;
     N22: TMenuItem;
     PrintDialog: TPrintDialog;
-    FSaveEncodingUTF8NoPreamble: TMenuItem;
     TFilesDesigner: TMenuItem;
     VCloseTab: TMenuItem;
     VReopenTab: TMenuItem;
@@ -1122,7 +1123,7 @@ begin
     end;
 
     if CommandLineWizard then begin
-      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, seUtf8);
+      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, seUTF8);
     end else begin
       NewMainFile;
       FMainMemo.Lines.Text := WizardForm.ResultScript;
@@ -1146,16 +1147,25 @@ procedure TCompileForm.OpenFile(AMemo: TCompScintFileEdit; AFilename: String;
     Buf: array[0..2] of Byte;
   begin
     Result := seAuto;
+
     var StreamSize := Stream.Size;
     var CappedSize: Integer;
     if StreamSize > High(Integer) then
       CappedSize := High(Integer)
     else
       CappedSize := Integer(StreamSize);
-    if (CappedSize >= SizeOf(Buf)) and (Stream.Read(Buf, SizeOf(Buf)) = SizeOf(Buf)) and
-       (Buf[0] = $EF) and (Buf[1] = $BB) and (Buf[2] = $BF) then
-      Result := seUTF8
-    else begin
+
+    { Check for Unicode BOM }
+    if CappedSize >= 2 then begin
+      var N := Stream.Read(Buf, SizeOf(Buf));
+      if (N >= 3) and (Buf[0] = $EF) and (Buf[1] = $BB) and (Buf[2] = $BF) then
+        Result := seUTF8
+      else if (N >= 2) and (Buf[0] = $FF) and (Buf[1] = $FE) then
+        Result := seUTF16LE;
+    end;
+
+    if Result = seAuto then begin
+      { No BOM, check entire file to see if its UTF-8 without a BOM }
       Stream.Seek(0, soFromBeginning);
       var S: AnsiString;
       SetLength(S, CappedSize);
@@ -1169,6 +1179,8 @@ procedure TCompileForm.OpenFile(AMemo: TCompScintFileEdit; AFilename: String;
   begin
     if SaveEncoding in [seUTF8, seUTF8NoPreamble] then
       Result := TEncoding.UTF8
+    else if SaveEncoding = seUTF16LE then
+      Result := TEncoding.Unicode
     else
       Result := nil;
   end;
@@ -1796,6 +1808,7 @@ begin
   FSaveEncodingAuto.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seAuto);
   FSaveEncodingUTF8.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8);
   FSaveEncodingUTF8NoPreamble.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8NoPreamble);
+  FSaveEncodingUTF16LE.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF16LE);
   FSaveAll.Visible := FOptions.OpenIncludedFiles;
   ReadMRUMainFilesList;
   FMRUMainFilesSep.Visible := FMRUMainFilesList.Count <> 0;
@@ -1855,6 +1868,8 @@ begin
     (FActiveMemo as TCompScintFileEdit).SaveEncoding := seUTF8
   else if Sender = FSaveEncodingUTF8NoPreamble  then
     (FActiveMemo as TCompScintFileEdit).SaveEncoding := seUTF8NoPreamble
+  else if Sender = FSaveEncodingUTF16LE  then
+    (FActiveMemo as TCompScintFileEdit).SaveEncoding := seUTF16LE
   else
     (FActiveMemo as TCompScintFileEdit).SaveEncoding := seAuto;
 end;
