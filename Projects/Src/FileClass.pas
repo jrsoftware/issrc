@@ -10,7 +10,7 @@ unit FileClass;
   Better than File and TFileStream in that does more extensive error checking
   and uses descriptive, localized system error messages.
 
-  TTextFileReader and TTextFileWriter support ANSI and UTF8 and UTF16-LE textfiles only.
+  TTextFileReader and TTextFileWriter support ANSI and UTF-8 and UTF-16LE textfiles only.
 }
 
 interface
@@ -94,9 +94,9 @@ type
     FBufferOffset, FBufferSize: Cardinal;
     FEof: Boolean;
     { Size of FBuffer must be at least 3 (so we can't get a split UTF-8 BOM) and
-      must also be a multiple of 2 (so we can't get a split UTF16-LE CR or LF) }
+      must also be a multiple of 2 (so we can't get a split UTF-16LE CR or LF) }
     FBuffer: array[0..4095] of AnsiChar;
-    FCharSize: Cardinal; { 1 = ANSI or UTF-8, 2 = UTF16-LE }
+    FCharSize: Cardinal; { 1 = ANSI or UTF-8, 2 = UTF-16LE }
     FCodePage: Cardinal; { Only used if FCharSize = 1 }
     function DoReadLine: AnsiString;
     function GetEof: Boolean;
