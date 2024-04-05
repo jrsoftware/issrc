@@ -89,21 +89,21 @@ function TRegistryDesignerForm.GetText: String;
     end;
   end;
 
-  function HexStrToStr(HexStr: String): String;
+  function UTF16LEHexStrToStr(HexStr: String): String;
   begin
     if HexStr.Length mod 4 <> 0 then
       HexStr := HexStr + '00'; { RegEdit does this as well on import }
-    var StrAsBytes: TBytes;
-    SetLength(StrAsBytes, HexStr.Length div 2);
+    var UTF16LEBytes: TBytes;
+    SetLength(UTF16LEBytes, HexStr.Length div 2);
     var i := 1;
     var idx := 0;
     while i <= HexStr.Length do
     begin
-      StrAsBytes[idx] := StrToInt('$' + HexStr[i] + HexStr[i + 1]);
+      UTF16LEBytes[idx] := StrToInt('$' + HexStr[i] + HexStr[i + 1]);
       i := i + 2;
       idx := idx + 1;
     end;
-    Result := TEncoding.Unicode.GetString(StrAsBytes);
+    Result := TEncoding.Unicode.GetString(UTF16LEBytes);
   end;
 
   type
@@ -187,7 +187,7 @@ function TRegistryDesignerForm.GetText: String;
               '; Subkey: ' + AEntry.Subkey;
     if ADeleteKey then
       Result := Result + '; ValueType: none' +
-                       '; Flags: deletekey'
+                         '; Flags: deletekey'
     else begin
       if cb_FlagUnInsDelKey.Checked then
         Result := Result + '; Flags: uninsdeletekey';
@@ -292,7 +292,7 @@ begin
                   if ValueType <> vtBinary then
                   begin
                     Entry.ValueData := Entry.ValueData.Replace(' ', '');
-                    Entry.ValueData := HexStrToStr(Entry.ValueData);
+                    Entry.ValueData := UTF16LEHexStrToStr(Entry.ValueData);
                   end;
 
                   if ValueType in [vtSzAsList, vtExpandSz] then
