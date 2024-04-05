@@ -21,7 +21,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Height = 42
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 3
+    TabOrder = 8
     object Bevel1: TBevel
       Left = 0
       Top = 0
@@ -92,61 +92,61 @@ object RegistryDesignerForm: TRegistryDesignerForm
     TabOrder = 1
     OnClick = btn_BrowseClick
   end
-  object gb_Settings: TGroupBox
+  object st_Settings: TStaticText
     Left = 8
     Top = 69
     Width = 392
     Height = 230
     Anchors = [akLeft, akTop, akRight]
-    Caption = ' Settings (for all keys and values) '
+    Caption = 'Settings (for all keys and values):'
     TabOrder = 2
-    object cb_FlagUnInsDelKey: TCheckBox
-      Left = 16
-      Top = 40
-      Width = 225
-      Height = 17
-      Caption = 'Also delete keys which are not empty'
-      TabOrder = 1
-    end
-    object cb_FlagUnInsDelKeyIfEmpty: TCheckBox
-      Left = 16
-      Top = 20
-      Width = 225
-      Height = 17
-      Caption = 'Delete keys which are empty on uninstall'
-      Checked = True
-      State = cbChecked
-      TabOrder = 0
-      OnClick = cb_FlagUnInsDelKeyIfEmptyClick
-    end
-    object cb_FlagDelValue: TCheckBox
-      Left = 16
-      Top = 70
-      Width = 225
-      Height = 17
-      Caption = 'Delete values on uninstall'
-      Checked = True
-      State = cbChecked
-      TabOrder = 2
-      WordWrap = True
-    end
-    object cb_MinVer: TCheckBox
-      Left = 16
-      Top = 100
-      Width = 225
-      Height = 17
-      Caption = 'Create only if Windows'#39' version is at least:'
-      TabOrder = 3
-      OnClick = cb_MinVerClick
-    end
-    object edt_MinVer: TEdit
-      Left = 247
-      Top = 99
-      Width = 130
-      Height = 21
-      Enabled = False
-      TabOrder = 4
-      Text = '6.2'
-    end
+  end
+  object cb_FlagUnInsDelKey: TCheckBox
+    Left = 16
+    Top = 109
+    Width = 225
+    Height = 17
+    Caption = 'Also delete keys which are not empty'
+    TabOrder = 3
+  end
+  object cb_FlagUnInsDelKeyIfEmpty: TCheckBox
+    Left = 8
+    Top = 89
+    Width = 225
+    Height = 17
+    Caption = 'Delete keys which are empty on uninstall'
+    Checked = True
+    State = cbChecked
+    TabOrder = 4
+    OnClick = cb_FlagUnInsDelKeyIfEmptyClick
+  end
+  object cb_FlagDelValue: TCheckBox
+    Left = 8
+    Top = 139
+    Width = 225
+    Height = 17
+    Caption = 'Delete values on uninstall'
+    Checked = True
+    State = cbChecked
+    TabOrder = 5
+    WordWrap = True
+  end
+  object cb_MinVer: TCheckBox
+    Left = 8
+    Top = 169
+    Width = 225
+    Height = 17
+    Caption = 'Create only if Windows'#39' version is at least:'
+    TabOrder = 6
+    OnClick = cb_MinVerClick
+  end
+  object edt_MinVer: TEdit
+    Left = 239
+    Top = 168
+    Width = 160
+    Height = 21
+    Enabled = False
+    TabOrder = 7
+    Text = '6.2'
   end
 end

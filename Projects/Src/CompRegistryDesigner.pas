@@ -28,7 +28,7 @@ type
     st_Text1: TStaticText;
     edt_PathFileReg: TEdit;
     btn_Browse: TButton;
-    gb_Settings: TGroupBox;
+    st_Settings: TStaticText;
     cb_FlagUnInsDelKey: TCheckBox;
     cb_FlagUnInsDelKeyIfEmpty: TCheckBox;
     cb_FlagDelValue: TCheckBox;
