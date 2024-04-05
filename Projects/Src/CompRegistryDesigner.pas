@@ -309,7 +309,6 @@ begin
             case ValueType of
               vtSz:
                 begin
-                  // REG_SZ
                   Entry.ValueData := CutStrBeginEnd(ValueTypeAndData, 1);
                   Entry.ValueData := Entry.ValueData.Replace('\\', '\')
                                                     .Replace('{', '{{')
@@ -409,7 +408,7 @@ begin
     try
       SL.LoadFromFile(FilePath);
       const Header = 'Windows Registry Editor Version 5.00'; { don't localize }
-      if SL[0] = Header then { Official .reg files must end with a blank line so should never get here but we support ones without }
+      if SL[0] = Header then { Official .reg files must end with a blank line but we support ones without }
         edt_PathFileReg.Text := FilePath
       else
         MsgBox('Invalid file format.', SCompilerFormCaption, mbError, MB_OK);
