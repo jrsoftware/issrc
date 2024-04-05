@@ -30,18 +30,13 @@ type
     btn_Browse: TButton;
     gb_Settings: TGroupBox;
     cb_FlagUnInsDelKey: TCheckBox;
-    st_uninsdelkey: TStaticText;
     cb_FlagUnInsDelKeyIfEmpty: TCheckBox;
-    st_uninsdelkeyifempty: TStaticText;
     cb_FlagDelValue: TCheckBox;
-    st_uninsdelvalue: TStaticText;
     cb_MinVer: TCheckBox;
-    st_MinVersion: TStaticText;
     edt_MinVer: TEdit;
     st_PriviligesRequired: TStaticText;
     procedure btn_BrowseClick(Sender: TObject);
     procedure btn_InsertClick(Sender: TObject);
-    procedure cb_FlagUnInsDelKeyClick(Sender: TObject);
     procedure cb_FlagUnInsDelKeyIfEmptyClick(Sender: TObject);
     procedure cb_MinVerClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -214,8 +209,8 @@ function TRegistryDesignerForm.GetText: String;
                          '; Flags: deletekey'
     else begin
       if cb_FlagUnInsDelKey.Checked then
-        Result := Result + '; Flags: uninsdeletekey';
-      if cb_FlagUnInsDelKeyIfEmpty.Checked then
+        Result := Result + '; Flags: uninsdeletekey'
+      else if cb_FlagUnInsDelKeyIfEmpty.Checked then
         Result := Result + '; Flags: uninsdeletekeyifempty';
     end;
     Result := Result + TextCommon(AEntry);
@@ -426,30 +421,16 @@ begin
     ModalResult := mrCancel;
 end;
 
-procedure TRegistryDesignerForm.cb_FlagUnInsDelKeyClick(Sender: TObject);
-begin
-  if cb_FlagUnInsDelKey.Checked then
-    cb_FlagUnInsDelKeyIfEmpty.Checked := False;
-end;
-
 procedure TRegistryDesignerForm.cb_FlagUnInsDelKeyIfEmptyClick(Sender: TObject);
 begin
-  if cb_FlagUnInsDelKeyIfEmpty.Checked then
+  cb_FlagUnInsDelKey.Enabled := cb_FlagUnInsDelKeyIfEmpty.Checked;
+  if not cb_FlagUnInsDelKey.Enabled then
     cb_FlagUnInsDelKey.Checked := False;
 end;
 
 procedure TRegistryDesignerForm.cb_MinVerClick(Sender: TObject);
 begin
-  if cb_MinVer.Checked then
-    begin
-      st_MinVersion.Enabled := True;
-      edt_MinVer.Enabled := True;
-    end
-  else
-    begin
-      st_MinVersion.Enabled := False;
-      edt_MinVer.Enabled := False;
-    end
+  edt_MinVer.Enabled := cb_MinVer.Checked;
 end;
 
 end.

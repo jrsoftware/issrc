@@ -98,95 +98,51 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Width = 392
     Height = 230
     Anchors = [akLeft, akTop, akRight]
-    Caption = ' Settings (common for all values and subkeys) '
+    Caption = ' Settings (for all keys and values) '
     TabOrder = 2
     object cb_FlagUnInsDelKey: TCheckBox
       Left = 16
-      Top = 20
-      Width = 150
+      Top = 40
+      Width = 225
       Height = 17
-      Caption = 'uninsdeletekey'
-      TabOrder = 0
-      OnClick = cb_FlagUnInsDelKeyClick
-    end
-    object st_uninsdelkey: TStaticText
-      Left = 36
-      Top = 38
-      Width = 345
-      Height = 28
-      Anchors = [akLeft, akTop, akRight]
-      AutoSize = False
-      Caption = 
-        'Adds the Flag for delete the entire key, including all values an' +
-        'd subkeys in it when the program is uninstalled (use only on key' +
-        's private to your App).'
-      TabOrder = 6
+      Caption = 'Also delete keys which are not empty'
+      TabOrder = 1
     end
     object cb_FlagUnInsDelKeyIfEmpty: TCheckBox
       Left = 16
-      Top = 68
-      Width = 150
+      Top = 20
+      Width = 225
       Height = 17
-      Caption = 'uninsdeletekeyifempty'
-      TabOrder = 1
+      Caption = 'Delete keys which are empty on uninstall'
+      Checked = True
+      State = cbChecked
+      TabOrder = 0
       OnClick = cb_FlagUnInsDelKeyIfEmptyClick
-    end
-    object st_uninsdelkeyifempty: TStaticText
-      Left = 36
-      Top = 86
-      Width = 345
-      Height = 28
-      Anchors = [akLeft, akTop, akRight]
-      AutoSize = False
-      Caption = 
-        'Adds the Flag for delete the key if it has no values or subkeys ' +
-        'left in it when the program is uninstalled.'
-      TabOrder = 7
     end
     object cb_FlagDelValue: TCheckBox
       Left = 16
-      Top = 116
-      Width = 150
+      Top = 70
+      Width = 225
       Height = 17
-      Caption = 'uninsdeletevalue'
+      Caption = 'Delete values on uninstall'
+      Checked = True
+      State = cbChecked
       TabOrder = 2
       WordWrap = True
     end
-    object st_uninsdelvalue: TStaticText
-      Left = 36
-      Top = 134
-      Width = 345
-      Height = 17
-      Anchors = [akLeft, akTop, akRight]
-      AutoSize = False
-      Caption = 
-        'Adds the Flag for delete the value when the program is uninstall' +
-        'ed.'
-      TabOrder = 8
-    end
     object cb_MinVer: TCheckBox
       Left = 16
-      Top = 201
-      Width = 185
+      Top = 100
+      Width = 225
       Height = 17
-      Caption = 'Set a minimum Windows version:'
+      Caption = 'Create only if Windows'#39' version is at least:'
       TabOrder = 3
       OnClick = cb_MinVerClick
     end
-    object st_MinVersion: TStaticText
-      Left = 234
-      Top = 202
-      Width = 68
-      Height = 14
-      AutoSize = False
-      Caption = 'MinVersion'
-      Enabled = False
-      TabOrder = 5
-    end
     object edt_MinVer: TEdit
-      Left = 306
-      Top = 199
-      Width = 75
+      Left = 247
+      Top = 99
+      Width = 130
       Height = 21
       Enabled = False
       TabOrder = 4
