@@ -1861,7 +1861,7 @@ end;</pre>
       <function>
         <name>LoadStringsFromFile</name>
         <prototype>function LoadStringsFromFile(const FileName: String; var S: TArrayOfString): Boolean;</prototype>
-        <description><p>Loads the specified text file into the specified string array. UTF-8 encoded files with or without a preamble (also called BOM) are also supported. Returns True if successful, False otherwise.</p></description>
+        <description><p>Loads the specified text file into the specified string array. UTF-8 encoded files with or without a preamble (also called BOM) and UTF-16LE files with a preamble are also supported. Returns True if successful, False otherwise.</p></description>
       </function>
       <function>
         <name>SaveStringToFile</name>
@@ -1875,19 +1875,27 @@ end;</pre>
         <prototype>function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string array to the specified file with ASCII encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
         <seealso><p><link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link><br />
-<link topic="isxfunc_SaveStringsToUTF8FileNoPreamble">SaveStringsToUTF8FileNoPreamble</link></p></seealso>
+<link topic="isxfunc_SaveStringsToUTF16LEFile">SaveStringsToUTF16LEFile</link></p></seealso>
       </function>
       <function>
         <name>SaveStringsToUTF8File</name>
         <prototype>function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string array to the specified file with UTF-8 encoding with a preamble (also called BOM). If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
         <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link><br />
-<link topic="isxfunc_SaveStringsToUTF8FileNoPreamble">SaveStringsToUTF8FileNoPreamble</link></p></seealso>
+<link topic="isxfunc_SaveStringsToUTF8FileNoPreamble">SaveStringsToUTF8FileNoPreamble</link><br />
+<link topic="isxfunc_SaveStringsToUTF16LEFile">SaveStringsToUTF16LEFile</link></p></seealso>
       </function>
       <function>
         <name>SaveStringsToUTF8FileNoPreamble</name>
         <prototype>function SaveStringsToUTF8FileNoPreamble(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string array to the specified file with UTF-8 encoding without a preamble (also called BOM). If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link><br />
+<link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link></p></seealso>
+      </function>
+      <function>
+        <name>SaveStringsToUTF16LEFile</name>
+        <prototype>function SaveStringsToUTF16LEFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
+        <description><p>Saves the specified string array to the specified file with UTF-16LE encoding with a preamble (also called BOM). If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
         <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link><br />
 <link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link></p></seealso>
       </function>
