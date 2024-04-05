@@ -896,6 +896,11 @@ object WizardForm: TWizardForm
             OnClick = PrivilegesRequiredOverridesAllowedDialogCheckboxClick
           end
         end
+        object AppRegistryPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
+        end
         object LanguagesPage: TNewNotebookPage
           DesignSize = (
             485

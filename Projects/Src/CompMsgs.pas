@@ -54,6 +54,8 @@ const
   SWizardAppRegDefaultExt = 'reg';
   SWizardPrivilegesRequired = 'Setup Install Mode';
   SWizardPrivilegesRequired2 = 'Please specify in which install mode Setup should run.';
+  SWizardAppRegistry = 'Application Registry Keys And Values';
+  SWizardAppRegistry2 = 'Please specify the registry keys and values that are part of your application.';
   SWizardLanguages = 'Setup Languages';
   SWizardLanguages2 = 'Please specify which Setup languages should be included.';
   SWizardCompiler = 'Compiler Settings';

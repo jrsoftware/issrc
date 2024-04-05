@@ -18,7 +18,7 @@ uses
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
-                 wpAppDocs, wpPrivilegesRequired, wpLanguages, wpCompiler,
+                 wpAppDocs, wpPrivilegesRequired, wpAppRegistry, wpLanguages, wpCompiler,
                  wpISPP, wpFinished);
 
   TWizardFormResult = (wrNone, wrEmpty, wrComplete);
@@ -37,6 +37,7 @@ type
     AppIconsPage: TNewNotebookPage;
     AppDocsPage: TNewNotebookPage;
     PrivilegesRequiredPage: TNewNotebookPage;
+    AppRegistryPage: TNewNotebookPage;
     LanguagesPage: TNewNotebookPage;
     CompilerPage: TNewNotebookPage;
     ISPPPage: TNewNotebookPage;
@@ -187,20 +188,20 @@ const
   NotebookPages: array[TWizardPage, 0..1] of Integer =
     ((0, -1), (1, 0), (1, 1), (1, 2),
      (1, 3), (1, 4), (1, 5), (1, 6),
-     (1, 7), (1, 8), (1, 9), (2, -1));
+     (1, 7), (1, 8), (1, 9), (1, 10), (2, -1));
 
   PageCaptions: array[TWizardPage] of String =
     (SWizardWelcome, SWizardAppInfo, SWizardAppDir, SWizardAppFiles, SWizardAppAssoc,
-     SWizardAppIcons, SWizardAppDocs, SWizardPrivilegesRequired, SWizardLanguages,
-     SWizardCompiler, SWizardISPP, SWizardFinished);
+     SWizardAppIcons, SWizardAppDocs, SWizardPrivilegesRequired, SWizardAppRegistry,
+     SWizardLanguages, SWizardCompiler, SWizardISPP, SWizardFinished);
 
   PageDescriptions: array[TWizardPage] of String =
     ('', SWizardAppInfo2, SWizardAppDir2, SWizardAppFiles2, SWizardAppAssoc2,
-         SWizardAppIcons2, SWizardAppDocs2, SWizardPrivilegesRequired2, SWizardLanguages2,
-         SWizardCompiler2, SWizardISPP2, '');
+         SWizardAppIcons2, SWizardAppDocs2, SWizardPrivilegesRequired2, SWizardAppRegistry2,
+         SWizardLanguages2, SWizardCompiler2, SWizardISPP2, '');
 
   RequiredLabelVisibles: array[TWizardPage] of Boolean =
-    (False, True, True, True, True, True, False, True, True, False, False, False);
+    (False, True, True, True, True, True, False, True, False, True, False, False, False);
 
   AppRootDirs: array[0..0] of TConstant =
   (
@@ -346,6 +347,8 @@ begin
 
   { PrivilegesRequired }
   PrivilegesRequiredAdminRadioButton.Checked := True;
+  
+  { AppRegistry }
 
   { Languages }
   for I := 0 to FLanguages.Count-1 do begin
@@ -446,6 +449,7 @@ begin
         else
           ActiveControl := PrivilegesRequiredLowestRadioButton;
       end;
+    wpAppRegistry: ;
     wpLanguages: ActiveControl := LanguagesList;
     wpCompiler: ActiveControl := OutputDirEdit;
     wpISPP: ActiveControl := ISPPCheck;
@@ -951,6 +955,8 @@ begin
       Setup := Setup + 'PrivilegesRequiredOverridesAllowed=dialog' + SNewLine
     else if PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Checked then
       Setup := Setup + 'PrivilegesRequiredOverridesAllowed=commandline' + SNewLine;
+      
+    { AppRegistry }
 
     { Languages }
     if FLanguages.Count > 1 then begin
