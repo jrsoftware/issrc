@@ -34,8 +34,8 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   <li>Added support for UTF-8 encoded files without a BOM for .iss script files, .isl messages files, <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>,  <tt>InfoAfterFile</tt>, and ISPP's <tt>#file</tt>.</li>
   <li>Compiler IDE changes:
   <ul>
-  <li>Added new <i>UTF-8 without BOM</i> menu item to the <i>Save Encoding</i> submenu of the <i>File</i> menu.</li>
-  <li>New script files are now saved as UTF-8 with BOM by default. Existing files are still saved as they were.</li>
+  <li>New script files are now saved as UTF-8 without a BOM by default, bringing the IDE into line with most other text editors. Existing files are still saved as they were (ANSI or UTF-8 with a BOM) until the save encoding is changed manually using the <i>Save Encoding</i> submenu of the <i>File</i> menu.</li>
+  <li>Added new <i>UTF-8 with BOM</i> menu item to the <i>Save Encoding</i> submenu of the <i>File</i> menu to save new files with a BOM anyway.</li>
   </ul>
   </li>
   <li>Pascal Scripting changes:

@@ -1031,7 +1031,7 @@ begin
 
   FMainMemo.Filename := '';
   UpdateCaption;
-  FMainMemo.SaveEncoding := seUTF8WithBOM;
+  FMainMemo.SaveEncoding := seUTF8WithoutBOM;
   FMainMemo.Lines.Clear;
   FModifiedAnySinceLastCompile := True;
   FPreprocessorOutput := '';
@@ -1122,7 +1122,7 @@ begin
     end;
 
     if CommandLineWizard then begin
-      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, seUTF8WithBOM);
+      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, seUTF8WithoutBOM);
     end else begin
       NewMainFile;
       FMainMemo.Lines.Text := WizardForm.ResultScript;
