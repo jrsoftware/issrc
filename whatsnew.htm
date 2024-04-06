@@ -31,7 +31,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 <p><a name="6.3.0"></a><span class="ver">6.3.0-dev </span><span class="date">(?)</span></p>
 <p><span class="head2">Support for UTF-8 encoded files improved</span></p>
 <ul>
-  <li>Added support for UTF-8 encoded files without an UTF-8 preamble (also called BOM) for .iss script files, .isl messages files, <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>,  <tt>InfoAfterFile</tt>, and ISPP's <tt>#file</tt>.</li>
+  <li>Added support for UTF-8 encoded files without a BOM for .iss script files, .isl messages files, <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>,  <tt>InfoAfterFile</tt>, and ISPP's <tt>#file</tt>.</li>
   <li>Compiler IDE changes:
   <ul>
   <li>Added new <i>UTF-8 without BOM</i> menu item to the <i>Save Encoding</i> submenu of the <i>File</i> menu.</li>
@@ -40,8 +40,8 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   </li>
   <li>Pascal Scripting changes:
   <ul>
-    <li>Support function <tt>LoadStringsFromFile</tt> now also supports UTF8-encoded files without an UTF-8 preamble.</li>
-    <li>Added new <tt>SaveStringsToUTF8FileNoPreamble</tt> support function.</li>
+    <li>Support function <tt>LoadStringsFromFile</tt> now also supports UTF-8 encoded files without a BOM.</li>
+    <li>Added new <tt>SaveStringsToUTF8FileWithoutBOM</tt> support function.</li>
   </ul>
   </li>
 </ul>

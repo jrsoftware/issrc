@@ -37,7 +37,7 @@ type
   TLineState = (lnUnknown, lnHasEntry, lnEntryProcessed);
   PLineStateArray = ^TLineStateArray;
   TLineStateArray = array[0..0] of TLineState;
-  TSaveEncoding = (seAuto, seUTF8, seUTF8NoPreamble);
+  TSaveEncoding = (seAuto, seUTF8WithBOM, seUTF8WithoutBOM);
 
   TCompScintEdit = class(TScintEdit)
   private

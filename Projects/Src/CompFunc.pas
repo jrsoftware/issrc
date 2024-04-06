@@ -327,7 +327,7 @@ begin
     if AnsiMode then
       F.WriteAnsi(AnsiStr)
     else begin
-      F.UTF8NoPreamble := SaveEncoding = seUTF8NoPreamble;
+      F.UTF8WithoutBOM := SaveEncoding = seUTF8WithoutBOM;
       F.Write(S);
     end;
   finally

@@ -377,12 +377,12 @@ object CompileForm: TCompileForm
           RadioItem = True
           OnClick = FSaveEncodingItemClick
         end
-        object FSaveEncodingUTF8: TMenuItem
+        object FSaveEncodingUTF8WithBOM: TMenuItem
           Caption = '&UTF-8'
           RadioItem = True
           OnClick = FSaveEncodingItemClick
         end
-        object FSaveEncodingUTF8NoPreamble: TMenuItem
+        object FSaveEncodingUTF8WithoutBOM: TMenuItem
           Caption = 'UTF-8 without &BOM'
           OnClick = FSaveEncodingItemClick
         end
