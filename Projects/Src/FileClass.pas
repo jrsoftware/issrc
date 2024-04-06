@@ -501,7 +501,7 @@ begin
           var S2: AnsiString;
           SetLength(S2, CappedSize);
           SetLength(S2, Read(S2[1], CappedSize));
-          if IsUTF8String(S2) then
+          if DetectUTF8Encoding(S2) in [etUSASCII, etUTF8] then
             FCodePage := CP_UTF8;
         finally
           Seek64(OldPosition);

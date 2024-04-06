@@ -1160,7 +1160,7 @@ procedure TCompileForm.OpenFile(AMemo: TCompScintFileEdit; AFilename: String;
       var S: AnsiString;
       SetLength(S, CappedSize);
       SetLength(S, Stream.Read(S[1], CappedSize));
-      if IsUTF8String(S) then
+      if DetectUTF8Encoding(S) in [etUSASCII, etUTF8] then
         Result := seUTF8WithoutBOM;
     end;
   end;
