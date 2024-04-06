@@ -379,7 +379,7 @@ const
     'function SaveStringToFile(const FileName: String; const S: AnsiString; const Append: Boolean): Boolean;',
     'function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
-    'function SaveStringsToUTF8FileNoPreamble(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
+    'function SaveStringsToUTF8FileWithoutBOM(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function EnableFsRedirection(const Enable: Boolean): Boolean;',
     'function GetUninstallProgressForm: TUninstallProgressForm;',
     'function CreateCallback(Method: AnyMethod): Longword;',
