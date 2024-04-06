@@ -1851,12 +1851,19 @@ end;
 
 procedure TCompileForm.FSaveEncodingItemClick(Sender: TObject);
 begin
+  var Memo := (FActiveMemo as TCompScintFileEdit);
+
+  var OldSaveEncoding := Memo.SaveEncoding;
+
   if Sender = FSaveEncodingUTF8WithBOM  then
-    (FActiveMemo as TCompScintFileEdit).SaveEncoding := seUTF8WithBOM
+    Memo.SaveEncoding := seUTF8WithBOM
   else if Sender = FSaveEncodingUTF8WithoutBOM  then
-    (FActiveMemo as TCompScintFileEdit).SaveEncoding := seUTF8WithoutBOM
+    Memo.SaveEncoding := seUTF8WithoutBOM
   else
-    (FActiveMemo as TCompScintFileEdit).SaveEncoding := seAuto;
+    Memo.SaveEncoding := seAuto;
+
+  if Memo.SaveEncoding <> OldSaveEncoding then
+    Memo.ForceModifiedState;
 end;
 
 procedure TCompileForm.FSaveAllClick(Sender: TObject);
