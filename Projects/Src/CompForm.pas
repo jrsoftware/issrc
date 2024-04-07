@@ -1437,7 +1437,7 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
     while P^ <> #0 do begin
       if not IsISPPBuiltins(P) then begin
         IncludedFile := TIncludedFile.Create;
-        IncludedFile.Filename := P;
+        IncludedFile.Filename := GetCleanFileNameOfFile(P);
         IncludedFile.CompilerFileIndex := I;
         IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
           @IncludedFile.LastWriteTime);
@@ -3459,7 +3459,7 @@ procedure TCompileForm.UpdatePreprocMemos;
             end;
 
             if FHiddenFiles.IndexOf(IncludedFile.Filename) = -1 then begin
-              NewTabs.Insert(NextTabIndex, PathExtractName(IncludedFile.Filename));
+              NewTabs.Insert(NextTabIndex, GetDisplayFilename(IncludedFile.Filename));
               NewHints.Insert(NextTabIndex, GetFileTitle(IncludedFile.Filename));
               NewCloseButtons.Insert(NextTabIndex, True);
               Inc(NextTabIndex);
