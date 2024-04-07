@@ -20,21 +20,25 @@ type
 
   TBoolList = TList<Boolean>;
 
+  TCloseButtonClickEvent = procedure(Sender: TObject; Index: Integer) of object;
+
   TNewTabSet = class(TCustomControl)
   private
     FCloseButtons: TBoolList;
     FHints: TStrings;
     FMenuThemeData: HTHEME;
-    FOnCloseButtonClick: TNotifyEvent;
+    FOnCloseButtonClick: TCloseButtonClickEvent;
     FTabs: TStrings;
     FTabIndex: Integer;
     FTabPosition: TTabPosition;
     FTabsOffset: Integer;
     FTheme: TTheme;
     FThemeDark: Boolean;
+    FHotIndex: Integer;
     function GetTabRect(Index: Integer): TRect;
     function GetCloseButtonRect(const TabRect: TRect): TRect;
     procedure InvalidateTab(Index: Integer);
+    procedure InvalidateCloseButton(Index: Integer);
     procedure CloseButtonsListChanged(Sender: TObject; const Item: Boolean;
       Action: TCollectionNotification);
     procedure TabsListChanged(Sender: TObject);
@@ -49,10 +53,13 @@ type
     procedure EnsureCurrentTabIsFullyVisible;
   protected
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+    procedure WMMouseMove(var Message: TWMMouseMove); message WM_MOUSEMOVE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure UpdateHotIndex(NewHotIndex: Integer);
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure Paint; override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -69,7 +76,7 @@ type
     property TabPosition: TTabPosition read FTabPosition write SetTabPosition default tpBottom;
     property PopupMenu;
     property OnClick;
-    property OnCloseButtonClick: TNotifyEvent read FOnCloseButtonClick write FOnCloseButtonClick;
+    property OnCloseButtonClick: TCloseButtonClickEvent read FOnCloseButtonClick write FOnCloseButtonClick;
   end;
 
 procedure Register;
@@ -77,7 +84,7 @@ procedure Register;
 implementation
 
 uses
-  WinApi.UxTheme;
+  WinApi.UxTheme, Types;
 
 procedure Register;
 begin
@@ -173,6 +180,7 @@ begin
   ControlStyle := ControlStyle + [csOpaque];
   Width := 129;
   Height := 21;
+  FHotIndex := -1;
 end;
 
 procedure TNewTabSet.CreateParams(var Params: TCreateParams);
@@ -213,6 +221,24 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TNewTabSet.WMMouseMove(var Message: TWMMouseMove);
+begin
+  var Pos := SmallPointToPoint(Message.Pos);
+  var NewHotIndex := -1;
+
+  for var I := 0 to FTabs.Count-1 do begin
+    if (I <> TabIndex) and (I < FCloseButtons.Count) and FCloseButtons[I] then begin
+      var R := GetTabRect(I);
+      if PtInRect(R, TPoint.Create(Pos.X, Pos.Y)) then begin
+        NewHotIndex := I;
+        Break;
+      end;
+    end;
+  end;
+
+  UpdateHotIndex(NewHotIndex);
 end;
 
 procedure TNewTabSet.WMThemeChanged(var Message: TMessage);
@@ -267,14 +293,24 @@ begin
   end;
 end;
 
+procedure TNewTabSet.InvalidateCloseButton(Index: Integer);
+begin
+  if HandleAllocated and (Index >= 0) and (Index < FTabs.Count) then begin
+    var R := GetCloseButtonRect(GetTabRect(Index));
+    InvalidateRect(Handle, @R, False);
+  end;
+end;
+
 procedure TNewTabSet.CloseButtonsListChanged(Sender: TObject; const Item: Boolean;
   Action: TCollectionNotification);
 begin
+  FHotIndex := -1;
   Invalidate;
 end;
 
 procedure TNewTabSet.TabsListChanged(Sender: TObject);
 begin
+  FHotIndex := -1;
   Invalidate;
 end;
 
@@ -293,11 +329,11 @@ begin
     for I := 0 to FTabs.Count-1 do begin
       R := GetTabRect(I);
       if (X >= R.Left) and (X < R.Right) then begin
-        if (I = TabIndex) and (I < FCloseButtons.Count) and FCloseButtons[I] then begin
+        if ((I = TabIndex) or (I = FHotIndex)) and (I < FCloseButtons.Count) and FCloseButtons[I] then begin
           var R2 := GetCloseButtonRect(R);
           if PtInRect(R2, TPoint.Create(X, Y)) then begin
             if Assigned(OnCloseButtonClick) then
-              OnCloseButtonClick(Self);
+              OnCloseButtonClick(Self, I);
             Break;
           end;
         end;
@@ -308,9 +344,47 @@ begin
   end;
 end;
 
+procedure TNewTabSet.UpdateHotIndex(NewHotIndex: Integer);
+begin
+  var OldHotIndex := FHotIndex;
+  if NewHotIndex <> OldHotIndex then begin
+    FHotIndex := NewHotIndex;
+    if OldHotIndex <> -1 then
+      InvalidateCloseButton(OldHotIndex);
+    if NewHotIndex <> -1 then
+      InvalidateCloseButton(NewHotIndex);
+  end;
+end;
+
+procedure TNewTabSet.CMMouseLeave(var Message: TMessage);
+begin
+  UpdateHotIndex(-1);
+  inherited;
+end;
+
 procedure TNewTabSet.Paint;
 var
   HighColorMode: Boolean;
+
+  procedure DrawCloseButton(const TabRect: TRect; const TabIndex: Integer);
+  begin
+   if (TabIndex < FCloseButtons.Count) and FCloseButtons[TabIndex] then begin
+      var R := GetCloseButtonRect(TabRect);
+      if FMenuThemeData <> 0 then begin
+        var Offset := MulDiv(1, CurrentPPI, 96);
+        Inc(R.Left, Offset);
+        Inc(R.Top, Offset);
+        DrawThemeBackground(FMenuThemeData, Canvas.Handle,  MENU_SYSTEMCLOSE, MSYSC_NORMAL, R, nil);
+      end else begin
+        InflateRect(R, -MulDiv(3, CurrentPPI, 96), -MulDiv(6, CurrentPPI, 96));
+        Canvas.Pen.Color := Canvas.Font.Color;
+        Canvas.MoveTo(R.Left, R.Top);
+        Canvas.LineTo(R.Right, R.Bottom);
+        Canvas.MoveTo(R.Left, R.Bottom-1);
+        Canvas.LineTo(R.Right, R.Top-1);
+      end;
+    end;
+  end;
 
   procedure DrawTabs(const SelectedTab: Boolean);
   var
@@ -326,29 +400,13 @@ var
         else
           Canvas.Brush.Color := clBtnFace;
         Canvas.FillRect(R);
-        
+
         if FTheme <> nil then
           Canvas.Font.Color := FTheme.Colors[tcFore]
         else
           Canvas.Font.Color := clBtnText;
         Canvas.TextOut(R.Left + TabPaddingX, R.Top + TabPaddingY, FTabs[I]);
-
-       if (I < FCloseButtons.Count) and FCloseButtons[I] then begin
-          var R2 := GetCloseButtonRect(R);
-          if FMenuThemeData <> 0 then begin
-            var Offset := MulDiv(1, CurrentPPI, 96);
-            Inc(R2.Left, Offset);
-            Inc(R2.Top, Offset);
-            DrawThemeBackground(FMenuThemeData, Canvas.Handle,  MENU_SYSTEMCLOSE, MSYSC_NORMAL, R2, nil);
-          end else begin
-            InflateRect(R2, -MulDiv(3, CurrentPPI, 96), -MulDiv(6, CurrentPPI, 96));
-            Canvas.Pen.Color := Canvas.Font.Color;
-            Canvas.MoveTo(R2.Left, R2.Top);
-            Canvas.LineTo(R2.Right, R2.Bottom);
-            Canvas.MoveTo(R2.Left, R2.Bottom-1);
-            Canvas.LineTo(R2.Right, R2.Top-1);
-          end;
-        end;
+        DrawCloseButton(R, I);
         ExcludeClipRect(Canvas.Handle, R.Left, R.Top, R.Right, R.Bottom);
         Break;
       end;
@@ -363,6 +421,8 @@ var
           Canvas.Font.Color := clBtnHighlight;
         end;
         Canvas.TextOut(R.Left + TabPaddingX, R.Top + TabPaddingY, FTabs[I]);
+        if FHotIndex = I then
+          DrawCloseButton(R, I);
       end;
     end;
   end;

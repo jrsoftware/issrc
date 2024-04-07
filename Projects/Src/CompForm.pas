@@ -210,11 +210,11 @@ type
     PrintDialog: TPrintDialog;
     FSaveEncodingUTF8WithoutBOM: TMenuItem;
     TFilesDesigner: TMenuItem;
-    VCloseTab: TMenuItem;
+    VCloseCurrentTab: TMenuItem;
     VReopenTab: TMenuItem;
     VReopenTabs: TMenuItem;
     MemosTabSetPopupMenu: TPopupMenu;
-    VCloseTab2: TMenuItem;
+    VCloseCurrentTab2: TMenuItem;
     VReopenTab2: TMenuItem;
     VReopenTabs2: TMenuItem;
     N23: TMenuItem;
@@ -318,11 +318,11 @@ type
     procedure FindResultsListDblClick(Sender: TObject);
     procedure FPrintClick(Sender: TObject);
     procedure TFilesDesignerClick(Sender: TObject);
-    procedure VCloseTabClick(Sender: TObject);
+    procedure VCloseCurrentTabClick(Sender: TObject);
     procedure VReopenTabClick(Sender: TObject);
     procedure VReopenTabsClick(Sender: TObject);
     procedure MemosTabSetPopup(Sender: TObject);
-    procedure MemosTabSetOnCloseButtonClick(Sender: TObject);
+    procedure MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
     procedure StatusBarClick(Sender: TObject);
   private
     { Private declarations }
@@ -412,6 +412,7 @@ type
     function AskToDetachDebugger: Boolean;
     procedure BringToForeground;
     procedure CheckIfTerminated;
+    procedure CloseTab(const TabIndex: Integer);
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
     function ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
@@ -476,6 +477,7 @@ type
     procedure StoreLastFindOptions(Sender: TObject);
     procedure SyncEditorOptions;
     procedure SyncZoom;
+    function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TCompScintEdit;
     function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
     procedure UpdateAllMemosLineMarkers;
@@ -2293,7 +2295,7 @@ begin
   VStatusBar.Checked := StatusBar.Visible;
   VNextTab.Enabled := MemosTabSet.Visible and (MemosTabSet.Tabs.Count > 1);
   VPreviousTab.Enabled := VNextTab.Enabled;
-  VCloseTab.Enabled := MemosTabSet.Visible and (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
+  VCloseCurrentTab.Enabled := MemosTabSet.Visible and (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
   VReopenTab.Visible := MemosTabSet.Visible and (FHiddenFiles.Count > 0);
   if VReopenTab.Visible then
     UpdateReopenTabMenu(VReopenTab);
@@ -2325,20 +2327,32 @@ begin
   MemosTabSet.TabIndex := NewTabIndex;
 end;
 
-procedure TCompileForm.VCloseTabClick(Sender: TObject);
+procedure TCompileForm.CloseTab(const TabIndex: Integer);
 begin
-  var Index := MemoToTabIndex(FActiveMemo);
-  MemosTabSet.Tabs.Delete(Index);
-  MemosTabSet.Hints.Delete(Index);
-  MemosTabSet.CloseButtons.Delete(Index);
-  FActiveMemo.Visible := False;
-  FHiddenFiles.Add((FActiveMemo as TCompScintFileEdit).Filename);
+  var Memo := TabIndexToMemo(TabIndex, MemosTabSet.Tabs.Count-1);
+
+  MemosTabSet.Tabs.Delete(TabIndex);
+  MemosTabSet.Hints.Delete(TabIndex);
+  MemosTabSet.CloseButtons.Delete(TabIndex);
+
+  if Memo = FActiveMemo then
+    Memo.Visible := False;
+
+  FHiddenFiles.Add((Memo as TCompScintFileEdit).Filename);
   UpdateHiddenFilesPanel;
   SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
 
-  { Select next tab, except when we're already at the end }
-  VNextTabClick(Self);
-  VPreviousTabClick(Self);
+  if TabIndex = MemosTabset.TabIndex then begin
+    { Select next tab, except when we're already at the end }
+    VNextTabClick(Self);
+    VPreviousTabClick(Self);
+  end else if TabIndex < MemosTabset.TabIndex then
+    MemosTabSet.TabIndex := MemosTabset.TabIndex-1; { Reselect old selected tab }
+end;
+
+procedure TCompileForm.VCloseCurrentTabClick(Sender: TObject);
+begin
+  CloseTab(MemosTabSet.TabIndex);
 end;
 
 procedure TCompileForm.ReopenTabOrTabs(const HiddenFileIndex: Integer;
@@ -2739,7 +2753,7 @@ end;
 procedure TCompileForm.MemosTabSetPopup(Sender: TObject);
 begin
   { Main and preprocessor memos can't be hidden }
-  VCloseTab2.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
+  VCloseCurrentTab2.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
 
   VReopenTab2.Visible := FHiddenFiles.Count > 0;
   if VReopenTab2.Visible then
@@ -2748,31 +2762,6 @@ begin
 end;
 
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
-
-  { Also see MemoToTabIndex }
-  function TabIndexToMemoIndex(const ATabIndex, AMaxTabIndex: Integer): Integer;
-  begin
-    if ATabIndex = 0 then
-      Result := 0 { First tab displays the main memo which is FMemos[0] }
-    else if FPreprocessorOutputMemo.Used and (ATabIndex = AMaxTabIndex) then
-      Result := 1 { Last tab displays the preprocessor output memo which is FMemos[1] }
-    else begin
-      { Only count memos not explicitly hidden by the user }
-      var TabIndex := 0;
-      for var MemoIndex := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
-        if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) = -1 then begin
-          Inc(TabIndex);
-          if TabIndex = ATabIndex then begin
-            Result := MemoIndex + 1;   { Other tabs display include files which start at second tab but at FMemos[2] }
-            Exit;
-          end;
-        end;
-      end;
-
-      raise Exception.Create('TabIndexToMemoIndex failed');
-    end;
-  end;
-
 var
   Memo: TCompScintEdit;
   TabIndex, MaxTabIndex: Integer;
@@ -2781,7 +2770,7 @@ begin
 
   MaxTabIndex := MemosTabSet.Tabs.Count-1;
   for TabIndex := 0 to MaxTabIndex do begin
-    Memo := FMemos[TabIndexToMemoIndex(TabIndex, MaxTabIndex)];
+    Memo := TabIndexToMemo(TabIndex, MaxTabIndex);
     Memo.Visible := (TabIndex = MemosTabSet.TabIndex);
     if Memo.Visible then begin
       FActiveMemo := Memo;
@@ -2795,9 +2784,9 @@ begin
   UpdateModifiedPanel;
 end;
 
-procedure TCompileForm.MemosTabSetOnCloseButtonClick(Sender: TObject);
+procedure TCompileForm.MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
 begin
-  VCloseTabClick(Self);
+  CloseTab(Index);
 end;
 
 procedure TCompileForm.InitializeFindText(Dlg: TFindDialog);
@@ -3262,6 +3251,30 @@ begin
     for var MemoIndex := Result-1 downto 0 do
       if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) <> -1 then
         Dec(Result);
+  end;
+end;
+
+{ Also see MemoToTabIndex }
+function TCompileForm.TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TCompScintEdit;
+begin
+  if ATabIndex = 0 then
+    Result := FMemos[0] { First tab displays the main memo which is FMemos[0] }
+  else if FPreprocessorOutputMemo.Used and (ATabIndex = AMaxTabIndex) then
+    Result := FMemos[1] { Last tab displays the preprocessor output memo which is FMemos[1] }
+  else begin
+    { Only count memos not explicitly hidden by the user }
+    var TabIndex := 0;
+    for var MemoIndex := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
+      if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) = -1 then begin
+        Inc(TabIndex);
+        if TabIndex = ATabIndex then begin
+          Result := FMemos[MemoIndex + 1];   { Other tabs display include files which start at second tab but at FMemos[2] }
+          Exit;
+        end;
+      end;
+    end;
+
+    raise Exception.Create('TabIndexToMemo failed');
   end;
 end;
 
@@ -4981,7 +4994,7 @@ end;
 procedure TCompileForm.StatusBarClick(Sender: TObject);
 begin
   if MemosTabSet.Visible and (FHiddenFiles.Count > 0) then begin
-    var Point := SmallPointToPoint(TSmallPoint(DWORD(GetMessagePos)));
+    var Point := SmallPointToPoint(TSmallPoint(GetMessagePos()));
     var X := StatusBar.ScreenToClient(Point).X;
     var W := 0;
     for var I := 0 to StatusBar.Panels.Count-1 do begin
