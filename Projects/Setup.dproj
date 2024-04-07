@@ -156,7 +156,6 @@
         <DCCReference Include="..\Components\TmSchema.pas"/>
         <DCCReference Include="..\Components\RestartManager.pas"/>
         <DCCReference Include="..\Components\Resample.pas"/>
-        <DCCReference Include="..\Components\dwTaskbarList.pas"/>
         <DCCReference Include="..\Components\ASMInline.pas"/>
         <DCCReference Include="Src\TaskbarProgressFunc.pas"/>
         <DCCReference Include="Src\DotNet.pas"/>

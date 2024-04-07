@@ -21,7 +21,7 @@ procedure SetAppTaskbarProgressValue(const Completed, Total: Cardinal);
 implementation
 
 uses
-  Windows, ActiveX, Forms, dwTaskbarList;
+  ActiveX, Forms, ShlObj;
 
 var
   TaskbarListInitialized: Boolean;
@@ -32,7 +32,7 @@ var
   Intf: ITaskbarList3;
 begin
   if not TaskbarListInitialized then begin
-    if CoCreateInstance(CLSID_TaskbarList, nil, CLSCTX_INPROC_SERVER, IID_TaskbarList3, Intf) = S_OK then
+    if CoCreateInstance(CLSID_TaskbarList, nil, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, Intf) = S_OK then
       if Intf.HrInit = S_OK then begin
         { Safety: don't allow the instance to be destroyed at shutdown }
         Intf._AddRef;
@@ -53,16 +53,9 @@ begin
 end;
 
 procedure SetAppTaskbarProgressValue(const Completed, Total: Cardinal);
-var
-  Completed64, Total64: dwInteger64;
 begin
-  if InitializeTaskbarList then begin
-    Completed64.Lo := Completed;
-    Completed64.Hi := 0;
-    Total64.Lo := Total;
-    Total64.Hi := 0;
-    TaskbarListInterface.SetProgressValue(Application.Handle, Completed64, Total64);
-  end;
+  if InitializeTaskbarList then
+    TaskbarListInterface.SetProgressValue(Application.Handle, Completed, Total);
 end;
 
 end.

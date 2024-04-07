@@ -81,7 +81,6 @@ uses
   TmSchema in '..\Components\TmSchema.pas',
   RestartManager in '..\Components\RestartManager.pas',
   Resample in '..\Components\Resample.pas',
-  dwTaskbarList in '..\Components\dwTaskbarList.pas',
   ASMInline in '..\Components\ASMInline.pas',
   TaskbarProgressFunc in 'Src\TaskbarProgressFunc.pas',
   DotNet in 'Src\DotNet.pas',

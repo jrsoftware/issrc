@@ -41,7 +41,6 @@ uses
   CompFilesDesigner in 'Src\CompFilesDesigner.pas' {FilesDesignerForm},
   CompWizardFilesHelper in 'Src\CompWizardFilesHelper.pas',
   NewTabSet in '..\Components\NewTabSet.pas',
-  dwTaskbarList in '..\Components\dwTaskbarList.pas',
   NewStaticText in '..\Components\NewStaticText.pas',
   BidiUtils in '..\Components\BidiUtils.pas',
   DropListBox in '..\Components\DropListBox.pas',
