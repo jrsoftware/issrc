@@ -141,6 +141,7 @@
         <DCCReference Include="Src\CompRegistryDesigner.pas">
             <Form>RegistryDesignerForm</Form>
         </DCCReference>
+        <DCCReference Include="Src\CompWizardRegistryHelper.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

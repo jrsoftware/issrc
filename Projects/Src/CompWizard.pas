@@ -130,6 +130,9 @@ type
     CreateAssocCheck: TCheckBox;
     AppAssocExtLabel: TNewStaticText;
     AppAssocExtEdit: TEdit;
+    AppRegistryFileLabel: TNewStaticText;
+    AppRegistryFileEdit: TEdit;
+    AppRegistryFileButton: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);

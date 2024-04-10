@@ -543,7 +543,7 @@ uses
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMsgBoxDesigner,
-  CompFilesDesigner, CompRegistryDesigner;
+  CompFilesDesigner, CompRegistryDesigner, CompWizardRegistryHelper;
 
 {$R *.DFM}
 

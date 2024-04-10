@@ -13,6 +13,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
   Font.Style = []
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   TextHeight = 13
   object pnl_OKCancel: TPanel
     Left = 0
@@ -21,7 +22,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Height = 42
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 8
+    TabOrder = 9
     object Bevel1: TBevel
       Left = 0
       Top = 0
@@ -54,7 +55,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
       TabOrder = 1
       ExplicitLeft = 410
     end
-    object st_PriviligesRequired: TStaticText
+    object PriviligesRequiredLabel: TNewStaticText
       Left = 8
       Top = 15
       Width = 8
@@ -64,42 +65,42 @@ object RegistryDesignerForm: TRegistryDesignerForm
       TabOrder = 2
     end
   end
-  object st_Text1: TStaticText
+  object AppRegistryFileLabel: TNewStaticText
     Left = 8
     Top = 18
     Width = 316
     Height = 17
     Caption = 
-      'Select a Windows registry file (*.reg) to insert entries into th' +
-      'e script:'
-    TabOrder = 4
+      '&Windows registry file (*.reg) to import:'
+    FocusControl = AppRegistryFileEdit
+    TabOrder = 0
   end
-  object edt_PathFileReg: TEdit
+  object AppRegistryFileEdit: TEdit
     Left = 8
     Top = 38
     Width = 392
     Height = 21
     Anchors = [akLeft, akTop, akRight]
-    TabOrder = 0
+    TabOrder = 1
   end
-  object btn_Browse: TButton
+  object AppRegistryFileButton: TButton
     Left = 414
     Top = 36
     Width = 75
     Height = 25
     Anchors = [akTop, akRight]
     Caption = '&Browse...'
-    TabOrder = 1
+    TabOrder = 2
     OnClick = btn_BrowseClick
   end
-  object st_Settings: TStaticText
+  object st_Settings: TNewStaticText
     Left = 8
     Top = 69
     Width = 392
     Height = 230
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Settings (for all keys and values):'
-    TabOrder = 2
+    TabOrder = 3
   end
   object cb_FlagUnInsDelKey: TCheckBox
     Left = 16
@@ -107,7 +108,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Width = 225
     Height = 17
     Caption = 'Also delete keys which are not empty'
-    TabOrder = 3
+    TabOrder = 5
   end
   object cb_FlagUnInsDelKeyIfEmpty: TCheckBox
     Left = 8
@@ -128,7 +129,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Caption = 'Delete values on uninstall'
     Checked = True
     State = cbChecked
-    TabOrder = 5
+    TabOrder = 6
     WordWrap = True
   end
   object cb_MinVer: TCheckBox
@@ -137,7 +138,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Width = 225
     Height = 17
     Caption = 'Create only if Windows'#39' version is at least:'
-    TabOrder = 6
+    TabOrder = 7
     OnClick = cb_MinVerClick
   end
   object edt_MinVer: TEdit
@@ -146,7 +147,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Width = 160
     Height = 21
     Enabled = False
-    TabOrder = 7
+    TabOrder = 8
     Text = '6.2'
   end
 end

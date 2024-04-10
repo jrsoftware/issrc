@@ -15,33 +15,34 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls,
-  Forms, StdCtrls, TypInfo, UITypes, ExtCtrls;
+  Forms, StdCtrls, TypInfo, UITypes, ExtCtrls,
+  CompWizardRegistryHelper, NewStaticText;
 
 type
-  TPriviligesRequired = (prAdmin, prLowest, prDynamic);
-
   TRegistryDesignerForm = class(TForm)
     pnl_OKCancel: TPanel;
     Bevel1: TBevel;
     btn_Insert: TButton;
     btn_Cancel: TButton;
-    st_Text1: TStaticText;
-    edt_PathFileReg: TEdit;
-    btn_Browse: TButton;
-    st_Settings: TStaticText;
+    AppRegistryFileLabel: TNewStaticText;
+    AppRegistryFileEdit: TEdit;
+    AppRegistryFileButton: TButton;
+    st_Settings: TNewStaticText;
     cb_FlagUnInsDelKey: TCheckBox;
     cb_FlagUnInsDelKeyIfEmpty: TCheckBox;
     cb_FlagDelValue: TCheckBox;
     cb_MinVer: TCheckBox;
     edt_MinVer: TEdit;
-    st_PriviligesRequired: TStaticText;
+    PriviligesRequiredLabel: TNewStaticText;
     procedure btn_BrowseClick(Sender: TObject);
     procedure btn_InsertClick(Sender: TObject);
     procedure cb_FlagUnInsDelKeyIfEmptyClick(Sender: TObject);
     procedure cb_MinVerClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
-    FPriviligesRequired: TPriviligesRequired;
+    FRegistryHelper: TWizardFormRegistryHelper;
+    FPriviligesRequired: TPriviligesRequired; //todo remove
     procedure SetPriviligesRequired(const Value: TPriviligesRequired);
     function GetText: String;
   public
@@ -53,20 +54,23 @@ implementation
 
 uses
   StrUtils,
-  CompMsgs, BrowseFunc, CmnFunc, CmnFunc2;
+  CompMsgs, BrowseFunc, CmnFunc;
 
 {$R *.dfm}
 
 procedure TRegistryDesignerForm.SetPriviligesRequired(
   const Value: TPriviligesRequired);
 begin
-  FPriviligesRequired := Value;
+  FRegistryHelper.PriviligesRequired := Value;
+
+  FPriviligesRequired := Value; //todo remove
+
   if FPriviligesRequired = prAdmin then
-    st_PriviligesRequired.Caption := 'Script has PriviligesRequired=admin'
+    PriviligesRequiredLabel.Caption := 'Script has PriviligesRequired=admin'
   else if FPriviligesRequired = prLowest then
-    st_PriviligesRequired.Caption := 'Script has PriviligesRequired=lowest'
+    PriviligesRequiredLabel.Caption := 'Script has PriviligesRequired=lowest'
   else
-    st_PriviligesRequired.Caption := 'Script has PrivilegesRequiredOverridesAllowed set';
+    PriviligesRequiredLabel.Caption := 'Script has PrivilegesRequiredOverridesAllowed set';
 end;
 
 function TRegistryDesignerForm.GetText: String;
@@ -235,12 +239,12 @@ function TRegistryDesignerForm.GetText: String;
 
   function TextHeader: String;
   begin
-    Result := ';Registry data from file ' + ExtractFileName(edt_PathFileReg.Text);
+    Result := ';Registry data from file ' + ExtractFileName(AppRegistryFileEdit.Text);
   end;
 
   function TextFooter(const HadFilteredKeys, HadUnsupportedValueTypes: Boolean): String;
   begin
-    Result := ';End of registry data from file ' + ExtractFileName(edt_PathFileReg.Text);
+    Result := ';End of registry data from file ' + ExtractFileName(AppRegistryFileEdit.Text);
     if HadFilteredKeys then
       Result := Result + SNewLine + ';SOME KEYS FILTERED DUE TO PRIVILEGESREQUIRED SETTINGS!';
     if HadUnsupportedValueTypes then
@@ -251,7 +255,7 @@ begin
   var Lines := TStringList.Create;
   var OutLines := TStringList.Create;
   try
-    Lines.LoadFromFile(edt_PathFileReg.Text);
+    Lines.LoadFromFile(AppRegistryFileEdit.Text);
 
     { Official .reg files must have blank lines as second and last lines but we
       don't require that so we just check for the header on the first line }
@@ -405,19 +409,24 @@ end;
 
 procedure TRegistryDesignerForm.FormCreate(Sender: TObject);
 begin
-  TryEnableAutoCompleteFileSystem(edt_PathFileReg.Handle);
+  FRegistryHelper := TWizardFormRegistryHelper.Create(Handle, AppRegistryFileEdit);
+end;
+
+procedure TRegistryDesignerForm.FormDestroy(Sender: TObject);
+begin
+  FRegistryHelper.Free;
 end;
 
 procedure TRegistryDesignerForm.btn_BrowseClick(Sender: TObject);
 begin
-  var FileName: String := edt_PathFileReg.Text;
+  var FileName: String := AppRegistryFileEdit.Text;
   if NewGetOpenFileName('', FileName, '', SWizardAppRegFilter, SWizardAppRegDefaultExt, Handle) then
-    edt_PathFileReg.Text := FileName;
+    AppRegistryFileEdit.Text := FileName;
 end;
 
 procedure TRegistryDesignerForm.btn_InsertClick(Sender: TObject);
 begin
-  if not FileExists(edt_PathFileReg.Text) then
+  if not FileExists(AppRegistryFileEdit.Text) then
     ModalResult := mrCancel;
 end;
 
