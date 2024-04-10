@@ -26,6 +26,7 @@ type
 procedure InitFormFont(Form: TForm);
 function GetDisplayFilename(const Filename: String): String;
 function GetFileTitle(const Filename: String): String;
+function GetCleanFileNameOfFile(const Filename: String): String;
 function GetLastWriteTimeOfFile(const Filename: String;
   LastWriteTime: PFileTime): Boolean;
 procedure AddFileToRecentDocs(const Filename: String);
@@ -59,7 +60,7 @@ function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
 implementation
 
 uses
-  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils,
+  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils,
   Messages,
   CmnFunc2, PathFunc, FileClass,
   CompMsgs, CompTypes;
@@ -97,6 +98,15 @@ function GetFileTitle(const Filename: String): String;
 begin
   if Filename = '' then
     Result := 'Untitled'
+  else
+    Result := Filename;
+end;
+
+function GetCleanFileNameOfFile(const Filename: String): String;
+begin
+  var Files := TDirectory.GetFiles(PathExtractDir(Filename), PathExtractName(Filename));
+  if Length(Files) = 1 then
+    Result := Files[0]
   else
     Result := Filename;
 end;

@@ -535,10 +535,10 @@ object CompileForm: TCompileForm
         ShortCut = 24585
         OnClick = VPreviousTabClick
       end
-      object VCloseTab: TMenuItem
+      object VCloseCurrentTab: TMenuItem
         Caption = 'Close Tab'
         ShortCut = 16499
-        OnClick = VCloseTabClick
+        OnClick = VCloseCurrentTabClick
       end
       object VReopenTab: TMenuItem
         Caption = 'Reopen Tab'
@@ -4339,10 +4339,10 @@ object CompileForm: TCompileForm
     OnPopup = MemosTabSetPopup
     Left = 48
     Top = 51
-    object VCloseTab2: TMenuItem
+    object VCloseCurrentTab2: TMenuItem
       Caption = 'Close Current Tab'
       ShortCut = 16499
-      OnClick = VCloseTabClick
+      OnClick = VCloseCurrentTabClick
     end
     object VReopenTab2: TMenuItem
       Caption = 'Reopen Tab'
