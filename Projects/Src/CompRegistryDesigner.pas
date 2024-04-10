@@ -20,23 +20,22 @@ uses
 
 type
   TRegistryDesignerForm = class(TForm)
-    pnl_OKCancel: TPanel;
+    Panel1: TPanel;
     Bevel1: TBevel;
-    btn_Insert: TButton;
-    btn_Cancel: TButton;
+    InsertButton: TButton;
+    CancelButton: TButton;
     AppRegistryFileLabel: TNewStaticText;
     AppRegistryFileEdit: TEdit;
     AppRegistryFileButton: TButton;
     st_Settings: TNewStaticText;
-    cb_FlagUnInsDelKey: TCheckBox;
-    cb_FlagUnInsDelKeyIfEmpty: TCheckBox;
-    cb_FlagDelValue: TCheckBox;
-    cb_MinVer: TCheckBox;
-    edt_MinVer: TEdit;
+    UninsDeleteKeyCheck: TCheckBox;
+    UninsDeleteKeyCheckIfEmpty: TCheckBox;
+    UninsDeleteValueCheck: TCheckBox;
+    MinVerCheck: TCheckBox;
+    MinVerEdit: TEdit;
     PriviligesRequiredLabel: TNewStaticText;
-    procedure btn_BrowseClick(Sender: TObject);
-    procedure btn_InsertClick(Sender: TObject);
-    procedure cb_FlagUnInsDelKeyIfEmptyClick(Sender: TObject);
+    procedure InsertButtonClick(Sender: TObject);
+    procedure UninsDeleteKeyCheckIfEmptyClick(Sender: TObject);
     procedure cb_MinVerClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -53,8 +52,7 @@ type
 implementation
 
 uses
-  StrUtils,
-  CompMsgs, BrowseFunc, CmnFunc;
+  StrUtils, CompMsgs, CmnFunc; //todo cleanup
 
 {$R *.dfm}
 
@@ -71,6 +69,17 @@ begin
     PriviligesRequiredLabel.Caption := 'Script has PriviligesRequired=lowest'
   else
     PriviligesRequiredLabel.Caption := 'Script has PrivilegesRequiredOverridesAllowed set';
+end;
+
+procedure TRegistryDesignerForm.FormCreate(Sender: TObject);
+begin
+  FRegistryHelper := TWizardFormRegistryHelper.Create(Handle, AppRegistryFileEdit,
+    AppRegistryFileButton);
+end;
+
+procedure TRegistryDesignerForm.FormDestroy(Sender: TObject);
+begin
+  FRegistryHelper.Free;
 end;
 
 function TRegistryDesignerForm.GetText: String;
@@ -196,8 +205,8 @@ function TRegistryDesignerForm.GetText: String;
   function TextCommon(AEntry: TRegistryEntry): String;
   begin
     Result := '';
-    if cb_MinVer.Checked then
-      Result := Result + '; MinVersion: ' + edt_MinVer.Text;
+    if MinVerCheck.Checked then
+      Result := Result + '; MinVersion: ' + MinVerEdit.Text;
     if (FPriviligesRequired <> prAdmin) and RequiresAdminInstallMode(AEntry) then
       Result := Result + '; Check: IsAdminInstallMode'
     else if (FPriviligesRequired <> prLowest) and RequiresNotAdminInstallMode(AEntry) then
@@ -212,9 +221,9 @@ function TRegistryDesignerForm.GetText: String;
       Result := Result + '; ValueType: none' +
                          '; Flags: deletekey'
     else begin
-      if cb_FlagUnInsDelKey.Checked then
+      if UninsDeleteKeyCheck.Checked then
         Result := Result + '; Flags: uninsdeletekey'
-      else if cb_FlagUnInsDelKeyIfEmpty.Checked then
+      else if UninsDeleteKeyCheckIfEmpty.Checked then
         Result := Result + '; Flags: uninsdeletekeyifempty';
     end;
     Result := Result + TextCommon(AEntry);
@@ -231,7 +240,7 @@ function TRegistryDesignerForm.GetText: String;
     else begin
       if AValueType <> vtNone then
         Result := Result + '; ValueData: ' + AEntry.ValueData;
-      if cb_FlagDelValue.Checked then
+      if UninsDeleteValueCheck.Checked then
         Result := Result + '; Flags: uninsdeletevalue';
     end;
     Result := Result + TextCommon(AEntry);
@@ -407,39 +416,22 @@ begin
   end;
 end;
 
-procedure TRegistryDesignerForm.FormCreate(Sender: TObject);
-begin
-  FRegistryHelper := TWizardFormRegistryHelper.Create(Handle, AppRegistryFileEdit);
-end;
-
-procedure TRegistryDesignerForm.FormDestroy(Sender: TObject);
-begin
-  FRegistryHelper.Free;
-end;
-
-procedure TRegistryDesignerForm.btn_BrowseClick(Sender: TObject);
-begin
-  var FileName: String := AppRegistryFileEdit.Text;
-  if NewGetOpenFileName('', FileName, '', SWizardAppRegFilter, SWizardAppRegDefaultExt, Handle) then
-    AppRegistryFileEdit.Text := FileName;
-end;
-
-procedure TRegistryDesignerForm.btn_InsertClick(Sender: TObject);
+procedure TRegistryDesignerForm.InsertButtonClick(Sender: TObject);
 begin
   if not FileExists(AppRegistryFileEdit.Text) then
     ModalResult := mrCancel;
 end;
 
-procedure TRegistryDesignerForm.cb_FlagUnInsDelKeyIfEmptyClick(Sender: TObject);
+procedure TRegistryDesignerForm.UninsDeleteKeyCheckIfEmptyClick(Sender: TObject);
 begin
-  cb_FlagUnInsDelKey.Enabled := cb_FlagUnInsDelKeyIfEmpty.Checked;
-  if not cb_FlagUnInsDelKey.Enabled then
-    cb_FlagUnInsDelKey.Checked := False;
+  UninsDeleteKeyCheck.Enabled := UninsDeleteKeyCheckIfEmpty.Checked;
+  if not UninsDeleteKeyCheck.Enabled then
+    UninsDeleteKeyCheck.Checked := False;
 end;
 
 procedure TRegistryDesignerForm.cb_MinVerClick(Sender: TObject);
 begin
-  edt_MinVer.Enabled := cb_MinVer.Checked;
+  MinVerEdit.Enabled := MinVerCheck.Checked;
 end;
 
 end.

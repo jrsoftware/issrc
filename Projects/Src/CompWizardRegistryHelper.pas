@@ -19,10 +19,14 @@ type
 
   TWizardFormRegistryHelper = class
     private
+      FHandle: HWND;
+      FFileEdit: TEdit;
       FPriviligesRequired: TPriviligesRequired;
       procedure SetPriviligesRequired(const Value: TPriviligesRequired);
+      procedure FileButtonClick(Sender: TObject);
     public
-      constructor Create(const Handle: HWND; const AppRegistryFileEdit: TEdit);
+      constructor Create(const Handle: HWND; const FileEdit: TEdit;
+        const FileButton: TButton);
       procedure AddScript(var Files: String);
       property PriviligesRequired: TPriviligesRequired write SetPriviligesRequired;
     end;
@@ -30,7 +34,7 @@ type
 implementation
 
 uses
-  CmnFunc2;
+  CompMsgs, BrowseFunc, CmnFunc2;
 
 { TWizardFormRegistryHelper }
 
@@ -41,9 +45,20 @@ begin
 end;
 
 constructor TWizardFormRegistryHelper.Create(const Handle: HWND;
-  const AppRegistryFileEdit: TEdit);
+  const FileEdit: TEdit; const FileButton: TButton);
 begin
-  TryEnableAutoCompleteFileSystem(AppRegistryFileEdit.Handle);
+  TryEnableAutoCompleteFileSystem(FileEdit.Handle);
+
+  FFileEdit := FileEdit;
+
+  FileButton.OnClick := FileButtonClick;
+end;
+
+procedure TWizardFormRegistryHelper.FileButtonClick(Sender: TObject);
+begin
+  var FileName: String := FFileEdit.Text;
+  if NewGetOpenFileName('', FileName, '', SWizardAppRegFilter, SWizardAppRegDefaultExt, FHandle) then
+    FFileEdit.Text := FileName;
 end;
 
 procedure TWizardFormRegistryHelper.AddScript(var Files: String);

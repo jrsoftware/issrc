@@ -15,7 +15,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   TextHeight = 13
-  object pnl_OKCancel: TPanel
+  object Panel1: TPanel
     Left = 0
     Top = 320
     Width = 500
@@ -31,7 +31,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Align = alTop
       Shape = bsBottomLine
     end
-    object btn_Insert: TButton
+    object InsertButton: TButton
       Left = 330
       Top = 9
       Width = 75
@@ -41,9 +41,9 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Default = True
       ModalResult = 1
       TabOrder = 0
-      OnClick = btn_InsertClick
+      OnClick = InsertButtonClick
     end
-    object btn_Cancel: TButton
+    object CancelButton: TButton
       Left = 414
       Top = 9
       Width = 75
@@ -70,8 +70,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Top = 18
     Width = 316
     Height = 17
-    Caption = 
-      '&Windows registry file (*.reg) to import:'
+    Caption = '&Windows registry file (*.reg) to import:'
     FocusControl = AppRegistryFileEdit
     TabOrder = 0
   end
@@ -91,7 +90,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Anchors = [akTop, akRight]
     Caption = '&Browse...'
     TabOrder = 2
-    OnClick = btn_BrowseClick
   end
   object st_Settings: TNewStaticText
     Left = 8
@@ -102,7 +100,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Caption = 'Settings (for all keys and values):'
     TabOrder = 3
   end
-  object cb_FlagUnInsDelKey: TCheckBox
+  object UninsDeleteKeyCheck: TCheckBox
     Left = 16
     Top = 109
     Width = 225
@@ -110,7 +108,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Caption = 'Also delete keys which are not empty'
     TabOrder = 5
   end
-  object cb_FlagUnInsDelKeyIfEmpty: TCheckBox
+  object UninsDeleteKeyCheckIfEmpty: TCheckBox
     Left = 8
     Top = 89
     Width = 225
@@ -119,9 +117,9 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Checked = True
     State = cbChecked
     TabOrder = 4
-    OnClick = cb_FlagUnInsDelKeyIfEmptyClick
+    OnClick = UninsDeleteKeyCheckIfEmptyClick
   end
-  object cb_FlagDelValue: TCheckBox
+  object UninsDeleteValueCheck: TCheckBox
     Left = 8
     Top = 139
     Width = 225
@@ -132,7 +130,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     TabOrder = 6
     WordWrap = True
   end
-  object cb_MinVer: TCheckBox
+  object MinVerCheck: TCheckBox
     Left = 8
     Top = 169
     Width = 225
@@ -141,7 +139,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     TabOrder = 7
     OnClick = cb_MinVerClick
   end
-  object edt_MinVer: TEdit
+  object MinVerEdit: TEdit
     Left = 239
     Top = 168
     Width = 160
