@@ -117,7 +117,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Checked = True
     State = cbChecked
     TabOrder = 4
-    OnClick = UninsDeleteKeyCheckIfEmptyClick
   end
   object UninsDeleteValueCheck: TCheckBox
     Left = 8
@@ -137,7 +136,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Height = 17
     Caption = 'Create only if Windows'#39' version is at least:'
     TabOrder = 7
-    OnClick = cb_MinVerClick
   end
   object MinVerEdit: TEdit
     Left = 239

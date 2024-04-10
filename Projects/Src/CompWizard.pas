@@ -276,7 +276,7 @@ begin
   FResult := wrNone;
 
   FWizardName := SWizardDefaultName;
-  FFilesHelper := TWizardFormFilesHelper.Create(Handle,
+  FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
     AppFilesEditButton, AppFilesRemoveButton);
 

@@ -46,7 +46,7 @@ implementation
 
 procedure TFilesDesignerForm.FormCreate(Sender: TObject);
 begin
-  FFilesHelper := TWizardFormFilesHelper.Create(Handle,
+  FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
     AppFilesEditButton, AppFilesRemoveButton);
 end;
