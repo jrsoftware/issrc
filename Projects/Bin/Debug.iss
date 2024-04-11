@@ -1,4 +1,4 @@
-﻿; -- Debug.iss --
+; -- Debug.iss --
 ; Opened when you run the Compil32.dproj project in Debug mode from the Delphi IDE
 ; Use it to test the compiler or Setup or the uninstaller
 

@@ -35,8 +35,6 @@ uses
 {$R Res\ISCC.manifest.res}
 {$R Res\ISCC.versionandicon.res}
 
-{$I Src\VERSION.INC}
-
 type
   PScriptLine = ^TScriptLine;
   TScriptLine = record

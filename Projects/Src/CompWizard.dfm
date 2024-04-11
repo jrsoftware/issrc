@@ -896,6 +896,95 @@ object WizardForm: TWizardForm
             OnClick = PrivilegesRequiredOverridesAllowedDialogCheckboxClick
           end
         end
+        object AppRegistryPage: TNewNotebookPage
+          DesignSize = (
+            485
+            245)
+          object AppRegistryFileLabel: TNewStaticText
+            Left = 36
+            Top = 8
+            Width = 413
+            Height = 16
+            Anchors = [akLeft, akTop, akRight]
+            AutoSize = False
+            Caption = '&Windows registry file (.reg) to import:'
+            FocusControl = AppRegistryFileEdit
+            TabOrder = 0
+            WordWrap = True
+          end
+          object AppRegistryFileEdit: TEdit
+            Left = 36
+            Top = 28
+            Width = 309
+            Height = 21
+            Anchors = [akLeft, akTop, akRight]
+            TabOrder = 1
+          end
+          object AppRegistryFileButton: TButton
+            Left = 360
+            Top = 27
+            Width = 89
+            Height = 23
+            Anchors = [akTop, akRight]
+            Caption = 'B&rowse...'
+            TabOrder = 2
+          end
+          object AppRegistrySettingsLabel: TNewStaticText
+            Left = 36
+            Top = 60
+            Width = 392
+            Height = 230
+            Anchors = [akLeft, akTop, akRight]
+            Caption = 'Settings (for all keys and values):'
+            TabOrder = 3
+          end
+          object AppRegistryUninsDeleteKeyCheck: TCheckBox
+            Left = 44
+            Top = 100
+            Width = 225
+            Height = 17
+            Caption = 'Also delete keys which are not empty'
+            TabOrder = 5
+          end
+          object AppRegistryUninsDeleteKeyIfEmptyCheck: TCheckBox
+            Left = 36
+            Top = 80
+            Width = 225
+            Height = 17
+            Caption = 'Delete keys which are empty on uninstall'
+            Checked = True
+            State = cbChecked
+            TabOrder = 4
+          end
+          object AppRegistryUninsDeleteValueCheck: TCheckBox
+            Left = 36
+            Top = 130
+            Width = 225
+            Height = 17
+            Caption = 'Delete values on uninstall'
+            Checked = True
+            State = cbChecked
+            TabOrder = 6
+            WordWrap = True
+          end
+          object AppRegistryMinVerCheck: TCheckBox
+            Left = 36
+            Top = 160
+            Width = 245
+            Height = 17
+            Caption = 'Create only if Windows'#39' version is at least:'
+            TabOrder = 7
+          end
+          object AppRegistryMinVerEdit: TEdit
+            Left = 287
+            Top = 159
+            Width = 140
+            Height = 21
+            Enabled = False
+            TabOrder = 8
+            Text = '6.2'
+          end
+        end
         object LanguagesPage: TNewNotebookPage
           DesignSize = (
             485

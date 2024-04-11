@@ -14,8 +14,6 @@ interface
 uses
   Windows, SysUtils, Int64Em;
 
-{$I VERSION.INC}
-
 type
   TFileVersionNumbers = record
     MS, LS: LongWord;

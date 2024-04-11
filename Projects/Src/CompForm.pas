@@ -15,10 +15,8 @@ unit CompForm;
   the Src folder to the Delphi Compiler Search path in the project options.
   Also see Compile's STATICPREPROC. }
 
-{$I VERSION.INC}
-
 {$IFDEF STATICCOMPILER}
-{$R ISCmplr.images.res}
+{$R ..\Res\ISCmplr.images.res}
 {$ENDIF}
 
 interface
@@ -166,7 +164,7 @@ type
     N19: TMenuItem;
     FSaveEncoding: TMenuItem;
     FSaveEncodingAuto: TMenuItem;
-    FSaveEncodingUTF8: TMenuItem;
+    FSaveEncodingUTF8WithBOM: TMenuItem;
     ToolBar: TToolBar;
     NewMainFileButton: TToolButton;
     OpenMainFileButton: TToolButton;
@@ -192,6 +190,7 @@ type
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
     TMsgBoxDesigner: TMenuItem;
+    TRegistryDesigner: TMenuItem;
     ToolBarPanel: TPanel;
     HMailingList: TMenuItem;
     MemosTabSet: TNewTabSet; { First tab is the main memo, last tab is the preprocessor output memo }
@@ -210,13 +209,13 @@ type
     FPrint: TMenuItem;
     N22: TMenuItem;
     PrintDialog: TPrintDialog;
-    FSaveEncodingUTF8NoPreamble: TMenuItem;
+    FSaveEncodingUTF8WithoutBOM: TMenuItem;
     TFilesDesigner: TMenuItem;
-    VCloseTab: TMenuItem;
+    VCloseCurrentTab: TMenuItem;
     VReopenTab: TMenuItem;
     VReopenTabs: TMenuItem;
     MemosTabSetPopupMenu: TPopupMenu;
-    VCloseTab2: TMenuItem;
+    VCloseCurrentTab2: TMenuItem;
     VReopenTab2: TMenuItem;
     VReopenTabs2: TMenuItem;
     N23: TMenuItem;
@@ -305,6 +304,7 @@ type
     procedure VDebugCallStackClick(Sender: TObject);
     procedure HMailingListClick(Sender: TObject);
     procedure TMsgBoxDesignerClick(Sender: TObject);
+    procedure TRegistryDesignerClick(Sender: TObject);
     procedure MemosTabSetClick(Sender: TObject);
     procedure FSaveAllClick(Sender: TObject);
     procedure RStepOutClick(Sender: TObject);
@@ -320,11 +320,11 @@ type
     procedure FindResultsListDblClick(Sender: TObject);
     procedure FPrintClick(Sender: TObject);
     procedure TFilesDesignerClick(Sender: TObject);
-    procedure VCloseTabClick(Sender: TObject);
+    procedure VCloseCurrentTabClick(Sender: TObject);
     procedure VReopenTabClick(Sender: TObject);
     procedure VReopenTabsClick(Sender: TObject);
     procedure MemosTabSetPopup(Sender: TObject);
-    procedure MemosTabSetOnCloseButtonClick(Sender: TObject);
+    procedure MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
     procedure StatusBarClick(Sender: TObject);
   private
     { Private declarations }
@@ -414,6 +414,7 @@ type
     function AskToDetachDebugger: Boolean;
     procedure BringToForeground;
     procedure CheckIfTerminated;
+    procedure CloseTab(const TabIndex: Integer);
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
     function ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
@@ -426,6 +427,10 @@ type
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       var Output: String): Integer;
     procedure FindNext;
+    function FindSetupDirectiveValue(const DirectiveName,
+      DefaultValue: String): String; overload;
+    function FindSetupDirectiveValue(const DirectiveName: String;
+      DefaultValue: Boolean): Boolean; overload;
     function FromCurrentPPI(const XY: Integer): Integer;
     procedure Go(AStepMode: TStepMode);
     procedure HideError;
@@ -474,6 +479,7 @@ type
     procedure StoreLastFindOptions(Sender: TObject);
     procedure SyncEditorOptions;
     procedure SyncZoom;
+    function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TCompScintEdit;
     function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
     procedure UpdateAllMemosLineMarkers;
@@ -531,12 +537,13 @@ var
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Math, WideStrUtils,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
+  Math, StrUtils, WideStrUtils,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMsgBoxDesigner,
-  CompFilesDesigner;
+  CompFilesDesigner, CompRegistryDesigner, CompWizardRegistryHelper;
 
 {$R *.DFM}
 
@@ -1028,7 +1035,7 @@ begin
 
   FMainMemo.Filename := '';
   UpdateCaption;
-  FMainMemo.SaveEncoding := seUTF8;
+  FMainMemo.SaveEncoding := seUTF8WithoutBOM;
   FMainMemo.Lines.Clear;
   FModifiedAnySinceLastCompile := True;
   FPreprocessorOutput := '';
@@ -1119,7 +1126,7 @@ begin
     end;
 
     if CommandLineWizard then begin
-      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, seUtf8);
+      SaveTextToFile(CommandLineFileName, WizardForm.ResultScript, seUTF8WithoutBOM);
     end else begin
       NewMainFile;
       FMainMemo.Lines.Text := WizardForm.ResultScript;
@@ -1151,20 +1158,20 @@ procedure TCompileForm.OpenFile(AMemo: TCompScintFileEdit; AFilename: String;
       CappedSize := Integer(StreamSize);
     if (CappedSize >= SizeOf(Buf)) and (Stream.Read(Buf, SizeOf(Buf)) = SizeOf(Buf)) and
        (Buf[0] = $EF) and (Buf[1] = $BB) and (Buf[2] = $BF) then
-      Result := seUTF8
+      Result := seUTF8WithBOM
     else begin
       Stream.Seek(0, soFromBeginning);
       var S: AnsiString;
       SetLength(S, CappedSize);
       SetLength(S, Stream.Read(S[1], CappedSize));
-      if IsUTF8String(S) then
-        Result := seUTF8NoPreamble;
+      if DetectUTF8Encoding(S) in [etUSASCII, etUTF8] then
+        Result := seUTF8WithoutBOM;
     end;
   end;
 
   function GetEncoding(const SaveEncoding: TSaveEncoding): TEncoding;
   begin
-    if SaveEncoding in [seUTF8, seUTF8NoPreamble] then
+    if SaveEncoding in [seUTF8WithBOM, seUTF8WithoutBOM] then
       Result := TEncoding.UTF8
     else
       Result := nil;
@@ -1432,7 +1439,7 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
     while P^ <> #0 do begin
       if not IsISPPBuiltins(P) then begin
         IncludedFile := TIncludedFile.Create;
-        IncludedFile.Filename := P;
+        IncludedFile.Filename := GetCleanFileNameOfFile(P);
         IncludedFile.CompilerFileIndex := I;
         IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
           @IncludedFile.LastWriteTime);
@@ -1791,8 +1798,8 @@ begin
   FSaveMainFileAs.Enabled := FActiveMemo = FMainMemo;
   FSaveEncoding.Enabled := FSave.Enabled; { FSave.Enabled is kept up-to-date by UpdateSaveMenuItemAndButton }
   FSaveEncodingAuto.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seAuto);
-  FSaveEncodingUTF8.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8);
-  FSaveEncodingUTF8NoPreamble.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8NoPreamble);
+  FSaveEncodingUTF8WithBOM.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8WithBOM);
+  FSaveEncodingUTF8WithoutBOM.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8WithoutBOM);
   FSaveAll.Visible := FOptions.OpenIncludedFiles;
   ReadMRUMainFilesList;
   FMRUMainFilesSep.Visible := FMRUMainFilesList.Count <> 0;
@@ -1848,12 +1855,19 @@ end;
 
 procedure TCompileForm.FSaveEncodingItemClick(Sender: TObject);
 begin
-  if Sender = FSaveEncodingUTF8  then
-    (FActiveMemo as TCompScintFileEdit).SaveEncoding := seUTF8
-  else if Sender = FSaveEncodingUTF8NoPreamble  then
-    (FActiveMemo as TCompScintFileEdit).SaveEncoding := seUTF8NoPreamble
+  var Memo := (FActiveMemo as TCompScintFileEdit);
+
+  var OldSaveEncoding := Memo.SaveEncoding;
+
+  if Sender = FSaveEncodingUTF8WithBOM  then
+    Memo.SaveEncoding := seUTF8WithBOM
+  else if Sender = FSaveEncodingUTF8WithoutBOM  then
+    Memo.SaveEncoding := seUTF8WithoutBOM
   else
-    (FActiveMemo as TCompScintFileEdit).SaveEncoding := seAuto;
+    Memo.SaveEncoding := seAuto;
+
+  if Memo.SaveEncoding <> OldSaveEncoding then
+    Memo.ForceModifiedState;
 end;
 
 procedure TCompileForm.FSaveAllClick(Sender: TObject);
@@ -2283,7 +2297,7 @@ begin
   VStatusBar.Checked := StatusBar.Visible;
   VNextTab.Enabled := MemosTabSet.Visible and (MemosTabSet.Tabs.Count > 1);
   VPreviousTab.Enabled := VNextTab.Enabled;
-  VCloseTab.Enabled := MemosTabSet.Visible and (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
+  VCloseCurrentTab.Enabled := MemosTabSet.Visible and (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
   VReopenTab.Visible := MemosTabSet.Visible and (FHiddenFiles.Count > 0);
   if VReopenTab.Visible then
     UpdateReopenTabMenu(VReopenTab);
@@ -2315,20 +2329,32 @@ begin
   MemosTabSet.TabIndex := NewTabIndex;
 end;
 
-procedure TCompileForm.VCloseTabClick(Sender: TObject);
+procedure TCompileForm.CloseTab(const TabIndex: Integer);
 begin
-  var Index := MemoToTabIndex(FActiveMemo);
-  MemosTabSet.Tabs.Delete(Index);
-  MemosTabSet.Hints.Delete(Index);
-  MemosTabSet.CloseButtons.Delete(Index);
-  FActiveMemo.Visible := False;
-  FHiddenFiles.Add((FActiveMemo as TCompScintFileEdit).Filename);
+  var Memo := TabIndexToMemo(TabIndex, MemosTabSet.Tabs.Count-1);
+
+  MemosTabSet.Tabs.Delete(TabIndex);
+  MemosTabSet.Hints.Delete(TabIndex);
+  MemosTabSet.CloseButtons.Delete(TabIndex);
+
+  if Memo = FActiveMemo then
+    Memo.Visible := False;
+
+  FHiddenFiles.Add((Memo as TCompScintFileEdit).Filename);
   UpdateHiddenFilesPanel;
   SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
 
-  { Select next tab, except when we're already at the end }
-  VNextTabClick(Self);
-  VPreviousTabClick(Self);
+  if TabIndex = MemosTabset.TabIndex then begin
+    { Select next tab, except when we're already at the end }
+    VNextTabClick(Self);
+    VPreviousTabClick(Self);
+  end else if TabIndex < MemosTabset.TabIndex then
+    MemosTabSet.TabIndex := MemosTabset.TabIndex-1; { Reselect old selected tab }
+end;
+
+procedure TCompileForm.VCloseCurrentTabClick(Sender: TObject);
+begin
+  CloseTab(MemosTabSet.TabIndex);
 end;
 
 procedure TCompileForm.ReopenTabOrTabs(const HiddenFileIndex: Integer;
@@ -2729,7 +2755,7 @@ end;
 procedure TCompileForm.MemosTabSetPopup(Sender: TObject);
 begin
   { Main and preprocessor memos can't be hidden }
-  VCloseTab2.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
+  VCloseCurrentTab2.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
 
   VReopenTab2.Visible := FHiddenFiles.Count > 0;
   if VReopenTab2.Visible then
@@ -2738,31 +2764,6 @@ begin
 end;
 
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
-
-  { Also see MemoToTabIndex }
-  function TabIndexToMemoIndex(const ATabIndex, AMaxTabIndex: Integer): Integer;
-  begin
-    if ATabIndex = 0 then
-      Result := 0 { First tab displays the main memo which is FMemos[0] }
-    else if FPreprocessorOutputMemo.Used and (ATabIndex = AMaxTabIndex) then
-      Result := 1 { Last tab displays the preprocessor output memo which is FMemos[1] }
-    else begin
-      { Only count memos not explicitly hidden by the user }
-      var TabIndex := 0;
-      for var MemoIndex := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
-        if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) = -1 then begin
-          Inc(TabIndex);
-          if TabIndex = ATabIndex then begin
-            Result := MemoIndex + 1;   { Other tabs display include files which start at second tab but at FMemos[2] }
-            Exit;
-          end;
-        end;
-      end;
-
-      raise Exception.Create('TabIndexToMemoIndex failed');
-    end;
-  end;
-
 var
   Memo: TCompScintEdit;
   TabIndex, MaxTabIndex: Integer;
@@ -2771,7 +2772,7 @@ begin
 
   MaxTabIndex := MemosTabSet.Tabs.Count-1;
   for TabIndex := 0 to MaxTabIndex do begin
-    Memo := FMemos[TabIndexToMemoIndex(TabIndex, MaxTabIndex)];
+    Memo := TabIndexToMemo(TabIndex, MaxTabIndex);
     Memo.Visible := (TabIndex = MemosTabSet.TabIndex);
     if Memo.Visible then begin
       FActiveMemo := Memo;
@@ -2785,9 +2786,9 @@ begin
   UpdateModifiedPanel;
 end;
 
-procedure TCompileForm.MemosTabSetOnCloseButtonClick(Sender: TObject);
+procedure TCompileForm.MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
 begin
-  VCloseTabClick(Self);
+  CloseTab(Index);
 end;
 
 procedure TCompileForm.InitializeFindText(Dlg: TFindDialog);
@@ -2872,12 +2873,6 @@ begin
 end;
 
 procedure TCompileForm.FindInFilesDialogFind(Sender: TObject);
-var
-  Memo: TCompScintFileEdit;
-  Hits, FileHits, Files, StartPos, EndPos, Line: Integer;
-  Range: TScintRange;
-  FindResult: TFindResult;
-  Prefix: String;
 begin
   StoreLastFindOptions(Sender);
 
@@ -2885,20 +2880,21 @@ begin
   SendMessage(FindResultsList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
   FFindResults.Clear;
 
-  Hits := 0;
-  Files := 0;
+  var Hits := 0;
+  var Files := 0;
 
-  for Memo in FFileMemos do begin
+  for var Memo in FFileMemos do begin
     if Memo.Used then begin
-      StartPos := 0;
-      EndPos := Memo.RawTextLength;
-      FileHits := 0;
+      var StartPos := 0;
+      var EndPos := Memo.RawTextLength;
+      var FileHits := 0;
+      var Range: TScintRange;
       while (StartPos < EndPos) and
             Memo.FindText(StartPos, EndPos, FLastFindText,
               FindOptionsToSearchOptions(FLastFindOptions), Range) do begin
-        Line := Memo.GetLineFromPosition(Range.StartPos);
-        Prefix := Format('  Line %d: ', [Line+1]);
-        FindResult := TFindResult.Create;
+        var Line := Memo.GetLineFromPosition(Range.StartPos);
+        var Prefix := Format('  Line %d: ', [Line+1]);
+        var FindResult := TFindResult.Create;
         FindResult.Filename := Memo.Filename;
         FindResult.Line := Line;
         FindResult.LineStartPos := Memo.GetPositionFromLine(Line);
@@ -2923,6 +2919,45 @@ begin
 
   OutputTabSet.TabIndex := tiFindResults;
   SetStatusPanelVisible(True);
+end;
+
+function TCompileForm.FindSetupDirectiveValue(const DirectiveName,
+  DefaultValue: String): String;
+begin
+  Result := DefaultValue;
+
+  var Memo := FMainMemo; { This function only searches the main file }
+  var StartPos := 0;
+  var EndPos := Memo.RawTextLength;
+  var Range: TScintRange;
+
+  while (StartPos < EndPos) and
+        Memo.FindText(StartPos, EndPos, DirectiveName, [sfoWholeWord], Range) do begin
+    var Line := Memo.GetLineFromPosition(Range.StartPos);
+    if FMemosStyler.GetSectionFromLineState(Memo.Lines.State[Line]) = scSetup then begin
+      var LineValue := Memo.Lines[Line].Trim; { LineValue can't be empty }
+      if LineValue[1] <> ';' then begin
+        var LineParts := LineValue.Split(['=']);
+        if (Length(LineParts) = 2) and SameText(LineParts[0].Trim, DirectiveName) then begin
+          Result := LineParts[1].Trim;
+          { If Result is surrounded in quotes, remove them, just like TSetupCompiler.SeparateDirective }
+          if (Length(Result) >= 2) and
+             (Result[1] = '"') and (Result[Length(Result)] = '"') then
+            Result := Copy(Result, 2, Length(Result)-2);
+          Exit; { Compiler doesn't allow a directive to be specified twice so we can exit now }
+        end;
+      end;
+    end;
+    StartPos := Range.EndPos;
+  end;
+end;
+
+function TCompileForm.FindSetupDirectiveValue(const DirectiveName: String;
+  DefaultValue: Boolean): Boolean;
+begin
+  var Value := FindSetupDirectiveValue(DirectiveName, IfThen(DefaultValue, '1', '0'));
+  if not TryStrToBoolean(Value, Result) then
+    Result := DefaultValue;
 end;
 
 procedure TCompileForm.EReplaceClick(Sender: TObject);
@@ -3041,9 +3076,35 @@ begin
   var MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
   try
     if MsgBoxForm.ShowModal = mrOk then
-      FActiveMemo.SelText := MsgBoxForm.Text;
+      FActiveMemo.SelText := MsgBoxForm.GetText(FOptions.TabWidth, FOptions.UseTabCharacter);
   finally
     MsgBoxForm.Free;
+  end;
+end;
+
+procedure TCompileForm.TRegistryDesignerClick(Sender: TObject);
+begin
+  var RegistryDesignerForm := TRegistryDesignerForm.Create(Application);
+  try
+    var PrivilegesRequired := FindSetupDirectiveValue('PrivilegesRequired', 'admin');
+    var PrivilegesRequiredOverridesAllowed := FindSetupDirectiveValue('PrivilegesRequiredOverridesAllowed', '');
+    if PrivilegesRequiredOverridesAllowed = '' then begin
+      if SameText(PrivilegesRequired, 'admin') then
+        RegistryDesignerForm.PrivilegesRequired := prAdmin
+      else
+        RegistryDesignerForm.PrivilegesRequired := prLowest
+    end else
+      RegistryDesignerForm.PrivilegesRequired := prDynamic;
+    if RegistryDesignerForm.ShowModal = mrOk then
+    begin
+      FActiveMemo.CaretColumn := 0;
+      var Text := RegistryDesignerForm.Text;
+      if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scRegistry then
+        Text := '[Registry]' + SNewLine + Text;
+      FActiveMemo.SelText := Text;
+    end;
+  finally
+    RegistryDesignerForm.Free;
   end;
 end;
 
@@ -3051,6 +3112,7 @@ procedure TCompileForm.TFilesDesignerClick(Sender: TObject);
 begin
   var FilesDesignerForm := TFilesDesignerForm.Create(Application);
   try
+    FilesDesignerForm.CreateAppDir := FindSetupDirectiveValue('CreateAppDir', True);
     if FilesDesignerForm.ShowModal = mrOk then begin
       FActiveMemo.CaretColumn := 0;
       var Text := FilesDesignerForm.Text;
@@ -3217,6 +3279,30 @@ begin
     for var MemoIndex := Result-1 downto 0 do
       if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) <> -1 then
         Dec(Result);
+  end;
+end;
+
+{ Also see MemoToTabIndex }
+function TCompileForm.TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TCompScintEdit;
+begin
+  if ATabIndex = 0 then
+    Result := FMemos[0] { First tab displays the main memo which is FMemos[0] }
+  else if FPreprocessorOutputMemo.Used and (ATabIndex = AMaxTabIndex) then
+    Result := FMemos[1] { Last tab displays the preprocessor output memo which is FMemos[1] }
+  else begin
+    { Only count memos not explicitly hidden by the user }
+    var TabIndex := 0;
+    for var MemoIndex := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
+      if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) = -1 then begin
+        Inc(TabIndex);
+        if TabIndex = ATabIndex then begin
+          Result := FMemos[MemoIndex + 1];   { Other tabs display include files which start at second tab but at FMemos[2] }
+          Exit;
+        end;
+      end;
+    end;
+
+    raise Exception.Create('TabIndexToMemo failed');
   end;
 end;
 
@@ -3401,7 +3487,7 @@ procedure TCompileForm.UpdatePreprocMemos;
             end;
 
             if FHiddenFiles.IndexOf(IncludedFile.Filename) = -1 then begin
-              NewTabs.Insert(NextTabIndex, PathExtractName(IncludedFile.Filename));
+              NewTabs.Insert(NextTabIndex, GetDisplayFilename(IncludedFile.Filename));
               NewHints.Insert(NextTabIndex, GetFileTitle(IncludedFile.Filename));
               NewCloseButtons.Insert(NextTabIndex, True);
               Inc(NextTabIndex);
@@ -4936,7 +5022,7 @@ end;
 procedure TCompileForm.StatusBarClick(Sender: TObject);
 begin
   if MemosTabSet.Visible and (FHiddenFiles.Count > 0) then begin
-    var Point := SmallPointToPoint(TSmallPoint(DWORD(GetMessagePos)));
+    var Point := SmallPointToPoint(TSmallPoint(GetMessagePos()));
     var X := StatusBar.ScreenToClient(Point).X;
     var W := 0;
     for var I := 0 to StatusBar.Panels.Count-1 do begin

@@ -31,17 +31,17 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 <p><a name="6.3.0"></a><span class="ver">6.3.0-dev </span><span class="date">(?)</span></p>
 <p><span class="head2">Support for UTF-8 encoded files improved</span></p>
 <ul>
-  <li>Added support for UTF-8 encoded files without an UTF-8 preamble (also called BOM) for .iss script files, .isl messages files, <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>,  <tt>InfoAfterFile</tt>, and ISPP's <tt>#file</tt>.</li>
+  <li>Added support for UTF-8 encoded files without a BOM for .iss script files, .isl messages files, <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>,  <tt>InfoAfterFile</tt>, and ISPP's <tt>#file</tt>.</li>
   <li>Compiler IDE changes:
   <ul>
-  <li>Added new <i>UTF-8 without BOM</i> menu item to the <i>Save Encoding</i> submenu of the <i>File</i> menu.</li>
-  <li>New script files are now saved as UTF-8 with BOM by default. Existing files are still saved as they were.</li>
+  <li>New script files are now saved as UTF-8 without a BOM by default, bringing the IDE into line with most other text editors. Existing files are still saved as they were until the save encoding is changed manually using the <i>Save Encoding</i> submenu of the <i>File</i> menu.</li>
+  <li>Added new <i>UTF-8 with BOM</i> menu item to the <i>Save Encoding</i> submenu of the <i>File</i> menu to save new files with a BOM anyway.</li>
   </ul>
   </li>
   <li>Pascal Scripting changes:
   <ul>
-    <li>Support function <tt>LoadStringsFromFile</tt> now also supports UTF8-encoded files without an UTF-8 preamble.</li>
-    <li>Added new <tt>SaveStringsToUTF8FileNoPreamble</tt> support function.</li>
+    <li>Support function <tt>LoadStringsFromFile</tt> now also supports UTF-8 encoded files without a BOM.</li>
+    <li>Added new <tt>SaveStringsToUTF8FileWithoutBOM</tt> support function.</li>
   </ul>
   </li>
 </ul>
@@ -49,7 +49,7 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 <ul>
   <li>The Compiler IDE now opens up to 20 #include files in tabs, instead of up to 10.</li>
   <li>Tabs for opened #include files can now be closed: Added new <i>Close Tab (Ctrl+F4)</i>, <i>Reopen Tab</i>, and  <i>Reopen All Tabs</i> menu items to the <i>View</i> menu, also available by right clicking the tab bar.</li>
-  <li>The tab for the selected #include file now shows a close button.</li>
+  <li>The selected and mouseover #include file tabs now show close buttons.</li>
   <li>Added a clickable panel to the Status Bar showing the amount of closed tabs if there are any.</li>
 </ul>
 <p><span class="head2">Support for Windows Vista and Windows Server 2008 removed</span></p>
@@ -59,7 +59,14 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 </ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
-  <li>Compiler IDE change: Added new <i>Generate [Files] entries...</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the [Files] section.</li>
+  <li>Compiler IDE changes: 
+  <ul>
+    <li>The New Script Wizard now offers an option to import a Windows registry .reg file.</li>
+    <li>Added new <i>Generate [Registry] Entries... (Ctrl+Shift+R)</i> menu item to the <i>Tools</i> menu to Windows registry .reg file as extra entries to the [Registry] section at the cursor position, or to a new section.</li>
+    <li>Added new <i>Generate [Files] Entries... (Ctrl+Shift+I)</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the [Files] section at the cursor position, or to a new section.</li>
+    <li>The <i>Generate MsgBox/TaskDialogMsgBox Call... (Ctrl+Shift+M)</i> tool (previously named <i>MsgBox/TaskDialogMsgBox Designer</i>) now respects the tab width and tab character settings, indents the generated Pascal script one extra level, and warns if the cursor position is not in the [Code] section.</li>
+  </ul>
+  </li>
   <li>Added new [Setup] section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters.</li> 
@@ -68,9 +75,10 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
   <li>Added official Korean translation.</li>
   <li>Inno Setup is now built using Delphi 11.3 Alexandria instead of Delphi 10.3 Rio.</li>
   <li>Inno Setup's Delphi projects have been recreated as new clean projects and have been added to a <i>Projects\Projects.groupproj</i> project group. This makes it a lot easier to get started with working with the Inno Setup source code and making contributions, even with the free Delphi Community Edition.</li>
+  <li>Minor tweaks and documentation improvements.</li>
 </ul>
 
-<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Achim Stuy, ser163, and Jens Geyer for their contributions.</p>
+<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Achim Stuy, ser163, Jens Geyer, and Sergii Leonov for their contributions.</p>
 
 <p><a href="https://jrsoftware.org/files/is6.2-whatsnew.htm">Inno Setup 6.2 Revision History</a></p >
 

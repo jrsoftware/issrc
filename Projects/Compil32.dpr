@@ -41,7 +41,6 @@ uses
   CompFilesDesigner in 'Src\CompFilesDesigner.pas' {FilesDesignerForm},
   CompWizardFilesHelper in 'Src\CompWizardFilesHelper.pas',
   NewTabSet in '..\Components\NewTabSet.pas',
-  dwTaskbarList in '..\Components\dwTaskbarList.pas',
   NewStaticText in '..\Components\NewStaticText.pas',
   BidiUtils in '..\Components\BidiUtils.pas',
   DropListBox in '..\Components\DropListBox.pas',
@@ -57,7 +56,9 @@ uses
   FileClass in 'Src\FileClass.pas',
   Int64Em in 'Src\Int64Em.pas',
   Compress in 'Src\Compress.pas',
-  TaskDialog in 'Src\TaskDialog.pas';
+  TaskDialog in 'Src\TaskDialog.pas',
+  CompRegistryDesigner in 'Src\CompRegistryDesigner.pas' {RegistryDesignerForm},
+  CompWizardRegistryHelper in 'Src\CompWizardRegistryHelper.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}

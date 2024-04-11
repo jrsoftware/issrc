@@ -11,8 +11,6 @@ unit HtmlHelpFunc;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows;
 

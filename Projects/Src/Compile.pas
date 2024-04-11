@@ -14,8 +14,6 @@ unit Compile;
   into this program and not depend on ISPP.dll. Most useful when combined
   with CompForm's STATICCOMPILER. }
 
-{$I VERSION.INC}
-
 interface
 
 uses
@@ -5145,7 +5143,7 @@ const
   ParamInfo: array[TParam] of TParamInfo = (
     (Name: ParamCommonFlags; Flags: []),
     (Name: ParamRegistryRoot; Flags: [piRequired]),
-    (Name: ParamRegistrySubkey; Flags: [piRequired]),
+    (Name: ParamRegistrySubkey; Flags: [piRequired, piNoEmpty]),
     (Name: ParamRegistryValueType; Flags: []),
     (Name: ParamRegistryValueName; Flags: []),
     (Name: ParamRegistryValueData; Flags: []),

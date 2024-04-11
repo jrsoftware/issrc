@@ -10,10 +10,8 @@ unit FileClass;
   Better than File and TFileStream in that does more extensive error checking
   and uses descriptive, localized system error messages.
 
-  TTextFileReader and TTextFileWriter support ANSI and UTF8 textfiles only.
+  TTextFileReader and TTextFileWriter support ANSI and UTF8 textfiles.
 }
-
-{$I VERSION.INC}
 
 interface
 
@@ -111,14 +109,14 @@ type
   TTextFileWriter = class(TFile)
   private
     FSeekedToEnd: Boolean;
-    FUTF8NoPreamble: Boolean;
+    FUTF8WithoutBOM: Boolean;
     procedure DoWrite(const S: AnsiString; const UTF8: Boolean);
   protected
     function CreateHandle(const AFilename: String;
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
       ASharing: TFileSharing): THandle; override;
   public
-    property UTF8NoPreamble: Boolean read FUTF8NoPreamble write FUTF8NoPreamble;
+    property UTF8WithoutBOM: Boolean read FUTF8WithoutBOM write FUTF8WithoutBOM;
     procedure Write(const S: String);
     procedure WriteLine(const S: String);
     procedure WriteAnsi(const S: AnsiString);
@@ -503,7 +501,7 @@ begin
           var S2: AnsiString;
           SetLength(S2, CappedSize);
           SetLength(S2, Read(S2[1], CappedSize));
-          if IsUTF8String(S2) then
+          if DetectUTF8Encoding(S2) in [etUSASCII, etUTF8] then
             FCodePage := CP_UTF8;
         finally
           Seek64(OldPosition);
@@ -535,7 +533,7 @@ procedure TTextFileWriter.DoWrite(const S: AnsiString; const UTF8: Boolean);
 { Writes a string to the file, seeking to the end first if necessary }
 const
   CRLF: array[0..1] of AnsiChar = (#13, #10);
-  UTF8Preamble: array[0..2] of AnsiChar = (#$EF, #$BB, #$BF);
+  UTF8BOM: array[0..2] of AnsiChar = (#$EF, #$BB, #$BF);
 var
   I: Integer64;
   C: AnsiChar;
@@ -558,8 +556,8 @@ begin
         { Otherwise, append CRLF }
         WriteBuffer(CRLF, SizeOf(CRLF));
       end;
-    end else if UTF8 and not FUTF8NoPreamble then
-      WriteBuffer(UTF8Preamble, SizeOf(UTF8Preamble));
+    end else if UTF8 and not FUTF8WithoutBOM then
+      WriteBuffer(UTF8BOM, SizeOf(UTF8BOM));
     FSeekedToEnd := True;
   end;
   WriteBuffer(Pointer(S)^, Length(S));

@@ -11,8 +11,6 @@ unit ScriptClasses_C;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   uPSCompiler;
 

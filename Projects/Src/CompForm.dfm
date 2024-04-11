@@ -377,13 +377,13 @@ object CompileForm: TCompileForm
           RadioItem = True
           OnClick = FSaveEncodingItemClick
         end
-        object FSaveEncodingUTF8: TMenuItem
+        object FSaveEncodingUTF8WithoutBOM: TMenuItem
           Caption = '&UTF-8'
           RadioItem = True
           OnClick = FSaveEncodingItemClick
         end
-        object FSaveEncodingUTF8NoPreamble: TMenuItem
-          Caption = 'UTF-8 without &BOM'
+        object FSaveEncodingUTF8WithBOM: TMenuItem
+          Caption = 'UTF-8 with &BOM'
           OnClick = FSaveEncodingItemClick
         end
       end
@@ -535,10 +535,10 @@ object CompileForm: TCompileForm
         ShortCut = 24585
         OnClick = VPreviousTabClick
       end
-      object VCloseTab: TMenuItem
+      object VCloseCurrentTab: TMenuItem
         Caption = 'Close Tab'
         ShortCut = 16499
-        OnClick = VCloseTabClick
+        OnClick = VCloseCurrentTabClick
       end
       object VReopenTab: TMenuItem
         Caption = 'Reopen Tab'
@@ -701,6 +701,12 @@ object CompileForm: TCompileForm
         Caption = 'Generate [F&iles] Entries...'
         ShortCut = 24649
         OnClick = TFilesDesignerClick
+      end
+      object TRegistryDesigner: TMenuItem
+        Caption = 'Generate [&Registry] Entries...'
+        ImageIndex = 66
+        ShortCut = 24658
+        OnClick = TRegistryDesignerClick
       end
       object TMsgBoxDesigner: TMenuItem
         Caption = '&Generate MsgBox/TaskDialogMsgBox Call...'
@@ -4333,10 +4339,10 @@ object CompileForm: TCompileForm
     OnPopup = MemosTabSetPopup
     Left = 48
     Top = 51
-    object VCloseTab2: TMenuItem
+    object VCloseCurrentTab2: TMenuItem
       Caption = 'Close Current Tab'
       ShortCut = 16499
-      OnClick = VCloseTabClick
+      OnClick = VCloseCurrentTabClick
     end
     object VReopenTab2: TMenuItem
       Caption = 'Reopen Tab'

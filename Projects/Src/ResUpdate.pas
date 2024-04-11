@@ -11,8 +11,6 @@ unit ResUpdate;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, SysUtils, FileClass;
 

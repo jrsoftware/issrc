@@ -11,8 +11,6 @@ unit SetupForm;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm, MsgIDs;

@@ -11,8 +11,6 @@ unit Install;
 
 interface
 
-{$I VERSION.INC}
-
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
   ChangesAssociations: Boolean);
 

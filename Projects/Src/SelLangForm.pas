@@ -11,8 +11,6 @@ unit SelLangForm;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   SetupForm, StdCtrls, ExtCtrls, NewStaticText, BitmapImage, BidiCtrls;

@@ -11,8 +11,6 @@ unit ScriptFunc_R;
 
 interface
 
-{$I VERSION.INC}
-
 uses
   uPSRuntime;
 
@@ -1723,7 +1721,7 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
     end;
   end;
 
-  function SaveStringsToFile(const FileName: String; const Arr: PPSVariantIFC; Append, UTF8, UTF8NoPreamble: Boolean): Boolean;
+  function SaveStringsToFile(const FileName: String; const Arr: PPSVariantIFC; Append, UTF8, UTF8WithoutBOM: Boolean): Boolean;
   var
     F: TTextFileWriter;
     I, N: Integer;
@@ -1735,8 +1733,8 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
       else
         F := TTextFileWriterRedir.Create(ScriptFuncDisableFsRedir, FileName, fdCreateAlways, faWrite, fsNone);
       try
-        if UTF8 and UTF8NoPreamble then
-          F.UTF8NoPreamble := UTF8NoPreamble;
+        if UTF8 and UTF8WithoutBOM then
+          F.UTF8WithoutBOM := UTF8WithoutBOM;
         N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
         for I := 0 to N-1 do begin
           S := VNGetString(PSGetArrayField(Arr^, I));
@@ -1955,7 +1953,7 @@ begin
   end else if Proc.Name = 'SAVESTRINGSTOUTF8FILE' then begin
     Arr := NewTPSVariantIFC(Stack[PStart-2], True);
     Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), True, False));
-  end else if Proc.Name = 'SAVESTRINGSTOUTF8FILENOPREAMBLE' then begin
+  end else if Proc.Name = 'SAVESTRINGSTOUTF8FILEWITHOUTBOM' then begin
     Arr := NewTPSVariantIFC(Stack[PStart-2], True);
     Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), True, True));
   end else if Proc.Name = 'ENABLEFSREDIRECTION' then begin
