@@ -978,7 +978,7 @@ begin
       Setup := Setup + 'PrivilegesRequiredOverridesAllowed=commandline' + SNewLine;
       
     { AppRegistry }
-    FRegistryHelper.AddScript(Registry);
+    FRegistryHelper.AddScript(Registry, False);
 
     { Languages }
     if FLanguages.Count > 1 then begin

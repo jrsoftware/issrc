@@ -82,7 +82,7 @@ end;
 function TRegistryDesignerForm.GetText: String;
 begin
   Result := '';
-  FRegistryHelper.AddScript(Result);
+  FRegistryHelper.AddScript(Result, True);
 end;
 
 procedure TRegistryDesignerForm.InsertButtonClick(Sender: TObject);

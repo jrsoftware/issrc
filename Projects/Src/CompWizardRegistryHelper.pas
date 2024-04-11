@@ -34,7 +34,7 @@ type
         const FileButton: TButton; const UninsDeleteKeyCheck,
         UninsDeleteKeyIfEmptyCheck, UninsDeleteValueCheck, MinVerCheck: TCheckBox;
         const MinVerEdit: TEdit);
-      procedure AddScript(var Registry: String);
+      procedure AddScript(var Registry: String; const AllowException: Boolean);
       property PrivilegesRequired: TPrivilegesRequired write SetPrivilegesRequired;
     end;
 
@@ -93,7 +93,8 @@ begin
     FForm.ActiveControl := FMinVerEdit;
 end;
 
-procedure TWizardFormRegistryHelper.AddScript(var Registry: String);
+procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
+  const AllowException: Boolean);
 
   function NextLine(const Lines: TStrings; var LineIndex: Integer): String;
   begin
@@ -262,6 +263,11 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String);
     Result := ';Registry data from file ' + ExtractFileName(FFileEdit.Text);
   end;
 
+  function TextBadHeader: String;
+  begin
+    Result := ';COULD NOT IMPORT ' + ExtractFileName(FFileEdit.Text);
+  end;
+
   function TextFooter(const HadFilteredKeys, HadUnsupportedValueTypes: Boolean): String;
   begin
     Result := ';End of registry data from file ' + ExtractFileName(FFileEdit.Text);
@@ -272,6 +278,9 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String);
   end;
 
 begin
+  if FFileEdit.Text = '' then
+    Exit;
+
   var Lines := TStringList.Create;
   var OutLines := TStringList.Create;
   try
@@ -280,8 +289,14 @@ begin
     { Official .reg files must have blank lines as second and last lines but we
       don't require that so we just check for the header on the first line }
     const Header = 'Windows Registry Editor Version 5.00'; { don't localize }
-    if (Lines.Count = 0) or (Lines[0] <> Header) then
-      raise Exception.Create('Invalid file format.');
+    if (Lines.Count = 0) or (Lines[0] <> Header) then begin
+      if AllowException then
+        raise Exception.Create('Invalid file format.')
+      else begin
+        Registry := Registry + TextBadHeader + SNewLine;
+        Exit;
+      end;
+    end;
 
     var LineIndex := 1;
     var HadFilteredKeys := False;
