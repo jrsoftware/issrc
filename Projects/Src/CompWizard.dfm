@@ -907,7 +907,7 @@ object WizardForm: TWizardForm
             Height = 16
             Anchors = [akLeft, akTop, akRight]
             AutoSize = False
-            Caption = '&Windows registry file (*.reg) to import:'
+            Caption = '&Windows registry file (.reg) to import:'
             FocusControl = AppRegistryFileEdit
             TabOrder = 0
             WordWrap = True

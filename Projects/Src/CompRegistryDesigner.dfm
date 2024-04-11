@@ -70,7 +70,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Top = 18
     Width = 316
     Height = 17
-    Caption = '&Windows registry file (*.reg) to import:'
+    Caption = '&Windows registry file (.reg) to import:'
     FocusControl = AppRegistryFileEdit
     TabOrder = 0
   end
