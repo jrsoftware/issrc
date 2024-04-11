@@ -14,11 +14,11 @@ interface
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
   UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
-  CompWizardFilesHelper;
+  CompWizardFilesHelper, CompWizardRegistryHelper;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
-                 wpAppDocs, wpPrivilegesRequired, wpLanguages, wpCompiler,
+                 wpAppDocs, wpPrivilegesRequired, wpAppRegistry, wpLanguages, wpCompiler,
                  wpISPP, wpFinished);
 
   TWizardFormResult = (wrNone, wrEmpty, wrComplete);
@@ -37,6 +37,7 @@ type
     AppIconsPage: TNewNotebookPage;
     AppDocsPage: TNewNotebookPage;
     PrivilegesRequiredPage: TNewNotebookPage;
+    AppRegistryPage: TNewNotebookPage;
     LanguagesPage: TNewNotebookPage;
     CompilerPage: TNewNotebookPage;
     ISPPPage: TNewNotebookPage;
@@ -129,6 +130,15 @@ type
     CreateAssocCheck: TCheckBox;
     AppAssocExtLabel: TNewStaticText;
     AppAssocExtEdit: TEdit;
+    AppRegistryFileLabel: TNewStaticText;
+    AppRegistryFileEdit: TEdit;
+    AppRegistryFileButton: TButton;
+    AppRegistrySettingsLabel: TNewStaticText;
+    AppRegistryUninsDeleteKeyCheck: TCheckBox;
+    AppRegistryUninsDeleteKeyIfEmptyCheck: TCheckBox;
+    AppRegistryUninsDeleteValueCheck: TCheckBox;
+    AppRegistryMinVerCheck: TCheckBox;
+    AppRegistryMinVerEdit: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -152,6 +162,7 @@ type
     CurPage: TWizardPage;
     FWizardName: String;
     FFilesHelper: TWizardFormFilesHelper;
+    FRegistryHelper: TWizardFormRegistryHelper;
     FLanguages: TStringList;
     FResult: TWizardFormResult;
     FResultScript: String;
@@ -187,20 +198,20 @@ const
   NotebookPages: array[TWizardPage, 0..1] of Integer =
     ((0, -1), (1, 0), (1, 1), (1, 2),
      (1, 3), (1, 4), (1, 5), (1, 6),
-     (1, 7), (1, 8), (1, 9), (2, -1));
+     (1, 7), (1, 8), (1, 9), (1, 10), (2, -1));
 
   PageCaptions: array[TWizardPage] of String =
     (SWizardWelcome, SWizardAppInfo, SWizardAppDir, SWizardAppFiles, SWizardAppAssoc,
-     SWizardAppIcons, SWizardAppDocs, SWizardPrivilegesRequired, SWizardLanguages,
-     SWizardCompiler, SWizardISPP, SWizardFinished);
+     SWizardAppIcons, SWizardAppDocs, SWizardPrivilegesRequired, SWizardAppRegistry,
+     SWizardLanguages, SWizardCompiler, SWizardISPP, SWizardFinished);
 
   PageDescriptions: array[TWizardPage] of String =
     ('', SWizardAppInfo2, SWizardAppDir2, SWizardAppFiles2, SWizardAppAssoc2,
-         SWizardAppIcons2, SWizardAppDocs2, SWizardPrivilegesRequired2, SWizardLanguages2,
-         SWizardCompiler2, SWizardISPP2, '');
+         SWizardAppIcons2, SWizardAppDocs2, SWizardPrivilegesRequired2, SWizardAppRegistry2,
+         SWizardLanguages2, SWizardCompiler2, SWizardISPP2, '');
 
   RequiredLabelVisibles: array[TWizardPage] of Boolean =
-    (False, True, True, True, True, True, False, True, True, False, False, False);
+    (False, True, True, True, True, True, False, True, False, True, False, False, False);
 
   AppRootDirs: array[0..0] of TConstant =
   (
@@ -272,9 +283,13 @@ begin
   FResult := wrNone;
 
   FWizardName := SWizardDefaultName;
-  FFilesHelper := TWizardFormFilesHelper.Create(Handle,
+  FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
     AppFilesEditButton, AppFilesRemoveButton);
+  FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
+    AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
+    AppRegistryUninsDeleteKeyIfEmptyCheck, AppRegistryUninsDeleteValueCheck,
+    AppRegistryMinVerCheck, AppRegistryMinVerEdit);
 
   FLanguages := TStringList.Create;
   FLanguages.Sorted := True;
@@ -387,6 +402,7 @@ end;
 procedure TWizardForm.FormDestroy(Sender: TObject);
 begin
   FLanguages.Free;
+  FRegistryHelper.Free;
   FFilesHelper.Free;
 end;
 
@@ -446,6 +462,7 @@ begin
         else
           ActiveControl := PrivilegesRequiredLowestRadioButton;
       end;
+    wpAppRegistry: ActiveControl := AppRegistryFileEdit;
     wpLanguages: ActiveControl := LanguagesList;
     wpCompiler: ActiveControl := OutputDirEdit;
     wpISPP: ActiveControl := ISPPCheck;
@@ -548,6 +565,14 @@ begin
     if CurPage = wpAppAssoc then begin
       if (AppAssocExtEdit.Text <> '') and (AppAssocExtEdit.Text[1] <> '.') then
         AppAssocExtEdit.Text := '.' + AppAssocExtEdit.Text;
+    end else if CurPage = wpPrivilegesRequired then begin
+      if not PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Checked then begin
+        if PrivilegesRequiredAdminRadioButton.Checked then
+          FRegistryHelper.PrivilegesRequired := prAdmin
+        else
+          FRegistryHelper.PrivilegesRequired := prLowest
+      end else
+        FRegistryHelper.PrivilegesRequired := prDynamic;
     end else if CurPage = wpFinished then begin
       GenerateScript;
       ModalResult := mrOk;
@@ -951,6 +976,9 @@ begin
       Setup := Setup + 'PrivilegesRequiredOverridesAllowed=dialog' + SNewLine
     else if PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Checked then
       Setup := Setup + 'PrivilegesRequiredOverridesAllowed=commandline' + SNewLine;
+      
+    { AppRegistry }
+    FRegistryHelper.AddScript(Registry, False);
 
     { Languages }
     if FLanguages.Count > 1 then begin

@@ -12,14 +12,14 @@ unit CompWizardFilesHelper;
 interface
 
 uses
-  Windows, Classes, StdCtrls,
+  Windows, Classes, Forms, StdCtrls,
   DropListBox;
 
 type
   TWizardFormFilesHelper = class
     private
       FWizardFiles: TList;
-      FHandle: HWND;
+      FForm: TForm;
       FNotCreateAppDirCheck: TCheckBox;
       FFilesListBox: TDropListBox;
       FEditButton: TButton;
@@ -36,7 +36,7 @@ type
       procedure EditButtonClick(Sender: TObject);
       procedure RemoveButtonClick(Sender: TObject);
     public
-      constructor Create(const Handle: HWND;
+      constructor Create(const Form: TForm;
         const NotCreateAppDirCheck: TCheckBox; const FilesListBox: TDropListBox;
         const AddButton, AddDirButton, EditButton, RemoveButton: TButton);
       destructor Destroy; override;
@@ -47,11 +47,11 @@ type
 implementation
 
 uses
-  SysUtils, Forms, UITypes,
+  SysUtils, UITypes,
   CmnFunc, CmnFunc2, BrowseFunc, PathFunc,
   CompMsgs, CompWizardFile;
 
-constructor TWizardFormFilesHelper.Create(const Handle: HWND;
+constructor TWizardFormFilesHelper.Create(const Form: TForm;
   const NotCreateAppDirCheck: TCheckBox; const FilesListBox: TDropListBox;
   const AddButton, AddDirButton, EditButton, RemoveButton: TButton);
 begin
@@ -59,7 +59,7 @@ begin
 
   FWizardFiles := TList.Create;
 
-  FHandle := Handle;
+  FForm := Form;
   FNotCreateAppDirCheck := NotCreateAppDirCheck;
   FFilesListBox := FilesListBox;
   FEditButton := EditButton;
@@ -158,7 +158,7 @@ var
 begin
   FileList := TStringList.Create;
   try
-    if NewGetOpenFileNameMulti('', FileList, '', SWizardAllFilesFilter, '', FHandle) then begin
+    if NewGetOpenFileNameMulti('', FileList, '', SWizardAllFilesFilter, '', FForm.Handle) then begin
       FileList.Sort;
       for I := 0 to FileList.Count-1 do
         AddWizardFile(FileList[I], False, False);
@@ -175,7 +175,7 @@ var
   Recurse: Boolean;
 begin
   Path := '';
-  if BrowseForFolder(SWizardAppFiles3, Path, FHandle, False) then begin
+  if BrowseForFolder(SWizardAppFiles3, Path, FForm.Handle, False) then begin
     case MsgBox(Format(SWizardAppFilesSubDirsMessage, [Path]), '', mbConfirmation, MB_YESNOCANCEL) of
       IDYES: Recurse := True;
       IDNO: Recurse := False;

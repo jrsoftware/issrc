@@ -44,9 +44,14 @@ implementation
 
 {$R *.dfm}
 
+uses
+  CompFunc;
+
 procedure TFilesDesignerForm.FormCreate(Sender: TObject);
 begin
-  FFilesHelper := TWizardFormFilesHelper.Create(Handle,
+  InitFormFont(Self);
+
+  FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
     AppFilesEditButton, AppFilesRemoveButton);
 end;

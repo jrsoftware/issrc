@@ -25,7 +25,7 @@ const
   SCompilerScriptBrowseButton = '&Browse...';
   SCompilerStartButton = '&Start';
   SCompilerExitButton = 'E&xit';
-  SCompilerOpenFilter = 'Inno Setup Scripts (*.iss)|*.iss|All Files|*.*';
+  SCompilerOpenFilter = 'Inno Setup Script files (*.iss)|*.iss|All files|*.*';
   SCompilerExampleScripts = 'Example scripts...';
   SCompilerMoreFiles = 'More files...';
 
@@ -40,7 +40,7 @@ const
   SWizardAppFiles2 = 'Please specify the files that are part of your application.';
   SWizardAppFiles3 = 'Please specify the source folder.';
   SWizardAppFilesSubDirsMessage = 'Should files in subfolders of "%s" also be included?';
-  SWizardAppExeFilter = 'Application files (*.exe)|*.exe|All Files|*.*';
+  SWizardAppExeFilter = 'Application files (*.exe)|*.exe|All files|*.*';
   SWizardAppExeDefaultExt = 'exe';
   SWizardAppAssoc = 'Application File Association';
   SWizardAppAssoc2 = 'Please specify which file association should be created for your application.';
@@ -48,15 +48,19 @@ const
   SWizardAppIcons2 = 'Please specify which shortcuts should be created for your application.';
   SWizardAppDocs = 'Application Documentation';
   SWizardAppDocs2 = 'Please specify which documentation files should be shown by Setup during installation.';
-  SWizardAppDocsFilter = 'Documentation files (*.rtf,*.txt)|*.rtf;*.txt|All Files|*.*';
+  SWizardAppDocsFilter = 'Documentation files (*.rtf,*.txt)|*.rtf;*.txt|All files|*.*';
   SWizardAppDocsDefaultExt = 'rtf';
+  SWizardAppRegFilter = 'Registry files (*.reg)|*.reg|All files|*.*';
+  SWizardAppRegDefaultExt = 'reg';
   SWizardPrivilegesRequired = 'Setup Install Mode';
   SWizardPrivilegesRequired2 = 'Please specify in which install mode Setup should run.';
+  SWizardAppRegistry = 'Application Registry Keys And Values';
+  SWizardAppRegistry2 = 'Please specify the registry keys and values that are part of your application.';
   SWizardLanguages = 'Setup Languages';
   SWizardLanguages2 = 'Please specify which Setup languages should be included.';
   SWizardCompiler = 'Compiler Settings';
   SWizardCompiler2 = 'Please specify some basic compiler settings.';
-  SWizardCompilerSetupIconFileFilter = 'Icon files (*.ico)|*.ico|All Files|*.*';
+  SWizardCompilerSetupIconFileFilter = 'Icon files (*.ico)|*.ico|All files|*.*';
   SWizardCompilerSetupIconFileDefaultExt = 'ico';
   SWizardCompilerOutputDir = 'Please specify the folder.';
   SWizardISPP = 'Inno Setup Preprocessor';
@@ -69,7 +73,7 @@ const
   SWizardFinishButton = '&Finish';
   SWizardCancelMessage = 'The [name] is not complete. If you quit now, the new script file will not be generated.'#13#13'Exit the [name]?';
 
-  SWizardAllFilesFilter = 'All Files|*.*';
+  SWizardAllFilesFilter = 'All files|*.*';
 
   SWizardAppNameError = 'Please specify the application name.';
   SWizardAppVersionError = 'Please specify the application version.';

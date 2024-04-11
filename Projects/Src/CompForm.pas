@@ -190,6 +190,7 @@ type
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
     TMsgBoxDesigner: TMenuItem;
+    TRegistryDesigner: TMenuItem;
     ToolBarPanel: TPanel;
     HMailingList: TMenuItem;
     MemosTabSet: TNewTabSet; { First tab is the main memo, last tab is the preprocessor output memo }
@@ -303,6 +304,7 @@ type
     procedure VDebugCallStackClick(Sender: TObject);
     procedure HMailingListClick(Sender: TObject);
     procedure TMsgBoxDesignerClick(Sender: TObject);
+    procedure TRegistryDesignerClick(Sender: TObject);
     procedure MemosTabSetClick(Sender: TObject);
     procedure FSaveAllClick(Sender: TObject);
     procedure RStepOutClick(Sender: TObject);
@@ -541,7 +543,7 @@ uses
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMsgBoxDesigner,
-  CompFilesDesigner;
+  CompFilesDesigner, CompRegistryDesigner, CompWizardRegistryHelper;
 
 {$R *.DFM}
 
@@ -3077,6 +3079,32 @@ begin
       FActiveMemo.SelText := MsgBoxForm.GetText(FOptions.TabWidth, FOptions.UseTabCharacter);
   finally
     MsgBoxForm.Free;
+  end;
+end;
+
+procedure TCompileForm.TRegistryDesignerClick(Sender: TObject);
+begin
+  var RegistryDesignerForm := TRegistryDesignerForm.Create(Application);
+  try
+    var PrivilegesRequired := FindSetupDirectiveValue('PrivilegesRequired', 'admin');
+    var PrivilegesRequiredOverridesAllowed := FindSetupDirectiveValue('PrivilegesRequiredOverridesAllowed', '');
+    if PrivilegesRequiredOverridesAllowed = '' then begin
+      if SameText(PrivilegesRequired, 'admin') then
+        RegistryDesignerForm.PrivilegesRequired := prAdmin
+      else
+        RegistryDesignerForm.PrivilegesRequired := prLowest
+    end else
+      RegistryDesignerForm.PrivilegesRequired := prDynamic;
+    if RegistryDesignerForm.ShowModal = mrOk then
+    begin
+      FActiveMemo.CaretColumn := 0;
+      var Text := RegistryDesignerForm.Text;
+      if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scRegistry then
+        Text := '[Registry]' + SNewLine + Text;
+      FActiveMemo.SelText := Text;
+    end;
+  finally
+    RegistryDesignerForm.Free;
   end;
 end;
 

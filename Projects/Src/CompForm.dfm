@@ -702,6 +702,12 @@ object CompileForm: TCompileForm
         ShortCut = 24649
         OnClick = TFilesDesignerClick
       end
+      object TRegistryDesigner: TMenuItem
+        Caption = 'Generate [&Registry] Entries...'
+        ImageIndex = 66
+        ShortCut = 24658
+        OnClick = TRegistryDesignerClick
+      end
       object TMsgBoxDesigner: TMenuItem
         Caption = '&Generate MsgBox/TaskDialogMsgBox Call...'
         ShortCut = 24653
