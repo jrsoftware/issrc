@@ -362,8 +362,6 @@ begin
   { PrivilegesRequired }
   PrivilegesRequiredAdminRadioButton.Checked := True;
   
-  { AppRegistry }
-
   { Languages }
   for I := 0 to FLanguages.Count-1 do begin
     if FLanguages[I] <> LanguagesDefaultIsl then
