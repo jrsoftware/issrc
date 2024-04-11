@@ -14,7 +14,7 @@ interface
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
   UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
-  CompWizardFilesHelper;
+  CompWizardFilesHelper, CompWizardRegistryHelper;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
@@ -133,6 +133,12 @@ type
     AppRegistryFileLabel: TNewStaticText;
     AppRegistryFileEdit: TEdit;
     AppRegistryFileButton: TButton;
+    AppRegistrySettingsLabel: TNewStaticText;
+    AppRegistryUninsDeleteKeyCheck: TCheckBox;
+    AppRegistryUninsDeleteKeyIfEmptyCheck: TCheckBox;
+    AppRegistryUninsDeleteValueCheck: TCheckBox;
+    AppRegistryMinVerCheck: TCheckBox;
+    AppRegistryMinVerEdit: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -156,6 +162,7 @@ type
     CurPage: TWizardPage;
     FWizardName: String;
     FFilesHelper: TWizardFormFilesHelper;
+    FRegistryHelper: TWizardFormRegistryHelper;
     FLanguages: TStringList;
     FResult: TWizardFormResult;
     FResultScript: String;
@@ -279,6 +286,10 @@ begin
   FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
     AppFilesEditButton, AppFilesRemoveButton);
+  FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
+    AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
+    AppRegistryUninsDeleteKeyIfEmptyCheck, AppRegistryUninsDeleteValueCheck,
+    AppRegistryMinVerCheck, AppRegistryMinVerEdit);
 
   FLanguages := TStringList.Create;
   FLanguages.Sorted := True;
@@ -393,6 +404,7 @@ end;
 procedure TWizardForm.FormDestroy(Sender: TObject);
 begin
   FLanguages.Free;
+  FRegistryHelper.Free;
   FFilesHelper.Free;
 end;
 
@@ -452,7 +464,7 @@ begin
         else
           ActiveControl := PrivilegesRequiredLowestRadioButton;
       end;
-    wpAppRegistry: ;
+    wpAppRegistry: ActiveControl := AppRegistryFileEdit;
     wpLanguages: ActiveControl := LanguagesList;
     wpCompiler: ActiveControl := OutputDirEdit;
     wpISPP: ActiveControl := ISPPCheck;
@@ -555,6 +567,14 @@ begin
     if CurPage = wpAppAssoc then begin
       if (AppAssocExtEdit.Text <> '') and (AppAssocExtEdit.Text[1] <> '.') then
         AppAssocExtEdit.Text := '.' + AppAssocExtEdit.Text;
+    end else if CurPage = wpPrivilegesRequired then begin
+      if not PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Checked then begin
+        if PrivilegesRequiredAdminRadioButton.Checked then
+          FRegistryHelper.PrivilegesRequired := prAdmin
+        else
+          FRegistryHelper.PrivilegesRequired := prLowest
+      end else
+        FRegistryHelper.PrivilegesRequired := prDynamic;
     end else if CurPage = wpFinished then begin
       GenerateScript;
       ModalResult := mrOk;
@@ -960,6 +980,7 @@ begin
       Setup := Setup + 'PrivilegesRequiredOverridesAllowed=commandline' + SNewLine;
       
     { AppRegistry }
+    FRegistryHelper.AddScript(Registry);
 
     { Languages }
     if FLanguages.Count > 1 then begin

@@ -3090,11 +3090,11 @@ begin
     var PrivilegesRequiredOverridesAllowed := FindSetupDirectiveValue('PrivilegesRequiredOverridesAllowed', '');
     if PrivilegesRequiredOverridesAllowed = '' then begin
       if SameText(PrivilegesRequired, 'admin') then
-        RegistryDesignerForm.PriviligesRequired := prAdmin
+        RegistryDesignerForm.PrivilegesRequired := prAdmin
       else
-        RegistryDesignerForm.PriviligesRequired := prLowest
+        RegistryDesignerForm.PrivilegesRequired := prLowest
     end else
-      RegistryDesignerForm.PriviligesRequired := prDynamic;
+      RegistryDesignerForm.PrivilegesRequired := prDynamic;
     if RegistryDesignerForm.ShowModal = mrOk then
     begin
       FActiveMemo.CaretColumn := 0;

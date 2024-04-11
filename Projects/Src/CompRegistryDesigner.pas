@@ -27,22 +27,22 @@ type
     AppRegistryFileLabel: TNewStaticText;
     AppRegistryFileEdit: TEdit;
     AppRegistryFileButton: TButton;
-    st_Settings: TNewStaticText;
+    AppRegistrySettingsLabel: TNewStaticText;
     AppRegistryUninsDeleteKeyCheck: TCheckBox;
-    AppRegistryUninsDeleteKeyCheckIfEmpty: TCheckBox;
+    AppRegistryUninsDeleteKeyIfEmptyCheck: TCheckBox;
     AppRegistryUninsDeleteValueCheck: TCheckBox;
     AppRegistryMinVerCheck: TCheckBox;
     AppRegistryMinVerEdit: TEdit;
-    PriviligesRequiredLabel: TNewStaticText;
+    PrivilegesRequiredLabel: TNewStaticText;
     procedure InsertButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
     FRegistryHelper: TWizardFormRegistryHelper;
-    procedure SetPriviligesRequired(const Value: TPriviligesRequired);
+    procedure SetPrivilegesRequired(const Value: TPrivilegesRequired);
     function GetText: String;
   public
-    property PriviligesRequired: TPriviligesRequired write SetPriviligesRequired;
+    property PrivilegesRequired: TPrivilegesRequired write SetPrivilegesRequired;
     property Text: string read GetText;
   end;
 
@@ -50,22 +50,27 @@ implementation
 
 {$R *.dfm}
 
-procedure TRegistryDesignerForm.SetPriviligesRequired(
-  const Value: TPriviligesRequired);
+uses
+  CompFunc;
+
+procedure TRegistryDesignerForm.SetPrivilegesRequired(
+  const Value: TPrivilegesRequired);
 begin
   if Value = prAdmin then
-    PriviligesRequiredLabel.Caption := 'Script has PriviligesRequired=admin'
+    PrivilegesRequiredLabel.Caption := 'Script has PrivilegesRequired=admin'
   else if Value = prLowest then
-    PriviligesRequiredLabel.Caption := 'Script has PriviligesRequired=lowest'
+    PrivilegesRequiredLabel.Caption := 'Script has PrivilegesRequired=lowest'
   else
-    PriviligesRequiredLabel.Caption := 'Script has PrivilegesRequiredOverridesAllowed set';
+    PrivilegesRequiredLabel.Caption := 'Script has PrivilegesRequiredOverridesAllowed set';
 end;
 
 procedure TRegistryDesignerForm.FormCreate(Sender: TObject);
 begin
+  InitFormFont(Self);
+
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
-    AppRegistryUninsDeleteKeyCheckIfEmpty, AppRegistryUninsDeleteValueCheck,
+    AppRegistryUninsDeleteKeyIfEmptyCheck, AppRegistryUninsDeleteValueCheck,
     AppRegistryMinVerCheck, AppRegistryMinVerEdit);
 end;
 

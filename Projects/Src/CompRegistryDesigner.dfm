@@ -55,7 +55,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
       TabOrder = 1
       ExplicitLeft = 410
     end
-    object PriviligesRequiredLabel: TNewStaticText
+    object PrivilegesRequiredLabel: TNewStaticText
       Left = 8
       Top = 15
       Width = 8
@@ -91,7 +91,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Caption = '&Browse...'
     TabOrder = 2
   end
-  object st_Settings: TNewStaticText
+  object AppRegistrySettingsLabel: TNewStaticText
     Left = 8
     Top = 69
     Width = 392
@@ -100,7 +100,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Caption = 'Settings (for all keys and values):'
     TabOrder = 3
   end
-  object UninsDeleteKeyCheck: TCheckBox
+  object AppRegistryUninsDeleteKeyCheck: TCheckBox
     Left = 16
     Top = 109
     Width = 225
@@ -108,7 +108,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Caption = 'Also delete keys which are not empty'
     TabOrder = 5
   end
-  object UninsDeleteKeyCheckIfEmpty: TCheckBox
+  object AppRegistryUninsDeleteKeyIfEmptyCheck: TCheckBox
     Left = 8
     Top = 89
     Width = 225
@@ -118,7 +118,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     State = cbChecked
     TabOrder = 4
   end
-  object UninsDeleteValueCheck: TCheckBox
+  object AppRegistryUninsDeleteValueCheck: TCheckBox
     Left = 8
     Top = 139
     Width = 225
@@ -129,18 +129,18 @@ object RegistryDesignerForm: TRegistryDesignerForm
     TabOrder = 6
     WordWrap = True
   end
-  object MinVerCheck: TCheckBox
+  object AppRegistryMinVerCheck: TCheckBox
     Left = 8
     Top = 169
-    Width = 225
+    Width = 245
     Height = 17
     Caption = 'Create only if Windows'#39' version is at least:'
     TabOrder = 7
   end
-  object MinVerEdit: TEdit
-    Left = 239
+  object AppRegistryMinVerEdit: TEdit
+    Left = 259
     Top = 168
-    Width = 160
+    Width = 140
     Height = 21
     Enabled = False
     TabOrder = 8

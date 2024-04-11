@@ -15,27 +15,27 @@ uses
   Forms, StdCtrls;
 
 type
-  TPriviligesRequired = (prAdmin, prLowest, prDynamic);
+  TPrivilegesRequired = (prAdmin, prLowest, prDynamic);
 
   TWizardFormRegistryHelper = class
     private
       FForm: TForm;
       FFileEdit: TEdit;
-      FUninsDeleteKeyCheck, FUninsDeleteKeyCheckIfEmpty,
+      FUninsDeleteKeyCheck, FUninsDeleteKeyIfEmptyCheck,
       FUninsDeleteValueCheck, FMinVerCheck: TCheckBox;
       FMinVerEdit: TEdit;
-      FPriviligesRequired: TPriviligesRequired;
-      procedure SetPriviligesRequired(const Value: TPriviligesRequired);
+      FPrivilegesRequired: TPrivilegesRequired;
+      procedure SetPrivilegesRequired(const Value: TPrivilegesRequired);
       procedure FileButtonClick(Sender: TObject);
-      procedure UninsDeleteKeyCheckIfEmptyClick(Sender: TObject);
+      procedure UninsDeleteKeyIfEmptyCheckClick(Sender: TObject);
       procedure MinVerCheckClick(Sender: TObject);
     public
       constructor Create(const Form: TForm; const FileEdit: TEdit;
         const FileButton: TButton; const UninsDeleteKeyCheck,
-        UninsDeleteKeyCheckIfEmpty, UninsDeleteValueCheck, MinVerCheck: TCheckBox;
+        UninsDeleteKeyIfEmptyCheck, UninsDeleteValueCheck, MinVerCheck: TCheckBox;
         const MinVerEdit: TEdit);
       procedure AddScript(var Registry: String);
-      property PriviligesRequired: TPriviligesRequired write SetPriviligesRequired;
+      property PrivilegesRequired: TPrivilegesRequired write SetPrivilegesRequired;
     end;
 
 implementation
@@ -46,27 +46,27 @@ uses
 
 { TWizardFormRegistryHelper }
 
-procedure TWizardFormRegistryHelper.SetPriviligesRequired(
-  const Value: TPriviligesRequired);
+procedure TWizardFormRegistryHelper.SetPrivilegesRequired(
+  const Value: TPrivilegesRequired);
 begin
-  FPriviligesRequired := Value;
+  FPrivilegesRequired := Value;
 end;
 
 constructor TWizardFormRegistryHelper.Create(const Form: TForm;
   const FileEdit: TEdit; const FileButton: TButton; const UninsDeleteKeyCheck,
-  UninsDeleteKeyCheckIfEmpty, UninsDeleteValueCheck, MinVerCheck: TCheckBox;
+  UninsDeleteKeyIfEmptyCheck, UninsDeleteValueCheck, MinVerCheck: TCheckBox;
   const MinVerEdit: TEdit);
 begin
   FForm := Form;
   FFileEdit := FileEdit;
   FUninsDeleteKeyCheck := UninsDeleteKeyCheck;
-  FUninsDeleteKeyCheckIfEmpty := UninsDeleteKeyCheckIfEmpty;
+  FUninsDeleteKeyIfEmptyCheck := UninsDeleteKeyIfEmptyCheck;
   FUninsDeleteValueCheck := UninsDeleteValueCheck;
   FMinVerCheck := MinVerCheck;
   FMinVerEdit := MinVerEdit;
 
   FileButton.OnClick := FileButtonClick;
-  UninsDeleteKeyCheckIfEmpty.OnClick := UninsDeleteKeyCheckIfEmptyClick;
+  UninsDeleteKeyIfEmptyCheck.OnClick := UninsDeleteKeyIfEmptyCheckClick;
   MinVerCheck.OnClick := MinVerCheckClick;
 
   TryEnableAutoCompleteFileSystem(FileEdit.Handle);
@@ -79,9 +79,9 @@ begin
     FFileEdit.Text := FileName;
 end;
 
-procedure TWizardFormRegistryHelper.UninsDeleteKeyCheckIfEmptyClick(Sender: TObject);
+procedure TWizardFormRegistryHelper.UninsDeleteKeyIfEmptyCheckClick(Sender: TObject);
 begin
-  FUninsDeleteKeyCheck.Enabled := FUninsDeleteKeyCheckIfEmpty.Checked;
+  FUninsDeleteKeyCheck.Enabled := FUninsDeleteKeyIfEmptyCheck.Checked;
   if not FUninsDeleteKeyCheck.Enabled then
     FUninsDeleteKeyCheck.Checked := False;
 end;
@@ -218,9 +218,9 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String);
     Result := '';
     if FMinVerCheck.Checked then
       Result := Result + '; MinVersion: ' + FMinVerEdit.Text;
-    if (FPriviligesRequired <> prAdmin) and RequiresAdminInstallMode(AEntry) then
+    if (FPrivilegesRequired <> prAdmin) and RequiresAdminInstallMode(AEntry) then
       Result := Result + '; Check: IsAdminInstallMode'
-    else if (FPriviligesRequired <> prLowest) and RequiresNotAdminInstallMode(AEntry) then
+    else if (FPrivilegesRequired <> prLowest) and RequiresNotAdminInstallMode(AEntry) then
       Result := Result + '; Check: not IsAdminInstallMode';
   end;
 
@@ -234,7 +234,7 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String);
     else begin
       if FUninsDeleteKeyCheck.Checked then
         Result := Result + '; Flags: uninsdeletekey'
-      else if FUninsDeleteKeyCheckIfEmpty.Checked then
+      else if FUninsDeleteKeyIfEmptyCheck.Checked then
         Result := Result + '; Flags: uninsdeletekeyifempty';
     end;
     Result := Result + TextCommon(AEntry);
@@ -309,8 +309,8 @@ begin
                                             .Replace('{', '{{')
                                             .QuotedString('"');
 
-        var FilterKey := ((FPriviligesRequired = prAdmin) and RequiresNotAdminInstallMode(Entry)) or
-                         ((FPriviligesRequired = prLowest) and RequiresAdminInstallMode(Entry));
+        var FilterKey := ((FPrivilegesRequired = prAdmin) and RequiresNotAdminInstallMode(Entry)) or
+                         ((FPrivilegesRequired = prLowest) and RequiresAdminInstallMode(Entry));
 
         if not FilterKey then
           OutLines.Add(TextKeyEntry(Entry, DeleteKey))
