@@ -1098,6 +1098,8 @@ begin
     Stack.SetBool(PStart, ProcessorArchitecture = paX86);
   end else if Proc.Name = 'ISX64' then begin
     Stack.SetBool(PStart, ProcessorArchitecture = paX64);
+  end else if Proc.Name = 'ISX64COMPATIBLE' then begin
+    Stack.SetBool(PStart, IsX64Compatible);
   end else if Proc.Name = 'ISIA64' then begin
     Stack.SetBool(PStart, ProcessorArchitecture = paIA64);
   end else if Proc.Name = 'ISARM64' then begin

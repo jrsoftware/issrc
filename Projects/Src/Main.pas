@@ -172,6 +172,7 @@ var
   InstallDefaultRegView: TRegView = rvDefault;
   HasCustomType, HasComponents, HasTasks: Boolean;
   ProcessorArchitecture: TSetupProcessorArchitecture = paUnknown;
+  IsX64Compatible: Boolean;
   WindowsVersion: Cardinal;
   NTServicePackLevel: Word;
   WindowsProductType: Byte;
@@ -2269,6 +2270,8 @@ begin
     (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF, SP, SYesNo[True]]);
   LogFmt('64-bit Windows: %s', [SYesNo[IsWin64]]);
   LogFmt('Processor architecture: %s', [SetupProcessorArchitectureNames[ProcessorArchitecture]]);
+  if ProcessorArchitecture <> paX64 then
+    LogFmt('Processor architecture is X64 compatible: %s', [SYesNo[IsX64Compatible]]);
 
   if IsAdmin then
     Log('User privileges: Administrative')
@@ -4328,7 +4331,7 @@ begin
 end;
 
 
-procedure InitIsWin64AndProcessorArchitecture;
+procedure InitIsWin64AndProcessorArchitectureAndIsX64Compatible;
 const
   PROCESSOR_ARCHITECTURE_INTEL = 0;
   PROCESSOR_ARCHITECTURE_IA64 = 6;
@@ -4338,15 +4341,22 @@ const
   IMAGE_FILE_MACHINE_IA64 = $0200;
   IMAGE_FILE_MACHINE_AMD64 = $8664;
   IMAGE_FILE_MACHINE_ARM64 = $AA64;
+  UserEnabled = $1;
+  Wow64Container = $4;
 var
   KernelModule: HMODULE;
   GetNativeSystemInfoFunc: procedure(var lpSystemInfo: TSystemInfo); stdcall;
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
   IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
+  GetMachineTypeAttributesFunc: function(Machine: Word; var MachineTypeAttributes: Integer): HRESULT; stdcall;
   ProcessMachine, NativeMachine: USHORT;
   Wow64Process: BOOL;
   SysInfo: TSystemInfo;
 begin
+  IsWin64 := False;
+  IsX64Compatible := False;
+  KernelModule := GetModuleHandle(kernel32);
+
   { The system is considered a "Win64" system if all of the following
     conditions are true:
     1. One of the following two is true:
@@ -4359,9 +4369,6 @@ begin
     5. RegDeleteKeyExA is available.
     The system does not have to be one of the known 64-bit architectures
     (AMD64, IA64, ARM64) to be considered a "Win64" system. }
-
-  IsWin64 := False;
-  KernelModule := GetModuleHandle(kernel32);
 
   IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
   if Assigned(IsWow64Process2Func) and
@@ -4403,6 +4410,16 @@ begin
           (GetProcAddress(KernelModule, 'GetSystemWow64DirectoryA') <> nil) and
           (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil)) then
     IsWin64 := False;
+
+  if (ProcessorArchitecture <> paX64) and IsWindows11 then begin
+    GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
+    if Assigned(GetMachineTypeAttributesFunc) then begin
+      var MachineTypeAttributes: Integer;
+      if SUCCEEDED(GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes)) then
+        IsX64Compatible := ((MachineTypeAttributes and UserEnabled) <> 0) and
+                           ((MachineTypeAttributes and Wow64Container) = 0);
+    end;
+  end;
 end;
 
 procedure InitWindowsVersion;
@@ -4486,8 +4503,8 @@ begin
 end;
 
 initialization
-  InitIsWin64AndProcessorArchitecture;
   InitWindowsVersion;
+  InitIsWin64AndProcessorArchitectureAndIsX64Compatible;
   InitComponents := TStringList.Create();
   InitTasks := TStringList.Create();
   NewParamsForCode := TStringList.Create();
