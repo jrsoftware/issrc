@@ -172,7 +172,7 @@ var
   InstallDefaultRegView: TRegView = rvDefault;
   HasCustomType, HasComponents, HasTasks: Boolean;
   ProcessorArchitecture: TSetupProcessorArchitecture = paUnknown;
-  IsX64Compatible: Boolean;
+  MachineTypesSupportedBySystem: TSetupProcessorArchitectures;
   WindowsVersion: Cardinal;
   NTServicePackLevel: Word;
   WindowsProductType: Byte;
@@ -2257,6 +2257,26 @@ begin
     LogFmt('Compatibility mode: %s (%s)', [SYesNo[True], S]);
 end;
 
+function ArchitecturesToStr(const Architectures: TSetupProcessorArchitectures;
+  const Separator: String): String;
+
+  procedure AppendArchitecture(var S: String; const Separator, L: String);
+  begin
+    if S <> '' then
+      S := S + Separator + L
+    else
+      S := L;
+  end;
+
+var
+  I: TSetupProcessorArchitecture;
+begin
+  Result := '';
+  for I := Low(I) to High(I) do
+    if I in Architectures then
+      AppendArchitecture(Result, Separator, SetupProcessorArchitectureNames[I]);
+end;
+
 procedure LogWindowsVersion;
 var
   SP: String;
@@ -2270,8 +2290,7 @@ begin
     (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF, SP, SYesNo[True]]);
   LogFmt('64-bit Windows: %s', [SYesNo[IsWin64]]);
   LogFmt('Processor architecture: %s', [SetupProcessorArchitectureNames[ProcessorArchitecture]]);
-  if ProcessorArchitecture <> paX64 then
-    LogFmt('Processor architecture is X64 compatible: %s', [SYesNo[IsX64Compatible]]);
+  LogFmt('Machine types supported by system: %s', [ArchitecturesToStr(MachineTypesSupportedBySystem, ' ')]);
 
   if IsAdmin then
     Log('User privileges: Administrative')
@@ -2521,25 +2540,6 @@ var
       raise Exception.Create('ExtractLongWord: Missing comma');
     Result := LongWord(StrToInt(Copy(S, 1, P-1)));
     Delete(S, 1, P);
-  end;
-
-  function ArchitecturesToStr(const Architectures: TSetupProcessorArchitectures): String;
-
-    procedure AppendLine(var S: String; const L: String);
-    begin
-      if S <> '' then
-        S := S + #13#10 + L
-      else
-        S := L;
-    end;
-
-  var
-    I: TSetupProcessorArchitecture;
-  begin
-    Result := '';
-    for I := Low(I) to High(I) do
-      if I in Architectures then
-        AppendLine(Result, SetupProcessorArchitectureNames[I]);
   end;
 
   procedure AbortInit(const Msg: TSetupMessageID);
@@ -3208,7 +3208,7 @@ begin
   { Check processor architecture }
   if (SetupHeader.ArchitecturesAllowed <> []) and
      not(ProcessorArchitecture in SetupHeader.ArchitecturesAllowed) then
-    AbortInitFmt1(msgOnlyOnTheseArchitectures, ArchitecturesToStr(SetupHeader.ArchitecturesAllowed));
+    AbortInitFmt1(msgOnlyOnTheseArchitectures, ArchitecturesToStr(SetupHeader.ArchitecturesAllowed, #13#10));
 
   { Check Windows version }
   case InstallOnThisVersion(SetupHeader.MinVersion, SetupHeader.OnlyBelowVersion) of
@@ -4331,7 +4331,18 @@ begin
 end;
 
 
-procedure InitIsWin64AndProcessorArchitectureAndIsX64Compatible;
+procedure InitIsWin64AndProcessorArchitectureAndMachineTypesSupportedBySystem;
+
+  function MachineTypeAttributesOk(const MachineTypeAttributes: Integer;
+    const RequireWow64: Boolean): Boolean;
+  const
+    UserEnabled = $1;
+    Wow64Container = $4;
+  begin
+    Result := (((MachineTypeAttributes and UserEnabled) <> 0) and
+               (not RequireWow64 or ((MachineTypeAttributes and Wow64Container) <> 0)));
+  end;
+
 const
   PROCESSOR_ARCHITECTURE_INTEL = 0;
   PROCESSOR_ARCHITECTURE_IA64 = 6;
@@ -4341,8 +4352,6 @@ const
   IMAGE_FILE_MACHINE_IA64 = $0200;
   IMAGE_FILE_MACHINE_AMD64 = $8664;
   IMAGE_FILE_MACHINE_ARM64 = $AA64;
-  UserEnabled = $1;
-  Wow64Container = $4;
 var
   KernelModule: HMODULE;
   GetNativeSystemInfoFunc: procedure(var lpSystemInfo: TSystemInfo); stdcall;
@@ -4353,8 +4362,6 @@ var
   Wow64Process: BOOL;
   SysInfo: TSystemInfo;
 begin
-  IsWin64 := False;
-  IsX64Compatible := False;
   KernelModule := GetModuleHandle(kernel32);
 
   { The system is considered a "Win64" system if all of the following
@@ -4369,6 +4376,8 @@ begin
     5. RegDeleteKeyExA is available.
     The system does not have to be one of the known 64-bit architectures
     (AMD64, IA64, ARM64) to be considered a "Win64" system. }
+
+  IsWin64 := False;
 
   IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
   if Assigned(IsWow64Process2Func) and
@@ -4411,13 +4420,41 @@ begin
           (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil)) then
     IsWin64 := False;
 
-  if (ProcessorArchitecture <> paX64) and IsWindows11 then begin
-    GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
-    if Assigned(GetMachineTypeAttributesFunc) then begin
-      var MachineTypeAttributes: Integer;
-      if SUCCEEDED(GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes)) then
-        IsX64Compatible := ((MachineTypeAttributes and UserEnabled) <> 0) and
-                           ((MachineTypeAttributes and Wow64Container) = 0);
+  { Setup MachineTypesSupportedBySystem. The result should end up being:
+    - 32-bit x86: [paX86]
+    - x64: [paX86, paX64]
+      (but not paX86 in a future x64 build when WOW64 isn't installed)
+    - Itanium: [paX86, paIA64]
+    - Arm64 Win10: [paX86, paArm64]
+    - Arm64 Win11: [paX86, paX64, paArm64]
+    On Windows 11 we can just ask what is supported, otherwise we have to set it
+    up ourselves. }
+
+  MachineTypesSupportedBySystem := [];
+
+  { GetMachineTypeAttributes was introduced by Windows 11 }
+  GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
+  if Assigned(GetMachineTypeAttributesFunc) then begin
+    var MachineTypeAttributes: Integer;
+    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_I386, MachineTypeAttributes) = S_OK) and
+       MachineTypeAttributesOk(MachineTypeAttributes, True) then
+      Include(MachineTypesSupportedBySystem, paX86);
+    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes) = S_OK) and
+       MachineTypeAttributesOk(MachineTypeAttributes, False) then
+      Include(MachineTypesSupportedBySystem, paX64);
+    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_IA64, MachineTypeAttributes) = S_OK) and
+       MachineTypeAttributesOk(MachineTypeAttributes, False) then
+      Include(MachineTypesSupportedBySystem, paIA64);
+    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_ARM64, MachineTypeAttributes) = S_OK) and
+       MachineTypeAttributesOk(MachineTypeAttributes, False) then
+      Include(MachineTypesSupportedBySystem, paARM64);
+  end else begin
+    MachineTypesSupportedBySystem := [ProcessorArchitecture];
+    if ProcessorArchitecture in [paX64, paIA64, paARM64] then begin
+      { If WOW64 is not installed on a future build it is assumed we were
+        able to call GetMachineTypeAttributes and check the Wow64Container flag
+        so here we just always add paX86 }
+      Include(MachineTypesSupportedBySystem, paX86);
     end;
   end;
 end;
@@ -4503,8 +4540,8 @@ begin
 end;
 
 initialization
+  InitIsWin64AndProcessorArchitectureAndMachineTypesSupportedBySystem;
   InitWindowsVersion;
-  InitIsWin64AndProcessorArchitectureAndIsX64Compatible;
   InitComponents := TStringList.Create();
   InitTasks := TStringList.Create();
   NewParamsForCode := TStringList.Create();
