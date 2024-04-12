@@ -293,6 +293,8 @@ type
         const Constant: String): String;
       class function EvalInstallIdentifier(Sender: TSimpleExpression;
         const Name: String; const Parameters: array of const): Boolean;
+      class function EvalArchitectureIdentifier(Sender: TSimpleExpression;
+        const Name: String; const Parameters: array of const): Boolean;
       class function EvalComponentOrTaskIdentifier(Sender: TSimpleExpression;
         const Name: String; const Parameters: array of const): Boolean;
       class function EvalLanguageIdentifier(Sender: TSimpleExpression;
@@ -487,6 +489,21 @@ begin
   CheckOrInstallCurrentSourceFilename := '';
 end;
 
+class function TDummyClass.EvalArchitectureIdentifier(Sender: TSimpleExpression;
+  const Name: String; const Parameters: array of const): Boolean;
+begin
+  if Name = 'x86' then
+    Result := paX86 in MachineTypesSupportedBySystem
+  else if Name = 'x64' then
+    Result := paX64 in MachineTypesSupportedBySystem
+  else if Name = 'ia64' then
+    Result := paIA64 in MachineTypesSupportedBySystem
+  else if Name = 'arm64' then
+    Result := paARM64 in MachineTypesSupportedBySystem
+  else
+    raise Exception.CreateFmt('Unexpected architecture ''%s''', [Name]);
+end;
+
 class function TDummyClass.EvalComponentOrTaskIdentifier(Sender: TSimpleExpression;
   const Name: String; const Parameters: array of const): Boolean;
 var
@@ -538,34 +555,33 @@ begin
     Result := EvalCheck(Expression);
 end;
 
+function EvalExpression(const Expression: String;
+  OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier; Tag: LongInt = 0): Boolean;
+var
+  SimpleExpression: TSimpleExpression;
+begin
+  try
+    SimpleExpression := TSimpleExpression.Create;
+    try
+      SimpleExpression.Lazy := True;
+      SimpleExpression.Expression := Expression;
+      SimpleExpression.OnEvalIdentifier := OnEvalIdentifier;
+      SimpleExpression.ParametersAllowed := False;
+      SimpleExpression.SilentOrAllowed := True;
+      SimpleExpression.SingleIdentifierMode := False;
+      SimpleExpression.Tag := Tag;
+      Result := SimpleExpression.Eval;
+    finally
+      SimpleExpression.Free;
+    end;
+  except
+    InternalError(Format('Expression error ''%s''', [GetExceptMessage]));
+    Result := False;
+  end;
+end;
+
 function ShouldProcessEntry(const WizardComponents, WizardTasks: TStringList;
   const Components, Tasks, Languages, Check: String): Boolean;
-
-  function EvalExpression(const Expression: String;
-    OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier; Tag: LongInt): Boolean;
-  var
-    SimpleExpression: TSimpleExpression;
-  begin
-    try
-      SimpleExpression := TSimpleExpression.Create;
-      try
-        SimpleExpression.Lazy := True;
-        SimpleExpression.Expression := Expression;
-        SimpleExpression.OnEvalIdentifier := OnEvalIdentifier;
-        SimpleExpression.ParametersAllowed := False;
-        SimpleExpression.SilentOrAllowed := True;
-        SimpleExpression.SingleIdentifierMode := False;
-        SimpleExpression.Tag := Tag;
-        Result := SimpleExpression.Eval;
-      finally
-        SimpleExpression.Free;
-      end;
-    except
-      InternalError(Format('Expression error ''%s''', [GetExceptMessage]));
-      Result := False;
-    end;
-  end;
-
 var
   ProcessComponent, ProcessTask, ProcessLanguage: Boolean;
 begin
@@ -581,7 +597,7 @@ begin
       ProcessTask := True;
 
     if Languages <> '' then
-      ProcessLanguage := EvalExpression(Languages, TDummyClass.EvalLanguageIdentifier, 0)
+      ProcessLanguage := EvalExpression(Languages, TDummyClass.EvalLanguageIdentifier)
     else
       ProcessLanguage := True;
 
@@ -2257,27 +2273,28 @@ begin
     LogFmt('Compatibility mode: %s (%s)', [SYesNo[True], S]);
 end;
 
-function ArchitecturesToStr(const Architectures: TSetupProcessorArchitectures;
-  const Separator: String): String;
+procedure LogWindowsVersion;
 
-  procedure AppendArchitecture(var S: String; const Separator, L: String);
+  function ArchitecturesToStr(const Architectures: TSetupProcessorArchitectures;
+    const Separator: String): String;
+
+    procedure AppendArchitecture(var S: String; const Separator, L: String);
+    begin
+      if S <> '' then
+        S := S + Separator + L
+      else
+        S := L;
+    end;
+
+  var
+    I: TSetupProcessorArchitecture;
   begin
-    if S <> '' then
-      S := S + Separator + L
-    else
-      S := L;
+    Result := '';
+    for I := Low(I) to High(I) do
+      if I in Architectures then
+        AppendArchitecture(Result, Separator, SetupProcessorArchitectureNames[I]);
   end;
 
-var
-  I: TSetupProcessorArchitecture;
-begin
-  Result := '';
-  for I := Low(I) to High(I) do
-    if I in Architectures then
-      AppendArchitecture(Result, Separator, SetupProcessorArchitectureNames[I]);
-end;
-
-procedure LogWindowsVersion;
 var
   SP: String;
 begin
@@ -3043,7 +3060,7 @@ begin
         { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
           one on which a "64-bit mode" install should be performed. Doing this early
           so that UsePreviousPrivileges knows where to look. Will log later. }
-        if ProcessorArchitecture in SetupHeader.ArchitecturesInstallIn64BitMode then begin
+        if EvalExpression(SetupHeader.ArchitecturesInstallIn64BitMode, TDummyClass.EvalArchitectureIdentifier) then begin
           if not IsWin64 then begin
             { A 64-bit processor was detected and 64-bit install mode was requested,
               but IsWin64 is False, indicating required WOW64 APIs are not present }
@@ -3206,9 +3223,9 @@ begin
   end;
   
   { Check processor architecture }
-  if (SetupHeader.ArchitecturesAllowed <> []) and
-     not(ProcessorArchitecture in SetupHeader.ArchitecturesAllowed) then
-    AbortInitFmt1(msgOnlyOnTheseArchitectures, ArchitecturesToStr(SetupHeader.ArchitecturesAllowed, #13#10));
+  if (SetupHeader.ArchitecturesAllowed <> '') and
+     not EvalExpression(SetupHeader.ArchitecturesAllowed, TDummyClass.EvalArchitectureIdentifier) then
+    AbortInitFmt1(msgOnlyOnTheseArchitectures, SetupHeader.ArchitecturesAllowed);
 
   { Check Windows version }
   case InstallOnThisVersion(SetupHeader.MinVersion, SetupHeader.OnlyBelowVersion) of
