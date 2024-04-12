@@ -3625,7 +3625,7 @@ begin
         end;
       end;
     ssCompression: begin
-        Value := Lowercase(Trim(Value));
+        Value := LowerCase(Value);
         if Value = 'none' then begin
           CompressMethod := cmStored;
           CompressLevel := 0;
@@ -3802,7 +3802,6 @@ begin
         InfoAfterFile := Value;
       end;
     ssInternalCompressLevel: begin
-        Value := Lowercase(Trim(Value));
         if (Value = '0') or (CompareText(Value, 'none') = 0) then
           InternalCompressLevel := 0
         else if not LZMAGetLevel(Value, InternalCompressLevel) then
