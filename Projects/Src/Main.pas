@@ -4422,17 +4422,15 @@ begin
 
   { Setup MachineTypesSupportedBySystem. The result should end up being:
     - 32-bit x86: [paX86]
-    - x64: [paX86, paX64]
-      (but not paX86 in a future x64 build when WOW64 isn't installed)
+    - x64: [paX86, paX64] (but not paX86 in a future x64 build when WOW64 isn't installed)
     - Itanium: [paX86, paIA64]
-    - Arm64 Win10: [paX86, paArm64]
-    - Arm64 Win11: [paX86, paX64, paArm64]
-    On Windows 11 we can just ask what is supported, otherwise we have to set it
-    up ourselves. }
+    - Arm64 Windows 10: [paX86, paArm64]
+    - Arm64 Windows 11: [paX86, paX64, paArm64] }
 
   MachineTypesSupportedBySystem := [];
 
-  { GetMachineTypeAttributes was introduced by Windows 11 }
+  { On Windows 11 we can just ask what is supported, otherwise we have to set it
+    up ourselves }
   GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
   if Assigned(GetMachineTypeAttributesFunc) then begin
     var MachineTypeAttributes: Integer;
