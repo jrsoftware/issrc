@@ -4434,9 +4434,7 @@ begin
     if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes) = S_OK) and
        MachineTypeAttributesOk(MachineTypeAttributes, False) then
       Include(MachineTypesSupportedBySystem, paX64);
-    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_IA64, MachineTypeAttributes) = S_OK) and
-       MachineTypeAttributesOk(MachineTypeAttributes, False) then
-      Include(MachineTypesSupportedBySystem, paIA64);
+    { IA64 died with Windows Server 2008 R2 so not checking }
     if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_ARM64, MachineTypeAttributes) = S_OK) and
        MachineTypeAttributesOk(MachineTypeAttributes, False) then
       Include(MachineTypesSupportedBySystem, paARM64);
