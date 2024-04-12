@@ -256,7 +256,10 @@ function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
   const RunEntry: PSetupRunEntry): Boolean;
 function TestPassword(const Password: String): Boolean;
 procedure UnloadSHFolderDLL;
-function WindowsVersionAtLeast(const AMajor, AMinor: Byte): Boolean;
+function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
+function IsWindows8: Boolean;
+function IsWindows10: Boolean;
+function IsWindows11: Boolean;
 
 implementation
 
@@ -299,9 +302,24 @@ type
 
 { Misc. functions }
 
-function WindowsVersionAtLeast(const AMajor, AMinor: Byte): Boolean;
+function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
 begin
-  Result := (WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16)));
+  Result := WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
+end;
+
+function IsWindows8: Boolean;
+begin
+  Result := WindowsVersionAtLeast(6, 2);
+end;
+
+function IsWindows10: Boolean;
+begin
+  Result := WindowsVersionAtLeast(10, 0);
+end;
+
+function IsWindows11: Boolean;
+begin
+  Result := WindowsVersionAtLeast(10, 0, 22000);
 end;
 
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
