@@ -81,7 +81,7 @@ const
     ('Unknown', 'x86', 'x64', 'Itanium', 'ARM64', 'ARM32');
 
 const
-  SetupHeaderStrings = 30;
+  SetupHeaderStrings = 32;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
@@ -91,7 +91,8 @@ type
       UninstallDisplayIcon, AppMutex, DefaultUserInfoName, DefaultUserInfoOrg,
       DefaultUserInfoSerial, AppReadmeFile, AppContact, AppComments,
       AppModifyPath, CreateUninstallRegKey, Uninstallable, CloseApplicationsFilter,
-      SetupMutex, ChangesEnvironment, ChangesAssociations: String;
+      SetupMutex, ChangesEnvironment, ChangesAssociations,
+      ArchitecturesAllowed, ArchitecturesInstallIn64BitMode: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
     NumLanguageEntries, NumCustomMessageEntries, NumPermissionEntries,
       NumTypeEntries, NumComponentEntries, NumTaskEntries, NumDirEntries,
@@ -114,7 +115,6 @@ type
     ShowLanguageDialog: (slYes, slNo, slAuto);
     LanguageDetectionMethod: TSetupLanguageDetectionMethod;
     CompressMethod: TSetupCompressMethod;
-    ArchitecturesAllowed, ArchitecturesInstallIn64BitMode: TSetupProcessorArchitectures;
     DisableDirPage, DisableProgramGroupPage: TSetupDisablePage;
     UninstallDisplaySize: Integer64;
     Options: set of TSetupHeaderOption;

@@ -30,7 +30,7 @@ implementation
 
 uses
   CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
-  Generics.Collections, WideStrUtils,
+  Generics.Collections, StrUtils, WideStrUtils,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, CompExeUpdate,
@@ -309,6 +309,8 @@ type
       var AOnlyBelowVersion: TSetupVersionData);
     procedure ProcessPermissionsParameter(ParamData: String;
       const AccessMasks: array of TNameAndAccessMask; var PermissionsEntry: Smallint);
+    function EvalArchitectureIdentifier(Sender: TSimpleExpression; const Name: String;
+      const Parameters: array of const): Boolean;
     function EvalComponentIdentifier(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
     function EvalTaskIdentifier(Sender: TSimpleExpression; const Name: String;
@@ -317,7 +319,7 @@ type
       const Parameters: array of const): Boolean;
     procedure ProcessExpressionParameter(const ParamName,
       ParamData: String; OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier;
-      SlashConvert: Boolean; var ProcessedParamData: String);
+      SlashConvert: Boolean; var ProcessedParamData: String; const Tag: Integer = 0);
     procedure ProcessWildcardsParameter(const ParamData: String;
       const AWildcards: TStringList; const TooLongMsg: String);
     procedure ReadDefaultMessages;
@@ -2907,6 +2909,25 @@ begin
   CommaText := CommaText + S;
 end;
 
+function TSetupCompiler.EvalArchitectureIdentifier(Sender: TSimpleExpression;
+  const Name: String; const Parameters: array of const): Boolean;
+const
+  Architectures: array[0..3] of String = ('x86', 'x64', 'ia64', 'arm64');
+begin
+  var Only64Bit := Sender.Tag = 1; { 1 means we're evaluating ArchitecturesInstallIn64BitMode }
+
+  for var Architecture in Architectures do begin
+    if SameText(Name, Architecture) then begin
+      if Only64bit and (Architecture = 'x86') then
+        raise Exception.CreateFmt(SCompilerArchitectureNot64Bit, [Name]);
+      Exit(True); { Result doesn't matter }
+    end;
+  end;
+
+  raise Exception.CreateFmt(SCompilerArchitectureInvalid, [Name]);
+end;
+
+{ Sets the Used properties while evaluating }
 function TSetupCompiler.EvalComponentIdentifier(Sender: TSimpleExpression; const Name: String;
   const Parameters: array of const): Boolean;
 var
@@ -2928,6 +2949,7 @@ begin
   Result := True;  { Result doesn't matter }
 end;
 
+{ Sets the Used properties while evaluating }
 function TSetupCompiler.EvalTaskIdentifier(Sender: TSimpleExpression; const Name: String;
   const Parameters: array of const): Boolean;
 var
@@ -2967,7 +2989,7 @@ end;
 
 procedure TSetupCompiler.ProcessExpressionParameter(const ParamName,
   ParamData: String; OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier;
-  SlashConvert: Boolean; var ProcessedParamData: String);
+  SlashConvert: Boolean; var ProcessedParamData: String; const Tag: Integer);
 var
   SimpleExpression: TSimpleExpression;
 begin
@@ -2976,8 +2998,8 @@ begin
   if ProcessedParamData <> '' then begin
     if SlashConvert then
       StringChange(ProcessedParamData, '/', '\');
-    { Check the expression in ParamData and set the Used properties while
-      evaluating. Use non-Lazy checking to make sure everything is evaluated. }
+    { Check the expression in ParamData. Use non-Lazy checking to make sure
+      everything is evaluated. }
     try
       SimpleExpression := TSimpleExpression.Create;
       try
@@ -2987,6 +3009,7 @@ begin
         SimpleExpression.SilentOrAllowed := True;
         SimpleExpression.SingleIdentifierMode := False;
         SimpleExpression.ParametersAllowed := False;
+        SimpleExpression.Tag := Tag;
         SimpleExpression.Eval;
       finally
         SimpleExpression.Free;
@@ -3403,26 +3426,6 @@ var
     TouchTimeSecond := Second;
   end;
 
-  function StrToArchitectures(S: String; const Only64Bit: Boolean): TSetupProcessorArchitectures;
-  const
-    ProcessorFlags: array[0..3] of PChar = ('x86', 'x64', 'ia64', 'arm64');
-  begin
-    Result := [];
-    while True do
-      case ExtractFlag(S, ProcessorFlags) of
-        -2: Break;
-        -1: Invalid;
-        0: if Only64Bit then
-             Invalid
-           else
-             Include(Result, paX86);
-        1: Include(Result, paX64);
-        2: Include(Result, paIA64);
-        3: Include(Result, paARM64);
-      end;
-  end;
-
-
   function StrToPrivilegesRequiredOverrides(S: String): TSetupPrivilegesRequiredOverrides;
   const
     Overrides: array[0..1] of PChar = ('commandline', 'dialog');
@@ -3559,10 +3562,10 @@ begin
         SetupHeader.AppVersion := Value;
       end;
     ssArchitecturesAllowed: begin
-        SetupHeader.ArchitecturesAllowed := StrToArchitectures(Value, False);
+        ProcessExpressionParameter(KeyName, Value, EvalArchitectureIdentifier, False, SetupHeader.ArchitecturesAllowed);
       end;
     ssArchitecturesInstallIn64BitMode: begin
-        SetupHeader.ArchitecturesInstallIn64BitMode := StrToArchitectures(Value, True);
+        ProcessExpressionParameter(KeyName, Value, EvalArchitectureIdentifier, False, SetupHeader.ArchitecturesInstallIn64BitMode, 1);
       end;
     ssASLRCompatible: begin
         ASLRCompatible := StrToBool(Value);
