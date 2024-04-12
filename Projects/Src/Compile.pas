@@ -2801,7 +2801,7 @@ begin
     if (Kind <> cikDirectiveCheck) or not TryStrToBoolean(ParamData, BoolResult) then begin
       IsCheck := Kind in [cikCheck, cikDirectiveCheck];
       { Check the expression in ParamData and add exports while
-        evaluating. Use Lazy checking to make sure everything is evaluated. }
+        evaluating. Use non-Lazy checking to make sure everything is evaluated. }
       try
         SimpleExpression := TSimpleExpression.Create;
         try
