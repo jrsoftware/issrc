@@ -4332,26 +4332,18 @@ end;
 
 
 procedure InitIsWin64AndProcessorArchitectureAndMachineTypesSupportedBySystem;
-
-  function MachineTypeAttributesOk(const MachineTypeAttributes: Integer;
-    const RequireWow64: Boolean): Boolean;
-  const
-    UserEnabled = $1;
-    Wow64Container = $4;
-  begin
-    Result := (((MachineTypeAttributes and UserEnabled) <> 0) and
-               (not RequireWow64 or ((MachineTypeAttributes and Wow64Container) <> 0)));
-  end;
-
 const
   PROCESSOR_ARCHITECTURE_ARM64 = 12;
   IMAGE_FILE_MACHINE_ARM64 = $AA64;
+  IMAGE_FILE_MACHINE_ARMNT = $01C4;
+  UserEnabled = $1;
 var
   KernelModule: HMODULE;
   GetNativeSystemInfoFunc: procedure(var lpSystemInfo: TSystemInfo); stdcall;
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
   IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
-  GetMachineTypeAttributesFunc: function(Machine: Word; var MachineTypeAttributes: Integer): HRESULT; stdcall;
+  GetMachineTypeAttributesFunc: function(Machine: USHORT; var MachineTypeAttributes: Integer): HRESULT; stdcall;
+  IsWow64GuestMachineSupportedFunc: function(WowGuestMachine: USHORT; var MachineIsSupported: BOOL): HRESULT; stdcall;
   ProcessMachine, NativeMachine: USHORT;
   Wow64Process: BOOL;
   SysInfo: TSystemInfo;
@@ -4416,35 +4408,44 @@ begin
 
   { Setup MachineTypesSupportedBySystem. The result should end up being:
     - 32-bit x86: [paX86]
-    - x64: [paX86, paX64] (but not paX86 in a future x64 build when WOW64 isn't installed)
+    - x64: [paX86, paX64]
+      (but not paX86 in a future x64 build of Inno Setup if Windows was installed
+       without support for x86 binaries (which is possible with Windows Server))
     - Itanium: [paX86, paIA64]
-    - Arm64 Windows 10: [paX86, paArm64]
-    - Arm64 Windows 11: [paX86, paX64, paArm64] }
+    - Arm64 Windows 10: [paX86, paARM64, paARM32]
+      (ARM32 support detected, not just assumed)
+    - Arm64 Windows 11: [paX86, paX64, paARM64, paARM32]
+      (X64 and ARM32 support detected, not just assumed) }
 
-  MachineTypesSupportedBySystem := [];
+  {$IFDEF CPUX86}
+  MachineTypesSupportedBySystem := [paX86];
+  {$ELSE}
+  {$MESSAGE ERROR 'This needs updating for non-x86 builds'}
+  {$ENDIF}
 
-  { On Windows 11 we can just ask what is supported, otherwise we have to set it
-    up ourselves }
+  if ProcessorArchitecture <> paUnknown then
+    Include(MachineTypesSupportedBySystem, ProcessorArchitecture);
+
+  { On Windows 11 we can use GetMachineTypeAttributes to check what is supported extra }
   GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
   if Assigned(GetMachineTypeAttributesFunc) then begin
     var MachineTypeAttributes: Integer;
-    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_I386, MachineTypeAttributes) = S_OK) and
-       MachineTypeAttributesOk(MachineTypeAttributes, True) then
-      Include(MachineTypesSupportedBySystem, paX86);
-    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes) = S_OK) and
-       MachineTypeAttributesOk(MachineTypeAttributes, False) then
+    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_ARMNT, MachineTypeAttributes) = S_OK) and
+       ((MachineTypeAttributes and UserEnabled) <> 0) then
+      Include(MachineTypesSupportedBySystem, paARM32);
+    if not (paX64 in MachineTypesSupportedBySystem) and
+       (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes) = S_OK) and
+       ((MachineTypeAttributes and UserEnabled) <> 0) then
       Include(MachineTypesSupportedBySystem, paX64);
-    { IA64 died with Windows Server 2008 R2 so not checking }
-    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_ARM64, MachineTypeAttributes) = S_OK) and
-       MachineTypeAttributesOk(MachineTypeAttributes, False) then
-      Include(MachineTypesSupportedBySystem, paARM64);
   end else begin
-    MachineTypesSupportedBySystem := [ProcessorArchitecture];
-    if ProcessorArchitecture in [paX64, paIA64, paARM64] then begin
-      { If WOW64 is not installed on a future build it is assumed we were
-        able to call GetMachineTypeAttributes and check the Wow64Container flag
-        so here we just always add paX86 }
-      Include(MachineTypesSupportedBySystem, paX86);
+    { Without GetMachineTypeAttributes we can only check if Arm32 is supported extra
+      using IsWow64GuestMachineSupported }
+    IsWow64GuestMachineSupportedFunc := GetProcAddress(KernelModule, 'IsWow64GuestMachineSupported');
+    if Assigned(IsWow64GuestMachineSupportedFunc) then begin
+      var MachineIsSupported: BOOL;
+      if (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_ARMNT, MachineIsSupported) = S_OK) and
+          MachineIsSupported then
+        Include(MachineTypesSupportedBySystem, paARM32);
     end;
   end;
 end;
