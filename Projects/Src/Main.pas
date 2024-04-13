@@ -491,17 +491,36 @@ end;
 
 class function TDummyClass.EvalArchitectureIdentifier(Sender: TSimpleExpression;
   const Name: String; const Parameters: array of const): Boolean;
+type
+  TArchIdentifierRec = record
+    Name: String;
+    Arch: TSetupProcessorArchitecture;
+    Compatible: Boolean;
+  end;
+const
+  ArchIdentifiers: array[0..8] of TArchIdentifierRec = (
+    (Name: 'arm32compatible'; Arch: paArm32; Compatible: True),
+    (Name: 'arm64'; Arch: paArm64; Compatible: False),
+    (Name: 'ia64'; Arch: paIA64; Compatible: False),
+    (Name: 'x64'; Arch: paX64; Compatible: False),
+    (Name: 'x64os'; Arch: paX64; Compatible: False),
+    (Name: 'x64compatible'; Arch: paX64; Compatible: True),
+    (Name: 'x86'; Arch: paX86; Compatible: False),
+    (Name: 'x86os'; Arch: paX86; Compatible: False),
+    (Name: 'x86compatible'; Arch: paX86; Compatible: True));
 begin
-  if Name = 'x86' then
-    Result := paX86 in MachineTypesSupportedBySystem
-  else if Name = 'x64' then
-    Result := paX64 in MachineTypesSupportedBySystem
-  else if Name = 'ia64' then
-    Result := paIA64 in MachineTypesSupportedBySystem
-  else if Name = 'arm64' then
-    Result := paARM64 in MachineTypesSupportedBySystem
-  else
-    raise Exception.CreateFmt('Unexpected architecture ''%s''', [Name]);
+  if Name = 'win64' then
+    Exit(IsWin64);
+
+  for var I := Low(ArchIdentifiers) to High(ArchIdentifiers) do
+    if ArchIdentifiers[I].Name = Name then begin
+      if ArchIdentifiers[I].Compatible then
+        Exit(ArchIdentifiers[I].Arch in MachineTypesSupportedBySystem)
+      else
+        Exit(ProcessorArchitecture = ArchIdentifiers[I].Arch);
+    end;
+
+  raise Exception.CreateFmt('Unknown architecture ''%s''', [Name]);
 end;
 
 class function TDummyClass.EvalComponentOrTaskIdentifier(Sender: TSimpleExpression;
