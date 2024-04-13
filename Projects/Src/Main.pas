@@ -3225,7 +3225,7 @@ begin
   { Check processor architecture }
   if (SetupHeader.ArchitecturesAllowed <> '') and
      not EvalExpression(SetupHeader.ArchitecturesAllowed, TDummyClass.EvalArchitectureIdentifier) then
-    AbortInitFmt1(msgOnlyOnTheseArchitectures, SetupHeader.ArchitecturesAllowed);
+    AbortInit(msgWindowsVersionNotSupported);
 
   { Check Windows version }
   case InstallOnThisVersion(SetupHeader.MinVersion, SetupHeader.OnlyBelowVersion) of
