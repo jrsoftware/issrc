@@ -5268,6 +5268,7 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies the 64-bit processor architecture(s) on which Setup should install in <link topic="32vs64bitinstalls">64-bit install mode</link>. If this directive is not specified or is blank, Setup will always install in <link topic="32vs64bitinstalls">32-bit install mode</link>.</p>
 <p>Normally, you should not change this directive from its default value unless your application contains native 64-bit binaries.</p>
+<p>Should never match a 32-bit system otherwise Setup will show an internal error when started on such a system.</p>
 <p>Be sure you have read the <link topic="64bitlimitations">64-bit Installation Limitations</link> topic before setting this directive.</p>
 <p>If your application runs only on 64-bit processor architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
 <p><b>See also:</b><br/>
