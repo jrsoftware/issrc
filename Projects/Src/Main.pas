@@ -3081,7 +3081,8 @@ begin
         { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
           one on which a "64-bit mode" install should be performed. Doing this early
           so that UsePreviousPrivileges knows where to look. Will log later. }
-        if EvalExpression(SetupHeader.ArchitecturesInstallIn64BitMode, TDummyClass.EvalArchitectureIdentifier) then begin
+        if (SetupHeader.ArchitecturesInstallIn64BitMode <> '') and
+           EvalExpression(SetupHeader.ArchitecturesInstallIn64BitMode, TDummyClass.EvalArchitectureIdentifier) then begin
           if not IsWin64 then begin
             { The script writer made a mistake: their expression matched a
               32-bit system. Obviously that can't be allowed.
