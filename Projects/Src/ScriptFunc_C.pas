@@ -157,6 +157,7 @@ begin
   RegisterFunctionTable(MainTable);
   ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));
   ObsoleteFunctionWarnings.Add('IsTaskSelected', Format(SCompilerCodeFunctionRenamed, ['IsTaskSelected', 'WizardIsTaskSelected']));
+  ObsoleteFunctionWarnings.Add('IsX64', Format(SCompilerCodeFunctionDeprecatedWithAlternativeAndDocs, ['IsX64', 'IsX64OS', 'IsX64Deprecated', 'Architecture Identifiers']));
   RegisterFunctionTable(MsgsTable);
   RegisterDelphiFunctionTable(MsgsDelphiTable);
   RegisterFunctionTable(SystemTable);

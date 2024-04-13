@@ -312,6 +312,7 @@ const
   SCompilerCodeUnsupportedEventFunction = 'Event function named "%s" is no longer supported. Create a "%s" function instead';
   SCompilerCodeFunctionRenamed = 'Support function "%s" has been renamed. Use "%s" instead.';
   SCompilerCodeFunctionRenamedWithAlternative = 'Support function "%s" has been renamed. Use "%s" instead or consider using "%s".';
+  SCompilerCodeFunctionDeprecatedWithAlternativeAndDocs = 'Support function "%s" is deprecated. Use "%s" instead, but note that "%s" is preferred in most cases. See the "%s" topic in help file for more information.';
 
   { [Types] }
   SCompilerTypesCustomTypeAlreadyDefined = 'A custom type has already been defined';
