@@ -1094,16 +1094,11 @@ begin
     Stack.SetBool(PStart, Is64BitInstallMode);
   end else if Proc.Name = 'PROCESSORARCHITECTURE' then begin
     Stack.SetInt(PStart, Integer(ProcessorArchitecture));
-  end else if Proc.Name = 'ISX86' then begin
-    Stack.SetBool(PStart, ProcessorArchitecture = paX86);
-  end else if Proc.Name = 'ISX64' then begin
-    Stack.SetBool(PStart, ProcessorArchitecture = paX64);
-  end else if Proc.Name = 'ISX64COMPATIBLE' then begin
-    Stack.SetBool(PStart, paX64 in MachineTypesSupportedBySystem);
-  end else if Proc.Name = 'ISIA64' then begin
-    Stack.SetBool(PStart, ProcessorArchitecture = paIA64);
-  end else if Proc.Name = 'ISARM64' then begin
-    Stack.SetBool(PStart, ProcessorArchitecture = paArm64);
+  end else if (Proc.Name = 'ISX86') or (Proc.Name = 'ISX64') or
+    (Proc.Name = 'ISX64COMPATIBLE') or (Proc.Name = 'ISIA64') or
+    (Proc.Name = 'ISARM64') then begin
+    var ArchitectureIdentifier := LowerCase(Copy(String(Proc.Name), 3, MaxInt));
+    Stack.SetBool(PStart, EvalArchitectureIdentifier(ArchitectureIdentifier));
   end else if Proc.Name = 'CUSTOMMESSAGE' then begin
     Stack.SetString(PStart, CustomMessage(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'RMSESSIONSTARTED' then begin

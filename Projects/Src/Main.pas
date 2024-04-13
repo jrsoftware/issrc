@@ -246,6 +246,7 @@ procedure SetTaskbarButtonVisibility(const AVisible: Boolean);
 procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
 function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
 function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
+function EvalArchitectureIdentifier(const Name: String): Boolean;
 function EvalDirectiveCheck(const Expression: String): Boolean;
 function ShouldProcessEntry(const WizardComponents, WizardTasks: TStringList;
   const Components, Tasks, Languages, Check: String): Boolean;
@@ -523,6 +524,11 @@ begin
     end;
 
   raise Exception.CreateFmt('Unknown architecture ''%s''', [Name]);
+end;
+
+function EvalArchitectureIdentifier(const Name: String): Boolean;
+begin
+  Result := TDummyClass.EvalArchitectureIdentifier(nil, Name, []);
 end;
 
 class function TDummyClass.EvalComponentOrTaskIdentifier(Sender: TSimpleExpression;
