@@ -490,8 +490,7 @@ begin
   CheckOrInstallCurrentSourceFilename := '';
 end;
 
-class function TDummyClass.EvalArchitectureIdentifier(Sender: TSimpleExpression;
-  const Name: String; const Parameters: array of const): Boolean;
+function EvalArchitectureIdentifier(const Name: String): Boolean;
 type
   TArchIdentifierRec = record
     Name: String;
@@ -526,9 +525,10 @@ begin
   raise Exception.CreateFmt('Unknown architecture ''%s''', [Name]);
 end;
 
-function EvalArchitectureIdentifier(const Name: String): Boolean;
+class function TDummyClass.EvalArchitectureIdentifier(Sender: TSimpleExpression;
+  const Name: String; const Parameters: array of const): Boolean;
 begin
-  Result := TDummyClass.EvalArchitectureIdentifier(nil, Name, []);
+  Result := Main.EvalArchitectureIdentifier(Name);
 end;
 
 class function TDummyClass.EvalComponentOrTaskIdentifier(Sender: TSimpleExpression;
