@@ -2912,16 +2912,20 @@ end;
 function TSetupCompiler.EvalArchitectureIdentifier(Sender: TSimpleExpression;
   const Name: String; const Parameters: array of const): Boolean;
 const
-  Architectures: array[0..9] of String = (
+  ArchIdentifiers: array[0..9] of String = (
     'arm32compatible', 'arm64', 'ia64', 'win64',
     'x64', 'x64os', 'x64compatible',
     'x86', 'x86os', 'x86compatible');
 begin
-  for var Architecture in Architectures do
-    if Name = Architecture then
+  for var ArchIdentifier in ArchIdentifiers do begin
+    if Name = ArchIdentifier then begin
+      if ArchIdentifier = 'x64' then
+        WarningsList.Add(Format(SCompilerArchitectureIdentifierDeprecatedWarning, ['x64', 'x64os', 'x64compatible']));
       Exit(True); { Result doesn't matter }
+    end;
+  end;
 
-  raise Exception.CreateFmt(SCompilerArchitectureInvalid, [Name]);
+  raise Exception.CreateFmt(SCompilerArchitectureIdentifierInvalid, [Name]);
 end;
 
 { Sets the Used properties while evaluating }
