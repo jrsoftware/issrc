@@ -47,44 +47,47 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 </ul>
 <p><span class="head2">Support for processor architectures improved</span></p>
 <ul>
-  <li>Setup can now detect support for x64 emulation when running on Windows 11 for Arm, and can be instructed to select 64-bit install mode in that case which was not possible before. See the first example below.</li>
+  <li>Setup can now detect support for x64 emulation when running on Windows 11 for Arm, and can be instructed to select 64-bit install mode in that case which was not possible before. See the first example below.<br/><br/></li>
   <li>[Setup] section directives <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> now both support boolean expressions. Additionally, extra platform identifiers were added. This enables for example:
-    <ul>
-      <li><pre>; Select 64-bit install mode on any x64-compatible OS (x64 + Win11 Arm64).
-ArchitecturesInstallIn64BitMode=x64compatible</pre></li>
-      <li><pre>; Only allow installation on systems that aren't x64-compatible.
+      <pre>; Select 64-bit install mode on any x64-compatible OS (x64 + Win11 Arm64).
+ArchitecturesInstallIn64BitMode=x64compatible
+
+; Only allow installation on systems that aren't x64-compatible.
 ; Useful in a situation where you have separate x86 & x64 installers,
 ; and don't want users of x64-compatible OSes (x64 + Win11 Arm64)
 ; erroneously running the x86 installer.
-ArchitecturesAllowed=not x64compatible</pre></li>
-      <li><pre>; Require two arch matches at the same time:
+ArchitecturesAllowed=not x64compatible
+
+; Require two arch matches at the same time:
 ; If an Arm installer installs both Arm64 and Arm32 binaries,
 ; you technically should ensure that the OS actually supports both:
-ArchitecturesAllowed=arm64 and arm32compatible</pre></li>
-      <li><pre>; Same goes for an x64-compatible installer shipping some 32-bit
+ArchitecturesAllowed=arm64 and arm32compatible
+
+; Same goes for an x64-compatible installer shipping some 32-bit
 ; binaries:
-ArchitecturesAllowed=x64compatible and x86compatible</pre></li>
-      <li><pre>; Installing a component that cannot operate in an emulated
+ArchitecturesAllowed=x64compatible and x86compatible
+
+; Installing a component that cannot operate in an emulated
 ; environment, such as an x64 device driver.
-ArchitecturesAllowed=x64os</pre></li>
-      <li><pre>; Allow installation on x64-compatible systems, but deny one of them:
+ArchitecturesAllowed=x64os
+
+; Allow installation on x64-compatible systems, but deny one of them:
 ; (Imagine if in the future there were 3 x64-compatible OSes!)
-ArchitecturesAllowed=x64compatible and not arm64</pre></li>
-      <li><pre>; Never select 64-bit install mode but require a 64-bit OS anyway
+ArchitecturesAllowed=x64compatible and not arm64
+
+; Never select 64-bit install mode but require a 64-bit OS anyway
 ; (e.g., because you're accessing HKLM64):
 ArchitecturesInstallIn64BitMode=
-ArchitecturesAllowed=win64</pre></li>
-    </ul>
-  </li>
-  <li>The full list of new platform identifiers is: <tt>x64compatible</tt>, <tt>x64os</tt>, <tt>x86compatible</tt>, <tt>x86os</tt>, <tt>arm32compatible</tt>, and <tt>win64</tt>. See the new "Architecture Identifiers" help topic for more details.</li>
-  <li>All of the above is backward compatible so no changes are needed for your existing scripts. For example this works unchanged:
+ArchitecturesAllowed=win64</pre>
+      The full list of new platform identifiers is: <tt>arm32compatible</tt>, <tt>x64compatible</tt>, <tt>x64os</tt>, <tt>x86compatible</tt>, <tt>x86os</tt>, and <tt>win64</tt>. See the new "Architecture Identifiers" help topic for more details.<br/><br/>
+      All of the above is backward compatible so no changes are needed for your existing scripts. For example this works unchanged:
       <pre>ArchitecturesInstallIn64BitMode=x64 arm64</pre>
-      Do note that the <tt>x64</tt> indentifier is now deprecated and the compiler will issue a warning if you use it anyway. It will substitute <tt>x64os</tt>, but <tt>x64compatible</tt> is preferred in most cases and it's simple to adopt it: just replace <tt>x64</tt> with <tt>x64compatible</tt>, and any <tt>IsX64</tt> with <tt>IsX64Compatible</tt>.</li>
+      Do note that the <tt>x64</tt> indentifier is now deprecated and the compiler will issue a warning if you use it anyway. It will substitute <tt>x64os</tt>, but <tt>x64compatible</tt> is preferred in most cases and it's simple to adopt it: just replace <tt>x64</tt> with <tt>x64compatible</tt>, and any <tt>IsX64</tt> with <tt>IsX64Compatible</tt>.<br/><br/></li>
   <li>In 64-bit install mode [Files] section flag <tt>regtypelib</tt> now registers type libraries inside a 64-bit process on Windows 11 for Arm64 as well.</li>
   <li>Setup now logs the machine types supported by the system. For example, when running on Windows 11 for Arm it now logs: "Machine types supported by system: x86 x64 arm32 arm64".</li>
   <li>Updated the three <i>64Bit*.iss</i> example scripts.</li>
-  <li>Message OnlyOnTheseArchitectures is not used anymore. Instead existing message WindowsVersionNotSupported is now shown when Setup is started on an architecture which is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)</li>
-  <li>Pascal Scripting change: Add new <tt>IsX64Compatible</tt>, <tt>IsX64OS</tt>, <tt>IsX86Compatible</tt>, <tt>IsX86OS</tt>, and <tt>IsArm32Compatible</tt> support functions. Example testing all platform identifiers:
+  <li>Message OnlyOnTheseArchitectures is not used anymore. Instead existing message WindowsVersionNotSupported is now shown when Setup is started on an architecture which is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)<br/><br/></li>
+  <li>Pascal Scripting change: Add new <tt>IsArm32Compatible</tt>, <tt>IsX64Compatible</tt>, <tt>IsX64OS</tt>, <tt>IsX86Compatible</tt>, and <tt>IsX86OS</tt> support functions. The <tt>IsX64</tt> support function still exists but is now deprecated as explained above. Example testing all platform identifiers:
       <pre>[Code]
 function InitializeSetup: Boolean;
 begin
