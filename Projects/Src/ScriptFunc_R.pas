@@ -1103,7 +1103,7 @@ begin
   end else if Proc.Name = 'ISIA64' then begin
     Stack.SetBool(PStart, ProcessorArchitecture = paIA64);
   end else if Proc.Name = 'ISARM64' then begin
-    Stack.SetBool(PStart, ProcessorArchitecture = paARM64);
+    Stack.SetBool(PStart, ProcessorArchitecture = paArm64);
   end else if Proc.Name = 'CUSTOMMESSAGE' then begin
     Stack.SetString(PStart, CustomMessage(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'RMSESSIONSTARTED' then begin

@@ -229,7 +229,7 @@ const
     'function IsX64: Boolean;',
     'function IsX64Compatible: Boolean;',
     'function IsIA64: Boolean;',
-    'function IsARM64: Boolean;',
+    'function IsArm64: Boolean;',
     'function CustomMessage(const MsgName: String): String;',
     'function RmSessionStarted: Boolean;',
     'function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;'

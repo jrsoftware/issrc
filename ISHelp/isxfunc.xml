@@ -471,10 +471,10 @@ end;</pre></example>
         <prototype>function ProcessorArchitecture: TSetupProcessorArchitecture;</prototype>
         <description><p>Returns the native processor architecture of the current system.</p>
 <p>TSetupProcessorArchitecture is defined as:</p>
-<p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64, paARM64, paARM32);</tt></p></description>
+<p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64, paArm64, paArm32);</tt></p></description>
         <remarks><p>A 64-bit processor architecture will never be returned on 32-bit versions of Windows. Hence, you cannot use this function to detect a 64-bit AMD CPU on a 32-bit version of Windows; you'll just get back <tt>paX86</tt> if you try.</p>
 <p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the processor architecture. It can be assumed that an "unknown" architecture is at least capable of executing 32-bit code, or Setup/Uninstall wouldn't be running at all.</p>
-<p><tt>paARM32</tt> is never returned because Setup/Uninstall does not run on 32-bit versions of Windows for ARM32.</p>
+<p><tt>paArm32</tt> is never returned because Setup/Uninstall does not run on 32-bit versions of Windows for Arm32.</p>
 <p>If <tt>paIA64</tt> is returned, and <tt>ia64</tt> is <i>not</i> included in the value of the <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> [Setup] section directive, you should not assume that Inno Setup's 64-bit-only features are available -- for example, the <tt>{autopf64}</tt> constant. Those features only work when <link topic="isxfunc_IsWin64">IsWin64</link> returns True, and as documented, it may not return True on older Itanium versions of Windows that lack certain APIs Inno Setup requires.</p>
 <p>Therefore, instead of:</p>
 <pre>
@@ -502,7 +502,7 @@ begin
     paX86: S := 'x86';
     paX64: S := 'x64';
     paIA64: S := 'Itanium';
-    paARM64: S := 'ARM64';
+    paArm64: S := 'Arm64';
   else
     S := 'Unrecognized';
   end;
@@ -511,7 +511,7 @@ end;</pre></example>
         <seealso><p><link topic="isxfunc_IsX86">IsX86</link><br />
 <link topic="isxfunc_IsX64">IsX64</link><br />
 <link topic="isxfunc_IsIA64">IsIA64</link><br />
-<link topic="isxfunc_IsARM64">IsARM64</link><br />
+<link topic="isxfunc_IsArm64">IsArm64</link><br />
 <link topic="isxfunc_IsWin64">IsWin64</link><br />
 <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link></p></seealso>
       </function>
@@ -523,7 +523,7 @@ end;</pre></example>
         <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
 <link topic="isxfunc_IsX64">IsX64</link><br />
 <link topic="isxfunc_IsIA64">IsIA64</link><br />
-<link topic="isxfunc_IsARM64">IsARM64</link></p></seealso>
+<link topic="isxfunc_IsArm64">IsArm64</link></p></seealso>
       </function>
       <function>
         <name>IsX64</name>
@@ -533,7 +533,7 @@ end;</pre></example>
         <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
 <link topic="isxfunc_IsX86">IsX86</link><br />
 <link topic="isxfunc_IsIA64">IsIA64</link><br />
-<link topic="isxfunc_IsARM64">IsARM64</link></p></seealso>
+<link topic="isxfunc_IsArm64">IsArm64</link></p></seealso>
       </function>
       <function>
         <name>IsIA64</name>
@@ -543,11 +543,11 @@ end;</pre></example>
         <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
 <link topic="isxfunc_IsX86">IsX86</link><br />
 <link topic="isxfunc_IsX64">IsX64</link><br />
-<link topic="isxfunc_IsARM64">IsARM64</link></p></seealso>
+<link topic="isxfunc_IsArm64">IsArm64</link></p></seealso>
       </function>
       <function>
-        <name>IsARM64</name>
-        <prototype>function IsARM64: Boolean;</prototype>
+        <name>IsArm64</name>
+        <prototype>function IsArm64: Boolean;</prototype>
         <description><p>Returns True if the native processor architecture is arm64.</p>
 <p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
         <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />

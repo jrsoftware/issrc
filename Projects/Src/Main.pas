@@ -4402,7 +4402,7 @@ begin
     4. GetSystemWow64DirectoryA is available.
     5. RegDeleteKeyExA is available.
     The system does not have to be one of the known 64-bit architectures
-    (AMD64, IA64, ARM64) to be considered a "Win64" system. }
+    (AMD64, IA64, Arm64) to be considered a "Win64" system. }
 
   IsWin64 := False;
 
@@ -4415,7 +4415,7 @@ begin
       IMAGE_FILE_MACHINE_I386: ProcessorArchitecture := paX86;
       IMAGE_FILE_MACHINE_IA64: ProcessorArchitecture := paIA64;
       IMAGE_FILE_MACHINE_AMD64: ProcessorArchitecture := paX64;
-      IMAGE_FILE_MACHINE_ARM64: ProcessorArchitecture := paARM64;
+      IMAGE_FILE_MACHINE_ARM64: ProcessorArchitecture := paArm64;
     else
       ProcessorArchitecture := paUnknown;
     end;
@@ -4435,7 +4435,7 @@ begin
       PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
       PROCESSOR_ARCHITECTURE_IA64: ProcessorArchitecture := paIA64;
       PROCESSOR_ARCHITECTURE_AMD64: ProcessorArchitecture := paX64;
-      PROCESSOR_ARCHITECTURE_ARM64: ProcessorArchitecture := paARM64;
+      PROCESSOR_ARCHITECTURE_ARM64: ProcessorArchitecture := paArm64;
     else
       ProcessorArchitecture := paUnknown;
     end;
@@ -4453,10 +4453,10 @@ begin
       (but not paX86 in a future x64 build of Inno Setup if Windows was installed
        without support for x86 binaries (which is possible with Windows Server))
     - Itanium: [paX86, paIA64]
-    - Arm64 Windows 10: [paX86, paARM64, paARM32]
-      (ARM32 support detected, not just assumed)
-    - Arm64 Windows 11: [paX86, paX64, paARM64, paARM32]
-      (X64 and ARM32 support detected, not just assumed) }
+    - Arm64 Windows 10: [paX86, paArm64, paArm32]
+      (Arm32 support detected, not just assumed)
+    - Arm64 Windows 11: [paX86, paX64, paArm64, paArm32]
+      (X64 and Arm32 support detected, not just assumed) }
 
   {$IFDEF CPUX86}
   MachineTypesSupportedBySystem := [paX86];
@@ -4473,7 +4473,7 @@ begin
     var MachineTypeAttributes: Integer;
     if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_ARMNT, MachineTypeAttributes) = S_OK) and
        ((MachineTypeAttributes and UserEnabled) <> 0) then
-      Include(MachineTypesSupportedBySystem, paARM32);
+      Include(MachineTypesSupportedBySystem, paArm32);
     if not (paX64 in MachineTypesSupportedBySystem) and
        (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes) = S_OK) and
        ((MachineTypeAttributes and UserEnabled) <> 0) then
@@ -4486,7 +4486,7 @@ begin
       var MachineIsSupported: BOOL;
       if (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_ARMNT, MachineIsSupported) = S_OK) and
           MachineIsSupported then
-        Include(MachineTypesSupportedBySystem, paARM32);
+        Include(MachineTypesSupportedBySystem, paArm32);
     end;
   end;
 end;
