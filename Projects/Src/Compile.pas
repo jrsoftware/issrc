@@ -3224,6 +3224,7 @@ begin
   end;
 end;
 
+{ Note: result Value may include leading/trailing whitespaces if it was quoted! }
 procedure TSetupCompiler.SeparateDirective(const Line: PChar;
   var Key, Value: String);
 var
@@ -3245,7 +3246,7 @@ begin
     { If Value is surrounded in quotes, remove them. Note that unlike parameter
       values, for backward compatibility we don't require embedded quotes to be
       doubled, nor do we require surrounding quotes when there's a quote in
-      the middle of the value. }
+      the middle of the value. Does *not* remove whitespace after removing quotes! }
     if (Length(Value) >= 2) and
        (Value[1] = '"') and (Value[Length(Value)] = '"') then
       Value := Copy(Value, 2, Length(Value)-2);
@@ -3620,7 +3621,7 @@ begin
         end;
       end;
     ssCompression: begin
-        Value := LowerCase(Value);
+        Value := LowerCase(Trim(Value));
         if Value = 'none' then begin
           CompressMethod := cmStored;
           CompressLevel := 0;
@@ -3797,6 +3798,7 @@ begin
         InfoAfterFile := Value;
       end;
     ssInternalCompressLevel: begin
+        Value := Trim(Value);
         if (Value = '0') or (CompareText(Value, 'none') = 0) then
           InternalCompressLevel := 0
         else if not LZMAGetLevel(Value, InternalCompressLevel) then
