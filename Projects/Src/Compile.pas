@@ -319,7 +319,7 @@ type
       const Parameters: array of const): Boolean;
     procedure ProcessExpressionParameter(const ParamName,
       ParamData: String; OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier;
-      SlashConvert: Boolean; var ProcessedParamData: String; const Tag: LongInt = 0);
+      SlashConvert: Boolean; var ProcessedParamData: String);
     procedure ProcessWildcardsParameter(const ParamData: String;
       const AWildcards: TStringList; const TooLongMsg: String);
     procedure ReadDefaultMessages;
@@ -2917,16 +2917,9 @@ const
     'x64', 'x64os', 'x64compatible',
     'x86', 'x86os', 'x86compatible');
 begin
-  var Only64Bit := Sender.Tag = 1; { 1 means we're evaluating ArchitecturesInstallIn64BitMode }
-
-  for var Architecture in Architectures do begin
-    if Name = Architecture then begin
-      if Only64Bit and
-         ((Architecture = 'x86') or (Architecture = 'x86os') or (Architecture = 'x86compatible')) then
-        raise Exception.CreateFmt(SCompilerArchitectureNot64Bit, [Name]);
+  for var Architecture in Architectures do
+    if Name = Architecture then
       Exit(True); { Result doesn't matter }
-    end;
-  end;
 
   raise Exception.CreateFmt(SCompilerArchitectureInvalid, [Name]);
 end;
@@ -2993,7 +2986,7 @@ end;
 
 procedure TSetupCompiler.ProcessExpressionParameter(const ParamName,
   ParamData: String; OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier;
-  SlashConvert: Boolean; var ProcessedParamData: String; const Tag: LongInt);
+  SlashConvert: Boolean; var ProcessedParamData: String);
 var
   SimpleExpression: TSimpleExpression;
 begin
@@ -3013,7 +3006,6 @@ begin
         SimpleExpression.SilentOrAllowed := True;
         SimpleExpression.SingleIdentifierMode := False;
         SimpleExpression.ParametersAllowed := False;
-        SimpleExpression.Tag := Tag;
         SimpleExpression.Eval;
       finally
         SimpleExpression.Free;
@@ -3571,7 +3563,7 @@ begin
       end;
     ssArchitecturesInstallIn64BitMode: begin
         ProcessExpressionParameter(KeyName, LowerCase(Value),
-          EvalArchitectureIdentifier, False, SetupHeader.ArchitecturesInstallIn64BitMode, 1);
+          EvalArchitectureIdentifier, False, SetupHeader.ArchitecturesInstallIn64BitMode);
       end;
     ssASLRCompatible: begin
         ASLRCompatible := StrToBool(Value);
