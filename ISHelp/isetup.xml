@@ -1735,8 +1735,8 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="regtypelib">
 <p>Register the type library (.tlb). The uninstaller will unregister the type library (unless the flag <tt>uninsneveruninstall</tt> is specified). As with the <tt>regserver</tt> flag, when used in combination with <tt>sharedfile</tt>, the file will only be unregistered by the uninstaller when the reference count reaches zero.</p>
-<p>In <link topic="32vs64bitinstalls">64-bit install mode</link> running on an x64 edition of Windows, the type library will be registered inside a 64-bit process. You can override this by specifying the <tt>32bit</tt> flag.</p>
-<p>Registering type libraries in 64-bit mode on Itanium editions of Windows is not supported.</p>
+<p>In <link topic="32vs64bitinstalls">64-bit install mode</link> running on an x64-compatible edition of Windows, the type library will be registered inside a 64-bit process. You can override this by specifying the <tt>32bit</tt> flag.</p>
+<p>Registering type libraries in 64-bit mode on Itanium editions of Windows or on Windows 10 for Arm is not supported.</p>
 <p>See the <i>Remarks</i> at the bottom of this topic for more information.</p>
 </flag>
 <flag name="replacesameversion">
