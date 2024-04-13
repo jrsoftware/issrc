@@ -2912,13 +2912,17 @@ end;
 function TSetupCompiler.EvalArchitectureIdentifier(Sender: TSimpleExpression;
   const Name: String; const Parameters: array of const): Boolean;
 const
-  Architectures: array[0..3] of String = ('x86', 'x64', 'ia64', 'arm64');
+  Architectures: array[0..9] of String = (
+    'arm32compatible', 'arm64', 'ia64', 'win64',
+    'x64', 'x64os', 'x64compatible',
+    'x86', 'x86os', 'x86compatible');
 begin
   var Only64Bit := Sender.Tag = 1; { 1 means we're evaluating ArchitecturesInstallIn64BitMode }
 
   for var Architecture in Architectures do begin
     if Name = Architecture then begin
-      if Only64bit and (Architecture = 'x86') then
+      if Only64Bit and
+         ((Architecture = 'x86') or (Architecture = 'x86os') or (Architecture = 'x86compatible')) then
         raise Exception.CreateFmt(SCompilerArchitectureNot64Bit, [Name]);
       Exit(True); { Result doesn't matter }
     end;
