@@ -3062,9 +3062,12 @@ begin
           so that UsePreviousPrivileges knows where to look. Will log later. }
         if EvalExpression(SetupHeader.ArchitecturesInstallIn64BitMode, TDummyClass.EvalArchitectureIdentifier) then begin
           if not IsWin64 then begin
-            { A 64-bit processor was detected and 64-bit install mode was requested,
-              but IsWin64 is False, indicating required WOW64 APIs are not present }
-            AbortInit(msgWindowsVersionNotSupported);
+            { The script writer made a mistake: their expression matched a
+              32-bit system. Obviously that can't be allowed.
+              With "not" there are lots of ways that could happen without
+              explicitly specifying a 32-bit architecture in the expression.
+              One example: "not win64" }
+            InternalError('ArchitecturesInstallIn64BitMode expression matched 32-bit system');
           end;
           Initialize64BitInstallMode(True);
         end
