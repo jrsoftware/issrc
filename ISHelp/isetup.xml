@@ -62,6 +62,7 @@
     <contentstopic title="Non Administrative Install Mode" topic="admininstallmode" />
     <contentstopic title="64-bit Install Mode" topic="32vs64bitinstalls" />
     <contentstopic title="64-bit Installation Limitations" topic="64bitlimitations" />
+    <contentstopic title="Architecture Identifiers" topic="archidentifiers" />
     <contentstopic title="Wizard Pages" topic="wizardpages" />
     <contentstopic title="Installation Order" topic="installorder" />
     <contentstopic title="Unsafe Files" topic="unsafefiles" />
@@ -5234,6 +5235,13 @@ DiskSliceSize=1457664
 <example><pre>OutputManifestFile=Setup-Manifest.txt</pre></example>
 </body>
 </setuptopic>
+
+<topic name="archidentifiers" title="Architecture Identifiers">
+<keyword value="Architecture Identifiers" />
+<body>
+<p>.</p>
+</body>
+</topic>
 
 <setuptopic directive="ArchitecturesAllowed">
 <keyword value="processors allowed" />
