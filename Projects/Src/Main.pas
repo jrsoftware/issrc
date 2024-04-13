@@ -498,6 +498,7 @@ type
     Compatible: Boolean;
   end;
 const
+  { Valid identifier 'win64' is not in this list but treated specially below }
   ArchIdentifiers: array[0..8] of TArchIdentifierRec = (
     (Name: 'arm32compatible'; Arch: paArm32; Compatible: True),
     (Name: 'arm64'; Arch: paArm64; Compatible: False),
@@ -512,12 +513,13 @@ begin
   if Name = 'win64' then
     Exit(IsWin64);
 
-  for var I := Low(ArchIdentifiers) to High(ArchIdentifiers) do
-    if ArchIdentifiers[I].Name = Name then begin
-      if ArchIdentifiers[I].Compatible then
-        Exit(ArchIdentifiers[I].Arch in MachineTypesSupportedBySystem)
-      else
-        Exit(ProcessorArchitecture = ArchIdentifiers[I].Arch);
+  for var ArchIdentifier in ArchIdentifiers do
+    if ArchIdentifier.Name = Name then begin
+      if ArchIdentifier.Compatible then
+        Exit(ArchIdentifier.Arch in MachineTypesSupportedBySystem)
+      else { An exact match is requested instead of anything compatible, perhaps
+             for a driver install or something similar }
+        Exit(ProcessorArchitecture = ArchIdentifier.Arch);
     end;
 
   raise Exception.CreateFmt('Unknown architecture ''%s''', [Name]);
