@@ -2993,7 +2993,7 @@ procedure TSetupCompiler.ProcessExpressionParameter(const ParamName,
 var
   SimpleExpression: TSimpleExpression;
 begin
-  ProcessedParamData := ParamData;
+  ProcessedParamData := Trim(ParamData);
 
   if ProcessedParamData <> '' then begin
     if SlashConvert then
