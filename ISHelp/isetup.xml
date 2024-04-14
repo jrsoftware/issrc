@@ -853,7 +853,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <param name="Languages">
 <p>A space separated list of language names, telling Setup to which languages the entry belongs. If the end user selects a language from this list, the entry is processed (for example: the file is installed).</p>
 <p>An entry without a <tt>Languages</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
-<p>Besides space separated lists, you may also use boolean expressions. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
+<p>Besides space separated lists, you may also use boolean expressions containing language names. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
 <example>
 <pre>Languages: en nl</pre>
 </example>
@@ -920,7 +920,7 @@ Name: "{commondesktop}\My Program"; Filename: "{app}\MyProg.exe"; Components: ma
 </paramlist>
 
 <p><br/>
-Besides space separated lists, you may also use boolean expressions as Components and Tasks parameters. Supported operators include <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>. For example:</p>
+Besides space separated lists, you may also use boolean expressions containing component or task names as Components and Tasks parameters. Supported operators include <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>. For example:</p>
 
 <precode>
 [Components]
@@ -2938,9 +2938,9 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <li>If <link topic="setup_restartapplications">RestartApplications</link> was set to <tt>yes</tt>, Setup restarts closed applications which support being restarted.</li>
 
-<li>If <link topic="setup_changesassociations">ChangesAssociations</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, file associations are refreshed now.</li>
+<li>If <link topic="setup_changesassociations">ChangesAssociations</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, file associations are refreshed now.</li>
 
-<li>If <link topic="setup_changesenvironment">ChangesEnvironment</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, other applications are notified at this point.</li>
+<li>If <link topic="setup_changesenvironment">ChangesEnvironment</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, other applications are notified at this point.</li>
 
 </ul>
 
@@ -4064,10 +4064,10 @@ C:\Program Files\My Program
 </setuptopic>
 
 <setuptopic directive="Uninstallable">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>This determines if Inno Setup's automatic uninstaller is to be included in the installation. If this is <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt> the uninstaller is included. Otherwise, no uninstallation support is included, requiring the end-user to manually remove the files pertaining to your application.</p>
+<p>This determines if Inno Setup's automatic uninstaller is to be included in the installation. If this is <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt> the uninstaller is included. Otherwise, no uninstallation support is included, requiring the end-user to manually remove the files pertaining to your application.</p>
 <p>Setting this to a boolean expression can be useful if you want to offer the user a 'portable mode' option.</p>
 <example><pre>[Setup]
 Uninstallable=not IsTaskSelected('portablemode')
@@ -4293,10 +4293,10 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </setuptopic>
 
 <setuptopic directive="CreateUninstallRegKey">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If this is set to <tt>no</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>False</tt>, Setup won't create an entry in the <i>Add/Remove Programs</i> Control Panel applet.</p>
+<p>If this is set to <tt>no</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>False</tt>, Setup won't create an entry in the <i>Add/Remove Programs</i> Control Panel applet.</p>
 <p>Setting this to <tt>no</tt> can be useful if your installation is merely an update to an existing application and you don't want another entry created, but don't want to the disable the uninstall features entirely (via <tt>Uninstallable=no</tt>). In this case, <link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link> is usually set to <tt>no</tt> as well.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_uninstallable">Uninstallable</link>
@@ -4718,19 +4718,19 @@ DiskSliceSize=1457664
 </setuptopic>
 
 <setuptopic directive="ChangesAssociations">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, Setup will tell Explorer to refresh its file associations information at the end of the installation, and Uninstall will do the same at the end of uninstallation.</p>
+<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, Setup will tell Explorer to refresh its file associations information at the end of the installation, and Uninstall will do the same at the end of uninstallation.</p>
 <p>If your installation creates a file association but doesn't have <tt>ChangesAssociations</tt> set to <tt>yes</tt>, the correct icon for the file type likely won't be displayed until the user logs off or restarts the computer.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="ChangesEnvironment">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, at the end of the installation Setup will notify other running applications (notably Windows Explorer) that they should reload their environment variables from the registry.</p>
+<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, at the end of the installation Setup will notify other running applications (notably Windows Explorer) that they should reload their environment variables from the registry.</p>
 <p>If your installation creates or changes an environment variable but doesn't have <tt>ChangesEnvironment</tt> set to <tt>yes</tt>, the new/changed environment variable will not be seen by applications launched from Explorer until the user logs off or restarts the computer.</p>
 </body>
 </setuptopic>
@@ -5301,7 +5301,8 @@ DiskSliceSize=1457664
 <keyword value="IA-64" />
 <keyword value="Itanium" />
 <keyword value="Arm64" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>x86</tt> <br/><tt>x64</tt> <br/><tt>arm64</tt> <br/><tt>ia64</tt></setupvalid>
+<setupvalid>A space separated list of <link topic="archidentifiers">architecture identifiers</link>.<br />
+Or, a boolean expression containing <link topic="archidentifiers">architecture identifiers</link>. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies which processor architecture(s) Setup is allowed to run on. If this directive is not specified or is blank, Setup will be allowed to run on all processor architectures capable of executing its 32-bit code (including ones it doesn't recognize). Otherwise, if a user's processor architecture is not one of those specified in this directive, Setup will display an error message and exit.</p>
@@ -5321,7 +5322,8 @@ DiskSliceSize=1457664
 <keyword value="IA-64" />
 <keyword value="Itanium" />
 <keyword value="Arm64" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>x64</tt> <br/><tt>arm64</tt> <br/><tt>ia64</tt></setupvalid>
+<setupvalid>A space separated list of <link topic="archidentifiers">architecture identifiers</link>.<br />
+Or, a boolean expression containing <link topic="archidentifiers">architecture identifiers</link>. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies the 64-bit processor architecture(s) on which Setup should install in <link topic="32vs64bitinstalls">64-bit install mode</link>. If this directive is not specified or is blank, Setup will always install in <link topic="32vs64bitinstalls">32-bit install mode</link>.</p>
@@ -5747,26 +5749,6 @@ SignTool=byparam format c:
 <tr><td><tt>system</tt></td><td>Local system account</td></tr>
 <tr><td><tt>users</tt></td><td>Users group</td></tr>
 </table>
-</body>
-</topic>
-
-<topic name="isarchidentifier" title="Pascal Scripting: Architecture Identifier Matchers like IsX64Compatible">
-<keyword value="Pascal Scripting: Architecture Identifier Matchers like IsX64Compatible" />
-<keyword value="IsX64" />
-<keyword value="IsX86" />
-<body>
-<p>This is the list of support functions which test if the system matches an <link topic="archidentifiers">architecture identifier</link>:<br/><br/>
-<link topic="isxfunc_IsArm32Compatible">IsArm32Compatible</link><br/>
-<link topic="isxfunc_IsArm64">IsArm64</link><br/>
-<link topic="isxfunc_IsWin64">IsWin64</link><br/>
-<link topic="isxfunc_IsX64Compatible">IsX64Compatible</link><br/>
-<link topic="isxfunc_IsX64OS">IsX64OS</link><br/>
-<link topic="isxfunc_IsX86Compatible">IsX86Compatible</link><br/>
-<link topic="isxfunc_IsX86OS">IsX86OS</link><br/><br/>
-<link topic="isxfunc_IsX64OS">IsX64</link> (alias for IsX64OS; deprecated)<br/>
-<link topic="isxfunc_IsX86OS">IsX86</link> (alias for IsX86OS)<br/><br/></p>
-<p><b>See also:</b><br/>
-<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p>
 </body>
 </topic>
 
