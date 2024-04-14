@@ -172,6 +172,7 @@ var
   InstallDefaultRegView: TRegView = rvDefault;
   HasCustomType, HasComponents, HasTasks: Boolean;
   ProcessorArchitecture: TSetupProcessorArchitecture = paUnknown;
+  MachineTypesSupportedBySystem: TSetupProcessorArchitectures;
   WindowsVersion: Cardinal;
   NTServicePackLevel: Word;
   WindowsProductType: Byte;
@@ -245,6 +246,7 @@ procedure SetTaskbarButtonVisibility(const AVisible: Boolean);
 procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
 function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
 function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
+function EvalArchitectureIdentifier(const Name: String): Boolean;
 function EvalDirectiveCheck(const Expression: String): Boolean;
 function ShouldProcessEntry(const WizardComponents, WizardTasks: TStringList;
   const Components, Tasks, Languages, Check: String): Boolean;
@@ -291,6 +293,8 @@ type
       class function ExpandCheckOrInstallConstant(Sender: TSimpleExpression;
         const Constant: String): String;
       class function EvalInstallIdentifier(Sender: TSimpleExpression;
+        const Name: String; const Parameters: array of const): Boolean;
+      class function EvalArchitectureIdentifier(Sender: TSimpleExpression;
         const Name: String; const Parameters: array of const): Boolean;
       class function EvalComponentOrTaskIdentifier(Sender: TSimpleExpression;
         const Name: String; const Parameters: array of const): Boolean;
@@ -486,6 +490,47 @@ begin
   CheckOrInstallCurrentSourceFilename := '';
 end;
 
+function EvalArchitectureIdentifier(const Name: String): Boolean;
+type
+  TArchIdentifierRec = record
+    Name: String;
+    Arch: TSetupProcessorArchitecture;
+    Compatible: Boolean;
+  end;
+const
+  { Valid identifier 'win64' is not in this list but treated specially below }
+  ArchIdentifiers: array[0..8] of TArchIdentifierRec = (
+    (Name: 'arm32compatible'; Arch: paArm32; Compatible: True),
+    (Name: 'arm64'; Arch: paArm64; Compatible: False),
+    (Name: 'ia64'; Arch: paIA64; Compatible: False),
+    (Name: 'x64'; Arch: paX64; Compatible: False),
+    (Name: 'x64os'; Arch: paX64; Compatible: False),
+    (Name: 'x64compatible'; Arch: paX64; Compatible: True),
+    (Name: 'x86'; Arch: paX86; Compatible: False),
+    (Name: 'x86os'; Arch: paX86; Compatible: False),
+    (Name: 'x86compatible'; Arch: paX86; Compatible: True));
+begin
+  if Name = 'win64' then
+    Exit(IsWin64);
+
+  for var ArchIdentifier in ArchIdentifiers do
+    if ArchIdentifier.Name = Name then begin
+      if ArchIdentifier.Compatible then
+        Exit(ArchIdentifier.Arch in MachineTypesSupportedBySystem)
+      else { An exact match is requested instead of anything compatible, perhaps
+             for a driver install or something similar }
+        Exit(ProcessorArchitecture = ArchIdentifier.Arch);
+    end;
+
+  raise Exception.CreateFmt('Unknown architecture ''%s''', [Name]);
+end;
+
+class function TDummyClass.EvalArchitectureIdentifier(Sender: TSimpleExpression;
+  const Name: String; const Parameters: array of const): Boolean;
+begin
+  Result := Main.EvalArchitectureIdentifier(Name);
+end;
+
 class function TDummyClass.EvalComponentOrTaskIdentifier(Sender: TSimpleExpression;
   const Name: String; const Parameters: array of const): Boolean;
 var
@@ -537,34 +582,33 @@ begin
     Result := EvalCheck(Expression);
 end;
 
+function EvalExpression(const Expression: String;
+  OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier; Tag: LongInt = 0): Boolean;
+var
+  SimpleExpression: TSimpleExpression;
+begin
+  try
+    SimpleExpression := TSimpleExpression.Create;
+    try
+      SimpleExpression.Lazy := True;
+      SimpleExpression.Expression := Expression;
+      SimpleExpression.OnEvalIdentifier := OnEvalIdentifier;
+      SimpleExpression.ParametersAllowed := False;
+      SimpleExpression.SilentOrAllowed := True;
+      SimpleExpression.SingleIdentifierMode := False;
+      SimpleExpression.Tag := Tag;
+      Result := SimpleExpression.Eval;
+    finally
+      SimpleExpression.Free;
+    end;
+  except
+    InternalError(Format('Expression error ''%s''', [GetExceptMessage]));
+    Result := False;
+  end;
+end;
+
 function ShouldProcessEntry(const WizardComponents, WizardTasks: TStringList;
   const Components, Tasks, Languages, Check: String): Boolean;
-
-  function EvalExpression(const Expression: String;
-    OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier; Tag: LongInt): Boolean;
-  var
-    SimpleExpression: TSimpleExpression;
-  begin
-    try
-      SimpleExpression := TSimpleExpression.Create;
-      try
-        SimpleExpression.Lazy := True;
-        SimpleExpression.Expression := Expression;
-        SimpleExpression.OnEvalIdentifier := OnEvalIdentifier;
-        SimpleExpression.ParametersAllowed := False;
-        SimpleExpression.SilentOrAllowed := True;
-        SimpleExpression.SingleIdentifierMode := False;
-        SimpleExpression.Tag := Tag;
-        Result := SimpleExpression.Eval;
-      finally
-        SimpleExpression.Free;
-      end;
-    except
-      InternalError(Format('Expression error ''%s''', [GetExceptMessage]));
-      Result := False;
-    end;
-  end;
-
 var
   ProcessComponent, ProcessTask, ProcessLanguage: Boolean;
 begin
@@ -580,7 +624,7 @@ begin
       ProcessTask := True;
 
     if Languages <> '' then
-      ProcessLanguage := EvalExpression(Languages, TDummyClass.EvalLanguageIdentifier, 0)
+      ProcessLanguage := EvalExpression(Languages, TDummyClass.EvalLanguageIdentifier)
     else
       ProcessLanguage := True;
 
@@ -2257,6 +2301,27 @@ begin
 end;
 
 procedure LogWindowsVersion;
+
+  function ArchitecturesToStr(const Architectures: TSetupProcessorArchitectures;
+    const Separator: String): String;
+
+    procedure AppendArchitecture(var S: String; const Separator, L: String);
+    begin
+      if S <> '' then
+        S := S + Separator + L
+      else
+        S := L;
+    end;
+
+  var
+    I: TSetupProcessorArchitecture;
+  begin
+    Result := '';
+    for I := Low(I) to High(I) do
+      if I in Architectures then
+        AppendArchitecture(Result, Separator, SetupProcessorArchitectureNames[I]);
+  end;
+
 var
   SP: String;
 begin
@@ -2269,6 +2334,7 @@ begin
     (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF, SP, SYesNo[True]]);
   LogFmt('64-bit Windows: %s', [SYesNo[IsWin64]]);
   LogFmt('Processor architecture: %s', [SetupProcessorArchitectureNames[ProcessorArchitecture]]);
+  LogFmt('Machine types supported by system: %s', [ArchitecturesToStr(MachineTypesSupportedBySystem, ' ')]);
 
   if IsAdmin then
     Log('User privileges: Administrative')
@@ -2518,25 +2584,6 @@ var
       raise Exception.Create('ExtractLongWord: Missing comma');
     Result := LongWord(StrToInt(Copy(S, 1, P-1)));
     Delete(S, 1, P);
-  end;
-
-  function ArchitecturesToStr(const Architectures: TSetupProcessorArchitectures): String;
-
-    procedure AppendLine(var S: String; const L: String);
-    begin
-      if S <> '' then
-        S := S + #13#10 + L
-      else
-        S := L;
-    end;
-
-  var
-    I: TSetupProcessorArchitecture;
-  begin
-    Result := '';
-    for I := Low(I) to High(I) do
-      if I in Architectures then
-        AppendLine(Result, SetupProcessorArchitectureNames[I]);
   end;
 
   procedure AbortInit(const Msg: TSetupMessageID);
@@ -3040,11 +3087,15 @@ begin
         { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
           one on which a "64-bit mode" install should be performed. Doing this early
           so that UsePreviousPrivileges knows where to look. Will log later. }
-        if ProcessorArchitecture in SetupHeader.ArchitecturesInstallIn64BitMode then begin
+        if (SetupHeader.ArchitecturesInstallIn64BitMode <> '') and
+           EvalExpression(SetupHeader.ArchitecturesInstallIn64BitMode, TDummyClass.EvalArchitectureIdentifier) then begin
           if not IsWin64 then begin
-            { A 64-bit processor was detected and 64-bit install mode was requested,
-              but IsWin64 is False, indicating required WOW64 APIs are not present }
-            AbortInit(msgWindowsVersionNotSupported);
+            { The script writer made a mistake: their expression matched a
+              32-bit system. Obviously that can't be allowed.
+              With "not" there are lots of ways that could happen without
+              explicitly specifying a 32-bit architecture in the expression.
+              One example: "not win64" }
+            InternalError('ArchitecturesInstallIn64BitMode expression matched 32-bit system');
           end;
           Initialize64BitInstallMode(True);
         end
@@ -3203,9 +3254,9 @@ begin
   end;
   
   { Check processor architecture }
-  if (SetupHeader.ArchitecturesAllowed <> []) and
-     not(ProcessorArchitecture in SetupHeader.ArchitecturesAllowed) then
-    AbortInitFmt1(msgOnlyOnTheseArchitectures, ArchitecturesToStr(SetupHeader.ArchitecturesAllowed));
+  if (SetupHeader.ArchitecturesAllowed <> '') and
+     not EvalExpression(SetupHeader.ArchitecturesAllowed, TDummyClass.EvalArchitectureIdentifier) then
+    AbortInit(msgWindowsVersionNotSupported);
 
   { Check Windows version }
   case InstallOnThisVersion(SetupHeader.MinVersion, SetupHeader.OnlyBelowVersion) of
@@ -4328,25 +4379,25 @@ begin
 end;
 
 
-procedure InitIsWin64AndProcessorArchitecture;
+procedure InitIsWin64AndProcessorArchitectureAndMachineTypesSupportedBySystem;
 const
-  PROCESSOR_ARCHITECTURE_INTEL = 0;
-  PROCESSOR_ARCHITECTURE_IA64 = 6;
-  PROCESSOR_ARCHITECTURE_AMD64 = 9;
   PROCESSOR_ARCHITECTURE_ARM64 = 12;
-  IMAGE_FILE_MACHINE_I386 = $014c;
-  IMAGE_FILE_MACHINE_IA64 = $0200;
-  IMAGE_FILE_MACHINE_AMD64 = $8664;
   IMAGE_FILE_MACHINE_ARM64 = $AA64;
+  IMAGE_FILE_MACHINE_ARMNT = $01C4;
+  UserEnabled = $1;
 var
   KernelModule: HMODULE;
   GetNativeSystemInfoFunc: procedure(var lpSystemInfo: TSystemInfo); stdcall;
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
   IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
+  GetMachineTypeAttributesFunc: function(Machine: USHORT; var MachineTypeAttributes: Integer): HRESULT; stdcall;
+  IsWow64GuestMachineSupportedFunc: function(WowGuestMachine: USHORT; var MachineIsSupported: BOOL): HRESULT; stdcall;
   ProcessMachine, NativeMachine: USHORT;
   Wow64Process: BOOL;
   SysInfo: TSystemInfo;
 begin
+  KernelModule := GetModuleHandle(kernel32);
+
   { The system is considered a "Win64" system if all of the following
     conditions are true:
     1. One of the following two is true:
@@ -4358,10 +4409,9 @@ begin
     4. GetSystemWow64DirectoryA is available.
     5. RegDeleteKeyExA is available.
     The system does not have to be one of the known 64-bit architectures
-    (AMD64, IA64, ARM64) to be considered a "Win64" system. }
+    (AMD64, IA64, Arm64) to be considered a "Win64" system. }
 
   IsWin64 := False;
-  KernelModule := GetModuleHandle(kernel32);
 
   IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
   if Assigned(IsWow64Process2Func) and
@@ -4372,7 +4422,7 @@ begin
       IMAGE_FILE_MACHINE_I386: ProcessorArchitecture := paX86;
       IMAGE_FILE_MACHINE_IA64: ProcessorArchitecture := paIA64;
       IMAGE_FILE_MACHINE_AMD64: ProcessorArchitecture := paX64;
-      IMAGE_FILE_MACHINE_ARM64: ProcessorArchitecture := paARM64;
+      IMAGE_FILE_MACHINE_ARM64: ProcessorArchitecture := paArm64;
     else
       ProcessorArchitecture := paUnknown;
     end;
@@ -4392,7 +4442,7 @@ begin
       PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
       PROCESSOR_ARCHITECTURE_IA64: ProcessorArchitecture := paIA64;
       PROCESSOR_ARCHITECTURE_AMD64: ProcessorArchitecture := paX64;
-      PROCESSOR_ARCHITECTURE_ARM64: ProcessorArchitecture := paARM64;
+      PROCESSOR_ARCHITECTURE_ARM64: ProcessorArchitecture := paArm64;
     else
       ProcessorArchitecture := paUnknown;
     end;
@@ -4403,6 +4453,49 @@ begin
           (GetProcAddress(KernelModule, 'GetSystemWow64DirectoryA') <> nil) and
           (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil)) then
     IsWin64 := False;
+
+  { Setup MachineTypesSupportedBySystem. The result should end up being:
+    - 32-bit x86: [paX86]
+    - x64: [paX86, paX64]
+      (but not paX86 in a future x64 build of Inno Setup if Windows was installed
+       without support for x86 binaries (which is possible with Windows Server))
+    - Itanium: [paX86, paIA64]
+    - Arm64 Windows 10: [paX86, paArm64, paArm32]
+      (Arm32 support detected, not just assumed)
+    - Arm64 Windows 11: [paX86, paX64, paArm64, paArm32]
+      (X64 and Arm32 support detected, not just assumed) }
+
+  {$IFDEF CPUX86}
+  MachineTypesSupportedBySystem := [paX86];
+  {$ELSE}
+  {$MESSAGE ERROR 'This needs updating for non-x86 builds'}
+  {$ENDIF}
+
+  if ProcessorArchitecture <> paUnknown then
+    Include(MachineTypesSupportedBySystem, ProcessorArchitecture);
+
+  { On Windows 11 we can use GetMachineTypeAttributes to check what is supported extra }
+  GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
+  if Assigned(GetMachineTypeAttributesFunc) then begin
+    var MachineTypeAttributes: Integer;
+    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_ARMNT, MachineTypeAttributes) = S_OK) and
+       ((MachineTypeAttributes and UserEnabled) <> 0) then
+      Include(MachineTypesSupportedBySystem, paArm32);
+    if not (paX64 in MachineTypesSupportedBySystem) and
+       (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes) = S_OK) and
+       ((MachineTypeAttributes and UserEnabled) <> 0) then
+      Include(MachineTypesSupportedBySystem, paX64);
+  end else begin
+    { Without GetMachineTypeAttributes we can only check if Arm32 is supported extra
+      using IsWow64GuestMachineSupported }
+    IsWow64GuestMachineSupportedFunc := GetProcAddress(KernelModule, 'IsWow64GuestMachineSupported');
+    if Assigned(IsWow64GuestMachineSupportedFunc) then begin
+      var MachineIsSupported: BOOL;
+      if (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_ARMNT, MachineIsSupported) = S_OK) and
+          MachineIsSupported then
+        Include(MachineTypesSupportedBySystem, paArm32);
+    end;
+  end;
 end;
 
 procedure InitWindowsVersion;
@@ -4486,7 +4579,7 @@ begin
 end;
 
 initialization
-  InitIsWin64AndProcessorArchitecture;
+  InitIsWin64AndProcessorArchitectureAndMachineTypesSupportedBySystem;
   InitWindowsVersion;
   InitComponents := TStringList.Create();
   InitTasks := TStringList.Create();

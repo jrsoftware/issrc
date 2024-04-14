@@ -772,10 +772,31 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 </body>
 </topic>
 
-<topic name="scriptexpression" title="Pascal Scripting: Boolean Expressions">
+<topic name="scriptexpression" title="Pascal Scripting: Scripted Boolean Expressions">
+<keyword value="Pascal Scripting: Scripted Boolean Expressions" />
 <keyword value="Pascal Scripting: Boolean Expressions" />
 <body>
 <p>See <link topic="scriptcheck">Pascal Scripting: Check Parameters</link> for more information on boolean expressions and see <link topic="setup_uninstallable">Uninstallable</link> for an example.</p>
+</body>
+</topic>
+
+<topic name="isarchidentifier" title="Pascal Scripting: Architecture Identifier Matchers like IsX64Compatible">
+<keyword value="Pascal Scripting: Architecture Identifier Matchers like IsX64Compatible" />
+<keyword value="IsX64" />
+<keyword value="IsX86" />
+<body>
+<p>This is the list of support functions which test if the system matches an <link topic="archidentifiers">architecture identifier</link>:<br/><br/>
+<link topic="isxfunc_IsArm32Compatible">IsArm32Compatible</link><br/>
+<link topic="isxfunc_IsArm64">IsArm64</link><br/>
+<link topic="isxfunc_IsWin64">IsWin64</link><br/>
+<link topic="isxfunc_IsX64Compatible">IsX64Compatible</link><br/>
+<link topic="isxfunc_IsX64OS">IsX64OS</link><br/>
+<link topic="isxfunc_IsX86Compatible">IsX86Compatible</link><br/>
+<link topic="isxfunc_IsX86OS">IsX86OS</link><br/><br/>
+<link topic="isxfunc_IsX64OS">IsX64</link> (alias for IsX64OS; deprecated)<br/>
+<link topic="isxfunc_IsX86OS">IsX86</link> (alias for IsX86OS)<br/><br/></p>
+<p><b>See also:</b><br/>
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p>
 </body>
 </topic>
 

@@ -30,7 +30,7 @@ implementation
 
 uses
   CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
-  Generics.Collections, WideStrUtils,
+  Generics.Collections, StrUtils, WideStrUtils,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
   FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
   MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, CompExeUpdate,
@@ -309,6 +309,8 @@ type
       var AOnlyBelowVersion: TSetupVersionData);
     procedure ProcessPermissionsParameter(ParamData: String;
       const AccessMasks: array of TNameAndAccessMask; var PermissionsEntry: Smallint);
+    function EvalArchitectureIdentifier(Sender: TSimpleExpression; const Name: String;
+      const Parameters: array of const): Boolean;
     function EvalComponentIdentifier(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
     function EvalTaskIdentifier(Sender: TSimpleExpression; const Name: String;
@@ -2907,6 +2909,26 @@ begin
   CommaText := CommaText + S;
 end;
 
+function TSetupCompiler.EvalArchitectureIdentifier(Sender: TSimpleExpression;
+  const Name: String; const Parameters: array of const): Boolean;
+const
+  ArchIdentifiers: array[0..9] of String = (
+    'arm32compatible', 'arm64', 'ia64', 'win64',
+    'x64', 'x64os', 'x64compatible',
+    'x86', 'x86os', 'x86compatible');
+begin
+  for var ArchIdentifier in ArchIdentifiers do begin
+    if Name = ArchIdentifier then begin
+      if ArchIdentifier = 'x64' then
+        WarningsList.Add(Format(SCompilerArchitectureIdentifierDeprecatedWarning, ['x64', 'x64os', 'x64compatible']));
+      Exit(True); { Result doesn't matter }
+    end;
+  end;
+
+  raise Exception.CreateFmt(SCompilerArchitectureIdentifierInvalid, [Name]);
+end;
+
+{ Sets the Used properties while evaluating }
 function TSetupCompiler.EvalComponentIdentifier(Sender: TSimpleExpression; const Name: String;
   const Parameters: array of const): Boolean;
 var
@@ -2928,6 +2950,7 @@ begin
   Result := True;  { Result doesn't matter }
 end;
 
+{ Sets the Used properties while evaluating }
 function TSetupCompiler.EvalTaskIdentifier(Sender: TSimpleExpression; const Name: String;
   const Parameters: array of const): Boolean;
 var
@@ -2971,13 +2994,13 @@ procedure TSetupCompiler.ProcessExpressionParameter(const ParamName,
 var
   SimpleExpression: TSimpleExpression;
 begin
-  ProcessedParamData := ParamData;
+  ProcessedParamData := Trim(ParamData);
 
   if ProcessedParamData <> '' then begin
     if SlashConvert then
       StringChange(ProcessedParamData, '/', '\');
-    { Check the expression in ParamData and set the Used properties while
-      evaluating. Use non-Lazy checking to make sure everything is evaluated. }
+    { Check the expression in ParamData. Use non-Lazy checking to make sure
+      everything is evaluated. }
     try
       SimpleExpression := TSimpleExpression.Create;
       try
@@ -3404,26 +3427,6 @@ var
     TouchTimeSecond := Second;
   end;
 
-  function StrToArchitectures(S: String; const Only64Bit: Boolean): TSetupProcessorArchitectures;
-  const
-    ProcessorFlags: array[0..3] of PChar = ('x86', 'x64', 'ia64', 'arm64');
-  begin
-    Result := [];
-    while True do
-      case ExtractFlag(S, ProcessorFlags) of
-        -2: Break;
-        -1: Invalid;
-        0: if Only64Bit then
-             Invalid
-           else
-             Include(Result, paX86);
-        1: Include(Result, paX64);
-        2: Include(Result, paIA64);
-        3: Include(Result, paARM64);
-      end;
-  end;
-
-
   function StrToPrivilegesRequiredOverrides(S: String): TSetupPrivilegesRequiredOverrides;
   const
     Overrides: array[0..1] of PChar = ('commandline', 'dialog');
@@ -3560,10 +3563,12 @@ begin
         SetupHeader.AppVersion := Value;
       end;
     ssArchitecturesAllowed: begin
-        SetupHeader.ArchitecturesAllowed := StrToArchitectures(Value, False);
+        ProcessExpressionParameter(KeyName, LowerCase(Value),
+          EvalArchitectureIdentifier, False, SetupHeader.ArchitecturesAllowed);
       end;
     ssArchitecturesInstallIn64BitMode: begin
-        SetupHeader.ArchitecturesInstallIn64BitMode := StrToArchitectures(Value, True);
+        ProcessExpressionParameter(KeyName, LowerCase(Value),
+          EvalArchitectureIdentifier, False, SetupHeader.ArchitecturesInstallIn64BitMode);
       end;
     ssASLRCompatible: begin
         ASLRCompatible := StrToBool(Value);

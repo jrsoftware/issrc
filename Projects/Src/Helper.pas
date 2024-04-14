@@ -112,11 +112,10 @@ var
 function GetHelperResourceName: String;
 begin
   {$R HelperEXEs.res}
-  case ProcessorArchitecture of
-    paX64: Result := 'HELPER_EXE_AMD64';
+  if paX64 in MachineTypesSupportedBySystem then
+    Result := 'HELPER_EXE_AMD64'
   else
     Result := '';
-  end;
 end;
 
 procedure SetHelperExeFilename(const Filename: String);

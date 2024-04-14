@@ -203,6 +203,9 @@ const
   SCompilerDirectivePatternTooLong = 'The [Setup] section directive "%s" contains a pattern that is too long';
   SCompilerOutputBaseFileNameSetup = 'Setting the [Setup] section directive "OutputBaseFileName" to "setup" is not recommended: all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll.' + ' These DLLs are loaded unsafely by Windows and can be hijacked. Use a different name, for example "mysetup".';
   SCompilerWizImageRenamed = 'Wizard image "%s" has been renamed. Use "%s" instead or consider removing the directive to use modern built-in wizard images.';
+  SCompilerArchitectureIdentifierInvalid = 'Architecture identifier "%s" is invalid';
+  SCompilerArchitectureIdentifierDeprecatedWarning = 'Architecture identifier "%s" is deprecated. ' +
+    'Substituting "%s", but note that "%s" is preferred in most cases. See the "Architecture Identifiers" topic in help file for more information.';
 
   { Signing }
   SCompilerSignatureNeeded = 'Signed uninstaller mode is enabled. Using ' +
@@ -309,6 +312,7 @@ const
   SCompilerCodeUnsupportedEventFunction = 'Event function named "%s" is no longer supported. Create a "%s" function instead';
   SCompilerCodeFunctionRenamed = 'Support function "%s" has been renamed. Use "%s" instead.';
   SCompilerCodeFunctionRenamedWithAlternative = 'Support function "%s" has been renamed. Use "%s" instead or consider using "%s".';
+  SCompilerCodeFunctionDeprecatedWithAlternativeAndDocs = 'Support function "%s" is deprecated. Use "%s" instead, but note that "%s" is preferred in most cases. See the "%s" topic in help file for more information.';
 
   { [Types] }
   SCompilerTypesCustomTypeAlreadyDefined = 'A custom type has already been defined';

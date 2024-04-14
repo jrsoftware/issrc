@@ -69,7 +69,7 @@ type
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;
-  TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64, paARM64);
+  TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64, paArm32, paArm64);
   TSetupProcessorArchitectures = set of TSetupProcessorArchitecture;
   TSetupDisablePage = (dpAuto, dpNo, dpYes);
   TSetupPrivilegesRequired = (prNone, prPowerUser, prAdmin, prLowest);
@@ -78,10 +78,10 @@ type
   TSetupWizardStyle = (wsClassic, wsModern);
 const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =
-    ('Unknown', 'x86', 'x64', 'Itanium', 'ARM64');
+    ('Unknown', 'x86', 'x64', 'Itanium', 'Arm32', 'Arm64');
 
 const
-  SetupHeaderStrings = 30;
+  SetupHeaderStrings = 32;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
@@ -91,7 +91,8 @@ type
       UninstallDisplayIcon, AppMutex, DefaultUserInfoName, DefaultUserInfoOrg,
       DefaultUserInfoSerial, AppReadmeFile, AppContact, AppComments,
       AppModifyPath, CreateUninstallRegKey, Uninstallable, CloseApplicationsFilter,
-      SetupMutex, ChangesEnvironment, ChangesAssociations: String;
+      SetupMutex, ChangesEnvironment, ChangesAssociations,
+      ArchitecturesAllowed, ArchitecturesInstallIn64BitMode: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
     NumLanguageEntries, NumCustomMessageEntries, NumPermissionEntries,
       NumTypeEntries, NumComponentEntries, NumTaskEntries, NumDirEntries,
@@ -114,7 +115,6 @@ type
     ShowLanguageDialog: (slYes, slNo, slAuto);
     LanguageDetectionMethod: TSetupLanguageDetectionMethod;
     CompressMethod: TSetupCompressMethod;
-    ArchitecturesAllowed, ArchitecturesInstallIn64BitMode: TSetupProcessorArchitectures;
     DisableDirPage, DisableProgramGroupPage: TSetupDisablePage;
     UninstallDisplaySize: Integer64;
     Options: set of TSetupHeaderOption;
