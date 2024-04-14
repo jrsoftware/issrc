@@ -20,7 +20,7 @@ OutputDir=userdocs:Inno Setup Examples Output
 ; Files directory and the 64-bit view of the registry. On all other
 ; OS architectures (e.g., 32-bit x86), Setup will use "32-bit
 ; install mode".
-ArchitecturesInstallIn64BitMode=x64compatible arm64
+ArchitecturesInstallIn64BitMode=x64compatible or arm64
 
 [Files]
 ; In order of preference, we want to install:
