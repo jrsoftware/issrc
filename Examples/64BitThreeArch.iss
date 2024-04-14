@@ -14,22 +14,33 @@ UninstallDisplayIcon={app}\MyProg.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=userdocs:Inno Setup Examples Output
-; "ArchitecturesInstallIn64BitMode=x64os arm64" requests that the install
-; be done in "64-bit mode" on x64 & Arm64, meaning it should use the
-; native 64-bit Program Files directory and the 64-bit view of the
-; registry. On all other architectures it will install in "32-bit mode".
-ArchitecturesInstallIn64BitMode=x64os arm64
+; "ArchitecturesInstallIn64BitMode=x64compatible arm64" instructs
+; Setup to use "64-bit install mode" on x64-compatible systems and
+; Arm64 systems, meaning Setup should use the native 64-bit Program
+; Files directory and the 64-bit view of the registry. On all other
+; OS architectures (e.g., 32-bit x86), Setup will use "32-bit
+; install mode".
+ArchitecturesInstallIn64BitMode=x64compatible arm64
 
 [Files]
-; Install MyProg-x64.exe if running on x64, MyProg-Arm64.exe if
-; running on Arm64, MyProg.exe otherwise.
-; Place all x64 files here
-Source: "MyProg-x64.exe"; DestDir: "{app}"; DestName: "MyProg.exe"; Check: InstallX64
-; Place all Arm64 files here, first one should be marked 'solidbreak'
-Source: "MyProg-Arm64.exe"; DestDir: "{app}"; DestName: "MyProg.exe"; Check: InstallArm64; Flags: solidbreak
-; Place all x86 files here, first one should be marked 'solidbreak'
-Source: "MyProg.exe"; DestDir: "{app}"; Check: InstallOtherArch; Flags: solidbreak
-; Place all common files here, first one should be marked 'solidbreak'
+; In order of preference, we want to install:
+; - Arm64 binaries on Arm64 systems
+; - else, x64 binaries on x64-compatible systems
+; - else, x86 binaries
+
+; Place all Arm64-specific files here, using 'Check: PreferArm64Files' on each entry.
+Source: "MyProg-Arm64.exe"; DestDir: "{app}"; DestName: "MyProg.exe"; Check: PreferArm64Files
+
+; Place all x64-specific files here, using 'Check: PreferX64Files' on each entry.
+; Only the first entry should include the 'solidbreak' flag.
+Source: "MyProg-x64.exe"; DestDir: "{app}"; DestName: "MyProg.exe"; Check: PreferX64Files; Flags: solidbreak
+
+; Place all x86-specific files here, using 'Check: PreferX86Files' on each entry.
+; Only the first entry should include the 'solidbreak' flag.
+Source: "MyProg.exe"; DestDir: "{app}"; Check: PreferX86Files; Flags: solidbreak
+
+; Place all common files here.
+; Only the first entry should include the 'solidbreak' flag.
 Source: "MyProg.chm"; DestDir: "{app}"; Flags: solidbreak
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
@@ -37,17 +48,17 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 
 [Code]
-function InstallX64: Boolean;
+function PreferArm64Files: Boolean;
 begin
-  Result := Is64BitInstallMode and IsX64OS;
+  Result := IsArm64;
 end;
 
-function InstallArm64: Boolean;
+function PreferX64Files: Boolean;
 begin
-  Result := Is64BitInstallMode and IsArm64;
+  Result := not PreferArm64Files and IsX64Compatible;
 end;
 
-function InstallOtherArch: Boolean;
+function PreferX86Files: Boolean;
 begin
-  Result := not InstallX64 and not InstallArm64;
+  Result := not PreferArm64Files and not PreferX64Files;
 end;
