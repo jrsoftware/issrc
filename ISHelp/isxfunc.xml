@@ -439,6 +439,7 @@ end;</pre></example>
         <name>IsWin64</name>
         <prototype>function IsWin64: Boolean;</prototype>
         <description><p>Returns True if the system is running a 64-bit version of Windows. If False is returned, you cannot utilize any of Inno Setup's 64-bit-only features.</p>
+<p>Another way to describe this function is: Returns True if the system matches architecture identifier<link topic="archidentifiers">win64</link>.</p>
 <p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit install mode</link>, use <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link> instead.</p></description>
         <example><pre>begin
   // Check IsWin64 before using a 64-bit-only feature to
@@ -508,52 +509,52 @@ begin
   end;
   MsgBox('Your processor architecture: ' + S, mbInformation, MB_OK);
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_IsX86">IsX86</link><br />
-<link topic="isxfunc_IsX64">IsX64</link><br />
-<link topic="isxfunc_IsIA64">IsIA64</link><br />
-<link topic="isxfunc_IsArm64">IsArm64</link><br />
-<link topic="isxfunc_IsWin64">IsWin64</link><br />
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
 <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link></p></seealso>
       </function>
       <function>
-        <name>IsX86</name>
-        <prototype>function IsX86: Boolean;</prototype>
-        <description><p>Returns True if the native processor architecture is x86.</p>
-<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
-        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
-<link topic="isxfunc_IsX64">IsX64</link><br />
-<link topic="isxfunc_IsIA64">IsIA64</link><br />
-<link topic="isxfunc_IsArm64">IsArm64</link></p></seealso>
-      </function>
-      <function>
-        <name>IsX64</name>
-        <prototype>function IsX64: Boolean;</prototype>
-        <description><p>Returns True if the native processor architecture is x64.</p>
-<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
-        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
-<link topic="isxfunc_IsX86">IsX86</link><br />
-<link topic="isxfunc_IsIA64">IsIA64</link><br />
-<link topic="isxfunc_IsArm64">IsArm64</link></p></seealso>
-      </function>
-      <function>
-        <name>IsIA64</name>
-        <prototype>function IsIA64: Boolean;</prototype>
-        <description><p>Returns True if the native processor architecture is ia64.</p>
-<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
-        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
-<link topic="isxfunc_IsX86">IsX86</link><br />
-<link topic="isxfunc_IsX64">IsX64</link><br />
-<link topic="isxfunc_IsArm64">IsArm64</link></p></seealso>
+        <name>IsArm32Compatible</name>
+        <prototype>function IsArm32Compatible: Boolean;</prototype>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">arm32compatible</link>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
       </function>
       <function>
         <name>IsArm64</name>
         <prototype>function IsArm64: Boolean;</prototype>
-        <description><p>Returns True if the native processor architecture is arm64.</p>
-<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
-        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
-<link topic="isxfunc_IsX86">IsX86</link><br />
-<link topic="isxfunc_IsX64">IsX64</link><br />
-<link topic="isxfunc_IsIA64">IsIA64</link></p></seealso>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">arm64</link>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+      </function>
+      <function>
+        <name>IsX64Compatible</name>
+        <prototype>function IsX64Compatible: Boolean;</prototype>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x64compatible</link>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+      </function>
+      <function>
+        <name>IsX64OS</name>
+        <prototype>function IsX64OS: Boolean;</prototype>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x64os</link>.</p>
+<p>Before Inno Setup 6.3, <tt>IsX64OS</tt> was named <tt>IsX64</tt>. The compiler still accepts <tt>IsX64</tt> as an alias for <tt>IsX64OS</tt>, but will emit a deprecation warning when used.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+      </function>
+      <function>
+        <name>IsX86Compatible</name>
+        <prototype>function IsX86Compatible: Boolean;</prototype>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x86compatible</link>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+      </function>
+      <function>
+        <name>IsX86OS</name>
+        <prototype>function IsX86OS: Boolean;</prototype>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x86os</link>.</p>
+<p>Before Inno Setup 6.3, <tt>IsX86OS</tt> was named <tt>IsX86</tt>. The compiler still accepts <tt>IsX86</tt> as an alias for <tt>IsX86OS</tt>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>

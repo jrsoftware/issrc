@@ -5239,6 +5239,9 @@ DiskSliceSize=1457664
 <topic name="archidentifiers" title="Architecture Identifiers">
 <keyword value="Architecture Identifiers" />
 <body>
+
+<p>These are used in the values of <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> and <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link>.</p>
+
 <dl>
 
 <dt><b>arm32compatible</b></dt>
@@ -5284,6 +5287,9 @@ DiskSliceSize=1457664
 </dd>
 
 </dl>
+<p><b>See also:</b><br/>
+<link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p>
 </body>
 </topic>
 
@@ -5741,6 +5747,25 @@ SignTool=byparam format c:
 <tr><td><tt>system</tt></td><td>Local system account</td></tr>
 <tr><td><tt>users</tt></td><td>Users group</td></tr>
 </table>
+</body>
+</topic>
+
+<topic name="isarchidentifier" title="Pascal Scripting: Architecture Identifier Matchers like IsX64Compatible">
+<keyword value="IsX64" />
+<keyword value="IsX86" />
+<body>
+<p>This is the list of support functions which test if the system matches an <link topic="archidentifiers">architecture identifier</link>:<br/><br/>
+<link topic="isxfunc_IsArm32Compatible">IsArm32Compatible</link><br/>
+<link topic="isxfunc_IsArm64">IsArm64</link><br/>
+<link topic="isxfunc_IsWin64">IsWin64</link><br/>
+<link topic="isxfunc_IsX64Compatible">IsX64Compatible</link><br/>
+<link topic="isxfunc_IsX64OS">IsX64OS</link><br/>
+<link topic="isxfunc_IsX86Compatible">IsX86Compatible</link><br/>
+<link topic="isxfunc_IsX86OS">IsX86OS</link><br/><br/>
+<link topic="isxfunc_IsX64OS">IsX64</link> (alias for IsX64OS; deprecated)<br/>
+<link topic="isxfunc_IsX86OS">IsX86</link> (alias for IsX86OS)<br/><br/></p>
+<p><b>See also:</b><br/>
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p>
 </body>
 </topic>
 
