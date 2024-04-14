@@ -5308,7 +5308,38 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>Specifies which processor architecture(s) Setup is allowed to run on. If this directive is not specified or is blank, Setup will be allowed to run on all processor architectures capable of executing its 32-bit code (including ones it doesn't recognize). Otherwise, if a user's processor architecture is not one of those specified in this directive, Setup will display an error message and exit.</p>
 <p>If your application's binaries are all 32-bit and run in user mode, you should not change this directive from its default value (specifically, don't set it to <tt>x86</tt>), because normally such binaries will run without issue on the 64-bit Windows via the WOW64 emulator.</p>
 <p>If you install any 32-bit device drivers, you should set this directive to <tt>x86</tt>, as 32-bit device drivers cannot function on 64-bit Windows.</p>
-<p>If your application's binaries are built for the x64, Arm64 or Itanium architectures, you should set this directive to either <tt>x64</tt>, <tt>arm64</tt> or <tt>ia64</tt> respectively.</p>
+<p>If your application's binaries are built for the x64, Arm64 or Itanium architectures, you should set this directive to either <tt>x64compatible</tt>, <tt>arm64</tt> or <tt>ia64</tt> respectively.</p>
+<examples>
+<pre>
+; Only allow installation on systems that aren't x64-compatible.
+; Useful in a situation where you have separate x86 &amp; x64 installers,
+; and don't want users of x64-compatible OSes (x64 + Win11 Arm64)
+; erroneously running the x86 installer which would say:
+ArchitecturesAllowed=not x64compatible
+
+; Require two arch matches at the same time:
+; If an Arm installer installs both Arm64 and Arm32 binaries,
+; you technically should ensure that the OS actually supports both:
+ArchitecturesAllowed=arm64 and arm32compatible
+
+; Same goes for an x64-compatible installer shipping some 32-bit
+; binaries:
+ArchitecturesAllowed=x64compatible and x86compatible
+
+; Installing a component that cannot operate in an emulated
+; environment, such as an x64 device driver:
+ArchitecturesAllowed=x64os
+
+; Allow installation on x64-compatible systems, but deny one of them:
+; (Imagine if in the future there were 3 x64-compatible OSes!)
+ArchitecturesAllowed=x64compatible and not arm64
+
+; Never select 64-bit install mode but require a 64-bit OS anyway
+; (for example, because you're accessing HKLM64):
+ArchitecturesInstallIn64BitMode=
+ArchitecturesAllowed=win64
+</pre>
+</examples>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link></p>
 </body>
@@ -5331,6 +5362,12 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>Should never match a 32-bit system otherwise Setup will show an internal error when started on such a system.</p>
 <p>Be sure you have read the <link topic="64bitlimitations">64-bit Installation Limitations</link> topic before setting this directive.</p>
 <p>If your application runs only on 64-bit processor architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
+<example>
+<pre>
+; Select 64-bit install mode on any x64-compatible OS (x64 + Win11 Arm64):
+ArchitecturesInstallIn64BitMode=x64compatible
+</pre>
+</example>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesallowed">ArchitecturesAllowed</link></p>
 </body>
