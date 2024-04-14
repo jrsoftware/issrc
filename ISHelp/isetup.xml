@@ -5751,6 +5751,7 @@ SignTool=byparam format c:
 </topic>
 
 <topic name="isarchidentifier" title="Pascal Scripting: Architecture Identifier Matchers like IsX64Compatible">
+<keyword value="Pascal Scripting: Architecture Identifier Matchers like IsX64Compatible" />
 <keyword value="IsX64" />
 <keyword value="IsX86" />
 <body>
