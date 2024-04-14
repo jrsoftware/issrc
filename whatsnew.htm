@@ -94,7 +94,6 @@ function InitializeSetup: Boolean;
 begin
   if IsArm32Compatible then Log('IsArm32Compatible');
   if IsArm64 then Log('IsArm64');
-  if IsIA64 then Log('IsIA64');
   if IsX64OS then Log('IsX64OS');
   if IsX64Compatible then Log('IsX64Compatible');
   if IsX86 then Log('IsX86');
@@ -112,9 +111,10 @@ end;</pre>
   <li>The selected and mouseover #include file tabs now show close buttons.</li>
   <li>Added a clickable panel to the Status Bar showing the amount of closed tabs if there are any.</li>
 </ul>
-<p><span class="head2">Support for Windows Vista and Windows Server 2008 removed</span></p>
+<p><span class="head2">Support for Windows Vista, Windows Server 2008 and the Itanium processor architecture removed</span></p>
 <ul>
   <li><b>OS requirements change:</b> Windows Vista and Windows Server 2008 are no longer supported. Windows 7 and Windows Server 2008 R2 are now the minimum supported operating systems. [Setup] section directive <tt>MinVersion</tt> still defaults to <tt>6.1sp1</tt>, so by default Setup will still not run versions of Windows 7 and Windows Server 2008 R2 which have not been updated.</li>
+  <li>The Itanium processor architecture is no longer supported. The <tt>ia64</tt> platform identifier has been removed and instead Setup will always display an error message and exit if it's started on an Itanium system anyway.</li>
   <li>Removed [Icons] section flag <tt>foldershortcut</tt> which was already ignored except when running on Windows Vista or Windows Server 2008, as folder shortcuts do not expand properly on the Start Menu anymore.</li>
 </ul>
 <p><span class="head2">Other changes</span></p>
