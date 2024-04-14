@@ -62,6 +62,7 @@
     <contentstopic title="Non Administrative Install Mode" topic="admininstallmode" />
     <contentstopic title="64-bit Install Mode" topic="32vs64bitinstalls" />
     <contentstopic title="64-bit Installation Limitations" topic="64bitlimitations" />
+    <contentstopic title="Architecture Identifiers" topic="archidentifiers" />
     <contentstopic title="Wizard Pages" topic="wizardpages" />
     <contentstopic title="Installation Order" topic="installorder" />
     <contentstopic title="Unsafe Files" topic="unsafefiles" />
@@ -101,9 +102,9 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <ul>
 
-<li>Support for every Windows release since 2009, including: Windows 11, Windows 10, Windows 10 on ARM, Windows Server 2019, Windows Server 2016, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, and Windows Server 2008 R2. (No service packs are required.)</li>
+<li>Support for every Windows release since 2009, including: Windows 11, Windows 10, Windows 11 on Arm, Windows 10 on Arm, Windows Server 2019, Windows Server 2016, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, and Windows Server 2008 R2. (No service packs are required.)</li>
 
-<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are all supported.</li>
+<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, Arm64 and Itanium architectures are all supported.</li>
 
 <li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link> installations.</li>
 
@@ -852,7 +853,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <param name="Languages">
 <p>A space separated list of language names, telling Setup to which languages the entry belongs. If the end user selects a language from this list, the entry is processed (for example: the file is installed).</p>
 <p>An entry without a <tt>Languages</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
-<p>Besides space separated lists, you may also use boolean expressions. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
+<p>Besides space separated lists, you may also use boolean expressions containing language names. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
 <example>
 <pre>Languages: en nl</pre>
 </example>
@@ -919,7 +920,7 @@ Name: "{commondesktop}\My Program"; Filename: "{app}\MyProg.exe"; Components: ma
 </paramlist>
 
 <p><br/>
-Besides space separated lists, you may also use boolean expressions as Components and Tasks parameters. Supported operators include <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>. For example:</p>
+Besides space separated lists, you may also use boolean expressions containing component or task names as Components and Tasks parameters. Supported operators include <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>. For example:</p>
 
 <precode>
 [Components]
@@ -1735,8 +1736,8 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="regtypelib">
 <p>Register the type library (.tlb). The uninstaller will unregister the type library (unless the flag <tt>uninsneveruninstall</tt> is specified). As with the <tt>regserver</tt> flag, when used in combination with <tt>sharedfile</tt>, the file will only be unregistered by the uninstaller when the reference count reaches zero.</p>
-<p>In <link topic="32vs64bitinstalls">64-bit install mode</link> running on an x64 edition of Windows, the type library will be registered inside a 64-bit process. You can override this by specifying the <tt>32bit</tt> flag.</p>
-<p>Registering type libraries in 64-bit mode on Itanium editions of Windows is not supported.</p>
+<p>In <link topic="32vs64bitinstalls">64-bit install mode</link> running on an x64-compatible edition of Windows, the type library will be registered inside a 64-bit process. You can override this by specifying the <tt>32bit</tt> flag.</p>
+<p>Registering type libraries in 64-bit mode on Itanium editions of Windows or on Windows 10 for Arm is not supported.</p>
 <p>See the <i>Remarks</i> at the bottom of this topic for more information.</p>
 </flag>
 <flag name="replacesameversion">
@@ -2937,9 +2938,9 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <li>If <link topic="setup_restartapplications">RestartApplications</link> was set to <tt>yes</tt>, Setup restarts closed applications which support being restarted.</li>
 
-<li>If <link topic="setup_changesassociations">ChangesAssociations</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, file associations are refreshed now.</li>
+<li>If <link topic="setup_changesassociations">ChangesAssociations</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, file associations are refreshed now.</li>
 
-<li>If <link topic="setup_changesenvironment">ChangesEnvironment</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, other applications are notified at this point.</li>
+<li>If <link topic="setup_changesenvironment">ChangesEnvironment</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, other applications are notified at this point.</li>
 
 </ul>
 
@@ -4063,10 +4064,10 @@ C:\Program Files\My Program
 </setuptopic>
 
 <setuptopic directive="Uninstallable">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>This determines if Inno Setup's automatic uninstaller is to be included in the installation. If this is <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt> the uninstaller is included. Otherwise, no uninstallation support is included, requiring the end-user to manually remove the files pertaining to your application.</p>
+<p>This determines if Inno Setup's automatic uninstaller is to be included in the installation. If this is <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt> the uninstaller is included. Otherwise, no uninstallation support is included, requiring the end-user to manually remove the files pertaining to your application.</p>
 <p>Setting this to a boolean expression can be useful if you want to offer the user a 'portable mode' option.</p>
 <example><pre>[Setup]
 Uninstallable=not IsTaskSelected('portablemode')
@@ -4292,10 +4293,10 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </setuptopic>
 
 <setuptopic directive="CreateUninstallRegKey">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If this is set to <tt>no</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>False</tt>, Setup won't create an entry in the <i>Add/Remove Programs</i> Control Panel applet.</p>
+<p>If this is set to <tt>no</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>False</tt>, Setup won't create an entry in the <i>Add/Remove Programs</i> Control Panel applet.</p>
 <p>Setting this to <tt>no</tt> can be useful if your installation is merely an update to an existing application and you don't want another entry created, but don't want to the disable the uninstall features entirely (via <tt>Uninstallable=no</tt>). In this case, <link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link> is usually set to <tt>no</tt> as well.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_uninstallable">Uninstallable</link>
@@ -4717,19 +4718,19 @@ DiskSliceSize=1457664
 </setuptopic>
 
 <setuptopic directive="ChangesAssociations">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, Setup will tell Explorer to refresh its file associations information at the end of the installation, and Uninstall will do the same at the end of uninstallation.</p>
+<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, Setup will tell Explorer to refresh its file associations information at the end of the installation, and Uninstall will do the same at the end of uninstallation.</p>
 <p>If your installation creates a file association but doesn't have <tt>ChangesAssociations</tt> set to <tt>yes</tt>, the correct icon for the file type likely won't be displayed until the user logs off or restarts the computer.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="ChangesEnvironment">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, at the end of the installation Setup will notify other running applications (notably Windows Explorer) that they should reload their environment variables from the registry.</p>
+<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, at the end of the installation Setup will notify other running applications (notably Windows Explorer) that they should reload their environment variables from the registry.</p>
 <p>If your installation creates or changes an environment variable but doesn't have <tt>ChangesEnvironment</tt> set to <tt>yes</tt>, the new/changed environment variable will not be seen by applications launched from Explorer until the user logs off or restarts the computer.</p>
 </body>
 </setuptopic>
@@ -5235,6 +5236,63 @@ DiskSliceSize=1457664
 </body>
 </setuptopic>
 
+<topic name="archidentifiers" title="Architecture Identifiers">
+<keyword value="Architecture Identifiers" />
+<body>
+
+<p>These are used in the values of <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> and <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link>.</p>
+
+<dl>
+
+<dt><b>arm32compatible</b></dt>
+<dd>
+<p>Matches systems capable of running 32-bit Arm binaries. Only Arm64 Windows includes such support.</p>
+</dd>
+
+<dt><b>arm64</b></dt>
+<dd>
+<p>Matches systems running Arm64 Windows.</p>
+</dd>
+
+<dt><b>win64</b></dt>
+<dd>
+<p>Matches systems running 64-bit Windows, regardless of OS architecture.</p>
+<p>This may be useful in an installer that doesn't ship any architecture-specific binaries, but requires access to something 64-bit, like <tt>HKLM64</tt> in the [Registry] section, or the native 64-bit Program Files directory.</p>
+</dd>
+
+<dt><b>x64compatible</b></dt>
+<dd>
+<p>Matches systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
+</dd>
+
+<dt><b>x64os</b></dt>
+<dd>
+<p>Matches systems running x64 Windows only — not any other systems that have the ability to run x64 binaries via emulation.</p>
+<p>In most cases, <tt>x64compatible</tt> should be used instead of <tt>x64os</tt>, because <tt>x64compatible</tt> allows x64 apps to be installed on Arm64-based Windows 11 systems as well.</p>
+<p>However, <tt>x64os</tt> is appropriate in unusual cases where an x64 app/binary is known to require true x64 Windows and cannot function under emulation. x64 device drivers are one example; x64 emulation isn't supported in kernel mode.</p>
+<p>Before Inno Setup 6.3, <tt>x64os</tt> was named <tt>x64</tt>. The compiler still accepts <tt>x64</tt> as an alias for <tt>x64os</tt>, but will emit a deprecation warning when used.</p>
+</dd>
+
+<dt><b>x86compatible</b></dt>
+<dd>
+<p>Matches systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64-based Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
+<p>Given that Setup itself is currently always built as a 32-bit x86 binary, this always matches.</p>
+</dd>
+
+<dt><b>x86os</b></dt>
+<dd>
+<p>Matches systems running 32-bit x86 Windows only.</p>
+<p><tt>x86os</tt> usually only makes sense when installing 32-bit x86 device drivers. When installing a regular 32-bit app, <tt>x86compatible</tt> should be used instead (or just leave <tt>ArchitecturesAllowed</tt> unset).</p>
+<p>Before Inno Setup 6.3, <tt>x86os</tt> was named <tt>x86</tt>. The compiler still accepts <tt>x86</tt> as an alias for <tt>x86os</tt>.</p>
+</dd>
+
+</dl>
+<p><b>See also:</b><br/>
+<link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p>
+</body>
+</topic>
+
 <setuptopic directive="ArchitecturesAllowed">
 <keyword value="processors allowed" />
 <keyword value="x86" />
@@ -5242,14 +5300,46 @@ DiskSliceSize=1457664
 <keyword value="x64" />
 <keyword value="IA-64" />
 <keyword value="Itanium" />
-<keyword value="ARM64" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>x86</tt> <br/><tt>x64</tt> <br/><tt>arm64</tt> <br/><tt>ia64</tt></setupvalid>
+<keyword value="Arm64" />
+<setupvalid>A space separated list of <link topic="archidentifiers">architecture identifiers</link>.<br />
+Or, a boolean expression containing <link topic="archidentifiers">architecture identifiers</link>. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies which processor architecture(s) Setup is allowed to run on. If this directive is not specified or is blank, Setup will be allowed to run on all processor architectures capable of executing its 32-bit code (including ones it doesn't recognize). Otherwise, if a user's processor architecture is not one of those specified in this directive, Setup will display an error message and exit.</p>
 <p>If your application's binaries are all 32-bit and run in user mode, you should not change this directive from its default value (specifically, don't set it to <tt>x86</tt>), because normally such binaries will run without issue on the 64-bit Windows via the WOW64 emulator.</p>
 <p>If you install any 32-bit device drivers, you should set this directive to <tt>x86</tt>, as 32-bit device drivers cannot function on 64-bit Windows.</p>
-<p>If your application's binaries are built for the x64, ARM64 or Itanium architectures, you should set this directive to either <tt>x64</tt>, <tt>arm64</tt> or <tt>ia64</tt> respectively.</p>
+<p>If your application's binaries are built for the x64, Arm64 or Itanium architectures, you should set this directive to either <tt>x64compatible</tt>, <tt>arm64</tt> or <tt>ia64</tt> respectively.</p>
+<examples>
+<pre>
+; Only allow installation on systems that aren't x64-compatible.
+; Useful in a situation where you have separate x86 &amp; x64 installers,
+; and don't want users of x64-compatible OSes (x64 + Win11 Arm64)
+; erroneously running the x86 installer which would say:
+ArchitecturesAllowed=not x64compatible
+
+; Require two arch matches at the same time:
+; If an Arm installer installs both Arm64 and Arm32 binaries,
+; you technically should ensure that the OS actually supports both:
+ArchitecturesAllowed=arm64 and arm32compatible
+
+; Same goes for an x64-compatible installer shipping some 32-bit
+; binaries:
+ArchitecturesAllowed=x64compatible and x86compatible
+
+; Installing a component that cannot operate in an emulated
+; environment, such as an x64 device driver:
+ArchitecturesAllowed=x64os
+
+; Allow installation on x64-compatible systems, but deny one of them:
+; (Imagine if in the future there were 3 x64-compatible OSes!)
+ArchitecturesAllowed=x64compatible and not arm64
+
+; Never select 64-bit install mode but require a 64-bit OS anyway
+; (for example, because you're accessing HKLM64):
+ArchitecturesInstallIn64BitMode=
+ArchitecturesAllowed=win64
+</pre>
+</examples>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link></p>
 </body>
@@ -5262,14 +5352,22 @@ DiskSliceSize=1457664
 <keyword value="x64" />
 <keyword value="IA-64" />
 <keyword value="Itanium" />
-<keyword value="ARM64" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>x64</tt> <br/><tt>arm64</tt> <br/><tt>ia64</tt></setupvalid>
+<keyword value="Arm64" />
+<setupvalid>A space separated list of <link topic="archidentifiers">architecture identifiers</link>.<br />
+Or, a boolean expression containing <link topic="archidentifiers">architecture identifiers</link>. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies the 64-bit processor architecture(s) on which Setup should install in <link topic="32vs64bitinstalls">64-bit install mode</link>. If this directive is not specified or is blank, Setup will always install in <link topic="32vs64bitinstalls">32-bit install mode</link>.</p>
 <p>Normally, you should not change this directive from its default value unless your application contains native 64-bit binaries.</p>
+<p>Should never match a 32-bit system otherwise Setup will show an internal error when started on such a system.</p>
 <p>Be sure you have read the <link topic="64bitlimitations">64-bit Installation Limitations</link> topic before setting this directive.</p>
 <p>If your application runs only on 64-bit processor architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
+<example>
+<pre>
+; Select 64-bit install mode on any x64-compatible OS (x64 + Win11 Arm64):
+ArchitecturesInstallIn64BitMode=x64compatible
+</pre>
+</example>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesallowed">ArchitecturesAllowed</link></p>
 </body>

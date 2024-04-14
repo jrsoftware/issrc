@@ -6,7 +6,7 @@
 #elif defined(_AMD64_)
 	#define ARCHNOTE TEXT("\n\n(This EXE was compiled for the x64 architecture.)")
 #elif defined(_M_ARM64)
-	#define ARCHNOTE TEXT("\n\n(This EXE was compiled for the ARM64 architecture.)")
+	#define ARCHNOTE TEXT("\n\n(This EXE was compiled for the Arm64 architecture.)")
 #else
 	#error unknown arch
 #endif

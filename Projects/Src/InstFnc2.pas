@@ -26,18 +26,6 @@ uses
   Windows, SysUtils, PathFunc, CmnFunc2, InstFunc, Main, Msgs, MsgIDs,
   ActiveX, ComObj, PropSys, ShellAPI, ShlObj;
 
-function IsWindows8: Boolean;
-{ Returns True if running Windows 8 or later }
-begin
-  Result := (WindowsVersion >= Cardinal($06020000));
-end;
-
-function IsWindows10: Boolean;
-{ Returns True if running Windows 10 or later }
-begin
-  Result := (WindowsVersion >= Cardinal($0A000000));
-end;
-
 procedure AssignWorkingDir(const SL: IShellLink; const WorkingDir: String);
 { Assigns the specified working directory to SL. If WorkingDir is empty then
   we select one ourself as best we can. (Leaving the working directory field

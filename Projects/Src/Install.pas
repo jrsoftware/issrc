@@ -721,7 +721,7 @@ var
       { ARP on Windows 7 without SP1 only pays attention to the lower 6 bytes of EstimatedSize and
         throws away the rest. For example putting in $4000001 (=4GB + 1KB) displays as 1 KB.
         So we need to check for this. }
-      if (Hi(NTServicePackLevel) > 0) or (WindowsVersion shr 16 > $0601) or (EstimatedSize.Hi = 0) then begin
+      if (Hi(NTServicePackLevel) > 0) or IsWindows8 or (EstimatedSize.Hi = 0) then begin
         Div64(EstimatedSize, 1024);
         SetDWordValue(H2, 'EstimatedSize', EstimatedSize.Lo)
       end;
@@ -909,7 +909,7 @@ var
     var
       RootKey, K: HKEY;
     begin
-      if PerUserFont and (WindowsVersion < Cardinal($0A0042EE)) then begin
+      if PerUserFont and not WindowsVersionAtLeast(10, 0, 17134) then begin
         { Per-user fonts require Windows 10 Version 1803 (10.0.17134) or newer. }
         if not WarnedPerUserFonts then begin
           Log('Failed to set value in Fonts registry key: per-user fonts are not supported by this version of Windows.');
