@@ -69,7 +69,7 @@ type
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;
-  TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64, paArm32, paArm64);
+  TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paArm32, paArm64);
   TSetupProcessorArchitectures = set of TSetupProcessorArchitecture;
   TSetupDisablePage = (dpAuto, dpNo, dpYes);
   TSetupPrivilegesRequired = (prNone, prPowerUser, prAdmin, prLowest);
@@ -78,7 +78,7 @@ type
   TSetupWizardStyle = (wsClassic, wsModern);
 const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =
-    ('Unknown', 'x86', 'x64', 'Itanium', 'Arm32', 'Arm64');
+    ('Unknown', 'x86', 'x64', 'Arm32', 'Arm64');
 
 const
   SetupHeaderStrings = 32;
