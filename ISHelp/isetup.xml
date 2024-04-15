@@ -1581,18 +1581,6 @@ ExternalSize: 1048576; Flags: external
 </example>
 </param>
 
-<param name="CopyMode">
-<p>You should not use this parameter in any new scripts. This parameter was deprecated and replaced by flags in Inno Setup 3.0.5:</p>
-<p>
-<tt>CopyMode: normal -&gt; Flags: promptifolder</tt><br/>
-<tt>CopyMode: alwaysskipifsameorolder -&gt; </tt>no flags<br/>
-<tt>CopyMode: onlyifdoesntexist -&gt; Flags: onlyifdoesntexist</tt><br/>
-<tt>CopyMode: alwaysoverwrite -&gt; Flags: ignoreversion</tt><br/>
-<tt>CopyMode: dontcopy -&gt; Flags: dontcopy</tt>
-</p>
-<p>What was <tt>CopyMode: alwaysskipifsameorolder</tt> is now the default behavior. (The previous default was <tt>CopyMode: normal</tt>.)</p>
-</param>
-
 <param name="Attribs">
 <p>Specifies additional attributes for the file. This can include one or more of the following: <tt>readonly</tt>, <tt>hidden</tt>, <tt>system</tt>, <tt>notcontentindexed</tt>. If this parameter is not specified, Setup does not assign any special attributes to the file.</p>
 <example>
@@ -3534,7 +3522,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="return codes" />
 <body>
 
-<p>Beginning with Inno Setup 3.0.3, the Setup program may return one of the following exit codes:</p>
+<p>The Setup program may return one of the following exit codes:</p>
 
 <table>
 
@@ -3591,14 +3579,14 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <tr>
 <td><b>7</b></td>
 <td>
-<p>The <link topic="wizardpages"><i>Preparing to Install</i></link> stage determined that Setup cannot proceed with installation. <i>(First introduced in Inno Setup 5.4.1.)</i></p>
+<p>The <link topic="wizardpages"><i>Preparing to Install</i></link> stage determined that Setup cannot proceed with installation.</p>
 </td>
 </tr>
 
 <tr>
 <td><b>8</b></td>
 <td>
-<p>The <link topic="wizardpages"><i>Preparing to Install</i></link> stage determined that Setup cannot proceed with installation, and that the system needs to be restarted in order to correct the problem. <i>(First introduced in Inno Setup 5.4.1.)</i></p>
+<p>The <link topic="wizardpages"><i>Preparing to Install</i></link> stage determined that Setup cannot proceed with installation, and that the system needs to be restarted in order to correct the problem.</p>
 </td>
 </tr>
 
@@ -3673,7 +3661,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="return codes" />
 <body>
 
-<p>Beginning with Inno Setup 4.0.8, the uninstaller will return a non-zero exit code if the user cancels or a fatal error is encountered. Programs checking the exit code to detect failure should not check for a specific non-zero value; any non-zero exit code indicates that the uninstaller was not run to completion.</p>
+<p>The uninstaller will return a non-zero exit code if the user cancels or a fatal error is encountered. Programs checking the exit code to detect failure should not check for a specific non-zero value; any non-zero exit code indicates that the uninstaller was not run to completion.</p>
 
 <p>Note that at the moment you get an exit code back from the uninstaller, some code related to uninstallation might still be running. Because Windows doesn't allow programs to delete their own EXEs, the uninstaller creates and spawns a copy of itself in the TEMP directory. This "clone" performs the actual uninstallation, and at the end, terminates the original uninstaller EXE (at which point you get an exit code back), deletes it, then displays the "uninstall complete" message box (if it hasn't been suppressed with /SILENT or /VERYSILENT).</p>
 
@@ -4647,7 +4635,7 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If set to <tt>no</tt>, the user will not be allowed to enter a UNC path (such as "\\server\share") on the <i>Select Destination Location</i> page of the wizard. This was the default behavior in Inno Setup 2.0.17 and earlier.</p>
+<p>If set to <tt>no</tt>, the user will not be allowed to enter a UNC path (such as "\\server\share") on the <i>Select Destination Location</i> page of the wizard.</p>
 <p>To fully disallow installation to network locations, you must also set <link topic="setup_allownetworkdrive">AllowNetworkDrive</link> to <tt>no</tt>.</p>
 </body>
 </setuptopic>
@@ -4917,7 +4905,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, the default, the wizard images will be stretched or shrunk if the images are larger or smaller than required.</p>
-<p>If set to <tt>no</tt>, the wizard images will be centered in their respective areas if the images are larger than required, and clipped if the images are smaller than required. (This corresponds to the default behavior of Inno Setup 4.1.2 and earlier.)</p>
+<p>If set to <tt>no</tt>, the wizard images will be centered in their respective areas if the images are larger than required, and clipped if the images are smaller than required.</p>
 </body>
 </setuptopic>
 
@@ -5039,7 +5027,6 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies the name of the font that should be used in dialogs on languages that do not set <tt>DialogFontName</tt> in their <link topic="langoptionssection">[LangOptions] section</link>.</p>
 <p>If the specified font name does not exist on the user's system or is an empty string, 8-point Microsoft Sans Serif or MS Sans Serif will be substituted.</p>
-<p>Prior to the introduction of the <tt>DefaultDialogFontName</tt> directive in Inno Setup 5.3.9, the default dialog font name was always an empty string.</p>
 </body>
 </setuptopic>
 
@@ -5687,8 +5674,7 @@ SignTool=byparam format c:
 <p>When a new version of an application is installed over an existing version, instead of creating a new uninstall log file (unins???.dat), Setup will by default look for and append to an existing uninstall log file that belongs to the <link topic="sameappnotes">same application</link> and is in the same directory. This way, when the application is uninstalled, changes made by all the different installations will be undone (starting with the most recent installation).</p>
 <p>The uninstaller will use the <link topic="messagessection">messages</link> from the most recent installation of the application. However, there is an exception: if an installation was built with an older version of Inno Setup that included an older version of the uninstaller than the existing one on the user's system, neither the existing uninstaller nor its messages will be replaced. In this case the uninstall log will still be appended to, though, since the file format is backward compatible.</p>
 <p>The application name displayed in the uninstaller will be the same as the value of the <tt>[Setup]</tt> section directive <link topic="setup_appname">AppName</link> from the most recent installation, unless <link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link> is set to <tt>no</tt>.</p>
-<p>The uninstall log-appending feature is new to Inno Setup 1.3. If you wish to disable it, set the <tt>[Setup]</tt> section directive <link topic="setup_uninstalllogmode">UninstallLogMode</link>.</p>
-<p><i>Note:</i> Setup can only append to uninstall log files that were created by an Inno Setup 1.3.1 (or later) installation.</p>
+<p>To disable the uninstall log-appending feature set the <tt>[Setup]</tt> section directive <link topic="setup_uninstalllogmode">UninstallLogMode</link>.</p>
 </body>
 </topic>
 
