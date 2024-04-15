@@ -2912,8 +2912,8 @@ end;
 function TSetupCompiler.EvalArchitectureIdentifier(Sender: TSimpleExpression;
   const Name: String; const Parameters: array of const): Boolean;
 const
-  ArchIdentifiers: array[0..9] of String = (
-    'arm32compatible', 'arm64', 'ia64', 'win64',
+  ArchIdentifiers: array[0..8] of String = (
+    'arm32compatible', 'arm64', 'win64',
     'x64', 'x64os', 'x64compatible',
     'x86', 'x86os', 'x86compatible');
 begin
