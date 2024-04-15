@@ -141,9 +141,7 @@ begin
     '  SuiteMask: Word;' +
     'end');
 
-{$IFNDEF PS_NOINT64}
   RegisterType('TOnDownloadProgress', 'function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;');
-{$ENDIF}
 
   RegisterFunctionTable(ScriptDlgTable);
   RegisterFunctionTable(NewDiskTable);

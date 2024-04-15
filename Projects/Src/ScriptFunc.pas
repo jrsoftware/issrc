@@ -14,11 +14,7 @@ interface
 const
 
   { ScriptDlg }
-{$IFNDEF PS_NOINT64}
   ScriptDlgTable: array [0..14] of AnsiString =
-{$ELSE}
-  ScriptDlgTable: array [0..13] of AnsiString =
-{$ENDIF}
   (
     'function PageFromID(const ID: Integer): TWizardPage;',
     'function PageIndexFromID(const ID: Integer): Integer;',
@@ -31,9 +27,7 @@ const
     'function CreateOutputMsgMemoPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; const AMsg: AnsiString): TOutputMsgMemoWizardPage;',
     'function CreateOutputProgressPage(const ACaption, ADescription: String): TOutputProgressWizardPage;',
     'function CreateOutputMarqueeProgressPage(const ACaption, ADescription: String): TOutputMarqueeProgressWizardPage;',
-{$IFNDEF PS_NOINT64}
     'function CreateDownloadPage(const ACaption, ADescription: String; const OnDownloadProgress: TOnDownloadProgress): TDownloadWizardPage;',
-{$ENDIF}
     'function ScaleX(X: Integer): Integer;',
     'function ScaleY(Y: Integer): Integer;',
     'function CreateCustomForm: TSetupForm;'
@@ -128,28 +122,18 @@ const
   );
 
   { Install }
-{$IFNDEF PS_NOINT64}
   InstallTable: array [0..5] of AnsiString =
-{$ELSE}
-  InstallTable: array [0..2] of AnsiString =
-{$ENDIF}
   (
     'procedure ExtractTemporaryFile(const FileName: String);',
     'function ExtractTemporaryFiles(const Pattern: String): Integer;',
-{$IFNDEF PS_NOINT64}
     'function DownloadTemporaryFile(const Url, FileName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;',
     'function DownloadTemporaryFileSize(const Url: String): Int64;',
     'function DownloadTemporaryFileDate(const Url: String): String;',
     'procedure SetDownloadCredentials(const User, Pass: String);'
-{$ENDIF}
   );
 
   { InstFunc }
-{$IFNDEF PS_NOINT64}
   InstFuncTable: array [0..30] of AnsiString =
-{$ELSE}
-  InstFuncTable: array [0..29] of AnsiString =
-{$ENDIF}
   (
     'function CheckForMutexes(Mutexes: String): Boolean;',
     'function DecrementSharedCount(const Is64Bit: Boolean; const Filename: String): Boolean;',
@@ -168,9 +152,7 @@ const
     'function GetSHA256OfString(const S: AnsiString): String;',
     'function GetSHA256OfUnicodeString(const S: String): String;',
     'function GetSpaceOnDisk(const DriveRoot: String; const InMegabytes: Boolean; var Free, Total: Cardinal): Boolean;',
-{$IFNDEF PS_NOINT64}
     'function GetSpaceOnDisk64(const DriveRoot: String; var Free, Total: Int64): Boolean;',
-{$ENDIF}
     'function GetUserNameString: String;',
     //function GrantPermissionOnFile(const Filename: String; const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
     //function GrantPermissionOnKey(const RootKey: HKEY; const Subkey: String; const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
@@ -249,17 +231,11 @@ const
   );
 
   { System }
-{$IFNDEF PS_NOINT64}
   SystemTable: array [0..4] of AnsiString =
-{$ELSE}
-  SystemTable: array [0..3] of AnsiString =
-{$ENDIF}
   (
     'function Random(const Range: Integer): Integer;',
     'function FileSize(const Name: String; var Size: Integer): Boolean;',
-{$IFNDEF PS_NOINT64}
     'function FileSize64(const Name: String; var Size: Int64): Boolean;',
-{$ENDIF}
     'procedure Set8087CW(NewCW: Word);',
     'function Get8087CW: Word;'
   );
