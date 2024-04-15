@@ -58,4 +58,4 @@ To contribute translations please see https://jrsoftware.org/files/istrans/send.
 
 Please do NOT use GitHub's web editor to edit ANSI translations and create pull
 requests. This editor doesn't work since it automatically turns ANSI files into
-UTF8 files without a BOM which are not supported (only UTF8 with a BOM is).
+UTF8 files without a BOM which are not supported before Inno Setup 6.3.
