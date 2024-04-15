@@ -24,8 +24,7 @@ OutputDir=userdocs:Inno Setup Examples Output
 ; On all other architectures it will install in "32-bit mode".
 ArchitecturesInstallIn64BitMode=x64compatible
 ; Note: We don't set ArchitecturesAllowed because we want this
-; installation to run on all architectures (including Itanium,
-; since it's capable of running 32-bit code too).
+; installation to run on all architectures.
 
 [Files]
 ; Install MyProg-x64.exe if running in 64-bit mode (see above), and

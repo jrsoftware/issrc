@@ -499,10 +499,9 @@ type
   end;
 const
   { Valid identifier 'win64' is not in this list but treated specially below }
-  ArchIdentifiers: array[0..8] of TArchIdentifierRec = (
+  ArchIdentifiers: array[0..7] of TArchIdentifierRec = (
     (Name: 'arm32compatible'; Arch: paArm32; Compatible: True),
     (Name: 'arm64'; Arch: paArm64; Compatible: False),
-    (Name: 'ia64'; Arch: paIA64; Compatible: False),
     (Name: 'x64'; Arch: paX64; Compatible: False),
     (Name: 'x64os'; Arch: paX64; Compatible: False),
     (Name: 'x64compatible'; Arch: paX64; Compatible: True),
@@ -3254,8 +3253,9 @@ begin
   end;
   
   { Check processor architecture }
-  if (SetupHeader.ArchitecturesAllowed <> '') and
-     not EvalExpression(SetupHeader.ArchitecturesAllowed, TDummyClass.EvalArchitectureIdentifier) then
+  if (ProcessorArchitecture = paIA64) or { Remove once Windows 8 (6.2+) becomes the new minimum }
+     ((SetupHeader.ArchitecturesAllowed <> '') and
+      not EvalExpression(SetupHeader.ArchitecturesAllowed, TDummyClass.EvalArchitectureIdentifier)) then
     AbortInit(msgWindowsVersionNotSupported);
 
   { Check Windows version }
@@ -4409,7 +4409,7 @@ begin
     4. GetSystemWow64DirectoryA is available.
     5. RegDeleteKeyExA is available.
     The system does not have to be one of the known 64-bit architectures
-    (AMD64, IA64, Arm64) to be considered a "Win64" system. }
+    to be considered a "Win64" system. }
 
   IsWin64 := False;
 

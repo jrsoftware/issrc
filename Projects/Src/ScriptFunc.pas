@@ -201,7 +201,7 @@ const
   );
 
   { Main }
-  MainTable: array [0..33] of AnsiString =
+  MainTable: array [0..32] of AnsiString =
   (
     'function GetWizardForm: TWizardForm;',
     'function GetMainForm: TMainForm;',
@@ -227,7 +227,6 @@ const
     'function ProcessorArchitecture: TSetupProcessorArchitecture;',
     'function IsArm32Compatible: Boolean',
     'function IsArm64: Boolean',
-    'function IsIA64: Boolean',
     'function IsX64: Boolean',
     'function IsX64OS: Boolean',
     'function IsX64Compatible: Boolean',

@@ -86,6 +86,7 @@ ArchitecturesAllowed=win64</pre>
       The 64-bit example scripts like <i>64Bit.iss</i> have all been updated to use <tt>x64compatible</tt> as preferred.<br/><br/>
   </li>
   <li>In 64-bit install mode [Files] section flag <tt>regtypelib</tt> now registers type libraries inside a 64-bit process on Windows 11 for Arm as well.</li>
+  <li>[Registry] section parameter <tt>Permissions</tt> is now effectual on 64-bit registry keys on Windows 11 for Arm as well.</p>
   <li>Setup now logs the machine types supported by the system. For example, when running on Windows 11 for Arm it now logs: "Machine types supported by system: x86 x64 arm32 arm64".</li>
   <li>Message OnlyOnTheseArchitectures is not used anymore. Instead existing message WindowsVersionNotSupported is now shown when Setup is started on an architecture which is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)<br/><br/></li>
   <li>Pascal Scripting change: Add new <tt>IsArm32Compatible</tt>, <tt>IsX64Compatible</tt>, <tt>IsX64OS</tt>, <tt>IsX86Compatible</tt>, and <tt>IsX86OS</tt> support functions. The <tt>IsX64</tt> support function still exists but is now deprecated as explained above. Example testing all platform identifiers:
@@ -94,7 +95,6 @@ function InitializeSetup: Boolean;
 begin
   if IsArm32Compatible then Log('IsArm32Compatible');
   if IsArm64 then Log('IsArm64');
-  if IsIA64 then Log('IsIA64');
   if IsX64OS then Log('IsX64OS');
   if IsX64Compatible then Log('IsX64Compatible');
   if IsX86 then Log('IsX86');
@@ -112,9 +112,10 @@ end;</pre>
   <li>The selected and mouseover #include file tabs now show close buttons.</li>
   <li>Added a clickable panel to the Status Bar showing the amount of closed tabs if there are any.</li>
 </ul>
-<p><span class="head2">Support for Windows Vista and Windows Server 2008 removed</span></p>
+<p><span class="head2">Support for Windows Vista, Windows Server 2008 and the Itanium processor architecture removed</span></p>
 <ul>
   <li><b>OS requirements change:</b> Windows Vista and Windows Server 2008 are no longer supported. Windows 7 and Windows Server 2008 R2 are now the minimum supported operating systems. [Setup] section directive <tt>MinVersion</tt> still defaults to <tt>6.1sp1</tt>, so by default Setup will still not run versions of Windows 7 and Windows Server 2008 R2 which have not been updated.</li>
+  <li>The Itanium processor architecture is no longer supported. The <tt>ia64</tt> platform identifier has been removed and instead Setup will always display an error message and exit if it's started on an Itanium system anyway.</li>
   <li>Removed [Icons] section flag <tt>foldershortcut</tt> which was already ignored except when running on Windows Vista or Windows Server 2008, as folder shortcuts do not expand properly on the Start Menu anymore.</li>
 </ul>
 <p><span class="head2">Other changes</span></p>
