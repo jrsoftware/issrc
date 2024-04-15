@@ -3253,8 +3253,9 @@ begin
   end;
   
   { Check processor architecture }
-  if (SetupHeader.ArchitecturesAllowed <> '') and
-     not EvalExpression(SetupHeader.ArchitecturesAllowed, TDummyClass.EvalArchitectureIdentifier) then
+  if (ProcessorArchitecture = paIA64) or { Remove once Windows 8 (6.2+) becomes the new minimum }
+     ((SetupHeader.ArchitecturesAllowed <> '') and
+      not EvalExpression(SetupHeader.ArchitecturesAllowed, TDummyClass.EvalArchitectureIdentifier)) then
     AbortInit(msgWindowsVersionNotSupported);
 
   { Check Windows version }
@@ -4408,7 +4409,7 @@ begin
     4. GetSystemWow64DirectoryA is available.
     5. RegDeleteKeyExA is available.
     The system does not have to be one of the known 64-bit architectures
-    (AMD64, Arm64) to be considered a "Win64" system. }
+    to be considered a "Win64" system. }
 
   IsWin64 := False;
 
@@ -4419,6 +4420,7 @@ begin
     IsWin64 := True;
     case NativeMachine of
       IMAGE_FILE_MACHINE_I386: ProcessorArchitecture := paX86;
+      IMAGE_FILE_MACHINE_IA64: ProcessorArchitecture := paIA64;
       IMAGE_FILE_MACHINE_AMD64: ProcessorArchitecture := paX64;
       IMAGE_FILE_MACHINE_ARM64: ProcessorArchitecture := paArm64;
     else
@@ -4438,6 +4440,7 @@ begin
 
     case SysInfo.wProcessorArchitecture of
       PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
+      PROCESSOR_ARCHITECTURE_IA64: ProcessorArchitecture := paIA64;
       PROCESSOR_ARCHITECTURE_AMD64: ProcessorArchitecture := paX64;
       PROCESSOR_ARCHITECTURE_ARM64: ProcessorArchitecture := paArm64;
     else
@@ -4456,6 +4459,7 @@ begin
     - x64: [paX86, paX64]
       (but not paX86 in a future x64 build of Inno Setup if Windows was installed
        without support for x86 binaries (which is possible with Windows Server))
+    - Itanium: [paX86, paIA64]
     - Arm64 Windows 10: [paX86, paArm64, paArm32]
       (Arm32 support detected, not just assumed)
     - Arm64 Windows 11: [paX86, paX64, paArm64, paArm32]
