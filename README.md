@@ -89,7 +89,7 @@ Component Installation
 ----------------------
 
 If you intend to view or modify the Setup project's forms, you must install
-the following component units, which can be found in the Components
+the following component units, which can be found in the [Components]
 directory.
 
 - BidiCtrls
@@ -108,7 +108,7 @@ additionally install the following components.
 - DropListBox
 - NewTabSet
 
-The Components directory contains a Components project which you can use to
+The [Components] directory contains a Components project which you can use to
 install all these components.
 
 If you only want to edit code, then you may skip installation of the
@@ -161,7 +161,7 @@ How do the projects link together?
 Source code tips
 ----------------
 
-- When building the projects in Debug mode it outputs to Projects\Bin and when
+- When building the projects in Debug mode it outputs to [Projects\Bin] and when
   debugging it will run from within this directory. To prepare this directory
   with some extra files you must run **Projects\Bin\synch-isfiles.bat**.
 
@@ -171,7 +171,7 @@ Source code tips
   This way you can simulate an actual installation while running under the
   Delphi debugger.
   
-- When building the projects in Release mode it outputs to Files.
+- When building the projects in Release mode it outputs to [Files].
   
 - All of the forms in the Setup project, with the exception of Main.dfm, have
   Scaled set to False. This is because they dynamically scale themselves at
@@ -184,7 +184,7 @@ Source code tips
 
 - To debug the uninstaller first run Setup.exe to completion with the
   ``/DETACHEDMSG`` command line parameter set. Afterwards copy uninst000.dat and
-  uninst000.msg as setup.dat and setup.msg to the Projects\Bin directory in your
+  uninst000.msg as setup.dat and setup.msg to the [Projects\Bin] directory in your
   issrc path. Then open the Setup project and set the command line parameters to
   ``/UNINSTMODE "/SECONDPHASE=<your issrc path\Projects\Bin\Setup.exe"`` and start
   debugging. Note: each time setup.dat and setup.msg will be deleted if you
@@ -203,7 +203,7 @@ from the bzlib directory in the Iscompress repository.
 from the zlib-dll directory in the Iscompress repository.
 
 **Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
-by Visual Studio 2005 from the [Projects\Lzma2\Encoder] directory.
+by Visual Studio 2005 from the [Projects\Src\Lzma2\Encoder] directory.
 
 **Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintilla 2.22 source
 code with scintilla-2.22-patch.txt applied.
@@ -273,10 +273,13 @@ workflow will be triggered automatically.
 
 <!-- Link references -->
 [CONTRIBUTING.md]: <CONTRIBUTING.md>
-[Projects\Lzma2\Encoder]: <Projects/Lzma2/Encoder>
+[Projects\Bin]: <Projects/Bin>
+[Components]: <Components>
+[Files]: <Files>
+[Projects\Src\Lzma2\Encoder]: <Projects/Src/Lzma2/Encoder>
 [Projects\Helper]: <Projects/Helper>
 [Examples\MyProg]: <Examples/MyProg>
-[Projects\LzmaDecode\compiling.txt]: <Projects/LzmaDecode/compiling.txt>
-[Projects\Lzma2\Decoder\compiling.txt]: <Projects/Lzma2/Decoder/compiling.txt>
+[Projects\Src\LzmaDecode\compiling.txt]: <Projects/Src/LzmaDecode/compiling.txt>
+[Projects\Src\Lzma2\Decoder\compiling.txt]: <Projects/Src/Lzma2/Decoder/compiling.txt>
 [7-Zip]: https://www.7-zip.org/
 [secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets
