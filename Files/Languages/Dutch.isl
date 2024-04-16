@@ -2,7 +2,7 @@
 ;
 ; This file is based on user-contributed translations by various authors
 ;
-; Maintained by Martijn Laan (mlaan@jrsoftware.org)
+; Maintained by Martijn Laan (mlaan@innosetup.nl)
                                      
 [LangOptions]                
 LanguageName=Nederlands      
