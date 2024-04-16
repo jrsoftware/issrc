@@ -86,7 +86,8 @@ uses
   DotNet in 'Src\DotNet.pas',
   SetupEnt in 'Src\SetupEnt.pas',
   Msi in 'Src\Msi.pas',
-  DotNetVersion in 'Src\DotNetVersion.pas';
+  DotNetVersion in 'Src\DotNetVersion.pas',
+  NewUxTheme in '..\Components\NewUxTheme.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}

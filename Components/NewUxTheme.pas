@@ -47,9 +47,10 @@
 { Simplified by Martijn Laan for Inno Setup }
 
 { Cannot be replaced by Delphi's built in Winapi.UxTheme.pas even though it has
-  the same functions: see the comment at the bottom of this file. }
+  the same functions: see the comment at the bottom of this file. For this
+  reason this unit has been renamed to NewUxTheme.  }
 
-unit UxTheme;
+unit NewUxTheme;
 
 interface
 

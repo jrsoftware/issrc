@@ -25,7 +25,7 @@ uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs, CommDlg,
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors, CompScintEdit,
-  DebugStruct, CompInt, UxTheme, ImageList, ImgList, ToolWin, CompFunc,
+  DebugStruct, CompInt, NewUxTheme, ImageList, ImgList, ToolWin, CompFunc,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
 const

@@ -27,7 +27,7 @@ uses
   CompWizardFile in 'Src\CompWizardFile.pas' {WizardFileForm},
   CompFileAssoc in 'Src\CompFileAssoc.pas',
   TmSchema in '..\Components\TmSchema.pas',
-  UxTheme in '..\Components\UxTheme.pas',
+  NewUxTheme in '..\Components\NewUxTheme.pas',
   DebugStruct in 'Src\DebugStruct.pas',
   BrowseFunc in 'Src\BrowseFunc.pas',
   CompSignTools in 'Src\CompSignTools.pas' {SignToolsForm},

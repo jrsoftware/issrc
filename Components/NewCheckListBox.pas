@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, UxTheme;
+  StdCtrls, NewUxTheme;
 
 const
   WM_UPDATEUISTATE = $0128;

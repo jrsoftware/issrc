@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Math, Generics.Collections,
-  ModernColors, UxTheme;
+  ModernColors, NewUxTheme;
 
 type
   TTabPosition = (tpTop, tpBottom);

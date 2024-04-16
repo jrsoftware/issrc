@@ -44,7 +44,7 @@
 {                                                                              }
 {******************************************************************************}
 
-{ Simplified by Martijn Laan for Inno Setup and Delphi 2 }
+{ Simplified by Martijn Laan for Inno Setup }
 
 unit TmSchema;
 
