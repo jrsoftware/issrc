@@ -123,6 +123,7 @@ end;</pre>
   <li>Compiler IDE changes: 
   <ul>
     <li>The New Script Wizard now offers an option to import a Windows registry .reg file.</li>
+    <li>The New Script Wizard now automatically sets <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> to <tt>x64compatible</tt> if it detects that the chosen main executable file is 64-bit. The default main executable file is now the 64-bit MyProg-x64.exe example executable instead of 32-bit MyProg.exe.</li>
     <li>Added new <i>Generate [Registry] Entries... (Ctrl+Shift+R)</i> menu item to the <i>Tools</i> menu to import a Windows registry .reg file as extra entries to the [Registry] section at the cursor position, or to a new section.</li>
     <li>Added new <i>Generate [Files] Entries... (Ctrl+Shift+I)</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the [Files] section at the cursor position, or to a new section.</li>
     <li>The <i>Generate MsgBox/TaskDialogMsgBox Call... (Ctrl+Shift+M)</i> tool (previously named <i>MsgBox/TaskDialogMsgBox Designer</i>) now respects the tab width and tab character settings, indents the generated Pascal script one extra level, and warns if the cursor position is not in the [Code] section.</li>
