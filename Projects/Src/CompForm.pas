@@ -4768,7 +4768,12 @@ begin
     This works unless Delphi decides to destroy and repopulate the menu after
     calling Click. Most amazingly it can do that indeed: it does this if the DPI
     changed since the last popup or if a automatic hotkey change or line reduction
-    happens due to the menu's AutoHotkeys or AutoLineReduction properties.
+    happens due to the menu's AutoHotkeys or AutoLineReduction properties. To make
+    things even worse: for the Run menu it does this each and every time it is
+    opened: this menu currently has a 'Step Out' item which has no shortcut but
+    also all its letters are taken by another item already. This confuses the
+    AutoHotkeys code, making it destroy and repopulate the entire menu over and
+    over because it erroneously thinks a hotkey changed.
 
     To avoid this MainMenu1.AutoHotkeys was set to maManual since we have always
     managed the hotkeys ourselves anyway and .AutoLineReduction was also set to
