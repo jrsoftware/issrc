@@ -711,7 +711,7 @@ object CompileForm: TCompileForm
         OnClick = TRegistryDesignerClick
       end
       object TMsgBoxDesigner: TMenuItem
-        Caption = '&Generate MsgBox/TaskDialogMsgBox Call...'
+        Caption = 'Generate &MsgBox/TaskDialogMsgBox Call...'
         ShortCut = 24653
         OnClick = TMsgBoxDesignerClick
       end
