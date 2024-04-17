@@ -546,7 +546,6 @@ begin
   end;
 end;
 
-{$IFNDEF PS_NOINT64}
 procedure RegisterDownloadWizardPage_C(Cl: TPSPascalCompiler);
 begin
   with CL.AddClassN(Cl.FindClass('TOutputProgressWizardPage'),'TDownloadWizardPage') do
@@ -560,7 +559,6 @@ begin
     RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }
   end;
 end;
-{$ENDIF}
 
 procedure RegisterHandCursor_C(Cl: TPSPascalCompiler);
 begin
@@ -668,9 +666,7 @@ begin
   RegisterOutputMsgMemoWizardPage_C(Cl);
   RegisterOutputProgressWizardPage_C(Cl);
   RegisterOutputMarqueeProgressWizardPage_C(Cl);
-{$IFNDEF PS_NOINT64}
   RegisterDownloadWizardPage_C(Cl);
-{$ENDIF}
 
   RegisterHandCursor_C(Cl);
   

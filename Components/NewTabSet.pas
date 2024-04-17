@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Math, Generics.Collections,
-  ModernColors, UxTheme;
+  ModernColors, NewUxTheme;
 
 type
   TTabPosition = (tpTop, tpBottom);
@@ -84,7 +84,7 @@ procedure Register;
 implementation
 
 uses
-  WinApi.UxTheme, Types;
+  Types;
 
 procedure Register;
 begin
@@ -367,6 +367,9 @@ var
   HighColorMode: Boolean;
 
   procedure DrawCloseButton(const TabRect: TRect; const TabIndex: Integer);
+  const
+    MENU_SYSTEMCLOSE = 17;
+    MSYSC_NORMAL = 1;
   begin
    if (TabIndex < FCloseButtons.Count) and FCloseButtons[TabIndex] then begin
       var R := GetCloseButtonRect(TabRect);

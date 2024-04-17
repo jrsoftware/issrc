@@ -475,7 +475,7 @@ end;</pre></example>
 <p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paArm64, paArm32);</tt></p></description>
         <remarks><p>A 64-bit processor architecture will never be returned on 32-bit versions of Windows. Hence, you cannot use this function to detect a 64-bit AMD CPU on a 32-bit version of Windows; you'll just get back <tt>paX86</tt> if you try.</p>
 <p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the processor architecture. It can be assumed that an "unknown" architecture is at least capable of executing 32-bit code, or Setup/Uninstall wouldn't be running at all.</p>
-<p><tt>paArm32</tt> is never returned because Setup/Uninstall does not run on 32-bit versions of Windows for Arm32.</p>
+<p><tt>paArm32</tt> is never returned because Setup/Uninstall does not run on 32-bit versions of Windows for Arm32.</p></remarks>
         <example><pre>var
   S: String;
 begin

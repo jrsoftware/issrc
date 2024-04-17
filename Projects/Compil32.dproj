@@ -102,7 +102,7 @@
         </DCCReference>
         <DCCReference Include="Src\CompFileAssoc.pas"/>
         <DCCReference Include="..\Components\TmSchema.pas"/>
-        <DCCReference Include="..\Components\UxTheme.pas"/>
+        <DCCReference Include="..\Components\NewUxTheme.pas"/>
         <DCCReference Include="Src\DebugStruct.pas"/>
         <DCCReference Include="Src\BrowseFunc.pas"/>
         <DCCReference Include="Src\CompSignTools.pas">

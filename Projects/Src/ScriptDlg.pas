@@ -171,7 +171,6 @@ type
       procedure SetProgress(const Position, Max: Longint);
   end;
 
-{$IFNDEF PS_NOINT64}
   TDownloadWizardPage = class(TOutputProgressWizardPage)
     private
       FFiles: TObjectList;
@@ -195,7 +194,6 @@ type
     published
       property AbortButton: TNewButton read FAbortButton;
   end;
-{$ENDIF}
   
 implementation
 
@@ -915,8 +913,6 @@ begin
   InternalError('Cannot call TOutputMarqueeProgressWizardPage.SetProgress');
 end;
 
-{$IFNDEF PS_NOINT64}
-
 {--- OutputDownload ---}
 
 type
@@ -1051,7 +1047,5 @@ begin
   end;
   SetDownloadCredentials('', '');
 end;
-
-{$ENDIF}
 
 end.

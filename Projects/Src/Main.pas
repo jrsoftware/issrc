@@ -3251,11 +3251,17 @@ begin
         SetActiveLanguage(I);
     end;
   end;
+
+  { Check unsupported Itanium - must be on Windows Server 2008 R2 so remove once
+    this becomes unsupported as well and Windows 8 (6.2+) becomes the new minimum }
+  var SysInfo: TSystemInfo;
+  GetNativeSystemInfo(SysInfo);
+  if SysInfo.wProcessorArchitecture = PROCESSOR_ARCHITECTURE_IA64 then
+    AbortInit(msgWindowsVersionNotSupported);
   
-  { Check processor architecture }
-  if (ProcessorArchitecture = paIA64) or { Remove once Windows 8 (6.2+) becomes the new minimum }
-     ((SetupHeader.ArchitecturesAllowed <> '') and
-      not EvalExpression(SetupHeader.ArchitecturesAllowed, TDummyClass.EvalArchitectureIdentifier)) then
+  { Check allowed processor architectures }
+  if (SetupHeader.ArchitecturesAllowed <> '') and
+     not EvalExpression(SetupHeader.ArchitecturesAllowed, TDummyClass.EvalArchitectureIdentifier) then
     AbortInit(msgWindowsVersionNotSupported);
 
   { Check Windows version }
@@ -4387,7 +4393,6 @@ const
   UserEnabled = $1;
 var
   KernelModule: HMODULE;
-  GetNativeSystemInfoFunc: procedure(var lpSystemInfo: TSystemInfo); stdcall;
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
   IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
   GetMachineTypeAttributesFunc: function(Machine: USHORT; var MachineTypeAttributes: Integer): HRESULT; stdcall;
@@ -4402,8 +4407,7 @@ begin
     conditions are true:
     1. One of the following two is true:
        a. IsWow64Process2 is available, and returns True for the current process.
-       b. GetNativeSystemInfo is available +
-          IsWow64Process is available, and returns True for the current process.
+       b. IsWow64Process is available, and returns True for the current process.
     2. Wow64DisableWow64FsRedirection is available.
     3. Wow64RevertWow64FsRedirection is available.
     4. GetSystemWow64DirectoryA is available.
@@ -4420,27 +4424,21 @@ begin
     IsWin64 := True;
     case NativeMachine of
       IMAGE_FILE_MACHINE_I386: ProcessorArchitecture := paX86;
-      IMAGE_FILE_MACHINE_IA64: ProcessorArchitecture := paIA64;
       IMAGE_FILE_MACHINE_AMD64: ProcessorArchitecture := paX64;
       IMAGE_FILE_MACHINE_ARM64: ProcessorArchitecture := paArm64;
     else
       ProcessorArchitecture := paUnknown;
     end;
   end else begin
-    GetNativeSystemInfoFunc := GetProcAddress(KernelModule, 'GetNativeSystemInfo');
-    if Assigned(GetNativeSystemInfoFunc) then begin
-      GetNativeSystemInfoFunc(SysInfo);
-      IsWow64ProcessFunc := GetProcAddress(KernelModule, 'IsWow64Process');
-      if Assigned(IsWow64ProcessFunc) and
-         IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
-         Wow64Process then
-        IsWin64 := True;
-    end else
-      GetSystemInfo(SysInfo);
+    IsWow64ProcessFunc := GetProcAddress(KernelModule, 'IsWow64Process');
+    if Assigned(IsWow64ProcessFunc) and
+       IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
+       Wow64Process then
+      IsWin64 := True;
 
+    GetNativeSystemInfo(SysInfo);
     case SysInfo.wProcessorArchitecture of
       PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
-      PROCESSOR_ARCHITECTURE_IA64: ProcessorArchitecture := paIA64;
       PROCESSOR_ARCHITECTURE_AMD64: ProcessorArchitecture := paX64;
       PROCESSOR_ARCHITECTURE_ARM64: ProcessorArchitecture := paArm64;
     else
@@ -4459,7 +4457,6 @@ begin
     - x64: [paX86, paX64]
       (but not paX86 in a future x64 build of Inno Setup if Windows was installed
        without support for x86 binaries (which is possible with Windows Server))
-    - Itanium: [paX86, paIA64]
     - Arm64 Windows 10: [paX86, paArm64, paArm32]
       (Arm32 support detected, not just assumed)
     - Arm64 Windows 11: [paX86, paX64, paArm64, paArm32]

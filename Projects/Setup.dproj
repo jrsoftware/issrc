@@ -163,6 +163,7 @@
         <DCCReference Include="Src\SetupEnt.pas"/>
         <DCCReference Include="Src\Msi.pas"/>
         <DCCReference Include="Src\DotNetVersion.pas"/>
+        <DCCReference Include="..\Components\NewUxTheme.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

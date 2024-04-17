@@ -124,11 +124,9 @@ var
   NewOutputMsgMemoPage: TOutputMsgMemoWizardPage;
   NewOutputProgressPage: TOutputProgressWizardPage;
   NewOutputMarqueeProgressPage: TOutputMarqueeProgressWizardPage;
-{$IFNDEF PS_NOINT64}
   NewDownloadPage: TDownloadWizardPage;
   P: PPSVariantProcPtr;
   OnDownloadProgress: TOnDownloadProgress;
-{$ENDIF}
   NewSetupForm: TSetupForm;
 begin
   PStart := Stack.Count-1;
@@ -270,7 +268,6 @@ begin
       raise;
     end;
     Stack.SetClass(PStart, NewOutputMarqueeProgressPage);
-{$IFNDEF PS_NOINT64}
   end else if Proc.Name = 'CREATEDOWNLOADPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
@@ -292,7 +289,6 @@ begin
       raise;
     end;
     Stack.SetClass(PStart, NewDownloadPage);
-{$ENDIF}
   end else if Proc.Name = 'SCALEX' then begin
     InitializeScaleBaseUnits;
     Stack.SetInt(PStart, MulDiv(Stack.GetInt(PStart-1), ScaleBaseUnitX, OrigBaseUnitX));
@@ -782,7 +778,6 @@ begin
     ExtractTemporaryFile(Stack.GetString(PStart));
   end else if Proc.Name = 'EXTRACTTEMPORARYFILES' then begin
     Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
-{$IFNDEF PS_NOINT64}
   end else if Proc.Name = 'DOWNLOADTEMPORARYFILE' then begin
     P := Stack.Items[PStart-4];
     { ProcNo 0 means nil was passed by the script }
@@ -796,7 +791,7 @@ begin
   end else if Proc.Name = 'DOWNLOADTEMPORARYFILESIZE' then begin
     Stack.SetInt64(PStart, DownloadTemporaryFileSize(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'DOWNLOADTEMPORARYFILEDATE' then begin
-    Stack.SetString(PStart, DownloadTemporaryFileDate(Stack.GetString(PStart-1)));{$ENDIF}
+    Stack.SetString(PStart, DownloadTemporaryFileDate(Stack.GetString(PStart-1)));
   end else
     Result := False;
 end;
@@ -871,7 +866,6 @@ begin
       Stack.SetBool(PStart, True);
     end else
       Stack.SetBool(PStart, False);
-{$IFNDEF PS_NOINT64}
   end else if Proc.Name = 'GETSPACEONDISK64' then begin
     if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
       Stack.SetInt64(PStart-2, Int64(FreeBytes.Hi) shl 32 + FreeBytes.Lo);
@@ -879,7 +873,6 @@ begin
       Stack.SetBool(PStart, True);
     end else
       Stack.SetBool(PStart, False);
-{$ENDIF}
   end else if Proc.Name = 'GETUSERNAMESTRING' then begin
     Stack.SetString(PStart, GetUserNameString());
   end else if Proc.Name = 'INCREMENTSHAREDCOUNT' then begin
@@ -1177,7 +1170,6 @@ begin
     except
       Stack.SetBool(PStart, False);
     end;
-{$IFNDEF PS_NOINT64}
   end else if Proc.Name = 'FILESIZE64' then begin
     try
       F := TFileRedir.Create(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
@@ -1191,7 +1183,6 @@ begin
     except
       Stack.SetBool(PStart, False);
     end;
-{$ENDIF}
   end else if Proc.Name = 'SET8087CW' then begin
     Set8087CW(Stack.GetInt(PStart));
   end else if Proc.Name = 'GET8087CW' then begin

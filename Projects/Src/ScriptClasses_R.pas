@@ -327,7 +327,6 @@ begin
   end;
 end;
 
-{$IFNDEF PS_NOINT64}
 procedure TDownloadPageAbortedByUser_R(Self: TDownloadWizardPage; var T: Boolean); begin T := Self.AbortedByUser; end;
 
 procedure RegisterDownloadWizardPage_R(CL: TPSRuntimeClassImporter);
@@ -342,7 +341,6 @@ begin
     RegisterMethod(@TDownloadWizardPage.Show, 'Show');
   end;
 end;
-{$ENDIF}
 
 procedure RegisterHandCursor_R(Cl: TPSRuntimeClassImporter);
 const
@@ -445,9 +443,7 @@ begin
     RegisterOutputMsgMemoWizardPage_R(Cl);
     RegisterOutputProgressWizardPage_R(Cl);
     RegisterOutputMarqueeProgressWizardPage_R(Cl);
-{$IFNDEF PS_NOINT64}
     RegisterDownloadWizardPage_R(Cl);
-{$ENDIF}
 
     RegisterHandCursor_R(Cl);
 
