@@ -2,7 +2,7 @@
 #include <commctrl.h>
 
 #if defined(_X86_)
-	#define ARCHNOTE TEXT("")
+	#define ARCHNOTE TEXT("\n\n(This EXE was compiled for the x86 architecture.)")
 #elif defined(_AMD64_)
 	#define ARCHNOTE TEXT("\n\n(This EXE was compiled for the x64 architecture.)")
 #elif defined(_M_ARM64)

@@ -217,11 +217,8 @@ stored in a compiled resource file.
 **Projects\Src\Lzma2\Decoder\ISLzmaDec.obj**, **Projects\Src\Lzma2\Decoder\ISLzma2Dec.obj** -
 See [Projects\Src\Lzma2\Decoder\compiling.txt].
 
-**Examples\MyProg.exe**, **Examples\MyProg-x64.exe** - Compiled by Visual Studio
-2005 from the [Examples\MyProg] directory.
-
-**Examples\MyProg-ARM64.exe** - Compiled by Visual Studio 2017 from the
-[Examples\MyProg] directory.
+**Examples\MyProg.exe**, **Examples\MyProg-x64.exe**, **Examples\MyProg-ARM64.exe** -
+Compiled by Visual Studio 2022 from the [Examples\MyProg] directory.
 
 Inno Setup-specific editing guidelines for the help files
 ---------------------------------------------------------
