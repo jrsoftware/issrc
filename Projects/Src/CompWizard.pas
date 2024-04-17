@@ -185,7 +185,7 @@ implementation
 {$R *.DFM}
 
 uses
-  SysUtils, ShlObj, ActiveX, UITypes,
+  SysUtils, ShlObj, ActiveX, UITypes, FileClass,
   PathFunc, CmnFunc, CmnFunc2, CompFunc, BrowseFunc,
   CompMsgs, CompWizardFile;
 
@@ -347,7 +347,7 @@ begin
   NotDisableDirPageCheck.Checked := True;
 
   { AppFiles }
-  AppExeEdit.Text := PathExtractPath(NewParamStr(0)) + 'Examples\MyProg.exe';
+  AppExeEdit.Text := PathExtractPath(NewParamStr(0)) + 'Examples\MyProg-x64.exe';
   AppExeRunCheck.Checked := True;
 
   { AppAssoc }
@@ -816,6 +816,42 @@ end;
 { --- }
 
 procedure TWizardForm.GenerateScript;
+
+  function Is64BitPEImage(const Filename: String): Boolean;
+  { Returns True if the specified file is a non-32-bit PE image, False
+    otherwise. }
+  var
+    F: TFile;
+    DosHeader: packed record
+      Sig: array[0..1] of AnsiChar;
+      Other: array[0..57] of Byte;
+      PEHeaderOffset: LongWord;
+    end;
+    PESigAndHeader: packed record
+      Sig: DWORD;
+      Header: TImageFileHeader;
+      OptHeaderMagic: Word;
+    end;
+  begin
+    Result := False;
+    F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
+    try
+      if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
+        if (DosHeader.Sig[0] = 'M') and (DosHeader.Sig[1] = 'Z') and
+           (DosHeader.PEHeaderOffset <> 0) then begin
+          F.Seek(DosHeader.PEHeaderOffset);
+          if F.Read(PESigAndHeader, SizeOf(PESigAndHeader)) = SizeOf(PESigAndHeader) then begin
+            if (PESigAndHeader.Sig = IMAGE_NT_SIGNATURE) and
+               (PESigAndHeader.OptHeaderMagic <> IMAGE_NT_OPTIONAL_HDR32_MAGIC) then
+              Result := True;
+          end;
+        end;
+      end;
+    finally
+      F.Free;
+    end;
+  end;
+
 var
   Script, ISPP, Setup, Languages, Tasks, Files, Registry, INI, Icons, Run, UninstallDelete: String;
   I: Integer;
@@ -919,6 +955,16 @@ begin
           Run := Run + 'Filename: "{app}\' + AppExeName + '"; Description: "{cm:LaunchProgram,' + AppAmpEscapedName + '}"; Flags: nowait postinstall skipifsilent' + SNewLine
         else
           Run := Run + 'Filename: "{app}\' + AppExeName + '"; Description: "{cm:LaunchProgram,' + AppAmpEscapedName + '}"; Flags: shellexec postinstall skipifsilent' + SNewLine;
+      end;
+      if Is64BitPEImage(AppExeEdit.Text) then begin
+        Setup := Setup + '; "ArchitecturesAllowed=x64compatible" specifies that Setup cannot run' + SNewLine;
+        Setup := Setup + '; on anything but x64 and Windows 11 on Arm.' + SNewLine;
+        Setup := Setup + 'ArchitecturesAllowed=x64compatible' + SNewLine;
+        Setup := Setup + '; "ArchitecturesInstallIn64BitMode=x64compatible" requests that the' + SNewLine;
+        Setup := Setup + '; install be done in "64-bit mode" on x64 or Windows 11 on Arm,' + SNewLine;
+        Setup := Setup + '; meaning it should use the native 64-bit Program Files directory and' + SNewLine;
+        Setup := Setup + '; the 64-bit view of the registry.' + SNewLine;
+        Setup := Setup + 'ArchitecturesInstallIn64BitMode=x64compatible' + SNewLine;
       end;
     end;
 
