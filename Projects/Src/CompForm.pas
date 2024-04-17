@@ -66,6 +66,8 @@ type
 
   TFindResults = TObjectList<TFindResult>;
 
+  TMenuBitmaps = TDictionary<TMenuItem, HBITMAP>;
+
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -408,6 +410,8 @@ type
     FPendingSquigglyCaretPos: Integer;
     FCallStackCount: Cardinal;
     FDevMode, FDevNames: HGLOBAL;
+    FMenuBitmaps: TMenuBitmaps;
+    FMenuBitmapsSize: TSize;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -501,6 +505,8 @@ type
     procedure UpdateTargetMenu;
     procedure UpdateTheme;
     procedure UpdateThemeData(const Open: Boolean);
+    procedure UpdateMenuBitmapsIfNeeded;
+    procedure ApplyMenuBitmaps(const ParentMenu: TMenuItem);
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
@@ -815,6 +821,10 @@ begin
   UpdateCaption;
 
   UpdateThemeData(True);
+  
+  FMenuBitmaps := TMenuBitmaps.Create;
+  FMenuBitmapsSize.cx := 0;
+  FMenuBitmapsSize.cy := 0;
 
   if CommandLineCompile then begin
     ReadSignTools(FSignTools);
@@ -825,7 +835,7 @@ begin
     { Show wizard form later }
     PostMessage(Handle, WM_StartCommandLineWizard, 0, 0);
   end else begin
-    ReadConfig;
+    ReadConfig; { Calls UpdateTheme }
     ReadSignTools(FSignTools);
     PostMessage(Handle, WM_StartNormally, 0, 0);
   end;
@@ -879,6 +889,7 @@ begin
   if FDevNames <> 0 then
     GlobalFree(FDevNames);
 
+  FMenuBitmaps.Free;
   FTheme.Free;
   DestroyDebugInfo;
   FIncludedFiles.Free;
@@ -1812,6 +1823,8 @@ begin
       else
         Visible := False;
     end;
+
+  ApplyMenuBitmaps(FMenu);
 end;
 
 procedure TCompileForm.FNewMainFileClick(Sender: TObject);
@@ -4653,6 +4666,127 @@ begin
     if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSSPACESIZE, FProgressSpaceSize) <> S_OK) or
        (FProgressSpaceSize < 0) then  { ...since "OpusOS" theme returns a bogus -1 value }
       FProgressSpaceSize := 2;
+  end;
+end;
+
+procedure TCompileForm.UpdateMenuBitmapsIfNeeded;
+
+  procedure AddMenuBitmap(const MemoryDC: HDC; const BitmapInfo: TBitmapInfo;
+    const MenuItem: TMenuItem; const ImageIndex: Integer);
+  begin
+    var pvBits: Pointer;
+    var Bitmap := CreateDIBSection(MemoryDC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    SelectObject(MemoryDC, Bitmap);
+    if ImageList_Draw(ToolBarVirtualImageList.Handle, ImageIndex, MemoryDC, 0, 0, ILD_TRANSPARENT) then
+      FMenuBitmaps.Add(MenuItem, Bitmap);
+  end;
+
+begin
+  var NewSize: TSize;
+  NewSize.cx := ToolBarVirtualImageList.Width;
+  NewSize.cy := ToolBarVirtualImageList.Height;
+  if (NewSize.cx <> FMenuBitmapsSize.cx) or (NewSize.cy <> FMenuBitmapsSize.cy) then begin
+    
+    { Delete bitmaps created before }
+    
+    for var Bitmap in FMenuBitmaps.Values do
+      DeleteObject(Bitmap);
+    FMenuBitmaps.Clear;
+
+    { This will create bitmaps for the current DPI using ImageList_Draw.
+
+      These draw perfectly even on Windows 7. Other techniques don't work because
+      they loose transparency or only look good on Windows 8 and later. Or they do
+      work but cause lots more VCL code to be run than just our simple CreateDIB+Draw
+      combo.
+
+      ApplyBitmaps will apply them to menu items using SetMenuItemInfo. The menu item
+      does not copy the bitmap so they should still be alive after ApplyBitmaps is done.
+      
+      Depends MenuVirtualImageList to pick the best size icons for the current DPI from
+      the collection. Does not use ToolbarVirtualImageList because currently the menu
+      does not support dark mode but the toolbar does. }
+
+    var DC := GetDC(0);
+    try
+      var MemoryDC := CreateCompatibleDC(DC);
+      if MemoryDC <> 0 then begin
+        var OldBitmap := GetCurrentObject(MemoryDC, OBJ_BITMAP);
+        try
+          var BitmapInfo: TBitmapInfo;
+          ZeroMemory(@BitmapInfo, SizeOf(TBitmapInfo));
+          BitmapInfo.bmiHeader.biSize := SizeOf(TBitmapInfoHeader);
+          BitmapInfo.bmiHeader.biWidth := NewSize.cx;
+          BitmapInfo.bmiHeader.biHeight := NewSize.cy;
+          BitmapInfo.bmiHeader.biPlanes := 1;
+          bitmapInfo.bmiHeader.biBitCount := 32;
+          BitmapInfo.bmiHeader.biCompression := BI_RGB;
+          
+          AddMenuBitmap(MemoryDC, BitmapInfo, FNewMainFile, 0);
+          AddMenuBitmap(MemoryDC, BitmapInfo, FOpenMainFile, 1);
+        finally
+          SelectObject(MemoryDC, OldBitmap);
+          DeleteDC(MemoryDC);
+        end;
+     end;
+    finally
+      ReleaseDC(0, DC);
+    end;
+
+    FMenuBitmapsSize := NewSize;
+  end;
+end;
+
+procedure TCompileForm.ApplyMenuBitmaps(const ParentMenu: TMenuItem);
+begin
+  UpdateMenuBitmapsIfNeeded;
+
+  { Setting MainMenu1.ImageList or a menu item's .Bitmap doesn't work to make a
+    menu item show a bitmap is not OK: it causes the entire menu to become owner
+    drawn which makes it looks different from native menus and additionally the
+    trick SetFakeShortCut uses doesn't work with owner drawn menus.
+
+    Instead UpdateMenuBitmapsIfNeeded has prepared images which can be applied
+    to native menu items using SetMenuItemInfo and MIIM_BITMAP - which is what we
+    do below.
+
+    A problem with this is that Delphi's TMenu likes to constantly recreate the
+    underlying native menu items for example when updating the caption. Sometimes
+    it will even destroy and repopulate an entire menu because of a simple change
+    like setting the caption of a single item!
+
+    This means the result of our SetMenuItemInfo call (which Delphi doesn't know
+    about) will quickly become lost when Delphi recreates the menu item.
+
+    Fixing this in the OnChange event is not possible, this is event is more
+    than useless.
+
+    The solution is shown by TMenu.DispatchPopup: in reaction to WM_INITMENUPOPUP
+    it calls our Click events right before the menu is shown, giving us the
+    opportunity to call SetMenuItemInfo for the menu's items.
+
+    This works unless Delphi decides to destroy and repopulate the menu after
+    calling Click. Most amazingly it can do that indeed: it does this if the DPI
+    changed since the last popup or if a hotkey change or line reduction due
+    to the menu's AutoHotkeys or AutoLineReduction properties caused a change.
+
+    To avoid this MainMenu1.AutoHotkeys was set to maManual since we have always
+    managed the hotkeys ourselves anyway and .AutoLineReduction was also set to
+    maManual and we now manage that ourselves as well.
+
+    This just leave an issue with the icons not appearing on the first popup after
+    a DPI change and this seems like a minor issue only. }
+
+  var mmi: TMenuItemInfo;
+  mmi.cbSize := SizeOf(mmi);
+  mmi.fMask := MIIM_BITMAP;
+
+  for var MenuBitmap in FMenuBitmaps do begin
+    var MenuItem := MenuBitmap.Key;
+    if MenuItem.Parent = ParentMenu then begin
+      mmi.hbmpItem := MenuBitmap.Value;
+      SetMenuItemInfo(ParentMenu.Handle, MenuItem.Command, False, mmi);
+    end;
   end;
 end;
 
