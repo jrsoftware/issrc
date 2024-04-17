@@ -343,6 +343,8 @@ object CompileForm: TCompileForm
     OnClick = MemosTabSetClick
   end
   object MainMenu1: TMainMenu
+    AutoHotkeys = maManual
+    AutoLineReduction = maManual
     Left = 8
     Top = 48
     object FMenu: TMenuItem
