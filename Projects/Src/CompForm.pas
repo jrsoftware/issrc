@@ -4703,9 +4703,9 @@ begin
       ApplyBitmaps will apply them to menu items using SetMenuItemInfo. The menu item
       does not copy the bitmap so they should still be alive after ApplyBitmaps is done.
       
-      Depends MenuVirtualImageList to pick the best size icons for the current DPI from
-      the collection. Does not use ToolbarVirtualImageList because currently the menu
-      does not support dark mode but the toolbar does. }
+      Depends on MenuVirtualImageList to pick the best size icons for the current
+      DPI from the collection. Does not use ToolbarVirtualImageList because currently
+      the menu does not support dark mode but the toolbar does. }
 
     var DC := GetDC(0);
     try
@@ -4741,17 +4741,17 @@ procedure TCompileForm.ApplyMenuBitmaps(const ParentMenu: TMenuItem);
 begin
   UpdateMenuBitmapsIfNeeded;
 
-  { Setting MainMenu1.ImageList or a menu item's .Bitmap doesn't work to make a
-    menu item show a bitmap is not OK: it causes the entire menu to become owner
-    drawn which makes it looks different from native menus and additionally the
-    trick SetFakeShortCut uses doesn't work with owner drawn menus.
+  { Setting MainMenu1.ImageList or a menu item's .Bitmap to make a menu item
+    show a bitmap is not OK: it causes the entire menu to become owner drawn
+    which makes it looks different from native menus and additionally the trick
+    SetFakeShortCut uses doesn't work with owner drawn menus.
 
     Instead UpdateMenuBitmapsIfNeeded has prepared images which can be applied
     to native menu items using SetMenuItemInfo and MIIM_BITMAP - which is what we
     do below.
 
     A problem with this is that Delphi's TMenu likes to constantly recreate the
-    underlying native menu items for example when updating the caption. Sometimes
+    underlying native menu items, for example when updating the caption. Sometimes
     it will even destroy and repopulate an entire menu because of a simple change
     like setting the caption of a single item!
 
@@ -4767,8 +4767,8 @@ begin
 
     This works unless Delphi decides to destroy and repopulate the menu after
     calling Click. Most amazingly it can do that indeed: it does this if the DPI
-    changed since the last popup or if a hotkey change or line reduction due
-    to the menu's AutoHotkeys or AutoLineReduction properties caused a change.
+    changed since the last popup or if a automatic hotkey change or line reduction
+    happens due to the menu's AutoHotkeys or AutoLineReduction properties.
 
     To avoid this MainMenu1.AutoHotkeys was set to maManual since we have always
     managed the hotkeys ourselves anyway and .AutoLineReduction was also set to
