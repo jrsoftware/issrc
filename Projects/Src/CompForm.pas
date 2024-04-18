@@ -4738,8 +4738,14 @@ begin
           bitmapInfo.bmiHeader.biBitCount := 32;
           BitmapInfo.bmiHeader.biCompression := BI_RGB;
           
-          AddMenuBitmap(MemoryDC, BitmapInfo, FNewMainFile, 0);
-          AddMenuBitmap(MemoryDC, BitmapInfo, FOpenMainFile, 1);
+          AddMenuBitmap(MemoryDC, BitmapInfo, FNewMainFile, NewMainFileButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, FOpenMainFile, OpenMainFileButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, FSave, SaveButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, BCompile, CompileButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, BStopCompile, StopCompileButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, RRun, RunButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, RPause, PauseButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, HDoc, HelpButton.ImageIndex);
         finally
           SelectObject(MemoryDC, OldBitmap);
           DeleteDC(MemoryDC);
