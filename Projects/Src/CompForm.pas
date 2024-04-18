@@ -328,6 +328,7 @@ type
     procedure MemosTabSetPopup(Sender: TObject);
     procedure MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
     procedure StatusBarClick(Sender: TObject);
+    procedure RMenuClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -2258,6 +2259,8 @@ begin
   EReplace.Enabled := MemoHasFocus and not MemoIsReadOnly;
   EGoto.Enabled := MemoHasFocus;
   ECompleteWord.Enabled := MemoHasFocus and not MemoIsReadOnly;
+
+  ApplyMenuBitmaps(FMenu);
 end;
 
 procedure TCompileForm.EUndoClick(Sender: TObject);
@@ -2320,6 +2323,8 @@ begin
   VDebugOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugOutput);
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
   VFindResults.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiFindResults);
+
+  ApplyMenuBitmaps(FMenu);
 end;
 
 procedure TCompileForm.VNextTabClick(Sender: TObject);
@@ -2512,6 +2517,8 @@ procedure TCompileForm.BMenuClick(Sender: TObject);
 begin
   BLowPriority.Checked := FOptions.LowPriorityDuringCompile;
   BOpenOutputFolder.Enabled := (FCompiledExe <> '');
+
+  ApplyMenuBitmaps(BMenu);
 end;
 
 procedure TCompileForm.BCompileClick(Sender: TObject);
@@ -2552,6 +2559,8 @@ procedure TCompileForm.HMenuClick(Sender: TObject);
 begin
   HISPPDoc.Visible := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ispp.chm');
   HISPPSep.Visible := HISPPDoc.Visible;
+
+  ApplyMenuBitmaps(HMenu);
 end;
 
 procedure TCompileForm.HShortcutsDocClick(Sender: TObject);
@@ -3057,6 +3066,11 @@ begin
   end;
 end;
 
+procedure TCompileForm.RMenuClick(Sender: TObject);
+begin
+  ApplyMenuBitmaps(FMenu);
+end;
+
 procedure TCompileForm.TMenuClick(Sender: TObject);
 var
   MemoIsReadOnly: Boolean;
@@ -3065,6 +3079,8 @@ begin
   TGenerateGUID.Enabled := not MemoIsReadOnly;
   TMsgBoxDesigner.Enabled := not MemoIsReadOnly;
   TFilesDesigner.Enabled := not MemoIsReadOnly;
+
+  ApplyMenuBitmaps(FMenu);
 end;
 
 procedure TCompileForm.TAddRemoveProgramsClick(Sender: TObject);

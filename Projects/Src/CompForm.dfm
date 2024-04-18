@@ -609,6 +609,7 @@ object CompileForm: TCompileForm
     end
     object RMenu: TMenuItem
       Caption = '&Run'
+      OnClick = RMenuClick
       object RRun: TMenuItem
         Caption = '&Run'
         ShortCut = 120
