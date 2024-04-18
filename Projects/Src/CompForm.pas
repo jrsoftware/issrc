@@ -4704,6 +4704,20 @@ procedure TCompileForm.UpdateMenuBitmapsIfNeeded;
     AddMenuBitmap(MemoryDC, BitmapInfo, MenuItem, ImageList, ImageList.GetIndexByName(ImageName));
   end;
 
+type
+  TButtonedMenu = TPair<TMenuItem, TToolButton>;
+  TNamedMenu = TPair<TMenuItem, String>;
+
+  function BM(const MenuItem: TMenuItem; const ToolButton: TToolButton): TButtonedMenu;
+  begin
+    Result := TButtonedMenu.Create(MenuItem, ToolButton); { This is a record so no need to free }
+  end;
+
+  function NM(const MenuItem: TMenuItem; const Name: String): TNamedMenu;
+  begin
+    Result := TNamedMenu.Create(MenuItem, Name); { This is a record so no need to free }
+  end;
+
 begin
   { This will create bitmaps for the current DPI using ImageList_Draw.
 
@@ -4743,47 +4757,55 @@ begin
         var OldBitmap := GetCurrentObject(MemoryDC, OBJ_BITMAP);
         try
           var BitmapInfo: TBitmapInfo;
-          ZeroMemory(@BitmapInfo, SizeOf(TBitmapInfo));
-          BitmapInfo.bmiHeader.biSize := SizeOf(TBitmapInfoHeader);
+          ZeroMemory(@BitmapInfo, SizeOf(BitmapInfo));
+          BitmapInfo.bmiHeader.biSize := SizeOf(BitmapInfo.bmiHeader);
           BitmapInfo.bmiHeader.biWidth := NewSize.cx;
           BitmapInfo.bmiHeader.biHeight := NewSize.cy;
           BitmapInfo.bmiHeader.biPlanes := 1;
           bitmapInfo.bmiHeader.biBitCount := 32;
           BitmapInfo.bmiHeader.biCompression := BI_RGB;
-          
-          AddMenuBitmap(MemoryDC, BitmapInfo, FNewMainFile, ImageList, NewMainFileButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, FOpenMainFile, ImageList, OpenMainFileButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, FSave, ImageList, SaveButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, BCompile, ImageList, CompileButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, BStopCompile, ImageList, StopCompileButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, RRun, ImageList, RunButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, RPause, ImageList, PauseButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, RTerminate, ImageList, TerminateButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, HDoc, ImageList, HelpButton.ImageIndex);
 
-          AddMenuBitmap(MemoryDC, BitmapInfo, FSaveMainFileAs, ImageList, 'save-as-filled');
-          AddMenuBitmap(MemoryDC, BitmapInfo, FSaveAll, ImageList, 'save-all-filled');
-          AddMenuBitmap(MemoryDC, BitmapInfo, FPrint, ImageList, 'printer');
-          AddMenuBitmap(MemoryDC, BitmapInfo, EUndo, ImageList, 'command-undo-1');
-          AddMenuBitmap(MemoryDC, BitmapInfo, ERedo, ImageList, 'command-redo-1');
-          AddMenuBitmap(MemoryDC, BitmapInfo, ECut, ImageList, 'clipboard-cut');
-          AddMenuBitmap(MemoryDC, BitmapInfo, ECopy, ImageList, 'clipboard-copy');
-          AddMenuBitmap(MemoryDC, BitmapInfo, EPaste, ImageList, 'clipboard-paste');
-          AddMenuBitmap(MemoryDC, BitmapInfo, ESelectAll, ImageList, 'select-all');
-          AddMenuBitmap(MemoryDC, BitmapInfo, EFind, ImageList, 'find');
-          AddMenuBitmap(MemoryDC, BitmapInfo, EReplace, ImageList, 'replace');
-          AddMenuBitmap(MemoryDC, BitmapInfo, RParameters, ImageList, 'control-edit');
-          AddMenuBitmap(MemoryDC, BitmapInfo, RStepInto, ImageList, 'debug-step-into');
-          AddMenuBitmap(MemoryDC, BitmapInfo, RStepOver, ImageList, 'debug-step-over');
-          AddMenuBitmap(MemoryDC, BitmapInfo, RStepOut, ImageList, 'debug-step-out');
-          AddMenuBitmap(MemoryDC, BitmapInfo, RToggleBreakPoint, ImageList, 'debug-breakpoint-filled');
-          AddMenuBitmap(MemoryDC, BitmapInfo, REvaluate, ImageList, 'variables');
-          AddMenuBitmap(MemoryDC, BitmapInfo, TSignTools, ImageList, 'certificate-license');
-          AddMenuBitmap(MemoryDC, BitmapInfo, TOptions, ImageList, 'gears');
-          AddMenuBitmap(MemoryDC, BitmapInfo, HDonate, ImageList, 'heart-filled');
-          AddMenuBitmap(MemoryDC, BitmapInfo, HMailingList, ImageList, 'alert-filled');
-          AddMenuBitmap(MemoryDC, BitmapInfo, HWebsite, ImageList, 'home');
-          AddMenuBitmap(MemoryDC, BitmapInfo, HAbout, ImageList, 'button-info');
+          var ButtonedMenus := [
+            BM(FNewMainFile, NewMainFileButton),
+            BM(FOpenMainFile, OpenMainFileButton),
+            BM(FSave, SaveButton),
+            BM(BCompile, CompileButton),
+            BM(BStopCompile, StopCompileButton),
+            BM(RRun, RunButton),
+            BM(RPause, PauseButton),
+            BM(RTerminate, TerminateButton),
+            BM(HDoc, HelpButton)];
+
+          for var ButtonedMenu in ButtonedMenus do
+            AddMenuBitmap(MemoryDC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
+
+          var NamedMenus := [
+            NM(FSaveMainFileAs, 'save-as-filled'),
+            NM(FSaveAll, 'save-all-filled'),
+            NM(FPrint, 'printer'),
+            NM(EUndo, 'command-undo-1'),
+            NM(ERedo, 'command-redo-1'),
+            NM(ECut, 'clipboard-cut'),
+            NM(ECopy, 'clipboard-copy'),
+            NM(EPaste, 'clipboard-paste'),
+            NM(ESelectAll, 'select-all'),
+            NM(EFind, 'find'),
+            NM(EReplace, 'replace'),
+            NM(RParameters, 'control-edit'),
+            NM(RStepInto, 'debug-step-into'),
+            NM(RStepOver, 'debug-step-over'),
+            NM(RStepOut, 'debug-step-out'),
+            NM(RToggleBreakPoint, 'debug-breakpoint-filled'),
+            NM(REvaluate, 'variables'),
+            NM(TSignTools, 'certificate-license'),
+            NM(TOptions, 'gears'),
+            NM(HDonate, 'heart-filled'),
+            NM(HMailingList, 'alert-filled'),
+            NM(HWebsite, 'home'),
+            NM(HAbout, 'button,info')];
+
+          for var NamedMenu in NamedMenus do
+            AddMenuBitmap(MemoryDC, BitmapInfo, NamedMenu.Key, ImageList, NamedMenu.Value);
         finally
           SelectObject(MemoryDC, OldBitmap);
           DeleteDC(MemoryDC);
