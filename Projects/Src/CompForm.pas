@@ -4769,6 +4769,21 @@ begin
           AddMenuBitmap(MemoryDC, BitmapInfo, ECut, ImageList, 'clipboard-cut');
           AddMenuBitmap(MemoryDC, BitmapInfo, ECopy, ImageList, 'clipboard-copy');
           AddMenuBitmap(MemoryDC, BitmapInfo, EPaste, ImageList, 'clipboard-paste');
+          AddMenuBitmap(MemoryDC, BitmapInfo, ESelectAll, ImageList, 'select-all');
+          AddMenuBitmap(MemoryDC, BitmapInfo, EFind, ImageList, 'find');
+          AddMenuBitmap(MemoryDC, BitmapInfo, EReplace, ImageList, 'replace');
+          AddMenuBitmap(MemoryDC, BitmapInfo, RParameters, ImageList, 'control-edit');
+          AddMenuBitmap(MemoryDC, BitmapInfo, RStepInto, ImageList, 'debug-step-into');
+          AddMenuBitmap(MemoryDC, BitmapInfo, RStepOver, ImageList, 'debug-step-over');
+          AddMenuBitmap(MemoryDC, BitmapInfo, RStepOut, ImageList, 'debug-step-out');
+          AddMenuBitmap(MemoryDC, BitmapInfo, RToggleBreakPoint, ImageList, 'debug-breakpoint-filled');
+          AddMenuBitmap(MemoryDC, BitmapInfo, REvaluate, ImageList, 'variables');
+          AddMenuBitmap(MemoryDC, BitmapInfo, TSignTools, ImageList, 'certificate-license');
+          AddMenuBitmap(MemoryDC, BitmapInfo, TOptions, ImageList, 'gears');
+          AddMenuBitmap(MemoryDC, BitmapInfo, HDonate, ImageList, 'heart-filled');
+          AddMenuBitmap(MemoryDC, BitmapInfo, HMailingList, ImageList, 'alert-filled');
+          AddMenuBitmap(MemoryDC, BitmapInfo, HWebsite, ImageList, 'home');
+          AddMenuBitmap(MemoryDC, BitmapInfo, HAbout, ImageList, 'button-info');
         finally
           SelectObject(MemoryDC, OldBitmap);
           DeleteDC(MemoryDC);
