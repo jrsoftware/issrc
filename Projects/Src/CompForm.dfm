@@ -538,15 +538,15 @@ object CompileForm: TCompileForm
         OnClick = VPreviousTabClick
       end
       object VCloseCurrentTab: TMenuItem
-        Caption = 'Close Tab'
+        Caption = 'C&lose Tab'
         ShortCut = 16499
         OnClick = VCloseCurrentTabClick
       end
       object VReopenTab: TMenuItem
-        Caption = 'Reopen Tab'
+        Caption = 'Re&open Tab'
       end
       object VReopenTabs: TMenuItem
-        Caption = 'Reopen All Tabs'
+        Caption = 'Reopen &All Tabs'
         OnClick = VReopenTabsClick
       end
       object N20: TMenuItem
@@ -563,7 +563,7 @@ object CompileForm: TCompileForm
         OnClick = VDebugOutputClick
       end
       object VDebugCallStack: TMenuItem
-        Caption = 'Debug &Call Stack'
+        Caption = 'D&ebug Call Stack'
         RadioItem = True
         OnClick = VDebugCallStackClick
       end
@@ -4343,15 +4343,15 @@ object CompileForm: TCompileForm
     Left = 48
     Top = 51
     object VCloseCurrentTab2: TMenuItem
-      Caption = 'Close Current Tab'
+      Caption = 'C&lose Current Tab'
       ShortCut = 16499
       OnClick = VCloseCurrentTabClick
     end
     object VReopenTab2: TMenuItem
-      Caption = 'Reopen Tab'
+      Caption = 'Re&open Tab'
     end
     object VReopenTabs2: TMenuItem
-      Caption = 'Reopen All Tabs'
+      Caption = 'Reopen &All Tabs'
       OnClick = VReopenTabsClick
     end
   end
