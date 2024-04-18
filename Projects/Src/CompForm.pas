@@ -187,7 +187,8 @@ type
     TerminateButton: TToolButton;
     LightToolBarImageCollection: TImageCollection;
     DarkToolBarImageCollection: TImageCollection;
-    ToolBarVirtualImageList: TVirtualImageList;
+    ThemedVirtualImageList: TVirtualImageList;
+    LightVirtualImageList: TVirtualImageList;
     PListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
@@ -2260,7 +2261,7 @@ begin
   EGoto.Enabled := MemoHasFocus;
   ECompleteWord.Enabled := MemoHasFocus and not MemoIsReadOnly;
 
-  ApplyMenuBitmaps(FMenu);
+  ApplyMenuBitmaps(EMenu);
 end;
 
 procedure TCompileForm.EUndoClick(Sender: TObject);
@@ -2324,7 +2325,7 @@ begin
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
   VFindResults.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiFindResults);
 
-  ApplyMenuBitmaps(FMenu);
+  ApplyMenuBitmaps(VMenu);
 end;
 
 procedure TCompileForm.VNextTabClick(Sender: TObject);
@@ -3068,7 +3069,7 @@ end;
 
 procedure TCompileForm.RMenuClick(Sender: TObject);
 begin
-  ApplyMenuBitmaps(FMenu);
+  ApplyMenuBitmaps(RMenu);
 end;
 
 procedure TCompileForm.TMenuClick(Sender: TObject);
@@ -3080,7 +3081,7 @@ begin
   TMsgBoxDesigner.Enabled := not MemoIsReadOnly;
   TFilesDesigner.Enabled := not MemoIsReadOnly;
 
-  ApplyMenuBitmaps(FMenu);
+  ApplyMenuBitmaps(TMenu);
 end;
 
 procedure TCompileForm.TAddRemoveProgramsClick(Sender: TObject);
@@ -4648,9 +4649,9 @@ begin
   ToolBarPanel.ParentBackground := False;
   ToolBarPanel.Color := FTheme.Colors[tcToolBack];
   if FTheme.Dark then
-    ToolBarVirtualImageList.ImageCollection := DarkToolBarImageCollection
+    ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
   else
-    ToolBarVirtualImageList.ImageCollection := LightToolBarImageCollection;
+    ThemedVirtualImageList.ImageCollection := LightToolBarImageCollection;
   UpdateBevel1Visibility;
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
@@ -4688,40 +4689,52 @@ end;
 procedure TCompileForm.UpdateMenuBitmapsIfNeeded;
 
   procedure AddMenuBitmap(const MemoryDC: HDC; const BitmapInfo: TBitmapInfo;
-    const MenuItem: TMenuItem; const ImageIndex: Integer);
+    const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageIndex: Integer); overload;
   begin
     var pvBits: Pointer;
     var Bitmap := CreateDIBSection(MemoryDC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
     SelectObject(MemoryDC, Bitmap);
-    if ImageList_Draw(ToolBarVirtualImageList.Handle, ImageIndex, MemoryDC, 0, 0, ILD_TRANSPARENT) then
+    if ImageList_Draw(ImageList.Handle, ImageIndex, MemoryDC, 0, 0, ILD_TRANSPARENT) then
       FMenuBitmaps.Add(MenuItem, Bitmap);
   end;
 
+  procedure AddMenuBitmap(const MemoryDC: HDC; const BitmapInfo: TBitmapInfo;
+    const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageName: String); overload;
+  begin
+    AddMenuBitmap(MemoryDC, BitmapInfo, MenuItem, ImageList, ImageList.GetIndexByName(ImageName));
+  end;
+
 begin
+  { This will create bitmaps for the current DPI using ImageList_Draw.
+
+    These draw perfectly even on Windows 7. Other techniques don't work because
+    they loose transparency or only look good on Windows 8 and later. Or they do
+    work but cause lots more VCL code to be run than just our simple CreateDIB+Draw
+    combo.
+
+    ApplyBitmaps will apply them to menu items using SetMenuItemInfo. The menu item
+    does not copy the bitmap so they should still be alive after ApplyBitmaps is done.
+
+    Depends on LightVirtualImageList to pick the best size icons for the current
+    DPI from the collection. Does not use ThemedVirtualImageList because currently
+    the menu does not support dark mode but the toolbar does. Note: all dark mode
+    icons *are* present in ThemedVirtualImageList, so even the ones which are not
+    on the toolbar and therefore not used at the moment. }
+
+  var ImageList := LightVirtualImageList;
+
   var NewSize: TSize;
-  NewSize.cx := ToolBarVirtualImageList.Width;
-  NewSize.cy := ToolBarVirtualImageList.Height;
+  NewSize.cx := ImageList.Width;
+  NewSize.cy := ImageList.Height;
   if (NewSize.cx <> FMenuBitmapsSize.cx) or (NewSize.cy <> FMenuBitmapsSize.cy) then begin
-    
-    { Delete bitmaps created before }
-    
+
+    { Cleanup previous }
+
     for var Bitmap in FMenuBitmaps.Values do
       DeleteObject(Bitmap);
     FMenuBitmaps.Clear;
 
-    { This will create bitmaps for the current DPI using ImageList_Draw.
-
-      These draw perfectly even on Windows 7. Other techniques don't work because
-      they loose transparency or only look good on Windows 8 and later. Or they do
-      work but cause lots more VCL code to be run than just our simple CreateDIB+Draw
-      combo.
-
-      ApplyBitmaps will apply them to menu items using SetMenuItemInfo. The menu item
-      does not copy the bitmap so they should still be alive after ApplyBitmaps is done.
-      
-      Depends on MenuVirtualImageList to pick the best size icons for the current
-      DPI from the collection. Does not use ToolbarVirtualImageList because currently
-      the menu does not support dark mode but the toolbar does. }
+    { Create }
 
     var DC := GetDC(0);
     try
@@ -4738,14 +4751,24 @@ begin
           bitmapInfo.bmiHeader.biBitCount := 32;
           BitmapInfo.bmiHeader.biCompression := BI_RGB;
           
-          AddMenuBitmap(MemoryDC, BitmapInfo, FNewMainFile, NewMainFileButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, FOpenMainFile, OpenMainFileButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, FSave, SaveButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, BCompile, CompileButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, BStopCompile, StopCompileButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, RRun, RunButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, RPause, PauseButton.ImageIndex);
-          AddMenuBitmap(MemoryDC, BitmapInfo, HDoc, HelpButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, FNewMainFile, ImageList, NewMainFileButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, FOpenMainFile, ImageList, OpenMainFileButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, FSave, ImageList, SaveButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, BCompile, ImageList, CompileButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, BStopCompile, ImageList, StopCompileButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, RRun, ImageList, RunButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, RPause, ImageList, PauseButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, RTerminate, ImageList, TerminateButton.ImageIndex);
+          AddMenuBitmap(MemoryDC, BitmapInfo, HDoc, ImageList, HelpButton.ImageIndex);
+
+          AddMenuBitmap(MemoryDC, BitmapInfo, FSaveMainFileAs, ImageList, 'save-as-filled');
+          AddMenuBitmap(MemoryDC, BitmapInfo, FSaveAll, ImageList, 'save-all-filled');
+          AddMenuBitmap(MemoryDC, BitmapInfo, FPrint, ImageList, 'printer');
+          AddMenuBitmap(MemoryDC, BitmapInfo, EUndo, ImageList, 'command-undo-1');
+          AddMenuBitmap(MemoryDC, BitmapInfo, ERedo, ImageList, 'command-redo-1');
+          AddMenuBitmap(MemoryDC, BitmapInfo, ECut, ImageList, 'clipboard-cut');
+          AddMenuBitmap(MemoryDC, BitmapInfo, ECopy, ImageList, 'clipboard-copy');
+          AddMenuBitmap(MemoryDC, BitmapInfo, EPaste, ImageList, 'clipboard-paste');
         finally
           SelectObject(MemoryDC, OldBitmap);
           DeleteDC(MemoryDC);
