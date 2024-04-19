@@ -82,7 +82,7 @@ ArchitecturesAllowed=win64</pre>
       The full list of new platform identifiers is: <tt>arm32compatible</tt>, <tt>x64compatible</tt>, <tt>x64os</tt>, <tt>x86compatible</tt>, <tt>x86os</tt>, and <tt>win64</tt>. See the new "Architecture Identifiers" help topic for more details.<br/><br/>
       All of the above is backward compatible so no changes are needed for your existing scripts. For example, this works unchanged (but see the updated <i>64BitThreeArch.iss</i> example script for the preferred setting):
       <pre>ArchitecturesInstallIn64BitMode=x64 arm64</pre>
-      Do note that the <tt>x64</tt> indentifier is now deprecated and the compiler will issue a warning if you use it anyway. It will substitute <tt>x64os</tt>, but <tt>x64compatible</tt> is preferred in most cases and it's simple to adopt it: just replace <tt>x64</tt> with <tt>x64compatible</tt>, and any <tt>IsX64</tt> with <tt>IsX64Compatible</tt>.<br/><br/>
+      Do note that the <tt>x64</tt> identifier is now deprecated and the compiler will issue a warning if you use it anyway. It will substitute <tt>x64os</tt>, but <tt>x64compatible</tt> is preferred in most cases and it's simple to adopt it: just replace <tt>x64</tt> with <tt>x64compatible</tt>, and any <tt>IsX64</tt> with <tt>IsX64Compatible</tt>.<br/><br/>
       The 64-bit example scripts like <i>64Bit.iss</i> have all been updated to use <tt>x64compatible</tt> as preferred.<br/><br/>
   </li>
   <li>In 64-bit install mode [Files] section flag <tt>regtypelib</tt> now registers type libraries inside a 64-bit process on Windows 11 for Arm as well.</li>
