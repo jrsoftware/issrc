@@ -4935,8 +4935,6 @@ begin
 end;
 
 procedure TCompileForm.StartProcess;
-const
-  SEE_MASK_NOZONECHECKS = $00800000;
 var
   RunFilename, RunParameters, WorkingDir: String;
   Info: TShellExecuteInfo;
