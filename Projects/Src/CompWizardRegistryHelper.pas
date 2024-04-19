@@ -324,7 +324,7 @@ begin
                                             .Replace('{', '{{')
                                             .QuotedString('"');
 
-        var FilterKey := ((FPrivilegesRequired = prAdmin) and RequiresNotAdminInstallMode(Entry)) or
+        var FilterKey := (not (FPrivilegesRequired = prAdmin) and RequiresNotAdminInstallMode(Entry)) or
                          ((FPrivilegesRequired = prLowest) and RequiresAdminInstallMode(Entry));
 
         if not FilterKey then
