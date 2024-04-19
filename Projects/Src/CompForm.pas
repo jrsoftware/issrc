@@ -4618,8 +4618,7 @@ begin
     Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlTheme(Memo);
   end;
-  ToolBarPanel.ParentBackground := False;
-  ToolBarPanel.Color := FTheme.Colors[tcToolBack];
+  Color := FTheme.Colors[tcToolBack];
   if FTheme.Dark then
     ToolBarVirtualImageList.ImageCollection := DarkToolBarImageCollection
   else
@@ -5552,6 +5551,7 @@ end;
 
 procedure TCompileForm.UpdateBevel1Visibility;
 begin
+  { Bevel1 is the line between the toolbar and the memo when there's no tabset }
   Bevel1.Visible := (FTheme.Colors[tcMarginBack] = ToolBarPanel.Color) and not MemosTabSet.Visible;
 end;
 
