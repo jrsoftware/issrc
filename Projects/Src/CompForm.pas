@@ -653,7 +653,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
     Ini := TConfigIniFile.Create;
     try
       { Menu check boxes state }
-      Toolbar.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
+      ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
       StatusBar.Visible := Ini.ReadBool('Options', 'ShowStatusBar', True);
       FOptions.LowPriorityDuringCompile := Ini.ReadBool('Options', 'LowPriorityDuringCompile', False);
 
@@ -844,7 +844,7 @@ destructor TCompileForm.Destroy;
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType));  { Also see TOptionsClick }
 
       { Menu check boxes state }
-      Ini.WriteBool('Options', 'ShowToolbar', Toolbar.Visible);
+      Ini.WriteBool('Options', 'ShowToolbar', ToolbarPanel.Visible);
       Ini.WriteBool('Options', 'ShowStatusBar', StatusBar.Visible);
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
@@ -2292,7 +2292,7 @@ begin
   VZoomIn.Enabled := (FActiveMemo.Zoom < 20);
   VZoomOut.Enabled := (FActiveMemo.Zoom > -10);
   VZoomReset.Enabled := (FActiveMemo.Zoom <> 0);
-  VToolbar.Checked := Toolbar.Visible;
+  VToolbar.Checked := ToolbarPanel.Visible;
   VStatusBar.Checked := StatusBar.Visible;
   VNextTab.Enabled := MemosTabSet.Visible and (MemosTabSet.Tabs.Count > 1);
   VPreviousTab.Enabled := VNextTab.Enabled;
@@ -2438,7 +2438,7 @@ end;
 
 procedure TCompileForm.VToolbarClick(Sender: TObject);
 begin
-  Toolbar.Visible := not Toolbar.Visible;
+  ToolbarPanel.Visible := not ToolbarPanel.Visible;
 end;
 
 procedure TCompileForm.VStatusBarClick(Sender: TObject);
