@@ -30,6 +30,7 @@ type
     property Dark: Boolean read FGetDark;
     property Modern: Boolean read FGetModern;
     property Typ: TThemeType read FType write FType;
+    class function DarkType(Typ: TThemeType): Boolean;
   end;
 
 implementation
@@ -100,9 +101,14 @@ begin
   Result := Colors[FType, Color];
 end;
 
+class function TTheme.DarkType(Typ: TThemeType): Boolean;
+begin
+  Result := Typ = ttModernDark;
+end;
+
 function TTheme.FGetDark: Boolean;
 begin
-  Result := FType = ttModernDark;
+  Result := DarkType(FType);
 end;
 
 function TTheme.FGetModern: Boolean;

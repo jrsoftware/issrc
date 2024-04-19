@@ -44,11 +44,13 @@
 {                                                                              }
 {******************************************************************************}
 
-{ Simplified by Martijn Laan for Inno Setup }
+{ Simplified by Martijn Laan for Inno Setup
 
-{ Cannot be replaced by Delphi's built in Winapi.UxTheme.pas even though it has
+  Cannot be replaced by Delphi's built in Winapi.UxTheme.pas even though it has
   the same functions: see the comment at the bottom of this file. For this
-  reason this unit has been renamed to NewUxTheme.  }
+  reason this unit has been renamed to NewUxTheme.
+  
+  Additionally this unit includes SetPreferredAppMode.  }
 
 unit NewUxTheme;
 
@@ -1012,6 +1014,14 @@ var
 
 var
   EnableTheming: function(fEnable: BOOL): HRESULT; stdcall;
+  
+//----------------------------------------------------------------------------------------------------------------------
+
+type
+  TPreferredAppMode = (pamDefault, pamAllowDark, pamForceDark, pamForceLight, pamMax);
+
+var
+  SetPreferredAppMode: function(appMode: TPreferredAppMode): TPreferredAppMode; stdcall;
 
 implementation
 
@@ -1085,6 +1095,7 @@ begin
     GetThemeDocumentationProperty := nil;
     DrawThemeParentBackground := nil;
     EnableTheming := nil;
+    SetPreferredAppMode := nil;
   end;
 end;
 
@@ -1098,6 +1109,15 @@ function InitThemeLibrary: Boolean;
   begin
     GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
     Result := StrPas(Buf);
+  end;
+
+  function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
+  begin
+    var OSVersionInfo: TOSVersionInfoEx;
+    OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
+    GetVersionEx(OSVersionInfo);
+    var WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
+    Result := WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
   end;
 
 begin
@@ -1153,6 +1173,10 @@ begin
       GetThemeDocumentationProperty := GetProcAddress(ThemeLibrary, 'GetThemeDocumentationProperty');
       DrawThemeParentBackground := GetProcAddress(ThemeLibrary, 'DrawThemeParentBackground');
       EnableTheming := GetProcAddress(ThemeLibrary, 'EnableTheming');
+      if WindowsVersionAtLeast(10, 0, 18362) then { 10.0.18362 = Windows 10 Version 1903 (May 2019 Update) }
+        SetPreferredAppMode := GetProcAddress(ThemeLibrary, MakeIntResource(135))
+      else
+        SetPreferredAppMode := nil;
     end;
   end;
   Result := ThemeLibrary <> 0;

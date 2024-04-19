@@ -189,6 +189,7 @@ type
     DarkToolBarImageCollection: TImageCollection;
     ThemedVirtualImageList: TVirtualImageList;
     LightVirtualImageList: TVirtualImageList;
+    DarkVirtualImageList: TVirtualImageList;
     PListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
@@ -412,6 +413,7 @@ type
     FPendingSquigglyCaretPos: Integer;
     FCallStackCount: Cardinal;
     FDevMode, FDevNames: HGLOBAL;
+    FMenuImageList: TVirtualImageList;
     FMenuBitmaps: TMenuBitmaps;
     FMenuBitmapsSize: TSize;
     class procedure AppOnException(Sender: TObject; E: Exception);
@@ -499,6 +501,7 @@ type
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
     procedure UpdateMemosTabSetVisibility;
+    procedure UpdateMenuBitmapsIfNeeded;
     procedure UpdateModifiedPanel;
     procedure UpdateNewMainFileButtons;
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
@@ -507,7 +510,6 @@ type
     procedure UpdateTargetMenu;
     procedure UpdateTheme;
     procedure UpdateThemeData(const Open: Boolean);
-    procedure UpdateMenuBitmapsIfNeeded;
     procedure ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
@@ -587,6 +589,9 @@ type
     constructor Create(const AOwner: TComponent; const ParentMenuItem: TMenuItem); reintroduce; virtual;
     procedure Popup(X, Y: Integer); override;
   end;
+
+var
+  DarkMenusAvailable, DarkMenusEnabled: Boolean;
 
 constructor TCompileFormPopupMenu.Create(const AOwner: TComponent; const ParentMenuItem: TMenuItem);
 begin
@@ -3220,6 +3225,8 @@ var
 begin
   OptionsForm := TOptionsForm.Create(Application);
   try
+    var OldDarkType := TTheme.DarkType(FOptions.ThemeType);
+
     OptionsForm.StartupCheck.Checked := FOptions.ShowStartupForm;
     OptionsForm.WizardCheck.Checked := FOptions.UseWizard;
     OptionsForm.AutosaveCheck.Checked := FOptions.Autosave;
@@ -3316,6 +3323,9 @@ begin
     finally
       Ini.Free;
     end;
+
+    if DarkMenusAvailable and (OldDarkType <> TTheme.DarkType(FOptions.ThemeType)) then
+      MsgBox('The new theme has been activated.' + SNewLine2 + 'A restart is required to also switch the context menus to or from dark mode.', SCompilerFormCaption, mbInformation, MB_OK);
   finally
     OptionsForm.Free;
   end;
@@ -4679,6 +4689,10 @@ begin
     ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
   else
     ThemedVirtualImageList.ImageCollection := LightToolBarImageCollection;
+  if DarkMenusEnabled then
+    FMenuImageList := DarkVirtualImageList
+  else
+    FMenuImageList := LightVirtualImageList;
   UpdateBevel1Visibility;
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
@@ -4762,7 +4776,7 @@ begin
     icons *are* present in ThemedVirtualImageList, so even the ones which are not
     on the toolbar and therefore not used at the moment. }
 
-  var ImageList := LightVirtualImageList;
+  var ImageList := FMenuImageList;
 
   var NewSize: TSize;
   NewSize.cx := ImageList.Width;
@@ -5842,6 +5856,23 @@ end;
 
 initialization
   InitThemeLibrary;
+  { SetPrefferedAppMode only works to get dark menus when its called before the
+    form is created so we call it here if dark mode will be activated later on.
+    When the user switches to or from dark mode TOptionsClick will ask for a
+    restart. }
+  if Assigned(SetPreferredAppMode) then begin
+    DarkMenusAvailable := True;
+    var Ini := TConfigIniFile.Create;
+    try
+      var I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
+      if (I >= 0) and (I <= Ord(High(TThemeType))) and TTheme.DarkType(TThemeType(I)) then begin
+        SetPreferredAppMode(pamForceDark);
+        DarkMenusEnabled := True;
+      end;
+    finally
+      Ini.Free;
+    end;
+  end;
   InitHtmlHelpLibrary;
   { For ClearType support, try to make the default font Microsoft Sans Serif }
   if DefFontData.Name = 'MS Sans Serif' then
