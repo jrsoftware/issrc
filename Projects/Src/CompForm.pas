@@ -4836,7 +4836,7 @@ begin
             NM(HMailingList, 'alert-filled'),
             NM(HWhatsNew, 'announcement'),
             NM(HWebsite, 'home'),
-            NM(HAbout, 'button,info')];
+            NM(HAbout, 'button-info')];
 
           for var NamedMenu in NamedMenus do
             AddMenuBitmap(MemoryDC, BitmapInfo, NamedMenu.Key, ImageList, NamedMenu.Value);
