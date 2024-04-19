@@ -123,7 +123,7 @@ type
     CheckIfRunningTimer: TTimer;
     RPause: TMenuItem;
     RParameters: TMenuItem;
-    ListPopupMenu: TPopupMenu;
+    ListPopupMenu: TMenuItem;
     PListCopy: TMenuItem;
     HISPPSep: TMenuItem;
     N12: TMenuItem;
@@ -329,7 +329,7 @@ type
     procedure MemosTabSetPopupMenuClick(Sender: TObject);
     procedure MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
     procedure StatusBarClick(Sender: TObject);
-    procedure RMenuClick(Sender: TObject);
+    procedure SimpleMenuClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -811,6 +811,13 @@ begin
   FMemosStyler.Theme := FTheme;
 
   MemosTabSet.PopupMenu := TCompileFormPopupMenu.Create(Self, MemosTabSetPopupMenu);
+
+  PopupMenu := TCompileFormPopupMenu.Create(Self, ListPopupMenu);
+  
+  CompilerOutputList.PopupMenu := PopupMenu;
+  DebugOutputList.PopupMenu := PopupMenu;
+  DebugCallStackList.PopupMenu := PopupMenu;
+  FindResultsList.PopupMenu := PopupMenu;
 
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
 
@@ -3088,7 +3095,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.RMenuClick(Sender: TObject);
+procedure TCompileForm.SimpleMenuClick(Sender: TObject);
 begin
   ApplyMenuBitmaps(Sender as TMenuItem);
 end;
@@ -4807,9 +4814,11 @@ begin
             NM(ERedo, 'command-redo-1'),
             NM(ECut, 'clipboard-cut'),
             NM(ECopy, 'clipboard-copy'),
+            NM(PListCopy, 'clipboard-copy'),
             NM(EPaste, 'clipboard-paste'),
             NM(EDelete, 'symbol-cancel'),
             NM(ESelectAll, 'select-all'),
+            NM(PListSelectAll, 'select-all'),
             NM(EFind, 'find'),
             NM(EFindInFiles, 'folder-filled-find'),
             //NM(EFindNext, 'unused\find-arrow-right-2'),

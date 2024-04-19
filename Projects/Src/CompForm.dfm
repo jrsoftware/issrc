@@ -68,7 +68,6 @@ object CompileForm: TCompileForm
         BorderStyle = bsNone
         ItemHeight = 13
         MultiSelect = True
-        PopupMenu = ListPopupMenu
         TabOrder = 3
         Visible = False
         OnDblClick = FindResultsListDblClick
@@ -84,7 +83,6 @@ object CompileForm: TCompileForm
         BorderStyle = bsNone
         ItemHeight = 13
         MultiSelect = True
-        PopupMenu = ListPopupMenu
         TabOrder = 2
         Visible = False
         OnDrawItem = DebugCallStackListDrawItem
@@ -99,7 +97,6 @@ object CompileForm: TCompileForm
         BorderStyle = bsNone
         ItemHeight = 13
         MultiSelect = True
-        PopupMenu = ListPopupMenu
         TabOrder = 1
         Visible = False
         OnDrawItem = DebugOutputListDrawItem
@@ -114,7 +111,6 @@ object CompileForm: TCompileForm
         BorderStyle = bsNone
         ItemHeight = 13
         MultiSelect = True
-        PopupMenu = ListPopupMenu
         TabOrder = 0
         OnDrawItem = CompilerOutputListDrawItem
       end
@@ -591,6 +587,21 @@ object CompileForm: TCompileForm
         RadioItem = True
         OnClick = VHideClick
       end
+      object ListPopupMenu: TMenuItem
+        Caption = 'ListPopupMenu'
+        Visible = False
+        OnClick = SimpleMenuClick
+        object PListCopy: TMenuItem
+          Caption = '&Copy'
+          ShortCut = 16451
+          OnClick = PListCopyClick
+        end
+        object PListSelectAll: TMenuItem
+          Caption = 'Select &All'
+          ShortCut = 16449
+          OnClick = PListSelectAllClick
+        end
+      end
     end
     object BMenu: TMenuItem
       Caption = '&Build'
@@ -623,7 +634,7 @@ object CompileForm: TCompileForm
     end
     object RMenu: TMenuItem
       Caption = '&Run'
-      OnClick = RMenuClick
+      OnClick = SimpleMenuClick
       object RRun: TMenuItem
         Caption = '&Run'
         ShortCut = 120
@@ -826,20 +837,6 @@ object CompileForm: TCompileForm
     OnTimer = CheckIfRunningTimerTimer
     Left = 200
     Top = 48
-  end
-  object ListPopupMenu: TPopupMenu
-    Left = 8
-    Top = 168
-    object PListCopy: TMenuItem
-      Caption = '&Copy'
-      ShortCut = 16451
-      OnClick = PListCopyClick
-    end
-    object PListSelectAll: TMenuItem
-      Caption = 'Select &All'
-      ShortCut = 16449
-      OnClick = PListSelectAllClick
-    end
   end
   object BuildImageList: TImageList
     ColorDepth = cd32Bit
