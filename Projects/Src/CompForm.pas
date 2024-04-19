@@ -676,7 +676,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
     Ini := TConfigIniFile.Create;
     try
       { Menu check boxes state }
-      Toolbar.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
+      ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
       StatusBar.Visible := Ini.ReadBool('Options', 'ShowStatusBar', True);
       FOptions.LowPriorityDuringCompile := Ini.ReadBool('Options', 'LowPriorityDuringCompile', False);
 
@@ -873,7 +873,7 @@ destructor TCompileForm.Destroy;
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType));  { Also see TOptionsClick }
 
       { Menu check boxes state }
-      Ini.WriteBool('Options', 'ShowToolbar', Toolbar.Visible);
+      Ini.WriteBool('Options', 'ShowToolbar', ToolbarPanel.Visible);
       Ini.WriteBool('Options', 'ShowStatusBar', StatusBar.Visible);
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
@@ -2326,7 +2326,7 @@ begin
   VZoomIn.Enabled := (FActiveMemo.Zoom < 20);
   VZoomOut.Enabled := (FActiveMemo.Zoom > -10);
   VZoomReset.Enabled := (FActiveMemo.Zoom <> 0);
-  VToolbar.Checked := Toolbar.Visible;
+  VToolbar.Checked := ToolbarPanel.Visible;
   VStatusBar.Checked := StatusBar.Visible;
   VNextTab.Enabled := MemosTabSet.Visible and (MemosTabSet.Tabs.Count > 1);
   VPreviousTab.Enabled := VNextTab.Enabled;
@@ -2367,22 +2367,28 @@ end;
 procedure TCompileForm.CloseTab(const TabIndex: Integer);
 begin
   var Memo := TabIndexToMemo(TabIndex, MemosTabSet.Tabs.Count-1);
+  var MemoWasActiveMemo:= Memo = FActiveMemo;
 
-  MemosTabSet.Tabs.Delete(TabIndex);
+  MemosTabSet.Tabs.Delete(TabIndex); { This will not change MemosTabset.TabIndex }
   MemosTabSet.Hints.Delete(TabIndex);
   MemosTabSet.CloseButtons.Delete(TabIndex);
-
-  if Memo = FActiveMemo then
-    Memo.Visible := False;
 
   FHiddenFiles.Add((Memo as TCompScintFileEdit).Filename);
   UpdateHiddenFilesPanel;
   SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
 
-  if TabIndex = MemosTabset.TabIndex then begin
-    { Select next tab, except when we're already at the end }
+  { Because MemosTabSet.Tabs and FHiddenFiles have both been updated now,
+    hereafter setting TabIndex will not select the memo we're closing
+    even if it's not hidden yet because TabIndexToMemo as called by
+    MemosTabSetClick will skip it }
+
+  if MemoWasActiveMemo then begin
+    { Select next tab, except when we're already at the end. Avoiding flicker by
+      doing this before hiding old active memo. }
     VNextTabClick(Self);
     VPreviousTabClick(Self);
+    Memo.CancelAutoComplete;
+    Memo.Visible := False;
   end else if TabIndex < MemosTabset.TabIndex then
     MemosTabSet.TabIndex := MemosTabset.TabIndex-1; { Reselect old selected tab }
 end;
@@ -2468,7 +2474,7 @@ end;
 
 procedure TCompileForm.VToolbarClick(Sender: TObject);
 begin
-  Toolbar.Visible := not Toolbar.Visible;
+  ToolbarPanel.Visible := not ToolbarPanel.Visible;
 end;
 
 procedure TCompileForm.VStatusBarClick(Sender: TObject);
@@ -2805,26 +2811,23 @@ begin
 end;
 
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
-var
-  Memo: TCompScintEdit;
-  TabIndex, MaxTabIndex: Integer;
 begin
-  FActiveMemo.CancelAutoComplete;
+  var NewActiveMemo := TabIndexToMemo(MemosTabSet.TabIndex, MemosTabSet.Tabs.Count-1);
+  if NewActiveMemo <> FActiveMemo then begin
+    { Avoiding flicker by showing new before hiding old }
+    NewActiveMemo.Visible := True;
+    var OldActiveMemo := FActiveMemo;
+    FActiveMemo := NewActiveMemo;
+    ActiveControl := NewActiveMemo;
+    OldActiveMemo.CancelAutoComplete;
+    OldActiveMemo.Visible := False;
 
-  MaxTabIndex := MemosTabSet.Tabs.Count-1;
-  for TabIndex := 0 to MaxTabIndex do begin
-    Memo := TabIndexToMemo(TabIndex, MaxTabIndex);
-    Memo.Visible := (TabIndex = MemosTabSet.TabIndex);
-    if Memo.Visible then begin
-      FActiveMemo := Memo;
-      ActiveControl := Memo;
-    end;
+    UpdateSaveMenuItemAndButton;
+    UpdateRunMenu;
+    UpdateCaretPosPanel;
+    UpdateEditModePanel;
+    UpdateModifiedPanel;
   end;
-  UpdateSaveMenuItemAndButton;
-  UpdateRunMenu;
-  UpdateCaretPosPanel;
-  UpdateEditModePanel;
-  UpdateModifiedPanel;
 end;
 
 procedure TCompileForm.MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
@@ -4664,8 +4667,7 @@ begin
     Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlTheme(Memo);
   end;
-  ToolBarPanel.ParentBackground := False;
-  ToolBarPanel.Color := FTheme.Colors[tcToolBack];
+  Color := FTheme.Colors[tcToolBack];
   if FTheme.Dark then
     ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
   else
@@ -5813,6 +5815,7 @@ end;
 
 procedure TCompileForm.UpdateBevel1Visibility;
 begin
+  { Bevel1 is the line between the toolbar and the memo when there's no tabset }
   Bevel1.Visible := (FTheme.Colors[tcMarginBack] = ToolBarPanel.Color) and not MemosTabSet.Visible;
 end;
 
