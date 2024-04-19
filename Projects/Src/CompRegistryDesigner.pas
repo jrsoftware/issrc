@@ -62,6 +62,7 @@ begin
     PrivilegesRequiredLabel.Caption := 'Script has PrivilegesRequired=lowest'
   else
     PrivilegesRequiredLabel.Caption := 'Script has PrivilegesRequiredOverridesAllowed set';
+  FRegistryHelper.PrivilegesRequired := Value;
 end;
 
 procedure TRegistryDesignerForm.FormCreate(Sender: TObject);
