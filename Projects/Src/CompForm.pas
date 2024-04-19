@@ -2331,22 +2331,28 @@ end;
 procedure TCompileForm.CloseTab(const TabIndex: Integer);
 begin
   var Memo := TabIndexToMemo(TabIndex, MemosTabSet.Tabs.Count-1);
+  var MemoWasActiveMemo:= Memo = FActiveMemo;
 
-  MemosTabSet.Tabs.Delete(TabIndex);
+  MemosTabSet.Tabs.Delete(TabIndex); { This will not change MemosTabset.TabIndex }
   MemosTabSet.Hints.Delete(TabIndex);
   MemosTabSet.CloseButtons.Delete(TabIndex);
-
-  if Memo = FActiveMemo then
-    Memo.Visible := False;
 
   FHiddenFiles.Add((Memo as TCompScintFileEdit).Filename);
   UpdateHiddenFilesPanel;
   SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
 
-  if TabIndex = MemosTabset.TabIndex then begin
-    { Select next tab, except when we're already at the end }
+  { Because MemosTabSet.Tabs and FHiddenFiles have both been updated now,
+    hereafter setting TabIndex will not select the memo we're closing
+    even if it's not hidden yet because TabIndexToMemo as called by
+    MemosTabSetClick will skip it }
+
+  if MemoWasActiveMemo then begin
+    { Select next tab, except when we're already at the end. Avoiding flicker by
+      doing this before hiding old active memo. }
     VNextTabClick(Self);
     VPreviousTabClick(Self);
+    Memo.CancelAutoComplete;
+    Memo.Visible := False;
   end else if TabIndex < MemosTabset.TabIndex then
     MemosTabSet.TabIndex := MemosTabset.TabIndex-1; { Reselect old selected tab }
 end;
@@ -2763,26 +2769,23 @@ begin
 end;
 
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
-var
-  Memo: TCompScintEdit;
-  TabIndex, MaxTabIndex: Integer;
 begin
-  FActiveMemo.CancelAutoComplete;
+  var NewActiveMemo := TabIndexToMemo(MemosTabSet.TabIndex, MemosTabSet.Tabs.Count-1);
+  if NewActiveMemo <> FActiveMemo then begin
+    { Avoiding flicker by showing new before hiding old }
+    NewActiveMemo.Visible := True;
+    var OldActiveMemo := FActiveMemo;
+    FActiveMemo := NewActiveMemo;
+    ActiveControl := NewActiveMemo;
+    OldActiveMemo.CancelAutoComplete;
+    OldActiveMemo.Visible := False;
 
-  MaxTabIndex := MemosTabSet.Tabs.Count-1;
-  for TabIndex := 0 to MaxTabIndex do begin
-    Memo := TabIndexToMemo(TabIndex, MaxTabIndex);
-    Memo.Visible := (TabIndex = MemosTabSet.TabIndex);
-    if Memo.Visible then begin
-      FActiveMemo := Memo;
-      ActiveControl := Memo;
-    end;
+    UpdateSaveMenuItemAndButton;
+    UpdateRunMenu;
+    UpdateCaretPosPanel;
+    UpdateEditModePanel;
+    UpdateModifiedPanel;
   end;
-  UpdateSaveMenuItemAndButton;
-  UpdateRunMenu;
-  UpdateCaretPosPanel;
-  UpdateEditModePanel;
-  UpdateModifiedPanel;
 end;
 
 procedure TCompileForm.MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
