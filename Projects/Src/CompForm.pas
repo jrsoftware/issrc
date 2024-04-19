@@ -66,6 +66,8 @@ type
 
   TFindResults = TObjectList<TFindResult>;
 
+  TMenuBitmaps = TDictionary<TMenuItem, HBITMAP>;
+
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -121,7 +123,7 @@ type
     CheckIfRunningTimer: TTimer;
     RPause: TMenuItem;
     RParameters: TMenuItem;
-    ListPopupMenu: TPopupMenu;
+    ListPopupMenu: TMenuItem;
     PListCopy: TMenuItem;
     HISPPSep: TMenuItem;
     N12: TMenuItem;
@@ -185,7 +187,8 @@ type
     TerminateButton: TToolButton;
     LightToolBarImageCollection: TImageCollection;
     DarkToolBarImageCollection: TImageCollection;
-    ToolBarVirtualImageList: TVirtualImageList;
+    ThemedVirtualImageList: TVirtualImageList;
+    LightVirtualImageList: TVirtualImageList;
     PListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
@@ -214,7 +217,7 @@ type
     VCloseCurrentTab: TMenuItem;
     VReopenTab: TMenuItem;
     VReopenTabs: TMenuItem;
-    MemosTabSetPopupMenu: TPopupMenu;
+    MemosTabSetPopupMenu: TMenuItem;
     VCloseCurrentTab2: TMenuItem;
     VReopenTab2: TMenuItem;
     VReopenTabs2: TMenuItem;
@@ -323,9 +326,10 @@ type
     procedure VCloseCurrentTabClick(Sender: TObject);
     procedure VReopenTabClick(Sender: TObject);
     procedure VReopenTabsClick(Sender: TObject);
-    procedure MemosTabSetPopup(Sender: TObject);
+    procedure MemosTabSetPopupMenuClick(Sender: TObject);
     procedure MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
     procedure StatusBarClick(Sender: TObject);
+    procedure SimpleMenuClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -408,6 +412,8 @@ type
     FPendingSquigglyCaretPos: Integer;
     FCallStackCount: Cardinal;
     FDevMode, FDevNames: HGLOBAL;
+    FMenuBitmaps: TMenuBitmaps;
+    FMenuBitmapsSize: TSize;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -501,6 +507,8 @@ type
     procedure UpdateTargetMenu;
     procedure UpdateTheme;
     procedure UpdateThemeData(const Open: Boolean);
+    procedure UpdateMenuBitmapsIfNeeded;
+    procedure ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
@@ -569,21 +577,36 @@ const
 
   LineStateGrowAmount = 4000;
 
-{ TCompileFormMemoPopupMenu }
+{ TCompileFormPopupMenu }
 
 type
-  TCompileFormMemoPopupMenu = class(TPopupMenu)
+  TCompileFormPopupMenu = class(TPopupMenu)
+  private
+    FParentMenuItem: TMenuItem;
   public
+    constructor Create(const AOwner: TComponent; const ParentMenuItem: TMenuItem); reintroduce; virtual;
     procedure Popup(X, Y: Integer); override;
   end;
 
-procedure TCompileFormMemoPopupMenu.Popup(X, Y: Integer);
+constructor TCompileFormPopupMenu.Create(const AOwner: TComponent; const ParentMenuItem: TMenuItem);
+begin
+  inherited Create(AOwner);
+  FParentMenuItem := ParentMenuItem;
+end;
+
+procedure TCompileFormPopupMenu.Popup(X, Y: Integer);
 var
   Form: TCompileForm;
 begin
-  { Show the existing Edit menu }
+  { Show the existing main menu's submenu }
   Form := Owner as TCompileForm;
-  TrackPopupMenu(Form.EMenu.Handle, TPM_RIGHTBUTTON, X, Y, 0, Form.Handle, nil);
+  var OldVisible := FParentMenuItem.Visible; { See ApplyMenuBitmaps }
+  FParentMenuItem.Visible := True;
+  try
+    TrackPopupMenu(FParentMenuItem.Handle, TPM_RIGHTBUTTON, X, Y, 0, Form.Handle, nil);
+  finally
+    FParentMenuItem.Visible := OldVisible;
+  end;
 end;
 
 { TCompileForm }
@@ -764,7 +787,7 @@ begin
     editor's autocompletion list }
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
 
-  PopupMenu := TCompileFormMemoPopupMenu.Create(Self);
+  PopupMenu := TCompileFormPopupMenu.Create(Self, EMenu);
 
   FMemosStyler := TInnoSetupStyler.Create(Self);
   FMemosStyler.ISPPInstalled := ISPPInstalled;
@@ -786,6 +809,15 @@ begin
   FErrorMemo := FMainMemo;
   FStepMemo := FMainMemo;
   FMemosStyler.Theme := FTheme;
+
+  MemosTabSet.PopupMenu := TCompileFormPopupMenu.Create(Self, MemosTabSetPopupMenu);
+
+  PopupMenu := TCompileFormPopupMenu.Create(Self, ListPopupMenu);
+  
+  CompilerOutputList.PopupMenu := PopupMenu;
+  DebugOutputList.PopupMenu := PopupMenu;
+  DebugCallStackList.PopupMenu := PopupMenu;
+  FindResultsList.PopupMenu := PopupMenu;
 
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
 
@@ -815,6 +847,10 @@ begin
   UpdateCaption;
 
   UpdateThemeData(True);
+  
+  FMenuBitmaps := TMenuBitmaps.Create;
+  FMenuBitmapsSize.cx := 0;
+  FMenuBitmapsSize.cy := 0;
 
   if CommandLineCompile then begin
     ReadSignTools(FSignTools);
@@ -825,7 +861,7 @@ begin
     { Show wizard form later }
     PostMessage(Handle, WM_StartCommandLineWizard, 0, 0);
   end else begin
-    ReadConfig;
+    ReadConfig; { Calls UpdateTheme }
     ReadSignTools(FSignTools);
     PostMessage(Handle, WM_StartNormally, 0, 0);
   end;
@@ -879,6 +915,7 @@ begin
   if FDevNames <> 0 then
     GlobalFree(FDevNames);
 
+  FMenuBitmaps.Free;
   FTheme.Free;
   DestroyDebugInfo;
   FIncludedFiles.Free;
@@ -1811,6 +1848,8 @@ begin
       else
         Visible := False;
     end;
+
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.FNewMainFileClick(Sender: TObject);
@@ -2244,6 +2283,8 @@ begin
   EReplace.Enabled := MemoHasFocus and not MemoIsReadOnly;
   EGoto.Enabled := MemoHasFocus;
   ECompleteWord.Enabled := MemoHasFocus and not MemoIsReadOnly;
+
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.EUndoClick(Sender: TObject);
@@ -2306,6 +2347,8 @@ begin
   VDebugOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugOutput);
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
   VFindResults.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiFindResults);
+
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.VNextTabClick(Sender: TObject);
@@ -2504,6 +2547,8 @@ procedure TCompileForm.BMenuClick(Sender: TObject);
 begin
   BLowPriority.Checked := FOptions.LowPriorityDuringCompile;
   BOpenOutputFolder.Enabled := (FCompiledExe <> '');
+
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.BCompileClick(Sender: TObject);
@@ -2544,6 +2589,8 @@ procedure TCompileForm.HMenuClick(Sender: TObject);
 begin
   HISPPDoc.Visible := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ispp.chm');
   HISPPSep.Visible := HISPPDoc.Visible;
+
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.HShortcutsDocClick(Sender: TObject);
@@ -2757,7 +2804,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.MemosTabSetPopup(Sender: TObject);
+procedure TCompileForm.MemosTabSetPopupMenuClick(Sender: TObject);
 begin
   { Main and preprocessor memos can't be hidden }
   VCloseCurrentTab2.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
@@ -2766,6 +2813,8 @@ begin
   if VReopenTab2.Visible then
     UpdateReopenTabMenu(VReopenTab2);
   VReopenTabs2.Visible := VReopenTab2.Visible;
+
+  ApplyMenuBitmaps(Sender as TMenuItem)
 end;
 
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
@@ -3046,6 +3095,11 @@ begin
   end;
 end;
 
+procedure TCompileForm.SimpleMenuClick(Sender: TObject);
+begin
+  ApplyMenuBitmaps(Sender as TMenuItem);
+end;
+
 procedure TCompileForm.TMenuClick(Sender: TObject);
 var
   MemoIsReadOnly: Boolean;
@@ -3054,6 +3108,8 @@ begin
   TGenerateGUID.Enabled := not MemoIsReadOnly;
   TMsgBoxDesigner.Enabled := not MemoIsReadOnly;
   TFilesDesigner.Enabled := not MemoIsReadOnly;
+
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.TAddRemoveProgramsClick(Sender: TObject);
@@ -4620,9 +4676,9 @@ begin
   end;
   Color := FTheme.Colors[tcToolBack];
   if FTheme.Dark then
-    ToolBarVirtualImageList.ImageCollection := DarkToolBarImageCollection
+    ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
   else
-    ToolBarVirtualImageList.ImageCollection := LightToolBarImageCollection;
+    ThemedVirtualImageList.ImageCollection := LightToolBarImageCollection;
   UpdateBevel1Visibility;
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
@@ -4654,6 +4710,223 @@ begin
     if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSSPACESIZE, FProgressSpaceSize) <> S_OK) or
        (FProgressSpaceSize < 0) then  { ...since "OpusOS" theme returns a bogus -1 value }
       FProgressSpaceSize := 2;
+  end;
+end;
+
+procedure TCompileForm.UpdateMenuBitmapsIfNeeded;
+
+  procedure AddMenuBitmap(const MemoryDC: HDC; const BitmapInfo: TBitmapInfo;
+    const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageIndex: Integer); overload;
+  begin
+    var pvBits: Pointer;
+    var Bitmap := CreateDIBSection(MemoryDC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    SelectObject(MemoryDC, Bitmap);
+    if ImageList_Draw(ImageList.Handle, ImageIndex, MemoryDC, 0, 0, ILD_TRANSPARENT) then
+      FMenuBitmaps.Add(MenuItem, Bitmap);
+  end;
+
+  procedure AddMenuBitmap(const MemoryDC: HDC; const BitmapInfo: TBitmapInfo;
+    const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageName: String); overload;
+  begin
+    AddMenuBitmap(MemoryDC, BitmapInfo, MenuItem, ImageList, ImageList.GetIndexByName(ImageName));
+  end;
+
+type
+  TButtonedMenu = TPair<TMenuItem, TToolButton>;
+  TNamedMenu = TPair<TMenuItem, String>;
+
+  function BM(const MenuItem: TMenuItem; const ToolButton: TToolButton): TButtonedMenu;
+  begin
+    Result := TButtonedMenu.Create(MenuItem, ToolButton); { This is a record so no need to free }
+  end;
+
+  function NM(const MenuItem: TMenuItem; const Name: String): TNamedMenu;
+  begin
+    Result := TNamedMenu.Create(MenuItem, Name); { This is a record so no need to free }
+  end;
+
+begin
+  { This will create bitmaps for the current DPI using ImageList_Draw.
+
+    These draw perfectly even on Windows 7. Other techniques don't work because
+    they loose transparency or only look good on Windows 8 and later. Or they do
+    work but cause lots more VCL code to be run than just our simple CreateDIB+Draw
+    combo.
+
+    ApplyBitmaps will apply them to menu items using SetMenuItemInfo. The menu item
+    does not copy the bitmap so they should still be alive after ApplyBitmaps is done.
+
+    Depends on LightVirtualImageList to pick the best size icons for the current
+    DPI from the collection. Does not use ThemedVirtualImageList because currently
+    the menu does not support dark mode but the toolbar does. Note: all dark mode
+    icons *are* present in ThemedVirtualImageList, so even the ones which are not
+    on the toolbar and therefore not used at the moment. }
+
+  var ImageList := LightVirtualImageList;
+
+  var NewSize: TSize;
+  NewSize.cx := ImageList.Width;
+  NewSize.cy := ImageList.Height;
+  if (NewSize.cx <> FMenuBitmapsSize.cx) or (NewSize.cy <> FMenuBitmapsSize.cy) then begin
+
+    { Cleanup previous }
+
+    for var Bitmap in FMenuBitmaps.Values do
+      DeleteObject(Bitmap);
+    FMenuBitmaps.Clear;
+
+    { Create }
+
+    var DC := GetDC(0);
+    try
+      var MemoryDC := CreateCompatibleDC(DC);
+      if MemoryDC <> 0 then begin
+        var OldBitmap := GetCurrentObject(MemoryDC, OBJ_BITMAP);
+        try
+          var BitmapInfo: TBitmapInfo;
+          ZeroMemory(@BitmapInfo, SizeOf(BitmapInfo));
+          BitmapInfo.bmiHeader.biSize := SizeOf(BitmapInfo.bmiHeader);
+          BitmapInfo.bmiHeader.biWidth := NewSize.cx;
+          BitmapInfo.bmiHeader.biHeight := NewSize.cy;
+          BitmapInfo.bmiHeader.biPlanes := 1;
+          bitmapInfo.bmiHeader.biBitCount := 32;
+          BitmapInfo.bmiHeader.biCompression := BI_RGB;
+
+          var ButtonedMenus := [
+            BM(FNewMainFile, NewMainFileButton),
+            BM(FOpenMainFile, OpenMainFileButton),
+            BM(FSave, SaveButton),
+            BM(BCompile, CompileButton),
+            BM(BStopCompile, StopCompileButton),
+            BM(RRun, RunButton),
+            BM(RPause, PauseButton),
+            BM(RTerminate, TerminateButton),
+            BM(HDoc, HelpButton)];
+
+          for var ButtonedMenu in ButtonedMenus do
+            AddMenuBitmap(MemoryDC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
+
+          var NamedMenus := [
+            NM(FSaveMainFileAs, 'save-as-filled'),
+            NM(FSaveAll, 'save-all-filled'),
+            NM(FPrint, 'printer'),
+            NM(EUndo, 'command-undo-1'),
+            NM(ERedo, 'command-redo-1'),
+            NM(ECut, 'clipboard-cut'),
+            NM(ECopy, 'clipboard-copy'),
+            NM(PListCopy, 'clipboard-copy'),
+            NM(EPaste, 'clipboard-paste'),
+            NM(EDelete, 'symbol-cancel'),
+            NM(ESelectAll, 'select-all'),
+            NM(PListSelectAll, 'select-all'),
+            NM(EFind, 'find'),
+            NM(EFindInFiles, 'folder-filled-find'),
+            //NM(EFindNext, 'unused\find-arrow-right-2'),
+            //NM(EFindPrevious, 'unused\find-arrow-left-2'),
+            NM(EReplace, 'replace'),
+            NM(ECompleteWord, 'letter-a-arrow-right-2'),
+            NM(VNextTab, 'control-tab-filled-arrow-right-2'),
+            NM(VPreviousTab, 'control-tab-filled-arrow-left-2'),
+            //NM(VCloseCurrentTab, 'unused\control-tab-filled-cancel-2'),
+            NM(VReopenTabs, 'control-tab-filled-redo-1'),
+            NM(VReopenTabs2, 'control-tab-filled-redo-1'),
+            NM(RParameters, 'control-edit'),
+            NM(RRunToCursor, 'debug-start-filled-arrow-right-2'),
+            NM(RStepInto, 'debug-step-into'),
+            NM(RStepOver, 'debug-step-over'),
+            NM(RStepOut, 'debug-step-out'),
+            NM(RToggleBreakPoint, 'debug-breakpoint-filled'),
+            NM(REvaluate, 'variables'),
+            NM(TAddRemovePrograms, 'application'),
+            NM(TGenerateGUID, 'tag-script-filled'),
+            NM(TFilesDesigner, 'documents-script-filled'),
+            NM(TRegistryDesigner, 'control-tree-script-filled'),
+            NM(TMsgBoxDesigner, 'comment-text-script-filled'),
+            NM(TSignTools, 'key-filled'),
+            NM(TOptions, 'gear-filled'),
+            NM(HDonate, 'heart-filled'),
+            NM(HMailingList, 'alert-filled'),
+            NM(HWhatsNew, 'announcement'),
+            NM(HWebsite, 'home'),
+            NM(HAbout, 'button-info')];
+
+          for var NamedMenu in NamedMenus do
+            AddMenuBitmap(MemoryDC, BitmapInfo, NamedMenu.Key, ImageList, NamedMenu.Value);
+        finally
+          SelectObject(MemoryDC, OldBitmap);
+          DeleteDC(MemoryDC);
+        end;
+     end;
+    finally
+      ReleaseDC(0, DC);
+    end;
+
+    FMenuBitmapsSize := NewSize;
+  end;
+end;
+
+procedure TCompileForm.ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
+begin
+  UpdateMenuBitmapsIfNeeded;
+
+  { Setting MainMenu1.ImageList or a menu item's .Bitmap to make a menu item
+    show a bitmap is not OK: it causes the entire menu to become owner drawn
+    which makes it looks different from native menus and additionally the trick
+    SetFakeShortCut uses doesn't work with owner drawn menus.
+
+    Instead UpdateMenuBitmapsIfNeeded has prepared images which can be applied
+    to native menu items using SetMenuItemInfo and MIIM_BITMAP - which is what we
+    do below.
+
+    A problem with this is that Delphi's TMenu likes to constantly recreate the
+    underlying native menu items, for example when updating the caption. Sometimes
+    it will even destroy and repopulate an entire menu because of a simple change
+    like setting the caption of a single item!
+
+    This means the result of our SetMenuItemInfo call (which Delphi doesn't know
+    about) will quickly become lost when Delphi recreates the menu item.
+
+    Fixing this in the OnChange event is not possible, this is event is more
+    than useless.
+
+    The solution is shown by TMenu.DispatchPopup: in reaction to WM_INITMENUPOPUP
+    it calls our Click events right before the menu is shown, giving us the
+    opportunity to call SetMenuItemInfo for the menu's items.
+
+    This works unless Delphi decides to destroy and repopulate the menu after
+    calling Click. Most amazingly it can do that indeed: it does this if the DPI
+    changed since the last popup or if a automatic hotkey change or line reduction
+    happens due to the menu's AutoHotkeys or AutoLineReduction properties. To make
+    things even worse: for the Run menu it does this each and every time it is
+    opened: this menu currently has a 'Step Out' item which has no shortcut but
+    also all its letters are taken by another item already. This confuses the
+    AutoHotkeys code, making it destroy and repopulate the entire menu over and
+    over because it erroneously thinks a hotkey changed.
+
+    To avoid this MainMenu1.AutoHotkeys was set to maManual since we have always
+    managed the hotkeys ourselves anyway and .AutoLineReduction was also set to
+    maManual and we now manage that ourselves as well.
+
+    This just leave an issue with the icons not appearing on the first popup after
+    a DPI change and this seems like a minor issue only.
+    
+    For TPopupMenu: calling ApplyMenuBitmaps(PopupMenu.Items) does work but makes
+    the popup only show icons without text. This seems to be a limitiation of menus
+    created by CreatePopupMenu instead of CreateMenu. This is why our popups with
+    icons are all menu items popped using TCompileFormPopupMenu. These menu items
+    are hidden in the main menu and temporarily shown on popup. Popping an always
+    hidden menu item (or a visible one as a child of a hidden parent) doesnt work.  }
+
+  var mmi: TMenuItemInfo;
+  mmi.cbSize := SizeOf(mmi);
+  mmi.fMask := MIIM_BITMAP;
+
+  for var MenuBitmap in FMenuBitmaps do begin
+    var MenuItem := MenuBitmap.Key;
+    if MenuItem.Visible and (MenuItem.Parent = ParentMenuItem) then begin
+      mmi.hbmpItem := MenuBitmap.Value;
+      SetMenuItemInfo(ParentMenuItem.Handle, MenuItem.Command, False, mmi);
+    end;
   end;
 end;
 
@@ -5030,7 +5303,7 @@ begin
       Inc(W, StatusBar.Panels[I].Width);
       if X < W then begin
         if I = spHiddenFilesCount then
-          MemosTabSetPopupMenu.Popup(Point.X, Point.Y);
+          (MemosTabSet.PopupMenu as TCompileFormPopupMenu).Popup(Point.X, Point.Y);
         Break;
       end else if I = spHiddenFilesCount then
         Break;
