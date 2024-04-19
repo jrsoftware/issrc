@@ -1773,25 +1773,24 @@ begin
   end;
 end;
 
-procedure TCompileForm.FMenuClick(Sender: TObject);
-
-  function DoubleAmp(const S: String): String;
-  var
-    I: Integer;
-  begin
-    Result := S;
-    I := 1;
-    while I <= Length(Result) do begin
-      if Result[I] = '&' then begin
-        Inc(I);
-        Insert('&', Result, I);
-        Inc(I);
-      end
-      else
-        Inc(I, PathCharLength(S, I));
-    end;
+function DoubleAmp(const S: String): String;
+var
+  I: Integer;
+begin
+  Result := S;
+  I := 1;
+  while I <= Length(Result) do begin
+    if Result[I] = '&' then begin
+      Inc(I);
+      Insert('&', Result, I);
+      Inc(I);
+    end
+    else
+      Inc(I, PathCharLength(S, I));
   end;
+end;
 
+procedure TCompileForm.FMenuClick(Sender: TObject);
 var
   I: Integer;
 begin
@@ -2745,7 +2744,7 @@ begin
   Menu.Clear;
   for var I := 0 to FHiddenFiles.Count-1 do begin
     var MenuItem := TMenuItem.Create(Menu);
-    MenuItem.Caption := ExtractFileName(FHiddenFiles[I]);
+    MenuItem.Caption := '&' + IntToStr((I+1) mod 10) + ' ' + DoubleAmp(ExtractFileName(FHiddenFiles[I]));
     MenuItem.Tag := I;
     MenuItem.OnClick := VReopenTabClick;
     Menu.Add(MenuItem);
