@@ -4825,6 +4825,8 @@ begin
             //NM(EFindPrevious, 'unused\find-arrow-left-2'),
             NM(EReplace, 'replace'),
             NM(ECompleteWord, 'letter-a-arrow-right-2'),
+            NM(VZoomIn, 'zoom-in'),
+            NM(VZoomOut, 'zoom-out'),
             NM(VNextTab, 'control-tab-filled-arrow-right-2'),
             NM(VPreviousTab, 'control-tab-filled-arrow-left-2'),
             //NM(VCloseCurrentTab, 'unused\control-tab-filled-cancel-2'),
@@ -4921,11 +4923,13 @@ begin
   mmi.cbSize := SizeOf(mmi);
   mmi.fMask := MIIM_BITMAP;
 
-  for var MenuBitmap in FMenuBitmaps do begin
-    var MenuItem := MenuBitmap.Key;
-    if MenuItem.Visible and (MenuItem.Parent = ParentMenuItem) then begin
-      mmi.hbmpItem := MenuBitmap.Value;
-      SetMenuItemInfo(ParentMenuItem.Handle, MenuItem.Command, False, mmi);
+  for var I := 0 to ParentMenuItem.Count-1 do begin
+    var MenuItem := ParentMenuItem.Items[I];
+    if MenuItem.Visible then begin
+      if FMenuBitmaps.TryGetValue(MenuItem, mmi.hbmpItem) then
+        SetMenuItemInfo(ParentMenuItem.Handle, MenuItem.Command, False, mmi);
+      if MenuItem.Count > 0 then
+        ApplyMenuBitmaps(MenuItem);
     end;
   end;
 end;
