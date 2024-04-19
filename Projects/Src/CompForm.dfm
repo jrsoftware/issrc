@@ -12,13 +12,11 @@ object CompileForm: TCompileForm
   Font.Style = []
   KeyPreview = True
   Menu = MainMenu1
-  OldCreateOrder = True
   Position = poDefault
   OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCloseQuery = FormCloseQuery
   OnKeyDown = FormKeyDown
   OnResize = FormResize
-  PixelsPerInch = 96
   TextHeight = 13
   object Bevel1: TBevel
     Left = 0
@@ -334,13 +332,13 @@ object CompileForm: TCompileForm
     Width = 361
     Height = 21
     Align = alTop
-    OnCloseButtonClick = MemosTabSetOnCloseButtonClick
     TabIndex = 0
     Tabs.Strings = (
       'Main Script')
     TabPosition = tpTop
     PopupMenu = MemosTabSetPopupMenu
     OnClick = MemosTabSetClick
+    OnCloseButtonClick = MemosTabSetOnCloseButtonClick
   end
   object MainMenu1: TMainMenu
     Left = 8
