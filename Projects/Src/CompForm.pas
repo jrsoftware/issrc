@@ -217,7 +217,7 @@ type
     VCloseCurrentTab: TMenuItem;
     VReopenTab: TMenuItem;
     VReopenTabs: TMenuItem;
-    MemosTabSetPopupMenu: TPopupMenu;
+    MemosTabSetPopupMenu: TMenuItem;
     VCloseCurrentTab2: TMenuItem;
     VReopenTab2: TMenuItem;
     VReopenTabs2: TMenuItem;
@@ -326,7 +326,7 @@ type
     procedure VCloseCurrentTabClick(Sender: TObject);
     procedure VReopenTabClick(Sender: TObject);
     procedure VReopenTabsClick(Sender: TObject);
-    procedure MemosTabSetPopup(Sender: TObject);
+    procedure MemosTabSetPopupMenuClick(Sender: TObject);
     procedure MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
     procedure StatusBarClick(Sender: TObject);
     procedure RMenuClick(Sender: TObject);
@@ -577,21 +577,36 @@ const
 
   LineStateGrowAmount = 4000;
 
-{ TCompileFormMemoPopupMenu }
+{ TCompileFormPopupMenu }
 
 type
-  TCompileFormMemoPopupMenu = class(TPopupMenu)
+  TCompileFormPopupMenu = class(TPopupMenu)
+  private
+    FParentMenuItem: TMenuItem;
   public
+    constructor Create(const AOwner: TComponent; const ParentMenuItem: TMenuItem); reintroduce; virtual;
     procedure Popup(X, Y: Integer); override;
   end;
 
-procedure TCompileFormMemoPopupMenu.Popup(X, Y: Integer);
+constructor TCompileFormPopupMenu.Create(const AOwner: TComponent; const ParentMenuItem: TMenuItem);
+begin
+  inherited Create(AOwner);
+  FParentMenuItem := ParentMenuItem;
+end;
+
+procedure TCompileFormPopupMenu.Popup(X, Y: Integer);
 var
   Form: TCompileForm;
 begin
-  { Show the existing Edit menu }
+  { Show the existing main menu's submenu }
   Form := Owner as TCompileForm;
-  TrackPopupMenu(Form.EMenu.Handle, TPM_RIGHTBUTTON, X, Y, 0, Form.Handle, nil);
+  var OldVisible := FParentMenuItem.Visible; { See ApplyMenuBitmaps }
+  FParentMenuItem.Visible := True;
+  try
+    TrackPopupMenu(FParentMenuItem.Handle, TPM_RIGHTBUTTON, X, Y, 0, Form.Handle, nil);
+  finally
+    FParentMenuItem.Visible := OldVisible;
+  end;
 end;
 
 { TCompileForm }
@@ -772,7 +787,7 @@ begin
     editor's autocompletion list }
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
 
-  PopupMenu := TCompileFormMemoPopupMenu.Create(Self);
+  PopupMenu := TCompileFormPopupMenu.Create(Self, EMenu);
 
   FMemosStyler := TInnoSetupStyler.Create(Self);
   FMemosStyler.ISPPInstalled := ISPPInstalled;
@@ -794,6 +809,8 @@ begin
   FErrorMemo := FMainMemo;
   FStepMemo := FMainMemo;
   FMemosStyler.Theme := FTheme;
+
+  MemosTabSet.PopupMenu := TCompileFormPopupMenu.Create(Self, MemosTabSetPopupMenu);
 
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
 
@@ -2775,7 +2792,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.MemosTabSetPopup(Sender: TObject);
+procedure TCompileForm.MemosTabSetPopupMenuClick(Sender: TObject);
 begin
   { Main and preprocessor memos can't be hidden }
   VCloseCurrentTab2.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
@@ -2784,6 +2801,8 @@ begin
   if VReopenTab2.Visible then
     UpdateReopenTabMenu(VReopenTab2);
   VReopenTabs2.Visible := VReopenTab2.Visible;
+
+  ApplyMenuBitmaps(Sender as TMenuItem)
 end;
 
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
@@ -4816,6 +4835,7 @@ begin
             NM(TOptions, 'gear-filled'),
             NM(HDonate, 'heart-filled'),
             NM(HMailingList, 'alert-filled'),
+            NM(HWhatsNew, 'announcement'),
             NM(HWebsite, 'home'),
             NM(HAbout, 'button,info')];
 
@@ -4877,7 +4897,14 @@ begin
     maManual and we now manage that ourselves as well.
 
     This just leave an issue with the icons not appearing on the first popup after
-    a DPI change and this seems like a minor issue only. }
+    a DPI change and this seems like a minor issue only.
+    
+    For TPopupMenu: calling ApplyMenuBitmaps(PopupMenu.Items) does work but makes
+    the popup only show icons without text. This seems to be a limitiation of menus
+    created by CreatePopupMenu instead of CreateMenu. This is why our popups with
+    icons are all menu items popped using TCompileFormPopupMenu. These menu items
+    are hidden in the main menu and temporarily shown on popup. Popping an always
+    hidden menu item (or a visible one as a child of a hidden parent) doesnt work.  }
 
   var mmi: TMenuItemInfo;
   mmi.cbSize := SizeOf(mmi);
@@ -5265,7 +5292,7 @@ begin
       Inc(W, StatusBar.Panels[I].Width);
       if X < W then begin
         if I = spHiddenFilesCount then
-          MemosTabSetPopupMenu.Popup(Point.X, Point.Y);
+          (MemosTabSet.PopupMenu as TCompileFormPopupMenu).Popup(Point.X, Point.Y);
         Break;
       end else if I = spHiddenFilesCount then
         Break;
