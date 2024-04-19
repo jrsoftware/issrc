@@ -508,7 +508,7 @@ type
     procedure UpdateTheme;
     procedure UpdateThemeData(const Open: Boolean);
     procedure UpdateMenuBitmapsIfNeeded;
-    procedure ApplyMenuBitmaps(const ParentMenu: TMenuItem);
+    procedure ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
@@ -1826,7 +1826,7 @@ begin
         Visible := False;
     end;
 
-  ApplyMenuBitmaps(FMenu);
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.FNewMainFileClick(Sender: TObject);
@@ -2261,7 +2261,7 @@ begin
   EGoto.Enabled := MemoHasFocus;
   ECompleteWord.Enabled := MemoHasFocus and not MemoIsReadOnly;
 
-  ApplyMenuBitmaps(EMenu);
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.EUndoClick(Sender: TObject);
@@ -2325,7 +2325,7 @@ begin
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
   VFindResults.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiFindResults);
 
-  ApplyMenuBitmaps(VMenu);
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.VNextTabClick(Sender: TObject);
@@ -2519,7 +2519,7 @@ begin
   BLowPriority.Checked := FOptions.LowPriorityDuringCompile;
   BOpenOutputFolder.Enabled := (FCompiledExe <> '');
 
-  ApplyMenuBitmaps(BMenu);
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.BCompileClick(Sender: TObject);
@@ -2561,7 +2561,7 @@ begin
   HISPPDoc.Visible := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ispp.chm');
   HISPPSep.Visible := HISPPDoc.Visible;
 
-  ApplyMenuBitmaps(HMenu);
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.HShortcutsDocClick(Sender: TObject);
@@ -3069,7 +3069,7 @@ end;
 
 procedure TCompileForm.RMenuClick(Sender: TObject);
 begin
-  ApplyMenuBitmaps(RMenu);
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.TMenuClick(Sender: TObject);
@@ -3081,7 +3081,7 @@ begin
   TMsgBoxDesigner.Enabled := not MemoIsReadOnly;
   TFilesDesigner.Enabled := not MemoIsReadOnly;
 
-  ApplyMenuBitmaps(TMenu);
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.TAddRemoveProgramsClick(Sender: TObject);
@@ -4834,7 +4834,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.ApplyMenuBitmaps(const ParentMenu: TMenuItem);
+procedure TCompileForm.ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
 begin
   UpdateMenuBitmapsIfNeeded;
 
@@ -4885,9 +4885,9 @@ begin
 
   for var MenuBitmap in FMenuBitmaps do begin
     var MenuItem := MenuBitmap.Key;
-    if MenuItem.Parent = ParentMenu then begin
+    if MenuItem.Visible and (MenuItem.Parent = ParentMenuItem) then begin
       mmi.hbmpItem := MenuBitmap.Value;
-      SetMenuItemInfo(ParentMenu.Handle, MenuItem.Command, False, mmi);
+      SetMenuItemInfo(ParentMenuItem.Handle, MenuItem.Command, False, mmi);
     end;
   end;
 end;
