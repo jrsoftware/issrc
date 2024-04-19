@@ -4820,6 +4820,7 @@ begin
             NM(VReopenTabs, 'control-tab-filled-redo-1'),
             NM(VReopenTabs2, 'control-tab-filled-redo-1'),
             NM(RParameters, 'control-edit'),
+            NM(RRunToCursor, 'debug-start-filled-arrow-right-2'),
             NM(RStepInto, 'debug-step-into'),
             NM(RStepOver, 'debug-step-over'),
             NM(RStepOut, 'debug-step-out'),
