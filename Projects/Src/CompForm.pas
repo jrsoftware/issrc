@@ -4722,13 +4722,15 @@ procedure TCompileForm.UpdateMenuBitmapsIfNeeded;
     var Bitmap := CreateDIBSection(MemoryDC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
     SelectObject(MemoryDC, Bitmap);
     if ImageList_Draw(ImageList.Handle, ImageIndex, MemoryDC, 0, 0, ILD_TRANSPARENT) then
-      FMenuBitmaps.Add(MenuItem, Bitmap);
+      FMenuBitmaps.Add(MenuItem, Bitmap)
+    else
+      DeleteObject(Bitmap);
   end;
 
-  procedure AddMenuBitmap(const MemoryDC: HDC; const BitmapInfo: TBitmapInfo;
+  procedure AddMenuBitmap(const DC: HDC; const BitmapInfo: TBitmapInfo;
     const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageName: String); overload;
   begin
-    AddMenuBitmap(MemoryDC, BitmapInfo, MenuItem, ImageList, ImageList.GetIndexByName(ImageName));
+    AddMenuBitmap(DC, BitmapInfo, MenuItem, ImageList, ImageList.GetIndexByName(ImageName));
   end;
 
 type
@@ -4777,91 +4779,85 @@ begin
 
     { Create }
 
-    var DC := GetDC(0);
-    try
-      var MemoryDC := CreateCompatibleDC(DC);
-      if MemoryDC <> 0 then begin
-        var OldBitmap := GetCurrentObject(MemoryDC, OBJ_BITMAP);
-        try
-          var BitmapInfo: TBitmapInfo;
-          ZeroMemory(@BitmapInfo, SizeOf(BitmapInfo));
-          BitmapInfo.bmiHeader.biSize := SizeOf(BitmapInfo.bmiHeader);
-          BitmapInfo.bmiHeader.biWidth := NewSize.cx;
-          BitmapInfo.bmiHeader.biHeight := NewSize.cy;
-          BitmapInfo.bmiHeader.biPlanes := 1;
-          bitmapInfo.bmiHeader.biBitCount := 32;
-          BitmapInfo.bmiHeader.biCompression := BI_RGB;
+    var DC := CreateCompatibleDC(0);
+    if DC <> 0 then begin
+      try
+        var BitmapInfo: TBitmapInfo;
+        ZeroMemory(@BitmapInfo, SizeOf(BitmapInfo));
+        BitmapInfo.bmiHeader.biSize := SizeOf(BitmapInfo.bmiHeader);
+        BitmapInfo.bmiHeader.biWidth := NewSize.cx;
+        BitmapInfo.bmiHeader.biHeight := NewSize.cy;
+        BitmapInfo.bmiHeader.biPlanes := 1;
+        bitmapInfo.bmiHeader.biBitCount := 32;
+        BitmapInfo.bmiHeader.biCompression := BI_RGB;
 
-          var ButtonedMenus := [
-            BM(FNewMainFile, NewMainFileButton),
-            BM(FOpenMainFile, OpenMainFileButton),
-            BM(FSave, SaveButton),
-            BM(BCompile, CompileButton),
-            BM(BStopCompile, StopCompileButton),
-            BM(RRun, RunButton),
-            BM(RPause, PauseButton),
-            BM(RTerminate, TerminateButton),
-            BM(HDoc, HelpButton)];
+        var ButtonedMenus := [
+          BM(FNewMainFile, NewMainFileButton),
+          BM(FOpenMainFile, OpenMainFileButton),
+          BM(FSave, SaveButton),
+          BM(BCompile, CompileButton),
+          BM(BStopCompile, StopCompileButton),
+          BM(RRun, RunButton),
+          BM(RPause, PauseButton),
+          BM(RTerminate, TerminateButton),
+          BM(HDoc, HelpButton)];
 
-          for var ButtonedMenu in ButtonedMenus do
-            AddMenuBitmap(MemoryDC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
+        for var ButtonedMenu in ButtonedMenus do
+          AddMenuBitmap(DC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
 
-          var NamedMenus := [
-            NM(FSaveMainFileAs, 'save-as-filled'),
-            NM(FSaveAll, 'save-all-filled'),
-            NM(FPrint, 'printer'),
-            NM(EUndo, 'command-undo-1'),
-            NM(ERedo, 'command-redo-1'),
-            NM(ECut, 'clipboard-cut'),
-            NM(ECopy, 'clipboard-copy'),
-            NM(PListCopy, 'clipboard-copy'),
-            NM(EPaste, 'clipboard-paste'),
-            NM(EDelete, 'symbol-cancel'),
-            NM(ESelectAll, 'select-all'),
-            NM(PListSelectAll, 'select-all'),
-            NM(EFind, 'find'),
-            NM(EFindInFiles, 'folder-filled-find'),
-            //NM(EFindNext, 'unused\find-arrow-right-2'),
-            //NM(EFindPrevious, 'unused\find-arrow-left-2'),
-            NM(EReplace, 'replace'),
-            NM(ECompleteWord, 'letter-a-arrow-right-2'),
-            NM(VZoomIn, 'zoom-in'),
-            NM(VZoomOut, 'zoom-out'),
-            NM(VNextTab, 'control-tab-filled-arrow-right-2'),
-            NM(VPreviousTab, 'control-tab-filled-arrow-left-2'),
-            //NM(VCloseCurrentTab, 'unused\control-tab-filled-cancel-2'),
-            NM(VReopenTabs, 'control-tab-filled-redo-1'),
-            NM(VReopenTabs2, 'control-tab-filled-redo-1'),
-            NM(RParameters, 'control-edit'),
-            NM(RRunToCursor, 'debug-start-filled-arrow-right-2'),
-            NM(RStepInto, 'debug-step-into'),
-            NM(RStepOver, 'debug-step-over'),
-            NM(RStepOut, 'debug-step-out'),
-            NM(RToggleBreakPoint, 'debug-breakpoint-filled'),
-            NM(REvaluate, 'variables'),
-            NM(TAddRemovePrograms, 'application'),
-            NM(TGenerateGUID, 'tag-script-filled'),
-            NM(TFilesDesigner, 'documents-script-filled'),
-            NM(TRegistryDesigner, 'control-tree-script-filled'),
-            NM(TMsgBoxDesigner, 'comment-text-script-filled'),
-            NM(TSignTools, 'key-filled'),
-            NM(TOptions, 'gear-filled'),
-            NM(HDonate, 'heart-filled'),
-            NM(HMailingList, 'alert-filled'),
-            NM(HWhatsNew, 'announcement'),
-            NM(HWebsite, 'home'),
-            NM(HAbout, 'button-info')];
+        var NamedMenus := [
+          NM(FSaveMainFileAs, 'save-as-filled'),
+          NM(FSaveAll, 'save-all-filled'),
+          NM(FPrint, 'printer'),
+          NM(EUndo, 'command-undo-1'),
+          NM(ERedo, 'command-redo-1'),
+          NM(ECut, 'clipboard-cut'),
+          NM(ECopy, 'clipboard-copy'),
+          NM(PListCopy, 'clipboard-copy'),
+          NM(EPaste, 'clipboard-paste'),
+          NM(EDelete, 'symbol-cancel'),
+          NM(ESelectAll, 'select-all'),
+          NM(PListSelectAll, 'select-all'),
+          NM(EFind, 'find'),
+          NM(EFindInFiles, 'folder-filled-find'),
+          //NM(EFindNext, 'unused\find-arrow-right-2'),
+          //NM(EFindPrevious, 'unused\find-arrow-left-2'),
+          NM(EReplace, 'replace'),
+          NM(ECompleteWord, 'letter-a-arrow-right-2'),
+          NM(VZoomIn, 'zoom-in'),
+          NM(VZoomOut, 'zoom-out'),
+          NM(VNextTab, 'control-tab-filled-arrow-right-2'),
+          NM(VPreviousTab, 'control-tab-filled-arrow-left-2'),
+          //NM(VCloseCurrentTab, 'unused\control-tab-filled-cancel-2'),
+          NM(VReopenTabs, 'control-tab-filled-redo-1'),
+          NM(VReopenTabs2, 'control-tab-filled-redo-1'),
+          NM(RParameters, 'control-edit'),
+          NM(RRunToCursor, 'debug-start-filled-arrow-right-2'),
+          NM(RStepInto, 'debug-step-into'),
+          NM(RStepOver, 'debug-step-over'),
+          NM(RStepOut, 'debug-step-out'),
+          NM(RToggleBreakPoint, 'debug-breakpoint-filled'),
+          NM(REvaluate, 'variables'),
+          NM(TAddRemovePrograms, 'application'),
+          NM(TGenerateGUID, 'tag-script-filled'),
+          NM(TFilesDesigner, 'documents-script-filled'),
+          NM(TRegistryDesigner, 'control-tree-script-filled'),
+          NM(TMsgBoxDesigner, 'comment-text-script-filled'),
+          NM(TSignTools, 'key-filled'),
+          NM(TOptions, 'gear-filled'),
+          NM(HDonate, 'heart-filled'),
+          NM(HMailingList, 'alert-filled'),
+          NM(HWhatsNew, 'announcement'),
+          NM(HWebsite, 'home'),
+          NM(HAbout, 'button-info')];
 
-          for var NamedMenu in NamedMenus do
-            AddMenuBitmap(MemoryDC, BitmapInfo, NamedMenu.Key, ImageList, NamedMenu.Value);
-        finally
-          SelectObject(MemoryDC, OldBitmap);
-          DeleteDC(MemoryDC);
-        end;
-     end;
-    finally
-      ReleaseDC(0, DC);
+        for var NamedMenu in NamedMenus do
+          AddMenuBitmap(DC, BitmapInfo, NamedMenu.Key, ImageList, NamedMenu.Value);
+      finally
+        DeleteDC(DC);
+      end;
     end;
+
 
     FMenuBitmapsSize := NewSize;
   end;
