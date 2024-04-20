@@ -4720,11 +4720,13 @@ procedure TCompileForm.UpdateMenuBitmapsIfNeeded;
   begin
     var pvBits: Pointer;
     var Bitmap := CreateDIBSection(MemoryDC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
-    SelectObject(MemoryDC, Bitmap);
+    var OldBitmap := SelectObject(MemoryDC, Bitmap);
     if ImageList_Draw(ImageList.Handle, ImageIndex, MemoryDC, 0, 0, ILD_TRANSPARENT) then
       FMenuBitmaps.Add(MenuItem, Bitmap)
-    else
+    else begin
+      SelectObject(MemoryDC, OldBitmap);
       DeleteObject(Bitmap);
+    end;
   end;
 
   procedure AddMenuBitmap(const DC: HDC; const BitmapInfo: TBitmapInfo;
