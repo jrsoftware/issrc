@@ -5856,7 +5856,7 @@ end;
 
 initialization
   InitThemeLibrary;
-  { SetPrefferedAppMode only works to get dark menus when its called before the
+  { SetPreferredAppMode only works to get dark menus when its called before the
     form is created so we call it here if dark mode will be activated later on.
     When the user switches to or from dark mode TOptionsClick will ask for a
     restart. }
