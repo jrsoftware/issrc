@@ -5253,14 +5253,14 @@ DiskSliceSize=1457664
 <dt><b>x64os</b></dt>
 <dd>
 <p>Matches systems running x64 Windows only — not any other systems that have the ability to run x64 binaries via emulation.</p>
-<p>In most cases, <tt>x64compatible</tt> should be used instead of <tt>x64os</tt>, because <tt>x64compatible</tt> allows x64 apps to be installed on Arm64-based Windows 11 systems as well.</p>
+<p>In most cases, <tt>x64compatible</tt> should be used instead of <tt>x64os</tt>, because <tt>x64compatible</tt> allows x64 apps to be installed on Arm64 Windows 11 systems as well.</p>
 <p>However, <tt>x64os</tt> is appropriate in unusual cases where an x64 app/binary is known to require true x64 Windows and cannot function under emulation. x64 device drivers are one example; x64 emulation isn't supported in kernel mode.</p>
 <p>Before Inno Setup 6.3, <tt>x64os</tt> was named <tt>x64</tt>. The compiler still accepts <tt>x64</tt> as an alias for <tt>x64os</tt>, but will emit a deprecation warning when used.</p>
 </dd>
 
 <dt><b>x86compatible</b></dt>
 <dd>
-<p>Matches systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64-based Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
+<p>Matches systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
 <p>Given that Setup itself is currently always built as a 32-bit x86 binary, this always matches.</p>
 </dd>
 
@@ -5296,7 +5296,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <pre>
 ; Only allow installation on systems that aren't x64-compatible.
 ; Useful in a situation where you have separate x86 &amp; x64 installers,
-; and don't want users of x64-compatible OSes (x64 + Win11 Arm64)
+; and don't want users of x64-compatible OSes (x64 + Arm64 Win11)
 ; erroneously running the x86 installer which would say:
 ArchitecturesAllowed=not x64compatible
 
@@ -5345,7 +5345,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>If your application runs only on 64-bit processor architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
 <example>
 <pre>
-; Select 64-bit install mode on any x64-compatible OS (x64 + Win11 Arm64):
+; Select 64-bit install mode on any x64-compatible OS (x64 + Arm64 Win11):
 ArchitecturesInstallIn64BitMode=x64compatible
 </pre>
 </example>

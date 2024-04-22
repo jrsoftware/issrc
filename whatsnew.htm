@@ -49,14 +49,14 @@ For conditions of distribution and use, see <a href="https://jrsoftware.org/file
 </ul>
 <p><span class="head2">Support for processor architectures improved</span></p>
 <ul>
-  <li>Setup can now detect support for x64 emulation when running on Windows 11 for Arm, and can be instructed to select 64-bit install mode in that case which was not possible before. See the first example below.<br/><br/></li>
+  <li>Setup can now detect support for x64 emulation when running on Arm64 Windows 11, and can be instructed to select 64-bit install mode in that case which was not possible before. See the first example below.</li>
   <li>[Setup] section directives <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> now both support boolean expressions. Additionally, extra platform identifiers were added. This enables for example:
-      <pre>; Select 64-bit install mode on any x64-compatible OS (x64 + Win11 Arm64):
+      <pre>; Select 64-bit install mode on any x64-compatible OS (x64 + Arm64 Win11):
 ArchitecturesInstallIn64BitMode=x64compatible
 
 ; Only allow installation on systems that aren't x64-compatible.
 ; Useful in a situation where you have separate x86 & x64 installers,
-; and don't want users of x64-compatible OSes (x64 + Win11 Arm64)
+; and don't want users of x64-compatible OSes (x64 + Arm64 Win11)
 ; erroneously running the x86 installer which would say:
 ArchitecturesAllowed=not x64compatible
 
@@ -81,11 +81,11 @@ ArchitecturesAllowed=x64compatible and not arm64
 ; (for example, because you're accessing HKLM64):
 ArchitecturesInstallIn64BitMode=
 ArchitecturesAllowed=win64</pre>
-      The full list of new platform identifiers is: <tt>arm32compatible</tt>, <tt>x64compatible</tt>, <tt>x64os</tt>, <tt>x86compatible</tt>, <tt>x86os</tt>, and <tt>win64</tt>. See the new "Architecture Identifiers" help topic for more details.<br/><br/>
+      The full list of new platform identifiers is: <tt>arm32compatible</tt>, <tt>x64compatible</tt>, <tt>x64os</tt>, <tt>x86compatible</tt>, <tt>x86os</tt>, and <tt>win64</tt>. See the new "Architecture Identifiers" help topic for more details.<br />
       All of the above is backward compatible so no changes are needed for your existing scripts. For example, this works unchanged (but see the updated <i>64BitThreeArch.iss</i> example script for the preferred setting):
       <pre>ArchitecturesInstallIn64BitMode=x64 arm64</pre>
-      Do note that the <tt>x64</tt> identifier is now deprecated and the compiler will issue a warning if you use it anyway. It will substitute <tt>x64os</tt>, but <tt>x64compatible</tt> is preferred in most cases and it's simple to adopt it: just replace <tt>x64</tt> with <tt>x64compatible</tt>, and any <tt>IsX64</tt> with <tt>IsX64Compatible</tt>.<br/><br/>
-      The 64-bit example scripts like <i>64Bit.iss</i> have all been updated to use <tt>x64compatible</tt> as preferred.<br/><br/>
+      Do note that the <tt>x64</tt> identifier is now deprecated and the compiler will issue a warning if you use it anyway. It will substitute <tt>x64os</tt>, but <tt>x64compatible</tt> is preferred in most cases and it's simple to adopt it: just replace <tt>x64</tt> with <tt>x64compatible</tt>, and any <tt>IsX64</tt> with <tt>IsX64Compatible</tt>.<br />
+      The 64-bit example scripts like <i>64Bit.iss</i> have all been updated to use <tt>x64compatible</tt> as preferred.<br />
   </li>
   <li>Certain 64-bit functionality that previously only worked on x64 Windows now works on Arm64 Windows 11 as well. This includes:
   <ul>
@@ -97,7 +97,7 @@ ArchitecturesAllowed=win64</pre>
   Note that all of the above remains unsupported on Arm64 Windows 10.
   </li>
   <li>Setup now logs the machine types supported by the system &mdash; that is, what types of EXEs can be executed, either natively or via emulation. For example, when running on an Arm64 Windows 11 system, it logs: <tt>Machine types supported by system: x86 x64 Arm32 Arm64</tt></li>
-  <li>The <tt>OnlyOnTheseArchitectures</tt> message is not used anymore. Instead, the <tt>WindowsVersionNotSupported</tt> message is now shown when Setup is started on an architecture that is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)<br/><br/></li>
+  <li>The <tt>OnlyOnTheseArchitectures</tt> message is not used anymore. Instead, the <tt>WindowsVersionNotSupported</tt> message is now shown when Setup is started on an architecture that is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)</li>
   <li>Pascal Scripting change: Added new <tt>IsArm32Compatible</tt>, <tt>IsX64Compatible</tt>, <tt>IsX64OS</tt>, <tt>IsX86Compatible</tt>, and <tt>IsX86OS</tt> support functions. The <tt>IsX64</tt> support function still exists but is now deprecated as explained above. Example testing all platform identifiers:
       <pre>[Code]
 function InitializeSetup: Boolean;
