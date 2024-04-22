@@ -87,10 +87,17 @@ ArchitecturesAllowed=win64</pre>
       Do note that the <tt>x64</tt> identifier is now deprecated and the compiler will issue a warning if you use it anyway. It will substitute <tt>x64os</tt>, but <tt>x64compatible</tt> is preferred in most cases and it's simple to adopt it: just replace <tt>x64</tt> with <tt>x64compatible</tt>, and any <tt>IsX64</tt> with <tt>IsX64Compatible</tt>.<br/><br/>
       The 64-bit example scripts like <i>64Bit.iss</i> have all been updated to use <tt>x64compatible</tt> as preferred.<br/><br/>
   </li>
-  <li>In 64-bit install mode [Files] section flag <tt>regtypelib</tt> now registers type libraries inside a 64-bit process on Windows 11 for Arm as well.</li>
-  <li>[Registry] section parameter <tt>Permissions</tt> is now effectual on 64-bit registry keys on Windows 11 for Arm as well.</p>
-  <li>Setup now logs the machine types supported by the system. For example, when running on Windows 11 for Arm it now logs: "Machine types supported by system: x86 x64 arm32 arm64".</li>
-  <li>Message OnlyOnTheseArchitectures is not used anymore. Instead existing message WindowsVersionNotSupported is now shown when Setup is started on an architecture which is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)<br/><br/></li>
+  <li>Certain 64-bit functionality that previously only worked on x64 Windows now works on Arm64 Windows 11 as well. This includes:
+  <ul>
+    <li>The <tt>Permissions</tt> parameter of the <tt>[Dirs]</tt> section when running in 64-bit install mode.</li>
+    <li>The <tt>Permissions</tt> parameter of the <tt>[Files]</tt> section when running in 64-bit install mode or when the <tt>64bit</tt> flag is used.</li>
+    <li>The <tt>Permissions</tt> parameter of the <tt>[Registry]</tt> section when running in 64-bit install mode or when the value of the <tt>Root</tt> parameter ends in <tt>64</tt>.</li>
+    <li>The <tt>regtypelib</tt> flag of the <tt>[Files]</tt> section when running in 64-bit install mode or when the <tt>64bit</tt> flag is used.</li>
+  </ul>
+  Note that all of the above remains unsupported on Arm64 Windows 10.
+  </li>
+  <li>Setup now logs the machine types supported by the system &mdash; that is, what types of EXEs can be executed, either natively or via emulation. For example, when running on an Arm64 Windows 11 system, it logs: <tt>Machine types supported by system: x86 x64 Arm32 Arm64</tt></li>
+  <li>The <tt>OnlyOnTheseArchitectures</tt> message is not used anymore. Instead, the <tt>WindowsVersionNotSupported</tt> message is now shown when Setup is started on an architecture that is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)<br/><br/></li>
   <li>Pascal Scripting change: Added new <tt>IsArm32Compatible</tt>, <tt>IsX64Compatible</tt>, <tt>IsX64OS</tt>, <tt>IsX86Compatible</tt>, and <tt>IsX86OS</tt> support functions. The <tt>IsX64</tt> support function still exists but is now deprecated as explained above. Example testing all platform identifiers:
       <pre>[Code]
 function InitializeSetup: Boolean;
