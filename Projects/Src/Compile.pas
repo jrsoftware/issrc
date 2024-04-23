@@ -5541,7 +5541,7 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..39] of PChar = (
+  Flags: array[0..40] of PChar = (
     'confirmoverwrite', 'uninsneveruninstall', 'isreadme', 'regserver',
     'sharedfile', 'restartreplace', 'deleteafterinstall',
     'comparetimestamp', 'fontisnttruetype', 'regtypelib', 'external',
@@ -5552,7 +5552,9 @@ const
     'noencryption', 'nocompression', 'dontverifychecksum',
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
-    'sortfilesbyname', 'gacinstall', 'sign', 'signonce');
+    'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck');
+  SignFlags: array[TSetupFileLocationSign] of String = (
+    '', 'sign', 'signonce', 'signcheck');
   AttribsFlags: array[0..3] of PChar = (
     'readonly', 'hidden', 'system', 'notcontentindexed');
   AccessMasks: array[0..2] of TNameAndAccessMask = (
@@ -5567,7 +5569,8 @@ var
   SourceWildcard, ADestDir, ADestName, AInstallFontName, AStrongAssemblyName: String;
   AExcludes: TStringList;
   ReadmeFile, ExternalFile, SourceIsWildcard, RecurseSubdirs,
-    AllowUnsafeFiles, Touch, NoCompression, NoEncryption, SolidBreak, Sign, SignOnce: Boolean;
+    AllowUnsafeFiles, Touch, NoCompression, NoEncryption, SolidBreak: Boolean;
+  Sign: TSetupFileLocationSign;
 type
   PFileListRec = ^TFileListRec;
   TFileListRec = record
@@ -5870,16 +5873,13 @@ type
         end;
         if Touch then
           Include(NewFileLocationEntry^.Flags, foApplyTouchDateTime);
-        if Sign then
-          Include(NewFileLocationEntry^.Flags, foSign)
-        else if SignOnce then
-          Include(NewFileLocationEntry^.Flags, foSignOnce);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then
           Exclude(NewFileLocationEntry^.Flags, foChunkCompressed);
         if NoEncryption then
           Exclude(NewFileLocationEntry^.Flags, foChunkEncrypted);
+        NewFileLocationEntry.Sign := Sign;
       end
       else begin
         NewFileEntry^.SourceFilename := SourceFile;
@@ -6059,6 +6059,15 @@ type
     end;
   end;
 
+  procedure ApplyNewSign(const NewSign: TSetupFileLocationSign);
+  begin
+    if Sign <> fsNoSetting then
+      AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        [ParamCommonFlags, SignFlags[Sign], SignFlags[NewSign]])
+    else
+      Sign := NewSign;
+  end;
+
 var
   FileList, DirList: TList;
   SortFilesByExtension, SortFilesByName: Boolean;
@@ -6094,8 +6103,7 @@ begin
         ExternalSize.Hi := 0;
         ExternalSize.Lo := 0;
         SortFilesByName := False;
-        Sign := False;
-        SignOnce := False;
+        Sign := fsNoSetting;
 
         case Ext of
           0: begin
@@ -6142,8 +6150,9 @@ begin
                    35: Include(Options, foUnsetNTFSCompression);
                    36: SortFilesByName := True;
                    37: Include(Options, foGacInstall);
-                   38: Sign := True;
-                   39: SignOnce := True;
+                   38: ApplyNewSign(fsYes);
+                   39: ApplyNewSign(fsOnce);
+                   40: ApplyNewSign(fsCheck);
                  end;
 
                { Source }
@@ -6287,26 +6296,17 @@ begin
         if not NoCompression and (foDontVerifyChecksum in Options) then
           AbortCompileOnLineFmt(SCompilerParamFlagMissing, ['nocompression', 'dontverifychecksum']);
 
-        if Sign and SignOnce then
-          AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
-            [ParamCommonFlags, 'sign', 'signonce']);
-
         if ExternalFile then begin
           if (AExcludes.Count > 0) then
             AbortCompileOnLine(SCompilerFilesCantHaveExternalExclude)
-          else if Sign then
+          else if Sign <> fsNoSetting then
             AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
-              [ParamCommonFlags, 'external', 'sign'])
-          else if SignOnce then
-            AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
-              [ParamCommonFlags, 'external', 'signonce']);
+              [ParamCommonFlags, 'external', SignFlags[Sign]]);
         end;
         
-        if SignTools.Count = 0 then begin
-          Sign := False;
-          SignOnce := False;
-        end;
-        
+        if (SignTools.Count = 0) and (Sign in [fsYes, fsOnce]) then
+          Sign := fsNoSetting;
+
         if not RecurseSubdirs and (foCreateAllSubDirs in Options) then
           AbortCompileOnLineFmt(SCompilerParamFlagMissing, ['recursesubdirs', 'createallsubdirs']);
 
@@ -7803,7 +7803,7 @@ var
      SCompilerStatusFilesCompressing);
   var
     CH: TCompressionHandler;
-    ChunkCompressed, DoSign: Boolean;
+    ChunkCompressed: Boolean;
     I: Integer;
     FL: PSetupFileLocationEntry;
     FT: TFileTime;
@@ -7841,30 +7841,31 @@ var
       for I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
 
-        if (foSign in FL.Flags) or (foSignOnce in FL.Flags) then begin
-          if (foSignOnce in FL.Flags) then begin
+        if FL.Sign <> fsNoSetting then begin
+          var SignatureFound := False;
+          if FL.Sign in [fsOnce, fsCheck] then begin
+            { Check the file for a signature }
             SourceFile := TFile.Create(FileLocationEntryFilenames[I],
               fdOpenExisting, faRead, fsRead);
             try
-              { Check the file for a signature }
               if ReadSignatureAndChecksumFields(SourceFile, DWORD(SignatureAddress),
                    DWORD(SignatureSize), HdrChecksum) or
                  ReadSignatureAndChecksumFields64(SourceFile, DWORD(SignatureAddress),
                    DWORD(SignatureSize), HdrChecksum) then
-                DoSign := SignatureSize = 0
-              else
-                DoSign := True; { Couldn't check the file, try sign anyway and let the sign tool tell user what is wrong }
+                SignatureFound := SignatureSize <> 0;
             finally
               SourceFile.Free;
             end;
-          end else
-            DoSign := True;
-          if DoSign then begin
+          end;
+
+          if (FL.Sign = fsYes) or ((FL.Sign = fsOnce) and not SignatureFound) then begin
             AddStatus(Format(SCompilerStatusSigningSourceFile, [FileLocationEntryFilenames[I]]));
             Sign(FileLocationEntryFilenames[I]);
             CallIdleProc;
-          end else
-            AddStatus(Format(SCompilerStatusSourceFileAlreadySigned, [FileLocationEntryFilenames[I]]));
+          end else if FL.Sign = fsOnce then
+            AddStatus(Format(SCompilerStatusSourceFileAlreadySigned, [FileLocationEntryFilenames[I]]))
+          else if (FL.Sign = fsCheck) and not SignatureFound then
+            AbortCompileFmt(SCompilerSourceFileNotSigned, [FileLocationEntryFilenames[I]]);
         end;
 
         if foVersionInfoValid in FL.Flags then

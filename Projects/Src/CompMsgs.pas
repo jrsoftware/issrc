@@ -169,6 +169,7 @@ const
     'automatically deleted at the start of compilation.';
   SCompilerUnknownFilenamePrefix = 'Unknown filename prefix "%s"';
   SCompilerSourceFileDoesntExist = 'Source file "%s" does not exist';
+  SCompilerSourceFileNotSigned = 'Source file "%s" is not signed';
   SCompilerCopyError3 = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %d: %s';
   SCompilerReadError = 'Could not read "%s".' + SNewLine2 + 'Error: %s';
   SCompilerCompressError2 = 'An internal error occurred while trying to compress "%s"';

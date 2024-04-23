@@ -1747,6 +1747,9 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="sign">
 <p>This flag instructs the compiler to digitally sign the original source files before storing them. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
 </flag>
+<flag name="signcheck">
+<p>This flag instructs the compiler to check the original source files for a digital signature before storing them.</p>
+</flag>
 <flag name="signonce">
 <p>This flag instructs the compiler to digitally sign the original source files before storing them, but only if the files are not already signed. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
 </flag>
