@@ -330,6 +330,8 @@ type
     procedure MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
     procedure StatusBarClick(Sender: TObject);
     procedure SimpleMenuClick(Sender: TObject);
+    procedure OutputListKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -789,6 +791,10 @@ begin
   { Use fake Ctrl+F4 shortcut for VCloseCurrentTab2 because VCloseCurrentTab
     already has the real one }
   SetFakeShortCut(VCloseCurrentTab2, VK_F4, [ssCtrl]);
+  { Use fake Ctrl+C and Ctrl+A shortcuts for ListPopupMenu's items so they don't
+    conflict with the editor which also uses fake shortcuts for these }
+  SetFakeShortCut(PListCopy, Ord('C'), [ssCtrl]);
+  SetFakeShortCut(PListSelectAll, Ord('A'), [ssCtrl]);
 
   PopupMenu := TCompileFormPopupMenu.Create(Self, EMenu);
 
@@ -5270,6 +5276,17 @@ begin
       ListBox.Selected[I] := True;
   finally
     ListBox.Items.EndUpdate;
+  end;
+end;
+
+procedure TCompileForm.OutputListKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then begin
+    if Key = Ord('C') then
+      PListCopyClick(Sender)
+    else if Key = Ord('A') then
+      PListSelectAllClick(Sender);
   end;
 end;
 

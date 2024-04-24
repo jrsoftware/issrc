@@ -72,6 +72,7 @@ object CompileForm: TCompileForm
         Visible = False
         OnDblClick = FindResultsListDblClick
         OnDrawItem = FindResultsListDrawItem
+        OnKeyDown = OutputListKeyDown
       end
       object DebugCallStackList: TListBox
         Left = 0
@@ -86,6 +87,7 @@ object CompileForm: TCompileForm
         TabOrder = 2
         Visible = False
         OnDrawItem = DebugCallStackListDrawItem
+        OnKeyDown = OutputListKeyDown
       end
       object DebugOutputList: TListBox
         Left = 0
@@ -100,6 +102,7 @@ object CompileForm: TCompileForm
         TabOrder = 1
         Visible = False
         OnDrawItem = DebugOutputListDrawItem
+        OnKeyDown = OutputListKeyDown
       end
       object CompilerOutputList: TListBox
         Left = 0
@@ -113,6 +116,7 @@ object CompileForm: TCompileForm
         MultiSelect = True
         TabOrder = 0
         OnDrawItem = CompilerOutputListDrawItem
+        OnKeyDown = OutputListKeyDown
       end
       object OutputTabSet: TNewTabSet
         Left = 0
@@ -592,12 +596,10 @@ object CompileForm: TCompileForm
         OnClick = SimpleMenuClick
         object PListCopy: TMenuItem
           Caption = '&Copy'
-          ShortCut = 16451
           OnClick = PListCopyClick
         end
         object PListSelectAll: TMenuItem
           Caption = 'Select &All'
-          ShortCut = 16449
           OnClick = PListSelectAllClick
         end
       end
