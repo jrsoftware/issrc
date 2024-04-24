@@ -54,6 +54,8 @@
 
 unit NewUxTheme;
 
+{$MINENUMSIZE 4}
+
 interface
 
 uses
@@ -1018,7 +1020,14 @@ var
 //----------------------------------------------------------------------------------------------------------------------
 
 type
-  TPreferredAppMode = (pamDefault, pamAllowDark, pamForceDark, pamForceLight, pamMax);
+  PREFERREDAPPMODE = (
+    PAM_DEFAULT,
+    PAM_ALLOWDARK,
+    PAM_FORCEDARK,
+    PAM_FORCELIGHT,
+    PAM_MAX
+  );
+  TPreferredAppMode = PREFERREDAPPMODE;
 
 var
   SetPreferredAppMode: function(appMode: TPreferredAppMode): TPreferredAppMode; stdcall;
@@ -1101,6 +1110,9 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+var
+  WindowsVersion: Cardinal;
+
 function InitThemeLibrary: Boolean;
 
   function GetSystemDir: String;
@@ -1113,11 +1125,12 @@ function InitThemeLibrary: Boolean;
 
   function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
   begin
-    var OSVersionInfo: TOSVersionInfo;
-    OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
-    GetVersionEx(OSVersionInfo);
-    var WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
     Result := WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
+  end;
+
+  function WindowsVersionAtMost(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
+  begin
+    Result := WindowsVersion <= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
   end;
 
 begin
@@ -1173,7 +1186,8 @@ begin
       GetThemeDocumentationProperty := GetProcAddress(ThemeLibrary, 'GetThemeDocumentationProperty');
       DrawThemeParentBackground := GetProcAddress(ThemeLibrary, 'DrawThemeParentBackground');
       EnableTheming := GetProcAddress(ThemeLibrary, 'EnableTheming');
-      if WindowsVersionAtLeast(10, 0, 18362) then { 10.0.18362 = Windows 10 Version 1903 (May 2019 Update) }
+      if WindowsVersionAtLeast(10, 0, 18362) and { Windows 10 Version 1903 (May 2019 Update) }
+         WindowsVersionAtMost(10, 0, 22631) then { Windows 11 Version 23H2 (2023 Update) }
         SetPreferredAppMode := GetProcAddress(ThemeLibrary, MakeIntResource(135))
       else
         SetPreferredAppMode := nil;
@@ -1194,6 +1208,13 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+
+initialization
+  var OSVersionInfo: TOSVersionInfo;
+  OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
+  GetVersionEx(OSVersionInfo);
+  WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
+
 { Following commented out by JR. Depending on unit deinitialization order, the
   FreeThemeLibrary call below could be made while other units are still using
   the theme library. This happens with NewCheckListBox when Application.Run
@@ -1203,7 +1224,6 @@ end;
   And there's really no point in freeing a DLL during shutdown anyway; the
   system will do so automatically. }
 (*
-initialization
 finalization
   while ReferenceCount > 0 do
     FreeThemeLibrary;

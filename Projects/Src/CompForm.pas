@@ -5913,7 +5913,7 @@ initialization
     try
       var I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
       if (I >= 0) and (I <= Ord(High(TThemeType))) and TTheme.DarkType(TThemeType(I)) then begin
-        SetPreferredAppMode(pamForceDark);
+        SetPreferredAppMode(PAM_FORCEDARK);
         DarkMenusEnabled := True;
       end;
     finally
