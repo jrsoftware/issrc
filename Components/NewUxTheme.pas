@@ -1113,7 +1113,7 @@ function InitThemeLibrary: Boolean;
 
   function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
   begin
-    var OSVersionInfo: TOSVersionInfoEx;
+    var OSVersionInfo: TOSVersionInfo;
     OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
     GetVersionEx(OSVersionInfo);
     var WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
