@@ -4706,7 +4706,7 @@ begin
   else
     FMenuImageList := LightVirtualImageList;
 
-    UpdateBevel1Visibility;
+  UpdateBevel1Visibility;
 
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
