@@ -410,6 +410,7 @@ type
     FProgress, FProgressMax: Cardinal;
     FProgressThemeData: HTHEME;
     FProgressChunkSize, FProgressSpaceSize: Integer;
+    FMenuThemeData: HTHEME;
     FDebugLogListTimestampsWidth: Integer;
     FOnPendingSquiggly: Boolean;
     FPendingSquigglyCaretPos: Integer;
@@ -531,6 +532,8 @@ type
     procedure WMStartNormally(var Message: TMessage); message WM_StartNormally;
     procedure WMSettingChange(var Message: TMessage); message WM_SETTINGCHANGE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
+    procedure WMUADrawMenu(var Message: TMessage); message WM_UAHDRAWMENU;
+    procedure WMUADrawMenuItem(var Message: TMessage); message WM_UAHDRAWMENUITEM;
   protected
     procedure WndProc(var Message: TMessage); override;
   public
@@ -4741,6 +4744,11 @@ begin
     FProgressThemeData := 0;
   end;
 
+  if FMenuThemeData <> 0 then begin
+    CloseThemeData(FMenuThemeData);
+    FMenuThemeData := 0;
+  end;
+
   if Open and UseThemes then begin
     FProgressThemeData := OpenThemeData(Handle, 'Progress');
     if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSCHUNKSIZE, FProgressChunkSize) <> S_OK) or
@@ -4749,6 +4757,7 @@ begin
     if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSSPACESIZE, FProgressSpaceSize) <> S_OK) or
        (FProgressSpaceSize < 0) then  { ...since "OpusOS" theme returns a bogus -1 value }
       FProgressSpaceSize := 2;
+    FMenuThemeData := OpenThemeData(Handle, 'Menu');
   end;
 end;
 
@@ -5459,6 +5468,62 @@ begin
   { Don't Run to Cursor into this function, it will interrupt up the theme change }
   UpdateThemeData(True);
   inherited;
+end;
+
+procedure TCompileForm.WMUADrawMenu(var Message: TMessage);
+begin
+  var MenuBarInfo: TMenuBarInfo;
+  MenuBarInfo.cbSize := SizeOf(MenuBarInfo);
+  GetMenuBarInfo(Handle, Integer(OBJID_MENU), 0, MenuBarInfo);
+
+  var WindowRect: TRect;
+  GetWindowRect(Handle, WindowRect);
+
+  var Rect := MenuBarInfo.rcBar;
+  OffsetRect(Rect, -WindowRect.Left, -WindowRect.Top);
+
+  var UAHMenu := PUAHMenu(Message.lParam);
+  FillRect(UAHMenu.hdc, Rect, GetStockObject(BLACK_BRUSH));
+end;
+
+procedure TCompileForm.WMUADrawMenuItem(var Message: TMessage);
+const
+  ODS_NOACCEL = $100;
+  DTT_TEXTCOLOR = 1;
+  MENU_BARITEM = 8;
+  MBI_NORMAL = 1;
+var
+  Buffer: array of Char;
+begin
+  var UAHDrawMenuItem := PUAHDrawMenuItem(Message.lParam);
+
+  var MenuItemInfo: TMenuItemInfo;
+  MenuItemInfo.cbSize := SizeOf(MenuItemInfo);
+  MenuItemInfo.fMask := MIIM_STRING;
+  MenuItemInfo.dwTypeData := nil;
+  GetMenuItemInfo(UAHDrawMenuItem.um.hmenu, UAHDrawMenuItem.umi.iPosition, True, MenuItemInfo);
+  Inc(MenuItemInfo.cch);
+  SetLength(Buffer, MenuItemInfo.cch);
+  MenuItemInfo.dwTypeData := @Buffer[0];
+  GetMenuItemInfo(UAHDrawMenuItem.um.hmenu, UAHDrawMenuItem.umi.iPosition, True, MenuItemInfo);
+
+  var dwFlags: DWORD := DT_CENTER or DT_SINGLELINE or DT_VCENTER;
+  if (UAHDrawMenuItem.dis.itemState and ODS_NOACCEL) <> 0 then
+    dwFlags := dwFlags or DT_HIDEPREFIX;
+
+  var opts: TDTTOpts;
+  opts.dwSize := SizeOf(opts);
+  opts.dwFlags := DTT_TEXTCOLOR;
+  opts.crText := RGB(255, 255, 255);
+
+  var Brush: HBrush;
+  if (UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0 then
+    Brush := GetStockObject(GRAY_BRUSH)
+  else
+    Brush := GetStockObject(BLACK_BRUSH);
+
+  FillRect(UAHDrawMenuItem.um.hdc, UAHDrawMenuItem.dis.rcItem, Brush);
+  DrawThemeTextEx(FMenuThemeData, UAHDrawMenuItem.um.hdc, MENU_BARITEM, MBI_NORMAL, MenuItemInfo.dwTypeData, MenuItemInfo.cch, dwFlags, @UAHDrawMenuItem.dis.rcItem, opts);
 end;
 
 procedure TCompileForm.RTargetClick(Sender: TObject);
