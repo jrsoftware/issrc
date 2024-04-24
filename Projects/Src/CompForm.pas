@@ -548,7 +548,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
-  Math, StrUtils, WideStrUtils,
+  Math, StrUtils, WideStrUtils, DwmApi,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -4675,22 +4675,42 @@ procedure TCompileForm.UpdateTheme;
     SetControlTheme(List);
   end;
 
+  function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
+  begin
+    var OSVersionInfo: TOSVersionInfoEx;
+    OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
+    GetVersionEx(OSVersionInfo);
+    var WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
+    Result := WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
+  end;
+
+  function IsWindows11: Boolean;
+  begin
+    Result := WindowsVersionAtLeast(10, 0, 22000);
+  end;
+
 var
   Memo: TCompScintEdit;
 begin
   FTheme.Typ := FOptions.ThemeType;
+
   for Memo in FMemos do begin
     Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlTheme(Memo);
   end;
+
   Color := FTheme.Colors[tcToolBack];
+
   if FTheme.Dark then
     ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
   else
     ThemedVirtualImageList.ImageCollection := LightToolBarImageCollection;
+
   UpdateBevel1Visibility;
+
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
+
   if FTheme.Dark then begin
     MemosTabSet.Theme := FTheme;
     OutputTabSet.Theme := FTheme;
@@ -4698,10 +4718,20 @@ begin
     MemosTabSet.Theme := nil;
     OutputTabSet.Theme := nil;
   end;
+
   SetListTheme(CompilerOutputList);
   SetListTheme(DebugOutputList);
   SetListTheme(DebugCallStackList);
   SetListTheme(FindResultsList);
+
+  { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
+    Unlike this article we check for Windows 11 because that's what DWMWA_USE_IMMERSIVE_DARK_MODE's
+    documentation says is required. }
+  if IsWindows11 then begin
+    const DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+    var value: BOOL := FTheme.Dark;
+    DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
+  end;
 end;
 
 procedure TCompileForm.UpdateThemeData(const Open: Boolean);
