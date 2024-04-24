@@ -34,6 +34,9 @@ function GenerateGuid: String;
 function ISPPInstalled: Boolean;
 function IsISPPBuiltins(const Filename: String): Boolean;
 function ISCryptInstalled: Boolean;
+function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
+function IsWindows10: Boolean;
+function IsWindows11: Boolean;
 function GetDefaultThemeType: TThemeType;
 procedure OpenDonateSite;
 procedure OpenMailingListSite;
@@ -167,13 +170,31 @@ begin
   Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
 end;
 
+var
+  WindowsVersion: Cardinal;
+
+function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
+begin
+  Result := WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
+end;
+
+function IsWindows10: Boolean;
+begin
+  Result := WindowsVersionAtLeast(10, 0);
+end;
+
+function IsWindows11: Boolean;
+begin
+  Result := WindowsVersionAtLeast(10, 0, 22000);
+end;
+
 function GetDefaultThemeType: TThemeType;
 var
   K: HKEY;
   Size, AppsUseLightTheme: DWORD;
 begin
   Result := ttModernLight;
-  if (Win32MajorVersion >= 10) and (RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS) then begin
+  if IsWindows10 and (RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS) then begin
     Size := SizeOf(AppsUseLightTheme);
     if (RegQueryValueEx(K, 'AppsUseLightTheme', nil, nil, @AppsUseLightTheme, @Size) = ERROR_SUCCESS) and (AppsUseLightTheme = 0) then
       Result := ttModernDark;
@@ -554,5 +575,11 @@ begin
   end;
   Result := -1;
 end;
+
+initialization
+  var OSVersionInfo: TOSVersionInfo;
+  OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
+  GetVersionEx(OSVersionInfo);
+  WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
 
 end.

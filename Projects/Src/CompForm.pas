@@ -4675,20 +4675,6 @@ procedure TCompileForm.UpdateTheme;
     SetControlTheme(List);
   end;
 
-  function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
-  begin
-    var OSVersionInfo: TOSVersionInfoEx;
-    OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
-    GetVersionEx(OSVersionInfo);
-    var WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
-    Result := WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
-  end;
-
-  function IsWindows11: Boolean;
-  begin
-    Result := WindowsVersionAtLeast(10, 0, 22000);
-  end;
-
 var
   Memo: TCompScintEdit;
 begin
@@ -5004,7 +4990,7 @@ begin
   Info.fMask := SEE_MASK_FLAG_NO_UI or SEE_MASK_FLAG_DDEWAIT or
     SEE_MASK_NOCLOSEPROCESS or SEE_MASK_NOZONECHECKS;
   Info.Wnd := Application.Handle;
-  if FOptions.RunAsDifferentUser and (Win32MajorVersion >= 5) then
+  if FOptions.RunAsDifferentUser then
     Info.lpVerb := 'runas'
   else
     Info.lpVerb := 'open';
@@ -5448,7 +5434,7 @@ end;
 
 procedure TCompileForm.WMSettingChange(var Message: TMessage);
 begin
-  if (FTheme.Typ <> ttClassic) and (Win32MajorVersion >= 10) and (Message.LParam <> 0) and (StrIComp(PChar(Message.LParam), 'ImmersiveColorSet') = 0) then begin
+  if (FTheme.Typ <> ttClassic) and IsWindows10 and (Message.LParam <> 0) and (StrIComp(PChar(Message.LParam), 'ImmersiveColorSet') = 0) then begin
     FOptions.ThemeType := GetDefaultThemeType;
     UpdateTheme;
   end;
