@@ -1517,7 +1517,6 @@ Name: "{app}\bin"
 
 <precode>
 [Files]
-Source: "CTL3DV2.DLL"; DestDir: "{sys}"; Flags: onlyifdoesntexist uninsneveruninstall
 Source: "MYPROG.EXE"; DestDir: "{app}"
 Source: "MYPROG.CHM"; DestDir: "{app}"
 Source: "README.TXT"; DestDir: "{app}"; Flags: isreadme
