@@ -590,17 +590,17 @@ object CompileForm: TCompileForm
         RadioItem = True
         OnClick = VHideClick
       end
-      object ListPopupMenu: TMenuItem
-        Caption = 'ListPopupMenu'
+      object OutputListPopupMenu: TMenuItem
+        Caption = 'OutputListPopupMenu'
         Visible = False
         OnClick = SimpleMenuClick
-        object PListCopy: TMenuItem
+        object POutputListCopy: TMenuItem
           Caption = '&Copy'
-          OnClick = PListCopyClick
+          OnClick = POutputListCopyClick
         end
-        object PListSelectAll: TMenuItem
+        object POutputListSelectAll: TMenuItem
           Caption = 'Select &All'
-          OnClick = PListSelectAllClick
+          OnClick = POutputListSelectAllClick
         end
       end
     end

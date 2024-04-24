@@ -123,8 +123,8 @@ type
     CheckIfRunningTimer: TTimer;
     RPause: TMenuItem;
     RParameters: TMenuItem;
-    ListPopupMenu: TMenuItem;
-    PListCopy: TMenuItem;
+    OutputListPopupMenu: TMenuItem;
+    POutputListCopy: TMenuItem;
     HISPPSep: TMenuItem;
     N12: TMenuItem;
     BStopCompile: TMenuItem;
@@ -189,7 +189,7 @@ type
     DarkToolBarImageCollection: TImageCollection;
     ThemedVirtualImageList: TVirtualImageList;
     LightVirtualImageList: TVirtualImageList;
-    PListSelectAll: TMenuItem;
+    POutputListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
     TMsgBoxDesigner: TMenuItem;
@@ -266,7 +266,7 @@ type
     procedure CheckIfRunningTimerTimer(Sender: TObject);
     procedure RPauseClick(Sender: TObject);
     procedure RParametersClick(Sender: TObject);
-    procedure PListCopyClick(Sender: TObject);
+    procedure POutputListCopyClick(Sender: TObject);
     procedure BStopCompileClick(Sender: TObject);
     procedure HMenuClick(Sender: TObject);
     procedure EGotoClick(Sender: TObject);
@@ -301,7 +301,7 @@ type
       Rect: TRect; State: TOwnerDrawState);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
-    procedure PListSelectAllClick(Sender: TObject);
+    procedure POutputListSelectAllClick(Sender: TObject);
     procedure DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
       State: TOwnerDrawState);
     procedure VDebugCallStackClick(Sender: TObject);
@@ -791,10 +791,10 @@ begin
   { Use fake Ctrl+F4 shortcut for VCloseCurrentTab2 because VCloseCurrentTab
     already has the real one }
   SetFakeShortCut(VCloseCurrentTab2, VK_F4, [ssCtrl]);
-  { Use fake Ctrl+C and Ctrl+A shortcuts for ListPopupMenu's items so they don't
-    conflict with the editor which also uses fake shortcuts for these }
-  SetFakeShortCut(PListCopy, Ord('C'), [ssCtrl]);
-  SetFakeShortCut(PListSelectAll, Ord('A'), [ssCtrl]);
+  { Use fake Ctrl+C and Ctrl+A shortcuts for OutputListPopupMenu's items so they
+    don't conflict with the editor which also uses fake shortcuts for these }
+  SetFakeShortCut(POutputListCopy, Ord('C'), [ssCtrl]);
+  SetFakeShortCut(POutputListSelectAll, Ord('A'), [ssCtrl]);
 
   PopupMenu := TCompileFormPopupMenu.Create(Self, EMenu);
 
@@ -821,8 +821,8 @@ begin
 
   MemosTabSet.PopupMenu := TCompileFormPopupMenu.Create(Self, MemosTabSetPopupMenu);
 
-  PopupMenu := TCompileFormPopupMenu.Create(Self, ListPopupMenu);
-  
+  PopupMenu := TCompileFormPopupMenu.Create(Self, OutputListPopupMenu);
+
   CompilerOutputList.PopupMenu := PopupMenu;
   DebugOutputList.PopupMenu := PopupMenu;
   DebugCallStackList.PopupMenu := PopupMenu;
@@ -4824,11 +4824,11 @@ begin
           NM(ERedo, 'command-redo-1'),
           NM(ECut, 'clipboard-cut'),
           NM(ECopy, 'clipboard-copy'),
-          NM(PListCopy, 'clipboard-copy'),
+          NM(POutputListCopy, 'clipboard-copy'),
           NM(EPaste, 'clipboard-paste'),
           NM(EDelete, 'symbol-cancel'),
           NM(ESelectAll, 'select-all'),
-          NM(PListSelectAll, 'select-all'),
+          NM(POutputListSelectAll, 'select-all'),
           NM(EFind, 'find'),
           NM(EFindInFiles, 'folder-filled-find'),
           //NM(EFindNext, 'unused\find-arrow-right-2'),
@@ -5230,7 +5230,7 @@ begin
   CheckIfTerminated;
 end;
 
-procedure TCompileForm.PListCopyClick(Sender: TObject);
+procedure TCompileForm.POutputListCopyClick(Sender: TObject);
 var
   ListBox: TListBox;
   Text: String;
@@ -5257,7 +5257,7 @@ begin
   Clipboard.AsText := Text;
 end;
 
-procedure TCompileForm.PListSelectAllClick(Sender: TObject);
+procedure TCompileForm.POutputListSelectAllClick(Sender: TObject);
 var
   ListBox: TListBox;
   I: Integer;
@@ -5284,9 +5284,9 @@ procedure TCompileForm.OutputListKeyDown(Sender: TObject; var Key: Word;
 begin
   if Shift = [ssCtrl] then begin
     if Key = Ord('C') then
-      PListCopyClick(Sender)
+      POutputListCopyClick(Sender)
     else if Key = Ord('A') then
-      PListSelectAllClick(Sender);
+      POutputListSelectAllClick(Sender);
   end;
 end;
 
