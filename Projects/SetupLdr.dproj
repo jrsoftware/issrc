@@ -30,10 +30,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <DCC_ImageBase>00400000</DCC_ImageBase>
-        <DCC_Alignment>1</DCC_Alignment>
         <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
         <DCC_DebugInformation>1</DCC_DebugInformation>
-        <DCC_WriteableConstants>true</DCC_WriteableConstants>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
         <SanitizedProjectName>SetupLdr</SanitizedProjectName>
         <VerInfo_Locale>1043</VerInfo_Locale>

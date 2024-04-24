@@ -241,6 +241,7 @@ const
   SetupFileLocationEntryStrings = 0;
   SetupFileLocationEntryAnsiStrings = 0;
 type
+  TSetupFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PSetupFileLocationEntry = ^TSetupFileLocationEntry;
   TSetupFileLocationEntry = packed record
     FirstSlice, LastSlice: Integer;
@@ -253,13 +254,14 @@ type
     FileVersionMS, FileVersionLS: DWORD;
     Flags: set of (foVersionInfoValid, foVersionInfoNotValid, foTimeStampInUTC,
       foIsUninstExe, foCallInstructionOptimized, foApplyTouchDateTime,
-      foChunkEncrypted, foChunkCompressed, foSolidBreak, foSign, foSignOnce);
+      foChunkEncrypted, foChunkCompressed, foSolidBreak);
+    Sign: TSetupFileLocationSign;
   end;
-  TSetupIconCloseOnExit = (icNoSetting, icYes, icNo);
 const
   SetupIconEntryStrings = 13;
   SetupIconEntryAnsiStrings = 0;
 type
+  TSetupIconCloseOnExit = (icNoSetting, icYes, icNo);
   PSetupIconEntry = ^TSetupIconEntry;
   TSetupIconEntry = packed record
     IconName, Filename, Parameters, WorkingDir, IconFilename, Comment: String;

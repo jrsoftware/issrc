@@ -72,6 +72,7 @@ object CompileForm: TCompileForm
         Visible = False
         OnDblClick = FindResultsListDblClick
         OnDrawItem = FindResultsListDrawItem
+        OnKeyDown = OutputListKeyDown
       end
       object DebugCallStackList: TListBox
         Left = 0
@@ -86,6 +87,7 @@ object CompileForm: TCompileForm
         TabOrder = 2
         Visible = False
         OnDrawItem = DebugCallStackListDrawItem
+        OnKeyDown = OutputListKeyDown
       end
       object DebugOutputList: TListBox
         Left = 0
@@ -100,6 +102,7 @@ object CompileForm: TCompileForm
         TabOrder = 1
         Visible = False
         OnDrawItem = DebugOutputListDrawItem
+        OnKeyDown = OutputListKeyDown
       end
       object CompilerOutputList: TListBox
         Left = 0
@@ -113,6 +116,7 @@ object CompileForm: TCompileForm
         MultiSelect = True
         TabOrder = 0
         OnDrawItem = CompilerOutputListDrawItem
+        OnKeyDown = OutputListKeyDown
       end
       object OutputTabSet: TNewTabSet
         Left = 0
@@ -548,7 +552,6 @@ object CompileForm: TCompileForm
         OnClick = MemosTabSetPopupMenuClick
         object VCloseCurrentTab2: TMenuItem
           Caption = 'C&lose Current Tab'
-          ShortCut = 16499
           OnClick = VCloseCurrentTabClick
         end
         object VReopenTab2: TMenuItem
@@ -587,19 +590,17 @@ object CompileForm: TCompileForm
         RadioItem = True
         OnClick = VHideClick
       end
-      object ListPopupMenu: TMenuItem
-        Caption = 'ListPopupMenu'
+      object OutputListPopupMenu: TMenuItem
+        Caption = 'OutputListPopupMenu'
         Visible = False
         OnClick = SimpleMenuClick
-        object PListCopy: TMenuItem
+        object POutputListCopy: TMenuItem
           Caption = '&Copy'
-          ShortCut = 16451
-          OnClick = PListCopyClick
+          OnClick = POutputListCopyClick
         end
-        object PListSelectAll: TMenuItem
+        object POutputListSelectAll: TMenuItem
           Caption = 'Select &All'
-          ShortCut = 16449
-          OnClick = PListSelectAllClick
+          OnClick = POutputListSelectAllClick
         end
       end
     end

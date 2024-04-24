@@ -123,8 +123,8 @@ type
     CheckIfRunningTimer: TTimer;
     RPause: TMenuItem;
     RParameters: TMenuItem;
-    ListPopupMenu: TMenuItem;
-    PListCopy: TMenuItem;
+    OutputListPopupMenu: TMenuItem;
+    POutputListCopy: TMenuItem;
     HISPPSep: TMenuItem;
     N12: TMenuItem;
     BStopCompile: TMenuItem;
@@ -190,7 +190,7 @@ type
     ThemedVirtualImageList: TVirtualImageList;
     LightVirtualImageList: TVirtualImageList;
     DarkVirtualImageList: TVirtualImageList;
-    PListSelectAll: TMenuItem;
+    POutputListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
     TMsgBoxDesigner: TMenuItem;
@@ -267,7 +267,7 @@ type
     procedure CheckIfRunningTimerTimer(Sender: TObject);
     procedure RPauseClick(Sender: TObject);
     procedure RParametersClick(Sender: TObject);
-    procedure PListCopyClick(Sender: TObject);
+    procedure POutputListCopyClick(Sender: TObject);
     procedure BStopCompileClick(Sender: TObject);
     procedure HMenuClick(Sender: TObject);
     procedure EGotoClick(Sender: TObject);
@@ -302,7 +302,7 @@ type
       Rect: TRect; State: TOwnerDrawState);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
-    procedure PListSelectAllClick(Sender: TObject);
+    procedure POutputListSelectAllClick(Sender: TObject);
     procedure DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
       State: TOwnerDrawState);
     procedure VDebugCallStackClick(Sender: TObject);
@@ -331,6 +331,8 @@ type
     procedure MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
     procedure StatusBarClick(Sender: TObject);
     procedure SimpleMenuClick(Sender: TObject);
+    procedure OutputListKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -548,7 +550,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
-  Math, StrUtils, WideStrUtils,
+  Math, StrUtils, WideStrUtils, DwmApi,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -791,6 +793,13 @@ begin
   { Use fake Esc shortcut for Stop Compile so it doesn't conflict with the
     editor's autocompletion list }
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
+  { Use fake Ctrl+F4 shortcut for VCloseCurrentTab2 because VCloseCurrentTab
+    already has the real one }
+  SetFakeShortCut(VCloseCurrentTab2, VK_F4, [ssCtrl]);
+  { Use fake Ctrl+C and Ctrl+A shortcuts for OutputListPopupMenu's items so they
+    don't conflict with the editor which also uses fake shortcuts for these }
+  SetFakeShortCut(POutputListCopy, Ord('C'), [ssCtrl]);
+  SetFakeShortCut(POutputListSelectAll, Ord('A'), [ssCtrl]);
 
   PopupMenu := TCompileFormPopupMenu.Create(Self, EMenu);
 
@@ -817,8 +826,8 @@ begin
 
   MemosTabSet.PopupMenu := TCompileFormPopupMenu.Create(Self, MemosTabSetPopupMenu);
 
-  PopupMenu := TCompileFormPopupMenu.Create(Self, ListPopupMenu);
-  
+  PopupMenu := TCompileFormPopupMenu.Create(Self, OutputListPopupMenu);
+
   CompilerOutputList.PopupMenu := PopupMenu;
   DebugOutputList.PopupMenu := PopupMenu;
   DebugCallStackList.PopupMenu := PopupMenu;
@@ -4676,15 +4685,32 @@ procedure TCompileForm.UpdateTheme;
     SetControlTheme(List);
   end;
 
+  function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
+  begin
+    var OSVersionInfo: TOSVersionInfoEx;
+    OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
+    GetVersionEx(OSVersionInfo);
+    var WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
+    Result := WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
+  end;
+
+  function IsWindows11: Boolean;
+  begin
+    Result := WindowsVersionAtLeast(10, 0, 22000);
+  end;
+
 var
   Memo: TCompScintEdit;
 begin
   FTheme.Typ := FOptions.ThemeType;
+
   for Memo in FMemos do begin
     Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlTheme(Memo);
   end;
+
   Color := FTheme.Colors[tcToolBack];
+
   if FTheme.Dark then
     ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
   else
@@ -4693,9 +4719,12 @@ begin
     FMenuImageList := DarkVirtualImageList
   else
     FMenuImageList := LightVirtualImageList;
-  UpdateBevel1Visibility;
+
+    UpdateBevel1Visibility;
+
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
+
   if FTheme.Dark then begin
     MemosTabSet.Theme := FTheme;
     OutputTabSet.Theme := FTheme;
@@ -4703,10 +4732,20 @@ begin
     MemosTabSet.Theme := nil;
     OutputTabSet.Theme := nil;
   end;
+
   SetListTheme(CompilerOutputList);
   SetListTheme(DebugOutputList);
   SetListTheme(DebugCallStackList);
   SetListTheme(FindResultsList);
+
+  { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
+    Unlike this article we check for Windows 11 because that's what DWMWA_USE_IMMERSIVE_DARK_MODE's
+    documentation says is required. }
+  if IsWindows11 then begin
+    const DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+    var value: BOOL := FTheme.Dark;
+    DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
+  end;
 end;
 
 procedure TCompileForm.UpdateThemeData(const Open: Boolean);
@@ -4734,15 +4773,19 @@ procedure TCompileForm.UpdateMenuBitmapsIfNeeded;
   begin
     var pvBits: Pointer;
     var Bitmap := CreateDIBSection(MemoryDC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
-    SelectObject(MemoryDC, Bitmap);
+    var OldBitmap := SelectObject(MemoryDC, Bitmap);
     if ImageList_Draw(ImageList.Handle, ImageIndex, MemoryDC, 0, 0, ILD_TRANSPARENT) then
-      FMenuBitmaps.Add(MenuItem, Bitmap);
+      FMenuBitmaps.Add(MenuItem, Bitmap)
+    else begin
+      SelectObject(MemoryDC, OldBitmap);
+      DeleteObject(Bitmap);
+    end;
   end;
 
-  procedure AddMenuBitmap(const MemoryDC: HDC; const BitmapInfo: TBitmapInfo;
+  procedure AddMenuBitmap(const DC: HDC; const BitmapInfo: TBitmapInfo;
     const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageName: String); overload;
   begin
-    AddMenuBitmap(MemoryDC, BitmapInfo, MenuItem, ImageList, ImageList.GetIndexByName(ImageName));
+    AddMenuBitmap(DC, BitmapInfo, MenuItem, ImageList, ImageList.GetIndexByName(ImageName));
   end;
 
 type
@@ -4791,90 +4834,83 @@ begin
 
     { Create }
 
-    var DC := GetDC(0);
-    try
-      var MemoryDC := CreateCompatibleDC(DC);
-      if MemoryDC <> 0 then begin
-        var OldBitmap := GetCurrentObject(MemoryDC, OBJ_BITMAP);
-        try
-          var BitmapInfo: TBitmapInfo;
-          ZeroMemory(@BitmapInfo, SizeOf(BitmapInfo));
-          BitmapInfo.bmiHeader.biSize := SizeOf(BitmapInfo.bmiHeader);
-          BitmapInfo.bmiHeader.biWidth := NewSize.cx;
-          BitmapInfo.bmiHeader.biHeight := NewSize.cy;
-          BitmapInfo.bmiHeader.biPlanes := 1;
-          bitmapInfo.bmiHeader.biBitCount := 32;
-          BitmapInfo.bmiHeader.biCompression := BI_RGB;
+    var DC := CreateCompatibleDC(0);
+    if DC <> 0 then begin
+      try
+        var BitmapInfo: TBitmapInfo;
+        ZeroMemory(@BitmapInfo, SizeOf(BitmapInfo));
+        BitmapInfo.bmiHeader.biSize := SizeOf(BitmapInfo.bmiHeader);
+        BitmapInfo.bmiHeader.biWidth := NewSize.cx;
+        BitmapInfo.bmiHeader.biHeight := NewSize.cy;
+        BitmapInfo.bmiHeader.biPlanes := 1;
+        bitmapInfo.bmiHeader.biBitCount := 32;
+        BitmapInfo.bmiHeader.biCompression := BI_RGB;
 
-          var ButtonedMenus := [
-            BM(FNewMainFile, NewMainFileButton),
-            BM(FOpenMainFile, OpenMainFileButton),
-            BM(FSave, SaveButton),
-            BM(BCompile, CompileButton),
-            BM(BStopCompile, StopCompileButton),
-            BM(RRun, RunButton),
-            BM(RPause, PauseButton),
-            BM(RTerminate, TerminateButton),
-            BM(HDoc, HelpButton)];
+        var ButtonedMenus := [
+          BM(FNewMainFile, NewMainFileButton),
+          BM(FOpenMainFile, OpenMainFileButton),
+          BM(FSave, SaveButton),
+          BM(BCompile, CompileButton),
+          BM(BStopCompile, StopCompileButton),
+          BM(RRun, RunButton),
+          BM(RPause, PauseButton),
+          BM(RTerminate, TerminateButton),
+          BM(HDoc, HelpButton)];
 
-          for var ButtonedMenu in ButtonedMenus do
-            AddMenuBitmap(MemoryDC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
+        for var ButtonedMenu in ButtonedMenus do
+          AddMenuBitmap(DC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
 
-          var NamedMenus := [
-            NM(FSaveMainFileAs, 'save-as-filled'),
-            NM(FSaveAll, 'save-all-filled'),
-            NM(FPrint, 'printer'),
-            NM(EUndo, 'command-undo-1'),
-            NM(ERedo, 'command-redo-1'),
-            NM(ECut, 'clipboard-cut'),
-            NM(ECopy, 'clipboard-copy'),
-            NM(PListCopy, 'clipboard-copy'),
-            NM(EPaste, 'clipboard-paste'),
-            NM(EDelete, 'symbol-cancel'),
-            NM(ESelectAll, 'select-all'),
-            NM(PListSelectAll, 'select-all'),
-            NM(EFind, 'find'),
-            NM(EFindInFiles, 'folder-filled-find'),
-            //NM(EFindNext, 'unused\find-arrow-right-2'),
-            //NM(EFindPrevious, 'unused\find-arrow-left-2'),
-            NM(EReplace, 'replace'),
-            NM(ECompleteWord, 'letter-a-arrow-right-2'),
-            NM(VZoomIn, 'zoom-in'),
-            NM(VZoomOut, 'zoom-out'),
-            NM(VNextTab, 'control-tab-filled-arrow-right-2'),
-            NM(VPreviousTab, 'control-tab-filled-arrow-left-2'),
-            //NM(VCloseCurrentTab, 'unused\control-tab-filled-cancel-2'),
-            NM(VReopenTabs, 'control-tab-filled-redo-1'),
-            NM(VReopenTabs2, 'control-tab-filled-redo-1'),
-            NM(RParameters, 'control-edit'),
-            NM(RRunToCursor, 'debug-start-filled-arrow-right-2'),
-            NM(RStepInto, 'debug-step-into'),
-            NM(RStepOver, 'debug-step-over'),
-            NM(RStepOut, 'debug-step-out'),
-            NM(RToggleBreakPoint, 'debug-breakpoint-filled'),
-            NM(REvaluate, 'variables'),
-            NM(TAddRemovePrograms, 'application'),
-            NM(TGenerateGUID, 'tag-script-filled'),
-            NM(TFilesDesigner, 'documents-script-filled'),
-            NM(TRegistryDesigner, 'control-tree-script-filled'),
-            NM(TMsgBoxDesigner, 'comment-text-script-filled'),
-            NM(TSignTools, 'key-filled'),
-            NM(TOptions, 'gear-filled'),
-            NM(HDonate, 'heart-filled'),
-            NM(HMailingList, 'alert-filled'),
-            NM(HWhatsNew, 'announcement'),
-            NM(HWebsite, 'home'),
-            NM(HAbout, 'button-info')];
+        var NamedMenus := [
+          NM(FSaveMainFileAs, 'save-as-filled'),
+          NM(FSaveAll, 'save-all-filled'),
+          NM(FPrint, 'printer'),
+          NM(EUndo, 'command-undo-1'),
+          NM(ERedo, 'command-redo-1'),
+          NM(ECut, 'clipboard-cut'),
+          NM(ECopy, 'clipboard-copy'),
+          NM(POutputListCopy, 'clipboard-copy'),
+          NM(EPaste, 'clipboard-paste'),
+          NM(EDelete, 'symbol-cancel'),
+          NM(ESelectAll, 'select-all'),
+          NM(POutputListSelectAll, 'select-all'),
+          NM(EFind, 'find'),
+          NM(EFindInFiles, 'folder-filled-find'),
+          //NM(EFindNext, 'unused\find-arrow-right-2'),
+          //NM(EFindPrevious, 'unused\find-arrow-left-2'),
+          NM(EReplace, 'replace'),
+          NM(ECompleteWord, 'letter-a-arrow-right-2'),
+          NM(VZoomIn, 'zoom-in'),
+          NM(VZoomOut, 'zoom-out'),
+          NM(VNextTab, 'control-tab-filled-arrow-right-2'),
+          NM(VPreviousTab, 'control-tab-filled-arrow-left-2'),
+          //NM(VCloseCurrentTab, 'unused\control-tab-filled-cancel-2'),
+          NM(VReopenTabs, 'control-tab-filled-redo-1'),
+          NM(VReopenTabs2, 'control-tab-filled-redo-1'),
+          NM(RParameters, 'control-edit'),
+          NM(RRunToCursor, 'debug-start-filled-arrow-right-2'),
+          NM(RStepInto, 'debug-step-into'),
+          NM(RStepOver, 'debug-step-over'),
+          NM(RStepOut, 'debug-step-out'),
+          NM(RToggleBreakPoint, 'debug-breakpoint-filled'),
+          NM(REvaluate, 'variables'),
+          NM(TAddRemovePrograms, 'application'),
+          NM(TGenerateGUID, 'tag-script-filled'),
+          NM(TFilesDesigner, 'documents-script-filled'),
+          NM(TRegistryDesigner, 'control-tree-script-filled'),
+          NM(TMsgBoxDesigner, 'comment-text-script-filled'),
+          NM(TSignTools, 'key-filled'),
+          NM(TOptions, 'gear-filled'),
+          NM(HDonate, 'heart-filled'),
+          NM(HMailingList, 'alert-filled'),
+          NM(HWhatsNew, 'announcement'),
+          NM(HWebsite, 'home'),
+          NM(HAbout, 'button-info')];
 
-          for var NamedMenu in NamedMenus do
-            AddMenuBitmap(MemoryDC, BitmapInfo, NamedMenu.Key, ImageList, NamedMenu.Value);
-        finally
-          SelectObject(MemoryDC, OldBitmap);
-          DeleteDC(MemoryDC);
-        end;
-     end;
-    finally
-      ReleaseDC(0, DC);
+        for var NamedMenu in NamedMenus do
+          AddMenuBitmap(DC, BitmapInfo, NamedMenu.Key, ImageList, NamedMenu.Value);
+      finally
+        DeleteDC(DC);
+      end;
     end;
 
     FMenuBitmapsSize := NewSize;
@@ -5238,7 +5274,7 @@ begin
   CheckIfTerminated;
 end;
 
-procedure TCompileForm.PListCopyClick(Sender: TObject);
+procedure TCompileForm.POutputListCopyClick(Sender: TObject);
 var
   ListBox: TListBox;
   Text: String;
@@ -5265,7 +5301,7 @@ begin
   Clipboard.AsText := Text;
 end;
 
-procedure TCompileForm.PListSelectAllClick(Sender: TObject);
+procedure TCompileForm.POutputListSelectAllClick(Sender: TObject);
 var
   ListBox: TListBox;
   I: Integer;
@@ -5284,6 +5320,17 @@ begin
       ListBox.Selected[I] := True;
   finally
     ListBox.Items.EndUpdate;
+  end;
+end;
+
+procedure TCompileForm.OutputListKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Shift = [ssCtrl] then begin
+    if Key = Ord('C') then
+      POutputListCopyClick(Sender)
+    else if Key = Ord('A') then
+      POutputListSelectAllClick(Sender);
   end;
 end;
 
