@@ -6061,7 +6061,7 @@ type
 
   procedure ApplyNewSign(const NewSign: TSetupFileLocationSign);
   begin
-    if Sign <> fsNoSetting then
+    if not (Sign in [fsNoSetting, NewSign]) then
       AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
         [ParamCommonFlags, SignFlags[Sign], SignFlags[NewSign]])
     else
