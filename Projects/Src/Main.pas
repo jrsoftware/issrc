@@ -4496,21 +4496,6 @@ begin
 end;
 
 procedure InitWindowsVersion;
-
-type
-  TOSVersionInfoEx = packed record
-    dwOSVersionInfoSize: DWORD;
-    dwMajorVersion: DWORD;
-    dwMinorVersion: DWORD;
-    dwBuildNumber: DWORD;
-    dwPlatformId: DWORD;
-    szCSDVersion: array[0..127] of Char;
-    wServicePackMajor: Word;
-    wServicePackMinor: Word;
-    wSuiteMask: Word;
-    wProductType: Byte;
-    wReserved: Byte;
-  end;
 var
   OSVersionInfo: TOSVersionInfo;
   OSVersionInfoEx: TOSVersionInfoEx;
