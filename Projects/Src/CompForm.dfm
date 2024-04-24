@@ -548,7 +548,6 @@ object CompileForm: TCompileForm
         OnClick = MemosTabSetPopupMenuClick
         object VCloseCurrentTab2: TMenuItem
           Caption = 'C&lose Current Tab'
-          ShortCut = 16499
           OnClick = VCloseCurrentTabClick
         end
         object VReopenTab2: TMenuItem

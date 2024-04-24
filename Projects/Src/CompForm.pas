@@ -786,6 +786,9 @@ begin
   { Use fake Esc shortcut for Stop Compile so it doesn't conflict with the
     editor's autocompletion list }
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
+  { Use fake Ctrl+F4 shortcut for VCloseCurrentTab2 because VCloseCurrentTab
+    already has the real one }
+  SetFakeShortCut(VCloseCurrentTab2, VK_F4, [ssCtrl]);
 
   PopupMenu := TCompileFormPopupMenu.Create(Self, EMenu);
 
