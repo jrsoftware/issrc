@@ -4735,6 +4735,8 @@ begin
     var value: BOOL := FTheme.Dark;
     DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
   end;
+
+  DrawMenuBar(Handle);
 end;
 
 procedure TCompileForm.UpdateThemeData(const Open: Boolean);
@@ -5472,18 +5474,21 @@ end;
 
 procedure TCompileForm.WMUADrawMenu(var Message: TMessage);
 begin
-  var MenuBarInfo: TMenuBarInfo;
-  MenuBarInfo.cbSize := SizeOf(MenuBarInfo);
-  GetMenuBarInfo(Handle, Integer(OBJID_MENU), 0, MenuBarInfo);
+  if FTheme.Dark then begin
+    var MenuBarInfo: TMenuBarInfo;
+    MenuBarInfo.cbSize := SizeOf(MenuBarInfo);
+    GetMenuBarInfo(Handle, Integer(OBJID_MENU), 0, MenuBarInfo);
 
-  var WindowRect: TRect;
-  GetWindowRect(Handle, WindowRect);
+    var WindowRect: TRect;
+    GetWindowRect(Handle, WindowRect);
 
-  var Rect := MenuBarInfo.rcBar;
-  OffsetRect(Rect, -WindowRect.Left, -WindowRect.Top);
+    var Rect := MenuBarInfo.rcBar;
+    OffsetRect(Rect, -WindowRect.Left, -WindowRect.Top);
 
-  var UAHMenu := PUAHMenu(Message.lParam);
-  FillRect(UAHMenu.hdc, Rect, GetStockObject(BLACK_BRUSH));
+    var UAHMenu := PUAHMenu(Message.lParam);
+    FillRect(UAHMenu.hdc, Rect, GetStockObject(BLACK_BRUSH));
+  end else
+    inherited;
 end;
 
 procedure TCompileForm.WMUADrawMenuItem(var Message: TMessage);
@@ -5495,35 +5500,38 @@ const
 var
   Buffer: array of Char;
 begin
-  var UAHDrawMenuItem := PUAHDrawMenuItem(Message.lParam);
+  if FTheme.Dark then begin
+    var UAHDrawMenuItem := PUAHDrawMenuItem(Message.lParam);
 
-  var MenuItemInfo: TMenuItemInfo;
-  MenuItemInfo.cbSize := SizeOf(MenuItemInfo);
-  MenuItemInfo.fMask := MIIM_STRING;
-  MenuItemInfo.dwTypeData := nil;
-  GetMenuItemInfo(UAHDrawMenuItem.um.hmenu, UAHDrawMenuItem.umi.iPosition, True, MenuItemInfo);
-  Inc(MenuItemInfo.cch);
-  SetLength(Buffer, MenuItemInfo.cch);
-  MenuItemInfo.dwTypeData := @Buffer[0];
-  GetMenuItemInfo(UAHDrawMenuItem.um.hmenu, UAHDrawMenuItem.umi.iPosition, True, MenuItemInfo);
+    var MenuItemInfo: TMenuItemInfo;
+    MenuItemInfo.cbSize := SizeOf(MenuItemInfo);
+    MenuItemInfo.fMask := MIIM_STRING;
+    MenuItemInfo.dwTypeData := nil;
+    GetMenuItemInfo(UAHDrawMenuItem.um.hmenu, UAHDrawMenuItem.umi.iPosition, True, MenuItemInfo);
+    Inc(MenuItemInfo.cch);
+    SetLength(Buffer, MenuItemInfo.cch);
+    MenuItemInfo.dwTypeData := @Buffer[0];
+    GetMenuItemInfo(UAHDrawMenuItem.um.hmenu, UAHDrawMenuItem.umi.iPosition, True, MenuItemInfo);
 
-  var dwFlags: DWORD := DT_CENTER or DT_SINGLELINE or DT_VCENTER;
-  if (UAHDrawMenuItem.dis.itemState and ODS_NOACCEL) <> 0 then
-    dwFlags := dwFlags or DT_HIDEPREFIX;
+    var dwFlags: DWORD := DT_CENTER or DT_SINGLELINE or DT_VCENTER;
+    if (UAHDrawMenuItem.dis.itemState and ODS_NOACCEL) <> 0 then
+      dwFlags := dwFlags or DT_HIDEPREFIX;
 
-  var opts: TDTTOpts;
-  opts.dwSize := SizeOf(opts);
-  opts.dwFlags := DTT_TEXTCOLOR;
-  opts.crText := RGB(255, 255, 255);
+    var opts: TDTTOpts;
+    opts.dwSize := SizeOf(opts);
+    opts.dwFlags := DTT_TEXTCOLOR;
+    opts.crText := RGB(255, 255, 255);
 
-  var Brush: HBrush;
-  if (UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0 then
-    Brush := GetStockObject(GRAY_BRUSH)
-  else
-    Brush := GetStockObject(BLACK_BRUSH);
+    var Brush: HBrush;
+    if (UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0 then
+      Brush := GetStockObject(GRAY_BRUSH)
+    else
+      Brush := GetStockObject(BLACK_BRUSH);
 
-  FillRect(UAHDrawMenuItem.um.hdc, UAHDrawMenuItem.dis.rcItem, Brush);
-  DrawThemeTextEx(FMenuThemeData, UAHDrawMenuItem.um.hdc, MENU_BARITEM, MBI_NORMAL, MenuItemInfo.dwTypeData, MenuItemInfo.cch, dwFlags, @UAHDrawMenuItem.dis.rcItem, opts);
+    FillRect(UAHDrawMenuItem.um.hdc, UAHDrawMenuItem.dis.rcItem, Brush);
+    DrawThemeTextEx(FMenuThemeData, UAHDrawMenuItem.um.hdc, MENU_BARITEM, MBI_NORMAL, MenuItemInfo.dwTypeData, MenuItemInfo.cch, dwFlags, @UAHDrawMenuItem.dis.rcItem, opts);
+  end else
+    inherited;
 end;
 
 procedure TCompileForm.RTargetClick(Sender: TObject);
