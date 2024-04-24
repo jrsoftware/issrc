@@ -4860,7 +4860,6 @@ begin
       end;
     end;
 
-
     FMenuBitmapsSize := NewSize;
   end;
 end;
