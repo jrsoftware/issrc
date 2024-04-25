@@ -411,6 +411,8 @@ type
     FProgressThemeData: HTHEME;
     FProgressChunkSize, FProgressSpaceSize: Integer;
     FMenuThemeData: HTHEME;
+    FMenuDarkBackgroundBrush: TBrush;
+    FMenuDarkHotOrSelectedBrush: TBrush;
     FDebugLogListTimestampsWidth: Integer;
     FOnPendingSquiggly: Boolean;
     FPendingSquigglyCaretPos: Integer;
@@ -535,6 +537,9 @@ type
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure WMUADrawMenu(var Message: TMessage); message WM_UAHDRAWMENU;
     procedure WMUADrawMenuItem(var Message: TMessage); message WM_UAHDRAWMENUITEM;
+    procedure UADrawMenuBottomLine;
+    procedure WMNCActivate(var Message: TMessage); message WM_NCACTIVATE;
+    procedure WMNCPaint(var Message: TMessage); message WM_NCPAINT;
   protected
     procedure WndProc(var Message: TMessage); override;
   public
@@ -861,6 +866,9 @@ begin
 
   UpdateCaption;
 
+  FMenuDarkBackgroundBrush := TBrush.Create;
+  FMenuDarkHotOrSelectedBrush := TBrush.Create;
+
   UpdateThemeData(True);
   
   FMenuBitmaps := TMenuBitmaps.Create;
@@ -931,6 +939,8 @@ begin
     GlobalFree(FDevNames);
 
   FMenuBitmaps.Free;
+  FMenuDarkBackgroundBrush.Free;
+  FMenuDarkHotOrSelectedBrush.Free;
   FTheme.Free;
   DestroyDebugInfo;
   FIncludedFiles.Free;
@@ -4725,6 +4735,9 @@ begin
     DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
   end;
 
+  FMenuDarkBackgroundBrush.Color := FTheme.Colors[tcToolBack];
+  FMenuDarkHotOrSelectedBrush.Color := $2C2C2C; { Same as themed menu drawn by Windows 11, which is close to Colors[tcBack] }
+
   DrawMenuBar(Handle);
 
   if Assigned(SetPreferredAppMode) then begin
@@ -5489,7 +5502,7 @@ begin
     OffsetRect(Rect, -WindowRect.Left, -WindowRect.Top);
 
     var UAHMenu := PUAHMenu(Message.lParam);
-    FillRect(UAHMenu.hdc, Rect, GetStockObject(BLACK_BRUSH));
+    FillRect(UAHMenu.hdc, Rect, FMenuDarkBackgroundBrush.Handle);
   end else
     inherited;
 end;
@@ -5527,14 +5540,49 @@ begin
 
     var Brush: HBrush;
     if (UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0 then
-      Brush := GetStockObject(GRAY_BRUSH)
+      Brush := FMenuDarkHotOrSelectedBrush.Handle
     else
-      Brush := GetStockObject(BLACK_BRUSH);
+      Brush := FMenuDarkBackgroundBrush.Handle;
 
     FillRect(UAHDrawMenuItem.um.hdc, UAHDrawMenuItem.dis.rcItem, Brush);
     DrawThemeTextEx(FMenuThemeData, UAHDrawMenuItem.um.hdc, MENU_BARITEM, MBI_NORMAL, MenuItemInfo.dwTypeData, MenuItemInfo.cch, dwFlags, @UAHDrawMenuItem.dis.rcItem, opts);
   end else
     inherited;
+end;
+
+{ Should be removed if the main menu ever gets removed }
+procedure TCompileForm.UADrawMenuBottomLine;
+begin
+  if FTheme.Dark then begin
+    var ClientRect: TRect;
+    Windows.GetClientRect(Handle, ClientRect);
+		MapWindowPoints(Handle, 0, ClientRect, 2);
+
+    var WindowRect: TRect;
+    GetWindowRect(Handle, WindowRect);
+
+    var Rect := ClientRect;
+    OffsetRect(Rect, -WindowRect.Left, -WindowRect.Top);
+
+    Rect.Bottom := Rect.Top;
+    Dec(Rect.Top);
+
+    var DC := GetWindowDC(Handle);
+  	FillRect(DC, Rect, FMenuDarkBackgroundBrush.Handle);
+		ReleaseDC(Handle, DC);
+  end;
+end;
+
+procedure TCompileForm.WMNCActivate(var Message: TMessage);
+begin
+  inherited;
+  UADrawMenuBottomLine;
+end;
+
+procedure TCompileForm.WMNCPaint(var Message: TMessage);
+begin
+  inherited;
+  UADrawMenuBottomLine;
 end;
 
 procedure TCompileForm.RTargetClick(Sender: TObject);
