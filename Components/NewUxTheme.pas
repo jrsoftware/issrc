@@ -44,13 +44,16 @@
 {                                                                              }
 {******************************************************************************}
 
-{ Simplified by Martijn Laan for Inno Setup }
+{ Simplified by Martijn Laan for Inno Setup
 
-{ Cannot be replaced by Delphi's built in Winapi.UxTheme.pas even though it has
+  Cannot be replaced by Delphi's built in Winapi.UxTheme.pas even though it has
   the same functions: see the comment at the bottom of this file. For this
   reason this unit has been renamed to NewUxTheme.  }
 
 unit NewUxTheme;
+
+{$ALIGN ON}
+{$MINENUMSIZE 4}
 
 interface
 
