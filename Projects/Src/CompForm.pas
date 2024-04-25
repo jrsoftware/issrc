@@ -4740,16 +4740,16 @@ end;
 
 procedure TCompileForm.UpdateMenuBitmapsIfNeeded;
 
-  procedure AddMenuBitmap(const MemoryDC: HDC; const BitmapInfo: TBitmapInfo;
+  procedure AddMenuBitmap(const DC: HDC; const BitmapInfo: TBitmapInfo;
     const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageIndex: Integer); overload;
   begin
     var pvBits: Pointer;
-    var Bitmap := CreateDIBSection(MemoryDC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
-    var OldBitmap := SelectObject(MemoryDC, Bitmap);
-    if ImageList_Draw(ImageList.Handle, ImageIndex, MemoryDC, 0, 0, ILD_TRANSPARENT) then
+    var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    var OldBitmap := SelectObject(DC, Bitmap);
+    if ImageList_Draw(ImageList.Handle, ImageIndex, DC, 0, 0, ILD_TRANSPARENT) then
       FMenuBitmaps.Add(MenuItem, Bitmap)
     else begin
-      SelectObject(MemoryDC, OldBitmap);
+      SelectObject(DC, OldBitmap);
       DeleteObject(Bitmap);
     end;
   end;
