@@ -418,6 +418,7 @@ type
     FMenuImageList: TVirtualImageList;
     FMenuBitmaps: TMenuBitmaps;
     FMenuBitmapsSize: TSize;
+    FMenuBitmapsSourceImageList: TVirtualImageList;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -4810,7 +4811,8 @@ begin
   var NewSize: TSize;
   NewSize.cx := ImageList.Width;
   NewSize.cy := ImageList.Height;
-  if (NewSize.cx <> FMenuBitmapsSize.cx) or (NewSize.cy <> FMenuBitmapsSize.cy) then begin
+  if (NewSize.cx <> FMenuBitmapsSize.cx) or (NewSize.cy <> FMenuBitmapsSize.cy) or
+     (ImageList <> FMenuBitmapsSourceImageList) then begin
 
     { Cleanup previous }
 
@@ -4900,6 +4902,7 @@ begin
     end;
 
     FMenuBitmapsSize := NewSize;
+    FMenuBitmapsSourceImageList := FMenuImageList;
   end;
 end;
 
