@@ -54,6 +54,7 @@
 
 unit NewUxTheme;
 
+{$ALIGN ON}
 {$MINENUMSIZE 4}
 
 interface
