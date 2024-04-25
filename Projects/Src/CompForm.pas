@@ -592,9 +592,6 @@ type
     procedure Popup(X, Y: Integer); override;
   end;
 
-var
-  DarkMenusAvailable, DarkMenusEnabled: Boolean;
-
 constructor TCompileFormPopupMenu.Create(const AOwner: TComponent; const ParentMenuItem: TMenuItem);
 begin
   inherited Create(AOwner);
@@ -3234,8 +3231,6 @@ var
 begin
   OptionsForm := TOptionsForm.Create(Application);
   try
-    var OldDarkType := TTheme.DarkType(FOptions.ThemeType);
-
     OptionsForm.StartupCheck.Checked := FOptions.ShowStartupForm;
     OptionsForm.WizardCheck.Checked := FOptions.UseWizard;
     OptionsForm.AutosaveCheck.Checked := FOptions.Autosave;
@@ -3332,9 +3327,6 @@ begin
     finally
       Ini.Free;
     end;
-
-    if DarkMenusAvailable and (OldDarkType <> TTheme.DarkType(FOptions.ThemeType)) then
-      MsgBox('The new theme has been activated.' + SNewLine2 + 'A restart is required to also switch the context menus to or from dark mode.', SCompilerFormCaption, mbInformation, MB_OK);
   finally
     OptionsForm.Free;
   end;
@@ -4701,10 +4693,6 @@ begin
     ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
   else
     ThemedVirtualImageList.ImageCollection := LightToolBarImageCollection;
-  if DarkMenusEnabled then
-    FMenuImageList := DarkVirtualImageList
-  else
-    FMenuImageList := LightVirtualImageList;
 
   UpdateBevel1Visibility;
 
@@ -4732,6 +4720,18 @@ begin
     var value: BOOL := FTheme.Dark;
     DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
   end;
+
+  if Assigned(SetPreferredAppMode) then begin
+    if FTheme.Dark then begin
+      FMenuImageList := DarkVirtualImageList;
+      SetPreferredAppMode(PAM_FORCEDARK)
+    end else begin
+      FMenuImageList := LightVirtualImageList;
+      SetPreferredAppMode(PAM_FORCELIGHT);
+    end;
+    FlushMenuThemes;
+  end else
+    FMenuImageList := LightVirtualImageList;
 end;
 
 procedure TCompileForm.UpdateThemeData(const Open: Boolean);
@@ -5889,23 +5889,6 @@ end;
 
 initialization
   InitThemeLibrary;
-  { SetPreferredAppMode only works to get dark menus when its called before the
-    form is created so we call it here if dark mode will be activated later on.
-    When the user switches to or from dark mode TOptionsClick will ask for a
-    restart. }
-  if Assigned(SetPreferredAppMode) then begin
-    DarkMenusAvailable := True;
-    var Ini := TConfigIniFile.Create;
-    try
-      var I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
-      if (I >= 0) and (I <= Ord(High(TThemeType))) and TTheme.DarkType(TThemeType(I)) then begin
-        SetPreferredAppMode(PAM_FORCEDARK);
-        DarkMenusEnabled := True;
-      end;
-    finally
-      Ini.Free;
-    end;
-  end;
   InitHtmlHelpLibrary;
   { For ClearType support, try to make the default font Microsoft Sans Serif }
   if DefFontData.Name = 'MS Sans Serif' then
