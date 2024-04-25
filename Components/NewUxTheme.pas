@@ -50,7 +50,8 @@
   the same functions: see the comment at the bottom of this file. For this
   reason this unit has been renamed to NewUxTheme.
 
-  Additionally this unit includes SetPreferredAppMode and FlushMenuThemes. }
+  Additionally this unit includes SetPreferredAppMode, FlushMenuThemes, and
+  WM_UAHDRAWMENU(ITEM). }
 
 unit NewUxTheme;
 
@@ -189,6 +190,34 @@ const
 var
   DrawThemeText: function(hTheme: HTHEME; hdc: HDC; iPartId, iStateId: Integer; pszText: LPCWSTR; iCharCount: Integer;
     dwTextFlags, dwTextFlags2: DWORD; const pRect: TRect): HRESULT; stdcall;
+
+type
+  DTT_CALLBACK_PROC = function(hdc: HDC; pszText: LPWSTR; cchText: Integer;
+    prc: PRect; dwFlags: UINT; lParam: LPARAM): Integer; stdcall;
+  TFNDTTCallbackProc = DTT_CALLBACK_PROC;
+
+  DTTOPTS = record
+    dwSize: DWORD;                          // size of the struct
+    dwFlags: DWORD;                         // which options have been specified
+    crText: COLORREF;                       // color to use for text fill
+    crBorder: COLORREF;                     // color to use for text outline
+    crShadow: COLORREF;                     // color to use for text shadow
+    iTextShadowType: Integer;               // TST_SINGLE or TST_CONTINUOUS
+    ptShadowOffset: TPoint;                 // where shadow is drawn (relative to text)
+    iBorderSize: Integer;                   // Border radius around text
+    iFontPropId: Integer;                   // Font property to use for the text instead of TMT_FONT
+    iColorPropId: Integer;                  // Color property to use for the text instead of TMT_TEXTCOLOR
+    iStateId: Integer;                      // Alternate state id
+    fApplyOverlay: BOOL;                    // Overlay text on top of any text effect?
+    iGlowSize: Integer;                     // Glow radious around text
+    pfnDrawTextCallback: TFNDTTCallbackProc;// Callback for DrawText
+    lParam: LPARAM;                         // Parameter for callback
+  end;
+  TDTTOpts = DTTOPTS;
+
+var
+  DrawThemeTextEx: function(hTheme: HTHEME; hdc: HDC; iPartId, iStateId: Integer; pszText: LPCWSTR; iCharCount: Integer;
+    dwTextFlags: DWORD; pRect: PRect; var pOptions: TDTTOpts): HResult; stdcall;
 
 //----------------------------------------------------------------------------------------------------------------------
 //  GetThemeBackgroundContentRect()
@@ -1034,6 +1063,35 @@ var
   SetPreferredAppMode: function(appMode: TPreferredAppMode): TPreferredAppMode; stdcall;
   FlushMenuThemes: procedure; stdcall;
 
+type
+  UAHMENU = record
+    hmenu: HMENU;
+    hdc: HDC;
+    dwFlags: DWORD;
+  end;
+  TUAHMenu = UAHMENU;
+  PUAHMenu = ^TUAHMenu;
+
+  UAHMENUITEM = record
+    iPosition: Integer; // 0-based position of menu item in menubar
+	  //UAHMENUITEMMETRICS umim;
+	  //UAHMENUPOPUPMETRICS umpm;
+  end;
+  TUAHMenuItem = UAHMENUITEM;
+  PUAHMenuItem = ^TUAHMenuItem;
+
+  UAHDRAWMENUITEM = record
+    dis: TDrawItemStruct; // itemID looks uninitialized
+    um: TUAHMenu;
+    umi: TUAHMenuItem;
+  end;
+  TUAHDrawMenuItem = UAHDRAWMENUITEM;
+  PUAHDrawMenuItem = ^TUAHDrawMenuItem;
+
+const
+  WM_UAHDRAWMENU = $91;
+  WM_UAHDRAWMENUITEM = $92;
+
 implementation
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1063,6 +1121,7 @@ begin
     CloseThemeData := nil;
     DrawThemeBackground := nil;
     DrawThemeText := nil;
+    DrawThemeTextEx := nil;
     GetThemeBackgroundContentRect := nil;
     GetThemeBackgroundExtent := nil;
     GetThemePartSize := nil;
@@ -1146,6 +1205,7 @@ begin
       CloseThemeData := GetProcAddress(ThemeLibrary, 'CloseThemeData');
       DrawThemeBackground := GetProcAddress(ThemeLibrary, 'DrawThemeBackground');
       DrawThemeText := GetProcAddress(ThemeLibrary, 'DrawThemeText');
+      DrawThemeTextEx := GetProcAddress(ThemeLibrary, 'DrawThemeTextEx');
       GetThemeBackgroundContentRect := GetProcAddress(ThemeLibrary, 'GetThemeBackgroundContentRect');
       GetThemeBackgroundExtent := GetProcAddress(ThemeLibrary, 'GetThemeBackgroundContentRect');
       GetThemePartSize := GetProcAddress(ThemeLibrary, 'GetThemePartSize');
