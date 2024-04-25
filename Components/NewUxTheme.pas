@@ -49,8 +49,9 @@
   Cannot be replaced by Delphi's built in Winapi.UxTheme.pas even though it has
   the same functions: see the comment at the bottom of this file. For this
   reason this unit has been renamed to NewUxTheme.
-  
-  Additionally this unit includes SetPreferredAppMode and WM_UAHDRAWMENU(ITEM). }
+
+  Additionally this unit includes SetPreferredAppMode, FlushMenuThemes, and
+  WM_UAHDRAWMENU(ITEM). }
 
 unit NewUxTheme;
 
@@ -1059,6 +1060,7 @@ type
 
 var
   SetPreferredAppMode: function(appMode: TPreferredAppMode): TPreferredAppMode; stdcall;
+  FlushMenuThemes: procedure; stdcall;
 
 type
   UAHMENU = record
@@ -1163,6 +1165,7 @@ begin
     DrawThemeParentBackground := nil;
     EnableTheming := nil;
     SetPreferredAppMode := nil;
+    FlushMenuThemes := nil;
   end;
 end;
 
@@ -1246,10 +1249,13 @@ begin
       DrawThemeParentBackground := GetProcAddress(ThemeLibrary, 'DrawThemeParentBackground');
       EnableTheming := GetProcAddress(ThemeLibrary, 'EnableTheming');
       if WindowsVersionAtLeast(10, 0, 18362) and { Windows 10 Version 1903 (May 2019 Update) }
-         WindowsVersionAtMost(10, 0, 22631) then { Windows 11 Version 23H2 (2023 Update) }
-        SetPreferredAppMode := GetProcAddress(ThemeLibrary, MakeIntResource(135))
-      else
+         WindowsVersionAtMost(10, 0, 22631) then begin { Windows 11 Version 23H2 (2023 Update) }
+        SetPreferredAppMode := GetProcAddress(ThemeLibrary, MakeIntResource(135));
+        FlushMenuThemes := GetProcAddress(ThemeLibrary, MakeIntResource(136));
+      end else begin
         SetPreferredAppMode := nil;
+        FlushMenuThemes := nil;
+      end;
     end;
   end;
   Result := ThemeLibrary <> 0;
