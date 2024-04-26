@@ -4715,7 +4715,11 @@ begin
 
   DrawMenuBar(Handle);
 
-  if Assigned(SetPreferredAppMode) then begin
+ { SetPreferredAppMode doesn't work without FlushMenuThemes here: it would have
+   to be called before the form is created to have an effect without
+   FlushMenuThemes. So don't call SetPreferredAppMode if FlushMenuThemes is
+   missing. }
+  if Assigned(SetPreferredAppMode) and Assigned(FlushMenuThemes) then begin
     if FTheme.Dark then begin
       FMenuImageList := DarkVirtualImageList;
       SetPreferredAppMode(PAM_FORCEDARK)
