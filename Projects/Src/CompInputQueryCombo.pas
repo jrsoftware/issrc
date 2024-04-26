@@ -61,7 +61,6 @@ end;
 procedure TInputQueryCombo.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
-  ActiveControl := ValueComboBox;
 end;
 
 function TInputQueryCombo.GetValue: String;
