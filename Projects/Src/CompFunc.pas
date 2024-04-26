@@ -403,7 +403,7 @@ var
         ListBox.Clear;
         SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
         ListBox.Items.Add(SCompilerStatusReset);
-        ListBox.TopIndex := ListBox.Items.Add(S);
+        ListBox.TopIndex := ListBox.Items.AddObject(S, AObject);
       end;
     end;
     DC := GetDC(0);
