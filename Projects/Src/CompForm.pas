@@ -4673,6 +4673,8 @@ begin
   end;
 
   InitFormTheme(Self);
+  ToolbarPanel.Color := FTheme.Colors[tcToolBack];
+  ToolBarPanel.ParentBackground := False;
 
   if FTheme.Dark then
     ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
