@@ -134,7 +134,6 @@ type
     procedure SetVirtualSpaceOptions(const Value: TScintVirtualSpaceOptions);
     procedure SetWordWrap(const Value: Boolean);
     procedure SetZoom(const Value: Integer);
-    procedure StyleNeeded(const EndPos: Integer);
     procedure UpdateCodePage;
     procedure UpdateLineNumbersWidth;
     procedure CMColorChanged(var Message: TMessage); message CM_COLORCHANGED;
@@ -242,6 +241,7 @@ type
     procedure SetSavePoint;
     procedure SetWordChars(const S: AnsiString);
     procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
+    procedure StyleNeeded(const EndPos: Integer);
     procedure Undo;
     procedure UpdateStyleAttributes;
     function WordAtCursor: String;
