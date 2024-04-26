@@ -3011,6 +3011,10 @@ begin
   var EndPos := Memo.RawTextLength;
   var Range: TScintRange;
 
+  { We rely on the styler to identify [Setup] section lines, but we
+    may be searching into areas that haven't been styled yet }
+  Memo.StyleNeeded(EndPos);
+
   while (StartPos < EndPos) and
         Memo.FindText(StartPos, EndPos, DirectiveName, [sfoWholeWord], Range) do begin
     var Line := Memo.GetLineFromPosition(Range.StartPos);
@@ -4685,6 +4689,8 @@ begin
   end;
 
   InitFormTheme(Self);
+  ToolbarPanel.Color := FTheme.Colors[tcToolBack];
+  ToolBarPanel.ParentBackground := False;
 
   if FTheme.Dark then
     ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
