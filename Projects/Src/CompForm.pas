@@ -5512,13 +5512,21 @@ begin
     if (UAHDrawMenuItem.dis.itemState and ODS_NOACCEL) <> 0 then
       dwFlags := dwFlags or DT_HIDEPREFIX;
 
+    var Active := GetForegroundWindow = Handle;
+
+    var TextColor: TThemeColor;
+    if Active then
+      TextColor := tcFore
+    else
+      TextColor := tcMarginFore;
+
     var opts: TDTTOpts;
     opts.dwSize := SizeOf(opts);
     opts.dwFlags := DTT_TEXTCOLOR;
-    opts.crText := RGB(255, 255, 255);
+    opts.crText := FTheme.Colors[TextColor];
 
     var Brush: HBrush;
-    if (UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0 then
+    if Active and ((UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0) then
       Brush := FMenuDarkHotOrSelectedBrush.Handle
     else
       Brush := FMenuDarkBackgroundBrush.Handle;
