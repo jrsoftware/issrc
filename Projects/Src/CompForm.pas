@@ -5540,6 +5540,9 @@ begin
     opts.crText := FTheme.Colors[TextColor];
 
     var Brush: HBrush;
+    { Note: ODS_HOTLIGHT is never set if a draw happens while a dialog is open,
+      even if the mouse is over the menu. It *can* be set when we're not the
+      active application which is why there's a check for Active. }
     if Active and ((UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0) then
       Brush := FMenuDarkHotOrSelectedBrush.Handle
     else
