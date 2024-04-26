@@ -335,6 +335,7 @@ type
       Shift: TShiftState);
   private
     { Private declarations }
+    FProcessId: DWORD;
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
     FMainMemo: TCompScintFileEdit;                      { Doesn't change }
     FPreprocessorOutputMemo: TCompScintEdit;            { Doesn't change }
@@ -767,6 +768,8 @@ var
   Memo: TCompScintEdit;
 begin
   inherited;
+
+  FProcessId := GetCurrentProcessId;
 
   {$IFNDEF STATICCOMPILER}
   FCompilerVersion := ISDllGetVersion;
@@ -5512,13 +5515,35 @@ begin
     if (UAHDrawMenuItem.dis.itemState and ODS_NOACCEL) <> 0 then
       dwFlags := dwFlags or DT_HIDEPREFIX;
 
+    { Determine whether we're active or not. Opening a dialog does not cause a
+      draw event so Active must stay True when this happens, otherwise dragging
+      the dialog over the menu bar causes it to become partially inactive, at
+      least on Windows 7. On Windows 11 this does not happen, probably because
+      of buffering. }
+    var Active := False;
+    var Wnd := GetForegroundWindow;
+    if Wnd <> 0 then begin
+      var WndProcessId: DWORD;
+      if GetWindowThreadProcessId(Wnd, WndProcessId) <> 0 then
+        Active := WndProcessId = FProcessId;
+    end;
+
+    var TextColor: TThemeColor;
+    if Active then
+      TextColor := tcFore
+    else
+      TextColor := tcMarginFore;
+
     var opts: TDTTOpts;
     opts.dwSize := SizeOf(opts);
     opts.dwFlags := DTT_TEXTCOLOR;
-    opts.crText := RGB(255, 255, 255);
+    opts.crText := FTheme.Colors[TextColor];
 
     var Brush: HBrush;
-    if (UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0 then
+    { Note: ODS_HOTLIGHT is never set if a draw happens while a dialog is open,
+      even if the mouse is over the menu. It *can* be set when we're not the
+      active application which is why there's a check for Active. }
+    if Active and ((UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0) then
       Brush := FMenuDarkHotOrSelectedBrush.Handle
     else
       Brush := FMenuDarkBackgroundBrush.Handle;
