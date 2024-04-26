@@ -535,9 +535,9 @@ type
     procedure WMStartNormally(var Message: TMessage); message WM_StartNormally;
     procedure WMSettingChange(var Message: TMessage); message WM_SETTINGCHANGE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
-    procedure WMUADrawMenu(var Message: TMessage); message WM_UAHDRAWMENU;
-    procedure WMUADrawMenuItem(var Message: TMessage); message WM_UAHDRAWMENUITEM;
-    procedure UADrawMenuBottomLine;
+    procedure WMUAHDrawMenu(var Message: TMessage); message WM_UAHDRAWMENU;
+    procedure WMUAHDrawMenuItem(var Message: TMessage); message WM_UAHDRAWMENUITEM;
+    procedure UAHDrawMenuBottomLine;
     procedure WMNCActivate(var Message: TMessage); message WM_NCACTIVATE;
     procedure WMNCPaint(var Message: TMessage); message WM_NCPAINT;
   protected
@@ -5467,7 +5467,7 @@ begin
   inherited;
 end;
 
-procedure TCompileForm.WMUADrawMenu(var Message: TMessage);
+procedure TCompileForm.WMUAHDrawMenu(var Message: TMessage);
 begin
   if FTheme.Dark then begin
     var MenuBarInfo: TMenuBarInfo;
@@ -5486,7 +5486,7 @@ begin
     inherited;
 end;
 
-procedure TCompileForm.WMUADrawMenuItem(var Message: TMessage);
+procedure TCompileForm.WMUAHDrawMenuItem(var Message: TMessage);
 const
   ODS_NOACCEL = $100;
   DTT_TEXTCOLOR = 1;
@@ -5530,7 +5530,7 @@ begin
 end;
 
 { Should be removed if the main menu ever gets removed }
-procedure TCompileForm.UADrawMenuBottomLine;
+procedure TCompileForm.UAHDrawMenuBottomLine;
 begin
   if FTheme.Dark then begin
     var ClientRect: TRect;
@@ -5555,13 +5555,13 @@ end;
 procedure TCompileForm.WMNCActivate(var Message: TMessage);
 begin
   inherited;
-  UADrawMenuBottomLine;
+  UAHDrawMenuBottomLine;
 end;
 
 procedure TCompileForm.WMNCPaint(var Message: TMessage);
 begin
   inherited;
-  UADrawMenuBottomLine;
+  UAHDrawMenuBottomLine;
 end;
 
 procedure TCompileForm.RTargetClick(Sender: TObject);
