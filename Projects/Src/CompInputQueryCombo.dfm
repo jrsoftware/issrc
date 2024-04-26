@@ -38,7 +38,7 @@ object InputQueryCombo: TInputQueryCombo
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 0
+    TabOrder = 1
   end
   object CancelButton: TButton
     Left = 501
@@ -49,7 +49,7 @@ object InputQueryCombo: TInputQueryCombo
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 1
+    TabOrder = 2
   end
   object ValueComboBox: TComboBox
     Left = 279
@@ -57,6 +57,6 @@ object InputQueryCombo: TInputQueryCombo
     Width = 295
     Height = 21
     Anchors = [akLeft, akTop, akRight]
-    TabOrder = 2
+    TabOrder = 0
   end
 end

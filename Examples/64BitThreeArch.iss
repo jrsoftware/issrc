@@ -14,7 +14,7 @@ UninstallDisplayIcon={app}\MyProg.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=userdocs:Inno Setup Examples Output
-; "ArchitecturesInstallIn64BitMode=x64compatible arm64" instructs
+; "ArchitecturesInstallIn64BitMode=x64compatible or arm64" instructs
 ; Setup to use "64-bit install mode" on x64-compatible systems and
 ; Arm64 systems, meaning Setup should use the native 64-bit Program
 ; Files directory and the 64-bit view of the registry. On all other

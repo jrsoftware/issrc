@@ -559,7 +559,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
-  Math, StrUtils, WideStrUtils, DwmApi,
+  Math, StrUtils, WideStrUtils,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -811,7 +811,10 @@ begin
 
   FMemosStyler := TInnoSetupStyler.Create(Self);
   FMemosStyler.ISPPInstalled := ISPPInstalled;
+
   FTheme := TTheme.Create;
+  InitFormThemeInit(FTheme);
+
   FMemos := TList<TCompScintEdit>.Create;
   FMainMemo := InitializeMainMemo(TCompScintFileEdit.Create(Self), PopupMenu);
   FMemos.Add(FMainMemo);
@@ -828,6 +831,7 @@ begin
   FActiveMemo.Visible := True;
   FErrorMemo := FMainMemo;
   FStepMemo := FMainMemo;
+
   FMemosStyler.Theme := FTheme;
 
   MemosTabSet.PopupMenu := TCompileFormPopupMenu.Create(Self, MemosTabSetPopupMenu);
@@ -4672,36 +4676,15 @@ begin
 end;
 
 procedure TCompileForm.UpdateTheme;
-
-  procedure SetControlTheme(const WinControl: TWinControl);
-  begin
-    if UseThemes then begin
-      if FTheme.Dark then
-        SetWindowTheme(WinControl.Handle, 'DarkMode_Explorer', nil)
-      else
-        SetWindowTheme(WinControl.Handle, nil, nil);
-    end;
-  end;
-
-  procedure SetListTheme(const List: TListBox);
-  begin
-    List.Font.Color := FTheme.Colors[tcFore];
-    List.Color := FTheme.Colors[tcBack];
-    List.Invalidate;
-    SetControlTheme(List);
-  end;
-
-var
-  Memo: TCompScintEdit;
 begin
   FTheme.Typ := FOptions.ThemeType;
 
-  for Memo in FMemos do begin
+  for var Memo in FMemos do begin
     Memo.UpdateThemeColorsAndStyleAttributes;
-    SetControlTheme(Memo);
+    SetControlWindowTheme(Memo, FTheme.Dark);
   end;
 
-  Color := FTheme.Colors[tcToolBack];
+  InitFormTheme(Self);
 
   if FTheme.Dark then
     ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
@@ -4719,20 +4702,6 @@ begin
   end else begin
     MemosTabSet.Theme := nil;
     OutputTabSet.Theme := nil;
-  end;
-
-  SetListTheme(CompilerOutputList);
-  SetListTheme(DebugOutputList);
-  SetListTheme(DebugCallStackList);
-  SetListTheme(FindResultsList);
-
-  { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
-    Unlike this article we check for Windows 10 Version 2004 because that's the first version
-    that introduced DWMWA_USE_IMMERSIVE_DARK_MODE as 20 (the now documented value) instead of 19 }
-  if WindowsVersionAtLeast(10, 0, 19041) then begin
-    const DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
-    var value: BOOL := FTheme.Dark;
-    DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
   end;
 
   FMenuDarkBackgroundBrush.Color := FTheme.Colors[tcToolBack];
@@ -4779,16 +4748,16 @@ end;
 
 procedure TCompileForm.UpdateMenuBitmapsIfNeeded;
 
-  procedure AddMenuBitmap(const MemoryDC: HDC; const BitmapInfo: TBitmapInfo;
+  procedure AddMenuBitmap(const DC: HDC; const BitmapInfo: TBitmapInfo;
     const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageIndex: Integer); overload;
   begin
     var pvBits: Pointer;
-    var Bitmap := CreateDIBSection(MemoryDC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
-    var OldBitmap := SelectObject(MemoryDC, Bitmap);
-    if ImageList_Draw(ImageList.Handle, ImageIndex, MemoryDC, 0, 0, ILD_TRANSPARENT) then
+    var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    var OldBitmap := SelectObject(DC, Bitmap);
+    if ImageList_Draw(ImageList.Handle, ImageIndex, DC, 0, 0, ILD_TRANSPARENT) then
       FMenuBitmaps.Add(MenuItem, Bitmap)
     else begin
-      SelectObject(MemoryDC, OldBitmap);
+      SelectObject(DC, OldBitmap);
       DeleteObject(Bitmap);
     end;
   end;
