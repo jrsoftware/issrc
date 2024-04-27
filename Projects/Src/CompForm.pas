@@ -5515,23 +5515,13 @@ begin
     if (UAHDrawMenuItem.dis.itemState and ODS_NOACCEL) <> 0 then
       dwFlags := dwFlags or DT_HIDEPREFIX;
 
-    { Determine whether we're active or not. Opening a dialog does not cause a
-      draw event so Active must stay True when this happens, otherwise dragging
-      the dialog over the menu bar causes it to become partially inactive if DWM
-      is disabled. }
-    var Active := False;
-    var Wnd := GetForegroundWindow;
-    if Wnd <> 0 then begin
-      var WndProcessId: DWORD;
-      if GetWindowThreadProcessId(Wnd, WndProcessId) <> 0 then
-        Active := WndProcessId = FProcessId;
-    end;
+    var Inactive := (UAHDrawMenuItem.dis.itemState and ODS_INACTIVE) <> 0;
 
     var TextColor: TThemeColor;
-    if Active then
-      TextColor := tcFore
+    if Inactive then
+      TextColor := tcMarginFore
     else
-      TextColor := tcMarginFore;
+      TextColor := tcFore;
 
     var opts: TDTTOpts;
     opts.dwSize := SizeOf(opts);
@@ -5539,10 +5529,8 @@ begin
     opts.crText := FTheme.Colors[TextColor];
 
     var Brush: HBrush;
-    { Note: ODS_HOTLIGHT is never set if a draw happens while a dialog is open,
-      even if the mouse is over the menu. It *can* be set when we're not the
-      active application which is why there's a check for Active. }
-    if Active and ((UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0) then
+    { ODS_HOTLIGHT can be set when the menu is inactive so we check Inactive as well. }
+    if not Inactive and ((UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0) then
       Brush := FMenuDarkHotOrSelectedBrush.Handle
     else
       Brush := FMenuDarkBackgroundBrush.Handle;
