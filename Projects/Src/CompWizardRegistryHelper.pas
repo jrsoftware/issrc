@@ -254,7 +254,7 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
   function TextCommon(AEntry: TRegistryEntry): String;
   begin
     Result := '';
-    if FMinVerCheck.Checked then
+    if FMinVerCheck.Checked and (FMinVerEdit.Text <> '') then
       Result := Result + '; MinVersion: ' + FMinVerEdit.Text;
     if (FPrivilegesRequired <> prAdmin) and RequiresAdminInstallMode(AEntry) then
       Result := Result + '; Check: IsAdminInstallMode'
