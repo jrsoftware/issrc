@@ -377,7 +377,7 @@ var
         var Offset := MulDiv(1, CurrentPPI, 96);
         Inc(R.Left, Offset);
         Inc(R.Top, Offset);
-        DrawThemeBackground(FMenuThemeData, Canvas.Handle,  MENU_SYSTEMCLOSE, MSYSC_NORMAL, R, nil);
+        DrawThemeBackground(FMenuThemeData, Canvas.Handle, MENU_SYSTEMCLOSE, MSYSC_NORMAL, R, nil);
       end else begin
         InflateRect(R, -MulDiv(3, CurrentPPI, 96), -MulDiv(6, CurrentPPI, 96));
         Canvas.Pen.Color := Canvas.Font.Color;
@@ -542,7 +542,7 @@ begin
       FMenuThemeData := OpenThemeData(Handle, 'DarkMode::Menu');
     if FMenuThemeData = 0 then
       FMenuThemeData := OpenThemeData(Handle, 'Menu');
-end;
+  end;
 end;
 
 procedure TNewTabSet.EnsureCurrentTabIsFullyVisible;
