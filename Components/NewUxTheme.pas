@@ -48,7 +48,10 @@
 
   Cannot be replaced by Delphi's built in Winapi.UxTheme.pas even though it has
   the same functions: see the comment at the bottom of this file. For this
-  reason this unit has been renamed to NewUxTheme.  }
+  reason this unit has been renamed to NewUxTheme.
+
+  Additionally this unit includes SetPreferredAppMode, FlushMenuThemes, and
+  WM_UAHDRAWMENU(ITEM). }
 
 unit NewUxTheme;
 
@@ -187,6 +190,34 @@ const
 var
   DrawThemeText: function(hTheme: HTHEME; hdc: HDC; iPartId, iStateId: Integer; pszText: LPCWSTR; iCharCount: Integer;
     dwTextFlags, dwTextFlags2: DWORD; const pRect: TRect): HRESULT; stdcall;
+
+type
+  DTT_CALLBACK_PROC = function(hdc: HDC; pszText: LPWSTR; cchText: Integer;
+    prc: PRect; dwFlags: UINT; lParam: LPARAM): Integer; stdcall;
+  TFNDTTCallbackProc = DTT_CALLBACK_PROC;
+
+  DTTOPTS = record
+    dwSize: DWORD;                          // size of the struct
+    dwFlags: DWORD;                         // which options have been specified
+    crText: COLORREF;                       // color to use for text fill
+    crBorder: COLORREF;                     // color to use for text outline
+    crShadow: COLORREF;                     // color to use for text shadow
+    iTextShadowType: Integer;               // TST_SINGLE or TST_CONTINUOUS
+    ptShadowOffset: TPoint;                 // where shadow is drawn (relative to text)
+    iBorderSize: Integer;                   // Border radius around text
+    iFontPropId: Integer;                   // Font property to use for the text instead of TMT_FONT
+    iColorPropId: Integer;                  // Color property to use for the text instead of TMT_TEXTCOLOR
+    iStateId: Integer;                      // Alternate state id
+    fApplyOverlay: BOOL;                    // Overlay text on top of any text effect?
+    iGlowSize: Integer;                     // Glow radious around text
+    pfnDrawTextCallback: TFNDTTCallbackProc;// Callback for DrawText
+    lParam: LPARAM;                         // Parameter for callback
+  end;
+  TDTTOpts = DTTOPTS;
+
+var
+  DrawThemeTextEx: function(hTheme: HTHEME; hdc: HDC; iPartId, iStateId: Integer; pszText: LPCWSTR; iCharCount: Integer;
+    dwTextFlags: DWORD; pRect: PRect; var pOptions: TDTTOpts): HResult; stdcall;
 
 //----------------------------------------------------------------------------------------------------------------------
 //  GetThemeBackgroundContentRect()
@@ -1015,6 +1046,51 @@ var
 
 var
   EnableTheming: function(fEnable: BOOL): HRESULT; stdcall;
+  
+//----------------------------------------------------------------------------------------------------------------------
+
+type
+  PREFERREDAPPMODE = (
+    PAM_DEFAULT,
+    PAM_ALLOWDARK,
+    PAM_FORCEDARK,
+    PAM_FORCELIGHT,
+    PAM_MAX
+  );
+  TPreferredAppMode = PREFERREDAPPMODE;
+
+var
+  SetPreferredAppMode: function(appMode: TPreferredAppMode): TPreferredAppMode; stdcall;
+  FlushMenuThemes: procedure; stdcall;
+
+type
+  UAHMENU = record
+    hmenu: HMENU;
+    hdc: HDC;
+    dwFlags: DWORD;
+  end;
+  TUAHMenu = UAHMENU;
+  PUAHMenu = ^TUAHMenu;
+
+  UAHMENUITEM = record
+    iPosition: Integer; // 0-based position of menu item in menubar
+	  //UAHMENUITEMMETRICS umim;
+	  //UAHMENUPOPUPMETRICS umpm;
+  end;
+  TUAHMenuItem = UAHMENUITEM;
+  PUAHMenuItem = ^TUAHMenuItem;
+
+  UAHDRAWMENUITEM = record
+    dis: TDrawItemStruct; // itemID looks uninitialized
+    um: TUAHMenu;
+    umi: TUAHMenuItem;
+  end;
+  TUAHDrawMenuItem = UAHDRAWMENUITEM;
+  PUAHDrawMenuItem = ^TUAHDrawMenuItem;
+
+const
+  WM_UAHDRAWMENU = $91;
+  WM_UAHDRAWMENUITEM = $92;
 
 implementation
 
@@ -1045,6 +1121,7 @@ begin
     CloseThemeData := nil;
     DrawThemeBackground := nil;
     DrawThemeText := nil;
+    DrawThemeTextEx := nil;
     GetThemeBackgroundContentRect := nil;
     GetThemeBackgroundExtent := nil;
     GetThemePartSize := nil;
@@ -1088,10 +1165,15 @@ begin
     GetThemeDocumentationProperty := nil;
     DrawThemeParentBackground := nil;
     EnableTheming := nil;
+    SetPreferredAppMode := nil;
+    FlushMenuThemes := nil;
   end;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
+
+var
+  WindowsVersion: Cardinal;
 
 function InitThemeLibrary: Boolean;
 
@@ -1101,6 +1183,16 @@ function InitThemeLibrary: Boolean;
   begin
     GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
     Result := StrPas(Buf);
+  end;
+
+  function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
+  begin
+    Result := WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
+  end;
+
+  function WindowsVersionAtMost(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
+  begin
+    Result := WindowsVersion <= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
   end;
 
 begin
@@ -1113,6 +1205,7 @@ begin
       CloseThemeData := GetProcAddress(ThemeLibrary, 'CloseThemeData');
       DrawThemeBackground := GetProcAddress(ThemeLibrary, 'DrawThemeBackground');
       DrawThemeText := GetProcAddress(ThemeLibrary, 'DrawThemeText');
+      DrawThemeTextEx := GetProcAddress(ThemeLibrary, 'DrawThemeTextEx');
       GetThemeBackgroundContentRect := GetProcAddress(ThemeLibrary, 'GetThemeBackgroundContentRect');
       GetThemeBackgroundExtent := GetProcAddress(ThemeLibrary, 'GetThemeBackgroundContentRect');
       GetThemePartSize := GetProcAddress(ThemeLibrary, 'GetThemePartSize');
@@ -1156,6 +1249,14 @@ begin
       GetThemeDocumentationProperty := GetProcAddress(ThemeLibrary, 'GetThemeDocumentationProperty');
       DrawThemeParentBackground := GetProcAddress(ThemeLibrary, 'DrawThemeParentBackground');
       EnableTheming := GetProcAddress(ThemeLibrary, 'EnableTheming');
+      if WindowsVersionAtLeast(10, 0, 18362) and { Windows 10 Version 1903 (May 2019 Update) }
+         WindowsVersionAtMost(10, 0, 22631) then begin { Windows 11 Version 23H2 (2023 Update) }
+        SetPreferredAppMode := GetProcAddress(ThemeLibrary, MakeIntResource(135));
+        FlushMenuThemes := GetProcAddress(ThemeLibrary, MakeIntResource(136));
+      end else begin
+        SetPreferredAppMode := nil;
+        FlushMenuThemes := nil;
+      end;
     end;
   end;
   Result := ThemeLibrary <> 0;
@@ -1173,6 +1274,13 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+
+initialization
+  var OSVersionInfo: TOSVersionInfo;
+  OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
+  GetVersionEx(OSVersionInfo);
+  WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
+
 { Following commented out by JR. Depending on unit deinitialization order, the
   FreeThemeLibrary call below could be made while other units are still using
   the theme library. This happens with NewCheckListBox when Application.Run
@@ -1182,7 +1290,6 @@ end;
   And there's really no point in freeing a DLL during shutdown anyway; the
   system will do so automatically. }
 (*
-initialization
 finalization
   while ReferenceCount > 0 do
     FreeThemeLibrary;
