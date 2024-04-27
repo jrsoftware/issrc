@@ -411,6 +411,7 @@ type
     FProgressThemeData: HTHEME;
     FProgressChunkSize, FProgressSpaceSize: Integer;
     FMenuThemeData: HTHEME;
+    FToolbarThemeData: HTHEME;
     FMenuDarkBackgroundBrush: TBrush;
     FMenuDarkHotOrSelectedBrush: TBrush;
     FDebugLogListTimestampsWidth: Integer;
@@ -503,7 +504,6 @@ type
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
-    procedure UpdateHiddenFilesPanel;
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
     procedure UpdateMemosTabSetVisibility;
@@ -1093,7 +1093,7 @@ begin
     UpdateTargetMenu;
   end;
   FHiddenFiles.Clear;
-  UpdateHiddenFilesPanel;
+  InvalidateStatusPanel(spHiddenFilesCount);
   for Memo in FFileMemos do
     if Memo.Used then
       Memo.BreakPoints.Clear;
@@ -1267,7 +1267,7 @@ begin
     if MainMemoAddToRecentDocs then
       AddFileToRecentDocs(AFilename);
     LoadKnownIncludedAndHiddenFilesAndUpdateMemos(AFilename);
-    UpdateHiddenFilesPanel;
+    InvalidateStatusPanel(spHiddenFilesCount);
   end;
 end;
 
@@ -1588,7 +1588,7 @@ begin
           Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
           CleanHiddenFiles(Form.FIncludedFiles, Form.FHiddenFiles);
-          Form.UpdateHiddenFilesPanel;
+          Form.InvalidateStatusPanel(spHiddenFilesCount);;
           Form.SaveKnownIncludedAndHiddenFiles(Filename);
         end;
       iscbNotifySuccess:
@@ -2410,7 +2410,7 @@ begin
   MemosTabSet.CloseButtons.Delete(TabIndex);
 
   FHiddenFiles.Add((Memo as TCompScintFileEdit).Filename);
-  UpdateHiddenFilesPanel;
+  InvalidateStatusPanel(spHiddenFilesCount);
   SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
 
   { Because MemosTabSet.Tabs and FHiddenFiles have both been updated now,
@@ -2445,7 +2445,7 @@ begin
     ReopenFilename := FHiddenFiles[0];
     FHiddenFiles.Clear;
   end;
-  UpdateHiddenFilesPanel;
+  InvalidateStatusPanel(spHiddenFilesCount);
 
   UpdatePreprocMemos;
   SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
@@ -3307,7 +3307,7 @@ begin
     
     UpdateCaption;
     UpdatePreprocMemos;
-    UpdateHiddenFilesPanel;
+    InvalidateStatusPanel(spHiddenFilesCount);
     for Memo in FMemos do begin
       { Move caret to start of line to ensure it doesn't end up in the middle
         of a double-byte character if the code page changes from SBCS to DBCS }
@@ -3499,14 +3499,6 @@ begin
     StatusBar.Panels[spEditMode].Text := 'Read only'
   else
     StatusBar.Panels[spEditMode].Text := InsertText[FActiveMemo.InsertMode];
-end;
-
-procedure TCompileForm.UpdateHiddenFilesPanel;
-begin
-  if MemosTabSet.Visible and (FHiddenFiles.Count > 0) then begin
-    StatusBar.Panels[spHiddenFilesCount].Text := Format('Tabs closed: %d', [FHiddenFiles.Count]);
-  end else
-    StatusBar.Panels[spHiddenFilesCount].Text := '';
 end;
 
 procedure TCompileForm.UpdateMemosTabSetVisibility;
@@ -4733,16 +4725,19 @@ begin
 end;
 
 procedure TCompileForm.UpdateThemeData(const Open: Boolean);
-begin
-  if FProgressThemeData <> 0 then begin
-    CloseThemeData(FProgressThemeData);
-    FProgressThemeData := 0;
+
+  procedure CloseThemeDataIfNeeded(var ThemeData: HTHEME);
+  begin
+    if ThemeData <> 0 then begin
+      CloseThemeData(ThemeData);
+      ThemeData := 0;
+    end;
   end;
 
-  if FMenuThemeData <> 0 then begin
-    CloseThemeData(FMenuThemeData);
-    FMenuThemeData := 0;
-  end;
+begin
+  CloseThemeDataIfNeeded(FProgressThemeData);
+  CloseThemeDataIfNeeded(FMenuThemeData);
+  CloseThemeDataIfNeeded(FToolbarThemeData);
 
   if Open and UseThemes then begin
     FProgressThemeData := OpenThemeData(Handle, 'Progress');
@@ -4753,6 +4748,7 @@ begin
        (FProgressSpaceSize < 0) then  { ...since "OpusOS" theme returns a bogus -1 value }
       FProgressSpaceSize := 2;
     FMenuThemeData := OpenThemeData(Handle, 'Menu');
+    FToolbarThemeData := OpenThemeData(Handle, 'Toolbar');
   end;
 end;
 
@@ -5368,11 +5364,20 @@ end;
 
 procedure TCompileForm.StatusBarDrawPanel(StatusBar: TStatusBar;
   Panel: TStatusPanel; const Rect: TRect);
-var
-  R, BR: TRect;
-  W, ChunkCount: Integer;
+const
+  TP_DROPDOWNBUTTONGLYPH = 7;
+  TS_NORMAL = 1;
 begin
   case Panel.Index of
+    spHiddenFilesCount:
+      if MemosTabSet.Visible and (FHiddenFiles.Count > 0) then begin
+        StatusBar.Canvas.TextOut(Rect.Left, Rect.Top, Format('Tabs closed: %d', [FHiddenFiles.Count]));
+        if FToolbarThemeData <> 0 then begin
+          var R := Rect;
+          R.Left := R.Right - (R.Bottom - R.Top);
+          DrawThemeBackground(FToolbarThemeData, StatusBar.Canvas.Handle, TP_DROPDOWNBUTTONGLYPH, TS_NORMAL, R, nil);
+        end;
+      end;
     spCompileIcon:
       if FCompiling then begin
         ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
@@ -5381,7 +5386,7 @@ begin
       end;
     spCompileProgress:
       if FCompiling and (FProgressMax > 0) then begin
-        R := Rect;
+        var R := Rect;
         InflateRect(R, -2, -2);
         if FProgressThemeData = 0 then begin
           R.Right := R.Left + MulDiv(FProgress, R.Right - R.Left,
@@ -5390,11 +5395,11 @@ begin
           StatusBar.Canvas.FillRect(R);
         end else begin
           DrawThemeBackground(FProgressThemeData, StatusBar.Canvas.Handle, PP_BAR, 0, R, nil);
-          BR := R;
+          var BR := R;
           GetThemeBackgroundContentRect(FProgressThemeData, StatusBar.Canvas.Handle, PP_BAR, 0, BR, @R);
           IntersectClipRect(StatusBar.Canvas.Handle, R.Left, R.Top, R.Right, R.Bottom);
-          W := MulDiv(FProgress, R.Right - R.Left, FProgressMax);
-          ChunkCount := W div (FProgressChunkSize + FProgressSpaceSize);
+          var W := MulDiv(FProgress, R.Right - R.Left, FProgressMax);
+          var ChunkCount := W div (FProgressChunkSize + FProgressSpaceSize);
           if W mod (FProgressChunkSize + FProgressSpaceSize) > 0 then
             Inc(ChunkCount);
           R.Right := R.Left + FProgressChunkSize;
