@@ -160,7 +160,7 @@ object CompileForm: TCompileForm
       item
         Bevel = pbNone
         Style = psOwnerDraw
-        Width = 100
+        Width = 110
       end
       item
         Bevel = pbNone
