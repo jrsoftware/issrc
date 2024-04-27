@@ -2,7 +2,7 @@ unit CompWizard;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -139,6 +139,7 @@ type
     AppRegistryUninsDeleteValueCheck: TCheckBox;
     AppRegistryMinVerCheck: TCheckBox;
     AppRegistryMinVerEdit: TEdit;
+    AppRegistryMinVerDocImage: TImage;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -289,7 +290,7 @@ begin
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
     AppRegistryUninsDeleteKeyIfEmptyCheck, AppRegistryUninsDeleteValueCheck,
-    AppRegistryMinVerCheck, AppRegistryMinVerEdit);
+    AppRegistryMinVerCheck, AppRegistryMinVerEdit, AppRegistryMinVerDocImage);
 
   FLanguages := TStringList.Create;
   FLanguages.Sorted := True;

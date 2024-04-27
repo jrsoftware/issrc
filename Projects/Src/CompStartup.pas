@@ -2,7 +2,7 @@ unit CompStartup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -76,11 +76,9 @@ procedure TStartupForm.UpdateImages;
     Result := CompileForm.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
   end;
 
-var
-  WH: Integer;
 begin
  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
-  WH := MulDiv(16, CurrentPPI, 96);
+  var WH := MulDiv(16, CurrentPPI, 96);
   NewImage.Picture.Graphic:= GetImage(CompileForm.NewMainFileButton, WH);
   OpenImage.Picture.Graphic := GetImage(CompileForm.OpenMainFileButton, WH);
 end;

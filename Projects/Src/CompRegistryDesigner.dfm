@@ -15,6 +15,15 @@ object RegistryDesignerForm: TRegistryDesignerForm
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   TextHeight = 13
+  object AppRegistryMinVerDocImage: TImage
+    Left = 414
+    Top = 170
+    Width = 16
+    Height = 16
+    Anchors = [akTop, akRight]
+    AutoSize = True
+    Transparent = True
+  end
   object Panel1: TPanel
     Left = 0
     Top = 320
@@ -142,8 +151,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Top = 168
     Width = 140
     Height = 21
-    Enabled = False
+    Anchors = [akTop, akLeft, akRight]
     TabOrder = 8
-    Text = '6.2'
   end
 end

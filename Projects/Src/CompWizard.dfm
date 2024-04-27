@@ -900,6 +900,15 @@ object WizardForm: TWizardForm
           DesignSize = (
             485
             245)
+          object AppRegistryMinVerDocImage: TImage
+            Left = 360
+            Top = 161
+            Width = 16
+            Height = 16
+            Anchors = [akTop, akRight]
+            AutoSize = True
+            Transparent = True
+          end
           object AppRegistryFileLabel: TNewStaticText
             Left = 36
             Top = 8
@@ -978,11 +987,10 @@ object WizardForm: TWizardForm
           object AppRegistryMinVerEdit: TEdit
             Left = 287
             Top = 159
-            Width = 140
+            Width = 59
             Height = 21
-            Enabled = False
+            Anchors = [akTop, akLeft, akRight]
             TabOrder = 8
-            Text = '6.2'
           end
         end
         object LanguagesPage: TNewNotebookPage

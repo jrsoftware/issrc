@@ -12,7 +12,7 @@ unit CompWizardRegistryHelper;
 interface
 
 uses
-  Forms, StdCtrls;
+  Forms, StdCtrls, ExtCtrls;
 
 type
   TPrivilegesRequired = (prAdmin, prLowest, prDynamic);
@@ -24,16 +24,20 @@ type
       FUninsDeleteKeyCheck, FUninsDeleteKeyIfEmptyCheck,
       FUninsDeleteValueCheck, FMinVerCheck: TCheckBox;
       FMinVerEdit: TEdit;
+      FMinVerDocImage: TImage;
       FPrivilegesRequired: TPrivilegesRequired;
       procedure SetPrivilegesRequired(const Value: TPrivilegesRequired);
+      procedure UpdateImages;
+      procedure AfterMonitorDpiChanged(Sender: TObject; OldDPI: Integer; NewDPI: Integer);
       procedure FileButtonClick(Sender: TObject);
       procedure UninsDeleteKeyIfEmptyCheckClick(Sender: TObject);
       procedure MinVerCheckClick(Sender: TObject);
+      procedure MinVerDocImageClick(Sender: TObject);
     public
       constructor Create(const Form: TForm; const FileEdit: TEdit;
         const FileButton: TButton; const UninsDeleteKeyCheck,
         UninsDeleteKeyIfEmptyCheck, UninsDeleteValueCheck, MinVerCheck: TCheckBox;
-        const MinVerEdit: TEdit);
+        const MinVerEdit: TEdit; const MinVerDocImage: TImage);
       procedure AddScript(var Registry: String; const AllowException: Boolean);
       property PrivilegesRequired: TPrivilegesRequired write SetPrivilegesRequired;
     end;
@@ -41,8 +45,9 @@ type
 implementation
 
 uses
-  Classes, SysUtils, StrUtils, TypInfo,
-  CompMsgs, BrowseFunc, CmnFunc2;
+  Windows, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
+  ComCtrls,
+  CompForm, CompFunc, CompMsgs, BrowseFunc, CmnFunc2, HtmlHelpFunc;
 
 { TWizardFormRegistryHelper }
 
@@ -52,10 +57,23 @@ begin
   FPrivilegesRequired := Value;
 end;
 
+procedure TWizardFormRegistryHelper.UpdateImages;
+
+  function GetImage(const Button: TToolButton; const WH: Integer): TWICImage;
+  begin
+    Result := CompileForm.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
+  end;
+
+begin
+ { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
+  var WH := MulDiv(16, FForm.CurrentPPI, 96);
+  FMinVerDocImage.Picture.Graphic:= GetImage(CompileForm.HelpButton, WH);
+end;
+
 constructor TWizardFormRegistryHelper.Create(const Form: TForm;
   const FileEdit: TEdit; const FileButton: TButton; const UninsDeleteKeyCheck,
   UninsDeleteKeyIfEmptyCheck, UninsDeleteValueCheck, MinVerCheck: TCheckBox;
-  const MinVerEdit: TEdit);
+  const MinVerEdit: TEdit; const MinVerDocImage: TImage);
 begin
   FForm := Form;
   FFileEdit := FileEdit;
@@ -64,12 +82,24 @@ begin
   FUninsDeleteValueCheck := UninsDeleteValueCheck;
   FMinVerCheck := MinVerCheck;
   FMinVerEdit := MinVerEdit;
+  FMinVerDocImage := MinVerDocImage;
 
   FileButton.OnClick := FileButtonClick;
   UninsDeleteKeyIfEmptyCheck.OnClick := UninsDeleteKeyIfEmptyCheckClick;
   MinVerCheck.OnClick := MinVerCheckClick;
+  MinVerCheck.OnClick(nil);
+  MinVerDocImage.OnClick := MinVerDocImageClick;
+  MinVerDocImage.Cursor := crHandPoint;
 
   TryEnableAutoCompleteFileSystem(FileEdit.Handle);
+
+  Form.OnAfterMonitorDpiChanged := AfterMonitorDpiChanged;
+  UpdateImages;
+end;
+
+procedure TWizardFormRegistryHelper.AfterMonitorDpiChanged(Sender: TObject; OldDPI: Integer; NewDPI: Integer);
+begin
+  UpdateImages;
 end;
 
 procedure TWizardFormRegistryHelper.FileButtonClick(Sender: TObject);
@@ -89,8 +119,15 @@ end;
 procedure TWizardFormRegistryHelper.MinVerCheckClick(Sender: TObject);
 begin
   FMinVerEdit.Enabled := FMinVerCheck.Checked;
+  FMinVerDocImage.Visible := FMinVerCheck.Checked;
   if FMinVerEdit.Enabled then
     FForm.ActiveControl := FMinVerEdit;
+end;
+
+procedure TWizardFormRegistryHelper.MinVerDocImageClick(Sender: TObject);
+begin
+  if Assigned(HtmlHelp) then
+    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_winvernotes.htm')));
 end;
 
 procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
