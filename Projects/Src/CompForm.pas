@@ -5517,9 +5517,8 @@ begin
 
     { Determine whether we're active or not. Opening a dialog does not cause a
       draw event so Active must stay True when this happens, otherwise dragging
-      the dialog over the menu bar causes it to become partially inactive, at
-      least on Windows 7. On Windows 11 this does not happen, probably because
-      of buffering. }
+      the dialog over the menu bar causes it to become partially inactive if DWM
+      is disabled. }
     var Active := False;
     var Wnd := GetForegroundWindow;
     if Wnd <> 0 then begin
