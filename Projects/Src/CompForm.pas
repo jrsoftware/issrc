@@ -335,7 +335,6 @@ type
       Shift: TShiftState);
   private
     { Private declarations }
-    FProcessId: DWORD;
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
     FMainMemo: TCompScintFileEdit;                      { Doesn't change }
     FPreprocessorOutputMemo: TCompScintEdit;            { Doesn't change }
@@ -768,8 +767,6 @@ var
   Memo: TCompScintEdit;
 begin
   inherited;
-
-  FProcessId := GetCurrentProcessId;
 
   {$IFNDEF STATICCOMPILER}
   FCompilerVersion := ISDllGetVersion;
