@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2021 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -8,8 +8,8 @@
 */
 
 BODY {
-	font-family: "Segoe UI", Tahoma, "Microsoft Sans Serif", "MS Sans Serif", sans-serif;
-	font-size: 66.667%;   /* 8pt (8/12) */
+	font-family: "Segoe UI", Tahoma, sans-serif;
+	font-size: 75%;   /* 9pt (12px/16px) */
 	margin: 0;
 	color: WindowText;
 	background-color: Window;
