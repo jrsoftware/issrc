@@ -2026,7 +2026,7 @@ var
 
         { If a .pif file was created, apply the "Close on exit" setting }
         if (CloseOnExit <> icNoSetting) and
-           (CompareText(PathExtractExt(ResultingFilename), '.pif') = 0) then begin
+           SameText(PathExtractExt(ResultingFilename), '.pif') then begin
           try
             ModifyPifFile(ResultingFilename, CloseOnExit = icYes);
           except

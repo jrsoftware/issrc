@@ -570,15 +570,15 @@ var
     Result := True;
 
     { Automatically delete generated indexes associated with help files }
-    if CompareText(PathExtractExt(Filename), '.hlp') = 0 then begin
+    if SameText(PathExtractExt(Filename), '.hlp') then begin
       LoggedFileDelete(PathChangeExt(Filename, '.gid'), DisableFsRedir, False, False, False);
       LoggedFileDelete(PathChangeExt(Filename, '.fts'), DisableFsRedir, False, False, False);
     end
-    else if CompareText(PathExtractExt(Filename), '.chm') = 0 then
+    else if SameText(PathExtractExt(Filename), '.chm') then
       LoggedFileDelete(PathChangeExt(Filename, '.chw'), DisableFsRedir, False, False, False);
 
     { Automatically unpin shortcuts }
-    if CompareText(PathExtractExt(Filename), '.lnk') = 0 then
+    if SameText(PathExtractExt(Filename), '.lnk') then
       UnpinShellLink(Filename);
       
     if NewFileExistsRedir(DisableFsRedir, Filename) then begin

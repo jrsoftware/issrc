@@ -5604,7 +5604,7 @@ type
       { Files that must NOT be deployed to the user's System directory }
       { Any DLL deployed from system's own System directory }
       if not ExternalFile and
-         (CompareText(PathExtractExt(Filename), '.DLL') = 0) then begin
+         SameText(PathExtractExt(Filename), '.DLL') then begin
         SourceFileDir := PathExpand(PathExtractDir(SourceFile));
         SysWow64Dir := GetSysWow64Dir;
         if (PathCompare(SourceFileDir, GetSystemDir) = 0) or
@@ -5910,7 +5910,7 @@ type
           (foRegisterServer in NewFileEntry^.Options) or
           (foRegisterTypeLib in NewFileEntry^.Options));
         if (ADestDir = '{sys}\') and (foIgnoreVersion in NewFileEntry^.Options) and
-           (CompareText(PathExtractExt(CheckName), '.scr') <> 0) then
+           not SameText(PathExtractExt(CheckName), '.scr') then
           WarningsList.Add(Format(SCompilerFilesIgnoreVersionUsedUnsafely, [CheckName]));
       end;
 

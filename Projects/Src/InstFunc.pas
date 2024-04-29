@@ -857,8 +857,8 @@ begin
     CmdLine := '"' + Filename + '"';
     if Params <> '' then
       CmdLine := CmdLine + ' ' + Params;
-    if (CompareText(PathExtractExt(Filename), '.bat') = 0) or
-       (CompareText(PathExtractExt(Filename), '.cmd') = 0) then begin
+    if SameText(PathExtractExt(Filename), '.bat') or
+       SameText(PathExtractExt(Filename), '.cmd') then begin
       { Use our own handling for .bat and .cmd files since passing them straight
         to CreateProcess on Windows NT 4.0 has problems: it doesn't properly
         quote the command line it passes to cmd.exe. This didn't work before:
