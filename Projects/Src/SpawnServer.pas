@@ -245,6 +245,8 @@ var
   Info: TShellExecuteInfo;
   WaitResult: DWORD;
 begin
+  if not SameText(PathExtractExt(AExeFilename), '.exe') then
+    InternalError('Cannot respawn self, not named .exe');
   ExpandedExeFilename := GetFinalFileName(AExeFilename);
   WorkingDir := GetFinalCurrentDir;
   FillChar(Info, SizeOf(Info), 0);
