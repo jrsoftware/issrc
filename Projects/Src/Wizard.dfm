@@ -329,8 +329,8 @@ object WizardForm: TWizardForm
           object FSelectDirBitmapImage: TBitmapImage
             Left = 0
             Top = 0
-            Width = 32
-            Height = 32
+            Width = 34
+            Height = 34
           end
           object FDiskSpaceLabel: TNewStaticText
             Left = 0
@@ -444,8 +444,8 @@ object WizardForm: TWizardForm
           object FSelectGroupBitmapImage: TBitmapImage
             Left = 0
             Top = 0
-            Width = 32
-            Height = 32
+            Width = 34
+            Height = 34
           end
           object FNoIconsCheck: TNewCheckBox
             Left = 0
@@ -567,8 +567,8 @@ object WizardForm: TWizardForm
           object FPreparingErrorBitmapImage: TBitmapImage
             Left = 0
             Top = 0
-            Width = 16
-            Height = 16
+            Width = 17
+            Height = 17
             Visible = False
           end
           object FPreparingLabel: TNewStaticText

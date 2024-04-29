@@ -50,8 +50,8 @@ begin
 
   BitmapImage := TBitmapImage.Create(Page);
   with BitmapImage do begin
-    Width := ScaleX(32);
-    Height := ScaleY(32);
+    Width := ScaleX(34);
+    Height := ScaleY(34);
     Parent := Page.Surface;
   end;
   

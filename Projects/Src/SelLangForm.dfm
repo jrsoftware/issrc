@@ -64,8 +64,8 @@ object SelectLanguageForm: TSelectLanguageForm
     object IconBitmapImage: TBitmapImage
       Left = 8
       Top = 8
-      Width = 32
-      Height = 32
+      Width = 34
+      Height = 34
     end
     object LangCombo: TNewComboBox
       Left = 56
