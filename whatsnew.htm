@@ -12,7 +12,7 @@
     a:visited    { color: #5e85d7; background-color: white }
     pre          { font-size: 13px; line-height: normal }
     tt           { font-size: 13px; color: black; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px }
-    li           { margin-top: 5px; margin-bottom: 5px }
+    li, div.limargins { margin-top: 5px; margin-bottom: 5px }
     div.bluehead { text-align: center; color: white; background-color: #264b99; padding: 5px; font-weight: bold; line-height: normal }
     .date        { font-size: 11px; font-weight: bold }
     .head1       { font-size: 32px }
@@ -48,46 +48,33 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   </ul>
   </li>
 </ul>
-<p><span class="head2">Support for processor architectures improved</span></p>
+<p><span class="head2">Support for Arm64 systems improved, and related enhancements</span></p>
 <ul>
-  <li>Setup can now detect support for x64 emulation when running on Arm64 Windows 11, and can be instructed to select 64-bit install mode in that case which was not possible before. See the first example below.</li>
-  <li>[Setup] section directives <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> now both support boolean expressions. Additionally, extra platform identifiers were added. This enables for example:
-      <pre>; Select 64-bit install mode on any x64-compatible OS (x64 + Arm64 Win11):
-ArchitecturesInstallIn64BitMode=x64compatible
-
-; Only allow installation on systems that aren't x64-compatible.
-; Useful in a situation where you have separate x86 & x64 installers,
-; and don't want users of x64-compatible OSes (x64 + Arm64 Win11)
-; erroneously running the x86 installer which would say:
-ArchitecturesAllowed=not x64compatible
-
-; Require two arch matches at the same time:
-; If an Arm installer installs both Arm64 and Arm32 binaries,
-; you technically should ensure that the OS actually supports both:
-ArchitecturesAllowed=arm64 and arm32compatible
-
-; Same goes for an x64-compatible installer shipping some 32-bit
-; binaries:
-ArchitecturesAllowed=x64compatible and x86compatible
-
-; Installing a component that cannot operate in an emulated
-; environment, such as an x64 device driver:
-ArchitecturesAllowed=x64os
-
-; Allow installation on x64-compatible systems, but deny one of them:
-; (Imagine if in the future there were 3 x64-compatible OSes!)
-ArchitecturesAllowed=x64compatible and not arm64
-
-; Never select 64-bit install mode but require a 64-bit OS anyway
-; (for example, because you're accessing HKLM64):
-ArchitecturesInstallIn64BitMode=
-ArchitecturesAllowed=win64</pre>
-      The full list of new platform identifiers is: <tt>arm32compatible</tt>, <tt>x64compatible</tt>, <tt>x64os</tt>, <tt>x86compatible</tt>, <tt>x86os</tt>, and <tt>win64</tt>. See the new "Architecture Identifiers" help topic for more details.<br />
-      All of the above is backward compatible so no changes are needed for your existing scripts. For example, this works unchanged (but see the updated <i>64BitThreeArch.iss</i> example script for the preferred setting):
-      <pre>ArchitecturesInstallIn64BitMode=x64 arm64</pre>
-      Do note that the <tt>x64</tt> identifier is now deprecated and the compiler will issue a warning if you use it anyway. It will substitute <tt>x64os</tt>, but <tt>x64compatible</tt> is preferred in most cases and it's simple to adopt it: just replace <tt>x64</tt> with <tt>x64compatible</tt>, and any <tt>IsX64</tt> with <tt>IsX64Compatible</tt>.<br />
-      The 64-bit example scripts like <i>64Bit.iss</i> have all been updated to use <tt>x64compatible</tt> as preferred.<br />
+  <li>Setup now officially supports the installation of x64 apps on Arm64 Windows 11 systems, which are able to run x64 binaries via emulation. To enable your x64 app installers to run properly on Arm64 Windows 11, some minor changes may be needed in your scripts. Most importantly:
+  <ol>
+    <li>In <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt>, change any use of <tt>x64</tt> to <tt>x64compatible</tt>.</li>
+    <li>In <tt>Check</tt> parameters and <tt>[Code]</tt>, change any use of <tt>IsX64</tt> to <tt>IsX64Compatible</tt>.</li>
+    <li>In <tt>[Code]</tt>, if there are any <tt>ProcessorArchitecture = paX64</tt> comparisons, replace them with calls to <tt>IsX64Compatible</tt>.</li>
+  </ol>
+  <div class="limargins">The key difference between <tt>x64</tt>/<tt>IsX64</tt> and the new <tt>x64compatible</tt>/<tt>IsX64Compatible</tt> is that the latter matches both x64 Windows and Arm64 Windows 11.</div>
+  In most cases, <b>you should make the above changes</b>, because otherwise, users on Arm64 systems may not be able to run your installers. For example, an <tt>ArchitecturesAllowed=x64</tt> setting will only allow the installer to run on x64 Windows &mdash; not on Arm64 Windows 11. Or, if you ship x86 and x64 versions of your app in the same installer, the 32-bit x86 version may be chosen instead of the expected x64 version when running on Arm64 Windows 11.</li>
+  <li>The <tt>[Setup]</tt> section directives <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt> have been enhanced:
+  <ul>
+    <li>Six new architecture identifiers have been introduced. Briefly:
+    <ul>
+      <li><tt>arm32compatible</tt> matches systems capable of running 32-bit Arm binaries.</li>
+      <li><tt>x64compatible</tt> matches systems capable of running x64 binaries.</li>
+      <li><tt>x64os</tt> matches systems running x64 Windows only. (Equivalent to the existing <tt>x64</tt> identifier, which is now deprecated.)</li>
+      <li><tt>x86compatible</tt> matches systems capable of running 32-bit x86 binaries.</li>
+      <li><tt>x86os</tt> matches systems running 32-bit x86 Windows only. (Equivalent to the existing <tt>x86</tt> identifier.)</li>
+      <li><tt>win64</tt> matches systems running 64-bit Windows, regardless of architecture.</li>
+    </ul>
+    See the new <i>Architecture Identifiers</i> <a href="ishelp/index.php?topic=archidentifiers">help topic</a> for further details on each.</li>
+    <li>Boolean expressions are now supported. Through use of the <tt>and</tt> operator, for example, it is possible to require two architecture identifiers to match at the same time. See the <tt>ArchitecturesAllowed</tt> <a href="ishelp/index.php?topic=setup_architecturesallowed">help topic</a> for usage examples.</li>
+  </ul>
   </li>
+  <li>The <tt>x64</tt> architecture identifier is now deprecated. If it is used, the compiler will issue a warning and substitute <tt>x64os</tt>, which has the same effect. But as mentioned above, in most cases, <b>scripts should be changed</b> to use <tt>x64compatible</tt> because it matches both x64 Windows and Arm64 Windows 11.</li>
+  <li>The 64-bit example scripts (<tt>64Bit*.iss</tt>) have all been updated to use <tt>x64compatible</tt> as preferred.</li>
   <li>Certain 64-bit functionality that previously only worked on x64 Windows now works on Arm64 Windows 11 as well. This includes:
   <ul>
     <li>The <tt>Permissions</tt> parameter of the <tt>[Dirs]</tt> section when running in 64-bit install mode.</li>
