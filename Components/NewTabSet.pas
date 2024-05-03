@@ -38,7 +38,6 @@ type
     function GetTabRect(Index: Integer): TRect;
     function GetCloseButtonRect(const TabRect: TRect): TRect;
     procedure InvalidateTab(Index: Integer);
-    procedure InvalidateCloseButton(Index: Integer);
     procedure CloseButtonsListChanged(Sender: TObject; const Item: Boolean;
       Action: TCollectionNotification);
     procedure TabsListChanged(Sender: TObject);
@@ -229,7 +228,7 @@ begin
   var NewHotIndex := -1;
 
   for var I := 0 to FTabs.Count-1 do begin
-    if (I <> TabIndex) and (I < FCloseButtons.Count) and FCloseButtons[I] then begin
+    if I <> TabIndex then begin
       var R := GetTabRect(I);
       if PtInRect(R, TPoint.Create(Pos.X, Pos.Y)) then begin
         NewHotIndex := I;
@@ -293,14 +292,6 @@ begin
   end;
 end;
 
-procedure TNewTabSet.InvalidateCloseButton(Index: Integer);
-begin
-  if HandleAllocated and (Index >= 0) and (Index < FTabs.Count) then begin
-    var R := GetCloseButtonRect(GetTabRect(Index));
-    InvalidateRect(Handle, @R, False);
-  end;
-end;
-
 procedure TNewTabSet.CloseButtonsListChanged(Sender: TObject; const Item: Boolean;
   Action: TCollectionNotification);
 begin
@@ -350,9 +341,9 @@ begin
   if NewHotIndex <> OldHotIndex then begin
     FHotIndex := NewHotIndex;
     if OldHotIndex <> -1 then
-      InvalidateCloseButton(OldHotIndex);
+      InvalidateTab(OldHotIndex);
     if NewHotIndex <> -1 then
-      InvalidateCloseButton(NewHotIndex);
+      InvalidateTab(NewHotIndex);
   end;
 end;
 
@@ -414,7 +405,12 @@ var
         Break;
       end;
       if not SelectedTab and (FTabIndex <> I) then begin
-        if FTheme <> nil then
+        if FHotIndex = I then begin
+          if FTheme <> nil then
+            Canvas.Font.Color := FTheme.Colors[tcFore]
+          else
+            Canvas.Font.Color := clBtnText;
+        end else if FTheme <> nil then
           Canvas.Font.Color := FTheme.Colors[tcMarginFore]
         else if HighColorMode and (ColorToRGB(clBtnFace) <> clBlack) then
           Canvas.Font.Color := LightenColor(ColorToRGB(clBtnShadow), -43)
