@@ -5371,12 +5371,15 @@ begin
   case Panel.Index of
     spHiddenFilesCount:
       if MemosTabSet.Visible and (FHiddenFiles.Count > 0) then begin
-        StatusBar.Canvas.TextOut(Rect.Left, Rect.Top, Format('Tabs closed: %d', [FHiddenFiles.Count]));
+        var RText := Rect;
         if FToolbarThemeData <> 0 then begin
-          var R := Rect;
-          R.Left := R.Right - (R.Bottom - R.Top);
-          DrawThemeBackground(FToolbarThemeData, StatusBar.Canvas.Handle, TP_DROPDOWNBUTTONGLYPH, TS_NORMAL, R, nil);
+          Dec(RText.Right, RText.Bottom - RText.Top);
+          var RGlyph := Rect;
+          RGlyph.Left := RText.Right; { RGlyph is now a square }
+          DrawThemeBackground(FToolbarThemeData, StatusBar.Canvas.Handle, TP_DROPDOWNBUTTONGLYPH, TS_NORMAL, RGlyph, nil);
         end;
+        var S := Format('Tabs closed: %d', [FHiddenFiles.Count]);
+        StatusBar.Canvas.TextRect(RText, S, [tfCenter]);
       end;
     spCompileIcon:
       if FCompiling then begin
