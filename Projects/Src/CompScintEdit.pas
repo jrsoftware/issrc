@@ -171,10 +171,15 @@ begin
   Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColors }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
+  { Set up the gutter column with breakpoint etc symbols - note: column 0 is the
+    line numbers column and its width is set up by TScintEdit.UpdateLineNumbersWidth }
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
   Call(SCI_SETMARGINWIDTHN, 1, 21);
-  Call(SCI_SETMARGINSENSITIVEN, 1, 1);
+  Call(SCI_SETMARGINSENSITIVEN, 1, 1); { Makes it react to mouse clicks }
   Call(SCI_SETMARGINCURSORN, 1, SC_CURSORARROW);
+
+  { Set 2 pixel margin between gutter and the main text - note: the first
+    parameter is unused so the value '0' doesn't mean anything below }
   Call(SCI_SETMARGINLEFT, 0, 2);
 
   Call(SCI_MARKERDEFINEPIXMAP, mmIconHasEntry, LPARAM(@PixmapHasEntry));
@@ -182,6 +187,7 @@ begin
   Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpoint, LPARAM(@PixmapBreakpoint));
   Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpointGood, LPARAM(@PixmapBreakpointGood));
   Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpointBad, LPARAM(@PixmapBreakpointBad));
+
   Call(SCI_MARKERDEFINE, mmLineError, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineError, clWhite);
   Call(SCI_MARKERSETBACK, mmLineError, clMaroon);
