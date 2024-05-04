@@ -48,7 +48,7 @@ type
   public
     property Theme: TTheme read FTheme write FTheme;
     property Used: Boolean read FUsed write FUsed;
-    procedure UpdateGutterSymbolColumnWidth(const AWidth: Integer);
+    procedure UpdateMemoMarkerColumnWidth(const AWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   end;
 
@@ -202,7 +202,7 @@ begin
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
 end;
 
-procedure TCompScintEdit.UpdateGutterSymbolColumnWidth(const AWidth: Integer);
+procedure TCompScintEdit.UpdateMemoMarkerColumnWidth(const AWidth: Integer);
 begin
   Call(SCI_SETMARGINWIDTHN, 1, AWidth);
 end;

@@ -515,7 +515,7 @@ type
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateSaveMenuItemAndButton;
-    procedure UpdateGutterSymbolColumns;
+    procedure UpdateMemoMarkerColumns;
     procedure UpdateTargetMenu;
     procedure UpdateTheme;
     procedure UpdateThemeData(const Open: Boolean);
@@ -732,7 +732,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       SyncEditorOptions;
       UpdateNewMainFileButtons;
       UpdateTheme;
-      UpdateGutterSymbolColumns;
+      UpdateMemoMarkerColumns;
 
       { Window state }
       WindowPlacement.length := SizeOf(WindowPlacement);
@@ -972,7 +972,7 @@ procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
 begin
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
-  UpdateGutterSymbolColumns;
+  UpdateMemoMarkerColumns;
 end;
 
 procedure TCompileForm.FormCloseQuery(Sender: TObject;
@@ -3099,7 +3099,7 @@ begin
   FindResultsList.ItemHeight := FindResultsList.Canvas.TextHeight('0') + 1;
 end;
 
-procedure TCompileForm.UpdateGutterSymbolColumns;
+procedure TCompileForm.UpdateMemoMarkerColumns;
 
 type
   TMarkerBitmaps = TObjectDictionary<Integer, TBitmap>;
@@ -3131,9 +3131,9 @@ type
   end;
 
 begin
-  var Width := ToCurrentPPI(21);
+  var Width := ToCurrentPPI(20);
   for var Memo in FMemos do
-    Memo.UpdateGutterSymbolColumnWidth(Width);
+    Memo.UpdateMemoMarkerColumnWidth(Width);
 
   var ImageList := VirtualImageList1;
 
