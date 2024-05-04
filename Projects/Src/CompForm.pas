@@ -3154,7 +3154,8 @@ begin
             NM(mmIconEntryProcessed, 'debug-stop-filled_2'),
             NM(mmIconBreakpoint, 'debug-breakpoint-filled'),
             NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
-            NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-2')];
+            NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-2'),
+            NM(mmIconStep, 'symbol-arrow-right')];
 
         for var NamedMarker in NamedMarkers do
           AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
@@ -6013,7 +6014,9 @@ begin
     Exit;
 
   NewMarker := -1;
-  if AMemo.BreakPoints.IndexOf(Line) <> -1 then begin
+  if AMemo.StepLine = Line then
+    NewMarker := mmIconStep
+  else if AMemo.BreakPoints.IndexOf(Line) <> -1 then begin
     if AMemo.LineState = nil then
       NewMarker := mmIconBreakpoint
     else if (Line < AMemo.LineStateCount) and (AMemo.LineState[Line] <> lnUnknown) then
@@ -6041,8 +6044,6 @@ begin
     AMemo.AddMarker(Line, mmLineStep)
   else if AMemo.ErrorLine = Line then
     AMemo.AddMarker(Line, mmLineError)
-  else if NewMarker in [mmIconBreakpoint, mmIconBreakpointGood] then
-    AMemo.AddMarker(Line, mmLineBreakpoint)
   else if NewMarker = mmIconBreakpointBad then
     AMemo.AddMarker(Line, mmLineBreakpointBad);
 end;

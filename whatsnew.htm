@@ -116,22 +116,22 @@ end;</pre>
   <li>The Itanium processor architecture is no longer supported. The <tt>ia64</tt> platform identifier has been removed and instead Setup will always display an error message and exit if it's started on an Itanium system anyway.</li>
   <li>Removed [Icons] section flag <tt>foldershortcut</tt> which was already ignored except when running on Windows Vista or Windows Server 2008, as folder shortcuts do not expand properly on the Start Menu anymore.</li>
 </ul>
+<p><span class="head2">Compiler IDE changes</span></p>
+<ul>
+  <li>The New Script Wizard now offers an option to import a Windows registry .reg file.</li>
+  <li>The New Script Wizard now automatically sets <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> to <tt>x64compatible</tt> if it detects that the chosen main executable file is 64-bit. The default main executable file is now the 64-bit MyProg-x64.exe example executable instead of 32-bit MyProg.exe.</li>
+  <li>Added new <i>Generate [Registry] Entries... (Ctrl+Shift+R)</i> menu item to the <i>Tools</i> menu to import a Windows registry .reg file as extra entries to the [Registry] section at the cursor position, or to a new section.</li>
+  <li>Added new <i>Generate [Files] Entries... (Ctrl+Shift+I)</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the [Files] section at the cursor position, or to a new section.</li>
+  <li>The <i>Generate MsgBox/TaskDialogMsgBox Call... (Ctrl+Shift+M)</i> tool (previously named <i>MsgBox/TaskDialogMsgBox Designer</i>) now respects the tab width and tab character settings, indents the generated Pascal script one extra level, and warns if the cursor position is not in the [Code] section.</li>
+  <li>Added dark mode support to the title bar on Windows 10 Version 2004 and later.</i>
+  <li>Added dark mode support to the main menu bar on all versions of Windows.</i>
+  <li>Added dark mode support to the menus on Windows 10 Version 1903 and later up to Windows 11 Version 23H2 which is currently the latest version of Windows 11.</i>
+  <li>Updated the icons used by the editor's gutter, including the automatic use of higher quality versions in a widened gutter on higher DPI settings.</i>
+  <li>Lines with a breakpoint are now displayed as normal lines with syntax highlighting, instead of as white text on a red background. The editor's gutter still displays an icon on such lines.</li>
+  <li>Added icons to the menus.</i>
+</ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
-  <li>Compiler IDE changes: 
-  <ul>
-    <li>The New Script Wizard now offers an option to import a Windows registry .reg file.</li>
-    <li>The New Script Wizard now automatically sets <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> to <tt>x64compatible</tt> if it detects that the chosen main executable file is 64-bit. The default main executable file is now the 64-bit MyProg-x64.exe example executable instead of 32-bit MyProg.exe.</li>
-    <li>Added new <i>Generate [Registry] Entries... (Ctrl+Shift+R)</i> menu item to the <i>Tools</i> menu to import a Windows registry .reg file as extra entries to the [Registry] section at the cursor position, or to a new section.</li>
-    <li>Added new <i>Generate [Files] Entries... (Ctrl+Shift+I)</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the [Files] section at the cursor position, or to a new section.</li>
-    <li>The <i>Generate MsgBox/TaskDialogMsgBox Call... (Ctrl+Shift+M)</i> tool (previously named <i>MsgBox/TaskDialogMsgBox Designer</i>) now respects the tab width and tab character settings, indents the generated Pascal script one extra level, and warns if the cursor position is not in the [Code] section.</li>
-    <li>Added dark mode support to the title bar on Windows 10 Version 2004 and later.</i>
-    <li>Added dark mode support to the main menu bar on all versions of Windows.</i>
-    <li>Added dark mode support to the menus on Windows 10 Version 1903 and later up to Windows 11 Version 23H2 which is currently the latest version of Windows 11.</i>
-    <li>Updated the icons used by the editor's gutter, including the automatic use of higher quality versions in a widened gutter on higher DPI settings.</i>
-    <li>Added icons to the menus.</i>
-  </ul>
-  </li>
   <li>Added new [Setup] section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
   <li>Added new [Files] section flags <tt>signcheck</tt>. Instructs the compiler check the original source files for a digital signature before storing them.</li>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>

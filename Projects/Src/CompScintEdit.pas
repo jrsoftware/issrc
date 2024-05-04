@@ -21,10 +21,10 @@ const
   mmIconBreakpoint = 2;      { stop sign }
   mmIconBreakpointGood = 3;  { stop sign + check }
   mmIconBreakpointBad = 4;   { stop sign + X }
-  mmLineError = 10;          { red line highlight }
-  mmLineBreakpoint = 11;     { red line highlight }
-  mmLineBreakpointBad = 12;  { ugly olive line highlight }
-  mmLineStep = 13;           { blue line highlight }
+  mmLineError = 10;          { maroon line highlight }
+  mmLineBreakpointBad = 11;  { ugly olive line highlight }
+  mmLineStep = 12;           { blue line highlight }
+  mmIconStep = 13;           { blue arrow }
 
   { Memo indicator numbers (also in ScintStylerInnoSetup) }
   inSquiggly = 0;
@@ -114,9 +114,6 @@ begin
   Call(SCI_MARKERDEFINE, mmLineError, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineError, clWhite);
   Call(SCI_MARKERSETBACK, mmLineError, clMaroon);
-  Call(SCI_MARKERDEFINE, mmLineBreakpoint, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mmLineBreakpoint, clWhite);
-  Call(SCI_MARKERSETBACK, mmLineBreakpoint, clRed);
   Call(SCI_MARKERDEFINE, mmLineBreakpointBad, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineBreakpointBad, clLime);
   Call(SCI_MARKERSETBACK, mmLineBreakpointBad, clOlive);
