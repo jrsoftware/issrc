@@ -48,6 +48,7 @@ type
   public
     property Theme: TTheme read FTheme write FTheme;
     property Used: Boolean read FUsed write FUsed;
+    procedure UpdateGutterSymbolColumnWidth(const AWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   end;
 
@@ -174,7 +175,6 @@ begin
   { Set up the gutter column with breakpoint etc symbols - note: column 0 is the
     line numbers column and its width is set up by TScintEdit.UpdateLineNumbersWidth }
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINWIDTHN, 1, 21);
   Call(SCI_SETMARGINSENSITIVEN, 1, 1); { Makes it react to mouse clicks }
   Call(SCI_SETMARGINCURSORN, 1, SC_CURSORARROW);
 
@@ -200,6 +200,11 @@ begin
   Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
+end;
+
+procedure TCompScintEdit.UpdateGutterSymbolColumnWidth(const AWidth: Integer);
+begin
+  Call(SCI_SETMARGINWIDTHN, 1, AWidth);
 end;
 
 procedure TCompScintEdit.UpdateThemeColorsAndStyleAttributes;

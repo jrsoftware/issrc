@@ -514,6 +514,7 @@ type
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateSaveMenuItemAndButton;
+    procedure UpdateGutterSymbolColumnsWidth;
     procedure UpdateTargetMenu;
     procedure UpdateTheme;
     procedure UpdateThemeData(const Open: Boolean);
@@ -821,6 +822,7 @@ begin
   FMemos.Add(FPreprocessorOutputMemo);
   for I := FMemos.Count to MaxMemos-1 do
     FMemos.Add(InitializeFileMemo(TCompScintFileEdit.Create(Self), PopupMenu));
+  UpdateGutterSymbolColumnsWidth;
   FFileMemos := TList<TCompScintFileEdit>.Create;
   for Memo in FMemos do
     if Memo is TCompScintFileEdit then
@@ -969,6 +971,7 @@ procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
 begin
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
+  UpdateGutterSymbolColumnsWidth;
 end;
 
 procedure TCompileForm.FormCloseQuery(Sender: TObject;
@@ -3093,6 +3096,13 @@ begin
 
   FindResultsList.Canvas.Font.Assign(FindResultsList.Font);
   FindResultsList.ItemHeight := FindResultsList.Canvas.TextHeight('0') + 1;
+end;
+
+procedure TCompileForm.UpdateGutterSymbolColumnsWidth;
+begin
+  var Width := ToCurrentPPI(21);
+  for var Memo in FMemos do
+    Memo.UpdateGutterSymbolColumnWidth(Width);
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
