@@ -83,6 +83,7 @@ type
     FOnMarginClick: TScintEditMarginClickEvent;
     FOnModifiedChange: TNotifyEvent;
     FOnUpdateUI: TNotifyEvent;
+    FOnZoom: TNotifyEvent;
     FReportCaretPositionToStyler: Boolean;
     FStyler: TScintCustomStyler;
     FTabWidth: Integer;
@@ -312,6 +313,7 @@ type
     property OnMouseMove;
     property OnMouseUp;
     property OnUpdateUI: TNotifyEvent read FOnUpdateUI write FOnUpdateUI;
+    property OnZoom: TNotifyEvent read FOnZoom write FOnZoom;
   end;
 
   TScintEditStrings = class(TStrings)
@@ -1059,6 +1061,8 @@ begin
       end;
     SCN_ZOOM:
       begin
+        if Assigned(FOnZoom) then
+          FOnZoom(Self);
         if FLineNumbers then
           UpdateLineNumbersWidth;
       end;

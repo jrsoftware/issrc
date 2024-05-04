@@ -423,6 +423,7 @@ type
     FMenuBitmaps: TMenuBitmaps;
     FMenuBitmapsSize: TSize;
     FMenuBitmapsSourceImageList: TVirtualImageList;
+    FSynchingZoom: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -470,6 +471,7 @@ type
     procedure MemoModifiedChange(Sender: TObject);
     function MemoToTabIndex(const AMemo: TCompScintEdit): Integer;
     procedure MemoUpdateUI(Sender: TObject);
+    procedure MemoZoom(Sender: TObject);
     procedure UpdateReopenTabMenu(const Menu: TMenuItem);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
@@ -493,7 +495,6 @@ type
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure StoreLastFindOptions(Sender: TObject);
     procedure SyncEditorOptions;
-    procedure SyncZoom;
     function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TCompScintEdit;
     function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
@@ -643,6 +644,7 @@ begin
   Memo.OnMarginClick := MemoMarginClick;
   Memo.OnModifiedChange := MemoModifiedChange;
   Memo.OnUpdateUI := MemoUpdateUI;
+  Memo.OnZoom := MemoZoom;
   Memo.Parent := BodyPanel;
   Memo.SetAutoCompleteSeparator(InnoSetupStylerWordListSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
@@ -721,13 +723,10 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FMainMemo.Font.Name := Ini.ReadString('Options', 'EditorFontName', FMainMemo.Font.Name);
       FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
       FMainMemo.Font.Charset := Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
-      FMainMemo.Zoom := Ini.ReadInteger('Options', 'Zoom', 0);
-      for Memo in FMemos do begin
-        if Memo <> FMainMemo then begin
+      FMainMemo.Zoom := Ini.ReadInteger('Options', 'Zoom', 0); { MemoZoom will zoom the other memos }
+      for Memo in FMemos do
+        if Memo <> FMainMemo then
           Memo.Font := FMainMemo.Font;
-          Memo.Zoom := FMainMemo.Zoom;
-        end;
-      end;
       SyncEditorOptions;
       UpdateNewMainFileButtons;
       UpdateTheme;
@@ -2471,41 +2470,19 @@ begin
   ReopenTabOrTabs(-1, True);
 end;
 
-procedure TCompileForm.SyncZoom;
-var
-  Memo: TCompScintEdit;
-begin
-  { The zoom shortcuts are handled by Scintilla and may cause different zoom levels per memo. This
-    function sets the zoom of all memo's to the zoom of the active memo to make zoom in synch again. }
-  for Memo in FMemos do
-    if Memo <> FActiveMemo then
-      Memo.Zoom := FActiveMemo.Zoom;
-end;
-
 procedure TCompileForm.VZoomInClick(Sender: TObject);
-var
-  Memo: TCompScintEdit;
 begin
-  SyncZoom;
-  for Memo in FMemos do
-    Memo.ZoomIn;
+  FActiveMemo.ZoomIn; { MemoZoom will zoom the other memos }
 end;
 
 procedure TCompileForm.VZoomOutClick(Sender: TObject);
-var
-  Memo: TCompScintEdit;
 begin
-  SyncZoom;
-  for Memo in FMemos do
-    Memo.ZoomOut;
+  FActiveMemo.ZoomOut;
 end;
 
 procedure TCompileForm.VZoomResetClick(Sender: TObject);
-var
-  Memo: TCompScintEdit;
 begin
-  for Memo in FMemos do
-    Memo.Zoom := 0;
+  FActiveMemo.Zoom := 0;
 end;
 
 procedure TCompileForm.VToolbarClick(Sender: TObject);
@@ -4151,6 +4128,20 @@ procedure TCompileForm.MainMemoDropFiles(Sender: TObject; X, Y: Integer;
 begin
   if (AFiles.Count > 0) and ConfirmCloseFile(True) then
     OpenFile(FMainMemo, AFiles[0], True);
+end;
+
+procedure TCompileForm.MemoZoom(Sender: TObject);
+begin
+  if not FSynchingZoom then begin
+    FSynchingZoom := True;
+    try
+      for var Memo in FMemos do
+        if Memo <> Sender then
+          Memo.Zoom := (Sender as TScintEdit).Zoom;
+    finally
+      FSynchingZoom := False;
+    end;
+  end;
 end;
 
 procedure TCompileForm.StatusBarResize(Sender: TObject);
