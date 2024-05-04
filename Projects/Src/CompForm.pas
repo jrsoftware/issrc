@@ -732,6 +732,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       SyncEditorOptions;
       UpdateNewMainFileButtons;
       UpdateTheme;
+      UpdateGutterSymbolColumns;
 
       { Window state }
       WindowPlacement.length := SizeOf(WindowPlacement);
@@ -893,8 +894,6 @@ begin
     ReadSignTools(FSignTools);
     PostMessage(Handle, WM_StartNormally, 0, 0);
   end;
-
-  UpdateGutterSymbolColumns; { Required UpdateTheme to be called }
 end;
 
 destructor TCompileForm.Destroy;
@@ -3102,8 +3101,11 @@ end;
 
 procedure TCompileForm.UpdateGutterSymbolColumns;
 
-  function CreateBitmap(const DC: HDC; const BitmapInfo: TBitmapInfo;
-    const BkBrush: TBrush; const ImageList: TVirtualImageList; const ImageName: String): TBitmap;
+type
+  TMarkerBitmaps = TObjectDictionary<Integer, TBitmap>;
+
+  procedure AddMarkerBitmap(const MarkerBitmaps: TMarkerBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
+    const Marker: Integer; const BkBrush: TBrush; const ImageList: TVirtualImageList; const ImageName: String);
   begin
     var pvBits: Pointer;
     var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
@@ -3111,35 +3113,23 @@ procedure TCompileForm.UpdateGutterSymbolColumns;
     var Rect := TRect.Create(0, 0, BitmapInfo.bmiHeader.biWidth, BitmapInfo.bmiHeader.biHeight);
     FillRect(DC, Rect, BkBrush.Handle);
     if ImageList_Draw(ImageList.Handle, ImageList.GetIndexByName(ImageName), DC, 0, 0, ILD_TRANSPARENT) then begin
-      Result := TBitmap.Create;
-      Result.Handle := Bitmap;
+      var Bitmap2 := TBitmap.Create;
+      Bitmap2.Handle := Bitmap;
+      MarkerBitmaps.Add(Marker, Bitmap2);
     end else begin
       SelectObject(DC, OldBitmap);
       DeleteObject(Bitmap);
-      Result := nil;
     end;
   end;
 
 type
-  TPixmap = array of PAnsiChar;
+  TNamedMarker = TPair<Integer, String>;
 
-  procedure SetNextPixmapLine(const Pixmap: TPixmap; var Index: Integer; Line: AnsiString);
+  function NM(const Marker: Integer; const Name: String): TNamedMarker;
   begin
-    var N := (Length(Line)+1)*SizeOf(Line[1]);
-    GetMem(Pixmap[Index], N);
-    Move(Pointer(Line)^, Pixmap[Index]^, N);
-    Inc(Index);
+    Result := TNamedMarker.Create(Marker, Name); { This is a record so no need to free }
   end;
 
-  procedure FreePixmapLines(const Pixmap: TPixmap);
-  begin
-    for var I := 0 to Length(Pixmap)-1 do
-      FreeMem(Pixmap[I]);
-  end;
-
-type
-  PRGBTripleArray = ^TRGBTripleArray;
-  TRGBTripleArray = array[0..4095] of TRGBTriple;
 begin
   var Width := ToCurrentPPI(21);
   for var Memo in FMemos do
@@ -3159,65 +3149,32 @@ begin
       bitmapInfo.bmiHeader.biBitCount := 24;
       BitmapInfo.bmiHeader.biCompression := BI_RGB;
 
-      var Bitmap: TBitmap;
+      var NamedMarkers := [
+          NM(mmIconBreakpoint, 'debug-breakpoint-filled'),
+          NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
+          NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-2')];
+
+      var MarkerBitmaps := TMarkerBitmaps.Create([doOwnsValues]);
       var BkBrush := TBrush.Create;
       try
         BkBrush.Color := FTheme.Colors[tcMarginBack];
-        Bitmap := CreateBitmap(DC, BitmapInfo, BkBrush, ImageList, 'debug-breakpoint-filled');
-      finally
-        BkBrush.Free;
-      end;
 
-      if Bitmap <> nil then begin
+        for var NamedMarker in NamedMarkers do
+          AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
+
+        var Pixmap := TScintPixmap.Create;
         try
-          { Build colors list }
-          var Colors := TDictionary<Integer, TPair<AnsiChar, String>>.Create; { RGB -> Code & WebColor }
-          try
-            for var Y := 0 to Bitmap.Height-1 do begin
-              var Pixels: PRGBTripleArray := Bitmap.ScanLine[Y];
-              for var X := 0 to Bitmap.Width-1 do begin
-                var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
-                if not Colors.ContainsKey(Color) then begin
-                  const FirstColorCode = 35; { # - Start after 34 which is " and which terminates an XPM string according to MeasureLength in Scintilla's XPM.cxx }
-                  const LastColorCode = 126; { ~ - Perhaps more will work but this should be enough }
-                  var ColorCode := FirstColorCode + Colors.Count;
-                  if ColorCode > LastColorCode then
-                    raise Exception.Create('Too many colors');
-                  Colors.Add(Color, TPair<AnsiChar, String>.Create(AnsiChar(ColorCode), RGBToWebColorStr(Color)));
-                end;
-              end;
-            end;
-
-            { Build pixmap }
-            var Pixmap: TPixmap;
-            var Line: AnsiString;
-            SetLength(Pixmap, 1 + Colors.Count + Bitmap.Height + 1);
-            Line := AnsiString(Format('%d %d %d 1', [Bitmap.Width, Bitmap.Height, Colors.Count]));
-            var Index := 0;
-            SetNextPixmapLine(Pixmap, Index, Line);
-            for var Color in Colors do begin
-              Line := AnsiString(Format('%s c %s', [Color.Value.Key, Color.Value.Value]));
-              SetNextPixmapLine(Pixmap, Index, Line);
-            end;
-            for var Y := 0 to Bitmap.Height-1 do begin
-              Line := '';
-              var Pixels: PRGBTripleArray := Bitmap.ScanLine[Y];
-              for var X := 0 to Bitmap.Width-1 do begin
-                var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
-                Line := Line + Colors.Items[Color].Key;
-              end;
-              SetNextPixmapLine(Pixmap, Index, Line);
-            end;
-            Pixmap[Index] := nil;
+          for var MarkerBitmap in MarkerBitmaps do begin
+            Pixmap.InitializeFromBitmap(MarkerBitmap.Value);
             for var Memo in FMemos do
-              Memo.Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpoint, LPARAM(Pixmap));
-            FreePixmapLines(Pixmap);
-          finally
-            Colors.Free;
+              Memo.Call(SCI_MARKERDEFINEPIXMAP, MarkerBitmap.Key, LPARAM(Pixmap.Pixmap));
           end;
         finally
-          Bitmap.Free;
+          Pixmap.Free;
         end;
+      finally
+        BkBrush.Free;
+        MarkerBitmaps.Free;
       end;
     finally
       DeleteDC(DC);
@@ -4873,24 +4830,24 @@ end;
 
 procedure TCompileForm.UpdateMenuBitmapsIfNeeded;
 
-  procedure AddMenuBitmap(const DC: HDC; const BitmapInfo: TBitmapInfo;
+  procedure AddMenuBitmap(const MenuBitmaps: TMenuBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
     const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageIndex: Integer); overload;
   begin
     var pvBits: Pointer;
     var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
     var OldBitmap := SelectObject(DC, Bitmap);
     if ImageList_Draw(ImageList.Handle, ImageIndex, DC, 0, 0, ILD_TRANSPARENT) then
-      FMenuBitmaps.Add(MenuItem, Bitmap)
+      MenuBitmaps.Add(MenuItem, Bitmap)
     else begin
       SelectObject(DC, OldBitmap);
       DeleteObject(Bitmap);
     end;
   end;
 
-  procedure AddMenuBitmap(const DC: HDC; const BitmapInfo: TBitmapInfo;
+  procedure AddMenuBitmap(const MenuBitmaps: TMenuBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
     const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageName: String); overload;
   begin
-    AddMenuBitmap(DC, BitmapInfo, MenuItem, ImageList, ImageList.GetIndexByName(ImageName));
+    AddMenuBitmap(MenuBitmaps, DC, BitmapInfo, MenuItem, ImageList, ImageList.GetIndexByName(ImageName));
   end;
 
 type
@@ -4961,7 +4918,7 @@ begin
           BM(HDoc, HelpButton)];
 
         for var ButtonedMenu in ButtonedMenus do
-          AddMenuBitmap(DC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
+          AddMenuBitmap(FMenuBitmaps, DC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
 
         var NamedMenus := [
           NM(FSaveMainFileAs, 'save-as-filled'),
@@ -5010,7 +4967,7 @@ begin
           NM(HAbout, 'button-info')];
 
         for var NamedMenu in NamedMenus do
-          AddMenuBitmap(DC, BitmapInfo, NamedMenu.Key, ImageList, NamedMenu.Value);
+          AddMenuBitmap(FMenuBitmaps, DC, BitmapInfo, NamedMenu.Key, ImageList, NamedMenu.Value);
       finally
         DeleteDC(DC);
       end;

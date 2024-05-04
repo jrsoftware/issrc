@@ -399,12 +399,24 @@ type
     property TextLength: Integer read FTextLen;
   end;
 
+  TScintPixmap = class
+  private
+    type TPixmap = array of PAnsiChar;
+    var FPixmap: TPixmap;
+    function GetPixmap: Pointer;
+  public
+    destructor Destroy; override;
+    procedure Clear;
+    procedure InitializeFromBitmap(const ABitmap: TBitmap);
+    property Pixmap: Pointer read GetPixmap;
+  end;
+
   EScintEditError = class(Exception);
 
 implementation
 
 uses
-  ShellAPI, RTLConsts, UITypes;
+  ShellAPI, RTLConsts, UITypes, Generics.Collections, GraphUtil;
 
 { TScintEdit }
 
@@ -2119,6 +2131,87 @@ procedure TScintCustomStyler.ResetCurIndexTo(Index: Integer);
 begin
   FCurIndex := Index;
   FStyleStartIndex := Index;
+end;
+
+{ TScintPixmap }
+
+destructor TScintPixmap.Destroy;
+begin
+  Clear;
+  inherited;
+end;
+
+procedure TScintPixmap.Clear;
+begin
+  for var I := 0 to Length(FPixmap)-1 do
+    FreeMem(FPixmap[I]);
+  SetLength(FPixmap, 0);
+end;
+
+function TScintPixmap.GetPixmap: Pointer;
+begin
+  Result := FPixmap;
+end;
+
+type
+  PRGBTripleArray = ^TRGBTripleArray;
+  TRGBTripleArray = array[0..4095] of TRGBTriple;
+
+procedure TScintPixmap.InitializeFromBitmap(const ABitmap: TBitmap);
+
+  procedure SetNextPixmapLine(const Pixmap: TPixmap; var Index: Integer; Line: AnsiString);
+  begin
+    var N := (Length(Line)+1)*SizeOf(Line[1]);
+    GetMem(Pixmap[Index], N);
+    Move(Pointer(Line)^, Pixmap[Index]^, N);
+    Inc(Index);
+  end;
+
+begin
+  Clear;
+
+  var Colors := TDictionary<Integer, TPair<AnsiChar, String>>.Create; { RGB -> Code & WebColor }
+  try
+    { Build colors list }
+    for var Y := 0 to ABitmap.Height-1 do begin
+      var Pixels: PRGBTripleArray := ABitmap.ScanLine[Y];
+      for var X := 0 to ABitmap.Width-1 do begin
+        var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
+        if not Colors.ContainsKey(Color) then begin
+          const FirstColorCode = 35; { # - Start after 34 which is " and which terminates an XPM string according to MeasureLength in Scintilla's XPM.cxx }
+          const LastColorCode = 126; { ~ - Perhaps more will work but this should be enough }
+          var ColorCode := FirstColorCode + Colors.Count;
+          if ColorCode > LastColorCode then
+            raise Exception.Create('Too many colors');
+          Colors.Add(Color, TPair<AnsiChar, String>.Create(AnsiChar(ColorCode), RGBToWebColorStr(Color)));
+        end;
+      end;
+    end;
+
+    { Build pixmap }
+    var Line: AnsiString;
+    SetLength(FPixmap, 1 + Colors.Count + ABitmap.Height + 1);
+    Line := AnsiString(Format('%d %d %d 1', [ABitmap.Width, ABitmap.Height, Colors.Count]));
+    var Index := 0;
+    SetNextPixmapLine(FPixmap, Index, Line);
+    for var Color in Colors do begin
+      Line := AnsiString(Format('%s c %s', [Color.Value.Key, Color.Value.Value]));
+      SetNextPixmapLine(FPixmap, Index, Line);
+    end;
+    for var Y := 0 to ABitmap.Height-1 do begin
+      Line := '';
+      var Pixels: PRGBTripleArray := ABitmap.ScanLine[Y];
+      for var X := 0 to ABitmap.Width-1 do begin
+        var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
+        Line := Line + Colors[Color].Key;
+      end;
+      SetNextPixmapLine(FPixmap, Index, Line);
+    end;
+    FPixmap[Index] := nil;
+  finally
+    Colors.Free;
+  end;
+
 end;
 
 end.
