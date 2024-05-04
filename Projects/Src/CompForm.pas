@@ -187,8 +187,8 @@ type
     TerminateButton: TToolButton;
     LightToolBarImageCollection: TImageCollection;
     DarkToolBarImageCollection: TImageCollection;
-    ThemedVirtualImageList: TVirtualImageList;
-    LightVirtualImageList: TVirtualImageList;
+    ThemedToolbarVirtualImageList: TVirtualImageList;
+    LightToolbarVirtualImageList: TVirtualImageList;
     POutputListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
@@ -222,8 +222,9 @@ type
     VReopenTab2: TMenuItem;
     VReopenTabs2: TMenuItem;
     N23: TMenuItem;
-    ImageCollection1: TImageCollection;
-    VirtualImageList1: TVirtualImageList;
+    LightMarkersImageCollection: TImageCollection;
+    DarkMarkersImageCollection: TImageCollection;
+    ThemedMarkersVirtualImageList: TVirtualImageList;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -732,7 +733,6 @@ constructor TCompileForm.Create(AOwner: TComponent);
       SyncEditorOptions;
       UpdateNewMainFileButtons;
       UpdateTheme;
-      UpdateMemoMarkerColumns;
 
       { Window state }
       WindowPlacement.length := SizeOf(WindowPlacement);
@@ -874,6 +874,8 @@ begin
 
   FMenuDarkBackgroundBrush := TBrush.Create;
   FMenuDarkHotOrSelectedBrush := TBrush.Create;
+
+  ThemedMarkersVirtualImageList.AutoFill := True;
 
   UpdateThemeData(True);
 
@@ -3135,7 +3137,7 @@ begin
   for var Memo in FMemos do
     Memo.UpdateMemoMarkerColumnWidth(Width);
 
-  var ImageList := VirtualImageList1;
+  var ImageList := ThemedMarkersVirtualImageList;
 
   var DC := CreateCompatibleDC(0);
   if DC <> 0 then begin
@@ -3148,9 +3150,11 @@ begin
         var BitmapInfo := CreateBitmapInfo(ImageList.Width, ImageList.Height, 24);
 
         var NamedMarkers := [
+            NM(mmIconHasEntry, 'debug-stop-filled'),
+            NM(mmIconEntryProcessed, 'debug-stop-filled_2'),
             NM(mmIconBreakpoint, 'debug-breakpoint-filled'),
-            NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
-            NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-2')];
+            NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-filled'),
+            NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-filled')];
 
         for var NamedMarker in NamedMarkers do
           AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
@@ -4755,12 +4759,16 @@ begin
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
   ToolBarPanel.ParentBackground := False;
 
-  if FTheme.Dark then
-    ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
-  else
-    ThemedVirtualImageList.ImageCollection := LightToolBarImageCollection;
+  if FTheme.Dark then begin
+    ThemedToolbarVirtualImageList.ImageCollection := DarkToolBarImageCollection;
+    ThemedMarkersVirtualImageList.ImageCollection := DarkMarkersImageCollection;
+  end else begin
+    ThemedToolbarVirtualImageList.ImageCollection := LightToolBarImageCollection;
+    ThemedMarkersVirtualImageList.ImageCollection := LightMarkersImageCollection;
+  end;
 
   UpdateBevel1Visibility;
+  UpdateMemoMarkerColumns;
 
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
@@ -4783,14 +4791,14 @@ begin
    FlushMenuThemes. So don't call SetPreferredAppMode if FlushMenuThemes is
    missing. }
   if Assigned(SetPreferredAppMode) and Assigned(FlushMenuThemes) then begin
-    FMenuImageList := ThemedVirtualImageList;
+    FMenuImageList := ThemedToolbarVirtualImageList;
     if FTheme.Dark then
       SetPreferredAppMode(PAM_FORCEDARK)
     else
       SetPreferredAppMode(PAM_FORCELIGHT);
     FlushMenuThemes;
   end else
-    FMenuImageList := LightVirtualImageList;
+    FMenuImageList := LightToolbarVirtualImageList;
 end;
 
 procedure TCompileForm.UpdateThemeData(const Open: Boolean);

@@ -82,77 +82,6 @@ uses
 
 procedure TCompScintEdit.CreateWnd;
 const
-  PixmapHasEntry: array[0..8] of PAnsiChar = (
-    '5 5 2 1',
-    'o c #808080',
-    '. c #c0c0c0',
-    'ooooo',
-    'o...o',
-    'o...o',
-    'o...o',
-    'ooooo',
-    nil);
-  PixmapEntryProcessed: array[0..8] of PAnsiChar = (
-    '5 5 2 1',
-    'o c #008000',
-    '. c #00ff00',
-    'ooooo',
-    'o...o',
-    'o...o',
-    'o...o',
-    'ooooo',
-    nil);
-  PixmapBreakpoint: array[0..14] of PAnsiChar = (
-    '9 10 3 1',
-    '= c none',
-    'o c #000000',
-    '. c #ff0000',
-    '=========',
-    '==ooooo==',
-    '=o.....o=',
-    'o.......o',
-    'o.......o',
-    'o.......o',
-    'o.......o',
-    'o.......o',
-    '=o.....o=',
-    '==ooooo==',
-    nil);
-  PixmapBreakpointGood: array[0..15] of PAnsiChar = (
-    '9 10 4 1',
-    '= c none',
-    'o c #000000',
-    '. c #ff0000',
-    '* c #00ff00',
-    '======oo=',
-    '==oooo**o',
-    '=o....*o=',
-    'o....**.o',
-    'o....*..o',
-    'o...**..o',
-    'o**.*...o',
-    'o.***...o',
-    '=o.*...o=',
-    '==ooooo==',
-    nil);
-  PixmapBreakpointBad: array[0..15] of PAnsiChar = (
-    '9 10 4 1',
-    '= c none',
-    'o c #000000',
-    '. c #ff0000',
-    '* c #ffff00',
-    '=========',
-    '==ooooo==',
-    '=o.....o=',
-    'o.*...*.o',
-    'o.**.**.o',
-    'o..***..o',
-    'o.**.**.o',
-    'o.*...*.o',
-    '=o.....o=',
-    '==ooooo==',
-    nil);
-const
   SC_MARK_BACKFORE = 3030;  { new marker type added in Inno Setup's Scintilla build }
 begin
   inherited;
@@ -181,12 +110,6 @@ begin
   { Set 2 pixel margin between gutter and the main text - note: the first
     parameter is unused so the value '0' doesn't mean anything below }
   Call(SCI_SETMARGINLEFT, 0, 2);
-
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconHasEntry, LPARAM(@PixmapHasEntry));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconEntryProcessed, LPARAM(@PixmapEntryProcessed));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpoint, LPARAM(@PixmapBreakpoint));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpointGood, LPARAM(@PixmapBreakpointGood));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpointBad, LPARAM(@PixmapBreakpointBad));
 
   Call(SCI_MARKERDEFINE, mmLineError, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineError, clWhite);

@@ -2155,8 +2155,8 @@ begin
 end;
 
 type
-  PRGBTripleArray = ^TRGBTripleArray;
   TRGBTripleArray = array[0..4095] of TRGBTriple;
+  PRGBTripleArray = ^TRGBTripleArray;
 
 procedure TScintPixmap.InitializeFromBitmap(const ABitmap: TBitmap);
 
@@ -2169,6 +2169,9 @@ procedure TScintPixmap.InitializeFromBitmap(const ABitmap: TBitmap);
   end;
 
 begin
+  if ABitmap.PixelFormat <> pf24bit then
+    TScintEdit.Error('Invalid PixelFormat');
+
   Clear;
 
   var Colors := TDictionary<Integer, TPair<AnsiChar, String>>.Create; { RGB -> Code & WebColor }
@@ -2183,7 +2186,7 @@ begin
           const LastColorCode = 126; { ~ - Perhaps more will work but this should be enough }
           var ColorCode := FirstColorCode + Colors.Count;
           if ColorCode > LastColorCode then
-            raise Exception.Create('Too many colors');
+            TScintEdit.Error('Too many colors');
           Colors.Add(Color, TPair<AnsiChar, String>.Create(AnsiChar(ColorCode), RGBToWebColorStr(Color)));
         end;
       end;
@@ -2212,7 +2215,6 @@ begin
   finally
     Colors.Free;
   end;
-
 end;
 
 end.
