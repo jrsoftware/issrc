@@ -98,7 +98,7 @@ begin
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
   Call(SCI_INDICSETSTYLE, inSquiggly, INDIC_SQUIGGLE);
-  Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColors }
+  Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
   { Set up the gutter column with breakpoint etc symbols - note: column 0 is the
@@ -119,7 +119,7 @@ begin
   Call(SCI_MARKERSETBACK, mmLineBreakpointBad, clOlive);
   Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
-  Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
+  Call(SCI_MARKERSETBACK, mmLineStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
 end;
 
 procedure TCompScintEdit.UpdateMemoMarkerColumnWidth(const AWidth: Integer);
@@ -134,6 +134,7 @@ begin
     Color := FTheme.Colors[tcBack];
     Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
     Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
+    Call(SCI_MARKERSETBACK, mmLineStep, FTheme.Colors[tcBlue]);
   end;
   UpdateStyleAttributes;
 end;
