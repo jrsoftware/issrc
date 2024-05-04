@@ -189,7 +189,6 @@ type
     DarkToolBarImageCollection: TImageCollection;
     ThemedVirtualImageList: TVirtualImageList;
     LightVirtualImageList: TVirtualImageList;
-    DarkVirtualImageList: TVirtualImageList;
     POutputListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
@@ -422,7 +421,7 @@ type
     FMenuImageList: TVirtualImageList;
     FMenuBitmaps: TMenuBitmaps;
     FMenuBitmapsSize: TSize;
-    FMenuBitmapsSourceImageList: TVirtualImageList;
+    FMenuBitmapsSourceImageCollection: TCustomImageCollection;
     FSynchingZoom: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -4703,13 +4702,11 @@ begin
    FlushMenuThemes. So don't call SetPreferredAppMode if FlushMenuThemes is
    missing. }
   if Assigned(SetPreferredAppMode) and Assigned(FlushMenuThemes) then begin
-    if FTheme.Dark then begin
-      FMenuImageList := DarkVirtualImageList;
+    FMenuImageList := ThemedVirtualImageList;
+    if FTheme.Dark then
       SetPreferredAppMode(PAM_FORCEDARK)
-    end else begin
-      FMenuImageList := LightVirtualImageList;
+    else
       SetPreferredAppMode(PAM_FORCELIGHT);
-    end;
     FlushMenuThemes;
   end else
     FMenuImageList := LightVirtualImageList;
@@ -4790,11 +4787,8 @@ begin
     ApplyBitmaps will apply them to menu items using SetMenuItemInfo. The menu item
     does not copy the bitmap so they should still be alive after ApplyBitmaps is done.
 
-    Depends on LightVirtualImageList to pick the best size icons for the current
-    DPI from the collection. Does not use ThemedVirtualImageList because currently
-    the menu does not support dark mode but the toolbar does. Note: all dark mode
-    icons *are* present in ThemedVirtualImageList, so even the ones which are not
-    on the toolbar and therefore not used at the moment. }
+    Depends on FMenuImageList to pick the best size icons for the current DPI
+    from the collection. }
 
   var ImageList := FMenuImageList;
 
@@ -4802,7 +4796,7 @@ begin
   NewSize.cx := ImageList.Width;
   NewSize.cy := ImageList.Height;
   if (NewSize.cx <> FMenuBitmapsSize.cx) or (NewSize.cy <> FMenuBitmapsSize.cy) or
-     (ImageList <> FMenuBitmapsSourceImageList) then begin
+     (ImageList.ImageCollection <> FMenuBitmapsSourceImageCollection) then begin
 
     { Cleanup previous }
 
@@ -4892,7 +4886,7 @@ begin
     end;
 
     FMenuBitmapsSize := NewSize;
-    FMenuBitmapsSourceImageList := FMenuImageList;
+    FMenuBitmapsSourceImageCollection := FMenuImageList.ImageCollection;
   end;
 end;
 
