@@ -3153,8 +3153,8 @@ begin
             NM(mmIconHasEntry, 'debug-stop-filled'),
             NM(mmIconEntryProcessed, 'debug-stop-filled_2'),
             NM(mmIconBreakpoint, 'debug-breakpoint-filled'),
-            NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-filled'),
-            NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-filled')];
+            NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
+            NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-2')];
 
         for var NamedMarker in NamedMarkers do
           AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
@@ -3162,7 +3162,7 @@ begin
         var Pixmap := TScintPixmap.Create;
         try
           for var MarkerBitmap in MarkerBitmaps do begin
-            Pixmap.InitializeFromBitmap(MarkerBitmap.Value);
+            Pixmap.InitializeFromBitmap(FMainMemo, MarkerBitmap.Value, BkBrush.Color);
             for var Memo in FMemos do
               Memo.Call(SCI_MARKERDEFINEPIXMAP, MarkerBitmap.Key, LPARAM(Pixmap.Pixmap));
           end;

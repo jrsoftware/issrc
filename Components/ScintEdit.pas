@@ -401,13 +401,15 @@ type
 
   TScintPixmap = class
   private
+    class var ColorCodes: String;
+    class constructor Create;
     type TPixmap = array of PAnsiChar;
     var FPixmap: TPixmap;
     function GetPixmap: Pointer;
   public
     destructor Destroy; override;
     procedure Clear;
-    procedure InitializeFromBitmap(const ABitmap: TBitmap);
+    procedure InitializeFromBitmap(const AScintEdit: TScintEdit; const ABitmap: TBitmap; const TransparentColor: TColorRef);
     property Pixmap: Pointer read GetPixmap;
   end;
 
@@ -2135,6 +2137,18 @@ end;
 
 { TScintPixmap }
 
+const
+  XPMTransparentChar = ' ';
+  XPMTerminatorChar = '"';
+
+class constructor TScintPixmap.Create;
+begin
+  { Even though ConvertStringToRawString is used chars 128-255 don't work }
+  for var C := #1 to #127 do
+    if (C <> XPMTransparentChar) and (C <> XPMTerminatorChar) then
+      ColorCodes := ColorCodes + C;
+end;
+
 destructor TScintPixmap.Destroy;
 begin
   Clear;
@@ -2158,13 +2172,14 @@ type
   TRGBTripleArray = array[0..4095] of TRGBTriple;
   PRGBTripleArray = ^TRGBTripleArray;
 
-procedure TScintPixmap.InitializeFromBitmap(const ABitmap: TBitmap);
+procedure TScintPixmap.InitializeFromBitmap(const AScintEdit: TScintEdit; const ABitmap: TBitmap; const TransparentColor: TColorRef);
 
-  procedure SetNextPixmapLine(const Pixmap: TPixmap; var Index: Integer; Line: AnsiString);
+  procedure SetNextPixmapLine(const Pixmap: TPixmap; var Index: Integer; Line: String);
   begin
-    var N := (Length(Line)+1)*SizeOf(Line[1]);
+    var RawLine := AScintEdit.ConvertStringToRawString(Line);
+    var N := (Length(RawLine)+1)*SizeOf(RawLine[1]);
     GetMem(Pixmap[Index], N);
-    Move(Pointer(Line)^, Pixmap[Index]^, N);
+    Move(Pointer(RawLine)^, Pixmap[Index]^, N);
     Inc(Index);
   end;
 
@@ -2174,32 +2189,30 @@ begin
 
   Clear;
 
-  var Colors := TDictionary<Integer, TPair<AnsiChar, String>>.Create; { RGB -> Code & WebColor }
+  var Colors := TDictionary<Integer, TPair<Char, String>>.Create; { RGB -> Code & WebColor }
   try
     { Build colors list }
     for var Y := 0 to ABitmap.Height-1 do begin
       var Pixels: PRGBTripleArray := ABitmap.ScanLine[Y];
       for var X := 0 to ABitmap.Width-1 do begin
         var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
-        if not Colors.ContainsKey(Color) then begin
-          const FirstColorCode = 35; { # - Start after 34 which is " and which terminates an XPM string according to MeasureLength in Scintilla's XPM.cxx }
-          const LastColorCode = 126; { ~ - Perhaps more will work but this should be enough }
-          var ColorCode := FirstColorCode + Colors.Count;
-          if ColorCode > LastColorCode then
+        if (Color <> TransparentColor) and not Colors.ContainsKey(Color) then begin
+          var ColorCodeIndex := Colors.Count+1;
+          if ColorCodeIndex > Length(ColorCodes) then
             TScintEdit.Error('Too many colors');
-          Colors.Add(Color, TPair<AnsiChar, String>.Create(AnsiChar(ColorCode), RGBToWebColorStr(Color)));
+          Colors.Add(Color, TPair<Char, String>.Create(ColorCodes[ColorCodeIndex], RGBToWebColorStr(Color)))
         end;
       end;
     end;
 
     { Build pixmap }
-    var Line: AnsiString;
+    var Line: String;
     SetLength(FPixmap, 1 + Colors.Count + ABitmap.Height + 1);
-    Line := AnsiString(Format('%d %d %d 1', [ABitmap.Width, ABitmap.Height, Colors.Count]));
+    Line := Format('%d %d %d 1', [ABitmap.Width, ABitmap.Height, Colors.Count]);
     var Index := 0;
     SetNextPixmapLine(FPixmap, Index, Line);
     for var Color in Colors do begin
-      Line := AnsiString(Format('%s c %s', [Color.Value.Key, Color.Value.Value]));
+      Line := Format('%s c %s', [Color.Value.Key, Color.Value.Value]);
       SetNextPixmapLine(FPixmap, Index, Line);
     end;
     for var Y := 0 to ABitmap.Height-1 do begin
@@ -2207,7 +2220,10 @@ begin
       var Pixels: PRGBTripleArray := ABitmap.ScanLine[Y];
       for var X := 0 to ABitmap.Width-1 do begin
         var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
-        Line := Line + Colors[Color].Key;
+        if Color = TransparentColor then
+          Line := Line + XPMTransparentChar
+        else
+          Line := Line + Colors[Color].Key;
       end;
       SetNextPixmapLine(FPixmap, Index, Line);
     end;
