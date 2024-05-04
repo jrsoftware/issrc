@@ -223,6 +223,8 @@ type
     VReopenTab2: TMenuItem;
     VReopenTabs2: TMenuItem;
     N23: TMenuItem;
+    ImageCollection1: TImageCollection;
+    VirtualImageList1: TVirtualImageList;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -514,7 +516,7 @@ type
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateSaveMenuItemAndButton;
-    procedure UpdateGutterSymbolColumnsWidth;
+    procedure UpdateGutterSymbolColumns;
     procedure UpdateTargetMenu;
     procedure UpdateTheme;
     procedure UpdateThemeData(const Open: Boolean);
@@ -561,7 +563,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
-  Math, StrUtils, WideStrUtils,
+  Math, StrUtils, WideStrUtils, GraphUtil,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -822,7 +824,6 @@ begin
   FMemos.Add(FPreprocessorOutputMemo);
   for I := FMemos.Count to MaxMemos-1 do
     FMemos.Add(InitializeFileMemo(TCompScintFileEdit.Create(Self), PopupMenu));
-  UpdateGutterSymbolColumnsWidth;
   FFileMemos := TList<TCompScintFileEdit>.Create;
   for Memo in FMemos do
     if Memo is TCompScintFileEdit then
@@ -875,7 +876,7 @@ begin
   FMenuDarkHotOrSelectedBrush := TBrush.Create;
 
   UpdateThemeData(True);
-  
+
   FMenuBitmaps := TMenuBitmaps.Create;
   FMenuBitmapsSize.cx := 0;
   FMenuBitmapsSize.cy := 0;
@@ -893,6 +894,8 @@ begin
     ReadSignTools(FSignTools);
     PostMessage(Handle, WM_StartNormally, 0, 0);
   end;
+
+  UpdateGutterSymbolColumns; { Required UpdateTheme to be called }
 end;
 
 destructor TCompileForm.Destroy;
@@ -971,7 +974,7 @@ procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
 begin
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
-  UpdateGutterSymbolColumnsWidth;
+  UpdateGutterSymbolColumns;
 end;
 
 procedure TCompileForm.FormCloseQuery(Sender: TObject;
@@ -3098,11 +3101,127 @@ begin
   FindResultsList.ItemHeight := FindResultsList.Canvas.TextHeight('0') + 1;
 end;
 
-procedure TCompileForm.UpdateGutterSymbolColumnsWidth;
+procedure TCompileForm.UpdateGutterSymbolColumns;
+
+  function CreateBitmap(const DC: HDC; const BitmapInfo: TBitmapInfo;
+    const BkBrush: TBrush; const ImageList: TVirtualImageList; const ImageName: String): TBitmap;
+  begin
+    var pvBits: Pointer;
+    var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    var OldBitmap := SelectObject(DC, Bitmap);
+    var Rect := TRect.Create(0, 0, BitmapInfo.bmiHeader.biWidth, BitmapInfo.bmiHeader.biHeight);
+    FillRect(DC, Rect, BkBrush.Handle);
+    if ImageList_Draw(ImageList.Handle, ImageList.GetIndexByName(ImageName), DC, 0, 0, ILD_TRANSPARENT) then begin
+      Result := TBitmap.Create;
+      Result.Handle := Bitmap;
+    end else begin
+      SelectObject(DC, OldBitmap);
+      DeleteObject(Bitmap);
+      Result := nil;
+    end;
+  end;
+
+type
+  TPixmap = array of PAnsiChar;
+
+  procedure SetNextPixmapLine(const Pixmap: TPixmap; var Index: Integer; Line: AnsiString);
+  begin
+    var N := (Length(Line)+1)*SizeOf(Line[1]);
+    GetMem(Pixmap[Index], N);
+    Move(Pointer(Line)^, Pixmap[Index]^, N);
+    Inc(Index);
+  end;
+
+  procedure FreePixmapLines(const Pixmap: TPixmap);
+  begin
+    for var I := 0 to Length(Pixmap)-1 do
+      FreeMem(Pixmap[I]);
+  end;
+
+type
+  PRGBTripleArray = ^TRGBTripleArray;
+  TRGBTripleArray = array[0..4095] of TRGBTriple;
 begin
   var Width := ToCurrentPPI(21);
   for var Memo in FMemos do
     Memo.UpdateGutterSymbolColumnWidth(Width);
+
+  var ImageList := VirtualImageList1;
+
+  var DC := CreateCompatibleDC(0);
+  if DC <> 0 then begin
+    try
+      var BitmapInfo: TBitmapInfo;
+      ZeroMemory(@BitmapInfo, SizeOf(BitmapInfo));
+      BitmapInfo.bmiHeader.biSize := SizeOf(BitmapInfo.bmiHeader);
+      BitmapInfo.bmiHeader.biWidth := ImageList.Width;
+      BitmapInfo.bmiHeader.biHeight := ImageList.Height;
+      BitmapInfo.bmiHeader.biPlanes := 1;
+      bitmapInfo.bmiHeader.biBitCount := 24;
+      BitmapInfo.bmiHeader.biCompression := BI_RGB;
+
+      var Bitmap: TBitmap;
+      var BkBrush := TBrush.Create;
+      try
+        BkBrush.Color := FTheme.Colors[tcMarginBack];
+        Bitmap := CreateBitmap(DC, BitmapInfo, BkBrush, ImageList, 'debug-breakpoint-filled');
+      finally
+        BkBrush.Free;
+      end;
+
+      if Bitmap <> nil then begin
+        try
+          { Build colors list }
+          var Colors := TDictionary<Integer, TPair<AnsiChar, String>>.Create; { RGB -> Code & WebColor }
+          try
+            for var Y := 0 to Bitmap.Height-1 do begin
+              var Pixels: PRGBTripleArray := Bitmap.ScanLine[Y];
+              for var X := 0 to Bitmap.Width-1 do begin
+                var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
+                if not Colors.ContainsKey(Color) then begin
+                  if Colors.Count >= 255 then
+                    raise Exception.Create('Too many colors');
+                  var ColorCode := AnsiChar(Colors.Count+1); { Scintilla doesn't like #0 as color code }
+                  Colors.Add(Color, TPair<AnsiChar, String>.Create(ColorCode, RGBToWebColorStr(Color)));
+                end;
+              end;
+            end;
+
+            { Build pixmap }
+            var Pixmap: TPixmap;
+            var Line: AnsiString;
+            SetLength(Pixmap, 1 + Colors.Count + Bitmap.Height + 1);
+            Line := AnsiString(Format('%d %d %d 1', [Bitmap.Width, Bitmap.Height, Colors.Count]));
+            var Index := 0;
+            SetNextPixmapLine(Pixmap, Index, Line);
+            for var Color in Colors do begin
+              Line := AnsiString(Format('%s c %s', [Color.Value.Key, Color.Value.Value]));
+              SetNextPixmapLine(Pixmap, Index, Line);
+            end;
+            for var Y := 0 to Bitmap.Height-1 do begin
+              Line := '';
+              var Pixels: PRGBTripleArray := Bitmap.ScanLine[Y];
+              for var X := 0 to Bitmap.Width-1 do begin
+                var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
+                Line := Line + Colors.Items[Color].Key;
+              end;
+              SetNextPixmapLine(Pixmap, Index, Line);
+            end;
+            Pixmap[Index] := nil;
+            for var Memo in FMemos do
+              Memo.Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpoint, LPARAM(Pixmap));
+            FreePixmapLines(Pixmap);
+          finally
+            Colors.Free;
+          end;
+        finally
+          Bitmap.Free;
+        end;
+      end;
+    finally
+      DeleteDC(DC);
+    end;
+  end;
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
