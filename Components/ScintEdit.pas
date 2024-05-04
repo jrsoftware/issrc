@@ -2144,7 +2144,8 @@ end;
 procedure TScintPixmap.Clear;
 begin
   for var I := 0 to Length(FPixmap)-1 do
-    FreeMem(FPixmap[I]);
+    if FPixmap[I] <> nil then
+      FreeMem(FPixmap[I]);
   SetLength(FPixmap, 0);
 end;
 

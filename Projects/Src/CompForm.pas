@@ -562,7 +562,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
-  Math, StrUtils, WideStrUtils, GraphUtil,
+  Math, StrUtils, WideStrUtils,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -3140,24 +3140,17 @@ begin
   var DC := CreateCompatibleDC(0);
   if DC <> 0 then begin
     try
-      var BitmapInfo: TBitmapInfo;
-      ZeroMemory(@BitmapInfo, SizeOf(BitmapInfo));
-      BitmapInfo.bmiHeader.biSize := SizeOf(BitmapInfo.bmiHeader);
-      BitmapInfo.bmiHeader.biWidth := ImageList.Width;
-      BitmapInfo.bmiHeader.biHeight := ImageList.Height;
-      BitmapInfo.bmiHeader.biPlanes := 1;
-      bitmapInfo.bmiHeader.biBitCount := 24;
-      BitmapInfo.bmiHeader.biCompression := BI_RGB;
-
-      var NamedMarkers := [
-          NM(mmIconBreakpoint, 'debug-breakpoint-filled'),
-          NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
-          NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-2')];
-
       var MarkerBitmaps := TMarkerBitmaps.Create([doOwnsValues]);
       var BkBrush := TBrush.Create;
       try
         BkBrush.Color := FTheme.Colors[tcMarginBack];
+
+        var BitmapInfo := CreateBitmapInfo(ImageList.Width, ImageList.Height, 24);
+
+        var NamedMarkers := [
+            NM(mmIconBreakpoint, 'debug-breakpoint-filled'),
+            NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
+            NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-2')];
 
         for var NamedMarker in NamedMarkers do
           AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
@@ -4897,14 +4890,7 @@ begin
     var DC := CreateCompatibleDC(0);
     if DC <> 0 then begin
       try
-        var BitmapInfo: TBitmapInfo;
-        ZeroMemory(@BitmapInfo, SizeOf(BitmapInfo));
-        BitmapInfo.bmiHeader.biSize := SizeOf(BitmapInfo.bmiHeader);
-        BitmapInfo.bmiHeader.biWidth := NewSize.cx;
-        BitmapInfo.bmiHeader.biHeight := NewSize.cy;
-        BitmapInfo.bmiHeader.biPlanes := 1;
-        bitmapInfo.bmiHeader.biBitCount := 32;
-        BitmapInfo.bmiHeader.biCompression := BI_RGB;
+        var BitmapInfo := CreateBitmapInfo(NewSize.cx, NewSize.cy, 32);
 
         var ButtonedMenus := [
           BM(FNewMainFile, NewMainFileButton),
