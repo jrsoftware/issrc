@@ -972,7 +972,7 @@ begin
       end;
     end else begin
       case Style of
-        STYLE_LINENUMBER:
+        STYLE_LINENUMBER: { Also sets the background colour for the margin with the markers like mmIconBreakpoint }
           begin
             Attributes.ForeColor := FTheme.Colors[tcMarginFore];
             Attributes.BackColor := FTheme.Colors[tcMarginBack];
