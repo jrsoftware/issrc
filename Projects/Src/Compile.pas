@@ -7280,6 +7280,14 @@ begin
   end;
 end;
 
+  procedure SignCommandLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+  begin
+    if S <> '' then begin
+      var SetupCompiler := TSetupCompiler(Data);
+      SetupCompiler.AddStatus('   ' + S, Error);
+    end;
+  end;
+
 procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer; const RunMinimized: Boolean);
 
   function FmtCommand(S: PChar; const AParams, AFileName: String; var AFileNameSequenceFound: Boolean): String;
@@ -7323,7 +7331,7 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
       end;
     end;
   end;
-  
+
   procedure InternalSignCommand(const AFormattedCommand: String;
     const Delay: Cardinal);
   var
@@ -7343,29 +7351,42 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
     StartupInfo.cb := SizeOf(StartupInfo);
     StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
     StartupInfo.wShowWindow := IfThen(RunMinimized, SW_SHOWMINNOACTIVE, SW_SHOW);
-    
-    if not CreateProcess(nil, PChar(AFormattedCommand), nil, nil, False,
-       CREATE_DEFAULT_ERROR_MODE, nil, PChar(CompilerDir), StartupInfo, ProcessInfo) then begin
-      LastError := GetLastError;
-      AbortCompileFmt(SCompilerSignToolCreateProcessFailed, [LastError,
-        Win32ErrorString(LastError)]);
-    end;
-    CloseHandle(ProcessInfo.hThread);
+
+    var OutputReader := TCreateProcessOutputReader.Create(SignCommandLog, NativeInt(Self));
     try
-      while True do begin
-        case WaitForSingleObject(ProcessInfo.hProcess, 50) of
-          WAIT_OBJECT_0: Break;
-          WAIT_TIMEOUT: CallIdleProc;
-        else
-          AbortCompile('Sign: WaitForSingleObject failed');
-        end;
+      var InheritHandles: Boolean;
+      OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
+
+      if not CreateProcess(nil, PChar(AFormattedCommand), nil, nil, InheritHandles,
+         CREATE_DEFAULT_ERROR_MODE, nil, PChar(CompilerDir), StartupInfo, ProcessInfo) then begin
+        LastError := GetLastError;
+        AbortCompileFmt(SCompilerSignToolCreateProcessFailed, [LastError,
+          Win32ErrorString(LastError)]);
       end;
-      if not GetExitCodeProcess(ProcessInfo.hProcess, ExitCode) then
-        AbortCompile('Sign: GetExitCodeProcess failed');
-      if ExitCode <> 0 then
-        AbortCompileFmt(SCompilerSignToolNonZeroExitCode, [ExitCode]);
+      CloseHandle(ProcessInfo.hThread);
+      try
+        while True do begin
+          case WaitForSingleObject(ProcessInfo.hProcess, 50) of
+            WAIT_OBJECT_0: Break;
+            WAIT_TIMEOUT:
+              begin
+                OutputReader.Read(False);
+                CallIdleProc;
+              end;
+          else
+            AbortCompile('Sign: WaitForSingleObject failed');
+          end;
+        end;
+        OutputReader.Read(True);
+        if not GetExitCodeProcess(ProcessInfo.hProcess, ExitCode) then
+          AbortCompile('Sign: GetExitCodeProcess failed');
+        if ExitCode <> 0 then
+          AbortCompileFmt(SCompilerSignToolNonZeroExitCode, [ExitCode]);
+      finally
+        CloseHandle(ProcessInfo.hProcess);
+      end;
     finally
-      CloseHandle(ProcessInfo.hProcess);
+      OutputReader.Free;
     end;
   end;
 
