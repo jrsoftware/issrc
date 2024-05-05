@@ -15,7 +15,7 @@ unit SpawnClient;
 interface
 
 uses
-  Windows, SysUtils, Messages, InstFunc;
+  Windows, SysUtils, Messages, InstFunc, CmnFunc2;
 
 procedure InitializeSpawnClient(const AServerWnd: HWND);
 function InstExecEx(const RunAsOriginalUser: Boolean;
@@ -31,7 +31,7 @@ function InstShellExecEx(const RunAsOriginalUser: Boolean;
 implementation
 
 uses
-  Classes, CmnFunc2, SpawnCommon;
+  Classes, SpawnCommon;
 
 var
   SpawnServerPresent: Boolean;
