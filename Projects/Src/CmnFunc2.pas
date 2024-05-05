@@ -1657,7 +1657,7 @@ end;
 
 procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
 
-  function FindTerminator(const S: AnsiString; const LastRead: Boolean): Integer;
+  function FindNewLine(const S: AnsiString; const LastRead: Boolean): Integer;
   begin
     { This will return the position of the first #13 or #10. If a #13 is at
       the very end of the string it's only accepted if we are certain we can't
@@ -1697,13 +1697,13 @@ begin
     end;
   end;
 
-  var P := FindTerminator(FReadBuffer, LastRead);
+  var P := FindNewLine(FReadBuffer, LastRead);
   while P <> 0 do begin
     LogLine(Copy(FReadBuffer, 1, P-1));
     if (FReadBuffer[P] = #13) and (P < Length(FReadBuffer)) and (FReadBuffer[P+1] = #10) then
       Inc(P);
     Delete(FReadBuffer, 1, P);
-    P := FindTerminator(FReadBuffer, LastRead);
+    P := FindNewLine(FReadBuffer, LastRead);
   end;
 
   if LastRead and (FReadBuffer <> '') then
