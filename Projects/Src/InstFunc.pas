@@ -824,8 +824,7 @@ type
     FStdOutPipeWrite: THandle;
     FLogProc: TLogProc;
     FReadBuffer: AnsiString;
-    procedure CloseHandle(var Handle: THandle);
-    function GetInheritHandles: Boolean;
+    procedure CloseAndClearHandle(var Handle: THandle);
   public
     constructor Create(const ALogProc: TLogProc);
     destructor Destroy; override;
@@ -833,8 +832,6 @@ type
       var InheritHandles: Boolean);
     procedure NotifyCreateProcessDone;
     procedure Read(const LastRead: Boolean);
-    property InheritHandles: Boolean read GetInheritHandles;
-    property LogProc: TLogProc read FLogProc write FLogProc;
   end;
 
 procedure HandleProcessWait(ProcessHandle: THandle; const Wait: TExecWait;
@@ -1491,14 +1488,6 @@ end;
 
 { TCreateProcessOutputReader }
 
-procedure TCreateProcessOutputReader.CloseHandle(var Handle: THandle);
-begin
-  if Handle <> 0 then begin
-    Windows.CloseHandle(Handle);
-    Handle := 0;
-  end;
-end;
-
 constructor TCreateProcessOutputReader.Create(const ALogProc: TLogProc);
 begin
   if not Assigned(ALogProc) then
@@ -1518,19 +1507,35 @@ end;
 
 destructor TCreateProcessOutputReader.Destroy;
 begin
-  CloseHandle(FStdOutPipeRead);
-  CloseHandle(FStdOutPipeWrite);
+  CloseAndClearHandle(FStdOutPipeRead);
+  CloseAndClearHandle(FStdOutPipeWrite);
   inherited;
 end;
 
-function TCreateProcessOutputReader.GetInheritHandles: Boolean;
+procedure TCreateProcessOutputReader.CloseAndClearHandle(var Handle: THandle);
 begin
-  Result := FStdOutPipeWrite <> 0;
+  if Handle <> 0 then begin
+    CloseHandle(Handle);
+    Handle := 0;
+  end;
+end;
+
+procedure TCreateProcessOutputReader.UpdateStartupInfo(var StartupInfo: TStartupInfo;
+  var InheritHandles: Boolean);
+begin
+  if FCreatedPipe then begin
+    StartupInfo.dwFlags := StartupInfo.dwFlags or STARTF_USESTDHANDLES;
+    StartupInfo.hStdInput := GetStdHandle(STD_INPUT_HANDLE);
+    StartupInfo.hStdOutput := FStdOutPipeWrite;
+    StartupInfo.hStdError := FStdOutPipeWrite;
+    InheritHandles := True;
+  end else
+    InheritHandles := False;
 end;
 
 procedure TCreateProcessOutputReader.NotifyCreateProcessDone;
 begin
-  CloseHandle(FStdOutPipeWrite);
+  CloseAndClearHandle(FStdOutPipeWrite);
 end;
 
 procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
@@ -1579,19 +1584,6 @@ begin
 
   if LastRead and (FReadBuffer <> '') then
     HandleLine(FReadBuffer);
-end;
-
-procedure TCreateProcessOutputReader.UpdateStartupInfo(var StartupInfo: TStartupInfo;
-  var InheritHandles: Boolean);
-begin
-  if FCreatedPipe then begin
-    StartupInfo.dwFlags := StartupInfo.dwFlags or STARTF_USESTDHANDLES;
-    StartupInfo.hStdInput := GetStdHandle(STD_INPUT_HANDLE);
-    StartupInfo.hStdOutput := FStdOutPipeWrite;
-    StartupInfo.hStdError := FStdOutPipeWrite;
-    InheritHandles := True;
-  end else
-    InheritHandles := False;
 end;
 
 end.
