@@ -815,58 +815,31 @@ begin
     Result := False; { Should never happen }
 end;
 
+type
+  TCreateProcessOutputReader = class
+  private
+    FCreatedPipe: Boolean;
+    FOKToRead: Boolean;
+    FStdOutPipeRead: THandle;
+    FStdOutPipeWrite: THandle;
+    FLogProc: TLogProc;
+    FReadBuffer: AnsiString;
+    procedure CloseHandle(var Handle: THandle);
+    function GetInheritHandles: Boolean;
+  public
+    constructor Create(const ALogProc: TLogProc);
+    destructor Destroy; override;
+    procedure UpdateStartupInfo(var StartupInfo: TStartupInfo;
+      var InheritHandles: Boolean);
+    procedure NotifyCreateProcessDone;
+    procedure Read(const LastRead: Boolean);
+    property InheritHandles: Boolean read GetInheritHandles;
+    property LogProc: TLogProc read FLogProc write FLogProc;
+  end;
+
 procedure HandleProcessWait(ProcessHandle: THandle; const Wait: TExecWait;
-  const ProcessMessagesProc: TProcedure; const StdOutPipeRead: THandle;
-  const LogProc: TLogProc; var ResultCode: Integer);
-
-  function FindTerminator(const S: AnsiString; const LastRead: Boolean): Integer;
-  begin
-    { This will return the position of the first #13 or #10. If a #13 is at
-      the very end of the string it's only accepted if we are certain we can't
-      be looking at a split #13#10 because there will be no more reads }
-    var N := Length(S);
-    for var I := 1 to N do
-      if ((S[I] = #13) and ((I < N) or LastRead)) or
-         (S[I] = #10) then
-        Exit(I);
-    Result := 0;
-  end;
-
-  procedure HandleLine(const S: AnsiString);
-  begin
-    LogProc(Utf8Decode(S));
-  end;
-
-  procedure ReadPipe(var OKToRead: Boolean; const StdOutPipeRead: THandle;
-    var ReadBuffer: AnsiString; const LastRead: Boolean);
-  begin
-    if OKToRead then begin
-      var TotalBytesAvail: DWORD;
-      OKToRead := PeekNamedPipe(StdOutPipeRead, nil, 0, nil, @TotalBytesAvail, nil);
-      if OKToRead and (TotalBytesAvail > 0) then begin
-        var TotalBytesHave: DWORD := Length(ReadBuffer);
-        SetLength(ReadBuffer, TotalBytesHave+TotalBytesAvail);
-        var BytesRead: DWORD;
-        OKToRead := ReadFile(StdOutPipeRead, ReadBuffer[TotalBytesHave+1],
-          TotalBytesAvail, BytesRead, nil);
-        if BytesRead > 0 then
-          SetLength(ReadBuffer, TotalBytesHave+BytesRead);
-      end;
-    end;
-
-    var P := FindTerminator(ReadBuffer, LastRead);
-    while P <> 0 do begin
-      HandleLine(Copy(ReadBuffer, 1, P-1));
-      if (ReadBuffer[P] = #13) and (P < Length(ReadBuffer)) and (ReadBuffer[P+1] = #10) then
-        Inc(P);
-      Delete(ReadBuffer, 1, P);
-      P := FindTerminator(ReadBuffer, LastRead);
-    end;
-
-    if LastRead and (ReadBuffer <> '') then
-      HandleLine(ReadBuffer);
-  end;
-
+  const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
+  var ResultCode: Integer);
 begin
   try
     if Wait = ewWaitUntilIdle then begin
@@ -877,9 +850,7 @@ begin
     if Wait = ewWaitUntilTerminated then begin
       { Wait until the process returns, but still process any messages that
         arrive and read the output if requested. }
-      var OKToRead := StdOutPipeRead <> 0;
-      var ReadBuffer: AnsiString;
-      var WaitMilliseconds := IfThen(OKToRead, 100, INFINITE);
+      var WaitMilliseconds := IfThen(OutputReader <> nil, 100, INFINITE);
       var WaitResult: DWORD := 0;
       repeat
         { Process any pending messages first because MsgWaitForMultipleObjects
@@ -887,7 +858,8 @@ begin
           a timeout }
         if WaitResult <> WAIT_TIMEOUT then
           ProcessMessagesProc;
-        ReadPipe(OKToRead, StdOutPipeRead, ReadBuffer, False);
+        if OutputReader <> nil then
+          OutputReader.Read(False);
         WaitResult := MsgWaitForMultipleObjects(1, ProcessHandle, False,
           WaitMilliseconds, QS_ALLINPUT);
       until (WaitResult <> WAIT_OBJECT_0+1) and (WaitResult <> WAIT_TIMEOUT);
@@ -896,7 +868,8 @@ begin
         unprocessed messages waiting, or a subsequent call to WaitMessage
         won't see them.) }
       ProcessMessagesProc;
-      ReadPipe(OKToRead, StdOutPipeRead, ReadBuffer, True);
+      if OutputReader <> nil then
+        OutputReader.Read(True);
     end;
     { Get the exit code. Will be set to STILL_ACTIVE if not yet available }
     if not GetExitCodeProcess(ProcessHandle, DWORD(ResultCode)) then
@@ -947,32 +920,16 @@ begin
   if WorkingDir = '' then
     WorkingDir := GetSystemDir;
 
-  var StdOutPipeRead: THandle := 0;
-  var StdOutPipeWrite: THandle := 0;
-  var PipeOutput := Assigned(LogProc);
-
-  if PipeOutput then begin
-    var SA: TSecurityAttributes;
-    SA.nLength := SizeOf(SA);
-    SA.bInheritHandle := True;
-    SA.lpSecurityDescriptor := nil;
-
-    if not CreatePipe(StdOutPipeRead, StdOutPipeWrite, @SA, 0) then begin
-      StdOutPipeRead := 0;
-      StdOutPipeWrite := 0;
-    end;
-  end;
-
+  var OutputReader: TCreateProcessOutputReader := nil;
+  var InheritHandles := False;
   try
-    if StdOutPipeWrite <> 0 then begin
-      StartupInfo.dwFlags := StartupInfo.dwFlags or STARTF_USESTDHANDLES;
-      StartupInfo.hStdInput := GetStdHandle(STD_INPUT_HANDLE);
-      StartupInfo.hStdOutput := StdOutPipeWrite;
-      StartupInfo.hStdError := StdOutPipeWrite;
+    if Assigned(LogProc) and (Wait = ewWaitUntilTerminated) then begin
+      OutputReader := TCreateProcessOutputReader.Create(LogProc);
+      OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
     end;
 
     Result := CreateProcessRedir(DisableFsRedir, nil, PChar(CmdLine), nil, nil,
-      StdOutPipeWrite <> 0, CREATE_DEFAULT_ERROR_MODE, nil, PChar(WorkingDir),
+      InheritHandles, CREATE_DEFAULT_ERROR_MODE, nil, PChar(WorkingDir),
       StartupInfo, ProcessInfo);
     if not Result then begin
       ResultCode := GetLastError;
@@ -981,17 +938,11 @@ begin
 
     { Don't need the thread and pipe write handles, so close them now }
     CloseHandle(ProcessInfo.hThread);
-    if StdOutPipeWrite <> 0 then begin
-      CloseHandle(StdOutPipeWrite);
-      StdOutPipeWrite := 0;
-    end;
+    OutputReader.NotifyCreateProcessDone;
     HandleProcessWait(ProcessInfo.hProcess, Wait, ProcessMessagesProc,
-      StdOutPipeRead, LogProc, ResultCode);
+      OutputReader, ResultCode);
   finally
-    if StdOutPipeRead <> 0 then
-      CloseHandle(StdOutPipeRead);
-    if StdOutPipeWrite <> 0 then
-      CloseHandle(StdOutPipeWrite);
+    OutputReader.Free;
   end;
 end;
 
@@ -1026,7 +977,7 @@ begin
   ResultCode := STILL_ACTIVE;
   { A process handle won't always be returned, e.g. if DDE was used }
   if Info.hProcess <> 0 then
-    HandleProcessWait(Info.hProcess, Wait, ProcessMessagesProc, 0, nil, ResultCode);
+    HandleProcessWait(Info.hProcess, Wait, ProcessMessagesProc, nil, ResultCode);
 end;
 
 function CheckForOrCreateMutexes(Mutexes: String; const Create: Boolean): Boolean;
@@ -1536,6 +1487,111 @@ destructor TSimpleStringList.Destroy;
 begin
   Clear;
   inherited Destroy;
+end;
+
+{ TCreateProcessOutputReader }
+
+procedure TCreateProcessOutputReader.CloseHandle(var Handle: THandle);
+begin
+  if Handle <> 0 then begin
+    Windows.CloseHandle(Handle);
+    Handle := 0;
+  end;
+end;
+
+constructor TCreateProcessOutputReader.Create(const ALogProc: TLogProc);
+begin
+  if not Assigned(ALogProc) then
+    raise Exception.Create('ALogProc is required');
+
+  FLogProc := ALogProc;
+
+  var SecurityAttributes: TSecurityAttributes;
+  SecurityAttributes.nLength := SizeOf(SecurityAttributes);
+  SecurityAttributes.bInheritHandle := True;
+  SecurityAttributes.lpSecurityDescriptor := nil;
+
+  FCreatedPipe := CreatePipe(FStdOutPipeRead, FStdOutPipeWrite, @SecurityAttributes, 0);
+
+  FOKToRead := True;
+end;
+
+destructor TCreateProcessOutputReader.Destroy;
+begin
+  CloseHandle(FStdOutPipeRead);
+  CloseHandle(FStdOutPipeWrite);
+  inherited;
+end;
+
+function TCreateProcessOutputReader.GetInheritHandles: Boolean;
+begin
+  Result := FStdOutPipeWrite <> 0;
+end;
+
+procedure TCreateProcessOutputReader.NotifyCreateProcessDone;
+begin
+  CloseHandle(FStdOutPipeWrite);
+end;
+
+procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
+
+  function FindTerminator(const S: AnsiString; const LastRead: Boolean): Integer;
+  begin
+    { This will return the position of the first #13 or #10. If a #13 is at
+      the very end of the string it's only accepted if we are certain we can't
+      be looking at a split #13#10 because there will be no more reads }
+    var N := Length(S);
+    for var I := 1 to N do
+      if ((S[I] = #13) and ((I < N) or LastRead)) or
+         (S[I] = #10) then
+        Exit(I);
+    Result := 0;
+  end;
+
+  procedure HandleLine(const S: AnsiString);
+  begin
+    FLogProc(Utf8Decode(S));
+  end;
+
+begin
+  if FOKToRead then begin
+    var TotalBytesAvail: DWORD;
+    FOKToRead := PeekNamedPipe(FStdOutPipeRead, nil, 0, nil, @TotalBytesAvail, nil);
+    if FOKToRead and (TotalBytesAvail > 0) then begin
+      var TotalBytesHave: DWORD := Length(FReadBuffer);
+      SetLength(FReadBuffer, TotalBytesHave+TotalBytesAvail);
+      var BytesRead: DWORD;
+      FOKToRead := ReadFile(FStdOutPipeRead, FReadBuffer[TotalBytesHave+1],
+        TotalBytesAvail, BytesRead, nil);
+      if BytesRead > 0 then
+        SetLength(FReadBuffer, TotalBytesHave+BytesRead);
+    end;
+  end;
+
+  var P := FindTerminator(FReadBuffer, LastRead);
+  while P <> 0 do begin
+    HandleLine(Copy(FReadBuffer, 1, P-1));
+    if (FReadBuffer[P] = #13) and (P < Length(FReadBuffer)) and (FReadBuffer[P+1] = #10) then
+      Inc(P);
+    Delete(FReadBuffer, 1, P);
+    P := FindTerminator(FReadBuffer, LastRead);
+  end;
+
+  if LastRead and (FReadBuffer <> '') then
+    HandleLine(FReadBuffer);
+end;
+
+procedure TCreateProcessOutputReader.UpdateStartupInfo(var StartupInfo: TStartupInfo;
+  var InheritHandles: Boolean);
+begin
+  if FCreatedPipe then begin
+    StartupInfo.dwFlags := StartupInfo.dwFlags or STARTF_USESTDHANDLES;
+    StartupInfo.hStdInput := GetStdHandle(STD_INPUT_HANDLE);
+    StartupInfo.hStdOutput := FStdOutPipeWrite;
+    StartupInfo.hStdError := FStdOutPipeWrite;
+    InheritHandles := True;
+  end else
+    InheritHandles := False;
 end;
 
 end.
