@@ -1616,7 +1616,7 @@ begin
   else
     LogErrorFmt('CreatePipe failed (%d).', [GetLastError]);
 
-  FOKToRead := True;
+  FOKToRead := FCreatedPipe;
 end;
 
 destructor TCreateProcessOutputReader.Destroy;
