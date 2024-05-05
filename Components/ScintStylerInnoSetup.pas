@@ -234,7 +234,7 @@ const
     (Name: 'StrongAssemblyName'),
     (Name: 'Tasks'));
 
-  FilesSectionFlags: array[0..39] of TInnoSetupStylerParamInfo = (
+  FilesSectionFlags: array[0..40] of TInnoSetupStylerParamInfo = (
     (Name: '32bit'),
     (Name: '64bit'),
     (Name: 'allowunsafefiles'),
@@ -264,6 +264,7 @@ const
     (Name: 'setntfscompression'),
     (Name: 'sharedfile'),
     (Name: 'sign'),
+    (Name: 'signcheck'),
     (Name: 'signonce'),
     (Name: 'skipifsourcedoesntexist'),
     (Name: 'solidbreak'),
