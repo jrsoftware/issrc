@@ -3824,6 +3824,13 @@ begin
   Application.ProcessMessages;
 end;
 
+procedure RunExecLog(const S: String; const First: Boolean);
+begin
+  if First then
+    Log('Output:');
+  Log(S);
+end;
+
 procedure TMainForm.SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);
 begin
   CurStep := AStep;
@@ -3914,7 +3921,7 @@ begin
          NewFileExistsRedir(DisableFsRedir, ExpandedFilename) then begin
         if not InstExecEx(RunAsOriginalUser, DisableFsRedir, ExpandedFilename,
            ExpandedParameters, ExpandConst(RunEntry.WorkingDir),
-           Wait, RunEntry.ShowCmd, ProcessMessagesProc, Log, ErrorCode) then
+           Wait, RunEntry.ShowCmd, ProcessMessagesProc, RunExecLog, ErrorCode) then
           raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, ExpandedFilename) +
             SNewLine2 + FmtSetupMessage(msgErrorFunctionFailedWithMessage,
             ['CreateProcess', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));

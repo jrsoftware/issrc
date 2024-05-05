@@ -33,7 +33,7 @@ type
     function TimeRemaining: Cardinal;
   end;
 
-  TLogProc = procedure(const S: String);
+  TLogProc = procedure(const S: String; const FirstLine: Boolean);
 
   TCreateProcessOutputReader = class
   private
@@ -43,6 +43,7 @@ type
     FStdOutPipeWrite: THandle;
     FLogProc: TLogProc;
     FReadBuffer: AnsiString;
+    FNextLineIsFirstLine: Boolean;
     procedure CloseAndClearHandle(var Handle: THandle);
   public
     constructor Create(const ALogProc: TLogProc);
@@ -1596,6 +1597,7 @@ begin
     raise Exception.Create('ALogProc is required');
 
   FLogProc := ALogProc;
+  FNextLineIsFirstLine := True;
 
   var SecurityAttributes: TSecurityAttributes;
   SecurityAttributes.nLength := SizeOf(SecurityAttributes);
@@ -1657,7 +1659,8 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
 
   procedure HandleLine(const S: AnsiString);
   begin
-    FLogProc(Utf8Decode(S));
+    FLogProc(Utf8Decode(S), FNextLineIsFirstLine);
+    FNextLineIsFirstLine := False;
   end;
 
 begin

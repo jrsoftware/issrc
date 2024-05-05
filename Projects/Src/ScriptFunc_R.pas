@@ -802,6 +802,11 @@ begin
   Application.ProcessMessages;
 end;
 
+procedure ExecLog(const S: String; const First: Boolean);
+begin
+  Log(S);
+end;
+
 function InstFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
@@ -897,7 +902,7 @@ begin
         Stack.SetBool(PStart, InstExecEx(RunAsOriginalUser,
           ScriptFuncDisableFsRedir, Filename, Stack.GetString(PStart-2),
           Stack.GetString(PStart-3), TExecWait(Stack.GetInt(PStart-5)),
-          Stack.GetInt(PStart-4), ProcessMessagesProc, Log, ResultCode));
+          Stack.GetInt(PStart-4), ProcessMessagesProc, ExecLog, ResultCode));
       finally
         WindowDisabler.Free;
       end;
