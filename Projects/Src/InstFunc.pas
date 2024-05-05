@@ -47,6 +47,8 @@ type
   TDetermineDefaultLanguageResult = (ddNoMatch, ddMatch, ddMatchLangParameter);
   TGetLanguageEntryProc = function(Index: Integer; var Entry: PSetupLanguageEntry): Boolean;
 
+  TLogProc = procedure(const S: String);
+
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
 function CreateTempDir: String;
@@ -87,7 +89,8 @@ procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
   const AlreadyExisted: Boolean);
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; const LogProc: TLogProc;
+  var ResultCode: Integer): Boolean;
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
@@ -814,22 +817,54 @@ end;
 
 procedure HandleProcessWait(ProcessHandle: THandle; const Wait: TExecWait;
   const ProcessMessagesProc: TProcedure; const StdOutPipeRead: THandle;
-  var ResultCode: Integer);
+  const LogProc: TLogProc; var ResultCode: Integer);
 
-  procedure ReadPipe(var OKToRead: Boolean; const StdOutPipeRead: THandle);
+  function FindTerminator(const S: AnsiString; const LastRead: Boolean): Integer;
+  begin
+    { This will return the position of the first #13 or #10. If a #13 is at
+      the very end of the string it's only accepted if we are certain we can't
+      be looking at a split #13#10 because there will be no more reads }
+    var N := Length(S);
+    for var I := 1 to N do
+      if ((S[I] = #13) and ((I < N) or LastRead)) or
+         (S[I] = #10) then
+        Exit(I);
+    Result := 0;
+  end;
+
+  procedure HandleLine(const S: AnsiString);
+  begin
+    LogProc(Utf8Decode(S));
+  end;
+
+  procedure ReadPipe(var OKToRead: Boolean; const StdOutPipeRead: THandle;
+    var ReadBuffer: AnsiString; const LastRead: Boolean);
   begin
     if OKToRead then begin
       var TotalBytesAvail: DWORD;
       OKToRead := PeekNamedPipe(StdOutPipeRead, nil, 0, nil, @TotalBytesAvail, nil);
       if OKToRead and (TotalBytesAvail > 0) then begin
-        var Buffer: AnsiString;
-        SetLength(Buffer, TotalBytesAvail);
+        var TotalBytesHave: DWORD := Length(ReadBuffer);
+        SetLength(ReadBuffer, TotalBytesHave+TotalBytesAvail);
         var BytesRead: DWORD;
-        OKToRead := ReadFile(StdOutPipeRead, Buffer[1], TotalBytesAvail, BytesRead, nil);
+        OKToRead := ReadFile(StdOutPipeRead, ReadBuffer[TotalBytesHave+1],
+          TotalBytesAvail, BytesRead, nil);
         if BytesRead > 0 then
-          SetLength(Buffer, BytesRead); { Should go somewhere }
+          SetLength(ReadBuffer, TotalBytesHave+BytesRead);
       end;
     end;
+
+    var P := FindTerminator(ReadBuffer, LastRead);
+    while P <> 0 do begin
+      HandleLine(Copy(ReadBuffer, 1, P-1));
+      if (ReadBuffer[P] = #13) and (P < Length(ReadBuffer)) and (ReadBuffer[P+1] = #10) then
+        Inc(P);
+      Delete(ReadBuffer, 1, P);
+      P := FindTerminator(ReadBuffer, LastRead);
+    end;
+
+    if LastRead and (ReadBuffer <> '') then
+      HandleLine(ReadBuffer);
   end;
 
 begin
@@ -843,6 +878,7 @@ begin
       { Wait until the process returns, but still process any messages that
         arrive and read the output if requested. }
       var OKToRead := StdOutPipeRead <> 0;
+      var ReadBuffer: AnsiString;
       var WaitMilliseconds := IfThen(OKToRead, 100, INFINITE);
       var WaitResult: DWORD := 0;
       repeat
@@ -851,7 +887,7 @@ begin
           a timeout }
         if WaitResult <> WAIT_TIMEOUT then
           ProcessMessagesProc;
-        ReadPipe(OKToRead, StdOutPipeRead);
+        ReadPipe(OKToRead, StdOutPipeRead, ReadBuffer, False);
         WaitResult := MsgWaitForMultipleObjects(1, ProcessHandle, False,
           WaitMilliseconds, QS_ALLINPUT);
       until (WaitResult <> WAIT_OBJECT_0+1) and (WaitResult <> WAIT_TIMEOUT);
@@ -860,7 +896,7 @@ begin
         unprocessed messages waiting, or a subsequent call to WaitMessage
         won't see them.) }
       ProcessMessagesProc;
-      ReadPipe(OKToRead, StdOutPipeRead);
+      ReadPipe(OKToRead, StdOutPipeRead, ReadBuffer, True);
     end;
     { Get the exit code. Will be set to STILL_ACTIVE if not yet available }
     if not GetExitCodeProcess(ProcessHandle, DWORD(ResultCode)) then
@@ -872,7 +908,8 @@ end;
 
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; const LogProc: TLogProc;
+  var ResultCode: Integer): Boolean;
 var
   CmdLine: String;
   StartupInfo: TStartupInfo;
@@ -912,7 +949,7 @@ begin
 
   var StdOutPipeRead: THandle := 0;
   var StdOutPipeWrite: THandle := 0;
-  var PipeOutput := True; { Should be changed }
+  var PipeOutput := Assigned(LogProc);
 
   if PipeOutput then begin
     var SA: TSecurityAttributes;
@@ -949,7 +986,7 @@ begin
       StdOutPipeWrite := 0;
     end;
     HandleProcessWait(ProcessInfo.hProcess, Wait, ProcessMessagesProc,
-      StdOutPipeRead, ResultCode);
+      StdOutPipeRead, LogProc, ResultCode);
   finally
     if StdOutPipeRead <> 0 then
       CloseHandle(StdOutPipeRead);
@@ -989,21 +1026,16 @@ begin
   ResultCode := STILL_ACTIVE;
   { A process handle won't always be returned, e.g. if DDE was used }
   if Info.hProcess <> 0 then
-    HandleProcessWait(Info.hProcess, Wait, ProcessMessagesProc, 0, ResultCode);
+    HandleProcessWait(Info.hProcess, Wait, ProcessMessagesProc, 0, nil, ResultCode);
 end;
 
 function CheckForOrCreateMutexes(Mutexes: String; const Create: Boolean): Boolean;
 
   function MutexPos(const S: String): Integer;
-  var
-    I: Integer;
   begin
-    for I := 1 to Length(S) do begin
-      if (S[I] = ',') and ((I = 1) or (S[I-1] <> '\')) then begin
-        Result := I;
-        Exit;
-      end;
-    end;
+    for var I := 1 to Length(S) do
+      if (S[I] = ',') and ((I = 1) or (S[I-1] <> '\')) then
+        Exit(I);
     Result := 0;
   end;
 

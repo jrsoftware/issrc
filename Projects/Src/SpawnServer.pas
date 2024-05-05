@@ -380,7 +380,7 @@ begin
       end
       else begin
         ExecResult := InstExec(EDisableFsRedir <> 0, EFilename, EParams, EWorkingDir,
-          TExecWait(EWait), EShowCmd, ProcessMessagesProc, FResultCode);
+          TExecWait(EWait), EShowCmd, ProcessMessagesProc, nil, FResultCode);
       end;
       if ExecResult then
         FCallStatus := SPAWN_STATUS_RETURNED_TRUE
