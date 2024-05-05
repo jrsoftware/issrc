@@ -802,7 +802,7 @@ begin
   Application.ProcessMessages;
 end;
 
-procedure ExecLog(const S: String; const First: Boolean);
+procedure ExecLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
 begin
   Log(S);
 end;
@@ -902,7 +902,7 @@ begin
         Stack.SetBool(PStart, InstExecEx(RunAsOriginalUser,
           ScriptFuncDisableFsRedir, Filename, Stack.GetString(PStart-2),
           Stack.GetString(PStart-3), TExecWait(Stack.GetInt(PStart-5)),
-          Stack.GetInt(PStart-4), ProcessMessagesProc, ExecLog, Log, ResultCode));
+          Stack.GetInt(PStart-4), ProcessMessagesProc, ExecLog, 0, ResultCode));
       finally
         WindowDisabler.Free;
       end;

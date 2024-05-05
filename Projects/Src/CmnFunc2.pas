@@ -33,8 +33,7 @@ type
     function TimeRemaining: Cardinal;
   end;
 
-  TLogProc = procedure(const S: String; const FirstLine: Boolean);
-  TLogErrorProc = procedure(const S: String);
+  TLogProc = procedure(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
 
   TCreateProcessOutputReader = class
   private
@@ -43,13 +42,13 @@ type
     FStdOutPipeRead: THandle;
     FStdOutPipeWrite: THandle;
     FLogProc: TLogProc;
-    FLogErrorProc: TLogErrorProc;
+    FLogProcData: NativeInt;
     FReadBuffer: AnsiString;
     FNextLineIsFirstLine: Boolean;
     procedure CloseAndClearHandle(var Handle: THandle);
     procedure LogErrorFmt(const S: String; const Args: array of const);
   public
-    constructor Create(const ALogProc: TLogProc; const ALogErrorProc: TLogErrorProc);
+    constructor Create(const ALogProc: TLogProc; const ALogProcData: NativeInt);
     destructor Destroy; override;
     procedure UpdateStartupInfo(var StartupInfo: TStartupInfo;
       var InheritHandles: Boolean);
@@ -1595,15 +1594,14 @@ end;
 { TCreateProcessOutputReader }
 
 constructor TCreateProcessOutputReader.Create(const ALogProc: TLogProc;
-  const ALogErrorProc: TLogErrorProc);
+  const ALogProcData: NativeInt);
 begin
   if not Assigned(ALogProc) then
     raise Exception.Create('ALogProc is required');
 
   FLogProc := ALogProc;
   FNextLineIsFirstLine := True;
-
-  FLogErrorProc := ALogErrorProc;
+  FLogProcData := ALogProcData;
 
   var SecurityAttributes: TSecurityAttributes;
   SecurityAttributes.nLength := SizeOf(SecurityAttributes);
@@ -1636,8 +1634,7 @@ end;
 
 procedure TCreateProcessOutputReader.LogErrorFmt(const S: String; const Args: array of const);
 begin
-  if Assigned(FLogErrorProc) then
-    FLogErrorProc(Format(S, Args));
+  FLogProc(Format(S, Args), False, True, FLogProcData);
 end;
 
 procedure TCreateProcessOutputReader.UpdateStartupInfo(var StartupInfo: TStartupInfo;
@@ -1675,7 +1672,7 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
 
   procedure LogLine(const S: AnsiString);
   begin
-    FLogProc(Utf8Decode(S), FNextLineIsFirstLine);
+    FLogProc(Utf8Decode(S), False, FNextLineIsFirstLine, FLogProcData);
     FNextLineIsFirstLine := False;
   end;
 
