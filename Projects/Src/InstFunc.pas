@@ -115,7 +115,7 @@ implementation
 
 uses
   Messages, ShellApi, PathFunc, Msgs, MsgIDs, FileClass, RedirFunc, SetupTypes,
-  Hash, Classes, RegStr;
+  Hash, Classes, RegStr, Math;
 
 procedure InternalError(const Id: String);
 begin
@@ -813,7 +813,25 @@ begin
 end;
 
 procedure HandleProcessWait(ProcessHandle: THandle; const Wait: TExecWait;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer);
+  const ProcessMessagesProc: TProcedure; const StdOutPipeRead: THandle;
+  var ResultCode: Integer);
+
+  procedure ReadPipe(var OKToRead: Boolean; const StdOutPipeRead: THandle);
+  begin
+    if OKToRead then begin
+      var TotalBytesAvail: DWORD;
+      OKToRead := PeekNamedPipe(StdOutPipeRead, nil, 0, nil, @TotalBytesAvail, nil);
+      if OKToRead and (TotalBytesAvail > 0) then begin
+        var Buffer: AnsiString;
+        SetLength(Buffer, TotalBytesAvail);
+        var BytesRead: DWORD;
+        OKToRead := ReadFile(StdOutPipeRead, Buffer[1], TotalBytesAvail, BytesRead, nil);
+        if BytesRead > 0 then
+          SetLength(Buffer, BytesRead); { Should go somewhere }
+      end;
+    end;
+  end;
+
 begin
   try
     if Wait = ewWaitUntilIdle then begin
@@ -823,17 +841,26 @@ begin
     end;
     if Wait = ewWaitUntilTerminated then begin
       { Wait until the process returns, but still process any messages that
-        arrive. }
+        arrive and read the output if requested. }
+      var OKToRead := StdOutPipeRead <> 0;
+      var WaitMilliseconds := IfThen(OKToRead, 100, INFINITE);
+      var WaitResult: DWORD := 0;
       repeat
         { Process any pending messages first because MsgWaitForMultipleObjects
-          (called below) only returns when *new* messages arrive }
-        ProcessMessagesProc;
-      until MsgWaitForMultipleObjects(1, ProcessHandle, False, INFINITE, QS_ALLINPUT) <> WAIT_OBJECT_0+1;
+          (called below) only returns when *new* messages arrive, unless there's
+          a timeout }
+        if WaitResult <> WAIT_TIMEOUT then
+          ProcessMessagesProc;
+        ReadPipe(OKToRead, StdOutPipeRead);
+        WaitResult := MsgWaitForMultipleObjects(1, ProcessHandle, False,
+          WaitMilliseconds, QS_ALLINPUT);
+      until (WaitResult <> WAIT_OBJECT_0+1) and (WaitResult <> WAIT_TIMEOUT);
       { Process messages once more in case MsgWaitForMultipleObjects saw the
         process terminate and new messages arrive simultaneously. (Can't leave
         unprocessed messages waiting, or a subsequent call to WaitMessage
         won't see them.) }
       ProcessMessagesProc;
+      ReadPipe(OKToRead, StdOutPipeRead);
     end;
     { Get the exit code. Will be set to STILL_ACTIVE if not yet available }
     if not GetExitCodeProcess(ProcessHandle, DWORD(ResultCode)) then
@@ -883,16 +910,52 @@ begin
   if WorkingDir = '' then
     WorkingDir := GetSystemDir;
 
-  Result := CreateProcessRedir(DisableFsRedir, nil, PChar(CmdLine), nil, nil, False,
-    CREATE_DEFAULT_ERROR_MODE, nil, PChar(WorkingDir), StartupInfo, ProcessInfo);
-  if not Result then begin
-    ResultCode := GetLastError;
-    Exit;
+  var StdOutPipeRead: THandle := 0;
+  var StdOutPipeWrite: THandle := 0;
+  var PipeOutput := True; { Should be changed }
+
+  if PipeOutput then begin
+    var SA: TSecurityAttributes;
+    SA.nLength := SizeOf(SA);
+    SA.bInheritHandle := True;
+    SA.lpSecurityDescriptor := nil;
+
+    if not CreatePipe(StdOutPipeRead, StdOutPipeWrite, @SA, 0) then begin
+      StdOutPipeRead := 0;
+      StdOutPipeWrite := 0;
+    end;
   end;
 
-  { Don't need the thread handle, so close it now }
-  CloseHandle(ProcessInfo.hThread);
-  HandleProcessWait(ProcessInfo.hProcess, Wait, ProcessMessagesProc, ResultCode);
+  try
+    if StdOutPipeWrite <> 0 then begin
+      StartupInfo.dwFlags := StartupInfo.dwFlags or STARTF_USESTDHANDLES;
+      StartupInfo.hStdInput := GetStdHandle(STD_INPUT_HANDLE);
+      StartupInfo.hStdOutput := StdOutPipeWrite;
+      StartupInfo.hStdError := StdOutPipeWrite;
+    end;
+
+    Result := CreateProcessRedir(DisableFsRedir, nil, PChar(CmdLine), nil, nil,
+      StdOutPipeWrite <> 0, CREATE_DEFAULT_ERROR_MODE, nil, PChar(WorkingDir),
+      StartupInfo, ProcessInfo);
+    if not Result then begin
+      ResultCode := GetLastError;
+      Exit;
+    end;
+
+    { Don't need the thread and pipe write handles, so close them now }
+    CloseHandle(ProcessInfo.hThread);
+    if StdOutPipeWrite <> 0 then begin
+      CloseHandle(StdOutPipeWrite);
+      StdOutPipeWrite := 0;
+    end;
+    HandleProcessWait(ProcessInfo.hProcess, Wait, ProcessMessagesProc,
+      StdOutPipeRead, ResultCode);
+  finally
+    if StdOutPipeRead <> 0 then
+      CloseHandle(StdOutPipeRead);
+    if StdOutPipeWrite <> 0 then
+      CloseHandle(StdOutPipeWrite);
+  end;
 end;
 
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
@@ -926,7 +989,7 @@ begin
   ResultCode := STILL_ACTIVE;
   { A process handle won't always be returned, e.g. if DDE was used }
   if Info.hProcess <> 0 then
-    HandleProcessWait(Info.hProcess, Wait, ProcessMessagesProc, ResultCode);
+    HandleProcessWait(Info.hProcess, Wait, ProcessMessagesProc, 0, ResultCode);
 end;
 
 function CheckForOrCreateMutexes(Mutexes: String; const Create: Boolean): Boolean;
