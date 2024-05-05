@@ -34,6 +34,7 @@ type
   end;
 
   TLogProc = procedure(const S: String; const FirstLine: Boolean);
+  TLogErrorProc = procedure(const S: String);
 
   TCreateProcessOutputReader = class
   private
@@ -42,11 +43,13 @@ type
     FStdOutPipeRead: THandle;
     FStdOutPipeWrite: THandle;
     FLogProc: TLogProc;
+    FLogErrorProc: TLogErrorProc;
     FReadBuffer: AnsiString;
     FNextLineIsFirstLine: Boolean;
     procedure CloseAndClearHandle(var Handle: THandle);
+    procedure LogErrorFmt(const S: String; const Args: array of const);
   public
-    constructor Create(const ALogProc: TLogProc);
+    constructor Create(const ALogProc: TLogProc; const ALogErrorProc: TLogErrorProc);
     destructor Destroy; override;
     procedure UpdateStartupInfo(var StartupInfo: TStartupInfo;
       var InheritHandles: Boolean);
@@ -1591,7 +1594,8 @@ end;
 
 { TCreateProcessOutputReader }
 
-constructor TCreateProcessOutputReader.Create(const ALogProc: TLogProc);
+constructor TCreateProcessOutputReader.Create(const ALogProc: TLogProc;
+  const ALogErrorProc: TLogErrorProc);
 begin
   if not Assigned(ALogProc) then
     raise Exception.Create('ALogProc is required');
@@ -1599,12 +1603,18 @@ begin
   FLogProc := ALogProc;
   FNextLineIsFirstLine := True;
 
+  FLogErrorProc := ALogErrorProc;
+
   var SecurityAttributes: TSecurityAttributes;
   SecurityAttributes.nLength := SizeOf(SecurityAttributes);
   SecurityAttributes.bInheritHandle := True;
   SecurityAttributes.lpSecurityDescriptor := nil;
 
   FCreatedPipe := CreatePipe(FStdOutPipeRead, FStdOutPipeWrite, @SecurityAttributes, 0);
+  if FCreatedPipe then
+    SetHandleInformation(FStdOutPipeRead, HANDLE_FLAG_INHERIT, 0)
+  else
+    LogErrorFmt('CreatePipe failed (%d).', [GetLastError]);
 
   FOKToRead := True;
 end;
@@ -1622,6 +1632,12 @@ begin
     CloseHandle(Handle);
     Handle := 0;
   end;
+end;
+
+procedure TCreateProcessOutputReader.LogErrorFmt(const S: String; const Args: array of const);
+begin
+  if Assigned(FLogErrorProc) then
+    FLogErrorProc(Format(S, Args));
 end;
 
 procedure TCreateProcessOutputReader.UpdateStartupInfo(var StartupInfo: TStartupInfo;
@@ -1657,7 +1673,7 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
     Result := 0;
   end;
 
-  procedure HandleLine(const S: AnsiString);
+  procedure LogLine(const S: AnsiString);
   begin
     FLogProc(Utf8Decode(S), FNextLineIsFirstLine);
     FNextLineIsFirstLine := False;
@@ -1667,20 +1683,26 @@ begin
   if FOKToRead then begin
     var TotalBytesAvail: DWORD;
     FOKToRead := PeekNamedPipe(FStdOutPipeRead, nil, 0, nil, @TotalBytesAvail, nil);
-    if FOKToRead and (TotalBytesAvail > 0) then begin
+    if not FOKToRead then begin
+      var LastError := GetLastError;
+      if LastError <> ERROR_BROKEN_PIPE then
+        LogErrorFmt('PeekNamedPipe failed (%d).', [GetLastError]);
+    end else if TotalBytesAvail > 0 then begin
       var TotalBytesHave: DWORD := Length(FReadBuffer);
       SetLength(FReadBuffer, TotalBytesHave+TotalBytesAvail);
       var BytesRead: DWORD;
       FOKToRead := ReadFile(FStdOutPipeRead, FReadBuffer[TotalBytesHave+1],
         TotalBytesAvail, BytesRead, nil);
-      if BytesRead > 0 then
+      if not FOKToRead then
+        LogErrorFmt('ReadFile failed (%d).', [GetLastError])
+      else if BytesRead > 0 then
         SetLength(FReadBuffer, TotalBytesHave+BytesRead);
     end;
   end;
 
   var P := FindTerminator(FReadBuffer, LastRead);
   while P <> 0 do begin
-    HandleLine(Copy(FReadBuffer, 1, P-1));
+    LogLine(Copy(FReadBuffer, 1, P-1));
     if (FReadBuffer[P] = #13) and (P < Length(FReadBuffer)) and (FReadBuffer[P+1] = #10) then
       Inc(P);
     Delete(FReadBuffer, 1, P);
@@ -1688,7 +1710,7 @@ begin
   end;
 
   if LastRead and (FReadBuffer <> '') then
-    HandleLine(FReadBuffer);
+    LogLine(FReadBuffer);
 end;
 
 end.

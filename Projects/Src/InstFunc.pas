@@ -88,7 +88,7 @@ procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; const LogProc: TLogProc;
-  var ResultCode: Integer): Boolean;
+  const LogErrorProc: TLogErrorProc; var ResultCode: Integer): Boolean;
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
@@ -858,7 +858,7 @@ end;
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; const LogProc: TLogProc;
-  var ResultCode: Integer): Boolean;
+  const LogErrorProc: TLogErrorProc; var ResultCode: Integer): Boolean;
 var
   CmdLine: String;
   StartupInfo: TStartupInfo;
@@ -900,7 +900,7 @@ begin
   var InheritHandles := False;
   try
     if Assigned(LogProc) and (Wait = ewWaitUntilTerminated) then begin
-      OutputReader := TCreateProcessOutputReader.Create(LogProc);
+      OutputReader := TCreateProcessOutputReader.Create(LogProc, LogErrorProc);
       OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
     end;
 

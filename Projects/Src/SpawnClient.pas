@@ -22,7 +22,7 @@ function InstExecEx(const RunAsOriginalUser: Boolean;
   const DisableFsRedir: Boolean; const Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; const LogProc: TLogProc;
-  var ResultCode: Integer): Boolean;
+  const LogErrorProc: TLogErrorProc; var ResultCode: Integer): Boolean;
 function InstShellExecEx(const RunAsOriginalUser: Boolean;
   const Verb, Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
@@ -139,13 +139,13 @@ function InstExecEx(const RunAsOriginalUser: Boolean;
   const DisableFsRedir: Boolean; const Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; const LogProc: TLogProc;
-  var ResultCode: Integer): Boolean;
+  const LogErrorProc: TLogErrorProc; var ResultCode: Integer): Boolean;
 var
   M: TMemoryStream;
 begin
   if not RunAsOriginalUser or not SpawnServerPresent then begin
     Result := InstExec(DisableFsRedir, Filename, Params, WorkingDir,
-      Wait, ShowCmd, ProcessMessagesProc, LogProc, ResultCode);
+      Wait, ShowCmd, ProcessMessagesProc, LogProc, LogErrorProc, ResultCode);
     Exit;
   end;
 
