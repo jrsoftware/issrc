@@ -1609,10 +1609,10 @@ begin
   SecurityAttributes.lpSecurityDescriptor := nil;
 
   FCreatedPipe := CreatePipe(FStdOutPipeRead, FStdOutPipeWrite, @SecurityAttributes, 0);
-  if FCreatedPipe then
-    SetHandleInformation(FStdOutPipeRead, HANDLE_FLAG_INHERIT, 0)
-  else
-    LogErrorFmt('CreatePipe failed (%d).', [GetLastError]);
+  if not FCreatedPipe then
+    LogErrorFmt('CreatePipe failed (%d).', [GetLastError])
+  else if not SetHandleInformation(FStdOutPipeRead, HANDLE_FLAG_INHERIT, 0) then
+    LogErrorFmt('SetHandleInformation failed (%d).', [GetLastError]);
 
   FOKToRead := FCreatedPipe;
 end;
