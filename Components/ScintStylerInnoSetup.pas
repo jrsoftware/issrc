@@ -383,11 +383,12 @@ const
     (Name: 'Verb'),
     (Name: 'WorkingDir'));
 
-  RunSectionFlags: array[0..17] of TInnoSetupStylerParamInfo = (
+  RunSectionFlags: array[0..18] of TInnoSetupStylerParamInfo = (
     (Name: '32bit'),
     (Name: '64bit'),
     (Name: 'dontlogparameters'),
     (Name: 'hidewizard'),
+    (Name: 'logoutput'),
     (Name: 'nowait'),
     (Name: 'postinstall'),
     (Name: 'runascurrentuser'),
@@ -419,11 +420,12 @@ const
     (Name: 'Verb'),
     (Name: 'WorkingDir'));
 
-  UninstallRunSectionFlags: array[0..12] of TInnoSetupStylerParamInfo = (
+  UninstallRunSectionFlags: array[0..13] of TInnoSetupStylerParamInfo = (
     (Name: '32bit'),
     (Name: '64bit'),
     (Name: 'dontlogparameters'),
     (Name: 'hidewizard'),
+    (Name: 'logoutput'),
     (Name: 'nowait'),
     (Name: 'runascurrentuser'),
     (Name: 'runhidden'),

@@ -6425,12 +6425,12 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..18] of PChar = (
+  Flags: array[0..19] of PChar = (
     'nowait', 'waituntilidle', 'shellexec', 'skipifdoesntexist',
     'runminimized', 'runmaximized', 'showcheckbox', 'postinstall',
     'unchecked', 'skipifsilent', 'skipifnotsilent', 'hidewizard',
     'runhidden', 'waituntilterminated', '32bit', '64bit', 'runasoriginaluser',
-    'runascurrentuser', 'dontlogparameters');
+    'runascurrentuser', 'dontlogparameters', 'logoutput');
 var
   Values: array[TParam] of TParamValue;
   NewRunEntry: PSetupRunEntry;
@@ -6511,6 +6511,7 @@ begin
              end;
           17: RunAsCurrentUser := True;
           18: Include(Options, roDontLogParameters);
+          19: Include(Options, roLogOutput);
         end;
 
       if not WaitFlagSpecified then begin
@@ -6526,6 +6527,25 @@ begin
       if RunAsOriginalUser or
          (not RunAsCurrentUser and (roPostInstall in Options)) then
         Include(Options, roRunAsOriginalUser);
+
+      if roLogOutput in Options then begin
+        { TCreateProcessOutputReader requires regular exec + wait until
+          terminated + run as current user. Additionally we check for
+          postinstall before checking runasoriginaluser to avoid us advicing to
+          runascurrentuser on a postinstall entry. }
+        if roShellExec in Options then
+          AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+            [ParamCommonFlags, 'logoutput', 'shellexec']);
+        if (Wait <> rwWaitUntilTerminated) then
+          AbortCompileOnLineFmt(SCompilerParamFlagMissing,
+            ['waituntilterminated', 'logoutput']);
+        if roPostInstall in Options then
+          AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+            [ParamCommonFlags, 'logoutput', 'postinstall']);
+        if roRunAsOriginalUser in Options then
+          AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+            [ParamCommonFlags, 'logoutput', 'runasoriginaluser']);
+      end;
 
       { Filename }
       Name := Values[paFilename].Data;
