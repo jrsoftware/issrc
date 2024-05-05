@@ -69,12 +69,12 @@ var
   IsppOptions: TIsppOptions;
   IsppMode: Boolean;
 
-procedure WriteToStdHandle(const H: THandle; S: AnsiString);
-var
-  BytesWritten: DWORD;
+procedure WriteToStdHandle(const H: THandle; S: String);
 begin
-  if Copy(S, 1, 1) <> #13 then S := S + #13#10;
-  WriteFile(H, S[1], Length(S), BytesWritten, nil);
+  var Utf8S := Utf8Encode(S);
+  if Copy(Utf8S, 1, 1) <> #13 then Utf8S := Utf8S + #13#10;
+  var BytesWritten: DWORD;
+  WriteFile(H, Utf8S[1], Length(Utf8S), BytesWritten, nil);
 end;
 
 procedure WriteStdOut(const S: String; const Warning: Boolean = False);
@@ -85,7 +85,7 @@ begin
   DidSetColor := Warning and GetConsoleScreenBufferInfo(StdOutHandle, CSBI) and
                  SetConsoleTextAttribute(StdOutHandle, FOREGROUND_INTENSITY or FOREGROUND_RED or FOREGROUND_GREEN);
   try
-    WriteToStdHandle(StdOutHandle, AnsiString(S));
+    WriteToStdHandle(StdOutHandle, S);
   finally
     if DidSetColor then
       SetConsoleTextAttribute(StdOutHandle, CSBI.wAttributes);
@@ -100,7 +100,7 @@ begin
   DidSetColor := Error and GetConsoleScreenBufferInfo(StdErrHandle, CSBI) and
                  SetConsoleTextAttribute(StdErrHandle, FOREGROUND_INTENSITY or FOREGROUND_RED);
   try
-    WriteToStdHandle(StdErrHandle, AnsiString(S));
+    WriteToStdHandle(StdErrHandle, S);
   finally
     if DidSetColor then
       SetConsoleTextAttribute(StdErrHandle, CSBI.wAttributes);
@@ -148,7 +148,7 @@ begin
   else
     Str := S;
 
-  WriteToStdHandle(StdOutHandle, AnsiString(Str));
+  WriteToStdHandle(StdOutHandle, Str);
 end;
 
 function ConsoleCtrlHandler(dwCtrlType: DWORD): BOOL; stdcall;
@@ -638,6 +638,7 @@ begin
     StdOutHandle := GetStdHandle(STD_OUTPUT_HANDLE);
     StdErrHandle := GetStdHandle(STD_ERROR_HANDLE);
     SetConsoleCtrlHandler(@ConsoleCtrlHandler, True);
+    SetConsoleOutputCP(CP_UTF8);
     try
       IsppMode := FileExists(ExtractFilePath(NewParamStr(0)) + 'ispp.dll');
       ProcessCommandLine;
