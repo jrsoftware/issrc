@@ -403,12 +403,10 @@ type
   private
     class var ColorCodes: String;
     class constructor Create;
-    type TPixmap = array of PAnsiChar;
+    type TPixmap = array of AnsiString;
     var FPixmap: TPixmap;
     function GetPixmap: Pointer;
   public
-    destructor Destroy; override;
-    procedure Clear;
     procedure InitializeFromBitmap(const AScintEdit: TScintEdit; const ABitmap: TBitmap; const TransparentColor: TColorRef);
     property Pixmap: Pointer read GetPixmap;
   end;
@@ -2149,27 +2147,13 @@ begin
       ColorCodes := ColorCodes + C;
 end;
 
-destructor TScintPixmap.Destroy;
-begin
-  Clear;
-  inherited;
-end;
-
-procedure TScintPixmap.Clear;
-begin
-  for var I := 0 to Length(FPixmap)-1 do
-    if FPixmap[I] <> nil then
-      FreeMem(FPixmap[I]);
-  SetLength(FPixmap, 0);
-end;
-
 function TScintPixmap.GetPixmap: Pointer;
 begin
   Result := FPixmap;
 end;
 
 type
-  TRGBTripleArray = array[0..4095] of TRGBTriple;
+  TRGBTripleArray = array[0..0] of TRGBTriple;
   PRGBTripleArray = ^TRGBTripleArray;
 
 procedure TScintPixmap.InitializeFromBitmap(const AScintEdit: TScintEdit; const ABitmap: TBitmap; const TransparentColor: TColorRef);
@@ -2178,8 +2162,8 @@ procedure TScintPixmap.InitializeFromBitmap(const AScintEdit: TScintEdit; const 
   begin
     var RawLine := AScintEdit.ConvertStringToRawString(Line);
     var N := (Length(RawLine)+1)*SizeOf(RawLine[1]);
-    GetMem(Pixmap[Index], N);
-    Move(Pointer(RawLine)^, Pixmap[Index]^, N);
+    SetLength(Pixmap[Index], N);
+    Move(Pointer(RawLine)^, Pixmap[Index][1], N);
     Inc(Index);
   end;
 
@@ -2187,15 +2171,15 @@ begin
   if ABitmap.PixelFormat <> pf24bit then
     TScintEdit.Error('Invalid PixelFormat');
 
-  Clear;
-
   var Colors := TDictionary<Integer, TPair<Char, String>>.Create; { RGB -> Code & WebColor }
   try
     { Build colors list }
     for var Y := 0 to ABitmap.Height-1 do begin
       var Pixels: PRGBTripleArray := ABitmap.ScanLine[Y];
       for var X := 0 to ABitmap.Width-1 do begin
+        {$IFOPT R+} {$DEFINE RANGECHECKS_ON} {$R-} {$ENDIF}
         var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
+        {$IFDEF RANGECHECKS_ON} {$R+} {$UNDEF RANGECHECKS_ON} {$ENDIF}
         if (Color <> TransparentColor) and not Colors.ContainsKey(Color) then begin
           var ColorCodeIndex := Colors.Count+1;
           if ColorCodeIndex > Length(ColorCodes) then
@@ -2207,7 +2191,7 @@ begin
 
     { Build pixmap }
     var Line: String;
-    SetLength(FPixmap, 1 + Colors.Count + ABitmap.Height + 1);
+    SetLength(FPixmap, 1 + Colors.Count + ABitmap.Height);
     Line := Format('%d %d %d 1', [ABitmap.Width, ABitmap.Height, Colors.Count]);
     var Index := 0;
     SetNextPixmapLine(FPixmap, Index, Line);
@@ -2219,7 +2203,9 @@ begin
       Line := '';
       var Pixels: PRGBTripleArray := ABitmap.ScanLine[Y];
       for var X := 0 to ABitmap.Width-1 do begin
+        {$IFOPT R+} {$DEFINE RANGECHECKS_ON} {$R-} {$ENDIF}
         var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
+        {$IFDEF RANGECHECKS_ON} {$R+} {$UNDEF RANGECHECKS_ON} {$ENDIF}
         if Color = TransparentColor then
           Line := Line + XPMTransparentChar
         else
@@ -2227,7 +2213,6 @@ begin
       end;
       SetNextPixmapLine(FPixmap, Index, Line);
     end;
-    FPixmap[Index] := nil;
   finally
     Colors.Free;
   end;
