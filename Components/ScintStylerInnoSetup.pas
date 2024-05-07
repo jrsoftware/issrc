@@ -234,7 +234,7 @@ const
     (Name: 'StrongAssemblyName'),
     (Name: 'Tasks'));
 
-  FilesSectionFlags: array[0..39] of TInnoSetupStylerParamInfo = (
+  FilesSectionFlags: array[0..40] of TInnoSetupStylerParamInfo = (
     (Name: '32bit'),
     (Name: '64bit'),
     (Name: 'allowunsafefiles'),
@@ -264,6 +264,7 @@ const
     (Name: 'setntfscompression'),
     (Name: 'sharedfile'),
     (Name: 'sign'),
+    (Name: 'signcheck'),
     (Name: 'signonce'),
     (Name: 'skipifsourcedoesntexist'),
     (Name: 'solidbreak'),
@@ -955,17 +956,17 @@ begin
       if not FTheme.Modern then begin
         { Check for some exceptions }
         case TInnoSetupStylerStyle(Style) of
-          stCompilerDirective: begin Attributes.ForeColor := $4040C0; Exit; end;
+          stCompilerDirective, stISPPReservedWord: begin Attributes.ForeColor := $4040C0; Exit; end;
           stMessageArg: begin Attributes.ForeColor := $FF8000; Exit; end;
           stPascalString, stPascalNumber, stISPPString, stISPPNumber: begin Attributes.ForeColor := clMaroon; Exit; end;
         end;
       end;
       case TInnoSetupStylerStyle(Style) of
-        stCompilerDirective: Attributes.ForeColor := FTheme.Colors[tcRed];
+        stCompilerDirective, stISPPReservedWord: Attributes.ForeColor := FTheme.Colors[tcRed];
         stComment: Attributes.ForeColor := FTheme.Colors[tcGreen];
         stSection: Attributes.FontStyle := [fsBold];
         stSymbol: Attributes.ForeColor := FTheme.Colors[tcGray];
-        stKeyword, stPascalReservedWord, stISPPReservedWord: Attributes.ForeColor := FTheme.Colors[tcBlue];
+        stKeyword, stPascalReservedWord: Attributes.ForeColor := FTheme.Colors[tcBlue];
         //stParameterValue: Attributes.ForeColor := FTheme.Colors[tcTeal];
         stEventFunction: Attributes.FontStyle := [fsBold];
         stConstant: Attributes.ForeColor := FTheme.Colors[tcPurple];

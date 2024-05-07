@@ -2329,10 +2329,13 @@ begin
     if Lo(NTServicePackLevel) <> 0 then
       SP := SP + '.' + IntToStr(Lo(NTServicePackLevel));
   end;
-  LogFmt('Windows version: %u.%u.%u%s  (NT platform: %s)', [WindowsVersion shr 24,
-    (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF, SP, SYesNo[True]]);
-  LogFmt('64-bit Windows: %s', [SYesNo[IsWin64]]);
-  LogFmt('Processor architecture: %s', [SetupProcessorArchitectureNames[ProcessorArchitecture]]);
+  LogFmt('Windows version: %u.%u.%u%s', [WindowsVersion shr 24,
+    (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF, SP]);
+
+  var Bits := 32;
+  if IsWin64 then
+    Bits := 64;
+  LogFmt('Windows architecture: %s (%d-bit)', [SetupProcessorArchitectureNames[ProcessorArchitecture], Bits]);
   LogFmt('Machine types supported by system: %s', [ArchitecturesToStr(MachineTypesSupportedBySystem, ' ')]);
 
   if IsAdmin then
