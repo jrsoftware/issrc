@@ -6529,22 +6529,18 @@ begin
         Include(Options, roRunAsOriginalUser);
 
       if roLogOutput in Options then begin
-        { TCreateProcessOutputReader requires regular exec + wait until
-          terminated + run as current user. Additionally we check for
-          postinstall before checking runasoriginaluser to avoid us advicing to
-          runascurrentuser on a postinstall entry. }
         if roShellExec in Options then
           AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
             [ParamCommonFlags, 'logoutput', 'shellexec']);
         if (Wait <> rwWaitUntilTerminated) then
           AbortCompileOnLineFmt(SCompilerParamFlagMissing,
             ['waituntilterminated', 'logoutput']);
-        if roPostInstall in Options then
-          AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
-            [ParamCommonFlags, 'logoutput', 'postinstall']);
-        if roRunAsOriginalUser in Options then
+        if RunAsOriginalUser then
           AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
             [ParamCommonFlags, 'logoutput', 'runasoriginaluser']);
+        if roRunAsOriginalUser in Options then
+          AbortCompileOnLineFmt(SCompilerParamFlagMissing3,
+            ['runascurrentuser', 'logoutput', 'postinstall']);
       end;
 
       { Filename }
