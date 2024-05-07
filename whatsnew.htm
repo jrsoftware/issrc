@@ -112,16 +112,16 @@ end;</pre>
 </ul>
 <p><span class="head2">Support for Windows Vista, Windows Server 2008 and the Itanium processor architecture removed</span></p>
 <ul>
-  <li><b>OS requirements change:</b> Windows Vista and Windows Server 2008 are no longer supported. Windows 7 and Windows Server 2008 R2 are now the minimum supported operating systems. [Setup] section directive <tt>MinVersion</tt> still defaults to <tt>6.1sp1</tt>, so by default Setup will still not run versions of Windows 7 and Windows Server 2008 R2 which have not been updated.</li>
+  <li><b>OS requirements change:</b> Windows Vista and Windows Server 2008 are no longer supported. Windows 7 and Windows Server 2008 R2 are now the minimum supported operating systems. <tt>[Setup]</tt> section directive <tt>MinVersion</tt> still defaults to <tt>6.1sp1</tt>, so by default Setup will still not run versions of Windows 7 and Windows Server 2008 R2 which have not been updated.</li>
   <li>The Itanium processor architecture is no longer supported. The <tt>ia64</tt> platform identifier has been removed and instead Setup will always display an error message and exit if it's started on an Itanium system anyway.</li>
-  <li>Removed [Icons] section flag <tt>foldershortcut</tt> which was already ignored except when running on Windows Vista or Windows Server 2008, as folder shortcuts do not expand properly on the Start Menu anymore.</li>
+  <li>Removed <tt>[Icons]</tt> section flag <tt>foldershortcut</tt> which was already ignored except when running on Windows Vista or Windows Server 2008, as folder shortcuts do not expand properly on the Start Menu anymore.</li>
 </ul>
 <p><span class="head2">Compiler IDE changes</span></p>
 <ul>
   <li>The New Script Wizard now offers an option to import a Windows registry .reg file.</li>
   <li>The New Script Wizard now automatically sets <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> to <tt>x64compatible</tt> if it detects that the chosen main executable file is 64-bit. The default main executable file is now the 64-bit MyProg-x64.exe example executable instead of 32-bit MyProg.exe.</li>
-  <li>Added new <i>Generate [Registry] Entries... (Ctrl+Shift+R)</i> menu item to the <i>Tools</i> menu to import a Windows registry .reg file as extra entries to the [Registry] section at the cursor position, or to a new section.</li>
-  <li>Added new <i>Generate [Files] Entries... (Ctrl+Shift+I)</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the [Files] section at the cursor position, or to a new section.</li>
+  <li>Added new <i>Generate [Registry] Entries... (Ctrl+Shift+R)</i> menu item to the <i>Tools</i> menu to import a Windows registry .reg file as extra entries to the <tt>[Registry]</tt> section at the cursor position, or to a new section.</li>
+  <li>Added new <i>Generate [Files] Entries... (Ctrl+Shift+I)</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the <tt>[Files]</tt> section at the cursor position, or to a new section.</li>
   <li>The <i>Generate MsgBox/TaskDialogMsgBox Call... (Ctrl+Shift+M)</i> tool (previously named <i>MsgBox/TaskDialogMsgBox Designer</i>) now respects the tab width and tab character settings, indents the generated Pascal script one extra level, and warns if the cursor position is not in the [Code] section.</li>
   <li>Digital signing change: Sign Tool output is now logged in the "Compiler Output" view, making it easier to debug issues.</li>
   <li>Added dark mode support to the title bar on Windows 10 Version 2004 and later.</i>
@@ -133,14 +133,14 @@ end;</pre>
 </ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
-  <li>Added new [Run] and [UninstallRun] section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program. Cannot be combined with <tt>nowait</tt>, <tt>postinstall</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, nor <tt>waituntilidle</tt>.</li>
-  <li>Added new [Setup] section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
-  <li>Added new [Files] section flag <tt>signcheck</tt>. Instructs the compiler check the original source files for a digital signature before storing them.</li>
+  <li>Console-mode compiler (ISCC) change: Added support for Unicode output.</li>
+  <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program. Cannot be combined with <tt>nowait</tt>, <tt>postinstall</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, nor <tt>waituntilidle</tt>.</li>
+  <li>Added new <tt>[Setup]</tt> section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
+  <li>Added new <tt>[Files]</tt> section flag <tt>signcheck</tt>. Instructs the compiler check the original source files for a digital signature before storing them.</li>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters.</li> 
   <li>Pascal Scripting change: Type <tt>TShellFolderID</tt> was removed because it wasn't used by any support function.</li>
   <li>Improved the icons used by the <i>Select Language</i> dialog and the <i>Select Destination Location</i>, <i>Select Start Menu Folder</i>, and <i>Preparing to Install</i> wizard pages at 150% DPI and at 200% DPI.</li>
-  <li>Console-mode compiler (ISCC) change: Added support for Unicode output.</li>
   <li>Added modern icons to the MyProg example executables, now compiled with Visual Studio 2022.</li>
   <li>Added official Korean translation.</li>
   <li>Inno Setup is now built using Delphi 11.3 Alexandria instead of Delphi 10.3 Rio.</li>
