@@ -2141,7 +2141,7 @@ const
 
 class constructor TScintPixmap.Create;
 begin
-  { Even though ConvertStringToRawString is used chars 128-255 don't work }
+  { Chars 128-255 are supported below but don't work in Scintilla }
   for var C := #1 to #127 do
     if (C <> XPMTransparentChar) and (C <> XPMTerminatorChar) then
       ColorCodes := ColorCodes + C;
@@ -2153,10 +2153,11 @@ begin
 end;
 
 type
-  TRGBTripleArray = array[0..0] of TRGBTriple;
+  TRGBTripleArray = array[0..MaxInt div SizeOf(TRGBTriple) - 1] of TRGBTriple;
   PRGBTripleArray = ^TRGBTripleArray;
 
-procedure TScintPixmap.InitializeFromBitmap(const AScintEdit: TScintEdit; const ABitmap: TBitmap; const TransparentColor: TColorRef);
+procedure TScintPixmap.InitializeFromBitmap(const AScintEdit: TScintEdit; const ABitmap: TBitmap;
+  const TransparentColor: TColorRef);
 
   procedure SetNextPixmapLine(const Pixmap: TPixmap; var Index: Integer; const Line: String);
   begin
@@ -2183,9 +2184,7 @@ begin
     for var Y := 0 to ABitmap.Height-1 do begin
       var Pixels: PRGBTripleArray := ABitmap.ScanLine[Y];
       for var X := 0 to ABitmap.Width-1 do begin
-        {$IFOPT R+} {$DEFINE RANGECHECKS_ON} {$R-} {$ENDIF}
         var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
-        {$IFDEF RANGECHECKS_ON} {$R+} {$UNDEF RANGECHECKS_ON} {$ENDIF}
         if (Color <> TransparentColor) and not Colors.ContainsKey(Color) then begin
           var ColorCodeIndex := Colors.Count+1;
           if ColorCodeIndex > Length(ColorCodes) then
@@ -2197,7 +2196,7 @@ begin
 
     { Build pixmap }
     var Line: String;
-    SetLength(FPixmap, 0);
+    SetLength(FPixmap, 0); { Not really needed but makes things clearer while debugging }
     SetLength(FPixmap, 1 + Colors.Count + ABitmap.Height + 1);
     Line := Format('%d %d %d 1', [ABitmap.Width, ABitmap.Height, Colors.Count]);
     var Index := 0;
@@ -2210,9 +2209,7 @@ begin
       Line := '';
       var Pixels: PRGBTripleArray := ABitmap.ScanLine[Y];
       for var X := 0 to ABitmap.Width-1 do begin
-        {$IFOPT R+} {$DEFINE RANGECHECKS_ON} {$R-} {$ENDIF}
         var Color := RGB(Pixels[X].rgbtRed, Pixels[X].rgbtGreen, Pixels[X].rgbtBlue);
-        {$IFDEF RANGECHECKS_ON} {$R+} {$UNDEF RANGECHECKS_ON} {$ENDIF}
         if Color = TransparentColor then
           Line := Line + XPMTransparentChar
         else
@@ -2220,7 +2217,9 @@ begin
       end;
       SetNextPixmapLine(FPixmap, Index, Line);
     end;
-    SetNextPixmapLine(FPixmap, Index, '');  { terminating nil pointer }
+
+    { Add terminating nil pointer - Scintilla doesnt really need it but setting it anyway }
+    SetNextPixmapLine(FPixmap, Index, '');
   finally
     Colors.Free;
   end;
