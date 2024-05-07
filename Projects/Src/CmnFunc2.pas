@@ -1685,6 +1685,7 @@ begin
       if LastError <> ERROR_BROKEN_PIPE then
         LogErrorFmt('PeekNamedPipe failed (%d).', [GetLastError]);
     end else if TotalBytesAvail > 0 then begin
+      { Append newly available data to the incomplete line we might already have }
       var TotalBytesHave: DWORD := Length(FReadBuffer);
       SetLength(FReadBuffer, TotalBytesHave+TotalBytesAvail);
       var BytesRead: DWORD;
@@ -1692,18 +1693,25 @@ begin
         TotalBytesAvail, BytesRead, nil);
       if not FOKToRead then
         LogErrorFmt('ReadFile failed (%d).', [GetLastError])
-      else if BytesRead > 0 then
+      else if BytesRead > 0 then begin
+        { Correct length if less bytes were read than requested }
         SetLength(FReadBuffer, TotalBytesHave+BytesRead);
-    end;
-  end;
 
-  var P := FindNewLine(FReadBuffer, LastRead);
-  while P <> 0 do begin
-    LogLine(Copy(FReadBuffer, 1, P-1));
-    if (FReadBuffer[P] = #13) and (P < Length(FReadBuffer)) and (FReadBuffer[P+1] = #10) then
-      Inc(P);
-    Delete(FReadBuffer, 1, P);
-    P := FindNewLine(FReadBuffer, LastRead);
+        { Check for completed lines thanks to the new data }
+        var P := FindNewLine(FReadBuffer, LastRead);
+        while P <> 0 do begin
+          LogLine(Copy(FReadBuffer, 1, P-1));
+          if (FReadBuffer[P] = #13) and (P < Length(FReadBuffer)) and (FReadBuffer[P+1] = #10) then
+            Inc(P);
+          Delete(FReadBuffer, 1, P);
+          P := FindNewLine(FReadBuffer, LastRead);
+        end;
+      end;
+    end;
+
+    { Unblock the child process's write, and cause further writes to fail immediately }
+    if not FOkToRead then
+      CloseAndClearHandle(FStdOutPipeRead);
   end;
 
   if LastRead and (FReadBuffer <> '') then
