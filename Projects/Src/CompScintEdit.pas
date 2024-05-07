@@ -21,10 +21,10 @@ const
   mmIconBreakpoint = 2;      { stop sign }
   mmIconBreakpointGood = 3;  { stop sign + check }
   mmIconBreakpointBad = 4;   { stop sign + X }
-  mmLineError = 10;          { red line highlight }
-  mmLineBreakpoint = 11;     { red line highlight }
-  mmLineBreakpointBad = 12;  { ugly olive line highlight }
-  mmLineStep = 13;           { blue line highlight }
+  mmLineError = 10;          { maroon line highlight }
+  mmLineBreakpointBad = 11;  { ugly olive line highlight }
+  mmLineStep = 12;           { blue line highlight }
+  mmIconStep = 13;           { blue arrow }
 
   { Memo indicator numbers (also in ScintStylerInnoSetup) }
   inSquiggly = 0;
@@ -48,6 +48,7 @@ type
   public
     property Theme: TTheme read FTheme write FTheme;
     property Used: Boolean read FUsed write FUsed;
+    procedure UpdateMemoMarkerColumnWidth(const AWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   end;
 
@@ -81,77 +82,6 @@ uses
 
 procedure TCompScintEdit.CreateWnd;
 const
-  PixmapHasEntry: array[0..8] of PAnsiChar = (
-    '5 5 2 1',
-    'o c #808080',
-    '. c #c0c0c0',
-    'ooooo',
-    'o...o',
-    'o...o',
-    'o...o',
-    'ooooo',
-    nil);
-  PixmapEntryProcessed: array[0..8] of PAnsiChar = (
-    '5 5 2 1',
-    'o c #008000',
-    '. c #00ff00',
-    'ooooo',
-    'o...o',
-    'o...o',
-    'o...o',
-    'ooooo',
-    nil);
-  PixmapBreakpoint: array[0..14] of PAnsiChar = (
-    '9 10 3 1',
-    '= c none',
-    'o c #000000',
-    '. c #ff0000',
-    '=========',
-    '==ooooo==',
-    '=o.....o=',
-    'o.......o',
-    'o.......o',
-    'o.......o',
-    'o.......o',
-    'o.......o',
-    '=o.....o=',
-    '==ooooo==',
-    nil);
-  PixmapBreakpointGood: array[0..15] of PAnsiChar = (
-    '9 10 4 1',
-    '= c none',
-    'o c #000000',
-    '. c #ff0000',
-    '* c #00ff00',
-    '======oo=',
-    '==oooo**o',
-    '=o....*o=',
-    'o....**.o',
-    'o....*..o',
-    'o...**..o',
-    'o**.*...o',
-    'o.***...o',
-    '=o.*...o=',
-    '==ooooo==',
-    nil);
-  PixmapBreakpointBad: array[0..15] of PAnsiChar = (
-    '9 10 4 1',
-    '= c none',
-    'o c #000000',
-    '. c #ff0000',
-    '* c #ffff00',
-    '=========',
-    '==ooooo==',
-    '=o.....o=',
-    'o.*...*.o',
-    'o.**.**.o',
-    'o..***..o',
-    'o.**.**.o',
-    'o.*...*.o',
-    '=o.....o=',
-    '==ooooo==',
-    nil);
-const
   SC_MARK_BACKFORE = 3030;  { new marker type added in Inno Setup's Scintilla build }
 begin
   inherited;
@@ -168,13 +98,12 @@ begin
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
   Call(SCI_INDICSETSTYLE, inSquiggly, INDIC_SQUIGGLE);
-  Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColors }
+  Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
   { Set up the gutter column with breakpoint etc symbols - note: column 0 is the
     line numbers column and its width is set up by TScintEdit.UpdateLineNumbersWidth }
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINWIDTHN, 1, 21);
   Call(SCI_SETMARGINSENSITIVEN, 1, 1); { Makes it react to mouse clicks }
   Call(SCI_SETMARGINCURSORN, 1, SC_CURSORARROW);
 
@@ -182,24 +111,20 @@ begin
     parameter is unused so the value '0' doesn't mean anything below }
   Call(SCI_SETMARGINLEFT, 0, 2);
 
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconHasEntry, LPARAM(@PixmapHasEntry));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconEntryProcessed, LPARAM(@PixmapEntryProcessed));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpoint, LPARAM(@PixmapBreakpoint));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpointGood, LPARAM(@PixmapBreakpointGood));
-  Call(SCI_MARKERDEFINEPIXMAP, mmIconBreakpointBad, LPARAM(@PixmapBreakpointBad));
-
   Call(SCI_MARKERDEFINE, mmLineError, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineError, clWhite);
   Call(SCI_MARKERSETBACK, mmLineError, clMaroon);
-  Call(SCI_MARKERDEFINE, mmLineBreakpoint, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mmLineBreakpoint, clWhite);
-  Call(SCI_MARKERSETBACK, mmLineBreakpoint, clRed);
   Call(SCI_MARKERDEFINE, mmLineBreakpointBad, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineBreakpointBad, clLime);
   Call(SCI_MARKERSETBACK, mmLineBreakpointBad, clOlive);
   Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
-  Call(SCI_MARKERSETBACK, mmLineStep, clBlue);
+  Call(SCI_MARKERSETBACK, mmLineStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+end;
+
+procedure TCompScintEdit.UpdateMemoMarkerColumnWidth(const AWidth: Integer);
+begin
+  Call(SCI_SETMARGINWIDTHN, 1, AWidth);
 end;
 
 procedure TCompScintEdit.UpdateThemeColorsAndStyleAttributes;
@@ -209,6 +134,7 @@ begin
     Color := FTheme.Colors[tcBack];
     Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
     Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
+    Call(SCI_MARKERSETBACK, mmLineStep, FTheme.Colors[tcBlue]);
   end;
   UpdateStyleAttributes;
 end;

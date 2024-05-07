@@ -62,6 +62,7 @@ procedure StartAddRemovePrograms;
 function GetSourcePath(const AFilename: String): String;
 function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
   const ReadFromFileFilename: String; const NotReadFromFileMemo: TScintEdit): Integer;
+function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
 
 implementation
 
@@ -633,6 +634,17 @@ begin
     end;
   end;
   Result := -1;
+end;
+
+function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
+begin
+  ZeroMemory(@Result, SizeOf(Result));
+  Result.bmiHeader.biSize := SizeOf(Result.bmiHeader);
+  Result.bmiHeader.biWidth := Width;
+  Result.bmiHeader.biHeight := Height;
+  Result.bmiHeader.biPlanes := 1;
+  Result.bmiHeader.biBitCount := BitCount;
+  Result.bmiHeader.biCompression := BI_RGB;
 end;
 
 initialization

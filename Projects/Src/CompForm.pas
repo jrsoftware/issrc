@@ -187,8 +187,8 @@ type
     TerminateButton: TToolButton;
     LightToolBarImageCollection: TImageCollection;
     DarkToolBarImageCollection: TImageCollection;
-    ThemedVirtualImageList: TVirtualImageList;
-    LightVirtualImageList: TVirtualImageList;
+    ThemedToolbarVirtualImageList: TVirtualImageList;
+    LightToolbarVirtualImageList: TVirtualImageList;
     POutputListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
@@ -222,6 +222,9 @@ type
     VReopenTab2: TMenuItem;
     VReopenTabs2: TMenuItem;
     N23: TMenuItem;
+    LightMarkersImageCollection: TImageCollection;
+    DarkMarkersImageCollection: TImageCollection;
+    ThemedMarkersVirtualImageList: TVirtualImageList;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -513,6 +516,7 @@ type
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateSaveMenuItemAndButton;
+    procedure UpdateMemoMarkerColumns;
     procedure UpdateTargetMenu;
     procedure UpdateTheme;
     procedure UpdateThemeData(const Open: Boolean);
@@ -871,8 +875,10 @@ begin
   FMenuDarkBackgroundBrush := TBrush.Create;
   FMenuDarkHotOrSelectedBrush := TBrush.Create;
 
+  ThemedMarkersVirtualImageList.AutoFill := True;
+
   UpdateThemeData(True);
-  
+
   FMenuBitmaps := TMenuBitmaps.Create;
   FMenuBitmapsSize.cx := 0;
   FMenuBitmapsSize.cy := 0;
@@ -968,6 +974,7 @@ procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
 begin
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
+  UpdateMemoMarkerColumns;
 end;
 
 procedure TCompileForm.FormCloseQuery(Sender: TObject;
@@ -3094,6 +3101,85 @@ begin
   FindResultsList.ItemHeight := FindResultsList.Canvas.TextHeight('0') + 1;
 end;
 
+procedure TCompileForm.UpdateMemoMarkerColumns;
+
+type
+  TMarkerBitmaps = TObjectDictionary<Integer, TBitmap>;
+
+  procedure AddMarkerBitmap(const MarkerBitmaps: TMarkerBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
+    const Marker: Integer; const BkBrush: TBrush; const ImageList: TVirtualImageList; const ImageName: String);
+  begin
+    var pvBits: Pointer;
+    var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    var OldBitmap := SelectObject(DC, Bitmap);
+    var Rect := TRect.Create(0, 0, BitmapInfo.bmiHeader.biWidth, BitmapInfo.bmiHeader.biHeight);
+    FillRect(DC, Rect, BkBrush.Handle);
+    if ImageList_Draw(ImageList.Handle, ImageList.GetIndexByName(ImageName), DC, 0, 0, ILD_TRANSPARENT) then begin
+      var Bitmap2 := TBitmap.Create;
+      Bitmap2.Handle := Bitmap;
+      MarkerBitmaps.Add(Marker, Bitmap2);
+    end else begin
+      SelectObject(DC, OldBitmap);
+      DeleteObject(Bitmap);
+    end;
+  end;
+
+type
+  TNamedMarker = TPair<Integer, String>;
+
+  function NM(const Marker: Integer; const Name: String): TNamedMarker;
+  begin
+    Result := TNamedMarker.Create(Marker, Name); { This is a record so no need to free }
+  end;
+
+begin
+  var Width := ToCurrentPPI(20);
+  for var Memo in FMemos do
+    Memo.UpdateMemoMarkerColumnWidth(Width);
+
+  var ImageList := ThemedMarkersVirtualImageList;
+
+  var DC := CreateCompatibleDC(0);
+  if DC <> 0 then begin
+    try
+      var MarkerBitmaps := TMarkerBitmaps.Create([doOwnsValues]);
+      var BkBrush := TBrush.Create;
+      try
+        BkBrush.Color := FTheme.Colors[tcMarginBack];
+
+        var BitmapInfo := CreateBitmapInfo(ImageList.Width, ImageList.Height, 24);
+
+        var NamedMarkers := [
+            NM(mmIconHasEntry, 'debug-stop-filled'),
+            NM(mmIconEntryProcessed, 'debug-stop-filled_2'),
+            NM(mmIconBreakpoint, 'debug-breakpoint-filled'),
+            NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
+            NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-2'),
+            NM(mmIconStep, 'symbol-arrow-right')];
+
+        for var NamedMarker in NamedMarkers do
+          AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
+
+        var Pixmap := TScintPixmap.Create;
+        try
+          for var MarkerBitmap in MarkerBitmaps do begin
+            Pixmap.InitializeFromBitmap(FMainMemo, MarkerBitmap.Value, BkBrush.Color);
+            for var Memo in FMemos do
+              Memo.Call(SCI_MARKERDEFINEPIXMAP, MarkerBitmap.Key, LPARAM(Pixmap.Pixmap));
+          end;
+        finally
+          Pixmap.Free;
+        end;
+      finally
+        BkBrush.Free;
+        MarkerBitmaps.Free;
+      end;
+    finally
+      DeleteDC(DC);
+    end;
+  end;
+end;
+
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
@@ -4674,12 +4760,16 @@ begin
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
   ToolBarPanel.ParentBackground := False;
 
-  if FTheme.Dark then
-    ThemedVirtualImageList.ImageCollection := DarkToolBarImageCollection
-  else
-    ThemedVirtualImageList.ImageCollection := LightToolBarImageCollection;
+  if FTheme.Dark then begin
+    ThemedToolbarVirtualImageList.ImageCollection := DarkToolBarImageCollection;
+    ThemedMarkersVirtualImageList.ImageCollection := DarkMarkersImageCollection;
+  end else begin
+    ThemedToolbarVirtualImageList.ImageCollection := LightToolBarImageCollection;
+    ThemedMarkersVirtualImageList.ImageCollection := LightMarkersImageCollection;
+  end;
 
   UpdateBevel1Visibility;
+  UpdateMemoMarkerColumns;
 
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
@@ -4702,14 +4792,14 @@ begin
    FlushMenuThemes. So don't call SetPreferredAppMode if FlushMenuThemes is
    missing. }
   if Assigned(SetPreferredAppMode) and Assigned(FlushMenuThemes) then begin
-    FMenuImageList := ThemedVirtualImageList;
+    FMenuImageList := ThemedToolbarVirtualImageList;
     if FTheme.Dark then
       SetPreferredAppMode(PAM_FORCEDARK)
     else
       SetPreferredAppMode(PAM_FORCELIGHT);
     FlushMenuThemes;
   end else
-    FMenuImageList := LightVirtualImageList;
+    FMenuImageList := LightToolbarVirtualImageList;
 end;
 
 procedure TCompileForm.UpdateThemeData(const Open: Boolean);
@@ -4742,24 +4832,24 @@ end;
 
 procedure TCompileForm.UpdateMenuBitmapsIfNeeded;
 
-  procedure AddMenuBitmap(const DC: HDC; const BitmapInfo: TBitmapInfo;
+  procedure AddMenuBitmap(const MenuBitmaps: TMenuBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
     const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageIndex: Integer); overload;
   begin
     var pvBits: Pointer;
     var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
     var OldBitmap := SelectObject(DC, Bitmap);
     if ImageList_Draw(ImageList.Handle, ImageIndex, DC, 0, 0, ILD_TRANSPARENT) then
-      FMenuBitmaps.Add(MenuItem, Bitmap)
+      MenuBitmaps.Add(MenuItem, Bitmap)
     else begin
       SelectObject(DC, OldBitmap);
       DeleteObject(Bitmap);
     end;
   end;
 
-  procedure AddMenuBitmap(const DC: HDC; const BitmapInfo: TBitmapInfo;
+  procedure AddMenuBitmap(const MenuBitmaps: TMenuBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
     const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageName: String); overload;
   begin
-    AddMenuBitmap(DC, BitmapInfo, MenuItem, ImageList, ImageList.GetIndexByName(ImageName));
+    AddMenuBitmap(MenuBitmaps, DC, BitmapInfo, MenuItem, ImageList, ImageList.GetIndexByName(ImageName));
   end;
 
 type
@@ -4809,14 +4899,7 @@ begin
     var DC := CreateCompatibleDC(0);
     if DC <> 0 then begin
       try
-        var BitmapInfo: TBitmapInfo;
-        ZeroMemory(@BitmapInfo, SizeOf(BitmapInfo));
-        BitmapInfo.bmiHeader.biSize := SizeOf(BitmapInfo.bmiHeader);
-        BitmapInfo.bmiHeader.biWidth := NewSize.cx;
-        BitmapInfo.bmiHeader.biHeight := NewSize.cy;
-        BitmapInfo.bmiHeader.biPlanes := 1;
-        bitmapInfo.bmiHeader.biBitCount := 32;
-        BitmapInfo.bmiHeader.biCompression := BI_RGB;
+        var BitmapInfo := CreateBitmapInfo(NewSize.cx, NewSize.cy, 32);
 
         var ButtonedMenus := [
           BM(FNewMainFile, NewMainFileButton),
@@ -4830,7 +4913,7 @@ begin
           BM(HDoc, HelpButton)];
 
         for var ButtonedMenu in ButtonedMenus do
-          AddMenuBitmap(DC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
+          AddMenuBitmap(FMenuBitmaps, DC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
 
         var NamedMenus := [
           NM(FSaveMainFileAs, 'save-as-filled'),
@@ -4879,7 +4962,7 @@ begin
           NM(HAbout, 'button-info')];
 
         for var NamedMenu in NamedMenus do
-          AddMenuBitmap(DC, BitmapInfo, NamedMenu.Key, ImageList, NamedMenu.Value);
+          AddMenuBitmap(FMenuBitmaps, DC, BitmapInfo, NamedMenu.Key, ImageList, NamedMenu.Value);
       finally
         DeleteDC(DC);
       end;
@@ -5931,7 +6014,9 @@ begin
     Exit;
 
   NewMarker := -1;
-  if AMemo.BreakPoints.IndexOf(Line) <> -1 then begin
+  if AMemo.StepLine = Line then
+    NewMarker := mmIconStep
+  else if AMemo.BreakPoints.IndexOf(Line) <> -1 then begin
     if AMemo.LineState = nil then
       NewMarker := mmIconBreakpoint
     else if (Line < AMemo.LineStateCount) and (AMemo.LineState[Line] <> lnUnknown) then
@@ -5959,8 +6044,6 @@ begin
     AMemo.AddMarker(Line, mmLineStep)
   else if AMemo.ErrorLine = Line then
     AMemo.AddMarker(Line, mmLineError)
-  else if NewMarker in [mmIconBreakpoint, mmIconBreakpointGood] then
-    AMemo.AddMarker(Line, mmLineBreakpoint)
   else if NewMarker = mmIconBreakpointBad then
     AMemo.AddMarker(Line, mmLineBreakpointBad);
 end;
