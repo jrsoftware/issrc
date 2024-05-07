@@ -2160,6 +2160,9 @@ procedure TScintPixmap.InitializeFromBitmap(const AScintEdit: TScintEdit; const 
 
   procedure SetNextPixmapLine(const Pixmap: TPixmap; var Index: Integer; const Line: String);
   begin
+    if Index > High(Pixmap) then
+      TScintEdit.Error('SetNextPixmapLine: Index out of range');
+
     { Convert Line to an AnsiString, but copy the exact ordinal values;
       i.e. don't do any translation of 128-255 }
     var AnsiLine: AnsiString;
@@ -2194,7 +2197,8 @@ begin
 
     { Build pixmap }
     var Line: String;
-    SetLength(FPixmap, 1 + Colors.Count + ABitmap.Height);
+    SetLength(FPixmap, 0);
+    SetLength(FPixmap, 1 + Colors.Count + ABitmap.Height + 1);
     Line := Format('%d %d %d 1', [ABitmap.Width, ABitmap.Height, Colors.Count]);
     var Index := 0;
     SetNextPixmapLine(FPixmap, Index, Line);
@@ -2216,6 +2220,7 @@ begin
       end;
       SetNextPixmapLine(FPixmap, Index, Line);
     end;
+    SetNextPixmapLine(FPixmap, Index, '');  { terminating nil pointer }
   finally
     Colors.Free;
   end;
