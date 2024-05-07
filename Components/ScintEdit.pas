@@ -2158,12 +2158,15 @@ type
 
 procedure TScintPixmap.InitializeFromBitmap(const AScintEdit: TScintEdit; const ABitmap: TBitmap; const TransparentColor: TColorRef);
 
-  procedure SetNextPixmapLine(const Pixmap: TPixmap; var Index: Integer; Line: String);
+  procedure SetNextPixmapLine(const Pixmap: TPixmap; var Index: Integer; const Line: String);
   begin
-    var RawLine := AScintEdit.ConvertStringToRawString(Line);
-    var N := (Length(RawLine)+1)*SizeOf(RawLine[1]);
-    SetLength(Pixmap[Index], N);
-    Move(Pointer(RawLine)^, Pixmap[Index][1], N);
+    { Convert Line to an AnsiString, but copy the exact ordinal values;
+      i.e. don't do any translation of 128-255 }
+    var AnsiLine: AnsiString;
+    SetLength(AnsiLine, Length(Line));
+    for var I := 1 to Length(AnsiLine) do
+      AnsiLine[I] := AnsiChar(Ord(Line[I]));
+    Pixmap[Index] := AnsiLine;
     Inc(Index);
   end;
 
