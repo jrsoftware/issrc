@@ -407,7 +407,7 @@ type
     var FPixmap: TPixmap;
     function GetPixmap: Pointer;
   public
-    procedure InitializeFromBitmap(const AScintEdit: TScintEdit; const ABitmap: TBitmap; const TransparentColor: TColorRef);
+    procedure InitializeFromBitmap(const ABitmap: TBitmap; const TransparentColor: TColorRef);
     property Pixmap: Pointer read GetPixmap;
   end;
 
@@ -2156,7 +2156,7 @@ type
   TRGBTripleArray = array[0..MaxInt div SizeOf(TRGBTriple) - 1] of TRGBTriple;
   PRGBTripleArray = ^TRGBTripleArray;
 
-procedure TScintPixmap.InitializeFromBitmap(const AScintEdit: TScintEdit; const ABitmap: TBitmap;
+procedure TScintPixmap.InitializeFromBitmap(const ABitmap: TBitmap;
   const TransparentColor: TColorRef);
 
   procedure SetNextPixmapLine(const Pixmap: TPixmap; var Index: Integer; const Line: String);
