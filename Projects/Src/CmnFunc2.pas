@@ -39,6 +39,8 @@ type
   private
     FCreatedPipe: Boolean;
     FOKToRead: Boolean;
+    FMaxTotalBytesToRead: Cardinal;
+    FTotalBytesRead: Cardinal;
     FStdOutPipeRead: THandle;
     FStdOutPipeWrite: THandle;
     FLogProc: TLogProc;
@@ -54,6 +56,7 @@ type
       var InheritHandles: Boolean);
     procedure NotifyCreateProcessDone;
     procedure Read(const LastRead: Boolean);
+    property MaxTotalBytesToRead: Cardinal read FMaxTotalBytesToRead write FMaxTotalBytesToRead;
   end;
 
   TRegView = (rvDefault, rv32Bit, rv64Bit);
@@ -1615,6 +1618,7 @@ begin
     LogErrorFmt('SetHandleInformation failed (%d).', [GetLastError]);
 
   FOKToRead := FCreatedPipe;
+  FMaxTotalBytesToRead := 10*1024*1024;
 end;
 
 destructor TCreateProcessOutputReader.Destroy;
@@ -1685,6 +1689,9 @@ begin
       if LastError <> ERROR_BROKEN_PIPE then
         LogErrorFmt('PeekNamedPipe failed (%d).', [GetLastError]);
     end else if TotalBytesAvail > 0 then begin
+      { Don't read more than our read limit }
+      if FTotalBytesRead + TotalBytesAvail > FMaxTotalBytesToRead then
+        TotalBytesAvail := FMaxTotalBytesToRead - FTotalBytesRead;
       { Append newly available data to the incomplete line we might already have }
       var TotalBytesHave: DWORD := Length(FReadBuffer);
       SetLength(FReadBuffer, TotalBytesHave+TotalBytesAvail);
@@ -1705,6 +1712,14 @@ begin
             Inc(P);
           Delete(FReadBuffer, 1, P);
           P := FindNewLine(FReadBuffer, LastRead);
+        end;
+
+        Inc(FTotalBytesRead, BytesRead);
+        if FTotalBytesRead >= FMaxTotalBytesToRead then begin
+          { Read limit reached: break the pipe, throw away the incomplete line, and log an error }
+          FOKToRead := False;
+          FReadBuffer := '';
+          LogErrorFmt('Maximum output length (%d) reached, ignoring remainder.', [FMaxTotalBytesToRead]);
         end;
       end;
     end;
