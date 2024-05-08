@@ -65,6 +65,7 @@ const
   utRun_ShellExecRespectWaitFlags = 128;
   utRun_DisableFsRedir = 256;
   utRun_DontLogParameters = 512;
+  utRun_LogOutput = 1024;
   utDeleteFile_ExistedBeforeInstall = 1;
   utDeleteFile_Extra = 2;
   utDeleteFile_IsFont = 4;
@@ -815,7 +816,8 @@ begin
                    NewFileExistsRedir(CurRec^.ExtraData and utRun_DisableFsRedir <> 0, CurRecData[0]) then begin
                   if not InstExec(CurRec^.ExtraData and utRun_DisableFsRedir <> 0,
                      CurRecData[0], CurRecData[1], CurRecData[2], Wait,
-                     ShowCmd, ProcessMessagesProc, RunExecLog, 0, ErrorCode) then begin
+                     ShowCmd, ProcessMessagesProc, CurRec^.ExtraData and utRun_LogOutput <> 0,
+                     RunExecLog, 0, ErrorCode) then begin
                     LogFmt('CreateProcess failed (%d).', [ErrorCode]);
                     Result := False;
                   end

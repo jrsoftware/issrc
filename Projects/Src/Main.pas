@@ -3924,7 +3924,8 @@ begin
          NewFileExistsRedir(DisableFsRedir, ExpandedFilename) then begin
         if not InstExecEx(RunAsOriginalUser, DisableFsRedir, ExpandedFilename,
            ExpandedParameters, ExpandConst(RunEntry.WorkingDir),
-           Wait, RunEntry.ShowCmd, ProcessMessagesProc, RunExecLog, 0, ErrorCode) then
+           Wait, RunEntry.ShowCmd, ProcessMessagesProc, roLogOutput in RunEntry.Options,
+           RunExecLog, 0, ErrorCode) then
           raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, ExpandedFilename) +
             SNewLine2 + FmtSetupMessage(msgErrorFunctionFailedWithMessage,
             ['CreateProcess', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));

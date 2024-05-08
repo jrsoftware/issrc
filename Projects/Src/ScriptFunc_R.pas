@@ -902,7 +902,7 @@ begin
         Stack.SetBool(PStart, InstExecEx(RunAsOriginalUser,
           ScriptFuncDisableFsRedir, Filename, Stack.GetString(PStart-2),
           Stack.GetString(PStart-3), TExecWait(Stack.GetInt(PStart-5)),
-          Stack.GetInt(PStart-4), ProcessMessagesProc, ExecLog, 0, ResultCode));
+          Stack.GetInt(PStart-4), ProcessMessagesProc, False, ExecLog, 0, ResultCode));
       finally
         WindowDisabler.Free;
       end;

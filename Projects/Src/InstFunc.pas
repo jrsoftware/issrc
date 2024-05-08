@@ -87,7 +87,7 @@ procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
   const AlreadyExisted: Boolean);
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; const LogProc: TLogProc;
+  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
   const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
@@ -857,7 +857,7 @@ end;
 
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; const LogProc: TLogProc;
+  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
   const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
 var
   CmdLine: String;
@@ -899,7 +899,7 @@ begin
   var OutputReader: TCreateProcessOutputReader := nil;
   var InheritHandles := False;
   try
-    if Assigned(LogProc) and (Wait = ewWaitUntilTerminated) then begin
+    if Log and Assigned(LogProc) and (Wait = ewWaitUntilTerminated) then begin
       OutputReader := TCreateProcessOutputReader.Create(LogProc, LogProcData);
       OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
     end;
