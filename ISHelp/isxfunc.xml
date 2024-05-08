@@ -321,7 +321,7 @@ end;</pre></example>
         <name>ShowExceptionMessage</name>
         <prototype>procedure ShowExceptionMessage;</prototype>
         <description><p>Shows the message associated with the current exception in a message box. This function should only be called from within an <tt>except</tt> section, or a function called from an <tt>except</tt> section.</p></description>
-        <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive) the message will be recorded in the log in addition to being shown.</p></remarks>
+        <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or debugging from the Compiler IDE) the message will be recorded in the log file and/or in the Compiler IDE's "Debug Output" view in addition to being shown.</p></remarks>
         <example><pre>var
   I: Integer;
 begin
@@ -2837,8 +2837,8 @@ end;</pre></example>
       <function>
         <name>Log</name>
         <prototype>procedure Log(const S: String);</prototype>
-        <description><p>Logs the specified string in Setup's log file.</p></description>
-        <remarks><p>Calls to this function are ignored if logging is not enabled via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive.</p></remarks>
+        <description><p>Logs the specified string in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p></description>
+        <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or debugging from the Compiler IDE).</p></remarks>
       </function>
     </subcategory>
   </category>

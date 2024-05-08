@@ -832,7 +832,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="log">{log}</a></b></dt>
 <dd>
-<p>The log file name, or an empty string if <link topic="setup_setuplogging">logging</link> is not enabled.</p>
+<p>The log file name, or an empty string if <link topic="setup_setuplogging">logging</link> to a log file is not enabled.</p>
 </dd>
 
 </dl>
