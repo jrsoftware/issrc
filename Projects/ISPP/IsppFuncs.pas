@@ -20,17 +20,15 @@ procedure RegisterFunctions(Preproc: TPreprocessor);
 implementation
 
 uses
-  SysUtils, IniFiles, Registry, IsppConsts, IsppBase, IsppIdentMan,
+  SysUtils, IniFiles, Registry, Math, IsppConsts, IsppBase, IsppIdentMan,
   IsppSessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2, Int64Em;
   
 var
   IsWin64: Boolean;
 
 function PrependPath(const Ext: Longint; const Filename: String): String;
-var
-  Preprocessor: TPreprocessor;
 begin
-  Preprocessor := TObject(Ext) as TPreprocessor;
+  var Preprocessor := TObject(Ext) as TPreprocessor;
   Result := PathExpand(Preprocessor.PrependDirName(Filename,
     Preprocessor.SourcePath));
 end;
@@ -632,16 +630,16 @@ begin
   end;
 end;
 
-function InstExec(const Filename, Params: String; WorkingDir: String;
-  const WaitUntilTerminated, WaitUntilIdle: Boolean; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; var ErrorCode: Cardinal): Boolean;
+function Exec(const Filename, Params: String; WorkingDir: String;
+  const WaitUntilTerminated: Boolean; const ShowCmd: Integer;
+  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
+  const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
 var
   CmdLine: String;
   WorkingDirP: PChar;
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
-  Result := True;
   CmdLine := Filename + ' ' + Params;
   if WorkingDir = '' then WorkingDir := ExtractFilePath(Filename);
   FillChar (StartupInfo, SizeOf(StartupInfo), 0);
@@ -652,29 +650,61 @@ begin
     WorkingDirP := PChar(WorkingDir)
   else
     WorkingDirP := nil;
-  if not CreateProcess(nil, PChar(CmdLine), nil, nil, False, 0, nil,
-     WorkingDirP, StartupInfo, ProcessInfo) then begin
-    Result := False;
-    ErrorCode := GetLastError;
-    Exit;
-  end;
-  with ProcessInfo do begin
+    
+  var OutputReader: TCreateProcessOutputReader := nil;
+  var InheritHandles := False;
+  try
+    if Log and Assigned(LogProc) and WaitUntilTerminated then begin
+      OutputReader := TCreateProcessOutputReader.Create(LogProc, LogProcData);
+      OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
+    end;
+
+    Result := CreateProcess(nil, PChar(CmdLine), nil, nil, InheritHandles, 0, nil,
+       WorkingDirP, StartupInfo, ProcessInfo);
+    if not Result then begin
+      ResultCode := GetLastError;
+      Exit;
+    end;
+    
     { Don't need the thread handle, so close it now }
-    CloseHandle (hThread);
-    if WaitUntilIdle then
-      WaitForInputIdle (hProcess, INFINITE);
-    if WaitUntilTerminated then
-      { Wait until the process returns, but still process any messages that
-        arrive. }
-      repeat
-        { Process any pending messages first because MsgWaitForMultipleObjects
-          (called below) only returns when *new* messages arrive }
+    CloseHandle(ProcessInfo.hThread);
+    if OutputReader <> nil then
+      OutputReader.NotifyCreateProcessDone;
+      
+    try
+      if WaitUntilTerminated then begin
+        { Wait until the process returns, but still process any messages that
+          arrive and read the output. }
+        var WaitMilliseconds := IfThen(OutputReader <> nil, 50, INFINITE);
+        var WaitResult: DWORD := 0;
+        repeat
+          { Process any pending messages first because MsgWaitForMultipleObjects
+            (called below) only returns when *new* messages arrive, unless there's
+            a timeout }
+          if WaitResult <> WAIT_TIMEOUT then
+            ProcessMessagesProc;
+          if OutputReader <> nil then
+            OutputReader.Read(False);
+          WaitResult := MsgWaitForMultipleObjects(1, ProcessInfo.hProcess, False,
+            WaitMilliseconds, QS_ALLINPUT);
+        until (WaitResult <> WAIT_OBJECT_0+1) and (WaitResult <> WAIT_TIMEOUT);
+        { Process messages once more in case MsgWaitForMultipleObjects saw the
+          process terminate and new messages arrive simultaneously. (Can't leave
+          unprocessed messages waiting, or a subsequent call to WaitMessage
+          won't see them.) }
         if Assigned(ProcessMessagesProc) then
           ProcessMessagesProc;
-      until MsgWaitForMultipleObjects(1, hProcess, False, INFINITE, QS_ALLINPUT) <> WAIT_OBJECT_0+1;
-    { Then close the process handle }
-    GetExitCodeProcess(hProcess, ErrorCode);
-    CloseHandle (hProcess);
+        if OutputReader <> nil then
+          OutputReader.Read(True);
+      end;
+      { Get the exit code. Will be set to STILL_ACTIVE if not yet available }
+      if not GetExitCodeProcess(ProcessInfo.hProcess, DWORD(ResultCode)) then
+        ResultCode := -1;  { just in case }
+    finally
+      CloseHandle(ProcessInfo.hProcess);
+    end;
+  finally
+    OutputReader.Free;
   end;
 end;
 
@@ -689,33 +719,42 @@ begin
   end;
 end;
 
+procedure ExecLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+begin
+  var Preprocessor := TPreprocessor(Data);
+  if Error then
+    Preprocessor.WarningMsg(S, [])
+  else
+    Preprocessor.StatusMsg(S, []);
+end;
+
 {
-  int Exec(str FileName, str Params, str WorkingDir, int Wait, int ShowCmd)
+  int Exec(str FileName, str Params, str WorkingDir, int Wait, int ShowCmd, int Log)
 }
 
 function ExecFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-var
-  P, W: string;
-  Wait, S: Integer;
-  Success: Boolean;
-  R: Cardinal;
 begin
-  if CheckParams(Params, [evStr, evStr, evStr, evInt, evInt], 1, Result) then
+  if CheckParams(Params, [evStr, evStr, evStr, evInt, evInt, evInt], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      Wait := 1;
-      S := SW_SHOWNORMAL;
-      if GetCount > 1 then P := Get(1).AsStr;
-      if GetCount > 2 then W := PrependPath(Ext, Get(2).AsStr);
-      if (GetCount > 3) and (Get(3).Typ <> evNull) then Wait := Get(3).AsInt;
-      if (GetCount > 4) and (Get(4).Typ <> evNull) then S := Get(4).AsInt;
-      Success := InstExec(Get(0).AsStr, P, W, Wait <> 0, False, S, MsgProc, R);
-      if Wait = 0 then
+      var ParamsS, WorkingDir: String;
+      var WaitUntilTerminated := True;
+      var ShowCmd := SW_SHOWNORMAL;
+      var Log := True;
+      if GetCount > 1 then ParamsS := Get(1).AsStr;
+      if GetCount > 2 then WorkingDir := PrependPath(Ext, Get(2).AsStr);
+      if (GetCount > 3) and (Get(3).Typ <> evNull) then WaitUntilTerminated := Get(3).AsInt <> 0;
+      if (GetCount > 4) and (Get(4).Typ <> evNull) then ShowCmd := Get(4).AsInt;
+      if (GetCount > 5) and (Get(5).Typ <> evNull) then Log := Get(5).AsInt <> 0;
+      var ResultCode: Integer;
+      var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, WaitUntilTerminated,
+        ShowCmd, MsgProc, Log, ExecLog, Ext, ResultCode);
+      if not WaitUntilTerminated then
         MakeBool(ResPtr^, Success)
       else
-        MakeInt(ResPtr^, R);
+        MakeInt(ResPtr^, ResultCode);
     end;
   except
     on E: Exception do
