@@ -134,7 +134,8 @@ end;</pre>
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li>Console-mode compiler (ISCC) change: Added support for Unicode output.</li>
-  <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program. Cannot be combined with <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, nor <tt>waituntilidle</tt>.</li>
+  <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program. Cannot be combined with <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, nor <tt>waituntilidle</tt>. Has no effect if logging is not enabled.</li>
+  <li>Pascal Scripting change: Added new <tt>ExecAndLogOutput</tt> support function.</li>
   <li>Added new <tt>[Setup]</tt> section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
   <li>Added new <tt>[Files]</tt> section flag <tt>signcheck</tt>. Instructs the compiler check the original source files for a digital signature before storing them.</li>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>

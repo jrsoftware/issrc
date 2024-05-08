@@ -802,7 +802,7 @@ begin
   Application.ProcessMessages;
 end;
 
-procedure ExecLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+procedure ExecAndLogOutputLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
 begin
   Log(S);
 end;
@@ -814,7 +814,6 @@ var
   WindowDisabler: TWindowDisabler;
   ResultCode, ErrorCode: Integer;
   FreeBytes, TotalBytes: Integer64;
-  RunAsOriginalUser: Boolean;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -888,10 +887,15 @@ begin
     end
     else
       IncrementSharedCount(rv32Bit, Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
-  end else if (Proc.Name = 'EXEC') or (Proc.Name = 'EXECASORIGINALUSER') then begin
-    RunAsOriginalUser := Proc.Name = 'EXECASORIGINALUSER';
+  end else if (Proc.Name = 'EXEC') or (Proc.Name = 'EXECASORIGINALUSER') or
+              (Proc.Name = 'EXECANDLOGOUTPUT') then begin
+    var RunAsOriginalUser := Proc.Name = 'EXECASORIGINALUSER';
+    var LogOutput := GetLogActive and (Proc.Name = 'EXECANDLOGOUTPUT');
+    var ExecWait := TExecWait(Stack.GetInt(PStart-5));
     if IsUninstaller and RunAsOriginalUser then
-      NoUninstallFuncError(Proc.Name);
+      NoUninstallFuncError(Proc.Name)
+    else if LogOutput and (ExecWait <> ewWaitUntilTerminated) then
+      InternalError(Format('Must call "%s" function with Wait = ewWaitUntilTerminated', [Proc.Name]));
 
     Filename := Stack.GetString(PStart-1);
     if PathCompare(Filename, SetupLdrOriginalFilename) <> 0 then begin
@@ -901,8 +905,9 @@ begin
       try
         Stack.SetBool(PStart, InstExecEx(RunAsOriginalUser,
           ScriptFuncDisableFsRedir, Filename, Stack.GetString(PStart-2),
-          Stack.GetString(PStart-3), TExecWait(Stack.GetInt(PStart-5)),
-          Stack.GetInt(PStart-4), ProcessMessagesProc, False, ExecLog, 0, ResultCode));
+          Stack.GetString(PStart-3), ExecWait,
+          Stack.GetInt(PStart-4), ProcessMessagesProc, LogOutput,
+          ExecAndLogOutputLog, 0, ResultCode));
       finally
         WindowDisabler.Free;
       end;
@@ -912,7 +917,7 @@ begin
       Stack.SetInt(PStart-6, ERROR_ACCESS_DENIED);
     end;
   end else if (Proc.Name = 'SHELLEXEC') or (Proc.Name = 'SHELLEXECASORIGINALUSER') then begin
-    RunAsOriginalUser := Proc.Name = 'SHELLEXECASORIGINALUSER';
+    var RunAsOriginalUser := Proc.Name = 'SHELLEXECASORIGINALUSER';
     if IsUninstaller and RunAsOriginalUser then
       NoUninstallFuncError(Proc.Name);
 

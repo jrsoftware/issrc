@@ -816,7 +816,7 @@ begin
                    NewFileExistsRedir(CurRec^.ExtraData and utRun_DisableFsRedir <> 0, CurRecData[0]) then begin
                   if not InstExec(CurRec^.ExtraData and utRun_DisableFsRedir <> 0,
                      CurRecData[0], CurRecData[1], CurRecData[2], Wait,
-                     ShowCmd, ProcessMessagesProc, CurRec^.ExtraData and utRun_LogOutput <> 0,
+                     ShowCmd, ProcessMessagesProc, GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0),
                      RunExecLog, 0, ErrorCode) then begin
                     LogFmt('CreateProcess failed (%d).', [ErrorCode]);
                     Result := False;
