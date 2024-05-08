@@ -3163,7 +3163,7 @@ begin
         var Pixmap := TScintPixmap.Create;
         try
           for var MarkerBitmap in MarkerBitmaps do begin
-            Pixmap.InitializeFromBitmap(FMainMemo, MarkerBitmap.Value, BkBrush.Color);
+            Pixmap.InitializeFromBitmap(MarkerBitmap.Value, BkBrush.Color);
             for var Memo in FMemos do
               Memo.Call(SCI_MARKERDEFINEPIXMAP, MarkerBitmap.Key, LPARAM(Pixmap.Pixmap));
           end;
