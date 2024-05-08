@@ -321,7 +321,7 @@ end;</pre></example>
         <name>ShowExceptionMessage</name>
         <prototype>procedure ShowExceptionMessage;</prototype>
         <description><p>Shows the message associated with the current exception in a message box. This function should only be called from within an <tt>except</tt> section, or a function called from an <tt>except</tt> section.</p></description>
-        <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or debugging from the Compiler IDE) the message will be recorded in the log file and/or in the Compiler IDE's "Debug Output" view in addition to being shown.</p></remarks>
+        <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or the <link topic="setup_uninstalllogging">UninstallLogging</link> [Setup] section directive or debugging from the Compiler IDE) the message will be recorded in the log file and/or in the Compiler IDE's "Debug Output" view in addition to being shown.</p></remarks>
         <example><pre>var
   I: Integer;
 begin
@@ -1641,7 +1641,8 @@ begin
     // handle failure if necessary; ResultCode contains the error code
   end;
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_ExecAsOriginalUser">ExecAsOriginalUser</link></p></seealso>
+        <seealso><p><link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br />
+<link topic="isxfunc_ExecAsOriginalUser">ExecAsOriginalUser</link></p></seealso>
       </function>
       <function>
         <name>ExecAsOriginalUser</name>
@@ -2838,7 +2839,14 @@ end;</pre></example>
         <name>Log</name>
         <prototype>procedure Log(const S: String);</prototype>
         <description><p>Logs the specified string in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p></description>
-        <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or debugging from the Compiler IDE).</p></remarks>
+        <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or the <link topic="setup_uninstalllogging">UninstallLogging</link> [Setup] section directive or debugging from the Compiler IDE).</p></remarks>
+      </function>
+      <function>
+        <name>ExecAndLogOutput</name>
+        <prototype>function ExecAndLogOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
+        <description><p>Identical to <tt>Exec</tt> except that the output of the executed executable or batch file is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. See <link topic="isxfunc_Exec">Exec</link> for more information.</p></description>
+        <remarks><p>Completely identical to <tt>Exec</tt> if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or the <link topic="setup_uninstalllogging">UninstallLogging</link> [Setup] section directive or debugging from the Compiler IDE).</p>
+<p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p></remarks>
       </function>
     </subcategory>
   </category>
