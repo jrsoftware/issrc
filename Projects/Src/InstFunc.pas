@@ -826,7 +826,7 @@ begin
     if Wait = ewWaitUntilTerminated then begin
       { Wait until the process returns, but still process any messages that
         arrive and read the output if requested. }
-      var WaitMilliseconds := IfThen(OutputReader <> nil, 100, INFINITE);
+      var WaitMilliseconds := IfThen(OutputReader <> nil, 50, INFINITE);
       var WaitResult: DWORD := 0;
       repeat
         { Process any pending messages first because MsgWaitForMultipleObjects
