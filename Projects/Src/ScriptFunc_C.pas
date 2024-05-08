@@ -142,6 +142,7 @@ begin
     'end');
 
   RegisterType('TOnDownloadProgress', 'function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;');
+  RegisterType('TOnLog', 'procedure(const S: String; const Error, FirstLine: Boolean);');
 
   RegisterFunctionTable(ScriptDlgTable);
   RegisterFunctionTable(NewDiskTable);

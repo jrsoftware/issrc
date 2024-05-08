@@ -125,7 +125,6 @@ var
   NewOutputProgressPage: TOutputProgressWizardPage;
   NewOutputMarqueeProgressPage: TOutputMarqueeProgressWizardPage;
   NewDownloadPage: TDownloadWizardPage;
-  P: PPSVariantProcPtr;
   OnDownloadProgress: TOnDownloadProgress;
   NewSetupForm: TSetupForm;
 begin
@@ -271,7 +270,7 @@ begin
   end else if Proc.Name = 'CREATEDOWNLOADPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    P := Stack.Items[PStart-3];
+    var P: PPSVariantProcPtr := Stack.Items[PStart-3];
     { ProcNo 0 means nil was passed by the script }
     if P.ProcNo <> 0 then
       OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
@@ -765,7 +764,6 @@ end;
 function InstallProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
-  P: PPSVariantProcPtr;
   OnDownloadProgress: TOnDownloadProgress;
 begin
   if IsUninstaller then
@@ -779,7 +777,7 @@ begin
   end else if Proc.Name = 'EXTRACTTEMPORARYFILES' then begin
     Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'DOWNLOADTEMPORARYFILE' then begin
-    P := Stack.Items[PStart-4];
+    var P: PPSVariantProcPtr := Stack.Items[PStart-4];
     { ProcNo 0 means nil was passed by the script }
     if P.ProcNo <> 0 then
       OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
@@ -805,6 +803,15 @@ end;
 procedure ExecAndLogOutputLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
 begin
   Log(S);
+end;
+
+type
+  TOnLog = procedure(const S: String; const Error, FirstLine: Boolean) of object;
+
+procedure ExecAndLogOutputLogCustom(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+begin
+  var OnLog := TOnLog(PMethod(Data)^);
+  OnLog(S, Error, FirstLine);
 end;
 
 function InstFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
@@ -890,7 +897,24 @@ begin
   end else if (Proc.Name = 'EXEC') or (Proc.Name = 'EXECASORIGINALUSER') or
               (Proc.Name = 'EXECANDLOGOUTPUT') then begin
     var RunAsOriginalUser := Proc.Name = 'EXECASORIGINALUSER';
-    var LogOutput := GetLogActive and (Proc.Name = 'EXECANDLOGOUTPUT');
+    var LogOutput: Boolean;
+    var LogProc: TLogProc := nil;
+    var LogProcData: NativeInt := 0;
+    var Method: TMethod;
+    if Proc.Name = 'EXECANDLOGOUTPUT' then begin
+      var P: PPSVariantProcPtr := Stack.Items[PStart-7];
+      { ProcNo 0 means nil was passed by the script }
+      if P.ProcNo <> 0 then begin
+        LogOutput := True;
+        LogProc := ExecAndLogOutputLogCustom;
+        Method := Caller.GetProcAsMethod(P.ProcNo); { This is a TOnLog }
+        LogProcData := NativeInt(@Method);
+      end else begin
+        LogOutput := GetLogActive;
+        LogProc := ExecAndLogOutputLog;
+      end;
+    end else
+      LogOutput := False;
     var ExecWait := TExecWait(Stack.GetInt(PStart-5));
     if IsUninstaller and RunAsOriginalUser then
       NoUninstallFuncError(Proc.Name)
@@ -907,7 +931,7 @@ begin
           ScriptFuncDisableFsRedir, Filename, Stack.GetString(PStart-2),
           Stack.GetString(PStart-3), ExecWait,
           Stack.GetInt(PStart-4), ProcessMessagesProc, LogOutput,
-          ExecAndLogOutputLog, 0, ResultCode));
+          LogProc, LogProcData, ResultCode));
       finally
         WindowDisabler.Free;
       end;
