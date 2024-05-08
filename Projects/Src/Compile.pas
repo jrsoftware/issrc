@@ -7380,6 +7380,7 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
           Win32ErrorString(LastError)]);
       end;
       CloseHandle(ProcessInfo.hThread);
+      OutputReader.NotifyCreateProcessDone;
       try
         while True do begin
           case WaitForSingleObject(ProcessInfo.hProcess, 50) of
