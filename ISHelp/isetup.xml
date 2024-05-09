@@ -2608,6 +2608,10 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 <flag name="hidewizard">
 <p>If this flag is specified, the wizard will be hidden while the program is running.</p>
 </flag>
+<flag name="logoutput">
+<p>If this flag is specified, the output of the program will be included in the log file.</p>
+<p>This flag cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags.</p>
+</flag>
 <flag name="nowait">
 <p>If this flag is specified, it will not wait for the process to finish executing before proceeding to the next [Run] entry, or completing Setup. Cannot be combined with <tt>waituntilidle</tt> or <tt>waituntilterminated</tt>.</p>
 </flag>
