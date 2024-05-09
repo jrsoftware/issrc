@@ -1690,7 +1690,7 @@ begin
         LogErrorFmt('PeekNamedPipe failed (%d).', [GetLastError]);
     end else if TotalBytesAvail > 0 then begin
       { Don't read more than our read limit }
-      if FTotalBytesRead + TotalBytesAvail > FMaxTotalBytesToRead then
+      if TotalBytesAvail > FMaxTotalBytesToRead - FTotalBytesRead then
         TotalBytesAvail := FMaxTotalBytesToRead - FTotalBytesRead;
       { Append newly available data to the incomplete line we might already have }
       var TotalBytesHave: DWORD := Length(FReadBuffer);
