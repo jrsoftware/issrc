@@ -12,18 +12,18 @@
 <!ELEMENT keywords  (kwd)*>
 <!ELEMENT kwd       (#PCDATA)*>
 
-<!ELEMENT description (para|pre|table)*>
+<!ELEMENT description (p|pre|table)*>
 <!ATTLIST description 
   header (yes|no)   "yes">
 
-<!ELEMENT section (para|pre|table|ul)*>
+<!ELEMENT section (p|pre|table|ul)*>
 <!ATTLIST section
   title  CDATA      #REQUIRED>
 
-<!ELEMENT para      (#PCDATA|synel|i|link|extlink)*>
+<!ELEMENT p         (#PCDATA|tt|i|link|extlink)*>
 <!ELEMENT pre       (line)*>
 <!ELEMENT line      (#PCDATA|link|b)*>
-<!ELEMENT synel     (#PCDATA|i|link|extlink)*>
+<!ELEMENT tt        (#PCDATA|i|link|extlink)*>
 <!ELEMENT code      (#PCDATA|b)*>
 <!ELEMENT link      (#PCDATA)*>
 <!ATTLIST link
@@ -70,4 +70,4 @@
 <!ELEMENT td          (#PCDATA|b|i|link|extlink|table|code)*>
 
 <!ELEMENT ul          (li)*>
-<!ELEMENT li          (#PCDATA|synel|link|extlink|para|pre)*>
+<!ELEMENT li          (#PCDATA|tt|link|extlink|p|pre)*>
