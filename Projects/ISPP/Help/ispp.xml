@@ -693,9 +693,9 @@ The list of options is provided at the end of this topic.</para>
         </pre>
       </description>
 			<section title="Function prototypes documenting conventions">
-				<para>Function prototypes show the function result type, name, and arguments.</para>
-				<para>Return and argument types <synel>int</synel>, <synel>str</synel>, <synel>any</synel>, and <synel>void</synel> respectively specify the integer type, the string type, any type, and the null type. The integer type is a signed 64-bit integer. When the null type is specified as a function result type then the function does not return a value.</para>
-				<para>A question mark (<synel>?</synel>) after an argument type means that the argument is optional.</para>
+				<para>Function prototypes show the function result type, name, and parameters.</para>
+				<para>Return and parameter types <synel>int</synel>, <synel>str</synel>, <synel>any</synel>, and <synel>void</synel> respectively specify the integer type, the string type, any type, and the null type. The integer type is a signed 64-bit integer. When the null type is specified as a function result type then the function does not return a value.</para>
+				<para>A question mark (<synel>?</synel>) after an parameter type means that the parameter is optional.</para>
       </section>
 			<subtopicstitle>Available functions</subtopicstitle>
 			<topic id="GetStringFileInfo">
@@ -706,9 +706,9 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Retrieves string from specified file's (first argument) version information resource.</para>
-					<para>Second argument is the name of the version info string-value. This should be one of the predefined strings. Those strings and shortcuts are declared in &builtins;.</para>
-					<para>Third optional argument should specify the language and charset identifier. For example: 0x04BE0409 stands for "English (United States)." If this parameter is omitted, ISPP scans for all available version info blocks to find the value.</para>
+					<para>Retrieves string from specified file's (first parameter) version information resource.</para>
+					<para>Second parameter is the name of the version info string-value. This should be one of the predefined strings. Those strings and shortcuts are declared in &builtins;.</para>
+					<para>Third optional parameter should specify the language and charset identifier. For example: 0x04BE0409 stands for "English (United States)." If this parameter is omitted, ISPP scans for all available version info blocks to find the value.</para>
 					<para>The function returns an empty string, if it was unable to retrieve the desired string-value.</para>
 				</description>
 			</topic>
@@ -720,7 +720,7 @@ The list of options is provided at the end of this topic.</para>
 					</pre>
 				</section>
 				<description>
-					<para>Converts an expression (first argument) to its integer representation. If the expression is an integer, the result of the function is the expression value. If the expression is void, the result is 0. If the expression is string, ISPP tries to convert it to integer; if such attempt fails, an error is raised unless second parameter specifies the default result.</para>
+					<para>Converts an expression (first parameter) to its integer representation. If the expression is an integer, the result of the function is the expression value. If the expression is void, the result is 0. If the expression is string, ISPP tries to convert it to integer; if such attempt fails, an error is raised unless second parameter specifies the default result.</para>
 				</description>
 			</topic>
 			<topic id="Str">
@@ -784,7 +784,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> ReadIni(<b>str</b> 1, <b>str</b> 2, <b>str</b> 3, <b>str</b>? 4)</line></pre>
 				</section>
 				<description>
-					<para>Reads the value from an INI file. Argument 1 must be the name of the INI file, argument 2 &dash; the name of a section in the INI file, the third argument is the key in the section to read. Last optional argument can be used to provide the default value that will be returned on failure, if it is omitted, an empty string is returned.</para>
+					<para>Reads the value from an INI file. Parameter 1 must be the name of the INI file, parameter 2 &dash; the name of a section in the INI file, the third parameter is the key in the section to read. Last optional parameter can be used to provide the default value that will be returned on failure, if it is omitted, an empty string is returned.</para>
 				</description>
 			</topic>
 			<topic id="WriteIni">
@@ -793,7 +793,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>void</b> WriteIni(<b>str</b> 1, <b>str</b> 2, <b>str</b> 3, <b>any</b> 4)</line></pre>
 				</section>
 				<description>
-					<para>Writes specified value to an INI file. Argument 1 is the name of the INI file, argument 2 &dash; the name of a section in the INI file, argument 3 &dash; the name of a key in the section. Last argument should be set to the value you wish to be written to the INI file, it can be of any type.</para>
+					<para>Writes specified value to an INI file. Parameter 1 is the name of the INI file, parameter 2 &dash; the name of a section in the INI file, parameter 3 &dash; the name of a key in the section. Last parameter should be set to the value you wish to be written to the INI file, it can be of any type.</para>
 				</description>
 			</topic>
 			<topic id="ReadReg">
@@ -813,13 +813,13 @@ The list of options is provided at the end of this topic.</para>
 				</section>
 				<description>
 					<para>Executes specified executable or batch file.</para>
-					<para>First argument specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this argument, and the full command line in the second argument. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</para>
-					<para>Second argument may be used to specify parameters for the process.</para>
-					<para>Third argument may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the first argument and use that as the initial current directory for the process.</para>
-					<para>Fourth argument may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero value is assumed.</para>
-					<para>Fifth argument may be any of the <synel>SW_*</synel> constants defined in &builtins;. For GUI processes, it specifies the default value the first time ShowWindow is called. By default, SW_SHOWNORMAL (i. e. 1) is assumed.</para>
-					<para>Sixth argument may be set to zero if you don't wish to log output, and non-zero otherwise. By default, non-zero value is assumed. Has no effect if the fourth argument is set to zero.</para>
-					<para>If fourth argument is omitted or is non-zero, the function returns the exit code of the process. Otherwise, the function result indicates whether the process has been successfully launched (non-zero for success).</para>
+					<para>First parameter specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the second parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</para>
+					<para>Second parameter may be used to specify parameters for the process.</para>
+					<para>Third parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the first parameter and use that as the initial current directory for the process.</para>
+					<para>Fourth parameter may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero value is assumed.</para>
+					<para>Fifth parameter may be any of the <synel>SW_*</synel> constants defined in &builtins;. For GUI processes, it specifies the default value the first time ShowWindow is called. By default, SW_SHOWNORMAL (i. e. 1) is assumed.</para>
+					<para>Sixth parameter may be set to zero if you don't wish to log output, and non-zero otherwise. By default, non-zero value is assumed. Has no effect if the fourth parameter is set to zero.</para>
+					<para>If fourth parameter is omitted or is non-zero, the function returns the exit code of the process. Otherwise, the function result indicates whether the process has been successfully launched (non-zero for success).</para>
 				</description>
 			</topic>
 			<topic id="Copy">
@@ -828,7 +828,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>str</b> Copy(<b>str</b> 1, <b>int</b> 2, <b>int</b>? 3)</line></pre>
 				</section>
 				<description>
-					<para>Extracts a substring from a string (first argument). The 1-based index of the character from which the substring should start is specified by the second argument. The third argument specifies the number of characters to take, if it is omitted, all characters up to the end of the string are copied to the result.</para>
+					<para>Extracts a substring from a string (first parameter). The 1-based index of the character from which the substring should start is specified by the second parameter. The third parameter specifies the number of characters to take, if it is omitted, all characters up to the end of the string are copied to the result.</para>
 				</description>
 			</topic>
 			<topic id="Pos">
@@ -837,7 +837,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> Pos(<b>str</b> 1, <b>str</b> 2)</line></pre>
 				</section>
 				<description>
-					<para>Searches for a substring (first argument) in another string (second argument) and returns an integer value that is the 1-based index of the first character of the substring within the second string. <synel>Pos</synel> is case-sensitive. If the substring is not found, <synel>Pos</synel> returns zero.</para>
+					<para>Searches for a substring (first parameter) in another string (second parameter) and returns an integer value that is the 1-based index of the first character of the substring within the second string. <synel>Pos</synel> is case-sensitive. If the substring is not found, <synel>Pos</synel> returns zero.</para>
 				</description>
 			</topic>
 			<topic id="RPos">
@@ -846,7 +846,7 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> RPos(<b>str</b> 1, <b>str</b> 2)</line></pre>
 				</section>
 				<description>
-					<para>Searches for a substring (first argument) in another string (second argument) and returns an integer value that is the 1-based index of the first character of the last occurrence of the substring within the second string. <synel>RPos</synel> is case-sensitive. If the substring is not found, <synel>RPos</synel> returns zero.</para>
+					<para>Searches for a substring (first parameter) in another string (second parameter) and returns an integer value that is the 1-based index of the first character of the last occurrence of the substring within the second string. <synel>RPos</synel> is case-sensitive. If the substring is not found, <synel>RPos</synel> returns zero.</para>
 				</description>
 			</topic>
 			<topic id="Len">
@@ -893,12 +893,12 @@ The list of options is provided at the end of this topic.</para>
 						<para><synel>FIND_CONTAINS</synel> (3) means that the line must contain (i. e. it also can match, begin, or end with) the search string.</para>
 						<para>Any of the following modifiers may be combined with one of the previous using bitwise OR operator (<synel>|</synel>):</para>
 						<para><synel>FIND_CASESENSITIVE</synel> (4) means that comparison must be case-sensitive.</para>
-						<para><synel>FIND_AND</synel> (0) means that this criterium (the pair of arguments in <synel>Find</synel> function) must be met as well as previous criteria.</para>
+						<para><synel>FIND_AND</synel> (0) means that this criterium (the pair of parameters in <synel>Find</synel> function) must be met as well as previous criteria.</para>
 						<para><synel>FIND_OR</synel> (8) means that it is allowed that this criterium is tested even if previous criteria were not met.</para>
 						<para><synel>FIND_NOT</synel> (16) means that this criterium must not be met.</para>
 						<para><synel>FIND_AND</synel> and <synel>FIND_OR</synel> are mutually exclusive. If both are specified, <synel>FIND_OR</synel> takes precedence.</para>
 						<para>Special flags:</para>
-						<para><synel>FIND_TRIM</synel> (32) means that leading and trailing whitespaces must be stripped off from the line prior to testing it against all the criteria. This flag can only be used in the third argument of the <synel>Find</synel> function. It is not mutually exclusive with any of the previously mentioned flags.</para>
+						<para><synel>FIND_TRIM</synel> (32) means that leading and trailing whitespaces must be stripped off from the line prior to testing it against all the criteria. This flag can only be used in the third parameter of the <synel>Find</synel> function. It is not mutually exclusive with any of the previously mentioned flags.</para>
 					</description>
 				</topic>
 			</topic>
@@ -1843,7 +1843,7 @@ The list of options is provided at the end of this topic.</para>
 			<section title="Differences between C and ISPP expression syntax">
 				<ul>
 					<li>ISPP does not support a number of operators (reference, dereference, namespace resolution, member selection, etc.).</li>
-					<li>ISPP treats an identifier and the equality sign as a name of an argument, if it is used in argument list.</li>
+					<li>ISPP treats an identifier and the equality sign as a name of an parameter, if it is used in parameter list.</li>
 					<li>Arithmetic division operator (slash) performs integer division, since ISPP does not support floating point math.</li>
 					<li>ISPP does not check for validity of expressions in certain cases. For example, in conditional expression, "true" operand can be of string type, whereas "false" operand can be of integer type.</li>
 					<li>String literals can be quoted by both single and double quotes (in both modes &dash; C-style or Pascal-style). If a literal begins with a single quote, it must also end with a single quote. Double quotes may be used in single quoted string without any escaping, and vice versa. Within a string, the character used to quote the string must be escaped (the manner depends on current state of "Pascal-style string literals" parser option, see &pragma;).</li>
@@ -1881,33 +1881,33 @@ The list of options is provided at the end of this topic.</para>
 				</pre>
 			</section>
 			<section title="Extended User Defined Function Call Syntax">
-				<para>In ISPP, it is possible to use named arguments when calling user defined function. Given the declaration:</para>
+				<para>In ISPP, it is possible to use named parameters when calling user defined function. Given the declaration:</para>
 				<pre>
 					<line>#define MyFunction(int A = 2, int B = 2) A + B</line>
 				</pre>
-				<para>This function can be called specifying argument names:</para>
+				<para>This function can be called specifying parameter names:</para>
 				<pre>
 					<line>#emit MyFunction(A = 5, B = 10)</line>
 					<line>#emit MyFunction(B = 3)</line>
 					<line>#emit MyFunction(B = 10, A = 5)</line>
 				</pre>
 				<ul>
-					<li>If a name is specified for one argument, then all (required) arguments in the list must also be named.</li>
-					<li>The order of named arguments does not matter.</li>
+					<li>If a name is specified for one parameter, then all (required) parameters in the list must also be named.</li>
+					<li>The order of named parameters does not matter.</li>
 					<li>
 						<para>Because of this extension, an assignment expression must be enclosed in parentheses, if not using extended call syntax, to avoid ambiguity:</para>
 						<pre>
 							<line>#emit MyFunction((MyVar = 5), 10)</line>
 						</pre>
 						<para>In the above example, the equality sign is treated as a direct assignment operator.</para>
-						<para>Although functions do not have named arguments, it is still required to enclose assignment expressions in parentheses when calling those functions.</para>
+						<para>Although functions do not have named parameters, it is still required to enclose assignment expressions in parentheses when calling those functions.</para>
 					</li>
 					<li>
 						<para>By standard rule, comma is used to separate actual parameters. If you need to use sequential evaluation operator, you must include the expression in parentheses:</para>
 						<pre>
 							<line>#emit MyFunction((SaveToFile("script.txt"), 5), 10)</line>
 						</pre>
-						<para>In the above example, the first comma is treated as the sequential evaluation operator, whereas the second one as the argument delimiter.</para>
+						<para>In the above example, the first comma is treated as the sequential evaluation operator, whereas the second one as the parameter delimiter.</para>
 					</li>
 				</ul>
 			</section>
@@ -2050,7 +2050,7 @@ The list of options is provided at the end of this topic.</para>
     <title>Looping</title>
     <description header="no">
       <para>ISPP allows you to call macro recursively, i. e. call it from itself. This feature can be used to emulate loop.</para>
-      <para>For example, you wish to construct a "for"-like loop. To achieve this, you'll need to declare a macro that takes one integer argument and which makes the loop "body." After that you declare "outer" loop, which is used for iterating:</para>
+      <para>For example, you wish to construct a "for"-like loop. To achieve this, you'll need to declare a macro that takes one integer parameter and which makes the loop "body." After that you declare "outer" loop, which is used for iterating:</para>
       <pre> 
         <line>#define LoopBody(int I) Str(I) + "th iteration&bs;n"</line>
         <line></line>
