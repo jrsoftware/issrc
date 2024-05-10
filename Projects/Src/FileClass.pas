@@ -565,7 +565,7 @@ end;
 
 procedure TTextFileWriter.Write(const S: String);
 begin
-  DoWrite(UTF8Encode(S), True);
+  DoWrite(Utf8Encode(S), True);
 end;
 
 procedure TTextFileWriter.WriteLine(const S: String);

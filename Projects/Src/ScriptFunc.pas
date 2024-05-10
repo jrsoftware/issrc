@@ -232,13 +232,15 @@ const
   );
 
   { System }
-  SystemTable: array [0..4] of AnsiString =
+  SystemTable: array [0..6] of AnsiString =
   (
     'function Random(const Range: Integer): Integer;',
     'function FileSize(const Name: String; var Size: Integer): Boolean;',
     'function FileSize64(const Name: String; var Size: Int64): Boolean;',
     'procedure Set8087CW(NewCW: Word);',
-    'function Get8087CW: Word;'
+    'function Get8087CW: Word;',
+    'function UTF8Encode(const S: String): AnsiString;',
+    'function UTF8Decode(const S: AnsiString): String;'
   );
 
   { SysUtils }

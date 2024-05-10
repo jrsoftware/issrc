@@ -1221,6 +1221,10 @@ begin
     Set8087CW(Stack.GetInt(PStart));
   end else if Proc.Name = 'GET8087CW' then begin
     Stack.SetInt(PStart, Get8087CW);
+  end else if Proc.Name = 'UTF8ENCODE' then begin
+    StackSetAnsiString(Stack, PStart, Utf8Encode(Stack.GetString(PStart-1)));
+  end else if Proc.Name = 'UTF8DECODE' then begin
+    Stack.SetString(PStart, Utf8Decode(StackGetAnsiString(Stack, PStart-1)));
   end else
     Result := False;
 end;

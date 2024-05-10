@@ -1141,6 +1141,16 @@ GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':');
         <prototype>procedure OemToCharBuff(var S: AnsiString);</prototype>
         <description><p>Translates a string with characters from the OEM-defined character set into an ANSI string.</p></description>
       </function>
+      <function>
+        <name>Utf8Encode</name>
+        <prototype>function Utf8Encode(const S: String): AnsiString;</prototype>
+        <description><p>Encodes a Unicode string into a UTF-8 encoded ANSI string.</p></description>
+      </function>
+      <function>
+        <name>Utf8Decode</name>
+        <prototype>function Utf8Decode(const S: AnsiString): String;</prototype>
+        <description><p>Decodes a UTF-8 encoded ANSI string into a Unicode string.</p></description>
+      </function>
     </subcategory>
     <subcategory>
       <function>

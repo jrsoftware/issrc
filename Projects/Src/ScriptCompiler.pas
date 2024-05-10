@@ -463,7 +463,7 @@ var
 begin
   Result := False;
 
-  FScriptText := UTF8Encode(ScriptText);
+  FScriptText := Utf8Encode(ScriptText);
 
   for I := 0 to FExports.Count-1 do
     TScriptExport(FExports[I]).Exported := False;

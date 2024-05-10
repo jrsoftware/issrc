@@ -142,7 +142,12 @@ end;</pre>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters.</li> 
   <li>ISPP change: Support function <tt>Exec</tt> no longer requires the filename parameter to be quoted if it contains spaces. Additionally it now supports &quot;&gt;&quot; as a filename and now includes special platform-independent support for .bat and .cmd files, both just like for example the <tt>[Run]</tt> section.</li>
-  <li>Pascal Scripting change: Type <tt>TShellFolderID</tt> was removed because it wasn't used by any support function.</li>
+  <li>Pascal Scripting changes: 
+    <ul>
+    <li>Added support functions <tt>UTF8Encode</tt> and <tt>UTF8Decode</tt> to encode a Unicode string into a UTF-8 encoded ANSI string and vice versa.</li>
+    <li>Type <tt>TShellFolderID</tt> was removed because it wasn't used by any support function.</li>
+    </ul>
+  </li>
   <li>Improved the icons used by the <i>Select Language</i> dialog and the <i>Select Destination Location</i>, <i>Select Start Menu Folder</i>, and <i>Preparing to Install</i> wizard pages at 150% DPI and at 200% DPI.</li>
   <li>Added modern icons to the MyProg example executables, now compiled with Visual Studio 2022.</li>
   <li>Added official Korean translation.</li>
