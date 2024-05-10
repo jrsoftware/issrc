@@ -66,8 +66,8 @@ begin
     WordWrap := True;
     Caption := ALabel1Caption;
     Parent := Page.Surface;
+    AdjustHeight;
   end;
-  WizardForm.AdjustLabelHeight(Label1);
 
   Label2 := TNewStaticText.Create(Page);
   with Label2 do begin
@@ -78,8 +78,8 @@ begin
     WordWrap := True;
     Caption := ALabel2Caption;
     Parent := Page.Surface;
+    AdjustHeight;
   end;
-  WizardForm.AdjustLabelHeight(Label2);
   
   CreateCustomOption(Page, ACheckCaption, CheckBox, Label2);
 

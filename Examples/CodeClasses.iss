@@ -244,8 +244,7 @@ begin
   StaticText2.Caption := 'TNewStaticText with more text and an adjusted label height so it''s multi-line.';
   StaticText2.Width := 2 * StaticText.Width;
   StaticText2.Parent := Page.Surface;
-
-  WizardForm.AdjustLabelHeight(StaticText2);
+  StaticText2.AdjustHeight;
 
   LinkLabel := TNewLinkLabel.Create(Page);
   LinkLabel.AutoSize := False;
@@ -256,8 +255,7 @@ begin
   LinkLabel.Width := StaticText2.Width;
   LinkLabel.OnLinkClick := @LinkLabelOnLinkClick;
   LinkLabel.Parent := Page.Surface;
-
-  WizardForm.AdjustLinkLabelHeight(LinkLabel);
+  LinkLabel.AdjustHeight;
 
   { TNewProgressBar }
 
