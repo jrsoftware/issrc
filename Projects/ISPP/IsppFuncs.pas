@@ -640,8 +640,26 @@ var
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
-  CmdLine := Filename + ' ' + Params;
-  if WorkingDir = '' then WorkingDir := ExtractFilePath(Filename);
+  {Also see InstFuncs' InstExec which is very similar }
+
+  if Filename = '>' then
+    CmdLine := Params
+  else begin
+    if (Filename <> '') and (Filename[1] <> '"') then
+      CmdLine := '"' + Filename + '"'
+    else
+      CmdLine := Filename;
+    if Params <> '' then
+      CmdLine := CmdLine + ' ' + Params;
+    if SameText(PathExtractExt(Filename), '.bat') or
+       SameText(PathExtractExt(Filename), '.cmd') then begin
+      { See InstExec for explanation }
+      CmdLine := '"' + AddBackslash(GetSystemDir) + 'cmd.exe" /C "' + CmdLine + '"'
+    end;
+    if WorkingDir = '' then
+      WorkingDir := PathExtractDir(Filename);
+  end;
+
   FillChar (StartupInfo, SizeOf(StartupInfo), 0);
   StartupInfo.cb := SizeOf(StartupInfo);
   StartupInfo.dwFlags := STARTF_USESHOWWINDOW;

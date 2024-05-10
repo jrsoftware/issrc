@@ -812,10 +812,10 @@ The list of options is provided at the end of this topic.</para>
 					<pre><line><b>int</b> Exec(<b>str</b> 1, <b>str</b>? 2, <b>str</b>? 3, <b>int</b>? 4, <b>int</b>? 5, <b>int</b>? 6)</line></pre>
 				</section>
 				<description>
-					<para>Executes specified executable file.</para>
-					<para>First argument specifies the filename of the module to execute.</para>
-					<para>Second argument may be used to specify command line to execute.</para>
-					<para>Third argument may be used to specify the working directory of the process.</para>
+					<para>Executes specified executable or batch file.</para>
+					<para>First argument specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this argument, and the full command line in the second argument. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</para>
+					<para>Second argument may be used to specify parameters for the process.</para>
+					<para>Third argument may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the first argument and use that as the initial current directory for the process.</para>
 					<para>Fourth argument may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero value is assumed.</para>
 					<para>Fifth argument may be any of the <synel>SW_*</synel> constants defined in &builtins;. For GUI processes, it specifies the default value the first time ShowWindow is called. By default, SW_SHOWNORMAL (i. e. 1) is assumed.</para>
 					<para>Sixth argument may be set to zero if you don't wish to log output, and non-zero otherwise. By default, non-zero value is assumed. Has no effect if the fourth argument is set to zero.</para>

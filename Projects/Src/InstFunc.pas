@@ -864,6 +864,8 @@ var
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
+  {Also see IsppFuncs' Exec which is very similar }
+
   if Filename = '>' then
     CmdLine := Params
   else begin
