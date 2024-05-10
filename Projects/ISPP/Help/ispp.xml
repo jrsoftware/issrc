@@ -44,6 +44,13 @@
 			<p>Note: ISPP works exclusively at compile-time, and has no run-time functionality.</p>
     </description>
 		<subtopicstitle>All topics</subtopicstitle>
+    <topic id="example">
+      <title>Example Script</title>
+      <description header="no">
+        <p>An example script called <i>ISPPExample1.iss</i> is located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the "Examples" folder in your Inno Setup directory.</p>
+        <p>Also see &builtins;.</p>
+      </description>
+    </topic>
 		<topic id="directives">
 			<title>Directives Reference</title>
  			<description header="no">
@@ -1967,13 +1974,6 @@ The list of options is provided at the end of this topic.</p>
           <line>&dsp;"My Program"</line>
         </pre>
         <p>The default line spanning symbol is "&bs;" which can be changed using &pragma;.</p>
-      </description>
-    </topic>
-    <topic id="example">
-      <title>Example Script</title>
-      <description header="no">
-        <p>An example script called <i>ISPPExample1.iss</i> is located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the "Examples" folder in your Inno Setup directory.</p>
-        <p>Also see &builtins;.</p>
       </description>
     </topic>
 		<topic id="builtinsiss">
