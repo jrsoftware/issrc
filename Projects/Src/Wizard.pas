@@ -542,13 +542,11 @@ function TWizardForm.AdjustLabelHeight(const ALabel: TNewStaticText): Integer;
 { Increases or decreases a label's height so that all text fits.
   Returns the difference in height. }
 begin
-  ALabel.AutoSize := False;
   Result := ALabel.AdjustHeight;
 end;
 
 function TWizardForm.AdjustLinkLabelHeight(const ALinkLabel: TNewLinkLabel): Integer;
 begin
-  ALinkLabel.AutoSize := False;
   Result := ALinkLabel.AdjustHeight;
 end;
 
