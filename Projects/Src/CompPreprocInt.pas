@@ -2,7 +2,7 @@ unit CompPreprocInt;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -42,13 +42,14 @@ type
     function(CompilerData: TPreprocCompilerData; Filename: PChar; Dir: PChar;
       ErrorFilename: PChar; ErrorLine: Integer; ErrorColumn: Integer): PChar; stdcall;
   TPreprocCleanupProc = function(CleanupProcData: Pointer): Integer; stdcall;
+  TPreprocIdleProc = procedure(CompilerData: TPreprocCompilerData); stdcall;
 
   PPreprocessScriptParams = ^TPreprocessScriptParams;
   TPreprocessScriptParams = record
     Size: Cardinal;                { [in] Set to SizeOf(TPreprocessScriptParams).
                                      Preprocessor must return ispeInvalidParam
                                      if value is not recognized. }
-    InterfaceVersion: Cardinal;    { [in] Currently set to 2.
+    InterfaceVersion: Cardinal;    { [in] Currently set to 3.
                                      Preprocessor must return ispeInvalidParam
                                      if value is not recognized. }
     CompilerBinVersion: Cardinal;  { [in] Compiler version as an integer }
@@ -102,6 +103,9 @@ type
                                          returns NULL and internally calls
                                          ErrorProc with a description of the
                                          error.}
+    IdleProc: TPreprocIdleProc;        { [in] Call at various intervals during
+                                         preprocessing. Doesn't allow an Abort
+                                         by the host. }
 
     PreprocCleanupProc: TPreprocCleanupProc;
                                        { [out] Preprocessor-defined function

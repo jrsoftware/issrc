@@ -123,6 +123,7 @@ type
       VarManager: TIdentManager; const Options: TIsppOptions;
       const SourcePath: string; const CompilerPath: string; const FileName: string = '');
     destructor Destroy; override;
+    procedure CallIdleProc;
     procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);
     procedure StatusMsg(const Msg: string; const Args: array of const);
     procedure WarningMsg(const Msg: string; const Args: array of const);
@@ -1096,6 +1097,11 @@ end;
 procedure TPreprocessor.PushFile(const FileName: string);
 begin
   FFileStack.AddObject(ExpandFileName(FileName), TObject(dsPublic));
+end;
+
+procedure TPreprocessor.CallIdleProc;
+begin
+  FCompilerParams.IdleProc(FCompilerParams.CompilerData);
 end;
 
 procedure TPreprocessor.VerboseMsg(Level: Byte; const Msg: string;

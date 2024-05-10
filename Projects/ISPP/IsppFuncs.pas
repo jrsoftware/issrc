@@ -632,7 +632,7 @@ end;
 
 function Exec(const Filename, Params: String; WorkingDir: String;
   const WaitUntilTerminated: Boolean; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
+  const Preprocessor: TPreprocessor; const Log: Boolean; const LogProc: TLogProc;
   const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
 var
   CmdLine: String;
@@ -640,7 +640,7 @@ var
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
-  {Also see InstFuncs' InstExec which is very similar }
+  {This function is a combination of InstFuncs' InstExec and Compile's InternalSignCommand }
 
   if Filename = '>' then
     CmdLine := Params
@@ -677,8 +677,8 @@ begin
       OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
     end;
 
-    Result := CreateProcess(nil, PChar(CmdLine), nil, nil, InheritHandles, 0, nil,
-       WorkingDirP, StartupInfo, ProcessInfo);
+    Result := CreateProcess(nil, PChar(CmdLine), nil, nil, InheritHandles,
+      CREATE_DEFAULT_ERROR_MODE, nil, WorkingDirP, StartupInfo, ProcessInfo);
     if not Result then begin
       ResultCode := GetLastError;
       Exit;
@@ -694,24 +694,18 @@ begin
         { Wait until the process returns, but still process any messages that
           arrive and read the output. }
         var WaitMilliseconds := IfThen(OutputReader <> nil, 50, INFINITE);
-        var WaitResult: DWORD := 0;
-        repeat
-          { Process any pending messages first because MsgWaitForMultipleObjects
-            (called below) only returns when *new* messages arrive, unless there's
-            a timeout }
-          if WaitResult <> WAIT_TIMEOUT then
-            ProcessMessagesProc;
-          if OutputReader <> nil then
-            OutputReader.Read(False);
-          WaitResult := MsgWaitForMultipleObjects(1, ProcessInfo.hProcess, False,
-            WaitMilliseconds, QS_ALLINPUT);
-        until (WaitResult <> WAIT_OBJECT_0+1) and (WaitResult <> WAIT_TIMEOUT);
-        { Process messages once more in case MsgWaitForMultipleObjects saw the
-          process terminate and new messages arrive simultaneously. (Can't leave
-          unprocessed messages waiting, or a subsequent call to WaitMessage
-          won't see them.) }
-        if Assigned(ProcessMessagesProc) then
-          ProcessMessagesProc;
+        while True do begin
+          case WaitForSingleObject(ProcessInfo.hProcess, WaitMilliseconds) of
+            WAIT_OBJECT_0: Break;
+            WAIT_TIMEOUT:
+              begin
+                OutputReader.Read(False);
+                Preprocessor.CallIdleProc; { Doesn't allow an Abort }
+              end;
+          else
+            Preprocessor.RaiseError('Exec: WaitForSingleObject failed');
+          end;
+        end;
         if OutputReader <> nil then
           OutputReader.Read(True);
       end;
@@ -723,17 +717,6 @@ begin
     end;
   finally
     OutputReader.Free;
-  end;
-end;
-
-procedure MsgProc;
-var
-  Msg: TMsg;
-begin
-  while PeekMessage(Msg, 0, 0, 0, PM_REMOVE) do
-  begin
-    TranslateMessage(Msg);
-    DispatchMessage(Msg);
   end;
 end;
 
@@ -766,9 +749,10 @@ begin
       if (GetCount > 3) and (Get(3).Typ <> evNull) then WaitUntilTerminated := Get(3).AsInt <> 0;
       if (GetCount > 4) and (Get(4).Typ <> evNull) then ShowCmd := Get(4).AsInt;
       if (GetCount > 5) and (Get(5).Typ <> evNull) then Log := Get(5).AsInt <> 0;
+      var Preprocessor := TPreprocessor(Ext);
       var ResultCode: Integer;
       var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, WaitUntilTerminated,
-        ShowCmd, MsgProc, Log, ExecLog, Ext, ResultCode);
+        ShowCmd, Preprocessor, Log, ExecLog, NativeInt(Preprocessor), ResultCode);
       if not WaitUntilTerminated then
         MakeBool(ResPtr^, Success)
       else

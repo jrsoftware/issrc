@@ -260,8 +260,9 @@ type
     procedure AbortCompileParamError(const Msg, ParamName: String);
     function PrependDirName(const Filename, Dir: String): String;
     function PrependSourceDirName(const Filename: String): String;
-    procedure CallIdleProc;
-    procedure DoCallback(const Code: Integer; var Data: TCompilerCallbackData);
+    procedure CallIdleProc(const IgnoreCallbackResult: Boolean = False);
+    procedure DoCallback(const Code: Integer; var Data: TCompilerCallbackData;
+      const IgnoreCallbackResult: Boolean = False);
     procedure EnumIniSection(const EnumProc: TEnumIniSectionProc;
       const SectionName: String; const Ext: Integer; const Verbose, SkipBlankLines: Boolean;
       const Filename: String; const LangSection: Boolean = False; const LangSectionPre: Boolean = False);
@@ -1137,7 +1138,7 @@ var
 
 begin
   if (Params.Size <> SizeOf(Params)) or
-     (Params.InterfaceVersion <> 2) then begin
+     (Params.InterfaceVersion <> 3) then begin
     Result := ispeInvalidParam;
     Exit;
   end;
@@ -1733,17 +1734,17 @@ begin
 end;
 
 procedure TSetupCompiler.DoCallback(const Code: Integer;
-  var Data: TCompilerCallbackData);
+  var Data: TCompilerCallbackData; const IgnoreCallbackResult: Boolean);
 begin
   case CallbackProc(Code, Data, AppData) of
     iscrSuccess: ;
-    iscrRequestAbort: Abort;
+    iscrRequestAbort: if not IgnoreCallbackResult then Abort;
   else
     AbortCompile('CallbackProc return code invalid');
   end;
 end;
 
-procedure TSetupCompiler.CallIdleProc;
+procedure TSetupCompiler.CallIdleProc(const IgnoreCallbackResult: Boolean);
 const
   ProgressMax = 1024;
 var
@@ -1796,7 +1797,7 @@ begin
     end;
   end;
   Data.CompressProgressMax := ProgressMax;
-  DoCallback(iscbNotifyIdle, Data);
+  DoCallback(iscbNotifyIdle, Data, IgnoreCallbackResult);
 end;
 
 type
@@ -1956,6 +1957,14 @@ begin
   end;
 end;
 
+procedure PreIdleProc(CompilerData: TPreprocCompilerData); stdcall;
+var
+  Data: PPreCompilerData;
+begin
+  Data := CompilerData;
+  Data.Compiler.CallIdleProc(True); { Doesn't allow an Abort }
+end;
+
 function TSetupCompiler.ReadScriptFile(const Filename: String;
   const UseCache: Boolean; const AnsiConvertCodePage: Cardinal): TScriptFileLines;
 
@@ -2025,7 +2034,7 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
     LCompilerPath := CompilerDir;
     FillChar(Params, SizeOf(Params), 0);
     Params.Size := SizeOf(Params);
-    Params.InterfaceVersion := 2;
+    Params.InterfaceVersion := 3;
     Params.CompilerBinVersion := SetupBinVersion;
     Params.Filename := PChar(Filename);
     Params.SourcePath := PChar(LSourcePath);
@@ -2038,6 +2047,7 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
     Params.StatusProc := PreStatusProc;
     Params.ErrorProc := PreErrorProc;
     Params.PrependDirNameProc := PrePrependDirNameProc;
+    Params.IdleProc := PreIdleProc;
 
     FillChar(Data, SizeOf(Data), 0);
     Data.Compiler := Self;
@@ -7355,6 +7365,8 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
     ProcessInfo: TProcessInformation;
     LastError, ExitCode: DWORD;
   begin
+    {Also see IsppFuncs' Exec }
+
     if Delay <> 0 then begin
       AddStatus(Format(SCompilerStatusSigningWithDelay, [AName, Delay, AFormattedCommand]));
       Sleep(Delay);
@@ -7388,7 +7400,7 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
             WAIT_TIMEOUT:
               begin
                 OutputReader.Read(False);
-                CallIdleProc;
+                CallIdleProc(True); { Doesn't allow an Abort }
               end;
           else
             AbortCompile('Sign: WaitForSingleObject failed');
