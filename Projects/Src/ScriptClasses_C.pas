@@ -260,7 +260,10 @@ begin
   Cl.AddClassN(Cl.FindClass('TButton'), 'TNewButton');
   Cl.AddClassN(Cl.FindClass('TCheckBox'), 'TNewCheckBox');
   Cl.AddClassN(Cl.FindClass('TRadioButton'), 'TNewRadioButton');
-  Cl.AddClassN(Cl.FindClass('TLinkLabel'), 'TNewLinkLabel');
+  with Cl.AddClassN(Cl.FindClass('TLinkLabel'), 'TNewLinkLabel') do
+  begin
+    RegisterMethod('function AdjustHeight: Integer');
+  end;
 end;
 
 procedure RegisterNewNotebook_C(Cl: TPSPascalCompiler);

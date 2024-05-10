@@ -156,7 +156,10 @@ begin
   Cl.Add(TNewButton);
   Cl.Add(TNewCheckBox);
   Cl.Add(TNewRadioButton);
-  Cl.Add(TNewLinkLabel);
+  with Cl.Add(TNewLinkLabel) do
+  begin
+    RegisterMethod(@TNewLinkLabel.AdjustHeight, 'AdjustHeight');
+  end;
 end;
 
 procedure TNewNotebookPages_R(Self: TNewNotebook; var T: TNewNotebookPage; const t1: Integer); begin T := Self.Pages[t1]; end;
