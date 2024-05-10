@@ -54,6 +54,8 @@ type
   TNewLinkLabel = class(TLinkLabel)
   protected
     procedure CreateParams(var Params: TCreateParams); override;
+  public
+    function AdjustHeight: Integer;
   end;
 
 procedure Register;
@@ -61,7 +63,7 @@ procedure Register;
 implementation
 
 uses
-  BidiUtils;
+  CommCtrl, BidiUtils;
 
 procedure Register;
 begin
@@ -132,6 +134,15 @@ procedure TNewLinkLabel.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   SetBiDiStyles(Self, Params);
+end;
+
+function TNewLinkLabel.AdjustHeight: Integer;
+begin
+  var OldHeight := Height;
+  var IdealSize: TSize;
+  SendMessage(Handle, LM_GETIDEALSIZE, Width, LPARAM(@IdealSize));
+  Height := IdealSize.cy;
+  Result := Height - OldHeight;
 end;
 
 end.

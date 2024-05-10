@@ -211,8 +211,8 @@ procedure RegisterWizardForm_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TWizardForm) do
   begin
-
     RegisterMethod(@TWizardForm.AdjustLabelHeight, 'AdjustLabelHeight');
+    RegisterMethod(@TWizardForm.AdjustLinkLabelHeight, 'AdjustLinkLabelHeight');
     RegisterMethod(@TWizardForm.IncTopDecHeight, 'IncTopDecHeight');
   end;
 end;

@@ -403,6 +403,7 @@ begin
     RegisterProperty('PreparingMemo', 'TNewMemo', iptr);
     RegisterProperty('CurPageID', 'Integer', iptr);
     RegisterMethod('function AdjustLabelHeight(ALabel: TNewStaticText): Integer');
+    RegisterMethod('function AdjustLinkLabelHeight(ALinkLabel: TNewLinkLabel): Integer');
     RegisterMethod('procedure IncTopDecHeight(AControl: TControl; Amount: Integer)');
     RegisterProperty('PrevAppDir', 'String', iptr);
   end;

@@ -59,7 +59,6 @@ begin
 
   Label1 := TNewStaticText.Create(Page);
   with Label1 do begin
-    AutoSize := False;
     Left := WizardForm.SelectDirLabel.Left;
     Width := Page.SurfaceWidth - Left;
     Anchors := [akLeft, akTop, akRight];
