@@ -2531,7 +2531,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDlg.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To set the text on the page, call the <tt>SetText</tt> method. <tt>SetText</tt> takes two string parameters: use the first to tell the user what you're doing, and the second to display a file or directory name. Either parameter may be blank.</p>
 <p>To show or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.</p></remarks>
-        <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> for examples.</p></example>
+        <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> example scrips in the "Examples" subdirectory in your Inno Setup directory for examples.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link><br />
 <link topic="isxfunc_CreateOutputMarqueeProgressPage">CreateOutputMarqueeProgressPage</link></p></seealso>
       </function>
@@ -2564,7 +2564,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <name>CreateCustomPage</name>
         <prototype>function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;</prototype>
         <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their Parent properties to the Surface property of the <link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link> instance returned by this function).</p></description>
-        <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> for examples.</p></example>
+        <example><p>See <i>CodeClasses.iss</i> and <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory for examples.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></p></seealso>
       </function>
     </subcategory>

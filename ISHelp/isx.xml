@@ -71,7 +71,7 @@
 
 <p>The <tt>[Code]</tt> section is an optional section that specifies a Pascal script. A Pascal script can be used to customize Setup or Uninstall in many ways. Note that creating a Pascal script is not easy and requires experience with Inno Setup and knowledge about programming in Pascal or at least a similar programming language.</p>
 
-<p>The "Code*.iss" and "UninstallCode*.iss" files in the "Examples" subdirectory in your Inno Setup directory contain various example <tt>[Code]</tt> sections. Please study them carefully before trying to create your own Pascal script.</p>
+<p>The <i>Code*.iss</i>, <i>UninstallCode*.iss</i>, and <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory contain various example <tt>[Code]</tt> sections. Please study them carefully before trying to create your own Pascal script.</p>
 
 <p>Note: to learn more about the Pascal programming language you may find useful to refer to Marco Cant&#249;'s free Essential Pascal book. See <extlink href="http://www.marcocantu.com/epascal/">http://www.marcocantu.com/epascal/</extlink> and <extlink href="https://www.marcocantu.com/epascal/EssentialPascal.zip">https://www.marcocantu.com/epascal/EssentialPascal.zip</extlink>.</p>
 
@@ -538,7 +538,7 @@ end;
 <keyword value="Pascal Scripting: Examples" />
 <body>
 
-<p>The Pascal Scripting example scripts are located in separate files. Open one of the "Code*.iss" or "UninstallCode*.iss" files in the "Examples" subdirectory in your Inno Setup directory.</p>
+<p>The Pascal Scripting example scripts are located in separate files. Open one of the <i>Code*.iss</i>, <i>UninstallCode*.iss</i>, or <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory.</p>
 
 </body>
 </topic>
