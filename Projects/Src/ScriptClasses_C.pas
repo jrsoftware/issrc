@@ -260,6 +260,7 @@ begin
   Cl.AddClassN(Cl.FindClass('TButton'), 'TNewButton');
   Cl.AddClassN(Cl.FindClass('TCheckBox'), 'TNewCheckBox');
   Cl.AddClassN(Cl.FindClass('TRadioButton'), 'TNewRadioButton');
+  Cl.AddClassN(Cl.FindClass('TLinkLabel'), 'TNewLinkLabel');
 end;
 
 procedure RegisterNewNotebook_C(Cl: TPSPascalCompiler);
@@ -633,6 +634,8 @@ begin
   SIRegisterTBevel(Cl);
   SIRegisterTCustomPanel(Cl);
   SIRegisterTPanel(Cl);
+  SIRegisterTCustomLinkLabel(Cl);
+  SIRegisterTLinkLabel(Cl);
 
   { ComObj }
   SIRegister_ComObj(Cl);

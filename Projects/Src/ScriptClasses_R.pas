@@ -156,6 +156,7 @@ begin
   Cl.Add(TNewButton);
   Cl.Add(TNewCheckBox);
   Cl.Add(TNewRadioButton);
+  Cl.Add(TNewLinkLabel);
 end;
 
 procedure TNewNotebookPages_R(Self: TNewNotebook; var T: TNewNotebookPage; const t1: Integer); begin T := Self.Pages[t1]; end;
@@ -410,6 +411,8 @@ begin
     RIRegisterTBevel(Cl);
     RIRegisterTCustomPanel(Cl);
     RIRegisterTPanel(Cl);
+    RIRegisterTCustomLinkLabel(Cl);
+    RIRegisterTLinkLabel(Cl);
 
     { ComObj }
     RIRegister_ComObj(ScriptInterpreter);

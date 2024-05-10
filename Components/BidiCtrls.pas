@@ -2,20 +2,18 @@ unit BidiCtrls;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   RTL-capable versions of standard controls
-
-  $jrsoftware: issrc/Components/BidiCtrls.pas,v 1.2 2007/11/27 04:52:53 jr Exp $
 }
 
 interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls;
+  StdCtrls, ExtCtrls;
 
 type
   TNewEdit = class(TEdit)
@@ -49,6 +47,11 @@ type
   end;
 
   TNewRadioButton = class(TRadioButton)
+  protected
+    procedure CreateParams(var Params: TCreateParams); override;
+  end;
+
+  TNewLinkLabel = class(TLinkLabel)
   protected
     procedure CreateParams(var Params: TCreateParams); override;
   end;
@@ -118,6 +121,14 @@ end;
 { TNewRadioButton }
 
 procedure TNewRadioButton.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  SetBiDiStyles(Self, Params);
+end;
+
+{ TNewLinkLabel }
+
+procedure TNewLinkLabel.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   SetBiDiStyles(Self, Params);
