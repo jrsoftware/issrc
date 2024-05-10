@@ -2608,6 +2608,10 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 <flag name="hidewizard">
 <p>If this flag is specified, the wizard will be hidden while the program is running.</p>
 </flag>
+<flag name="logoutput">
+<p>If this flag is specified, the output of the program will be included in the log file.</p>
+<p>This flag cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags.</p>
+</flag>
 <flag name="nowait">
 <p>If this flag is specified, it will not wait for the process to finish executing before proceeding to the next [Run] entry, or completing Setup. Cannot be combined with <tt>waituntilidle</tt> or <tt>waituntilterminated</tt>.</p>
 </flag>
@@ -4479,6 +4483,8 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <body>
 <p>If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing <link topic="uninstcmdline" anchor="LOG">/LOG</link> on the command line.</p>
 <p>This directive has no effect if <tt>CreateUninstallRegKey</tt> is not set to <tt>yes</tt>.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_setuplogging">SetupLogging</link></p>
 </body>
 </setuptopic>
 
@@ -5392,6 +5398,8 @@ ArchitecturesInstallIn64BitMode=x64compatible
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, Setup will always create a log file. Equivalent to passing <link topic="setupcmdline" anchor="LOG">/LOG</link> on the command line.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_uninstalllogging">UninstallLogging</link></p>
 </body>
 </setuptopic>
 

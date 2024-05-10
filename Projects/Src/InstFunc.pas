@@ -87,7 +87,8 @@ procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
   const AlreadyExisted: Boolean);
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
+  const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
@@ -115,7 +116,7 @@ implementation
 
 uses
   Messages, ShellApi, PathFunc, Msgs, MsgIDs, FileClass, RedirFunc, SetupTypes,
-  Hash, Classes, RegStr;
+  Hash, Classes, RegStr, Math;
 
 procedure InternalError(const Id: String);
 begin
@@ -813,7 +814,8 @@ begin
 end;
 
 procedure HandleProcessWait(ProcessHandle: THandle; const Wait: TExecWait;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer);
+  const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
+  var ResultCode: Integer);
 begin
   try
     if Wait = ewWaitUntilIdle then begin
@@ -823,17 +825,27 @@ begin
     end;
     if Wait = ewWaitUntilTerminated then begin
       { Wait until the process returns, but still process any messages that
-        arrive. }
+        arrive and read the output if requested. }
+      var WaitMilliseconds := IfThen(OutputReader <> nil, 50, INFINITE);
+      var WaitResult: DWORD := 0;
       repeat
         { Process any pending messages first because MsgWaitForMultipleObjects
-          (called below) only returns when *new* messages arrive }
-        ProcessMessagesProc;
-      until MsgWaitForMultipleObjects(1, ProcessHandle, False, INFINITE, QS_ALLINPUT) <> WAIT_OBJECT_0+1;
+          (called below) only returns when *new* messages arrive, unless there's
+          a timeout }
+        if WaitResult <> WAIT_TIMEOUT then
+          ProcessMessagesProc;
+        if OutputReader <> nil then
+          OutputReader.Read(False);
+        WaitResult := MsgWaitForMultipleObjects(1, ProcessHandle, False,
+          WaitMilliseconds, QS_ALLINPUT);
+      until (WaitResult <> WAIT_OBJECT_0+1) and (WaitResult <> WAIT_TIMEOUT);
       { Process messages once more in case MsgWaitForMultipleObjects saw the
         process terminate and new messages arrive simultaneously. (Can't leave
         unprocessed messages waiting, or a subsequent call to WaitMessage
         won't see them.) }
       ProcessMessagesProc;
+      if OutputReader <> nil then
+        OutputReader.Read(True);
     end;
     { Get the exit code. Will be set to STILL_ACTIVE if not yet available }
     if not GetExitCodeProcess(ProcessHandle, DWORD(ResultCode)) then
@@ -845,7 +857,8 @@ end;
 
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
+  const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
 var
   CmdLine: String;
   StartupInfo: TStartupInfo;
@@ -883,16 +896,31 @@ begin
   if WorkingDir = '' then
     WorkingDir := GetSystemDir;
 
-  Result := CreateProcessRedir(DisableFsRedir, nil, PChar(CmdLine), nil, nil, False,
-    CREATE_DEFAULT_ERROR_MODE, nil, PChar(WorkingDir), StartupInfo, ProcessInfo);
-  if not Result then begin
-    ResultCode := GetLastError;
-    Exit;
-  end;
+  var OutputReader: TCreateProcessOutputReader := nil;
+  var InheritHandles := False;
+  try
+    if Log and Assigned(LogProc) and (Wait = ewWaitUntilTerminated) then begin
+      OutputReader := TCreateProcessOutputReader.Create(LogProc, LogProcData);
+      OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
+    end;
 
-  { Don't need the thread handle, so close it now }
-  CloseHandle(ProcessInfo.hThread);
-  HandleProcessWait(ProcessInfo.hProcess, Wait, ProcessMessagesProc, ResultCode);
+    Result := CreateProcessRedir(DisableFsRedir, nil, PChar(CmdLine), nil, nil,
+      InheritHandles, CREATE_DEFAULT_ERROR_MODE, nil, PChar(WorkingDir),
+      StartupInfo, ProcessInfo);
+    if not Result then begin
+      ResultCode := GetLastError;
+      Exit;
+    end;
+
+    { Don't need the thread handle, so close it now }
+    CloseHandle(ProcessInfo.hThread);
+    if OutputReader <> nil then
+      OutputReader.NotifyCreateProcessDone;
+    HandleProcessWait(ProcessInfo.hProcess, Wait, ProcessMessagesProc,
+      OutputReader, ResultCode);
+  finally
+    OutputReader.Free;
+  end;
 end;
 
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
@@ -926,21 +954,16 @@ begin
   ResultCode := STILL_ACTIVE;
   { A process handle won't always be returned, e.g. if DDE was used }
   if Info.hProcess <> 0 then
-    HandleProcessWait(Info.hProcess, Wait, ProcessMessagesProc, ResultCode);
+    HandleProcessWait(Info.hProcess, Wait, ProcessMessagesProc, nil, ResultCode);
 end;
 
 function CheckForOrCreateMutexes(Mutexes: String; const Create: Boolean): Boolean;
 
   function MutexPos(const S: String): Integer;
-  var
-    I: Integer;
   begin
-    for I := 1 to Length(S) do begin
-      if (S[I] = ',') and ((I = 1) or (S[I-1] <> '\')) then begin
-        Result := I;
-        Exit;
-      end;
-    end;
+    for var I := 1 to Length(S) do
+      if (S[I] = ',') and ((I = 1) or (S[I-1] <> '\')) then
+        Exit(I);
     Result := 0;
   end;
 

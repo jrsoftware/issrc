@@ -6425,12 +6425,12 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..18] of PChar = (
+  Flags: array[0..19] of PChar = (
     'nowait', 'waituntilidle', 'shellexec', 'skipifdoesntexist',
     'runminimized', 'runmaximized', 'showcheckbox', 'postinstall',
     'unchecked', 'skipifsilent', 'skipifnotsilent', 'hidewizard',
     'runhidden', 'waituntilterminated', '32bit', '64bit', 'runasoriginaluser',
-    'runascurrentuser', 'dontlogparameters');
+    'runascurrentuser', 'dontlogparameters', 'logoutput');
 var
   Values: array[TParam] of TParamValue;
   NewRunEntry: PSetupRunEntry;
@@ -6511,6 +6511,7 @@ begin
              end;
           17: RunAsCurrentUser := True;
           18: Include(Options, roDontLogParameters);
+          19: Include(Options, roLogOutput);
         end;
 
       if not WaitFlagSpecified then begin
@@ -6526,6 +6527,21 @@ begin
       if RunAsOriginalUser or
          (not RunAsCurrentUser and (roPostInstall in Options)) then
         Include(Options, roRunAsOriginalUser);
+
+      if roLogOutput in Options then begin
+        if roShellExec in Options then
+          AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+            [ParamCommonFlags, 'logoutput', 'shellexec']);
+        if (Wait <> rwWaitUntilTerminated) then
+          AbortCompileOnLineFmt(SCompilerParamFlagMissing,
+            ['waituntilterminated', 'logoutput']);
+        if RunAsOriginalUser then
+          AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+            [ParamCommonFlags, 'logoutput', 'runasoriginaluser']);
+        if roRunAsOriginalUser in Options then
+          AbortCompileOnLineFmt(SCompilerParamFlagMissing3,
+            ['runascurrentuser', 'logoutput', 'postinstall']);
+      end;
 
       { Filename }
       Name := Values[paFilename].Data;
@@ -7280,6 +7296,14 @@ begin
   end;
 end;
 
+  procedure SignCommandLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+  begin
+    if S <> '' then begin
+      var SetupCompiler := TSetupCompiler(Data);
+      SetupCompiler.AddStatus('   ' + S, Error);
+    end;
+  end;
+
 procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer; const RunMinimized: Boolean);
 
   function FmtCommand(S: PChar; const AParams, AFileName: String; var AFileNameSequenceFound: Boolean): String;
@@ -7323,7 +7347,7 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
       end;
     end;
   end;
-  
+
   procedure InternalSignCommand(const AFormattedCommand: String;
     const Delay: Cardinal);
   var
@@ -7343,29 +7367,43 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
     StartupInfo.cb := SizeOf(StartupInfo);
     StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
     StartupInfo.wShowWindow := IfThen(RunMinimized, SW_SHOWMINNOACTIVE, SW_SHOW);
-    
-    if not CreateProcess(nil, PChar(AFormattedCommand), nil, nil, False,
-       CREATE_DEFAULT_ERROR_MODE, nil, PChar(CompilerDir), StartupInfo, ProcessInfo) then begin
-      LastError := GetLastError;
-      AbortCompileFmt(SCompilerSignToolCreateProcessFailed, [LastError,
-        Win32ErrorString(LastError)]);
-    end;
-    CloseHandle(ProcessInfo.hThread);
+
+    var OutputReader := TCreateProcessOutputReader.Create(SignCommandLog, NativeInt(Self));
     try
-      while True do begin
-        case WaitForSingleObject(ProcessInfo.hProcess, 50) of
-          WAIT_OBJECT_0: Break;
-          WAIT_TIMEOUT: CallIdleProc;
-        else
-          AbortCompile('Sign: WaitForSingleObject failed');
-        end;
+      var InheritHandles: Boolean;
+      OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
+
+      if not CreateProcess(nil, PChar(AFormattedCommand), nil, nil, InheritHandles,
+         CREATE_DEFAULT_ERROR_MODE, nil, PChar(CompilerDir), StartupInfo, ProcessInfo) then begin
+        LastError := GetLastError;
+        AbortCompileFmt(SCompilerSignToolCreateProcessFailed, [LastError,
+          Win32ErrorString(LastError)]);
       end;
-      if not GetExitCodeProcess(ProcessInfo.hProcess, ExitCode) then
-        AbortCompile('Sign: GetExitCodeProcess failed');
-      if ExitCode <> 0 then
-        AbortCompileFmt(SCompilerSignToolNonZeroExitCode, [ExitCode]);
+      CloseHandle(ProcessInfo.hThread);
+      OutputReader.NotifyCreateProcessDone;
+      try
+        while True do begin
+          case WaitForSingleObject(ProcessInfo.hProcess, 50) of
+            WAIT_OBJECT_0: Break;
+            WAIT_TIMEOUT:
+              begin
+                OutputReader.Read(False);
+                CallIdleProc;
+              end;
+          else
+            AbortCompile('Sign: WaitForSingleObject failed');
+          end;
+        end;
+        OutputReader.Read(True);
+        if not GetExitCodeProcess(ProcessInfo.hProcess, ExitCode) then
+          AbortCompile('Sign: GetExitCodeProcess failed');
+        if ExitCode <> 0 then
+          AbortCompileFmt(SCompilerSignToolNonZeroExitCode, [ExitCode]);
+      finally
+        CloseHandle(ProcessInfo.hProcess);
+      end;
     finally
-      CloseHandle(ProcessInfo.hProcess);
+      OutputReader.Free;
     end;
   end;
 

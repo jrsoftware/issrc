@@ -125,7 +125,6 @@ var
   NewOutputProgressPage: TOutputProgressWizardPage;
   NewOutputMarqueeProgressPage: TOutputMarqueeProgressWizardPage;
   NewDownloadPage: TDownloadWizardPage;
-  P: PPSVariantProcPtr;
   OnDownloadProgress: TOnDownloadProgress;
   NewSetupForm: TSetupForm;
 begin
@@ -271,7 +270,7 @@ begin
   end else if Proc.Name = 'CREATEDOWNLOADPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    P := Stack.Items[PStart-3];
+    var P: PPSVariantProcPtr := Stack.Items[PStart-3];
     { ProcNo 0 means nil was passed by the script }
     if P.ProcNo <> 0 then
       OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
@@ -765,7 +764,6 @@ end;
 function InstallProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
-  P: PPSVariantProcPtr;
   OnDownloadProgress: TOnDownloadProgress;
 begin
   if IsUninstaller then
@@ -779,7 +777,7 @@ begin
   end else if Proc.Name = 'EXTRACTTEMPORARYFILES' then begin
     Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'DOWNLOADTEMPORARYFILE' then begin
-    P := Stack.Items[PStart-4];
+    var P: PPSVariantProcPtr := Stack.Items[PStart-4];
     { ProcNo 0 means nil was passed by the script }
     if P.ProcNo <> 0 then
       OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
@@ -802,6 +800,20 @@ begin
   Application.ProcessMessages;
 end;
 
+procedure ExecAndLogOutputLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+begin
+  Log(S);
+end;
+
+type
+  TOnLog = procedure(const S: String; const Error, FirstLine: Boolean) of object;
+
+procedure ExecAndLogOutputLogCustom(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+begin
+  var OnLog := TOnLog(PMethod(Data)^);
+  OnLog(S, Error, FirstLine);
+end;
+
 function InstFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
@@ -809,7 +821,6 @@ var
   WindowDisabler: TWindowDisabler;
   ResultCode, ErrorCode: Integer;
   FreeBytes, TotalBytes: Integer64;
-  RunAsOriginalUser: Boolean;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -883,10 +894,32 @@ begin
     end
     else
       IncrementSharedCount(rv32Bit, Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
-  end else if (Proc.Name = 'EXEC') or (Proc.Name = 'EXECASORIGINALUSER') then begin
-    RunAsOriginalUser := Proc.Name = 'EXECASORIGINALUSER';
+  end else if (Proc.Name = 'EXEC') or (Proc.Name = 'EXECASORIGINALUSER') or
+              (Proc.Name = 'EXECANDLOGOUTPUT') then begin
+    var RunAsOriginalUser := Proc.Name = 'EXECASORIGINALUSER';
+    var LogOutput: Boolean;
+    var LogProc: TLogProc := nil;
+    var LogProcData: NativeInt := 0;
+    var Method: TMethod;
+    if Proc.Name = 'EXECANDLOGOUTPUT' then begin
+      var P: PPSVariantProcPtr := Stack.Items[PStart-7];
+      { ProcNo 0 means nil was passed by the script }
+      if P.ProcNo <> 0 then begin
+        LogOutput := True;
+        LogProc := ExecAndLogOutputLogCustom;
+        Method := Caller.GetProcAsMethod(P.ProcNo); { This is a TOnLog }
+        LogProcData := NativeInt(@Method);
+      end else begin
+        LogOutput := GetLogActive;
+        LogProc := ExecAndLogOutputLog;
+      end;
+    end else
+      LogOutput := False;
+    var ExecWait := TExecWait(Stack.GetInt(PStart-5));
     if IsUninstaller and RunAsOriginalUser then
-      NoUninstallFuncError(Proc.Name);
+      NoUninstallFuncError(Proc.Name)
+    else if LogOutput and (ExecWait <> ewWaitUntilTerminated) then
+      InternalError(Format('Must call "%s" function with Wait = ewWaitUntilTerminated', [Proc.Name]));
 
     Filename := Stack.GetString(PStart-1);
     if PathCompare(Filename, SetupLdrOriginalFilename) <> 0 then begin
@@ -896,8 +929,9 @@ begin
       try
         Stack.SetBool(PStart, InstExecEx(RunAsOriginalUser,
           ScriptFuncDisableFsRedir, Filename, Stack.GetString(PStart-2),
-          Stack.GetString(PStart-3), TExecWait(Stack.GetInt(PStart-5)),
-          Stack.GetInt(PStart-4), ProcessMessagesProc, ResultCode));
+          Stack.GetString(PStart-3), ExecWait,
+          Stack.GetInt(PStart-4), ProcessMessagesProc, LogOutput,
+          LogProc, LogProcData, ResultCode));
       finally
         WindowDisabler.Free;
       end;
@@ -907,7 +941,7 @@ begin
       Stack.SetInt(PStart-6, ERROR_ACCESS_DENIED);
     end;
   end else if (Proc.Name = 'SHELLEXEC') or (Proc.Name = 'SHELLEXECASORIGINALUSER') then begin
-    RunAsOriginalUser := Proc.Name = 'SHELLEXECASORIGINALUSER';
+    var RunAsOriginalUser := Proc.Name = 'SHELLEXECASORIGINALUSER';
     if IsUninstaller and RunAsOriginalUser then
       NoUninstallFuncError(Proc.Name);
 

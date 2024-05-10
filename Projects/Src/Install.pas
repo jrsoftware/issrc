@@ -2792,6 +2792,8 @@ var
         end;
         if roDontLogParameters in RunEntry.Options then
           Flags := Flags or utRun_DontLogParameters;
+        if roLogOutput in RunEntry.Options then
+          Flags := Flags or utRun_LogOutput;
         UninstLog.Add(utRun, [ExpandConst(RunEntry.Name),
           ExpandConst(RunEntry.Parameters), ExpandConst(RunEntry.WorkingDir),
           ExpandConst(RunEntry.RunOnceId), ExpandConst(RunEntry.Verb)],

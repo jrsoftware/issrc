@@ -2,13 +2,11 @@ unit Logging;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Logging functions
-
-  $jrsoftware: issrc/Projects/Logging.pas,v 1.12 2009/03/23 23:27:14 mlaan Exp $
 }
 
 interface
@@ -18,6 +16,7 @@ procedure LogFmt(const S: String; const Args: array of const);
 procedure StartLogging(const Prefix: String);
 procedure StartLoggingWithFixedFilename(const Filename: String);
 function GetLogFileName: String;
+function GetLogActive: Boolean; { Returns True if logging was started or when debugging from the IDE }
 
 const
   SYesNo: array[Boolean] of String = ('No', 'Yes');
@@ -127,6 +126,11 @@ begin
   Result := LogFileName;
 end;
 
+function GetLogActive: Boolean;
+begin
+  Result := Assigned(LogFile) or Debugging;
+end;
+
 procedure Log(const S: String);
 
   procedure WriteStr(const S: String);
@@ -172,7 +176,7 @@ end;
 
 procedure LogFmt(const S: String; const Args: array of const);
 begin
-  if Assigned(LogFile) or Debugging then
+  if GetLogActive then
     Log(Format(S, Args));
 end;
 

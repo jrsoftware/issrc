@@ -332,7 +332,8 @@ type
     Wait: (rwWaitUntilTerminated, rwNoWait, rwWaitUntilIdle);
     Options: set of (roShellExec, roSkipIfDoesntExist,
       roPostInstall, roUnchecked, roSkipIfSilent, roSkipIfNotSilent,
-      roHideWizard, roRun32Bit, roRun64Bit, roRunAsOriginalUser, roDontLogParameters);
+      roHideWizard, roRun32Bit, roRun64Bit, roRunAsOriginalUser,
+      roDontLogParameters, roLogOutput);
   end;
 
 const

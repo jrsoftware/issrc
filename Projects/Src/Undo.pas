@@ -65,6 +65,7 @@ const
   utRun_ShellExecRespectWaitFlags = 128;
   utRun_DisableFsRedir = 256;
   utRun_DontLogParameters = 512;
+  utRun_LogOutput = 1024;
   utDeleteFile_ExistedBeforeInstall = 1;
   utDeleteFile_Extra = 2;
   utDeleteFile_IsFont = 4;
@@ -549,6 +550,13 @@ begin
   end;
 end;
 
+procedure RunExecLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+begin
+  if not Error and FirstLine then
+    Log('Running Exec output:');
+  Log(S);
+end;
+
 function TUninstallLog.PerformUninstall(const CallFromUninstaller: Boolean;
   const DeleteUninstallDataFilesProc: TDeleteUninstallDataFilesProc): Boolean;
 { Undoes all the changes in the uninstall list, in reverse order they were
@@ -808,7 +816,8 @@ begin
                    NewFileExistsRedir(CurRec^.ExtraData and utRun_DisableFsRedir <> 0, CurRecData[0]) then begin
                   if not InstExec(CurRec^.ExtraData and utRun_DisableFsRedir <> 0,
                      CurRecData[0], CurRecData[1], CurRecData[2], Wait,
-                     ShowCmd, ProcessMessagesProc, ErrorCode) then begin
+                     ShowCmd, ProcessMessagesProc, GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0),
+                     RunExecLog, 0, ErrorCode) then begin
                     LogFmt('CreateProcess failed (%d).', [ErrorCode]);
                     Result := False;
                   end

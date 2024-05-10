@@ -809,15 +809,16 @@ The list of options is provided at the end of this topic.</para>
 			<topic id="Exec">
 				<title>Exec</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> Exec(<b>str</b> 1, <b>str</b>? 2, <b>str</b>? 3, <b>int</b>? 4, <b>int</b>? 5)</line></pre>
+					<pre><line><b>int</b> Exec(<b>str</b> 1, <b>str</b>? 2, <b>str</b>? 3, <b>int</b>? 4, <b>int</b>? 5, <b>int</b>? 6)</line></pre>
 				</section>
 				<description>
 					<para>Executes specified executable file.</para>
 					<para>First argument specifies the filename of the module to execute.</para>
 					<para>Second argument may be used to specify command line to execute.</para>
 					<para>Third argument may be used to specify the working directory of the process.</para>
-					<para>Fourth argument should be set to zero, if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero value is assumed.</para>
-					<para>Fifth argument can be any of the <synel>SW_*</synel> constants defined in &builtins;. For GUI processes, it specifies the default value the first time ShowWindow is called. By default, SW_SHOWNORMAL (i. e. 1) is assumed.</para>
+					<para>Fourth argument may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero value is assumed.</para>
+					<para>Fifth argument may be any of the <synel>SW_*</synel> constants defined in &builtins;. For GUI processes, it specifies the default value the first time ShowWindow is called. By default, SW_SHOWNORMAL (i. e. 1) is assumed.</para>
+					<para>Sixth argument may be set to zero if you don't wish to log output, and non-zero otherwise. By default, non-zero value is assumed. Has no effect if the fourth argument is set to zero.</para>
 					<para>If fourth argument is omitted or is non-zero, the function returns the exit code of the process. Otherwise, the function result indicates whether the process has been successfully launched (non-zero for success).</para>
 				</description>
 			</topic>

@@ -15,13 +15,14 @@ unit SpawnClient;
 interface
 
 uses
-  Windows, SysUtils, Messages, InstFunc;
+  Windows, SysUtils, Messages, InstFunc, CmnFunc2;
 
 procedure InitializeSpawnClient(const AServerWnd: HWND);
 function InstExecEx(const RunAsOriginalUser: Boolean;
   const DisableFsRedir: Boolean; const Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
+  const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
 function InstShellExecEx(const RunAsOriginalUser: Boolean;
   const Verb, Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
@@ -30,7 +31,7 @@ function InstShellExecEx(const RunAsOriginalUser: Boolean;
 implementation
 
 uses
-  Classes, CmnFunc2, SpawnCommon;
+  Classes, SpawnCommon;
 
 var
   SpawnServerPresent: Boolean;
@@ -137,13 +138,14 @@ end;
 function InstExecEx(const RunAsOriginalUser: Boolean;
   const DisableFsRedir: Boolean; const Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
+  const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
 var
   M: TMemoryStream;
 begin
   if not RunAsOriginalUser or not SpawnServerPresent then begin
     Result := InstExec(DisableFsRedir, Filename, Params, WorkingDir,
-      Wait, ShowCmd, ProcessMessagesProc, ResultCode);
+      Wait, ShowCmd, ProcessMessagesProc, Log, LogProc, LogProcData, ResultCode);
     Exit;
   end;
 
