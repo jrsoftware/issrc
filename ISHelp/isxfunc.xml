@@ -2854,9 +2854,9 @@ end;</pre></example>
       <function>
         <name>ExecAndLogOutput</name>
         <prototype>function ExecAndLogOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; const OnLog: TOnLog): Boolean;</prototype>
-        <description><p>Identical to <tt>Exec</tt> except that the output of the executed executable or batch file is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view if OnLog is set to <tt>nil</tt>.</p>
-<p>If OnLog is not set to <tt>nil</tt> then the output is sent to the specified function, line by line.</p>
-<p>See <link topic="isxfunc_Exec">Exec</link> for more information.</p></description>
+        <description><p>Identical to <link topic="isxfunc_Exec">Exec</link> except:</p>
+<p>If OnLog is set to <tt>nil</tt> then the output of the executed executable or batch file is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p>
+<p>If OnLog is not set to <tt>nil</tt> then the output is sent to the specified function, line by line.</p></description>
         <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
 <p>TOnLog is defined as:</p>
 <p><tt>TOnLog = procedure(const S: String; const Error, FirstLine: Boolean);</tt></p></remarks>
