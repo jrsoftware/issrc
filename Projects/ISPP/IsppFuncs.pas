@@ -764,6 +764,57 @@ begin
   end;
 end;
 
+type
+  PExecAndGetFirstLineLogData = ^TExecAndGetFirstLineLogData;
+  TExecAndGetFirstLineLogData = record
+    Preprocessor: TPreprocessor;
+    Line: String;
+  end;
+
+procedure ExecAndGetFirstLineLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+begin
+  var Data2 := PExecAndGetFirstLineLogData(Data);
+  if (Data2.Line = '') and (S.Trim <> '') then
+    Data2.Line := S;
+  ExecLog(S, Error, FirstLine, NativeInt(Data2.Preprocessor));
+end;
+
+{
+  str ExecAndGetFirstLine(str FileName, str Params, str WorkingDir,)
+}
+
+function ExecAndGetFirstLineFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr, evStr, evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      var ParamsS, WorkingDir: String;
+      if GetCount > 1 then ParamsS := Get(1).AsStr;
+      if GetCount > 2 then WorkingDir := PrependPath(Ext, Get(2).AsStr);
+      var Data: TExecAndGetFirstLineLogData;
+      Data.Preprocessor := TPreprocessor(Ext);
+      Data.Line := '';
+      var ResultCode: Integer;
+      var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, True,
+        SW_HIDE, Data.Preprocessor, True, ExecAndGetFirstLineLog, NativeInt(@Data), ResultCode);
+      if Success then
+        MakeStr(ResPtr^, Data.Line)
+      else begin
+        Data.Preprocessor.WarningMsg('CreateProcess failed (%d).', [ResultCode]);
+        ResPtr^.Typ := evNull;
+      end;
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 function LenFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
@@ -1889,6 +1940,7 @@ begin
     RegisterFunction('WriteIni', WriteIni, -1);
     RegisterFunction('ReadReg', ReadReg, -1);
     RegisterFunction('Exec', ExecFunc, -1);
+    RegisterFunction('ExecAndGetFirstLine', ExecAndGetFirstLineFunc, -1);
     RegisterFunction('Copy', CopyFunc, -1);
     RegisterFunction('Pos', PosFunc, -1);
     RegisterFunction('RPos', RPosFunc, -1);
