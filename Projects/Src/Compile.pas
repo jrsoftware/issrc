@@ -7391,8 +7391,11 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
         AbortCompileFmt(SCompilerSignToolCreateProcessFailed, [LastError,
           Win32ErrorString(LastError)]);
       end;
+
+      { Don't need the thread handle, so close it now }
       CloseHandle(ProcessInfo.hThread);
       OutputReader.NotifyCreateProcessDone;
+
       try
         while True do begin
           case WaitForSingleObject(ProcessInfo.hProcess, 50) of

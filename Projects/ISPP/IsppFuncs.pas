@@ -691,11 +691,8 @@ begin
       
     try
       if WaitUntilTerminated then begin
-        { Wait until the process returns, but still process any messages that
-          arrive and read the output. }
-        var WaitMilliseconds := IfThen(OutputReader <> nil, 50, INFINITE);
         while True do begin
-          case WaitForSingleObject(ProcessInfo.hProcess, WaitMilliseconds) of
+          case WaitForSingleObject(ProcessInfo.hProcess, 50) of
             WAIT_OBJECT_0: Break;
             WAIT_TIMEOUT:
               begin
