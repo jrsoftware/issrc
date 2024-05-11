@@ -723,7 +723,7 @@ begin
   if Error then
     Preprocessor.WarningMsg(S, [])
   else
-    Preprocessor.StatusMsg(S, []);
+    Preprocessor.StatusMsg('Exec output: %s', [S]);
 end;
 
 {
