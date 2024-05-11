@@ -2857,8 +2857,7 @@ end;</pre></example>
         <description><p>Identical to <tt>Exec</tt> except that the output of the executed executable or batch file is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view if OnLog is set to <tt>nil</tt>.</p>
 <p>If OnLog is not set to <tt>nil</tt> then the output is sent to the specified function, line by line.</p>
 <p>See <link topic="isxfunc_Exec">Exec</link> for more information.</p></description>
-        <remarks><p>Completely identical to <tt>Exec</tt> if OnLog is set to <tt>nil</tt> and logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or the <link topic="setup_uninstalllogging">UninstallLogging</link> [Setup] section directive or debugging from the Compiler IDE).</p>
-<p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
+        <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
 <p>TOnLog is defined as:</p>
 <p><tt>TOnLog = procedure(const S: String; const Error, FirstLine: Boolean);</tt></p></remarks>
         <example><pre>var
