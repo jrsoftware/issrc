@@ -25,6 +25,7 @@ const
   mmLineBreakpointBad = 11;  { ugly olive line highlight }
   mmLineStep = 12;           { blue line highlight }
   mmIconStep = 13;           { blue arrow }
+  mmIconBreakpointStep = 14; { blue arrow on top of a stop sign + check }
 
   { Memo indicator numbers (also in ScintStylerInnoSetup) }
   inSquiggly = 0;
