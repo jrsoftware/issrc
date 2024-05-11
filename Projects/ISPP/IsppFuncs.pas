@@ -1924,6 +1924,24 @@ begin
   end;
 end;
 
+function AddQuotesFunc(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      MakeStr(ResPtr^, AddQuotes(Get(0).AsStr));
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 procedure RegisterFunctions(Preproc: TPreprocessor);
 begin
   with Preproc do
@@ -1989,6 +2007,7 @@ begin
     RegisterFunction('Message', MessageFunc, -1);
     RegisterFunction('Warning', WarningFunc, -1);
     RegisterFunction('Error', ErrorFunc, -1);
+    RegisterFunction('AddQuotes', AddQuotesFunc, -1)
   end;
 end;
 

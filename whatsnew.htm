@@ -149,7 +149,12 @@ end;</pre>
   <li>Added new <tt>[Files]</tt> section flag <tt>signcheck</tt>. Instructs the compiler check the original source files for a digital signature before storing them.</li>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters.</li> 
-  <li>ISPP change: Support function <tt>Exec</tt> no longer requires the filename parameter to be quoted if it contains spaces. Additionally it now supports &quot;&gt;&quot; as a filename and now includes special platform-independent support for .bat and .cmd files, both just like for example the <tt>[Run]</tt> section.</li>
+  <li>ISPP changes:
+    <ul>
+    <li>Added support function <tt>AddQuotes</tt> to add a quote character to the left and right sides of a string if the string contains a space and it didn't have quotes already.</li>
+    <li>Support function <tt>Exec</tt> no longer requires the filename parameter to be quoted if it contains spaces. Additionally it now supports &quot;&gt;&quot; as a filename and now includes special platform-independent support for .bat and .cmd files, both just like for example the <tt>[Run]</tt> section.</li>
+    </ul>
+  </li>  
   <li>Pascal Scripting changes: 
     <ul>
     <li>Added support functions <tt>UTF8Encode</tt> and <tt>UTF8Decode</tt> to encode a Unicode string into a UTF-8 encoded ANSI string and vice versa.</li>
