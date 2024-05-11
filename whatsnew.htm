@@ -123,8 +123,6 @@ end;</pre>
   <li>Added new <i>Generate [Registry] Entries... (Ctrl+Shift+R)</i> menu item to the <i>Tools</i> menu to import a Windows registry .reg file as extra entries to the <tt>[Registry]</tt> section at the cursor position, or to a new section.</li>
   <li>Added new <i>Generate [Files] Entries... (Ctrl+Shift+I)</i> menu item to the <i>Tools</i> menu to design and insert extra entries to the <tt>[Files]</tt> section at the cursor position, or to a new section.</li>
   <li>The <i>Generate MsgBox/TaskDialogMsgBox Call... (Ctrl+Shift+M)</i> tool (previously named <i>MsgBox/TaskDialogMsgBox Designer</i>) now respects the tab width and tab character settings, indents the generated Pascal script one extra level, and warns if the cursor position is not in the [Code] section.</li>
-  <li>Digital signing change: Sign Tool output is now always logged in the "Compiler Output" view, making it easier to debug issues.</li>
-  <li>ISPP change: Output of programs executed using the <tt>Exec</tt> support function is now logged in the "Compiler Output" view by default. This can be disabled via a new sixth parameter.</li>
   <li>Added dark mode support to the title bar on Windows 10 Version 2004 and later.</i>
   <li>Added dark mode support to the main menu bar on all versions of Windows.</i>
   <li>Added dark mode support to the menus on Windows 10 Version 1903 and later up to Windows 11 Version 23H2 which is currently the latest version of Windows 11.</i>
@@ -132,18 +130,28 @@ end;</pre>
   <li>Lines with a breakpoint are now displayed as normal lines with syntax highlighting, instead of as white text on a red background. The editor's gutter still displays an icon on such lines.</li>
   <li>Added icons to the menus.</i>
 </ul>
+<p><span class="head2">Support for logging improved</span></p>
+<ul>
+  <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program. Cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags. Has no effect if logging is not enabled.</li>
+  <li>Added new <tt>[Setup]</tt> section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
+  <li>Digital signing change: Sign Tool output is now always logged in the Compiler IDE's "Compiler Output" view, making it easier to debug issues.</li>
+  <li>Pascal Scripting change: Added new <tt>ExecAndLogOutput</tt> support function. Can be used to log the output of the executed program to Setup and Uninstall's log, or to receive the output line by line in your own <tt>[Code]</tt> function, for example to get the first non-empty line from the output as shown in the help file.</li>
+  <li>ISPP changes:
+    <ul>
+    <li>Output of programs executed using the <tt>Exec</tt> support function is now logged in the Compiler IDE's "Compiler Output" view by default. This can be disabled via a new sixth parameter.</li>
+    <li>Added new support function <tt>ExecAndGetFirstLine</tt> to execute a program (or batch file) and get the first non-empty line from its output which can then be placed or used in the script.</li>
+    </ul>
+    </li>
+</ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li>Console-mode compiler (ISCC) change: Added support for Unicode output.</li>
-  <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program. Cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags. Has no effect if logging is not enabled.</li>
-  <li>Added new <tt>[Setup]</tt> section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
   <li>Added new <tt>[Files]</tt> section flag <tt>signcheck</tt>. Instructs the compiler check the original source files for a digital signature before storing them.</li>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters.</li> 
   <li>ISPP change: Support function <tt>Exec</tt> no longer requires the filename parameter to be quoted if it contains spaces. Additionally it now supports &quot;&gt;&quot; as a filename and now includes special platform-independent support for .bat and .cmd files, both just like for example the <tt>[Run]</tt> section.</li>
   <li>Pascal Scripting changes: 
     <ul>
-    <li>Added new <tt>ExecAndLogOutput</tt> support function. Can be used to log the output of the executed program to Setup and Uninstall's log, or to receive the output line by line in your own <tt>[Code]</tt> function.</li>
     <li>Added support functions <tt>UTF8Encode</tt> and <tt>UTF8Decode</tt> to encode a Unicode string into a UTF-8 encoded ANSI string and vice versa.</li>
     <li>Added support class <tt>TNewLinkLabel</tt> which can display multi-line text with embedded links and internally uses a Windows SysLink control. See the <i>CodeClasses.iss</i> example script for examples.</li>
     <li><tt>TWizardForm</tt>: Added new <tt>AdjustLinkLabelHeight</tt> function.</li>
