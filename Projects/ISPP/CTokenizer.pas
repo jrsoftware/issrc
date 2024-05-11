@@ -545,18 +545,16 @@ end;
 
 procedure TCTokenizer.Error(const Message: string);
 begin
-  ErrorFmt(Message, []);
+  var E := EParsingError.Create(Message);
+  if FExprOffset <> -1 then
+    E.Position := FExprOffset + (FExpr - FExprStart) + 1;
+  raise E;
 end;
 
 procedure TCTokenizer.ErrorFmt(const Message: string;
   Args: array of const);
-var
-  E: EParsingError;
 begin
-  E := EParsingError.CreateFmt(Message, Args);
-  if FExprOffset <> -1 then
-    E.Position := FExprOffset + (FExpr - FExprStart) + 1;
-  raise E;
+  Error(Format(Message, Args));
 end;
 
 procedure TCTokenizer.IllegalChar(C: Char);

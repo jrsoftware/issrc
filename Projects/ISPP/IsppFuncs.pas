@@ -721,7 +721,7 @@ procedure ExecLog(const S: String; const Error, FirstLine: Boolean; const Data: 
 begin
   var Preprocessor := TPreprocessor(Data);
   if Error then
-    Preprocessor.WarningMsg(S, [])
+    Preprocessor.WarningMsg(S)
   else
     Preprocessor.StatusMsg('Exec output: %s', [S]);
 end;
@@ -1865,7 +1865,7 @@ begin
   try
     with IInternalFuncParams(Params) do begin
       { Also see Pragma in IsppPreprocessor }
-      TPreprocessor(Ext).StatusMsg(Get(0).AsStr, []);
+      TPreprocessor(Ext).StatusMsg(Get(0).AsStr);
       ResPtr^ := NULL;
     end;
   except
@@ -1884,7 +1884,7 @@ begin
   try
     with IInternalFuncParams(Params) do begin
       { Also see Pragma in IsppPreprocessor }
-      TPreprocessor(Ext).WarningMsg(Get(0).AsStr, []);
+      TPreprocessor(Ext).WarningMsg(Get(0).AsStr);
       ResPtr^ := NULL;
     end;
   except

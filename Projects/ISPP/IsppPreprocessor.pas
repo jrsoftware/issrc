@@ -124,9 +124,12 @@ type
       const SourcePath: string; const CompilerPath: string; const FileName: string = '');
     destructor Destroy; override;
     procedure CallIdleProc;
-    procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);
-    procedure StatusMsg(const Msg: string; const Args: array of const);
-    procedure WarningMsg(const Msg: string; const Args: array of const);
+    procedure VerboseMsg(Level: Byte; const Msg: string); overload;
+    procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const); overload;
+    procedure StatusMsg(const Msg: string); overload;
+    procedure StatusMsg(const Msg: string; const Args: array of const); overload;
+    procedure WarningMsg(const Msg: string); overload;
+    procedure WarningMsg(const Msg: string; const Args: array of const); overload;
     function GetNextOutputLine(var LineFilename: string; var LineNumber: Integer;
       var LineText: string): Boolean;
     procedure GetNextOutputLineReset;
@@ -824,10 +827,10 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         end
         else if P = 'warning' then begin
           { Also see WarningFunc in IsppFuncs }
-          WarningMsg(StrPragma(True), [])
+          WarningMsg(StrPragma(True))
         end else if P = 'message' then begin
           { Also see MessageFunc in IsppFuncs }
-          StatusMsg(StrPragma(True), [])
+          StatusMsg(StrPragma(True))
         end else if P = 'error' then begin
           { Also see ErrorFunc in IsppFuncs }
           ErrorMsg := StrPragma(True);
@@ -836,11 +839,11 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
           RaiseError(ErrorMsg)
         end
         else
-          WarningMsg(SFailedToParsePragmaDirective, []);
+          WarningMsg(SFailedToParsePragmaDirective);
       end;
     except
       if CatchException then
-        WarningMsg(SFailedToParsePragmaDirective, [])
+        WarningMsg(SFailedToParsePragmaDirective)
       else
         raise
     end;
@@ -934,7 +937,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
 
   procedure EndGlue;
   begin
-    VerboseMsg(2, SResettingInsertionPoint, []);
+    VerboseMsg(2, SResettingInsertionPoint);
     FInsertionPoint := -1;
   end;
 
@@ -977,7 +980,7 @@ begin
             evInt: Result := IfCondition.AsInt <> 0;
             evStr: Result := IfCondition.AsStr <> ''
           else
-            WarningMsg(SSpecifiedConditionEvalatedToVoid, []);
+            WarningMsg(SSpecifiedConditionEvalatedToVoid);
             Result := False
           end;
         end;
@@ -990,12 +993,12 @@ begin
             itFunc:
             begin
               Result := Command = pcIfDef;
-              WarningMsg(SFuncIdentForIfdef, []);
+              WarningMsg(SFuncIdentForIfdef);
             end;
             else
             begin
               Result := Command = pcIfNDef;
-              WarningMsg(SSpecFuncIdentForIfdef, []);
+              WarningMsg(SSpecFuncIdentForIfdef);
             end;
           end;
           EndOfExpr;
@@ -1104,21 +1107,36 @@ begin
   FCompilerParams.IdleProc(FCompilerParams.CompilerData);
 end;
 
+procedure TPreprocessor.VerboseMsg(Level: Byte; const Msg: string);
+begin
+  if (optVerbose in FOptions.Options) and (FOptions.VerboseLevel >= Level) then
+    StatusMsg(Msg);
+end;
+
 procedure TPreprocessor.VerboseMsg(Level: Byte; const Msg: string;
   const Args: array of const);
 begin
-  if (optVerbose in FOptions.Options) and (FOptions.VerboseLevel >= Level) then
-    StatusMsg(Msg, Args);
+  VerboseMsg(Level, Format(Msg, Args));
+end;
+
+procedure TPreprocessor.StatusMsg(const Msg: string);
+begin
+  SendMsg(Msg, imtStatus);
 end;
 
 procedure TPreprocessor.StatusMsg(const Msg: string; const Args: array of const);
 begin
-  SendMsg(Format(Msg, Args), imtStatus);
+  StatusMsg(Format(Msg, Args));
+end;
+
+procedure TPreprocessor.WarningMsg(const Msg: string);
+begin
+  SendMsg(Msg, imtWarning);
 end;
 
 procedure TPreprocessor.WarningMsg(const Msg: string; const Args: array of const);
 begin
-  SendMsg(Format(Msg, Args), imtWarning);
+  WarningMsg(Format(Msg, Args));
 end;
 
 procedure TPreprocessor.SendMsg(Msg: string; Typ: TIsppMessageType);
@@ -1290,11 +1308,11 @@ begin
     cvmElse: M := SUpdatingConditionalInclusionElse;
   else
     begin
-      FPreproc.VerboseMsg(6, SFinishedConditionalInclusion, []);
+      FPreproc.VerboseMsg(6, SFinishedConditionalInclusion);
       Exit;
     end;
   end;
-  FPreproc.VerboseMsg(6, M, []);
+  FPreproc.VerboseMsg(6, M);
 end;
 
 { TPreprocessor }
