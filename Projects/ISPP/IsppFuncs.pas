@@ -774,7 +774,7 @@ type
 procedure ExecAndGetFirstLineLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
 begin
   var Data2 := PExecAndGetFirstLineLogData(Data);
-  if (Data2.Line = '') and (S.Trim <> '') then
+  if not Error and (Data2.Line = '') and (S.Trim <> '') then
     Data2.Line := S;
   ExecLog(S, Error, FirstLine, NativeInt(Data2.Preprocessor));
 end;
