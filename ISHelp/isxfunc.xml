@@ -2861,6 +2861,24 @@ end;</pre></example>
 <p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
 <p>TOnLog is defined as:</p>
 <p><tt>TOnLog = procedure(const S: String; const Error, FirstLine: Boolean);</tt></p></remarks>
+        <example><pre>var
+  Line: String;
+
+procedure ExecAndGetFirstLineLog(const S: String; const Error, FirstLine: Boolean);
+begin
+  if not Error and (Line = '') and (Trim(S) &lt;&gt; '') then
+    Line := S; { First non-empty line found, store it }
+  if FirstLine then
+    Log('Output:');
+  Log(S);
+end;
+
+function ExecAndGetFirstLine(const Filename, Params, WorkingDir: String; var ResultCode: Integer): String;
+begin
+  Line := '';
+  ExecAndLogOutput(Filename, Params, WorkingDir, SW_HIDE, ewWaitUntilTerminated, ResultCode, @ExecAndGetFirstLineLog);
+  Result := Line;
+end;</pre></example>
         <seealso><p><link topic="isxfunc_Exec">Exec</link></p></seealso>
       </function>
     </subcategory>
