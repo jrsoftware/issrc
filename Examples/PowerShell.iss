@@ -1,4 +1,4 @@
-; -- Powershell.iss --
+; -- PowerShell.iss --
 ; Demonstrates calling Powershell at compile time and at run time.
 ; At compile time it first generates a random password and then it shows it and copies it to the clipboard
 ; At run time it shows the serial number of the system
