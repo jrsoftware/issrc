@@ -2636,10 +2636,7 @@ begin
     end;
   end
   else if (Key = VK_LEFT) and not (ssCtrl in Shift) and FOptions.CursorPastEOL then begin
-    var CaretPos := FActiveMemo.CaretPosition;
-    var Line := FActiveMemo.GetLineFromPosition(CaretPos);
-    var LinePos := FActiveMemo.GetPositionFromLine(Line);
-    if CaretPos = LinePos then
+    if FActiveMemo.CaretColumn = 0 then
       Key := 0;
   end
   else if (Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt]) then begin
