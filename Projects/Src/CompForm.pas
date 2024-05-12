@@ -2619,16 +2619,14 @@ end;
 
 procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-var
-  S, HelpFile: String;
-  KLink: THH_AKLINK;
 begin
   if Key = VK_F1 then begin
-    HelpFile := GetHelpFile;
+    var HelpFile := GetHelpFile;
     if Assigned(HtmlHelp) then begin
       HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
-      S := FActiveMemo.WordAtCursor;
+      var S := FActiveMemo.WordAtCursor;
       if S <> '' then begin
+        var KLink: THH_AKLINK;
         FillChar(KLink, SizeOf(KLink), 0);
         KLink.cbStruct := SizeOf(KLink);
         KLink.pszKeywords := PChar(S);
@@ -2636,6 +2634,13 @@ begin
         HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
       end;
     end;
+  end
+  else if (Key = VK_LEFT) and not (ssCtrl in Shift) and FOptions.CursorPastEOL then begin
+    var CaretPos := FActiveMemo.CaretPosition;
+    var Line := FActiveMemo.GetLineFromPosition(CaretPos);
+    var LinePos := FActiveMemo.GetPositionFromLine(Line);
+    if CaretPos = LinePos then
+      Key := 0;
   end
   else if (Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt]) then begin
     InitiateAutoComplete(#0);
