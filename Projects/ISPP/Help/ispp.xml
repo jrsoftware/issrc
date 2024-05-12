@@ -816,7 +816,7 @@ The list of options is provided at the end of this topic.</p>
 			<topic id="Exec">
 				<title>Exec</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> Exec(<b>str</b> 1, <b>str</b>? 2, <b>str</b>? 3, <b>int</b>? 4, <b>int</b>? 5, <b>int</b>? 6)</line></pre>
+					<pre><line><b>int</b> Exec(<b>str</b> Filename, <b>str</b>? Params, <b>str</b>? WorkingDir, <b>int</b>? Wait, <b>int</b>? ShowCmd, <b>int</b>? Log)</line></pre>
 				</section>
 				<description>
 					<p>Executes specified executable or batch file.</p>
@@ -828,6 +828,24 @@ The list of options is provided at the end of this topic.</p>
 					<p>Sixth parameter may be set to zero if you don't wish to log output, and non-zero otherwise. By default, non-zero value is assumed. Has no effect if the fourth parameter is set to zero.</p>
 					<p>If fourth parameter is omitted or is non-zero, the function returns the exit code of the process. Otherwise, the function result indicates whether the process has been successfully launched (non-zero for success).</p>
 				</description>
+				<section title="See also">
+					<p><tt><link href="ExecAndGetFirstLine">ExecAndGetFirstLine</link></tt></p>
+				</section>
+        </topic>
+			<topic id="ExecAndGetFirstLine">
+				<title>ExecAndGetFirstLine</title>
+				<section title="Prototype">
+					<pre><line><b>str</b> ExecAndGetFirstLine(<b>str</b> Filename, <b>str</b>? Params, <b>str</b>? WorkingDir)</line></pre>
+				</section>
+				<description>
+					<p>Executes specified executable or batch file and reads the first non-empty line from its output.</p>
+					<p>First parameter specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the second parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
+					<p>Second parameter may be used to specify parameters for the process.</p>
+					<p>Third parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the first parameter and use that as the initial current directory for the process.</p>
+				</description>
+				<section title="See also">
+					<p><tt><link href="Exec">Exec</link></tt></p>
+				</section>        
 			</topic>
 			<topic id="Copy">
 				<title>Copy</title>
@@ -1806,6 +1824,17 @@ The list of options is provided at the end of this topic.</p>
 				</section>
 				<description>
 					<p>Functional version of &error;.</p>
+				</description>
+			</topic>
+			<topic id="AddQuotes">
+				<title>AddQuotes</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> AddQuotes(<b>str</b> S)</line>
+					</pre>
+				</section>
+				<description>
+					<p>Adds a quote (&quot;) character to the left and right sides of the string if the string contains a space and it didn't have quotes already. This is primarily used when spawning another process with a long filename as one of the parameters.</p>
 				</description>
 			</topic>
 		</topic>

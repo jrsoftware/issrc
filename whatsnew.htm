@@ -133,14 +133,14 @@ end;</pre>
 </ul>
 <p><span class="head2">Support for logging improved</span></p>
 <ul>
-  <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program. Cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags. Has no effect if logging is not enabled.</li>
+  <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program or batch file. Cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags. Has no effect if logging is not enabled.</li>
   <li>Added new <tt>[Setup]</tt> section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
   <li>Digital signing change: Sign Tool output is now always logged in the Compiler IDE's "Compiler Output" view, making it easier to debug issues.</li>
-  <li>Pascal Scripting change: Added new <tt>ExecAndLogOutput</tt> support function. Can be used to log the output of the executed program to Setup and Uninstall's log, or to receive the output line by line in your own <tt>[Code]</tt> function, for example to get the first non-empty line from the output as shown in the help file.</li>
+  <li>Pascal Scripting change: Added new <tt>ExecAndLogOutput</tt> support function. Can be used to log the output of the executed program or batch file to Setup and Uninstall's log, or to receive the output line by line in your own <tt>[Code]</tt> function, for example to read the first non-empty line from the output as shown in the help file and the new <i>PowerShell.iss</i> example script.</li>
   <li>ISPP changes:
     <ul>
-    <li>Output of programs executed using the <tt>Exec</tt> support function is now logged in the Compiler IDE's "Compiler Output" view by default. This can be disabled via a new sixth parameter.</li>
-    <li>Added new support function <tt>ExecAndGetFirstLine</tt> to execute a program (or batch file) and get the first non-empty line from its output which can then be placed or used in the script.</li>
+    <li>Output of programs or batch files executed using the <tt>Exec</tt> support function is now logged in the Compiler IDE's "Compiler Output" view by default. This can be disabled via a new sixth parameter.</li>
+    <li>Added new support function <tt>ExecAndGetFirstLine</tt> to execute a program or batch file and read the first non-empty line from its output which can then be placed or used in the script as shown in the new <i>PowerShell.iss</i> example script.</li>
     </ul>
     </li>
 </ul>
