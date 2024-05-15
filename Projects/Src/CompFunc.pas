@@ -49,6 +49,9 @@ procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String
 procedure LoadKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 procedure DeleteKnownIncludedAndHiddenFiles(const AFilename: String);
+procedure LoadBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
+procedure SaveBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
+procedure DeleteBreakPointLines(const AFilename: String);
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
   const Shift: TShiftState);
@@ -399,6 +402,36 @@ begin
   try
     DeleteConfigIniList(Ini, 'IncludedFilesHistory', AFilename);
     DeleteConfigIniList(Ini, 'HiddenFilesHistory', AFilename);
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure LoadBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
+begin
+  var Ini := TConfigIniFile.Create;
+  try
+    LoadConfigIniList(Ini, 'BreakPointLines', AFilename, BreakPointLines, ',');
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure SaveBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
+begin
+  var Ini := TConfigIniFile.Create;
+  try
+    SaveConfigIniList(Ini, 'BreakPointLines', AFilename, BreakPointLines, ',');
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure DeleteBreakPointLines(const AFilename: String);
+begin
+  var Ini := TConfigIniFile.Create;
+  try
+    DeleteConfigIniList(Ini, 'BreakPointLines', AFilename);
   finally
     Ini.Free;
   end;

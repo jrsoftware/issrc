@@ -431,6 +431,7 @@ type
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
     function AskToDetachDebugger: Boolean;
     procedure BringToForeground;
+    procedure BuildAndSaveBreakPointLines(const AMemo: TCompScintFileEdit);
     procedure BuildAndSaveKnownIncludedAndHiddenFiles;
     procedure CheckIfTerminated;
     procedure CloseTab(const TabIndex: Integer);
@@ -460,6 +461,7 @@ type
     function InitializeNonFileMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure InvalidateStatusPanel(const Index: Integer);
+    procedure LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TCompScintFileEdit);
     procedure LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
     procedure MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
     procedure MemoCharAdded(Sender: TObject; Ch: AnsiChar);
@@ -1115,6 +1117,47 @@ begin
   FMainMemo.ClearUndo;
 end;
 
+procedure TCompileForm.LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TCompScintFileEdit);
+begin
+  if AMemo.BreakPoints.Count <> 0 then
+    raise Exception.Create('AMemo.BreakPoints.Count <> 0');
+
+  try
+    var Strings := TStringList.Create;
+    try
+      LoadBreakPointLines(AMemo.FileName, Strings);
+      for var LineAsString in Strings do
+        AMemo.BreakPoints.Add(LineAsString.ToInteger);
+    finally
+      Strings.Free;
+    end;
+    for var Line in AMemo.BreakPoints do
+      UpdateLineMarkers(AMemo, Line);
+  except
+    { Ignore any exceptions. }
+  end;
+end;
+
+procedure TCompileForm.BuildAndSaveBreakPointLines(const AMemo: TCompScintFileEdit);
+begin
+  try
+    if AMemo.FileName <> '' then begin
+      var Strings := TStringList.Create;
+      try
+        for var Line in AMemo.BreakPoints do
+          Strings.Add(Line.ToString);
+        SaveBreakPointLines(AMemo.FileName, Strings);
+      finally
+        Strings.Free;
+      end;
+    end;
+  except
+    { Handle exceptions locally; failure to save the breakpoint lines list should not be
+      a fatal error. }
+    Application.HandleException(Self);
+  end;
+end;
+
 procedure TCompileForm.LoadKnownIncludedAndHiddenFilesAndUpdateMemos;
 begin
   if FIncludedFiles.Count <> 0 then
@@ -1127,9 +1170,9 @@ begin
         LoadKnownIncludedAndHiddenFiles(FMainMemo.FileName, Strings, FHiddenFiles);
         if Strings.Count > 0 then begin
           try
-            for var I := 0 to Strings.Count-1 do begin
+            for var Filename in Strings do begin
               var IncludedFile := TIncludedFile.Create;
-              IncludedFile.Filename := Strings[I];
+              IncludedFile.Filename := Filename;
               IncludedFile.CompilerFileIndex := UnknownCompilerFileIndex;
               IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
                 @IncludedFile.LastWriteTime);
@@ -1267,6 +1310,7 @@ begin
     LoadKnownIncludedAndHiddenFilesAndUpdateMemos(AFilename);
     InvalidateStatusPanel(spHiddenFilesCount);
   end;
+  LoadBreakPointLinesAndUpdateLineMarkers(AMemo);
 end;
 
 procedure TCompileForm.OpenMRUMainFile(const AFilename: String);
@@ -1280,6 +1324,7 @@ begin
     if MsgBoxFmt('There was an error opening the file. Remove it from the list?',
        [AFilename], SCompilerFormCaption, mbError, MB_YESNO) = IDYES then begin
       ModifyMRUMainFilesList(AFilename, False);
+      DeleteBreakPointLines(AFilename);
       DeleteKnownIncludedAndHiddenFiles(AFilename);
     end;
   end;
@@ -1351,8 +1396,11 @@ begin
   if AMemo = FMainMemo then begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
     if PathCompare(AMemo.Filename, OldName) <> 0 then begin
-      if OldName <> '' then
+      if OldName <> '' then begin
+        DeleteBreakPointLines(OldName);
         DeleteKnownIncludedAndHiddenFiles(OldName);
+      end;
+      BuildAndSaveBreakPointLines(AMemo);
       BuildAndSaveKnownIncludedAndHiddenFiles;
     end;
   end;
@@ -5889,6 +5937,7 @@ begin
   else
     Memo.BreakPoints.Delete(I);
   UpdateLineMarkers(Memo, Line);
+  BuildAndSaveBreakPointLines(Memo);
 end;
 
 procedure TCompileForm.MemoMarginClick(Sender: TObject; MarginNumber: Integer;
@@ -5934,11 +5983,16 @@ begin
   if Memo.ErrorLine >= FirstLine then
     Inc(Memo.ErrorLine, Count);
 
+  var BreakPointsChanged := False;
   for I := 0 to Memo.BreakPoints.Count-1 do begin
     Line := Memo.BreakPoints[I];
-    if Line >= FirstLine then
+    if Line >= FirstLine then begin
       Memo.BreakPoints[I] := Line + Count;
+      BreakPointsChanged := True;
+    end;
   end;
+  if BreakPointsChanged then
+    BuildAndSaveBreakPointLines(Memo);
 end;
 
 procedure TCompileForm.MemoLinesDeleted(Memo: TCompScintFileEdit; FirstLine, Count,
@@ -5986,17 +6040,22 @@ begin
       Dec(Memo.ErrorLine, Count);
   end;
 
+  var BreakPointsChanged := False;
   for I := Memo.BreakPoints.Count-1 downto 0 do begin
     Line := Memo.BreakPoints[I];
     if Line >= FirstLine then begin
       if Line < FirstLine + Count then begin
         Memo.BreakPoints.Delete(I);
+        BreakPointsChanged := True;
       end else begin
         Line := Line - Count;
         Memo.BreakPoints[I] := Line;
+        BreakPointsChanged := True;
       end;
     end;
   end;
+  if BreakPointsChanged then
+    BuildAndSaveBreakPointLines(Memo);
 
   { When lines are deleted, Scintilla insists on moving all of the deleted
     lines' markers to the line on which the deletion started
