@@ -2938,6 +2938,8 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <p>All entries are processed by the installer in the order they appear in a section.</p>
 
+<p>You can see the order yourself by loading a script into the Compiler IDE and pressing F8 (Step Over) repeatedly: each time Setup or Uninstall is about to process an entry the IDE will pause Setup or Uninstall and show you the entry.</p> 
+
 <p>Changes are undone by the uninstaller in the <i>opposite</i> order in which the installer made them. This is because the uninstall log is parsed from end to beginning.</p>
 
 <p>In this example:</p>
