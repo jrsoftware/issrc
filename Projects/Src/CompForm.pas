@@ -394,7 +394,6 @@ type
     FCompiledExe, FUninstExe, FTempDir: String;
     FPreprocessorOutput: String;
     FIncludedFiles: TIncludedFiles;
-    FLoadingIncludedFiles: Boolean;
     FDebugging: Boolean;
     FStepMode: TStepMode;
     FPaused, FPausedAtCodeLine: Boolean;
@@ -1121,7 +1120,7 @@ end;
 procedure TCompileForm.LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TCompScintFileEdit);
 begin
   if AMemo.BreakPoints.Count <> 0 then
-    raise Exception.Create('AMemo.BreakPoints.Count <> 0');
+    raise Exception.Create('AMemo.BreakPoints.Count <> 0'); { NewMainFile or OpenFile should have cleared these }
 
   try
     var Strings := TStringList.Create;
@@ -1163,7 +1162,7 @@ end;
 procedure TCompileForm.LoadKnownIncludedAndHiddenFilesAndUpdateMemos;
 begin
   if FIncludedFiles.Count <> 0 then
-    raise Exception.Create('FIncludedFiles.Count <> 0'); { NewMainFile should have been called }
+    raise Exception.Create('FIncludedFiles.Count <> 0'); { NewMainFile should have cleared these }
 
   try
     if AFilename <> '' then begin
@@ -1289,30 +1288,37 @@ procedure TCompileForm.OpenFile(AMemo: TCompScintFileEdit; AFilename: String;
 var
   Stream: TFileStream;
 begin
-  AFilename := PathExpand(AFilename);
-
-  Stream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
+  AMemo.OpeningFile := True;
   try
-    if AMemo = FMainMemo then
-      NewMainFile;
-    GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
-    AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
-    Stream.Seek(0, soFromBeginning);
-    AMemo.Lines.LoadFromStream(Stream, GetEncoding(AMemo.SaveEncoding));
+    AFilename := PathExpand(AFilename);
+
+    Stream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
+    try
+      if AMemo = FMainMemo then
+        NewMainFile
+      else
+        AMemo.BreakPoints.Clear;
+      GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
+      AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
+      Stream.Seek(0, soFromBeginning);
+      AMemo.Lines.LoadFromStream(Stream, GetEncoding(AMemo.SaveEncoding));
+    finally
+      Stream.Free;
+    end;
+    AMemo.ClearUndo;
+    if AMemo = FMainMemo then begin
+      AMemo.Filename := AFilename;
+      UpdateCaption;
+      ModifyMRUMainFilesList(AFilename, True);
+      if MainMemoAddToRecentDocs then
+        AddFileToRecentDocs(AFilename);
+      LoadKnownIncludedAndHiddenFilesAndUpdateMemos(AFilename);
+      InvalidateStatusPanel(spHiddenFilesCount);
+    end;
+    LoadBreakPointLinesAndUpdateLineMarkers(AMemo);
   finally
-    Stream.Free;
+    AMemo.OpeningFile := False;
   end;
-  AMemo.ClearUndo;
-  if AMemo = FMainMemo then begin
-    AMemo.Filename := AFilename;
-    UpdateCaption;
-    ModifyMRUMainFilesList(AFilename, True);
-    if MainMemoAddToRecentDocs then
-      AddFileToRecentDocs(AFilename);
-    LoadKnownIncludedAndHiddenFilesAndUpdateMemos(AFilename);
-    InvalidateStatusPanel(spHiddenFilesCount);
-  end;
-  LoadBreakPointLinesAndUpdateLineMarkers(AMemo);
 end;
 
 procedure TCompileForm.OpenMRUMainFile(const AFilename: String);
@@ -3662,45 +3668,43 @@ procedure TCompileForm.UpdatePreprocMemos;
     if FOptions.OpenIncludedFiles and (FIncludedFiles.Count > 0) then begin
       var NextMemoIndex := FirstIncludedFilesMemoIndex;
       var NextTabIndex := 1; { First tab displays the main memo  }
-      FLoadingIncludedFiles := True;
-      try
-        for IncludedFile in FIncludedFiles do begin
-          IncludedFile.Memo := FFileMemos[NextMemoIndex];
-          try
-            if not IncludedFile.Memo.Used or
-              ((PathCompare(IncludedFile.Memo.Filename, IncludedFile.Filename) <> 0) or
-                not IncludedFile.HasLastWriteTime or
-                (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0)) then begin
-              IncludedFile.Memo.Filename := IncludedFile.Filename;
+      for IncludedFile in FIncludedFiles do begin
+        IncludedFile.Memo := FFileMemos[NextMemoIndex];
+        try
+          if not IncludedFile.Memo.Used or
+            ((PathCompare(IncludedFile.Memo.Filename, IncludedFile.Filename) <> 0) or
+              not IncludedFile.HasLastWriteTime or
+              (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0)) then begin
+            IncludedFile.Memo.Filename := IncludedFile.Filename;
+            IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
+            OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
+            IncludedFile.Memo.Used := True;
+          end else begin
+            { The memo assigned to the included file already has that file loaded
+              and is up-to-date so no call to OpenFile is needed. However, it could be
+              that CompilerFileIndex is not set yet. This happens if the initial
+              load was from the history loaded by LoadKnownIncludedAndHiddenFiles
+              and is followed by the user doing a compile. }
+            if IncludedFile.Memo.CompilerFileIndex = UnknownCompilerFileIndex then
               IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
-              IncludedFile.Memo.BreakPoints.Clear;
-              OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
-              IncludedFile.Memo.Used := True;
-            end else if IncludedFile.Memo.CompilerFileIndex = UnknownCompilerFileIndex then begin
-             { The file already has a memo but CompilerFileIndex is not set yet.
-               This happens if the initial load was from the history loaded by LoadKnownIncludedFiles and then the user does a compile.  }
-              IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
-            end;
+          end;
 
-            if FHiddenFiles.IndexOf(IncludedFile.Filename) = -1 then begin
-              NewTabs.Insert(NextTabIndex, GetDisplayFilename(IncludedFile.Filename));
-              NewHints.Insert(NextTabIndex, GetFileTitle(IncludedFile.Filename));
-              NewCloseButtons.Insert(NextTabIndex, True);
-              Inc(NextTabIndex);
-            end;
+          if FHiddenFiles.IndexOf(IncludedFile.Filename) = -1 then begin
+            NewTabs.Insert(NextTabIndex, GetDisplayFilename(IncludedFile.Filename));
+            NewHints.Insert(NextTabIndex, GetFileTitle(IncludedFile.Filename));
+            NewCloseButtons.Insert(NextTabIndex, True);
+            Inc(NextTabIndex);
+          end;
 
-            Inc(NextMemoIndex);
-            if NextMemoIndex = FFileMemos.Count then
-              Break; { We're out of memos :( }
-          except on E: Exception do
-            begin
-              StatusMessage(smkWarning, 'Failed to open included file: ' + E.Message);
-              IncludedFile.Memo := nil;
-            end;
+          Inc(NextMemoIndex);
+          if NextMemoIndex = FFileMemos.Count then
+            Break; { We're out of memos :( }
+        except on E: Exception do
+          begin
+            StatusMessage(smkWarning, 'Failed to open included file: ' + E.Message);
+            IncludedFile.Memo := nil;
           end;
         end;
-      finally
-        FLoadingIncludedFiles := False;
       end;
       { Hide any remaining memos }
       for I := NextMemoIndex to FFileMemos.Count-1 do begin
@@ -3864,10 +3868,13 @@ procedure TCompileForm.MemoChange(Sender: TObject; const Info: TScintEditChangeI
 var
   Memo: TCompScintFileEdit;
 begin
-  if not (Sender is TCompScintFileEdit) or ((Sender <> FMainMemo) and FLoadingIncludedFiles) then
+  if not (Sender is TCompScintFileEdit) then
     Exit;
 
   Memo := TCompScintFileEdit(Sender);
+
+  if Memo.OpeningFile then
+    Exit;
 
   FModifiedAnySinceLastCompile := True;
   if FDebugging then

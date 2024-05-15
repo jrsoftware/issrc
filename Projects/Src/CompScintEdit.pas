@@ -43,11 +43,13 @@ type
   TCompScintEdit = class(TScintEdit)
   private
     FTheme: TTheme;
+    FOpeningFile: Boolean;
     FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
   protected
     procedure CreateWnd; override;
   public
     property Theme: TTheme read FTheme write FTheme;
+    property OpeningFile: Boolean read FOpeningFile write FOpeningFile;
     property Used: Boolean read FUsed write FUsed;
     procedure UpdateMemoMarkerColumnWidth(const AWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
