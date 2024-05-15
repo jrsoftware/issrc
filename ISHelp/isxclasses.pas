@@ -54,12 +54,12 @@ TStringList = class(TStrings)
 end;
 
 TStream = class(TObject)
-  function Read(Buffer: String; Count: Longint): Longint;
-  function Write(Buffer: String; Count: Longint): Longint;
+  function Read(var Buffer: AnyString; ByteCount: Longint): Longint;
+  function Write(const Buffer: AnyString; ByteCount: Longint): Longint;
   function Seek(Offset: Int64; Origin: Word): Int64;
-  procedure ReadBuffer(Buffer: String; Count: Longint);
-  procedure WriteBuffer(Buffer: String; Count: Longint);
-  function CopyFrom(Source: TStream; Count: Int64): Int64;
+  procedure ReadBuffer(var Buffer: AnyString; ByteCount: Longint);
+  procedure WriteBuffer(const Buffer: AnyString; ByteCount: Longint);
+  function CopyFrom(Source: TStream; ByteCount: Int64): Int64;
   property Position: Longint; read write;
   property Size: Longint; read write;
 end;
