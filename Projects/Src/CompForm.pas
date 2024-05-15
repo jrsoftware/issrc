@@ -3880,7 +3880,7 @@ begin
   if FDebugging then
     FModifiedAnySinceLastCompileAndGo := True
   else begin
-    { Modified while not debugging or loading included files; free the debug info and clear the dots }
+    { Modified while not debugging or opening a file; free the debug info and clear the dots }
     DestroyDebugInfo;
   end;
 
