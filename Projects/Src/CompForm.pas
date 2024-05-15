@@ -1117,6 +1117,7 @@ begin
   FMainMemo.ClearUndo;
 end;
 
+{ Breakpoints are preserved on a per-file basis }
 procedure TCompileForm.LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TCompScintFileEdit);
 begin
   if AMemo.BreakPoints.Count <> 0 then
@@ -1158,6 +1159,7 @@ begin
   end;
 end;
 
+{ Known included and hidden files are preserved on a per-main-file basis }
 procedure TCompileForm.LoadKnownIncludedAndHiddenFilesAndUpdateMemos;
 begin
   if FIncludedFiles.Count <> 0 then
