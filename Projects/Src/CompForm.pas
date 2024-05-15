@@ -431,6 +431,7 @@ type
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
     function AskToDetachDebugger: Boolean;
     procedure BringToForeground;
+    procedure BuildAndSaveKnownIncludedAndHiddenFiles;
     procedure CheckIfTerminated;
     procedure CloseTab(const TabIndex: Integer);
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
@@ -489,7 +490,6 @@ type
     procedure ResetAllMemosLineState;
     procedure StartProcess;
     function SaveFile(const AMemo: TCompScintFileEdit; const SaveAs: Boolean): Boolean;
-    procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String);
     procedure SetErrorLine(const AMemo: TCompScintFileEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TCompScintFileEdit; ALine: Integer);
@@ -1115,24 +1115,20 @@ begin
   FMainMemo.ClearUndo;
 end;
 
-procedure TCompileForm.LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
-var
-  Strings: TStringList;
-  IncludedFile: TIncludedFile;
-  I: Integer;
+procedure TCompileForm.LoadKnownIncludedAndHiddenFilesAndUpdateMemos;
 begin
   if FIncludedFiles.Count <> 0 then
     raise Exception.Create('FIncludedFiles.Count <> 0'); { NewMainFile should have been called }
 
   try
     if AFilename <> '' then begin
-      Strings := TStringList.Create;
+      var Strings := TStringList.Create;
       try
-        LoadKnownIncludedAndHiddenFiles(AFilename, Strings, FHiddenFiles);
+        LoadKnownIncludedAndHiddenFiles(FMainMemo.FileName, Strings, FHiddenFiles);
         if Strings.Count > 0 then begin
           try
-            for I := 0 to Strings.Count-1 do begin
-              IncludedFile := TIncludedFile.Create;
+            for var I := 0 to Strings.Count-1 do begin
+              var IncludedFile := TIncludedFile.Create;
               IncludedFile.Filename := Strings[I];
               IncludedFile.CompilerFileIndex := UnknownCompilerFileIndex;
               IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
@@ -1152,18 +1148,15 @@ begin
   end;
 end;
 
-procedure TCompileForm.SaveKnownIncludedAndHiddenFiles(const AFilename: String);
-var
-  Strings: TStringList;
-  IncludedFile: TIncludedFile;
+procedure TCompileForm.BuildAndSaveKnownIncludedAndHiddenFiles;
 begin
   try
-    if AFilename <> '' then begin
-      Strings := TStringList.Create;
+    if FMainMemo.FileName <> '' then begin
+      var Strings := TStringList.Create;
       try
-        for IncludedFile in FIncludedFiles do
+        for var IncludedFile in FIncludedFiles do
           Strings.Add(IncludedFile.Filename);
-        CompFunc.SaveKnownIncludedAndHiddenFiles(AFilename, Strings, FHiddenFiles);
+        SaveKnownIncludedAndHiddenFiles(FMainMemo.FileName, Strings, FHiddenFiles);
       finally
         Strings.Free;
       end;
@@ -1287,7 +1280,7 @@ begin
     if MsgBoxFmt('There was an error opening the file. Remove it from the list?',
        [AFilename], SCompilerFormCaption, mbError, MB_YESNO) = IDYES then begin
       ModifyMRUMainFilesList(AFilename, False);
-      DeleteKnownIncludedFiles(AFilename);
+      DeleteKnownIncludedAndHiddenFiles(AFilename);
     end;
   end;
 end;
@@ -1339,6 +1332,7 @@ var
   FN: String;
 begin
   Result := False;
+  var OldName := AMemo.Filename;
   if SaveAs or (AMemo.Filename = '') then begin
     if AMemo <> FMainMemo then
       raise Exception.Create('Internal error: AMemo <> FMainMemo');
@@ -1356,7 +1350,11 @@ begin
   Result := True;
   if AMemo = FMainMemo then begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
-    SaveKnownIncludedAndHiddenFiles(AMemo.Filename);
+    if PathCompare(AMemo.Filename, OldName) <> 0 then begin
+      if OldName <> '' then
+        DeleteKnownIncludedAndHiddenFiles(OldName);
+      BuildAndSaveKnownIncludedAndHiddenFiles;
+    end;
   end;
 end;
 
@@ -1593,8 +1591,8 @@ begin
           Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
           CleanHiddenFiles(Form.FIncludedFiles, Form.FHiddenFiles);
-          Form.InvalidateStatusPanel(spHiddenFilesCount);;
-          Form.SaveKnownIncludedAndHiddenFiles(Filename);
+          Form.InvalidateStatusPanel(spHiddenFilesCount);
+          Form.BuildAndSaveKnownIncludedAndHiddenFiles;
         end;
       iscbNotifySuccess:
         begin
@@ -2416,7 +2414,7 @@ begin
 
   FHiddenFiles.Add((Memo as TCompScintFileEdit).Filename);
   InvalidateStatusPanel(spHiddenFilesCount);
-  SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
+  BuildAndSaveKnownIncludedAndHiddenFiles;
 
   { Because MemosTabSet.Tabs and FHiddenFiles have both been updated now,
     hereafter setting TabIndex will not select the memo we're closing
@@ -2453,7 +2451,7 @@ begin
   InvalidateStatusPanel(spHiddenFilesCount);
 
   UpdatePreprocMemos;
-  SaveKnownIncludedAndHiddenFiles(FMainMemo.Filename);
+  BuildAndSaveKnownIncludedAndHiddenFiles;
 
   { Activate the memo if requested }
   if Activate then begin

@@ -48,7 +48,7 @@ procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String
   const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
 procedure LoadKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
-procedure DeleteKnownIncludedFiles(const AFilename: String);
+procedure DeleteKnownIncludedAndHiddenFiles(const AFilename: String);
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
   const Shift: TShiftState);
@@ -328,61 +328,77 @@ begin
   end;
 end;
 
+procedure LoadConfigIniList(const AIni: TConfigIniFile; const ASection, AIdent: String;
+  const AList: TStringList; const ADelimiter: Char);
+begin
+  if ASection = '' then
+    raise Exception.Create('ASection must be set');
+
+  var OldDelimiter := AList.Delimiter;
+  AList.Delimiter := ADelimiter;
+  try
+    AList.DelimitedText := AIni.ReadString(ASection, AIdent, '');
+  finally
+    AList.Delimiter := OldDelimiter;
+  end;
+end;
+
+procedure DeleteConfigIniList(const AIni: TConfigIniFile; const ASection, AIdent: String);
+begin
+  if ASection = '' then
+    raise Exception.Create('ASection must be set');
+
+  AIni.DeleteKey(ASection, AIdent);
+end;
+
+procedure SaveConfigIniList(const AIni: TConfigIniFile; const ASection, AIdent: String;
+  const AList: TStringList; const ADelimiter: Char);
+begin
+  if AList.Count = 0 then begin
+    DeleteConfigIniList(AIni, ASection, AIdent);
+    Exit;
+  end;
+
+  if ASection = '' then
+    raise Exception.Create('ASection must be set');
+
+  var OldDelimiter := AList.Delimiter;
+  AList.Delimiter := ADelimiter;
+  try
+    AIni.WriteString(ASection, AIdent, AList.DelimitedText);
+  finally
+    AList.Delimiter := OldDelimiter;
+  end;
+end;
+
 procedure LoadKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 begin
-  var OldIncludedFilesDelimiter := IncludedFiles.Delimiter;
-  var OldHiddenFilesDelimiter := HiddenFiles.Delimiter;
   var Ini := TConfigIniFile.Create;
   try
-    IncludedFiles.Delimiter := '*';
-    IncludedFiles.DelimitedText := Ini.ReadString('IncludedFilesHistory', AFilename, '');
-
-    HiddenFiles.Delimiter := '*';
-    HiddenFiles.DelimitedText := Ini.ReadString('HiddenFilesHistory', AFilename, '');
-
+    LoadConfigIniList(Ini, 'IncludedFilesHistory', AFilename, IncludedFiles, '*');
+    LoadConfigIniList(Ini, 'HiddenFilesHistory', AFilename, HiddenFiles, '*');
   finally
     Ini.Free;
-    IncludedFiles.Delimiter := OldIncludedFilesDelimiter;
-    HiddenFiles.Delimiter := OldHiddenFilesDelimiter;
   end;
 end;
 
 procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 begin
-  if IncludedFiles.Count = 0 then begin
-    DeleteKnownIncludedFiles(AFilename);
-    Exit;
-  end;
-
-  if AFilename = '' then
-    raise Exception.Create('AFilename must be set');
-
-  var OldIncludedFilesDelimiter := IncludedFiles.Delimiter;
-  var OldHiddenFilesDelimiter := HiddenFiles.Delimiter;
   var Ini := TConfigIniFile.Create;
   try
-    IncludedFiles.Delimiter := '*';
-    Ini.WriteString('IncludedFilesHistory', AFilename, IncludedFiles.DelimitedText);
-    HiddenFiles.Delimiter := '*';
-    Ini.WriteString('HiddenFilesHistory', AFilename, HiddenFiles.DelimitedText);
+    SaveConfigIniList(Ini, 'IncludedFilesHistory', AFilename, IncludedFiles, '*');
+    SaveConfigIniList(Ini, 'HiddenFilesHistory', AFilename, HiddenFiles, '*');
   finally
     Ini.Free;
-    IncludedFiles.Delimiter := OldIncludedFilesDelimiter;
-    HiddenFiles.Delimiter := OldHiddenFilesDelimiter;
   end;
 end;
 
-procedure DeleteKnownIncludedFiles(const AFilename: String);
-var
-  Ini: TConfigIniFile;
+procedure DeleteKnownIncludedAndHiddenFiles(const AFilename: String);
 begin
-  if AFilename = '' then
-    raise Exception.Create('AFilename must be set');
-
-  Ini := TConfigIniFile.Create;
+  var Ini := TConfigIniFile.Create;
   try
-    Ini.DeleteKey('IncludedFilesHistory', AFilename);
-    Ini.DeleteKey('HiddenFilesHistory', AFilename);
+    DeleteConfigIniList(Ini, 'IncludedFilesHistory', AFilename);
+    DeleteConfigIniList(Ini, 'HiddenFilesHistory', AFilename);
   finally
     Ini.Free;
   end;
