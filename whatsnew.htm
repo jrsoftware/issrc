@@ -84,7 +84,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   </ul>
   Note that all of the above remains unsupported on Arm64 Windows 10.
   </li>
-  <li>Setup now logs the machine types supported by the system &mdash; that is, what types of EXEs can be executed, either natively or via emulation. For example, when running on an Arm64 Windows 11 system, it logs: <tt>Machine types supported by system: x86 x64 Arm32 Arm64</tt></li>
+  <li>Setup now logs the machine types supported by the system &mdash; that is, what types of EXEs can be executed, either natively or via emulation. For example, when running on an Arm64 Windows 11 system, it logs: <tt>Machine types supported by system: x86 x64 Arm32 Arm64</tt>.</li>
   <li>The <tt>OnlyOnTheseArchitectures</tt> message is not used anymore. Instead, the <tt>WindowsVersionNotSupported</tt> message is now shown when Setup is started on an architecture that is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)</li>
   <li>Pascal Scripting change: Added new <tt>IsArm32Compatible</tt>, <tt>IsX64Compatible</tt>, <tt>IsX64OS</tt>, <tt>IsX86Compatible</tt>, and <tt>IsX86OS</tt> support functions. The <tt>IsX64</tt> support function still exists but is now deprecated as explained above. Example testing all platform identifiers:
       <pre>[Code]
