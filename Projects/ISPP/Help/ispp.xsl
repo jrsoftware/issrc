@@ -63,11 +63,23 @@
     <xsl:if test="topic">
       <heading><xsl:value-of select="subtopicstitle"/></heading>
       <ul>
-        <xsl:for-each select="topic">
-          <xsl:if test="title">
-          <li><link topic="{translate(@id,$ucletters,$lcletters)}"><xsl:value-of select="title"/></link></li>
-          </xsl:if>
-        </xsl:for-each>
+        <xsl:choose>
+          <xsl:when test="@id='funcs'">
+            <xsl:for-each select="topic">
+              <xsl:sort select="title" data-type="text" order="ascending"/>
+              <xsl:if test="title">
+                <li><link topic="{translate(@id,$ucletters,$lcletters)}"><xsl:value-of select="title"/></link></li>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:for-each select="topic">
+              <xsl:if test="title">
+                <li><link topic="{translate(@id,$ucletters,$lcletters)}"><xsl:value-of select="title"/></link></li>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:otherwise>
+        </xsl:choose>
       </ul>
     </xsl:if>
   </body>
