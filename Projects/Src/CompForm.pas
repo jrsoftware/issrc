@@ -440,6 +440,7 @@ type
     procedure DebuggingStopped(const WaitForTermination: Boolean);
     procedure DebugLogMessage(const S: String);
     procedure DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
+    function DestroyLineState(const AMemo: TCompScintFileEdit): Boolean;
     procedure DestroyDebugInfo;
     procedure DetachDebugger;
     function EvaluateConstant(const S: String; var Output: String): Integer;
@@ -501,6 +502,7 @@ type
     function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TCompScintEdit;
     function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
+    procedure UpdateAllMemoLineMarkers(const AMemo: TCompScintFileEdit);
     procedure UpdateAllMemosLineMarkers;
     procedure UpdateBevel1Visibility;
     procedure UpdateCaption;
@@ -1296,8 +1298,11 @@ begin
     try
       if AMemo = FMainMemo then
         NewMainFile
-      else
+      else begin
         AMemo.BreakPoints.Clear;
+        if DestroyLineState(AMemo) then
+          UpdateAllMemoLineMarkers(AMemo);
+      end;
       GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
       AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
       Stream.Seek(0, soFromBeginning);
@@ -4534,21 +4539,27 @@ begin
   end;
 end;
 
+function TCompileForm.DestroyLineState(const AMemo: TCompScintFileEdit): Boolean;
+begin
+  if Assigned(AMemo.LineState) then begin
+    AMemo.LineStateCapacity := 0;
+    AMemo.LineStateCount := 0;
+    FreeMem(AMemo.LineState);
+    AMemo.LineState := nil;
+    Result := True;
+  end else
+    Result := False;
+end;
+
 procedure TCompileForm.DestroyDebugInfo;
 var
   HadDebugInfo: Boolean;
   Memo: TCompScintFileEdit;
 begin
   HadDebugInfo := False;
-  for Memo in FFileMemos do begin
-    if Assigned(Memo.LineState) then begin
-      Memo.LineStateCapacity := 0;
-      Memo.LineStateCount := 0;
-      FreeMem(Memo.LineState);
-      Memo.LineState := nil;
+  for Memo in FFileMemos do
+    if DestroyLineState(Memo) then
       HadDebugInfo := True;
-    end;
-  end;
 
   FDebugEntriesCount := 0;
   FreeMem(FDebugEntries);
@@ -6119,15 +6130,17 @@ begin
     AMemo.AddMarker(Line, mmLineBreakpointBad);
 end;
 
-procedure TCompileForm.UpdateAllMemosLineMarkers;
-var
-  Memo: TCompScintFileEdit;
-  Line: Integer;
+procedure TCompileForm.UpdateAllMemoLineMarkers(const AMemo: TCompScintFileEdit);
 begin
-  for Memo in FFileMemos do
+  for var Line := 0 to AMemo.Lines.Count-1 do
+    UpdateLineMarkers(AMemo, Line);
+end;
+
+procedure TCompileForm.UpdateAllMemosLineMarkers;
+begin
+  for var Memo in FFileMemos do
     if Memo.Used then
-      for Line := 0 to Memo.Lines.Count-1 do
-        UpdateLineMarkers(Memo, Line);
+      UpdateAllMemoLineMarkers(Memo);
 end;
 
 procedure TCompileForm.UpdateBevel1Visibility;
