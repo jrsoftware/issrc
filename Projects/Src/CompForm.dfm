@@ -696,7 +696,7 @@ object CompileForm: TCompileForm
       object REvaluate: TMenuItem
         Caption = '&Evaluate Constant...'
         Enabled = False
-        ShortCut = 16499
+        ShortCut = 16502
         OnClick = REvaluateClick
       end
       object N15: TMenuItem
