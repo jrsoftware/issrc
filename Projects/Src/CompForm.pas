@@ -146,6 +146,7 @@ type
     TMenu: TMenuItem;
     TAddRemovePrograms: TMenuItem;
     RToggleBreakPoint: TMenuItem;
+    RDeleteBreakPoints: TMenuItem;
     HWhatsNew: TMenuItem;
     TGenerateGUID: TMenuItem;
     TSignTools: TMenuItem;
@@ -285,6 +286,7 @@ type
     procedure FormResize(Sender: TObject);
     procedure TAddRemoveProgramsClick(Sender: TObject);
     procedure RToggleBreakPointClick(Sender: TObject);
+    procedure RDeleteBreakPointsClick(Sender: TObject);
     procedure HWhatsNewClick(Sender: TObject);
     procedure TGenerateGUIDClick(Sender: TObject);
     procedure TSignToolsClick(Sender: TObject);
@@ -332,6 +334,7 @@ type
     procedure SimpleMenuClick(Sender: TObject);
     procedure OutputListKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure RMenuClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -4781,6 +4784,24 @@ begin
     Result := False;
 end;
 
+procedure TCompileForm.RMenuClick(Sender: TObject);
+
+  function AnyMemoHasBreakPoint: Boolean;
+  begin
+    { Also see RDeleteBreakPointsClick }
+    for var Memo in FFileMemos do
+      if Memo.Used and (Memo.BreakPoints.Count > 0) then
+        Exit(True);
+    Result := False;
+  end;
+
+begin
+  RDeleteBreakPoints.Enabled := AnyMemoHasBreakPoint;
+  { See UpdateRunMenu for other menu items }
+
+  ApplyMenuBitmaps(RMenu);
+end;
+
 procedure TCompileForm.UpdateRunMenu;
 begin
   CheckIfTerminated;
@@ -4800,6 +4821,7 @@ begin
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
   TerminateButton.Enabled := RTerminate.Enabled;
   REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
+  { See RMenuClick for other menu items }
 end;
 
 procedure TCompileForm.UpdateSaveMenuItemAndButton;
@@ -5019,6 +5041,7 @@ begin
           NM(RStepOver, 'debug-step-over'),
           NM(RStepOut, 'debug-step-out'),
           NM(RToggleBreakPoint, 'debug-breakpoint-filled'),
+          NM(RDeleteBreakPoints, 'debug-breakpoints-filled-eraser'),
           NM(REvaluate, 'variables'),
           NM(TAddRemovePrograms, 'application'),
           NM(TGenerateGUID, 'tag-script-filled'),
@@ -5973,6 +5996,21 @@ end;
 procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);
 begin
   ToggleBreakPoint(FActiveMemo.CaretLine);
+end;
+
+procedure TCompileForm.RDeleteBreakPointsClick(Sender: TObject);
+begin
+  { Also see AnyMemoHasBreakPoint }
+  for var Memo in FFileMemos do begin
+    if Memo.Used and (Memo.BreakPoints.Count > 0) then begin
+      for var I := Memo.BreakPoints.Count-1 downto 0 do begin
+        var Line := Memo.BreakPoints[I];
+        Memo.BreakPoints.Delete(I);
+        UpdateLineMarkers(Memo, Line);
+      end;
+      BuildAndSaveBreakPointLines(Memo);
+    end;
+  end;
 end;
 
 procedure TCompileForm.MemoLinesInserted(Memo: TCompScintFileEdit; FirstLine, Count: integer);
