@@ -809,13 +809,6 @@ object CompileForm: TCompileForm
       object HISPPSep: TMenuItem
         Caption = '-'
       end
-      object HPSWebsite: TMenuItem
-        Caption = 'RemObjects Pascal Script Web Site'
-        OnClick = HPSWebsiteClick
-      end
-      object N6: TMenuItem
-        Caption = '-'
-      end
       object HAbout: TMenuItem
         Caption = '&About Inno Setup'
         OnClick = HAboutClick

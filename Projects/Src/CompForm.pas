@@ -94,7 +94,6 @@ type
     EReplace: TMenuItem;
     HMenu: TMenuItem;
     HDoc: TMenuItem;
-    N6: TMenuItem;
     HAbout: TMenuItem;
     FMRUMainFilesSep: TMenuItem;
     VCompilerOutput: TMenuItem;
@@ -136,7 +135,6 @@ type
     BLowPriority: TMenuItem;
     HDonate: TMenuItem;
     N14: TMenuItem;
-    HPSWebsite: TMenuItem;
     N15: TMenuItem;
     RTargetSetup: TMenuItem;
     RTargetUninstall: TMenuItem;
@@ -256,7 +254,6 @@ type
     procedure VToolbarClick(Sender: TObject);
     procedure TOptionsClick(Sender: TObject);
     procedure HFaqClick(Sender: TObject);
-    procedure HPSWebsiteClick(Sender: TObject);
     procedure HISPPDocClick(Sender: TObject);
     procedure VStatusBarClick(Sender: TObject);
     procedure ERedoClick(Sender: TObject);
@@ -2751,12 +2748,6 @@ end;
 procedure TCompileForm.HMailingListClick(Sender: TObject);
 begin
   OpenMailingListSite;
-end;
-
-procedure TCompileForm.HPSWebsiteClick(Sender: TObject);
-begin
-  ShellExecute(Application.Handle, 'open', 'http://www.remobjects.com/ps', nil,
-    nil, SW_SHOW);
 end;
 
 procedure TCompileForm.HISPPDocClick(Sender: TObject);
