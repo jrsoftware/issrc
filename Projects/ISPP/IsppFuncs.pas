@@ -696,7 +696,8 @@ begin
             WAIT_OBJECT_0: Break;
             WAIT_TIMEOUT:
               begin
-                OutputReader.Read(False);
+                if OutputReader <> nil then
+                  OutputReader.Read(False);
                 Preprocessor.CallIdleProc; { Doesn't allow an Abort }
               end;
           else
@@ -740,16 +741,14 @@ begin
       var ParamsS, WorkingDir: String;
       var WaitUntilTerminated := True;
       var ShowCmd := SW_SHOWNORMAL;
-      var Log := True;
       if GetCount > 1 then ParamsS := Get(1).AsStr;
       if GetCount > 2 then WorkingDir := PrependPath(Ext, Get(2).AsStr);
       if (GetCount > 3) and (Get(3).Typ <> evNull) then WaitUntilTerminated := Get(3).AsInt <> 0;
       if (GetCount > 4) and (Get(4).Typ <> evNull) then ShowCmd := Get(4).AsInt;
-      if (GetCount > 5) and (Get(5).Typ <> evNull) then Log := Get(5).AsInt <> 0;
       var Preprocessor := TPreprocessor(Ext);
       var ResultCode: Integer;
       var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, WaitUntilTerminated,
-        ShowCmd, Preprocessor, Log, ExecLog, NativeInt(Preprocessor), ResultCode);
+        ShowCmd, Preprocessor, True, ExecLog, NativeInt(Preprocessor), ResultCode);
       if not WaitUntilTerminated then
         MakeBool(ResPtr^, Success)
       else

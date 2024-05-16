@@ -141,7 +141,7 @@ end;</pre>
   <li>Pascal Scripting change: Added new <tt>ExecAndLogOutput</tt> support function. Can be used to log the output of the executed program or batch file to Setup and Uninstall's log, or to receive the output line by line in your own <tt>[Code]</tt> function, for example to read the first non-empty line from the output as shown in the help file and the new <i>PowerShell.iss</i> example script.</li>
   <li>ISPP changes:
     <ul>
-    <li>Output of programs or batch files executed using the <tt>Exec</tt> support function is now logged in the Compiler IDE's "Compiler Output" view by default. This can be disabled via a new sixth parameter.</li>
+    <li>Output of programs or batch files executed using the <tt>Exec</tt> support function is now always logged in the Compiler IDE's "Compiler Output" view.</li>
     <li>Added new support function <tt>ExecAndGetFirstLine</tt> to execute a program or batch file and read the first non-empty line from its output which can then be placed or used in the script as shown in the new <i>PowerShell.iss</i> example script.</li>
     </ul>
     </li>

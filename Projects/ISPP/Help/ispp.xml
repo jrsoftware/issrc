@@ -816,17 +816,17 @@ The list of options is provided at the end of this topic.</p>
 			<topic id="Exec">
 				<title>Exec</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> Exec(<b>str</b> Filename, <b>str</b>? Params, <b>str</b>? WorkingDir, <b>int</b>? Wait, <b>int</b>? ShowCmd, <b>int</b>? Log)</line></pre>
+					<pre><line><b>int</b> Exec(<b>str</b> Filename, <b>str</b>? Params, <b>str</b>? WorkingDir, <b>int</b>? Wait, <b>int</b>? ShowCmd)</line></pre>
 				</section>
 				<description>
 					<p>Executes specified executable or batch file.</p>
-					<p>First parameter specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the second parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
-					<p>Second parameter may be used to specify parameters for the process.</p>
-					<p>Third parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the first parameter and use that as the initial current directory for the process.</p>
-					<p>Fourth parameter may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero value is assumed.</p>
-					<p>Fifth parameter may be any of the <tt>SW_*</tt> constants defined in &builtins;. For GUI processes, it specifies the default value the first time ShowWindow is called. By default, SW_SHOWNORMAL (i. e. 1) is assumed.</p>
-					<p>Sixth parameter may be set to zero if you don't wish to log output, and non-zero otherwise. By default, non-zero value is assumed. Has no effect if the fourth parameter is set to zero.</p>
-					<p>If fourth parameter is omitted or is non-zero, the function returns the exit code of the process. Otherwise, the function result indicates whether the process has been successfully launched (non-zero for success).</p>
+					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
+					<p>The Params parameter may be used to specify parameters for the process.</p>
+					<p>The WorkingDir parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process.</p>
+					<p>The Wait parameter may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero value is assumed.</p>
+					<p>The ShowCmd parameter may be any of the <tt>SW_*</tt> constants defined in &builtins;. For GUI processes, it specifies the default value the first time ShowWindow is called. By default, SW_SHOWNORMAL (i. e. 1) is assumed.</p>
+					<p>If the Wait parameter is omitted or is non-zero, the function returns the exit code of the process. Otherwise, the function result indicates whether the process has been successfully launched (non-zero for success).</p>
+          <p><i>Note: compared to Pascal Scripting's Exec the Wait and ShowCmd parameters are swapped!</i></p>
 				</description>
 				<section title="See also">
 					<p><tt><link href="ExecAndGetFirstLine">ExecAndGetFirstLine</link></tt></p>
@@ -839,9 +839,9 @@ The list of options is provided at the end of this topic.</p>
 				</section>
 				<description>
 					<p>Executes specified executable or batch file and reads the first non-empty line from its output.</p>
-					<p>First parameter specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the second parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
-					<p>Second parameter may be used to specify parameters for the process.</p>
-					<p>Third parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the first parameter and use that as the initial current directory for the process.</p>
+					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
+					<p>The Params parameter may be used to specify parameters for the process.</p>
+					<p>The WorkingDir parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process.</p>
 				</description>
 				<section title="See also">
 					<p><tt><link href="Exec">Exec</link></tt></p>
