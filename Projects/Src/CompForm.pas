@@ -1125,18 +1125,30 @@ begin
     raise Exception.Create('AMemo.BreakPoints.Count <> 0'); { NewMainFile or OpenFile should have cleared these }
 
   try
+    var HadSkippedBreakPoint := False;
     var Strings := TStringList.Create;
     try
       LoadBreakPointLines(AMemo.FileName, Strings);
-      for var LineAsString in Strings do
-        AMemo.BreakPoints.Add(LineAsString.ToInteger);
+      for var LineAsString in Strings do begin
+        var Line := LineAsString.ToInteger;
+        if Line < AMemo.Lines.Count then
+          AMemo.BreakPoints.Add(Line)
+        else
+          HadSkippedBreakPoint := True;
+      end;
     finally
       Strings.Free;
     end;
     for var Line in AMemo.BreakPoints do
       UpdateLineMarkers(AMemo, Line);
+
+    { If there were breakpoints beyond the end of file get rid of them so they
+      don't magically reappear on a reload of an externally edited and grown
+      file }
+    if HadSkippedBreakPoint then
+      BuildAndSaveBreakPointLines(AMemo);
   except
-    { Ignore any exceptions. }
+    { Ignore any exceptions }
   end;
 end;
 
@@ -1155,7 +1167,7 @@ begin
     end;
   except
     { Handle exceptions locally; failure to save the breakpoint lines list should not be
-      a fatal error. }
+      a fatal error }
     Application.HandleException(Self);
   end;
 end;
@@ -1190,7 +1202,7 @@ begin
       end;
     end;
   except
-    { Ignore any exceptions. }
+    { Ignore any exceptions }
   end;
 end;
 
@@ -1209,7 +1221,7 @@ begin
     end;
   except
     { Handle exceptions locally; failure to save the includes list should not be
-      a fatal error. }
+      a fatal error }
     Application.HandleException(Self);
   end;
 end;
