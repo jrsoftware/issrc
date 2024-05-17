@@ -68,6 +68,13 @@ type
 
   TMenuBitmaps = TDictionary<TMenuItem, HBITMAP>;
 
+  TPosWithVirtualSpace = record
+    Pos, VirtualSpace: Integer;
+  end;
+
+  TNavigationItem = TPair<TCompScintEdit, TPosWithVirtualSpace>;
+  TNavigationStack = TList<TNavigationItem>; { Not using TStack since it lacks a way the keep a maximum amount of items by discarding the oldest }
+
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -167,19 +174,22 @@ type
     FSaveEncodingAuto: TMenuItem;
     FSaveEncodingUTF8WithBOM: TMenuItem;
     ToolBar: TToolBar;
+    BackNavButton: TToolButton;
+    ForwardNavButton: TToolButton;
+    ToolButton1: TToolButton;
     NewMainFileButton: TToolButton;
     OpenMainFileButton: TToolButton;
     SaveButton: TToolButton;
-    ToolButton4: TToolButton;
+    ToolButton2: TToolButton;
     CompileButton: TToolButton;
     StopCompileButton: TToolButton;
-    ToolButton7: TToolButton;
+    ToolButton3: TToolButton;
     RunButton: TToolButton;
     PauseButton: TToolButton;
-    ToolButton10: TToolButton;
+    ToolButton4: TToolButton;
     TargetSetupButton: TToolButton;
     TargetUninstallButton: TToolButton;
-    ToolButton13: TToolButton;
+    ToolButton5: TToolButton;
     HelpButton: TToolButton;
     Bevel1: TBevel;
     BuildImageList: TImageList;
@@ -335,6 +345,8 @@ type
     procedure OutputListKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure RMenuClick(Sender: TObject);
+    procedure BackNavButtonClick(Sender: TObject);
+    procedure ForwardNavButtonClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -426,6 +438,10 @@ type
     FMenuBitmapsSize: TSize;
     FMenuBitmapsSourceImageCollection: TCustomImageCollection;
     FSynchingZoom: Boolean;
+    FBackNavStack, FForwardNavStack: TNavigationStack;
+    FPrevNav: TNavigationItem; { Valid if .Key is not nil }
+    FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
+    FIgnoreTabSetClick: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -481,7 +497,9 @@ type
     procedure UpdateReopenTabMenu(const Menu: TMenuItem);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
-    procedure MoveCaretAndActivateMemo(AMemo: TCompScintFileEdit; const LineNumber: Integer; const AlwaysResetColumn: Boolean);
+    procedure MoveCaretAndActivateMemo(AMemo: TCompScintEdit; const LineNumberOrPosition: Integer;
+      const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean;
+      const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
     procedure NewMainFile;
     procedure NewMainFileUsingWizard;
     procedure OpenFile(AMemo: TCompScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
@@ -489,6 +507,7 @@ type
     procedure ParseDebugInfo(DebugInfo: Pointer);
     procedure ReadMRUMainFilesList;
     procedure ReadMRUParametersList;
+    procedure RemoveMemoFromNav(const AMemo: TCompScintEdit);
     procedure ReopenTabOrTabs(const HiddenFileIndex: Integer; const Activate: Boolean);
     procedure ResetAllMemosLineState;
     procedure StartProcess;
@@ -507,7 +526,7 @@ type
     procedure UpdateAllMemosLineMarkers;
     procedure UpdateBevel1Visibility;
     procedure UpdateCaption;
-    procedure UpdateCaretPosPanel;
+    procedure UpdateCaretPosPanelAndBackStack;
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
@@ -516,6 +535,7 @@ type
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateMenuBitmapsIfNeeded;
     procedure UpdateModifiedPanel;
+    procedure UpdateNavButtons;
     procedure UpdateNewMainFileButtons;
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
@@ -847,6 +867,11 @@ begin
 
   MemosTabSet.PopupMenu := TCompileFormPopupMenu.Create(Self, MemosTabSetPopupMenu);
 
+  FBackNavStack := TNavigationStack.Create;
+  FForwardNavStack := TNavigationStack.Create;
+  FPrevNav.Key := nil;
+  UpdateNavButtons;
+
   PopupMenu := TCompileFormPopupMenu.Create(Self, OutputListPopupMenu);
 
   CompilerOutputList.PopupMenu := PopupMenu;
@@ -955,6 +980,8 @@ begin
   if FDevNames <> 0 then
     GlobalFree(FDevNames);
 
+  FForwardNavStack.Free;
+  FBackNavStack.Free;
   FMenuBitmaps.Free;
   FMenuDarkBackgroundBrush.Free;
   FMenuDarkHotOrSelectedBrush.Free;
@@ -1001,12 +1028,18 @@ end;
 procedure TCompileForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if ShortCut(Key, Shift) = VK_ESCAPE then begin
+  var ShortCut := ShortCut(Key, Shift);
+  if ShortCut = VK_ESCAPE then begin
     if BStopCompile.Enabled then
-      BStopCompileClick(Self);
-  end
-  else if (Key = VK_F6) and not(ssAlt in Shift) then begin
-    { Toggle focus between panes }
+      BStopCompileClick(Self)
+  end else if ShortCut = FBackNavButtonShortCut then begin
+    if BackNavButton.Enabled then
+      BackNavButtonClick(Self);
+  end else if ShortCut = FForwardNavButtonShortCut then begin
+    if ForwardNavButton.Enabled then
+      ForwardNavButtonClick(Self);
+  end else if (Key = VK_F6) and not(ssAlt in Shift) then begin
+    { Toggle focus between the active memo and the active bottom pane }
     Key := 0;
     if ActiveControl <> FActiveMemo then
       ActiveControl := FActiveMemo
@@ -1122,6 +1155,11 @@ begin
   FIncludedFiles.Clear;
   UpdatePreprocMemos;
   FMainMemo.ClearUndo;
+
+  FBackNavStack.Clear;
+  FForwardNavStack.Clear;
+  FPrevNav.Key := nil;
+  UpdateNavButtons;
 end;
 
 { Breakpoints are preserved on a per-file basis }
@@ -1320,6 +1358,8 @@ begin
         AMemo.BreakPoints.Clear;
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
+        if not PathCompare(AMemo.Filename, AFilename) <> 0 then
+          RemoveMemoFromNav(AMemo);
       end;
       GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
       AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
@@ -2502,8 +2542,15 @@ begin
 
   if MemoWasActiveMemo then begin
     { Select next tab, except when we're already at the end. Avoiding flicker by
-      doing this before hiding old active memo. }
-    VNextTabClick(Self);
+      doing this before hiding old active memo. We do this in a dirty way by
+      clicking two tabs while making sure TabSetClick doesn't see the first
+      'fake' one. }
+    FIgnoreTabSetClick := True;
+    try
+      VNextTabClick(Self);
+    finally
+      FIgnoreTabSetClick := False;
+    end;
     VPreviousTabClick(Self);
     Memo.CancelAutoComplete;
     Memo.Visible := False;
@@ -2904,6 +2951,9 @@ end;
 
 procedure TCompileForm.MemosTabSetClick(Sender: TObject);
 begin
+  if FIgnoreTabSetClick then
+    Exit;
+
   var NewActiveMemo := TabIndexToMemo(MemosTabSet.TabIndex, MemosTabSet.Tabs.Count-1);
   if NewActiveMemo <> FActiveMemo then begin
     { Avoiding flicker by showing new before hiding old }
@@ -2916,7 +2966,7 @@ begin
 
     UpdateSaveMenuItemAndButton;
     UpdateRunMenu;
-    UpdateCaretPosPanel;
+    UpdateCaretPosPanelAndBackStack;
     UpdateEditModePanel;
     UpdateModifiedPanel;
   end;
@@ -3537,42 +3587,49 @@ begin
   end;
 end;
 
-procedure TCompileForm.MoveCaretAndActivateMemo(AMemo: TCompScintFileEdit; const LineNumber: Integer;
-  const AlwaysResetColumn: Boolean);
+procedure TCompileForm.MoveCaretAndActivateMemo(AMemo: TCompScintEdit; const LineNumberOrPosition: Integer;
+  const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean; const IsPosition: Boolean;
+  const PositionVirtualSpace: Integer);
 var
   Pos: Integer;
 begin
   { Reopen tab if needed }
-  var HiddenFileIndex := FHiddenFiles.IndexOf(AMemo.Filename);
-  if HiddenFileIndex <> -1 then begin
-    var SaveFileName := AMemo.Filename;
-    ReopenTabOrTabs(HiddenFileIndex, False);
-    { The above call to ReopenTabOrTabs will currently lead to a call to UpdateIncludedFilesMemos which
-      sets up all the memos. Currently it will keep same memo for the reopened file but in case it no
-      longer does at some point: look it up again }
-    AMemo := nil;
-    for var Memo in FFileMemos do begin
-      if Memo.Used and (PathCompare(Memo.Filename, SaveFilename) = 0) then begin
-        AMemo := Memo;
-        Break;
+  if AMemo is TCompScintFileEdit then begin
+    var FileName := (AMemo as TCompScintFileEdit).Filename;
+    var HiddenFileIndex := FHiddenFiles.IndexOf(Filename);
+    if HiddenFileIndex <> -1 then begin
+      ReopenTabOrTabs(HiddenFileIndex, False);
+      { The above call to ReopenTabOrTabs will currently lead to a call to UpdateIncludedFilesMemos which
+        sets up all the memos. Currently it will keep same memo for the reopened file but in case it no
+        longer does at some point: look it up again }
+      AMemo := nil;
+      for var Memo in FFileMemos do begin
+        if Memo.Used and (PathCompare(Memo.Filename, Filename) = 0) then begin
+          AMemo := Memo;
+          Break;
+        end;
       end;
+      if AMemo = nil then
+        raise Exception.Create('AMemo MIA');
     end;
-    if AMemo = nil then
-      raise Exception.Create('AMemo MIA');
   end;
 
   { Move caret }
-  if AlwaysResetColumn or (AMemo.CaretLine <> LineNumber) then
-    Pos := AMemo.GetPositionFromLine(LineNumber)
+  if IsPosition then
+    Pos := LineNumberOrPosition
+  else if AlwaysResetColumnEvenIfOnRequestedLineAlready or (AMemo.CaretLine <> LineNumberOrPosition) then
+    Pos := AMemo.GetPositionFromLine(LineNumberOrPosition)
   else
-    Pos := AMemo.CaretPosition;
+    Pos := AMemo.CaretPosition; { Not actually moving caret - it's already were we want it}
 
   { If the line isn't in view, scroll so that it's in the center }
   if not AMemo.IsPositionInViewVertically(Pos) then
-    AMemo.TopLine := AMemo.GetVisibleLineFromDocLine(LineNumber) -
+    AMemo.TopLine := AMemo.GetVisibleLineFromDocLine(AMemo.GetLineFromPosition(Pos)) -
       (AMemo.LinesInWindow div 2);
 
   AMemo.CaretPosition := Pos;
+  if IsPosition then
+    AMemo.CaretVirtualSpace := PositionVirtualSpace;
 
   { Activate memo }
   MemosTabSet.TabIndex := MemoToTabIndex(AMemo); { This causes MemosTabSetClick to show the memo }
@@ -3625,10 +3682,67 @@ begin
     StatusBar.Panels[spExtraStatus].Text := '';
 end;
 
-procedure TCompileForm.UpdateCaretPosPanel;
+procedure TCompileForm.RemoveMemoFromNav(const AMemo: TCompScintEdit);
 begin
+  for var I := FBackNavStack.Count-1 downto 0 do
+    if FBackNavStack[I].Key = AMemo then
+      FBackNavStack.Delete(I);
+  for var I := FForwardNavStack.Count-1 downto 0 do
+    if FForwardNavStack[I].Key = AMemo then
+      FForwardNavStack.Delete(I);
+  UpdateNavButtons;
+  if FPrevNav.Key = AMemo then
+    FPrevNav.Key := nil;
+end;
+
+procedure TCompileForm.UpdateNavButtons;
+begin
+  BackNavButton.Enabled := FBackNavStack.Count > 0;
+  ForwardNavButton.Enabled := FForwardNavStack.Count > 0;
+end;
+
+procedure TCompileForm.BackNavButtonClick(Sender: TObject);
+begin
+  FForwardNavStack.Add(FPrevNav);
+  var NewNav := FBackNavStack.ExtractAt(FBackNavStack.Count-1);
+  UpdateNavButtons;
+  FPrevNav := NewNav; { Must be done *before* moving }
+  MoveCaretAndActivateMemo(NewNav.Key, NewNav.Value.Pos, False, True, NewNav.Value.VirtualSpace);
+end;
+
+procedure TCompileForm.ForwardNavButtonClick(Sender: TObject);
+begin
+  FBackNavStack.Add(FPrevNav);
+  var NewNav := FForwardNavStack.ExtractAt(FForwardNavStack.Count-1);
+  UpdateNavButtons;
+  FPrevNav := NewNav; { Must be done *before* moving }
+  MoveCaretAndActivateMemo(NewNav.Key, NewNav.Value.Pos, False, True, NewNav.Value.VirtualSpace);
+end;
+
+procedure TCompileForm.UpdateCaretPosPanelAndBackStack;
+begin
+  { Update panel }
   StatusBar.Panels[spCaretPos].Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
     FActiveMemo.CaretColumnExpandedIntoVirtualSpace + 1]);
+
+  { Add a navigation item when changing tabs or moving at least 11 lines at once,
+    similar to Visual Studio 2022, see:
+    https://learn.microsoft.com/en-us/archive/blogs/zainnab/navigate-backward-and-navigate-forward
+    Note: not doing the other stuff listed in the article atm }
+  var NewNav: TNavigationItem;
+  NewNav.Key := FActiveMemo;
+  NewNav.Value.Pos := FActiveMemo.CaretPosition;
+  NewNav.Value.VirtualSpace := FActiveMemo.CaretVirtualSpace;
+  if (FPrevNav.Key <> nil) and
+     ((FPrevNav.Key <> NewNav.Key) or
+      (Abs(FActiveMemo.GetLineFromPosition(FPrevNav.Value.Pos) -
+           FActiveMemo.GetLineFromPosition(NewNav.Value.Pos)) >= 11)) then begin
+    if FBackNavStack.Count + FForwardNavStack.Count > 16 then
+      FBackNavStack.Delete(0);
+    FBackNavStack.Add(FPrevNav);
+    UpdateNavButtons;
+  end;
+  FPrevNav := NewNav;
 end;
 
 procedure TCompileForm.UpdateEditModePanel;
@@ -3677,6 +3791,7 @@ procedure TCompileForm.UpdatePreprocMemos;
     end else begin
       FPreprocessorOutputMemo.Used := False;
       FPreprocessorOutputMemo.Visible := False;
+      RemoveMemoFromNav(FPreprocessorOutputMemo);
     end;
   end;
 
@@ -3730,12 +3845,16 @@ procedure TCompileForm.UpdatePreprocMemos;
       { Hide any remaining memos }
       for I := NextMemoIndex to FFileMemos.Count-1 do begin
         FFileMemos[I].BreakPoints.Clear;
+        if FFileMemos[I].Used then
+          RemoveMemoFromNav(FFileMemos[I]);
         FFileMemos[I].Used := False;
         FFileMemos[I].Visible := False;
       end;
     end else begin
       for I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
         FFileMemos[I].BreakPoints.Clear;
+        if FFileMemos[I].Used then
+          RemoveMemoFromNav(FFileMemos[I]);
         FFileMemos[I].Used := False;
         FFileMemos[I].Visible := False;
       end;
@@ -3852,7 +3971,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
 begin
   if (Sender = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then
     HideError;
-  UpdateCaretPosPanel;
+  UpdateCaretPosPanelAndBackStack;
   UpdatePendingSquiggly;
   UpdateBraceHighlighting;
   if Sender = FActiveMemo then
@@ -4893,6 +5012,17 @@ begin
       ToolButton.Hint := Format('%s (%s)', [RemoveAccelChar(MenuItem.Caption), ShortCutToText(ShortCut)]);
     end;
   end;
+
+  { The Nav buttons have no corresponding menu item and also no ShortCut property
+    so they need special handling. But... when VS-style keymapping is active the
+    forward shortcut should be Ctrl+Shift+VK_OEM_MINUS but Scintilla reacts to it
+    by adding a char. So we always use Delphi-style shortcuts here atm. }
+
+  FBackNavButtonShortCut := ShortCut(VK_LEFT, [ssAlt]);
+  FForwardNavButtonShortCut := ShortCut(VK_RIGHT, [ssAlt]);
+
+  BackNavButton.Hint := Format('Back (%s)', [ShortCutToText(FBackNavButtonShortCut)]);
+  ForwardNavButton.Hint := Format('Forward (%s)', [ShortCutToText(FForwardNavButtonShortCut)]);
 end;
 
 procedure TCompileForm.UpdateTheme;
