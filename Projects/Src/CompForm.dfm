@@ -576,6 +576,11 @@ object CompileForm: TCompileForm
           OnClick = VReopenTabsClick
         end
       end
+      object NavPopupMenu: TMenuItem
+        Caption = 'NavPopupMenu'
+        Visible = False
+        OnClick = NavPopupMenuClick
+      end
       object N20: TMenuItem
         Caption = '-'
       end

@@ -230,6 +230,7 @@ type
     VCloseCurrentTab2: TMenuItem;
     VReopenTab2: TMenuItem;
     VReopenTabs2: TMenuItem;
+    NavPopupMenu: TMenuItem;
     N23: TMenuItem;
     LightMarkersImageCollection: TImageCollection;
     DarkMarkersImageCollection: TImageCollection;
@@ -347,6 +348,7 @@ type
     procedure RMenuClick(Sender: TObject);
     procedure BackNavButtonClick(Sender: TObject);
     procedure ForwardNavButtonClick(Sender: TObject);
+    procedure NavPopupMenuClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -439,7 +441,7 @@ type
     FMenuBitmapsSourceImageCollection: TCustomImageCollection;
     FSynchingZoom: Boolean;
     FBackNavStack, FForwardNavStack: TNavigationStack;
-    FPrevNav: TNavigationItem; { Valid if .Key is not nil }
+    FCurrentNav: TNavigationItem; { Valid if .Key is not nil }
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
     FIgnoreTabSetClick: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
@@ -500,6 +502,7 @@ type
     procedure MoveCaretAndActivateMemo(AMemo: TCompScintEdit; const LineNumberOrPosition: Integer;
       const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean;
       const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
+    procedure NavItemClick(Sender: TObject);
     procedure NewMainFile;
     procedure NewMainFileUsingWizard;
     procedure OpenFile(AMemo: TCompScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
@@ -869,8 +872,11 @@ begin
 
   FBackNavStack := TNavigationStack.Create;
   FForwardNavStack := TNavigationStack.Create;
-  FPrevNav.Key := nil;
+  FCurrentNav.Key := nil;
   UpdateNavButtons;
+
+  BackNavButton.Style := tbsDropDown;
+  BackNavButton.DropdownMenu := TCompileFormPopupMenu.Create(Self, NavPopupMenu);
 
   PopupMenu := TCompileFormPopupMenu.Create(Self, OutputListPopupMenu);
 
@@ -1158,7 +1164,7 @@ begin
 
   FBackNavStack.Clear;
   FForwardNavStack.Clear;
-  FPrevNav.Key := nil;
+  FCurrentNav.Key := nil;
   UpdateNavButtons;
 end;
 
@@ -3705,32 +3711,102 @@ begin
   end;
   if StackChanged then
     UpdateNavButtons;
-  if FPrevNav.Key = AMemo then
-    FPrevNav.Key := nil;
+  if FCurrentNav.Key = AMemo then
+    FCurrentNav.Key := nil;
 end;
 
 procedure TCompileForm.UpdateNavButtons;
 begin
-  BackNavButton.Enabled := FBackNavStack.Count > 0;
   ForwardNavButton.Enabled := FForwardNavStack.Count > 0;
+  BackNavButton.Enabled := (FBackNavStack.Count > 0) or
+                           ForwardNavButton.Enabled; { for the dropdown }
 end;
 
 procedure TCompileForm.BackNavButtonClick(Sender: TObject);
 begin
-  FForwardNavStack.Add(FPrevNav);
-  var NewNav := FBackNavStack.ExtractAt(FBackNavStack.Count-1);
-  UpdateNavButtons;
-  FPrevNav := NewNav; { Must be done *before* moving }
-  MoveCaretAndActivateMemo(NewNav.Key, NewNav.Value.Pos, False, True, NewNav.Value.VirtualSpace);
+  { Delphi does not support BTNS_WHOLEDROPDOWN so we can't be like VS which
+    can have a disabled back nav button with an enabled dropdown. To avoid
+    always showing two dropdowns we keep the back button enabled when we need
+    the drop down. So: if the back stack is empty we should show the menu,
+    otherwise we should go back. }
+
+  if FBackNavStack.Count = 0 then begin
+    if FForwardNavStack.Count = 0 then
+      raise Exception.Create('FForwardNavStack.Count = 0');
+    var Point := TPoint.Create(BackNavButton.Left, BackNavButton.Top + BackNavButton.Height);
+    Point := ToolBar.ClientToScreen(Point);
+    BackNavButton.DropdownMenu.Popup(Point.X, Point.Y);
+  end else begin
+    FForwardNavStack.Add(FCurrentNav);
+    var NewNav := FBackNavStack.ExtractAt(FBackNavStack.Count-1);
+    UpdateNavButtons;
+    FCurrentNav := NewNav; { Must be done *before* moving }
+    MoveCaretAndActivateMemo(NewNav.Key, NewNav.Value.Pos, False, True, NewNav.Value.VirtualSpace);
+  end;
 end;
 
 procedure TCompileForm.ForwardNavButtonClick(Sender: TObject);
 begin
-  FBackNavStack.Add(FPrevNav);
+  FBackNavStack.Add(FCurrentNav);
   var NewNav := FForwardNavStack.ExtractAt(FForwardNavStack.Count-1);
   UpdateNavButtons;
-  FPrevNav := NewNav; { Must be done *before* moving }
+  FCurrentNav := NewNav; { Must be done *before* moving }
   MoveCaretAndActivateMemo(NewNav.Key, NewNav.Value.Pos, False, True, NewNav.Value.VirtualSpace);
+end;
+
+procedure TCompileForm.NavItemClick(Sender: TObject);
+begin
+  var MenuItem := Sender as TMenuItem;
+  var Clicks := Abs(MenuItem.Tag);
+  if Clicks > 0 then begin
+    var ButtonToClick: TToolButton;
+    if MenuItem.Tag > 0 then
+      ButtonToClick := ForwardNavButton
+    else
+      ButtonToClick := BackNavButton;
+    while Clicks > 0 do begin
+      if not ButtonToClick.Enabled then
+        raise Exception.Create('not ButtonToClick.Enabled');
+      ButtonToClick.Click;
+      Dec(Clicks);
+    end;
+  end;
+end;
+
+procedure TCompileForm.NavPopupMenuClick(Sender: TObject);
+
+  procedure AddNavItemToMenu(const NavItem: TNavigationItem; const Checked: Boolean;
+    const ClicksNeeded: Integer; const Menu: TMenuItem);
+  begin
+    var Memo := NavItem.Key;
+
+    var LineNumber := NavItem.Key.GetLineFromPosition(NavItem.Value.Pos);
+    var LineInfo := Memo.Lines[LineNumber];
+    if LineInfo.Trim = '' then
+      LineInfo := Format('Line %d', [LineNumber]);
+
+    var Caption: String;
+    if MemosTabSet.Visible then
+      Caption := Format('%s: %s', [MemosTabSet.Tabs[MemoToTabIndex(Memo)], LineInfo])
+    else
+      Caption := LineInfo;
+
+    var MenuItem := TMenuItem.Create(Menu);
+    MenuItem.Caption := DoubleAmp(Caption);
+    MenuItem.Checked := Checked;
+    MenuItem.Tag := ClicksNeeded;
+    MenuItem.OnClick := NavItemClick;
+    Menu.Add(MenuItem);
+  end;
+
+begin
+  var Menu := Sender as TMenuItem;
+  Menu.Clear;
+  for var I := 0 to FForwardNavStack.Count-1 do
+    AddNavItemToMenu(FForwardNavStack[I], False, FForwardNavStack.Count-I, Menu);
+  AddNavItemToMenu(FCurrentNav, True, 0, Menu);
+  for var I := FBackNavStack.Count-1 downto 0 do
+    AddNavItemToMenu(FBackNavStack[I], False, -(FBackNavStack.Count-I), Menu);
 end;
 
 procedure TCompileForm.UpdateCaretPosPanelAndBackStack;
@@ -3747,16 +3823,16 @@ begin
   NewNav.Key := FActiveMemo;
   NewNav.Value.Pos := FActiveMemo.CaretPosition;
   NewNav.Value.VirtualSpace := FActiveMemo.CaretVirtualSpace;
-  if (FPrevNav.Key <> nil) and
-     ((FPrevNav.Key <> NewNav.Key) or
-      (Abs(FActiveMemo.GetLineFromPosition(FPrevNav.Value.Pos) -
+  if (FCurrentNav.Key <> nil) and
+     ((FCurrentNav.Key <> NewNav.Key) or
+      (Abs(FActiveMemo.GetLineFromPosition(FCurrentNav.Value.Pos) -
            FActiveMemo.GetLineFromPosition(NewNav.Value.Pos)) >= 11)) then begin
     if FBackNavStack.Count + FForwardNavStack.Count > 16 then { 16 is same limit as VS }
       FBackNavStack.Delete(0);
-    FBackNavStack.Add(FPrevNav);
+    FBackNavStack.Add(FCurrentNav);
     UpdateNavButtons;
   end;
-  FPrevNav := NewNav;
+  FCurrentNav := NewNav;
 end;
 
 procedure TCompileForm.UpdateEditModePanel;
