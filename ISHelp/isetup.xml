@@ -3194,7 +3194,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Extend rectangular selection to end of line.</td><td>Alt+Shift+End</td>
 </tr>
 <tr>
-  <td>Complete word.</td><td>Ctrl+Space or Alt+Right</td>
+  <td>Complete word.</td><td>Ctrl+Space or Alt+Right (latter only if the Delphi key map is not active)</td>
 </tr>
 <tr>
   <td>Fillup complete word.</td><td>Tab or Enter or Space (for ISPP directives) or \ (for constants) or : (for constants and section parameters) or ] (for sections) or = (for section directives).</td>

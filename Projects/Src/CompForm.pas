@@ -2763,7 +2763,8 @@ begin
     if FActiveMemo.CaretColumn = 0 then
       Key := 0;
   end
-  else if (Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt]) then begin
+  else if ((Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt])) and
+           (ShortCut(Key, Shift) <> FForwardNavButtonShortCut) then begin
     InitiateAutoComplete(#0);
     Key := 0;
   end;
@@ -2771,7 +2772,12 @@ end;
 
 procedure TCompileForm.MemoKeyPress(Sender: TObject; var Key: Char);
 begin
-  if (Key = ' ') and (GetKeyState(VK_CONTROL) < 0) then begin
+ { Scintilla inserts char 31 ("Unit Separator", shown as US) when Ctrl+Shift+-
+   is pressed for some reason. But that's our VS-style forward shortcut so filter
+   it (always, people might try it even if it's not the current keymapping). }
+  if Key = Char(31) then
+    Key := #0
+  else if (Key = ' ') and (GetKeyState(VK_CONTROL) < 0) then begin
     InitiateAutoComplete(#0);
     Key := #0;
   end;
@@ -5014,12 +5020,22 @@ begin
   end;
 
   { The Nav buttons have no corresponding menu item and also no ShortCut property
-    so they need special handling. But... when VS-style keymapping is active the
-    forward shortcut should be Ctrl+Shift+VK_OEM_MINUS but Scintilla reacts to it
-    by adding a char. So we always use Delphi-style shortcuts here atm. }
+    so they need special handling }
 
-  FBackNavButtonShortCut := ShortCut(VK_LEFT, [ssAlt]);
-  FForwardNavButtonShortCut := ShortCut(VK_RIGHT, [ssAlt]);
+  case FOptions.KeyMappingType of
+    kmtDelphi:
+      begin
+        FBackNavButtonShortCut := ShortCut(VK_LEFT, [ssAlt]);
+        FForwardNavButtonShortCut := ShortCut(VK_RIGHT, [ssAlt]);
+      end;
+    kmtVisualStudio:
+      begin
+        FBackNavButtonShortCut := ShortCut(VK_OEM_MINUS, [ssCtrl]);
+        FForwardNavButtonShortCut := ShortCut(VK_OEM_MINUS, [ssCtrl, ssShift]);
+      end;
+  else
+    raise Exception.Create('Unknown FOptions.KeyMappingType');
+  end;
 
   BackNavButton.Hint := Format('Back (%s)', [ShortCutToText(FBackNavButtonShortCut)]);
   ForwardNavButton.Hint := Format('Forward (%s)', [ShortCutToText(FForwardNavButtonShortCut)]);
