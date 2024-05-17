@@ -4851,10 +4851,11 @@ end;
 procedure TCompileForm.UpdateKeyMapping;
 
 type
-  TKeyMappedMenu = TPair<TMenuItem, TShortcut>;
+  TKeyMappedMenu = TPair<TMenuItem, TPair<TShortcut, TToolButton>>;
 
   function KMM(const MenuItem: TMenuItem; const DelphiKey: Word; const DelphiShift: TShiftState;
-    const VisualStudioKey: Word; const VisualStudioShift: TShiftState): TKeyMappedMenu;
+    const VisualStudioKey: Word; const VisualStudioShift: TShiftState;
+    const ToolButton: TToolButton = nil): TKeyMappedMenu;
   begin
     var AShortCut: TShortCut;
     case FOptions.KeyMappingType of
@@ -4864,25 +4865,31 @@ type
       raise Exception.Create('Unknown FOptions.KeyMappingType');
     end;
 
-    Result := TKeyMappedMenu.Create(MenuItem, AShortcut); { This is a record so no need to free }
+    Result := TKeyMappedMenu.Create(MenuItem, TPair<TShortcut, TToolButton>.Create(AShortcut, ToolButton)); { These are records so no need to free }
   end;
 
 begin
   var KeyMappedMenus := [
-    KMM(BCompile, VK_F9, [ssCtrl], VK_F7, []),
-    KMM(RRun, VK_F9, [], VK_F5, []),
+    KMM(BCompile, VK_F9, [ssCtrl], VK_F7, [], CompileButton),
+    KMM(RRun, VK_F9, [], VK_F5, [], RunButton),
     KMM(RRunToCursor, VK_F4, [], VK_F10, [ssCtrl]),
     KMM(RStepInto, VK_F7, [], VK_F11, []),
     KMM(RStepOver, VK_F8, [], VK_F10, []),
     KMM(RStepOut, VK_F8, [ssShift], VK_F11, [ssShift]),
     KMM(RToggleBreakPoint, VK_F5, [], VK_F9, []),
     KMM(RDeleteBreakPoints, VK_F5, [ssShift, ssCtrl], VK_F9, [ssShift, ssCtrl]),
-    KMM(RTerminate, VK_F2, [ssCtrl], VK_F5, [ssShift]),
+    KMM(RTerminate, VK_F2, [ssCtrl], VK_F5, [ssShift], TerminateButton),
     KMM(REvaluate, VK_F7, [ssCtrl], VK_F9, [ssShift])];
 
-  for var KeyMappedMenu in KeyMappedMenus do
-    if KeyMappedMenu.Value <> 0 then
-      KeyMappedMenu.Key.ShortCut := KeyMappedMenu.Value;
+  for var KeyMappedMenu in KeyMappedMenus do begin
+    var ShortCut := KeyMappedMenu.Value.Key;
+    var ToolButton := KeyMappedMenu.Value.Value;
+    KeyMappedMenu.Key.ShortCut := ShortCut;
+    if ToolButton <> nil then begin
+      var MenuItem := KeyMappedMenu.Key;
+      ToolButton.Hint := Format('%s (%s)', [RemoveAccelChar(MenuItem.Caption), ShortCutToText(ShortCut)]);
+    end;
+  end;
 end;
 
 procedure TCompileForm.UpdateTheme;

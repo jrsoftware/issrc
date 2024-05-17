@@ -236,7 +236,6 @@ object CompileForm: TCompileForm
       object CompileButton: TToolButton
         Left = 77
         Top = 0
-        Hint = 'Compile (Ctrl+F9)'
         ImageIndex = 3
         ImageName = 'build'
         OnClick = BCompileClick
@@ -260,7 +259,6 @@ object CompileForm: TCompileForm
       object RunButton: TToolButton
         Left = 131
         Top = 0
-        Hint = 'Run (F9)'
         ImageIndex = 5
         ImageName = 'debug-start-filled'
         OnClick = RRunClick
@@ -277,7 +275,6 @@ object CompileForm: TCompileForm
       object TerminateButton: TToolButton
         Left = 177
         Top = 0
-        Hint = 'Terminate (Ctrl+F2)'
         Enabled = False
         ImageIndex = 10
         ImageName = 'debug-stop-filled'
