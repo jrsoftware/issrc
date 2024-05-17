@@ -510,6 +510,7 @@ type
     procedure ReadMRUMainFilesList;
     procedure ReadMRUParametersList;
     procedure RemoveMemoFromNav(const AMemo: TCompScintEdit);
+    procedure RemoveMemoBadLinesFromNav(const AMemo: TCompScintEdit);
     procedure ReopenTabClick(Sender: TObject);
     procedure ReopenTabOrTabs(const HiddenFileIndex: Integer; const Activate: Boolean);
     procedure ResetAllMemosLineState;
@@ -1355,6 +1356,7 @@ begin
   AMemo.OpeningFile := True;
   try
     AFilename := PathExpand(AFilename);
+    var NameChange := PathCompare(AMemo.Filename, AFilename) <> 0;
 
     Stream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
     try
@@ -1364,13 +1366,15 @@ begin
         AMemo.BreakPoints.Clear;
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
-        if not PathCompare(AMemo.Filename, AFilename) <> 0 then
+        if NameChange then  { Also see below the other case which needs to be done after load }
           RemoveMemoFromNav(AMemo);
       end;
       GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
       AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
       Stream.Seek(0, soFromBeginning);
       AMemo.Lines.LoadFromStream(Stream, GetEncoding(AMemo.SaveEncoding));
+      if (AMemo <> FMainMemo) and not NameChange then
+        RemoveMemoBadLinesFromNav(AMemo);
     finally
       Stream.Free;
     end;
@@ -3715,6 +3719,27 @@ begin
     FCurrentNav.Key := nil;
 end;
 
+procedure TCompileForm.RemoveMemoBadLinesFromNav(const AMemo: TCompScintEdit);
+begin
+  var LastGoodPos := AMemo.GetLineEndPosition(AMemo.Lines.Count-1);
+  
+  var StackChanged := False;
+  for var I := FBackNavStack.Count-1 downto 0 do begin
+    if FBackNavStack[I].Value.Pos > LastGoodPos then begin
+      FBackNavStack.Delete(I);
+      StackChanged := True;
+    end;
+  end;
+  for var I := FForwardNavStack.Count-1 downto 0 do begin
+    if AMemo.GetLineFromPosition(FForwardNavStack[I].Value.Pos) > LastGoodPos then begin
+      FForwardNavStack.Delete(I);
+      StackChanged := True;
+    end;
+  end;
+  if StackChanged then
+    UpdateNavButtons;
+end;
+
 procedure TCompileForm.UpdateNavButtons;
 begin
   ForwardNavButton.Enabled := FForwardNavStack.Count > 0;
@@ -3778,7 +3803,7 @@ procedure TCompileForm.NavPopupMenuClick(Sender: TObject);
     var LineNumber := NavItem.Key.GetLineFromPosition(NavItem.Value.Pos);
     var LineInfo := Memo.Lines[LineNumber];
     if LineInfo.Trim = '' then
-      LineInfo := Format('Line %d', [LineNumber]);
+      LineInfo := Format('Line %d', [LineNumber+1]);
 
     var Caption: String;
     if MemosTabSet.Visible then
@@ -3874,9 +3899,10 @@ procedure TCompileForm.UpdatePreprocMemos;
       end;
       FPreprocessorOutputMemo.Used := True;
     end else begin
+      if FPreprocessorOutputMemo.Used then
+        RemoveMemoFromNav(FPreprocessorOutputMemo);
       FPreprocessorOutputMemo.Used := False;
       FPreprocessorOutputMemo.Visible := False;
-      RemoveMemoFromNav(FPreprocessorOutputMemo);
     end;
   end;
 
