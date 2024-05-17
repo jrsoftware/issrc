@@ -3202,6 +3202,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <tr>
   <td>Cancel complete word.</td><td>Esc</td>
 </tr>
+<tr>
+  <td>Switch between the active memo and the active bottom pane.</td><td>F6</td>
+</tr>
 </table>
 
 </body>
