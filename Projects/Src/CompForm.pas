@@ -3737,7 +3737,7 @@ begin
      ((FPrevNav.Key <> NewNav.Key) or
       (Abs(FActiveMemo.GetLineFromPosition(FPrevNav.Value.Pos) -
            FActiveMemo.GetLineFromPosition(NewNav.Value.Pos)) >= 11)) then begin
-    if FBackNavStack.Count + FForwardNavStack.Count > 16 then
+    if FBackNavStack.Count + FForwardNavStack.Count > 16 then { 16 is same limit as VS }
       FBackNavStack.Delete(0);
     FBackNavStack.Add(FPrevNav);
     UpdateNavButtons;
