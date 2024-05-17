@@ -610,7 +610,6 @@ object CompileForm: TCompileForm
       OnClick = BMenuClick
       object BCompile: TMenuItem
         Caption = '&Compile'
-        ShortCut = 16504
         OnClick = BCompileClick
       end
       object BStopCompile: TMenuItem
@@ -639,7 +638,6 @@ object CompileForm: TCompileForm
       OnClick = RMenuClick
       object RRun: TMenuItem
         Caption = '&Run'
-        ShortCut = 120
         OnClick = RRunClick
       end
       object RParameters: TMenuItem
@@ -651,32 +649,26 @@ object CompileForm: TCompileForm
       end
       object RRunToCursor: TMenuItem
         Caption = 'Run to &Cursor'
-        ShortCut = 115
         OnClick = RRunToCursorClick
       end
       object RStepInto: TMenuItem
         Caption = 'Step &Into'
-        ShortCut = 118
         OnClick = RStepIntoClick
       end
       object RStepOver: TMenuItem
         Caption = 'Step &Over'
-        ShortCut = 119
         OnClick = RStepOverClick
       end
       object RStepOut: TMenuItem
         Caption = 'Step Out'
-        ShortCut = 8311
         OnClick = RStepOutClick
       end
       object RToggleBreakPoint: TMenuItem
         Caption = 'Toggle &Breakpoint'
-        ShortCut = 116
         OnClick = RToggleBreakPointClick
       end
       object RDeleteBreakPoints: TMenuItem
         Caption = '&Delete All Breakpoints'
-        ShortCut = 24692
         OnClick = RDeleteBreakPointsClick
       end
       object RPause: TMenuItem
@@ -687,7 +679,6 @@ object CompileForm: TCompileForm
       object RTerminate: TMenuItem
         Caption = '&Terminate'
         Enabled = False
-        ShortCut = 16497
         OnClick = RTerminateClick
       end
       object N10: TMenuItem
@@ -696,7 +687,6 @@ object CompileForm: TCompileForm
       object REvaluate: TMenuItem
         Caption = '&Evaluate Constant...'
         Enabled = False
-        ShortCut = 16502
         OnClick = REvaluateClick
       end
       object N15: TMenuItem

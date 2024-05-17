@@ -370,6 +370,7 @@ type
       IndentationGuides: Boolean;
       LowPriorityDuringCompile: Boolean;
       GutterLineNumbers: Boolean;
+      KeyMappingType: TKeyMappingType;
       ThemeType: TThemeType;
       ShowPreprocessorOutput: Boolean;
       OpenIncludedFiles: Boolean;
@@ -521,6 +522,7 @@ type
     procedure UpdateSaveMenuItemAndButton;
     procedure UpdateMemoMarkerColumns;
     procedure UpdateTargetMenu;
+    procedure UpdateKeyMapping;
     procedure UpdateTheme;
     procedure UpdateThemeData(const Open: Boolean);
     procedure ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
@@ -723,6 +725,9 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.GutterLineNumbers := Ini.ReadBool('Options', 'GutterLineNumbers', False);
       FOptions.ShowPreprocessorOutput := Ini.ReadBool('Options', 'ShowPreprocessorOutput', True);
       FOptions.OpenIncludedFiles := Ini.ReadBool('Options', 'OpenIncludedFiles', True);
+      I := Ini.ReadInteger('Options', 'KeyMappingType', Ord(GetDefaultKeyMappingType));
+      if (I >= 0) and (I <= Ord(High(TKeyMappingType))) then
+        FOptions.KeyMappingType := TKeyMappingType(I);
       I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
       if (I >= 0) and (I <= Ord(High(TThemeType))) then
         FOptions.ThemeType := TThemeType(I);
@@ -735,6 +740,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
           Memo.Font := FMainMemo.Font;
       SyncEditorOptions;
       UpdateNewMainFileButtons;
+      UpdateKeyMapping;
       UpdateTheme;
 
       { Window state }
@@ -910,7 +916,7 @@ destructor TCompileForm.Destroy;
   begin
     Ini := TConfigIniFile.Create;
     try
-      { Theme state }
+      { Theme state - can change without opening the options }
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType));  { Also see TOptionsClick }
 
       { Menu check boxes state }
@@ -3472,6 +3478,7 @@ begin
       Ini.WriteBool('Options', 'GutterLineNumbers', FOptions.GutterLineNumbers);
       Ini.WriteBool('Options', 'ShowPreprocessorOutput', FOptions.ShowPreprocessorOutput);
       Ini.WriteBool('Options', 'OpenIncludedFiles', FOptions.OpenIncludedFiles);
+      Ini.WriteInteger('Options', 'KeyMappingType', Ord(FOptions.KeyMappingType));
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
       Ini.WriteString('Options', 'EditorFontName', FMainMemo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
@@ -4839,6 +4846,43 @@ begin
     RTargetUninstall.Checked := True;
     TargetUninstallButton.Down := True;
   end;
+end;
+
+procedure TCompileForm.UpdateKeyMapping;
+
+type
+  TKeyMappedMenu = TPair<TMenuItem, TShortcut>;
+
+  function KMM(const MenuItem: TMenuItem; const DelphiKey: Word; const DelphiShift: TShiftState;
+    const VisualStudioKey: Word; const VisualStudioShift: TShiftState): TKeyMappedMenu;
+  begin
+    var AShortCut: TShortCut;
+    case FOptions.KeyMappingType of
+      kmtDelphi: AShortCut := ShortCut(DelphiKey, DelphiShift);
+      kmtVisualStudio: AShortCut := ShortCut(VisualStudioKey, VisualStudioShift);
+    else
+      raise Exception.Create('Unknown FOptions.KeyMappingType');
+    end;
+
+    Result := TKeyMappedMenu.Create(MenuItem, AShortcut); { This is a record so no need to free }
+  end;
+
+begin
+  var KeyMappedMenus := [
+    KMM(BCompile, VK_F9, [ssCtrl], VK_F7, []),
+    KMM(RRun, VK_F9, [], VK_F5, []),
+    KMM(RRunToCursor, VK_F4, [], VK_F10, [ssCtrl]),
+    KMM(RStepInto, VK_F7, [], VK_F11, []),
+    KMM(RStepOver, VK_F8, [], VK_F10, []),
+    KMM(RStepOut, VK_F8, [ssShift], VK_F11, [ssShift]),
+    KMM(RToggleBreakPoint, VK_F5, [], VK_F9, []),
+    KMM(RDeleteBreakPoints, VK_F5, [ssShift, ssCtrl], VK_F9, [ssShift, ssCtrl]),
+    KMM(RTerminate, VK_F2, [ssCtrl], VK_F5, [ssShift]),
+    KMM(REvaluate, VK_F7, [ssCtrl], VK_F9, [ssShift])];
+
+  for var KeyMappedMenu in KeyMappedMenus do
+    if KeyMappedMenu.Value <> 0 then
+      KeyMappedMenu.Key.ShortCut := KeyMappedMenu.Value;
 end;
 
 procedure TCompileForm.UpdateTheme;

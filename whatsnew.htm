@@ -118,11 +118,7 @@ end;</pre>
 </ul>
 <p><span class="head2">Compiler IDE changes</span></p>
 <ul>
-  <li>The New Script Wizard now offers an option to import a Windows registry .reg file.</li>
-  <li>The New Script Wizard now automatically sets <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> to <tt>x64compatible</tt> if it detects that the chosen main executable file is 64-bit. The default main executable file is now the 64-bit MyProg-x64.exe example executable instead of 32-bit MyProg.exe.</li>
-  <li>Added new <i>Generate [Registry] Entries</i> (Shift+Ctrl+R) menu item to the <i>Tools</i> menu to import a Windows registry .reg file as extra entries to the <tt>[Registry]</tt> section at the cursor position, or to a new section.</li>
-  <li>Added new <i>Generate [Files] Entries</i> (Shift+Ctrl+I) menu item to the <i>Tools</i> menu to design and insert extra entries to the <tt>[Files]</tt> section at the cursor position, or to a new section.</li>
-  <li>The <i>Generate MsgBox/TaskDialogMsgBox Call</i> tool (previously named <i>MsgBox/TaskDialogMsgBox Designer</i>) now respects the tab width and tab character settings, indents the generated Pascal script one extra level, and warns if the cursor position is not in the [Code] section.</li>
+  <li>Added support for Visual Studio-style shortcuts (like F7 to compile and F5 to run) to the <i>Build</i> and <i>Run</i> menus. Use the <i>Options</i> menu item in the <i>Tools</i> menu to activate.</li>
   <li>Added dark mode support to the title bar on Windows 10 Version 2004 and later.</i>
   <li>Added dark mode support to the main menu bar on all versions of Windows.</i>
   <li>Added dark mode support to the menus on Windows 10 Version 1903 and later up to Windows 11 Version 23H2 which is currently the latest version of Windows 11.</i>
@@ -132,6 +128,11 @@ end;</pre>
   <li>Added new <i>Delete All Breakpoints</i> (Shift+Ctrl+F5) menu item to the <i>Run</i> menu.</li>
   <li>Added icons to the menus.</i>
   <li>If option <i>Allow cursor to move beyond end of lines</i> is enabled (which it is by default) then pressing the left arrow key while the cursor is at the start of a line no longer moves the cursor to the end of previous line unless the Ctrl key is also pressed, just like in Notepad++, Visual Studio, and RAD Studio.</li>
+  <li>The New Script Wizard now offers an option to import a Windows registry .reg file.</li>
+  <li>The New Script Wizard now automatically sets <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> to <tt>x64compatible</tt> if it detects that the chosen main executable file is 64-bit. The default main executable file is now the 64-bit MyProg-x64.exe example executable instead of 32-bit MyProg.exe.</li>
+  <li>Added new <i>Generate [Registry] Entries</i> (Shift+Ctrl+R) menu item to the <i>Tools</i> menu to import a Windows registry .reg file as extra entries to the <tt>[Registry]</tt> section at the cursor position, or to a new section.</li>
+  <li>Added new <i>Generate [Files] Entries</i> (Shift+Ctrl+I) menu item to the <i>Tools</i> menu to design and insert extra entries to the <tt>[Files]</tt> section at the cursor position, or to a new section.</li>
+  <li>The <i>Generate MsgBox/TaskDialogMsgBox Call</i> tool (previously named <i>MsgBox/TaskDialogMsgBox Designer</i>) now respects the tab width and tab character settings, indents the generated Pascal script one extra level, and warns if the cursor position is not in the [Code] section.</li>
 </ul>
 <p><span class="head2">Support for logging improved</span></p>
 <ul>

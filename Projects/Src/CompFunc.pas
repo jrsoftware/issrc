@@ -22,6 +22,7 @@ const
 type
   TMRUItemCompareProc = function(const S1, S2: String): Integer;
   TAddLinesPrefix = (alpNone, alpTimestamp, alpCountdown);
+  TKeyMappingType = (kmtDelphi, kmtVisualStudio);
 
 procedure InitFormFont(Form: TForm);
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
@@ -41,6 +42,7 @@ function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 
 function IsWindows10: Boolean;
 function IsWindows11: Boolean;
 function GetDefaultThemeType: TThemeType;
+function GetDefaultKeyMappingType: TKeyMappingType;
 procedure OpenDonateSite;
 procedure OpenMailingListSite;
 procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
@@ -263,6 +265,11 @@ begin
       Result := ttModernDark;
     RegCloseKey(K);
   end;
+end;
+
+function GetDefaultKeyMappingType: TKeyMappingType;
+begin
+  Result := kmtDelphi;
 end;
 
 procedure OpenDonateSite;
