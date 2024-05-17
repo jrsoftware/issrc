@@ -3690,13 +3690,21 @@ end;
 
 procedure TCompileForm.RemoveMemoFromNav(const AMemo: TCompScintEdit);
 begin
-  for var I := FBackNavStack.Count-1 downto 0 do
-    if FBackNavStack[I].Key = AMemo then
+  var StackChanged := False;
+  for var I := FBackNavStack.Count-1 downto 0 do begin
+    if FBackNavStack[I].Key = AMemo then begin
       FBackNavStack.Delete(I);
-  for var I := FForwardNavStack.Count-1 downto 0 do
-    if FForwardNavStack[I].Key = AMemo then
+      StackChanged := True;
+    end;
+  end;
+  for var I := FForwardNavStack.Count-1 downto 0 do begin
+    if FForwardNavStack[I].Key = AMemo then begin
       FForwardNavStack.Delete(I);
-  UpdateNavButtons;
+      StackChanged := True;
+    end;
+  end;
+  if StackChanged then
+    UpdateNavButtons;
   if FPrevNav.Key = AMemo then
     FPrevNav.Key := nil;
 end;
