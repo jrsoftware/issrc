@@ -337,7 +337,6 @@ type
     procedure FPrintClick(Sender: TObject);
     procedure TFilesDesignerClick(Sender: TObject);
     procedure VCloseCurrentTabClick(Sender: TObject);
-    procedure VReopenTabClick(Sender: TObject);
     procedure VReopenTabsClick(Sender: TObject);
     procedure MemosTabSetPopupMenuClick(Sender: TObject);
     procedure MemosTabSetOnCloseButtonClick(Sender: TObject; Index: Integer);
@@ -353,7 +352,7 @@ type
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
     FMainMemo: TCompScintFileEdit;                      { Doesn't change }
-    FPreprocessorOutputMemo: TCompScintEdit;            { Doesn't change }
+    FPreprocessorOutputMemo: TCompScintEdit;            { Doesn't change and is the only memo which isnt a TCompScint*File*Edit}
     FFileMemos: TList<TCompScintFileEdit>;              { All memos except FPreprocessorOutputMemo, including those without a tab }
     FHiddenFiles: TStringList;                          { List of files which *do* use a memo but are hidden by the user and have no tab }
     FActiveMemo: TCompScintEdit;                        { Changes depending on user input }
@@ -511,6 +510,7 @@ type
     procedure ReadMRUMainFilesList;
     procedure ReadMRUParametersList;
     procedure RemoveMemoFromNav(const AMemo: TCompScintEdit);
+    procedure ReopenTabClick(Sender: TObject);
     procedure ReopenTabOrTabs(const HiddenFileIndex: Integer; const Activate: Boolean);
     procedure ResetAllMemosLineState;
     procedure StartProcess;
@@ -2596,7 +2596,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.VReopenTabClick(Sender: TObject);
+procedure TCompileForm.ReopenTabClick(Sender: TObject);
 begin
   ReopenTabOrTabs((Sender as TMenuItem).Tag, True);
 end;
@@ -2941,9 +2941,9 @@ begin
   Menu.Clear;
   for var I := 0 to FHiddenFiles.Count-1 do begin
     var MenuItem := TMenuItem.Create(Menu);
-    MenuItem.Caption := '&' + IntToStr((I+1) mod 10) + ' ' + DoubleAmp(ExtractFileName(FHiddenFiles[I]));
+    MenuItem.Caption := '&' + IntToStr((I+1) mod 10) + ' ' + DoubleAmp(PathExtractName(FHiddenFiles[I]));
     MenuItem.Tag := I;
-    MenuItem.OnClick := VReopenTabClick;
+    MenuItem.OnClick := ReopenTabClick;
     Menu.Add(MenuItem);
   end;
 end;
