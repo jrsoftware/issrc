@@ -69,7 +69,7 @@ type
   TMenuBitmaps = TDictionary<TMenuItem, HBITMAP>;
 
   TPosWithVirtualSpace = record
-    Pos, VirtualSpace: Integer;
+    Line, Column, VirtualSpace: Integer;
   end;
 
   TNavigationItem = TPair<TCompScintEdit, TPosWithVirtualSpace>;
@@ -3721,17 +3721,17 @@ end;
 
 procedure TCompileForm.RemoveMemoBadLinesFromNav(const AMemo: TCompScintEdit);
 begin
-  var LastGoodPos := AMemo.GetLineEndPosition(AMemo.Lines.Count-1);
+  var LastGoodLine := AMemo.Lines.Count-1;
   
   var StackChanged := False;
   for var I := FBackNavStack.Count-1 downto 0 do begin
-    if FBackNavStack[I].Value.Pos > LastGoodPos then begin
+    if FBackNavStack[I].Value.Line > LastGoodLine then begin
       FBackNavStack.Delete(I);
       StackChanged := True;
     end;
   end;
   for var I := FForwardNavStack.Count-1 downto 0 do begin
-    if AMemo.GetLineFromPosition(FForwardNavStack[I].Value.Pos) > LastGoodPos then begin
+    if AMemo.GetLineFromPosition(FForwardNavStack[I].Value.Line) > LastGoodLine then begin
       FForwardNavStack.Delete(I);
       StackChanged := True;
     end;
@@ -3762,7 +3762,8 @@ begin
   var NewNav := FBackNavStack.ExtractAt(FBackNavStack.Count-1);
   UpdateNavButtons;
   FCurrentNav := NewNav; { Must be done *before* moving }
-  MoveCaretAndActivateMemo(NewNav.Key, NewNav.Value.Pos, False, True, NewNav.Value.VirtualSpace);
+  MoveCaretAndActivateMemo(NewNav.Key,
+    NewNav.Key.GetPositionFromLineColumn(NewNav.Value.Line, NewNav.Value.Column), False, True, NewNav.Value.VirtualSpace);
 end;
 
 procedure TCompileForm.ForwardNavButtonClick(Sender: TObject);
@@ -3771,7 +3772,8 @@ begin
   var NewNav := FForwardNavStack.ExtractAt(FForwardNavStack.Count-1);
   UpdateNavButtons;
   FCurrentNav := NewNav; { Must be done *before* moving }
-  MoveCaretAndActivateMemo(NewNav.Key, NewNav.Value.Pos, False, True, NewNav.Value.VirtualSpace);
+  MoveCaretAndActivateMemo(NewNav.Key,
+    NewNav.Key.GetPositionFromLineColumn(NewNav.Value.Line, NewNav.Value.Column), False, True, NewNav.Value.VirtualSpace);
 end;
 
 procedure TCompileForm.NavItemClick(Sender: TObject);
@@ -3800,7 +3802,7 @@ procedure TCompileForm.NavPopupMenuClick(Sender: TObject);
   begin
     var Memo := NavItem.Key;
 
-    var LineNumber := NavItem.Key.GetLineFromPosition(NavItem.Value.Pos);
+    var LineNumber := NavItem.Value.Line;
     var LineInfo := Memo.Lines[LineNumber];
     if LineInfo.Trim = '' then
       LineInfo := Format('Line %d', [LineNumber+1]);
@@ -3841,15 +3843,16 @@ begin
     Note: not doing the other stuff listed in the article atm }
   var NewNav: TNavigationItem;
   NewNav.Key := FActiveMemo;
-  NewNav.Value.Pos := FActiveMemo.CaretPosition;
+  NewNav.Value.Line := FActiveMemo.CaretLine;
+  NewNav.Value.Column := FActiveMemo.CaretColumn;
   NewNav.Value.VirtualSpace := FActiveMemo.CaretVirtualSpace;
   if (FCurrentNav.Key <> nil) and
+     (FCurrentNav.Value.Line < FCurrentNav.Key.Lines.Count) and { See MemoLinesDeleted }
      ((FCurrentNav.Key <> NewNav.Key) or
-      (Abs(FActiveMemo.GetLineFromPosition(FCurrentNav.Value.Pos) -
-           FActiveMemo.GetLineFromPosition(NewNav.Value.Pos)) >= 11)) then begin
+      (Abs(FCurrentNav.Value.Line - NewNav.Value.Line) >= 11)) then begin
+    FBackNavStack.Add(FCurrentNav);
     if FBackNavStack.Count + FForwardNavStack.Count > 16 then { 16 is same limit as VS }
       FBackNavStack.Delete(0);
-    FBackNavStack.Add(FCurrentNav);
     UpdateNavButtons;
   end;
   FCurrentNav := NewNav;
@@ -6359,6 +6362,27 @@ begin
   end;
   if BreakPointsChanged then
     BuildAndSaveBreakPointLines(Memo);
+
+  for I := 0 to FBackNavStack.Count-1 do begin
+    var NavItem := FBackNavStack[I];
+    if NavItem.Key = Memo then begin
+      Line := NavItem.Value.Line;
+      if Line >= FirstLine then begin
+        NavItem.Value.Line := Line + Count;
+        FBackNavStack[I] := NavItem;
+      end;
+    end;
+  end;
+  for I := 0 to FForwardNavStack.Count-1 do begin
+    var NavItem := FForwardNavStack[I];
+    if NavItem.Key = Memo then begin
+      Line := NavItem.Value.Line;
+      if Line >= FirstLine then begin
+        NavItem.Value.Line := Line + Count;
+        FForwardNavStack[I] := NavItem;
+      end;
+    end;
+  end;
 end;
 
 procedure TCompileForm.MemoLinesDeleted(Memo: TCompScintFileEdit; FirstLine, Count,
@@ -6414,14 +6438,51 @@ begin
         Memo.BreakPoints.Delete(I);
         BreakPointsChanged := True;
       end else begin
-        Line := Line - Count;
-        Memo.BreakPoints[I] := Line;
+        Memo.BreakPoints[I] := Line - Count;
         BreakPointsChanged := True;
       end;
     end;
   end;
   if BreakPointsChanged then
     BuildAndSaveBreakPointLines(Memo);
+
+  var StackChanged := False;
+  for I := FBackNavStack.Count-1 downto 0 do begin
+    var NavItem := FBackNavStack[I];
+    if NavItem.Key = Memo then begin
+      Line := NavItem.Value.Line;
+      if Line >= FirstLine then begin
+        if Line < FirstLine + Count then begin
+          FBackNavStack.Delete(I);
+          StackChanged := True;
+        end else begin
+          NavItem.Value.Line := Line - Count;
+          FBackNavStack[I] := NavItem;
+          StackChanged := True;
+        end;
+      end;
+    end;
+  end;
+  for I := FForwardNavStack.Count-1 downto 0 do begin
+    var NavItem := FForwardNavStack[I];
+    if NavItem.Key = Memo then begin
+      Line := NavItem.Value.Line;
+      if Line >= FirstLine then begin
+        if Line < FirstLine + Count then begin
+          FForwardNavStack.Delete(I);
+          StackChanged := True;
+        end else begin
+          NavItem.Value.Line := Line - Count;
+          FForwardNavStack[I] := NavItem;
+          StackChanged := True;
+        end;
+      end;
+    end;
+  end;
+  if StackChanged then
+    UpdateNavButtons;
+  { We do NOT update FCurrentNav here so it might point to a line that's
+    deleted until next UpdateCaretPosPanelAndBackStack by UpdateMemoUI }
 
   { When lines are deleted, Scintilla insists on moving all of the deleted
     lines' markers to the line on which the deletion started
