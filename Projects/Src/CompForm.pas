@@ -3727,22 +3727,17 @@ begin
   { Delphi does not support BTNS_WHOLEDROPDOWN so we can't be like VS which
     can have a disabled back nav button with an enabled dropdown. To avoid
     always showing two dropdowns we keep the back button enabled when we need
-    the drop down. So: if the back stack is empty we should show the menu,
-    otherwise we should go back. }
-
+    the dropdown. So we need to check for this. }
   if FBackNavStack.Count = 0 then begin
-    if FForwardNavStack.Count = 0 then
-      raise Exception.Create('FForwardNavStack.Count = 0');
-    var Point := TPoint.Create(BackNavButton.Left, BackNavButton.Top + BackNavButton.Height);
-    Point := ToolBar.ClientToScreen(Point);
-    BackNavButton.DropdownMenu.Popup(Point.X, Point.Y);
-  end else begin
-    FForwardNavStack.Add(FCurrentNav);
-    var NewNav := FBackNavStack.ExtractAt(FBackNavStack.Count-1);
-    UpdateNavButtons;
-    FCurrentNav := NewNav; { Must be done *before* moving }
-    MoveCaretAndActivateMemo(NewNav.Key, NewNav.Value.Pos, False, True, NewNav.Value.VirtualSpace);
+    Beep;
+    Exit;
   end;
+
+  FForwardNavStack.Add(FCurrentNav);
+  var NewNav := FBackNavStack.ExtractAt(FBackNavStack.Count-1);
+  UpdateNavButtons;
+  FCurrentNav := NewNav; { Must be done *before* moving }
+  MoveCaretAndActivateMemo(NewNav.Key, NewNav.Value.Pos, False, True, NewNav.Value.VirtualSpace);
 end;
 
 procedure TCompileForm.ForwardNavButtonClick(Sender: TObject);
