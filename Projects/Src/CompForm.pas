@@ -3628,7 +3628,7 @@ end;
 procedure TCompileForm.UpdateCaretPosPanel;
 begin
   StatusBar.Panels[spCaretPos].Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
-    FActiveMemo.CaretColumnExpanded + 1]);
+    FActiveMemo.CaretColumnExpandedIntoVirtualSpace + 1]);
 end;
 
 procedure TCompileForm.UpdateEditModePanel;

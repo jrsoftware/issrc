@@ -94,7 +94,7 @@ type
     procedure ApplyOptions;
     function GetAutoCompleteActive: Boolean;
     function GetCaretColumn: Integer;
-    function GetCaretColumnExpanded: Integer;
+    function GetCaretColumnExpandedIntoVirtualSpace: Integer;
     function GetCaretLine: Integer;
     function GetCaretPosition: Integer;
     function GetCaretVirtualSpace: Integer;
@@ -250,7 +250,7 @@ type
     procedure ZoomOut;
     property AutoCompleteActive: Boolean read GetAutoCompleteActive;
     property CaretColumn: Integer read GetCaretColumn write SetCaretColumn;
-    property CaretColumnExpanded: Integer read GetCaretColumnExpanded;
+    property CaretColumnExpandedIntoVirtualSpace: Integer read GetCaretColumnExpandedIntoVirtualSpace;
     property CaretLine: Integer read GetCaretLine write SetCaretLine;
     property CaretPosition: Integer read GetCaretPosition write SetCaretPosition;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
@@ -719,7 +719,7 @@ begin
   Result := GetColumnFromPosition(GetCaretPosition);
 end;
 
-function TScintEdit.GetCaretColumnExpanded: Integer;
+function TScintEdit.GetCaretColumnExpandedIntoVirtualSpace: Integer;
 begin
   Result := Call(SCI_GETCOLUMN, GetCaretPosition, 0);
   Inc(Result, GetCaretVirtualSpace);
