@@ -48,6 +48,8 @@ type
     GutterLineNumbersCheck: TCheckBox;
     ColorizeCompilerOutputCheck: TCheckBox;
     Label3: TNewStaticText;
+    KeyMappingComboBox: TComboBox;
+    Label4: TNewStaticText;
     ThemeComboBox: TComboBox;
     OpenIncludedFilesCheck: TCheckBox;
     ShowPreprocessorOutputCheck: TCheckBox;
@@ -72,7 +74,11 @@ procedure TOptionsForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
 
-  { Order must match TThemeType. }
+  { Order must match KeyMappingType }
+  KeyMappingComboBox.Items.Add('Delphi');
+  KeyMappingComboBox.Items.Add('Visual Studio');
+
+  { Order must match TThemeType }
   ThemeComboBox.Items.Add('Light');
   ThemeComboBox.Items.Add('Dark');
   ThemeComboBox.Items.Add('Classic');

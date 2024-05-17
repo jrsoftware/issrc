@@ -3410,6 +3410,7 @@ begin
     OptionsForm.GutterLineNumbersCheck.Checked := FOptions.GutterLineNumbers;
     OptionsForm.ShowPreprocessorOutputCheck.Checked := FOptions.ShowPreprocessorOutput;
     OptionsForm.OpenIncludedFilesCheck.Checked := FOptions.OpenIncludedFiles;
+    OptionsForm.KeyMappingComboBox.ItemIndex := Ord(FOptions.KeyMappingType);
     OptionsForm.ThemeComboBox.ItemIndex := Ord(FOptions.ThemeType);
     OptionsForm.FontPanel.Font.Assign(FMainMemo.Font);
     OptionsForm.FontPanel.ParentBackground := False;
@@ -3439,6 +3440,7 @@ begin
     FOptions.GutterLineNumbers := OptionsForm.GutterLineNumbersCheck.Checked;
     FOptions.ShowPreprocessorOutput := OptionsForm.ShowPreprocessorOutputCheck.Checked;
     FOptions.OpenIncludedFiles := OptionsForm.OpenIncludedFilesCheck.Checked;
+    FOptions.KeyMappingType := TKeyMappingType(OptionsForm.KeyMappingComboBox.ItemIndex);
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
     
     UpdateCaption;
@@ -3452,6 +3454,7 @@ begin
     end;
     SyncEditorOptions;
     UpdateNewMainFileButtons;
+    UpdateKeyMapping;
     UpdateTheme;
 
     { Save new options }

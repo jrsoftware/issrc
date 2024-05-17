@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 355
+  ClientHeight = 384
   ClientWidth = 589
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -24,7 +24,7 @@ object OptionsForm: TOptionsForm
     Left = 8
     Top = 8
     Width = 281
-    Height = 245
+    Height = 274
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Miscellaneous '
     TabOrder = 0
@@ -119,7 +119,7 @@ object OptionsForm: TOptionsForm
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 254
+    Top = 283
     Width = 281
     Height = 57
     Anchors = [akLeft, akBottom]
@@ -143,7 +143,7 @@ object OptionsForm: TOptionsForm
     Left = 300
     Top = 8
     Width = 281
-    Height = 303
+    Height = 332
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Editor '
     TabOrder = 2
@@ -213,46 +213,46 @@ object OptionsForm: TOptionsForm
     end
     object Label1: TNewStaticText
       Left = 8
-      Top = 237
+      Top = 266
       Width = 25
       Height = 14
       Caption = 'Font:'
-      TabOrder = 11
+      TabOrder = 13
     end
     object FontPanel: TPanel
       Left = 72
-      Top = 228
+      Top = 257
       Width = 121
       Height = 32
       BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'AaBbXxZz'
-      TabOrder = 12
+      TabOrder = 14
     end
     object ChangeFontButton: TButton
       Left = 200
-      Top = 233
+      Top = 262
       Width = 73
       Height = 23
       Caption = '&Change...'
-      TabOrder = 13
+      TabOrder = 15
       OnClick = ChangeFontButtonClick
     end
     object Label2: TNewStaticText
       Left = 8
-      Top = 271
+      Top = 300
       Width = 54
       Height = 14
       Caption = '&Tab Width:'
       FocusControl = TabWidthEdit
-      TabOrder = 14
+      TabOrder = 16
     end
     object TabWidthEdit: TEdit
       Left = 72
-      Top = 268
+      Top = 297
       Width = 41
       Height = 21
-      TabOrder = 15
+      TabOrder = 16
       OnChange = TabWidthEditChange
     end
     object GutterLineNumbersCheck: TCheckBox
@@ -268,11 +268,11 @@ object OptionsForm: TOptionsForm
       Top = 202
       Width = 37
       Height = 14
-      Caption = 'T&heme:'
-      FocusControl = ThemeComboBox
+      Caption = '&Key map:'
+      FocusControl = KeyMappingComboBox
       TabOrder = 9
     end
-    object ThemeComboBox: TComboBox
+    object KeyMappingComboBox: TComboBox
       Left = 72
       Top = 199
       Width = 201
@@ -280,10 +280,27 @@ object OptionsForm: TOptionsForm
       Style = csDropDownList
       TabOrder = 10
     end
+    object Label4: TNewStaticText
+      Left = 8
+      Top = 231
+      Width = 37
+      Height = 14
+      Caption = 'T&heme:'
+      FocusControl = ThemeComboBox
+      TabOrder = 11
+    end
+    object ThemeComboBox: TComboBox
+      Left = 72
+      Top = 228
+      Width = 201
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 12
+    end
   end
   object OKButton: TButton
     Left = 428
-    Top = 323
+    Top = 352
     Width = 73
     Height = 23
     Anchors = [akLeft, akBottom]
@@ -294,7 +311,7 @@ object OptionsForm: TOptionsForm
   end
   object CancelButton: TButton
     Left = 508
-    Top = 323
+    Top = 352
     Width = 73
     Height = 23
     Anchors = [akLeft, akBottom]
