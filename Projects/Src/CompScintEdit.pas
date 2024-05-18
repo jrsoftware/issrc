@@ -80,7 +80,7 @@ type
     Memo: TCompScintEdit;
     Line, Column, VirtualSpace: Integer;
     constructor Create(const AMemo: TCompScintEdit);
-    function Equals(const ANavItem: TCompScintEditNavItem): Boolean;
+    function EqualMemoAndLine(const ANavItem: TCompScintEditNavItem): Boolean;
     procedure Invalidate;
     function Valid: Boolean;
   end;
@@ -203,13 +203,10 @@ begin
   VirtualSpace := AMemo.CaretVirtualSpace;
 end;
 
-function TCompScintEditNavItem.Equals(
+function TCompScintEditNavItem.EqualMemoAndLine(
   const ANavItem: TCompScintEditNavItem): Boolean;
 begin
-  Result := (Memo = ANavItem.Memo) and
-            (Line = ANavItem.Line) and
-            (Column = ANavItem.Column) and
-            (VirtualSpace = ANavItem.VirtualSpace);
+  Result := (Memo = ANavItem.Memo) and (Line = ANavItem.Line);
 end;
 
 procedure TCompScintEditNavItem.Invalidate;
@@ -264,8 +261,10 @@ end;
 
 procedure TCompScintEditNavStack.Optimize;
 begin
+  { Turn two entries for the same memo and line which are next to each other
+    into one entry, ignoring column differences (like Visual Studio 2022) }
   for var I := Count-1 downto 1 do
-    if Items[I].Equals(Items[I-1]) then
+    if Items[I].EqualMemoAndLine(Items[I-1]) then
       Delete(I);
 end;
 
