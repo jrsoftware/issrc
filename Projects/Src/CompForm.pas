@@ -3786,7 +3786,21 @@ procedure TCompileForm.NavPopupMenuClick(Sender: TObject);
 
 begin
   var Menu := Sender as TMenuItem;
+
   Menu.Clear;
+
+  { Setup dropdown. The result should end up being just like Visual Studio 2022
+    which means from top to bottom:
+    - Furthest (=oldest) forward item
+    - ...
+    - Closest (=next) forward item
+    - Current position in the active memo, checked
+    - Closest (=next) back item
+    - ...
+    - Furthest (=oldest) back item
+    The Tag parameter should be set to the amount of clicks needed to get to
+    the item, positive for forward and negative for back }
+
   for var I := 0 to FNavStacks.Forward.Count-1 do
     AddNavItemToMenu(FNavStacks.Forward[I], False, FNavStacks.Forward.Count-I, Menu);
   AddNavItemToMenu(FCurrentNavItem, True, 0, Menu);
