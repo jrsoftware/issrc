@@ -76,6 +76,43 @@ type
     property SaveEncoding: TSaveEncoding read FSaveEncoding write FSaveEncoding;
   end;
 
+  TCompScintEditNavItem = record
+    Memo: TCompScintEdit;
+    Line, Column, VirtualSpace: Integer;
+    constructor Create(const AMemo: TCompScintEdit);
+    function EqualMemoAndLine(const ANavItem: TCompScintEditNavItem): Boolean;
+    procedure Invalidate;
+    function Valid: Boolean;
+  end;
+
+  { Not using TStack since it lacks a way the keep a maximum amount of items by discarding the oldest }
+  TCompScintEditNavStack = class(TList<TCompScintEditNavItem>)
+  public
+    function LinesDeleted(const AMemo: TCompScintEdit; const FirstLine, LineCount: Integer): Boolean;
+    procedure LinesInserted(const AMemo: TCompScintEdit; const FirstLine, LineCount: Integer);
+    procedure Optimize;
+    function RemoveMemo(const AMemo: TCompScintEdit): Boolean;
+    function RemoveMemoBadLines(const AMemo: TCompScintEdit): Boolean;
+  end;
+
+  TCompScintEditNavStacks = class
+  private
+    FBackNavStack: TCompScintEditNavStack;
+    FForwardNavStack: TCompScintEditNavStack;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function AddNewBackForJump(const OldNavItem, NewNavItem: TCompScintEditNavItem): Boolean;
+    procedure Clear;
+    procedure Limit;
+    function LinesDeleted(const AMemo: TCompScintEdit; const FirstLine, LineCount: Integer): Boolean;
+    procedure LinesInserted(const AMemo: TCompScintEdit; const FirstLine, LineCount: Integer);
+    function RemoveMemo(const AMemo: TCompScintEdit): Boolean;
+    function RemoveMemoBadLines(const AMemo: TCompScintEdit): Boolean;
+    property Back: TCompScintEditNavStack read FBackNavStack;
+    property Forward: TCompScintEditNavStack read FForwardNavStack;
+  end;
+
 implementation
 
 uses
@@ -154,6 +191,183 @@ destructor TCompScintFileEdit.Destroy;
 begin
   FBreakPoints.Free;
   inherited;
+end;
+
+{ TCompScintEditNavItem }
+
+constructor TCompScintEditNavItem.Create(const AMemo: TCompScintEdit);
+begin
+  Memo := AMemo;
+  Line := AMemo.CaretLine;
+  Column := AMemo.CaretColumn;
+  VirtualSpace := AMemo.CaretVirtualSpace;
+end;
+
+function TCompScintEditNavItem.EqualMemoAndLine(
+  const ANavItem: TCompScintEditNavItem): Boolean;
+begin
+  Result := (Memo = ANavItem.Memo) and (Line = ANavItem.Line);
+end;
+
+procedure TCompScintEditNavItem.Invalidate;
+begin
+  Memo := nil;
+end;
+
+function TCompScintEditNavItem.Valid: Boolean;
+begin
+  Result := (Memo <> nil) and (Line < Memo.Lines.Count); { Line check: see MemoLinesDeleted and RemoveMemoBadLinesFromNav }
+end;
+
+{ TCompScintEditNavStack }
+
+function TCompScintEditNavStack.LinesDeleted(const AMemo: TCompScintEdit;
+  const FirstLine, LineCount: Integer): Boolean;
+begin
+  Result := False;
+  for var I := Count-1 downto 0 do begin
+    var NavItem := Items[I];
+    if NavItem.Memo = AMemo then begin
+      var Line := NavItem.Line;
+      if Line >= FirstLine then begin
+        if Line < FirstLine + LineCount then begin
+          Delete(I);
+          Result := True;
+        end else begin
+          NavItem.Line := Line - LineCount;
+          Items[I] := NavItem;
+        end;
+      end;
+    end;
+  end;
+  if Result then
+    Optimize;
+end;
+
+procedure TCompScintEditNavStack.LinesInserted(const AMemo: TCompScintEdit;
+  const FirstLine, LineCount: Integer);
+begin
+  for var I := 0 to Count-1 do begin
+    var NavItem := Items[I];
+    if NavItem.Memo = AMemo then begin
+      var Line := NavItem.Line;
+      if Line >= FirstLine then begin
+        NavItem.Line := Line + LineCount;
+        Items[I] := NavItem;
+      end;
+    end;
+  end;
+end;
+
+procedure TCompScintEditNavStack.Optimize;
+begin
+  { Turn two entries for the same memo and line which are next to each other
+    into one entry, ignoring column differences (like Visual Studio 2022) }
+  for var I := Count-1 downto 1 do
+    if Items[I].EqualMemoAndLine(Items[I-1]) then
+      Delete(I);
+end;
+
+function TCompScintEditNavStack.RemoveMemo(
+  const AMemo: TCompScintEdit): Boolean;
+begin
+  Result := False;
+  for var I := Count-1 downto 0 do begin
+    if Items[I].Memo = AMemo then begin
+      Delete(I);
+      Result := True;
+    end;
+  end;
+  if Result then
+    Optimize;
+end;
+
+function TCompScintEditNavStack.RemoveMemoBadLines(
+  const AMemo: TCompScintEdit): Boolean;
+begin
+  Result := False;
+  var LastGoodLine := AMemo.Lines.Count-1;
+  for var I := Count-1 downto 0 do begin
+    if (Items[I].Memo = AMemo) and (Items[I].Line > LastGoodLine) then begin
+      Delete(I);
+      Result := True;
+    end;
+  end;
+  if Result then
+    Optimize;
+end;
+
+{ TCompScintEditNavStacks }
+
+constructor TCompScintEditNavStacks.Create;
+begin
+  inherited;
+  FBackNavStack := TCompScintEditNavStack.Create;
+  FForwardNavStack := TCompScintEditNavStack.Create;
+end;
+
+destructor TCompScintEditNavStacks.Destroy;
+begin
+  FForwardNavStack.Free;
+  FBackNavStack.Free;
+  inherited;
+end;
+
+function TCompScintEditNavStacks.AddNewBackForJump(const OldNavItem,
+  NewNavItem: TCompScintEditNavItem): Boolean;
+begin
+  { Want a new item when changing tabs or moving at least 11 lines at once,
+    similar to Visual Studio 2022, see:
+    https://learn.microsoft.com/en-us/archive/blogs/zainnab/navigate-backward-and-navigate-forward
+    Note: not doing the other stuff listed in the article atm }
+  Result := (OldNavItem.Memo <> NewNavItem.Memo) or
+            (Abs(OldNavItem.Line - NewNavItem.Line) >= 11);
+  if Result then begin
+    FBackNavStack.Add(OldNavItem);
+    Limit;
+  end;
+end;
+
+procedure TCompScintEditNavStacks.Clear;
+begin
+  FBackNavStack.Clear;
+  FForwardNavStack.Clear;
+end;
+
+procedure TCompScintEditNavStacks.Limit;
+begin
+  { The dropdown showing both stacks + the current nav item should show at most
+    16 items just like Visual Studio 2022 }
+  if FBackNavStack.Count + FForwardNavStack.Count >= 15 then
+    FBackNavStack.Delete(0);
+end;
+
+function TCompScintEditNavStacks.LinesDeleted(const AMemo: TCompScintEdit;
+  const FirstLine, LineCount: Integer): Boolean;
+begin
+  Result := FBackNavStack.LinesDeleted(AMemo, FirstLine, LineCount);
+  Result := FForwardNavStack.LinesDeleted(AMemo, FirstLine, LineCount) or Result;
+end;
+
+procedure TCompScintEditNavStacks.LinesInserted(const AMemo: TCompScintEdit;
+  const FirstLine, LineCount: Integer);
+begin
+  FBackNavStack.LinesInserted(AMemo, FirstLine, LineCount);
+  FForwardNavStack.LinesInserted(AMemo, FirstLine, LineCount);
+end;
+
+function TCompScintEditNavStacks.RemoveMemo(
+  const AMemo: TCompScintEdit): Boolean;
+begin
+  Result := FBackNavStack.RemoveMemo(AMemo);
+  Result := FForwardNavStack.RemoveMemo(AMemo) or Result;
+end;
+
+function TCompScintEditNavStacks.RemoveMemoBadLines(
+  const AMemo: TCompScintEdit): Boolean;
+begin
+  Result := FBackNavStack.RemoveMemoBadLines(AMemo);
+  Result := FForwardNavStack.RemoveMemoBadLines(AMemo) or Result;
 end;
 
 end.

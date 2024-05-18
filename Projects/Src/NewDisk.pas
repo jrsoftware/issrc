@@ -2,13 +2,11 @@ unit NewDisk;
 
 {
   Inno Setup
-  Copyright (C) 1997-2005 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   New Disk form
-
-  $jrsoftware: issrc/Projects/NewDisk.pas,v 1.34 2010/10/22 10:33:26 mlaan Exp $
 }
 
 interface
@@ -55,7 +53,7 @@ begin
       Filename := AFilename;
       SelectDiskLabel.Caption := FmtSetupMessage(msgSelectDiskLabel2, [IntToStr(DiskNumber)]);
       PathEdit.Text := Path;
-      MessageBeep(0);
+      Beep;
       Result := ShowModal = mrOK;
       if Result then
         Path := GetSanitizedPath;
