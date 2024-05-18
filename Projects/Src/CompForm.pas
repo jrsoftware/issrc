@@ -3798,7 +3798,7 @@ procedure TCompileForm.UpdateCaretPosPanelAndBackStack;
 begin
   { Update panel }
   StatusBar.Panels[spCaretPos].Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
-    FActiveMemo.CaretColumnExpandedIntoVirtualSpace + 1]);
+    FActiveMemo.CaretColumnExpandedForTabs + 1]);
 
   { Update NavStacks.Back if needed and remember new position }
   var NewNavItem := TCompScintEditNavItem.Create(FActiveMemo); { This is a record so no need to free }
