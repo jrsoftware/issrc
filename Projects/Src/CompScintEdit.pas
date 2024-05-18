@@ -80,6 +80,7 @@ type
     Memo: TCompScintEdit;
     Line, Column, VirtualSpace: Integer;
     constructor Create(const AMemo: TCompScintEdit);
+    function Equals(const ANavItem: TCompScintEditNavItem): Boolean;
     procedure Invalidate;
     function Valid: Boolean;
   end;
@@ -89,6 +90,7 @@ type
   public
     function LinesDeleted(const AMemo: TCompScintEdit; const FirstLine, LineCount: Integer): Boolean;
     procedure LinesInserted(const AMemo: TCompScintEdit; const FirstLine, LineCount: Integer);
+    procedure Optimize;
     function RemoveMemo(const AMemo: TCompScintEdit): Boolean;
     function RemoveMemoBadLines(const AMemo: TCompScintEdit): Boolean;
   end;
@@ -201,6 +203,15 @@ begin
   VirtualSpace := AMemo.CaretVirtualSpace;
 end;
 
+function TCompScintEditNavItem.Equals(
+  const ANavItem: TCompScintEditNavItem): Boolean;
+begin
+  Result := (Memo = ANavItem.Memo) and
+            (Line = ANavItem.Line) and
+            (Column = ANavItem.Column) and
+            (VirtualSpace = ANavItem.VirtualSpace);
+end;
+
 procedure TCompScintEditNavItem.Invalidate;
 begin
   Memo := nil;
@@ -232,6 +243,8 @@ begin
       end;
     end;
   end;
+  if Result then
+    Optimize;
 end;
 
 procedure TCompScintEditNavStack.LinesInserted(const AMemo: TCompScintEdit;
@@ -249,6 +262,13 @@ begin
   end;
 end;
 
+procedure TCompScintEditNavStack.Optimize;
+begin
+  for var I := Count-1 downto 1 do
+    if Items[I].Equals(Items[I-1]) then
+      Delete(I);
+end;
+
 function TCompScintEditNavStack.RemoveMemo(
   const AMemo: TCompScintEdit): Boolean;
 begin
@@ -259,6 +279,8 @@ begin
       Result := True;
     end;
   end;
+  if Result then
+    Optimize;
 end;
 
 function TCompScintEditNavStack.RemoveMemoBadLines(
@@ -272,6 +294,8 @@ begin
       Result := True;
     end;
   end;
+  if Result then
+    Optimize;
 end;
 
 { TCompScintEditNavStacks }
