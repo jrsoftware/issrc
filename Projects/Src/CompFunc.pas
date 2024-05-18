@@ -72,7 +72,7 @@ function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
 implementation
 
 uses
-  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, ComCtrls,
+  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils,
   Messages, DwmApi,
   CmnFunc2, PathFunc, FileClass, NewUxTheme,
   CompForm, CompMsgs, CompTypes;
@@ -130,8 +130,6 @@ procedure InitFormTheme(Form: TForm);
       var Control := ParentControl.Controls[I];
       if Control is TListBox then
         InitListBoxDarkTheme(Control as TListBox)
-      else if Control is TToolBar then
-        SetControlWindowTheme(Control as TToolBar, FormTheme.Dark)
       else if Control is TWinControl then
         InitWinControlTheme(Control as TWinControl);
     end;
