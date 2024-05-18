@@ -262,7 +262,9 @@ end;
 procedure TCompScintEditNavStack.Optimize;
 begin
   { Turn two entries for the same memo and line which are next to each other
-    into one entry, ignoring column differences (like Visual Studio 2022) }
+    into one entry, ignoring column differences (like Visual Studio 2022)
+    Note: doesn't yet look at CompForm's FCurrentNavItem to see if a stack's top
+    item is the same so it doesnt optimize that situation atm }
   for var I := Count-1 downto 1 do
     if Items[I].EqualMemoAndLine(Items[I-1]) then
       Delete(I);

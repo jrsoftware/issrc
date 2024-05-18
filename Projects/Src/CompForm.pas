@@ -865,8 +865,8 @@ begin
   MemosTabSet.PopupMenu := TCompileFormPopupMenu.Create(Self, MemosTabSetPopupMenu);
 
   FNavStacks := TCompScintEditNavStacks.Create;
-  FCurrentNavItem.Invalidate;
   UpdateNavButtons;
+  FCurrentNavItem.Invalidate;
 
   BackNavButton.Style := tbsDropDown;
   BackNavButton.DropdownMenu := TCompileFormPopupMenu.Create(Self, NavPopupMenu);
@@ -1155,8 +1155,8 @@ begin
   FMainMemo.ClearUndo;
 
   FNavStacks.Clear;
-  FCurrentNavItem.Invalidate;
   UpdateNavButtons;
+  FCurrentNavItem.Invalidate;
 end;
 
 { Breakpoints are preserved on a per-file basis }
@@ -3700,8 +3700,8 @@ procedure TCompileForm.RemoveMemoBadLinesFromNav(const AMemo: TCompScintEdit);
 begin
   if FNavStacks.RemoveMemoBadLines(AMemo) then
     UpdateNavButtons;
- { We do NOT update FCurrentNav here so it might point to a line that's
-   deleted until next UpdateCaretPosPanelAndBackStack by UpdateMemoUI }
+  { We do NOT update FCurrentNav here so it might point to a line that's
+    deleted until next UpdateCaretPosPanelAndBackStack by UpdateMemoUI }
 end;
 
 procedure TCompileForm.UpdateNavButtons;
