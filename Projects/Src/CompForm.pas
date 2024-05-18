@@ -523,7 +523,7 @@ type
     procedure UpdateAllMemosLineMarkers;
     procedure UpdateBevel1Visibility;
     procedure UpdateCaption;
-    procedure UpdateCaretPosPanelAndBackStack;
+    procedure UpdateCaretPosPanelAndBackNavStack;
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
@@ -1026,14 +1026,14 @@ end;
 procedure TCompileForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  var ShortCut := ShortCut(Key, Shift);
-  if ShortCut = VK_ESCAPE then begin
+  var AShortCut := ShortCut(Key, Shift);
+  if AShortCut = VK_ESCAPE then begin
     if BStopCompile.Enabled then
       BStopCompileClick(Self)
-  end else if ShortCut = FBackNavButtonShortCut then begin
+  end else if AShortCut = FBackNavButtonShortCut then begin
     if BackNavButton.Enabled then
       BackNavButtonClick(Self);
-  end else if ShortCut = FForwardNavButtonShortCut then begin
+  end else if AShortCut = FForwardNavButtonShortCut then begin
     if ForwardNavButton.Enabled then
       ForwardNavButtonClick(Self);
   end else if (Key = VK_F6) and not(ssAlt in Shift) then begin
@@ -2972,7 +2972,7 @@ begin
 
     UpdateSaveMenuItemAndButton;
     UpdateRunMenu;
-    UpdateCaretPosPanelAndBackStack;
+    UpdateCaretPosPanelAndBackNavStack;
     UpdateEditModePanel;
     UpdateModifiedPanel;
   end;
@@ -3794,7 +3794,7 @@ begin
     AddNavItemToMenu(FNavStacks.Back[I], False, -(FNavStacks.Back.Count-I), Menu);
 end;
 
-procedure TCompileForm.UpdateCaretPosPanelAndBackStack;
+procedure TCompileForm.UpdateCaretPosPanelAndBackNavStack;
 begin
   { Update panel }
   StatusBar.Panels[spCaretPos].Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
@@ -4034,7 +4034,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
 begin
   if (Sender = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then
     HideError;
-  UpdateCaretPosPanelAndBackStack;
+  UpdateCaretPosPanelAndBackNavStack;
   UpdatePendingSquiggly;
   UpdateBraceHighlighting;
   if Sender = FActiveMemo then
