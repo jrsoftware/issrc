@@ -733,7 +733,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.UseSyntaxHighlighting := Ini.ReadBool('Options', 'UseSynHigh', True);
       FOptions.ColorizeCompilerOutput := Ini.ReadBool('Options', 'ColorizeCompilerOutput', True);
       FOptions.UnderlineErrors := Ini.ReadBool('Options', 'UnderlineErrors', True);
-      FOptions.CursorPastEOL := Ini.ReadBool('Options', 'EditorCursorPastEOL', True);
+      FOptions.CursorPastEOL := Ini.ReadBool('Options', 'EditorCursorPastEOL', False);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
       FOptions.UseTabCharacter := Ini.ReadBool('Options', 'UseTabCharacter', False);
       FOptions.WordWrap := Ini.ReadBool('Options', 'WordWrap', False);
