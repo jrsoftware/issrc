@@ -127,8 +127,9 @@ end;</pre>
   <li>Lines with a breakpoint are now displayed as normal lines with syntax highlighting, instead of as white text on a red background. The editor's gutter still displays an icon on such lines.</li>
   <li>Breakpoints are now preserved on a per-file basis between sessions.</li>
   <li>Added new <i>Delete All Breakpoints</i> (Shift+Ctrl+F5) menu item to the <i>Run</i> menu.</li>
-  <li>Added icons to the menus.</i>
-  <li>If option <i>Allow cursor to move beyond end of lines</i> is enabled (which it is by default) then pressing the left arrow key while the cursor is at the start of a line no longer moves the cursor to the end of previous line unless the Ctrl key is also pressed, just like in Notepad++, Visual Studio, and RAD Studio.</li>
+  <li>Added icons to the menus.</li>
+  <li>The <i>Allow cursor to move beyond end of lines</i> option ("virtual space") is now disabled by default, consistent with most other editors.</li>
+  <li>When the <i>Allow cursor to move beyond end of lines</i> option is enabled, pressing the left arrow key while the cursor is at the start of a line no longer moves the cursor to the end of the previous line unless the Ctrl key is also pressed, just like in Notepad++, Visual Studio, and RAD Studio.</li>
   <li>The New Script Wizard now offers an option to import a Windows registry .reg file.</li>
   <li>The New Script Wizard now automatically sets <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> to <tt>x64compatible</tt> if it detects that the chosen main executable file is 64-bit. The default main executable file is now the 64-bit MyProg-x64.exe example executable instead of 32-bit MyProg.exe.</li>
   <li>Added new <i>Generate [Registry] Entries</i> (Shift+Ctrl+R) menu item to the <i>Tools</i> menu to import a Windows registry .reg file as extra entries to the <tt>[Registry]</tt> section at the cursor position, or to a new section.</li>
