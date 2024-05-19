@@ -470,12 +470,11 @@ end;</pre></example>
       <function>
         <name>ProcessorArchitecture</name>
         <prototype>function ProcessorArchitecture: TSetupProcessorArchitecture;</prototype>
-        <description><p>Returns the native processor architecture of the current system.</p>
-<p>TSetupProcessorArchitecture is defined as:</p>
-<p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paArm64, paArm32);</tt></p></description>
-        <remarks><p>A 64-bit processor architecture will never be returned on 32-bit versions of Windows. Hence, you cannot use this function to detect a 64-bit AMD CPU on a 32-bit version of Windows; you'll just get back <tt>paX86</tt> if you try.</p>
-<p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the processor architecture. It can be assumed that an "unknown" architecture is at least capable of executing 32-bit code, or Setup/Uninstall wouldn't be running at all.</p>
-<p><tt>paArm32</tt> is never returned because Setup/Uninstall does not run on 32-bit versions of Windows for Arm32.</p></remarks>
+        <description><p>Returns the architecture of the system's Windows installation.</p>
+<p><tt>TSetupProcessorArchitecture</tt> is an enumerated type, defined as:</p>
+<p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paArm32, paArm64);</tt></p></description>
+        <remarks><p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the architecture of the Windows installation. It can be assumed that an "unknown" architecture is at least capable of executing 32-bit x86 code, or Setup/Uninstall wouldn't be running at all.</p>
+<p><tt>paArm32</tt> is not a possible return value for this function because no version of Windows for 32-bit Arm processors had the ability to run x86 binaries. (An x86 emulator was first introduced in Arm64 Windows.)</p></remarks>
         <example><pre>var
   S: String;
 begin
@@ -486,7 +485,7 @@ begin
   else
     S := 'Unrecognized';
   end;
-  MsgBox('Your processor architecture: ' + S, mbInformation, MB_OK);
+  MsgBox('Windows architecture: ' + S, mbInformation, MB_OK);
 end;</pre></example>
         <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
 <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link></p></seealso>
