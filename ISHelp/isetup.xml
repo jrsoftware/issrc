@@ -5306,32 +5306,31 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>If you are installing device drivers, then the proper setting is <tt>x86os</tt>, <tt>x64os</tt>, or <tt>arm64</tt>, depending on the architecture of the drivers.</p>
 <examples>
 <pre>
-; Only allow installation on systems that aren't x64-compatible.
-; Useful in a situation where you have separate x86 &amp; x64 installers,
-; and don't want users of x64-compatible OSes (x64 + Arm64 Win11)
-; erroneously running the x86 installer which would say:
-ArchitecturesAllowed=not x64compatible
-
-; Require two arch matches at the same time:
-; If an Arm installer installs both Arm64 and Arm32 binaries,
-; you technically should ensure that the OS actually supports both:
+; Require two architecture identifier matches at the same time.
+; - An x64 app installer that includes some 32-bit x86 binaries:
+ArchitecturesAllowed=x64compatible and x86compatible
+; - An Arm64 app installer that includes some x64 binaries:
+ArchitecturesAllowed=arm64 and x64compatible
+; - An Arm64 app installer that includes some Arm32 binaries:
 ArchitecturesAllowed=arm64 and arm32compatible
 
-; Same goes for an x64-compatible installer shipping some 32-bit
-; binaries:
-ArchitecturesAllowed=x64compatible and x86compatible
+; Only allow installation on systems that <i>aren't</i> x64-compatible.
+; Useful in a situation where you have separate x86 &amp; x64 installers,
+; and don't want users of x64-compatible OSes (x64 + Arm64 Win11)
+; erroneously running the x86 installer.
+ArchitecturesAllowed=x86compatible and not x64compatible
 
-; Installing a component that cannot operate in an emulated
-; environment, such as an x64 device driver:
-ArchitecturesAllowed=x64os
-
-; Allow installation on x64-compatible systems, but deny one of them:
-; (Imagine if in the future there were 3 x64-compatible OSes!)
+; Allow installation on x64-compatible systems, but deny Arm64.
+; Useful if you provide a separate installer for Arm64 systems.
 ArchitecturesAllowed=x64compatible and not arm64
 
-; Never select 64-bit install mode but require a 64-bit OS anyway
-; (for example, because you're accessing HKLM64):
-ArchitecturesInstallIn64BitMode=
+; The "os" variant is appropriate when installing something that
+; cannot operate in an emulated environment, such as a device driver.
+ArchitecturesAllowed=x64os
+
+; Allow installation only on 64-bit Windows, but don't check the
+; architecture.
+; (Don't use this if installing any architecture-specific binaries.)
 ArchitecturesAllowed=win64
 </pre>
 </examples>
