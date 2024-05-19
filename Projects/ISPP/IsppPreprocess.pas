@@ -88,9 +88,9 @@ var
     else if OptName = 'ISPP:VerboseLevel' then
       ISPPOptions.VerboseLevel := StrToIntDef(OptValue, 0)
     else if OptName = 'ISPP:InlineStart' then
-      ISPPOptions.InlineStart := AnsiString(OptValue)
+      ISPPOptions.InlineStart := OptValue
     else if OptName = 'ISPP:InlineEnd' then
-      ISPPOptions.InlineEnd := AnsiString(OptValue)
+      ISPPOptions.InlineEnd := OptValue
     else if OptName = 'ISPP:Definitions' then
       Definitions := OptValue
     else if OptName = 'ISPP:IncludePath' then

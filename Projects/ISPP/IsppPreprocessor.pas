@@ -444,14 +444,14 @@ var
     Result := False;
     while P^ <> #0 do
     begin
-      if AnsiChar(P^) = FOptions.InlineStart[1] then
+      if P^ = FOptions.InlineStart[1] then
       begin
         D := P;
         Result := True;
-        for I := 2 to Byte(FOptions.InlineStart[0]) do
+        for I := 2 to Length(FOptions.InlineStart) do
         begin
           Inc(D);
-          if AnsiChar(D^) <> FOptions.InlineStart[I] then
+          if D^ <> FOptions.InlineStart[I] then
           begin
             Result := False;
             Break;
@@ -471,13 +471,13 @@ var
     Result := nil;
     while P^ <> #0 do
     begin
-      if AnsiChar(P^) = FOptions.InlineEnd[1] then
+      if P^ = FOptions.InlineEnd[1] then
       begin
         Result := P;
-        for I := 2 to Byte(FOptions.InlineEnd[0]) do
+        for I := 2 to Length(FOptions.InlineEnd) do
         begin
           Inc(P);
-          if AnsiChar(P^) <> FOptions.InlineEnd[I] then
+          if P^ <> FOptions.InlineEnd[I] then
           begin
             Result := nil;
             Break;
@@ -809,11 +809,11 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         if P = 'include' then
           FIncludePath := StrPragma(True)
         else if P = 'inlinestart' then
-          FOptions.InlineStart := AnsiString(StrPragma(False))
+          FOptions.InlineStart := StrPragma(False)
         else if P = 'inlineend' then
-          FOptions.InlineEnd := AnsiString(StrPragma(False))
+          FOptions.InlineEnd := StrPragma(False)
         else if P = 'spansymbol' then
-          FOptions.SpanSymbol := AnsiChar(StrPragma(False)[1])
+          FOptions.SpanSymbol := StrPragma(False)[1]
         else if P = 'parseroption' then
           OptionPragma(FOptions.ParserOptions.Options)
         else if P = 'option' then
@@ -1045,7 +1045,7 @@ var
   L: Integer;
 begin
   L := Length(LineRead);
-  if (L > 2) and (AnsiChar(LineRead[L]) = FOptions.SpanSymbol) and (LineRead[L - 1] <= #32) then
+  if (L > 2) and (LineRead[L] = FOptions.SpanSymbol) and (LineRead[L - 1] <= #32) then
   begin
     FQueuedLine := FQueuedLine + TrimLeft(Copy(LineRead, 1, L - 1));
     Inc(FQueuedLineCount);

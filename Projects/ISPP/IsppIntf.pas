@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -16,20 +16,20 @@ type
   
   TOptionID = 0..25;
 
-  TOptions = packed set of TOptionID;
+  TOptions = set of TOptionID;
 
   PIsppParserOptions = ^TIsppParserOptions;
-  TIsppParserOptions = packed record
+  TIsppParserOptions = record
     Options: TOptions;
   end;
 
-  TIsppOptions = packed record
+  TIsppOptions = record
     ParserOptions: TIsppParserOptions;
     Options: TOptions;
     VerboseLevel: Byte;
-    InlineStart: string[7];
-    InlineEnd: string[7];
-    SpanSymbol: AnsiChar;
+    InlineStart: String;
+    InlineEnd: String;
+    SpanSymbol: Char;
   end;
 
   TIsppVarType = (evSpecial, evNull, evInt, evStr, evLValue, evCallContext);
