@@ -5292,19 +5292,18 @@ DiskSliceSize=1457664
 </topic>
 
 <setuptopic directive="ArchitecturesAllowed">
-<keyword value="processors allowed" />
 <keyword value="x86" />
 <keyword value="AMD64" />
 <keyword value="x64" />
 <keyword value="Arm64" />
 <setupvalid>A space separated list of <link topic="archidentifiers">architecture identifiers</link>.<br />
 Or, a boolean expression containing <link topic="archidentifiers">architecture identifiers</link>. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</setupvalid>
-<setupdefault><i>(blank)</i></setupdefault>
+<!-- The default is actually an empty string, but in a 32-bit x86 build that's equivalent to x86compatible -->
+<setupdefault><tt>x86compatible</tt></setupdefault>
 <body>
-<p>Specifies which processor architecture(s) Setup is allowed to run on. If this directive is not specified or is blank, Setup will be allowed to run on all processor architectures capable of executing its 32-bit code (including ones it doesn't recognize). Otherwise, if a user's processor architecture is not one of those specified in this directive, Setup will display an error message and exit.</p>
-<p>If your application's binaries are all 32-bit and run in user mode, you should not change this directive from its default value (specifically, don't set it to <tt>x86</tt>), because normally such binaries will run without issue on the 64-bit Windows via the WOW64 emulator.</p>
-<p>If you install any 32-bit device drivers, you should set this directive to <tt>x86</tt>, as 32-bit device drivers cannot function on 64-bit Windows.</p>
-<p>If your application's binaries are built for the x64 or Arm64 architectures, you should set this directive to either <tt>x64compatible</tt> or <tt>arm64</tt> respectively.</p>
+<p>Specifies which architectures Setup is allowed to run on. If none of the specified architecture identifiers match the current system, Setup will display an error message (<tt>WindowsVersionNotSupported</tt>) and exit.</p>
+<p>If your application's binaries are all 32-bit, then there is normally no need to set this directive; the default value of <tt>x86compatible</tt> is correct. If your application's binaries are built for the x64 or Arm64 architectures, you should set this directive to either <tt>x64compatible</tt> or <tt>arm64</tt> respectively.</p>
+<p>If you are installing device drivers, then the proper setting is <tt>x86os</tt>, <tt>x64os</tt>, or <tt>arm64</tt>, depending on the architecture of the drivers.</p>
 <examples>
 <pre>
 ; Only allow installation on systems that aren't x64-compatible.
