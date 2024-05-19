@@ -1077,14 +1077,14 @@ begin
 end;
 
 procedure TPreprocessor.SaveToFile(const FileName: string);
-var
-  S: String;
 begin
-  S := FOutput.Text;
-  if SameText(S, String(AnsiString(S))) then
-    FOutput.SaveToFile(FileName)
-  else
+  var OldWriteBOM := FOutput.WriteBOM;
+  try
+    FOutput.WriteBOM := False;
     FOutput.SaveToFile(FileName, TEncoding.UTF8);
+  finally
+    FOutput.WriteBOM := OldWriteBOM;
+  end;
 end;
 
 function TPreprocessor.CheckFile(const FileName: string): Boolean;
