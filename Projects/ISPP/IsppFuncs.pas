@@ -670,15 +670,19 @@ begin
     WorkingDirP := nil;
     
   var OutputReader: TCreateProcessOutputReader := nil;
-  var InheritHandles := False;
   try
+    var InheritHandles := False;
+    var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE;
+
     if Log and Assigned(LogProc) and WaitUntilTerminated then begin
       OutputReader := TCreateProcessOutputReader.Create(LogProc, LogProcData);
       OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
+      if InheritHandles then
+        dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
     end;
 
     Result := CreateProcess(nil, PChar(CmdLine), nil, nil, InheritHandles,
-      CREATE_DEFAULT_ERROR_MODE, nil, WorkingDirP, StartupInfo, ProcessInfo);
+      dwCreationFlags, nil, WorkingDirP, StartupInfo, ProcessInfo);
     if not Result then begin
       ResultCode := GetLastError;
       Exit;
@@ -797,7 +801,7 @@ begin
       Data.Line := '';
       var ResultCode: Integer;
       var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, True,
-        SW_HIDE, Data.Preprocessor, True, ExecAndGetFirstLineLog, NativeInt(@Data), ResultCode);
+        SW_SHOW, Data.Preprocessor, True, ExecAndGetFirstLineLog, NativeInt(@Data), ResultCode);
       if Success then
         MakeStr(ResPtr^, Data.Line)
       else begin

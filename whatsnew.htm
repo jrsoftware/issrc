@@ -140,7 +140,7 @@ end;</pre>
 <ul>
   <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program or batch file. Cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags. Has no effect if logging is not enabled.</li>
   <li>Added new <tt>[Setup]</tt> section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
-  <li>Digital signing change: Sign Tool output is now always logged in the Compiler IDE's "Compiler Output" view, making it easier to debug issues.</li>
+  <li>Digital signing change: Sign Tool output is now always logged in the Compiler IDE's "Compiler Output" view, making it easier to debug issues. Because of this, sign tools that are console programs will now always run hidden, as their output is being captured and they would display nothing in their window.</li>
   <li>Pascal Scripting change: Added new <tt>ExecAndLogOutput</tt> support function. Can be used to log the output of the executed program or batch file to Setup and Uninstall's log, or to receive the output line by line in your own <tt>[Code]</tt> function, for example to read the first non-empty line from the output as shown in the help file and the new <i>PowerShell.iss</i> example script.</li>
   <li>ISPP changes:
     <ul>

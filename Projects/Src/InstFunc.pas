@@ -899,15 +899,19 @@ begin
     WorkingDir := GetSystemDir;
 
   var OutputReader: TCreateProcessOutputReader := nil;
-  var InheritHandles := False;
   try
+    var InheritHandles := False;
+    var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE;
+
     if Log and Assigned(LogProc) and (Wait = ewWaitUntilTerminated) then begin
       OutputReader := TCreateProcessOutputReader.Create(LogProc, LogProcData);
       OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
+      if InheritHandles then
+        dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
     end;
 
     Result := CreateProcessRedir(DisableFsRedir, nil, PChar(CmdLine), nil, nil,
-      InheritHandles, CREATE_DEFAULT_ERROR_MODE, nil, PChar(WorkingDir),
+      InheritHandles, dwCreationFlags, nil, PChar(WorkingDir),
       StartupInfo, ProcessInfo);
     if not Result then begin
       ResultCode := GetLastError;
