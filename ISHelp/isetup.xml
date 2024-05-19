@@ -5539,7 +5539,7 @@ SignTool=byparam format c:
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, the compiler will run Sign Tools in a minimized window.</p>
+<p>When set to <tt>yes</tt>, the compiler will run Sign Tools in a minimized window. Has no effect if the sign tool is a console program.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_signtool">SignTool</link></p>
 </body>
