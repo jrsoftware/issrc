@@ -1087,7 +1087,7 @@ begin
 
     FResult := wrComplete;
   end else begin
-    Script := Script + Setup + SNewLine;
+    Script := Script + Setup;
     FResult := wrEmpty;
   end;
 
