@@ -645,7 +645,7 @@ begin
   if Filename = '>' then
     CmdLine := Params
   else begin
-    if (Filename <> '') and (Filename[1] <> '"') then
+    if (Filename = '') or (Filename[1] <> '"') then
       CmdLine := '"' + Filename + '"'
     else
       CmdLine := Filename;
