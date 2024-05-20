@@ -1245,15 +1245,16 @@ begin
   else if StrLComp(PChar(Cnst), 'cm:', 3) = 0 then Result := ExpandCustomMessageConst(Cnst)
   else begin
     { Shell folder constants }
-    for Common := False to True do
-      for ShellFolderID := Low(ShellFolderID) to High(ShellFolderID) do
-        if Cnst = FolderConsts[Common, ShellFolderID] then begin
-          ShellFolder := GetShellFolder(Common, ShellFolderID);
-          if ShellFolder = '' then
-            InternalError(Format('Failed to expand shell folder constant "%s"', [OriginalCnst]));
-          Result := ShellFolder;
-          Exit;
-        end;
+    if Cnst <> '' then
+      for Common := False to True do
+        for ShellFolderID := Low(ShellFolderID) to High(ShellFolderID) do
+          if Cnst = FolderConsts[Common, ShellFolderID] then begin
+            ShellFolder := GetShellFolder(Common, ShellFolderID);
+            if ShellFolder = '' then
+              InternalError(Format('Failed to expand shell folder constant "%s"', [OriginalCnst]));
+            Result := ShellFolder;
+            Exit;
+          end;
     { Custom constants }
     if Cnst <> '' then begin
       I := 0;
