@@ -1849,11 +1849,27 @@ end;</pre>
         <name>LoadStringFromFile</name>
         <prototype>function LoadStringFromFile(const FileName: String; var S: AnsiString): Boolean;</prototype>
         <description><p>Loads the specified binary or non Unicode text file into the specified string. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>Use <link topic="isxfunc_LoadStringFromLockedFile">LoadStringFromLockedFile</link> to load even if the file is already opened for writing by another program.</p></remarks>
+        <seealso><p><link topic="isxfunc_LoadStringsFromFile">LoadStringsFromFile</link></p></seealso>
+      </function>
+      <function>
+        <name>LoadStringFromLockedFile</name>
+        <prototype>function LoadStringFromLockedFile(const FileName: String; var S: AnsiString): Boolean;</prototype>
+        <description><p>Loads the specified binary or non Unicode text file into the specified string, even if the file is already opened for writing by another program. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_LoadStringFromFile">LoadStringFromFile</link></p></seealso>
       </function>
       <function>
         <name>LoadStringsFromFile</name>
         <prototype>function LoadStringsFromFile(const FileName: String; var S: TArrayOfString): Boolean;</prototype>
         <description><p>Loads the specified text file into the specified string array. UTF-8 encoded files with or without a BOM are also supported. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>Use <link topic="isxfunc_LoadStringsFromLockedFile">LoadStringsFromLockedFile</link> to load even if the file is already opened for writing by another program.</p></remarks>
+        <seealso><p><link topic="isxfunc_LoadStringFromFile">LoadStringFromFile</link></p></seealso>
+      </function>
+      <function>
+        <name>LoadStringsFromLockedFile</name>
+        <prototype>function LoadStringsFromLockedFile(const FileName: String; var S: TArrayOfString): Boolean;</prototype>
+        <description><p>Loads the specified text file into the specified string array, even if the file is already opened for writing by another program. UTF-8 encoded files with or without a BOM are also supported. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_LoadStringsFromFile">LoadStringsFromFile</link></p></seealso>
       </function>
       <function>
         <name>SaveStringToFile</name>

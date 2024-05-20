@@ -164,6 +164,7 @@ end;</pre>
   <li>Pascal Scripting changes: 
     <ul>
     <li>Added support functions <tt>UTF8Encode</tt> and <tt>UTF8Decode</tt> to encode a Unicode string into a UTF-8 encoded ANSI string and vice versa.</li>
+    <li>Added support functions <tt>LoadStringFromLockedFile</tt> and <tt>LoadStringsFromLockedFile</tt> to read strings from a file even if it's already opened for writing by another program.</li>
     <li>Added support class <tt>TNewLinkLabel</tt> which can display multi-line text with embedded links and internally uses a Windows SysLink control. See the <i>CodeClasses.iss</i> example script for examples.</li>
     <li><tt>TWizardForm</tt>: Added new <tt>AdjustLinkLabelHeight</tt> function.</li>
     <li>It is now possible to write <tt>var S: set of AnsiChar; begin S := ['a', 'b']; end;</tt>. In previous versions this would result in a type mismatch error.</tt>

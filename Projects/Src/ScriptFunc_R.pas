@@ -1677,13 +1677,14 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
       Result := True;
   end;
 
-  function LoadStringFromFile(const FileName: String; var S: AnsiString): Boolean;
+  function LoadStringFromFile(const FileName: String; var S: AnsiString;
+    const Sharing: TFileSharing): Boolean;
   var
     F: TFile;
     N: Cardinal;
   begin
     try
-      F := TFileRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenExisting, faRead, fsRead);
+      F := TFileRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenExisting, faRead, Sharing);
       try
         N := F.CappedSize;
         SetLength(S, N);
@@ -1698,14 +1699,15 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
     end;
   end;
 
-  function LoadStringsFromFile(const FileName: String; Arr: PPSVariantIFC): Boolean;
+  function LoadStringsFromFile(const FileName: String; Arr: PPSVariantIFC;
+    const Sharing: TFileSharing): Boolean;
   var
     F: TTextFileReader;
     I: Integer;
     S: String;
   begin
     try
-      F := TTextFileReaderRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenExisting, faRead, fsRead);
+      F := TTextFileReaderRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenExisting, faRead, Sharing);
       try
         PSDynArraySetLength(Pointer(Arr.Dta^), Arr.aType, 0);
         I := 0;
@@ -1966,11 +1968,18 @@ begin
     Stack.SetBool(PStart, SetCodePreviousData(Stack.GetInt(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3)));
   end else if Proc.Name = 'LOADSTRINGFROMFILE' then begin
     AnsiS := StackGetAnsiString(Stack, PStart-2);
-    Stack.SetBool(PStart, LoadStringFromFile(Stack.GetString(PStart-1), AnsiS));
+    Stack.SetBool(PStart, LoadStringFromFile(Stack.GetString(PStart-1), AnsiS, fsRead));
+    StackSetAnsiString(Stack, PStart-2, AnsiS);
+  end else if Proc.Name = 'LOADSTRINGFROMLOCKEDFILE' then begin
+    AnsiS := StackGetAnsiString(Stack, PStart-2);
+    Stack.SetBool(PStart, LoadStringFromFile(Stack.GetString(PStart-1), AnsiS, fsReadWrite));
     StackSetAnsiString(Stack, PStart-2, AnsiS);
   end else if Proc.Name = 'LOADSTRINGSFROMFILE' then begin
     Arr := NewTPSVariantIFC(Stack[PStart-2], True);
-    Stack.SetBool(PStart, LoadStringsFromFile(Stack.GetString(PStart-1), @Arr));
+    Stack.SetBool(PStart, LoadStringsFromFile(Stack.GetString(PStart-1), @Arr, fsRead));
+  end else if Proc.Name = 'LOADSTRINGSFROMLOCKEDFILE' then begin
+    Arr := NewTPSVariantIFC(Stack[PStart-2], True);
+    Stack.SetBool(PStart, LoadStringsFromFile(Stack.GetString(PStart-1), @Arr, fsReadWrite));
   end else if Proc.Name = 'SAVESTRINGTOFILE' then begin
     Stack.SetBool(PStart, SaveStringToFile(Stack.GetString(PStart-1), StackGetAnsiString(Stack, PStart-2), Stack.GetBool(PStart-3)));
   end else if Proc.Name = 'SAVESTRINGSTOFILE' then begin

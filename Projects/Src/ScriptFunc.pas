@@ -332,7 +332,7 @@ const
   );
 
   { Other }
-  OtherTable: array [0..34] of AnsiString =
+  OtherTable: array [0..36] of AnsiString =
   (
     'procedure BringToFrontAndRestore;',
     'function WizardDirValue: String;',
@@ -358,7 +358,9 @@ const
     'function GetPreviousData(const ValueName, DefaultValueData: String): String;',
     'function SetPreviousData(const PreviousDataKey: Integer; const ValueName, ValueData: String): Boolean;',
     'function LoadStringFromFile(const FileName: String; var S: AnsiString): Boolean;',
+    'function LoadStringFromLockedFile(const FileName: String; var S: AnsiString): Boolean;',
     'function LoadStringsFromFile(const FileName: String; var S: TArrayOfString): Boolean;',
+    'function LoadStringsFromLockedFile(const FileName: String; var S: TArrayOfString): Boolean;',
     'function SaveStringToFile(const FileName: String; const S: AnsiString; const Append: Boolean): Boolean;',
     'function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
