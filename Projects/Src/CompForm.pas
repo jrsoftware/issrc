@@ -3341,6 +3341,7 @@ begin
   TGenerateGUID.Enabled := not MemoIsReadOnly;
   TMsgBoxDesigner.Enabled := not MemoIsReadOnly;
   TFilesDesigner.Enabled := not MemoIsReadOnly;
+  TRegistryDesigner.Enabled := not MemoIsReadOnly;
 
   ApplyMenuBitmaps(Sender as TMenuItem);
 end;
