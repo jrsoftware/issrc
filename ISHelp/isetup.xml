@@ -860,7 +860,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 </param>
 
 <param name="MinVersion">
-<p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use "0" then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>MinVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use <tt>0</tt> then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>MinVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without a <tt>MinVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
 <pre>MinVersion: 6.2</pre>
@@ -868,7 +868,8 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 </param>
 
 <param name="OnlyBelowVersion">
-<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you put <tt>6.2</tt> and the user is running Windows 7, the entry <i>will</i> be processed, but if the user is running Windows 8 (which reports its version as 6.2) or later, it will <i>not</i> be processed. Putting "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you use <tt>6.2</tt> and the user is running Windows 7, the entry <i>will</i> be processed, but if the user is running Windows 8 (which reports its version as 6.2) or later, it will <i>not</i> be processed. Putting <tt>0</tt> means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>If <tt>0</tt> is not used: should be higher than <tt>6.1</tt> otherwise the entry is never processed. (Windows Vista/Server 2008 are no longer supported.)</p>
 <p>An entry without an <tt>OnlyBelowVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
 <pre>OnlyBelowVersion: 6.2</pre>
@@ -4079,6 +4080,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="MinVersion">
 <setupformat><tt><i>major</i>.<i>minor</i></tt></setupformat>
+<setupvalid><tt>6.1</tt> or higher</setupvalid>
 <setupdefault><tt>6.1sp1</tt> (Windows 7 with Service Pack 1 or Windows Server 2008 R2 with Service Pack 1)</setupdefault>
 <body>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software runs on. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
@@ -4088,9 +4090,10 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="OnlyBelowVersion">
 <setupformat><tt><i>major</i>.<i>minor</i></tt></setupformat>
+<setupvalid><tt>0</tt> or higher than <tt>6.1</tt></setupvalid>
 <setupdefault><tt>0</tt></setupdefault>
 <body>
-<p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software <i>will not</i> run on. Specifying "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
+<p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software <i>will not</i> run on. Specifying <tt>0</tt> means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>This directive is essentially the opposite of <link topic="setup_minversion">MinVersion</link>.</p>
 </body>
 </setuptopic>

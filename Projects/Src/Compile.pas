@@ -3060,9 +3060,13 @@ end;
 procedure TSetupCompiler.ProcessOnlyBelowVersionParameter(const ParamValue: TParamValue;
   var AOnlyBelowVersion: TSetupVersionData);
 begin
-  if ParamValue.Found then
+  if ParamValue.Found then begin
     if not StrToSetupVersionData(ParamValue.Data, AOnlyBelowVersion) then
       AbortCompileParamError(SCompilerParamInvalid2, ParamCommonOnlyBelowVersion);
+    if (AOnlyBelowVersion.NTVersion <> 0) and
+       (AOnlyBelowVersion.NTVersion <= $06010000) then
+      WarningsList.Add(Format(SCompilerOnlyBelowVersionParameterNTTooLowWarning, ['6.1']));
+  end;
 end;
 
 procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
@@ -3887,6 +3891,9 @@ begin
     ssOnlyBelowVersion: begin
         if not StrToSetupVersionData(Value, SetupHeader.OnlyBelowVersion) then
           Invalid;
+        if (SetupHeader.OnlyBelowVersion.NTVersion <> 0) and
+           (SetupHeader.OnlyBelowVersion.NTVersion <= $06010000) then
+          AbortCompileOnLineFmt(SCompilerOnlyBelowVersionNTTooLow, ['6.1']);
       end;
     ssOutput: begin
         if not FixedOutput then

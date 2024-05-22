@@ -190,7 +190,8 @@ const
   SCompilerEntryAlreadySpecified = '[%s] section directive "%s" already specified';
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
   SCompilerMinVersionWinMustBeZero = 'Minimum non NT version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
-  SCompilerMinVersionNTTooLow = 'Minimum version specified by MinVersion must be at least %s. (Windows Vista/Server 2008 are no longer supported.)';
+  SCompilerMinVersionNTTooLow = 'Minimum version specified by MinVersion must be at least %s otherwise Setup will never run. (Windows Vista/Server 2008 are no longer supported.)';
+  SCompilerOnlyBelowVersionNTTooLow = 'Minimum version specified by OnlyBelowVersion must be higher than %s if not 0 otherwise Setup will never run. (Windows Vista/Server 2008 are no longer supported.)';
   SCompilerMinVersionRecommendation = 'Minimum version is set to %s but using %s instead (which is the default) is recommended.';
   SCompilerDiskSliceSizeInvalid = 'DiskSliceSize must be between %d and %d, or "max"';
   SCompilerDiskClusterSizeInvalid = 'DiskClusterSize must be between 1 and 32768';
@@ -269,6 +270,7 @@ const
   SCompilerUsedUserAreasWarning = 'The [%s] section directive "%s" is set to "%s" but per-user areas (%s) are used by the script. ' +
     'Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: such changes may not achieve what you are intending. ' +
     'See the "UsedUserAreasWarning" topic in help file for more information.';
+  SCompilerOnlyBelowVersionParameterNTTooLowWarning = 'Minimum version specified by the OnlyBelowVersion parameter of an entry should be higher than %s if not 0 otherwise the entry is never processed. The entry should probably be removed. (Windows Vista/Server 2008 are no longer supported.)';
 
   { Directive parsing }
   SCompilerDirectiveNameMissing = 'Missing directive name';
