@@ -557,6 +557,7 @@ begin
   begin
     RegisterProperty('AbortButton', 'TNewButton', iptr);
     RegisterProperty('AbortedByUser', 'Boolean', iptr);
+    RegisterProperty('ShowBaseNameInsteadOfUrl', 'Boolean', iptrw);
     RegisterMethod('procedure Add(const Url, BaseName, RequiredSHA256OfFile: String)');
     RegisterMethod('procedure AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String)');
     RegisterMethod('procedure Clear');

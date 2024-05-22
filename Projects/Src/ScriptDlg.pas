@@ -175,6 +175,7 @@ type
     private
       FFiles: TObjectList;
       FOnDownloadProgress: TOnDownloadProgress;
+      FShowBaseNameInsteadOfUrl: Boolean;
       FAbortButton: TNewButton;
       FShowProgressControlsOnNextProgress, FAbortedByUser: Boolean;
       procedure AbortButtonClick(Sender: TObject);
@@ -184,7 +185,6 @@ type
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
       procedure Initialize; override;
-      property AbortedByUser: Boolean read FAbortedByUser;
       procedure Add(const Url, BaseName, RequiredSHA256OfFile: String);
       procedure AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);
       procedure Clear;
@@ -193,11 +193,14 @@ type
       procedure Show; override;
     published
       property AbortButton: TNewButton read FAbortButton;
+      property AbortedByUser: Boolean read FAbortedByUser;
+      property ShowBaseNameInsteadOfUrl: Boolean read FShowBaseNameInsteadOfUrl write FShowBaseNameInsteadOfUrl;
   end;
   
 implementation
 
 uses
+  StrUtils,
   Struct, Main, SelFolderForm, Msgs, MsgIDs, PathFunc, CmnFunc, CmnFunc2,
   BrowseFunc, Logging, InstFunc;
 
@@ -938,7 +941,7 @@ begin
     else
       Log(Format('  %d bytes done.', [Progress]));
 
-    FMsg2Label.Caption := Url;
+    FMsg2Label.Caption := IfThen(FShowBaseNameInsteadOfUrl, BaseName, Url);
     if ProgressMax > MaxLongInt then begin
       Progress32 := Round((Progress / ProgressMax) * MaxLongInt);
       ProgressMax32 := MaxLongInt;

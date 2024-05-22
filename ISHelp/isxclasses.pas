@@ -764,6 +764,7 @@ TDownloadWizardPage = class(TOutputProgressWizardPage)
   procedure AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);
   procedure Clear;
   function Download: Int64;
+  property ShowBaseNameInsteadOfUrl: Boolean; read write;
 end;
 
 TUIStateForm = class(TForm)

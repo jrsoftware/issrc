@@ -331,13 +331,10 @@ begin
   end;
 end;
 
-procedure TDownloadPageAbortedByUser_R(Self: TDownloadWizardPage; var T: Boolean); begin T := Self.AbortedByUser; end;
-
 procedure RegisterDownloadWizardPage_R(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(TDownloadWizardPage) do
   begin
-    RegisterPropertyHelper(@TDownloadPageAbortedByUser_R,nil,'AbortedByUser');
     RegisterMethod(@TDownloadWizardPage.Add, 'Add');
     RegisterMethod(@TDownloadWizardPage.AddEx, 'AddEx');
     RegisterMethod(@TDownloadWizardPage.Clear, 'Clear');

@@ -38,6 +38,7 @@ end;
 procedure InitializeWizard;
 begin
   DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnDownloadProgress);
+  DownloadPage.ShowBaseNameInsteadOfUrl := True;
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;

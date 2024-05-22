@@ -2570,6 +2570,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To add a new file to download, call the <tt>Add</tt> method. Always call the <tt>Clear</tt> method before adding the first file.</p>
 <p>To start the download, call the <tt>Download</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Download</tt> returns the number of bytes downloaded.</p>
+<p>Set the <tt>ShowBaseNameInsteadOfUrl</tt> property to <tt>True</tt> to show the base name of the file which is being downloaded to the user instead of the URL.</p>
 <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p></remarks>
         <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link><br />
