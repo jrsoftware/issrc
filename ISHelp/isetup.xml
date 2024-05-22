@@ -4366,8 +4366,10 @@ DisableReadyPage=yes
 [Code]
 procedure CurPageChanged(CurPageID: Integer);
 begin
-  if CurPageID = wpSelectProgramGroup then
+  if CurPageID in [wpSelectProgramGroup, wpReady] then
     WizardForm.NextButton.Caption := SetupMessage(msgButtonInstall)
+  else if CurPageID = wpFinished then
+    WizardForm.NextButton.Caption := SetupMessage(msgButtonFinish)
   else
     WizardForm.NextButton.Caption := SetupMessage(msgButtonNext);
 end;</pre></example>
