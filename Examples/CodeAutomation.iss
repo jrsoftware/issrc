@@ -293,7 +293,7 @@ begin
     Exit;
   
   { Download the Zip file }
-  DownloadTemporaryFile(ZipURL, ZipFileName, ZipSHA256, nil);
+  DownloadTemporaryFile(ZipURL + '?dontcount=1', ZipFileName, ZipSHA256, nil);
   ZipPath := ExpandConstant('{tmp}\' + ZipFileName);
 
   MsgBox('Downloaded the Zip file and saved it as ''' + ZipPath + '''.', mbInformation, mb_Ok);
