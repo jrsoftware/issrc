@@ -37,10 +37,11 @@ type
 
   TCreateProcessOutputReader = class
   private
-    FCreatedPipe: Boolean;
+    FCreatedHandles: Boolean;
     FOKToRead: Boolean;
     FMaxTotalBytesToRead: Cardinal;
     FTotalBytesRead: Cardinal;
+    FStdInNulDevice: THandle;
     FStdOutPipeRead: THandle;
     FStdOutPipeWrite: THandle;
     FLogProc: TLogProc;
@@ -1611,13 +1612,27 @@ begin
   SecurityAttributes.bInheritHandle := True;
   SecurityAttributes.lpSecurityDescriptor := nil;
 
-  FCreatedPipe := CreatePipe(FStdOutPipeRead, FStdOutPipeWrite, @SecurityAttributes, 0);
-  if not FCreatedPipe then
-    LogErrorFmt('CreatePipe failed (%d).', [GetLastError])
-  else if not SetHandleInformation(FStdOutPipeRead, HANDLE_FLAG_INHERIT, 0) then
-    LogErrorFmt('SetHandleInformation failed (%d).', [GetLastError]);
+  var NulDevice := CreateFile('\\.\NUL', GENERIC_READ,
+    FILE_SHARE_READ or FILE_SHARE_WRITE, @SecurityAttributes,
+    OPEN_EXISTING, 0, 0);
+  if NulDevice = INVALID_HANDLE_VALUE then
+    LogErrorFmt('CreateFile failed (%d).', [GetLastError])
+  else
+    FStdInNulDevice := NulDevice;
 
-  FOKToRead := FCreatedPipe;
+  var PipeRead, PipeWrite: THandle;
+  if not CreatePipe(PipeRead, PipeWrite, @SecurityAttributes, 0) then
+    LogErrorFmt('CreatePipe failed (%d).', [GetLastError])
+  else begin
+    FStdOutPipeRead := PipeRead;
+    FStdOutPipeWrite := PipeWrite;
+    if not SetHandleInformation(FStdOutPipeRead, HANDLE_FLAG_INHERIT, 0) then
+      LogErrorFmt('SetHandleInformation failed (%d).', [GetLastError]);
+  end;
+
+  FCreatedHandles := (FStdInNulDevice <> 0) and (FStdOutPipeRead <> 0) and
+    (FStdOutPipeWrite <> 0);
+  FOKToRead := FCreatedHandles;
   FMaxTotalBytesToRead := 10*1024*1024;
 end;
 
@@ -1625,6 +1640,7 @@ destructor TCreateProcessOutputReader.Destroy;
 begin
   CloseAndClearHandle(FStdOutPipeRead);
   CloseAndClearHandle(FStdOutPipeWrite);
+  CloseAndClearHandle(FStdInNulDevice);
   inherited;
 end;
 
@@ -1644,9 +1660,9 @@ end;
 procedure TCreateProcessOutputReader.UpdateStartupInfo(var StartupInfo: TStartupInfo;
   var InheritHandles: Boolean);
 begin
-  if FCreatedPipe then begin
+  if FCreatedHandles then begin
     StartupInfo.dwFlags := StartupInfo.dwFlags or STARTF_USESTDHANDLES;
-    StartupInfo.hStdInput := GetStdHandle(STD_INPUT_HANDLE);
+    StartupInfo.hStdInput := FStdInNulDevice;
     StartupInfo.hStdOutput := FStdOutPipeWrite;
     StartupInfo.hStdError := FStdOutPipeWrite;
     InheritHandles := True;
@@ -1657,6 +1673,7 @@ end;
 procedure TCreateProcessOutputReader.NotifyCreateProcessDone;
 begin
   CloseAndClearHandle(FStdOutPipeWrite);
+  CloseAndClearHandle(FStdInNulDevice);
 end;
 
 procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
