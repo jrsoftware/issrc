@@ -2760,7 +2760,7 @@ begin
     end;
   end
   else if (Key = VK_LEFT) and not (ssCtrl in Shift) and FOptions.CursorPastEOL then begin
-    if FActiveMemo.CaretColumn = 0 then
+    if (FActiveMemo.CaretColumn = 0) and (FActiveMemo.CaretVirtualSpace = 0) then
       Key := 0;
   end
   else if ((Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt])) and
