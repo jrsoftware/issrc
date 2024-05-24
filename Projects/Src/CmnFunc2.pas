@@ -1693,7 +1693,7 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
 
   procedure LogLine(const S: AnsiString);
   begin
-    FLogProc(Utf8Decode(S), False, FNextLineIsFirstLine, FLogProcData);
+    FLogProc(UTF8ToString(S), False, FNextLineIsFirstLine, FLogProcData);
     FNextLineIsFirstLine := False;
   end;
 

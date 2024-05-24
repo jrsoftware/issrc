@@ -1224,7 +1224,7 @@ begin
   end else if Proc.Name = 'UTF8ENCODE' then begin
     StackSetAnsiString(Stack, PStart, Utf8Encode(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'UTF8DECODE' then begin
-    Stack.SetString(PStart, Utf8Decode(StackGetAnsiString(Stack, PStart-1)));
+    Stack.SetString(PStart, UTF8ToString(StackGetAnsiString(Stack, PStart-1)));
   end else
     Result := False;
 end;
