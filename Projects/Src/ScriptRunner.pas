@@ -209,7 +209,7 @@ var
   S, DllName, FunctionName: AnsiString;
   UnicodeDllName: String;
   I: Integer;
-  ForceDelayLoad, DelayLoad: Boolean;
+  ForceDelayLoad: Boolean;
   ErrorCode: LongInt;
 begin
   ScriptRunner := Sender.ID;
@@ -257,11 +257,12 @@ begin
   end else
     ScriptRunner.Log('Skipping.'); { We're actually still going to call ProcessDllImport but this doesn't matter to the user. }
 
-  Result := ProcessDllImportEx2(Sender, p, ForceDelayLoad, DelayLoad, ErrorCode);
+  var DelayLoaded: Boolean;
+  Result := ProcessDllImportEx2(Sender, p, ForceDelayLoad, DelayLoaded, ErrorCode);
 
   if DllName <> '' then begin
     if Result then
-      ScriptRunner.LogFmt('Successfully imported the DLL function. Delay loaded? %s', [SYesNo[DelayLoad]])
+      ScriptRunner.LogFmt('Successfully imported the DLL function. Delay loaded? %s', [SYesNo[DelayLoaded]])
     else
       ScriptRunner.LogFmt('Failed to import the DLL function (%d).', [ErrorCode]);
   end;

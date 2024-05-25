@@ -1449,7 +1449,7 @@ end;
 
 procedure CreateTempInstallDir;
 { Initializes TempInstallDir and extracts the 64-bit helper into it if needed.
-  This is called by Setup, Uninstall, and RegSvr. }
+  This is called by Setup and Uninstall. }
 var
   Subdir, ResName, Filename: String;
   ErrorCode: DWORD;

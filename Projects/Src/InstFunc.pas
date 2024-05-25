@@ -262,7 +262,7 @@ end;
 
 function GenerateNonRandomUniqueTempDir(Path: String; var TempDir: String): Boolean;
 { Creates a new temporary directory with a non-random name. Returns True if an
-  existing directory was re-created. }
+  existing directory was re-created. This is called by Uninstall. }
 var
   Rand, RandOrig: Longint; { These are actually NOT random in any way }
   ErrorCode: DWORD;
@@ -296,6 +296,7 @@ begin
 end;
 
 function CreateTempDir: String;
+{ This is called by SetupLdr, Setup, and Uninstall. }
 var
   Dir: String;
   ErrorCode: DWORD;
