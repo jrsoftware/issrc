@@ -1454,7 +1454,7 @@ var
   Subdir, ResName, Filename: String;
   ErrorCode: DWORD;
 begin
-  TempInstallDir := CreateTempDir;
+  TempInstallDir := CreateTempDir(IsAdmin and not Debugging);
   Log('Created temporary directory: ' + TempInstallDir);
   if Debugging then
     DebugNotifyTempDir(TempInstallDir);

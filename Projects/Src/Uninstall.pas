@@ -375,7 +375,7 @@ begin
     _iu14D2N.tmp. The actual uninstallation process must be done from
     somewhere outside the application directory since EXE's can't delete
     themselves while they are running. }
-  TempDirExisted := GenerateNonRandomUniqueTempDir(GetTempDir, TempDir);
+  TempDirExisted := GenerateNonRandomUniqueTempDir(IsAdmin, GetTempDir, TempDir);
   TempFile := AddBackslash(TempDir) + '_unins.tmp';
   if not TempDirExisted then
     try
