@@ -207,7 +207,7 @@ begin
     // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
     // P: prevents DACL from being modified by inherited ACLs
     'D:P';
-  if IsUnderWindowsTemp then begin
+  if not IsAdminAndNotDebugging then begin
     CurrentUserSid := GetCurrentUserSid;
     if CurrentUserSid = '' then
       CurrentUserSid := 'OW'; // OW: owner rights
