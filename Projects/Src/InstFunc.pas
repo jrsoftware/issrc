@@ -194,7 +194,7 @@ begin
   var Drive := PathExtractDrive(Path);
   var IsAdminAndIsLocalTemp := AllowOnlyPrivilegedAccess and (Drive <> '') and
     not PathCharIsSlash(Drive[1]) and
-    (GetDriveType(PChar(AddBackslash(Drive))) <> DRIVE_NETWORK);
+    (GetDriveType(PChar(AddBackslash(Drive))) <> DRIVE_REMOTE);
 
   if not IsUnderWindowsTemp and not IsAdminAndIsLocalTemp then begin
     Result := CreateDirectory(PChar(Path), nil);
