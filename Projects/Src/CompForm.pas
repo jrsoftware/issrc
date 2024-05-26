@@ -2718,7 +2718,7 @@ var
 begin
   Dir := GetWinDir;
   ShellExecute(Application.Handle, 'open', PChar(AddBackslash(Dir) + 'explorer.exe'),
-    PChar(Format('/select,"%s"', [FCompiledExe])), PChar(Dir), SW_SHOW);
+    PChar(Format('/select,"%s"', [FCompiledExe])), PChar(Dir), SW_SHOWNORMAL);
 end;
 
 procedure TCompileForm.HMenuClick(Sender: TObject);
@@ -2794,25 +2794,25 @@ end;
 procedure TCompileForm.HExamplesClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open',
-    PChar(PathExtractPath(NewParamStr(0)) + 'Examples'), nil, nil, SW_SHOW);
+    PChar(PathExtractPath(NewParamStr(0)) + 'Examples'), nil, nil, SW_SHOWNORMAL);
 end;
 
 procedure TCompileForm.HFaqClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open',
-    PChar(PathExtractPath(NewParamStr(0)) + 'isfaq.url'), nil, nil, SW_SHOW);
+    PChar(PathExtractPath(NewParamStr(0)) + 'isfaq.url'), nil, nil, SW_SHOWNORMAL);
 end;
 
 procedure TCompileForm.HWhatsNewClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open',
-    PChar(PathExtractPath(NewParamStr(0)) + 'whatsnew.htm'), nil, nil, SW_SHOW);
+    PChar(PathExtractPath(NewParamStr(0)) + 'whatsnew.htm'), nil, nil, SW_SHOWNORMAL);
 end;
 
 procedure TCompileForm.HWebsiteClick(Sender: TObject);
 begin
   ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/isinfo.php', nil,
-    nil, SW_SHOW);
+    nil, SW_SHOWNORMAL);
 end;
 
 procedure TCompileForm.HMailingListClick(Sender: TObject);

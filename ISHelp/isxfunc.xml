@@ -1610,7 +1610,7 @@ begin
     // directory is launched.
     OldState := EnableFsRedirection(False);
     try
-      Exec(ExpandConstant('{cmd}'), '', '', SW_SHOW,
+      Exec(ExpandConstant('{cmd}'), '', '', SW_SHOWNORMAL,
         ewWaitUntilTerminated, ResultCode);
     finally
       // Restore the previous redirection state.
@@ -1642,7 +1642,7 @@ end;</pre></example>
   ResultCode: Integer;
 begin
   // Launch Notepad and wait for it to terminate
-  if Exec(ExpandConstant('{win}\notepad.exe'), '', '', SW_SHOW,
+  if Exec(ExpandConstant('{win}\notepad.exe'), '', '', SW_SHOWNORMAL,
      ewWaitUntilTerminated, ResultCode) then
   begin
     // handle success if necessary; ResultCode contains the exit code
@@ -1673,7 +1673,7 @@ end;</pre></example>
   ErrorCode: Integer;
 begin
   if not ShellExec('', ExpandConstant('{app}\filename.rtf'),
-     '', '', SW_SHOW, ewNoWait, ErrorCode) then
+     '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode) then
   begin
     // handle failure if necessary
   end;
@@ -2872,7 +2872,7 @@ end;</pre></example>
         <name>ExecAndLogOutput</name>
         <prototype>function ExecAndLogOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; const OnLog: TOnLog): Boolean;</prototype>
         <description><p>Identical to <link topic="isxfunc_Exec">Exec</link> except:</p>
-<p>Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOW</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
+<p>Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
 <p>If OnLog is set to <tt>nil</tt> then the output of the executed executable or batch file is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p>
 <p>If OnLog is not set to <tt>nil</tt> then the output is sent to the specified function, line by line.</p></description>
         <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
@@ -2893,7 +2893,7 @@ end;
 function ExecAndGetFirstLine(const Filename, Params, WorkingDir: String; var ResultCode: Integer): String;
 begin
   Line := '';
-  ExecAndLogOutput(Filename, Params, WorkingDir, SW_SHOW, ewWaitUntilTerminated, ResultCode, @ExecAndGetFirstLineLog);
+  ExecAndLogOutput(Filename, Params, WorkingDir, SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, @ExecAndGetFirstLineLog);
   Result := Line;
 end;</pre></example>
         <seealso><p><link topic="isxfunc_Exec">Exec</link></p></seealso>
