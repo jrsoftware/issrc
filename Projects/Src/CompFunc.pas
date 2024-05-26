@@ -275,13 +275,13 @@ end;
 procedure OpenDonateSite;
 begin
   ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/isdonate.php', nil,
-    nil, SW_SHOW);
+    nil, SW_SHOWNORMAL);
 end;
 
 procedure OpenMailingListSite;
 begin
   ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/ismail.php', nil,
-    nil, SW_SHOW);
+    nil, SW_SHOWNORMAL);
 end;
 
 procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);

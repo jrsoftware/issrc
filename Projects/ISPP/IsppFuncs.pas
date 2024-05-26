@@ -801,7 +801,7 @@ begin
       Data.Line := '';
       var ResultCode: Integer;
       var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, True,
-        SW_SHOW, Data.Preprocessor, True, ExecAndGetFirstLineLog, NativeInt(@Data), ResultCode);
+        SW_SHOWNORMAL, Data.Preprocessor, True, ExecAndGetFirstLineLog, NativeInt(@Data), ResultCode);
       if Success then
         MakeStr(ResPtr^, Data.Line)
       else begin

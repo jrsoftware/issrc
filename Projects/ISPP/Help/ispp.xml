@@ -823,7 +823,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>The Params parameter may be used to specify parameters for the process.</p>
 					<p>The WorkingDir parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process.</p>
 					<p>The Wait parameter may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero value is assumed.</p>
-					<p>The ShowCmd parameter may be any of the <tt>SW_*</tt> constants defined in &builtins;. For GUI processes, it specifies the default value the first time ShowWindow is called. By default, SW_SHOWNORMAL (i. e. 1) is assumed.</p>
+					<p>The ShowCmd parameter may be any of the <tt>SW_*</tt> constants defined in &builtins;. Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> (the default) instead of <tt>SW_HIDE</tt> is recommended.</p>
 					<p>If the Wait parameter is omitted or is non-zero, the function returns the exit code of the process. Otherwise, the function result indicates whether the process has been successfully launched (non-zero for success).</p>
           <p><i>Note: compared to Pascal Scripting's Exec the Wait and ShowCmd parameters are swapped!</i></p>
 				</description>

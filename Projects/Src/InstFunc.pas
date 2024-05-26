@@ -278,7 +278,9 @@ end;
 function GenerateNonRandomUniqueTempDir(const AllowOnlyPrivilegedAccess: Boolean;
   Path: String; var TempDir: String): Boolean;
 { Creates a new temporary directory with a non-random name. Returns True if an
-  existing directory was re-created. This is called by Uninstall. }
+  existing directory was re-created. This is called by Uninstall. A non-random
+  name is used because the uninstaller EXE isn't able to delete itself; if it were
+  random, there would be one directory added each time an uninstaller is run. }
 var
   Rand, RandOrig: Longint; { These are actually NOT random in any way }
   ErrorCode: DWORD;
@@ -295,7 +297,7 @@ begin
         but check "just in case"... }
       raise Exception.Create(FmtSetupMessage1(msgErrorTooManyFilesInDir,
         RemoveBackslashUnlessRoot(Path)));
-    { Generate a random name }
+    { Generate a "random" name }
     TempDir := Path + 'iu-' + IntToBase32(Rand) + '.tmp';
     if DirExists(TempDir) then begin
       if not DeleteDirTree(TempDir) then Continue;
