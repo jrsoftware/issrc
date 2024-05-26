@@ -49,7 +49,7 @@ type
 
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
-function CreateTempDir(const IsAdminAndNotDebugging: Boolean): String;
+function CreateTempDir(const AllowOnlyPrivilegedAccess: Boolean): String;
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Integer);
@@ -62,7 +62,7 @@ function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryP
   var ResultIndex: Integer): TDetermineDefaultLanguageResult;
 procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesProc;
   Param: Pointer);
-function GenerateNonRandomUniqueTempDir(const IsAdminAndNotDebugging: Boolean;
+function GenerateNonRandomUniqueTempDir(const AllowOnlyPrivilegedAccess: Boolean;
   Path: String; var TempDir: String): Boolean;
 function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
   const Extension: String): String;
@@ -174,7 +174,7 @@ function ConvertStringSecurityDescriptorToSecurityDescriptorW(
   StringSDRevision: DWORD; var ppSecurityDescriptor: Pointer;
   dummy: Pointer): BOOL; stdcall; external advapi32;
 
-function CreateSafeDirectory(const IsAdminAndNotDebugging: Boolean; Path: String;
+function CreateSafeDirectory(const AllowOnlyPrivilegedAccess: Boolean; Path: String;
   var ErrorCode: DWORD): Boolean;
 { Creates a protected directory if
   -it's a subdirectory of c:\WINDOWS\TEMP, or
@@ -192,7 +192,7 @@ begin
   var IsUnderWindowsTemp := Pos(PathLowercase(AddBackslash(GetSystemWinDir) + 'TEMP\'),
     PathLowercase(Path)) = 1;
   var Drive := PathExtractDrive(Path);
-  var IsAdminAndIsLocalTemp := IsAdminAndNotDebugging and (Drive <> '') and
+  var IsAdminAndIsLocalTemp := AllowOnlyPrivilegedAccess and (Drive <> '') and
     not PathCharIsSlash(Drive[1]) and
     (GetDriveType(PChar(AddBackslash(Drive))) <> DRIVE_NETWORK);
 
@@ -207,7 +207,7 @@ begin
     // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
     // P: prevents DACL from being modified by inherited ACLs
     'D:P';
-  if not IsAdminAndNotDebugging then begin
+  if not AllowOnlyPrivilegedAccess then begin
     CurrentUserSid := GetCurrentUserSid;
     if CurrentUserSid = '' then
       CurrentUserSid := 'OW'; // OW: owner rights
@@ -277,7 +277,7 @@ begin
   Result := Filename;
 end;
 
-function GenerateNonRandomUniqueTempDir(const IsAdminAndNotDebugging: Boolean;
+function GenerateNonRandomUniqueTempDir(const AllowOnlyPrivilegedAccess: Boolean;
   Path: String; var TempDir: String): Boolean;
 { Creates a new temporary directory with a non-random name. Returns True if an
   existing directory was re-created. This is called by Uninstall. }
@@ -305,7 +305,7 @@ begin
     end else if NewFileExists(TempDir) then
       if not DeleteFile(TempDir) then Continue;
 
-    if CreateSafeDirectory(IsAdminAndNotDebugging, TempDir, ErrorCode) then Break;
+    if CreateSafeDirectory(AllowOnlyPrivilegedAccess, TempDir, ErrorCode) then Break;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
         [FmtSetupMessage1(msgErrorCreatingDir, TempDir), IntToStr(ErrorCode),
@@ -313,7 +313,7 @@ begin
   until False; // continue until a new directory was created
 end;
 
-function CreateTempDir(const IsAdminAndNotDebugging: Boolean): String;
+function CreateTempDir(const AllowOnlyPrivilegedAccess: Boolean): String;
 { This is called by SetupLdr, Setup, and Uninstall. }
 var
   Dir: String;
@@ -321,7 +321,7 @@ var
 begin
   while True do begin
     Dir := GenerateUniqueName(False, GetTempDir, '.tmp');
-    if CreateSafeDirectory(IsAdminAndNotDebugging, Dir, ErrorCode) then
+    if CreateSafeDirectory(AllowOnlyPrivilegedAccess, Dir, ErrorCode) then
       Break;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
