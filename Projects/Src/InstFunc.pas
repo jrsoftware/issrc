@@ -178,67 +178,65 @@ function CreateSafeDirectory(const AllowOnlyPrivilegedAccess: Boolean; Path: Str
   var ErrorCode: DWORD): Boolean;
 { Creates a protected directory if
   -it's a subdirectory of c:\WINDOWS\TEMP, or
-  -it's on a local drive, we have administrative privileges, and debugging is not active,
+  -it's on a local drive and only priviliged acces is allowed (latter is true atm if elevated and not debugging)
   otherwise creates a normal directory. }
 const
   SDDL_REVISION_1 = 1;
-var
-  CurrentUserSid, StringSecurityDescriptor: String;
-  pSecurityDescriptor: Pointer;
-  SecurityAttr: TSecurityAttributes;
 begin
   Path := PathExpand(Path);
 
   var IsUnderWindowsTemp := Pos(PathLowercase(AddBackslash(GetSystemWinDir) + 'TEMP\'),
     PathLowercase(Path)) = 1;
   var Drive := PathExtractDrive(Path);
-  var IsAdminAndIsLocalTemp := AllowOnlyPrivilegedAccess and (Drive <> '') and
+  var IsLocalTempToProtect := AllowOnlyPrivilegedAccess and (Drive <> '') and
     not PathCharIsSlash(Drive[1]) and
     (GetDriveType(PChar(AddBackslash(Drive))) <> DRIVE_REMOTE);
 
-  if not IsUnderWindowsTemp and not IsAdminAndIsLocalTemp then begin
+  if IsUnderWindowsTemp or IsLocalTempToProtect then begin
+    var StringSecurityDescriptor :=
+      // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
+      // P: prevents DACL from being modified by inherited ACLs
+      'D:P';
+    if not AllowOnlyPrivilegedAccess then begin
+      var CurrentUserSid := GetCurrentUserSid;
+      if CurrentUserSid = '' then
+        CurrentUserSid := 'OW'; // OW: owner rights
+      // A: "allow"
+      // OICI: "object and container inherit",
+      //    i.e. files and directories created within the new directory
+      //    inherit these permissions
+      // 0x001F01FF: corresponds to `FILE_ALL_ACCESS`
+      StringSecurityDescriptor := StringSecurityDescriptor +
+        '(A;OICI;0x001F01FF;;;' + CurrentUserSid + ')'; // current user
+    end;
+    StringSecurityDescriptor := StringSecurityDescriptor +
+      '(A;OICI;0x001F01FF;;;BA)' + // BA: built-in administrator
+      '(A;OICI;0x001F01FF;;;SY)'; // SY: local SYSTEM account
+
+    var pSecurityDescriptor: Pointer;
+    if not ConvertStringSecurityDescriptorToSecurityDescriptorW(
+      PWideChar(StringSecurityDescriptor), SDDL_REVISION_1, pSecurityDescriptor, nil
+    ) then begin
+      ErrorCode := GetLastError;
+      Result := False;
+      Exit;
+    end;
+
+    var SecurityAttr: TSecurityAttributes;
+    SecurityAttr.nLength := SizeOf(SecurityAttr);
+    SecurityAttr.bInheritHandle := False;
+    SecurityAttr.lpSecurityDescriptor := pSecurityDescriptor;
+
+    Result := CreateDirectory(PChar(Path), @SecurityAttr);
+    if not Result then
+      ErrorCode := GetLastError;
+
+    LocalFree(pSecurityDescriptor);
+  end else begin
     Result := CreateDirectory(PChar(Path), nil);
     if not Result then
       ErrorCode := GetLastError;
-    Exit;
   end;
-
-  StringSecurityDescriptor :=
-    // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
-    // P: prevents DACL from being modified by inherited ACLs
-    'D:P';
-  if not AllowOnlyPrivilegedAccess then begin
-    CurrentUserSid := GetCurrentUserSid;
-    if CurrentUserSid = '' then
-      CurrentUserSid := 'OW'; // OW: owner rights
-    // A: "allow"
-    // OICI: "object and container inherit",
-    //    i.e. files and directories created within the new directory
-    //    inherit these permissions
-    // 0x001F01FF: corresponds to `FILE_ALL_ACCESS`
-    StringSecurityDescriptor := StringSecurityDescriptor +
-      '(A;OICI;0x001F01FF;;;' + CurrentUserSid + ')'; // current user
-  end;
-  StringSecurityDescriptor := StringSecurityDescriptor +
-    '(A;OICI;0x001F01FF;;;BA)' + // BA: built-in administrator
-    '(A;OICI;0x001F01FF;;;SY)'; // SY: local SYSTEM account
-  if not ConvertStringSecurityDescriptorToSecurityDescriptorW(
-    PWideChar(StringSecurityDescriptor), SDDL_REVISION_1, pSecurityDescriptor, nil
-  ) then begin
-    ErrorCode := GetLastError;
-    Result := False;
-    Exit;
-  end;
-
-  SecurityAttr.nLength := SizeOf(SecurityAttr);
-  SecurityAttr.bInheritHandle := False;
-  SecurityAttr.lpSecurityDescriptor := pSecurityDescriptor;
-
-  Result := CreateDirectory(PChar(Path), @SecurityAttr);
-  if not Result then
-    ErrorCode := GetLastError;
-
-  LocalFree(pSecurityDescriptor);
 end;
 
 function IntToBase32(Number: Longint): String;
