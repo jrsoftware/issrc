@@ -174,7 +174,7 @@ function ConvertStringSecurityDescriptorToSecurityDescriptorW(
   StringSDRevision: DWORD; var ppSecurityDescriptor: Pointer;
   dummy: Pointer): BOOL; stdcall; external advapi32;
 
-function CreateSafeDirectory(const IsAdminAndNotDebugging: Boolean; Path: PWideChar;
+function CreateSafeDirectory(const IsAdminAndNotDebugging: Boolean; Path: String;
   var ErrorCode: DWORD): Boolean;
 { Creates a protected directory if
   -it's a subdirectory of c:\WINDOWS\TEMP, or
@@ -187,15 +187,17 @@ var
   pSecurityDescriptor: Pointer;
   SecurityAttr: TSecurityAttributes;
 begin
+  Path := PathExpand(Path);
+
   var IsUnderWindowsTemp := Pos(PathLowercase(AddBackslash(GetSystemWinDir) + 'TEMP\'),
-    PathLowercase(PathExpand(Path))) = 1;
+    PathLowercase(Path)) = 1;
   var Drive := PathExtractDrive(Path);
   var IsAdminAndIsLocalTemp := IsAdminAndNotDebugging and (Drive <> '') and
     not PathCharIsSlash(Drive[1]) and
     (GetDriveType(PChar(AddBackslash(Drive))) = DRIVE_FIXED);
 
   if not IsUnderWindowsTemp and not IsAdminAndIsLocalTemp then begin
-    Result := CreateDirectoryW(Path, nil);
+    Result := CreateDirectory(PChar(Path), nil);
     if not Result then
       ErrorCode := GetLastError;
     Exit;
@@ -232,7 +234,7 @@ begin
   SecurityAttr.bInheritHandle := False;
   SecurityAttr.lpSecurityDescriptor := pSecurityDescriptor;
 
-  Result := CreateDirectoryW(Path, @SecurityAttr);
+  Result := CreateDirectory(PChar(Path), @SecurityAttr);
   if not Result then
     ErrorCode := GetLastError;
 
@@ -303,7 +305,7 @@ begin
     end else if NewFileExists(TempDir) then
       if not DeleteFile(TempDir) then Continue;
 
-    if CreateSafeDirectory(IsAdminAndNotDebugging, PChar(TempDir), ErrorCode) then Break;
+    if CreateSafeDirectory(IsAdminAndNotDebugging, TempDir, ErrorCode) then Break;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
         [FmtSetupMessage1(msgErrorCreatingDir, TempDir), IntToStr(ErrorCode),
@@ -319,7 +321,7 @@ var
 begin
   while True do begin
     Dir := GenerateUniqueName(False, GetTempDir, '.tmp');
-    if CreateSafeDirectory(IsAdminAndNotDebugging, PChar(Dir), ErrorCode) then
+    if CreateSafeDirectory(IsAdminAndNotDebugging, Dir, ErrorCode) then
       Break;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
