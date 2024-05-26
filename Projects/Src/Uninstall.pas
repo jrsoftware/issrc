@@ -565,7 +565,7 @@ begin
       Initialize64BitInstallMode(False);
 
     { Create temporary directory and extract 64-bit helper EXE if necessary }
-    CreateTempInstallDir;
+    CreateTempInstallDirAndExtract64BitHelper;
 
     if CompiledCodeText <> '' then begin
       { Setup some global variables which are accessible to [Code] }
