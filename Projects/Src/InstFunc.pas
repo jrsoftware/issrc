@@ -49,7 +49,7 @@ type
 
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
-function CreateTempDir(const AllowOnlyPrivilegedAccess: Boolean): String;
+function CreateTempDir(const LimitCurrentUserSidAccess: Boolean): String;
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Integer);
@@ -62,7 +62,7 @@ function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryP
   var ResultIndex: Integer): TDetermineDefaultLanguageResult;
 procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesProc;
   Param: Pointer);
-function GenerateNonRandomUniqueTempDir(const AllowOnlyPrivilegedAccess: Boolean;
+function GenerateNonRandomUniqueTempDir(const LimitCurrentUserSidAccess: Boolean;
   Path: String; var TempDir: String): Boolean;
 function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
   const Extension: String): String;
@@ -174,11 +174,11 @@ function ConvertStringSecurityDescriptorToSecurityDescriptorW(
   StringSDRevision: DWORD; var ppSecurityDescriptor: Pointer;
   dummy: Pointer): BOOL; stdcall; external advapi32;
 
-function CreateSafeDirectory(const AllowOnlyPrivilegedAccess: Boolean; Path: String;
+function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
   var ErrorCode: DWORD): Boolean;
 { Creates a protected directory if
   -it's a subdirectory of c:\WINDOWS\TEMP, or
-  -it's on a local drive and only priviliged acces is allowed (latter is true atm if elevated and not debugging)
+  -it's on a local drive and LimitCurrentUserSidAccess is True (latter is true atm if elevated and not debugging)
   otherwise creates a normal directory. }
 const
   SDDL_REVISION_1 = 1;
@@ -188,7 +188,7 @@ begin
   var IsUnderWindowsTemp := Pos(PathLowercase(AddBackslash(GetSystemWinDir) + 'TEMP\'),
     PathLowercase(Path)) = 1;
   var Drive := PathExtractDrive(Path);
-  var IsLocalTempToProtect := AllowOnlyPrivilegedAccess and (Drive <> '') and
+  var IsLocalTempToProtect := LimitCurrentUserSidAccess and (Drive <> '') and
     not PathCharIsSlash(Drive[1]) and
     (GetDriveType(PChar(AddBackslash(Drive))) <> DRIVE_REMOTE);
 
@@ -197,21 +197,25 @@ begin
       // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
       // P: prevents DACL from being modified by inherited ACLs
       'D:P';
-    if not AllowOnlyPrivilegedAccess then begin
-      var CurrentUserSid := GetCurrentUserSid;
-      if CurrentUserSid = '' then
-        CurrentUserSid := 'OW'; // OW: owner rights
+    var CurrentUserSid := GetCurrentUserSid;
+    if CurrentUserSid = '' then
+      CurrentUserSid := 'OW'; // OW: owner rights
+    { Omit the CurrentUserSid ACE if the current user is SYSTEM, because
+      there's already a fixed Full Control ACE for SYSTEM below }
+    if not SameText(CurrentUserSid, 'S-1-5-18') then begin
       // A: "allow"
       // OICI: "object and container inherit",
       //    i.e. files and directories created within the new directory
       //    inherit these permissions
-      // 0x001F01FF: corresponds to `FILE_ALL_ACCESS`
+      var AccessRights := 'FA'; // FILE_ALL_ACCESS (Full Control)
+      if LimitCurrentUserSidAccess then
+        AccessRights := 'FRFX'; // FILE_GENERIC_READ | FILE_GENERIC_EXECUTE
       StringSecurityDescriptor := StringSecurityDescriptor +
-        '(A;OICI;0x001F01FF;;;' + CurrentUserSid + ')'; // current user
+        '(A;OICI;' + AccessRights + ';;;' + CurrentUserSid + ')'; // current user
     end;
     StringSecurityDescriptor := StringSecurityDescriptor +
-      '(A;OICI;0x001F01FF;;;BA)' + // BA: built-in administrator
-      '(A;OICI;0x001F01FF;;;SY)'; // SY: local SYSTEM account
+      '(A;OICI;FA;;;BA)' + // BA: built-in Administrators group
+      '(A;OICI;FA;;;SY)'; // SY: local SYSTEM account
 
     var pSecurityDescriptor: Pointer;
     if not ConvertStringSecurityDescriptorToSecurityDescriptorW(
@@ -275,7 +279,7 @@ begin
   Result := Filename;
 end;
 
-function GenerateNonRandomUniqueTempDir(const AllowOnlyPrivilegedAccess: Boolean;
+function GenerateNonRandomUniqueTempDir(const LimitCurrentUserSidAccess: Boolean;
   Path: String; var TempDir: String): Boolean;
 { Creates a new temporary directory with a non-random name. Returns True if an
   existing directory was re-created. This is called by Uninstall. A non-random
@@ -305,7 +309,7 @@ begin
     end else if NewFileExists(TempDir) then
       if not DeleteFile(TempDir) then Continue;
 
-    if CreateSafeDirectory(AllowOnlyPrivilegedAccess, TempDir, ErrorCode) then Break;
+    if CreateSafeDirectory(LimitCurrentUserSidAccess, TempDir, ErrorCode) then Break;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
         [FmtSetupMessage1(msgErrorCreatingDir, TempDir), IntToStr(ErrorCode),
@@ -313,7 +317,7 @@ begin
   until False; // continue until a new directory was created
 end;
 
-function CreateTempDir(const AllowOnlyPrivilegedAccess: Boolean): String;
+function CreateTempDir(const LimitCurrentUserSidAccess: Boolean): String;
 { This is called by SetupLdr, Setup, and Uninstall. }
 var
   Dir: String;
@@ -321,7 +325,7 @@ var
 begin
   while True do begin
     Dir := GenerateUniqueName(False, GetTempDir, '.tmp');
-    if CreateSafeDirectory(AllowOnlyPrivilegedAccess, Dir, ErrorCode) then
+    if CreateSafeDirectory(LimitCurrentUserSidAccess, Dir, ErrorCode) then
       Break;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
