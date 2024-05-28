@@ -195,8 +195,10 @@ begin
   if IsUnderWindowsTemp or IsLocalTempToProtect then begin
     var StringSecurityDescriptor :=
       // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
-      // P: prevents DACL from being modified by inherited ACLs
-      'D:P';
+      // P: prevents DACL from being modified by inheritable ACEs
+      // AI: says automatic propagation of inheritable ACEs to child objects
+      //     is supported; always supposed to be set on Windows 2000+ ACLs
+      'D:PAI';
     var CurrentUserSid := GetCurrentUserSid;
     if CurrentUserSid = '' then
       CurrentUserSid := 'OW'; // OW: owner rights
