@@ -5078,7 +5078,7 @@ type
 
 begin
   var KeyMappedMenus := [
-    KMM(BCompile, VK_F9, [ssCtrl], VK_F7, [], CompileButton),
+    KMM(BCompile, VK_F9, [ssCtrl], Ord('B'), [ssCtrl], CompileButton),
     KMM(RRun, VK_F9, [], VK_F5, [], RunButton),
     KMM(RRunToCursor, VK_F4, [], VK_F10, [ssCtrl]),
     KMM(RStepInto, VK_F7, [], VK_F11, []),
