@@ -375,7 +375,7 @@ begin
     _iu14D2N.tmp. The actual uninstallation process must be done from
     somewhere outside the application directory since EXE's can't delete
     themselves while they are running. }
-  TempDirExisted := GenerateNonRandomUniqueTempDir(GetTempDir, TempDir);
+  TempDirExisted := GenerateNonRandomUniqueTempDir(IsAdmin, GetTempDir, TempDir);
   TempFile := AddBackslash(TempDir) + '_unins.tmp';
   if not TempDirExisted then
     try
@@ -565,7 +565,7 @@ begin
       Initialize64BitInstallMode(False);
 
     { Create temporary directory and extract 64-bit helper EXE if necessary }
-    CreateTempInstallDir;
+    CreateTempInstallDirAndExtract64BitHelper;
 
     if CompiledCodeText <> '' then begin
       { Setup some global variables which are accessible to [Code] }

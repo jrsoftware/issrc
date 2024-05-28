@@ -157,7 +157,7 @@ begin
 
       try
         { Extract the 64-bit helper }
-        CreateTempInstallDir;
+        CreateTempInstallDirAndExtract64BitHelper;
 
         F := TTextFileReader.Create(ListFilename, fdOpenExisting, faRead, fsRead);
         try

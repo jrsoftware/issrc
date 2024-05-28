@@ -197,7 +197,7 @@ function CodeRunnerOnDebugIntermediate(const Position: LongInt;
   var ContinueStepOver: Boolean): Boolean;
 procedure CodeRunnerOnDllImport(var DllName: String; var ForceDelayLoad: Boolean);
 procedure CodeRunnerOnException(const Exception: AnsiString; const Position: LongInt);
-procedure CreateTempInstallDir;
+procedure CreateTempInstallDirAndExtract64BitHelper;
 procedure DebugNotifyEntry(EntryType: TEntryType; Number: Integer);
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
 function ExitSetupMsgBox: Boolean;
@@ -1447,14 +1447,14 @@ begin
   end;
 end;
 
-procedure CreateTempInstallDir;
+procedure CreateTempInstallDirAndExtract64BitHelper;
 { Initializes TempInstallDir and extracts the 64-bit helper into it if needed.
-  This is called by Setup and Uninstall. }
+  This is called by Setup, Uninstall, and RegSvr. }
 var
   Subdir, ResName, Filename: String;
   ErrorCode: DWORD;
 begin
-  TempInstallDir := CreateTempDir;
+  TempInstallDir := CreateTempDir(IsAdmin and not Debugging);
   Log('Created temporary directory: ' + TempInstallDir);
   if Debugging then
     DebugNotifyTempDir(TempInstallDir);
@@ -3289,7 +3289,7 @@ begin
   InitMainNonSHFolderConsts;
 
   { Create temporary directory and extract 64-bit helper EXE if necessary }
-  CreateTempInstallDir;
+  CreateTempInstallDirAndExtract64BitHelper;
 
   { Load system's "shfolder.dll" or extract "_shfoldr.dll" to TempInstallDir, and load it }
   LoadSHFolderDLL;
