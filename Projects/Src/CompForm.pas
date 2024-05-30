@@ -4092,7 +4092,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
   procedure UpdateOccurenceIndicators;
   begin
     { Add occurence indicators for the word at cursor if there's any and the
-      selection is within this word. On top of those add occurance indicators for
+      selection is within this word. On top of those add occurence indicators for
       the selected text if there's any. Don't do anything of the selection is not
       single line. All of these things are just like VSCode. }
 

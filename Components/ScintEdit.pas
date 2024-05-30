@@ -33,7 +33,7 @@ type
   TScintFindOption = (sfoMatchCase, sfoWholeWord);
   TScintFindOptions = set of TScintFindOption;
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
-  TScintStyleIndicatorNumber = 0..2; { These use unused style bits of which there are three. Assumes SCI_SETSTYLEBITS isn't used to change the default style bits from 5 to a higher number. }
+  TScintStyleIndicatorNumber = 0..2; { These use unused style bits of which there are 3. Assumes SCI_SETSTYLEBITS isn't used to change the default used style bits from 5 to a higher number. }
   TScintStyleIndicatorNumbers = set of TScintStyleIndicatorNumber;
   TScintIndicatorNumber = High(TScintStyleIndicatorNumber)+1..MaxInt; { These are "regular" indicators }
   TScintLineEndings = (sleCRLF, sleCR, sleLF);
