@@ -177,8 +177,9 @@ function ConvertStringSecurityDescriptorToSecurityDescriptorW(
   dummy: Pointer): BOOL; stdcall; external advapi32;
 
 function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
-  var ErrorCode: DWORD; var Protected: Boolean): Boolean; overload;
+  var ErrorCode: DWORD; out Protected: Boolean): Boolean; overload;
 { Creates a protected directory if
+  -permissions are supported
   -it's a subdirectory of c:\WINDOWS\TEMP, or
   -it's on a local drive and LimitCurrentUserSidAccess is True (latter is true atm if elevated and not debugging)
   otherwise creates a normal directory. }
@@ -186,15 +187,19 @@ const
   SDDL_REVISION_1 = 1;
 begin
   Path := PathExpand(Path);
-
-  var IsUnderWindowsTemp := Pos(PathLowercase(AddBackslash(GetSystemWinDir) + 'TEMP\'),
-    PathLowercase(Path)) = 1;
   var Drive := PathExtractDrive(Path);
-  var IsLocalTempToProtect := LimitCurrentUserSidAccess and (Drive <> '') and
-    not PathCharIsSlash(Drive[1]) and
-    (GetDriveType(PChar(AddBackslash(Drive))) <> DRIVE_REMOTE);
+  var FileSystemFlags: DWORD;
 
-  Protected := IsUnderWindowsTemp or IsLocalTempToProtect;
+  if GetVolumeInformation(PChar(AddBackslash(Drive)), nil, 0, nil, DWORD(nil^), FileSystemFlags, nil, 0) and
+     ((FileSystemFlags and FILE_PERSISTENT_ACLS) <> 0) then begin
+    var IsUnderWindowsTemp := Pos(PathLowercase(AddBackslash(GetSystemWinDir) + 'TEMP\'),
+      PathLowercase(Path)) = 1;
+    var IsLocalTempToProtect := LimitCurrentUserSidAccess and (Drive <> '') and
+      not PathCharIsSlash(Drive[1]) and
+      (GetDriveType(PChar(AddBackslash(Drive))) <> DRIVE_REMOTE);
+    Protected := IsUnderWindowsTemp or IsLocalTempToProtect;
+  end else
+    Protected := False;
 
   if Protected then begin
     var StringSecurityDescriptor :=
