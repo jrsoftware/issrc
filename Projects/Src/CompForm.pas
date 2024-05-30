@@ -1934,15 +1934,15 @@ end;
 procedure TCompileForm.SyncEditorOptions;
 const
   SquigglyStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_SQUIGGLE);
-  FindMarkerStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_ROUNDBOX);
+  OccurenceStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_ROUNDBOX);
 var
   Memo: TCompScintEdit;
 begin
   for Memo in FMemos do begin
     Memo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
     Memo.Call(SCI_INDICSETSTYLE, inSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
-    Memo.Call(SCI_INDICSETSTYLE, inWordAtCursorOccurence, FindMarkerStyles[True]); //todo: add option
-    Memo.Call(SCI_INDICSETSTYLE, inSelTextOccurence, FindMarkerStyles[True]); //todo: add option
+    Memo.Call(SCI_INDICSETSTYLE, inWordAtCursorOccurence, OccurenceStyles[True]); //todo: add option
+    Memo.Call(SCI_INDICSETSTYLE, inSelTextOccurence, OccurenceStyles[True]); //todo: add option
 
     if FOptions.CursorPastEOL then
       Memo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible]
