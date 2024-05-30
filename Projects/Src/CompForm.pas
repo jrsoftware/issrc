@@ -1934,12 +1934,15 @@ end;
 procedure TCompileForm.SyncEditorOptions;
 const
   SquigglyStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_SQUIGGLE);
+  FindMarkerStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_ROUNDBOX);
 var
   Memo: TCompScintEdit;
 begin
   for Memo in FMemos do begin
     Memo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
     Memo.Call(SCI_INDICSETSTYLE, inSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
+    Memo.Call(SCI_INDICSETSTYLE, inWordAtCursorOccurence, FindMarkerStyles[True]); //todo: add option
+    Memo.Call(SCI_INDICSETSTYLE, inSelTextOccurence, FindMarkerStyles[True]); //todo: add option
 
     if FOptions.CursorPastEOL then
       Memo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible]
@@ -4054,6 +4057,66 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     FActiveMemo.SetBraceHighlighting(-1, -1);
   end;
 
+  procedure FindAndIndicateText(const TextToFind: String;
+    const IndicatorNumber: TScintIndicatorNumber; const SelAvail: Boolean;
+    const Selection: TScintRange);
+  begin
+    if TextToFind = '' then
+      Exit;
+
+    var StartPos := 0;
+    var EndPos := FActiveMemo.RawTextLength;
+    var Range: TScintRange;
+
+    while (StartPos < EndPos) and
+          FActiveMemo.FindText(StartPos, EndPos, TextToFind, [], Range) do begin
+      StartPos := Range.EndPos;
+
+      { Don't add indicators on lines which have a line marker }
+      var Line := FActiveMemo.GetLineFromPosition(Range.StartPos);
+      var Markers := FActiveMemo.GetMarkers(Line);
+      if Markers * [mmLineError, mmLineBreakpointBad, mmLineStep] <> [] then
+        Continue;
+
+      { Add indicator while making sure it does not overlap the regular selection styling }
+      if SelAvail and Range.Overlaps(Selection) then begin
+        if Range.StartPos < Selection.StartPos then
+          FActiveMemo.AddIndicator(Range.StartPos, Selection.StartPos, IndicatorNumber);
+        if Range.EndPos > Selection.EndPos then
+          FActiveMemo.AddIndicator(Selection.EndPos, Range.EndPos, IndicatorNumber);
+      end else
+        FActiveMemo.AddIndicator(Range.StartPos, Range.EndPos, IndicatorNumber);
+    end;
+  end;
+
+  procedure UpdateOccurenceIndicators;
+  begin
+    { Add occurence indicators for the word at cursor if there's any and the
+      selection is within this word. On top of those add occurance indicators for
+      the selected text if there's any. Don't do anything of the selection is not
+      single line. All of these things are just like VSCode. }
+
+    var Selection: TScintRange;
+    var SelAvail := FActiveMemo.SelAvail(Selection);
+    var SelSingleLine := FActiveMemo.GetLineFromPosition(Selection.StartPos) =
+                         FActiveMemo.GetLineFromPosition(Selection.EndPos);
+
+    FActiveMemo.ClearIndicators(inWordAtCursorOccurence);
+    if (FActiveMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
+      var Word := FActiveMemo.WordAtCursorRange;
+      if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
+        var TextToIndicate := FActiveMemo.GetTextRange(Word.StartPos, Word.EndPos);
+        FindAndIndicateText(TextToIndicate, inWordAtCursorOccurence, SelAvail, Selection);
+      end;
+    end;
+
+    FActiveMemo.ClearIndicators(inSelTextOccurence);
+    if SelAvail and SelSingleLine then begin
+      var TextToIndicate := FActiveMemo.SelText;
+      FindAndIndicateText(TextToIndicate, inSelTextOccurence, SelAvail, Selection);
+    end;
+  end;
+
 begin
   if (Sender = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then
     HideError;
@@ -4062,6 +4125,7 @@ begin
   UpdateBraceHighlighting;
   if Sender = FActiveMemo then
     UpdateEditModePanel;
+  UpdateOccurenceIndicators;
 end;
 
 procedure TCompileForm.MemoModifiedChange(Sender: TObject);
