@@ -137,7 +137,7 @@ begin
 
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
-  Call(SCI_INDICSETSTYLE, inSquiggly, INDIC_SQUIGGLE);
+  Call(SCI_INDICSETSTYLE, inSquiggly, INDIC_SQUIGGLE); { Overwritten by TCompForm.SyncEditorOptions }
   Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
