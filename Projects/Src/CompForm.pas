@@ -368,6 +368,8 @@ type
       UseSyntaxHighlighting: Boolean;
       ColorizeCompilerOutput: Boolean;
       UnderlineErrors: Boolean;
+      HighlightWordAtCursorOccurences: Boolean;
+      HighlightSelTextOccurences: Boolean;
       CursorPastEOL: Boolean;
       TabWidth: Integer;
       UseTabCharacter: Boolean;
@@ -733,6 +735,8 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.UseSyntaxHighlighting := Ini.ReadBool('Options', 'UseSynHigh', True);
       FOptions.ColorizeCompilerOutput := Ini.ReadBool('Options', 'ColorizeCompilerOutput', True);
       FOptions.UnderlineErrors := Ini.ReadBool('Options', 'UnderlineErrors', True);
+      FOptions.HighlightWordAtCursorOccurences := Ini.ReadBool('Options', 'HighlightWordAtCursorOccurences', True);
+      FOptions.HighlightSelTextOccurences := Ini.ReadBool('Options', 'HighlightSelTextOccurences', True);
       FOptions.CursorPastEOL := Ini.ReadBool('Options', 'EditorCursorPastEOL', False);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
       FOptions.UseTabCharacter := Ini.ReadBool('Options', 'UseTabCharacter', False);
@@ -1941,8 +1945,8 @@ begin
   for Memo in FMemos do begin
     Memo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
     Memo.Call(SCI_INDICSETSTYLE, inSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
-    Memo.Call(SCI_INDICSETSTYLE, inWordAtCursorOccurence, OccurenceStyles[True]); //todo: add option
-    Memo.Call(SCI_INDICSETSTYLE, inSelTextOccurence, OccurenceStyles[True]); //todo: add option
+    Memo.Call(SCI_INDICSETSTYLE, inWordAtCursorOccurence, OccurenceStyles[FOptions.HighlightWordAtCursorOccurences]);
+    Memo.Call(SCI_INDICSETSTYLE, inSelTextOccurence, OccurenceStyles[FOptions.HighlightSelTextOccurences]);
 
     if FOptions.CursorPastEOL then
       Memo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible]
@@ -3540,6 +3544,8 @@ begin
       Ini.WriteBool('Options', 'UseSynHigh', FOptions.UseSyntaxHighlighting);
       Ini.WriteBool('Options', 'ColorizeCompilerOutput', FOptions.ColorizeCompilerOutput);
       Ini.WriteBool('Options', 'UnderlineErrors', FOptions.UnderlineErrors);
+      Ini.WriteBool('Options', 'HighlightWordAtCursorOccurences', FOptions.HighlightWordAtCursorOccurences);
+      Ini.WriteBool('Options', 'HighlightSelTextOccurences', FOptions.HighlightSelTextOccurences);
       Ini.WriteBool('Options', 'EditorCursorPastEOL', FOptions.CursorPastEOL);
       Ini.WriteInteger('Options', 'TabWidth', FOptions.TabWidth);
       Ini.WriteBool('Options', 'UseTabCharacter', FOptions.UseTabCharacter);
@@ -4101,19 +4107,23 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     var SelSingleLine := FActiveMemo.GetLineFromPosition(Selection.StartPos) =
                          FActiveMemo.GetLineFromPosition(Selection.EndPos);
 
-    FActiveMemo.ClearIndicators(inWordAtCursorOccurence);
-    if (FActiveMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
-      var Word := FActiveMemo.WordAtCursorRange;
-      if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
-        var TextToIndicate := FActiveMemo.GetTextRange(Word.StartPos, Word.EndPos);
-        FindAndIndicateText(TextToIndicate, inWordAtCursorOccurence, SelAvail, Selection);
+    if FOptions.HighlightWordAtCursorOccurences then begin
+      FActiveMemo.ClearIndicators(inWordAtCursorOccurence);
+      if (FActiveMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
+        var Word := FActiveMemo.WordAtCursorRange;
+        if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
+          var TextToIndicate := FActiveMemo.GetTextRange(Word.StartPos, Word.EndPos);
+          FindAndIndicateText(TextToIndicate, inWordAtCursorOccurence, SelAvail, Selection);
+        end;
       end;
     end;
 
-    FActiveMemo.ClearIndicators(inSelTextOccurence);
-    if SelAvail and SelSingleLine then begin
-      var TextToIndicate := FActiveMemo.SelText;
-      FindAndIndicateText(TextToIndicate, inSelTextOccurence, SelAvail, Selection);
+    if FOptions.HighlightSelTextOccurences then begin
+      FActiveMemo.ClearIndicators(inSelTextOccurence);
+      if SelAvail and SelSingleLine then begin
+        var TextToIndicate := FActiveMemo.SelText;
+        FindAndIndicateText(TextToIndicate, inSelTextOccurence, SelAvail, Selection);
+      end;
     end;
   end;
 
