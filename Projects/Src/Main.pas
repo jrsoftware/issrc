@@ -266,7 +266,7 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj,
+  ShellAPI, ShlObj, StrUtils,
   Msgs, MsgIDs, Install, InstFunc, InstFnc2, RedirFunc, PathFunc,
   Compress, CompressZlib, bzlib, LZMADecomp, ArcFour, SetupEnt, SelLangForm,
   Wizard, DebugClient, VerInfo, Extract, FileClass, Logging, MD5, SHA1, ActiveX,
@@ -1450,21 +1450,19 @@ end;
 procedure CreateTempInstallDirAndExtract64BitHelper;
 { Initializes TempInstallDir and extracts the 64-bit helper into it if needed.
   This is called by Setup, Uninstall, and RegSvr. }
-var
-  Subdir, ResName, Filename: String;
-  ErrorCode: DWORD;
 begin
-  TempInstallDir := CreateTempDir(IsAdmin and not Debugging);
-  Log('Created temporary directory: ' + TempInstallDir);
+  var Protected: Boolean;
+  TempInstallDir := CreateTempDir(IsAdmin and not Debugging, Protected);
+  LogFmt('Created %stemporary directory: %s', [IfThen(Protected, 'protected ', ''), TempInstallDir]);
   if Debugging then
     DebugNotifyTempDir(TempInstallDir);
 
   { Create _isetup subdirectory to hold our internally-used files to ensure
     they won't use any DLLs the install creator might've dumped into
     TempInstallDir }
-  Subdir := AddBackslash(TempInstallDir) + '_isetup';
+  var Subdir := AddBackslash(TempInstallDir) + '_isetup';
   if not CreateDirectory(PChar(Subdir), nil) then begin
-    ErrorCode := GetLastError;
+    var ErrorCode := GetLastError;
     raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
       [FmtSetupMessage1(msgErrorCreatingDir, Subdir), IntToStr(ErrorCode),
        Win32ErrorString(ErrorCode)]));
@@ -1472,9 +1470,9 @@ begin
 
   { Extract 64-bit helper EXE, if one is available for the current processor
     architecture }
-  ResName := GetHelperResourceName;
+  var ResName := GetHelperResourceName;
   if ResName <> '' then begin
-    Filename := Subdir + '\_setup64.tmp';
+    var Filename := Subdir + '\_setup64.tmp';
     SaveResourceToTempFile(ResName, Filename);
     SetHelperExeFilename(Filename);
   end;

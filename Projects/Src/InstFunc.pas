@@ -49,7 +49,9 @@ type
 
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
-function CreateTempDir(const LimitCurrentUserSidAccess: Boolean): String;
+function CreateTempDir(const LimitCurrentUserSidAccess: Boolean;
+  var Protected: Boolean): String; overload;
+function CreateTempDir(const LimitCurrentUserSidAccess: Boolean): String; overload;
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Integer);
@@ -175,7 +177,7 @@ function ConvertStringSecurityDescriptorToSecurityDescriptorW(
   dummy: Pointer): BOOL; stdcall; external advapi32;
 
 function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
-  var ErrorCode: DWORD): Boolean;
+  var ErrorCode: DWORD; var Protected: Boolean): Boolean; overload;
 { Creates a protected directory if
   -it's a subdirectory of c:\WINDOWS\TEMP, or
   -it's on a local drive and LimitCurrentUserSidAccess is True (latter is true atm if elevated and not debugging)
@@ -192,7 +194,9 @@ begin
     not PathCharIsSlash(Drive[1]) and
     (GetDriveType(PChar(AddBackslash(Drive))) <> DRIVE_REMOTE);
 
-  if IsUnderWindowsTemp or IsLocalTempToProtect then begin
+  Protected := IsUnderWindowsTemp or IsLocalTempToProtect;
+
+  if Protected then begin
     var StringSecurityDescriptor :=
       // D: adds a Discretionary ACL ("DACL", i.e. access control via SIDs)
       // P: prevents DACL from being modified by inheritable ACEs
@@ -243,6 +247,13 @@ begin
     if not Result then
       ErrorCode := GetLastError;
   end;
+end;
+
+function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
+  var ErrorCode: DWORD): Boolean; overload;
+begin
+  var Protected: Boolean;
+  Result := CreateSafeDirectory(LimitCurrentUserSidAccess, Path, ErrorCode, Protected);
 end;
 
 function IntToBase32(Number: Longint): String;
@@ -319,7 +330,8 @@ begin
   until False; // continue until a new directory was created
 end;
 
-function CreateTempDir(const LimitCurrentUserSidAccess: Boolean): String;
+function CreateTempDir(const LimitCurrentUserSidAccess: Boolean;
+  var Protected: Boolean): String;
 { This is called by SetupLdr, Setup, and Uninstall. }
 var
   Dir: String;
@@ -327,7 +339,7 @@ var
 begin
   while True do begin
     Dir := GenerateUniqueName(False, GetTempDir, '.tmp');
-    if CreateSafeDirectory(LimitCurrentUserSidAccess, Dir, ErrorCode) then
+    if CreateSafeDirectory(LimitCurrentUserSidAccess, Dir, ErrorCode, Protected) then
       Break;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
@@ -335,6 +347,12 @@ begin
          Win32ErrorString(ErrorCode)]));
   end;
   Result := Dir;
+end;
+
+function CreateTempDir(const LimitCurrentUserSidAccess: Boolean): String;
+begin
+  var Protected: Boolean;
+  Result := CreateTempDir(LimitCurrentUserSidAccess, Protected);
 end;
 
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
