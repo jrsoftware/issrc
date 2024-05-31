@@ -4107,34 +4107,35 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
                          FActiveMemo.GetLineFromPosition(Selection.EndPos);
 
     if FOptions.HighlightWordAtCursorOccurrences then begin
+      var RangeList := TScintRangeList.Create;
+      try
         if (FActiveMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
           var Word := FActiveMemo.WordAtCursorRange;
           if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
             var TextToIndicate := FActiveMemo.GetTextRange(Word.StartPos, Word.EndPos);
-            var RangeList := TScintRangeList.Create;
-            try
-              FindAndIndicateText(TextToIndicate, SelAvail, Selection, RangeList);
-              FActiveMemo.ClearIndicators(inWordAtCursorOccurrence);
-              for var Range in RangeList do
-                FActiveMemo.AddIndicator(Range.StartPos, Range.EndPos, inWordAtCursorOccurrence);
-            finally
-              RangeList.Free;
-            end;
+            FindAndIndicateText(TextToIndicate, SelAvail, Selection, RangeList);
           end;
         end;
+        FActiveMemo.ClearIndicators(inWordAtCursorOccurrence);
+        for var Range in RangeList do
+          FActiveMemo.AddIndicator(Range.StartPos, Range.EndPos, inWordAtCursorOccurrence);
+      finally
+        RangeList.Free;
+      end;
     end;
+
     if FOptions.HighlightSelTextOccurrences then begin
-      if SelAvail and SelSingleLine then begin
-        var TextToIndicate := FActiveMemo.SelText;
-        var RangeList := TScintRangeList.Create;
-        try
+      var RangeList := TScintRangeList.Create;
+      try
+        if SelAvail and SelSingleLine then begin
+          var TextToIndicate := FActiveMemo.SelText;
           FindAndIndicateText(TextToIndicate, SelAvail, Selection, RangeList);
-          FActiveMemo.ClearIndicators(inSelTextOccurrence);
-          for var Range in RangeList do
-            FActiveMemo.AddIndicator(Range.StartPos, Range.EndPos, inSelTextOccurrence);
-        finally
-          RangeList.Free;
         end;
+        FActiveMemo.ClearIndicators(inSelTextOccurrence);
+        for var Range in RangeList do
+          FActiveMemo.AddIndicator(Range.StartPos, Range.EndPos, inSelTextOccurrence);
+      finally
+        RangeList.Free;
       end;
     end;
   end;
