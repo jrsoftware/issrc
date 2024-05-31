@@ -40,7 +40,7 @@ function TTheme.FGetColor(Color: TThemeColor): TColor;
 const
   { D = Dark, L = Light, M = Modern, C = Classic }
 
-  DFore = clWhite;
+  DFore = $D6D6D6;           { VSCode Modern Dark, 2 tints lightened using color-hex.com }
   DBack = $1F1F1F;           { VSCode Modern Dark }
   DToolBack = $413E40;       { Monokai Pro }
   DSelBack = $764F1D;        { VSCode Modern Dark }
@@ -53,7 +53,7 @@ const
   DIdentGuideFore = $716F71; { Monokai Pro }
   //Monokai Pro's dark control color: $221F22
 
-  LFore = clBlack;
+  LFore = $3B3B3B;           { VSCode Modern Light }
   LBack = clWhite;
   LToolBack = clBtnFace;
   LSelBack = $FDD6A7;        { VSCode Modern Light }
