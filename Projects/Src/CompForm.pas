@@ -4063,9 +4063,8 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     FActiveMemo.SetBraceHighlighting(-1, -1);
   end;
 
-  procedure FindAndIndicateText(const TextToFind: String;
-    const IndicatorNumber: TScintIndicatorNumber; const SelAvail: Boolean;
-    const Selection: TScintRange);
+  procedure FindAndIndicateText(const TextToFind: String; const SelAvail: Boolean;
+    const Selection: TScintRange; const ARangeList: TScintRangeList);
   begin
     if Trim(TextToFind) = '' then
       Exit;
@@ -4087,11 +4086,11 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
       { Add indicator while making sure it does not overlap the regular selection styling }
       if SelAvail and Range.Overlaps(Selection) then begin
         if Range.StartPos < Selection.StartPos then
-          FActiveMemo.AddIndicator(Range.StartPos, Selection.StartPos, IndicatorNumber);
+          ARangeList.Add(TScintRange.Create(Range.StartPos, Selection.StartPos));
         if Range.EndPos > Selection.EndPos then
-          FActiveMemo.AddIndicator(Selection.EndPos, Range.EndPos, IndicatorNumber);
+          ARangeList.Add(TScintRange.Create(Selection.EndPos, Range.EndPos));
       end else
-        FActiveMemo.AddIndicator(Range.StartPos, Range.EndPos, IndicatorNumber);
+        ARangeList.Add(TScintRange.Create(Range.StartPos, Range.EndPos));
     end;
   end;
 
@@ -4108,21 +4107,34 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
                          FActiveMemo.GetLineFromPosition(Selection.EndPos);
 
     if FOptions.HighlightWordAtCursorOccurrences then begin
-      FActiveMemo.ClearIndicators(inWordAtCursorOccurrence);
-      if (FActiveMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
-        var Word := FActiveMemo.WordAtCursorRange;
-        if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
-          var TextToIndicate := FActiveMemo.GetTextRange(Word.StartPos, Word.EndPos);
-          FindAndIndicateText(TextToIndicate, inWordAtCursorOccurrence, SelAvail, Selection);
+        if (FActiveMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
+          var Word := FActiveMemo.WordAtCursorRange;
+          if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
+            var TextToIndicate := FActiveMemo.GetTextRange(Word.StartPos, Word.EndPos);
+            var RangeList := TScintRangeList.Create;
+            try
+              FindAndIndicateText(TextToIndicate, SelAvail, Selection, RangeList);
+              FActiveMemo.ClearIndicators(inWordAtCursorOccurrence);
+              for var Range in RangeList do
+                FActiveMemo.AddIndicator(Range.StartPos, Range.EndPos, inWordAtCursorOccurrence);
+            finally
+              RangeList.Free;
+            end;
+          end;
         end;
-      end;
     end;
-
     if FOptions.HighlightSelTextOccurrences then begin
-      FActiveMemo.ClearIndicators(inSelTextOccurrence);
       if SelAvail and SelSingleLine then begin
         var TextToIndicate := FActiveMemo.SelText;
-        FindAndIndicateText(TextToIndicate, inSelTextOccurrence, SelAvail, Selection);
+        var RangeList := TScintRangeList.Create;
+        try
+          FindAndIndicateText(TextToIndicate, SelAvail, Selection, RangeList);
+          FActiveMemo.ClearIndicators(inSelTextOccurrence);
+          for var Range in RangeList do
+            FActiveMemo.AddIndicator(Range.StartPos, Range.EndPos, inSelTextOccurrence);
+        finally
+          RangeList.Free;
+        end;
       end;
     end;
   end;

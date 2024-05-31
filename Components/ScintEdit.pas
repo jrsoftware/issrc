@@ -12,7 +12,7 @@ unit ScintEdit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, ScintInt;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Generics.Collections, ScintInt;
 
 type
   TScintEditAutoCompleteSelectionEvent = TNotifyEvent;
@@ -42,9 +42,11 @@ type
   TScintMarkerNumbers = set of TScintMarkerNumber;
   TScintRange = record
     StartPos, EndPos: Integer;
+    constructor Create(const AStartPos, AEndPos: Integer);
     function Overlaps(const ARange: TScintRange): Boolean;
     function Within(const ARange: TScintRange): Boolean;
   end;
+  TScintRangeList = TList<TScintRange>;
   TScintRawCharSet = set of AnsiChar;
   TScintRawString = type RawByteString;
   TScintRectangle = record
@@ -424,7 +426,7 @@ type
 implementation
 
 uses
-  ShellAPI, RTLConsts, UITypes, Generics.Collections, GraphUtil;
+  ShellAPI, RTLConsts, UITypes, GraphUtil;
 
 { TScintEdit }
 
@@ -2256,6 +2258,12 @@ begin
 end;
 
 { TScintRange }
+
+constructor TScintRange.Create(const AStartPos, AEndPos: Integer);
+begin
+  StartPos := AStartPos;
+  EndPos := AEndPos;
+end;
 
 function TScintRange.Overlaps(const ARange: TScintRange): Boolean;
 begin
