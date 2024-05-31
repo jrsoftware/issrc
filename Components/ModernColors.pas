@@ -17,7 +17,7 @@ uses
 type
   TThemeType = (ttModernLight, ttModernDark, ttClassic);
   TThemeColor = (tcFore, tcBack, tcToolBack, tcSelBack,
-                 tcWordAtCursorOccurrenceBack, tcSelTextOccurenceBack,
+                 tcWordAtCursorOccurrenceBack, tcSelTextOccurrenceBack,
                  tcMarginFore, tcMarginBack, tcSplitterBack, tcBraceBack, tcIdentGuideFore,
                  tcRed, tcGreen, tcBlue, tcOrange, tcPurple, tcYellow, tcTeal, tcGray);
 

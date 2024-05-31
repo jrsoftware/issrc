@@ -189,7 +189,7 @@ begin
     Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
     Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
     Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, FTheme.Colors[tcWordAtCursorOccurrenceBack]);
-    Call(SCI_INDICSETFORE, inSelTextOccurrence, FTheme.Colors[tcSelTextOccurenceBack]);
+    Call(SCI_INDICSETFORE, inSelTextOccurrence, FTheme.Colors[tcSelTextOccurrenceBack]);
     Call(SCI_MARKERSETBACK, mmLineStep, FTheme.Colors[tcBlue]);
   end;
   UpdateStyleAttributes;
