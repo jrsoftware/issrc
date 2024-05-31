@@ -4067,7 +4067,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     const IndicatorNumber: TScintIndicatorNumber; const SelAvail: Boolean;
     const Selection: TScintRange);
   begin
-    if TextToFind = '' then
+    if Trim(TextToFind) = '' then
       Exit;
 
     var StartPos := 0;
