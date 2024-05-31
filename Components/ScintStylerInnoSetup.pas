@@ -712,9 +712,9 @@ end;
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
 begin
   if (CaretIndex >= StartIndex) and (CaretIndex <= EndIndex + 1) then
-    ApplyIndicators([inPendingSquiggly], StartIndex, EndIndex)
+    ApplyStyleByteIndicators([inPendingSquiggly], StartIndex, EndIndex)
   else
-    ApplyIndicators([inSquiggly], StartIndex, EndIndex);
+    ApplyStyleByteIndicators([inSquiggly], StartIndex, EndIndex);
 end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
@@ -724,7 +724,7 @@ end;
 
 procedure TInnoSetupStyler.ApplySquigglyFromIndex(const StartIndex: Integer);
 begin
-  ApplyIndicators([inSquiggly], StartIndex, CurIndex - 1);
+  ApplyStyleByteIndicators([inSquiggly], StartIndex, CurIndex - 1);
 end;
 
 function TInnoSetupStyler.BuildWordList(const WordStringList: TStringList): AnsiString;
@@ -1551,7 +1551,7 @@ begin
       ReplaceText(I, I, ' ');
       ApplyStyle(Ord(stSymbol), I, I);
       if not ISPPInstalled then
-        ApplyIndicators([inSquiggly], I, I);
+        ApplyStyleByteIndicators([inSquiggly], I, I);
     end;
   end;
 

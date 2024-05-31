@@ -27,11 +27,11 @@ const
   mmIconStep = 13;           { blue arrow }
   mmIconBreakpointStep = 14; { blue arrow on top of a stop sign + check }
 
-  { Memo style indicator numbers (0..2 - also in ScintStylerInnoSetup) }
+  { Memo style byte indicator numbers (0..2 - also in ScintStylerInnoSetup) }
   inSquiggly = 0;
   inPendingSquiggly = 1;
 
-  { Memo indicator numbers (3..MaxInt) }
+  { Memo other indicator numbers }
   inWordAtCursorOccurrence = 3;
   inSelTextOccurrence = 4;
 

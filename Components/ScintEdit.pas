@@ -33,9 +33,9 @@ type
   TScintFindOption = (sfoMatchCase, sfoWholeWord);
   TScintFindOptions = set of TScintFindOption;
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
-  TScintStyleIndicatorNumber = 0..2; { These use unused style bits of which there are 3. Assumes SCI_SETSTYLEBITS isn't used to change the default used style bits from 5 to a higher number. }
-  TScintStyleIndicatorNumbers = set of TScintStyleIndicatorNumber;
-  TScintIndicatorNumber = High(TScintStyleIndicatorNumber)+1..MaxInt; { These are "regular" indicators }
+  TScintStyleByteIndicatorNumber = 0..2; { These use unused style bits of which there are 3. Assumes SCI_SETSTYLEBITS isn't used to change the default used style bits from 5 to a higher number. }
+  TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
+  TScintIndicatorNumber = type Integer;
   TScintLineEndings = (sleCRLF, sleCR, sleLF);
   TScintLineState = type Integer;
   TScintMarkerNumber = 0..31;
@@ -202,7 +202,7 @@ type
     function GetColumnFromPosition(const Pos: Integer): Integer;
     function GetDefaultWordChars: AnsiString;
     function GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
-    function GetIndicatorsAtPosition(const Pos: Integer): TScintStyleIndicatorNumbers;
+    function GetStyleByteIndicatorsAtPosition(const Pos: Integer): TScintStyleByteIndicatorNumbers;
     function GetLineEndPosition(const Line: Integer): Integer;
     function GetLineFromPosition(const Pos: Integer): Integer;
     function GetLineIndentation(const Line: Integer): Integer;
@@ -376,7 +376,7 @@ type
     function GetCurChar: AnsiChar;
     function GetEndOfLine: Boolean;
   protected
-    procedure ApplyIndicators(const Indicators: TScintStyleIndicatorNumbers;
+    procedure ApplyStyleByteIndicators(const Indicators: TScintStyleByteIndicatorNumbers;
       StartIndex, EndIndex: Integer);
     procedure ApplyStyle(const Style: TScintStyleNumber;
       StartIndex, EndIndex: Integer);
@@ -786,12 +786,12 @@ begin
   Result := Call(SCI_DOCLINEFROMVISIBLE, VisibleLine, 0);
 end;
 
-function TScintEdit.GetIndicatorsAtPosition(const Pos: Integer): TScintStyleIndicatorNumbers;
+function TScintEdit.GetStyleByteIndicatorsAtPosition(const Pos: Integer): TScintStyleByteIndicatorNumbers;
 var
   Indic: Byte;
 begin
   Indic := Byte(Call(SCI_GETSTYLEAT, Pos, 0)) shr 5;
-  Result := TScintStyleIndicatorNumbers(Indic);
+  Result := TScintStyleByteIndicatorNumbers(Indic);
 end;
 
 function TScintEdit.GetInsertMode: Boolean;
@@ -1177,7 +1177,7 @@ end;
 function TScintEdit.SelAvail(out Sel: TScintRange): Boolean;
 begin
   Sel := GetSelection;
-  Result := (Sel.EndPos > Sel.StartPos);
+  Result := Sel.EndPos > Sel.StartPos;
 end;
 
 procedure TScintEdit.SelectAll;
@@ -2007,7 +2007,7 @@ end;
 
 { TScintCustomStyler }
 
-procedure TScintCustomStyler.ApplyIndicators(const Indicators: TScintStyleIndicatorNumbers;
+procedure TScintCustomStyler.ApplyStyleByteIndicators(const Indicators: TScintStyleByteIndicatorNumbers;
   StartIndex, EndIndex: Integer);
 var
   IndByte: Byte;
@@ -2054,7 +2054,7 @@ end;
 
 function TScintCustomStyler.ConsumeAllRemaining: Boolean;
 begin
-  Result := (FCurIndex <= FTextLen);
+  Result := FCurIndex <= FTextLen;
   if Result then
     FCurIndex := FTextLen + 1;
 end;
@@ -2123,7 +2123,7 @@ end;
 
 function TScintCustomStyler.GetEndOfLine: Boolean;
 begin
-  Result := (FCurIndex > FTextLen);
+  Result := FCurIndex > FTextLen;
 end;
 
 function TScintCustomStyler.LineTextSpans(const S: TScintRawString): Boolean;

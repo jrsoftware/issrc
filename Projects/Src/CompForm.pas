@@ -4013,9 +4013,9 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     Pos := FActiveMemo.CaretPosition;
     Value := False;
     if FActiveMemo.CaretVirtualSpace = 0 then begin
-      Value := (inPendingSquiggly in FActiveMemo.GetIndicatorsAtPosition(Pos));
+      Value := inPendingSquiggly in FActiveMemo.GetStyleByteIndicatorsAtPosition(Pos);
       if not Value and (Pos > 0) then
-        Value := (inPendingSquiggly in FActiveMemo.GetIndicatorsAtPosition(Pos-1));
+        Value := inPendingSquiggly in FActiveMemo.GetStyleByteIndicatorsAtPosition(Pos-1);
     end;
     if FOnPendingSquiggly <> Value then begin
       FOnPendingSquiggly := Value;
