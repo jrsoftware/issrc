@@ -368,8 +368,8 @@ type
       UseSyntaxHighlighting: Boolean;
       ColorizeCompilerOutput: Boolean;
       UnderlineErrors: Boolean;
-      HighlightWordAtCursorOccurences: Boolean;
-      HighlightSelTextOccurences: Boolean;
+      HighlightWordAtCursorOccurrences: Boolean;
+      HighlightSelTextOccurrences: Boolean;
       CursorPastEOL: Boolean;
       TabWidth: Integer;
       UseTabCharacter: Boolean;
@@ -735,8 +735,8 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.UseSyntaxHighlighting := Ini.ReadBool('Options', 'UseSynHigh', True);
       FOptions.ColorizeCompilerOutput := Ini.ReadBool('Options', 'ColorizeCompilerOutput', True);
       FOptions.UnderlineErrors := Ini.ReadBool('Options', 'UnderlineErrors', True);
-      FOptions.HighlightWordAtCursorOccurences := Ini.ReadBool('Options', 'HighlightWordAtCursorOccurences', True);
-      FOptions.HighlightSelTextOccurences := Ini.ReadBool('Options', 'HighlightSelTextOccurences', True);
+      FOptions.HighlightWordAtCursorOccurrences := Ini.ReadBool('Options', 'HighlightWordAtCursorOccurrences', True);
+      FOptions.HighlightSelTextOccurrences := Ini.ReadBool('Options', 'HighlightSelTextOccurrences', True);
       FOptions.CursorPastEOL := Ini.ReadBool('Options', 'EditorCursorPastEOL', False);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
       FOptions.UseTabCharacter := Ini.ReadBool('Options', 'UseTabCharacter', False);
@@ -1938,15 +1938,15 @@ end;
 procedure TCompileForm.SyncEditorOptions;
 const
   SquigglyStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_SQUIGGLE);
-  OccurenceStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_ROUNDBOX);
+  OccurrenceStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_ROUNDBOX);
 var
   Memo: TCompScintEdit;
 begin
   for Memo in FMemos do begin
     Memo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
     Memo.Call(SCI_INDICSETSTYLE, inSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
-    Memo.Call(SCI_INDICSETSTYLE, inWordAtCursorOccurence, OccurenceStyles[FOptions.HighlightWordAtCursorOccurences]);
-    Memo.Call(SCI_INDICSETSTYLE, inSelTextOccurence, OccurenceStyles[FOptions.HighlightSelTextOccurences]);
+    Memo.Call(SCI_INDICSETSTYLE, inWordAtCursorOccurrence, OccurrenceStyles[FOptions.HighlightWordAtCursorOccurrences]);
+    Memo.Call(SCI_INDICSETSTYLE, inSelTextOccurrence, OccurrenceStyles[FOptions.HighlightSelTextOccurrences]);
 
     if FOptions.CursorPastEOL then
       Memo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible]
@@ -3544,8 +3544,8 @@ begin
       Ini.WriteBool('Options', 'UseSynHigh', FOptions.UseSyntaxHighlighting);
       Ini.WriteBool('Options', 'ColorizeCompilerOutput', FOptions.ColorizeCompilerOutput);
       Ini.WriteBool('Options', 'UnderlineErrors', FOptions.UnderlineErrors);
-      Ini.WriteBool('Options', 'HighlightWordAtCursorOccurences', FOptions.HighlightWordAtCursorOccurences);
-      Ini.WriteBool('Options', 'HighlightSelTextOccurences', FOptions.HighlightSelTextOccurences);
+      Ini.WriteBool('Options', 'HighlightWordAtCursorOccurrences', FOptions.HighlightWordAtCursorOccurrences);
+      Ini.WriteBool('Options', 'HighlightSelTextOccurrences', FOptions.HighlightSelTextOccurrences);
       Ini.WriteBool('Options', 'EditorCursorPastEOL', FOptions.CursorPastEOL);
       Ini.WriteInteger('Options', 'TabWidth', FOptions.TabWidth);
       Ini.WriteBool('Options', 'UseTabCharacter', FOptions.UseTabCharacter);
@@ -4095,10 +4095,10 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     end;
   end;
 
-  procedure UpdateOccurenceIndicators;
+  procedure UpdateOccurrenceIndicators;
   begin
-    { Add occurence indicators for the word at cursor if there's any and the
-      selection is within this word. On top of those add occurence indicators for
+    { Add occurrence indicators for the word at cursor if there's any and the
+      selection is within this word. On top of those add occurrence indicators for
       the selected text if there's any. Don't do anything of the selection is not
       single line. All of these things are just like VSCode. }
 
@@ -4107,22 +4107,22 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     var SelSingleLine := FActiveMemo.GetLineFromPosition(Selection.StartPos) =
                          FActiveMemo.GetLineFromPosition(Selection.EndPos);
 
-    if FOptions.HighlightWordAtCursorOccurences then begin
-      FActiveMemo.ClearIndicators(inWordAtCursorOccurence);
+    if FOptions.HighlightWordAtCursorOccurrences then begin
+      FActiveMemo.ClearIndicators(inWordAtCursorOccurrence);
       if (FActiveMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
         var Word := FActiveMemo.WordAtCursorRange;
         if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
           var TextToIndicate := FActiveMemo.GetTextRange(Word.StartPos, Word.EndPos);
-          FindAndIndicateText(TextToIndicate, inWordAtCursorOccurence, SelAvail, Selection);
+          FindAndIndicateText(TextToIndicate, inWordAtCursorOccurrence, SelAvail, Selection);
         end;
       end;
     end;
 
-    if FOptions.HighlightSelTextOccurences then begin
-      FActiveMemo.ClearIndicators(inSelTextOccurence);
+    if FOptions.HighlightSelTextOccurrences then begin
+      FActiveMemo.ClearIndicators(inSelTextOccurrence);
       if SelAvail and SelSingleLine then begin
         var TextToIndicate := FActiveMemo.SelText;
-        FindAndIndicateText(TextToIndicate, inSelTextOccurence, SelAvail, Selection);
+        FindAndIndicateText(TextToIndicate, inSelTextOccurrence, SelAvail, Selection);
       end;
     end;
   end;
@@ -4135,7 +4135,7 @@ begin
   UpdateBraceHighlighting;
   if Sender = FActiveMemo then
     UpdateEditModePanel;
-  UpdateOccurenceIndicators;
+  UpdateOccurrenceIndicators;
 end;
 
 procedure TCompileForm.MemoModifiedChange(Sender: TObject);

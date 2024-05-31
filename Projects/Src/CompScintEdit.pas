@@ -32,8 +32,8 @@ const
   inPendingSquiggly = 1;
 
   { Memo indicator numbers (3..MaxInt) }
-  inWordAtCursorOccurence = 3;
-  inSelTextOccurence = 4;
+  inWordAtCursorOccurrence = 3;
+  inSelTextOccurrence = 4;
 
   { Just some invalid value used to indicate an unknown/uninitialized compiler FileIndex value }
   UnknownCompilerFileIndex = -2;
@@ -145,15 +145,15 @@ begin
   Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
-  Call(SCI_INDICSETSTYLE, inWordAtCursorOccurence, INDIC_ROUNDBOX); { Overwritten by TCompForm.SyncEditorOptions }
-  Call(SCI_INDICSETFORE, inWordAtCursorOccurence, clYellow); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
-  Call(SCI_INDICSETALPHA, inWordAtCursorOccurence, 255);
-  Call(SCI_INDICSETUNDER, inWordAtCursorOccurence, 1);
+  Call(SCI_INDICSETSTYLE, inWordAtCursorOccurrence, INDIC_ROUNDBOX); { Overwritten by TCompForm.SyncEditorOptions }
+  Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, clYellow); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+  Call(SCI_INDICSETALPHA, inWordAtCursorOccurrence, 255);
+  Call(SCI_INDICSETUNDER, inWordAtCursorOccurrence, 1);
 
-  Call(SCI_INDICSETSTYLE, inSelTextOccurence, INDIC_ROUNDBOX); { Overwritten by TCompForm.SyncEditorOptions }
-  Call(SCI_INDICSETFORE, inSelTextOccurence, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
-  Call(SCI_INDICSETALPHA, inSelTextOccurence, 255);
-  Call(SCI_INDICSETUNDER, inSelTextOccurence, 1);
+  Call(SCI_INDICSETSTYLE, inSelTextOccurrence, INDIC_ROUNDBOX); { Overwritten by TCompForm.SyncEditorOptions }
+  Call(SCI_INDICSETFORE, inSelTextOccurrence, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+  Call(SCI_INDICSETALPHA, inSelTextOccurrence, 255);
+  Call(SCI_INDICSETUNDER, inSelTextOccurrence, 1);
 
   { Set up the gutter column with breakpoint etc symbols - note: column 0 is the
     line numbers column and its width is set up by TScintEdit.UpdateLineNumbersWidth }
@@ -188,8 +188,8 @@ begin
     Color := FTheme.Colors[tcBack];
     Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
     Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
-    Call(SCI_INDICSETFORE, inWordAtCursorOccurence, FTheme.Colors[tcYellow]);
-    Call(SCI_INDICSETFORE, inSelTextOccurence, FTheme.Colors[tcRed]);
+    Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, FTheme.Colors[tcYellow]);
+    Call(SCI_INDICSETFORE, inSelTextOccurrence, FTheme.Colors[tcRed]);
     Call(SCI_MARKERSETBACK, mmLineStep, FTheme.Colors[tcBlue]);
   end;
   UpdateStyleAttributes;
