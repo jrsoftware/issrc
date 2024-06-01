@@ -3236,6 +3236,19 @@ begin
 
   Log64BitInstallMode;
 
+  { Check if app is running }
+  while CheckForMutexes(ExpandedAppMutex) do
+    if LoggedMsgBox(FmtSetupMessage1(msgSetupAppRunningError, ExpandedAppName),
+       SetupMessages[msgSetupAppTitle], mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
+      Abort;
+
+  { Check if Setup is running and if not create mutexes }
+  while CheckForMutexes(ExpandedSetupMutex) do
+    if LoggedMsgBox(FmtSetupMessage1(msgSetupAppRunningError, SetupMessages[msgSetupAppTitle]),
+       SetupMessages[msgSetupAppTitle], mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
+      Abort;
+  CreateMutexes(ExpandedSetupMutex);
+
   { Show "Select Language" dialog if necessary - requires "64-bit mode" to be
     initialized else it might query the previous language from the wrong registry
     view }
@@ -3371,19 +3384,6 @@ begin
   { Update the shutdown block reason now that we have ExpandedAppName. }
   ShutdownBlockReasonCreate(Application.Handle,
     FmtSetupMessage1(msgShutdownBlockReasonInstallingApp, ExpandedAppName));
-
-  { Check if app is running }
-  while CheckForMutexes(ExpandedAppMutex) do
-    if LoggedMsgBox(FmtSetupMessage1(msgSetupAppRunningError, ExpandedAppName),
-       SetupMessages[msgSetupAppTitle], mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
-      Abort;
-
-  { Check if Setup is running and if not create mutexes }
-  while CheckForMutexes(ExpandedSetupMutex) do
-    if LoggedMsgBox(FmtSetupMessage1(msgSetupAppRunningError, SetupMessages[msgSetupAppTitle]),
-       SetupMessages[msgSetupAppTitle], mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
-      Abort;
-  CreateMutexes(ExpandedSetupMutex);
 
   { Remove types that fail their 'languages' or 'check'. Can't do this earlier
     because the InitializeSetup call above can't be done earlier. }
