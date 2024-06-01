@@ -140,6 +140,7 @@
             <Form>RegistryDesignerForm</Form>
         </DCCReference>
         <DCCReference Include="Src\CompWizardRegistryHelper.pas"/>
+        <DCCReference Include="Src\MD5.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

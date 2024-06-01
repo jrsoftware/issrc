@@ -4063,7 +4063,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     FActiveMemo.SetBraceHighlighting(-1, -1);
   end;
 
-  procedure FindAndIndicateText(const TextToFind: String; const SelAvail: Boolean;
+  procedure FindTextAndAddRanges(const TextToFind: String; const SelAvail: Boolean;
     const Selection: TScintRange; const ARangeList: TScintRangeList);
   begin
     if Trim(TextToFind) = '' then
@@ -4113,12 +4113,10 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
           var Word := FActiveMemo.WordAtCursorRange;
           if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
             var TextToIndicate := FActiveMemo.GetTextRange(Word.StartPos, Word.EndPos);
-            FindAndIndicateText(TextToIndicate, SelAvail, Selection, RangeList);
+            FindTextAndAddRanges(TextToIndicate, SelAvail, Selection, RangeList);
           end;
         end;
-        FActiveMemo.ClearIndicators(inWordAtCursorOccurrence);
-        for var Range in RangeList do
-          FActiveMemo.AddIndicator(Range.StartPos, Range.EndPos, inWordAtCursorOccurrence);
+        FActiveMemo.UpdateIndicators(RangeList, inWordAtCursorOccurrence);
       finally
         RangeList.Free;
       end;
@@ -4129,11 +4127,9 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
       try
         if SelAvail and SelSingleLine then begin
           var TextToIndicate := FActiveMemo.SelText;
-          FindAndIndicateText(TextToIndicate, SelAvail, Selection, RangeList);
+          FindTextAndAddRanges(TextToIndicate, SelAvail, Selection, RangeList);
         end;
-        FActiveMemo.ClearIndicators(inSelTextOccurrence);
-        for var Range in RangeList do
-          FActiveMemo.AddIndicator(Range.StartPos, Range.EndPos, inSelTextOccurrence);
+        FActiveMemo.UpdateIndicators(RangeList, inSelTextOccurrence);
       finally
         RangeList.Free;
       end;

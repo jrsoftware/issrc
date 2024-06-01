@@ -34,6 +34,7 @@ const
   { Memo other indicator numbers }
   inWordAtCursorOccurrence = 3;
   inSelTextOccurrence = 4;
+  inMax = inSelTextOccurrence;
 
   { Just some invalid value used to indicate an unknown/uninitialized compiler FileIndex value }
   UnknownCompilerFileIndex = -2;
@@ -43,18 +44,23 @@ type
   PLineStateArray = ^TLineStateArray;
   TLineStateArray = array[0..0] of TLineState;
   TSaveEncoding = (seAuto, seUTF8WithBOM, seUTF8WithoutBOM);
+  TCompScintIndicatorNumber = 0..inMax;
 
   TCompScintEdit = class(TScintEdit)
   private
     FTheme: TTheme;
     FOpeningFile: Boolean;
     FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
+    FIndicatorCount: array[TCompScintIndicatorNumber] of Integer;
+    FIndicatorHash: array[TCompScintIndicatorNumber] of String;
   protected
     procedure CreateWnd; override;
   public
     property Theme: TTheme read FTheme write FTheme;
     property OpeningFile: Boolean read FOpeningFile write FOpeningFile;
     property Used: Boolean read FUsed write FUsed;
+    procedure UpdateIndicators(const Ranges: TScintRangeList;
+      const IndicatorNumber: TCompScintIndicatorNumber);
     procedure UpdateMemoMarkerColumnWidth(const AWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   end;
@@ -120,7 +126,7 @@ type
 implementation
 
 uses
-  ScintInt;
+  ScintInt, MD5;
   
 { TCompScintEdit }
 
@@ -174,6 +180,41 @@ begin
   Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+end;
+
+procedure TCompScintEdit.UpdateIndicators(const Ranges: TScintRangeList;
+  const IndicatorNumber: TCompScintIndicatorNumber);
+
+  function HashRanges(const Ranges: TScintRangeList): String;
+  begin
+    var Context: TMD5Context;
+    MD5Init(Context);
+    for var Range in Ranges do
+      MD5Update(Context, Range, SizeOf(Range));
+    Result := MD5DigestToString(MD5Final(Context));
+  end;
+
+begin
+  var NewCount := Ranges.Count;
+  var NewHash: String;
+
+  var Update := NewCount <> FIndicatorCount[IndicatorNumber];
+  if not Update and (NewCount <> 0) then begin
+    NewHash := HashRanges(Ranges);
+    Update := NewHash <> FIndicatorHash[IndicatorNumber];
+  end;
+
+  if Update then begin
+    Self.ClearIndicators(IndicatorNumber);
+    for var Range in Ranges do
+      Self.AddIndicator(Range.StartPos, Range.EndPos, IndicatorNumber);
+
+    if NewHash = '' then
+      NewHash := HashRanges(Ranges);
+
+    FIndicatorCount[IndicatorNumber] := NewCount;
+    FIndicatorHash[IndicatorNumber] := NewHash;
+  end;
 end;
 
 procedure TCompScintEdit.UpdateMemoMarkerColumnWidth(const AWidth: Integer);
