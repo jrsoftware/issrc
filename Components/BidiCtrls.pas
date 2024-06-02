@@ -139,7 +139,7 @@ end;
 function TNewLinkLabel.AdjustHeight: Integer;
 begin
   var OldHeight := Height;
-  var IdealHeight := SendMessage(Handle, LM_GETIDEALHEIGHT, 0, 0);
+  var IdealHeight := SendMessage(Handle, LM_GETIDEALSIZE, Width, 0);
   if IdealHeight <> 0 then
     Height := IdealHeight;
   Result := Height - OldHeight;
