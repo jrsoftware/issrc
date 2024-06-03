@@ -187,20 +187,25 @@ procedure TCompScintEdit.UpdateIndicators(const Ranges: TScintRangeList;
 
   function HashRanges(const Ranges: TScintRangeList): String;
   begin
-    var Context: TMD5Context;
-    MD5Init(Context);
-    for var Range in Ranges do
-      MD5Update(Context, Range, SizeOf(Range));
-    Result := MD5DigestToString(MD5Final(Context));
+    if Ranges.Count > 0 then begin
+      var Context: TMD5Context;
+      MD5Init(Context);
+      for var Range in Ranges do
+        MD5Update(Context, Range, SizeOf(Range));
+      Result := MD5DigestToString(MD5Final(Context));
+    end else
+      Result := '';
   end;
 
 begin
   var NewCount := Ranges.Count;
   var NewHash: String;
+  var GotNewHash := False;
 
   var Update := NewCount <> FIndicatorCount[IndicatorNumber];
   if not Update and (NewCount <> 0) then begin
     NewHash := HashRanges(Ranges);
+    GotNewHash := True;
     Update := NewHash <> FIndicatorHash[IndicatorNumber];
   end;
 
@@ -209,7 +214,7 @@ begin
     for var Range in Ranges do
       Self.AddIndicator(Range.StartPos, Range.EndPos, IndicatorNumber);
 
-    if NewHash = '' then
+    if not GotNewHash then
       NewHash := HashRanges(Ranges);
 
     FIndicatorCount[IndicatorNumber] := NewCount;
