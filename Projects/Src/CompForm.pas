@@ -4064,11 +4064,11 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     FActiveMemo.SetBraceHighlighting(-1, -1);
   end;
 
-  procedure FindTextAndAddRanges(const TextToFind: String;
+  procedure FindTextAndAddRanges(const TextToFind: TScintRawString;
     const Options: TScintFindOptions; const SelAvail: Boolean;
     const Selection: TScintRange; const ARangeList: TScintRangeList);
   begin
-    if Trim(TextToFind) = '' then
+    if ScintRawStringIsBlank(TextToFind) then
       Exit;
 
     var StartPos := 0;
@@ -4076,7 +4076,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     var Range: TScintRange;
 
     while (StartPos < EndPos) and
-          FActiveMemo.FindText(StartPos, EndPos, TextToFind, Options, Range) do begin
+          FActiveMemo.FindRawText(StartPos, EndPos, TextToFind, Options, Range) do begin
       StartPos := Range.EndPos;
 
       { Don't add indicators on lines which have a line marker }
@@ -4114,7 +4114,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
         if (FActiveMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
           var Word := FActiveMemo.WordAtCursorRange;
           if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
-            var TextToIndicate := FActiveMemo.GetTextRange(Word.StartPos, Word.EndPos);
+            var TextToIndicate := FActiveMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
             FindTextAndAddRanges(TextToIndicate, [sfoWholeWord], SelAvail, Selection, RangeList);
           end;
         end;
@@ -4128,7 +4128,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
       var RangeList := TScintRangeList.Create;
       try
         if SelAvail and SelSingleLine then begin
-          var TextToIndicate := FActiveMemo.SelText;
+          var TextToIndicate := FActiveMemo.RawSelText;
           FindTextAndAddRanges(TextToIndicate, [], SelAvail, Selection, RangeList);
         end;
         FActiveMemo.UpdateIndicators(RangeList, inSelTextOccurrence);
@@ -4378,17 +4378,9 @@ end;
 procedure TCompileForm.MemoCharAdded(Sender: TObject; Ch: AnsiChar);
 
   function LineIsBlank(const Line: Integer): Boolean;
-  var
-    S: TScintRawString;
-    I: Integer;
   begin
-    S := FActiveMemo.Lines.RawLines[Line];
-    for I := 1 to Length(S) do
-      if not(S[I] in [#9, ' ']) then begin
-        Result := False;
-        Exit;
-      end;
-    Result := True;
+    var S := FActiveMemo.Lines.RawLines[Line];
+    Result := ScintRawStringIsBlank(S);
   end;
 
 var

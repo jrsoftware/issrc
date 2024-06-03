@@ -423,10 +423,20 @@ type
 
   EScintEditError = class(Exception);
 
+  function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
+
 implementation
 
 uses
   ShellAPI, RTLConsts, UITypes, GraphUtil;
+
+function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
+begin
+  for var I := 1 to Length(S) do
+    if not(S[I] in [#9, ' ']) then
+      Exit(False);
+  Result := True;
+end;
 
 { TScintEdit }
 
