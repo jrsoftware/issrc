@@ -4009,18 +4009,18 @@ end;
 
 procedure TCompileForm.MemoUpdateUI(Sender: TObject);
 
-  procedure UpdatePendingSquiggly;
+  procedure UpdatePendingSquiggly(const AMemo: TCompScintEdit);
   var
     Pos: Integer;
     Value: Boolean;
   begin
     { Check for the inPendingSquiggly indicator on either side of the caret }
-    Pos := FActiveMemo.CaretPosition;
+    Pos := AMemo.CaretPosition;
     Value := False;
-    if FActiveMemo.CaretVirtualSpace = 0 then begin
-      Value := inPendingSquiggly in FActiveMemo.GetStyleByteIndicatorsAtPosition(Pos);
+    if AMemo.CaretVirtualSpace = 0 then begin
+      Value := inPendingSquiggly in AMemo.GetStyleByteIndicatorsAtPosition(Pos);
       if not Value and (Pos > 0) then
-        Value := inPendingSquiggly in FActiveMemo.GetStyleByteIndicatorsAtPosition(Pos-1);
+        Value := inPendingSquiggly in AMemo.GetStyleByteIndicatorsAtPosition(Pos-1);
     end;
     if FOnPendingSquiggly <> Value then begin
       FOnPendingSquiggly := Value;
@@ -4029,63 +4029,64 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
         { Stop reporting the caret position to the styler (until the next
           Change event) so the token doesn't re-enter pending-squiggly state
           if the caret comes back and something restyles the line }
-        FActiveMemo.ReportCaretPositionToStyler := False;
-        FActiveMemo.RestyleLine(FActiveMemo.GetLineFromPosition(FPendingSquigglyCaretPos));
+        AMemo.ReportCaretPositionToStyler := False;
+        AMemo.RestyleLine(AMemo.GetLineFromPosition(FPendingSquigglyCaretPos));
       end;
     end;
     FPendingSquigglyCaretPos := Pos;
   end;
 
-  procedure UpdateBraceHighlighting;
+  procedure UpdateBraceHighlighting(const AMemo: TCompScintEdit);
   var
     Section: TInnoSetupStylerSection;
     Pos, MatchPos: Integer;
     C: AnsiChar;
   begin
-    Section := FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]);
-    if (Section <> scNone) and (FActiveMemo.CaretVirtualSpace = 0) then begin
-      Pos := FActiveMemo.CaretPosition;
-      C := FActiveMemo.GetCharAtPosition(Pos);
+    Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
+    if (Section <> scNone) and (AMemo.CaretVirtualSpace = 0) then begin
+      Pos := AMemo.CaretPosition;
+      C := AMemo.GetCharAtPosition(Pos);
       if C in ['(', '[', '{'] then begin
-        MatchPos := FActiveMemo.GetPositionOfMatchingBrace(Pos);
+        MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
         if MatchPos >= 0 then begin
-          FActiveMemo.SetBraceHighlighting(Pos, MatchPos);
+          AMemo.SetBraceHighlighting(Pos, MatchPos);
           Exit;
         end;
       end;
       if Pos > 0 then begin
-        Pos := FActiveMemo.GetPositionBefore(Pos);
-        C := FActiveMemo.GetCharAtPosition(Pos);
+        Pos := AMemo.GetPositionBefore(Pos);
+        C := AMemo.GetCharAtPosition(Pos);
         if C in [')', ']', '}'] then begin
-          MatchPos := FActiveMemo.GetPositionOfMatchingBrace(Pos);
+          MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
           if MatchPos >= 0 then begin
-            FActiveMemo.SetBraceHighlighting(Pos, MatchPos);
+            AMemo.SetBraceHighlighting(Pos, MatchPos);
             Exit;
           end;
         end;
       end;
     end;
-    FActiveMemo.SetBraceHighlighting(-1, -1);
+    AMemo.SetBraceHighlighting(-1, -1);
   end;
 
-  procedure FindTextAndAddRanges(const TextToFind: TScintRawString;
-    const Options: TScintFindOptions; const SelAvail: Boolean;
-    const Selection: TScintRange; const ARangeList: TScintRangeList);
+  procedure FindTextAndAddRanges(const AMemo: TCompScintEdit;
+    const TextToFind: TScintRawString; const Options: TScintFindOptions;
+    const SelAvail: Boolean; const Selection: TScintRange;
+    const ARangeList: TScintRangeList);
   begin
     if ScintRawStringIsBlank(TextToFind) then
       Exit;
 
     var StartPos := 0;
-    var EndPos := FActiveMemo.RawTextLength;
+    var EndPos := AMemo.RawTextLength;
     var Range: TScintRange;
 
     while (StartPos < EndPos) and
-          FActiveMemo.FindRawText(StartPos, EndPos, TextToFind, Options, Range) do begin
+          AMemo.FindRawText(StartPos, EndPos, TextToFind, Options, Range) do begin
       StartPos := Range.EndPos;
 
       { Don't add indicators on lines which have a line marker }
-      var Line := FActiveMemo.GetLineFromPosition(Range.StartPos);
-      var Markers := FActiveMemo.GetMarkers(Line);
+      var Line := AMemo.GetLineFromPosition(Range.StartPos);
+      var Markers := AMemo.GetMarkers(Line);
       if Markers * [mmLineError, mmLineBreakpointBad, mmLineStep] <> [] then
         Continue;
 
@@ -4100,7 +4101,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     end;
   end;
 
-  procedure UpdateOccurrenceIndicators;
+  procedure UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
   begin
     { Add occurrence indicators for the word at cursor if there's any and the
       selection is within this word. On top of those add occurrence indicators for
@@ -4108,21 +4109,21 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
       single line. All of these things are just like VSCode. }
 
     var Selection: TScintRange;
-    var SelAvail := FActiveMemo.SelAvail(Selection);
-    var SelSingleLine := FActiveMemo.GetLineFromPosition(Selection.StartPos) =
-                         FActiveMemo.GetLineFromPosition(Selection.EndPos);
+    var SelAvail := AMemo.SelAvail(Selection);
+    var SelSingleLine := AMemo.GetLineFromPosition(Selection.StartPos) =
+                         AMemo.GetLineFromPosition(Selection.EndPos);
 
     if FOptions.HighlightWordAtCursorOccurrences then begin
       var RangeList := TScintRangeList.Create;
       try
-        if (FActiveMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
-          var Word := FActiveMemo.WordAtCursorRange;
+        if (AMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
+          var Word := AMemo.WordAtCursorRange;
           if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
-            var TextToIndicate := FActiveMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-            FindTextAndAddRanges(TextToIndicate, [sfoWholeWord], SelAvail, Selection, RangeList);
+            var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
+            FindTextAndAddRanges(AMemo, TextToIndicate, [sfoWholeWord], SelAvail, Selection, RangeList);
           end;
         end;
-        FActiveMemo.UpdateIndicators(RangeList, inWordAtCursorOccurrence);
+        AMemo.UpdateIndicators(RangeList, inWordAtCursorOccurrence);
       finally
         RangeList.Free;
       end;
@@ -4132,10 +4133,10 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
       var RangeList := TScintRangeList.Create;
       try
         if SelAvail and SelSingleLine then begin
-          var TextToIndicate := FActiveMemo.RawSelText;
-          FindTextAndAddRanges(TextToIndicate, [], SelAvail, Selection, RangeList);
+          var TextToIndicate := AMemo.RawSelText;
+          FindTextAndAddRanges(AMemo, TextToIndicate, [], SelAvail, Selection, RangeList);
         end;
-        FActiveMemo.UpdateIndicators(RangeList, inSelTextOccurrence);
+        AMemo.UpdateIndicators(RangeList, inSelTextOccurrence);
       finally
         RangeList.Free;
       end;
@@ -4143,14 +4144,19 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
   end;
 
 begin
-  if (Sender = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then
+  var Memo := Sender as TCompScintEdit;
+
+  if (Memo = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then
     HideError;
-  UpdateCaretPosPanelAndBackNavStack;
-  UpdatePendingSquiggly;
-  UpdateBraceHighlighting;
-  if Sender = FActiveMemo then
+
+  if Memo = FActiveMemo then begin
+    UpdateCaretPosPanelAndBackNavStack;
     UpdateEditModePanel;
-  UpdateOccurrenceIndicators;
+  end;
+
+  UpdatePendingSquiggly(Memo);
+  UpdateBraceHighlighting(Memo);
+  UpdateOccurrenceIndicators(Memo);
 end;
 
 procedure TCompileForm.MemoModifiedChange(Sender: TObject);
