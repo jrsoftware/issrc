@@ -735,7 +735,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.UseSyntaxHighlighting := Ini.ReadBool('Options', 'UseSynHigh', True);
       FOptions.ColorizeCompilerOutput := Ini.ReadBool('Options', 'ColorizeCompilerOutput', True);
       FOptions.UnderlineErrors := Ini.ReadBool('Options', 'UnderlineErrors', True);
-      FOptions.HighlightWordAtCursorOccurrences := Ini.ReadBool('Options', 'HighlightWordAtCursorOccurrences', True);
+      FOptions.HighlightWordAtCursorOccurrences := Ini.ReadBool('Options', 'HighlightWordAtCursorOccurrences', False);
       FOptions.HighlightSelTextOccurrences := Ini.ReadBool('Options', 'HighlightSelTextOccurrences', True);
       FOptions.CursorPastEOL := Ini.ReadBool('Options', 'EditorCursorPastEOL', False);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
