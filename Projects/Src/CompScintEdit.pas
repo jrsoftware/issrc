@@ -151,12 +151,12 @@ begin
   Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
-  Call(SCI_INDICSETSTYLE, inWordAtCursorOccurrence, INDIC_ROUNDBOX); { Overwritten by TCompForm.SyncEditorOptions }
+  Call(SCI_INDICSETSTYLE, inWordAtCursorOccurrence, INDIC_ROUNDBOX);
   Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETALPHA, inWordAtCursorOccurrence, 255);
   Call(SCI_INDICSETUNDER, inWordAtCursorOccurrence, 1);
 
-  Call(SCI_INDICSETSTYLE, inSelTextOccurrence, INDIC_ROUNDBOX); { Overwritten by TCompForm.SyncEditorOptions }
+  Call(SCI_INDICSETSTYLE, inSelTextOccurrence, INDIC_ROUNDBOX);
   Call(SCI_INDICSETFORE, inSelTextOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETALPHA, inSelTextOccurrence, 255);
   Call(SCI_INDICSETUNDER, inSelTextOccurrence, 1);

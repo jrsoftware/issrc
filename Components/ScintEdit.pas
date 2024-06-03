@@ -423,7 +423,7 @@ type
 
   EScintEditError = class(Exception);
 
-  function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
+function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
 
 implementation
 
