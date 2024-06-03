@@ -3788,6 +3788,7 @@ procedure TCompileForm.NavPopupMenuClick(Sender: TObject);
     var MenuItem := TMenuItem.Create(Menu);
     MenuItem.Caption := DoubleAmp(Caption);
     MenuItem.Checked := Checked;
+    MenuItem.RadioItem := True;
     MenuItem.Tag := ClicksNeeded;
     MenuItem.OnClick := NavItemClick;
     Menu.Add(MenuItem);

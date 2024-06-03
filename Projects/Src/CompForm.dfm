@@ -397,6 +397,7 @@ object CompileForm: TCompileForm
         end
         object FSaveEncodingUTF8WithBOM: TMenuItem
           Caption = 'UTF-8 with &BOM'
+          RadioItem = True
           OnClick = FSaveEncodingItemClick
         end
       end
