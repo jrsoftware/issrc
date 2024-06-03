@@ -824,7 +824,7 @@ begin
   SetFakeShortCut(EPaste, Ord('V'), [ssCtrl]);
   SetFakeShortCut(ESelectAll, Ord('A'), [ssCtrl]);
   SetFakeShortCut(EDelete, VK_DELETE, []);
-  SetFakeShortCut(ECompleteWord, VK_RIGHT, [ssAlt]);
+  SetFakeShortCut(ECompleteWord, Ord(' '), [ssCtrl]);
   SetFakeShortCutText(VZoomIn, SmkcCtrl + 'Num +');    { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
   SetFakeShortCutText(VZoomOut, SmkcCtrl + 'Num -');
   SetFakeShortCutText(VZoomReset, SmkcCtrl + 'Num /');
@@ -3797,6 +3797,7 @@ procedure TCompileForm.NavPopupMenuClick(Sender: TObject);
     var MenuItem := TMenuItem.Create(Menu);
     MenuItem.Caption := DoubleAmp(Caption);
     MenuItem.Checked := Checked;
+    MenuItem.RadioItem := True;
     MenuItem.Tag := ClicksNeeded;
     MenuItem.OnClick := NavItemClick;
     Menu.Add(MenuItem);
