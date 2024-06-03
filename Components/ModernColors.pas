@@ -57,7 +57,7 @@ const
   LBack = clWhite;
   LToolBack = clBtnFace;
   LSelBack = $FDD6A7;        { VSCode Modern Light }
-  LWACOBack = $E0E0E0;       { Inno Setup 5 }
+  LWACOBack = $ECECEC;       { Inno Setup 5, 4 tints lightened using color-hex.com }
   LSTOBACK = $FEEAD3;        { VSCode Modern Light }
   LMarginFore = $716F71;     { Monokai Pro }
   LMarginBack = $F9FBFB;     { Monokai Pro }
@@ -69,7 +69,7 @@ const
   CBack = clWhite;
   CToolBack = clBtnFace;
   CSelBack = $FDD6A7;        { VSCode Modern Light }
-  CWACOBack = $E0E0E0;       { Inno Setup 5 }
+  CWACOBack = $ECECEC;       { Inno Setup 5, 4 tints lightened using color-hex.com }
   CSTOBACK = $FEEAD3;        { VSCode Modern Light }
   CMarginFore = clWindowText;
   CMarginBack = clBtnFace;
