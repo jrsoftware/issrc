@@ -27,9 +27,14 @@ const
   mmIconStep = 13;           { blue arrow }
   mmIconBreakpointStep = 14; { blue arrow on top of a stop sign + check }
 
-  { Memo indicator numbers (also in ScintStylerInnoSetup) }
+  { Memo style byte indicator numbers (0..2 - also in ScintStylerInnoSetup) }
   inSquiggly = 0;
   inPendingSquiggly = 1;
+
+  { Memo other indicator numbers }
+  inWordAtCursorOccurrence = 3;
+  inSelTextOccurrence = 4;
+  inMax = inSelTextOccurrence;
 
   { Just some invalid value used to indicate an unknown/uninitialized compiler FileIndex value }
   UnknownCompilerFileIndex = -2;
@@ -39,18 +44,23 @@ type
   PLineStateArray = ^TLineStateArray;
   TLineStateArray = array[0..0] of TLineState;
   TSaveEncoding = (seAuto, seUTF8WithBOM, seUTF8WithoutBOM);
+  TCompScintIndicatorNumber = 0..inMax;
 
   TCompScintEdit = class(TScintEdit)
   private
     FTheme: TTheme;
     FOpeningFile: Boolean;
     FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
+    FIndicatorCount: array[TCompScintIndicatorNumber] of Integer;
+    FIndicatorHash: array[TCompScintIndicatorNumber] of String;
   protected
     procedure CreateWnd; override;
   public
     property Theme: TTheme read FTheme write FTheme;
     property OpeningFile: Boolean read FOpeningFile write FOpeningFile;
     property Used: Boolean read FUsed write FUsed;
+    procedure UpdateIndicators(const Ranges: TScintRangeList;
+      const IndicatorNumber: TCompScintIndicatorNumber);
     procedure UpdateMemoMarkerColumnWidth(const AWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   end;
@@ -116,7 +126,7 @@ type
 implementation
 
 uses
-  ScintInt;
+  ScintInt, MD5;
   
 { TCompScintEdit }
 
@@ -141,6 +151,16 @@ begin
   Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
+  Call(SCI_INDICSETSTYLE, inWordAtCursorOccurrence, INDIC_ROUNDBOX);
+  Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+  Call(SCI_INDICSETALPHA, inWordAtCursorOccurrence, 255);
+  Call(SCI_INDICSETUNDER, inWordAtCursorOccurrence, 1);
+
+  Call(SCI_INDICSETSTYLE, inSelTextOccurrence, INDIC_ROUNDBOX);
+  Call(SCI_INDICSETFORE, inSelTextOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+  Call(SCI_INDICSETALPHA, inSelTextOccurrence, 255);
+  Call(SCI_INDICSETUNDER, inSelTextOccurrence, 1);
+
   { Set up the gutter column with breakpoint etc symbols - note: column 0 is the
     line numbers column and its width is set up by TScintEdit.UpdateLineNumbersWidth }
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
@@ -162,6 +182,46 @@ begin
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
 end;
 
+procedure TCompScintEdit.UpdateIndicators(const Ranges: TScintRangeList;
+  const IndicatorNumber: TCompScintIndicatorNumber);
+
+  function HashRanges(const Ranges: TScintRangeList): String;
+  begin
+    if Ranges.Count > 0 then begin
+      var Context: TMD5Context;
+      MD5Init(Context);
+      for var Range in Ranges do
+        MD5Update(Context, Range, SizeOf(Range));
+      Result := MD5DigestToString(MD5Final(Context));
+    end else
+      Result := '';
+  end;
+
+begin
+  var NewCount := Ranges.Count;
+  var NewHash: String;
+  var GotNewHash := False;
+
+  var Update := NewCount <> FIndicatorCount[IndicatorNumber];
+  if not Update and (NewCount <> 0) then begin
+    NewHash := HashRanges(Ranges);
+    GotNewHash := True;
+    Update := NewHash <> FIndicatorHash[IndicatorNumber];
+  end;
+
+  if Update then begin
+    Self.ClearIndicators(IndicatorNumber);
+    for var Range in Ranges do
+      Self.AddIndicator(Range.StartPos, Range.EndPos, IndicatorNumber);
+
+    if not GotNewHash then
+      NewHash := HashRanges(Ranges);
+
+    FIndicatorCount[IndicatorNumber] := NewCount;
+    FIndicatorHash[IndicatorNumber] := NewHash;
+  end;
+end;
+
 procedure TCompScintEdit.UpdateMemoMarkerColumnWidth(const AWidth: Integer);
 begin
   Call(SCI_SETMARGINWIDTHN, 1, AWidth);
@@ -174,6 +234,8 @@ begin
     Color := FTheme.Colors[tcBack];
     Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
     Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
+    Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, FTheme.Colors[tcWordAtCursorOccurrenceBack]);
+    Call(SCI_INDICSETFORE, inSelTextOccurrence, FTheme.Colors[tcSelTextOccurrenceBack]);
     Call(SCI_MARKERSETBACK, mmLineStep, FTheme.Colors[tcBlue]);
   end;
   UpdateStyleAttributes;

@@ -53,6 +53,8 @@ type
     ThemeComboBox: TComboBox;
     OpenIncludedFilesCheck: TCheckBox;
     ShowPreprocessorOutputCheck: TCheckBox;
+    HighlightWordAtCursorOccurrencesCheck: TCheckBox;
+    HighlightSelTextOccurrencesCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);

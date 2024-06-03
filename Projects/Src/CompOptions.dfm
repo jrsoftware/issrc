@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 384
+  ClientHeight = 395
   ClientWidth = 589
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,14 +17,14 @@ object OptionsForm: TOptionsForm
   OnCreate = FormCreate
   DesignSize = (
     589
-    355)
+    395)
   PixelsPerInch = 96
   TextHeight = 13
   object GroupBox1: TGroupBox
     Left = 8
     Top = 8
     Width = 281
-    Height = 274
+    Height = 285
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Miscellaneous '
     TabOrder = 0
@@ -116,10 +116,27 @@ object OptionsForm: TOptionsForm
       Caption = 'Automatically show preprocessor output'
       TabOrder = 2
     end
+    object Label3: TNewStaticText
+      Left = 8
+      Top = 242
+      Width = 45
+      Height = 14
+      Caption = '&Key map:'
+      FocusControl = KeyMappingComboBox
+      TabOrder = 11
+    end
+    object KeyMappingComboBox: TComboBox
+      Left = 72
+      Top = 239
+      Width = 201
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 12
+    end
   end
   object GroupBox2: TGroupBox
     Left = 8
-    Top = 283
+    Top = 294
     Width = 281
     Height = 57
     Anchors = [akLeft, akBottom]
@@ -143,7 +160,7 @@ object OptionsForm: TOptionsForm
     Left = 300
     Top = 8
     Width = 281
-    Height = 332
+    Height = 343
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Editor '
     TabOrder = 2
@@ -213,7 +230,7 @@ object OptionsForm: TOptionsForm
     end
     object Label1: TNewStaticText
       Left = 8
-      Top = 266
+      Top = 277
       Width = 25
       Height = 14
       Caption = 'Font:'
@@ -221,7 +238,7 @@ object OptionsForm: TOptionsForm
     end
     object FontPanel: TPanel
       Left = 72
-      Top = 257
+      Top = 268
       Width = 121
       Height = 32
       BevelKind = bkFlat
@@ -231,7 +248,7 @@ object OptionsForm: TOptionsForm
     end
     object ChangeFontButton: TButton
       Left = 200
-      Top = 262
+      Top = 273
       Width = 73
       Height = 23
       Caption = '&Change...'
@@ -240,7 +257,7 @@ object OptionsForm: TOptionsForm
     end
     object Label2: TNewStaticText
       Left = 8
-      Top = 300
+      Top = 311
       Width = 54
       Height = 14
       Caption = '&Tab Width:'
@@ -249,7 +266,7 @@ object OptionsForm: TOptionsForm
     end
     object TabWidthEdit: TEdit
       Left = 72
-      Top = 297
+      Top = 308
       Width = 41
       Height = 21
       TabOrder = 16
@@ -263,26 +280,9 @@ object OptionsForm: TOptionsForm
       Caption = 'Show &line numbers in gutter'
       TabOrder = 8
     end
-    object Label3: TNewStaticText
-      Left = 8
-      Top = 202
-      Width = 37
-      Height = 14
-      Caption = '&Key map:'
-      FocusControl = KeyMappingComboBox
-      TabOrder = 9
-    end
-    object KeyMappingComboBox: TComboBox
-      Left = 72
-      Top = 199
-      Width = 201
-      Height = 21
-      Style = csDropDownList
-      TabOrder = 10
-    end
     object Label4: TNewStaticText
       Left = 8
-      Top = 231
+      Top = 242
       Width = 37
       Height = 14
       Caption = 'T&heme:'
@@ -291,16 +291,31 @@ object OptionsForm: TOptionsForm
     end
     object ThemeComboBox: TComboBox
       Left = 72
-      Top = 228
+      Top = 239
       Width = 201
       Height = 21
       Style = csDropDownList
       TabOrder = 12
     end
-  end
+    object HighlightSelTextOccurrencesCheck: TCheckBox
+      Left = 8
+      Top = 196
+      Width = 265
+      Height = 17
+      Caption = 'Highlight occurrences of current selection'
+      TabOrder = 9
+    end
+    object HighlightWordAtCursorOccurrencesCheck: TCheckBox
+      Left = 8
+      Top = 216
+      Width = 265
+      Height = 17
+      Caption = 'Highlight occurrences of current wor&d'
+      TabOrder = 10
+    end  end
   object OKButton: TButton
     Left = 428
-    Top = 352
+    Top = 363
     Width = 73
     Height = 23
     Anchors = [akLeft, akBottom]
@@ -311,7 +326,7 @@ object OptionsForm: TOptionsForm
   end
   object CancelButton: TButton
     Left = 508
-    Top = 352
+    Top = 363
     Width = 73
     Height = 23
     Anchors = [akLeft, akBottom]

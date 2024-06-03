@@ -12,7 +12,7 @@ unit ScintEdit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, ScintInt;
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Generics.Collections, ScintInt;
 
 type
   TScintEditAutoCompleteSelectionEvent = TNotifyEvent;
@@ -33,15 +33,20 @@ type
   TScintFindOption = (sfoMatchCase, sfoWholeWord);
   TScintFindOptions = set of TScintFindOption;
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
-  TScintIndicatorNumber = 0..2;
-  TScintIndicatorNumbers = set of TScintIndicatorNumber;
+  TScintStyleByteIndicatorNumber = 0..2; { These use unused style bits of which there are 3. Assumes SCI_SETSTYLEBITS isn't used to change the default used style bits from 5 to a higher number. }
+  TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
+  TScintIndicatorNumber = type Integer;
   TScintLineEndings = (sleCRLF, sleCR, sleLF);
   TScintLineState = type Integer;
   TScintMarkerNumber = 0..31;
   TScintMarkerNumbers = set of TScintMarkerNumber;
   TScintRange = record
     StartPos, EndPos: Integer;
+    constructor Create(const AStartPos, AEndPos: Integer);
+    function Overlaps(const ARange: TScintRange): Boolean;
+    function Within(const ARange: TScintRange): Boolean;
   end;
+  TScintRangeList = TList<TScintRange>;
   TScintRawCharSet = set of AnsiChar;
   TScintRawString = type RawByteString;
   TScintRectangle = record
@@ -165,6 +170,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AddMarker(const Line: Integer; const Marker: TScintMarkerNumber);
+    procedure AddIndicator(const StartPos, EndPos: Integer;
+      const IndicatorNumber: TScintIndicatorNumber);
     procedure BeginUndoAction;
     function Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;
     function CallStr(Msg: Cardinal; WParam: Longint;
@@ -174,6 +181,7 @@ type
     function CanUndo: Boolean;
     procedure ChooseCaretX;
     procedure ClearAll;
+    procedure ClearIndicators(const IndicatorNumber: TScintIndicatorNumber);
     procedure ClearSelection;
     procedure ClearUndo;
     function ConvertRawStringToString(const S: TScintRawString): String;
@@ -196,7 +204,7 @@ type
     function GetColumnFromPosition(const Pos: Integer): Integer;
     function GetDefaultWordChars: AnsiString;
     function GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
-    function GetIndicatorsAtPosition(const Pos: Integer): TScintIndicatorNumbers;
+    function GetStyleByteIndicatorsAtPosition(const Pos: Integer): TScintStyleByteIndicatorNumbers;
     function GetLineEndPosition(const Line: Integer): Integer;
     function GetLineFromPosition(const Pos: Integer): Integer;
     function GetLineIndentation(const Line: Integer): Integer;
@@ -227,7 +235,8 @@ type
     function ReplaceTextRange(const StartPos, EndPos: Integer; const S: String): TScintRange;
     procedure RestyleLine(const Line: Integer);
     procedure ScrollCaretIntoView;
-    function SelAvail: Boolean;
+    function SelAvail: Boolean; overload;
+    function SelAvail(out Sel: TScintRange): Boolean; overload;
     procedure SelectAll;
     function SelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     procedure SetAutoCompleteFillupChars(const FillupChars: AnsiString);
@@ -246,6 +255,7 @@ type
     procedure Undo;
     procedure UpdateStyleAttributes;
     function WordAtCursor: String;
+    function WordAtCursorRange: TScintRange;
     procedure ZoomIn;
     procedure ZoomOut;
     property AutoCompleteActive: Boolean read GetAutoCompleteActive;
@@ -368,7 +378,7 @@ type
     function GetCurChar: AnsiChar;
     function GetEndOfLine: Boolean;
   protected
-    procedure ApplyIndicators(const Indicators: TScintIndicatorNumbers;
+    procedure ApplyStyleByteIndicators(const Indicators: TScintStyleByteIndicatorNumbers;
       StartIndex, EndIndex: Integer);
     procedure ApplyStyle(const Style: TScintStyleNumber;
       StartIndex, EndIndex: Integer);
@@ -413,10 +423,20 @@ type
 
   EScintEditError = class(Exception);
 
+function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
+
 implementation
 
 uses
-  ShellAPI, RTLConsts, UITypes, Generics.Collections, GraphUtil;
+  ShellAPI, RTLConsts, UITypes, GraphUtil;
+
+function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
+begin
+  for var I := 1 to Length(S) do
+    if not(S[I] in [#9, ' ']) then
+      Exit(False);
+  Result := True;
+end;
 
 { TScintEdit }
 
@@ -442,6 +462,14 @@ begin
   FLines.Free;
   FLines := nil;
   inherited;
+end;
+
+procedure TScintEdit.AddIndicator(const StartPos, EndPos: Integer;
+  const IndicatorNumber: TScintIndicatorNumber);
+begin
+  CheckPosRange(StartPos, EndPos);
+  Call(SCI_SETINDICATORCURRENT, IndicatorNumber, 0);
+  Call(SCI_INDICATORFILLRANGE, StartPos, EndPos - StartPos);
 end;
 
 procedure TScintEdit.AddMarker(const Line: Integer;
@@ -546,6 +574,13 @@ procedure TScintEdit.ClearAll;
 begin
   Call(SCI_CLEARALL, 0, 0);
   ChooseCaretX;
+end;
+
+procedure TScintEdit.ClearIndicators(
+  const IndicatorNumber: TScintIndicatorNumber);
+begin
+  Call(SCI_SETINDICATORCURRENT, IndicatorNumber, 0);
+  Call(SCI_INDICATORCLEARRANGE, 0, RawTextLength);
 end;
 
 procedure TScintEdit.ClearSelection;
@@ -763,12 +798,12 @@ begin
   Result := Call(SCI_DOCLINEFROMVISIBLE, VisibleLine, 0);
 end;
 
-function TScintEdit.GetIndicatorsAtPosition(const Pos: Integer): TScintIndicatorNumbers;
+function TScintEdit.GetStyleByteIndicatorsAtPosition(const Pos: Integer): TScintStyleByteIndicatorNumbers;
 var
   Indic: Byte;
 begin
   Indic := Byte(Call(SCI_GETSTYLEAT, Pos, 0)) shr 5;
-  Result := TScintIndicatorNumbers(Indic);
+  Result := TScintStyleByteIndicatorNumbers(Indic);
 end;
 
 function TScintEdit.GetInsertMode: Boolean;
@@ -1146,11 +1181,15 @@ begin
 end;
 
 function TScintEdit.SelAvail: Boolean;
-var
-  Sel: TScintRange;
+begin
+  var Sel: TScintRange;
+  Result := SelAvail(Sel);
+end;
+
+function TScintEdit.SelAvail(out Sel: TScintRange): Boolean;
 begin
   Sel := GetSelection;
-  Result := (Sel.EndPos > Sel.StartPos);
+  Result := Sel.EndPos > Sel.StartPos;
 end;
 
 procedure TScintEdit.SelectAll;
@@ -1716,13 +1755,16 @@ begin
 end;
 
 function TScintEdit.WordAtCursor: String;
-var
-  Pos, StartPos, EndPos: Integer;
 begin
-  Pos := GetCaretPosition;
-  StartPos := GetWordStartPosition(Pos, True);
-  EndPos := GetWordEndPosition(Pos, True);
-  Result := GetTextRange(StartPos, EndPos);
+  var Range := WordAtCursorRange;
+  Result := GetTextRange(Range.StartPos, Range.EndPos);
+end;
+
+function TScintEdit.WordAtCursorRange: TScintRange;
+begin
+  var Pos := GetCaretPosition;
+  Result.StartPos := GetWordStartPosition(Pos, True);
+  Result.EndPos := GetWordEndPosition(Pos, True);
 end;
 
 procedure TScintEdit.ZoomIn;
@@ -1977,7 +2019,7 @@ end;
 
 { TScintCustomStyler }
 
-procedure TScintCustomStyler.ApplyIndicators(const Indicators: TScintIndicatorNumbers;
+procedure TScintCustomStyler.ApplyStyleByteIndicators(const Indicators: TScintStyleByteIndicatorNumbers;
   StartIndex, EndIndex: Integer);
 var
   IndByte: Byte;
@@ -2024,7 +2066,7 @@ end;
 
 function TScintCustomStyler.ConsumeAllRemaining: Boolean;
 begin
-  Result := (FCurIndex <= FTextLen);
+  Result := FCurIndex <= FTextLen;
   if Result then
     FCurIndex := FTextLen + 1;
 end;
@@ -2093,7 +2135,7 @@ end;
 
 function TScintCustomStyler.GetEndOfLine: Boolean;
 begin
-  Result := (FCurIndex > FTextLen);
+  Result := FCurIndex > FTextLen;
 end;
 
 function TScintCustomStyler.LineTextSpans(const S: TScintRawString): Boolean;
@@ -2223,6 +2265,24 @@ begin
   finally
     Colors.Free;
   end;
+end;
+
+{ TScintRange }
+
+constructor TScintRange.Create(const AStartPos, AEndPos: Integer);
+begin
+  StartPos := AStartPos;
+  EndPos := AEndPos;
+end;
+
+function TScintRange.Overlaps(const ARange: TScintRange): Boolean;
+begin
+  Result := (StartPos <= ARange.EndPos) and (EndPos >= ARange.StartPos);
+end;
+
+function TScintRange.Within(const ARange: TScintRange): Boolean;
+begin
+  Result := (StartPos >= ARange.StartPos) and (EndPos <= ARange.EndPos);
 end;
 
 end.

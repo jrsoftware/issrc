@@ -58,7 +58,8 @@ uses
   Compress in 'Src\Compress.pas',
   TaskDialog in 'Src\TaskDialog.pas',
   CompRegistryDesigner in 'Src\CompRegistryDesigner.pas' {RegistryDesignerForm},
-  CompWizardRegistryHelper in 'Src\CompWizardRegistryHelper.pas';
+  CompWizardRegistryHelper in 'Src\CompWizardRegistryHelper.pas',
+  MD5 in 'Src\MD5.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}

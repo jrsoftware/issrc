@@ -368,6 +368,8 @@ type
       UseSyntaxHighlighting: Boolean;
       ColorizeCompilerOutput: Boolean;
       UnderlineErrors: Boolean;
+      HighlightWordAtCursorOccurrences: Boolean;
+      HighlightSelTextOccurrences: Boolean;
       CursorPastEOL: Boolean;
       TabWidth: Integer;
       UseTabCharacter: Boolean;
@@ -534,6 +536,7 @@ type
     procedure UpdateModifiedPanel;
     procedure UpdateNavButtons;
     procedure UpdateNewMainFileButtons;
+    procedure UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateSaveMenuItemAndButton;
@@ -733,6 +736,8 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.UseSyntaxHighlighting := Ini.ReadBool('Options', 'UseSynHigh', True);
       FOptions.ColorizeCompilerOutput := Ini.ReadBool('Options', 'ColorizeCompilerOutput', True);
       FOptions.UnderlineErrors := Ini.ReadBool('Options', 'UnderlineErrors', True);
+      FOptions.HighlightWordAtCursorOccurrences := Ini.ReadBool('Options', 'HighlightWordAtCursorOccurrences', False);
+      FOptions.HighlightSelTextOccurrences := Ini.ReadBool('Options', 'HighlightSelTextOccurrences', True);
       FOptions.CursorPastEOL := Ini.ReadBool('Options', 'EditorCursorPastEOL', False);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
       FOptions.UseTabCharacter := Ini.ReadBool('Options', 'UseTabCharacter', False);
@@ -3222,6 +3227,74 @@ begin
   StatusPanel.Height := H;
 end;
 
+procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
+
+  procedure FindTextAndAddRanges(const AMemo: TCompScintEdit;
+    const TextToFind: TScintRawString; const Options: TScintFindOptions;
+    const SelAvail: Boolean; const Selection: TScintRange;
+    const ARangeList: TScintRangeList);
+  begin
+    if ScintRawStringIsBlank(TextToFind) then
+      Exit;
+
+    var StartPos := 0;
+    var EndPos := AMemo.RawTextLength;
+    var Range: TScintRange;
+
+    while (StartPos < EndPos) and
+          AMemo.FindRawText(StartPos, EndPos, TextToFind, Options, Range) do begin
+      StartPos := Range.EndPos;
+
+      { Don't add indicators on lines which have a line marker }
+      var Line := AMemo.GetLineFromPosition(Range.StartPos);
+      var Markers := AMemo.GetMarkers(Line);
+      if Markers * [mmLineError, mmLineBreakpointBad, mmLineStep] <> [] then
+        Continue;
+
+      { Add indicator while making sure it does not overlap the regular selection styling }
+      if SelAvail and Range.Overlaps(Selection) then begin
+        if Range.StartPos < Selection.StartPos then
+          ARangeList.Add(TScintRange.Create(Range.StartPos, Selection.StartPos));
+        if Range.EndPos > Selection.EndPos then
+          ARangeList.Add(TScintRange.Create(Selection.EndPos, Range.EndPos));
+      end else
+        ARangeList.Add(TScintRange.Create(Range.StartPos, Range.EndPos));
+    end;
+  end;
+
+begin
+  { Add occurrence indicators for the word at cursor if there's any and the
+    selection is within this word. On top of those add occurrence indicators for
+    the selected text if there's any. Don't do anything of the selection is not
+    single line. All of these things are just like VSCode. }
+
+  var Selection: TScintRange;
+  var SelAvail := AMemo.SelAvail(Selection);
+  var SelSingleLine := AMemo.GetLineFromPosition(Selection.StartPos) =
+                       AMemo.GetLineFromPosition(Selection.EndPos);
+
+  var RangeList := TScintRangeList.Create;
+  try
+    if FOptions.HighlightWordAtCursorOccurrences and (AMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
+      var Word := AMemo.WordAtCursorRange;
+      if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
+        var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
+        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoWholeWord], SelAvail, Selection, RangeList);
+      end;
+    end;
+    AMemo.UpdateIndicators(RangeList, inWordAtCursorOccurrence);
+
+    RangeList.Clear;
+    if FOptions.HighlightSelTextOccurrences and SelAvail and SelSingleLine then begin
+      var TextToIndicate := AMemo.RawSelText;
+      FindTextAndAddRanges(AMemo, TextToIndicate, [], SelAvail, Selection, RangeList);
+    end;
+    AMemo.UpdateIndicators(RangeList, inSelTextOccurrence);
+  finally
+    RangeList.Free;
+  end;
+end;
+
 procedure TCompileForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
 begin
   CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
@@ -3480,6 +3553,8 @@ begin
     OptionsForm.FontPanel.Font.Assign(FMainMemo.Font);
     OptionsForm.FontPanel.ParentBackground := False;
     OptionsForm.FontPanel.Color := FMainMemo.Color;
+    OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked := FOptions.HighlightWordAtCursorOccurrences;
+    OptionsForm.HighlightSelTextOccurrencesCheck.Checked := FOptions.HighlightSelTextOccurrences;
 
     if OptionsForm.ShowModal <> mrOK then
       Exit;
@@ -3507,7 +3582,9 @@ begin
     FOptions.OpenIncludedFiles := OptionsForm.OpenIncludedFilesCheck.Checked;
     FOptions.KeyMappingType := TKeyMappingType(OptionsForm.KeyMappingComboBox.ItemIndex);
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
-    
+    FOptions.HighlightWordAtCursorOccurrences := OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked;
+    FOptions.HighlightSelTextOccurrences := OptionsForm.HighlightSelTextOccurrencesCheck.Checked;
+
     UpdateCaption;
     UpdatePreprocMemos;
     InvalidateStatusPanel(spHiddenFilesCount);
@@ -3519,6 +3596,7 @@ begin
     end;
     SyncEditorOptions;
     UpdateNewMainFileButtons;
+    UpdateOccurrenceIndicators(FActiveMemo);
     UpdateKeyMapping;
     UpdateTheme;
 
@@ -3537,6 +3615,8 @@ begin
       Ini.WriteBool('Options', 'UseSynHigh', FOptions.UseSyntaxHighlighting);
       Ini.WriteBool('Options', 'ColorizeCompilerOutput', FOptions.ColorizeCompilerOutput);
       Ini.WriteBool('Options', 'UnderlineErrors', FOptions.UnderlineErrors);
+      Ini.WriteBool('Options', 'HighlightWordAtCursorOccurrences', FOptions.HighlightWordAtCursorOccurrences);
+      Ini.WriteBool('Options', 'HighlightSelTextOccurrences', FOptions.HighlightSelTextOccurrences);
       Ini.WriteBool('Options', 'EditorCursorPastEOL', FOptions.CursorPastEOL);
       Ini.WriteInteger('Options', 'TabWidth', FOptions.TabWidth);
       Ini.WriteBool('Options', 'UseTabCharacter', FOptions.UseTabCharacter);
@@ -3996,18 +4076,18 @@ end;
 
 procedure TCompileForm.MemoUpdateUI(Sender: TObject);
 
-  procedure UpdatePendingSquiggly;
+  procedure UpdatePendingSquiggly(const AMemo: TCompScintEdit);
   var
     Pos: Integer;
     Value: Boolean;
   begin
     { Check for the inPendingSquiggly indicator on either side of the caret }
-    Pos := FActiveMemo.CaretPosition;
+    Pos := AMemo.CaretPosition;
     Value := False;
-    if FActiveMemo.CaretVirtualSpace = 0 then begin
-      Value := (inPendingSquiggly in FActiveMemo.GetIndicatorsAtPosition(Pos));
+    if AMemo.CaretVirtualSpace = 0 then begin
+      Value := inPendingSquiggly in AMemo.GetStyleByteIndicatorsAtPosition(Pos);
       if not Value and (Pos > 0) then
-        Value := (inPendingSquiggly in FActiveMemo.GetIndicatorsAtPosition(Pos-1));
+        Value := inPendingSquiggly in AMemo.GetStyleByteIndicatorsAtPosition(Pos-1);
     end;
     if FOnPendingSquiggly <> Value then begin
       FOnPendingSquiggly := Value;
@@ -4016,53 +4096,59 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
         { Stop reporting the caret position to the styler (until the next
           Change event) so the token doesn't re-enter pending-squiggly state
           if the caret comes back and something restyles the line }
-        FActiveMemo.ReportCaretPositionToStyler := False;
-        FActiveMemo.RestyleLine(FActiveMemo.GetLineFromPosition(FPendingSquigglyCaretPos));
+        AMemo.ReportCaretPositionToStyler := False;
+        AMemo.RestyleLine(AMemo.GetLineFromPosition(FPendingSquigglyCaretPos));
       end;
     end;
     FPendingSquigglyCaretPos := Pos;
   end;
 
-  procedure UpdateBraceHighlighting;
+  procedure UpdateBraceHighlighting(const AMemo: TCompScintEdit);
   var
     Section: TInnoSetupStylerSection;
     Pos, MatchPos: Integer;
     C: AnsiChar;
   begin
-    Section := FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]);
-    if (Section <> scNone) and (FActiveMemo.CaretVirtualSpace = 0) then begin
-      Pos := FActiveMemo.CaretPosition;
-      C := FActiveMemo.GetCharAtPosition(Pos);
+    Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
+    if (Section <> scNone) and (AMemo.CaretVirtualSpace = 0) then begin
+      Pos := AMemo.CaretPosition;
+      C := AMemo.GetCharAtPosition(Pos);
       if C in ['(', '[', '{'] then begin
-        MatchPos := FActiveMemo.GetPositionOfMatchingBrace(Pos);
+        MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
         if MatchPos >= 0 then begin
-          FActiveMemo.SetBraceHighlighting(Pos, MatchPos);
+          AMemo.SetBraceHighlighting(Pos, MatchPos);
           Exit;
         end;
       end;
       if Pos > 0 then begin
-        Pos := FActiveMemo.GetPositionBefore(Pos);
-        C := FActiveMemo.GetCharAtPosition(Pos);
+        Pos := AMemo.GetPositionBefore(Pos);
+        C := AMemo.GetCharAtPosition(Pos);
         if C in [')', ']', '}'] then begin
-          MatchPos := FActiveMemo.GetPositionOfMatchingBrace(Pos);
+          MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
           if MatchPos >= 0 then begin
-            FActiveMemo.SetBraceHighlighting(Pos, MatchPos);
+            AMemo.SetBraceHighlighting(Pos, MatchPos);
             Exit;
           end;
         end;
       end;
     end;
-    FActiveMemo.SetBraceHighlighting(-1, -1);
+    AMemo.SetBraceHighlighting(-1, -1);
   end;
 
 begin
-  if (Sender = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then
+  var Memo := Sender as TCompScintEdit;
+
+  if (Memo = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then
     HideError;
-  UpdateCaretPosPanelAndBackNavStack;
-  UpdatePendingSquiggly;
-  UpdateBraceHighlighting;
-  if Sender = FActiveMemo then
+
+  if Memo = FActiveMemo then begin
+    UpdateCaretPosPanelAndBackNavStack;
     UpdateEditModePanel;
+  end;
+
+  UpdatePendingSquiggly(Memo);
+  UpdateBraceHighlighting(Memo);
+  UpdateOccurrenceIndicators(Memo);
 end;
 
 procedure TCompileForm.MemoModifiedChange(Sender: TObject);
@@ -4294,17 +4380,9 @@ end;
 procedure TCompileForm.MemoCharAdded(Sender: TObject; Ch: AnsiChar);
 
   function LineIsBlank(const Line: Integer): Boolean;
-  var
-    S: TScintRawString;
-    I: Integer;
   begin
-    S := FActiveMemo.Lines.RawLines[Line];
-    for I := 1 to Length(S) do
-      if not(S[I] in [#9, ' ']) then begin
-        Result := False;
-        Exit;
-      end;
-    Result := True;
+    var S := FActiveMemo.Lines.RawLines[Line];
+    Result := ScintRawStringIsBlank(S);
   end;
 
 var
