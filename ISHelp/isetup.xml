@@ -3731,8 +3731,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 
 
-<topic name="credits" title="Contributers">
-<keyword value="Contributers" />
+<topic name="credits" title="Contributors">
+<keyword value="Contributors" />
 <keyword value="Credits" />
 <body>
 
@@ -3780,7 +3780,11 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Cristoph Nahr: Code for the .NET version detection (6.0.4).</li>
 
-<li>Sergii Leonov: Code for the Compiler IDE's MessageBox Designer (6.1.0).</li>
+<li>Sergii Leonov: Code for the Compiler IDE's MsgBox tool (6.1.0) and initial work on its [Registry] tool (6.3.0).</li>
+
+<li>Jens Geyer: Initial work on closeable tabs in the Compiler IDE (6.3.0).</li>
+
+<li>ser163: Code for the Compiler IDE's [Files] tool (6.3.0).</li>
 
 </ul>
 
