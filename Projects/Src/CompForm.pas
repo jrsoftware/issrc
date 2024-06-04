@@ -3280,7 +3280,7 @@ begin
       var Word := AMemo.WordAtCursorRange;
       if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoWholeWord], SelAvail, Selection, RangeList);
+        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], SelAvail, Selection, RangeList);
       end;
     end;
     AMemo.UpdateIndicators(RangeList, inWordAtCursorOccurrence);
