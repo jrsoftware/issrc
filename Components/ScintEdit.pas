@@ -113,6 +113,7 @@ type
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
     function GetSelection: TScintRange;
+    function GetSelections: Integer;
     function GetSelText: String;
     function GetTopLine: Integer;
     function GetZoom: Integer;
@@ -127,10 +128,11 @@ type
     procedure SetFillSelectionToEdge(const Value: Boolean);
     procedure SetIndentationGuides(const Value: TScintIndentationGuides);
     procedure SetLineNumbers(const Value: Boolean);
+    procedure SetMainSelection(const Value: Integer);
     procedure SetRawSelText(const Value: TScintRawString);
     procedure SetRawText(const Value: TScintRawString);
     procedure SetReadOnly(const Value: Boolean);
-    procedure SetSelection(const Value: TScintRange);
+    procedure SetSelection(const Value: TScintRange); overload;
     procedure SetSelText(const Value: String);
     procedure SetStyler(const Value: TScintCustomStyler);
     procedure SetTabWidth(const Value: Integer);
@@ -221,6 +223,8 @@ type
     function GetPositionOfMatchingBrace(const Pos: Integer): Integer;
     function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
+    function GetSelectionAnchorPosition(const Selection: Integer): Integer;
+    function GetSelectionCaretPosition(const Selection: Integer): Integer;
     function GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
     function GetTextRange(const StartPos, EndPos: Integer): String;
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
@@ -249,6 +253,9 @@ type
     procedure SetEmptySelection;
     procedure SetLineIndentation(const Line, Indentation: Integer);
     procedure SetSavePoint;
+    procedure SetSelection(const CaretPos, AnchorPos: Integer); overload;
+    procedure SetSelectionAnchorPosition(const Selection, AnchorPos: Integer);
+    procedure SetSelectionCaretPosition(const Selection, CaretPos: Integer);
     procedure SetWordChars(const S: AnsiString);
     procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
     procedure StyleNeeded(const EndPos: Integer);
@@ -271,12 +278,14 @@ type
     property LineHeight: Integer read GetLineHeight;
     property Lines: TScintEditStrings read FLines;
     property LinesInWindow: Integer read GetLinesInWindow;
+    property MainSelection: Integer read GetMainSelection write SetMainSelection;
     property Modified: Boolean read GetModified;
     property RawSelText: TScintRawString read GetRawSelText write SetRawSelText;
     property RawText: TScintRawString read GetRawText write SetRawText;
     property RawTextLength: Integer read GetRawTextLength;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
     property Selection: TScintRange read GetSelection write SetSelection;
+    property Selections: Integer read GetSelections;
     property SelText: String read GetSelText write SetSelText;
     property Styler: TScintCustomStyler read FStyler write SetStyler;
     property TopLine: Integer read GetTopLine write SetTopLine;
@@ -993,6 +1002,25 @@ begin
   Result.EndPos := Call(SCI_GETSELECTIONEND, 0, 0);
 end;
 
+function TScintEdit.GetSelectionAnchorPosition(
+  const Selection: Integer): Integer;
+begin
+  Result := Call(SCI_GETSELECTIONNANCHOR, Selection, 0);
+end;
+
+function TScintEdit.GetSelectionCaretPosition(
+  const Selection: Integer): Integer;
+begin
+  Result := Call(SCI_GETSELECTIONNCARET, Selection, 0);
+end;
+
+function TScintEdit.GetSelections: Integer;
+{ Returns the number of selections currently active. Rectangular selections are
+  handled (and returned) as multiple selections, one for each line. }
+begin
+  Result := Call(SCI_GETSELECTIONS, 0, 0);
+end;
+
 function TScintEdit.GetSelText: String;
 begin
   Result := ConvertRawStringToString(GetRawSelText);
@@ -1306,11 +1334,9 @@ end;
 
 procedure TScintEdit.SetEmptySelection;
 { Clears all selections without scrolling the caret into view }
-var
-  Pos: Integer;
 begin
-  Pos := GetCaretPosition;
-  Call(SCI_SETSELECTION, Pos, Pos);
+  var Pos := GetCaretPosition;
+  SetSelection(Pos, Pos);
 end;
 
 procedure TScintEdit.SetFillSelectionToEdge(const Value: Boolean);
@@ -1341,6 +1367,11 @@ begin
     FLineNumbers := Value;
     UpdateLineNumbersWidth;
   end;
+end;
+
+procedure TScintEdit.SetMainSelection(const Value: Integer);
+begin
+  Call(SCI_SETMAINSELECTION, Value, 0);
 end;
 
 procedure TScintEdit.SetRawSelText(const Value: TScintRawString);
@@ -1378,6 +1409,23 @@ procedure TScintEdit.SetSelection(const Value: TScintRange);
 begin
   Call(SCI_SETSEL, Value.StartPos, Value.EndPos);
   ChooseCaretX;
+end;
+
+procedure TScintEdit.SetSelection(const CaretPos, AnchorPos: Integer);
+begin
+  Call(SCI_SETSELECTION, CaretPos, AnchorPos);
+end;
+
+procedure TScintEdit.SetSelectionAnchorPosition(const Selection,
+  AnchorPos: Integer);
+begin
+  Call(SCI_SETSELECTIONNANCHOR, Selection, AnchorPos);
+end;
+
+procedure TScintEdit.SetSelectionCaretPosition(const Selection,
+  CaretPos: Integer);
+begin
+  Call(SCI_SETSELECTIONNCARET, Selection, CaretPos);
 end;
 
 procedure TScintEdit.SetSelText(const Value: String);

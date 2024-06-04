@@ -1036,6 +1036,16 @@ begin
   if AShortCut = VK_ESCAPE then begin
     if BStopCompile.Enabled then
       BStopCompileClick(Self)
+    else begin
+      if FActiveMemo.Selections > 1 then begin
+        { Remove additional selections }
+        var MainSelection := FActiveMemo.MainSelection;
+        var CaretPos := FActiveMemo.GetSelectionCaretPosition(MainSelection);
+        var AnchorPos := FActiveMemo.GetSelectionAnchorPosition(MainSelection);
+        FActiveMemo.SetSelection(CaretPos, AnchorPos);
+      end else
+        FActiveMemo.SetEmptySelection;
+    end;
   end else if AShortCut = FBackNavButtonShortCut then begin
     if BackNavButton.Enabled then
       BackNavButtonClick(Self);
@@ -4258,10 +4268,10 @@ var
   C: AnsiChar;
   S: String;
 begin
-  if FActiveMemo.AutoCompleteActive or FActiveMemo.ReadOnly then
+  if FActiveMemo.AutoCompleteActive or FActiveMemo.ReadOnly or (FActiveMemo.Selections > 1) then
     Exit;
 
-  FActiveMemo.CaretPosition := FActiveMemo.CaretPosition;  { clear any selection }
+  FActiveMemo.CaretPosition := FActiveMemo.CaretPosition;  { clear any main and additional selection }
   CaretPos := FActiveMemo.CaretPosition;
   Line := FActiveMemo.GetLineFromPosition(CaretPos);
   LinePos := FActiveMemo.GetPositionFromLine(Line);
