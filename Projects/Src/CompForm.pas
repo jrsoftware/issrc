@@ -547,6 +547,7 @@ type
     procedure UpdateThemeData(const Open: Boolean);
     procedure ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
     procedure UpdateStatusPanelHeight(H: Integer);
+    procedure WMAppCommand(var Message: TMessage); message WM_APPCOMMAND;
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
     procedure WMDebuggerGoodbye(var Message: TMessage); message WM_Debugger_Goodbye;
@@ -3827,6 +3828,21 @@ begin
   FCurrentNavItem := NewNavItem; { Must be done *before* moving }
   MoveCaretAndActivateMemo(NewNavItem.Memo,
     NewNavItem.Memo.GetPositionFromLineColumn(NewNavItem.Line, NewNavItem.Column), False, True, NewNavItem.VirtualSpace);
+end;
+
+procedure TCompileForm.WMAppCommand(var Message: TMessage);
+begin
+  var Command := GET_APPCOMMAND_LPARAM(Message.LParam);
+
+  if Command = APPCOMMAND_BROWSER_BACKWARD then begin
+    if BackNavButton.Enabled then
+      BackNavButton.Click;
+    Message.Result := 1;
+  end else if Command = APPCOMMAND_BROWSER_FORWARD then begin
+    if ForwardNavButton.Enabled then
+      ForwardNavButton.Click;
+    Message.Result := 1;
+  end;
 end;
 
 procedure TCompileForm.NavItemClick(Sender: TObject);
