@@ -1043,7 +1043,7 @@ begin
         var CaretPos := FActiveMemo.GetSelectionCaretPosition(MainSelection);
         var AnchorPos := FActiveMemo.GetSelectionAnchorPosition(MainSelection);
         FActiveMemo.SetSelection(CaretPos, AnchorPos);
-      end else
+      end else if FActiveMemo.SelAvail then
         FActiveMemo.SetEmptySelection;
     end;
   end else if AShortCut = FBackNavButtonShortCut then begin

@@ -1412,6 +1412,7 @@ begin
 end;
 
 procedure TScintEdit.SetSelection(const CaretPos, AnchorPos: Integer);
+{ Sets the main selection without scrolling the caret into view }
 begin
   Call(SCI_SETSELECTION, CaretPos, AnchorPos);
 end;
