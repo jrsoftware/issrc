@@ -291,8 +291,3 @@ begin
   Top := Top + TopInc;
   CreateButton(Left, Top, '&ITaskScheduler...', @ITaskSchedulerButtonOnClick);
 end;
-
-
-
-
-

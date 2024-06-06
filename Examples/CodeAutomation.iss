@@ -298,7 +298,7 @@ begin
 
   MsgBox('Downloaded the Zip file and saved it as ''' + ZipPath + '''.', mbInformation, mb_Ok);
 
-  { UnZip the Zip File to the source folder }
+  { Unzip the Zip file to the source folder }
   Shell := CreateOleObject('Shell.Application');
   
   ZipFolder := Shell.NameSpace(ZipPath);
