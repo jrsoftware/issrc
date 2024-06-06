@@ -196,6 +196,15 @@ begin
   Call(SCI_INDICSETALPHA, inSelTextOccurrence, 255);
   Call(SCI_INDICSETUNDER, inSelTextOccurrence, 1);
 
+  { Set up the gutter column with line numbers - avoid Scintilla's 'reverse arrow'
+    cursor which is not a standard Windows cursor so is just confusing, especially
+    because the line numbers are clickable to select lines. This cursor will also
+    be used at the small extra margin after the final column which also selects
+    lines so setting the normal cursor also avoids a flashing cursor when moving
+    between the editor and the breakpoint column. Note: width of the column is set
+    up by TScintEdit.UpdateLineNumbersWidth. }
+  Call(SCI_SETMARGINCURSORN, 0, SC_CURSORARROW);
+
   { Set up the gutter column with breakpoint etc symbols - note: column 0 is the
     line numbers column and its width is set up by TScintEdit.UpdateLineNumbersWidth }
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
