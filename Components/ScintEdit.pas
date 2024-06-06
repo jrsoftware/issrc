@@ -30,6 +30,9 @@ type
     var Info: TScintHintInfo) of object;
   TScintEditMarginClickEvent = procedure(Sender: TObject; MarginNumber: Integer;
     Line: Integer) of object;
+  TScintEditUpdate = (suContent, suSelection, suVScroll, suHScroll);
+  TScintEditUpdates = set of TScintEditUpdate;
+  TScintEditUpdateUIEvent = procedure(Sender: TObject; Updated: TScintEditUpdates) of object;
   TScintFindOption = (sfoMatchCase, sfoWholeWord);
   TScintFindOptions = set of TScintFindOption;
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
@@ -87,7 +90,7 @@ type
     FOnHintShow: TScintEditHintShowEvent;
     FOnMarginClick: TScintEditMarginClickEvent;
     FOnModifiedChange: TNotifyEvent;
-    FOnUpdateUI: TNotifyEvent;
+    FOnUpdateUI: TScintEditUpdateUIEvent;
     FOnZoom: TNotifyEvent;
     FReportCaretPositionToStyler: Boolean;
     FStyler: TScintCustomStyler;
@@ -334,7 +337,7 @@ type
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
-    property OnUpdateUI: TNotifyEvent read FOnUpdateUI write FOnUpdateUI;
+    property OnUpdateUI: TScintEditUpdateUIEvent read FOnUpdateUI write FOnUpdateUI;
     property OnZoom: TNotifyEvent read FOnZoom write FOnZoom;
   end;
 
@@ -1133,7 +1136,7 @@ begin
     SCN_UPDATEUI:
       begin
         if Assigned(FOnUpdateUI) then
-          FOnUpdateUI(Self);
+          FOnUpdateUI(Self, TScintEditUpdates(Byte(N.updated)));
       end;
     SCN_ZOOM:
       begin

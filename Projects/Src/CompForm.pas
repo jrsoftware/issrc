@@ -488,7 +488,7 @@ type
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
     function MemoToTabIndex(const AMemo: TCompScintEdit): Integer;
-    procedure MemoUpdateUI(Sender: TObject);
+    procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
     procedure UpdateReopenTabMenu(const Menu: TMenuItem);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
@@ -4096,7 +4096,7 @@ begin
   UpdateBevel1Visibility;
 end;
 
-procedure TCompileForm.MemoUpdateUI(Sender: TObject);
+procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
 
   procedure UpdatePendingSquiggly(const AMemo: TCompScintEdit);
   var
@@ -4158,6 +4158,9 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
   end;
 
 begin
+  if Updated * [suContent, suSelection] = [] then
+    Exit;
+
   var Memo := Sender as TCompScintEdit;
 
   if (Memo = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then

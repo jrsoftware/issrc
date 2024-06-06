@@ -150,7 +150,6 @@ begin
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
-    -2.2.4: Update TCompForm.MemoUpdateUI to check the type of update sent by SCN_UPDATEUI
     -2.2.6: Replace: INDIC_ROUNDBOX -> INDIC_STRAIGHTBOX
     -2.2.8: Review using SCI_MARKERDEFINERGBAIMAGE instead of SCI_MARKERDEFINEPIXMAP,
             but note INDIC_SQUIGGLEPIXMAP below
