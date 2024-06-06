@@ -1,10 +1,8 @@
 unit ScintInt;
 
 {
-  Delphi translation of Scintilla.h from Scintilla 2.21
-  by Jordan Russell
-
-  $jrsoftware: issrc/Components/ScintInt.pas,v 1.3 2011/01/21 05:47:57 jr Exp $
+  Delphi translation of Scintilla.h from Scintilla 2.24
+  created by Jordan Russell and updated by Martijn Laan
 }
 
 interface
@@ -804,6 +802,10 @@ const
   SC_MOD_CONTAINER = $40000;
   SC_MOD_LEXERSTATE = $80000;
   SC_MODEVENTMASKALL = $FFFFF;
+  SC_UPDATE_CONTENT = $1;
+  SC_UPDATE_SELECTION = $2;
+  SC_UPDATE_V_SCROLL = $4;
+  SC_UPDATE_H_SCROLL = $8;
   SCEN_CHANGE = 768;
   SCEN_SETFOCUS = 512;
   SCEN_KILLFOCUS = 256;
@@ -892,6 +894,7 @@ type
     y: Integer;                 { SCN_DWELLSTART, SCN_DWELLEND }
     token: Integer;             { SCN_MODIFIED with SC_MOD_CONTAINER }
     annotationLinesAdded: Integer;  { SC_MOD_CHANGEANNOTATION }
+    updated: Integer;           { SCN_UPDATEUI }
   end;
 
 function Scintilla_DirectFunction(ptr: Pointer; iMessage: Cardinal;
