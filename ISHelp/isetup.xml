@@ -3186,7 +3186,10 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Go to next word part. Shift extends selection.</td><td>Ctrl+\</td>
 </tr>
 <tr>
-  <td>Rectangular block selection.</td><td>Alt+Shift+Movement</td>
+  <td>Add extra selection.</td><td>Ctrl+Left Mouse Click or Ctrl+Left Mouse Drag</td>
+</tr>
+<tr>
+  <td>Rectangular block selection.</td><td>Alt+Shift+Movement or Alt+Left Mouse Drag</td>
 </tr>
 <tr>
   <td>Extend rectangular selection to start of line.</td><td>Alt+Shift+Home</td>
@@ -3195,7 +3198,10 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Extend rectangular selection to end of line.</td><td>Alt+Shift+End</td>
 </tr>
 <tr>
-  <td>Complete word.</td><td>Ctrl+Space or Ctrl+I or Alt+Right (the last only if the Delphi key map is not active)</td>
+  <td>Revert multiple selections into a single one or a single selection into an empty one.</td><td>Esc</td>
+</tr>
+<tr>
+  <td>Complete word.</td><td>Ctrl+Space or Ctrl+I or Alt+Right (the last only if the Delphi key map is not active; all only if there's only a single selection)</td>
 </tr>
 <tr>
   <td>Fillup complete word.</td><td>Tab or Enter or Space (for ISPP directives) or \ (for constants) or : (for constants and section parameters) or ] (for sections) or = (for section directives).</td>

@@ -1036,6 +1036,12 @@ begin
   if AShortCut = VK_ESCAPE then begin
     if BStopCompile.Enabled then
       BStopCompileClick(Self)
+    else begin
+      if FActiveMemo.SelectionCount > 1 then
+        FActiveMemo.RemoveAdditionalSelections
+      else if FActiveMemo.SelAvail then
+        FActiveMemo.SetEmptySelections;
+    end;
   end else if AShortCut = FBackNavButtonShortCut then begin
     if BackNavButton.Enabled then
       BackNavButtonClick(Self);
@@ -4261,7 +4267,13 @@ begin
   if FActiveMemo.AutoCompleteActive or FActiveMemo.ReadOnly then
     Exit;
 
-  FActiveMemo.CaretPosition := FActiveMemo.CaretPosition;  { clear any selection }
+  if Key = #0 then begin
+    { If a character is typed then Scintilla will handle any selection existing but
+      otherwise we should clear it and also make sure the caret is visible }
+    FActiveMemo.SetEmptySelections;
+    FActiveMemo.ScrollCaretIntoView;
+  end;
+
   CaretPos := FActiveMemo.CaretPosition;
   Line := FActiveMemo.GetLineFromPosition(CaretPos);
   LinePos := FActiveMemo.GetPositionFromLine(Line);
