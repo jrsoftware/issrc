@@ -113,6 +113,8 @@ type
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
     function GetSelection: TScintRange;
+    function GetSelectionAnchorPosition(Selection: Integer): Integer;
+    function GetSelectionCaretPosition(Selection: Integer): Integer;
     function GetSelectionCount: Integer;
     function GetSelText: String;
     function GetTopLine: Integer;
@@ -133,6 +135,8 @@ type
     procedure SetRawText(const Value: TScintRawString);
     procedure SetReadOnly(const Value: Boolean);
     procedure SetSelection(const Value: TScintRange);
+    procedure SetSelectionAnchorPosition(Selection: Integer; const AnchorPos: Integer);
+    procedure SetSelectionCaretPosition(Selection: Integer; const CaretPos: Integer);
     procedure SetSelText(const Value: String);
     procedure SetStyler(const Value: TScintCustomStyler);
     procedure SetTabWidth(const Value: Integer);
@@ -223,8 +227,6 @@ type
     function GetPositionOfMatchingBrace(const Pos: Integer): Integer;
     function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
-    function GetSelectionAnchorPosition(const Selection: Integer): Integer;
-    function GetSelectionCaretPosition(const Selection: Integer): Integer;
     function GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
     function GetTextRange(const StartPos, EndPos: Integer): String;
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
@@ -254,8 +256,6 @@ type
     procedure SetEmptySelections;
     procedure SetLineIndentation(const Line, Indentation: Integer);
     procedure SetSavePoint;
-    procedure SetSelectionAnchorPosition(const Selection, AnchorPos: Integer);
-    procedure SetSelectionCaretPosition(const Selection, CaretPos: Integer);
     procedure SetSingleSelection(const CaretPos, AnchorPos: Integer);
     procedure SetWordChars(const S: AnsiString);
     procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
@@ -286,6 +286,8 @@ type
     property RawTextLength: Integer read GetRawTextLength;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
     property Selection: TScintRange read GetSelection write SetSelection;
+    property SelectionAnchorPosition[Selection: Integer]: Integer read GetSelectionAnchorPosition write SetSelectionAnchorPosition;
+    property SelectionCaretPosition[Selection: Integer]: Integer read GetSelectionCaretPosition write SetSelectionCaretPosition;
     property SelectionCount: Integer read GetSelectionCount;
     property SelText: String read GetSelText write SetSelText;
     property Styler: TScintCustomStyler read FStyler write SetStyler;
@@ -1003,14 +1005,12 @@ begin
   Result.EndPos := Call(SCI_GETSELECTIONEND, 0, 0);
 end;
 
-function TScintEdit.GetSelectionAnchorPosition(
-  const Selection: Integer): Integer;
+function TScintEdit.GetSelectionAnchorPosition(Selection: Integer): Integer;
 begin
   Result := Call(SCI_GETSELECTIONNANCHOR, Selection, 0);
 end;
 
-function TScintEdit.GetSelectionCaretPosition(
-  const Selection: Integer): Integer;
+function TScintEdit.GetSelectionCaretPosition(Selection: Integer): Integer;
 begin
   Result := Call(SCI_GETSELECTIONNCARET, Selection, 0);
 end;
@@ -1178,8 +1178,9 @@ end;
 
 procedure TScintEdit.RemoveAdditionalSelections;
 begin
-  var CaretPos := GetSelectionCaretPosition(MainSelection);
-  var AnchorPos := GetSelectionAnchorPosition(MainSelection);
+  var MainSel := MainSelection;
+  var CaretPos := SelectionCaretPosition[MainSel];
+  var AnchorPos := SelectionAnchorPosition[MainSel];
   SetSingleSelection(CaretPos, AnchorPos);
 end;
 
@@ -1344,8 +1345,8 @@ procedure TScintEdit.SetEmptySelections;
 { Makes all selections empty without scrolling the caret into view }
 begin
   for var Selection := 0 to SelectionCount-1 do begin
-    var Pos := GetSelectionCaretPosition(Selection);
-    SetSelectionAnchorPosition(Selection, Pos);
+    var Pos := SelectionCaretPosition[Selection];
+    SelectionAnchorPosition[Selection] := Pos;
   end;
 end;
 
@@ -1421,14 +1422,14 @@ begin
   ChooseCaretX;
 end;
 
-procedure TScintEdit.SetSelectionAnchorPosition(const Selection,
-  AnchorPos: Integer);
+procedure TScintEdit.SetSelectionAnchorPosition(Selection: Integer;
+  const AnchorPos: Integer);
 begin
   Call(SCI_SETSELECTIONNANCHOR, Selection, AnchorPos);
 end;
 
-procedure TScintEdit.SetSelectionCaretPosition(const Selection,
-  CaretPos: Integer);
+procedure TScintEdit.SetSelectionCaretPosition(Selection: Integer;
+  const CaretPos: Integer);
 begin
   Call(SCI_SETSELECTIONNCARET, Selection, CaretPos);
 end;
