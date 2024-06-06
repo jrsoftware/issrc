@@ -156,7 +156,7 @@ end;</pre>
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li>Console-mode compiler (ISCC) change: Added support for Unicode output.</li>
-  <li>Added new <tt>[Files]</tt> section flag <tt>signcheck</tt>. Instructs the compiler check the original source files for a digital signature before storing them.</li>
+  <li>Added new <tt>[Files]</tt> section flag <tt>signcheck</tt>. Instructs the compiler to check the original source files for a digital signature before storing them.</li>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt> folders. It no longer does until the script asks for the folder. Note that scripts running in administrative install mode should not do this because it violates the <a href="ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Changes to further help protect against potential DLL preloading attacks.</li>
   <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters.</li>
