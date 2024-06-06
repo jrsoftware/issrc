@@ -26,8 +26,8 @@ echo.
 
 cd /d %~dp0
 
-if "%1%"=="setup" goto setup
-if not "%1%"=="" goto failed
+if "%1"=="setup" goto setup
+if not "%1"=="" goto failed
 
 call :deletefile files\compil32.exe
 call :deletefile files\iscc.exe

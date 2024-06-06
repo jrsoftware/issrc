@@ -27,8 +27,8 @@ echo.
 
 cd /d %~dp0
 
-if "%1%"=="setup" goto setup
-if not "%1%"=="" goto failed
+if "%1"=="setup" goto setup
+if not "%1"=="" goto failed
 
 cd ishelp\ishelpgen
 if errorlevel 1 goto failed
