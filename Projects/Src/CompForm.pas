@@ -1037,14 +1037,10 @@ begin
     if BStopCompile.Enabled then
       BStopCompileClick(Self)
     else begin
-      if FActiveMemo.Selections > 1 then begin
-        { Remove additional selections }
-        var MainSelection := FActiveMemo.MainSelection;
-        var CaretPos := FActiveMemo.GetSelectionCaretPosition(MainSelection);
-        var AnchorPos := FActiveMemo.GetSelectionAnchorPosition(MainSelection);
-        FActiveMemo.SetSelection(CaretPos, AnchorPos);
-      end else if FActiveMemo.SelAvail then
-        FActiveMemo.SetEmptySelection;
+      if FActiveMemo.Selections > 1 then
+        FActiveMemo.RemoveAdditionalSelections
+      else if FActiveMemo.SelAvail then
+        FActiveMemo.SetEmptySelections;
     end;
   end else if AShortCut = FBackNavButtonShortCut then begin
     if BackNavButton.Enabled then
@@ -4268,10 +4264,16 @@ var
   C: AnsiChar;
   S: String;
 begin
-  if FActiveMemo.AutoCompleteActive or FActiveMemo.ReadOnly or (FActiveMemo.Selections > 1) then
+  if FActiveMemo.AutoCompleteActive or FActiveMemo.ReadOnly then
     Exit;
 
-  FActiveMemo.CaretPosition := FActiveMemo.CaretPosition;  { clear any main and additional selection }
+  if Key = #0 then begin
+    { If a character is typed then Scintilla will handle any selection existing but
+      otherwise we should clear it and also make sure the caret is visible }
+    FActiveMemo.SetEmptySelections;
+    FActiveMemo.ScrollCaretIntoView;
+  end;
+
   CaretPos := FActiveMemo.CaretPosition;
   Line := FActiveMemo.GetLineFromPosition(CaretPos);
   LinePos := FActiveMemo.GetPositionFromLine(Line);

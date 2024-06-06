@@ -132,7 +132,7 @@ type
     procedure SetRawSelText(const Value: TScintRawString);
     procedure SetRawText(const Value: TScintRawString);
     procedure SetReadOnly(const Value: Boolean);
-    procedure SetSelection(const Value: TScintRange); overload;
+    procedure SetSelection(const Value: TScintRange);
     procedure SetSelText(const Value: String);
     procedure SetStyler(const Value: TScintCustomStyler);
     procedure SetTabWidth(const Value: Integer);
@@ -234,6 +234,7 @@ type
     procedure PasteFromClipboard;
     function RawSelTextEquals(const S: TScintRawString; const MatchCase: Boolean): Boolean;
     procedure Redo;
+    procedure RemoveAdditionalSelections;
     function ReplaceRawTextRange(const StartPos, EndPos: Integer;
       const S: TScintRawString): TScintRange;
     function ReplaceTextRange(const StartPos, EndPos: Integer; const S: String): TScintRange;
@@ -250,12 +251,12 @@ type
     procedure SetBraceHighlighting(const Pos1, Pos2: Integer);
     procedure SetCursorID(const CursorID: Integer);
     procedure SetDefaultWordChars;
-    procedure SetEmptySelection;
+    procedure SetEmptySelections;
     procedure SetLineIndentation(const Line, Indentation: Integer);
     procedure SetSavePoint;
-    procedure SetSelection(const CaretPos, AnchorPos: Integer); overload;
     procedure SetSelectionAnchorPosition(const Selection, AnchorPos: Integer);
     procedure SetSelectionCaretPosition(const Selection, CaretPos: Integer);
+    procedure SetSingleSelection(const CaretPos, AnchorPos: Integer);
     procedure SetWordChars(const S: AnsiString);
     procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
     procedure StyleNeeded(const EndPos: Integer);
@@ -1175,6 +1176,13 @@ begin
   Call(SCI_REDO, 0, 0);
 end;
 
+procedure TScintEdit.RemoveAdditionalSelections;
+begin
+  var CaretPos := GetSelectionCaretPosition(MainSelection);
+  var AnchorPos := GetSelectionAnchorPosition(MainSelection);
+  SetSingleSelection(CaretPos, AnchorPos);
+end;
+
 function TScintEdit.ReplaceRawTextRange(const StartPos, EndPos: Integer;
   const S: TScintRawString): TScintRange;
 begin
@@ -1332,11 +1340,13 @@ begin
   SetWordChars(GetDefaultWordChars);
 end;
 
-procedure TScintEdit.SetEmptySelection;
-{ Clears all selections without scrolling the caret into view }
+procedure TScintEdit.SetEmptySelections;
+{ Makes all selections empty without scrolling the caret into view }
 begin
-  var Pos := GetCaretPosition;
-  SetSelection(Pos, Pos);
+  for var Selection := 0 to Selections-1 do begin
+    var Pos := GetSelectionCaretPosition(Selection);
+    SetSelectionAnchorPosition(Selection, Pos);
+  end;
 end;
 
 procedure TScintEdit.SetFillSelectionToEdge(const Value: Boolean);
@@ -1411,12 +1421,6 @@ begin
   ChooseCaretX;
 end;
 
-procedure TScintEdit.SetSelection(const CaretPos, AnchorPos: Integer);
-{ Sets the main selection without scrolling the caret into view }
-begin
-  Call(SCI_SETSELECTION, CaretPos, AnchorPos);
-end;
-
 procedure TScintEdit.SetSelectionAnchorPosition(const Selection,
   AnchorPos: Integer);
 begin
@@ -1432,6 +1436,13 @@ end;
 procedure TScintEdit.SetSelText(const Value: String);
 begin
   SetRawSelText(ConvertStringToRawString(Value));
+end;
+
+procedure TScintEdit.SetSingleSelection(const CaretPos, AnchorPos: Integer);
+{ Sets the main selection and removes additional selections without scrolling
+  the caret into view }
+begin
+  Call(SCI_SETSELECTION, CaretPos, AnchorPos);
 end;
 
 procedure TScintEdit.SetStyler(const Value: TScintCustomStyler);
