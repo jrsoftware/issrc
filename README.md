@@ -197,16 +197,16 @@ Precompiled executables and libraries
 The source code contains several precompiled and signed executables and libraries:
 
 **Files\isbunzip.dll**, **Files\isbzip.dll** - Compiled by Visual Studio 2005
-from the bzlib directory in the Iscompress repository.
+from the bzlib directory in the iscompress repository.
 
 **Files\isunzlib.dll**, **Files\iszlib.dll** - Compiled by Visual Studio 2005
-from the zlib-dll directory in the Iscompress repository.
+from the zlib-dll directory in the iscompress repository.
 
 **Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
 by Visual Studio 2005 from the [Projects\Src\Lzma2\Encoder] directory.
 
-**Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintilla 2.22 source
-code with scintilla-2.22-patch.txt applied.
+**Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintilla source
+code in the isscint repository.
 
 **Projects\Helper\x64\Release\Helper.exe**, **Projects\Src\HelperEXEs.res** -
 Compiled by Visual Studio 2005 from the [Projects\Helper] directory and then
