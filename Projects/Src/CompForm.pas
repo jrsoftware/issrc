@@ -1037,7 +1037,7 @@ begin
     if BStopCompile.Enabled then
       BStopCompileClick(Self)
     else begin
-      if FActiveMemo.Selections > 1 then
+      if FActiveMemo.SelectionCount > 1 then
         FActiveMemo.RemoveAdditionalSelections
       else if FActiveMemo.SelAvail then
         FActiveMemo.SetEmptySelections;

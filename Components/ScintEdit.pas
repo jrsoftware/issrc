@@ -113,7 +113,7 @@ type
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
     function GetSelection: TScintRange;
-    function GetSelections: Integer;
+    function GetSelectionCount: Integer;
     function GetSelText: String;
     function GetTopLine: Integer;
     function GetZoom: Integer;
@@ -286,7 +286,7 @@ type
     property RawTextLength: Integer read GetRawTextLength;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
     property Selection: TScintRange read GetSelection write SetSelection;
-    property Selections: Integer read GetSelections;
+    property SelectionCount: Integer read GetSelectionCount;
     property SelText: String read GetSelText write SetSelText;
     property Styler: TScintCustomStyler read FStyler write SetStyler;
     property TopLine: Integer read GetTopLine write SetTopLine;
@@ -1015,7 +1015,7 @@ begin
   Result := Call(SCI_GETSELECTIONNCARET, Selection, 0);
 end;
 
-function TScintEdit.GetSelections: Integer;
+function TScintEdit.GetSelectionCount: Integer;
 { Returns the number of selections currently active. Rectangular selections are
   handled (and returned) as multiple selections, one for each line. }
 begin
@@ -1343,7 +1343,7 @@ end;
 procedure TScintEdit.SetEmptySelections;
 { Makes all selections empty without scrolling the caret into view }
 begin
-  for var Selection := 0 to Selections-1 do begin
+  for var Selection := 0 to SelectionCount-1 do begin
     var Pos := GetSelectionCaretPosition(Selection);
     SetSelectionAnchorPosition(Selection, Pos);
   end;
