@@ -157,6 +157,14 @@ begin
     -3.3.2: Review using INDIC_SQUIGGLEPIXMAP instead of INDIC_SQUIGGLE
     -3.4.2: Removes support for style byte indicators but ScintStylerInnoSetup uses those
     -3.4.4: Add: Call(SCI_AUTOSGETMULTI, SC_MULTIAUTOC_EACH, 0)
+    -3.5.7: Use SCI_MULTIPLESELECTADDEACH to implement Ctrl+Shift+L (Select All
+            Occurrences) and SCI_MULTIPLESELECTADDNEXT to implement Ctrl+D (Select
+            Next Occurrence). If the selection is empty Scintilla will use word
+            searching so call SCI_SETSEARCHFLAGS first to turn on case match and
+            whole word in that case, and turn it off otherwise. This way it
+            behaves same as TCompileForm.UpdateOccurrenceIndicators. Also requires
+            calling SCI_TARGETWHOLEDOCUMENT.
+            !!! Note https://github.com/notepad-plus-plus/notepad-plus-plus/pull/14330
     -3.6.0: Highly desirable version because of improved additional selection typing }
 
   Call(SCI_SETCARETWIDTH, 2, 0);
