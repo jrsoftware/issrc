@@ -1039,7 +1039,7 @@ begin
     else begin
       if FActiveMemo.SelectionCount > 1 then
         FActiveMemo.RemoveAdditionalSelections
-      else if FActiveMemo.SelAvail then
+      else if FActiveMemo.SelNotEmpty then
         FActiveMemo.SetEmptySelections;
     end;
   end else if AShortCut = FBackNavButtonShortCut then begin
@@ -2435,10 +2435,10 @@ begin
   MemoIsReadOnly := FActiveMemo.ReadOnly;
   EUndo.Enabled := MemoHasFocus and FActiveMemo.CanUndo;
   ERedo.Enabled := MemoHasFocus and FActiveMemo.CanRedo;
-  ECut.Enabled := MemoHasFocus and not MemoIsReadOnly and FActiveMemo.SelAvail;
-  ECopy.Enabled := MemoHasFocus and FActiveMemo.SelAvail;
+  ECut.Enabled := MemoHasFocus and not MemoIsReadOnly and FActiveMemo.SelNotEmpty;
+  ECopy.Enabled := MemoHasFocus and FActiveMemo.SelNotEmpty;
   EPaste.Enabled := MemoHasFocus and not MemoIsReadOnly and Clipboard.HasFormat(CF_TEXT);
-  EDelete.Enabled := MemoHasFocus and FActiveMemo.SelAvail;
+  EDelete.Enabled := MemoHasFocus and FActiveMemo.SelNotEmpty;
   ESelectAll.Enabled := MemoHasFocus;
   EFind.Enabled := MemoHasFocus;
   EFindNext.Enabled := MemoHasFocus;
@@ -3276,7 +3276,7 @@ begin
     single line. All of these things are just like VSCode. }
 
   var Selection: TScintRange;
-  var SelAvail := AMemo.SelAvail(Selection);
+  var SelNotEmpty := AMemo.SelNotEmpty(Selection);
   var SelSingleLine := AMemo.GetLineFromPosition(Selection.StartPos) =
                        AMemo.GetLineFromPosition(Selection.EndPos);
 
@@ -3286,15 +3286,15 @@ begin
       var Word := AMemo.WordAtCursorRange;
       if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], SelAvail, Selection, RangeList);
+        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], SelNotEmpty, Selection, RangeList);
       end;
     end;
     AMemo.UpdateIndicators(RangeList, inWordAtCursorOccurrence);
 
     RangeList.Clear;
-    if FOptions.HighlightSelTextOccurrences and SelAvail and SelSingleLine then begin
+    if FOptions.HighlightSelTextOccurrences and SelNotEmpty and SelSingleLine then begin
       var TextToIndicate := AMemo.RawSelText;
-      FindTextAndAddRanges(AMemo, TextToIndicate, [], SelAvail, Selection, RangeList);
+      FindTextAndAddRanges(AMemo, TextToIndicate, [], SelNotEmpty, Selection, RangeList);
     end;
     AMemo.UpdateIndicators(RangeList, inSelTextOccurrence);
   finally
@@ -4268,8 +4268,9 @@ begin
     Exit;
 
   if Key = #0 then begin
-    { If a character is typed then Scintilla will handle any selection existing but
-      otherwise we should clear it and also make sure the caret is visible }
+    { If a character is typed then Scintilla will handle selections but
+      otherwise we should empty them and also make sure the caret is visible
+      before we start autocompletion }
     FActiveMemo.SetEmptySelections;
     FActiveMemo.ScrollCaretIntoView;
   end;

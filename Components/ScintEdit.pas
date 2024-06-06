@@ -242,8 +242,8 @@ type
     function ReplaceTextRange(const StartPos, EndPos: Integer; const S: String): TScintRange;
     procedure RestyleLine(const Line: Integer);
     procedure ScrollCaretIntoView;
-    function SelAvail: Boolean; overload;
-    function SelAvail(out Sel: TScintRange): Boolean; overload;
+    function SelNotEmpty: Boolean; overload;
+    function SelNotEmpty(out Sel: TScintRange): Boolean; overload;
     procedure SelectAll;
     function SelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     procedure SetAutoCompleteFillupChars(const FillupChars: AnsiString);
@@ -1217,13 +1217,13 @@ begin
   Call(SCI_SCROLLCARET, 0, 0);
 end;
 
-function TScintEdit.SelAvail: Boolean;
+function TScintEdit.SelNotEmpty: Boolean;
 begin
   var Sel: TScintRange;
-  Result := SelAvail(Sel);
+  Result := SelNotEmpty(Sel);
 end;
 
-function TScintEdit.SelAvail(out Sel: TScintRange): Boolean;
+function TScintEdit.SelNotEmpty(out Sel: TScintRange): Boolean;
 begin
   Sel := GetSelection;
   Result := Sel.EndPos > Sel.StartPos;
