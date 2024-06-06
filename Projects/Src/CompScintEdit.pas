@@ -12,7 +12,7 @@ unit CompScintEdit;
 interface
 
 uses
-  Windows, Graphics, Classes, Generics.Collections, ScintEdit, ModernColors;
+  Windows, Graphics, Classes, Generics.Collections, ScintInt, ScintEdit, ModernColors;
 
 const
   { Memo marker numbers }
@@ -32,8 +32,8 @@ const
   inPendingSquiggly = 1;
 
   { Memo other indicator numbers }
-  inWordAtCursorOccurrence = 3;
-  inSelTextOccurrence = 4;
+  inWordAtCursorOccurrence = INDIC_CONTAINER;
+  inSelTextOccurrence = INDIC_CONTAINER+1;
   inMax = inSelTextOccurrence;
 
   { Just some invalid value used to indicate an unknown/uninitialized compiler FileIndex value }
@@ -126,7 +126,7 @@ type
 implementation
 
 uses
-  ScintInt, MD5;
+  MD5;
   
 { TCompScintEdit }
 
@@ -135,6 +135,29 @@ const
   SC_MARK_BACKFORE = 3030;  { new marker type added in Inno Setup's Scintilla build }
 begin
   inherited;
+
+  { Some notes about future Scintilla versions:
+    -At some point SCI_SETVIRTUALSPACEOPTIONS will support SCVS_NOWRAPLINESTART.
+     Once it does this should be used in TCompileForm.SyncEditorOptions if CursorPastEOL
+     is on and our own VK_LEFT handling in TCompileForm.MemoKeyDown should be removed.
+    -At some point the documentation will say:
+     "The selection can be simplified down to just the main selection by
+     SCI_CANCEL which is normally mapped to the Esc key."
+     Once it does our own VK_ESCAPE handling in TCompileForm.FormKeyDown should be
+     reviewed. Note that our handling does a two phase simplification like VSCode and
+     not a one phase simplication like Notepad++.
+    -At some point the documentation will say:
+     "The INDICATOR_* values used for dividing up indicators were previously
+      INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
+     Once it does replace our use of these INDIC_* with INDICATOR_*.
+    -2.2.4: Update TCompForm.MemoUpdateUI to check the type of update sent by SCN_UPDATEUI
+    -2.2.6: Replace: INDIC_ROUNDBOX -> INDIC_STRAIGHTBOX
+    -2.2.8: Review using SCI_MARKERDEFINERGBAIMAGE instead of SCI_MARKERDEFINEPIXMAP,
+            but note INDIC_SQUIGGLEPIXMAP below
+    -3.3.2: Review using INDIC_SQUIGGLEPIXMAP instead of INDIC_SQUIGGLE
+    -3.4.2: Removes support for style byte indicators but ScintStylerInnoSetup uses those
+    -3.4.4: Add: Call(SCI_AUTOSGETMULTI, SC_MULTIAUTOC_EACH, 0)
+    -3.6.0: Highly desirable version because of improved additional selection typing }
 
   Call(SCI_SETCARETWIDTH, 2, 0);
   Call(SCI_AUTOCSETAUTOHIDE, 0, 0);

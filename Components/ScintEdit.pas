@@ -35,7 +35,7 @@ type
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
   TScintStyleByteIndicatorNumber = 0..2; { These use unused style bits of which there are 3. Assumes SCI_SETSTYLEBITS isn't used to change the default used style bits from 5 to a higher number. }
   TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
-  TScintIndicatorNumber = type Integer;
+  TScintIndicatorNumber = INDIC_CONTAINER..INDIC_MAX;
   TScintLineEndings = (sleCRLF, sleCR, sleLF);
   TScintLineState = type Integer;
   TScintMarkerNumber = 0..31;
