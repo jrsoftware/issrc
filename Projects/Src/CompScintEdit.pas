@@ -150,9 +150,7 @@ begin
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
-    -2.2.8: Review using SCI_MARKERDEFINERGBAIMAGE instead of SCI_MARKERDEFINEPIXMAP,
-            but note INDIC_SQUIGGLEPIXMAP below
-    -3.3.2: Review using INDIC_SQUIGGLEPIXMAP instead of INDIC_SQUIGGLE
+    -2.2.8: Review using SCI_MARKERDEFINERGBAIMAGE instead of SCI_MARKERDEFINEPIXMAP
     -3.4.2: Removes support for style byte indicators but ScintStylerInnoSetup uses those
     -3.4.4: Add: Call(SCI_AUTOSGETMULTI, SC_MULTIAUTOC_EACH, 0)
     -3.5.7: Use SCI_MULTIPLESELECTADDEACH to implement Ctrl+Shift+L (Select All
@@ -163,7 +161,8 @@ begin
             behaves same as TCompileForm.UpdateOccurrenceIndicators. Also requires
             calling SCI_TARGETWHOLEDOCUMENT.
             !!! Note https://github.com/notepad-plus-plus/notepad-plus-plus/pull/14330
-    -3.6.0: Highly desirable version because of improved additional selection typing }
+    -3.6.0: Highly desirable version because of improved additional selection typing
+    -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on INDIC_SQUIGGLE }
 
   Call(SCI_SETCARETWIDTH, 2, 0);
   Call(SCI_AUTOCSETAUTOHIDE, 0, 0);
