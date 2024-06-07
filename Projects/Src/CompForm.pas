@@ -3319,22 +3319,59 @@ begin
   FindResultsList.ItemHeight := FindResultsList.Canvas.TextHeight('0') + 1;
 end;
 
+type
+  TBitmapWithBits = class
+    Handle: HBITMAP;
+    pvBits: Pointer;
+    destructor Destroy; override;
+  end;
+
+destructor TBitmapWithBits.Destroy;
+begin
+  if Handle <> 0 then
+    DeleteObject(Handle);
+  inherited;
+end;
+
 procedure TCompileForm.UpdateMemoMarkerColumns;
 
 type
-  TMarkerBitmaps = TObjectDictionary<Integer, TBitmap>;
+  TMarkerBitmaps = TObjectDictionary<Integer, TBitmapWithBits>;
+
+  procedure SwapRedBlue(const pvBits: PByte; Width, Height: Integer);
+  begin
+    var pvPixel := pvBits;
+    var pvMax := pvBits + 4*Width*Height;
+    while pvPixel < pvMax do begin
+      var Tmp := PByte(pvPixel)^;
+      PByte(pvPixel)^ := PByte(pvPixel + 2)^;
+      PByte(pvPixel + 2)^ := Tmp;
+      Inc(pvPixel, 4);
+    end;
+  end;
 
   procedure AddMarkerBitmap(const MarkerBitmaps: TMarkerBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
     const Marker: Integer; const BkBrush: TBrush; const ImageList: TVirtualImageList; const ImageName: String);
   begin
+    { Prepare a bitmap and select it }
     var pvBits: Pointer;
-    var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    var Bitmap := CreateDIBSection(DC, BitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
     var OldBitmap := SelectObject(DC, Bitmap);
-    var Rect := TRect.Create(0, 0, BitmapInfo.bmiHeader.biWidth, BitmapInfo.bmiHeader.biHeight);
+
+    { Fill the entire bitmap to avoid any alpha so we don't have to worry about
+      whether will be premultiplied or not (it was in tests) when Scintilla wants
+      it without premultiplication }
+    var Width := BitmapInfo.bmiHeader.biWidth;
+    var Height := Abs(BitmapInfo.bmiHeader.biHeight);
+    var Rect := TRect.Create(0, 0, Width, Height);
     FillRect(DC, Rect, BkBrush.Handle);
+
+    { Draw the image - the result will be in pvBits }
     if ImageList_Draw(ImageList.Handle, ImageList.GetIndexByName(ImageName), DC, 0, 0, ILD_TRANSPARENT) then begin
-      var Bitmap2 := TBitmap.Create;
+      SwapRedBlue(pvBits, Width, Height); { Change pvBits from BGRA to RGBA like Scintilla wants }
+      var Bitmap2 := TBitmapWithBits.Create;
       Bitmap2.Handle := Bitmap;
+      Bitmap2.pvBits := pvBits;
       MarkerBitmaps.Add(Marker, Bitmap2);
     end else begin
       SelectObject(DC, OldBitmap);
@@ -3365,13 +3402,7 @@ begin
       try
         BkBrush.Color := FTheme.Colors[tcMarginBack];
 
-        var BitmapInfo := CreateBitmapInfo(ImageList.Width, ImageList.Height, 24);
-
-        var IconBreakpointStepName: String;
-        if ImageList.Width >= 18 then { The breakpoint+arrow version has too many colors at 150% DPI or higher for current XPM usage }
-          IconBreakpointStepName := 'debug-breakpoint-filled-ok-2'
-        else
-          IconBreakpointStepName := 'debug-breakpoint-filled-ok2-symbol-arrow-right';
+        var BitmapInfo := CreateBitmapInfo(ImageList.Width, -ImageList.Height, 32);
 
         var NamedMarkers := [
             NM(mmIconHasEntry, 'debug-stop-filled'),
@@ -3380,20 +3411,16 @@ begin
             NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
             NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-2'),
             NM(mmIconStep, 'symbol-arrow-right'),
-            NM(mmIconBreakpointStep, IconBreakpointStepName)];
+            NM(mmIconBreakpointStep, 'debug-breakpoint-filled-ok2-symbol-arrow-right')];
 
         for var NamedMarker in NamedMarkers do
           AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
 
-        var Pixmap := TScintPixmap.Create;
-        try
-          for var MarkerBitmap in MarkerBitmaps do begin
-            Pixmap.InitializeFromBitmap(MarkerBitmap.Value, BkBrush.Color);
-            for var Memo in FMemos do
-              Memo.Call(SCI_MARKERDEFINEPIXMAP, MarkerBitmap.Key, LPARAM(Pixmap.Pixmap));
-          end;
-        finally
-          Pixmap.Free;
+        for var Memo in FMemos do begin
+          Memo.Call(SCI_RGBAIMAGESETWIDTH, ImageList.Width, 0);
+          Memo.Call(SCI_RGBAIMAGESETHEIGHT, ImageList.Height, 0);
+          for var MarkerBitmap in MarkerBitmaps do
+            Memo.Call(SCI_MARKERDEFINERGBAIMAGE, MarkerBitmap.Key, LPARAM(MarkerBitmap.Value.pvBits));
         end;
       finally
         BkBrush.Free;
