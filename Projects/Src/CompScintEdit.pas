@@ -145,13 +145,13 @@ begin
      SCI_CANCEL which is normally mapped to the Esc key."
      Once it does our own VK_ESCAPE handling in TCompileForm.FormKeyDown should be
      reviewed. Note that our handling does a two phase simplification like VSCode and
-     not a one phase simplication like Notepad++.
+     not a one phase simplification like Notepad++.
     -At some point the documentation will say:
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
-    -2.2.8: Review using SCI_MARKERDEFINERGBAIMAGE instead of SCI_MARKERDEFINEPIXMAP
-            If succesful remove TCompileForm.UpdateMemoMarkerColumns' DPI limitation
+    -2.2.8: Review using SCI_MARKERDEFINERGBAIMAGE instead of SCI_MARKERDEFINEPIXMAP,
+            If successful remove TCompileForm.UpdateMemoMarkerColumns' DPI limitation
             for mmIconBreakpointStep
     -3.4.2: Removes support for style byte indicators but ScintStylerInnoSetup uses those
     -3.4.4: Add: Call(SCI_AUTOSGETMULTI, SC_MULTIAUTOC_EACH, 0)
