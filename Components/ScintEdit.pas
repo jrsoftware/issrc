@@ -1348,6 +1348,11 @@ begin
     var Pos := SelectionCaretPosition[Selection];
     SelectionAnchorPosition[Selection] := Pos;
   end;
+  { Workaround Scintilla bug which was fixed in 3.6.3 with this note: "Send
+    SCN_UPDATEUI with SC_UPDATE_SELECTION when the application changes multiple
+    selection." }
+  if Assigned(FOnUpdateUI) then
+    FOnUpdateUI(Self);
 end;
 
 procedure TScintEdit.SetFillSelectionToEdge(const Value: Boolean);
