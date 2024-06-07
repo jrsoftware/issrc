@@ -150,6 +150,7 @@ begin
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
+    -2.2.7: Start using SCI_SETEMPTYSELECTION
     -2.2.8: Review using SCI_MARKERDEFINERGBAIMAGE instead of SCI_MARKERDEFINEPIXMAP,
             but note INDIC_SQUIGGLEPIXMAP below
     -3.3.2: Review using INDIC_SQUIGGLEPIXMAP instead of INDIC_SQUIGGLE
