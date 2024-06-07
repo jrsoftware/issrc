@@ -2784,13 +2784,7 @@ end;
 
 procedure TCompileForm.MemoKeyPress(Sender: TObject; var Key: Char);
 begin
-  if Key = #31 then begin
-    { We receive #31 ("Unit Separator") when Ctrl+Shift+- is pressed for some
-      unknown reason. But that's our VS-style forward shortcut so we filter it.
-      Doing this always: people might try it even if it's not the current
-      keymapping when they're used to Visual Studio or Visual Studio Code. }
-    Key := #0
-  end else if ((Key = #9) or (Key = ' ')) and (GetKeyState(VK_CONTROL) < 0) then begin
+  if ((Key = #9) or (Key = ' ')) and (GetKeyState(VK_CONTROL) < 0) then begin
     { About #9, as Wikipedia explains: "The most known and common tab is a
       horizontal tabulation … and may be referred to as Ctrl+I." Ctrl+I is
       (just like in Visual Studio Code) our alternative code completion character
@@ -2800,6 +2794,13 @@ begin
       wasn't a menu shortcut for Next Tab (which it is). }
     InitiateAutoComplete(#0);
     Key := #0;
+  end else if (Key <= #31) or (Key = #127) then begin
+    { Prevent "control characters" from being entered in text. Don't need to be
+      concerned about #9 or #10 or #13 etc here. Based on Notepad++'s WM_CHAR
+      handling in ScintillaEditView.cpp.
+      Also don't need to be concerned about shortcuts like Ctrl+Shift+- which
+      equals #31. }
+    Key := #0
   end;
 end;
 
