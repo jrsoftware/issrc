@@ -3165,6 +3165,12 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Switch line with previous.</td><td>Ctrl+T</td>
 </tr>
 <tr>
+  <td>Move selected lines up.</td><td>Alt+Up</td>
+</tr>
+<tr>
+  <td>Move selected lines down.</td><td>Alt+Down</td>
+</tr>
+<tr>
   <td>Duplicate selection or line.</td><td>Ctrl+D</td>
 </tr>
 <tr>

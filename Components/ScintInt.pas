@@ -1,7 +1,7 @@
 unit ScintInt;
 
 {
-  Delphi translation of Scintilla.h from Scintilla 2.24
+  Delphi translation of Scintilla.h from Scintilla 2.26
   created by Jordan Russell and updated by Martijn Laan
 }
 
@@ -104,6 +104,8 @@ const
   SCI_MARKERDEFINE = 2040;
   SCI_MARKERSETFORE = 2041;
   SCI_MARKERSETBACK = 2042;
+  SCI_MARKERSETBACKSELECTED = 2292;
+  SCI_MARKERENABLEHIGHLIGHT = 2293;
   SCI_MARKERADD = 2043;
   SCI_MARKERDELETE = 2044;
   SCI_MARKERDELETEALL = 2045;
@@ -213,6 +215,7 @@ const
   INDIC_HIDDEN = 5;
   INDIC_BOX = 6;
   INDIC_ROUNDBOX = 7;
+  INDIC_STRAIGHTBOX = 8;
   INDIC_MAX = 31;
   INDIC_CONTAINER = 8;
   INDIC0_MASK = $20;
@@ -522,7 +525,9 @@ const
   SCI_MOVECARETINSIDEVIEW = 2401;
   SCI_LINELENGTH = 2350;
   SCI_BRACEHIGHLIGHT = 2351;
+  SCI_BRACEHIGHLIGHTINDICATOR = 2498;
   SCI_BRACEBADLIGHT = 2352;
+  SCI_BRACEBADLIGHTINDICATOR = 2499;
   SCI_BRACEMATCH = 2353;
   SCI_GETVIEWEOL = 2355;
   SCI_SETVIEWEOL = 2356;
@@ -675,6 +680,8 @@ const
   SCI_GETKEYSUNICODE = 2522;
   SCI_INDICSETALPHA = 2523;
   SCI_INDICGETALPHA = 2524;
+  SCI_INDICSETOUTLINEALPHA = 2558;
+  SCI_INDICGETOUTLINEALPHA = 2559;
   SCI_SETEXTRAASCENT = 2525;
   SCI_GETEXTRAASCENT = 2526;
   SCI_SETEXTRADESCENT = 2527;
@@ -758,6 +765,10 @@ const
   SCI_ROTATESELECTION = 2606;
   SCI_SWAPMAINANCHORCARET = 2607;
   SCI_CHANGELEXERSTATE = 2617;
+  SCI_CONTRACTEDFOLDNEXT = 2618;
+  SCI_VERTICALCENTRECARET = 2619;
+  SCI_MOVESELECTEDLINESUP = 2620;
+  SCI_MOVESELECTEDLINESDOWN = 2621;
   SCI_STARTRECORD = 3001;
   SCI_STOPRECORD = 3002;
   SCI_SETLEXER = 4001;
@@ -875,11 +886,16 @@ type
   PSCNotification = ^TSCNotification;
   TSCNotification = record
     nmhdr: TNMHdr;
-    position: Integer;          { SCN_STYLENEEDED, SCN_MODIFIED, SCN_DWELLSTART, SCN_DWELLEND }
+    position: Integer;          { SCN_STYLENEEDED, SCN_DOUBLECLICK, SCN_MODIFIED, SCN_MARGINCLICK,
+                                  SCN_NEEDSHOWN, SCN_DWELLSTART, SCN_DWELLEND, SCN_CALLTIPCLICK,
+                                  SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK, SCN_HOTSPOTRELEASECLICK,
+                                  SCN_INDICATORCLICK, SCN_INDICATORRELEASE,
+                                  SCN_USERLISTSELECTION, SCN_AUTOCSELECTION }
     ch: Integer;                { SCN_CHARADDED, SCN_KEY }
-    modifiers: Integer;         { SCN_KEY }
+    modifiers: Integer;         { SCN_KEY, SCN_DOUBLECLICK, SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK,
+                                  SCN_HOTSPOTRELEASECLICK, SCN_INDICATORCLICK, SCN_INDICATORRELEASE,}
     modificationType: Integer;  { SCN_MODIFIED }
-    text: PAnsiChar;            { SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_AUTOCSELECTION }
+    text: PAnsiChar;            { SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_AUTOCSELECTION, SCN_URIDROPPED }
     length: Integer;            { SCN_MODIFIED }
     linesAdded: Integer;        { SCN_MODIFIED }
     message: Integer;           { SCN_MACRORECORD }
@@ -893,7 +909,7 @@ type
     x: Integer;                 { SCN_DWELLSTART, SCN_DWELLEND }
     y: Integer;                 { SCN_DWELLSTART, SCN_DWELLEND }
     token: Integer;             { SCN_MODIFIED with SC_MOD_CONTAINER }
-    annotationLinesAdded: Integer;  { SC_MOD_CHANGEANNOTATION }
+    annotationLinesAdded: Integer;  { SCN_MODIFIED with SC_MOD_CHANGEANNOTATION }
     updated: Integer;           { SCN_UPDATEUI }
   end;
 

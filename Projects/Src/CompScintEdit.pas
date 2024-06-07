@@ -150,7 +150,6 @@ begin
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
-    -2.2.6: Replace: INDIC_ROUNDBOX -> INDIC_STRAIGHTBOX
     -2.2.8: Review using SCI_MARKERDEFINERGBAIMAGE instead of SCI_MARKERDEFINEPIXMAP,
             but note INDIC_SQUIGGLEPIXMAP below
     -3.3.2: Review using INDIC_SQUIGGLEPIXMAP instead of INDIC_SQUIGGLE
@@ -178,6 +177,8 @@ begin
   Call(SCI_SETMULTIPASTE, SC_MULTIPASTE_EACH, 0);
 
   Call(SCI_ASSIGNCMDKEY, Ord('Z') or ((SCMOD_SHIFT or SCMOD_CTRL) shl 16), SCI_REDO);
+  Call(SCI_ASSIGNCMDKEY, SCK_UP or (SCMOD_ALT shl 16), SCI_MOVESELECTEDLINESUP);
+  Call(SCI_ASSIGNCMDKEY, SCK_DOWN or (SCMOD_ALT shl 16), SCI_MOVESELECTEDLINESDOWN);
 
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
@@ -185,14 +186,16 @@ begin
   Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
-  Call(SCI_INDICSETSTYLE, inWordAtCursorOccurrence, INDIC_ROUNDBOX);
+  Call(SCI_INDICSETSTYLE, inWordAtCursorOccurrence, INDIC_STRAIGHTBOX);
   Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETALPHA, inWordAtCursorOccurrence, 255);
+  Call(SCI_INDICSETOUTLINEALPHA, inWordAtCursorOccurrence, 255);
   Call(SCI_INDICSETUNDER, inWordAtCursorOccurrence, 1);
 
-  Call(SCI_INDICSETSTYLE, inSelTextOccurrence, INDIC_ROUNDBOX);
+  Call(SCI_INDICSETSTYLE, inSelTextOccurrence, INDIC_STRAIGHTBOX);
   Call(SCI_INDICSETFORE, inSelTextOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETALPHA, inSelTextOccurrence, 255);
+  Call(SCI_INDICSETOUTLINEALPHA, inSelTextOccurrence, 255);
   Call(SCI_INDICSETUNDER, inSelTextOccurrence, 1);
 
   { Set up the gutter column with line numbers - avoid Scintilla's 'reverse arrow'
