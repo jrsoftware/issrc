@@ -3376,8 +3376,11 @@ begin
             NM(mmIconStep, 'symbol-arrow-right'),
             NM(mmIconBreakpointStep, 'debug-breakpoint-filled-ok2-symbol-arrow-right')];
 
-        for var NamedMarker in NamedMarkers do
+        for var NamedMarker in NamedMarkers do begin
+          if (NamedMarker.Key = mmIconBreakpointStep) and (ImageList.Width >= 18) then
+            Continue; { Has too many colors at 150% DPI or higher for current XPM usage }
           AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
+        end;
 
         var Pixmap := TScintPixmap.Create;
         try

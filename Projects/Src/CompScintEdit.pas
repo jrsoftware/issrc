@@ -151,6 +151,8 @@ begin
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
     -2.2.8: Review using SCI_MARKERDEFINERGBAIMAGE instead of SCI_MARKERDEFINEPIXMAP
+            If succesful remove TCompileForm.UpdateMemoMarkerColumns' DPI limitation
+            for mmIconBreakpointStep
     -3.4.2: Removes support for style byte indicators but ScintStylerInnoSetup uses those
     -3.4.4: Add: Call(SCI_AUTOSGETMULTI, SC_MULTIAUTOC_EACH, 0)
     -3.5.7: Use SCI_MULTIPLESELECTADDEACH to implement Ctrl+Shift+L (Select All
