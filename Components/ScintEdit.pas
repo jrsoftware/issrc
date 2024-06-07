@@ -1461,7 +1461,7 @@ begin
     -Word at cursor highlighting should now be active again - without the
      workaround below it isn't }
   if Assigned(FOnUpdateUI) then
-    FOnUpdateUI(Self);
+    FOnUpdateUI(Self, [suSelection]);
 end;
 
 procedure TScintEdit.SetStyler(const Value: TScintCustomStyler);
