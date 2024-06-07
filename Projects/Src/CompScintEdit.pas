@@ -153,7 +153,8 @@ begin
     -2.2.4: Update TCompForm.MemoUpdateUI to check the type of update sent by SCN_UPDATEUI
     -2.2.6: Replace: INDIC_ROUNDBOX -> INDIC_STRAIGHTBOX
     -2.2.8: Review using SCI_MARKERDEFINERGBAIMAGE instead of SCI_MARKERDEFINEPIXMAP,
-            but note INDIC_SQUIGGLEPIXMAP below
+            If succesful remove TCompileForm.UpdateMemoMarkerColumns' DPI limitation
+            for mmIconBreakpointStep
     -3.3.2: Review using INDIC_SQUIGGLEPIXMAP instead of INDIC_SQUIGGLE
     -3.4.2: Removes support for style byte indicators but ScintStylerInnoSetup uses those
     -3.4.4: Add: Call(SCI_AUTOSGETMULTI, SC_MULTIAUTOC_EACH, 0)
