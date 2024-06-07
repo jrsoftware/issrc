@@ -1355,7 +1355,7 @@ begin
     SCN_UPDATEUI with SC_UPDATE_SELECTION when the application changes multiple
     selection." }
   if Assigned(FOnUpdateUI) then
-    FOnUpdateUI(Self);
+    FOnUpdateUI(Self, [suSelection]);
 end;
 
 procedure TScintEdit.SetFillSelectionToEdge(const Value: Boolean);
