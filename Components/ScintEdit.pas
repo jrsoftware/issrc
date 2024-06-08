@@ -485,6 +485,7 @@ procedure TScintEdit.AddIndicator(const StartPos, EndPos: Integer;
 begin
   CheckPosRange(StartPos, EndPos);
   Call(SCI_SETINDICATORCURRENT, IndicatorNumber, 0);
+  Call(SCI_SETINDICATORVALUE, IndicatorNumber, 1);
   Call(SCI_INDICATORFILLRANGE, StartPos, EndPos - StartPos);
 end;
 
