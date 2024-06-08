@@ -217,7 +217,7 @@ type
     function GetColumnFromPosition(const Pos: Integer): Integer;
     function GetDefaultWordChars: AnsiString;
     function GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
-    function GetIndicatorValueAt(const IndicatorNumber: TScintIndicatorNumber;
+    function GetIndicatorAtPosition(const IndicatorNumber: TScintIndicatorNumber;
       const Pos: Integer): Boolean;
     function GetLineEndPosition(const Line: Integer): Integer;
     function GetLineFromPosition(const Pos: Integer): Integer;
@@ -263,7 +263,7 @@ type
     procedure SetDefaultWordChars;
     procedure SetEmptySelection;
     procedure SetEmptySelections;
-    procedure SetIndicator(const StartPos, EndPos: Integer;
+    procedure SetIndicators(const StartPos, EndPos: Integer;
       const IndicatorNumber: TScintIndicatorNumber; const Value: Boolean);
     procedure SetLineIndentation(const Line, Indentation: Integer);
     procedure SetSavePoint;
@@ -813,7 +813,7 @@ begin
   Result := Call(SCI_DOCLINEFROMVISIBLE, VisibleLine, 0);
 end;
 
-function TScintEdit.GetIndicatorValueAt(
+function TScintEdit.GetIndicatorAtPosition(
   const IndicatorNumber: TScintIndicatorNumber; const Pos: Integer): Boolean;
 begin
   Result := Call(SCI_INDICATORVALUEAT, IndicatorNumber, Pos) <> 0;
@@ -1366,7 +1366,7 @@ begin
   end;
 end;
 
-procedure TScintEdit.SetIndicator(const StartPos, EndPos: Integer;
+procedure TScintEdit.SetIndicators(const StartPos, EndPos: Integer;
   const IndicatorNumber: TScintIndicatorNumber; const Value: Boolean);
 begin
   CheckPosRange(StartPos, EndPos);
@@ -1640,12 +1640,19 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
 
     { Apply style byte indicators. Add first as INDIC_CONTAINER and so on. }
     var P: PAnsiChar := @FStyler.FStyleStr[1];
+    var N := Length(FStyler.FStyleStr);
     for var Indicator := 0 to High(TScintStyleByteIndicatorNumber) do begin
-      { Todo: optimize the simple loop below to check for same value ranges }
-      for var I := 1 to Length(FStyler.FStyleStr) do begin
-        var Value := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(P[I-1]) shr StyleNumberBits));
-        SetIndicator(StartStylingPos+I-1, StartStylingPos+I, Ord(Indicator)+INDIC_CONTAINER, Value);
+      var PrevI := 0;
+      var PrevValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(P[0]) shr StyleNumberBits));
+      for var CurI := 1 to N-1 do begin
+        var CurValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(P[CurI]) shr StyleNumberBits));
+        if CurValue <> PrevValue then begin
+          SetIndicators(StartStylingPos+PrevI, StartStylingPos+CurI, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
+          PrevI := CurI;
+          PrevValue := CurValue;
+        end;
       end;
+      SetIndicators(StartStylingPos+PrevI, StartStylingPos+N, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
     end;
 
     FStyler.FStyleStr := '';

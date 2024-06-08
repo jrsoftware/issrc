@@ -254,7 +254,7 @@ begin
   if Update then begin
     Self.ClearIndicators(IndicatorNumber);
     for var Range in Ranges do
-      Self.SetIndicator(Range.StartPos, Range.EndPos, IndicatorNumber, True);
+      Self.SetIndicators(Range.StartPos, Range.EndPos, IndicatorNumber, True);
 
     if not GotNewHash then
       NewHash := HashRanges(Ranges);
