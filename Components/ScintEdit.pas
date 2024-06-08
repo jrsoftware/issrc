@@ -1820,12 +1820,14 @@ begin
   SetStyleAttr(STYLE_DEFAULT, DefaultAttr, True);
   Call(SCI_STYLECLEARALL, 0, 0);
 
-  if Assigned(FStyler) and FUseStyleAttributes then begin
-    for I := 0 to 31 do
-      SetStyleAttrFromStyler(I);
+  if Assigned(FStyler) then begin
+    if  FUseStyleAttributes then begin
+      for I := 0 to 31 do
+        SetStyleAttrFromStyler(I);
+      SetStyleAttrFromStyler(STYLE_BRACELIGHT);
+      SetStyleAttrFromStyler(STYLE_INDENTGUIDE);
+    end;
     SetStyleAttrFromStyler(STYLE_LINENUMBER);
-    SetStyleAttrFromStyler(STYLE_BRACELIGHT);
-    SetStyleAttrFromStyler(STYLE_INDENTGUIDE);
   end;
 
   if AutoCompleteFontName <> '' then
