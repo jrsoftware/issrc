@@ -27,9 +27,13 @@ const
   mmIconStep = 13;           { blue arrow }
   mmIconBreakpointStep = 14; { blue arrow on top of a stop sign + check }
 
-  { Memo indicator numbers }
-  inSquiggly = INDIC_CONTAINER;          //0 and 1 in ScintStylerInnoSetup, so must be first and second
-  inPendingSquiggly = INDIC_CONTAINER+1; //
+  { Memo indicator numbers - Note: inSquiggly and inPendingSquiggly are 0 and 1
+    in ScintStylerInnoSetup and must be first and second here. Also note: even
+    though inSquiggly and inPendingSquiggly are exclusive we still need 2 indicators
+    (instead of 1 indicator with 2 values) because inPendingSquiggly is always
+    hidden and in inSquiggly is not. }
+  inSquiggly = INDIC_CONTAINER;
+  inPendingSquiggly = INDIC_CONTAINER+1;
   inWordAtCursorOccurrence = INDIC_CONTAINER+2;
   inSelTextOccurrence = INDIC_CONTAINER+3;
   inMax = inSelTextOccurrence;
