@@ -3198,6 +3198,12 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Add additional selection.</td><td>Ctrl+Click or Ctrl+Drag</td>
 </tr>
 <tr>
+  <td>Add word as additional selection.</td><td>Ctrl+Double Click</td>
+</tr>
+<tr>
+  <td>Add line as additional selection.</td><td>Ctrl+Triple Click</td>
+</tr>
+<tr>
   <td>Perform rectangular block selection.</td><td>Alt+Shift+Arrow or Alt+Drag</td>
 </tr>
 <tr>
