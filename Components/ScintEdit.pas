@@ -1628,13 +1628,17 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       FLines.GetLineEndingLength(LastLine));
 
     FStyler.StyleNeeded;
+
+    { Apply styles. Will ignore any style byte indicators because SCI_STARTSTYLING below was called with $1F}
     Call(SCI_SETSTYLINGEX, Length(FStyler.FStyleStr), LPARAM(PAnsiChar(FStyler.FStyleStr)));
+
+    { Apply style byte indicators. Add first as INDIC_CONTAINER and so on. }
     var P: PAnsiChar := @FStyler.FStyleStr[1];
-    for var Indicator := Low(TScintStyleByteIndicatorNumber) to High(TScintStyleByteIndicatorNumber) do begin
+    for var Indicator := 0 to High(TScintStyleByteIndicatorNumber) do begin
       { Todo: optimize the simple loop below to check for same value ranges }
       for var I := 1 to Length(FStyler.FStyleStr) do begin
-        var IndicatorsOn := TScintStyleByteIndicatorNumbers(Byte(Ord(P[I-1]) shr 5));
-        SetIndicator(StartStylingPos+I-1, StartStylingPos+I, Ord(Indicator)-Low(TScintStyleByteIndicatorNumber)+INDIC_CONTAINER, Indicator in IndicatorsOn);
+        var Value := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(P[I-1]) shr 5));
+        SetIndicator(StartStylingPos+I-1, StartStylingPos+I, Ord(Indicator)+INDIC_CONTAINER, Value);
       end;
     end;
 
