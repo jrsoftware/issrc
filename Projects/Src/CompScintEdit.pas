@@ -27,13 +27,11 @@ const
   mmIconStep = 13;           { blue arrow }
   mmIconBreakpointStep = 14; { blue arrow on top of a stop sign + check }
 
-  { Memo style byte indicator numbers (0..2 - also in ScintStylerInnoSetup) }
-  inSquiggly = 0;
-  inPendingSquiggly = 1;
-
-  { Memo other indicator numbers }
-  inWordAtCursorOccurrence = INDIC_CONTAINER;
-  inSelTextOccurrence = INDIC_CONTAINER+1;
+  { Memo indicator numbers }
+  inSquiggly = INDIC_CONTAINER;          //0 and 1 in ScintStylerInnoSetup, so must be first and second
+  inPendingSquiggly = INDIC_CONTAINER+1; //
+  inWordAtCursorOccurrence = INDIC_CONTAINER+2;
+  inSelTextOccurrence = INDIC_CONTAINER+3;
   inMax = inSelTextOccurrence;
 
   { Just some invalid value used to indicate an unknown/uninitialized compiler FileIndex value }
@@ -256,7 +254,7 @@ begin
   if Update then begin
     Self.ClearIndicators(IndicatorNumber);
     for var Range in Ranges do
-      Self.AddIndicator(Range.StartPos, Range.EndPos, IndicatorNumber);
+      Self.SetIndicator(Range.StartPos, Range.EndPos, IndicatorNumber, True);
 
     if not GotNewHash then
       NewHash := HashRanges(Ranges);

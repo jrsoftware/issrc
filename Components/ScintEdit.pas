@@ -36,7 +36,7 @@ type
   TScintFindOption = (sfoMatchCase, sfoWholeWord);
   TScintFindOptions = set of TScintFindOption;
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
-  TScintStyleByteIndicatorNumber = 0..2; { These use unused style bits of which there are 3. Assumes SCI_SETSTYLEBITS isn't used to change the default used style bits from 5 to a higher number. }
+  TScintStyleByteIndicatorNumber = 0..1; { Could be increased to 0..2 since there are 3 unused style bits in TScintCustomStyler.FStyleStr }
   TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
   TScintIndicatorNumber = INDIC_CONTAINER..INDIC_MAX;
   TScintLineEndings = (sleCRLF, sleCR, sleLF);
@@ -179,8 +179,6 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AddMarker(const Line: Integer; const Marker: TScintMarkerNumber);
-    procedure AddIndicator(const StartPos, EndPos: Integer;
-      const IndicatorNumber: TScintIndicatorNumber);
     procedure BeginUndoAction;
     function Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;
     function CallStr(Msg: Cardinal; WParam: Longint;
@@ -213,7 +211,8 @@ type
     function GetColumnFromPosition(const Pos: Integer): Integer;
     function GetDefaultWordChars: AnsiString;
     function GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
-    function GetStyleByteIndicatorsAtPosition(const Pos: Integer): TScintStyleByteIndicatorNumbers;
+    function GetIndicatorValueAt(const IndicatorNumber: TScintIndicatorNumber;
+      const Pos: Integer): Boolean;
     function GetLineEndPosition(const Line: Integer): Integer;
     function GetLineFromPosition(const Pos: Integer): Integer;
     function GetLineIndentation(const Line: Integer): Integer;
@@ -258,6 +257,8 @@ type
     procedure SetDefaultWordChars;
     procedure SetEmptySelection;
     procedure SetEmptySelections;
+    procedure SetIndicator(const StartPos, EndPos: Integer;
+      const IndicatorNumber: TScintIndicatorNumber; const Value: Boolean);
     procedure SetLineIndentation(const Line, Indentation: Integer);
     procedure SetSavePoint;
     procedure SetSingleSelection(const CaretPos, AnchorPos: Integer);
@@ -478,15 +479,6 @@ begin
   FLines.Free;
   FLines := nil;
   inherited;
-end;
-
-procedure TScintEdit.AddIndicator(const StartPos, EndPos: Integer;
-  const IndicatorNumber: TScintIndicatorNumber);
-begin
-  CheckPosRange(StartPos, EndPos);
-  Call(SCI_SETINDICATORCURRENT, IndicatorNumber, 0);
-  Call(SCI_SETINDICATORVALUE, IndicatorNumber, 1);
-  Call(SCI_INDICATORFILLRANGE, StartPos, EndPos - StartPos);
 end;
 
 procedure TScintEdit.AddMarker(const Line: Integer;
@@ -815,12 +807,10 @@ begin
   Result := Call(SCI_DOCLINEFROMVISIBLE, VisibleLine, 0);
 end;
 
-function TScintEdit.GetStyleByteIndicatorsAtPosition(const Pos: Integer): TScintStyleByteIndicatorNumbers;
-var
-  Indic: Byte;
+function TScintEdit.GetIndicatorValueAt(
+  const IndicatorNumber: TScintIndicatorNumber; const Pos: Integer): Boolean;
 begin
-  Indic := Byte(Call(SCI_GETSTYLEAT, Pos, 0)) shr 5;
-  Result := TScintStyleByteIndicatorNumbers(Indic);
+  Result := Call(SCI_INDICATORVALUEAT, IndicatorNumber, Pos) <> 0;
 end;
 
 function TScintEdit.GetInsertMode: Boolean;
@@ -1034,7 +1024,7 @@ end;
 
 function TScintEdit.GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
 begin
-  Result := Call(SCI_GETSTYLEAT, Pos, 0) and $1F;
+  Result := Call(SCI_GETSTYLEAT, Pos, 0);
 end;
 
 function TScintEdit.GetTarget: TScintRange;
@@ -1370,6 +1360,18 @@ begin
   end;
 end;
 
+procedure TScintEdit.SetIndicator(const StartPos, EndPos: Integer;
+  const IndicatorNumber: TScintIndicatorNumber; const Value: Boolean);
+begin
+  CheckPosRange(StartPos, EndPos);
+  Call(SCI_SETINDICATORCURRENT, IndicatorNumber, 0);
+  if Value then begin
+    Call(SCI_SETINDICATORVALUE, IndicatorNumber, 1);
+    Call(SCI_INDICATORFILLRANGE, StartPos, EndPos - StartPos);
+  end else
+    Call(SCI_INDICATORCLEARRANGE, StartPos, EndPos - StartPos);
+end;
+
 procedure TScintEdit.SetLineIndentation(const Line, Indentation: Integer);
 begin
   FLines.CheckIndexRange(Line);
@@ -1599,13 +1601,10 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
     Result := FStyler.LineTextSpans(S);
   end;
 
-  function StyleLine(const FirstLine: Integer): Integer;
-  var
-    LastLine, I: Integer;
-    OldState: TScintLineState;
+  function StyleLine(const FirstLine: Integer; const StartStylingPos: Integer): Integer;
   begin
     { Find final line in series of spanned lines }
-    LastLine := FirstLine;
+    var LastLine := FirstLine;
     while (LastLine < Lines.Count - 1) and LineSpans(LastLine) do
       Inc(LastLine);
 
@@ -1630,12 +1629,20 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
 
     FStyler.StyleNeeded;
     Call(SCI_SETSTYLINGEX, Length(FStyler.FStyleStr), LPARAM(PAnsiChar(FStyler.FStyleStr)));
+    var P: PAnsiChar := @FStyler.FStyleStr[1];
+    for var Indicator := Low(TScintStyleByteIndicatorNumber) to High(TScintStyleByteIndicatorNumber) do begin
+      { Todo: optimize the simple loop below to check for same value ranges }
+      for var I := 1 to Length(FStyler.FStyleStr) do begin
+        var IndicatorsOn := TScintStyleByteIndicatorNumbers(Byte(Ord(P[I-1]) shr 5));
+        SetIndicator(StartStylingPos+I-1, StartStylingPos+I, Ord(Indicator)-Low(TScintStyleByteIndicatorNumber)+INDIC_CONTAINER, Indicator in IndicatorsOn);
+      end;
+    end;
 
     FStyler.FStyleStr := '';
     FStyler.FText := '';
 
-    for I := FirstLine to LastLine do begin
-      OldState := FLines.GetState(I);
+    for var I := FirstLine to LastLine do begin
+      var OldState := FLines.GetState(I);
       if FStyler.FLineState <> OldState then
         Call(SCI_SETLINESTATE, I, FStyler.FLineState);
     end;
@@ -1682,9 +1689,10 @@ begin
 
   Line := StartLine;
   while Line <= EndLine do begin
-    Call(SCI_STARTSTYLING, GetPositionFromLine(Line), $FF);
+    var StartStylingPos := GetPositionFromLine(Line);
+    Call(SCI_STARTSTYLING, StartStylingPos, $1F);
     if Assigned(FStyler) then
-      Line := StyleLine(Line)
+      Line := StyleLine(Line, StartStylingPos)
     else
       DefaultStyleLine(Line);
     Inc(Line);
