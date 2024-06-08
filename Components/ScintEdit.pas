@@ -256,6 +256,7 @@ type
     procedure SetBraceHighlighting(const Pos1, Pos2: Integer);
     procedure SetCursorID(const CursorID: Integer);
     procedure SetDefaultWordChars;
+    procedure SetEmptySelection;
     procedure SetEmptySelections;
     procedure SetLineIndentation(const Line, Indentation: Integer);
     procedure SetSavePoint;
@@ -1342,6 +1343,13 @@ end;
 procedure TScintEdit.SetDefaultWordChars;
 begin
   SetWordChars(GetDefaultWordChars);
+end;
+
+procedure TScintEdit.SetEmptySelection;
+{ Make the main selection empty without scrolling the caret into view and
+  removes additional selections }
+begin
+  Call(SCI_SETEMPTYSELECTION, GetCaretPosition, 0);
 end;
 
 procedure TScintEdit.SetEmptySelections;

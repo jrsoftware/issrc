@@ -1040,7 +1040,7 @@ begin
       if FActiveMemo.SelectionCount > 1 then
         FActiveMemo.RemoveAdditionalSelections
       else if FActiveMemo.SelNotEmpty then
-        FActiveMemo.SetEmptySelections;
+        FActiveMemo.SetEmptySelection;
     end;
   end else if AShortCut = FBackNavButtonShortCut then begin
     if BackNavButton.Enabled then
