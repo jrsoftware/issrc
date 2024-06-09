@@ -1635,12 +1635,12 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
 
     FStyler.StyleNeeded;
 
-    { Apply styles. Will ignore any style byte indicators because SCI_STARTSTYLING below was called with StyleNumberMask}
-    Call(SCI_SETSTYLINGEX, Length(FStyler.FStyleStr), LPARAM(PAnsiChar(FStyler.FStyleStr)));
-
-    { Apply style byte indicators. Add first as INDIC_CONTAINER and so on. }
+    { Note: The PAnsiChar stuff is to avoid UniqueString() on every iteration }
     var P: PAnsiChar := @FStyler.FStyleStr[1];
     var N := Length(FStyler.FStyleStr);
+    var HadStyleByteIndicators := False;
+
+    { Apply style byte indicators. Add first as INDIC_CONTAINER and so on. }
     for var Indicator := 0 to High(TScintStyleByteIndicatorNumber) do begin
       var PrevI := 0;
       var PrevValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(P[0]) shr StyleNumberBits));
@@ -1648,12 +1648,20 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
         var CurValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(P[CurI]) shr StyleNumberBits));
         if CurValue <> PrevValue then begin
           SetIndicators(StartStylingPos+PrevI, StartStylingPos+CurI, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
+          HadStyleByteIndicators := HadStyleByteIndicators or PrevValue;
           PrevI := CurI;
           PrevValue := CurValue;
         end;
       end;
       SetIndicators(StartStylingPos+PrevI, StartStylingPos+N, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
+      HadStyleByteIndicators := HadStyleByteIndicators or PrevValue;
     end;
+
+    { Apply styles after removing any style byte indicators }
+    if HadStyleByteIndicators then
+      for var I := 0 to N-1 do
+        P[I] := AnsiChar(Ord(P[I]) and StyleNumberMask);
+    Call(SCI_SETSTYLINGEX, Length(FStyler.FStyleStr), LPARAM(PAnsiChar(FStyler.FStyleStr)));
 
     FStyler.FStyleStr := '';
     FStyler.FText := '';
@@ -1707,7 +1715,7 @@ begin
   Line := StartLine;
   while Line <= EndLine do begin
     var StartStylingPos := GetPositionFromLine(Line);
-    Call(SCI_STARTSTYLING, StartStylingPos, StyleNumberMask);
+    Call(SCI_STARTSTYLING, StartStylingPos, $FF);
     if Assigned(FStyler) then
       Line := StyleLine(Line, StartStylingPos)
     else
