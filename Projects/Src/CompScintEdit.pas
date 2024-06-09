@@ -152,10 +152,6 @@ begin
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
-    -3.4.2: Removes support for style byte indicators but ScintStylerInnoSetup uses those.
-            Already updated code for this except the $FF param in one of the SCI_STARTSTYLING
-            calls. Change it to 0 on >= 3.4.2 because the param is then unused.
-    -3.4.4: Add: Call(SCI_AUTOSGETMULTI, SC_MULTIAUTOC_EACH, 0)
     -3.5.7: Use SCI_MULTIPLESELECTADDEACH to implement Ctrl+Shift+L (Select All
             Occurrences) and SCI_MULTIPLESELECTADDNEXT to implement Ctrl+D (Select
             Next Occurrence). If the selection is empty Scintilla will use word
@@ -173,6 +169,7 @@ begin
   Call(SCI_AUTOCSETDROPRESTOFWORD, 1, 0);
   Call(SCI_AUTOCSETIGNORECASE, 1, 0);
   Call(SCI_AUTOCSETMAXHEIGHT, 12, 0);
+  Call(SCI_AUTOCSETMULTI, SC_MULTIAUTOC_EACH, 0);
 
   Call(SCI_SETMULTIPLESELECTION, 1, 0);
   Call(SCI_SETADDITIONALSELECTIONTYPING, 1, 0);

@@ -1715,7 +1715,7 @@ begin
   Line := StartLine;
   while Line <= EndLine do begin
     var StartStylingPos := GetPositionFromLine(Line);
-    Call(SCI_STARTSTYLING, StartStylingPos, $FF);
+    Call(SCI_STARTSTYLING, StartStylingPos, 0);
     if Assigned(FStyler) then
       Line := StyleLine(Line, StartStylingPos)
     else
