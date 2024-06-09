@@ -3259,7 +3259,8 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
       if Markers * [mmLineError, mmLineBreakpointBad, mmLineStep] <> [] then
         Continue;
 
-      { Add indicator while making sure it does not overlap the regular selection styling }
+      { Add indicator while making sure it does not overlap the regular selection
+       styling (only looks at main selection and not any additional selections atm) }
       if SelAvail and Range.Overlaps(Selection) then begin
         if Range.StartPos < Selection.StartPos then
           ARangeList.Add(TScintRange.Create(Range.StartPos, Selection.StartPos));
