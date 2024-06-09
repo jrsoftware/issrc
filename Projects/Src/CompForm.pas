@@ -4141,9 +4141,9 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
     Pos := AMemo.CaretPosition;
     Value := False;
     if AMemo.CaretVirtualSpace = 0 then begin
-      Value := inPendingSquiggly in AMemo.GetStyleByteIndicatorsAtPosition(Pos);
+      Value := AMemo.GetIndicatorAtPosition(inPendingSquiggly, Pos);
       if not Value and (Pos > 0) then
-        Value := inPendingSquiggly in AMemo.GetStyleByteIndicatorsAtPosition(Pos-1);
+        Value := AMemo.GetIndicatorAtPosition(inPendingSquiggly, Pos-1);
     end;
     if FOnPendingSquiggly <> Value then begin
       FOnPendingSquiggly := Value;

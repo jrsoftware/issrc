@@ -14,6 +14,12 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Generics.Collections, ScintInt;
 
+const
+  StyleNumbers = 32; { The syntax highlighting can use up to 32 styles }
+  StyleNumberBits = 5; { 5 bits are needed to store 32 values }
+  StyleNumberMask = StyleNumbers-1; { To get the 5 bits from a byte it needs to be AND-ed with $1F = 31 }
+  StyleNumberUnusedBits = 8-StyleNumberBits; { 3 bits of a byte are unused }
+
 type
   TScintEditAutoCompleteSelectionEvent = TNotifyEvent;
   TScintEditChangeInfo = record
@@ -36,7 +42,7 @@ type
   TScintFindOption = (sfoMatchCase, sfoWholeWord);
   TScintFindOptions = set of TScintFindOption;
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
-  TScintStyleByteIndicatorNumber = 0..2; { These use unused style bits of which there are 3. Assumes SCI_SETSTYLEBITS isn't used to change the default used style bits from 5 to a higher number. }
+  TScintStyleByteIndicatorNumber = 0..1; { Could be increased to 0..StyleNumberUnusedBits-1 }
   TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
   TScintIndicatorNumber = INDIC_CONTAINER..INDIC_MAX;
   TScintLineEndings = (sleCRLF, sleCR, sleLF);
@@ -55,7 +61,7 @@ type
   TScintRectangle = record
     Left, Top, Right, Bottom: Integer;
   end;
-  TScintStyleNumber = 0..31;
+  TScintStyleNumber = 0..StyleNumbers-1;
   TScintVirtualSpaceOption = (svsRectangularSelection, svsUserAccessible);
   TScintVirtualSpaceOptions = set of TScintVirtualSpaceOption;
   PScintRangeToFormat = ^TScintRangeToFormat;
@@ -179,8 +185,6 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AddMarker(const Line: Integer; const Marker: TScintMarkerNumber);
-    procedure AddIndicator(const StartPos, EndPos: Integer;
-      const IndicatorNumber: TScintIndicatorNumber);
     procedure BeginUndoAction;
     function Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;
     function CallStr(Msg: Cardinal; WParam: Longint;
@@ -213,7 +217,8 @@ type
     function GetColumnFromPosition(const Pos: Integer): Integer;
     function GetDefaultWordChars: AnsiString;
     function GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
-    function GetStyleByteIndicatorsAtPosition(const Pos: Integer): TScintStyleByteIndicatorNumbers;
+    function GetIndicatorAtPosition(const IndicatorNumber: TScintIndicatorNumber;
+      const Pos: Integer): Boolean;
     function GetLineEndPosition(const Line: Integer): Integer;
     function GetLineFromPosition(const Pos: Integer): Integer;
     function GetLineIndentation(const Line: Integer): Integer;
@@ -258,6 +263,8 @@ type
     procedure SetDefaultWordChars;
     procedure SetEmptySelection;
     procedure SetEmptySelections;
+    procedure SetIndicators(const StartPos, EndPos: Integer;
+      const IndicatorNumber: TScintIndicatorNumber; const Value: Boolean);
     procedure SetLineIndentation(const Line, Indentation: Integer);
     procedure SetSavePoint;
     procedure SetSingleSelection(const CaretPos, AnchorPos: Integer);
@@ -478,15 +485,6 @@ begin
   FLines.Free;
   FLines := nil;
   inherited;
-end;
-
-procedure TScintEdit.AddIndicator(const StartPos, EndPos: Integer;
-  const IndicatorNumber: TScintIndicatorNumber);
-begin
-  CheckPosRange(StartPos, EndPos);
-  Call(SCI_SETINDICATORCURRENT, IndicatorNumber, 0);
-  Call(SCI_SETINDICATORVALUE, IndicatorNumber, 1);
-  Call(SCI_INDICATORFILLRANGE, StartPos, EndPos - StartPos);
 end;
 
 procedure TScintEdit.AddMarker(const Line: Integer;
@@ -815,12 +813,10 @@ begin
   Result := Call(SCI_DOCLINEFROMVISIBLE, VisibleLine, 0);
 end;
 
-function TScintEdit.GetStyleByteIndicatorsAtPosition(const Pos: Integer): TScintStyleByteIndicatorNumbers;
-var
-  Indic: Byte;
+function TScintEdit.GetIndicatorAtPosition(
+  const IndicatorNumber: TScintIndicatorNumber; const Pos: Integer): Boolean;
 begin
-  Indic := Byte(Call(SCI_GETSTYLEAT, Pos, 0)) shr 5;
-  Result := TScintStyleByteIndicatorNumbers(Indic);
+  Result := Call(SCI_INDICATORVALUEAT, IndicatorNumber, Pos) <> 0;
 end;
 
 function TScintEdit.GetInsertMode: Boolean;
@@ -1034,7 +1030,7 @@ end;
 
 function TScintEdit.GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
 begin
-  Result := Call(SCI_GETSTYLEAT, Pos, 0) and $1F;
+  Result := Call(SCI_GETSTYLEAT, Pos, 0);
 end;
 
 function TScintEdit.GetTarget: TScintRange;
@@ -1370,6 +1366,18 @@ begin
   end;
 end;
 
+procedure TScintEdit.SetIndicators(const StartPos, EndPos: Integer;
+  const IndicatorNumber: TScintIndicatorNumber; const Value: Boolean);
+begin
+  CheckPosRange(StartPos, EndPos);
+  Call(SCI_SETINDICATORCURRENT, IndicatorNumber, 0);
+  if Value then begin
+    Call(SCI_SETINDICATORVALUE, IndicatorNumber, 1);
+    Call(SCI_INDICATORFILLRANGE, StartPos, EndPos - StartPos);
+  end else
+    Call(SCI_INDICATORCLEARRANGE, StartPos, EndPos - StartPos);
+end;
+
 procedure TScintEdit.SetLineIndentation(const Line, Indentation: Integer);
 begin
   FLines.CheckIndexRange(Line);
@@ -1599,13 +1607,10 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
     Result := FStyler.LineTextSpans(S);
   end;
 
-  function StyleLine(const FirstLine: Integer): Integer;
-  var
-    LastLine, I: Integer;
-    OldState: TScintLineState;
+  function StyleLine(const FirstLine: Integer; const StartStylingPos: Integer): Integer;
   begin
     { Find final line in series of spanned lines }
-    LastLine := FirstLine;
+    var LastLine := FirstLine;
     while (LastLine < Lines.Count - 1) and LineSpans(LastLine) do
       Inc(LastLine);
 
@@ -1629,13 +1634,40 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       FLines.GetLineEndingLength(LastLine));
 
     FStyler.StyleNeeded;
+
+    { Note: The PAnsiChar stuff is to avoid UniqueString() on every iteration }
+    var P: PAnsiChar := @FStyler.FStyleStr[1];
+    var N := Length(FStyler.FStyleStr);
+    var HadStyleByteIndicators := False;
+
+    { Apply style byte indicators. Add first as INDIC_CONTAINER and so on. }
+    for var Indicator := 0 to High(TScintStyleByteIndicatorNumber) do begin
+      var PrevI := 0;
+      var PrevValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(P[0]) shr StyleNumberBits));
+      for var CurI := 1 to N-1 do begin
+        var CurValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(P[CurI]) shr StyleNumberBits));
+        if CurValue <> PrevValue then begin
+          SetIndicators(StartStylingPos+PrevI, StartStylingPos+CurI, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
+          HadStyleByteIndicators := HadStyleByteIndicators or PrevValue;
+          PrevI := CurI;
+          PrevValue := CurValue;
+        end;
+      end;
+      SetIndicators(StartStylingPos+PrevI, StartStylingPos+N, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
+      HadStyleByteIndicators := HadStyleByteIndicators or PrevValue;
+    end;
+
+    { Apply styles after removing any style byte indicators }
+    if HadStyleByteIndicators then
+      for var I := 0 to N-1 do
+        P[I] := AnsiChar(Ord(P[I]) and StyleNumberMask);
     Call(SCI_SETSTYLINGEX, Length(FStyler.FStyleStr), LPARAM(PAnsiChar(FStyler.FStyleStr)));
 
     FStyler.FStyleStr := '';
     FStyler.FText := '';
 
-    for I := FirstLine to LastLine do begin
-      OldState := FLines.GetState(I);
+    for var I := FirstLine to LastLine do begin
+      var OldState := FLines.GetState(I);
       if FStyler.FLineState <> OldState then
         Call(SCI_SETLINESTATE, I, FStyler.FLineState);
     end;
@@ -1682,9 +1714,10 @@ begin
 
   Line := StartLine;
   while Line <= EndLine do begin
-    Call(SCI_STARTSTYLING, GetPositionFromLine(Line), $FF);
+    var StartStylingPos := GetPositionFromLine(Line);
+    Call(SCI_STARTSTYLING, StartStylingPos, $FF);
     if Assigned(FStyler) then
-      Line := StyleLine(Line)
+      Line := StyleLine(Line, StartStylingPos)
     else
       DefaultStyleLine(Line);
     Inc(Line);
@@ -1822,7 +1855,7 @@ begin
 
   if Assigned(FStyler) then begin
     if  FUseStyleAttributes then begin
-      for I := 0 to 31 do
+      for I := 0 to StyleNumbers-1 do
         SetStyleAttrFromStyler(I);
       SetStyleAttrFromStyler(STYLE_BRACELIGHT);
       SetStyleAttrFromStyler(STYLE_INDENTGUIDE);
@@ -2113,7 +2146,7 @@ var
   I: Integer;
   P: PAnsiChar;
 begin
-  IndByte := Byte(Indicators) shl 5;
+  IndByte := Byte(Indicators) shl StyleNumberBits;
   if IndByte <> 0 then begin
     if StartIndex < 1 then
       StartIndex := 1;
@@ -2128,8 +2161,6 @@ end;
 
 procedure TScintCustomStyler.ApplyStyle(const Style: TScintStyleNumber;
   StartIndex, EndIndex: Integer);
-const
-  StyleMask = $1F;
 var
   P: PAnsiChar;
   I: Integer;
@@ -2141,8 +2172,8 @@ begin
   { Note: The PAnsiChar stuff is to avoid UniqueString() on every iteration }
   P := @FStyleStr[1];
   for I := StartIndex to EndIndex do
-    if Ord(P[I-1]) and StyleMask = 0 then
-      P[I-1] := AnsiChar(Style or (Ord(P[I-1]) and not StyleMask));
+    if Ord(P[I-1]) and StyleNumberMask = 0 then
+      P[I-1] := AnsiChar(Style or (Ord(P[I-1]) and not StyleNumberMask));
 end;
 
 procedure TScintCustomStyler.CommitStyle(const Style: TScintStyleNumber);

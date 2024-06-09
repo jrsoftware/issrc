@@ -27,13 +27,15 @@ const
   mmIconStep = 13;           { blue arrow }
   mmIconBreakpointStep = 14; { blue arrow on top of a stop sign + check }
 
-  { Memo style byte indicator numbers (0..2 - also in ScintStylerInnoSetup) }
-  inSquiggly = 0;
-  inPendingSquiggly = 1;
-
-  { Memo other indicator numbers }
-  inWordAtCursorOccurrence = INDIC_CONTAINER;
-  inSelTextOccurrence = INDIC_CONTAINER+1;
+  { Memo indicator numbers - Note: inSquiggly and inPendingSquiggly are 0 and 1
+    in ScintStylerInnoSetup and must be first and second here. Also note: even
+    though inSquiggly and inPendingSquiggly are exclusive we still need 2 indicators
+    (instead of 1 indicator with 2 values) because inPendingSquiggly is always
+    hidden and in inSquiggly is not. }
+  inSquiggly = INDIC_CONTAINER;
+  inPendingSquiggly = INDIC_CONTAINER+1;
+  inWordAtCursorOccurrence = INDIC_CONTAINER+2;
+  inSelTextOccurrence = INDIC_CONTAINER+3;
   inMax = inSelTextOccurrence;
 
   { Just some invalid value used to indicate an unknown/uninitialized compiler FileIndex value }
@@ -150,7 +152,9 @@ begin
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
-    -3.4.2: Removes support for style byte indicators but ScintStylerInnoSetup uses those
+    -3.4.2: Removes support for style byte indicators but ScintStylerInnoSetup uses those.
+            Already updated code for this except the $FF param in one of the SCI_STARTSTYLING
+            calls. Change it to 0 on >= 3.4.2 because the param is then unused.
     -3.4.4: Add: Call(SCI_AUTOSGETMULTI, SC_MULTIAUTOC_EACH, 0)
     -3.5.7: Use SCI_MULTIPLESELECTADDEACH to implement Ctrl+Shift+L (Select All
             Occurrences) and SCI_MULTIPLESELECTADDNEXT to implement Ctrl+D (Select
@@ -256,7 +260,7 @@ begin
   if Update then begin
     Self.ClearIndicators(IndicatorNumber);
     for var Range in Ranges do
-      Self.AddIndicator(Range.StartPos, Range.EndPos, IndicatorNumber);
+      Self.SetIndicators(Range.StartPos, Range.EndPos, IndicatorNumber, True);
 
     if not GotNewHash then
       NewHash := HashRanges(Ranges);
