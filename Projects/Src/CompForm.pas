@@ -3402,10 +3402,6 @@ begin
       try
         BkBrush.Color := FTheme.Colors[tcMarginBack];
 
-        { Workaround for DPI over 200%, has too many colors for current XPM usage }
-        if (ImageList.Width > 24) or (ImageList.Height > 24) then
-          ImageList.SetSize(24, 24);
-
         var BitmapInfo := CreateBitmapInfo(ImageList.Width, -ImageList.Height, 32);
 
         var NamedMarkers := [
