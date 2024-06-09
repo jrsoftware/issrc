@@ -35,7 +35,7 @@ UninstallDisplayIcon={app}\MyProg.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=userdocs:Inno Setup Examples Output
-Password=={#Password}
+Password={#Password}
 
 [Files]
 Source: "MyProg.exe"; DestDir: "{app}"

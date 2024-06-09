@@ -1986,7 +1986,7 @@ begin
     meaningful to the VCL -- but it doesn't restore the original value before
     passing an unhandled WM_MOUSEWHEEL message up to DefWndProc. This causes
     Scintilla to see Ctrl+wheel as Shift+wheel, breaking zoom. (Observed on
-    Delphi 2009.) }
+    Delphi 2009 and still needed in Delphi 11.3.) }
   Message.Result := CallWindowProc(DefWndProc, Handle, Message.Msg,
     Message.WParam, Message.LParam);
 end;
