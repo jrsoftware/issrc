@@ -152,6 +152,9 @@ begin
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
+    -3.5.2: Investigate: SCFIND_CXX11REGEX. When compiled with CXX11_REGEX this
+            flag may be set to use <regex> instead of Scintilla's basic regular
+            expressions.
     -3.5.7: Use SCI_MULTIPLESELECTADDEACH to implement Ctrl+Shift+L (Select All
             Occurrences) and SCI_MULTIPLESELECTADDNEXT to implement Ctrl+D (Select
             Next Occurrence). If the selection is empty Scintilla will use word
@@ -160,7 +163,6 @@ begin
             behaves same as TCompileForm.UpdateOccurrenceIndicators. Also requires
             calling SCI_TARGETWHOLEDOCUMENT.
             !!! Note https://github.com/notepad-plus-plus/notepad-plus-plus/pull/14330
-    -3.6.0: Highly desirable version because of improved additional selection typing
     -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on INDIC_SQUIGGLE }
 
   Call(SCI_SETCARETWIDTH, 2, 0);
