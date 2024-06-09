@@ -3263,7 +3263,8 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
         styling (only looks at main selection and not any additional selections
         atm - so if you ctrl drag to select a part of a word and then the same
         on an occurrence somewhere else the additional selection becomes hidden
-        by the indicator except for the very top and bottom }
+        by the indicator except for the very top and bottom (due to use of
+        INDIC_STRAIGHTBOX instead of INDIC_FULLBOX) }
       if SelAvail and Range.Overlaps(Selection) then begin
         if Range.StartPos < Selection.StartPos then
           ARangeList.Add(TScintRange.Create(Range.StartPos, Selection.StartPos));
