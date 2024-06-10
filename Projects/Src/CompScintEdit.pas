@@ -139,9 +139,6 @@ begin
   inherited;
 
   { Some notes about future Scintilla versions:
-    -At some point SCI_SETVIRTUALSPACEOPTIONS will support SCVS_NOWRAPLINESTART.
-     Once it does this should be used in TCompileForm.SyncEditorOptions if CursorPastEOL
-     is on and our own VK_LEFT handling in TCompileForm.MemoKeyDown should be removed.
     -At some point the documentation will say:
      "The selection can be simplified down to just the main selection by
      SCI_CANCEL which is normally mapped to the Esc key."
@@ -152,9 +149,9 @@ begin
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
-    -3.5.2: Investigate: SCFIND_CXX11REGEX. When compiled with CXX11_REGEX this
-            flag may be set to use <regex> instead of Scintilla's basic regular
-            expressions.
+    -3.5.3: Investigate: "When the mouse is on the line between margin and text
+            changed to treat as within text." Does this mean isscint's
+            Editor::GetMarginCursor patch is not needed anymore?
     -3.5.7: Use SCI_MULTIPLESELECTADDEACH to implement Ctrl+Shift+L (Select All
             Occurrences) and SCI_MULTIPLESELECTADDNEXT to implement Ctrl+D (Select
             Next Occurrence). If the selection is empty Scintilla will use word
@@ -163,6 +160,16 @@ begin
             behaves same as TCompileForm.UpdateOccurrenceIndicators. Also requires
             calling SCI_TARGETWHOLEDOCUMENT.
             !!! Note https://github.com/notepad-plus-plus/notepad-plus-plus/pull/14330
+    -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
+            Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
+            https://cplusplus.com/reference/regex/ECMAScript/
+    -3.6.7: Use SCVS_NOWRAPLINESTART in TCompileForm.SyncEditorOptions if
+            CursorPastEOL is on and remove our own VK_LEFT handling i
+            TCompileForm.MemoKeyDown.
+    -3.7.1: Test if SCN_MARGINRIGHTCLICK works and if so: use it to display a
+            set/clear breakpoint popup?
+    -3.7.5: This is the final release of SciTE 3.x.
+    -4.0.0: Investigate: "The default encoding in Scintilla is UTF-8."
     -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on INDIC_SQUIGGLE }
 
   Call(SCI_SETCARETWIDTH, 2, 0);
