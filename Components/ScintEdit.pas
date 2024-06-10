@@ -1637,31 +1637,29 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
 
     var N := Length(FStyler.FStyleStr);
     if N > 0 then begin
-      { Note: The PAnsiChar stuff is to avoid UniqueString() on every iteration }
-      var P: PAnsiChar := @FStyler.FStyleStr[1];
       var HadStyleByteIndicators := False;
 
       { Apply style byte indicators. Add first as INDIC_CONTAINER and so on. }
       for var Indicator := 0 to High(TScintStyleByteIndicatorNumber) do begin
-        var PrevI := 0;
-        var PrevValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(P[0]) shr StyleNumberBits));
-        for var CurI := 1 to N-1 do begin
-          var CurValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(P[CurI]) shr StyleNumberBits));
+        var PrevI := 1;
+        var PrevValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(FStyler.FStyleStr[1]) shr StyleNumberBits));
+        for var CurI := 2 to N do begin
+          var CurValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(FStyler.FStyleStr[CurI]) shr StyleNumberBits));
           if CurValue <> PrevValue then begin
-            SetIndicators(StartStylingPos+PrevI, StartStylingPos+CurI, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
+            SetIndicators(StartStylingPos+PrevI-1, StartStylingPos+CurI-1, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
             HadStyleByteIndicators := HadStyleByteIndicators or PrevValue;
             PrevI := CurI;
             PrevValue := CurValue;
           end;
         end;
-        SetIndicators(StartStylingPos+PrevI, StartStylingPos+N, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
+        SetIndicators(StartStylingPos+PrevI-1, StartStylingPos+N, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
         HadStyleByteIndicators := HadStyleByteIndicators or PrevValue;
       end;
 
       { Apply styles after removing any style byte indicators }
       if HadStyleByteIndicators then
-        for var I := 0 to N-1 do
-          P[I] := AnsiChar(Ord(P[I]) and StyleNumberMask);
+        for var I := 1 to N do
+          FStyler.FStyleStr[I] := AnsiChar(Ord(FStyler.FStyleStr[I]) and StyleNumberMask);
       Call(SCI_SETSTYLINGEX, Length(FStyler.FStyleStr), LPARAM(PAnsiChar(FStyler.FStyleStr)));
 
       FStyler.FStyleStr := '';
@@ -2143,39 +2141,28 @@ end;
 
 procedure TScintCustomStyler.ApplyStyleByteIndicators(const Indicators: TScintStyleByteIndicatorNumbers;
   StartIndex, EndIndex: Integer);
-var
-  IndByte: Byte;
-  I: Integer;
-  P: PAnsiChar;
 begin
-  IndByte := Byte(Indicators) shl StyleNumberBits;
+  var IndByte := Byte(Indicators) shl StyleNumberBits;
   if IndByte <> 0 then begin
     if StartIndex < 1 then
       StartIndex := 1;
     if EndIndex > FTextLen then
       EndIndex := FTextLen;
-    { Note: The PAnsiChar stuff is to avoid UniqueString() on every iteration }
-    P := @FStyleStr[1];
-    for I := StartIndex to EndIndex do
-      P[I-1] := AnsiChar(Ord(P[I-1]) or IndByte);
+    for var I := StartIndex to EndIndex do
+      FStyleStr[I] := AnsiChar(Ord(FStyleStr[I]) or IndByte);
   end;
 end;
 
 procedure TScintCustomStyler.ApplyStyle(const Style: TScintStyleNumber;
   StartIndex, EndIndex: Integer);
-var
-  P: PAnsiChar;
-  I: Integer;
 begin
   if StartIndex < 1 then
     StartIndex := 1;
   if EndIndex > FTextLen then
     EndIndex := FTextLen;
-  { Note: The PAnsiChar stuff is to avoid UniqueString() on every iteration }
-  P := @FStyleStr[1];
-  for I := StartIndex to EndIndex do
-    if Ord(P[I-1]) and StyleNumberMask = 0 then
-      P[I-1] := AnsiChar(Style or (Ord(P[I-1]) and not StyleNumberMask));
+  for var I := StartIndex to EndIndex do
+    if Ord(FStyleStr[I]) and StyleNumberMask = 0 then
+      FStyleStr[I] := AnsiChar(Style or (Ord(FStyleStr[I]) and not StyleNumberMask));
 end;
 
 procedure TScintCustomStyler.CommitStyle(const Style: TScintStyleNumber);
