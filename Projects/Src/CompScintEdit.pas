@@ -140,18 +140,9 @@ begin
 
   { Some notes about future Scintilla versions:
     -At some point the documentation will say:
-     "The selection can be simplified down to just the main selection by
-     SCI_CANCEL which is normally mapped to the Esc key."
-     Once it does our own VK_ESCAPE handling in TCompileForm.FormKeyDown should be
-     reviewed. Note that our handling does a two phase simplification like VSCode and
-     not a one phase simplification like Notepad++.
-    -At some point the documentation will say:
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
-    -3.5.3: Investigate: "When the mouse is on the line between margin and text
-            changed to treat as within text." Does this mean isscint's
-            Editor::GetMarginCursor patch is not needed anymore?
     -3.5.7: Use SCI_MULTIPLESELECTADDEACH to implement Ctrl+Shift+L (Select All
             Occurrences) and SCI_MULTIPLESELECTADDNEXT to implement Ctrl+D (Select
             Next Occurrence). If the selection is empty Scintilla will use word
@@ -208,11 +199,8 @@ begin
 
   { Set up the gutter column with line numbers - avoid Scintilla's 'reverse arrow'
     cursor which is not a standard Windows cursor so is just confusing, especially
-    because the line numbers are clickable to select lines. This cursor will also
-    be used at the small extra margin after the final column which also selects
-    lines so setting the normal cursor also avoids a flashing cursor when moving
-    between the editor and the breakpoint column. Note: width of the column is set
-    up by TScintEdit.UpdateLineNumbersWidth. }
+    because the line numbers are clickable to select lines. Note: width of the
+    column is set up by TScintEdit.UpdateLineNumbersWidth. }
   Call(SCI_SETMARGINCURSORN, 0, SC_CURSORARROW);
 
   { Set up the gutter column with breakpoint etc symbols - note: column 0 is the
