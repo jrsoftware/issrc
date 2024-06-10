@@ -143,14 +143,6 @@ begin
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
      Once it does replace our use of these INDIC_* with INDICATOR_*.
-    -3.5.7: Use SCI_MULTIPLESELECTADDEACH to implement Ctrl+Shift+L (Select All
-            Occurrences) and SCI_MULTIPLESELECTADDNEXT to implement Ctrl+D (Select
-            Next Occurrence). If the selection is empty Scintilla will use word
-            searching so call SCI_SETSEARCHFLAGS first to turn on case match and
-            whole word in that case, and turn it off otherwise. This way it
-            behaves same as TCompileForm.UpdateOccurrenceIndicators. Also requires
-            calling SCI_TARGETWHOLEDOCUMENT.
-            !!! Note https://github.com/notepad-plus-plus/notepad-plus-plus/pull/14330
     -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
             Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
             https://cplusplus.com/reference/regex/ECMAScript/

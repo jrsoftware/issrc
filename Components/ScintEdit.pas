@@ -250,9 +250,11 @@ type
     function ReplaceTextRange(const StartPos, EndPos: Integer; const S: String): TScintRange;
     procedure RestyleLine(const Line: Integer);
     procedure ScrollCaretIntoView;
-    function SelNotEmpty: Boolean; overload;
-    function SelNotEmpty(out Sel: TScintRange): Boolean; overload;
     procedure SelectAll;
+    procedure SelectAllOccurrences(const MatchCase: Boolean);
+    procedure SelectNextOccurrence(const MatchCase: Boolean);
+    function SelEmpty: Boolean;
+    function SelNotEmpty(out Sel: TScintRange): Boolean;
     function SelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     procedure SetAutoCompleteFillupChars(const FillupChars: AnsiString);
     procedure SetAutoCompleteSeparator(const C: AnsiChar);
@@ -1153,20 +1155,17 @@ end;
 
 function TScintEdit.RawSelTextEquals(const S: TScintRawString;
   const MatchCase: Boolean): Boolean;
-var
-  Flags: Integer;
-  Target, Sel: TScintRange;
 begin
-  Flags := 0;
+  var SearchFlags := 0;
   if MatchCase then
-    Flags := Flags or SCFIND_MATCHCASE;
+    SearchFlags := SearchFlags or SCFIND_MATCHCASE;
 
   Call(SCI_TARGETFROMSELECTION, 0, 0);
-  Call(SCI_SETSEARCHFLAGS, Flags, 0);
+  Call(SCI_SETSEARCHFLAGS, SearchFlags, 0);
   Result := False;
   if Call(SCI_SEARCHINTARGET, Length(S), LPARAM(PAnsiChar(S))) >= 0 then begin
-    Target := GetTarget;
-    Sel := GetSelection;
+    var Target := GetTarget;
+    var Sel := GetSelection;
     if (Target.StartPos = Sel.StartPos) and (Target.EndPos = Sel.EndPos) then
       Result := True;
   end;
@@ -1218,10 +1217,35 @@ begin
   Call(SCI_SCROLLCARET, 0, 0);
 end;
 
-function TScintEdit.SelNotEmpty: Boolean;
+
+procedure TScintEdit.SelectAllOccurrences(const MatchCase: Boolean);
+begin
+  var SearchFlags := 0;
+  if MatchCase then
+    SearchFlags := SearchFlags or SCFIND_MATCHCASE;
+
+  Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
+  Call(SCI_SETSEARCHFLAGS, SearchFlags, 0);
+  Call(SCI_MULTIPLESELECTADDEACH, 0, 0);
+end;
+
+procedure TScintEdit.SelectNextOccurrence(const MatchCase: Boolean);
+begin
+  var SearchFlags := 0;
+  if MatchCase then
+    SearchFlags := SearchFlags or SCFIND_MATCHCASE;
+
+  Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
+  Call(SCI_SETSEARCHFLAGS, SearchFlags, 0);
+  Call(SCI_MULTIPLESELECTADDNEXT, 0, 0);
+end;
+
+function TScintEdit.SelEmpty: Boolean;
+{ Returns True if the main selection is empty even if there are additional
+  selections. }
 begin
   var Sel: TScintRange;
-  Result := SelNotEmpty(Sel);
+  Result := not SelNotEmpty(Sel);
 end;
 
 function TScintEdit.SelNotEmpty(out Sel: TScintRange): Boolean;

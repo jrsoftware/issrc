@@ -460,6 +460,14 @@ object CompileForm: TCompileForm
         Caption = 'Select &All'
         OnClick = ESelectAllClick
       end
+      object ESelectNextOccurrence: TMenuItem
+        Caption = 'Add Next &Occurrence'
+        OnClick = ESelectNextOccurrenceClick
+      end
+      object ESelectAllOccurrences: TMenuItem
+        Caption = '&Select All Occurrences'
+        OnClick = ESelectAllOccurrencesClick
+      end
       object N4: TMenuItem
         Caption = '-'
       end
