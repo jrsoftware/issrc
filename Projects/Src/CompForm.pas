@@ -589,7 +589,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
-  Math, StrUtils, WideStrUtils,
+  Math, StrUtils, WideStrUtils, GIFImg,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -3369,17 +3369,7 @@ begin
       try
         BkBrush.Color := FTheme.Colors[tcMarginBack];
 
-        { Workaround for DPI over 200%, has too many colors for current XPM usage }
-        if (ImageList.Width > 24) or (ImageList.Height > 24) then
-          ImageList.SetSize(24, 24);
-
         var BitmapInfo := CreateBitmapInfo(ImageList.Width, ImageList.Height, 24);
-
-        var IconBreakpointStepName: String;
-        if ImageList.Width >= 18 then { The breakpoint+arrow version has too many colors at 150% DPI or higher for current XPM usage }
-          IconBreakpointStepName := 'debug-breakpoint-filled-ok-2'
-        else
-          IconBreakpointStepName := 'debug-breakpoint-filled-ok2-symbol-arrow-right';
 
         var NamedMarkers := [
             NM(mmIconHasEntry, 'debug-stop-filled'),
@@ -3388,7 +3378,7 @@ begin
             NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
             NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-2'),
             NM(mmIconStep, 'symbol-arrow-right'),
-            NM(mmIconBreakpointStep, IconBreakpointStepName)];
+            NM(mmIconBreakpointStep, 'debug-breakpoint-filled-ok2-symbol-arrow-right')];
 
         for var NamedMarker in NamedMarkers do
           AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
@@ -3396,9 +3386,28 @@ begin
         var Pixmap := TScintPixmap.Create;
         try
           for var MarkerBitmap in MarkerBitmaps do begin
-            Pixmap.InitializeFromBitmap(MarkerBitmap.Value, BkBrush.Color);
-            for var Memo in FMemos do
-              Memo.Call(SCI_MARKERDEFINEPIXMAP, MarkerBitmap.Key, LPARAM(Pixmap.Pixmap));
+            var NeedWorkaround := False;
+            try
+              Pixmap.InitializeFromBitmap(MarkerBitmap.Value, BkBrush.Color);
+            except on E: EScintEditError do
+              NeedWorkaround := True;
+            end;
+            try
+              if NeedWorkaround then begin
+                { Allow up to 6 color bits per pixel so max 64 colors to keep below the 127 color limitation of TScintPixmap }
+                var Bitmap := ReduceColors(MarkerBitmap.Value, rmQuantize, dmNearest, 6, 0);
+                try
+                  Bitmap.PixelFormat := pf24Bit;
+                  Pixmap.InitializeFromBitmap(Bitmap, BkBrush.Color);
+                finally
+                  Bitmap.Free;
+                end;
+              end;
+              for var Memo in FMemos do
+                Memo.Call(SCI_MARKERDEFINEPIXMAP, MarkerBitmap.Key, LPARAM(Pixmap.Pixmap));
+            except
+              { Workaround failed - give up on this bitmap }
+            end;
           end;
         finally
           Pixmap.Free;
