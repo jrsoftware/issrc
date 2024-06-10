@@ -1,15 +1,17 @@
 cd /d %~dp0
 
-copy ..\..\..\ishelp\isetup.dtd
-copy ..\..\..\ishelp\staging\contents.css staging
-copy ..\..\..\ishelp\staging\contents.js staging
-copy ..\..\..\ishelp\staging\styles.css staging
-copy ..\..\..\ishelp\staging\topic.js staging
-copy ..\..\..\ishelp\staging\images\contentsheadclosed.png staging\images
-copy ..\..\..\ishelp\staging\images\contentsheadopen.png staging\images
-copy ..\..\..\ishelp\staging\images\contentstopic.png staging\images
-copy ..\..\..\ishelp\staging\images\extlink.png staging\images
+copy ..\..\..\ISHelp\isetup.dtd
+copy ..\..\..\ISHelp\Staging\contents.css Staging
+copy ..\..\..\ISHelp\Staging\contents.js Staging
+copy ..\..\..\ISHelp\Staging\styles.css Staging
+copy ..\..\..\ISHelp\Staging\topic.js Staging
+copy ..\..\..\ISHelp\Staging\images\contentsheadclosed.png Staging\images
+copy ..\..\..\ISHelp\Staging\images\contentsheadopen.png Staging\images
+copy ..\..\..\ISHelp\Staging\images\contentstopic.png Staging\images
+copy ..\..\..\ISHelp\Staging\images\extlink.png Staging\images
 
 echo - Copying files done
+
+if "%1"=="nopause" goto :eof
 
 pause

@@ -12,4 +12,6 @@ copy ..\..\Files\ISPP.chm
 
 echo - Copying files done
 
+if "%1"=="nopause" goto :eof
+
 pause
