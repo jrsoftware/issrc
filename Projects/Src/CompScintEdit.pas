@@ -189,12 +189,12 @@ begin
 
   Call(SCI_INDICSETSTYLE, inWordAtCursorOccurrence, INDIC_ROUNDBOX);
   Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
-  Call(SCI_INDICSETALPHA, inWordAtCursorOccurrence, 255);
+  Call(SCI_INDICSETALPHA, inWordAtCursorOccurrence, SC_ALPHA_OPAQUE);
   Call(SCI_INDICSETUNDER, inWordAtCursorOccurrence, 1);
 
   Call(SCI_INDICSETSTYLE, inSelTextOccurrence, INDIC_ROUNDBOX);
   Call(SCI_INDICSETFORE, inSelTextOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
-  Call(SCI_INDICSETALPHA, inSelTextOccurrence, 255);
+  Call(SCI_INDICSETALPHA, inSelTextOccurrence, SC_ALPHA_OPAQUE);
   Call(SCI_INDICSETUNDER, inSelTextOccurrence, 1);
 
   { Set up the gutter column with breakpoint etc symbols - note: column 0 is the
