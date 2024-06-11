@@ -1048,7 +1048,8 @@ begin
     else begin
       { The built in Esc (SCI_CANCEL) simply drops all additional selections
         and does not empty the main selection, It doesn't matter if Esc is
-        pressed once or twice. Implement our own behaviour, same as VSCode. }
+        pressed once or twice. Implement our own behaviour, same as VSCode.
+        Also see https://github.com/microsoft/vscode/issues/118835. }
       if FActiveMemo.SelectionCount > 1 then
         FActiveMemo.RemoveAdditionalSelections
       else if not FActiveMemo.SelEmpty then

@@ -121,6 +121,8 @@ type
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
+    function GetSearchFlags(const Options: TScintFindOptions): Integer; overload;
+    function GetSearchFlags(const MatchCase: Boolean): Integer; overload;
     function GetSelection: TScintRange;
     function GetSelectionAnchorPosition(Selection: Integer): Integer;
     function GetSelectionCaretPosition(Selection: Integer): Integer;
@@ -723,17 +725,9 @@ end;
 function TScintEdit.FindRawText(const StartPos, EndPos: Integer;
   const S: TScintRawString; const Options: TScintFindOptions;
   out MatchRange: TScintRange): Boolean;
-var
-  Flags: Integer;
 begin
-  Flags := 0;
-  if sfoMatchCase in Options then
-    Flags := Flags or SCFIND_MATCHCASE;
-  if sfoWholeWord in Options then
-    Flags := Flags or SCFIND_WHOLEWORD;
-
   SetTarget(StartPos, EndPos);
-  Call(SCI_SETSEARCHFLAGS, Flags, 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
   Result := Call(SCI_SEARCHINTARGET, Length(S), LPARAM(PAnsiChar(S))) >= 0;
   if Result then
     MatchRange := GetTarget;
@@ -1002,6 +996,23 @@ begin
   Result := Call(SCI_GETREADONLY, 0, 0) <> 0;
 end;
 
+function TScintEdit.GetSearchFlags(const Options: TScintFindOptions): Integer;
+begin
+  Result := 0;
+  if sfoMatchCase in Options then
+    Result := Result or SCFIND_MATCHCASE;
+  if sfoWholeWord in Options then
+    Result := Result or SCFIND_WHOLEWORD;
+end;
+
+function TScintEdit.GetSearchFlags(const MatchCase: Boolean): Integer;
+begin
+  if MatchCase then
+    Result := GetSearchFlags([sfoMatchCase])
+  else
+    Result := GetSearchFlags([]);
+end;
+
 function TScintEdit.GetSelection: TScintRange;
 begin
   Result.StartPos := Call(SCI_GETSELECTIONSTART, 0, 0);
@@ -1156,12 +1167,8 @@ end;
 function TScintEdit.RawSelTextEquals(const S: TScintRawString;
   const MatchCase: Boolean): Boolean;
 begin
-  var SearchFlags := 0;
-  if MatchCase then
-    SearchFlags := SearchFlags or SCFIND_MATCHCASE;
-
   Call(SCI_TARGETFROMSELECTION, 0, 0);
-  Call(SCI_SETSEARCHFLAGS, SearchFlags, 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(MatchCase), 0);
   Result := False;
   if Call(SCI_SEARCHINTARGET, Length(S), LPARAM(PAnsiChar(S))) >= 0 then begin
     var Target := GetTarget;
@@ -1220,23 +1227,15 @@ end;
 
 procedure TScintEdit.SelectAllOccurrences(const MatchCase: Boolean);
 begin
-  var SearchFlags := 0;
-  if MatchCase then
-    SearchFlags := SearchFlags or SCFIND_MATCHCASE;
-
   Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
-  Call(SCI_SETSEARCHFLAGS, SearchFlags, 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(MatchCase), 0);
   Call(SCI_MULTIPLESELECTADDEACH, 0, 0);
 end;
 
 procedure TScintEdit.SelectNextOccurrence(const MatchCase: Boolean);
 begin
-  var SearchFlags := 0;
-  if MatchCase then
-    SearchFlags := SearchFlags or SCFIND_MATCHCASE;
-
   Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
-  Call(SCI_SETSEARCHFLAGS, SearchFlags, 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(MatchCase), 0);
   Call(SCI_MULTIPLESELECTADDNEXT, 0, 0);
 end;
 
