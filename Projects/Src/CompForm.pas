@@ -95,7 +95,10 @@ type
     HMenu: TMenuItem;
     HDoc: TMenuItem;
     HAbout: TMenuItem;
+    FRecent: TMenuItem;
+    FClearRecent: TMenuItem;
     FMRUMainFilesSep: TMenuItem;
+    N6: TMenuItem;
     VCompilerOutput: TMenuItem;
     FindDialog: TFindDialog;
     ReplaceDialog: TReplaceDialog;
@@ -341,6 +344,7 @@ type
     procedure BackNavButtonClick(Sender: TObject);
     procedure ForwardNavButtonClick(Sender: TObject);
     procedure NavPopupMenuClick(Sender: TObject);
+    procedure FClearRecentClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -895,7 +899,7 @@ begin
   for I := 0 to High(FMRUMainFilesMenuItems) do begin
     NewItem := TMenuItem.Create(Self);
     NewItem.OnClick := FMRUClick;
-    FMenu.Insert(FMenu.IndexOf(FMRUMainFilesSep), NewItem);
+    FRecent.Insert(FRecent.IndexOf(FMRUMainFilesSep), NewItem);
     FMRUMainFilesMenuItems[I] := NewItem;
   end;
   FMRUParametersList := TStringList.Create;
@@ -2408,6 +2412,16 @@ begin
   finally
     DeinitPrintStyler(PrintStyler, PrintTheme, OldStyler, OldTheme);
   end;
+end;
+
+procedure TCompileForm.FClearRecentClick(Sender: TObject);
+begin
+  if MsgBox('Are you sure you want to clear the recent files?', SCompilerFormCaption,
+    mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then
+    try
+      ClearMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History');
+    except
+    end;
 end;
 
 procedure TCompileForm.FMRUClick(Sender: TObject);
@@ -5425,6 +5439,8 @@ begin
           NM(FSaveMainFileAs, 'save-as-filled'),
           NM(FSaveAll, 'save-all-filled'),
           NM(FPrint, 'printer'),
+          NM(FRecent, 'recent-files'),
+          NM(FClearRecent, 'clear-recent-files'),
           NM(EUndo, 'command-undo-1'),
           NM(ERedo, 'command-redo-1'),
           NM(ECut, 'clipboard-cut'),
