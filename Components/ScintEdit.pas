@@ -96,6 +96,7 @@ type
     FOnDropFiles: TScintEditDropFilesEvent;
     FOnHintShow: TScintEditHintShowEvent;
     FOnMarginClick: TScintEditMarginClickEvent;
+    FOnMarginRightClick: TScintEditMarginClickEvent;
     FOnModifiedChange: TNotifyEvent;
     FOnUpdateUI: TScintEditUpdateUIEvent;
     FOnZoom: TNotifyEvent;
@@ -346,6 +347,7 @@ type
     property OnKeyPress;
     property OnKeyUp;
     property OnMarginClick: TScintEditMarginClickEvent read FOnMarginClick write FOnMarginClick;
+    property OnMarginRightClick: TScintEditMarginClickEvent read FOnMarginRightClick write FOnMarginRightClick;
     property OnModifiedChange: TNotifyEvent read FOnModifiedChange write FOnModifiedChange;
     property OnMouseDown;
     property OnMouseMove;
@@ -1129,6 +1131,11 @@ begin
       begin
         if Assigned(FOnMarginClick) then
           FOnMarginClick(Self, N.margin, GetLineFromPosition(N.position));
+      end;
+    SCN_MARGINRIGHTCLICK:
+      begin
+        if Assigned(FOnMarginRightClick) then
+          FOnMarginRightClick(Self, N.margin, GetLineFromPosition(N.position));
       end;
     SCN_MODIFIED:
       begin

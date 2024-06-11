@@ -698,6 +698,19 @@ object CompileForm: TCompileForm
         Caption = '&Delete All Breakpoints'
         OnClick = RDeleteBreakPointsClick
       end
+      object BreakPointsPopupMenu: TMenuItem
+        Caption = 'BreakPointsPopupMenu'
+        Visible = False
+        OnClick = BreakPointsPopupMenuClick
+        object RToggleBreakPoint2: TMenuItem
+          Caption = 'Toggle &Breakpoint'
+          OnClick = RToggleBreakPointClick
+        end
+        object RDeleteBreakPoints2: TMenuItem
+          Caption = '&Delete All Breakpoints'
+          OnClick = RDeleteBreakPointsClick
+        end
+      end
       object RPause: TMenuItem
         Caption = 'P&ause'
         Enabled = False

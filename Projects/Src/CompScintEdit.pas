@@ -148,8 +148,6 @@ begin
     -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
             Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
             https://cplusplus.com/reference/regex/ECMAScript/
-    -3.7.1: Test if SCN_MARGINRIGHTCLICK works and if so: use it to display a
-            set/clear breakpoint popup?
     -4.0.0: Investigate: "The default encoding in Scintilla is UTF-8."
     -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on INDIC_SQUIGGLE }
 

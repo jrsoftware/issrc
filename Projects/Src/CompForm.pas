@@ -230,6 +230,9 @@ type
     ThemedMarkersVirtualImageList: TVirtualImageList;
     ESelectNextOccurrence: TMenuItem;
     ESelectAllOccurrences: TMenuItem;
+    BreakPointsPopupMenu: TMenuItem;
+    RToggleBreakPoint2: TMenuItem;
+    RDeleteBreakPoints2: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -345,6 +348,7 @@ type
     procedure NavPopupMenuClick(Sender: TObject);
     procedure ESelectNextOccurrenceClick(Sender: TObject);
     procedure ESelectAllOccurrencesClick(Sender: TObject);
+    procedure BreakPointsPopupMenuClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -443,6 +447,7 @@ type
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
     FIgnoreTabSetClick: Boolean;
     FSelectNextOccurrenceShortCut, FSelectAllOccurrencesShortCut: TShortCut;
+    function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -490,6 +495,8 @@ type
     procedure MemoLinesDeleted(Memo: TCompScintFileEdit; FirstLine, Count, FirstAffectedLine: Integer);
     procedure MemoLinesInserted(Memo: TCompScintFileEdit; FirstLine, Count: integer);
     procedure MemoMarginClick(Sender: TObject; MarginNumber: Integer;
+      Line: Integer);
+    procedure MemoMarginRightClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
     function MemoToTabIndex(const AMemo: TCompScintEdit): Integer;
@@ -676,6 +683,7 @@ begin
   Memo.OnKeyDown := MemoKeyDown;
   Memo.OnKeyPress := MemoKeyPress;
   Memo.OnMarginClick := MemoMarginClick;
+  Memo.OnMarginRightClick := MemoMarginRightClick;
   Memo.OnModifiedChange := MemoModifiedChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
@@ -5184,22 +5192,30 @@ begin
     Result := False;
 end;
 
+function TCompileForm.AnyMemoHasBreakPoint: Boolean;
+begin
+  { Also see RDeleteBreakPointsClick }
+  for var Memo in FFileMemos do
+    if Memo.Used and (Memo.BreakPoints.Count > 0) then
+      Exit(True);
+  Result := False;
+end;
+
 procedure TCompileForm.RMenuClick(Sender: TObject);
-
-  function AnyMemoHasBreakPoint: Boolean;
-  begin
-    { Also see RDeleteBreakPointsClick }
-    for var Memo in FFileMemos do
-      if Memo.Used and (Memo.BreakPoints.Count > 0) then
-        Exit(True);
-    Result := False;
-  end;
-
 begin
   RDeleteBreakPoints.Enabled := AnyMemoHasBreakPoint;
   { See UpdateRunMenu for other menu items }
 
   ApplyMenuBitmaps(RMenu);
+end;
+
+procedure TCompileForm.BreakPointsPopupMenuClick(Sender: TObject);
+begin
+  RToggleBreakPoint2.Enabled := FActiveMemo is TCompScintFileEdit;
+  RDeleteBreakPoints2.Enabled := AnyMemoHasBreakPoint;
+  { Also see UpdateRunMenu }
+
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.UpdateRunMenu;
@@ -5221,7 +5237,7 @@ begin
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
   TerminateButton.Enabled := RTerminate.Enabled;
   REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
-  { See RMenuClick for other menu items }
+  { See RMenuClick for other menu items and also see BreakPointsPopupMenuClick }
 end;
 
 procedure TCompileForm.UpdateSaveMenuItemAndButton;
@@ -5283,6 +5299,11 @@ begin
       ToolButton.Hint := Format('%s (%s)', [RemoveAccelChar(MenuItem.Caption), ShortCutToText(ShortCut)]);
     end;
   end;
+
+  { Set fake shortcuts on any duplicates of the above in popup menus }
+
+  SetFakeShortCut(RToggleBreakPoint2, RToggleBreakPoint.ShortCut);
+  SetFakeShortCut(RDeleteBreakPoints2, RDeleteBreakPoints.ShortCut);
 
   { The Nav buttons have no corresponding menu item and also no ShortCut property
     so they need special handling }
@@ -5507,7 +5528,9 @@ begin
           NM(RStepOver, 'debug-step-over'),
           NM(RStepOut, 'debug-step-out'),
           NM(RToggleBreakPoint, 'debug-breakpoint-filled'),
+          NM(RToggleBreakPoint2, 'debug-breakpoint-filled'),
           NM(RDeleteBreakPoints, 'debug-breakpoints-filled-eraser'),
+          NM(RDeleteBreakPoints2, 'debug-breakpoints-filled-eraser'),
           NM(REvaluate, 'variables'),
           NM(TAddRemovePrograms, 'application'),
           NM(TGenerateGUID, 'tag-script-filled'),
@@ -6457,6 +6480,20 @@ procedure TCompileForm.MemoMarginClick(Sender: TObject; MarginNumber: Integer;
 begin
   if (MarginNumber = 1) and RToggleBreakPoint.Enabled then
     ToggleBreakPoint(Line);
+end;
+
+procedure TCompileForm.MemoMarginRightClick(Sender: TObject; MarginNumber: Integer;
+  Line: Integer);
+begin
+  if MarginNumber = 1 then begin
+    var Point := SmallPointToPoint(TSmallPoint(GetMessagePos()));
+    var PopupMenu := TCompileFormPopupMenu.Create(Self, BreakPointsPopupMenu);
+    try
+      PopupMenu.Popup(Point.X, Point.Y);
+    finally
+      PopupMenu.Free;
+    end;
+  end;
 end;
 
 procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);
