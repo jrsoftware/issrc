@@ -139,6 +139,8 @@ begin
   inherited;
 
   { Some notes about future Scintilla versions:
+    -Does it at some point become possible to change mouse shortcut Ctrl+Click
+     to Alt+Click?
     -At some point the documentation will say:
      "The INDICATOR_* values used for dividing up indicators were previously
       INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
