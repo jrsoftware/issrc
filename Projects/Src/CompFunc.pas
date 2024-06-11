@@ -69,6 +69,8 @@ function GetSourcePath(const AFilename: String): String;
 function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
   const ReadFromFileFilename: String; const NotReadFromFileMemo: TScintEdit): Integer;
 function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
+function GetWordOccurrenceFindOptions: TScintFindOptions;
+function GetSelTextOccurrenceFindOptions: TScintFindOptions;
 
 implementation
 
@@ -707,6 +709,16 @@ begin
   Result.bmiHeader.biPlanes := 1;
   Result.bmiHeader.biBitCount := BitCount;
   Result.bmiHeader.biCompression := BI_RGB;
+end;
+
+function GetWordOccurrenceFindOptions: TScintFindOptions;
+begin
+  Result := [sfoMatchCase, sfoWholeWord];
+end;
+
+function GetSelTextOccurrenceFindOptions: TScintFindOptions;
+begin
+  Result := [];
 end;
 
 initialization

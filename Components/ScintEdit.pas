@@ -253,8 +253,8 @@ type
     procedure RestyleLine(const Line: Integer);
     procedure ScrollCaretIntoView;
     procedure SelectAll;
-    procedure SelectAllOccurrences(const MatchCase: Boolean);
-    procedure SelectNextOccurrence(const MatchCase: Boolean);
+    procedure SelectAllOccurrences(const Options: TScintFindOptions);
+    procedure SelectNextOccurrence(const Options: TScintFindOptions);
     function SelEmpty: Boolean;
     function SelNotEmpty(out Sel: TScintRange): Boolean;
     function SelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
@@ -1225,17 +1225,17 @@ begin
 end;
 
 
-procedure TScintEdit.SelectAllOccurrences(const MatchCase: Boolean);
+procedure TScintEdit.SelectAllOccurrences(const Options: TScintFindOptions);
 begin
   Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
-  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(MatchCase), 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
   Call(SCI_MULTIPLESELECTADDEACH, 0, 0);
 end;
 
-procedure TScintEdit.SelectNextOccurrence(const MatchCase: Boolean);
+procedure TScintEdit.SelectNextOccurrence(const Options: TScintFindOptions);
 begin
   Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
-  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(MatchCase), 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
   Call(SCI_MULTIPLESELECTADDNEXT, 0, 0);
 end;
 

@@ -2509,20 +2509,20 @@ end;
 
 procedure TCompileForm.ESelectAllOccurrencesClick(Sender: TObject);
 begin
-  var MatchCase := False;
+  var Options := GetSelTextOccurrenceFindOptions;
   if FActiveMemo.SelEmpty then begin
     var Range := FActiveMemo.WordAtCursorRange;
     if Range.StartPos <> Range.EndPos then begin
       FActiveMemo.SetSingleSelection(Range.EndPos, Range.StartPos);
-      MatchCase := True;
+      Options := GetWordOccurrenceFindOptions;
     end;
   end;
-  FActiveMemo.SelectAllOccurrences(MatchCase);
+  FActiveMemo.SelectAllOccurrences(Options);
 end;
 
 procedure TCompileForm.ESelectNextOccurrenceClick(Sender: TObject);
 begin
-  FActiveMemo.SelectNextOccurrence(True);
+  FActiveMemo.SelectNextOccurrence(GetWordOccurrenceFindOptions);
 end;
 
 procedure TCompileForm.ECompleteWordClick(Sender: TObject);
@@ -3331,7 +3331,7 @@ begin
       var Word := AMemo.WordAtCursorRange;
       if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], SelNotEmpty, Selection, RangeList);
+        FindTextAndAddRanges(AMemo, TextToIndicate, GetWordOccurrenceFindOptions, SelNotEmpty, Selection, RangeList);
       end;
     end;
     AMemo.UpdateIndicators(RangeList, inWordAtCursorOccurrence);
@@ -3339,7 +3339,7 @@ begin
     RangeList.Clear;
     if FOptions.HighlightSelTextOccurrences and SelNotEmpty and SelSingleLine then begin
       var TextToIndicate := AMemo.RawSelText;
-      FindTextAndAddRanges(AMemo, TextToIndicate, [], SelNotEmpty, Selection, RangeList);
+      FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions, SelNotEmpty, Selection, RangeList);
     end;
     AMemo.UpdateIndicators(RangeList, inSelTextOccurrence);
   finally
