@@ -228,6 +228,8 @@ type
     LightMarkersImageCollection: TImageCollection;
     DarkMarkersImageCollection: TImageCollection;
     ThemedMarkersVirtualImageList: TVirtualImageList;
+    ESelectNextOccurrence: TMenuItem;
+    ESelectAllOccurrences: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -341,6 +343,8 @@ type
     procedure BackNavButtonClick(Sender: TObject);
     procedure ForwardNavButtonClick(Sender: TObject);
     procedure NavPopupMenuClick(Sender: TObject);
+    procedure ESelectNextOccurrenceClick(Sender: TObject);
+    procedure ESelectAllOccurrencesClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -438,6 +442,7 @@ type
     FCurrentNavItem: TCompScintEditNavItem;
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
     FIgnoreTabSetClick: Boolean;
+    FSelectNextOccurrenceShortCut, FSelectAllOccurrencesShortCut: TShortCut;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -825,6 +830,10 @@ begin
   SetFakeShortCut(ECopy, Ord('C'), [ssCtrl]);
   SetFakeShortCut(EPaste, Ord('V'), [ssCtrl]);
   SetFakeShortCut(ESelectAll, Ord('A'), [ssCtrl]);
+  FSelectNextOccurrenceShortCut := ShortCut(VK_OEM_PERIOD, [ssShift, ssAlt]);
+  SetFakeShortCut(ESelectNextOccurrence, FSelectNextOccurrenceShortCut);
+  FSelectAllOccurrencesShortCut := ShortCut(VK_OEM_1, [ssShift, ssAlt]);
+  SetFakeShortCut(ESelectAllOccurrences, FSelectAllOccurrencesShortCut);
   SetFakeShortCut(EDelete, VK_DELETE, []);
   SetFakeShortCut(ECompleteWord, Ord(' '), [ssCtrl]);
   SetFakeShortCutText(VZoomIn, SmkcCtrl + 'Num +');    { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
@@ -1039,12 +1048,19 @@ begin
     else begin
       { The built in Esc (SCI_CANCEL) simply drops all additional selections
         and does not empty the main selection, It doesn't matter if Esc is
-        pressed once or twice. Implement our own behaviour, same as VSCode. }
+        pressed once or twice. Implement our own behaviour, same as VSCode.
+        Also see https://github.com/microsoft/vscode/issues/118835. }
       if FActiveMemo.SelectionCount > 1 then
         FActiveMemo.RemoveAdditionalSelections
-      else if FActiveMemo.SelNotEmpty then
+      else if not FActiveMemo.SelEmpty then
         FActiveMemo.SetEmptySelection;
     end;
+  end else if AShortCut = FSelectNextOccurrenceShortCut then begin
+    if ESelectNextOccurrence.Enabled then
+      ESelectNextOccurrenceClick(Self);
+  end else if AShortCut = FSelectAllOccurrencesShortCut then begin
+    if ESelectAllOccurrences.Enabled then
+      ESelectAllOccurrencesClick(Self);
   end else if AShortCut = FBackNavButtonShortCut then begin
     if BackNavButton.Enabled then
       BackNavButtonClick(Self);
@@ -2438,11 +2454,13 @@ begin
   MemoIsReadOnly := FActiveMemo.ReadOnly;
   EUndo.Enabled := MemoHasFocus and FActiveMemo.CanUndo;
   ERedo.Enabled := MemoHasFocus and FActiveMemo.CanRedo;
-  ECut.Enabled := MemoHasFocus and not MemoIsReadOnly and FActiveMemo.SelNotEmpty;
-  ECopy.Enabled := MemoHasFocus and FActiveMemo.SelNotEmpty;
+  ECut.Enabled := MemoHasFocus and not MemoIsReadOnly and not FActiveMemo.SelEmpty;
+  ECopy.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
   EPaste.Enabled := MemoHasFocus and not MemoIsReadOnly and Clipboard.HasFormat(CF_TEXT);
-  EDelete.Enabled := MemoHasFocus and FActiveMemo.SelNotEmpty;
+  EDelete.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
   ESelectAll.Enabled := MemoHasFocus;
+  ESelectNextOccurrence.Enabled := MemoHasFocus;
+  ESelectAllOccurrences.Enabled := MemoHasFocus;
   EFind.Enabled := MemoHasFocus;
   EFindNext.Enabled := MemoHasFocus;
   EFindPrevious.Enabled := MemoHasFocus;
@@ -2487,6 +2505,24 @@ end;
 procedure TCompileForm.ESelectAllClick(Sender: TObject);
 begin
   FActiveMemo.SelectAll;
+end;
+
+procedure TCompileForm.ESelectAllOccurrencesClick(Sender: TObject);
+begin
+  var Options := GetSelTextOccurrenceFindOptions;
+  if FActiveMemo.SelEmpty then begin
+    var Range := FActiveMemo.WordAtCursorRange;
+    if Range.StartPos <> Range.EndPos then begin
+      FActiveMemo.SetSingleSelection(Range.EndPos, Range.StartPos);
+      Options := GetWordOccurrenceFindOptions;
+    end;
+  end;
+  FActiveMemo.SelectAllOccurrences(Options);
+end;
+
+procedure TCompileForm.ESelectNextOccurrenceClick(Sender: TObject);
+begin
+  FActiveMemo.SelectNextOccurrence(GetWordOccurrenceFindOptions);
 end;
 
 procedure TCompileForm.ECompleteWordClick(Sender: TObject);
@@ -3295,7 +3331,7 @@ begin
       var Word := AMemo.WordAtCursorRange;
       if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], SelNotEmpty, Selection, RangeList);
+        FindTextAndAddRanges(AMemo, TextToIndicate, GetWordOccurrenceFindOptions, SelNotEmpty, Selection, RangeList);
       end;
     end;
     AMemo.UpdateIndicators(RangeList, inWordAtCursorOccurrence);
@@ -3303,7 +3339,7 @@ begin
     RangeList.Clear;
     if FOptions.HighlightSelTextOccurrences and SelNotEmpty and SelSingleLine then begin
       var TextToIndicate := AMemo.RawSelText;
-      FindTextAndAddRanges(AMemo, TextToIndicate, [], SelNotEmpty, Selection, RangeList);
+      FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions, SelNotEmpty, Selection, RangeList);
     end;
     AMemo.UpdateIndicators(RangeList, inSelTextOccurrence);
   finally

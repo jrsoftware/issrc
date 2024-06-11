@@ -121,6 +121,8 @@ type
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
+    function GetSearchFlags(const Options: TScintFindOptions): Integer; overload;
+    function GetSearchFlags(const MatchCase: Boolean): Integer; overload;
     function GetSelection: TScintRange;
     function GetSelectionAnchorPosition(Selection: Integer): Integer;
     function GetSelectionCaretPosition(Selection: Integer): Integer;
@@ -250,9 +252,11 @@ type
     function ReplaceTextRange(const StartPos, EndPos: Integer; const S: String): TScintRange;
     procedure RestyleLine(const Line: Integer);
     procedure ScrollCaretIntoView;
-    function SelNotEmpty: Boolean; overload;
-    function SelNotEmpty(out Sel: TScintRange): Boolean; overload;
     procedure SelectAll;
+    procedure SelectAllOccurrences(const Options: TScintFindOptions);
+    procedure SelectNextOccurrence(const Options: TScintFindOptions);
+    function SelEmpty: Boolean;
+    function SelNotEmpty(out Sel: TScintRange): Boolean;
     function SelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     procedure SetAutoCompleteFillupChars(const FillupChars: AnsiString);
     procedure SetAutoCompleteSeparator(const C: AnsiChar);
@@ -721,17 +725,9 @@ end;
 function TScintEdit.FindRawText(const StartPos, EndPos: Integer;
   const S: TScintRawString; const Options: TScintFindOptions;
   out MatchRange: TScintRange): Boolean;
-var
-  Flags: Integer;
 begin
-  Flags := 0;
-  if sfoMatchCase in Options then
-    Flags := Flags or SCFIND_MATCHCASE;
-  if sfoWholeWord in Options then
-    Flags := Flags or SCFIND_WHOLEWORD;
-
   SetTarget(StartPos, EndPos);
-  Call(SCI_SETSEARCHFLAGS, Flags, 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
   Result := Call(SCI_SEARCHINTARGET, Length(S), LPARAM(PAnsiChar(S))) >= 0;
   if Result then
     MatchRange := GetTarget;
@@ -1000,6 +996,23 @@ begin
   Result := Call(SCI_GETREADONLY, 0, 0) <> 0;
 end;
 
+function TScintEdit.GetSearchFlags(const Options: TScintFindOptions): Integer;
+begin
+  Result := 0;
+  if sfoMatchCase in Options then
+    Result := Result or SCFIND_MATCHCASE;
+  if sfoWholeWord in Options then
+    Result := Result or SCFIND_WHOLEWORD;
+end;
+
+function TScintEdit.GetSearchFlags(const MatchCase: Boolean): Integer;
+begin
+  if MatchCase then
+    Result := GetSearchFlags([sfoMatchCase])
+  else
+    Result := GetSearchFlags([]);
+end;
+
 function TScintEdit.GetSelection: TScintRange;
 begin
   Result.StartPos := Call(SCI_GETSELECTIONSTART, 0, 0);
@@ -1153,20 +1166,13 @@ end;
 
 function TScintEdit.RawSelTextEquals(const S: TScintRawString;
   const MatchCase: Boolean): Boolean;
-var
-  Flags: Integer;
-  Target, Sel: TScintRange;
 begin
-  Flags := 0;
-  if MatchCase then
-    Flags := Flags or SCFIND_MATCHCASE;
-
   Call(SCI_TARGETFROMSELECTION, 0, 0);
-  Call(SCI_SETSEARCHFLAGS, Flags, 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(MatchCase), 0);
   Result := False;
   if Call(SCI_SEARCHINTARGET, Length(S), LPARAM(PAnsiChar(S))) >= 0 then begin
-    Target := GetTarget;
-    Sel := GetSelection;
+    var Target := GetTarget;
+    var Sel := GetSelection;
     if (Target.StartPos = Sel.StartPos) and (Target.EndPos = Sel.EndPos) then
       Result := True;
   end;
@@ -1218,10 +1224,27 @@ begin
   Call(SCI_SCROLLCARET, 0, 0);
 end;
 
-function TScintEdit.SelNotEmpty: Boolean;
+
+procedure TScintEdit.SelectAllOccurrences(const Options: TScintFindOptions);
+begin
+  Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
+  Call(SCI_MULTIPLESELECTADDEACH, 0, 0);
+end;
+
+procedure TScintEdit.SelectNextOccurrence(const Options: TScintFindOptions);
+begin
+  Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
+  Call(SCI_MULTIPLESELECTADDNEXT, 0, 0);
+end;
+
+function TScintEdit.SelEmpty: Boolean;
+{ Returns True if the main selection is empty even if there are additional
+  selections. }
 begin
   var Sel: TScintRange;
-  Result := SelNotEmpty(Sel);
+  Result := not SelNotEmpty(Sel);
 end;
 
 function TScintEdit.SelNotEmpty(out Sel: TScintRange): Boolean;

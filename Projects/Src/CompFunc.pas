@@ -56,7 +56,8 @@ procedure SaveBreakPointLines(const AFilename: String; const BreakPointLines: TS
 procedure DeleteBreakPointLines(const AFilename: String);
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
-  const Shift: TShiftState);
+  const Shift: TShiftState); overload;
+procedure SetFakeShortCut(const MenuItem: TMenuItem; const ShortCut: TShortCut); overload;
 procedure SaveTextToFile(const Filename: String;
   const S: String; const SaveEncoding: TSaveEncoding);
 procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Cardinal);
@@ -68,6 +69,8 @@ function GetSourcePath(const AFilename: String): String;
 function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
   const ReadFromFileFilename: String; const NotReadFromFileMemo: TScintEdit): Integer;
 function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
+function GetWordOccurrenceFindOptions: TScintFindOptions;
+function GetSelTextOccurrenceFindOptions: TScintFindOptions;
 
 implementation
 
@@ -455,6 +458,11 @@ begin
   SetFakeShortCutText(MenuItem, ShortCutToText(ShortCut(Key, Shift)));
 end;
 
+procedure SetFakeShortCut(const MenuItem: TMenuItem; const ShortCut: TShortCut);
+begin
+  SetFakeShortCutText(MenuItem, ShortCutToText(ShortCut));
+end;
+
 procedure SaveTextToFile(const Filename: String;
   const S: String; const SaveEncoding: TSaveEncoding);
 var
@@ -701,6 +709,16 @@ begin
   Result.bmiHeader.biPlanes := 1;
   Result.bmiHeader.biBitCount := BitCount;
   Result.bmiHeader.biCompression := BI_RGB;
+end;
+
+function GetWordOccurrenceFindOptions: TScintFindOptions;
+begin
+  Result := [sfoMatchCase, sfoWholeWord];
+end;
+
+function GetSelTextOccurrenceFindOptions: TScintFindOptions;
+begin
+  Result := [];
 end;
 
 initialization
