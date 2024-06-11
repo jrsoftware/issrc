@@ -62,7 +62,8 @@ type
     Left, Top, Right, Bottom: Integer;
   end;
   TScintStyleNumber = 0..StyleNumbers-1;
-  TScintVirtualSpaceOption = (svsRectangularSelection, svsUserAccessible);
+  TScintVirtualSpaceOption = (svsRectangularSelection, svsUserAccessible,
+    svsNoWrapLineStart);
   TScintVirtualSpaceOptions = set of TScintVirtualSpaceOption;
   PScintRangeToFormat = ^TScintRangeToFormat;
   TScintRangeToFormat = record
@@ -515,6 +516,8 @@ begin
     Flags := Flags or SCVS_RECTANGULARSELECTION;
   if svsUserAccessible in VirtualSpaceOptions then
     Flags := Flags or SCVS_USERACCESSIBLE;
+  if svsNoWrapLineStart in VirtualSpaceOptions then
+    Flags := Flags or SCVS_NOWRAPLINESTART;
   Call(SCI_SETVIRTUALSPACEOPTIONS, Flags, 0);
   Call(SCI_SETWRAPMODE, Ord(FWordWrap), 0);
   Call(SCI_SETINDENTATIONGUIDES, IndentationGuides[FIndentationGuides], 0);
@@ -1856,7 +1859,7 @@ var
 
 const
   { Note: This style is specific to our patched build }
-  STYLE_AUTOCOMPLETION = 39;
+  STYLE_AUTOCOMPLETION = 40;
 var
   I: Integer;
 begin

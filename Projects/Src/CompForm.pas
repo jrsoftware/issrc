@@ -1973,7 +1973,7 @@ begin
     Memo.Call(SCI_INDICSETSTYLE, inSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
 
     if FOptions.CursorPastEOL then
-      Memo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible]
+      Memo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible, svsNoWrapLineStart]
     else
       Memo.VirtualSpaceOptions := [];
     Memo.FillSelectionToEdge := FOptions.CursorPastEOL;
@@ -2809,10 +2809,6 @@ begin
         HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
       end;
     end;
-  end
-  else if (Key = VK_LEFT) and not (ssCtrl in Shift) and FOptions.CursorPastEOL then begin
-    if (FActiveMemo.CaretColumn = 0) and (FActiveMemo.CaretVirtualSpace = 0) then
-      Key := 0;
   end
   else if ((Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt])) and
            (ShortCut(Key, Shift) <> FForwardNavButtonShortCut) then begin
