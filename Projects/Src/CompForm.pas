@@ -95,7 +95,10 @@ type
     HMenu: TMenuItem;
     HDoc: TMenuItem;
     HAbout: TMenuItem;
+    FRecent: TMenuItem;
+    FClear: TMenuItem;
     FMRUMainFilesSep: TMenuItem;
+    N6: TMenuItem;
     VCompilerOutput: TMenuItem;
     FindDialog: TFindDialog;
     ReplaceDialog: TReplaceDialog;
@@ -341,6 +344,7 @@ type
     procedure BackNavButtonClick(Sender: TObject);
     procedure ForwardNavButtonClick(Sender: TObject);
     procedure NavPopupMenuClick(Sender: TObject);
+    procedure FClearClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -892,10 +896,10 @@ begin
   Application.OnIdle := AppOnIdle;
 
   FMRUMainFilesList := TStringList.Create;
-  for I := 0 to High(FMRUMainFilesMenuItems) do begin
+  for I := High(FMRUMainFilesMenuItems) downto 0 do begin
     NewItem := TMenuItem.Create(Self);
     NewItem.OnClick := FMRUClick;
-    FMenu.Insert(FMenu.IndexOf(FMRUMainFilesSep), NewItem);
+    FRecent.Insert(FRecent.IndexOf(FMRUMainFilesSep) + 1, NewItem);
     FMRUMainFilesMenuItems[I] := NewItem;
   end;
   FMRUParametersList := TStringList.Create;
@@ -2410,6 +2414,23 @@ begin
   end;
 end;
 
+procedure TCompileForm.FClearClick(Sender: TObject);
+begin
+  { Load most recent items first, just in case they've changed }
+  try
+    ReadMRUMainFilesList;
+  except
+    { Ignore any exceptions. }
+  end;
+  try
+    ModifyMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History', '', False, @PathCompare, True);
+  except
+    { Handle exceptions locally; failure to save the MRU list should not be
+      a fatal error. }
+    Application.HandleException(Self);
+  end;
+end;
+
 procedure TCompileForm.FMRUClick(Sender: TObject);
 var
   I: Integer;
@@ -3388,7 +3409,7 @@ begin
           for var MarkerBitmap in MarkerBitmaps do begin
             var NeedWorkaround := False;
             try
-              Pixmap.InitializeFromBitmap(MarkerBitmap.Value, BkBrush.Color);
+            Pixmap.InitializeFromBitmap(MarkerBitmap.Value, BkBrush.Color);
             except on E: EScintEditError do
               NeedWorkaround := True;
             end;
@@ -5425,6 +5446,8 @@ begin
           NM(FSaveMainFileAs, 'save-as-filled'),
           NM(FSaveAll, 'save-all-filled'),
           NM(FPrint, 'printer'),
+          NM(FRecent, 'recent-files'),
+          NM(FClear, 'clear-recent-files'),
           NM(EUndo, 'command-undo-1'),
           NM(ERedo, 'command-redo-1'),
           NM(ECut, 'clipboard-cut'),

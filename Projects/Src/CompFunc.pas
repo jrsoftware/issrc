@@ -47,7 +47,8 @@ procedure OpenDonateSite;
 procedure OpenMailingListSite;
 procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
 procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
-  const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
+  const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc;
+  const CleanMRUList: Boolean = False);
 procedure LoadKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 procedure DeleteKnownIncludedAndHiddenFiles(const AFilename: String);
@@ -304,7 +305,8 @@ begin
 end;
 
 procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
-  const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
+  const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc;
+  const CleanMRUList: Boolean);
 var
   I: Integer;
   Ini: TConfigIniFile;
@@ -312,10 +314,13 @@ var
 begin
   I := 0;
   while I < MRUList.Count do begin
-    if CompareProc(MRUList[I], AItem) = 0 then
-      MRUList.Delete(I)
-    else
-      Inc(I);
+    if not CleanMRUList then begin
+      if CompareProc(MRUList[I], AItem) = 0 then
+        MRUList.Delete(I)
+      else
+        Inc(I);
+    end else
+      MRUList.Delete(I);
   end;
   if AddNewItem then
     MRUList.Insert(0, AItem);
@@ -327,7 +332,7 @@ begin
   try
     { MRU list }
     for I := 0 to MRUListMaxCount-1 do begin
-      if I < MRUList.Count then
+      if (I < MRUList.Count) and not CleanMRUList then
         S := MRUList[I]
       else
         S := '';
