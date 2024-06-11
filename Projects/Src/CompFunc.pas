@@ -449,7 +449,11 @@ end;
 
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 begin
-  MenuItem.Caption := MenuItem.Caption + #9 + S;
+  var Caption := MenuItem.Caption;
+  var P := Pos(#9, Caption);
+  if P <> 0 then
+    Delete(Caption, P, MaxInt);
+  MenuItem.Caption := Caption + #9 + S;
 end;
 
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
