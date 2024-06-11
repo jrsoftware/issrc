@@ -2419,7 +2419,7 @@ begin
   if MsgBox('Are you sure you want to clear the recent files?', SCompilerFormCaption,
     mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then
     try
-      ClearMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History');
+      ClearMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew');
     except
     end;
 end;

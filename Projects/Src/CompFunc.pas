@@ -45,7 +45,7 @@ function GetDefaultThemeType: TThemeType;
 function GetDefaultKeyMappingType: TKeyMappingType;
 procedure OpenDonateSite;
 procedure OpenMailingListSite;
-procedure ClearMRUList(const MRUList: TStringList; const Section, Ident: String);
+procedure ClearMRUList(const MRUList: TStringList; const Section: String);
 procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
 procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
   const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
@@ -285,17 +285,14 @@ begin
     nil, SW_SHOWNORMAL);
 end;
 
-procedure ClearMRUList(const MRUList: TStringList; const Section, Ident: String);
+procedure ClearMRUList(const MRUList: TStringList; const Section: String);
 var
   Ini: TConfigIniFile;
-  I: Integer;
 begin
   Ini := TConfigIniFile.Create;
   try
     MRUList.Clear;
-    for I := 0 to MRUListMaxCount-1 do begin
-      Ini.WriteString(Section, Ident + IntToStr(I), '');
-    end;
+    Ini.EraseSection(Section);
   finally
     Ini.Free;
   end;
