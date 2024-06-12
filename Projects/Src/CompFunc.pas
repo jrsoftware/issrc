@@ -459,7 +459,7 @@ end;
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
   const Shift: TShiftState);
 begin
-  SetFakeShortCutText(MenuItem, ShortCutToText(ShortCut(Key, Shift)));
+  SetFakeShortCut(MenuItem, ShortCut(Key, Shift));
 end;
 
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const ShortCut: TShortCut);
