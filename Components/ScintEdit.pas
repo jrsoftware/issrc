@@ -316,7 +316,7 @@ type
       write SetAutoCompleteFontName;
     property AutoCompleteFontSize: Integer read FAutoCompleteFontSize
       write SetAutoCompleteFontSize default 0;
-    property CodePage: Integer read FCodePage write SetCodePage default 0;
+    property CodePage: Integer read FCodePage write SetCodePage default CP_UTF8;
     property Color;
     property FillSelectionToEdge: Boolean read FFillSelectionToEdge write SetFillSelectionToEdge
       default False;
@@ -476,6 +476,7 @@ const
 constructor TScintEdit.Create(AOwner: TComponent);
 begin
   inherited;
+  FCodePage := CP_UTF8;
   FLines := TScintEditStrings.Create;
   FLines.FEdit := Self;
   FTabWidth := 8;

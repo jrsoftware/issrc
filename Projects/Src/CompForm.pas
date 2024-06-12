@@ -671,7 +671,6 @@ begin
   Memo.Align := alClient;
   Memo.AutoCompleteFontName := Font.Name;
   Memo.AutoCompleteFontSize := Font.Size;
-  Memo.CodePage := CP_UTF8;
   Memo.Font.Name := 'Courier New';
   Memo.Font.Size := 10;
   Memo.ShowHint := True;
