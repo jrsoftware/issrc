@@ -1,5 +1,7 @@
 cd /d %~dp0
 
+echo - Synching files from Files to Projects\Bin
+
 copy ..\..\Files\Default.isl
 copy ..\..\Files\ISPPBuiltins.iss
 copy ..\..\Files\is*zip.dll
@@ -10,7 +12,7 @@ copy ..\..\Files\islzma*.exe
 copy ..\..\Files\ISetup.chm
 copy ..\..\Files\ISPP.chm
 
-echo - Copying files done
+echo - Synching files done
 
 if "%1"=="nopause" goto :eof
 
