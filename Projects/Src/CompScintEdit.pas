@@ -32,10 +32,10 @@ const
     though inSquiggly and inPendingSquiggly are exclusive we still need 2 indicators
     (instead of 1 indicator with 2 values) because inPendingSquiggly is always
     hidden and in inSquiggly is not. }
-  inSquiggly = INDIC_CONTAINER;
-  inPendingSquiggly = INDIC_CONTAINER+1;
-  inWordAtCursorOccurrence = INDIC_CONTAINER+2;
-  inSelTextOccurrence = INDIC_CONTAINER+3;
+  inSquiggly = INDICATOR_CONTAINER;
+  inPendingSquiggly = INDICATOR_CONTAINER+1;
+  inWordAtCursorOccurrence = INDICATOR_CONTAINER+2;
+  inSelTextOccurrence = INDICATOR_CONTAINER+3;
   inMax = inSelTextOccurrence;
 
   { Just some invalid value used to indicate an unknown/uninitialized compiler FileIndex value }
@@ -141,10 +141,6 @@ begin
   { Some notes about future Scintilla versions:
     -Does it at some point become possible to change mouse shortcut Ctrl+Click
      to Alt+Click?
-    -At some point the documentation will say:
-     "The INDICATOR_* values used for dividing up indicators were previously
-      INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
-     Once it does replace our use of these INDIC_* with INDICATOR_*.
     -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
             Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
             https://cplusplus.com/reference/regex/ECMAScript/

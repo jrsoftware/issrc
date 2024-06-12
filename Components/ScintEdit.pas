@@ -44,7 +44,7 @@ type
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
   TScintStyleByteIndicatorNumber = 0..1; { Could be increased to 0..StyleNumberUnusedBits-1 }
   TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
-  TScintIndicatorNumber = INDIC_CONTAINER..INDIC_MAX;
+  TScintIndicatorNumber = INDICATOR_CONTAINER..INDICATOR_MAX;
   TScintLineEndings = (sleCRLF, sleCR, sleLF);
   TScintLineState = type Integer;
   TScintMarkerNumber = 0..31;
@@ -684,6 +684,7 @@ begin
   if FDirectPtr = nil then
     Error('CreateWnd: FDirectPtr is nil');
   UpdateCodePage;
+  Call(SCI_SETCOMMANDEVENTS, 0, 0);
   Call(SCI_SETCARETPERIOD, GetCaretBlinkTime, 0);
   Call(SCI_SETSCROLLWIDTHTRACKING, 1, 0);
   { The default popup menu conflicts with the VCL's PopupMenu on Delphi 3 }
@@ -1673,20 +1674,20 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
     if N > 0 then begin
       var HadStyleByteIndicators := False;
 
-      { Apply style byte indicators. Add first as INDIC_CONTAINER and so on. }
+      { Apply style byte indicators. Add first as INDICATOR_CONTAINER and so on. }
       for var Indicator := 0 to High(TScintStyleByteIndicatorNumber) do begin
         var PrevI := 1;
         var PrevValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(FStyler.FStyleStr[1]) shr StyleNumberBits));
         for var CurI := 2 to N do begin
           var CurValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(FStyler.FStyleStr[CurI]) shr StyleNumberBits));
           if CurValue <> PrevValue then begin
-            SetIndicators(StartStylingPos+PrevI-1, StartStylingPos+CurI-1, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
+            SetIndicators(StartStylingPos+PrevI-1, StartStylingPos+CurI-1, Ord(Indicator)+INDICATOR_CONTAINER, PrevValue);
             HadStyleByteIndicators := HadStyleByteIndicators or PrevValue;
             PrevI := CurI;
             PrevValue := CurValue;
           end;
         end;
-        SetIndicators(StartStylingPos+PrevI-1, StartStylingPos+N, Ord(Indicator)+INDIC_CONTAINER, PrevValue);
+        SetIndicators(StartStylingPos+PrevI-1, StartStylingPos+N, Ord(Indicator)+INDICATOR_CONTAINER, PrevValue);
         HadStyleByteIndicators := HadStyleByteIndicators or PrevValue;
       end;
 
