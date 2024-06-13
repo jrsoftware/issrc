@@ -964,7 +964,7 @@ var
   Len: Integer;
   S: TScintRawString;
 begin
-  Len := Call(SCI_GETSELTEXT, 0, 0) - 1;
+  Len := Call(SCI_GETSELTEXT, 0, 0);
   if Len > 0 then begin
     InitRawString(S, Len);
     Call(SCI_GETSELTEXT, 0, LPARAM(PAnsiChar(@S[1])));

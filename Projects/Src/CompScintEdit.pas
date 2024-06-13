@@ -157,13 +157,6 @@ begin
             properties."
     -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on
             INDIC_SQUIGGLE.
-    -5.1.5: Handle breaking change: "When calling SCI_GETTEXT, SCI_GETSELTEXT,
-            and SCI_GETCURLINE with a NULL buffer argument to discover the length
-            that should be allocated, do not include the terminating NUL in the
-            returned value. The value returned is 1 less than previous versions
-            of Scintilla. Applications should allocate a buffer 1 more than this
-            to accommodate the NUL. The wParam (length) argument to SCI_GETTEXT
-            and SCI_GETCURLINE also omits the NUL."
     -5.3.0: "Stop including STYLE_CALLTIP when calculating line height. Allows a
             large font to be used for calltips without affecting text display."
             Allows cleanup of our STYLE_AUTOCOMPLETION patch.
