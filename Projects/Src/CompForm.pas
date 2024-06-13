@@ -3281,7 +3281,7 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
 
   procedure FindTextAndAddRanges(const AMemo: TCompScintEdit;
     const TextToFind: TScintRawString; const Options: TScintFindOptions;
-    const SelAvail: Boolean; const Selection: TScintRange;
+    const SelNotEmpty: Boolean; const Selection: TScintRange;
     const ARangeList: TScintRangeList);
   begin
     if ScintRawStringIsBlank(TextToFind) then
@@ -3307,7 +3307,7 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
         occurrence somewhere else the additional selection becomes hidden by the
         indicator except for the very top and bottom (due to use of
         INDIC_STRAIGHTBOX instead of INDIC_FULLBOX) }
-      if SelAvail and Range.Overlaps(Selection) then begin
+      if SelNotEmpty and Range.Overlaps(Selection) then begin
         if Range.StartPos < Selection.StartPos then
           ARangeList.Add(TScintRange.Create(Range.StartPos, Selection.StartPos));
         if Range.EndPos > Selection.EndPos then
