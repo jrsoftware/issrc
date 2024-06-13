@@ -140,11 +140,36 @@ begin
 
   { Some notes about future Scintilla versions:
     -Does it at some point become possible to change mouse shortcut Ctrl+Click
-     to Alt+Click?
+     to Alt+Click? And Alt+Shift+Drag instead of Alt+Drag for rect select?
+    -What about using Calltips and SCN_DWELLSTART to show variable evalutions?
+    -Should turn on DISABLE_D2D compiler directive in isscint build?
+    -Should call SCI_SETMODEVENTMASK
+    -Add folding support?
     -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
             Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
             https://cplusplus.com/reference/regex/ECMAScript/
-    -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on INDIC_SQUIGGLE }
+    -4.4.0: "Implement per-monitor DPI Awareness on Win32 so both Scintilla and
+            SciTE will adapt to the display scale when moved between monitors.
+            Applications should forward WM_DPICHANGED to Scintilla"
+            Also docs say: "On Windows, the top level window should forward any
+            WM_SETTINGCHANGE, WM_SYSCOLORCHANGE, and WM_DPICHANGED messages to
+            Scintilla as this allows Scintilla to respond to changes to mouse
+            settings, monitor resolution, colour scheme and similar system
+            properties."
+    -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on
+            INDIC_SQUIGGLE.
+    -5.1.5: Handle breaking change: "When calling SCI_GETTEXT, SCI_GETSELTEXT,
+            and SCI_GETCURLINE with a NULL buffer argument to discover the length
+            that should be allocated, do not include the terminating NUL in the
+            returned value. The value returned is 1 less than previous versions
+            of Scintilla. Applications should allocate a buffer 1 more than this
+            to accommodate the NUL. The wParam (length) argument to SCI_GETTEXT
+            and SCI_GETCURLINE also omits the NUL."
+    -5.3.0: "Stop including STYLE_CALLTIP when calculating line height. Allows a
+            large font to be used for calltips without affecting text display."
+            Allows cleanup of our STYLE_AUTOCOMPLETION patch.
+    -5.3.0: Add change history: "Added change history which can display document
+            changes (modified, saved, ...) in the margin or in the text. " }
 
   Call(SCI_SETCARETWIDTH, 2, 0);
   Call(SCI_AUTOCSETAUTOHIDE, 0, 0);
@@ -186,10 +211,9 @@ begin
     column is set up by TScintEdit.UpdateLineNumbersWidth. }
   Call(SCI_SETMARGINCURSORN, 0, SC_CURSORARROW);
 
-  { Set up the gutter column with breakpoint etc symbols - note: column 0 is the
-    line numbers column and its width is set up by TScintEdit.UpdateLineNumbersWidth }
+  { Set up the gutter column with breakpoint etc symbols }
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINSENSITIVEN, 1, 1); { Makes it react to mouse clicks }
+  Call(SCI_SETMARGINSENSITIVEN, 1, 1); { Makes it send SCN_MARGIN(RIGHT)CLICK instead of selecting lines }
   Call(SCI_SETMARGINCURSORN, 1, SC_CURSORARROW);
 
   { Set 2 pixel margin between gutter and the main text - note: the first
