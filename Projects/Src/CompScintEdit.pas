@@ -143,7 +143,6 @@ begin
      to Alt+Click? And Alt+Shift+Drag instead of Alt+Drag for rect select?
     -What about using Calltips and SCN_DWELLSTART to show variable evalutions?
     -Should turn on DISABLE_D2D compiler directive in isscint build?
-    -Should call SCI_SETMODEVENTMASK
     -Add folding support?
     -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
             Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:

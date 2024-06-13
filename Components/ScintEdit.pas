@@ -685,6 +685,7 @@ begin
     Error('CreateWnd: FDirectPtr is nil');
   UpdateCodePage;
   Call(SCI_SETCOMMANDEVENTS, 0, 0);
+  Call(SCI_SETMODEVENTMASK, SC_MOD_INSERTTEXT or SC_MOD_DELETETEXT, 0);
   Call(SCI_SETCARETPERIOD, GetCaretBlinkTime, 0);
   Call(SCI_SETSCROLLWIDTHTRACKING, 1, 0);
   { The default popup menu conflicts with the VCL's PopupMenu on Delphi 3 }
@@ -1141,6 +1142,7 @@ begin
       end;
     SCN_MODIFIED:
       begin
+        { CreateWnd limits SCN_MODIFIED to INSERTTEXT and DELETETEXT }
         if N.modificationType and SC_MOD_INSERTTEXT <> 0 then
           Change(True, N.position, N.length, N.linesAdded)
         else if N.modificationType and SC_MOD_DELETETEXT <> 0 then
