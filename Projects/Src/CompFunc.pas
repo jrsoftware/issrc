@@ -71,6 +71,7 @@ function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
 function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
 function GetWordOccurrenceFindOptions: TScintFindOptions;
 function GetSelTextOccurrenceFindOptions: TScintFindOptions;
+function GetPreferredMemoFont: String;
 
 implementation
 
@@ -725,10 +726,21 @@ begin
   Result := [];
 end;
 
+var
+  PreferredMemoFont: String;
+
+function GetPreferredMemoFont: String;
+begin
+  Result := PreferredMemoFont;
+end;
+
 initialization
   var OSVersionInfo: TOSVersionInfo;
   OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
   GetVersionEx(OSVersionInfo);
   WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
+  PreferredMemoFont := 'Consolas';
+  if not FontExists(PreferredMemoFont) then
+    PreferredMemoFont := 'Courier New';
 
 end.

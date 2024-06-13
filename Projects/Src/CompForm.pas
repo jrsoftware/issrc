@@ -671,7 +671,7 @@ begin
   Memo.Align := alClient;
   Memo.AutoCompleteFontName := Font.Name;
   Memo.AutoCompleteFontSize := Font.Size;
-  Memo.Font.Name := 'Courier New';
+  Memo.Font.Name := GetPreferredMemoFont;
   Memo.Font.Size := 10;
   Memo.ShowHint := True;
   Memo.Styler := FMemosStyler;
