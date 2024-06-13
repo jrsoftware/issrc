@@ -82,6 +82,7 @@ type
     FAutoCompleteFontSize: Integer;
     FCodePage: Integer;
     FDirectPtr: Pointer;
+    FDirectStatusFunction: SciFnDirectStatus;
     FEffectiveCodePage: Integer;
     FEffectiveCodePageDBCS: Boolean;
     FFillSelectionToEdge: Boolean;
@@ -532,19 +533,20 @@ begin
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;
-var
-  ErrorStatus: LRESULT;
+
 begin
   HandleNeeded;
   if FDirectPtr = nil then
     Error('Call: FDirectPtr is nil');
-  Result := Scintilla_DirectFunction(FDirectPtr, Msg, WParam, LParam);
+  if not Assigned(FDirectStatusFunction) then
+    Error('Call: FDirectStatusFunction is nil');
+  var ErrorStatus: Integer;
+  Result := FDirectStatusFunction(FDirectPtr, Msg, WParam, LParam, ErrorStatus);
 
-  ErrorStatus := Scintilla_DirectFunction(FDirectPtr, SCI_GETSTATUS, 0, 0);
   if ErrorStatus <> 0 then begin
-    Scintilla_DirectFunction(FDirectPtr, SCI_SETSTATUS, 0, 0);
     ErrorFmt('Error status %d returned after Call(%u, %d, %d) = %d',
       [ErrorStatus, Msg, WParam, LParam, Result]);
+    FDirectStatusFunction(FDirectPtr, SCI_SETSTATUS, 0, 0, ErrorStatus);
   end;
 end;
 
@@ -679,10 +681,15 @@ end;
 
 procedure TScintEdit.CreateWnd;
 begin
+  if IsscintLibary = 0 then
+    Error('CreateWnd: IsscintLibary is 0');
   inherited;
   FDirectPtr := Pointer(SendMessage(Handle, SCI_GETDIRECTPOINTER, 0, 0));
   if FDirectPtr = nil then
     Error('CreateWnd: FDirectPtr is nil');
+  FDirectStatusFunction := SciFnDirectStatus(SendMessage(Handle, SCI_GETDIRECTSTATUSFUNCTION, WPARAM(FDirectPtr), 0));
+  if not Assigned(FDirectStatusFunction) then
+    Error('CreateWnd: FDirectStatusFunction is nil');
   UpdateCodePage;
   Call(SCI_SETCOMMANDEVENTS, 0, 0);
   Call(SCI_SETMODEVENTMASK, SC_MOD_INSERTTEXT or SC_MOD_DELETETEXT, 0);
@@ -1967,6 +1974,7 @@ end;
 procedure TScintEdit.WMDestroy(var Message: TWMDestroy);
 begin
   FDirectPtr := nil;
+  FDirectStatusFunction := nil;
   inherited;
 end;
 

@@ -1276,9 +1276,18 @@ type
     characterSource: Integer;   { SCN_CHARADDED }
   end;
 
-function Scintilla_DirectFunction(ptr: Pointer; iMessage: Cardinal;
-  wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall; external 'isscint.dll';
+  SciFnDirectStatus = function(ptr: Pointer; iMessage: Cardinal;
+    wParam: WPARAM; lParam: LPARAM; var Status: Integer): LRESULT; cdecl;
+
+var
+  IsscintLibary: HMODULE;
 
 implementation
+
+uses
+  PathFunc;
+
+initialization
+  IsscintLibary := LoadLibrary(PChar(AddBackslash(PathExtractPath(ParamStr(0))) + 'isscint.dll'));
 
 end.
