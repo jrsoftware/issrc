@@ -1211,7 +1211,7 @@ const
 {$ENDIF}
 
 type
-  TSci_Position = Integer;
+  TSci_Position = NativeInt;
   TSci_PositionCR = Longint;
   
   TSci_CharacterRange = record
