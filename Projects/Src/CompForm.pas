@@ -3437,7 +3437,7 @@ type
 begin
   var Width := ToCurrentPPI(20);
   for var Memo in FMemos do
-    Memo.UpdateMemoMarkerColumnWidth(Width);
+    Memo.UpdateIconMarkersColumnWidth(Width);
 
   var ImageList := ThemedMarkersVirtualImageList;
 

@@ -63,7 +63,7 @@ type
     property Used: Boolean read FUsed write FUsed;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
-    procedure UpdateMemoMarkerColumnWidth(const AWidth: Integer);
+    procedure UpdateIconMarkersColumnWidth(const AWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   end;
 
@@ -269,7 +269,7 @@ begin
   end;
 end;
 
-procedure TCompScintEdit.UpdateMemoMarkerColumnWidth(const AWidth: Integer);
+procedure TCompScintEdit.UpdateIconMarkersColumnWidth(const AWidth: Integer);
 begin
   Call(SCI_SETMARGINWIDTHN, 1, AWidth);
 end;
