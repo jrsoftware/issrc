@@ -157,6 +157,12 @@ begin
             properties."
     -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on
             INDIC_SQUIGGLE.
+    -5.2.3: "Applications should move to SCI_GETTEXTRANGEFULL, SCI_FINDTEXTFULL,
+            and SCI_FORMATRANGEFULL from their predecessors as they will be
+            deprecated." So our use of SCI_GETTEXTRANGE and SCI_FORMATRANGE needs
+            to be updated but that also means we should do many more changes to
+            replace all the Integer positions with NativeInt positions. Does not
+            actually change anything until there's a 64-bit build...
     -5.3.0: "Stop including STYLE_CALLTIP when calculating line height. Allows a
             large font to be used for calltips without affecting text display."
             Allows cleanup of our STYLE_AUTOCOMPLETION patch.
