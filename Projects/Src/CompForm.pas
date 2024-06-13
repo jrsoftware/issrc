@@ -3281,72 +3281,77 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
 
   procedure FindTextAndAddRanges(const AMemo: TCompScintEdit;
     const TextToFind: TScintRawString; const Options: TScintFindOptions;
-    const SelNotEmpty: Boolean; const Selection: TScintRange;
-    const ARangeList: TScintRangeList);
+    const SelectionRanges, IndicatorRanges: TScintRangeList);
   begin
     if ScintRawStringIsBlank(TextToFind) then
       Exit;
 
     var StartPos := 0;
     var EndPos := AMemo.RawTextLength;
-    var Range: TScintRange;
+    var FoundRange: TScintRange;
 
     while (StartPos < EndPos) and
-          AMemo.FindRawText(StartPos, EndPos, TextToFind, Options, Range) do begin
-      StartPos := Range.EndPos;
+          AMemo.FindRawText(StartPos, EndPos, TextToFind, Options, FoundRange) do begin
+      StartPos := FoundRange.EndPos;
 
       { Don't add indicators on lines which have a line marker }
-      var Line := AMemo.GetLineFromPosition(Range.StartPos);
+      var Line := AMemo.GetLineFromPosition(FoundRange.StartPos);
       var Markers := AMemo.GetMarkers(Line);
       if Markers * [mmLineError, mmLineBreakpointBad, mmLineStep] <> [] then
         Continue;
 
-      { Add indicator while making sure it does not overlap the regular selection
-        styling (only looks at main selection and not any additional selections
-        atm - so if you ctrl+double click a word and then do the same on an
-        occurrence somewhere else the additional selection becomes hidden by the
-        indicator except for the very top and bottom (due to use of
-        INDIC_STRAIGHTBOX instead of INDIC_FULLBOX) }
-      if SelNotEmpty and Range.Overlaps(Selection) then begin
-        if Range.StartPos < Selection.StartPos then
-          ARangeList.Add(TScintRange.Create(Range.StartPos, Selection.StartPos));
-        if Range.EndPos > Selection.EndPos then
-          ARangeList.Add(TScintRange.Create(Selection.EndPos, Range.EndPos));
+      { Add indicator while making sure it does not overlap any regular selection
+        styling for either the main selection or any additional selection. Does
+        not account for an indicator overlapping more than 1 selection. }
+      var OverlappingSelection: TScintRange;
+      if SelectionRanges.Overlaps(FoundRange, OverlappingSelection) then begin
+        if FoundRange.StartPos < OverlappingSelection.StartPos then
+          IndicatorRanges.Add(TScintRange.Create(FoundRange.StartPos, OverlappingSelection.StartPos));
+        if FoundRange.EndPos > OverlappingSelection.EndPos then
+          IndicatorRanges.Add(TScintRange.Create(OverlappingSelection.EndPos, FoundRange.EndPos));
       end else
-        ARangeList.Add(TScintRange.Create(Range.StartPos, Range.EndPos));
+        IndicatorRanges.Add(FoundRange);
     end;
   end;
 
 begin
   { Add occurrence indicators for the word at cursor if there's any and the
-    selection is within this word. On top of those add occurrence indicators for
-    the selected text if there's any. Don't do anything of the selection is not
-    single line. All of these things are just like VSCode. }
+    main selection is within this word. On top of those add occurrence indicators
+    for the main selected text if there's any. Don't do anything if the main
+    selection is not single line. All of these things are just like VSCode. }
 
-  var Selection: TScintRange;
-  var SelNotEmpty := AMemo.SelNotEmpty(Selection);
-  var SelSingleLine := AMemo.GetLineFromPosition(Selection.StartPos) =
-                       AMemo.GetLineFromPosition(Selection.EndPos);
+  var MainSelection: TScintRange;
+  var MainSelNotEmpty := AMemo.SelNotEmpty(MainSelection);
+  var MainSelSingleLine := AMemo.GetLineFromPosition(MainSelection.StartPos) =
+                           AMemo.GetLineFromPosition(MainSelection.EndPos);
 
-  var RangeList := TScintRangeList.Create;
+  var IndicatorRanges: TScintRangeList := nil;
+  var SelectionRanges: TScintRangeList := nil;
   try
-    if FOptions.HighlightWordAtCursorOccurrences and (AMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
+    IndicatorRanges := TScintRangeList.Create;
+    SelectionRanges := TScintRangeList.Create;
+
+    if FOptions.HighlightWordAtCursorOccurrences and (AMemo.CaretVirtualSpace = 0) and MainSelSingleLine then begin
       var Word := AMemo.WordAtCursorRange;
-      if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
+      if (Word.StartPos <> Word.EndPos) and MainSelection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-        FindTextAndAddRanges(AMemo, TextToIndicate, GetWordOccurrenceFindOptions, SelNotEmpty, Selection, RangeList);
+        AMemo.GetSelections(SelectionRanges); { Gets any additional selections as well }
+        FindTextAndAddRanges(AMemo, TextToIndicate, GetWordOccurrenceFindOptions, SelectionRanges, IndicatorRanges);
       end;
     end;
-    AMemo.UpdateIndicators(RangeList, inWordAtCursorOccurrence);
+    AMemo.UpdateIndicators(IndicatorRanges, inWordAtCursorOccurrence);
 
-    RangeList.Clear;
-    if FOptions.HighlightSelTextOccurrences and SelNotEmpty and SelSingleLine then begin
+    IndicatorRanges.Clear;
+    if FOptions.HighlightSelTextOccurrences and MainSelNotEmpty and MainSelSingleLine then begin
       var TextToIndicate := AMemo.RawSelText;
-      FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions, SelNotEmpty, Selection, RangeList);
+      if SelectionRanges.Count = 0 then { If 0 then we didn't already call GetSelections above}
+        AMemo.GetSelections(SelectionRanges);
+      FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions,SelectionRanges, IndicatorRanges);
     end;
-    AMemo.UpdateIndicators(RangeList, inSelTextOccurrence);
+    AMemo.UpdateIndicators(IndicatorRanges, inSelTextOccurrence);
   finally
-    RangeList.Free;
+    SelectionRanges.Free;
+    IndicatorRanges.Free;
   end;
 end;
 

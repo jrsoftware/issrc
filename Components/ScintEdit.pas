@@ -52,10 +52,14 @@ type
   TScintRange = record
     StartPos, EndPos: Integer;
     constructor Create(const AStartPos, AEndPos: Integer);
+    function Empty: Boolean;
     function Overlaps(const ARange: TScintRange): Boolean;
     function Within(const ARange: TScintRange): Boolean;
   end;
-  TScintRangeList = TList<TScintRange>;
+  TScintRangeList = class(TList<TScintRange>)
+    function Overlaps(const ARange: TScintRange;
+      var AOverlappingRange: TScintRange): Boolean;
+  end;
   TScintRawCharSet = set of AnsiChar;
   TScintRawString = type RawByteString;
   TScintRectangle = record
@@ -240,6 +244,7 @@ type
     function GetPositionOfMatchingBrace(const Pos: Integer): Integer;
     function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
+    procedure GetSelections(const RangeList: TScintRangeList);
     function GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
     function GetTextRange(const StartPos, EndPos: Integer): String;
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
@@ -1032,6 +1037,16 @@ function TScintEdit.GetSelection: TScintRange;
 begin
   Result.StartPos := Call(SCI_GETSELECTIONSTART, 0, 0);
   Result.EndPos := Call(SCI_GETSELECTIONEND, 0, 0);
+end;
+
+procedure TScintEdit.GetSelections(const RangeList: TScintRangeList);
+begin
+  RangeList.Clear;
+  for var I := 0 to SelectionCount-1 do begin
+    var StartPos := Call(SCI_GETSELECTIONNSTART, I, 0);
+    var EndPos := Call(SCI_GETSELECTIONNEND, I, 0);
+    RangeList.Add(TScintRange.Create(StartPos, EndPos));
+  end;
 end;
 
 function TScintEdit.GetSelectionAnchorPosition(Selection: Integer): Integer;
@@ -2429,12 +2444,31 @@ end;
 
 function TScintRange.Overlaps(const ARange: TScintRange): Boolean;
 begin
-  Result := (StartPos <= ARange.EndPos) and (EndPos >= ARange.StartPos);
+  Result := not ARange.Empty and (StartPos <= ARange.EndPos) and (EndPos >= ARange.StartPos);
+end;
+
+function TScintRange.Empty: Boolean;
+begin
+  Result := StartPos = EndPos;
 end;
 
 function TScintRange.Within(const ARange: TScintRange): Boolean;
 begin
   Result := (StartPos >= ARange.StartPos) and (EndPos <= ARange.EndPos);
+end;
+
+{ TScintRangeList }
+
+function TScintRangeList.Overlaps(const ARange: TScintRange;
+  var AOverlappingRange: TScintRange): Boolean;
+begin
+  for var Item in Self do begin
+    if Item.Overlaps(ARange) then begin
+      AOverlappingRange := Item;
+      Exit(True);
+    end;
+  end;
+  Result := False;
 end;
 
 end.
