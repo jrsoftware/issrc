@@ -693,7 +693,7 @@ begin
   FDirectPtr := Pointer(SendMessage(Handle, SCI_GETDIRECTPOINTER, 0, 0));
   if FDirectPtr = nil then
     Error('CreateWnd: FDirectPtr is nil');
-  FDirectStatusFunction := SciFnDirectStatus(SendMessage(Handle, SCI_GETDIRECTSTATUSFUNCTION, WPARAM(FDirectPtr), 0));
+  FDirectStatusFunction := SciFnDirectStatus(SendMessage(Handle, SCI_GETDIRECTSTATUSFUNCTION, 0, 0));
   if not Assigned(FDirectStatusFunction) then
     Error('CreateWnd: FDirectStatusFunction is nil');
   UpdateCodePage;
