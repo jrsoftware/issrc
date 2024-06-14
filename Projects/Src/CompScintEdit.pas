@@ -166,9 +166,6 @@ begin
             64-bit build...
             Later SCI_GETSTYLEDTEXTFULL was also added but we don't use it at
             the time of writing.
-    -5.3.0: "Stop including STYLE_CALLTIP when calculating line height. Allows a
-            large font to be used for calltips without affecting text display."
-            Allows cleanup of our STYLE_AUTOCOMPLETION patch.
     -5.3.0: Add change history: "Added change history which can display document
             changes (modified, saved, ...) in the margin or in the text. " }
 
