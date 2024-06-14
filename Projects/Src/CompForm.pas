@@ -447,7 +447,6 @@ type
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
     FIgnoreTabSetClick: Boolean;
     FSelectNextOccurrenceShortCut, FSelectAllOccurrencesShortCut: TShortCut;
-    FSelectNextOccurrenceOptions: TScintFindOptions;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -524,7 +523,6 @@ type
     procedure ResetAllMemosLineState;
     procedure StartProcess;
     function SaveFile(const AMemo: TCompScintFileEdit; const SaveAs: Boolean): Boolean;
-    function SelectAllOrNextOccurrencesStart: TScintFindOptions;
     procedure SetErrorLine(const AMemo: TCompScintFileEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TCompScintFileEdit; ALine: Integer);
@@ -939,10 +937,6 @@ begin
   FMenuBitmaps := TMenuBitmaps.Create;
   FMenuBitmapsSize.cx := 0;
   FMenuBitmapsSize.cy := 0;
-
-  { Only used if a multi selection is started manually with a non-empty main
-    selection before FSelectNextOccurrenceShortCut is used }
-  FSelectNextOccurrenceOptions := GetSelTextOccurrenceFindOptions;
 
   if CommandLineCompile then begin
     ReadSignTools(FSignTools);
@@ -2520,33 +2514,26 @@ begin
   FActiveMemo.SelectAll;
 end;
 
-function TCompileForm.SelectAllOrNextOccurrencesStart: TScintFindOptions;
+procedure TCompileForm.ESelectAllOccurrencesClick(Sender: TObject);
 begin
-  Result := GetSelTextOccurrenceFindOptions;
+  var Options := GetSelTextOccurrenceFindOptions;
   if FActiveMemo.SelEmpty then begin
     var Range := FActiveMemo.WordAtCursorRange;
     if Range.StartPos <> Range.EndPos then begin
       FActiveMemo.SetSingleSelection(Range.EndPos, Range.StartPos);
-      Result := GetWordOccurrenceFindOptions;
+      Options := GetWordOccurrenceFindOptions;
     end;
   end;
-end;
-
-procedure TCompileForm.ESelectAllOccurrencesClick(Sender: TObject);
-begin
-  var Options := SelectAllOrNextOccurrencesStart;
   FActiveMemo.SelectAllOccurrences(Options);
 end;
 
 procedure TCompileForm.ESelectNextOccurrenceClick(Sender: TObject);
 begin
-  { This is the 'first' SelectNext if there are no additional selections yet or
-    if the main selection is empty. The first SelectNext determines the find
-    options to be used for the next SelectNext. This is like VSCode as also
-    consistent with SelectAll and occurrence highlighting. }
-  if (FActiveMemo.SelectionCount = 1) or FActiveMemo.SelEmpty then
-    FSelectNextOccurrenceOptions := SelectAllOrNextOccurrencesStart;
-  FActiveMemo.SelectNextOccurrence(FSelectNextOccurrenceOptions);
+  { Currently this always uses GetWordOccurrenceFindOptions but ideally it would
+    know whether this is the 'first' SelectNext or not. Then, if first it would
+    do what SelectAll does to choose a FindOptions. And if next it would reuse
+    that. This is what VSCode does. }
+  FActiveMemo.SelectNextOccurrence(GetWordOccurrenceFindOptions);
 end;
 
 procedure TCompileForm.ECompleteWordClick(Sender: TObject);
