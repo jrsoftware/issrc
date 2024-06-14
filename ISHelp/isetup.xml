@@ -71,7 +71,7 @@
     <contentstopic title="Uninstaller Command Line Parameters" topic="uninstcmdline" />
     <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
-    <contentstopic title="Compiler IDE Keyboard Commands" topic="compformshortcuts" />
+    <contentstopic title="Compiler IDE Keyboard And Mouse Commands" topic="compformshortcuts" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />
     <contentstopic title="Frequently Asked Questions" topic="faq" />
@@ -254,7 +254,7 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 <link topic="uninstalldeletesection">[UninstallDelete] section</link><br/>
 <link topic="runsection">[UninstallRun] section</link><br/>
 <link topic="scriptintro">Pascal Scripting: Introduction</link>
-<link topic="compformshortcuts">Compiler IDE Keyboard Commands</link>
+<link topic="compformshortcuts">Compiler IDE Keyboard And Mouse Commands</link>
 </p>
 
 </body>
@@ -3108,12 +3108,13 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 
 
-<topic name="compformshortcuts" title="Compiler IDE Keyboard Commands">
-<keyword value="Compiler IDE Keyboard Commands" />
+<topic name="compformshortcuts" title="Compiler IDE Keyboard And Mouse Commands">
+<keyword value="Compiler IDE Keyboard And Mouse Commands" />
 <keyword value="Keyboard commands" />
+<keyword value="Mouse commands" />
 <body>
 
-<p>Besides the keyboard commands listed in the menus, the Compiler IDE supports the following additional keyboard commands:</p>
+<p>Besides the keyboard commands listed in the menus, the Compiler IDE supports the following additional keyboard and mouse commands:</p>
 
 <table>
 <tr>
@@ -3151,6 +3152,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 <tr>
   <td>Scroll down.</td><td>Ctrl+Down</td>
+</tr>
+<tr>
+  <td>Scroll horizontally.</td><td>Shift+MouseWheel</td>
 </tr>
 <tr>
   <td>Cut line.</td><td>Ctrl+L</td>

@@ -804,7 +804,7 @@ object CompileForm: TCompileForm
         Caption = '-'
       end
       object HShortcutsDoc: TMenuItem
-        Caption = '&Keyboard Commands'
+        Caption = '&Keyboard And Mouse Commands'
         OnClick = HShortcutsDocClick
       end
       object N14: TMenuItem
