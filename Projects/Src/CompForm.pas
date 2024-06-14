@@ -2529,6 +2529,10 @@ end;
 
 procedure TCompileForm.ESelectNextOccurrenceClick(Sender: TObject);
 begin
+  { Currently this always uses GetWordOccurrenceFindOptions but ideally it would
+    know whether this is the 'first' SelectNext or not. Then, if first it would
+    do what SelectAll does to choose a FindOptions. And if next it would reuse
+    that. This is what VSCode does. }
   FActiveMemo.SelectNextOccurrence(GetWordOccurrenceFindOptions);
 end;
 
@@ -2802,6 +2806,16 @@ end;
 procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
+  if Key = VK_RIGHT then begin
+    var Memo := Sender as TScintEdit;
+    if (Memo.Call(SCI_GETSELECTIONMODE, 0, 0) = SC_SEL_RECTANGLE) or
+       (Memo.Call(SCI_GETSELECTIONMODE, 0, 0) = SC_SEL_THIN) then begin
+    //'Enable Column Selection to Multi-editing';
+      Memo.Call(SCI_SETSELECTIONMODE, SC_SEL_STREAM, 0);
+      Memo.Call(SCI_SETSELECTIONMODE, SC_SEL_STREAM, 0);
+    end;
+  end;
+
   if Key = VK_F1 then begin
     var HelpFile := GetHelpFile;
     if Assigned(HtmlHelp) then begin
