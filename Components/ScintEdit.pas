@@ -65,6 +65,7 @@ type
   TScintRectangle = record
     Left, Top, Right, Bottom: Integer;
   end;
+  TScintSelectionMode = (ssmStream, ssmRectangular, ssmLines, ssmThinRectangular);
   TScintStyleNumber = 0..StyleNumbers-1;
   TScintVirtualSpaceOption = (svsRectangularSelection, svsUserAccessible,
     svsNoWrapLineStart);
@@ -78,6 +79,8 @@ type
 
   TScintEditStrings = class;
   TScintCustomStyler = class;
+
+  EScintEditError = class(Exception);
 
   TScintEdit = class(TWinControl)
   private
@@ -135,6 +138,7 @@ type
     function GetSelectionAnchorPosition(Selection: Integer): Integer;
     function GetSelectionCaretPosition(Selection: Integer): Integer;
     function GetSelectionCount: Integer;
+    function GetSelectionMode: TScintSelectionMode;
     function GetSelText: String;
     function GetTopLine: Integer;
     function GetZoom: Integer;
@@ -157,6 +161,7 @@ type
     procedure SetSelection(const Value: TScintRange);
     procedure SetSelectionAnchorPosition(Selection: Integer; const AnchorPos: Integer);
     procedure SetSelectionCaretPosition(Selection: Integer; const CaretPos: Integer);
+    procedure SetSelectionMode(const Value: TScintSelectionMode);
     procedure SetSelText(const Value: String);
     procedure SetStyler(const Value: TScintCustomStyler);
     procedure SetTabWidth(const Value: Integer);
@@ -185,7 +190,8 @@ type
     procedure CheckPosRange(const StartPos, EndPos: Integer);
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
-    class procedure Error(const S: String);
+    class function GetErrorException(const S: String): EScintEditError;
+    class procedure Error(const S: String); overload;
     class procedure ErrorFmt(const S: String; const Args: array of const);
     function GetMainSelection: Integer;
     function GetTarget: TScintRange;
@@ -316,6 +322,7 @@ type
     property SelectionAnchorPosition[Selection: Integer]: Integer read GetSelectionAnchorPosition write SetSelectionAnchorPosition;
     property SelectionCaretPosition[Selection: Integer]: Integer read GetSelectionCaretPosition write SetSelectionCaretPosition;
     property SelectionCount: Integer read GetSelectionCount;
+    property SelectionMode: TScintSelectionMode read GetSelectionMode write SetSelectionMode;
     property SelText: String read GetSelText write SetSelText;
     property Styler: TScintCustomStyler read FStyler write SetStyler;
     property TopLine: Integer read GetTopLine write SetTopLine;
@@ -461,8 +468,6 @@ type
     procedure InitializeFromBitmap(const ABitmap: TBitmap; const TransparentColor: TColorRef);
     property Pixmap: Pointer read GetPixmap;
   end;
-
-  EScintEditError = class(Exception);
 
 function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
 
@@ -743,9 +748,14 @@ begin
   Call(SCI_ENDUNDOACTION, 0, 0);
 end;
 
+class function TScintEdit.GetErrorException(const S: String): EScintEditError;
+begin
+  Result := EScintEditError.Create('TScintEdit error: ' + S);
+end;
+
 class procedure TScintEdit.Error(const S: String);
 begin
-  raise EScintEditError.Create('TScintEdit error: ' + S);
+  raise GetErrorException(S);
 end;
 
 class procedure TScintEdit.ErrorFmt(const S: String; const Args: array of const);
@@ -856,8 +866,9 @@ begin
   case Call(SCI_GETEOLMODE, 0, 0) of
     SC_EOL_CR: Result := sleCR;
     SC_EOL_LF: Result := sleLF;
+    SC_EOL_CRLF: Result := sleCRLF;
   else
-    Result := sleCRLF;
+    raise GetErrorException('Unexpected SCI_GETEOLMODE result');
   end;
 end;
 
@@ -1075,6 +1086,18 @@ function TScintEdit.GetSelectionCount: Integer;
   handled (and returned) as multiple selections, one for each line. }
 begin
   Result := Call(SCI_GETSELECTIONS, 0, 0);
+end;
+
+function TScintEdit.GetSelectionMode: TScintSelectionMode;
+begin
+  case Call(SCI_GETSELECTIONMODE, 0, 0) of
+    SC_SEL_STREAM: Result := ssmStream;
+    SC_SEL_RECTANGLE: Result := ssmRectangular;
+    SC_SEL_LINES: Result := ssmLines;
+    SC_SEL_THIN: Result := ssmThinRectangular;
+  else
+    raise GetErrorException('Unexpected SCI_GETSELECTIONMODE result');
+  end;
 end;
 
 function TScintEdit.GetSelText: String;
@@ -1534,6 +1557,21 @@ procedure TScintEdit.SetSelectionCaretPosition(Selection: Integer;
   const CaretPos: Integer);
 begin
   Call(SCI_SETSELECTIONNCARET, Selection, CaretPos);
+end;
+
+procedure TScintEdit.SetSelectionMode(const Value: TScintSelectionMode);
+begin
+  var Mode: Integer;
+  if Value = ssmStream then
+    Mode := SC_SEL_STREAM
+  else if Value = ssmRectangular then
+    Mode := SC_SEL_RECTANGLE
+  else if Value = ssmLines then
+    Mode := SC_SEL_LINES
+  else
+    Mode := SC_SEL_THIN;
+  { Note this uses *CHANGE* and not *SET* }
+  Call(SCI_CHANGESELECTIONMODE, Mode, 0);
 end;
 
 procedure TScintEdit.SetSelText(const Value: String);

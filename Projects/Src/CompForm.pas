@@ -2807,6 +2807,18 @@ end;
 procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
+  if Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END] then begin
+    var Memo := Sender as TScintEdit;
+    if Memo.SelectionMode in [ssmRectangular, ssmThinRectangular] then begin
+       { Allow left/right/etc. navigation with rectangular selection, see
+         https://sourceforge.net/p/scintilla/feature-requests/1275/ and
+         https://sourceforge.net/p/scintilla/bugs/2412/#cb37
+         Notepad++ calls this "Enable Column Selection to Multi-editing" which
+         is on by default and in VSCode and VS it's also on by default. }
+      Memo.SelectionMode := ssmStream;
+    end;
+  end;
+
   if Key = VK_F1 then begin
     var HelpFile := GetHelpFile;
     if Assigned(HtmlHelp) then begin
