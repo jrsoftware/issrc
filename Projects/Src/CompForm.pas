@@ -2819,16 +2819,6 @@ end;
 procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if Key = VK_RIGHT then begin
-    var Memo := Sender as TScintEdit;
-    if (Memo.Call(SCI_GETSELECTIONMODE, 0, 0) = SC_SEL_RECTANGLE) or
-       (Memo.Call(SCI_GETSELECTIONMODE, 0, 0) = SC_SEL_THIN) then begin
-    //'Enable Column Selection to Multi-editing';
-      Memo.Call(SCI_SETSELECTIONMODE, SC_SEL_STREAM, 0);
-      Memo.Call(SCI_SETSELECTIONMODE, SC_SEL_STREAM, 0);
-    end;
-  end;
-
   if Key = VK_F1 then begin
     var HelpFile := GetHelpFile;
     if Assigned(HtmlHelp) then begin
