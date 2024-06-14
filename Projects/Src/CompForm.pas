@@ -697,6 +697,7 @@ end;
 function TCompileForm.InitializeFileMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
 begin
   InitializeMemoBase(Memo, PopupMenu);
+  Memo.ChangeHistory := True;
   Memo.CompilerFileIndex := UnknownCompilerFileIndex;
   Memo.ErrorLine := -1;
   Memo.StepLine := -1;
@@ -1500,7 +1501,7 @@ begin
     SaveMemoTo(AMemo.Filename);
   AMemo.SetSavePoint;
   if not FOptions.UndoAfterSave then
-    AMemo.ClearUndo;
+    AMemo.ClearUndo(False);
   Result := True;
   if AMemo = FMainMemo then begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
@@ -3444,7 +3445,7 @@ type
   end;
 
 begin
-  var Width := ToCurrentPPI(20);
+  var Width := ToCurrentPPI(18); { 3 pixel margin on both sides of the icon }
   for var Memo in FMemos do
     Memo.UpdateIconMarkersColumnWidth(Width);
 

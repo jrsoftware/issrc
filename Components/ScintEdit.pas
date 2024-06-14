@@ -84,6 +84,7 @@ type
     FAcceptDroppedFiles: Boolean;
     FAutoCompleteFontName: String;
     FAutoCompleteFontSize: Integer;
+    FChangeHistory: Boolean;
     FCodePage: Integer;
     FDirectPtr: Pointer;
     FDirectStatusFunction: SciFnDirectStatus;
@@ -145,6 +146,7 @@ type
     procedure SetCaretLine(const Value: Integer);
     procedure SetCaretPosition(const Value: Integer);
     procedure SetCaretVirtualSpace(const Value: Integer);
+    procedure SetChangeHistory(const Value: Boolean);
     procedure SetFillSelectionToEdge(const Value: Boolean);
     procedure SetIndentationGuides(const Value: TScintIndentationGuides);
     procedure SetLineNumbers(const Value: Boolean);
@@ -176,6 +178,7 @@ type
     procedure WMEraseBkgnd(var Message: TMessage); message WM_ERASEBKGND;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
     procedure WMMouseWheel(var Message: TMessage); message WM_MOUSEWHEEL;
+    procedure UpdateChangeHistoryWidth;
   protected
     procedure Change(const AInserting: Boolean; const AStartPos, ALength,
       ALinesDelta: Integer); virtual;
@@ -190,6 +193,7 @@ type
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure Notify(const N: TSCNotification); virtual;
     procedure SetTarget(const StartPos, EndPos: Integer);
+    function ToCurrentPPI(const XY: Integer): Integer;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -205,7 +209,7 @@ type
     procedure ClearAll;
     procedure ClearIndicators(const IndicatorNumber: TScintIndicatorNumber);
     procedure ClearSelection;
-    procedure ClearUndo;
+    procedure ClearUndo(const ClearChangeHistory: Boolean = True);
     function ConvertRawStringToString(const S: TScintRawString): String;
     function ConvertPCharToRawString(const Text: PChar;
       const TextLen: Integer): TScintRawString;
@@ -322,6 +326,7 @@ type
       write SetAutoCompleteFontName;
     property AutoCompleteFontSize: Integer read FAutoCompleteFontSize
       write SetAutoCompleteFontSize default 0;
+    property ChangeHistory: Boolean read FChangeHistory write SetChangeHistory;
     property CodePage: Integer read FCodePage write SetCodePage default CP_UTF8;
     property Color;
     property FillSelectionToEdge: Boolean read FFillSelectionToEdge write SetFillSelectionToEdge
@@ -621,13 +626,18 @@ begin
   Call(SCI_CLEAR, 0, 0);
 end;
 
-procedure TScintEdit.ClearUndo;
+procedure TScintEdit.ClearUndo(const ClearChangeHistory: Boolean);
 begin
   { SCI_EMPTYUNDOBUFFER resets the save point but doesn't send a
     SCN_SAVEPOINTREACHED notification. Call SetSavePoint manually to get
     that. SetSavePoint additionally resets FForceModified. }
   SetSavePoint;
   Call(SCI_EMPTYUNDOBUFFER, 0, 0);
+
+  if ClearChangeHistory and FChangeHistory then begin
+    Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
+    Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_ENABLED or SC_CHANGE_HISTORY_MARKERS, 0);
+  end;
 end;
 
 function TScintEdit.ConvertRawStringToString(const S: TScintRawString): String;
@@ -1384,6 +1394,18 @@ begin
   end;
 end;
 
+procedure TScintEdit.SetChangeHistory(const Value: Boolean);
+begin
+  if FChangeHistory <> Value then begin
+    FChangeHistory := Value;
+    UpdateChangeHistoryWidth;
+    { If change history is True then next call to ClearUndo will enable it and
+      else we should disable it now }
+    if not FChangeHistory then
+      Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
+  end;
+end;
+
 procedure TScintEdit.SetCodePage(const Value: Integer);
 begin
   if FCodePage <> Value then begin
@@ -1784,9 +1806,26 @@ begin
   end;
 end;
 
+function TScintEdit.ToCurrentPPI(const XY: Integer): Integer;
+begin
+  Result := MulDiv(XY, CurrentPPI, 96);
+end;
+
 procedure TScintEdit.Undo;
 begin
   Call(SCI_UNDO, 0, 0);
+end;
+
+procedure TScintEdit.UpdateChangeHistoryWidth;
+begin
+  var PixelWidth: Integer;
+  if ChangeHistory then begin
+    { 6 = 2 pixel bar with 2 pixel margin on both sides because: "SC_MARK_BAR ...
+      takes ... 1/3 of the margin width" }
+    PixelWidth := ToCurrentPPI(6)
+  end else
+    PixelWidth := 0;
+  Call(SCI_SETMARGINWIDTHN, 2, PixelWidth);
 end;
 
 procedure TScintEdit.UpdateCodePage;

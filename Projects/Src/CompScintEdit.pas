@@ -21,6 +21,8 @@ const
   mmIconBreakpoint = 2;      { stop sign }
   mmIconBreakpointGood = 3;  { stop sign + check }
   mmIconBreakpointBad = 4;   { stop sign + X }
+  mmIconsMask = $1F;
+
   mmLineError = 10;          { maroon line highlight }
   mmLineBreakpointBad = 11;  { ugly olive line highlight }
   mmLineStep = 12;           { blue line highlight }
@@ -155,6 +157,9 @@ begin
             Scintilla as this allows Scintilla to respond to changes to mouse
             settings, monitor resolution, colour scheme and similar system
             properties."
+            There's also some of our own stuff that doesn't update on DPI
+            changes, at least the SCI_SETMARGINLEFT call and the width of the
+            change history column. 
     -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on
             INDIC_SQUIGGLE.
     -5.2.3: "Applications should move to SCI_GETTEXTRANGEFULL, SCI_FINDTEXTFULL,
@@ -165,9 +170,7 @@ begin
             NativeInt'. Does not actually change anything until there's a
             64-bit build...
             Later SCI_GETSTYLEDTEXTFULL was also added but we don't use it at
-            the time of writing.
-    -5.3.0: Add change history: "Added change history which can display document
-            changes (modified, saved, ...) in the margin or in the text. " }
+            the time of writing. }
 
   Call(SCI_SETCARETWIDTH, 2, 0);
   Call(SCI_AUTOCSETAUTOHIDE, 0, 0);
@@ -206,17 +209,25 @@ begin
   { Set up the gutter column with line numbers - avoid Scintilla's 'reverse arrow'
     cursor which is not a standard Windows cursor so is just confusing, especially
     because the line numbers are clickable to select lines. Note: width of the
-    column is set up by TScintEdit.UpdateLineNumbersWidth. }
+    column is set up for us by TScintEdit.UpdateLineNumbersWidth. }
   Call(SCI_SETMARGINCURSORN, 0, SC_CURSORARROW);
 
   { Set up the gutter column with breakpoint etc symbols }
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
+  Call(SCI_SETMARGINMASKN, 1, mmIconsMask);
   Call(SCI_SETMARGINSENSITIVEN, 1, 1); { Makes it send SCN_MARGIN(RIGHT)CLICK instead of selecting lines }
   Call(SCI_SETMARGINCURSORN, 1, SC_CURSORARROW);
 
+  { Set up the gutter column with change history. Note: width of the column is
+    set up for us by TScintEdit.UpdateChangeHistoryWidth. Also see
+    https://scintilla.org/ChangeHistory.html }
+  Call(SCI_SETMARGINTYPEN, 2, SC_MARGIN_SYMBOL);
+  Call(SCI_SETMARGINMASKN, 2, not (SC_MASK_FOLDERS or mmIconsMask));
+  Call(SCI_SETMARGINCURSORN, 2, SC_CURSORARROW);
+
   { Set 2 pixel margin between gutter and the main text - note: the first
     parameter is unused so the value '0' doesn't mean anything below }
-  Call(SCI_SETMARGINLEFT, 0, 2);
+  Call(SCI_SETMARGINLEFT, 0, ToCurrentPPI(2));
 
   Call(SCI_MARKERDEFINE, mmLineError, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineError, clWhite);
@@ -284,6 +295,14 @@ begin
     Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, FTheme.Colors[tcWordAtCursorOccurrenceBack]);
     Call(SCI_INDICSETFORE, inSelTextOccurrence, FTheme.Colors[tcSelTextOccurrenceBack]);
     Call(SCI_MARKERSETBACK, mmLineStep, FTheme.Colors[tcBlue]);
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]); { To reproduce: open a file, press enter, save, undo }
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]);
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_SAVED, FTheme.Colors[tcGreen]);
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_SAVED, FTheme.Colors[tcGreen]);
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_MODIFIED, FTheme.Colors[tcOrange]);
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_MODIFIED, FTheme.Colors[tcOrange]);
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED, FTheme.Colors[tcTeal]); { To reproduce: ??? - sometimes get it but not sure how to do this with minimal steps }
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED, FTheme.Colors[tcTeal]);
   end;
   UpdateStyleAttributes;
 end;
