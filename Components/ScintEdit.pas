@@ -549,9 +549,10 @@ begin
   Result := FDirectStatusFunction(FDirectPtr, Msg, WParam, LParam, ErrorStatus);
 
   if ErrorStatus <> 0 then begin
+    var Dummy: Integer;
+    FDirectStatusFunction(FDirectPtr, SCI_SETSTATUS, 0, 0, Dummy);
     ErrorFmt('Error status %d returned after Call(%u, %d, %d) = %d',
       [ErrorStatus, Msg, WParam, LParam, Result]);
-    FDirectStatusFunction(FDirectPtr, SCI_SETSTATUS, 0, 0, ErrorStatus);
   end;
 end;
 
