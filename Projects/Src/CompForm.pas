@@ -543,6 +543,8 @@ type
     procedure UpdateEditModePanel;
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
+    procedure UpdateMarginsIcons;
+    procedure UpdateMarginsWidths;
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateMenuBitmapsIfNeeded;
     procedure UpdateModifiedPanel;
@@ -552,7 +554,6 @@ type
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateSaveMenuItemAndButton;
-    procedure UpdateMemoMarkerColumns;
     procedure UpdateTargetMenu;
     procedure UpdateKeyMapping;
     procedure UpdateTheme;
@@ -882,6 +883,7 @@ begin
   FActiveMemo.Visible := True;
   FErrorMemo := FMainMemo;
   FStepMemo := FMainMemo;
+  UpdateMarginsWidths;
 
   FMemosStyler.Theme := FTheme;
 
@@ -1029,9 +1031,10 @@ end;
 procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
+  UpdateMarginsWidths;
+  UpdateMarginsIcons;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
-  UpdateMemoMarkerColumns;
 end;
 
 procedure TCompileForm.FormCloseQuery(Sender: TObject;
@@ -3402,7 +3405,7 @@ begin
   inherited;
 end;
 
-procedure TCompileForm.UpdateMemoMarkerColumns;
+procedure TCompileForm.UpdateMarginsIcons;
 
 type
   TMarkerBitmaps = TObjectDictionary<Integer, TBitmapWithBits>;
@@ -3457,10 +3460,6 @@ type
   end;
 
 begin
-  var Width := ToCurrentPPI(18); { 3 pixel margin on both sides of the icon }
-  for var Memo in FMemos do
-    Memo.UpdateIconMarkersColumnWidth(Width);
-
   var ImageList := ThemedMarkersVirtualImageList;
 
   var DC := CreateCompatibleDC(0);
@@ -3499,6 +3498,17 @@ begin
       DeleteDC(DC);
     end;
   end;
+end;
+
+procedure TCompileForm.UpdateMarginsWidths;
+{ Update the width of our two margins. Note: the width of the line numbers
+  margin is fully handled by TScintEdit. }
+begin
+  var IconMarkersWidth := ToCurrentPPI(18); { 3 pixel margin on both sides of the icon }
+  var BaseChangeHistoryWidth := ToCurrentPPI(6); { 6 = 2 pixel bar with 2 pixel margin on both sides because: "SC_MARK_BAR ... takes ... 1/3 of the margin width" }
+
+  for var Memo in FMemos do
+    Memo.UpdateMarginsWidths(IconMarkersWidth, BaseChangeHistoryWidth);
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
@@ -5370,7 +5380,7 @@ begin
   end;
 
   UpdateBevel1Visibility;
-  UpdateMemoMarkerColumns;
+  UpdateMarginsIcons;
 
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];

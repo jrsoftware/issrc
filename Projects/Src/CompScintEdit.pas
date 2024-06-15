@@ -65,7 +65,7 @@ type
     property Used: Boolean read FUsed write FUsed;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
-    procedure UpdateIconMarkersColumnWidth(const AWidth: Integer);
+    procedure UpdateMarginsWidths(const IconMarkersWidth, BaseChangeHistoryWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   end;
 
@@ -280,9 +280,15 @@ begin
   end;
 end;
 
-procedure TCompScintEdit.UpdateIconMarkersColumnWidth(const AWidth: Integer);
+procedure TCompScintEdit.UpdateMarginsWidths(const IconMarkersWidth, BaseChangeHistoryWidth: Integer);
 begin
-  Call(SCI_SETMARGINWIDTHN, 1, AWidth);
+  Call(SCI_SETMARGINWIDTHN, 1, IconMarkersWidth);
+  var ChangeHistoryWidth: Integer;
+  if ChangeHistory then
+    ChangeHistoryWidth := BaseChangeHistoryWidth
+  else
+    ChangeHistoryWidth := 0; { Current this is just the preprocessor output memo }
+  Call(SCI_SETMARGINWIDTHN, 2, ChangeHistoryWidth);
 end;
 
 procedure TCompScintEdit.UpdateThemeColorsAndStyleAttributes;

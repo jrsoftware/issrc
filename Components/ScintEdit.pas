@@ -183,7 +183,6 @@ type
     procedure WMEraseBkgnd(var Message: TMessage); message WM_ERASEBKGND;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
     procedure WMMouseWheel(var Message: TMessage); message WM_MOUSEWHEEL;
-    procedure UpdateChangeHistoryWidth;
   protected
     procedure Change(const AInserting: Boolean; const AStartPos, ALength,
       ALinesDelta: Integer); virtual;
@@ -1421,9 +1420,8 @@ procedure TScintEdit.SetChangeHistory(const Value: Boolean);
 begin
   if FChangeHistory <> Value then begin
     FChangeHistory := Value;
-    UpdateChangeHistoryWidth;
-    { If change history is True then next call to ClearUndo will enable it and
-      else we should disable it now }
+    { If FChangeHistory is True then next call to ClearUndo will enable change
+      history and else we should disable it now }
     if not FChangeHistory then
       Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
   end;
@@ -1852,18 +1850,6 @@ end;
 procedure TScintEdit.Undo;
 begin
   Call(SCI_UNDO, 0, 0);
-end;
-
-procedure TScintEdit.UpdateChangeHistoryWidth;
-begin
-  var PixelWidth: Integer;
-  if ChangeHistory then begin
-    { 6 = 2 pixel bar with 2 pixel margin on both sides because: "SC_MARK_BAR ...
-      takes ... 1/3 of the margin width" }
-    PixelWidth := ToCurrentPPI(6)
-  end else
-    PixelWidth := 0;
-  Call(SCI_SETMARGINWIDTHN, 2, PixelWidth);
 end;
 
 procedure TScintEdit.UpdateCodePage;
