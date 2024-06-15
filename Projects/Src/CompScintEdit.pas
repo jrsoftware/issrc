@@ -65,8 +65,9 @@ type
     property Used: Boolean read FUsed write FUsed;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
-    procedure UpdateMarginsWidths(const IconMarkersWidth, BaseChangeHistoryWidth,
-      LeftBlankMarginWidth, RightBlankMarginWidth: Integer);
+    procedure UpdateMarginsAndSquigglyWidths(const IconMarkersWidth,
+      BaseChangeHistoryWidth, LeftBlankMarginWidth, RightBlankMarginWidth,
+      SquigglyWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   end;
 
@@ -149,8 +150,6 @@ begin
     -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
             Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
             https://cplusplus.com/reference/regex/ECMAScript/
-    -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on
-            INDIC_SQUIGGLE.
     -5.2.3: "Applications should move to SCI_GETTEXTRANGEFULL, SCI_FINDTEXTFULL,
             and SCI_FORMATRANGEFULL from their predecessors as they will be
             deprecated." So our use of SCI_GETTEXTRANGE and SCI_FORMATRANGE needs
@@ -265,8 +264,9 @@ begin
   end;
 end;
 
-procedure TCompScintEdit.UpdateMarginsWidths(const IconMarkersWidth,
-  BaseChangeHistoryWidth, LeftBlankMarginWidth, RightBlankMarginWidth: Integer);
+procedure TCompScintEdit.UpdateMarginsAndSquigglyWidths(const IconMarkersWidth,
+  BaseChangeHistoryWidth, LeftBlankMarginWidth, RightBlankMarginWidth,
+  SquigglyWidth: Integer);
 begin
   Call(SCI_SETMARGINWIDTHN, 1, IconMarkersWidth);
 
@@ -280,6 +280,8 @@ begin
   { Note: the first parameter is unused so the value '0' doesn't mean anything below }
   Call(SCI_SETMARGINLEFT, 0, LeftBlankMarginWidth);
   Call(SCI_SETMARGINRIGHT, 0, RightBlankMarginWidth);
+
+  Call(SCI_INDICSETSTROKEWIDTH, inSquiggly, SquigglyWidth);
 end;
 
 procedure TCompScintEdit.UpdateThemeColorsAndStyleAttributes;

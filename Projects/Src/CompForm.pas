@@ -544,7 +544,7 @@ type
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
     procedure UpdateMarginsIcons;
-    procedure UpdateMarginsWidths;
+    procedure UpdateMarginsAndSquigglyWidths;
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateMenuBitmapsIfNeeded;
     procedure UpdateModifiedPanel;
@@ -884,7 +884,7 @@ begin
   FActiveMemo.Visible := True;
   FErrorMemo := FMainMemo;
   FStepMemo := FMainMemo;
-  UpdateMarginsWidths;
+  UpdateMarginsAndSquigglyWidths;
 
   FMemosStyler.Theme := FTheme;
 
@@ -1032,7 +1032,7 @@ end;
 procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
-  UpdateMarginsWidths;
+  UpdateMarginsAndSquigglyWidths;
   UpdateMarginsIcons;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
@@ -3503,7 +3503,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.UpdateMarginsWidths;
+procedure TCompileForm.UpdateMarginsAndSquigglyWidths;
 { Update the width of our two margins. Note: the width of the line numbers
   margin is fully handled by TScintEdit. Should be called at startup and after
   DPI change. }
@@ -3511,9 +3511,11 @@ begin
   var IconMarkersWidth := ToCurrentPPI(18); { 3 pixel margin on both sides of the icon }
   var BaseChangeHistoryWidth := ToCurrentPPI(6); { 6 = 2 pixel bar with 2 pixel margin on both sides because: "SC_MARK_BAR ... takes ... 1/3 of the margin width" }
   var LeftBlankMarginWidth := ToCurrentPPI(2); { 2 pixel margin between gutter and the main text }
+  var SquigglyWidth := ToCurrentPPI(100); { 100 = 1 pixel }
 
   for var Memo in FMemos do
-    Memo.UpdateMarginsWidths(IconMarkersWidth, BaseChangeHistoryWidth, LeftBlankMarginWidth, 0);
+    Memo.UpdateMarginsAndSquigglyWidths(IconMarkersWidth, BaseChangeHistoryWidth,
+      LeftBlankMarginWidth, 0, SquigglyWidth);
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
