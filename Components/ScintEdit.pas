@@ -1991,7 +1991,7 @@ begin
   Call(SCI_STYLECLEARALL, 0, 0);
 
   if Assigned(FStyler) then begin
-    if  FUseStyleAttributes then begin
+    if FUseStyleAttributes then begin
       for I := 0 to StyleNumbers-1 do
         SetStyleAttrFromStyler(I);
       SetStyleAttrFromStyler(STYLE_BRACELIGHT);
