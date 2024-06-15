@@ -16,7 +16,7 @@ uses
 
 type
   TThemeType = (ttModernLight, ttModernDark, ttClassic);
-  TThemeColor = (tcFore, tcBack, tcToolBack, tcSelBack,
+  TThemeColor = (tcFore, tcBack, tcToolBack, tcSelBack, tcSelInactiveBack,
                  tcWordAtCursorOccurrenceBack, tcSelTextOccurrenceBack,
                  tcMarginFore, tcMarginBack, tcSplitterBack, tcBraceBack, tcIdentGuideFore,
                  tcRed, tcGreen, tcBlue, tcOrange, tcPurple, tcYellow, tcTeal, tcGray);
@@ -44,6 +44,7 @@ const
   DBack = $1F1F1F;           { VSCode Modern Dark }
   DToolBack = $413E40;       { Monokai Pro }
   DSelBack = $764F1D;        { VSCode Modern Dark }
+  DSelInactiveBack = $51504F;{ VSCode Modern Dark }
   DWACOBack = $4A4A4A;       { VSCode Modern Dark }
   DSTOBACK = $403A33;        { VSCode Modern Dark }
   DMarginFore = $716F71;     { Monokai Pro }
@@ -57,6 +58,7 @@ const
   LBack = clWhite;
   LToolBack = clBtnFace;
   LSelBack = $FDD6A7;        { VSCode Modern Light }
+  LSelInactiveBack = $F1EBE4;{ VSCode Modern Light }
   LWACOBack = $ECECEC;       { Inno Setup 5, 4 tints lightened using color-hex.com }
   LSTOBACK = $FEEAD3;        { VSCode Modern Light }
   LMarginFore = $716F71;     { Monokai Pro }
@@ -69,6 +71,7 @@ const
   CBack = clWhite;
   CToolBack = clBtnFace;
   CSelBack = $FDD6A7;        { VSCode Modern Light }
+  CSelInactiveBack = $F1EBE4;{ VSCode Modern Light }
   CWACOBack = $ECECEC;       { Inno Setup 5, 4 tints lightened using color-hex.com }
   CSTOBACK = $FEEAD3;        { VSCode Modern Light }
   CMarginFore = clWindowText;
@@ -99,9 +102,9 @@ const
   CGray = $707070;           { Inno Setup 5 }
 
   Colors: array [TThemeType, TThemeColor] of TColor = (
-    (LFore, LBack, LToolBack, LSelBack, LWACOBack, LSTOBack, LMarginFore, LMarginBack, LSplitterBack, LBraceBack, LIdentGuideFore, MRed, MGreen, MBlue, MOrange, MPurple, MYellow, MTeal, MGray),
-    (DFore, DBack, DToolBack, DSelBack, DWACOBack, DSTOBack, DMarginFore, DMarginBack, DSplitterBack, DBraceBack, DIdentGuideFore, MRed, MGreen, MBlue, MOrange, MPurple, MYellow, MTeal, MGray),
-    (CFore, CBack, CToolBack, CSelBack, CWACOBack, CSTOBack, CMarginFore, CMarginBack, CSplitterBack, CBraceBack, CIdentGuideFore, CRed, CGreen, CBlue, COrange, CPurple, CYellow, CTeal, CGray)
+    (LFore, LBack, LToolBack, LSelBack, LSelInactiveBack, LWACOBack, LSTOBack, LMarginFore, LMarginBack, LSplitterBack, LBraceBack, LIdentGuideFore, MRed, MGreen, MBlue, MOrange, MPurple, MYellow, MTeal, MGray),
+    (DFore, DBack, DToolBack, DSelBack, DSelInactiveBack, DWACOBack, DSTOBack, DMarginFore, DMarginBack, DSplitterBack, DBraceBack, DIdentGuideFore, MRed, MGreen, MBlue, MOrange, MPurple, MYellow, MTeal, MGray),
+    (CFore, CBack, CToolBack, CSelBack, CSelInactiveBack, CWACOBack, CSTOBack, CMarginFore, CMarginBack, CSplitterBack, CBraceBack, CIdentGuideFore, CRed, CGreen, CBlue, COrange, CPurple, CYellow, CTeal, CGray)
   );
   
 begin

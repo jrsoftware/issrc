@@ -290,11 +290,22 @@ begin
   if FTheme <> nil then begin
     Font.Color := FTheme.Colors[tcFore];
     Color := FTheme.Colors[tcBack];
-    Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
+
+    var SelBackColor := FTheme.Colors[tcSelBack];
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_BACK, SelBackColor);
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_ADDITIONAL_BACK, SelBackColor);
+
+    var SelInactiveBackColor := FTheme.Colors[tcSelInactiveBack];
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_SECONDARY_BACK, SelInactiveBackColor);
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, SelInactiveBackColor);
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, SelInactiveBackColor);
+
     Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
     Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, FTheme.Colors[tcWordAtCursorOccurrenceBack]);
     Call(SCI_INDICSETFORE, inSelTextOccurrence, FTheme.Colors[tcSelTextOccurrenceBack]);
+    
     Call(SCI_MARKERSETBACK, mmLineStep, FTheme.Colors[tcBlue]);
+    
     Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]); { To reproduce: open a file, press enter, save, undo }
     Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]);
     Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_SAVED, FTheme.Colors[tcGreen]);
