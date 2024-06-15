@@ -205,7 +205,7 @@ from the zlib-dll directory in the iscompress repository.
 **Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
 by Visual Studio 2005 from the [Projects\Src\Lzma2\Encoder] directory.
 
-**Files\isscint.dll** - Compiled by Visual Studio 2005 from Scintilla source
+**Files\isscint.dll** - Compiled by Visual Studio 2022 from Scintilla source
 code in the isscint repository.
 
 **Projects\Helper\x64\Release\Helper.exe**, **Projects\Src\HelperEXEs.res** -

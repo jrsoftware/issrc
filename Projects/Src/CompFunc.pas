@@ -56,7 +56,8 @@ procedure SaveBreakPointLines(const AFilename: String; const BreakPointLines: TS
 procedure DeleteBreakPointLines(const AFilename: String);
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
-  const Shift: TShiftState);
+  const Shift: TShiftState); overload;
+procedure SetFakeShortCut(const MenuItem: TMenuItem; const ShortCut: TShortCut); overload;
 procedure SaveTextToFile(const Filename: String;
   const S: String; const SaveEncoding: TSaveEncoding);
 procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Cardinal);
@@ -68,6 +69,9 @@ function GetSourcePath(const AFilename: String): String;
 function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
   const ReadFromFileFilename: String; const NotReadFromFileMemo: TScintEdit): Integer;
 function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
+function GetWordOccurrenceFindOptions: TScintFindOptions;
+function GetSelTextOccurrenceFindOptions: TScintFindOptions;
+function GetPreferredMemoFont: String;
 
 implementation
 
@@ -446,13 +450,22 @@ end;
 
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 begin
-  MenuItem.Caption := MenuItem.Caption + #9 + S;
+  var Caption := MenuItem.Caption;
+  var P := Pos(#9, Caption);
+  if P <> 0 then
+    Delete(Caption, P, MaxInt);
+  MenuItem.Caption := Caption + #9 + S;
 end;
 
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
   const Shift: TShiftState);
 begin
-  SetFakeShortCutText(MenuItem, ShortCutToText(ShortCut(Key, Shift)));
+  SetFakeShortCut(MenuItem, ShortCut(Key, Shift));
+end;
+
+procedure SetFakeShortCut(const MenuItem: TMenuItem; const ShortCut: TShortCut);
+begin
+  SetFakeShortCutText(MenuItem, ShortCutToText(ShortCut));
 end;
 
 procedure SaveTextToFile(const Filename: String;
@@ -703,10 +716,31 @@ begin
   Result.bmiHeader.biCompression := BI_RGB;
 end;
 
+function GetWordOccurrenceFindOptions: TScintFindOptions;
+begin
+  Result := [sfoMatchCase, sfoWholeWord];
+end;
+
+function GetSelTextOccurrenceFindOptions: TScintFindOptions;
+begin
+  Result := [];
+end;
+
+var
+  PreferredMemoFont: String;
+
+function GetPreferredMemoFont: String;
+begin
+  Result := PreferredMemoFont;
+end;
+
 initialization
   var OSVersionInfo: TOSVersionInfo;
   OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
   GetVersionEx(OSVersionInfo);
   WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
+  PreferredMemoFont := 'Consolas';
+  if not FontExists(PreferredMemoFont) then
+    PreferredMemoFont := 'Courier New';
 
 end.

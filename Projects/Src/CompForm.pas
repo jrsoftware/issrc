@@ -228,6 +228,11 @@ type
     LightMarkersImageCollection: TImageCollection;
     DarkMarkersImageCollection: TImageCollection;
     ThemedMarkersVirtualImageList: TVirtualImageList;
+    ESelectNextOccurrence: TMenuItem;
+    ESelectAllOccurrences: TMenuItem;
+    BreakPointsPopupMenu: TMenuItem;
+    RToggleBreakPoint2: TMenuItem;
+    RDeleteBreakPoints2: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -341,6 +346,9 @@ type
     procedure BackNavButtonClick(Sender: TObject);
     procedure ForwardNavButtonClick(Sender: TObject);
     procedure NavPopupMenuClick(Sender: TObject);
+    procedure ESelectNextOccurrenceClick(Sender: TObject);
+    procedure ESelectAllOccurrencesClick(Sender: TObject);
+    procedure BreakPointsPopupMenuClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -438,6 +446,8 @@ type
     FCurrentNavItem: TCompScintEditNavItem;
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
     FIgnoreTabSetClick: Boolean;
+    FSelectNextOccurrenceShortCut, FSelectAllOccurrencesShortCut: TShortCut;
+    function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -486,9 +496,11 @@ type
     procedure MemoLinesInserted(Memo: TCompScintFileEdit; FirstLine, Count: integer);
     procedure MemoMarginClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
+    procedure MemoMarginRightClick(Sender: TObject; MarginNumber: Integer;
+      Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
     function MemoToTabIndex(const AMemo: TCompScintEdit): Integer;
-    procedure MemoUpdateUI(Sender: TObject);
+    procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
     procedure UpdateReopenTabMenu(const Menu: TMenuItem);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
@@ -531,6 +543,8 @@ type
     procedure UpdateEditModePanel;
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
+    procedure UpdateMarginsIcons;
+    procedure UpdateMarginsWidths;
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateMenuBitmapsIfNeeded;
     procedure UpdateModifiedPanel;
@@ -540,7 +554,6 @@ type
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateSaveMenuItemAndButton;
-    procedure UpdateMemoMarkerColumns;
     procedure UpdateTargetMenu;
     procedure UpdateKeyMapping;
     procedure UpdateTheme;
@@ -563,6 +576,7 @@ type
     procedure WMStartCommandLineCompile(var Message: TMessage); message WM_StartCommandLineCompile;
     procedure WMStartCommandLineWizard(var Message: TMessage); message WM_StartCommandLineWizard;
     procedure WMStartNormally(var Message: TMessage); message WM_StartNormally;
+    procedure WMDPIChanged(var Message: TMessage); message WM_DPICHANGED;
     procedure WMSettingChange(var Message: TMessage); message WM_SETTINGCHANGE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure WMUAHDrawMenu(var Message: TMessage); message WM_UAHDRAWMENU;
@@ -589,7 +603,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
-  Math, StrUtils, WideStrUtils, GIFImg,
+  Math, StrUtils, WideStrUtils,
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
@@ -659,8 +673,7 @@ begin
   Memo.Align := alClient;
   Memo.AutoCompleteFontName := Font.Name;
   Memo.AutoCompleteFontSize := Font.Size;
-  Memo.CodePage := CP_UTF8;
-  Memo.Font.Name := 'Courier New';
+  Memo.Font.Name := GetPreferredMemoFont;
   Memo.Font.Size := 10;
   Memo.ShowHint := True;
   Memo.Styler := FMemosStyler;
@@ -671,6 +684,7 @@ begin
   Memo.OnKeyDown := MemoKeyDown;
   Memo.OnKeyPress := MemoKeyPress;
   Memo.OnMarginClick := MemoMarginClick;
+  Memo.OnMarginRightClick := MemoMarginRightClick;
   Memo.OnModifiedChange := MemoModifiedChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
@@ -685,6 +699,7 @@ end;
 function TCompileForm.InitializeFileMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
 begin
   InitializeMemoBase(Memo, PopupMenu);
+  Memo.ChangeHistory := True;
   Memo.CompilerFileIndex := UnknownCompilerFileIndex;
   Memo.ErrorLine := -1;
   Memo.StepLine := -1;
@@ -825,6 +840,10 @@ begin
   SetFakeShortCut(ECopy, Ord('C'), [ssCtrl]);
   SetFakeShortCut(EPaste, Ord('V'), [ssCtrl]);
   SetFakeShortCut(ESelectAll, Ord('A'), [ssCtrl]);
+  FSelectNextOccurrenceShortCut := ShortCut(VK_OEM_PERIOD, [ssShift, ssAlt]);
+  SetFakeShortCut(ESelectNextOccurrence, FSelectNextOccurrenceShortCut);
+  FSelectAllOccurrencesShortCut := ShortCut(VK_OEM_1, [ssShift, ssAlt]);
+  SetFakeShortCut(ESelectAllOccurrences, FSelectAllOccurrencesShortCut);
   SetFakeShortCut(EDelete, VK_DELETE, []);
   SetFakeShortCut(ECompleteWord, Ord(' '), [ssCtrl]);
   SetFakeShortCutText(VZoomIn, SmkcCtrl + 'Num +');    { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
@@ -865,6 +884,7 @@ begin
   FActiveMemo.Visible := True;
   FErrorMemo := FMainMemo;
   FStepMemo := FMainMemo;
+  UpdateMarginsWidths;
 
   FMemosStyler.Theme := FTheme;
 
@@ -1012,9 +1032,10 @@ end;
 procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
+  UpdateMarginsWidths;
+  UpdateMarginsIcons;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
-  UpdateMemoMarkerColumns;
 end;
 
 procedure TCompileForm.FormCloseQuery(Sender: TObject;
@@ -1037,11 +1058,21 @@ begin
     if BStopCompile.Enabled then
       BStopCompileClick(Self)
     else begin
+      { The built in Esc (SCI_CANCEL) simply drops all additional selections
+        and does not empty the main selection, It doesn't matter if Esc is
+        pressed once or twice. Implement our own behaviour, same as VSCode.
+        Also see https://github.com/microsoft/vscode/issues/118835. }
       if FActiveMemo.SelectionCount > 1 then
         FActiveMemo.RemoveAdditionalSelections
-      else if FActiveMemo.SelNotEmpty then
-        FActiveMemo.SetEmptySelections;
+      else if not FActiveMemo.SelEmpty then
+        FActiveMemo.SetEmptySelection;
     end;
+  end else if AShortCut = FSelectNextOccurrenceShortCut then begin
+    if ESelectNextOccurrence.Enabled then
+      ESelectNextOccurrenceClick(Self);
+  end else if AShortCut = FSelectAllOccurrencesShortCut then begin
+    if ESelectAllOccurrences.Enabled then
+      ESelectAllOccurrencesClick(Self);
   end else if AShortCut = FBackNavButtonShortCut then begin
     if BackNavButton.Enabled then
       BackNavButtonClick(Self);
@@ -1474,7 +1505,7 @@ begin
     SaveMemoTo(AMemo.Filename);
   AMemo.SetSavePoint;
   if not FOptions.UndoAfterSave then
-    AMemo.ClearUndo;
+    AMemo.ClearUndo(False);
   Result := True;
   if AMemo = FMainMemo then begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
@@ -1954,7 +1985,7 @@ begin
     Memo.Call(SCI_INDICSETSTYLE, inSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
 
     if FOptions.CursorPastEOL then
-      Memo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible]
+      Memo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible, svsNoWrapLineStart]
     else
       Memo.VirtualSpaceOptions := [];
     Memo.FillSelectionToEdge := FOptions.CursorPastEOL;
@@ -2435,11 +2466,13 @@ begin
   MemoIsReadOnly := FActiveMemo.ReadOnly;
   EUndo.Enabled := MemoHasFocus and FActiveMemo.CanUndo;
   ERedo.Enabled := MemoHasFocus and FActiveMemo.CanRedo;
-  ECut.Enabled := MemoHasFocus and not MemoIsReadOnly and FActiveMemo.SelNotEmpty;
-  ECopy.Enabled := MemoHasFocus and FActiveMemo.SelNotEmpty;
+  ECut.Enabled := MemoHasFocus and not MemoIsReadOnly and not FActiveMemo.SelEmpty;
+  ECopy.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
   EPaste.Enabled := MemoHasFocus and not MemoIsReadOnly and Clipboard.HasFormat(CF_TEXT);
-  EDelete.Enabled := MemoHasFocus and FActiveMemo.SelNotEmpty;
+  EDelete.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
   ESelectAll.Enabled := MemoHasFocus;
+  ESelectNextOccurrence.Enabled := MemoHasFocus;
+  ESelectAllOccurrences.Enabled := MemoHasFocus;
   EFind.Enabled := MemoHasFocus;
   EFindNext.Enabled := MemoHasFocus;
   EFindPrevious.Enabled := MemoHasFocus;
@@ -2484,6 +2517,28 @@ end;
 procedure TCompileForm.ESelectAllClick(Sender: TObject);
 begin
   FActiveMemo.SelectAll;
+end;
+
+procedure TCompileForm.ESelectAllOccurrencesClick(Sender: TObject);
+begin
+  var Options := GetSelTextOccurrenceFindOptions;
+  if FActiveMemo.SelEmpty then begin
+    var Range := FActiveMemo.WordAtCursorRange;
+    if Range.StartPos <> Range.EndPos then begin
+      FActiveMemo.SetSingleSelection(Range.EndPos, Range.StartPos);
+      Options := GetWordOccurrenceFindOptions;
+    end;
+  end;
+  FActiveMemo.SelectAllOccurrences(Options);
+end;
+
+procedure TCompileForm.ESelectNextOccurrenceClick(Sender: TObject);
+begin
+  { Currently this always uses GetWordOccurrenceFindOptions but ideally it would
+    know whether this is the 'first' SelectNext or not. Then, if first it would
+    do what SelectAll does to choose a FindOptions. And if next it would reuse
+    that. This is what VSCode does. }
+  FActiveMemo.SelectNextOccurrence(GetWordOccurrenceFindOptions);
 end;
 
 procedure TCompileForm.ECompleteWordClick(Sender: TObject);
@@ -2756,6 +2811,18 @@ end;
 procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
+  if Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END] then begin
+    var Memo := Sender as TScintEdit;
+    if Memo.SelectionMode in [ssmRectangular, ssmThinRectangular] then begin
+       { Allow left/right/etc. navigation with rectangular selection, see
+         https://sourceforge.net/p/scintilla/feature-requests/1275/ and
+         https://sourceforge.net/p/scintilla/bugs/2412/#cb37
+         Notepad++ calls this "Enable Column Selection to Multi-editing" which
+         is on by default and in VSCode and VS it's also on by default. }
+      Memo.SelectionMode := ssmStream;
+    end;
+  end;
+
   if Key = VK_F1 then begin
     var HelpFile := GetHelpFile;
     if Assigned(HtmlHelp) then begin
@@ -2770,10 +2837,6 @@ begin
         HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
       end;
     end;
-  end
-  else if (Key = VK_LEFT) and not (ssCtrl in Shift) and FOptions.CursorPastEOL then begin
-    if (FActiveMemo.CaretColumn = 0) and (FActiveMemo.CaretVirtualSpace = 0) then
-      Key := 0;
   end
   else if ((Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt])) and
            (ShortCut(Key, Shift) <> FForwardNavButtonShortCut) then begin
@@ -3239,75 +3302,82 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
 
   procedure FindTextAndAddRanges(const AMemo: TCompScintEdit;
     const TextToFind: TScintRawString; const Options: TScintFindOptions;
-    const SelAvail: Boolean; const Selection: TScintRange;
-    const ARangeList: TScintRangeList);
+    const SelectionRanges, IndicatorRanges: TScintRangeList);
   begin
     if ScintRawStringIsBlank(TextToFind) then
       Exit;
 
     var StartPos := 0;
     var EndPos := AMemo.RawTextLength;
-    var Range: TScintRange;
+    var FoundRange: TScintRange;
 
     while (StartPos < EndPos) and
-          AMemo.FindRawText(StartPos, EndPos, TextToFind, Options, Range) do begin
-      StartPos := Range.EndPos;
+          AMemo.FindRawText(StartPos, EndPos, TextToFind, Options, FoundRange) do begin
+      StartPos := FoundRange.EndPos;
 
       { Don't add indicators on lines which have a line marker }
-      var Line := AMemo.GetLineFromPosition(Range.StartPos);
+      var Line := AMemo.GetLineFromPosition(FoundRange.StartPos);
       var Markers := AMemo.GetMarkers(Line);
       if Markers * [mmLineError, mmLineBreakpointBad, mmLineStep] <> [] then
         Continue;
 
-      { Add indicator while making sure it does not overlap the regular selection
-        styling (only looks at main selection and not any additional selections
-        atm - so if you ctrl drag to select a part of a word and then the same
-        on an occurrence somewhere else the additional selection becomes hidden
-        by the indicator except for the very top and bottom }
-      if SelAvail and Range.Overlaps(Selection) then begin
-        if Range.StartPos < Selection.StartPos then
-          ARangeList.Add(TScintRange.Create(Range.StartPos, Selection.StartPos));
-        if Range.EndPos > Selection.EndPos then
-          ARangeList.Add(TScintRange.Create(Selection.EndPos, Range.EndPos));
+      { Add indicator while making sure it does not overlap any regular selection
+        styling for either the main selection or any additional selection. Does
+        not account for an indicator overlapping more than 1 selection. }
+      var OverlappingSelection: TScintRange;
+      if SelectionRanges.Overlaps(FoundRange, OverlappingSelection) then begin
+        if FoundRange.StartPos < OverlappingSelection.StartPos then
+          IndicatorRanges.Add(TScintRange.Create(FoundRange.StartPos, OverlappingSelection.StartPos));
+        if FoundRange.EndPos > OverlappingSelection.EndPos then
+          IndicatorRanges.Add(TScintRange.Create(OverlappingSelection.EndPos, FoundRange.EndPos));
       end else
-        ARangeList.Add(TScintRange.Create(Range.StartPos, Range.EndPos));
+        IndicatorRanges.Add(FoundRange);
     end;
   end;
 
 begin
   { Add occurrence indicators for the word at cursor if there's any and the
-    selection is within this word. On top of those add occurrence indicators for
-    the selected text if there's any. Don't do anything of the selection is not
-    single line. All of these things are just like VSCode. }
+    main selection is within this word. On top of those add occurrence indicators
+    for the main selected text if there's any. Don't do anything if the main
+    selection is not single line. All of these things are just like VSCode. }
 
-  var Selection: TScintRange;
-  var SelNotEmpty := AMemo.SelNotEmpty(Selection);
-  var SelSingleLine := AMemo.GetLineFromPosition(Selection.StartPos) =
-                       AMemo.GetLineFromPosition(Selection.EndPos);
+  var MainSelection: TScintRange;
+  var MainSelNotEmpty := AMemo.SelNotEmpty(MainSelection);
+  var MainSelSingleLine := AMemo.GetLineFromPosition(MainSelection.StartPos) =
+                           AMemo.GetLineFromPosition(MainSelection.EndPos);
 
-  var RangeList := TScintRangeList.Create;
+  var IndicatorRanges: TScintRangeList := nil;
+  var SelectionRanges: TScintRangeList := nil;
   try
-    if FOptions.HighlightWordAtCursorOccurrences and (AMemo.CaretVirtualSpace = 0) and SelSingleLine then begin
+    IndicatorRanges := TScintRangeList.Create;
+    SelectionRanges := TScintRangeList.Create;
+
+    if FOptions.HighlightWordAtCursorOccurrences and (AMemo.CaretVirtualSpace = 0) and MainSelSingleLine then begin
       var Word := AMemo.WordAtCursorRange;
-      if (Word.StartPos <> Word.EndPos) and Selection.Within(Word) then begin
+      if (Word.StartPos <> Word.EndPos) and MainSelection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], SelNotEmpty, Selection, RangeList);
+        AMemo.GetSelections(SelectionRanges); { Gets any additional selections as well }
+        FindTextAndAddRanges(AMemo, TextToIndicate, GetWordOccurrenceFindOptions, SelectionRanges, IndicatorRanges);
       end;
     end;
-    AMemo.UpdateIndicators(RangeList, inWordAtCursorOccurrence);
+    AMemo.UpdateIndicators(IndicatorRanges, inWordAtCursorOccurrence);
 
-    RangeList.Clear;
-    if FOptions.HighlightSelTextOccurrences and SelNotEmpty and SelSingleLine then begin
+    IndicatorRanges.Clear;
+    if FOptions.HighlightSelTextOccurrences and MainSelNotEmpty and MainSelSingleLine then begin
       var TextToIndicate := AMemo.RawSelText;
-      FindTextAndAddRanges(AMemo, TextToIndicate, [], SelNotEmpty, Selection, RangeList);
+      if SelectionRanges.Count = 0 then { If 0 then we didn't already call GetSelections above}
+        AMemo.GetSelections(SelectionRanges);
+      FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions,SelectionRanges, IndicatorRanges);
     end;
-    AMemo.UpdateIndicators(RangeList, inSelTextOccurrence);
+    AMemo.UpdateIndicators(IndicatorRanges, inSelTextOccurrence);
   finally
-    RangeList.Free;
+    SelectionRanges.Free;
+    IndicatorRanges.Free;
   end;
 end;
 
 procedure TCompileForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
+{ Should be called at startup and after DPI changes }
 begin
   CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
   CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0') + 1;
@@ -3323,22 +3393,60 @@ begin
   FindResultsList.ItemHeight := FindResultsList.Canvas.TextHeight('0') + 1;
 end;
 
-procedure TCompileForm.UpdateMemoMarkerColumns;
+type
+  TBitmapWithBits = class
+    Handle: HBITMAP;
+    pvBits: Pointer;
+    destructor Destroy; override;
+  end;
+
+destructor TBitmapWithBits.Destroy;
+begin
+  if Handle <> 0 then
+    DeleteObject(Handle);
+  inherited;
+end;
+
+procedure TCompileForm.UpdateMarginsIcons;
+{ Should be called at startup and after theme and DPI changes }
 
 type
-  TMarkerBitmaps = TObjectDictionary<Integer, TBitmap>;
+  TMarkerBitmaps = TObjectDictionary<Integer, TBitmapWithBits>;
+
+  procedure SwapRedBlue(const pvBits: PByte; Width, Height: Integer);
+  begin
+    var pvPixel := pvBits;
+    var pvMax := pvBits + 4*Width*Height;
+    while pvPixel < pvMax do begin
+      var Tmp := PByte(pvPixel)^;
+      PByte(pvPixel)^ := PByte(pvPixel + 2)^;
+      PByte(pvPixel + 2)^ := Tmp;
+      Inc(pvPixel, 4);
+    end;
+  end;
 
   procedure AddMarkerBitmap(const MarkerBitmaps: TMarkerBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
     const Marker: Integer; const BkBrush: TBrush; const ImageList: TVirtualImageList; const ImageName: String);
   begin
+    { Prepare a bitmap and select it }
     var pvBits: Pointer;
-    var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    var Bitmap := CreateDIBSection(DC, BitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
     var OldBitmap := SelectObject(DC, Bitmap);
-    var Rect := TRect.Create(0, 0, BitmapInfo.bmiHeader.biWidth, BitmapInfo.bmiHeader.biHeight);
+
+    { Fill the entire bitmap to avoid any alpha so we don't have to worry about
+      whether will be premultiplied or not (it was in tests) when Scintilla wants
+      it without premultiplication }
+    var Width := BitmapInfo.bmiHeader.biWidth;
+    var Height := Abs(BitmapInfo.bmiHeader.biHeight);
+    var Rect := TRect.Create(0, 0, Width, Height);
     FillRect(DC, Rect, BkBrush.Handle);
+
+    { Draw the image - the result will be in pvBits }
     if ImageList_Draw(ImageList.Handle, ImageList.GetIndexByName(ImageName), DC, 0, 0, ILD_TRANSPARENT) then begin
-      var Bitmap2 := TBitmap.Create;
+      SwapRedBlue(pvBits, Width, Height); { Change pvBits from BGRA to RGBA like Scintilla wants }
+      var Bitmap2 := TBitmapWithBits.Create;
       Bitmap2.Handle := Bitmap;
+      Bitmap2.pvBits := pvBits;
       MarkerBitmaps.Add(Marker, Bitmap2);
     end else begin
       SelectObject(DC, OldBitmap);
@@ -3355,10 +3463,6 @@ type
   end;
 
 begin
-  var Width := ToCurrentPPI(20);
-  for var Memo in FMemos do
-    Memo.UpdateMemoMarkerColumnWidth(Width);
-
   var ImageList := ThemedMarkersVirtualImageList;
 
   var DC := CreateCompatibleDC(0);
@@ -3369,7 +3473,7 @@ begin
       try
         BkBrush.Color := FTheme.Colors[tcMarginBack];
 
-        var BitmapInfo := CreateBitmapInfo(ImageList.Width, ImageList.Height, 24);
+        var BitmapInfo := CreateBitmapInfo(ImageList.Width, -ImageList.Height, 32);
 
         var NamedMarkers := [
             NM(mmIconHasEntry, 'debug-stop-filled'),
@@ -3383,34 +3487,11 @@ begin
         for var NamedMarker in NamedMarkers do
           AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
 
-        var Pixmap := TScintPixmap.Create;
-        try
-          for var MarkerBitmap in MarkerBitmaps do begin
-            var NeedWorkaround := False;
-            try
-              Pixmap.InitializeFromBitmap(MarkerBitmap.Value, BkBrush.Color);
-            except on E: EScintEditError do
-              NeedWorkaround := True;
-            end;
-            try
-              if NeedWorkaround then begin
-                { Allow up to 6 color bits per pixel so max 64 colors to keep below the 127 color limitation of TScintPixmap }
-                var Bitmap := ReduceColors(MarkerBitmap.Value, rmQuantize, dmNearest, 6, 0);
-                try
-                  Bitmap.PixelFormat := pf24Bit;
-                  Pixmap.InitializeFromBitmap(Bitmap, BkBrush.Color);
-                finally
-                  Bitmap.Free;
-                end;
-              end;
-              for var Memo in FMemos do
-                Memo.Call(SCI_MARKERDEFINEPIXMAP, MarkerBitmap.Key, LPARAM(Pixmap.Pixmap));
-            except
-              { Workaround failed - give up on this bitmap }
-            end;
-          end;
-        finally
-          Pixmap.Free;
+        for var Memo in FMemos do begin
+          Memo.Call(SCI_RGBAIMAGESETWIDTH, ImageList.Width, 0);
+          Memo.Call(SCI_RGBAIMAGESETHEIGHT, ImageList.Height, 0);
+          for var MarkerBitmap in MarkerBitmaps do
+            Memo.Call(SCI_MARKERDEFINERGBAIMAGE, MarkerBitmap.Key, LPARAM(MarkerBitmap.Value.pvBits));
         end;
       finally
         BkBrush.Free;
@@ -3420,6 +3501,19 @@ begin
       DeleteDC(DC);
     end;
   end;
+end;
+
+procedure TCompileForm.UpdateMarginsWidths;
+{ Update the width of our two margins. Note: the width of the line numbers
+  margin is fully handled by TScintEdit. Should be called at startup and after
+  DPI change. }
+begin
+  var IconMarkersWidth := ToCurrentPPI(18); { 3 pixel margin on both sides of the icon }
+  var BaseChangeHistoryWidth := ToCurrentPPI(6); { 6 = 2 pixel bar with 2 pixel margin on both sides because: "SC_MARK_BAR ... takes ... 1/3 of the margin width" }
+  var LeftBlankMarginWidth := ToCurrentPPI(2); { 2 pixel margin between gutter and the main text }
+
+  for var Memo in FMemos do
+    Memo.UpdateMarginsWidths(IconMarkersWidth, BaseChangeHistoryWidth, LeftBlankMarginWidth, 0);
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
@@ -4120,7 +4214,7 @@ begin
   UpdateBevel1Visibility;
 end;
 
-procedure TCompileForm.MemoUpdateUI(Sender: TObject);
+procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
 
   procedure UpdatePendingSquiggly(const AMemo: TCompScintEdit);
   var
@@ -4131,9 +4225,9 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
     Pos := AMemo.CaretPosition;
     Value := False;
     if AMemo.CaretVirtualSpace = 0 then begin
-      Value := inPendingSquiggly in AMemo.GetStyleByteIndicatorsAtPosition(Pos);
+      Value := AMemo.GetIndicatorAtPosition(inPendingSquiggly, Pos);
       if not Value and (Pos > 0) then
-        Value := inPendingSquiggly in AMemo.GetStyleByteIndicatorsAtPosition(Pos-1);
+        Value := AMemo.GetIndicatorAtPosition(inPendingSquiggly, Pos-1);
     end;
     if FOnPendingSquiggly <> Value then begin
       FOnPendingSquiggly := Value;
@@ -4182,6 +4276,9 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject);
   end;
 
 begin
+  if Updated * [suContent, suSelection] = [] then
+    Exit;
+
   var Memo := Sender as TCompScintEdit;
 
   if (Memo = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then
@@ -4795,6 +4892,13 @@ begin
   DebuggerStepped(Message, True);
 end;
 
+procedure TCompileForm.WMDPIChanged(var Message: TMessage);
+begin
+  inherited;
+  for var Memo in FMemos do
+    Memo.DPIChanged(Message);
+end;
+
 procedure TCompileForm.WMDebuggerException(var Message: TMessage);
 var
   Memo: TCompScintFileEdit;
@@ -5131,22 +5235,30 @@ begin
     Result := False;
 end;
 
+function TCompileForm.AnyMemoHasBreakPoint: Boolean;
+begin
+  { Also see RDeleteBreakPointsClick }
+  for var Memo in FFileMemos do
+    if Memo.Used and (Memo.BreakPoints.Count > 0) then
+      Exit(True);
+  Result := False;
+end;
+
 procedure TCompileForm.RMenuClick(Sender: TObject);
-
-  function AnyMemoHasBreakPoint: Boolean;
-  begin
-    { Also see RDeleteBreakPointsClick }
-    for var Memo in FFileMemos do
-      if Memo.Used and (Memo.BreakPoints.Count > 0) then
-        Exit(True);
-    Result := False;
-  end;
-
 begin
   RDeleteBreakPoints.Enabled := AnyMemoHasBreakPoint;
   { See UpdateRunMenu for other menu items }
 
   ApplyMenuBitmaps(RMenu);
+end;
+
+procedure TCompileForm.BreakPointsPopupMenuClick(Sender: TObject);
+begin
+  RToggleBreakPoint2.Enabled := FActiveMemo is TCompScintFileEdit;
+  RDeleteBreakPoints2.Enabled := AnyMemoHasBreakPoint;
+  { Also see UpdateRunMenu }
+
+  ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
 procedure TCompileForm.UpdateRunMenu;
@@ -5168,7 +5280,7 @@ begin
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
   TerminateButton.Enabled := RTerminate.Enabled;
   REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
-  { See RMenuClick for other menu items }
+  { See RMenuClick for other menu items and also see BreakPointsPopupMenuClick }
 end;
 
 procedure TCompileForm.UpdateSaveMenuItemAndButton;
@@ -5231,6 +5343,11 @@ begin
     end;
   end;
 
+  { Set fake shortcuts on any duplicates of the above in popup menus }
+
+  SetFakeShortCut(RToggleBreakPoint2, RToggleBreakPoint.ShortCut);
+  SetFakeShortCut(RDeleteBreakPoints2, RDeleteBreakPoints.ShortCut);
+
   { The Nav buttons have no corresponding menu item and also no ShortCut property
     so they need special handling }
 
@@ -5275,7 +5392,7 @@ begin
   end;
 
   UpdateBevel1Visibility;
-  UpdateMemoMarkerColumns;
+  UpdateMarginsIcons;
 
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
@@ -5454,7 +5571,9 @@ begin
           NM(RStepOver, 'debug-step-over'),
           NM(RStepOut, 'debug-step-out'),
           NM(RToggleBreakPoint, 'debug-breakpoint-filled'),
+          NM(RToggleBreakPoint2, 'debug-breakpoint-filled'),
           NM(RDeleteBreakPoints, 'debug-breakpoints-filled-eraser'),
+          NM(RDeleteBreakPoints2, 'debug-breakpoints-filled-eraser'),
           NM(REvaluate, 'variables'),
           NM(TAddRemovePrograms, 'application'),
           NM(TGenerateGUID, 'tag-script-filled'),
@@ -6038,10 +6157,13 @@ end;
 
 procedure TCompileForm.WMSettingChange(var Message: TMessage);
 begin
+  inherited;
   if (FTheme.Typ <> ttClassic) and IsWindows10 and (Message.LParam <> 0) and (StrIComp(PChar(Message.LParam), 'ImmersiveColorSet') = 0) then begin
     FOptions.ThemeType := GetDefaultThemeType;
     UpdateTheme;
   end;
+  for var Memo in FMemos do
+    Memo.SettingChange(Message);
 end;
 
 procedure TCompileForm.WMThemeChanged(var Message: TMessage);
@@ -6404,6 +6526,20 @@ procedure TCompileForm.MemoMarginClick(Sender: TObject; MarginNumber: Integer;
 begin
   if (MarginNumber = 1) and RToggleBreakPoint.Enabled then
     ToggleBreakPoint(Line);
+end;
+
+procedure TCompileForm.MemoMarginRightClick(Sender: TObject; MarginNumber: Integer;
+  Line: Integer);
+begin
+  if MarginNumber = 1 then begin
+    var Point := SmallPointToPoint(TSmallPoint(GetMessagePos()));
+    var PopupMenu := TCompileFormPopupMenu.Create(Self, BreakPointsPopupMenu);
+    try
+      PopupMenu.Popup(Point.X, Point.Y);
+    finally
+      PopupMenu.Free;
+    end;
+  end;
 end;
 
 procedure TCompileForm.RToggleBreakPointClick(Sender: TObject);

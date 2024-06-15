@@ -460,6 +460,14 @@ object CompileForm: TCompileForm
         Caption = 'Select &All'
         OnClick = ESelectAllClick
       end
+      object ESelectNextOccurrence: TMenuItem
+        Caption = 'Add Next &Occurrence'
+        OnClick = ESelectNextOccurrenceClick
+      end
+      object ESelectAllOccurrences: TMenuItem
+        Caption = '&Select All Occurrences'
+        OnClick = ESelectAllOccurrencesClick
+      end
       object N4: TMenuItem
         Caption = '-'
       end
@@ -690,6 +698,19 @@ object CompileForm: TCompileForm
         Caption = '&Delete All Breakpoints'
         OnClick = RDeleteBreakPointsClick
       end
+      object BreakPointsPopupMenu: TMenuItem
+        Caption = 'BreakPointsPopupMenu'
+        Visible = False
+        OnClick = BreakPointsPopupMenuClick
+        object RToggleBreakPoint2: TMenuItem
+          Caption = 'Toggle &Breakpoint'
+          OnClick = RToggleBreakPointClick
+        end
+        object RDeleteBreakPoints2: TMenuItem
+          Caption = '&Delete All Breakpoints'
+          OnClick = RDeleteBreakPointsClick
+        end
+      end
       object RPause: TMenuItem
         Caption = 'P&ause'
         Enabled = False
@@ -783,7 +804,7 @@ object CompileForm: TCompileForm
         Caption = '-'
       end
       object HShortcutsDoc: TMenuItem
-        Caption = '&Keyboard Commands'
+        Caption = '&Keyboard And Mouse Commands'
         OnClick = HShortcutsDocClick
       end
       object N14: TMenuItem

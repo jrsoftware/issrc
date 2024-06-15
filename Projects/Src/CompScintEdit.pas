@@ -21,19 +21,23 @@ const
   mmIconBreakpoint = 2;      { stop sign }
   mmIconBreakpointGood = 3;  { stop sign + check }
   mmIconBreakpointBad = 4;   { stop sign + X }
+  mmIconsMask = $1F;
+
   mmLineError = 10;          { maroon line highlight }
   mmLineBreakpointBad = 11;  { ugly olive line highlight }
   mmLineStep = 12;           { blue line highlight }
   mmIconStep = 13;           { blue arrow }
   mmIconBreakpointStep = 14; { blue arrow on top of a stop sign + check }
 
-  { Memo style byte indicator numbers (0..2 - also in ScintStylerInnoSetup) }
-  inSquiggly = 0;
-  inPendingSquiggly = 1;
-
-  { Memo other indicator numbers }
-  inWordAtCursorOccurrence = INDIC_CONTAINER;
-  inSelTextOccurrence = INDIC_CONTAINER+1;
+  { Memo indicator numbers - Note: inSquiggly and inPendingSquiggly are 0 and 1
+    in ScintStylerInnoSetup and must be first and second here. Also note: even
+    though inSquiggly and inPendingSquiggly are exclusive we still need 2 indicators
+    (instead of 1 indicator with 2 values) because inPendingSquiggly is always
+    hidden and in inSquiggly is not. }
+  inSquiggly = INDICATOR_CONTAINER;
+  inPendingSquiggly = INDICATOR_CONTAINER+1;
+  inWordAtCursorOccurrence = INDICATOR_CONTAINER+2;
+  inSelTextOccurrence = INDICATOR_CONTAINER+3;
   inMax = inSelTextOccurrence;
 
   { Just some invalid value used to indicate an unknown/uninitialized compiler FileIndex value }
@@ -61,7 +65,8 @@ type
     property Used: Boolean read FUsed write FUsed;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
-    procedure UpdateMemoMarkerColumnWidth(const AWidth: Integer);
+    procedure UpdateMarginsWidths(const IconMarkersWidth, BaseChangeHistoryWidth,
+      LeftBlankMarginWidth, RightBlankMarginWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   end;
 
@@ -137,36 +142,24 @@ begin
   inherited;
 
   { Some notes about future Scintilla versions:
-    -At some point SCI_SETVIRTUALSPACEOPTIONS will support SCVS_NOWRAPLINESTART.
-     Once it does this should be used in TCompileForm.SyncEditorOptions if CursorPastEOL
-     is on and our own VK_LEFT handling in TCompileForm.MemoKeyDown should be removed.
-    -At some point the documentation will say:
-     "The selection can be simplified down to just the main selection by
-     SCI_CANCEL which is normally mapped to the Esc key."
-     Once it does our own VK_ESCAPE handling in TCompileForm.FormKeyDown should be
-     reviewed. Note that our handling does a two phase simplification like VSCode and
-     not a one phase simplification like Notepad++.
-    -At some point the documentation will say:
-     "The INDICATOR_* values used for dividing up indicators were previously
-      INDIC_CONTAINER, INDIC_IME, INDIC_IME_MAX, and INDIC_MAX"
-     Once it does replace our use of these INDIC_* with INDICATOR_*.
-    -2.2.4: Update TCompForm.MemoUpdateUI to check the type of update sent by SCN_UPDATEUI
-    -2.2.6: Replace: INDIC_ROUNDBOX -> INDIC_STRAIGHTBOX
-    -2.2.8: Review using SCI_MARKERDEFINERGBAIMAGE instead of SCI_MARKERDEFINEPIXMAP,
-            If successful remove TCompileForm.UpdateMemoMarkerColumns' DPI limitation
-            for mmIconBreakpointStep
-    -3.3.2: Review using INDIC_SQUIGGLEPIXMAP instead of INDIC_SQUIGGLE
-    -3.4.2: Removes support for style byte indicators but ScintStylerInnoSetup uses those
-    -3.4.4: Add: Call(SCI_AUTOSGETMULTI, SC_MULTIAUTOC_EACH, 0)
-    -3.5.7: Use SCI_MULTIPLESELECTADDEACH to implement Ctrl+Shift+L (Select All
-            Occurrences) and SCI_MULTIPLESELECTADDNEXT to implement Ctrl+D (Select
-            Next Occurrence). If the selection is empty Scintilla will use word
-            searching so call SCI_SETSEARCHFLAGS first to turn on case match and
-            whole word in that case, and turn it off otherwise. This way it
-            behaves same as TCompileForm.UpdateOccurrenceIndicators. Also requires
-            calling SCI_TARGETWHOLEDOCUMENT.
-            !!! Note https://github.com/notepad-plus-plus/notepad-plus-plus/pull/14330
-    -3.6.0: Highly desirable version because of improved additional selection typing }
+    -Does it at some point become possible to change mouse shortcut Ctrl+Click
+     to Alt+Click? And Alt+Shift+Drag instead of Alt+Drag for rect select?
+    -What about using Calltips and SCN_DWELLSTART to show variable evalutions?
+    -Add folding support?
+    -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
+            Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
+            https://cplusplus.com/reference/regex/ECMAScript/
+    -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on
+            INDIC_SQUIGGLE.
+    -5.2.3: "Applications should move to SCI_GETTEXTRANGEFULL, SCI_FINDTEXTFULL,
+            and SCI_FORMATRANGEFULL from their predecessors as they will be
+            deprecated." So our use of SCI_GETTEXTRANGE and SCI_FORMATRANGE needs
+            to be updated but that also means we should do many more changes to
+            replace all the Integer positions with a 'TScintPosition = type
+            NativeInt'. Does not actually change anything until there's a
+            64-bit build...
+            Later SCI_GETSTYLEDTEXTFULL was also added but we don't use it at
+            the time of writing. }
 
   Call(SCI_SETCARETWIDTH, 2, 0);
   Call(SCI_AUTOCSETAUTOHIDE, 0, 0);
@@ -174,12 +167,15 @@ begin
   Call(SCI_AUTOCSETDROPRESTOFWORD, 1, 0);
   Call(SCI_AUTOCSETIGNORECASE, 1, 0);
   Call(SCI_AUTOCSETMAXHEIGHT, 12, 0);
+  Call(SCI_AUTOCSETMULTI, SC_MULTIAUTOC_EACH, 0);
 
   Call(SCI_SETMULTIPLESELECTION, 1, 0);
   Call(SCI_SETADDITIONALSELECTIONTYPING, 1, 0);
   Call(SCI_SETMULTIPASTE, SC_MULTIPASTE_EACH, 0);
 
   Call(SCI_ASSIGNCMDKEY, Ord('Z') or ((SCMOD_SHIFT or SCMOD_CTRL) shl 16), SCI_REDO);
+  Call(SCI_ASSIGNCMDKEY, SCK_UP or (SCMOD_ALT shl 16), SCI_MOVESELECTEDLINESUP);
+  Call(SCI_ASSIGNCMDKEY, SCK_DOWN or (SCMOD_ALT shl 16), SCI_MOVESELECTEDLINESDOWN);
 
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
@@ -187,25 +183,36 @@ begin
   Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
 
-  Call(SCI_INDICSETSTYLE, inWordAtCursorOccurrence, INDIC_ROUNDBOX);
+  Call(SCI_INDICSETSTYLE, inWordAtCursorOccurrence, INDIC_STRAIGHTBOX);
   Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETALPHA, inWordAtCursorOccurrence, SC_ALPHA_OPAQUE);
+  Call(SCI_INDICSETOUTLINEALPHA, inWordAtCursorOccurrence, SC_ALPHA_OPAQUE);
   Call(SCI_INDICSETUNDER, inWordAtCursorOccurrence, 1);
 
-  Call(SCI_INDICSETSTYLE, inSelTextOccurrence, INDIC_ROUNDBOX);
+  Call(SCI_INDICSETSTYLE, inSelTextOccurrence, INDIC_STRAIGHTBOX);
   Call(SCI_INDICSETFORE, inSelTextOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETALPHA, inSelTextOccurrence, SC_ALPHA_OPAQUE);
+  Call(SCI_INDICSETOUTLINEALPHA, inSelTextOccurrence, SC_ALPHA_OPAQUE);
   Call(SCI_INDICSETUNDER, inSelTextOccurrence, 1);
 
-  { Set up the gutter column with breakpoint etc symbols - note: column 0 is the
-    line numbers column and its width is set up by TScintEdit.UpdateLineNumbersWidth }
+  { Set up the gutter column with line numbers - avoid Scintilla's 'reverse arrow'
+    cursor which is not a standard Windows cursor so is just confusing, especially
+    because the line numbers are clickable to select lines. Note: width of the
+    column is set up for us by TScintEdit.UpdateLineNumbersWidth. }
+  Call(SCI_SETMARGINCURSORN, 0, SC_CURSORARROW);
+
+  { Set up the gutter column with breakpoint etc symbols }
   Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINSENSITIVEN, 1, 1); { Makes it react to mouse clicks }
+  Call(SCI_SETMARGINMASKN, 1, mmIconsMask);
+  Call(SCI_SETMARGINSENSITIVEN, 1, 1); { Makes it send SCN_MARGIN(RIGHT)CLICK instead of selecting lines }
   Call(SCI_SETMARGINCURSORN, 1, SC_CURSORARROW);
 
-  { Set 2 pixel margin between gutter and the main text - note: the first
-    parameter is unused so the value '0' doesn't mean anything below }
-  Call(SCI_SETMARGINLEFT, 0, 2);
+  { Set up the gutter column with change history. Note: width of the column is
+    set up for us by TScintEdit.UpdateChangeHistoryWidth. Also see
+    https://scintilla.org/ChangeHistory.html }
+  Call(SCI_SETMARGINTYPEN, 2, SC_MARGIN_SYMBOL);
+  Call(SCI_SETMARGINMASKN, 2, not (SC_MASK_FOLDERS or mmIconsMask));
+  Call(SCI_SETMARGINCURSORN, 2, SC_CURSORARROW);
 
   Call(SCI_MARKERDEFINE, mmLineError, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineError, clWhite);
@@ -248,7 +255,7 @@ begin
   if Update then begin
     Self.ClearIndicators(IndicatorNumber);
     for var Range in Ranges do
-      Self.AddIndicator(Range.StartPos, Range.EndPos, IndicatorNumber);
+      Self.SetIndicators(Range.StartPos, Range.EndPos, IndicatorNumber, True);
 
     if not GotNewHash then
       NewHash := HashRanges(Ranges);
@@ -258,9 +265,21 @@ begin
   end;
 end;
 
-procedure TCompScintEdit.UpdateMemoMarkerColumnWidth(const AWidth: Integer);
+procedure TCompScintEdit.UpdateMarginsWidths(const IconMarkersWidth,
+  BaseChangeHistoryWidth, LeftBlankMarginWidth, RightBlankMarginWidth: Integer);
 begin
-  Call(SCI_SETMARGINWIDTHN, 1, AWidth);
+  Call(SCI_SETMARGINWIDTHN, 1, IconMarkersWidth);
+
+  var ChangeHistoryWidth: Integer;
+  if ChangeHistory then
+    ChangeHistoryWidth := BaseChangeHistoryWidth
+  else
+    ChangeHistoryWidth := 0; { Current this is just the preprocessor output memo }
+  Call(SCI_SETMARGINWIDTHN, 2, ChangeHistoryWidth);
+
+  { Note: the first parameter is unused so the value '0' doesn't mean anything below }
+  Call(SCI_SETMARGINLEFT, 0, LeftBlankMarginWidth);
+  Call(SCI_SETMARGINRIGHT, 0, RightBlankMarginWidth);
 end;
 
 procedure TCompScintEdit.UpdateThemeColorsAndStyleAttributes;
@@ -268,11 +287,30 @@ begin
   if FTheme <> nil then begin
     Font.Color := FTheme.Colors[tcFore];
     Color := FTheme.Colors[tcBack];
-    Call(SCI_SETSELBACK, 1, FTheme.Colors[tcSelBack]);
+
+    var SelBackColor := FTheme.Colors[tcSelBack];
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_BACK, SelBackColor);
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_ADDITIONAL_BACK, SelBackColor);
+
+    var SelInactiveBackColor := FTheme.Colors[tcSelInactiveBack];
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_SECONDARY_BACK, SelInactiveBackColor);
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, SelInactiveBackColor);
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, SelInactiveBackColor);
+
     Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
     Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, FTheme.Colors[tcWordAtCursorOccurrenceBack]);
     Call(SCI_INDICSETFORE, inSelTextOccurrence, FTheme.Colors[tcSelTextOccurrenceBack]);
+    
     Call(SCI_MARKERSETBACK, mmLineStep, FTheme.Colors[tcBlue]);
+    
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]); { To reproduce: open a file, press enter, save, undo }
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]);
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_SAVED, FTheme.Colors[tcGreen]);
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_SAVED, FTheme.Colors[tcGreen]);
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_MODIFIED, FTheme.Colors[tcReallyOrange]);
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_MODIFIED, FTheme.Colors[tcReallyOrange]);
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED, FTheme.Colors[tcTeal]); { To reproduce: ??? - sometimes get it but not sure how to do this with minimal steps }
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED, FTheme.Colors[tcTeal]);
   end;
   UpdateStyleAttributes;
 end;
