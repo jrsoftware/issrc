@@ -118,7 +118,7 @@ object OptionsForm: TOptionsForm
     end
     object Label3: TNewStaticText
       Left = 8
-      Top = 242
+      Top = 243
       Width = 45
       Height = 14
       Caption = '&Key map:'
@@ -282,7 +282,7 @@ object OptionsForm: TOptionsForm
     end
     object Label4: TNewStaticText
       Left = 8
-      Top = 242
+      Top = 243
       Width = 37
       Height = 14
       Caption = 'T&heme:'
