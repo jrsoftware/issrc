@@ -129,6 +129,7 @@ uses
   TypInfo, MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives;
 
 type
+  { Size must be <= SizeOf(TScintLineState) }
   TInnoSetupStylerLineState = record
     Section, NextLineSection: TInnoSetupStylerSection;
     SpanState: TInnoSetupStylerSpanState;
