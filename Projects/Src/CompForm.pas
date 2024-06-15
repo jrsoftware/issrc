@@ -673,7 +673,7 @@ begin
   Memo.Align := alClient;
   Memo.AutoCompleteFontName := Font.Name;
   Memo.AutoCompleteFontSize := Font.Size;
-  Memo.Font.Name := GetPreferredMemoFont;
+  Memo.Font.Name := GetPreferredMemoFont; { Default font only, see ReadConfig }
   Memo.Font.Size := 10;
   Memo.ShowHint := True;
   Memo.Styler := FMemosStyler;
