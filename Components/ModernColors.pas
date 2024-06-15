@@ -19,7 +19,8 @@ type
   TThemeColor = (tcFore, tcBack, tcToolBack, tcSelBack, tcSelInactiveBack,
                  tcWordAtCursorOccurrenceBack, tcSelTextOccurrenceBack,
                  tcMarginFore, tcMarginBack, tcSplitterBack, tcBraceBack, tcIdentGuideFore,
-                 tcRed, tcGreen, tcBlue, tcOrange, tcPurple, tcYellow, tcTeal, tcGray);
+                 tcRed, tcGreen, tcBlue, tcOrange, tcReallyOrange, tcPurple,
+                 tcYellow, tcTeal, tcGray);
 
   TTheme = class
   private
@@ -96,15 +97,16 @@ const
   CGreen = clGreen;
   CBlue = clBlue;
   COrange = clOlive;
+  CReallyOrange = $00A5FF;
   CPurple = $C00080;         { Inno Setup 5 }
   CYellow = clYellow;
   CTeal = clTeal;
   CGray = $707070;           { Inno Setup 5 }
 
   Colors: array [TThemeType, TThemeColor] of TColor = (
-    (LFore, LBack, LToolBack, LSelBack, LSelInactiveBack, LWACOBack, LSTOBack, LMarginFore, LMarginBack, LSplitterBack, LBraceBack, LIdentGuideFore, MRed, MGreen, MBlue, MOrange, MPurple, MYellow, MTeal, MGray),
-    (DFore, DBack, DToolBack, DSelBack, DSelInactiveBack, DWACOBack, DSTOBack, DMarginFore, DMarginBack, DSplitterBack, DBraceBack, DIdentGuideFore, MRed, MGreen, MBlue, MOrange, MPurple, MYellow, MTeal, MGray),
-    (CFore, CBack, CToolBack, CSelBack, CSelInactiveBack, CWACOBack, CSTOBack, CMarginFore, CMarginBack, CSplitterBack, CBraceBack, CIdentGuideFore, CRed, CGreen, CBlue, COrange, CPurple, CYellow, CTeal, CGray)
+    (LFore, LBack, LToolBack, LSelBack, LSelInactiveBack, LWACOBack, LSTOBack, LMarginFore, LMarginBack, LSplitterBack, LBraceBack, LIdentGuideFore, MRed, MGreen, MBlue, MOrange, MOrange, MPurple, MYellow, MTeal, MGray),
+    (DFore, DBack, DToolBack, DSelBack, DSelInactiveBack, DWACOBack, DSTOBack, DMarginFore, DMarginBack, DSplitterBack, DBraceBack, DIdentGuideFore, MRed, MGreen, MBlue, MOrange, MOrange, MPurple, MYellow, MTeal, MGray),
+    (CFore, CBack, CToolBack, CSelBack, CSelInactiveBack, CWACOBack, CSTOBack, CMarginFore, CMarginBack, CSplitterBack, CBraceBack, CIdentGuideFore, CRed, CGreen, CBlue, COrange, CReallyOrange, CPurple, CYellow, CTeal, CGray)
   );
   
 begin
