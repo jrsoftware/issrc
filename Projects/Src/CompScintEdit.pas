@@ -65,7 +65,8 @@ type
     property Used: Boolean read FUsed write FUsed;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
-    procedure UpdateMarginsWidths(const IconMarkersWidth, BaseChangeHistoryWidth: Integer);
+    procedure UpdateMarginsWidths(const IconMarkersWidth, BaseChangeHistoryWidth,
+      LeftBlankMarginWidth, RightBlankMarginWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   end;
 
@@ -225,10 +226,6 @@ begin
   Call(SCI_SETMARGINMASKN, 2, not (SC_MASK_FOLDERS or mmIconsMask));
   Call(SCI_SETMARGINCURSORN, 2, SC_CURSORARROW);
 
-  { Set 2 pixel margin between gutter and the main text - note: the first
-    parameter is unused so the value '0' doesn't mean anything below }
-  Call(SCI_SETMARGINLEFT, 0, ToCurrentPPI(2));
-
   Call(SCI_MARKERDEFINE, mmLineError, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineError, clWhite);
   Call(SCI_MARKERSETBACK, mmLineError, clMaroon);
@@ -280,15 +277,21 @@ begin
   end;
 end;
 
-procedure TCompScintEdit.UpdateMarginsWidths(const IconMarkersWidth, BaseChangeHistoryWidth: Integer);
+procedure TCompScintEdit.UpdateMarginsWidths(const IconMarkersWidth,
+  BaseChangeHistoryWidth, LeftBlankMarginWidth, RightBlankMarginWidth: Integer);
 begin
   Call(SCI_SETMARGINWIDTHN, 1, IconMarkersWidth);
+
   var ChangeHistoryWidth: Integer;
   if ChangeHistory then
     ChangeHistoryWidth := BaseChangeHistoryWidth
   else
     ChangeHistoryWidth := 0; { Current this is just the preprocessor output memo }
   Call(SCI_SETMARGINWIDTHN, 2, ChangeHistoryWidth);
+
+  { Note: the first parameter is unused so the value '0' doesn't mean anything below }
+  Call(SCI_SETMARGINLEFT, 0, LeftBlankMarginWidth);
+  Call(SCI_SETMARGINRIGHT, 0, RightBlankMarginWidth);
 end;
 
 procedure TCompScintEdit.UpdateThemeColorsAndStyleAttributes;

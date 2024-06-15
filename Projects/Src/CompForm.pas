@@ -3376,6 +3376,7 @@ begin
 end;
 
 procedure TCompileForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
+{ Should be called at startup and after DPI changes }
 begin
   CompilerOutputList.Canvas.Font.Assign(CompilerOutputList.Font);
   CompilerOutputList.ItemHeight := CompilerOutputList.Canvas.TextHeight('0') + 1;
@@ -3406,6 +3407,7 @@ begin
 end;
 
 procedure TCompileForm.UpdateMarginsIcons;
+{ Should be called at startup and after theme and DPI changes }
 
 type
   TMarkerBitmaps = TObjectDictionary<Integer, TBitmapWithBits>;
@@ -3502,13 +3504,15 @@ end;
 
 procedure TCompileForm.UpdateMarginsWidths;
 { Update the width of our two margins. Note: the width of the line numbers
-  margin is fully handled by TScintEdit. }
+  margin is fully handled by TScintEdit. Should be called at startup and after
+  DPI change. }
 begin
   var IconMarkersWidth := ToCurrentPPI(18); { 3 pixel margin on both sides of the icon }
   var BaseChangeHistoryWidth := ToCurrentPPI(6); { 6 = 2 pixel bar with 2 pixel margin on both sides because: "SC_MARK_BAR ... takes ... 1/3 of the margin width" }
+  var LeftBlankMarginWidth := ToCurrentPPI(2); { 2 pixel margin between gutter and the main text }
 
   for var Memo in FMemos do
-    Memo.UpdateMarginsWidths(IconMarkersWidth, BaseChangeHistoryWidth);
+    Memo.UpdateMarginsWidths(IconMarkersWidth, BaseChangeHistoryWidth, LeftBlankMarginWidth, 0);
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
