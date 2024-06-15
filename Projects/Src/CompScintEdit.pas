@@ -145,22 +145,10 @@ begin
     -Does it at some point become possible to change mouse shortcut Ctrl+Click
      to Alt+Click? And Alt+Shift+Drag instead of Alt+Drag for rect select?
     -What about using Calltips and SCN_DWELLSTART to show variable evalutions?
-    -Should turn on DISABLE_D2D compiler directive in isscint build?
     -Add folding support?
     -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
             Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
             https://cplusplus.com/reference/regex/ECMAScript/
-    -4.4.0: "Implement per-monitor DPI Awareness on Win32 so both Scintilla and
-            SciTE will adapt to the display scale when moved between monitors.
-            Applications should forward WM_DPICHANGED to Scintilla"
-            Also docs say: "On Windows, the top level window should forward any
-            WM_SETTINGCHANGE, WM_SYSCOLORCHANGE, and WM_DPICHANGED messages to
-            Scintilla as this allows Scintilla to respond to changes to mouse
-            settings, monitor resolution, colour scheme and similar system
-            properties."
-            There's also some of our own stuff that doesn't update on DPI
-            changes, at least the SCI_SETMARGINLEFT call and the width of the
-            change history column. 
     -5.0.1: Review using SCI_INDICSETSTROKEWIDTH for high DPI support on
             INDIC_SQUIGGLE.
     -5.2.3: "Applications should move to SCI_GETTEXTRANGEFULL, SCI_FINDTEXTFULL,

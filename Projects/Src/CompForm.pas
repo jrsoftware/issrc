@@ -576,6 +576,7 @@ type
     procedure WMStartCommandLineCompile(var Message: TMessage); message WM_StartCommandLineCompile;
     procedure WMStartCommandLineWizard(var Message: TMessage); message WM_StartCommandLineWizard;
     procedure WMStartNormally(var Message: TMessage); message WM_StartNormally;
+    procedure WMDPIChanged(var Message: TMessage); message WM_DPICHANGED;
     procedure WMSettingChange(var Message: TMessage); message WM_SETTINGCHANGE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure WMUAHDrawMenu(var Message: TMessage); message WM_UAHDRAWMENU;
@@ -4891,6 +4892,13 @@ begin
   DebuggerStepped(Message, True);
 end;
 
+procedure TCompileForm.WMDPIChanged(var Message: TMessage);
+begin
+  inherited;
+  for var Memo in FMemos do
+    Memo.DPIChanged(Message);
+end;
+
 procedure TCompileForm.WMDebuggerException(var Message: TMessage);
 var
   Memo: TCompScintFileEdit;
@@ -6149,10 +6157,13 @@ end;
 
 procedure TCompileForm.WMSettingChange(var Message: TMessage);
 begin
+  inherited;
   if (FTheme.Typ <> ttClassic) and IsWindows10 and (Message.LParam <> 0) and (StrIComp(PChar(Message.LParam), 'ImmersiveColorSet') = 0) then begin
     FOptions.ThemeType := GetDefaultThemeType;
     UpdateTheme;
   end;
+  for var Memo in FMemos do
+    Memo.SettingChange(Message);
 end;
 
 procedure TCompileForm.WMThemeChanged(var Message: TMessage);

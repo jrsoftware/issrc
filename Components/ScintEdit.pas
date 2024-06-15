@@ -117,6 +117,7 @@ type
     FVirtualSpaceOptions: TScintVirtualSpaceOptions;
     FWordWrap: Boolean;
     procedure ApplyOptions;
+    procedure ForwardMessage(const Message: TMessage);
     function GetAutoCompleteActive: Boolean;
     function GetCaretColumn: Integer;
     function GetCaretColumnExpandedForTabs: Integer;
@@ -223,6 +224,7 @@ type
     procedure CutToClipboard;
     procedure DeleteAllMarkersOnLine(const Line: Integer);
     procedure DeleteMarker(const Line: Integer; const Marker: TScintMarkerNumber);
+    procedure DPIChanged(const Message: TMessage);
     procedure EndUndoAction;
     function FindRawText(const StartPos, EndPos: Integer; const S: TScintRawString;
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
@@ -289,6 +291,7 @@ type
     procedure SetLineIndentation(const Line, Indentation: Integer);
     procedure SetSavePoint;
     procedure SetSingleSelection(const CaretPos, AnchorPos: Integer);
+    procedure SettingChange(const Message: TMessage);
     procedure SetWordChars(const S: AnsiString);
     procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
     procedure StyleNeeded(const EndPos: Integer);
@@ -793,6 +796,12 @@ function TScintEdit.FormatRange(const Draw: Boolean;
   const RangeToFormat: PScintRangeToFormat): Integer;
 begin
   Result := Call(SCI_FORMATRANGE, Ord(Draw), LPARAM(RangeToFormat));
+end;
+
+procedure TScintEdit.ForwardMessage(const Message: TMessage);
+begin
+  if HandleAllocated then
+    SendMessage(Handle, Message.Msg, Message.WParam, Message.LParam);
 end;
 
 function TScintEdit.GetAutoCompleteActive: Boolean;
@@ -2042,6 +2051,7 @@ end;
 procedure TScintEdit.CMSysColorChange(var Message: TMessage);
 begin
   inherited;
+  ForwardMessage(Message);
   UpdateStyleAttributes;
 end;
 
@@ -2055,6 +2065,11 @@ begin
   FDirectPtr := nil;
   FDirectStatusFunction := nil;
   inherited;
+end;
+
+procedure TScintEdit.DpiChanged(const Message: TMessage);
+begin
+  ForwardMessage(Message);
 end;
 
 procedure TScintEdit.WMDropFiles(var Message: TWMDropFiles);
@@ -2113,6 +2128,11 @@ begin
     Delphi 2009 and still needed in Delphi 11.3.) }
   Message.Result := CallWindowProc(DefWndProc, Handle, Message.Msg,
     Message.WParam, Message.LParam);
+end;
+
+procedure TScintEdit.SettingChange(const Message: TMessage);
+begin
+  ForwardMessage(Message);
 end;
 
 { TScintEditStrings }
