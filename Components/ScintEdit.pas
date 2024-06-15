@@ -542,6 +542,10 @@ begin
   Call(SCI_SETVIRTUALSPACEOPTIONS, Flags, 0);
   Call(SCI_SETWRAPMODE, Ord(FWordWrap), 0);
   Call(SCI_SETINDENTATIONGUIDES, IndentationGuides[FIndentationGuides], 0);
+  { If FChangeHistory is True then next call to ClearUndo will enable change
+    history and else we should disable it now }
+  if not FChangeHistory then
+    Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
 end;
 
 procedure TScintEdit.BeginUndoAction;
@@ -1429,10 +1433,7 @@ procedure TScintEdit.SetChangeHistory(const Value: Boolean);
 begin
   if FChangeHistory <> Value then begin
     FChangeHistory := Value;
-    { If FChangeHistory is True then next call to ClearUndo will enable change
-      history and else we should disable it now }
-    if not FChangeHistory then
-      Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
+    ApplyOptions;
   end;
 end;
 
