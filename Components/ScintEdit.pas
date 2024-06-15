@@ -199,7 +199,6 @@ type
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure Notify(const N: TSCNotification); virtual;
     procedure SetTarget(const StartPos, EndPos: Integer);
-    function ToCurrentPPI(const XY: Integer): Integer;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -1850,11 +1849,6 @@ begin
       DefaultStyleLine(Line);
     Inc(Line);
   end;
-end;
-
-function TScintEdit.ToCurrentPPI(const XY: Integer): Integer;
-begin
-  Result := MulDiv(XY, CurrentPPI, 96);
 end;
 
 procedure TScintEdit.Undo;
