@@ -476,7 +476,7 @@ function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
 implementation
 
 uses
-  ShellAPI, RTLConsts, UITypes, GraphUtil;
+  ShellAPI, RTLConsts, UITypes, GraphUtil, ScintStylerInnoSetup;
 
 function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
 begin
@@ -1794,10 +1794,28 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       FStyler.FText := '';
     end;
 
+    { Add fold headers at section tags. These appear with section scNone with the
+      next line not being section sNone. }
+
     for var I := FirstLine to LastLine do begin
       var OldState := FLines.GetState(I);
       if FStyler.FLineState <> OldState then
         Call(SCI_SETLINESTATE, I, FStyler.FLineState);
+
+      var Section := TInnoSetupStyler.GetSectionFromLineState(FStyler.LineState);
+      if Section <> scNone then begin
+        { We're in a section, make this line as level 1 }
+        Call(SCI_SETFOLDLEVEL, I, SC_FOLDLEVELBASE+1);
+        { Also look at previous line to see if was the section tag, and if so
+          retroactively set it as a folder header }
+        if I > 0 then begin
+          var PrevState := FLines.GetState(I-1);
+          var PrevSection := TInnoSetupStyler.GetSectionFromLineState(PrevState);
+          if PrevSection = scNone then
+            Call(SCI_SETFOLDLEVEL, I-1, SC_FOLDLEVELBASE or SC_FOLDLEVELHEADERFLAG);
+        end;
+      end else
+        Call(SCI_SETFOLDLEVEL, I, SC_FOLDLEVELBASE);
     end;
 
     Result := LastLine;

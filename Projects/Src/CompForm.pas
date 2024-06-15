@@ -3852,6 +3852,8 @@ begin
   else
     Pos := AMemo.CaretPosition; { Not actually moving caret - it's already were we want it}
 
+  AMemo.Call(SCI_ENSUREVISIBLE, AMemo.GetLineFromPosition(Pos), 0);
+
   { If the line isn't in view, scroll so that it's in the center }
   if not AMemo.IsPositionInViewVertically(Pos) then
     AMemo.TopLine := AMemo.GetVisibleLineFromDocLine(AMemo.GetLineFromPosition(Pos)) -
