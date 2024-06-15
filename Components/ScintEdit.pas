@@ -1266,7 +1266,7 @@ function TScintEdit.ReplaceRawTextRange(const StartPos, EndPos: Integer;
 begin
   CheckPosRange(StartPos, EndPos);
   SetTarget(StartPos, EndPos);
-  Call(SCI_REPLACETARGET, Length(S), LPARAM(PAnsiChar(S)));
+  Call(SCI_REPLACETARGETMINIMAL, Length(S), LPARAM(PAnsiChar(S)));
   Result := GetTarget;
 end;
 
