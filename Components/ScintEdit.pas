@@ -1794,8 +1794,8 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       FStyler.FText := '';
     end;
 
-    { Add fold headers at section tags. These appear with section scNone with the
-      next line not being section sNone. }
+    { Set line states and also add fold headers at section tags. These appear
+      with section scNone with the next line not being section sNone. }
 
     for var I := FirstLine to LastLine do begin
       var OldState := FLines.GetState(I);
