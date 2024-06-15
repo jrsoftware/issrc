@@ -294,6 +294,7 @@ type
     procedure SetWordChars(const S: AnsiString);
     procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
     procedure StyleNeeded(const EndPos: Integer);
+    procedure SysColorChange(const Message: TMessage);
     procedure Undo;
     procedure UpdateStyleAttributes;
     function WordAtCursor: String;
@@ -1851,6 +1852,11 @@ begin
   end;
 end;
 
+procedure TScintEdit.SysColorChange(const Message: TMessage);
+begin
+  ForwardMessage(Message);
+end;
+
 procedure TScintEdit.Undo;
 begin
   Call(SCI_UNDO, 0, 0);
@@ -2046,7 +2052,6 @@ end;
 procedure TScintEdit.CMSysColorChange(var Message: TMessage);
 begin
   inherited;
-  ForwardMessage(Message);
   UpdateStyleAttributes;
 end;
 

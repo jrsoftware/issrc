@@ -578,6 +578,7 @@ type
     procedure WMStartNormally(var Message: TMessage); message WM_StartNormally;
     procedure WMDPIChanged(var Message: TMessage); message WM_DPICHANGED;
     procedure WMSettingChange(var Message: TMessage); message WM_SETTINGCHANGE;
+    procedure WMSysColorChange(var Message: TMessage); message WM_SYSCOLORCHANGE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure WMUAHDrawMenu(var Message: TMessage); message WM_UAHDRAWMENU;
     procedure WMUAHDrawMenuItem(var Message: TMessage); message WM_UAHDRAWMENUITEM;
@@ -3012,6 +3013,13 @@ begin
       ShowStartupForm;
   end else
     OpenFile(FMainMemo, CommandLineFilename, False);
+end;
+
+procedure TCompileForm.WMSysColorChange(var Message: TMessage);
+begin
+  inherited;
+  for var Memo in FMemos do
+    Memo.SysColorChange(Message);
 end;
 
 procedure TCompileForm.UpdateReopenTabMenu(const Menu: TMenuItem);
