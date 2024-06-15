@@ -3204,7 +3204,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Revert multiple selections into a single one or a single selection into an empty one.</td><td>Esc</td>
 </tr>
 <tr>
-  <td>Complete word.</td><td>Ctrl+Space or Ctrl+I or Alt+Right (the last only if the Delphi key map is not active; all only if there's only a single selection)</td>
+  <td>Complete word.</td><td>Ctrl+Space or Ctrl+I or Alt+Right (the last only if the Delphi key map is not active)</td>
 </tr>
 <tr>
   <td>Fillup complete word.</td><td>Tab or Enter or Space (for ISPP directives) or \ (for constants) or : (for constants and section parameters) or ] (for sections) or = (for section directives).</td>
