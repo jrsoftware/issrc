@@ -291,11 +291,11 @@ begin
     Font.Color := FTheme.Colors[tcFore];
     Color := FTheme.Colors[tcBack];
 
-    var SelBackColor := FTheme.Colors[tcSelBack] or (SC_ALPHA_OPAQUE shl 24);
+    var SelBackColor := FTheme.Colors[tcSelBack];
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_BACK, SelBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_ADDITIONAL_BACK, SelBackColor);
 
-    var SelInactiveBackColor := FTheme.Colors[tcSelInactiveBack] or (SC_ALPHA_OPAQUE shl 24);
+    var SelInactiveBackColor := FTheme.Colors[tcSelInactiveBack];
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_SECONDARY_BACK, SelInactiveBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, SelInactiveBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, SelInactiveBackColor);
