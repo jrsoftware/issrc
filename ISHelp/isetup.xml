@@ -3199,7 +3199,10 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Extend selection.</td><td>Shift+Arrow</td>
 </tr>
 <tr>
-  <td>Add additional selection.</td><td>Ctrl+Click or Ctrl+Drag</td>
+  <td>Add additional caret or selection.</td><td>Ctrl+Click or Ctrl+Drag</td>
+</tr>
+<tr>
+  <td>Remove a selection by clicking it.</td><td>Ctrl+Click</td>
 </tr>
 <tr>
   <td>Add word as additional selection.</td><td>Ctrl+Double Click</td>
