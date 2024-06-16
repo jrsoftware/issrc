@@ -1791,11 +1791,18 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       Call(SCI_SETSTYLINGEX, Length(FStyler.FStyleStr), LPARAM(PAnsiChar(FStyler.FStyleStr)));
 
       FStyler.FStyleStr := '';
-      FStyler.FText := '';
     end;
 
     { Set line states and also add fold headers at section tags. These appear
       with section scNone with the next line not being section sNone. }
+
+    var ExtraFlags := 0;
+    if FStyler.FText = '' then begin
+      { All spanned lines are empty. If only some lines are empty we miss this. }
+      ExtraFlags := ExtraFlags or SC_FOLDLEVELWHITEFLAG;
+    end;
+
+    FStyler.FText := '';
 
     for var I := FirstLine to LastLine do begin
       var OldState := FLines.GetState(I);
@@ -1805,17 +1812,17 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       var Section := TInnoSetupStyler.GetSectionFromLineState(FStyler.LineState);
       if Section <> scNone then begin
         { We're in a section, make this line as level 1 }
-        Call(SCI_SETFOLDLEVEL, I, SC_FOLDLEVELBASE+1);
+        Call(SCI_SETFOLDLEVEL, I, SC_FOLDLEVELBASE+1 or ExtraFlags);
         { Also look at previous line to see if was the section tag, and if so
           retroactively set it as a folder header }
         if I > 0 then begin
           var PrevState := FLines.GetState(I-1);
           var PrevSection := TInnoSetupStyler.GetSectionFromLineState(PrevState);
           if PrevSection = scNone then
-            Call(SCI_SETFOLDLEVEL, I-1, SC_FOLDLEVELBASE or SC_FOLDLEVELHEADERFLAG);
+            Call(SCI_SETFOLDLEVEL, I-1, SC_FOLDLEVELBASE or SC_FOLDLEVELHEADERFLAG or ExtraFlags);
         end;
       end else
-        Call(SCI_SETFOLDLEVEL, I, SC_FOLDLEVELBASE);
+        Call(SCI_SETFOLDLEVEL, I, SC_FOLDLEVELBASE or ExtraFlags);
     end;
 
     Result := LastLine;
