@@ -52,13 +52,13 @@ type
 
   TCompScintEdit = class(TScintEdit)
   private
-    FFolding: Boolean;
+    FUseFolding: Boolean;
     FTheme: TTheme;
     FOpeningFile: Boolean;
     FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
     FIndicatorCount: array[TCompScintIndicatorNumber] of Integer;
     FIndicatorHash: array[TCompScintIndicatorNumber] of String;
-    procedure SetFolding(const Value: Boolean);
+    procedure SetUseFolding(const Value: Boolean);
   protected
     procedure CreateWnd; override;
   public
@@ -73,7 +73,7 @@ type
       RightBlankMarginWidth, SquigglyWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   published
-    property Folding: Boolean read FFolding write SetFolding default True;
+    property UseFolding: Boolean read FUseFolding write SetUseFolding default True;
   end;
 
   TCompScintFileEdit = class(TCompScintEdit)
@@ -144,7 +144,7 @@ uses
 constructor TCompScintEdit.Create(AOwner: TComponent);
 begin
   inherited;
-  FFolding := True;
+  FUseFolding := True;
 end;
 
 procedure TCompScintEdit.CreateWnd;
@@ -251,14 +251,16 @@ begin
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
 end;
 
-procedure TCompScintEdit.SetFolding(const Value: Boolean);
+procedure TCompScintEdit.SetUseFolding(const Value: Boolean);
 begin
-  if FFolding <> Value then begin
-    FFolding := Value;
+  if FUseFolding <> Value then begin
+    FUseFolding := Value;
     { If FFolding is True then caller must set the margin width using
       UpdateMarginsAndSquigglyWidths else we set it to 0 now }
-    if not FFolding then
+    if not FUseFolding then begin
+      Call(SCI_FOLDALL, SC_FOLDACTION_EXPAND, 0);
       Call(SCI_SETMARGINWIDTHN, 3, 0);
+    end;
   end;
 end;
 
@@ -316,7 +318,7 @@ begin
   Call(SCI_SETMARGINWIDTHN, 2, ChangeHistoryWidth);
 
   var FolderMarkersWidth: Integer;
-  if FFolding then
+  if FUseFolding then
     FolderMarkersWidth := BaseFolderMarkersWidth
   else
     FolderMarkersWidth := 0;
