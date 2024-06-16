@@ -335,7 +335,7 @@ type
       write SetAutoCompleteFontName;
     property AutoCompleteFontSize: Integer read FAutoCompleteFontSize
       write SetAutoCompleteFontSize default 0;
-    property ChangeHistory: Boolean read FChangeHistory write SetChangeHistory;
+    property ChangeHistory: Boolean read FChangeHistory write SetChangeHistory default False;
     property CodePage: Integer read FCodePage write SetCodePage default CP_UTF8;
     property Color;
     property FillSelectionToEdge: Boolean read FFillSelectionToEdge write SetFillSelectionToEdge
