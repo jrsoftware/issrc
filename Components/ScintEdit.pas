@@ -225,6 +225,7 @@ type
     procedure DeleteMarker(const Line: Integer; const Marker: TScintMarkerNumber);
     procedure DPIChanged(const Message: TMessage);
     procedure EndUndoAction;
+    procedure EnsureLineVisible(const Line: Integer);
     function FindRawText(const StartPos, EndPos: Integer; const S: TScintRawString;
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
     function FindText(const StartPos, EndPos: Integer; const S: String;
@@ -272,6 +273,7 @@ type
     procedure ScrollCaretIntoView;
     procedure SelectAll;
     procedure SelectAllOccurrences(const Options: TScintFindOptions);
+    procedure SelectAndEnsureVisible(const Range: TScintRange);
     procedure SelectNextOccurrence(const Options: TScintFindOptions);
     function SelEmpty: Boolean;
     function SelNotEmpty(out Sel: TScintRange): Boolean;
@@ -752,6 +754,11 @@ end;
 procedure TScintEdit.EndUndoAction;
 begin
   Call(SCI_ENDUNDOACTION, 0, 0);
+end;
+
+procedure TScintEdit.EnsureLineVisible(const Line: Integer);
+begin
+  Call(SCI_ENSUREVISIBLE, Line, 0);
 end;
 
 class function TScintEdit.GetErrorException(const S: String): EScintEditError;
@@ -1312,6 +1319,21 @@ begin
   Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
   Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
   Call(SCI_MULTIPLESELECTADDEACH, 0, 0);
+end;
+
+procedure TScintEdit.SelectAndEnsureVisible(const Range: TScintRange);
+begin
+  CheckPosRange(Range.StartPos, Range.EndPos);
+  
+  { If the range is in a collapsed section, expand it }
+  var StartLine := GetLineFromPosition(Range.StartPos);
+  var EndLine := GetLineFromPosition(Range.EndPos);
+  EnsureLineVisible(StartLine);
+  if EndLine <> StartLine then
+    EnsureLineVisible(EndLine);
+    
+  { Select }
+  Selection := Range;
 end;
 
 procedure TScintEdit.SelectNextOccurrence(const Options: TScintFindOptions);

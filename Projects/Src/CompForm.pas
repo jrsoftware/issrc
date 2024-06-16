@@ -3132,7 +3132,7 @@ begin
   end;
   if FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
      FindOptionsToSearchOptions(FLastFindOptions), Range) then
-    FActiveMemo.Selection := Range
+    FActiveMemo.SelectAndEnsureVisible(Range)
   else
     MsgBoxFmt('Cannot find "%s"', [FLastFindText], SCompilerFormCaption,
       mbInformation, MB_OK);
@@ -3855,7 +3855,8 @@ begin
   else
     Pos := AMemo.CaretPosition; { Not actually moving caret - it's already were we want it}
 
-  AMemo.Call(SCI_ENSUREVISIBLE, AMemo.GetLineFromPosition(Pos), 0);
+  { If the line is in a collapsed section, expand it }
+  AMemo.EnsureLineVisible(AMemo.GetLineFromPosition(Pos));
 
   { If the line isn't in view, scroll so that it's in the center }
   if not AMemo.IsPositionInViewVertically(Pos) then
@@ -6429,7 +6430,7 @@ begin
       for Memo in FFileMemos do begin
         if Memo.Used and (PathCompare(Memo.Filename, FindResult.Filename) = 0) then begin
           MoveCaretAndActivateMemo(Memo, FindResult.Line, True);
-          Memo.Selection := FindResult.Range;
+          Memo.SelectAndEnsureVisible(FindResult.Range);
           ActiveControl := Memo;
           Exit;
         end;
