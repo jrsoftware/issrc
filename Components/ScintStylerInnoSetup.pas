@@ -104,6 +104,8 @@ type
     procedure SetISPPInstalled(const Value: Boolean);
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
+    procedure GetFoldLevel(const LineState: TScintLineState; var Level: Integer;
+      var Header: Boolean); override;
     procedure GetStyleAttributes(const Style: Integer;
       var Attributes: TScintStyleAttributes); override;
     function LineTextSpans(const S: TScintRawString): Boolean; override;
@@ -932,6 +934,32 @@ end;
 function TInnoSetupStyler.GetFlagsWordList(Section: TInnoSetupStylerSection): AnsiString;
 begin
   Result := FFlagsWordList[Section];
+end;
+
+procedure TInnoSetupStyler.GetFoldLevel(const LineState: TScintLineState;
+  var Level: Integer; var Header: Boolean);
+begin
+  var Section := TInnoSetupStyler.GetSectionFromLineState(LineState);
+  if Section <> scNone then begin
+    Level := 1;
+    Header := False;
+  end else begin
+  { Everything outside a section should have the header flag, even if it's just
+    a blank line or a comment. Doing this doesn't cause many fold markers: if
+    two lines have the same level and header flag the first line doesn't get a
+    fold mark since there's nothing to expand. Not doing this however is a
+    problem: for example, if the first line is empty and and the second line
+    starts a section then those two lines would logically considered to be in
+    the same 'fold' and edits on the first line would affect the section if
+    collapsed.
+    Did notice an issue (Scintilla bug?): Add a section with some lines.
+    Collapse it. Break the section header for example by removing ']'.
+    Scintialla now auto expands the section and removes the fold mark.
+    Retype the ']'. Scintilla now displays the old fold mark to expand the
+    section but it's already expanded.  }
+    Level := 0;
+    Header := True;
+  end;
 end;
 
 function TInnoSetupStyler.GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;

@@ -443,6 +443,8 @@ type
     function ConsumeString(const Chars: TScintRawCharSet): TScintRawString;
     function CurCharIn(const Chars: TScintRawCharSet): Boolean;
     function CurCharIs(const C: AnsiChar): Boolean;
+    procedure GetFoldLevel(const LineState: TScintLineState; var Level: Integer;
+      var Header: Boolean); virtual; abstract;
     procedure GetStyleAttributes(const Style: Integer;
       var Attributes: TScintStyleAttributes); virtual; abstract;
     function LineTextSpans(const S: TScintRawString): Boolean; virtual;
@@ -1815,32 +1817,20 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       FStyler.FText := '';
     end;
 
-    { Set line states and also add fold headers when not in a section. }
+    var FoldLevel: Integer;
+    var FoldHeader: Boolean;
+    FStyler.GetFoldLevel(FStyler.FLineState, FoldLevel, FoldHeader);
+    Inc(FoldLevel, SC_FOLDLEVELBASE);
+    if FoldHeader then
+      FoldLevel := FoldLevel or SC_FOLDLEVELHEADERFLAG;
 
     for var I := FirstLine to LastLine do begin
       var OldState := FLines.GetState(I);
       if FStyler.FLineState <> OldState then
         Call(SCI_SETLINESTATE, I, FStyler.FLineState);
-
-      var Section := TInnoSetupStyler.GetSectionFromLineState(FStyler.LineState);
-      if Section <> scNone then
-        Call(SCI_SETFOLDLEVEL, I, SC_FOLDLEVELBASE+1)
-      else begin
-        { Everything outside a section should have the header flag, even if it's
-          just a blank line or a comment. Doing this doesn't cause many fold
-          markers: if two lines have the same level and header flag the first
-          line doesn't get a fold mark since there's nothing to expand.
-          Not doing this however is a problem: for example, if the first
-          line is empty and and the second line starts a section then those two
-          lines would logically considered to be in the same 'fold' and edits
-          on the first line would affect the section if collapsed.
-          Did notice an issue (Scintilla bug?): Add a section with some lines.
-          Collapse it. Break the section header for example by removing ']'.
-          Scintialla now auto expands the section and removes the fold mark.
-          Retype the ']'. Scintilla now displays the old fold mark to expand the
-          section but it's already expanded.  }
-        Call(SCI_SETFOLDLEVEL, I, SC_FOLDLEVELBASE or SC_FOLDLEVELHEADERFLAG);
-      end;
+      var OldLevel := Call(SCI_GETFOLDLEVEL, I, 0);
+      if FoldLevel <> OldLevel then
+        Call(SCI_SETFOLDLEVEL, I, FoldLevel);
     end;
 
     Result := LastLine;
