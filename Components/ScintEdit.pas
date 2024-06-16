@@ -1823,6 +1823,10 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
     Inc(FoldLevel, SC_FOLDLEVELBASE);
     if FoldHeader then
       FoldLevel := FoldLevel or SC_FOLDLEVELHEADERFLAG;
+    { Setting SC_FOLDLEVELWHITEFLAG on empty lines causes a problem: when
+      Scintilla auto expands a collapsed section (for example after removing ']'
+      from a section header) all the empty lines stay invisible, even any which
+      are in the middle of the section. }
 
     for var I := FirstLine to LastLine do begin
       var OldState := FLines.GetState(I);
