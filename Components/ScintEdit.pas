@@ -1316,6 +1316,8 @@ end;
 
 
 procedure TScintEdit.SelectAllOccurrences(const Options: TScintFindOptions);
+{ At the moment this does not automatically expand folds, unlike VSCode. Also
+  see SelectNextOccurrence. }
 begin
   Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
   Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
@@ -1325,18 +1327,20 @@ end;
 procedure TScintEdit.SelectAndEnsureVisible(const Range: TScintRange);
 begin
   CheckPosRange(Range.StartPos, Range.EndPos);
-  
+
   { If the range is in a collapsed section, expand it }
   var StartLine := GetLineFromPosition(Range.StartPos);
   var EndLine := GetLineFromPosition(Range.EndPos);
   for var Line := StartLine to EndLine do
     EnsureLineVisible(Line);
-    
+
   { Select }
   Selection := Range;
 end;
 
 procedure TScintEdit.SelectNextOccurrence(const Options: TScintFindOptions);
+{ At the moment this does not automatically expand folds, unlike VSCode. Also
+  see SelectAllOccurrences. }
 begin
   Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
   Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
