@@ -66,8 +66,8 @@ type
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
     procedure UpdateMarginsAndSquigglyWidths(const IconMarkersWidth,
-      BaseChangeHistoryWidth, LeftBlankMarginWidth, RightBlankMarginWidth,
-      SquigglyWidth: Integer);
+      BaseChangeHistoryWidth, FolderMarkersWidth, LeftBlankMarginWidth,
+      RightBlankMarginWidth, SquigglyWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   end;
 
@@ -280,8 +280,8 @@ begin
 end;
 
 procedure TCompScintEdit.UpdateMarginsAndSquigglyWidths(const IconMarkersWidth,
-  BaseChangeHistoryWidth, LeftBlankMarginWidth, RightBlankMarginWidth,
-  SquigglyWidth: Integer);
+  BaseChangeHistoryWidth, FolderMarkersWidth, LeftBlankMarginWidth,
+  RightBlankMarginWidth, SquigglyWidth: Integer);
 begin
   Call(SCI_SETMARGINWIDTHN, 1, IconMarkersWidth);
 
@@ -291,6 +291,8 @@ begin
   else
     ChangeHistoryWidth := 0; { Current this is just the preprocessor output memo }
   Call(SCI_SETMARGINWIDTHN, 2, ChangeHistoryWidth);
+
+  Call(SCI_SETMARGINWIDTHN, 3, FolderMarkersWidth);
 
   { Note: the first parameter is unused so the value '0' doesn't mean anything below }
   Call(SCI_SETMARGINLEFT, 0, LeftBlankMarginWidth);
@@ -313,6 +315,9 @@ begin
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_SECONDARY_BACK, SelInactiveBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, SelInactiveBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, SelInactiveBackColor);
+
+    Call(SCI_SETFOLDMARGINCOLOUR, 1, FTheme.Colors[tcMarginBack]);
+    Call(SCI_SETFOLDMARGINHICOLOUR, 1, FTheme.Colors[tcMarginBack]);
 
     Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
     Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, FTheme.Colors[tcWordAtCursorOccurrenceBack]);
