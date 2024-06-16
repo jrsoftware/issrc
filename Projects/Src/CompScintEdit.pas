@@ -52,23 +52,28 @@ type
 
   TCompScintEdit = class(TScintEdit)
   private
+    FFolding: Boolean;
     FTheme: TTheme;
     FOpeningFile: Boolean;
     FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
     FIndicatorCount: array[TCompScintIndicatorNumber] of Integer;
     FIndicatorHash: array[TCompScintIndicatorNumber] of String;
+    procedure SetFolding(const Value: Boolean);
   protected
     procedure CreateWnd; override;
   public
+    constructor Create(AOwner: TComponent); override;
     property Theme: TTheme read FTheme write FTheme;
     property OpeningFile: Boolean read FOpeningFile write FOpeningFile;
     property Used: Boolean read FUsed write FUsed;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
     procedure UpdateMarginsAndSquigglyWidths(const IconMarkersWidth,
-      BaseChangeHistoryWidth, FolderMarkersWidth, LeftBlankMarginWidth,
+      BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
       RightBlankMarginWidth, SquigglyWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
+  published
+    property Folding: Boolean read FFolding write SetFolding default True;
   end;
 
   TCompScintFileEdit = class(TCompScintEdit)
@@ -135,6 +140,12 @@ uses
   MD5;
   
 { TCompScintEdit }
+
+constructor TCompScintEdit.Create(AOwner: TComponent);
+begin
+  inherited;
+  FFolding := True;
+end;
 
 procedure TCompScintEdit.CreateWnd;
 const
@@ -207,19 +218,19 @@ begin
   Call(SCI_SETMARGINCURSORN, 1, SC_CURSORARROW);
 
   { Set up the gutter column with change history. Note: width of the column is
-    set up for us by TScintEdit.UpdateChangeHistoryWidth. Also see
+    set up by UpdateMarginsAndSquigglyWidths. Also see
     https://scintilla.org/ChangeHistory.html }
   Call(SCI_SETMARGINTYPEN, 2, SC_MARGIN_SYMBOL);
   Call(SCI_SETMARGINMASKN, 2, not (SC_MASK_FOLDERS or mmIconsMask));
   Call(SCI_SETMARGINCURSORN, 2, SC_CURSORARROW);
 
+  { Set up the gutter column with folding markers. Note: width of the column is
+    set up by UpdateMarginsAndSquigglyWidths. }
   Call(SCI_SETMARGINTYPEN, 3, SC_MARGIN_SYMBOL);
   Call(SCI_SETMARGINMASKN, 3, LPARAM(SC_MASK_FOLDERS));
   Call(SCI_SETMARGINCURSORN, 3, SC_CURSORARROW);
-  Call(SCI_SETMARGINWIDTHN, 3, 16);
   Call(SCI_SETMARGINSENSITIVEN, 3, 1);
   Call(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_SHOW or SC_AUTOMATICFOLD_CLICK or SC_AUTOMATICFOLD_CHANGE, 0);
-
   Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_ARROWDOWN);
   Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_ARROW);
   Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY);
@@ -228,6 +239,7 @@ begin
   Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY);
   Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY);
 
+  { Set up the line markers }
   Call(SCI_MARKERDEFINE, mmLineError, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineError, clWhite);
   Call(SCI_MARKERSETBACK, mmLineError, clMaroon);
@@ -237,6 +249,17 @@ begin
   Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
   Call(SCI_MARKERSETBACK, mmLineStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+end;
+
+procedure TCompScintEdit.SetFolding(const Value: Boolean);
+begin
+  if FFolding <> Value then begin
+    FFolding := Value;
+    { If FFolding is True then caller must set the margin width using
+      UpdateMarginsAndSquigglyWidths else we set it to 0 now }
+    if not FFolding then
+      Call(SCI_SETMARGINWIDTHN, 3, 0);
+  end;
 end;
 
 procedure TCompScintEdit.UpdateIndicators(const Ranges: TScintRangeList;
@@ -280,7 +303,7 @@ begin
 end;
 
 procedure TCompScintEdit.UpdateMarginsAndSquigglyWidths(const IconMarkersWidth,
-  BaseChangeHistoryWidth, FolderMarkersWidth, LeftBlankMarginWidth,
+  BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
   RightBlankMarginWidth, SquigglyWidth: Integer);
 begin
   Call(SCI_SETMARGINWIDTHN, 1, IconMarkersWidth);
@@ -292,6 +315,11 @@ begin
     ChangeHistoryWidth := 0; { Current this is just the preprocessor output memo }
   Call(SCI_SETMARGINWIDTHN, 2, ChangeHistoryWidth);
 
+  var FolderMarkersWidth: Integer;
+  if FFolding then
+    FolderMarkersWidth := BaseFolderMarkersWidth
+  else
+    FolderMarkersWidth := 0;
   Call(SCI_SETMARGINWIDTHN, 3, FolderMarkersWidth);
 
   { Note: the first parameter is unused so the value '0' doesn't mean anything below }
