@@ -1832,6 +1832,8 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       var OldState := FLines.GetState(I);
       if FStyler.FLineState <> OldState then
         Call(SCI_SETLINESTATE, I, FStyler.FLineState);
+      { To display/debug fold levels use: Call(SCI_SETFOLDFLAGS, SC_FOLDFLAG_LEVELNUMBERS, 0);
+        And then also update UpdateLineNumbersWidth to make the margin wider. }
       var OldLevel := Call(SCI_GETFOLDLEVEL, I, 0);
       if FoldLevel <> OldLevel then
         Call(SCI_SETFOLDLEVEL, I, FoldLevel);
