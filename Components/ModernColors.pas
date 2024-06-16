@@ -71,9 +71,9 @@ const
   CFore = clBlack;
   CBack = clWhite;
   CToolBack = clBtnFace;
-  CSelBack = $FDD6A7;        { VSCode Modern Light }
-  CWACOBack = $ECECEC;       { Inno Setup 5, 4 tints lightened using color-hex.com }
-  CSTOBACK = $FEEAD3;        { VSCode Modern Light }
+  CSelBack = LSelBack;
+  CWACOBack = LWACOBack;
+  CSTOBACK = LSTOBack;
   CMarginFore = clWindowText;
   CMarginBack = clBtnFace;
   CSplitterBack = clBtnFace;
