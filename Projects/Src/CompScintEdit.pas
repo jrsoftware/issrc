@@ -344,8 +344,8 @@ begin
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, SelBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, SelBackColor);
 
-    Call(SCI_SETFOLDMARGINCOLOUR, 1, FTheme.Colors[tcMarginBack]);
-    Call(SCI_SETFOLDMARGINHICOLOUR, 1, FTheme.Colors[tcMarginBack]);
+    Call(SCI_SETFOLDMARGINCOLOUR, 1, FTheme.Colors[tcBack]);
+    Call(SCI_SETFOLDMARGINHICOLOUR, 1, FTheme.Colors[tcBack]);
 
     Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
     Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, FTheme.Colors[tcWordAtCursorOccurrenceBack]);
