@@ -1328,9 +1328,8 @@ begin
   { If the range is in a collapsed section, expand it }
   var StartLine := GetLineFromPosition(Range.StartPos);
   var EndLine := GetLineFromPosition(Range.EndPos);
-  EnsureLineVisible(StartLine);
-  if EndLine <> StartLine then
-    EnsureLineVisible(EndLine);
+  for var Line := StartLine to EndLine do
+    EnsureLineVisible(Line);
     
   { Select }
   Selection := Range;
