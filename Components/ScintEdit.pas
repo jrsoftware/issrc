@@ -337,7 +337,7 @@ type
       write SetAutoCompleteFontName;
     property AutoCompleteFontSize: Integer read FAutoCompleteFontSize
       write SetAutoCompleteFontSize default 0;
-    property ChangeHistory: Boolean read FChangeHistory write SetChangeHistory;
+    property ChangeHistory: Boolean read FChangeHistory write SetChangeHistory default False;
     property CodePage: Integer read FCodePage write SetCodePage default CP_UTF8;
     property Color;
     property FillSelectionToEdge: Boolean read FFillSelectionToEdge write SetFillSelectionToEdge
@@ -1298,14 +1298,13 @@ begin
 end;
 
 procedure TScintEdit.RestyleLine(const Line: Integer);
-var
-  StartPos, EndPos, EndStyledPos: Integer;
 begin
-  StartPos := GetPositionFromLine(Line);
-  EndPos := GetPositionFromLine(Line + 1);
-  { Back up the 'last styled position' if necessary }
-  EndStyledPos := Call(SCI_GETENDSTYLED, 0, 0);
-  if StartPos < EndStyledPos then
+  var StartPos := GetPositionFromLine(Line);
+  var EndPos := GetPositionFromLine(Line + 1);
+  { Back up the 'last styled position' if necessary using SCI_STARTSTYLINE
+    (SCI_SETENDSTYLED would have been a clearer name because setting the
+    'last styled position' is all it does) }
+  if StartPos < Call(SCI_GETENDSTYLED, 0, 0) then
     Call(SCI_STARTSTYLING, StartPos, 0);
   StyleNeeded(EndPos);
 end;
