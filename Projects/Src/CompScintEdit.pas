@@ -21,13 +21,15 @@ const
   mmIconBreakpoint = 2;      { stop sign }
   mmIconBreakpointGood = 3;  { stop sign + check }
   mmIconBreakpointBad = 4;   { stop sign + X }
-  mmIconsMask = $1F;
-
   mmLineError = 10;          { maroon line highlight }
   mmLineBreakpointBad = 11;  { ugly olive line highlight }
   mmLineStep = 12;           { blue line highlight }
   mmIconStep = 13;           { blue arrow }
   mmIconBreakpointStep = 14; { blue arrow on top of a stop sign + check }
+  mmIconsMask = (1 shl mmIconHasEntry) or (1 shl mmIconEntryProcessed) or
+                (1 shl mmIconBreakpoint) or (1 shl mmIconBreakpointGood) or
+                (1 shl mmIconBreakpointBad) or (1 shl mmIconStep) or
+                (1 shl mmIconBreakpointStep);
 
   { Memo indicator numbers - Note: inSquiggly and inPendingSquiggly are 0 and 1
     in ScintStylerInnoSetup and must be first and second here. Also note: even
