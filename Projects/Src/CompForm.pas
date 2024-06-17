@@ -704,7 +704,7 @@ end;
 function TCompileForm.InitializeFileMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
 begin
   InitializeMemoBase(Memo, PopupMenu);
-  Memo.ChangeHistory := True;
+  Memo.ChangeHistory := schMarkers;
   Memo.CompilerFileIndex := UnknownCompilerFileIndex;
   Memo.ErrorLine := -1;
   Memo.StepLine := -1;
@@ -3332,7 +3332,7 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
     const TextToFind: TScintRawString; const Options: TScintFindOptions;
     const SelectionRanges, IndicatorRanges: TScintRangeList);
   begin
-    if ScintRawStringIsBlank(TextToFind) then
+    if TScintEdit.RawStringIsBlank(TextToFind) then
       Exit;
 
     var StartPos := 0;
@@ -4568,7 +4568,7 @@ procedure TCompileForm.MemoCharAdded(Sender: TObject; Ch: AnsiChar);
   function LineIsBlank(const Line: Integer): Boolean;
   begin
     var S := FActiveMemo.Lines.RawLines[Line];
-    Result := ScintRawStringIsBlank(S);
+    Result := TScintEdit.RawStringIsBlank(S);
   end;
 
 var

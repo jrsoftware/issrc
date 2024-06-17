@@ -21,6 +21,7 @@ const
   StyleNumberUnusedBits = 8-StyleNumberBits; { 3 bits of a byte are unused }
 
 type
+  TScintChangeHistory = (schDisabled, schMarkers, schIndicators);
   TScintEditAutoCompleteSelectionEvent = TNotifyEvent;
   TScintEditChangeInfo = record
     Inserting: Boolean;
@@ -87,7 +88,7 @@ type
     FAcceptDroppedFiles: Boolean;
     FAutoCompleteFontName: String;
     FAutoCompleteFontSize: Integer;
-    FChangeHistory: Boolean;
+    FChangeHistory: TScintChangeHistory;
     FCodePage: Integer;
     FDirectPtr: Pointer;
     FDirectStatusFunction: SciFnDirectStatus;
@@ -151,7 +152,7 @@ type
     procedure SetCaretLine(const Value: Integer);
     procedure SetCaretPosition(const Value: Integer);
     procedure SetCaretVirtualSpace(const Value: Integer);
-    procedure SetChangeHistory(const Value: Boolean);
+    procedure SetChangeHistory(const Value: TScintChangeHistory);
     procedure SetFillSelectionToEdge(const Value: Boolean);
     procedure SetIndentationGuides(const Value: TScintIndentationGuides);
     procedure SetLineNumbers(const Value: Boolean);
@@ -264,6 +265,7 @@ type
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
     procedure PasteFromClipboard;
     function RawSelTextEquals(const S: TScintRawString; const MatchCase: Boolean): Boolean;
+    class function RawStringIsBlank(const S: TScintRawString): Boolean;
     procedure Redo;
     procedure RemoveAdditionalSelections;
     function ReplaceRawTextRange(const StartPos, EndPos: Integer;
@@ -337,7 +339,7 @@ type
       write SetAutoCompleteFontName;
     property AutoCompleteFontSize: Integer read FAutoCompleteFontSize
       write SetAutoCompleteFontSize default 0;
-    property ChangeHistory: Boolean read FChangeHistory write SetChangeHistory default False;
+    property ChangeHistory: TScintChangeHistory read FChangeHistory write SetChangeHistory default schDisabled;
     property CodePage: Integer read FCodePage write SetCodePage default CP_UTF8;
     property Color;
     property FillSelectionToEdge: Boolean read FFillSelectionToEdge write SetFillSelectionToEdge
@@ -475,20 +477,10 @@ type
     property Pixmap: Pointer read GetPixmap;
   end;
 
-function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
-
 implementation
 
 uses
   ShellAPI, RTLConsts, UITypes, GraphUtil;
-
-function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
-begin
-  for var I := 1 to Length(S) do
-    if not(S[I] in [#9, ' ']) then
-      Exit(False);
-  Result := True;
-end;
 
 { TScintEdit }
 
@@ -546,9 +538,9 @@ begin
   Call(SCI_SETVIRTUALSPACEOPTIONS, Flags, 0);
   Call(SCI_SETWRAPMODE, Ord(FWordWrap), 0);
   Call(SCI_SETINDENTATIONGUIDES, IndentationGuides[FIndentationGuides], 0);
-  { If FChangeHistory is True then next call to ClearUndo will enable change
-    history and else we should disable it now }
-  if not FChangeHistory then
+  { If FChangeHistory is not schDisabled then next call to ClearUndo will enable
+    change history and else we should disable it now }
+  if FChangeHistory = schDisabled then
     Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
 end;
 
@@ -558,7 +550,6 @@ begin
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;
-
 begin
   HandleNeeded;
   if FDirectPtr = nil then
@@ -649,9 +640,14 @@ begin
   SetSavePoint;
   Call(SCI_EMPTYUNDOBUFFER, 0, 0);
 
-  if ClearChangeHistory and FChangeHistory then begin
+  if ClearChangeHistory and (FChangeHistory <> schDisabled) then begin
     Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
-    Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_ENABLED or SC_CHANGE_HISTORY_MARKERS, 0);
+    var Flags := SC_CHANGE_HISTORY_ENABLED;
+    if FChangeHistory = schMarkers then
+      Flags := Flags or SC_CHANGE_HISTORY_MARKERS
+    else
+      Flags := Flags or SC_CHANGE_HISTORY_INDICATORS;
+    Call(SCI_SETCHANGEHISTORY, Flags, 0);
   end;
 end;
 
@@ -726,7 +722,7 @@ begin
   Call(SCI_SETMODEVENTMASK, SC_MOD_INSERTTEXT or SC_MOD_DELETETEXT, 0);
   Call(SCI_SETCARETPERIOD, GetCaretBlinkTime, 0);
   Call(SCI_SETSCROLLWIDTHTRACKING, 1, 0);
-  { The default popup menu conflicts with the VCL's PopupMenu on Delphi 3 }
+  { The default popup menu conflicts with the VCL's PopupMenu }
   Call(SCI_USEPOPUP, 0, 0);
   SetDefaultWordChars;
   ApplyOptions;
@@ -815,7 +811,7 @@ end;
 procedure TScintEdit.ForwardMessage(const Message: TMessage);
 begin
   if HandleAllocated then
-    SendMessage(Handle, Message.Msg, Message.WParam, Message.LParam);
+    CallWindowProc(DefWndProc, Handle, Message.Msg, Message.WParam, Message.LParam);
 end;
 
 function TScintEdit.GetAutoCompleteActive: Boolean;
@@ -1270,6 +1266,14 @@ begin
   end;
 end;
 
+class function TScintEdit.RawStringIsBlank(const S: TScintRawString): Boolean;
+begin
+  for var I := 1 to Length(S) do
+    if not(S[I] in [#9, ' ']) then
+      Exit(False);
+  Result := True;
+end;
+
 procedure TScintEdit.Redo;
 begin
   Call(SCI_REDO, 0, 0);
@@ -1314,7 +1318,6 @@ procedure TScintEdit.ScrollCaretIntoView;
 begin
   Call(SCI_SCROLLCARET, 0, 0);
 end;
-
 
 procedure TScintEdit.SelectAllOccurrences(const Options: TScintFindOptions);
 { At the moment this does not automatically expand folds, unlike VSCode. Also
@@ -1456,7 +1459,7 @@ begin
   end;
 end;
 
-procedure TScintEdit.SetChangeHistory(const Value: Boolean);
+procedure TScintEdit.SetChangeHistory(const Value: TScintChangeHistory);
 begin
   if FChangeHistory <> Value then begin
     FChangeHistory := Value;

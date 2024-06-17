@@ -319,7 +319,7 @@ begin
   Call(SCI_SETMARGINWIDTHN, mmIcons, IconMarkersWidth);
 
   var ChangeHistoryWidth: Integer;
-  if ChangeHistory then
+  if ChangeHistory <> schDisabled then
     ChangeHistoryWidth := BaseChangeHistoryWidth
   else
     ChangeHistoryWidth := 0; { Current this is just the preprocessor output memo }
