@@ -21,7 +21,8 @@ const
 
 type
   TInnoSetupStylerSection = (
-    scNone,            { Not inside a section (start of file, or last section was closed) }
+    scNone,            { Not inside a section (start of file, or previous section was closed )
+                         Section tags themselves are not associated with any section! }
     scUnknown,         { Inside an unrecognized section }
     scThirdParty,      { Inside a '_' section (reserved for third-party tools) }
     scCode,
@@ -104,6 +105,8 @@ type
     procedure SetISPPInstalled(const Value: Boolean);
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
+    procedure GetFoldLevel(const LineState: TScintLineState; var Level: Integer;
+      var Header: Boolean); override;
     procedure GetStyleAttributes(const Style: Integer;
       var Attributes: TScintStyleAttributes); override;
     function LineTextSpans(const S: TScintRawString): Boolean; override;
@@ -932,6 +935,34 @@ end;
 function TInnoSetupStyler.GetFlagsWordList(Section: TInnoSetupStylerSection): AnsiString;
 begin
   Result := FFlagsWordList[Section];
+end;
+
+procedure TInnoSetupStyler.GetFoldLevel(const LineState: TScintLineState;
+  var Level: Integer; var Header: Boolean);
+begin
+  { Set folding per section. To keep our code as simple as possible we simply
+    give all lines outside of a section (=lines at the start of the document and
+    section tags and section end tags and lines after section end tags) a header
+    flag. This avoids having to look at the previous line. Doesn't mean
+    Scintilla will display folding markers on all these header lines: it only
+    does that when there is something to fold, so when the header line is
+    followed a by non-header line which is only the case for a section tag line
+    followed by a section line.
+
+    Did notice an issue (Scintilla automatic folding bug?): Add a section with
+    some lines. Contract it. Break the section header for example by removing ']'.
+    Scintialla now auto expands the section and removes the fold mark.
+    Retype the ']'. Scintilla now displays the old fold mark to expand the
+    section but it's already expanded.  }
+
+  var Section := TInnoSetupStyler.GetSectionFromLineState(LineState);
+  if Section <> scNone then begin
+    Level := 1;
+    Header := False;
+  end else begin
+    Level := 0;
+    Header := True;
+  end;
 end;
 
 function TInnoSetupStyler.GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;

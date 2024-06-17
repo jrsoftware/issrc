@@ -225,6 +225,7 @@ type
     procedure DeleteMarker(const Line: Integer; const Marker: TScintMarkerNumber);
     procedure DPIChanged(const Message: TMessage);
     procedure EndUndoAction;
+    procedure EnsureLineVisible(const Line: Integer);
     function FindRawText(const StartPos, EndPos: Integer; const S: TScintRawString;
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
     function FindText(const StartPos, EndPos: Integer; const S: String;
@@ -272,6 +273,7 @@ type
     procedure ScrollCaretIntoView;
     procedure SelectAll;
     procedure SelectAllOccurrences(const Options: TScintFindOptions);
+    procedure SelectAndEnsureVisible(const Range: TScintRange);
     procedure SelectNextOccurrence(const Options: TScintFindOptions);
     function SelEmpty: Boolean;
     function SelNotEmpty(out Sel: TScintRange): Boolean;
@@ -441,6 +443,8 @@ type
     function ConsumeString(const Chars: TScintRawCharSet): TScintRawString;
     function CurCharIn(const Chars: TScintRawCharSet): Boolean;
     function CurCharIs(const C: AnsiChar): Boolean;
+    procedure GetFoldLevel(const LineState: TScintLineState; var Level: Integer;
+      var Header: Boolean); virtual; abstract;
     procedure GetStyleAttributes(const Style: Integer;
       var Attributes: TScintStyleAttributes); virtual; abstract;
     function LineTextSpans(const S: TScintRawString): Boolean; virtual;
@@ -752,6 +756,12 @@ end;
 procedure TScintEdit.EndUndoAction;
 begin
   Call(SCI_ENDUNDOACTION, 0, 0);
+end;
+
+procedure TScintEdit.EnsureLineVisible(const Line: Integer);
+begin
+  FLines.CheckIndexRange(Line);
+  Call(SCI_ENSUREVISIBLE, Line, 0);
 end;
 
 class function TScintEdit.GetErrorException(const S: String): EScintEditError;
@@ -1307,13 +1317,31 @@ end;
 
 
 procedure TScintEdit.SelectAllOccurrences(const Options: TScintFindOptions);
+{ At the moment this does not automatically expand folds, unlike VSCode. Also
+  see SelectNextOccurrence. }
 begin
   Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
   Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
   Call(SCI_MULTIPLESELECTADDEACH, 0, 0);
 end;
 
+procedure TScintEdit.SelectAndEnsureVisible(const Range: TScintRange);
+begin
+  CheckPosRange(Range.StartPos, Range.EndPos);
+
+  { If the range is in a contracted section, expand it }
+  var StartLine := GetLineFromPosition(Range.StartPos);
+  var EndLine := GetLineFromPosition(Range.EndPos);
+  for var Line := StartLine to EndLine do
+    EnsureLineVisible(Line);
+
+  { Select }
+  Selection := Range;
+end;
+
 procedure TScintEdit.SelectNextOccurrence(const Options: TScintFindOptions);
+{ At the moment this does not automatically expand folds, unlike VSCode. Also
+  see SelectAllOccurrences. }
 begin
   Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
   Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
@@ -1793,10 +1821,26 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       FStyler.FText := '';
     end;
 
+    var FoldLevel: Integer;
+    var FoldHeader: Boolean;
+    FStyler.GetFoldLevel(FStyler.FLineState, FoldLevel, FoldHeader);
+    Inc(FoldLevel, SC_FOLDLEVELBASE);
+    if FoldHeader then
+      FoldLevel := FoldLevel or SC_FOLDLEVELHEADERFLAG;
+    { Setting SC_FOLDLEVELWHITEFLAG on empty lines causes a problem: when
+      Scintilla auto expands a contracted section (for example after removing ']'
+      from a section header) all the empty lines stay invisible, even any which
+      are in the middle of the section. }
+
     for var I := FirstLine to LastLine do begin
       var OldState := FLines.GetState(I);
       if FStyler.FLineState <> OldState then
         Call(SCI_SETLINESTATE, I, FStyler.FLineState);
+      { To display/debug fold levels use: Call(SCI_SETFOLDFLAGS, SC_FOLDFLAG_LEVELNUMBERS, 0);
+        And then also update UpdateLineNumbersWidth to make the margin wider. }
+      var OldLevel := Call(SCI_GETFOLDLEVEL, I, 0);
+      if FoldLevel <> OldLevel then
+        Call(SCI_SETFOLDLEVEL, I, FoldLevel);
     end;
 
     Result := LastLine;
