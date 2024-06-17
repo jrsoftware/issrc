@@ -624,6 +624,14 @@ object CompileForm: TCompileForm
         RadioItem = True
         OnClick = VHideClick
       end
+      object N24: TMenuItem
+        Caption = '-'
+      end
+      object VWordWrap: TMenuItem
+        Caption = '&Word Wrap'
+        ShortCut = 32858
+        OnClick = VWordWrapClick
+      end
       object OutputListPopupMenu: TMenuItem
         Caption = 'OutputListPopupMenu'
         Visible = False

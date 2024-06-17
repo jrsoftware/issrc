@@ -196,12 +196,12 @@ object OptionsForm: TOptionsForm
       Caption = 'Allow cursor to move beyond &end of lines'
       TabOrder = 3
     end
-    object WordWrapCheck: TCheckBox
+    object UseFoldingCheck: TCheckBox
       Left = 8
       Top = 96
       Width = 265
       Height = 17
-      Caption = 'W&ord wrap'
+      Caption = 'Enable section f&olding'
       TabOrder = 4
     end
     object UseTabCharacterCheck: TCheckBox

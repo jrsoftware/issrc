@@ -39,7 +39,7 @@ type
     PauseOnDebuggerExceptionsCheck: TCheckBox;
     RunAsDifferentUserCheck: TCheckBox;
     AutosaveCheck: TCheckBox;
-    WordWrapCheck: TCheckBox;
+    UseFoldingCheck: TCheckBox;
     AutoIndentCheck: TCheckBox;
     IndentationGuidesCheck: TCheckBox;
     UseTabCharacterCheck: TCheckBox;

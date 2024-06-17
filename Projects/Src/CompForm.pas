@@ -235,6 +235,8 @@ type
     BreakPointsPopupMenu: TMenuItem;
     RToggleBreakPoint2: TMenuItem;
     RDeleteBreakPoints2: TMenuItem;
+    N24: TMenuItem;
+    VWordWrap: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -352,6 +354,7 @@ type
     procedure ESelectAllOccurrencesClick(Sender: TObject);
     procedure BreakPointsPopupMenuClick(Sender: TObject);
     procedure FClearRecentClick(Sender: TObject);
+    procedure VWordWrapClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -384,6 +387,7 @@ type
       CursorPastEOL: Boolean;
       TabWidth: Integer;
       UseTabCharacter: Boolean;
+      UseFolding: Boolean;
       WordWrap: Boolean;
       AutoIndent: Boolean;
       IndentationGuides: Boolean;
@@ -762,6 +766,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.CursorPastEOL := Ini.ReadBool('Options', 'EditorCursorPastEOL', False);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
       FOptions.UseTabCharacter := Ini.ReadBool('Options', 'UseTabCharacter', False);
+      FOptions.UseFolding := Ini.ReadBool('Options', 'UseFolding', True);
       FOptions.WordWrap := Ini.ReadBool('Options', 'WordWrap', False);
       FOptions.AutoIndent := Ini.ReadBool('Options', 'AutoIndent', True);
       FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', True);
@@ -2009,6 +2014,7 @@ begin
     Memo.TabWidth := FOptions.TabWidth;
     Memo.UseTabCharacter := FOptions.UseTabCharacter;
 
+    Memo.UseFolding := FOptions.UseFolding;
     Memo.WordWrap := FOptions.WordWrap;
 
     if FOptions.IndentationGuides then
@@ -2588,6 +2594,7 @@ begin
   VDebugOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugOutput);
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
   VFindResults.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiFindResults);
+  VWordWrap.Checked := FOptions.WordWrap;
 
   ApplyMenuBitmaps(Sender as TMenuItem);
 end;
@@ -2713,6 +2720,18 @@ end;
 procedure TCompileForm.VStatusBarClick(Sender: TObject);
 begin
   StatusBar.Visible := not StatusBar.Visible;
+end;
+
+procedure TCompileForm.VWordWrapClick(Sender: TObject);
+begin
+  FOptions.WordWrap := not FOptions.WordWrap;
+  SyncEditorOptions;
+  var Ini := TConfigIniFile.Create;
+  try
+    Ini.WriteBool('Options', 'WordWrap', FOptions.WordWrap);
+  finally
+    Ini.Free;
+  end;
 end;
 
 procedure TCompileForm.SetStatusPanelVisible(const AVisible: Boolean);
@@ -3702,7 +3721,7 @@ begin
     OptionsForm.CursorPastEOLCheck.Checked := FOptions.CursorPastEOL;
     OptionsForm.TabWidthEdit.Text := IntToStr(FOptions.TabWidth);
     OptionsForm.UseTabCharacterCheck.Checked := FOptions.UseTabCharacter;
-    OptionsForm.WordWrapCheck.Checked := FOptions.WordWrap;
+    OptionsForm.UseFoldingCheck.Checked := FOptions.UseFolding;
     OptionsForm.AutoIndentCheck.Checked := FOptions.AutoIndent;
     OptionsForm.IndentationGuidesCheck.Checked := FOptions.IndentationGuides;
     OptionsForm.GutterLineNumbersCheck.Checked := FOptions.GutterLineNumbers;
@@ -3734,7 +3753,7 @@ begin
     FOptions.CursorPastEOL := OptionsForm.CursorPastEOLCheck.Checked;
     FOptions.TabWidth := StrToInt(OptionsForm.TabWidthEdit.Text);
     FOptions.UseTabCharacter := OptionsForm.UseTabCharacterCheck.Checked;
-    FOptions.WordWrap := OptionsForm.WordWrapCheck.Checked;
+    FOptions.UseFolding := OptionsForm.UseFoldingCheck.Checked;
     FOptions.AutoIndent := OptionsForm.AutoIndentCheck.Checked;
     FOptions.IndentationGuides := OptionsForm.IndentationGuidesCheck.Checked;
     FOptions.GutterLineNumbers := OptionsForm.GutterLineNumbersCheck.Checked;
@@ -3755,6 +3774,7 @@ begin
       Memo.Font.Assign(OptionsForm.FontPanel.Font);
     end;
     SyncEditorOptions;
+    UpdateMarginsAndSquigglyWidths;
     UpdateNewMainFileButtons;
     UpdateOccurrenceIndicators(FActiveMemo);
     UpdateKeyMapping;
@@ -3780,7 +3800,7 @@ begin
       Ini.WriteBool('Options', 'EditorCursorPastEOL', FOptions.CursorPastEOL);
       Ini.WriteInteger('Options', 'TabWidth', FOptions.TabWidth);
       Ini.WriteBool('Options', 'UseTabCharacter', FOptions.UseTabCharacter);
-      Ini.WriteBool('Options', 'WordWrap', FOptions.WordWrap);
+      Ini.WriteBool('Options', 'UseFolding', FOptions.UseFolding);
       Ini.WriteBool('Options', 'AutoIndent', FOptions.AutoIndent);
       Ini.WriteBool('Options', 'IndentationGuides', FOptions.IndentationGuides);
       Ini.WriteBool('Options', 'GutterLineNumbers', FOptions.GutterLineNumbers);
