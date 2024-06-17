@@ -95,7 +95,9 @@ type
     HMenu: TMenuItem;
     HDoc: TMenuItem;
     HAbout: TMenuItem;
-    FMRUMainFilesSep: TMenuItem;
+    FRecent: TMenuItem;
+    FClearRecent: TMenuItem;
+    N6: TMenuItem;
     VCompilerOutput: TMenuItem;
     FindDialog: TFindDialog;
     ReplaceDialog: TReplaceDialog;
@@ -349,6 +351,7 @@ type
     procedure ESelectNextOccurrenceClick(Sender: TObject);
     procedure ESelectAllOccurrencesClick(Sender: TObject);
     procedure BreakPointsPopupMenuClick(Sender: TObject);
+    procedure FClearRecentClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -456,6 +459,7 @@ type
     procedure BuildAndSaveBreakPointLines(const AMemo: TCompScintFileEdit);
     procedure BuildAndSaveKnownIncludedAndHiddenFiles;
     procedure CheckIfTerminated;
+    procedure ClearMRUMainFilesList;
     procedure CloseTab(const TabIndex: Integer);
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
@@ -916,7 +920,7 @@ begin
   for I := 0 to High(FMRUMainFilesMenuItems) do begin
     NewItem := TMenuItem.Create(Self);
     NewItem.OnClick := FMRUClick;
-    FMenu.Insert(FMenu.IndexOf(FMRUMainFilesSep), NewItem);
+    FRecent.Insert(I, NewItem);
     FMRUMainFilesMenuItems[I] := NewItem;
   end;
   FMRUParametersList := TStringList.Create;
@@ -1566,6 +1570,15 @@ begin
   end;
 end;
 
+procedure TCompileForm.ClearMRUMainFilesList;
+begin
+  try
+    ClearMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew');
+  except
+    { Ignore any exceptions. }
+  end;
+end;
+
 procedure TCompileForm.ReadMRUMainFilesList;
 begin
   try
@@ -2033,7 +2046,7 @@ begin
   FSaveEncodingUTF8WithoutBOM.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8WithoutBOM);
   FSaveAll.Visible := FOptions.OpenIncludedFiles;
   ReadMRUMainFilesList;
-  FMRUMainFilesSep.Visible := FMRUMainFilesList.Count <> 0;
+  FRecent.Visible := FMRUMainFilesList.Count <> 0;
   for I := 0 to High(FMRUMainFilesMenuItems) do
     with FMRUMainFilesMenuItems[I] do begin
       if I < FMRUMainFilesList.Count then begin
@@ -2440,6 +2453,13 @@ begin
   finally
     DeinitPrintStyler(PrintStyler, PrintTheme, OldStyler, OldTheme);
   end;
+end;
+
+procedure TCompileForm.FClearRecentClick(Sender: TObject);
+begin
+  if MsgBox('Are you sure you want to clear the list of recently opened files?',
+    SCompilerFormCaption, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then
+      ClearMRUMainFilesList;
 end;
 
 procedure TCompileForm.FMRUClick(Sender: TObject);
@@ -5555,6 +5575,7 @@ begin
           AddMenuBitmap(FMenuBitmaps, DC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
 
         var NamedMenus := [
+          NM(FClearRecent, 'eraser'),
           NM(FSaveMainFileAs, 'save-as-filled'),
           NM(FSaveAll, 'save-all-filled'),
           NM(FPrint, 'printer'),

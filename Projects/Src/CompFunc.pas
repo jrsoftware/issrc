@@ -45,6 +45,7 @@ function GetDefaultThemeType: TThemeType;
 function GetDefaultKeyMappingType: TKeyMappingType;
 procedure OpenDonateSite;
 procedure OpenMailingListSite;
+procedure ClearMRUList(const MRUList: TStringList; const Section: String);
 procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
 procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
   const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
@@ -286,6 +287,19 @@ procedure OpenMailingListSite;
 begin
   ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/ismail.php', nil,
     nil, SW_SHOWNORMAL);
+end;
+
+procedure ClearMRUList(const MRUList: TStringList; const Section: String);
+var
+  Ini: TConfigIniFile;
+begin
+  Ini := TConfigIniFile.Create;
+  try
+    MRUList.Clear;
+    Ini.EraseSection(Section);
+  finally
+    Ini.Free;
+  end;
 end;
 
 procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
