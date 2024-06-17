@@ -97,7 +97,6 @@ type
     HAbout: TMenuItem;
     FRecent: TMenuItem;
     FClearRecent: TMenuItem;
-    FMRUMainFilesSep: TMenuItem;
     N6: TMenuItem;
     VCompilerOutput: TMenuItem;
     FindDialog: TFindDialog;
@@ -920,7 +919,7 @@ begin
   for I := 0 to High(FMRUMainFilesMenuItems) do begin
     NewItem := TMenuItem.Create(Self);
     NewItem.OnClick := FMRUClick;
-    FRecent.Insert(FRecent.IndexOf(FMRUMainFilesSep), NewItem);
+    FRecent.Insert(I, NewItem);
     FMRUMainFilesMenuItems[I] := NewItem;
   end;
   FMRUParametersList := TStringList.Create;
@@ -2037,7 +2036,7 @@ begin
   FSaveEncodingUTF8WithoutBOM.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8WithoutBOM);
   FSaveAll.Visible := FOptions.OpenIncludedFiles;
   ReadMRUMainFilesList;
-  FMRUMainFilesSep.Visible := FMRUMainFilesList.Count <> 0;
+  FRecent.Visible := FMRUMainFilesList.Count <> 0;
   for I := 0 to High(FMRUMainFilesMenuItems) do
     with FMRUMainFilesMenuItems[I] do begin
       if I < FMRUMainFilesList.Count then begin

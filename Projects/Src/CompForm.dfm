@@ -371,6 +371,16 @@ object CompileForm: TCompileForm
         ShortCut = 16463
         OnClick = FOpenMainFileClick
       end
+      object FRecent: TMenuItem
+        Caption = '&Recent Files'
+        object N6: TMenuItem
+          Caption = '-'
+        end
+        object FClearRecent: TMenuItem
+          Caption = '&Clear Recent Files'
+          OnClick = FClearRecentClick
+        end
+      end
       object N19: TMenuItem
         Caption = '-'
       end
@@ -415,20 +425,6 @@ object CompileForm: TCompileForm
         OnClick = FPrintClick
       end
       object N22: TMenuItem
-        Caption = '-'
-      end
-      object FRecent: TMenuItem
-        Caption = '&Recent Files'
-        object FMRUMainFilesSep: TMenuItem
-          Caption = '-'
-          Visible = False
-        end
-        object FClearRecent: TMenuItem
-          Caption = '&Clear Recent Files'
-          OnClick = FClearRecentClick
-        end
-      end
-      object N6: TMenuItem
         Caption = '-'
       end
       object FExit: TMenuItem
