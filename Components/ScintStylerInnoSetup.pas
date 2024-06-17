@@ -21,7 +21,7 @@ const
 
 type
   TInnoSetupStylerSection = (
-    scNone,            { Not inside a section (start of file, or previous section was closed with )
+    scNone,            { Not inside a section (start of file, or previous section was closed )
                          Section tags themselves are not associated with any section! }
     scUnknown,         { Inside an unrecognized section }
     scThirdParty,      { Inside a '_' section (reserved for third-party tools) }
@@ -950,7 +950,7 @@ begin
     followed by a section line.
 
     Did notice an issue (Scintilla automatic folding bug?): Add a section with
-    some lines. Collapse it. Break the section header for example by removing ']'.
+    some lines. Contract it. Break the section header for example by removing ']'.
     Scintialla now auto expands the section and removes the fold mark.
     Retype the ']'. Scintilla now displays the old fold mark to expand the
     section but it's already expanded.  }

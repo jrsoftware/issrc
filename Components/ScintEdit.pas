@@ -480,7 +480,7 @@ function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
 implementation
 
 uses
-  ShellAPI, RTLConsts, UITypes, GraphUtil, ScintStylerInnoSetup;
+  ShellAPI, RTLConsts, UITypes, GraphUtil;
 
 function ScintRawStringIsBlank(const S: TScintRawString): Boolean;
 begin
@@ -760,6 +760,7 @@ end;
 
 procedure TScintEdit.EnsureLineVisible(const Line: Integer);
 begin
+  FLines.CheckIndexRange(Line);
   Call(SCI_ENSUREVISIBLE, Line, 0);
 end;
 
@@ -1328,7 +1329,7 @@ procedure TScintEdit.SelectAndEnsureVisible(const Range: TScintRange);
 begin
   CheckPosRange(Range.StartPos, Range.EndPos);
 
-  { If the range is in a collapsed section, expand it }
+  { If the range is in a contracted section, expand it }
   var StartLine := GetLineFromPosition(Range.StartPos);
   var EndLine := GetLineFromPosition(Range.EndPos);
   for var Line := StartLine to EndLine do
@@ -1827,7 +1828,7 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
     if FoldHeader then
       FoldLevel := FoldLevel or SC_FOLDLEVELHEADERFLAG;
     { Setting SC_FOLDLEVELWHITEFLAG on empty lines causes a problem: when
-      Scintilla auto expands a collapsed section (for example after removing ']'
+      Scintilla auto expands a contracted section (for example after removing ']'
       from a section header) all the empty lines stay invisible, even any which
       are in the middle of the section. }
 

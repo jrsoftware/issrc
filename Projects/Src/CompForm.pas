@@ -1983,7 +1983,7 @@ var
 begin
   for Memo in FMemos do begin
     Memo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
-    Memo.Call(SCI_INDICSETSTYLE, inSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
+    Memo.Call(SCI_INDICSETSTYLE, minSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
 
     if FOptions.CursorPastEOL then
       Memo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible, svsNoWrapLineStart]
@@ -3326,7 +3326,7 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
       { Don't add indicators on lines which have a line marker }
       var Line := AMemo.GetLineFromPosition(FoundRange.StartPos);
       var Markers := AMemo.GetMarkers(Line);
-      if Markers * [mmLineError, mmLineBreakpointBad, mmLineStep] <> [] then
+      if Markers * [mlmError, mlmBreakpointBad, mlmStep] <> [] then
         Continue;
 
       { Add indicator while making sure it does not overlap any regular selection
@@ -3368,7 +3368,7 @@ begin
         FindTextAndAddRanges(AMemo, TextToIndicate, GetWordOccurrenceFindOptions, SelectionRanges, IndicatorRanges);
       end;
     end;
-    AMemo.UpdateIndicators(IndicatorRanges, inWordAtCursorOccurrence);
+    AMemo.UpdateIndicators(IndicatorRanges, minWordAtCursorOccurrence);
 
     IndicatorRanges.Clear;
     if FOptions.HighlightSelTextOccurrences and MainSelNotEmpty and MainSelSingleLine then begin
@@ -3377,7 +3377,7 @@ begin
         AMemo.GetSelections(SelectionRanges);
       FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions,SelectionRanges, IndicatorRanges);
     end;
-    AMemo.UpdateIndicators(IndicatorRanges, inSelTextOccurrence);
+    AMemo.UpdateIndicators(IndicatorRanges, minSelTextOccurrence);
   finally
     SelectionRanges.Free;
     IndicatorRanges.Free;
@@ -3484,13 +3484,13 @@ begin
         var BitmapInfo := CreateBitmapInfo(ImageList.Width, -ImageList.Height, 32);
 
         var NamedMarkers := [
-            NM(mmIconHasEntry, 'debug-stop-filled'),
-            NM(mmIconEntryProcessed, 'debug-stop-filled_2'),
-            NM(mmIconBreakpoint, 'debug-breakpoint-filled'),
-            NM(mmIconBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
-            NM(mmIconBreakpointGood, 'debug-breakpoint-filled-ok-2'),
-            NM(mmIconStep, 'symbol-arrow-right'),
-            NM(mmIconBreakpointStep, 'debug-breakpoint-filled-ok2-symbol-arrow-right'),
+            NM(mimHasEntry, 'debug-stop-filled'),
+            NM(mimEntryProcessed, 'debug-stop-filled_2'),
+            NM(mimBreakpoint, 'debug-breakpoint-filled'),
+            NM(mimBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
+            NM(mimBreakpointGood, 'debug-breakpoint-filled-ok-2'),
+            NM(mimStep, 'symbol-arrow-right'),
+            NM(mimBreakpointStep, 'debug-breakpoint-filled-ok2-symbol-arrow-right'),
             NM(SC_MARKNUM_FOLDER, 'symbol-add'),
             NM(SC_MARKNUM_FOLDEROPEN, 'symbol-remove')];
 
@@ -3855,7 +3855,7 @@ begin
   else
     Pos := AMemo.CaretPosition; { Not actually moving caret - it's already were we want it}
 
-  { If the line is in a collapsed section, expand it }
+  { If the line is in a contracted section, expand it }
   AMemo.EnsureLineVisible(AMemo.GetLineFromPosition(Pos));
 
   { If the line isn't in view, scroll so that it's in the center }
@@ -4241,9 +4241,9 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
     Pos := AMemo.CaretPosition;
     Value := False;
     if AMemo.CaretVirtualSpace = 0 then begin
-      Value := AMemo.GetIndicatorAtPosition(inPendingSquiggly, Pos);
+      Value := AMemo.GetIndicatorAtPosition(minPendingSquiggly, Pos);
       if not Value and (Pos > 0) then
-        Value := AMemo.GetIndicatorAtPosition(inPendingSquiggly, Pos-1);
+        Value := AMemo.GetIndicatorAtPosition(minPendingSquiggly, Pos-1);
     end;
     if FOnPendingSquiggly <> Value then begin
       FOnPendingSquiggly := Value;
@@ -6710,18 +6710,18 @@ begin
   NewMarker := -1;
   if AMemo.BreakPoints.IndexOf(Line) <> -1 then begin
     if AMemo.LineState = nil then
-      NewMarker := mmIconBreakpoint
+      NewMarker := mimBreakpoint
     else if (Line < AMemo.LineStateCount) and (AMemo.LineState[Line] <> lnUnknown) then
-      NewMarker := IfThen(StepLine, mmIconBreakpointStep, mmIconBreakpointGood)
+      NewMarker := IfThen(StepLine, mimBreakpointStep, mimBreakpointGood)
     else
-      NewMarker := mmIconBreakpointBad;
+      NewMarker := mimBreakpointBad;
   end else if StepLine then
-    NewMarker := mmIconStep
+    NewMarker := mimStep
   else begin
     if Line < AMemo.LineStateCount then begin
       case AMemo.LineState[Line] of
-        lnHasEntry: NewMarker := mmIconHasEntry;
-        lnEntryProcessed: NewMarker := mmIconEntryProcessed;
+        lnHasEntry: NewMarker := mimHasEntry;
+        lnEntryProcessed: NewMarker := mimEntryProcessed;
       end;
     end;
   end;
@@ -6735,11 +6735,11 @@ begin
     AMemo.AddMarker(Line, NewMarker);
 
   if StepLine then
-    AMemo.AddMarker(Line, mmLineStep)
+    AMemo.AddMarker(Line, mlmStep)
   else if AMemo.ErrorLine = Line then
-    AMemo.AddMarker(Line, mmLineError)
-  else if NewMarker = mmIconBreakpointBad then
-    AMemo.AddMarker(Line, mmLineBreakpointBad);
+    AMemo.AddMarker(Line, mlmError)
+  else if NewMarker = mimBreakpointBad then
+    AMemo.AddMarker(Line, mlmBreakpointBad);
 end;
 
 procedure TCompileForm.UpdateAllMemoLineMarkers(const AMemo: TCompScintFileEdit);

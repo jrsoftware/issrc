@@ -15,32 +15,38 @@ uses
   Windows, Graphics, Classes, Generics.Collections, ScintInt, ScintEdit, ModernColors;
 
 const
-  { Memo marker numbers }
-  mmIconHasEntry = 0;        { grey dot }
-  mmIconEntryProcessed = 1;  { green dot }
-  mmIconBreakpoint = 2;      { stop sign }
-  mmIconBreakpointGood = 3;  { stop sign + check }
-  mmIconBreakpointBad = 4;   { stop sign + X }
-  mmLineError = 10;          { maroon line highlight }
-  mmLineBreakpointBad = 11;  { ugly olive line highlight }
-  mmLineStep = 12;           { blue line highlight }
-  mmIconStep = 13;           { blue arrow }
-  mmIconBreakpointStep = 14; { blue arrow on top of a stop sign + check }
-  mmIconsMask = (1 shl mmIconHasEntry) or (1 shl mmIconEntryProcessed) or
-                (1 shl mmIconBreakpoint) or (1 shl mmIconBreakpointGood) or
-                (1 shl mmIconBreakpointBad) or (1 shl mmIconStep) or
-                (1 shl mmIconBreakpointStep);
+  { Memo margin numbers }
+  mmLineNumbers = 0;
+  mmIcons = 1;
+  mmChangeHistory = 2;
+  mmFolding = 3;
+
+  { Memo icon and line marker numbers }
+  mimHasEntry = 0;        { grey dot }
+  mimEntryProcessed = 1;  { green dot }
+  mimBreakpoint = 2;      { stop sign }
+  mimBreakpointGood = 3;  { stop sign + check }
+  mimBreakpointBad = 4;   { stop sign + X }
+  mlmError = 10;          { maroon line highlight }
+  mlmBreakpointBad = 11;  { ugly olive line highlight }
+  mlmStep = 12;           { blue line highlight }
+  mimStep = 13;           { blue arrow }
+  mimBreakpointStep = 14; { blue arrow on top of a stop sign + check }
+  mimMask = (1 shl mimHasEntry) or (1 shl mimEntryProcessed) or
+            (1 shl mimBreakpoint) or (1 shl mimBreakpointGood) or
+            (1 shl mimBreakpointBad) or (1 shl mimStep) or
+            (1 shl mimBreakpointStep);
 
   { Memo indicator numbers - Note: inSquiggly and inPendingSquiggly are 0 and 1
     in ScintStylerInnoSetup and must be first and second here. Also note: even
     though inSquiggly and inPendingSquiggly are exclusive we still need 2 indicators
     (instead of 1 indicator with 2 values) because inPendingSquiggly is always
     hidden and in inSquiggly is not. }
-  inSquiggly = INDICATOR_CONTAINER;
-  inPendingSquiggly = INDICATOR_CONTAINER+1;
-  inWordAtCursorOccurrence = INDICATOR_CONTAINER+2;
-  inSelTextOccurrence = INDICATOR_CONTAINER+3;
-  inMax = inSelTextOccurrence;
+  minSquiggly = INDICATOR_CONTAINER;
+  minPendingSquiggly = INDICATOR_CONTAINER+1;
+  minWordAtCursorOccurrence = INDICATOR_CONTAINER+2;
+  minSelTextOccurrence = INDICATOR_CONTAINER+3;
+  minMax = minSelTextOccurrence;
 
   { Just some invalid value used to indicate an unknown/uninitialized compiler FileIndex value }
   UnknownCompilerFileIndex = -2;
@@ -50,7 +56,7 @@ type
   PLineStateArray = ^TLineStateArray;
   TLineStateArray = array[0..0] of TLineState;
   TSaveEncoding = (seAuto, seUTF8WithBOM, seUTF8WithoutBOM);
-  TCompScintIndicatorNumber = 0..inMax;
+  TCompScintIndicatorNumber = 0..minMax;
 
   TCompScintEdit = class(TScintEdit)
   private
@@ -191,47 +197,47 @@ begin
 
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
-  Call(SCI_INDICSETSTYLE, inSquiggly, INDIC_SQUIGGLE); { Overwritten by TCompForm.SyncEditorOptions }
-  Call(SCI_INDICSETFORE, inSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
-  Call(SCI_INDICSETSTYLE, inPendingSquiggly, INDIC_HIDDEN);
+  Call(SCI_INDICSETSTYLE, minSquiggly, INDIC_SQUIGGLE); { Overwritten by TCompForm.SyncEditorOptions }
+  Call(SCI_INDICSETFORE, minSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+  Call(SCI_INDICSETSTYLE, minPendingSquiggly, INDIC_HIDDEN);
 
-  Call(SCI_INDICSETSTYLE, inWordAtCursorOccurrence, INDIC_STRAIGHTBOX);
-  Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
-  Call(SCI_INDICSETALPHA, inWordAtCursorOccurrence, SC_ALPHA_OPAQUE);
-  Call(SCI_INDICSETOUTLINEALPHA, inWordAtCursorOccurrence, SC_ALPHA_OPAQUE);
-  Call(SCI_INDICSETUNDER, inWordAtCursorOccurrence, 1);
+  Call(SCI_INDICSETSTYLE, minWordAtCursorOccurrence, INDIC_STRAIGHTBOX);
+  Call(SCI_INDICSETFORE, minWordAtCursorOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+  Call(SCI_INDICSETALPHA, minWordAtCursorOccurrence, SC_ALPHA_OPAQUE);
+  Call(SCI_INDICSETOUTLINEALPHA, minWordAtCursorOccurrence, SC_ALPHA_OPAQUE);
+  Call(SCI_INDICSETUNDER, minWordAtCursorOccurrence, 1);
 
-  Call(SCI_INDICSETSTYLE, inSelTextOccurrence, INDIC_STRAIGHTBOX);
-  Call(SCI_INDICSETFORE, inSelTextOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
-  Call(SCI_INDICSETALPHA, inSelTextOccurrence, SC_ALPHA_OPAQUE);
-  Call(SCI_INDICSETOUTLINEALPHA, inSelTextOccurrence, SC_ALPHA_OPAQUE);
-  Call(SCI_INDICSETUNDER, inSelTextOccurrence, 1);
+  Call(SCI_INDICSETSTYLE, minSelTextOccurrence, INDIC_STRAIGHTBOX);
+  Call(SCI_INDICSETFORE, minSelTextOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+  Call(SCI_INDICSETALPHA, minSelTextOccurrence, SC_ALPHA_OPAQUE);
+  Call(SCI_INDICSETOUTLINEALPHA, minSelTextOccurrence, SC_ALPHA_OPAQUE);
+  Call(SCI_INDICSETUNDER, minSelTextOccurrence, 1);
 
   { Set up the gutter column with line numbers - avoid Scintilla's 'reverse arrow'
     cursor which is not a standard Windows cursor so is just confusing, especially
     because the line numbers are clickable to select lines. Note: width of the
     column is set up for us by TScintEdit.UpdateLineNumbersWidth. }
-  Call(SCI_SETMARGINCURSORN, 0, SC_CURSORARROW);
+  Call(SCI_SETMARGINCURSORN, mmLineNumbers, SC_CURSORARROW);
 
   { Set up the gutter column with breakpoint etc symbols }
-  Call(SCI_SETMARGINTYPEN, 1, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINMASKN, 1, mmIconsMask);
-  Call(SCI_SETMARGINSENSITIVEN, 1, 1); { Makes it send SCN_MARGIN(RIGHT)CLICK instead of selecting lines }
-  Call(SCI_SETMARGINCURSORN, 1, SC_CURSORARROW);
+  Call(SCI_SETMARGINTYPEN, mmIcons, SC_MARGIN_SYMBOL);
+  Call(SCI_SETMARGINMASKN, mmIcons, mimMask);
+  Call(SCI_SETMARGINSENSITIVEN, mmIcons, 1); { Makes it send SCN_MARGIN(RIGHT)CLICK instead of selecting lines }
+  Call(SCI_SETMARGINCURSORN, mmIcons, SC_CURSORARROW);
 
   { Set up the gutter column with change history. Note: width of the column is
     set up by UpdateMarginsAndSquigglyWidths. Also see
     https://scintilla.org/ChangeHistory.html }
-  Call(SCI_SETMARGINTYPEN, 2, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINMASKN, 2, not (SC_MASK_FOLDERS or mmIconsMask));
-  Call(SCI_SETMARGINCURSORN, 2, SC_CURSORARROW);
+  Call(SCI_SETMARGINTYPEN, mmChangeHistory, SC_MARGIN_SYMBOL);
+  Call(SCI_SETMARGINMASKN, mmChangeHistory, not (SC_MASK_FOLDERS or mimMask));
+  Call(SCI_SETMARGINCURSORN, mmChangeHistory, SC_CURSORARROW);
 
   { Set up the gutter column with folding markers. Note: width of the column is
     set up by UpdateMarginsAndSquigglyWidths. }
-  Call(SCI_SETMARGINTYPEN, 3, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINMASKN, 3, LPARAM(SC_MASK_FOLDERS));
-  Call(SCI_SETMARGINCURSORN, 3, SC_CURSORARROW);
-  Call(SCI_SETMARGINSENSITIVEN, 3, 1);
+  Call(SCI_SETMARGINTYPEN, mmFolding, SC_MARGIN_SYMBOL);
+  Call(SCI_SETMARGINMASKN, mmFolding, LPARAM(SC_MASK_FOLDERS));
+  Call(SCI_SETMARGINCURSORN, mmFolding, SC_CURSORARROW);
+  Call(SCI_SETMARGINSENSITIVEN, mmFolding, 1);
   Call(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_SHOW or SC_AUTOMATICFOLD_CLICK or SC_AUTOMATICFOLD_CHANGE, 0);
   Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_ARROWDOWN);
   Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_ARROW);
@@ -242,15 +248,15 @@ begin
   Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY);
 
   { Set up the line markers }
-  Call(SCI_MARKERDEFINE, mmLineError, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mmLineError, clWhite);
-  Call(SCI_MARKERSETBACK, mmLineError, clMaroon);
-  Call(SCI_MARKERDEFINE, mmLineBreakpointBad, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mmLineBreakpointBad, clLime);
-  Call(SCI_MARKERSETBACK, mmLineBreakpointBad, clOlive);
-  Call(SCI_MARKERDEFINE, mmLineStep, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mmLineStep, clWhite);
-  Call(SCI_MARKERSETBACK, mmLineStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+  Call(SCI_MARKERDEFINE, mlmError, SC_MARK_BACKFORE);
+  Call(SCI_MARKERSETFORE, mlmError, clWhite);
+  Call(SCI_MARKERSETBACK, mlmError, clMaroon);
+  Call(SCI_MARKERDEFINE, mlmBreakpointBad, SC_MARK_BACKFORE);
+  Call(SCI_MARKERSETFORE, mlmBreakpointBad, clLime);
+  Call(SCI_MARKERSETBACK, mlmBreakpointBad, clOlive);
+  Call(SCI_MARKERDEFINE, mlmStep, SC_MARK_BACKFORE);
+  Call(SCI_MARKERSETFORE, mlmStep, clWhite);
+  Call(SCI_MARKERSETBACK, mlmStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
 end;
 
 procedure TCompScintEdit.SetUseFolding(const Value: Boolean);
@@ -310,27 +316,27 @@ procedure TCompScintEdit.UpdateMarginsAndSquigglyWidths(const IconMarkersWidth,
   BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
   RightBlankMarginWidth, SquigglyWidth: Integer);
 begin
-  Call(SCI_SETMARGINWIDTHN, 1, IconMarkersWidth);
+  Call(SCI_SETMARGINWIDTHN, mmIcons, IconMarkersWidth);
 
   var ChangeHistoryWidth: Integer;
   if ChangeHistory then
     ChangeHistoryWidth := BaseChangeHistoryWidth
   else
     ChangeHistoryWidth := 0; { Current this is just the preprocessor output memo }
-  Call(SCI_SETMARGINWIDTHN, 2, ChangeHistoryWidth);
+  Call(SCI_SETMARGINWIDTHN, mmChangeHistory, ChangeHistoryWidth);
 
   var FolderMarkersWidth: Integer;
   if FUseFolding then
     FolderMarkersWidth := BaseFolderMarkersWidth
   else
     FolderMarkersWidth := 0;
-  Call(SCI_SETMARGINWIDTHN, 3, FolderMarkersWidth);
+  Call(SCI_SETMARGINWIDTHN, mmFolding, FolderMarkersWidth);
 
   { Note: the first parameter is unused so the value '0' doesn't mean anything below }
   Call(SCI_SETMARGINLEFT, 0, LeftBlankMarginWidth);
   Call(SCI_SETMARGINRIGHT, 0, RightBlankMarginWidth);
 
-  Call(SCI_INDICSETSTROKEWIDTH, inSquiggly, SquigglyWidth);
+  Call(SCI_INDICSETSTROKEWIDTH, minSquiggly, SquigglyWidth);
 end;
 
 procedure TCompScintEdit.UpdateThemeColorsAndStyleAttributes;
@@ -346,14 +352,14 @@ begin
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, SelBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, SelBackColor);
 
-    Call(SCI_SETFOLDMARGINCOLOUR, 1, FTheme.Colors[tcBack]);
-    Call(SCI_SETFOLDMARGINHICOLOUR, 1, FTheme.Colors[tcBack]);
+    Call(SCI_SETFOLDMARGINCOLOUR, Ord(True), FTheme.Colors[tcBack]);
+    Call(SCI_SETFOLDMARGINHICOLOUR, Ord(True), FTheme.Colors[tcBack]);
 
-    Call(SCI_INDICSETFORE, inSquiggly, FTheme.Colors[tcRed]);
-    Call(SCI_INDICSETFORE, inWordAtCursorOccurrence, FTheme.Colors[tcWordAtCursorOccurrenceBack]);
-    Call(SCI_INDICSETFORE, inSelTextOccurrence, FTheme.Colors[tcSelTextOccurrenceBack]);
-    
-    Call(SCI_MARKERSETBACK, mmLineStep, FTheme.Colors[tcBlue]);
+    Call(SCI_INDICSETFORE, minSquiggly, FTheme.Colors[tcRed]);
+    Call(SCI_INDICSETFORE, minWordAtCursorOccurrence, FTheme.Colors[tcWordAtCursorOccurrenceBack]);
+    Call(SCI_INDICSETFORE, minSelTextOccurrence, FTheme.Colors[tcSelTextOccurrenceBack]);
+
+    Call(SCI_MARKERSETBACK, mlmStep, FTheme.Colors[tcBlue]);
     
     Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]); { To reproduce: open a file, press enter, save, undo }
     Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]);
