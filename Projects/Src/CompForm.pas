@@ -864,6 +864,8 @@ begin
     don't conflict with the editor which also uses fake shortcuts for these }
   SetFakeShortCut(POutputListCopy, Ord('C'), [ssCtrl]);
   SetFakeShortCut(POutputListSelectAll, Ord('A'), [ssCtrl]);
+  { Set real shortcut on TOptions which can't be set at design time }
+  TOptions.ShortCut := ShortCut(VK_OEM_COMMA, [ssCtrl]);
 
   PopupMenu := TCompileFormPopupMenu.Create(Self, EMenu);
 
