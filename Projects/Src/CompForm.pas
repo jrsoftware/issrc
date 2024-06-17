@@ -459,6 +459,7 @@ type
     procedure BuildAndSaveBreakPointLines(const AMemo: TCompScintFileEdit);
     procedure BuildAndSaveKnownIncludedAndHiddenFiles;
     procedure CheckIfTerminated;
+    procedure ClearMRUMainFilesList;
     procedure CloseTab(const TabIndex: Integer);
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
@@ -1569,6 +1570,15 @@ begin
   end;
 end;
 
+procedure TCompileForm.ClearMRUMainFilesList;
+begin
+  try
+    ClearMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew');
+  except
+    { Ignore any exceptions. }
+  end;
+end;
+
 procedure TCompileForm.ReadMRUMainFilesList;
 begin
   try
@@ -2447,12 +2457,9 @@ end;
 
 procedure TCompileForm.FClearRecentClick(Sender: TObject);
 begin
-  if MsgBox('Are you sure you want to clear the recent files?', SCompilerFormCaption,
-    mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then
-    try
-      ClearMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew');
-    except
-    end;
+  if MsgBox('Are you sure you want to clear the list of recently opened files?',
+    SCompilerFormCaption, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then
+      ClearMRUMainFilesList;
 end;
 
 procedure TCompileForm.FMRUClick(Sender: TObject);
