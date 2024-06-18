@@ -1,7 +1,11 @@
-﻿; -- UnicodeExample1.iss --
+; -- UnicodeExample1.iss --
 ; Demonstrates some Unicode functionality.
 ;
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
+//
+#if Ver < EncodeVer(6, 3, 0)
+  #error This file is UTF-8 encoded without a BOM which requires Inno Setup 6.3.0 or later
+#endif
 
 [Setup]
 AppName=ɯɐɹƃoɹd ʎɯ
