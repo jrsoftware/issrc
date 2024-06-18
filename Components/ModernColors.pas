@@ -18,7 +18,7 @@ type
   TThemeType = (ttModernLight, ttModernDark, ttClassic);
   TThemeColor = (tcFore, tcBack, tcToolBack, tcSelBack,
                  tcWordAtCursorOccurrenceBack, tcSelTextOccurrenceBack,
-                 tcMarginFore, tcMarginBack, tcSplitterBack, tcBraceBack, tcIdentGuideFore,
+                 tcMarginFore, tcMarginBack, tcSplitterBack, tcBraceBack, tcIndentGuideFore,
                  tcRed, tcGreen, tcBlue, tcOrange, tcReallyOrange, tcPurple,
                  tcYellow, tcTeal, tcGray);
 
@@ -52,7 +52,7 @@ const
   DMarginBack = $413E40;     { Monokai Pro }
   DSplitterBack = $413E40;   { Monokai Pro }
   DBraceBack = DWACOBack;
-  DIdentGuideFore = $716F71; { Monokai Pro }
+  DIndentGuideFore = $716F71;{ Monokai Pro }
   //Monokai Pro's dark control color: $221F22
 
   LFore = $3B3B3B;           { VSCode Modern Light }
@@ -66,7 +66,7 @@ const
   LMarginBack = $F9FBFB;     { Monokai Pro }
   LSplitterBack = clBtnFace;
   LBraceBack = LWACOBack;
-  LIdentGuideFore = clSilver;
+  LIndentGuideFore = clSilver;
 
   CFore = clBlack;
   CBack = clWhite;
@@ -78,7 +78,7 @@ const
   CMarginBack = clBtnFace;
   CSplitterBack = clBtnFace;
   CBraceBack = CWACOBack;
-  CIdentGuideFore = clSilver;
+  CIndentGuideFore = clSilver;
 
   { The Microsoft Azure DevOps work well as foreground colors on both dark and light backgrounds.
     Its red and blue also fit well with the colors used by Microsoft's VS Image Library. }
@@ -103,9 +103,9 @@ const
   CGray = $707070;           { Inno Setup 5 }
 
   Colors: array [TThemeType, TThemeColor] of TColor = (
-    (LFore, LBack, LToolBack, LSelBack, LWACOBack, LSTOBack, LMarginFore, LMarginBack, LSplitterBack, LBraceBack, LIdentGuideFore, MRed, MGreen, MBlue, MOrange, MOrange, MPurple, MYellow, MTeal, MGray),
-    (DFore, DBack, DToolBack, DSelBack, DWACOBack, DSTOBack, DMarginFore, DMarginBack, DSplitterBack, DBraceBack, DIdentGuideFore, MRed, MGreen, MBlue, MOrange, MOrange, MPurple, MYellow, MTeal, MGray),
-    (CFore, CBack, CToolBack, CSelBack, CWACOBack, CSTOBack, CMarginFore, CMarginBack, CSplitterBack, CBraceBack, CIdentGuideFore, CRed, CGreen, CBlue, COrange, CReallyOrange, CPurple, CYellow, CTeal, CGray)
+    (LFore, LBack, LToolBack, LSelBack, LWACOBack, LSTOBack, LMarginFore, LMarginBack, LSplitterBack, LBraceBack, LIndentGuideFore, MRed, MGreen, MBlue, MOrange, MOrange, MPurple, MYellow, MTeal, MGray),
+    (DFore, DBack, DToolBack, DSelBack, DWACOBack, DSTOBack, DMarginFore, DMarginBack, DSplitterBack, DBraceBack, DIndentGuideFore, MRed, MGreen, MBlue, MOrange, MOrange, MPurple, MYellow, MTeal, MGray),
+    (CFore, CBack, CToolBack, CSelBack, CWACOBack, CSTOBack, CMarginFore, CMarginBack, CSplitterBack, CBraceBack, CIndentGuideFore, CRed, CGreen, CBlue, COrange, CReallyOrange, CPurple, CYellow, CTeal, CGray)
   );
   
 begin

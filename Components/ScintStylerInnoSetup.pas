@@ -129,7 +129,7 @@ type
 implementation
 
 uses
-  TypInfo, MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives;
+  TypInfo, MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives;
 
 type
   { Size must be <= SizeOf(TScintLineState) }
@@ -978,10 +978,6 @@ end;
 
 procedure TInnoSetupStyler.GetStyleAttributes(const Style: Integer;
   var Attributes: TScintStyleAttributes);
-const
-  STYLE_LINENUMBER = 33;
-  STYLE_BRACELIGHT = 34;
-  STYLE_IDENTGUIDE = 37;
 begin
   if FTheme <> nil then begin
     if (Style >= 0) and (Style <= Ord(High(TInnoSetupStylerStyle))) then begin
@@ -1013,7 +1009,7 @@ begin
             Attributes.BackColor := FTheme.Colors[tcMarginBack];
           end;
         STYLE_BRACELIGHT: Attributes.BackColor := FTheme.Colors[tcBraceBack];
-        STYLE_IDENTGUIDE: Attributes.ForeColor := FTheme.Colors[tcIdentGuideFore];
+        STYLE_INDENTGUIDE: Attributes.ForeColor := FTheme.Colors[tcIndentGuideFore];
       end;
     end;
   end;
