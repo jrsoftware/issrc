@@ -1242,35 +1242,34 @@ const
      '+' {include},
      '=' {emit},
      '!' {expr}];
-var
-  S: TScintRawString;
-  StartIndex, I: Integer;
-  C: AnsiChar;
-  NeedIspp, ForDirectiveExpressionsNext, DoIncludeFileNotationCheck: Boolean;
 begin
-  StartIndex := CurIndex;
+  var StartIndex := CurIndex;
+  var NeedIspp: Boolean;
   if InlineDirective then begin
     ConsumeChar('{');
     NeedIspp := True;
   end else
     NeedIspp := False; { Might be updated later to True later }
-  ForDirectiveExpressionsNext := False;
-  DoIncludeFileNotationCheck := False;
+  var ForDirectiveExpressionsNext := False;
+  var DoIncludeFileNotationCheck := False;
+  var ErrorDirective := False;
   ConsumeChar('#');
   CommitStyle(stCompilerDirective);
 
   { Directive name or shorthand }
   SkipWhiteSpace;
-  C := CurChar;
+  var C := CurChar;
   if ConsumeCharIn(ISPPDirectiveShorthands) then begin
     DoIncludeFileNotationCheck := C = '+'; { We need to check the include file notation  }
     NeedIspp := True;
     FinishDirectiveNameOrShorthand(True); { All shorthands require a parameter }
   end else begin
-    S := ConsumeString(ISPPIdentChars);
-    for I := Low(ISPPDirectives) to High(ISPPDirectives) do
+    var S := ConsumeString(ISPPIdentChars);
+    for var I := Low(ISPPDirectives) to High(ISPPDirectives) do
       if SameRawText(S, ISPPDirectives[I].Name) then begin
-        if SameRawText(S, 'include') then
+        if SameRawText(S, 'error') then
+          ErrorDirective := True
+        else if SameRawText(S, 'include') then
           DoIncludeFileNotationCheck := True { See above }
         else
           NeedIspp := True; { Built-in preprocessor only supports '#include' }
@@ -1290,74 +1289,86 @@ begin
   end;
 
   { Rest of the directive }
-  SkipWhitespace;
-  while not EndOfDirective do begin
-    if DoIncludeFileNotationCheck then begin
-      if CurChar <> '"' then begin
-        NeedIspp := True; { Built-in preprocessor requires a '"' quoted string after the '#include' and doesn't support anything else }
-        if CurChar = '<' then { Check for ISPP's special bracket notation for include files }
-          ConsumeISPPString('>', False); { Consume now instead of using regular consumption }
-      end;
-      DoIncludeFileNotationCheck := False;
-    end;
-    if CurChar in ISPPIdentFirstChars then begin
-      S := ConsumeString(ISPPIdentChars);
-      for I := Low(ISPPReservedWords) to High(ISPPReservedWords) do
-        if SameRawText(S, ISPPReservedWords[I]) then begin
-          CommitStyle(stISPPReservedWord);
-          Break;
-        end;
-      CommitStyle(stDefault)
-    end else if ConsumeChars(DigitChars) then begin
-      if not CurCharIs('.') or not NextCharIs('.') then begin
-        if ConsumeChar('.') then
-          ConsumeChars(DigitChars);
-        C := CurChar;
-        if C in ['X', 'x'] then begin
-          ConsumeChar(C);
-          if not ConsumeChars(HexDigitChars) then
-            CommitStyleSqPending(stISPPNumber);
-        end;
-        ConsumeChars(['L', 'U', 'l', 'u']);
-      end;
-      CommitStyle(stISPPNumber);
-    end else begin
+  if ErrorDirective then begin
+    SkipWhitespace;
+    while not EndOfDirective do begin
       C := CurChar;
       ConsumeChar(C);
-      case C of
-        '!', '&', '=', '|', '^', '>', '<', '+', '-', '/', '%', '*',
-        '?', ':', ',', '.', '~', '(', '[', '{', ')', ']', '}', '@',
-        '#':
-          begin
-            if (C = '}') and ForDirectiveExpressionsNext then
-              ForDirectiveExpressionsNext := False;
-            if (C = '/') and ConsumeChar('*') then
-              FinishConsumingStarComment
-            else if InlineDirective and (C = '}') then
-              CommitStyle(stCompilerDirective) (* Closing '}' of the ISPP inline directive *)
-            else
-              CommitStyle(stSymbol);
-          end;
-        ';':
-          begin
-            if ForDirectiveExpressionsNext then
-              CommitStyle(stSymbol)
-            else begin
-              if not InlineDirective then
-                ConsumeAllRemaining
-              else
-                ConsumeCharsNot(['}']);
-              CommitStyle(stComment);
-            end;
-          end;
-        '''', '"':
-          ConsumeISPPString(C, True);
+      if InlineDirective and (C = '}') then
+        CommitStyle(stCompilerDirective)
       else
-        { Illegal character }
-        CommitStyleSq(stSymbol, True);
-      end;
+        CommitStyle(stISPPString);
     end;
+  end else begin
     SkipWhitespace;
+    while not EndOfDirective do begin
+      if DoIncludeFileNotationCheck then begin
+        if CurChar <> '"' then begin
+          NeedIspp := True; { Built-in preprocessor requires a '"' quoted string after the '#include' and doesn't support anything else }
+          if CurChar = '<' then { Check for ISPP's special bracket notation for include files }
+            ConsumeISPPString('>', False); { Consume now instead of using regular consumption }
+        end;
+        DoIncludeFileNotationCheck := False;
+      end;
+      if CurChar in ISPPIdentFirstChars then begin
+        var S := ConsumeString(ISPPIdentChars);
+        for var I := Low(ISPPReservedWords) to High(ISPPReservedWords) do
+          if SameRawText(S, ISPPReservedWords[I]) then begin
+            CommitStyle(stISPPReservedWord);
+            Break;
+          end;
+        CommitStyle(stDefault)
+      end else if ConsumeChars(DigitChars) then begin
+        if not CurCharIs('.') or not NextCharIs('.') then begin
+          if ConsumeChar('.') then
+            ConsumeChars(DigitChars);
+          C := CurChar;
+          if C in ['X', 'x'] then begin
+            ConsumeChar(C);
+            if not ConsumeChars(HexDigitChars) then
+              CommitStyleSqPending(stISPPNumber);
+          end;
+          ConsumeChars(['L', 'U', 'l', 'u']);
+        end;
+        CommitStyle(stISPPNumber);
+      end else begin
+        C := CurChar;
+        ConsumeChar(C);
+        case C of
+          '!', '&', '=', '|', '^', '>', '<', '+', '-', '/', '%', '*',
+          '?', ':', ',', '.', '~', '(', '[', '{', ')', ']', '}', '@',
+          '#':
+            begin
+              if (C = '}') and ForDirectiveExpressionsNext then
+                ForDirectiveExpressionsNext := False;
+              if (C = '/') and ConsumeChar('*') then
+                FinishConsumingStarComment
+              else if InlineDirective and (C = '}') then
+                CommitStyle(stCompilerDirective) (* Closing '}' of the ISPP inline directive *)
+              else
+                CommitStyle(stSymbol);
+            end;
+          ';':
+            begin
+              if ForDirectiveExpressionsNext then
+                CommitStyle(stSymbol)
+              else begin
+                if not InlineDirective then
+                  ConsumeAllRemaining
+                else
+                  ConsumeCharsNot(['}']);
+                CommitStyle(stComment);
+              end;
+            end;
+          '''', '"':
+            ConsumeISPPString(C, True);
+        else
+          { Illegal character }
+          CommitStyleSq(stSymbol, True);
+        end;
+      end;
+      SkipWhitespace;
+    end;
   end;
 
   if NeedIspp and not ISPPInstalled then begin
