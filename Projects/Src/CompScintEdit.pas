@@ -27,15 +27,13 @@ const
   mimBreakpoint = 2;      { stop sign }
   mimBreakpointGood = 3;  { stop sign + check }
   mimBreakpointBad = 4;   { stop sign + X }
+  mimStep = 5;            { blue arrow }
+  mimBreakpointStep = 6;  { blue arrow on top of a stop sign + check }
+  mimMask = $7F;
+
   mlmError = 10;          { maroon line highlight }
   mlmBreakpointBad = 11;  { ugly olive line highlight }
   mlmStep = 12;           { blue line highlight }
-  mimStep = 13;           { blue arrow }
-  mimBreakpointStep = 14; { blue arrow on top of a stop sign + check }
-  mimMask = (1 shl mimHasEntry) or (1 shl mimEntryProcessed) or
-            (1 shl mimBreakpoint) or (1 shl mimBreakpointGood) or
-            (1 shl mimBreakpointBad) or (1 shl mimStep) or
-            (1 shl mimBreakpointStep);
 
   { Memo indicator numbers - Note: inSquiggly and inPendingSquiggly are 0 and 1
     in ScintStylerInnoSetup and must be first and second here. Also note: even
@@ -228,7 +226,7 @@ begin
     set up by UpdateMarginsAndSquigglyWidths. Also see
     https://scintilla.org/ChangeHistory.html }
   Call(SCI_SETMARGINTYPEN, mmChangeHistory, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINMASKN, mmChangeHistory, not (SC_MASK_FOLDERS or mimMask));
+  Call(SCI_SETMARGINMASKN, mmChangeHistory, SC_MASK_HISTORY);
   Call(SCI_SETMARGINCURSORN, mmChangeHistory, SC_CURSORARROW);
 
   { Set up the gutter column with folding markers. Note: width of the column is
@@ -366,7 +364,7 @@ begin
     Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_SAVED, FTheme.Colors[tcGreen]);
     Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_MODIFIED, FTheme.Colors[tcReallyOrange]);
     Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_MODIFIED, FTheme.Colors[tcReallyOrange]);
-    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED, FTheme.Colors[tcTeal]); { To reproduce: ??? - sometimes get it but not sure how to do this with minimal steps }
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED, FTheme.Colors[tcTeal]); { To reproduce: open a file, press space, press backspace, save, press enter, save, undo }
     Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED, FTheme.Colors[tcTeal]);
   end;
   UpdateStyleAttributes;
