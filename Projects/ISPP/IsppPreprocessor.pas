@@ -1014,7 +1014,7 @@ begin
         begin
           { Also see ErrorFunc in IsppFuncs }
           if Params = '' then Params := 'Error';
-          RaiseError(Params);
+          RaiseError(Params.Trim);
         end;
       pcPragma: Pragma(Parser);
       pcPrint: Params := ToStr(Evaluate).AsStr;
