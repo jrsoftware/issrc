@@ -480,7 +480,7 @@ type
 implementation
 
 uses
-  ShellAPI, RTLConsts, UITypes, GraphUtil;
+  ShellAPI, RTLConsts, UITypes, GraphUtil, IsscintInt;
 
 { TScintEdit }
 
@@ -2010,9 +2010,6 @@ var
     SetStyleAttr(StyleNumber, Attr, False);
   end;
 
-const
-  { Note: This style is specific to our patched build }
-  STYLE_AUTOCOMPLETION = 40;
 var
   I: Integer;
 begin

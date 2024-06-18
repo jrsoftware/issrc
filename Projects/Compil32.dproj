@@ -141,6 +141,7 @@
         </DCCReference>
         <DCCReference Include="Src\CompWizardRegistryHelper.pas"/>
         <DCCReference Include="Src\MD5.pas"/>
+        <DCCReference Include="Src\IsscintInt.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

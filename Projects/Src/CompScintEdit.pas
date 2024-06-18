@@ -145,7 +145,7 @@ type
 implementation
 
 uses
-  MD5;
+  MD5, IsscintInt;
   
 { TCompScintEdit }
 
@@ -156,8 +156,6 @@ begin
 end;
 
 procedure TCompScintEdit.CreateWnd;
-const
-  SC_MARK_BACKFORE = 3030;  { new marker type added in Inno Setup's Scintilla build }
 begin
   inherited;
 
