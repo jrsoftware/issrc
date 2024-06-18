@@ -3157,6 +3157,12 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Scroll horizontally.</td><td>Shift+MouseWheel</td>
 </tr>
 <tr>
+  <td>Cut selection or line.</td><td>Ctrl+X</td>
+</tr>
+<tr>
+  <td>Copy selection or line.</td><td>Ctrl+C</td>
+</tr>
+<tr>
   <td>Cut line.</td><td>Ctrl+L</td>
 </tr>
 <tr>
