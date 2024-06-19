@@ -3139,13 +3139,19 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Go to start of document. Shift extends selection.</td><td>Ctrl+Home</td>
 </tr>
 <tr>
+  <td>Go to first non-blank character of line.</td><td>Home</td>
+</tr>
+<tr>
   <td>Go to start of line.</td><td>Alt+Home or Home Home</td>
 </tr>
 <tr>
   <td>Go to end of document. Shift extends selection.</td><td>Ctrl+End</td>
 </tr>
 <tr>
-  <td>Go to end of line.</td><td>Alt+End or End End</td>
+  <td>Go to end of line.</td><td>End</td>
+</tr>
+<tr>
+  <td>Go to end of wrapped line.</td><td>Alt+End</td>
 </tr>
 <tr>
   <td>Scroll up.</td><td>Ctrl+Up</td>
@@ -3163,10 +3169,10 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Copy selection or line.</td><td>Ctrl+C or Ctrl+Insert</td>
 </tr>
 <tr>
-  <td>Cut line.</td><td>Ctrl+L</td>
+  <td>Cut lines.</td><td>Ctrl+L</td>
 </tr>
 <tr>
-  <td>Copy line.</td><td>Ctrl+Shift+T</td>
+  <td>Copy lines.</td><td>Ctrl+Shift+T</td>
 </tr>
 <tr>
   <td>Delete line.</td><td>Ctrl+Shift+L</td>
@@ -3181,7 +3187,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Move selected lines down.</td><td>Alt+Down</td>
 </tr>
 <tr>
-  <td>Duplicate selection or line.</td><td>Ctrl+D</td>
+  <td>Duplicate selection or copy lines down.</td><td>Ctrl+D</td>
 </tr>
 <tr>
   <td>Go to previous paragraph. Shift extends selection.</td><td>Ctrl+[</td>
@@ -3217,19 +3223,22 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Add line as additional selection.</td><td>Ctrl+Triple Click</td>
 </tr>
 <tr>
-  <td>Add the next occurrence of the current word or selected text as an additional selection.</td><td>Alt+Shift+.</td>
+  <td>Add the next occurrence of the current word or selected text as an additional selection.</td><td>Shift+Alt+.</td>
 </tr>
 <tr>
-  <td>Select all occurrences of the current word or selected text.</td><td>Alt+Shift+;</td>
+  <td>Select all occurrences of the current word or selected text.</td><td>Shift+Alt+;</td>
 </tr>
 <tr>
-  <td>Perform rectangular block selection.</td><td>Alt+Shift+Arrow or Alt+Drag</td>
+  <td>Perform rectangular block selection.</td><td>Shift+Alt+Arrow or Alt+Drag</td>
 </tr>
 <tr>
-  <td>Extend rectangular selection to start of caret's line.</td><td>Alt+Shift+Home</td>
+  <td>Extend rectangular selection to first non-blank character of line.</td><td>Shift+Alt+Home</td>
 </tr>
 <tr>
-  <td>Extend rectangular selection to end of caret's line.</td><td>Alt+Shift+End</td>
+  <td>Extend rectangular selection to start of line.</td><td>Shift+Alt+Home Home</td>
+</tr>
+<tr>
+  <td>Extend rectangular selection to end of line.</td><td>Shift+Alt+End</td>
 </tr>
 <tr>
   <td>Revert multiple selections into a single one or a single selection into an empty one.</td><td>Esc</td>

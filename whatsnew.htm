@@ -35,8 +35,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>The editor component used by the Compiler IDE has been updated from an old version of Scintilla to the latest version.</p>
 <p>Multiple selection editing has been improved:</p>
 <ul>
-  <li>Added shortcut to add the next occurrence of the current word or selected text as an additional selection (Alt+Shift+.).</li>
-  <li>Added shortcut to select all occurrences of the current word or selected text (Alt+Shift+;).</li>
+  <li>Added shortcut to add the next occurrence of the current word or selected text as an additional selection (Shift+Alt+.).</li>
+  <li>Added shortcut to select all occurrences of the current word or selected text (Shift+Alt+;).</li>
   <li>Added shortcuts to add a word or line as an additional selection (Ctrl+Double Click and Ctrl+Triple Click).</li>
   <li>Added shortcut to remove a selection by clicking it (Ctrl+Click).</li>
   <li>Multiple selection now works over Left, Right, Up, Down, Home and End navigation and selection commands.</li>
@@ -159,7 +159,7 @@ end;</pre>
 <ul>
   <li>Added toolbar buttons and shortcuts to navigate back (Alt+Left) and forward (Alt+Right). Navigating by pressing the mouse X buttons is also supported. A navigation item is added when changing tabs or moving at least 11 lines at once, similar to Visual Studio 2022.<br />Because of this Alt+Right can no longer be used to initiate auto complete, instead the existing Ctrl+Space or new Ctrl+I alternative must be used. To still be able to also use Alt+Right for this activate Visual Studio-style shortcuts, see below.</li>
   <li>Added support for Visual Studio-style shortcuts (like Ctrl+- to navigate back, Ctrl+B to compile and F5 to run) to the <i>Build</i> and <i>Run</i> menus. To activate this use the <i>Options</i> menu item in the <i>Tools</i> menu to set the new <i>Key Map</i> option to <i>Visual Studio</i>.</li>
-  <li>Added multiple selection support (Ctrl+Click or Ctrl+Drag). Typing, backspace, delete, undo, redo, copy, and paste all work with multiple selections added this way or via the pre-existing support for performing rectangular block selection (Alt+Shift+Arrow or Alt+Drag).</li>
+  <li>Added multiple selection support (Ctrl+Click or Ctrl+Drag). Typing, backspace, delete, undo, redo, copy, and paste all work with multiple selections added this way or via the pre-existing support for performing rectangular block selection (Shift+Alt+Arrow or Alt+Drag).</li>
   <li>Added a shortcut to revert multiple selections into a single one or a single selection into an empty one (Esc).</li>
   <li>Added dark mode support to the title bar on Windows 10 Version 2004 and later.</i>
   <li>Added dark mode support to the main menu bar on all versions of Windows.</i>
