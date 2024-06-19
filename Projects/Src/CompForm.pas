@@ -2853,7 +2853,9 @@ end;
 procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END] then begin
+  if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) and
+     { Versions with Shift+Alt are special rectangular select shortcuts so don't break those }
+     not (Shift * [ssShift, ssAlt] = [ssShift, ssAlt]) then begin
     var Memo := Sender as TScintEdit;
     if Memo.SelectionMode in [ssmRectangular, ssmThinRectangular] then begin
        { Allow left/right/etc. navigation with rectangular selection, see
