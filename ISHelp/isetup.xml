@@ -3217,10 +3217,10 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Remove a selection by clicking it.</td><td>Ctrl+Click</td>
 </tr>
 <tr>
-  <td>Add word as additional selection.</td><td>Ctrl+Double Click</td>
+  <td>Add word as additional selection.</td><td>Ctrl+DoubleClick</td>
 </tr>
 <tr>
-  <td>Add line as additional selection.</td><td>Ctrl+Triple Click</td>
+  <td>Add line as additional selection.</td><td>Ctrl+TripleClick</td>
 </tr>
 <tr>
   <td>Add the next occurrence of the current word or selected text as an additional selection.</td><td>Shift+Alt+.</td>
@@ -3242,6 +3242,15 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 <tr>
   <td>Revert multiple selections into a single one or a single selection into an empty one.</td><td>Esc</td>
+</tr>
+<tr>
+  <td>Select word.</td><td>DoubleClick</td>
+</tr>
+<tr>
+  <td>Select line.</td><td>TripleClick or Click on line number</td>
+</tr>
+<tr>
+  <td>Select all.</td><td>Ctrl+A or Ctrl+Click on line number</td>
 </tr>
 <tr>
   <td>Complete word.</td><td>Ctrl+Space or Ctrl+I or Alt+Right (the last only if the Delphi key map is not active)</td>
