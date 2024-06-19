@@ -451,8 +451,8 @@ type
     function ConsumeString(const Chars: TScintRawCharSet): TScintRawString;
     function CurCharIn(const Chars: TScintRawCharSet): Boolean;
     function CurCharIs(const C: AnsiChar): Boolean;
-    procedure GetFoldLevel(const LineState: TScintLineState; var Level: Integer;
-      var Header: Boolean); virtual; abstract;
+    procedure GetFoldLevel(const LineState, NextLineState: TScintLineState;
+      var Level: Integer; var Header: Boolean); virtual; abstract;
     procedure GetStyleAttributes(const Style: Integer;
       var Attributes: TScintStyleAttributes); virtual; abstract;
     function LineTextSpans(const S: TScintRawString): Boolean; virtual;
@@ -1843,26 +1843,11 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       FStyler.FStyleStr := '';
       FStyler.FText := '';
     end;
-
-    var FoldLevel: Integer;
-    var FoldHeader: Boolean;
-    FStyler.GetFoldLevel(FStyler.FLineState, FoldLevel, FoldHeader);
-    Inc(FoldLevel, SC_FOLDLEVELBASE);
-    if FoldHeader then
-      FoldLevel := FoldLevel or SC_FOLDLEVELHEADERFLAG;
-    { Setting SC_FOLDLEVELWHITEFLAG on empty lines causes a problem: when
-      Scintilla auto expands a contracted section (for example after removing ']'
-      from a section header) all the empty lines stay invisible, even any which
-      are in the middle of the section. }
-
+    
     for var I := FirstLine to LastLine do begin
       var OldState := FLines.GetState(I);
       if FStyler.FLineState <> OldState then
         Call(SCI_SETLINESTATE, I, FStyler.FLineState);
-      { To display/debug fold levels use: FoldFlags := [sffLevelNumbers]; }
-      var OldLevel := Call(SCI_GETFOLDLEVEL, I, 0);
-      if FoldLevel <> OldLevel then
-        Call(SCI_SETFOLDLEVEL, I, FoldLevel);
     end;
 
     Result := LastLine;
@@ -1876,6 +1861,29 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       range that changed, whereas SCI_SETSTYLING redraws the entire range. }
     StyleStr := StringOfChar(AnsiChar(0), FLines.GetRawLineLengthWithEnding(Line));
     Call(SCI_SETSTYLINGEX, Length(StyleStr), LPARAM(PAnsiChar(StyleStr)));
+  end;
+
+  procedure FoldLine(const Line, EndLine: Integer);
+  begin
+    var LineState := FLines.GetState(Line);
+    var NextLineState: TScintLineState := 0;
+    if Line < EndLine then
+      NextLineState := FLines.GetState(Line+1);
+
+    var FoldLevel: Integer;
+    var FoldHeader: Boolean;
+    FStyler.GetFoldLevel(LineState, NextLineState, FoldLevel, FoldHeader);
+    Inc(FoldLevel, SC_FOLDLEVELBASE);
+    if FoldHeader then
+      FoldLevel := FoldLevel or SC_FOLDLEVELHEADERFLAG;
+    { Setting SC_FOLDLEVELWHITEFLAG on empty lines causes a problem: when
+      Scintilla auto expands a contracted section (for example after removing ']'
+      from a section header) all the empty lines stay invisible, even any which
+      are in the middle of the section. }
+
+    var OldLevel := Call(SCI_GETFOLDLEVEL, Line, 0);
+    if FoldLevel <> OldLevel then
+      Call(SCI_SETFOLDLEVEL, Line, FoldLevel);
   end;
 
 var
@@ -1914,6 +1922,14 @@ begin
     else
       DefaultStyleLine(Line);
     Inc(Line);
+  end;
+
+  if Assigned(FStyler) then begin
+    Line := StartLine;
+    while Line <= EndLine do begin
+      FoldLine(Line, EndLine);
+      Inc(Line);
+    end;
   end;
 end;
 
