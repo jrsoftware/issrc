@@ -263,7 +263,7 @@ procedure TCompScintEdit.SetUseFolding(const Value: Boolean);
 begin
   if FUseFolding <> Value then begin
     FUseFolding := Value;
-    { If FFolding is True then caller must set the margin width using
+    { If FUseFolding is True then caller must set the margin width using
       UpdateMarginsAndSquigglyWidths else we set it to 0 now }
     if not FUseFolding then begin
       Call(SCI_FOLDALL, SC_FOLDACTION_EXPAND, 0);
