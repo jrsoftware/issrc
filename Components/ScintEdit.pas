@@ -1622,18 +1622,6 @@ procedure TScintEdit.SetSingleSelection(const CaretPos, AnchorPos: Integer);
   the caret into view }
 begin
   Call(SCI_SETSELECTION, CaretPos, AnchorPos);
-  { Scintilla should now send SCN_UPDATEUI with SC_UPDATE_SELECTION but doesn't,
-    not sure which commit fixes this (if any). It isn't the following commit which
-    has already been applied to isscint.dll:
-    https://sourceforge.net/p/scintilla/code/ci/1bb3e86c576b0334ccbd7ac2fd69c4a48909e41f/
-    The test to see if its fixed:
-    -Open Debug.iss
-    -Rectangular block select (Alt+Drag) part of *both* MessagesFile parameters
-    -Hit Esc once to revert the two selections into a single one
-    -Word at cursor highlighting should now be active again - without the
-     workaround below it isn't }
-  if Assigned(FOnUpdateUI) then
-    FOnUpdateUI(Self, [suSelection]);
 end;
 
 procedure TScintEdit.SetStyler(const Value: TScintCustomStyler);
