@@ -42,6 +42,9 @@ type
   TScintEditUpdateUIEvent = procedure(Sender: TObject; Updated: TScintEditUpdates) of object;
   TScintFindOption = (sfoMatchCase, sfoWholeWord);
   TScintFindOptions = set of TScintFindOption;
+  TScintFoldFlag = (sffLineBeforeExpanded, sffLineBeforeContracted,
+    sffLineAfterExpanded, sffLineAfterContracted, sffLevelNumbers, sffLineState);
+  TScintFoldFlags = set of TScintFoldFlag;
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
   TScintStyleByteIndicatorNumber = 0..1; { Could be increased to 0..StyleNumberUnusedBits-1 }
   TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
@@ -95,6 +98,7 @@ type
     FEffectiveCodePage: Integer;
     FEffectiveCodePageDBCS: Boolean;
     FFillSelectionToEdge: Boolean;
+    FFoldLevelNumbersOrLineState: Boolean;
     FForceModified: Boolean;
     FIndentationGuides: TScintIndentationGuides;
     FLeadBytes: TScintRawCharSet;
@@ -185,6 +189,7 @@ type
     procedure WMEraseBkgnd(var Message: TMessage); message WM_ERASEBKGND;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
     procedure WMMouseWheel(var Message: TMessage); message WM_MOUSEWHEEL;
+    procedure SetFoldFlags(const Value: TScintFoldFlags);
   protected
     procedure Change(const AInserting: Boolean; const AStartPos, ALength,
       ALinesDelta: Integer); virtual;
@@ -312,6 +317,7 @@ type
     property CaretPosition: Integer read GetCaretPosition write SetCaretPosition;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
     property EffectiveCodePage: Integer read FEffectiveCodePage;
+    property FoldFlags: TScintFoldFlags write SetFoldFlags;
     property InsertMode: Boolean read GetInsertMode;
     property LineEndings: TScintLineEndings read GetLineEndings;
     property LineEndingString: TScintRawString read GetLineEndingString;
@@ -1509,6 +1515,32 @@ begin
   end;
 end;
 
+procedure TScintEdit.SetFoldFlags(const Value: TScintFoldFlags);
+begin
+  var Flags := 0;
+  if sffLineBeforeExpanded in Value then
+    Flags := Flags or SC_FOLDFLAG_LINEBEFORE_EXPANDED;
+  if sffLineBeforeContracted in Value then
+    Flags := Flags or SC_FOLDFLAG_LINEBEFORE_CONTRACTED;
+  if sffLineAfterExpanded in Value then
+    Flags := Flags or SC_FOLDFLAG_LINEAFTER_EXPANDED;
+  if sffLineAfterContracted in Value then
+    Flags := Flags or SC_FOLDFLAG_LINEAFTER_CONTRACTED;
+
+  if sffLevelNumbers in Value then
+    Flags := Flags or SC_FOLDFLAG_LEVELNUMBERS
+  else if sffLineState in Value then
+    Flags := Flags or SC_FOLDFLAG_LINESTATE;
+
+  Call(SCI_SETFOLDFLAGS, Flags, 0);
+
+  var FoldLevelNumbersOrLineState := Value * [sffLevelNumbers, sffLineState] <> [];
+  if FoldLevelNumbersOrLineState <> FFoldLevelNumbersOrLineState then begin
+    FFoldLevelNumbersOrLineState := FoldLevelNumbersOrLineState;
+    UpdateLineNumbersWidth;
+  end;
+end;
+
 procedure TScintEdit.SetIndicators(const StartPos, EndPos: Integer;
   const IndicatorNumber: TScintIndicatorNumber; const Value: Boolean);
 begin
@@ -1827,8 +1859,7 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       var OldState := FLines.GetState(I);
       if FStyler.FLineState <> OldState then
         Call(SCI_SETLINESTATE, I, FStyler.FLineState);
-      { To display/debug fold levels use: Call(SCI_SETFOLDFLAGS, SC_FOLDFLAG_LEVELNUMBERS, 0);
-        And then also update UpdateLineNumbersWidth to make the margin wider. }
+      { To display/debug fold levels use: FoldFlags := [sffLevelNumbers]; }
       var OldLevel := Call(SCI_GETFOLDLEVEL, I, 0);
       if FoldLevel <> OldLevel then
         Call(SCI_SETFOLDLEVEL, I, FoldLevel);
@@ -1946,15 +1977,19 @@ var
   LineCount, PixelWidth: Integer;
   Nines: String;
 begin
-  if FLineNumbers then begin
+  if FLineNumbers or FFoldLevelNumbersOrLineState then begin
     { Note: Based on SciTE's SciTEBase::SetLineNumberWidth. }
 
-    LineCount := Call(SCI_GETLINECOUNT, 0, 0);
+    if FFoldLevelNumbersOrLineState then
+      Nines := StringOfChar('9', 12)
+    else begin
+      LineCount := Call(SCI_GETLINECOUNT, 0, 0);
 
-    Nines := '9';
-    while LineCount >= 10 do begin
-      LineCount := LineCount div 10;
-      Nines := Nines + '9';
+      Nines := '9';
+      while LineCount >= 10 do begin
+        LineCount := LineCount div 10;
+        Nines := Nines + '9';
+      end;
     end;
 
     PixelWidth := 4 + CallStr(SCI_TEXTWIDTH, STYLE_LINENUMBER, AnsiString(Nines));
