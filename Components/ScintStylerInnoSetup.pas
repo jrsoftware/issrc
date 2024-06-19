@@ -1687,6 +1687,7 @@ var
 begin
   NewLineState := TInnoSetupStylerLineState(LineState);
   if NewLineState.NextLineSection <> scNone then begin
+    { Previous line started a section }
     NewLineState.Section := NewLineState.NextLineSection;
     NewLineState.NextLineSection := scNone;
   end;
