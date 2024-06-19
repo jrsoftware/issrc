@@ -3139,13 +3139,13 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Go to start of document. Shift extends selection.</td><td>Ctrl+Home</td>
 </tr>
 <tr>
-  <td>Go to start of line.</td><td>Alt+Home</td>
+  <td>Go to start of line.</td><td>Alt+Home or Home Home</td>
 </tr>
 <tr>
   <td>Go to end of document. Shift extends selection.</td><td>Ctrl+End</td>
 </tr>
 <tr>
-  <td>Go to end of line.</td><td>Alt+End</td>
+  <td>Go to end of line.</td><td>Alt+End or End End</td>
 </tr>
 <tr>
   <td>Scroll up.</td><td>Ctrl+Up</td>
@@ -3157,10 +3157,10 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Scroll horizontally.</td><td>Shift+MouseWheel</td>
 </tr>
 <tr>
-  <td>Cut selection or line.</td><td>Ctrl+X</td>
+  <td>Cut selection or line.</td><td>Ctrl+X or Shift+Delete</td>
 </tr>
 <tr>
-  <td>Copy selection or line.</td><td>Ctrl+C</td>
+  <td>Copy selection or line.</td><td>Ctrl+C or Ctrl+Insert</td>
 </tr>
 <tr>
   <td>Cut line.</td><td>Ctrl+L</td>
