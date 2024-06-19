@@ -105,8 +105,8 @@ type
     procedure SetISPPInstalled(const Value: Boolean);
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
-    procedure GetFoldLevel(const LineState, NextLineState: TScintLineState;
-      var Level: Integer; var Header: Boolean); override;
+    procedure GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
+      var Level: Integer; var Header, EnableHeaderOnPrevious: Boolean); override;
     procedure GetStyleAttributes(const Style: Integer;
       var Attributes: TScintStyleAttributes); override;
     function LineTextSpans(const S: TScintRawString): Boolean; override;
@@ -937,8 +937,8 @@ begin
   Result := FFlagsWordList[Section];
 end;
 
-procedure TInnoSetupStyler.GetFoldLevel(const LineState, NextLineState: TScintLineState;
-  var Level: Integer; var Header: Boolean);
+procedure TInnoSetupStyler.GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
+      var Level: Integer; var Header, EnableHeaderOnPrevious: Boolean);
 begin
   { Set folding per section. Lines outside of a section (=lines at the start of
     the document and section tags and section end tags and lines after section
@@ -948,11 +948,13 @@ begin
   var Section := TInnoSetupStyler.GetSectionFromLineState(LineState);
   if Section = scNone then begin
     Level := 0;
-    var NextSection := TInnoSetupStyler.GetSectionFromLineState(NextLineState);
-    Header := NextSection <> scNone;
+    Header := False; { Might be set to True via EnableHeaderOnPrevious below when we know about next line }
+    EnableHeaderOnPrevious := False;
   end else begin
     Level := 1;
     Header := False;
+    var PreviousSection := TInnoSetupStyler.GetSectionFromLineState(PreviousLineState);
+    EnableHeaderOnPrevious := PreviousSection = scNone;
   end;
 end;
 
