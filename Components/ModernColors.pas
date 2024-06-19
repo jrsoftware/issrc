@@ -49,8 +49,8 @@ const
   DWACOBack = $4A4A4A;       { VSCode Modern Dark }
   DSTOBACK = $403A33;        { VSCode Modern Dark }
   DMarginFore = $716F71;     { Monokai Pro }
-  DMarginBack = $413E40;     { Monokai Pro }
-  DSplitterBack = $413E40;   { Monokai Pro }
+  DMarginBack = DToolBack;
+  DSplitterBack = DToolBack;
   DBraceBack = DWACOBack;
   DIndentGuideFore = $716F71;{ Monokai Pro }
   //Monokai Pro's dark control color: $221F22
@@ -64,7 +64,7 @@ const
   LSTOBACK = $FEEAD3;        { VSCode Modern Light }
   LMarginFore = $716F71;     { Monokai Pro }
   LMarginBack = $F9FBFB;     { Monokai Pro }
-  LSplitterBack = clBtnFace;
+  LSplitterBack = LToolBack;
   LBraceBack = LWACOBack;
   LIndentGuideFore = clSilver;
 
@@ -75,8 +75,8 @@ const
   CWACOBack = LWACOBack;
   CSTOBACK = LSTOBack;
   CMarginFore = clWindowText;
-  CMarginBack = clBtnFace;
-  CSplitterBack = clBtnFace;
+  CMarginBack = CToolBack;
+  CSplitterBack = CToolBack;
   CBraceBack = CWACOBack;
   CIndentGuideFore = clSilver;
 
