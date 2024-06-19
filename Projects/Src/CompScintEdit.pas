@@ -246,6 +246,7 @@ begin
   Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY);
   Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY);
   Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY);
+  FoldFlags := [{sffLevelNumbers, }sffLineAfterContracted]; { sffLevelNumbers can be used to debug fold levels}
 
   { Set up the line markers }
   Call(SCI_MARKERDEFINE, mlmError, SC_MARK_BACKFORE);
@@ -341,7 +342,7 @@ end;
 
 procedure TCompScintEdit.UpdateThemeColorsAndStyleAttributes;
 begin
-  if FTheme <> nil then begin
+  if FTheme <> nil then begin { Always True at the moment }
     Font.Color := FTheme.Colors[tcFore];
     Color := FTheme.Colors[tcBack];
 
@@ -352,6 +353,7 @@ begin
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, SelBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, SelBackColor);
 
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_FOLD_LINE, FTheme.Colors[tcIndentGuideFore] or (70 shl 24));
     Call(SCI_SETFOLDMARGINCOLOUR, Ord(True), FTheme.Colors[tcBack]);
     Call(SCI_SETFOLDMARGINHICOLOUR, Ord(True), FTheme.Colors[tcBack]);
 
