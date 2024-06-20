@@ -327,6 +327,12 @@ begin
       { Use freed Ctrl+D and Ctrl+Shift+L; must be handled by container }
       FSelectNextOccurrenceShortCut := ShortCut(KeyToKeyCode('D'), [ssCtrl]);
       FSelectAllOccurrencesShortCut := ShortCut(KeyToKeyCode('L'), [ssShift, ssCtrl]);
+      { Ctrl+] and Ctrl+[ should indent and unident lines }
+      AssignCmdKey(']', [ssCtrl], SCI_LINETAB);
+      AssignCmdKey('[', [ssCtrl], SCI_LINEBACKTAB);
+      { Ctrl+Shift+] and Ctrl+Shift+[ should do nothing }
+      ClearCmdKey(']', [ssCtrl, ssShift]);
+      ClearCmdKey('[', [ssCtrl, ssShift]);
     end else begin
       for var RectExtendKeyCodeCommand in RectExtendKeyCodeCommands do begin
         ClearCmdKey(RectExtendKeyCodeCommand.Key, [ssShift, ssAlt, ssCtrl]);
@@ -337,6 +343,10 @@ begin
       AssignCmdKey('L', [ssShift, ssCtrl], SCI_LINEDELETE);
       FSelectNextOccurrenceShortCut := FDefaultSelectNextOccurrenceShortCut;
       FSelectAllOccurrencesShortCut := FDefaultSelectAllOccurrencesShortCut;
+      AssignCmdKey(']', [ssCtrl], SCI_PARADOWN);
+      AssignCmdKey('[', [ssCtrl], SCI_PARAUP);
+      AssignCmdKey(']', [ssCtrl, ssShift], SCI_PARADOWNEXTEND);
+      AssignCmdKey('[', [ssCtrl, ssShift], SCI_PARAUPEXTEND);
     end;
   end;
 end;
