@@ -1811,6 +1811,8 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
     FStyler.FStyleStr := StringOfChar(AnsiChar(0), FStyler.FTextLen +
       FLines.GetLineEndingLength(LastLine));
 
+    var PreviousLineState := FStyler.LineState;
+
     FStyler.StyleNeeded;
 
     var N := Length(FStyler.FStyleStr);
@@ -1843,11 +1845,50 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       FStyler.FStyleStr := '';
       FStyler.FText := '';
     end;
-    
+
+    { Get fold level }
+
+    var LineState := FStyler.LineState;
+    var FoldLevel: Integer;
+    var FoldHeader, EnableFoldHeaderOnPrevious: Boolean;
+
+    FStyler.GetFoldLevel(LineState, PreviousLineState, FoldLevel, FoldHeader, EnableFoldHeaderOnPrevious);
+
+    Inc(FoldLevel, SC_FOLDLEVELBASE);
+    if FoldHeader then
+      FoldLevel := FoldLevel or SC_FOLDLEVELHEADERFLAG;
+
+    { Apply line state and fold level }
+
     for var I := FirstLine to LastLine do begin
       var OldState := FLines.GetState(I);
       if FStyler.FLineState <> OldState then
         Call(SCI_SETLINESTATE, I, FStyler.FLineState);
+      var OldLevel := Call(SCI_GETFOLDLEVEL, I, 0);
+      var NewLevel := FoldLevel;
+      { Setting SC_FOLDLEVELWHITEFLAG on empty lines causes a problem: when
+        Scintilla auto expands a contracted section (for example after removing ']'
+        from a section header) all the empty lines stay invisible, even any which
+        are in the middle of the section. See https://sourceforge.net/p/scintilla/bugs/2442/ }
+      //if FLines.GetRawLineLength(I) = 0 then
+      //  NewLevel := NewLevel or SC_FOLDLEVELWHITEFLAG;
+      if NewLevel <> OldLevel then
+        Call(SCI_SETFOLDLEVEL, I, NewLevel);
+    end;
+
+    { Retroactively set header on previous line if requested to do so. Must be
+      *after* the loop above. Not sure why. Problem reproduction: move code above
+      the loop, run it, open Debug.iss, change [Setup] to [Set up] and notice
+      styling of the [Languages] section below it is now broken. If you turn on
+      sffLevelNumbers you will also see that the first entry in that section got
+      a header flag. }
+
+    if (FirstLine > 0) and EnableFoldHeaderOnPrevious then begin
+      var PreviousLine := FirstLine-1;
+      var OldLevel := Call(SCI_GETFOLDLEVEL, PreviousLine, 0);
+      var NewLevel := OldLevel or SC_FOLDLEVELHEADERFLAG;
+      if NewLevel <> OldLevel then
+        Call(SCI_SETFOLDLEVEL, PreviousLine, NewLevel);
     end;
 
     Result := LastLine;
@@ -1861,35 +1902,6 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       range that changed, whereas SCI_SETSTYLING redraws the entire range. }
     StyleStr := StringOfChar(AnsiChar(0), FLines.GetRawLineLengthWithEnding(Line));
     Call(SCI_SETSTYLINGEX, Length(StyleStr), LPARAM(PAnsiChar(StyleStr)));
-  end;
-
-  procedure FoldLine(const Line: Integer);
-  begin
-    var LineState := FLines.GetState(Line);
-    var PreviousLineState: TScintLineState := 0;
-    if Line > 0 then
-      PreviousLineState := FLines.GetState(Line-1);
-
-    var FoldLevel: Integer;
-    var FoldHeader, EnableFoldHeaderOnPrevious: Boolean;
-    FStyler.GetFoldLevel(LineState, PreviousLineState, FoldLevel, FoldHeader, EnableFoldHeaderOnPrevious);
-
-    if (Line > 0) and EnableFoldHeaderOnPrevious then
-      Call(SCI_SETFOLDLEVEL, Line-1, Call(SCI_GETFOLDLEVEL, Line-1, 0) or SC_FOLDLEVELHEADERFLAG);
-
-    Inc(FoldLevel, SC_FOLDLEVELBASE);
-    if FoldHeader then
-      FoldLevel := FoldLevel or SC_FOLDLEVELHEADERFLAG;
-    { Setting SC_FOLDLEVELWHITEFLAG on empty lines causes a problem: when
-      Scintilla auto expands a contracted section (for example after removing ']'
-      from a section header) all the empty lines stay invisible, even any which
-      are in the middle of the section. See https://sourceforge.net/p/scintilla/bugs/2442/ }
-    //if Lines.RawLineLengths[Line] = 0 then
-    //  FoldLevel := FoldLevel or SC_FOLDLEVELWHITEFLAG;
-
-    var OldLevel := Call(SCI_GETFOLDLEVEL, Line, 0);
-    if FoldLevel <> OldLevel then
-      Call(SCI_SETFOLDLEVEL, Line, FoldLevel);
   end;
 
 var
@@ -1928,14 +1940,6 @@ begin
     else
       DefaultStyleLine(Line);
     Inc(Line);
-  end;
-
-  if Assigned(FStyler) then begin
-    Line := StartLine;
-    while Line <= EndLine do begin
-      FoldLine(Line);
-      Inc(Line);
-    end;
   end;
 end;
 
