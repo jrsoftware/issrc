@@ -141,8 +141,8 @@ type
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
-    function GetSearchFlags(const Options: TScintFindOptions): Integer; overload;
-    function GetSearchFlags(const MatchCase: Boolean): Integer; overload;
+    class function GetSearchFlags(const Options: TScintFindOptions): Integer; overload;
+    class function GetSearchFlags(const MatchCase: Boolean): Integer; overload;
     function GetSelection: TScintRange;
     function GetSelectionAnchorPosition(Selection: Integer): Integer;
     function GetSelectionCaretPosition(Selection: Integer): Integer;
@@ -1096,7 +1096,7 @@ begin
   Result := Call(SCI_GETREADONLY, 0, 0) <> 0;
 end;
 
-function TScintEdit.GetSearchFlags(const Options: TScintFindOptions): Integer;
+class function TScintEdit.GetSearchFlags(const Options: TScintFindOptions): Integer;
 begin
   Result := 0;
   if sfoMatchCase in Options then
@@ -1105,7 +1105,7 @@ begin
     Result := Result or SCFIND_WHOLEWORD;
 end;
 
-function TScintEdit.GetSearchFlags(const MatchCase: Boolean): Integer;
+class function TScintEdit.GetSearchFlags(const MatchCase: Boolean): Integer;
 begin
   if MatchCase then
     Result := GetSearchFlags([sfoMatchCase])
