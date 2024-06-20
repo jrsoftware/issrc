@@ -50,7 +50,7 @@ const
   UnknownCompilerFileIndex = -2;
 
 type
-  TLineState = (lnUnknown, lnHasEntry, lnEntryProcessed);
+  TLineState = (lnUnknown, lnHasEntry, lnEntryProcessed); { Not related to TScintLineState }
   PLineStateArray = ^TLineStateArray;
   TLineStateArray = array[0..0] of TLineState;
   TSaveEncoding = (seAuto, seUTF8WithBOM, seUTF8WithoutBOM);
