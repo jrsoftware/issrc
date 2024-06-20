@@ -22,6 +22,7 @@ const
 
 type
   TScintChangeHistory = (schDisabled, schMarkers, schIndicators);
+  TScintCommand = type NativeInt;
   TScintEditAutoCompleteSelectionEvent = TNotifyEvent;
   TScintEditChangeInfo = record
     Inserting: Boolean;
@@ -46,6 +47,8 @@ type
     sffLineAfterExpanded, sffLineAfterContracted, sffLevelNumbers, sffLineState);
   TScintFoldFlags = set of TScintFoldFlag;
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
+  TScintKeyCode = type Word;
+  TScintKeyDefinition = type Cardinal;
   TScintStyleByteIndicatorNumber = 0..1; { Could be increased to 0..StyleNumberUnusedBits-1 }
   TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
   TScintIndicatorNumber = INDICATOR_CONTAINER..INDICATOR_MAX;
@@ -209,6 +212,10 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AddMarker(const Line: Integer; const Marker: TScintMarkerNumber);
+    procedure AssignCmdKey(const Key: AnsiChar; const Shift: TShiftState;
+      const Command: TScintCommand); overload;
+    procedure AssignCmdKey(const KeyCode: TScintKeyCode; const Shift: TShiftState;
+      const Command: TScintCommand); overload;
     procedure BeginUndoAction;
     function Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;
     function CallStr(Msg: Cardinal; WParam: Longint;
@@ -218,6 +225,8 @@ type
     function CanUndo: Boolean;
     procedure ChooseCaretX;
     procedure ClearAll;
+    procedure ClearCmdKey(const Key: AnsiChar; const Shift: TShiftState); overload;
+    procedure ClearCmdKey(const KeyCode: TScintKeyCode; const Shift: TShiftState); overload;
     procedure ClearIndicators(const IndicatorNumber: TScintIndicatorNumber);
     procedure ClearSelection;
     procedure ClearUndo(const ClearChangeHistory: Boolean = True);
@@ -268,6 +277,9 @@ type
     function GetWordEndPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
     function GetWordStartPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
+    class function KeyCodeAndShiftToKeyDefinition(const KeyCode: TScintKeyCode;
+      Shift: TShiftState): TScintKeyDefinition;
+    class function KeyToKeyCode(const Key: AnsiChar): TScintKeyCode;
     procedure PasteFromClipboard;
     function RawSelTextEquals(const S: TScintRawString; const MatchCase: Boolean): Boolean;
     class function RawStringIsBlank(const S: TScintRawString): Boolean;
@@ -550,6 +562,18 @@ begin
     Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
 end;
 
+procedure TScintEdit.AssignCmdKey(const Key: AnsiChar; const Shift: TShiftState;
+  const Command: TScintCommand);
+begin
+  AssignCmdKey(KeyToKeyCode(Key), Shift, Command);
+end;
+
+procedure TScintEdit.AssignCmdKey(const KeyCode: TScintKeyCode;
+  const Shift: TShiftState; const Command: TScintCommand);
+begin
+  Call(SCI_ASSIGNCMDKEY, KeyCodeAndShiftToKeyDefinition(KeyCode, Shift), Command);
+end;
+
 procedure TScintEdit.BeginUndoAction;
 begin
   Call(SCI_BEGINUNDOACTION, 0, 0);
@@ -624,6 +648,16 @@ procedure TScintEdit.ClearAll;
 begin
   Call(SCI_CLEARALL, 0, 0);
   ChooseCaretX;
+end;
+
+procedure TScintEdit.ClearCmdKey(const Key: AnsiChar; const Shift: TShiftState);
+begin
+  ClearCmdKey(KeyToKeyCode(Key), Shift);
+end;
+
+procedure TScintEdit.ClearCmdKey(const KeyCode: TScintKeyCode; const Shift: TShiftState);
+begin
+  Call(SCI_CLEARCMDKEY, KeyCodeAndShiftToKeyDefinition(KeyCode, Shift), 0);
 end;
 
 procedure TScintEdit.ClearIndicators(
@@ -1187,6 +1221,23 @@ var
 begin
   P := GetPointFromPosition(Pos);
   Result := (P.Y >= 0) and (P.Y + GetLineHeight <= ClientHeight);
+end;
+
+class function TScintEdit.KeyCodeAndShiftToKeyDefinition(
+  const KeyCode: TScintKeyCode; Shift: TShiftState): TScintKeyDefinition;
+begin
+  Result := KeyCode;
+  if ssShift in Shift then
+    Result := Result or (SCMOD_SHIFT shl 16);
+  if ssAlt in Shift then
+    Result := Result or (SCMOD_ALT shl 16);
+  if ssCtrl in Shift then
+    Result := Result or (SCMOD_CTRL shl 16);
+end;
+
+class function TScintEdit.KeyToKeyCode(const Key: AnsiChar): TScintKeyCode;
+begin
+  Result := Ord(UpCase(Key));
 end;
 
 procedure TScintEdit.Notification(AComponent: TComponent; Operation: TOperation);
