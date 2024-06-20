@@ -3099,7 +3099,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </precode>
 </li>
 
-<li>The Inno Setup backup domain can be found at <extlink href="https://www.innosetup.nl/">www.innosetup.nl</extlink>. There's currently no website active on this domain but in case of emergencies it will be activated.</li>
+<li>The Inno Setup backup domain can be found at <extlink href="https://innosetup.nl/">innosetup.nl</extlink>. It currently just redirects to the main site but in case of emergencies this will be deactivated.</li>
 
 </ul>
 
