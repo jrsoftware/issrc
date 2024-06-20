@@ -77,7 +77,7 @@ begin
   InitFormFont(Self);
 
   { Order must match KeyMappingType }
-  KeyMappingComboBox.Items.Add('Delphi');
+  KeyMappingComboBox.Items.Add('Classic');
   KeyMappingComboBox.Items.Add('Visual Studio');
 
   { Order must match TThemeType }
