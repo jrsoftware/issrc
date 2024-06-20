@@ -12,7 +12,8 @@ unit CompScintEdit;
 interface
 
 uses
-  Windows, Graphics, Classes, Generics.Collections, ScintInt, ScintEdit, ModernColors;
+  Windows, Graphics, Classes, Menus, Generics.Collections,
+  ScintInt, ScintEdit, ModernColors;
 
 const
   { Memo margin numbers }
@@ -55,22 +56,34 @@ type
   TLineStateArray = array[0..0] of TLineState;
   TSaveEncoding = (seAuto, seUTF8WithBOM, seUTF8WithoutBOM);
   TCompScintIndicatorNumber = 0..minMax;
+  TCompScintKeyMappingType = (kmtDefault, kmtVSCode); { Scintilla's default keymap is the same or at least nearly the same as Visual Studio's }
 
   TCompScintEdit = class(TScintEdit)
   private
-    FUseFolding: Boolean;
-    FTheme: TTheme;
-    FOpeningFile: Boolean;
-    FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
-    FIndicatorCount: array[TCompScintIndicatorNumber] of Integer;
-    FIndicatorHash: array[TCompScintIndicatorNumber] of String;
-    procedure SetUseFolding(const Value: Boolean);
+    class var
+      FDefaultSelectNextOccurrenceShortCut: TShortCut;
+      FDefaultSelectAllOccurrencesShortCut: TShortCut;
+    var
+      FKeyMappingType: TCompScintKeyMappingType;
+      FSelectNextOccurrenceShortCut: TShortCut;
+      FSelectAllOccurrencesShortCut: TShortCut;
+      FUseFolding: Boolean;
+      FTheme: TTheme;
+      FOpeningFile: Boolean;
+      FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
+      FIndicatorCount: array[TCompScintIndicatorNumber] of Integer;
+      FIndicatorHash: array[TCompScintIndicatorNumber] of String;
+      procedure SetUseFolding(const Value: Boolean);
+      procedure SetKeyMappingType(const Value: TCompScintKeyMappingType);
   protected
     procedure CreateWnd; override;
   public
+    class constructor Create;
     constructor Create(AOwner: TComponent); override;
     property Theme: TTheme read FTheme write FTheme;
     property OpeningFile: Boolean read FOpeningFile write FOpeningFile;
+    property SelectNextOccurrenceShortCut: TShortCut read FSelectNextOccurrenceShortCut;
+    property SelectAllOccurrencesShortCut: TShortCut read FSelectAllOccurrencesShortCut;
     property Used: Boolean read FUsed write FUsed;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
@@ -79,6 +92,7 @@ type
       RightBlankMarginWidth, SquigglyWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   published
+    property KeyMappingType: TCompScintKeyMappingType read FKeyMappingType write SetKeyMappingType default kmtDefault;
     property UseFolding: Boolean read FUseFolding write SetUseFolding default True;
   end;
 
@@ -147,9 +161,18 @@ uses
   
 { TCompScintEdit }
 
+class constructor TCompScintEdit.Create;
+begin
+  FDefaultSelectNextOccurrenceShortCut := ShortCut(VK_OEM_PERIOD, [ssShift, ssAlt]);
+  FDefaultSelectAllOccurrencesShortCut := ShortCut(VK_OEM_1, [ssShift, ssAlt]);
+end;
+
 constructor TCompScintEdit.Create(AOwner: TComponent);
 begin
   inherited;
+  FKeyMappingType := kmtDefault;
+  FSelectNextOccurrenceShortCut := FDefaultSelectNextOccurrenceShortCut;
+  FSelectAllOccurrencesShortCut := FDefaultSelectAllOccurrencesShortCut;
   FUseFolding := True;
 end;
 
@@ -258,6 +281,47 @@ begin
   Call(SCI_MARKERDEFINE, mlmStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mlmStep, clWhite);
   Call(SCI_MARKERSETBACK, mlmStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+end;
+
+procedure TCompScintEdit.SetKeyMappingType(
+  const Value: TCompScintKeyMappingType);
+begin
+  if FKeyMappingType <> Value then begin
+    FKeyMappingType := Value;
+
+    { Note: All comments below refer to VSCode }
+
+    { First change Shift+Alt+Arrow to Ctrl+Shift+Alt+Arrow }
+    var RectExtendShiftState: TShiftState := [ssShift, ssAlt];
+    if FKeyMappingType = kmtVSCode then
+      Include(RectExtendShiftState, ssCtrl);
+    AssignCmdKey(SCK_UP, RectExtendShiftState, SCI_LINEUPRECTEXTEND);
+    AssignCmdKey(SCK_DOWN, RectExtendShiftState, SCI_LINEDOWNRECTEXTEND);
+    AssignCmdKey(SCK_LEFT, RectExtendShiftState, SCI_CHARLEFTRECTEXTEND);
+    AssignCmdKey(SCK_RIGHT, RectExtendShiftState, SCI_CHARRIGHTRECTEXTEND);
+    AssignCmdKey(SCK_HOME, RectExtendShiftState, SCI_VCHOMERECTEXTEND);
+    AssignCmdKey(SCK_END, RectExtendShiftState, SCI_LINEENDRECTEXTEND);
+    AssignCmdKey(SCK_PRIOR, RectExtendShiftState, SCI_PAGEUPRECTEXTEND);
+    AssignCmdKey(SCK_NEXT, RectExtendShiftState, SCI_PAGEDOWNRECTEXTEND);
+
+    if FKeyMappingType = kmtVSCode then begin
+      { Now that Shift+Alt+Down has been freed we can use it for line duplication
+        which frees Ctrl+D }
+      AssignCmdKey(SCK_DOWN, [ssShift, ssAlt], SCI_SELECTIONDUPLICATE);
+      ClearCmdKey('D', [ssCtrl]);
+      { Use Ctrl+Shift+K for line deletion which frees Ctrl+Shift+L }
+      AssignCmdKey('K', [ssShift, ssCtrl], SCI_LINEDELETE);
+      ClearCmdKey('L', [ssShift, ssCtrl]);
+      { Use freed Ctrl+D and Ctrl+Shift+L; must be handled by container }
+      FSelectNextOccurrenceShortCut := ShortCut(KeyToKeyCode('D'), [ssCtrl]);
+      FSelectAllOccurrencesShortCut := ShortCut(KeyToKeyCode('L'), [ssShift, ssCtrl]);
+    end else begin
+      AssignCmdKey('D', [ssCtrl], SCI_SELECTIONDUPLICATE);
+      AssignCmdKey('L', [ssShift, ssCtrl], SCI_LINEDELETE);
+      FSelectNextOccurrenceShortCut := FDefaultSelectNextOccurrenceShortCut;
+      FSelectAllOccurrencesShortCut := FDefaultSelectAllOccurrencesShortCut;
+    end;
+  end;
 end;
 
 procedure TCompScintEdit.SetUseFolding(const Value: Boolean);

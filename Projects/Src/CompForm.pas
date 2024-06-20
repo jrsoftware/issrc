@@ -850,10 +850,6 @@ begin
   SetFakeShortCut(ECopy, Ord('C'), [ssCtrl]);
   SetFakeShortCut(EPaste, Ord('V'), [ssCtrl]);
   SetFakeShortCut(ESelectAll, Ord('A'), [ssCtrl]);
-  FSelectNextOccurrenceShortCut := ShortCut(VK_OEM_PERIOD, [ssShift, ssAlt]);
-  SetFakeShortCut(ESelectNextOccurrence, FSelectNextOccurrenceShortCut);
-  FSelectAllOccurrencesShortCut := ShortCut(VK_OEM_1, [ssShift, ssAlt]);
-  SetFakeShortCut(ESelectAllOccurrences, FSelectAllOccurrencesShortCut);
   SetFakeShortCut(EDelete, VK_DELETE, []);
   SetFakeShortCut(ECompleteWord, Ord(' '), [ssCtrl]);
   SetFakeShortCutText(VZoomIn, SmkcCtrl + 'Num +');    { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
@@ -2013,6 +2009,14 @@ begin
 
     Memo.TabWidth := FOptions.TabWidth;
     Memo.UseTabCharacter := FOptions.UseTabCharacter;
+
+    Memo.KeyMappingType := kmtVSCode;
+    if Memo = FMainMemo then begin
+      FSelectNextOccurrenceShortCut := FMainMemo.SelectNextOccurrenceShortCut;
+      SetFakeShortCut(ESelectNextOccurrence, FSelectNextOccurrenceShortCut);
+      FSelectAllOccurrencesShortCut := FMainMemo.SelectAllOccurrencesShortCut;
+      SetFakeShortCut(ESelectAllOccurrences, FSelectAllOccurrencesShortCut);
+    end;
 
     Memo.UseFolding := FOptions.UseFolding;
     Memo.WordWrap := FOptions.WordWrap;
