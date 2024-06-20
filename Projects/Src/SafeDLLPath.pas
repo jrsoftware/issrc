@@ -110,15 +110,15 @@ initialization
         SystemDir := SystemDir + '\';
        //list of system dlls to preload including source:
       // NSIS: Vista: OleInitialize calls NtUserCreateWindowEx and that pulls in UXTheme.dll
-      SafeLoadLibrary(SystemDir + 'uxtheme.dll');
+      //SafeLoadLibrary(SystemDir + 'uxtheme.dll');
       // NSIS: Vista: SHGetFileInfo ends up in SHELL32.kfapi::GetUserProfileDir and that pulls in UserEnv.dll
-      SafeLoadLibrary(SystemDir + 'userenv.dll');
+      //SafeLoadLibrary(SystemDir + 'userenv.dll');
       // NSIS: XP: SHGetFileInfo ends up in CMountPoint::_InitLocalDriveHelper and that pulls in SetupAPI.dll
-      SafeLoadLibrary(SystemDir + 'setupapi.dll');
+      //SafeLoadLibrary(SystemDir + 'setupapi.dll');
       // NSIS: Vista: SHGetFileInfo ... SHELL32.SHILAliasTranslate ... SHELL32.ApphelpCheckShellObject;
-      SafeLoadLibrary(SystemDir + 'apphelp.dll');
+      //SafeLoadLibrary(SystemDir + 'apphelp.dll');
       // NSIS: Vista: SHGetFileInfo ... SHELL32.SHILAliasTranslate ... SHLWAPI.#187 ... SHLWAPI.#505/SHPropertyBag_ReadGUID
-      SafeLoadLibrary(SystemDir + 'propsys.dll');
+      //SafeLoadLibrary(SystemDir + 'propsys.dll');
       // NSIS: Win7 without KB2533623: UXTheme pulls in DWMAPI.dll
       // Mail: Windows 7 SP1: combase.dll -> ole32.dll -> shell32.dll -> dwmapi.dll
       SafeLoadLibrary(SystemDir + 'dwmapi.dll');
@@ -126,7 +126,7 @@ initialization
       // Mail: oleaut32.dll -> rpcrt4.dll -> cryptbase.dll
       SafeLoadLibrary(SystemDir + 'cryptbase.dll');
       // NSIS: Vista: SHFileOperation ... SHELL32.CProgressDialogUI::_Setup ... SHELL32.GetRoleTextW        
-      SafeLoadLibrary(SystemDir + 'oleacc.dll');    
+      //SafeLoadLibrary(SystemDir + 'oleacc.dll');    
       // Mail: Windows 7 SP1: oleaut32.dll -> ole32.dll -> crypt32.dll -> version.dll
       // WIX3: required by Burn
       SafeLoadLibrary(SystemDir + 'version.dll');
