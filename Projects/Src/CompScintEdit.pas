@@ -300,7 +300,6 @@ begin
 
     { Note: All comments below refer to VSCode }
 
-    { First change Shift+Alt+Arrow to Ctrl+Shift+Alt+Arrow }
     var RectExtendKeyCodeCommands := [
       KCC(SCK_UP, SCI_LINEUPRECTEXTEND),
       KCC(SCK_DOWN, SCI_LINEDOWNRECTEXTEND),
@@ -310,21 +309,16 @@ begin
       KCC(SCK_END, SCI_LINEENDRECTEXTEND),
       KCC(SCK_PRIOR, SCI_PAGEUPRECTEXTEND),
       KCC(SCK_NEXT, SCI_PAGEDOWNRECTEXTEND)];
-    var BaseRectExtendShiftState: TShiftState := [ssShift, ssAlt];
-    var AssignRectExtendShiftState := BaseRectExtendShiftState;
-    var ClearRectExtendShiftState := BaseRectExtendShiftState;
-    if FKeyMappingType = kmtVSCode then
-      Include(AssignRectExtendShiftState, ssCtrl)
-    else
-      Include(ClearRectExtendShiftState, ssCtrl);
-    for var RectExtendKeyCodeCommand in RectExtendKeyCodeCommands do begin
-      AssignCmdKey(RectExtendKeyCodeCommand.Key, AssignRectExtendShiftState, RectExtendKeyCodeCommand.Value);
-      ClearCmdKey(RectExtendKeyCodeCommand.Key, ClearRectExtendShiftState);
-    end;
 
     if FKeyMappingType = kmtVSCode then begin
+      { First change Shift+Alt+Arrow to Ctrl+Shift+Alt+Arrow }
+      for var RectExtendKeyCodeCommand in RectExtendKeyCodeCommands do begin
+        AssignCmdKey(RectExtendKeyCodeCommand.Key, [ssShift, ssAlt, ssCtrl], RectExtendKeyCodeCommand.Value);
+        ClearCmdKey(RectExtendKeyCodeCommand.Key, [ssShift, ssAlt]);
+      end;
       { Now that Shift+Alt+Down has been freed we can use it for line duplication
-        which frees Ctrl+D }
+        which frees Ctrl+D . There's no clear for this one in the else
+        because it's a member of RectExtendKeyCodeCommands already. }
       AssignCmdKey(SCK_DOWN, [ssShift, ssAlt], SCI_SELECTIONDUPLICATE);
       ClearCmdKey('D', [ssCtrl]);
       { Use Ctrl+Shift+K for line deletion which frees Ctrl+Shift+L }
@@ -334,9 +328,13 @@ begin
       FSelectNextOccurrenceShortCut := ShortCut(KeyToKeyCode('D'), [ssCtrl]);
       FSelectAllOccurrencesShortCut := ShortCut(KeyToKeyCode('L'), [ssShift, ssCtrl]);
     end else begin
+      for var RectExtendKeyCodeCommand in RectExtendKeyCodeCommands do begin
+        ClearCmdKey(RectExtendKeyCodeCommand.Key, [ssShift, ssAlt, ssCtrl]);
+        AssignCmdKey(RectExtendKeyCodeCommand.Key, [ssShift, ssAlt], RectExtendKeyCodeCommand.Value);
+      end;
       AssignCmdKey('D', [ssCtrl], SCI_SELECTIONDUPLICATE);
-      AssignCmdKey('L', [ssShift, ssCtrl], SCI_LINEDELETE);
       ClearCmdKey('K', [ssShift, ssCtrl]);
+      AssignCmdKey('L', [ssShift, ssCtrl], SCI_LINEDELETE);
       FSelectNextOccurrenceShortCut := FDefaultSelectNextOccurrenceShortCut;
       FSelectAllOccurrencesShortCut := FDefaultSelectAllOccurrencesShortCut;
     end;
