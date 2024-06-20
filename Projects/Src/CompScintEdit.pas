@@ -285,6 +285,15 @@ end;
 
 procedure TCompScintEdit.SetKeyMappingType(
   const Value: TCompScintKeyMappingType);
+
+type
+  TKeyCodeCommand = TPair<TScintKeyCode, TScintCommand>;
+
+  function KCC(const KeyCode: TScintKeyCode; const Command: TScintCommand): TKeyCodeCommand;
+  begin
+    Result := TKeyCodeCommand.Create(KeyCode, Command); { This is a record so no need to free }
+  end;
+
 begin
   if FKeyMappingType <> Value then begin
     FKeyMappingType := Value;
@@ -292,17 +301,26 @@ begin
     { Note: All comments below refer to VSCode }
 
     { First change Shift+Alt+Arrow to Ctrl+Shift+Alt+Arrow }
-    var RectExtendShiftState: TShiftState := [ssShift, ssAlt];
+    var RectExtendKeyCodeCommands := [
+      KCC(SCK_UP, SCI_LINEUPRECTEXTEND),
+      KCC(SCK_DOWN, SCI_LINEDOWNRECTEXTEND),
+      KCC(SCK_LEFT, SCI_CHARLEFTRECTEXTEND),
+      KCC(SCK_RIGHT, SCI_CHARRIGHTRECTEXTEND),
+      KCC(SCK_HOME, SCI_VCHOMERECTEXTEND),
+      KCC(SCK_END, SCI_LINEENDRECTEXTEND),
+      KCC(SCK_PRIOR, SCI_PAGEUPRECTEXTEND),
+      KCC(SCK_NEXT, SCI_PAGEDOWNRECTEXTEND)];
+    var BaseRectExtendShiftState: TShiftState := [ssShift, ssAlt];
+    var AssignRectExtendShiftState := BaseRectExtendShiftState;
+    var ClearRectExtendShiftState := BaseRectExtendShiftState;
     if FKeyMappingType = kmtVSCode then
-      Include(RectExtendShiftState, ssCtrl);
-    AssignCmdKey(SCK_UP, RectExtendShiftState, SCI_LINEUPRECTEXTEND);
-    AssignCmdKey(SCK_DOWN, RectExtendShiftState, SCI_LINEDOWNRECTEXTEND);
-    AssignCmdKey(SCK_LEFT, RectExtendShiftState, SCI_CHARLEFTRECTEXTEND);
-    AssignCmdKey(SCK_RIGHT, RectExtendShiftState, SCI_CHARRIGHTRECTEXTEND);
-    AssignCmdKey(SCK_HOME, RectExtendShiftState, SCI_VCHOMERECTEXTEND);
-    AssignCmdKey(SCK_END, RectExtendShiftState, SCI_LINEENDRECTEXTEND);
-    AssignCmdKey(SCK_PRIOR, RectExtendShiftState, SCI_PAGEUPRECTEXTEND);
-    AssignCmdKey(SCK_NEXT, RectExtendShiftState, SCI_PAGEDOWNRECTEXTEND);
+      Include(AssignRectExtendShiftState, ssCtrl)
+    else
+      Include(ClearRectExtendShiftState, ssCtrl);
+    for var RectExtendKeyCodeCommand in RectExtendKeyCodeCommands do begin
+      AssignCmdKey(RectExtendKeyCodeCommand.Key, AssignRectExtendShiftState, RectExtendKeyCodeCommand.Value);
+      ClearCmdKey(RectExtendKeyCodeCommand.Key, ClearRectExtendShiftState);
+    end;
 
     if FKeyMappingType = kmtVSCode then begin
       { Now that Shift+Alt+Down has been freed we can use it for line duplication
@@ -318,6 +336,7 @@ begin
     end else begin
       AssignCmdKey('D', [ssCtrl], SCI_SELECTIONDUPLICATE);
       AssignCmdKey('L', [ssShift, ssCtrl], SCI_LINEDELETE);
+      ClearCmdKey('K', [ssShift, ssCtrl]);
       FSelectNextOccurrenceShortCut := FDefaultSelectNextOccurrenceShortCut;
       FSelectAllOccurrencesShortCut := FDefaultSelectAllOccurrencesShortCut;
     end;
