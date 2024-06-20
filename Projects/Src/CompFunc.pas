@@ -43,6 +43,7 @@ function IsWindows10: Boolean;
 function IsWindows11: Boolean;
 function GetDefaultThemeType: TThemeType;
 function GetDefaultKeyMappingType: TKeyMappingType;
+function GetDefaultMemoKeyMappingType: TCompScintKeyMappingType;
 procedure OpenDonateSite;
 procedure OpenMailingListSite;
 procedure ClearMRUList(const MRUList: TStringList; const Section: String);
@@ -275,6 +276,11 @@ end;
 function GetDefaultKeyMappingType: TKeyMappingType;
 begin
   Result := kmtDelphi;
+end;
+
+function GetDefaultMemoKeyMappingType: TCompScintKeyMappingType;
+begin
+  Result := kmtDefault;
 end;
 
 procedure OpenDonateSite;

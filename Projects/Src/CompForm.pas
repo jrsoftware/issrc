@@ -394,6 +394,7 @@ type
       LowPriorityDuringCompile: Boolean;
       GutterLineNumbers: Boolean;
       KeyMappingType: TKeyMappingType;
+      MemoKeyMappingType: TCompScintKeyMappingType;
       ThemeType: TThemeType;
       ShowPreprocessorOutput: Boolean;
       OpenIncludedFiles: Boolean;
@@ -776,6 +777,9 @@ constructor TCompileForm.Create(AOwner: TComponent);
       I := Ini.ReadInteger('Options', 'KeyMappingType', Ord(GetDefaultKeyMappingType));
       if (I >= 0) and (I <= Ord(High(TKeyMappingType))) then
         FOptions.KeyMappingType := TKeyMappingType(I);
+      I := Ini.ReadInteger('Options', 'MemoKeyMappingType', Ord(GetDefaultMemoKeyMappingType));
+      if (I >= 0) and (I <= Ord(High(TCompScintKeyMappingType))) then
+        FOptions.MemoKeyMappingType := TCompScintKeyMappingType(I);
       I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
       if (I >= 0) and (I <= Ord(High(TThemeType))) then
         FOptions.ThemeType := TThemeType(I);
@@ -2010,7 +2014,7 @@ begin
     Memo.TabWidth := FOptions.TabWidth;
     Memo.UseTabCharacter := FOptions.UseTabCharacter;
 
-    Memo.KeyMappingType := kmtVSCode;
+    Memo.KeyMappingType := FOptions.MemoKeyMappingType;
     if Memo = FMainMemo then begin
       FSelectNextOccurrenceShortCut := FMainMemo.SelectNextOccurrenceShortCut;
       SetFakeShortCut(ESelectNextOccurrence, FSelectNextOccurrenceShortCut);
@@ -3813,6 +3817,7 @@ begin
       Ini.WriteBool('Options', 'ShowPreprocessorOutput', FOptions.ShowPreprocessorOutput);
       Ini.WriteBool('Options', 'OpenIncludedFiles', FOptions.OpenIncludedFiles);
       Ini.WriteInteger('Options', 'KeyMappingType', Ord(FOptions.KeyMappingType));
+      Ini.WriteInteger('Options', 'MemoKeyMappingType', Ord(FOptions.MemoKeyMappingType));
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
       Ini.WriteString('Options', 'EditorFontName', FMainMemo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
