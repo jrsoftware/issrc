@@ -1078,6 +1078,7 @@ begin
         FActiveMemo.RemoveAdditionalSelections
       else if not FActiveMemo.SelEmpty then
         FActiveMemo.SetEmptySelection;
+      FActiveMemo.ScrollCaretIntoView;
     end;
   end else if AShortCut = FSelectNextOccurrenceShortCut then begin
     if ESelectNextOccurrence.Enabled then
