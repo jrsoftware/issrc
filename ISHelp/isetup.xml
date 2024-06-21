@@ -3270,7 +3270,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Complete word.</td><td>Ctrl+Space or Ctrl+I or<br />Alt+Right if the Visual Studio menu key map is active</td>
 </tr>
 <tr>
-  <td>Fillup complete word.</td><td>Tab or Enter or<br />Space for ISPP directives or<br />\ for constants or<br />: for constants and section parameters or<br />] for sections or<br />= for section directives</td>
+  <td>Fillup complete word.</td><td>Tab or Enter or<br />Space for ISPP directives or Flags and Type parameters or<br />\ for constants or<br />: for constants and section parameters or<br />] for sections or<br />= for section directives</td>
 </tr>
 <tr>
   <td>Cancel complete word.</td><td>Esc</td>

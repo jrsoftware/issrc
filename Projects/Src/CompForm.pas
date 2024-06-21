@@ -4582,10 +4582,7 @@ begin
             WordList := FMemosStyler.FlagsWordList[Section];
             if WordList = '' then
               Exit;
-            if Key <> ' ' then  { Space initiating autocompletion also initiates a direct fillup if its a fillup char :( }
-              FActiveMemo.SetAutoCompleteFillupChars(' ')
-            else
-              FActiveMemo.SetAutoCompleteFillupChars('')
+            FActiveMemo.SetAutoCompleteFillupChars(' ');
           end else begin
             WordList := FMemosStyler.KeywordsWordList[Section];
             if WordList = '' then { Messages & CustomMessages }
