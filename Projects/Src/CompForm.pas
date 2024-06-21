@@ -454,6 +454,7 @@ type
     FCurrentNavItem: TCompScintEditNavItem;
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
     FIgnoreTabSetClick: Boolean;
+    FFirstTabSelectShortCut, FLastTabSelectShortCut: TShortCut;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -900,6 +901,8 @@ begin
   FMemosStyler.Theme := FTheme;
 
   MemosTabSet.PopupMenu := TCompileFormPopupMenu.Create(Self, MemosTabSetPopupMenu);
+  FFirstTabSelectShortCut := ShortCut(Ord('1'), [ssCtrl]);
+  FLastTabSelectShortCut := ShortCut(Ord('9'), [ssCtrl]);
 
   FNavStacks := TCompScintEditNavStacks.Create;
   UpdateNavButtons;
@@ -1065,13 +1068,26 @@ procedure TCompileForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   var AShortCut := ShortCut(Key, Shift);
-  if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then
+  if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then begin
+    Key := 0;
     BStopCompileClick(Self)
-  else if (AShortCut = FBackNavButtonShortCut) and BackNavButton.Enabled then
+  end else if (AShortCut = FBackNavButtonShortCut) and BackNavButton.Enabled then begin
+    Key := 0;
     BackNavButtonClick(Self)
-  else if (AShortCut = FForwardNavButtonShortCut) and ForwardNavButton.Enabled then
+  end else if (AShortCut = FForwardNavButtonShortCut) and ForwardNavButton.Enabled then begin
+    Key := 0;
     ForwardNavButtonClick(Self)
-  else if (Key = VK_F6) and not(ssAlt in Shift) then begin
+  end else if (AShortCut >= FFirstTabSelectShortCut) and (AShortCut <= FLastTabSelectShortCut) then begin
+    Key := 0;
+    if MemosTabSet.Visible then begin
+      var TabIndex := AShortCut - FFirstTabSelectShortCut;
+      if TabIndex < 8 then begin
+        if TabIndex < MemosTabSet.Tabs.Count then
+          MemosTabSet.TabIndex := TabIndex;
+      end else { Ctrl+9 = Select last tab }
+        MemosTabSet.TabIndex := MemosTabSet.Tabs.Count-1;
+    end;
+  end else if (Key = VK_F6) and not(ssAlt in Shift) then begin
     { Toggle focus between the active memo and the active bottom pane }
     Key := 0;
     if ActiveControl <> FActiveMemo then
@@ -1086,6 +1102,8 @@ begin
     end;
   end else begin
     var ComplexCommand := FActiveMemo.GetComplexCommand(AShortCut);
+    if ComplexCommand <> ccNone then
+      Key := 0;
     case ComplexCommand of
       ccSelectNextOccurrence:
         if ESelectNextOccurrence.Enabled then
