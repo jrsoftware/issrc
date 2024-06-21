@@ -1100,32 +1100,6 @@ begin
         tiFindResults: ActiveControl := FindResultsList;
       end;
     end;
-  end else begin
-    var ComplexCommand := FActiveMemo.GetComplexCommand(AShortCut);
-    if ComplexCommand <> ccNone then
-      Key := 0;
-    case ComplexCommand of
-      ccSelectNextOccurrence:
-        if ESelectNextOccurrence.Enabled then
-          ESelectNextOccurrenceClick(Self);
-      ccSelectAllOccurrences:
-        if ESelectAllOccurrences.Enabled then
-          ESelectAllOccurrencesClick(Self);
-      ccSimplifySelection:
-        begin
-          { The built in Esc (SCI_CANCEL) simply drops all additional selections
-            and does not empty the main selection, It doesn't matter if Esc is
-            pressed once or twice. Implement our own behaviour, same as VSCode.
-            Also see https://github.com/microsoft/vscode/issues/118835. }
-          if FActiveMemo.SelectionCount > 1 then
-            FActiveMemo.RemoveAdditionalSelections
-          else if not FActiveMemo.SelEmpty then
-            FActiveMemo.SetEmptySelection;
-          FActiveMemo.ScrollCaretIntoView;
-        end;
-      else if ComplexCommand <> ccNone then
-        raise Exception.Create('Unknown ComplexCommand');
-    end;
   end;
 end;
 
@@ -1160,11 +1134,37 @@ begin
         HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
       end;
     end;
-  end
-  else if ((Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt])) and
+  end else if ((Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt])) and
            (ShortCut(Key, Shift) <> FForwardNavButtonShortCut) then begin
     InitiateAutoComplete(#0);
     Key := 0;
+  end else begin
+    var AShortCut := ShortCut(Key, Shift);
+    var ComplexCommand := FActiveMemo.GetComplexCommand(AShortCut);
+    if ComplexCommand <> ccNone then
+      Key := 0;
+    case ComplexCommand of
+      ccSelectNextOccurrence:
+        if ESelectNextOccurrence.Enabled then
+          ESelectNextOccurrenceClick(Self);
+      ccSelectAllOccurrences:
+        if ESelectAllOccurrences.Enabled then
+          ESelectAllOccurrencesClick(Self);
+      ccSimplifySelection:
+        begin
+          { The built in Esc (SCI_CANCEL) simply drops all additional selections
+            and does not empty the main selection, It doesn't matter if Esc is
+            pressed once or twice. Implement our own behaviour, same as VSCode.
+            Also see https://github.com/microsoft/vscode/issues/118835. }
+          if FActiveMemo.SelectionCount > 1 then
+            FActiveMemo.RemoveAdditionalSelections
+          else if not FActiveMemo.SelEmpty then
+            FActiveMemo.SetEmptySelection;
+          FActiveMemo.ScrollCaretIntoView;
+        end;
+      else if ComplexCommand <> ccNone then
+        raise Exception.Create('Unknown ComplexCommand');
+    end;
   end;
 end;
 
