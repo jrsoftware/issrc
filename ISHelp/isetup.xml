@@ -3114,9 +3114,14 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="Mouse commands" />
 <body>
 
-<p>Besides the keyboard commands listed in the menus, the Compiler IDE supports the following additional keyboard and mouse commands:</p>
+<p>Besides the keyboard commands listed in the menus, the Compiler IDE supports additional keyboard and mouse commands, some of which depend on the active editor key map.</p>
+
+<p>If the Visual Studio Code column is empty then the shortcut for this command is the same as listed in the Classic column.</p>
+
+<p>A single dash (-) means there's no shortcut available for this command in the key map.</p>
 
 <table>
+<tr><td></td><td><u>Classic</u></td><td><u>Visual Studio Code</u></td></tr>
 <tr>
   <td>Indent block.</td><td>Tab</td>
 </tr>
@@ -3175,7 +3180,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Copy lines.</td><td>Ctrl+Shift+T</td>
 </tr>
 <tr>
-  <td>Delete line.</td><td>Ctrl+Shift+L</td>
+  <td>Delete line.</td><td>Ctrl+Shift+L</td><td>Ctrl+Shift+K</td>
 </tr>
 <tr>
   <td>Switch line with previous.</td><td>Ctrl+T</td>
@@ -3187,13 +3192,19 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Move selected lines down.</td><td>Alt+Down</td>
 </tr>
 <tr>
-  <td>Duplicate selection or copy lines down.</td><td>Ctrl+D</td>
+  <td>Duplicate selection or copy lines down.</td><td>Ctrl+D</td><td>Shift+Alt+Down</td>
 </tr>
 <tr>
-  <td>Go to previous paragraph. Shift extends selection.</td><td>Ctrl+[</td>
+  <td>Go to next paragraph. Shift extends selection.</td><td>Ctrl+]</td><td>-</td>
 </tr>
 <tr>
-  <td>Go to next paragraph. Shift extends selection.</td><td>Ctrl+]</td>
+  <td>Indent lines.</td><td>-</td><td>Ctrl+]</td>
+</tr>
+<tr>
+  <td>Go to previous paragraph. Shift extends selection.</td><td>Ctrl+[</td><td>-</td>
+</tr>
+<tr>
+  <td>Unindent lines.</td><td>-</td><td>Ctrl+[</td>
 </tr>
 <tr>
   <td>Go to previous word. Shift extends selection.</td><td>Ctrl+Left</td>
@@ -3223,22 +3234,25 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Add line as additional selection.</td><td>Ctrl+TripleClick</td>
 </tr>
 <tr>
-  <td>Add the next occurrence of the current word or selected text as an additional selection.</td><td>Shift+Alt+.</td>
+  <td>Add the next occurrence of the current word or selected text as an additional selection.</td><td>Shift+Alt+.</td><td>Ctrl+D</td>
 </tr>
 <tr>
-  <td>Select all occurrences of the current word or selected text.</td><td>Shift+Alt+;</td>
+  <td>Select all occurrences of the current word or selected text.</td><td>Shift+Alt+;</td><td>Ctrl+Shift+L</td>
 </tr>
 <tr>
-  <td>Perform rectangular block selection.</td><td>Shift+Alt+Arrow or Alt+Drag</td>
+  <td>Perform rectangular block selection (mouse).</td><td>Alt+Drag</td>
 </tr>
 <tr>
-  <td>Extend rectangular selection to first non-blank character of line.</td><td>Shift+Alt+Home</td>
+  <td>Perform rectangular block selection (keyboard).</td><td>Shift+Alt+Arrow</td><td>Ctrl+Shift+Alt+Arrow</td>
 </tr>
 <tr>
-  <td>Extend rectangular selection to start of line.</td><td>Shift+Alt+Home Home</td>
+  <td>Extend rectangular selection to first non-blank character of line.</td><td>Shift+Alt+Home</td><td>Ctrl+Shift+Alt+Home</td>
 </tr>
 <tr>
-  <td>Extend rectangular selection to end of line.</td><td>Shift+Alt+End</td>
+  <td>Extend rectangular selection to start of line.</td><td>Shift+Alt+Home Home</td><td>Ctrl+Shift+Alt+Home Home</td>
+</tr>
+<tr>
+  <td>Extend rectangular selection to end of line.</td><td>Shift+Alt+End</td><td>Ctrl+Shift+Alt+End</td>
 </tr>
 <tr>
   <td>Revert multiple selections into a single one or a single selection into an empty one.</td><td>Esc</td>
@@ -3253,10 +3267,10 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Select all.</td><td>Ctrl+A or Ctrl+Click on line number</td>
 </tr>
 <tr>
-  <td>Complete word.</td><td>Ctrl+Space or Ctrl+I or Alt+Right (the last only if the Delphi key map is not active)</td>
+  <td>Complete word.</td><td>Ctrl+Space or Ctrl+I or<br />Alt+Right if the Visual Studio menu key map is active</td>
 </tr>
 <tr>
-  <td>Fillup complete word.</td><td>Tab or Enter or Space (for ISPP directives) or \ (for constants) or : (for constants and section parameters) or ] (for sections) or = (for section directives).</td>
+  <td>Fillup complete word.</td><td>Tab or Enter or<br />Space for ISPP directives or<br />\ for constants or<br />: for constants and section parameters or<br />] for sections or<br />= for section directives</td>
 </tr>
 <tr>
   <td>Cancel complete word.</td><td>Esc</td>
