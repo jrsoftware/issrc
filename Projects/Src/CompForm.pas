@@ -1126,6 +1126,67 @@ begin
   end;
 end;
 
+procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) and
+     { Versions with Shift+Alt are special rectangular select shortcuts so don't break those }
+     not (Shift * [ssShift, ssAlt] = [ssShift, ssAlt]) then begin
+    var Memo := Sender as TScintEdit;
+    if Memo.SelectionMode in [ssmRectangular, ssmThinRectangular] then begin
+       { Allow left/right/etc. navigation with rectangular selection, see
+         https://sourceforge.net/p/scintilla/feature-requests/1275/ and
+         https://sourceforge.net/p/scintilla/bugs/2412/#cb37
+         Notepad++ calls this "Enable Column Selection to Multi-editing" which
+         is on by default and in VSCode and VS it's also on by default. }
+      Memo.SelectionMode := ssmStream;
+    end;
+  end;
+
+  if Key = VK_F1 then begin
+    var HelpFile := GetHelpFile;
+    if Assigned(HtmlHelp) then begin
+      HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
+      var S := FActiveMemo.WordAtCursor;
+      if S <> '' then begin
+        var KLink: THH_AKLINK;
+        FillChar(KLink, SizeOf(KLink), 0);
+        KLink.cbStruct := SizeOf(KLink);
+        KLink.pszKeywords := PChar(S);
+        KLink.fIndexOnFail := True;
+        HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
+      end;
+    end;
+  end
+  else if ((Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt])) and
+           (ShortCut(Key, Shift) <> FForwardNavButtonShortCut) then begin
+    InitiateAutoComplete(#0);
+    Key := 0;
+  end;
+end;
+
+procedure TCompileForm.MemoKeyPress(Sender: TObject; var Key: Char);
+begin
+  if ((Key = #9) or (Key = ' ')) and (GetKeyState(VK_CONTROL) < 0) then begin
+    { About #9, as Wikipedia explains: "The most known and common tab is a
+      horizontal tabulation … and may be referred to as Ctrl+I." Ctrl+I is
+      (just like in Visual Studio Code) our alternative code completion character
+      because Ctrl+Space is used by the Chinese IME and Alt+Right is used by
+      the Delphi keymap for the forward button. So that's why we handle #9 here.
+      Doesn't mean Ctrl+Tab doesn't work: it doesnt trigger KeyPress, even if it
+      wasn't a menu shortcut for Next Tab (which it is). }
+    InitiateAutoComplete(#0);
+    Key := #0;
+  end else if (Key <= #31) or (Key = #127) then begin
+    { Prevent "control characters" from being entered in text. Don't need to be
+      concerned about #9 or #10 or #13 etc here. Based on Notepad++'s WM_CHAR
+      handling in ScintillaEditView.cpp.
+      Also don't need to be concerned about shortcuts like Ctrl+Shift+- which
+      equals #31. }
+    Key := #0
+  end;
+end;
+
 procedure TCompileForm.FormResize(Sender: TObject);
 begin
   { Make sure the status panel's height is decreased if necessary in response
@@ -2867,67 +2928,6 @@ procedure TCompileForm.HDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
     HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, 0);
-end;
-
-procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-begin
-  if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) and
-     { Versions with Shift+Alt are special rectangular select shortcuts so don't break those }
-     not (Shift * [ssShift, ssAlt] = [ssShift, ssAlt]) then begin
-    var Memo := Sender as TScintEdit;
-    if Memo.SelectionMode in [ssmRectangular, ssmThinRectangular] then begin
-       { Allow left/right/etc. navigation with rectangular selection, see
-         https://sourceforge.net/p/scintilla/feature-requests/1275/ and
-         https://sourceforge.net/p/scintilla/bugs/2412/#cb37
-         Notepad++ calls this "Enable Column Selection to Multi-editing" which
-         is on by default and in VSCode and VS it's also on by default. }
-      Memo.SelectionMode := ssmStream;
-    end;
-  end;
-
-  if Key = VK_F1 then begin
-    var HelpFile := GetHelpFile;
-    if Assigned(HtmlHelp) then begin
-      HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
-      var S := FActiveMemo.WordAtCursor;
-      if S <> '' then begin
-        var KLink: THH_AKLINK;
-        FillChar(KLink, SizeOf(KLink), 0);
-        KLink.cbStruct := SizeOf(KLink);
-        KLink.pszKeywords := PChar(S);
-        KLink.fIndexOnFail := True;
-        HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
-      end;
-    end;
-  end
-  else if ((Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt])) and
-           (ShortCut(Key, Shift) <> FForwardNavButtonShortCut) then begin
-    InitiateAutoComplete(#0);
-    Key := 0;
-  end;
-end;
-
-procedure TCompileForm.MemoKeyPress(Sender: TObject; var Key: Char);
-begin
-  if ((Key = #9) or (Key = ' ')) and (GetKeyState(VK_CONTROL) < 0) then begin
-    { About #9, as Wikipedia explains: "The most known and common tab is a
-      horizontal tabulation … and may be referred to as Ctrl+I." Ctrl+I is
-      (just like in Visual Studio Code) our alternative code completion character
-      because Ctrl+Space is used by the Chinese IME and Alt+Right is used by
-      the Delphi keymap for the forward button. So that's why we handle #9 here.
-      Doesn't mean Ctrl+Tab doesn't work: it doesnt trigger KeyPress, even if it
-      wasn't a menu shortcut for Next Tab (which it is). }
-    InitiateAutoComplete(#0);
-    Key := #0;
-  end else if (Key <= #31) or (Key = #127) then begin
-    { Prevent "control characters" from being entered in text. Don't need to be
-      concerned about #9 or #10 or #13 etc here. Based on Notepad++'s WM_CHAR
-      handling in ScintillaEditView.cpp.
-      Also don't need to be concerned about shortcuts like Ctrl+Shift+- which
-      equals #31. }
-    Key := #0
-  end;
 end;
 
 procedure TCompileForm.HExamplesClick(Sender: TObject);
