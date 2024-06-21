@@ -56,35 +56,46 @@ type
   TLineStateArray = array[0..0] of TLineState;
   TSaveEncoding = (seAuto, seUTF8WithBOM, seUTF8WithoutBOM);
   TCompScintIndicatorNumber = 0..minMax;
-  TCompScintKeyMappingType = (kmtDefault, kmtVSCode); { Scintilla's default keymap is the same or at least nearly the same as Visual Studio's }
+
+   { Keymaps - Note: Scintilla's default keymap is the same or at least nearly
+     the same as Visual Studio's }
+  TCompScintKeyMappingType = (kmtDefault, kmtVSCode);
+
+   { Commands which require more than 1 parameterless SCI_XXXXX and need help
+     from the container }
+  TCompScintComplexCommand = (ccNone, ccSelectNextOccurrence,
+    ccSelectAllOccurrences);
 
   TCompScintEdit = class(TScintEdit)
   private
-    class var
-      FDefaultSelectNextOccurrenceShortCut: TShortCut;
-      FDefaultSelectAllOccurrencesShortCut: TShortCut;
+    type
+      TCompScintComplexCommands = TDictionary<TShortCut, TCompScintComplexCommand>;
+      TCompScintComplexCommandsReversed = TDictionary<TCompScintComplexCommand, TShortCut>;
     var
       FKeyMappingType: TCompScintKeyMappingType;
-      FSelectNextOccurrenceShortCut: TShortCut;
-      FSelectAllOccurrencesShortCut: TShortCut;
+      FComplexCommands: TCompScintComplexCommands;
+      FComplexCommandsReversed: TCompScintComplexCommandsReversed;
       FUseFolding: Boolean;
       FTheme: TTheme;
       FOpeningFile: Boolean;
       FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
       FIndicatorCount: array[TCompScintIndicatorNumber] of Integer;
       FIndicatorHash: array[TCompScintIndicatorNumber] of String;
+      procedure AddComplexCommand(const ShortCut: TShortCut;
+        Command: TCompScintComplexCommand);
       procedure SetUseFolding(const Value: Boolean);
       procedure SetKeyMappingType(const Value: TCompScintKeyMappingType);
+      procedure UpdateComplexCommands;
   protected
     procedure CreateWnd; override;
   public
-    class constructor Create;
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     property Theme: TTheme read FTheme write FTheme;
     property OpeningFile: Boolean read FOpeningFile write FOpeningFile;
-    property SelectNextOccurrenceShortCut: TShortCut read FSelectNextOccurrenceShortCut;
-    property SelectAllOccurrencesShortCut: TShortCut read FSelectAllOccurrencesShortCut;
     property Used: Boolean read FUsed write FUsed;
+    function GetComplexCommand(const ShortCut: TShortCut): TCompScintComplexCommand;
+    function GetComplexCommandShortCut(const Command: TCompScintComplexCommand): TShortCut;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
     procedure UpdateMarginsAndSquigglyWidths(const IconMarkersWidth,
@@ -157,23 +168,28 @@ type
 implementation
 
 uses
-  MD5, IsscintInt;
+  SysUtils, MD5, IsscintInt;
   
 { TCompScintEdit }
-
-class constructor TCompScintEdit.Create;
-begin
-  FDefaultSelectNextOccurrenceShortCut := ShortCut(VK_OEM_PERIOD, [ssShift, ssAlt]);
-  FDefaultSelectAllOccurrencesShortCut := ShortCut(VK_OEM_1, [ssShift, ssAlt]);
-end;
 
 constructor TCompScintEdit.Create(AOwner: TComponent);
 begin
   inherited;
+
+  FComplexCommands := TCompScintComplexCommands.Create;
+  FComplexCommandsReversed := TCompScintComplexCommandsReversed.Create;
+
   FKeyMappingType := kmtDefault;
-  FSelectNextOccurrenceShortCut := FDefaultSelectNextOccurrenceShortCut;
-  FSelectAllOccurrencesShortCut := FDefaultSelectAllOccurrencesShortCut;
+  UpdateComplexCommands;
   FUseFolding := True;
+end;
+
+destructor TCompScintEdit.Destroy;
+begin
+  FComplexCommandsReversed.Free;
+  FComplexCommands.Free;
+  
+  inherited;
 end;
 
 procedure TCompScintEdit.CreateWnd;
@@ -283,6 +299,28 @@ begin
   Call(SCI_MARKERSETBACK, mlmStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
 end;
 
+procedure TCompScintEdit.AddComplexCommand(const ShortCut: TShortCut;
+  Command: TCompScintComplexCommand);
+begin
+  if Command = ccNone then
+    raise Exception.Create('Command = ccNone');
+  FComplexCommands.Add(ShortCut, Command);
+  FComplexCommandsReversed.Add(Command, ShortCut);
+end;
+
+function TCompScintEdit.GetComplexCommand(
+  const ShortCut: TShortCut): TCompScintComplexCommand;
+begin
+  if not FComplexCommands.TryGetValue(ShortCut, Result) then
+    Result := ccNone;
+end;
+
+function TCompScintEdit.GetComplexCommandShortCut(
+  const Command: TCompScintComplexCommand): TShortCut;
+begin
+  Result := FComplexCommandsReversed[Command];
+end;
+
 procedure TCompScintEdit.SetKeyMappingType(
   const Value: TCompScintKeyMappingType);
 
@@ -298,7 +336,8 @@ begin
   if FKeyMappingType <> Value then begin
     FKeyMappingType := Value;
 
-    { Note: All comments below refer to VSCode }
+    { All comments below refer to VSCode. Also note the UpdateComplexCommands
+      call at the end. }
 
     var RectExtendKeyCodeCommands := [
       KCC(SCK_UP, SCI_LINEUPRECTEXTEND),
@@ -324,9 +363,6 @@ begin
       { Use Ctrl+Shift+K for line deletion which frees Ctrl+Shift+L }
       AssignCmdKey('K', [ssShift, ssCtrl], SCI_LINEDELETE);
       ClearCmdKey('L', [ssShift, ssCtrl]);
-      { Use freed Ctrl+D and Ctrl+Shift+L; must be handled by container }
-      FSelectNextOccurrenceShortCut := ShortCut(KeyToKeyCode('D'), [ssCtrl]);
-      FSelectAllOccurrencesShortCut := ShortCut(KeyToKeyCode('L'), [ssShift, ssCtrl]);
       { Ctrl+] and Ctrl+[ should indent and unident lines }
       AssignCmdKey(']', [ssCtrl], SCI_LINETAB);
       AssignCmdKey('[', [ssCtrl], SCI_LINEBACKTAB);
@@ -341,13 +377,28 @@ begin
       AssignCmdKey('D', [ssCtrl], SCI_SELECTIONDUPLICATE);
       ClearCmdKey('K', [ssShift, ssCtrl]);
       AssignCmdKey('L', [ssShift, ssCtrl], SCI_LINEDELETE);
-      FSelectNextOccurrenceShortCut := FDefaultSelectNextOccurrenceShortCut;
-      FSelectAllOccurrencesShortCut := FDefaultSelectAllOccurrencesShortCut;
       AssignCmdKey(']', [ssCtrl], SCI_PARADOWN);
       AssignCmdKey('[', [ssCtrl], SCI_PARAUP);
       AssignCmdKey(']', [ssCtrl, ssShift], SCI_PARADOWNEXTEND);
       AssignCmdKey('[', [ssCtrl, ssShift], SCI_PARAUPEXTEND);
     end;
+
+    UpdateComplexCommands;
+  end;
+end;
+
+procedure TCompScintEdit.UpdateComplexCommands;
+begin
+  FComplexCommands.Clear;
+  FComplexCommandsReversed.Clear;
+
+  if FKeyMappingType = kmtVSCode then begin
+    { Use freed Ctrl+D and Ctrl+Shift+L }
+    AddComplexCommand(ShortCut(KeyToKeyCode('D'), [ssCtrl]), ccSelectNextOccurrence);
+    AddComplexCommand(ShortCut(KeyToKeyCode('L'), [ssShift, ssCtrl]), ccSelectAllOccurrences);
+  end else begin
+    AddComplexCommand(ShortCut(VK_OEM_PERIOD, [ssShift, ssAlt]), ccSelectNextOccurrence);
+    AddComplexCommand(ShortCut(VK_OEM_1, [ssShift, ssAlt]), ccSelectAllOccurrences);
   end;
 end;
 

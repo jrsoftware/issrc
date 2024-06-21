@@ -454,7 +454,6 @@ type
     FCurrentNavItem: TCompScintEditNavItem;
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
     FIgnoreTabSetClick: Boolean;
-    FSelectNextOccurrenceShortCut, FSelectAllOccurrencesShortCut: TShortCut;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -1079,12 +1078,6 @@ begin
       else if not FActiveMemo.SelEmpty then
         FActiveMemo.SetEmptySelection;
     end;
-  end else if AShortCut = FSelectNextOccurrenceShortCut then begin
-    if ESelectNextOccurrence.Enabled then
-      ESelectNextOccurrenceClick(Self);
-  end else if AShortCut = FSelectAllOccurrencesShortCut then begin
-    if ESelectAllOccurrences.Enabled then
-      ESelectAllOccurrencesClick(Self);
   end else if AShortCut = FBackNavButtonShortCut then begin
     if BackNavButton.Enabled then
       BackNavButtonClick(Self);
@@ -1103,6 +1096,18 @@ begin
         tiDebugCallStack: ActiveControl := DebugCallStackList;
         tiFindResults: ActiveControl := FindResultsList;
       end;
+    end;
+  end else begin
+    var ComplexCommand := FActiveMemo.GetComplexCommand(AShortCut);
+    case ComplexCommand of
+      ccSelectNextOccurrence:
+        if ESelectNextOccurrence.Enabled then
+          ESelectNextOccurrenceClick(Self);
+      ccSelectAllOccurrences:
+        if ESelectAllOccurrences.Enabled then
+          ESelectAllOccurrencesClick(Self);
+      else if ComplexCommand <> ccNone then
+        raise Exception.Create('Unknown ComplexCommand');
     end;
   end;
 end;
@@ -2016,10 +2021,10 @@ begin
 
     Memo.KeyMappingType := FOptions.MemoKeyMappingType;
     if Memo = FMainMemo then begin
-      FSelectNextOccurrenceShortCut := FMainMemo.SelectNextOccurrenceShortCut;
-      SetFakeShortCut(ESelectNextOccurrence, FSelectNextOccurrenceShortCut);
-      FSelectAllOccurrencesShortCut := FMainMemo.SelectAllOccurrencesShortCut;
-      SetFakeShortCut(ESelectAllOccurrences, FSelectAllOccurrencesShortCut);
+      var ShortCut := FMainMemo.GetComplexCommandShortCut(ccSelectNextOccurrence);
+      SetFakeShortCut(ESelectNextOccurrence, ShortCut);
+      ShortCut := FMainMemo.GetComplexCommandShortCut(ccSelectAllOccurrences);
+      SetFakeShortCut(ESelectAllOccurrences, ShortCut);
     end;
 
     Memo.UseFolding := FOptions.UseFolding;
