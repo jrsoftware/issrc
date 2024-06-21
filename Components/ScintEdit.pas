@@ -1337,6 +1337,7 @@ begin
 end;
 
 procedure TScintEdit.RemoveAdditionalSelections;
+{ Removes additional selections without scrolling the caret into view }
 begin
   var MainSel := MainSelection;
   var CaretPos := SelectionCaretPosition[MainSel];
@@ -1543,8 +1544,8 @@ begin
 end;
 
 procedure TScintEdit.SetEmptySelection;
-{ Make the main selection empty without scrolling the caret into view and
-  removes additional selections }
+{ Make the main selection empty and removes additional selections without
+  scrolling the caret into view }
 begin
   Call(SCI_SETEMPTYSELECTION, GetCaretPosition, 0);
 end;

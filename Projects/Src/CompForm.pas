@@ -1077,6 +1077,7 @@ begin
         FActiveMemo.RemoveAdditionalSelections
       else if not FActiveMemo.SelEmpty then
         FActiveMemo.SetEmptySelection;
+      FActiveMemo.ScrollCaretIntoView;
     end;
   end else if AShortCut = FBackNavButtonShortCut then begin
     if BackNavButton.Enabled then
