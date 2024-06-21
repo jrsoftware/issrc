@@ -64,7 +64,7 @@ type
    { Commands which require more than 1 parameterless SCI_XXXXX and need help
      from the container }
   TCompScintComplexCommand = (ccNone, ccSelectNextOccurrence,
-    ccSelectAllOccurrences);
+    ccSelectAllOccurrences, ccSimplifySelection);
 
   TCompScintEdit = class(TScintEdit)
   private
@@ -400,6 +400,8 @@ begin
     AddComplexCommand(ShortCut(VK_OEM_PERIOD, [ssShift, ssAlt]), ccSelectNextOccurrence);
     AddComplexCommand(ShortCut(VK_OEM_1, [ssShift, ssAlt]), ccSelectAllOccurrences);
   end;
+
+  AddComplexCommand(ShortCut(VK_ESCAPE, []), ccSimplifySelection);
 end;
 
 procedure TCompScintEdit.SetUseFolding(const Value: Boolean);

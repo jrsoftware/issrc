@@ -1065,27 +1065,13 @@ procedure TCompileForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   var AShortCut := ShortCut(Key, Shift);
-  if AShortCut = VK_ESCAPE then begin
-    if BStopCompile.Enabled then
-      BStopCompileClick(Self)
-    else begin
-      { The built in Esc (SCI_CANCEL) simply drops all additional selections
-        and does not empty the main selection, It doesn't matter if Esc is
-        pressed once or twice. Implement our own behaviour, same as VSCode.
-        Also see https://github.com/microsoft/vscode/issues/118835. }
-      if FActiveMemo.SelectionCount > 1 then
-        FActiveMemo.RemoveAdditionalSelections
-      else if not FActiveMemo.SelEmpty then
-        FActiveMemo.SetEmptySelection;
-      FActiveMemo.ScrollCaretIntoView;
-    end;
-  end else if AShortCut = FBackNavButtonShortCut then begin
-    if BackNavButton.Enabled then
-      BackNavButtonClick(Self);
-  end else if AShortCut = FForwardNavButtonShortCut then begin
-    if ForwardNavButton.Enabled then
-      ForwardNavButtonClick(Self);
-  end else if (Key = VK_F6) and not(ssAlt in Shift) then begin
+  if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then
+    BStopCompileClick(Self)
+  else if (AShortCut = FBackNavButtonShortCut) and BackNavButton.Enabled then
+    BackNavButtonClick(Self)
+  else if (AShortCut = FForwardNavButtonShortCut) and ForwardNavButton.Enabled then
+    ForwardNavButtonClick(Self)
+  else if (Key = VK_F6) and not(ssAlt in Shift) then begin
     { Toggle focus between the active memo and the active bottom pane }
     Key := 0;
     if ActiveControl <> FActiveMemo then
@@ -1107,6 +1093,18 @@ begin
       ccSelectAllOccurrences:
         if ESelectAllOccurrences.Enabled then
           ESelectAllOccurrencesClick(Self);
+      ccSimplifySelection:
+        begin
+          { The built in Esc (SCI_CANCEL) simply drops all additional selections
+            and does not empty the main selection, It doesn't matter if Esc is
+            pressed once or twice. Implement our own behaviour, same as VSCode.
+            Also see https://github.com/microsoft/vscode/issues/118835. }
+          if FActiveMemo.SelectionCount > 1 then
+            FActiveMemo.RemoveAdditionalSelections
+          else if not FActiveMemo.SelEmpty then
+            FActiveMemo.SetEmptySelection;
+          FActiveMemo.ScrollCaretIntoView;
+        end;
       else if ComplexCommand <> ccNone then
         raise Exception.Create('Unknown ComplexCommand');
     end;
