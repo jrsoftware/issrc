@@ -3312,7 +3312,7 @@ begin
   if GetKeyState(VK_MENU) < 0 then begin
     { Alt+Enter was used to close the dialog }
     (Sender as TFindDialog).CloseDialog;
-    ESelectAllFindMatchesClick(Self);
+    ESelectAllFindMatchesClick(Self); { Uses the copy made above }
   end else
     FindNext;
 end;
