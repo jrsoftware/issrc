@@ -96,6 +96,7 @@ type
     property Used: Boolean read FUsed write FUsed;
     function GetComplexCommand(const ShortCut: TShortCut): TCompScintComplexCommand;
     function GetComplexCommandShortCut(const Command: TCompScintComplexCommand): TShortCut;
+    function GetRectExtendShiftState(const Desired: Boolean): TShiftState;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
     procedure UpdateMarginsAndSquigglyWidths(const IconMarkersWidth,
@@ -320,6 +321,15 @@ begin
   Result := FComplexCommandsReversed[Command];
 end;
 
+function TCompScintEdit.GetRectExtendShiftState(
+  const Desired: Boolean): TShiftState;
+begin
+  Result := [ssShift, ssAlt];
+  if ((FKeyMappingType = kmtVSCode) and Desired) or
+     ((FKeyMappingType <> kmtVSCode) and not Desired) then
+    Include(Result, ssCtrl);
+end;
+
 procedure TCompScintEdit.SetKeyMappingType(
   const Value: TCompScintKeyMappingType);
 
@@ -348,11 +358,14 @@ begin
       KCC(SCK_PRIOR, SCI_PAGEUPRECTEXTEND),
       KCC(SCK_NEXT, SCI_PAGEDOWNRECTEXTEND)];
 
+    var DesiredRectExtendShiftState := GetRectExtendShiftState(True);
+    var UndesiredRectExtendShiftState := GetRectExtendShiftState(False);
+
     if FKeyMappingType = kmtVSCode then begin
       { First change Shift+Alt+Arrow to Ctrl+Shift+Alt+Arrow }
       for var RectExtendKeyCodeCommand in RectExtendKeyCodeCommands do begin
-        AssignCmdKey(RectExtendKeyCodeCommand.Key, [ssShift, ssAlt, ssCtrl], RectExtendKeyCodeCommand.Value);
-        ClearCmdKey(RectExtendKeyCodeCommand.Key, [ssShift, ssAlt]);
+        AssignCmdKey(RectExtendKeyCodeCommand.Key, DesiredRectExtendShiftState, RectExtendKeyCodeCommand.Value);
+        ClearCmdKey(RectExtendKeyCodeCommand.Key, UndesiredRectExtendShiftState);
       end;
       { Now that Shift+Alt+Down has been freed we can use it for line duplication
         which frees Ctrl+D . There's no clear for this one in the else
@@ -370,8 +383,8 @@ begin
       ClearCmdKey('[', [ssCtrl, ssShift]);
     end else begin
       for var RectExtendKeyCodeCommand in RectExtendKeyCodeCommands do begin
-        ClearCmdKey(RectExtendKeyCodeCommand.Key, [ssShift, ssAlt, ssCtrl]);
-        AssignCmdKey(RectExtendKeyCodeCommand.Key, [ssShift, ssAlt], RectExtendKeyCodeCommand.Value);
+        ClearCmdKey(RectExtendKeyCodeCommand.Key, UndesiredRectExtendShiftState);
+        AssignCmdKey(RectExtendKeyCodeCommand.Key, DesiredRectExtendShiftState, RectExtendKeyCodeCommand.Value);
       end;
       AssignCmdKey('D', [ssCtrl], SCI_SELECTIONDUPLICATE);
       ClearCmdKey('K', [ssShift, ssCtrl]);
