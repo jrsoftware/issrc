@@ -3270,6 +3270,12 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Select all.</td><td>Ctrl+A or Ctrl+Click on line number</td>
 </tr>
 <tr>
+  <td>Fold line.</td><td>Ctrl+Shift+[</td>
+</tr>
+<tr>
+  <td>Unfold line.</td><td>Ctrl+Shift+]</td>
+</tr>
+<tr>
   <td>Complete word.</td><td>Ctrl+Space or Ctrl+I or<br />Alt+Right if the Visual Studio menu key map is active</td>
 </tr>
 <tr>

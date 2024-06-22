@@ -251,6 +251,7 @@ type
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
     function FindText(const StartPos, EndPos: Integer; const S: String;
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
+    procedure FoldLine(const Line: Integer; const Fold: Boolean);
     function FormatRange(const Draw: Boolean;
       const RangeToFormat: PScintRangeToFormat): Integer;
     procedure ForceModifiedState;
@@ -847,6 +848,19 @@ function TScintEdit.FindText(const StartPos, EndPos: Integer; const S: String;
 begin
   Result := FindRawText(StartPos, EndPos, ConvertStringToRawString(S),
     Options, MatchRange);
+end;
+
+procedure TScintEdit.FoldLine(const Line: Integer; const Fold: Boolean);
+begin
+  FLines.CheckIndexRange(Line);
+  { If the line is not part of a fold the following will return False }
+  var Folded := Call(SCI_GETFOLDEXPANDED, Line, 0) = 0;
+  if Fold <> Folded then begin
+    { If the line is not part of a fold the following will do nothing
+      and else if the line is not the header Scintilla will lookup the
+      header for us }
+    Call(SCI_TOGGLEFOLD, Line, 0);
+  end;
 end;
 
 procedure TScintEdit.ForceModifiedState;

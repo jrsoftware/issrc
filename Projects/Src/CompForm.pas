@@ -1154,6 +1154,8 @@ begin
         ESelectAllOccurrencesClick(Self);
       ccSelectAllFindMatches:
         ESelectAllFindMatchesClick(Self);
+      ccUnfoldLine, ccFoldLine:
+        FActiveMemo.FoldLine(FActiveMemo.CaretLine, ComplexCommand = ccFoldLine);
       ccSimplifySelection:
         begin
           { The built in Esc (SCI_CANCEL) simply drops all additional selections
