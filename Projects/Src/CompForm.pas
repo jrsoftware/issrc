@@ -3352,7 +3352,7 @@ begin
   end
   else begin
     if FActiveMemo.MainSelTextEquals(FLastFindText, frMatchCase in FLastFindOptions) then
-      FActiveMemo.SelText := FLastReplaceText;
+      FActiveMemo.MainSelText := FLastReplaceText;
     FindNext;
   end;
 end;
@@ -3628,7 +3628,7 @@ procedure TCompileForm.TGenerateGUIDClick(Sender: TObject);
 begin
   if MsgBox('The generated GUID will be inserted into the editor at the cursor position. Continue?',
      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
-    FActiveMemo.SelText := GenerateGuid;
+    FActiveMemo.MainSelText := GenerateGuid;
 end;
 
 procedure TCompileForm.TMsgBoxDesignerClick(Sender: TObject);
@@ -3641,7 +3641,7 @@ begin
   var MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
   try
     if MsgBoxForm.ShowModal = mrOk then
-      FActiveMemo.SelText := MsgBoxForm.GetText(FOptions.TabWidth, FOptions.UseTabCharacter);
+      FActiveMemo.MainSelText := MsgBoxForm.GetText(FOptions.TabWidth, FOptions.UseTabCharacter);
   finally
     MsgBoxForm.Free;
   end;
@@ -3666,7 +3666,7 @@ begin
       var Text := RegistryDesignerForm.Text;
       if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scRegistry then
         Text := '[Registry]' + SNewLine + Text;
-      FActiveMemo.SelText := Text;
+      FActiveMemo.MainSelText := Text;
     end;
   finally
     RegistryDesignerForm.Free;
@@ -3683,7 +3683,7 @@ begin
       var Text := FilesDesignerForm.Text;
       if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scFiles then
         Text := '[Files]' + SNewLine + Text;
-      FActiveMemo.SelText := Text;
+      FActiveMemo.MainSelText := Text;
     end;
   finally
     FilesDesignerForm.Free;

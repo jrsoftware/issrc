@@ -167,6 +167,8 @@ type
     procedure SetIndentationGuides(const Value: TScintIndentationGuides);
     procedure SetLineNumbers(const Value: Boolean);
     procedure SetMainSelection(const Value: Integer);
+    procedure SetMainSelText(const Value: String);
+    procedure SetRawMainSelText(const Value: TScintRawString);
     procedure SetRawSelText(const Value: TScintRawString);
     procedure SetRawText(const Value: TScintRawString);
     procedure SetReadOnly(const Value: Boolean);
@@ -340,9 +342,9 @@ type
     property Lines: TScintEditStrings read FLines;
     property LinesInWindow: Integer read GetLinesInWindow;
     property MainSelection: Integer read GetMainSelection write SetMainSelection;
-    property MainSelText: String read GetMainSelText;
+    property MainSelText: String read GetMainSelText write SetMainSelText;
     property Modified: Boolean read GetModified;
-    property RawMainSelText: TScintRawString read GetRawMainSelText;
+    property RawMainSelText: TScintRawString read GetRawMainSelText write SetRawMainSelText;
     property RawSelText: TScintRawString read GetRawSelText write SetRawSelText;
     property RawText: TScintRawString read GetRawText write SetRawText;
     property RawTextLength: Integer read GetRawTextLength;
@@ -1652,6 +1654,17 @@ end;
 procedure TScintEdit.SetMainSelection(const Value: Integer);
 begin
   Call(SCI_SETMAINSELECTION, Value, 0);
+end;
+
+procedure TScintEdit.SetMainSelText(const Value: String);
+begin
+  SetRawMainSelText(ConvertStringToRawString(Value));
+end;
+
+procedure TScintEdit.SetRawMainSelText(const Value: TScintRawString);
+begin
+  Call(SCI_TARGETFROMSELECTION, 0, 0);
+  Call(SCI_REPLACETARGETMINIMAL, Length(Value), LPARAM(PAnsiChar(Value)));
 end;
 
 procedure TScintEdit.SetRawSelText(const Value: TScintRawString);
