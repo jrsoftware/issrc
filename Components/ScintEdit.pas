@@ -282,9 +282,10 @@ type
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
     class function KeyCodeAndShiftToKeyDefinition(const KeyCode: TScintKeyCode;
       Shift: TShiftState): TScintKeyDefinition;
+    function MainSelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     class function KeyToKeyCode(const Key: AnsiChar): TScintKeyCode;
     procedure PasteFromClipboard;
-    function RawSelTextEquals(const S: TScintRawString; const MatchCase: Boolean): Boolean;
+    function RawMainSelTextEquals(const S: TScintRawString; const MatchCase: Boolean): Boolean;
     class function RawStringIsBlank(const S: TScintRawString): Boolean;
     procedure Redo;
     procedure RemoveAdditionalSelections;
@@ -299,7 +300,6 @@ type
     procedure SelectNextOccurrence(const Options: TScintFindOptions);
     function SelEmpty: Boolean;
     function SelNotEmpty(out Sel: TScintRange): Boolean;
-    function SelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     procedure SetAutoCompleteFillupChars(const FillupChars: AnsiString);
     procedure SetAutoCompleteSeparator(const C: AnsiChar);
     procedure SetAutoCompleteSelectedItem(const S: TScintRawString);
@@ -1262,6 +1262,12 @@ begin
   Result := Ord(UpCase(Key));
 end;
 
+function TScintEdit.MainSelTextEquals(const S: String;
+  const MatchCase: Boolean): Boolean;
+begin
+  Result := RawMainSelTextEquals(ConvertStringToRawString(S), MatchCase);
+end;
+
 procedure TScintEdit.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
@@ -1331,7 +1337,7 @@ begin
   Call(SCI_PASTE, 0, 0);
 end;
 
-function TScintEdit.RawSelTextEquals(const S: TScintRawString;
+function TScintEdit.RawMainSelTextEquals(const S: TScintRawString;
   const MatchCase: Boolean): Boolean;
 begin
   Call(SCI_TARGETFROMSELECTION, 0, 0);
@@ -1448,12 +1454,6 @@ end;
 procedure TScintEdit.SelectAll;
 begin
   Call(SCI_SELECTALL, 0, 0);
-end;
-
-function TScintEdit.SelTextEquals(const S: String;
-  const MatchCase: Boolean): Boolean;
-begin
-  Result := RawSelTextEquals(ConvertStringToRawString(S), MatchCase);
 end;
 
 procedure TScintEdit.SetAcceptDroppedFiles(const Value: Boolean);

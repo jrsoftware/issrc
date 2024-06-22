@@ -3351,7 +3351,7 @@ begin
         mbInformation, MB_OK);
   end
   else begin
-    if FActiveMemo.SelTextEquals(FLastFindText, frMatchCase in FLastFindOptions) then
+    if FActiveMemo.MainSelTextEquals(FLastFindText, frMatchCase in FLastFindOptions) then
       FActiveMemo.SelText := FLastReplaceText;
     FindNext;
   end;
