@@ -3203,15 +3203,15 @@ begin
     Dlg.FindText := FLastFindText;
 end;
 
-var
-  CompWndProcPtrAtom: TAtom = 0;
+const
+  OldFindReplaceWndProcProp = 'OldFindReplaceWndProc';
 
 function FindReplaceWndProc(Wnd: HWND; Msg: Cardinal; WParam: WPARAM; LParam: LPARAM): LRESULT; stdcall;
 
   function CallDefWndProc: LRESULT;
   begin
-    Result := CallWindowProc(Pointer(GetProp(Wnd,
-      MakeIntAtom(CompWndProcPtrAtom))), Wnd, Msg, WParam, LParam);
+    Result := CallWindowProc(Pointer(GetProp(Wnd, OldFindReplaceWndProcProp)), Wnd,
+      Msg, WParam, LParam);
   end;
 
 begin
@@ -3225,7 +3225,7 @@ begin
     WM_NCDESTROY:
       begin
         Result := CallDefWndProc;
-        RemoveProp(Wnd, MakeIntAtom(CompWndProcPtrAtom));
+        RemoveProp(Wnd, OldFindReplaceWndProcProp);
         Exit;
       end;
    end;
@@ -3237,7 +3237,7 @@ begin
   var DoHook := FindDialog.Handle = 0;
   FindDialog.Execute;
   if DoHook then begin
-    SetProp(FindDialog.Handle, MakeIntAtom(CompWndProcPtrAtom), GetWindowLong(FindDialog.Handle, GWL_WNDPROC));
+    SetProp(FindDialog.Handle, OldFindReplaceWndProcProp, GetWindowLong(FindDialog.Handle, GWL_WNDPROC));
     SetWindowLong(FindDialog.Handle, GWL_WNDPROC, IntPtr(@FindReplaceWndProc));
   end;
 end;
@@ -6932,9 +6932,6 @@ begin
   Result := MulDiv(XY, 96, CurrentPPI);
 end;
 
-var
-  AtomText: array[0..31] of Char;
-
 initialization
   InitThemeLibrary;
   InitHtmlHelpLibrary;
@@ -6942,9 +6939,6 @@ initialization
   if DefFontData.Name = 'MS Sans Serif' then
     DefFontData.Name := AnsiString(GetPreferredUIFont);
   CoInitialize(nil);
-  CompWndProcPtrAtom := GlobalAddAtom(StrFmt(AtomText,
-    'CompWndProcPtr%.8X%.8X', [HInstance, GetCurrentThreadID]));
 finalization
   CoUninitialize();
-  if CompWndProcPtrAtom <> 0 then GlobalDeleteAtom(CompWndProcPtrAtom);
 end.
