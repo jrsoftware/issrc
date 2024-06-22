@@ -3141,7 +3141,7 @@ procedure TCompileForm.InitializeFindText(Dlg: TFindDialog);
 var
   S: String;
 begin
-  S := FActiveMemo.SelText;
+  S := FActiveMemo.MainSelText;
   if (S <> '') and (Pos(#13, S) = 0) and (Pos(#10, S) = 0) then
     Dlg.FindText := S
   else
@@ -3434,7 +3434,7 @@ begin
 
     IndicatorRanges.Clear;
     if FOptions.HighlightSelTextOccurrences and MainSelNotEmpty and MainSelSingleLine then begin
-      var TextToIndicate := AMemo.RawSelText;
+      var TextToIndicate := AMemo.RawMainSelText;
       if SelectionRanges.Count = 0 then { If 0 then we didn't already call GetSelections above}
         AMemo.GetSelections(SelectionRanges);
       FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions,SelectionRanges, IndicatorRanges);

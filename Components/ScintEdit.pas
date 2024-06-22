@@ -138,7 +138,9 @@ type
     function GetLineEndingString: TScintRawString;
     function GetLineHeight: Integer;
     function GetLinesInWindow: Integer;
+    function GetMainSelText: String;
     function GetModified: Boolean;
+    function GetRawMainSelText: TScintRawString;
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
@@ -338,7 +340,9 @@ type
     property Lines: TScintEditStrings read FLines;
     property LinesInWindow: Integer read GetLinesInWindow;
     property MainSelection: Integer read GetMainSelection write SetMainSelection;
+    property MainSelText: String read GetMainSelText;
     property Modified: Boolean read GetModified;
+    property RawMainSelText: TScintRawString read GetRawMainSelText;
     property RawSelText: TScintRawString read GetRawSelText write SetRawSelText;
     property RawText: TScintRawString read GetRawText write SetRawText;
     property RawTextLength: Integer read GetRawTextLength;
@@ -855,6 +859,11 @@ begin
     CallWindowProc(DefWndProc, Handle, Message.Msg, Message.WParam, Message.LParam);
 end;
 
+function TScintEdit.GetMainSelText: String;
+begin
+  Result := ConvertRawStringToString(GetRawMainSelText);
+end;
+
 function TScintEdit.GetAutoCompleteActive: Boolean;
 begin
   Result := Call(SCI_AUTOCACTIVE, 0, 0) <> 0;
@@ -1052,7 +1061,19 @@ begin
   Result := Call(SCI_BRACEMATCH, Pos, 0);
 end;
 
+function TScintEdit.GetRawMainSelText: TScintRawString;
+begin
+  var MainSel := MainSelection;
+  var CaretPos := SelectionCaretPosition[MainSel];
+  var AnchorPos := SelectionAnchorPosition[MainSel];
+  if AnchorPos < CaretPos then
+    Result := GetRawTextRange(AnchorPos, CaretPos)
+  else
+    Result := GetRawTextRange(CaretPos, AnchorPos);
+end;
+
 function TScintEdit.GetRawSelText: TScintRawString;
+{ Gets the combined text of *all* selections }
 var
   Len: Integer;
   S: TScintRawString;
@@ -1634,6 +1655,7 @@ begin
 end;
 
 procedure TScintEdit.SetRawSelText(const Value: TScintRawString);
+{ Replaces the main selection's text and *clears* additional selections }
 begin
   Call(SCI_REPLACESEL, 0, LPARAM(PAnsiChar(Value)));
   ChooseCaretX;
