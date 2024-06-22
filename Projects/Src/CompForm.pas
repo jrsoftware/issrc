@@ -1151,6 +1151,38 @@ begin
       ccSelectAllOccurrences:
         if ESelectAllOccurrences.Enabled then
           ESelectAllOccurrencesClick(Self);
+      ccSelectAllFindMatches:
+        begin
+          if FLastFindText <> ''  then begin
+            var StartPos := 0;
+            var EndPos := FActiveMemo.RawTextLength;
+            var FoundRange: TScintRange;
+            var ClosestSelection := -1;
+            var ClosestSelectionDistance := 0; { Silence compiler }
+            var CaretPos := FActiveMemo.CaretPosition;
+
+            while (StartPos < EndPos) and
+                  FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
+                    FindOptionsToSearchOptions(FLastFindOptions), FoundRange) do begin
+              if StartPos = 0 then
+                FActiveMemo.SetSingleSelection(FoundRange.EndPos, FoundRange.StartPos)
+              else
+                FActiveMemo.AddSelection(FoundRange.EndPos, FoundRange.StartPos);
+
+              var Distance := Abs(CaretPos-FoundRange.EndPos);
+              if (ClosestSelection = -1) or (Distance < ClosestSelectionDistance) then begin
+                ClosestSelection := FActiveMemo.SelectionCount-1;
+                ClosestSelectionDistance := Distance;
+              end;
+
+              StartPos := FoundRange.EndPos;
+            end;
+            if ClosestSelection <> -1 then begin
+              FActiveMemo.MainSelection := ClosestSelection;
+              FActiveMemo.ScrollCaretIntoView;
+            end;
+          end;
+        end;
       ccSimplifySelection:
         begin
           { The built in Esc (SCI_CANCEL) simply drops all additional selections

@@ -213,6 +213,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AddMarker(const Line: Integer; const Marker: TScintMarkerNumber);
+    procedure AddSelection(const CaretPos, AnchorPos: Integer);
     procedure AssignCmdKey(const Key: AnsiChar; const Shift: TShiftState;
       const Command: TScintCommand); overload;
     procedure AssignCmdKey(const KeyCode: TScintKeyCode; const Shift: TShiftState;
@@ -533,6 +534,14 @@ procedure TScintEdit.AddMarker(const Line: Integer;
 begin
   FLines.CheckIndexRange(Line);
   Call(SCI_MARKERADD, Line, Marker);
+end;
+
+procedure TScintEdit.AddSelection(const CaretPos, AnchorPos: Integer);
+{ Adds a new selection as the main selection retaining all other selections as
+  additional selections without scrolling the caret into view. The first
+  selection should be added with SetSingleSelection. }
+begin
+  Call(SCI_ADDSELECTION, CaretPos, AnchorPos);
 end;
 
 procedure TScintEdit.ApplyOptions;
