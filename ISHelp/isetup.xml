@@ -3123,10 +3123,22 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <table>
 <tr><td></td><td><u>Classic</u></td><td><u>Visual Studio Code</u></td></tr>
 <tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
   <td>Indent block.</td><td>Tab</td>
 </tr>
 <tr>
   <td>Unindent block.</td><td>Shift+Tab</td>
+</tr>
+<tr>
+  <td>Indent lines.</td><td>-</td><td>Ctrl+]</td>
+</tr>
+<tr>
+  <td>Unindent lines.</td><td>-</td><td>Ctrl+[</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
 </tr>
 <tr>
   <td>Delete to start of word.</td><td>Ctrl+Backspace</td>
@@ -3141,6 +3153,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Delete to end of line.</td><td>Ctrl+Shift+Delete</td>
 </tr>
 <tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
   <td>Go to start of document. Shift extends selection.</td><td>Ctrl+Home</td>
 </tr>
 <tr>
@@ -3153,10 +3168,28 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Go to end of document. Shift extends selection.</td><td>Ctrl+End</td>
 </tr>
 <tr>
+  <td>Go to next paragraph. Shift extends selection.</td><td>Ctrl+]</td><td>-</td>
+</tr>
+<tr>
+  <td>Go to previous paragraph. Shift extends selection.</td><td>Ctrl+[</td><td>-</td>
+</tr>
+<tr>
   <td>Go to end of line.</td><td>End</td>
 </tr>
 <tr>
   <td>Go to end of wrapped line.</td><td>Alt+End</td>
+</tr>
+<tr>
+  <td>Go to previous word. Shift extends selection.</td><td>Ctrl+Left</td>
+</tr>
+<tr>
+  <td>Go to next word. Shift extends selection.</td><td>Ctrl+Right</td>
+</tr>
+<tr>
+  <td>Go to previous word part. Shift extends selection.</td><td>Ctrl+/</td>
+</tr>
+<tr>
+  <td>Go to next word part. Shift extends selection.</td><td>Ctrl+\</td>
 </tr>
 <tr>
   <td>Scroll up.</td><td>Ctrl+Up</td>
@@ -3166,6 +3199,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 <tr>
   <td>Scroll horizontally.</td><td>Shift+MouseWheel</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
 </tr>
 <tr>
   <td>Cut selection or line.</td><td>Ctrl+X or Shift+Delete</td>
@@ -3195,31 +3231,19 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Duplicate selection or copy lines down.</td><td>Ctrl+D</td><td>Shift+Alt+Down</td>
 </tr>
 <tr>
-  <td>Go to next paragraph. Shift extends selection.</td><td>Ctrl+]</td><td>-</td>
-</tr>
-<tr>
-  <td>Indent lines.</td><td>-</td><td>Ctrl+]</td>
-</tr>
-<tr>
-  <td>Go to previous paragraph. Shift extends selection.</td><td>Ctrl+[</td><td>-</td>
-</tr>
-<tr>
-  <td>Unindent lines.</td><td>-</td><td>Ctrl+[</td>
-</tr>
-<tr>
-  <td>Go to previous word. Shift extends selection.</td><td>Ctrl+Left</td>
-</tr>
-<tr>
-  <td>Go to next word. Shift extends selection.</td><td>Ctrl+Right</td>
-</tr>
-<tr>
-  <td>Go to previous word part. Shift extends selection.</td><td>Ctrl+/</td>
-</tr>
-<tr>
-  <td>Go to next word part. Shift extends selection.</td><td>Ctrl+\</td>
+  <td>&nbsp;</td>
 </tr>
 <tr>
   <td>Extend selection.</td><td>Shift+Arrow</td>
+</tr>
+<tr>
+  <td>Select word.</td><td>DoubleClick</td>
+</tr>
+<tr>
+  <td>Select line.</td><td>TripleClick or Click on line number</td>
+</tr>
+<tr>
+  <td>Select all.</td><td>Ctrl+A or Ctrl+Click on line number</td>
 </tr>
 <tr>
   <td>Add additional caret or selection.</td><td>Ctrl+Click or Ctrl+Drag</td>
@@ -3234,6 +3258,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Add line as additional selection.</td><td>Ctrl+TripleClick</td>
 </tr>
 <tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
   <td>Add the next occurrence of the current word or selected text as an additional selection.</td><td>Shift+Alt+.</td><td>Ctrl+D</td>
 </tr>
 <tr>
@@ -3241,6 +3268,12 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 <tr>
   <td>Select all matches of the last find text (also works when a find dialog is open).</td><td>Alt+Enter</td>
+</tr>
+<tr>
+  <td>Revert multiple selections into a single one or a single selection into an empty one.</td><td>Esc</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
 </tr>
 <tr>
   <td>Perform rectangular block selection (mouse).</td><td>Alt+Drag</td>
@@ -3258,22 +3291,16 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Extend rectangular selection to end of line.</td><td>Shift+Alt+End</td><td>Ctrl+Shift+Alt+End</td>
 </tr>
 <tr>
-  <td>Revert multiple selections into a single one or a single selection into an empty one.</td><td>Esc</td>
-</tr>
-<tr>
-  <td>Select word.</td><td>DoubleClick</td>
-</tr>
-<tr>
-  <td>Select line.</td><td>TripleClick or Click on line number</td>
-</tr>
-<tr>
-  <td>Select all.</td><td>Ctrl+A or Ctrl+Click on line number</td>
+  <td>&nbsp;</td>
 </tr>
 <tr>
   <td>Fold line.</td><td>Ctrl+Shift+[</td>
 </tr>
 <tr>
   <td>Unfold line.</td><td>Ctrl+Shift+]</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
 </tr>
 <tr>
   <td>Complete word.</td><td>Ctrl+Space or Ctrl+I or<br />Alt+Right if the Visual Studio menu key map is active</td>
@@ -3283,6 +3310,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 <tr>
   <td>Cancel complete word.</td><td>Esc</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
 </tr>
 <tr>
   <td>Select tab.</td><td>Ctrl+1 through Ctrl+9</td>
