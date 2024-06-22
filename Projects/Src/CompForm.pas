@@ -3203,6 +3203,45 @@ begin
     Dlg.FindText := FLastFindText;
 end;
 
+var
+  CompWndProcPtrAtom: TAtom = 0;
+
+function FindReplaceWndProc(Wnd: HWND; Msg: Cardinal; WParam: WPARAM; LParam: LPARAM): LRESULT; stdcall;
+
+  function CallDefWndProc: LRESULT;
+  begin
+    Result := CallWindowProc(Pointer(GetProp(Wnd,
+      MakeIntAtom(CompWndProcPtrAtom))), Wnd, Msg, WParam, LParam);
+  end;
+
+begin
+  case Msg of
+    WM_MENUCHAR:
+      if LoWord(wParam) = VK_RETURN then begin
+        var hwndCtl := GetDlgItem(Wnd, idOk);
+        if (hWndCtl <> 0) and IsWindowEnabled(hWndCtl) then
+          PostMessage(Wnd, WM_COMMAND, MakeWParam(idOk, BN_CLICKED), Windows.LPARAM(hWndCtl));
+      end;
+    WM_NCDESTROY:
+      begin
+        Result := CallDefWndProc;
+        RemoveProp(Wnd, MakeIntAtom(CompWndProcPtrAtom));
+        Exit;
+      end;
+   end;
+   Result := CallDefWndProc;
+end;
+
+procedure ExecuteFindDialogAllowingAltEnter(const FindDialog: TFindDialog);
+begin
+  var DoHook := FindDialog.Handle = 0;
+  FindDialog.Execute;
+  if DoHook then begin
+    SetProp(FindDialog.Handle, MakeIntAtom(CompWndProcPtrAtom), GetWindowLong(FindDialog.Handle, GWL_WNDPROC));
+    SetWindowLong(FindDialog.Handle, GWL_WNDPROC, IntPtr(@FindReplaceWndProc));
+  end;
+end;
+
 procedure TCompileForm.EFindClick(Sender: TObject);
 begin
   ReplaceDialog.CloseDialog;
@@ -3212,7 +3251,7 @@ begin
     FindDialog.Options := FindDialog.Options + [frDown]
   else
     FindDialog.Options := FindDialog.Options - [frDown];
-  FindDialog.Execute;
+  ExecuteFindDialogAllowingAltEnter(FindDialog);
 end;
 
 procedure TCompileForm.EFindInFilesClick(Sender: TObject);
@@ -3266,11 +3305,16 @@ end;
 procedure TCompileForm.FindDialogFind(Sender: TObject);
 begin
   { This event handler is shared between FindDialog & ReplaceDialog }
-  
+
   { Save a copy of the current text so that InitializeFindText doesn't
     mess up the operation of Edit | Find Next }
   StoreLastFindOptions(Sender);
-  FindNext;
+  if GetKeyState(VK_MENU) < 0 then begin
+    { Alt+Enter was used to close the dialog }
+    (Sender as TFindDialog).CloseDialog;
+    ESelectAllFindMatchesClick(Self);
+  end else
+    FindNext;
 end;
 
 procedure TCompileForm.FindInFilesDialogFind(Sender: TObject);
@@ -3372,7 +3416,7 @@ begin
     InitializeFindText(ReplaceDialog);
     ReplaceDialog.ReplaceText := FLastReplaceText;
   end;
-  ReplaceDialog.Execute;
+  ExecuteFindDialogAllowingAltEnter(ReplaceDialog);
 end;
 
 procedure TCompileForm.ReplaceDialogReplace(Sender: TObject);
@@ -6888,6 +6932,9 @@ begin
   Result := MulDiv(XY, 96, CurrentPPI);
 end;
 
+var
+  AtomText: array[0..31] of Char;
+
 initialization
   InitThemeLibrary;
   InitHtmlHelpLibrary;
@@ -6895,6 +6942,9 @@ initialization
   if DefFontData.Name = 'MS Sans Serif' then
     DefFontData.Name := AnsiString(GetPreferredUIFont);
   CoInitialize(nil);
+  CompWndProcPtrAtom := GlobalAddAtom(StrFmt(AtomText,
+    'CompWndProcPtr%.8X%.8X', [HInstance, GetCurrentThreadID]));
 finalization
   CoUninitialize();
+  if CompWndProcPtrAtom <> 0 then GlobalDeleteAtom(CompWndProcPtrAtom);
 end.
