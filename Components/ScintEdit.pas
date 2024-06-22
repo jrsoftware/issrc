@@ -138,7 +138,9 @@ type
     function GetLineEndingString: TScintRawString;
     function GetLineHeight: Integer;
     function GetLinesInWindow: Integer;
+    function GetMainSelText: String;
     function GetModified: Boolean;
+    function GetRawMainSelText: TScintRawString;
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
@@ -165,6 +167,8 @@ type
     procedure SetIndentationGuides(const Value: TScintIndentationGuides);
     procedure SetLineNumbers(const Value: Boolean);
     procedure SetMainSelection(const Value: Integer);
+    procedure SetMainSelText(const Value: String);
+    procedure SetRawMainSelText(const Value: TScintRawString);
     procedure SetRawSelText(const Value: TScintRawString);
     procedure SetRawText(const Value: TScintRawString);
     procedure SetReadOnly(const Value: Boolean);
@@ -281,9 +285,10 @@ type
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
     class function KeyCodeAndShiftToKeyDefinition(const KeyCode: TScintKeyCode;
       Shift: TShiftState): TScintKeyDefinition;
+    function MainSelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     class function KeyToKeyCode(const Key: AnsiChar): TScintKeyCode;
     procedure PasteFromClipboard;
-    function RawSelTextEquals(const S: TScintRawString; const MatchCase: Boolean): Boolean;
+    function RawMainSelTextEquals(const S: TScintRawString; const MatchCase: Boolean): Boolean;
     class function RawStringIsBlank(const S: TScintRawString): Boolean;
     procedure Redo;
     procedure RemoveAdditionalSelections;
@@ -298,7 +303,6 @@ type
     procedure SelectNextOccurrence(const Options: TScintFindOptions);
     function SelEmpty: Boolean;
     function SelNotEmpty(out Sel: TScintRange): Boolean;
-    function SelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     procedure SetAutoCompleteFillupChars(const FillupChars: AnsiString);
     procedure SetAutoCompleteSeparator(const C: AnsiChar);
     procedure SetAutoCompleteSelectedItem(const S: TScintRawString);
@@ -339,7 +343,9 @@ type
     property Lines: TScintEditStrings read FLines;
     property LinesInWindow: Integer read GetLinesInWindow;
     property MainSelection: Integer read GetMainSelection write SetMainSelection;
+    property MainSelText: String read GetMainSelText write SetMainSelText;
     property Modified: Boolean read GetModified;
+    property RawMainSelText: TScintRawString read GetRawMainSelText write SetRawMainSelText;
     property RawSelText: TScintRawString read GetRawSelText write SetRawSelText;
     property RawText: TScintRawString read GetRawText write SetRawText;
     property RawTextLength: Integer read GetRawTextLength;
@@ -864,6 +870,11 @@ begin
     CallWindowProc(DefWndProc, Handle, Message.Msg, Message.WParam, Message.LParam);
 end;
 
+function TScintEdit.GetMainSelText: String;
+begin
+  Result := ConvertRawStringToString(GetRawMainSelText);
+end;
+
 function TScintEdit.GetAutoCompleteActive: Boolean;
 begin
   Result := Call(SCI_AUTOCACTIVE, 0, 0) <> 0;
@@ -1061,7 +1072,19 @@ begin
   Result := Call(SCI_BRACEMATCH, Pos, 0);
 end;
 
+function TScintEdit.GetRawMainSelText: TScintRawString;
+begin
+  var MainSel := MainSelection;
+  var CaretPos := SelectionCaretPosition[MainSel];
+  var AnchorPos := SelectionAnchorPosition[MainSel];
+  if AnchorPos < CaretPos then
+    Result := GetRawTextRange(AnchorPos, CaretPos)
+  else
+    Result := GetRawTextRange(CaretPos, AnchorPos);
+end;
+
 function TScintEdit.GetRawSelText: TScintRawString;
+{ Gets the combined text of *all* selections }
 var
   Len: Integer;
   S: TScintRawString;
@@ -1250,6 +1273,12 @@ begin
   Result := Ord(UpCase(Key));
 end;
 
+function TScintEdit.MainSelTextEquals(const S: String;
+  const MatchCase: Boolean): Boolean;
+begin
+  Result := RawMainSelTextEquals(ConvertStringToRawString(S), MatchCase);
+end;
+
 procedure TScintEdit.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
@@ -1319,7 +1348,7 @@ begin
   Call(SCI_PASTE, 0, 0);
 end;
 
-function TScintEdit.RawSelTextEquals(const S: TScintRawString;
+function TScintEdit.RawMainSelTextEquals(const S: TScintRawString;
   const MatchCase: Boolean): Boolean;
 begin
   Call(SCI_TARGETFROMSELECTION, 0, 0);
@@ -1436,12 +1465,6 @@ end;
 procedure TScintEdit.SelectAll;
 begin
   Call(SCI_SELECTALL, 0, 0);
-end;
-
-function TScintEdit.SelTextEquals(const S: String;
-  const MatchCase: Boolean): Boolean;
-begin
-  Result := RawSelTextEquals(ConvertStringToRawString(S), MatchCase);
 end;
 
 procedure TScintEdit.SetAcceptDroppedFiles(const Value: Boolean);
@@ -1642,7 +1665,19 @@ begin
   Call(SCI_SETMAINSELECTION, Value, 0);
 end;
 
+procedure TScintEdit.SetMainSelText(const Value: String);
+begin
+  SetRawMainSelText(ConvertStringToRawString(Value));
+end;
+
+procedure TScintEdit.SetRawMainSelText(const Value: TScintRawString);
+begin
+  Call(SCI_TARGETFROMSELECTION, 0, 0);
+  Call(SCI_REPLACETARGETMINIMAL, Length(Value), LPARAM(PAnsiChar(Value)));
+end;
+
 procedure TScintEdit.SetRawSelText(const Value: TScintRawString);
+{ Replaces the main selection's text and *clears* additional selections }
 begin
   Call(SCI_REPLACESEL, 0, LPARAM(PAnsiChar(Value)));
   ChooseCaretX;
