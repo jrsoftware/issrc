@@ -3231,6 +3231,12 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Duplicate selection or copy lines down.</td><td>Ctrl+D</td><td>Shift+Alt+Down</td>
 </tr>
 <tr>
+  <td>Lowercase lines.</td><td>Ctrl+U</td>
+</tr>
+<tr>
+  <td>Uppercase lines.</td><td>Ctrl+Shift+U</td>
+</tr>
+<tr>
   <td>&nbsp;</td>
 </tr>
 <tr>
