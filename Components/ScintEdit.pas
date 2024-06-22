@@ -94,6 +94,7 @@ type
     FAcceptDroppedFiles: Boolean;
     FAutoCompleteFontName: String;
     FAutoCompleteFontSize: Integer;
+    FAutoCompleteStyleOffset: Integer;
     FChangeHistory: TScintChangeHistory;
     FCodePage: Integer;
     FDirectPtr: Pointer;
@@ -2140,15 +2141,21 @@ begin
     SetStyleAttrFromStyler(STYLE_LINENUMBER);
   end;
 
-  if AutoCompleteFontName <> '' then
-    DefaultAttr.FontName := AutoCompleteFontName;
-  if AutoCompleteFontSize > 0 then
+  if (AutoCompleteFontName <> '') or (AutoCompleteFontSize > 0) then begin
+    if AutoCompleteFontName <> '' then
+      DefaultAttr.FontName := AutoCompleteFontName;
+    if AutoCompleteFontSize > 0 then
     DefaultAttr.FontSize := AutoCompleteFontSize;
-  DefaultAttr.FontStyle := [];
-  { Note: Scintilla doesn't actually use the colors set here }
-  DefaultAttr.ForeColor := clWindowText;
-  DefaultAttr.BackColor := clWindow;
-  SetStyleAttr(STYLE_AUTOCOMPLETION, DefaultAttr, True);
+    DefaultAttr.FontStyle := [];
+    { Note: Scintilla doesn't actually use the colors set here }
+    DefaultAttr.ForeColor := clWindowText;
+    DefaultAttr.BackColor := clWindow;
+    if FAutoCompleteStyleOffset = 0 then
+      FAutoCompleteStyleOffset := Call(SCI_ALLOCATEEXTENDEDSTYLES, 1, 0);
+    SetStyleAttr(STYLE_DEFAULT + FAutoCompleteStyleOffset, DefaultAttr, True);
+    Call(SCI_AUTOCSETSTYLEOFFSET, FAutoCompleteStyleOffset, 0);
+  end else
+    Call(SCI_AUTOCSETSTYLEOFFSET, 0, 0);
 end;
 
 function TScintEdit.WordAtCursor: String;
