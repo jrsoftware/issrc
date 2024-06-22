@@ -3240,6 +3240,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Select all occurrences of the current word or selected text.</td><td>Shift+Alt+;</td><td>Ctrl+Shift+L</td>
 </tr>
 <tr>
+  <td>Select all matches of the last find text.</td><td>Alt+Enter</td>
+</tr>
+<tr>
   <td>Perform rectangular block selection (mouse).</td><td>Alt+Drag</td>
 </tr>
 <tr>

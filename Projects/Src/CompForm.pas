@@ -237,6 +237,8 @@ type
     RDeleteBreakPoints2: TMenuItem;
     N24: TMenuItem;
     VWordWrap: TMenuItem;
+    N25: TMenuItem;
+    ESelectAllFindMatches: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -355,6 +357,7 @@ type
     procedure BreakPointsPopupMenuClick(Sender: TObject);
     procedure FClearRecentClick(Sender: TObject);
     procedure VWordWrapClick(Sender: TObject);
+    procedure ESelectAllFindMatchesClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -1146,43 +1149,11 @@ begin
       Key := 0;
     case ComplexCommand of
       ccSelectNextOccurrence:
-        if ESelectNextOccurrence.Enabled then
-          ESelectNextOccurrenceClick(Self);
+        ESelectNextOccurrenceClick(Self);
       ccSelectAllOccurrences:
-        if ESelectAllOccurrences.Enabled then
-          ESelectAllOccurrencesClick(Self);
+        ESelectAllOccurrencesClick(Self);
       ccSelectAllFindMatches:
-        begin
-          if FLastFindText <> ''  then begin
-            var StartPos := 0;
-            var EndPos := FActiveMemo.RawTextLength;
-            var FoundRange: TScintRange;
-            var ClosestSelection := -1;
-            var ClosestSelectionDistance := 0; { Silence compiler }
-            var CaretPos := FActiveMemo.CaretPosition;
-
-            while (StartPos < EndPos) and
-                  FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
-                    FindOptionsToSearchOptions(FLastFindOptions), FoundRange) do begin
-              if StartPos = 0 then
-                FActiveMemo.SetSingleSelection(FoundRange.EndPos, FoundRange.StartPos)
-              else
-                FActiveMemo.AddSelection(FoundRange.EndPos, FoundRange.StartPos);
-
-              var Distance := Abs(CaretPos-FoundRange.EndPos);
-              if (ClosestSelection = -1) or (Distance < ClosestSelectionDistance) then begin
-                ClosestSelection := FActiveMemo.SelectionCount-1;
-                ClosestSelectionDistance := Distance;
-              end;
-
-              StartPos := FoundRange.EndPos;
-            end;
-            if ClosestSelection <> -1 then begin
-              FActiveMemo.MainSelection := ClosestSelection;
-              FActiveMemo.ScrollCaretIntoView;
-            end;
-          end;
-        end;
+        ESelectAllFindMatchesClick(Self);
       ccSimplifySelection:
         begin
           { The built in Esc (SCI_CANCEL) simply drops all additional selections
@@ -2136,6 +2107,8 @@ begin
       SetFakeShortCut(ESelectNextOccurrence, ShortCut);
       ShortCut := FMainMemo.GetComplexCommandShortCut(ccSelectAllOccurrences);
       SetFakeShortCut(ESelectAllOccurrences, ShortCut);
+      ShortCut := FMainMemo.GetComplexCommandShortCut(ccSelectAllFindMatches);
+      SetFakeShortCut(ESelectAllFindMatches, ShortCut);
     end;
 
     Memo.UseFolding := FOptions.UseFolding;
@@ -2626,6 +2599,7 @@ begin
   ESelectAll.Enabled := MemoHasFocus;
   ESelectNextOccurrence.Enabled := MemoHasFocus;
   ESelectAllOccurrences.Enabled := MemoHasFocus;
+  ESelectAllFindMatches.Enabled := MemoHasFocus and (FLastFindText <> '');
   EFind.Enabled := MemoHasFocus;
   EFindNext.Enabled := MemoHasFocus;
   EFindPrevious.Enabled := MemoHasFocus;
@@ -2674,6 +2648,7 @@ end;
 
 procedure TCompileForm.ESelectAllOccurrencesClick(Sender: TObject);
 begin
+  { Might be called even if ESelectAllOccurrences.Enabled would be False in EMenuClick }
   var Options := GetSelTextOccurrenceFindOptions;
   if FActiveMemo.SelEmpty then begin
     var Range := FActiveMemo.WordAtCursorRange;
@@ -2687,11 +2662,47 @@ end;
 
 procedure TCompileForm.ESelectNextOccurrenceClick(Sender: TObject);
 begin
+  { Might be called even if ESelectNextOccurrence.Enabled would be False in EMenuClick }
+
   { Currently this always uses GetWordOccurrenceFindOptions but ideally it would
     know whether this is the 'first' SelectNext or not. Then, if first it would
     do what SelectAll does to choose a FindOptions. And if next it would reuse
     that. This is what VSCode does. }
   FActiveMemo.SelectNextOccurrence(GetWordOccurrenceFindOptions);
+end;
+
+procedure TCompileForm.ESelectAllFindMatchesClick(Sender: TObject);
+begin
+  { Might be called even if ESelectAllFindMatches.Enabled would be False in EMenuClick }
+  if FLastFindText <> ''  then begin
+    var StartPos := 0;
+    var EndPos := FActiveMemo.RawTextLength;
+    var FoundRange: TScintRange;
+    var ClosestSelection := -1;
+    var ClosestSelectionDistance := 0; { Silence compiler }
+    var CaretPos := FActiveMemo.CaretPosition;
+
+    while (StartPos < EndPos) and
+          FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
+            FindOptionsToSearchOptions(FLastFindOptions), FoundRange) do begin
+      if StartPos = 0 then
+        FActiveMemo.SetSingleSelection(FoundRange.EndPos, FoundRange.StartPos)
+      else
+        FActiveMemo.AddSelection(FoundRange.EndPos, FoundRange.StartPos);
+
+      var Distance := Abs(CaretPos-FoundRange.EndPos);
+      if (ClosestSelection = -1) or (Distance < ClosestSelectionDistance) then begin
+        ClosestSelection := FActiveMemo.SelectionCount-1;
+        ClosestSelectionDistance := Distance;
+      end;
+
+      StartPos := FoundRange.EndPos;
+    end;
+    if ClosestSelection <> -1 then begin
+      FActiveMemo.MainSelection := ClosestSelection;
+      FActiveMemo.ScrollCaretIntoView;
+    end;
+  end;
 end;
 
 procedure TCompileForm.ECompleteWordClick(Sender: TObject);

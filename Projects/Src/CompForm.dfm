@@ -462,6 +462,9 @@ object CompileForm: TCompileForm
         Caption = 'De&lete'
         OnClick = EDeleteClick
       end
+      object N25: TMenuItem
+        Caption = '-'
+      end
       object ESelectAll: TMenuItem
         Caption = 'Select &All'
         OnClick = ESelectAllClick
@@ -473,6 +476,10 @@ object CompileForm: TCompileForm
       object ESelectAllOccurrences: TMenuItem
         Caption = '&Select All Occurrences'
         OnClick = ESelectAllOccurrencesClick
+      end
+      object ESelectAllFindMatches: TMenuItem
+        Caption = 'Select All Find &Matches'
+        OnClick = ESelectAllFindMatchesClick
       end
       object N4: TMenuItem
         Caption = '-'
