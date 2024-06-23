@@ -3228,7 +3228,10 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Move selected lines down.</td><td>Alt+Down</td>
 </tr>
 <tr>
-  <td>Duplicate selection or copy lines down.</td><td>Ctrl+D</td><td>Shift+Alt+Down</td>
+  <td>Duplicate selection or copy lines down.</td><td>Ctrl+D</td><td>-</td>
+</tr>
+<tr>
+  <td>Copy line down.</td><td>-</td><td>Shift+Alt+Down</td>
 </tr>
 <tr>
   <td>Lowercase lines.</td><td>Ctrl+U</td>
@@ -3282,7 +3285,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Perform rectangular block selection (mouse).</td><td>Alt+Drag</td>
+  <td>Perform rectangular block selection (mouse). Shift extends selection.</td><td>Alt+Drag</td>
 </tr>
 <tr>
   <td>Perform rectangular block selection (keyboard).</td><td>Shift+Alt+Arrow</td><td>Ctrl+Shift+Alt+Arrow</td>
@@ -3304,6 +3307,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 <tr>
   <td>Unfold line.</td><td>Ctrl+Shift+]</td>
+</tr>
+<tr>
+  <td>Fold or unfold all.</td><td>Ctrl+Shift+Click in folding margin</td>
 </tr>
 <tr>
   <td>&nbsp;</td>

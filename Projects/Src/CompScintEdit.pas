@@ -370,9 +370,16 @@ begin
       end;
       { Now that Shift+Alt+Down has been freed we can use it for line duplication
         which frees Ctrl+D . There's no clear for this one in the else
-        because it's a member of RectExtendKeyCodeCommands already. }
-      AssignCmdKey(SCK_DOWN, [ssShift, ssAlt], SCI_SELECTIONDUPLICATE);
+        because there it's a member of RectExtendKeyCodeCommands already. }
+      AssignCmdKey(SCK_DOWN, [ssShift, ssAlt], SCI_LINEDUPLICATE);
       ClearCmdKey('D', [ssCtrl]);
+      { Shift+Alt+Up should copy line up but there's no SCI command for that
+        atm. Shift+Alt+Left/Right should shrink/expand selecting for which
+        there's also no SCI command atm but CHARLEFT/RIGHTEXTEND is close enough
+        so assign those. There's no clear for these in the else because there
+        they're a member of RectExtendKeyCodeCommands already. }
+      AssignCmdKey(SCK_LEFT, [ssShift, ssAlt], SCI_CHARLEFTEXTEND);
+      AssignCmdKey(SCK_RIGHT, [ssShift, ssAlt], SCI_CHARRIGHTEXTEND);
       { Use Ctrl+Shift+K for line deletion which frees Ctrl+Shift+L }
       AssignCmdKey('K', [ssShift, ssCtrl], SCI_LINEDELETE);
       ClearCmdKey('L', [ssShift, ssCtrl]);
