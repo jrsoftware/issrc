@@ -3255,16 +3255,16 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Select all.</td><td>Ctrl+A or Ctrl+Click on line number</td>
 </tr>
 <tr>
-  <td>Add additional caret or selection.</td><td>Ctrl+Click or Ctrl+Drag</td>
+  <td>Add additional caret or selection.</td><td>Ctrl+Click or Ctrl+Drag</td><td>Alt+Click or Alt+Drag</td>
 </tr>
 <tr>
-  <td>Remove a selection by clicking it.</td><td>Ctrl+Click</td>
+  <td>Remove a selection by clicking it.</td><td>Ctrl+Click</td><td>Alt+Click</td>
 </tr>
 <tr>
-  <td>Add word as additional selection.</td><td>Ctrl+DoubleClick</td>
+  <td>Add word as additional selection.</td><td>Ctrl+DoubleClick</td><td>Alt+DoubleClick</td>
 </tr>
 <tr>
-  <td>Add line as additional selection.</td><td>Ctrl+TripleClick</td>
+  <td>Add line as additional selection.</td><td>Ctrl+TripleClick</td><td>Alt+TripleClick</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
@@ -3285,7 +3285,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Perform rectangular block selection (mouse). Shift extends selection.</td><td>Alt+Drag</td>
+  <td>Perform rectangular block selection (mouse). Shift extends selection.</td><td>Alt+Drag</td><td>Shift+Alt+Drag</td>
 </tr>
 <tr>
   <td>Perform rectangular block selection (keyboard).</td><td>Shift+Alt+Arrow</td><td>Ctrl+Shift+Alt+Arrow</td>

@@ -404,6 +404,8 @@ begin
     end;
 
     UpdateComplexCommands;
+
+    Call(SCI_SETMOUSEVSCODE, Ord(FKeyMappingType = kmtVSCode), 0);
   end;
 end;
 
