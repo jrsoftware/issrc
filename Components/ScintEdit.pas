@@ -94,7 +94,7 @@ type
     FAcceptDroppedFiles: Boolean;
     FAutoCompleteFontName: String;
     FAutoCompleteFontSize: Integer;
-    FAutoCompleteStyleOffset: Integer;
+    FAutoCompleteStyle: Integer;
     FChangeHistory: TScintChangeHistory;
     FCodePage: Integer;
     FDirectPtr: Pointer;
@@ -2185,12 +2185,12 @@ begin
     { Note: Scintilla doesn't actually use the colors set here }
     DefaultAttr.ForeColor := clWindowText;
     DefaultAttr.BackColor := clWindow;
-    if FAutoCompleteStyleOffset = 0 then
-      FAutoCompleteStyleOffset := Call(SCI_ALLOCATEEXTENDEDSTYLES, 1, 0);
-    SetStyleAttr(STYLE_DEFAULT + FAutoCompleteStyleOffset, DefaultAttr, True);
-    Call(SCI_AUTOCSETSTYLEOFFSET, FAutoCompleteStyleOffset, 0);
+    if FAutoCompleteStyle = 0 then
+      FAutoCompleteStyle := Call(SCI_ALLOCATEEXTENDEDSTYLES, 1, 0);
+    SetStyleAttr(FAutoCompleteStyle, DefaultAttr, True);
+    Call(SCI_AUTOCSETSTYLE, FAutoCompleteStyle, 0);
   end else
-    Call(SCI_AUTOCSETSTYLEOFFSET, 0, 0);
+    Call(SCI_AUTOCSETSTYLE, 0, 0);
 end;
 
 function TScintEdit.WordAtCursor: String;
