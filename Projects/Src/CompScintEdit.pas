@@ -345,67 +345,9 @@ type
 begin
   if FKeyMappingType <> Value then begin
     FKeyMappingType := Value;
-
-    { All comments below refer to VSCode. Also note the UpdateComplexCommands
-      call at the end. }
-
-    var RectExtendKeyCodeCommands := [
-      KCC(SCK_UP, SCI_LINEUPRECTEXTEND),
-      KCC(SCK_DOWN, SCI_LINEDOWNRECTEXTEND),
-      KCC(SCK_LEFT, SCI_CHARLEFTRECTEXTEND),
-      KCC(SCK_RIGHT, SCI_CHARRIGHTRECTEXTEND),
-      KCC(SCK_HOME, SCI_VCHOMERECTEXTEND),
-      KCC(SCK_END, SCI_LINEENDRECTEXTEND),
-      KCC(SCK_PRIOR, SCI_PAGEUPRECTEXTEND),
-      KCC(SCK_NEXT, SCI_PAGEDOWNRECTEXTEND)];
-
-    var DesiredRectExtendShiftState := GetRectExtendShiftState(True);
-    var UndesiredRectExtendShiftState := GetRectExtendShiftState(False);
-
-    if FKeyMappingType = kmtVSCode then begin
-      { First change Shift+Alt+Arrow to Ctrl+Shift+Alt+Arrow }
-      for var RectExtendKeyCodeCommand in RectExtendKeyCodeCommands do begin
-        AssignCmdKey(RectExtendKeyCodeCommand.Key, DesiredRectExtendShiftState, RectExtendKeyCodeCommand.Value);
-        ClearCmdKey(RectExtendKeyCodeCommand.Key, UndesiredRectExtendShiftState);
-      end;
-      { Now that Shift+Alt+Down has been freed we can use it for line duplication
-        which frees Ctrl+D . There's no clear for this one in the else
-        because there it's a member of RectExtendKeyCodeCommands already. }
-      AssignCmdKey(SCK_DOWN, [ssShift, ssAlt], SCI_LINEDUPLICATE);
-      ClearCmdKey('D', [ssCtrl]);
-      { Shift+Alt+Up should copy line up but there's no SCI command for that
-        atm. Shift+Alt+Left/Right should shrink/expand selecting for which
-        there's also no SCI command atm but CHARLEFT/RIGHTEXTEND is close enough
-        so assign those. There's no clear for these in the else because there
-        they're a member of RectExtendKeyCodeCommands already. }
-      AssignCmdKey(SCK_LEFT, [ssShift, ssAlt], SCI_CHARLEFTEXTEND);
-      AssignCmdKey(SCK_RIGHT, [ssShift, ssAlt], SCI_CHARRIGHTEXTEND);
-      { Use Ctrl+Shift+K for line deletion which frees Ctrl+Shift+L }
-      AssignCmdKey('K', [ssShift, ssCtrl], SCI_LINEDELETE);
-      ClearCmdKey('L', [ssShift, ssCtrl]);
-      { Ctrl+] and Ctrl+[ should indent and unident lines }
-      AssignCmdKey(']', [ssCtrl], SCI_LINETAB);
-      AssignCmdKey('[', [ssCtrl], SCI_LINEBACKTAB);
-      { Ctrl+Shift+] and Ctrl+Shift+[ should do nothing }
-      ClearCmdKey(']', [ssCtrl, ssShift]);
-      ClearCmdKey('[', [ssCtrl, ssShift]);
-    end else begin
-      for var RectExtendKeyCodeCommand in RectExtendKeyCodeCommands do begin
-        ClearCmdKey(RectExtendKeyCodeCommand.Key, UndesiredRectExtendShiftState);
-        AssignCmdKey(RectExtendKeyCodeCommand.Key, DesiredRectExtendShiftState, RectExtendKeyCodeCommand.Value);
-      end;
-      AssignCmdKey('D', [ssCtrl], SCI_SELECTIONDUPLICATE);
-      ClearCmdKey('K', [ssShift, ssCtrl]);
-      AssignCmdKey('L', [ssShift, ssCtrl], SCI_LINEDELETE);
-      AssignCmdKey(']', [ssCtrl], SCI_PARADOWN);
-      AssignCmdKey('[', [ssCtrl], SCI_PARAUP);
-      AssignCmdKey(']', [ssCtrl, ssShift], SCI_PARADOWNEXTEND);
-      AssignCmdKey('[', [ssCtrl, ssShift], SCI_PARAUPEXTEND);
-    end;
-
-    UpdateComplexCommands;
-
+    Call(SCI_RESETALLCMDKEYS, Ord(FKeyMappingType = kmtVSCode), 0);
     Call(SCI_SETMOUSEVSCODE, Ord(FKeyMappingType = kmtVSCode), 0);
+    UpdateComplexCommands;
   end;
 end;
 
