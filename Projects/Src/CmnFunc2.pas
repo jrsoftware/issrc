@@ -48,13 +48,13 @@ type
     FLogProcData: NativeInt;
     FReadBuffer: AnsiString;
     FNextLineIsFirstLine: Boolean;
+    FLastErrorMessage: String;
     procedure CloseAndClearHandle(var Handle: THandle);
     procedure LogErrorFmt(const S: String; const Args: array of const);
   public
     constructor Create(const ALogProc: TLogProc; const ALogProcData: NativeInt);
     destructor Destroy; override;
-    procedure UpdateStartupInfo(var StartupInfo: TStartupInfo;
-      var InheritHandles: Boolean);
+    procedure UpdateStartupInfo(var StartupInfo: TStartupInfo);
     procedure NotifyCreateProcessDone;
     procedure Read(const LastRead: Boolean);
     property MaxTotalBytesToRead: Cardinal read FMaxTotalBytesToRead write FMaxTotalBytesToRead;
@@ -1615,24 +1615,29 @@ begin
   var NulDevice := CreateFile('\\.\NUL', GENERIC_READ,
     FILE_SHARE_READ or FILE_SHARE_WRITE, @SecurityAttributes,
     OPEN_EXISTING, 0, 0);
-  if NulDevice = INVALID_HANDLE_VALUE then
-    LogErrorFmt('CreateFile failed (%d).', [GetLastError])
-  else
-    FStdInNulDevice := NulDevice;
-
-  var PipeRead, PipeWrite: THandle;
-  if not CreatePipe(PipeRead, PipeWrite, @SecurityAttributes, 0) then
-    LogErrorFmt('CreatePipe failed (%d).', [GetLastError])
-  else begin
-    FStdOutPipeRead := PipeRead;
-    FStdOutPipeWrite := PipeWrite;
-    if not SetHandleInformation(FStdOutPipeRead, HANDLE_FLAG_INHERIT, 0) then
-      LogErrorFmt('SetHandleInformation failed (%d).', [GetLastError]);
+  if NulDevice = INVALID_HANDLE_VALUE then begin
+    LogErrorFmt('CreateFile failed (%d).', [GetLastError]);
+    Exit;
   end;
 
-  FCreatedHandles := (FStdInNulDevice <> 0) and (FStdOutPipeRead <> 0) and
-    (FStdOutPipeWrite <> 0);
-  FOKToRead := FCreatedHandles;
+  FStdInNulDevice := NulDevice;
+
+  var PipeRead, PipeWrite: THandle;
+  if not CreatePipe(PipeRead, PipeWrite, @SecurityAttributes, 0) then begin
+    LogErrorFmt('CreatePipe failed (%d).', [GetLastError]);
+    Exit;
+  end;
+
+  if not SetHandleInformation(PipeRead, HANDLE_FLAG_INHERIT, 0) then begin
+    LogErrorFmt('SetHandleInformation failed (%d).', [GetLastError]);
+    Exit;
+  end;
+
+  FStdOutPipeRead := PipeRead;
+  FStdOutPipeWrite := PipeWrite;
+
+  FCreatedHandles := True;
+  FOKToRead := True;
   FMaxTotalBytesToRead := 10*1024*1024;
 end;
 
@@ -1654,20 +1659,19 @@ end;
 
 procedure TCreateProcessOutputReader.LogErrorFmt(const S: String; const Args: array of const);
 begin
-  FLogProc(Format(S, Args), False, True, FLogProcData);
+  FLastErrorMessage := Format(S, Args);
+  FLogProc('OutputReader: ' + FLastErrorMessage, True, False, FLogProcData);
 end;
 
-procedure TCreateProcessOutputReader.UpdateStartupInfo(var StartupInfo: TStartupInfo;
-  var InheritHandles: Boolean);
+procedure TCreateProcessOutputReader.UpdateStartupInfo(var StartupInfo: TStartupInfo);
 begin
-  if FCreatedHandles then begin
-    StartupInfo.dwFlags := StartupInfo.dwFlags or STARTF_USESTDHANDLES;
-    StartupInfo.hStdInput := FStdInNulDevice;
-    StartupInfo.hStdOutput := FStdOutPipeWrite;
-    StartupInfo.hStdError := FStdOutPipeWrite;
-    InheritHandles := True;
-  end else
-    InheritHandles := False;
+  if not FCreatedHandles then
+    raise Exception.Create(Format('Output redirection error: %s', [FLastErrorMessage]));
+
+  StartupInfo.dwFlags := StartupInfo.dwFlags or STARTF_USESTDHANDLES;
+  StartupInfo.hStdInput := FStdInNulDevice;
+  StartupInfo.hStdOutput := FStdOutPipeWrite;
+  StartupInfo.hStdError := FStdOutPipeWrite;
 end;
 
 procedure TCreateProcessOutputReader.NotifyCreateProcessDone;
@@ -1704,7 +1708,7 @@ begin
     if not FOKToRead then begin
       var LastError := GetLastError;
       if LastError <> ERROR_BROKEN_PIPE then
-        LogErrorFmt('PeekNamedPipe failed (%d).', [GetLastError]);
+        LogErrorFmt('PeekNamedPipe failed (%d).', [LastError]);
     end else if TotalBytesAvail > 0 then begin
       { Don't read more than our read limit }
       if TotalBytesAvail > FMaxTotalBytesToRead - FTotalBytesRead then
