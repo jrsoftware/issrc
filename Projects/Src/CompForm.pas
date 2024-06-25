@@ -456,6 +456,7 @@ type
     FNavStacks: TCompScintEditNavStacks;
     FCurrentNavItem: TCompScintEditNavItem;
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
+    FBackNavButtonShortCut2, FForwardNavButtonShortCut2: TShortCut;
     FIgnoreTabSetClick: Boolean;
     FFirstTabSelectShortCut, FLastTabSelectShortCut: TShortCut;
     function AnyMemoHasBreakPoint: Boolean;
@@ -1074,12 +1075,14 @@ begin
   if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then begin
     Key := 0;
     BStopCompileClick(Self)
-  end else if (AShortCut = FBackNavButtonShortCut) and BackNavButton.Enabled then begin
+  end else if (AShortCut = FBackNavButtonShortCut) or
+              ((FBackNavButtonShortCut2 <> 0) and (AShortCut = FBackNavButtonShortCut2)) then begin
     Key := 0;
-    BackNavButtonClick(Self)
-  end else if (AShortCut = FForwardNavButtonShortCut) and ForwardNavButton.Enabled then begin
+    BackNavButtonClick(Self);
+  end else if (AShortCut = FForwardNavButtonShortCut) or
+              ((FForwardNavButtonShortCut2 <> 0) and (AShortCut = FForwardNavButtonShortCut2)) then begin
     Key := 0;
-    ForwardNavButtonClick(Self)
+    ForwardNavButtonClick(Self);
   end else if (AShortCut >= FFirstTabSelectShortCut) and (AShortCut <= FLastTabSelectShortCut) then begin
     Key := 0;
     if MemosTabSet.Visible then begin
@@ -1138,10 +1141,6 @@ begin
         HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
       end;
     end;
-  end else if ((Key = VK_RIGHT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssAlt])) and
-           (ShortCut(Key, Shift) <> FForwardNavButtonShortCut) then begin
-    InitiateAutoComplete(#0);
-    Key := 0;
   end else begin
     var AShortCut := ShortCut(Key, Shift);
     var ComplexCommand := FActiveMemo.GetComplexCommand(AShortCut);
@@ -5533,12 +5532,16 @@ begin
     kmtDelphi:
       begin
         FBackNavButtonShortCut := ShortCut(VK_LEFT, [ssAlt]);
+        FBackNavButtonShortCut2 := 0;
         FForwardNavButtonShortCut := ShortCut(VK_RIGHT, [ssAlt]);
+        FForwardNavButtonShortCut2 := 0;
       end;
     kmtVisualStudio:
       begin
         FBackNavButtonShortCut := ShortCut(VK_OEM_MINUS, [ssCtrl]);
+        FBackNavButtonShortCut2 := ShortCut(VK_LEFT, [ssAlt]);
         FForwardNavButtonShortCut := ShortCut(VK_OEM_MINUS, [ssCtrl, ssShift]);
+        FForwardNavButtonShortCut2 := ShortCut(VK_RIGHT, [ssAlt]);
       end;
   else
     raise Exception.Create('Unknown FOptions.KeyMappingType');
