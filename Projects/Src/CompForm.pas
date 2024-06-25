@@ -482,7 +482,7 @@ type
     function EvaluateConstant(const S: String; var Output: String): Integer;
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       var Output: String): Integer;
-    procedure FindNext;
+    procedure FindNext(const ReverseDirection: Boolean);
     function FindSetupDirectiveValue(const DirectiveName,
       DefaultValue: String): String; overload;
     function FindSetupDirectiveValue(const DirectiveName: String;
@@ -3270,16 +3270,19 @@ begin
       FLastFindOptions := FLastFindOptions + [frDown]
     else
       FLastFindOptions := FLastFindOptions - [frDown];
-    FindNext;
+    FindNext(False);
   end;
 end;
 
-procedure TCompileForm.FindNext;
+procedure TCompileForm.FindNext(const ReverseDirection: Boolean);
 var
   StartPos, EndPos: Integer;
   Range: TScintRange;
 begin
-  if frDown in FLastFindOptions then begin
+  var Down := frDown in FLastFindOptions;
+  if ReverseDirection then
+    Down := not Down;
+  if Down then begin
     StartPos := FActiveMemo.Selection.EndPos;
     EndPos := FActiveMemo.RawTextLength;
   end
@@ -3315,7 +3318,7 @@ begin
     (Sender as TFindDialog).CloseDialog;
     ESelectAllFindMatchesClick(Self); { Uses the copy made above }
   end else
-    FindNext;
+    FindNext(GetKeyState(VK_SHIFT) < 0);
 end;
 
 procedure TCompileForm.FindInFilesDialogFind(Sender: TObject);
@@ -3453,7 +3456,7 @@ begin
   else begin
     if FActiveMemo.MainSelTextEquals(FLastFindText, frMatchCase in FLastFindOptions) then
       FActiveMemo.MainSelText := FLastReplaceText;
-    FindNext;
+    FindNext(GetKeyState(VK_SHIFT) < 0);
   end;
 end;
 
