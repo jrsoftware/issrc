@@ -333,15 +333,6 @@ end;
 
 procedure TCompScintEdit.SetKeyMappingType(
   const Value: TCompScintKeyMappingType);
-
-type
-  TKeyCodeCommand = TPair<TScintKeyCode, TScintCommand>;
-
-  function KCC(const KeyCode: TScintKeyCode; const Command: TScintCommand): TKeyCodeCommand;
-  begin
-    Result := TKeyCodeCommand.Create(KeyCode, Command); { This is a record so no need to free }
-  end;
-
 begin
   if FKeyMappingType <> Value then begin
     FKeyMappingType := Value;
