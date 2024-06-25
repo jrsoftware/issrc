@@ -3253,7 +3253,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Select all.</td><td>Ctrl+A or Ctrl+Click on line number</td>
 </tr>
 <tr>
-  <td>Complete word.</td><td>Ctrl+Space or Ctrl+I or Alt+Right (the last only if the Delphi key map is not active)</td>
+  <td>Complete word.</td><td>Ctrl+Space or Ctrl+I</td>
 </tr>
 <tr>
   <td>Fillup complete word.</td><td>Tab or Enter or Space (for ISPP directives or Flags and Type parameters) or \ (for constants) or : (for constants and section parameters) or ] (for sections) or = (for section directives).</td>
