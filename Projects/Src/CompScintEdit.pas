@@ -83,7 +83,7 @@ type
       FIndicatorCount: array[TCompScintIndicatorNumber] of Integer;
       FIndicatorHash: array[TCompScintIndicatorNumber] of String;
       procedure AddComplexCommand(const ShortCut: TShortCut;
-        Command: TCompScintComplexCommand);
+        Command: TCompScintComplexCommand; const AlternativeShortCut: Boolean = False);
       procedure SetUseFolding(const Value: Boolean);
       procedure SetKeyMappingType(const Value: TCompScintKeyMappingType);
       procedure UpdateComplexCommands;
@@ -301,12 +301,13 @@ begin
 end;
 
 procedure TCompScintEdit.AddComplexCommand(const ShortCut: TShortCut;
-  Command: TCompScintComplexCommand);
+  Command: TCompScintComplexCommand; const AlternativeShortCut: Boolean);
 begin
   if Command = ccNone then
     raise Exception.Create('Command = ccNone');
   FComplexCommands.Add(ShortCut, Command);
-  FComplexCommandsReversed.Add(Command, ShortCut);
+  if not AlternativeShortCut then
+    FComplexCommandsReversed.Add(Command, ShortCut);
 end;
 
 function TCompScintEdit.GetComplexCommand(
@@ -351,6 +352,7 @@ begin
     { Use freed Ctrl+D and Ctrl+Shift+L }
     AddComplexCommand(ShortCut(KeyToKeyCode('D'), [ssCtrl]), ccSelectNextOccurrence);
     AddComplexCommand(ShortCut(KeyToKeyCode('L'), [ssShift, ssCtrl]), ccSelectAllOccurrences);
+    AddComplexCommand(ShortCut(VK_F2, [ssCtrl]), ccSelectAllOccurrences, True);
   end else begin
     AddComplexCommand(ShortCut(VK_OEM_PERIOD, [ssShift, ssAlt]), ccSelectNextOccurrence);
     AddComplexCommand(ShortCut(VK_OEM_1, [ssShift, ssAlt]), ccSelectAllOccurrences);
