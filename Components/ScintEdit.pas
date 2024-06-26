@@ -161,6 +161,7 @@ type
     procedure SetCaretColumn(const Value: Integer);
     procedure SetCaretLine(const Value: Integer);
     procedure SetCaretPosition(const Value: Integer);
+    procedure SetCaretPositionWithSelectFromAnchor(const Value: Integer);
     procedure SetCaretVirtualSpace(const Value: Integer);
     procedure SetChangeHistory(const Value: TScintChangeHistory);
     procedure SetFillSelectionToEdge(const Value: Boolean);
@@ -262,6 +263,7 @@ type
     function GetIndicatorAtPosition(const IndicatorNumber: TScintIndicatorNumber;
       const Pos: Integer): Boolean;
     function GetLineEndPosition(const Line: Integer): Integer;
+    function GetLineEndPositionWithEnding(const Line: Integer): Integer;
     function GetLineFromPosition(const Pos: Integer): Integer;
     function GetLineIndentation(const Line: Integer): Integer;
     function GetLineIndentPosition(const Line: Integer): Integer;
@@ -283,12 +285,14 @@ type
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
     function GetWordEndPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
     function GetWordStartPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
+    procedure InsertText(const Pos: Integer; const S: String);
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
     class function KeyCodeAndShiftToKeyDefinition(const KeyCode: TScintKeyCode;
       Shift: TShiftState): TScintKeyDefinition;
     function MainSelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     class function KeyToKeyCode(const Key: AnsiChar): TScintKeyCode;
     procedure PasteFromClipboard;
+    procedure RawInsertText(const Pos: Integer; const S: TScintRawString);
     function RawMainSelTextEquals(const S: TScintRawString; const MatchCase: Boolean): Boolean;
     class function RawStringIsBlank(const S: TScintRawString): Boolean;
     procedure Redo;
@@ -334,6 +338,7 @@ type
     property CaretColumnExpandedForTabs: Integer read GetCaretColumnExpandedForTabs;
     property CaretLine: Integer read GetCaretLine write SetCaretLine;
     property CaretPosition: Integer read GetCaretPosition write SetCaretPosition;
+    property CaretPositionWithSelectFromAnchor: Integer write SetCaretPositionWithSelectFromAnchor;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
     property EffectiveCodePage: Integer read FEffectiveCodePage;
     property FoldFlags: TScintFoldFlags write SetFoldFlags;
@@ -974,9 +979,17 @@ begin
 end;
 
 function TScintEdit.GetLineEndPosition(const Line: Integer): Integer;
+{ Returns the position at the end of the line, before any line end characters. }
 begin
   FLines.CheckIndexRange(Line);
   Result := Call(SCI_GETLINEENDPOSITION, Line, 0);
+end;
+
+function TScintEdit.GetLineEndPositionWithEnding(const Line: Integer): Integer;
+{ Returns the position at the end of the line, including any line end characters. }
+begin
+  Result := GetPositionFromLine(Line);
+  Inc(Result, Call(SCI_LINELENGTH, Line, 0));
 end;
 
 function TScintEdit.GetLineFromPosition(const Pos: Integer): Integer;
@@ -1262,6 +1275,11 @@ begin
     System.SetCodePage(RawByteString(S), FCodePage, False);
 end;
 
+procedure TScintEdit.InsertText(const Pos: Integer; const S: String);
+begin
+  RawInsertText(Pos, ConvertStringToRawString(S));
+end;
+
 function TScintEdit.IsPositionInViewVertically(const Pos: Integer): Boolean;
 var
   P: TPoint;
@@ -1360,6 +1378,12 @@ end;
 procedure TScintEdit.PasteFromClipboard;
 begin
   Call(SCI_PASTE, 0, 0);
+end;
+
+procedure TScintEdit.RawInsertText(const Pos: Integer;
+  const S: TScintRawString);
+begin
+  CallStr(SCI_INSERTTEXT, Pos, S);
 end;
 
 function TScintEdit.RawMainSelTextEquals(const S: TScintRawString;
@@ -1546,6 +1570,13 @@ procedure TScintEdit.SetCaretPosition(const Value: Integer);
 begin
   Call(SCI_GOTOPOS, Value, 0);
   ChooseCaretX;
+end;
+
+procedure TScintEdit.SetCaretPositionWithSelectFromAnchor(const Value: Integer);
+{ Sets the caret position and creates a selection between the anchor and the
+  caret position without scrolling the caret into view. }
+begin
+  Call(SCI_SETCURRENTPOS, Value, 0);
 end;
 
 procedure TScintEdit.SetCaretVirtualSpace(const Value: Integer);

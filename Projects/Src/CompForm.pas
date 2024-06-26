@@ -1112,6 +1112,19 @@ end;
 procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 
+  procedure SimplifySelection(const AMemo: TCompScintEdit);
+  begin
+    { The built in Esc (SCI_CANCEL) simply drops all additional selections
+      and does not empty the main selection, It doesn't matter if Esc is
+      pressed once or twice. Implement our own behaviour, same as VSCode.
+      Also see https://github.com/microsoft/vscode/issues/118835. }
+    if AMemo.SelectionCount > 1 then
+      AMemo.RemoveAdditionalSelections
+    else if not AMemo.SelEmpty then
+     AMemo.SetEmptySelection;
+    AMemo.ScrollCaretIntoView;
+  end;
+
   procedure ToggleLinesComment(const AMemo: TCompScintEdit);
   begin
     { Based on SciTE 5.50's SciTEBase::StartBlockComment }
@@ -1129,7 +1142,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
       Dec(SelEndLine);
     { We rely on the styler to identify [Code] section lines, but we
       may be searching into areas that haven't been styled yet }
-    AMemo.StyleNeeded(Selection.EndPos);
+    AMemo.StyleNeeded(AMemo.GetLineEndPositionWithEnding(SelEndLine));
     AMemo.BeginUndoAction;
     var LastLongCommentLength := 0;
     for var I := SelStartLine to SelEndLine do begin
@@ -1147,7 +1160,6 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
         Comment := ';';
       var LongComment := Comment + ' ';
       LastLongCommentLength := Length(LongComment);
-      var RawLongComment := AMemo.ConvertStringToRawString(LongComment);
       if LineBuf.StartsWith(Comment) then begin
         var CommentLength := Length(Comment);
         if LineBuf.StartsWith(LongComment) then begin
@@ -1164,7 +1176,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
       if I = SelStartLine then // is this the first selected line?
         Inc(Selection.StartPos, Length(LongComment));
       Inc(Selection.EndPos, Length(LongComment)); // every iteration
-      AMemo.CallStr(SCI_INSERTTEXT, LineIndent, RawLongComment);
+      AMemo.InsertText(LineIndent, LongComment);
     end;
     // after uncommenting selection may promote itself to the lines
     // before the first initially selected line;
@@ -1177,7 +1189,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
     if MoveCaret then begin
       // moving caret to the beginning of selected block
       AMemo.CaretPosition := Selection.EndPos;
-      AMemo.Call(SCI_SETCURRENTPOS, Selection.StartPos, 0);
+      AMemo.CaretPositionWithSelectFromAnchor := Selection.StartPos;
     end else
       AMemo.Selection := Selection;
     AMemo.EndUndoAction;
@@ -1216,33 +1228,24 @@ begin
   end else begin
     var AShortCut := ShortCut(Key, Shift);
     var ComplexCommand := FActiveMemo.GetComplexCommand(AShortCut);
-    if ComplexCommand <> ccNone then
+    if ComplexCommand <> ccNone then begin
       Key := 0;
-    case ComplexCommand of
-      ccSelectNextOccurrence:
-        ESelectNextOccurrenceClick(Self);
-      ccSelectAllOccurrences:
-        ESelectAllOccurrencesClick(Self);
-      ccSelectAllFindMatches:
-        ESelectAllFindMatchesClick(Self);
-      ccUnfoldLine, ccFoldLine:
-        FActiveMemo.FoldLine(FActiveMemo.CaretLine, ComplexCommand = ccFoldLine);
-      ccSimplifySelection:
-        begin
-          { The built in Esc (SCI_CANCEL) simply drops all additional selections
-            and does not empty the main selection, It doesn't matter if Esc is
-            pressed once or twice. Implement our own behaviour, same as VSCode.
-            Also see https://github.com/microsoft/vscode/issues/118835. }
-          if FActiveMemo.SelectionCount > 1 then
-            FActiveMemo.RemoveAdditionalSelections
-          else if not FActiveMemo.SelEmpty then
-            FActiveMemo.SetEmptySelection;
-          FActiveMemo.ScrollCaretIntoView;
-        end;
-      ccToggleLinesComment:
-        ToggleLinesComment(FActiveMemo);
-      else if ComplexCommand <> ccNone then
-        raise Exception.Create('Unknown ComplexCommand');
+      case ComplexCommand of
+        ccSelectNextOccurrence:
+          ESelectNextOccurrenceClick(Self);
+        ccSelectAllOccurrences:
+          ESelectAllOccurrencesClick(Self);
+        ccSelectAllFindMatches:
+          ESelectAllFindMatchesClick(Self);
+        ccUnfoldLine, ccFoldLine:
+          FActiveMemo.FoldLine(FActiveMemo.CaretLine, ComplexCommand = ccFoldLine);
+        ccSimplifySelection:
+          SimplifySelection(FActiveMemo);
+        ccToggleLinesComment:
+          ToggleLinesComment(FActiveMemo);
+        else
+          raise Exception.Create('Unknown ComplexCommand');
+      end;
     end;
   end;
 end;
