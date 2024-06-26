@@ -55,6 +55,8 @@ type
     ShowPreprocessorOutputCheck: TCheckBox;
     HighlightWordAtCursorOccurrencesCheck: TCheckBox;
     HighlightSelTextOccurrencesCheck: TCheckBox;
+    Label5: TNewStaticText;
+    MemoKeyMappingComboBox: TComboBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -76,9 +78,13 @@ procedure TOptionsForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
 
-  { Order must match KeyMappingType }
+  { Order must match CompFunc.TKeyMappingType }
   KeyMappingComboBox.Items.Add('Classic');
-  KeyMappingComboBox.Items.Add('Visual Studio');
+  KeyMappingComboBox.Items.Add('Visual Studio / Visual Studio Code');
+
+  { Order must match TCompScintKeyMappingType }
+  MemoKeyMappingComboBox.Items.Add('Classic / Visual Studio');
+  MemoKeyMappingComboBox.Items.Add('Visual Studio Code');
 
   { Order must match TThemeType }
   ThemeComboBox.Items.Add('Light');
